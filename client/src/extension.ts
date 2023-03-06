@@ -4,7 +4,7 @@
  * ------------------------------------------------------------------------------------------ */
 
 import * as path from "path";
-import { workspace, ExtensionContext } from "vscode";
+import { workspace, ExtensionContext, languages } from "vscode";
 
 import {
   LanguageClient,
@@ -25,6 +25,7 @@ export function activate(context: ExtensionContext) {
   // Otherwise the run options are used
   const serverOptions: ServerOptions = {
     run: { module: serverModule, transport: TransportKind.ipc },
+    
     debug: {
       module: serverModule,
       transport: TransportKind.ipc,
@@ -43,7 +44,7 @@ export function activate(context: ExtensionContext) {
 
   // Create the language client and start the client.
   client = new LanguageClient(
-    "lpcLanguageServer",
+    "lpc",
     "LPC Language Server",
     serverOptions,
     clientOptions
