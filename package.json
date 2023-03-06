@@ -1,0 +1,52 @@
+{
+  "name": "lpc-language-server",
+  "version": "0.0.1",
+  "description": "A language server for Lars Pensjö C (LPC)",
+  "main": "./client/out/extension",
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+		"compile": "tsc -b",
+		"watch": "tsc -b -w",
+		"lint": "eslint ./client/src ./server/src --ext .ts,.tsx",
+		"postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
+		"test": "sh ./scripts/e2e.sh"
+
+  },
+  "engines": {
+		"vscode": "^1.75.0"
+	},
+	"activationEvents": [
+		"onLanguage:lpc"
+	],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jlchmura/lpc-language-server"
+  },
+  "keywords": [
+    "LPC",
+    "language",
+    "server",
+    "Lars",
+    "Pensjö",
+    "C",
+    "MUD",
+    "LPMUD",
+    "LDMUD",
+    "VSCode"
+  ],
+  "author": "jlchmura",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jlchmura/lpc-language-server/issues"
+  },
+  "homepage": "https://github.com/jlchmura/lpc-language-server#readme",
+  "devDependencies": {
+		"@types/mocha": "^9.1.0",
+		"@types/node": "^16.11.7",
+		"@typescript-eslint/eslint-plugin": "^5.54.0",
+		"@typescript-eslint/parser": "^5.54.0",
+		"eslint": "^8.35.0",
+		"mocha": "^9.2.1",
+		"typescript": "^4.9.5"
+	}
+}
