@@ -12,11 +12,7 @@ import { FunctionDeclarationNode } from "./parser/nodeTypes";
 export function getFoldingRanges(
   document: TextDocument,
   maxRanges: number | undefined
-): FoldingRange[] {
-  const range = Range.create(
-    Position.create(0, 0),
-    Position.create(document.lineCount, 0)
-  );
+): FoldingRange[] {  
   let result: FoldingRange[] = [];
 
   const ast = ParseLPC(document.getText());

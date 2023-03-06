@@ -25,6 +25,7 @@ import {
   TextDocumentPositionParams,
 } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
+import { getDocumentSymbols } from "./documentSymbol";
 import { getFoldingRanges } from "./folding";
 import { LPCParser, ParseLPC } from "./parser";
 
@@ -63,6 +64,7 @@ export function startServer(connection: Connection) {
         completionProvider: {
           resolveProvider: true,
         },
+        documentSymbolProvider: true,
         foldingRangeProvider: false, // change to true to enable server-based folding
       },
     };
@@ -179,6 +181,14 @@ export function startServer(connection: Connection) {
       return getFoldingRanges(doc, foldingRangeLimit);
     }
     return null;
+  });
+
+  connection.onDocumentSymbol((documentSymbolParams, token) => {
+    const document = documents.get(documentSymbolParams.textDocument.uri);
+    if (document) {
+      return getDocumentSymbols(document);
+    }
+    return [];
   });
 
   connection.onDidChangeWatchedFiles((_change) => {
