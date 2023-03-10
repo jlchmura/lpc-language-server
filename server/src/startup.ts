@@ -1,3 +1,4 @@
+import { CharStreams, CommonTokenStream } from "antlr4ts";
 import {
   Connection,
   TextDocuments,
@@ -25,9 +26,15 @@ import {
   TextDocumentPositionParams,
 } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
+import { getSuggestions, getSuggestionsForParseTree } from "./completions";
 import { getDocumentSymbols } from "./documentSymbol";
 import { getFoldingRanges } from "./folding";
-import { LPCParser, ParseLPC } from "./parser";
+import { LPCNavigation } from "./navigation";
+import { ParseLPC } from "./parser";
+import { LPCLexer } from "./parser2/LPCLexer";
+import { LPCParser } from "./parser2/LPCParser";
+import { SymbolTableVisitor } from "./symbolTableVisitor";
+import { computeTokenPosition } from "./tokenposition";
 
 export function startServer(connection: Connection) {
   // Create a simple text document manager.
@@ -65,6 +72,7 @@ export function startServer(connection: Connection) {
           resolveProvider: true,
         },
         documentSymbolProvider: true,
+        definitionProvider: true,
         foldingRangeProvider: false, // change to true to enable server-based folding
       },
     };
@@ -191,6 +199,19 @@ export function startServer(connection: Connection) {
     return [];
   });
 
+  connection.onDefinition((definitionParams, token) => {
+    const document = documents.get(definitionParams.textDocument.uri);
+    if (document) {
+      const ast = ParseLPC(document.getText());
+      const nav = new LPCNavigation();
+      const loc = nav.findDefinition(document, definitionParams.position, ast);
+      if (loc) {
+        return [loc];
+      }
+    }
+    return [];
+  });
+
   connection.onDidChangeWatchedFiles((_change) => {
     // Monitored files have change in VSCode
     connection.console.log("We received an file change event");
@@ -199,21 +220,46 @@ export function startServer(connection: Connection) {
   // This handler provides the initial list of the completion items.
   connection.onCompletion(
     (_textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
-      // The pass parameter contains the position of the text document in
-      // which code complete got requested. For the example we ignore this
-      // info and always provide the same completion items.
-      return [
-        {
-          label: "TypeScript",
-          kind: CompletionItemKind.Text,
-          data: 1,
-        },
-        {
-          label: "JavaScript",
-          kind: CompletionItemKind.Text,
-          data: 2,
-        },
-      ];
+      let uri = _textDocumentPosition.textDocument.uri;
+      let document = documents.get(uri);
+      if (!document) return [];
+
+      let pos = _textDocumentPosition.position;
+
+      let input = CharStreams.fromString(document.getText());
+      let lexer = new LPCLexer(input);
+      let tokenStream = new CommonTokenStream(lexer);
+      let parser = new LPCParser(tokenStream);
+
+      let parseTree = parser.lpc_program();
+      //let imports = parseTree?.program()?.importList()?.importHeader();
+
+      let symbolTableVisitor = new SymbolTableVisitor();
+      // if(imports) {
+      // 	processImports(imports, uri, symbolTableVisitor);
+      // }
+      let position = computeTokenPosition(
+        parseTree,
+        tokenStream,
+        { line: pos.line + 1, column: pos.character },
+        [LPCParser.Identifier]
+      );
+      if (!position) {
+        return [];
+      }
+
+      let suggestions = getSuggestionsForParseTree(
+        parser,
+        parseTree,
+        () => symbolTableVisitor.visit(parseTree),
+        position
+      );
+      return suggestions.map((s) => {
+        return {
+          label: s,
+          kind: CompletionItemKind.Keyword,
+        };
+      });
     }
   );
 

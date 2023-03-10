@@ -16,6 +16,20 @@
 			}
 		},
 		{
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Bin",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/server/src/bin.ts",
+            "args": ["test.c"],
+            "preLaunchTask": "tsc: build - tsconfig.json",
+            "outFiles": [
+                "${workspaceFolder}/server/out/**/*.js"
+            ]
+        },
+		{
 			"name": "Language Server E2E Test",
 			"type": "extensionHost",
 			"request": "launch",
@@ -26,6 +40,16 @@
 				"${workspaceRoot}/client/testFixture"
 			],
 			"outFiles": ["${workspaceRoot}/client/out/test/**/*.js"]
-		}
+		},
+		{
+            "name": "Debug ANTLR4 grammar",
+            "type": "antlr-debug",
+            "request": "launch",
+            "input": "test.c",
+            "grammar": "grammar/LPC.g4",            
+            "startRule": "lpc_program",
+            "printParseTree": true,
+            "visualParseTree": true
+        }
 	]
 }

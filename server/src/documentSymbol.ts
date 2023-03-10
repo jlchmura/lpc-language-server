@@ -11,12 +11,18 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { LPCDocument, ParseLPC } from "./parser";
 import {
   FunctionDeclarationNode,
+  LPCNode,
   VariableDeclarationNode,
 } from "./parser/nodeTypes";
 
 export function getDocumentSymbols(document: TextDocument): DocumentSymbol[] {
   const ast = ParseLPC(document.getText());
-
+  return getDocumentSymbolsFromAst(document, ast);
+}
+export function getDocumentSymbolsFromAst(
+  document: TextDocument,
+  ast: LPCDocument
+): DocumentSymbol[] {
   const results: DocumentSymbol[] = [];
 
   ast.roots.forEach((node) => {
@@ -51,3 +57,4 @@ export function getDocumentSymbols(document: TextDocument): DocumentSymbol[] {
 
   return results;
 }
+

@@ -2,3 +2,7 @@ out
 node_modules
 client/server
 .vscode-test
+.antlr
+grammar
+parser2
+test.c

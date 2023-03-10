@@ -5,19 +5,21 @@
   "main": "./client/out/extension",
   "scripts": {
     "vscode:prepublish": "npm run compile",
-		"compile": "tsc -b",
-		"watch": "tsc -b -w",
-		"lint": "eslint ./client/src ./server/src --ext .ts,.tsx",
-		"postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
-		"test": "sh ./scripts/e2e.sh"
-
+    "compile": "tsc -b",
+    "watch": "tsc -b -w",
+    "lint": "eslint ./client/src ./server/src --ext .ts,.tsx",
+    "postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
+    "test": "sh ./scripts/e2e.sh",
+    "antlr4ts": "npx antlr4ts -o server/src/parser2 -Xexact-output-dir grammar/LPC.g4",
+    "antlr4": "java org.antlr.v4.Tool -Dlanguage=TypeScript -visitor -o server/src/parser2 -Xexact-output-dir grammar/LPC.g4",
+    "gui": "java org.antlr.v4.Tool grammar/LPC.g4 -o ./grammar/java/ && javac grammar/java/grammar/LPC*.java && cd ./grammar/java/grammar && java org.antlr.v4.gui.TestRig LPC program -gui"
   },
   "engines": {
-		"vscode": "^1.75.0"
-	},
-	"activationEvents": [
-		"onLanguage:lpc"
-	],
+    "vscode": "^1.75.0"
+  },
+  "activationEvents": [
+    "onLanguage:lpc"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/jlchmura/lpc-language-server"
@@ -41,12 +43,19 @@
   },
   "homepage": "https://github.com/jlchmura/lpc-language-server#readme",
   "devDependencies": {
-		"@types/mocha": "^9.1.0",
-		"@types/node": "^16.11.7",
-		"@typescript-eslint/eslint-plugin": "^5.54.0",
-		"@typescript-eslint/parser": "^5.54.0",
-		"eslint": "^8.35.0",
-		"mocha": "^9.2.1",
-		"typescript": "^4.9.5"
-	}
+    "@types/antlr4": "^4.11.2",
+    "@types/mocha": "^9.1.0",
+    "@types/node": "^16.18.14",
+    "@types/vscode": "^1.75.0",
+    "@typescript-eslint/eslint-plugin": "^5.54.0",
+    "@typescript-eslint/parser": "^5.54.0",
+    "eslint": "^8.35.0",
+    "mocha": "^9.2.1",
+    "typescript": "4.8.3"
+  },
+  "dependencies": {
+    "antlr4": "^4.12.0",    
+    "fuzzysort": "^2.0.4",
+    "ts-node": "^10.9.1"
+  }
 }
