@@ -46,7 +46,7 @@ export function getDocumentSymbolsFromAst(
       v.declarations.forEach((d) => {
         results.push({
           kind: SymbolKind.Variable,
-          name: d?.id?.name || "",
+          name: d?.id?.attributes?.name || "",
           range: rng,
           selectionRange: Range.create(vStart, vEnd),
           detail: v.varType?.name,

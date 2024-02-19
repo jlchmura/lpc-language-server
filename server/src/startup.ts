@@ -1,4 +1,3 @@
-import { CharStreams, CommonTokenStream } from "antlr4ts";
 import {
   Connection,
   TextDocuments,
@@ -31,10 +30,12 @@ import { getDocumentSymbols } from "./documentSymbol";
 import { getFoldingRanges } from "./folding";
 import { LPCNavigation } from "./navigation";
 import { ParseLPC } from "./parser";
-import { LPCLexer } from "./parser2/LPCLexer";
-import { LPCParser } from "./parser2/LPCParser";
+
 import { SymbolTableVisitor } from "./symbolTableVisitor";
 import { computeTokenPosition } from "./tokenposition";
+import { LPCLexer } from "./parser3/LPCLexer";
+import { CharStreams, CommonTokenStream } from "antlr4ng";
+import { LPCParser } from "./parser3/LPCParser";
 
 export function startServer(connection: Connection) {
   // Create a simple text document manager.
@@ -226,12 +227,13 @@ export function startServer(connection: Connection) {
 
       let pos = _textDocumentPosition.position;
 
-      let input = CharStreams.fromString(document.getText());
-      let lexer = new LPCLexer(input);
-      let tokenStream = new CommonTokenStream(lexer);
-      let parser = new LPCParser(tokenStream);
+      
+      const input =CharStreams.fromString(document.getText());      
+      const  lexer = new LPCLexer(input);
+      const tokenStream = new CommonTokenStream(lexer);
+      const  parser = new LPCParser(tokenStream);
 
-      let parseTree = parser.lpc_program();
+      const  parseTree = parser.lpc_program();
       //let imports = parseTree?.program()?.importList()?.importHeader();
 
       let symbolTableVisitor = new SymbolTableVisitor();
@@ -251,7 +253,7 @@ export function startServer(connection: Connection) {
       let suggestions = getSuggestionsForParseTree(
         parser,
         parseTree,
-        () => symbolTableVisitor.visit(parseTree),
+        //() => symbolTableVisitor.visit(parseTree),
         position
       );
       return suggestions.map((s) => {

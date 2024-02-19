@@ -17,7 +17,6 @@ import {
   InitializeResult,
 } from "vscode-languageserver/node";
 
-import { LPCParser } from "../../../prettier-lpc-vscode/build/parser/lpcParser";
 
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { startServer } from "./startup";

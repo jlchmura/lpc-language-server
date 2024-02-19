@@ -1,52 +1,58 @@
-import { CodeCompletionCore, SymbolTable, Symbol, ScopedSymbol, VariableSymbol } from "antlr4-c3";
-import { CharStreams, CommonTokenStream, TokenStream } from "antlr4ts";
-import { ParseTree } from "antlr4ts/tree/ParseTree";
-import { TerminalNode } from "antlr4ts/tree/TerminalNode";
+import { CodeCompletionCore, SymbolTable,  ScopedSymbol, VariableSymbol, BaseSymbol, SymbolConstructor } from "antlr4-c3";
+
+
 import { CompletionItem } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { LPCLexer } from "./parser2/LPCLexer";
-import { Expr4Context, LPCParser } from "./parser2/LPCParser";
+
 
 import * as fuzzysort from 'fuzzysort';
 import { SymbolTableVisitor } from "./symbolTableVisitor";
+import { AbstractParseTreeVisitor, CharStreams, CommonTokenStream, ParseTree, TerminalNode, TokenStream } from "antlr4ng";
+import { Expr4Context, LPCParser, Lpc_programContext } from "./parser3/LPCParser";
+import { LPCVisitor } from "./parser3/LPCVisitor";
+import { LPCLexer } from "./parser3/LPCLexer";
 
 export type CaretPosition = { line: number, column: number };
 export type TokenPosition = { index: number, context: ParseTree, text: string };
 export type ComputeTokenPositionFunction =
     (parseTree: ParseTree, tokens: TokenStream, caretPosition: CaretPosition) => TokenPosition;
 
-export function getScope(context: ParseTree|undefined, symbolTable: SymbolTable):Symbol |undefined {
+export function getScope(context: ParseTree|undefined, symbolTable: SymbolTable):BaseSymbol |undefined {
     if(!context) {
         return undefined;
     }
-    const scope = symbolTable.symbolWithContext(context);
+    
+    const scope = symbolTable.symbolWithContextSync(context);
     if(scope) {
         return scope;
-    } else {
+    } else {        
         return getScope(context.parent, symbolTable);
     }
 }
 
-export function getAllSymbolsOfType<T extends Symbol>(scope: ScopedSymbol, type: new (...args: any[]) => T): T[] {
-    let symbols = scope.getSymbolsOfType(type);
+export async function getAllSymbolsOfType<T extends BaseSymbol>(scope: ScopedSymbol, type: SymbolConstructor<T,any>): Promise<T[]> {
+    let symbols = await scope.getSymbolsOfType(type)
+    
     let parent = scope.parent;
+    
     while(parent && !(parent instanceof ScopedSymbol)) {
         parent = parent.parent;
     }
     if(parent) {
-        symbols.push(...getAllSymbolsOfType(parent as ScopedSymbol, type));
+        const res = await getAllSymbolsOfType(parent as ScopedSymbol, type);
+        symbols.push(...res);
     }
     return symbols;
 }
 
-function suggestVariables(symbolTable: SymbolTable, position: TokenPosition) {
+async function suggestVariables(symbolTable: SymbolTable, position: TokenPosition) {
     const context = position.context;
     const scope = getScope(context, symbolTable);
-    let symbols: Symbol[];
+    let symbols: BaseSymbol[];
     if(scope instanceof ScopedSymbol) { //Local scope
-        symbols = getAllSymbolsOfType(scope, VariableSymbol);
+        symbols = await getAllSymbolsOfType(scope, VariableSymbol);
     } else { //Global scope
-        symbols = symbolTable.getSymbolsOfType(VariableSymbol);
+        symbols = await symbolTable.getSymbolsOfType(VariableSymbol);
     }
     let variable = position.context;
     while(!(variable instanceof Expr4Context) && variable.parent) {
@@ -79,7 +85,9 @@ export function setTokenMatcher(fn: any) {
 
 
 export function getSuggestionsForParseTree(
-    parser: LPCParser, parseTree: ParseTree, symbolTableFn: () => SymbolTable, position: TokenPosition) {
+    parser: LPCParser, parseTree: Lpc_programContext, 
+    //symbolTableFn: () => SymbolTable,
+     position: TokenPosition) {
     let core = new CodeCompletionCore(parser);
     // Luckily, the Kotlin lexer defines all keywords and identifiers after operators,
     // so we can simply exclude the first non-keyword tokens
@@ -120,8 +128,8 @@ export function getSuggestionsForParseTree(
 
 
 function computeTokenIndexOfTerminalNode(parseTree: TerminalNode, caretPosition: CaretPosition) {
-    let start = parseTree.symbol.charPositionInLine;
-    let stop = parseTree.symbol.charPositionInLine + parseTree.text.length;
+    let start = parseTree.symbol.column
+    let stop = parseTree.symbol.column + parseTree.getText().length;
     if (parseTree.symbol.line == caretPosition.line && start <= caretPosition.column && stop >= caretPosition.column) {
         return parseTree.symbol.tokenIndex;
     } else {
@@ -130,7 +138,7 @@ function computeTokenIndexOfTerminalNode(parseTree: TerminalNode, caretPosition:
 }
 
 function computeTokenIndexOfChildNode(parseTree: ParseTree, caretPosition: CaretPosition) {
-    for (let i = 0; i < parseTree.childCount; i++) {
+    for (let i = 0; i < parseTree.getChildCount(); i++) {
         let index = computeTokenIndex(parseTree.getChild(i), caretPosition);
         if (index !== undefined) {
             return index;
@@ -162,5 +170,7 @@ export function getSuggestions(
         return [];
     }
     return getSuggestionsForParseTree(
-        parser, parseTree, () => new SymbolTableVisitor().visit(parseTree), position);
+        parser, parseTree, 
+        //() => new LPCVisitor().visit(parseTree),
+         position);
 }
