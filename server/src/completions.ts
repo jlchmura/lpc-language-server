@@ -16,7 +16,11 @@ import {
   CharStreams,
   CommonTokenStream,
   ConsoleErrorListener,
+  DefaultErrorStrategy,
+  ParseCancellationException,
   ParseTree,
+  ParserInterpreter,
+  PredictionMode,
   TerminalNode,
   TokenStream,
 } from "antlr4ng";
@@ -200,10 +204,23 @@ export function getSuggestions(
   let tokenStream = new CommonTokenStream(lexer);
   let parser = new LPCParser(tokenStream);
 
+  parser.errorHandler = new DefaultErrorStrategy();  
   // let errorListener = new ConsoleErrorListener();
   // parser.addErrorListener(errorListener);
 
-  let parseTree = parser.program();
+  let parseTree:ProgramContext;
+  
+  try {
+    parseTree = parser.program();
+  }catch (e) {
+    if (e instanceof ParseCancellationException) {
+      lexer.reset();
+      tokenStream.setTokenSource(lexer);
+      parser.reset();
+      parser.interpreter.predictionMode = PredictionMode.LL;
+      parseTree = parser.program();
+    }
+  }
 
   let position = computeTokenPosition(parseTree, tokenStream, caretPosition);
   console.log("Position", position);
