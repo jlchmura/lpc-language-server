@@ -35,6 +35,7 @@ import { computeTokenPosition } from "./tokenposition";
 import { LPCLexer } from "./parser3/LPCLexer";
 import { CharStreams, CommonTokenStream } from "antlr4ng";
 import { LPCParser } from "./parser3/LPCParser";
+import { getDocumentSymbols } from "./documentSymbol";
 
 export function startServer(connection: Connection) {
   // Create a simple text document manager.
@@ -198,9 +199,9 @@ export function startServer(connection: Connection) {
 
   connection.onDocumentSymbol((documentSymbolParams, token) => {
     const document = documents.get(documentSymbolParams.textDocument.uri);
-    // if (document) {
-    //   return getDocumentSymbols(document);
-    // }
+     if (document) {
+       return getDocumentSymbols(document.getText());
+     }
     return [];
   });
 
