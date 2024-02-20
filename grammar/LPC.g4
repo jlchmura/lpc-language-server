@@ -74,7 +74,6 @@ COMMENT: '/*' .*? '*/' -> skip;
 LINE_COMMENT: '//' .*? '\n' -> skip;
 
 
-
 program: declaration* EOF;
 
 declaration
@@ -111,7 +110,7 @@ statement
     | selectionStatement
     | iterationStatement
     | jumpStatement
-    | variableDeclaration
+    | variableDeclaration    
     ;
 
 expressionStatement: expression? SEMI;
@@ -165,4 +164,9 @@ expression
     | expression INC
     | expression DEC
     | Identifier '=' expression
+    | Identifier '(' expressionList? ')'  // function call
+    ;
+
+expressionList
+    : expression (',' expression)*
     ;

@@ -17,6 +17,7 @@ import { SelectionStatementContext } from "./LPCParser.js";
 import { IterationStatementContext } from "./LPCParser.js";
 import { JumpStatementContext } from "./LPCParser.js";
 import { ExpressionContext } from "./LPCParser.js";
+import { ExpressionListContext } from "./LPCParser.js";
 
 
 /**
@@ -111,5 +112,11 @@ export class LPCVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      * @return the visitor result
      */
     visitExpression?: (ctx: ExpressionContext) => Result;
+    /**
+     * Visit a parse tree produced by `LPCParser.expressionList`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitExpressionList?: (ctx: ExpressionListContext) => Result;
 }
 

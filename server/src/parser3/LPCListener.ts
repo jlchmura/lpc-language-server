@@ -17,6 +17,7 @@ import { SelectionStatementContext } from "./LPCParser.js";
 import { IterationStatementContext } from "./LPCParser.js";
 import { JumpStatementContext } from "./LPCParser.js";
 import { ExpressionContext } from "./LPCParser.js";
+import { ExpressionListContext } from "./LPCParser.js";
 
 
 /**
@@ -164,6 +165,16 @@ export class LPCListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitExpression?: (ctx: ExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.expressionList`.
+     * @param ctx the parse tree
+     */
+    enterExpressionList?: (ctx: ExpressionListContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.expressionList`.
+     * @param ctx the parse tree
+     */
+    exitExpressionList?: (ctx: ExpressionListContext) => void;
 
     visitTerminal(node: TerminalNode): void {}
     visitErrorNode(node: ErrorNode): void {}
