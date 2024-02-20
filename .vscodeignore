@@ -1,6 +1,8 @@
 build/**
 test/**
 .vscode/**
+client/out
+server/out
 server/.vscode/**
 server/node_modules/**
 client/src/**
