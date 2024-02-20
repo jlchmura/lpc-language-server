@@ -33,6 +33,9 @@ export function getFoldingRanges(
   if (maxRanges && result.length > maxRanges) {
     result = limitRanges(result, maxRanges);
   }
+
+  console.log("Folding ranges:", result);
+
   return result;
 }
 

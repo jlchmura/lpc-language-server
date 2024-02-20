@@ -7,13 +7,13 @@
 			"request": "launch",
 			"name": "Launch Client",
 			"runtimeExecutable": "${execPath}",
-			"args": ["--extensionDevelopmentPath=${workspaceRoot}"],
-			"outFiles": ["${workspaceRoot}/client/out/**/*.js"],
+			"args": ["--extensionDevelopmentPath=${workspaceRoot}",],			
 			"autoAttachChildProcesses": true,
 			"preLaunchTask": {
 				"type": "npm",
 				"script": "watch"
-			}
+			},
+			"sourceMaps": true
 		},
 		{
             "type": "node",

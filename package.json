@@ -2,7 +2,7 @@
   "name": "lpc-language-server",
   "version": "0.0.1",
   "description": "A language server for Lars Pensjö C (LPC)",
-  "main": "./client/out/extension",
+  "main": "client/out/extension.js",    
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -b",
@@ -42,6 +42,7 @@
     "url": "https://github.com/jlchmura/lpc-language-server/issues"
   },
   "homepage": "https://github.com/jlchmura/lpc-language-server#readme",
+  "extensionKind": ["workspace"],
   "devDependencies": {
     "@types/mocha": "^9.1.0",
     "@types/node": "^16.18.14",

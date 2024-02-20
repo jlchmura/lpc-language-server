@@ -197,10 +197,10 @@ export function startServer(connection: Connection) {
   });
 
   connection.onDocumentSymbol((documentSymbolParams, token) => {
-    // const document = documents.get(documentSymbolParams.textDocument.uri);
-    // if (document) {
-    //   return getDocumentSymbols(document);
-    // }
+    const document = documents.get(documentSymbolParams.textDocument.uri);
+    if (document) {
+      return getDocumentSymbols(document);
+    }
     return [];
   });
 
@@ -227,7 +227,6 @@ export function startServer(connection: Connection) {
       let uri = _textDocumentPosition.textDocument.uri;
       let document = documents.get(uri);
       if (!document) return [];
-
       
       let pos = _textDocumentPosition.position;
       let caretPos = { line: pos.line+1, column: pos.character-1 } as CaretPosition;
@@ -240,7 +239,7 @@ export function startServer(connection: Connection) {
           label: s,
           kind: CompletionItemKind.Keyword,
         };
-      });
+      }); 
     }
   );
 

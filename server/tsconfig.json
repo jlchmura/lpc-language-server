@@ -1,15 +1,13 @@
 {
 	"compilerOptions": {		
-		"target": "ES2022",
-		"lib": ["ES2022"],
-		"module": "CommonJS",
-		"moduleResolution": "Node",
-		"esModuleInterop": true,
-		"sourceMap": true,
+		"target": "es2020",
+		"lib": ["es2020"],
+		"module": "commonjs",
+		"moduleResolution": "node",
+		"sourceMap": true,		
 		"strict": false,
 		"outDir": "out",
-		"rootDir": "src",
-		"resolveJsonModule": true,
+		"rootDir": "src"
 	},	
 	
 	"include": ["src"],
