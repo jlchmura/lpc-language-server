@@ -26,9 +26,9 @@ import {
 } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { CaretPosition, getSuggestions, getSuggestionsForParseTree } from "./completions";
-import { getDocumentSymbols } from "./documentSymbol";
+
 import { getFoldingRanges } from "./folding";
-import { LPCNavigation } from "./navigation";
+
 
 import { SymbolTableVisitor } from "./symbolTableVisitor";
 import { computeTokenPosition } from "./tokenposition";
@@ -198,9 +198,9 @@ export function startServer(connection: Connection) {
 
   connection.onDocumentSymbol((documentSymbolParams, token) => {
     const document = documents.get(documentSymbolParams.textDocument.uri);
-    if (document) {
-      return getDocumentSymbols(document);
-    }
+    // if (document) {
+    //   return getDocumentSymbols(document);
+    // }
     return [];
   });
 

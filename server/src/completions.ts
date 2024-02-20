@@ -5,6 +5,7 @@ import {
   VariableSymbol,
   BaseSymbol,
   SymbolConstructor,
+  MethodSymbol,
 } from "antlr4-c3/index";
 import { CompletionItem } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
@@ -19,9 +20,9 @@ import {
   TokenStream,
 } from "antlr4ng";
 import {
-  Expr4Context,
-  LPCParser,
-  Lpc_programContext,
+  ExpressionContext,
+  LPCParser, ProgramContext,
+  
 } from "./parser3/LPCParser";
 import { LPCVisitor } from "./parser3/LPCVisitor";
 import { LPCLexer } from "./parser3/LPCLexer";
@@ -50,11 +51,11 @@ export function getScope(
   }
 }
 
-export async function getAllSymbolsOfType<T extends BaseSymbol>(
+export  function getAllSymbolsOfType<T extends BaseSymbol>(
   scope: ScopedSymbol,
   type: SymbolConstructor<T, any>
-): Promise<T[]> {
-  let symbols = await scope.getSymbolsOfType(type);
+): T[] {
+  let symbols =  scope.getAllSymbolsSync(type,true);
 
   let parent = scope.parent;
 
@@ -62,13 +63,13 @@ export async function getAllSymbolsOfType<T extends BaseSymbol>(
     parent = parent.parent;
   }
   if (parent) {
-    const res = await getAllSymbolsOfType(parent as ScopedSymbol, type);
+    const res =  getAllSymbolsOfType(parent as ScopedSymbol, type);
     symbols.push(...res);
   }
   return symbols;
 }
 
-async function suggestVariables(
+ function suggestVariables(
   symbolTable: SymbolTable,
   position: TokenPosition
 ) {
@@ -76,14 +77,18 @@ async function suggestVariables(
   const scope = getScope(context, symbolTable);
   let symbols: BaseSymbol[];
   if (scope instanceof ScopedSymbol) {
-    //Local scope
-    symbols = await getAllSymbolsOfType(scope, VariableSymbol);
+    //Local scope    
+    symbols = getAllSymbolsOfType(scope, VariableSymbol);
+    
+    const symAll = symbolTable.getAllNestedSymbolsSync().filter(s => s instanceof MethodSymbol);
+    symbols.push(...symAll);
   } else {
     //Global scope
-    symbols = await symbolTable.getSymbolsOfType(VariableSymbol);
+    symbols =  symbolTable.getAllSymbolsSync(VariableSymbol, true);
   }
+
   let variable = position.context;
-  while (!(variable instanceof Expr4Context) && variable.parent) {
+  while (!(variable instanceof ExpressionContext) && variable.parent) {
     variable = variable.parent;
   }
   return filterTokens(
@@ -115,26 +120,27 @@ export function setTokenMatcher(fn: any) {
   filterTokens = fn;
 }
 
-export async function getSuggestionsForParseTree(
+export  function getSuggestionsForParseTree(
   parser: LPCParser,
-  parseTree: Lpc_programContext,
+  parseTree: ProgramContext,
   symbolTableFn: () => SymbolTable,
   position: TokenPosition
 ) {
   let core = new CodeCompletionCore(parser);
   // Luckily, the Kotlin lexer defines all keywords and identifiers after operators,
   // so we can simply exclude the first non-keyword tokens
-  let ignored = Array.from(Array(LPCParser.RULE_lpc_program).keys());
-  ignored.push(LPCParser.Assign, LPCParser.LineComment, LPCParser.BlockComment);
-  ignored.push(LPCParser.ArrayOpen, LPCParser.MappingOpen);
+  let ignored = Array.from(Array(LPCParser.RULE_program).keys());
+  ignored.push(LPCParser.LINE_COMMENT, LPCParser.COMMENT);
+  //ignored.push(LPCParser.ArrayOpen, LPCParser.MappingOpen);
 
   core.ignoredTokens = new Set(ignored);
-  core.preferredRules = new Set([
-    LPCParser.RULE_expr4,
-    LPCParser.RULE_function_definition,
-    LPCParser.RULE_type_decl,
-    LPCParser.RULE_argument,
-  ]);
+   core.preferredRules = new Set([
+    LPCParser.RULE_variableDeclaration,
+    LPCParser.RULE_functionDeclaration,
+  //   LPCParser.RULE_expression,
+  //   LPCParser.RULE_expressionStatement,
+  //   LPCParser.RULE_compoundStatement,    
+   ]);
   let candidates = core.collectCandidates(position.index);
 
   const completions: string[] = [];
@@ -142,10 +148,10 @@ export async function getSuggestionsForParseTree(
   console.dir(candidates);
 
   if (
-    candidates.rules.has(LPCParser.RULE_argument) ||
-    candidates.rules.has(LPCParser.RULE_expr4)
+    candidates.rules.has(LPCParser.RULE_variableDeclaration) ||
+    candidates.rules.has(LPCParser.RULE_functionDeclaration)
   ) {
-    const suggestRes = await suggestVariables(symbolTableFn(), position);
+    const suggestRes = suggestVariables(symbolTableFn(), position);
     completions.push(...suggestRes);
   }
   let tokens: string[] = [];
@@ -171,35 +177,7 @@ export async function getSuggestionsForParseTree(
   return completions;
 }
 
-// function computeTokenIndexOfTerminalNode(parseTree: TerminalNode, caretPosition: CaretPosition) {
-//     let start = parseTree.symbol.column
-//     let stop = parseTree.symbol.column + parseTree.getText().length;
-//     if (parseTree.symbol.line == caretPosition.line && start <= caretPosition.column && stop >= caretPosition.column) {
-//         return parseTree.symbol.tokenIndex;
-//     } else {
-//         return undefined;
-//     }
-// }
-
-// function computeTokenIndexOfChildNode(parseTree: ParseTree, caretPosition: CaretPosition) {
-//     for (let i = 0; i < parseTree.getChildCount(); i++) {
-//         let index = computeTokenIndex(parseTree.getChild(i)!, caretPosition);
-//         if (index !== undefined) {
-//             return index;
-//         }
-//     }
-//     return undefined;
-// }
-
-// export function computeTokenIndex(parseTree: ParseTree, caretPosition: CaretPosition): number |undefined{
-//     if(parseTree instanceof TerminalNode) {
-//         return computeTokenIndexOfTerminalNode(parseTree, caretPosition);
-//     } else {
-//         return computeTokenIndexOfChildNode(parseTree, caretPosition);
-//     }
-// }
-
-export async function getSuggestions(
+export  function getSuggestions(
   code: string,
   caretPosition: CaretPosition,
   computeTokenPosition: ComputeTokenPositionFunction
@@ -209,14 +187,14 @@ export async function getSuggestions(
   let tokenStream = new CommonTokenStream(lexer);
   let parser = new LPCParser(tokenStream);
 
-  let parseTree = parser.lpc_program();
+  let parseTree = parser.program();
 
   let position = computeTokenPosition(parseTree, tokenStream, caretPosition);
   if (!position) {
     return [];
   }
 
-  return await getSuggestionsForParseTree(
+  return  getSuggestionsForParseTree(
     parser,
     parseTree,
     () => new SymbolTableVisitor().visit(parseTree),

@@ -5,6 +5,9 @@ import { CharStreams, CommonTokenStream, ConsoleErrorListener } from "antlr4ng";
 import { LPCLexer } from "./parser3/LPCLexer";
 import { LPCParser } from "./parser3/LPCParser";
 import { CodeCompletionCore } from "antlr4-c3/index";
+import { CaretPosition, getSuggestions } from "./completions";
+import { computeTokenPosition } from "./tokenposition";
+import { CompletionItemKind } from "vscode-languageserver";
 
 
 const code = fs.existsSync(process.argv[2])
@@ -16,21 +19,29 @@ const lexer = new LPCLexer(stream);
 const tStream = new CommonTokenStream(lexer);
 const parser = new LPCParser(tStream);
 
-let errorListener =new  ConsoleErrorListener();
+let caretPos = { line: 10, column: 4 } as CaretPosition;
+
+let errorListener = new ConsoleErrorListener();
 parser.addErrorListener(errorListener);
 
-const p2 = parser.lpc_program();
 const p = parser.program();
 
-  let core = new CodeCompletionCore(parser);
-  let candidates = core.collectCandidates(code.length-4);
+let core = new CodeCompletionCore(parser);
+let candidates = core.collectCandidates(code.length - 4);
 
-  let keywords: string[] = [];
-  for (let candidate of candidates.tokens) {
-      keywords.push(parser.vocabulary.getDisplayName(candidate[0]));
-  }
- 
-const i=0;
+let keywords: string[] = [];
+for (let candidate of candidates.tokens) {
+  keywords.push(parser.vocabulary.getDisplayName(candidate[0]));
+}
 
+let tokenPos = computeTokenPosition(p, tStream, caretPos);
 
+let suggestions = getSuggestions(code, caretPos, computeTokenPosition);
+const sug2 = suggestions.map((s) => {
+  return {
+    label: s,
+    kind: CompletionItemKind.Keyword,
+  };
+});
 
+const i = 0;

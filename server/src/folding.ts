@@ -6,8 +6,6 @@ import {
 } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
 
-import { LPCDocument, ParseLPC } from "./parser";
-import { FunctionDeclarationNode } from "./parser/nodeTypes";
 
 export function getFoldingRanges(
   document: TextDocument,
@@ -15,24 +13,24 @@ export function getFoldingRanges(
 ): FoldingRange[] {  
   let result: FoldingRange[] = [];
 
-  const ast = ParseLPC(document.getText());
-  ast.roots.forEach((node) => {
-    if (node.type == "function") {
-      const fn = node as FunctionDeclarationNode;
-      result.push({
-        startLine: document.positionAt(fn.start).line,
-        endLine: document.positionAt(fn.end).line,
-        startCharacter: fn.start,
-        endCharacter: fn.end,
-        kind: "function",
-        collapsedText: fn?.id?.name,
-      });
-    }
-  });
+  // const ast = ParseLPC(document.getText());
+  // ast.roots.forEach((node) => {
+  //   if (node.type == "function") {
+  //     const fn = node as FunctionDeclarationNode;
+  //     result.push({
+  //       startLine: document.positionAt(fn.start).line,
+  //       endLine: document.positionAt(fn.end).line,
+  //       startCharacter: fn.start,
+  //       endCharacter: fn.end,
+  //       kind: "function",
+  //       collapsedText: fn?.id?.name,
+  //     });
+  //   }
+  // });
 
-  if (maxRanges && result.length > maxRanges) {
-    result = limitRanges(result, maxRanges);
-  }
+  // if (maxRanges && result.length > maxRanges) {
+  //   result = limitRanges(result, maxRanges);
+  // }
 
   console.log("Folding ranges:", result);
 

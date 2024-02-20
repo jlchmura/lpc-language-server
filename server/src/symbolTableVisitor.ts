@@ -1,8 +1,9 @@
 
-import { SymbolTable,ScopedSymbol,VariableSymbol,RoutineSymbol } from "antlr4-c3/index";
-import { Expr4Context, Function_definitionContext } from "./parser3/LPCParser";
+import { SymbolTable,ScopedSymbol,VariableSymbol,RoutineSymbol, MethodSymbol } from "antlr4-c3/index";
+
 import { LPCVisitor } from "./parser3/LPCVisitor";
 import { AbstractParseTreeVisitor, ParseTree } from "antlr4ng";
+import { ExpressionContext, FunctionDeclarationContext, StatementContext, VariableDeclarationContext } from "./parser3/LPCParser";
 
 
 export class SymbolTableVisitor extends AbstractParseTreeVisitor<SymbolTable> implements LPCVisitor<SymbolTable> {
@@ -16,13 +17,14 @@ export class SymbolTableVisitor extends AbstractParseTreeVisitor<SymbolTable> im
         return this.symbolTable;
     }
 
-    visitVariableDeclaration = (ctx: Expr4Context) => {
+    visitVariableDeclaration = (ctx: VariableDeclarationContext) => {
         this.symbolTable.addNewSymbolOfType(VariableSymbol, this.scope, ctx.Identifier()?.getText(), undefined);
         return this.visitChildren(ctx);
     };
 
-    visitFunctionDeclaration = (ctx: Function_definitionContext) => {
-        return this.withScope(ctx, RoutineSymbol, [ctx.identifier().getText()], () => this.visitChildren(ctx));
+    visitFunctionDeclaration = (ctx: FunctionDeclarationContext) => {                        
+        const nm = ctx.Identifier().getText();
+        return this.withScope(ctx, MethodSymbol, [ctx.Identifier().getText()], () => this.visitChildren(ctx));
     };
 
     protected withScope<T>(tree: ParseTree, type: new (...args: any[]) => ScopedSymbol, args: any[], action: () => T): T {

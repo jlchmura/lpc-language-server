@@ -13,8 +13,8 @@ export function computeTokenPosition(
     parseTree: ParseTree, tokens: TokenStream, caretPosition: CaretPosition, identifierTokenTypes: number[] = []): TokenPosition |undefined{
     if(parseTree instanceof TerminalNode) {
         return computeTokenPositionOfTerminal(parseTree, tokens, caretPosition, identifierTokenTypes);
-    } else if (parseTree instanceof ParserRuleContext) {
-        return computeTokenPositionOfChildNode(parseTree, tokens, caretPosition, identifierTokenTypes);
+    } else {
+        return computeTokenPositionOfChildNode(parseTree as ParserRuleContext, tokens, caretPosition, identifierTokenTypes);
     }
 }
 
