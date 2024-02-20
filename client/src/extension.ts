@@ -21,6 +21,8 @@ export function activate(context: ExtensionContext) {
     path.join("server", "out", "server.js")
   );
 
+  let debugOptions = { execArgv: ['--nolazy', '--inspect=6009'] };
+  
   // If the extension is launched in debug mode then the debug server options are used
   // Otherwise the run options are used
   const serverOptions: ServerOptions = {
@@ -29,13 +31,14 @@ export function activate(context: ExtensionContext) {
     debug: {
       module: serverModule,
       transport: TransportKind.ipc,
+      options: debugOptions
     },
   };
 
   // Options to control the language client
   const clientOptions: LanguageClientOptions = {
     // Register the server for plain text documents
-    documentSelector: [{ scheme: "file", language: "lpc" }],
+    documentSelector: [{ scheme: "file", language: "lpc" },{ scheme: "file", language: "LPC" }],
     synchronize: {
       // Notify the server about file changes to '.clientrc files contained in the workspace
       fileEvents: workspace.createFileSystemWatcher("**/.clientrc"),

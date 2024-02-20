@@ -25,7 +25,7 @@ import {
   TextDocumentPositionParams,
 } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { getSuggestions, getSuggestionsForParseTree } from "./completions";
+import { CaretPosition, getSuggestions, getSuggestionsForParseTree } from "./completions";
 import { getDocumentSymbols } from "./documentSymbol";
 import { getFoldingRanges } from "./folding";
 import { LPCNavigation } from "./navigation";
@@ -165,11 +165,12 @@ export function startServer(connection: Connection) {
     const text = textDocument.getText();
 
     try {
-    const stream = CharStreams.fromString(text);
-const lexer = new LPCLexer(stream);
-const tStream = new CommonTokenStream(lexer);
-const parser = new LPCParser(tStream);
-    
+      const stream = CharStreams.fromString(text);
+      const lexer = new LPCLexer(stream);
+      const tStream = new CommonTokenStream(lexer);
+      const parser = new LPCParser(tStream);
+      const tree = parser.program();
+        
     } catch (err) {
       let errMsg: string;
       if (typeof err == "string") errMsg = err;
@@ -196,10 +197,10 @@ const parser = new LPCParser(tStream);
   });
 
   connection.onDocumentSymbol((documentSymbolParams, token) => {
-    const document = documents.get(documentSymbolParams.textDocument.uri);
-    if (document) {
-      return getDocumentSymbols(document);
-    }
+    // const document = documents.get(documentSymbolParams.textDocument.uri);
+    // if (document) {
+    //   return getDocumentSymbols(document);
+    // }
     return [];
   });
 
@@ -221,44 +222,19 @@ const parser = new LPCParser(tStream);
     connection.console.log("We received an file change event");
   });
 
-  // This handler provides the initial list of the completion items.
-  connection.onCompletion(
-    (_textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
+  // This handler provides the initial list of the completion items.  
+  connection.onCompletion(async (_textDocumentPosition: TextDocumentPositionParams): Promise<CompletionItem[]> =>  {
       let uri = _textDocumentPosition.textDocument.uri;
       let document = documents.get(uri);
       if (!document) return [];
 
-      let pos = _textDocumentPosition.position;
-
       
-      const input =CharStreams.fromString(document.getText());      
-      const  lexer = new LPCLexer(input);
-      const tokenStream = new CommonTokenStream(lexer);
-      const  parser = new LPCParser(tokenStream);
+      let pos = _textDocumentPosition.position;
+      let caretPos = { line: pos.line+1, column: pos.character-1 } as CaretPosition;
 
-      const  parseTree = parser.lpc_program();
-      //let imports = parseTree?.program()?.importList()?.importHeader();
+      console.log("Getting suggestions for: " + document.uri + " at " + caretPos.line + ":" + caretPos.column);
 
-      let symbolTableVisitor = new SymbolTableVisitor();
-      // if(imports) {
-      // 	processImports(imports, uri, symbolTableVisitor);
-      // }
-      let position = computeTokenPosition(
-        parseTree,
-        tokenStream,
-        { line: pos.line + 1, column: pos.character },
-        [LPCParser.Identifier]
-      );
-      if (!position) {
-        return [];
-      }
-
-      let suggestions = getSuggestionsForParseTree(
-        parser,
-        parseTree,
-        //() => symbolTableVisitor.visit(parseTree),
-        position
-      );
+      let suggestions = await getSuggestions(document.getText(), caretPos, computeTokenPosition);
       return suggestions.map((s) => {
         return {
           label: s,
@@ -271,14 +247,7 @@ const parser = new LPCParser(tStream);
   // This handler resolves additional information for the item selected in
   // the completion list.
   connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
-    if (item.data === 1) {
-      item.detail = "TypeScript details";
-      item.documentation = "TypeScript documentation";
-    } else if (item.data === 2) {
-      item.detail = "JavaScript details";
-      item.documentation = "JavaScript documentation";
-    }
-    return item;
+    return item;    
   });
 
   // Make the text document manager listen on the connection

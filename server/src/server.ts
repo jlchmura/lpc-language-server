@@ -21,6 +21,8 @@ import {
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { startServer } from "./startup";
 
+console.log("Starting LPC Language Server");
+
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
 const connection = createConnection(ProposedFeatures.all);
