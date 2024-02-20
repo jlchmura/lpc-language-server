@@ -223,23 +223,18 @@ export function startServer(connection: Connection) {
   });
 
   // This handler provides the initial list of the completion items.  
-  connection.onCompletion(async (_textDocumentPosition: TextDocumentPositionParams): Promise<CompletionItem[]> =>  {
+  connection.onCompletion( (_textDocumentPosition: TextDocumentPositionParams): CompletionItem[] =>  {
       let uri = _textDocumentPosition.textDocument.uri;
       let document = documents.get(uri);
       if (!document) return [];
       
       let pos = _textDocumentPosition.position;
-      let caretPos = { line: pos.line+1, column: pos.character-1 } as CaretPosition;
+      let caretPos = { line: pos.line + 1, column: pos.character } as CaretPosition;
 
       console.log("Getting suggestions for: " + document.uri + " at " + caretPos.line + ":" + caretPos.column);
-
-      let suggestions = await getSuggestions(document.getText(), caretPos, computeTokenPosition);
-      return suggestions.map((s) => {
-        return {
-          label: s,
-          kind: CompletionItemKind.Keyword,
-        };
-      }); 
+      
+      let suggestions = getSuggestions(document.getText(), caretPos, computeTokenPosition);
+      return suggestions;
     }
   );
 

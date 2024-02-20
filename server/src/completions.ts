@@ -7,7 +7,7 @@ import {
   SymbolConstructor,
   MethodSymbol,
 } from "antlr4-c3/index";
-import { CompletionItem } from "vscode-languageserver";
+import { CompletionItem, CompletionItemKind } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import * as fuzzysort from "fuzzysort";
 import { SymbolTableVisitor } from "./symbolTableVisitor";
@@ -15,6 +15,7 @@ import {
   AbstractParseTreeVisitor,
   CharStreams,
   CommonTokenStream,
+  ConsoleErrorListener,
   ParseTree,
   TerminalNode,
   TokenStream,
@@ -137,13 +138,14 @@ export  function getSuggestionsForParseTree(
    core.preferredRules = new Set([
     LPCParser.RULE_variableDeclaration,
     LPCParser.RULE_functionDeclaration,
+    LPCParser.RULE_typeSpecifier
   //   LPCParser.RULE_expression,
   //   LPCParser.RULE_expressionStatement,
   //   LPCParser.RULE_compoundStatement,    
    ]);
   let candidates = core.collectCandidates(position.index);
 
-  const completions: string[] = [];
+  const completions: CompletionItem[] = [];
 
   console.dir(candidates);
 
@@ -152,7 +154,7 @@ export  function getSuggestionsForParseTree(
     candidates.rules.has(LPCParser.RULE_functionDeclaration)
   ) {
     const suggestRes = suggestVariables(symbolTableFn(), position);
-    completions.push(...suggestRes);
+    completions.push(...suggestRes.map((s) => ({ label: s, kind: CompletionItemKind.Variable })));
   }
   let tokens: string[] = [];
   candidates.tokens.forEach((_, k) => {
@@ -173,11 +175,15 @@ export  function getSuggestionsForParseTree(
     position.context instanceof TerminalNode &&
     ignored.indexOf(position.context.symbol.type) >= 0;
   const textToMatch = isIgnoredToken ? "" : position.text;
-  completions.push(...filterTokens(textToMatch, tokens));
+  completions.push(...filterTokens(textToMatch, tokens).map((s) => {    
+    return { label: s, kind: CompletionItemKind.Keyword }; 
+  }));
+  console.log("Filtering for " + textToMatch);
+  console.dir(completions);  
   return completions;
 }
 
-export  function getSuggestions(
+export function getSuggestions(
   code: string,
   caretPosition: CaretPosition,
   computeTokenPosition: ComputeTokenPositionFunction
@@ -187,9 +193,13 @@ export  function getSuggestions(
   let tokenStream = new CommonTokenStream(lexer);
   let parser = new LPCParser(tokenStream);
 
+  // let errorListener = new ConsoleErrorListener();
+  // parser.addErrorListener(errorListener);
+
   let parseTree = parser.program();
 
   let position = computeTokenPosition(parseTree, tokenStream, caretPosition);
+  console.log("Position", position);
   if (!position) {
     return [];
   }

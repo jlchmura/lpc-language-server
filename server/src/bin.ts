@@ -37,11 +37,6 @@ for (let candidate of candidates.tokens) {
 let tokenPos = computeTokenPosition(p, tStream, caretPos);
 
 let suggestions = getSuggestions(code, caretPos, computeTokenPosition);
-const sug2 = suggestions.map((s) => {
-  return {
-    label: s,
-    kind: CompletionItemKind.Keyword,
-  };
-});
+
 
 const i = 0;
