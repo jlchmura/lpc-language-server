@@ -73,7 +73,7 @@ export  function getAllSymbolsOfType<T extends BaseSymbol>(
  function suggestVariables(
   symbolTable: SymbolTable,
   position: TokenPosition
-) {
+): CompletionItem[] {
   const context = position.context;
   const scope = getScope(context, symbolTable);
   let symbols: BaseSymbol[];
@@ -92,10 +92,17 @@ export  function getAllSymbolsOfType<T extends BaseSymbol>(
   while (!(variable instanceof ExpressionContext) && variable.parent) {
     variable = variable.parent;
   }
-  return filterTokens(
-    variable ? position.text : "",
-    symbols.map((s) => s.name)
-  );
+  
+  const filterText = variable ? position.text : "";
+  const emptyFilter = filterText.trim().length == 0;
+  return symbols.filter(s => {
+    return emptyFilter || s.name.toLowerCase().startsWith(filterText.toLowerCase());
+  }).map(s => {
+    return {
+      label: s.name,
+      kind: s instanceof MethodSymbol ? CompletionItemKind.Method : CompletionItemKind.Variable
+    }
+  });  
 }
 
 export function filterTokens_startsWith(text: string, candidates: string[]) {
@@ -154,7 +161,7 @@ export  function getSuggestionsForParseTree(
     candidates.rules.has(LPCParser.RULE_functionDeclaration)
   ) {
     const suggestRes = suggestVariables(symbolTableFn(), position);
-    completions.push(...suggestRes.map((s) => ({ label: s, kind: CompletionItemKind.Variable })));
+    completions.push(...suggestRes);
   }
   let tokens: string[] = [];
   candidates.tokens.forEach((_, k) => {
