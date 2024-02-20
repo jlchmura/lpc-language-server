@@ -4,8 +4,6 @@ import * as antlr from "antlr4ng";
 import { Token } from "antlr4ng";
 
 import { LPCListener } from "./LPCListener.js";
-import { LPCVisitor } from "./LPCVisitor.js";
-
 // for running tests with parameters, TODO: discuss strategy for typed parameters in CI
 // eslint-disable-next-line no-unused-vars
 type int = number;
@@ -5332,13 +5330,6 @@ export class Lpc_programContext extends antlr.ParserRuleContext {
              listener.exitLpc_program(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitLpc_program) {
-            return visitor.visitLpc_program(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -5371,13 +5362,6 @@ export class ProgramContext extends antlr.ParserRuleContext {
              listener.exitProgram(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitProgram) {
-            return visitor.visitProgram(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -5396,13 +5380,6 @@ export class Possible_semi_colonContext extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitPossible_semi_colon) {
              listener.exitPossible_semi_colon(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitPossible_semi_colon) {
-            return visitor.visitPossible_semi_colon(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -5443,13 +5420,6 @@ export class DefinitionContext extends antlr.ParserRuleContext {
              listener.exitDefinition(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitDefinition) {
-            return visitor.visitDefinition(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -5476,13 +5446,6 @@ export class DirectiveContext extends antlr.ParserRuleContext {
              listener.exitDirective(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitDirective) {
-            return visitor.visitDirective(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -5507,13 +5470,6 @@ export class DefineDeclarationContext extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitDefineDeclaration) {
              listener.exitDefineDeclaration(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitDefineDeclaration) {
-            return visitor.visitDefineDeclaration(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -5546,13 +5502,6 @@ export class IncludeContext extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitInclude) {
              listener.exitInclude(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitInclude) {
-            return visitor.visitInclude(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -5590,13 +5539,6 @@ export class Function_definitionContext extends antlr.ParserRuleContext {
              listener.exitFunction_definition(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitFunction_definition) {
-            return visitor.visitFunction_definition(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -5623,13 +5565,6 @@ export class Modifier_changeContext extends antlr.ParserRuleContext {
              listener.exitModifier_change(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitModifier_change) {
-            return visitor.visitModifier_change(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -5654,13 +5589,6 @@ export class Type_modifier_listContext extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitType_modifier_list) {
              listener.exitType_modifier_list(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitType_modifier_list) {
-            return visitor.visitType_modifier_list(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -5692,13 +5620,6 @@ export class Type_declContext extends antlr.ParserRuleContext {
              listener.exitType_decl(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitType_decl) {
-            return visitor.visitType_decl(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -5728,13 +5649,6 @@ export class Member_listContext extends antlr.ParserRuleContext {
              listener.exitMember_list(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitMember_list) {
-            return visitor.visitMember_list(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -5759,13 +5673,6 @@ export class Member_name_listContext extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitMember_name_list) {
              listener.exitMember_name_list(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitMember_name_list) {
-            return visitor.visitMember_name_list(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -5794,13 +5701,6 @@ export class Member_nameContext extends antlr.ParserRuleContext {
              listener.exitMember_name(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitMember_name) {
-            return visitor.visitMember_name(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -5825,13 +5725,6 @@ export class Name_listContext extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitName_list) {
              listener.exitName_list(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitName_list) {
-            return visitor.visitName_list(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -5864,13 +5757,6 @@ export class New_nameContext extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitNew_name) {
              listener.exitNew_name(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitNew_name) {
-            return visitor.visitNew_name(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -5974,13 +5860,6 @@ export class Expr0Context extends antlr.ParserRuleContext {
              listener.exitExpr0(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitExpr0) {
-            return visitor.visitExpr0(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -6005,13 +5884,6 @@ export class Time_expressionContext extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitTime_expression) {
              listener.exitTime_expression(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitTime_expression) {
-            return visitor.visitTime_expression(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -6040,13 +5912,6 @@ export class Expr_or_blockContext extends antlr.ParserRuleContext {
              listener.exitExpr_or_block(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitExpr_or_block) {
-            return visitor.visitExpr_or_block(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -6071,13 +5936,6 @@ export class Comma_exprContext extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitComma_expr) {
              listener.exitComma_expr(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitComma_expr) {
-            return visitor.visitComma_expr(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -6115,13 +5973,6 @@ export class Parse_commandContext extends antlr.ParserRuleContext {
              listener.exitParse_command(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitParse_command) {
-            return visitor.visitParse_command(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -6157,13 +6008,6 @@ export class SscanfContext extends antlr.ParserRuleContext {
              listener.exitSscanf(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitSscanf) {
-            return visitor.visitSscanf(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -6188,13 +6032,6 @@ export class Lvalue_listContext extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitLvalue_list) {
              listener.exitLvalue_list(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitLvalue_list) {
-            return visitor.visitLvalue_list(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -6223,13 +6060,6 @@ export class CastContext extends antlr.ParserRuleContext {
              listener.exitCast(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitCast) {
-            return visitor.visitCast(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -6251,13 +6081,6 @@ export class Basic_typeContext extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitBasic_type) {
              listener.exitBasic_type(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitBasic_type) {
-            return visitor.visitBasic_type(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -6284,13 +6107,6 @@ export class Atomic_typeContext extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitAtomic_type) {
              listener.exitAtomic_type(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitAtomic_type) {
-            return visitor.visitAtomic_type(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -6385,13 +6201,6 @@ export class Expr4Context extends antlr.ParserRuleContext {
              listener.exitExpr4(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitExpr4) {
-            return visitor.visitExpr4(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -6418,13 +6227,6 @@ export class Catch_statementContext extends antlr.ParserRuleContext {
              listener.exitCatch_statement(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitCatch_statement) {
-            return visitor.visitCatch_statement(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -6448,13 +6250,6 @@ export class Expr_listContext extends antlr.ParserRuleContext {
              listener.exitExpr_list(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitExpr_list) {
-            return visitor.visitExpr_list(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -6476,13 +6271,6 @@ export class Expr_list_mappingContext extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitExpr_list_mapping) {
              listener.exitExpr_list_mapping(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitExpr_list_mapping) {
-            return visitor.visitExpr_list_mapping(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -6512,13 +6300,6 @@ export class Expr_list4Context extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitExpr_list4) {
              listener.exitExpr_list4(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitExpr_list4) {
-            return visitor.visitExpr_list4(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -6553,13 +6334,6 @@ export class Assoc_pairContext extends antlr.ParserRuleContext {
              listener.exitAssoc_pair(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitAssoc_pair) {
-            return visitor.visitAssoc_pair(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -6584,13 +6358,6 @@ export class Expr_list2Context extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitExpr_list2) {
              listener.exitExpr_list2(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitExpr_list2) {
-            return visitor.visitExpr_list2(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -6619,13 +6386,6 @@ export class Expr_list_nodeContext extends antlr.ParserRuleContext {
              listener.exitExpr_list_node(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitExpr_list_node) {
-            return visitor.visitExpr_list_node(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -6647,13 +6407,6 @@ export class StringContext extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitString) {
              listener.exitString(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitString) {
-            return visitor.visitString(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -6680,13 +6433,6 @@ export class String_con2Context extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitString_con2) {
              listener.exitString_con2(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitString_con2) {
-            return visitor.visitString_con2(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -6719,13 +6465,6 @@ export class String_con1Context extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitString_con1) {
              listener.exitString_con1(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitString_con1) {
-            return visitor.visitString_con1(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -6772,13 +6511,6 @@ export class Function_callContext extends antlr.ParserRuleContext {
              listener.exitFunction_call(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitFunction_call) {
-            return visitor.visitFunction_call(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -6803,13 +6535,6 @@ export class Function_name_callContext extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitFunction_name_call) {
              listener.exitFunction_name_call(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitFunction_name_call) {
-            return visitor.visitFunction_name_call(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -6839,13 +6564,6 @@ export class Function_arrow_callContext extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitFunction_arrow_call) {
              listener.exitFunction_arrow_call(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitFunction_arrow_call) {
-            return visitor.visitFunction_arrow_call(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -6886,13 +6604,6 @@ export class Function_nameContext extends antlr.ParserRuleContext {
              listener.exitFunction_name(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitFunction_name) {
-            return visitor.visitFunction_name(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -6917,13 +6628,6 @@ export class Opt_class_initContext extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitOpt_class_init) {
              listener.exitOpt_class_init(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitOpt_class_init) {
-            return visitor.visitOpt_class_init(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -6953,13 +6657,6 @@ export class Class_initContext extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitClass_init) {
              listener.exitClass_init(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitClass_init) {
-            return visitor.visitClass_init(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -6994,13 +6691,6 @@ export class Efun_overrideContext extends antlr.ParserRuleContext {
              listener.exitEfun_override(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitEfun_override) {
-            return visitor.visitEfun_override(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -7024,13 +6714,6 @@ export class Block_or_semiContext extends antlr.ParserRuleContext {
              listener.exitBlock_or_semi(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitBlock_or_semi) {
-            return visitor.visitBlock_or_semi(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -7052,13 +6735,6 @@ export class BlockContext extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitBlock) {
              listener.exitBlock(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitBlock) {
-            return visitor.visitBlock(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -7090,13 +6766,6 @@ export class StatementsContext extends antlr.ParserRuleContext {
              listener.exitStatements(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitStatements) {
-            return visitor.visitStatements(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -7123,13 +6792,6 @@ export class Local_declare_statementContext extends antlr.ParserRuleContext {
              listener.exitLocal_declare_statement(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitLocal_declare_statement) {
-            return visitor.visitLocal_declare_statement(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -7154,13 +6816,6 @@ export class Local_name_listContext extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitLocal_name_list) {
              listener.exitLocal_name_list(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitLocal_name_list) {
-            return visitor.visitLocal_name_list(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -7195,13 +6850,6 @@ export class New_local_defContext extends antlr.ParserRuleContext {
              listener.exitNew_local_def(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitNew_local_def) {
-            return visitor.visitNew_local_def(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -7226,13 +6874,6 @@ export class New_local_nameContext extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitNew_local_name) {
              listener.exitNew_local_name(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitNew_local_name) {
-            return visitor.visitNew_local_name(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -7288,13 +6929,6 @@ export class StatementContext extends antlr.ParserRuleContext {
              listener.exitStatement(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitStatement) {
-            return visitor.visitStatement(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -7322,13 +6956,6 @@ export class While_statementContext extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitWhile_statement) {
              listener.exitWhile_statement(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitWhile_statement) {
-            return visitor.visitWhile_statement(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -7361,13 +6988,6 @@ export class Do_statementContext extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitDo_statement) {
              listener.exitDo_statement(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitDo_statement) {
-            return visitor.visitDo_statement(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -7405,13 +7025,6 @@ export class Switch_statementContext extends antlr.ParserRuleContext {
              listener.exitSwitch_statement(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitSwitch_statement) {
-            return visitor.visitSwitch_statement(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -7439,13 +7052,6 @@ export class Local_declarationsContext extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitLocal_declarations) {
              listener.exitLocal_declarations(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitLocal_declarations) {
-            return visitor.visitLocal_declarations(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -7489,13 +7095,6 @@ export class Case_statementContext extends antlr.ParserRuleContext {
              listener.exitCase_statement(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitCase_statement) {
-            return visitor.visitCase_statement(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -7525,13 +7124,6 @@ export class Switch_blockContext extends antlr.ParserRuleContext {
              listener.exitSwitch_block(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitSwitch_block) {
-            return visitor.visitSwitch_block(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -7559,13 +7151,6 @@ export class Case_labelContext extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitCase_label) {
              listener.exitCase_label(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitCase_label) {
-            return visitor.visitCase_label(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -7630,13 +7215,6 @@ export class ConstantContext extends antlr.ParserRuleContext {
              listener.exitConstant(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitConstant) {
-            return visitor.visitConstant(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -7672,13 +7250,6 @@ export class Foreach_loopContext extends antlr.ParserRuleContext {
              listener.exitForeach_loop(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitForeach_loop) {
-            return visitor.visitForeach_loop(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -7706,13 +7277,6 @@ export class Foreach_varsContext extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitForeach_vars) {
              listener.exitForeach_vars(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitForeach_vars) {
-            return visitor.visitForeach_vars(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -7753,13 +7317,6 @@ export class For_loopContext extends antlr.ParserRuleContext {
              listener.exitFor_loop(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitFor_loop) {
-            return visitor.visitFor_loop(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -7789,13 +7346,6 @@ export class Foreach_varContext extends antlr.ParserRuleContext {
              listener.exitForeach_var(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitForeach_var) {
-            return visitor.visitForeach_var(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -7820,13 +7370,6 @@ export class First_for_exprContext extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitFirst_for_expr) {
              listener.exitFirst_for_expr(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitFirst_for_expr) {
-            return visitor.visitFirst_for_expr(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -7858,13 +7401,6 @@ export class Single_new_local_def_with_initContext extends antlr.ParserRuleConte
              listener.exitSingle_new_local_def_with_init(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitSingle_new_local_def_with_init) {
-            return visitor.visitSingle_new_local_def_with_init(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -7894,13 +7430,6 @@ export class Single_new_local_defContext extends antlr.ParserRuleContext {
              listener.exitSingle_new_local_def(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitSingle_new_local_def) {
-            return visitor.visitSingle_new_local_def(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -7922,13 +7451,6 @@ export class For_exprContext extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitFor_expr) {
              listener.exitFor_expr(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitFor_expr) {
-            return visitor.visitFor_expr(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -7955,13 +7477,6 @@ export class ReturnStatementContext extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitReturnStatement) {
              listener.exitReturnStatement(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitReturnStatement) {
-            return visitor.visitReturnStatement(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -7996,13 +7511,6 @@ export class CondContext extends antlr.ParserRuleContext {
              listener.exitCond(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitCond) {
-            return visitor.visitCond(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -8027,13 +7535,6 @@ export class Optional_else_partContext extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitOptional_else_part) {
              listener.exitOptional_else_part(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitOptional_else_part) {
-            return visitor.visitOptional_else_part(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -8062,13 +7563,6 @@ export class ArgumentContext extends antlr.ParserRuleContext {
              listener.exitArgument(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitArgument) {
-            return visitor.visitArgument(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -8093,13 +7587,6 @@ export class Argument_listContext extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitArgument_list) {
              listener.exitArgument_list(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitArgument_list) {
-            return visitor.visitArgument_list(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -8131,13 +7618,6 @@ export class New_argContext extends antlr.ParserRuleContext {
              listener.exitNew_arg(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitNew_arg) {
-            return visitor.visitNew_arg(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -8162,13 +7642,6 @@ export class InheritanceContext extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitInheritance) {
              listener.exitInheritance(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitInheritance) {
-            return visitor.visitInheritance(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -8197,13 +7670,6 @@ export class Data_typeContext extends antlr.ParserRuleContext {
              listener.exitData_type(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitData_type) {
-            return visitor.visitData_type(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -8227,13 +7693,6 @@ export class Opt_basic_typeContext extends antlr.ParserRuleContext {
              listener.exitOpt_basic_type(this);
         }
     }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitOpt_basic_type) {
-            return visitor.visitOpt_basic_type(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
 }
 
 
@@ -8252,13 +7711,6 @@ export class Optional_starContext extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitOptional_star) {
              listener.exitOptional_star(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitOptional_star) {
-            return visitor.visitOptional_star(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }
@@ -8285,13 +7737,6 @@ export class IdentifierContext extends antlr.ParserRuleContext {
     public override exitRule(listener: LPCListener): void {
         if(listener.exitIdentifier) {
              listener.exitIdentifier(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCVisitor<Result>): Result | null {
-        if (visitor.visitIdentifier) {
-            return visitor.visitIdentifier(this);
-        } else {
-            return visitor.visitChildren(this);
         }
     }
 }

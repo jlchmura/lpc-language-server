@@ -179,16 +179,14 @@ export class LPCLexer extends antlr.Lexer {
     private FunctionOpen_sempred(localContext: antlr.RuleContext | null, predIndex: number): boolean {
         switch (predIndex) {
         case 0:
-            // @ts-ignore
-            return _input.LA(1) != ':';
+            return String.fromCharCode(this.inputStream.LA(1)) != ':';            
         }
         return true;
     }
     private FractionalConstant_sempred(localContext: antlr.RuleContext | null, predIndex: number): boolean {
         switch (predIndex) {
         case 1:
-            // @ts-ignore
-            return _input.LA(1) != '.';
+            return String.fromCharCode(this._input.LA(1)) != '.';
         }
         return true;
     }

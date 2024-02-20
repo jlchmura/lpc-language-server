@@ -133,6 +133,7 @@ export async function getSuggestionsForParseTree(
     LPCParser.RULE_expr4,
     LPCParser.RULE_function_definition,
     LPCParser.RULE_type_decl,
+    LPCParser.RULE_argument,
   ]);
   let candidates = core.collectCandidates(position.index);
 
