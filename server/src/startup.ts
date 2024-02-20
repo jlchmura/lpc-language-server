@@ -73,7 +73,7 @@ export function startServer(connection: Connection) {
         },
         documentSymbolProvider: true,
         definitionProvider: true,
-        foldingRangeProvider: false, // change to true to enable server-based folding
+        foldingRangeProvider: true, // change to true to enable server-based folding
       },
     };
     if (hasWorkspaceFolderCapability) {
@@ -191,7 +191,7 @@ export function startServer(connection: Connection) {
   connection.onFoldingRanges((params, token) => {
     const doc = documents.get(params.textDocument.uri);
     if (doc) {
-      return getFoldingRanges(doc, foldingRangeLimit);
+      return getFoldingRanges(doc.getText(), foldingRangeLimit);
     }
     return null;
   });

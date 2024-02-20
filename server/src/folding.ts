@@ -1,3 +1,4 @@
+import { CharStreams, CommonTokenStream, ParseCancellationException, ParserRuleContext, PredictionMode, Token, TokensStartState } from "antlr4ng";
 import {
   CancellationToken,
   FoldingRange,
@@ -5,13 +6,45 @@ import {
   Range,
 } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
+import { LPCLexer } from "./parser3/LPCLexer";
+import { FunctionDeclarationContext, LPCParser, ProgramContext } from "./parser3/LPCParser";
+import { SymbolTableVisitor } from "./symbolTableVisitor";
+import { MethodSymbol } from "antlr4-c3/index";
 
 
 export function getFoldingRanges(
-  document: TextDocument,
+  code: string,
   maxRanges: number | undefined
-): FoldingRange[] {  
+): FoldingRange[] {    
   let result: FoldingRange[] = [];
+
+  let input = CharStreams.fromString(code);
+  let lexer = new LPCLexer(input);
+  let tokenStream = new CommonTokenStream(lexer);
+  let parser = new LPCParser(tokenStream);
+  
+  let parseTree:ProgramContext;
+  
+  try {
+    parseTree = parser.program();
+  }catch (e) {
+    return [];
+  }
+
+  const symbols = new SymbolTableVisitor().visit(parseTree);
+  
+  symbols.getAllNestedSymbolsSync().filter(s => s instanceof MethodSymbol).forEach((s:MethodSymbol) => {
+    const ctx = s.context as ParserRuleContext;
+        
+    result.push({
+      startLine: ctx.start.line-1,
+      endLine: ctx.stop.line-2,
+      startCharacter: ctx.start.column,
+      endCharacter: ctx.stop.column,
+      kind: "function",
+      collapsedText: s.name,
+    });
+  });
 
   // const ast = ParseLPC(document.getText());
   // ast.roots.forEach((node) => {
@@ -33,6 +66,8 @@ export function getFoldingRanges(
   // }
 
   console.log("Folding ranges:", result);
+  result = limitRanges(result, maxRanges || 1000);
+  console.dir(result);
 
   return result;
 }

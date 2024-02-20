@@ -8,6 +8,7 @@ import { CodeCompletionCore } from "antlr4-c3/index";
 import { CaretPosition, getSuggestions } from "./completions";
 import { computeTokenPosition } from "./tokenposition";
 import { CompletionItemKind } from "vscode-languageserver";
+import { getFoldingRanges } from "./folding";
 
 
 const code = fs.existsSync(process.argv[2])
@@ -37,6 +38,6 @@ for (let candidate of candidates.tokens) {
 let tokenPos = computeTokenPosition(p, tStream, caretPos);
 
 let suggestions = getSuggestions(code, caretPos, computeTokenPosition);
-
+let fold = getFoldingRanges(code, Number.MAX_VALUE);
 
 const i = 0;
