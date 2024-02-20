@@ -29,7 +29,6 @@ import { getSuggestions, getSuggestionsForParseTree } from "./completions";
 import { getDocumentSymbols } from "./documentSymbol";
 import { getFoldingRanges } from "./folding";
 import { LPCNavigation } from "./navigation";
-import { ParseLPC } from "./parser";
 
 import { SymbolTableVisitor } from "./symbolTableVisitor";
 import { computeTokenPosition } from "./tokenposition";
@@ -166,7 +165,11 @@ export function startServer(connection: Connection) {
     const text = textDocument.getText();
 
     try {
-      const ast = ParseLPC(text);
+    const stream = CharStreams.fromString(text);
+const lexer = new LPCLexer(stream);
+const tStream = new CommonTokenStream(lexer);
+const parser = new LPCParser(tStream);
+    
     } catch (err) {
       let errMsg: string;
       if (typeof err == "string") errMsg = err;
@@ -200,18 +203,18 @@ export function startServer(connection: Connection) {
     return [];
   });
 
-  connection.onDefinition((definitionParams, token) => {
-    const document = documents.get(definitionParams.textDocument.uri);
-    if (document) {
-      const ast = ParseLPC(document.getText());
-      const nav = new LPCNavigation();
-      const loc = nav.findDefinition(document, definitionParams.position, ast);
-      if (loc) {
-        return [loc];
-      }
-    }
-    return [];
-  });
+  // connection.onDefinition((definitionParams, token) => {
+  //   const document = documents.get(definitionParams.textDocument.uri);
+  //   if (document) {
+  //     const ast = ParseLPC(document.getText());
+  //     const nav = new LPCNavigation();
+  //     const loc = nav.findDefinition(document, definitionParams.position, ast);
+  //     if (loc) {
+  //       return [loc];
+  //     }
+  //   }
+  //   return [];
+  // });
 
   connection.onDidChangeWatchedFiles((_change) => {
     // Monitored files have change in VSCode

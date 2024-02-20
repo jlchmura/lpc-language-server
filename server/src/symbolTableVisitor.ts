@@ -1,5 +1,5 @@
 
-import { SymbolTable,ScopedSymbol,VariableSymbol,RoutineSymbol } from "antlr4-c3";
+import { SymbolTable,ScopedSymbol,VariableSymbol,RoutineSymbol } from "antlr4-c3/index";
 import { Expr4Context, Function_definitionContext } from "./parser3/LPCParser";
 import { LPCVisitor } from "./parser3/LPCVisitor";
 import { AbstractParseTreeVisitor, ParseTree } from "antlr4ng";

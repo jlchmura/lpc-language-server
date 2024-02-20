@@ -4,16 +4,17 @@
 	"version": "0.0.1",
 	"author": "jlchmura",
 	"license": "MIT",
+	
 	"engines": {
 		"node": "*"
 	},
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/jlchmura/lpc-language-server"
-	},
+	},	
 	"dependencies": {
 		"vscode-languageserver": "^8.1.0",
-		"vscode-languageserver-textdocument": "^1.0.8"
+		"vscode-languageserver-textdocument": "^1.0.8"		
 	},
 	"scripts": {}
 }

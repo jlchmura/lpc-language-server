@@ -1,10 +1,6 @@
-import { CodeCompletionCore, SymbolTable,  ScopedSymbol, VariableSymbol, BaseSymbol, SymbolConstructor } from "antlr4-c3";
-
-
+import { CodeCompletionCore, SymbolTable,  ScopedSymbol, VariableSymbol, BaseSymbol, SymbolConstructor } from "antlr4-c3/index";
 import { CompletionItem } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
-
-
 import * as fuzzysort from 'fuzzysort';
 import { SymbolTableVisitor } from "./symbolTableVisitor";
 import { AbstractParseTreeVisitor, CharStreams, CommonTokenStream, ParseTree, TerminalNode, TokenStream } from "antlr4ng";
@@ -19,14 +15,14 @@ export type ComputeTokenPositionFunction =
 
 export function getScope(context: ParseTree|undefined, symbolTable: SymbolTable):BaseSymbol |undefined {
     if(!context) {
-        return undefined;
+    return undefined;
     }
     
     const scope = symbolTable.symbolWithContextSync(context);
     if(scope) {
         return scope;
     } else {        
-        return getScope(context.parent, symbolTable);
+        return getScope(context.parent!, symbolTable);
     }
 }
 
@@ -139,7 +135,7 @@ function computeTokenIndexOfTerminalNode(parseTree: TerminalNode, caretPosition:
 
 function computeTokenIndexOfChildNode(parseTree: ParseTree, caretPosition: CaretPosition) {
     for (let i = 0; i < parseTree.getChildCount(); i++) {
-        let index = computeTokenIndex(parseTree.getChild(i), caretPosition);
+        let index = computeTokenIndex(parseTree.getChild(i)!, caretPosition);
         if (index !== undefined) {
             return index;
         }

@@ -51,12 +51,13 @@
     "antlr4ng-cli": "^1.0.7",
     "eslint": "^8.35.0",
     "mocha": "^9.2.1",
-    "typescript": "4.8.3"
+    "ts-loader": "^6.2.2",
+    "ts-node": "10.9.2",
+    "typescript": "5.3.3"
   },
   "dependencies": {
-    "antlr4-c3": "^3.3.6",
+    "antlr4-c3": "file:../antlr4-c3/lib",
     "antlr4ng": "^2.0.10",
-    "fuzzysort": "^2.0.4",
-    "ts-node": "^10.9.1"
+    "fuzzysort": "^2.0.4"
   }
 }

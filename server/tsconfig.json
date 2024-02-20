@@ -1,18 +1,17 @@
 {
-	"compilerOptions": {
-		"target": "es6",
-		"lib": ["es2020"],
-		"module": "commonjs",
-		"moduleResolution": "node",
+	"compilerOptions": {		
+		"target": "ES2022",
+		"lib": ["ES2022"],
+		"module": "CommonJS",
+		"moduleResolution": "Node",
+		"esModuleInterop": true,
 		"sourceMap": true,
 		"strict": false,
 		"outDir": "out",
-		"rootDir": "src"
-	},
-	"ts-node": {
-		"esm": true,
-		"experimentalSpecifierResolution": "node"
-	},
+		"rootDir": "src",
+		"resolveJsonModule": true,
+	},	
+	
 	"include": ["src"],
 	"exclude": ["node_modules", ".vscode-test"]
 }
