@@ -173,7 +173,7 @@ parameterList
     ;
 
 parameter
-    : typeSpecifier Identifier
+    : typeSpecifier? Identifier
     ;
 
 scalarDeclaration
