@@ -64,6 +64,8 @@ QUESTION: '?';
 COLON: ':';
 SEMI: ';';
 COMMA: ',';
+// for inheritance
+SUPER_ACCESSOR: '::';
 // assignmenet operators
 ADD_ASSIGN: '+=';
 SUB_ASSIGN: '-=';
@@ -97,7 +99,7 @@ COMMENT: '/*' .*? '*/' -> skip;
 LINE_COMMENT: '//' .*? '\n' -> skip;
 
 
-program: (declaration | preprocessorDirective)* EOF;
+program: (declaration | preprocessorDirective | inheritStatement)* EOF;
 
 preprocessorDirective
     : '#' directiveType
@@ -145,6 +147,17 @@ directiveIncludeFileGlobal: '<' directiveIncludeFilename '>';
 directiveIncludeFileLocal: StringLiteral;
 
 directiveTypePragma: 'pragma';
+
+// inherit
+inheritStatement
+    : 'inherit' StringLiteral SEMI
+    ;
+
+inheritSuperStatement
+    : SUPER_ACCESSOR expression
+    | StringLiteral SUPER_ACCESSOR expression
+    ;
+
 
 declaration
     : functionDeclaration
@@ -215,7 +228,8 @@ statement
     | selectionStatement
     | iterationStatement
     | jumpStatement
-    | variableDeclaration    
+    | variableDeclaration   
+    | inheritSuperStatement 
     ;
 
 expressionStatement: expression? SEMI;
