@@ -63,6 +63,7 @@ ARRAY_OPEN: '({';
 ARRAY_CLOSE: '})';
 MAPPING_OPEN: '([';
 MAPPING_CLOSE: '])';
+ARROW: '->';
 
 
 // Literals
@@ -215,6 +216,16 @@ jumpStatement
     | RETURN expression? SEMI
     ;
 
+callOtherTarget
+    : Identifier
+    | '(' Identifier ')'
+    | StringLiteral
+    ;
+
+callOtherExpression
+    : (Identifier | StringLiteral) ARROW callOtherTarget '(' expressionList? ')'
+    ;
+
 expression
     : Identifier
     | IntegerConstant
@@ -247,6 +258,7 @@ expression
     | Identifier '=' expression
     | Identifier '(' expressionList? ')'  // function call
     | mappingExpression
+    | callOtherExpression
     ;
 
 expressionList
