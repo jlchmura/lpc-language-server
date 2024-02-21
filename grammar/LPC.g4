@@ -25,10 +25,8 @@ MAPPING: 'mapping';
 OBJECT: 'object';
 REGISTER: 'register';
 RETURN: 'return';
-SHORT: 'short';
 SIZEOF: 'sizeof';
 STATUS: 'status';
-STATIC: 'static';
 STRUCT: 'struct';
 STRING: 'string';
 SYMBOL: 'symbol';
@@ -39,6 +37,12 @@ UNKNOWN: 'unknown';
 VOID: 'void';
 VOLATILE: 'volatile';
 WHILE: 'while';
+
+PRIVATE: 'private';
+PROTECTED: 'protected';
+PUBLIC: 'public';
+STATIC: 'static';
+
 
 // Operators
 PLUS: '+';
@@ -94,6 +98,7 @@ CharacterConstant: '\'' (~['\r\n\\] | '\\' .) '\'';
 
 // Identifiers
 Identifier: [a-zA-Z_] [a-zA-Z_0-9]*;
+
 
 // Whitespace and comments
 WS: [ \t\r\n]+ -> skip;
@@ -170,8 +175,15 @@ declaration
     | variableDeclaration
     ;
 
+functionModifier
+    : STATIC
+    | PRIVATE
+    | PROTECTED
+    | PUBLIC
+    ;
+
 functionDeclaration
-    : typeSpecifier? Identifier '(' parameterList? ')' compoundStatement
+    : functionModifier? typeSpecifier? Identifier '(' parameterList? ')' compoundStatement
     ;
 
 parameterList
@@ -186,12 +198,12 @@ scalarDeclaration
     : typeSpecifier Identifier ('=' expression)? SEMI
     ;
 
-arrayContent
+arrayExpression
     : ARRAY_OPEN (expression (',' expression)*)? ARRAY_CLOSE
     ;
 
 arrayDeclaration
-    : typeSpecifier? STAR Identifier ('=' arrayContent)? SEMI
+    : typeSpecifier? STAR Identifier ('=' arrayExpression)? SEMI
     ;
 
 mappingKey
@@ -213,7 +225,7 @@ variableDeclaration
     | arrayDeclaration
     ;
 
-typeSpecifier
+primitiveTypeSpecifier
     : VOID
     | CHAR
     | INT   
@@ -228,6 +240,11 @@ typeSpecifier
     | UNKNOWN
     ;
 
+typeSpecifier
+    : primitiveTypeSpecifier
+    | typeSpecifier STAR
+    ;
+
 statement
     : expressionStatement
     | compoundStatement
@@ -238,7 +255,7 @@ statement
     | inheritSuperStatement 
     ;
 
-expressionStatement: expression? SEMI;
+expressionStatement: expression SEMI;
 
 compoundStatement: '{' statement* '}';
 
@@ -332,6 +349,7 @@ expression
     | Identifier '(' expressionList? ')'  // function call
     | mappingExpression
     | callOtherExpression
+    | arrayExpression
     ;
 
 expressionList
