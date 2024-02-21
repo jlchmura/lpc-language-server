@@ -1,6 +1,7 @@
 grammar LPC;
 
 // Keywords
+
 AUTO: 'auto';
 BREAK: 'break';
 CASE: 'case';
@@ -24,6 +25,7 @@ SIGNED: 'signed';
 SIZEOF: 'sizeof';
 STATIC: 'static';
 STRUCT: 'struct';
+STRING: 'string';
 SWITCH: 'switch';
 TYPEDEF: 'typedef';
 UNION: 'union';
@@ -58,6 +60,8 @@ QUESTION: '?';
 COLON: ':';
 SEMI: ';';
 COMMA: ',';
+ARRAY_OPEN: '({';
+ARRAY_CLOSE: '})';
 
 // Literals
 IntegerConstant: [0-9]+;
@@ -79,6 +83,7 @@ program: declaration* EOF;
 declaration
     : functionDeclaration
     | variableDeclaration
+    | arrayDeclaration
     ;
 
 functionDeclaration
@@ -97,11 +102,20 @@ variableDeclaration
     : typeSpecifier Identifier ('=' expression)? SEMI
     ;
 
+arrayContent
+    : ARRAY_OPEN (expression (',' expression)*)? ARRAY_CLOSE
+    ;
+
+arrayDeclaration
+    : typeSpecifier? STAR Identifier ('=' arrayContent)? SEMI
+    ;
+
 typeSpecifier
     : VOID
     | CHAR
     | INT
     | LONG
+    | STRING
     ;
 
 statement
@@ -111,6 +125,7 @@ statement
     | iterationStatement
     | jumpStatement
     | variableDeclaration    
+    | arrayDeclaration
     ;
 
 expressionStatement: expression? SEMI;

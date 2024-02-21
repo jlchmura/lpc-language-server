@@ -11,7 +11,7 @@ import { SymbolTableVisitor } from "./symbolTableVisitor";
 import { CharStreams, CommonTokenStream, ParserRuleContext } from "antlr4ng";
 import { LPCLexer } from "./parser3/LPCLexer";
 import { LPCParser, ProgramContext } from "./parser3/LPCParser";
-import { MethodSymbol, VariableSymbol } from "antlr4-c3/index";
+import { MethodSymbol, ScopedSymbol, SymbolTable, VariableSymbol } from "antlr4-c3/index";
 
 
  export function getDocumentSymbols(code:string): DocumentSymbol[] {  
@@ -33,39 +33,47 @@ import { MethodSymbol, VariableSymbol } from "antlr4-c3/index";
   const symbols = new SymbolTableVisitor().visit(parseTree);
 
   // functions
-  symbols.getAllNestedSymbolsSync().filter(s => s instanceof MethodSymbol).forEach((s:MethodSymbol) => {
+  symbols.getAllNestedSymbolsSync().filter(s => s instanceof MethodSymbol && !!s).forEach((s:MethodSymbol) => {
     const ctx = s.context as ParserRuleContext;  
     if (!ctx) return;
 
     const rng = getSelectionRange(ctx);
+
+    const vars = getVariableSymbols(s);
 
     results.push({
       kind: SymbolKind.Function,
-      name: s.name || "",
-      selectionRange: rng,
+      name: s?.name || "",
+      selectionRange: rng,      
       range: rng,              
+      children: vars
     });
+
+    // get all the variables under the function
+    
   });
 
-  symbols.getAllNestedSymbolsSync().filter(s => s instanceof VariableSymbol).forEach((s:VariableSymbol) => {
+  results.push(...getVariableSymbols(symbols));
+  
+  return results;
+
+ }
+
+function getVariableSymbols(symbols:ScopedSymbol):DocumentSymbol[] {
+  return symbols.getAllNestedSymbolsSync().filter(s => s instanceof VariableSymbol).map((s:VariableSymbol) => {
     const ctx = s.context as ParserRuleContext;  
     if (!ctx) return;
 
     const rng = getSelectionRange(ctx);
 
-    results.push({
+    return {
       kind: SymbolKind.Variable,
-      name: s.name || "",
+      name: s?.name || "",
       selectionRange: rng,
       range: rng,              
-    });
-    
-  });
-
-
-  return results;
-
- }
+    };    
+  }).filter(s=>!!s) || [];
+}
 
 function getSelectionRange(ctx:ParserRuleContext):Range {
   const start = ctx.start;
