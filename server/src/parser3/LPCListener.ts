@@ -25,9 +25,7 @@ import { FunctionModifierContext } from "./LPCParser.js";
 import { FunctionDeclarationContext } from "./LPCParser.js";
 import { ParameterListContext } from "./LPCParser.js";
 import { ParameterContext } from "./LPCParser.js";
-import { ScalarDeclarationContext } from "./LPCParser.js";
 import { ArrayExpressionContext } from "./LPCParser.js";
-import { ArrayDeclarationContext } from "./LPCParser.js";
 import { MappingKeyContext } from "./LPCParser.js";
 import { MappingContentContext } from "./LPCParser.js";
 import { MappingExpressionContext } from "./LPCParser.js";
@@ -278,16 +276,6 @@ export class LPCListener implements ParseTreeListener {
      */
     exitParameter?: (ctx: ParameterContext) => void;
     /**
-     * Enter a parse tree produced by `LPCParser.scalarDeclaration`.
-     * @param ctx the parse tree
-     */
-    enterScalarDeclaration?: (ctx: ScalarDeclarationContext) => void;
-    /**
-     * Exit a parse tree produced by `LPCParser.scalarDeclaration`.
-     * @param ctx the parse tree
-     */
-    exitScalarDeclaration?: (ctx: ScalarDeclarationContext) => void;
-    /**
      * Enter a parse tree produced by `LPCParser.arrayExpression`.
      * @param ctx the parse tree
      */
@@ -297,16 +285,6 @@ export class LPCListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitArrayExpression?: (ctx: ArrayExpressionContext) => void;
-    /**
-     * Enter a parse tree produced by `LPCParser.arrayDeclaration`.
-     * @param ctx the parse tree
-     */
-    enterArrayDeclaration?: (ctx: ArrayDeclarationContext) => void;
-    /**
-     * Exit a parse tree produced by `LPCParser.arrayDeclaration`.
-     * @param ctx the parse tree
-     */
-    exitArrayDeclaration?: (ctx: ArrayDeclarationContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.mappingKey`.
      * @param ctx the parse tree

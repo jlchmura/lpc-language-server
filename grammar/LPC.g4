@@ -196,16 +196,9 @@ parameter
     : typeSpecifier? Identifier
     ;
 
-scalarDeclaration
-    : typeSpecifier Identifier ('=' expression)? SEMI
-    ;
 
 arrayExpression
     : ARRAY_OPEN (expression (',' expression)*)? ARRAY_CLOSE
-    ;
-
-arrayDeclaration
-    : typeSpecifier? STAR Identifier ('=' arrayExpression)? SEMI
     ;
 
 mappingKey
@@ -223,8 +216,7 @@ mappingExpression
     ;
 
 variableDeclaration
-    : scalarDeclaration
-    | arrayDeclaration
+    : typeSpecifier Identifier ('=' expression)? SEMI    
     ;
 
 primitiveTypeSpecifier

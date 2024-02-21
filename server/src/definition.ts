@@ -43,6 +43,8 @@ export function getDefinitions(
 
   // find the token at this position and get its name
   const position = computeTokenPosition(parseTree, tokenStream, caretPosition);
+  if (!position) return [];
+  
   const token = position.token;
   let nameToFind = position.token.text;
 

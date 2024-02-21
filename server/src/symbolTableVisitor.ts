@@ -3,7 +3,7 @@ import { SymbolTable,ScopedSymbol,VariableSymbol,RoutineSymbol, MethodSymbol, Ty
 
 import { LPCVisitor } from "./parser3/LPCVisitor";
 import { AbstractParseTreeVisitor, ParseTree, TerminalNode } from "antlr4ng";
-import { ArrayDeclarationContext, DefinePreprocessorDirectiveContext, DirectiveTypeDefineContext, ExpressionContext, FunctionDeclarationContext, LPCParser, ScalarDeclarationContext, StatementContext, VariableDeclarationContext } from "./parser3/LPCParser";
+import {  DefinePreprocessorDirectiveContext, DirectiveTypeDefineContext, ExpressionContext, FunctionDeclarationContext, LPCParser, StatementContext, VariableDeclarationContext } from "./parser3/LPCParser";
 
 
 export class SymbolTableVisitor extends AbstractParseTreeVisitor<SymbolTable> implements LPCVisitor<SymbolTable> {
@@ -28,9 +28,12 @@ export class SymbolTableVisitor extends AbstractParseTreeVisitor<SymbolTable> im
     
     visitVariableDeclaration = (ctx: VariableDeclarationContext) => {
         // ctx will either be scalar or array, it doesn't matter right now
-        const scalar = (ctx as unknown as ScalarDeclarationContext);
-        const tt = scalar.typeSpecifier()?.getText();
+        let tt = ctx.typeSpecifier()?.getText();
         let varType: IType;
+        const isArray = tt.endsWith("*");
+        if (isArray) {
+            tt = tt.substring(0, tt.length-1);
+        }
         switch (tt) {
             case "int":
                 varType = FundamentalType.integerType;
@@ -43,11 +46,11 @@ export class SymbolTableVisitor extends AbstractParseTreeVisitor<SymbolTable> im
                 break;            
         }
         
-        if (ctx instanceof ArrayDeclarationContext) {
-            varType = new ArrayType("*"+tt, ReferenceKind.Pointer, varType);
-        }
+        if (isArray) {
+             varType = new ArrayType(tt + "*", ReferenceKind.Pointer, varType);
+         }
         
-        this.symbolTable.addNewSymbolOfType(VariableSymbol, this.scope, scalar.Identifier()?.getText(), undefined, varType);
+        this.symbolTable.addNewSymbolOfType(VariableSymbol, this.scope, ctx.Identifier()?.getText(), undefined, varType);
         return this.visitChildren(ctx);
     };
 
