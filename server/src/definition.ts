@@ -4,6 +4,7 @@ import {
   Location,
   LocationLink,
   Position,
+  Range,
 } from "vscode-languageserver";
 import { SymbolTableVisitor } from "./symbolTableVisitor";
 import { CharStreams, CommonTokenStream, ParserRuleContext } from "antlr4ng";
@@ -40,19 +41,22 @@ export function getDefinitions(
     return [];
   }
 
-  // find the token at this position
+  // find the token at this position and get its name
   const position = computeTokenPosition(parseTree, tokenStream, caretPosition);
+  const token = position.token;
   let nameToFind = position.token.text;
+
   // since LPC allows string literals to be used as identifiers, remove the quotes
   // so we can stil find functions that corespond to this string
   if (position.token.type == LPCParser.StringLiteral) {
     nameToFind = nameToFind.slice(1, -1); // remove quotes
   }
-  const posIdx = position.index;
+
   console.log("Looking for definition of " + nameToFind);
 
   const symbols = new SymbolTableVisitor().visit(parseTree);
 
+  // find symbols that match the name
   symbols
     .getAllNestedSymbolsSync()
     .filter((s) => s.name == nameToFind)
@@ -61,9 +65,14 @@ export function getDefinitions(
       if (!ctx) return;
 
       const name = s.name;
-      const rng = getSelectionRange(ctx);
 
-      locations.push(LocationLink.create(doc.uri, rng, rng, rng));
+      const rng = getSelectionRange(ctx);
+      const origRng = Range.create(
+        Position.create(token.line - 1, token.start),
+        Position.create(token.line - 1, token.stop)
+      );
+      
+      locations.push(LocationLink.create(doc.uri, rng, rng, origRng));
     });
 
   return locations;
