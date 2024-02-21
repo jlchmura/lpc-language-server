@@ -6,6 +6,7 @@ AUTO: 'auto';
 BREAK: 'break';
 CASE: 'case';
 CHAR: 'char';
+CLOSURE: 'closure';
 CONST: 'const';
 CONTINUE: 'continue';
 DEFAULT: 'default';
@@ -13,22 +14,26 @@ DO: 'do';
 ELSE: 'else';
 ENUM: 'enum';
 EXTERN: 'extern';
+FLOAT: 'float';
 FOR: 'for';
 GOTO: 'goto';
 IF: 'if';
 INT: 'int';
 MAPPING: 'mapping';
+OBJECT: 'object';
 REGISTER: 'register';
 RETURN: 'return';
 SHORT: 'short';
 SIZEOF: 'sizeof';
+STATUS: 'status';
 STATIC: 'static';
 STRUCT: 'struct';
 STRING: 'string';
+SYMBOL: 'symbol';
 SWITCH: 'switch';
 TYPEDEF: 'typedef';
 UNION: 'union';
-UNSIGNED: 'unsigned';
+UNKNOWN: 'unknown';
 VOID: 'void';
 VOLATILE: 'volatile';
 WHILE: 'while';
@@ -59,6 +64,16 @@ QUESTION: '?';
 COLON: ':';
 SEMI: ';';
 COMMA: ',';
+// assignmenet operators
+ADD_ASSIGN: '+=';
+SUB_ASSIGN: '-=';
+MUL_ASSIGN: '*=';
+DIV_ASSIGN: '/=';
+MOD_ASSIGN: '%=';
+AND_ASSIGN: '&=';
+OR_ASSIGN: '|=';
+XOR_ASSIGN: '^=';
+// array & mapping brackets
 ARRAY_OPEN: '({';
 ARRAY_CLOSE: '})';
 MAPPING_OPEN: '([';
@@ -182,9 +197,16 @@ variableDeclaration
 typeSpecifier
     : VOID
     | CHAR
-    | INT    
+    | INT   
+    | FLOAT 
     | STRING
+    | STRUCT
+    | OBJECT
     | MAPPING
+    | STATUS
+    | CLOSURE
+    | SYMBOL
+    | UNKNOWN
     ;
 
 statement
@@ -200,9 +222,30 @@ expressionStatement: expression? SEMI;
 
 compoundStatement: '{' statement* '}';
 
+// if and switch statements
 selectionStatement
+    : ifStatement
+    | switchStatement
+    ;
+
+ifStatement
     : IF '(' expression ')' statement (ELSE statement)?
-    | SWITCH '(' expression ')' statement
+    ;
+
+// Switch, case, and default statements
+switchStatement
+    : SWITCH '(' expression ')' '{' (caseStatement | defaultStatement)* '}'
+    ;
+
+caseExpression
+    : (StringLiteral|IntegerConstant)
+    | (StringLiteral|IntegerConstant) '..' (StringLiteral|IntegerConstant)
+    ;
+caseStatement
+    : CASE caseExpression ':' statement*
+    ;
+defaultStatement
+    : DEFAULT ':' statement*
     ;
 
 iterationStatement
@@ -250,6 +293,14 @@ expression
     | expression XOR expression
     | expression AND_AND expression
     | expression OR_OR expression
+    | expression ADD_ASSIGN expression
+    | expression SUB_ASSIGN expression
+    | expression MUL_ASSIGN expression
+    | expression DIV_ASSIGN expression
+    | expression MOD_ASSIGN expression
+    | expression AND_ASSIGN expression
+    | expression OR_ASSIGN expression
+    | expression XOR_ASSIGN expression    
     | expression QUESTION expression COLON expression
     | NOT expression
     | INC expression
