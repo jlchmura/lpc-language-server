@@ -127,7 +127,7 @@ directiveIncludeFile
     ;
 directiveIncludeFilename: Identifier ('.' Identifier)?;
 directiveIncludeFileGlobal: '<' directiveIncludeFilename '>';
-directiveIncludeFileLocal: '"' directiveIncludeFilename '"';
+directiveIncludeFileLocal: StringLiteral;
 
 
 declaration
