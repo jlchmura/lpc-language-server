@@ -272,7 +272,7 @@ iterationStatement
     : WHILE '(' expression ')' statement
     | DO statement WHILE '(' expression ')' SEMI
     | FOR '(' expression? SEMI expression? SEMI expression? ')' statement
-    | FOREACH '(' typeSpecifier Identifier IN expression ')' statement
+    | FOREACH '(' typeSpecifier Identifier (IN | ':') expression ')' statement
     ;
 
 jumpStatement
