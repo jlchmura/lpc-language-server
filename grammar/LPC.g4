@@ -89,6 +89,7 @@ preprocessorDirective
     | '#' directiveTypeWithArguments directiveArgument
     | '#' directiveTypeDefine Identifier directiveDefineParam? directiveDefineArgument?    
     | '#' directiveTypeInclude directiveIncludeFile
+    | '#' directiveTypePragma Identifier (',' Identifier)*
     ;
 
 directiveType
@@ -104,7 +105,6 @@ directiveTypeWithArguments
     | 'undef'
     | 'echo'
     | 'line'
-    | 'pragma'
     ;
 
 directiveArgument
@@ -129,6 +129,7 @@ directiveIncludeFilename: Identifier ('.' Identifier)?;
 directiveIncludeFileGlobal: '<' directiveIncludeFilename '>';
 directiveIncludeFileLocal: StringLiteral;
 
+directiveTypePragma: 'pragma';
 
 declaration
     : functionDeclaration
