@@ -1,9 +1,9 @@
 
-import { SymbolTable,ScopedSymbol,VariableSymbol,RoutineSymbol, MethodSymbol, TypedSymbol, IType, TypeKind, FundamentalType } from "antlr4-c3/index";
+import { SymbolTable,ScopedSymbol,VariableSymbol,RoutineSymbol, MethodSymbol, TypedSymbol, IType, TypeKind, FundamentalType, ArrayType, ReferenceKind } from "antlr4-c3/index";
 
 import { LPCVisitor } from "./parser3/LPCVisitor";
 import { AbstractParseTreeVisitor, ParseTree, TerminalNode } from "antlr4ng";
-import { ExpressionContext, FunctionDeclarationContext, LPCParser, StatementContext, VariableDeclarationContext } from "./parser3/LPCParser";
+import { ArrayDeclarationContext, ExpressionContext, FunctionDeclarationContext, LPCParser, ScalarDeclarationContext, StatementContext, VariableDeclarationContext } from "./parser3/LPCParser";
 
 
 export class SymbolTableVisitor extends AbstractParseTreeVisitor<SymbolTable> implements LPCVisitor<SymbolTable> {
@@ -21,7 +21,9 @@ export class SymbolTableVisitor extends AbstractParseTreeVisitor<SymbolTable> im
     }
     
     visitVariableDeclaration = (ctx: VariableDeclarationContext) => {
-        const tt = ctx.typeSpecifier()?.getText();
+        // ctx will either be scalar or array, it doesn't matter right now
+        const scalar = (ctx as unknown as ScalarDeclarationContext);
+        const tt = scalar.typeSpecifier()?.getText();
         let varType: IType;
         switch (tt) {
             case "int":
@@ -35,7 +37,11 @@ export class SymbolTableVisitor extends AbstractParseTreeVisitor<SymbolTable> im
                 break;            
         }
         
-        this.symbolTable.addNewSymbolOfType(VariableSymbol, this.scope, ctx.Identifier()?.getText(), undefined, varType);
+        if (ctx instanceof ArrayDeclarationContext) {
+            varType = new ArrayType("*"+tt, ReferenceKind.Pointer, varType);
+        }
+        
+        this.symbolTable.addNewSymbolOfType(VariableSymbol, this.scope, scalar.Identifier()?.getText(), undefined, varType);
         return this.visitChildren(ctx);
     };
 
