@@ -17,11 +17,10 @@ FOR: 'for';
 GOTO: 'goto';
 IF: 'if';
 INT: 'int';
-LONG: 'long';
+MAPPING: 'mapping';
 REGISTER: 'register';
 RETURN: 'return';
 SHORT: 'short';
-SIGNED: 'signed';
 SIZEOF: 'sizeof';
 STATIC: 'static';
 STRUCT: 'struct';
@@ -62,6 +61,8 @@ SEMI: ';';
 COMMA: ',';
 ARRAY_OPEN: '({';
 ARRAY_CLOSE: '})';
+MAPPING_OPEN: '([';
+MAPPING_CLOSE: '])';
 
 // Literals
 IntegerConstant: [0-9]+;
@@ -83,7 +84,6 @@ program: declaration* EOF;
 declaration
     : functionDeclaration
     | variableDeclaration
-    | arrayDeclaration
     ;
 
 functionDeclaration
@@ -98,7 +98,7 @@ parameter
     : typeSpecifier Identifier
     ;
 
-variableDeclaration
+scalarDeclaration
     : typeSpecifier Identifier ('=' expression)? SEMI
     ;
 
@@ -110,12 +110,31 @@ arrayDeclaration
     : typeSpecifier? STAR Identifier ('=' arrayContent)? SEMI
     ;
 
+mappingKey
+    : IntegerConstant
+    | StringLiteral
+    | CharacterConstant
+    ;
+
+mappingContent
+    : mappingKey (':' expression (SEMI expression)*)?
+    ;
+
+mappingExpression
+    : MAPPING_OPEN (mappingContent (',' mappingContent)*)? MAPPING_CLOSE
+    ;
+
+variableDeclaration
+    : scalarDeclaration
+    | arrayDeclaration
+    ;
+
 typeSpecifier
     : VOID
     | CHAR
-    | INT
-    | LONG
+    | INT    
     | STRING
+    | MAPPING
     ;
 
 statement
@@ -125,7 +144,6 @@ statement
     | iterationStatement
     | jumpStatement
     | variableDeclaration    
-    | arrayDeclaration
     ;
 
 expressionStatement: expression? SEMI;
@@ -180,6 +198,7 @@ expression
     | expression DEC
     | Identifier '=' expression
     | Identifier '(' expressionList? ')'  // function call
+    | mappingExpression
     ;
 
 expressionList
