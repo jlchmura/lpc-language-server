@@ -5,6 +5,7 @@ import { AbstractParseTreeVisitor } from "antlr4ng";
 
 import { ProgramContext } from "./LPCParser.js";
 import { PreprocessorDirectiveContext } from "./LPCParser.js";
+import { DefinePreprocessorDirectiveContext } from "./LPCParser.js";
 import { DirectiveTypeContext } from "./LPCParser.js";
 import { DirectiveTypeWithArgumentsContext } from "./LPCParser.js";
 import { DirectiveArgumentContext } from "./LPCParser.js";
@@ -68,6 +69,12 @@ export class LPCVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      * @return the visitor result
      */
     visitPreprocessorDirective?: (ctx: PreprocessorDirectiveContext) => Result;
+    /**
+     * Visit a parse tree produced by `LPCParser.definePreprocessorDirective`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitDefinePreprocessorDirective?: (ctx: DefinePreprocessorDirectiveContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.directiveType`.
      * @param ctx the parse tree

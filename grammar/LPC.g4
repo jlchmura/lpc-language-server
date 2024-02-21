@@ -104,9 +104,13 @@ program: (declaration | preprocessorDirective | inheritStatement)* EOF;
 preprocessorDirective
     : '#' directiveType
     | '#' directiveTypeWithArguments directiveArgument
-    | '#' directiveTypeDefine Identifier directiveDefineParam? directiveDefineArgument?    
+    | definePreprocessorDirective
     | '#' directiveTypeInclude directiveIncludeFile
     | '#' directiveTypePragma Identifier (',' Identifier)*
+    ;
+
+definePreprocessorDirective
+    : '#' directiveTypeDefine Identifier directiveDefineParam? directiveDefineArgument?
     ;
 
 directiveType

@@ -5,6 +5,7 @@ import { ErrorNode, ParseTreeListener, ParserRuleContext, TerminalNode } from "a
 
 import { ProgramContext } from "./LPCParser.js";
 import { PreprocessorDirectiveContext } from "./LPCParser.js";
+import { DefinePreprocessorDirectiveContext } from "./LPCParser.js";
 import { DirectiveTypeContext } from "./LPCParser.js";
 import { DirectiveTypeWithArgumentsContext } from "./LPCParser.js";
 import { DirectiveArgumentContext } from "./LPCParser.js";
@@ -73,6 +74,16 @@ export class LPCListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitPreprocessorDirective?: (ctx: PreprocessorDirectiveContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.definePreprocessorDirective`.
+     * @param ctx the parse tree
+     */
+    enterDefinePreprocessorDirective?: (ctx: DefinePreprocessorDirectiveContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.definePreprocessorDirective`.
+     * @param ctx the parse tree
+     */
+    exitDefinePreprocessorDirective?: (ctx: DefinePreprocessorDirectiveContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.directiveType`.
      * @param ctx the parse tree
