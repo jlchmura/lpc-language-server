@@ -21,17 +21,20 @@ import { DirectiveTypePragmaContext } from "./LPCParser.js";
 import { InheritStatementContext } from "./LPCParser.js";
 import { InheritSuperStatementContext } from "./LPCParser.js";
 import { DeclarationContext } from "./LPCParser.js";
+import { FunctionModifierContext } from "./LPCParser.js";
 import { FunctionDeclarationContext } from "./LPCParser.js";
 import { ParameterListContext } from "./LPCParser.js";
 import { ParameterContext } from "./LPCParser.js";
 import { ScalarDeclarationContext } from "./LPCParser.js";
-import { ArrayContentContext } from "./LPCParser.js";
+import { ArrayExpressionContext } from "./LPCParser.js";
 import { ArrayDeclarationContext } from "./LPCParser.js";
 import { MappingKeyContext } from "./LPCParser.js";
 import { MappingContentContext } from "./LPCParser.js";
 import { MappingExpressionContext } from "./LPCParser.js";
 import { VariableDeclarationContext } from "./LPCParser.js";
+import { PrimitiveTypeSpecifierContext } from "./LPCParser.js";
 import { TypeSpecifierContext } from "./LPCParser.js";
+import { InlineClosureExpressionContext } from "./LPCParser.js";
 import { StatementContext } from "./LPCParser.js";
 import { ExpressionStatementContext } from "./LPCParser.js";
 import { CompoundStatementContext } from "./LPCParser.js";
@@ -235,6 +238,16 @@ export class LPCListener implements ParseTreeListener {
      */
     exitDeclaration?: (ctx: DeclarationContext) => void;
     /**
+     * Enter a parse tree produced by `LPCParser.functionModifier`.
+     * @param ctx the parse tree
+     */
+    enterFunctionModifier?: (ctx: FunctionModifierContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.functionModifier`.
+     * @param ctx the parse tree
+     */
+    exitFunctionModifier?: (ctx: FunctionModifierContext) => void;
+    /**
      * Enter a parse tree produced by `LPCParser.functionDeclaration`.
      * @param ctx the parse tree
      */
@@ -275,15 +288,15 @@ export class LPCListener implements ParseTreeListener {
      */
     exitScalarDeclaration?: (ctx: ScalarDeclarationContext) => void;
     /**
-     * Enter a parse tree produced by `LPCParser.arrayContent`.
+     * Enter a parse tree produced by `LPCParser.arrayExpression`.
      * @param ctx the parse tree
      */
-    enterArrayContent?: (ctx: ArrayContentContext) => void;
+    enterArrayExpression?: (ctx: ArrayExpressionContext) => void;
     /**
-     * Exit a parse tree produced by `LPCParser.arrayContent`.
+     * Exit a parse tree produced by `LPCParser.arrayExpression`.
      * @param ctx the parse tree
      */
-    exitArrayContent?: (ctx: ArrayContentContext) => void;
+    exitArrayExpression?: (ctx: ArrayExpressionContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.arrayDeclaration`.
      * @param ctx the parse tree
@@ -335,6 +348,16 @@ export class LPCListener implements ParseTreeListener {
      */
     exitVariableDeclaration?: (ctx: VariableDeclarationContext) => void;
     /**
+     * Enter a parse tree produced by `LPCParser.primitiveTypeSpecifier`.
+     * @param ctx the parse tree
+     */
+    enterPrimitiveTypeSpecifier?: (ctx: PrimitiveTypeSpecifierContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.primitiveTypeSpecifier`.
+     * @param ctx the parse tree
+     */
+    exitPrimitiveTypeSpecifier?: (ctx: PrimitiveTypeSpecifierContext) => void;
+    /**
      * Enter a parse tree produced by `LPCParser.typeSpecifier`.
      * @param ctx the parse tree
      */
@@ -344,6 +367,16 @@ export class LPCListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitTypeSpecifier?: (ctx: TypeSpecifierContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.inlineClosureExpression`.
+     * @param ctx the parse tree
+     */
+    enterInlineClosureExpression?: (ctx: InlineClosureExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.inlineClosureExpression`.
+     * @param ctx the parse tree
+     */
+    exitInlineClosureExpression?: (ctx: InlineClosureExpressionContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.statement`.
      * @param ctx the parse tree

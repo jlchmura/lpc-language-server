@@ -21,17 +21,20 @@ import { DirectiveTypePragmaContext } from "./LPCParser.js";
 import { InheritStatementContext } from "./LPCParser.js";
 import { InheritSuperStatementContext } from "./LPCParser.js";
 import { DeclarationContext } from "./LPCParser.js";
+import { FunctionModifierContext } from "./LPCParser.js";
 import { FunctionDeclarationContext } from "./LPCParser.js";
 import { ParameterListContext } from "./LPCParser.js";
 import { ParameterContext } from "./LPCParser.js";
 import { ScalarDeclarationContext } from "./LPCParser.js";
-import { ArrayContentContext } from "./LPCParser.js";
+import { ArrayExpressionContext } from "./LPCParser.js";
 import { ArrayDeclarationContext } from "./LPCParser.js";
 import { MappingKeyContext } from "./LPCParser.js";
 import { MappingContentContext } from "./LPCParser.js";
 import { MappingExpressionContext } from "./LPCParser.js";
 import { VariableDeclarationContext } from "./LPCParser.js";
+import { PrimitiveTypeSpecifierContext } from "./LPCParser.js";
 import { TypeSpecifierContext } from "./LPCParser.js";
+import { InlineClosureExpressionContext } from "./LPCParser.js";
 import { StatementContext } from "./LPCParser.js";
 import { ExpressionStatementContext } from "./LPCParser.js";
 import { CompoundStatementContext } from "./LPCParser.js";
@@ -166,6 +169,12 @@ export class LPCVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      */
     visitDeclaration?: (ctx: DeclarationContext) => Result;
     /**
+     * Visit a parse tree produced by `LPCParser.functionModifier`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitFunctionModifier?: (ctx: FunctionModifierContext) => Result;
+    /**
      * Visit a parse tree produced by `LPCParser.functionDeclaration`.
      * @param ctx the parse tree
      * @return the visitor result
@@ -190,11 +199,11 @@ export class LPCVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      */
     visitScalarDeclaration?: (ctx: ScalarDeclarationContext) => Result;
     /**
-     * Visit a parse tree produced by `LPCParser.arrayContent`.
+     * Visit a parse tree produced by `LPCParser.arrayExpression`.
      * @param ctx the parse tree
      * @return the visitor result
      */
-    visitArrayContent?: (ctx: ArrayContentContext) => Result;
+    visitArrayExpression?: (ctx: ArrayExpressionContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.arrayDeclaration`.
      * @param ctx the parse tree
@@ -226,11 +235,23 @@ export class LPCVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      */
     visitVariableDeclaration?: (ctx: VariableDeclarationContext) => Result;
     /**
+     * Visit a parse tree produced by `LPCParser.primitiveTypeSpecifier`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitPrimitiveTypeSpecifier?: (ctx: PrimitiveTypeSpecifierContext) => Result;
+    /**
      * Visit a parse tree produced by `LPCParser.typeSpecifier`.
      * @param ctx the parse tree
      * @return the visitor result
      */
     visitTypeSpecifier?: (ctx: TypeSpecifierContext) => Result;
+    /**
+     * Visit a parse tree produced by `LPCParser.inlineClosureExpression`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitInlineClosureExpression?: (ctx: InlineClosureExpressionContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.statement`.
      * @param ctx the parse tree
