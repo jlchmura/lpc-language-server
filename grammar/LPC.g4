@@ -87,6 +87,9 @@ ARRAY_CLOSE: '})';
 MAPPING_OPEN: '([';
 MAPPING_CLOSE: '])';
 ARROW: '->';
+// closure brackerts
+CLOSURE_OPEN: '(:';
+CLOSURE_CLOSE: ':)';
 
 
 // Literals
@@ -97,8 +100,7 @@ StringLiteral: '"' (~["\r\n\\] | '\\' .)* '"';
 CharacterConstant: '\'' (~['\r\n\\] | '\\' .) '\'';
 
 // Identifiers
-Identifier: [a-zA-Z_] [a-zA-Z_0-9]*;
-
+Identifier: [$a-zA-Z_] [a-zA-Z_0-9]*;
 
 // Whitespace and comments
 WS: [ \t\r\n]+ -> skip;
@@ -245,6 +247,10 @@ typeSpecifier
     | typeSpecifier STAR
     ;
 
+inlineClosureExpression
+    : CLOSURE_OPEN (expression|statement*) CLOSURE_CLOSE
+    ;
+
 statement
     : expressionStatement
     | compoundStatement
@@ -315,6 +321,7 @@ expression
     | StringLiteral
     | CharacterConstant
     | '(' expression ')'
+    | inlineClosureExpression
     | expression PLUS expression
     | expression MINUS expression
     | expression STAR expression
