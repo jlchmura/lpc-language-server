@@ -22,6 +22,7 @@ import {
   ParserInterpreter,
   PredictionMode,
   TerminalNode,
+  Token,
   TokenStream,
 } from "antlr4ng";
 import {
@@ -33,7 +34,7 @@ import { LPCVisitor } from "./parser3/LPCVisitor";
 import { LPCLexer } from "./parser3/LPCLexer";
 
 export type CaretPosition = { line: number; column: number };
-export type TokenPosition = { index: number; context: ParseTree; text: string };
+export type TokenPosition = { index: number; context: ParseTree; text: string; token: Token };
 export type ComputeTokenPositionFunction = (
   parseTree: ParseTree,
   tokens: TokenStream,

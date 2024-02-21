@@ -12,6 +12,7 @@ import { CharStreams, CommonTokenStream, ParserRuleContext } from "antlr4ng";
 import { LPCLexer } from "./parser3/LPCLexer";
 import { LPCParser, ProgramContext } from "./parser3/LPCParser";
 import { MethodSymbol, ScopedSymbol, SymbolTable, VariableSymbol } from "antlr4-c3/index";
+import { getSelectionRange } from "./utils";
 
 
  export function getDocumentSymbols(code:string): DocumentSymbol[] {  
@@ -60,15 +61,7 @@ function getVariableSymbols(symbols:ScopedSymbol):DocumentSymbol[] {
   }).filter(s=>!!s) || [];
 }
 
-function getSelectionRange(ctx:ParserRuleContext):Range {
-  const start = ctx.start;
-  const stop = ctx.stop;
-  const rng = Range.create(
-    Position.create(start.line-1, start.column),
-    Position.create(stop.line-1, stop.column)
-  );
-  return rng;
-}
+
 
 //   const ast = ParseLPC(document.getText());
 //   return getDocumentSymbolsFromAst(document, ast);

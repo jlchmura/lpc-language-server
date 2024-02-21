@@ -9,18 +9,20 @@ import { CaretPosition, getSuggestions } from "./completions";
 import { computeTokenPosition } from "./tokenposition";
 import { CompletionItemKind } from "vscode-languageserver";
 import { getFoldingRanges } from "./folding";
+import { getDefinitions } from "./definition";
+import { TextDocument } from "vscode-languageserver-textdocument";
 
 
 const code = fs.existsSync(process.argv[2])
   ? fs.readFileSync(process.argv[2], "utf-8")
   : process.argv.slice(2).join(" ").replace(/\\n/g, "\n");
-
+const doc = TextDocument.create("uri", "lpc", 0, code);
 const stream = CharStreams.fromString(code);
 const lexer = new LPCLexer(stream);
 const tStream = new CommonTokenStream(lexer);
 const parser = new LPCParser(tStream);
 
-let caretPos = { line: 10, column: 4 } as CaretPosition;
+let caretPos = { line: 13, column: 5 } as CaretPosition;
 
 let errorListener = new ConsoleErrorListener();
 parser.addErrorListener(errorListener);
@@ -39,5 +41,8 @@ let tokenPos = computeTokenPosition(p, tStream, caretPos);
 
 let suggestions = getSuggestions(code, caretPos, computeTokenPosition);
 let fold = getFoldingRanges(code, Number.MAX_VALUE);
+
+
+let defs = getDefinitions(doc, code, caretPos);
 
 const i = 0;

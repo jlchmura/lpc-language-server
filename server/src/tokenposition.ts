@@ -29,6 +29,7 @@ function positionOfToken(token: Token, text: string, caretPosition: CaretPositio
         return {
             index: index,
             context: parseTree,
+            token: token,
             text: text.substring(0, caretPosition.column - start)
         };
     } else {

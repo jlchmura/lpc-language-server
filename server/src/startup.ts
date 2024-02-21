@@ -36,6 +36,7 @@ import { LPCLexer } from "./parser3/LPCLexer";
 import { CharStreams, CommonTokenStream } from "antlr4ng";
 import { LPCParser } from "./parser3/LPCParser";
 import { getDocumentSymbols } from "./documentSymbol";
+import { getDefinitions } from "./definition";
 
 export function startServer(connection: Connection) {
   // Create a simple text document manager.
@@ -199,24 +200,24 @@ export function startServer(connection: Connection) {
 
   connection.onDocumentSymbol((documentSymbolParams, token) => {
     const document = documents.get(documentSymbolParams.textDocument.uri);
+    
      if (document) {
        return getDocumentSymbols(document.getText());
      }
     return [];
   });
 
-  // connection.onDefinition((definitionParams, token) => {
-  //   const document = documents.get(definitionParams.textDocument.uri);
-  //   if (document) {
-  //     const ast = ParseLPC(document.getText());
-  //     const nav = new LPCNavigation();
-  //     const loc = nav.findDefinition(document, definitionParams.position, ast);
-  //     if (loc) {
-  //       return [loc];
-  //     }
-  //   }
-  //   return [];
-  // });
+  connection.onDefinition((definitionParams, token) => {
+    const document = documents.get(definitionParams.textDocument.uri);
+    
+    if (document) {
+      const pos = definitionParams.position;
+      let caretPos = { line: pos.line + 1, column: pos.character } as CaretPosition;
+      const defs = getDefinitions(document, document.getText(), caretPos);
+      return defs;
+    }
+    return [];
+  });
 
   connection.onDidChangeWatchedFiles((_change) => {
     // Monitored files have change in VSCode
