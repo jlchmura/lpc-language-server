@@ -38,19 +38,9 @@ import { MethodSymbol, ScopedSymbol, SymbolTable, VariableSymbol } from "antlr4-
     if (!ctx) return;
 
     const rng = getSelectionRange(ctx);
-
     const vars = getVariableSymbols(s);
 
-    results.push({
-      kind: SymbolKind.Function,
-      name: s?.name || "",
-      selectionRange: rng,      
-      range: rng,              
-      children: vars
-    });
-
-    // get all the variables under the function
-    
+    results.push(DocumentSymbol.create(s.name, "", SymbolKind.Function, rng, rng, vars));    
   });
 
   results.push(...getVariableSymbols(symbols));
@@ -66,12 +56,7 @@ function getVariableSymbols(symbols:ScopedSymbol):DocumentSymbol[] {
 
     const rng = getSelectionRange(ctx);
 
-    return {
-      kind: SymbolKind.Variable,
-      name: s?.name || "",
-      selectionRange: rng,
-      range: rng,              
-    };    
+    return DocumentSymbol.create(s.name, s?.type?.name, SymbolKind.Variable, rng, rng);    
   }).filter(s=>!!s) || [];
 }
 

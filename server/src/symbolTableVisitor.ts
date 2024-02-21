@@ -1,9 +1,9 @@
 
-import { SymbolTable,ScopedSymbol,VariableSymbol,RoutineSymbol, MethodSymbol } from "antlr4-c3/index";
+import { SymbolTable,ScopedSymbol,VariableSymbol,RoutineSymbol, MethodSymbol, TypedSymbol, IType, TypeKind, FundamentalType } from "antlr4-c3/index";
 
 import { LPCVisitor } from "./parser3/LPCVisitor";
 import { AbstractParseTreeVisitor, ParseTree, TerminalNode } from "antlr4ng";
-import { ExpressionContext, FunctionDeclarationContext, StatementContext, VariableDeclarationContext } from "./parser3/LPCParser";
+import { ExpressionContext, FunctionDeclarationContext, LPCParser, StatementContext, VariableDeclarationContext } from "./parser3/LPCParser";
 
 
 export class SymbolTableVisitor extends AbstractParseTreeVisitor<SymbolTable> implements LPCVisitor<SymbolTable> {
@@ -21,8 +21,21 @@ export class SymbolTableVisitor extends AbstractParseTreeVisitor<SymbolTable> im
     }
     
     visitVariableDeclaration = (ctx: VariableDeclarationContext) => {
+        const tt = ctx.typeSpecifier()?.getText();
+        let varType: IType;
+        switch (tt) {
+            case "int":
+                varType = FundamentalType.integerType;
+                break;
+            case "string":
+                varType = FundamentalType.stringType;
+                break;
+            case "float":
+                varType = FundamentalType.floatType;
+                break;            
+        }
         
-        this.symbolTable.addNewSymbolOfType(VariableSymbol, this.scope, ctx.Identifier()?.getText(), undefined);
+        this.symbolTable.addNewSymbolOfType(VariableSymbol, this.scope, ctx.Identifier()?.getText(), undefined, varType);
         return this.visitChildren(ctx);
     };
 
