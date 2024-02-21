@@ -57,7 +57,7 @@ export function getDefinitions(
     .getAllNestedSymbolsSync()
     .filter((s) => s.name == nameToFind)
     .forEach((s) => {
-      const ctx = s.context as ParserRuleContext;
+      const ctx = (s.context ?? s.parent?.context) as ParserRuleContext;
       if (!ctx) return;
 
       const name = s.name;

@@ -1,9 +1,9 @@
 
-import { SymbolTable,ScopedSymbol,VariableSymbol,RoutineSymbol, MethodSymbol, TypedSymbol, IType, TypeKind, FundamentalType, ArrayType, ReferenceKind } from "antlr4-c3/index";
+import { SymbolTable,ScopedSymbol,VariableSymbol,RoutineSymbol, MethodSymbol, TypedSymbol, IType, TypeKind, FundamentalType, ArrayType, ReferenceKind, BaseSymbol } from "antlr4-c3/index";
 
 import { LPCVisitor } from "./parser3/LPCVisitor";
 import { AbstractParseTreeVisitor, ParseTree, TerminalNode } from "antlr4ng";
-import { ArrayDeclarationContext, ExpressionContext, FunctionDeclarationContext, LPCParser, ScalarDeclarationContext, StatementContext, VariableDeclarationContext } from "./parser3/LPCParser";
+import { ArrayDeclarationContext, DefinePreprocessorDirectiveContext, DirectiveTypeDefineContext, ExpressionContext, FunctionDeclarationContext, LPCParser, ScalarDeclarationContext, StatementContext, VariableDeclarationContext } from "./parser3/LPCParser";
 
 
 export class SymbolTableVisitor extends AbstractParseTreeVisitor<SymbolTable> implements LPCVisitor<SymbolTable> {
@@ -19,6 +19,12 @@ export class SymbolTableVisitor extends AbstractParseTreeVisitor<SymbolTable> im
     protected defaultResult(): SymbolTable {
         return this.symbolTable;
     }
+
+    visitDefinePreprocessorDirective = (ctx: DefinePreprocessorDirectiveContext) => {     
+        this.scope.context = ctx; // store the context for later
+        this.symbolTable.addNewSymbolOfType(DefineSymbol, this.scope, ctx.Identifier()?.getText());
+        return this.visitChildren(ctx);
+    };
     
     visitVariableDeclaration = (ctx: VariableDeclarationContext) => {
         // ctx will either be scalar or array, it doesn't matter right now
@@ -65,4 +71,10 @@ export class SymbolTableVisitor extends AbstractParseTreeVisitor<SymbolTable> im
         }
     }
 
+}
+
+export  class DefineSymbol extends BaseSymbol {
+    constructor(name: string) {
+        super(name);
+    }
 }
