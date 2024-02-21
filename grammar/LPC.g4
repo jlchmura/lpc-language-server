@@ -64,10 +64,12 @@ ARRAY_CLOSE: '})';
 MAPPING_OPEN: '([';
 MAPPING_CLOSE: '])';
 
+
 // Literals
 IntegerConstant: [0-9]+;
 FloatingConstant: [0-9]* '.' [0-9]+ ([eE] [+-]? [0-9]+)?;
 StringLiteral: '"' (~["\r\n\\] | '\\' .)* '"';
+
 CharacterConstant: '\'' (~['\r\n\\] | '\\' .) '\'';
 
 // Identifiers
@@ -79,7 +81,53 @@ COMMENT: '/*' .*? '*/' -> skip;
 LINE_COMMENT: '//' .*? '\n' -> skip;
 
 
-program: declaration* EOF;
+program: (declaration | preprocessorDirective)* EOF;
+
+preprocessorDirective
+    : '#' directiveType
+    | '#' directiveTypeWithArguments directiveArgument
+    | '#' directiveTypeDefine Identifier directiveDefineParam? directiveDefineArgument?    
+    | '#' directiveTypeInclude directiveIncludeFile
+    ;
+
+directiveType
+    : 'else'
+    | 'endif'
+    ;
+
+directiveTypeWithArguments
+    : 'if'
+    | 'ifdef'
+    | 'ifndef'
+    | 'elif'
+    | 'undef'
+    | 'echo'
+    | 'line'
+    | 'pragma'
+    ;
+
+directiveArgument
+    : Identifier
+    | StringLiteral
+    | IntegerConstant
+    ;
+
+// #define
+directiveTypeDefine: 'define';
+directiveDefineParam: '(' Identifier (',' Identifier)* ')';
+directiveDefineArgument: expression ;
+
+// #include <file> | #include "file"
+directiveTypeInclude: 'include';
+
+directiveIncludeFile
+    : directiveIncludeFileGlobal
+    | directiveIncludeFileLocal
+    ;
+directiveIncludeFilename: Identifier ('.' Identifier)?;
+directiveIncludeFileGlobal: '<' directiveIncludeFilename '>';
+directiveIncludeFileLocal: '"' directiveIncludeFilename '"';
+
 
 declaration
     : functionDeclaration
