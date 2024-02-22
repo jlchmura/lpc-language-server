@@ -224,8 +224,12 @@ mappingExpression
     : MAPPING_OPEN (mappingContent (',' mappingContent)*)? MAPPING_CLOSE
     ;
 
+assignmentExpression
+    : Identifier '=' expression
+    ;
+
 variableDeclaration
-    : typeSpecifier Identifier ('=' expression)? SEMI    
+    : typeSpecifier (Identifier|assignmentExpression) (',' (Identifier|assignmentExpression))* SEMI    
     ;
 
 primitiveTypeSpecifier
@@ -365,7 +369,7 @@ expression
     | DEC expression
     | expression INC
     | expression DEC
-    | Identifier '=' expression // assignment
+    | assignmentExpression
     | expression '[' expression ']' // array access
     | Identifier '(' expressionList? ')'  // function call
     | mappingExpression

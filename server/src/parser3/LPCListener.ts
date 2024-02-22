@@ -31,6 +31,7 @@ import { ArrayExpressionContext } from "./LPCParser.js";
 import { MappingKeyContext } from "./LPCParser.js";
 import { MappingContentContext } from "./LPCParser.js";
 import { MappingExpressionContext } from "./LPCParser.js";
+import { AssignmentExpressionContext } from "./LPCParser.js";
 import { VariableDeclarationContext } from "./LPCParser.js";
 import { PrimitiveTypeSpecifierContext } from "./LPCParser.js";
 import { TypeSpecifierContext } from "./LPCParser.js";
@@ -340,6 +341,16 @@ export class LPCListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitMappingExpression?: (ctx: MappingExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.assignmentExpression`.
+     * @param ctx the parse tree
+     */
+    enterAssignmentExpression?: (ctx: AssignmentExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.assignmentExpression`.
+     * @param ctx the parse tree
+     */
+    exitAssignmentExpression?: (ctx: AssignmentExpressionContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.variableDeclaration`.
      * @param ctx the parse tree

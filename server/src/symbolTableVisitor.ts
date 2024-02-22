@@ -99,14 +99,31 @@ export class SymbolTableVisitor
       varType = new ArrayType(tt + "*", ReferenceKind.Pointer, varType);
     }
 
-    const sym = this.symbolTable.addNewSymbolOfType(
-      VariableSymbol,
-      this.scope,
-      ctx.Identifier()?.getText(),
-      undefined,
-      varType
-    );
-    sym.context = ctx;
+    const ids = ctx.Identifier();    
+    ids.forEach((id) => {
+      const sym = this.symbolTable.addNewSymbolOfType(
+        VariableSymbol,
+        this.scope,
+        id.getText(),
+        undefined,
+        varType
+      );
+      sym.context = ctx;
+    });
+
+    const assigns = ctx.assignmentExpression();
+    assigns.forEach((assign) => {
+      const id = assign.Identifier();
+      const exp = assign.expression();
+      const sym = this.symbolTable.addNewSymbolOfType(
+        VariableSymbol,
+        this.scope,
+        id.getText(),
+        exp.getText(),
+        varType
+      );
+      sym.context = ctx;
+    });
 
     return this.visitChildren(ctx);
   };
