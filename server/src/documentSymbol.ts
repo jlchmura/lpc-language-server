@@ -11,57 +11,75 @@ import { SymbolTableVisitor } from "./symbolTableVisitor";
 import { CharStreams, CommonTokenStream, ParserRuleContext } from "antlr4ng";
 import { LPCLexer } from "./parser3/LPCLexer";
 import { LPCParser, ProgramContext } from "./parser3/LPCParser";
-import { MethodSymbol, ScopedSymbol, SymbolTable, VariableSymbol } from "antlr4-c3/index";
+import {
+  MethodSymbol,
+  ScopedSymbol,
+  SymbolTable,
+  VariableSymbol,
+} from "antlr4-c3/index";
 import { getSelectionRange } from "./utils";
 
-
- export function getDocumentSymbols(code:string): DocumentSymbol[] {  
+export function getDocumentSymbols(code: string): DocumentSymbol[] {
   let results: DocumentSymbol[] = [];
 
   let input = CharStreams.fromString(code);
   let lexer = new LPCLexer(input);
   let tokenStream = new CommonTokenStream(lexer);
   let parser = new LPCParser(tokenStream);
-  
-  let parseTree:ProgramContext;
-  
+
+  let parseTree: ProgramContext;
+
   try {
     parseTree = parser.program();
-  }catch (e) {
+  } catch (e) {
     return [];
   }
 
   const symbols = new SymbolTableVisitor().visit(parseTree);
 
   // functions
-  symbols.getAllNestedSymbolsSync().filter(s => s instanceof MethodSymbol && !!s).forEach((s:MethodSymbol) => {
-    const ctx = s.context as ParserRuleContext;  
-    if (!ctx) return;
+  symbols
+    .getAllNestedSymbolsSync()
+    .filter((s) => s instanceof MethodSymbol && !!s)
+    .forEach((s: MethodSymbol) => {
+      const ctx = s.context as ParserRuleContext;
+      if (!ctx) return;
 
-    const rng = getSelectionRange(ctx);
-    const vars = getVariableSymbols(s);
+      const rng = getSelectionRange(ctx);
+      const vars = getVariableSymbols(s);
 
-    results.push(DocumentSymbol.create(s.name, "", SymbolKind.Function, rng, rng, vars));    
-  });
+      results.push(
+        DocumentSymbol.create(s.name, "", SymbolKind.Function, rng, rng, vars)
+      );
+    });
 
   results.push(...getVariableSymbols(symbols));
-  
+
   return results;
-
- }
-
-function getVariableSymbols(symbols:ScopedSymbol):DocumentSymbol[] {
-  return symbols.getAllNestedSymbolsSync().filter(s => s instanceof VariableSymbol).map((s:VariableSymbol) => {
-    const ctx = s.context as ParserRuleContext;  
-    if (!ctx) return;
-
-    const rng = getSelectionRange(ctx);
-
-    return DocumentSymbol.create(s.name, s?.type?.name, SymbolKind.Variable, rng, rng);    
-  }).filter(s=>!!s) || [];
 }
 
+function getVariableSymbols(symbols: ScopedSymbol): DocumentSymbol[] {
+  return (
+    symbols
+      .getNestedSymbolsOfTypeSync(VariableSymbol)
+      .filter((s) => s.parent == symbols)
+      .map((s: VariableSymbol) => {
+        const ctx = s.context as ParserRuleContext;
+        if (!ctx) return;
 
+        const rng = getSelectionRange(ctx);
+
+        return DocumentSymbol.create(
+          s.name,
+          s?.type?.name,
+          SymbolKind.Variable,
+          rng,
+          rng
+        );
+      })
+      .filter((s) => !!s) || []
+  );
+}
 
 //   const ast = ParseLPC(document.getText());
 //   return getDocumentSymbolsFromAst(document, ast);
@@ -104,4 +122,3 @@ function getVariableSymbols(symbols:ScopedSymbol):DocumentSymbol[] {
 
 //   return results;
 // }
-
