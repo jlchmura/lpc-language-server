@@ -167,8 +167,8 @@ inheritStatement
     ;
 
 inheritSuperStatement
-    : SUPER_ACCESSOR expression
-    | StringLiteral SUPER_ACCESSOR expression
+    : SUPER_ACCESSOR expression SEMI
+    | StringLiteral SUPER_ACCESSOR expression SEMI
     ;
 
 
