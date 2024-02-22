@@ -1,85 +1,152 @@
-
-import { SymbolTable,ScopedSymbol,VariableSymbol,RoutineSymbol, MethodSymbol, TypedSymbol, IType, TypeKind, FundamentalType, ArrayType, ReferenceKind, BaseSymbol } from "antlr4-c3/index";
+import {
+  SymbolTable,
+  ScopedSymbol,
+  VariableSymbol,
+  RoutineSymbol,
+  MethodSymbol,
+  TypedSymbol,
+  IType,
+  TypeKind,
+  FundamentalType,
+  ArrayType,
+  ReferenceKind,
+  BaseSymbol,
+} from "antlr4-c3/index";
 
 import { LPCVisitor } from "./parser3/LPCVisitor";
 import { AbstractParseTreeVisitor, ParseTree, TerminalNode } from "antlr4ng";
-import {  DefinePreprocessorDirectiveContext, DirectiveTypeDefineContext, ExpressionContext, FunctionDeclarationContext, LPCParser, StatementContext, VariableDeclarationContext } from "./parser3/LPCParser";
+import {
+  DefinePreprocessorDirectiveContext,
+  DirectiveTypeDefineContext,
+  ExpressionContext,
+  FunctionDeclarationContext,
+  LPCParser,
+  PreprocessorDirectiveContext,
+  StatementContext,
+  VariableDeclarationContext,
+} from "./parser3/LPCParser";
 
+export class SymbolTableVisitor
+  extends AbstractParseTreeVisitor<SymbolTable>
+  implements LPCVisitor<SymbolTable>
+{
+  public functionNodes = new Map<string, TerminalNode>();
 
-export class SymbolTableVisitor extends AbstractParseTreeVisitor<SymbolTable> implements LPCVisitor<SymbolTable> {
+  constructor(
+    protected readonly symbolTable = new SymbolTable("", {}),
+    protected scope = symbolTable.addNewSymbolOfType(ScopedSymbol, undefined)
+  ) {
+    super();
+  }
 
-    public functionNodes = new Map<string, TerminalNode>();
+  protected defaultResult(): SymbolTable {
+    return this.symbolTable;
+  }
 
-    constructor(        
-        protected readonly symbolTable = new SymbolTable("", {}),
-        protected scope = symbolTable.addNewSymbolOfType(ScopedSymbol, undefined)) {
-        super();
+  visitDefinePreprocessorDirective = (
+    ctx: DefinePreprocessorDirectiveContext
+  ) => {
+    //this.scope.context = ctx; // store the context for later
+    const sym = this.symbolTable.addNewSymbolOfType(
+      DefineSymbol,
+      this.scope,
+      ctx.Identifier()?.getText()
+    );
+    sym.context = ctx;
+    return this.visitChildren(ctx);
+  };
+
+  visitPreprocessorDirective = (ctx: PreprocessorDirectiveContext) => {
+    const name =
+      ctx.directiveTypeWithArguments()?.getText() ||
+      ctx.directiveType()?.getText();
+    if (!!name) {
+      const sym = this.symbolTable.addNewSymbolOfType(
+        PreprocessorSymbol,
+        this.scope,
+        name
+      );
+      sym.context = ctx;
+    }
+    return this.visitChildren(ctx);
+  };
+
+  visitVariableDeclaration = (ctx: VariableDeclarationContext) => {
+    // ctx will either be scalar or array, it doesn't matter right now
+    let tt = ctx.typeSpecifier()?.getText();
+    let varType: IType;
+    const isArray = tt.endsWith("*");
+    if (isArray) {
+      tt = tt.substring(0, tt.length - 1);
+    }
+    switch (tt) {
+      case "int":
+        varType = FundamentalType.integerType;
+        break;
+      case "string":
+        varType = FundamentalType.stringType;
+        break;
+      case "float":
+        varType = FundamentalType.floatType;
+        break;
     }
 
-    protected defaultResult(): SymbolTable {
-        return this.symbolTable;
+    if (isArray) {
+      varType = new ArrayType(tt + "*", ReferenceKind.Pointer, varType);
     }
 
-    visitDefinePreprocessorDirective = (ctx: DefinePreprocessorDirectiveContext) => {     
-        //this.scope.context = ctx; // store the context for later
-        const sym = this.symbolTable.addNewSymbolOfType(DefineSymbol, this.scope, ctx.Identifier()?.getText());
-        sym.context = ctx;
-        return this.visitChildren(ctx);
-    };
-    
-    visitVariableDeclaration = (ctx: VariableDeclarationContext) => {
-        // ctx will either be scalar or array, it doesn't matter right now
-        let tt = ctx.typeSpecifier()?.getText();
-        let varType: IType;
-        const isArray = tt.endsWith("*");
-        if (isArray) {
-            tt = tt.substring(0, tt.length-1);
-        }
-        switch (tt) {
-            case "int":
-                varType = FundamentalType.integerType;
-                break;
-            case "string":
-                varType = FundamentalType.stringType;
-                break;
-            case "float":
-                varType = FundamentalType.floatType;
-                break;            
-        }
-        
-        if (isArray) {
-             varType = new ArrayType(tt + "*", ReferenceKind.Pointer, varType);
-         }
-        
-        const sym = this.symbolTable.addNewSymbolOfType(VariableSymbol, this.scope, ctx.Identifier()?.getText(), undefined, varType);
-        sym.context = ctx;
-        return this.visitChildren(ctx);
-    };
+    const sym = this.symbolTable.addNewSymbolOfType(
+      VariableSymbol,
+      this.scope,
+      ctx.Identifier()?.getText(),
+      undefined,
+      varType
+    );
+    sym.context = ctx;
 
-    visitFunctionDeclaration = (ctx: FunctionDeclarationContext) => {                        
-        const id = ctx.Identifier();
-        const nm = id.getText();        
-        
-        this.functionNodes.set(nm, id);
-        
-        return this.withScope(ctx, MethodSymbol, [nm], () => this.visitChildren(ctx));
-    };
+    return this.visitChildren(ctx);
+  };
 
-    protected withScope<T>(tree: ParseTree, type: new (...args: any[]) => ScopedSymbol, args: any[], action: () => T): T {
-        const scope = this.symbolTable.addNewSymbolOfType(type, this.scope, ...args);
-        scope.context = tree;
-        this.scope = scope;
-        try {
-            return action();
-        } finally {
-            this.scope = scope.parent as ScopedSymbol;
-        }
+  visitFunctionDeclaration = (ctx: FunctionDeclarationContext) => {
+    const id = ctx.Identifier();
+    const nm = id.getText();
+
+    this.functionNodes.set(nm, id);
+
+    return this.withScope(ctx, MethodSymbol, [nm], () =>
+      this.visitChildren(ctx)
+    );
+  };
+
+  protected withScope<T>(
+    tree: ParseTree,
+    type: new (...args: any[]) => ScopedSymbol,
+    args: any[],
+    action: () => T
+  ): T {
+    const scope = this.symbolTable.addNewSymbolOfType(
+      type,
+      this.scope,
+      ...args
+    );
+    scope.context = tree;
+    this.scope = scope;
+    try {
+      return action();
+    } finally {
+      this.scope = scope.parent as ScopedSymbol;
     }
-
+  }
 }
 
-export  class DefineSymbol extends BaseSymbol {
-    constructor(name: string) {
-        super(name);
-    }
+export class DefineSymbol extends BaseSymbol {
+  constructor(name: string) {
+    super(name);
+  }
+}
+
+export class PreprocessorSymbol extends BaseSymbol {
+  constructor(name: string) {
+    super(name);
+  }
 }
