@@ -12,7 +12,6 @@ import { getFoldingRanges } from "./folding";
 import { getDefinitions } from "./definition";
 import { TextDocument } from "vscode-languageserver-textdocument";
 
-
 const code = fs.existsSync(process.argv[2])
   ? fs.readFileSync(process.argv[2], "utf-8")
   : process.argv.slice(2).join(" ").replace(/\\n/g, "\n");
@@ -41,7 +40,6 @@ let tokenPos = computeTokenPosition(p, tStream, caretPos);
 
 let suggestions = getSuggestions(code, caretPos, computeTokenPosition);
 let fold = getFoldingRanges(code, Number.MAX_VALUE);
-
 
 let defs = getDefinitions(doc, code, caretPos);
 

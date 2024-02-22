@@ -39,6 +39,9 @@ import { StatementContext } from "./LPCParser.js";
 import { ExpressionStatementContext } from "./LPCParser.js";
 import { CompoundStatementContext } from "./LPCParser.js";
 import { SelectionStatementContext } from "./LPCParser.js";
+import { ElseIfExpressionContext } from "./LPCParser.js";
+import { ElseExpressionContext } from "./LPCParser.js";
+import { IfExpressionContext } from "./LPCParser.js";
 import { IfStatementContext } from "./LPCParser.js";
 import { SwitchStatementContext } from "./LPCParser.js";
 import { CaseExpressionContext } from "./LPCParser.js";
@@ -276,6 +279,24 @@ export class LPCVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      * @return the visitor result
      */
     visitSelectionStatement?: (ctx: SelectionStatementContext) => Result;
+    /**
+     * Visit a parse tree produced by `LPCParser.elseIfExpression`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitElseIfExpression?: (ctx: ElseIfExpressionContext) => Result;
+    /**
+     * Visit a parse tree produced by `LPCParser.elseExpression`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitElseExpression?: (ctx: ElseExpressionContext) => Result;
+    /**
+     * Visit a parse tree produced by `LPCParser.ifExpression`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitIfExpression?: (ctx: IfExpressionContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.ifStatement`.
      * @param ctx the parse tree

@@ -39,6 +39,9 @@ import { StatementContext } from "./LPCParser.js";
 import { ExpressionStatementContext } from "./LPCParser.js";
 import { CompoundStatementContext } from "./LPCParser.js";
 import { SelectionStatementContext } from "./LPCParser.js";
+import { ElseIfExpressionContext } from "./LPCParser.js";
+import { ElseExpressionContext } from "./LPCParser.js";
+import { IfExpressionContext } from "./LPCParser.js";
 import { IfStatementContext } from "./LPCParser.js";
 import { SwitchStatementContext } from "./LPCParser.js";
 import { CaseExpressionContext } from "./LPCParser.js";
@@ -417,6 +420,36 @@ export class LPCListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitSelectionStatement?: (ctx: SelectionStatementContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.elseIfExpression`.
+     * @param ctx the parse tree
+     */
+    enterElseIfExpression?: (ctx: ElseIfExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.elseIfExpression`.
+     * @param ctx the parse tree
+     */
+    exitElseIfExpression?: (ctx: ElseIfExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.elseExpression`.
+     * @param ctx the parse tree
+     */
+    enterElseExpression?: (ctx: ElseExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.elseExpression`.
+     * @param ctx the parse tree
+     */
+    exitElseExpression?: (ctx: ElseExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.ifExpression`.
+     * @param ctx the parse tree
+     */
+    enterIfExpression?: (ctx: IfExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.ifExpression`.
+     * @param ctx the parse tree
+     */
+    exitIfExpression?: (ctx: IfExpressionContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.ifStatement`.
      * @param ctx the parse tree

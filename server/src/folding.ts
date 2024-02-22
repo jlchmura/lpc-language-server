@@ -22,7 +22,12 @@ import {
   LPCParser,
   ProgramContext,
 } from "./parser3/LPCParser";
-import { PreprocessorSymbol, SymbolTableVisitor } from "./symbolTableVisitor";
+import {
+  IfSymbol,
+  PreprocessorSymbol,
+  SelectionSymbol,
+  SymbolTableVisitor,
+} from "./symbolTableVisitor";
 import { BaseSymbol, MethodSymbol } from "antlr4-c3/index";
 
 export function getFoldingRanges(
@@ -45,9 +50,10 @@ export function getFoldingRanges(
   }
 
   const symbols = new SymbolTableVisitor().visit(parseTree);
+  const symbolArr = symbols.getAllNestedSymbolsSync();
 
-  symbols
-    .getAllNestedSymbolsSync()
+  // functions
+  symbolArr
     .filter((s) => s instanceof MethodSymbol)
     .forEach((s: MethodSymbol) => {
       const ctx = s.context as ParserRuleContext;
@@ -57,9 +63,51 @@ export function getFoldingRanges(
         endLine: ctx.stop.line - 2,
         startCharacter: ctx.start.column,
         endCharacter: ctx.stop.column,
-        kind: "function",
+        kind: FoldingRangeKind.Region,
         collapsedText: s.name,
       });
+    });
+
+  // if statements
+  symbolArr
+    .filter((s) => s instanceof IfSymbol)
+    .forEach((s: IfSymbol) => {
+      const ctx = s.if.context as ParserRuleContext;
+      const ifRange: FoldingRange = {
+        startLine: ctx.start.line - 1,
+        endLine: ctx.stop.line - 2,
+        startCharacter: ctx.start.column,
+        endCharacter: ctx.stop.column,
+        kind: FoldingRangeKind.Region,
+        collapsedText: "if",
+      };
+      result.push(ifRange);
+
+      s.elseIf.forEach((e) => {
+        const ctx = e.context as ParserRuleContext;
+        const elseIfRange: FoldingRange = {
+          startLine: ctx.start.line - 1,
+          endLine: ctx.stop.line - 2,
+          startCharacter: ctx.start.column,
+          endCharacter: ctx.stop.column,
+          kind: FoldingRangeKind.Region,
+          collapsedText: "else if",
+        };
+        result.push(elseIfRange);
+      });
+
+      if (s.else) {
+        const ctx = s.else.context as ParserRuleContext;
+        const elseRange: FoldingRange = {
+          startLine: ctx.start.line - 1,
+          endLine: ctx.stop.line - 2,
+          startCharacter: ctx.start.column,
+          endCharacter: ctx.stop.column,
+          kind: FoldingRangeKind.Region,
+          collapsedText: "else",
+        };
+        result.push(elseRange);
+      }
     });
 
   // gather all if directives
@@ -72,7 +120,7 @@ export function getFoldingRanges(
         s.name === "ifndef" ||
         s.name === "else" ||
         s.name === "elif"
-    );
+    ) as PreprocessorSymbol[];
   ifDirectives.sort(sortSymbols);
 
   // gather all endif diretives
@@ -129,7 +177,7 @@ export function getFoldingRanges(
   }
 
   console.log("Folding ranges:", result);
-  result = limitRanges(result, maxRanges || 1000);
+  result = limitFoldingRanges(result, {});
   console.dir(result);
 
   return result;
@@ -145,8 +193,18 @@ function sortSymbols(s1: BaseSymbol, s2: BaseSymbol) {
   return diff;
 }
 
-function limitRanges(ranges: FoldingRange[], maxRanges: number) {
-  ranges = ranges.sort((r1, r2) => {
+/**
+ * - Sort regions
+ * - Remove invalid regions (intersections)
+ * - If limit exceeds, only return `rangeLimit` amount of ranges
+ */
+function limitFoldingRanges(
+  ranges: FoldingRange[],
+  context: { rangeLimit?: number }
+): FoldingRange[] {
+  const maxRanges = (context && context.rangeLimit) || Number.MAX_VALUE;
+
+  const sortedRanges = ranges.sort((r1, r2) => {
     let diff = r1.startLine - r2.startLine;
     if (diff === 0) {
       diff = r1.endLine - r2.endLine;
@@ -154,65 +212,18 @@ function limitRanges(ranges: FoldingRange[], maxRanges: number) {
     return diff;
   });
 
-  // compute each range's nesting level in 'nestingLevels'.
-  // count the number of ranges for each level in 'nestingLevelCounts'
-  let top: FoldingRange | undefined = undefined;
-  const previous: FoldingRange[] = [];
-  const nestingLevels: number[] = [];
-  const nestingLevelCounts: number[] = [];
+  const validRanges: FoldingRange[] = [];
+  let prevEndLine = -1;
+  sortedRanges.forEach((r) => {
+    if (!(r.startLine < prevEndLine && prevEndLine < r.endLine)) {
+      validRanges.push(r);
+      prevEndLine = r.endLine;
+    }
+  });
 
-  const setNestingLevel = (index: number, level: number) => {
-    nestingLevels[index] = level;
-    if (level < 30) {
-      nestingLevelCounts[level] = (nestingLevelCounts[level] || 0) + 1;
-    }
-  };
-
-  // compute nesting levels and sanitize
-  for (let i = 0; i < ranges.length; i++) {
-    const entry = ranges[i];
-    if (!top) {
-      top = entry;
-      setNestingLevel(i, 0);
-    } else {
-      if (entry.startLine > top.startLine) {
-        if (entry.endLine <= top.endLine) {
-          previous.push(top);
-          top = entry;
-          setNestingLevel(i, previous.length);
-        } else if (entry.startLine > top.endLine) {
-          do {
-            top = previous.pop();
-          } while (top && entry.startLine > top.endLine);
-          if (top) {
-            previous.push(top);
-          }
-          top = entry;
-          setNestingLevel(i, previous.length);
-        }
-      }
-    }
+  if (validRanges.length < maxRanges) {
+    return validRanges;
+  } else {
+    return validRanges.slice(0, maxRanges);
   }
-  let entries = 0;
-  let maxLevel = 0;
-  for (let i = 0; i < nestingLevelCounts.length; i++) {
-    const n = nestingLevelCounts[i];
-    if (n) {
-      if (n + entries > maxRanges) {
-        maxLevel = i;
-        break;
-      }
-      entries += n;
-    }
-  }
-  const result = [];
-  for (let i = 0; i < ranges.length; i++) {
-    const level = nestingLevels[i];
-    if (typeof level === "number") {
-      if (level < maxLevel || (level === maxLevel && entries++ < maxRanges)) {
-        result.push(ranges[i]);
-      }
-    }
-  }
-  return result;
 }

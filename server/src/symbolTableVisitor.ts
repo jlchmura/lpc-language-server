@@ -20,9 +20,11 @@ import {
   DirectiveTypeDefineContext,
   ExpressionContext,
   FunctionDeclarationContext,
+  IfStatementContext,
   LPCParser,
   PreprocessorDirectiveContext,
   SelectionDirectiveContext,
+  SelectionStatementContext,
   StatementContext,
   VariableDeclarationContext,
 } from "./parser3/LPCParser";
@@ -58,11 +60,14 @@ export class SymbolTableVisitor
   };
 
   visitSelectionDirective = (ctx: SelectionDirectiveContext) => {
-    const name =
+    const tokenIdx = ctx.start.tokenIndex;
+    const label =
       ctx.selectionDirectiveTypeSingle()?.getText() ||
       ctx.selectionDirectiveTypeWithArg()?.getText();
+    const name = label + "_" + tokenIdx;
+
     if (!!name) {
-      return this.withScope(ctx, PreprocessorSymbol, [name], () =>
+      return this.withScope(ctx, PreprocessorSymbol, [name, label], () =>
         this.visitChildren(ctx)
       );
     } else {
@@ -106,6 +111,66 @@ export class SymbolTableVisitor
     return this.visitChildren(ctx);
   };
 
+  visitIfStatement = (ctx: IfStatementContext) => {
+    const tokenIdx = ctx.start.tokenIndex;
+    const name = "if_" + tokenIdx;
+
+    const ifSym = this.withScope(ctx, IfSymbol, [name], () => {
+      const scope = this.scope as IfSymbol;
+
+      let i = 0;
+      const ifExpCtx = ctx.ifExpression();
+      const ifExp = this.symbolTable.addNewSymbolOfType(
+        SelectionSymbol,
+        this.scope,
+        `if_${tokenIdx}_${i++}`,
+        "if"
+      );
+      ifExp.context = ifExpCtx;
+      scope.if = ifExp;
+
+      const ifElseCtx = ctx.elseIfExpression() ?? [];
+      scope.elseIf = [];
+      ifElseCtx.forEach((e) => {
+        const elseIfExp = this.symbolTable.addNewSymbolOfType(
+          SelectionSymbol,
+          this.scope,
+          `elseif_${tokenIdx}_${i++}`,
+          "else if"
+        );
+        elseIfExp.context = e;
+        scope.elseIf.push(elseIfExp);
+      });
+
+      const elseCtx = ctx.elseExpression();
+      if (!!elseCtx) {
+        const elseExp = this.symbolTable.addNewSymbolOfType(
+          SelectionSymbol,
+          this.scope,
+          `else_${tokenIdx}_${i++}`,
+          "else"
+        );
+        elseExp.context = elseCtx;
+        scope.else = elseExp;
+      }
+
+      return this.visitChildren(ctx);
+    });
+
+    return ifSym;
+  };
+
+  //   visitSelectionStatement = (ctx: SelectionStatementContext) => {
+  //     const label =
+  //       ctx.ifStatement()?.IF()?.getText() ||
+  //       ctx.switchStatement()?.SWITCH()?.getText();
+  //     const tokenIdx = ctx.start.tokenIndex;
+  //     const name = label + "_" + tokenIdx;
+  //     return this.withScope(ctx, SelectionSymbol, [name, label], () =>
+  //       this.visitChildren(ctx)
+  //     );
+  //   };
+
   visitFunctionDeclaration = (ctx: FunctionDeclarationContext) => {
     const id = ctx.Identifier();
     const nm = id.getText();
@@ -145,6 +210,23 @@ export class DefineSymbol extends BaseSymbol {
 }
 
 export class PreprocessorSymbol extends ScopedSymbol {
+  constructor(name: string, public label: string) {
+    super(name);
+  }
+}
+
+/** if, switch, etc */
+export class SelectionSymbol extends ScopedSymbol {
+  constructor(name: string, public label: string) {
+    super(name);
+  }
+}
+
+export class IfSymbol extends ScopedSymbol {
+  public if: SelectionSymbol;
+  public elseIf: SelectionSymbol[];
+  public else: SelectionSymbol;
+
   constructor(name: string) {
     super(name);
   }

@@ -273,8 +273,19 @@ selectionStatement
     | switchStatement
     ;
 
+elseIfExpression
+    : ELSE IF '(' expression ')' statement
+    ;
+
+elseExpression
+    : ELSE statement
+    ;
+ifExpression
+    : IF '(' expression ')' statement
+    ;
+
 ifStatement
-    : IF '(' expression ')' statement (ELSE statement)?
+    : ifExpression elseIfExpression* elseExpression?
     ;
 
 // Switch, case, and default statements
