@@ -21,8 +21,9 @@ export class SymbolTableVisitor extends AbstractParseTreeVisitor<SymbolTable> im
     }
 
     visitDefinePreprocessorDirective = (ctx: DefinePreprocessorDirectiveContext) => {     
-        this.scope.context = ctx; // store the context for later
-        this.symbolTable.addNewSymbolOfType(DefineSymbol, this.scope, ctx.Identifier()?.getText());
+        //this.scope.context = ctx; // store the context for later
+        const sym = this.symbolTable.addNewSymbolOfType(DefineSymbol, this.scope, ctx.Identifier()?.getText());
+        sym.context = ctx;
         return this.visitChildren(ctx);
     };
     
@@ -50,7 +51,8 @@ export class SymbolTableVisitor extends AbstractParseTreeVisitor<SymbolTable> im
              varType = new ArrayType(tt + "*", ReferenceKind.Pointer, varType);
          }
         
-        this.symbolTable.addNewSymbolOfType(VariableSymbol, this.scope, ctx.Identifier()?.getText(), undefined, varType);
+        const sym = this.symbolTable.addNewSymbolOfType(VariableSymbol, this.scope, ctx.Identifier()?.getText(), undefined, varType);
+        sym.context = ctx;
         return this.visitChildren(ctx);
     };
 

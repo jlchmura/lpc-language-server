@@ -22,7 +22,7 @@ const lexer = new LPCLexer(stream);
 const tStream = new CommonTokenStream(lexer);
 const parser = new LPCParser(tStream);
 
-let caretPos = { line: 13, column: 10 } as CaretPosition;
+let caretPos = { line: 15, column: 30 } as CaretPosition;
 
 let errorListener = new ConsoleErrorListener();
 parser.addErrorListener(errorListener);
