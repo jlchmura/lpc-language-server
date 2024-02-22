@@ -25,18 +25,22 @@ import {
   TextDocumentPositionParams,
 } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { CaretPosition, getSuggestions, getSuggestionsForParseTree } from "./completions";
+import {
+  CaretPosition,
+  getSuggestions,
+  getSuggestionsForParseTree,
+} from "./completions";
 
 import { getFoldingRanges } from "./folding";
-
 
 import { SymbolTableVisitor } from "./symbolTableVisitor";
 import { computeTokenPosition } from "./tokenposition";
 import { LPCLexer } from "./parser3/LPCLexer";
 import { CharStreams, CommonTokenStream } from "antlr4ng";
-import { LPCParser } from "./parser3/LPCParser";
+import { LPCParser, ProgramContext } from "./parser3/LPCParser";
 import { getDocumentSymbols } from "./documentSymbol";
 import { getDefinitions } from "./definition";
+import { VSCodeANTLRErrorListener } from "./validator";
 
 export function startServer(connection: Connection) {
   // Create a simple text document manager.
@@ -165,14 +169,22 @@ export function startServer(connection: Connection) {
 
     // The validator creates diagnostics for all uppercase words length 2 and more
     const text = textDocument.getText();
+    const listener = new VSCodeANTLRErrorListener(
+      textDocument,
+      textDocument.uri
+    );
 
+    let parser: LPCParser;
+    let tree: ProgramContext;
     try {
       const stream = CharStreams.fromString(text);
       const lexer = new LPCLexer(stream);
       const tStream = new CommonTokenStream(lexer);
-      const parser = new LPCParser(tStream);
-      const tree = parser.program();
-        
+
+      parser = new LPCParser(tStream);
+      parser.addErrorListener(listener);
+
+      tree = parser.program();
     } catch (err) {
       let errMsg: string;
       if (typeof err == "string") errMsg = err;
@@ -184,7 +196,7 @@ export function startServer(connection: Connection) {
       console.log("Error in document: " + err);
     }
 
-    const diagnostics: Diagnostic[] = [];
+    const diagnostics: Diagnostic[] = listener.getDiaognostics();
 
     // Send the computed diagnostics to VSCode.
     connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
@@ -200,19 +212,22 @@ export function startServer(connection: Connection) {
 
   connection.onDocumentSymbol((documentSymbolParams, token) => {
     const document = documents.get(documentSymbolParams.textDocument.uri);
-    
-     if (document) {
-       return getDocumentSymbols(document.getText());
-     }
+
+    if (document) {
+      return getDocumentSymbols(document.getText());
+    }
     return [];
   });
 
   connection.onDefinition((definitionParams, token) => {
     const document = documents.get(definitionParams.textDocument.uri);
-    
+
     if (document) {
       const pos = definitionParams.position;
-      let caretPos = { line: pos.line + 1, column: pos.character } as CaretPosition;
+      let caretPos = {
+        line: pos.line + 1,
+        column: pos.character,
+      } as CaretPosition;
       const defs = getDefinitions(document, document.getText(), caretPos);
       return defs;
     }
@@ -224,18 +239,33 @@ export function startServer(connection: Connection) {
     connection.console.log("We received an file change event");
   });
 
-  // This handler provides the initial list of the completion items.  
-  connection.onCompletion( (_textDocumentPosition: TextDocumentPositionParams): CompletionItem[] =>  {
+  // This handler provides the initial list of the completion items.
+  connection.onCompletion(
+    (_textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
       let uri = _textDocumentPosition.textDocument.uri;
       let document = documents.get(uri);
       if (!document) return [];
-      
-      let pos = _textDocumentPosition.position;
-      let caretPos = { line: pos.line + 1, column: pos.character } as CaretPosition;
 
-      console.log("Getting suggestions for: " + document.uri + " at " + caretPos.line + ":" + caretPos.column);
-      
-      let suggestions = getSuggestions(document.getText(), caretPos, computeTokenPosition);
+      let pos = _textDocumentPosition.position;
+      let caretPos = {
+        line: pos.line + 1,
+        column: pos.character,
+      } as CaretPosition;
+
+      console.log(
+        "Getting suggestions for: " +
+          document.uri +
+          " at " +
+          caretPos.line +
+          ":" +
+          caretPos.column
+      );
+
+      let suggestions = getSuggestions(
+        document.getText(),
+        caretPos,
+        computeTokenPosition
+      );
       return suggestions;
     }
   );
@@ -243,7 +273,7 @@ export function startServer(connection: Connection) {
   // This handler resolves additional information for the item selected in
   // the completion list.
   connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
-    return item;    
+    return item;
   });
 
   // Make the text document manager listen on the connection
