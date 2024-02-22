@@ -6,7 +6,9 @@ import { AbstractParseTreeVisitor } from "antlr4ng";
 import { ProgramContext } from "./LPCParser.js";
 import { PreprocessorDirectiveContext } from "./LPCParser.js";
 import { DefinePreprocessorDirectiveContext } from "./LPCParser.js";
-import { DirectiveTypeContext } from "./LPCParser.js";
+import { SelectionDirectiveContext } from "./LPCParser.js";
+import { SelectionDirectiveTypeSingleContext } from "./LPCParser.js";
+import { SelectionDirectiveTypeWithArgContext } from "./LPCParser.js";
 import { DirectiveTypeWithArgumentsContext } from "./LPCParser.js";
 import { DirectiveArgumentContext } from "./LPCParser.js";
 import { DirectiveTypeDefineContext } from "./LPCParser.js";
@@ -77,11 +79,23 @@ export class LPCVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      */
     visitDefinePreprocessorDirective?: (ctx: DefinePreprocessorDirectiveContext) => Result;
     /**
-     * Visit a parse tree produced by `LPCParser.directiveType`.
+     * Visit a parse tree produced by `LPCParser.selectionDirective`.
      * @param ctx the parse tree
      * @return the visitor result
      */
-    visitDirectiveType?: (ctx: DirectiveTypeContext) => Result;
+    visitSelectionDirective?: (ctx: SelectionDirectiveContext) => Result;
+    /**
+     * Visit a parse tree produced by `LPCParser.selectionDirectiveTypeSingle`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitSelectionDirectiveTypeSingle?: (ctx: SelectionDirectiveTypeSingleContext) => Result;
+    /**
+     * Visit a parse tree produced by `LPCParser.selectionDirectiveTypeWithArg`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitSelectionDirectiveTypeWithArg?: (ctx: SelectionDirectiveTypeWithArgContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.directiveTypeWithArguments`.
      * @param ctx the parse tree

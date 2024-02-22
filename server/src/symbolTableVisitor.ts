@@ -22,6 +22,7 @@ import {
   FunctionDeclarationContext,
   LPCParser,
   PreprocessorDirectiveContext,
+  SelectionDirectiveContext,
   StatementContext,
   VariableDeclarationContext,
 } from "./parser3/LPCParser";
@@ -56,19 +57,17 @@ export class SymbolTableVisitor
     return this.visitChildren(ctx);
   };
 
-  visitPreprocessorDirective = (ctx: PreprocessorDirectiveContext) => {
+  visitSelectionDirective = (ctx: SelectionDirectiveContext) => {
     const name =
-      ctx.directiveTypeWithArguments()?.getText() ||
-      ctx.directiveType()?.getText();
+      ctx.selectionDirectiveTypeSingle()?.getText() ||
+      ctx.selectionDirectiveTypeWithArg()?.getText();
     if (!!name) {
-      const sym = this.symbolTable.addNewSymbolOfType(
-        PreprocessorSymbol,
-        this.scope,
-        name
+      return this.withScope(ctx, PreprocessorSymbol, [name], () =>
+        this.visitChildren(ctx)
       );
-      sym.context = ctx;
+    } else {
+      return this.visitChildren(ctx);
     }
-    return this.visitChildren(ctx);
   };
 
   visitVariableDeclaration = (ctx: VariableDeclarationContext) => {
@@ -145,7 +144,7 @@ export class DefineSymbol extends BaseSymbol {
   }
 }
 
-export class PreprocessorSymbol extends BaseSymbol {
+export class PreprocessorSymbol extends ScopedSymbol {
   constructor(name: string) {
     super(name);
   }

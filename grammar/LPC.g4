@@ -111,7 +111,7 @@ LINE_COMMENT: '//' .*? '\n' -> skip;
 program: (declaration | preprocessorDirective | inheritStatement)* EOF;
 
 preprocessorDirective
-    : '#' directiveType
+    : selectionDirective
     | '#' directiveTypeWithArguments directiveArgument
     | definePreprocessorDirective
     | '#' directiveTypeInclude directiveIncludeFile
@@ -122,17 +122,26 @@ definePreprocessorDirective
     : '#' directiveTypeDefine Identifier directiveDefineParam? directiveDefineArgument?
     ;
 
-directiveType
+selectionDirective
+    : '#' selectionDirectiveTypeWithArg directiveArgument
+    | '#' selectionDirectiveTypeSingle
+    ;
+
+selectionDirectiveTypeSingle
     : 'else'
     | 'endif'
     ;
 
-directiveTypeWithArguments
+selectionDirectiveTypeWithArg
     : 'if'
     | 'ifdef'
     | 'ifndef'
-    | 'elif'
-    | 'undef'
+    | 'elif'    
+    ;
+
+
+directiveTypeWithArguments
+    : 'undef'
     | 'echo'
     | 'line'
     ;
@@ -251,6 +260,7 @@ statement
     | jumpStatement
     | variableDeclaration   
     | inheritSuperStatement 
+    | selectionDirective
     ;
 
 expressionStatement: expression SEMI;

@@ -6,7 +6,9 @@ import { ErrorNode, ParseTreeListener, ParserRuleContext, TerminalNode } from "a
 import { ProgramContext } from "./LPCParser.js";
 import { PreprocessorDirectiveContext } from "./LPCParser.js";
 import { DefinePreprocessorDirectiveContext } from "./LPCParser.js";
-import { DirectiveTypeContext } from "./LPCParser.js";
+import { SelectionDirectiveContext } from "./LPCParser.js";
+import { SelectionDirectiveTypeSingleContext } from "./LPCParser.js";
+import { SelectionDirectiveTypeWithArgContext } from "./LPCParser.js";
 import { DirectiveTypeWithArgumentsContext } from "./LPCParser.js";
 import { DirectiveArgumentContext } from "./LPCParser.js";
 import { DirectiveTypeDefineContext } from "./LPCParser.js";
@@ -86,15 +88,35 @@ export class LPCListener implements ParseTreeListener {
      */
     exitDefinePreprocessorDirective?: (ctx: DefinePreprocessorDirectiveContext) => void;
     /**
-     * Enter a parse tree produced by `LPCParser.directiveType`.
+     * Enter a parse tree produced by `LPCParser.selectionDirective`.
      * @param ctx the parse tree
      */
-    enterDirectiveType?: (ctx: DirectiveTypeContext) => void;
+    enterSelectionDirective?: (ctx: SelectionDirectiveContext) => void;
     /**
-     * Exit a parse tree produced by `LPCParser.directiveType`.
+     * Exit a parse tree produced by `LPCParser.selectionDirective`.
      * @param ctx the parse tree
      */
-    exitDirectiveType?: (ctx: DirectiveTypeContext) => void;
+    exitSelectionDirective?: (ctx: SelectionDirectiveContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.selectionDirectiveTypeSingle`.
+     * @param ctx the parse tree
+     */
+    enterSelectionDirectiveTypeSingle?: (ctx: SelectionDirectiveTypeSingleContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.selectionDirectiveTypeSingle`.
+     * @param ctx the parse tree
+     */
+    exitSelectionDirectiveTypeSingle?: (ctx: SelectionDirectiveTypeSingleContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.selectionDirectiveTypeWithArg`.
+     * @param ctx the parse tree
+     */
+    enterSelectionDirectiveTypeWithArg?: (ctx: SelectionDirectiveTypeWithArgContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.selectionDirectiveTypeWithArg`.
+     * @param ctx the parse tree
+     */
+    exitSelectionDirectiveTypeWithArg?: (ctx: SelectionDirectiveTypeWithArgContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.directiveTypeWithArguments`.
      * @param ctx the parse tree
