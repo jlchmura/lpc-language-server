@@ -344,7 +344,8 @@ expression
     | DEC expression
     | expression INC
     | expression DEC
-    | Identifier '=' expression
+    | Identifier '=' expression // assignment
+    | expression '[' expression ']' // array access
     | Identifier '(' expressionList? ')'  // function call
     | mappingExpression
     | callOtherExpression
