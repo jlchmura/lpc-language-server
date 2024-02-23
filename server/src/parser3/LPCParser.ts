@@ -123,10 +123,8 @@ export class LPCParser extends antlr.Parser {
     public static readonly DEFINE = 109;
     public static readonly WS = 110;
     public static readonly END_DEFINE = 111;
-    public static readonly STRING_CONTENT = 112;
-    public static readonly STRING_END = 113;
-    public static readonly NEWLINE = 114;
-    public static readonly ESCAPED_QUOTE = 115;
+    public static readonly STRING_END = 112;
+    public static readonly NEWLINE = 113;
     public static readonly RULE_program = 0;
     public static readonly RULE_preprocessorDirective = 1;
     public static readonly RULE_definePreprocessorDirective = 2;
@@ -192,8 +190,7 @@ export class LPCParser extends antlr.Parser {
         "'.'", "'::'", "'='", "'+='", "'-='", "'*='", "'/='", "'%='", "'&='", 
         "'|='", "'^='", "'({'", "'})'", "'(['", "'])'", "'->'", "'(:'", 
         "':)'", "'('", "')'", "'{'", "'}'", "'['", "']'", "'\\'", null, 
-        null, null, null, null, null, null, null, null, "'\\n'", null, null, 
-        "'\\\\n'", "'\\\"'"
+        null, null, null, null, null, null, null, null, "'\\n'", null, "'\\\\n'"
     ];
 
     public static readonly symbolicNames = [
@@ -213,8 +210,8 @@ export class LPCParser extends antlr.Parser {
         "CLOSURE_OPEN", "CLOSURE_CLOSE", "PAREN_OPEN", "PAREN_CLOSE", "CURLY_OPEN", 
         "CURLY_CLOSE", "SQUARE_OPEN", "SQUARE_CLOSE", "BACKSLASH", "IntegerConstant", 
         "FloatingConstant", "STRING_START", "StringLiteral", "CharacterConstant", 
-        "COMMENT", "LINE_COMMENT", "DEFINE", "WS", "END_DEFINE", "STRING_CONTENT", 
-        "STRING_END", "NEWLINE", "ESCAPED_QUOTE"
+        "COMMENT", "LINE_COMMENT", "DEFINE", "WS", "END_DEFINE", "STRING_END", 
+        "NEWLINE"
     ];
     public static readonly ruleNames = [
         "program", "preprocessorDirective", "definePreprocessorDirective", 
@@ -3102,7 +3099,7 @@ export class LPCParser extends antlr.Parser {
     }
 
     public static readonly _serializedATN: number[] = [
-        4,1,115,606,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,
+        4,1,113,606,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,
         7,6,2,7,7,7,2,8,7,8,2,9,7,9,2,10,7,10,2,11,7,11,2,12,7,12,2,13,7,
         13,2,14,7,14,2,15,7,15,2,16,7,16,2,17,7,17,2,18,7,18,2,19,7,19,2,
         20,7,20,2,21,7,21,2,22,7,22,2,23,7,23,2,24,7,24,2,25,7,25,2,26,7,
