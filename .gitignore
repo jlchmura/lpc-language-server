@@ -3,7 +3,6 @@ node_modules
 client/server
 .vscode-test
 .antlr
-grammar/**/*
-!grammar/LPC.g4
+grammar/test
 parser2
 test.c
