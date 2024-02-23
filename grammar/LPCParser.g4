@@ -234,8 +234,8 @@ callOtherTarget
 
 expression
     : Identifier
-    | IntegerConstant
-    | FloatingConstant
+    | MINUS? IntegerConstant
+    | MINUS? FloatingConstant
     | StringLiteral
     | StringLiteral StringLiteral*  // handle implicit string concatenation
     | CharacterConstant

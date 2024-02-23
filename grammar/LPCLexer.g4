@@ -124,8 +124,8 @@ BACKSLASH: '\\';
 
 
 // Literals
-IntegerConstant: MINUS? [0-9]+;
-FloatingConstant: MINUS? [0-9]* '.' [0-9]+ ([eE] [+-]? [0-9]+)?;
+IntegerConstant: [0-9]+;
+FloatingConstant: [0-9]* '.' [0-9]+ ([eE] [+-]? [0-9]+)?;
 STRING_START: '"' -> mode(STRING_MODE);
 StringLiteral: STRING_START STRING_CONTENT* STRING_END;
 
