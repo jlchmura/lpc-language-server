@@ -38,7 +38,6 @@ MAPPING: 'mapping';
 MIXED: 'mixed';
 OBJECT: 'object';
 PRAGMA: 'pragma';
-REGISTER: 'register';
 RETURN: 'return';
 STATUS: 'status';
 STRUCT: 'struct';

@@ -118,14 +118,8 @@ arrayExpression
     : ARRAY_OPEN (expression (COMMA expression)*)? COMMA? ARRAY_CLOSE
     ;
 
-mappingKey
-    : IntegerConstant
-    | StringLiteral
-    | CharacterConstant
-    ;
-
 mappingContent
-    : mappingKey (COLON expression (SEMI expression)*)?
+    : mappingKey=expression (COLON expression (SEMI expression)*)?
     ;
 
 mappingExpression
@@ -336,6 +330,7 @@ expression
 arrayAccessExpression
     : SQUARE_OPEN LT? expression SQUARE_CLOSE
     | SQUARE_OPEN LT? expression? DOUBLEDOT LT? expression? SQUARE_CLOSE    
+    | SQUARE_OPEN expression? (COMMA expression)* SQUARE_CLOSE
     ;
 
 expressionList

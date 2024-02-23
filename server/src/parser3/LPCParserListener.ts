@@ -29,7 +29,6 @@ import { FunctionDeclarationContext } from "./LPCParser.js";
 import { ParameterListContext } from "./LPCParser.js";
 import { ParameterContext } from "./LPCParser.js";
 import { ArrayExpressionContext } from "./LPCParser.js";
-import { MappingKeyContext } from "./LPCParser.js";
 import { MappingContentContext } from "./LPCParser.js";
 import { MappingExpressionContext } from "./LPCParser.js";
 import { VariableModifierContext } from "./LPCParser.js";
@@ -326,16 +325,6 @@ export class LPCParserListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitArrayExpression?: (ctx: ArrayExpressionContext) => void;
-    /**
-     * Enter a parse tree produced by `LPCParser.mappingKey`.
-     * @param ctx the parse tree
-     */
-    enterMappingKey?: (ctx: MappingKeyContext) => void;
-    /**
-     * Exit a parse tree produced by `LPCParser.mappingKey`.
-     * @param ctx the parse tree
-     */
-    exitMappingKey?: (ctx: MappingKeyContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.mappingContent`.
      * @param ctx the parse tree

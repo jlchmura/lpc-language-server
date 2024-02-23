@@ -29,7 +29,6 @@ import { FunctionDeclarationContext } from "./LPCParser.js";
 import { ParameterListContext } from "./LPCParser.js";
 import { ParameterContext } from "./LPCParser.js";
 import { ArrayExpressionContext } from "./LPCParser.js";
-import { MappingKeyContext } from "./LPCParser.js";
 import { MappingContentContext } from "./LPCParser.js";
 import { MappingExpressionContext } from "./LPCParser.js";
 import { VariableModifierContext } from "./LPCParser.js";
@@ -225,12 +224,6 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      * @return the visitor result
      */
     visitArrayExpression?: (ctx: ArrayExpressionContext) => Result;
-    /**
-     * Visit a parse tree produced by `LPCParser.mappingKey`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitMappingKey?: (ctx: MappingKeyContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.mappingContent`.
      * @param ctx the parse tree
