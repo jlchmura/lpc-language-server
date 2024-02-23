@@ -90,11 +90,12 @@ functionModifier
     | PROTECTED
     | PUBLIC
     | NOSHADOW 
+    | NOMASK
     | VARARGS
     ;
 
 functionHeader
-    : functionModifier? typeSpecifier? Identifier PAREN_OPEN parameterList? PAREN_CLOSE
+    : functionModifier* typeSpecifier? Identifier PAREN_OPEN parameterList? PAREN_CLOSE
     ;
 
 functionHeaderDeclaration
@@ -132,8 +133,16 @@ mappingExpression
     : MAPPING_OPEN (mappingContent (COMMA mappingContent)*)? SQUARE_CLOSE PAREN_CLOSE
     ;
 
+variableModifier
+    : STATIC
+    | PRIVATE
+    | PROTECTED
+    | PUBLIC
+    | NOSHADOW
+    ;
+
 variableDeclaration
-    : typeSpecifier Identifier assignmentExpression? (COMMA Identifier assignmentExpression?)* SEMI    
+    : variableModifier* typeSpecifier? Identifier assignmentExpression? (COMMA STAR? Identifier assignmentExpression?)* SEMI    
     ;
 
 primitiveTypeSpecifier
@@ -152,9 +161,13 @@ primitiveTypeSpecifier
     | UNKNOWN
     ;
 
+arrayTypeSpecifier
+    : primitiveTypeSpecifier? STAR
+    ;
+
 typeSpecifier
     : primitiveTypeSpecifier
-    | typeSpecifier STAR
+    | arrayTypeSpecifier
     ;
 
 inlineClosureExpression
@@ -170,6 +183,7 @@ statement
     | variableDeclaration   
     | inheritSuperStatement 
     | selectionDirective
+    //| preprocessorDirective
     ;
 
 expressionStatement: expression SEMI;

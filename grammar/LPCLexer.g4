@@ -60,6 +60,7 @@ PUBLIC: 'public';
 STATIC: 'static';
 
 NOSHADOW: 'noshadow';
+NOMASK: 'nomask';
 VARARGS: 'varargs';
 
 
