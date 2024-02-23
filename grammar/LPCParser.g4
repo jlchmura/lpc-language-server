@@ -79,7 +79,8 @@ inheritSuperStatement
 
 
 declaration
-    : functionDeclaration
+    : functionHeaderDeclaration
+    | functionDeclaration
     | variableDeclaration
     ;
 
@@ -92,8 +93,16 @@ functionModifier
     | VARARGS
     ;
 
+functionHeader
+    : functionModifier? typeSpecifier? Identifier PAREN_OPEN parameterList? PAREN_CLOSE
+    ;
+
+functionHeaderDeclaration
+    : functionHeader SEMI
+    ;
+
 functionDeclaration
-    : functionModifier? typeSpecifier? Identifier PAREN_OPEN parameterList? PAREN_CLOSE compoundStatement
+    : functionHeader compoundStatement
     ;
 
 parameterList

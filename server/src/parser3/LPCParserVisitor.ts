@@ -23,6 +23,8 @@ import { InheritStatementContext } from "./LPCParser.js";
 import { InheritSuperStatementContext } from "./LPCParser.js";
 import { DeclarationContext } from "./LPCParser.js";
 import { FunctionModifierContext } from "./LPCParser.js";
+import { FunctionHeaderContext } from "./LPCParser.js";
+import { FunctionHeaderDeclarationContext } from "./LPCParser.js";
 import { FunctionDeclarationContext } from "./LPCParser.js";
 import { ParameterListContext } from "./LPCParser.js";
 import { ParameterContext } from "./LPCParser.js";
@@ -182,6 +184,18 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      * @return the visitor result
      */
     visitFunctionModifier?: (ctx: FunctionModifierContext) => Result;
+    /**
+     * Visit a parse tree produced by `LPCParser.functionHeader`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitFunctionHeader?: (ctx: FunctionHeaderContext) => Result;
+    /**
+     * Visit a parse tree produced by `LPCParser.functionHeaderDeclaration`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitFunctionHeaderDeclaration?: (ctx: FunctionHeaderDeclarationContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.functionDeclaration`.
      * @param ctx the parse tree

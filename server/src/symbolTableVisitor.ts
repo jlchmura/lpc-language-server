@@ -107,19 +107,19 @@ export class SymbolTableVisitor
       sym.context = ctx;
     });
 
-    const assigns = ctx.assignmentExpression();
-    assigns.forEach((assign) => {
-      const id = assign.Identifier();
-      const exp = assign.expression();
-      const sym = this.symbolTable.addNewSymbolOfType(
-        VariableSymbol,
-        this.scope,
-        id.getText(),
-        exp.getText(),
-        varType
-      );
-      sym.context = ctx;
-    });
+    // const assigns = ctx.assignmentExpression();
+    // assigns.forEach((assign) => {
+    //   const id = assign.Identifier();
+    //   const exp = assign.expression();
+    //   const sym = this.symbolTable.addNewSymbolOfType(
+    //     VariableSymbol,
+    //     this.scope,
+    //     id.getText(),
+    //     exp.getText(),
+    //     varType
+    //   );
+    //   sym.context = ctx;
+    // });
 
     return this.visitChildren(ctx);
   };
@@ -185,9 +185,10 @@ export class SymbolTableVisitor
   //   };
 
   visitFunctionDeclaration = (ctx: FunctionDeclarationContext) => {
-    const id = ctx.Identifier();
+    const header = ctx.functionHeader();
+    const id = header.Identifier();
     const nm = id.getText();
-
+    
     this.functionNodes.set(nm, id);
 
     return this.withScope(ctx, MethodSymbol, [nm], () =>

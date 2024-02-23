@@ -23,6 +23,8 @@ import { InheritStatementContext } from "./LPCParser.js";
 import { InheritSuperStatementContext } from "./LPCParser.js";
 import { DeclarationContext } from "./LPCParser.js";
 import { FunctionModifierContext } from "./LPCParser.js";
+import { FunctionHeaderContext } from "./LPCParser.js";
+import { FunctionHeaderDeclarationContext } from "./LPCParser.js";
 import { FunctionDeclarationContext } from "./LPCParser.js";
 import { ParameterListContext } from "./LPCParser.js";
 import { ParameterContext } from "./LPCParser.js";
@@ -259,6 +261,26 @@ export class LPCParserListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitFunctionModifier?: (ctx: FunctionModifierContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.functionHeader`.
+     * @param ctx the parse tree
+     */
+    enterFunctionHeader?: (ctx: FunctionHeaderContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.functionHeader`.
+     * @param ctx the parse tree
+     */
+    exitFunctionHeader?: (ctx: FunctionHeaderContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.functionHeaderDeclaration`.
+     * @param ctx the parse tree
+     */
+    enterFunctionHeaderDeclaration?: (ctx: FunctionHeaderDeclarationContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.functionHeaderDeclaration`.
+     * @param ctx the parse tree
+     */
+    exitFunctionHeaderDeclaration?: (ctx: FunctionHeaderDeclarationContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.functionDeclaration`.
      * @param ctx the parse tree
