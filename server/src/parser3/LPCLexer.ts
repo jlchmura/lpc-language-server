@@ -70,21 +70,21 @@ export class LPCLexer extends antlr.Lexer {
     public static readonly LE = 63;
     public static readonly GE = 64;
     public static readonly EQ = 65;
-    public static readonly ASSIGN = 66;
-    public static readonly NE = 67;
-    public static readonly AND = 68;
-    public static readonly OR = 69;
-    public static readonly XOR = 70;
-    public static readonly NOT = 71;
-    public static readonly AND_AND = 72;
-    public static readonly OR_OR = 73;
-    public static readonly QUESTION = 74;
-    public static readonly COLON = 75;
-    public static readonly SEMI = 76;
-    public static readonly COMMA = 77;
-    public static readonly DOUBLEDOT = 78;
-    public static readonly DOT = 79;
-    public static readonly SUPER_ACCESSOR = 80;
+    public static readonly NE = 66;
+    public static readonly AND = 67;
+    public static readonly OR = 68;
+    public static readonly XOR = 69;
+    public static readonly NOT = 70;
+    public static readonly AND_AND = 71;
+    public static readonly OR_OR = 72;
+    public static readonly QUESTION = 73;
+    public static readonly COLON = 74;
+    public static readonly SEMI = 75;
+    public static readonly COMMA = 76;
+    public static readonly DOUBLEDOT = 77;
+    public static readonly DOT = 78;
+    public static readonly SUPER_ACCESSOR = 79;
+    public static readonly ASSIGN = 80;
     public static readonly ADD_ASSIGN = 81;
     public static readonly SUB_ASSIGN = 82;
     public static readonly MUL_ASSIGN = 83;
@@ -133,9 +133,9 @@ export class LPCLexer extends antlr.Lexer {
         "'symbol'", "'switch'", "'typedef'", "'union'", "'unknown'", "'undef'", 
         "'void'", "'volatile'", "'while'", "'private'", "'protected'", "'public'", 
         "'static'", "'+'", "'-'", "'*'", "'/'", "'%'", "'++'", "'--'", "'<<'", 
-        "'>>'", "'<'", "'>'", "'<='", "'>='", "'=='", "'='", "'!='", "'&'", 
-        "'|'", "'^'", "'!'", "'&&'", "'||'", "'?'", "':'", "';'", "','", 
-        "'..'", "'.'", "'::'", "'+='", "'-='", "'*='", "'/='", "'%='", "'&='", 
+        "'>>'", "'<'", "'>'", "'<='", "'>='", "'=='", "'!='", "'&'", "'|'", 
+        "'^'", "'!'", "'&&'", "'||'", "'?'", "':'", "';'", "','", "'..'", 
+        "'.'", "'::'", "'='", "'+='", "'-='", "'*='", "'/='", "'%='", "'&='", 
         "'|='", "'^='", "'({'", "'})'", "'(['", "'])'", "'->'", "'(:'", 
         "':)'", "'('", "')'", "'{'", "'}'", "'['", "']'", "'\\'", null, 
         null, null, null, null, null, null, null, "'\\n'", "'\\\\n'"
@@ -150,15 +150,15 @@ export class LPCLexer extends antlr.Lexer {
         "STRING", "SYMBOL", "SWITCH", "TYPEDEF", "UNION", "UNKNOWN", "UNDEF", 
         "VOID", "VOLATILE", "WHILE", "PRIVATE", "PROTECTED", "PUBLIC", "STATIC", 
         "PLUS", "MINUS", "STAR", "DIV", "MOD", "INC", "DEC", "SHL", "SHR", 
-        "LT", "GT", "LE", "GE", "EQ", "ASSIGN", "NE", "AND", "OR", "XOR", 
-        "NOT", "AND_AND", "OR_OR", "QUESTION", "COLON", "SEMI", "COMMA", 
-        "DOUBLEDOT", "DOT", "SUPER_ACCESSOR", "ADD_ASSIGN", "SUB_ASSIGN", 
-        "MUL_ASSIGN", "DIV_ASSIGN", "MOD_ASSIGN", "AND_ASSIGN", "OR_ASSIGN", 
-        "XOR_ASSIGN", "ARRAY_OPEN", "ARRAY_CLOSE", "MAPPING_OPEN", "MAPPING_CLOSE", 
-        "ARROW", "CLOSURE_OPEN", "CLOSURE_CLOSE", "PAREN_OPEN", "PAREN_CLOSE", 
-        "CURLY_OPEN", "CURLY_CLOSE", "SQUARE_OPEN", "SQUARE_CLOSE", "BACKSLASH", 
-        "IntegerConstant", "FloatingConstant", "StringLiteral", "CharacterConstant", 
-        "COMMENT", "LINE_COMMENT", "DEFINE", "WS", "END_DEFINE", "NEWLINE"
+        "LT", "GT", "LE", "GE", "EQ", "NE", "AND", "OR", "XOR", "NOT", "AND_AND", 
+        "OR_OR", "QUESTION", "COLON", "SEMI", "COMMA", "DOUBLEDOT", "DOT", 
+        "SUPER_ACCESSOR", "ASSIGN", "ADD_ASSIGN", "SUB_ASSIGN", "MUL_ASSIGN", 
+        "DIV_ASSIGN", "MOD_ASSIGN", "AND_ASSIGN", "OR_ASSIGN", "XOR_ASSIGN", 
+        "ARRAY_OPEN", "ARRAY_CLOSE", "MAPPING_OPEN", "MAPPING_CLOSE", "ARROW", 
+        "CLOSURE_OPEN", "CLOSURE_CLOSE", "PAREN_OPEN", "PAREN_CLOSE", "CURLY_OPEN", 
+        "CURLY_CLOSE", "SQUARE_OPEN", "SQUARE_CLOSE", "BACKSLASH", "IntegerConstant", 
+        "FloatingConstant", "StringLiteral", "CharacterConstant", "COMMENT", 
+        "LINE_COMMENT", "DEFINE", "WS", "END_DEFINE", "NEWLINE"
     ];
 
     public static readonly modeNames = [
@@ -174,16 +174,16 @@ export class LPCLexer extends antlr.Lexer {
         "SYMBOL", "SWITCH", "TYPEDEF", "UNION", "UNKNOWN", "UNDEF", "VOID", 
         "VOLATILE", "WHILE", "PRIVATE", "PROTECTED", "PUBLIC", "STATIC", 
         "PLUS", "MINUS", "STAR", "DIV", "MOD", "INC", "DEC", "SHL", "SHR", 
-        "LT", "GT", "LE", "GE", "EQ", "ASSIGN", "NE", "AND", "OR", "XOR", 
-        "NOT", "AND_AND", "OR_OR", "QUESTION", "COLON", "SEMI", "COMMA", 
-        "DOUBLEDOT", "DOT", "SUPER_ACCESSOR", "ADD_ASSIGN", "SUB_ASSIGN", 
-        "MUL_ASSIGN", "DIV_ASSIGN", "MOD_ASSIGN", "AND_ASSIGN", "OR_ASSIGN", 
-        "XOR_ASSIGN", "ARRAY_OPEN", "ARRAY_CLOSE", "MAPPING_OPEN", "MAPPING_CLOSE", 
-        "ARROW", "CLOSURE_OPEN", "CLOSURE_CLOSE", "PAREN_OPEN", "PAREN_CLOSE", 
-        "CURLY_OPEN", "CURLY_CLOSE", "SQUARE_OPEN", "SQUARE_CLOSE", "BACKSLASH", 
-        "IntegerConstant", "FloatingConstant", "StringLiteral", "CharacterConstant", 
-        "Identifier", "COMMENT", "LINE_COMMENT", "DEFINE", "WS", "DEFINE_CONTENT", 
-        "NEWLINE", "END_DEFINE",
+        "LT", "GT", "LE", "GE", "EQ", "NE", "AND", "OR", "XOR", "NOT", "AND_AND", 
+        "OR_OR", "QUESTION", "COLON", "SEMI", "COMMA", "DOUBLEDOT", "DOT", 
+        "SUPER_ACCESSOR", "ASSIGN", "ADD_ASSIGN", "SUB_ASSIGN", "MUL_ASSIGN", 
+        "DIV_ASSIGN", "MOD_ASSIGN", "AND_ASSIGN", "OR_ASSIGN", "XOR_ASSIGN", 
+        "ARRAY_OPEN", "ARRAY_CLOSE", "MAPPING_OPEN", "MAPPING_CLOSE", "ARROW", 
+        "CLOSURE_OPEN", "CLOSURE_CLOSE", "PAREN_OPEN", "PAREN_CLOSE", "CURLY_OPEN", 
+        "CURLY_CLOSE", "SQUARE_OPEN", "SQUARE_CLOSE", "BACKSLASH", "IntegerConstant", 
+        "FloatingConstant", "StringLiteral", "CharacterConstant", "Identifier", 
+        "COMMENT", "LINE_COMMENT", "DEFINE", "WS", "DEFINE_CONTENT", "NEWLINE", 
+        "END_DEFINE",
     ];
 
 
@@ -249,9 +249,9 @@ export class LPCLexer extends antlr.Lexer {
         49,1,49,1,49,1,49,1,49,1,50,1,50,1,51,1,51,1,52,1,52,1,53,1,53,1,
         54,1,54,1,55,1,55,1,55,1,56,1,56,1,56,1,57,1,57,1,57,1,58,1,58,1,
         58,1,59,1,59,1,60,1,60,1,61,1,61,1,61,1,62,1,62,1,62,1,63,1,63,1,
-        63,1,64,1,64,1,65,1,65,1,65,1,66,1,66,1,67,1,67,1,68,1,68,1,69,1,
-        69,1,70,1,70,1,70,1,71,1,71,1,71,1,72,1,72,1,73,1,73,1,74,1,74,1,
-        75,1,75,1,76,1,76,1,76,1,77,1,77,1,78,1,78,1,78,1,79,1,79,1,79,1,
+        63,1,64,1,64,1,64,1,65,1,65,1,66,1,66,1,67,1,67,1,68,1,68,1,69,1,
+        69,1,69,1,70,1,70,1,70,1,71,1,71,1,72,1,72,1,73,1,73,1,74,1,74,1,
+        75,1,75,1,75,1,76,1,76,1,77,1,77,1,77,1,78,1,78,1,79,1,79,1,79,1,
         80,1,80,1,80,1,81,1,81,1,81,1,82,1,82,1,82,1,83,1,83,1,83,1,84,1,
         84,1,84,1,85,1,85,1,85,1,86,1,86,1,86,1,87,1,87,1,87,1,88,1,88,1,
         88,1,89,1,89,1,89,1,90,1,90,1,90,1,91,1,91,1,91,1,92,1,92,1,92,1,
@@ -323,10 +323,10 @@ export class LPCLexer extends antlr.Lexer {
         551,1,0,0,0,110,553,1,0,0,0,112,555,1,0,0,0,114,558,1,0,0,0,116,
         561,1,0,0,0,118,564,1,0,0,0,120,567,1,0,0,0,122,569,1,0,0,0,124,
         571,1,0,0,0,126,574,1,0,0,0,128,577,1,0,0,0,130,580,1,0,0,0,132,
-        582,1,0,0,0,134,585,1,0,0,0,136,587,1,0,0,0,138,589,1,0,0,0,140,
-        591,1,0,0,0,142,593,1,0,0,0,144,596,1,0,0,0,146,599,1,0,0,0,148,
-        601,1,0,0,0,150,603,1,0,0,0,152,605,1,0,0,0,154,607,1,0,0,0,156,
-        610,1,0,0,0,158,612,1,0,0,0,160,615,1,0,0,0,162,618,1,0,0,0,164,
+        583,1,0,0,0,134,585,1,0,0,0,136,587,1,0,0,0,138,589,1,0,0,0,140,
+        591,1,0,0,0,142,594,1,0,0,0,144,597,1,0,0,0,146,599,1,0,0,0,148,
+        601,1,0,0,0,150,603,1,0,0,0,152,605,1,0,0,0,154,608,1,0,0,0,156,
+        610,1,0,0,0,158,613,1,0,0,0,160,615,1,0,0,0,162,618,1,0,0,0,164,
         621,1,0,0,0,166,624,1,0,0,0,168,627,1,0,0,0,170,630,1,0,0,0,172,
         633,1,0,0,0,174,636,1,0,0,0,176,639,1,0,0,0,178,642,1,0,0,0,180,
         645,1,0,0,0,182,648,1,0,0,0,184,651,1,0,0,0,186,654,1,0,0,0,188,
@@ -428,16 +428,16 @@ export class LPCLexer extends antlr.Lexer {
         119,1,0,0,0,567,568,5,60,0,0,568,121,1,0,0,0,569,570,5,62,0,0,570,
         123,1,0,0,0,571,572,5,60,0,0,572,573,5,61,0,0,573,125,1,0,0,0,574,
         575,5,62,0,0,575,576,5,61,0,0,576,127,1,0,0,0,577,578,5,61,0,0,578,
-        579,5,61,0,0,579,129,1,0,0,0,580,581,5,61,0,0,581,131,1,0,0,0,582,
-        583,5,33,0,0,583,584,5,61,0,0,584,133,1,0,0,0,585,586,5,38,0,0,586,
-        135,1,0,0,0,587,588,5,124,0,0,588,137,1,0,0,0,589,590,5,94,0,0,590,
-        139,1,0,0,0,591,592,5,33,0,0,592,141,1,0,0,0,593,594,5,38,0,0,594,
-        595,5,38,0,0,595,143,1,0,0,0,596,597,5,124,0,0,597,598,5,124,0,0,
-        598,145,1,0,0,0,599,600,5,63,0,0,600,147,1,0,0,0,601,602,5,58,0,
-        0,602,149,1,0,0,0,603,604,5,59,0,0,604,151,1,0,0,0,605,606,5,44,
-        0,0,606,153,1,0,0,0,607,608,5,46,0,0,608,609,5,46,0,0,609,155,1,
-        0,0,0,610,611,5,46,0,0,611,157,1,0,0,0,612,613,5,58,0,0,613,614,
-        5,58,0,0,614,159,1,0,0,0,615,616,5,43,0,0,616,617,5,61,0,0,617,161,
+        579,5,61,0,0,579,129,1,0,0,0,580,581,5,33,0,0,581,582,5,61,0,0,582,
+        131,1,0,0,0,583,584,5,38,0,0,584,133,1,0,0,0,585,586,5,124,0,0,586,
+        135,1,0,0,0,587,588,5,94,0,0,588,137,1,0,0,0,589,590,5,33,0,0,590,
+        139,1,0,0,0,591,592,5,38,0,0,592,593,5,38,0,0,593,141,1,0,0,0,594,
+        595,5,124,0,0,595,596,5,124,0,0,596,143,1,0,0,0,597,598,5,63,0,0,
+        598,145,1,0,0,0,599,600,5,58,0,0,600,147,1,0,0,0,601,602,5,59,0,
+        0,602,149,1,0,0,0,603,604,5,44,0,0,604,151,1,0,0,0,605,606,5,46,
+        0,0,606,607,5,46,0,0,607,153,1,0,0,0,608,609,5,46,0,0,609,155,1,
+        0,0,0,610,611,5,58,0,0,611,612,5,58,0,0,612,157,1,0,0,0,613,614,
+        5,61,0,0,614,159,1,0,0,0,615,616,5,43,0,0,616,617,5,61,0,0,617,161,
         1,0,0,0,618,619,5,45,0,0,619,620,5,61,0,0,620,163,1,0,0,0,621,622,
         5,42,0,0,622,623,5,61,0,0,623,165,1,0,0,0,624,625,5,47,0,0,625,626,
         5,61,0,0,626,167,1,0,0,0,627,628,5,37,0,0,628,629,5,61,0,0,629,169,
