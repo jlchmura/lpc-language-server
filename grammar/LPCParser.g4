@@ -21,7 +21,7 @@ definePreprocessorDirective
 
 
 selectionDirective
-    : HASH selectionDirectiveTypeWithArg directiveArgument
+    : HASH selectionDirectiveTypeWithArg NOT? directiveArgument
     | HASH selectionDirectiveTypeSingle
     ;
 
