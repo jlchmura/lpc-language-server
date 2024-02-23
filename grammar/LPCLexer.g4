@@ -127,7 +127,6 @@ IntegerConstant: [0-9]+;
 FloatingConstant: [0-9]* '.' [0-9]+ ([eE] [+-]? [0-9]+)?;
 STRING_START: '"' -> mode(STRING_MODE);
 StringLiteral: STRING_START STRING_CONTENT* STRING_END;
-
 CharacterConstant: '\'' (~['\r\n\\] | '\\' .) '\'';
 
 // Identifiers
@@ -143,7 +142,7 @@ WS: [ \t\r\n]+ -> skip;
 
 // to handle #define that can be multiline
 mode DEFINE_MODE;    
-    DEFINE_CONTENT: ~[\n\\]+ '\\\n'? -> more;
+    DEFINE_CONTENT: (~[\n\\]+ | '\\' ~'\n' ) '\\\n'? -> more;
     NEWLINE: '\\\n' -> more;
     END_DEFINE: '\n' -> popMode;
 

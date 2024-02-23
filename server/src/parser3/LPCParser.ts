@@ -2808,7 +2808,7 @@ export class LPCParser extends antlr.Parser {
         let localContext = new LambdaExpressionContext(this.context, this.state);
         this.enterRule(localContext, 102, LPCParser.RULE_lambdaExpression);
         try {
-            this.state = 619;
+            this.state = 625;
             this.errorHandler.sync(this);
             switch (this.interpreter.adaptivePredict(this.tokenStream, 62, this.context) ) {
             case 1:
@@ -3097,6 +3097,28 @@ export class LPCParser extends antlr.Parser {
                 this.match(LPCParser.QUESTION);
                 }
                 break;
+            case 27:
+                this.enterOuterAlt(localContext, 27);
+                {
+                this.state = 619;
+                this.match(LPCParser.HASH);
+                this.state = 620;
+                this.match(LPCParser.SINGLEQUOT);
+                this.state = 621;
+                this.match(LPCParser.SHL);
+                }
+                break;
+            case 28:
+                this.enterOuterAlt(localContext, 28);
+                {
+                this.state = 622;
+                this.match(LPCParser.HASH);
+                this.state = 623;
+                this.match(LPCParser.SINGLEQUOT);
+                this.state = 624;
+                this.match(LPCParser.SHR);
+                }
+                break;
             }
         }
         catch (re) {
@@ -3132,70 +3154,70 @@ export class LPCParser extends antlr.Parser {
             let alternative: number;
             this.enterOuterAlt(localContext, 1);
             {
-            this.state = 663;
+            this.state = 669;
             this.errorHandler.sync(this);
             switch (this.interpreter.adaptivePredict(this.tokenStream, 67, this.context) ) {
             case 1:
                 {
-                this.state = 622;
+                this.state = 628;
                 this.match(LPCParser.Identifier);
                 }
                 break;
             case 2:
                 {
-                this.state = 624;
+                this.state = 630;
                 this.errorHandler.sync(this);
                 _la = this.tokenStream.LA(1);
                 if (_la === 56) {
                     {
-                    this.state = 623;
+                    this.state = 629;
                     this.match(LPCParser.MINUS);
                     }
                 }
 
-                this.state = 626;
+                this.state = 632;
                 this.match(LPCParser.IntegerConstant);
                 }
                 break;
             case 3:
                 {
-                this.state = 628;
+                this.state = 634;
                 this.errorHandler.sync(this);
                 _la = this.tokenStream.LA(1);
                 if (_la === 56) {
                     {
-                    this.state = 627;
+                    this.state = 633;
                     this.match(LPCParser.MINUS);
                     }
                 }
 
-                this.state = 630;
+                this.state = 636;
                 this.match(LPCParser.FloatingConstant);
                 }
                 break;
             case 4:
                 {
-                this.state = 631;
+                this.state = 637;
                 this.match(LPCParser.StringLiteral);
                 }
                 break;
             case 5:
                 {
-                this.state = 632;
+                this.state = 638;
                 this.match(LPCParser.StringLiteral);
-                this.state = 636;
+                this.state = 642;
                 this.errorHandler.sync(this);
                 alternative = this.interpreter.adaptivePredict(this.tokenStream, 65, this.context);
                 while (alternative !== 2 && alternative !== antlr.ATN.INVALID_ALT_NUMBER) {
                     if (alternative === 1) {
                         {
                         {
-                        this.state = 633;
+                        this.state = 639;
                         this.match(LPCParser.StringLiteral);
                         }
                         }
                     }
-                    this.state = 638;
+                    this.state = 644;
                     this.errorHandler.sync(this);
                     alternative = this.interpreter.adaptivePredict(this.tokenStream, 65, this.context);
                 }
@@ -3203,105 +3225,105 @@ export class LPCParser extends antlr.Parser {
                 break;
             case 6:
                 {
-                this.state = 639;
+                this.state = 645;
                 this.match(LPCParser.CharacterConstant);
                 }
                 break;
             case 7:
                 {
-                this.state = 640;
+                this.state = 646;
                 this.match(LPCParser.PAREN_OPEN);
-                this.state = 641;
+                this.state = 647;
                 this.expression(0);
-                this.state = 642;
+                this.state = 648;
                 this.match(LPCParser.PAREN_CLOSE);
                 }
                 break;
             case 8:
                 {
-                this.state = 644;
+                this.state = 650;
                 this.inlineClosureExpression();
                 }
                 break;
             case 9:
                 {
-                this.state = 645;
+                this.state = 651;
                 this.lambdaExpression();
                 }
                 break;
             case 10:
                 {
-                this.state = 646;
+                this.state = 652;
                 this.match(LPCParser.NOT);
-                this.state = 647;
+                this.state = 653;
                 this.expression(13);
                 }
                 break;
             case 11:
                 {
-                this.state = 648;
+                this.state = 654;
                 this.match(LPCParser.INC);
-                this.state = 649;
+                this.state = 655;
                 this.expression(12);
                 }
                 break;
             case 12:
                 {
-                this.state = 650;
+                this.state = 656;
                 this.match(LPCParser.DEC);
-                this.state = 651;
+                this.state = 657;
                 this.expression(11);
                 }
                 break;
             case 13:
                 {
-                this.state = 652;
+                this.state = 658;
                 this.match(LPCParser.MINUS);
-                this.state = 653;
+                this.state = 659;
                 this.expression(10);
                 }
                 break;
             case 14:
                 {
-                this.state = 654;
+                this.state = 660;
                 this.match(LPCParser.Identifier);
-                this.state = 655;
+                this.state = 661;
                 this.match(LPCParser.PAREN_OPEN);
-                this.state = 657;
+                this.state = 663;
                 this.errorHandler.sync(this);
                 _la = this.tokenStream.LA(1);
                 if (_la === 1 || _la === 21 || ((((_la - 56)) & ~0x1F) === 0 && ((1 << (_la - 56)) & 134348849) !== 0) || ((((_la - 93)) & ~0x1F) === 0 && ((1 << (_la - 93)) & 55317) !== 0)) {
                     {
-                    this.state = 656;
+                    this.state = 662;
                     this.expressionList();
                     }
                 }
 
-                this.state = 659;
+                this.state = 665;
                 this.match(LPCParser.PAREN_CLOSE);
                 }
                 break;
             case 15:
                 {
-                this.state = 660;
+                this.state = 666;
                 this.mappingExpression();
                 }
                 break;
             case 16:
                 {
-                this.state = 661;
+                this.state = 667;
                 this.arrayExpression();
                 }
                 break;
             case 17:
                 {
-                this.state = 662;
+                this.state = 668;
                 this.inheritSuperExpression();
                 }
                 break;
             }
             this.context!.stop = this.tokenStream.LT(-1);
-            this.state = 762;
+            this.state = 774;
             this.errorHandler.sync(this);
             alternative = this.interpreter.adaptivePredict(this.tokenStream, 70, this.context);
             while (alternative !== 2 && alternative !== antlr.ATN.INVALID_ALT_NUMBER) {
@@ -3311,444 +3333,472 @@ export class LPCParser extends antlr.Parser {
                     }
                     previousContext = localContext;
                     {
-                    this.state = 760;
+                    this.state = 772;
                     this.errorHandler.sync(this);
                     switch (this.interpreter.adaptivePredict(this.tokenStream, 69, this.context) ) {
                     case 1:
                         {
                         localContext = new ExpressionContext(parentContext, parentState);
                         this.pushNewRecursionContext(localContext, _startState, LPCParser.RULE_expression);
-                        this.state = 665;
-                        if (!(this.precpred(this.context, 38))) {
-                            throw this.createFailedPredicateException("this.precpred(this.context, 38)");
+                        this.state = 671;
+                        if (!(this.precpred(this.context, 40))) {
+                            throw this.createFailedPredicateException("this.precpred(this.context, 40)");
                         }
-                        this.state = 666;
+                        this.state = 672;
                         this.match(LPCParser.PLUS);
-                        this.state = 667;
-                        this.expression(39);
+                        this.state = 673;
+                        this.expression(41);
                         }
                         break;
                     case 2:
                         {
                         localContext = new ExpressionContext(parentContext, parentState);
                         this.pushNewRecursionContext(localContext, _startState, LPCParser.RULE_expression);
-                        this.state = 668;
-                        if (!(this.precpred(this.context, 37))) {
-                            throw this.createFailedPredicateException("this.precpred(this.context, 37)");
+                        this.state = 674;
+                        if (!(this.precpred(this.context, 39))) {
+                            throw this.createFailedPredicateException("this.precpred(this.context, 39)");
                         }
-                        this.state = 669;
+                        this.state = 675;
                         this.match(LPCParser.MINUS);
-                        this.state = 670;
-                        this.expression(38);
+                        this.state = 676;
+                        this.expression(40);
                         }
                         break;
                     case 3:
                         {
                         localContext = new ExpressionContext(parentContext, parentState);
                         this.pushNewRecursionContext(localContext, _startState, LPCParser.RULE_expression);
-                        this.state = 671;
-                        if (!(this.precpred(this.context, 36))) {
-                            throw this.createFailedPredicateException("this.precpred(this.context, 36)");
+                        this.state = 677;
+                        if (!(this.precpred(this.context, 38))) {
+                            throw this.createFailedPredicateException("this.precpred(this.context, 38)");
                         }
-                        this.state = 672;
+                        this.state = 678;
                         this.match(LPCParser.STAR);
-                        this.state = 673;
-                        this.expression(37);
+                        this.state = 679;
+                        this.expression(39);
                         }
                         break;
                     case 4:
                         {
                         localContext = new ExpressionContext(parentContext, parentState);
                         this.pushNewRecursionContext(localContext, _startState, LPCParser.RULE_expression);
-                        this.state = 674;
-                        if (!(this.precpred(this.context, 35))) {
-                            throw this.createFailedPredicateException("this.precpred(this.context, 35)");
+                        this.state = 680;
+                        if (!(this.precpred(this.context, 37))) {
+                            throw this.createFailedPredicateException("this.precpred(this.context, 37)");
                         }
-                        this.state = 675;
+                        this.state = 681;
                         this.match(LPCParser.DIV);
-                        this.state = 676;
-                        this.expression(36);
+                        this.state = 682;
+                        this.expression(38);
                         }
                         break;
                     case 5:
                         {
                         localContext = new ExpressionContext(parentContext, parentState);
                         this.pushNewRecursionContext(localContext, _startState, LPCParser.RULE_expression);
-                        this.state = 677;
-                        if (!(this.precpred(this.context, 34))) {
-                            throw this.createFailedPredicateException("this.precpred(this.context, 34)");
+                        this.state = 683;
+                        if (!(this.precpred(this.context, 36))) {
+                            throw this.createFailedPredicateException("this.precpred(this.context, 36)");
                         }
-                        this.state = 678;
+                        this.state = 684;
                         this.match(LPCParser.MOD);
-                        this.state = 679;
-                        this.expression(35);
+                        this.state = 685;
+                        this.expression(37);
                         }
                         break;
                     case 6:
                         {
                         localContext = new ExpressionContext(parentContext, parentState);
                         this.pushNewRecursionContext(localContext, _startState, LPCParser.RULE_expression);
-                        this.state = 680;
-                        if (!(this.precpred(this.context, 33))) {
-                            throw this.createFailedPredicateException("this.precpred(this.context, 33)");
+                        this.state = 686;
+                        if (!(this.precpred(this.context, 35))) {
+                            throw this.createFailedPredicateException("this.precpred(this.context, 35)");
                         }
-                        this.state = 681;
+                        this.state = 687;
                         this.match(LPCParser.LT);
-                        this.state = 682;
-                        this.expression(34);
+                        this.state = 688;
+                        this.expression(36);
                         }
                         break;
                     case 7:
                         {
                         localContext = new ExpressionContext(parentContext, parentState);
                         this.pushNewRecursionContext(localContext, _startState, LPCParser.RULE_expression);
-                        this.state = 683;
-                        if (!(this.precpred(this.context, 32))) {
-                            throw this.createFailedPredicateException("this.precpred(this.context, 32)");
+                        this.state = 689;
+                        if (!(this.precpred(this.context, 34))) {
+                            throw this.createFailedPredicateException("this.precpred(this.context, 34)");
                         }
-                        this.state = 684;
+                        this.state = 690;
                         this.match(LPCParser.GT);
-                        this.state = 685;
-                        this.expression(33);
+                        this.state = 691;
+                        this.expression(35);
                         }
                         break;
                     case 8:
                         {
                         localContext = new ExpressionContext(parentContext, parentState);
                         this.pushNewRecursionContext(localContext, _startState, LPCParser.RULE_expression);
-                        this.state = 686;
-                        if (!(this.precpred(this.context, 31))) {
-                            throw this.createFailedPredicateException("this.precpred(this.context, 31)");
+                        this.state = 692;
+                        if (!(this.precpred(this.context, 33))) {
+                            throw this.createFailedPredicateException("this.precpred(this.context, 33)");
                         }
-                        this.state = 687;
+                        this.state = 693;
                         this.match(LPCParser.LE);
-                        this.state = 688;
-                        this.expression(32);
+                        this.state = 694;
+                        this.expression(34);
                         }
                         break;
                     case 9:
                         {
                         localContext = new ExpressionContext(parentContext, parentState);
                         this.pushNewRecursionContext(localContext, _startState, LPCParser.RULE_expression);
-                        this.state = 689;
-                        if (!(this.precpred(this.context, 30))) {
-                            throw this.createFailedPredicateException("this.precpred(this.context, 30)");
+                        this.state = 695;
+                        if (!(this.precpred(this.context, 32))) {
+                            throw this.createFailedPredicateException("this.precpred(this.context, 32)");
                         }
-                        this.state = 690;
+                        this.state = 696;
                         this.match(LPCParser.GE);
-                        this.state = 691;
-                        this.expression(31);
+                        this.state = 697;
+                        this.expression(33);
                         }
                         break;
                     case 10:
                         {
                         localContext = new ExpressionContext(parentContext, parentState);
                         this.pushNewRecursionContext(localContext, _startState, LPCParser.RULE_expression);
-                        this.state = 692;
-                        if (!(this.precpred(this.context, 29))) {
-                            throw this.createFailedPredicateException("this.precpred(this.context, 29)");
+                        this.state = 698;
+                        if (!(this.precpred(this.context, 31))) {
+                            throw this.createFailedPredicateException("this.precpred(this.context, 31)");
                         }
-                        this.state = 693;
+                        this.state = 699;
                         this.match(LPCParser.EQ);
-                        this.state = 694;
-                        this.expression(30);
+                        this.state = 700;
+                        this.expression(32);
                         }
                         break;
                     case 11:
                         {
                         localContext = new ExpressionContext(parentContext, parentState);
                         this.pushNewRecursionContext(localContext, _startState, LPCParser.RULE_expression);
-                        this.state = 695;
-                        if (!(this.precpred(this.context, 28))) {
-                            throw this.createFailedPredicateException("this.precpred(this.context, 28)");
+                        this.state = 701;
+                        if (!(this.precpred(this.context, 30))) {
+                            throw this.createFailedPredicateException("this.precpred(this.context, 30)");
                         }
-                        this.state = 696;
+                        this.state = 702;
                         this.match(LPCParser.NE);
-                        this.state = 697;
-                        this.expression(29);
+                        this.state = 703;
+                        this.expression(31);
                         }
                         break;
                     case 12:
                         {
                         localContext = new ExpressionContext(parentContext, parentState);
                         this.pushNewRecursionContext(localContext, _startState, LPCParser.RULE_expression);
-                        this.state = 698;
-                        if (!(this.precpred(this.context, 27))) {
-                            throw this.createFailedPredicateException("this.precpred(this.context, 27)");
+                        this.state = 704;
+                        if (!(this.precpred(this.context, 29))) {
+                            throw this.createFailedPredicateException("this.precpred(this.context, 29)");
                         }
-                        this.state = 699;
+                        this.state = 705;
                         this.match(LPCParser.AND);
-                        this.state = 700;
-                        this.expression(28);
+                        this.state = 706;
+                        this.expression(30);
                         }
                         break;
                     case 13:
                         {
                         localContext = new ExpressionContext(parentContext, parentState);
                         this.pushNewRecursionContext(localContext, _startState, LPCParser.RULE_expression);
-                        this.state = 701;
-                        if (!(this.precpred(this.context, 26))) {
-                            throw this.createFailedPredicateException("this.precpred(this.context, 26)");
+                        this.state = 707;
+                        if (!(this.precpred(this.context, 28))) {
+                            throw this.createFailedPredicateException("this.precpred(this.context, 28)");
                         }
-                        this.state = 702;
+                        this.state = 708;
                         this.match(LPCParser.OR);
-                        this.state = 703;
-                        this.expression(27);
+                        this.state = 709;
+                        this.expression(29);
                         }
                         break;
                     case 14:
                         {
                         localContext = new ExpressionContext(parentContext, parentState);
                         this.pushNewRecursionContext(localContext, _startState, LPCParser.RULE_expression);
-                        this.state = 704;
-                        if (!(this.precpred(this.context, 25))) {
-                            throw this.createFailedPredicateException("this.precpred(this.context, 25)");
+                        this.state = 710;
+                        if (!(this.precpred(this.context, 27))) {
+                            throw this.createFailedPredicateException("this.precpred(this.context, 27)");
                         }
-                        this.state = 705;
+                        this.state = 711;
                         this.match(LPCParser.XOR);
-                        this.state = 706;
-                        this.expression(26);
+                        this.state = 712;
+                        this.expression(28);
                         }
                         break;
                     case 15:
                         {
                         localContext = new ExpressionContext(parentContext, parentState);
                         this.pushNewRecursionContext(localContext, _startState, LPCParser.RULE_expression);
-                        this.state = 707;
-                        if (!(this.precpred(this.context, 24))) {
-                            throw this.createFailedPredicateException("this.precpred(this.context, 24)");
+                        this.state = 713;
+                        if (!(this.precpred(this.context, 26))) {
+                            throw this.createFailedPredicateException("this.precpred(this.context, 26)");
                         }
-                        this.state = 708;
+                        this.state = 714;
                         this.match(LPCParser.AND_AND);
-                        this.state = 709;
-                        this.expression(25);
+                        this.state = 715;
+                        this.expression(27);
                         }
                         break;
                     case 16:
                         {
                         localContext = new ExpressionContext(parentContext, parentState);
                         this.pushNewRecursionContext(localContext, _startState, LPCParser.RULE_expression);
-                        this.state = 710;
-                        if (!(this.precpred(this.context, 23))) {
-                            throw this.createFailedPredicateException("this.precpred(this.context, 23)");
+                        this.state = 716;
+                        if (!(this.precpred(this.context, 25))) {
+                            throw this.createFailedPredicateException("this.precpred(this.context, 25)");
                         }
-                        this.state = 711;
+                        this.state = 717;
                         this.match(LPCParser.OR_OR);
-                        this.state = 712;
-                        this.expression(24);
+                        this.state = 718;
+                        this.expression(26);
                         }
                         break;
                     case 17:
                         {
                         localContext = new ExpressionContext(parentContext, parentState);
                         this.pushNewRecursionContext(localContext, _startState, LPCParser.RULE_expression);
-                        this.state = 713;
-                        if (!(this.precpred(this.context, 22))) {
-                            throw this.createFailedPredicateException("this.precpred(this.context, 22)");
+                        this.state = 719;
+                        if (!(this.precpred(this.context, 24))) {
+                            throw this.createFailedPredicateException("this.precpred(this.context, 24)");
                         }
-                        this.state = 714;
+                        this.state = 720;
                         this.match(LPCParser.ADD_ASSIGN);
-                        this.state = 715;
-                        this.expression(23);
+                        this.state = 721;
+                        this.expression(25);
                         }
                         break;
                     case 18:
                         {
                         localContext = new ExpressionContext(parentContext, parentState);
                         this.pushNewRecursionContext(localContext, _startState, LPCParser.RULE_expression);
-                        this.state = 716;
-                        if (!(this.precpred(this.context, 21))) {
-                            throw this.createFailedPredicateException("this.precpred(this.context, 21)");
+                        this.state = 722;
+                        if (!(this.precpred(this.context, 23))) {
+                            throw this.createFailedPredicateException("this.precpred(this.context, 23)");
                         }
-                        this.state = 717;
+                        this.state = 723;
                         this.match(LPCParser.SUB_ASSIGN);
-                        this.state = 718;
-                        this.expression(22);
+                        this.state = 724;
+                        this.expression(24);
                         }
                         break;
                     case 19:
                         {
                         localContext = new ExpressionContext(parentContext, parentState);
                         this.pushNewRecursionContext(localContext, _startState, LPCParser.RULE_expression);
-                        this.state = 719;
-                        if (!(this.precpred(this.context, 20))) {
-                            throw this.createFailedPredicateException("this.precpred(this.context, 20)");
+                        this.state = 725;
+                        if (!(this.precpred(this.context, 22))) {
+                            throw this.createFailedPredicateException("this.precpred(this.context, 22)");
                         }
-                        this.state = 720;
+                        this.state = 726;
                         this.match(LPCParser.MUL_ASSIGN);
-                        this.state = 721;
-                        this.expression(21);
+                        this.state = 727;
+                        this.expression(23);
                         }
                         break;
                     case 20:
                         {
                         localContext = new ExpressionContext(parentContext, parentState);
                         this.pushNewRecursionContext(localContext, _startState, LPCParser.RULE_expression);
-                        this.state = 722;
-                        if (!(this.precpred(this.context, 19))) {
-                            throw this.createFailedPredicateException("this.precpred(this.context, 19)");
+                        this.state = 728;
+                        if (!(this.precpred(this.context, 21))) {
+                            throw this.createFailedPredicateException("this.precpred(this.context, 21)");
                         }
-                        this.state = 723;
+                        this.state = 729;
                         this.match(LPCParser.DIV_ASSIGN);
-                        this.state = 724;
-                        this.expression(20);
+                        this.state = 730;
+                        this.expression(22);
                         }
                         break;
                     case 21:
                         {
                         localContext = new ExpressionContext(parentContext, parentState);
                         this.pushNewRecursionContext(localContext, _startState, LPCParser.RULE_expression);
-                        this.state = 725;
-                        if (!(this.precpred(this.context, 18))) {
-                            throw this.createFailedPredicateException("this.precpred(this.context, 18)");
+                        this.state = 731;
+                        if (!(this.precpred(this.context, 20))) {
+                            throw this.createFailedPredicateException("this.precpred(this.context, 20)");
                         }
-                        this.state = 726;
+                        this.state = 732;
                         this.match(LPCParser.MOD_ASSIGN);
-                        this.state = 727;
-                        this.expression(19);
+                        this.state = 733;
+                        this.expression(21);
                         }
                         break;
                     case 22:
                         {
                         localContext = new ExpressionContext(parentContext, parentState);
                         this.pushNewRecursionContext(localContext, _startState, LPCParser.RULE_expression);
-                        this.state = 728;
-                        if (!(this.precpred(this.context, 17))) {
-                            throw this.createFailedPredicateException("this.precpred(this.context, 17)");
+                        this.state = 734;
+                        if (!(this.precpred(this.context, 19))) {
+                            throw this.createFailedPredicateException("this.precpred(this.context, 19)");
                         }
-                        this.state = 729;
+                        this.state = 735;
                         this.match(LPCParser.AND_ASSIGN);
-                        this.state = 730;
-                        this.expression(18);
+                        this.state = 736;
+                        this.expression(20);
                         }
                         break;
                     case 23:
                         {
                         localContext = new ExpressionContext(parentContext, parentState);
                         this.pushNewRecursionContext(localContext, _startState, LPCParser.RULE_expression);
-                        this.state = 731;
-                        if (!(this.precpred(this.context, 16))) {
-                            throw this.createFailedPredicateException("this.precpred(this.context, 16)");
+                        this.state = 737;
+                        if (!(this.precpred(this.context, 18))) {
+                            throw this.createFailedPredicateException("this.precpred(this.context, 18)");
                         }
-                        this.state = 732;
+                        this.state = 738;
                         this.match(LPCParser.OR_ASSIGN);
-                        this.state = 733;
-                        this.expression(17);
+                        this.state = 739;
+                        this.expression(19);
                         }
                         break;
                     case 24:
                         {
                         localContext = new ExpressionContext(parentContext, parentState);
                         this.pushNewRecursionContext(localContext, _startState, LPCParser.RULE_expression);
-                        this.state = 734;
-                        if (!(this.precpred(this.context, 15))) {
-                            throw this.createFailedPredicateException("this.precpred(this.context, 15)");
+                        this.state = 740;
+                        if (!(this.precpred(this.context, 17))) {
+                            throw this.createFailedPredicateException("this.precpred(this.context, 17)");
                         }
-                        this.state = 735;
+                        this.state = 741;
                         this.match(LPCParser.XOR_ASSIGN);
-                        this.state = 736;
-                        this.expression(16);
+                        this.state = 742;
+                        this.expression(18);
                         }
                         break;
                     case 25:
                         {
                         localContext = new ExpressionContext(parentContext, parentState);
                         this.pushNewRecursionContext(localContext, _startState, LPCParser.RULE_expression);
-                        this.state = 737;
-                        if (!(this.precpred(this.context, 14))) {
-                            throw this.createFailedPredicateException("this.precpred(this.context, 14)");
+                        this.state = 743;
+                        if (!(this.precpred(this.context, 16))) {
+                            throw this.createFailedPredicateException("this.precpred(this.context, 16)");
                         }
-                        this.state = 738;
-                        this.match(LPCParser.QUESTION);
-                        this.state = 739;
-                        this.expression(0);
-                        this.state = 740;
-                        this.match(LPCParser.COLON);
-                        this.state = 741;
-                        this.expression(15);
+                        this.state = 744;
+                        this.match(LPCParser.SHL);
+                        this.state = 745;
+                        this.expression(17);
                         }
                         break;
                     case 26:
                         {
                         localContext = new ExpressionContext(parentContext, parentState);
                         this.pushNewRecursionContext(localContext, _startState, LPCParser.RULE_expression);
-                        this.state = 743;
-                        if (!(this.precpred(this.context, 9))) {
-                            throw this.createFailedPredicateException("this.precpred(this.context, 9)");
+                        this.state = 746;
+                        if (!(this.precpred(this.context, 15))) {
+                            throw this.createFailedPredicateException("this.precpred(this.context, 15)");
                         }
-                        this.state = 744;
-                        this.match(LPCParser.INC);
+                        this.state = 747;
+                        this.match(LPCParser.SHR);
+                        this.state = 748;
+                        this.expression(16);
                         }
                         break;
                     case 27:
                         {
                         localContext = new ExpressionContext(parentContext, parentState);
                         this.pushNewRecursionContext(localContext, _startState, LPCParser.RULE_expression);
-                        this.state = 745;
-                        if (!(this.precpred(this.context, 8))) {
-                            throw this.createFailedPredicateException("this.precpred(this.context, 8)");
+                        this.state = 749;
+                        if (!(this.precpred(this.context, 14))) {
+                            throw this.createFailedPredicateException("this.precpred(this.context, 14)");
                         }
-                        this.state = 746;
-                        this.match(LPCParser.DEC);
+                        this.state = 750;
+                        this.match(LPCParser.QUESTION);
+                        this.state = 751;
+                        this.expression(0);
+                        this.state = 752;
+                        this.match(LPCParser.COLON);
+                        this.state = 753;
+                        this.expression(15);
                         }
                         break;
                     case 28:
                         {
                         localContext = new ExpressionContext(parentContext, parentState);
                         this.pushNewRecursionContext(localContext, _startState, LPCParser.RULE_expression);
-                        this.state = 747;
-                        if (!(this.precpred(this.context, 7))) {
-                            throw this.createFailedPredicateException("this.precpred(this.context, 7)");
+                        this.state = 755;
+                        if (!(this.precpred(this.context, 9))) {
+                            throw this.createFailedPredicateException("this.precpred(this.context, 9)");
                         }
-                        this.state = 748;
-                        this.assignmentExpression();
+                        this.state = 756;
+                        this.match(LPCParser.INC);
                         }
                         break;
                     case 29:
                         {
                         localContext = new ExpressionContext(parentContext, parentState);
                         this.pushNewRecursionContext(localContext, _startState, LPCParser.RULE_expression);
-                        this.state = 749;
-                        if (!(this.precpred(this.context, 6))) {
-                            throw this.createFailedPredicateException("this.precpred(this.context, 6)");
+                        this.state = 757;
+                        if (!(this.precpred(this.context, 8))) {
+                            throw this.createFailedPredicateException("this.precpred(this.context, 8)");
                         }
-                        this.state = 750;
-                        this.arrayAccessExpression();
+                        this.state = 758;
+                        this.match(LPCParser.DEC);
                         }
                         break;
                     case 30:
                         {
                         localContext = new ExpressionContext(parentContext, parentState);
+                        this.pushNewRecursionContext(localContext, _startState, LPCParser.RULE_expression);
+                        this.state = 759;
+                        if (!(this.precpred(this.context, 7))) {
+                            throw this.createFailedPredicateException("this.precpred(this.context, 7)");
+                        }
+                        this.state = 760;
+                        this.assignmentExpression();
+                        }
+                        break;
+                    case 31:
+                        {
+                        localContext = new ExpressionContext(parentContext, parentState);
+                        this.pushNewRecursionContext(localContext, _startState, LPCParser.RULE_expression);
+                        this.state = 761;
+                        if (!(this.precpred(this.context, 6))) {
+                            throw this.createFailedPredicateException("this.precpred(this.context, 6)");
+                        }
+                        this.state = 762;
+                        this.arrayAccessExpression();
+                        }
+                        break;
+                    case 32:
+                        {
+                        localContext = new ExpressionContext(parentContext, parentState);
                         localContext._callOtherOb = previousContext;
                         this.pushNewRecursionContext(localContext, _startState, LPCParser.RULE_expression);
-                        this.state = 751;
+                        this.state = 763;
                         if (!(this.precpred(this.context, 1))) {
                             throw this.createFailedPredicateException("this.precpred(this.context, 1)");
                         }
-                        this.state = 752;
+                        this.state = 764;
                         this.match(LPCParser.ARROW);
-                        this.state = 753;
+                        this.state = 765;
                         this.callOtherTarget();
-                        this.state = 754;
+                        this.state = 766;
                         this.match(LPCParser.PAREN_OPEN);
-                        this.state = 756;
+                        this.state = 768;
                         this.errorHandler.sync(this);
                         _la = this.tokenStream.LA(1);
                         if (_la === 1 || _la === 21 || ((((_la - 56)) & ~0x1F) === 0 && ((1 << (_la - 56)) & 134348849) !== 0) || ((((_la - 93)) & ~0x1F) === 0 && ((1 << (_la - 93)) & 55317) !== 0)) {
                             {
-                            this.state = 755;
+                            this.state = 767;
                             this.expressionList();
                             }
                         }
 
-                        this.state = 758;
+                        this.state = 770;
                         this.match(LPCParser.PAREN_CLOSE);
                         }
                         break;
                     }
                     }
                 }
-                this.state = 764;
+                this.state = 776;
                 this.errorHandler.sync(this);
                 alternative = this.interpreter.adaptivePredict(this.tokenStream, 70, this.context);
             }
@@ -3773,78 +3823,78 @@ export class LPCParser extends antlr.Parser {
         this.enterRule(localContext, 106, LPCParser.RULE_arrayAccessExpression);
         let _la: number;
         try {
-            this.state = 787;
+            this.state = 799;
             this.errorHandler.sync(this);
             switch (this.interpreter.adaptivePredict(this.tokenStream, 76, this.context) ) {
             case 1:
                 this.enterOuterAlt(localContext, 1);
                 {
-                this.state = 765;
+                this.state = 777;
                 this.match(LPCParser.SQUARE_OPEN);
-                this.state = 767;
+                this.state = 779;
                 this.errorHandler.sync(this);
                 _la = this.tokenStream.LA(1);
                 if (_la === 64) {
                     {
-                    this.state = 766;
+                    this.state = 778;
                     this.match(LPCParser.LT);
                     }
                 }
 
-                this.state = 769;
+                this.state = 781;
                 this.expression(0);
-                this.state = 770;
+                this.state = 782;
                 this.match(LPCParser.SQUARE_CLOSE);
                 }
                 break;
             case 2:
                 this.enterOuterAlt(localContext, 2);
                 {
-                this.state = 772;
-                this.match(LPCParser.SQUARE_OPEN);
-                this.state = 774;
-                this.errorHandler.sync(this);
-                _la = this.tokenStream.LA(1);
-                if (_la === 64) {
-                    {
-                    this.state = 773;
-                    this.match(LPCParser.LT);
-                    }
-                }
-
-                this.state = 777;
-                this.errorHandler.sync(this);
-                _la = this.tokenStream.LA(1);
-                if (_la === 1 || _la === 21 || ((((_la - 56)) & ~0x1F) === 0 && ((1 << (_la - 56)) & 134348849) !== 0) || ((((_la - 93)) & ~0x1F) === 0 && ((1 << (_la - 93)) & 55317) !== 0)) {
-                    {
-                    this.state = 776;
-                    this.expression(0);
-                    }
-                }
-
-                this.state = 779;
-                this.match(LPCParser.DOUBLEDOT);
-                this.state = 781;
-                this.errorHandler.sync(this);
-                _la = this.tokenStream.LA(1);
-                if (_la === 64) {
-                    {
-                    this.state = 780;
-                    this.match(LPCParser.LT);
-                    }
-                }
-
                 this.state = 784;
+                this.match(LPCParser.SQUARE_OPEN);
+                this.state = 786;
+                this.errorHandler.sync(this);
+                _la = this.tokenStream.LA(1);
+                if (_la === 64) {
+                    {
+                    this.state = 785;
+                    this.match(LPCParser.LT);
+                    }
+                }
+
+                this.state = 789;
                 this.errorHandler.sync(this);
                 _la = this.tokenStream.LA(1);
                 if (_la === 1 || _la === 21 || ((((_la - 56)) & ~0x1F) === 0 && ((1 << (_la - 56)) & 134348849) !== 0) || ((((_la - 93)) & ~0x1F) === 0 && ((1 << (_la - 93)) & 55317) !== 0)) {
                     {
-                    this.state = 783;
+                    this.state = 788;
                     this.expression(0);
                     }
                 }
 
-                this.state = 786;
+                this.state = 791;
+                this.match(LPCParser.DOUBLEDOT);
+                this.state = 793;
+                this.errorHandler.sync(this);
+                _la = this.tokenStream.LA(1);
+                if (_la === 64) {
+                    {
+                    this.state = 792;
+                    this.match(LPCParser.LT);
+                    }
+                }
+
+                this.state = 796;
+                this.errorHandler.sync(this);
+                _la = this.tokenStream.LA(1);
+                if (_la === 1 || _la === 21 || ((((_la - 56)) & ~0x1F) === 0 && ((1 << (_la - 56)) & 134348849) !== 0) || ((((_la - 93)) & ~0x1F) === 0 && ((1 << (_la - 93)) & 55317) !== 0)) {
+                    {
+                    this.state = 795;
+                    this.expression(0);
+                    }
+                }
+
+                this.state = 798;
                 this.match(LPCParser.SQUARE_CLOSE);
                 }
                 break;
@@ -3871,21 +3921,21 @@ export class LPCParser extends antlr.Parser {
         try {
             this.enterOuterAlt(localContext, 1);
             {
-            this.state = 789;
+            this.state = 801;
             this.expression(0);
-            this.state = 794;
+            this.state = 806;
             this.errorHandler.sync(this);
             _la = this.tokenStream.LA(1);
             while (_la === 79) {
                 {
                 {
-                this.state = 790;
+                this.state = 802;
                 this.match(LPCParser.COMMA);
-                this.state = 791;
+                this.state = 803;
                 this.expression(0);
                 }
                 }
-                this.state = 796;
+                this.state = 808;
                 this.errorHandler.sync(this);
                 _la = this.tokenStream.LA(1);
             }
@@ -3911,9 +3961,9 @@ export class LPCParser extends antlr.Parser {
         try {
             this.enterOuterAlt(localContext, 1);
             {
-            this.state = 797;
+            this.state = 809;
             this.match(LPCParser.ASSIGN);
-            this.state = 798;
+            this.state = 810;
             this.expression(0);
             }
         }
@@ -3942,71 +3992,75 @@ export class LPCParser extends antlr.Parser {
     private expression_sempred(localContext: ExpressionContext | null, predIndex: number): boolean {
         switch (predIndex) {
         case 0:
-            return this.precpred(this.context, 38);
+            return this.precpred(this.context, 40);
         case 1:
-            return this.precpred(this.context, 37);
+            return this.precpred(this.context, 39);
         case 2:
-            return this.precpred(this.context, 36);
+            return this.precpred(this.context, 38);
         case 3:
-            return this.precpred(this.context, 35);
+            return this.precpred(this.context, 37);
         case 4:
-            return this.precpred(this.context, 34);
+            return this.precpred(this.context, 36);
         case 5:
-            return this.precpred(this.context, 33);
+            return this.precpred(this.context, 35);
         case 6:
-            return this.precpred(this.context, 32);
+            return this.precpred(this.context, 34);
         case 7:
-            return this.precpred(this.context, 31);
+            return this.precpred(this.context, 33);
         case 8:
-            return this.precpred(this.context, 30);
+            return this.precpred(this.context, 32);
         case 9:
-            return this.precpred(this.context, 29);
+            return this.precpred(this.context, 31);
         case 10:
-            return this.precpred(this.context, 28);
+            return this.precpred(this.context, 30);
         case 11:
-            return this.precpred(this.context, 27);
+            return this.precpred(this.context, 29);
         case 12:
-            return this.precpred(this.context, 26);
+            return this.precpred(this.context, 28);
         case 13:
-            return this.precpred(this.context, 25);
+            return this.precpred(this.context, 27);
         case 14:
-            return this.precpred(this.context, 24);
+            return this.precpred(this.context, 26);
         case 15:
-            return this.precpred(this.context, 23);
+            return this.precpred(this.context, 25);
         case 16:
-            return this.precpred(this.context, 22);
+            return this.precpred(this.context, 24);
         case 17:
-            return this.precpred(this.context, 21);
+            return this.precpred(this.context, 23);
         case 18:
-            return this.precpred(this.context, 20);
+            return this.precpred(this.context, 22);
         case 19:
-            return this.precpred(this.context, 19);
+            return this.precpred(this.context, 21);
         case 20:
-            return this.precpred(this.context, 18);
+            return this.precpred(this.context, 20);
         case 21:
-            return this.precpred(this.context, 17);
+            return this.precpred(this.context, 19);
         case 22:
-            return this.precpred(this.context, 16);
+            return this.precpred(this.context, 18);
         case 23:
-            return this.precpred(this.context, 15);
+            return this.precpred(this.context, 17);
         case 24:
-            return this.precpred(this.context, 14);
+            return this.precpred(this.context, 16);
         case 25:
-            return this.precpred(this.context, 9);
+            return this.precpred(this.context, 15);
         case 26:
-            return this.precpred(this.context, 8);
+            return this.precpred(this.context, 14);
         case 27:
-            return this.precpred(this.context, 7);
+            return this.precpred(this.context, 9);
         case 28:
-            return this.precpred(this.context, 6);
+            return this.precpred(this.context, 8);
         case 29:
+            return this.precpred(this.context, 7);
+        case 30:
+            return this.precpred(this.context, 6);
+        case 31:
             return this.precpred(this.context, 1);
         }
         return true;
     }
 
     public static readonly _serializedATN: number[] = [
-        4,1,115,801,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,
+        4,1,115,813,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,
         7,6,2,7,7,7,2,8,7,8,2,9,7,9,2,10,7,10,2,11,7,11,2,12,7,12,2,13,7,
         13,2,14,7,14,2,15,7,15,2,16,7,16,2,17,7,17,2,18,7,18,2,19,7,19,2,
         20,7,20,2,21,7,21,2,22,7,22,2,23,7,23,2,24,7,24,2,25,7,25,2,26,7,
@@ -4057,75 +4111,76 @@ export class LPCParser extends antlr.Parser {
         51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,
         51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,
         51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,
-        51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,3,
-        51,620,8,51,1,52,1,52,1,52,3,52,625,8,52,1,52,1,52,3,52,629,8,52,
-        1,52,1,52,1,52,1,52,5,52,635,8,52,10,52,12,52,638,9,52,1,52,1,52,
-        1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,
-        1,52,1,52,1,52,3,52,658,8,52,1,52,1,52,1,52,1,52,3,52,664,8,52,1,
+        51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,
+        51,1,51,1,51,1,51,1,51,1,51,3,51,626,8,51,1,52,1,52,1,52,3,52,631,
+        8,52,1,52,1,52,3,52,635,8,52,1,52,1,52,1,52,1,52,5,52,641,8,52,10,
+        52,12,52,644,9,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,
+        52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,3,52,664,8,52,1,52,1,
+        52,1,52,1,52,3,52,670,8,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,
         52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,
         52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,
         52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,
         52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,
         52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,
         52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,
-        52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,3,
-        52,757,8,52,1,52,1,52,5,52,761,8,52,10,52,12,52,764,9,52,1,53,1,
-        53,3,53,768,8,53,1,53,1,53,1,53,1,53,1,53,3,53,775,8,53,1,53,3,53,
-        778,8,53,1,53,1,53,3,53,782,8,53,1,53,3,53,785,8,53,1,53,3,53,788,
-        8,53,1,54,1,54,1,54,5,54,793,8,54,10,54,12,54,796,9,54,1,55,1,55,
-        1,55,1,55,0,1,104,56,0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,
-        32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,72,74,
-        76,78,80,82,84,86,88,90,92,94,96,98,100,102,104,106,108,110,0,9,
-        2,0,12,12,14,14,2,0,13,13,22,24,3,0,11,11,29,29,44,44,3,0,1,1,104,
-        104,107,107,1,0,48,54,2,0,104,104,107,108,1,0,48,52,7,0,5,6,17,17,
-        28,28,30,32,36,39,43,43,45,45,2,0,25,25,77,77,904,0,117,1,0,0,0,
-        2,142,1,0,0,0,4,144,1,0,0,0,6,156,1,0,0,0,8,158,1,0,0,0,10,160,1,
-        0,0,0,12,162,1,0,0,0,14,164,1,0,0,0,16,166,1,0,0,0,18,177,1,0,0,
-        0,20,179,1,0,0,0,22,183,1,0,0,0,24,185,1,0,0,0,26,190,1,0,0,0,28,
-        194,1,0,0,0,30,196,1,0,0,0,32,198,1,0,0,0,34,207,1,0,0,0,36,212,
-        1,0,0,0,38,214,1,0,0,0,40,219,1,0,0,0,42,232,1,0,0,0,44,235,1,0,
-        0,0,46,238,1,0,0,0,48,247,1,0,0,0,50,251,1,0,0,0,52,267,1,0,0,0,
-        54,269,1,0,0,0,56,281,1,0,0,0,58,298,1,0,0,0,60,303,1,0,0,0,62,328,
-        1,0,0,0,64,331,1,0,0,0,66,337,1,0,0,0,68,339,1,0,0,0,70,361,1,0,
-        0,0,72,363,1,0,0,0,74,366,1,0,0,0,76,377,1,0,0,0,78,379,1,0,0,0,
-        80,386,1,0,0,0,82,389,1,0,0,0,84,395,1,0,0,0,86,405,1,0,0,0,88,441,
-        1,0,0,0,90,443,1,0,0,0,92,452,1,0,0,0,94,519,1,0,0,0,96,521,1,0,
-        0,0,98,532,1,0,0,0,100,539,1,0,0,0,102,619,1,0,0,0,104,663,1,0,0,
-        0,106,787,1,0,0,0,108,789,1,0,0,0,110,797,1,0,0,0,112,116,3,36,18,
-        0,113,116,3,2,1,0,114,116,3,32,16,0,115,112,1,0,0,0,115,113,1,0,
-        0,0,115,114,1,0,0,0,116,119,1,0,0,0,117,115,1,0,0,0,117,118,1,0,
-        0,0,118,120,1,0,0,0,119,117,1,0,0,0,120,121,5,0,0,1,121,1,1,0,0,
-        0,122,143,3,6,3,0,123,124,5,21,0,0,124,125,3,12,6,0,125,126,3,14,
-        7,0,126,143,1,0,0,0,127,143,3,4,2,0,128,129,5,21,0,0,129,130,3,20,
-        10,0,130,131,3,22,11,0,131,143,1,0,0,0,132,133,5,21,0,0,133,134,
-        3,30,15,0,134,139,5,1,0,0,135,136,5,79,0,0,136,138,5,1,0,0,137,135,
-        1,0,0,0,138,141,1,0,0,0,139,137,1,0,0,0,139,140,1,0,0,0,140,143,
-        1,0,0,0,141,139,1,0,0,0,142,122,1,0,0,0,142,123,1,0,0,0,142,127,
-        1,0,0,0,142,128,1,0,0,0,142,132,1,0,0,0,143,3,1,0,0,0,144,145,5,
-        111,0,0,145,146,5,113,0,0,146,5,1,0,0,0,147,148,5,21,0,0,148,150,
-        3,10,5,0,149,151,5,73,0,0,150,149,1,0,0,0,150,151,1,0,0,0,151,152,
-        1,0,0,0,152,153,3,14,7,0,153,157,1,0,0,0,154,155,5,21,0,0,155,157,
-        3,8,4,0,156,147,1,0,0,0,156,154,1,0,0,0,157,7,1,0,0,0,158,159,7,
-        0,0,0,159,9,1,0,0,0,160,161,7,1,0,0,161,11,1,0,0,0,162,163,7,2,0,
-        0,163,13,1,0,0,0,164,165,7,3,0,0,165,15,1,0,0,0,166,167,5,97,0,0,
-        167,172,5,1,0,0,168,169,5,79,0,0,169,171,5,1,0,0,170,168,1,0,0,0,
-        171,174,1,0,0,0,172,170,1,0,0,0,172,173,1,0,0,0,173,175,1,0,0,0,
-        174,172,1,0,0,0,175,176,5,98,0,0,176,17,1,0,0,0,177,178,3,104,52,
-        0,178,19,1,0,0,0,179,180,5,26,0,0,180,21,1,0,0,0,181,184,3,26,13,
-        0,182,184,3,28,14,0,183,181,1,0,0,0,183,182,1,0,0,0,184,23,1,0,0,
-        0,185,188,5,1,0,0,186,187,5,81,0,0,187,189,5,1,0,0,188,186,1,0,0,
-        0,188,189,1,0,0,0,189,25,1,0,0,0,190,191,5,64,0,0,191,192,3,24,12,
-        0,192,193,5,65,0,0,193,27,1,0,0,0,194,195,5,107,0,0,195,29,1,0,0,
-        0,196,197,5,33,0,0,197,31,1,0,0,0,198,199,5,27,0,0,199,200,5,107,
-        0,0,200,201,5,78,0,0,201,33,1,0,0,0,202,203,5,83,0,0,203,208,3,104,
-        52,0,204,205,5,107,0,0,205,206,5,83,0,0,206,208,3,104,52,0,207,202,
-        1,0,0,0,207,204,1,0,0,0,208,35,1,0,0,0,209,213,3,42,21,0,210,213,
-        3,44,22,0,211,213,3,60,30,0,212,209,1,0,0,0,212,210,1,0,0,0,212,
-        211,1,0,0,0,213,37,1,0,0,0,214,215,7,4,0,0,215,39,1,0,0,0,216,218,
-        3,38,19,0,217,216,1,0,0,0,218,221,1,0,0,0,219,217,1,0,0,0,219,220,
-        1,0,0,0,220,223,1,0,0,0,221,219,1,0,0,0,222,224,3,66,33,0,223,222,
-        1,0,0,0,223,224,1,0,0,0,224,225,1,0,0,0,225,226,5,1,0,0,226,228,
-        5,97,0,0,227,229,3,46,23,0,228,227,1,0,0,0,228,229,1,0,0,0,229,230,
+        52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,3,52,769,
+        8,52,1,52,1,52,5,52,773,8,52,10,52,12,52,776,9,52,1,53,1,53,3,53,
+        780,8,53,1,53,1,53,1,53,1,53,1,53,3,53,787,8,53,1,53,3,53,790,8,
+        53,1,53,1,53,3,53,794,8,53,1,53,3,53,797,8,53,1,53,3,53,800,8,53,
+        1,54,1,54,1,54,5,54,805,8,54,10,54,12,54,808,9,54,1,55,1,55,1,55,
+        1,55,0,1,104,56,0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,
+        36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,72,74,76,78,
+        80,82,84,86,88,90,92,94,96,98,100,102,104,106,108,110,0,9,2,0,12,
+        12,14,14,2,0,13,13,22,24,3,0,11,11,29,29,44,44,3,0,1,1,104,104,107,
+        107,1,0,48,54,2,0,104,104,107,108,1,0,48,52,7,0,5,6,17,17,28,28,
+        30,32,36,39,43,43,45,45,2,0,25,25,77,77,920,0,117,1,0,0,0,2,142,
+        1,0,0,0,4,144,1,0,0,0,6,156,1,0,0,0,8,158,1,0,0,0,10,160,1,0,0,0,
+        12,162,1,0,0,0,14,164,1,0,0,0,16,166,1,0,0,0,18,177,1,0,0,0,20,179,
+        1,0,0,0,22,183,1,0,0,0,24,185,1,0,0,0,26,190,1,0,0,0,28,194,1,0,
+        0,0,30,196,1,0,0,0,32,198,1,0,0,0,34,207,1,0,0,0,36,212,1,0,0,0,
+        38,214,1,0,0,0,40,219,1,0,0,0,42,232,1,0,0,0,44,235,1,0,0,0,46,238,
+        1,0,0,0,48,247,1,0,0,0,50,251,1,0,0,0,52,267,1,0,0,0,54,269,1,0,
+        0,0,56,281,1,0,0,0,58,298,1,0,0,0,60,303,1,0,0,0,62,328,1,0,0,0,
+        64,331,1,0,0,0,66,337,1,0,0,0,68,339,1,0,0,0,70,361,1,0,0,0,72,363,
+        1,0,0,0,74,366,1,0,0,0,76,377,1,0,0,0,78,379,1,0,0,0,80,386,1,0,
+        0,0,82,389,1,0,0,0,84,395,1,0,0,0,86,405,1,0,0,0,88,441,1,0,0,0,
+        90,443,1,0,0,0,92,452,1,0,0,0,94,519,1,0,0,0,96,521,1,0,0,0,98,532,
+        1,0,0,0,100,539,1,0,0,0,102,625,1,0,0,0,104,669,1,0,0,0,106,799,
+        1,0,0,0,108,801,1,0,0,0,110,809,1,0,0,0,112,116,3,36,18,0,113,116,
+        3,2,1,0,114,116,3,32,16,0,115,112,1,0,0,0,115,113,1,0,0,0,115,114,
+        1,0,0,0,116,119,1,0,0,0,117,115,1,0,0,0,117,118,1,0,0,0,118,120,
+        1,0,0,0,119,117,1,0,0,0,120,121,5,0,0,1,121,1,1,0,0,0,122,143,3,
+        6,3,0,123,124,5,21,0,0,124,125,3,12,6,0,125,126,3,14,7,0,126,143,
+        1,0,0,0,127,143,3,4,2,0,128,129,5,21,0,0,129,130,3,20,10,0,130,131,
+        3,22,11,0,131,143,1,0,0,0,132,133,5,21,0,0,133,134,3,30,15,0,134,
+        139,5,1,0,0,135,136,5,79,0,0,136,138,5,1,0,0,137,135,1,0,0,0,138,
+        141,1,0,0,0,139,137,1,0,0,0,139,140,1,0,0,0,140,143,1,0,0,0,141,
+        139,1,0,0,0,142,122,1,0,0,0,142,123,1,0,0,0,142,127,1,0,0,0,142,
+        128,1,0,0,0,142,132,1,0,0,0,143,3,1,0,0,0,144,145,5,111,0,0,145,
+        146,5,113,0,0,146,5,1,0,0,0,147,148,5,21,0,0,148,150,3,10,5,0,149,
+        151,5,73,0,0,150,149,1,0,0,0,150,151,1,0,0,0,151,152,1,0,0,0,152,
+        153,3,14,7,0,153,157,1,0,0,0,154,155,5,21,0,0,155,157,3,8,4,0,156,
+        147,1,0,0,0,156,154,1,0,0,0,157,7,1,0,0,0,158,159,7,0,0,0,159,9,
+        1,0,0,0,160,161,7,1,0,0,161,11,1,0,0,0,162,163,7,2,0,0,163,13,1,
+        0,0,0,164,165,7,3,0,0,165,15,1,0,0,0,166,167,5,97,0,0,167,172,5,
+        1,0,0,168,169,5,79,0,0,169,171,5,1,0,0,170,168,1,0,0,0,171,174,1,
+        0,0,0,172,170,1,0,0,0,172,173,1,0,0,0,173,175,1,0,0,0,174,172,1,
+        0,0,0,175,176,5,98,0,0,176,17,1,0,0,0,177,178,3,104,52,0,178,19,
+        1,0,0,0,179,180,5,26,0,0,180,21,1,0,0,0,181,184,3,26,13,0,182,184,
+        3,28,14,0,183,181,1,0,0,0,183,182,1,0,0,0,184,23,1,0,0,0,185,188,
+        5,1,0,0,186,187,5,81,0,0,187,189,5,1,0,0,188,186,1,0,0,0,188,189,
+        1,0,0,0,189,25,1,0,0,0,190,191,5,64,0,0,191,192,3,24,12,0,192,193,
+        5,65,0,0,193,27,1,0,0,0,194,195,5,107,0,0,195,29,1,0,0,0,196,197,
+        5,33,0,0,197,31,1,0,0,0,198,199,5,27,0,0,199,200,5,107,0,0,200,201,
+        5,78,0,0,201,33,1,0,0,0,202,203,5,83,0,0,203,208,3,104,52,0,204,
+        205,5,107,0,0,205,206,5,83,0,0,206,208,3,104,52,0,207,202,1,0,0,
+        0,207,204,1,0,0,0,208,35,1,0,0,0,209,213,3,42,21,0,210,213,3,44,
+        22,0,211,213,3,60,30,0,212,209,1,0,0,0,212,210,1,0,0,0,212,211,1,
+        0,0,0,213,37,1,0,0,0,214,215,7,4,0,0,215,39,1,0,0,0,216,218,3,38,
+        19,0,217,216,1,0,0,0,218,221,1,0,0,0,219,217,1,0,0,0,219,220,1,0,
+        0,0,220,223,1,0,0,0,221,219,1,0,0,0,222,224,3,66,33,0,223,222,1,
+        0,0,0,223,224,1,0,0,0,224,225,1,0,0,0,225,226,5,1,0,0,226,228,5,
+        97,0,0,227,229,3,46,23,0,228,227,1,0,0,0,228,229,1,0,0,0,229,230,
         1,0,0,0,230,231,5,98,0,0,231,41,1,0,0,0,232,233,3,40,20,0,233,234,
         5,78,0,0,234,43,1,0,0,0,235,236,3,40,20,0,236,237,3,74,37,0,237,
         45,1,0,0,0,238,243,3,48,24,0,239,240,5,79,0,0,240,242,3,48,24,0,
@@ -4220,101 +4275,106 @@ export class LPCParser extends antlr.Parser {
         529,1,0,0,0,532,531,1,0,0,0,533,99,1,0,0,0,534,540,5,1,0,0,535,536,
         5,97,0,0,536,537,5,1,0,0,537,540,5,98,0,0,538,540,5,107,0,0,539,
         534,1,0,0,0,539,535,1,0,0,0,539,538,1,0,0,0,540,101,1,0,0,0,541,
-        542,5,21,0,0,542,543,5,82,0,0,543,620,3,104,52,0,544,545,5,21,0,
-        0,545,546,5,82,0,0,546,620,5,55,0,0,547,548,5,21,0,0,548,549,5,82,
-        0,0,549,620,5,56,0,0,550,551,5,21,0,0,551,552,5,82,0,0,552,620,5,
-        57,0,0,553,554,5,21,0,0,554,555,5,82,0,0,555,620,5,58,0,0,556,557,
-        5,21,0,0,557,558,5,82,0,0,558,620,5,59,0,0,559,560,5,21,0,0,560,
-        561,5,82,0,0,561,620,5,64,0,0,562,563,5,21,0,0,563,564,5,82,0,0,
-        564,620,5,65,0,0,565,566,5,21,0,0,566,567,5,82,0,0,567,620,5,66,
-        0,0,568,569,5,21,0,0,569,570,5,82,0,0,570,620,5,67,0,0,571,572,5,
-        21,0,0,572,573,5,82,0,0,573,620,5,68,0,0,574,575,5,21,0,0,575,576,
-        5,82,0,0,576,620,5,69,0,0,577,578,5,21,0,0,578,579,5,82,0,0,579,
-        620,5,70,0,0,580,581,5,21,0,0,581,582,5,82,0,0,582,620,5,71,0,0,
-        583,584,5,21,0,0,584,585,5,82,0,0,585,620,5,72,0,0,586,587,5,21,
-        0,0,587,588,5,82,0,0,588,620,5,74,0,0,589,590,5,21,0,0,590,591,5,
-        82,0,0,591,620,5,75,0,0,592,593,5,21,0,0,593,594,5,82,0,0,594,620,
-        5,85,0,0,595,596,5,21,0,0,596,597,5,82,0,0,597,620,5,86,0,0,598,
-        599,5,21,0,0,599,600,5,82,0,0,600,620,5,87,0,0,601,602,5,21,0,0,
-        602,603,5,82,0,0,603,620,5,88,0,0,604,605,5,21,0,0,605,606,5,82,
-        0,0,606,620,5,89,0,0,607,608,5,21,0,0,608,609,5,82,0,0,609,620,5,
-        90,0,0,610,611,5,21,0,0,611,612,5,82,0,0,612,620,5,91,0,0,613,614,
-        5,21,0,0,614,615,5,82,0,0,615,620,5,92,0,0,616,617,5,21,0,0,617,
-        618,5,82,0,0,618,620,5,76,0,0,619,541,1,0,0,0,619,544,1,0,0,0,619,
-        547,1,0,0,0,619,550,1,0,0,0,619,553,1,0,0,0,619,556,1,0,0,0,619,
-        559,1,0,0,0,619,562,1,0,0,0,619,565,1,0,0,0,619,568,1,0,0,0,619,
-        571,1,0,0,0,619,574,1,0,0,0,619,577,1,0,0,0,619,580,1,0,0,0,619,
-        583,1,0,0,0,619,586,1,0,0,0,619,589,1,0,0,0,619,592,1,0,0,0,619,
-        595,1,0,0,0,619,598,1,0,0,0,619,601,1,0,0,0,619,604,1,0,0,0,619,
-        607,1,0,0,0,619,610,1,0,0,0,619,613,1,0,0,0,619,616,1,0,0,0,620,
-        103,1,0,0,0,621,622,6,52,-1,0,622,664,5,1,0,0,623,625,5,56,0,0,624,
-        623,1,0,0,0,624,625,1,0,0,0,625,626,1,0,0,0,626,664,5,104,0,0,627,
-        629,5,56,0,0,628,627,1,0,0,0,628,629,1,0,0,0,629,630,1,0,0,0,630,
-        664,5,105,0,0,631,664,5,107,0,0,632,636,5,107,0,0,633,635,5,107,
-        0,0,634,633,1,0,0,0,635,638,1,0,0,0,636,634,1,0,0,0,636,637,1,0,
-        0,0,637,664,1,0,0,0,638,636,1,0,0,0,639,664,5,108,0,0,640,641,5,
-        97,0,0,641,642,3,104,52,0,642,643,5,98,0,0,643,664,1,0,0,0,644,664,
-        3,68,34,0,645,664,3,102,51,0,646,647,5,73,0,0,647,664,3,104,52,13,
-        648,649,5,60,0,0,649,664,3,104,52,12,650,651,5,61,0,0,651,664,3,
-        104,52,11,652,653,5,56,0,0,653,664,3,104,52,10,654,655,5,1,0,0,655,
-        657,5,97,0,0,656,658,3,108,54,0,657,656,1,0,0,0,657,658,1,0,0,0,
-        658,659,1,0,0,0,659,664,5,98,0,0,660,664,3,56,28,0,661,664,3,50,
-        25,0,662,664,3,34,17,0,663,621,1,0,0,0,663,624,1,0,0,0,663,628,1,
-        0,0,0,663,631,1,0,0,0,663,632,1,0,0,0,663,639,1,0,0,0,663,640,1,
-        0,0,0,663,644,1,0,0,0,663,645,1,0,0,0,663,646,1,0,0,0,663,648,1,
-        0,0,0,663,650,1,0,0,0,663,652,1,0,0,0,663,654,1,0,0,0,663,660,1,
-        0,0,0,663,661,1,0,0,0,663,662,1,0,0,0,664,762,1,0,0,0,665,666,10,
-        38,0,0,666,667,5,55,0,0,667,761,3,104,52,39,668,669,10,37,0,0,669,
-        670,5,56,0,0,670,761,3,104,52,38,671,672,10,36,0,0,672,673,5,57,
-        0,0,673,761,3,104,52,37,674,675,10,35,0,0,675,676,5,58,0,0,676,761,
-        3,104,52,36,677,678,10,34,0,0,678,679,5,59,0,0,679,761,3,104,52,
-        35,680,681,10,33,0,0,681,682,5,64,0,0,682,761,3,104,52,34,683,684,
-        10,32,0,0,684,685,5,65,0,0,685,761,3,104,52,33,686,687,10,31,0,0,
-        687,688,5,66,0,0,688,761,3,104,52,32,689,690,10,30,0,0,690,691,5,
-        67,0,0,691,761,3,104,52,31,692,693,10,29,0,0,693,694,5,68,0,0,694,
-        761,3,104,52,30,695,696,10,28,0,0,696,697,5,69,0,0,697,761,3,104,
-        52,29,698,699,10,27,0,0,699,700,5,70,0,0,700,761,3,104,52,28,701,
-        702,10,26,0,0,702,703,5,71,0,0,703,761,3,104,52,27,704,705,10,25,
-        0,0,705,706,5,72,0,0,706,761,3,104,52,26,707,708,10,24,0,0,708,709,
-        5,74,0,0,709,761,3,104,52,25,710,711,10,23,0,0,711,712,5,75,0,0,
-        712,761,3,104,52,24,713,714,10,22,0,0,714,715,5,85,0,0,715,761,3,
-        104,52,23,716,717,10,21,0,0,717,718,5,86,0,0,718,761,3,104,52,22,
-        719,720,10,20,0,0,720,721,5,87,0,0,721,761,3,104,52,21,722,723,10,
-        19,0,0,723,724,5,88,0,0,724,761,3,104,52,20,725,726,10,18,0,0,726,
-        727,5,89,0,0,727,761,3,104,52,19,728,729,10,17,0,0,729,730,5,90,
-        0,0,730,761,3,104,52,18,731,732,10,16,0,0,732,733,5,91,0,0,733,761,
-        3,104,52,17,734,735,10,15,0,0,735,736,5,92,0,0,736,761,3,104,52,
-        16,737,738,10,14,0,0,738,739,5,76,0,0,739,740,3,104,52,0,740,741,
-        5,77,0,0,741,742,3,104,52,15,742,761,1,0,0,0,743,744,10,9,0,0,744,
-        761,5,60,0,0,745,746,10,8,0,0,746,761,5,61,0,0,747,748,10,7,0,0,
-        748,761,3,110,55,0,749,750,10,6,0,0,750,761,3,106,53,0,751,752,10,
-        1,0,0,752,753,5,96,0,0,753,754,3,100,50,0,754,756,5,97,0,0,755,757,
-        3,108,54,0,756,755,1,0,0,0,756,757,1,0,0,0,757,758,1,0,0,0,758,759,
-        5,98,0,0,759,761,1,0,0,0,760,665,1,0,0,0,760,668,1,0,0,0,760,671,
-        1,0,0,0,760,674,1,0,0,0,760,677,1,0,0,0,760,680,1,0,0,0,760,683,
-        1,0,0,0,760,686,1,0,0,0,760,689,1,0,0,0,760,692,1,0,0,0,760,695,
-        1,0,0,0,760,698,1,0,0,0,760,701,1,0,0,0,760,704,1,0,0,0,760,707,
-        1,0,0,0,760,710,1,0,0,0,760,713,1,0,0,0,760,716,1,0,0,0,760,719,
-        1,0,0,0,760,722,1,0,0,0,760,725,1,0,0,0,760,728,1,0,0,0,760,731,
-        1,0,0,0,760,734,1,0,0,0,760,737,1,0,0,0,760,743,1,0,0,0,760,745,
-        1,0,0,0,760,747,1,0,0,0,760,749,1,0,0,0,760,751,1,0,0,0,761,764,
-        1,0,0,0,762,760,1,0,0,0,762,763,1,0,0,0,763,105,1,0,0,0,764,762,
-        1,0,0,0,765,767,5,101,0,0,766,768,5,64,0,0,767,766,1,0,0,0,767,768,
-        1,0,0,0,768,769,1,0,0,0,769,770,3,104,52,0,770,771,5,102,0,0,771,
-        788,1,0,0,0,772,774,5,101,0,0,773,775,5,64,0,0,774,773,1,0,0,0,774,
-        775,1,0,0,0,775,777,1,0,0,0,776,778,3,104,52,0,777,776,1,0,0,0,777,
-        778,1,0,0,0,778,779,1,0,0,0,779,781,5,80,0,0,780,782,5,64,0,0,781,
-        780,1,0,0,0,781,782,1,0,0,0,782,784,1,0,0,0,783,785,3,104,52,0,784,
-        783,1,0,0,0,784,785,1,0,0,0,785,786,1,0,0,0,786,788,5,102,0,0,787,
-        765,1,0,0,0,787,772,1,0,0,0,788,107,1,0,0,0,789,794,3,104,52,0,790,
-        791,5,79,0,0,791,793,3,104,52,0,792,790,1,0,0,0,793,796,1,0,0,0,
-        794,792,1,0,0,0,794,795,1,0,0,0,795,109,1,0,0,0,796,794,1,0,0,0,
-        797,798,5,84,0,0,798,799,3,104,52,0,799,111,1,0,0,0,78,115,117,139,
-        142,150,156,172,183,188,207,212,219,223,228,243,247,257,260,263,
-        276,279,287,290,293,303,307,311,315,319,323,331,337,345,348,361,
-        370,377,399,403,412,414,421,424,428,431,436,439,441,449,457,466,
-        479,485,490,494,500,506,517,519,523,532,539,619,624,628,636,657,
-        663,756,760,762,767,774,777,781,784,787,794
+        542,5,21,0,0,542,543,5,82,0,0,543,626,3,104,52,0,544,545,5,21,0,
+        0,545,546,5,82,0,0,546,626,5,55,0,0,547,548,5,21,0,0,548,549,5,82,
+        0,0,549,626,5,56,0,0,550,551,5,21,0,0,551,552,5,82,0,0,552,626,5,
+        57,0,0,553,554,5,21,0,0,554,555,5,82,0,0,555,626,5,58,0,0,556,557,
+        5,21,0,0,557,558,5,82,0,0,558,626,5,59,0,0,559,560,5,21,0,0,560,
+        561,5,82,0,0,561,626,5,64,0,0,562,563,5,21,0,0,563,564,5,82,0,0,
+        564,626,5,65,0,0,565,566,5,21,0,0,566,567,5,82,0,0,567,626,5,66,
+        0,0,568,569,5,21,0,0,569,570,5,82,0,0,570,626,5,67,0,0,571,572,5,
+        21,0,0,572,573,5,82,0,0,573,626,5,68,0,0,574,575,5,21,0,0,575,576,
+        5,82,0,0,576,626,5,69,0,0,577,578,5,21,0,0,578,579,5,82,0,0,579,
+        626,5,70,0,0,580,581,5,21,0,0,581,582,5,82,0,0,582,626,5,71,0,0,
+        583,584,5,21,0,0,584,585,5,82,0,0,585,626,5,72,0,0,586,587,5,21,
+        0,0,587,588,5,82,0,0,588,626,5,74,0,0,589,590,5,21,0,0,590,591,5,
+        82,0,0,591,626,5,75,0,0,592,593,5,21,0,0,593,594,5,82,0,0,594,626,
+        5,85,0,0,595,596,5,21,0,0,596,597,5,82,0,0,597,626,5,86,0,0,598,
+        599,5,21,0,0,599,600,5,82,0,0,600,626,5,87,0,0,601,602,5,21,0,0,
+        602,603,5,82,0,0,603,626,5,88,0,0,604,605,5,21,0,0,605,606,5,82,
+        0,0,606,626,5,89,0,0,607,608,5,21,0,0,608,609,5,82,0,0,609,626,5,
+        90,0,0,610,611,5,21,0,0,611,612,5,82,0,0,612,626,5,91,0,0,613,614,
+        5,21,0,0,614,615,5,82,0,0,615,626,5,92,0,0,616,617,5,21,0,0,617,
+        618,5,82,0,0,618,626,5,76,0,0,619,620,5,21,0,0,620,621,5,82,0,0,
+        621,626,5,62,0,0,622,623,5,21,0,0,623,624,5,82,0,0,624,626,5,63,
+        0,0,625,541,1,0,0,0,625,544,1,0,0,0,625,547,1,0,0,0,625,550,1,0,
+        0,0,625,553,1,0,0,0,625,556,1,0,0,0,625,559,1,0,0,0,625,562,1,0,
+        0,0,625,565,1,0,0,0,625,568,1,0,0,0,625,571,1,0,0,0,625,574,1,0,
+        0,0,625,577,1,0,0,0,625,580,1,0,0,0,625,583,1,0,0,0,625,586,1,0,
+        0,0,625,589,1,0,0,0,625,592,1,0,0,0,625,595,1,0,0,0,625,598,1,0,
+        0,0,625,601,1,0,0,0,625,604,1,0,0,0,625,607,1,0,0,0,625,610,1,0,
+        0,0,625,613,1,0,0,0,625,616,1,0,0,0,625,619,1,0,0,0,625,622,1,0,
+        0,0,626,103,1,0,0,0,627,628,6,52,-1,0,628,670,5,1,0,0,629,631,5,
+        56,0,0,630,629,1,0,0,0,630,631,1,0,0,0,631,632,1,0,0,0,632,670,5,
+        104,0,0,633,635,5,56,0,0,634,633,1,0,0,0,634,635,1,0,0,0,635,636,
+        1,0,0,0,636,670,5,105,0,0,637,670,5,107,0,0,638,642,5,107,0,0,639,
+        641,5,107,0,0,640,639,1,0,0,0,641,644,1,0,0,0,642,640,1,0,0,0,642,
+        643,1,0,0,0,643,670,1,0,0,0,644,642,1,0,0,0,645,670,5,108,0,0,646,
+        647,5,97,0,0,647,648,3,104,52,0,648,649,5,98,0,0,649,670,1,0,0,0,
+        650,670,3,68,34,0,651,670,3,102,51,0,652,653,5,73,0,0,653,670,3,
+        104,52,13,654,655,5,60,0,0,655,670,3,104,52,12,656,657,5,61,0,0,
+        657,670,3,104,52,11,658,659,5,56,0,0,659,670,3,104,52,10,660,661,
+        5,1,0,0,661,663,5,97,0,0,662,664,3,108,54,0,663,662,1,0,0,0,663,
+        664,1,0,0,0,664,665,1,0,0,0,665,670,5,98,0,0,666,670,3,56,28,0,667,
+        670,3,50,25,0,668,670,3,34,17,0,669,627,1,0,0,0,669,630,1,0,0,0,
+        669,634,1,0,0,0,669,637,1,0,0,0,669,638,1,0,0,0,669,645,1,0,0,0,
+        669,646,1,0,0,0,669,650,1,0,0,0,669,651,1,0,0,0,669,652,1,0,0,0,
+        669,654,1,0,0,0,669,656,1,0,0,0,669,658,1,0,0,0,669,660,1,0,0,0,
+        669,666,1,0,0,0,669,667,1,0,0,0,669,668,1,0,0,0,670,774,1,0,0,0,
+        671,672,10,40,0,0,672,673,5,55,0,0,673,773,3,104,52,41,674,675,10,
+        39,0,0,675,676,5,56,0,0,676,773,3,104,52,40,677,678,10,38,0,0,678,
+        679,5,57,0,0,679,773,3,104,52,39,680,681,10,37,0,0,681,682,5,58,
+        0,0,682,773,3,104,52,38,683,684,10,36,0,0,684,685,5,59,0,0,685,773,
+        3,104,52,37,686,687,10,35,0,0,687,688,5,64,0,0,688,773,3,104,52,
+        36,689,690,10,34,0,0,690,691,5,65,0,0,691,773,3,104,52,35,692,693,
+        10,33,0,0,693,694,5,66,0,0,694,773,3,104,52,34,695,696,10,32,0,0,
+        696,697,5,67,0,0,697,773,3,104,52,33,698,699,10,31,0,0,699,700,5,
+        68,0,0,700,773,3,104,52,32,701,702,10,30,0,0,702,703,5,69,0,0,703,
+        773,3,104,52,31,704,705,10,29,0,0,705,706,5,70,0,0,706,773,3,104,
+        52,30,707,708,10,28,0,0,708,709,5,71,0,0,709,773,3,104,52,29,710,
+        711,10,27,0,0,711,712,5,72,0,0,712,773,3,104,52,28,713,714,10,26,
+        0,0,714,715,5,74,0,0,715,773,3,104,52,27,716,717,10,25,0,0,717,718,
+        5,75,0,0,718,773,3,104,52,26,719,720,10,24,0,0,720,721,5,85,0,0,
+        721,773,3,104,52,25,722,723,10,23,0,0,723,724,5,86,0,0,724,773,3,
+        104,52,24,725,726,10,22,0,0,726,727,5,87,0,0,727,773,3,104,52,23,
+        728,729,10,21,0,0,729,730,5,88,0,0,730,773,3,104,52,22,731,732,10,
+        20,0,0,732,733,5,89,0,0,733,773,3,104,52,21,734,735,10,19,0,0,735,
+        736,5,90,0,0,736,773,3,104,52,20,737,738,10,18,0,0,738,739,5,91,
+        0,0,739,773,3,104,52,19,740,741,10,17,0,0,741,742,5,92,0,0,742,773,
+        3,104,52,18,743,744,10,16,0,0,744,745,5,62,0,0,745,773,3,104,52,
+        17,746,747,10,15,0,0,747,748,5,63,0,0,748,773,3,104,52,16,749,750,
+        10,14,0,0,750,751,5,76,0,0,751,752,3,104,52,0,752,753,5,77,0,0,753,
+        754,3,104,52,15,754,773,1,0,0,0,755,756,10,9,0,0,756,773,5,60,0,
+        0,757,758,10,8,0,0,758,773,5,61,0,0,759,760,10,7,0,0,760,773,3,110,
+        55,0,761,762,10,6,0,0,762,773,3,106,53,0,763,764,10,1,0,0,764,765,
+        5,96,0,0,765,766,3,100,50,0,766,768,5,97,0,0,767,769,3,108,54,0,
+        768,767,1,0,0,0,768,769,1,0,0,0,769,770,1,0,0,0,770,771,5,98,0,0,
+        771,773,1,0,0,0,772,671,1,0,0,0,772,674,1,0,0,0,772,677,1,0,0,0,
+        772,680,1,0,0,0,772,683,1,0,0,0,772,686,1,0,0,0,772,689,1,0,0,0,
+        772,692,1,0,0,0,772,695,1,0,0,0,772,698,1,0,0,0,772,701,1,0,0,0,
+        772,704,1,0,0,0,772,707,1,0,0,0,772,710,1,0,0,0,772,713,1,0,0,0,
+        772,716,1,0,0,0,772,719,1,0,0,0,772,722,1,0,0,0,772,725,1,0,0,0,
+        772,728,1,0,0,0,772,731,1,0,0,0,772,734,1,0,0,0,772,737,1,0,0,0,
+        772,740,1,0,0,0,772,743,1,0,0,0,772,746,1,0,0,0,772,749,1,0,0,0,
+        772,755,1,0,0,0,772,757,1,0,0,0,772,759,1,0,0,0,772,761,1,0,0,0,
+        772,763,1,0,0,0,773,776,1,0,0,0,774,772,1,0,0,0,774,775,1,0,0,0,
+        775,105,1,0,0,0,776,774,1,0,0,0,777,779,5,101,0,0,778,780,5,64,0,
+        0,779,778,1,0,0,0,779,780,1,0,0,0,780,781,1,0,0,0,781,782,3,104,
+        52,0,782,783,5,102,0,0,783,800,1,0,0,0,784,786,5,101,0,0,785,787,
+        5,64,0,0,786,785,1,0,0,0,786,787,1,0,0,0,787,789,1,0,0,0,788,790,
+        3,104,52,0,789,788,1,0,0,0,789,790,1,0,0,0,790,791,1,0,0,0,791,793,
+        5,80,0,0,792,794,5,64,0,0,793,792,1,0,0,0,793,794,1,0,0,0,794,796,
+        1,0,0,0,795,797,3,104,52,0,796,795,1,0,0,0,796,797,1,0,0,0,797,798,
+        1,0,0,0,798,800,5,102,0,0,799,777,1,0,0,0,799,784,1,0,0,0,800,107,
+        1,0,0,0,801,806,3,104,52,0,802,803,5,79,0,0,803,805,3,104,52,0,804,
+        802,1,0,0,0,805,808,1,0,0,0,806,804,1,0,0,0,806,807,1,0,0,0,807,
+        109,1,0,0,0,808,806,1,0,0,0,809,810,5,84,0,0,810,811,3,104,52,0,
+        811,111,1,0,0,0,78,115,117,139,142,150,156,172,183,188,207,212,219,
+        223,228,243,247,257,260,263,276,279,287,290,293,303,307,311,315,
+        319,323,331,337,345,348,361,370,377,399,403,412,414,421,424,428,
+        431,436,439,441,449,457,466,479,485,490,494,500,506,517,519,523,
+        532,539,625,630,634,642,663,669,768,772,774,779,786,789,793,796,
+        799,806
     ];
 
     private static __ATN: antlr.ATN;
@@ -6626,6 +6686,12 @@ export class LambdaExpressionContext extends antlr.ParserRuleContext {
     public QUESTION(): antlr.TerminalNode | null {
         return this.getToken(LPCParser.QUESTION, 0);
     }
+    public SHL(): antlr.TerminalNode | null {
+        return this.getToken(LPCParser.SHL, 0);
+    }
+    public SHR(): antlr.TerminalNode | null {
+        return this.getToken(LPCParser.SHR, 0);
+    }
     public override get ruleIndex(): number {
         return LPCParser.RULE_lambdaExpression;
     }
@@ -6788,6 +6854,12 @@ export class ExpressionContext extends antlr.ParserRuleContext {
     }
     public XOR_ASSIGN(): antlr.TerminalNode | null {
         return this.getToken(LPCParser.XOR_ASSIGN, 0);
+    }
+    public SHL(): antlr.TerminalNode | null {
+        return this.getToken(LPCParser.SHL, 0);
+    }
+    public SHR(): antlr.TerminalNode | null {
+        return this.getToken(LPCParser.SHR, 0);
     }
     public QUESTION(): antlr.TerminalNode | null {
         return this.getToken(LPCParser.QUESTION, 0);
