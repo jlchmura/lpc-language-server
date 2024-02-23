@@ -39,7 +39,7 @@ export class VSCodeANTLRErrorListener extends BaseErrorListener {
         },
         end: {
           line: offendingSymbol.line - 1,
-          character: offendingSymbol.column + 1,
+          character: offendingSymbol.column + offendingSymbol.text.length,
         },
       },
       msg,
