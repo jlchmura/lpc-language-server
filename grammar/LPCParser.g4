@@ -273,11 +273,16 @@ expression
     | expression INC
     | expression DEC
     | expression assignmentExpression
-    | expression SQUARE_OPEN expression SQUARE_CLOSE // array access
+    | expression arrayAccessExpression
     | Identifier PAREN_OPEN expressionList? PAREN_CLOSE  // function call
     | mappingExpression
     | arrayExpression
     | callOtherOb=expression ARROW callOtherTarget PAREN_OPEN expressionList? PAREN_CLOSE
+    ;
+
+arrayAccessExpression
+    : SQUARE_OPEN LT? expression SQUARE_CLOSE
+    | SQUARE_OPEN LT? expression? DOUBLEDOT LT? expression? SQUARE_CLOSE    
     ;
 
 expressionList

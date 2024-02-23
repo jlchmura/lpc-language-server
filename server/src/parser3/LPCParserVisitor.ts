@@ -52,6 +52,7 @@ import { IterationStatementContext } from "./LPCParser.js";
 import { JumpStatementContext } from "./LPCParser.js";
 import { CallOtherTargetContext } from "./LPCParser.js";
 import { ExpressionContext } from "./LPCParser.js";
+import { ArrayAccessExpressionContext } from "./LPCParser.js";
 import { ExpressionListContext } from "./LPCParser.js";
 import { AssignmentExpressionContext } from "./LPCParser.js";
 
@@ -358,6 +359,12 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      * @return the visitor result
      */
     visitExpression?: (ctx: ExpressionContext) => Result;
+    /**
+     * Visit a parse tree produced by `LPCParser.arrayAccessExpression`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitArrayAccessExpression?: (ctx: ArrayAccessExpressionContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.expressionList`.
      * @param ctx the parse tree
