@@ -276,6 +276,8 @@ lambdaExpression
     | HASH SINGLEQUOT OR_ASSIGN
     | HASH SINGLEQUOT XOR_ASSIGN
     | HASH SINGLEQUOT QUESTION
+    | HASH SINGLEQUOT SHL
+    | HASH SINGLEQUOT SHR
     ;
 
 expression
@@ -312,7 +314,9 @@ expression
     | expression AND_ASSIGN expression
     | expression OR_ASSIGN expression
     | expression XOR_ASSIGN expression    
-    | expression QUESTION expression COLON expression
+    | expression SHL expression
+    | expression SHR expression
+    | expression QUESTION expression COLON expression    
     | NOT expression
     | INC expression
     | DEC expression
