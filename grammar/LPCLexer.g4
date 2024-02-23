@@ -92,6 +92,7 @@ SEMI: ';';
 COMMA: ',';
 DOUBLEDOT: '..';
 DOT: '.';
+SINGLEQUOT: '\'';
 //DOUBLEQUOT: '"';
 
 // for inheritance

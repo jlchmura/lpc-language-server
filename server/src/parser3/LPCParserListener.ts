@@ -54,6 +54,7 @@ import { IterationStatementContext } from "./LPCParser.js";
 import { ReturnStatementContext } from "./LPCParser.js";
 import { JumpStatementContext } from "./LPCParser.js";
 import { CallOtherTargetContext } from "./LPCParser.js";
+import { LambdaExpressionContext } from "./LPCParser.js";
 import { ExpressionContext } from "./LPCParser.js";
 import { ArrayAccessExpressionContext } from "./LPCParser.js";
 import { ExpressionListContext } from "./LPCParser.js";
@@ -575,6 +576,16 @@ export class LPCParserListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitCallOtherTarget?: (ctx: CallOtherTargetContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.lambdaExpression`.
+     * @param ctx the parse tree
+     */
+    enterLambdaExpression?: (ctx: LambdaExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.lambdaExpression`.
+     * @param ctx the parse tree
+     */
+    exitLambdaExpression?: (ctx: LambdaExpressionContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.expression`.
      * @param ctx the parse tree

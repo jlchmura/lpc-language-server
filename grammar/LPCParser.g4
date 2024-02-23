@@ -249,6 +249,35 @@ callOtherTarget
     | StringLiteral
     ;
 
+lambdaExpression
+    : HASH SINGLEQUOT expression
+    | HASH SINGLEQUOT PLUS
+    | HASH SINGLEQUOT MINUS
+    | HASH SINGLEQUOT STAR
+    | HASH SINGLEQUOT DIV
+    | HASH SINGLEQUOT MOD
+    | HASH SINGLEQUOT LT
+    | HASH SINGLEQUOT GT
+    | HASH SINGLEQUOT LE
+    | HASH SINGLEQUOT GE
+    | HASH SINGLEQUOT EQ
+    | HASH SINGLEQUOT NE
+    | HASH SINGLEQUOT AND
+    | HASH SINGLEQUOT OR
+    | HASH SINGLEQUOT XOR
+    | HASH SINGLEQUOT AND_AND
+    | HASH SINGLEQUOT OR_OR
+    | HASH SINGLEQUOT ADD_ASSIGN
+    | HASH SINGLEQUOT SUB_ASSIGN
+    | HASH SINGLEQUOT MUL_ASSIGN
+    | HASH SINGLEQUOT DIV_ASSIGN
+    | HASH SINGLEQUOT MOD_ASSIGN
+    | HASH SINGLEQUOT AND_ASSIGN
+    | HASH SINGLEQUOT OR_ASSIGN
+    | HASH SINGLEQUOT XOR_ASSIGN
+    | HASH SINGLEQUOT QUESTION
+    ;
+
 expression
     : Identifier
     | MINUS? IntegerConstant
@@ -258,6 +287,7 @@ expression
     | CharacterConstant
     | PAREN_OPEN expression PAREN_CLOSE
     | inlineClosureExpression
+    | lambdaExpression
     | expression PLUS expression
     | expression MINUS expression
     | expression STAR expression
