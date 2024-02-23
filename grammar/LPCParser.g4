@@ -118,7 +118,7 @@ mappingContent
     ;
 
 mappingExpression
-    : MAPPING_OPEN (mappingContent (COMMA mappingContent)*)? MAPPING_CLOSE
+    : MAPPING_OPEN (mappingContent (COMMA mappingContent)*)? SQUARE_CLOSE PAREN_CLOSE
     ;
 
 assignmentExpression
@@ -261,6 +261,7 @@ expression
     | NOT expression
     | INC expression
     | DEC expression
+    | MINUS expression
     | expression INC
     | expression DEC
     | assignmentExpression

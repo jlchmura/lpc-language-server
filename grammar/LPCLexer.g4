@@ -104,7 +104,6 @@ XOR_ASSIGN: '^=';
 ARRAY_OPEN: '({';
 ARRAY_CLOSE: '})';
 MAPPING_OPEN: '([';
-MAPPING_CLOSE: '])';
 ARROW: '->';
 // closure brackerts
 CLOSURE_OPEN: '(:';
