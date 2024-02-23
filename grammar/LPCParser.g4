@@ -115,7 +115,7 @@ parameter
 
 
 arrayExpression
-    : ARRAY_OPEN (expression (COMMA expression)*)? ARRAY_CLOSE
+    : ARRAY_OPEN (expression (COMMA expression)*)? COMMA? ARRAY_CLOSE
     ;
 
 mappingKey
@@ -129,7 +129,7 @@ mappingContent
     ;
 
 mappingExpression
-    : MAPPING_OPEN (mappingContent (COMMA mappingContent)*)? SQUARE_CLOSE PAREN_CLOSE
+    : MAPPING_OPEN (mappingContent (COMMA mappingContent)*)? COMMA? SQUARE_CLOSE PAREN_CLOSE
     ;
 
 variableModifier
