@@ -250,7 +250,8 @@ callOtherTarget
     ;
 
 lambdaExpression
-    : HASH SINGLEQUOT expression
+    : SINGLEQUOT Identifier
+    | HASH SINGLEQUOT expression
     | HASH SINGLEQUOT PLUS
     | HASH SINGLEQUOT MINUS
     | HASH SINGLEQUOT STAR
