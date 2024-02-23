@@ -37,10 +37,12 @@ import { SymbolTableVisitor } from "./symbolTableVisitor";
 import { computeTokenPosition } from "./tokenposition";
 import { LPCLexer } from "./parser3/LPCLexer";
 import { CharStreams, CommonTokenStream } from "antlr4ng";
-import { LPCParser, ProgramContext } from "./parser3/LPCParser";
+
 import { getDocumentSymbols } from "./documentSymbol";
 import { getDefinitions } from "./definition";
 import { VSCodeANTLRErrorListener } from "./validator";
+import { doHover } from "./hover";
+import { LPCParser, ProgramContext } from "./parser3/LPCParser";
 
 export function startServer(connection: Connection) {
   // Create a simple text document manager.
@@ -78,6 +80,7 @@ export function startServer(connection: Connection) {
           resolveProvider: true,
         },
         documentSymbolProvider: true,
+        hoverProvider:false,
         definitionProvider: true,
         foldingRangeProvider: true, // change to true to enable server-based folding
       },
@@ -217,6 +220,15 @@ export function startServer(connection: Connection) {
       return getDocumentSymbols(document.getText());
     }
     return [];
+  });
+
+  connection.onHover((hoverParams, token) => {
+    const document = documents.get(hoverParams.textDocument.uri);
+    if (document) {
+      return doHover(document, hoverParams.position);
+    } else {
+      return null;
+    }
   });
 
   connection.onDefinition((definitionParams, token) => {

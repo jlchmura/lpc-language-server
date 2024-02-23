@@ -45,6 +45,7 @@ export function getDefinitions(
   const position = computeTokenPosition(parseTree, tokenStream, caretPosition);
   if (!position) return [];
   
+  
   const token = position.token;
   let nameToFind = position.token.text;
 

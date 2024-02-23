@@ -10,7 +10,7 @@
     "lint": "eslint ./client/src ./server/src --ext .ts,.tsx",
     "postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
     "test": "sh ./scripts/e2e.sh",
-    "generate": "npx antlr4ng -Dlanguage=TypeScript grammar/LPC.g4 -o server/src/parser3 -Xexact-output-dir -visitor -listener",
+    "generate": "npx antlr4ng -Dlanguage=TypeScript grammar/LPCLexer.g4 grammar/LPCParser.g4 -o server/src/parser3 -Xexact-output-dir -visitor -listener",
     "antlr4": "java org.antlr.v4.Tool -Dlanguage=TypeScript -visitor -o server/src/parser2 -Xexact-output-dir grammar/LPC.g4",
     "gui": "java org.antlr.v4.Tool grammar/LPC.g4 -o ./grammar/java/ && javac grammar/java/grammar/LPC*.java && cd ./grammar/java/grammar && java org.antlr.v4.gui.TestRig LPC program -gui"
   },

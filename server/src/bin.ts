@@ -11,6 +11,7 @@ import { CompletionItemKind } from "vscode-languageserver";
 import { getFoldingRanges } from "./folding";
 import { getDefinitions } from "./definition";
 import { TextDocument } from "vscode-languageserver-textdocument";
+import { doHover } from "./hover";
 
 const code = fs.existsSync(process.argv[2])
   ? fs.readFileSync(process.argv[2], "utf-8")
@@ -21,7 +22,7 @@ const lexer = new LPCLexer(stream);
 const tStream = new CommonTokenStream(lexer);
 const parser = new LPCParser(tStream);
 
-let caretPos = { line: 15, column: 30 } as CaretPosition;
+let caretPos = { line: 4, column: 10 } as CaretPosition;
 
 let errorListener = new ConsoleErrorListener();
 parser.addErrorListener(errorListener);
@@ -40,7 +41,7 @@ let tokenPos = computeTokenPosition(p, tStream, caretPos);
 
 let suggestions = getSuggestions(code, caretPos, computeTokenPosition);
 let fold = getFoldingRanges(code, Number.MAX_VALUE);
-
 let defs = getDefinitions(doc, code, caretPos);
+let hover = doHover(doc, {character: 9, line: 3});
 
 const i = 0;

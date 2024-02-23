@@ -13,25 +13,15 @@ import {
   BaseSymbol,
 } from "antlr4-c3/index";
 
-import { LPCVisitor } from "./parser3/LPCVisitor";
 import { AbstractParseTreeVisitor, ParseTree, TerminalNode } from "antlr4ng";
-import {
-  DefinePreprocessorDirectiveContext,
-  DirectiveTypeDefineContext,
-  ExpressionContext,
-  FunctionDeclarationContext,
-  IfStatementContext,
-  LPCParser,
-  PreprocessorDirectiveContext,
-  SelectionDirectiveContext,
-  SelectionStatementContext,
-  StatementContext,
-  VariableDeclarationContext,
-} from "./parser3/LPCParser";
+import { DefinePreprocessorDirectiveContext, SelectionDirectiveContext, VariableDeclarationContext, IfStatementContext, FunctionDeclarationContext } from "./parser3/LPCParser";
+import { LPCParserVisitor } from "./parser3/LPCParserVisitor";
+
+
 
 export class SymbolTableVisitor
   extends AbstractParseTreeVisitor<SymbolTable>
-  implements LPCVisitor<SymbolTable>
+  implements LPCParserVisitor<SymbolTable>
 {
   public functionNodes = new Map<string, TerminalNode>();
 
@@ -45,15 +35,21 @@ export class SymbolTableVisitor
   protected defaultResult(): SymbolTable {
     return this.symbolTable;
   }
-
+  
   visitDefinePreprocessorDirective = (
     ctx: DefinePreprocessorDirectiveContext
   ) => {
+    const defineStr = ctx.END_DEFINE()?.getText();
+
+    // trim everything after the first space
+    const idx = defineStr.indexOf(" ");
+    const label = defineStr.substring(0, idx);
+
     //this.scope.context = ctx; // store the context for later
     const sym = this.symbolTable.addNewSymbolOfType(
       DefineSymbol,
       this.scope,
-      ctx.Identifier()?.getText()
+      label
     );
     sym.context = ctx;
     return this.visitChildren(ctx);

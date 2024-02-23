@@ -30,7 +30,6 @@ import {
   LPCParser, ProgramContext,
   
 } from "./parser3/LPCParser";
-import { LPCVisitor } from "./parser3/LPCVisitor";
 import { LPCLexer } from "./parser3/LPCLexer";
 
 export type CaretPosition = { line: number; column: number };

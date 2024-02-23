@@ -1,4 +1,4 @@
-// Generated from grammar/LPC.g4 by ANTLR 4.13.1
+// Generated from grammar/LPCParser.g4 by ANTLR 4.13.1
 
 import { ErrorNode, ParseTreeListener, ParserRuleContext, TerminalNode } from "antlr4ng";
 
@@ -11,7 +11,6 @@ import { SelectionDirectiveTypeSingleContext } from "./LPCParser.js";
 import { SelectionDirectiveTypeWithArgContext } from "./LPCParser.js";
 import { DirectiveTypeWithArgumentsContext } from "./LPCParser.js";
 import { DirectiveArgumentContext } from "./LPCParser.js";
-import { DirectiveTypeDefineContext } from "./LPCParser.js";
 import { DirectiveDefineParamContext } from "./LPCParser.js";
 import { DirectiveDefineArgumentContext } from "./LPCParser.js";
 import { DirectiveTypeIncludeContext } from "./LPCParser.js";
@@ -60,7 +59,7 @@ import { ExpressionListContext } from "./LPCParser.js";
  * This interface defines a complete listener for a parse tree produced by
  * `LPCParser`.
  */
-export class LPCListener implements ParseTreeListener {
+export class LPCParserListener implements ParseTreeListener {
     /**
      * Enter a parse tree produced by `LPCParser.program`.
      * @param ctx the parse tree
@@ -141,16 +140,6 @@ export class LPCListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitDirectiveArgument?: (ctx: DirectiveArgumentContext) => void;
-    /**
-     * Enter a parse tree produced by `LPCParser.directiveTypeDefine`.
-     * @param ctx the parse tree
-     */
-    enterDirectiveTypeDefine?: (ctx: DirectiveTypeDefineContext) => void;
-    /**
-     * Exit a parse tree produced by `LPCParser.directiveTypeDefine`.
-     * @param ctx the parse tree
-     */
-    exitDirectiveTypeDefine?: (ctx: DirectiveTypeDefineContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.directiveDefineParam`.
      * @param ctx the parse tree

@@ -1,4 +1,4 @@
-// Generated from grammar/LPC.g4 by ANTLR 4.13.1
+// Generated from grammar/LPCParser.g4 by ANTLR 4.13.1
 
 import { AbstractParseTreeVisitor } from "antlr4ng";
 
@@ -11,7 +11,6 @@ import { SelectionDirectiveTypeSingleContext } from "./LPCParser.js";
 import { SelectionDirectiveTypeWithArgContext } from "./LPCParser.js";
 import { DirectiveTypeWithArgumentsContext } from "./LPCParser.js";
 import { DirectiveArgumentContext } from "./LPCParser.js";
-import { DirectiveTypeDefineContext } from "./LPCParser.js";
 import { DirectiveDefineParamContext } from "./LPCParser.js";
 import { DirectiveDefineArgumentContext } from "./LPCParser.js";
 import { DirectiveTypeIncludeContext } from "./LPCParser.js";
@@ -63,7 +62,7 @@ import { ExpressionListContext } from "./LPCParser.js";
  * @param <Result> The return type of the visit operation. Use `void` for
  * operations with no return type.
  */
-export class LPCVisitor<Result> extends AbstractParseTreeVisitor<Result> {
+export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
     /**
      * Visit a parse tree produced by `LPCParser.program`.
      * @param ctx the parse tree
@@ -112,12 +111,6 @@ export class LPCVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      * @return the visitor result
      */
     visitDirectiveArgument?: (ctx: DirectiveArgumentContext) => Result;
-    /**
-     * Visit a parse tree produced by `LPCParser.directiveTypeDefine`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitDirectiveTypeDefine?: (ctx: DirectiveTypeDefineContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.directiveDefineParam`.
      * @param ctx the parse tree
