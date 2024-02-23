@@ -229,6 +229,7 @@ expression
     | IntegerConstant
     | FloatingConstant
     | StringLiteral
+    | StringLiteral StringLiteral*  // handle implicit string concatenation
     | CharacterConstant
     | PAREN_OPEN expression PAREN_CLOSE
     | inlineClosureExpression

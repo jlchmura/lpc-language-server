@@ -86,6 +86,8 @@ SEMI: ';';
 COMMA: ',';
 DOUBLEDOT: '..';
 DOT: '.';
+//DOUBLEQUOT: '"';
+
 // for inheritance
 SUPER_ACCESSOR: '::';
 // assignmenet operators
@@ -120,7 +122,8 @@ BACKSLASH: '\\';
 // Literals
 IntegerConstant: MINUS? [0-9]+;
 FloatingConstant: MINUS? [0-9]* '.' [0-9]+ ([eE] [+-]? [0-9]+)?;
-StringLiteral: '"' (~["\r\n\\] | '\\' .)* '"';
+STRING_START: '"' -> mode(STRING_MODE);
+StringLiteral: STRING_START STRING_CONTENT* STRING_END;
 
 CharacterConstant: '\'' (~['\r\n\\] | '\\' .) '\'';
 
@@ -141,3 +144,9 @@ mode DEFINE_MODE;
     NEWLINE: '\\\n' -> more;
     END_DEFINE: '\n' -> popMode;
 
+// string mode will handle escaped quotes
+mode STRING_MODE;
+    ESCAPED_QUOTE : '\\"' -> more;
+    STRING_CONTENT : ~'"';
+    STRING_END: '"' -> mode(DEFAULT_MODE);
+    
