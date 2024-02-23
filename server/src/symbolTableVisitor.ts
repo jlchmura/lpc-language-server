@@ -39,11 +39,12 @@ export class SymbolTableVisitor
   visitDefinePreprocessorDirective = (
     ctx: DefinePreprocessorDirectiveContext
   ) => {
+    const tokenIdx = ctx.start.tokenIndex;
     const defineStr = ctx.END_DEFINE()?.getText();
 
     // trim everything after the first space
     const idx = defineStr.indexOf(" ");
-    const label = defineStr.substring(0, idx);
+    const label = defineStr.substring(0, idx) + "_" + tokenIdx;
 
     //this.scope.context = ctx; // store the context for later
     const sym = this.symbolTable.addNewSymbolOfType(
