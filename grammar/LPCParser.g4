@@ -88,6 +88,8 @@ functionModifier
     | PRIVATE
     | PROTECTED
     | PUBLIC
+    | NOSHADOW 
+    | VARARGS
     ;
 
 functionDeclaration
@@ -121,12 +123,8 @@ mappingExpression
     : MAPPING_OPEN (mappingContent (COMMA mappingContent)*)? SQUARE_CLOSE PAREN_CLOSE
     ;
 
-assignmentExpression
-    : Identifier ASSIGN expression
-    ;
-
 variableDeclaration
-    : typeSpecifier (Identifier|assignmentExpression) (COMMA (Identifier|assignmentExpression))* SEMI    
+    : typeSpecifier Identifier assignmentExpression? (COMMA Identifier assignmentExpression?)* SEMI    
     ;
 
 primitiveTypeSpecifier
@@ -138,6 +136,7 @@ primitiveTypeSpecifier
     | STRUCT
     | OBJECT
     | MAPPING
+    | MIXED
     | STATUS
     | CLOSURE
     | SYMBOL
@@ -208,7 +207,7 @@ defaultStatement
 iterationStatement
     : WHILE PAREN_OPEN expression PAREN_CLOSE statement
     | DO statement WHILE PAREN_OPEN expression PAREN_CLOSE SEMI
-    | FOR PAREN_OPEN expression? SEMI expression? SEMI expression? PAREN_CLOSE statement
+    | FOR PAREN_OPEN expression? (COMMA expression)* SEMI expression? SEMI expression? (COMMA expression)* PAREN_CLOSE statement
     | FOREACH PAREN_OPEN typeSpecifier Identifier (IN | COLON) expression PAREN_CLOSE statement
     ;
 
@@ -264,7 +263,7 @@ expression
     | MINUS expression
     | expression INC
     | expression DEC
-    | assignmentExpression
+    | expression assignmentExpression
     | expression SQUARE_OPEN expression SQUARE_CLOSE // array access
     | Identifier PAREN_OPEN expressionList? PAREN_CLOSE  // function call
     | mappingExpression
@@ -276,3 +275,6 @@ expressionList
     : expression (COMMA expression)*
     ;
 
+assignmentExpression
+    : ASSIGN expression
+    ;

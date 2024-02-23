@@ -30,7 +30,6 @@ import { ArrayExpressionContext } from "./LPCParser.js";
 import { MappingKeyContext } from "./LPCParser.js";
 import { MappingContentContext } from "./LPCParser.js";
 import { MappingExpressionContext } from "./LPCParser.js";
-import { AssignmentExpressionContext } from "./LPCParser.js";
 import { VariableDeclarationContext } from "./LPCParser.js";
 import { PrimitiveTypeSpecifierContext } from "./LPCParser.js";
 import { TypeSpecifierContext } from "./LPCParser.js";
@@ -52,6 +51,7 @@ import { JumpStatementContext } from "./LPCParser.js";
 import { CallOtherTargetContext } from "./LPCParser.js";
 import { ExpressionContext } from "./LPCParser.js";
 import { ExpressionListContext } from "./LPCParser.js";
+import { AssignmentExpressionContext } from "./LPCParser.js";
 
 
 /**
@@ -225,12 +225,6 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      */
     visitMappingExpression?: (ctx: MappingExpressionContext) => Result;
     /**
-     * Visit a parse tree produced by `LPCParser.assignmentExpression`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitAssignmentExpression?: (ctx: AssignmentExpressionContext) => Result;
-    /**
      * Visit a parse tree produced by `LPCParser.variableDeclaration`.
      * @param ctx the parse tree
      * @return the visitor result
@@ -356,5 +350,11 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      * @return the visitor result
      */
     visitExpressionList?: (ctx: ExpressionListContext) => Result;
+    /**
+     * Visit a parse tree produced by `LPCParser.assignmentExpression`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitAssignmentExpression?: (ctx: AssignmentExpressionContext) => Result;
 }
 

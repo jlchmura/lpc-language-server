@@ -35,6 +35,7 @@ INHERIT: 'inherit';
 INT: 'int';
 LINE: 'line';
 MAPPING: 'mapping';
+MIXED: 'mixed';
 OBJECT: 'object';
 PRAGMA: 'pragma';
 REGISTER: 'register';
@@ -52,10 +53,14 @@ VOID: 'void';
 VOLATILE: 'volatile';
 WHILE: 'while';
 
+// modifiers
 PRIVATE: 'private';
 PROTECTED: 'protected';
 PUBLIC: 'public';
 STATIC: 'static';
+
+NOSHADOW: 'noshadow';
+VARARGS: 'varargs';
 
 
 // Operators
