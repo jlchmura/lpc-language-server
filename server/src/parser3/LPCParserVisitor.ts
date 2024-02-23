@@ -20,7 +20,7 @@ import { DirectiveIncludeFileGlobalContext } from "./LPCParser.js";
 import { DirectiveIncludeFileLocalContext } from "./LPCParser.js";
 import { DirectiveTypePragmaContext } from "./LPCParser.js";
 import { InheritStatementContext } from "./LPCParser.js";
-import { InheritSuperStatementContext } from "./LPCParser.js";
+import { InheritSuperExpressionContext } from "./LPCParser.js";
 import { DeclarationContext } from "./LPCParser.js";
 import { FunctionModifierContext } from "./LPCParser.js";
 import { FunctionHeaderContext } from "./LPCParser.js";
@@ -32,8 +32,10 @@ import { ArrayExpressionContext } from "./LPCParser.js";
 import { MappingKeyContext } from "./LPCParser.js";
 import { MappingContentContext } from "./LPCParser.js";
 import { MappingExpressionContext } from "./LPCParser.js";
+import { VariableModifierContext } from "./LPCParser.js";
 import { VariableDeclarationContext } from "./LPCParser.js";
 import { PrimitiveTypeSpecifierContext } from "./LPCParser.js";
+import { ArrayTypeSpecifierContext } from "./LPCParser.js";
 import { TypeSpecifierContext } from "./LPCParser.js";
 import { InlineClosureExpressionContext } from "./LPCParser.js";
 import { StatementContext } from "./LPCParser.js";
@@ -49,6 +51,7 @@ import { CaseExpressionContext } from "./LPCParser.js";
 import { CaseStatementContext } from "./LPCParser.js";
 import { DefaultStatementContext } from "./LPCParser.js";
 import { IterationStatementContext } from "./LPCParser.js";
+import { ReturnStatementContext } from "./LPCParser.js";
 import { JumpStatementContext } from "./LPCParser.js";
 import { CallOtherTargetContext } from "./LPCParser.js";
 import { ExpressionContext } from "./LPCParser.js";
@@ -168,11 +171,11 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      */
     visitInheritStatement?: (ctx: InheritStatementContext) => Result;
     /**
-     * Visit a parse tree produced by `LPCParser.inheritSuperStatement`.
+     * Visit a parse tree produced by `LPCParser.inheritSuperExpression`.
      * @param ctx the parse tree
      * @return the visitor result
      */
-    visitInheritSuperStatement?: (ctx: InheritSuperStatementContext) => Result;
+    visitInheritSuperExpression?: (ctx: InheritSuperExpressionContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.declaration`.
      * @param ctx the parse tree
@@ -240,6 +243,12 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      */
     visitMappingExpression?: (ctx: MappingExpressionContext) => Result;
     /**
+     * Visit a parse tree produced by `LPCParser.variableModifier`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitVariableModifier?: (ctx: VariableModifierContext) => Result;
+    /**
      * Visit a parse tree produced by `LPCParser.variableDeclaration`.
      * @param ctx the parse tree
      * @return the visitor result
@@ -251,6 +260,12 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      * @return the visitor result
      */
     visitPrimitiveTypeSpecifier?: (ctx: PrimitiveTypeSpecifierContext) => Result;
+    /**
+     * Visit a parse tree produced by `LPCParser.arrayTypeSpecifier`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitArrayTypeSpecifier?: (ctx: ArrayTypeSpecifierContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.typeSpecifier`.
      * @param ctx the parse tree
@@ -341,6 +356,12 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      * @return the visitor result
      */
     visitIterationStatement?: (ctx: IterationStatementContext) => Result;
+    /**
+     * Visit a parse tree produced by `LPCParser.returnStatement`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitReturnStatement?: (ctx: ReturnStatementContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.jumpStatement`.
      * @param ctx the parse tree

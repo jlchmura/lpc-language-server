@@ -72,11 +72,10 @@ inheritStatement
     : INHERIT StringLiteral SEMI
     ;
 
-inheritSuperStatement
-    : SUPER_ACCESSOR expression SEMI
-    | StringLiteral SUPER_ACCESSOR expression SEMI
+inheritSuperExpression
+    : SUPER_ACCESSOR expression
+    | StringLiteral SUPER_ACCESSOR expression
     ;
-
 
 declaration
     : functionHeaderDeclaration
@@ -171,7 +170,7 @@ typeSpecifier
     ;
 
 inlineClosureExpression
-    : CLOSURE_OPEN (expression|statement*) CLOSURE_CLOSE
+    : PAREN_OPEN COLON (expression|statement*) COLON PAREN_CLOSE
     ;
 
 statement
@@ -180,9 +179,9 @@ statement
     | selectionStatement
     | iterationStatement
     | jumpStatement
-    | variableDeclaration   
-    | inheritSuperStatement 
+    | variableDeclaration       
     | selectionDirective
+    | returnStatement
     //| preprocessorDirective
     ;
 
@@ -234,10 +233,14 @@ iterationStatement
     | FOREACH PAREN_OPEN typeSpecifier Identifier (IN | COLON) expression PAREN_CLOSE statement
     ;
 
+returnStatement
+    : RETURN expression? SEMI
+    ;
+
 jumpStatement
     : BREAK SEMI
     | CONTINUE SEMI
-    | RETURN expression? SEMI
+    | returnStatement
     ;
 
 callOtherTarget
@@ -291,6 +294,7 @@ expression
     | Identifier PAREN_OPEN expressionList? PAREN_CLOSE  // function call
     | mappingExpression
     | arrayExpression
+    | inheritSuperExpression
     | callOtherOb=expression ARROW callOtherTarget PAREN_OPEN expressionList? PAREN_CLOSE
     ;
 

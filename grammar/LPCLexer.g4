@@ -111,9 +111,6 @@ ARRAY_OPEN: '({';
 ARRAY_CLOSE: '})';
 MAPPING_OPEN: '([';
 ARROW: '->';
-// closure brackerts
-CLOSURE_OPEN: '(:';
-CLOSURE_CLOSE: ':)';
 
 PAREN_OPEN: '(';
 PAREN_CLOSE:')';

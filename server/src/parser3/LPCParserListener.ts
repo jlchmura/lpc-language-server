@@ -20,7 +20,7 @@ import { DirectiveIncludeFileGlobalContext } from "./LPCParser.js";
 import { DirectiveIncludeFileLocalContext } from "./LPCParser.js";
 import { DirectiveTypePragmaContext } from "./LPCParser.js";
 import { InheritStatementContext } from "./LPCParser.js";
-import { InheritSuperStatementContext } from "./LPCParser.js";
+import { InheritSuperExpressionContext } from "./LPCParser.js";
 import { DeclarationContext } from "./LPCParser.js";
 import { FunctionModifierContext } from "./LPCParser.js";
 import { FunctionHeaderContext } from "./LPCParser.js";
@@ -32,8 +32,10 @@ import { ArrayExpressionContext } from "./LPCParser.js";
 import { MappingKeyContext } from "./LPCParser.js";
 import { MappingContentContext } from "./LPCParser.js";
 import { MappingExpressionContext } from "./LPCParser.js";
+import { VariableModifierContext } from "./LPCParser.js";
 import { VariableDeclarationContext } from "./LPCParser.js";
 import { PrimitiveTypeSpecifierContext } from "./LPCParser.js";
+import { ArrayTypeSpecifierContext } from "./LPCParser.js";
 import { TypeSpecifierContext } from "./LPCParser.js";
 import { InlineClosureExpressionContext } from "./LPCParser.js";
 import { StatementContext } from "./LPCParser.js";
@@ -49,6 +51,7 @@ import { CaseExpressionContext } from "./LPCParser.js";
 import { CaseStatementContext } from "./LPCParser.js";
 import { DefaultStatementContext } from "./LPCParser.js";
 import { IterationStatementContext } from "./LPCParser.js";
+import { ReturnStatementContext } from "./LPCParser.js";
 import { JumpStatementContext } from "./LPCParser.js";
 import { CallOtherTargetContext } from "./LPCParser.js";
 import { ExpressionContext } from "./LPCParser.js";
@@ -233,15 +236,15 @@ export class LPCParserListener implements ParseTreeListener {
      */
     exitInheritStatement?: (ctx: InheritStatementContext) => void;
     /**
-     * Enter a parse tree produced by `LPCParser.inheritSuperStatement`.
+     * Enter a parse tree produced by `LPCParser.inheritSuperExpression`.
      * @param ctx the parse tree
      */
-    enterInheritSuperStatement?: (ctx: InheritSuperStatementContext) => void;
+    enterInheritSuperExpression?: (ctx: InheritSuperExpressionContext) => void;
     /**
-     * Exit a parse tree produced by `LPCParser.inheritSuperStatement`.
+     * Exit a parse tree produced by `LPCParser.inheritSuperExpression`.
      * @param ctx the parse tree
      */
-    exitInheritSuperStatement?: (ctx: InheritSuperStatementContext) => void;
+    exitInheritSuperExpression?: (ctx: InheritSuperExpressionContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.declaration`.
      * @param ctx the parse tree
@@ -353,6 +356,16 @@ export class LPCParserListener implements ParseTreeListener {
      */
     exitMappingExpression?: (ctx: MappingExpressionContext) => void;
     /**
+     * Enter a parse tree produced by `LPCParser.variableModifier`.
+     * @param ctx the parse tree
+     */
+    enterVariableModifier?: (ctx: VariableModifierContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.variableModifier`.
+     * @param ctx the parse tree
+     */
+    exitVariableModifier?: (ctx: VariableModifierContext) => void;
+    /**
      * Enter a parse tree produced by `LPCParser.variableDeclaration`.
      * @param ctx the parse tree
      */
@@ -372,6 +385,16 @@ export class LPCParserListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitPrimitiveTypeSpecifier?: (ctx: PrimitiveTypeSpecifierContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.arrayTypeSpecifier`.
+     * @param ctx the parse tree
+     */
+    enterArrayTypeSpecifier?: (ctx: ArrayTypeSpecifierContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.arrayTypeSpecifier`.
+     * @param ctx the parse tree
+     */
+    exitArrayTypeSpecifier?: (ctx: ArrayTypeSpecifierContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.typeSpecifier`.
      * @param ctx the parse tree
@@ -522,6 +545,16 @@ export class LPCParserListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitIterationStatement?: (ctx: IterationStatementContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.returnStatement`.
+     * @param ctx the parse tree
+     */
+    enterReturnStatement?: (ctx: ReturnStatementContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.returnStatement`.
+     * @param ctx the parse tree
+     */
+    exitReturnStatement?: (ctx: ReturnStatementContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.jumpStatement`.
      * @param ctx the parse tree
