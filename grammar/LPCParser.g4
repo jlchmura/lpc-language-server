@@ -216,8 +216,8 @@ switchStatement
     ;
 
 caseExpression
-    : (StringLiteral|IntegerConstant)
-    | (StringLiteral|IntegerConstant) DOUBLEDOT (StringLiteral|IntegerConstant)
+    : (StringLiteral|MINUS? IntegerConstant)
+    | (StringLiteral|MINUS? IntegerConstant) DOUBLEDOT (StringLiteral|MINUS? IntegerConstant)
     ;
 caseStatement
     : CASE caseExpression COLON statement*
