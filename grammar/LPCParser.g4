@@ -287,8 +287,13 @@ literal
     | HexIntConstant
     ;
 
+castExpression
+    : PAREN_OPEN typeSpecifier PAREN_CLOSE expression
+    ;
+
 expression
     : Identifier
+    | castExpression
     | MINUS? IntegerConstant
     | MINUS? FloatingConstant
     | literal
