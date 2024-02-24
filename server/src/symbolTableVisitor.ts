@@ -14,10 +14,16 @@ import {
 } from "antlr4-c3/index";
 
 import { AbstractParseTreeVisitor, ParseTree, TerminalNode } from "antlr4ng";
-import { DefinePreprocessorDirectiveContext, SelectionDirectiveContext, VariableDeclarationContext, IfStatementContext, FunctionDeclarationContext } from "./parser3/LPCParser";
+import {
+  DefinePreprocessorDirectiveContext,
+  SelectionDirectiveContext,
+  VariableDeclarationContext,
+  IfStatementContext,
+  FunctionDeclarationContext,
+  InlineClosureExpressionContext,
+  ExpressionContext,
+} from "./parser3/LPCParser";
 import { LPCParserVisitor } from "./parser3/LPCParserVisitor";
-
-
 
 export class SymbolTableVisitor
   extends AbstractParseTreeVisitor<SymbolTable>
@@ -35,7 +41,7 @@ export class SymbolTableVisitor
   protected defaultResult(): SymbolTable {
     return this.symbolTable;
   }
-  
+
   visitDefinePreprocessorDirective = (
     ctx: DefinePreprocessorDirectiveContext
   ) => {
@@ -96,7 +102,7 @@ export class SymbolTableVisitor
       varType = new ArrayType(tt + "*", ReferenceKind.Pointer, varType);
     }
 
-    const ids = ctx.Identifier();    
+    const ids = ctx.Identifier();
     ids.forEach((id) => {
       const sym = this.symbolTable.addNewSymbolOfType(
         VariableSymbol,
@@ -123,6 +129,26 @@ export class SymbolTableVisitor
     // });
 
     return this.visitChildren(ctx);
+  };
+
+  visitInlineClosureExpression = (ctx: InlineClosureExpressionContext) => {
+    let parent = ctx.parent;
+    let name: string | undefined = undefined;
+    while (!name && !!parent) {
+      if (!!(parent as ExpressionContext).Identifier) {
+        name =
+          (parent as ExpressionContext).Identifier()?.getText &&
+          (parent as ExpressionContext).Identifier()?.getText();
+      }
+
+      if (!name) {
+        parent = parent.parent;
+      }
+    }
+
+    return this.withScope(ctx, MethodSymbol, [name + " Inline Closure "], () =>
+      this.visitChildren(ctx)
+    );
   };
 
   visitIfStatement = (ctx: IfStatementContext) => {
@@ -189,7 +215,7 @@ export class SymbolTableVisitor
     const header = ctx.functionHeader();
     const id = header.Identifier();
     const nm = id.getText();
-    
+
     this.functionNodes.set(nm, id);
 
     return this.withScope(ctx, MethodSymbol, [nm], () =>

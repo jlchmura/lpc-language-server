@@ -38,24 +38,36 @@ export function getDocumentSymbols(code: string): DocumentSymbol[] {
   const symbols = new SymbolTableVisitor().visit(parseTree);
 
   // functions
-  symbols
-    .getAllNestedSymbolsSync()
-    .filter((s) => s instanceof MethodSymbol && !!s)
-    .forEach((s: MethodSymbol) => {
+  results.push(...getMethodSymbols(symbols));
+
+  // variables
+  results.push(...getVariableSymbols(symbols));
+
+  return results;
+}
+
+function getMethodSymbols(symbols: ScopedSymbol): DocumentSymbol[] {
+  return symbols
+    .getNestedSymbolsOfTypeSync(MethodSymbol)
+    .map((s: MethodSymbol) => {
       const ctx = s.context as ParserRuleContext;
       if (!ctx) return;
 
       const rng = getSelectionRange(ctx);
-      const vars = getVariableSymbols(s);
+      // get children
+      const childVars = getVariableSymbols(s);
+      const childMethods = getMethodSymbols(s);
 
-      results.push(
-        DocumentSymbol.create(s.name, "", SymbolKind.Function, rng, rng, vars)
+      const ds = DocumentSymbol.create(
+        s.name,
+        "",
+        SymbolKind.Function,
+        rng,
+        rng,
+        [...childVars, ...childMethods]
       );
+      return ds;
     });
-
-  results.push(...getVariableSymbols(symbols));
-
-  return results;
 }
 
 function getVariableSymbols(symbols: ScopedSymbol): DocumentSymbol[] {
