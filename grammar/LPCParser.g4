@@ -279,13 +279,20 @@ lambdaExpression
     | HASH SINGLEQUOT SHR
     ;
 
+literal
+    : IntegerConstant
+    | FloatingConstant
+    | StringLiteral
+    | CharacterConstant
+    | HexIntConstant
+    ;
+
 expression
     : Identifier
     | MINUS? IntegerConstant
     | MINUS? FloatingConstant
-    | StringLiteral
-    | StringLiteral StringLiteral*  // handle implicit string concatenation
-    | CharacterConstant
+    | literal
+    | StringLiteral StringLiteral*  // handle implicit string concatenation    
     | PAREN_OPEN expression PAREN_CLOSE
     | inlineClosureExpression
     | lambdaExpression
