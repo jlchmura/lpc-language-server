@@ -1,3 +1,7 @@
+//
+// LPC (LDMud) Grammar
+// Copyright (c) 2023-2024, John Chmura
+//
 lexer grammar LPCLexer;
 
 tokens {
