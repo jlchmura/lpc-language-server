@@ -85,6 +85,7 @@ inheritSuperExpression
 declaration
     : functionHeaderDeclaration
     | functionDeclaration
+    | structDeclaration
     | variableDeclaration
     ;
 
@@ -104,7 +105,7 @@ functionHeader
 
 functionHeaderDeclaration
     : functionHeader SEMI
-    ;
+    ;    
 
 functionDeclaration
     : functionHeader block
@@ -115,9 +116,17 @@ parameterList
     ;
 
 parameter
-    : typeSpecifier? Identifier
+    : paramType=typeSpecifier? paramName=Identifier #primitiveTypeParameterExpression    
+    | paramType=STRUCT structName=Identifier paramName=Identifier #structParameterExpression
     ;
 
+structDeclaration
+    : STRUCT structName=Identifier CURLY_OPEN structMembers=structMemberDeclaration* CURLY_CLOSE SEMI
+    ;
+
+structMemberDeclaration
+    : typeSpecifier Identifier SEMI
+    ;
 
 arrayExpression
     : ARRAY_OPEN (expression (COMMA expression)*)? COMMA? ARRAY_CLOSE
@@ -141,7 +150,8 @@ variableModifier
     ;
 
 variableDeclaration
-    : variableModifier* primitiveTypeSpecifier? variableDeclarator (COMMA variableDeclarator)* SEMI
+    : variableModifier* primitiveTypeSpecifier? variableDeclarator (COMMA variableDeclarator)* SEMI #primitiveTypeVariableDeclaration
+    | variableModifier* STRUCT structName=Identifier variableDeclarator (COMMA structName=Identifier variableDeclarator)* SEMI #structVariableDeclaration
     ;
 
 variableDeclarator
@@ -158,15 +168,14 @@ primitiveTypeSpecifier
     : VOID
     | CHAR
     | INT   
-    | FLOAT 
-    | STRING
-    | STRUCT
+    | FLOAT     
+    | STRING    
     | OBJECT
     | MAPPING
     | MIXED
     | STATUS
     | CLOSURE
-    | SYMBOL
+    | SYMBOL    
     | UNKNOWN
     ;
 
@@ -185,7 +194,7 @@ arrayTypeSpecifier
 
 typeSpecifier
     : primitiveTypeSpecifier
-    | arrayTypeSpecifier
+    | arrayTypeSpecifier    
     ;
 
 inlineClosureExpression
@@ -313,7 +322,8 @@ literal
     ;
 
 castExpression
-    : PAREN_OPEN typeSpecifier PAREN_CLOSE expression 
+    : PAREN_OPEN typeSpecifier PAREN_CLOSE expression                        #primitiveTypeCastExpression
+    | PAREN_OPEN LT Identifier GT expression (COMMA expression)* PAREN_CLOSE #structCastExpression
     ;
 
 assignmentOperator
@@ -421,16 +431,16 @@ primaryExpression
 
 primaryExpressionStart
     : literal                               # literalExpression
-    | Identifier                            # identifierExpression
+    | Identifier                            # identifierExpression    
     | PAREN_OPEN expression PAREN_CLOSE     # parenExpression
     //| inlineClosureExpression               # primaryInlineClosureExpression
-    | typeSpecifier                         # memberAccessExpression    
+    | typeSpecifier                         # memberAccessExpression
     //| lambdaExpression                      # primaryLambdaExpression
     //| callOtherOb=expression ARROW callOtherTarget PAREN_OPEN expressionList? PAREN_CLOSE # callOtherExpression
     //| inheritSuperExpression                # primaryInheritSuperExpression
     | arrayExpression                       # primaryArrayExpression
     | mappingExpression                     # primaryMappingExpression
-    | StringLiteral StringLiteral*          # stringConcatExpression    
+    | StringLiteral StringLiteral*          # stringConcatExpression        
     ;
 
 // memberAccess

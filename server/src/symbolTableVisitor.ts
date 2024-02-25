@@ -27,6 +27,7 @@ import {
   MethodInvocationContext,
   PrimaryExpressionContext,
   IdentifierExpressionContext,
+  PrimitiveTypeVariableDeclarationContext,
 } from "./parser3/LPCParser";
 import { LPCParserVisitor } from "./parser3/LPCParserVisitor";
 
@@ -83,10 +84,10 @@ export class SymbolTableVisitor
     }
   };
 
-  visitVariableDeclaration = (ctx: VariableDeclarationContext) => {
+  visitPrimitiveTypeVariableDeclaration = (ctx: PrimitiveTypeVariableDeclarationContext) => {
     // ctx will either be scalar or array, it doesn't matter right now
     
-    let tt = ctx.primitiveTypeSpecifier()?.getText();
+    let tt = ctx.primitiveTypeSpecifier().getText();
     let varType: IType;
     const isArray = tt.endsWith("*");
     if (isArray) {
@@ -108,12 +109,12 @@ export class SymbolTableVisitor
       varType = new ArrayType(tt + "*", ReferenceKind.Pointer, varType);
     }
 
-    const ids = ctx.variableDeclarator();
-    ids.forEach((id) => {
+    const varDecls = ctx.variableDeclarator();
+    varDecls.forEach((varDecl) => {
       const sym = this.symbolTable.addNewSymbolOfType(
         VariableSymbol,
         this.scope,
-        id.getText(),
+        varDecl.Identifier().getText(),
         undefined,
         varType
       );

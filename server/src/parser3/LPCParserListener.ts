@@ -14,7 +14,9 @@ import { DirectiveArgumentContext } from "./LPCParser.js";
 import { DirectiveDefineParamContext } from "./LPCParser.js";
 import { DirectiveDefineArgumentContext } from "./LPCParser.js";
 import { DirectiveTypeIncludeContext } from "./LPCParser.js";
-import { DirectiveIncludeFileContext } from "./LPCParser.js";
+import { IncludeGlobalFileContext } from "./LPCParser.js";
+import { IncludeLocalFileContext } from "./LPCParser.js";
+import { IncludeDefineContext } from "./LPCParser.js";
 import { DirectiveIncludeFilenameContext } from "./LPCParser.js";
 import { DirectiveIncludeFileGlobalContext } from "./LPCParser.js";
 import { DirectiveIncludeFileLocalContext } from "./LPCParser.js";
@@ -27,12 +29,17 @@ import { FunctionHeaderContext } from "./LPCParser.js";
 import { FunctionHeaderDeclarationContext } from "./LPCParser.js";
 import { FunctionDeclarationContext } from "./LPCParser.js";
 import { ParameterListContext } from "./LPCParser.js";
-import { ParameterContext } from "./LPCParser.js";
+import { PrimitiveTypeParameterExpressionContext } from "./LPCParser.js";
+import { StructParameterExpressionContext } from "./LPCParser.js";
+import { StructDeclarationContext } from "./LPCParser.js";
+import { StructMemberDeclarationContext } from "./LPCParser.js";
 import { ArrayExpressionContext } from "./LPCParser.js";
 import { MappingContentContext } from "./LPCParser.js";
-import { MappingExpressionContext } from "./LPCParser.js";
+import { MappingValueInitializerContext } from "./LPCParser.js";
+import { MappingEmptyInitializerContext } from "./LPCParser.js";
 import { VariableModifierContext } from "./LPCParser.js";
-import { VariableDeclarationContext } from "./LPCParser.js";
+import { PrimitiveTypeVariableDeclarationContext } from "./LPCParser.js";
+import { StructVariableDeclarationContext } from "./LPCParser.js";
 import { VariableDeclaratorContext } from "./LPCParser.js";
 import { VariableInitializerContext } from "./LPCParser.js";
 import { PrimitiveTypeSpecifierContext } from "./LPCParser.js";
@@ -60,7 +67,8 @@ import { CallOtherTargetContext } from "./LPCParser.js";
 import { LambdaExpressionContext } from "./LPCParser.js";
 import { RightShiftAssignmentContext } from "./LPCParser.js";
 import { LiteralContext } from "./LPCParser.js";
-import { CastExpressionContext } from "./LPCParser.js";
+import { PrimitiveTypeCastExpressionContext } from "./LPCParser.js";
+import { StructCastExpressionContext } from "./LPCParser.js";
 import { AssignmentOperatorContext } from "./LPCParser.js";
 import { ShiftExpressionContext } from "./LPCParser.js";
 import { AdditiveExpressionContext } from "./LPCParser.js";
@@ -209,15 +217,41 @@ export class LPCParserListener implements ParseTreeListener {
      */
     exitDirectiveTypeInclude?: (ctx: DirectiveTypeIncludeContext) => void;
     /**
-     * Enter a parse tree produced by `LPCParser.directiveIncludeFile`.
+     * Enter a parse tree produced by the `includeGlobalFile`
+     * labeled alternative in `LPCParser.directiveIncludeFile`.
      * @param ctx the parse tree
      */
-    enterDirectiveIncludeFile?: (ctx: DirectiveIncludeFileContext) => void;
+    enterIncludeGlobalFile?: (ctx: IncludeGlobalFileContext) => void;
     /**
-     * Exit a parse tree produced by `LPCParser.directiveIncludeFile`.
+     * Exit a parse tree produced by the `includeGlobalFile`
+     * labeled alternative in `LPCParser.directiveIncludeFile`.
      * @param ctx the parse tree
      */
-    exitDirectiveIncludeFile?: (ctx: DirectiveIncludeFileContext) => void;
+    exitIncludeGlobalFile?: (ctx: IncludeGlobalFileContext) => void;
+    /**
+     * Enter a parse tree produced by the `includeLocalFile`
+     * labeled alternative in `LPCParser.directiveIncludeFile`.
+     * @param ctx the parse tree
+     */
+    enterIncludeLocalFile?: (ctx: IncludeLocalFileContext) => void;
+    /**
+     * Exit a parse tree produced by the `includeLocalFile`
+     * labeled alternative in `LPCParser.directiveIncludeFile`.
+     * @param ctx the parse tree
+     */
+    exitIncludeLocalFile?: (ctx: IncludeLocalFileContext) => void;
+    /**
+     * Enter a parse tree produced by the `includeDefine`
+     * labeled alternative in `LPCParser.directiveIncludeFile`.
+     * @param ctx the parse tree
+     */
+    enterIncludeDefine?: (ctx: IncludeDefineContext) => void;
+    /**
+     * Exit a parse tree produced by the `includeDefine`
+     * labeled alternative in `LPCParser.directiveIncludeFile`.
+     * @param ctx the parse tree
+     */
+    exitIncludeDefine?: (ctx: IncludeDefineContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.directiveIncludeFilename`.
      * @param ctx the parse tree
@@ -339,15 +373,49 @@ export class LPCParserListener implements ParseTreeListener {
      */
     exitParameterList?: (ctx: ParameterListContext) => void;
     /**
-     * Enter a parse tree produced by `LPCParser.parameter`.
+     * Enter a parse tree produced by the `primitiveTypeParameterExpression`
+     * labeled alternative in `LPCParser.parameter`.
      * @param ctx the parse tree
      */
-    enterParameter?: (ctx: ParameterContext) => void;
+    enterPrimitiveTypeParameterExpression?: (ctx: PrimitiveTypeParameterExpressionContext) => void;
     /**
-     * Exit a parse tree produced by `LPCParser.parameter`.
+     * Exit a parse tree produced by the `primitiveTypeParameterExpression`
+     * labeled alternative in `LPCParser.parameter`.
      * @param ctx the parse tree
      */
-    exitParameter?: (ctx: ParameterContext) => void;
+    exitPrimitiveTypeParameterExpression?: (ctx: PrimitiveTypeParameterExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by the `structParameterExpression`
+     * labeled alternative in `LPCParser.parameter`.
+     * @param ctx the parse tree
+     */
+    enterStructParameterExpression?: (ctx: StructParameterExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by the `structParameterExpression`
+     * labeled alternative in `LPCParser.parameter`.
+     * @param ctx the parse tree
+     */
+    exitStructParameterExpression?: (ctx: StructParameterExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.structDeclaration`.
+     * @param ctx the parse tree
+     */
+    enterStructDeclaration?: (ctx: StructDeclarationContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.structDeclaration`.
+     * @param ctx the parse tree
+     */
+    exitStructDeclaration?: (ctx: StructDeclarationContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.structMemberDeclaration`.
+     * @param ctx the parse tree
+     */
+    enterStructMemberDeclaration?: (ctx: StructMemberDeclarationContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.structMemberDeclaration`.
+     * @param ctx the parse tree
+     */
+    exitStructMemberDeclaration?: (ctx: StructMemberDeclarationContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.arrayExpression`.
      * @param ctx the parse tree
@@ -369,15 +437,29 @@ export class LPCParserListener implements ParseTreeListener {
      */
     exitMappingContent?: (ctx: MappingContentContext) => void;
     /**
-     * Enter a parse tree produced by `LPCParser.mappingExpression`.
+     * Enter a parse tree produced by the `mappingValueInitializer`
+     * labeled alternative in `LPCParser.mappingExpression`.
      * @param ctx the parse tree
      */
-    enterMappingExpression?: (ctx: MappingExpressionContext) => void;
+    enterMappingValueInitializer?: (ctx: MappingValueInitializerContext) => void;
     /**
-     * Exit a parse tree produced by `LPCParser.mappingExpression`.
+     * Exit a parse tree produced by the `mappingValueInitializer`
+     * labeled alternative in `LPCParser.mappingExpression`.
      * @param ctx the parse tree
      */
-    exitMappingExpression?: (ctx: MappingExpressionContext) => void;
+    exitMappingValueInitializer?: (ctx: MappingValueInitializerContext) => void;
+    /**
+     * Enter a parse tree produced by the `mappingEmptyInitializer`
+     * labeled alternative in `LPCParser.mappingExpression`.
+     * @param ctx the parse tree
+     */
+    enterMappingEmptyInitializer?: (ctx: MappingEmptyInitializerContext) => void;
+    /**
+     * Exit a parse tree produced by the `mappingEmptyInitializer`
+     * labeled alternative in `LPCParser.mappingExpression`.
+     * @param ctx the parse tree
+     */
+    exitMappingEmptyInitializer?: (ctx: MappingEmptyInitializerContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.variableModifier`.
      * @param ctx the parse tree
@@ -389,15 +471,29 @@ export class LPCParserListener implements ParseTreeListener {
      */
     exitVariableModifier?: (ctx: VariableModifierContext) => void;
     /**
-     * Enter a parse tree produced by `LPCParser.variableDeclaration`.
+     * Enter a parse tree produced by the `primitiveTypeVariableDeclaration`
+     * labeled alternative in `LPCParser.variableDeclaration`.
      * @param ctx the parse tree
      */
-    enterVariableDeclaration?: (ctx: VariableDeclarationContext) => void;
+    enterPrimitiveTypeVariableDeclaration?: (ctx: PrimitiveTypeVariableDeclarationContext) => void;
     /**
-     * Exit a parse tree produced by `LPCParser.variableDeclaration`.
+     * Exit a parse tree produced by the `primitiveTypeVariableDeclaration`
+     * labeled alternative in `LPCParser.variableDeclaration`.
      * @param ctx the parse tree
      */
-    exitVariableDeclaration?: (ctx: VariableDeclarationContext) => void;
+    exitPrimitiveTypeVariableDeclaration?: (ctx: PrimitiveTypeVariableDeclarationContext) => void;
+    /**
+     * Enter a parse tree produced by the `structVariableDeclaration`
+     * labeled alternative in `LPCParser.variableDeclaration`.
+     * @param ctx the parse tree
+     */
+    enterStructVariableDeclaration?: (ctx: StructVariableDeclarationContext) => void;
+    /**
+     * Exit a parse tree produced by the `structVariableDeclaration`
+     * labeled alternative in `LPCParser.variableDeclaration`.
+     * @param ctx the parse tree
+     */
+    exitStructVariableDeclaration?: (ctx: StructVariableDeclarationContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.variableDeclarator`.
      * @param ctx the parse tree
@@ -669,15 +765,29 @@ export class LPCParserListener implements ParseTreeListener {
      */
     exitLiteral?: (ctx: LiteralContext) => void;
     /**
-     * Enter a parse tree produced by `LPCParser.castExpression`.
+     * Enter a parse tree produced by the `primitiveTypeCastExpression`
+     * labeled alternative in `LPCParser.castExpression`.
      * @param ctx the parse tree
      */
-    enterCastExpression?: (ctx: CastExpressionContext) => void;
+    enterPrimitiveTypeCastExpression?: (ctx: PrimitiveTypeCastExpressionContext) => void;
     /**
-     * Exit a parse tree produced by `LPCParser.castExpression`.
+     * Exit a parse tree produced by the `primitiveTypeCastExpression`
+     * labeled alternative in `LPCParser.castExpression`.
      * @param ctx the parse tree
      */
-    exitCastExpression?: (ctx: CastExpressionContext) => void;
+    exitPrimitiveTypeCastExpression?: (ctx: PrimitiveTypeCastExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by the `structCastExpression`
+     * labeled alternative in `LPCParser.castExpression`.
+     * @param ctx the parse tree
+     */
+    enterStructCastExpression?: (ctx: StructCastExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by the `structCastExpression`
+     * labeled alternative in `LPCParser.castExpression`.
+     * @param ctx the parse tree
+     */
+    exitStructCastExpression?: (ctx: StructCastExpressionContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.assignmentOperator`.
      * @param ctx the parse tree
