@@ -22,6 +22,11 @@ import {
   FunctionDeclarationContext,
   InlineClosureExpressionContext,
   ExpressionContext,
+  EqualityExpressionContext,
+  RelationalExpresionContext,
+  MethodInvocationContext,
+  PrimaryExpressionContext,
+  IdentifierExpressionContext,
 } from "./parser3/LPCParser";
 import { LPCParserVisitor } from "./parser3/LPCParserVisitor";
 
@@ -80,7 +85,8 @@ export class SymbolTableVisitor
 
   visitVariableDeclaration = (ctx: VariableDeclarationContext) => {
     // ctx will either be scalar or array, it doesn't matter right now
-    let tt = ctx.typeSpecifier()?.getText();
+    
+    let tt = ctx.primitiveTypeSpecifier()?.getText();
     let varType: IType;
     const isArray = tt.endsWith("*");
     if (isArray) {
@@ -102,7 +108,7 @@ export class SymbolTableVisitor
       varType = new ArrayType(tt + "*", ReferenceKind.Pointer, varType);
     }
 
-    const ids = ctx.Identifier();
+    const ids = ctx.variableDeclarator();
     ids.forEach((id) => {
       const sym = this.symbolTable.addNewSymbolOfType(
         VariableSymbol,
@@ -134,11 +140,11 @@ export class SymbolTableVisitor
   visitInlineClosureExpression = (ctx: InlineClosureExpressionContext) => {
     let parent = ctx.parent;
     let name: string | undefined = undefined;
-    while (!name && !!parent) {
-      if (!!(parent as ExpressionContext).Identifier) {
+    while (!name && !!parent) {      
+      if (!!(parent as IdentifierExpressionContext)) {
         name =
-          (parent as ExpressionContext).Identifier()?.getText &&
-          (parent as ExpressionContext).Identifier()?.getText();
+          (parent as IdentifierExpressionContext).getText &&
+          (parent as IdentifierExpressionContext).getText();
       }
 
       if (!name) {
@@ -150,6 +156,9 @@ export class SymbolTableVisitor
       this.visitChildren(ctx)
     );
   };
+
+  
+  
 
   visitIfStatement = (ctx: IfStatementContext) => {
     const tokenIdx = ctx.start.tokenIndex;

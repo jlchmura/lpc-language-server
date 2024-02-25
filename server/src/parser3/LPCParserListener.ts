@@ -33,13 +33,17 @@ import { MappingContentContext } from "./LPCParser.js";
 import { MappingExpressionContext } from "./LPCParser.js";
 import { VariableModifierContext } from "./LPCParser.js";
 import { VariableDeclarationContext } from "./LPCParser.js";
+import { VariableDeclaratorContext } from "./LPCParser.js";
+import { VariableInitializerContext } from "./LPCParser.js";
 import { PrimitiveTypeSpecifierContext } from "./LPCParser.js";
+import { IndexerArgumentContext } from "./LPCParser.js";
+import { MethodInvocationContext } from "./LPCParser.js";
 import { ArrayTypeSpecifierContext } from "./LPCParser.js";
 import { TypeSpecifierContext } from "./LPCParser.js";
 import { InlineClosureExpressionContext } from "./LPCParser.js";
 import { StatementContext } from "./LPCParser.js";
 import { ExpressionStatementContext } from "./LPCParser.js";
-import { CompoundStatementContext } from "./LPCParser.js";
+import { BlockContext } from "./LPCParser.js";
 import { SelectionStatementContext } from "./LPCParser.js";
 import { ElseIfExpressionContext } from "./LPCParser.js";
 import { ElseExpressionContext } from "./LPCParser.js";
@@ -54,10 +58,39 @@ import { ReturnStatementContext } from "./LPCParser.js";
 import { JumpStatementContext } from "./LPCParser.js";
 import { CallOtherTargetContext } from "./LPCParser.js";
 import { LambdaExpressionContext } from "./LPCParser.js";
+import { RightShiftAssignmentContext } from "./LPCParser.js";
+import { LiteralContext } from "./LPCParser.js";
+import { CastExpressionContext } from "./LPCParser.js";
+import { AssignmentOperatorContext } from "./LPCParser.js";
+import { ShiftExpressionContext } from "./LPCParser.js";
+import { AdditiveExpressionContext } from "./LPCParser.js";
+import { TempUnaryExpressionContext } from "./LPCParser.js";
+import { ConditionalExpressionContext } from "./LPCParser.js";
+import { InclusiveOrExpressionContext } from "./LPCParser.js";
+import { ConditionalAndExpressionContext } from "./LPCParser.js";
+import { MultiplicativeExpressionContext } from "./LPCParser.js";
+import { RelationalExpresionContext } from "./LPCParser.js";
+import { AndExpressionContext } from "./LPCParser.js";
+import { ConditionalOrExpressionContext } from "./LPCParser.js";
+import { ExclusiveOrExpressionContext } from "./LPCParser.js";
+import { EqualityExpressionContext } from "./LPCParser.js";
+import { RangeExpressionContext } from "./LPCParser.js";
+import { UnaryExpressionContext } from "./LPCParser.js";
+import { PrimaryExpressionContext } from "./LPCParser.js";
+import { LiteralExpressionContext } from "./LPCParser.js";
+import { IdentifierExpressionContext } from "./LPCParser.js";
+import { ParenExpressionContext } from "./LPCParser.js";
+import { MemberAccessExpressionContext } from "./LPCParser.js";
+import { PrimaryArrayExpressionContext } from "./LPCParser.js";
+import { PrimaryMappingExpressionContext } from "./LPCParser.js";
+import { StringConcatExpressionContext } from "./LPCParser.js";
 import { ExpressionContext } from "./LPCParser.js";
-import { ArrayAccessExpressionContext } from "./LPCParser.js";
+import { BracketExpressionContext } from "./LPCParser.js";
+import { ArgumentContext } from "./LPCParser.js";
+import { ArgumentListContext } from "./LPCParser.js";
 import { ExpressionListContext } from "./LPCParser.js";
 import { AssignmentExpressionContext } from "./LPCParser.js";
+import { NonAssignmentExpressionContext } from "./LPCParser.js";
 
 
 /**
@@ -366,6 +399,26 @@ export class LPCParserListener implements ParseTreeListener {
      */
     exitVariableDeclaration?: (ctx: VariableDeclarationContext) => void;
     /**
+     * Enter a parse tree produced by `LPCParser.variableDeclarator`.
+     * @param ctx the parse tree
+     */
+    enterVariableDeclarator?: (ctx: VariableDeclaratorContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.variableDeclarator`.
+     * @param ctx the parse tree
+     */
+    exitVariableDeclarator?: (ctx: VariableDeclaratorContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.variableInitializer`.
+     * @param ctx the parse tree
+     */
+    enterVariableInitializer?: (ctx: VariableInitializerContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.variableInitializer`.
+     * @param ctx the parse tree
+     */
+    exitVariableInitializer?: (ctx: VariableInitializerContext) => void;
+    /**
      * Enter a parse tree produced by `LPCParser.primitiveTypeSpecifier`.
      * @param ctx the parse tree
      */
@@ -375,6 +428,26 @@ export class LPCParserListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitPrimitiveTypeSpecifier?: (ctx: PrimitiveTypeSpecifierContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.indexerArgument`.
+     * @param ctx the parse tree
+     */
+    enterIndexerArgument?: (ctx: IndexerArgumentContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.indexerArgument`.
+     * @param ctx the parse tree
+     */
+    exitIndexerArgument?: (ctx: IndexerArgumentContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.methodInvocation`.
+     * @param ctx the parse tree
+     */
+    enterMethodInvocation?: (ctx: MethodInvocationContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.methodInvocation`.
+     * @param ctx the parse tree
+     */
+    exitMethodInvocation?: (ctx: MethodInvocationContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.arrayTypeSpecifier`.
      * @param ctx the parse tree
@@ -426,15 +499,15 @@ export class LPCParserListener implements ParseTreeListener {
      */
     exitExpressionStatement?: (ctx: ExpressionStatementContext) => void;
     /**
-     * Enter a parse tree produced by `LPCParser.compoundStatement`.
+     * Enter a parse tree produced by `LPCParser.block`.
      * @param ctx the parse tree
      */
-    enterCompoundStatement?: (ctx: CompoundStatementContext) => void;
+    enterBlock?: (ctx: BlockContext) => void;
     /**
-     * Exit a parse tree produced by `LPCParser.compoundStatement`.
+     * Exit a parse tree produced by `LPCParser.block`.
      * @param ctx the parse tree
      */
-    exitCompoundStatement?: (ctx: CompoundStatementContext) => void;
+    exitBlock?: (ctx: BlockContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.selectionStatement`.
      * @param ctx the parse tree
@@ -576,6 +649,306 @@ export class LPCParserListener implements ParseTreeListener {
      */
     exitLambdaExpression?: (ctx: LambdaExpressionContext) => void;
     /**
+     * Enter a parse tree produced by `LPCParser.rightShiftAssignment`.
+     * @param ctx the parse tree
+     */
+    enterRightShiftAssignment?: (ctx: RightShiftAssignmentContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.rightShiftAssignment`.
+     * @param ctx the parse tree
+     */
+    exitRightShiftAssignment?: (ctx: RightShiftAssignmentContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.literal`.
+     * @param ctx the parse tree
+     */
+    enterLiteral?: (ctx: LiteralContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.literal`.
+     * @param ctx the parse tree
+     */
+    exitLiteral?: (ctx: LiteralContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.castExpression`.
+     * @param ctx the parse tree
+     */
+    enterCastExpression?: (ctx: CastExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.castExpression`.
+     * @param ctx the parse tree
+     */
+    exitCastExpression?: (ctx: CastExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.assignmentOperator`.
+     * @param ctx the parse tree
+     */
+    enterAssignmentOperator?: (ctx: AssignmentOperatorContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.assignmentOperator`.
+     * @param ctx the parse tree
+     */
+    exitAssignmentOperator?: (ctx: AssignmentOperatorContext) => void;
+    /**
+     * Enter a parse tree produced by the `shiftExpression`
+     * labeled alternative in `LPCParser.conditionalExpressionBase`.
+     * @param ctx the parse tree
+     */
+    enterShiftExpression?: (ctx: ShiftExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by the `shiftExpression`
+     * labeled alternative in `LPCParser.conditionalExpressionBase`.
+     * @param ctx the parse tree
+     */
+    exitShiftExpression?: (ctx: ShiftExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by the `additiveExpression`
+     * labeled alternative in `LPCParser.conditionalExpressionBase`.
+     * @param ctx the parse tree
+     */
+    enterAdditiveExpression?: (ctx: AdditiveExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by the `additiveExpression`
+     * labeled alternative in `LPCParser.conditionalExpressionBase`.
+     * @param ctx the parse tree
+     */
+    exitAdditiveExpression?: (ctx: AdditiveExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by the `tempUnaryExpression`
+     * labeled alternative in `LPCParser.conditionalExpressionBase`.
+     * @param ctx the parse tree
+     */
+    enterTempUnaryExpression?: (ctx: TempUnaryExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by the `tempUnaryExpression`
+     * labeled alternative in `LPCParser.conditionalExpressionBase`.
+     * @param ctx the parse tree
+     */
+    exitTempUnaryExpression?: (ctx: TempUnaryExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by the `conditionalExpression`
+     * labeled alternative in `LPCParser.conditionalExpressionBase`.
+     * @param ctx the parse tree
+     */
+    enterConditionalExpression?: (ctx: ConditionalExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by the `conditionalExpression`
+     * labeled alternative in `LPCParser.conditionalExpressionBase`.
+     * @param ctx the parse tree
+     */
+    exitConditionalExpression?: (ctx: ConditionalExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by the `inclusiveOrExpression`
+     * labeled alternative in `LPCParser.conditionalExpressionBase`.
+     * @param ctx the parse tree
+     */
+    enterInclusiveOrExpression?: (ctx: InclusiveOrExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by the `inclusiveOrExpression`
+     * labeled alternative in `LPCParser.conditionalExpressionBase`.
+     * @param ctx the parse tree
+     */
+    exitInclusiveOrExpression?: (ctx: InclusiveOrExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by the `conditionalAndExpression`
+     * labeled alternative in `LPCParser.conditionalExpressionBase`.
+     * @param ctx the parse tree
+     */
+    enterConditionalAndExpression?: (ctx: ConditionalAndExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by the `conditionalAndExpression`
+     * labeled alternative in `LPCParser.conditionalExpressionBase`.
+     * @param ctx the parse tree
+     */
+    exitConditionalAndExpression?: (ctx: ConditionalAndExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by the `multiplicativeExpression`
+     * labeled alternative in `LPCParser.conditionalExpressionBase`.
+     * @param ctx the parse tree
+     */
+    enterMultiplicativeExpression?: (ctx: MultiplicativeExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by the `multiplicativeExpression`
+     * labeled alternative in `LPCParser.conditionalExpressionBase`.
+     * @param ctx the parse tree
+     */
+    exitMultiplicativeExpression?: (ctx: MultiplicativeExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by the `relationalExpresion`
+     * labeled alternative in `LPCParser.conditionalExpressionBase`.
+     * @param ctx the parse tree
+     */
+    enterRelationalExpresion?: (ctx: RelationalExpresionContext) => void;
+    /**
+     * Exit a parse tree produced by the `relationalExpresion`
+     * labeled alternative in `LPCParser.conditionalExpressionBase`.
+     * @param ctx the parse tree
+     */
+    exitRelationalExpresion?: (ctx: RelationalExpresionContext) => void;
+    /**
+     * Enter a parse tree produced by the `andExpression`
+     * labeled alternative in `LPCParser.conditionalExpressionBase`.
+     * @param ctx the parse tree
+     */
+    enterAndExpression?: (ctx: AndExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by the `andExpression`
+     * labeled alternative in `LPCParser.conditionalExpressionBase`.
+     * @param ctx the parse tree
+     */
+    exitAndExpression?: (ctx: AndExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by the `conditionalOrExpression`
+     * labeled alternative in `LPCParser.conditionalExpressionBase`.
+     * @param ctx the parse tree
+     */
+    enterConditionalOrExpression?: (ctx: ConditionalOrExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by the `conditionalOrExpression`
+     * labeled alternative in `LPCParser.conditionalExpressionBase`.
+     * @param ctx the parse tree
+     */
+    exitConditionalOrExpression?: (ctx: ConditionalOrExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by the `exclusiveOrExpression`
+     * labeled alternative in `LPCParser.conditionalExpressionBase`.
+     * @param ctx the parse tree
+     */
+    enterExclusiveOrExpression?: (ctx: ExclusiveOrExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by the `exclusiveOrExpression`
+     * labeled alternative in `LPCParser.conditionalExpressionBase`.
+     * @param ctx the parse tree
+     */
+    exitExclusiveOrExpression?: (ctx: ExclusiveOrExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by the `equalityExpression`
+     * labeled alternative in `LPCParser.conditionalExpressionBase`.
+     * @param ctx the parse tree
+     */
+    enterEqualityExpression?: (ctx: EqualityExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by the `equalityExpression`
+     * labeled alternative in `LPCParser.conditionalExpressionBase`.
+     * @param ctx the parse tree
+     */
+    exitEqualityExpression?: (ctx: EqualityExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by the `rangeExpression`
+     * labeled alternative in `LPCParser.conditionalExpressionBase`.
+     * @param ctx the parse tree
+     */
+    enterRangeExpression?: (ctx: RangeExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by the `rangeExpression`
+     * labeled alternative in `LPCParser.conditionalExpressionBase`.
+     * @param ctx the parse tree
+     */
+    exitRangeExpression?: (ctx: RangeExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.unaryExpression`.
+     * @param ctx the parse tree
+     */
+    enterUnaryExpression?: (ctx: UnaryExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.unaryExpression`.
+     * @param ctx the parse tree
+     */
+    exitUnaryExpression?: (ctx: UnaryExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.primaryExpression`.
+     * @param ctx the parse tree
+     */
+    enterPrimaryExpression?: (ctx: PrimaryExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.primaryExpression`.
+     * @param ctx the parse tree
+     */
+    exitPrimaryExpression?: (ctx: PrimaryExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by the `literalExpression`
+     * labeled alternative in `LPCParser.primaryExpressionStart`.
+     * @param ctx the parse tree
+     */
+    enterLiteralExpression?: (ctx: LiteralExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by the `literalExpression`
+     * labeled alternative in `LPCParser.primaryExpressionStart`.
+     * @param ctx the parse tree
+     */
+    exitLiteralExpression?: (ctx: LiteralExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by the `identifierExpression`
+     * labeled alternative in `LPCParser.primaryExpressionStart`.
+     * @param ctx the parse tree
+     */
+    enterIdentifierExpression?: (ctx: IdentifierExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by the `identifierExpression`
+     * labeled alternative in `LPCParser.primaryExpressionStart`.
+     * @param ctx the parse tree
+     */
+    exitIdentifierExpression?: (ctx: IdentifierExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by the `parenExpression`
+     * labeled alternative in `LPCParser.primaryExpressionStart`.
+     * @param ctx the parse tree
+     */
+    enterParenExpression?: (ctx: ParenExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by the `parenExpression`
+     * labeled alternative in `LPCParser.primaryExpressionStart`.
+     * @param ctx the parse tree
+     */
+    exitParenExpression?: (ctx: ParenExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by the `memberAccessExpression`
+     * labeled alternative in `LPCParser.primaryExpressionStart`.
+     * @param ctx the parse tree
+     */
+    enterMemberAccessExpression?: (ctx: MemberAccessExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by the `memberAccessExpression`
+     * labeled alternative in `LPCParser.primaryExpressionStart`.
+     * @param ctx the parse tree
+     */
+    exitMemberAccessExpression?: (ctx: MemberAccessExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by the `primaryArrayExpression`
+     * labeled alternative in `LPCParser.primaryExpressionStart`.
+     * @param ctx the parse tree
+     */
+    enterPrimaryArrayExpression?: (ctx: PrimaryArrayExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by the `primaryArrayExpression`
+     * labeled alternative in `LPCParser.primaryExpressionStart`.
+     * @param ctx the parse tree
+     */
+    exitPrimaryArrayExpression?: (ctx: PrimaryArrayExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by the `primaryMappingExpression`
+     * labeled alternative in `LPCParser.primaryExpressionStart`.
+     * @param ctx the parse tree
+     */
+    enterPrimaryMappingExpression?: (ctx: PrimaryMappingExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by the `primaryMappingExpression`
+     * labeled alternative in `LPCParser.primaryExpressionStart`.
+     * @param ctx the parse tree
+     */
+    exitPrimaryMappingExpression?: (ctx: PrimaryMappingExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by the `stringConcatExpression`
+     * labeled alternative in `LPCParser.primaryExpressionStart`.
+     * @param ctx the parse tree
+     */
+    enterStringConcatExpression?: (ctx: StringConcatExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by the `stringConcatExpression`
+     * labeled alternative in `LPCParser.primaryExpressionStart`.
+     * @param ctx the parse tree
+     */
+    exitStringConcatExpression?: (ctx: StringConcatExpressionContext) => void;
+    /**
      * Enter a parse tree produced by `LPCParser.expression`.
      * @param ctx the parse tree
      */
@@ -586,15 +959,35 @@ export class LPCParserListener implements ParseTreeListener {
      */
     exitExpression?: (ctx: ExpressionContext) => void;
     /**
-     * Enter a parse tree produced by `LPCParser.arrayAccessExpression`.
+     * Enter a parse tree produced by `LPCParser.bracketExpression`.
      * @param ctx the parse tree
      */
-    enterArrayAccessExpression?: (ctx: ArrayAccessExpressionContext) => void;
+    enterBracketExpression?: (ctx: BracketExpressionContext) => void;
     /**
-     * Exit a parse tree produced by `LPCParser.arrayAccessExpression`.
+     * Exit a parse tree produced by `LPCParser.bracketExpression`.
      * @param ctx the parse tree
      */
-    exitArrayAccessExpression?: (ctx: ArrayAccessExpressionContext) => void;
+    exitBracketExpression?: (ctx: BracketExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.argument`.
+     * @param ctx the parse tree
+     */
+    enterArgument?: (ctx: ArgumentContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.argument`.
+     * @param ctx the parse tree
+     */
+    exitArgument?: (ctx: ArgumentContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.argumentList`.
+     * @param ctx the parse tree
+     */
+    enterArgumentList?: (ctx: ArgumentListContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.argumentList`.
+     * @param ctx the parse tree
+     */
+    exitArgumentList?: (ctx: ArgumentListContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.expressionList`.
      * @param ctx the parse tree
@@ -615,6 +1008,16 @@ export class LPCParserListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitAssignmentExpression?: (ctx: AssignmentExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.nonAssignmentExpression`.
+     * @param ctx the parse tree
+     */
+    enterNonAssignmentExpression?: (ctx: NonAssignmentExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.nonAssignmentExpression`.
+     * @param ctx the parse tree
+     */
+    exitNonAssignmentExpression?: (ctx: NonAssignmentExpressionContext) => void;
 
     visitTerminal(node: TerminalNode): void {}
     visitErrorNode(node: ErrorNode): void {}

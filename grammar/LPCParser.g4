@@ -64,6 +64,7 @@ directiveTypeInclude: INCLUDE;
 directiveIncludeFile
     : directiveIncludeFileGlobal
     | directiveIncludeFileLocal
+    | Identifier
     ;
 directiveIncludeFilename: Identifier (DOT Identifier)?;
 directiveIncludeFileGlobal: LT directiveIncludeFilename GT;
@@ -73,7 +74,7 @@ directiveTypePragma: PRAGMA;
 
 // inherit
 inheritStatement
-    : INHERIT StringLiteral SEMI
+    : INHERIT inheritTarget=(StringLiteral | Identifier) SEMI
     ;
 
 inheritSuperExpression
@@ -327,54 +328,76 @@ assignmentOperator
     | SHL_ASSIGN
     ;
 
-conditionalExpression
-    : conditionalOrExpression (QUESTION expression COLON expression)?
-    ;
 
-conditionalOrExpression
-    : conditionalAndExpression (OR_OR conditionalAndExpression)*
-    ;
+// JC - I original had these broken out into separate expressions, like the C# grammar
+// but I don't see why that is necesary.  It seems to just add extra nodes to the tree
+// that don't provide any benefit over labelled alternatives.
+// the individual expressions are commented out below in case they're needed in the future
+conditionalExpressionBase
+    : unaryExpression           #tempUnaryExpression
+    | conditionalExpressionBase (QUESTION expression COLON expression) #conditionalExpression
+    | conditionalExpressionBase (OR_OR conditionalExpressionBase)+ #conditionalOrExpression
+    | conditionalExpressionBase (AND_AND conditionalExpressionBase)+ #conditionalAndExpression
+    | conditionalExpressionBase (OR conditionalExpressionBase)+ #inclusiveOrExpression
+    | conditionalExpressionBase (XOR conditionalExpressionBase)+ #exclusiveOrExpression
+    | conditionalExpressionBase (AND conditionalExpressionBase)+ #andExpression
+    | conditionalExpressionBase ((EQ | NE) conditionalExpressionBase)+ #equalityExpression
+    | conditionalExpressionBase ((LT | GT | LE | GE) conditionalExpressionBase)+ #relationalExpresion
+    | conditionalExpressionBase ((SHL | SHR) conditionalExpressionBase)+ #shiftExpression
+    | conditionalExpressionBase ((PLUS | MINUS) conditionalExpressionBase)+ #additiveExpression
+    | conditionalExpressionBase ((STAR | DIV | MOD) conditionalExpressionBase)+ #multiplicativeExpression
+    | unaryExpression? DOUBLEDOT unaryExpression? #rangeExpression
+    ;    
 
-conditionalAndExpression
-    : inclusiveOrExpression (AND_AND inclusiveOrExpression)*
-    ;
+// conditionalExpression
+//     : conditionalOrExpression (QUESTION expression COLON expression)?
+//     ;
 
-inclusiveOrExpression
-    : exclusiveOrExpression (OR exclusiveOrExpression)*
-    ;
+// conditionalOrExpression
+//     : conditionalAndExpression (OR_OR conditionalAndExpression)*
+//     ;
 
-exclusiveOrExpression
-    : andExpression (XOR andExpression)*
-    ;
+// conditionalAndExpression
+//     : inclusiveOrExpression (AND_AND inclusiveOrExpression)*
+//     ;
 
-andExpression
-    : equalityExpression (AND equalityExpression)*
-    ;
+// inclusiveOrExpression
+//     : exclusiveOrExpression (OR exclusiveOrExpression)*
+//     ;
 
-equalityExpression
-    : relationalExpresion ((EQ | NE) relationalExpresion)*
-    ;
+// exclusiveOrExpression
+//     : andExpression (XOR andExpression)*
+//     ;
 
-relationalExpresion
-    : shiftExpression ((LT | GT | LE | GE) shiftExpression)*
-    ;
+// andExpression
+//     : equalityExpression (AND equalityExpression)*
+//     ;
 
-shiftExpression
-    : additiveExpression ((SHL | SHR) additiveExpression)*
-    ;
+// equalityExpression
+//     : relationalExpression ((EQ | NE) relationalExpression)*
+//     ;
 
-additiveExpression
-    : multiplicativeExpression ((PLUS | MINUS) multiplicativeExpression)*
-    ;
 
-multiplicativeExpression
-    : rangeExpression ((STAR | DIV | MOD) rangeExpression)*    
-    ;
+// relationalExpresion
+//     : shiftExpression ((LT | GT | LE | GE) shiftExpression)*
+//     ;
 
-rangeExpression
-    : unaryExpression
-    | unaryExpression? DOUBLEDOT unaryExpression?
-    ;
+// shiftExpression
+//     : additiveExpression ((SHL | SHR) additiveExpression)*
+//     ;
+
+// additiveExpression
+//     : multiplicativeExpression ((PLUS | MINUS) multiplicativeExpression)*
+//     ;
+
+// multiplicativeExpression
+//     : rangeExpression ((STAR | DIV | MOD) rangeExpression)*    
+//     ;
+
+// rangeExpression
+//     : unaryExpression
+//     | unaryExpression? DOUBLEDOT unaryExpression?
+//     ;
 
 unaryExpression
     : castExpression
@@ -404,9 +427,9 @@ primaryExpressionStart
     //| lambdaExpression                      # primaryLambdaExpression
     //| callOtherOb=expression ARROW callOtherTarget PAREN_OPEN expressionList? PAREN_CLOSE # callOtherExpression
     //| inheritSuperExpression                # primaryInheritSuperExpression
-    // | arrayExpression                       # primaryArrayExpression
-    // | mappingExpression                     # primaryMappingExpression
-    | StringLiteral StringLiteral*          # stringConcatExpression
+    | arrayExpression                       # primaryArrayExpression
+    | mappingExpression                     # primaryMappingExpression
+    | StringLiteral StringLiteral*          # stringConcatExpression    
     ;
 
 // memberAccess
@@ -489,14 +512,12 @@ expressionList
     ;
 
 assignmentExpression
-    : unaryExpression assignmentOperator expression
+    : conditionalExpressionBase assignmentOperator expression
     ;
 
 nonAssignmentExpression
     : inlineClosureExpression
     | lambdaExpression
     | inheritSuperExpression
-    | conditionalExpression
-    | arrayExpression
-    | mappingExpression
+    | conditionalExpressionBase
     ;
