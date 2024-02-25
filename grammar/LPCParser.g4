@@ -62,9 +62,9 @@ directiveDefineArgument: expression ;
 directiveTypeInclude: INCLUDE;
 
 directiveIncludeFile
-    : directiveIncludeFileGlobal
-    | directiveIncludeFileLocal
-    | Identifier
+    : directiveIncludeFileGlobal    #includeGlobalFile
+    | directiveIncludeFileLocal     #includeLocalFile
+    | Identifier                    #includeDefine
     ;
 directiveIncludeFilename: Identifier (DOT Identifier)?;
 directiveIncludeFileGlobal: LT directiveIncludeFilename GT;
@@ -128,7 +128,8 @@ mappingContent
     ;
 
 mappingExpression
-    : MAPPING_OPEN (mappingContent (COMMA mappingContent)*)? COMMA? SQUARE_CLOSE PAREN_CLOSE
+    : MAPPING_OPEN (mappingContent (COMMA mappingContent)*)? COMMA? SQUARE_CLOSE PAREN_CLOSE    #mappingValueInitializer
+    | MAPPING_OPEN COLON expression SQUARE_CLOSE PAREN_CLOSE                                    #mappingEmptyInitializer
     ;
 
 variableModifier
@@ -234,8 +235,8 @@ switchStatement
     ;
 
 caseExpression
-    : (StringLiteral|MINUS? IntegerConstant)
-    | (StringLiteral|MINUS? IntegerConstant) DOUBLEDOT (StringLiteral|MINUS? IntegerConstant)
+    : (StringLiteral|MINUS? IntegerConstant|Identifier)
+    | (StringLiteral|MINUS? IntegerConstant|Identifier) DOUBLEDOT (StringLiteral|MINUS? IntegerConstant|Identifier)
     ;
 caseStatement
     : CASE caseExpression COLON statement*
