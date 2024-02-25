@@ -87,6 +87,7 @@ AND: '&';
 OR: '|';
 XOR: '^';
 NOT: '!';
+BNOT: '~';
 AND_AND: '&&';
 OR_OR: '||';
 QUESTION: '?';
@@ -110,6 +111,7 @@ MOD_ASSIGN: '%=';
 AND_ASSIGN: '&=';
 OR_ASSIGN: '|=';
 XOR_ASSIGN: '^=';
+SHL_ASSIGN: '<<=';
 // array & mapping brackets
 ARRAY_OPEN: '({';
 ARRAY_CLOSE: '})';

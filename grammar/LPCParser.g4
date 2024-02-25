@@ -98,7 +98,7 @@ functionModifier
     ;
 
 functionHeader
-    : functionModifier* typeSpecifier? Identifier PAREN_OPEN parameterList? PAREN_CLOSE
+    : functionModifier* typeSpecifier? functionName=Identifier PAREN_OPEN functionArgs=parameterList? PAREN_CLOSE
     ;
 
 functionHeaderDeclaration
@@ -106,7 +106,7 @@ functionHeaderDeclaration
     ;
 
 functionDeclaration
-    : functionHeader compoundStatement
+    : functionHeader block
     ;
 
 parameterList
@@ -139,7 +139,17 @@ variableModifier
     ;
 
 variableDeclaration
-    : variableModifier* typeSpecifier? Identifier assignmentExpression? (COMMA STAR? Identifier assignmentExpression?)* SEMI    
+    : variableModifier* primitiveTypeSpecifier? variableDeclarator (COMMA variableDeclarator)* SEMI
+    ;
+
+variableDeclarator
+    : arraySpecifier=STAR? Identifier (ASSIGN variableInitializer)?
+    ;
+
+variableInitializer
+    : expression
+    | arrayExpression
+    | mappingExpression
     ;
 
 primitiveTypeSpecifier
@@ -158,6 +168,15 @@ primitiveTypeSpecifier
     | UNKNOWN
     ;
 
+indexerArgument
+    : expression
+    | expression DOUBLEDOT expression
+    ;
+
+methodInvocation
+    : PAREN_OPEN argumentList? PAREN_CLOSE
+    ;
+
 arrayTypeSpecifier
     : primitiveTypeSpecifier? STAR
     ;
@@ -173,11 +192,11 @@ inlineClosureExpression
 
 statement
     : expressionStatement
-    | compoundStatement
+    | block
     | selectionStatement
     | iterationStatement
     | jumpStatement
-    | variableDeclaration       
+    | variableDeclaration
     | selectionDirective
     | returnStatement
     //| preprocessorDirective
@@ -185,7 +204,7 @@ statement
 
 expressionStatement: expression SEMI;
 
-compoundStatement: CURLY_OPEN statement* CURLY_CLOSE;
+block: CURLY_OPEN statement* CURLY_CLOSE;
 
 // if and switch statements
 selectionStatement
@@ -279,6 +298,10 @@ lambdaExpression
     | HASH SINGLEQUOT SHR
     ;
 
+rightShiftAssignment
+    : first = '>' second = '>=' {$first.index + 1 == $second.index}? // make sure there is nothing between the tokens
+    ;
+
 literal
     : IntegerConstant
     | FloatingConstant
@@ -288,65 +311,177 @@ literal
     ;
 
 castExpression
-    : PAREN_OPEN typeSpecifier PAREN_CLOSE expression
+    : PAREN_OPEN typeSpecifier PAREN_CLOSE expression 
     ;
 
-expression
-    : Identifier
-    | castExpression
-    | MINUS? IntegerConstant
-    | MINUS? FloatingConstant
-    | literal
-    | StringLiteral StringLiteral*  // handle implicit string concatenation    
-    | PAREN_OPEN expression PAREN_CLOSE
-    | inlineClosureExpression
-    | lambdaExpression
-    | expression PLUS expression
-    | expression MINUS expression
-    | expression STAR expression
-    | expression DIV expression
-    | expression MOD expression
-    | expression LT expression
-    | expression GT expression
-    | expression LE expression
-    | expression GE expression
-    | expression EQ expression
-    | expression NE expression
-    | expression AND expression
-    | expression OR expression
-    | expression XOR expression
-    | expression AND_AND expression
-    | expression OR_OR expression
-    | expression ADD_ASSIGN expression
-    | expression SUB_ASSIGN expression
-    | expression MUL_ASSIGN expression
-    | expression DIV_ASSIGN expression
-    | expression MOD_ASSIGN expression
-    | expression AND_ASSIGN expression
-    | expression OR_ASSIGN expression
-    | expression XOR_ASSIGN expression    
-    | expression SHL expression
-    | expression SHR expression
-    | expression QUESTION expression COLON expression    
+assignmentOperator
+    : ASSIGN
+    | ADD_ASSIGN
+    | SUB_ASSIGN
+    | MUL_ASSIGN
+    | DIV_ASSIGN
+    | MOD_ASSIGN
+    | AND_ASSIGN
+    | OR_ASSIGN
+    | XOR_ASSIGN
+    | SHL_ASSIGN
+    ;
+
+conditionalExpression
+    : conditionalOrExpression (QUESTION expression COLON expression)?
+    ;
+
+conditionalOrExpression
+    : conditionalAndExpression (OR_OR conditionalAndExpression)*
+    ;
+
+conditionalAndExpression
+    : inclusiveOrExpression (AND_AND inclusiveOrExpression)*
+    ;
+
+inclusiveOrExpression
+    : exclusiveOrExpression (OR exclusiveOrExpression)*
+    ;
+
+exclusiveOrExpression
+    : andExpression (XOR andExpression)*
+    ;
+
+andExpression
+    : equalityExpression (AND equalityExpression)*
+    ;
+
+equalityExpression
+    : relationalExpresion ((EQ | NE) relationalExpresion)*
+    ;
+
+relationalExpresion
+    : shiftExpression ((LT | GT | LE | GE) shiftExpression)*
+    ;
+
+shiftExpression
+    : additiveExpression ((SHL | SHR) additiveExpression)*
+    ;
+
+additiveExpression
+    : multiplicativeExpression ((PLUS | MINUS) multiplicativeExpression)*
+    ;
+
+multiplicativeExpression
+    : rangeExpression ((STAR | DIV | MOD) rangeExpression)*    
+    ;
+
+rangeExpression
+    : unaryExpression
+    | unaryExpression? DOUBLEDOT unaryExpression?
+    ;
+
+unaryExpression
+    : castExpression
+    | primaryExpression
+    | PLUS expression
+    | MINUS expression
     | NOT expression
+    | BNOT expression  
     | INC expression
     | DEC expression
-    | MINUS expression
-    | expression INC
-    | expression DEC
-    | expression assignmentExpression
-    | expression arrayAccessExpression
-    | Identifier PAREN_OPEN expressionList? PAREN_CLOSE  // function call
-    | mappingExpression
-    | arrayExpression
-    | inheritSuperExpression
-    | callOtherOb=expression ARROW callOtherTarget PAREN_OPEN expressionList? PAREN_CLOSE
+    | AND expression
+    | STAR expression     
     ;
 
-arrayAccessExpression
+primaryExpression
+    : pe = primaryExpressionStart bracketExpression* (
+        (methodInvocation | INC | DEC | ARROW Identifier | Identifier) bracketExpression*
+    )*
+    ;
+
+primaryExpressionStart
+    : literal                               # literalExpression
+    | Identifier                            # identifierExpression
+    | PAREN_OPEN expression PAREN_CLOSE     # parenExpression
+    //| inlineClosureExpression               # primaryInlineClosureExpression
+    | typeSpecifier                         # memberAccessExpression    
+    //| lambdaExpression                      # primaryLambdaExpression
+    //| callOtherOb=expression ARROW callOtherTarget PAREN_OPEN expressionList? PAREN_CLOSE # callOtherExpression
+    //| inheritSuperExpression                # primaryInheritSuperExpression
+    // | arrayExpression                       # primaryArrayExpression
+    // | mappingExpression                     # primaryMappingExpression
+    | StringLiteral StringLiteral*          # stringConcatExpression
+    ;
+
+// memberAccess
+//     : ARROW Identifier
+
+expression
+    : assignmentExpression
+    | nonAssignmentExpression
+    ;
+
+// expression
+//     : Identifier
+//     | nonAssignmentExpression
+//     | castExpression
+//     | MINUS? IntegerConstant
+//     | MINUS? FloatingConstant
+//     | literal
+//     | StringLiteral StringLiteral*  // handle implicit string concatenation    
+//     | PAREN_OPEN expression PAREN_CLOSE    
+//     | expression unaryExpression
+//     //| unaryExpression
+//     // | expression PLUS expression
+//     // | expression MINUS expression
+//     //| expression STAR expression
+//     // | expression DIV expression
+//     // | expression MOD expression
+//     // | expression LT expression
+//     // | expression GT expression
+//     // | expression LE expression
+//     // | expression GE expression
+//     // | expression EQ expression
+//     // | expression NE expression
+//     //| expression AND expression
+//     // | expression OR expression
+//     // | expression XOR expression
+//     // | expression AND_AND expression
+//     // | expression OR_OR expression
+//     // | expression ADD_ASSIGN expression
+//     // | expression SUB_ASSIGN expression
+//     // | expression MUL_ASSIGN expression
+//     // | expression DIV_ASSIGN expression
+//     // | expression MOD_ASSIGN expression
+//     // | expression AND_ASSIGN expression
+//     // | expression OR_ASSIGN expression
+//     // | expression XOR_ASSIGN expression    
+//     // | expression SHL expression
+//     // | expression SHR expression
+//     //| expression QUESTION expression COLON expression    
+//     // | NOT expression
+//     // | INC expression
+//     // | DEC expression
+//     // | MINUS expression
+//     | expression INC
+//     | expression DEC
+//     | expression assignmentExpression
+//     | expression bracketExpression
+//     | Identifier PAREN_OPEN argumentList? PAREN_CLOSE  // function call
+//     | mappingExpression
+//     | arrayExpression    
+//     | callOtherOb=expression ARROW callOtherTarget PAREN_OPEN expressionList? PAREN_CLOSE
+//     ;
+
+bracketExpression
     : SQUARE_OPEN LT? expression SQUARE_CLOSE
     | SQUARE_OPEN LT? expression? DOUBLEDOT LT? expression? SQUARE_CLOSE    
     | SQUARE_OPEN expression? (COMMA expression)* SQUARE_CLOSE
+    ;
+
+
+argument
+    : AND? expression
+    ;
+
+argumentList
+    : argument (COMMA argument)*
     ;
 
 expressionList
@@ -354,5 +489,14 @@ expressionList
     ;
 
 assignmentExpression
-    : ASSIGN expression
+    : unaryExpression assignmentOperator expression
+    ;
+
+nonAssignmentExpression
+    : inlineClosureExpression
+    | lambdaExpression
+    | inheritSuperExpression
+    | conditionalExpression
+    | arrayExpression
+    | mappingExpression
     ;
