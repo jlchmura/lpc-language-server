@@ -193,7 +193,7 @@ export class LpcFacade {
                 try {
                     fs.accessSync(depPath, fs.constants.R_OK);
                     contextEntry.dependencies.push(depPath);
-                    return this.loadLpc(depPath);                    
+                    return this.loadLpc(depPath);
                 } catch (e) {
                     // ignore
                     const i = 0;
@@ -251,5 +251,16 @@ export class LpcFacade {
         const context = this.getContext(fileName);
 
         return context.listTopLevelSymbols(!fullList);
+    }
+
+    public symbolInfoAtPosition(
+        fileName: string,
+        column: number,
+        row: number,
+        limitToChildren = true
+    ): ISymbolInfo | undefined {
+        const context = this.getContext(fileName);
+
+        return context.symbolAtPosition(column, row, limitToChildren);
     }
 }

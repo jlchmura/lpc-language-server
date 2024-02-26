@@ -15,6 +15,7 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import * as path from "path";
 import { URI } from "vscode-uri";
 import { LpcSymbolProvider } from "./SymbolProvider";
+import { LpcDefinitionProvider } from "./DefinitionProvider";
 
 const CHANGE_DEBOUNCE_MS = 300;
 
@@ -32,6 +33,7 @@ export class LpcServer {
 
     // providers
     private symbolProvider: LpcSymbolProvider;
+    private definitionProvider: LpcDefinitionProvider;
 
     /** document listener */
     private readonly documents: TextDocuments<TextDocument> = new TextDocuments(
@@ -58,9 +60,18 @@ export class LpcServer {
                 });
             }
         });
+        
+        // Symbol Provider
         this.connection.onDocumentSymbol((params) => {
             const doc = this.documents.get(params.textDocument.uri);
             const result = this.symbolProvider.getSymbols(doc);
+            return result;
+        });
+
+        // Definition Provider
+        this.connection.onDefinition(params => {
+            const doc = this.documents.get(params.textDocument.uri);
+            const result = this.definitionProvider.getDefinition(doc, params.position);
             return result;
         });
 
@@ -127,7 +138,7 @@ export class LpcServer {
                 // },
                 documentSymbolProvider: true,
                 //hoverProvider: false,
-                definitionProvider: false,
+                definitionProvider: true,
                 //foldingRangeProvider: false, // change to true to enable server-based folding
             },
         };
@@ -149,6 +160,7 @@ export class LpcServer {
 
         // init providers
         this.symbolProvider = new LpcSymbolProvider(this.facade);
+        this.definitionProvider = new LpcDefinitionProvider(this.facade);
 
         return result;
     }

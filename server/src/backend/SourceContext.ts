@@ -9,13 +9,11 @@ import {
     ParseTreeWalker,
     ParserRuleContext,
     PredictionMode,
+    RuleContext,
     TerminalNode,
 } from "antlr4ng";
 import { LPCLexer } from "../parser3/LPCLexer";
-import {    
-    LPCParser,
-    ProgramContext,
-} from "../parser3/LPCParser";
+import { LPCParser, ProgramContext } from "../parser3/LPCParser";
 import * as path from "path";
 import {
     IContextDetails,
@@ -38,6 +36,7 @@ import {
 import { SemanticListener } from "./SemanticListener";
 import { BaseSymbol } from "antlr4-c3";
 import { DetailsListener } from "./DetailsListener";
+import { BackendUtils } from "./BackendUtils";
 
 /**
  * Source context for a single LPC file.
@@ -341,5 +340,78 @@ export class SourceContext {
         }
 
         return result;
+    }
+
+    public getSymbolInfo(symbol: string | BaseSymbol): ISymbolInfo | undefined {
+        return this.symbolTable.getSymbolInfo(symbol);
+    }
+
+    public resolveSymbol(symbolName: string): BaseSymbol | undefined {
+        return this.symbolTable.resolveSync(symbolName, false);
+    }
+
+    public symbolAtPosition(
+        column: number,
+        row: number,
+        limitToChildren: boolean
+    ): ISymbolInfo | undefined {
+        if (!this.tree) {
+            return undefined;
+        }
+
+        const terminal = BackendUtils.parseTreeFromPosition(
+            this.tree,
+            column,
+            row
+        );
+        if (!terminal || !(terminal instanceof TerminalNode)) {
+            return undefined;
+        }
+
+        // If limitToChildren is set we only want to show info for symbols in specific contexts.
+        // These are contexts which are used as subrules in rule definitions.
+        if (!limitToChildren) {
+            return this.getSymbolInfo(terminal.getText());
+        }
+
+        let parent = terminal.parent as RuleContext;
+        // if (parent.ruleIndex === LPCParser.RULE_primaryExpressionStart) {
+        //     parent = (parent.parent as RuleContext);
+        // }
+
+        switch (parent.ruleIndex) {
+            // case ANTLRv4Parser.RULE_ruleref:
+            // case ANTLRv4Parser.RULE_terminalDef: {
+            //     let symbol = this.symbolTable.symbolContainingContext(terminal);
+            //     if (symbol) {
+            //         // This is only the reference to a symbol. See if that symbol exists actually.
+            //         symbol = this.resolveSymbol(symbol.name);
+            //         if (symbol) {
+            //             return this.getSymbolInfo(symbol);
+            //         }
+            //     }
+
+            //     break;
+            // }
+
+            case LPCParser.RULE_primaryExpression:
+            case LPCParser.RULE_primaryExpressionStart:
+            case LPCParser.RULE_callOtherTarget:
+                const s1 = this.symbolTable.symbolContainingContext(terminal);
+
+                const symbol = this.symbolTable.findSymbolDefinition(terminal);
+
+                if (symbol) {
+                    return this.getSymbolInfo(symbol);
+                }
+
+                break;
+
+            default: {
+                break;
+            }
+        }
+
+        return undefined;
     }
 }

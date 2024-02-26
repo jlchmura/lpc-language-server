@@ -8,7 +8,7 @@ import {
     SymbolConstructor,
     RoutineSymbol,
 } from "antlr4-c3";
-import { ParserRuleContext } from "antlr4ng";
+import { ParseTree, ParserRuleContext } from "antlr4ng";
 import { SourceContext } from "./SourceContext";
 import { ISymbolInfo, SymbolGroupKind, SymbolKind } from "../types";
 
@@ -287,5 +287,78 @@ export class ContextSymbolTable extends SymbolTable {
         result.push(...symbols);
 
         return result;
+    }
+
+    /**
+     * Does a depth-first search in the table for a symbol which contains the given context.
+     * The search is based on the token indices which the context covers and goes down as much as possible to find
+     * the closes covering symbol.
+     *
+     * @param context The context to search for.
+     *
+     * @returns The symbol covering the given context or undefined if nothing was found.
+     */
+    public symbolContainingContext(context: ParseTree): BaseSymbol | undefined {
+        const findRecursive = (
+            parent: ScopedSymbol
+        ): BaseSymbol | undefined => {
+            for (const symbol of parent.children) {
+                if (!symbol.context) {
+                    continue;
+                }
+
+                if (
+                    symbol.context
+                        .getSourceInterval()
+                        .properlyContains(context.getSourceInterval())
+                ) {
+                    let child;
+                    if (symbol instanceof ScopedSymbol) {
+                        child = findRecursive(symbol);
+                    }
+
+                    if (child) {
+                        return child;
+                    } else {
+                        return symbol;
+                    }
+                }
+            }
+        };
+
+        return findRecursive(this);
+    }
+
+    public findSymbolDefinition(context: ParseTree): BaseSymbol | undefined {
+        let ctx = context;
+        let foundSymbol: BaseSymbol | undefined = undefined;
+
+        while (!!ctx && !foundSymbol) {
+            let symbol = this.symbolContainingContext(context);
+
+            const table = symbol.symbolTable;
+            const search = [
+                ...table.getNestedSymbolsOfTypeSync(VariableSymbol),
+                ...table.getNestedSymbolsOfTypeSync(MethodSymbol),
+                ...table.getNestedSymbolsOfTypeSync(DefineSymbol),
+            ];
+
+            foundSymbol = search.find((s) => s.name === context.getText());
+
+            ctx = ctx.parent;
+        }
+
+        if (!foundSymbol) {
+            // still haven't found?
+            const search = [
+                ...this.getAllSymbolsSync(VariableSymbol, false),
+                ...this.getAllSymbolsSync(MethodSymbol, false),
+                ...this.getAllSymbolsSync(DefineSymbol, false),
+            ];
+
+            foundSymbol = search.find((s) => s.name === context.getText());
+        }
+
+        return foundSymbol;
     }
 }
