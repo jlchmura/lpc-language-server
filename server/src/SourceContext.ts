@@ -1,7 +1,7 @@
 import { BailErrorStrategy, CharStreams, CommonTokenStream, DefaultErrorStrategy, IInterpreterData, ParseCancellationException, PredictionMode } from "antlr4ng";
 import { LPCLexer } from "./parser3/LPCLexer";
 import { LPCParser, ProgramContext } from "./parser3/LPCParser";
-import path = require("path");
+import * as path from "path";
 import { IContextDetails, GrammarType, IDiagnosticEntry, DiagnosticType } from "./types";
 import { ContextErrorListener } from "./ContextErrorListener";
 import { ContextLexerErrorListener } from "./ContextLexerErrorListener";

@@ -2,18 +2,20 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
+			"label": "compile",
 			"type": "npm",
 			"script": "compile",
 			"group": "build",
 			"presentation": {
 				"panel": "dedicated",
 				"reveal": "never"
-			},
+			},						
 			"problemMatcher": [
 				"$tsc"
 			]
 		},
 		{
+			"label": "watch",
 			"type": "npm",
 			"script": "watch",
 			"isBackground": true,
@@ -28,6 +30,13 @@
 			"problemMatcher": [
 				"$tsc-watch"
 			]
+		},
+		{
+			"type": "npm",
+			"script": "postinstall",
+			"problemMatcher": [],
+			"label": "npm: postinstall",
+			"detail": "cd client && npm install && cd ../server && npm install && cd .."
 		}
 	]
 }

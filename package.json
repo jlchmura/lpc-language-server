@@ -2,11 +2,11 @@
   "name": "lpc-language-server",
   "version": "0.0.1",
   "description": "A language server for Lars Pensjö C (LPC)",
-  "main": "client/out/extension.js",    
+  "main": "out/client/src/extension.js",
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "compile": "tsc -b",
-    "watch": "tsc -b -w",
+    "compile": "tsc -b && esbuild client/src/extension.ts server/src/server.ts --bundle --outdir=out --external:vscode --platform=node --format=cjs --sourcemap=external --sourcemap",
+    "watch": "npm run compile -- --sourcemap --watch",
     "lint": "eslint ./client/src ./server/src --ext .ts,.tsx",
     "postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
     "test": "sh ./scripts/e2e.sh",
@@ -42,7 +42,9 @@
     "url": "https://github.com/jlchmura/lpc-language-server/issues"
   },
   "homepage": "https://github.com/jlchmura/lpc-language-server#readme",
-  "extensionKind": ["workspace"],
+  "extensionKind": [
+    "workspace"
+  ],
   "devDependencies": {
     "@types/mocha": "^9.1.0",
     "@types/node": "^16.18.14",
@@ -57,8 +59,9 @@
     "typescript": "5.3.3"
   },
   "dependencies": {
-    "antlr4-c3": "file:../antlr4-c3/lib",
+    "antlr4-c3": "^3.3.7",
     "antlr4ng": "^2.0.10",
+    "esbuild": "^0.20.1",
     "fuzzysort": "^2.0.4"
   }
 }

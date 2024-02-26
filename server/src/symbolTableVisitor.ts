@@ -11,7 +11,7 @@ import {
   ArrayType,
   ReferenceKind,
   BaseSymbol,
-} from "antlr4-c3/index";
+} from "antlr4-c3";
 
 import { AbstractParseTreeVisitor, ParseTree, TerminalNode } from "antlr4ng";
 import {

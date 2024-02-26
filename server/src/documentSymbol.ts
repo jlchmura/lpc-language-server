@@ -16,7 +16,7 @@ import {
   ScopedSymbol,
   SymbolTable,
   VariableSymbol,
-} from "antlr4-c3/index";
+} from "antlr4-c3";
 import { getSelectionRange } from "./utils";
 
 export function getDocumentSymbols(code: string): DocumentSymbol[] {

@@ -15,7 +15,7 @@ import {
   ScopedSymbol,
   SymbolTable,
   VariableSymbol,
-} from "antlr4-c3/index";
+} from "antlr4-c3";
 import { getSelectionRange } from "./utils";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { CaretPosition } from "./completions";

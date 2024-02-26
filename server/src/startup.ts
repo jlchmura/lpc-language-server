@@ -58,7 +58,7 @@ export function startServer(connection: Connection) {
 
   connection.onInitialize((params: InitializeParams) => {
     const capabilities = params.capabilities;    
-
+    const folders = params.workspaceFolders;
     // Does the client support the `workspace/configuration` request?
     // If not, we fall back using global settings.
     hasConfigurationCapability = !!(

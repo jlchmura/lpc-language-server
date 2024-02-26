@@ -31,6 +31,10 @@ export class VSCodeANTLRErrorListener extends BaseErrorListener {
     msg: string,
     e: RecognitionException | null
   ) {
+    if (!offendingSymbol) {
+      return;
+    }
+
     const diagnostic = Diagnostic.create(
       {
         start: {
@@ -39,7 +43,7 @@ export class VSCodeANTLRErrorListener extends BaseErrorListener {
         },
         end: {
           line: offendingSymbol.line - 1,
-          character: offendingSymbol.column + offendingSymbol.text.length,
+          character: offendingSymbol.column + (offendingSymbol.text?.length || 0),
         },
       },
       msg,

@@ -6,7 +6,7 @@ import {
   BaseSymbol,
   SymbolConstructor,
   MethodSymbol,
-} from "antlr4-c3/index";
+} from "antlr4-c3";
 import { CompletionItem, CompletionItemKind } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import * as fuzzysort from "fuzzysort";

@@ -28,7 +28,7 @@ import {
   SelectionSymbol,
   SymbolTableVisitor,
 } from "./symbolTableVisitor";
-import { BaseSymbol, MethodSymbol } from "antlr4-c3/index";
+import { BaseSymbol, MethodSymbol } from "antlr4-c3";
 
 export function getFoldingRanges(
   code: string,

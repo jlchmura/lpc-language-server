@@ -4,7 +4,7 @@ import * as fs from "fs";
 import { CharStreams, CommonTokenStream, ConsoleErrorListener } from "antlr4ng";
 import { LPCLexer } from "./parser3/LPCLexer";
 import { LPCParser } from "./parser3/LPCParser";
-import { CodeCompletionCore } from "antlr4-c3/index";
+import { CodeCompletionCore } from "antlr4-c3";
 import { CaretPosition, getSuggestions } from "./completions";
 import { computeTokenPosition } from "./tokenposition";
 import { CompletionItemKind } from "vscode-languageserver";
