@@ -26,7 +26,9 @@ console.log("Starting LPC Language Server");
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
 const connection = createConnection(ProposedFeatures.all);
-console.log = connection.console.log.bind(connection.console);
-console.error = connection.console.error.bind(connection.console);
+console.log = connection.console.log.bind(connection.console.log);
+console.error = connection.console.error.bind(connection.console.error);
+
+//const server = new LpcServer(connection);
 
 startServer(connection);

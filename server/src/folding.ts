@@ -175,10 +175,9 @@ export function getFoldingRanges(
       });
     }
   }
-
-  console.log("Folding ranges:", result);
+  
   result = limitFoldingRanges(result, {});
-  console.dir(result);
+  
 
   return result;
 }

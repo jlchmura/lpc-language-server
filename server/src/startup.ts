@@ -44,6 +44,7 @@ import { VSCodeANTLRErrorListener } from "./validator";
 import { doHover } from "./hover";
 import { LPCParser, ProgramContext } from "./parser3/LPCParser";
 
+
 export function startServer(connection: Connection) {
   // Create a simple text document manager.
   const documents: TextDocuments<TextDocument> = new TextDocuments(
@@ -56,7 +57,7 @@ export function startServer(connection: Connection) {
   let foldingRangeLimit = Number.MAX_VALUE;
 
   connection.onInitialize((params: InitializeParams) => {
-    const capabilities = params.capabilities;
+    const capabilities = params.capabilities;    
 
     // Does the client support the `workspace/configuration` request?
     // If not, we fall back using global settings.
@@ -136,7 +137,7 @@ export function startServer(connection: Connection) {
 
     // Revalidate all open text documents
     documents.all().forEach(validateTextDocument);
-  });
+  });  
 
   function getDocumentSettings(resource: string): Thenable<LPCSettings> {
     if (!hasConfigurationCapability) {
@@ -161,6 +162,7 @@ export function startServer(connection: Connection) {
   // The content of a text document has changed. This event is emitted
   // when the text document first opened or when its content has changed.
   documents.onDidChangeContent((change) => {
+
     validateTextDocument(change.document);
   });
 
