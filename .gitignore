@@ -6,3 +6,4 @@ client/server
 grammar/test
 parser2
 test.c
+.DS_Store
