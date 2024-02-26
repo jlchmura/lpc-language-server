@@ -46,8 +46,9 @@ export class DetailsListener extends LPCParserListener {
         ctx: PrimitiveTypeVariableDeclarationContext
     ) => {
         let decs = ctx.variableDeclarator();
-        decs.forEach((d) => {
-            this.addNewSymbol(VariableSymbol, d, d._variableName.text);
+        
+        decs.forEach((d) => {            
+            const s = this.addNewSymbol(VariableSymbol, ctx, d._variableName.text);            
         });
     };
 

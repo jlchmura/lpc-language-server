@@ -62,28 +62,31 @@ export class ContextSymbolTable extends SymbolTable {
     public symbolExists(
         name: string,
         kind: SymbolKind,
-        localOnly: boolean
+        localOnly: boolean,
+        context: ScopedSymbol=this
     ): boolean {
-        return this.getSymbolOfType(name, kind, localOnly) !== undefined;
+        const result = this.getSymbolOfType(name, kind, localOnly, context) !== undefined;        
+        return result;
     }
 
     private getSymbolOfType(
         name: string,
         kind: SymbolKind,
-        localOnly: boolean
+        localOnly: boolean,
+        context: ScopedSymbol = this
     ): BaseSymbol | undefined {
         switch (kind) {
             case SymbolKind.Include:
-                return this.resolveSync(name, localOnly) as IncludeSymbol;
+                return context.resolveSync(name, localOnly) as IncludeSymbol;
             case SymbolKind.Define:
-                return this.resolveSync(name, localOnly) as DefineSymbol;
+                return context.resolveSync(name, localOnly) as DefineSymbol;
             case SymbolKind.Method:
-                return this.resolveSync(name, localOnly) as MethodSymbol;
+                return context.resolveSync(name, localOnly) as MethodSymbol;
             case SymbolKind.Variable:
-                return this.resolveSync(name, localOnly) as VariableSymbol;
+                return context.resolveSync(name, localOnly) as VariableSymbol;
             default:
-        }
-
+        }    
+        
         return undefined;
     }
 
@@ -99,15 +102,16 @@ export class ContextSymbolTable extends SymbolTable {
     public symbolExistsInGroup(
         symbol: string,
         kind: SymbolGroupKind,
-        localOnly: boolean
+        localOnly: boolean,
+        context: ScopedSymbol = this
     ): boolean {
         // Group of lookups.
         switch (kind) {
-            case SymbolGroupKind.Identifier: {
-                if (this.symbolExists(symbol, SymbolKind.Variable, localOnly)) {
+            case SymbolGroupKind.Identifier: {                
+                if (this.symbolExists(symbol, SymbolKind.Variable, localOnly,context)) {
                     return true;
                 }
-                if (this.symbolExists(symbol, SymbolKind.Method, localOnly)) {
+                if (this.symbolExists(symbol, SymbolKind.Method, localOnly,context)) {
                     return true;
                 }
 

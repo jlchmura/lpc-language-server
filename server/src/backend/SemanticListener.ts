@@ -6,6 +6,7 @@ import {
     IdentifierExpressionContext,
     PrimaryExpressionContext,
 } from "../parser3/LPCParser";
+import { ScopedSymbol } from "antlr4-c3";
 
 export class SemanticListener extends LPCParserListener {
     private seenSymbols = new Map<string, Token>();
@@ -20,12 +21,17 @@ export class SemanticListener extends LPCParserListener {
     exitIdentifierExpression = (ctx: IdentifierExpressionContext): void => {
         const id = ctx.Identifier();
         const symbol = id.getText();
+
+        const parentContext = this.symbolTable.findSymbolDefinition(ctx);
+        const parentScope = parentContext?.getParentOfType(ScopedSymbol);
+                
         this.checkSymbolExistence(
             true,
             SymbolGroupKind.Identifier,
             symbol,
             "Unknown symbol",
-            id.symbol
+            id.symbol,
+            parentScope                 
         );
         this.symbolTable.incrementSymbolRefCount(symbol);
     };
@@ -49,10 +55,12 @@ export class SemanticListener extends LPCParserListener {
         kind: SymbolGroupKind,
         symbol: string,
         message: string,
-        offendingToken: Token
+        offendingToken: Token,
+        context?: ScopedSymbol
     ): void {
+
         if (
-            this.symbolTable.symbolExistsInGroup(symbol, kind, false) !==
+            this.symbolTable.symbolExistsInGroup(symbol, kind, false, context) !==
             mustExist
         ) {
             const entry: IDiagnosticEntry = {

@@ -9,7 +9,7 @@ import { CaretPosition, getSuggestions } from "./completions";
 import { computeTokenPosition } from "./tokenposition";
 import { CompletionItemKind } from "vscode-languageserver";
 import { getFoldingRanges } from "./folding";
-import { getDefinitions } from "./definition";
+
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { doHover } from "./hover";
 
@@ -41,7 +41,7 @@ let tokenPos = computeTokenPosition(p, tStream, caretPos);
 
 let suggestions = getSuggestions(code, caretPos, computeTokenPosition);
 let fold = getFoldingRanges(code, Number.MAX_VALUE);
-let defs = getDefinitions(doc, code, caretPos);
+
 let hover = doHover(doc, {character: 9, line: 3});
 
 const i = 0;

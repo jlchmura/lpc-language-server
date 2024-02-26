@@ -39,7 +39,7 @@ import { LPCLexer } from "./parser3/LPCLexer";
 import { CharStreams, CommonTokenStream } from "antlr4ng";
 
 
-import { getDefinitions } from "./definition";
+//import { getDefinitions } from "./definition";
 import { doHover } from "./hover";
 import { LPCParser, ProgramContext } from "./parser3/LPCParser";
 
@@ -174,22 +174,7 @@ export function startServer(connection: Connection) {
     } else {
       return null;
     }
-  });
-
-  connection.onDefinition((definitionParams, token) => {
-    const document = documents.get(definitionParams.textDocument.uri);
-
-    if (document) {
-      const pos = definitionParams.position;
-      let caretPos = {
-        line: pos.line + 1,
-        column: pos.character,
-      } as CaretPosition;
-      const defs = getDefinitions(document, document.getText(), caretPos);
-      return defs;
-    }
-    return [];
-  });
+  }); 
 
   connection.onDidChangeWatchedFiles((_change) => {
     // Monitored files have change in VSCode
