@@ -155,7 +155,7 @@ variableDeclaration
     ;
 
 variableDeclarator
-    : arraySpecifier=STAR? Identifier (ASSIGN variableInitializer)?
+    : arraySpecifier=STAR? variableName=Identifier (ASSIGN variableInitializer)?
     ;
 
 variableInitializer

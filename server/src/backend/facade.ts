@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { SourceContext } from "./SourceContext";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { IDiagnosticEntry } from "../types";
+import { IDiagnosticEntry, ISymbolInfo } from "../types";
 
 export interface IContextEntry {
   context: SourceContext;
@@ -213,5 +213,21 @@ export class LpcFacade {
     if (contextEntry) {
       this.parseGrammar(contextEntry);
     }
+  }
+
+  /**
+   * Returns a list of top level symbols from a file (and optionally its dependencies).
+   *
+   * @param fileName The grammar file name.
+   * @param fullList If true, includes symbols from all dependencies as well.
+   * @returns A list of symbol info entries.
+   */
+  public listTopLevelSymbols(
+    fileName: string,
+    fullList: boolean
+  ): ISymbolInfo[] {
+    const context = this.getContext(fileName);
+
+    return context.listTopLevelSymbols(!fullList);
   }
 }

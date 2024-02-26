@@ -1755,7 +1755,7 @@ export class LPCParser extends antlr.Parser {
             }
 
             this.state = 402;
-            this.match(LPCParser.Identifier);
+            localContext._variableName = this.match(LPCParser.Identifier);
             this.state = 405;
             this.errorHandler.sync(this);
             _la = this.tokenStream.LA(1);
@@ -6849,6 +6849,7 @@ export class StructVariableDeclarationContext extends VariableDeclarationContext
 
 export class VariableDeclaratorContext extends antlr.ParserRuleContext {
     public _arraySpecifier?: Token | null;
+    public _variableName?: Token | null;
     public constructor(parent: antlr.ParserRuleContext | null, invokingState: number) {
         super(parent, invokingState);
     }

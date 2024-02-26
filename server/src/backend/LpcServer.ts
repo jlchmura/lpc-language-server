@@ -14,6 +14,7 @@ import {
 import { TextDocument } from "vscode-languageserver-textdocument";
 import * as path from "path";
 import { URI } from "vscode-uri";
+import { LpcSymbolProvider } from "./SymbolProvider";
 
 const CHANGE_DEBOUNCE_MS = 300;
 
@@ -28,6 +29,9 @@ export class LpcServer {
   private hasWorkspaceFolderCapability = false;
   private hasDiagnosticRelatedInformationCapability = false;
   private foldingRangeLimit = Number.MAX_VALUE;
+
+  // providers
+  private symbolProvider: LpcSymbolProvider;
 
   /** document listener */
   private readonly documents: TextDocuments<TextDocument> = new TextDocuments(
@@ -51,6 +55,11 @@ export class LpcServer {
           connection.console.log("Workspace folder change event received.");
         });
       }
+    });
+    this.connection.onDocumentSymbol((params) => {
+      const doc = this.documents.get(params.textDocument.uri);
+      const result= this.symbolProvider.getSymbols(doc);
+      return result;
     });
 
     // send document open/close/changes to facade
@@ -90,7 +99,7 @@ export class LpcServer {
     this.connection.listen();
   }
 
-  private onIntialize(params: InitializeParams) {    
+  private onIntialize(params: InitializeParams) {
     const capabilities = params.capabilities;
 
     // Does the client support the `workspace/configuration` request?
@@ -114,7 +123,7 @@ export class LpcServer {
         completionProvider: {
           resolveProvider: false,
         },
-        documentSymbolProvider: false,
+        documentSymbolProvider: true,
         hoverProvider: false,
         definitionProvider: false,
         foldingRangeProvider: false, // change to true to enable server-based folding
@@ -135,6 +144,9 @@ export class LpcServer {
 
     this.importDir = path.join(rootFolderPath, "lib");
     this.facade = new LpcFacade(this.importDir, rootFolderPath);
+
+    // init providers
+    this.symbolProvider = new LpcSymbolProvider(this.facade);
 
     return result;
   }

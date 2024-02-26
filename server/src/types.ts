@@ -42,3 +42,20 @@ export enum SymbolGroupKind {
     Identifier,
     MethodName,    
 }
+
+/** The definition of a single symbol (range and content it is made of). */
+export interface IDefinition {
+    text: string;
+    range: ILexicalRange;
+}
+
+
+export interface ISymbolInfo {
+    kind: SymbolKind;
+    name: string;
+    source: string;
+    definition?: IDefinition;
+
+    /** Used for code completion. Provides a small description for certain symbols. */
+    description?: string;
+}

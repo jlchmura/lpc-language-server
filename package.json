@@ -17,6 +17,13 @@
   "engines": {
     "vscode": "^1.75.0"
   },
+  "prettier": {
+    "trailingComma": "es5",
+    "tabWidth": 4,
+    "semi": true,
+    "singleQuote": false,
+    "bracketSameLine": true    
+  },
   "activationEvents": [
     "onLanguage:lpc"
   ],
