@@ -6,7 +6,7 @@
 
 import { BaseErrorListener, Recognizer, RecognitionException, Token, ATNSimulator } from "antlr4ng";
 
-import { IDiagnosticEntry, DiagnosticType } from "./types";
+import { IDiagnosticEntry, DiagnosticType } from "../types";
 
 export class ContextLexerErrorListener extends BaseErrorListener {
     public constructor(private errorList: IDiagnosticEntry[]) {

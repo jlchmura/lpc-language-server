@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { SourceContext } from "./SourceContext";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { IDiagnosticEntry } from "./types";
+import { IDiagnosticEntry } from "../types";
 
 export interface IContextEntry {
   context: SourceContext;
