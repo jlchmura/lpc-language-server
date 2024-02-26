@@ -55,7 +55,8 @@ export interface ISymbolInfo {
     name: string;
     source: string;
     definition?: IDefinition;
-
+    children: ISymbolInfo[];
+    
     /** Used for code completion. Provides a small description for certain symbols. */
-    description?: string;
+    description?: string;    
 }

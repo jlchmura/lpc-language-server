@@ -88,7 +88,6 @@ import { PrimaryExpressionContext } from "./LPCParser.js";
 import { LiteralExpressionContext } from "./LPCParser.js";
 import { IdentifierExpressionContext } from "./LPCParser.js";
 import { ParenExpressionContext } from "./LPCParser.js";
-import { MemberAccessExpressionContext } from "./LPCParser.js";
 import { PrimaryArrayExpressionContext } from "./LPCParser.js";
 import { PrimaryMappingExpressionContext } from "./LPCParser.js";
 import { StringConcatExpressionContext } from "./LPCParser.js";
@@ -1010,18 +1009,6 @@ export class LPCParserListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitParenExpression?: (ctx: ParenExpressionContext) => void;
-    /**
-     * Enter a parse tree produced by the `memberAccessExpression`
-     * labeled alternative in `LPCParser.primaryExpressionStart`.
-     * @param ctx the parse tree
-     */
-    enterMemberAccessExpression?: (ctx: MemberAccessExpressionContext) => void;
-    /**
-     * Exit a parse tree produced by the `memberAccessExpression`
-     * labeled alternative in `LPCParser.primaryExpressionStart`.
-     * @param ctx the parse tree
-     */
-    exitMemberAccessExpression?: (ctx: MemberAccessExpressionContext) => void;
     /**
      * Enter a parse tree produced by the `primaryArrayExpression`
      * labeled alternative in `LPCParser.primaryExpressionStart`.

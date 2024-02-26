@@ -88,7 +88,6 @@ import { PrimaryExpressionContext } from "./LPCParser.js";
 import { LiteralExpressionContext } from "./LPCParser.js";
 import { IdentifierExpressionContext } from "./LPCParser.js";
 import { ParenExpressionContext } from "./LPCParser.js";
-import { MemberAccessExpressionContext } from "./LPCParser.js";
 import { PrimaryArrayExpressionContext } from "./LPCParser.js";
 import { PrimaryMappingExpressionContext } from "./LPCParser.js";
 import { StringConcatExpressionContext } from "./LPCParser.js";
@@ -646,13 +645,6 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      * @return the visitor result
      */
     visitParenExpression?: (ctx: ParenExpressionContext) => Result;
-    /**
-     * Visit a parse tree produced by the `memberAccessExpression`
-     * labeled alternative in `LPCParser.primaryExpressionStart`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitMemberAccessExpression?: (ctx: MemberAccessExpressionContext) => Result;
     /**
      * Visit a parse tree produced by the `primaryArrayExpression`
      * labeled alternative in `LPCParser.primaryExpressionStart`.

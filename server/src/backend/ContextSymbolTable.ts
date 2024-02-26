@@ -1,12 +1,12 @@
 import {
-  SymbolTable,
-  BaseSymbol,
-  ISymbolTableOptions,
-  ScopedSymbol,
-  MethodSymbol as BaseMethodSymbol,
-  TypedSymbol,
-  SymbolConstructor,
-  RoutineSymbol,
+    SymbolTable,
+    BaseSymbol,
+    ISymbolTableOptions,
+    ScopedSymbol,
+    MethodSymbol as BaseMethodSymbol,
+    TypedSymbol,
+    SymbolConstructor,
+    RoutineSymbol,
 } from "antlr4-c3";
 import { ParserRuleContext } from "antlr4ng";
 import { SourceContext } from "./SourceContext";
@@ -16,244 +16,272 @@ export class ImportSymbol extends BaseSymbol {}
 export class MethodSymbol extends RoutineSymbol {}
 export class DefineSymbol extends BaseSymbol {}
 export class VariableSymbol extends TypedSymbol {}
-export class OperatorSymbol extends BaseSymbol { }
+export class OperatorSymbol extends BaseSymbol {}
 
 export class ContextSymbolTable extends SymbolTable {
-  public tree: ParserRuleContext; // Set by the owning source context after each parse run.
+    public tree: ParserRuleContext; // Set by the owning source context after each parse run.
 
-  private symbolReferences = new Map<string, number>();
+    private symbolReferences = new Map<string, number>();
 
-  // Caches with reverse lookup for indexed symbols.
-  private namedActions: BaseSymbol[] = [];
-  private parserActions: BaseSymbol[] = [];
-  private lexerActions: BaseSymbol[] = [];
-  private parserPredicates: BaseSymbol[] = [];
-  private lexerPredicates: BaseSymbol[] = [];
+    // Caches with reverse lookup for indexed symbols.
+    private namedActions: BaseSymbol[] = [];
+    private parserActions: BaseSymbol[] = [];
+    private lexerActions: BaseSymbol[] = [];
+    private parserPredicates: BaseSymbol[] = [];
+    private lexerPredicates: BaseSymbol[] = [];
 
-  public constructor(
-    name: string,
-    options: ISymbolTableOptions,
-    public owner?: SourceContext
-  ) {
-    super(name, options);
-  }
-
-  public override clear(): void {
-    // Before clearing the dependencies make sure the owners are updated.
-    if (this.owner) {
-      for (const dep of this.dependencies) {
-        if (dep instanceof ContextSymbolTable && dep.owner) {
-          this.owner.removeDependency(dep.owner);
-        }
-      }
+    public constructor(
+        name: string,
+        options: ISymbolTableOptions,
+        public owner?: SourceContext
+    ) {
+        super(name, options);
     }
 
-    this.symbolReferences.clear();
-    this.namedActions = [];
-    this.parserActions = [];
-    this.lexerActions = [];
-    this.parserPredicates = [];
-    this.lexerPredicates = [];
-
-    super.clear();
-  }
-
-  public symbolExists(
-    name: string,
-    kind: SymbolKind,
-    localOnly: boolean
-  ): boolean {
-    return this.getSymbolOfType(name, kind, localOnly) !== undefined;
-  }
-
-  private getSymbolOfType(
-    name: string,
-    kind: SymbolKind,
-    localOnly: boolean
-  ): BaseSymbol | undefined {
-    switch (kind) {
-      case SymbolKind.Import:
-        return this.resolveSync(name, localOnly) as ImportSymbol;
-      case SymbolKind.Define:
-        return this.resolveSync(name, localOnly) as DefineSymbol;
-      case SymbolKind.Method:
-        return this.resolveSync(name, localOnly) as MethodSymbol;
-      case SymbolKind.Variable:
-        return this.resolveSync(name, localOnly) as VariableSymbol;
-      default:
-    }
-
-    return undefined;
-  }
-
-  public incrementSymbolRefCount(symbolName: string): void {
-    const reference = this.symbolReferences.get(symbolName);
-    if (reference) {
-      this.symbolReferences.set(symbolName, reference + 1);
-    } else {
-      this.symbolReferences.set(symbolName, 1);
-    }
-  }
-
-  public symbolExistsInGroup(
-    symbol: string,
-    kind: SymbolGroupKind,
-    localOnly: boolean
-  ): boolean {
-    // Group of lookups.
-    switch (kind) {
-      case SymbolGroupKind.Identifier: {
-        if (this.symbolExists(symbol, SymbolKind.Variable, localOnly)) {
-          return true;
+    public override clear(): void {
+        // Before clearing the dependencies make sure the owners are updated.
+        if (this.owner) {
+            for (const dep of this.dependencies) {
+                if (dep instanceof ContextSymbolTable && dep.owner) {
+                    this.owner.removeDependency(dep.owner);
+                }
+            }
         }
 
-        break;
-      }
-      // case SymbolGroupKind.TokenRef: {
-      //     if (this.symbolExists(symbol, SymbolKind.BuiltInLexerToken, localOnly)) {
-      //         return true;
-      //     }
-      //     if (this.symbolExists(symbol, SymbolKind.VirtualLexerToken, localOnly)) {
-      //         return true;
-      //     }
-      //     if (this.symbolExists(symbol, SymbolKind.FragmentLexerToken, localOnly)) {
-      //         return true;
-      //     }
-      //     if (this.symbolExists(symbol, SymbolKind.LexerRule, localOnly)) {
-      //         return true;
-      //     }
-      //     break;
-      // }
+        this.symbolReferences.clear();
+        this.namedActions = [];
+        this.parserActions = [];
+        this.lexerActions = [];
+        this.parserPredicates = [];
+        this.lexerPredicates = [];
 
-      // case SymbolGroupKind.RuleRef: {
-      //     if (this.symbolExists(symbol, SymbolKind.ParserRule, localOnly)) {
-      //         return true;
-      //     }
-      //     break;
-      // }
-
-      default: {
-        break;
-      }
+        super.clear();
     }
 
-    return false;
-  }
+    public symbolExists(
+        name: string,
+        kind: SymbolKind,
+        localOnly: boolean
+    ): boolean {
+        return this.getSymbolOfType(name, kind, localOnly) !== undefined;
+    }
 
-  public getSymbolInfo(symbol: string | BaseSymbol): ISymbolInfo | undefined {
-    if (!(symbol instanceof BaseSymbol)) {
-      const temp = this.resolveSync(symbol);
-      if (!temp) {
+    private getSymbolOfType(
+        name: string,
+        kind: SymbolKind,
+        localOnly: boolean
+    ): BaseSymbol | undefined {
+        switch (kind) {
+            case SymbolKind.Import:
+                return this.resolveSync(name, localOnly) as ImportSymbol;
+            case SymbolKind.Define:
+                return this.resolveSync(name, localOnly) as DefineSymbol;
+            case SymbolKind.Method:
+                return this.resolveSync(name, localOnly) as MethodSymbol;
+            case SymbolKind.Variable:
+                return this.resolveSync(name, localOnly) as VariableSymbol;
+            default:
+        }
+
         return undefined;
-      }
-      symbol = temp;
     }
 
-    let kind = SourceContext.getKindFromSymbol(symbol);
-    const name = symbol.name;
-
-    // Special handling for certain symbols.
-    switch (kind) {
-      //case SymbolKind.TokenVocab:
-      case SymbolKind.Import: {
-        // Get the source id from a dependent module.
-        this.dependencies.forEach((table: ContextSymbolTable) => {
-          if (table.owner && table.owner.sourceId.includes(name)) {
-            return {
-              // TODO: implement a best match search.
-              kind,
-              name,
-              source: table.owner.fileName,
-              definition: SourceContext.definitionForContext(table.tree, true),
-            };
-          }
-        });
-
-        break;
-      }
-
-      case SymbolKind.Terminal: {
-        // These are references to a depending grammar.
-        this.dependencies.forEach((table: ContextSymbolTable) => {
-          const actualSymbol = table.resolveSync(name);
-          if (actualSymbol) {
-            symbol = actualSymbol;
-            kind = SourceContext.getKindFromSymbol(actualSymbol);
-          }
-        });
-
-        break;
-      }
-
-      default: {
-        break;
-      }
-    }
-
-    const symbolTable = symbol.symbolTable as ContextSymbolTable;
-
-    return {
-      kind,
-      name,
-      source:
-        symbol.context && symbolTable && symbolTable.owner
-          ? symbolTable.owner.fileName
-          : "ANTLR runtime",
-      definition: SourceContext.definitionForContext(symbol.context, true),
-      description: undefined,
-    };
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private symbolsOfType<T extends BaseSymbol, Args extends unknown[]>(
-    t: SymbolConstructor<T, Args>,
-    localOnly = false
-  ): ISymbolInfo[] {
-    const result: ISymbolInfo[] = [];
-
-    const symbols = this.getAllSymbolsSync(t, localOnly);
-    const filtered = new Set(symbols); // Filter for duplicates.
-    for (const symbol of filtered) {
-      const root = symbol.root as ContextSymbolTable;
-      result.push({
-        kind: SourceContext.getKindFromSymbol(symbol),
-        name: symbol.name,
-        source: root.owner ? root.owner.fileName : "ANTLR runtime",
-        definition: SourceContext.definitionForContext(symbol.context, true),
-        description: undefined,
-      });
-    }
-
-    return result;
-  }
-
-  public listTopLevelSymbols(localOnly: boolean): ISymbolInfo[] {
-    const result: ISymbolInfo[] = [];
-
-    const options = this.resolveSync("options", true);
-    if (options) {
-      const tokenVocab = options.resolveSync("tokenVocab", true);
-      if (tokenVocab) {
-        const value = this.getSymbolInfo(tokenVocab);
-        if (value) {
-          result.push(value);
+    public incrementSymbolRefCount(symbolName: string): void {
+        const reference = this.symbolReferences.get(symbolName);
+        if (reference) {
+            this.symbolReferences.set(symbolName, reference + 1);
+        } else {
+            this.symbolReferences.set(symbolName, 1);
         }
-      }
     }
 
-    let symbols = this.symbolsOfType(ImportSymbol, localOnly);
-    result.push(...symbols);
-    // symbols = this.symbolsOfType(BuiltInTokenSymbol, localOnly);
-    // result.push(...symbols);
-    symbols = this.symbolsOfType(MethodSymbol, localOnly);
-    result.push(...symbols);
-    symbols = this.symbolsOfType(VariableSymbol, localOnly);
-    result.push(...symbols);
-    symbols = this.symbolsOfType(ImportSymbol, localOnly);
-    result.push(...symbols);
-    symbols = this.symbolsOfType(DefineSymbol, localOnly);
-    result.push(...symbols);
+    public symbolExistsInGroup(
+        symbol: string,
+        kind: SymbolGroupKind,
+        localOnly: boolean
+    ): boolean {
+        // Group of lookups.
+        switch (kind) {
+            case SymbolGroupKind.Identifier: {
+                if (this.symbolExists(symbol, SymbolKind.Variable, localOnly)) {
+                    return true;
+                }
 
-    return result;
-  }
+                break;
+            }
+            // case SymbolGroupKind.TokenRef: {
+            //     if (this.symbolExists(symbol, SymbolKind.BuiltInLexerToken, localOnly)) {
+            //         return true;
+            //     }
+            //     if (this.symbolExists(symbol, SymbolKind.VirtualLexerToken, localOnly)) {
+            //         return true;
+            //     }
+            //     if (this.symbolExists(symbol, SymbolKind.FragmentLexerToken, localOnly)) {
+            //         return true;
+            //     }
+            //     if (this.symbolExists(symbol, SymbolKind.LexerRule, localOnly)) {
+            //         return true;
+            //     }
+            //     break;
+            // }
+
+            // case SymbolGroupKind.RuleRef: {
+            //     if (this.symbolExists(symbol, SymbolKind.ParserRule, localOnly)) {
+            //         return true;
+            //     }
+            //     break;
+            // }
+
+            default: {
+                break;
+            }
+        }
+
+        return false;
+    }
+
+    public getSymbolInfo(symbol: string | BaseSymbol): ISymbolInfo | undefined {
+        if (!(symbol instanceof BaseSymbol)) {
+            const temp = this.resolveSync(symbol);
+            if (!temp) {
+                return undefined;
+            }
+            symbol = temp;
+        }
+
+        let kind = SourceContext.getKindFromSymbol(symbol);
+        const name = symbol.name;
+
+        // Special handling for certain symbols.
+        switch (kind) {
+            //case SymbolKind.TokenVocab:
+            case SymbolKind.Import: {
+                // Get the source id from a dependent module.
+                this.dependencies.forEach((table: ContextSymbolTable) => {
+                    if (table.owner && table.owner.sourceId.includes(name)) {
+                        return {
+                            // TODO: implement a best match search.
+                            kind,
+                            name,
+                            source: table.owner.fileName,
+                            definition: SourceContext.definitionForContext(
+                                table.tree,
+                                true
+                            ),
+                        };
+                    }
+                });
+
+                break;
+            }
+
+            case SymbolKind.Terminal: {
+                // These are references to a depending grammar.
+                this.dependencies.forEach((table: ContextSymbolTable) => {
+                    const actualSymbol = table.resolveSync(name);
+                    if (actualSymbol) {
+                        symbol = actualSymbol;
+                        kind = SourceContext.getKindFromSymbol(actualSymbol);
+                    }
+                });
+
+                break;
+            }
+
+            default: {
+                break;
+            }
+        }
+
+        const symbolTable = symbol.symbolTable as ContextSymbolTable;
+
+        return {
+            kind,
+            name,
+            source:
+                symbol.context && symbolTable && symbolTable.owner
+                    ? symbolTable.owner.fileName
+                    : "LDMud Built-In",
+            definition: SourceContext.definitionForContext(
+                symbol.context,
+                true
+            ),
+            description: undefined,
+            children: [],
+        };
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private symbolsOfType<T extends BaseSymbol, Args extends unknown[]>(
+        t: SymbolConstructor<T, Args>,
+        localOnly = false,
+        context: ScopedSymbol = this
+    ): ISymbolInfo[] {
+        const result: ISymbolInfo[] = [];
+
+        const symbols = context.getAllSymbolsSync(t, localOnly);
+        const filtered = new Set(symbols); // Filter for duplicates.
+
+        for (const symbol of filtered) {
+            const root = symbol.root as ContextSymbolTable;
+
+            let children: ISymbolInfo[] = [];
+            if (symbol instanceof ScopedSymbol) {
+                children.push(
+                    ...this.symbolsOfType(VariableSymbol, localOnly, symbol)
+                );
+            }
+
+            result.push({
+                kind: SourceContext.getKindFromSymbol(symbol),
+                name: symbol.name,
+                source: root.owner ? root.owner.fileName : "LDMud Built-In",
+                definition: SourceContext.definitionForContext(
+                    symbol.context,
+                    true
+                ),
+                description: undefined,
+                children: children,
+            });
+        }
+
+        return result;
+    }
+
+    public listChildSymbolsOfType<T extends BaseSymbol, Args extends unknown[]>(
+        s: ScopedSymbol,
+        t: SymbolConstructor<T, Args>
+    ): ISymbolInfo[] {
+        return this.symbolsOfType(t, true, s);
+    }
+
+    public listTopLevelSymbols(localOnly: boolean): ISymbolInfo[] {
+        const result: ISymbolInfo[] = [];
+
+        const options = this.resolveSync("options", true);
+        if (options) {
+            const tokenVocab = options.resolveSync("tokenVocab", true);
+            if (tokenVocab) {
+                const value = this.getSymbolInfo(tokenVocab);
+                if (value) {
+                    result.push(value);
+                }
+            }
+        }
+
+        let symbols = this.symbolsOfType(ImportSymbol, localOnly);
+        result.push(...symbols);
+        // symbols = this.symbolsOfType(BuiltInTokenSymbol, localOnly);
+        // result.push(...symbols);
+        symbols = this.symbolsOfType(MethodSymbol, localOnly);
+        result.push(...symbols);
+        symbols = this.symbolsOfType(VariableSymbol, localOnly);
+        result.push(...symbols);
+        symbols = this.symbolsOfType(ImportSymbol, localOnly);
+        result.push(...symbols);
+        symbols = this.symbolsOfType(DefineSymbol, localOnly);
+        result.push(...symbols);
+
+        return result;
+    }
 }

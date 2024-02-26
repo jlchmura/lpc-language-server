@@ -434,7 +434,7 @@ primaryExpressionStart
     | Identifier                            # identifierExpression    
     | PAREN_OPEN expression PAREN_CLOSE     # parenExpression
     //| inlineClosureExpression               # primaryInlineClosureExpression
-    | typeSpecifier                         # memberAccessExpression
+    //| typeSpecifier                         # memberAccessExpression
     //| lambdaExpression                      # primaryLambdaExpression
     //| callOtherOb=expression ARROW callOtherTarget PAREN_OPEN expressionList? PAREN_CLOSE # callOtherExpression
     //| inheritSuperExpression                # primaryInheritSuperExpression
