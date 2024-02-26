@@ -9,10 +9,10 @@ import {
     VariableSymbol,
 } from "./ContextSymbolTable";
 import {
-    FunctionDeclarationContext,    
+    FunctionDeclarationContext,
     IncludeDirectiveContext,
     InheritStatementContext,
-    PrimitiveTypeVariableDeclarationContext,    
+    PrimitiveTypeVariableDeclarationContext,
 } from "../parser3/LPCParser";
 import { ParseTree, TerminalNode } from "antlr4ng";
 import { LPCLexer } from "../parser3/LPCLexer";
@@ -46,9 +46,13 @@ export class DetailsListener extends LPCParserListener {
         ctx: PrimitiveTypeVariableDeclarationContext
     ) => {
         let decs = ctx.variableDeclarator();
-        
-        decs.forEach((d) => {            
-            const s = this.addNewSymbol(VariableSymbol, ctx, d._variableName.text);            
+
+        decs.forEach((d) => {
+            const s = this.addNewSymbol(
+                VariableSymbol,
+                ctx,
+                d._variableName.text
+            );
         });
     };
 
@@ -58,7 +62,7 @@ export class DetailsListener extends LPCParserListener {
         this.imports.push(filename);
     };
 
-    exitInheritStatement= (ctx: InheritStatementContext) => {
+    exitInheritStatement = (ctx: InheritStatementContext) => {
         const filename = ctx._inheritTarget!.text;
         this.addNewSymbol(InheritSymbol, ctx, filename);
         this.imports.push(filename);

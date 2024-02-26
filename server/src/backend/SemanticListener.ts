@@ -24,14 +24,14 @@ export class SemanticListener extends LPCParserListener {
 
         const parentContext = this.symbolTable.findSymbolDefinition(ctx);
         const parentScope = parentContext?.getParentOfType(ScopedSymbol);
-                
+
         this.checkSymbolExistence(
             true,
             SymbolGroupKind.Identifier,
             symbol,
             "Unknown symbol",
             id.symbol,
-            parentScope                 
+            parentScope
         );
         this.symbolTable.incrementSymbolRefCount(symbol);
     };
@@ -58,10 +58,13 @@ export class SemanticListener extends LPCParserListener {
         offendingToken: Token,
         context?: ScopedSymbol
     ): void {
-
         if (
-            this.symbolTable.symbolExistsInGroup(symbol, kind, false, context) !==
-            mustExist
+            this.symbolTable.symbolExistsInGroup(
+                symbol,
+                kind,
+                false,
+                context
+            ) !== mustExist
         ) {
             const entry: IDiagnosticEntry = {
                 type: DiagnosticType.Error,

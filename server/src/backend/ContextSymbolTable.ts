@@ -63,9 +63,10 @@ export class ContextSymbolTable extends SymbolTable {
         name: string,
         kind: SymbolKind,
         localOnly: boolean,
-        context: ScopedSymbol=this
+        context: ScopedSymbol = this
     ): boolean {
-        const result = this.getSymbolOfType(name, kind, localOnly, context) !== undefined;        
+        const result =
+            this.getSymbolOfType(name, kind, localOnly, context) !== undefined;
         return result;
     }
 
@@ -85,8 +86,8 @@ export class ContextSymbolTable extends SymbolTable {
             case SymbolKind.Variable:
                 return context.resolveSync(name, localOnly) as VariableSymbol;
             default:
-        }    
-        
+        }
+
         return undefined;
     }
 
@@ -107,11 +108,25 @@ export class ContextSymbolTable extends SymbolTable {
     ): boolean {
         // Group of lookups.
         switch (kind) {
-            case SymbolGroupKind.Identifier: {                
-                if (this.symbolExists(symbol, SymbolKind.Variable, localOnly,context)) {
+            case SymbolGroupKind.Identifier: {
+                if (
+                    this.symbolExists(
+                        symbol,
+                        SymbolKind.Variable,
+                        localOnly,
+                        context
+                    )
+                ) {
                     return true;
                 }
-                if (this.symbolExists(symbol, SymbolKind.Method, localOnly,context)) {
+                if (
+                    this.symbolExists(
+                        symbol,
+                        SymbolKind.Method,
+                        localOnly,
+                        context
+                    )
+                ) {
                     return true;
                 }
 

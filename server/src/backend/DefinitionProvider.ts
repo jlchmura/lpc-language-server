@@ -6,7 +6,10 @@ import { URI } from "vscode-uri";
 export class LpcDefinitionProvider {
     constructor(private backend: LpcFacade) {}
 
-    public getDefinition(document: TextDocument, position: Position): LocationLink[] {
+    public getDefinition(
+        document: TextDocument,
+        position: Position
+    ): LocationLink[] {
         const info = this.backend.symbolInfoAtPosition(
             document.uri,
             position.character,
@@ -30,7 +33,13 @@ export class LpcDefinitionProvider {
             return [LocationLink.create(info.source, range, range)];
         } else {
             // Empty for built-in entities.
-            return [LocationLink.create("", Range.create(0, 0, 0, 0), Range.create(0, 0, 0, 0))];
+            return [
+                LocationLink.create(
+                    "",
+                    Range.create(0, 0, 0, 0),
+                    Range.create(0, 0, 0, 0)
+                ),
+            ];
         }
     }
 }

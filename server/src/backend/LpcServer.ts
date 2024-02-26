@@ -60,7 +60,7 @@ export class LpcServer {
                 });
             }
         });
-        
+
         // Symbol Provider
         this.connection.onDocumentSymbol((params) => {
             const doc = this.documents.get(params.textDocument.uri);
@@ -69,14 +69,17 @@ export class LpcServer {
         });
 
         // Definition Provider
-        this.connection.onDefinition(params => {
+        this.connection.onDefinition((params) => {
             const doc = this.documents.get(params.textDocument.uri);
-            const result = this.definitionProvider.getDefinition(doc, params.position);
+            const result = this.definitionProvider.getDefinition(
+                doc,
+                params.position
+            );
             return result;
         });
 
         // send document open/close/changes to facade
-        this.documents.onDidOpen((e) => {            
+        this.documents.onDidOpen((e) => {
             this.facade.loadLpc(e.document.uri, e.document.getText());
             this.processDiagnostic(e.document);
         });
