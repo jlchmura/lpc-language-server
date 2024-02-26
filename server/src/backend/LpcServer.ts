@@ -90,10 +90,7 @@ export class LpcServer {
     this.connection.listen();
   }
 
-  private onIntialize(params: InitializeParams) {
-    console.log("onInitialize");
-    console.dir(params.workspaceFolders);
-
+  private onIntialize(params: InitializeParams) {    
     const capabilities = params.capabilities;
 
     // Does the client support the `workspace/configuration` request?

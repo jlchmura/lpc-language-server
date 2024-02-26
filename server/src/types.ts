@@ -20,15 +20,25 @@ export interface ILexicalRange {
     end: { column: number; row: number; };
 }
 
-export interface IContextDetails {
-    type: GrammarType;
-    unreferencedRules: string[];
+export interface IContextDetails {    
+    //unreferencedRules: string[];
+    unreferencedMethods: string[];
     imports: string[];
 }
 
-export enum GrammarType {
+export enum SymbolKind {
     Unknown,
-    Parser,
-    Lexer,
-    Combined,
+
+    Terminal,
+    Keyword,
+    Import,
+    Define,
+    Method,        
+    Variable
+}
+
+/** Multiple symbol kinds can be involved in a symbol lookup. */
+export enum SymbolGroupKind {
+    Identifier,
+    MethodName,    
 }
