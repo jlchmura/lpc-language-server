@@ -31,7 +31,8 @@ export enum SymbolKind {
 
     Terminal,
     Keyword,
-    Import,
+    Include,
+    Inherit,
     Define,
     Method,        
     Variable

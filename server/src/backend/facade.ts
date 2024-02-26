@@ -4,17 +4,38 @@ import { SourceContext } from "./SourceContext";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { IDiagnosticEntry, ISymbolInfo } from "../types";
 import { BaseSymbol } from "antlr4-c3";
+import { URI } from "vscode-uri";
 
 export interface IContextEntry {
     context: SourceContext;
     refCount: number;
     dependencies: string[];
-    grammar: string; // The grammar file name.
+    filename: string;
+}
+
+enum DependencySearchType {
+    Local,
+    Global,
+}
+
+/**
+ * tests if a filename is surrounded by chars @c and if so
+ * removes them
+ * @param filename
+ * @param c
+ * @returns
+ */
+function testFilename(filename: string, c: string, cEnd: string): string {
+    if (filename.startsWith(c) && filename.endsWith(cEnd)) {
+        return filename.slice(1, filename.length - 1);
+    } else {
+        return filename;
+    }
 }
 
 /**
  * this stores the context of the LPC runtime which contains
- * source context, dependencies, and grammar for each LPC file.
+ * source context, dependencies, and code for each LPC file.
  */
 export class LpcFacade {
     /**
@@ -32,7 +53,7 @@ export class LpcFacade {
         console.log("LpcFacade created", importDir, workspaceDir);
     }
 
-    public loadGrammar(fileName: string, source?: string): SourceContext {
+    public loadLpc(fileName: string, source?: string): SourceContext {
         let contextEntry = this.sourceContexts.get(fileName);
         if (!contextEntry) {
             if (!source) {
@@ -53,25 +74,25 @@ export class LpcFacade {
                 context,
                 refCount: 0,
                 dependencies: [],
-                grammar: fileName,
+                filename: fileName,
             };
             this.sourceContexts.set(fileName, contextEntry);
 
             // Do an initial parse run and load all dependencies of this context
             // and pass their references to this context.
             context.setText(source);
-            this.parseGrammar(contextEntry);
+            this.parseLpc(contextEntry);
         }
         contextEntry.refCount++;
 
         return contextEntry.context;
     }
 
-    public releaseGrammar(fileName: string): void {
-        this.internalReleaseGrammar(fileName);
+    public releaseLpc(fileName: string): void {
+        this.internalReleaseLpc(fileName);
     }
 
-    private internalReleaseGrammar(
+    private internalReleaseLpc(
         fileName: string,
         referencing?: IContextEntry
     ): void {
@@ -89,13 +110,13 @@ export class LpcFacade {
 
                 // Release also all dependencies.
                 for (const dep of contextEntry.dependencies) {
-                    this.internalReleaseGrammar(dep, contextEntry);
+                    this.internalReleaseLpc(dep, contextEntry);
                 }
             }
         }
     }
 
-    private parseGrammar(contextEntry: IContextEntry) {
+    private parseLpc(contextEntry: IContextEntry) {
         const oldDependencies = contextEntry.dependencies;
         contextEntry.dependencies = [];
         const newDependencies = contextEntry.context.parse();
@@ -111,7 +132,7 @@ export class LpcFacade {
         // not been ref-counted by the above dependency loading (or which are not used by other
         // grammars).
         for (const dep of oldDependencies) {
-            this.releaseGrammar(dep);
+            this.releaseLpc(dep);
         }
     }
 
@@ -137,50 +158,47 @@ export class LpcFacade {
         // The given import dir is used to locate the dependency (either relative to the base path or via an
         // absolute path).
         // If we cannot find the grammar file that way we try the base folder.
-        const basePath = path.dirname(contextEntry.grammar);
+
+        const contextFilename = contextEntry.filename.startsWith("file:")
+            ? URI.parse(contextEntry.filename).fsPath
+            : contextEntry.filename;
+        const basePath = path.dirname(contextFilename);
         const fullPath = path.isAbsolute(this.importDir)
             ? this.importDir
             : path.join(basePath, this.importDir);
         try {
-            const depPath = path.join(fullPath, depName + ".g4");
-            fs.accessSync(depPath, fs.constants.R_OK);
-            // Target path can be read. Now check the target file.
-            contextEntry.dependencies.push(depPath);
+            let filename = depName;
+            // figure out the search type
+            let depType = DependencySearchType.Local;
+            if (depName !== (filename = testFilename(filename, '"', '"'))) {
+                depType = DependencySearchType.Local;
+            } else if (
+                depName !== (filename = testFilename(filename, "<", ">"))
+            ) {
+                depType = DependencySearchType.Global;
+            }
 
-            return this.loadGrammar(depPath);
-        } catch (e) {
-            // ignore
-        }
+            // add a file extension if there isn't one
+            if (!filename.endsWith(".c") && !filename.endsWith(".h")) {
+                filename += ".c";
+            }
 
-        // File not found. Try other extension.
-        try {
-            const depPath = path.join(fullPath, depName + ".g");
-            fs.accessSync(depPath, fs.constants.R_OK);
-            // Target path can be read. Now check the target file.
-            contextEntry.dependencies.push(depPath);
+            const searchPaths = [basePath, fullPath];
+            if (depType === DependencySearchType.Global) {
+                searchPaths.reverse();
+            }
 
-            return this.loadGrammar(depPath);
-        } catch (e) {
-            // ignore
-        }
-
-        // Couldn't find it in the import folder. Use the base then.
-        try {
-            const depPath = path.join(basePath, depName + ".g4");
-            fs.statSync(depPath);
-            contextEntry.dependencies.push(depPath);
-
-            return this.loadGrammar(depPath);
-        } catch (e) {
-            // ignore
-        }
-
-        try {
-            const depPath = path.join(basePath, depName + ".g");
-            fs.statSync(depPath);
-            contextEntry.dependencies.push(depPath);
-
-            return this.loadGrammar(depPath);
+            for (const p of searchPaths) {
+                const depPath = path.join(p, filename);
+                try {
+                    fs.accessSync(depPath, fs.constants.R_OK);
+                    contextEntry.dependencies.push(depPath);
+                    return this.loadLpc(depPath);                    
+                } catch (e) {
+                    // ignore
+                    const i = 0;
+                }
+            }
         } catch (e) {
             // ignore
         }
@@ -195,7 +213,7 @@ export class LpcFacade {
     ): SourceContext {
         const contextEntry = this.sourceContexts.get(fileName);
         if (!contextEntry) {
-            return this.loadGrammar(fileName, source);
+            return this.loadLpc(fileName, source);
         }
 
         return contextEntry.context;
@@ -215,7 +233,7 @@ export class LpcFacade {
     public reparse(fileName: string): void {
         const contextEntry = this.sourceContexts.get(fileName);
         if (contextEntry) {
-            this.parseGrammar(contextEntry);
+            this.parseLpc(contextEntry);
         }
     }
 

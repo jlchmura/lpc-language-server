@@ -21,7 +21,7 @@ export class SemanticListener extends LPCParserListener {
         const id = ctx.Identifier();
         const symbol = id.getText();
         this.checkSymbolExistence(
-            false,
+            true,
             SymbolGroupKind.Identifier,
             symbol,
             "Unknown symbol",

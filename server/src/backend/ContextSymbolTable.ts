@@ -12,7 +12,8 @@ import { ParserRuleContext } from "antlr4ng";
 import { SourceContext } from "./SourceContext";
 import { ISymbolInfo, SymbolGroupKind, SymbolKind } from "../types";
 
-export class ImportSymbol extends BaseSymbol {}
+export class IncludeSymbol extends BaseSymbol {}
+export class InheritSymbol extends BaseSymbol {}
 export class MethodSymbol extends RoutineSymbol {}
 export class DefineSymbol extends BaseSymbol {}
 export class VariableSymbol extends TypedSymbol {}
@@ -72,8 +73,8 @@ export class ContextSymbolTable extends SymbolTable {
         localOnly: boolean
     ): BaseSymbol | undefined {
         switch (kind) {
-            case SymbolKind.Import:
-                return this.resolveSync(name, localOnly) as ImportSymbol;
+            case SymbolKind.Include:
+                return this.resolveSync(name, localOnly) as IncludeSymbol;
             case SymbolKind.Define:
                 return this.resolveSync(name, localOnly) as DefineSymbol;
             case SymbolKind.Method:
@@ -104,6 +105,9 @@ export class ContextSymbolTable extends SymbolTable {
         switch (kind) {
             case SymbolGroupKind.Identifier: {
                 if (this.symbolExists(symbol, SymbolKind.Variable, localOnly)) {
+                    return true;
+                }
+                if (this.symbolExists(symbol, SymbolKind.Method, localOnly)) {
                     return true;
                 }
 
@@ -155,7 +159,7 @@ export class ContextSymbolTable extends SymbolTable {
         // Special handling for certain symbols.
         switch (kind) {
             //case SymbolKind.TokenVocab:
-            case SymbolKind.Import: {
+            case SymbolKind.Include: {
                 // Get the source id from a dependent module.
                 this.dependencies.forEach((table: ContextSymbolTable) => {
                     if (table.owner && table.owner.sourceId.includes(name)) {
@@ -269,7 +273,7 @@ export class ContextSymbolTable extends SymbolTable {
             }
         }
 
-        let symbols = this.symbolsOfType(ImportSymbol, localOnly);
+        let symbols = this.symbolsOfType(IncludeSymbol, localOnly);
         result.push(...symbols);
         // symbols = this.symbolsOfType(BuiltInTokenSymbol, localOnly);
         // result.push(...symbols);
@@ -277,7 +281,7 @@ export class ContextSymbolTable extends SymbolTable {
         result.push(...symbols);
         symbols = this.symbolsOfType(VariableSymbol, localOnly);
         result.push(...symbols);
-        symbols = this.symbolsOfType(ImportSymbol, localOnly);
+        symbols = this.symbolsOfType(InheritSymbol, localOnly);
         result.push(...symbols);
         symbols = this.symbolsOfType(DefineSymbol, localOnly);
         result.push(...symbols);

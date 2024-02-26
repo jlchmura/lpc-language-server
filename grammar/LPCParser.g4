@@ -11,11 +11,15 @@ options {
 program: (declaration | preprocessorDirective | inheritStatement)* EOF;
 
 preprocessorDirective
-    : selectionDirective
+    : selectionDirective    
     | HASH directiveTypeWithArguments directiveArgument
     | definePreprocessorDirective
-    | HASH directiveTypeInclude directiveIncludeFile
+    | includeDirective
     | HASH directiveTypePragma Identifier (COMMA Identifier)*
+    ;
+
+includeDirective
+    : HASH directiveTypeInclude directiveIncludeFile
     ;
 
 

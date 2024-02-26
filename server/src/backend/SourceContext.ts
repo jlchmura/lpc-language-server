@@ -12,8 +12,7 @@ import {
     TerminalNode,
 } from "antlr4ng";
 import { LPCLexer } from "../parser3/LPCLexer";
-import {
-    FunctionDeclarationContext,
+import {    
     LPCParser,
     ProgramContext,
 } from "../parser3/LPCParser";
@@ -31,7 +30,8 @@ import { ContextLexerErrorListener } from "./ContextLexerErrorListener";
 import {
     ContextSymbolTable,
     DefineSymbol,
-    ImportSymbol,
+    IncludeSymbol,
+    InheritSymbol,
     MethodSymbol,
     VariableSymbol,
 } from "./ContextSymbolTable";
@@ -48,7 +48,8 @@ export class SourceContext {
     });
     private static symbolToKindMap: Map<new () => BaseSymbol, SymbolKind> =
         new Map([
-            [ImportSymbol, SymbolKind.Import],
+            [IncludeSymbol, SymbolKind.Include],
+            [InheritSymbol, SymbolKind.Inherit],
             [MethodSymbol, SymbolKind.Method],
             [DefineSymbol, SymbolKind.Define],
             [VariableSymbol, SymbolKind.Variable],

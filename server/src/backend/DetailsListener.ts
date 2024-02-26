@@ -1,10 +1,18 @@
 import { BaseSymbol, SymbolConstructor } from "antlr4-c3";
 import { LPCParserListener } from "../parser3/LPCParserListener";
-import { ContextSymbolTable, MethodSymbol, OperatorSymbol, VariableSymbol } from "./ContextSymbolTable";
 import {
-    FunctionDeclarationContext,
-    PrimitiveTypeVariableDeclarationContext,
-    VariableDeclaratorContext,
+    ContextSymbolTable,
+    IncludeSymbol,
+    InheritSymbol,
+    MethodSymbol,
+    OperatorSymbol,
+    VariableSymbol,
+} from "./ContextSymbolTable";
+import {
+    FunctionDeclarationContext,    
+    IncludeDirectiveContext,
+    InheritStatementContext,
+    PrimitiveTypeVariableDeclarationContext,    
 } from "../parser3/LPCParser";
 import { ParseTree, TerminalNode } from "antlr4ng";
 import { LPCLexer } from "../parser3/LPCLexer";
@@ -43,6 +51,17 @@ export class DetailsListener extends LPCParserListener {
         });
     };
 
+    exitIncludeDirective = (ctx: IncludeDirectiveContext) => {
+        const filename = ctx.directiveIncludeFile().getText();
+        this.addNewSymbol(IncludeSymbol, ctx, filename);
+        this.imports.push(filename);
+    };
+
+    exitInheritStatement= (ctx: InheritStatementContext) => {
+        const filename = ctx._inheritTarget!.text;
+        this.addNewSymbol(InheritSymbol, ctx, filename);
+        this.imports.push(filename);
+    };
 
     public override visitTerminal = (node: TerminalNode): void => {
         // Ignore individual terminals under certain circumstances.
@@ -61,11 +80,11 @@ export class DetailsListener extends LPCParserListener {
             case LPCLexer.AND:
             case LPCLexer.OR:
             case LPCLexer.XOR:
-            case LPCLexer.NOT:            
+            case LPCLexer.NOT:
             case LPCLexer.INC:
-            case LPCLexer.DEC:            
+            case LPCLexer.DEC:
                 this.addNewSymbol(OperatorSymbol, node, node.getText());
-                break;            
+                break;
             default: {
                 // Ignore the rest.
                 break;

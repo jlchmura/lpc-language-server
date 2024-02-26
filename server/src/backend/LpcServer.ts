@@ -65,12 +65,12 @@ export class LpcServer {
         });
 
         // send document open/close/changes to facade
-        this.documents.onDidOpen((e) => {
-            this.facade.loadGrammar(e.document.uri);
+        this.documents.onDidOpen((e) => {            
+            this.facade.loadLpc(e.document.uri, e.document.getText());
             this.processDiagnostic(e.document);
         });
         this.documents.onDidClose((e) => {
-            this.facade.releaseGrammar(e.document.uri);
+            this.facade.releaseLpc(e.document.uri);
         });
 
         this.documents.onDidChangeContent((e) => {
