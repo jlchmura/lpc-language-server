@@ -38,9 +38,8 @@ import { computeTokenPosition } from "./tokenposition";
 import { LPCLexer } from "./parser3/LPCLexer";
 import { CharStreams, CommonTokenStream } from "antlr4ng";
 
-import { getDocumentSymbols } from "./documentSymbol";
+
 import { getDefinitions } from "./definition";
-import { VSCodeANTLRErrorListener } from "./validator";
 import { doHover } from "./hover";
 import { LPCParser, ProgramContext } from "./parser3/LPCParser";
 
@@ -137,10 +136,7 @@ export function startServer(connection: Connection) {
       globalSettings = <LPCSettings>(
         (change.settings.lpcLanguageServer || defaultSettings)
       );
-    }
-
-    // Revalidate all open text documents
-    documents.all().forEach(validateTextDocument);
+    }    
   });  
 
   function getDocumentSettings(resource: string): Thenable<LPCSettings> {
@@ -162,55 +158,7 @@ export function startServer(connection: Connection) {
   documents.onDidClose((e) => {
     documentSettings.delete(e.document.uri);
   });
-
-  // The content of a text document has changed. This event is emitted
-  // when the text document first opened or when its content has changed.
-  documents.onDidChangeContent((change) => {
-
-    validateTextDocument(change.document);
-  });
-
-  async function validateTextDocument(
-    textDocument: TextDocument
-  ): Promise<void> {
-    // In this simple example we get the settings for every validate run.
-    const settings = await getDocumentSettings(textDocument.uri);
-
-    // The validator creates diagnostics for all uppercase words length 2 and more
-    const text = textDocument.getText();
-    const listener = new VSCodeANTLRErrorListener(
-      textDocument,
-      textDocument.uri
-    );
-
-    let parser: LPCParser;
-    let tree: ProgramContext;
-    try {
-      const stream = CharStreams.fromString(text);
-      const lexer = new LPCLexer(stream);
-      const tStream = new CommonTokenStream(lexer);
-
-      parser = new LPCParser(tStream);
-      parser.addErrorListener(listener);
-
-      tree = parser.program();
-    } catch (err) {
-      let errMsg: string;
-      if (typeof err == "string") errMsg = err;
-      else {
-        const errOb = err as Error;
-        errMsg = errOb.message;
-      }
-
-      console.log("Error in document: " + err);
-    }
-
-    const diagnostics: Diagnostic[] = listener.getDiaognostics();
-
-    // Send the computed diagnostics to VSCode.
-    connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
-  }
-
+  
   connection.onFoldingRanges((params, token) => {
     const doc = documents.get(params.textDocument.uri);
     if (doc) {
@@ -218,16 +166,7 @@ export function startServer(connection: Connection) {
     }
     return null;
   });
-
-  connection.onDocumentSymbol((documentSymbolParams, token) => {
-    const document = documents.get(documentSymbolParams.textDocument.uri);
-
-    if (document) {
-      return getDocumentSymbols(document.getText());
-    }
-    return [];
-  });
-
+  
   connection.onHover((hoverParams, token) => {
     const document = documents.get(hoverParams.textDocument.uri);
     if (document) {
