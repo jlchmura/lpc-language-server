@@ -1,25 +1,38 @@
 import { LpcFacade } from "./facade";
 import {
   Connection,
+  Diagnostic,
+  DiagnosticSeverity,
   DidChangeConfigurationNotification,
   InitializeParams,
   InitializeResult,
   InitializedParams,
+  Range,
   TextDocumentSyncKind,
+  TextDocuments,
 } from "vscode-languageserver";
+import { TextDocument } from "vscode-languageserver-textdocument";
 import * as path from "path";
 import { URI } from "vscode-uri";
+
+const CHANGE_DEBOUNCE_MS = 300;
 
 export class LpcServer {
   private importDir: string | undefined;
   private facade: LpcFacade;
 
+  /** timers used to debounce change events */
   private changeTimers = new Map<string, ReturnType<typeof setTimeout>>(); // Keyed by file name.
 
   private hasConfigurationCapability = false;
   private hasWorkspaceFolderCapability = false;
   private hasDiagnosticRelatedInformationCapability = false;
   private foldingRangeLimit = Number.MAX_VALUE;
+
+  /** document listener */
+  private readonly documents: TextDocuments<TextDocument> = new TextDocuments(
+    TextDocument
+  );  
 
   constructor(private connection: Connection) {
     this.connection.onInitialize((params) => {
@@ -39,9 +52,38 @@ export class LpcServer {
         });
       }
     });
+
+    // send document open/close/changes to facade
+    this.documents.onDidOpen((e) => {
+      this.facade.loadGrammar(e.document.uri);
+      this.processDiagnostic(e.document);
+    });
+    this.documents.onDidClose((e) => {
+      this.facade.releaseGrammar(e.document.uri);
+    });
+    this.documents.onDidChangeContent((e) => {
+      const filename = e.document.uri;
+
+      // always update text, but debounce reparse and other updates
+      this.facade.setText(e.document.uri, e.document.getText());
+
+      const timer = this.changeTimers.get(filename);
+      if (timer) {
+        clearTimeout(timer);
+      }
+
+      this.changeTimers.set(
+        filename, setTimeout(()=>{
+          this.changeTimers.delete(filename);
+          this.facade.reparse(filename);
+          this.processDiagnostic(e.document);
+        }, CHANGE_DEBOUNCE_MS)
+      );      
+    });
   }
 
   public start() {
+    this.documents.listen(this.connection);
     this.connection.listen();
   }
 
@@ -95,5 +137,28 @@ export class LpcServer {
     this.facade = new LpcFacade(this.importDir, rootFolderPath);
 
     return result;
+  }
+
+  private processDiagnostic(document: TextDocument) {
+    const diagnostics: Diagnostic[] = [];
+    const entries = this.facade.getDiagnostics(document.uri);
+    for (const entry of entries) {
+      const startRow =
+        entry.range.start.row === 0 ? 0 : entry.range.start.row - 1;
+      const endRow = entry.range.end.row === 0 ? 0 : entry.range.end.row - 1;
+      const range = Range.create(
+        startRow,
+        entry.range.start.column,
+        endRow,
+        entry.range.end.column
+      );
+      const diagnostic = Diagnostic.create(
+        range,
+        entry.message,
+        DiagnosticSeverity.Error
+      );
+      diagnostics.push(diagnostic);
+    }
+    this.connection.sendDiagnostics({ uri: document.uri, diagnostics });
   }
 }

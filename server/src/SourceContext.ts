@@ -198,4 +198,21 @@ export class SourceContext {
         //this.symbolTable.removeDependency(context.symbolTable);
     }
 
+    private runSemanticAnalysisIfNeeded() {
+        if (!this.semanticAnalysisDone && this.tree) {
+            this.semanticAnalysisDone = true;
+            //this.diagnostics.length = 0; Don't, we would lose our syntax errors from last parse run.
+
+            // TODO
+            // const semanticListener = new SemanticListener(this.diagnostics, this.symbolTable);
+            // ParseTreeWalker.DEFAULT.walk(semanticListener, this.tree);
+        }
+    }
+
+
+    public getDiagnostics(): IDiagnosticEntry[] {
+        this.runSemanticAnalysisIfNeeded();
+
+        return this.diagnostics;
+    }
 }

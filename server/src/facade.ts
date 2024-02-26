@@ -1,6 +1,8 @@
 import * as fs from "fs";
 import * as path from "path";
 import { SourceContext } from "./SourceContext";
+import { TextDocument } from "vscode-languageserver-textdocument";
+import { IDiagnosticEntry } from "./types";
 
 export interface IContextEntry {
   context: SourceContext;
@@ -181,5 +183,35 @@ export class LpcFacade {
 
     // Ignore the dependency if we cannot find the source file for it.
     return undefined;
+  }
+
+  public getContext(
+    fileName: string,
+    source?: string | undefined
+  ): SourceContext {
+    const contextEntry = this.sourceContexts.get(fileName);
+    if (!contextEntry) {
+      return this.loadGrammar(fileName, source);
+    }
+
+    return contextEntry.context;
+  }
+
+  public getDiagnostics(fileName: string): IDiagnosticEntry[] {
+    const context = this.getContext(fileName);
+
+    return context.getDiagnostics();
+  }
+
+  /**
+   * Triggers a parse run for the given file name. This grammar must have been loaded before.
+   *
+   * @param fileName The grammar file name.
+   */
+  public reparse(fileName: string): void {
+    const contextEntry = this.sourceContexts.get(fileName);
+    if (contextEntry) {
+      this.parseGrammar(contextEntry);
+    }
   }
 }
