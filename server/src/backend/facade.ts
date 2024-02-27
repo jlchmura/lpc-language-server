@@ -5,6 +5,8 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { IDiagnosticEntry, ISymbolInfo } from "../types";
 import { BaseSymbol } from "antlr4-c3";
 import { URI } from "vscode-uri";
+import { ProgramContext } from "../parser3/LPCParser";
+import { SemanticListener } from "./SemanticListener";
 
 export interface IContextEntry {
     context: SourceContext;
@@ -235,6 +237,7 @@ export class LpcFacade {
         if (contextEntry) {
             this.parseLpc(contextEntry);
         }
+
     }
 
     /**
@@ -262,5 +265,18 @@ export class LpcFacade {
         const context = this.getContext(fileName);
 
         return context.symbolAtPosition(column, row, limitToChildren);
+    }
+
+    /**
+     * Count how many times a symbol has been referenced. The given file must contain the definition of this symbol.
+     *
+     * @param fileName The grammar file name.
+     * @param symbol The symbol for which to determine the reference count.
+     * @returns The reference count.
+     */
+    public countReferences(fileName: string, symbol: string): number {
+        const context = this.getContext(fileName);
+
+        return context.getReferenceCount(symbol);
     }
 }

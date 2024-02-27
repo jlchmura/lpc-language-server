@@ -5,6 +5,7 @@ import {
     DiagnosticRelatedInformation,
     DiagnosticSeverity,
     DidChangeConfigurationNotification,
+    Disposable,
     InitializeParams,
     InitializeResult,
     InitializedParams,
@@ -19,6 +20,7 @@ import { URI } from "vscode-uri";
 import { LpcSymbolProvider } from "./SymbolProvider";
 import { LpcDefinitionProvider } from "./DefinitionProvider";
 import { IDiagnosticEntry, ILexicalRange } from "../types";
+import { CodeLensProvider } from "./CodeLensProvider";
 
 const CHANGE_DEBOUNCE_MS = 300;
 
@@ -37,6 +39,7 @@ export class LpcServer {
     // providers
     private symbolProvider: LpcSymbolProvider;
     private definitionProvider: LpcDefinitionProvider;
+    private codeLenseProvider: CodeLensProvider;
 
     /** document listener */
     private readonly documents: TextDocuments<TextDocument> = new TextDocuments(
@@ -81,6 +84,13 @@ export class LpcServer {
             return result;
         });
 
+        // Codelense Provider
+        this.registerCodelensProvider();
+        this.connection.onCodeLensResolve((params) => {
+            const result = this.codeLenseProvider.resolveCodeLens(params);
+            return result;
+        });
+
         // send document open/close/changes to facade
         this.documents.onDidOpen((e) => {
             this.facade.loadLpc(e.document.uri, e.document.getText());
@@ -105,9 +115,12 @@ export class LpcServer {
                 filename,
                 setTimeout(() => {
                     this.changeTimers.delete(filename);
-
+                    this.codeLenseProvider.resolveCodeLens;
                     this.facade.reparse(filename);
                     this.processDiagnostic(e.document);
+
+                    //force refresh codelense
+                    //this.registerCodelensProvider();
                 }, CHANGE_DEBOUNCE_MS)
             );
         });
@@ -143,6 +156,10 @@ export class LpcServer {
                 //   resolveProvider: false,
                 // },
                 documentSymbolProvider: true,
+                codeLensProvider: {
+                    resolveProvider: true,
+                    workDoneProgress: false,
+                },
                 //hoverProvider: false,
                 definitionProvider: true,
                 //foldingRangeProvider: false, // change to true to enable server-based folding
@@ -167,6 +184,7 @@ export class LpcServer {
         // init providers
         this.symbolProvider = new LpcSymbolProvider(this.facade);
         this.definitionProvider = new LpcDefinitionProvider(this.facade);
+        this.codeLenseProvider = new CodeLensProvider(this.facade);
 
         return result;
     }
@@ -212,5 +230,17 @@ export class LpcServer {
         }
 
         this.connection.sendDiagnostics({ uri: document.uri, diagnostics });
+    }
+
+    private clDisp: Disposable;
+    private registerCodelensProvider() {
+        if (!!this.clDisp) {
+            this.clDisp.dispose();
+        }
+        this.clDisp = this.connection.onCodeLens((params) => {
+            const doc = this.documents.get(params.textDocument.uri);
+            const result = this.codeLenseProvider.provideCodeLenses(doc);
+            return result;
+        });
     }
 }

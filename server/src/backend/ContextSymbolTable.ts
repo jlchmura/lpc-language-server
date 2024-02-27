@@ -388,4 +388,13 @@ export class ContextSymbolTable extends SymbolTable {
 
         return foundSymbol;
     }
+
+    public getReferenceCount(symbolName: string): number {
+        const reference = this.symbolReferences.get(symbolName);
+        if (reference) {
+            return reference;
+        } else {
+            return 0;
+        }
+    }
 }
