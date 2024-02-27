@@ -1,4 +1,4 @@
-import { ParseTree, RuleContext, Token } from "antlr4ng";
+import { ParseTree, ParserRuleContext, RuleContext, Token } from "antlr4ng";
 import { LPCParserListener } from "../parser3/LPCParserListener";
 import {
     DiagnosticType,
@@ -61,11 +61,16 @@ export class SemanticListener extends LPCParserListener {
     
     exitMethodInvocation = (ctx: MethodInvocationContext) => {        
         const parent =  ctx.parent as PrimaryExpressionContext;        
+        
+        // the tokens to use to generate the error range
+        let rangeStart = parent.start;
+        let rangeEnd = parent.stop; 
 
         // find the context that this method is being invoked on
         const methodObj = getSibling(ctx,-1);
-        const methodName = methodObj.getText();
-        
+        const methodName = methodObj.getText();        
+        rangeStart = methodObj.start;
+
         // symbol table that will be used to look up definition
         let lookupTable: ContextSymbolTable = this.symbolTable;
 
@@ -94,8 +99,8 @@ export class SemanticListener extends LPCParserListener {
                 const notProvidedArg = methodParams[callArgs.length];
                 const entry = this.logDiagnostic(
                     `Expected ${methodParams.length} arguments, but got ${callArgs.length}`,
-                    parent.start,
-                    parent.stop
+                    rangeStart,
+                    rangeEnd
                 );
                 
                 // add info about the missing arg
@@ -205,5 +210,5 @@ function getSibling(ctx: RuleContext, offset: number) {
     const parent = ctx.parent as RuleContext;
     const idx = parent.children.indexOf(ctx);
     const target = (idx+offset >= 0 && idx+offset < parent.children.length) ? parent.children[idx + offset] : undefined;
-    return target;
+    return target as ParserRuleContext;
 }

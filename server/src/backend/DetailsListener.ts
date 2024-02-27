@@ -13,6 +13,7 @@ import { LPCParserListener } from "../parser3/LPCParserListener";
 import {
     AssignmentSymbol,
     ContextSymbolTable,
+    IdentifierSymbol,
     IncludeSymbol,
     InheritSymbol,
     MethodSymbol,
@@ -40,6 +41,8 @@ import { LpcFacade } from "./facade";
 export class DetailsListener extends LPCParserListener {
     private symbolStack: BaseSymbol[] = [];
 
+    
+
     public constructor(
         private backend: LpcFacade,
         private symbolTable: ContextSymbolTable,
@@ -53,12 +56,16 @@ export class DetailsListener extends LPCParserListener {
         return this.symbolStack.length === 0 ? "" : this.symbolStack[0].name;
     }
 
+  
     enterFunctionDeclaration = (ctx: FunctionDeclarationContext): void => {
-        this.pushNewSymbol(
+        const symb = this.pushNewSymbol(
             MethodSymbol,
             ctx,
             ctx.functionHeader()._functionName.text
         );
+
+        // store this method in the symbol table lookup
+        this.symbolTable.addFunction(symb as MethodSymbol);
 
         const prms = ctx.functionHeader()?.parameterList()?.parameter();
         if (!!prms) {
@@ -98,7 +105,7 @@ export class DetailsListener extends LPCParserListener {
                 (lhs as unknown as ITypedSymbol).type = (
                     rhs as unknown as ITypedSymbol
                 ).type;
-                }
+            }
         }
     };
 
@@ -188,6 +195,9 @@ export class DetailsListener extends LPCParserListener {
             case LPCLexer.INC:
             case LPCLexer.DEC:
                 this.addNewSymbol(OperatorSymbol, node, node.getText());
+                break;
+            case LPCLexer.Identifier:
+                this.addNewSymbol(IdentifierSymbol, node, node.getText());
                 break;
             default: {
                 // Ignore the rest.

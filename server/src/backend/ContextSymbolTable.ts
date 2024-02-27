@@ -16,6 +16,7 @@ import { ISymbolInfo, SymbolGroupKind, SymbolKind } from "../types";
 import { FunctionDeclarationContext } from "../parser3/LPCParser";
 import { ObjectType } from "./DetailsListener";
 
+export class IdentifierSymbol extends BaseSymbol {}
 export class IncludeSymbol extends BaseSymbol {}
 export class InheritSymbol extends BaseSymbol {}
 export class MethodSymbol extends ScopedSymbol {
@@ -53,9 +54,10 @@ export class ContextSymbolTable extends SymbolTable {
     public tree: ParserRuleContext; // Set by the owning source context after each parse run.
 
     private symbolReferences = new Map<string, number>();
+    private functions = new Map<string, MethodSymbol>();
 
     public objectTypeRefs = new Map<string, ContextSymbolTable>();
-
+        
     public constructor(
         name: string,
         options: ISymbolTableOptions,
@@ -76,7 +78,12 @@ export class ContextSymbolTable extends SymbolTable {
 
         this.symbolReferences.clear();
         this.objectTypeRefs.clear();
+        this.functions.clear();
         super.clear();
+    }
+
+    public addFunction(method: MethodSymbol): void {
+        this.functions.set(method.name, method);
     }
 
     public addObjectTypeRef(name: string, table: ContextSymbolTable) {
