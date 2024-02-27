@@ -14,22 +14,37 @@ import { ParseTree, ParserRuleContext } from "antlr4ng";
 import { SourceContext } from "./SourceContext";
 import { ISymbolInfo, SymbolGroupKind, SymbolKind } from "../types";
 import { FunctionDeclarationContext } from "../parser3/LPCParser";
+import { ObjectType } from "./DetailsListener";
 
 export class IncludeSymbol extends BaseSymbol {}
 export class InheritSymbol extends BaseSymbol {}
 export class MethodSymbol extends ScopedSymbol {
-
     getParameters() {
-        return this.getAllSymbolsSync(ParameterSymbol, true);        
+        return this.getAllSymbolsSync(ParameterSymbol, true);
     }
+}
+export class ObjectSymbol extends ScopedSymbol {
+    public isLoaded: boolean = false;
 
+    constructor(
+        name: string,
+        public filename: string,
+        public type: ObjectType
+    ) {
+        super(name);
+    }
 }
 export class DefineSymbol extends BaseSymbol {}
 export class VariableSymbol extends TypedSymbol {}
 export class OperatorSymbol extends BaseSymbol {}
+export class AssignmentSymbol extends ScopedSymbol {
+    constructor(name: string, public lhs: BaseSymbol, public rhs?: BaseSymbol) {
+        super(name);
+    }
+}
+
 export class EfunSymbol extends MethodSymbol {
-    public constructor(name: string, 
-        public returnType?: IType) {
+    public constructor(name: string, public returnType?: IType) {
         super(name);
     }
 }
@@ -39,12 +54,7 @@ export class ContextSymbolTable extends SymbolTable {
 
     private symbolReferences = new Map<string, number>();
 
-    // Caches with reverse lookup for indexed symbols.
-    private namedActions: BaseSymbol[] = [];
-    private parserActions: BaseSymbol[] = [];
-    private lexerActions: BaseSymbol[] = [];
-    private parserPredicates: BaseSymbol[] = [];
-    private lexerPredicates: BaseSymbol[] = [];
+    public objectTypeRefs = new Map<string, ContextSymbolTable>();
 
     public constructor(
         name: string,
@@ -65,13 +75,16 @@ export class ContextSymbolTable extends SymbolTable {
         }
 
         this.symbolReferences.clear();
-        this.namedActions = [];
-        this.parserActions = [];
-        this.lexerActions = [];
-        this.parserPredicates = [];
-        this.lexerPredicates = [];
-
+        this.objectTypeRefs.clear();
         super.clear();
+    }
+
+    public addObjectTypeRef(name: string, table: ContextSymbolTable) {
+        this.objectTypeRefs.set(name, table);
+    }
+
+    public getObjectTypeRef(name: string) {
+        return this.objectTypeRefs.get(name);
     }
 
     public symbolExists(
@@ -370,14 +383,16 @@ export class ContextSymbolTable extends SymbolTable {
         while (!!ctx && !foundSymbol) {
             let symbol = this.symbolContainingContext(context);
 
-            const table = symbol.symbolTable;
-            const search = [
-                ...table.getNestedSymbolsOfTypeSync(VariableSymbol),
-                ...table.getNestedSymbolsOfTypeSync(MethodSymbol),
-                ...table.getNestedSymbolsOfTypeSync(DefineSymbol),
-            ];
+            if (!!symbol) {
+                const table = symbol.symbolTable;
+                const search = [
+                    ...table.getNestedSymbolsOfTypeSync(VariableSymbol),
+                    ...table.getNestedSymbolsOfTypeSync(MethodSymbol),
+                    ...table.getNestedSymbolsOfTypeSync(DefineSymbol),
+                ];
 
-            foundSymbol = search.find((s) => s.name === context.getText());
+                foundSymbol = search.find((s) => s.name === context.getText());
+            }
 
             ctx = ctx.parent;
         }

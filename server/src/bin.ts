@@ -1,17 +1,18 @@
 #!/usr/bin/env node
 import * as fs from "fs";
+import * as path from "path";
 
 import { CharStreams, CommonTokenStream, ConsoleErrorListener } from "antlr4ng";
 import { LPCLexer } from "./parser3/LPCLexer";
 import { LPCParser } from "./parser3/LPCParser";
-import { CodeCompletionCore } from "antlr4-c3";
-import { CaretPosition, getSuggestions } from "./completions";
-import { computeTokenPosition } from "./tokenposition";
-import { CompletionItemKind } from "vscode-languageserver";
-import { getFoldingRanges } from "./folding";
+import { CodeCompletionCore, NamespaceSymbol, SymbolTable } from "antlr4-c3";
 
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { doHover } from "./hover";
+//import { VariableSymbol } from "./backend/ContextSymbolTable";
+import { CaretPosition } from "./completions";
+import { LpcFacade } from "./backend/facade";
+import { MethodSymbol,  VariableSymbol } from "./backend/ContextSymbolTable";
+//import { LpcFacade } from "./backend/facade";
 
 const code = fs.existsSync(process.argv[2])
   ? fs.readFileSync(process.argv[2], "utf-8")
@@ -22,26 +23,21 @@ const lexer = new LPCLexer(stream);
 const tStream = new CommonTokenStream(lexer);
 const parser = new LPCParser(tStream);
 
+const filename = process.argv[2];
+const dir = path.dirname(filename);
+
+
+const backend = new LpcFacade(dir,dir);
+//main file
+const ctxFile = backend.loadLpc(filename, code);
+
 let caretPos = { line: 4, column: 10 } as CaretPosition;
 
-let errorListener = new ConsoleErrorListener();
-parser.addErrorListener(errorListener);
+const tree = ctxFile.symbolTable;
 
-const p = parser.program();
+const m = tree.getAllSymbolsSync(MethodSymbol, false);
+const v = tree.getAllNestedSymbolsSync("subFn");
 
-let core = new CodeCompletionCore(parser);
-let candidates = core.collectCandidates(code.length - 4);
-
-let keywords: string[] = [];
-for (let candidate of candidates.tokens) {
-  keywords.push(parser.vocabulary.getDisplayName(candidate[0]));
-}
-
-let tokenPos = computeTokenPosition(p, tStream, caretPos);
-
-let suggestions = getSuggestions(code, caretPos, computeTokenPosition);
-let fold = getFoldingRanges(code, Number.MAX_VALUE);
-
-let hover = doHover(doc, {character: 9, line: 3});
-
+const len = m.length;
+console.log("done: " + len);
 const i = 0;

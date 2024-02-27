@@ -429,13 +429,13 @@ unaryExpression
 
 primaryExpression
     : pe = primaryExpressionStart bracketExpression* (
-        (methodInvocation | INC | DEC | ARROW Identifier | Identifier) bracketExpression*
+        (methodInvocation | INC | DEC | ARROW callOtherTarget | Identifier) bracketExpression*
     )*
     ;
 
 primaryExpressionStart
     : literal                               # literalExpression
-    | CloneObject                           # cloneObjectExpression 
+    | CloneObject PAREN_OPEN (ob=expression) PAREN_CLOSE   # cloneObjectExpression 
     | Identifier                            # identifierExpression    
     | PAREN_OPEN expression PAREN_CLOSE     # parenExpression
     //| inlineClosureExpression               # primaryInlineClosureExpression

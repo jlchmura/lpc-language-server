@@ -1,3 +1,5 @@
+import { IType, ScopedSymbol, TypedSymbol } from "antlr4-c3";
+
 export enum DiagnosticType {
     Hint,
     Info,
@@ -23,10 +25,12 @@ export interface ILexicalRange {
     end: { column: number; row: number };
 }
 
+
 export interface IContextDetails {
     //unreferencedRules: string[];
     unreferencedMethods: string[];
     imports: string[];
+    objectImports: string[];
 }
 
 export enum SymbolKind {

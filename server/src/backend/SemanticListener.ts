@@ -1,4 +1,4 @@
-import { Token } from "antlr4ng";
+import { ParseTree, RuleContext, Token } from "antlr4ng";
 import { LPCParserListener } from "../parser3/LPCParserListener";
 import {
     DiagnosticType,
@@ -8,11 +8,14 @@ import {
 } from "../types";
 import { ContextSymbolTable, MethodSymbol } from "./ContextSymbolTable";
 import {
+    CallOtherTargetContext,
+    CloneObjectExpressionContext,
     IdentifierExpressionContext,
     MethodInvocationContext,
     PrimaryExpressionContext,
 } from "../parser3/LPCParser";
-import { ScopedSymbol } from "antlr4-c3";
+import { ScopedSymbol, TypeKind } from "antlr4-c3";
+import { ITypedSymbol } from "./DetailsListener";
 
 export class SemanticListener extends LPCParserListener {
     private seenSymbols = new Map<string, Token>();
@@ -42,13 +45,44 @@ export class SemanticListener extends LPCParserListener {
         this.symbolTable.incrementSymbolRefCount(symbol);
     };
 
-    exitMethodInvocation = (ctx: MethodInvocationContext) => {
-        const parent = ctx.parent as PrimaryExpressionContext;
-        const methodName = parent._pe?.getText();
-        const methodSymbol = this.symbolTable.findSymbolDefinition(
-            parent._pe
-        ) as MethodSymbol;
-        const symbolInfo = this.symbolTable.getSymbolInfo(methodSymbol);
+    exitCloneObjectExpression = (ctx: CloneObjectExpressionContext) => {
+        const symbol = this.symbolTable.findSymbolDefinition(ctx);        
+        const i=0;
+    }
+
+    exitCallOtherTarget = (ctx: CallOtherTargetContext) => {
+        // find the object that the method is being called on
+        const target= getSibling(ctx,-2); // -1 is the arrow
+        const symbol = this.symbolTable.symbolContainingContext(ctx);
+        const result = symbol.symbolTable.getAllSymbolsSync(MethodSymbol,false);
+        const def = this.symbolTable.findSymbolDefinition(ctx);
+        const i=0;
+    };
+    
+    exitMethodInvocation = (ctx: MethodInvocationContext) => {        
+        const parent =  ctx.parent as PrimaryExpressionContext;        
+
+        // find the context that this method is being invoked on
+        const methodObj = getSibling(ctx,-1);
+        const methodName = methodObj.getText();
+        
+        // symbol table that will be used to look up definition
+        let lookupTable: ContextSymbolTable = this.symbolTable;
+
+        // if this is a call to another object, use that object's symbol table
+        if (methodObj instanceof CallOtherTargetContext) {            
+            const sourceTypeContext = getSibling(ctx,-3); // -2 is the arrow
+            const sourceSymbol = this.symbolTable.symbolWithContextSync(sourceTypeContext) as unknown as ITypedSymbol;
+            if (sourceSymbol?.type?.kind == TypeKind.Class) {
+                // call other source obj has a type, so use that to locate the method def
+                const typeRefTable = this.symbolTable.getObjectTypeRef(sourceSymbol.type.name);
+                lookupTable = typeRefTable;
+            }            
+        }
+        
+        // get the definition for that method
+        const methodSymbol = lookupTable.findSymbolDefinition(methodObj) as MethodSymbol;
+        const symbolInfo = lookupTable.getSymbolInfo(methodSymbol);
 
         if (methodName && methodSymbol) {    
             // check if the number of arguments is correct
@@ -81,6 +115,8 @@ export class SemanticListener extends LPCParserListener {
                     offenderEnd
                 );
             }
+        } else {
+            this.logDiagnostic("Unknown function name", parent.start, parent.stop);
         }
     };
 
@@ -163,4 +199,11 @@ export class SemanticListener extends LPCParserListener {
             this.diagnostics.push(entry);
         }
     }
+}
+
+function getSibling(ctx: RuleContext, offset: number) {
+    const parent = ctx.parent as RuleContext;
+    const idx = parent.children.indexOf(ctx);
+    const target = (idx+offset >= 0 && idx+offset < parent.children.length) ? parent.children[idx + offset] : undefined;
+    return target;
 }

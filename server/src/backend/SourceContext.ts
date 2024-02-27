@@ -38,6 +38,7 @@ import { SemanticListener } from "./SemanticListener";
 import { BaseSymbol, IType, ParameterSymbol } from "antlr4-c3";
 import { DetailsListener } from "./DetailsListener";
 import { BackendUtils } from "./BackendUtils";
+import { LpcFacade } from "./facade";
 
 type EfunArgument = {
     name: string;
@@ -65,6 +66,7 @@ export class SourceContext {
     public info: IContextDetails = {
         unreferencedMethods: [],
         imports: [],
+        objectImports: []
     };
 
     /* @internal */
@@ -94,7 +96,7 @@ export class SourceContext {
 
     private tree: ProgramContext | undefined; // The root context from the last parse run.
 
-    public constructor(public fileName: string, private extensionDir: string) {
+    public constructor(public backend: LpcFacade, public fileName: string, private extensionDir: string) {
         this.sourceId = path.basename(fileName, path.extname(fileName));
         this.symbolTable = new ContextSymbolTable(
             this.sourceId,
@@ -103,8 +105,8 @@ export class SourceContext {
         );
 
         // Initialize static global symbol table, if not yet done.
-        const eof = SourceContext.globalSymbols.resolveSync("EOF");
-        if (!eof) {
+        const sizeOfEfun = SourceContext.globalSymbols.resolveSync("sizeof");
+        if (!sizeOfEfun) {
             // add built-in efuns here
             this.addEfun("abs", undefined, [{ name: "number" }]);
             this.addEfun("clone_object", undefined, [{ name: "name" }]);
@@ -161,7 +163,7 @@ export class SourceContext {
         this.lexer.inputStream = CharStreams.fromString(source);
     }
 
-    public parse(): string[] {
+    public parse(): IContextDetails {
         // Rewind the input stream for a new parse run.
         this.lexer.reset();
         this.tokenStream.setTokenSource(this.lexer);
@@ -173,6 +175,7 @@ export class SourceContext {
         this.tree = undefined;
 
         this.info.imports.length = 0;
+        this.info.objectImports.length = 0;
 
         this.grammarLexerData = undefined;
         this.grammarLexerRuleMap.clear();
@@ -209,15 +212,17 @@ export class SourceContext {
         }
 
         this.symbolTable.tree = this.tree;
-        const listener = new DetailsListener(
+        const listener = new DetailsListener(            
+            this.backend,
             this.symbolTable,
-            this.info.imports
+            this.info.imports,
+            this.info.objectImports
         );
         ParseTreeWalker.DEFAULT.walk(listener, this.tree);
 
         //this.info.unreferencedRules = this.symbolTable.getUnreferencedSymbols();
 
-        return this.info.imports;
+        return this.info;
     }
 
     /**
@@ -225,7 +230,7 @@ export class SourceContext {
      *
      * @param context The context to add.
      */
-    public addAsReferenceTo(context: SourceContext): void {
+    public addAsReferenceTo(context: SourceContext, addSymbolTable=true): void {
         // Check for mutual inclusion. References are organized like a mesh.
         const pipeline: SourceContext[] = [context];
         while (pipeline.length > 0) {
@@ -242,7 +247,9 @@ export class SourceContext {
         }
         context.references.push(this);
 
-        this.symbolTable.addDependencies(context.symbolTable);
+        if (addSymbolTable) {
+            this.symbolTable.addDependencies(context.symbolTable);
+        }
     }
 
     /**

@@ -1,31 +1,50 @@
-import { BaseSymbol, ParameterSymbol, SymbolConstructor } from "antlr4-c3";
+import {
+    BaseSymbol,
+    FundamentalType,
+    IType,
+    LiteralSymbol,
+    ParameterSymbol,
+    ReferenceKind,
+    SymbolConstructor,
+    TypeKind,
+    TypedSymbol,
+} from "antlr4-c3";
 import { LPCParserListener } from "../parser3/LPCParserListener";
 import {
+    AssignmentSymbol,
     ContextSymbolTable,
     IncludeSymbol,
     InheritSymbol,
     MethodSymbol,
+    ObjectSymbol,
     OperatorSymbol,
     VariableSymbol,
 } from "./ContextSymbolTable";
 import {
+    AssignmentExpressionContext,
     CloneObjectExpressionContext,
     FunctionDeclarationContext,
     IncludeDirectiveContext,
     InheritStatementContext,
+    LiteralContext,
     ParameterListContext,
+    PrimaryExpressionContext,
     PrimitiveTypeParameterExpressionContext,
     PrimitiveTypeVariableDeclarationContext,
+    VariableDeclaratorContext,
 } from "../parser3/LPCParser";
 import { ParseTree, TerminalNode } from "antlr4ng";
 import { LPCLexer } from "../parser3/LPCLexer";
+import { LpcFacade } from "./facade";
 
 export class DetailsListener extends LPCParserListener {
     private symbolStack: BaseSymbol[] = [];
 
     public constructor(
+        private backend: LpcFacade,
         private symbolTable: ContextSymbolTable,
-        private imports: string[]
+        private imports: string[],
+        private objectImports: string[]
     ) {
         super();
     }
@@ -44,7 +63,8 @@ export class DetailsListener extends LPCParserListener {
         const prms = ctx.functionHeader()?.parameterList()?.parameter();
         if (!!prms) {
             prms.forEach((p) => {
-                const name = (p as PrimitiveTypeParameterExpressionContext)._paramName.text;
+                const name = (p as PrimitiveTypeParameterExpressionContext)
+                    ._paramName.text;
                 this.addNewSymbol(ParameterSymbol, p, name);
             });
         }
@@ -52,24 +72,87 @@ export class DetailsListener extends LPCParserListener {
     exitFunctionDeclaration = (ctx: FunctionDeclarationContext): void => {
         this.popSymbol();
     };
- 
-    exitPrimitiveTypeVariableDeclaration = (
-        ctx: PrimitiveTypeVariableDeclarationContext
-    ) => {
-        let decs = ctx.variableDeclarator();
 
-        decs.forEach((d) => {
-            const s = this.addNewSymbol(
-                VariableSymbol,
-                ctx,
-                d._variableName.text
+    enterVariableDeclarator = (ctx: VariableDeclaratorContext) => {
+        const varName = ctx._variableName;
+        const s = this.addNewSymbol(VariableSymbol, ctx, varName.text);
+        if (!!ctx.ASSIGN()) {
+            const initCtx = ctx.variableInitializer();
+            const sym = this.pushNewSymbol(
+                AssignmentSymbol,
+                initCtx,
+                varName.text,
+                s
             );
-        });
+        }
     };
 
+    exitVariableDeclarator = (ctx: VariableDeclaratorContext) => {
+        if (!!ctx.ASSIGN) {
+            const a = this.popSymbol() as AssignmentSymbol;
+            a.rhs = a.lastChild;
+
+            // assign type to left hand side
+            const { lhs, rhs } = a;
+            if (!!lhs && !!rhs && !!(rhs as unknown as ITypedSymbol).type) {
+                (lhs as unknown as ITypedSymbol).type = (
+                    rhs as unknown as ITypedSymbol
+                ).type;
+                }
+        }
+    };
+
+    enterLiteral = (ctx: LiteralContext) => {
+        let type: IType;
+        if (!!ctx.IntegerConstant()) {
+            type = FundamentalType.integerType;
+        } else if (!!ctx.StringLiteral()) {
+            type = FundamentalType.stringType;
+        } else if (!!ctx.FloatingConstant()) {
+            type = FundamentalType.floatType;
+        }
+        this.addNewSymbol(LiteralSymbol, ctx, "", ctx.getText(), type);
+    };
+
+    // exitAssignmentExpression = (ctx: AssignmentExpressionContext) => {
+    //     this.popSymbol();
+    // }
+
+    // enterVariableDeclarator= (ctx: VariableDeclaratorContext) => {
+
+    //     if (!!ctx.ASSIGN()) {
+    //         const initCtx = ctx.variableInitializer();
+    //         const sym = this.pushNewSymbol(AssignmentSymbol, initCtx, ctx._variableName.text);
+    //     }
+    //     debugger;
+    // };
+
+    // exitVariableDeclarator= (ctx: VariableDeclaratorContext) => {
+    //     if (!!ctx.ASSIGN()) {
+    //         this.popSymbol();
+    //     }
+    // };
+
+    enterCloneObjectExpression = (ctx: CloneObjectExpressionContext) => {
+        const exp = ctx.parent as PrimaryExpressionContext;
+        // TODO evaluate filename if not a string
+        const firstArg = ctx._ob;
+        const filename = firstArg.getText();
+        // create the symbol
+        const symbol = this.pushNewSymbol(
+            ObjectSymbol,
+            ctx,
+            `clone_object("${filename}")`,
+            filename,
+            new ObjectType(filename)
+        ) as ObjectSymbol;
+
+        this.objectImports.push(filename);
+
+        const i = 0;
+    };
     exitCloneObjectExpression = (ctx: CloneObjectExpressionContext) => {
-        // TODO
-        // add symbol here that loads lfuns for this obj
+        this.popSymbol();
     };
 
     exitIncludeDirective = (ctx: IncludeDirectiveContext) => {
@@ -172,5 +255,25 @@ export class DetailsListener extends LPCParserListener {
 
     private popSymbol(): BaseSymbol | undefined {
         return this.symbolStack.pop();
+    }
+}
+
+export class ITypedSymbol {
+    type: IType;
+}
+
+export class ObjectType extends BaseSymbol implements IType {
+    public constructor(public name: string) {
+        super(name);
+    }
+
+    baseTypes: IType[] = [];
+
+    public get kind(): TypeKind {
+        return TypeKind.Class;
+    }
+
+    public get reference(): ReferenceKind {
+        return ReferenceKind.Instance;
     }
 }

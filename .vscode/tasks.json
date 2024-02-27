@@ -15,6 +15,19 @@
 			]
 		},
 		{
+			"label": "compile:bin",
+			"type": "npm",
+			"script": "compile:bin",
+			"group": "build",
+			"presentation": {
+				"panel": "dedicated",
+				"reveal": "never"
+			},						
+			"problemMatcher": [
+				"$tsc"
+			]
+		},
+		{
 			"label": "watch",
 			"type": "npm",
 			"script": "watch",

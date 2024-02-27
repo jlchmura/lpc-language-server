@@ -1,12 +1,13 @@
 import * as fs from "fs";
 import * as path from "path";
 import { SourceContext } from "./SourceContext";
-import { TextDocument } from "vscode-languageserver-textdocument";
+
 import { IDiagnosticEntry, ISymbolInfo } from "../types";
-import { BaseSymbol } from "antlr4-c3";
+import { BaseSymbol, NamespaceSymbol } from "antlr4-c3";
 import { URI } from "vscode-uri";
-import { ProgramContext } from "../parser3/LPCParser";
-import { SemanticListener } from "./SemanticListener";
+
+import { MethodSymbol } from "./ContextSymbolTable";
+import { ContextLexerErrorListener } from "./ContextLexerErrorListener";
 
 export interface IContextEntry {
     context: SourceContext;
@@ -71,7 +72,11 @@ export class LpcFacade {
                 }
             }
 
-            const context = new SourceContext(fileName, this.workspaceDir);
+            const context = new SourceContext(
+                this,
+                fileName,
+                this.workspaceDir
+            );
             contextEntry = {
                 context,
                 refCount: 0,
@@ -121,12 +126,49 @@ export class LpcFacade {
     private parseLpc(contextEntry: IContextEntry) {
         const oldDependencies = contextEntry.dependencies;
         contextEntry.dependencies = [];
-        const newDependencies = contextEntry.context.parse();
+        const info = contextEntry.context.parse();
 
+        // load file-level dependencies (imports & inherits)
+        const newDependencies = info.imports;
         for (const dep of newDependencies) {
             const depContext = this.loadDependency(contextEntry, dep);
             if (depContext) {
                 contextEntry.context.addAsReferenceTo(depContext);
+            }
+        }
+
+        // load object-level dependencies
+        for (const filename of info.objectImports) {
+            //const obSymbol = depInfo.symbol;
+            try {
+                const depContext = this.loadDependency(contextEntry, filename);
+                if (depContext) {
+                    contextEntry.context.addAsReferenceTo(depContext, false);
+                }
+
+                contextEntry.context.symbolTable.addObjectTypeRef(
+                    filename,
+                    depContext.symbolTable
+                );
+
+                // // create a namespace for the object
+                // const ns = obSymbol.symbolTable.addNewSymbolOfType(
+                //     NamespaceSymbol,
+                //     obSymbol,
+                //     depInfo.filename
+                // );
+
+                // // add the top-level methods to the object symbol
+                // const methods = depContext.symbolTable.getAllSymbolsSync(
+                //     MethodSymbol,
+                //     true
+                // );
+                // methods.forEach((m) => {
+                //     ns.addSymbol(m);
+                // });
+                // obSymbol.isLoaded = true;
+            } catch (e) {
+                // ignore
             }
         }
 
@@ -237,7 +279,6 @@ export class LpcFacade {
         if (contextEntry) {
             this.parseLpc(contextEntry);
         }
-
     }
 
     /**

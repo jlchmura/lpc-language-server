@@ -27,11 +27,12 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/server/src/bin.ts",
+            "program": "${workspaceFolder}/out/server/src/bin.js",
             "args": ["test.c"],
-            "preLaunchTask": "tsc: build - tsconfig.json",
+            "preLaunchTask": "compile:bin",
+			"sourceMaps": true,
             "outFiles": [
-                "${workspaceFolder}/out/server/**/*.js"
+                "${workspaceFolder}/out/**/*.js"
             ]
         },
 		{
