@@ -7,14 +7,22 @@ import {
     TypedSymbol,
     SymbolConstructor,
     RoutineSymbol,
+    ParameterSymbol,
 } from "antlr4-c3";
 import { ParseTree, ParserRuleContext } from "antlr4ng";
 import { SourceContext } from "./SourceContext";
 import { ISymbolInfo, SymbolGroupKind, SymbolKind } from "../types";
+import { FunctionDeclarationContext } from "../parser3/LPCParser";
 
 export class IncludeSymbol extends BaseSymbol {}
 export class InheritSymbol extends BaseSymbol {}
-export class MethodSymbol extends RoutineSymbol {}
+export class MethodSymbol extends ScopedSymbol {
+
+    getParameters() {
+        return this.getAllSymbolsSync(ParameterSymbol, true);        
+    }
+
+}
 export class DefineSymbol extends BaseSymbol {}
 export class VariableSymbol extends TypedSymbol {}
 export class OperatorSymbol extends BaseSymbol {}

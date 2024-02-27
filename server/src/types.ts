@@ -9,6 +9,9 @@ export interface IDiagnosticEntry {
     type: DiagnosticType;
     message: string;
     range: ILexicalRange;
+    source?: string;
+
+    related?: IDiagnosticEntry;
 }
 
 /**
@@ -16,11 +19,11 @@ export interface IDiagnosticEntry {
  * Hence when start and end position are equal the range is empty.
  */
 export interface ILexicalRange {
-    start: { column: number; row: number; };
-    end: { column: number; row: number; };
+    start: { column: number; row: number };
+    end: { column: number; row: number };
 }
 
-export interface IContextDetails {    
+export interface IContextDetails {
     //unreferencedRules: string[];
     unreferencedMethods: string[];
     imports: string[];
@@ -34,14 +37,14 @@ export enum SymbolKind {
     Include,
     Inherit,
     Define,
-    Method,        
-    Variable
+    Method,
+    Variable,
 }
 
 /** Multiple symbol kinds can be involved in a symbol lookup. */
 export enum SymbolGroupKind {
     Identifier,
-    MethodName,    
+    MethodName,
 }
 
 /** The definition of a single symbol (range and content it is made of). */
@@ -50,14 +53,13 @@ export interface IDefinition {
     range: ILexicalRange;
 }
 
-
 export interface ISymbolInfo {
     kind: SymbolKind;
     name: string;
     source: string;
     definition?: IDefinition;
     children: ISymbolInfo[];
-    
+
     /** Used for code completion. Provides a small description for certain symbols. */
-    description?: string;    
+    description?: string;
 }

@@ -2,11 +2,13 @@ import { LpcFacade } from "./facade";
 import {
     Connection,
     Diagnostic,
+    DiagnosticRelatedInformation,
     DiagnosticSeverity,
     DidChangeConfigurationNotification,
     InitializeParams,
     InitializeResult,
     InitializedParams,
+    Location,
     Range,
     TextDocumentSyncKind,
     TextDocuments,
@@ -16,6 +18,7 @@ import * as path from "path";
 import { URI } from "vscode-uri";
 import { LpcSymbolProvider } from "./SymbolProvider";
 import { LpcDefinitionProvider } from "./DefinitionProvider";
+import { IDiagnosticEntry, ILexicalRange } from "../types";
 
 const CHANGE_DEBOUNCE_MS = 300;
 
@@ -168,6 +171,14 @@ export class LpcServer {
         return result;
     }
 
+    private lexRangeToDiagnosticRange(range: ILexicalRange) {
+        const { start, end } = range;
+        const startRow = start.row === 0 ? 0 : start.row - 1;
+        const endRow = end.row === 0 ? 0 : end.row - 1;
+
+        return Range.create(startRow, start.column, endRow, end.column);
+    }
+
     /**
      * Processes diangostics for the given document and sends back to the language client.
      * @param document
@@ -177,21 +188,25 @@ export class LpcServer {
         const entries = this.facade.getDiagnostics(document.uri);
 
         for (const entry of entries) {
-            const { start, end } = entry.range;
-            const startRow = start.row === 0 ? 0 : start.row - 1;
-            const endRow = end.row === 0 ? 0 : end.row - 1;
-
-            const range = Range.create(
-                startRow,
-                start.column,
-                endRow,
-                end.column
-            );
+            const range = this.lexRangeToDiagnosticRange(entry.range);
             const diagnostic = Diagnostic.create(
                 range,
                 entry.message,
                 DiagnosticSeverity.Error
             );
+
+            const { related } = entry;
+            if (!!related) {
+                diagnostic.relatedInformation = [
+                    DiagnosticRelatedInformation.create(
+                        Location.create(
+                            related.source ?? document.uri,
+                            this.lexRangeToDiagnosticRange(related.range)
+                        ),
+                        related.message
+                    ),
+                ];
+            }
 
             diagnostics.push(diagnostic);
         }

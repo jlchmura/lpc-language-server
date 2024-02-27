@@ -1,4 +1,4 @@
-import { BaseSymbol, SymbolConstructor } from "antlr4-c3";
+import { BaseSymbol, ParameterSymbol, SymbolConstructor } from "antlr4-c3";
 import { LPCParserListener } from "../parser3/LPCParserListener";
 import {
     ContextSymbolTable,
@@ -12,6 +12,8 @@ import {
     FunctionDeclarationContext,
     IncludeDirectiveContext,
     InheritStatementContext,
+    ParameterListContext,
+    PrimitiveTypeParameterExpressionContext,
     PrimitiveTypeVariableDeclarationContext,
 } from "../parser3/LPCParser";
 import { ParseTree, TerminalNode } from "antlr4ng";
@@ -37,11 +39,23 @@ export class DetailsListener extends LPCParserListener {
             ctx,
             ctx.functionHeader()._functionName.text
         );
+
+        const prms = ctx.functionHeader()?.parameterList()?.parameter();
+        if (!!prms) {
+            prms.forEach((p) => {
+                const name = (p as PrimitiveTypeParameterExpressionContext)._paramName.text;
+                this.addNewSymbol(ParameterSymbol, p, name);
+            });
+        }
     };
     exitFunctionDeclaration = (ctx: FunctionDeclarationContext): void => {
         this.popSymbol();
     };
 
+
+
+
+ 
     exitPrimitiveTypeVariableDeclaration = (
         ctx: PrimitiveTypeVariableDeclarationContext
     ) => {
