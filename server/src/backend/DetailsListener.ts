@@ -9,6 +9,7 @@ import {
     VariableSymbol,
 } from "./ContextSymbolTable";
 import {
+    CloneObjectExpressionContext,
     FunctionDeclarationContext,
     IncludeDirectiveContext,
     InheritStatementContext,
@@ -64,6 +65,11 @@ export class DetailsListener extends LPCParserListener {
                 d._variableName.text
             );
         });
+    };
+
+    exitCloneObjectExpression = (ctx: CloneObjectExpressionContext) => {
+        // TODO
+        // add symbol here that loads lfuns for this obj
     };
 
     exitIncludeDirective = (ctx: IncludeDirectiveContext) => {

@@ -435,6 +435,7 @@ primaryExpression
 
 primaryExpressionStart
     : literal                               # literalExpression
+    | CloneObject                           # cloneObjectExpression 
     | Identifier                            # identifierExpression    
     | PAREN_OPEN expression PAREN_CLOSE     # parenExpression
     //| inlineClosureExpression               # primaryInlineClosureExpression

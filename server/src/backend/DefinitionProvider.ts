@@ -33,13 +33,7 @@ export class LpcDefinitionProvider {
             return [LocationLink.create(info.source, range, range)];
         } else {
             // Empty for built-in entities.
-            return [
-                LocationLink.create(
-                    "",
-                    Range.create(0, 0, 0, 0),
-                    Range.create(0, 0, 0, 0)
-                ),
-            ];
+            return null;
         }
     }
 }
