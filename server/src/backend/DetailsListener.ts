@@ -51,10 +51,6 @@ export class DetailsListener extends LPCParserListener {
     exitFunctionDeclaration = (ctx: FunctionDeclarationContext): void => {
         this.popSymbol();
     };
-
-
-
-
  
     exitPrimitiveTypeVariableDeclaration = (
         ctx: PrimitiveTypeVariableDeclarationContext

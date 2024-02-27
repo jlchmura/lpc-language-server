@@ -8,6 +8,7 @@ import {
     SymbolConstructor,
     RoutineSymbol,
     ParameterSymbol,
+    IType,
 } from "antlr4-c3";
 import { ParseTree, ParserRuleContext } from "antlr4ng";
 import { SourceContext } from "./SourceContext";
@@ -26,6 +27,12 @@ export class MethodSymbol extends ScopedSymbol {
 export class DefineSymbol extends BaseSymbol {}
 export class VariableSymbol extends TypedSymbol {}
 export class OperatorSymbol extends BaseSymbol {}
+export class EfunSymbol extends MethodSymbol {
+    public constructor(name: string, 
+        public returnType?: IType) {
+        super(name);
+    }
+}
 
 export class ContextSymbolTable extends SymbolTable {
     public tree: ParserRuleContext; // Set by the owning source context after each parse run.

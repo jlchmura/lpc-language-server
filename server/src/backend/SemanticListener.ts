@@ -68,7 +68,7 @@ export class SemanticListener extends LPCParserListener {
                 entry.related = {
                     type: DiagnosticType.Error,
                     message: `An argument for '${notProvidedArg.name}' was not provided`,
-                    range: symbolInfo?.definition.range,
+                    range: symbolInfo?.definition?.range ?? entry.range,
                     source: symbolInfo?.source,
                 };
             } else if (callArgs.length > methodParams.length) {

@@ -28,15 +28,21 @@ import { ContextLexerErrorListener } from "./ContextLexerErrorListener";
 import {
     ContextSymbolTable,
     DefineSymbol,
+    EfunSymbol,
     IncludeSymbol,
     InheritSymbol,
     MethodSymbol,
     VariableSymbol,
 } from "./ContextSymbolTable";
 import { SemanticListener } from "./SemanticListener";
-import { BaseSymbol } from "antlr4-c3";
+import { BaseSymbol, IType, ParameterSymbol } from "antlr4-c3";
 import { DetailsListener } from "./DetailsListener";
 import { BackendUtils } from "./BackendUtils";
+
+type EfunArgument = {
+    name: string;
+    type?: IType;
+};
 
 /**
  * Source context for a single LPC file.
@@ -96,15 +102,14 @@ export class SourceContext {
             this
         );
 
-        // // Initialize static global symbol table, if not yet done.
-        // const eof = SourceContext.globalSymbols.resolveSync("EOF");
-        // if (!eof) {
-        //     SourceContext.globalSymbols.addNewSymbolOfType(BuiltInChannelSymbol, undefined,
-        //         "DEFAULT_TOKEN_CHANNEL");
-        //     SourceContext.globalSymbols.addNewSymbolOfType(BuiltInChannelSymbol, undefined, "HIDDEN");
-        //     SourceContext.globalSymbols.addNewSymbolOfType(BuiltInTokenSymbol, undefined, "EOF");
-        //     SourceContext.globalSymbols.addNewSymbolOfType(BuiltInModeSymbol, undefined, "DEFAULT_MODE");
-        // }
+        // Initialize static global symbol table, if not yet done.
+        const eof = SourceContext.globalSymbols.resolveSync("EOF");
+        if (!eof) {
+            // add built-in efuns here
+            this.addEfun("abs", undefined, [{ name: "number" }]);
+            this.addEfun("clone_object", undefined, [{ name: "name" }]);
+            this.addEfun("sizeof", undefined, [{ name: "val" }]);
+        }
 
         this.lexer = new LPCLexer(CharStreams.fromString(""));
 
@@ -118,6 +123,22 @@ export class SourceContext {
         this.parser.buildParseTrees = true;
         this.parser.removeErrorListeners();
         this.parser.addErrorListener(this.errorListener);
+    }
+
+    private addEfun(name: string, returnType: IType, args: EfunArgument[]) {
+        const symb = SourceContext.globalSymbols.addNewSymbolOfType(
+            EfunSymbol,
+            undefined,
+            name
+        );
+        args.forEach((arg) => {
+            SourceContext.globalSymbols.addNewSymbolOfType(
+                ParameterSymbol,
+                symb,
+                arg.name,
+                arg.type
+            );
+        });
     }
 
     public get hasErrors(): boolean {
