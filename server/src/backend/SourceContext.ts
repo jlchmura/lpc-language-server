@@ -97,7 +97,7 @@ export class SourceContext {
     private tree: ProgramContext | undefined; // The root context from the last parse run.
 
     public constructor(public backend: LpcFacade, public fileName: string, private extensionDir: string) {
-        this.sourceId = path.basename(fileName, path.extname(fileName));
+        this.sourceId = path.basename(fileName);
         this.symbolTable = new ContextSymbolTable(
             this.sourceId,
             { allowDuplicateSymbols: true },

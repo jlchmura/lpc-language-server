@@ -6,7 +6,7 @@ import {
     ILexicalRange,
     SymbolGroupKind,
 } from "../types";
-import { ContextSymbolTable, MethodSymbol } from "./ContextSymbolTable";
+import { ContextSymbolTable, IdentifierSymbol, MethodSymbol } from "./ContextSymbolTable";
 import {
     CallOtherTargetContext,
     CloneObjectExpressionContext,
@@ -14,7 +14,7 @@ import {
     MethodInvocationContext,
     PrimaryExpressionContext,
 } from "../parser3/LPCParser";
-import { ScopedSymbol, TypeKind } from "antlr4-c3";
+import { ScopedSymbol, TypeKind, VariableSymbol } from "antlr4-c3";
 import { ITypedSymbol } from "./DetailsListener";
 
 export class SemanticListener extends LPCParserListener {
@@ -53,9 +53,10 @@ export class SemanticListener extends LPCParserListener {
     exitCallOtherTarget = (ctx: CallOtherTargetContext) => {
         // find the object that the method is being called on
         const target= getSibling(ctx,-2); // -1 is the arrow
-        const symbol = this.symbolTable.symbolContainingContext(ctx);
-        const result = symbol.symbolTable.getAllSymbolsSync(MethodSymbol,false);
-        const def = this.symbolTable.findSymbolDefinition(ctx);
+        const symbol = this.symbolTable.symbolWithContextSync(target);
+        
+        const symbolCont = this.symbolTable.symbolContainingContext(ctx);
+        
         const i=0;
     };
     
@@ -77,7 +78,12 @@ export class SemanticListener extends LPCParserListener {
         // if this is a call to another object, use that object's symbol table
         if (methodObj instanceof CallOtherTargetContext) {            
             const sourceTypeContext = getSibling(ctx,-3); // -2 is the arrow
-            const sourceSymbol = this.symbolTable.symbolWithContextSync(sourceTypeContext) as unknown as ITypedSymbol;
+            // get the name of this variable
+            let sourceSymbol = this.symbolTable.symbolWithContextSync(sourceTypeContext) as unknown as ITypedSymbol;
+            if (sourceSymbol instanceof IdentifierSymbol || sourceSymbol instanceof VariableSymbol) {                
+                sourceSymbol = this.symbolTable.lastAssignOrDecl(sourceSymbol) as unknown as ITypedSymbol;                
+                const i=0;
+            }
             if (sourceSymbol?.type?.kind == TypeKind.Class) {
                 // call other source obj has a type, so use that to locate the method def
                 const typeRefTable = this.symbolTable.getObjectTypeRef(sourceSymbol.type.name);

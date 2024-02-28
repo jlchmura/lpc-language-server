@@ -156,10 +156,10 @@ export class LpcServer {
                 //   resolveProvider: false,
                 // },
                 documentSymbolProvider: true,
-                codeLensProvider: {
-                    resolveProvider: true,
-                    workDoneProgress: false,
-                },
+                // codeLensProvider: {
+                //     resolveProvider: true,
+                //     workDoneProgress: false,
+                // },
                 //hoverProvider: false,
                 definitionProvider: true,
                 //foldingRangeProvider: false, // change to true to enable server-based folding

@@ -24,6 +24,10 @@ export class MethodSymbol extends ScopedSymbol {
         return this.getAllSymbolsSync(ParameterSymbol, true);
     }
 }
+export class ArgumentSymbol extends TypedSymbol{}
+export class FunctionCallSymbol extends TypedSymbol {
+    public arguments: ArgumentSymbol[] = [];
+}
 export class ObjectSymbol extends ScopedSymbol {
     public isLoaded: boolean = false;
 
@@ -35,13 +39,26 @@ export class ObjectSymbol extends ScopedSymbol {
         super(name);
     }
 }
+interface IEvalSymbol {
+    eval(): any;
+}
 export class DefineSymbol extends BaseSymbol {}
 export class VariableSymbol extends TypedSymbol {}
 export class OperatorSymbol extends BaseSymbol {}
-export class AssignmentSymbol extends ScopedSymbol {
+export class AssignmentSymbol extends BaseSymbol {
     constructor(name: string, public lhs: BaseSymbol, public rhs?: BaseSymbol) {
         super(name);
     }
+}
+export class BlockSymbol extends ScopedSymbol {}
+export class LiteralSymbol extends TypedSymbol implements IEvalSymbol {
+    constructor(name: string, type: IType, public value: any) {
+        super(name, type);
+    }
+    eval() {
+        return this.value;
+    }
+
 }
 
 export class EfunSymbol extends MethodSymbol {
@@ -383,6 +400,11 @@ export class ContextSymbolTable extends SymbolTable {
         return findRecursive(this);
     }
 
+    /**
+     * Find a symbol that contains the given context.
+     * @param context 
+     * @returns 
+     */
     public findSymbolDefinition(context: ParseTree): BaseSymbol | undefined {
         let ctx = context;
         let foundSymbol: BaseSymbol | undefined = undefined;
@@ -425,5 +447,19 @@ export class ContextSymbolTable extends SymbolTable {
         } else {
             return 0;
         }
+    }
+
+    public lastAssignOrDecl(i: IdentifierSymbol): AssignmentSymbol | VariableSymbol {
+        const nm = i.name;
+        let symbol = i;
+        let sib = i.previousSibling;
+        while (sib) {
+            if (sib instanceof AssignmentSymbol && sib.name == i.name) {
+                return sib;
+            } else if (sib instanceof VariableSymbol && sib.name == i.name) {
+                return sib;
+            }
+            sib = sib.previousSibling;
+        }            
     }
 }

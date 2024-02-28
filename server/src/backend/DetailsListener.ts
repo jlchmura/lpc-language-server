@@ -2,7 +2,6 @@ import {
     BaseSymbol,
     FundamentalType,
     IType,
-    LiteralSymbol,
     ParameterSymbol,
     ReferenceKind,
     SymbolConstructor,
@@ -11,25 +10,40 @@ import {
 } from "antlr4-c3";
 import { LPCParserListener } from "../parser3/LPCParserListener";
 import {
+    ArgumentSymbol,
     AssignmentSymbol,
     ContextSymbolTable,
+    BlockSymbol,
+    FunctionCallSymbol,
     IdentifierSymbol,
     IncludeSymbol,
     InheritSymbol,
+    LiteralSymbol,
     MethodSymbol,
     ObjectSymbol,
     OperatorSymbol,
     VariableSymbol,
 } from "./ContextSymbolTable";
 import {
+    ArrayExpressionContext,
     AssignmentExpressionContext,
+    BlockContext,
+    CallOtherTargetContext,
     CloneObjectExpressionContext,
+    ExpressionContext,
     FunctionDeclarationContext,
+    IdentifierExpressionContext,
+    IncludeDefineContext,
     IncludeDirectiveContext,
     InheritStatementContext,
     LiteralContext,
+    LiteralExpressionContext,
+    MappingEmptyInitializerContext,
+    MappingValueInitializerContext,
+    MethodInvocationContext,
     ParameterListContext,
     PrimaryExpressionContext,
+    PrimaryExpressionStartContext,
     PrimitiveTypeParameterExpressionContext,
     PrimitiveTypeVariableDeclarationContext,
     VariableDeclaratorContext,
@@ -40,8 +54,6 @@ import { LpcFacade } from "./facade";
 
 export class DetailsListener extends LPCParserListener {
     private symbolStack: BaseSymbol[] = [];
-
-    
 
     public constructor(
         private backend: LpcFacade,
@@ -56,7 +68,6 @@ export class DetailsListener extends LPCParserListener {
         return this.symbolStack.length === 0 ? "" : this.symbolStack[0].name;
     }
 
-  
     enterFunctionDeclaration = (ctx: FunctionDeclarationContext): void => {
         const symb = this.pushNewSymbol(
             MethodSymbol,
@@ -85,28 +96,65 @@ export class DetailsListener extends LPCParserListener {
         const s = this.addNewSymbol(VariableSymbol, ctx, varName.text);
         if (!!ctx.ASSIGN()) {
             const initCtx = ctx.variableInitializer();
-            const sym = this.pushNewSymbol(
+            const exp =
+                initCtx.expression() ||
+                initCtx.arrayExpression() ||
+                initCtx.mappingExpression();
+            const sym = this.addNewSymbol(
                 AssignmentSymbol,
                 initCtx,
                 varName.text,
-                s
+                ctx
             );
         }
     };
 
     exitVariableDeclarator = (ctx: VariableDeclaratorContext) => {
-        if (!!ctx.ASSIGN) {
-            const a = this.popSymbol() as AssignmentSymbol;
-            a.rhs = a.lastChild;
+        if (!!ctx.ASSIGN()) {
+            const assignCtx = ctx.variableInitializer();
+            const assignSym = this.symbolTable.symbolWithContextSync(
+                assignCtx
+            ) as AssignmentSymbol;
 
-            // assign type to left hand side
-            const { lhs, rhs } = a;
-            if (!!lhs && !!rhs && !!(rhs as unknown as ITypedSymbol).type) {
-                (lhs as unknown as ITypedSymbol).type = (
-                    rhs as unknown as ITypedSymbol
-                ).type;
-            }
+            const lhCtx = ctx;
+            const lhSym = this.symbolTable.symbolWithContextSync(
+                lhCtx
+            ) as VariableSymbol;
+
+            const rhCtx =
+                assignCtx.expression() ||
+                assignCtx.arrayExpression() ||
+                assignCtx.mappingExpression();
+            const rhSym = this.symbolTable.symbolWithContextSync(rhCtx);
+
+            assignSym.lhs = lhSym;
+            assignSym.rhs = rhSym;
+
+            const i = 0;
         }
+    };
+
+    enterBlock = (ctx: BlockContext) => {
+        this.pushNewSymbol(BlockSymbol, ctx, "#block#");
+    };
+    exitBlock = (ctx: BlockContext) => {
+        this.popSymbol();
+    };
+
+    enterExpression = (ctx: ExpressionContext) => {
+        this.pushNewSymbol(BlockSymbol, ctx, "#expression#");
+    };
+    exitExpression = (ctx: ExpressionContext) => {
+        this.popSymbol();
+    };
+    exitArrayExpression = (ctx: ArrayExpressionContext) => {
+        this.addNewSymbol(BlockSymbol, ctx);
+    };
+    exitMappingValueInitializer = (ctx: MappingValueInitializerContext) => {
+        this.addNewSymbol(BlockSymbol, ctx);
+    };
+    exitMappingEmptyInitializer = (ctx: MappingEmptyInitializerContext) => {
+        this.addNewSymbol(BlockSymbol, ctx);
     };
 
     enterLiteral = (ctx: LiteralContext) => {
@@ -120,6 +168,25 @@ export class DetailsListener extends LPCParserListener {
         }
         this.addNewSymbol(LiteralSymbol, ctx, "", ctx.getText(), type);
     };
+
+    /**
+     * literal inside an expression
+     * @param ctx
+     */
+    enterLiteralExpression = (ctx: LiteralExpressionContext) => {
+        const lCtx = ctx.literal();
+        let type: IType;
+        if (!!lCtx.IntegerConstant()) {
+            type = FundamentalType.integerType;
+        } else if (!!lCtx.StringLiteral()) {
+            type = FundamentalType.stringType;
+        } else if (!!lCtx.FloatingConstant()) {
+            type = FundamentalType.floatType;
+        }
+        this.addNewSymbol(LiteralSymbol, lCtx, "", lCtx.getText(), type);
+    };
+
+    enterIncludeDefine?: (ctx: IncludeDefineContext) => void;
 
     // exitAssignmentExpression = (ctx: AssignmentExpressionContext) => {
     //     this.popSymbol();
@@ -162,6 +229,31 @@ export class DetailsListener extends LPCParserListener {
         this.popSymbol();
     };
 
+    enterCallOtherTarget = (ctx: CallOtherTargetContext) => {
+        const priStart = ctx.parent as PrimaryExpressionContext;
+        const id = ctx.Identifier();
+        const methodArgs = priStart.methodInvocation();
+        this.pushNewSymbol(FunctionCallSymbol, ctx, id.getText());
+    };
+    exitCallOtherTarget = (ctx: CallOtherTargetContext) => {
+        this.popSymbol();
+    };
+
+    enterMethodInvocation = (ctx: MethodInvocationContext) => {
+        const methodTarget = this.currentSymbol() as FunctionCallSymbol;
+
+        const argList = ctx.argumentList()?.argument();
+        // argList.forEach((a) => {
+        //     const exp = a.expression();
+
+        //     const argSym = this.symbolTable.addNewSymbolOfType(
+        //         ArgumentSymbol,
+        //         methodTarget,
+        //         a.getText()
+        //     );
+        // });
+    };
+
     exitIncludeDirective = (ctx: IncludeDirectiveContext) => {
         const filename = ctx.directiveIncludeFile().getText();
         this.addNewSymbol(IncludeSymbol, ctx, filename);
@@ -172,6 +264,10 @@ export class DetailsListener extends LPCParserListener {
         const filename = ctx._inheritTarget!.text;
         this.addNewSymbol(InheritSymbol, ctx, filename);
         this.imports.push(filename);
+    };
+
+    enterIdentifierExpression = (ctx: IdentifierExpressionContext) => {
+        this.addNewSymbol(IdentifierSymbol, ctx, ctx.getText());
     };
 
     public override visitTerminal = (node: TerminalNode): void => {
@@ -196,9 +292,9 @@ export class DetailsListener extends LPCParserListener {
             case LPCLexer.DEC:
                 this.addNewSymbol(OperatorSymbol, node, node.getText());
                 break;
-            case LPCLexer.Identifier:
-                this.addNewSymbol(IdentifierSymbol, node, node.getText());
-                break;
+            // case LPCLexer.Identifier:
+            //     this.addNewSymbol(IdentifierSymbol, node, node.getText());
+            //     break;
             default: {
                 // Ignore the rest.
                 break;
