@@ -25,7 +25,6 @@ export interface ILexicalRange {
     end: { column: number; row: number };
 }
 
-
 export interface IContextDetails {
     //unreferencedRules: string[];
     unreferencedMethods: string[];
@@ -46,7 +45,7 @@ export enum SymbolKind {
     Variable,
     Operator,
     Block,
-    Efun
+    Efun,
 }
 
 /** Multiple symbol kinds can be involved in a symbol lookup. */
@@ -71,4 +70,3 @@ export interface ISymbolInfo {
     /** Used for code completion. Provides a small description for certain symbols. */
     description?: string;
 }
-

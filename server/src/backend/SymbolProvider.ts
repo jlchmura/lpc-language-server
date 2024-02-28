@@ -24,7 +24,7 @@ export class LpcSymbolProvider {
             }
 
             const info = this.createDocumentSymbol(symbol);
-            symbolsList.push(info);            
+            symbolsList.push(info);
         }
 
         return symbolsList;

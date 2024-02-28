@@ -5,7 +5,6 @@ import {
     ScopedSymbol,
     MethodSymbol as BaseMethodSymbol,
     SymbolConstructor,
-
 } from "antlr4-c3";
 import { ParseTree, ParserRuleContext, TerminalNode } from "antlr4ng";
 import { SourceContext } from "./SourceContext";
@@ -252,7 +251,7 @@ export class ContextSymbolTable extends SymbolTable {
     ): ISymbolInfo[] {
         const result: ISymbolInfo[] = [];
 
-        const symbols =  context.getAllSymbolsSync(t, localOnly);
+        const symbols = context.getAllSymbolsSync(t, localOnly);
         const filtered = new Set(symbols); // Filter for duplicates.
 
         for (const symbol of filtered) {
@@ -262,7 +261,11 @@ export class ContextSymbolTable extends SymbolTable {
             if (symbol instanceof ScopedSymbol) {
                 children.push(
                     ...this.symbolsOfType(VariableSymbol, localOnly, symbol),
-                    ...this.symbolsOfType(InlineClosureSymbol, localOnly, symbol)
+                    ...this.symbolsOfType(
+                        InlineClosureSymbol,
+                        localOnly,
+                        symbol
+                    )
                 );
             }
 
@@ -364,10 +367,14 @@ export class ContextSymbolTable extends SymbolTable {
      * @param context
      * @returns
      */
-    public findSymbolDefinition(context: ParseTree,localOnly=false): BaseSymbol | undefined {
+    public findSymbolDefinition(
+        context: ParseTree,
+        localOnly = false
+    ): BaseSymbol | undefined {
         if (context instanceof TerminalNode) context = context.parent;
-        const sym = this.symbolWithContextSync(context)?.getParentOfType(ScopedSymbol);
-        return sym?.resolveSync(context.getText(),localOnly);
+        const sym =
+            this.symbolWithContextSync(context)?.getParentOfType(ScopedSymbol);
+        return sym?.resolveSync(context.getText(), localOnly);
     }
 
     public getReferenceCount(symbolName: string): number {
@@ -394,5 +401,4 @@ export class ContextSymbolTable extends SymbolTable {
             sib = sib.previousSibling;
         }
     }
- 
 }
