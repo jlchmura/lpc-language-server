@@ -7,20 +7,28 @@ import {
     IType,
     TypeKind,
     ReferenceKind,
+    SymbolConstructor,
 } from "antlr4-c3";
 import { SymbolKind } from "../types";
 import * as vscodelang from "vscode-languageserver";
 
+function getSymbolsOfTypeSync<T extends BaseSymbol, Args extends unknown[]>(
+    symbol: ScopedSymbol,
+    t: SymbolConstructor<T, Args>
+): T[] {
+    return symbol.children.filter((s) => s instanceof t) as T[];
+}
+
 export interface IFoldableSymbol {
-    foldingRange: vscodelang.FoldingRange
+    foldingRange: vscodelang.FoldingRange;
 }
 
 export class IdentifierSymbol extends BaseSymbol {}
 export class IncludeSymbol extends BaseSymbol {}
 export class InheritSymbol extends BaseSymbol {}
-export class MethodSymbol extends ScopedSymbol implements IFoldableSymbol {
-    getParameters() {
-        return this.getAllSymbolsSync(ParameterSymbol, true);
+export class MethodSymbol extends BaseMethodSymbol implements IFoldableSymbol {
+    public getParametersSync() {
+        return getSymbolsOfTypeSync(this, ParameterSymbol);
     }
 
     foldingRange: vscodelang.FoldingRange;
@@ -65,6 +73,9 @@ export class EfunSymbol extends BaseMethodSymbol {
     public constructor(name: string, public returnType?: IType) {
         super(name);
     }
+    public getParametersSync() {
+        return getSymbolsOfTypeSync(this, ParameterSymbol);
+    }
 }
 
 export class PreprocessorSymbol extends ScopedSymbol {
@@ -75,9 +86,13 @@ export class PreprocessorSymbol extends ScopedSymbol {
 
 /** if, switch, etc */
 export class SelectionSymbol extends ScopedSymbol implements IFoldableSymbol {
-    constructor(name: string, public label: string, public foldingRange: vscodelang.FoldingRange) {
+    constructor(
+        name: string,
+        public label: string,
+        public foldingRange: vscodelang.FoldingRange
+    ) {
         super(name);
-    }    
+    }
 }
 
 export class IfSymbol extends ScopedSymbol {

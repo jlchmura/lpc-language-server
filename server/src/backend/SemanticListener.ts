@@ -14,8 +14,17 @@ import {
     MethodInvocationContext,
     PrimaryExpressionContext,
 } from "../parser3/LPCParser";
-import { ScopedSymbol, TypeKind } from "antlr4-c3";
-import { ITypedSymbol, IdentifierSymbol, MethodSymbol, VariableSymbol } from "./Symbol";
+import {
+    ScopedSymbol,
+    TypeKind,
+    MethodSymbol as BaseMethodSymbol,
+} from "antlr4-c3";
+import {
+    ITypedSymbol,
+    IdentifierSymbol,
+    MethodSymbol,
+    VariableSymbol,
+} from "./Symbol";
 
 export class SemanticListener extends LPCParserListener {
     private seenSymbols = new Map<string, Token>();
@@ -32,7 +41,7 @@ export class SemanticListener extends LPCParserListener {
         const symbol = id.getText();
 
         const ss = this.symbolTable.symbolWithContextSync(ctx);
-        const scope = ss.getParentOfType(ScopedSymbol);                
+        const scope = ss.getParentOfType(ScopedSymbol);
         const parentContext = this.symbolTable.findSymbolDefinition(ctx);
         const parentScope = parentContext?.getParentOfType(ScopedSymbol);
 
@@ -103,13 +112,16 @@ export class SemanticListener extends LPCParserListener {
         }
 
         // get the definition for that method
-        const methodSymbol = this.symbolTable.resolveSync(methodName) as MethodSymbol;
+        const methodSymbol = this.symbolTable.resolveSync(
+            methodName
+        ) as MethodSymbol;
         const symbolInfo = lookupTable.getSymbolInfo(methodSymbol);
 
-        if (methodName && methodSymbol instanceof MethodSymbol) {
+        // this will include efuns
+        if (methodName && methodSymbol instanceof BaseMethodSymbol) {
             // check if the number of arguments is correct
             const callArgs = ctx.argumentList()?.argument() ?? [];
-            const methodParams = methodSymbol?.getParameters() ?? [];
+            const methodParams = methodSymbol?.getParametersSync() ?? [];
 
             if (callArgs.length < methodParams.length) {
                 // find first arg that wasn't provided
