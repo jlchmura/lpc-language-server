@@ -42,6 +42,7 @@ export enum SymbolKind {
     Inherit,
     Define,
     Method,
+    InlineClosure,
     Variable,
     Operator,
     Block,

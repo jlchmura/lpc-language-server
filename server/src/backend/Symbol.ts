@@ -12,7 +12,7 @@ import {
 import { SymbolKind } from "../types";
 import * as vscodelang from "vscode-languageserver";
 
-function getSymbolsOfTypeSync<T extends BaseSymbol, Args extends unknown[]>(
+export function getSymbolsOfTypeSync<T extends BaseSymbol, Args extends unknown[]>(
     symbol: ScopedSymbol,
     t: SymbolConstructor<T, Args>
 ): T[] {
@@ -26,6 +26,7 @@ export interface IFoldableSymbol {
 export class IdentifierSymbol extends BaseSymbol {}
 export class IncludeSymbol extends BaseSymbol {}
 export class InheritSymbol extends BaseSymbol {}
+
 export class MethodSymbol extends BaseMethodSymbol implements IFoldableSymbol {
     public getParametersSync() {
         return getSymbolsOfTypeSync(this, ParameterSymbol);
@@ -33,6 +34,7 @@ export class MethodSymbol extends BaseMethodSymbol implements IFoldableSymbol {
 
     foldingRange: vscodelang.FoldingRange;
 }
+export class InlineClosureSymbol extends MethodSymbol {}
 export class ArgumentSymbol extends TypedSymbol {}
 export class FunctionCallSymbol extends TypedSymbol {
     public arguments: ArgumentSymbol[] = [];
@@ -105,6 +107,21 @@ export class IfSymbol extends ScopedSymbol {
     }
 }
 
+export const symbolToKindMap: Map<new () => BaseSymbol, SymbolKind> =
+new Map([
+    [IncludeSymbol, SymbolKind.Include],
+    [InheritSymbol, SymbolKind.Inherit],
+    [MethodSymbol, SymbolKind.Method],
+    [BaseMethodSymbol, SymbolKind.Method],
+    [DefineSymbol, SymbolKind.Define],
+    [VariableSymbol, SymbolKind.Variable],
+    [EfunSymbol, SymbolKind.Efun],
+    [BlockSymbol, SymbolKind.Block],
+    [OperatorSymbol, SymbolKind.Operator],
+    [IdentifierSymbol, SymbolKind.Keyword],
+    [InlineClosureSymbol, SymbolKind.InlineClosure]
+]);
+
 const symbolDescriptionMap = new Map<SymbolKind, string>([
     [SymbolKind.Terminal, "Terminal"],
     [SymbolKind.Keyword, "Keyword"],
@@ -113,6 +130,7 @@ const symbolDescriptionMap = new Map<SymbolKind, string>([
     [SymbolKind.Variable, "Variable"],
     [SymbolKind.Define, "Define"],
     [SymbolKind.Inherit, "Inherit"],
+    [SymbolKind.InlineClosure, "Inline Closure Callback"],
 ]);
 
 const symbolCodeTypeMap = new Map<SymbolKind, vscodelang.SymbolKind>([
@@ -121,6 +139,7 @@ const symbolCodeTypeMap = new Map<SymbolKind, vscodelang.SymbolKind>([
     [SymbolKind.Include, vscodelang.SymbolKind.Module],
     [SymbolKind.Inherit, vscodelang.SymbolKind.Module],
     [SymbolKind.Method, vscodelang.SymbolKind.Method],
+    [SymbolKind.InlineClosure, vscodelang.SymbolKind.Method],
     [SymbolKind.Variable, vscodelang.SymbolKind.Variable],
     [SymbolKind.Define, vscodelang.SymbolKind.Constant],
 ]);

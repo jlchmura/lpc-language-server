@@ -5,7 +5,7 @@ import {
     ScopedSymbol,
     MethodSymbol as BaseMethodSymbol,
     SymbolConstructor,
-    VariableSymbol,
+
 } from "antlr4-c3";
 import { ParseTree, ParserRuleContext, TerminalNode } from "antlr4ng";
 import { SourceContext } from "./SourceContext";
@@ -13,11 +13,14 @@ import { ISymbolInfo, SymbolGroupKind, SymbolKind } from "../types";
 import {
     AssignmentSymbol,
     DefineSymbol,
+    EfunSymbol,
     IFoldableSymbol,
     IdentifierSymbol,
+    VariableSymbol,
     IncludeSymbol,
     InheritSymbol,
     MethodSymbol,
+    InlineClosureSymbol,
 } from "./Symbol";
 import { FoldingRange } from "vscode-languageserver";
 
@@ -249,7 +252,7 @@ export class ContextSymbolTable extends SymbolTable {
     ): ISymbolInfo[] {
         const result: ISymbolInfo[] = [];
 
-        const symbols = context.getAllSymbolsSync(t, localOnly);
+        const symbols =  context.getAllSymbolsSync(t, localOnly);
         const filtered = new Set(symbols); // Filter for duplicates.
 
         for (const symbol of filtered) {
@@ -258,7 +261,8 @@ export class ContextSymbolTable extends SymbolTable {
             let children: ISymbolInfo[] = [];
             if (symbol instanceof ScopedSymbol) {
                 children.push(
-                    ...this.symbolsOfType(VariableSymbol, localOnly, symbol)
+                    ...this.symbolsOfType(VariableSymbol, localOnly, symbol),
+                    ...this.symbolsOfType(InlineClosureSymbol, localOnly, symbol)
                 );
             }
 
@@ -301,8 +305,8 @@ export class ContextSymbolTable extends SymbolTable {
 
         let symbols = this.symbolsOfType(IncludeSymbol, localOnly);
         result.push(...symbols);
-        // symbols = this.symbolsOfType(BuiltInTokenSymbol, localOnly);
-        // result.push(...symbols);
+        symbols = this.symbolsOfType(EfunSymbol, localOnly);
+        result.push(...symbols);
         symbols = this.symbolsOfType(MethodSymbol, localOnly);
         result.push(...symbols);
         symbols = this.symbolsOfType(VariableSymbol, localOnly);

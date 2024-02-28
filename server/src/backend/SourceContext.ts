@@ -49,6 +49,8 @@ import {
     OperatorSymbol,
     VariableSymbol,
     IFoldableSymbol,
+    InlineClosureSymbol,
+    symbolToKindMap,
 } from "./Symbol";
 import { DetailsVisitor } from "./DetailsVisitor";
 import { FoldingRange } from "vscode-languageserver";
@@ -65,19 +67,6 @@ export class SourceContext {
     private static globalSymbols = new ContextSymbolTable("Global Symbols", {
         allowDuplicateSymbols: false,
     });
-    private static symbolToKindMap: Map<new () => BaseSymbol, SymbolKind> =
-        new Map([
-            [IncludeSymbol, SymbolKind.Include],
-            [InheritSymbol, SymbolKind.Inherit],
-            [MethodSymbol, SymbolKind.Method],
-            [BaseMethodSymbol, SymbolKind.Method],
-            [DefineSymbol, SymbolKind.Define],
-            [VariableSymbol, SymbolKind.Variable],
-            [EfunSymbol, SymbolKind.Efun],
-            [BlockSymbol, SymbolKind.Block],
-            [OperatorSymbol, SymbolKind.Operator],
-            [IdentifierSymbol, SymbolKind.Keyword],
-        ]);
 
     public symbolTable: ContextSymbolTable;
     public sourceId: string;
@@ -324,7 +313,7 @@ export class SourceContext {
 
     public static getKindFromSymbol(symbol: BaseSymbol): SymbolKind {
         return (
-            this.symbolToKindMap.get(symbol.constructor as typeof BaseSymbol) ||
+            symbolToKindMap.get(symbol.constructor as typeof BaseSymbol) ||
             SymbolKind.Unknown
         );
     }

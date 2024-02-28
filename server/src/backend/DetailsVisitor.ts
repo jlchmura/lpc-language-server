@@ -33,6 +33,7 @@ import {
     IfSymbol,
     IncludeSymbol,
     InheritSymbol,
+    InlineClosureSymbol,
     MethodSymbol,
     PreprocessorSymbol,
     SelectionSymbol,
@@ -195,8 +196,8 @@ export class DetailsVisitor
 
         return this.withScope(
             ctx,
-            MethodSymbol,
-            [name + " Inline Closure "],
+            InlineClosureSymbol,
+            ["(: :) Inline closure"],
             (s) => {
                 s.foldingRange = FoldingRange.create(
                     ctx.start.line - 1,
