@@ -43,6 +43,9 @@ export enum SymbolKind {
     Define,
     Method,
     Variable,
+    Operator,
+    Block,
+    Efun
 }
 
 /** Multiple symbol kinds can be involved in a symbol lookup. */
@@ -62,8 +65,9 @@ export interface ISymbolInfo {
     name: string;
     source: string;
     definition?: IDefinition;
-    children: ISymbolInfo[];
+    children?: ISymbolInfo[];
 
     /** Used for code completion. Provides a small description for certain symbols. */
     description?: string;
 }
+

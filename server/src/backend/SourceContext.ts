@@ -11,6 +11,7 @@ import {
     PredictionMode,
     RuleContext,
     TerminalNode,
+    Token,
 } from "antlr4ng";
 import { LPCLexer } from "../parser3/LPCLexer";
 import { LPCParser, ProgramContext } from "../parser3/LPCParser";
@@ -26,19 +27,28 @@ import {
 import { ContextErrorListener } from "./ContextErrorListener";
 import { ContextLexerErrorListener } from "./ContextLexerErrorListener";
 import {
+    BlockSymbol,
     ContextSymbolTable,
     DefineSymbol,
     EfunSymbol,
+    IdentifierSymbol,
     IncludeSymbol,
     InheritSymbol,
     MethodSymbol,
+    OperatorSymbol,
     VariableSymbol,
 } from "./ContextSymbolTable";
 import { SemanticListener } from "./SemanticListener";
-import { BaseSymbol, IType, ParameterSymbol } from "antlr4-c3";
+import {
+    BaseSymbol,
+    CodeCompletionCore,
+    IType,
+    ParameterSymbol,
+} from "antlr4-c3";
 import { DetailsListener } from "./DetailsListener";
 import { BackendUtils } from "./BackendUtils";
 import { LpcFacade } from "./facade";
+import { resourceLimits } from "worker_threads";
 
 type EfunArgument = {
     name: string;
@@ -59,6 +69,10 @@ export class SourceContext {
             [MethodSymbol, SymbolKind.Method],
             [DefineSymbol, SymbolKind.Define],
             [VariableSymbol, SymbolKind.Variable],
+            [EfunSymbol, SymbolKind.Efun],
+            [BlockSymbol, SymbolKind.Block],
+            [OperatorSymbol, SymbolKind.Operator],
+            [IdentifierSymbol, SymbolKind.Keyword]
         ]);
 
     public symbolTable: ContextSymbolTable;
@@ -66,7 +80,7 @@ export class SourceContext {
     public info: IContextDetails = {
         unreferencedMethods: [],
         imports: [],
-        objectImports: []
+        objectImports: [],
     };
 
     /* @internal */
@@ -96,7 +110,11 @@ export class SourceContext {
 
     private tree: ProgramContext | undefined; // The root context from the last parse run.
 
-    public constructor(public backend: LpcFacade, public fileName: string, private extensionDir: string) {
+    public constructor(
+        public backend: LpcFacade,
+        public fileName: string,
+        private extensionDir: string
+    ) {
         this.sourceId = path.basename(fileName);
         this.symbolTable = new ContextSymbolTable(
             this.sourceId,
@@ -108,9 +126,9 @@ export class SourceContext {
         const sizeOfEfun = SourceContext.globalSymbols.resolveSync("sizeof");
         if (!sizeOfEfun) {
             // add built-in efuns here
-            this.addEfun("abs", undefined, [{ name: "number" }]);
-            this.addEfun("clone_object", undefined, [{ name: "name" }]);
-            this.addEfun("sizeof", undefined, [{ name: "val" }]);
+            this.addEfun("abs", undefined, { name: "number" });
+            this.addEfun("clone_object", undefined, { name: "name" });
+            this.addEfun("sizeof", undefined, { name: "val" });
         }
 
         this.lexer = new LPCLexer(CharStreams.fromString(""));
@@ -127,7 +145,7 @@ export class SourceContext {
         this.parser.addErrorListener(this.errorListener);
     }
 
-    private addEfun(name: string, returnType: IType, args: EfunArgument[]) {
+    private addEfun(name: string, returnType: IType, ...args: EfunArgument[]) {
         const symb = SourceContext.globalSymbols.addNewSymbolOfType(
             EfunSymbol,
             undefined,
@@ -212,7 +230,7 @@ export class SourceContext {
         }
 
         this.symbolTable.tree = this.tree;
-        const listener = new DetailsListener(            
+        const listener = new DetailsListener(
             this.backend,
             this.symbolTable,
             this.info.imports,
@@ -230,7 +248,10 @@ export class SourceContext {
      *
      * @param context The context to add.
      */
-    public addAsReferenceTo(context: SourceContext, addSymbolTable=true): void {
+    public addAsReferenceTo(
+        context: SourceContext,
+        addSymbolTable = true
+    ): void {
         // Check for mutual inclusion. References are organized like a mesh.
         const pipeline: SourceContext[] = [context];
         while (pipeline.length > 0) {
@@ -451,6 +472,192 @@ export class SourceContext {
         for (const reference of this.references) {
             result += reference.getReferenceCount(symbol);
         }
+
+        return result;
+    }
+
+    public async getCodeCompletionCandidates(
+        column: number,
+        row: number
+    ): Promise<ISymbolInfo[]> {
+        if (!this.parser) {
+            return [];
+        }
+
+        const core = new CodeCompletionCore(this.parser);
+        //core.showResult = false;
+        core.ignoredTokens = new Set([
+            LPCLexer.PAREN_CLOSE,
+            LPCLexer.PAREN_OPEN,
+            LPCLexer.StringLiteral,
+            LPCLexer.IntegerConstant,
+            LPCLexer.FloatingConstant,
+            LPCLexer.WS,
+            LPCLexer.LT,
+            LPCLexer.GT,
+            LPCLexer.SEMI,
+            LPCLexer.CURLY_OPEN,
+            LPCLexer.CURLY_CLOSE,
+            Token.EOF,
+        ]);
+
+        core.preferredRules = new Set([
+            LPCParser.RULE_primaryExpressionStart,
+            LPCParser.RULE_variableDeclaration,
+            LPCParser.RULE_statement,
+            //LPCParser.RULE_functionDeclaration,
+        ]);
+
+        // Search the token index which covers our caret position.
+        let index: number;
+        this.tokenStream.fill();
+        let token: Token;
+        for (index = 0; ; ++index) {
+            token = this.tokenStream.get(index);
+            //console.log(token.toString());
+            if (token.type === Token.EOF || token.line > row) {
+                break;
+            }
+            if (token.line < row) {
+                continue;
+            }
+            const length = token.text ? token.text.length : 0;
+            if (token.column + length >= column) {
+                break;
+            }
+        }
+
+        const candidates = core.collectCandidates(index);
+        const result: ISymbolInfo[] = [];
+        candidates.tokens.forEach((following: number[], type: number) => {            
+            switch (type) {
+                case LPCLexer.ARROW: {
+                    result.push({
+                        kind: SymbolKind.Operator,
+                        name: "->",
+                        description: "Call other",
+                        source: this.fileName,
+                    });
+
+                    break;
+                }
+                case LPCLexer.ARRAY_OPEN: {
+                    result.push({
+                        kind: SymbolKind.Operator,
+                        name: "({ val })",
+                        description: "Array initializer",
+                        source: this.fileName,
+                    });
+
+                    break;
+                }
+                case LPCLexer.ASSIGN: {
+                    result.push({
+                        kind: SymbolKind.Operator,
+                        name: "=",
+                        description: "Variable assignment",
+                        source: this.fileName,
+                    });
+
+                    break;
+                }
+
+                case LPCLexer.ADD_ASSIGN: {
+                    result.push({
+                        kind: SymbolKind.Operator,
+                        name: "+=",
+                        description: "Variable increment",
+                        source: this.fileName,
+                    });
+
+                    break;
+                }
+
+                default: {
+                    const value =
+                        this.parser?.vocabulary.getDisplayName(type) ?? "";
+                    result.push({
+                        kind: SymbolKind.Keyword,
+                        name:
+                            value[0] === "'"
+                                ? value.substring(1, value.length - 1)
+                                : value, // Remove quotes.
+                        source: this.fileName,
+                    });
+
+                    break;
+                }
+            }
+        });
+
+        const promises: Array<Promise<BaseSymbol[] | undefined>> = [];
+        candidates.rules.forEach((candidateRule, key) => {
+            switch (key) {
+                case LPCParser.RULE_block:
+                    result.push({
+                        kind: SymbolKind.Block,
+                        name: "{ code }",
+                        source: this.fileName,
+                        definition: undefined,
+                        description: undefined,
+                    });
+                    break;
+
+                case LPCParser.RULE_statement:
+                case LPCParser.RULE_primaryExpressionStart:
+                    // Lexer rules.
+                    promises.push(
+                        SourceContext.globalSymbols.getAllSymbols(EfunSymbol)
+                        //this.symbolTable.getAllSymbols(EfunSymbol, true)
+                    );
+                    promises.push(
+                        this.symbolTable.getAllSymbols(VariableSymbol)
+                    );
+                    promises.push(this.symbolTable.getAllSymbols(MethodSymbol));
+
+                    break;
+
+                case LPCParser.RULE_functionDeclaration:
+                    result.push({
+                        kind: SymbolKind.Method,
+                        name: "modifiers type functionName(parameters) { code }",
+                        source: this.fileName,
+                        definition: undefined,
+                        description: undefined,
+                    });
+
+                    break;
+
+                case LPCParser.RULE_variableDeclaration:
+                    result.push({
+                        kind: SymbolKind.Variable,
+                        name: "modifiers type variableName = value",
+                        source: this.fileName,
+                    });
+
+                    break;
+
+                default:
+                    break;
+            }
+        });
+
+        const symbolLists = await Promise.all(promises);
+        symbolLists.forEach((symbols) => {
+            if (symbols) {
+                symbols.forEach((symbol) => {
+                    if (symbol.name !== "EOF") {
+                        result.push({
+                            kind: SourceContext.getKindFromSymbol(symbol),
+                            name: symbol.name,
+                            source: this.fileName,
+                            definition: undefined,
+                            description: undefined,
+                        });
+                    }
+                });
+            }
+        });
 
         return result;
     }

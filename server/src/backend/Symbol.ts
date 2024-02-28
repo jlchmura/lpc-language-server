@@ -44,3 +44,53 @@ export const translateSymbolKind = (
 ): vscodelang.SymbolKind => {
     return symbolCodeTypeMap.get(kind) || vscodelang.SymbolKind.Null;
 };
+
+const symbolCompletionTypeMap = new Map<
+    SymbolKind,
+    vscodelang.CompletionItemKind
+>([
+    [SymbolKind.Terminal, vscodelang.CompletionItemKind.EnumMember],
+    [SymbolKind.Keyword, vscodelang.CompletionItemKind.Keyword],
+    [SymbolKind.Block, vscodelang.CompletionItemKind.Function],
+    [SymbolKind.Define, vscodelang.CompletionItemKind.Variable],
+    [SymbolKind.Inherit, vscodelang.CompletionItemKind.Function],
+    [SymbolKind.Method, vscodelang.CompletionItemKind.Function],
+    [SymbolKind.Variable, vscodelang.CompletionItemKind.Variable],
+    [SymbolKind.Operator, vscodelang.CompletionItemKind.Operator],
+    [SymbolKind.Efun, vscodelang.CompletionItemKind.Function],
+]);
+
+/**
+ * Converts the native symbol kind to a vscode completion item kind.
+ *
+ * @param kind The kind of symbol for which return the completion item kind.
+ *
+ * @returns The vscode completion item kind.
+ */
+export const translateCompletionKind = (
+    kind: SymbolKind
+): vscodelang.CompletionItemKind => {
+    return (
+        symbolCompletionTypeMap.get(kind) || vscodelang.CompletionItemKind.Text
+    );
+};
+
+/** Determines the sort order in the completion list. One value for each SymbolKind. */
+
+export const completionSortKeys = new Map<SymbolKind, string>([
+    [SymbolKind.Keyword, "01"],
+    [SymbolKind.Method, "08"],
+    [SymbolKind.Variable, "05"],
+    [SymbolKind.Efun, "02"],
+    [SymbolKind.Operator, "00"],
+]);
+
+// Descriptions for each symbol kind.
+
+export const completionDetails = new Map<SymbolKind, string>([
+    [SymbolKind.Keyword, "Keyword"],
+    [SymbolKind.Operator, "Operator"],
+    [SymbolKind.Efun, "Driver efun"],
+    [SymbolKind.Variable, "Variable"],
+    [SymbolKind.Method, "Method"],
+]);

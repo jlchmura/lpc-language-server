@@ -25,23 +25,12 @@ import {
   TextDocumentPositionParams,
 } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import {
-  CaretPosition,
-  getSuggestions,
-  getSuggestionsForParseTree,
-} from "./completions";
+
 
 import { getFoldingRanges } from "./folding";
 
-import { SymbolTableVisitor } from "./symbolTableVisitor";
-import { computeTokenPosition } from "./tokenposition";
-import { LPCLexer } from "./parser3/LPCLexer";
-import { CharStreams, CommonTokenStream } from "antlr4ng";
 
 
-//import { getDefinitions } from "./definition";
-import { doHover } from "./hover";
-import { LPCParser, ProgramContext } from "./parser3/LPCParser";
 
 
 export function startServer(connection: Connection) {
@@ -80,9 +69,7 @@ export function startServer(connection: Connection) {
       capabilities: {
         textDocumentSync: TextDocumentSyncKind.Incremental,
         // Tell the client that this server supports code completion.
-        completionProvider: {
-          resolveProvider: true,
-        },
+        
         documentSymbolProvider: true,
         hoverProvider:false,
         definitionProvider: true,
@@ -167,57 +154,13 @@ export function startServer(connection: Connection) {
     return null;
   });
   
-  connection.onHover((hoverParams, token) => {
-    const document = documents.get(hoverParams.textDocument.uri);
-    if (document) {
-      return doHover(document, hoverParams.position);
-    } else {
-      return null;
-    }
-  }); 
 
   connection.onDidChangeWatchedFiles((_change) => {
     // Monitored files have change in VSCode
     connection.console.log("We received an file change event");
   });
 
-  // This handler provides the initial list of the completion items.
-  connection.onCompletion(
-    (_textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
-      let uri = _textDocumentPosition.textDocument.uri;
-      let document = documents.get(uri);
-      if (!document) return [];
-
-      let pos = _textDocumentPosition.position;
-      let caretPos = {
-        line: pos.line + 1,
-        column: pos.character,
-      } as CaretPosition;
-
-      console.log(
-        "Getting suggestions for: " +
-          document.uri +
-          " at " +
-          caretPos.line +
-          ":" +
-          caretPos.column
-      );
-
-      let suggestions = getSuggestions(
-        document.getText(),
-        caretPos,
-        computeTokenPosition
-      );
-      return suggestions;
-    }
-  );
-
-  // This handler resolves additional information for the item selected in
-  // the completion list.
-  connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
-    return item;
-  });
-
+  
   // Make the text document manager listen on the connection
   // for open, change and close text document events
   documents.listen(connection);

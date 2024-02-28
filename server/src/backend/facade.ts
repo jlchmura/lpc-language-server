@@ -320,4 +320,10 @@ export class LpcFacade {
 
         return context.getReferenceCount(symbol);
     }
+
+    public async getCodeCompletionCandidates(fileName: string, column: number, row: number): Promise<ISymbolInfo[]> {
+        const context = this.getContext(fileName);
+
+        return context.getCodeCompletionCandidates(column, row);
+    }
 }

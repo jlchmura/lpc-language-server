@@ -1,5 +1,7 @@
 import { LpcFacade } from "./facade";
 import {
+    CompletionItem,
+    CompletionList,
     Connection,
     Diagnostic,
     DiagnosticRelatedInformation,
@@ -10,6 +12,7 @@ import {
     InitializeResult,
     InitializedParams,
     Location,
+    Position,
     Range,
     TextDocumentSyncKind,
     TextDocuments,
@@ -21,6 +24,11 @@ import { LpcSymbolProvider } from "./SymbolProvider";
 import { LpcDefinitionProvider } from "./DefinitionProvider";
 import { IDiagnosticEntry, ILexicalRange } from "../types";
 import { CodeLensProvider } from "./CodeLensProvider";
+import {
+    completionDetails,
+    completionSortKeys,
+    translateCompletionKind,
+} from "./Symbol";
 
 const CHANGE_DEBOUNCE_MS = 300;
 
@@ -91,6 +99,15 @@ export class LpcServer {
             return result;
         });
 
+        // Completion Provider
+        this.connection.onCompletion(async (params) => {
+            const doc = this.documents.get(params.textDocument.uri);
+            return this.provideCompletionItems(doc, params.position);
+        });
+        this.connection.onCompletionResolve((item) => {
+            return item;
+        });
+                
         // send document open/close/changes to facade
         this.documents.onDidOpen((e) => {
             this.facade.loadLpc(e.document.uri, e.document.getText());
@@ -141,7 +158,7 @@ export class LpcServer {
         );
         this.hasWorkspaceFolderCapability = !!(
             capabilities.workspace && !!capabilities.workspace.workspaceFolders
-        );
+        );        
         this.hasDiagnosticRelatedInformationCapability = !!(
             capabilities.textDocument &&
             capabilities.textDocument.publishDiagnostics &&
@@ -152,9 +169,9 @@ export class LpcServer {
             capabilities: {
                 textDocumentSync: TextDocumentSyncKind.Incremental,
                 // Tell the client that this server supports code completion.
-                // completionProvider: {
-                //   resolveProvider: false,
-                // },
+                completionProvider: {
+                    resolveProvider: true,
+                },
                 documentSymbolProvider: true,
                 // codeLensProvider: {
                 //     resolveProvider: true,
@@ -165,6 +182,7 @@ export class LpcServer {
                 //foldingRangeProvider: false, // change to true to enable server-based folding
             },
         };
+          
         if (this.hasWorkspaceFolderCapability) {
             result.capabilities.workspace = {
                 workspaceFolders: {
@@ -242,5 +260,33 @@ export class LpcServer {
             const result = this.codeLenseProvider.provideCodeLenses(doc);
             return result;
         });
+    }
+
+    private async provideCompletionItems(
+        document: TextDocument,
+        position: Position
+    ): Promise<CompletionItem[]> {
+        return this.facade
+            .getCodeCompletionCandidates(
+                document.uri,
+                position.character,
+                position.line + 1
+            )
+            .then((candidates) => {
+                const completionList: CompletionItem[] = [];
+                candidates.forEach((info) => {
+                    const item = CompletionItem.create(info.name);
+                    item.kind = translateCompletionKind(info.kind);
+                    item.sortText =
+                        (completionSortKeys[info.kind] ?? "") + info.name;
+                    item.detail =
+                        info.description !== undefined
+                            ? info.description
+                            : completionDetails[info.kind];
+
+                    completionList.push(item);
+                });
+                return completionList;
+            });
     }
 }

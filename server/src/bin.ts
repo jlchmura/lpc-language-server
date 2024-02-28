@@ -9,7 +9,6 @@ import { CodeCompletionCore, NamespaceSymbol, SymbolTable } from "antlr4-c3";
 
 import { TextDocument } from "vscode-languageserver-textdocument";
 //import { VariableSymbol } from "./backend/ContextSymbolTable";
-import { CaretPosition } from "./completions";
 import { LpcFacade } from "./backend/facade";
 import { MethodSymbol,  VariableSymbol } from "./backend/ContextSymbolTable";
 //import { LpcFacade } from "./backend/facade";
@@ -30,8 +29,6 @@ const dir = path.dirname(filename);
 const backend = new LpcFacade(dir,dir);
 //main file
 const ctxFile = backend.loadLpc(filename, code);
-
-let caretPos = { line: 4, column: 10 } as CaretPosition;
 
 const tree = ctxFile.symbolTable;
 

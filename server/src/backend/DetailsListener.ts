@@ -93,6 +93,8 @@ export class DetailsListener extends LPCParserListener {
 
     enterVariableDeclarator = (ctx: VariableDeclaratorContext) => {
         const varName = ctx._variableName;
+        if (!varName) return;
+        
         const s = this.addNewSymbol(VariableSymbol, ctx, varName.text);
         if (!!ctx.ASSIGN()) {
             const initCtx = ctx.variableInitializer();

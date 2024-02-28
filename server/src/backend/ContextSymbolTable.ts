@@ -61,7 +61,7 @@ export class LiteralSymbol extends TypedSymbol implements IEvalSymbol {
 
 }
 
-export class EfunSymbol extends MethodSymbol {
+export class EfunSymbol extends BaseMethodSymbol {
     public constructor(name: string, public returnType?: IType) {
         super(name);
     }
