@@ -12,7 +12,6 @@ import { LPCParserListener } from "../parser3/LPCParserListener";
 import {
     ArgumentSymbol,
     AssignmentSymbol,
-    ContextSymbolTable,
     BlockSymbol,
     FunctionCallSymbol,
     IdentifierSymbol,
@@ -21,9 +20,10 @@ import {
     LiteralSymbol,
     MethodSymbol,
     ObjectSymbol,
+    ObjectType,
     OperatorSymbol,
     VariableSymbol,
-} from "./ContextSymbolTable";
+} from "./Symbol";
 import {
     ArrayExpressionContext,
     AssignmentExpressionContext,
@@ -51,6 +51,7 @@ import {
 import { ParseTree, TerminalNode } from "antlr4ng";
 import { LPCLexer } from "../parser3/LPCLexer";
 import { LpcFacade } from "./facade";
+import { ContextSymbolTable } from "./ContextSymbolTable";
 
 export class DetailsListener extends LPCParserListener {
     private symbolStack: BaseSymbol[] = [];
@@ -94,7 +95,7 @@ export class DetailsListener extends LPCParserListener {
     enterVariableDeclarator = (ctx: VariableDeclaratorContext) => {
         const varName = ctx._variableName;
         if (!varName) return;
-        
+
         const s = this.addNewSymbol(VariableSymbol, ctx, varName.text);
         if (!!ctx.ASSIGN()) {
             const initCtx = ctx.variableInitializer();
@@ -363,25 +364,5 @@ export class DetailsListener extends LPCParserListener {
 
     private popSymbol(): BaseSymbol | undefined {
         return this.symbolStack.pop();
-    }
-}
-
-export class ITypedSymbol {
-    type: IType;
-}
-
-export class ObjectType extends BaseSymbol implements IType {
-    public constructor(public name: string) {
-        super(name);
-    }
-
-    baseTypes: IType[] = [];
-
-    public get kind(): TypeKind {
-        return TypeKind.Class;
-    }
-
-    public get reference(): ReferenceKind {
-        return ReferenceKind.Instance;
     }
 }

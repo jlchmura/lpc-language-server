@@ -27,7 +27,6 @@ import {
 import { TextDocument } from "vscode-languageserver-textdocument";
 
 
-import { getFoldingRanges } from "./folding";
 
 
 
@@ -145,15 +144,7 @@ export function startServer(connection: Connection) {
   documents.onDidClose((e) => {
     documentSettings.delete(e.document.uri);
   });
-  
-  connection.onFoldingRanges((params, token) => {
-    const doc = documents.get(params.textDocument.uri);
-    if (doc) {
-      return getFoldingRanges(doc.getText(), foldingRangeLimit);
-    }
-    return null;
-  });
-  
+
 
   connection.onDidChangeWatchedFiles((_change) => {
     // Monitored files have change in VSCode

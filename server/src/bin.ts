@@ -10,7 +10,8 @@ import { CodeCompletionCore, NamespaceSymbol, SymbolTable } from "antlr4-c3";
 import { TextDocument } from "vscode-languageserver-textdocument";
 //import { VariableSymbol } from "./backend/ContextSymbolTable";
 import { LpcFacade } from "./backend/facade";
-import { MethodSymbol,  VariableSymbol } from "./backend/ContextSymbolTable";
+import { MethodSymbol } from "./backend/Symbol";
+
 //import { LpcFacade } from "./backend/facade";
 
 const code = fs.existsSync(process.argv[2])

@@ -26,29 +26,29 @@ import {
 } from "../types";
 import { ContextErrorListener } from "./ContextErrorListener";
 import { ContextLexerErrorListener } from "./ContextLexerErrorListener";
-import {
-    BlockSymbol,
-    ContextSymbolTable,
-    DefineSymbol,
-    EfunSymbol,
-    IdentifierSymbol,
-    IncludeSymbol,
-    InheritSymbol,
-    MethodSymbol,
-    OperatorSymbol,
-    VariableSymbol,
-} from "./ContextSymbolTable";
+import { ContextSymbolTable } from "./ContextSymbolTable";
 import { SemanticListener } from "./SemanticListener";
 import {
     BaseSymbol,
+    BlockSymbol,
     CodeCompletionCore,
     IType,
+    MethodSymbol as BaseMethodSymbol,
     ParameterSymbol,
 } from "antlr4-c3";
 import { DetailsListener } from "./DetailsListener";
 import { BackendUtils } from "./BackendUtils";
 import { LpcFacade } from "./facade";
-import { resourceLimits } from "worker_threads";
+import {
+    DefineSymbol,
+    EfunSymbol,
+    MethodSymbol,
+    IdentifierSymbol,
+    IncludeSymbol,
+    InheritSymbol,
+    OperatorSymbol,
+    VariableSymbol,
+} from "./Symbol";
 
 type EfunArgument = {
     name: string;
@@ -67,12 +67,13 @@ export class SourceContext {
             [IncludeSymbol, SymbolKind.Include],
             [InheritSymbol, SymbolKind.Inherit],
             [MethodSymbol, SymbolKind.Method],
+            [BaseMethodSymbol, SymbolKind.Method],
             [DefineSymbol, SymbolKind.Define],
             [VariableSymbol, SymbolKind.Variable],
             [EfunSymbol, SymbolKind.Efun],
             [BlockSymbol, SymbolKind.Block],
             [OperatorSymbol, SymbolKind.Operator],
-            [IdentifierSymbol, SymbolKind.Keyword]
+            [IdentifierSymbol, SymbolKind.Keyword],
         ]);
 
     public symbolTable: ContextSymbolTable;
@@ -529,7 +530,7 @@ export class SourceContext {
 
         const candidates = core.collectCandidates(index);
         const result: ISymbolInfo[] = [];
-        candidates.tokens.forEach((following: number[], type: number) => {            
+        candidates.tokens.forEach((following: number[], type: number) => {
             switch (type) {
                 case LPCLexer.ARROW: {
                     result.push({

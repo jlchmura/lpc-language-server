@@ -1,5 +1,88 @@
+import {
+    BaseSymbol,
+    ScopedSymbol,
+    MethodSymbol as BaseMethodSymbol,
+    ParameterSymbol,
+    TypedSymbol,
+    IType,
+    TypeKind,
+    ReferenceKind,
+} from "antlr4-c3";
 import { SymbolKind } from "../types";
 import * as vscodelang from "vscode-languageserver";
+
+export class IdentifierSymbol extends BaseSymbol {}
+export class IncludeSymbol extends BaseSymbol {}
+export class InheritSymbol extends BaseSymbol {}
+export class MethodSymbol extends ScopedSymbol {
+    getParameters() {
+        return this.getAllSymbolsSync(ParameterSymbol, true);
+    }
+}
+export class ArgumentSymbol extends TypedSymbol {}
+export class FunctionCallSymbol extends TypedSymbol {
+    public arguments: ArgumentSymbol[] = [];
+}
+export class ObjectSymbol extends ScopedSymbol {
+    public isLoaded: boolean = false;
+
+    constructor(
+        name: string,
+        public filename: string,
+        public type: ObjectType
+    ) {
+        super(name);
+    }
+}
+interface IEvalSymbol {
+    eval(): any;
+}
+export class DefineSymbol extends BaseSymbol {}
+export class VariableSymbol extends TypedSymbol {}
+export class OperatorSymbol extends BaseSymbol {}
+export class AssignmentSymbol extends BaseSymbol {
+    constructor(name: string, public lhs: BaseSymbol, public rhs?: BaseSymbol) {
+        super(name);
+    }
+}
+export class BlockSymbol extends ScopedSymbol {}
+export class LiteralSymbol extends TypedSymbol implements IEvalSymbol {
+    constructor(name: string, type: IType, public value: any) {
+        super(name, type);
+    }
+    eval() {
+        return this.value;
+    }
+}
+
+export class EfunSymbol extends BaseMethodSymbol {
+    public constructor(name: string, public returnType?: IType) {
+        super(name);
+    }
+}
+
+export class PreprocessorSymbol extends ScopedSymbol {
+    constructor(name: string, public label: string) {
+        super(name);
+    }
+}
+
+/** if, switch, etc */
+export class SelectionSymbol extends ScopedSymbol {
+    constructor(name: string, public label: string) {
+        super(name);
+    }
+}
+
+export class IfSymbol extends ScopedSymbol {
+    public if: SelectionSymbol;
+    public elseIf: SelectionSymbol[];
+    public else: SelectionSymbol;
+
+    constructor(name: string) {
+        super(name);
+    }
+}
 
 const symbolDescriptionMap = new Map<SymbolKind, string>([
     [SymbolKind.Terminal, "Terminal"],
@@ -94,3 +177,23 @@ export const completionDetails = new Map<SymbolKind, string>([
     [SymbolKind.Variable, "Variable"],
     [SymbolKind.Method, "Method"],
 ]);
+
+export class ITypedSymbol {
+    type: IType;
+}
+
+export class ObjectType extends BaseSymbol implements IType {
+    public constructor(public name: string) {
+        super(name);
+    }
+
+    baseTypes: IType[] = [];
+
+    public get kind(): TypeKind {
+        return TypeKind.Class;
+    }
+
+    public get reference(): ReferenceKind {
+        return ReferenceKind.Instance;
+    }
+}

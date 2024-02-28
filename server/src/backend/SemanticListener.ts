@@ -6,7 +6,7 @@ import {
     ILexicalRange,
     SymbolGroupKind,
 } from "../types";
-import { ContextSymbolTable, IdentifierSymbol, MethodSymbol } from "./ContextSymbolTable";
+import { ContextSymbolTable } from "./ContextSymbolTable";
 import {
     CallOtherTargetContext,
     CloneObjectExpressionContext,
@@ -15,7 +15,7 @@ import {
     PrimaryExpressionContext,
 } from "../parser3/LPCParser";
 import { ScopedSymbol, TypeKind, VariableSymbol } from "antlr4-c3";
-import { ITypedSymbol } from "./DetailsListener";
+import { ITypedSymbol, IdentifierSymbol, MethodSymbol } from "./Symbol";
 
 export class SemanticListener extends LPCParserListener {
     private seenSymbols = new Map<string, Token>();
@@ -46,56 +46,67 @@ export class SemanticListener extends LPCParserListener {
     };
 
     exitCloneObjectExpression = (ctx: CloneObjectExpressionContext) => {
-        const symbol = this.symbolTable.findSymbolDefinition(ctx);        
-        const i=0;
-    }
+        const symbol = this.symbolTable.findSymbolDefinition(ctx);
+        const i = 0;
+    };
 
     exitCallOtherTarget = (ctx: CallOtherTargetContext) => {
         // find the object that the method is being called on
-        const target= getSibling(ctx,-2); // -1 is the arrow
+        const target = getSibling(ctx, -2); // -1 is the arrow
         const symbol = this.symbolTable.symbolWithContextSync(target);
-        
+
         const symbolCont = this.symbolTable.symbolContainingContext(ctx);
-        
-        const i=0;
+
+        const i = 0;
     };
-    
-    exitMethodInvocation = (ctx: MethodInvocationContext) => {        
-        const parent =  ctx.parent as PrimaryExpressionContext;        
-        
+
+    exitMethodInvocation = (ctx: MethodInvocationContext) => {
+        const parent = ctx.parent as PrimaryExpressionContext;
+
         // the tokens to use to generate the error range
         let rangeStart = parent.start;
-        let rangeEnd = parent.stop; 
+        let rangeEnd = parent.stop;
 
         // find the context that this method is being invoked on
-        const methodObj = getSibling(ctx,-1);
-        const methodName = methodObj.getText();        
+        const methodObj = getSibling(ctx, -1);
+        const methodName = methodObj.getText();
         rangeStart = methodObj.start;
 
         // symbol table that will be used to look up definition
         let lookupTable: ContextSymbolTable = this.symbolTable;
 
         // if this is a call to another object, use that object's symbol table
-        if (methodObj instanceof CallOtherTargetContext) {            
-            const sourceTypeContext = getSibling(ctx,-3); // -2 is the arrow
+        if (methodObj instanceof CallOtherTargetContext) {
+            const sourceTypeContext = getSibling(ctx, -3); // -2 is the arrow
             // get the name of this variable
-            let sourceSymbol = this.symbolTable.symbolWithContextSync(sourceTypeContext) as unknown as ITypedSymbol;
-            if (sourceSymbol instanceof IdentifierSymbol || sourceSymbol instanceof VariableSymbol) {                
-                sourceSymbol = this.symbolTable.lastAssignOrDecl(sourceSymbol) as unknown as ITypedSymbol;                
-                const i=0;
+            let sourceSymbol = this.symbolTable.symbolWithContextSync(
+                sourceTypeContext
+            ) as unknown as ITypedSymbol;
+            if (
+                sourceSymbol instanceof IdentifierSymbol ||
+                sourceSymbol instanceof VariableSymbol
+            ) {
+                sourceSymbol = this.symbolTable.lastAssignOrDecl(
+                    sourceSymbol
+                ) as unknown as ITypedSymbol;
+                const i = 0;
             }
             if (sourceSymbol?.type?.kind == TypeKind.Class) {
                 // call other source obj has a type, so use that to locate the method def
-                const typeRefTable = this.symbolTable.getObjectTypeRef(sourceSymbol.type.name);
+                const typeRefTable = this.symbolTable.getObjectTypeRef(
+                    sourceSymbol.type.name
+                );
                 lookupTable = typeRefTable;
-            }            
+            }
         }
-        
+
         // get the definition for that method
-        const methodSymbol = lookupTable.findSymbolDefinition(methodObj) as MethodSymbol;
+        const methodSymbol = lookupTable.findSymbolDefinition(
+            methodObj
+        ) as MethodSymbol;
         const symbolInfo = lookupTable.getSymbolInfo(methodSymbol);
 
-        if (methodName && methodSymbol) {    
+        if (methodName && methodSymbol) {
             // check if the number of arguments is correct
             const callArgs = ctx.argumentList()?.argument() ?? [];
             const methodParams = methodSymbol.getParameters() ?? [];
@@ -108,7 +119,7 @@ export class SemanticListener extends LPCParserListener {
                     rangeStart,
                     rangeEnd
                 );
-                
+
                 // add info about the missing arg
                 entry.related = {
                     type: DiagnosticType.Error,
@@ -127,7 +138,11 @@ export class SemanticListener extends LPCParserListener {
                 );
             }
         } else {
-            this.logDiagnostic("Unknown function name", parent.start, parent.stop);
+            this.logDiagnostic(
+                "Unknown function name",
+                parent.start,
+                parent.stop
+            );
         }
     };
 
@@ -215,6 +230,9 @@ export class SemanticListener extends LPCParserListener {
 function getSibling(ctx: RuleContext, offset: number) {
     const parent = ctx.parent as RuleContext;
     const idx = parent.children.indexOf(ctx);
-    const target = (idx+offset >= 0 && idx+offset < parent.children.length) ? parent.children[idx + offset] : undefined;
+    const target =
+        idx + offset >= 0 && idx + offset < parent.children.length
+            ? parent.children[idx + offset]
+            : undefined;
     return target as ParserRuleContext;
 }

@@ -4,68 +4,20 @@ import {
     ISymbolTableOptions,
     ScopedSymbol,
     MethodSymbol as BaseMethodSymbol,
-    TypedSymbol,
     SymbolConstructor,
-    RoutineSymbol,
-    ParameterSymbol,
-    IType,
+    VariableSymbol,
 } from "antlr4-c3";
 import { ParseTree, ParserRuleContext } from "antlr4ng";
 import { SourceContext } from "./SourceContext";
 import { ISymbolInfo, SymbolGroupKind, SymbolKind } from "../types";
-import { FunctionDeclarationContext } from "../parser3/LPCParser";
-import { ObjectType } from "./DetailsListener";
-
-export class IdentifierSymbol extends BaseSymbol {}
-export class IncludeSymbol extends BaseSymbol {}
-export class InheritSymbol extends BaseSymbol {}
-export class MethodSymbol extends ScopedSymbol {
-    getParameters() {
-        return this.getAllSymbolsSync(ParameterSymbol, true);
-    }
-}
-export class ArgumentSymbol extends TypedSymbol{}
-export class FunctionCallSymbol extends TypedSymbol {
-    public arguments: ArgumentSymbol[] = [];
-}
-export class ObjectSymbol extends ScopedSymbol {
-    public isLoaded: boolean = false;
-
-    constructor(
-        name: string,
-        public filename: string,
-        public type: ObjectType
-    ) {
-        super(name);
-    }
-}
-interface IEvalSymbol {
-    eval(): any;
-}
-export class DefineSymbol extends BaseSymbol {}
-export class VariableSymbol extends TypedSymbol {}
-export class OperatorSymbol extends BaseSymbol {}
-export class AssignmentSymbol extends BaseSymbol {
-    constructor(name: string, public lhs: BaseSymbol, public rhs?: BaseSymbol) {
-        super(name);
-    }
-}
-export class BlockSymbol extends ScopedSymbol {}
-export class LiteralSymbol extends TypedSymbol implements IEvalSymbol {
-    constructor(name: string, type: IType, public value: any) {
-        super(name, type);
-    }
-    eval() {
-        return this.value;
-    }
-
-}
-
-export class EfunSymbol extends BaseMethodSymbol {
-    public constructor(name: string, public returnType?: IType) {
-        super(name);
-    }
-}
+import {
+    AssignmentSymbol,
+    DefineSymbol,
+    IdentifierSymbol,
+    IncludeSymbol,
+    InheritSymbol,
+    MethodSymbol,
+} from "./Symbol";
 
 export class ContextSymbolTable extends SymbolTable {
     public tree: ParserRuleContext; // Set by the owning source context after each parse run.
@@ -74,7 +26,7 @@ export class ContextSymbolTable extends SymbolTable {
     private functions = new Map<string, MethodSymbol>();
 
     public objectTypeRefs = new Map<string, ContextSymbolTable>();
-        
+
     public constructor(
         name: string,
         options: ISymbolTableOptions,
@@ -402,8 +354,8 @@ export class ContextSymbolTable extends SymbolTable {
 
     /**
      * Find a symbol that contains the given context.
-     * @param context 
-     * @returns 
+     * @param context
+     * @returns
      */
     public findSymbolDefinition(context: ParseTree): BaseSymbol | undefined {
         let ctx = context;
@@ -449,7 +401,9 @@ export class ContextSymbolTable extends SymbolTable {
         }
     }
 
-    public lastAssignOrDecl(i: IdentifierSymbol): AssignmentSymbol | VariableSymbol {
+    public lastAssignOrDecl(
+        i: IdentifierSymbol
+    ): AssignmentSymbol | VariableSymbol {
         const nm = i.name;
         let symbol = i;
         let sib = i.previousSibling;
@@ -460,6 +414,6 @@ export class ContextSymbolTable extends SymbolTable {
                 return sib;
             }
             sib = sib.previousSibling;
-        }            
+        }
     }
 }

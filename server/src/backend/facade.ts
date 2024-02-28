@@ -3,11 +3,8 @@ import * as path from "path";
 import { SourceContext } from "./SourceContext";
 
 import { IDiagnosticEntry, ISymbolInfo } from "../types";
-import { BaseSymbol, NamespaceSymbol } from "antlr4-c3";
-import { URI } from "vscode-uri";
 
-import { MethodSymbol } from "./ContextSymbolTable";
-import { ContextLexerErrorListener } from "./ContextLexerErrorListener";
+import { URI } from "vscode-uri";
 
 export interface IContextEntry {
     context: SourceContext;
@@ -321,7 +318,11 @@ export class LpcFacade {
         return context.getReferenceCount(symbol);
     }
 
-    public async getCodeCompletionCandidates(fileName: string, column: number, row: number): Promise<ISymbolInfo[]> {
+    public async getCodeCompletionCandidates(
+        fileName: string,
+        column: number,
+        row: number
+    ): Promise<ISymbolInfo[]> {
         const context = this.getContext(fileName);
 
         return context.getCodeCompletionCandidates(column, row);
