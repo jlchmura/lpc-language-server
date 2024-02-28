@@ -48,8 +48,10 @@ import {
     InheritSymbol,
     OperatorSymbol,
     VariableSymbol,
+    IFoldableSymbol,
 } from "./Symbol";
 import { DetailsVisitor } from "./DetailsVisitor";
+import { FoldingRange } from "vscode-languageserver";
 
 type EfunArgument = {
     name: string;
@@ -130,6 +132,7 @@ export class SourceContext {
             // add built-in efuns here
             this.addEfun("abs", undefined, { name: "number" });
             this.addEfun("clone_object", undefined, { name: "name" });
+            this.addEfun("map", undefined, { name: "arr" }, { name: "func" });            
             this.addEfun("sizeof", undefined, { name: "val" });
         }
 
@@ -673,5 +676,10 @@ export class SourceContext {
         });
 
         return result;
+    }
+
+    public getFoldingRanges(): FoldingRange[] {
+        const s = this.symbolTable.getAllNestedSymbolsSync();
+        return s.filter(s => (s as unknown as IFoldableSymbol).foldingRange).map(s => (s as unknown as IFoldableSymbol).foldingRange);
     }
 }

@@ -5,6 +5,7 @@ import { SourceContext } from "./SourceContext";
 import { IDiagnosticEntry, ISymbolInfo } from "../types";
 
 import { URI } from "vscode-uri";
+import { FoldingRange } from "vscode-languageserver";
 
 export interface IContextEntry {
     context: SourceContext;
@@ -326,5 +327,11 @@ export class LpcFacade {
         const context = this.getContext(fileName);
 
         return context.getCodeCompletionCandidates(column, row);
+    }
+
+    public getFoldingRanges(fileName: string): FoldingRange[] {
+        const context = this.getContext(fileName);
+
+        return context.getFoldingRanges();
     }
 }

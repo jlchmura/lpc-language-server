@@ -38,6 +38,7 @@ import {
     SelectionSymbol,
     VariableSymbol,
 } from "./Symbol";
+import { FoldingRange } from "vscode-languageserver";
 
 export class DetailsVisitor
     extends AbstractParseTreeVisitor<SymbolTable>
@@ -91,7 +92,11 @@ export class DetailsVisitor
     };
 
     visitIdentifierExpression = (ctx: IdentifierExpressionContext) => {
-        this.addNewSymbol(IdentifierSymbol, ctx, `#identifier#${ctx.Identifier().getText()}`);
+        this.addNewSymbol(
+            IdentifierSymbol,
+            ctx,
+            `#identifier#${ctx.Identifier().getText()}`
+        );
         return undefined;
     };
 
@@ -102,28 +107,34 @@ export class DetailsVisitor
 
         let tt = ctx.primitiveTypeSpecifier()?.getText();
         let varType: IType;
-        const isArray = tt.endsWith("*");
-        if (isArray) {
-            tt = tt.substring(0, tt.length - 1);
-        }
-        switch (tt) {
-            case "int":
-                varType = FundamentalType.integerType;
-                break;
-            case "string":
-                varType = FundamentalType.stringType;
-                break;
-            case "float":
-                varType = FundamentalType.floatType;
-                break;
-        }
+        if (tt) {
+            const isArray = tt.endsWith("*");
+            if (isArray) {
+                tt = tt.substring(0, tt.length - 1);
+            }
+            switch (tt) {
+                case "int":
+                    varType = FundamentalType.integerType;
+                    break;
+                case "string":
+                    varType = FundamentalType.stringType;
+                    break;
+                case "float":
+                    varType = FundamentalType.floatType;
+                    break;
+            }
 
-        if (isArray) {
-            varType = new ArrayType(tt + "*", ReferenceKind.Pointer, varType);
+            if (isArray) {
+                varType = new ArrayType(
+                    tt + "*",
+                    ReferenceKind.Pointer,
+                    varType
+                );
+            }
         }
 
         const varDecls = ctx.variableDeclarator();
-        varDecls.forEach((varDecl) => {            
+        varDecls.forEach((varDecl) => {
             const sym = this.symbolTable.addNewSymbolOfType(
                 VariableSymbol,
                 this.scope,
@@ -150,16 +161,16 @@ export class DetailsVisitor
         return this.visitChildren(ctx);
     };
 
-    visitIncludeDirective= (ctx: IncludeDirectiveContext) => {
+    visitIncludeDirective = (ctx: IncludeDirectiveContext) => {
         const filename = ctx.directiveIncludeFile().getText();
-        
+
         this.imports.push(filename);
         this.addNewSymbol(IncludeSymbol, ctx, filename);
-        
+
         return undefined;
     };
 
-    visitInheritStatement= (ctx: InheritStatementContext) => {
+    visitInheritStatement = (ctx: InheritStatementContext) => {
         const filename = ctx._inheritTarget!.text;
         this.addNewSymbol(InheritSymbol, ctx, filename);
         this.imports.push(filename);
@@ -186,7 +197,15 @@ export class DetailsVisitor
             ctx,
             MethodSymbol,
             [name + " Inline Closure "],
-            () => this.visitChildren(ctx)
+            (s) => {
+                s.foldingRange = FoldingRange.create(
+                    ctx.start.line - 1,
+                    ctx.stop.line - 2,
+                    ctx.start.column,
+                    ctx.stop.column
+                );
+                return this.visitChildren(ctx);
+            }
         );
     };
 
@@ -203,7 +222,13 @@ export class DetailsVisitor
                 SelectionSymbol,
                 this.scope,
                 `if_${tokenIdx}_${i++}`,
-                "if"
+                "if",
+                FoldingRange.create(
+                    ifExpCtx.start.line - 1,
+                    ifExpCtx.stop.line - 2,
+                    ifExpCtx.start.column,
+                    ifExpCtx.stop.column
+                )
             );
             ifExp.context = ifExpCtx;
             scope.if = ifExp;
@@ -215,7 +240,13 @@ export class DetailsVisitor
                     SelectionSymbol,
                     this.scope,
                     `elseif_${tokenIdx}_${i++}`,
-                    "else if"
+                    "else if",
+                    FoldingRange.create(
+                        e.start.line - 1,
+                        e.stop.line - 2,
+                        e.start.column,
+                        e.stop.column
+                    )
                 );
                 elseIfExp.context = e;
                 scope.elseIf.push(elseIfExp);
@@ -227,7 +258,13 @@ export class DetailsVisitor
                     SelectionSymbol,
                     this.scope,
                     `else_${tokenIdx}_${i++}`,
-                    "else"
+                    "else",
+                    FoldingRange.create(
+                        elseCtx.start.line - 1,
+                        elseCtx.stop.line - 2,
+                        elseCtx.start.column,
+                        elseCtx.stop.column
+                    )
                 );
                 elseExp.context = elseCtx;
                 scope.else = elseExp;
@@ -240,30 +277,35 @@ export class DetailsVisitor
     };
 
     visitFunctionDeclaration = (ctx: FunctionDeclarationContext) => {
-        const header = ctx.functionHeader();        
+        const header = ctx.functionHeader();
         const nm = header._functionName.text;
-        
-        return this.withScope(ctx, MethodSymbol, [nm], () =>
-            this.visitChildren(ctx)
-        );
+
+        return this.withScope(ctx, MethodSymbol, [nm], (s) => {
+            s.foldingRange = FoldingRange.create(
+                ctx.start.line - 1,
+                ctx.stop.line - 2,
+                ctx.start.column,
+                ctx.stop.column
+            );
+            return this.visitChildren(ctx);
+        });
     };
 
-    visitParameterList= (ctx: ParameterListContext) => {
+    visitParameterList = (ctx: ParameterListContext) => {
         const prms = ctx.parameter();
-        prms.forEach(p => {
-            const name = (p as PrimitiveTypeParameterExpressionContext)._paramName.text;
-            this.addNewSymbol(ParameterSymbol, p, name);            
-        });        
+        prms.forEach((p) => {
+            const name = (p as PrimitiveTypeParameterExpressionContext)
+                ._paramName.text;
+            this.addNewSymbol(ParameterSymbol, p, name);
+        });
         return undefined;
     };
 
-
-
-    protected withScope<T>(
+    protected withScope<T, S extends ScopedSymbol>(
         tree: ParseTree,
-        type: new (...args: any[]) => ScopedSymbol,
+        type: new (...args: any[]) => S,
         args: any[],
-        action: () => T
+        action: (symbol: S) => T
     ): T {
         const scope = this.symbolTable.addNewSymbolOfType(
             type,
@@ -273,13 +315,13 @@ export class DetailsVisitor
         scope.context = tree;
         this.scope = scope;
         try {
-            return action();
+            return action(scope);
         } finally {
             this.scope = scope.parent as ScopedSymbol;
         }
     }
 
-     /**
+    /**
      * Adds a new symbol to the current symbol TOS.
      *
      * @param type The type of the symbol to add.
@@ -288,7 +330,7 @@ export class DetailsVisitor
      *
      * @returns The new symbol.
      */
-     private addNewSymbol<T extends BaseSymbol>(
+    private addNewSymbol<T extends BaseSymbol>(
         type: new (...args: any[]) => T,
         context: ParseTree,
         ...args: any[]
@@ -302,5 +344,4 @@ export class DetailsVisitor
 
         return symbol;
     }
-
 }

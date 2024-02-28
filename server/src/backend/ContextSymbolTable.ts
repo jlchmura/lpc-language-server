@@ -13,11 +13,13 @@ import { ISymbolInfo, SymbolGroupKind, SymbolKind } from "../types";
 import {
     AssignmentSymbol,
     DefineSymbol,
+    IFoldableSymbol,
     IdentifierSymbol,
     IncludeSymbol,
     InheritSymbol,
     MethodSymbol,
 } from "./Symbol";
+import { FoldingRange } from "vscode-languageserver";
 
 export class ContextSymbolTable extends SymbolTable {
     public tree: ParserRuleContext; // Set by the owning source context after each parse run.
@@ -25,6 +27,7 @@ export class ContextSymbolTable extends SymbolTable {
     private symbolReferences = new Map<string, number>();
     private functions = new Map<string, MethodSymbol>();
 
+    public foldingRanges: Set<FoldingRange> = new Set<FoldingRange>();
     public objectTypeRefs = new Map<string, ContextSymbolTable>();
 
     public constructor(
@@ -387,4 +390,5 @@ export class ContextSymbolTable extends SymbolTable {
             sib = sib.previousSibling;
         }
     }
+ 
 }

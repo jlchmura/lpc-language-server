@@ -11,13 +11,19 @@ import {
 import { SymbolKind } from "../types";
 import * as vscodelang from "vscode-languageserver";
 
+export interface IFoldableSymbol {
+    foldingRange: vscodelang.FoldingRange
+}
+
 export class IdentifierSymbol extends BaseSymbol {}
 export class IncludeSymbol extends BaseSymbol {}
 export class InheritSymbol extends BaseSymbol {}
-export class MethodSymbol extends ScopedSymbol {
+export class MethodSymbol extends ScopedSymbol implements IFoldableSymbol {
     getParameters() {
         return this.getAllSymbolsSync(ParameterSymbol, true);
     }
+
+    foldingRange: vscodelang.FoldingRange;
 }
 export class ArgumentSymbol extends TypedSymbol {}
 export class FunctionCallSymbol extends TypedSymbol {
@@ -68,10 +74,10 @@ export class PreprocessorSymbol extends ScopedSymbol {
 }
 
 /** if, switch, etc */
-export class SelectionSymbol extends ScopedSymbol {
-    constructor(name: string, public label: string) {
+export class SelectionSymbol extends ScopedSymbol implements IFoldableSymbol {
+    constructor(name: string, public label: string, public foldingRange: vscodelang.FoldingRange) {
         super(name);
-    }
+    }    
 }
 
 export class IfSymbol extends ScopedSymbol {

@@ -107,6 +107,13 @@ export class LpcServer {
         this.connection.onCompletionResolve((item) => {
             return item;
         });
+
+        // Folding Provider
+        this.connection.onFoldingRanges((params) => {
+            const doc = this.documents.get(params.textDocument.uri);
+            const result = this.facade.getFoldingRanges(doc.uri);
+            return result;
+        });
                 
         // send document open/close/changes to facade
         this.documents.onDidOpen((e) => {
@@ -179,7 +186,7 @@ export class LpcServer {
                 // },
                 //hoverProvider: false,
                 definitionProvider: true,
-                //foldingRangeProvider: false, // change to true to enable server-based folding
+                foldingRangeProvider: true, // change to true to enable server-based folding
             },
         };
           
