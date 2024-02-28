@@ -2,13 +2,13 @@ import { AbstractParseTreeVisitor, ParseTree } from "antlr4ng";
 import { LPCParserVisitor } from "../parser3/LPCParserVisitor";
 import {
     ArrayType,
+    BaseSymbol,
     FundamentalType,
     IType,
-    MethodSymbol,
+    ParameterSymbol,
     ReferenceKind,
     ScopedSymbol,
     SymbolTable,
-    VariableSymbol,
 } from "antlr4-c3";
 import { ContextSymbolTable } from "./ContextSymbolTable";
 import { LpcFacade } from "./facade";
@@ -17,26 +17,33 @@ import {
     FunctionDeclarationContext,
     IdentifierExpressionContext,
     IfStatementContext,
+    IncludeDirectiveContext,
+    InheritStatementContext,
     InlineClosureExpressionContext,
+    MethodInvocationContext,
+    ParameterListContext,
+    PrimitiveTypeParameterExpressionContext,
     PrimitiveTypeVariableDeclarationContext,
     SelectionDirectiveContext,
 } from "../parser3/LPCParser";
 
 import {
     DefineSymbol,
+    IdentifierSymbol,
     IfSymbol,
+    IncludeSymbol,
+    InheritSymbol,
+    MethodSymbol,
     PreprocessorSymbol,
     SelectionSymbol,
+    VariableSymbol,
 } from "./Symbol";
 
 export class DetailsVisitor
     extends AbstractParseTreeVisitor<SymbolTable>
     implements LPCParserVisitor<SymbolTable>
 {
-    protected scope = this.symbolTable.addNewSymbolOfType(
-        ScopedSymbol,
-        undefined
-    );
+    protected scope = this.symbolTable as ScopedSymbol;
 
     constructor(
         private backend: LpcFacade,
@@ -83,12 +90,17 @@ export class DetailsVisitor
         }
     };
 
+    visitIdentifierExpression = (ctx: IdentifierExpressionContext) => {
+        this.addNewSymbol(IdentifierSymbol, ctx, `#identifier#${ctx.Identifier().getText()}`);
+        return undefined;
+    };
+
     visitPrimitiveTypeVariableDeclaration = (
         ctx: PrimitiveTypeVariableDeclarationContext
     ) => {
         // ctx will either be scalar or array, it doesn't matter right now
 
-        let tt = ctx.primitiveTypeSpecifier().getText();
+        let tt = ctx.primitiveTypeSpecifier()?.getText();
         let varType: IType;
         const isArray = tt.endsWith("*");
         if (isArray) {
@@ -111,15 +123,14 @@ export class DetailsVisitor
         }
 
         const varDecls = ctx.variableDeclarator();
-        varDecls.forEach((varDecl) => {
+        varDecls.forEach((varDecl) => {            
             const sym = this.symbolTable.addNewSymbolOfType(
                 VariableSymbol,
                 this.scope,
-                varDecl.Identifier().getText(),
-                undefined,
+                varDecl._variableName?.text,
                 varType
             );
-            sym.context = ctx;
+            sym.context = varDecl;
         });
 
         // const assigns = ctx.assignmentExpression();
@@ -137,6 +148,23 @@ export class DetailsVisitor
         // });
 
         return this.visitChildren(ctx);
+    };
+
+    visitIncludeDirective= (ctx: IncludeDirectiveContext) => {
+        const filename = ctx.directiveIncludeFile().getText();
+        
+        this.imports.push(filename);
+        this.addNewSymbol(IncludeSymbol, ctx, filename);
+        
+        return undefined;
+    };
+
+    visitInheritStatement= (ctx: InheritStatementContext) => {
+        const filename = ctx._inheritTarget!.text;
+        this.addNewSymbol(InheritSymbol, ctx, filename);
+        this.imports.push(filename);
+
+        return undefined;
     };
 
     visitInlineClosureExpression = (ctx: InlineClosureExpressionContext) => {
@@ -212,14 +240,24 @@ export class DetailsVisitor
     };
 
     visitFunctionDeclaration = (ctx: FunctionDeclarationContext) => {
-        const header = ctx.functionHeader();
-        const id = header.Identifier();
-        const nm = id.getText();
-
+        const header = ctx.functionHeader();        
+        const nm = header._functionName.text;
+        
         return this.withScope(ctx, MethodSymbol, [nm], () =>
             this.visitChildren(ctx)
         );
     };
+
+    visitParameterList= (ctx: ParameterListContext) => {
+        const prms = ctx.parameter();
+        prms.forEach(p => {
+            const name = (p as PrimitiveTypeParameterExpressionContext)._paramName.text;
+            this.addNewSymbol(ParameterSymbol, p, name);            
+        });        
+        return undefined;
+    };
+
+
 
     protected withScope<T>(
         tree: ParseTree,
@@ -240,4 +278,29 @@ export class DetailsVisitor
             this.scope = scope.parent as ScopedSymbol;
         }
     }
+
+     /**
+     * Adds a new symbol to the current symbol TOS.
+     *
+     * @param type The type of the symbol to add.
+     * @param context The symbol's parse tree, to allow locating it.
+     * @param args The actual arguments for the new symbol.
+     *
+     * @returns The new symbol.
+     */
+     private addNewSymbol<T extends BaseSymbol>(
+        type: new (...args: any[]) => T,
+        context: ParseTree,
+        ...args: any[]
+    ): T {
+        const symbol = this.symbolTable.addNewSymbolOfType(
+            type,
+            this.scope,
+            ...args
+        );
+        symbol.context = context;
+
+        return symbol;
+    }
+
 }

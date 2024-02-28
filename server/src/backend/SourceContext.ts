@@ -49,6 +49,7 @@ import {
     OperatorSymbol,
     VariableSymbol,
 } from "./Symbol";
+import { DetailsVisitor } from "./DetailsVisitor";
 
 type EfunArgument = {
     name: string;
@@ -231,13 +232,21 @@ export class SourceContext {
         }
 
         this.symbolTable.tree = this.tree;
-        const listener = new DetailsListener(
+        // const listener = new DetailsListener(
+        //     this.backend,
+        //     this.symbolTable,
+        //     this.info.imports,
+        //     this.info.objectImports
+        // );
+        // ParseTreeWalker.DEFAULT.walk(listener, this.tree);
+
+        const visitor = new DetailsVisitor(
             this.backend,
             this.symbolTable,
             this.info.imports,
             this.info.objectImports
         );
-        ParseTreeWalker.DEFAULT.walk(listener, this.tree);
+        this.tree.accept(visitor);
 
         //this.info.unreferencedRules = this.symbolTable.getUnreferencedSymbols();
 
@@ -442,13 +451,11 @@ export class SourceContext {
             //     }
 
             //     break;
-            // }
-
+            // }        
+            case LPCParser.RULE_assignmentExpression:
             case LPCParser.RULE_primaryExpression:
             case LPCParser.RULE_primaryExpressionStart:
-            case LPCParser.RULE_callOtherTarget:
-                const s1 = this.symbolTable.symbolContainingContext(terminal);
-
+            case LPCParser.RULE_callOtherTarget:                
                 const symbol = this.symbolTable.findSymbolDefinition(terminal);
 
                 if (symbol) {
@@ -506,6 +513,7 @@ export class SourceContext {
             LPCParser.RULE_primaryExpressionStart,
             LPCParser.RULE_variableDeclaration,
             LPCParser.RULE_statement,
+            LPCParser.RULE_assignmentExpression,
             //LPCParser.RULE_functionDeclaration,
         ]);
 
@@ -616,8 +624,12 @@ export class SourceContext {
                     );
                     promises.push(this.symbolTable.getAllSymbols(MethodSymbol));
 
+                break;
+                case LPCParser.RULE_assignmentExpression:
+                    promises.push(
+                        this.symbolTable.getAllSymbols(VariableSymbol)
+                    );
                     break;
-
                 case LPCParser.RULE_functionDeclaration:
                     result.push({
                         kind: SymbolKind.Method,

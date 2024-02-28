@@ -7,7 +7,7 @@ import {
     SymbolConstructor,
     VariableSymbol,
 } from "antlr4-c3";
-import { ParseTree, ParserRuleContext } from "antlr4ng";
+import { ParseTree, ParserRuleContext, TerminalNode } from "antlr4ng";
 import { SourceContext } from "./SourceContext";
 import { ISymbolInfo, SymbolGroupKind, SymbolKind } from "../types";
 import {
@@ -353,43 +353,14 @@ export class ContextSymbolTable extends SymbolTable {
     }
 
     /**
-     * Find a symbol that contains the given context.
+     * Find the Symbol that defines the symbol referenced by the given context.
      * @param context
      * @returns
      */
-    public findSymbolDefinition(context: ParseTree): BaseSymbol | undefined {
-        let ctx = context;
-        let foundSymbol: BaseSymbol | undefined = undefined;
-
-        while (!!ctx && !foundSymbol) {
-            let symbol = this.symbolContainingContext(context);
-
-            if (!!symbol) {
-                const table = symbol.symbolTable;
-                const search = [
-                    ...table.getNestedSymbolsOfTypeSync(VariableSymbol),
-                    ...table.getNestedSymbolsOfTypeSync(MethodSymbol),
-                    ...table.getNestedSymbolsOfTypeSync(DefineSymbol),
-                ];
-
-                foundSymbol = search.find((s) => s.name === context.getText());
-            }
-
-            ctx = ctx.parent;
-        }
-
-        if (!foundSymbol) {
-            // still haven't found?
-            const search = [
-                ...this.getAllSymbolsSync(VariableSymbol, false),
-                ...this.getAllSymbolsSync(MethodSymbol, false),
-                ...this.getAllSymbolsSync(DefineSymbol, false),
-            ];
-
-            foundSymbol = search.find((s) => s.name === context.getText());
-        }
-
-        return foundSymbol;
+    public findSymbolDefinition(context: ParseTree,localOnly=false): BaseSymbol | undefined {
+        if (context instanceof TerminalNode) context = context.parent;
+        const sym = this.symbolWithContextSync(context)?.getParentOfType(ScopedSymbol);
+        return sym?.resolveSync(context.getText(),localOnly);
     }
 
     public getReferenceCount(symbolName: string): number {
