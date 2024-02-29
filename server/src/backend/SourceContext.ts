@@ -51,12 +51,7 @@ import {
 import { DetailsListener } from "./DetailsListener";
 import { BackendUtils } from "./BackendUtils";
 import { LpcFacade } from "./facade";
-import {
-    EfunSymbol,
-    MethodSymbol,
-    FunctionIdentifierSymbol,
-    MethodDeclarationSymbol,
-} from "../symbols/Symbol";
+import { EfunSymbol, FunctionIdentifierSymbol } from "../symbols/Symbol";
 import { DetailsVisitor } from "./DetailsVisitor";
 import { FoldingRange } from "vscode-languageserver";
 import {
@@ -69,6 +64,7 @@ import {
     VariableIdentifierSymbol,
     VariableSymbol,
 } from "../symbols/variableSymbol";
+import { MethodDeclarationSymbol, MethodSymbol } from "../symbols/methodSymbol";
 
 type EfunArgument = {
     name: string;

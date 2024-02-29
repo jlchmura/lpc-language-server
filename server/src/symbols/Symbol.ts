@@ -12,9 +12,8 @@ import {
 } from "antlr4-c3";
 import { SymbolKind } from "../types";
 import * as vscodelang from "vscode-languageserver";
-import { ContextSymbolTable } from "../backend/ContextSymbolTable";
+
 import {
-    AssignmentExpressionContext,
     IdentifierExpressionContext,
     IncludeDirectiveContext,
     InheritStatementContext,
@@ -46,73 +45,6 @@ export class InheritSymbol extends LpcBaseSymbol<InheritStatementContext> {
     }
 }
 
-export class MethodParameterSymbol
-    extends ParameterSymbol
-    implements IKindSymbol, IEvaluatableSymbol
-{
-    eval() {
-        return this.value;
-    }
-
-    public get kind() {
-        return SymbolKind.Variable;
-    }
-}
-
-export class MethodSymbol
-    extends BaseMethodSymbol
-    implements IFoldableSymbol, IKindSymbol, IEvaluatableSymbol
-{
-    public scope = new Map<string, VariableSymbol>();
-
-    constructor(
-        name: string,
-        returnType?: IType,
-        public functionModifiers?: Set<string>
-    ) {
-        super(name, returnType);
-    }
-
-    eval(paramScope: Map<string, IEvaluatableSymbol>) {
-        // start with program scope
-
-        this.scope = new Map<string, VariableSymbol>();
-        paramScope.forEach((value, key) => {
-            this.scope.set(key, value as VariableSymbol);
-        });
-
-        for (const child of this.children) {
-            if (isInstanceOfIEvaluatableSymbol(child)) {
-                child.eval(this.scope);
-            } else {
-                console.warn("Non eval symbol detected in method body", child);
-            }
-        }
-    }
-
-    public get kind() {
-        return SymbolKind.Method;
-    }
-
-    public getParametersSync() {
-        return getSymbolsOfTypeSync(this, MethodParameterSymbol);
-    }
-
-    foldingRange: vscodelang.FoldingRange;
-}
-export class MethodDeclarationSymbol
-    extends MethodSymbol
-    implements IKindSymbol
-{
-    public get kind() {
-        return SymbolKind.MethodDeclaration;
-    }
-}
-export class InlineClosureSymbol extends MethodSymbol implements IKindSymbol {
-    public get kind() {
-        return SymbolKind.InlineClosure;
-    }
-}
 export class ArgumentSymbol extends TypedSymbol implements IKindSymbol {
     public get kind() {
         return SymbolKind.Variable;

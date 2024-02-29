@@ -1,7 +1,7 @@
 import { TypedSymbol, IType, BaseSymbol } from "antlr4-c3";
 import { IKindSymbol, IEvaluatableSymbol } from "./base";
 import { SymbolKind } from "../types";
-import { IdentifierSymbol } from "./Symbol";
+import { ExpressionSymbol, IdentifierSymbol } from "./Symbol";
 import { resolveOfTypeSync } from "../utils";
 import { DefineSymbol } from "./defineSymbol";
 

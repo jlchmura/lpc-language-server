@@ -10,7 +10,7 @@ import { CodeCompletionCore, NamespaceSymbol, SymbolTable } from "antlr4-c3";
 import { TextDocument } from "vscode-languageserver-textdocument";
 //import { VariableSymbol } from "./backend/ContextSymbolTable";
 import { LpcFacade } from "./backend/facade";
-import { MethodSymbol } from "./symbols/Symbol";
+import { MethodSymbol } from "./symbols/methodSymbol";
 
 //import { LpcFacade } from "./backend/facade";
 

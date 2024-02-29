@@ -20,18 +20,14 @@ import {
     TypeKind,
     MethodSymbol as BaseMethodSymbol,
 } from "antlr4-c3";
-import {
-    ITypedSymbol,
-    IdentifierSymbol,
-    MethodDeclarationSymbol,
-    MethodSymbol,
-} from "../symbols/Symbol";
+import { ITypedSymbol, IdentifierSymbol } from "../symbols/Symbol";
 import {
     areSetsEqual,
     areTwoParameterArraysEqual,
     resolveOfTypeSync,
 } from "../utils";
 import { VariableSymbol } from "../symbols/variableSymbol";
+import { MethodDeclarationSymbol, MethodSymbol } from "../symbols/methodSymbol";
 
 export class SemanticListener extends LPCParserListener {
     private seenSymbols = new Map<string, Token>();

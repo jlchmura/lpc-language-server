@@ -15,7 +15,6 @@ import {
     IncludeSymbol,
     InheritSymbol,
     LiteralSymbol,
-    MethodSymbol,
     ObjectSymbol,
     ObjectType,
     OperatorSymbol,
@@ -50,6 +49,7 @@ import { LpcFacade } from "./facade";
 import { ContextSymbolTable } from "./ContextSymbolTable";
 import { VariableSymbol } from "../symbols/variableSymbol";
 import { AssignmentSymbol } from "../symbols/assignmentSymbol";
+import { MethodSymbol } from "../symbols/methodSymbol";
 
 export class DetailsListener extends LPCParserListener {
     private symbolStack: BaseSymbol[] = [];

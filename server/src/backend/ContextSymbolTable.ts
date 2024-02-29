@@ -14,14 +14,14 @@ import {
     IdentifierSymbol,
     IncludeSymbol,
     InheritSymbol,
-    MethodSymbol,
-    InlineClosureSymbol,
 } from "../symbols/Symbol";
 import { FoldingRange } from "vscode-languageserver";
 import { DefineSymbol } from "../symbols/defineSymbol";
 import { VariableSymbol } from "../symbols/variableSymbol";
 import { EvalScope } from "../symbols/base";
 import { AssignmentSymbol } from "../symbols/assignmentSymbol";
+import { MethodSymbol } from "../symbols/methodSymbol";
+import { InlineClosureSymbol } from "../symbols/closureSymbol";
 
 export class ContextSymbolTable extends SymbolTable {
     public tree: ParserRuleContext; // Set by the owning source context after each parse run.

@@ -39,10 +39,6 @@ import {
     IfSymbol,
     IncludeSymbol,
     InheritSymbol,
-    InlineClosureSymbol,
-    MethodDeclarationSymbol,
-    MethodParameterSymbol,
-    MethodSymbol,
     OperatorSymbol,
     PreprocessorSymbol,
     SelectionSymbol,
@@ -56,6 +52,12 @@ import {
 } from "../symbols/variableSymbol";
 import { DefineSymbol } from "../symbols/defineSymbol";
 import { AssignmentSymbol } from "../symbols/assignmentSymbol";
+import { InlineClosureSymbol } from "../symbols/closureSymbol";
+import {
+    MethodDeclarationSymbol,
+    MethodParameterSymbol,
+    MethodSymbol,
+} from "../symbols/methodSymbol";
 
 export class DetailsVisitor
     extends AbstractParseTreeVisitor<SymbolTable>
@@ -169,29 +171,22 @@ export class DetailsVisitor
 
         const varDecls = ctx.variableDeclarator();
         varDecls.forEach((varDecl) => {
-            this.addNewSymbol(
+            const varSym = this.addNewSymbol(
                 VariableSymbol,
                 varDecl.Identifier(),
                 varDecl._variableName?.text,
                 varType
             );
+
+            const initCtx = varDecl.variableInitializer();
+            if (!!initCtx) {
+                return this.withScope(initCtx, AssignmentSymbol, ["="], (s) => {
+                    return this.visitChildren(initCtx);
+                });
+            }
         });
 
-        // const assigns = ctx.assignmentExpression();
-        // assigns.forEach((assign) => {
-        //   const id = assign.Identifier();
-        //   const exp = assign.expression();
-        //   const sym = this.symbolTable.addNewSymbolOfType(
-        //     VariableSymbol,
-        //     this.scope,
-        //     id.getText(),
-        //     exp.getText(),
-        //     varType
-        //   );
-        //   sym.context = ctx;
-        // });
-
-        return this.visitChildren(ctx);
+        return undefined;
     };
 
     visitIncludeDirective = (ctx: IncludeDirectiveContext) => {
