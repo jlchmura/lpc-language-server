@@ -351,16 +351,16 @@ assignmentOperator
 conditionalExpressionBase
     : unaryExpression           #tempUnaryExpression
     | conditionalExpressionBase (QUESTION expression COLON expression) #conditionalExpression
-    | conditionalExpressionBase (OR_OR conditionalExpressionBase)+ #conditionalOrExpression
-    | conditionalExpressionBase (AND_AND conditionalExpressionBase)+ #conditionalAndExpression
-    | conditionalExpressionBase (OR conditionalExpressionBase)+ #inclusiveOrExpression
-    | conditionalExpressionBase (XOR conditionalExpressionBase)+ #exclusiveOrExpression
-    | conditionalExpressionBase (AND conditionalExpressionBase)+ #andExpression
-    | conditionalExpressionBase ((EQ | NE) conditionalExpressionBase)+ #equalityExpression
-    | conditionalExpressionBase ((LT | GT | LE | GE) conditionalExpressionBase)+ #relationalExpresion
-    | conditionalExpressionBase ((SHL | SHR) conditionalExpressionBase)+ #shiftExpression
+    | conditionalExpressionBase (op=OR_OR conditionalExpressionBase)+ #conditionalOrExpression
+    | conditionalExpressionBase (op=AND_AND conditionalExpressionBase)+ #conditionalAndExpression
+    | conditionalExpressionBase (op=OR conditionalExpressionBase)+ #inclusiveOrExpression
+    | conditionalExpressionBase (op=XOR conditionalExpressionBase)+ #exclusiveOrExpression
+    | conditionalExpressionBase (op=AND conditionalExpressionBase)+ #andExpression
+    | conditionalExpressionBase (op=(EQ | NE) conditionalExpressionBase)+ #equalityExpression
+    | conditionalExpressionBase (op=(LT | GT | LE | GE) conditionalExpressionBase)+ #relationalExpresion
+    | conditionalExpressionBase (op=(SHL | SHR) conditionalExpressionBase)+ #shiftExpression
     | conditionalExpressionBase (op=(PLUS | MINUS) conditionalExpressionBase)+ #additiveExpression
-    | conditionalExpressionBase ((STAR | DIV | MOD) conditionalExpressionBase)+ #multiplicativeExpression
+    | conditionalExpressionBase (op=(STAR | DIV | MOD) conditionalExpressionBase)+ #multiplicativeExpression
     | unaryExpression? DOUBLEDOT unaryExpression? #rangeExpression
     ;    
 

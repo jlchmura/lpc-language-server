@@ -1,4 +1,10 @@
-import { TypedSymbol, IType, BaseSymbol, ScopedSymbol } from "antlr4-c3";
+import {
+    TypedSymbol,
+    IType,
+    BaseSymbol,
+    ScopedSymbol,
+    FundamentalType,
+} from "antlr4-c3";
 import {
     IKindSymbol,
     IEvaluatableSymbol,
@@ -15,14 +21,14 @@ export class VariableSymbol
     extends TypedSymbol
     implements IKindSymbol, IEvaluatableSymbol
 {
-    public value: any = 0;
+    public value: any;
 
     constructor(name: string, type: IType) {
         super(name, type);
     }
 
     eval(scope?: any) {
-        if (!!scope) this.value = scope;
+        if (scope !== undefined) this.value = scope;
         return this.value;
     }
 
@@ -65,10 +71,17 @@ export class VariableInitializerSymbol
     eval(scope?: any) {
         let evalResult: any = null;
         this.children.forEach((child) => {
-            if (isInstanceOfIEvaluatableSymbol(child)) {
-                evalResult = child.eval(evalResult);
-            }
+            evalResult = (child as IEvaluatableSymbol).eval(evalResult);
         });
+
+        if (!this.variable.type) {
+            if (typeof evalResult === "number") {
+                this.variable.type = FundamentalType.integerType;
+            } else if (typeof evalResult === "string") {
+                this.variable.type = FundamentalType.stringType;
+            }
+        }
+
         this.variable.eval(evalResult);
     }
 }

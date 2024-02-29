@@ -27,6 +27,7 @@ import {
     InheritStatementContext,
     InlineClosureExpressionContext,
     LiteralContext,
+    MultiplicativeExpressionContext,
     ParameterListContext,
     PrimaryExpressionContext,
     PrimitiveTypeParameterExpressionContext,
@@ -61,6 +62,7 @@ import {
     MethodSymbol,
 } from "../symbols/methodSymbol";
 import { ExpressionSymbol } from "../symbols/expressionSymbol";
+import { trimQuotes } from "../utils";
 
 export class DetailsVisitor
     extends AbstractParseTreeVisitor<SymbolTable>
@@ -400,7 +402,13 @@ export class DetailsVisitor
 
     visitAdditiveExpression = (ctx: AdditiveExpressionContext) => {
         const operator = ctx._op.text;
+        return this.withScope(ctx, OperatorSymbol, [operator], (s) => {
+            return this.visitChildren(ctx);
+        });
+    };
 
+    visitMultiplicativeExpression = (ctx: MultiplicativeExpressionContext) => {
+        const operator = ctx._op.text;
         return this.withScope(ctx, OperatorSymbol, [operator], (s) => {
             return this.visitChildren(ctx);
         });
@@ -413,8 +421,9 @@ export class DetailsVisitor
         } else if (!!ctx.FloatingConstant()) {
             this.addNewSymbol(LiteralSymbol, ctx, "float", FundamentalType.floatType, +ctx.FloatingConstant().getText());
         } else if (!!ctx.StringLiteral()) {
-            this.addNewSymbol(LiteralSymbol, ctx, "string", FundamentalType.stringType, ctx.StringLiteral().getText());
+            this.addNewSymbol(LiteralSymbol, ctx, "string", FundamentalType.stringType, trimQuotes(ctx.StringLiteral().getText()));
         }
+        
         return undefined;
     };
 

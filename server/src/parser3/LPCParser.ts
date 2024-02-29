@@ -3830,7 +3830,7 @@ export class LPCParser extends antlr.Parser {
                                 {
                                 {
                                 this.state = 779;
-                                this.match(LPCParser.OR_OR);
+                                (localContext as ConditionalOrExpressionContext)._op = this.match(LPCParser.OR_OR);
                                 this.state = 780;
                                 this.conditionalExpressionBase(0);
                                 }
@@ -3862,7 +3862,7 @@ export class LPCParser extends antlr.Parser {
                                 {
                                 {
                                 this.state = 786;
-                                this.match(LPCParser.AND_AND);
+                                (localContext as ConditionalAndExpressionContext)._op = this.match(LPCParser.AND_AND);
                                 this.state = 787;
                                 this.conditionalExpressionBase(0);
                                 }
@@ -3894,7 +3894,7 @@ export class LPCParser extends antlr.Parser {
                                 {
                                 {
                                 this.state = 793;
-                                this.match(LPCParser.OR);
+                                (localContext as InclusiveOrExpressionContext)._op = this.match(LPCParser.OR);
                                 this.state = 794;
                                 this.conditionalExpressionBase(0);
                                 }
@@ -3926,7 +3926,7 @@ export class LPCParser extends antlr.Parser {
                                 {
                                 {
                                 this.state = 800;
-                                this.match(LPCParser.XOR);
+                                (localContext as ExclusiveOrExpressionContext)._op = this.match(LPCParser.XOR);
                                 this.state = 801;
                                 this.conditionalExpressionBase(0);
                                 }
@@ -3958,7 +3958,7 @@ export class LPCParser extends antlr.Parser {
                                 {
                                 {
                                 this.state = 807;
-                                this.match(LPCParser.AND);
+                                (localContext as AndExpressionContext)._op = this.match(LPCParser.AND);
                                 this.state = 808;
                                 this.conditionalExpressionBase(0);
                                 }
@@ -3990,9 +3990,10 @@ export class LPCParser extends antlr.Parser {
                                 {
                                 {
                                 this.state = 814;
+                                (localContext as EqualityExpressionContext)._op = this.tokenStream.LT(1);
                                 _la = this.tokenStream.LA(1);
                                 if(!(_la === 67 || _la === 68)) {
-                                this.errorHandler.recoverInline(this);
+                                    (localContext as EqualityExpressionContext)._op = this.errorHandler.recoverInline(this);
                                 }
                                 else {
                                     this.errorHandler.reportMatch(this);
@@ -4029,9 +4030,10 @@ export class LPCParser extends antlr.Parser {
                                 {
                                 {
                                 this.state = 821;
+                                (localContext as RelationalExpresionContext)._op = this.tokenStream.LT(1);
                                 _la = this.tokenStream.LA(1);
                                 if(!(((((_la - 63)) & ~0x1F) === 0 && ((1 << (_la - 63)) & 15) !== 0))) {
-                                this.errorHandler.recoverInline(this);
+                                    (localContext as RelationalExpresionContext)._op = this.errorHandler.recoverInline(this);
                                 }
                                 else {
                                     this.errorHandler.reportMatch(this);
@@ -4068,9 +4070,10 @@ export class LPCParser extends antlr.Parser {
                                 {
                                 {
                                 this.state = 828;
+                                (localContext as ShiftExpressionContext)._op = this.tokenStream.LT(1);
                                 _la = this.tokenStream.LA(1);
                                 if(!(_la === 61 || _la === 62)) {
-                                this.errorHandler.recoverInline(this);
+                                    (localContext as ShiftExpressionContext)._op = this.errorHandler.recoverInline(this);
                                 }
                                 else {
                                     this.errorHandler.reportMatch(this);
@@ -4147,9 +4150,10 @@ export class LPCParser extends antlr.Parser {
                                 {
                                 {
                                 this.state = 842;
+                                (localContext as MultiplicativeExpressionContext)._op = this.tokenStream.LT(1);
                                 _la = this.tokenStream.LA(1);
                                 if(!(((((_la - 56)) & ~0x1F) === 0 && ((1 << (_la - 56)) & 7) !== 0))) {
-                                this.errorHandler.recoverInline(this);
+                                    (localContext as MultiplicativeExpressionContext)._op = this.errorHandler.recoverInline(this);
                                 }
                                 else {
                                     this.errorHandler.reportMatch(this);
@@ -8364,6 +8368,7 @@ export class ConditionalExpressionBaseContext extends antlr.ParserRuleContext {
     }
 }
 export class ShiftExpressionContext extends ConditionalExpressionBaseContext {
+    public _op?: Token | null;
     public constructor(ctx: ConditionalExpressionBaseContext) {
         super(ctx.parent, ctx.invokingState);
         super.copyFrom(ctx);
@@ -8532,6 +8537,7 @@ export class ConditionalExpressionContext extends ConditionalExpressionBaseConte
     }
 }
 export class InclusiveOrExpressionContext extends ConditionalExpressionBaseContext {
+    public _op?: Token | null;
     public constructor(ctx: ConditionalExpressionBaseContext) {
         super(ctx.parent, ctx.invokingState);
         super.copyFrom(ctx);
@@ -8573,6 +8579,7 @@ export class InclusiveOrExpressionContext extends ConditionalExpressionBaseConte
     }
 }
 export class ConditionalAndExpressionContext extends ConditionalExpressionBaseContext {
+    public _op?: Token | null;
     public constructor(ctx: ConditionalExpressionBaseContext) {
         super(ctx.parent, ctx.invokingState);
         super.copyFrom(ctx);
@@ -8614,6 +8621,7 @@ export class ConditionalAndExpressionContext extends ConditionalExpressionBaseCo
     }
 }
 export class MultiplicativeExpressionContext extends ConditionalExpressionBaseContext {
+    public _op?: Token | null;
     public constructor(ctx: ConditionalExpressionBaseContext) {
         super(ctx.parent, ctx.invokingState);
         super.copyFrom(ctx);
@@ -8673,6 +8681,7 @@ export class MultiplicativeExpressionContext extends ConditionalExpressionBaseCo
     }
 }
 export class RelationalExpresionContext extends ConditionalExpressionBaseContext {
+    public _op?: Token | null;
     public constructor(ctx: ConditionalExpressionBaseContext) {
         super(ctx.parent, ctx.invokingState);
         super.copyFrom(ctx);
@@ -8741,6 +8750,7 @@ export class RelationalExpresionContext extends ConditionalExpressionBaseContext
     }
 }
 export class AndExpressionContext extends ConditionalExpressionBaseContext {
+    public _op?: Token | null;
     public constructor(ctx: ConditionalExpressionBaseContext) {
         super(ctx.parent, ctx.invokingState);
         super.copyFrom(ctx);
@@ -8782,6 +8792,7 @@ export class AndExpressionContext extends ConditionalExpressionBaseContext {
     }
 }
 export class ConditionalOrExpressionContext extends ConditionalExpressionBaseContext {
+    public _op?: Token | null;
     public constructor(ctx: ConditionalExpressionBaseContext) {
         super(ctx.parent, ctx.invokingState);
         super.copyFrom(ctx);
@@ -8823,6 +8834,7 @@ export class ConditionalOrExpressionContext extends ConditionalExpressionBaseCon
     }
 }
 export class ExclusiveOrExpressionContext extends ConditionalExpressionBaseContext {
+    public _op?: Token | null;
     public constructor(ctx: ConditionalExpressionBaseContext) {
         super(ctx.parent, ctx.invokingState);
         super.copyFrom(ctx);
@@ -8864,6 +8876,7 @@ export class ExclusiveOrExpressionContext extends ConditionalExpressionBaseConte
     }
 }
 export class EqualityExpressionContext extends ConditionalExpressionBaseContext {
+    public _op?: Token | null;
     public constructor(ctx: ConditionalExpressionBaseContext) {
         super(ctx.parent, ctx.invokingState);
         super.copyFrom(ctx);

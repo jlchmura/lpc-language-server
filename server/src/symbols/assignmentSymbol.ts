@@ -43,6 +43,12 @@ export class AssignmentSymbol
                 return lh.eval(lh.eval() + rhResult);
             case "-=":
                 return lh.eval(lh.eval() - rhResult);
+            case "*=":
+                return lh.eval(lh.eval() * rhResult);
+            case "/=":
+                return lh.eval(lh.eval() / rhResult);
+            case "%=":
+                return lh.eval(lh.eval() % rhResult);
             default:
                 throw "operator not supported";
         }

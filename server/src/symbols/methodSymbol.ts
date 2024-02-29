@@ -57,7 +57,9 @@ export class MethodSymbol
         }
 
         const varI = this.resolveSync("i") as VariableSymbol;
+        const varS = this.resolveSync("t") as VariableSymbol;
         const finalValue = varI.value;
+        const finalTValue = varS.value;
         const i = 0;
     }
 

@@ -9,5 +9,8 @@
     "editor.formatOnSave": true,
     "[antlr]": {
         "editor.formatOnSave": false
+    },
+    "[lpc]": {
+        "editor.formatOnSave": false
     }
 }
