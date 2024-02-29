@@ -20,7 +20,6 @@ import {
     PrimitiveTypeVariableDeclarationContext,
     ProgramContext,
     StructVariableDeclarationContext,
-    VariableDeclarationContext,
     VariableDeclaratorContext,
 } from "../parser3/LPCParser";
 import * as path from "path";
@@ -48,7 +47,6 @@ import {
     FundamentalType,
     VariableSymbol as VariableSymbolBase,
 } from "antlr4-c3";
-import { DetailsListener } from "./DetailsListener";
 import { BackendUtils } from "./BackendUtils";
 import { LpcFacade } from "./facade";
 import { EfunSymbol, FunctionIdentifierSymbol } from "../symbols/Symbol";
