@@ -18,7 +18,12 @@
 				"${workspaceFolder}/out/**/*.js",				
 			],
 			"preLaunchTask": "compile",
-			"smartStep": true			
+			"smartStep": true,
+			"skipFiles": [
+				"<node_internals>/**",
+				"node_modules/**/*",
+				"**/vs/workbench/api/**/*"
+			]
 		},
 		{
             "type": "node",

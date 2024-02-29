@@ -33,6 +33,8 @@ import {
     completionSortKeys,
     translateCompletionKind,
 } from "./Symbol";
+import { HoverProvider } from "./HoverProvider";
+import { lexRangeToLspRange } from "../utils";
 
 const CHANGE_DEBOUNCE_MS = 300;
 
@@ -52,6 +54,7 @@ export class LpcServer {
     private symbolProvider: LpcSymbolProvider;
     private definitionProvider: LpcDefinitionProvider;
     private codeLenseProvider: CodeLensProvider;
+    private hoverProvider: HoverProvider;
 
     /** document listener */
     private readonly documents: TextDocuments<TextDocument> = new TextDocuments(
@@ -112,6 +115,13 @@ export class LpcServer {
             return item;
         });
 
+        // Hover Provider
+        this.connection.onHover((params) => {
+            const doc = this.documents.get(params.textDocument.uri);
+            const result = this.hoverProvider.getHover(doc.uri, params.position);            
+            return result;
+        });
+
         // Folding Provider
         this.connection.onFoldingRanges((params) => {
             const doc = this.documents.get(params.textDocument.uri);
@@ -119,6 +129,7 @@ export class LpcServer {
             return result;
         });
 
+        // Rename Provider
         this.connection.onRenameRequest(params => {
             const doc = this.documents.get(params.textDocument.uri);
             const position = params.position;
@@ -219,7 +230,7 @@ export class LpcServer {
                 //     resolveProvider: true,
                 //     workDoneProgress: false,
                 // },
-                //hoverProvider: false,
+                hoverProvider: true,
                 definitionProvider: true,
                 foldingRangeProvider: true, // change to true to enable server-based folding
             },
@@ -245,17 +256,12 @@ export class LpcServer {
         this.symbolProvider = new LpcSymbolProvider(this.facade);
         this.definitionProvider = new LpcDefinitionProvider(this.facade);
         this.codeLenseProvider = new CodeLensProvider(this.facade);
+        this.hoverProvider = new HoverProvider(this.facade);
 
         return result;
     }
 
-    private lexRangeToDiagnosticRange(range: ILexicalRange) {
-        const { start, end } = range;
-        const startRow = start.row === 0 ? 0 : start.row - 1;
-        const endRow = end.row === 0 ? 0 : end.row - 1;
-
-        return Range.create(startRow, start.column, endRow, end.column);
-    }
+    
 
     /**
      * Processes diangostics for the given document and sends back to the language client.
@@ -266,7 +272,7 @@ export class LpcServer {
         const entries = this.facade.getDiagnostics(document.uri);
 
         for (const entry of entries) {
-            const range = this.lexRangeToDiagnosticRange(entry.range);
+            const range = lexRangeToLspRange(entry.range);
             const diagnostic = Diagnostic.create(
                 range,
                 entry.message,
@@ -279,7 +285,7 @@ export class LpcServer {
                     DiagnosticRelatedInformation.create(
                         Location.create(
                             related.source ?? document.uri,
-                            this.lexRangeToDiagnosticRange(related.range)
+                            lexRangeToLspRange(related.range)
                         ),
                         related.message
                     ),

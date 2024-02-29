@@ -190,8 +190,10 @@ export class ContextSymbolTable extends SymbolTable {
 
         // Special handling for certain symbols.
         switch (kind) {
-            //case SymbolKind.TokenVocab:
-            case SymbolKind.Include: {
+            case SymbolKind.Variable:
+                
+                break;
+            case SymbolKind.Include: 
                 // Get the source id from a dependent module.
                 this.dependencies.forEach((table: ContextSymbolTable) => {
                     if (table.owner && table.owner.sourceId.includes(name)) {
@@ -209,9 +211,9 @@ export class ContextSymbolTable extends SymbolTable {
                 });
 
                 break;
-            }
+            
 
-            case SymbolKind.Terminal: {
+            case SymbolKind.Terminal: 
                 // These are references to a depending grammar.
                 this.dependencies.forEach((table: ContextSymbolTable) => {
                     const actualSymbol = table.resolveSync(name);
@@ -222,11 +224,11 @@ export class ContextSymbolTable extends SymbolTable {
                 });
 
                 break;
-            }
+            
 
-            default: {
+            default: 
                 break;
-            }
+            
         }
 
         const symbolTable = symbol.symbolTable as ContextSymbolTable;
