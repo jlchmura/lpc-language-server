@@ -8,14 +8,17 @@ import {
     TypeKind,
     ReferenceKind,
     SymbolConstructor,
+    SymbolTable,
+    IScopedSymbol,
 } from "antlr4-c3";
 import { SymbolKind } from "../types";
 import * as vscodelang from "vscode-languageserver";
+import { ContextSymbolTable } from "./ContextSymbolTable";
 
-export function getSymbolsOfTypeSync<T extends BaseSymbol, Args extends unknown[]>(
-    symbol: ScopedSymbol,
-    t: SymbolConstructor<T, Args>
-): T[] {
+export function getSymbolsOfTypeSync<
+    T extends BaseSymbol,
+    Args extends unknown[]
+>(symbol: ScopedSymbol, t: SymbolConstructor<T, Args>): T[] {
     return symbol.children.filter((s) => s instanceof t) as T[];
 }
 
@@ -36,9 +39,10 @@ export class MethodSymbol extends BaseMethodSymbol implements IFoldableSymbol {
 }
 export class InlineClosureSymbol extends MethodSymbol {}
 export class ArgumentSymbol extends TypedSymbol {}
-export class FunctionCallSymbol extends TypedSymbol {
-    public arguments: ArgumentSymbol[] = [];
-}
+
+export class ExpressionSymbol extends ScopedSymbol {}
+export class FunctionIdentifierSymbol extends ScopedSymbol {}
+export class VariableIdentifierSymbol extends IdentifierSymbol {}
 export class ObjectSymbol extends ScopedSymbol {
     public isLoaded: boolean = false;
 
@@ -107,8 +111,7 @@ export class IfSymbol extends ScopedSymbol {
     }
 }
 
-export const symbolToKindMap: Map<new () => BaseSymbol, SymbolKind> =
-new Map([
+export const symbolToKindMap: Map<new () => BaseSymbol, SymbolKind> = new Map([
     [IncludeSymbol, SymbolKind.Include],
     [InheritSymbol, SymbolKind.Inherit],
     [MethodSymbol, SymbolKind.Method],
@@ -119,7 +122,7 @@ new Map([
     [BlockSymbol, SymbolKind.Block],
     [OperatorSymbol, SymbolKind.Operator],
     [IdentifierSymbol, SymbolKind.Keyword],
-    [InlineClosureSymbol, SymbolKind.InlineClosure]
+    [InlineClosureSymbol, SymbolKind.InlineClosure],
 ]);
 
 const symbolDescriptionMap = new Map<SymbolKind, string>([
@@ -236,4 +239,34 @@ export class ObjectType extends BaseSymbol implements IType {
     public get reference(): ReferenceKind {
         return ReferenceKind.Instance;
     }
+}
+
+export function resolveOfTypeSync<T extends BaseSymbol, Args extends unknown[]>(
+    scope: IScopedSymbol,
+    name: string,
+    t: SymbolConstructor<T, Args>,
+    localOnly: boolean = false
+): T {
+    for (const child of scope.children) {
+        if (child.name === name && child instanceof t) {
+            return child;
+        }
+    }
+    
+    if (!localOnly) {
+        if (scope.parent) {
+            return resolveOfTypeSync(scope.parent, name, t, localOnly);
+        }
+    }
+
+    if (!localOnly) {        
+        for (const dependency of (scope as ContextSymbolTable).getDependencies()) {
+            const result = resolveOfTypeSync(dependency, name, t, localOnly);
+            if (!!result) {
+                return result;
+            }
+        }
+    }
+
+    return undefined;
 }

@@ -22,6 +22,7 @@ import {
     InlineClosureExpressionContext,
     MethodInvocationContext,
     ParameterListContext,
+    PrimaryExpressionContext,
     PrimitiveTypeParameterExpressionContext,
     PrimitiveTypeVariableDeclarationContext,
     SelectionDirectiveContext,
@@ -29,6 +30,8 @@ import {
 
 import {
     DefineSymbol,
+    ExpressionSymbol,
+    FunctionIdentifierSymbol,
     IdentifierSymbol,
     IfSymbol,
     IncludeSymbol,
@@ -37,6 +40,7 @@ import {
     MethodSymbol,
     PreprocessorSymbol,
     SelectionSymbol,
+    VariableIdentifierSymbol,
     VariableSymbol,
 } from "./Symbol";
 import { FoldingRange } from "vscode-languageserver";
@@ -92,12 +96,27 @@ export class DetailsVisitor
         }
     };
 
-    visitIdentifierExpression = (ctx: IdentifierExpressionContext) => {
-        this.addNewSymbol(
-            IdentifierSymbol,
+    visitPrimaryExpression = (ctx: PrimaryExpressionContext) => {
+        return this.withScope(
             ctx,
-            `#identifier#${ctx.Identifier().getText()}`
+            ExpressionSymbol,
+            ["#primary-expression#"],
+            (s) => {
+                return this.visitChildren(ctx);
+            }
         );
+    };
+
+    visitIdentifierExpression = (ctx: IdentifierExpressionContext) => {
+        const priExp = ctx.parent as PrimaryExpressionContext;
+        const isVar = priExp.methodInvocation().length === 0; // if its not a method invocation, then its a variable reference
+        const parentSymbol = this.scope;
+        const name = ctx.Identifier().getText();
+        const symbolType = isVar
+            ? VariableIdentifierSymbol
+            : FunctionIdentifierSymbol;
+
+        this.addNewSymbol(symbolType, ctx, `${name}`);
         return undefined;
     };
 
@@ -135,14 +154,8 @@ export class DetailsVisitor
         }
 
         const varDecls = ctx.variableDeclarator();
-        varDecls.forEach((varDecl) => {
-            const sym = this.symbolTable.addNewSymbolOfType(
-                VariableSymbol,
-                this.scope,
-                varDecl._variableName?.text,
-                varType
-            );
-            sym.context = varDecl;
+        varDecls.forEach((varDecl) => {                 
+            this.addNewSymbol(VariableSymbol, varDecl.Identifier(), varDecl._variableName?.text, varType);            
         });
 
         // const assigns = ctx.assignmentExpression();

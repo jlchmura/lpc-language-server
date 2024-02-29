@@ -12,10 +12,14 @@ import {
     InitializeResult,
     InitializedParams,
     Location,
+    OptionalVersionedTextDocumentIdentifier,
     Position,
     Range,
+    TextDocumentEdit,
     TextDocumentSyncKind,
     TextDocuments,
+    TextEdit,
+    WorkspaceEdit,
 } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import * as path from "path";
@@ -114,6 +118,36 @@ export class LpcServer {
             const result = this.facade.getFoldingRanges(doc.uri);
             return result;
         });
+
+        this.connection.onRenameRequest(params => {
+            const doc = this.documents.get(params.textDocument.uri);
+            const position = params.position;
+            const info = this.facade.symbolInfoAtPosition(doc.uri, position.character, position.line + 1,
+                false);
+
+            if (info) {
+                const result: WorkspaceEdit = { changes: {} };
+                const occurrences = this.facade.getSymbolOccurrences(doc.uri, info.name);
+                for (const symbol of occurrences) {
+                    if (symbol.definition) {
+                        const range = Range.create(
+                            symbol.definition.range.start.row - 1,
+                            symbol.definition.range.start.column,
+                            symbol.definition.range.end.row - 1,
+                            symbol.definition.range.start.column + info.name.length,
+                        );
+                        
+                        result.changes[symbol.source] = result.changes[symbol.source] ?? [];
+                        result.changes[symbol.source].push(TextEdit.replace(range, params.newName));
+                    }
+                }
+
+                return result;
+            } else {
+                undefined;
+            }
+
+        });
                 
         // send document open/close/changes to facade
         this.documents.onDidOpen((e) => {
@@ -179,6 +213,7 @@ export class LpcServer {
                 completionProvider: {
                     resolveProvider: true,
                 },
+                renameProvider:true,
                 documentSymbolProvider: true,
                 // codeLensProvider: {
                 //     resolveProvider: true,

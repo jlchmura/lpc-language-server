@@ -53,7 +53,7 @@ export class LpcSymbolProvider {
             this.createDocumentSymbol(child)
         );
 
-        return DocumentSymbol.create(
+        const docSym= DocumentSymbol.create(
             symbol.name,
             description,
             kind,
@@ -61,5 +61,6 @@ export class LpcSymbolProvider {
             range,
             children
         );
+        return docSym;
     }
 }

@@ -14,7 +14,11 @@ import {
     Token,
 } from "antlr4ng";
 import { LPCLexer } from "../parser3/LPCLexer";
-import { LPCParser, ProgramContext } from "../parser3/LPCParser";
+import {
+    FunctionDeclarationContext,
+    LPCParser,
+    ProgramContext,
+} from "../parser3/LPCParser";
 import * as path from "path";
 import {
     IContextDetails,
@@ -35,6 +39,7 @@ import {
     IType,
     MethodSymbol as BaseMethodSymbol,
     ParameterSymbol,
+    ScopedSymbol,
 } from "antlr4-c3";
 import { DetailsListener } from "./DetailsListener";
 import { BackendUtils } from "./BackendUtils";
@@ -51,6 +56,9 @@ import {
     IFoldableSymbol,
     InlineClosureSymbol,
     symbolToKindMap,
+    VariableIdentifierSymbol,
+    resolveOfTypeSync,
+    FunctionIdentifierSymbol,
 } from "./Symbol";
 import { DetailsVisitor } from "./DetailsVisitor";
 import { FoldingRange } from "vscode-languageserver";
@@ -121,7 +129,7 @@ export class SourceContext {
             // add built-in efuns here
             this.addEfun("abs", undefined, { name: "number" });
             this.addEfun("clone_object", undefined, { name: "name" });
-            this.addEfun("map", undefined, { name: "arr" }, { name: "func" });            
+            this.addEfun("map", undefined, { name: "arr" }, { name: "func" });
             this.addEfun("sizeof", undefined, { name: "val" });
         }
 
@@ -352,6 +360,13 @@ export class SourceContext {
             // For mode definitions we only need the init line, not all the lexer rules following it.
             // if (ctx.ruleIndex === LPCParser.RULE_functionDeclaration) {
             //     const funSpec = ctx as FunctionDeclarationContext;
+            //     const endSym = funSpec.functionHeader().PAREN_CLOSE().symbol;
+            //     stop = endSym.stop;
+            //     result.range.end.column = endSym.column;
+            //     result.range.end.row = endSym.line;
+            // }
+            // if (ctx.ruleIndex === LPCParser.RULE_functionDeclaration) {
+            //     const funSpec = ctx as FunctionDeclarationContext;
             //     const endSym = funSpec.block().CURLY_OPEN().symbol;
             //     stop = endSym.stop;
             //     result.range.end.column = endSym.column;
@@ -443,14 +458,25 @@ export class SourceContext {
             //     }
 
             //     break;
-            // }        
+            // }
             case LPCParser.RULE_assignmentExpression:
             case LPCParser.RULE_primaryExpression:
             case LPCParser.RULE_primaryExpressionStart:
-            case LPCParser.RULE_callOtherTarget:                
-                const symbol = this.symbolTable.findSymbolDefinition(terminal);
+            case LPCParser.RULE_callOtherTarget:
+                let symbol = this.symbolTable.symbolContainingContext(terminal);            
+                const name = terminal.getText();    
+                const searchScope=symbol.getParentOfType(ScopedSymbol);
+                
+                if (symbol instanceof VariableIdentifierSymbol) {
+                    symbol = resolveOfTypeSync(searchScope, name, VariableSymbol);
+                    symbol ??= resolveOfTypeSync(searchScope, name, DefineSymbol);                    
+                } else if (symbol instanceof FunctionIdentifierSymbol) {
+                    symbol = resolveOfTypeSync(this.symbolTable, name, MethodSymbol);
+                } else {
+                    symbol = searchScope.resolveSync(symbol.name, false);
+                }
 
-                if (symbol) {
+                if (!!symbol) {
                     return this.getSymbolInfo(symbol);
                 }
 
@@ -616,7 +642,7 @@ export class SourceContext {
                     );
                     promises.push(this.symbolTable.getAllSymbols(MethodSymbol));
 
-                break;
+                    break;
                 case LPCParser.RULE_assignmentExpression:
                     promises.push(
                         this.symbolTable.getAllSymbols(VariableSymbol)
@@ -656,7 +682,10 @@ export class SourceContext {
                             kind: SourceContext.getKindFromSymbol(symbol),
                             name: symbol.name,
                             source: this.fileName,
-                            definition: undefined,
+                            definition: SourceContext.definitionForContext(
+                                symbol.context,
+                                true
+                            ),
                             description: undefined,
                         });
                     }
@@ -669,6 +698,8 @@ export class SourceContext {
 
     public getFoldingRanges(): FoldingRange[] {
         const s = this.symbolTable.getAllNestedSymbolsSync();
-        return s.filter(s => (s as unknown as IFoldableSymbol).foldingRange).map(s => (s as unknown as IFoldableSymbol).foldingRange);
+        return s
+            .filter((s) => (s as unknown as IFoldableSymbol).foldingRange)
+            .map((s) => (s as unknown as IFoldableSymbol).foldingRange);
     }
 }

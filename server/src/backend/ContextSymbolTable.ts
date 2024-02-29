@@ -56,6 +56,10 @@ export class ContextSymbolTable extends SymbolTable {
         super.clear();
     }
 
+    public getDependencies() {
+        return this.dependencies;
+    }
+
     public addFunction(method: MethodSymbol): void {
         this.functions.set(method.name, method);
     }
@@ -400,5 +404,48 @@ export class ContextSymbolTable extends SymbolTable {
             }
             sib = sib.previousSibling;
         }
+    }
+
+    public getSymbolOccurrences(symbolName: string, localOnly: boolean): ISymbolInfo[] {
+        const result: ISymbolInfo[] = [];
+
+        const symbols = this.getAllSymbolsSync(BaseSymbol, localOnly);
+        for (const symbol of symbols) {
+            const owner = (symbol.root as ContextSymbolTable).owner;
+
+            if (owner) {
+                if (symbol.context && symbol.name === symbolName) {
+                    let context = symbol.context;
+                    if (symbol instanceof MethodSymbol) {
+                        context = (symbol.context as ParserRuleContext).children![0];
+                    } else if (symbol instanceof VariableSymbol) {
+                        context = (symbol.context as ParserRuleContext).children![0];
+                    }
+
+                    result.push({
+                        kind: SourceContext.getKindFromSymbol(symbol),
+                        name: symbolName,
+                        source: owner.fileName,
+                        definition: SourceContext.definitionForContext(context, true),
+                        description: undefined,
+                    });
+                }
+
+                if (symbol instanceof ScopedSymbol) {
+                    const references = symbol.getAllNestedSymbolsSync(symbolName);
+                    for (const reference of references) {
+                        result.push({
+                            kind: SourceContext.getKindFromSymbol(reference),
+                            name: symbolName,
+                            source: owner.fileName,
+                            definition: SourceContext.definitionForContext(reference.context, true),
+                            description: undefined,
+                        });
+                    }
+                }
+            }
+        }
+
+        return result;
     }
 }

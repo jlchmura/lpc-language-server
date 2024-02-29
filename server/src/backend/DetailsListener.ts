@@ -12,8 +12,7 @@ import { LPCParserListener } from "../parser3/LPCParserListener";
 import {
     ArgumentSymbol,
     AssignmentSymbol,
-    BlockSymbol,
-    FunctionCallSymbol,
+    BlockSymbol,    
     IdentifierSymbol,
     IncludeSymbol,
     InheritSymbol,
@@ -232,30 +231,30 @@ export class DetailsListener extends LPCParserListener {
         this.popSymbol();
     };
 
-    enterCallOtherTarget = (ctx: CallOtherTargetContext) => {
-        const priStart = ctx.parent as PrimaryExpressionContext;
-        const id = ctx.Identifier();
-        const methodArgs = priStart.methodInvocation();
-        this.pushNewSymbol(FunctionCallSymbol, ctx, id.getText());
-    };
-    exitCallOtherTarget = (ctx: CallOtherTargetContext) => {
-        this.popSymbol();
-    };
+    // enterCallOtherTarget = (ctx: CallOtherTargetContext) => {
+    //     const priStart = ctx.parent as PrimaryExpressionContext;
+    //     const id = ctx.Identifier();
+    //     const methodArgs = priStart.methodInvocation();
+    //     this.pushNewSymbol(FunctionCallSymbol, ctx, id.getText());
+    // };
+    // exitCallOtherTarget = (ctx: CallOtherTargetContext) => {
+    //     this.popSymbol();
+    // };
 
-    enterMethodInvocation = (ctx: MethodInvocationContext) => {
-        const methodTarget = this.currentSymbol() as FunctionCallSymbol;
+    // enterMethodInvocation = (ctx: MethodInvocationContext) => {
+    //     const methodTarget = this.currentSymbol() as FunctionCallSymbol;
 
-        const argList = ctx.argumentList()?.argument();
-        // argList.forEach((a) => {
-        //     const exp = a.expression();
+    //     const argList = ctx.argumentList()?.argument();
+    //     // argList.forEach((a) => {
+    //     //     const exp = a.expression();
 
-        //     const argSym = this.symbolTable.addNewSymbolOfType(
-        //         ArgumentSymbol,
-        //         methodTarget,
-        //         a.getText()
-        //     );
-        // });
-    };
+    //     //     const argSym = this.symbolTable.addNewSymbolOfType(
+    //     //         ArgumentSymbol,
+    //     //         methodTarget,
+    //     //         a.getText()
+    //     //     );
+    //     // });
+    // };
 
     exitIncludeDirective = (ctx: IncludeDirectiveContext) => {
         const filename = ctx.directiveIncludeFile().getText();

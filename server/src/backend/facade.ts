@@ -306,6 +306,24 @@ export class LpcFacade {
         return context.symbolAtPosition(column, row, limitToChildren);
     }
 
+     /**
+     * Determines source file and position of all occurrences of the given symbol. The search includes
+     * also all referencing and referenced contexts.
+     *
+     * @param fileName The grammar file name.
+     * @param symbolName The name of the symbol to check.
+     * @returns A list of symbol info entries, each describing one occurrence.
+     */
+     public getSymbolOccurrences(fileName: string, symbolName: string): ISymbolInfo[] {
+        const context = this.getContext(fileName);
+        const result = context.symbolTable.getSymbolOccurrences(symbolName, false);
+
+        // Sort result by kind. This way rule definitions appear before rule references and are re-parsed first.
+        return result.sort((lhs: ISymbolInfo, rhs: ISymbolInfo) => {
+            return lhs.kind - rhs.kind;
+        });
+    }
+
     /**
      * Count how many times a symbol has been referenced. The given file must contain the definition of this symbol.
      *
