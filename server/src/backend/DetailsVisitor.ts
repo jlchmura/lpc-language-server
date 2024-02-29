@@ -50,7 +50,7 @@ import {
     SelectionSymbol,
     VariableIdentifierSymbol,
     VariableSymbol,
-} from "./Symbol";
+} from "../symbols/Symbol";
 import { FoldingRange } from "vscode-languageserver";
 import { typeNameToIType } from "../types";
 import { LPCLexer } from "../parser3/LPCLexer";

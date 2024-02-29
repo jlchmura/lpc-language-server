@@ -9,7 +9,10 @@ import {
 } from "vscode-languageserver";
 import { URI } from "vscode-uri";
 import { ISymbolInfo, SymbolKind } from "../types";
-import { symbolDescriptionFromEnum, translateSymbolKind } from "./Symbol";
+import {
+    symbolDescriptionFromEnum,
+    translateSymbolKind,
+} from "../symbols/Symbol";
 
 export class LpcSymbolProvider {
     constructor(private backend: LpcFacade) {}
@@ -53,7 +56,7 @@ export class LpcSymbolProvider {
             this.createDocumentSymbol(child)
         );
 
-        const docSym= DocumentSymbol.create(
+        const docSym = DocumentSymbol.create(
             symbol.name,
             description,
             kind,

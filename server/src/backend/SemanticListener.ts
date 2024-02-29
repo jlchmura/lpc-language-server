@@ -27,7 +27,7 @@ import {
     MethodSymbol,
     VariableSymbol,
     resolveOfTypeSync,
-} from "./Symbol";
+} from "../symbols/Symbol";
 import { areSetsEqual, areTwoParameterArraysEqual } from "../utils";
 
 export class SemanticListener extends LPCParserListener {
@@ -130,17 +130,16 @@ export class SemanticListener extends LPCParserListener {
                     funEnd
                 );
             }
-        }        
+        }
 
         this.evaluateFunction(symbol);
     };
 
     evaluateFunction(fnSymbol: MethodSymbol) {
-        for(const child of fnSymbol.children) {
+        for (const child of fnSymbol.children) {
             // evaluate symbols in this function and compute the value of any variables
-            if(child instanceof VariableSymbol) {
-                
-            }            
+            if (child instanceof VariableSymbol) {
+            }
         }
     }
 

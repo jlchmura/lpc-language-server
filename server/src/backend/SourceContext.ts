@@ -61,7 +61,7 @@ import {
     FunctionIdentifierSymbol,
     MethodDeclarationSymbol,
     isInstanceOfIKindSymbol,
-} from "./Symbol";
+} from "../symbols/Symbol";
 import { DetailsVisitor } from "./DetailsVisitor";
 import { FoldingRange } from "vscode-languageserver";
 import { lexRangeFromContext as lexRangeFromContext } from "../utils";

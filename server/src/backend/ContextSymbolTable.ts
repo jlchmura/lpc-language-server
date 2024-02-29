@@ -21,7 +21,7 @@ import {
     MethodSymbol,
     InlineClosureSymbol,
     EvalScope,
-} from "./Symbol";
+} from "../symbols/Symbol";
 import { FoldingRange } from "vscode-languageserver";
 
 export class ContextSymbolTable extends SymbolTable {

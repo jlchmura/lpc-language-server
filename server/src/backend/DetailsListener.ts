@@ -12,7 +12,7 @@ import { LPCParserListener } from "../parser3/LPCParserListener";
 import {
     ArgumentSymbol,
     AssignmentSymbol,
-    BlockSymbol,    
+    BlockSymbol,
     IdentifierSymbol,
     IncludeSymbol,
     InheritSymbol,
@@ -22,7 +22,7 @@ import {
     ObjectType,
     OperatorSymbol,
     VariableSymbol,
-} from "./Symbol";
+} from "../symbols/Symbol";
 import {
     ArrayExpressionContext,
     AssignmentExpressionContext,

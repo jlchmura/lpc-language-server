@@ -6,7 +6,7 @@ import {
     Position,
 } from "vscode-languageserver";
 import { LpcFacade } from "./facade";
-import { symbolDescriptionFromEnum } from "./Symbol";
+import { symbolDescriptionFromEnum } from "../symbols/Symbol";
 import { lexRangeToLspRange } from "../utils";
 import { SymbolKind } from "../types";
 

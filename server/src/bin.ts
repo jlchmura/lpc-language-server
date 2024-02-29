@@ -10,13 +10,13 @@ import { CodeCompletionCore, NamespaceSymbol, SymbolTable } from "antlr4-c3";
 import { TextDocument } from "vscode-languageserver-textdocument";
 //import { VariableSymbol } from "./backend/ContextSymbolTable";
 import { LpcFacade } from "./backend/facade";
-import { MethodSymbol } from "./backend/Symbol";
+import { MethodSymbol } from "./symbols/Symbol";
 
 //import { LpcFacade } from "./backend/facade";
 
 const code = fs.existsSync(process.argv[2])
-  ? fs.readFileSync(process.argv[2], "utf-8")
-  : process.argv.slice(2).join(" ").replace(/\\n/g, "\n");
+    ? fs.readFileSync(process.argv[2], "utf-8")
+    : process.argv.slice(2).join(" ").replace(/\\n/g, "\n");
 const doc = TextDocument.create("uri", "lpc", 0, code);
 const stream = CharStreams.fromString(code);
 const lexer = new LPCLexer(stream);
@@ -26,8 +26,7 @@ const parser = new LPCParser(tStream);
 const filename = process.argv[2];
 const dir = path.dirname(filename);
 
-
-const backend = new LpcFacade(dir,dir);
+const backend = new LpcFacade(dir, dir);
 //main file
 const ctxFile = backend.loadLpc(filename, code);
 

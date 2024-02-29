@@ -13,7 +13,7 @@ import {
 } from "antlr4-c3";
 import { SymbolKind } from "../types";
 import * as vscodelang from "vscode-languageserver";
-import { ContextSymbolTable } from "./ContextSymbolTable";
+import { ContextSymbolTable } from "../backend/ContextSymbolTable";
 import {
     AssignmentExpressionContext,
     DefinePreprocessorDirectiveContext,

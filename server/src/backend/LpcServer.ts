@@ -32,7 +32,7 @@ import {
     completionDetails,
     completionSortKeys,
     translateCompletionKind,
-} from "./Symbol";
+} from "../symbols/Symbol";
 import { HoverProvider } from "./HoverProvider";
 import { lexRangeToLspRange } from "../utils";
 
@@ -118,7 +118,10 @@ export class LpcServer {
         // Hover Provider
         this.connection.onHover((params) => {
             const doc = this.documents.get(params.textDocument.uri);
-            const result = this.hoverProvider.getHover(doc.uri, params.position);            
+            const result = this.hoverProvider.getHover(
+                doc.uri,
+                params.position
+            );
             return result;
         });
 
@@ -130,26 +133,37 @@ export class LpcServer {
         });
 
         // Rename Provider
-        this.connection.onRenameRequest(params => {
+        this.connection.onRenameRequest((params) => {
             const doc = this.documents.get(params.textDocument.uri);
             const position = params.position;
-            const info = this.facade.symbolInfoAtPosition(doc.uri, position.character, position.line + 1,
-                false);
+            const info = this.facade.symbolInfoAtPosition(
+                doc.uri,
+                position.character,
+                position.line + 1,
+                false
+            );
 
             if (info) {
                 const result: WorkspaceEdit = { changes: {} };
-                const occurrences = this.facade.getSymbolOccurrences(doc.uri, info.name);
+                const occurrences = this.facade.getSymbolOccurrences(
+                    doc.uri,
+                    info.name
+                );
                 for (const symbol of occurrences) {
                     if (symbol.definition) {
                         const range = Range.create(
                             symbol.definition.range.start.row - 1,
                             symbol.definition.range.start.column,
                             symbol.definition.range.end.row - 1,
-                            symbol.definition.range.start.column + info.name.length,
+                            symbol.definition.range.start.column +
+                                info.name.length
                         );
-                        
-                        result.changes[symbol.source] = result.changes[symbol.source] ?? [];
-                        result.changes[symbol.source].push(TextEdit.replace(range, params.newName));
+
+                        result.changes[symbol.source] =
+                            result.changes[symbol.source] ?? [];
+                        result.changes[symbol.source].push(
+                            TextEdit.replace(range, params.newName)
+                        );
                     }
                 }
 
@@ -157,9 +171,8 @@ export class LpcServer {
             } else {
                 undefined;
             }
-
         });
-                
+
         // send document open/close/changes to facade
         this.documents.onDidOpen((e) => {
             this.facade.loadLpc(e.document.uri, e.document.getText());
@@ -210,7 +223,7 @@ export class LpcServer {
         );
         this.hasWorkspaceFolderCapability = !!(
             capabilities.workspace && !!capabilities.workspace.workspaceFolders
-        );        
+        );
         this.hasDiagnosticRelatedInformationCapability = !!(
             capabilities.textDocument &&
             capabilities.textDocument.publishDiagnostics &&
@@ -224,7 +237,7 @@ export class LpcServer {
                 completionProvider: {
                     resolveProvider: true,
                 },
-                renameProvider:true,
+                renameProvider: true,
                 documentSymbolProvider: true,
                 // codeLensProvider: {
                 //     resolveProvider: true,
@@ -235,7 +248,7 @@ export class LpcServer {
                 foldingRangeProvider: true, // change to true to enable server-based folding
             },
         };
-          
+
         if (this.hasWorkspaceFolderCapability) {
             result.capabilities.workspace = {
                 workspaceFolders: {
@@ -260,8 +273,6 @@ export class LpcServer {
 
         return result;
     }
-
-    
 
     /**
      * Processes diangostics for the given document and sends back to the language client.
