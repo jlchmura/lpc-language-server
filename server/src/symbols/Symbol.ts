@@ -106,22 +106,6 @@ export class OperatorSymbol extends ScopedSymbol implements IEvaluatableSymbol {
 }
 
 export class BlockSymbol extends ScopedSymbol {}
-export class LiteralSymbol
-    extends TypedSymbol
-    implements IEvaluatableSymbol, IKindSymbol
-{
-    public get kind() {
-        return SymbolKind.Literal;
-    }
-
-    constructor(name: string, type: IType, public value: any) {
-        super(name, type);
-    }
-
-    eval(scope: EvalScope) {
-        return this.value;
-    }
-}
 
 export class EfunSymbol extends BaseMethodSymbol implements IKindSymbol {
     public constructor(name: string, public returnType?: IType) {

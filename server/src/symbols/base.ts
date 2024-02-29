@@ -3,7 +3,7 @@ import { ParseTree } from "antlr4ng";
 import { SymbolKind } from "../types";
 import { FoldingRange } from "vscode-languageserver";
 
-export type EvalScope = Map<string, any>;
+export type EvalScope = any;
 
 export function getSymbolsOfTypeSync<
     T extends BaseSymbol,

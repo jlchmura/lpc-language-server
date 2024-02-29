@@ -3,10 +3,7 @@ import {
     FundamentalType,
     IType,
     ParameterSymbol,
-    ReferenceKind,
     SymbolConstructor,
-    TypeKind,
-    TypedSymbol,
 } from "antlr4-c3";
 import { LPCParserListener } from "../parser3/LPCParserListener";
 import {
@@ -14,16 +11,13 @@ import {
     IdentifierSymbol,
     IncludeSymbol,
     InheritSymbol,
-    LiteralSymbol,
     ObjectSymbol,
     ObjectType,
     OperatorSymbol,
 } from "../symbols/Symbol";
 import {
     ArrayExpressionContext,
-    AssignmentExpressionContext,
     BlockContext,
-    CallOtherTargetContext,
     CloneObjectExpressionContext,
     ExpressionContext,
     FunctionDeclarationContext,
@@ -35,12 +29,8 @@ import {
     LiteralExpressionContext,
     MappingEmptyInitializerContext,
     MappingValueInitializerContext,
-    MethodInvocationContext,
-    ParameterListContext,
     PrimaryExpressionContext,
-    PrimaryExpressionStartContext,
     PrimitiveTypeParameterExpressionContext,
-    PrimitiveTypeVariableDeclarationContext,
     VariableDeclaratorContext,
 } from "../parser3/LPCParser";
 import { ParseTree, TerminalNode } from "antlr4ng";
@@ -50,6 +40,7 @@ import { ContextSymbolTable } from "./ContextSymbolTable";
 import { VariableSymbol } from "../symbols/variableSymbol";
 import { AssignmentSymbol } from "../symbols/assignmentSymbol";
 import { MethodSymbol } from "../symbols/methodSymbol";
+import { LiteralSymbol } from "../symbols/literalSymbol";
 
 export class DetailsListener extends LPCParserListener {
     private symbolStack: BaseSymbol[] = [];

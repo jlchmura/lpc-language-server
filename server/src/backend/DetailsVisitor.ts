@@ -40,7 +40,6 @@ import {
     IfSymbol,
     IncludeSymbol,
     InheritSymbol,
-    LiteralSymbol,
     OperatorSymbol,
     PreprocessorSymbol,
     SelectionSymbol,
@@ -63,6 +62,7 @@ import {
 } from "../symbols/methodSymbol";
 import { ExpressionSymbol } from "../symbols/expressionSymbol";
 import { trimQuotes } from "../utils";
+import { LiteralSymbol } from "../symbols/literalSymbol";
 
 export class DetailsVisitor
     extends AbstractParseTreeVisitor<SymbolTable>
