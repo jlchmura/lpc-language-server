@@ -10,6 +10,7 @@ import { ContextSymbolTable } from "./ContextSymbolTable";
 import {
     CallOtherTargetContext,
     CloneObjectExpressionContext,
+    FunctionDeclarationContext,
     IdentifierExpressionContext,
     MethodInvocationContext,
     PrimaryExpressionContext,
@@ -22,9 +23,12 @@ import {
 import {
     ITypedSymbol,
     IdentifierSymbol,
+    MethodDeclarationSymbol,
     MethodSymbol,
     VariableSymbol,
+    resolveOfTypeSync,
 } from "./Symbol";
+import { areSetsEqual, areTwoParameterArraysEqual } from "../utils";
 
 export class SemanticListener extends LPCParserListener {
     private seenSymbols = new Map<string, Token>();
@@ -69,6 +73,64 @@ export class SemanticListener extends LPCParserListener {
         const symbolCont = this.symbolTable.symbolContainingContext(ctx);
 
         const i = 0;
+    };
+
+    exitFunctionDeclaration = (ctx: FunctionDeclarationContext) => {
+        const symbol = this.symbolTable.symbolWithContextSync(
+            ctx
+        ) as MethodSymbol;
+        if (!symbol) return;
+
+        const functionDef = resolveOfTypeSync(
+            symbol.parent,
+            symbol.name,
+            MethodDeclarationSymbol,
+            false
+        );
+
+        const funStart = ctx.start;
+        const funEnd = ctx.functionHeader().PAREN_CLOSE().symbol;
+
+        if (!!functionDef) {
+            // validate that everything matches
+            if (
+                !areSetsEqual(
+                    symbol.functionModifiers,
+                    functionDef.functionModifiers
+                )
+            ) {
+                this.logDiagnostic(
+                    "Function modifiers do not match",
+                    funStart,
+                    funEnd
+                );
+            }
+
+            if (symbol.returnType?.name !== functionDef.returnType?.name) {
+                this.logDiagnostic(
+                    `Function return type (${
+                        symbol.returnType?.name ?? "unspecified"
+                    }) does not match its definition (${
+                        functionDef.returnType?.name ?? "unspecified"
+                    })`,
+                    funStart,
+                    funEnd
+                );
+            }
+
+            if (
+                !areTwoParameterArraysEqual(
+                    symbol.getParametersSync(),
+                    functionDef.getParametersSync()
+                )
+            ) {
+                this.logDiagnostic(
+                    `Function parameters do not match its definition`,
+                    funStart,
+                    funEnd
+                );
+            }
+        }
     };
 
     exitMethodInvocation = (ctx: MethodInvocationContext) => {

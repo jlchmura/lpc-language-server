@@ -1,6 +1,7 @@
 import { ParserRuleContext } from "antlr4ng";
 import { Position, Range } from "vscode-languageserver";
 import { ILexicalRange } from "./types";
+import { TypedSymbol } from "antlr4-c3";
 
 export function getSelectionRange(ctx: ParserRuleContext): Range {
     const start = ctx.start;
@@ -40,4 +41,35 @@ export function lexRangeFromContext(ctx: ParserRuleContext): ILexicalRange {
             column: ctx.stop.column,
         },
     };
+}
+
+/**
+ * Checks if the two sets are equal in size and content.
+ * @param set1
+ * @param set2
+ * @returns
+ */
+export function areSetsEqual<T>(set1: Set<T>, set2: Set<T>): boolean {
+    if (set1.size !== set2.size) {
+        return false;
+    }
+    for (let item of set1) {
+        if (!set2.has(item)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+export function areTwoParameterArraysEqual<T extends TypedSymbol>(arr1: T[], arr2: T[]): boolean {
+    if (arr1.length !== arr2.length) {
+        return false;
+    }
+    for (let i = 0; i < arr1.length; i++) {
+        if (arr1[i].name !== arr2[i].name || arr1[i].type?.name !== arr2[i].type?.name) {
+            return false;
+        }
+    }
+    return true;
 }

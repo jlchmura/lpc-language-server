@@ -30,7 +30,11 @@ export class IdentifierSymbol extends BaseSymbol {}
 export class IncludeSymbol extends BaseSymbol {}
 export class InheritSymbol extends BaseSymbol {}
 
-export class MethodSymbol extends BaseMethodSymbol implements IFoldableSymbol {
+export class MethodSymbol extends BaseMethodSymbol implements IFoldableSymbol {    
+    constructor(name: string, returnType?: IType, public functionModifiers?: Set<string>) {
+        super(name, returnType);        
+    }
+
     public getParametersSync() {
         return getSymbolsOfTypeSync(this, ParameterSymbol);
     }

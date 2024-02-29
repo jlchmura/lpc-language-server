@@ -46,6 +46,7 @@ import {
     VariableSymbol,
 } from "./Symbol";
 import { FoldingRange } from "vscode-languageserver";
+import { typeNameToIType } from "../types";
 
 export class DetailsVisitor
     extends AbstractParseTreeVisitor<SymbolTable>
@@ -295,26 +296,37 @@ export class DetailsVisitor
         return ifSymTbl;
     };
 
-    visitFunctionHeaderDeclaration = (ctx: FunctionHeaderDeclarationContext) => {
+    visitFunctionHeaderDeclaration = (
+        ctx: FunctionHeaderDeclarationContext
+    ) => {
         const header = ctx.functionHeader();
         const nm = header._functionName.text;
+        const retType = typeNameToIType.get(header.typeSpecifier()?.getText());
+        const mods = new Set(header.functionModifier()?.map((m) => m.getText()) ?? []);
 
-        return this.withScope(ctx, MethodDeclarationSymbol, [nm], (s) => {
-            s.foldingRange = FoldingRange.create(
-                ctx.start.line - 1,
-                ctx.stop.line - 2,
-                ctx.start.column,
-                ctx.stop.column
-            );
-            return this.visitChildren(ctx);
-        });
+        return this.withScope(
+            ctx,
+            MethodDeclarationSymbol,
+            [nm, retType, mods],
+            (s) => {
+                s.foldingRange = FoldingRange.create(
+                    ctx.start.line - 1,
+                    ctx.stop.line - 2,
+                    ctx.start.column,
+                    ctx.stop.column
+                );
+                return this.visitChildren(ctx);
+            }
+        );
     };
 
     visitFunctionDeclaration = (ctx: FunctionDeclarationContext) => {
         const header = ctx.functionHeader();
         const nm = header._functionName.text;
+        const retType = typeNameToIType.get(header.typeSpecifier()?.getText());
+        const mods = new Set(header.functionModifier()?.map((m) => m.getText()) ?? []);
 
-        return this.withScope(ctx, MethodSymbol, [nm], (s) => {
+        return this.withScope(ctx, MethodSymbol, [nm, retType, mods], (s) => {
             s.foldingRange = FoldingRange.create(
                 ctx.start.line - 1,
                 ctx.stop.line - 2,

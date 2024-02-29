@@ -3,9 +3,9 @@ import {
     FundamentalType,
     IType,
     ReferenceKind,
-    ScopedSymbol,
+
     TypeKind,
-    TypedSymbol,
+
 } from "antlr4-c3";
 
 export enum DiagnosticType {
@@ -87,3 +87,13 @@ export namespace LpcTypes {
     export const mixedType: IType = new FundamentalType("mixed", TypeKind.Unknown);
     export const mixedArrayType: IType = new ArrayType("mixed *", ReferenceKind.Instance, LpcTypes.mixedType);
 }
+
+export const typeNameToIType = new Map<string, IType>([
+    ["string", FundamentalType.stringType],
+    ["int", FundamentalType.integerType],
+    ["status", FundamentalType.integerType],
+    ["float", FundamentalType.floatType],
+    ["object", LpcTypes.objectType],
+    ["mixed", LpcTypes.mixedType],
+    ["void", LpcTypes.voidType]
+]);
