@@ -22,6 +22,7 @@ import {
     AdditiveExpressionContext,
     AndExpressionContext,
     AssignmentExpressionContext,
+    CloneObjectExpressionContext,
     ConditionalAndExpressionContext,
     ConditionalExpressionContext,
     ConditionalOrExpressionContext,
@@ -53,6 +54,7 @@ import {
     IfSymbol,
     IncludeSymbol,
     InheritSymbol,
+    ObjectSymbol,
     PreprocessorSymbol,
     SelectionSymbol,
 } from "../symbols/Symbol";
@@ -153,6 +155,12 @@ export class DetailsVisitor
 
         this.addNewSymbol(symbolType, ctx, `${name}`);
         return undefined;
+    };
+
+    visitCloneObjectExpression = (ctx: CloneObjectExpressionContext) => {
+        return this.withScope(ctx, ObjectSymbol, ["#clone-object#"], (s) => {
+            return this.visitChildren(ctx);
+        });
     };
 
     visitPrimitiveTypeVariableDeclaration = (

@@ -14,6 +14,7 @@ import {
     IdentifierExpressionContext,
     MethodInvocationContext,
     PrimaryExpressionContext,
+    ProgramContext,
 } from "../parser3/LPCParser";
 import {
     ScopedSymbol,
@@ -28,6 +29,7 @@ import {
 } from "../utils";
 import { VariableSymbol } from "../symbols/variableSymbol";
 import { MethodDeclarationSymbol, MethodSymbol } from "../symbols/methodSymbol";
+import { isInstanceOfIEvaluatableSymbol } from "../symbols/base";
 
 export class SemanticListener extends LPCParserListener {
     private seenSymbols = new Map<string, Token>();
@@ -38,6 +40,10 @@ export class SemanticListener extends LPCParserListener {
     ) {
         super();
     }
+
+    exitProgram = (ctx: ProgramContext) => {
+        this.evaluateProgram(this.symbolTable);
+    };
 
     exitIdentifierExpression = (ctx: IdentifierExpressionContext): void => {
         const id = ctx.Identifier();
@@ -133,6 +139,16 @@ export class SemanticListener extends LPCParserListener {
 
         this.evaluateFunction(symbol);
     };
+
+    evaluateProgram(progSymbol: ScopedSymbol) {
+        for (const child of progSymbol.children) {
+            if (isInstanceOfIEvaluatableSymbol(child)) {
+                child.eval();
+            } else {
+                throw "node not evaluable: " + child.name;
+            }
+        }
+    }
 
     evaluateFunction(fnSymbol: MethodSymbol) {
         fnSymbol.eval();

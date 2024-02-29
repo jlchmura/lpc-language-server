@@ -11,6 +11,7 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 //import { VariableSymbol } from "./backend/ContextSymbolTable";
 import { LpcFacade } from "./backend/facade";
 import { MethodSymbol } from "./symbols/methodSymbol";
+import { VariableSymbol } from "./symbols/variableSymbol";
 
 //import { LpcFacade } from "./backend/facade";
 
@@ -38,6 +39,14 @@ const v = tree.getAllNestedSymbolsSync("subFn");
 // trigger semantic analysis
 backend.getDiagnostics(filename);
 
-const len = m.length;
-console.log("done: " + len);
+const tbl = backend.getContext(filename).symbolTable;
+
+const varI = tbl.resolveSync("i") as VariableSymbol;
+const varS = tbl.resolveSync("t") as VariableSymbol;
+const finalValue = varI.value;
+const finalTValue = varS?.value;
+
+console.log("i", finalValue);
+console.log("t", finalTValue);
+
 const i = 0;

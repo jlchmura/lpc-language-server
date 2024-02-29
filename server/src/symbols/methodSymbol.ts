@@ -55,12 +55,6 @@ export class MethodSymbol
                 console.warn("Non eval symbol detected in method body", child);
             }
         }
-
-        const varI = this.resolveSync("i") as VariableSymbol;
-        const varS = this.resolveSync("t") as VariableSymbol;
-        const finalValue = varI.value;
-        const finalTValue = varS.value;
-        const i = 0;
     }
 
     public get kind() {

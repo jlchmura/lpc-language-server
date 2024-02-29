@@ -60,15 +60,28 @@ export class FunctionIdentifierSymbol
     }
 }
 
-export class ObjectSymbol extends ScopedSymbol {
+export class ObjectSymbol extends ScopedSymbol implements IEvaluatableSymbol {
     public isLoaded: boolean = false;
 
     constructor(
         name: string,
-        public filename: string,
-        public type: ObjectType
+        public filename?: string,
+        public type?: ObjectType
     ) {
         super(name);
+    }
+
+    eval() {
+        let filename = "";
+        for (const child of this.children) {
+            if (isInstanceOfIEvaluatableSymbol(child)) {
+                filename = child.eval(filename);
+            } else {
+                throw "not evaluable";
+            }
+        }
+        filename = "obj:" + filename;
+        return (this.filename = filename);
     }
 }
 
