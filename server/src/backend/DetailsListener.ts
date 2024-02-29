@@ -10,8 +10,6 @@ import {
 } from "antlr4-c3";
 import { LPCParserListener } from "../parser3/LPCParserListener";
 import {
-    ArgumentSymbol,
-    AssignmentSymbol,
     BlockSymbol,
     IdentifierSymbol,
     IncludeSymbol,
@@ -21,7 +19,6 @@ import {
     ObjectSymbol,
     ObjectType,
     OperatorSymbol,
-    VariableSymbol,
 } from "../symbols/Symbol";
 import {
     ArrayExpressionContext,
@@ -51,6 +48,8 @@ import { ParseTree, TerminalNode } from "antlr4ng";
 import { LPCLexer } from "../parser3/LPCLexer";
 import { LpcFacade } from "./facade";
 import { ContextSymbolTable } from "./ContextSymbolTable";
+import { VariableSymbol } from "../symbols/variableSymbol";
+import { AssignmentSymbol } from "../symbols/assignmentSymbol";
 
 export class DetailsListener extends LPCParserListener {
     private symbolStack: BaseSymbol[] = [];

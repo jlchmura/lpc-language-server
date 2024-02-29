@@ -1,7 +1,13 @@
 import { ParserRuleContext } from "antlr4ng";
 import { Position, Range } from "vscode-languageserver";
 import { ILexicalRange } from "./types";
-import { TypedSymbol } from "antlr4-c3";
+import {
+    BaseSymbol,
+    IScopedSymbol,
+    TypedSymbol,
+    SymbolConstructor,
+} from "antlr4-c3";
+import { ContextSymbolTable } from "./backend/ContextSymbolTable";
 
 export function getSelectionRange(ctx: ParserRuleContext): Range {
     const start = ctx.start;
@@ -61,15 +67,52 @@ export function areSetsEqual<T>(set1: Set<T>, set2: Set<T>): boolean {
     return true;
 }
 
-
-export function areTwoParameterArraysEqual<T extends TypedSymbol>(arr1: T[], arr2: T[]): boolean {
+export function areTwoParameterArraysEqual<T extends TypedSymbol>(
+    arr1: T[],
+    arr2: T[]
+): boolean {
     if (arr1.length !== arr2.length) {
         return false;
     }
     for (let i = 0; i < arr1.length; i++) {
-        if (arr1[i].name !== arr2[i].name || arr1[i].type?.name !== arr2[i].type?.name) {
+        if (
+            arr1[i].name !== arr2[i].name ||
+            arr1[i].type?.name !== arr2[i].type?.name
+        ) {
             return false;
         }
     }
     return true;
+}
+
+export function resolveOfTypeSync<T extends BaseSymbol, Args extends unknown[]>(
+    scope: IScopedSymbol,
+    name: string,
+    t: SymbolConstructor<T, Args>,
+    localOnly: boolean = false
+): T {
+    for (const child of scope.children) {
+        if (child.name === name && child instanceof t) {
+            return child;
+        }
+    }
+
+    if (!localOnly) {
+        if (scope.parent) {
+            return resolveOfTypeSync(scope.parent, name, t, localOnly);
+        }
+    }
+
+    if (!localOnly) {
+        for (const dependency of (
+            scope as ContextSymbolTable
+        ).getDependencies()) {
+            const result = resolveOfTypeSync(dependency, name, t, localOnly);
+            if (!!result) {
+                return result;
+            }
+        }
+    }
+
+    return undefined;
 }

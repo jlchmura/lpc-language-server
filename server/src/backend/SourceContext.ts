@@ -46,25 +46,29 @@ import {
     ParameterSymbol,
     ScopedSymbol,
     FundamentalType,
+    VariableSymbol as VariableSymbolBase,
 } from "antlr4-c3";
 import { DetailsListener } from "./DetailsListener";
 import { BackendUtils } from "./BackendUtils";
 import { LpcFacade } from "./facade";
 import {
-    DefineSymbol,
     EfunSymbol,
     MethodSymbol,
-    VariableSymbol,
-    IFoldableSymbol,
-    VariableIdentifierSymbol,
-    resolveOfTypeSync,
     FunctionIdentifierSymbol,
     MethodDeclarationSymbol,
-    isInstanceOfIKindSymbol,
 } from "../symbols/Symbol";
 import { DetailsVisitor } from "./DetailsVisitor";
 import { FoldingRange } from "vscode-languageserver";
-import { lexRangeFromContext as lexRangeFromContext } from "../utils";
+import {
+    lexRangeFromContext as lexRangeFromContext,
+    resolveOfTypeSync,
+} from "../utils";
+import { IFoldableSymbol, isInstanceOfIKindSymbol } from "../symbols/base";
+import { DefineSymbol } from "../symbols/defineSymbol";
+import {
+    VariableIdentifierSymbol,
+    VariableSymbol,
+} from "../symbols/variableSymbol";
 
 type EfunArgument = {
     name: string;

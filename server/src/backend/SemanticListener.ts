@@ -25,10 +25,13 @@ import {
     IdentifierSymbol,
     MethodDeclarationSymbol,
     MethodSymbol,
-    VariableSymbol,
-    resolveOfTypeSync,
 } from "../symbols/Symbol";
-import { areSetsEqual, areTwoParameterArraysEqual } from "../utils";
+import {
+    areSetsEqual,
+    areTwoParameterArraysEqual,
+    resolveOfTypeSync,
+} from "../utils";
+import { VariableSymbol } from "../symbols/variableSymbol";
 
 export class SemanticListener extends LPCParserListener {
     private seenSymbols = new Map<string, Token>();

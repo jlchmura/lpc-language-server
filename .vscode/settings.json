@@ -4,7 +4,7 @@
         "client/out": true,
         "server/node_modules": true,
         "server/out": true,
-        "out": true,
+        "out": true
     },
     "editor.formatOnSave": true
 }

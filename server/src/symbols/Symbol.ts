@@ -8,7 +8,6 @@ import {
     TypeKind,
     ReferenceKind,
     SymbolConstructor,
-    SymbolTable,
     IScopedSymbol,
 } from "antlr4-c3";
 import { SymbolKind } from "../types";
@@ -16,57 +15,20 @@ import * as vscodelang from "vscode-languageserver";
 import { ContextSymbolTable } from "../backend/ContextSymbolTable";
 import {
     AssignmentExpressionContext,
-    DefinePreprocessorDirectiveContext,
     IdentifierExpressionContext,
     IncludeDirectiveContext,
     InheritStatementContext,
 } from "../parser3/LPCParser";
-import { ParseTree, ParserRuleContext } from "antlr4ng";
-
-export type EvalScope = Map<string, any>;
-
-export function getSymbolsOfTypeSync<
-    T extends BaseSymbol,
-    Args extends unknown[]
->(symbol: ScopedSymbol, t: SymbolConstructor<T, Args>): T[] {
-    return symbol.children.filter((s) => s instanceof t) as T[];
-}
-
-export interface IFoldableSymbol extends BaseSymbol {
-    foldingRange: vscodelang.FoldingRange;
-}
-export interface IHasValue extends BaseSymbol {
-    setValue(value: any);
-    getValue(value: any);
-}
-
-export interface IEvaluatableSymbol extends BaseSymbol {
-    eval(scope?: any): any;
-}
-export function isInstanceOfIEvaluatableSymbol(
-    symbol: BaseSymbol
-): symbol is IEvaluatableSymbol {
-    return (symbol as unknown as IEvaluatableSymbol).eval !== undefined;
-}
-
-export interface IKindSymbol extends BaseSymbol {
-    kind: SymbolKind;
-}
-export function isInstanceOfIKindSymbol(
-    symbol: BaseSymbol
-): symbol is IKindSymbol {
-    return (symbol as unknown as IKindSymbol).kind !== undefined;
-}
-
-class LpcBaseSymbol<C extends ParseTree = ParseTree>
-    extends BaseSymbol
-    implements IKindSymbol
-{
-    public get kind() {
-        return SymbolKind.Unknown;
-    }
-    override context: C;
-}
+import {
+    EvalScope,
+    IEvaluatableSymbol,
+    IFoldableSymbol,
+    IKindSymbol,
+    LpcBaseSymbol,
+    getSymbolsOfTypeSync,
+    isInstanceOfIEvaluatableSymbol,
+} from "./base";
+import { VariableSymbol } from "./variableSymbol";
 
 export class IdentifierSymbol extends LpcBaseSymbol<IdentifierExpressionContext> {
     public get kind() {
@@ -167,28 +129,6 @@ export class FunctionIdentifierSymbol
     }
 }
 
-/**
- * Represents an identifier symbol that refers back to a variable declared
- * in this or a parent scope.
- */
-export class VariableIdentifierSymbol
-    extends IdentifierSymbol
-    implements IEvaluatableSymbol
-{
-    eval() {
-        const def = this.findDeclaration() as IEvaluatableSymbol;
-        return def?.eval();
-    }
-    public findDeclaration() {
-        let defSymbol: BaseSymbol = resolveOfTypeSync(
-            this.parent,
-            this.name,
-            VariableSymbol
-        );
-        defSymbol ??= resolveOfTypeSync(this.parent, this.name, DefineSymbol);
-        return defSymbol;
-    }
-}
 export class ObjectSymbol extends ScopedSymbol {
     public isLoaded: boolean = false;
 
@@ -200,94 +140,13 @@ export class ObjectSymbol extends ScopedSymbol {
         super(name);
     }
 }
-export class DefineSymbol
-    extends BaseSymbol
-    implements IEvaluatableSymbol, IKindSymbol
-{
-    public get kind() {
-        return SymbolKind.Define;
-    }
 
-    constructor(name: string, public value: any) {
-        super(name);
-    }
-
-    eval() {
-        return this.value;
-    }
-}
-export class VariableSymbol
-    extends TypedSymbol
-    implements IKindSymbol, IEvaluatableSymbol
-{
-    public value: any;
-
-    constructor(name: string, type: IType) {
-        super(name, type);
-    }
-
-    eval(scope?: any) {
-        if (!!scope) this.value = scope;
-        return this.value;
-    }
-
-    public get kind() {
-        return SymbolKind.Variable;
-    }
-}
 export class OperatorSymbol extends LpcBaseSymbol {
     public get kind() {
         return SymbolKind.Operator;
     }
 }
-export class AssignmentSymbol
-    extends ScopedSymbol
-    implements IEvaluatableSymbol
-{
-    public get lhs() {
-        const lhsCtx = (
-            this.context as AssignmentExpressionContext
-        ).conditionalExpressionBase();
-        return this.symbolTable.symbolWithContextSync(
-            lhsCtx
-        ) as IEvaluatableSymbol;
-    }
 
-    public get rhs() {
-        const rhsCtx = (
-            this.context as AssignmentExpressionContext
-        ).expression();
-        return this.symbolTable.symbolWithContextSync(
-            rhsCtx
-        ) as IEvaluatableSymbol;
-    }
-
-    constructor(name: string, public operator: string) {
-        super(name);
-    }
-
-    eval(scope: any) {
-        const lh = this.lhs;
-        const rhResult = this.rhs.eval(scope);
-
-        // lh should really only be one of these two
-        if (
-            lh instanceof VariableSymbol ||
-            lh instanceof VariableIdentifierSymbol
-        ) {
-            switch (this.operator) {
-                case "=":
-                    return lh.eval(rhResult);
-                case "+=":
-                    return lh.eval(lh.eval() + rhResult);
-                case "-=":
-                    return lh.eval(lh.eval() - rhResult);
-            }
-        } else {
-            console.warn("Assignment to non-variable", lh);
-        }
-    }
-}
 export class BlockSymbol extends ScopedSymbol {}
 export class LiteralSymbol
     extends TypedSymbol
@@ -462,36 +321,4 @@ export class ObjectType extends BaseSymbol implements IType {
     public get reference(): ReferenceKind {
         return ReferenceKind.Instance;
     }
-}
-
-export function resolveOfTypeSync<T extends BaseSymbol, Args extends unknown[]>(
-    scope: IScopedSymbol,
-    name: string,
-    t: SymbolConstructor<T, Args>,
-    localOnly: boolean = false
-): T {
-    for (const child of scope.children) {
-        if (child.name === name && child instanceof t) {
-            return child;
-        }
-    }
-
-    if (!localOnly) {
-        if (scope.parent) {
-            return resolveOfTypeSync(scope.parent, name, t, localOnly);
-        }
-    }
-
-    if (!localOnly) {
-        for (const dependency of (
-            scope as ContextSymbolTable
-        ).getDependencies()) {
-            const result = resolveOfTypeSync(dependency, name, t, localOnly);
-            if (!!result) {
-                return result;
-            }
-        }
-    }
-
-    return undefined;
 }

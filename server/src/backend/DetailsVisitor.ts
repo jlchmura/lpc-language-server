@@ -33,8 +33,6 @@ import {
 } from "../parser3/LPCParser";
 
 import {
-    AssignmentSymbol,
-    DefineSymbol,
     ExpressionSymbol,
     FunctionIdentifierSymbol,
     IdentifierSymbol,
@@ -48,12 +46,16 @@ import {
     OperatorSymbol,
     PreprocessorSymbol,
     SelectionSymbol,
-    VariableIdentifierSymbol,
-    VariableSymbol,
 } from "../symbols/Symbol";
 import { FoldingRange } from "vscode-languageserver";
 import { typeNameToIType } from "../types";
 import { LPCLexer } from "../parser3/LPCLexer";
+import {
+    VariableIdentifierSymbol,
+    VariableSymbol,
+} from "../symbols/variableSymbol";
+import { DefineSymbol } from "../symbols/defineSymbol";
+import { AssignmentSymbol } from "../symbols/assignmentSymbol";
 
 export class DetailsVisitor
     extends AbstractParseTreeVisitor<SymbolTable>
