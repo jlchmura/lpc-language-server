@@ -1,4 +1,5 @@
 import {
+    ArrayType,
     FundamentalType,
     IType,
     ReferenceKind,
@@ -79,6 +80,8 @@ export interface ISymbolInfo {
 
 // prettier-ignore
 export namespace LpcTypes {    
+    export const objectType: IType = new FundamentalType("object", TypeKind.Class);
     export const voidType: IType = new FundamentalType("void", TypeKind.Unknown);
-    export const mixedType: IType = new FundamentalType("mixed", TypeKind.Unknown);     
+    export const mixedType: IType = new FundamentalType("mixed", TypeKind.Unknown);
+    export const mixedArrayType: IType = new ArrayType("mixed *", ReferenceKind.Instance, LpcTypes.mixedType);
 }

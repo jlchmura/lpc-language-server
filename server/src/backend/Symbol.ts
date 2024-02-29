@@ -134,6 +134,7 @@ const symbolDescriptionMap = new Map<SymbolKind, string>([
     [SymbolKind.Define, "Define"],
     [SymbolKind.Inherit, "Inherit"],
     [SymbolKind.InlineClosure, "Inline Closure Callback"],
+    [SymbolKind.Efun, "Efun"],
 ]);
 
 const symbolCodeTypeMap = new Map<SymbolKind, vscodelang.SymbolKind>([

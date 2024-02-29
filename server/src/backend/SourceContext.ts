@@ -17,7 +17,11 @@ import { LPCLexer } from "../parser3/LPCLexer";
 import {
     FunctionDeclarationContext,
     LPCParser,
+    PrimitiveTypeVariableDeclarationContext,
     ProgramContext,
+    StructVariableDeclarationContext,
+    VariableDeclarationContext,
+    VariableDeclaratorContext,
 } from "../parser3/LPCParser";
 import * as path from "path";
 import {
@@ -64,6 +68,7 @@ import {
 } from "./Symbol";
 import { DetailsVisitor } from "./DetailsVisitor";
 import { FoldingRange } from "vscode-languageserver";
+import { lexRangeFromContext as lexRangeFromContext } from "../utils";
 
 type EfunArgument = {
     name: string;
@@ -129,9 +134,9 @@ export class SourceContext {
         const sizeOfEfun = SourceContext.globalSymbols.resolveSync("sizeof");
         if (!sizeOfEfun) {
             // add built-in efuns here
-            this.addEfun("abs", undefined, { name: "number" });
-            this.addEfun("clone_object", undefined, { name: "name" });
-            this.addEfun("map", undefined, { name: "arr" }, { name: "func" });
+            this.addEfun("abs", FundamentalType.integerType, { name: "number" });
+            this.addEfun("clone_object", LpcTypes.objectType, { name: "name", type: FundamentalType.stringType });
+            this.addEfun("map", LpcTypes.mixedArrayType, { name: "arg", type: LpcTypes.mixedArrayType }, { name: "func", type: FundamentalType.stringType });
             this.addEfun("sizeof", FundamentalType.integerType, { name: "val", type: LpcTypes.mixedType });
             this.addEfun("write", LpcTypes.voidType, { name: "msg", type: LpcTypes.mixedType })
         }
@@ -154,7 +159,8 @@ export class SourceContext {
         const symb = SourceContext.globalSymbols.addNewSymbolOfType(
             EfunSymbol,
             undefined,
-            name
+            name,
+            returnType
         );
         args.forEach((arg) => {
             SourceContext.globalSymbols.addNewSymbolOfType(
@@ -339,10 +345,8 @@ export class SourceContext {
         ctx: ParseTree | undefined,
         keepQuotes: boolean
     ): IDefinition | undefined {
-        if (!ctx) {
-            return undefined;
-        }
-
+        if (!ctx) return undefined;
+                
         const result: IDefinition = {
             text: "",
             range: {
@@ -351,31 +355,37 @@ export class SourceContext {
             },
         };
 
+        if (ctx instanceof TerminalNode) {
+            ctx = ctx.parent;
+        }
+
         if (ctx instanceof ParserRuleContext) {
             let start = ctx.start!.start;
             let stop = ctx.stop!.stop;
-
-            result.range.start.column = ctx.start!.column;
-            result.range.start.row = ctx.start!.line;
-            result.range.end.column = ctx.stop!.column;
-            result.range.end.row = ctx.stop!.line;
-
-            // For mode definitions we only need the init line, not all the lexer rules following it.
-            // if (ctx.ruleIndex === LPCParser.RULE_functionDeclaration) {
-            //     const funSpec = ctx as FunctionDeclarationContext;
-            //     const endSym = funSpec.functionHeader().PAREN_CLOSE().symbol;
-            //     stop = endSym.stop;
-            //     result.range.end.column = endSym.column;
-            //     result.range.end.row = endSym.line;
-            // }
-            // if (ctx.ruleIndex === LPCParser.RULE_functionDeclaration) {
-            //     const funSpec = ctx as FunctionDeclarationContext;
-            //     const endSym = funSpec.block().CURLY_OPEN().symbol;
-            //     stop = endSym.stop;
-            //     result.range.end.column = endSym.column;
-            //     result.range.end.row = endSym.line;
-            // }
-
+            
+            if (ctx instanceof FunctionDeclarationContext) {
+                // function only needs the function header
+                const funHeader = ctx.functionHeader();
+                start = funHeader.start!.start;
+                stop = funHeader.stop!.stop;                
+            } else if (ctx instanceof VariableDeclaratorContext) {
+                // varialbes need a little reconstruction since a declarator can have multiple variables
+                const name = ctx._variableName.text;
+                let type:string,mods:string;
+                if (ctx.parent instanceof PrimitiveTypeVariableDeclarationContext) {
+                    type = ctx.parent.primitiveTypeSpecifier()?.getText();
+                    mods = ctx.parent.variableModifier()?.map((m) => m.getText()).join(" ");
+                } else if (ctx.parent instanceof StructVariableDeclarationContext) {
+                    type = "struct";
+                    mods = ctx.parent.variableModifier()?.map((m) => m.getText()).join(" ");
+                }
+                
+                result.text = [mods,type,name].filter((s) => s.length > 0).join(" ");                
+            }
+            
+            result.range = lexRangeFromContext(ctx);            
+            
+            if (!result.text) {
             const inputStream = ctx.start?.tokenSource?.inputStream;
             if (inputStream) {
                 try {
@@ -386,7 +396,7 @@ export class SourceContext {
                     // A context with such a large size is probably an error case anyway (unfinished multi line comment
                     // or unfinished action).
                 }
-            }
+            }}
         } else if (ctx instanceof TerminalNode) {
             result.text = ctx.getText();
 
@@ -444,24 +454,8 @@ export class SourceContext {
         }
 
         let parent = terminal.parent as RuleContext;
-        // if (parent.ruleIndex === LPCParser.RULE_primaryExpressionStart) {
-        //     parent = (parent.parent as RuleContext);
-        // }
-
-        switch (parent.ruleIndex) {
-            // case ANTLRv4Parser.RULE_ruleref:
-            // case ANTLRv4Parser.RULE_terminalDef: {
-            //     let symbol = this.symbolTable.symbolContainingContext(terminal);
-            //     if (symbol) {
-            //         // This is only the reference to a symbol. See if that symbol exists actually.
-            //         symbol = this.resolveSymbol(symbol.name);
-            //         if (symbol) {
-            //             return this.getSymbolInfo(symbol);
-            //         }
-            //     }
-
-            //     break;
-            // }
+        
+        switch (parent.ruleIndex) {        
             case LPCParser.RULE_assignmentExpression:
             case LPCParser.RULE_primaryExpression:
             case LPCParser.RULE_primaryExpressionStart:
@@ -475,6 +469,7 @@ export class SourceContext {
                     symbol ??= resolveOfTypeSync(searchScope, name, DefineSymbol);                    
                 } else if (symbol instanceof FunctionIdentifierSymbol) {
                     symbol = resolveOfTypeSync(this.symbolTable, name, MethodSymbol);
+                    symbol ??= resolveOfTypeSync(this.symbolTable, name, EfunSymbol);
                 } else {
                     symbol = searchScope.resolveSync(symbol.name, false);
                 }

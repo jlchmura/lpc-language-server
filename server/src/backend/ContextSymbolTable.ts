@@ -190,10 +190,32 @@ export class ContextSymbolTable extends SymbolTable {
 
         // Special handling for certain symbols.
         switch (kind) {
-            case SymbolKind.Variable:
-                
+            case SymbolKind.Efun:
+                const efun = symbol as EfunSymbol;
+                return {
+                    kind,
+                    name,
+                    source: "Driver efun",
+                    definition: {
+                        text: `${efun.returnType?.name ?? ""} ${
+                            efun.name
+                        }(${efun
+                            .getParametersSync()
+                            .map((p) => p.name)
+                            .join(", ")
+                            .trim()})`,
+                        range: {
+                            start: { column: 0, row: 0 },
+                            end: { column: 0, row: 0 },
+                        },
+                    },
+                    description: undefined,
+                    children: [],
+                };
                 break;
-            case SymbolKind.Include: 
+            case SymbolKind.Variable:
+                break;
+            case SymbolKind.Include:
                 // Get the source id from a dependent module.
                 this.dependencies.forEach((table: ContextSymbolTable) => {
                     if (table.owner && table.owner.sourceId.includes(name)) {
@@ -211,10 +233,9 @@ export class ContextSymbolTable extends SymbolTable {
                 });
 
                 break;
-            
 
-            case SymbolKind.Terminal: 
-                // These are references to a depending grammar.
+            case SymbolKind.Terminal:
+                // These are references to a depending something.
                 this.dependencies.forEach((table: ContextSymbolTable) => {
                     const actualSymbol = table.resolveSync(name);
                     if (actualSymbol) {
@@ -224,21 +245,20 @@ export class ContextSymbolTable extends SymbolTable {
                 });
 
                 break;
-            
 
-            default: 
+            default:
                 break;
-            
         }
 
         const symbolTable = symbol.symbolTable as ContextSymbolTable;
-
         return {
             kind,
             name,
             source:
                 symbol.context && symbolTable && symbolTable.owner
-                    ? symbolTable.owner.fileName
+                    ? `${symbolTable.owner.fileName}:${
+                          (symbol.context as ParserRuleContext)?.start?.line
+                      }`
                     : "LDMud Built-In",
             definition: SourceContext.definitionForContext(
                 symbol.context,
@@ -275,14 +295,18 @@ export class ContextSymbolTable extends SymbolTable {
                 );
             }
 
+            const definition = SourceContext.definitionForContext(
+                symbol.context,
+                true
+            );
+
             result.push({
                 kind: SourceContext.getKindFromSymbol(symbol),
                 name: symbol.name,
-                source: root.owner ? root.owner.fileName : "LDMud Built-In",
-                definition: SourceContext.definitionForContext(
-                    symbol.context,
-                    true
-                ),
+                source: root.owner
+                    ? `${root.owner.fileName}:${definition.range.start}`
+                    : "Driver efun",
+                definition: definition,
                 description: undefined,
                 children: children,
             });
@@ -408,7 +432,10 @@ export class ContextSymbolTable extends SymbolTable {
         }
     }
 
-    public getSymbolOccurrences(symbolName: string, localOnly: boolean): ISymbolInfo[] {
+    public getSymbolOccurrences(
+        symbolName: string,
+        localOnly: boolean
+    ): ISymbolInfo[] {
         const result: ISymbolInfo[] = [];
 
         const symbols = this.getAllSymbolsSync(BaseSymbol, localOnly);
@@ -419,28 +446,37 @@ export class ContextSymbolTable extends SymbolTable {
                 if (symbol.context && symbol.name === symbolName) {
                     let context = symbol.context;
                     if (symbol instanceof MethodSymbol) {
-                        context = (symbol.context as ParserRuleContext).children![0];
+                        context = (symbol.context as ParserRuleContext)
+                            .children![0];
                     } else if (symbol instanceof VariableSymbol) {
-                        context = (symbol.context as ParserRuleContext).children![0];
+                        context = (symbol.context as ParserRuleContext)
+                            .children![0];
                     }
 
                     result.push({
                         kind: SourceContext.getKindFromSymbol(symbol),
                         name: symbolName,
                         source: owner.fileName,
-                        definition: SourceContext.definitionForContext(context, true),
+                        definition: SourceContext.definitionForContext(
+                            context,
+                            true
+                        ),
                         description: undefined,
                     });
                 }
 
                 if (symbol instanceof ScopedSymbol) {
-                    const references = symbol.getAllNestedSymbolsSync(symbolName);
+                    const references =
+                        symbol.getAllNestedSymbolsSync(symbolName);
                     for (const reference of references) {
                         result.push({
                             kind: SourceContext.getKindFromSymbol(reference),
                             name: symbolName,
                             source: owner.fileName,
-                            definition: SourceContext.definitionForContext(reference.context, true),
+                            definition: SourceContext.definitionForContext(
+                                reference.context,
+                                true
+                            ),
                             description: undefined,
                         });
                     }
