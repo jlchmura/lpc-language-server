@@ -27,6 +27,7 @@ import {
     ISymbolInfo,
     IDefinition,
     SymbolKind,
+    LpcTypes,
 } from "../types";
 import { ContextErrorListener } from "./ContextErrorListener";
 import { ContextLexerErrorListener } from "./ContextLexerErrorListener";
@@ -40,6 +41,7 @@ import {
     MethodSymbol as BaseMethodSymbol,
     ParameterSymbol,
     ScopedSymbol,
+    FundamentalType,
 } from "antlr4-c3";
 import { DetailsListener } from "./DetailsListener";
 import { BackendUtils } from "./BackendUtils";
@@ -130,7 +132,8 @@ export class SourceContext {
             this.addEfun("abs", undefined, { name: "number" });
             this.addEfun("clone_object", undefined, { name: "name" });
             this.addEfun("map", undefined, { name: "arr" }, { name: "func" });
-            this.addEfun("sizeof", undefined, { name: "val" });
+            this.addEfun("sizeof", FundamentalType.integerType, { name: "val", type: LpcTypes.mixedType });
+            this.addEfun("write", LpcTypes.voidType, { name: "msg", type: LpcTypes.mixedType })
         }
 
         this.lexer = new LPCLexer(CharStreams.fromString(""));

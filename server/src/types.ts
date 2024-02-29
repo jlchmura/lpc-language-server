@@ -1,4 +1,11 @@
-import { IType, ScopedSymbol, TypedSymbol } from "antlr4-c3";
+import {
+    FundamentalType,
+    IType,
+    ReferenceKind,
+    ScopedSymbol,
+    TypeKind,
+    TypedSymbol,
+} from "antlr4-c3";
 
 export enum DiagnosticType {
     Hint,
@@ -34,7 +41,6 @@ export interface IContextDetails {
 
 export enum SymbolKind {
     Unknown,
-
     Terminal,
     Keyword,
     Include,
@@ -69,4 +75,10 @@ export interface ISymbolInfo {
 
     /** Used for code completion. Provides a small description for certain symbols. */
     description?: string;
+}
+
+// prettier-ignore
+export namespace LpcTypes {    
+    export const voidType: IType = new FundamentalType("void", TypeKind.Unknown);
+    export const mixedType: IType = new FundamentalType("mixed", TypeKind.Unknown);     
 }
