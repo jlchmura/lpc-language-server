@@ -6,5 +6,8 @@
         "server/out": true,
         "out": true
     },
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "[antlr]": {
+        "editor.formatOnSave": false
+    }
 }

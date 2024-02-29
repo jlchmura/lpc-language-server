@@ -6,7 +6,7 @@ import {
     isInstanceOfIEvaluatableSymbol,
 } from "./base";
 import { SymbolKind } from "../types";
-import { ExpressionSymbol, IdentifierSymbol } from "./Symbol";
+import { IdentifierSymbol } from "./Symbol";
 import { resolveOfTypeSync } from "../utils";
 import { DefineSymbol } from "./defineSymbol";
 import { VariableDeclaratorContext } from "../parser3/LPCParser";
@@ -15,7 +15,7 @@ export class VariableSymbol
     extends TypedSymbol
     implements IKindSymbol, IEvaluatableSymbol
 {
-    public value: any;
+    public value: any = 0;
 
     constructor(name: string, type: IType) {
         super(name, type);
@@ -39,9 +39,9 @@ export class VariableIdentifierSymbol
     extends IdentifierSymbol
     implements IEvaluatableSymbol
 {
-    eval() {
+    eval(scope?: any) {
         const def = this.findDeclaration() as IEvaluatableSymbol;
-        return def?.eval();
+        return def?.eval(scope);
     }
     public findDeclaration() {
         let defSymbol: BaseSymbol = resolveOfTypeSync(

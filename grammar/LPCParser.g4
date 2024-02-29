@@ -359,7 +359,7 @@ conditionalExpressionBase
     | conditionalExpressionBase ((EQ | NE) conditionalExpressionBase)+ #equalityExpression
     | conditionalExpressionBase ((LT | GT | LE | GE) conditionalExpressionBase)+ #relationalExpresion
     | conditionalExpressionBase ((SHL | SHR) conditionalExpressionBase)+ #shiftExpression
-    | conditionalExpressionBase ((PLUS | MINUS) conditionalExpressionBase)+ #additiveExpression
+    | conditionalExpressionBase (op=(PLUS | MINUS) conditionalExpressionBase)+ #additiveExpression
     | conditionalExpressionBase ((STAR | DIV | MOD) conditionalExpressionBase)+ #multiplicativeExpression
     | unaryExpression? DOUBLEDOT unaryExpression? #rangeExpression
     ;    

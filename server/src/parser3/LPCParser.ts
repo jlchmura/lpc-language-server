@@ -4107,9 +4107,10 @@ export class LPCParser extends antlr.Parser {
                                 {
                                 {
                                 this.state = 835;
+                                (localContext as AdditiveExpressionContext)._op = this.tokenStream.LT(1);
                                 _la = this.tokenStream.LA(1);
                                 if(!(_la === 54 || _la === 55)) {
-                                this.errorHandler.recoverInline(this);
+                                    (localContext as AdditiveExpressionContext)._op = this.errorHandler.recoverInline(this);
                                 }
                                 else {
                                     this.errorHandler.reportMatch(this);
@@ -8413,6 +8414,7 @@ export class ShiftExpressionContext extends ConditionalExpressionBaseContext {
     }
 }
 export class AdditiveExpressionContext extends ConditionalExpressionBaseContext {
+    public _op?: Token | null;
     public constructor(ctx: ConditionalExpressionBaseContext) {
         super(ctx.parent, ctx.invokingState);
         super.copyFrom(ctx);

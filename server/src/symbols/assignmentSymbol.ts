@@ -9,21 +9,23 @@ export class AssignmentSymbol
     implements IEvaluatableSymbol
 {
     public get lhs() {
-        const lhsCtx = (
-            this.context as AssignmentExpressionContext
-        ).conditionalExpressionBase();
-        return this.symbolTable.symbolWithContextSync(
-            lhsCtx
-        ) as IEvaluatableSymbol;
+        return this.children[0] as IEvaluatableSymbol;
+        // const lhsCtx = (
+        //     this.context as AssignmentExpressionContext
+        // ).conditionalExpressionBase();
+        // return this.symbolTable.symbolWithContextSync(
+        //     lhsCtx
+        // ) as IEvaluatableSymbol;
     }
 
     public get rhs() {
-        const rhsCtx = (
-            this.context as AssignmentExpressionContext
-        ).expression();
-        return this.symbolTable.symbolWithContextSync(
-            rhsCtx
-        ) as IEvaluatableSymbol;
+        return this.children[1] as IEvaluatableSymbol;
+        // const rhsCtx = (
+        //     this.context as AssignmentExpressionContext
+        // ).expression();
+        // return this.symbolTable.symbolWithContextSync(
+        //     rhsCtx
+        // ) as IEvaluatableSymbol;
     }
 
     constructor(name: string, public operator: string) {
@@ -34,23 +36,15 @@ export class AssignmentSymbol
         const lh = this.lhs;
         const rhResult = this.rhs.eval(scope);
 
-        // lh should really only be one of these two
-        if (
-            lh instanceof VariableSymbol ||
-            lh instanceof VariableIdentifierSymbol
-        ) {
-            switch (this.operator) {
-                case "=":
-                    return lh.eval(rhResult);
-                case "+=":
-                    return lh.eval(lh.eval() + rhResult);
-                case "-=":
-                    return lh.eval(lh.eval() - rhResult);
-                default:
-                    throw "operator not supported";
-            }
-        } else {
-            console.warn("Assignment to non-variable", lh);
+        switch (this.operator) {
+            case "=":
+                return lh.eval(rhResult);
+            case "+=":
+                return lh.eval(lh.eval() + rhResult);
+            case "-=":
+                return lh.eval(lh.eval() - rhResult);
+            default:
+                throw "operator not supported";
         }
     }
 }

@@ -14,6 +14,7 @@ import {
 import { ContextSymbolTable } from "./ContextSymbolTable";
 import { LpcFacade } from "./facade";
 import {
+    AdditiveExpressionContext,
     AssignmentExpressionContext,
     ConditionalExpressionContext,
     DefinePreprocessorDirectiveContext,
@@ -25,6 +26,7 @@ import {
     IncludeDirectiveContext,
     InheritStatementContext,
     InlineClosureExpressionContext,
+    LiteralContext,
     ParameterListContext,
     PrimaryExpressionContext,
     PrimitiveTypeParameterExpressionContext,
@@ -33,12 +35,11 @@ import {
 } from "../parser3/LPCParser";
 
 import {
-    ExpressionSymbol,
     FunctionIdentifierSymbol,
-    IdentifierSymbol,
     IfSymbol,
     IncludeSymbol,
     InheritSymbol,
+    LiteralSymbol,
     OperatorSymbol,
     PreprocessorSymbol,
     SelectionSymbol,
@@ -59,6 +60,7 @@ import {
     MethodParameterSymbol,
     MethodSymbol,
 } from "../symbols/methodSymbol";
+import { ExpressionSymbol } from "../symbols/expressionSymbol";
 
 export class DetailsVisitor
     extends AbstractParseTreeVisitor<SymbolTable>
@@ -369,9 +371,14 @@ export class DetailsVisitor
         const rhsCtx = ctx.expression();
         const op = ctx.assignmentOperator().getText();
 
-        return this.withScope(ctx, AssignmentSymbol, [op], (s) => {
-            return this.visitChildren(ctx);
-        });
+        return this.withScope(
+            ctx,
+            AssignmentSymbol,
+            ["#assignment#", op],
+            (s) => {
+                return this.visitChildren(ctx);
+            }
+        );
     };
 
     visitExpression = (ctx: ExpressionContext) => {
@@ -391,34 +398,54 @@ export class DetailsVisitor
         );
     };
 
-    visitTerminal = (node: TerminalNode) => {
-        switch (node.symbol.type) {
-            case LPCLexer.PLUS:
-            case LPCLexer.MINUS:
-            case LPCLexer.STAR:
-            case LPCLexer.DIV:
-            case LPCLexer.MOD:
-            case LPCLexer.SHL:
-            case LPCLexer.SHR:
-            case LPCLexer.AND:
-            case LPCLexer.OR:
-            case LPCLexer.XOR:
-            case LPCLexer.NOT:
-            case LPCLexer.INC:
-            case LPCLexer.DEC:
-                this.addNewSymbol(OperatorSymbol, node, node.getText());
-                break;
-            // case LPCLexer.Identifier:
-            //     this.addNewSymbol(IdentifierSymbol, node, node.getText());
-            //     break;
-            default: {
-                // Ignore the rest.
-                break;
-            }
-        }
+    visitAdditiveExpression = (ctx: AdditiveExpressionContext) => {
+        const operator = ctx._op.text;
 
+        return this.withScope(ctx, OperatorSymbol, [operator], (s) => {
+            return this.visitChildren(ctx);
+        });
+    };
+
+    // prettier-ignore
+    visitLiteral = (ctx: LiteralContext) => {
+        if (!!ctx.IntegerConstant()) {
+            this.addNewSymbol(LiteralSymbol, ctx, "int", FundamentalType.integerType, +ctx.IntegerConstant().getText());
+        } else if (!!ctx.FloatingConstant()) {
+            this.addNewSymbol(LiteralSymbol, ctx, "float", FundamentalType.floatType, +ctx.FloatingConstant().getText());
+        } else if (!!ctx.StringLiteral()) {
+            this.addNewSymbol(LiteralSymbol, ctx, "string", FundamentalType.stringType, ctx.StringLiteral().getText());
+        }
         return undefined;
     };
+
+    // visitTerminal = (node: TerminalNode) => {
+    //     switch (node.symbol.type) {
+    //         case LPCLexer.PLUS:
+    //         case LPCLexer.MINUS:
+    //         case LPCLexer.STAR:
+    //         case LPCLexer.DIV:
+    //         case LPCLexer.MOD:
+    //         case LPCLexer.SHL:
+    //         case LPCLexer.SHR:
+    //         case LPCLexer.AND:
+    //         case LPCLexer.OR:
+    //         case LPCLexer.XOR:
+    //         case LPCLexer.NOT:
+    //         case LPCLexer.INC:
+    //         case LPCLexer.DEC:
+    //             this.addNewSymbol(OperatorSymbol, node, node.getText());
+    //             break;
+    //         // case LPCLexer.Identifier:
+    //         //     this.addNewSymbol(IdentifierSymbol, node, node.getText());
+    //         //     break;
+    //         default: {
+    //             // Ignore the rest.
+    //             break;
+    //         }
+    //     }
+
+    //     return undefined;
+    // };
 
     protected withScope<T, S extends ScopedSymbol>(
         tree: ParseTree,
