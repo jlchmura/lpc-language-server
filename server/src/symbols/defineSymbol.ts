@@ -1,6 +1,7 @@
 import { TypedSymbol, IType, BaseSymbol } from "antlr4-c3";
 import { IKindSymbol, IEvaluatableSymbol } from "./base";
 import { SymbolKind } from "../types";
+import { trimQuotes } from "../utils";
 
 export class DefineSymbol
     extends BaseSymbol
@@ -16,6 +17,20 @@ export class DefineSymbol
 
     eval(arg?: any) {
         // ignore incoming values, we're a constant
-        return this.value;
+
+        if (!isNaN(parseFloat(this.value)) && isFinite(Number(this.value))) {
+            if (this.value.includes(".")) {
+                // float
+                return +this.value;
+            } else {
+                // integer
+                return +this.value;
+            }
+        } else if ((this.value as string).startsWith('"')) {
+            // string
+            return trimQuotes(this.value);
+        } else {
+            // another define?  - resolve the symbol
+        }
     }
 }
