@@ -1,9 +1,15 @@
-import { TypedSymbol, IType, BaseSymbol } from "antlr4-c3";
-import { IKindSymbol, IEvaluatableSymbol } from "./base";
+import { TypedSymbol, IType, BaseSymbol, ScopedSymbol } from "antlr4-c3";
+import {
+    IKindSymbol,
+    IEvaluatableSymbol,
+    getSymbolsOfTypeSync,
+    isInstanceOfIEvaluatableSymbol,
+} from "./base";
 import { SymbolKind } from "../types";
 import { ExpressionSymbol, IdentifierSymbol } from "./Symbol";
 import { resolveOfTypeSync } from "../utils";
 import { DefineSymbol } from "./defineSymbol";
+import { VariableDeclaratorContext } from "../parser3/LPCParser";
 
 export class VariableSymbol
     extends TypedSymbol
@@ -45,5 +51,24 @@ export class VariableIdentifierSymbol
         );
         defSymbol ??= resolveOfTypeSync(this.parent, this.name, DefineSymbol);
         return defSymbol;
+    }
+}
+
+export class VariableInitializerSymbol
+    extends ScopedSymbol
+    implements IEvaluatableSymbol
+{
+    constructor(name: string, public variable: VariableSymbol) {
+        super(name);
+    }
+
+    eval(scope?: any) {
+        let evalResult: any = null;
+        this.children.forEach((child) => {
+            if (isInstanceOfIEvaluatableSymbol(child)) {
+                evalResult = child.eval(evalResult);
+            }
+        });
+        this.variable.eval(evalResult);
     }
 }

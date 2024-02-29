@@ -135,11 +135,7 @@ export class SemanticListener extends LPCParserListener {
     };
 
     evaluateFunction(fnSymbol: MethodSymbol) {
-        for (const child of fnSymbol.children) {
-            // evaluate symbols in this function and compute the value of any variables
-            if (child instanceof VariableSymbol) {
-            }
-        }
+        fnSymbol.eval();
     }
 
     exitMethodInvocation = (ctx: MethodInvocationContext) => {

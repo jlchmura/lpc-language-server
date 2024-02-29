@@ -48,6 +48,7 @@ import { typeNameToIType } from "../types";
 import { LPCLexer } from "../parser3/LPCLexer";
 import {
     VariableIdentifierSymbol,
+    VariableInitializerSymbol,
     VariableSymbol,
 } from "../symbols/variableSymbol";
 import { DefineSymbol } from "../symbols/defineSymbol";
@@ -171,18 +172,24 @@ export class DetailsVisitor
 
         const varDecls = ctx.variableDeclarator();
         varDecls.forEach((varDecl) => {
+            const nm = varDecl._variableName?.text;
             const varSym = this.addNewSymbol(
                 VariableSymbol,
                 varDecl.Identifier(),
-                varDecl._variableName?.text,
+                nm,
                 varType
             );
 
             const initCtx = varDecl.variableInitializer();
             if (!!initCtx) {
-                return this.withScope(initCtx, AssignmentSymbol, ["="], (s) => {
-                    return this.visitChildren(initCtx);
-                });
+                return this.withScope(
+                    initCtx,
+                    VariableInitializerSymbol,
+                    ["#initializer#" + nm, varSym],
+                    (s) => {
+                        return this.visitChildren(initCtx);
+                    }
+                );
             }
         });
 

@@ -35,6 +35,9 @@ const tree = ctxFile.symbolTable;
 const m = tree.getAllSymbolsSync(MethodSymbol, false);
 const v = tree.getAllNestedSymbolsSync("subFn");
 
+// trigger semantic analysis
+backend.getDiagnostics(filename);
+
 const len = m.length;
 console.log("done: " + len);
 const i = 0;
