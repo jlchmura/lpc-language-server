@@ -64,11 +64,11 @@ export class DetailsVisitor
         ctx: DefinePreprocessorDirectiveContext
     ) => {
         const tokenIdx = ctx.start.tokenIndex;
-        const defineStr = ctx.END_DEFINE()?.getText();
+        const defineStr = ctx.END_DEFINE()?.getText()?.trim();
 
         // trim everything after the first space
         const idx = defineStr.indexOf(" ");
-        const label = defineStr.substring(0, idx) + "_" + tokenIdx;
+        const label = defineStr.substring(0, idx);
 
         //this.scope.context = ctx; // store the context for later
         const sym = this.symbolTable.addNewSymbolOfType(
@@ -154,8 +154,13 @@ export class DetailsVisitor
         }
 
         const varDecls = ctx.variableDeclarator();
-        varDecls.forEach((varDecl) => {                 
-            this.addNewSymbol(VariableSymbol, varDecl.Identifier(), varDecl._variableName?.text, varType);            
+        varDecls.forEach((varDecl) => {
+            this.addNewSymbol(
+                VariableSymbol,
+                varDecl.Identifier(),
+                varDecl._variableName?.text,
+                varType
+            );
         });
 
         // const assigns = ctx.assignmentExpression();
@@ -227,67 +232,65 @@ export class DetailsVisitor
         const tokenIdx = ctx.start.tokenIndex;
         const name = "if_" + tokenIdx;
 
-        const ifSym = this.withScope(ctx, IfSymbol, [name], () => {
-            const scope = this.scope as IfSymbol;
+        const ifSymTbl = this.withScope(ctx, IfSymbol, [name], () => {
+            const ifSym = this.scope as IfSymbol;
 
             let i = 0;
             const ifExpCtx = ctx.ifExpression();
-            const ifExp = this.symbolTable.addNewSymbolOfType(
-                SelectionSymbol,
-                this.scope,
-                `if_${tokenIdx}_${i++}`,
-                "if",
-                FoldingRange.create(
+            this.withScope(ifExpCtx, SelectionSymbol, ["if", "if"], (s) => {
+                ifSym.if = s;
+                s.foldingRange = FoldingRange.create(
                     ifExpCtx.start.line - 1,
                     ifExpCtx.stop.line - 2,
                     ifExpCtx.start.column,
                     ifExpCtx.stop.column
-                )
-            );
-            ifExp.context = ifExpCtx;
-            scope.if = ifExp;
+                );
+                return this.visitChildren(ifExpCtx);
+            });
 
             const ifElseCtx = ctx.elseIfExpression() ?? [];
-            scope.elseIf = [];
+            ifSym.elseIf = [];
             ifElseCtx.forEach((e) => {
-                const elseIfExp = this.symbolTable.addNewSymbolOfType(
+                this.withScope(
+                    e,
                     SelectionSymbol,
-                    this.scope,
-                    `elseif_${tokenIdx}_${i++}`,
-                    "else if",
-                    FoldingRange.create(
-                        e.start.line - 1,
-                        e.stop.line - 2,
-                        e.start.column,
-                        e.stop.column
-                    )
+                    ["else if", "else if"],
+                    (s) => {
+                        ifSym.elseIf.push(s);
+                        s.foldingRange = FoldingRange.create(
+                            e.start.line - 1,
+                            e.stop.line - 2,
+                            e.start.column,
+                            e.stop.column
+                        );
+                        return this.visitChildren(e);
+                    }
                 );
-                elseIfExp.context = e;
-                scope.elseIf.push(elseIfExp);
             });
 
             const elseCtx = ctx.elseExpression();
             if (!!elseCtx) {
-                const elseExp = this.symbolTable.addNewSymbolOfType(
+                this.withScope(
+                    elseCtx,
                     SelectionSymbol,
-                    this.scope,
-                    `else_${tokenIdx}_${i++}`,
-                    "else",
-                    FoldingRange.create(
-                        elseCtx.start.line - 1,
-                        elseCtx.stop.line - 2,
-                        elseCtx.start.column,
-                        elseCtx.stop.column
-                    )
+                    ["else", "else"],
+                    (s) => {
+                        ifSym.else = s;
+                        s.foldingRange = FoldingRange.create(
+                            elseCtx.start.line - 1,
+                            elseCtx.stop.line - 2,
+                            elseCtx.start.column,
+                            elseCtx.stop.column
+                        );
+                        return this.visitChildren(elseCtx);
+                    }
                 );
-                elseExp.context = elseCtx;
-                scope.else = elseExp;
             }
 
             return this.visitChildren(ctx);
         });
 
-        return ifSym;
+        return ifSymTbl;
     };
 
     visitFunctionDeclaration = (ctx: FunctionDeclarationContext) => {
