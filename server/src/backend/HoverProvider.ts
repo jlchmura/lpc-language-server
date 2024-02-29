@@ -31,7 +31,7 @@ export class HoverProvider {
                 defPrefix = "";
             }
 
-            const filename = path.basename(info.source);
+            const sourceLine =`Source: \`${path.basename(info.source)}\`${!!info.line ? ":" + info.line : ""}`;
 
             const result: Hover = {
                 range: lexRangeToLspRange(definition?.range),
@@ -42,7 +42,7 @@ export class HoverProvider {
                         `${defPrefix}${definition?.text ?? ""}`,
                         "```",
                         "***",
-                        `Source: \`${path.basename(info.source)}\``
+                        sourceLine
                     ].join("\n"),
                 } as MarkupContent,
             };

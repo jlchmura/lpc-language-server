@@ -375,6 +375,7 @@ export class SourceContext {
                 if (ctx.parent instanceof PrimitiveTypeVariableDeclarationContext) {
                     type = ctx.parent.primitiveTypeSpecifier()?.getText();
                     mods = ctx.parent.variableModifier()?.map((m) => m.getText()).join(" ");
+                    if (!!ctx.STAR() && !!type) type += " *";
                 } else if (ctx.parent instanceof StructVariableDeclarationContext) {
                     type = "struct";
                     mods = ctx.parent.variableModifier()?.map((m) => m.getText()).join(" ");

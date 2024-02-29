@@ -191,6 +191,7 @@ export class ContextSymbolTable extends SymbolTable {
         // Special handling for certain symbols.
         switch (kind) {
             case SymbolKind.Efun:
+                // reconstruct the definition for efuns
                 const efun = symbol as EfunSymbol;
                 return {
                     kind,
@@ -256,10 +257,9 @@ export class ContextSymbolTable extends SymbolTable {
             name,
             source:
                 symbol.context && symbolTable && symbolTable.owner
-                    ? `${symbolTable.owner.fileName}:${
-                          (symbol.context as ParserRuleContext)?.start?.line
-                      }`
-                    : "LDMud Built-In",
+                    ? symbolTable.owner.fileName
+                    : "Driver efun",
+                line: (symbol.context as ParserRuleContext)?.start?.line,
             definition: SourceContext.definitionForContext(
                 symbol.context,
                 true

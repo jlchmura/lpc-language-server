@@ -71,6 +71,7 @@ export interface ISymbolInfo {
     kind: SymbolKind;
     name: string;
     source: string;
+    line?: number;
     definition?: IDefinition;
     children?: ISymbolInfo[];
 
