@@ -54,18 +54,13 @@ import {
     DefineSymbol,
     EfunSymbol,
     MethodSymbol,
-    IdentifierSymbol,
-    IncludeSymbol,
-    InheritSymbol,
-    OperatorSymbol,
     VariableSymbol,
     IFoldableSymbol,
-    InlineClosureSymbol,
-    symbolToKindMap,
     VariableIdentifierSymbol,
     resolveOfTypeSync,
     FunctionIdentifierSymbol,
     MethodDeclarationSymbol,
+    isInstanceOfIKindSymbol,
 } from "./Symbol";
 import { DetailsVisitor } from "./DetailsVisitor";
 import { FoldingRange } from "vscode-languageserver";
@@ -135,11 +130,33 @@ export class SourceContext {
         const sizeOfEfun = SourceContext.globalSymbols.resolveSync("sizeof");
         if (!sizeOfEfun) {
             // add built-in efuns here
-            this.addEfun("abs", FundamentalType.integerType, { name: "number" });
-            this.addEfun("clone_object", LpcTypes.objectType, { name: "name", type: FundamentalType.stringType });
-            this.addEfun("map", LpcTypes.mixedArrayType, { name: "arg", type: LpcTypes.mixedArrayType }, { name: "func", type: FundamentalType.stringType });
-            this.addEfun("sizeof", FundamentalType.integerType, { name: "val", type: LpcTypes.mixedType });
-            this.addEfun("write", LpcTypes.voidType, { name: "msg", type: LpcTypes.mixedType })
+            this.addEfun("abs", FundamentalType.integerType, {
+                name: "number",
+            });
+            this.addEfun("clone_object", LpcTypes.objectType, {
+                name: "name",
+                type: FundamentalType.stringType,
+            });
+            this.addEfun(
+                "map",
+                LpcTypes.mixedArrayType,
+                { name: "arg", type: LpcTypes.mixedArrayType },
+                { name: "func", type: FundamentalType.stringType }
+            );
+            this.addEfun(
+                "present",
+                LpcTypes.objectType,
+                { name: "str", type: FundamentalType.stringType },
+                { name: "env", type: LpcTypes.objectType }
+            );
+            this.addEfun("sizeof", FundamentalType.integerType, {
+                name: "val",
+                type: LpcTypes.mixedType,
+            });
+            this.addEfun("write", LpcTypes.voidType, {
+                name: "msg",
+                type: LpcTypes.mixedType,
+            });
         }
 
         this.lexer = new LPCLexer(CharStreams.fromString(""));
@@ -330,10 +347,10 @@ export class SourceContext {
     }
 
     public static getKindFromSymbol(symbol: BaseSymbol): SymbolKind {
-        return (
-            symbolToKindMap.get(symbol.constructor as typeof BaseSymbol) ||
-            SymbolKind.Unknown
-        );
+        if (isInstanceOfIKindSymbol(symbol)) {
+            return symbol.kind;
+        }
+        return SymbolKind.Unknown;
     }
 
     /**
@@ -347,7 +364,7 @@ export class SourceContext {
         keepQuotes: boolean
     ): IDefinition | undefined {
         if (!ctx) return undefined;
-                
+
         const result: IDefinition = {
             text: "",
             range: {
@@ -363,42 +380,56 @@ export class SourceContext {
         if (ctx instanceof ParserRuleContext) {
             let start = ctx.start!.start;
             let stop = ctx.stop!.stop;
-            
+
             if (ctx instanceof FunctionDeclarationContext) {
                 // function only needs the function header
                 const funHeader = ctx.functionHeader();
                 start = funHeader.start!.start;
-                stop = funHeader.stop!.stop;                
+                stop = funHeader.stop!.stop;
             } else if (ctx instanceof VariableDeclaratorContext) {
                 // varialbes need a little reconstruction since a declarator can have multiple variables
                 const name = ctx._variableName.text;
-                let type:string,mods:string;
-                if (ctx.parent instanceof PrimitiveTypeVariableDeclarationContext) {
+                let type: string, mods: string;
+                if (
+                    ctx.parent instanceof
+                    PrimitiveTypeVariableDeclarationContext
+                ) {
                     type = ctx.parent.primitiveTypeSpecifier()?.getText();
-                    mods = ctx.parent.variableModifier()?.map((m) => m.getText()).join(" ");
+                    mods = ctx.parent
+                        .variableModifier()
+                        ?.map((m) => m.getText())
+                        .join(" ");
                     if (!!ctx.STAR() && !!type) type += " *";
-                } else if (ctx.parent instanceof StructVariableDeclarationContext) {
+                } else if (
+                    ctx.parent instanceof StructVariableDeclarationContext
+                ) {
                     type = "struct";
-                    mods = ctx.parent.variableModifier()?.map((m) => m.getText()).join(" ");
+                    mods = ctx.parent
+                        .variableModifier()
+                        ?.map((m) => m.getText())
+                        .join(" ");
                 }
-                
-                result.text = [mods,type,name].filter((s) => s.length > 0).join(" ");                
+
+                result.text = [mods, type, name]
+                    .filter((s) => s.length > 0)
+                    .join(" ");
             }
-            
-            result.range = lexRangeFromContext(ctx);            
-            
+
+            result.range = lexRangeFromContext(ctx);
+
             if (!result.text) {
-            const inputStream = ctx.start?.tokenSource?.inputStream;
-            if (inputStream) {
-                try {
-                    result.text = inputStream.getText(start, stop);
-                } catch (e) {
-                    // The method getText uses an unreliable JS String API which can throw on larger texts.
-                    // In this case we cannot return the text of the given context.
-                    // A context with such a large size is probably an error case anyway (unfinished multi line comment
-                    // or unfinished action).
+                const inputStream = ctx.start?.tokenSource?.inputStream;
+                if (inputStream) {
+                    try {
+                        result.text = inputStream.getText(start, stop);
+                    } catch (e) {
+                        // The method getText uses an unreliable JS String API which can throw on larger texts.
+                        // In this case we cannot return the text of the given context.
+                        // A context with such a large size is probably an error case anyway (unfinished multi line comment
+                        // or unfinished action).
+                    }
                 }
-            }}
+            }
         } else if (ctx instanceof TerminalNode) {
             result.text = ctx.getText();
 
@@ -456,24 +487,45 @@ export class SourceContext {
         }
 
         let parent = terminal.parent as RuleContext;
-        
-        switch (parent.ruleIndex) {        
+
+        switch (parent.ruleIndex) {
             case LPCParser.RULE_assignmentExpression:
             case LPCParser.RULE_primaryExpression:
             case LPCParser.RULE_primaryExpressionStart:
             case LPCParser.RULE_functionHeader:
             case LPCParser.RULE_callOtherTarget:
-                let symbol = this.symbolTable.symbolContainingContext(terminal);            
-                const name = terminal.getText();    
-                const searchScope=symbol.getParentOfType(ScopedSymbol);
-                
+            case LPCParser.RULE_assignmentOperator:
+                let symbol = this.symbolTable.symbolContainingContext(terminal);
+                const name = terminal.getText();
+                const searchScope = symbol.getParentOfType(ScopedSymbol);
+
                 if (symbol instanceof VariableIdentifierSymbol) {
-                    symbol = resolveOfTypeSync(searchScope, name, VariableSymbol);
-                    symbol ??= resolveOfTypeSync(searchScope, name, DefineSymbol);                    
+                    symbol = resolveOfTypeSync(
+                        searchScope,
+                        name,
+                        VariableSymbol
+                    );
+                    symbol ??= resolveOfTypeSync(
+                        searchScope,
+                        name,
+                        DefineSymbol
+                    );
                 } else if (symbol instanceof FunctionIdentifierSymbol) {
-                    symbol = resolveOfTypeSync(this.symbolTable, name, MethodDeclarationSymbol);
-                    symbol ??= resolveOfTypeSync(this.symbolTable, name, MethodSymbol);
-                    symbol ??= resolveOfTypeSync(this.symbolTable, name, EfunSymbol);
+                    symbol = resolveOfTypeSync(
+                        this.symbolTable,
+                        name,
+                        MethodDeclarationSymbol
+                    );
+                    symbol ??= resolveOfTypeSync(
+                        this.symbolTable,
+                        name,
+                        MethodSymbol
+                    );
+                    symbol ??= resolveOfTypeSync(
+                        this.symbolTable,
+                        name,
+                        EfunSymbol
+                    );
                 } else {
                     symbol = searchScope.resolveSync(symbol.name, false);
                 }

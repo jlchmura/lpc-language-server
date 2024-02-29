@@ -129,8 +129,8 @@ export class DetailsListener extends LPCParserListener {
                 assignCtx.mappingExpression();
             const rhSym = this.symbolTable.symbolWithContextSync(rhCtx);
 
-            assignSym.lhs = lhSym;
-            assignSym.rhs = rhSym;
+            // assignSym.lhs = lhSym;
+            // assignSym.rhs = rhSym;
 
             const i = 0;
         }

@@ -14,6 +14,16 @@ import {
 import { SymbolKind } from "../types";
 import * as vscodelang from "vscode-languageserver";
 import { ContextSymbolTable } from "./ContextSymbolTable";
+import {
+    AssignmentExpressionContext,
+    DefinePreprocessorDirectiveContext,
+    IdentifierExpressionContext,
+    IncludeDirectiveContext,
+    InheritStatementContext,
+} from "../parser3/LPCParser";
+import { ParseTree, ParserRuleContext } from "antlr4ng";
+
+export type EvalScope = Map<string, any>;
 
 export function getSymbolsOfTypeSync<
     T extends BaseSymbol,
@@ -22,32 +32,163 @@ export function getSymbolsOfTypeSync<
     return symbol.children.filter((s) => s instanceof t) as T[];
 }
 
-export interface IFoldableSymbol {
+export interface IFoldableSymbol extends BaseSymbol {
     foldingRange: vscodelang.FoldingRange;
 }
+export interface IHasValue extends BaseSymbol {
+    setValue(value: any);
+    getValue(value: any);
+}
 
-export class IdentifierSymbol extends BaseSymbol {}
-export class IncludeSymbol extends BaseSymbol {}
-export class InheritSymbol extends BaseSymbol {}
+export interface IEvaluatableSymbol extends BaseSymbol {
+    eval(scope?: any): any;
+}
+export function isInstanceOfIEvaluatableSymbol(
+    symbol: BaseSymbol
+): symbol is IEvaluatableSymbol {
+    return (symbol as unknown as IEvaluatableSymbol).eval !== undefined;
+}
 
-export class MethodSymbol extends BaseMethodSymbol implements IFoldableSymbol {    
-    constructor(name: string, returnType?: IType, public functionModifiers?: Set<string>) {
-        super(name, returnType);        
+export interface IKindSymbol extends BaseSymbol {
+    kind: SymbolKind;
+}
+export function isInstanceOfIKindSymbol(
+    symbol: BaseSymbol
+): symbol is IKindSymbol {
+    return (symbol as unknown as IKindSymbol).kind !== undefined;
+}
+
+class LpcBaseSymbol<C extends ParseTree = ParseTree>
+    extends BaseSymbol
+    implements IKindSymbol
+{
+    public get kind() {
+        return SymbolKind.Unknown;
+    }
+    override context: C;
+}
+
+export class IdentifierSymbol extends LpcBaseSymbol<IdentifierExpressionContext> {
+    public get kind() {
+        return SymbolKind.Keyword;
+    }
+}
+export class IncludeSymbol extends LpcBaseSymbol<IncludeDirectiveContext> {
+    public get kind() {
+        return SymbolKind.Include;
+    }
+}
+export class InheritSymbol extends LpcBaseSymbol<InheritStatementContext> {
+    public get kind() {
+        return SymbolKind.Inherit;
+    }
+}
+
+export class MethodParameterSymbol
+    extends ParameterSymbol
+    implements IKindSymbol, IEvaluatableSymbol
+{
+    eval() {
+        return this.value;
+    }
+
+    public get kind() {
+        return SymbolKind.Variable;
+    }
+}
+
+export class MethodSymbol
+    extends BaseMethodSymbol
+    implements IFoldableSymbol, IKindSymbol, IEvaluatableSymbol
+{
+    public scope = new Map<string, VariableSymbol>();
+
+    constructor(
+        name: string,
+        returnType?: IType,
+        public functionModifiers?: Set<string>
+    ) {
+        super(name, returnType);
+    }
+
+    eval(paramScope: Map<string, IEvaluatableSymbol>) {
+        // start with program scope
+
+        this.scope = new Map<string, VariableSymbol>();
+        paramScope.forEach((value, key) => {
+            this.scope.set(key, value as VariableSymbol);
+        });
+
+        for (const child of this.children) {
+            if (isInstanceOfIEvaluatableSymbol(child)) {
+                child.eval(this.scope);
+            } else {
+                console.warn("Non eval symbol detected in method body", child);
+            }
+        }
+    }
+
+    public get kind() {
+        return SymbolKind.Method;
     }
 
     public getParametersSync() {
-        return getSymbolsOfTypeSync(this, ParameterSymbol);
+        return getSymbolsOfTypeSync(this, MethodParameterSymbol);
     }
 
     foldingRange: vscodelang.FoldingRange;
 }
-export class MethodDeclarationSymbol extends MethodSymbol{}
-export class InlineClosureSymbol extends MethodSymbol {}
-export class ArgumentSymbol extends TypedSymbol {}
+export class MethodDeclarationSymbol
+    extends MethodSymbol
+    implements IKindSymbol
+{
+    public get kind() {
+        return SymbolKind.MethodDeclaration;
+    }
+}
+export class InlineClosureSymbol extends MethodSymbol implements IKindSymbol {
+    public get kind() {
+        return SymbolKind.InlineClosure;
+    }
+}
+export class ArgumentSymbol extends TypedSymbol implements IKindSymbol {
+    public get kind() {
+        return SymbolKind.Variable;
+    }
+}
 
 export class ExpressionSymbol extends ScopedSymbol {}
-export class FunctionIdentifierSymbol extends ScopedSymbol {}
-export class VariableIdentifierSymbol extends IdentifierSymbol {}
+export class FunctionIdentifierSymbol
+    extends ScopedSymbol
+    implements IKindSymbol
+{
+    public get kind() {
+        return SymbolKind.Keyword;
+    }
+}
+
+/**
+ * Represents an identifier symbol that refers back to a variable declared
+ * in this or a parent scope.
+ */
+export class VariableIdentifierSymbol
+    extends IdentifierSymbol
+    implements IEvaluatableSymbol
+{
+    eval() {
+        const def = this.findDeclaration() as IEvaluatableSymbol;
+        return def?.eval();
+    }
+    public findDeclaration() {
+        let defSymbol: BaseSymbol = resolveOfTypeSync(
+            this.parent,
+            this.name,
+            VariableSymbol
+        );
+        defSymbol ??= resolveOfTypeSync(this.parent, this.name, DefineSymbol);
+        return defSymbol;
+    }
+}
 export class ObjectSymbol extends ScopedSymbol {
     public isLoaded: boolean = false;
 
@@ -59,30 +200,118 @@ export class ObjectSymbol extends ScopedSymbol {
         super(name);
     }
 }
-interface IEvalSymbol {
-    eval(): any;
-}
-export class DefineSymbol extends BaseSymbol {}
-export class VariableSymbol extends TypedSymbol {}
-export class OperatorSymbol extends BaseSymbol {}
-export class AssignmentSymbol extends BaseSymbol {
-    constructor(name: string, public lhs: BaseSymbol, public rhs?: BaseSymbol) {
+export class DefineSymbol
+    extends BaseSymbol
+    implements IEvaluatableSymbol, IKindSymbol
+{
+    public get kind() {
+        return SymbolKind.Define;
+    }
+
+    constructor(name: string, public value: any) {
         super(name);
     }
-}
-export class BlockSymbol extends ScopedSymbol {}
-export class LiteralSymbol extends TypedSymbol implements IEvalSymbol {
-    constructor(name: string, type: IType, public value: any) {
-        super(name, type);
-    }
+
     eval() {
         return this.value;
     }
 }
+export class VariableSymbol
+    extends TypedSymbol
+    implements IKindSymbol, IEvaluatableSymbol
+{
+    public value: any;
 
-export class EfunSymbol extends BaseMethodSymbol {
+    constructor(name: string, type: IType) {
+        super(name, type);
+    }
+
+    eval(scope?: any) {
+        if (!!scope) this.value = scope;
+        return this.value;
+    }
+
+    public get kind() {
+        return SymbolKind.Variable;
+    }
+}
+export class OperatorSymbol extends LpcBaseSymbol {
+    public get kind() {
+        return SymbolKind.Operator;
+    }
+}
+export class AssignmentSymbol
+    extends ScopedSymbol
+    implements IEvaluatableSymbol
+{
+    public get lhs() {
+        const lhsCtx = (
+            this.context as AssignmentExpressionContext
+        ).conditionalExpressionBase();
+        return this.symbolTable.symbolWithContextSync(
+            lhsCtx
+        ) as IEvaluatableSymbol;
+    }
+
+    public get rhs() {
+        const rhsCtx = (
+            this.context as AssignmentExpressionContext
+        ).expression();
+        return this.symbolTable.symbolWithContextSync(
+            rhsCtx
+        ) as IEvaluatableSymbol;
+    }
+
+    constructor(name: string, public operator: string) {
+        super(name);
+    }
+
+    eval(scope: any) {
+        const lh = this.lhs;
+        const rhResult = this.rhs.eval(scope);
+
+        // lh should really only be one of these two
+        if (
+            lh instanceof VariableSymbol ||
+            lh instanceof VariableIdentifierSymbol
+        ) {
+            switch (this.operator) {
+                case "=":
+                    return lh.eval(rhResult);
+                case "+=":
+                    return lh.eval(lh.eval() + rhResult);
+                case "-=":
+                    return lh.eval(lh.eval() - rhResult);
+            }
+        } else {
+            console.warn("Assignment to non-variable", lh);
+        }
+    }
+}
+export class BlockSymbol extends ScopedSymbol {}
+export class LiteralSymbol
+    extends TypedSymbol
+    implements IEvaluatableSymbol, IKindSymbol
+{
+    public get kind() {
+        return SymbolKind.Literal;
+    }
+
+    constructor(name: string, type: IType, public value: any) {
+        super(name, type);
+    }
+
+    eval(scope: EvalScope) {
+        return this.value;
+    }
+}
+
+export class EfunSymbol extends BaseMethodSymbol implements IKindSymbol {
     public constructor(name: string, public returnType?: IType) {
         super(name);
+    }
+    public get kind() {
+        return SymbolKind.Efun;
     }
     public getParametersSync() {
         return getSymbolsOfTypeSync(this, ParameterSymbol);
@@ -116,26 +345,11 @@ export class IfSymbol extends ScopedSymbol {
     }
 }
 
-export const symbolToKindMap: Map<new () => BaseSymbol, SymbolKind> = new Map([
-    [IncludeSymbol, SymbolKind.Include],
-    [InheritSymbol, SymbolKind.Inherit],
-    [MethodSymbol, SymbolKind.Method],
-    [MethodDeclarationSymbol, SymbolKind.MethodDeclaration],
-    [BaseMethodSymbol, SymbolKind.Method],
-    [DefineSymbol, SymbolKind.Define],
-    [VariableSymbol, SymbolKind.Variable],
-    [EfunSymbol, SymbolKind.Efun],
-    [BlockSymbol, SymbolKind.Block],
-    [OperatorSymbol, SymbolKind.Operator],
-    [IdentifierSymbol, SymbolKind.Keyword],
-    [InlineClosureSymbol, SymbolKind.InlineClosure],
-]);
-
 const symbolDescriptionMap = new Map<SymbolKind, string>([
     [SymbolKind.Terminal, "Terminal"],
     [SymbolKind.Keyword, "Keyword"],
     [SymbolKind.Include, "Include"],
-    [SymbolKind.Method, "Method"],    
+    [SymbolKind.Method, "Method"],
     [SymbolKind.MethodDeclaration, "Method Declaration"],
     [SymbolKind.Variable, "Variable"],
     [SymbolKind.Define, "Define"],
@@ -261,15 +475,17 @@ export function resolveOfTypeSync<T extends BaseSymbol, Args extends unknown[]>(
             return child;
         }
     }
-    
+
     if (!localOnly) {
         if (scope.parent) {
             return resolveOfTypeSync(scope.parent, name, t, localOnly);
         }
     }
 
-    if (!localOnly) {        
-        for (const dependency of (scope as ContextSymbolTable).getDependencies()) {
+    if (!localOnly) {
+        for (const dependency of (
+            scope as ContextSymbolTable
+        ).getDependencies()) {
             const result = resolveOfTypeSync(dependency, name, t, localOnly);
             if (!!result) {
                 return result;

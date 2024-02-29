@@ -1,4 +1,4 @@
-import { AbstractParseTreeVisitor, ParseTree } from "antlr4ng";
+import { AbstractParseTreeVisitor, ParseTree, TerminalNode } from "antlr4ng";
 import { LPCParserVisitor } from "../parser3/LPCParserVisitor";
 import {
     ArrayType,
@@ -9,11 +9,15 @@ import {
     ReferenceKind,
     ScopedSymbol,
     SymbolTable,
+    SymbolConstructor,
 } from "antlr4-c3";
 import { ContextSymbolTable } from "./ContextSymbolTable";
 import { LpcFacade } from "./facade";
 import {
+    AssignmentExpressionContext,
+    ConditionalExpressionContext,
     DefinePreprocessorDirectiveContext,
+    ExpressionContext,
     FunctionDeclarationContext,
     FunctionHeaderDeclarationContext,
     IdentifierExpressionContext,
@@ -21,7 +25,6 @@ import {
     IncludeDirectiveContext,
     InheritStatementContext,
     InlineClosureExpressionContext,
-    MethodInvocationContext,
     ParameterListContext,
     PrimaryExpressionContext,
     PrimitiveTypeParameterExpressionContext,
@@ -30,6 +33,7 @@ import {
 } from "../parser3/LPCParser";
 
 import {
+    AssignmentSymbol,
     DefineSymbol,
     ExpressionSymbol,
     FunctionIdentifierSymbol,
@@ -39,7 +43,9 @@ import {
     InheritSymbol,
     InlineClosureSymbol,
     MethodDeclarationSymbol,
+    MethodParameterSymbol,
     MethodSymbol,
+    OperatorSymbol,
     PreprocessorSymbol,
     SelectionSymbol,
     VariableIdentifierSymbol,
@@ -47,6 +53,7 @@ import {
 } from "./Symbol";
 import { FoldingRange } from "vscode-languageserver";
 import { typeNameToIType } from "../types";
+import { LPCLexer } from "../parser3/LPCLexer";
 
 export class DetailsVisitor
     extends AbstractParseTreeVisitor<SymbolTable>
@@ -72,12 +79,14 @@ export class DetailsVisitor
         // trim everything after the first space
         const idx = defineStr.indexOf(" ");
         const label = defineStr.substring(0, idx);
+        const value = defineStr.substring(idx + 1);
 
         //this.scope.context = ctx; // store the context for later
         const sym = this.symbolTable.addNewSymbolOfType(
             DefineSymbol,
             this.scope,
-            label
+            label,
+            value
         );
         sym.context = ctx;
         return this.visitChildren(ctx);
@@ -115,7 +124,7 @@ export class DetailsVisitor
         const isVar = priExp.methodInvocation().length === 0; // if its not a method invocation, then its a variable reference
         const parentSymbol = this.scope;
         const name = ctx.Identifier().getText();
-        const symbolType = isVar
+        const symbolType: SymbolConstructor<BaseSymbol, unknown[]> = isVar
             ? VariableIdentifierSymbol
             : FunctionIdentifierSymbol;
 
@@ -302,7 +311,9 @@ export class DetailsVisitor
         const header = ctx.functionHeader();
         const nm = header._functionName.text;
         const retType = typeNameToIType.get(header.typeSpecifier()?.getText());
-        const mods = new Set(header.functionModifier()?.map((m) => m.getText()) ?? []);
+        const mods = new Set(
+            header.functionModifier()?.map((m) => m.getText()) ?? []
+        );
 
         return this.withScope(
             ctx,
@@ -324,7 +335,9 @@ export class DetailsVisitor
         const header = ctx.functionHeader();
         const nm = header._functionName.text;
         const retType = typeNameToIType.get(header.typeSpecifier()?.getText());
-        const mods = new Set(header.functionModifier()?.map((m) => m.getText()) ?? []);
+        const mods = new Set(
+            header.functionModifier()?.map((m) => m.getText()) ?? []
+        );
 
         return this.withScope(ctx, MethodSymbol, [nm, retType, mods], (s) => {
             s.foldingRange = FoldingRange.create(
@@ -342,8 +355,64 @@ export class DetailsVisitor
         prms.forEach((p) => {
             const name = (p as PrimitiveTypeParameterExpressionContext)
                 ._paramName.text;
-            this.addNewSymbol(ParameterSymbol, p, name);
+            this.addNewSymbol(MethodParameterSymbol, p, name);
         });
+        return undefined;
+    };
+
+    visitAssignmentExpression = (ctx: AssignmentExpressionContext) => {
+        const lhsCtx = ctx.conditionalExpressionBase();
+        const rhsCtx = ctx.expression();
+        const op = ctx.assignmentOperator().getText();
+
+        return this.withScope(ctx, AssignmentSymbol, [op], (s) => {
+            return this.visitChildren(ctx);
+        });
+    };
+
+    visitExpression = (ctx: ExpressionContext) => {
+        return this.withScope(ctx, ExpressionSymbol, ["#expression#"], (s) => {
+            return this.visitChildren(ctx);
+        });
+    };
+
+    visitConditionalExpression = (ctx: ConditionalExpressionContext) => {
+        return this.withScope(
+            ctx,
+            ExpressionSymbol,
+            ["#conditional-expression#"],
+            (s) => {
+                return this.visitChildren(ctx);
+            }
+        );
+    };
+
+    visitTerminal = (node: TerminalNode) => {
+        switch (node.symbol.type) {
+            case LPCLexer.PLUS:
+            case LPCLexer.MINUS:
+            case LPCLexer.STAR:
+            case LPCLexer.DIV:
+            case LPCLexer.MOD:
+            case LPCLexer.SHL:
+            case LPCLexer.SHR:
+            case LPCLexer.AND:
+            case LPCLexer.OR:
+            case LPCLexer.XOR:
+            case LPCLexer.NOT:
+            case LPCLexer.INC:
+            case LPCLexer.DEC:
+                this.addNewSymbol(OperatorSymbol, node, node.getText());
+                break;
+            // case LPCLexer.Identifier:
+            //     this.addNewSymbol(IdentifierSymbol, node, node.getText());
+            //     break;
+            default: {
+                // Ignore the rest.
+                break;
+            }
+        }
+
         return undefined;
     };
 

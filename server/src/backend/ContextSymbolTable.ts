@@ -20,6 +20,7 @@ import {
     InheritSymbol,
     MethodSymbol,
     InlineClosureSymbol,
+    EvalScope,
 } from "./Symbol";
 import { FoldingRange } from "vscode-languageserver";
 
@@ -31,6 +32,8 @@ export class ContextSymbolTable extends SymbolTable {
 
     public foldingRanges: Set<FoldingRange> = new Set<FoldingRange>();
     public objectTypeRefs = new Map<string, ContextSymbolTable>();
+
+    public scope:EvalScope = new Map<string, any>();
 
     public constructor(
         name: string,
@@ -417,7 +420,7 @@ export class ContextSymbolTable extends SymbolTable {
     }
 
     public lastAssignOrDecl(
-        i: IdentifierSymbol
+        i: BaseSymbol
     ): AssignmentSymbol | VariableSymbol {
         const nm = i.name;
         let symbol = i;

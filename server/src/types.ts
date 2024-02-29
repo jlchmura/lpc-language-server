@@ -3,9 +3,7 @@ import {
     FundamentalType,
     IType,
     ReferenceKind,
-
     TypeKind,
-
 } from "antlr4-c3";
 
 export enum DiagnosticType {
@@ -44,6 +42,7 @@ export enum SymbolKind {
     Unknown,
     Terminal,
     Keyword,
+    Literal,
     Include,
     Inherit,
     Define,
@@ -95,5 +94,5 @@ export const typeNameToIType = new Map<string, IType>([
     ["float", FundamentalType.floatType],
     ["object", LpcTypes.objectType],
     ["mixed", LpcTypes.mixedType],
-    ["void", LpcTypes.voidType]
+    ["void", LpcTypes.voidType],
 ]);
