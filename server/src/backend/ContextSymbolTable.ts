@@ -33,7 +33,7 @@ export class ContextSymbolTable extends SymbolTable {
     public foldingRanges: Set<FoldingRange> = new Set<FoldingRange>();
     public objectTypeRefs = new Map<string, ContextSymbolTable>();
 
-    public scope:EvalScope = new Map<string, any>();
+    public scope: EvalScope = new Map<string, any>();
 
     public constructor(
         name: string,
@@ -262,7 +262,7 @@ export class ContextSymbolTable extends SymbolTable {
                 symbol.context && symbolTable && symbolTable.owner
                     ? symbolTable.owner.fileName
                     : "Driver efun",
-                line: (symbol.context as ParserRuleContext)?.start?.line,
+            line: (symbol.context as ParserRuleContext)?.start?.line,
             definition: SourceContext.definitionForContext(
                 symbol.context,
                 true
@@ -419,9 +419,7 @@ export class ContextSymbolTable extends SymbolTable {
         }
     }
 
-    public lastAssignOrDecl(
-        i: BaseSymbol
-    ): AssignmentSymbol | VariableSymbol {
+    public lastAssignOrDecl(i: BaseSymbol): AssignmentSymbol | VariableSymbol {
         const nm = i.name;
         let symbol = i;
         let sib = i.previousSibling;
