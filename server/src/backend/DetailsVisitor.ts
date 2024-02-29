@@ -15,6 +15,7 @@ import { LpcFacade } from "./facade";
 import {
     DefinePreprocessorDirectiveContext,
     FunctionDeclarationContext,
+    FunctionHeaderDeclarationContext,
     IdentifierExpressionContext,
     IfStatementContext,
     IncludeDirectiveContext,
@@ -37,6 +38,7 @@ import {
     IncludeSymbol,
     InheritSymbol,
     InlineClosureSymbol,
+    MethodDeclarationSymbol,
     MethodSymbol,
     PreprocessorSymbol,
     SelectionSymbol,
@@ -291,6 +293,21 @@ export class DetailsVisitor
         });
 
         return ifSymTbl;
+    };
+
+    visitFunctionHeaderDeclaration = (ctx: FunctionHeaderDeclarationContext) => {
+        const header = ctx.functionHeader();
+        const nm = header._functionName.text;
+
+        return this.withScope(ctx, MethodDeclarationSymbol, [nm], (s) => {
+            s.foldingRange = FoldingRange.create(
+                ctx.start.line - 1,
+                ctx.stop.line - 2,
+                ctx.start.column,
+                ctx.stop.column
+            );
+            return this.visitChildren(ctx);
+        });
     };
 
     visitFunctionDeclaration = (ctx: FunctionDeclarationContext) => {

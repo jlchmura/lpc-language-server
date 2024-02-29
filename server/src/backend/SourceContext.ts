@@ -65,6 +65,7 @@ import {
     VariableIdentifierSymbol,
     resolveOfTypeSync,
     FunctionIdentifierSymbol,
+    MethodDeclarationSymbol,
 } from "./Symbol";
 import { DetailsVisitor } from "./DetailsVisitor";
 import { FoldingRange } from "vscode-languageserver";
@@ -460,6 +461,7 @@ export class SourceContext {
             case LPCParser.RULE_assignmentExpression:
             case LPCParser.RULE_primaryExpression:
             case LPCParser.RULE_primaryExpressionStart:
+            case LPCParser.RULE_functionHeader:
             case LPCParser.RULE_callOtherTarget:
                 let symbol = this.symbolTable.symbolContainingContext(terminal);            
                 const name = terminal.getText();    
@@ -469,7 +471,8 @@ export class SourceContext {
                     symbol = resolveOfTypeSync(searchScope, name, VariableSymbol);
                     symbol ??= resolveOfTypeSync(searchScope, name, DefineSymbol);                    
                 } else if (symbol instanceof FunctionIdentifierSymbol) {
-                    symbol = resolveOfTypeSync(this.symbolTable, name, MethodSymbol);
+                    symbol = resolveOfTypeSync(this.symbolTable, name, MethodDeclarationSymbol);
+                    symbol ??= resolveOfTypeSync(this.symbolTable, name, MethodSymbol);
                     symbol ??= resolveOfTypeSync(this.symbolTable, name, EfunSymbol);
                 } else {
                     symbol = searchScope.resolveSync(symbol.name, false);

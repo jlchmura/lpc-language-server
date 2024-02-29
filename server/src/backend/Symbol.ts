@@ -37,6 +37,7 @@ export class MethodSymbol extends BaseMethodSymbol implements IFoldableSymbol {
 
     foldingRange: vscodelang.FoldingRange;
 }
+export class MethodDeclarationSymbol extends MethodSymbol{}
 export class InlineClosureSymbol extends MethodSymbol {}
 export class ArgumentSymbol extends TypedSymbol {}
 
@@ -115,6 +116,7 @@ export const symbolToKindMap: Map<new () => BaseSymbol, SymbolKind> = new Map([
     [IncludeSymbol, SymbolKind.Include],
     [InheritSymbol, SymbolKind.Inherit],
     [MethodSymbol, SymbolKind.Method],
+    [MethodDeclarationSymbol, SymbolKind.MethodDeclaration],
     [BaseMethodSymbol, SymbolKind.Method],
     [DefineSymbol, SymbolKind.Define],
     [VariableSymbol, SymbolKind.Variable],
@@ -129,7 +131,8 @@ const symbolDescriptionMap = new Map<SymbolKind, string>([
     [SymbolKind.Terminal, "Terminal"],
     [SymbolKind.Keyword, "Keyword"],
     [SymbolKind.Include, "Include"],
-    [SymbolKind.Method, "Method"],
+    [SymbolKind.Method, "Method"],    
+    [SymbolKind.MethodDeclaration, "Method Declaration"],
     [SymbolKind.Variable, "Variable"],
     [SymbolKind.Define, "Define"],
     [SymbolKind.Inherit, "Inherit"],
@@ -143,6 +146,7 @@ const symbolCodeTypeMap = new Map<SymbolKind, vscodelang.SymbolKind>([
     [SymbolKind.Include, vscodelang.SymbolKind.Module],
     [SymbolKind.Inherit, vscodelang.SymbolKind.Module],
     [SymbolKind.Method, vscodelang.SymbolKind.Method],
+    [SymbolKind.MethodDeclaration, vscodelang.SymbolKind.Interface],
     [SymbolKind.InlineClosure, vscodelang.SymbolKind.Method],
     [SymbolKind.Variable, vscodelang.SymbolKind.Variable],
     [SymbolKind.Define, vscodelang.SymbolKind.Constant],
