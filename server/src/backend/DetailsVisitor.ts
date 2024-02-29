@@ -1,4 +1,9 @@
-import { AbstractParseTreeVisitor, ParseTree, TerminalNode } from "antlr4ng";
+import {
+    AbstractParseTreeVisitor,
+    ParseTree,
+    RuleContext,
+    TerminalNode,
+} from "antlr4ng";
 import { LPCParserVisitor } from "../parser3/LPCParserVisitor";
 import {
     ArrayType,
@@ -15,15 +20,22 @@ import { ContextSymbolTable } from "./ContextSymbolTable";
 import { LpcFacade } from "./facade";
 import {
     AdditiveExpressionContext,
+    AndExpressionContext,
     AssignmentExpressionContext,
+    ConditionalAndExpressionContext,
     ConditionalExpressionContext,
+    ConditionalOrExpressionContext,
     DefinePreprocessorDirectiveContext,
+    EqualityExpressionContext,
+    ExclusiveOrExpressionContext,
     ExpressionContext,
+    ExpressionListContext,
     FunctionDeclarationContext,
     FunctionHeaderDeclarationContext,
     IdentifierExpressionContext,
     IfStatementContext,
     IncludeDirectiveContext,
+    InclusiveOrExpressionContext,
     InheritStatementContext,
     InlineClosureExpressionContext,
     LiteralContext,
@@ -32,6 +44,7 @@ import {
     PrimaryExpressionContext,
     PrimitiveTypeParameterExpressionContext,
     PrimitiveTypeVariableDeclarationContext,
+    RelationalExpresionContext,
     SelectionDirectiveContext,
 } from "../parser3/LPCParser";
 
@@ -63,6 +76,7 @@ import { ExpressionSymbol } from "../symbols/expressionSymbol";
 import { trimQuotes } from "../utils";
 import { LiteralSymbol } from "../symbols/literalSymbol";
 import { OperatorSymbol } from "../symbols/operatorSymbol";
+import { ConditionalSymbol } from "../symbols/conditionalSymbol";
 
 export class DetailsVisitor
     extends AbstractParseTreeVisitor<SymbolTable>
@@ -413,6 +427,29 @@ export class DetailsVisitor
             return this.visitChildren(ctx);
         });
     };
+
+    parseConditionalSymbol(ctx: RuleContext, operator: string) {
+        return this.withScope(ctx, ConditionalSymbol, [operator], (s) => {
+            return this.visitChildren(ctx);
+        });
+    }
+
+    visitEqualityExpression = (ctx: EqualityExpressionContext) =>
+        this.parseConditionalSymbol(ctx, ctx._op.text);
+    visitRelationalExpresion = (ctx: RelationalExpresionContext) =>
+        this.parseConditionalSymbol(ctx, ctx._op.text);
+    visitAndExpression = (ctx: AndExpressionContext) =>
+        this.parseConditionalSymbol(ctx, ctx._op.text);
+    visitExclusiveOrExpression = (ctx: ExclusiveOrExpressionContext) =>
+        this.parseConditionalSymbol(ctx, ctx._op.text);
+    visitInclusiveOrExpression = (ctx: InclusiveOrExpressionContext) =>
+        this.parseConditionalSymbol(ctx, ctx._op.text);
+    visitConditionalAndExpression = (ctx: ConditionalAndExpressionContext) =>
+        this.parseConditionalSymbol(ctx, ctx._op.text);
+    visitConditionalOrExpression = (ctx: ConditionalOrExpressionContext) =>
+        this.parseConditionalSymbol(ctx, ctx._op.text);
+
+    // TODO: ternary expression
 
     // prettier-ignore
     visitLiteral = (ctx: LiteralContext) => {
