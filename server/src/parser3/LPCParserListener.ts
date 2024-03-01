@@ -94,7 +94,9 @@ import { ParenExpressionContext } from "./LPCParser.js";
 import { PrimaryArrayExpressionContext } from "./LPCParser.js";
 import { PrimaryMappingExpressionContext } from "./LPCParser.js";
 import { StringConcatExpressionContext } from "./LPCParser.js";
+import { CatchExpressionContext } from "./LPCParser.js";
 import { ExpressionContext } from "./LPCParser.js";
+import { CatchExprContext } from "./LPCParser.js";
 import { BracketExpressionContext } from "./LPCParser.js";
 import { ArgumentContext } from "./LPCParser.js";
 import { ArgumentListContext } from "./LPCParser.js";
@@ -1081,6 +1083,18 @@ export class LPCParserListener implements ParseTreeListener {
      */
     exitStringConcatExpression?: (ctx: StringConcatExpressionContext) => void;
     /**
+     * Enter a parse tree produced by the `catchExpression`
+     * labeled alternative in `LPCParser.primaryExpressionStart`.
+     * @param ctx the parse tree
+     */
+    enterCatchExpression?: (ctx: CatchExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by the `catchExpression`
+     * labeled alternative in `LPCParser.primaryExpressionStart`.
+     * @param ctx the parse tree
+     */
+    exitCatchExpression?: (ctx: CatchExpressionContext) => void;
+    /**
      * Enter a parse tree produced by `LPCParser.expression`.
      * @param ctx the parse tree
      */
@@ -1090,6 +1104,16 @@ export class LPCParserListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitExpression?: (ctx: ExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.catchExpr`.
+     * @param ctx the parse tree
+     */
+    enterCatchExpr?: (ctx: CatchExprContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.catchExpr`.
+     * @param ctx the parse tree
+     */
+    exitCatchExpr?: (ctx: CatchExprContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.bracketExpression`.
      * @param ctx the parse tree

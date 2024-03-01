@@ -445,11 +445,16 @@ primaryExpressionStart
     | arrayExpression                       # primaryArrayExpression
     | mappingExpression                     # primaryMappingExpression
     | StringLiteral StringLiteral*          # stringConcatExpression        
+    | catchExpr                             # catchExpression
     ;
 
 expression
     : assignmentExpression
     | nonAssignmentExpression
+    ;
+
+catchExpr
+    : CATCH '(' expression (',' expression)* ';' Identifier* ')'
     ;
 
 bracketExpression

@@ -94,7 +94,9 @@ import { ParenExpressionContext } from "./LPCParser.js";
 import { PrimaryArrayExpressionContext } from "./LPCParser.js";
 import { PrimaryMappingExpressionContext } from "./LPCParser.js";
 import { StringConcatExpressionContext } from "./LPCParser.js";
+import { CatchExpressionContext } from "./LPCParser.js";
 import { ExpressionContext } from "./LPCParser.js";
+import { CatchExprContext } from "./LPCParser.js";
 import { BracketExpressionContext } from "./LPCParser.js";
 import { ArgumentContext } from "./LPCParser.js";
 import { ArgumentListContext } from "./LPCParser.js";
@@ -689,11 +691,24 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      */
     visitStringConcatExpression?: (ctx: StringConcatExpressionContext) => Result;
     /**
+     * Visit a parse tree produced by the `catchExpression`
+     * labeled alternative in `LPCParser.primaryExpressionStart`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitCatchExpression?: (ctx: CatchExpressionContext) => Result;
+    /**
      * Visit a parse tree produced by `LPCParser.expression`.
      * @param ctx the parse tree
      * @return the visitor result
      */
     visitExpression?: (ctx: ExpressionContext) => Result;
+    /**
+     * Visit a parse tree produced by `LPCParser.catchExpr`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitCatchExpr?: (ctx: CatchExprContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.bracketExpression`.
      * @param ctx the parse tree

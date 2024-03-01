@@ -16,6 +16,7 @@ tokens {
 
 BREAK: 'break';
 CASE: 'case';
+CATCH: 'catch';
 CHAR: 'char';
 CLOSURE: 'closure';
 CONST: 'const';
