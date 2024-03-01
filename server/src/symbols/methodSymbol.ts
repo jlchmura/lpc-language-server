@@ -134,6 +134,8 @@ export class ReturnSymbol extends ScopedSymbol implements IEvaluatableSymbol {
         for (const child of this.children) {
             if (isInstanceOfIEvaluatableSymbol(child)) {
                 return child.eval(scope);
+            } else {
+                throw "not evaluable: " + child.name;
             }
         }
         return undefined;

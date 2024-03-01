@@ -165,11 +165,15 @@ export class DetailsVisitor
         const name = ctx.Identifier().getText();
 
         let symbolType: SymbolConstructor<BaseSymbol, unknown[]>;
-        if (priExp.ARROW) {
+
+        if (priExp.ARROW().length > 0) {
+            // if there's an arrow then its a variable
             symbolType = VariableIdentifierSymbol;
         } else if (priExp.methodInvocation().length > 0) {
+            // method invocation means its a function
             symbolType = FunctionIdentifierSymbol;
         } else {
+            // otherwise its a variable
             symbolType = VariableIdentifierSymbol;
         }
 

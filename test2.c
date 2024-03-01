@@ -1,4 +1,8 @@
 
+private get_num() {
+    return 4;
+}
+
 subFn() {
-    return 1;
+    return get_num() + 1;
 }
