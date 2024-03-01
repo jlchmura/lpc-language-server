@@ -133,7 +133,7 @@ export class FunctionIdentifierSymbol
 
     eval(scope?: any) {
         const def = this.findDeclaration() as IEvaluatableSymbol;
-        if (this.name != def.name) {
+        if (this.name != def?.name) {
             return def?.eval(scope);
         }
     }
