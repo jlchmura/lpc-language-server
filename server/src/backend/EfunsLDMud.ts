@@ -16,7 +16,9 @@ efun("apply", LpcTypes.mixedType, true, ["cl", LpcTypes.closureType], ["args", L
 efun("capitalize", LpcTypes.stringType, false, ["str", LpcTypes.stringType]);
 efun("clone_object", LpcTypes.objectType, false, ["file", LpcTypes.stringType]);
 efun("closurep", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
+efun("clear_bit", LpcTypes.stringType, false, ["str", LpcTypes.stringType], ["n", LpcTypes.intType]);
 efun("creator", LpcTypes.stringType, false, ["ob", LpcTypes.objectType]);
+efun("ctime", LpcTypes.stringType, false, ["clock", LpcTypes.intType]);
 efun("destruct", LpcTypes.voidType, false, ["ob", LpcTypes.objectType]);
 efun("environment", LpcTypes.objectType, true, ["ob", LpcTypes.objectType]);
 efun("first_inventory", LpcTypes.objectType, true, ["ob", LpcTypes.stringType]);
@@ -31,16 +33,25 @@ efun("next_inventory", LpcTypes.objectType, false, ["ob", LpcTypes.objectType]);
 efun("notify_fail", LpcTypes.voidType, false, ["msg", LpcTypes.stringType]);
 efun("object_name", LpcTypes.stringType, false, ["ob", LpcTypes.objectType]);
 efun("objectp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
+efun("playerp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("previous_object", LpcTypes.objectType, true, ["i", LpcTypes.intType]);
 efun("present", LpcTypes.objectType, false, ["str", FundamentalType.stringType], ["env", LpcTypes.objectType]);
+efun("printf", LpcTypes.voidType, true, ["fmt", LpcTypes.stringType], ["var...", LpcTypes.mixedType, true]);
 efun("pointerp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("regreplace", LpcTypes.stringType, false, ["txt", LpcTypes.stringType], ["pattern", LpcTypes.stringType], ["replacepattern", LpcTypes.closureType], ["flags", LpcTypes.intType]);
 efun("sprintf", LpcTypes.stringType, true, ["fmt", LpcTypes.stringType], ["var...", LpcTypes.mixedType, true]);
+efun("set_bit", LpcTypes.stringType, false, ["str", LpcTypes.stringType], ["n", LpcTypes.intType]);
 efun("sscanf", LpcTypes.intType, true, ["str", LpcTypes.stringType], ["fmt", LpcTypes.stringType], ["var...", LpcTypes.mixedType, true]);
 efun("strlen", LpcTypes.intType, false, ["str", LpcTypes.stringType]);
 efun("stringp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("sizeof", LpcTypes.intType, false, ["val", LpcTypes.mixedType]);
+efun("test_bit", LpcTypes.intType, false, ["str", LpcTypes.stringType], ["n", LpcTypes.intType]);
+efun("tell_object", LpcTypes.voidType, false, ["ob", LpcTypes.objectType], ["msg", LpcTypes.stringType]);
+efun("tell_room", LpcTypes.voidType, false, ["ob", LpcTypes.objectType], ["msg", LpcTypes.stringType], ["exclude", LpcTypes.objectArrayType]);
+efun("terminal_colour", LpcTypes.stringType, true, ["str", LpcTypes.stringType], ["map", LpcTypes.mappingType], ["wrap", LpcTypes.intType], ["indent", LpcTypes.intType]);
+efun("this_interactive", LpcTypes.objectType, false);
 efun("this_player", LpcTypes.objectType, false);
+efun("time", LpcTypes.intType, false);
 efun("write", LpcTypes.voidType, false, ["msg", LpcTypes.mixedType]);
 
 function efun(

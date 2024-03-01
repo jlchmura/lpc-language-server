@@ -36,6 +36,8 @@ export class LpcSymbolProvider {
     }
 
     private createDocumentSymbol(symbol: ISymbolInfo): DocumentSymbol {
+        if (!symbol.definition) return undefined;
+
         const startRow =
             symbol.definition.range.start.row > 0
                 ? symbol.definition.range.start.row - 1
