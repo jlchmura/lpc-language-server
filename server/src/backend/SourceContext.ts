@@ -49,7 +49,7 @@ import {
 } from "antlr4-c3";
 import { BackendUtils } from "./BackendUtils";
 import { LpcFacade } from "./facade";
-import { EfunSymbol, FunctionIdentifierSymbol } from "../symbols/Symbol";
+import { EfunSymbol } from "../symbols/Symbol";
 import { DetailsVisitor } from "./DetailsVisitor";
 import { FoldingRange } from "vscode-languageserver";
 import {
@@ -62,7 +62,11 @@ import {
     VariableIdentifierSymbol,
     VariableSymbol,
 } from "../symbols/variableSymbol";
-import { MethodDeclarationSymbol, MethodSymbol } from "../symbols/methodSymbol";
+import {
+    FunctionIdentifierSymbol,
+    MethodDeclarationSymbol,
+    MethodSymbol,
+} from "../symbols/methodSymbol";
 
 type EfunArgument = {
     name: string;

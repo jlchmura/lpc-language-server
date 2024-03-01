@@ -46,11 +46,11 @@ import {
     PrimitiveTypeParameterExpressionContext,
     PrimitiveTypeVariableDeclarationContext,
     RelationalExpresionContext,
+    ReturnStatementContext,
     SelectionDirectiveContext,
 } from "../parser3/LPCParser";
 
 import {
-    FunctionIdentifierSymbol,
     IfSymbol,
     IncludeSymbol,
     InheritSymbol,
@@ -69,10 +69,12 @@ import { DefineSymbol } from "../symbols/defineSymbol";
 import { AssignmentSymbol } from "../symbols/assignmentSymbol";
 import { InlineClosureSymbol } from "../symbols/closureSymbol";
 import {
+    FunctionIdentifierSymbol,
     MethodDeclarationSymbol,
     MethodInvocationSymbol,
     MethodParameterSymbol,
     MethodSymbol,
+    ReturnSymbol,
 } from "../symbols/methodSymbol";
 import { ExpressionSymbol } from "../symbols/expressionSymbol";
 import { trimQuotes } from "../utils";
@@ -161,9 +163,15 @@ export class DetailsVisitor
         const isVar = priExp.methodInvocation().length === 0; // if its not a method invocation, then its a variable reference
         const parentSymbol = this.scope;
         const name = ctx.Identifier().getText();
-        const symbolType: SymbolConstructor<BaseSymbol, unknown[]> = isVar
-            ? VariableIdentifierSymbol
-            : FunctionIdentifierSymbol;
+
+        let symbolType: SymbolConstructor<BaseSymbol, unknown[]>;
+        if (priExp.ARROW) {
+            symbolType = VariableIdentifierSymbol;
+        } else if (priExp.methodInvocation().length > 0) {
+            symbolType = FunctionIdentifierSymbol;
+        } else {
+            symbolType = VariableIdentifierSymbol;
+        }
 
         this.addNewSymbol(symbolType, ctx, `${name}`);
         return undefined;
@@ -181,10 +189,11 @@ export class DetailsVisitor
     };
 
     visitCallOtherTarget = (ctx: CallOtherTargetContext) => {
+        const nm = ctx.Identifier();
         return this.withScope(
             ctx,
             CallOtherSymbol,
-            ["#call-other-target#"],
+            ["#call-other-target#", nm?.getText()],
             (s) => {
                 return this.visitChildren(ctx);
             }
@@ -404,6 +413,12 @@ export class DetailsVisitor
                 ctx.start.column,
                 ctx.stop.column
             );
+            return this.visitChildren(ctx);
+        });
+    };
+
+    visitReturnStatement = (ctx: ReturnStatementContext) => {
+        return this.withScope(ctx, ReturnSymbol, ["#return#"], (s) => {
             return this.visitChildren(ctx);
         });
     };

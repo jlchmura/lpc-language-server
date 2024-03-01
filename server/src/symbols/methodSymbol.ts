@@ -16,6 +16,9 @@ import { SymbolKind } from "../types";
 import { VariableSymbol } from "./variableSymbol";
 import { FoldingRange } from "vscode-languageserver";
 import { ExpressionSymbol } from "./expressionSymbol";
+import { resolveOfTypeSync } from "../utils";
+import { EfunSymbol } from "./Symbol";
+import { deflateSync } from "zlib";
 
 export class MethodParameterSymbol
     extends ParameterSymbol
@@ -48,14 +51,15 @@ export class MethodSymbol
         // paramScope.forEach((value, key) => {
         //     this.scope.set(key, value as VariableSymbol);
         // });
-
+        let result: any = 0;
         for (const child of this.children) {
             if (isInstanceOfIEvaluatableSymbol(child)) {
-                child.eval();
+                result = child.eval(result);
             } else {
                 console.warn("Non eval symbol detected in method body", child);
             }
         }
+        return result;
     }
 
     public get kind() {
@@ -77,12 +81,61 @@ export class MethodDeclarationSymbol
     }
 }
 
-export class MethodInvocationSymbol extends ScopedSymbol {
+export class MethodInvocationSymbol
+    extends ScopedSymbol
+    implements IEvaluatableSymbol
+{
     public getArguments() {
         return getSymbolsOfTypeSync(this, ExpressionSymbol);
     }
 
     constructor(name: string) {
         super(name);
+    }
+
+    eval(scope?: any) {
+        for (const child of this.children) {
+            if (isInstanceOfIEvaluatableSymbol(child)) {
+                scope = child.eval(scope);
+            } else {
+                throw "not evaluable: " + child.name;
+            }
+        }
+        return scope;
+    }
+}
+
+export class FunctionIdentifierSymbol
+    extends ScopedSymbol
+    implements IKindSymbol, IEvaluatableSymbol
+{
+    public get kind() {
+        return SymbolKind.Keyword;
+    }
+
+    public findDeclaration() {
+        let defSymbol: IEvaluatableSymbol = resolveOfTypeSync(
+            this.parent,
+            this.name,
+            MethodSymbol
+        );
+        defSymbol ??= resolveOfTypeSync(this.parent, this.name, EfunSymbol);
+        return defSymbol;
+    }
+
+    eval(scope?: any) {
+        const def = this.findDeclaration() as IEvaluatableSymbol;
+        return def?.eval(scope);
+    }
+}
+
+export class ReturnSymbol extends ScopedSymbol implements IEvaluatableSymbol {
+    eval(scope?: any) {
+        for (const child of this.children) {
+            if (isInstanceOfIEvaluatableSymbol(child)) {
+                return child.eval(scope);
+            }
+        }
+        return undefined;
     }
 }

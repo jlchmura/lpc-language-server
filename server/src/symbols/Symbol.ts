@@ -51,18 +51,12 @@ export class ArgumentSymbol extends TypedSymbol implements IKindSymbol {
     }
 }
 
-export class FunctionIdentifierSymbol
-    extends ScopedSymbol
-    implements IKindSymbol
-{
-    public get kind() {
-        return SymbolKind.Keyword;
-    }
-}
-
 export class BlockSymbol extends ScopedSymbol {}
 
-export class EfunSymbol extends BaseMethodSymbol implements IKindSymbol {
+export class EfunSymbol
+    extends BaseMethodSymbol
+    implements IKindSymbol, IEvaluatableSymbol
+{
     public constructor(name: string, public returnType?: IType) {
         super(name);
     }
@@ -71,6 +65,9 @@ export class EfunSymbol extends BaseMethodSymbol implements IKindSymbol {
     }
     public getParametersSync() {
         return getSymbolsOfTypeSync(this, ParameterSymbol);
+    }
+    eval(scope?: any) {
+        return scope;
     }
 }
 
