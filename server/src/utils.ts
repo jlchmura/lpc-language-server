@@ -97,16 +97,13 @@ export function resolveOfTypeSync<T extends BaseSymbol, Args extends unknown[]>(
         }
     }
 
-    if (!localOnly) {
-        if (scope.parent) {
-            return resolveOfTypeSync(scope.parent, name, t, localOnly);
-        }
+    if (!localOnly && !!scope.parent) {
+        return resolveOfTypeSync(scope.parent, name, t, localOnly);
     }
 
     if (!localOnly) {
-        for (const dependency of (
-            scope as ContextSymbolTable
-        ).getDependencies()) {
+        const deps = (scope as ContextSymbolTable).getDependencies();
+        for (const dependency of deps) {
             const result = resolveOfTypeSync(dependency, name, t, localOnly);
             if (!!result) {
                 return result;

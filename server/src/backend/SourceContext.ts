@@ -82,7 +82,7 @@ type EfunArgument = {
  * Source context for a single LPC file.
  */
 export class SourceContext {
-    private static globalSymbols = new ContextSymbolTable("Global Symbols", {
+    public static globalSymbols = new ContextSymbolTable("Global Symbols", {
         allowDuplicateSymbols: false,
     });
 

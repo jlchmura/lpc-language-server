@@ -458,18 +458,13 @@ export class DetailsVisitor
     };
 
     visitExpression = (ctx: ExpressionContext) => {
-        if (ctx.children?.length > 1) {
-            return this.withScope(
-                ctx,
-                ExpressionSymbol,
-                ["#expression#"],
-                (s) => {
-                    return this.visitChildren(ctx);
-                }
-            );
-        } else {
+        //if (ctx.children?.length > 1) {
+        return this.withScope(ctx, ExpressionSymbol, ["#expression#"], (s) => {
             return this.visitChildren(ctx);
-        }
+        });
+        // } else {
+        //     return this.visitChildren(ctx);
+        // }
     };
 
     visitConditionalExpression = (ctx: ConditionalExpressionContext) => {

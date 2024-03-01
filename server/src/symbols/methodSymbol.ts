@@ -19,6 +19,8 @@ import { ExpressionSymbol } from "./expressionSymbol";
 import { resolveOfTypeSync } from "../utils";
 import { EfunSymbol } from "./Symbol";
 import { deflateSync } from "zlib";
+import { SourceContext } from "../backend/SourceContext";
+import { LpcFacade } from "../backend/facade";
 
 export class MethodParameterSymbol
     extends ParameterSymbol
@@ -121,13 +123,19 @@ export class FunctionIdentifierSymbol
             this.name,
             MethodSymbol
         );
-        defSymbol ??= resolveOfTypeSync(this.parent, this.name, EfunSymbol);
+        defSymbol ??= resolveOfTypeSync(
+            SourceContext.globalSymbols,
+            this.name,
+            EfunSymbol
+        );
         return defSymbol;
     }
 
     eval(scope?: any) {
         const def = this.findDeclaration() as IEvaluatableSymbol;
-        return def?.eval(scope);
+        if (this.name != def.name) {
+            return def?.eval(scope);
+        }
     }
 }
 

@@ -136,6 +136,10 @@ export class SemanticListener extends LPCParserListener {
     };
 
     evaluateProgram(progSymbol: ScopedSymbol) {
+        // if (this.diagnostics.length > 0) {
+        //     console.log("Skipping eval due to unresolved diagnostics");
+        //     return;
+        // }
         for (const child of progSymbol.children) {
             if (isInstanceOfIEvaluatableSymbol(child)) {
                 child.eval();
