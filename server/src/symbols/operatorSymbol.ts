@@ -14,17 +14,21 @@ export class OperatorSymbol extends ScopedSymbol implements IEvaluatableSymbol {
     eval(scope?: any) {
         const lhs = this.children[0] as IEvaluatableSymbol;
         const rhs = this.children[1] as IEvaluatableSymbol;
+
+        const lhsValue = lhs?.eval();
+        const rhsValue = rhs?.eval();
+
         switch (this.name) {
             case "+":
-                return lhs.eval() + rhs.eval();
+                return lhsValue + rhsValue;
             case "-":
-                return lhs.eval() - rhs.eval();
+                return lhsValue - rhsValue;
             case "*":
-                return lhs.eval() * rhs.eval();
+                return lhsValue * rhsValue;
             case "/":
-                return lhs.eval() / rhs.eval();
+                return lhsValue / rhsValue;
             case "%":
-                return lhs.eval() % rhs.eval();
+                return lhsValue % rhsValue;
         }
 
         throw "operator not implements " + this.name;
