@@ -35,7 +35,7 @@ export class DiagnosticProvider {
             const diagnostic = Diagnostic.create(
                 range,
                 entry.message,
-                DiagnosticSeverity.Error
+                entry.type
             );
 
             const { related } = entry;

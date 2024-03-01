@@ -5,16 +5,10 @@ import {
     ReferenceKind,
     TypeKind,
 } from "antlr4-c3";
-
-export enum DiagnosticType {
-    Hint,
-    Info,
-    Warning,
-    Error,
-}
+import { DiagnosticSeverity } from "vscode-languageserver";
 
 export interface IDiagnosticEntry {
-    type: DiagnosticType;
+    type: DiagnosticSeverity;
     message: string;
     range: ILexicalRange;
     source?: string;

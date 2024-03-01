@@ -26,7 +26,6 @@ export class ContextSymbolTable extends SymbolTable {
     private functions = new Map<string, MethodSymbol>();
 
     public foldingRanges: Set<FoldingRange> = new Set<FoldingRange>();
-    public objectTypeRefs = new Map<string, ContextSymbolTable>();
 
     public scope: EvalScope = new Map<string, any>();
 
@@ -49,7 +48,7 @@ export class ContextSymbolTable extends SymbolTable {
         }
 
         this.symbolReferences.clear();
-        this.objectTypeRefs.clear();
+
         this.functions.clear();
         super.clear();
     }
@@ -60,14 +59,6 @@ export class ContextSymbolTable extends SymbolTable {
 
     public addFunction(method: MethodSymbol): void {
         this.functions.set(method.name, method);
-    }
-
-    public addObjectTypeRef(name: string, table: ContextSymbolTable) {
-        this.objectTypeRefs.set(name, table);
-    }
-
-    public getObjectTypeRef(name: string) {
-        return this.objectTypeRefs.get(name);
     }
 
     public symbolExists(

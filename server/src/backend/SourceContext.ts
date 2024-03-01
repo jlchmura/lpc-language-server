@@ -26,7 +26,6 @@ import * as path from "path";
 import {
     IContextDetails,
     IDiagnosticEntry,
-    DiagnosticType,
     ISymbolInfo,
     IDefinition,
     SymbolKind,
@@ -51,7 +50,7 @@ import { BackendUtils } from "./BackendUtils";
 import { LpcFacade } from "./facade";
 import { EfunSymbol } from "../symbols/Symbol";
 import { DetailsVisitor } from "./DetailsVisitor";
-import { FoldingRange } from "vscode-languageserver";
+import { DiagnosticSeverity, FoldingRange } from "vscode-languageserver";
 import {
     lexRangeFromContext as lexRangeFromContext,
     resolveOfTypeSync,
@@ -189,7 +188,7 @@ export class SourceContext {
 
     public get hasErrors(): boolean {
         for (const diagnostic of this.diagnostics) {
-            if (diagnostic.type === DiagnosticType.Error) {
+            if (diagnostic.type === DiagnosticSeverity.Error) {
                 return true;
             }
         }
@@ -519,6 +518,10 @@ export class SourceContext {
                         EfunSymbol
                     );
                 } else if (symbol instanceof CallOtherSymbol) {
+                    // if the symbol object wasn't loaded, just return undefined
+                    // that error will be caught and reported elsewhere
+                    if (!symbol.objectRef.isLoaded) return undefined;
+
                     symbol = resolveOfTypeSync(
                         symbol.objectRef.context.symbolTable,
                         name,
@@ -668,6 +671,8 @@ export class SourceContext {
                 }
             }
         });
+
+        // TODO: lfun completion base don the obj context
 
         const promises: Array<Promise<BaseSymbol[] | undefined>> = [];
         candidates.rules.forEach((candidateRule, key) => {

@@ -1,11 +1,6 @@
 import { ParseTree, ParserRuleContext, RuleContext, Token } from "antlr4ng";
 import { LPCParserListener } from "../parser3/LPCParserListener";
-import {
-    DiagnosticType,
-    IDiagnosticEntry,
-    ILexicalRange,
-    SymbolGroupKind,
-} from "../types";
+import { IDiagnosticEntry, SymbolGroupKind } from "../types";
 import { ContextSymbolTable } from "./ContextSymbolTable";
 import {
     CallOtherTargetContext,
@@ -26,11 +21,14 @@ import {
     areSetsEqual,
     areTwoParameterArraysEqual,
     getSibling,
+    rangeFromTokens,
     resolveOfTypeSync,
 } from "../utils";
 import { VariableSymbol } from "../symbols/variableSymbol";
 import { MethodDeclarationSymbol, MethodSymbol } from "../symbols/methodSymbol";
 import { isInstanceOfIEvaluatableSymbol } from "../symbols/base";
+import { CallOtherSymbol } from "../symbols/objectSymbol";
+import { DiagnosticSeverity } from "vscode-languageserver";
 
 export class SemanticListener extends LPCParserListener {
     private seenSymbols = new Map<string, Token>();
@@ -42,7 +40,8 @@ export class SemanticListener extends LPCParserListener {
         super();
     }
 
-    exitProgram = (ctx: ProgramContext) => {
+    enterProgram = (ctx: ProgramContext) => {
+        // evaluate everything, so that we can use teh eval results in further diagnostics
         this.evaluateProgram(this.symbolTable);
     };
 
@@ -64,11 +63,6 @@ export class SemanticListener extends LPCParserListener {
             parentScope
         );
         this.symbolTable.incrementSymbolRefCount(symbol);
-    };
-
-    exitCloneObjectExpression = (ctx: CloneObjectExpressionContext) => {
-        const symbol = this.symbolTable.findSymbolDefinition(ctx);
-        const i = 0;
     };
 
     exitCallOtherTarget = (ctx: CallOtherTargetContext) => {
@@ -137,8 +131,6 @@ export class SemanticListener extends LPCParserListener {
                 );
             }
         }
-
-        this.evaluateFunction(symbol);
     };
 
     evaluateProgram(progSymbol: ScopedSymbol) {
@@ -149,10 +141,6 @@ export class SemanticListener extends LPCParserListener {
                 throw "node not evaluable: " + child.name;
             }
         }
-    }
-
-    evaluateFunction(fnSymbol: MethodSymbol) {
-        fnSymbol.eval();
     }
 
     exitMethodInvocation = (ctx: MethodInvocationContext) => {
@@ -172,31 +160,26 @@ export class SemanticListener extends LPCParserListener {
 
         // if this is a call to another object, use that object's symbol table
         if (methodObj instanceof CallOtherTargetContext) {
-            const sourceTypeContext = getSibling(ctx, -3); // -2 is the arrow
-            // get the name of this variable
-            let sourceSymbol = this.symbolTable.symbolWithContextSync(
-                sourceTypeContext
-            ) as unknown as ITypedSymbol;
-            if (
-                sourceSymbol instanceof IdentifierSymbol ||
-                sourceSymbol instanceof VariableSymbol
-            ) {
-                sourceSymbol = this.symbolTable.lastAssignOrDecl(
-                    sourceSymbol
-                ) as unknown as ITypedSymbol;
-                const i = 0;
-            }
-            if (sourceSymbol?.type?.kind == TypeKind.Class) {
-                // call other source obj has a type, so use that to locate the method def
-                const typeRefTable = this.symbolTable.getObjectTypeRef(
-                    sourceSymbol.type.name
+            const callOtherSymbol = this.symbolTable.symbolWithContextSync(
+                methodObj
+            ) as CallOtherSymbol;
+            if (callOtherSymbol.objectRef?.isLoaded === true) {
+                lookupTable = callOtherSymbol.objectRef.context.symbolTable;
+            } else {
+                this.logDiagnostic(
+                    `Object '${
+                        callOtherSymbol.objectRef?.filename ?? ""
+                    }' could not be loaded`,
+                    methodObj.start,
+                    methodObj.stop,
+                    DiagnosticSeverity.Warning
                 );
-                lookupTable = typeRefTable;
+                return;
             }
         }
 
         // get the definition for that method
-        const methodSymbol = this.symbolTable.resolveSync(
+        const methodSymbol = lookupTable.resolveSync(
             methodName
         ) as MethodSymbol;
         const symbolInfo = lookupTable.getSymbolInfo(methodSymbol);
@@ -218,7 +201,7 @@ export class SemanticListener extends LPCParserListener {
 
                 // add info about the missing arg
                 entry.related = {
-                    type: DiagnosticType.Error,
+                    type: DiagnosticSeverity.Error,
                     message: `An argument for '${notProvidedArg.name}' was not provided`,
                     range: symbolInfo?.definition?.range ?? entry.range,
                     source: symbolInfo?.source,
@@ -245,44 +228,18 @@ export class SemanticListener extends LPCParserListener {
     private logDiagnostic(
         message: string,
         offendingTokenStart: Token,
-        offendingTokenEnd: Token
+        offendingTokenEnd: Token,
+        type: DiagnosticSeverity = DiagnosticSeverity.Error
     ) {
         offendingTokenEnd = offendingTokenEnd ?? offendingTokenStart;
         const entry: IDiagnosticEntry = {
-            type: DiagnosticType.Error,
+            type: type,
             message: message,
-            range: this.rangeFromTokens(offendingTokenStart, offendingTokenEnd),
+            range: rangeFromTokens(offendingTokenStart, offendingTokenEnd),
         };
         this.diagnostics.push(entry);
         return entry;
     }
-
-    private rangeFromTokens(start: Token, end: Token): ILexicalRange {
-        return {
-            start: {
-                column: start.column,
-                row: start.line,
-            },
-            end: {
-                column: end.column + end.stop - end.start + 1,
-                row: end.line,
-            },
-        } as ILexicalRange;
-    }
-
-    //  /**
-    //  * Check references to other lexer tokens.
-    //  * @param ctx The terminal definition context.
-    //  */
-    //  public override exitTerminalDef = (ctx: TerminalDefContext): void => {
-    //     const tokenRef = ctx.TOKEN_REF();
-    //     if (tokenRef) {
-    //         const symbol = tokenRef.getText();
-    //         this.checkSymbolExistence(true, SymbolGroupKind.TokenRef, symbol, "Unknown token reference",
-    //             tokenRef.symbol);
-    //         this.symbolTable.incrementSymbolRefCount(symbol);
-    //     }
-    // };
 
     protected checkSymbolExistence(
         mustExist: boolean,
@@ -301,7 +258,7 @@ export class SemanticListener extends LPCParserListener {
             ) !== mustExist
         ) {
             const entry: IDiagnosticEntry = {
-                type: DiagnosticType.Error,
+                type: DiagnosticSeverity.Error,
                 message: message + " '" + symbol + "'",
                 range: {
                     start: {

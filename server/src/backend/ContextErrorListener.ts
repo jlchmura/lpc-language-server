@@ -4,9 +4,16 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-import { BaseErrorListener, Recognizer, RecognitionException, Token, ATNSimulator } from "antlr4ng";
+import {
+    BaseErrorListener,
+    Recognizer,
+    RecognitionException,
+    Token,
+    ATNSimulator,
+} from "antlr4ng";
 
-import { IDiagnosticEntry, DiagnosticType } from "../types";
+import { IDiagnosticEntry } from "../types";
+import { DiagnosticSeverity } from "vscode-languageserver";
 
 export class ContextErrorListener extends BaseErrorListener {
     public constructor(private errorList: IDiagnosticEntry[]) {
@@ -14,10 +21,16 @@ export class ContextErrorListener extends BaseErrorListener {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    public override syntaxError<S extends Token, T extends ATNSimulator>(recognizer: Recognizer<T>,
-        offendingSymbol: S | null, line: number, column: number, msg: string, _e: RecognitionException | null): void {
+    public override syntaxError<S extends Token, T extends ATNSimulator>(
+        recognizer: Recognizer<T>,
+        offendingSymbol: S | null,
+        line: number,
+        column: number,
+        msg: string,
+        _e: RecognitionException | null
+    ): void {
         const error: IDiagnosticEntry = {
-            type: DiagnosticType.Error,
+            type: DiagnosticSeverity.Error,
             message: msg,
             range: {
                 start: {
@@ -32,7 +45,8 @@ export class ContextErrorListener extends BaseErrorListener {
         };
 
         if (offendingSymbol) {
-            error.range.end.column = column + offendingSymbol.stop - offendingSymbol.start + 1;
+            error.range.end.column =
+                column + offendingSymbol.stop - offendingSymbol.start + 1;
         }
         this.errorList.push(error);
     }

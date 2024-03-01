@@ -4,12 +4,14 @@ import {
     getSymbolsOfTypeSync,
     isInstanceOfIEvaluatableSymbol,
 } from "./base";
-import { IdentifierSymbol } from "./Symbol";
-import { firstEntry, normalizeFilename } from "../utils";
-import { LiteralSymbol } from "./literalSymbol";
+import { addDiagnostic } from "./Symbol";
+import { normalizeFilename, rangeFromTokens } from "../utils";
 import { MethodInvocationSymbol } from "./methodSymbol";
 import { ContextSymbolTable } from "../backend/ContextSymbolTable";
 import { SourceContext } from "../backend/SourceContext";
+
+import { ParserRuleContext } from "antlr4ng";
+import { DiagnosticSeverity } from "vscode-languageserver";
 
 export class ObjectReferenceInfo {
     filename: string;
@@ -58,7 +60,16 @@ export class CloneObjectSymbol
             const backend = (this.symbolTable as ContextSymbolTable).owner
                 .backend;
             this.sourceContext = backend.loadLpc(this.filename);
-            this.isLoaded = true;
+            if (!!this.sourceContext) {
+                this.isLoaded = true;
+            } else {
+                const ctx = this.context as ParserRuleContext;
+                addDiagnostic(this, {
+                    message: "could not load source for: " + this.filename,
+                    range: rangeFromTokens(ctx.start, ctx.stop),
+                    type: DiagnosticSeverity.Warning,
+                });
+            }
         }
     }
 
@@ -86,7 +97,8 @@ export class CallOtherSymbol
 
     eval(obj: any) {
         if (!(obj instanceof ObjectReferenceInfo)) {
-            throw "expected object reference info";
+            // TODO report this as a diagnostic?
+            return undefined;
         }
 
         // store for later
@@ -108,14 +120,14 @@ export class CallOtherSymbol
         }
 
         // at this point we've figured out the function name and now need to find the actual function.
-        const symTbl = (obj as ObjectReferenceInfo).context.symbolTable;
-        const funSym = symTbl.resolveSync(
+        const symTbl = (obj as ObjectReferenceInfo).context?.symbolTable;
+        const funSym = symTbl?.resolveSync(
             this.functionName,
             false
         ) as IEvaluatableSymbol;
+
         if (!funSym) {
-            // TODO report diagnostic instead
-            throw "could not resolve function: " + this.functionName;
+            return null; // semantic analysis will log this diagnostic
         }
 
         // the next sibling should be the method invocation

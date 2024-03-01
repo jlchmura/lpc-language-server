@@ -1,4 +1,4 @@
-import { ParserRuleContext, RuleContext } from "antlr4ng";
+import { ParserRuleContext, RuleContext, Token } from "antlr4ng";
 import { Position, Range } from "vscode-languageserver";
 import { ILexicalRange } from "./types";
 import {
@@ -163,4 +163,17 @@ export function normalizeFilename(filename: string) {
     }
 
     return filename;
+}
+
+export function rangeFromTokens(start: Token, end: Token): ILexicalRange {
+    return {
+        start: {
+            column: start.column,
+            row: start.line,
+        },
+        end: {
+            column: end.column + end.stop - end.start + 1,
+            row: end.line,
+        },
+    } as ILexicalRange;
 }

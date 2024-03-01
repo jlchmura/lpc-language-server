@@ -53,8 +53,10 @@ export class MethodSymbol
         // });
         let result: any = 0;
         for (const child of this.children) {
-            if (isInstanceOfIEvaluatableSymbol(child)) {
-                result = child.eval(result);
+            if (child instanceof ReturnSymbol) {
+                result = child.eval();
+            } else if (isInstanceOfIEvaluatableSymbol(child)) {
+                child.eval();
             } else {
                 console.warn("Non eval symbol detected in method body", child);
             }

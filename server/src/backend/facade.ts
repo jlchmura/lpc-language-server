@@ -69,14 +69,14 @@ export class LpcFacade {
             if (!source) {
                 try {
                     fileName = this.filenameToAbsolutePath(fileName);
-                    source = fs.readFileSync(fileName, "utf8");
                     if (path.isAbsolute(fileName)) {
+                        source = fs.readFileSync(fileName, "utf8");
                     } else {
                         fs.statSync(path.join(this.workspaceDir, fileName));
                         source = fs.readFileSync(fileName, "utf8");
                     }
                 } catch (e) {
-                    source = "";
+                    return undefined;
                 }
             }
 
@@ -142,41 +142,6 @@ export class LpcFacade {
             const depContext = this.loadDependency(contextEntry, dep);
             if (depContext) {
                 contextEntry.context.addAsReferenceTo(depContext);
-            }
-        }
-
-        // load object-level dependencies
-        for (const filename of info.objectImports) {
-            //const obSymbol = depInfo.symbol;
-            try {
-                const depContext = this.loadDependency(contextEntry, filename);
-                if (depContext) {
-                    contextEntry.context.addAsReferenceTo(depContext, false);
-                }
-
-                contextEntry.context.symbolTable.addObjectTypeRef(
-                    filename,
-                    depContext.symbolTable
-                );
-
-                // // create a namespace for the object
-                // const ns = obSymbol.symbolTable.addNewSymbolOfType(
-                //     NamespaceSymbol,
-                //     obSymbol,
-                //     depInfo.filename
-                // );
-
-                // // add the top-level methods to the object symbol
-                // const methods = depContext.symbolTable.getAllSymbolsSync(
-                //     MethodSymbol,
-                //     true
-                // );
-                // methods.forEach((m) => {
-                //     ns.addSymbol(m);
-                // });
-                // obSymbol.isLoaded = true;
-            } catch (e) {
-                // ignore
             }
         }
 
