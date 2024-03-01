@@ -277,7 +277,7 @@ jumpStatement
 
 callOtherTarget
     : Identifier
-    | PAREN_OPEN Identifier PAREN_CLOSE
+    | PAREN_OPEN expression PAREN_CLOSE
     | StringLiteral
     ;
 
@@ -437,19 +437,11 @@ primaryExpressionStart
     : literal                               # literalExpression
     | CloneObject PAREN_OPEN (ob=expression) PAREN_CLOSE   # cloneObjectExpression 
     | Identifier                            # identifierExpression    
-    | PAREN_OPEN expression PAREN_CLOSE     # parenExpression
-    //| inlineClosureExpression               # primaryInlineClosureExpression
-    //| typeSpecifier                         # memberAccessExpression
-    //| lambdaExpression                      # primaryLambdaExpression
-    //| callOtherOb=expression ARROW callOtherTarget PAREN_OPEN expressionList? PAREN_CLOSE # callOtherExpression
-    //| inheritSuperExpression                # primaryInheritSuperExpression
+    | PAREN_OPEN expression PAREN_CLOSE     # parenExpression    
     | arrayExpression                       # primaryArrayExpression
     | mappingExpression                     # primaryMappingExpression
     | StringLiteral StringLiteral*          # stringConcatExpression        
     ;
-
-// memberAccess
-//     : ARROW Identifier
 
 expression
     : assignmentExpression
