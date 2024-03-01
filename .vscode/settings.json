@@ -4,7 +4,8 @@
         "client/out": true,
         "server/node_modules": true,
         "server/out": true,
-        "out": true
+        "out": true,
+        "node_modules": true
     },
     "editor.formatOnSave": true,
     "[antlr]": {

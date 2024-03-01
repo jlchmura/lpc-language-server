@@ -67,6 +67,7 @@ import {
     MethodDeclarationSymbol,
     MethodSymbol,
 } from "../symbols/methodSymbol";
+import { CallOtherSymbol } from "../symbols/objectSymbol";
 
 type EfunArgument = {
     name: string;
@@ -107,12 +108,6 @@ export class SourceContext {
     );
     private lexerErrorListener: ContextLexerErrorListener =
         new ContextLexerErrorListener(this.diagnostics);
-
-    // Grammar data.
-    private grammarLexerData: IInterpreterData | undefined;
-    private grammarLexerRuleMap = new Map<string, number>(); // A mapping from lexer rule names to their index.
-    private grammarParserData: IInterpreterData | undefined;
-    private grammarParserRuleMap = new Map<string, number>(); // A mapping from parser rule names to their index.
 
     private tree: ProgramContext | undefined; // The root context from the last parse run.
 
@@ -225,11 +220,6 @@ export class SourceContext {
 
         this.info.imports.length = 0;
         this.info.objectImports.length = 0;
-
-        this.grammarLexerData = undefined;
-        this.grammarLexerRuleMap.clear();
-        this.grammarParserData = undefined;
-        this.grammarLexerRuleMap.clear();
 
         this.semanticAnalysisDone = false;
         this.diagnostics.length = 0;
@@ -528,6 +518,12 @@ export class SourceContext {
                         name,
                         EfunSymbol
                     );
+                } else if (symbol instanceof CallOtherSymbol) {
+                    symbol = resolveOfTypeSync(
+                        symbol.objectRef.context.symbolTable,
+                        name,
+                        MethodSymbol
+                    );
                 } else {
                     symbol = searchScope.resolveSync(symbol.name, false);
                 }
@@ -757,5 +753,9 @@ export class SourceContext {
         return s
             .filter((s) => (s as unknown as IFoldableSymbol).foldingRange)
             .map((s) => (s as unknown as IFoldableSymbol).foldingRange);
+    }
+
+    public addDiagnostic(diagnostic: IDiagnosticEntry): void {
+        this.diagnostics.push(diagnostic);
     }
 }

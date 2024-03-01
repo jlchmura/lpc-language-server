@@ -35,6 +35,7 @@ import {
 } from "../symbols/Symbol";
 import { HoverProvider } from "./HoverProvider";
 import { lexRangeToLspRange } from "../utils";
+import { DiagnosticProvider } from "./DiagnosticProvider";
 
 const CHANGE_DEBOUNCE_MS = 300;
 
@@ -55,6 +56,7 @@ export class LpcServer {
     private definitionProvider: LpcDefinitionProvider;
     private codeLenseProvider: CodeLensProvider;
     private hoverProvider: HoverProvider;
+    private diagnosticProvider: DiagnosticProvider;
 
     /** document listener */
     private readonly documents: TextDocuments<TextDocument> = new TextDocuments(
@@ -176,6 +178,7 @@ export class LpcServer {
         // send document open/close/changes to facade
         this.documents.onDidOpen((e) => {
             this.facade.loadLpc(e.document.uri, e.document.getText());
+
             this.processDiagnostic(e.document);
         });
         this.documents.onDidClose((e) => {
@@ -199,6 +202,7 @@ export class LpcServer {
                     this.changeTimers.delete(filename);
                     this.codeLenseProvider.resolveCodeLens;
                     this.facade.reparse(filename);
+
                     this.processDiagnostic(e.document);
 
                     //force refresh codelense
@@ -270,43 +274,9 @@ export class LpcServer {
         this.definitionProvider = new LpcDefinitionProvider(this.facade);
         this.codeLenseProvider = new CodeLensProvider(this.facade);
         this.hoverProvider = new HoverProvider(this.facade);
+        this.diagnosticProvider = new DiagnosticProvider(this.facade);
 
         return result;
-    }
-
-    /**
-     * Processes diangostics for the given document and sends back to the language client.
-     * @param document
-     */
-    private processDiagnostic(document: TextDocument) {
-        const diagnostics: Diagnostic[] = [];
-        const entries = this.facade.getDiagnostics(document.uri);
-
-        for (const entry of entries) {
-            const range = lexRangeToLspRange(entry.range);
-            const diagnostic = Diagnostic.create(
-                range,
-                entry.message,
-                DiagnosticSeverity.Error
-            );
-
-            const { related } = entry;
-            if (!!related) {
-                diagnostic.relatedInformation = [
-                    DiagnosticRelatedInformation.create(
-                        Location.create(
-                            related.source ?? document.uri,
-                            lexRangeToLspRange(related.range)
-                        ),
-                        related.message
-                    ),
-                ];
-            }
-
-            diagnostics.push(diagnostic);
-        }
-
-        this.connection.sendDiagnostics({ uri: document.uri, diagnostics });
     }
 
     private clDisp: Disposable;
@@ -347,5 +317,15 @@ export class LpcServer {
                 });
                 return completionList;
             });
+    }
+
+    private processDiagnostic(document: TextDocument) {
+        const results = this.diagnosticProvider.processDiagnostic(document);
+        this.connection.sendDiagnostics({
+            uri: document.uri,
+            diagnostics: results,
+            version: document.version,
+        });
+        return results;
     }
 }

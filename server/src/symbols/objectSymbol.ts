@@ -40,7 +40,10 @@ export class CloneObjectSymbol
         }
 
         // try to load the source context and store the info in this symbol
-        this.filename = normalizeFilename(filename);
+        const backend = (this.symbolTable as ContextSymbolTable).owner.backend;
+        this.filename = backend.filenameToAbsolutePath(
+            normalizeFilename(filename)
+        );
         this.loadSource();
 
         const info = new ObjectReferenceInfo();
@@ -75,6 +78,8 @@ export class CallOtherSymbol
     extends ScopedSymbol
     implements IEvaluatableSymbol
 {
+    public objectRef: ObjectReferenceInfo;
+
     constructor(name: string, public functionName?: string) {
         super(name);
     }
@@ -83,6 +88,9 @@ export class CallOtherSymbol
         if (!(obj instanceof ObjectReferenceInfo)) {
             throw "expected object reference info";
         }
+
+        // store for later
+        this.objectRef = obj;
 
         // this will handle expressions & string literals
         if (!this.functionName) {

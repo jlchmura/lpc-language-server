@@ -6,7 +6,7 @@ import {
     TypedSymbol,
     IType,
 } from "antlr4-c3";
-import { SymbolKind } from "../types";
+import { IDiagnosticEntry, SymbolKind } from "../types";
 import * as vscodelang from "vscode-languageserver";
 import {
     IdentifierExpressionContext,
@@ -22,6 +22,7 @@ import {
     getSymbolsOfTypeSync,
 } from "./base";
 import { VariableSymbol } from "./variableSymbol";
+import { ContextSymbolTable } from "../backend/ContextSymbolTable";
 
 export class IdentifierSymbol extends LpcBaseSymbol<IdentifierExpressionContext> {
     public get kind() {
@@ -196,4 +197,14 @@ export const completionDetails = new Map<SymbolKind, string>([
 
 export class ITypedSymbol {
     type: IType;
+}
+
+/**
+ * Adds diagnostics to the symbol's SourceContext.
+ * @param symbol
+ * @param d
+ */
+export function addDiagnostic(symbol: BaseSymbol, d: IDiagnosticEntry) {
+    const ctx = (symbol.symbolTable as ContextSymbolTable).owner;
+    ctx.addDiagnostic(d);
 }

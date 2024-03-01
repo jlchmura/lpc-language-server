@@ -18,7 +18,6 @@ export interface IDiagnosticEntry {
     message: string;
     range: ILexicalRange;
     source?: string;
-
     related?: IDiagnosticEntry;
 }
 

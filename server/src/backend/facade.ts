@@ -55,13 +55,22 @@ export class LpcFacade {
         console.log("LpcFacade created", importDir, workspaceDir);
     }
 
+    public filenameToAbsolutePath(filename: string): string {
+        if (path.isAbsolute(filename)) {
+            return filename;
+        } else {
+            return path.join(this.workspaceDir, filename);
+        }
+    }
+
     public loadLpc(fileName: string, source?: string): SourceContext {
         let contextEntry = this.sourceContexts.get(fileName);
         if (!contextEntry) {
             if (!source) {
                 try {
+                    fileName = this.filenameToAbsolutePath(fileName);
+                    source = fs.readFileSync(fileName, "utf8");
                     if (path.isAbsolute(fileName)) {
-                        source = fs.readFileSync(fileName, "utf8");
                     } else {
                         fs.statSync(path.join(this.workspaceDir, fileName));
                         source = fs.readFileSync(fileName, "utf8");
