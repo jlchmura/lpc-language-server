@@ -307,12 +307,11 @@ export class LpcServer {
                     const item = CompletionItem.create(info.name);
                     item.kind = translateCompletionKind(info.kind);
                     item.sortText =
-                        (completionSortKeys[info.kind] ?? "") + info.name;
+                        (completionSortKeys.get(info.kind) ?? "99") + info.name;
                     item.detail =
                         info.description !== undefined
                             ? info.description
-                            : completionDetails[info.kind];
-
+                            : completionDetails.get(info.kind);
                     completionList.push(item);
                 });
                 return completionList;

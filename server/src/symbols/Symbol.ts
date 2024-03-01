@@ -157,11 +157,11 @@ export const translateCompletionKind = (
 /** Determines the sort order in the completion list. One value for each SymbolKind. */
 
 export const completionSortKeys = new Map<SymbolKind, string>([
-    [SymbolKind.Keyword, "01"],
-    [SymbolKind.Method, "08"],
-    [SymbolKind.Variable, "05"],
-    [SymbolKind.Efun, "02"],
-    [SymbolKind.Operator, "00"],
+    [SymbolKind.Keyword, "05"],
+    [SymbolKind.Method, "03"],
+    [SymbolKind.Variable, "02"],
+    [SymbolKind.Efun, "08"],
+    [SymbolKind.Operator, "10"],
 ]);
 
 // Descriptions for each symbol kind.

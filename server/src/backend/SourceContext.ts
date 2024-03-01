@@ -576,13 +576,10 @@ export class SourceContext {
         }
 
         const core = new CodeCompletionCore(this.parser);
-        //core.showResult = false;
+
         core.ignoredTokens = new Set([
             LPCLexer.PAREN_CLOSE,
             LPCLexer.PAREN_OPEN,
-            // LPCLexer.StringLiteral,
-            // LPCLexer.IntegerConstant,
-            // LPCLexer.FloatingConstant,
             LPCLexer.WS,
             LPCLexer.LT,
             LPCLexer.GT,
