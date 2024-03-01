@@ -75,27 +75,6 @@ export class PreprocessorSymbol extends ScopedSymbol {
     }
 }
 
-/** if, switch, etc */
-export class SelectionSymbol extends ScopedSymbol implements IFoldableSymbol {
-    constructor(
-        name: string,
-        public label: string,
-        public foldingRange: vscodelang.FoldingRange
-    ) {
-        super(name);
-    }
-}
-
-export class IfSymbol extends ScopedSymbol {
-    public if: SelectionSymbol;
-    public elseIf: SelectionSymbol[];
-    public else: SelectionSymbol;
-
-    constructor(name: string) {
-        super(name);
-    }
-}
-
 const symbolDescriptionMap = new Map<SymbolKind, string>([
     [SymbolKind.Terminal, "Terminal"],
     [SymbolKind.Keyword, "Keyword"],

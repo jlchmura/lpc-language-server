@@ -50,12 +50,7 @@ import {
     ReturnStatementContext,
     SelectionDirectiveContext,
 } from "../parser3/LPCParser";
-import {
-    IfSymbol,
-    InheritSymbol,
-    PreprocessorSymbol,
-    SelectionSymbol,
-} from "../symbols/Symbol";
+import { InheritSymbol, PreprocessorSymbol } from "../symbols/Symbol";
 import { FoldingRange } from "vscode-languageserver";
 import { typeNameToIType } from "../types";
 import { LPCLexer } from "../parser3/LPCLexer";
@@ -82,6 +77,7 @@ import { OperatorSymbol } from "../symbols/operatorSymbol";
 import { ConditionalSymbol } from "../symbols/conditionalSymbol";
 import { CallOtherSymbol, CloneObjectSymbol } from "../symbols/objectSymbol";
 import { IncludeSymbol } from "../symbols/includeSymbol";
+import { IfSymbol, SelectionSymbol } from "../symbols/selectionSymbol";
 
 export class DetailsVisitor
     extends AbstractParseTreeVisitor<SymbolTable>
