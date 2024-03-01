@@ -7,6 +7,7 @@ import { IDiagnosticEntry, ISymbolInfo } from "../types";
 import { URI } from "vscode-uri";
 import { FoldingRange } from "vscode-languageserver";
 import { normalizeFilename } from "../utils";
+import { IncludeSymbol } from "../symbols/includeSymbol";
 
 export interface IContextEntry {
     context: SourceContext;
@@ -68,7 +69,6 @@ export class LpcFacade {
         if (!contextEntry) {
             if (!source) {
                 try {
-                    fileName = this.filenameToAbsolutePath(fileName);
                     if (path.isAbsolute(fileName)) {
                         source = fs.readFileSync(fileName, "utf8");
                     } else {
@@ -139,8 +139,9 @@ export class LpcFacade {
         // load file-level dependencies (imports & inherits)
         const newDependencies = info.imports;
         for (const dep of newDependencies) {
-            const depContext = this.loadDependency(contextEntry, dep);
+            const depContext = this.loadDependency(contextEntry, dep.filename);
             if (depContext) {
+                (dep.symbol as IncludeSymbol).isLoaded = true;
                 contextEntry.context.addAsReferenceTo(depContext);
             }
         }
@@ -219,6 +220,10 @@ export class LpcFacade {
 
         // Ignore the dependency if we cannot find the source file for it.
         return undefined;
+    }
+
+    public isContextLoaded(fileName: string): boolean {
+        return !!this.sourceContexts.get(normalizeFilename(fileName));
     }
 
     public getContext(

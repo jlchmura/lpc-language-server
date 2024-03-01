@@ -52,7 +52,7 @@ import {
 } from "../parser3/LPCParser";
 import { InheritSymbol, PreprocessorSymbol } from "../symbols/Symbol";
 import { FoldingRange } from "vscode-languageserver";
-import { typeNameToIType } from "../types";
+import { ContextImportInfo, typeNameToIType } from "../types";
 import { LPCLexer } from "../parser3/LPCLexer";
 import {
     VariableIdentifierSymbol,
@@ -71,7 +71,7 @@ import {
     ReturnSymbol,
 } from "../symbols/methodSymbol";
 import { ExpressionSymbol } from "../symbols/expressionSymbol";
-import { trimQuotes } from "../utils";
+import { normalizeFilename, trimQuotes } from "../utils";
 import { LiteralSymbol } from "../symbols/literalSymbol";
 import { OperatorSymbol } from "../symbols/operatorSymbol";
 import { ConditionalSymbol } from "../symbols/conditionalSymbol";
@@ -88,7 +88,7 @@ export class DetailsVisitor
     constructor(
         private backend: LpcFacade,
         private symbolTable: ContextSymbolTable,
-        private imports: string[],
+        private imports: ContextImportInfo[],
         private objectImports: string[]
     ) {
         super();
@@ -269,18 +269,19 @@ export class DetailsVisitor
     };
 
     visitIncludeDirective = (ctx: IncludeDirectiveContext) => {
-        const filename = ctx.directiveIncludeFile().getText();
+        let filename = ctx.directiveIncludeFile().getText();
 
-        this.imports.push(filename);
-        this.addNewSymbol(IncludeSymbol, ctx, filename);
+        const symbol = this.addNewSymbol(IncludeSymbol, ctx, filename);
+        this.imports.push({ filename, symbol });
 
         return undefined;
     };
 
     visitInheritStatement = (ctx: InheritStatementContext) => {
-        const filename = ctx._inheritTarget!.text;
-        this.addNewSymbol(InheritSymbol, ctx, filename);
-        this.imports.push(filename);
+        let filename = ctx._inheritTarget!.text;
+
+        const symbol = this.addNewSymbol(InheritSymbol, ctx, filename);
+        this.imports.push({ filename, symbol });
 
         return undefined;
     };

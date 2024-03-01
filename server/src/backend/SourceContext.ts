@@ -72,11 +72,7 @@ import {
     MethodSymbol,
 } from "../symbols/methodSymbol";
 import { CallOtherSymbol } from "../symbols/objectSymbol";
-
-type EfunArgument = {
-    name: string;
-    type?: IType;
-};
+import { EfunSymbols } from "./EfunsLDMud";
 
 /**
  * Source context for a single LPC file.
@@ -130,34 +126,7 @@ export class SourceContext {
         // Initialize static global symbol table, if not yet done.
         const sizeOfEfun = SourceContext.globalSymbols.resolveSync("sizeof");
         if (!sizeOfEfun) {
-            // add built-in efuns here
-            this.addEfun("abs", FundamentalType.integerType, {
-                name: "number",
-            });
-            this.addEfun("clone_object", LpcTypes.objectType, {
-                name: "name",
-                type: FundamentalType.stringType,
-            });
-            this.addEfun(
-                "map",
-                LpcTypes.mixedArrayType,
-                { name: "arg", type: LpcTypes.mixedArrayType },
-                { name: "func", type: FundamentalType.stringType }
-            );
-            this.addEfun(
-                "present",
-                LpcTypes.objectType,
-                { name: "str", type: FundamentalType.stringType },
-                { name: "env", type: LpcTypes.objectType }
-            );
-            this.addEfun("sizeof", FundamentalType.integerType, {
-                name: "val",
-                type: LpcTypes.mixedType,
-            });
-            this.addEfun("write", LpcTypes.voidType, {
-                name: "msg",
-                type: LpcTypes.mixedType,
-            });
+            // add built-in symbols here
         }
 
         this.lexer = new LPCLexer(CharStreams.fromString(""));
@@ -172,23 +141,6 @@ export class SourceContext {
         this.parser.buildParseTrees = true;
         this.parser.removeErrorListeners();
         this.parser.addErrorListener(this.errorListener);
-    }
-
-    private addEfun(name: string, returnType: IType, ...args: EfunArgument[]) {
-        const symb = SourceContext.globalSymbols.addNewSymbolOfType(
-            EfunSymbol,
-            undefined,
-            name,
-            returnType
-        );
-        args.forEach((arg) => {
-            SourceContext.globalSymbols.addNewSymbolOfType(
-                ParameterSymbol,
-                symb,
-                arg.name,
-                arg.type
-            );
-        });
     }
 
     public get hasErrors(): boolean {
@@ -230,6 +182,7 @@ export class SourceContext {
 
         this.symbolTable.clear();
         this.symbolTable.addDependencies(SourceContext.globalSymbols);
+        this.symbolTable.addDependencies(EfunSymbols);
 
         try {
             this.tree = this.parser.program();
@@ -326,7 +279,8 @@ export class SourceContext {
 
             const semanticListener = new SemanticListener(
                 this.diagnostics,
-                this.symbolTable
+                this.symbolTable,
+                this
             );
             ParseTreeWalker.DEFAULT.walk(semanticListener, this.tree);
         }

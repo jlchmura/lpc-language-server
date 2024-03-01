@@ -267,7 +267,7 @@ export class LpcServer {
         const rootFolderUri = URI.parse(rootFolder);
         const rootFolderPath = rootFolderUri.fsPath;
 
-        this.importDir = path.join(rootFolderPath, "lib");
+        this.importDir = path.join(rootFolderPath, "sys");
         this.facade = new LpcFacade(this.importDir, rootFolderPath);
 
         // init providers

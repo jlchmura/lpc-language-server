@@ -34,6 +34,8 @@ export class InheritSymbol
     extends LpcBaseSymbol<InheritStatementContext>
     implements IEvaluatableSymbol
 {
+    public isLoaded = false;
+
     public get kind() {
         return SymbolKind.Inherit;
     }
@@ -55,17 +57,35 @@ export class EfunSymbol
     extends BaseMethodSymbol
     implements IKindSymbol, IEvaluatableSymbol
 {
-    public constructor(name: string, public returnType?: IType) {
+    public constructor(
+        name: string,
+        public returnType?: IType,
+        public functionModifiers: Set<string> = new Set()
+    ) {
         super(name);
     }
     public get kind() {
         return SymbolKind.Efun;
     }
+
     public getParametersSync() {
         return getSymbolsOfTypeSync(this, ParameterSymbol);
     }
+
     eval(scope?: any) {
         return scope;
+    }
+
+    public allowsMultiArgs() {
+        const prms = this.getParametersSync();
+        if (prms.length === 0) return false;
+        return (prms[prms.length - 1] as EfunParamSymbol).allowMulti;
+    }
+}
+
+export class EfunParamSymbol extends ParameterSymbol {
+    constructor(name: string, type: IType, public allowMulti?: boolean) {
+        super(name, type);
     }
 }
 

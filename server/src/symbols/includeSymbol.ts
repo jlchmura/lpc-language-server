@@ -6,6 +6,8 @@ export class IncludeSymbol
     extends LpcBaseSymbol<IncludeDirectiveContext>
     implements IEvaluatableSymbol
 {
+    public isLoaded = false;
+
     public get kind() {
         return SymbolKind.Include;
     }

@@ -1,5 +1,6 @@
 import {
     ArrayType,
+    BaseSymbol,
     FundamentalType,
     IType,
     ReferenceKind,
@@ -24,10 +25,15 @@ export interface ILexicalRange {
     end: { column: number; row: number };
 }
 
+export type ContextImportInfo = {
+    filename: string;
+    symbol: BaseSymbol;
+};
+
 export interface IContextDetails {
     //unreferencedRules: string[];
     unreferencedMethods: string[];
-    imports: string[];
+    imports: ContextImportInfo[];
     objectImports: string[];
 }
 
@@ -74,8 +80,12 @@ export interface ISymbolInfo {
 
 // prettier-ignore
 export namespace LpcTypes {    
+    export const intType: IType = FundamentalType.integerType;
+    export const stringType: IType=FundamentalType.stringType;
+    export const closureType: IType = new FundamentalType("closure", TypeKind.Class);
     export const objectType: IType = new FundamentalType("object", TypeKind.Class);
     export const voidType: IType = new FundamentalType("void", TypeKind.Unknown);
+    export const mappingType:IType=new FundamentalType("mapping", TypeKind.Map);
     export const mixedType: IType = new FundamentalType("mixed", TypeKind.Unknown);
     export const mixedArrayType: IType = new ArrayType("mixed *", ReferenceKind.Instance, LpcTypes.mixedType);
 }

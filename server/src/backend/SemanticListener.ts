@@ -8,6 +8,8 @@ import {
     CloneObjectExpressionContext,
     FunctionDeclarationContext,
     IdentifierExpressionContext,
+    IncludeDirectiveContext,
+    InheritStatementContext,
     MethodInvocationContext,
     PrimaryExpressionContext,
     ProgramContext,
@@ -17,7 +19,12 @@ import {
     TypeKind,
     MethodSymbol as BaseMethodSymbol,
 } from "antlr4-c3";
-import { ITypedSymbol, IdentifierSymbol } from "../symbols/Symbol";
+import {
+    EfunSymbol,
+    ITypedSymbol,
+    IdentifierSymbol,
+    InheritSymbol,
+} from "../symbols/Symbol";
 import {
     areSetsEqual,
     areTwoParameterArraysEqual,
@@ -31,13 +38,16 @@ import { MethodDeclarationSymbol, MethodSymbol } from "../symbols/methodSymbol";
 import { isInstanceOfIEvaluatableSymbol } from "../symbols/base";
 import { CallOtherSymbol } from "../symbols/objectSymbol";
 import { DiagnosticSeverity } from "vscode-languageserver";
+import { IncludeSymbol } from "../symbols/includeSymbol";
+import { SourceContext } from "./SourceContext";
 
 export class SemanticListener extends LPCParserListener {
     private seenSymbols = new Map<string, Token>();
 
     public constructor(
         private diagnostics: IDiagnosticEntry[],
-        private symbolTable: ContextSymbolTable
+        private symbolTable: ContextSymbolTable,
+        private sourceContext: SourceContext
     ) {
         super();
     }
@@ -45,6 +55,38 @@ export class SemanticListener extends LPCParserListener {
     enterProgram = (ctx: ProgramContext) => {
         // evaluate everything, so that we can use teh eval results in further diagnostics
         this.evaluateProgram(this.symbolTable);
+    };
+
+    /**
+     * validate that the include file was loaded
+     * @param ctx
+     */
+    exitIncludeDirective = (ctx: IncludeDirectiveContext) => {
+        const symbol = this.symbolTable.symbolWithContextSync(
+            ctx
+        ) as IncludeSymbol;
+        if (!symbol.isLoaded) {
+            this.logDiagnostic(
+                "Could not load include file '" + symbol.name + "'",
+                ctx.start,
+                ctx.stop,
+                DiagnosticSeverity.Warning
+            );
+        }
+    };
+
+    exitInheritStatement = (ctx: InheritStatementContext) => {
+        const symbol = this.symbolTable.symbolWithContextSync(
+            ctx
+        ) as InheritSymbol;
+        if (!symbol.isLoaded) {
+            this.logDiagnostic(
+                "Could not load inherited file '" + symbol.name + "'",
+                ctx.start,
+                ctx.stop,
+                DiagnosticSeverity.Warning
+            );
+        }
     };
 
     exitIdentifierExpression = (ctx: IdentifierExpressionContext): void => {
@@ -195,8 +237,9 @@ export class SemanticListener extends LPCParserListener {
             // check if the number of arguments is correct
             const callArgs = ctx.argumentList()?.argument() ?? [];
             const methodParams = methodSymbol?.getParametersSync() ?? [];
+            const isVarArgs = methodSymbol.functionModifiers.has("varargs");
 
-            if (callArgs.length < methodParams.length) {
+            if (callArgs.length < methodParams.length && !isVarArgs) {
                 // find first arg that wasn't provided
                 const notProvidedArg = methodParams[callArgs.length];
                 const entry = this.logDiagnostic(
@@ -213,14 +256,21 @@ export class SemanticListener extends LPCParserListener {
                     source: symbolInfo?.source,
                 };
             } else if (callArgs.length > methodParams.length) {
-                // create range based on any extra args
-                const offenderStart = callArgs[methodParams.length].start;
-                const offenderEnd = callArgs[callArgs.length - 1].stop;
-                const entry = this.logDiagnostic(
-                    `Expected ${methodParams.length} arguments, but got ${callArgs.length}`,
-                    offenderStart,
-                    offenderEnd
-                );
+                if (
+                    !(
+                        methodSymbol instanceof EfunSymbol &&
+                        methodSymbol.allowsMultiArgs()
+                    )
+                ) {
+                    // create range based on any extra args
+                    const offenderStart = callArgs[methodParams.length].start;
+                    const offenderEnd = callArgs[callArgs.length - 1].stop;
+                    const entry = this.logDiagnostic(
+                        `Expected ${methodParams.length} arguments, but got ${callArgs.length}`,
+                        offenderStart,
+                        offenderEnd
+                    );
+                }
             }
         } else {
             this.logDiagnostic(
