@@ -65,7 +65,7 @@ export class SemanticListener extends LPCParserListener {
         const symbol = this.symbolTable.symbolWithContextSync(
             ctx
         ) as IncludeSymbol;
-        if (!symbol.isLoaded) {
+        if (!symbol?.isLoaded) {
             this.logDiagnostic(
                 "Could not load include file '" + symbol.name + "'",
                 ctx.start,
@@ -79,7 +79,7 @@ export class SemanticListener extends LPCParserListener {
         const symbol = this.symbolTable.symbolWithContextSync(
             ctx
         ) as InheritSymbol;
-        if (!symbol.isLoaded) {
+        if (!symbol?.isLoaded) {
             this.logDiagnostic(
                 "Could not load inherited file '" + symbol.name + "'",
                 ctx.start,

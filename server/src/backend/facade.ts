@@ -142,7 +142,9 @@ export class LpcFacade {
         for (const dep of newDependencies) {
             const depContext = this.loadDependency(contextEntry, dep.filename);
             if (depContext) {
-                (dep.symbol as IncludeSymbol).isLoaded = true;
+                if (!!dep.symbol) {
+                    (dep.symbol as IncludeSymbol).isLoaded = true;
+                }
                 contextEntry.context.addAsReferenceTo(depContext);
             }
         }
