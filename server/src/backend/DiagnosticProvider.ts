@@ -30,6 +30,8 @@ export class DiagnosticProvider {
         const diagnostics: Diagnostic[] = [];
         const entries = this.facade.getDiagnostics(document.uri);
 
+        if (!entries) return [];
+
         for (const entry of entries) {
             const range = lexRangeToLspRange(entry.range);
             const diagnostic = Diagnostic.create(

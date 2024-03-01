@@ -144,7 +144,7 @@ export class SemanticListener extends LPCParserListener {
             if (isInstanceOfIEvaluatableSymbol(child)) {
                 child.eval();
             } else {
-                throw "node not evaluable: " + child.name;
+                console.debug("node not evaluable: " + child.name);
             }
         }
     }

@@ -264,7 +264,7 @@ export class LpcFacade {
     ): ISymbolInfo[] {
         const context = this.getContext(fileName);
 
-        return context.listTopLevelSymbols(!fullList);
+        return context?.listTopLevelSymbols(!fullList);
     }
 
     public symbolInfoAtPosition(
@@ -275,7 +275,7 @@ export class LpcFacade {
     ): ISymbolInfo | undefined {
         const context = this.getContext(fileName);
 
-        return context.symbolAtPosition(column, row, limitToChildren);
+        return context?.symbolAtPosition(column, row, limitToChildren);
     }
 
     /**
@@ -328,6 +328,6 @@ export class LpcFacade {
     public getFoldingRanges(fileName: string): FoldingRange[] {
         const context = this.getContext(fileName);
 
-        return context.getFoldingRanges();
+        return context?.getFoldingRanges();
     }
 }

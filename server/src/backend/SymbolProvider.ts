@@ -21,6 +21,8 @@ export class LpcSymbolProvider {
         const symbols = this.backend.listTopLevelSymbols(document.uri, false);
         const symbolsList: DocumentSymbol[] = [];
 
+        if (!symbols) return [];
+
         for (const symbol of symbols) {
             if (!symbol.definition) {
                 continue;
