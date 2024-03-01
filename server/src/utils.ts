@@ -155,3 +155,12 @@ export function getSibling(ctx: RuleContext, offset: number) {
             : undefined;
     return target as ParserRuleContext;
 }
+
+export function normalizeFilename(filename: string) {
+    // add a file extension if there isn't one
+    if (!filename.endsWith(".c") && !filename.endsWith(".h")) {
+        filename += ".c";
+    }
+
+    return filename;
+}

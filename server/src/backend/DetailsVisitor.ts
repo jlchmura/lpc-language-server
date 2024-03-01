@@ -49,10 +49,8 @@ import {
     ReturnStatementContext,
     SelectionDirectiveContext,
 } from "../parser3/LPCParser";
-
 import {
     IfSymbol,
-    IncludeSymbol,
     InheritSymbol,
     PreprocessorSymbol,
     SelectionSymbol,
@@ -82,6 +80,7 @@ import { LiteralSymbol } from "../symbols/literalSymbol";
 import { OperatorSymbol } from "../symbols/operatorSymbol";
 import { ConditionalSymbol } from "../symbols/conditionalSymbol";
 import { CallOtherSymbol, CloneObjectSymbol } from "../symbols/objectSymbol";
+import { IncludeSymbol } from "../symbols/includeSymbol";
 
 export class DetailsVisitor
     extends AbstractParseTreeVisitor<SymbolTable>

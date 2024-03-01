@@ -5,7 +5,7 @@ import {
     isInstanceOfIEvaluatableSymbol,
 } from "./base";
 import { IdentifierSymbol } from "./Symbol";
-import { firstEntry } from "../utils";
+import { firstEntry, normalizeFilename } from "../utils";
 import { LiteralSymbol } from "./literalSymbol";
 import { MethodInvocationSymbol } from "./methodSymbol";
 import { ContextSymbolTable } from "../backend/ContextSymbolTable";
@@ -29,6 +29,7 @@ export class CloneObjectSymbol
     }
 
     eval() {
+        // first evaluate the filename
         let filename = "";
         for (const child of this.children) {
             if (isInstanceOfIEvaluatableSymbol(child)) {
@@ -37,8 +38,9 @@ export class CloneObjectSymbol
                 throw "not evaluable";
             }
         }
-        this.filename = filename;
 
+        // try to load the source context and store the info in this symbol
+        this.filename = normalizeFilename(filename);
         this.loadSource();
 
         const info = new ObjectReferenceInfo();
@@ -57,14 +59,14 @@ export class CloneObjectSymbol
         }
     }
 
+    /**
+     * intercept the resolve and resolve only from this objects source context
+     * @param name
+     * @param localOnly
+     * @returns
+     */
     override resolveSync(name: string, localOnly?: boolean): BaseSymbol {
-        // intercept the resolve and resolve only from this objects source context
-        if (!this.isLoaded) {
-            const backend = (this.symbolTable as ContextSymbolTable).owner
-                .backend;
-            this.sourceContext = backend.loadLpc(this.filename);
-        }
-
+        this.loadSource(); // load if needed
         return this.sourceContext.resolveSymbol(name);
     }
 }
@@ -104,6 +106,7 @@ export class CallOtherSymbol
             false
         ) as IEvaluatableSymbol;
         if (!funSym) {
+            // TODO report diagnostic instead
             throw "could not resolve function: " + this.functionName;
         }
 

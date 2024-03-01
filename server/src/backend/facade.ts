@@ -6,6 +6,7 @@ import { IDiagnosticEntry, ISymbolInfo } from "../types";
 
 import { URI } from "vscode-uri";
 import { FoldingRange } from "vscode-languageserver";
+import { normalizeFilename } from "../utils";
 
 export interface IContextEntry {
     context: SourceContext;
@@ -220,10 +221,7 @@ export class LpcFacade {
                 depType = DependencySearchType.Global;
             }
 
-            // add a file extension if there isn't one
-            if (!filename.endsWith(".c") && !filename.endsWith(".h")) {
-                filename += ".c";
-            }
+            filename = normalizeFilename(filename);
 
             const searchPaths = [basePath, fullPath];
             if (depType === DependencySearchType.Global) {
@@ -306,7 +304,7 @@ export class LpcFacade {
         return context.symbolAtPosition(column, row, limitToChildren);
     }
 
-     /**
+    /**
      * Determines source file and position of all occurrences of the given symbol. The search includes
      * also all referencing and referenced contexts.
      *
@@ -314,9 +312,15 @@ export class LpcFacade {
      * @param symbolName The name of the symbol to check.
      * @returns A list of symbol info entries, each describing one occurrence.
      */
-     public getSymbolOccurrences(fileName: string, symbolName: string): ISymbolInfo[] {
+    public getSymbolOccurrences(
+        fileName: string,
+        symbolName: string
+    ): ISymbolInfo[] {
         const context = this.getContext(fileName);
-        const result = context.symbolTable.getSymbolOccurrences(symbolName, false);
+        const result = context.symbolTable.getSymbolOccurrences(
+            symbolName,
+            false
+        );
 
         // Sort result by kind. This way rule definitions appear before rule references and are re-parsed first.
         return result.sort((lhs: ISymbolInfo, rhs: ISymbolInfo) => {

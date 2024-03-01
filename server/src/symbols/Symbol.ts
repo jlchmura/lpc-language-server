@@ -5,14 +5,9 @@ import {
     ParameterSymbol,
     TypedSymbol,
     IType,
-    TypeKind,
-    ReferenceKind,
-    SymbolConstructor,
-    IScopedSymbol,
 } from "antlr4-c3";
 import { SymbolKind } from "../types";
 import * as vscodelang from "vscode-languageserver";
-
 import {
     IdentifierExpressionContext,
     IncludeDirectiveContext,
@@ -25,7 +20,6 @@ import {
     IKindSymbol,
     LpcBaseSymbol,
     getSymbolsOfTypeSync,
-    isInstanceOfIEvaluatableSymbol,
 } from "./base";
 import { VariableSymbol } from "./variableSymbol";
 
@@ -34,14 +28,17 @@ export class IdentifierSymbol extends LpcBaseSymbol<IdentifierExpressionContext>
         return SymbolKind.Keyword;
     }
 }
-export class IncludeSymbol extends LpcBaseSymbol<IncludeDirectiveContext> {
-    public get kind() {
-        return SymbolKind.Include;
-    }
-}
-export class InheritSymbol extends LpcBaseSymbol<InheritStatementContext> {
+
+export class InheritSymbol
+    extends LpcBaseSymbol<InheritStatementContext>
+    implements IEvaluatableSymbol
+{
     public get kind() {
         return SymbolKind.Inherit;
+    }
+
+    eval(scope?: any) {
+        return scope;
     }
 }
 

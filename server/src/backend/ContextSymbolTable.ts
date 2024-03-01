@@ -9,12 +9,7 @@ import {
 import { ParseTree, ParserRuleContext, TerminalNode } from "antlr4ng";
 import { SourceContext } from "./SourceContext";
 import { ISymbolInfo, SymbolGroupKind, SymbolKind } from "../types";
-import {
-    EfunSymbol,
-    IdentifierSymbol,
-    IncludeSymbol,
-    InheritSymbol,
-} from "../symbols/Symbol";
+import { EfunSymbol, InheritSymbol } from "../symbols/Symbol";
 import { FoldingRange } from "vscode-languageserver";
 import { DefineSymbol } from "../symbols/defineSymbol";
 import { VariableSymbol } from "../symbols/variableSymbol";
@@ -22,6 +17,7 @@ import { EvalScope } from "../symbols/base";
 import { AssignmentSymbol } from "../symbols/assignmentSymbol";
 import { MethodSymbol } from "../symbols/methodSymbol";
 import { InlineClosureSymbol } from "../symbols/closureSymbol";
+import { IncludeSymbol } from "../symbols/includeSymbol";
 
 export class ContextSymbolTable extends SymbolTable {
     public tree: ParserRuleContext; // Set by the owning source context after each parse run.
