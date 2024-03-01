@@ -86,6 +86,7 @@ import { EqualityExpressionContext } from "./LPCParser.js";
 import { RangeExpressionContext } from "./LPCParser.js";
 import { UnaryExpressionContext } from "./LPCParser.js";
 import { PrimaryExpressionContext } from "./LPCParser.js";
+import { CallOtherExpressionContext } from "./LPCParser.js";
 import { LiteralExpressionContext } from "./LPCParser.js";
 import { CloneObjectExpressionContext } from "./LPCParser.js";
 import { IdentifierExpressionContext } from "./LPCParser.js";
@@ -985,6 +986,16 @@ export class LPCParserListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitPrimaryExpression?: (ctx: PrimaryExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.callOtherExpression`.
+     * @param ctx the parse tree
+     */
+    enterCallOtherExpression?: (ctx: CallOtherExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.callOtherExpression`.
+     * @param ctx the parse tree
+     */
+    exitCallOtherExpression?: (ctx: CallOtherExpressionContext) => void;
     /**
      * Enter a parse tree produced by the `literalExpression`
      * labeled alternative in `LPCParser.primaryExpressionStart`.

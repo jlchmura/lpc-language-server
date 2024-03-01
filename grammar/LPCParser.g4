@@ -429,8 +429,12 @@ unaryExpression
 
 primaryExpression
     : pe = primaryExpressionStart bracketExpression* (
-        (methodInvocation | INC | DEC | ARROW callOtherTarget | Identifier) bracketExpression*
+        (methodInvocation | INC | DEC | callOtherExpression | Identifier) bracketExpression*
     )*
+    ;
+
+callOtherExpression
+    : ARROW (callOtherTarget methodInvocation)?
     ;
 
 primaryExpressionStart

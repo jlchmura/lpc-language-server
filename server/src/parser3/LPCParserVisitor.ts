@@ -86,6 +86,7 @@ import { EqualityExpressionContext } from "./LPCParser.js";
 import { RangeExpressionContext } from "./LPCParser.js";
 import { UnaryExpressionContext } from "./LPCParser.js";
 import { PrimaryExpressionContext } from "./LPCParser.js";
+import { CallOtherExpressionContext } from "./LPCParser.js";
 import { LiteralExpressionContext } from "./LPCParser.js";
 import { CloneObjectExpressionContext } from "./LPCParser.js";
 import { IdentifierExpressionContext } from "./LPCParser.js";
@@ -632,6 +633,12 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      * @return the visitor result
      */
     visitPrimaryExpression?: (ctx: PrimaryExpressionContext) => Result;
+    /**
+     * Visit a parse tree produced by `LPCParser.callOtherExpression`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitCallOtherExpression?: (ctx: CallOtherExpressionContext) => Result;
     /**
      * Visit a parse tree produced by the `literalExpression`
      * labeled alternative in `LPCParser.primaryExpressionStart`.

@@ -54,6 +54,7 @@ import { DiagnosticSeverity, FoldingRange } from "vscode-languageserver";
 import {
     lexRangeFromContext as lexRangeFromContext,
     resolveOfTypeSync,
+    trimQuotes,
 } from "../utils";
 import { IFoldableSymbol, isInstanceOfIKindSymbol } from "../symbols/base";
 import { DefineSymbol } from "../symbols/defineSymbol";
@@ -479,15 +480,24 @@ export class SourceContext {
 
         let parent = terminal.parent as RuleContext;
 
+        let symbol: BaseSymbol;
         switch (parent.ruleIndex) {
+            case LPCParser.RULE_callOtherExpression:
+                let callSym =
+                    this.symbolTable.symbolContainingContext(terminal);
+                if (callSym instanceof CallOtherSymbol) {
+                    symbol = callSym;
+                }
+                break;
             case LPCParser.RULE_assignmentExpression:
             case LPCParser.RULE_primaryExpression:
             case LPCParser.RULE_primaryExpressionStart:
             case LPCParser.RULE_functionHeader:
             case LPCParser.RULE_callOtherTarget:
             case LPCParser.RULE_assignmentOperator:
-                let symbol = this.symbolTable.symbolContainingContext(terminal);
-                const name = terminal.getText();
+            case LPCParser.RULE_expression:
+                symbol = this.symbolTable.symbolContainingContext(terminal);
+                const name = trimQuotes(terminal.getText());
                 const searchScope = symbol.getParentOfType(ScopedSymbol);
 
                 if (symbol instanceof VariableIdentifierSymbol) {
@@ -531,15 +541,15 @@ export class SourceContext {
                     symbol = searchScope.resolveSync(symbol.name, false);
                 }
 
-                if (!!symbol) {
-                    return this.getSymbolInfo(symbol);
-                }
-
                 break;
 
             default: {
                 break;
             }
+        }
+
+        if (!!symbol) {
+            return this.getSymbolInfo(symbol);
         }
 
         return undefined;
@@ -570,9 +580,9 @@ export class SourceContext {
         core.ignoredTokens = new Set([
             LPCLexer.PAREN_CLOSE,
             LPCLexer.PAREN_OPEN,
-            LPCLexer.StringLiteral,
-            LPCLexer.IntegerConstant,
-            LPCLexer.FloatingConstant,
+            // LPCLexer.StringLiteral,
+            // LPCLexer.IntegerConstant,
+            // LPCLexer.FloatingConstant,
             LPCLexer.WS,
             LPCLexer.LT,
             LPCLexer.GT,
@@ -583,10 +593,14 @@ export class SourceContext {
         ]);
 
         core.preferredRules = new Set([
-            LPCParser.RULE_primaryExpressionStart,
+            LPCParser.RULE_callOtherExpression,
+            LPCParser.RULE_callOtherTarget,
+            //LPCParser.RULE_primaryExpressionStart,
             LPCParser.RULE_variableDeclaration,
-            LPCParser.RULE_statement,
-            LPCParser.RULE_assignmentExpression,
+            LPCParser.RULE_literal,
+            //LPCParser.RULE_statement,
+            //LPCParser.RULE_assignmentExpression,
+
             //LPCParser.RULE_functionDeclaration,
         ]);
 
@@ -610,6 +624,9 @@ export class SourceContext {
         }
 
         const candidates = core.collectCandidates(index);
+
+        console.dir(candidates.rules);
+
         const result: ISymbolInfo[] = [];
         candidates.tokens.forEach((following: number[], type: number) => {
             switch (type) {
@@ -692,13 +709,31 @@ export class SourceContext {
                     // Lexer rules.
                     promises.push(
                         SourceContext.globalSymbols.getAllSymbols(EfunSymbol)
-                        //this.symbolTable.getAllSymbols(EfunSymbol, true)
                     );
                     promises.push(
                         this.symbolTable.getAllSymbols(VariableSymbol)
                     );
                     promises.push(this.symbolTable.getAllSymbols(MethodSymbol));
 
+                    break;
+                case LPCParser.RULE_callOtherExpression:
+                case LPCParser.RULE_callOtherTarget:
+                    // we need the symbol at this position
+                    const node = BackendUtils.parseTreeFromPosition(
+                        this.tree,
+                        column,
+                        row
+                    );
+                    const s = this.symbolTable.symbolContainingContext(node);
+                    if (s instanceof CallOtherSymbol) {
+                        promises.push(
+                            s.objectRef.context.symbolTable.getAllSymbols(
+                                MethodSymbol
+                            )
+                        );
+                    } else {
+                        throw "unexpected symbol type";
+                    }
                     break;
                 case LPCParser.RULE_assignmentExpression:
                     promises.push(

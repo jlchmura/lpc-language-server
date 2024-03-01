@@ -21,6 +21,7 @@ import {
     AdditiveExpressionContext,
     AndExpressionContext,
     AssignmentExpressionContext,
+    CallOtherExpressionContext,
     CallOtherTargetContext,
     CloneObjectExpressionContext,
     ConditionalAndExpressionContext,
@@ -165,7 +166,7 @@ export class DetailsVisitor
 
         let symbolType: SymbolConstructor<BaseSymbol, unknown[]>;
 
-        if (priExp.ARROW().length > 0) {
+        if (priExp.callOtherExpression()?.length > 0) {
             // if there's an arrow then its a variable
             symbolType = VariableIdentifierSymbol;
         } else if (priExp.methodInvocation().length > 0) {
@@ -191,17 +192,26 @@ export class DetailsVisitor
         );
     };
 
-    visitCallOtherTarget = (ctx: CallOtherTargetContext) => {
-        const nm = ctx.Identifier();
-        return this.withScope(
-            ctx,
-            CallOtherSymbol,
-            ["#call-other-target#", nm?.getText()],
-            (s) => {
-                return this.visitChildren(ctx);
-            }
-        );
+    visitCallOtherExpression = (ctx: CallOtherExpressionContext) => {
+        const nm = ctx.callOtherTarget()?.Identifier()?.getText();
+        return this.withScope(ctx, CallOtherSymbol, ["->", nm], (s) => {
+            return this.visitChildren(ctx);
+        });
     };
+
+    // visitCallOtherTarget = (ctx: CallOtherTargetContext) => {
+    //     //     return this.visitChildren(ctx);
+    //     // };
+    //     const nm = ctx.Identifier();
+    //     return this.withScope(
+    //         ctx,
+    //         CallOtherSymbol,
+    //         ["#call-other-target#", nm?.getText()],
+    //         (s) => {
+    //             return this.visitChildren(ctx);
+    //         }
+    //     );
+    // };
 
     visitPrimitiveTypeVariableDeclaration = (
         ctx: PrimitiveTypeVariableDeclarationContext
@@ -452,9 +462,18 @@ export class DetailsVisitor
     };
 
     visitExpression = (ctx: ExpressionContext) => {
-        return this.withScope(ctx, ExpressionSymbol, ["#expression#"], (s) => {
+        if (ctx.children?.length > 1) {
+            return this.withScope(
+                ctx,
+                ExpressionSymbol,
+                ["#expression#"],
+                (s) => {
+                    return this.visitChildren(ctx);
+                }
+            );
+        } else {
             return this.visitChildren(ctx);
-        });
+        }
     };
 
     visitConditionalExpression = (ctx: ConditionalExpressionContext) => {

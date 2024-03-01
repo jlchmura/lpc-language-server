@@ -236,7 +236,7 @@ export class LpcFacade {
     public getDiagnostics(fileName: string): IDiagnosticEntry[] {
         const context = this.getContext(fileName);
 
-        return context.getDiagnostics();
+        return context?.getDiagnostics();
     }
 
     /**

@@ -3,6 +3,7 @@ import { LPCParserListener } from "../parser3/LPCParserListener";
 import { IDiagnosticEntry, SymbolGroupKind } from "../types";
 import { ContextSymbolTable } from "./ContextSymbolTable";
 import {
+    CallOtherExpressionContext,
     CallOtherTargetContext,
     CloneObjectExpressionContext,
     FunctionDeclarationContext,
@@ -23,6 +24,7 @@ import {
     getSibling,
     rangeFromTokens,
     resolveOfTypeSync,
+    trimQuotes,
 } from "../utils";
 import { VariableSymbol } from "../symbols/variableSymbol";
 import { MethodDeclarationSymbol, MethodSymbol } from "../symbols/methodSymbol";
@@ -152,16 +154,16 @@ export class SemanticListener extends LPCParserListener {
 
         // find the context that this method is being invoked on
         const methodObj = getSibling(ctx, -1);
-        const methodName = methodObj.getText();
+        const methodName = trimQuotes(methodObj.getText());
         rangeStart = methodObj.start;
 
         // symbol table that will be used to look up definition
         let lookupTable: ContextSymbolTable = this.symbolTable;
 
         // if this is a call to another object, use that object's symbol table
-        if (methodObj instanceof CallOtherTargetContext) {
+        if (ctx.parent instanceof CallOtherExpressionContext) {
             const callOtherSymbol = this.symbolTable.symbolWithContextSync(
-                methodObj
+                ctx.parent
             ) as CallOtherSymbol;
             if (callOtherSymbol.objectRef?.isLoaded === true) {
                 lookupTable = callOtherSymbol.objectRef.context.symbolTable;

@@ -10,7 +10,6 @@ tokens {
 
 // Keywords
 
-AUTO: 'auto';
 BREAK: 'break';
 CASE: 'case';
 CHAR: 'char';

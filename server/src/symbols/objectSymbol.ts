@@ -116,7 +116,10 @@ export class CallOtherSymbol
         }
 
         if (!this.functionName) {
-            throw "could not determine function name for arrow: " + this.name;
+            // TODO send via diagnostic?
+            console.warn(
+                "could not determine function name for arrow: " + this.name
+            );
         }
 
         // at this point we've figured out the function name and now need to find the actual function.
@@ -131,7 +134,7 @@ export class CallOtherSymbol
         }
 
         // the next sibling should be the method invocation
-        const methodInvok = this.nextSibling as MethodInvocationSymbol;
+        const methodInvok = this.children[0] as MethodInvocationSymbol;
         if (!(methodInvok instanceof MethodInvocationSymbol))
             throw "expected a method invocation";
 
