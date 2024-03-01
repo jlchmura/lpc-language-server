@@ -439,7 +439,7 @@ callOtherExpression
 
 primaryExpressionStart
     : literal                               # literalExpression
-    | CloneObject PAREN_OPEN (ob=expression) PAREN_CLOSE   # cloneObjectExpression 
+    | (CloneObject|LoadObject) PAREN_OPEN (ob=expression) PAREN_CLOSE   # cloneObjectExpression 
     | Identifier                            # identifierExpression    
     | PAREN_OPEN expression PAREN_CLOSE     # parenExpression    
     | arrayExpression                       # primaryArrayExpression

@@ -177,15 +177,18 @@ export class DetailsVisitor
         return undefined;
     };
 
+    /**
+     * this handles clone_object and load_object
+     * @param ctx
+     * @returns
+     */
     visitCloneObjectExpression = (ctx: CloneObjectExpressionContext) => {
-        return this.withScope(
-            ctx,
-            CloneObjectSymbol,
-            ["#clone-object#"],
-            (s) => {
-                return this.visitChildren(ctx);
-            }
-        );
+        let name = "#clone-object#";
+        if (ctx.LoadObject()) name = "#load-object#";
+
+        return this.withScope(ctx, CloneObjectSymbol, [name], (s) => {
+            return this.visitChildren(ctx);
+        });
     };
 
     visitCallOtherExpression = (ctx: CallOtherExpressionContext) => {

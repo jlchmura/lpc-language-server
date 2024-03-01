@@ -139,8 +139,9 @@ STRING_START: '"' -> mode(STRING_MODE);
 StringLiteral: STRING_START STRING_CONTENT* STRING_END;
 CharacterConstant: '\'' (~['\r\n\\] | '\\' .) '\'';
 
-// efuns
+// efuns that need special handling
 CloneObject: 'clone_object';
+LoadObject: 'load_object';
 
 // Identifiers
 Identifier: [$a-zA-Z_] [a-zA-Z_0-9]* -> type(Identifier);
