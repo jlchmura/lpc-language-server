@@ -102,11 +102,11 @@ export class LpcServer {
         });
 
         // Codelense Provider
-        this.registerCodelensProvider();
-        this.connection.onCodeLensResolve((params) => {
-            const result = this.codeLenseProvider.resolveCodeLens(params);
-            return result;
-        });
+        // this.registerCodelensProvider();
+        // this.connection.onCodeLensResolve((params) => {
+        //     const result = this.codeLenseProvider.resolveCodeLens(params);
+        //     return result;
+        // });
 
         // Completion Provider
         this.connection.onCompletion(async (params) => {
@@ -279,17 +279,17 @@ export class LpcServer {
         return result;
     }
 
-    private clDisp: Disposable;
-    private registerCodelensProvider() {
-        if (!!this.clDisp) {
-            this.clDisp.dispose();
-        }
-        this.clDisp = this.connection.onCodeLens((params) => {
-            const doc = this.documents.get(params.textDocument.uri);
-            const result = this.codeLenseProvider.provideCodeLenses(doc);
-            return result;
-        });
-    }
+    // private clDisp: Disposable;
+    // private registerCodelensProvider() {
+    //     if (!!this.clDisp) {
+    //         this.clDisp.dispose();
+    //     }
+    //     this.clDisp = this.connection.onCodeLens((params) => {
+    //         const doc = this.documents.get(params.textDocument.uri);
+    //         const result = this.codeLenseProvider.provideCodeLenses(doc);
+    //         return result;
+    //     });
+    // }
 
     private async provideCompletionItems(
         document: TextDocument,
