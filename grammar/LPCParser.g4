@@ -262,7 +262,7 @@ iterationStatement
     : WHILE PAREN_OPEN expression PAREN_CLOSE (statement|SEMI)
     | DO statement WHILE PAREN_OPEN expression PAREN_CLOSE SEMI
     | FOR PAREN_OPEN expression? (COMMA expression)* SEMI expression? SEMI expression? (COMMA expression)* PAREN_CLOSE (statement|SEMI)
-    | FOREACH PAREN_OPEN typeSpecifier Identifier (IN | COLON) expression PAREN_CLOSE (statement|SEMI)
+    | FOREACH PAREN_OPEN typeSpecifier? Identifier (IN | COLON) expression PAREN_CLOSE (statement|SEMI)
     ;
 
 returnStatement
