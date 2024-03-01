@@ -101,7 +101,8 @@ export class DetailsVisitor
         const defineStr = ctx.END_DEFINE()?.getText()?.trim();
 
         // trim everything after the first space
-        const idx = defineStr.indexOf(" ");
+        let idx = defineStr.indexOf(" ");
+        if (idx < 0) idx = defineStr.indexOf("\t");
         const label = defineStr.substring(0, idx);
         const value = defineStr.substring(idx + 1);
 

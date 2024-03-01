@@ -57,6 +57,7 @@ export class LpcFacade {
     }
 
     public filenameToAbsolutePath(filename: string): string {
+        if (!filename) return filename;
         if (path.isAbsolute(filename)) {
             return filename;
         } else {

@@ -154,6 +154,8 @@ export function getSibling(ctx: RuleContext, offset: number) {
 }
 
 export function normalizeFilename(filename: string) {
+    if (!filename) return filename;
+
     // add a file extension if there isn't one
     if (!filename.endsWith(".c") && !filename.endsWith(".h")) {
         filename += ".c";

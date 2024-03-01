@@ -85,6 +85,7 @@ export namespace LpcTypes {
     export const stringType: IType=FundamentalType.stringType;
     export const closureType: IType = new FundamentalType("closure", TypeKind.Class);
     export const objectType: IType = new FundamentalType("object", TypeKind.Class);
+    export const objectArrayType: IType = new ArrayType("object *", ReferenceKind.Instance, LpcTypes.objectType);
     export const voidType: IType = new FundamentalType("void", TypeKind.Unknown);
     export const mappingType:IType=new FundamentalType("mapping", TypeKind.Map);
     export const mixedType: IType = new FundamentalType("mixed", TypeKind.Unknown);
