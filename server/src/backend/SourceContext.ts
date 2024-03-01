@@ -56,7 +56,11 @@ import {
     resolveOfTypeSync,
     trimQuotes,
 } from "../utils";
-import { IFoldableSymbol, isInstanceOfIKindSymbol } from "../symbols/base";
+import {
+    IFoldableSymbol,
+    getSymbolsOfTypeSync,
+    isInstanceOfIKindSymbol,
+} from "../symbols/base";
 import { DefineSymbol } from "../symbols/defineSymbol";
 import {
     VariableIdentifierSymbol,
@@ -581,11 +585,13 @@ export class SourceContext {
             LPCLexer.PAREN_CLOSE,
             LPCLexer.PAREN_OPEN,
             LPCLexer.WS,
-            LPCLexer.LT,
-            LPCLexer.GT,
+            //LPCLexer.LT,
+            //LPCLexer.GT,
             LPCLexer.SEMI,
             LPCLexer.CURLY_OPEN,
             LPCLexer.CURLY_CLOSE,
+            LPCLexer.COMMA,
+            LPCLexer.COLON,
             Token.EOF,
         ]);
 
@@ -620,6 +626,16 @@ export class SourceContext {
             }
         }
 
+        let context = BackendUtils.parseTreeFromPosition(
+            this.tree,
+            column,
+            row
+        );
+
+        // while (!!context && !(context instanceof ParserRuleContext)) {
+        //     context = context.parent;
+        // }
+
         const candidates = core.collectCandidates(index);
 
         console.dir(candidates.rules);
@@ -627,6 +643,8 @@ export class SourceContext {
         const result: ISymbolInfo[] = [];
         candidates.tokens.forEach((following: number[], type: number) => {
             switch (type) {
+                case LPCLexer.Identifier:
+                    break;
                 case LPCLexer.ARROW: {
                     result.push({
                         kind: SymbolKind.Operator,
@@ -703,6 +721,7 @@ export class SourceContext {
 
                 case LPCParser.RULE_statement:
                 case LPCParser.RULE_primaryExpressionStart:
+                case LPCParser.RULE_literal:
                     // Lexer rules.
                     promises.push(
                         SourceContext.globalSymbols.getAllSymbols(EfunSymbol)
@@ -711,17 +730,16 @@ export class SourceContext {
                         this.symbolTable.getAllSymbols(VariableSymbol)
                     );
                     promises.push(this.symbolTable.getAllSymbols(MethodSymbol));
-
+                    result.push({
+                        kind: SymbolKind.Operator,
+                        name: "->",
+                        description: "Call other",
+                        source: this.fileName,
+                    });
                     break;
                 case LPCParser.RULE_callOtherExpression:
                 case LPCParser.RULE_callOtherTarget:
-                    // we need the symbol at this position
-                    const node = BackendUtils.parseTreeFromPosition(
-                        this.tree,
-                        column,
-                        row
-                    );
-                    const s = this.symbolTable.symbolContainingContext(node);
+                    const s = this.symbolTable.symbolContainingContext(context);
                     if (s instanceof CallOtherSymbol) {
                         promises.push(
                             s.objectRef.context.symbolTable.getAllSymbols(
@@ -729,7 +747,7 @@ export class SourceContext {
                             )
                         );
                     } else {
-                        throw "unexpected symbol type";
+                        console.warn("unexpected symbol type");
                     }
                     break;
                 case LPCParser.RULE_assignmentExpression:
@@ -738,22 +756,25 @@ export class SourceContext {
                     );
                     break;
                 case LPCParser.RULE_functionDeclaration:
-                    result.push({
-                        kind: SymbolKind.Method,
-                        name: "modifiers type functionName(parameters) { code }",
-                        source: this.fileName,
-                        definition: undefined,
-                        description: undefined,
-                    });
+                    // result.push({
+                    //     kind: SymbolKind.Method,
+                    //     name: "modifiers type functionName(parameters) { code }",
+                    //     source: this.fileName,
+                    //     definition: undefined,
+                    //     description: undefined,
+                    // });
 
                     break;
 
                 case LPCParser.RULE_variableDeclaration:
-                    result.push({
-                        kind: SymbolKind.Variable,
-                        name: "modifiers type variableName = value",
-                        source: this.fileName,
-                    });
+                    // result.push({
+                    //     kind: SymbolKind.Variable,
+                    //     name: "modifiers type variableName = value",
+                    //     source: this.fileName,
+                    // });
+                    promises.push(
+                        this.symbolTable.getAllSymbols(VariableSymbol, false)
+                    );
 
                     break;
 
@@ -767,16 +788,29 @@ export class SourceContext {
             if (symbols) {
                 symbols.forEach((symbol) => {
                     if (symbol.name !== "EOF") {
-                        result.push({
-                            kind: SourceContext.getKindFromSymbol(symbol),
-                            name: symbol.name,
-                            source: this.fileName,
-                            definition: SourceContext.definitionForContext(
-                                symbol.context,
-                                true
-                            ),
-                            description: undefined,
-                        });
+                        const info = this.getSymbolInfo(symbol);
+
+                        if (symbol instanceof MethodSymbol) {
+                            result.push({
+                                kind: SourceContext.getKindFromSymbol(symbol),
+                                name: symbol.name,
+                                source: this.fileName,
+                                line: info.line,
+                                definition: info.definition,
+                                description: info.description,
+                            });
+                        } else {
+                            result.push({
+                                kind: SourceContext.getKindFromSymbol(symbol),
+                                name: symbol.name,
+                                source: this.fileName,
+                                definition: SourceContext.definitionForContext(
+                                    symbol.context,
+                                    true
+                                ),
+                                description: undefined,
+                            });
+                        }
                     }
                 });
             }

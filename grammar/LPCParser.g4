@@ -90,7 +90,7 @@ declaration
     : functionHeaderDeclaration
     | functionDeclaration
     | structDeclaration
-    | variableDeclaration
+    | variableDeclaration    
     ;
 
 functionModifier

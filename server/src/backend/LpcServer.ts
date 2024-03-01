@@ -12,6 +12,7 @@ import {
     InitializeResult,
     InitializedParams,
     Location,
+    MarkupContent,
     OptionalVersionedTextDocumentIdentifier,
     Position,
     Range,
@@ -312,6 +313,10 @@ export class LpcServer {
                         info.description !== undefined
                             ? info.description
                             : completionDetails.get(info.kind);
+                    // item.documentation = {
+                    //     value: "```\n" + info.definition?.text + "\n```",
+                    //     kind: "markdown",
+                    // } as MarkupContent;
                     completionList.push(item);
                 });
                 return completionList;

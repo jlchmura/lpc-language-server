@@ -4,6 +4,10 @@
 //
 lexer grammar LPCLexer;
 
+channels {
+    COMMENTS_CHANNEL
+}
+
 tokens {
     Identifier
 }
@@ -142,12 +146,12 @@ CloneObject: 'clone_object';
 Identifier: [$a-zA-Z_] [a-zA-Z_0-9]* -> type(Identifier);
 
 // Whitespace and comments
-COMMENT: '/*' .*? '*/' -> skip;
-LINE_COMMENT: '//' .*? '\n' -> skip;
+COMMENT: '/*' .*? '*/' -> channel(COMMENTS_CHANNEL);
+LINE_COMMENT: '//' .*? '\n' -> channel(COMMENTS_CHANNEL);
 
 DEFINE: HASH 'define' -> pushMode(DEFINE_MODE);
 
-WS: [ \t\r\n]+ -> skip;
+WS: [ \t\r\n]+ -> channel(HIDDEN);
 
 // to handle #define that can be multiline
 mode DEFINE_MODE;    
