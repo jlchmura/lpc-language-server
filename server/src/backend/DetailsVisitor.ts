@@ -10,7 +10,6 @@ import {
     BaseSymbol,
     FundamentalType,
     IType,
-    ParameterSymbol,
     ReferenceKind,
     ScopedSymbol,
     SymbolTable,
@@ -22,6 +21,7 @@ import {
     AdditiveExpressionContext,
     AndExpressionContext,
     AssignmentExpressionContext,
+    CallOtherTargetContext,
     CloneObjectExpressionContext,
     ConditionalAndExpressionContext,
     ConditionalExpressionContext,
@@ -30,7 +30,6 @@ import {
     EqualityExpressionContext,
     ExclusiveOrExpressionContext,
     ExpressionContext,
-    ExpressionListContext,
     FunctionDeclarationContext,
     FunctionHeaderDeclarationContext,
     IdentifierExpressionContext,
@@ -40,6 +39,7 @@ import {
     InheritStatementContext,
     InlineClosureExpressionContext,
     LiteralContext,
+    MethodInvocationContext,
     MultiplicativeExpressionContext,
     ParameterListContext,
     PrimaryExpressionContext,
@@ -54,7 +54,6 @@ import {
     IfSymbol,
     IncludeSymbol,
     InheritSymbol,
-    ObjectSymbol,
     PreprocessorSymbol,
     SelectionSymbol,
 } from "../symbols/Symbol";
@@ -71,6 +70,7 @@ import { AssignmentSymbol } from "../symbols/assignmentSymbol";
 import { InlineClosureSymbol } from "../symbols/closureSymbol";
 import {
     MethodDeclarationSymbol,
+    MethodInvocationSymbol,
     MethodParameterSymbol,
     MethodSymbol,
 } from "../symbols/methodSymbol";
@@ -79,6 +79,7 @@ import { trimQuotes } from "../utils";
 import { LiteralSymbol } from "../symbols/literalSymbol";
 import { OperatorSymbol } from "../symbols/operatorSymbol";
 import { ConditionalSymbol } from "../symbols/conditionalSymbol";
+import { CallOtherSymbol, CloneObjectSymbol } from "../symbols/objectSymbol";
 
 export class DetailsVisitor
     extends AbstractParseTreeVisitor<SymbolTable>
@@ -144,6 +145,17 @@ export class DetailsVisitor
         );
     };
 
+    visitMethodInvocation = (ctx: MethodInvocationContext) => {
+        return this.withScope(
+            ctx,
+            MethodInvocationSymbol,
+            ["#method-invocation#"],
+            (s) => {
+                return this.visitChildren(ctx);
+            }
+        );
+    };
+
     visitIdentifierExpression = (ctx: IdentifierExpressionContext) => {
         const priExp = ctx.parent as PrimaryExpressionContext;
         const isVar = priExp.methodInvocation().length === 0; // if its not a method invocation, then its a variable reference
@@ -158,9 +170,25 @@ export class DetailsVisitor
     };
 
     visitCloneObjectExpression = (ctx: CloneObjectExpressionContext) => {
-        return this.withScope(ctx, ObjectSymbol, ["#clone-object#"], (s) => {
-            return this.visitChildren(ctx);
-        });
+        return this.withScope(
+            ctx,
+            CloneObjectSymbol,
+            ["#clone-object#"],
+            (s) => {
+                return this.visitChildren(ctx);
+            }
+        );
+    };
+
+    visitCallOtherTarget = (ctx: CallOtherTargetContext) => {
+        return this.withScope(
+            ctx,
+            CallOtherSymbol,
+            ["#call-other-target#"],
+            (s) => {
+                return this.visitChildren(ctx);
+            }
+        );
     };
 
     visitPrimitiveTypeVariableDeclaration = (

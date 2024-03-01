@@ -1,4 +1,4 @@
-import { ParserRuleContext } from "antlr4ng";
+import { ParserRuleContext, RuleContext } from "antlr4ng";
 import { Position, Range } from "vscode-languageserver";
 import { ILexicalRange } from "./types";
 import {
@@ -126,4 +126,32 @@ export function trimQuotes(str: string) {
         return str.slice(1, -1);
     }
     return str;
+}
+
+/**
+ * returns the first entry of an array or undefined if the array is empty
+ * @param arr
+ * @returns
+ */
+export function firstEntry<T>(arr: T[]): T | undefined {
+    if (arr?.length > 0) {
+        return arr[0];
+    }
+    return undefined;
+}
+
+/**
+ * get the sibling of the given context
+ * @param ctx
+ * @param offset
+ * @returns
+ */
+export function getSibling(ctx: RuleContext, offset: number) {
+    const parent = ctx.parent as RuleContext;
+    const idx = parent.children.indexOf(ctx);
+    const target =
+        idx + offset >= 0 && idx + offset < parent.children.length
+            ? parent.children[idx + offset]
+            : undefined;
+    return target as ParserRuleContext;
 }

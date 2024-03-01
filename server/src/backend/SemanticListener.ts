@@ -25,6 +25,7 @@ import { ITypedSymbol, IdentifierSymbol } from "../symbols/Symbol";
 import {
     areSetsEqual,
     areTwoParameterArraysEqual,
+    getSibling,
     resolveOfTypeSync,
 } from "../utils";
 import { VariableSymbol } from "../symbols/variableSymbol";
@@ -320,14 +321,4 @@ export class SemanticListener extends LPCParserListener {
             this.diagnostics.push(entry);
         }
     }
-}
-
-function getSibling(ctx: RuleContext, offset: number) {
-    const parent = ctx.parent as RuleContext;
-    const idx = parent.children.indexOf(ctx);
-    const target =
-        idx + offset >= 0 && idx + offset < parent.children.length
-            ? parent.children[idx + offset]
-            : undefined;
-    return target as ParserRuleContext;
 }

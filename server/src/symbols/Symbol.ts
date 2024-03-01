@@ -60,31 +60,6 @@ export class FunctionIdentifierSymbol
     }
 }
 
-export class ObjectSymbol extends ScopedSymbol implements IEvaluatableSymbol {
-    public isLoaded: boolean = false;
-
-    constructor(
-        name: string,
-        public filename?: string,
-        public type?: ObjectType
-    ) {
-        super(name);
-    }
-
-    eval() {
-        let filename = "";
-        for (const child of this.children) {
-            if (isInstanceOfIEvaluatableSymbol(child)) {
-                filename = child.eval(filename);
-            } else {
-                throw "not evaluable";
-            }
-        }
-        filename = "obj:" + filename;
-        return (this.filename = filename);
-    }
-}
-
 export class BlockSymbol extends ScopedSymbol {}
 
 export class EfunSymbol extends BaseMethodSymbol implements IKindSymbol {
@@ -227,20 +202,4 @@ export const completionDetails = new Map<SymbolKind, string>([
 
 export class ITypedSymbol {
     type: IType;
-}
-
-export class ObjectType extends BaseSymbol implements IType {
-    public constructor(public name: string) {
-        super(name);
-    }
-
-    baseTypes: IType[] = [];
-
-    public get kind(): TypeKind {
-        return TypeKind.Class;
-    }
-
-    public get reference(): ReferenceKind {
-        return ReferenceKind.Instance;
-    }
 }

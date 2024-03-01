@@ -15,6 +15,7 @@ import {
 import { SymbolKind } from "../types";
 import { VariableSymbol } from "./variableSymbol";
 import { FoldingRange } from "vscode-languageserver";
+import { ExpressionSymbol } from "./expressionSymbol";
 
 export class MethodParameterSymbol
     extends ParameterSymbol
@@ -73,5 +74,15 @@ export class MethodDeclarationSymbol
 {
     public get kind() {
         return SymbolKind.MethodDeclaration;
+    }
+}
+
+export class MethodInvocationSymbol extends ScopedSymbol {
+    public getArguments() {
+        return getSymbolsOfTypeSync(this, ExpressionSymbol);
+    }
+
+    constructor(name: string) {
+        super(name);
     }
 }
