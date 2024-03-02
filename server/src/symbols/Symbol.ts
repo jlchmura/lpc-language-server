@@ -89,9 +89,16 @@ export class EfunParamSymbol extends ParameterSymbol {
     }
 }
 
-export class PreprocessorSymbol extends ScopedSymbol {
+export class PreprocessorSymbol
+    extends ScopedSymbol
+    implements IEvaluatableSymbol
+{
     constructor(name: string, public label: string) {
         super(name);
+    }
+
+    eval(scope?: any) {
+        return undefined;
     }
 }
 
