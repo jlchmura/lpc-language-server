@@ -22,6 +22,8 @@ import { deflateSync } from "zlib";
 import { SourceContext } from "../backend/SourceContext";
 import { LpcFacade } from "../backend/facade";
 
+export const MAX_CALLDEPTH_SIZE = 10;
+
 export class MethodParameterSymbol
     extends ParameterSymbol
     implements IKindSymbol, IEvaluatableSymbol
@@ -39,6 +41,7 @@ export class MethodSymbol
     extends BaseMethodSymbol
     implements IFoldableSymbol, IKindSymbol, IEvaluatableSymbol
 {
+    private callDepth = 0;
     constructor(
         name: string,
         returnType?: IType,
@@ -47,13 +50,28 @@ export class MethodSymbol
         super(name, returnType);
     }
 
+    /** this is a quick hack to prevent runaway recrussions during evaluation.
+     * TODO: add a real call stack to the evaluation engine
+     *
+     */
+    resetCallDepth() {
+        this.callDepth = 0;
+    }
+
     eval(paramScope?: Map<string, IEvaluatableSymbol>) {
-        // start with program scope
+        // TODO: make function arguments available
 
         // paramScope.forEach((value, key) => {
         //     this.scope.set(key, value as VariableSymbol);
         // });
         let result: any = 0;
+
+        // don't eval past this many recurssions, just to be safe.
+        if (this.callDepth++ > MAX_CALLDEPTH_SIZE) {
+            console.warn("Max call stack exceeded: " + this.name);
+            return undefined;
+        }
+
         for (const child of this.children) {
             if (child instanceof ReturnSymbol) {
                 result = child.eval();
@@ -63,6 +81,7 @@ export class MethodSymbol
                 console.warn("Non eval symbol detected in method body", child);
             }
         }
+
         return result;
     }
 
@@ -102,7 +121,7 @@ export class MethodInvocationSymbol
             if (isInstanceOfIEvaluatableSymbol(child)) {
                 scope = child.eval(scope);
             } else {
-                throw "not evaluable: " + child.name;
+                console.warn("not evaluable: " + child.name);
             }
         }
         return scope;
@@ -133,9 +152,7 @@ export class FunctionIdentifierSymbol
 
     eval(scope?: any) {
         const def = this.findDeclaration() as IEvaluatableSymbol;
-        if (this.name != def?.name) {
-            return def?.eval(scope);
-        }
+        return def?.eval(scope);
     }
 }
 

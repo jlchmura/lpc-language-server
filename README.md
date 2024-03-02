@@ -24,6 +24,6 @@ Both of these things will be user configurable in the future.
 -   Better support for #if/else/etc preprocessor directives
 -   Coroutines
 
-## Symbol / Eval ToDo's
+## Evaluation Engine Todo
 
-Lots
+-   Replace the current recursion protection in MethodSymbol with a real call stack.

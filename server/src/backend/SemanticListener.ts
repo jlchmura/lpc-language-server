@@ -183,6 +183,9 @@ export class SemanticListener extends LPCParserListener {
         //     return;
         // }
         for (const child of progSymbol.children) {
+            if (child instanceof MethodSymbol) {
+                child.resetCallDepth();
+            }
             if (isInstanceOfIEvaluatableSymbol(child)) {
                 child.eval();
             } else {
