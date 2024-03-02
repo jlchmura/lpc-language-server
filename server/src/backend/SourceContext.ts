@@ -48,7 +48,7 @@ import {
 } from "antlr4-c3";
 import { BackendUtils } from "./BackendUtils";
 import { LpcFacade } from "./facade";
-import { EfunSymbol } from "../symbols/Symbol";
+
 import { DetailsVisitor } from "./DetailsVisitor";
 import { DiagnosticSeverity, FoldingRange } from "vscode-languageserver";
 import {
@@ -73,6 +73,7 @@ import {
 } from "../symbols/methodSymbol";
 import { CallOtherSymbol } from "../symbols/objectSymbol";
 import { EfunSymbols } from "./EfunsLDMud";
+import { EfunSymbol } from "../symbols/efunSymbol";
 
 /**
  * Source context for a single LPC file.
@@ -81,6 +82,8 @@ export class SourceContext {
     public static globalSymbols = new ContextSymbolTable("Global Symbols", {
         allowDuplicateSymbols: false,
     });
+
+    public static efunSymbols = EfunSymbols;
 
     public symbolTable: ContextSymbolTable;
     public sourceId: string;
@@ -486,7 +489,7 @@ export class SourceContext {
                         MethodSymbol
                     );
                     symbol ??= resolveOfTypeSync(
-                        this.symbolTable,
+                        SourceContext.efunSymbols, // efuns always come from here
                         name,
                         EfunSymbol
                     );

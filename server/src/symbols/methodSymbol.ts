@@ -17,10 +17,10 @@ import { VariableSymbol } from "./variableSymbol";
 import { FoldingRange } from "vscode-languageserver";
 import { ExpressionSymbol } from "./expressionSymbol";
 import { resolveOfTypeSync } from "../utils";
-import { EfunSymbol } from "./Symbol";
 import { deflateSync } from "zlib";
 import { SourceContext } from "../backend/SourceContext";
 import { LpcFacade } from "../backend/facade";
+import { EfunSymbol } from "./efunSymbol";
 
 export const MAX_CALLDEPTH_SIZE = 10;
 
@@ -128,6 +128,10 @@ export class MethodInvocationSymbol
     }
 }
 
+/**
+ * Represents a code identifier that points to a function somehwere else, such as `foo()` or `o->bar()`.
+ * On evaluation, it will attempt to look up the actual function definition and evaluate it.
+ */
 export class FunctionIdentifierSymbol
     extends ScopedSymbol
     implements IKindSymbol, IEvaluatableSymbol
@@ -143,10 +147,11 @@ export class FunctionIdentifierSymbol
             MethodSymbol
         );
         defSymbol ??= resolveOfTypeSync(
-            SourceContext.globalSymbols,
+            SourceContext.efunSymbols,
             this.name,
             EfunSymbol
         );
+
         return defSymbol;
     }
 

@@ -19,12 +19,7 @@ import {
     TypeKind,
     MethodSymbol as BaseMethodSymbol,
 } from "antlr4-c3";
-import {
-    EfunSymbol,
-    ITypedSymbol,
-    IdentifierSymbol,
-    InheritSymbol,
-} from "../symbols/Symbol";
+import { InheritSymbol } from "../symbols/Symbol";
 import {
     areSetsEqual,
     areTwoParameterArraysEqual,
@@ -40,6 +35,7 @@ import { CallOtherSymbol } from "../symbols/objectSymbol";
 import { DiagnosticSeverity } from "vscode-languageserver";
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import { SourceContext } from "./SourceContext";
+import { EfunSymbol } from "../symbols/efunSymbol";
 
 export class SemanticListener extends LPCParserListener {
     private seenSymbols = new Map<string, Token>();
