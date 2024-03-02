@@ -18,21 +18,28 @@ export class LpcSymbolProvider {
     constructor(private backend: LpcFacade) {}
 
     public getSymbols(document: TextDocument) {
-        const symbols = this.backend.listTopLevelSymbols(document.uri, false);
-        const symbolsList: DocumentSymbol[] = [];
+        try {
+            const symbols = this.backend.listTopLevelSymbols(
+                document.uri,
+                false
+            );
+            const symbolsList: DocumentSymbol[] = [];
 
-        if (!symbols) return [];
+            if (!symbols) return [];
 
-        for (const symbol of symbols) {
-            if (!symbol.definition) {
-                continue;
+            for (const symbol of symbols) {
+                if (!symbol.definition) {
+                    continue;
+                }
+
+                const info = this.createDocumentSymbol(symbol);
+                symbolsList.push(info);
             }
 
-            const info = this.createDocumentSymbol(symbol);
-            symbolsList.push(info);
+            return symbolsList;
+        } catch (e) {
+            const i = 0;
         }
-
-        return symbolsList;
     }
 
     private createDocumentSymbol(symbol: ISymbolInfo): DocumentSymbol {

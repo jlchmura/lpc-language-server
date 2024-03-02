@@ -103,7 +103,7 @@ export class DetailsVisitor
         // trim everything after the first space
         let idx = defineStr.indexOf(" ");
         if (idx < 0) idx = defineStr.indexOf("\t");
-        const label = defineStr.substring(0, idx);
+        const label = idx > 0 ? defineStr.substring(0, idx) : defineStr;
         const value = defineStr.substring(idx + 1);
 
         //this.scope.context = ctx; // store the context for later
