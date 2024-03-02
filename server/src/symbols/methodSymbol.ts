@@ -21,6 +21,8 @@ import { deflateSync } from "zlib";
 import { SourceContext } from "../backend/SourceContext";
 import { LpcFacade } from "../backend/facade";
 import { EfunSymbol } from "./efunSymbol";
+import { ObjectReferenceInfo } from "./objectSymbol";
+import { ContextSymbolTable } from "../backend/ContextSymbolTable";
 
 export const MAX_CALLDEPTH_SIZE = 10;
 
@@ -157,6 +159,20 @@ export class FunctionIdentifierSymbol
 
     eval(scope?: any) {
         const def = this.findDeclaration() as IEvaluatableSymbol;
+        if (def instanceof EfunSymbol) {
+            switch (def.name) {
+                case "this_object":
+                    const ownerProgram = (
+                        this.symbolTable as ContextSymbolTable
+                    ).owner;
+                    return new ObjectReferenceInfo(
+                        ownerProgram.fileName,
+                        true,
+                        ownerProgram
+                    );
+            }
+        }
+
         return def?.eval(scope);
     }
 }

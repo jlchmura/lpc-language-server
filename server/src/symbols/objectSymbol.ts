@@ -14,9 +14,11 @@ import { ParserRuleContext } from "antlr4ng";
 import { DiagnosticSeverity } from "vscode-languageserver";
 
 export class ObjectReferenceInfo {
-    filename: string;
-    isLoaded: boolean;
-    context: SourceContext;
+    constructor(
+        public filename?: string,
+        public isLoaded?: boolean,
+        public context?: SourceContext
+    ) {}
 }
 
 export class CloneObjectSymbol
