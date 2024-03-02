@@ -597,8 +597,6 @@ export class SourceContext {
 
         const candidates = core.collectCandidates(index);
 
-        console.dir(candidates.rules);
-
         const result: ISymbolInfo[] = [];
         candidates.tokens.forEach((following: number[], type: number) => {
             switch (type) {

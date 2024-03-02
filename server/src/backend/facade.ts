@@ -190,7 +190,6 @@ export class LpcFacade {
         // The given import dir is used to locate the dependency (either relative to the base path or via an
         // absolute path).
         // If we cannot find the grammar file that way we try the base folder.
-        console.log("loadDependency", depName);
         const contextFilename = contextEntry.filename.startsWith("file:")
             ? URI.parse(contextEntry.filename).fsPath
             : contextEntry.filename;
