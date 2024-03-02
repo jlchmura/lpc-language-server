@@ -19,6 +19,7 @@ efun("closurep", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("clear_bit", LpcTypes.stringType, false, ["str", LpcTypes.stringType], ["n", LpcTypes.intType]);
 efun("creator", LpcTypes.stringType, false, ["ob", LpcTypes.objectType]);
 efun("ctime", LpcTypes.stringType, false, ["clock", LpcTypes.intType]);
+efun("deep_inventory", LpcTypes.objectArrayType, true, ["ob", LpcTypes.objectType], ["depth", LpcTypes.intType]);
 efun("destruct", LpcTypes.voidType, false, ["ob", LpcTypes.objectType]);
 efun("environment", LpcTypes.objectType, true, ["ob", LpcTypes.objectType]);
 efun("first_inventory", LpcTypes.objectType, true, ["ob", LpcTypes.stringType]);

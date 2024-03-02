@@ -114,7 +114,8 @@ export class SourceContext {
     public constructor(
         public backend: LpcFacade,
         public fileName: string,
-        private extensionDir: string
+        private extensionDir: string,
+        private importDir: string
     ) {
         this.sourceId = path.basename(fileName);
         this.symbolTable = new ContextSymbolTable(
@@ -124,10 +125,10 @@ export class SourceContext {
         );
 
         // Initialize static global symbol table, if not yet done.
-        const sizeOfEfun = SourceContext.globalSymbols.resolveSync("sizeof");
-        if (!sizeOfEfun) {
-            // add built-in symbols here
-        }
+        // const sizeOfEfun = SourceContext.globalSymbols.resolveSync("sizeof");
+        // if (!sizeOfEfun) {
+        //     // add built-in symbols here
+        // }
 
         this.lexer = new LPCLexer(CharStreams.fromString(""));
 
@@ -182,6 +183,10 @@ export class SourceContext {
 
         this.symbolTable.clear();
         this.symbolTable.addDependencies(SourceContext.globalSymbols);
+        if (!!LpcFacade.SefunSymbols) {
+            this.symbolTable.addDependencies(LpcFacade.SefunSymbols);
+        }
+
         this.symbolTable.addDependencies(EfunSymbols);
 
         try {
