@@ -160,15 +160,26 @@ export class FunctionIdentifierSymbol
     eval(scope?: any) {
         const def = this.findDeclaration() as IEvaluatableSymbol;
         if (def instanceof EfunSymbol) {
+            const ownerProgram = (this.symbolTable as ContextSymbolTable).owner;
             switch (def.name) {
+                // TODO: move this to efun symbol after we add a call stack
                 case "this_object":
-                    const ownerProgram = (
-                        this.symbolTable as ContextSymbolTable
-                    ).owner;
                     return new ObjectReferenceInfo(
                         ownerProgram.fileName,
                         true,
                         ownerProgram
+                    );
+                // TODO: this is just a quick hack to get the player object
+                // need a better way to check if references are already loaded.
+                case "this_player":
+                    const playerCtx = ownerProgram.backend.addDependency(
+                        ownerProgram.fileName,
+                        { filename: "obj/player", symbol: this }
+                    );
+                    return new ObjectReferenceInfo(
+                        "obj/player",
+                        !!playerCtx,
+                        playerCtx
                     );
             }
         }

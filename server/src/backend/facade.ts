@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { SourceContext } from "./SourceContext";
 
-import { IDiagnosticEntry, ISymbolInfo } from "../types";
+import { ContextImportInfo, IDiagnosticEntry, ISymbolInfo } from "../types";
 
 import { URI } from "vscode-uri";
 import { FoldingRange } from "vscode-languageserver";
@@ -139,6 +139,20 @@ export class LpcFacade {
         }
     }
 
+    public addDependency(filename: string, dep: ContextImportInfo) {
+        const contextEntry = this.sourceContexts.get(filename);
+        if (contextEntry) {
+            const depContext = this.loadDependency(contextEntry, dep.filename);
+            if (depContext) {
+                if (!!dep.symbol) {
+                    (dep.symbol as IncludeSymbol).isLoaded = true;
+                }
+                contextEntry.context.addAsReferenceTo(depContext);
+            }
+            return depContext;
+        }
+    }
+
     private parseLpc(contextEntry: IContextEntry) {
         const oldDependencies = contextEntry.dependencies;
         contextEntry.dependencies = [];
@@ -147,13 +161,7 @@ export class LpcFacade {
         // load file-level dependencies (imports & inherits)
         const newDependencies = info.imports;
         for (const dep of newDependencies) {
-            const depContext = this.loadDependency(contextEntry, dep.filename);
-            if (depContext) {
-                if (!!dep.symbol) {
-                    (dep.symbol as IncludeSymbol).isLoaded = true;
-                }
-                contextEntry.context.addAsReferenceTo(depContext);
-            }
+            this.addDependency(contextEntry.filename, dep);
         }
 
         // load sefun file, if there is one.

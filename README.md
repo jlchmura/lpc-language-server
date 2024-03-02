@@ -17,7 +17,10 @@ When the language server encounters an `#include`, it will search for a `sys` fo
 
 In addition, the language server will attempt to load a file `sys/simul_efun.h` and add it as a reference to each LPC file opened. This will allow you to specify function headers for your sefuns, so that the language server can validate those function calls.
 
-Both of these things will be user configurable in the future.
+`this_object()` will evaluate to the current program.
+`this_player()` will attempt to load `obj/player.c`.
+
+All of these things will be user configurable in the future.
 
 ## Grammar ToDo's
 
