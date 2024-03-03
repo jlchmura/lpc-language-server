@@ -161,32 +161,7 @@ export class FunctionIdentifierSymbol
 
     eval(stack: CallStack, scope?: any) {
         const def = stack.getFunction(this.name);
-        if (def instanceof EfunSymbol) {
-            const ownerProgram = (this.symbolTable as ContextSymbolTable).owner;
-            switch (def.name) {
-                // TODO: move this to efun symbol after we add a call stack
-                case "this_object":
-                    return new ObjectReferenceInfo(
-                        ownerProgram.fileName,
-                        true,
-                        ownerProgram
-                    );
-                // TODO: this is just a quick hack to get the player object
-                // need a better way to check if references are already loaded.
-                case "this_player":
-                    const playerCtx = ownerProgram.backend.addDependency(
-                        ownerProgram.fileName,
-                        { filename: "obj/player", symbol: this }
-                    );
-                    return new ObjectReferenceInfo(
-                        "obj/player",
-                        !!playerCtx,
-                        playerCtx
-                    );
-            }
-        } else {
-            return def?.eval(stack, scope);
-        }
+        return def?.eval(stack, scope);
     }
 }
 
@@ -233,6 +208,28 @@ export class EfunSymbol
     }
 
     eval(stack: CallStack, scope?: any) {
+        const ownerProgram = (stack.root.symbol as ContextSymbolTable).owner;
+        switch (this.name) {
+            case "this_object":
+                return new ObjectReferenceInfo(
+                    ownerProgram.fileName,
+                    true,
+                    ownerProgram
+                );
+            // TODO: this is just a quick hack to get the player object
+            // need a better way to check if references are already loaded.
+            case "this_player":
+                const playerCtx = ownerProgram.backend.addDependency(
+                    ownerProgram.fileName,
+                    { filename: "obj/player", symbol: this }
+                );
+                return new ObjectReferenceInfo(
+                    "obj/player",
+                    !!playerCtx,
+                    playerCtx
+                );
+        }
+
         return scope;
     }
 

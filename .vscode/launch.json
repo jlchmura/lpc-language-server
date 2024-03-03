@@ -1,68 +1,61 @@
 // A launch configuration that compiles the extension and then opens it inside a new window
 {
-	"version": "0.2.0",
-	"configurations": [
-		{
-			"type": "extensionHost",
-			"request": "launch",
-			"name": "Launch Client",
-			"runtimeExecutable": "${execPath}",
-			"args": [
-				"${workspaceRoot}/../lpc-test",
-				"${workspaceRoot}/../lpc-test/test.c",
-				"--extensionDevelopmentPath=${workspaceRoot}",
-			],
-			"autoAttachChildProcesses": true,
-			"sourceMaps": true,
-			"outFiles": [
-				"${workspaceFolder}/out/**/*.js",				
-			],
-			"preLaunchTask": "compile",
-			"smartStep": true,
-			"skipFiles": [
-				"<node_internals>/**",
-				"node_modules/**/*",
-				"**/vs/workbench/api/**/*",
-				"**/gitlens.js"
-
-			]
-		},
-		{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "extensionHost",
+            "request": "launch",
+            "name": "Launch Client",
+            "runtimeExecutable": "${execPath}",
+            "args": [
+                "${workspaceRoot}/../lpc-test",
+                "${workspaceRoot}/../lpc-test/test.c",
+                "--extensionDevelopmentPath=${workspaceRoot}"
+            ],
+            "autoAttachChildProcesses": true,
+            "sourceMaps": true,
+            "outFiles": ["${workspaceFolder}/out/**/*.js"],
+            "preLaunchTask": "compile",
+            "smartStep": true,
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**/*",
+                "**/vs/workbench/api/**/*",
+                "**/gitlens.js"
+            ]
+        },
+        {
             "type": "node",
             "request": "launch",
             "name": "Launch Bin",
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
+            "skipFiles": ["<node_internals>/**"],
             "program": "${workspaceFolder}/out/server/src/bin.js",
             "args": ["test.c"],
             "preLaunchTask": "compile:bin",
-			"sourceMaps": true,
-            "outFiles": [
-                "${workspaceFolder}/out/**/*.js"
-            ]
+            "sourceMaps": true,
+            "outFiles": ["${workspaceFolder}/out/**/*.js"]
         },
-		{
-			"name": "Language Server E2E Test",
-			"type": "extensionHost",
-			"request": "launch",
-			"runtimeExecutable": "${execPath}",
-			"args": [
-				"--extensionDevelopmentPath=${workspaceRoot}",
-				"--extensionTestsPath=${workspaceRoot}/client/out/test/index",
-				"${workspaceRoot}/client/testFixture"
-			],
-			"outFiles": ["${workspaceRoot}/client/out/test/**/*.js"]
-		},
-		{
+        {
+            "name": "Language Server E2E Test",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceRoot}",
+                "--extensionTestsPath=${workspaceRoot}/client/out/test/index",
+                "${workspaceRoot}/client/testFixture"
+            ],
+            "outFiles": ["${workspaceRoot}/client/out/test/**/*.js"]
+        },
+        {
             "name": "Debug ANTLR4 grammar",
             "type": "antlr-debug",
             "request": "launch",
             "input": "test.c",
-            "grammar": "grammar/LPC.g4",            
+            "grammar": "grammar/LPC.g4",
             "startRule": "lpc_program",
             "printParseTree": true,
             "visualParseTree": true
         }
-	]
+    ]
 }

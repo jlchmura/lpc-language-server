@@ -32,6 +32,10 @@ export class CallStack extends StackBase {
     private readonly stack: StackFrame[] = [];
     private readonly rootFrame: StackFrame;
 
+    public get root() {
+        return this.rootFrame;
+    }
+
     constructor(symbol: ScopedSymbol) {
         super(symbol, new Map<string, StackValue>());
 
