@@ -1,3 +1,4 @@
+import { CallStack } from "../backend/CallStack";
 import { IncludeDirectiveContext } from "../parser3/LPCParser";
 import { SymbolKind } from "../types";
 import { IEvaluatableSymbol, LpcBaseSymbol } from "./base";
@@ -12,7 +13,7 @@ export class IncludeSymbol
         return SymbolKind.Include;
     }
 
-    eval(scope?: any) {
+    eval(stack: CallStack, scope?: any) {
         return scope;
     }
 }

@@ -67,13 +67,13 @@ import {
     VariableSymbol,
 } from "../symbols/variableSymbol";
 import {
+    EfunSymbol,
     FunctionIdentifierSymbol,
     MethodDeclarationSymbol,
     MethodSymbol,
 } from "../symbols/methodSymbol";
 import { CallOtherSymbol } from "../symbols/objectSymbol";
 import { EfunSymbols } from "./EfunsLDMud";
-import { EfunSymbol } from "../symbols/efunSymbol";
 
 /**
  * Source context for a single LPC file.

@@ -1,6 +1,6 @@
 import { ParseTree, ParserRuleContext, RuleContext, Token } from "antlr4ng";
 import { LPCParserListener } from "../parser3/LPCParserListener";
-import { IDiagnosticEntry, SymbolGroupKind } from "../types";
+import { IDiagnosticEntry, LpcTypes, SymbolGroupKind } from "../types";
 import { ContextSymbolTable } from "./ContextSymbolTable";
 import {
     CallOtherExpressionContext,
@@ -18,24 +18,37 @@ import {
     ScopedSymbol,
     TypeKind,
     MethodSymbol as BaseMethodSymbol,
+    BaseSymbol,
+    IType,
+    SymbolTable,
 } from "antlr4-c3";
 import { InheritSymbol } from "../symbols/Symbol";
 import {
     areSetsEqual,
     areTwoParameterArraysEqual,
     getSibling,
+    normalizeFilename,
     rangeFromTokens,
     resolveOfTypeSync,
     trimQuotes,
 } from "../utils";
 import { VariableSymbol } from "../symbols/variableSymbol";
-import { MethodDeclarationSymbol, MethodSymbol } from "../symbols/methodSymbol";
-import { isInstanceOfIEvaluatableSymbol } from "../symbols/base";
+import {
+    EfunSymbol,
+    MethodDeclarationSymbol,
+    MethodSymbol,
+} from "../symbols/methodSymbol";
+import {
+    getSymbolsOfTypeSync,
+    isInstanceOfIEvaluatableSymbol,
+} from "../symbols/base";
 import { CallOtherSymbol } from "../symbols/objectSymbol";
 import { DiagnosticSeverity } from "vscode-languageserver";
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import { SourceContext } from "./SourceContext";
-import { EfunSymbol } from "../symbols/efunSymbol";
+import { DefineSymbol } from "../symbols/defineSymbol";
+import { CallStack, StackValue } from "./CallStack";
+import { EfunSymbols } from "./EfunsLDMud";
 
 export class SemanticListener extends LPCParserListener {
     private seenSymbols = new Map<string, Token>();
@@ -174,18 +187,51 @@ export class SemanticListener extends LPCParserListener {
     };
 
     evaluateProgram(progSymbol: ScopedSymbol) {
-        // if (this.diagnostics.length > 0) {
-        //     console.log("Skipping eval due to unresolved diagnostics");
-        //     return;
-        // }
+        const stack = new CallStack(progSymbol);
+        const programFilename = this.sourceContext.fileName;
+        const backend = this.sourceContext.backend;
+        const imports = backend.getDependencies(programFilename);
+
+        // add globals (efuns, etc) to the stack first
+        this.addPogramToStack(EfunSymbols, stack);
+
+        // add all dependencies to the stack second
+        for (const importFilename of imports) {
+            const importCtx = backend.getContext(importFilename);
+            const importTbl = importCtx.symbolTable;
+
+            this.addPogramToStack(importTbl as ScopedSymbol, stack);
+        }
+
+        // TODO:  this is wrong. We need to evaluate as we add symbols to the stack
+
+        // now add this program to the stack
+        this.addPogramToStack(progSymbol, stack);
+
+        // now evaluate this program
         for (const child of progSymbol.children) {
             if (child instanceof MethodSymbol) {
-                child.resetCallDepth();
+                const result = child.eval(stack);
             }
-            if (isInstanceOfIEvaluatableSymbol(child)) {
-                child.eval();
+        }
+    }
+
+    private addPogramToStack(progSymbol: ScopedSymbol, stack: CallStack) {
+        for (const child of progSymbol.children) {
+            // put each child on the stack.  Evaluate variables as go.
+            // we'll come back and evaluate methods later.
+            if (child instanceof MethodSymbol) {
+                stack.addFunction(child.name, child);
+                //stack.locals.set(child.name, new StackValue(null, child.returnType, child));
+                //child.resetCallDepth();
             } else {
-                console.debug("node not evaluable: " + child.name);
+                if (child instanceof VariableSymbol) {
+                    const result = child.eval(stack);
+                } else if (isInstanceOfIEvaluatableSymbol(child)) {
+                    const result = child.eval(stack);
+                } else {
+                    console.debug("node not evaluable: " + child.name);
+                }
             }
         }
     }

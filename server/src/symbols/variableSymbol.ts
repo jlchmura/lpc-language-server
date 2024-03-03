@@ -16,6 +16,7 @@ import { IdentifierSymbol } from "./Symbol";
 import { resolveOfTypeSync } from "../utils";
 import { DefineSymbol } from "./defineSymbol";
 import { VariableDeclaratorContext } from "../parser3/LPCParser";
+import { CallStack, StackValue } from "../backend/CallStack";
 
 export class VariableSymbol
     extends TypedSymbol
@@ -27,8 +28,9 @@ export class VariableSymbol
         super(name, type);
     }
 
-    eval(scope?: any) {
+    eval(stack: CallStack, scope?: any) {
         if (scope !== undefined) this.value = scope;
+        stack.addLocal(this.name, new StackValue(this.value, this.type, this));
         return this.value;
     }
 
@@ -45,9 +47,9 @@ export class VariableIdentifierSymbol
     extends IdentifierSymbol
     implements IEvaluatableSymbol
 {
-    eval(scope?: any) {
+    eval(stack: CallStack, scope?: any) {
         const def = this.findDeclaration() as IEvaluatableSymbol;
-        return def?.eval(scope);
+        return def?.eval(stack, scope);
     }
     public findDeclaration() {
         let defSymbol: BaseSymbol = resolveOfTypeSync(
@@ -68,10 +70,10 @@ export class VariableInitializerSymbol
         super(name);
     }
 
-    eval(scope?: any) {
+    eval(stack: CallStack, scope?: any) {
         let evalResult: any = null;
         this.children.forEach((child) => {
-            evalResult = (child as IEvaluatableSymbol).eval(evalResult);
+            evalResult = (child as IEvaluatableSymbol).eval(stack, evalResult);
         });
 
         if (!this.variable.type) {
@@ -82,6 +84,6 @@ export class VariableInitializerSymbol
             }
         }
 
-        this.variable.eval(evalResult);
+        this.variable.eval(stack, evalResult);
     }
 }

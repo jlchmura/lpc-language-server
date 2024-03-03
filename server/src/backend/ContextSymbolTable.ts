@@ -15,10 +15,9 @@ import { DefineSymbol } from "../symbols/defineSymbol";
 import { VariableSymbol } from "../symbols/variableSymbol";
 import { EvalScope } from "../symbols/base";
 import { AssignmentSymbol } from "../symbols/assignmentSymbol";
-import { MethodSymbol } from "../symbols/methodSymbol";
+import { EfunSymbol, MethodSymbol } from "../symbols/methodSymbol";
 import { InlineClosureSymbol } from "../symbols/closureSymbol";
 import { IncludeSymbol } from "../symbols/includeSymbol";
-import { EfunSymbol } from "../symbols/efunSymbol";
 
 export class ContextSymbolTable extends SymbolTable {
     public tree: ParserRuleContext; // Set by the owning source context after each parse run.

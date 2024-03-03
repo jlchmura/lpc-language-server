@@ -17,12 +17,10 @@ import { VariableSymbol } from "./variableSymbol";
 import { FoldingRange } from "vscode-languageserver";
 import { ExpressionSymbol } from "./expressionSymbol";
 import { resolveOfTypeSync } from "../utils";
-import { deflateSync } from "zlib";
 import { SourceContext } from "../backend/SourceContext";
-import { LpcFacade } from "../backend/facade";
-import { EfunSymbol } from "./efunSymbol";
 import { ObjectReferenceInfo } from "./objectSymbol";
 import { ContextSymbolTable } from "../backend/ContextSymbolTable";
+import { CallStack, StackFrame, StackValue } from "../backend/CallStack";
 
 export const MAX_CALLDEPTH_SIZE = 10;
 
@@ -60,31 +58,35 @@ export class MethodSymbol
         this.callDepth = 0;
     }
 
-    eval(paramScope?: Map<string, IEvaluatableSymbol>) {
+    eval(stack: CallStack, params: IEvaluatableSymbol[] = []) {
         // TODO: make function arguments available
 
         // paramScope.forEach((value, key) => {
         //     this.scope.set(key, value as VariableSymbol);
         // });
+
+        // add a new stack frame
+        const args = new Map<string, StackValue>();
+        const locals = new Map<string, StackValue>();
+        stack.push(new StackFrame(this, args, locals));
+
         let result: any = 0;
 
         // don't eval past this many recurssions, just to be safe.
-        if (this.callDepth++ > MAX_CALLDEPTH_SIZE) {
-            console.warn("Max call stack exceeded: " + this.name);
+        if (stack.length > MAX_CALLDEPTH_SIZE) {
+            console.debug("Max call stack exceeded: " + this.name);
             return undefined;
         }
 
         for (const child of this.children) {
-            if (child instanceof ReturnSymbol) {
-                result = child.eval();
-            } else if (isInstanceOfIEvaluatableSymbol(child)) {
-                child.eval();
+            if (isInstanceOfIEvaluatableSymbol(child)) {
+                child.eval(stack);
             } else {
                 console.warn("Non eval symbol detected in method body", child);
             }
         }
 
-        return result;
+        return stack.peek().returnValue;
     }
 
     public get kind() {
@@ -118,10 +120,10 @@ export class MethodInvocationSymbol
         super(name);
     }
 
-    eval(scope?: any) {
+    eval(stack: CallStack, scope?: any) {
         for (const child of this.children) {
             if (isInstanceOfIEvaluatableSymbol(child)) {
-                scope = child.eval(scope);
+                scope = child.eval(stack, scope);
             } else {
                 console.warn("not evaluable: " + child.name);
             }
@@ -157,8 +159,8 @@ export class FunctionIdentifierSymbol
         return defSymbol;
     }
 
-    eval(scope?: any) {
-        const def = this.findDeclaration() as IEvaluatableSymbol;
+    eval(stack: CallStack, scope?: any) {
+        const def = stack.getFunction(this.name);
         if (def instanceof EfunSymbol) {
             const ownerProgram = (this.symbolTable as ContextSymbolTable).owner;
             switch (def.name) {
@@ -182,21 +184,67 @@ export class FunctionIdentifierSymbol
                         playerCtx
                     );
             }
+        } else {
+            return def?.eval(stack, scope);
         }
-
-        return def?.eval(scope);
     }
 }
 
 export class ReturnSymbol extends ScopedSymbol implements IEvaluatableSymbol {
-    eval(scope?: any) {
+    eval(stack: CallStack, scope?: any) {
         for (const child of this.children) {
+            // even though a typical compiler would stop execution here
+            // we don't need to do that since we are evaluting the entire
+            // program.
             if (isInstanceOfIEvaluatableSymbol(child)) {
-                return child.eval(scope);
+                // eval the return expression
+                const result = child.eval(stack, scope);
+                // store in current stack frame and return
+                stack.setReturnValue(result, this);
+                return result;
             } else {
                 throw "not evaluable: " + child.name;
             }
         }
         return undefined;
+    }
+}
+
+export class EfunSymbol
+    extends MethodSymbol
+    implements IKindSymbol, IEvaluatableSymbol
+{
+    public constructor(
+        name: string,
+        public returnType?: IType,
+        public functionModifiers: Set<string> = new Set()
+    ) {
+        super(name);
+    }
+    public get kind() {
+        return SymbolKind.Efun;
+    }
+
+    public getParametersSync() {
+        return getSymbolsOfTypeSync(
+            this,
+            EfunParamSymbol
+        ) as MethodParameterSymbol[];
+    }
+
+    eval(stack: CallStack, scope?: any) {
+        return scope;
+    }
+
+    public allowsMultiArgs() {
+        const prms = this.getParametersSync();
+        if (prms.length === 0) return false;
+        return (prms[prms.length - 1] as EfunParamSymbol).allowMulti;
+    }
+}
+
+export class EfunParamSymbol extends MethodParameterSymbol {
+    constructor(name: string, type: IType, public allowMulti?: boolean) {
+        super(name, type);
     }
 }

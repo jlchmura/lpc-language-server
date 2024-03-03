@@ -23,6 +23,7 @@ import {
 } from "./base";
 import { VariableSymbol } from "./variableSymbol";
 import { ContextSymbolTable } from "../backend/ContextSymbolTable";
+import { CallStack } from "../backend/CallStack";
 
 export class IdentifierSymbol extends LpcBaseSymbol<IdentifierExpressionContext> {
     public get kind() {
@@ -40,7 +41,7 @@ export class InheritSymbol
         return SymbolKind.Inherit;
     }
 
-    eval(scope?: any) {
+    eval(stack: CallStack, scope?: any) {
         return scope;
     }
 }
@@ -61,7 +62,7 @@ export class PreprocessorSymbol
         super(name);
     }
 
-    eval(scope?: any) {
+    eval(stack: CallStack, scope?: any) {
         return undefined;
     }
 }

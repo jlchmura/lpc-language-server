@@ -1,6 +1,7 @@
 import { ScopedSymbol } from "antlr4-c3";
 import { IEvaluatableSymbol, IFoldableSymbol } from "./base";
 import { FoldingRange } from "vscode-languageserver";
+import { CallStack } from "../backend/CallStack";
 
 /** if, switch, etc */
 export class SelectionSymbol
@@ -15,10 +16,11 @@ export class SelectionSymbol
         super(name);
     }
 
-    eval(scope?: any) {
+    eval(stack: CallStack, scope?: any) {
+        // TODO: this should add a new frame?
         this.children.forEach((e) => {
             const evaluable = e as IEvaluatableSymbol;
-            evaluable.eval();
+            evaluable.eval(stack);
         });
     }
 }
@@ -32,10 +34,10 @@ export class IfSymbol extends ScopedSymbol implements IEvaluatableSymbol {
         super(name);
     }
 
-    eval(scope?: any) {
+    eval(stack: CallStack, scope?: any) {
         // evaluate all alternatives
-        this.if?.eval();
-        this.elseIf?.forEach((e) => e.eval());
-        this.else?.eval();
+        this.if?.eval(stack);
+        this.elseIf?.forEach((e) => e.eval(stack));
+        this.else?.eval(stack);
     }
 }

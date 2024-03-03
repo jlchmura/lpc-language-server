@@ -111,6 +111,15 @@ export class LpcFacade {
         return contextEntry.context;
     }
 
+    public getDependencies(fileName: string): string[] {
+        const contextEntry = this.sourceContexts.get(fileName);
+        if (contextEntry) {
+            return contextEntry.dependencies;
+        }
+
+        return [];
+    }
+
     public releaseLpc(fileName: string): void {
         this.internalReleaseLpc(fileName);
     }
@@ -252,11 +261,11 @@ export class LpcFacade {
         source?: string | undefined
     ): SourceContext {
         const contextEntry = this.sourceContexts.get(fileName);
-        if (!contextEntry) {
+        if (!contextEntry && !!source) {
             return this.loadLpc(fileName, source);
         }
 
-        return contextEntry.context;
+        return contextEntry?.context;
     }
 
     public getDiagnostics(fileName: string): IDiagnosticEntry[] {

@@ -2,6 +2,7 @@ import { BaseSymbol, ScopedSymbol, SymbolConstructor } from "antlr4-c3";
 import { ParseTree } from "antlr4ng";
 import { SymbolKind } from "../types";
 import { FoldingRange } from "vscode-languageserver";
+import { CallStack } from "../backend/CallStack";
 
 export type EvalScope = any;
 
@@ -21,7 +22,7 @@ export interface IHasValue extends BaseSymbol {
 }
 
 export interface IEvaluatableSymbol extends BaseSymbol {
-    eval(scope?: any): any;
+    eval(stack: CallStack, scope?: any): any;
 }
 export function isInstanceOfIEvaluatableSymbol(
     symbol: BaseSymbol

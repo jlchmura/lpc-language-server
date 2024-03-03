@@ -12,6 +12,7 @@ import { SourceContext } from "../backend/SourceContext";
 
 import { ParserRuleContext } from "antlr4ng";
 import { DiagnosticSeverity } from "vscode-languageserver";
+import { CallStack } from "../backend/CallStack";
 
 export class ObjectReferenceInfo {
     constructor(
@@ -32,12 +33,14 @@ export class CloneObjectSymbol
         super(name);
     }
 
-    eval() {
+    eval(stack: CallStack) {
         // first evaluate the filename
+
+        // TODO: use call stack here
         let filename = "";
         for (const child of this.children) {
             if (isInstanceOfIEvaluatableSymbol(child)) {
-                filename = child.eval(filename);
+                filename = child.eval(stack, filename);
             } else {
                 throw "not evaluable";
             }
@@ -97,7 +100,7 @@ export class CallOtherSymbol
         super(name);
     }
 
-    eval(obj: any) {
+    eval(stack: CallStack, obj: any) {
         if (!(obj instanceof ObjectReferenceInfo)) {
             // TODO report this as a diagnostic?
             return undefined;
@@ -110,7 +113,7 @@ export class CallOtherSymbol
         if (!this.functionName) {
             for (const child of this.children) {
                 if (isInstanceOfIEvaluatableSymbol(child)) {
-                    this.functionName = child.eval();
+                    this.functionName = child.eval(stack);
                 } else {
                     throw "not evaluable: " + child.name;
                 }
@@ -142,9 +145,9 @@ export class CallOtherSymbol
 
         // evaluate the argumnents
         const argVals = methodInvok.getArguments().map((a) => {
-            a.eval();
+            return a.eval(stack);
         });
 
-        return funSym.eval(argVals);
+        return funSym.eval(stack, argVals);
     }
 }

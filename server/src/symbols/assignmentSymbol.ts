@@ -3,6 +3,7 @@ import { IKindSymbol, IEvaluatableSymbol } from "./base";
 import { SymbolKind } from "../types";
 import { AssignmentExpressionContext } from "../parser3/LPCParser";
 import { VariableIdentifierSymbol, VariableSymbol } from "./variableSymbol";
+import { CallStack } from "../backend/CallStack";
 
 export class AssignmentSymbol
     extends ScopedSymbol
@@ -32,23 +33,23 @@ export class AssignmentSymbol
         super(name);
     }
 
-    eval(scope?: any) {
+    eval(stack: CallStack, scope?: any) {
         const lh = this.lhs;
-        const rhResult = this.rhs.eval(scope);
+        const rhResult = this.rhs.eval(stack, scope);
 
         switch (this.operator) {
             case "=":
-                return lh.eval(rhResult);
+                return lh.eval(stack, rhResult);
             case "+=":
-                return lh.eval(lh.eval() + rhResult);
+                return lh.eval(stack, lh.eval(stack) + rhResult);
             case "-=":
-                return lh.eval(lh.eval() - rhResult);
+                return lh.eval(stack, lh.eval(stack) - rhResult);
             case "*=":
-                return lh.eval(lh.eval() * rhResult);
+                return lh.eval(stack, lh.eval(stack) * rhResult);
             case "/=":
-                return lh.eval(lh.eval() / rhResult);
+                return lh.eval(stack, lh.eval(stack) / rhResult);
             case "%=":
-                return lh.eval(lh.eval() % rhResult);
+                return lh.eval(stack, lh.eval(stack) % rhResult);
             default:
                 throw "operator not supported";
         }

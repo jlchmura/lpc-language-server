@@ -1,6 +1,7 @@
 import { ScopedSymbol } from "antlr4-c3";
 import { IEvaluatableSymbol } from "./base";
 import { SymbolKind } from "../types";
+import { CallStack } from "../backend/CallStack";
 
 export class OperatorSymbol extends ScopedSymbol implements IEvaluatableSymbol {
     constructor(
@@ -11,12 +12,12 @@ export class OperatorSymbol extends ScopedSymbol implements IEvaluatableSymbol {
         super(operator);
     }
 
-    eval(scope?: any) {
+    eval(stack: CallStack, scope?: any) {
         const lhs = this.children[0] as IEvaluatableSymbol;
         const rhs = this.children[1] as IEvaluatableSymbol;
 
-        const lhsValue = lhs?.eval();
-        const rhsValue = rhs?.eval();
+        const lhsValue = lhs?.eval(stack);
+        const rhsValue = rhs?.eval(stack);
 
         switch (this.name) {
             case "+":
