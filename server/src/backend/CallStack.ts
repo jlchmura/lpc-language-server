@@ -70,7 +70,7 @@ export class CallStack {
             const token = (symbol.context as ParserRuleContext)?.start;
             return `${name} at ${filename}:${token?.line}:${token?.column}`;
         });
-        return lines.join("\n");
+        return lines;
     }
 
     /** add a function to the call stack */
@@ -96,10 +96,11 @@ export class CallStack {
     public getFunction(name: string): MethodSymbol {
         const rootFrame = this.getRootForFrame();
         const local = rootFrame.locals.get(name);
-        if (local.symbol instanceof MethodSymbol) {
+        if (local?.symbol instanceof MethodSymbol) {
             return local.symbol;
         } else {
-            throw "Function " + name + " not found in stack";
+            // TODO: send to diag?
+            console.warn("Function " + name + " not found in stack");
         }
     }
 
