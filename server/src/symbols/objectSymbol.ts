@@ -6,13 +6,13 @@ import {
 } from "./base";
 import { addDiagnostic } from "./Symbol";
 import { normalizeFilename, rangeFromTokens } from "../utils";
-import { MethodInvocationSymbol } from "./methodSymbol";
+import { MethodInvocationSymbol, MethodSymbol } from "./methodSymbol";
 import { ContextSymbolTable } from "../backend/ContextSymbolTable";
 import { SourceContext } from "../backend/SourceContext";
 
 import { ParserRuleContext } from "antlr4ng";
 import { DiagnosticSeverity } from "vscode-languageserver";
-import { CallStack } from "../backend/CallStack";
+import { CallStack, StackFrame } from "../backend/CallStack";
 
 export class ObjectReferenceInfo {
     constructor(
@@ -132,7 +132,7 @@ export class CallOtherSymbol
         const funSym = symTbl?.resolveSync(
             this.functionName,
             false
-        ) as IEvaluatableSymbol;
+        ) as MethodSymbol;
 
         if (!funSym) {
             return null; // semantic analysis will log this diagnostic
@@ -147,6 +147,21 @@ export class CallOtherSymbol
         const argVals = methodInvok.getArguments().map((a) => {
             return a.eval(stack);
         });
+
+        // create a new root frame for this object
+        // this doesn't need to go on the stack, it's just a temporary frame
+        const rootFrame = new StackFrame(
+            symTbl,
+            new Map<string, any>(),
+            new Map<string, any>()
+        );
+        const stackFrame = new StackFrame(
+            funSym,
+            new Map<string, any>(),
+            new Map<string, any>(),
+            rootFrame
+        );
+        stack.push(stackFrame);
 
         return funSym.eval(stack, argVals);
     }

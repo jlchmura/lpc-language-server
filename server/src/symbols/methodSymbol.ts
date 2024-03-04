@@ -68,13 +68,14 @@ export class MethodSymbol
         // add a new stack frame
         const args = new Map<string, StackValue>();
         const locals = new Map<string, StackValue>();
-        stack.push(new StackFrame(this, args, locals));
+        stack.push(new StackFrame(this, args, locals, stack.root));
 
         let result: any = 0;
 
         // don't eval past this many recurssions, just to be safe.
         if (stack.length > MAX_CALLDEPTH_SIZE) {
-            console.debug("Max call stack exceeded: " + this.name);
+            const stackTrace = stack.getStackTrace();
+            console.debug("Max call stack exceeded: " + this.name, stackTrace);
             return undefined;
         }
 

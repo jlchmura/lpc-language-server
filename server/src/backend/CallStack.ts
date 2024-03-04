@@ -10,6 +10,8 @@ import { getSymbolsOfTypeSync } from "../symbols/base";
 import { DefineSymbol } from "../symbols/defineSymbol";
 import { LpcTypes } from "../types";
 import { MethodSymbol } from "../symbols/methodSymbol";
+import { ParserRuleContext } from "antlr4ng";
+import { ContextSymbolTable } from "./ContextSymbolTable";
 
 export class StackValue {
     constructor(
@@ -19,16 +21,7 @@ export class StackValue {
     ) {}
 }
 
-class StackBase {
-    public returnValue: StackValue;
-
-    constructor(
-        public readonly symbol: ScopedSymbol,
-        protected locals: Map<string, StackValue>
-    ) {}
-}
-
-export class CallStack extends StackBase {
+export class CallStack {
     private readonly stack: StackFrame[] = [];
     private readonly rootFrame: StackFrame;
 
@@ -36,18 +29,22 @@ export class CallStack extends StackBase {
         return this.rootFrame;
     }
 
-    constructor(symbol: ScopedSymbol) {
-        super(symbol, new Map<string, StackValue>());
+    constructor(public readonly symbol: ScopedSymbol) {
+        //super(symbol, new Map<string, StackValue>());
 
         this.rootFrame = new StackFrame(
             symbol,
             new Map<string, StackValue>(),
             new Map<string, StackValue>()
         );
-        this.push(this.rootFrame);
+
+        // push directly so a parent doesn't get assigned
+        this.stack.push(this.rootFrame);
     }
 
     public push(frame: StackFrame) {
+        // if the frame did not have a program assigned, then assign the root frame
+        if (!frame.parent) frame.parent = this.rootFrame;
         this.stack.push(frame);
     }
 
@@ -63,18 +60,42 @@ export class CallStack extends StackBase {
         return this.stack.length;
     }
 
+    public getStackTrace() {
+        const stack = [...this.stack].reverse();
+        const lines = stack.map((frame) => {
+            const symbol = frame.symbol;
+            const name = symbol.name;
+            const filename = (symbol.symbolTable as ContextSymbolTable).owner
+                ?.fileName;
+            const token = (symbol.context as ParserRuleContext)?.start;
+            return `${name} at ${filename}:${token?.line}:${token?.column}`;
+        });
+        return lines.join("\n");
+    }
+
     /** add a function to the call stack */
     public addFunction(name: string, value: MethodSymbol) {
-        this.stack[0].locals.set(
+        this.getRootForFrame().locals.set(
             name,
             new StackValue(value, value.returnType, value)
         );
     }
 
+    protected getRootForFrame() {
+        let frame = this.peek();
+
+        while (!!frame) {
+            if (!frame.parent) return frame;
+            frame = frame.parent;
+        }
+
+        throw "No root frame found in stack";
+    }
+
     /** get a function */
     public getFunction(name: string): MethodSymbol {
-        // functions always exist in the root
-        const local = this.stack[0].locals.get(name);
+        const rootFrame = this.getRootForFrame();
+        const local = rootFrame.locals.get(name);
         if (local.symbol instanceof MethodSymbol) {
             return local.symbol;
         } else {
@@ -93,8 +114,7 @@ export class CallStack extends StackBase {
      * @returns
      */
     public storeValue(name: string, value: any) {
-        for (let i = this.stack.length - 1; i >= 0; i--) {
-            const frame = this.stack[i];
+        const result = this.walkStackToProgram((frame) => {
             if (frame.locals.has(name)) {
                 frame.locals.set(
                     name,
@@ -104,11 +124,25 @@ export class CallStack extends StackBase {
                         frame.locals.get(name).symbol
                     )
                 );
-                return;
+                return true;
             }
-        }
+        });
 
-        throw "Variable " + name + " not found in stack";
+        if (!result) {
+            throw "Variable " + name + " not found in stack";
+        }
+    }
+
+    protected walkStackToProgram<T>(
+        action: (frame: StackFrame) => T | undefined
+    ) {
+        let parent = this.peek();
+        while (!!parent) {
+            const result = action(parent);
+            if (result) return result;
+            parent = parent.parent;
+        }
+        return undefined;
     }
 
     public setReturnValue(value: any, sym: BaseSymbol) {
@@ -116,32 +150,35 @@ export class CallStack extends StackBase {
         if (sym instanceof TypedSymbol) {
             type = sym.type;
         }
-        this.returnValue = new StackValue(value, type, sym);
+        this.peek().returnValue = new StackValue(value, type, sym);
     }
 
     public getValue(name: string): any {
-        for (let i = this.stack.length - 1; i >= 0; i--) {
-            const frame = this.stack[i];
+        const result = this.walkStackToProgram((frame) => {
             if (frame.locals.has(name)) {
                 return frame.locals.get(name).value;
             }
-        }
+        });
 
-        throw "Variable " + name + " not found in stack";
+        if (!result) {
+            throw "Variable " + name + " not found in stack";
+        }
+        return result;
     }
 }
 
 /**
  * Represents a stack frame in the call stack for the LPC program
  */
-export class StackFrame extends StackBase {
-    public returnValue: any;
+export class StackFrame {
+    public returnValue: StackValue;
 
     constructor(
-        symbol: ScopedSymbol,
-        args: Map<string, StackValue>,
-        public locals: Map<string, StackValue>
+        public symbol: ScopedSymbol,
+        public args: Map<string, StackValue>,
+        public locals: Map<string, StackValue>,
+        public parent: StackFrame = null
     ) {
-        super(symbol, locals);
+        //super(symbol, locals);
     }
 }
