@@ -136,6 +136,17 @@ export function firstEntry<T>(arr: T[]): T | undefined {
     }
     return undefined;
 }
+/**
+ * returns the last entry of an array or undefined if the array is empty.
+ * @param arr Array
+ * @returns
+ */
+export function lastEntry<T>(arr: T[]): T | undefined {
+    if (arr?.length > 0) {
+        return arr[arr.length - 1];
+    }
+    return undefined;
+}
 
 /**
  * get the sibling of the given context

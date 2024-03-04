@@ -1,3 +1,4 @@
+import * as commentParser from "comment-parser";
 import {
     TypedSymbol,
     IType,
@@ -41,6 +42,8 @@ export class MethodSymbol
     extends BaseMethodSymbol
     implements IFoldableSymbol, IKindSymbol, IEvaluatableSymbol
 {
+    doc: commentParser.Block;
+
     private callDepth = 0;
     constructor(
         name: string,
@@ -75,7 +78,7 @@ export class MethodSymbol
         // don't eval past this many recurssions, just to be safe.
         if (stack.length > MAX_CALLDEPTH_SIZE) {
             const stackTrace = stack.getStackTrace();
-            console.debug("Max call stack exceeded: " + this.name, stackTrace);
+            //console.debug("Max call stack exceeded: " + this.name, stackTrace);
             return undefined;
         }
 

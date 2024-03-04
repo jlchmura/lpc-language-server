@@ -244,6 +244,7 @@ export class ContextSymbolTable extends SymbolTable {
         return {
             kind,
             name,
+            symbol,
             source:
                 symbol.context && symbolTable && symbolTable.owner
                     ? symbolTable.owner.fileName
@@ -255,7 +256,7 @@ export class ContextSymbolTable extends SymbolTable {
             ),
             description: undefined,
             children: [],
-        };
+        } as ISymbolInfo;
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

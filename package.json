@@ -23,7 +23,7 @@
     "tabWidth": 4,
     "semi": true,
     "singleQuote": false,
-    "bracketSameLine": true    
+    "bracketSameLine": true
   },
   "activationEvents": [
     "onLanguage:lpc"
@@ -69,6 +69,7 @@
   "dependencies": {
     "antlr4-c3": "^3.3.7",
     "antlr4ng": "^2.0.10",
+    "comment-parser": "^1.4.1",
     "esbuild": "^0.20.1",
     "fuzzysort": "^2.0.4",
     "vscode-uri": "^3.0.8"

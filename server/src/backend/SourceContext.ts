@@ -104,7 +104,8 @@ export class SourceContext {
 
     // grammar parsing stuff
     private lexer: LPCLexer;
-    private tokenStream: CommonTokenStream;
+    public tokenStream: CommonTokenStream;
+    public commentStream: CommonTokenStream;
     private parser: LPCParser;
     private errorListener: ContextErrorListener = new ContextErrorListener(
         this.diagnostics
@@ -140,6 +141,10 @@ export class SourceContext {
         this.lexer.addErrorListener(this.lexerErrorListener);
 
         this.tokenStream = new CommonTokenStream(this.lexer);
+        this.commentStream = new CommonTokenStream(
+            this.lexer,
+            LPCLexer.COMMENT
+        );
 
         this.parser = new LPCParser(this.tokenStream);
         this.parser.buildParseTrees = true;

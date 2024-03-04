@@ -69,6 +69,7 @@ export interface IDefinition {
 export interface ISymbolInfo {
     kind: SymbolKind;
     name: string;
+    symbol?: BaseSymbol;
     source: string;
     line?: number;
     definition?: IDefinition;

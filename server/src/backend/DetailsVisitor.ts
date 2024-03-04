@@ -1,6 +1,8 @@
+import * as commentParser from "comment-parser";
 import {
     AbstractParseTreeVisitor,
     ParseTree,
+    ParserRuleContext,
     RuleContext,
     TerminalNode,
 } from "antlr4ng";
@@ -71,13 +73,15 @@ import {
     ReturnSymbol,
 } from "../symbols/methodSymbol";
 import { ExpressionSymbol } from "../symbols/expressionSymbol";
-import { normalizeFilename, trimQuotes } from "../utils";
+import { firstEntry, lastEntry, normalizeFilename, trimQuotes } from "../utils";
 import { LiteralSymbol } from "../symbols/literalSymbol";
 import { OperatorSymbol } from "../symbols/operatorSymbol";
 import { ConditionalSymbol } from "../symbols/conditionalSymbol";
 import { CallOtherSymbol, CloneObjectSymbol } from "../symbols/objectSymbol";
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import { IfSymbol, SelectionSymbol } from "../symbols/selectionSymbol";
+
+const COMMENT_CHANNEL_NUM = 2;
 
 export class DetailsVisitor
     extends AbstractParseTreeVisitor<SymbolTable>
@@ -401,6 +405,7 @@ export class DetailsVisitor
             MethodDeclarationSymbol,
             [nm, retType, mods],
             (s) => {
+                s.doc = this.getPrefixComments(ctx);
                 s.foldingRange = FoldingRange.create(
                     ctx.start.line - 1,
                     ctx.stop.line - 2,
@@ -420,7 +425,12 @@ export class DetailsVisitor
             header.functionModifier()?.map((m) => m.getText()) ?? []
         );
 
+        const source = this.symbolTable.owner!;
+        const tokenIdx = ctx.start.tokenIndex;
+        const comments = source.tokenStream.getHiddenTokensToLeft(tokenIdx, 2);
+
         return this.withScope(ctx, MethodSymbol, [nm, retType, mods], (s) => {
+            s.doc = this.getPrefixComments(ctx);
             s.foldingRange = FoldingRange.create(
                 ctx.start.line - 1,
                 ctx.stop.line - 2,
@@ -604,5 +614,25 @@ export class DetailsVisitor
         symbol.context = context;
 
         return symbol;
+    }
+
+    /**
+     * get code comments to the left a context
+     * @param ctx
+     * @returns
+     */
+    private getPrefixComments(ctx: ParserRuleContext) {
+        const source = this.symbolTable.owner!;
+        const tokenIdx = ctx.start.tokenIndex;
+        const comments = source.tokenStream.getHiddenTokensToLeft(
+            tokenIdx,
+            COMMENT_CHANNEL_NUM
+        );
+        if (comments?.length > 0) {
+            const commentText = lastEntry(comments)?.text ?? "";
+            return firstEntry(commentParser.parse(commentText));
+        }
+
+        return undefined;
     }
 }
