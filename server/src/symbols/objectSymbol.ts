@@ -163,6 +163,9 @@ export class CallOtherSymbol
         );
         stack.push(stackFrame);
 
-        return funSym.eval(stack, argVals);
+        const result = funSym.eval(stack, argVals);
+
+        stack.pop();
+        return result;
     }
 }

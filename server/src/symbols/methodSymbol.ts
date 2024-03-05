@@ -90,7 +90,7 @@ export class MethodSymbol
             }
         }
 
-        return stack.peek().returnValue;
+        return stack.pop().returnValue;
     }
 
     public get kind() {
