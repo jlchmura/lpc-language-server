@@ -6,7 +6,10 @@ import {
     Position,
 } from "vscode-languageserver";
 import { LpcFacade } from "./facade";
-import { symbolDescriptionFromEnum } from "../symbols/Symbol";
+import {
+    generateSymbolDoc,
+    symbolDescriptionFromEnum,
+} from "../symbols/Symbol";
 import { lexRangeToLspRange } from "../utils";
 import { SymbolKind } from "../types";
 import { MethodSymbol } from "../symbols/methodSymbol";
@@ -39,40 +42,7 @@ export class HoverProvider {
 
             let commentDoc = "";
 
-            // TODO: refactor this
-            if (info.symbol && !!(info.symbol as any).doc) {
-                const doc = (info.symbol as any).doc as Block;
-
-                commentDoc = "\n***\n";
-                commentDoc += doc.description;
-
-                doc.tags
-                    .filter((t) => t.tag == "param")
-                    .forEach((tag) => {
-                        commentDoc += "\n\n_@param:_ `";
-                        if (tag.type) {
-                            commentDoc += ` ${tag.type}`;
-                        }
-                        if (tag.name) {
-                            commentDoc += ` ${tag.name}`;
-                        }
-                        commentDoc += "`";
-                        if (tag.description) {
-                            commentDoc += ` ${tag.description}`;
-                        }
-                    });
-
-                const returnTag = doc.tags.find((t) => t.tag === "returns");
-                if (!!returnTag) {
-                    commentDoc += "\n\n_@returns:_";
-                    if (returnTag.type) {
-                        commentDoc += ` \`${returnTag.type}\``;
-                    }
-                    if (returnTag.description) {
-                        commentDoc += ` - ${returnTag.description}`;
-                    }
-                }
-            }
+            commentDoc = generateSymbolDoc(info.symbol);
 
             const result: Hover = {
                 range: lexRangeToLspRange(definition?.range),

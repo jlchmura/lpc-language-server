@@ -197,7 +197,7 @@ export class DetailsVisitor
     };
 
     visitCallOtherExpression = (ctx: CallOtherExpressionContext) => {
-        const nm = ctx.callOtherTarget()?.Identifier()?.getText();
+        const nm = ctx.callOtherTarget()?.Identifier()?.getText() ?? "#fn#";
         return this.withScope(ctx, CallOtherSymbol, ["->", nm], (s) => {
             return this.visitChildren(ctx);
         });

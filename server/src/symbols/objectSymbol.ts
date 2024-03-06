@@ -110,7 +110,7 @@ export class CallOtherSymbol
         this.objectRef = obj;
 
         // this will handle expressions & string literals
-        if (!this.functionName) {
+        if (!this.functionName || this.functionName == "#fn") {
             for (const child of this.children) {
                 if (isInstanceOfIEvaluatableSymbol(child)) {
                     this.functionName = child.eval(stack);
@@ -141,7 +141,7 @@ export class CallOtherSymbol
         // the next sibling should be the method invocation
         const methodInvok = this.children[0] as MethodInvocationSymbol;
         if (!(methodInvok instanceof MethodInvocationSymbol))
-            throw "expected a method invocation";
+            console.warn("expected a method invocation", this.name);
 
         // evaluate the argumnents
         const argVals = methodInvok.getArguments().map((a) => {

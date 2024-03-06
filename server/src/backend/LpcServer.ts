@@ -27,16 +27,20 @@ import * as path from "path";
 import { URI } from "vscode-uri";
 import { LpcSymbolProvider } from "./SymbolProvider";
 import { LpcDefinitionProvider } from "./DefinitionProvider";
-import { IDiagnosticEntry, ILexicalRange } from "../types";
+import { IDiagnosticEntry, ILexicalRange, ISymbolInfo } from "../types";
 import { CodeLensProvider } from "./CodeLensProvider";
 import {
     completionDetails,
     completionSortKeys,
+    generateSymbolDoc,
     translateCompletionKind,
 } from "../symbols/Symbol";
 import { HoverProvider } from "./HoverProvider";
 import { lexRangeToLspRange } from "../utils";
 import { DiagnosticProvider } from "./DiagnosticProvider";
+import { MethodSymbol } from "../symbols/methodSymbol";
+import { SourceContext } from "./SourceContext";
+import { EfunSymbols } from "./EfunsLDMud";
 
 const CHANGE_DEBOUNCE_MS = 300;
 
@@ -115,6 +119,21 @@ export class LpcServer {
             return this.provideCompletionItems(doc, params.position);
         });
         this.connection.onCompletionResolve((item) => {
+            const sourceCtx = this.facade.getContext(item.data.source);
+            const info =
+                sourceCtx?.getSymbolInfo(item.label) ??
+                EfunSymbols.getSymbolInfo(item.label);
+            if (!!info) {
+                item.detail =
+                    info.description !== undefined
+                        ? info.description
+                        : completionDetails.get(info.kind);
+
+                item.documentation = {
+                    value: generateSymbolDoc(info.symbol),
+                    kind: "markdown",
+                } as MarkupContent;
+            }
             return item;
         });
 
@@ -304,19 +323,15 @@ export class LpcServer {
             )
             .then((candidates) => {
                 const completionList: CompletionItem[] = [];
-                candidates.forEach((info) => {
-                    const item = CompletionItem.create(info.name);
-                    item.kind = translateCompletionKind(info.kind);
+                candidates.forEach((c) => {
+                    const item = CompletionItem.create(c.name);
+                    item.data = {
+                        source: c.source,
+                    };
+                    item.kind = translateCompletionKind(c.kind);
                     item.sortText =
-                        (completionSortKeys.get(info.kind) ?? "99") + info.name;
-                    item.detail =
-                        info.description !== undefined
-                            ? info.description
-                            : completionDetails.get(info.kind);
-                    // item.documentation = {
-                    //     value: "```\n" + info.definition?.text + "\n```",
-                    //     kind: "markdown",
-                    // } as MarkupContent;
+                        (completionSortKeys.get(c.kind) ?? "99") + c.name;
+
                     completionList.push(item);
                 });
                 return completionList;

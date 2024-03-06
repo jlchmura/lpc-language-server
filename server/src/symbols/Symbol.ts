@@ -24,6 +24,7 @@ import {
 import { VariableSymbol } from "./variableSymbol";
 import { ContextSymbolTable } from "../backend/ContextSymbolTable";
 import { CallStack } from "../backend/CallStack";
+import { Block } from "comment-parser";
 
 export class IdentifierSymbol extends LpcBaseSymbol<IdentifierExpressionContext> {
     public get kind() {
@@ -178,4 +179,50 @@ export class ITypedSymbol {
 export function addDiagnostic(symbol: BaseSymbol, d: IDiagnosticEntry) {
     const ctx = (symbol.symbolTable as ContextSymbolTable).owner;
     ctx.addDiagnostic(d);
+}
+
+/**
+ * Generate a documentation string based on a symbols JSDoc comment
+ * @param symbol
+ * @returns
+ */
+export function generateSymbolDoc(symbol: BaseSymbol) {
+    // TODO: refactor this
+    if (symbol && !!(symbol as any).doc) {
+        let commentDoc: string = "";
+        const doc = (symbol as any).doc as Block;
+
+        commentDoc = "\n***\n";
+        commentDoc += doc.description;
+
+        doc.tags
+            .filter((t) => t.tag == "param")
+            .forEach((tag) => {
+                commentDoc += "\n\n_@param:_ `";
+                if (tag.type) {
+                    commentDoc += ` ${tag.type}`;
+                }
+                if (tag.name) {
+                    commentDoc += ` ${tag.name}`;
+                }
+                commentDoc += "`";
+                if (tag.description) {
+                    commentDoc += ` ${tag.description}`;
+                }
+            });
+
+        const returnTag = doc.tags.find((t) => t.tag === "returns");
+        if (!!returnTag) {
+            commentDoc += "\n\n_@returns:_";
+            if (returnTag.type) {
+                commentDoc += ` \`${returnTag.type}\``;
+            }
+            if (returnTag.description) {
+                commentDoc += ` - ${returnTag.description}`;
+            }
+        }
+
+        return commentDoc;
+    }
+    return "";
 }

@@ -326,6 +326,19 @@ export class SemanticListener extends LPCParserListener {
         }
     };
 
+    exitCallOtherExpression = (ctx: CallOtherExpressionContext) => {
+        if (
+            !ctx.ARROW() ||
+            (ctx.callOtherTarget()?.children.length ?? 0) == 0
+        ) {
+            this.logDiagnostic(
+                "Call_other expression missing function name",
+                ctx.start,
+                ctx.stop
+            );
+        }
+    };
+
     private logDiagnostic(
         message: string,
         offendingTokenStart: Token,

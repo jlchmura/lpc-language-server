@@ -434,7 +434,7 @@ primaryExpression
     ;
 
 callOtherExpression
-    : ARROW (callOtherTarget methodInvocation)?
+    : ARROW callOtherTarget? methodInvocation?
     ;
 
 primaryExpressionStart

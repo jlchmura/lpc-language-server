@@ -593,11 +593,16 @@ export class SourceContext {
             }
         }
 
+        //let symbolTable = this.symbolTable;
         let context = BackendUtils.parseTreeFromPosition(
             this.tree,
             column,
             row
         );
+        // const contextSymbol = this.symbolTable.symbolContainingContext(context);
+        //     if (contextSymbol instanceof CallOtherSymbol) {
+        //         symbolTable = contextSymbol.objectRef?.context?.symbolTable ?? symbolTable;
+        //     }
 
         // while (!!context && !(context instanceof ParserRuleContext)) {
         //     context = context.parent;
@@ -708,7 +713,8 @@ export class SourceContext {
                     if (s instanceof CallOtherSymbol) {
                         promises.push(
                             s.objectRef.context.symbolTable.getAllSymbols(
-                                MethodSymbol
+                                MethodSymbol,
+                                true
                             )
                         );
                     } else {
@@ -737,9 +743,9 @@ export class SourceContext {
                     //     name: "modifiers type variableName = value",
                     //     source: this.fileName,
                     // });
-                    promises.push(
-                        this.symbolTable.getAllSymbols(VariableSymbol, false)
-                    );
+                    // promises.push(
+                    //     this.symbolTable.getAllSymbols(VariableSymbol, false)
+                    // );
 
                     break;
 
@@ -753,29 +759,37 @@ export class SourceContext {
             if (symbols) {
                 symbols.forEach((symbol) => {
                     if (symbol.name !== "EOF") {
-                        const info = this.getSymbolInfo(symbol);
+                        result.push({
+                            kind: SourceContext.getKindFromSymbol(symbol),
+                            name: symbol.name,
+                            source: (symbol.symbolTable as ContextSymbolTable)
+                                ?.owner?.fileName,
+                        });
 
-                        if (symbol instanceof MethodSymbol) {
-                            result.push({
-                                kind: SourceContext.getKindFromSymbol(symbol),
-                                name: symbol.name,
-                                source: this.fileName,
-                                line: info.line,
-                                definition: info.definition,
-                                description: info.description,
-                            });
-                        } else {
-                            result.push({
-                                kind: SourceContext.getKindFromSymbol(symbol),
-                                name: symbol.name,
-                                source: this.fileName,
-                                definition: SourceContext.definitionForContext(
-                                    symbol.context,
-                                    true
-                                ),
-                                description: undefined,
-                            });
-                        }
+                        // const info = this.getSymbolInfo(symbol);
+
+                        // if (symbol instanceof MethodSymbol) {
+
+                        //     result.push({
+                        //         kind: SourceContext.getKindFromSymbol(symbol),
+                        //         name: symbol.name,
+                        //         source: this.fileName,
+                        //         line: info.line,
+                        //         definition: info.definition,
+                        //         description: info.description,
+                        //     });
+                        // } else {
+                        //     result.push({
+                        //         kind: SourceContext.getKindFromSymbol(symbol),
+                        //         name: symbol.name,
+                        //         source: this.fileName,
+                        //         definition: SourceContext.definitionForContext(
+                        //             symbol.context,
+                        //             true
+                        //         ),
+                        //         description: undefined,
+                        //     });
+                        // }
                     }
                 });
             }
