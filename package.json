@@ -1,77 +1,77 @@
 {
-  "name": "lpc-language-server",
-  "version": "0.0.1",
-  "description": "A language server for Lars Pensjö C (LPC)",
-  "main": "out/client/src/extension.js",
-  "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -b && esbuild client/src/extension.ts server/src/server.ts --bundle --outdir=out --external:vscode --platform=node --format=cjs --sourcemap=external --sourcemap",
-    "compile:bin": "tsc -b && esbuild server/src/bin.ts --bundle --outdir=out/server/src --external:vscode --platform=node --format=cjs --sourcemap=external --sourcemap",
-    "watch": "npm run compile -- --sourcemap --watch",
-    "lint": "eslint ./client/src ./server/src --ext .ts,.tsx",
-    "postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
-    "test": "sh ./scripts/e2e.sh",
-    "generate": "npx antlr4ng -Dlanguage=TypeScript grammar/LPCLexer.g4 grammar/LPCParser.g4 -o server/src/parser3 -Xexact-output-dir -visitor -listener",
-    "antlr4": "java org.antlr.v4.Tool -Dlanguage=TypeScript -visitor -o server/src/parser2 -Xexact-output-dir grammar/LPC.g4",
-    "gui": "java org.antlr.v4.Tool grammar/LPC.g4 -o ./grammar/java/ && javac grammar/java/grammar/LPC*.java && cd ./grammar/java/grammar && java org.antlr.v4.gui.TestRig LPC program -gui"
-  },
-  "engines": {
-    "vscode": "^1.75.0"
-  },
-  "prettier": {
-    "trailingComma": "es5",
-    "tabWidth": 4,
-    "semi": true,
-    "singleQuote": false,
-    "bracketSameLine": true
-  },
-  "activationEvents": [
-    "onLanguage:lpc"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/jlchmura/lpc-language-server"
-  },
-  "keywords": [
-    "LPC",
-    "language",
-    "server",
-    "Lars",
-    "Pensjö",
-    "C",
-    "MUD",
-    "LPMUD",
-    "LDMUD",
-    "VSCode"
-  ],
-  "author": "jlchmura",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/jlchmura/lpc-language-server/issues"
-  },
-  "homepage": "https://github.com/jlchmura/lpc-language-server#readme",
-  "extensionKind": [
-    "workspace"
-  ],
-  "devDependencies": {
-    "@types/mocha": "^9.1.0",
-    "@types/node": "^16.18.14",
-    "@types/vscode": "^1.75.0",
-    "@typescript-eslint/eslint-plugin": "^5.54.0",
-    "@typescript-eslint/parser": "^5.54.0",
-    "antlr4ng-cli": "^1.0.7",
-    "eslint": "^8.35.0",
-    "mocha": "^9.2.1",
-    "ts-loader": "^6.2.2",
-    "ts-node": "10.9.2",
-    "typescript": "5.3.3"
-  },
-  "dependencies": {
-    "antlr4-c3": "^3.3.7",
-    "antlr4ng": "^2.0.10",
-    "comment-parser": "^1.4.1",
-    "esbuild": "^0.20.1",
-    "fuzzysort": "^2.0.4",
-    "vscode-uri": "^3.0.8"
-  }
+    "name": "lpc-language-server",
+    "version": "0.0.1",
+    "description": "A language server for Lars Pensjö C (LPC)",
+    "main": "out/client/src/extension.js",
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -b && esbuild client/src/extension.ts server/src/server.ts --bundle --outdir=out --external:vscode --platform=node --format=cjs --sourcemap=external --sourcemap",
+        "compile:bin": "tsc -b && esbuild server/src/bin.ts --bundle --outdir=out/server/src --external:vscode --platform=node --format=cjs --sourcemap=external --sourcemap",
+        "watch": "npm run compile -- --sourcemap --watch",
+        "lint": "eslint ./client/src ./server/src --ext .ts,.tsx",
+        "postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
+        "test": "sh ./scripts/e2e.sh",
+        "generate": "npx antlr4ng -Dlanguage=TypeScript grammar/LPCLexer.g4 grammar/LPCParser.g4 -o server/src/parser3 -Xexact-output-dir -visitor -listener",
+        "antlr4": "java org.antlr.v4.Tool -Dlanguage=TypeScript -visitor -o server/src/parser2 -Xexact-output-dir grammar/LPC.g4",
+        "gui": "java org.antlr.v4.Tool grammar/LPC.g4 -o ./grammar/java/ && javac grammar/java/grammar/LPC*.java && cd ./grammar/java/grammar && java org.antlr.v4.gui.TestRig LPC program -gui"
+    },
+    "engines": {
+        "vscode": "^1.75.0"
+    },
+    "prettier": {
+        "trailingComma": "es5",
+        "tabWidth": 4,
+        "semi": true,
+        "singleQuote": false,
+        "bracketSameLine": true
+    },
+    "activationEvents": [
+        "onLanguage:lpc"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/jlchmura/lpc-language-server"
+    },
+    "keywords": [
+        "LPC",
+        "language",
+        "server",
+        "Lars",
+        "Pensjö",
+        "C",
+        "MUD",
+        "LPMUD",
+        "LDMUD",
+        "VSCode"
+    ],
+    "author": "jlchmura",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/jlchmura/lpc-language-server/issues"
+    },
+    "homepage": "https://github.com/jlchmura/lpc-language-server#readme",
+    "extensionKind": [
+        "workspace"
+    ],
+    "devDependencies": {
+        "@types/mocha": "^9.1.0",
+        "@types/node": "^16.18.14",
+        "@types/vscode": "^1.75.0",
+        "@typescript-eslint/eslint-plugin": "^5.54.0",
+        "@typescript-eslint/parser": "^5.54.0",
+        "antlr4ng-cli": "^2.0.0",
+        "eslint": "^8.35.0",
+        "mocha": "^9.2.1",
+        "ts-loader": "^6.2.2",
+        "ts-node": "10.9.2",
+        "typescript": "5.3.3"
+    },
+    "dependencies": {
+        "antlr4-c3": "^3.4.1",
+        "antlr4ng": "^3.0.3",
+        "comment-parser": "^1.4.1",
+        "esbuild": "^0.20.1",
+        "fuzzysort": "^2.0.4",
+        "vscode-uri": "^3.0.8"
+    }
 }

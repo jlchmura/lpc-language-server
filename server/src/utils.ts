@@ -1,4 +1,4 @@
-import { ParserRuleContext, RuleContext, Token } from "antlr4ng";
+import { ParserRuleContext, Token } from "antlr4ng";
 import { Position, Range } from "vscode-languageserver";
 import { ILexicalRange } from "./types";
 import {
@@ -154,8 +154,8 @@ export function lastEntry<T>(arr: T[]): T | undefined {
  * @param offset
  * @returns
  */
-export function getSibling(ctx: RuleContext, offset: number) {
-    const parent = ctx.parent as RuleContext;
+export function getSibling(ctx: ParserRuleContext, offset: number) {
+    const parent = ctx.parent as ParserRuleContext;
     const idx = parent.children.indexOf(ctx);
     const target =
         idx + offset >= 0 && idx + offset < parent.children.length

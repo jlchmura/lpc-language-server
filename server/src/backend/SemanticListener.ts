@@ -1,4 +1,4 @@
-import { ParseTree, ParserRuleContext, RuleContext, Token } from "antlr4ng";
+import { Token } from "antlr4ng";
 import { LPCParserListener } from "../parser3/LPCParserListener";
 import { IDiagnosticEntry, LpcTypes, SymbolGroupKind } from "../types";
 import { ContextSymbolTable } from "./ContextSymbolTable";
@@ -236,7 +236,7 @@ export class SemanticListener extends LPCParserListener {
     }
 
     exitMethodInvocation = (ctx: MethodInvocationContext) => {
-        const parent = ctx.parent as PrimaryExpressionContext;
+        const parent = ctx.parent as unknown as PrimaryExpressionContext;
 
         // the tokens to use to generate the error range
         let rangeStart = parent.start;

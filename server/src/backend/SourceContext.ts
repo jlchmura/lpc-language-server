@@ -1,6 +1,6 @@
 import {
     BailErrorStrategy,
-    CharStreams,
+    CharStream,
     CommonTokenStream,
     DefaultErrorStrategy,
     IInterpreterData,
@@ -9,7 +9,6 @@ import {
     ParseTreeWalker,
     ParserRuleContext,
     PredictionMode,
-    RuleContext,
     TerminalNode,
     Token,
 } from "antlr4ng";
@@ -134,7 +133,7 @@ export class SourceContext {
         //     // add built-in symbols here
         // }
 
-        this.lexer = new LPCLexer(CharStreams.fromString(""));
+        this.lexer = new LPCLexer(CharStream.fromString(""));
 
         // There won't be lexer errors actually. They are silently bubbled up and will cause parser errors.
         this.lexer.removeErrorListeners();
@@ -169,7 +168,7 @@ export class SourceContext {
      * @param source The new content of the editor.
      */
     public setText(source: string): void {
-        this.lexer.inputStream = CharStreams.fromString(source);
+        this.lexer.inputStream = CharStream.fromString(source);
     }
 
     public parse(): IContextDetails {
@@ -384,7 +383,7 @@ export class SourceContext {
                 const inputStream = ctx.start?.tokenSource?.inputStream;
                 if (inputStream) {
                     try {
-                        result.text = inputStream.getText(start, stop);
+                        result.text = inputStream.getTextFromRange(start, stop);
                     } catch (e) {
                         // The method getText uses an unreliable JS String API which can throw on larger texts.
                         // In this case we cannot return the text of the given context.
@@ -449,7 +448,7 @@ export class SourceContext {
             return this.getSymbolInfo(terminal.getText());
         }
 
-        let parent = terminal.parent as RuleContext;
+        let parent = terminal.parent as ParserRuleContext;
 
         let symbol: BaseSymbol;
         switch (parent.ruleIndex) {

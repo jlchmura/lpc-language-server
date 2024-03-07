@@ -1,15 +1,16 @@
 {
-	"compilerOptions": {		
-		"target": "es2020",
-		"lib": ["es2020"],
-		"module": "ESNext",
-		"moduleResolution": "node",
-		"sourceMap": true,		
-		"strict": false,
-		"outDir": "out",
-		"rootDir": "src"
-	},	
-	
-	"include": ["src"],
-	"exclude": ["node_modules", ".vscode-test"]
+    "compilerOptions": {
+        "target": "es2020",
+        "lib": ["es2020"],
+        "module": "ESNext",
+        "moduleResolution": "node",
+        "sourceMap": true,
+        "strict": false,
+        "outDir": "out",
+        "rootDir": "src",
+        "skipLibCheck": true
+    },
+
+    "include": ["src"],
+    "exclude": ["node_modules", ".vscode-test"]
 }

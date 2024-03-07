@@ -2,7 +2,7 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import { CharStreams, CommonTokenStream, ConsoleErrorListener } from "antlr4ng";
+import { CharStream, CommonTokenStream, ConsoleErrorListener } from "antlr4ng";
 import { LPCLexer } from "./parser3/LPCLexer";
 import { LPCParser } from "./parser3/LPCParser";
 import { CodeCompletionCore, NamespaceSymbol, SymbolTable } from "antlr4-c3";
@@ -19,7 +19,7 @@ const code = fs.existsSync(process.argv[2])
     ? fs.readFileSync(process.argv[2], "utf-8")
     : process.argv.slice(2).join(" ").replace(/\\n/g, "\n");
 const doc = TextDocument.create("uri", "lpc", 0, code);
-const stream = CharStreams.fromString(code);
+const stream = CharStream.fromString(code);
 const lexer = new LPCLexer(stream);
 const tStream = new CommonTokenStream(lexer);
 const parser = new LPCParser(tStream);

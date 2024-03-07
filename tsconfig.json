@@ -1,24 +1,17 @@
 {
-	"compilerOptions": {
-		"module": "ESNext",
+    "compilerOptions": {
+        "module": "ESNext",
         "target": "es2020",
         "moduleResolution": "Node",
-		"esModuleInterop": true,
-		"lib": ["es2020","DOM"],
-		"outDir": "out",		
-		"resolveJsonModule": true,
-		"sourceMap": true,
-		"strict": false
-	},	
-	"include": [
-		"src"		
-	],
-	"exclude": [
-		"node_modules",
-		".vscode-test"
-	],
-	"references": [
-		{ "path": "./client" },
-		{ "path": "./server" }
-	]
+        "esModuleInterop": true,
+        "lib": ["es2020", "DOM"],
+        "outDir": "out",
+        "resolveJsonModule": true,
+        "sourceMap": true,
+        "strict": false,
+        "skipLibCheck": true
+    },
+    "include": ["src"],
+    "exclude": ["node_modules", ".vscode-test"],
+    "references": [{ "path": "./client" }, { "path": "./server" }]
 }

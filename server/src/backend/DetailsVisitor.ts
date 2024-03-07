@@ -3,7 +3,6 @@ import {
     AbstractParseTreeVisitor,
     ParseTree,
     ParserRuleContext,
-    RuleContext,
     TerminalNode,
 } from "antlr4ng";
 import { LPCParserVisitor } from "../parser3/LPCParserVisitor";
@@ -243,7 +242,7 @@ export class DetailsVisitor
     };
 
     visitIdentifierExpression = (ctx: IdentifierExpressionContext) => {
-        const priExp = ctx.parent as PrimaryExpressionContext;
+        const priExp = ctx.parent as unknown as PrimaryExpressionContext;
         const isVar = priExp.methodInvocation().length === 0; // if its not a method invocation, then its a variable reference
         const parentSymbol = this.scope;
         const name = ctx.Identifier().getText();
@@ -374,10 +373,10 @@ export class DetailsVisitor
         let parent = ctx.parent;
         let name: string | undefined = undefined;
         while (!name && !!parent) {
-            if (!!(parent as IdentifierExpressionContext)) {
-                name =
-                    (parent as IdentifierExpressionContext).getText &&
-                    (parent as IdentifierExpressionContext).getText();
+            const parentIdCtx =
+                parent as unknown as IdentifierExpressionContext;
+            if (!!parentIdCtx) {
+                name = parentIdCtx.getText && parentIdCtx.getText();
             }
 
             if (!name) {
@@ -583,7 +582,7 @@ export class DetailsVisitor
         });
     };
 
-    parseConditionalSymbol(ctx: RuleContext, operator: string) {
+    parseConditionalSymbol(ctx: ParserRuleContext, operator: string) {
         return this.withScope(ctx, ConditionalSymbol, [operator], (s) => {
             return this.visitChildren(ctx);
         });
