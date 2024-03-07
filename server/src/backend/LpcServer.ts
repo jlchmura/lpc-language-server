@@ -118,6 +118,12 @@ export class LpcServer {
         // Completion Provider
         this.connection.onCompletion(async (params) => {
             const doc = this.documents.get(params.textDocument.uri);
+
+            // force doc to update so that code completion can use the latest token positions
+            // this is needed for situations where code completion is triggered automatically
+            // (like a call_other arrow `->`)
+            this.flushChangeTimer(doc);
+
             return this.completionProvider.provideCompletionItems(
                 doc,
                 params.position
@@ -209,17 +215,35 @@ export class LpcServer {
             this.changeTimers.set(
                 filename,
                 setTimeout(() => {
-                    this.changeTimers.delete(filename);
-                    this.codeLenseProvider.resolveCodeLens;
-                    this.facade.reparse(filename);
-
-                    this.processDiagnostic(e.document);
-
-                    //force refresh codelense
-                    //this.registerCodelensProvider();
+                    this.processDocChange(e.document);
                 }, CHANGE_DEBOUNCE_MS)
             );
         });
+    }
+
+    /**
+     * Checks if a file has a pending doc change and if so, forces the reparse ahead of schedule.
+     * @param filename
+     */
+    private flushChangeTimer(document: TextDocument) {
+        const filename = document.uri;
+        const timer = this.changeTimers.get(filename);
+        if (timer) {
+            clearTimeout(timer);
+            this.processDocChange(document);
+        }
+    }
+
+    private processDocChange(document: TextDocument) {
+        const filename = document.uri;
+        this.changeTimers.delete(filename);
+        this.codeLenseProvider.resolveCodeLens;
+        this.facade.reparse(filename);
+
+        this.processDiagnostic(document);
+
+        //force refresh codelense
+        //this.registerCodelensProvider();
     }
 
     public start() {
@@ -250,6 +274,7 @@ export class LpcServer {
                 // Tell the client that this server supports code completion.
                 completionProvider: {
                     resolveProvider: true,
+                    triggerCharacters: [">"],
                 },
                 renameProvider: true,
                 documentSymbolProvider: true,
