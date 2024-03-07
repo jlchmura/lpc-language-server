@@ -10,8 +10,9 @@ import {
     IEvaluatableSymbol,
     getSymbolsOfTypeSync,
     isInstanceOfIEvaluatableSymbol,
+    IRenameableSymbol,
 } from "./base";
-import { SymbolKind } from "../types";
+import { ILexicalRange, SymbolKind } from "../types";
 import { IdentifierSymbol } from "./Symbol";
 import { resolveOfTypeSync } from "../utils";
 import { DefineSymbol } from "./defineSymbol";
@@ -45,8 +46,9 @@ export class VariableSymbol
  */
 export class VariableIdentifierSymbol
     extends IdentifierSymbol
-    implements IEvaluatableSymbol
+    implements IEvaluatableSymbol, IRenameableSymbol
 {
+    nameRange: ILexicalRange;
     eval(stack: CallStack, scope?: any) {
         const def = this.findDeclaration() as IEvaluatableSymbol;
         return def?.eval(stack, scope);

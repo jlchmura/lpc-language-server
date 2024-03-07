@@ -331,7 +331,6 @@ export class LpcFacade {
             false
         );
 
-        // Sort result by kind. This way rule definitions appear before rule references and are re-parsed first.
         return result.sort((lhs: ISymbolInfo, rhs: ISymbolInfo) => {
             return lhs.kind - rhs.kind;
         });

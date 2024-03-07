@@ -448,6 +448,7 @@ export class ContextSymbolTable extends SymbolTable {
                     result.push({
                         kind: SourceContext.getKindFromSymbol(symbol),
                         name: symbolName,
+                        symbol: symbol,
                         source: owner.fileName,
                         definition: SourceContext.definitionForContext(
                             context,
@@ -465,6 +466,7 @@ export class ContextSymbolTable extends SymbolTable {
                             kind: SourceContext.getKindFromSymbol(reference),
                             name: symbolName,
                             source: owner.fileName,
+                            symbol: reference,
                             definition: SourceContext.definitionForContext(
                                 reference.context,
                                 true

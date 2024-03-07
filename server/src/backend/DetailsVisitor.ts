@@ -75,14 +75,21 @@ import {
     ReturnSymbol,
 } from "../symbols/methodSymbol";
 import { ExpressionSymbol } from "../symbols/expressionSymbol";
-import { firstEntry, lastEntry, normalizeFilename, trimQuotes } from "../utils";
+import {
+    firstEntry,
+    lastEntry,
+    lexRangeFromContext,
+    lexRangeFromToken,
+    normalizeFilename,
+    trimQuotes,
+} from "../utils";
 import { LiteralSymbol } from "../symbols/literalSymbol";
 import { OperatorSymbol } from "../symbols/operatorSymbol";
 import { ConditionalSymbol } from "../symbols/conditionalSymbol";
 import { CallOtherSymbol, CloneObjectSymbol } from "../symbols/objectSymbol";
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import { IfSymbol, SelectionSymbol } from "../symbols/selectionSymbol";
-import { IEvaluatableSymbol } from "../symbols/base";
+import { IEvaluatableSymbol, IRenameableSymbol } from "../symbols/base";
 
 const COMMENT_CHANNEL_NUM = 2;
 
@@ -217,11 +224,12 @@ export class DetailsVisitor
     visitCallOtherTarget = (ctx: CallOtherTargetContext) => {
         // the call other target can be an identifier, a string literal, or an expression
         if (ctx.Identifier()) {
-            this.addNewSymbol(
+            const fid = this.addNewSymbol(
                 FunctionIdentifierSymbol,
                 ctx,
                 ctx.Identifier().getText()
             );
+            fid.nameRange = lexRangeFromToken(ctx.Identifier().symbol);
         } else if (ctx.expression()) {
             return this.visitExpression(ctx.expression());
         } else {
@@ -260,7 +268,10 @@ export class DetailsVisitor
             symbolType = VariableIdentifierSymbol;
         }
 
-        this.addNewSymbol(symbolType, ctx, `${name}`);
+        const newSym = this.addNewSymbol(symbolType, ctx, `${name}`);
+        (newSym as IRenameableSymbol).nameRange = lexRangeFromToken(
+            ctx.Identifier().getSymbol()
+        );
         return undefined;
     };
 
@@ -480,6 +491,7 @@ export class DetailsVisitor
             MethodDeclarationSymbol,
             [nm, retType, mods],
             (s) => {
+                s.nameRange = lexRangeFromToken(header._functionName);
                 s.doc = this.getPrefixComments(ctx);
                 s.foldingRange = FoldingRange.create(
                     ctx.start.line - 1,
@@ -505,6 +517,7 @@ export class DetailsVisitor
         const comments = source.tokenStream.getHiddenTokensToLeft(tokenIdx, 2);
 
         return this.withScope(ctx, MethodSymbol, [nm, retType, mods], (s) => {
+            s.nameRange = lexRangeFromToken(header._functionName);
             s.doc = this.getPrefixComments(ctx);
             s.foldingRange = FoldingRange.create(
                 ctx.start.line - 1,

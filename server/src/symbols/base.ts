@@ -1,7 +1,7 @@
 import { BaseSymbol, ScopedSymbol, SymbolConstructor } from "antlr4-c3";
 import { ParseTree } from "antlr4ng";
-import { SymbolKind } from "../types";
-import { FoldingRange } from "vscode-languageserver";
+import { ILexicalRange, SymbolKind } from "../types";
+import { FoldingRange, Range, TextEdit } from "vscode-languageserver";
 import { CallStack } from "../backend/CallStack";
 
 export type EvalScope = any;
@@ -19,6 +19,15 @@ export interface IFoldableSymbol extends BaseSymbol {
 export interface IHasValue extends BaseSymbol {
     setValue(value: any);
     getValue(value: any);
+}
+
+export interface IRenameableSymbol extends BaseSymbol {
+    nameRange: ILexicalRange;
+}
+export function isInstanceOfIRenameableSymbol(
+    symbol: BaseSymbol
+): symbol is IRenameableSymbol {
+    return (symbol as unknown as IRenameableSymbol)?.nameRange !== undefined;
 }
 
 export interface IEvaluatableSymbol extends BaseSymbol {

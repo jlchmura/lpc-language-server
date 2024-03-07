@@ -49,6 +49,19 @@ export function lexRangeFromContext(ctx: ParserRuleContext): ILexicalRange {
     };
 }
 
+export function lexRangeFromToken(t: Token): ILexicalRange {
+    return {
+        start: {
+            row: t.line,
+            column: t.column,
+        },
+        end: {
+            row: t.line,
+            column: t.column + t.stop - t.start + 1,
+        },
+    };
+}
+
 /**
  * Checks if the two sets are equal in size and content.
  * @param set1

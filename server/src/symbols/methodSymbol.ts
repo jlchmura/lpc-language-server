@@ -11,8 +11,9 @@ import {
     IFoldableSymbol,
     isInstanceOfIEvaluatableSymbol,
     getSymbolsOfTypeSync,
+    IRenameableSymbol,
 } from "./base";
-import { SymbolKind } from "../types";
+import { ILexicalRange, SymbolKind } from "../types";
 
 import { FoldingRange } from "vscode-languageserver";
 import { ExpressionSymbol } from "./expressionSymbol";
@@ -40,7 +41,11 @@ export class MethodParameterSymbol
 
 export class MethodSymbol
     extends BaseMethodSymbol
-    implements IFoldableSymbol, IKindSymbol, IEvaluatableSymbol
+    implements
+        IFoldableSymbol,
+        IKindSymbol,
+        IEvaluatableSymbol,
+        IRenameableSymbol
 {
     doc: commentParser.Block;
 
@@ -52,6 +57,7 @@ export class MethodSymbol
     ) {
         super(name, returnType);
     }
+    nameRange: ILexicalRange;
 
     /** this is a quick hack to prevent runaway recrussions during evaluation.
      * TODO: add a real call stack to the evaluation engine
@@ -105,8 +111,10 @@ export class MethodSymbol
 }
 export class MethodDeclarationSymbol
     extends MethodSymbol
-    implements IKindSymbol
+    implements IKindSymbol, IRenameableSymbol
 {
+    nameRange: ILexicalRange;
+
     public get kind() {
         return SymbolKind.MethodDeclaration;
     }
@@ -184,8 +192,9 @@ export class MethodInvocationSymbol
  */
 export class FunctionIdentifierSymbol
     extends ScopedSymbol
-    implements IKindSymbol, IEvaluatableSymbol
+    implements IKindSymbol, IEvaluatableSymbol, IRenameableSymbol
 {
+    nameRange: ILexicalRange;
     public get kind() {
         return SymbolKind.Keyword;
     }

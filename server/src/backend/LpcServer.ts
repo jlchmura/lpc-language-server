@@ -43,6 +43,10 @@ import { SourceContext } from "./SourceContext";
 import { EfunSymbols } from "./EfunsLDMud";
 import { CompletionProvider } from "./CompletionProvider";
 import { SignatureHelpProvider } from "./SignatureHelpProvider";
+import {
+    IRenameableSymbol,
+    isInstanceOfIRenameableSymbol,
+} from "../symbols/base";
 
 const CHANGE_DEBOUNCE_MS = 300;
 
@@ -178,23 +182,23 @@ export class LpcServer {
                     doc.uri,
                     info.name
                 );
-                for (const symbol of occurrences) {
-                    if (symbol.definition) {
-                        const range = Range.create(
-                            symbol.definition.range.start.row - 1,
-                            symbol.definition.range.start.column,
-                            symbol.definition.range.end.row - 1,
-                            symbol.definition.range.start.column +
-                                info.name.length
-                        );
 
-                        result.changes[symbol.source] =
-                            result.changes[symbol.source] ?? [];
-                        result.changes[symbol.source].push(
+                occurrences.forEach((o) => {
+                    if (!isInstanceOfIRenameableSymbol(o.symbol)) {
+                        throw "encountered symbol that is not renameable.";
+                    }
+
+                    const symbol = o.symbol as IRenameableSymbol;
+                    if (symbol.nameRange) {
+                        const range = lexRangeToLspRange(symbol.nameRange);
+
+                        result.changes[o.source] =
+                            result.changes[o.source] ?? [];
+                        result.changes[o.source].push(
                             TextEdit.replace(range, params.newName)
                         );
                     }
-                }
+                });
 
                 return result;
             } else {
