@@ -3,6 +3,7 @@ import {
     CharStream,
     CommonTokenStream,
     DefaultErrorStrategy,
+    ErrorNode,
     IInterpreterData,
     ParseCancellationException,
     ParseTree,
@@ -73,6 +74,7 @@ import {
 } from "../symbols/methodSymbol";
 import { CallOtherSymbol } from "../symbols/objectSymbol";
 import { EfunSymbols } from "./EfunsLDMud";
+import { getParentOfType } from "../symbols/Symbol";
 
 /**
  * Source context for a single LPC file.
@@ -147,6 +149,7 @@ export class SourceContext {
 
         this.parser = new LPCParser(this.tokenStream);
         this.parser.buildParseTrees = true;
+
         this.parser.removeErrorListeners();
         this.parser.addErrorListener(this.errorListener);
     }
@@ -177,7 +180,10 @@ export class SourceContext {
         this.tokenStream.setTokenSource(this.lexer);
 
         this.parser.reset();
-        this.parser.errorHandler = new BailErrorStrategy();
+        // use default instead of bailout here.
+        // the method of using bailout and re-parsing using LL mode was causing problems
+        // with code completion
+        this.parser.errorHandler = new DefaultErrorStrategy();
         this.parser.interpreter.predictionMode = PredictionMode.SLL;
 
         this.tree = undefined;
@@ -557,6 +563,7 @@ export class SourceContext {
             LPCLexer.COMMA,
             LPCLexer.COLON,
             Token.EOF,
+            // LPCLexer.ARROW,
         ]);
 
         core.preferredRules = new Set([
@@ -565,6 +572,8 @@ export class SourceContext {
             LPCParser.RULE_primaryExpressionStart,
             LPCParser.RULE_variableDeclaration,
             LPCParser.RULE_literal,
+            LPCParser.RULE_primaryExpression,
+
             //LPCParser.RULE_statement,
             //LPCParser.RULE_assignmentExpression,
 
@@ -590,12 +599,6 @@ export class SourceContext {
             }
         }
 
-        //let symbolTable = this.symbolTable;
-        let context = BackendUtils.parseTreeFromPosition(
-            this.tree,
-            column,
-            row
-        );
         // const contextSymbol = this.symbolTable.symbolContainingContext(context);
         //     if (contextSymbol instanceof CallOtherSymbol) {
         //         symbolTable = contextSymbol.objectRef?.context?.symbolTable ?? symbolTable;
@@ -672,7 +675,12 @@ export class SourceContext {
         });
 
         // TODO: lfun completion base don the obj context
-
+        //let symbolTable = this.symbolTable;
+        let context = BackendUtils.parseTreeFromPosition(
+            this.tree,
+            column,
+            row
+        );
         const promises: Array<Promise<BaseSymbol[] | undefined>> = [];
         candidates.rules.forEach((candidateRule, key) => {
             switch (key) {
@@ -688,36 +696,54 @@ export class SourceContext {
 
                 case LPCParser.RULE_statement:
                 case LPCParser.RULE_primaryExpressionStart:
+                case LPCParser.RULE_primaryExpression:
                 case LPCParser.RULE_literal:
-                    // Lexer rules.
-                    promises.push(
-                        SourceContext.globalSymbols.getAllSymbols(EfunSymbol)
-                    );
-                    promises.push(
-                        this.symbolTable.getAllSymbols(VariableSymbol)
-                    );
-                    promises.push(this.symbolTable.getAllSymbols(MethodSymbol));
-                    result.push({
-                        kind: SymbolKind.Operator,
-                        name: "->",
-                        description: "Call other",
-                        source: this.fileName,
-                    });
-                    break;
-                //case LPCParser.RULE_callOtherExpression:
-                case LPCParser.RULE_callOtherTarget:
                     const s = this.symbolTable.symbolContainingContext(context);
-                    if (s instanceof CallOtherSymbol) {
+                    let callOtherSymbol: CallOtherSymbol | undefined;
+                    if (
+                        (callOtherSymbol = getParentOfType(s, CallOtherSymbol))
+                    ) {
                         promises.push(
-                            s.objectRef.context.symbolTable.getAllSymbols(
+                            callOtherSymbol.objectRef.context.symbolTable.getAllSymbols(
                                 MethodSymbol,
                                 true
                             )
                         );
                     } else {
-                        console.warn("unexpected symbol type");
+                        // Lexer rules.
+                        promises.push(
+                            SourceContext.globalSymbols.getAllSymbols(
+                                EfunSymbol
+                            )
+                        );
+                        promises.push(
+                            this.symbolTable.getAllSymbols(VariableSymbol)
+                        );
+                        promises.push(
+                            this.symbolTable.getAllSymbols(MethodSymbol)
+                        );
+                        result.push({
+                            kind: SymbolKind.Operator,
+                            name: "->",
+                            description: "Call other",
+                            source: this.fileName,
+                        });
                     }
                     break;
+                //case LPCParser.RULE_callOtherExpression:
+                // case LPCParser.RULE_callOtherTarget:
+                //     const s = this.symbolTable.symbolContainingContext(context);
+                //     if (s instanceof CallOtherSymbol) {
+                //         promises.push(
+                //             s.objectRef.context.symbolTable.getAllSymbols(
+                //                 MethodSymbol,
+                //                 true
+                //             )
+                //         );
+                //     } else {
+                //         console.warn("unexpected symbol type");
+                //     }
+                //     break;
                 case LPCParser.RULE_assignmentExpression:
                     promises.push(
                         this.symbolTable.getAllSymbols(VariableSymbol)

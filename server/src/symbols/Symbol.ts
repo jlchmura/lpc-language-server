@@ -4,6 +4,7 @@ import {
     MethodSymbol as BaseMethodSymbol,
     ParameterSymbol,
     TypedSymbol,
+    SymbolConstructor,
     IType,
 } from "antlr4-c3";
 import { IDiagnosticEntry, SymbolKind } from "../types";
@@ -225,4 +226,18 @@ export function generateSymbolDoc(symbol: BaseSymbol) {
         return commentDoc;
     }
     return "";
+}
+
+/**
+ * checks if a symbol has a parent (at any level) of type t
+ * @param symbol
+ * @param t
+ * @returns
+ */
+export function getParentOfType<T extends BaseSymbol, Args extends unknown[]>(
+    symbol: BaseSymbol,
+    t: SymbolConstructor<T, Args>
+): T | undefined {
+    if (symbol instanceof t) return symbol;
+    return (symbol.symbolPath.find((s) => s instanceof t) as T) ?? undefined;
 }
