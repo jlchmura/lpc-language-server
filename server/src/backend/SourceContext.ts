@@ -453,13 +453,6 @@ export class SourceContext {
 
         let symbol: BaseSymbol;
         switch (parent.ruleIndex) {
-            case LPCParser.RULE_callOtherExpression:
-                let callSym =
-                    this.symbolTable.symbolContainingContext(terminal);
-                if (callSym instanceof CallOtherSymbol) {
-                    symbol = callSym;
-                }
-                break;
             case LPCParser.RULE_assignmentExpression:
             case LPCParser.RULE_primaryExpression:
             case LPCParser.RULE_primaryExpressionStart:
@@ -483,31 +476,36 @@ export class SourceContext {
                         DefineSymbol
                     );
                 } else if (symbol instanceof FunctionIdentifierSymbol) {
-                    symbol = resolveOfTypeSync(
-                        this.symbolTable,
-                        name,
-                        MethodDeclarationSymbol
-                    );
-                    symbol ??= resolveOfTypeSync(
-                        this.symbolTable,
-                        name,
-                        MethodSymbol
-                    );
-                    symbol ??= resolveOfTypeSync(
-                        SourceContext.efunSymbols, // efuns always come from here
-                        name,
-                        EfunSymbol
-                    );
-                } else if (symbol instanceof CallOtherSymbol) {
-                    // if the symbol object wasn't loaded, just return undefined
-                    // that error will be caught and reported elsewhere
-                    if (!symbol.objectRef?.isLoaded) return undefined;
+                    if (symbol.parent instanceof CallOtherSymbol) {
+                        const callOtherSymbol =
+                            symbol.parent as CallOtherSymbol;
+                        // if the symbol object wasn't loaded, just return undefined
+                        // that error will be caught and reported elsewhere
+                        if (!callOtherSymbol.objectRef?.isLoaded)
+                            return undefined;
 
-                    symbol = resolveOfTypeSync(
-                        symbol.objectRef.context.symbolTable,
-                        name,
-                        MethodSymbol
-                    );
+                        symbol = resolveOfTypeSync(
+                            callOtherSymbol.objectRef.context.symbolTable,
+                            name,
+                            MethodSymbol
+                        );
+                    } else {
+                        symbol = resolveOfTypeSync(
+                            this.symbolTable,
+                            name,
+                            MethodDeclarationSymbol
+                        );
+                        symbol ??= resolveOfTypeSync(
+                            this.symbolTable,
+                            name,
+                            MethodSymbol
+                        );
+                        symbol ??= resolveOfTypeSync(
+                            SourceContext.efunSymbols, // efuns always come from here
+                            name,
+                            EfunSymbol
+                        );
+                    }
                 } else {
                     symbol = searchScope.resolveSync(symbol.name, false);
                 }
@@ -563,9 +561,9 @@ export class SourceContext {
         ]);
 
         core.preferredRules = new Set([
-            LPCParser.RULE_callOtherExpression,
+            //LPCParser.RULE_callOtherExpression,
             LPCParser.RULE_callOtherTarget,
-            //LPCParser.RULE_primaryExpressionStart,
+            LPCParser.RULE_primaryExpressionStart,
             LPCParser.RULE_variableDeclaration,
             LPCParser.RULE_literal,
             //LPCParser.RULE_statement,
@@ -707,7 +705,7 @@ export class SourceContext {
                         source: this.fileName,
                     });
                     break;
-                case LPCParser.RULE_callOtherExpression:
+                //case LPCParser.RULE_callOtherExpression:
                 case LPCParser.RULE_callOtherTarget:
                     const s = this.symbolTable.symbolContainingContext(context);
                     if (s instanceof CallOtherSymbol) {

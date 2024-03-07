@@ -94,15 +94,25 @@ export class CallOtherSymbol
     extends ScopedSymbol
     implements IEvaluatableSymbol
 {
+    /** the object that call_other will be invoked on */
+    public sourceObject: IEvaluatableSymbol;
+    /** the target method that will be invoked on `sourceObject` */
+    public target: IEvaluatableSymbol;
+    /** the method invocation symbol, which contains arguments */
+    public methodInvocation: MethodInvocationSymbol;
+
+    /** information about the object (not the symbol) that call_other is being invoked on */
     public objectRef: ObjectReferenceInfo;
 
     constructor(name: string, public functionName?: string) {
         super(name);
     }
 
-    eval(stack: CallStack, obj: any) {
+    eval(stack: CallStack, val: any) {
+        const obj = this.sourceObject?.eval(stack);
         if (!(obj instanceof ObjectReferenceInfo)) {
             // TODO report this as a diagnostic?
+            console.debug("expected object reference info", obj);
             return undefined;
         }
 
@@ -111,13 +121,7 @@ export class CallOtherSymbol
 
         // this will handle expressions & string literals
         if (!this.functionName || this.functionName == "#fn") {
-            for (const child of this.children) {
-                if (isInstanceOfIEvaluatableSymbol(child)) {
-                    this.functionName = child.eval(stack);
-                } else {
-                    throw "not evaluable: " + child.name;
-                }
-            }
+            this.functionName = this.target?.eval(stack);
         }
 
         if (!this.functionName) {
@@ -139,14 +143,12 @@ export class CallOtherSymbol
         }
 
         // the next sibling should be the method invocation
-        const methodInvok = this.children[0] as MethodInvocationSymbol;
+        const methodInvok = this.methodInvocation;
         if (!(methodInvok instanceof MethodInvocationSymbol))
             console.warn("expected a method invocation", this.name);
 
         // evaluate the argumnents
-        const argVals = methodInvok.getArguments().map((a) => {
-            return a.eval(stack);
-        });
+        const argVals = methodInvok.getArguments().map((a) => a.eval(stack));
 
         // create a new root frame for this object
         // this doesn't need to go on the stack, it's just a temporary frame

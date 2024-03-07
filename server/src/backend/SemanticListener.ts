@@ -3,9 +3,7 @@ import { LPCParserListener } from "../parser3/LPCParserListener";
 import { IDiagnosticEntry, LpcTypes, SymbolGroupKind } from "../types";
 import { ContextSymbolTable } from "./ContextSymbolTable";
 import {
-    CallOtherExpressionContext,
     CallOtherTargetContext,
-    CloneObjectExpressionContext,
     FunctionDeclarationContext,
     IdentifierExpressionContext,
     IncludeDirectiveContext,
@@ -36,6 +34,7 @@ import { VariableSymbol } from "../symbols/variableSymbol";
 import {
     EfunSymbol,
     MethodDeclarationSymbol,
+    MethodInvocationSymbol,
     MethodSymbol,
 } from "../symbols/methodSymbol";
 import {
@@ -248,11 +247,16 @@ export class SemanticListener extends LPCParserListener {
         const methodName = trimQuotes(methodObj.getText());
         rangeStart = methodObj.start;
 
+        // get the method invocation symbol
+        const methodInvSymbol = this.symbolTable.symbolWithContextSync(
+            ctx
+        ) as MethodInvocationSymbol;
+
         // symbol table that will be used to look up definition
         let lookupTable: ContextSymbolTable = this.symbolTable;
 
         // if this is a call to another object, use that object's symbol table
-        if (ctx.parent instanceof CallOtherExpressionContext) {
+        if (methodInvSymbol.parent instanceof CallOtherSymbol) {
             const callOtherSymbol = this.symbolTable.symbolWithContextSync(
                 ctx.parent
             ) as CallOtherSymbol;
@@ -271,11 +275,11 @@ export class SemanticListener extends LPCParserListener {
             }
         }
 
-        // get the definition for that method
+        // get the symbol for the method
         const methodSymbol = lookupTable.resolveSync(
-            methodName
+            methodName,
+            false
         ) as MethodSymbol;
-        const symbolInfo = lookupTable.getSymbolInfo(methodSymbol);
 
         // this will include efuns
         if (methodName && methodSymbol instanceof BaseMethodSymbol) {
@@ -292,6 +296,9 @@ export class SemanticListener extends LPCParserListener {
                     rangeStart,
                     rangeEnd
                 );
+
+                // get the definition for that method
+                const symbolInfo = lookupTable.getSymbolInfo(methodInvSymbol);
 
                 // add info about the missing arg
                 entry.related = {
@@ -326,10 +333,11 @@ export class SemanticListener extends LPCParserListener {
         }
     };
 
-    exitCallOtherExpression = (ctx: CallOtherExpressionContext) => {
+    exitPrimaryExpression = (ctx: PrimaryExpressionContext) => {
         if (
-            !ctx.ARROW() ||
-            (ctx.callOtherTarget()?.children.length ?? 0) == 0
+            ctx.ARROW().length > 0 &&
+            (ctx.callOtherTarget().length === 0 ||
+                ctx.methodInvocation().length === 0)
         ) {
             this.logDiagnostic(
                 "Call_other expression missing function name",

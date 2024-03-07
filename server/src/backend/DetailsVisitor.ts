@@ -23,7 +23,6 @@ import {
     AdditiveExpressionContext,
     AndExpressionContext,
     AssignmentExpressionContext,
-    CallOtherExpressionContext,
     CallOtherTargetContext,
     CloneObjectExpressionContext,
     ConditionalAndExpressionContext,
@@ -52,7 +51,11 @@ import {
     ReturnStatementContext,
     SelectionDirectiveContext,
 } from "../parser3/LPCParser";
-import { InheritSymbol, PreprocessorSymbol } from "../symbols/Symbol";
+import {
+    IdentifierSymbol,
+    InheritSymbol,
+    PreprocessorSymbol,
+} from "../symbols/Symbol";
 import { FoldingRange } from "vscode-languageserver";
 import { ContextImportInfo, typeNameToIType } from "../types";
 import { LPCLexer } from "../parser3/LPCLexer";
@@ -80,12 +83,13 @@ import { ConditionalSymbol } from "../symbols/conditionalSymbol";
 import { CallOtherSymbol, CloneObjectSymbol } from "../symbols/objectSymbol";
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import { IfSymbol, SelectionSymbol } from "../symbols/selectionSymbol";
+import { IEvaluatableSymbol } from "../symbols/base";
 
 const COMMENT_CHANNEL_NUM = 2;
 
 export class DetailsVisitor
-    extends AbstractParseTreeVisitor<SymbolTable>
-    implements LPCParserVisitor<SymbolTable>
+    extends AbstractParseTreeVisitor<ScopedSymbol>
+    implements LPCParserVisitor<ScopedSymbol>
 {
     protected scope = this.symbolTable as ScopedSymbol;
 
@@ -138,14 +142,93 @@ export class DetailsVisitor
     };
 
     visitPrimaryExpression = (ctx: PrimaryExpressionContext) => {
-        return this.withScope(
-            ctx,
-            ExpressionSymbol,
-            ["#primary-expression#"],
-            (s) => {
-                return this.visitChildren(ctx);
-            }
-        );
+        // TODO: special handling for bracket expressions here?
+
+        if (ctx.ARROW().length > 0) {
+            // if there is an arrow, then this is a call_other expression
+            return this.withScope(
+                ctx,
+                CallOtherSymbol,
+                ["#call-other#"],
+                (callOther) => {
+                    // first find the arrow because there can be multiple expressions before it
+                    const arrowIdx = ctx.children.findIndex(
+                        (c) => c.getText() === "->"
+                    );
+
+                    // everything up to thte arrow goes into an expression
+                    const exprCtx = ctx.children.slice(0, arrowIdx);
+
+                    if (exprCtx.length > 1) {
+                        // parse children into an expression
+                        this.withScope(
+                            ctx,
+                            ExpressionSymbol,
+                            ["#primary-expression#"],
+                            (s) => {
+                                exprCtx.forEach((c) => this.visit(c));
+                            }
+                        );
+                    } else if (exprCtx.length === 1) {
+                        // if there's only one child, then just visit it
+                        // and the first child becomes the source Object
+                        this.visit(exprCtx[0]);
+                    } else {
+                        // this shoudn't happen
+                        throw new Error("Invalid call_other expression");
+                    }
+
+                    // we should end up with one child, which is the source object
+                    callOther.sourceObject =
+                        callOther.lastChild as IEvaluatableSymbol;
+
+                    // after the arrow we should have a call other target and a method invocation
+                    // but those may be missing if the user is typing and the code is incomplete
+                    const callOtherTargetCtx = ctx._target;
+                    const methodInvocationCtx = ctx._invocation;
+
+                    if (!!callOtherTargetCtx) {
+                        this.visit(callOtherTargetCtx);
+                        callOther.target =
+                            callOther.lastChild as IEvaluatableSymbol;
+                        callOther.functionName = callOther.target?.name;
+                    }
+                    if (!!methodInvocationCtx) {
+                        this.visitMethodInvocation(methodInvocationCtx);
+                        callOther.methodInvocation =
+                            callOther.lastChild as MethodInvocationSymbol;
+                    }
+
+                    return callOther;
+                }
+            );
+        } else {
+            // standard expression
+            return this.withScope(
+                ctx,
+                ExpressionSymbol,
+                ["#primary-expression#"],
+                (s) => {
+                    return this.visitChildren(ctx);
+                }
+            );
+        }
+    };
+
+    visitCallOtherTarget = (ctx: CallOtherTargetContext) => {
+        // the call other target can be an identifier, a string literal, or an expression
+        if (ctx.Identifier()) {
+            this.addNewSymbol(
+                FunctionIdentifierSymbol,
+                ctx,
+                ctx.Identifier().getText()
+            );
+        } else if (ctx.expression()) {
+            return this.visitExpression(ctx.expression());
+        } else {
+            // probably a string literal, which has its own visitor
+            return this.visitChildren(ctx);
+        }
     };
 
     visitMethodInvocation = (ctx: MethodInvocationContext) => {
@@ -167,7 +250,7 @@ export class DetailsVisitor
 
         let symbolType: SymbolConstructor<BaseSymbol, unknown[]>;
 
-        if (priExp.callOtherExpression()?.length > 0) {
+        if (priExp.ARROW()?.length > 0) {
             // if there's an arrow then its a variable
             symbolType = VariableIdentifierSymbol;
         } else if (priExp.methodInvocation().length > 0) {
@@ -192,13 +275,6 @@ export class DetailsVisitor
         if (ctx.LoadObject()) name = "#load-object#";
 
         return this.withScope(ctx, CloneObjectSymbol, [name], (s) => {
-            return this.visitChildren(ctx);
-        });
-    };
-
-    visitCallOtherExpression = (ctx: CallOtherExpressionContext) => {
-        const nm = ctx.callOtherTarget()?.Identifier()?.getText() ?? "#fn#";
-        return this.withScope(ctx, CallOtherSymbol, ["->", nm], (s) => {
             return this.visitChildren(ctx);
         });
     };
@@ -543,31 +619,31 @@ export class DetailsVisitor
         return undefined;
     };
 
-    // visitTerminal = (node: TerminalNode) => {
-    //     switch (node.symbol.type) {
-    //         case LPCLexer.PLUS:
-    //         case LPCLexer.MINUS:
-    //         case LPCLexer.STAR:
-    //         case LPCLexer.DIV:
-    //         case LPCLexer.MOD:
-    //         case LPCLexer.SHL:
-    //         case LPCLexer.SHR:
-    //         case LPCLexer.AND:
-    //         case LPCLexer.OR:
-    //         case LPCLexer.XOR:
-    //         case LPCLexer.NOT:
-    //         case LPCLexer.INC:
-    //         case LPCLexer.DEC:
-    //             this.addNewSymbol(OperatorSymbol, node, node.getText());
+    //  visitTerminal = (node: TerminalNode) => {
+    //      switch (node.symbol.type) {
+    // //         case LPCLexer.PLUS:
+    // //         case LPCLexer.MINUS:
+    // //         case LPCLexer.STAR:
+    // //         case LPCLexer.DIV:
+    // //         case LPCLexer.MOD:
+    // //         case LPCLexer.SHL:
+    // //         case LPCLexer.SHR:
+    // //         case LPCLexer.AND:
+    // //         case LPCLexer.OR:
+    // //         case LPCLexer.XOR:
+    // //         case LPCLexer.NOT:
+    // //         case LPCLexer.INC:
+    // //         case LPCLexer.DEC:
+    // //             this.addNewSymbol(OperatorSymbol, node, node.getText());
+    // //             break;
+    //         case LPCLexer.Identifier:
+    //             this.addNewSymbol(IdentifierSymbol, node, node.getText());
     //             break;
-    //         // case LPCLexer.Identifier:
-    //         //     this.addNewSymbol(IdentifierSymbol, node, node.getText());
-    //         //     break;
-    //         default: {
+    //         default:
     //             // Ignore the rest.
     //             break;
-    //         }
-    //     }
+
+    //      }
 
     //     return undefined;
     // };
