@@ -47,6 +47,7 @@ import {
     IRenameableSymbol,
     isInstanceOfIRenameableSymbol,
 } from "../symbols/base";
+import { RenameProvider } from "./RenameProvider";
 
 const CHANGE_DEBOUNCE_MS = 300;
 
@@ -70,6 +71,7 @@ export class LpcServer {
     private diagnosticProvider: DiagnosticProvider;
     private completionProvider: CompletionProvider;
     private signatureHelpProvider: SignatureHelpProvider;
+    private renameProvider: RenameProvider;
 
     /** document listener */
     private readonly documents: TextDocuments<TextDocument> = new TextDocuments(
@@ -168,42 +170,12 @@ export class LpcServer {
         // Rename Provider
         this.connection.onRenameRequest((params) => {
             const doc = this.documents.get(params.textDocument.uri);
-            const position = params.position;
-            const info = this.facade.symbolInfoAtPosition(
-                doc.uri,
-                position.character,
-                position.line + 1,
-                false
+            const { position, newName } = params;
+            return this.renameProvider.handleRenameRequest(
+                doc,
+                position,
+                newName
             );
-
-            if (info) {
-                const result: WorkspaceEdit = { changes: {} };
-                const occurrences = this.facade.getSymbolOccurrences(
-                    doc.uri,
-                    info.name
-                );
-
-                occurrences.forEach((o) => {
-                    if (!isInstanceOfIRenameableSymbol(o.symbol)) {
-                        throw "encountered symbol that is not renameable.";
-                    }
-
-                    const symbol = o.symbol as IRenameableSymbol;
-                    if (symbol.nameRange) {
-                        const range = lexRangeToLspRange(symbol.nameRange);
-
-                        result.changes[o.source] =
-                            result.changes[o.source] ?? [];
-                        result.changes[o.source].push(
-                            TextEdit.replace(range, params.newName)
-                        );
-                    }
-                });
-
-                return result;
-            } else {
-                undefined;
-            }
         });
 
         // send document open/close/changes to facade
@@ -330,6 +302,7 @@ export class LpcServer {
         this.diagnosticProvider = new DiagnosticProvider(this.facade);
         this.completionProvider = new CompletionProvider(this.facade);
         this.signatureHelpProvider = new SignatureHelpProvider(this.facade);
+        this.renameProvider = new RenameProvider(this.facade);
 
         return result;
     }
