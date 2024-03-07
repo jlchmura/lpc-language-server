@@ -90,6 +90,9 @@ export class CloneObjectSymbol
     }
 }
 
+/**
+ * Represents a call_other expression in the code, i.e. `ob->method(args)`
+ */
 export class CallOtherSymbol
     extends ScopedSymbol
     implements IEvaluatableSymbol
@@ -109,6 +112,8 @@ export class CallOtherSymbol
     }
 
     eval(stack: CallStack, val: any) {
+        // first evaluate the source object. that will give us the
+        // object reference info that we need to resolve the function name
         const obj = this.sourceObject?.eval(stack);
         if (!(obj instanceof ObjectReferenceInfo)) {
             // TODO report this as a diagnostic?
@@ -116,10 +121,10 @@ export class CallOtherSymbol
             return undefined;
         }
 
-        // store for later
+        // store for later use in semantic analysis
         this.objectRef = obj;
 
-        // this will handle expressions & string literals
+        // function name could be an expression, so evaluate that
         if (!this.functionName || this.functionName == "#fn") {
             this.functionName = this.target?.eval(stack);
         }
@@ -131,18 +136,17 @@ export class CallOtherSymbol
             );
         }
 
-        // at this point we've figured out the function name and now need to find the actual function.
+        // at this point we've figured out the function name and now need
+        // to find the actual function symbol which will be in the source
+        // object's symbol table
         const symTbl = (obj as ObjectReferenceInfo).context?.symbolTable;
-        const funSym = symTbl?.resolveSync(
-            this.functionName,
-            false
-        ) as MethodSymbol;
+        const funSym = symTbl?.getFunction(this.functionName);
 
         if (!funSym) {
             return null; // semantic analysis will log this diagnostic
         }
 
-        // the next sibling should be the method invocation
+        // the method invocation symbol will have the call arguments
         const methodInvok = this.methodInvocation;
         if (!(methodInvok instanceof MethodInvocationSymbol))
             console.warn("expected a method invocation", this.name);

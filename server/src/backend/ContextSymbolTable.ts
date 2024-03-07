@@ -61,6 +61,10 @@ export class ContextSymbolTable extends SymbolTable {
         this.functions.set(method.name, method);
     }
 
+    public getFunction(name: string): MethodSymbol | undefined {
+        return this.functions.get(name);
+    }
+
     public symbolExists(
         name: string,
         kind: SymbolKind,

@@ -199,10 +199,11 @@ export class SemanticListener extends LPCParserListener {
             const importCtx = backend.getContext(importFilename);
             const importTbl = importCtx.symbolTable;
 
-            this.addPogramToStack(importTbl as ScopedSymbol, stack);
+            this.addPogramToStack(importTbl, stack);
         }
 
-        // TODO:  this is wrong. We need to evaluate as we add symbols to the stack
+        // TODO:  this is wrong. We need to evaluate as we add symbols
+        // to the stack to match the order in which LPC runs code.
 
         // now add this program to the stack
         this.addPogramToStack(progSymbol, stack);
@@ -221,8 +222,6 @@ export class SemanticListener extends LPCParserListener {
             // we'll come back and evaluate methods later.
             if (child instanceof MethodSymbol) {
                 stack.addFunction(child.name, child);
-                //stack.locals.set(child.name, new StackValue(null, child.returnType, child));
-                //child.resetCallDepth();
             } else {
                 if (child instanceof VariableSymbol) {
                     const result = child.eval(stack);
