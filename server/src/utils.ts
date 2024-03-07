@@ -187,3 +187,10 @@ export function rangeFromTokens(start: Token, end: Token): ILexicalRange {
         },
     } as ILexicalRange;
 }
+
+export function trimStart(original: string, toRemove: string): string {
+    if (original?.startsWith(toRemove)) {
+        return original.slice(toRemove.length);
+    }
+    return original;
+}

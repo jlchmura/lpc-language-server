@@ -243,7 +243,6 @@ export class SemanticListener extends LPCParserListener {
 
         // find the context that this method is being invoked on
         const methodObj = getSibling(ctx, -1);
-        const methodName = trimQuotes(methodObj.getText());
         rangeStart = methodObj.start;
 
         // get the method invocation symbol
@@ -251,34 +250,9 @@ export class SemanticListener extends LPCParserListener {
             ctx
         ) as MethodInvocationSymbol;
 
-        // symbol table that will be used to look up definition
-        let lookupTable: ContextSymbolTable = this.symbolTable;
-
-        // if this is a call to another object, use that object's symbol table
-        if (methodInvSymbol.parent instanceof CallOtherSymbol) {
-            const callOtherSymbol = this.symbolTable.symbolWithContextSync(
-                ctx.parent
-            ) as CallOtherSymbol;
-            if (callOtherSymbol.objectRef?.isLoaded === true) {
-                lookupTable = callOtherSymbol.objectRef.context.symbolTable;
-            } else {
-                this.logDiagnostic(
-                    `Object '${
-                        callOtherSymbol.objectRef?.filename ?? ""
-                    }' could not be loaded`,
-                    methodObj.start,
-                    methodObj.stop,
-                    DiagnosticSeverity.Warning
-                );
-                return;
-            }
-        }
-
         // get the symbol for the method
-        const methodSymbol = lookupTable.resolveSync(
-            methodName,
-            false
-        ) as MethodSymbol;
+        const methodSymbol = methodInvSymbol.getMethodSymbol();
+        const methodName = methodSymbol?.name;
 
         // this will include efuns
         if (methodName && methodSymbol instanceof BaseMethodSymbol) {
@@ -297,7 +271,8 @@ export class SemanticListener extends LPCParserListener {
                 );
 
                 // get the definition for that method
-                const symbolInfo = lookupTable.getSymbolInfo(methodInvSymbol);
+                const symbolInfo =
+                    this.symbolTable.getSymbolInfo(methodInvSymbol);
 
                 // add info about the missing arg
                 entry.related = {
@@ -325,7 +300,7 @@ export class SemanticListener extends LPCParserListener {
             }
         } else {
             this.logDiagnostic(
-                "Unknown function name",
+                `Unknown function name '${methodName}'`,
                 parent.start,
                 parent.stop
             );

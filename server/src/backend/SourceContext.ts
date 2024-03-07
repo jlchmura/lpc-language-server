@@ -70,6 +70,7 @@ import {
     EfunSymbol,
     FunctionIdentifierSymbol,
     MethodDeclarationSymbol,
+    MethodInvocationSymbol,
     MethodSymbol,
 } from "../symbols/methodSymbol";
 import { CallOtherSymbol } from "../symbols/objectSymbol";
@@ -455,8 +456,9 @@ export class SourceContext {
         }
 
         let parent = terminal.parent as ParserRuleContext;
-
         let symbol: BaseSymbol;
+        let name: string;
+        let searchScope: ScopedSymbol;
         switch (parent.ruleIndex) {
             case LPCParser.RULE_assignmentExpression:
             case LPCParser.RULE_primaryExpression:
@@ -466,8 +468,8 @@ export class SourceContext {
             case LPCParser.RULE_assignmentOperator:
             case LPCParser.RULE_expression:
                 symbol = this.symbolTable.symbolContainingContext(terminal);
-                const name = trimQuotes(terminal.getText());
-                const searchScope = symbol.getParentOfType(ScopedSymbol);
+                name = trimQuotes(terminal.getText());
+                searchScope = symbol.getParentOfType(ScopedSymbol);
 
                 if (symbol instanceof VariableIdentifierSymbol) {
                     symbol = resolveOfTypeSync(
@@ -516,7 +518,10 @@ export class SourceContext {
                 }
 
                 break;
-
+            case LPCParser.RULE_methodInvocation:
+            case LPCParser.RULE_argumentList:
+                symbol = this.symbolTable.symbolContainingContext(terminal);
+                break;
             default: {
                 break;
             }
@@ -573,11 +578,6 @@ export class SourceContext {
             LPCParser.RULE_variableDeclaration,
             LPCParser.RULE_literal,
             LPCParser.RULE_primaryExpression,
-
-            //LPCParser.RULE_statement,
-            //LPCParser.RULE_assignmentExpression,
-
-            //LPCParser.RULE_functionDeclaration,
         ]);
 
         // Search the token index which covers our caret position.
@@ -598,15 +598,6 @@ export class SourceContext {
                 break;
             }
         }
-
-        // const contextSymbol = this.symbolTable.symbolContainingContext(context);
-        //     if (contextSymbol instanceof CallOtherSymbol) {
-        //         symbolTable = contextSymbol.objectRef?.context?.symbolTable ?? symbolTable;
-        //     }
-
-        // while (!!context && !(context instanceof ParserRuleContext)) {
-        //     context = context.parent;
-        // }
 
         const candidates = core.collectCandidates(index);
 
@@ -658,16 +649,16 @@ export class SourceContext {
                 }
 
                 default: {
-                    const value =
-                        this.parser?.vocabulary.getDisplayName(type) ?? "";
-                    result.push({
-                        kind: SymbolKind.Keyword,
-                        name:
-                            value[0] === "'"
-                                ? value.substring(1, value.length - 1)
-                                : value, // Remove quotes.
-                        source: this.fileName,
-                    });
+                    // const value =
+                    //     this.parser?.vocabulary.getDisplayName(type) ?? "";
+                    // result.push({
+                    //     kind: SymbolKind.Keyword,
+                    //     name:
+                    //         value[0] === "'"
+                    //             ? value.substring(1, value.length - 1)
+                    //             : value, // Remove quotes.
+                    //     source: this.fileName,
+                    // });
 
                     break;
                 }
@@ -698,13 +689,11 @@ export class SourceContext {
                 case LPCParser.RULE_primaryExpressionStart:
                 case LPCParser.RULE_primaryExpression:
                 case LPCParser.RULE_literal:
-                    const s = this.symbolTable.symbolContainingContext(context);
-                    let callOtherSymbol: CallOtherSymbol | undefined;
-                    if (
-                        (callOtherSymbol = getParentOfType(s, CallOtherSymbol))
-                    ) {
+                    let s = this.symbolTable.symbolContainingContext(context);
+                    if (s.parent instanceof CallOtherSymbol) s = s.parent;
+                    if (s instanceof CallOtherSymbol) {
                         promises.push(
-                            callOtherSymbol.objectRef.context.symbolTable.getAllSymbols(
+                            s.objectRef.context.symbolTable.getAllSymbols(
                                 MethodSymbol,
                                 true
                             )

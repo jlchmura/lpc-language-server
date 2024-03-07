@@ -47,6 +47,7 @@ export enum SymbolKind {
     Define,
     Method,
     MethodDeclaration,
+    MethodInvocation,
     InlineClosure,
     Variable,
     Operator,

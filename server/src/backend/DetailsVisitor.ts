@@ -525,9 +525,12 @@ export class DetailsVisitor
     visitParameterList = (ctx: ParameterListContext) => {
         const prms = ctx.parameter();
         prms.forEach((p) => {
-            const name = (p as PrimitiveTypeParameterExpressionContext)
-                ._paramName.text;
-            this.addNewSymbol(MethodParameterSymbol, p, name);
+            const pExp = p as PrimitiveTypeParameterExpressionContext;
+            const name = pExp._paramName.text;
+            const typeName = pExp._paramType?.getText();
+            const type = typeNameToIType.get(typeName);
+
+            this.addNewSymbol(MethodParameterSymbol, p, name, null, type);
         });
         return undefined;
     };

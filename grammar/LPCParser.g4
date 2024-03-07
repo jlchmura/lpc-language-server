@@ -464,8 +464,10 @@ argument
     : AND? expression
     ;
 
+// The argument after comma is reall required, but that causes parsing errors that negatively impact 
+// code completion & signature help while typing.  So we will validate in the semantic analyzer
 argumentList
-    : argument (COMMA argument)*
+    : argument (COMMA argument?)*
     ;
 
 expressionList

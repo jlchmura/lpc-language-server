@@ -1,6 +1,5 @@
 import * as commentParser from "comment-parser";
 import {
-    TypedSymbol,
     IType,
     ScopedSymbol,
     MethodSymbol as BaseMethodSymbol,
@@ -14,14 +13,15 @@ import {
     getSymbolsOfTypeSync,
 } from "./base";
 import { SymbolKind } from "../types";
-import { VariableSymbol } from "./variableSymbol";
+
 import { FoldingRange } from "vscode-languageserver";
 import { ExpressionSymbol } from "./expressionSymbol";
-import { resolveOfTypeSync } from "../utils";
+import { getSibling, resolveOfTypeSync, trimQuotes } from "../utils";
 import { SourceContext } from "../backend/SourceContext";
-import { ObjectReferenceInfo } from "./objectSymbol";
+import { CallOtherSymbol, ObjectReferenceInfo } from "./objectSymbol";
 import { ContextSymbolTable } from "../backend/ContextSymbolTable";
 import { CallStack, StackFrame, StackValue } from "../backend/CallStack";
+import { ParserRuleContext } from "antlr4ng";
 
 export const MAX_CALLDEPTH_SIZE = 10;
 
@@ -114,10 +114,14 @@ export class MethodDeclarationSymbol
 
 export class MethodInvocationSymbol
     extends ScopedSymbol
-    implements IEvaluatableSymbol
+    implements IEvaluatableSymbol, IKindSymbol
 {
     public getArguments() {
         return getSymbolsOfTypeSync(this, ExpressionSymbol);
+    }
+
+    public get kind() {
+        return SymbolKind.MethodInvocation;
     }
 
     constructor(name: string) {
@@ -133,6 +137,44 @@ export class MethodInvocationSymbol
             }
         }
         return scope;
+    }
+
+    /**
+     * get the method symbol that this invocation points to.
+     */
+    public getMethodSymbol() {
+        // find the context that this method is being invoked on
+        const ctx = this.context as ParserRuleContext;
+        const methodObj = getSibling(ctx, -1);
+        const methodName = trimQuotes(methodObj.getText());
+
+        // get the method invocation symbol
+        const methodInvSymbol = this.symbolTable.symbolWithContextSync(
+            ctx
+        ) as MethodInvocationSymbol;
+
+        // symbol table that will be used to look up definition
+        let lookupTable: ContextSymbolTable = this
+            .symbolTable as ContextSymbolTable;
+
+        // if this is a call to another object, use that object's symbol table
+        if (methodInvSymbol.parent instanceof CallOtherSymbol) {
+            const callOtherSymbol = this.symbolTable.symbolWithContextSync(
+                ctx.parent
+            ) as CallOtherSymbol;
+            if (callOtherSymbol.objectRef?.isLoaded === true) {
+                lookupTable = callOtherSymbol.objectRef.context.symbolTable;
+            } else {
+                return undefined;
+            }
+        }
+
+        // get the symbol for the method
+        const methodSymbol = lookupTable.resolveSync(
+            methodName,
+            false
+        ) as MethodSymbol;
+        return methodSymbol;
     }
 }
 

@@ -42,6 +42,7 @@ import { MethodSymbol } from "../symbols/methodSymbol";
 import { SourceContext } from "./SourceContext";
 import { EfunSymbols } from "./EfunsLDMud";
 import { CompletionProvider } from "./CompletionProvider";
+import { SignatureHelpProvider } from "./SignatureHelpProvider";
 
 const CHANGE_DEBOUNCE_MS = 300;
 
@@ -64,6 +65,7 @@ export class LpcServer {
     private hoverProvider: HoverProvider;
     private diagnosticProvider: DiagnosticProvider;
     private completionProvider: CompletionProvider;
+    private signatureHelpProvider: SignatureHelpProvider;
 
     /** document listener */
     private readonly documents: TextDocuments<TextDocument> = new TextDocuments(
@@ -141,6 +143,15 @@ export class LpcServer {
                 params.position
             );
             return result;
+        });
+
+        this.connection.onSignatureHelp((params) => {
+            const doc = this.documents.get(params.textDocument.uri);
+            this.flushChangeTimer(doc);
+            return this.signatureHelpProvider.getSignatureHelp(
+                doc,
+                params.position
+            );
         });
 
         // Folding Provider
@@ -285,6 +296,9 @@ export class LpcServer {
                 hoverProvider: true,
                 definitionProvider: true,
                 foldingRangeProvider: true, // change to true to enable server-based folding
+                signatureHelpProvider: {
+                    triggerCharacters: ["(", ","],
+                },
             },
         };
 
@@ -311,6 +325,7 @@ export class LpcServer {
         this.hoverProvider = new HoverProvider(this.facade);
         this.diagnosticProvider = new DiagnosticProvider(this.facade);
         this.completionProvider = new CompletionProvider(this.facade);
+        this.signatureHelpProvider = new SignatureHelpProvider(this.facade);
 
         return result;
     }
