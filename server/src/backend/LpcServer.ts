@@ -41,6 +41,7 @@ import { DiagnosticProvider } from "./DiagnosticProvider";
 import { MethodSymbol } from "../symbols/methodSymbol";
 import { SourceContext } from "./SourceContext";
 import { EfunSymbols } from "./EfunsLDMud";
+import { CompletionProvider } from "./CompletionProvider";
 
 const CHANGE_DEBOUNCE_MS = 300;
 
@@ -62,6 +63,7 @@ export class LpcServer {
     private codeLenseProvider: CodeLensProvider;
     private hoverProvider: HoverProvider;
     private diagnosticProvider: DiagnosticProvider;
+    private completionProvider: CompletionProvider;
 
     /** document listener */
     private readonly documents: TextDocuments<TextDocument> = new TextDocuments(
@@ -116,25 +118,13 @@ export class LpcServer {
         // Completion Provider
         this.connection.onCompletion(async (params) => {
             const doc = this.documents.get(params.textDocument.uri);
-            return this.provideCompletionItems(doc, params.position);
+            return this.completionProvider.provideCompletionItems(
+                doc,
+                params.position
+            );
         });
         this.connection.onCompletionResolve((item) => {
-            const sourceCtx = this.facade.getContext(item.data.source);
-            const info =
-                sourceCtx?.getSymbolInfo(item.label) ??
-                EfunSymbols.getSymbolInfo(item.label);
-            if (!!info) {
-                item.detail =
-                    info.description !== undefined
-                        ? info.description
-                        : completionDetails.get(info.kind);
-
-                item.documentation = {
-                    value: generateSymbolDoc(info.symbol),
-                    kind: "markdown",
-                } as MarkupContent;
-            }
-            return item;
+            return this.completionProvider.resolveCompletionItem(item);
         });
 
         // Hover Provider
@@ -295,6 +285,7 @@ export class LpcServer {
         this.codeLenseProvider = new CodeLensProvider(this.facade);
         this.hoverProvider = new HoverProvider(this.facade);
         this.diagnosticProvider = new DiagnosticProvider(this.facade);
+        this.completionProvider = new CompletionProvider(this.facade);
 
         return result;
     }
@@ -310,33 +301,6 @@ export class LpcServer {
     //         return result;
     //     });
     // }
-
-    private async provideCompletionItems(
-        document: TextDocument,
-        position: Position
-    ): Promise<CompletionItem[]> {
-        return this.facade
-            .getCodeCompletionCandidates(
-                document.uri,
-                position.character,
-                position.line + 1
-            )
-            .then((candidates) => {
-                const completionList: CompletionItem[] = [];
-                candidates.forEach((c) => {
-                    const item = CompletionItem.create(c.name);
-                    item.data = {
-                        source: c.source,
-                    };
-                    item.kind = translateCompletionKind(c.kind);
-                    item.sortText =
-                        (completionSortKeys.get(c.kind) ?? "99") + c.name;
-
-                    completionList.push(item);
-                });
-                return completionList;
-            });
-    }
 
     private processDiagnostic(document: TextDocument) {
         const results = this.diagnosticProvider.processDiagnostic(document);
