@@ -162,7 +162,7 @@ export class DetailsVisitor
                         (c) => c.getText() === "->"
                     );
 
-                    // everything up to thte arrow goes into an expression
+                    // everything up to the arrow goes into an expression
                     const exprCtx = ctx.children.slice(0, arrowIdx);
 
                     if (exprCtx.length > 1) {
@@ -512,10 +512,6 @@ export class DetailsVisitor
             header.functionModifier()?.map((m) => m.getText()) ?? []
         );
 
-        const source = this.symbolTable.owner!;
-        const tokenIdx = ctx.start.tokenIndex;
-        const comments = source.tokenStream.getHiddenTokensToLeft(tokenIdx, 2);
-
         return this.withScope(ctx, MethodSymbol, [nm, retType, mods], (s) => {
             s.nameRange = lexRangeFromToken(header._functionName);
             s.doc = this.getPrefixComments(ctx);
@@ -525,6 +521,7 @@ export class DetailsVisitor
                 ctx.start.column,
                 ctx.stop.column
             );
+            this.symbolTable.addFunction(s);
             return this.visitChildren(ctx);
         });
     };

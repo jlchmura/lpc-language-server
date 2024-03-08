@@ -488,11 +488,10 @@ export class SourceContext {
                             symbol.parent as CallOtherSymbol;
                         // if the symbol object wasn't loaded, just return undefined
                         // that error will be caught and reported elsewhere
-                        if (!callOtherSymbol.objectRef?.isLoaded)
-                            return undefined;
+                        if (!callOtherSymbol.objContext) return undefined;
 
                         symbol = resolveOfTypeSync(
-                            callOtherSymbol.objectRef.context.symbolTable,
+                            callOtherSymbol.objContext.symbolTable,
                             name,
                             MethodSymbol
                         );

@@ -111,23 +111,47 @@ export class CallOtherSymbol
 
     /** information about the object (not the symbol) that call_other is being invoked on */
     public objectRef: ObjectReferenceInfo;
+    public objContext: SourceContext;
 
     constructor(name: string, public functionName?: string) {
         super(name);
+    }
+
+    loadObject(filename: string) {
+        const ownerContext = (this.symbolTable as ContextSymbolTable).owner;
+        const backend = ownerContext.backend;
+        const sourceContext = backend.loadLpc(
+            normalizeFilename(backend.filenameToAbsolutePath(filename))
+        );
+        if (!sourceContext) {
+            const ctx = this.context as ParserRuleContext;
+            addDiagnostic(this, {
+                message: "could not load source for: " + filename,
+                range: rangeFromTokens(ctx.start, ctx.stop),
+                type: DiagnosticSeverity.Warning,
+            });
+        } else {
+            ownerContext.addAsReferenceTo(sourceContext);
+        }
+        return sourceContext;
     }
 
     eval(stack: CallStack, val: any) {
         // first evaluate the source object. that will give us the
         // object reference info that we need to resolve the function name
         const obj = this.sourceObject?.eval(stack);
-        if (!(obj instanceof ObjectReferenceInfo)) {
+
+        if (typeof obj === "string") {
+            // try to load the object
+            this.objContext = this.loadObject(obj);
+        } else if (obj instanceof ObjectReferenceInfo) {
+            this.objectRef = obj;
+            this.objContext = obj.context;
+        } else {
             // TODO report this as a diagnostic?
             console.debug("expected object reference info", obj);
             return undefined;
         }
-
-        // store for later use in semantic analysis
-        this.objectRef = obj;
 
         // function name could be an expression, so evaluate that
         if (!this.functionName || this.functionName == "#fn") {
@@ -144,7 +168,7 @@ export class CallOtherSymbol
         // at this point we've figured out the function name and now need
         // to find the actual function symbol which will be in the source
         // object's symbol table
-        const symTbl = (obj as ObjectReferenceInfo).context?.symbolTable;
+        const symTbl = this.objContext?.symbolTable; // (obj as ObjectReferenceInfo).context?.symbolTable;
         const funSym = symTbl?.getFunction(this.functionName);
 
         if (!funSym) {

@@ -156,22 +156,17 @@ export class MethodInvocationSymbol
         const methodObj = getSibling(ctx, -1);
         const methodName = trimQuotes(methodObj.getText());
 
-        // get the method invocation symbol
-        const methodInvSymbol = this.symbolTable.symbolWithContextSync(
-            ctx
-        ) as MethodInvocationSymbol;
-
         // symbol table that will be used to look up definition
         let lookupTable: ContextSymbolTable = this
             .symbolTable as ContextSymbolTable;
 
         // if this is a call to another object, use that object's symbol table
-        if (methodInvSymbol.parent instanceof CallOtherSymbol) {
+        if (this.parent instanceof CallOtherSymbol) {
             const callOtherSymbol = this.symbolTable.symbolWithContextSync(
                 ctx.parent
             ) as CallOtherSymbol;
-            if (callOtherSymbol.objectRef?.isLoaded === true) {
-                lookupTable = callOtherSymbol.objectRef.context.symbolTable;
+            if (!!callOtherSymbol.objContext) {
+                lookupTable = callOtherSymbol.objContext.symbolTable;
             } else {
                 return undefined;
             }
