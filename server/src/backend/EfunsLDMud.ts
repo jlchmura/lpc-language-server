@@ -16,7 +16,11 @@ efun("allocate", LpcTypes.mixedArrayType, true, ["sizes", LpcTypes.intArrayType]
 efun("add_action", LpcTypes.voidType, true, ["fun", FundamentalType.stringType], ["cmd", FundamentalType.stringType], ["flag", FundamentalType.integerType]);
 efun("apply", LpcTypes.mixedType, true, ["cl", LpcTypes.closureType], ["args", LpcTypes.mixedArrayType, true]);
 efun("capitalize", LpcTypes.stringType, false, ["str", LpcTypes.stringType]);
+efun("call_other", LpcTypes.mixedType, true, ["ob", LpcTypes.objectType], ["fun", LpcTypes.stringType], ["args...", LpcTypes.mixedType, true]);
+efun("call_out", LpcTypes.intType, true, ["fun", LpcTypes.stringType], ["delay", LpcTypes.intType], ["args...", LpcTypes.mixedType, true]);
 efun("clone_object", LpcTypes.objectType, false, ["file", LpcTypes.stringType]);
+efun("clonep", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
+efun("clones", LpcTypes.objectArrayType, true, ["ob", LpcTypes.objectType],["what", LpcTypes.intType]);
 efun("closurep", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("clear_bit", LpcTypes.stringType, false, ["str", LpcTypes.stringType], ["n", LpcTypes.intType]);
 efun("creator", LpcTypes.stringType, false, ["ob", LpcTypes.objectType]);
@@ -25,11 +29,17 @@ efun("deep_inventory", LpcTypes.objectArrayType, true, ["ob", LpcTypes.objectTyp
 efun("destruct", LpcTypes.voidType, false, ["ob", LpcTypes.objectType]);
 efun("environment", LpcTypes.objectType, true, ["ob", LpcTypes.objectType]);
 efun("explode", LpcTypes.stringArrayType, false, ["str", LpcTypes.stringType], ["del", LpcTypes.stringType]);
+efun("find_object", LpcTypes.objectType, false, ["file", LpcTypes.stringType]);
 efun("first_inventory", LpcTypes.objectType, true, ["ob", LpcTypes.stringType]);
+efun("floatp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
+efun("floor", LpcTypes.intType, false, ["number", LpcTypes.intType]);
+efun("funcall", LpcTypes.mixedType, true, ["fun", LpcTypes.closureType], ["args...", LpcTypes.mixedArrayType, true]);
 efun("function_exists", LpcTypes.intType, false, ["fun", LpcTypes.stringType], ["ob", LpcTypes.objectType]);
 efun("hash", LpcTypes.intType, true, ["method", LpcTypes.intArrayType], ["arg", LpcTypes.stringType],["iterations", LpcTypes.intType]);
 efun("implode", LpcTypes.stringType, true, ["arr", LpcTypes.mixedArrayType], ["del", LpcTypes.stringType]);
 efun("input_to", LpcTypes.voidType, true, ["fun", LpcTypes.stringType], ["flag", LpcTypes.intType], ["msg", LpcTypes.stringType], ["args...", LpcTypes.mixedType, true]);
+efun("intp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
+efun("invert_bits", LpcTypes.stringType, false, ["str", LpcTypes.stringType]);
 efun("living", LpcTypes.intType, false, ["ob", LpcTypes.objectType]);
 efun("localtime", LpcTypes.intArrayType, false, ["clock", LpcTypes.intType]);
 efun("load_name", LpcTypes.stringType, true, ["ob", LpcTypes.objectType]);
@@ -53,6 +63,8 @@ efun("sprintf", LpcTypes.stringType, true, ["fmt", LpcTypes.stringType], ["var..
 efun("set_bit", LpcTypes.stringType, false, ["str", LpcTypes.stringType], ["n", LpcTypes.intType]);
 efun("sscanf", LpcTypes.intType, true, ["str", LpcTypes.stringType], ["fmt", LpcTypes.stringType], ["var...", LpcTypes.mixedType, true]);
 efun("strlen", LpcTypes.intType, false, ["str", LpcTypes.stringType]);
+efun("strrstr", LpcTypes.intType, true, ["str", LpcTypes.stringType], ["str2", LpcTypes.stringType],["pos", LpcTypes.intType]);
+efun("strstr", LpcTypes.intType, true, ["str", LpcTypes.stringType], ["str2", LpcTypes.stringType],["pos", LpcTypes.intType]);
 efun("stringp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("sizeof", LpcTypes.intType, false, ["val", LpcTypes.mixedType]);
 efun("test_bit", LpcTypes.intType, false, ["str", LpcTypes.stringType], ["n", LpcTypes.intType]);
