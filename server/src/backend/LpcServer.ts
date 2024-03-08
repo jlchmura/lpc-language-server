@@ -51,7 +51,7 @@ import {
 } from "../symbols/base";
 import { RenameProvider } from "./RenameProvider";
 
-const CHANGE_DEBOUNCE_MS = 300;
+const CHANGE_DEBOUNCE_MS = 500;
 
 export class LpcServer {
     private importDir: string | undefined;
