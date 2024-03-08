@@ -112,8 +112,10 @@ SUB_ASSIGN: '-=';
 MUL_ASSIGN: '*=';
 DIV_ASSIGN: '/=';
 MOD_ASSIGN: '%=';
-AND_ASSIGN: '&=';
-OR_ASSIGN: '|=';
+OR_ASSIGN: '||=';
+AND_ASSIGN: '&&=';
+BITAND_ASSIGN: '&=';
+BITOR_ASSIGN: '|=';
 XOR_ASSIGN: '^=';
 SHL_ASSIGN: '<<=';
 // array & mapping brackets

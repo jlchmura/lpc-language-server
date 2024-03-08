@@ -50,6 +50,14 @@ export class AssignmentSymbol
                 return lh.eval(stack, lh.eval(stack) / rhResult);
             case "%=":
                 return lh.eval(stack, lh.eval(stack) % rhResult);
+            case "|=":
+                return lh.eval(stack, lh.eval(stack) | rhResult);
+            case "&=":
+                return lh.eval(stack, lh.eval(stack) & rhResult);
+            case "||=":
+                return lh.eval(stack, lh.eval(stack) || rhResult);
+            case "&&=":
+                return lh.eval(stack, lh.eval(stack) && rhResult);
             default:
                 throw "operator not supported";
         }

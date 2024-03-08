@@ -23,6 +23,9 @@ export class LpcDefinitionProvider {
         // to limit the amount of text we only pass on the smallest range which is possible.
         // Yet we need the correct start position to not break the goto-definition feature.
         if (info.definition) {
+            // if (info.definition.range.start.row - 1 < 0) {
+            //     const i = 0;
+            // }
             const range = Range.create(
                 info.definition.range.start.row - 1,
                 info.definition.range.start.column,
