@@ -2,6 +2,7 @@ import { TypedSymbol, IType, BaseSymbol } from "antlr4-c3";
 import { IKindSymbol, IEvaluatableSymbol } from "./base";
 import { SymbolKind } from "../types";
 import { trimQuotes } from "../utils";
+import { VariableSymbol } from "./variableSymbol";
 
 export class DefineSymbol
     extends BaseSymbol
@@ -32,5 +33,15 @@ export class DefineSymbol
         } else {
             // another define?  - resolve the symbol
         }
+    }
+}
+
+export class DefineVariableSymbol extends VariableSymbol {
+    constructor(name: string, type: IType, public value: any) {
+        super(name, type);
+    }
+
+    override get kind(): SymbolKind {
+        return SymbolKind.Define;
     }
 }

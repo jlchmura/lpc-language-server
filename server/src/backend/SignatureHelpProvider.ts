@@ -46,7 +46,7 @@ export class SignatureHelpProvider {
         const params = method.getParametersSync();
         const paramInfo = params.map((p, idx) => {
             // see if there is jsdoc for this param
-            const tag = method.doc.tags.find((tag) => tag.name == p.name);
+            const tag = method.doc?.tags.find((tag) => tag.name == p.name);
 
             // assembly the documentation
             const docs: string[] = [];

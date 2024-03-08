@@ -1,8 +1,12 @@
 import * as commentParser from "comment-parser";
 import {
     AbstractParseTreeVisitor,
+    BailErrorStrategy,
+    CharStream,
+    CommonTokenStream,
     ParseTree,
     ParserRuleContext,
+    PredictionMode,
     TerminalNode,
 } from "antlr4ng";
 import { LPCParserVisitor } from "../parser3/LPCParserVisitor";
@@ -40,6 +44,7 @@ import {
     InclusiveOrExpressionContext,
     InheritStatementContext,
     InlineClosureExpressionContext,
+    LPCParser,
     LiteralContext,
     MethodInvocationContext,
     MultiplicativeExpressionContext,
@@ -47,6 +52,7 @@ import {
     PrimaryExpressionContext,
     PrimitiveTypeParameterExpressionContext,
     PrimitiveTypeVariableDeclarationContext,
+    ProgramContext,
     RelationalExpresionContext,
     ReturnStatementContext,
     SelectionDirectiveContext,
@@ -64,7 +70,7 @@ import {
     VariableInitializerSymbol,
     VariableSymbol,
 } from "../symbols/variableSymbol";
-import { DefineSymbol } from "../symbols/defineSymbol";
+import { DefineSymbol, DefineVariableSymbol } from "../symbols/defineSymbol";
 import { AssignmentSymbol } from "../symbols/assignmentSymbol";
 import { InlineClosureSymbol } from "../symbols/closureSymbol";
 import {
@@ -91,7 +97,11 @@ import { ConditionalSymbol } from "../symbols/conditionalSymbol";
 import { CallOtherSymbol, CloneObjectSymbol } from "../symbols/objectSymbol";
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import { IfSymbol, SelectionSymbol } from "../symbols/selectionSymbol";
-import { IEvaluatableSymbol, IRenameableSymbol } from "../symbols/base";
+import {
+    IEvaluatableSymbol,
+    IRenameableSymbol,
+    getSymbolsOfTypeSync,
+} from "../symbols/base";
 
 const COMMENT_CHANNEL_NUM = 2;
 
@@ -100,6 +110,10 @@ export class DetailsVisitor
     implements LPCParserVisitor<ScopedSymbol>
 {
     protected scope = this.symbolTable as ScopedSymbol;
+
+    private defineLexer = new LPCLexer(CharStream.fromString(""));
+    private defineTokenStream = new CommonTokenStream(this.defineLexer);
+    private defineParser = new LPCParser(this.defineTokenStream);
 
     constructor(
         private backend: LpcFacade,
@@ -110,6 +124,47 @@ export class DetailsVisitor
         super();
     }
 
+    /**
+     * Parse a synthentic code block from a define directive
+     * @param str code block string
+     * @returns symbol table
+     */
+    private parseDefine(str: string) {
+        this.defineLexer.inputStream = CharStream.fromString(str);
+        // reset everything
+        this.defineLexer.reset();
+        this.defineTokenStream.setTokenSource(this.defineLexer);
+        this.defineParser.reset();
+        this.defineParser.interpreter.predictionMode = PredictionMode.SLL;
+        // no recovery needed, just bail
+        this.defineParser.errorHandler = new BailErrorStrategy();
+
+        try {
+            const table = new ContextSymbolTable("define", {
+                allowDuplicateSymbols: true,
+            });
+            table.addDependencies(this.symbolTable);
+
+            table.tree = this.defineParser.program();
+            const vis = new DetailsVisitor(this.backend, table, [], []);
+            table.tree.accept(vis);
+
+            return table;
+        } catch (e) {
+            const i = 0;
+        }
+    }
+
+    /**
+     * This parser goes a bit above and beyond when it comes to define directives.
+     * Because we want to be able to validate the code that uses them, for example
+     * to know that `TP` is the same as `this_player()`.  To do this, the define
+     * will be reassembled into a fake function or variable and re-parsed. Assuming
+     * the parse is successful, it will then be merged into the original symbol table
+     * and assigned to the define's context.  This way the token stream is not modified.
+     * @param ctx
+     * @returns
+     */
     visitDefinePreprocessorDirective = (
         ctx: DefinePreprocessorDirectiveContext
     ) => {
@@ -117,12 +172,81 @@ export class DetailsVisitor
         const defineStr = ctx.END_DEFINE()?.getText()?.trim();
 
         // trim everything after the first space
-        let idx = defineStr.indexOf(" ");
-        if (idx < 0) idx = defineStr.indexOf("\t");
+        // find the first index of a space or tab in defineStr
+        const idx = findSpaceOrTabNotInParentheses(defineStr);
         const label = idx > 0 ? defineStr.substring(0, idx) : defineStr;
-        const value = defineStr.substring(idx + 1);
+        let value = defineStr.substring(idx + 1);
 
-        //this.scope.context = ctx; // store the context for later
+        // strip escaped newlines
+        value = value.replace(/\\\n/g, "");
+
+        // is this a macro?
+        if (label.includes("(")) {
+            // re-assemble this as a fake function and parse it
+            let funcStr = `${label} { return ${value}; }\n`;
+            try {
+                let table = this.parseDefine(funcStr);
+                if (!table) {
+                    // try one more time without the return
+                    // there may be a better way to do this instead of trying to parse twice
+                    funcStr = `${label} { ${value}; }\n`;
+                    table = this.parseDefine(funcStr);
+                }
+                // now there should be a method symbol in there
+                const methodSym = firstEntry(
+                    getSymbolsOfTypeSync(table, MethodSymbol)
+                );
+                if (!!methodSym) {
+                    // create a new method that will be on this file's symbol table
+                    const defineMethodSym = this.addNewSymbol(
+                        MethodSymbol,
+                        ctx,
+                        methodSym.name
+                    );
+                    defineMethodSym.functionModifiers = new Set();
+                    this.symbolTable.addFunction(defineMethodSym);
+
+                    // move params over
+                    while (methodSym.children.length > 0) {
+                        defineMethodSym.addSymbol(methodSym.firstChild);
+                    }
+
+                    return undefined;
+                }
+            } catch {}
+        } else {
+            // not a macro, but the value may still have an expression
+            const varStr = `${label} = ${value};`;
+            try {
+                const table = this.parseDefine(varStr);
+                // add a variable symbol to this file's table
+                const varSym = this.addNewSymbol(
+                    DefineVariableSymbol,
+                    ctx,
+                    label
+                );
+                // if there is an initializer, move its children over
+                const varInit = firstEntry(
+                    getSymbolsOfTypeSync(table, VariableInitializerSymbol)
+                );
+                if (!!varInit) {
+                    this.withScope(
+                        ctx,
+                        VariableInitializerSymbol,
+                        ["#initializer#", varSym],
+                        (s) => {
+                            while (varInit.children.length > 0) {
+                                s.addSymbol(varInit.firstChild);
+                            }
+                        }
+                    );
+
+                    return undefined;
+                }
+            } catch {}
+        }
+
+        // this is a final fallback - just add a symbol so we can resolve it
         const sym = this.symbolTable.addNewSymbolOfType(
             DefineSymbol,
             this.scope,
@@ -130,6 +254,7 @@ export class DetailsVisitor
             value
         );
         sym.context = ctx;
+
         return this.visitChildren(ctx);
     };
 
@@ -721,7 +846,7 @@ export class DetailsVisitor
     private getPrefixComments(ctx: ParserRuleContext) {
         const source = this.symbolTable.owner!;
         const tokenIdx = ctx.start.tokenIndex;
-        const comments = source.tokenStream.getHiddenTokensToLeft(
+        const comments = source?.tokenStream?.getHiddenTokensToLeft(
             tokenIdx,
             COMMENT_CHANNEL_NUM
         );
@@ -732,4 +857,19 @@ export class DetailsVisitor
 
         return undefined;
     }
+}
+
+function findSpaceOrTabNotInParentheses(s: string): number {
+    if (!findSpaceOrTabNotInParentheses) return -1;
+    let inParentheses = false;
+    for (let i = 0; i < s.length; i++) {
+        if (s[i] === "(") {
+            inParentheses = true;
+        } else if (s[i] === ")") {
+            inParentheses = false;
+        } else if (!inParentheses && (s[i] === " " || s[i] === "\t")) {
+            return i;
+        }
+    }
+    return -1;
 }

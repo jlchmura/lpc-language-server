@@ -50,7 +50,6 @@ export class MethodSymbol
 {
     doc: commentParser.Block;
 
-    private callDepth = 0;
     constructor(
         name: string,
         returnType?: IType,
@@ -59,14 +58,6 @@ export class MethodSymbol
         super(name, returnType);
     }
     nameRange: ILexicalRange;
-
-    /** this is a quick hack to prevent runaway recrussions during evaluation.
-     * TODO: add a real call stack to the evaluation engine
-     *
-     */
-    resetCallDepth() {
-        this.callDepth = 0;
-    }
 
     eval(stack: CallStack, params: IEvaluatableSymbol[] = []) {
         // TODO: make function arguments available
