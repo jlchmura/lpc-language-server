@@ -227,13 +227,6 @@ export class SourceContext {
         }
 
         this.symbolTable.tree = this.tree;
-        // const listener = new DetailsListener(
-        //     this.backend,
-        //     this.symbolTable,
-        //     this.info.imports,
-        //     this.info.objectImports
-        // );
-        // ParseTreeWalker.DEFAULT.walk(listener, this.tree);
 
         const visitor = new DetailsVisitor(
             this.backend,
@@ -246,6 +239,13 @@ export class SourceContext {
         //this.info.unreferencedRules = this.symbolTable.getUnreferencedSymbols();
 
         return this.info;
+    }
+
+    /**
+     * Get a list of files that reference this one
+     */
+    public getReferences() {
+        return this.references;
     }
 
     /**

@@ -2,7 +2,6 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { LpcFacade } from "./facade";
 import { ISymbolInfo, SymbolKind } from "../types";
 import { CodeLens, Range } from "vscode-languageserver";
-import * as EventEmitter from "events";
 
 export class CodeLensProvider {
     private documentName: string;
@@ -49,11 +48,8 @@ export class CodeLensProvider {
             title: refs === 1 ? "1 reference" : `${refs} references`,
             command: "",
             arguments: undefined,
-            
         };
 
         return codeLens;
     }
-
-   
 }

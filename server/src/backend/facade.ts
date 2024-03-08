@@ -13,6 +13,9 @@ import { ContextSymbolTable } from "./ContextSymbolTable";
 export interface IContextEntry {
     context: SourceContext;
     refCount: number;
+    /**
+     * List of filenames that this context depends on.
+     */
     dependencies: string[];
     filename: string;
 }
@@ -52,13 +55,15 @@ export class LpcFacade {
         IContextEntry
     >();
 
+    public onRunDiagnostics: (filename: string) => void;
+
     public constructor(
         private importDir: string,
         private workspaceDir: string
     ) {
         console.log("LpcFacade created", importDir, workspaceDir);
 
-        const sefunCtx = this.loadLpc("sys/simul_efun.h");
+        const sefunCtx = this.loadLpc(path.join(importDir, "simul_efun.h"));
         if (!!sefunCtx) LpcFacade.SefunSymbols = sefunCtx.symbolTable;
     }
 
@@ -72,7 +77,8 @@ export class LpcFacade {
     }
 
     public loadLpc(fileName: string, source?: string): SourceContext {
-        let contextEntry = this.sourceContexts.get(fileName);
+        fileName = normalizeFilename(fileName);
+        let contextEntry = this.getContextEntry(fileName);
         if (!contextEntry) {
             if (!source) {
                 try {
@@ -112,7 +118,7 @@ export class LpcFacade {
     }
 
     public getDependencies(fileName: string): string[] {
-        const contextEntry = this.sourceContexts.get(fileName);
+        const contextEntry = this.getContextEntry(fileName);
         if (contextEntry) {
             return contextEntry.dependencies;
         }
@@ -128,7 +134,7 @@ export class LpcFacade {
         fileName: string,
         referencing?: IContextEntry
     ): void {
-        const contextEntry = this.sourceContexts.get(fileName);
+        const contextEntry = this.getContextEntry(fileName);
         if (contextEntry) {
             if (referencing) {
                 // If a referencing context is given remove this one from the reference's dependencies list,
@@ -149,7 +155,7 @@ export class LpcFacade {
     }
 
     public addDependency(filename: string, dep: ContextImportInfo) {
-        const contextEntry = this.sourceContexts.get(filename);
+        const contextEntry = this.getContextEntry(filename);
         if (contextEntry) {
             const depContext = this.loadDependency(contextEntry, dep.filename);
             if (depContext) {
@@ -163,14 +169,34 @@ export class LpcFacade {
     }
 
     private parseLpc(contextEntry: IContextEntry) {
+        const context = contextEntry.context;
         const oldDependencies = contextEntry.dependencies;
+        const oldReferences = [...context.getReferences()];
+
+        console.log(
+            "Parsing " +
+                contextEntry.filename +
+                " with " +
+                oldReferences.length +
+                " references."
+        );
+
         contextEntry.dependencies = [];
-        const info = contextEntry.context.parse();
+        const info = context.parse();
 
         // load file-level dependencies (imports & inherits)
         const newDependencies = info.imports;
         for (const dep of newDependencies) {
             this.addDependency(contextEntry.filename, dep);
+        }
+
+        // re-parse any documents that depend on this one
+        for (const ref of oldReferences) {
+            const refCtx = this.getContextEntry(ref.fileName);
+            this.parseLpc(refCtx);
+
+            // send a notification to the server to re-send diags for this doc
+            if (!!this.onRunDiagnostics) this.onRunDiagnostics(ref.fileName);
         }
 
         // load sefun file, if there is one.
@@ -194,12 +220,18 @@ export class LpcFacade {
      * @param source The grammar code.
      */
     public setText(fileName: string, source: string): void {
-        const contextEntry = this.sourceContexts.get(fileName);
+        const contextEntry = this.getContextEntry(fileName);
         if (contextEntry) {
             contextEntry.context.setText(source);
         }
     }
 
+    /**
+     * Load a dependency for a given context entry.
+     * @param contextEntry The context entry into which the dependency will be loaded
+     * @param depName The dependency filename
+     * @returns Context entry of the loaded dependency or undefined if the dependency could not be loaded.
+     */
     private loadDependency(
         contextEntry: IContextEntry,
         depName: string
@@ -238,7 +270,8 @@ export class LpcFacade {
                 try {
                     fs.accessSync(depPath, fs.constants.R_OK);
                     contextEntry.dependencies.push(depPath);
-                    return this.loadLpc(depPath);
+                    const depContextEntry = this.loadLpc(depPath);
+                    return depContextEntry;
                 } catch (e) {
                     // ignore
                     const i = 0;
@@ -253,14 +286,18 @@ export class LpcFacade {
     }
 
     public isContextLoaded(fileName: string): boolean {
-        return !!this.sourceContexts.get(normalizeFilename(fileName));
+        return !!this.getContextEntry(fileName);
+    }
+
+    public getContextEntry(fileName: string): IContextEntry {
+        return this.sourceContexts.get(normalizeFilename(fileName));
     }
 
     public getContext(
         fileName: string,
         source?: string | undefined
     ): SourceContext {
-        const contextEntry = this.sourceContexts.get(fileName);
+        const contextEntry = this.getContextEntry(fileName);
         if (!contextEntry && !!source) {
             return this.loadLpc(fileName, source);
         }
@@ -280,7 +317,7 @@ export class LpcFacade {
      * @param fileName The grammar file name.
      */
     public reparse(fileName: string): void {
-        const contextEntry = this.sourceContexts.get(fileName);
+        const contextEntry = this.getContextEntry(fileName);
         if (contextEntry) {
             this.parseLpc(contextEntry);
         }

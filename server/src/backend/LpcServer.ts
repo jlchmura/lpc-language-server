@@ -13,6 +13,8 @@ import {
     InitializedParams,
     Location,
     MarkupContent,
+    NotificationType,
+    NotificationType0,
     OptionalVersionedTextDocumentIdentifier,
     Position,
     Range,
@@ -294,6 +296,15 @@ export class LpcServer {
         this.importDir = path.join(rootFolderPath, "sys");
         this.facade = new LpcFacade(this.importDir, rootFolderPath);
 
+        // hook up the run diagnostic event emitter
+        this.facade.onRunDiagnostics = (filename) => {
+            const uri = URI.file(filename).toString();
+            const doc = this.documents.get(uri);
+            if (!!doc) {
+                this.processDiagnostic(doc);
+            }
+        };
+
         // init providers
         this.symbolProvider = new LpcSymbolProvider(this.facade);
         this.definitionProvider = new LpcDefinitionProvider(this.facade);
@@ -319,7 +330,7 @@ export class LpcServer {
     //     });
     // }
 
-    private processDiagnostic(document: TextDocument) {
+    public processDiagnostic(document: TextDocument) {
         const results = this.diagnosticProvider.processDiagnostic(document);
         this.connection.sendDiagnostics({
             uri: document.uri,

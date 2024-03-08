@@ -8,6 +8,7 @@ import {
     SymbolConstructor,
 } from "antlr4-c3";
 import { ContextSymbolTable } from "./backend/ContextSymbolTable";
+import { URI } from "vscode-uri";
 
 export function getSelectionRange(ctx: ParserRuleContext): Range {
     const start = ctx.start;
@@ -185,7 +186,9 @@ export function normalizeFilename(filename: string) {
         filename += ".c";
     }
 
-    return filename;
+    const uri = URI.parse(filename);
+    const fsPath = uri.fsPath;
+    return fsPath;
 }
 
 export function rangeFromTokens(start: Token, end: Token): ILexicalRange {
