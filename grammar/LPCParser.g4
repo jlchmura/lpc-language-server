@@ -183,11 +183,6 @@ primitiveTypeSpecifier
     | UNKNOWN
     ;
 
-indexerArgument
-    : expression
-    | expression DOUBLEDOT expression
-    ;
-
 methodInvocation
     : PAREN_OPEN argumentList? PAREN_CLOSE
     ;
@@ -360,8 +355,7 @@ conditionalExpressionBase
     | conditionalExpressionBase (op=(LT | GT | LE | GE) conditionalExpressionBase)+ #relationalExpresion
     | conditionalExpressionBase (op=(SHL | SHR) conditionalExpressionBase)+ #shiftExpression
     | conditionalExpressionBase (op=(PLUS | MINUS) conditionalExpressionBase)+ #additiveExpression
-    | conditionalExpressionBase (op=(STAR | DIV | MOD) conditionalExpressionBase)+ #multiplicativeExpression
-    | unaryExpression? DOUBLEDOT unaryExpression? #rangeExpression
+    | conditionalExpressionBase (op=(STAR | DIV | MOD) conditionalExpressionBase)+ #multiplicativeExpression    
     ;    
 
 // conditionalExpression
