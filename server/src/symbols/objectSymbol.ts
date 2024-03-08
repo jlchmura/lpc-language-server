@@ -48,8 +48,8 @@ export class CloneObjectSymbol
 
         // try to load the source context and store the info in this symbol
         const backend = (this.symbolTable as ContextSymbolTable).owner.backend;
-        this.filename = backend.filenameToAbsolutePath(
-            normalizeFilename(filename)
+        this.filename = normalizeFilename(
+            backend.filenameToAbsolutePath(filename)
         );
         this.loadSource();
 
