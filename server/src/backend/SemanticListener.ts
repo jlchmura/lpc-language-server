@@ -300,6 +300,18 @@ export class SemanticListener extends LPCParserListener {
                     );
                 }
             }
+        } else if (
+            methodInvSymbol.parent instanceof CallOtherSymbol &&
+            !methodInvSymbol.parent.objContext
+        ) {
+            // if the method wasn't found because its a call other and the source object wasn't loaded, then
+            // log that as a warning, not an error.
+            this.logDiagnostic(
+                `Call other object could not be loaded, unable to resolve function`,
+                parent.start,
+                parent.stop,
+                DiagnosticSeverity.Warning
+            );
         } else {
             this.logDiagnostic(
                 `Unknown function name '${methodName}'`,
