@@ -173,14 +173,6 @@ export class LpcFacade {
         const oldDependencies = contextEntry.dependencies;
         const oldReferences = [...context.getReferences()];
 
-        console.log(
-            "Parsing " +
-                contextEntry.filename +
-                " with " +
-                oldReferences.length +
-                " references."
-        );
-
         contextEntry.dependencies = [];
         const info = context.parse();
 

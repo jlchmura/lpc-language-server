@@ -50,11 +50,11 @@ export class SignatureHelpProvider {
 
             // assembly the documentation
             const docs: string[] = [];
-            docs.push(trimStart(tag.description, "- "));
+            docs.push(trimStart(tag?.description, "- "));
 
             return ParameterInformation.create(
                 ((p.type?.name ?? "") + " " + p.name).trim(), // include type name if one was provided
-                docs.filter((x) => x.length > 0).join(" ")
+                docs.filter((x) => x?.length > 0).join(" ")
             );
         });
 
