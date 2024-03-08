@@ -181,7 +181,7 @@ export class CallOtherSymbol
             console.warn("expected a method invocation", this.name);
 
         // evaluate the argumnents
-        const argVals = methodInvok.getArguments().map((a) => a.eval(stack));
+        const argVals = methodInvok?.getArguments().map((a) => a.eval(stack));
 
         // create a new root frame for this object
         // this doesn't need to go on the stack, it's just a temporary frame
