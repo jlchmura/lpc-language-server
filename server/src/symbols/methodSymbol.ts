@@ -25,6 +25,7 @@ import { CallStack, StackFrame, StackValue } from "../backend/CallStack";
 import { ParserRuleContext } from "antlr4ng";
 
 export const MAX_CALLDEPTH_SIZE = 10;
+const OBJ_PLAYER_FILENAME = "/obj/player";
 
 export class MethodParameterSymbol
     extends ParameterSymbol
@@ -271,10 +272,10 @@ export class EfunSymbol
             case "this_player":
                 const playerCtx = ownerProgram.backend.addDependency(
                     ownerProgram.fileName,
-                    { filename: "obj/player", symbol: this }
+                    { filename: OBJ_PLAYER_FILENAME, symbol: this }
                 );
                 return new ObjectReferenceInfo(
-                    "obj/player",
+                    OBJ_PLAYER_FILENAME,
                     !!playerCtx,
                     playerCtx
                 );

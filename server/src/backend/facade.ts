@@ -69,11 +69,18 @@ export class LpcFacade {
 
     public filenameToAbsolutePath(filename: string): string {
         if (!filename) return filename;
-        if (path.isAbsolute(filename)) {
+
+        if (filename.startsWith(this.workspaceDir)) {
             return filename;
-        } else {
-            return path.join(this.workspaceDir, filename);
+        } else if (!filename.startsWith("/") && filename.includes("/")) {
+            filename = "./" + filename;
+        } else if (filename.startsWith("/")) {
+            filename = "." + filename;
         }
+
+        const newPath = path.join(this.workspaceDir, filename);
+        console.log(`filenameToAbsolutePath '${filename}' -> '${newPath}'`);
+        return newPath;
     }
 
     public loadLpc(fileName: string, source?: string): SourceContext {
@@ -256,6 +263,8 @@ export class LpcFacade {
             if (depType === DependencySearchType.Global) {
                 searchPaths.reverse();
             }
+
+            if (filename.includes("/")) searchPaths.push(this.workspaceDir);
 
             for (const p of searchPaths) {
                 const depPath = path.join(p, filename);
