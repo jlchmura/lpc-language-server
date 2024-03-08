@@ -45,8 +45,6 @@ function testFilename(filename: string, c: string, cEnd: string): string {
  * source context, dependencies, and code for each LPC file.
  */
 export class LpcFacade {
-    public static SefunSymbols: ContextSymbolTable;
-
     /**
      * Mapping file names to SourceContext instances.
      */
@@ -62,9 +60,6 @@ export class LpcFacade {
         private workspaceDir: string
     ) {
         console.log("LpcFacade created", importDir, workspaceDir);
-
-        const sefunCtx = this.loadLpc(path.join(importDir, "simul_efun.h"));
-        if (!!sefunCtx) LpcFacade.SefunSymbols = sefunCtx.symbolTable;
     }
 
     public filenameToAbsolutePath(filename: string): string {
@@ -199,8 +194,13 @@ export class LpcFacade {
         }
 
         // load sefun file, if there is one.
-        // const depSefun = this.loadDependency(contextEntry, "sys/simul_efun.h");
-        // if (!!depSefun) contextEntry.context.addAsReferenceTo(depSefun);
+        if (!context.fileName.endsWith("simul_efun.h")) {
+            const depSefun = this.loadDependency(
+                contextEntry,
+                "/sys/simul_efun.h"
+            );
+            if (!!depSefun) contextEntry.context.addAsReferenceTo(depSefun);
+        }
 
         // Release all old dependencies. This will only unload grammars which have
         // not been ref-counted by the above dependency loading (or which are not used by other

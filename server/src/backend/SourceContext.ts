@@ -197,10 +197,6 @@ export class SourceContext {
 
         this.symbolTable.clear();
         this.symbolTable.addDependencies(SourceContext.globalSymbols);
-        if (!!LpcFacade.SefunSymbols) {
-            this.symbolTable.addDependencies(LpcFacade.SefunSymbols);
-        }
-
         this.symbolTable.addDependencies(EfunSymbols);
 
         try {
