@@ -22,6 +22,7 @@ import {
     AdditiveExpressionContext,
     AndExpressionContext,
     AssignmentExpressionContext,
+    BracketExpressionContext,
     CallOtherTargetContext,
     CloneObjectExpressionContext,
     ConditionalAndExpressionContext,
@@ -77,6 +78,7 @@ import {
 import { ExpressionSymbol } from "../symbols/expressionSymbol";
 import {
     firstEntry,
+    getSibling,
     lastEntry,
     lexRangeFromContext,
     lexRangeFromToken,
@@ -257,8 +259,15 @@ export class DetailsVisitor
 
         let symbolType: SymbolConstructor<BaseSymbol, unknown[]>;
 
-        if (priExp.ARROW()?.length > 0) {
-            // if there's an arrow then its a variable
+        const nextSib = getSibling(ctx, 1);
+        if (nextSib instanceof MethodInvocationContext) {
+            // if the next symbol is a method invocation, then its a function
+            symbolType = FunctionIdentifierSymbol;
+        } else if (nextSib instanceof BracketExpressionContext) {
+            // if the next symbol is a bracket expression, then its a variable
+            symbolType = VariableIdentifierSymbol;
+        } else if (priExp.ARROW()?.length > 0) {
+            // if there's an arrow anywhere after that then its a variable
             symbolType = VariableIdentifierSymbol;
         } else if (priExp.methodInvocation().length > 0) {
             // method invocation means its a function

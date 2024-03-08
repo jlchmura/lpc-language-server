@@ -254,7 +254,7 @@ export class SemanticListener extends LPCParserListener {
 
         // get the symbol for the method
         const methodSymbol = methodInvSymbol.getMethodSymbol();
-        const methodName = methodSymbol?.name;
+        const methodName = methodSymbol?.name ?? methodObj.getText();
 
         // this will include efuns
         if (methodName && methodSymbol instanceof BaseMethodSymbol) {
@@ -314,7 +314,7 @@ export class SemanticListener extends LPCParserListener {
             );
         } else {
             this.logDiagnostic(
-                `Unknown function name '${methodName}'`,
+                `Function '${methodName ?? ""}' may be undefined`,
                 parent.start,
                 parent.stop
             );
