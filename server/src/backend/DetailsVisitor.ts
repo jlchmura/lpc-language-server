@@ -183,7 +183,9 @@ export class DetailsVisitor
         // is this a macro?
         if (label.includes("(")) {
             // re-assemble this as a fake function and parse it
-            let funcStr = `${label} { return ${value}; }\n`;
+            // the newline before the semi is intention, incase the define has a
+            // comment after it
+            let funcStr = `${label} { return ${value}\n; }\n`;
             try {
                 let table = this.parseDefine(funcStr);
                 if (!table) {
@@ -216,7 +218,7 @@ export class DetailsVisitor
             } catch {}
         } else {
             // not a macro, but the value may still have an expression
-            const varStr = `${label} = ${value};`;
+            const varStr = `${label} = ${value}\n;`;
             try {
                 const table = this.parseDefine(varStr);
                 // add a variable symbol to this file's table
