@@ -53,6 +53,7 @@ import { DetailsVisitor } from "./DetailsVisitor";
 import { DiagnosticSeverity, FoldingRange } from "vscode-languageserver";
 import {
     lexRangeFromContext as lexRangeFromContext,
+    pushIfDefined,
     resolveOfTypeSync,
     trimQuotes,
 } from "../utils";
@@ -431,7 +432,7 @@ export class SourceContext {
         column: number,
         row: number,
         limitToChildren: boolean
-    ): ISymbolInfo | undefined {
+    ): ISymbolInfo[] | undefined {
         if (!this.tree) {
             return undefined;
         }
@@ -448,13 +449,14 @@ export class SourceContext {
         // If limitToChildren is set we only want to show info for symbols in specific contexts.
         // These are contexts which are used as subrules in rule definitions.
         if (!limitToChildren) {
-            return this.getSymbolInfo(terminal.getText());
+            return [this.getSymbolInfo(terminal.getText())];
         }
 
         let parent = terminal.parent as ParserRuleContext;
         let symbol: BaseSymbol;
         let name: string;
         let searchScope: ScopedSymbol;
+
         switch (parent.ruleIndex) {
             case LPCParser.RULE_assignmentExpression:
             case LPCParser.RULE_primaryExpression:
@@ -479,6 +481,9 @@ export class SourceContext {
                         DefineSymbol
                     );
                 } else if (symbol instanceof FunctionIdentifierSymbol) {
+                    const symbolsToReturn: BaseSymbol[] = [];
+                    let lookupSymbolTable = this.symbolTable;
+
                     if (symbol.parent instanceof CallOtherSymbol) {
                         const callOtherSymbol =
                             symbol.parent as CallOtherSymbol;
@@ -486,28 +491,34 @@ export class SourceContext {
                         // that error will be caught and reported elsewhere
                         if (!callOtherSymbol.objContext) return undefined;
 
-                        symbol = resolveOfTypeSync(
-                            callOtherSymbol.objContext.symbolTable,
-                            name,
-                            MethodSymbol
-                        );
-                    } else {
-                        symbol = resolveOfTypeSync(
-                            this.symbolTable,
-                            name,
-                            MethodDeclarationSymbol
-                        );
-                        symbol ??= resolveOfTypeSync(
-                            this.symbolTable,
-                            name,
-                            MethodSymbol
-                        );
-                        symbol ??= resolveOfTypeSync(
-                            SourceContext.efunSymbols, // efuns always come from here
-                            name,
-                            EfunSymbol
-                        );
+                        lookupSymbolTable =
+                            callOtherSymbol.objContext.symbolTable;
                     }
+                    // look for the method implementation
+                    symbol = resolveOfTypeSync(
+                        this.symbolTable,
+                        name,
+                        MethodDeclarationSymbol
+                    );
+                    pushIfDefined(symbolsToReturn, symbol);
+
+                    // also add the method header
+                    symbol = resolveOfTypeSync(
+                        this.symbolTable,
+                        name,
+                        MethodSymbol
+                    );
+                    pushIfDefined(symbolsToReturn, symbol);
+
+                    // it could also be an efun
+                    symbol = resolveOfTypeSync(
+                        SourceContext.efunSymbols, // efuns always come from here
+                        name,
+                        EfunSymbol
+                    );
+                    pushIfDefined(symbolsToReturn, symbol);
+
+                    return symbolsToReturn.map((s) => this.getSymbolInfo(s));
                 } else {
                     symbol = searchScope.resolveSync(symbol.name, false);
                 }
@@ -523,7 +534,7 @@ export class SourceContext {
         }
 
         if (!!symbol) {
-            return this.getSymbolInfo(symbol);
+            return [this.getSymbolInfo(symbol)];
         }
 
         return undefined;

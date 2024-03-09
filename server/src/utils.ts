@@ -210,3 +210,9 @@ export function trimStart(original: string, toRemove: string): string {
     }
     return original;
 }
+
+export function pushIfDefined<T>(arr: T[], item: T) {
+    if (!!item) {
+        arr.push(item);
+    }
+}

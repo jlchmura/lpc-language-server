@@ -118,6 +118,16 @@ export class LpcServer {
             return result;
         });
 
+        this.connection.onImplementation((params) => {
+            const doc = this.documents.get(params.textDocument.uri);
+            const result = this.definitionProvider.getDefinition(
+                doc,
+                params.position,
+                true
+            );
+            return result;
+        });
+
         // Codelense Provider
         // this.registerCodelensProvider();
         // this.connection.onCodeLensResolve((params) => {
@@ -273,6 +283,7 @@ export class LpcServer {
                 // },
                 hoverProvider: true,
                 definitionProvider: true,
+                implementationProvider: true,
                 foldingRangeProvider: true, // change to true to enable server-based folding
                 signatureHelpProvider: {
                     triggerCharacters: ["(", ","],

@@ -40,7 +40,7 @@ export class MethodParameterSymbol
     }
 }
 
-export class MethodSymbol
+export class LpcBaseMethodSymbol
     extends BaseMethodSymbol
     implements
         IFoldableSymbol,
@@ -101,8 +101,11 @@ export class MethodSymbol
 
     foldingRange: FoldingRange;
 }
+
+export class MethodSymbol extends LpcBaseMethodSymbol {}
+
 export class MethodDeclarationSymbol
-    extends MethodSymbol
+    extends LpcBaseMethodSymbol
     implements IKindSymbol, IRenameableSymbol
 {
     nameRange: ILexicalRange;

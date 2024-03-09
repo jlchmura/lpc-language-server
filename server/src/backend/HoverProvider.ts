@@ -10,7 +10,7 @@ import {
     generateSymbolDoc,
     symbolDescriptionFromEnum,
 } from "../symbols/Symbol";
-import { lexRangeToLspRange } from "../utils";
+import { firstEntry, lexRangeToLspRange } from "../utils";
 import { SymbolKind } from "../types";
 import { MethodSymbol } from "../symbols/methodSymbol";
 import { Block } from "comment-parser";
@@ -19,11 +19,13 @@ export class HoverProvider {
     constructor(private backend: LpcFacade) {}
 
     public getHover(filename: string, position: Position): Hover {
-        const info = this.backend.symbolInfoAtPosition(
-            filename,
-            position.character,
-            position.line + 1,
-            true
+        const info = firstEntry(
+            this.backend.symbolInfoAtPosition(
+                filename,
+                position.character,
+                position.line + 1,
+                true
+            )
         );
         if (!info) {
             return undefined;

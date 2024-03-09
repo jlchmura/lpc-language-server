@@ -345,7 +345,7 @@ export class LpcFacade {
         column: number,
         row: number,
         limitToChildren = true
-    ): ISymbolInfo | undefined {
+    ): ISymbolInfo[] | undefined {
         const context = this.getContext(fileName);
 
         return context?.symbolAtPosition(column, row, limitToChildren);

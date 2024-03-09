@@ -8,7 +8,8 @@ Language server and VSCode extension that provides language support for LPC (Lar
 -   Diagnostic messages
 -   Quick info
 -   Signature help, with type info
--   Go to definition
+-   Go to definitions (f12)
+-   Go to implementations (ctrl/cmd+f12)
 -   Code outline
 -   Code navigation
 -   [Include / sefun support](#includes--sefuns)

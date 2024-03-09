@@ -8,7 +8,7 @@ import {
 } from "vscode-languageserver";
 import { MethodInvocationSymbol } from "../symbols/methodSymbol";
 import { ContextSymbolTable } from "./ContextSymbolTable";
-import { trimStart } from "../utils";
+import { firstEntry, trimStart } from "../utils";
 import { ParserRuleContext } from "antlr4ng";
 import { MethodInvocationContext } from "../parser3/LPCParser";
 
@@ -20,11 +20,13 @@ export class SignatureHelpProvider {
         position: Position
     ): SignatureHelp {
         const filename = doc.uri;
-        const info = this.backend.symbolInfoAtPosition(
-            filename,
-            position.character,
-            position.line + 1,
-            true
+        const info = firstEntry(
+            this.backend.symbolInfoAtPosition(
+                filename,
+                position.character,
+                position.line + 1,
+                true
+            )
         );
         if (!info) return undefined;
 

@@ -5,7 +5,7 @@ import {
     IRenameableSymbol,
     isInstanceOfIRenameableSymbol,
 } from "../symbols/base";
-import { lexRangeToLspRange } from "../utils";
+import { firstEntry, lexRangeToLspRange } from "../utils";
 
 export class RenameProvider {
     constructor(private backend: LpcFacade) {}
@@ -15,11 +15,13 @@ export class RenameProvider {
         position: Position,
         newName: string
     ): WorkspaceEdit {
-        const info = this.backend.symbolInfoAtPosition(
-            doc.uri,
-            position.character,
-            position.line + 1,
-            false
+        const info = firstEntry(
+            this.backend.symbolInfoAtPosition(
+                doc.uri,
+                position.character,
+                position.line + 1,
+                false
+            )
         );
 
         if (info) {
