@@ -16,7 +16,7 @@ export class ConditionalSymbol
         const rhs = this.children[1] as IEvaluatableSymbol;
 
         const lhResult = lhs.eval(stack);
-        const rhResult = lhs.eval(stack);
+        const rhResult = rhs.eval(stack);
 
         switch (this.name) {
             case "==":
@@ -31,6 +31,10 @@ export class ConditionalSymbol
                 return lhResult <= rhResult;
             case ">=":
                 return lhResult >= rhResult;
+            case "|":
+                return lhResult | rhResult;
+            case "&":
+                return lhResult & rhResult;
             case "&&":
                 return lhResult && rhResult;
             case "||":
