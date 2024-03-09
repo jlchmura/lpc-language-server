@@ -54,7 +54,7 @@ import { RenameProvider } from "./RenameProvider";
 const CHANGE_DEBOUNCE_MS = 500;
 
 export class LpcServer {
-    private importDir: string | undefined;
+    private importDir: string[] | undefined;
     private facade: LpcFacade;
 
     /** timers used to debounce change events */
@@ -293,7 +293,10 @@ export class LpcServer {
         const rootFolderUri = URI.parse(rootFolder);
         const rootFolderPath = rootFolderUri.fsPath;
 
-        this.importDir = path.join(rootFolderPath, "sys");
+        this.importDir = [
+            path.join(rootFolderPath, "sys"),
+            path.join(rootFolderPath, "obj"),
+        ];
         this.facade = new LpcFacade(this.importDir, rootFolderPath);
 
         // hook up the run diagnostic event emitter

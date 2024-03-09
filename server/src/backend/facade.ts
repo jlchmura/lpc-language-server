@@ -56,7 +56,7 @@ export class LpcFacade {
     public onRunDiagnostics: (filename: string) => void;
 
     public constructor(
-        private importDir: string,
+        private importDir: string[],
         private workspaceDir: string
     ) {
         console.log("LpcFacade created", importDir, workspaceDir);
@@ -242,9 +242,9 @@ export class LpcFacade {
             ? URI.parse(contextEntry.filename).fsPath
             : contextEntry.filename;
         const basePath = path.dirname(contextFilename);
-        const fullPath = path.isAbsolute(this.importDir)
-            ? this.importDir
-            : path.join(basePath, this.importDir);
+        const fullImportDirs = this.importDir.map((dir) => {
+            return path.isAbsolute(dir) ? dir : path.join(basePath, dir);
+        });
         try {
             let filename = depName;
             // figure out the search type
@@ -259,7 +259,7 @@ export class LpcFacade {
 
             filename = normalizeFilename(filename);
 
-            const searchPaths = [basePath, fullPath];
+            const searchPaths = [basePath, ...fullImportDirs];
             if (depType === DependencySearchType.Global) {
                 searchPaths.reverse();
             }

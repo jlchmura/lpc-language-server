@@ -121,7 +121,7 @@ export class SourceContext {
         public backend: LpcFacade,
         public fileName: string,
         private extensionDir: string,
-        private importDir: string
+        private importDir: string[]
     ) {
         this.sourceId = path.basename(fileName);
         this.symbolTable = new ContextSymbolTable(
