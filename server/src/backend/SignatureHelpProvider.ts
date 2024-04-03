@@ -39,6 +39,7 @@ export class SignatureHelpProvider {
         }
 
         const methodInvoc = info.symbol as MethodInvocationSymbol;
+        if (!methodInvoc) return { signatures: [] };
         const method = methodInvoc.getMethodSymbol();
         // use method's table, because it might not be from the same file as the method invoc
         const methodInfo = (
