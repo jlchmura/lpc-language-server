@@ -206,7 +206,6 @@ export class DetailsVisitor
                         methodSym.name
                     );
                     defineMethodSym.functionModifiers = new Set();
-                    this.symbolTable.addFunction(defineMethodSym);
 
                     // move params over
                     while (methodSym.children.length > 0) {
@@ -657,7 +656,7 @@ export class DetailsVisitor
                 ctx.start.column,
                 ctx.stop.column
             );
-            this.symbolTable.addFunction(s);
+
             return this.visitChildren(ctx);
         });
     };

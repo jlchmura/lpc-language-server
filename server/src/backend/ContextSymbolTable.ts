@@ -23,7 +23,6 @@ export class ContextSymbolTable extends SymbolTable {
     public tree: ParserRuleContext; // Set by the owning source context after each parse run.
 
     private symbolReferences = new Map<string, number>();
-    private functions = new Map<string, MethodSymbol>();
 
     public foldingRanges: Set<FoldingRange> = new Set<FoldingRange>();
 
@@ -49,7 +48,6 @@ export class ContextSymbolTable extends SymbolTable {
 
         this.symbolReferences.clear();
 
-        this.functions.clear();
         super.clear();
     }
 
@@ -57,15 +55,10 @@ export class ContextSymbolTable extends SymbolTable {
         return this.dependencies;
     }
 
-    public addFunction(method: MethodSymbol): void {
-        this.functions.set(method.name, method);
-    }
-
     public getFunction(name: string): MethodSymbol | undefined {
         const sym = this.resolveSync(name, false);
         if (sym instanceof MethodSymbol) return sym;
         return undefined;
-        //return this.functions.get(name);
     }
 
     public symbolExists(
