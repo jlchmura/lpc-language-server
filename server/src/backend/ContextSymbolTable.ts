@@ -62,7 +62,10 @@ export class ContextSymbolTable extends SymbolTable {
     }
 
     public getFunction(name: string): MethodSymbol | undefined {
-        return this.functions.get(name);
+        const sym = this.resolveSync(name, false);
+        if (sym instanceof MethodSymbol) return sym;
+        return undefined;
+        //return this.functions.get(name);
     }
 
     public symbolExists(

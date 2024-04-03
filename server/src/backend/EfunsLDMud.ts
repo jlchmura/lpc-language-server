@@ -46,6 +46,7 @@ efun("load_name", LpcTypes.stringType, true, ["ob", LpcTypes.objectType]);
 efun("load_object", LpcTypes.objectType, false, ["file", LpcTypes.stringType]);
 efun("lower_case", LpcTypes.stringType, false, ["str", LpcTypes.stringType]);
 efun("map", LpcTypes.mixedArrayType, true, ["arr", LpcTypes.mixedArrayType], ["fun", LpcTypes.closureType], ["ob", LpcTypes.stringType], ["extra", LpcTypes.mappingType]);
+efun("mappingp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("member", LpcTypes.intType, true, ["array", LpcTypes.mixedArrayType], ["elem", LpcTypes.mixedType], ["start", LpcTypes.intType]);
 efun("m_indices", LpcTypes.mixedArrayType, false, ["map", LpcTypes.mappingType]);
 efun("next_inventory", LpcTypes.objectType, false, ["ob", LpcTypes.objectType]);

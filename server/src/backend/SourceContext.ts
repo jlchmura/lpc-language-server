@@ -270,7 +270,20 @@ export class SourceContext {
         }
         context.references.push(this);
 
+        // if (
+        //     this.fileName.endsWith("living.c") &&
+        //     context.fileName.endsWith("player.c")
+        // ) {
+        //     const i = 0;
+        // }
+
         if (addSymbolTable) {
+            console.debug(
+                "Adding dependencies from",
+                this.fileName,
+                "to",
+                context.fileName
+            );
             this.symbolTable.addDependencies(context.symbolTable);
         }
     }
@@ -496,7 +509,7 @@ export class SourceContext {
                     }
                     // look for the method implementation
                     symbol = resolveOfTypeSync(
-                        this.symbolTable,
+                        lookupSymbolTable,
                         name,
                         MethodDeclarationSymbol
                     );
@@ -504,7 +517,7 @@ export class SourceContext {
 
                     // also add the method header
                     symbol = resolveOfTypeSync(
-                        this.symbolTable,
+                        lookupSymbolTable,
                         name,
                         MethodSymbol
                     );

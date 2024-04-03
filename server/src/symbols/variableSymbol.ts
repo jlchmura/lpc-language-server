@@ -30,8 +30,13 @@ export class VariableSymbol
     }
 
     eval(stack: CallStack, scope?: any) {
-        if (scope !== undefined) this.value = scope;
-        stack.addLocal(this.name, new StackValue(this.value, this.type, this));
+        if (scope !== undefined) {
+            this.value = scope;
+            stack.addLocal(
+                this.name,
+                new StackValue(this.value, this.type, this)
+            );
+        }
         return this.value;
     }
 
@@ -51,6 +56,9 @@ export class VariableIdentifierSymbol
     nameRange: ILexicalRange;
     eval(stack: CallStack, scope?: any) {
         const def = this.findDeclaration() as IEvaluatableSymbol;
+        if (this.name == "tp") {
+            const i = 0;
+        }
         return def?.eval(stack, scope);
     }
     public findDeclaration() {

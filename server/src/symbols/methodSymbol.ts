@@ -264,14 +264,22 @@ export class EfunSymbol
             // TODO: this is just a quick hack to get the player object
             // need a better way to check if references are already loaded.
             case "this_player":
-                const playerCtx = ownerProgram.backend.addDependency(
-                    ownerProgram.fileName,
-                    { filename: OBJ_PLAYER_FILENAME, symbol: this }
-                );
+                const backend = ownerProgram.backend;
+                const filename =
+                    backend.filenameToAbsolutePath(OBJ_PLAYER_FILENAME);
+                const playerCtx = backend.loadLpc(filename);
+                //ownerProgram.addAsReferenceTo(playerCtx);
+
+                return new ObjectReferenceInfo(filename, true, playerCtx);
+
+                // const playerCtx = ownerProgram.backend.addDependency(
+                //     ownerPr ogram.fileName,
+                //     { filename: OBJ_PLAYER_FILENAME, symbol: this }
+                // );
                 return new ObjectReferenceInfo(
                     OBJ_PLAYER_FILENAME,
-                    !!playerCtx,
-                    playerCtx
+                    false,
+                    ownerProgram
                 );
         }
 
