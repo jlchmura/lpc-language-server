@@ -38,6 +38,7 @@ export class InheritSymbol
     implements IEvaluatableSymbol
 {
     public isLoaded = false;
+    public filename: string;
 
     public get kind() {
         return SymbolKind.Inherit;

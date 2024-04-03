@@ -27,6 +27,7 @@ export class LpcDefinitionProvider {
             // Yet we need the correct start position to not break the goto-definition feature.
             if (
                 info.definition &&
+                info.kind != SymbolKind.Efun &&
                 (!implementationOnly ||
                     info.kind == SymbolKind.Method ||
                     info.kind == SymbolKind.Variable)

@@ -195,8 +195,8 @@ export class ContextSymbolTable extends SymbolTable {
                             .join(", ")
                             .trim()})`,
                         range: {
-                            start: { column: 0, row: 0 },
-                            end: { column: 0, row: 0 },
+                            start: { column: 0, row: 1 },
+                            end: { column: 0, row: 1 },
                         },
                     },
                     description: undefined,

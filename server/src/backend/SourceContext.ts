@@ -53,6 +53,7 @@ import { DetailsVisitor } from "./DetailsVisitor";
 import { DiagnosticSeverity, FoldingRange } from "vscode-languageserver";
 import {
     lexRangeFromContext as lexRangeFromContext,
+    normalizeFilename,
     pushIfDefined,
     resolveOfTypeSync,
     trimQuotes,
@@ -76,7 +77,8 @@ import {
 } from "../symbols/methodSymbol";
 import { CallOtherSymbol } from "../symbols/objectSymbol";
 import { EfunSymbols } from "./EfunsLDMud";
-import { getParentOfType } from "../symbols/Symbol";
+import { InheritSymbol, getParentOfType } from "../symbols/Symbol";
+import { IncludeSymbol } from "../symbols/includeSymbol";
 
 /**
  * Source context for a single LPC file.
@@ -471,6 +473,53 @@ export class SourceContext {
         let searchScope: ScopedSymbol;
 
         switch (parent.ruleIndex) {
+            case LPCParser.RULE_directiveIncludeFileLocal:
+            case LPCParser.RULE_directiveIncludeFileGlobal:
+                const includeSymbol = this.symbolTable.symbolContainingContext(
+                    terminal
+                ) as IncludeSymbol;
+                const filename = includeSymbol.name;
+                if (!filename) return undefined;
+                return [
+                    {
+                        symbol: includeSymbol,
+                        name: filename,
+                        kind: SymbolKind.Inherit,
+                        source: this.backend.filenameToAbsolutePath(
+                            normalizeFilename(trimQuotes(filename))
+                        ),
+                        definition: {
+                            range: {
+                                start: { column: 0, row: 1 },
+                                end: { column: 0, row: 1 },
+                            },
+                            text: `#include ${filename}`,
+                        },
+                    },
+                ];
+            case LPCParser.RULE_inheritStatement:
+                const inheritSymbol = this.symbolTable.symbolContainingContext(
+                    terminal
+                ) as InheritSymbol;
+
+                if (!inheritSymbol.name) return;
+                return [
+                    {
+                        symbol: inheritSymbol,
+                        name: inheritSymbol.name,
+                        kind: SymbolKind.Inherit,
+                        source: this.backend.filenameToAbsolutePath(
+                            normalizeFilename(trimQuotes(inheritSymbol.name))
+                        ),
+                        definition: {
+                            range: {
+                                start: { column: 0, row: 1 },
+                                end: { column: 0, row: 1 },
+                            },
+                            text: `Inherit ${inheritSymbol.name}`,
+                        },
+                    },
+                ];
             case LPCParser.RULE_assignmentExpression:
             case LPCParser.RULE_primaryExpression:
             case LPCParser.RULE_primaryExpressionStart:
