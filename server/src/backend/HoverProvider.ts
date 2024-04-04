@@ -38,26 +38,27 @@ export class HoverProvider {
                 defPrefix = "";
             }
 
-            const sourceLine = `Source: \`${path.basename(info.source)}\`${
+            const sourceLine = `${path.basename(info.source)}${
                 !!info.line ? ":" + info.line : ""
             }`;
 
             let commentDoc = "";
 
             commentDoc = generateSymbolDoc(info.symbol);
-
+            doTest("a");
             const result: Hover = {
                 range: lexRangeToLspRange(definition?.range),
                 contents: {
                     kind: "markdown",
-                    value:
-                        [
-                            "```lpc",
-                            `${defPrefix}${definition?.text ?? ""}`,
-                            "```",
-                            "***",
-                            sourceLine,
-                        ].join("\n") + commentDoc,
+                    value: [
+                        "```lpc",
+                        `${defPrefix}${definition?.text ?? ""}`,
+                        sourceLine,
+                        "```",
+                        "***",
+                        //sourceLine,
+                        commentDoc,
+                    ].join("\n"),
                 } as MarkupContent,
             };
 
