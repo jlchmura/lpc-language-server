@@ -67,6 +67,7 @@ PUBLIC: 'public';
 STATIC: 'static';
 
 NOSHADOW: 'noshadow';
+NOSAVE: 'nosave';
 NOMASK: 'nomask';
 VARARGS: 'varargs';
 

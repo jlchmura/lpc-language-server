@@ -98,7 +98,7 @@ functionModifier
     | PRIVATE
     | PROTECTED
     | PUBLIC
-    | NOSHADOW 
+    | NOSHADOW     
     | NOMASK
     | VARARGS
     ;
@@ -151,6 +151,7 @@ variableModifier
     | PROTECTED
     | PUBLIC
     | NOSHADOW
+    | NOSAVE
     ;
 
 variableDeclaration
