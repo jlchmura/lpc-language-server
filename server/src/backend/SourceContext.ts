@@ -761,10 +761,14 @@ export class SourceContext {
                     if (s.parent instanceof CallOtherSymbol) s = s.parent;
                     if (s instanceof CallOtherSymbol) {
                         promises.push(
-                            s.objectRef.context.symbolTable.getAllSymbols(
-                                MethodSymbol,
-                                true
-                            )
+                            s.objectRef.context.symbolTable
+                                .getAllSymbols(MethodSymbol, false)
+                                .then((symbols) => {
+                                    // filter out efuns
+                                    return symbols.filter(
+                                        (s) => !(s instanceof EfunSymbol)
+                                    );
+                                })
                         );
                     } else {
                         // Lexer rules.
@@ -835,17 +839,22 @@ export class SourceContext {
         });
 
         const symbolLists = await Promise.all(promises);
+        const names = new Set<string>();
         symbolLists.forEach((symbols) => {
             if (symbols) {
                 symbols.forEach((symbol) => {
                     if (symbol.name !== "EOF") {
-                        result.push({
-                            kind: SourceContext.getKindFromSymbol(symbol),
-                            name: symbol.name,
-                            source: (symbol.symbolTable as ContextSymbolTable)
-                                ?.owner?.fileName,
-                        });
+                        if (!names.has(symbol.name)) {
+                            names.add(symbol.name);
 
+                            result.push({
+                                kind: SourceContext.getKindFromSymbol(symbol),
+                                name: symbol.name,
+                                source: (
+                                    symbol.symbolTable as ContextSymbolTable
+                                )?.owner?.fileName,
+                            });
+                        }
                         // const info = this.getSymbolInfo(symbol);
 
                         // if (symbol instanceof MethodSymbol) {
