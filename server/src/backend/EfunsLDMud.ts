@@ -15,6 +15,7 @@ efun("all_inventory", LpcTypes.objectArrayType, false, ["ob", LpcTypes.objectTyp
 efun("allocate", LpcTypes.mixedArrayType, true, ["sizes", LpcTypes.intArrayType], ["init_value", LpcTypes.mixedType]);
 efun("add_action", LpcTypes.voidType, true, ["fun", FundamentalType.stringType], ["cmd", FundamentalType.stringType], ["flag", FundamentalType.integerType]);
 efun("apply", LpcTypes.mixedType, true, ["cl", LpcTypes.closureType], ["args", LpcTypes.mixedArrayType, true]);
+efun("binary_message", LpcTypes.intType, true, ["msg", LpcTypes.mixedType], ["flags", LpcTypes.intType]);
 efun("capitalize", LpcTypes.stringType, false, ["str", LpcTypes.stringType]);
 efun("call_other", LpcTypes.mixedType, true, ["ob", LpcTypes.objectType], ["fun", LpcTypes.stringType], ["args...", LpcTypes.mixedType, true]);
 efun("call_out", LpcTypes.intType, true, ["fun", LpcTypes.stringType], ["delay", LpcTypes.intType], ["args...", LpcTypes.mixedType, true]);
@@ -37,9 +38,11 @@ efun("funcall", LpcTypes.mixedType, true, ["fun", LpcTypes.closureType], ["args.
 efun("function_exists", LpcTypes.intType, false, ["fun", LpcTypes.stringType], ["ob", LpcTypes.objectType]);
 efun("hash", LpcTypes.intType, true, ["method", LpcTypes.intArrayType], ["arg", LpcTypes.stringType],["iterations", LpcTypes.intType]);
 efun("implode", LpcTypes.stringType, true, ["arr", LpcTypes.mixedArrayType], ["del", LpcTypes.stringType]);
+efun("interactive", LpcTypes.intType, true, ["ob", LpcTypes.objectType]);
 efun("input_to", LpcTypes.voidType, true, ["fun", LpcTypes.stringType], ["flag", LpcTypes.intType], ["msg", LpcTypes.stringType], ["args...", LpcTypes.mixedType, true]);
 efun("intp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("invert_bits", LpcTypes.stringType, false, ["str", LpcTypes.stringType]);
+efun("json_serialize", LpcTypes.stringType, false, ["data", LpcTypes.mixedType]);
 efun("living", LpcTypes.intType, false, ["ob", LpcTypes.objectType]);
 efun("localtime", LpcTypes.intArrayType, false, ["clock", LpcTypes.intType]);
 efun("load_name", LpcTypes.stringType, true, ["ob", LpcTypes.objectType]);
@@ -48,6 +51,7 @@ efun("lower_case", LpcTypes.stringType, false, ["str", LpcTypes.stringType]);
 efun("map", LpcTypes.mixedArrayType, true, ["arr", LpcTypes.mixedArrayType], ["fun", LpcTypes.closureType], ["ob", LpcTypes.stringType], ["extra", LpcTypes.mappingType]);
 efun("mappingp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("member", LpcTypes.intType, true, ["array", LpcTypes.mixedArrayType], ["elem", LpcTypes.mixedType], ["start", LpcTypes.intType]);
+efun("min", LpcTypes.intType, true, ["arg", LpcTypes.mixedType], ["arg1", LpcTypes.mixedType]);
 efun("m_indices", LpcTypes.mixedArrayType, false, ["map", LpcTypes.mappingType]);
 efun("next_inventory", LpcTypes.objectType, false, ["ob", LpcTypes.objectType]);
 efun("notify_fail", LpcTypes.voidType, false, ["msg", LpcTypes.stringType]);

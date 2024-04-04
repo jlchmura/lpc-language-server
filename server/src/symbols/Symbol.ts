@@ -194,7 +194,7 @@ export function generateSymbolDoc(symbol: BaseSymbol) {
         let commentDoc: string = "";
         const doc = (symbol as any).doc as Block;
 
-        commentDoc = "\n***\n";
+        commentDoc = "\n";
         commentDoc += doc.description;
 
         doc.tags
