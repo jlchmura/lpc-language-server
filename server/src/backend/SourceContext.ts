@@ -78,7 +78,7 @@ import {
     MethodInvocationSymbol,
     MethodSymbol,
 } from "../symbols/methodSymbol";
-import { CallOtherSymbol } from "../symbols/objectSymbol";
+import { CallOtherSymbol, CloneObjectSymbol } from "../symbols/objectSymbol";
 import { EfunSymbols } from "./EfunsLDMud";
 import { InheritSymbol, getParentOfType } from "../symbols/Symbol";
 import { IncludeSymbol } from "../symbols/includeSymbol";
@@ -476,6 +476,11 @@ export class SourceContext {
         let name: string;
         let searchScope: ScopedSymbol;
 
+        // we don't want literals, so move up the tree until we find a non-literal
+        while (parent?.ruleIndex === LPCParser.RULE_literal) {
+            parent = parent.parent as ParserRuleContext;
+        }
+
         switch (parent.ruleIndex) {
             case LPCParser.RULE_directiveIncludeFilename:
             case LPCParser.RULE_directiveIncludeFileLocal:
@@ -584,14 +589,41 @@ export class SourceContext {
                     pushIfDefined(symbolsToReturn, symbol);
 
                     return symbolsToReturn.map((s) => this.getSymbolInfo(s));
+                } else if (
+                    symbol.symbolPath.some(
+                        (p) => p instanceof CloneObjectSymbol
+                    )
+                ) {
+                    // this is a special situation where we want to nav directly to the file
+                    const objSymbol = symbol.symbolPath.find(
+                        (p) => p instanceof CloneObjectSymbol
+                    ) as CloneObjectSymbol;
+                    return [
+                        {
+                            symbol: objSymbol,
+                            name: objSymbol.relativeFileName,
+                            kind: SymbolKind.Include,
+                            source: objSymbol.filename,
+                            definition: {
+                                range: {
+                                    start: { column: 0, row: 1 },
+                                    end: { column: 0, row: 1 },
+                                },
+                                text: `#include ${objSymbol.relativeFileName}`,
+                            },
+                        },
+                    ];
                 } else {
-                    symbol = searchScope.resolveSync(symbol.name, false);
+                    symbol = searchScope.resolveSync(name, false);
                 }
 
                 break;
             case LPCParser.RULE_methodInvocation:
             case LPCParser.RULE_argumentList:
                 symbol = this.symbolTable.symbolContainingContext(terminal);
+                break;
+            case LPCParser.RULE_literal:
+                const ii = 0;
                 break;
             default: {
                 break;

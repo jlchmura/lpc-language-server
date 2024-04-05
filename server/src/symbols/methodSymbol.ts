@@ -13,7 +13,7 @@ import {
     getSymbolsOfTypeSync,
     IRenameableSymbol,
 } from "./base";
-import { ILexicalRange, SymbolKind } from "../types";
+import { ILexicalRange, LpcTypes, SymbolKind } from "../types";
 
 import { FoldingRange } from "vscode-languageserver";
 import { ExpressionSymbol } from "./expressionSymbol";
@@ -26,6 +26,7 @@ import { ParserRuleContext } from "antlr4ng";
 
 export const MAX_CALLDEPTH_SIZE = 10;
 const OBJ_PLAYER_FILENAME = "/obj/player";
+const FUNCTION_NAME_KEY = "$$$function_id$$$";
 
 export class MethodParameterSymbol
     extends ParameterSymbol
@@ -132,14 +133,22 @@ export class MethodInvocationSymbol
     }
 
     eval(stack: CallStack, scope?: any) {
-        for (const child of this.children) {
-            if (isInstanceOfIEvaluatableSymbol(child)) {
-                scope = child.eval(stack, scope);
-            } else {
-                console.warn("not evaluable: " + child.name);
-            }
-        }
-        return scope;
+        // find the function that this invocation points to
+        const methodName = stack.getValue(FUNCTION_NAME_KEY) as string;
+        const methodSymbol = stack.getFunction(methodName);
+
+        const prms = this.children.filter((c) =>
+            isInstanceOfIEvaluatableSymbol(c)
+        ) as IEvaluatableSymbol[];
+        // for (const child of this.children) {
+        //     if (isInstanceOfIEvaluatableSymbol(child)) {
+        //         scope = child.eval(stack, scope);
+        //     } else {
+        //         console.warn("not evaluable: " + child.name);
+        //     }
+        // }
+
+        return methodSymbol?.eval(stack, prms);
     }
 
     /**
@@ -205,8 +214,16 @@ export class FunctionIdentifierSymbol
     }
 
     eval(stack: CallStack, scope?: any) {
-        const def = stack.getFunction(this.name);
-        return def?.eval(stack, scope);
+        // the next symbol should be the method invocation
+        // store the function name on the stack so that the method invocation
+        // can access it
+        stack.addLocal(
+            FUNCTION_NAME_KEY,
+            new StackValue(this.name, LpcTypes.stringType, this)
+        );
+
+        // const def = stack.getFunction(this.name);
+        // return def?.eval(stack, scope);
     }
 }
 

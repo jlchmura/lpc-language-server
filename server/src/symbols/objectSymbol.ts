@@ -12,7 +12,7 @@ import { SourceContext } from "../backend/SourceContext";
 
 import { ParserRuleContext } from "antlr4ng";
 import { DiagnosticSeverity } from "vscode-languageserver";
-import { CallStack, StackFrame } from "../backend/CallStack";
+import { CallStack, StackFrame, StackValue } from "../backend/CallStack";
 
 export class ObjectReferenceInfo {
     constructor(
@@ -29,6 +29,8 @@ export class CloneObjectSymbol
     public isLoaded = false;
     private sourceContext: SourceContext;
 
+    public relativeFileName: string;
+
     constructor(name: string, public filename?: string) {
         super(name);
     }
@@ -38,13 +40,22 @@ export class CloneObjectSymbol
 
         // TODO: use call stack here
         let filename = "";
+        let evalResult: string | StackValue;
         for (const child of this.children) {
             if (isInstanceOfIEvaluatableSymbol(child)) {
-                filename = child.eval(stack, filename);
+                evalResult = child.eval(stack, filename);
             } else {
                 throw "not evaluable";
             }
         }
+
+        if (evalResult instanceof StackValue) {
+            filename = evalResult.value;
+        } else {
+            filename = evalResult;
+        }
+
+        this.relativeFileName = filename;
 
         // try to load the source context and store the info in this symbol
         const backend = (this.symbolTable as ContextSymbolTable).owner.backend;
