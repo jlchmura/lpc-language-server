@@ -18,6 +18,7 @@ import { AssignmentSymbol } from "../symbols/assignmentSymbol";
 import { EfunSymbol, MethodSymbol } from "../symbols/methodSymbol";
 import { InlineClosureSymbol } from "../symbols/closureSymbol";
 import { IncludeSymbol } from "../symbols/includeSymbol";
+import { resolveOfTypeSync } from "../utils";
 
 export class ContextSymbolTable extends SymbolTable {
     public tree: ParserRuleContext; // Set by the owning source context after each parse run.
@@ -56,9 +57,9 @@ export class ContextSymbolTable extends SymbolTable {
     }
 
     public getFunction(name: string): MethodSymbol | undefined {
-        const sym = this.resolveSync(name, false);
-        if (sym instanceof MethodSymbol) return sym;
-        return undefined;
+        // only resolve of type MethodSymbol, because we don't want the
+        // function headers here.
+        return resolveOfTypeSync(this, name, MethodSymbol, false);
     }
 
     public symbolExists(

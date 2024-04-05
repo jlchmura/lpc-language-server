@@ -62,8 +62,12 @@ export class SemanticListener extends LPCParserListener {
     }
 
     enterProgram = (ctx: ProgramContext) => {
-        // evaluate everything, so that we can use teh eval results in further diagnostics
+        // evaluate everything, so that we can use the eval results in further diagnostics
+        //try {
         this.evaluateProgram(this.symbolTable);
+        // } catch (e) {
+        //     console.error("SemanticListener: error evaluating program: ", e);
+        // }
     };
 
     /**
@@ -315,11 +319,6 @@ export class SemanticListener extends LPCParserListener {
                 DiagnosticSeverity.Warning
             );
         } else {
-            this.logDiagnostic(
-                `Function '${methodName ?? ""}' may be undefined`,
-                parent.start,
-                parent.stop
-            );
         }
     };
 

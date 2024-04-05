@@ -41,6 +41,8 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
     eval(stack: CallStack, scope?: any) {
         const srcValue = this.source.eval(stack) as StackValue;
 
+        // only evaluate as a struct if the source object is
+        // specifically known to be a struct
         if (srcValue.type?.name == "struct") {
             this.ArrowType = ArrowType.StructMember;
             return this.evalStruct(stack, scope, srcValue);
@@ -58,6 +60,13 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
                 range: rangeFromTokens(ctx.start, ctx.stop),
                 type: DiagnosticSeverity.Error,
             });
+        } else if (this.methodInvocation) {
+            const ctx = this.target.context as ParserRuleContext;
+            addDiagnostic(this, {
+                message: `Cannot call methods on struct members`,
+                range: rangeFromTokens(ctx.start, ctx.stop),
+                type: DiagnosticSeverity.Error,
+            });
         }
 
         // NTBLA: Eval struct member access here
@@ -66,6 +75,7 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
     }
 
     private evalCallOther(stack: CallStack, scope: any, srcValue: StackValue) {
+        // run some diagnostics
         if (!this.target) {
             const ctx = this.context as ParserRuleContext;
             (this.symbolTable as ContextSymbolTable).owner.addDiagnostic({
@@ -82,6 +92,8 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
             });
         }
 
+        // even if diagnostics failed, continue evaluating because
+        // we may have an objContext that we want to return
         const obj = srcValue.value;
         if (typeof obj === "string") {
             // try to load the object
@@ -114,7 +126,15 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
         const funSym = symTbl?.getFunction(this.functionName);
 
         if (!funSym) {
-            return null; // semantic analysis will log this diagnostic
+            const ctx = (this.target ?? this).context as ParserRuleContext;
+            addDiagnostic(this, {
+                message: `Function '${
+                    this.functionName ?? ""
+                }' may be undefined`,
+                range: rangeFromTokens(ctx.start, ctx.stop),
+                type: DiagnosticSeverity.Error,
+            });
+            return undefined;
         }
 
         // the method invocation symbol will have the call arguments
@@ -144,8 +164,6 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
 
         stack.pop();
         return result;
-
-        return scope;
     }
 
     loadObject(filename: string) {
