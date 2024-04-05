@@ -56,6 +56,7 @@ import {
     RelationalExpresionContext,
     ReturnStatementContext,
     SelectionDirectiveContext,
+    StructParameterExpressionContext,
 } from "../parser3/LPCParser";
 import {
     IdentifierSymbol,
@@ -63,7 +64,7 @@ import {
     PreprocessorSymbol,
 } from "../symbols/Symbol";
 import { FoldingRange } from "vscode-languageserver";
-import { ContextImportInfo, typeNameToIType } from "../types";
+import { ContextImportInfo, LpcTypes, typeNameToIType } from "../types";
 import { LPCLexer } from "../parser3/LPCLexer";
 import {
     VariableIdentifierSymbol,
@@ -670,11 +671,18 @@ export class DetailsVisitor
     visitParameterList = (ctx: ParameterListContext) => {
         const prms = ctx.parameter();
         prms.forEach((p) => {
-            const pExp = p as PrimitiveTypeParameterExpressionContext;
-            const name = pExp._paramName.text;
-            const typeName = pExp._paramType?.getText();
-            const type = typeNameToIType.get(typeName);
-
+            let name: string, typeName: string, type: IType;
+            if (p instanceof PrimitiveTypeParameterExpressionContext) {
+                const pExp = p as PrimitiveTypeParameterExpressionContext;
+                name = pExp._paramName.text;
+                typeName = pExp._paramType?.getText();
+                type = typeNameToIType.get(typeName);
+            } else {
+                const sExp = p as StructParameterExpressionContext;
+                name = sExp._paramName.text;
+                typeName = "struct";
+                type = LpcTypes.closureType;
+            }
             this.addNewSymbol(MethodParameterSymbol, p, name, null, type);
         });
         return undefined;
