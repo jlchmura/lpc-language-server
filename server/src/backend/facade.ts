@@ -2,11 +2,16 @@ import * as fs from "fs";
 import * as path from "path";
 import { SourceContext } from "./SourceContext";
 
-import { ContextImportInfo, IDiagnosticEntry, ISymbolInfo } from "../types";
+import {
+    ContextImportInfo,
+    DependencySearchType,
+    IDiagnosticEntry,
+    ISymbolInfo,
+} from "../types";
 
 import { URI } from "vscode-uri";
 import { FoldingRange } from "vscode-languageserver";
-import { normalizeFilename } from "../utils";
+import { normalizeFilename, testFilename } from "../utils";
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import { ContextSymbolTable } from "./ContextSymbolTable";
 
@@ -18,26 +23,6 @@ export interface IContextEntry {
      */
     dependencies: string[];
     filename: string;
-}
-
-enum DependencySearchType {
-    Local,
-    Global,
-}
-
-/**
- * tests if a filename is surrounded by chars @c and if so
- * removes them
- * @param filename
- * @param c
- * @returns
- */
-function testFilename(filename: string, c: string, cEnd: string): string {
-    if (filename.startsWith(c) && filename.endsWith(cEnd)) {
-        return filename.slice(1, filename.length - 1);
-    } else {
-        return filename;
-    }
 }
 
 /**
@@ -56,8 +41,8 @@ export class LpcFacade {
     public onRunDiagnostics: (filename: string) => void;
 
     public constructor(
-        private importDir: string[],
-        private workspaceDir: string
+        public importDir: string[],
+        public workspaceDir: string
     ) {
         console.log("LpcFacade created", importDir, workspaceDir);
     }
@@ -235,51 +220,17 @@ export class LpcFacade {
         contextEntry: IContextEntry,
         depName: string
     ): SourceContext | undefined {
-        // The given import dir is used to locate the dependency (either relative to the base path or via an
-        // absolute path).
-        // If we cannot find the grammar file that way we try the base folder.
-        const contextFilename = contextEntry.filename.startsWith("file:")
-            ? URI.parse(contextEntry.filename).fsPath
-            : contextEntry.filename;
-        const basePath = path.dirname(contextFilename);
-        const fullImportDirs = this.importDir.map((dir) => {
-            return path.isAbsolute(dir) ? dir : path.join(basePath, dir);
-        });
-        try {
-            let filename = depName;
-            // figure out the search type
-            let depType = DependencySearchType.Local;
-            if (depName !== (filename = testFilename(filename, '"', '"'))) {
-                depType = DependencySearchType.Local;
-            } else if (
-                depName !== (filename = testFilename(filename, "<", ">"))
-            ) {
-                depType = DependencySearchType.Global;
+        const depInfo = contextEntry.context.resolveFilename(depName);
+        if (!!depInfo?.fullPath) {
+            const depPath = depInfo.fullPath;
+            try {
+                fs.accessSync(depPath, fs.constants.R_OK);
+                contextEntry.dependencies.push(depPath);
+                const depContextEntry = this.loadLpc(depPath);
+                return depContextEntry;
+            } catch (e) {
+                // ignore
             }
-
-            filename = normalizeFilename(filename);
-
-            const searchPaths = [basePath, ...fullImportDirs];
-            if (depType === DependencySearchType.Global) {
-                searchPaths.reverse();
-            }
-
-            if (filename.includes("/")) searchPaths.push(this.workspaceDir);
-
-            for (const p of searchPaths) {
-                const depPath = path.join(p, filename);
-                try {
-                    fs.accessSync(depPath, fs.constants.R_OK);
-                    contextEntry.dependencies.push(depPath);
-                    const depContextEntry = this.loadLpc(depPath);
-                    return depContextEntry;
-                } catch (e) {
-                    // ignore
-                    const i = 0;
-                }
-            }
-        } catch (e) {
-            // ignore
         }
 
         // Ignore the dependency if we cannot find the source file for it.

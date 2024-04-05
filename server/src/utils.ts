@@ -178,17 +178,33 @@ export function getSibling(ctx: ParserRuleContext, offset: number) {
     return target as ParserRuleContext;
 }
 
-export function normalizeFilename(filename: string) {
+/**
+ * Add a file extension to a filename if it doesn't have one
+ * @param filename filename to normalize
+ * @returns
+ */
+export function normalizeFileExtension(filename: string) {
     if (!filename) return filename;
 
-    // add a file extension if there isn't one
     if (!filename.endsWith(".c") && !filename.endsWith(".h")) {
         filename += ".c";
     }
 
-    const uri = URI.parse(filename);
-    const fsPath = uri.fsPath;
-    return fsPath;
+    return filename;
+}
+
+export function normalizeFilename(filename: string) {
+    if (!filename) return filename;
+
+    filename = normalizeFileExtension(filename);
+
+    if (filename.startsWith("file:")) {
+        const uri = URI.parse(filename);
+        const fsPath = uri.fsPath;
+        return fsPath;
+    } else {
+        return filename;
+    }
 }
 
 export function rangeFromTokens(start: Token, end: Token): ILexicalRange {
@@ -214,5 +230,24 @@ export function trimStart(original: string, toRemove: string): string {
 export function pushIfDefined<T>(arr: T[], item: T) {
     if (!!item) {
         arr.push(item);
+    }
+}
+
+/**
+ * tests if a filename is surrounded by chars @c and if so
+ * removes them
+ * @param filename
+ * @param c
+ * @returns
+ */
+export function testFilename(
+    filename: string,
+    c: string,
+    cEnd: string
+): string {
+    if (filename.startsWith(c) && filename.endsWith(cEnd)) {
+        return filename.slice(1, filename.length - 1);
+    } else {
+        return filename;
     }
 }

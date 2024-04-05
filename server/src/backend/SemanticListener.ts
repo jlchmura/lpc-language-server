@@ -253,7 +253,7 @@ export class SemanticListener extends LPCParserListener {
         ) as MethodInvocationSymbol;
 
         // get the symbol for the method
-        const methodSymbol = methodInvSymbol.getMethodSymbol();
+        const methodSymbol = methodInvSymbol?.getMethodSymbol();
         const methodName = methodSymbol?.name ?? methodObj.getText();
 
         // this will include efuns
@@ -301,6 +301,7 @@ export class SemanticListener extends LPCParserListener {
                 }
             }
         } else if (
+            methodInvSymbol &&
             methodInvSymbol.parent instanceof CallOtherSymbol &&
             !methodInvSymbol.parent.objContext
         ) {

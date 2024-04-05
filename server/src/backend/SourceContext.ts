@@ -1,3 +1,4 @@
+import * as fs from "fs";
 import {
     BailErrorStrategy,
     CharStream,
@@ -30,6 +31,7 @@ import {
     IDefinition,
     SymbolKind,
     LpcTypes,
+    DependencySearchType,
 } from "../types";
 import { ContextErrorListener } from "./ContextErrorListener";
 import { ContextLexerErrorListener } from "./ContextLexerErrorListener";
@@ -56,6 +58,7 @@ import {
     normalizeFilename,
     pushIfDefined,
     resolveOfTypeSync,
+    testFilename,
     trimQuotes,
 } from "../utils";
 import {
@@ -79,6 +82,7 @@ import { CallOtherSymbol } from "../symbols/objectSymbol";
 import { EfunSymbols } from "./EfunsLDMud";
 import { InheritSymbol, getParentOfType } from "../symbols/Symbol";
 import { IncludeSymbol } from "../symbols/includeSymbol";
+import { URI } from "vscode-uri";
 
 /**
  * Source context for a single LPC file.
@@ -473,6 +477,7 @@ export class SourceContext {
         let searchScope: ScopedSymbol;
 
         switch (parent.ruleIndex) {
+            case LPCParser.RULE_directiveIncludeFilename:
             case LPCParser.RULE_directiveIncludeFileLocal:
             case LPCParser.RULE_directiveIncludeFileGlobal:
                 const includeSymbol = this.symbolTable.symbolContainingContext(
@@ -485,9 +490,7 @@ export class SourceContext {
                         symbol: includeSymbol,
                         name: filename,
                         kind: SymbolKind.Inherit,
-                        source: this.backend.filenameToAbsolutePath(
-                            normalizeFilename(trimQuotes(filename))
-                        ),
+                        source: includeSymbol.fullPath,
                         definition: {
                             range: {
                                 start: { column: 0, row: 1 },
@@ -896,5 +899,53 @@ export class SourceContext {
 
     public addDiagnostic(diagnostic: IDiagnosticEntry): void {
         this.diagnostics.push(diagnostic);
+    }
+
+    public resolveFilename(filename: string) {
+        const contextInfo = this.backend.getContextEntry(this.fileName);
+        const contextFullPath = contextInfo.filename;
+        const contextFilename = contextFullPath.startsWith("file:")
+            ? URI.parse(contextFullPath).fsPath
+            : contextFullPath;
+        const basePath = path.dirname(contextFilename);
+        const fullImportDirs = this.importDir.map((dir) => {
+            return path.isAbsolute(dir) ? dir : path.join(basePath, dir);
+        });
+
+        // figure out the search type
+        let depName = filename;
+        let fileType = DependencySearchType.Local;
+        if (depName !== (filename = testFilename(filename, '"', '"'))) {
+            fileType = DependencySearchType.Local;
+        } else if (depName !== (filename = testFilename(filename, "<", ">"))) {
+            fileType = DependencySearchType.Global;
+        }
+
+        const filenameNormed = normalizeFilename(filename);
+
+        const searchPaths = [basePath, ...fullImportDirs];
+        if (fileType === DependencySearchType.Global) {
+            searchPaths.reverse();
+        }
+
+        if (filenameNormed.includes("/"))
+            searchPaths.push(this.backend.workspaceDir);
+
+        for (const p of searchPaths) {
+            const depPath = path.join(p, filenameNormed);
+            if (fs.existsSync(depPath)) {
+                return {
+                    filename: filenameNormed,
+                    fullPath: depPath,
+                    type: fileType,
+                };
+            }
+        }
+
+        return {
+            filename: filename,
+            fullPath: undefined,
+            type: undefined,
+        };
     }
 }

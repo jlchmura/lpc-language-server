@@ -105,3 +105,8 @@ export const typeNameToIType = new Map<string, IType>([
     ["mixed", LpcTypes.mixedType],
     ["void", LpcTypes.voidType],
 ]);
+
+export enum DependencySearchType {
+    Local,
+    Global,
+}
