@@ -36,6 +36,10 @@ export class CompletionProvider {
                     completionList.push(item);
                 });
                 return completionList;
+            })
+            .catch((err) => {
+                debugger;
+                return undefined;
             });
     }
 

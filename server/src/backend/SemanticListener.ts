@@ -38,6 +38,7 @@ import {
     MethodSymbol,
 } from "../symbols/methodSymbol";
 import {
+    IEvaluatableSymbol,
     getSymbolsOfTypeSync,
     isInstanceOfIEvaluatableSymbol,
 } from "../symbols/base";
@@ -322,19 +323,19 @@ export class SemanticListener extends LPCParserListener {
         }
     };
 
-    exitPrimaryExpression = (ctx: PrimaryExpressionContext) => {
-        if (
-            ctx.ARROW().length > 0 &&
-            (ctx.callOtherTarget().length === 0 ||
-                ctx.methodInvocation().length === 0)
-        ) {
-            this.logDiagnostic(
-                "Call_other expression missing function name",
-                ctx.start,
-                ctx.stop
-            );
-        }
-    };
+    // exitPrimaryExpression = (ctx: PrimaryExpressionContext) => {
+    //     if (
+    //         ctx.ARROW().length > 0 &&
+    //         (ctx.callOtherTarget().length === 0 ||
+    //             ctx.methodInvocation().length === 0)
+    //     ) {
+    //         this.logDiagnostic(
+    //             "Call_other expression missing function name",
+    //             ctx.start,
+    //             ctx.stop
+    //         );
+    //     }
+    // };
 
     private logDiagnostic(
         message: string,

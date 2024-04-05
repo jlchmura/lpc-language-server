@@ -15,6 +15,8 @@ export class ConditionalSymbol
         const lhs = this.children[0] as IEvaluatableSymbol;
         const rhs = this.children[1] as IEvaluatableSymbol;
 
+        if (!lhs || !rhs) return undefined;
+
         const lhResult = lhs.eval(stack);
         const rhResult = rhs.eval(stack);
 

@@ -37,7 +37,8 @@ export class VariableSymbol
                 new StackValue(this.value, this.type, this)
             );
         }
-        return this.value;
+
+        return new StackValue(this.value, this.type, this);
     }
 
     public get kind() {

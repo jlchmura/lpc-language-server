@@ -124,9 +124,7 @@ export class CallOtherSymbol
     public objectRef: ObjectReferenceInfo;
     public objContext: SourceContext;
 
-    constructor(name: string, public functionName?: string) {
-        super(name);
-    }
+    public functionName?: string;
 
     loadObject(filename: string) {
         const ownerContext = (this.symbolTable as ContextSymbolTable).owner;
@@ -150,7 +148,8 @@ export class CallOtherSymbol
     eval(stack: CallStack, val: any) {
         // first evaluate the source object. that will give us the
         // object reference info that we need to resolve the function name
-        const obj = this.sourceObject?.eval(stack);
+        const stackVal = this.sourceObject?.eval(stack);
+        const obj = stackVal.value;
 
         if (typeof obj === "string") {
             // try to load the object

@@ -56,7 +56,9 @@ import {
     RelationalExpresionContext,
     ReturnStatementContext,
     SelectionDirectiveContext,
+    StructDeclarationContext,
     StructParameterExpressionContext,
+    StructVariableDeclarationContext,
 } from "../parser3/LPCParser";
 import {
     IdentifierSymbol,
@@ -103,8 +105,10 @@ import {
     IRenameableSymbol,
     getSymbolsOfTypeSync,
 } from "../symbols/base";
+import { StructMemberAccessSymbol } from "../symbols/structSymbol";
 
 const COMMENT_CHANNEL_NUM = 2;
+type ScopedSymbolConstructor = new (...args: any[]) => ScopedSymbol;
 
 export class DetailsVisitor
     extends AbstractParseTreeVisitor<ScopedSymbol>
@@ -280,63 +284,77 @@ export class DetailsVisitor
         // TODO: special handling for bracket expressions here?
 
         if (ctx.ARROW().length > 0) {
-            // if there is an arrow, then this is a call_other expression
-            return this.withScope(
-                ctx,
-                CallOtherSymbol,
-                ["#call-other#"],
-                (callOther) => {
-                    // first find the arrow because there can be multiple expressions before it
-                    const arrowIdx = ctx.children.findIndex(
-                        (c) => c.getText() === "->"
+            const isCallOther = !!ctx._invocation;
+            const symbolType: ScopedSymbolConstructor = isCallOther
+                ? CallOtherSymbol
+                : StructMemberAccessSymbol;
+            const name = isCallOther
+                ? "#call-other#"
+                : "#struct-member-access#";
+
+            // if there is an arrow and invocation, then this is a call_other expression
+            return this.withScope(ctx, symbolType, [name], (symbol) => {
+                // first find the arrow because there can be multiple expressions before it
+                const arrowIdx = ctx.children.findIndex(
+                    (c) => c.getText() === "->"
+                );
+
+                // everything up to the arrow goes into an expression
+                const exprCtx = ctx.children.slice(0, arrowIdx);
+
+                if (exprCtx.length > 1) {
+                    // parse children into an expression
+                    this.withScope(
+                        ctx,
+                        ExpressionSymbol,
+                        ["#primary-expression#"],
+                        (s) => {
+                            exprCtx.forEach((c) => this.visit(c));
+                        }
                     );
-
-                    // everything up to the arrow goes into an expression
-                    const exprCtx = ctx.children.slice(0, arrowIdx);
-
-                    if (exprCtx.length > 1) {
-                        // parse children into an expression
-                        this.withScope(
-                            ctx,
-                            ExpressionSymbol,
-                            ["#primary-expression#"],
-                            (s) => {
-                                exprCtx.forEach((c) => this.visit(c));
-                            }
-                        );
-                    } else if (exprCtx.length === 1) {
-                        // if there's only one child, then just visit it
-                        // and the first child becomes the source Object
-                        this.visit(exprCtx[0]);
-                    } else {
-                        // this shoudn't happen
-                        throw new Error("Invalid call_other expression");
-                    }
-
-                    // we should end up with one child, which is the source object
-                    callOther.sourceObject =
-                        callOther.lastChild as IEvaluatableSymbol;
-
-                    // after the arrow we should have a call other target and a method invocation
-                    // but those may be missing if the user is typing and the code is incomplete
-                    const callOtherTargetCtx = ctx._target;
-                    const methodInvocationCtx = ctx._invocation;
-
-                    if (!!callOtherTargetCtx) {
-                        this.visit(callOtherTargetCtx);
-                        callOther.target =
-                            callOther.lastChild as IEvaluatableSymbol;
-                        callOther.functionName = callOther.target?.name;
-                    }
-                    if (!!methodInvocationCtx) {
-                        this.visitMethodInvocation(methodInvocationCtx);
-                        callOther.methodInvocation =
-                            callOther.lastChild as MethodInvocationSymbol;
-                    }
-
-                    return callOther;
+                } else if (exprCtx.length === 1) {
+                    // if there's only one child, then just visit it
+                    // and the first child becomes the source Object
+                    this.visit(exprCtx[0]);
+                } else {
+                    // this shoudn't happen
+                    throw new Error("Invalid call_other expression");
                 }
-            );
+
+                // we should end up with one child, which is the source object
+                const sourceObject = symbol.lastChild as IEvaluatableSymbol;
+
+                // after the arrow we should have a call other target and a method invocation
+                // but those may be missing if the user is typing and the code is incomplete
+                const callOtherTargetCtx = ctx._target;
+                const methodInvocationCtx = ctx._invocation;
+
+                let target: IEvaluatableSymbol;
+                let methodInvoc: MethodInvocationSymbol;
+
+                if (!!callOtherTargetCtx) {
+                    this.visit(callOtherTargetCtx);
+                    target = symbol.lastChild as IEvaluatableSymbol;
+                }
+                if (!!methodInvocationCtx) {
+                    this.visitMethodInvocation(methodInvocationCtx);
+                    methodInvoc = symbol.lastChild as MethodInvocationSymbol;
+                }
+
+                // at this point we have to figure out which type of symbol we're dealing with \
+                // and fill in its properties
+                if (symbol instanceof CallOtherSymbol) {
+                    symbol.sourceObject = sourceObject;
+                    symbol.target = target;
+                    symbol.functionName = target?.name;
+                    symbol.methodInvocation = methodInvoc;
+                } else if (symbol instanceof StructMemberAccessSymbol) {
+                    symbol.sourceVariable = sourceObject;
+                    symbol.member = target;
+                }
+
+                return symbol;
+            });
         } else {
             // standard expression
             return this.withScope(
@@ -438,6 +456,37 @@ export class DetailsVisitor
     //         }
     //     );
     // };
+    visitStructVariableDeclaration = (
+        ctx: StructVariableDeclarationContext
+    ) => {
+        const varDecls = ctx.variableDeclarator();
+        const structNames = ctx.Identifier();
+        varDecls.forEach((varDecl, idx) => {
+            const structCtx = structNames[idx];
+            const varNm = varDecl._variableName?.text;
+            const structName = structCtx?.getText(); // NTBLA: store this in the type somewhere
+            const varSym = this.addNewSymbol(
+                VariableSymbol,
+                structCtx,
+                varNm,
+                LpcTypes.structType
+            );
+
+            const initCtx = varDecl.variableInitializer();
+            if (!!initCtx) {
+                return this.withScope(
+                    initCtx,
+                    VariableInitializerSymbol,
+                    ["#initializer#" + varNm, varSym],
+                    (s) => {
+                        return this.visitChildren(initCtx);
+                    }
+                );
+            }
+        });
+
+        return undefined;
+    };
 
     visitPrimitiveTypeVariableDeclaration = (
         ctx: PrimitiveTypeVariableDeclarationContext
