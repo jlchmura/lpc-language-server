@@ -78,11 +78,12 @@ import {
     MethodInvocationSymbol,
     MethodSymbol,
 } from "../symbols/methodSymbol";
-import { CallOtherSymbol, CloneObjectSymbol } from "../symbols/objectSymbol";
+import { CloneObjectSymbol } from "../symbols/objectSymbol";
 import { EfunSymbols } from "./EfunsLDMud";
 import { InheritSymbol, getParentOfType } from "../symbols/Symbol";
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import { URI } from "vscode-uri";
+import { ArrowSymbol, ArrowType } from "../symbols/arrowSymbol";
 
 /**
  * Source context for a single LPC file.
@@ -554,9 +555,8 @@ export class SourceContext {
                     const symbolsToReturn: BaseSymbol[] = [];
                     let lookupSymbolTable = this.symbolTable;
 
-                    if (symbol.parent instanceof CallOtherSymbol) {
-                        const callOtherSymbol =
-                            symbol.parent as CallOtherSymbol;
+                    if (symbol.parent instanceof ArrowSymbol) {
+                        const callOtherSymbol = symbol.parent as ArrowSymbol;
                         // if the symbol object wasn't loaded, just return undefined
                         // that error will be caught and reported elsewhere
                         if (!callOtherSymbol.objContext) return undefined;
@@ -793,18 +793,26 @@ export class SourceContext {
                 case LPCParser.RULE_primaryExpression:
                 case LPCParser.RULE_literal:
                     let s = this.symbolTable.symbolContainingContext(context);
-                    if (s.parent instanceof CallOtherSymbol) s = s.parent;
-                    if (s instanceof CallOtherSymbol) {
-                        promises.push(
-                            s.objectRef.context.symbolTable
-                                .getAllSymbols(MethodSymbol, false)
-                                .then((symbols) => {
-                                    // filter out efuns
-                                    return symbols.filter(
-                                        (s) => !(s instanceof EfunSymbol)
-                                    );
-                                })
-                        );
+                    if (s.parent instanceof ArrowSymbol) s = s.parent;
+                    if (s instanceof ArrowSymbol) {
+                        if (
+                            s.ArrowType == ArrowType.CallOther &&
+                            !!s.objectRef
+                        ) {
+                            // call other
+                            promises.push(
+                                s.objectRef.context.symbolTable
+                                    .getAllSymbols(MethodSymbol, false)
+                                    .then((symbols) => {
+                                        // filter out efuns
+                                        return symbols.filter(
+                                            (s) => !(s instanceof EfunSymbol)
+                                        );
+                                    })
+                            );
+                        } else if (s.ArrowType == ArrowType.StructMember) {
+                            // may be a struct
+                        }
                     } else {
                         // Lexer rules.
                         promises.push(
@@ -826,20 +834,6 @@ export class SourceContext {
                         });
                     }
                     break;
-                //case LPCParser.RULE_callOtherExpression:
-                // case LPCParser.RULE_callOtherTarget:
-                //     const s = this.symbolTable.symbolContainingContext(context);
-                //     if (s instanceof CallOtherSymbol) {
-                //         promises.push(
-                //             s.objectRef.context.symbolTable.getAllSymbols(
-                //                 MethodSymbol,
-                //                 true
-                //             )
-                //         );
-                //     } else {
-                //         console.warn("unexpected symbol type");
-                //     }
-                //     break;
                 case LPCParser.RULE_assignmentExpression:
                     promises.push(
                         this.symbolTable.getAllSymbols(VariableSymbol)

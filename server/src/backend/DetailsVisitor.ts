@@ -97,7 +97,7 @@ import {
 import { LiteralSymbol } from "../symbols/literalSymbol";
 import { OperatorSymbol } from "../symbols/operatorSymbol";
 import { ConditionalSymbol } from "../symbols/conditionalSymbol";
-import { CallOtherSymbol, CloneObjectSymbol } from "../symbols/objectSymbol";
+import { CloneObjectSymbol } from "../symbols/objectSymbol";
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import { IfSymbol, SelectionSymbol } from "../symbols/selectionSymbol";
 import {
@@ -105,7 +105,8 @@ import {
     IRenameableSymbol,
     getSymbolsOfTypeSync,
 } from "../symbols/base";
-import { StructMemberAccessSymbol } from "../symbols/structSymbol";
+
+import { ArrowSymbol } from "../symbols/arrowSymbol";
 
 const COMMENT_CHANNEL_NUM = 2;
 type ScopedSymbolConstructor = new (...args: any[]) => ScopedSymbol;
@@ -283,17 +284,13 @@ export class DetailsVisitor
     visitPrimaryExpression = (ctx: PrimaryExpressionContext) => {
         // TODO: special handling for bracket expressions here?
 
-        if (ctx.ARROW().length > 0) {
-            const isCallOther = !!ctx._invocation;
-            const symbolType: ScopedSymbolConstructor = isCallOther
-                ? CallOtherSymbol
-                : StructMemberAccessSymbol;
-            const name = isCallOther
-                ? "#call-other#"
-                : "#struct-member-access#";
+        // NTBLA: need to refactor and combine callother and member access into an "Arrow" symbol
+        // because the method I used below breaks call other autocomplete
+        // autocomplete will need to load values based on the evaluated symbol type
 
+        if (ctx.ARROW().length > 0) {
             // if there is an arrow and invocation, then this is a call_other expression
-            return this.withScope(ctx, symbolType, [name], (symbol) => {
+            return this.withScope(ctx, ArrowSymbol, ["->"], (symbol) => {
                 // first find the arrow because there can be multiple expressions before it
                 const arrowIdx = ctx.children.findIndex(
                     (c) => c.getText() === "->"
@@ -343,15 +340,10 @@ export class DetailsVisitor
 
                 // at this point we have to figure out which type of symbol we're dealing with \
                 // and fill in its properties
-                if (symbol instanceof CallOtherSymbol) {
-                    symbol.sourceObject = sourceObject;
-                    symbol.target = target;
-                    symbol.functionName = target?.name;
-                    symbol.methodInvocation = methodInvoc;
-                } else if (symbol instanceof StructMemberAccessSymbol) {
-                    symbol.sourceVariable = sourceObject;
-                    symbol.member = target;
-                }
+                symbol.source = sourceObject;
+                symbol.target = target;
+                symbol.methodInvocation = methodInvoc;
+                symbol.functionName = target?.name;
 
                 return symbol;
             });
@@ -443,19 +435,6 @@ export class DetailsVisitor
         });
     };
 
-    // visitCallOtherTarget = (ctx: CallOtherTargetContext) => {
-    //     //     return this.visitChildren(ctx);
-    //     // };
-    //     const nm = ctx.Identifier();
-    //     return this.withScope(
-    //         ctx,
-    //         CallOtherSymbol,
-    //         ["#call-other-target#", nm?.getText()],
-    //         (s) => {
-    //             return this.visitChildren(ctx);
-    //         }
-    //     );
-    // };
     visitStructVariableDeclaration = (
         ctx: StructVariableDeclarationContext
     ) => {

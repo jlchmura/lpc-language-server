@@ -13,6 +13,7 @@ import { SourceContext } from "../backend/SourceContext";
 import { ParserRuleContext } from "antlr4ng";
 import { DiagnosticSeverity } from "vscode-languageserver";
 import { CallStack, StackFrame, StackValue } from "../backend/CallStack";
+import { ArrowSymbol } from "./arrowSymbol";
 
 export class ObjectReferenceInfo {
     constructor(
@@ -109,108 +110,4 @@ export class CloneObjectSymbol
 /**
  * Represents a call_other expression in the code, i.e. `ob->method(args)`
  */
-export class CallOtherSymbol
-    extends ScopedSymbol
-    implements IEvaluatableSymbol
-{
-    /** the object that call_other will be invoked on */
-    public sourceObject: IEvaluatableSymbol;
-    /** the target method that will be invoked on `sourceObject` */
-    public target: IEvaluatableSymbol;
-    /** the method invocation symbol, which contains arguments */
-    public methodInvocation: MethodInvocationSymbol;
-
-    /** information about the object (not the symbol) that call_other is being invoked on */
-    public objectRef: ObjectReferenceInfo;
-    public objContext: SourceContext;
-
-    public functionName?: string;
-
-    loadObject(filename: string) {
-        const ownerContext = (this.symbolTable as ContextSymbolTable).owner;
-        const backend = ownerContext.backend;
-        const sourceContext = backend.loadLpc(
-            normalizeFilename(backend.filenameToAbsolutePath(filename))
-        );
-        if (!sourceContext) {
-            const ctx = this.context as ParserRuleContext;
-            addDiagnostic(this, {
-                message: "could not load source for: " + filename,
-                range: rangeFromTokens(ctx.start, ctx.stop),
-                type: DiagnosticSeverity.Warning,
-            });
-        } else {
-            ownerContext.addAsReferenceTo(sourceContext);
-        }
-        return sourceContext;
-    }
-
-    eval(stack: CallStack, val: any) {
-        // first evaluate the source object. that will give us the
-        // object reference info that we need to resolve the function name
-        const stackVal = this.sourceObject?.eval(stack);
-        const obj = stackVal.value;
-
-        if (typeof obj === "string") {
-            // try to load the object
-            this.objContext = this.loadObject(obj);
-        } else if (obj instanceof ObjectReferenceInfo) {
-            this.objectRef = obj;
-            this.objContext = obj.context;
-        } else {
-            // TODO report this as a diagnostic?
-            console.debug("expected object reference info", obj);
-            return undefined;
-        }
-
-        // function name could be an expression, so evaluate that
-        if (!this.functionName || this.functionName == "#fn") {
-            this.functionName = this.target?.eval(stack);
-        }
-
-        if (!this.functionName) {
-            // TODO send via diagnostic?
-            console.warn(
-                "could not determine function name for arrow: " + this.name
-            );
-        }
-
-        // at this point we've figured out the function name and now need
-        // to find the actual function symbol which will be in the source
-        // object's symbol table
-        const symTbl = this.objContext?.symbolTable; // (obj as ObjectReferenceInfo).context?.symbolTable;
-        const funSym = symTbl?.getFunction(this.functionName);
-
-        if (!funSym) {
-            return null; // semantic analysis will log this diagnostic
-        }
-
-        // the method invocation symbol will have the call arguments
-        const methodInvok = this.methodInvocation;
-        if (!(methodInvok instanceof MethodInvocationSymbol))
-            console.warn("expected a method invocation", this.name);
-
-        // evaluate the argumnents
-        const argVals = methodInvok?.getArguments().map((a) => a.eval(stack));
-
-        // create a new root frame for this object
-        // this doesn't need to go on the stack, it's just a temporary frame
-        const rootFrame = new StackFrame(
-            symTbl,
-            new Map<string, any>(),
-            new Map<string, any>()
-        );
-        const stackFrame = new StackFrame(
-            funSym,
-            new Map<string, any>(),
-            new Map<string, any>(),
-            rootFrame
-        );
-        stack.push(stackFrame);
-
-        const result = funSym.eval(stack, argVals);
-
-        stack.pop();
-        return result;
-    }
-}
+export class CallOtherSymbol extends ArrowSymbol {}
