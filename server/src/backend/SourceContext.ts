@@ -826,6 +826,13 @@ export class SourceContext {
                         promises.push(
                             this.symbolTable.getAllSymbols(MethodSymbol)
                         );
+                        // needed especially for seefun file
+                        promises.push(
+                            this.symbolTable.getAllSymbols(
+                                MethodDeclarationSymbol,
+                                false
+                            )
+                        );
                         result.push({
                             kind: SymbolKind.Operator,
                             name: "->",

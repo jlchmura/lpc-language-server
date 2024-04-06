@@ -165,6 +165,14 @@ export class LpcFacade {
 
         // load file-level dependencies (imports & inherits)
         const newDependencies = info.imports;
+
+        if (!context.fileName.endsWith("simul_efun.h")) {
+            newDependencies.push({
+                filename: "/sys/simul_efun.h",
+                symbol: undefined,
+            });
+        }
+
         for (const dep of newDependencies) {
             this.addDependency(contextEntry.filename, dep);
         }
@@ -178,14 +186,14 @@ export class LpcFacade {
             if (!!this.onRunDiagnostics) this.onRunDiagnostics(ref.fileName);
         }
 
-        // load sefun file, if there is one.
-        if (!context.fileName.endsWith("simul_efun.h")) {
-            const depSefun = this.loadDependency(
-                contextEntry,
-                "/sys/simul_efun.h"
-            );
-            if (!!depSefun) contextEntry.context.addAsReferenceTo(depSefun);
-        }
+        // // load sefun file, if there is one.
+        // if (!context.fileName.endsWith("simul_efun.h")) {
+        //     const depSefun = this.loadDependency(
+        //         contextEntry,
+        //         "/sys/simul_efun.h"
+        //     );
+        //     if (!!depSefun) contextEntry.context.addAsReferenceTo(depSefun);
+        // }
 
         // Release all old dependencies. This will only unload grammars which have
         // not been ref-counted by the above dependency loading (or which are not used by other
@@ -227,6 +235,7 @@ export class LpcFacade {
                 fs.accessSync(depPath, fs.constants.R_OK);
                 contextEntry.dependencies.push(depPath);
                 const depContextEntry = this.loadLpc(depPath);
+
                 return depContextEntry;
             } catch (e) {
                 // ignore

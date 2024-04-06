@@ -129,6 +129,7 @@ const symbolCompletionTypeMap = new Map<
     [SymbolKind.Define, vscodelang.CompletionItemKind.Variable],
     [SymbolKind.Inherit, vscodelang.CompletionItemKind.Function],
     [SymbolKind.Method, vscodelang.CompletionItemKind.Function],
+    [SymbolKind.MethodDeclaration, vscodelang.CompletionItemKind.Function],
     [SymbolKind.Variable, vscodelang.CompletionItemKind.Variable],
     [SymbolKind.Operator, vscodelang.CompletionItemKind.Operator],
     [SymbolKind.Efun, vscodelang.CompletionItemKind.Function],
@@ -154,6 +155,7 @@ export const translateCompletionKind = (
 export const completionSortKeys = new Map<SymbolKind, string>([
     [SymbolKind.Keyword, "05"],
     [SymbolKind.Method, "03"],
+    [SymbolKind.MethodDeclaration, "04"],
     [SymbolKind.Variable, "02"],
     [SymbolKind.Efun, "08"],
     [SymbolKind.Operator, "10"],
@@ -167,6 +169,7 @@ export const completionDetails = new Map<SymbolKind, string>([
     [SymbolKind.Efun, "Driver efun"],
     [SymbolKind.Variable, "Variable"],
     [SymbolKind.Method, "Method"],
+    [SymbolKind.MethodDeclaration, "Method"],
 ]);
 
 export class ITypedSymbol {
