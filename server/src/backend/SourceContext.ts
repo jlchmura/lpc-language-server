@@ -536,9 +536,13 @@ export class SourceContext {
             case LPCParser.RULE_callOtherTarget:
             case LPCParser.RULE_assignmentOperator:
             case LPCParser.RULE_expression:
+            case LPCParser.RULE_statement: // it may be an incompletel function, which will show up as a statement
                 symbol = this.symbolTable.symbolContainingContext(terminal);
                 name = trimQuotes(terminal.getText());
-                searchScope = symbol.getParentOfType(ScopedSymbol);
+                searchScope =
+                    symbol instanceof ScopedSymbol
+                        ? symbol
+                        : symbol.getParentOfType(ScopedSymbol);
 
                 if (symbol instanceof VariableIdentifierSymbol) {
                     symbol = resolveOfTypeSync(
