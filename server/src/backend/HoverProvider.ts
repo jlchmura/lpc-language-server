@@ -12,21 +12,29 @@ import {
 } from "../symbols/Symbol";
 import { firstEntry, lexRangeToLspRange } from "../utils";
 import { SymbolKind } from "../types";
-import { MethodSymbol } from "../symbols/methodSymbol";
+import { LpcBaseMethodSymbol, MethodSymbol } from "../symbols/methodSymbol";
 import { Block } from "comment-parser";
 
 export class HoverProvider {
     constructor(private backend: LpcFacade) {}
 
     public getHover(filename: string, position: Position): Hover {
-        const info = firstEntry(
-            this.backend.symbolInfoAtPosition(
-                filename,
-                position.character,
-                position.line + 1,
-                true
-            )
+        const symbolInfo = this.backend.symbolInfoAtPosition(
+            filename,
+            position.character,
+            position.line + 1,
+            true
         );
+
+        // use the first symbol with a doc comment - in the case of methods, the method
+        // or header may have the comment
+        let info = symbolInfo?.find(
+            (s) => !!(s.symbol as LpcBaseMethodSymbol).doc
+        );
+        if (!info) {
+            info = firstEntry(symbolInfo);
+        }
+
         if (!info) {
             return undefined;
         } else {

@@ -43,7 +43,7 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
 
         // only evaluate as a struct if the source object is
         // specifically known to be a struct
-        if (srcValue.type?.name == "struct") {
+        if (srcValue?.type?.name == "struct") {
             this.ArrowType = ArrowType.StructMember;
             return this.evalStruct(stack, scope, srcValue);
         } else {
@@ -94,7 +94,7 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
 
         // even if diagnostics failed, continue evaluating because
         // we may have an objContext that we want to return
-        const obj = srcValue.value;
+        const obj = srcValue?.value;
         if (typeof obj === "string") {
             // try to load the object
             this.objContext = this.loadObject(obj);
