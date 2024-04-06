@@ -76,7 +76,7 @@ efun("stringp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("sizeof", LpcTypes.intType, false, ["val", LpcTypes.mixedType]);
 efun("test_bit", LpcTypes.intType, false, ["str", LpcTypes.stringType], ["n", LpcTypes.intType]);
 efun("tell_object", LpcTypes.voidType, false, ["ob", LpcTypes.objectType], ["msg", LpcTypes.stringType]);
-efun("tell_room", LpcTypes.voidType, false, ["ob", LpcTypes.objectType], ["msg", LpcTypes.stringType], ["exclude", LpcTypes.objectArrayType]);
+efun("tell_room", LpcTypes.voidType, true, ["ob", LpcTypes.objectType], ["msg", LpcTypes.stringType], ["exclude", LpcTypes.objectArrayType]);
 efun("terminal_colour", LpcTypes.stringType, true, ["str", LpcTypes.stringType], ["map", LpcTypes.mappingType], ["wrap", LpcTypes.intType], ["indent", LpcTypes.intType]);
 efun("this_interactive", LpcTypes.objectType, false);
 efun("this_object", LpcTypes.objectType, false);
