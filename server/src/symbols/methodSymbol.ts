@@ -120,6 +120,9 @@ export class MethodInvocationSymbol
     extends ScopedSymbol
     implements IEvaluatableSymbol, IKindSymbol
 {
+    private methodName: string;
+    private methodSymbol: MethodSymbol;
+
     public getArguments() {
         return getSymbolsOfTypeSync(this, ExpressionSymbol);
     }
@@ -134,8 +137,11 @@ export class MethodInvocationSymbol
 
     eval(stack: CallStack, scope?: any) {
         // find the function that this invocation points to
-        const methodName = stack.getValue(FUNCTION_NAME_KEY) as string;
-        const methodSymbol = stack.getFunction(methodName);
+        const methodName = (this.methodName = stack.getValue(
+            FUNCTION_NAME_KEY
+        ) as string);
+        const methodSymbol = (this.methodSymbol =
+            stack.getFunction(methodName));
 
         const prms = this.children.filter((c) =>
             isInstanceOfIEvaluatableSymbol(c)
@@ -158,30 +164,30 @@ export class MethodInvocationSymbol
         // find the context that this method is being invoked on
         const ctx = this.context as ParserRuleContext;
         const methodObj = getSibling(ctx, -1);
-        const methodName = trimQuotes(methodObj.getText());
+        const methodName = this.methodName; //trimQuotes(methodObj.getText());
+        return this.methodSymbol;
+        // // symbol table that will be used to look up definition
+        // let lookupTable: ContextSymbolTable = this
+        //     .symbolTable as ContextSymbolTable;
 
-        // symbol table that will be used to look up definition
-        let lookupTable: ContextSymbolTable = this
-            .symbolTable as ContextSymbolTable;
+        // // if this is a call to another object, use that object's symbol table
+        // if (this.parent instanceof CallOtherSymbol) {
+        //     const callOtherSymbol = this.symbolTable.symbolWithContextSync(
+        //         ctx.parent
+        //     ) as CallOtherSymbol;
+        //     if (!!callOtherSymbol.objContext) {
+        //         lookupTable = callOtherSymbol.objContext.symbolTable;
+        //     } else {
+        //         return undefined;
+        //     }
+        // }
 
-        // if this is a call to another object, use that object's symbol table
-        if (this.parent instanceof CallOtherSymbol) {
-            const callOtherSymbol = this.symbolTable.symbolWithContextSync(
-                ctx.parent
-            ) as CallOtherSymbol;
-            if (!!callOtherSymbol.objContext) {
-                lookupTable = callOtherSymbol.objContext.symbolTable;
-            } else {
-                return undefined;
-            }
-        }
-
-        // get the symbol for the method
-        const methodSymbol = lookupTable.resolveSync(
-            methodName,
-            false
-        ) as MethodSymbol;
-        return methodSymbol;
+        // // get the symbol for the method
+        // const methodSymbol = lookupTable.resolveSync(
+        //     methodName,
+        //     false
+        // ) as MethodSymbol;
+        // return methodSymbol;
     }
 }
 
