@@ -183,14 +183,20 @@ export class ContextSymbolTable extends SymbolTable {
             case SymbolKind.Efun:
                 // reconstruct the definition for efuns
                 const efun = symbol as EfunSymbol;
+
+                // assemble def text prefix
+                const txtArr: string[] = [];
+                txtArr.push(...efun.functionModifiers);
+                txtArr.push(efun.returnType?.name ?? "");
+                txtArr.push(efun.name);
+                const txt = txtArr.filter((t) => t.trim().length > 0).join(" ");
+
                 return {
                     kind,
                     name,
                     source: "Driver efun",
                     definition: {
-                        text: `${efun.returnType?.name ?? ""} ${
-                            efun.name
-                        }(${efun
+                        text: `${txt}(${efun
                             .getParametersSync()
                             .map((p) => p.name)
                             .join(", ")
