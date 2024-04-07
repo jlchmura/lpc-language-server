@@ -15,14 +15,20 @@ import {
 } from "./base";
 import { ILexicalRange, LpcTypes, SymbolKind } from "../types";
 
-import { FoldingRange } from "vscode-languageserver";
+import { DiagnosticSeverity, FoldingRange } from "vscode-languageserver";
 import { ExpressionSymbol } from "./expressionSymbol";
-import { getSibling, resolveOfTypeSync, trimQuotes } from "../utils";
+import {
+    getSibling,
+    rangeFromTokens,
+    resolveOfTypeSync,
+    trimQuotes,
+} from "../utils";
 import { SourceContext } from "../backend/SourceContext";
 import { CallOtherSymbol, ObjectReferenceInfo } from "./objectSymbol";
 import { ContextSymbolTable } from "../backend/ContextSymbolTable";
 import { CallStack, StackFrame, StackValue } from "../backend/CallStack";
 import { ParserRuleContext } from "antlr4ng";
+import { addDiagnostic } from "./Symbol";
 
 export const MAX_CALLDEPTH_SIZE = 10;
 const OBJ_PLAYER_FILENAME = "/obj/player";
@@ -137,11 +143,29 @@ export class MethodInvocationSymbol
 
     eval(stack: CallStack, scope?: any) {
         // find the function that this invocation points to
-        const methodName = (this.methodName = stack.getValue(
-            FUNCTION_NAME_KEY
-        ) as string);
+        const funcIdValue = stack.getValue<string>(FUNCTION_NAME_KEY);
+        stack.clearValue(FUNCTION_NAME_KEY);
+
+        const methodName = (this.methodName = funcIdValue?.value);
         const methodSymbol = (this.methodSymbol =
             stack.getFunction(methodName));
+
+        if (!funcIdValue) {
+            const ctx = this.context as ParserRuleContext;
+            addDiagnostic(this, {
+                message: `Function could not be validated`,
+                range: rangeFromTokens(ctx.start, ctx.stop),
+                type: DiagnosticSeverity.Warning,
+            });
+        } else if (!methodSymbol) {
+            const ctx = (funcIdValue?.symbol ?? this)
+                .context as ParserRuleContext;
+            addDiagnostic(this, {
+                message: `Function '${methodName ?? ""}' may be undefined`,
+                range: rangeFromTokens(ctx.start, ctx.stop),
+                type: DiagnosticSeverity.Error,
+            });
+        }
 
         const prms = this.children.filter((c) =>
             isInstanceOfIEvaluatableSymbol(c)

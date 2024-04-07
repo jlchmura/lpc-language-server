@@ -13,9 +13,9 @@ import { MethodSymbol } from "../symbols/methodSymbol";
 import { ParserRuleContext } from "antlr4ng";
 import { ContextSymbolTable } from "./ContextSymbolTable";
 
-export class StackValue {
+export class StackValue<T = any> {
     constructor(
-        public value: any,
+        public value: T,
         public type: IType,
         public symbol: BaseSymbol
     ) {}
@@ -154,15 +154,26 @@ export class CallStack {
         this.peek().returnValue = new StackValue(value, type, sym);
     }
 
-    public getValue(name: string): any {
+    public clearValue(name: string) {
         const result = this.walkStackToProgram((frame) => {
             if (frame.locals.has(name)) {
-                return frame.locals.get(name).value;
+                frame.locals.delete(name);
+                return true;
+            }
+        });
+
+        return false;
+    }
+
+    public getValue<T>(name: string): StackValue {
+        const result = this.walkStackToProgram((frame) => {
+            if (frame.locals.has(name)) {
+                return frame.locals.get(name) as StackValue<T>;
             }
         });
 
         if (!result) {
-            throw "Variable " + name + " not found in stack";
+            console.warn("Variable " + name + " not found in stack");
         }
         return result;
     }
