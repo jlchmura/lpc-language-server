@@ -322,16 +322,16 @@ export class ContextSymbolTable extends SymbolTable {
     public listTopLevelSymbols(localOnly: boolean): ISymbolInfo[] {
         const result: ISymbolInfo[] = [];
 
-        const options = this.resolveSync("options", true);
-        if (options) {
-            const tokenVocab = options.resolveSync("tokenVocab", true);
-            if (tokenVocab) {
-                const value = this.getSymbolInfo(tokenVocab);
-                if (value) {
-                    result.push(value);
-                }
-            }
-        }
+        // const options = this.resolveSync("options", true);
+        // if (options) {
+        //     const tokenVocab = options.resolveSync("tokenVocab", true);
+        //     if (tokenVocab) {
+        //         const value = this.getSymbolInfo(tokenVocab);
+        //         if (value) {
+        //             result.push(value);
+        //         }
+        //     }
+        // }
 
         let symbols = this.symbolsOfType(IncludeSymbol, localOnly);
         result.push(...symbols);
@@ -410,20 +410,6 @@ export class ContextSymbolTable extends SymbolTable {
             return reference;
         } else {
             return 0;
-        }
-    }
-
-    public lastAssignOrDecl(i: BaseSymbol): AssignmentSymbol | VariableSymbol {
-        const nm = i.name;
-        let symbol = i;
-        let sib = i.previousSibling;
-        while (sib) {
-            if (sib instanceof AssignmentSymbol && sib.name == i.name) {
-                return sib;
-            } else if (sib instanceof VariableSymbol && sib.name == i.name) {
-                return sib;
-            }
-            sib = sib.previousSibling;
         }
     }
 
