@@ -32,6 +32,7 @@ efun("environment", LpcTypes.objectType, true, ["ob", LpcTypes.objectType]);
 efun("explode", LpcTypes.stringArrayType, false, ["str", LpcTypes.stringType], ["del", LpcTypes.stringType]);
 efun("find_object", LpcTypes.objectType, false, ["file", LpcTypes.stringType]);
 efun("first_inventory", LpcTypes.objectType, true, ["ob", LpcTypes.stringType]);
+efun("find_call_out", LpcTypes.intType, true, ["func", LpcTypes.mixedType]);
 efun("floatp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("floor", LpcTypes.intType, false, ["number", LpcTypes.intType]);
 efun("funcall", LpcTypes.mixedType, true, ["fun", LpcTypes.closureType], ["args...", LpcTypes.mixedArrayType, true]);

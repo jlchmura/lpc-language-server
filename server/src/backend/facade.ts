@@ -146,6 +146,12 @@ export class LpcFacade {
         if (contextEntry) {
             const depContext = this.loadDependency(contextEntry, dep.filename);
             if (depContext) {
+                // increment ref counter for the dependency
+                const depContextEntry = this.getContextEntry(
+                    depContext.fileName
+                );
+                depContextEntry.refCount++;
+
                 if (!!dep.symbol) {
                     (dep.symbol as IncludeSymbol).isLoaded = true;
                 }
