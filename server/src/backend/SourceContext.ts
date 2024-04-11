@@ -111,6 +111,12 @@ export class SourceContext {
 
     // Result related fields.
     private semanticAnalysisDone = false; // Includes determining reference counts.
+    /**
+     * Indicates that semantic analysis / validation needs to be run
+     */
+    public get needsValidation(): boolean {
+        return !this.semanticAnalysisDone;
+    }
 
     // grammar parsing stuff
     private lexer: LPCLexer;
@@ -206,6 +212,13 @@ export class SourceContext {
         this.symbolTable.clear();
         this.symbolTable.addDependencies(SourceContext.globalSymbols);
         this.symbolTable.addDependencies(EfunSymbols);
+
+        if (!this.fileName.endsWith("simul_efun.h")) {
+            this.info.imports.push({
+                filename: `"/sys/simul_efun.h"`,
+                symbol: undefined,
+            });
+        }
 
         try {
             this.tree = this.parser.program();
@@ -309,6 +322,22 @@ export class SourceContext {
         this.symbolTable.removeDependency(context.symbolTable);
     }
 
+    public getDependencies(): SourceContext[] {
+        const dependencies: SourceContext[] = [];
+        const pipeline: SourceContext[] = [...this.references];
+        while (pipeline.length > 0) {
+            const current = pipeline.shift();
+            if (!current) {
+                continue;
+            }
+
+            dependencies.push(current);
+            pipeline.push(...current.references);
+        }
+
+        return dependencies;
+    }
+
     private runSemanticAnalysisIfNeeded() {
         if (!this.semanticAnalysisDone && this.tree) {
             this.semanticAnalysisDone = true;
@@ -325,7 +354,10 @@ export class SourceContext {
     public getDiagnostics(): IDiagnosticEntry[] {
         this.runSemanticAnalysisIfNeeded();
 
-        return this.diagnostics;
+        return this.diagnostics?.map((d) => {
+            d.source = this.fileName;
+            return d;
+        });
     }
 
     public listTopLevelSymbols(includeDependencies: boolean): ISymbolInfo[] {

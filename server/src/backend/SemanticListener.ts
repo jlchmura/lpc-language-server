@@ -33,6 +33,7 @@ import {
 import { VariableSymbol } from "../symbols/variableSymbol";
 import {
     EfunSymbol,
+    LpcBaseMethodSymbol,
     MethodDeclarationSymbol,
     MethodInvocationSymbol,
     MethodSymbol,
@@ -197,6 +198,7 @@ export class SemanticListener extends LPCParserListener {
         const imports = backend.getDependencies(programFilename);
 
         // add globals (efuns, etc) to the stack first
+        // NTBLA: what about SEFUNS
         this.addPogramToStack(EfunSymbols, stack);
 
         // add all dependencies to the stack second
@@ -229,6 +231,11 @@ export class SemanticListener extends LPCParserListener {
             // we'll come back and evaluate methods later.
             if (child instanceof MethodSymbol) {
                 stack.addFunction(child.name, child);
+            } else if (child instanceof LpcBaseMethodSymbol) {
+                // add the method to the stack, but only if an actual method definition doesn't already exist
+                if (stack.doesFunctionExist(child.name) === undefined) {
+                    stack.addFunction(child.name, child);
+                }
             } else {
                 if (child instanceof VariableSymbol) {
                     const result = child.eval(stack);

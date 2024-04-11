@@ -10,10 +10,12 @@ import {
 } from "../types";
 
 import { URI } from "vscode-uri";
-import { FoldingRange } from "vscode-languageserver";
+import { FoldingRange, TextDocuments } from "vscode-languageserver";
 import { normalizeFilename, testFilename } from "../utils";
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import { ContextSymbolTable } from "./ContextSymbolTable";
+import { LpcServer } from "./LpcServer";
+import { TextDocument } from "vscode-languageserver-textdocument";
 
 export interface IContextEntry {
     context: SourceContext;
@@ -172,13 +174,6 @@ export class LpcFacade {
         // load file-level dependencies (imports & inherits)
         const newDependencies = info.imports;
 
-        if (!context.fileName.endsWith("simul_efun.h")) {
-            newDependencies.push({
-                filename: "/sys/simul_efun.h",
-                symbol: undefined,
-            });
-        }
-
         for (const dep of newDependencies) {
             this.addDependency(contextEntry.filename, dep);
         }
@@ -191,15 +186,6 @@ export class LpcFacade {
             // send a notification to the server to re-send diags for this doc
             if (!!this.onRunDiagnostics) this.onRunDiagnostics(ref.fileName);
         }
-
-        // // load sefun file, if there is one.
-        // if (!context.fileName.endsWith("simul_efun.h")) {
-        //     const depSefun = this.loadDependency(
-        //         contextEntry,
-        //         "/sys/simul_efun.h"
-        //     );
-        //     if (!!depSefun) contextEntry.context.addAsReferenceTo(depSefun);
-        // }
 
         // Release all old dependencies. This will only unload grammars which have
         // not been ref-counted by the above dependency loading (or which are not used by other
@@ -217,10 +203,10 @@ export class LpcFacade {
      * @param fileName The grammar file name.
      * @param source The grammar code.
      */
-    public setText(fileName: string, source: string): void {
-        const contextEntry = this.getContextEntry(fileName);
+    public setText(doc: TextDocument): void {
+        const contextEntry = this.getContextEntry(doc.uri);
         if (contextEntry) {
-            contextEntry.context.setText(source);
+            contextEntry.context.setText(doc.getText());
         }
     }
 
@@ -275,7 +261,15 @@ export class LpcFacade {
     public getDiagnostics(fileName: string): IDiagnosticEntry[] {
         const context = this.getContext(fileName);
 
-        return context?.getDiagnostics();
+        if (!!context && context.needsValidation) {
+            try {
+                return context.getDiagnostics();
+            } catch (e) {
+                console.log(`Error getting diagnostics for ${fileName}: ${e}`);
+            }
+        }
+
+        return undefined;
     }
 
     /**

@@ -167,8 +167,11 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
     }
 
     loadObject(filename: string) {
+        // get access to the backend
         const ownerContext = (this.symbolTable as ContextSymbolTable).owner;
         const backend = ownerContext.backend;
+
+        // load context for this arrow's object symbol
         const sourceContext = backend.loadLpc(
             normalizeFilename(backend.filenameToAbsolutePath(filename))
         );
@@ -179,8 +182,6 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
                 range: rangeFromTokens(ctx.start, ctx.stop),
                 type: DiagnosticSeverity.Warning,
             });
-        } else {
-            ownerContext.addAsReferenceTo(sourceContext);
         }
         return sourceContext;
     }

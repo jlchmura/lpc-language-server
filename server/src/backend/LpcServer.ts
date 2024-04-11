@@ -204,7 +204,7 @@ export class LpcServer {
             const filename = e.document.uri;
 
             // always update text, but debounce reparse and other updates
-            this.facade.setText(e.document.uri, e.document.getText());
+            this.facade.setText(e.document);
 
             const timer = this.changeTimers.get(filename);
             if (timer) {
@@ -315,6 +315,7 @@ export class LpcServer {
             const uri = URI.file(filename).toString();
             const doc = this.documents.get(uri);
             if (!!doc) {
+                this.flushChangeTimer(doc);
                 this.processDiagnostic(doc);
             }
         };
@@ -345,12 +346,25 @@ export class LpcServer {
     // }
 
     public processDiagnostic(document: TextDocument) {
-        const results = this.diagnosticProvider.processDiagnostic(document);
-        this.connection.sendDiagnostics({
-            uri: document.uri,
-            diagnostics: results,
-            version: document.version,
-        });
-        return results;
+        const result = this.diagnosticProvider.processDiagnostic(document);
+
+        // send grouped results
+        for (const diagResult of result) {
+            console.debug(`Sending diagnostics for ${diagResult.uri}`);
+
+            const { uri, diagnostics, version } = diagResult;
+
+            this.connection.sendDiagnostics({
+                uri,
+                diagnostics,
+                version,
+            });
+        }
+        // this.connection.sendDiagnostics({
+        //     uri: document.uri,
+        //     diagnostics: results,
+        //     version: document.version,
+        // });
+        //return results;
     }
 }

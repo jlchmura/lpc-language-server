@@ -315,19 +315,8 @@ export class EfunSymbol
                 const filename =
                     backend.filenameToAbsolutePath(OBJ_PLAYER_FILENAME);
                 const playerCtx = backend.loadLpc(filename);
-                //ownerProgram.addAsReferenceTo(playerCtx);
 
                 return new ObjectReferenceInfo(filename, true, playerCtx);
-
-                // const playerCtx = ownerProgram.backend.addDependency(
-                //     ownerPr ogram.fileName,
-                //     { filename: OBJ_PLAYER_FILENAME, symbol: this }
-                // );
-                return new ObjectReferenceInfo(
-                    OBJ_PLAYER_FILENAME,
-                    false,
-                    ownerProgram
-                );
         }
 
         return scope;

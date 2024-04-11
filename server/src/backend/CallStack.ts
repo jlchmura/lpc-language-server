@@ -9,7 +9,7 @@ import {
 import { getSymbolsOfTypeSync } from "../symbols/base";
 import { DefineSymbol } from "../symbols/defineSymbol";
 import { LpcTypes } from "../types";
-import { MethodSymbol } from "../symbols/methodSymbol";
+import { LpcBaseMethodSymbol, MethodSymbol } from "../symbols/methodSymbol";
 import { ParserRuleContext } from "antlr4ng";
 import { ContextSymbolTable } from "./ContextSymbolTable";
 
@@ -92,11 +92,19 @@ export class CallStack {
         throw "No root frame found in stack";
     }
 
+    public doesFunctionExist(name: string): boolean {
+        const rootFrame = this.getRootForFrame();
+        return (
+            rootFrame.locals.has(name) &&
+            rootFrame.locals.get(name).value instanceof LpcBaseMethodSymbol
+        );
+    }
+
     /** get a function */
     public getFunction(name: string): MethodSymbol {
         const rootFrame = this.getRootForFrame();
         const local = rootFrame.locals.get(name);
-        if (local?.symbol instanceof MethodSymbol) {
+        if (local?.symbol instanceof LpcBaseMethodSymbol) {
             return local.symbol;
         } else {
             // TODO: send to diag?
