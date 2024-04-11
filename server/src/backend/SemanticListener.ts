@@ -231,11 +231,12 @@ export class SemanticListener extends LPCParserListener {
             // we'll come back and evaluate methods later.
             if (child instanceof MethodSymbol) {
                 stack.addFunction(child.name, child);
-            } else if (child instanceof LpcBaseMethodSymbol) {
+            } else if (
+                child instanceof LpcBaseMethodSymbol &&
+                !stack.doesFunctionExist(child.name)
+            ) {
                 // add the method to the stack, but only if an actual method definition doesn't already exist
-                if (stack.doesFunctionExist(child.name) === undefined) {
-                    stack.addFunction(child.name, child);
-                }
+                stack.addFunction(child.name, child);
             } else {
                 if (child instanceof VariableSymbol) {
                     const result = child.eval(stack);
