@@ -81,7 +81,7 @@ export class DiagnosticProvider {
                 entry.message,
                 entry.type,
                 undefined,
-                uri
+                entry.source
             );
 
             const { related } = entry;

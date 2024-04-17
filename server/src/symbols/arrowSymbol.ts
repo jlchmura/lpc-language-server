@@ -132,7 +132,11 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
                     this.functionName ?? ""
                 }' may be undefined`,
                 range: rangeFromTokens(ctx.start, ctx.stop),
-                type: DiagnosticSeverity.Error,
+                // if objContext is not defined, meaning the arrow object couldn't
+                // be loaded, then treat this as a warning
+                type: !!this.objContext
+                    ? DiagnosticSeverity.Error
+                    : DiagnosticSeverity.Warning,
             });
             return undefined;
         }

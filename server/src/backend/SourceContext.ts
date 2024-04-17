@@ -355,7 +355,6 @@ export class SourceContext {
         this.runSemanticAnalysisIfNeeded();
 
         return this.diagnostics?.map((d) => {
-            d.source = this.fileName;
             return d;
         });
     }
@@ -587,6 +586,14 @@ export class SourceContext {
                         name,
                         DefineSymbol
                     );
+                } else if (symbol instanceof MethodSymbol) {
+                    // look for the method implementation
+                    const symbol = resolveOfTypeSync(
+                        this.symbolTable,
+                        name,
+                        MethodDeclarationSymbol
+                    );
+                    return [this.getSymbolInfo(symbol)];
                 } else if (symbol instanceof FunctionIdentifierSymbol) {
                     const symbolsToReturn: BaseSymbol[] = [];
                     let lookupSymbolTable = this.symbolTable;

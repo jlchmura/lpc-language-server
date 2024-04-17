@@ -90,7 +90,8 @@ export function areTwoParameterArraysEqual<T extends TypedSymbol>(
     }
     for (let i = 0; i < arr1.length; i++) {
         if (
-            arr1[i].name !== arr2[i].name ||
+            // NTBLA: only check name is strict mode is one
+            // arr1[i].name !== arr2[i].name ||
             arr1[i].type?.name !== arr2[i].type?.name
         ) {
             return false;
