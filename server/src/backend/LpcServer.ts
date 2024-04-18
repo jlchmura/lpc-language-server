@@ -217,21 +217,24 @@ export class LpcServer {
 
         this.documents.onDidChangeContent((e) => {
             const filename = e.document.uri;
+            try {
+                // always update text, but debounce reparse and other updates
+                this.facade.setText(e.document);
 
-            // always update text, but debounce reparse and other updates
-            this.facade.setText(e.document);
+                const timer = this.changeTimers.get(filename);
+                if (timer) {
+                    clearTimeout(timer);
+                }
 
-            const timer = this.changeTimers.get(filename);
-            if (timer) {
-                clearTimeout(timer);
+                this.changeTimers.set(
+                    filename,
+                    setTimeout(() => {
+                        this.processDocChange(e.document);
+                    }, CHANGE_DEBOUNCE_MS)
+                );
+            } catch (e) {
+                console.error("Error in doc change content:\n", e);
             }
-
-            this.changeTimers.set(
-                filename,
-                setTimeout(() => {
-                    this.processDocChange(e.document);
-                }, CHANGE_DEBOUNCE_MS)
-            );
         });
     }
 

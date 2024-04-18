@@ -24,6 +24,7 @@ efun("clonep", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("clones", LpcTypes.objectArrayType, true, ["ob", LpcTypes.objectType],["what", LpcTypes.intType]);
 efun("closurep", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("clear_bit", LpcTypes.stringType, false, ["str", LpcTypes.stringType], ["n", LpcTypes.intType]);
+efun("command", LpcTypes.intType, true, ["str", LpcTypes.stringType], ["ob", LpcTypes.objectType]);
 efun("copy", LpcTypes.mixedType, false, ["val", LpcTypes.mixedType]);
 efun("creator", LpcTypes.stringType, false, ["ob", LpcTypes.objectType]);
 efun("ctime", LpcTypes.stringType, false, ["clock", LpcTypes.intType]);
