@@ -4,10 +4,8 @@ import {
     MemberVisibility,
     ScopedSymbol,
     TypedSymbol,
-    VariableSymbol,
+    VariableSymbol as VariableSymbolBase,
 } from "antlr4-c3";
-import { getSymbolsOfTypeSync } from "../symbols/base";
-import { DefineSymbol } from "../symbols/defineSymbol";
 import { LpcTypes } from "../types";
 import { LpcBaseMethodSymbol, MethodSymbol } from "../symbols/methodSymbol";
 import { ParserRuleContext } from "antlr4ng";
@@ -21,9 +19,12 @@ export class StackValue<T = any> {
     ) {}
 }
 
+let lastExecId = 1;
 export class CallStack {
     private readonly stack: StackFrame[] = [];
     private readonly rootFrame: StackFrame;
+
+    public executionId: number;
 
     public get root() {
         return this.rootFrame;
@@ -31,8 +32,8 @@ export class CallStack {
 
     constructor(public readonly symbol: ScopedSymbol) {
         //super(symbol, new Map<string, StackValue>());
-
-        this.rootFrame = new StackFrame(
+        this.executionId = lastExecId++;
+        this.rootFrame = new RootFrame(
             symbol,
             new Map<string, StackValue>(),
             new Map<string, StackValue>()
@@ -206,3 +207,5 @@ export class StackFrame {
         //super(symbol, locals);
     }
 }
+
+export class RootFrame extends StackFrame {}

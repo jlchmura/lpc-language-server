@@ -1,11 +1,20 @@
-import { IEvaluatableSymbol } from "./base";
-import { CallStack, StackFrame, StackValue } from "../backend/CallStack";
-import { MethodInvocationSymbol } from "./methodSymbol";
+import { IEvaluatableSymbol, getSymbolsOfTypeSync } from "./base";
+import {
+    CallStack,
+    RootFrame,
+    StackFrame,
+    StackValue,
+} from "../backend/CallStack";
+import { LpcBaseMethodSymbol, MethodInvocationSymbol } from "./methodSymbol";
 import { ObjectReferenceInfo } from "./objectSymbol";
 import { SourceContext } from "../backend/SourceContext";
 import { ParserRuleContext } from "antlr4ng";
 import { ContextSymbolTable } from "../backend/ContextSymbolTable";
-import { normalizeFilename, rangeFromTokens } from "../utils";
+import {
+    normalizeFilename,
+    rangeFromTokens,
+    resolveOfTypeSync,
+} from "../utils";
 import { DiagnosticSeverity } from "vscode-languageserver";
 import { addDiagnostic } from "./Symbol";
 import { ScopedSymbol } from "antlr4-c3";
@@ -94,22 +103,6 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
 
         // even if diagnostics failed, continue evaluating because
         // we may have an objContext that we want to return
-        const obj = srcValue?.value;
-        if (typeof obj === "string") {
-            // try to load the object
-            this.objContext = this.loadObject(obj);
-        } else if (obj instanceof ObjectReferenceInfo) {
-            this.objectRef = obj;
-            this.objContext = obj.context;
-        } else {
-            const ctx = this.target.context as ParserRuleContext;
-            addDiagnostic(this, {
-                message: "Unable to validate function",
-                range: rangeFromTokens(ctx.start, ctx.stop),
-                type: DiagnosticSeverity.Warning,
-            });
-            return undefined;
-        }
 
         // function name could be an expression, so evaluate that
         if (!this.functionName || this.functionName == "#fn") {
@@ -121,6 +114,25 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
             console.warn(
                 "could not determine function name for arrow: " + this.name
             );
+        }
+
+        const obj = srcValue?.value;
+        if (typeof obj === "string") {
+            // try to load the object
+            this.objContext = this.loadObject(obj);
+        } else if (obj instanceof ObjectReferenceInfo) {
+            this.objectRef = obj;
+            this.objContext = obj.context;
+        } else {
+            const ctx = this.target.context as ParserRuleContext;
+            addDiagnostic(this, {
+                message: `Unable to validate function [${
+                    this.functionName ?? ""
+                }]`,
+                range: rangeFromTokens(ctx.start, ctx.stop),
+                type: DiagnosticSeverity.Warning,
+            });
+            return undefined;
         }
 
         // at this point we've figured out the function name and now need
@@ -157,7 +169,7 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
 
         // create a new root frame for this object
         // this doesn't need to go on the stack, it's just a temporary frame
-        const rootFrame = new StackFrame(
+        const rootFrame = new RootFrame(
             symTbl,
             new Map<string, any>(),
             new Map<string, any>()
@@ -168,7 +180,16 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
             new Map<string, any>(),
             rootFrame
         );
+
         stack.push(stackFrame);
+
+        // since we have a new root frame, we need to add the functions for the arrow's program
+        // NTBLA: create the root frame in the source context so taht funs don't have to be re-added every time
+        const funs =
+            getSymbolsOfTypeSync(symTbl, LpcBaseMethodSymbol, false) ?? [];
+        funs.forEach((f) => {
+            stack.addFunction(f.name, f);
+        });
 
         const result = funSym.eval(stack, argVals);
 

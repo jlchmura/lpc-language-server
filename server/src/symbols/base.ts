@@ -1,16 +1,40 @@
-import { BaseSymbol, ScopedSymbol, SymbolConstructor } from "antlr4-c3";
+import {
+    BaseSymbol,
+    IScopedSymbol,
+    ScopedSymbol,
+    SymbolConstructor,
+} from "antlr4-c3";
 import { ParseTree } from "antlr4ng";
 import { ILexicalRange, SymbolKind } from "../types";
 import { FoldingRange, Range, TextEdit } from "vscode-languageserver";
 import { CallStack } from "../backend/CallStack";
+import { ContextSymbolTable } from "../backend/ContextSymbolTable";
 
 export type EvalScope = any;
 
 export function getSymbolsOfTypeSync<
     T extends BaseSymbol,
     Args extends unknown[]
->(symbol: ScopedSymbol, t: SymbolConstructor<T, Args>): T[] {
-    return symbol.children.filter((s) => s instanceof t) as T[];
+>(scope: IScopedSymbol, t: SymbolConstructor<T, Args>, localOnly = true): T[] {
+    const symbols: T[] = [];
+    for (const child of scope.children) {
+        if (child instanceof t) {
+            symbols.push(child);
+        }
+    }
+
+    if (!localOnly && !!scope.parent) {
+        symbols.push(...getSymbolsOfTypeSync(scope.parent, t, localOnly));
+    }
+
+    if (!localOnly && scope instanceof ContextSymbolTable) {
+        const deps = (scope as ContextSymbolTable).getDependencies();
+        for (const dependency of deps) {
+            symbols.push(...getSymbolsOfTypeSync(dependency, t, localOnly));
+        }
+    }
+
+    return symbols;
 }
 
 export interface IFoldableSymbol extends BaseSymbol {

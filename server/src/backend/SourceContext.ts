@@ -974,7 +974,20 @@ export class SourceContext {
     }
 
     public addDiagnostic(diagnostic: IDiagnosticEntry): void {
-        this.diagnostics.push(diagnostic);
+        // check if this diagnostic already exists
+        // NTBLA make this more efficient
+        if (
+            !this.diagnostics.some(
+                (d) =>
+                    d.message == diagnostic.message &&
+                    d.range.start.row == diagnostic.range.start.row &&
+                    d.range.start.column == diagnostic.range.start.column &&
+                    d.range.end.row == diagnostic.range.end.row &&
+                    d.range.end.column == diagnostic.range.end.column
+            )
+        ) {
+            this.diagnostics.push(diagnostic);
+        }
     }
 
     public resolveFilename(filename: string) {

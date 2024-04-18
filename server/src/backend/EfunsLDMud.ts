@@ -71,6 +71,7 @@ efun("query_once_interactive", LpcTypes.intType, false, ["ob", LpcTypes.objectTy
 efun("query_verb", LpcTypes.stringType, true, ["flag", LpcTypes.intType]);
 efun("random", LpcTypes.intType, true, ["n", LpcTypes.intType]);
 efun("regreplace", LpcTypes.stringType, false, ["txt", LpcTypes.stringType], ["pattern", LpcTypes.stringType], ["replacepattern", LpcTypes.closureType], ["flags", LpcTypes.intType]);
+efun("set_heart_beat", LpcTypes.intType, true, ["flag", LpcTypes.intType]);
 efun("sprintf", LpcTypes.stringType, true, ["fmt", LpcTypes.stringType], ["var...", LpcTypes.mixedType, true]);
 efun("set_bit", LpcTypes.stringType, false, ["str", LpcTypes.stringType], ["n", LpcTypes.intType]);
 efun("sscanf", LpcTypes.intType, true, ["str", LpcTypes.stringType], ["fmt", LpcTypes.stringType], ["var...", LpcTypes.mixedType, true]);

@@ -50,9 +50,24 @@ export class DiagnosticProvider {
             diagnostics: this.convertDiagnosticEntries(document.uri, entries),
         });
 
+        // recursively send diagnostics for dependencies
         // if any dependencies need validation, reprocess them as well
         const deps = this.facade.getDependencies(document.uri) ?? [];
-        for (const dep of deps) {
+        const visited = new Set<string>();
+
+        while (deps.length > 0) {
+            const dep = deps.shift(); // get first element in array
+            const depCtx = this.facade.getContext(dep);
+
+            if (!depCtx || visited.has(depCtx.fileName)) continue;
+            visited.add(depCtx.fileName);
+
+            // add more deps
+            const moreDeps = this.facade.getDependencies(dep);
+            if (moreDeps?.length > 0) {
+                deps.push(...moreDeps);
+            }
+
             const depDiagEntries = this.facade.getDiagnostics(dep);
             const depUri = URI.file(dep).toString();
             if (!!depDiagEntries) {

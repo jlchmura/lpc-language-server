@@ -31,8 +31,6 @@ export class ContextSymbolTable extends SymbolTable {
 
     public foldingRanges: Set<FoldingRange> = new Set<FoldingRange>();
 
-    public scope: EvalScope = new Map<string, any>();
-
     public constructor(
         name: string,
         options: ISymbolTableOptions,
@@ -274,7 +272,6 @@ export class ContextSymbolTable extends SymbolTable {
         } as ISymbolInfo;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private symbolsOfType<T extends BaseSymbol, Args extends unknown[]>(
         t: SymbolConstructor<T, Args>,
         localOnly = false,
