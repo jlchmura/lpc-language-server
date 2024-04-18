@@ -111,11 +111,16 @@ export class LpcServer {
         // Definition Provider
         this.connection.onDefinition((params) => {
             const doc = this.documents.get(params.textDocument.uri);
-            const result = this.definitionProvider.getDefinition(
-                doc,
-                params.position
-            );
-            return result;
+            try {
+                const result = this.definitionProvider.getDefinition(
+                    doc,
+                    params.position
+                );
+                return result;
+            } catch (e) {
+                console.error(e);
+                return null;
+            }
         });
 
         this.connection.onImplementation((params) => {
@@ -156,20 +161,30 @@ export class LpcServer {
         // Hover Provider
         this.connection.onHover((params) => {
             const doc = this.documents.get(params.textDocument.uri);
-            const result = this.hoverProvider.getHover(
-                doc.uri,
-                params.position
-            );
-            return result;
+            try {
+                const result = this.hoverProvider.getHover(
+                    doc.uri,
+                    params.position
+                );
+                return result;
+            } catch (e) {
+                console.error(e);
+                return null;
+            }
         });
 
         this.connection.onSignatureHelp((params) => {
             const doc = this.documents.get(params.textDocument.uri);
-            this.flushChangeTimer(doc);
-            return this.signatureHelpProvider.getSignatureHelp(
-                doc,
-                params.position
-            );
+            try {
+                this.flushChangeTimer(doc);
+                return this.signatureHelpProvider.getSignatureHelp(
+                    doc,
+                    params.position
+                );
+            } catch (e) {
+                console.error(e);
+                return null;
+            }
         });
 
         // Folding Provider
