@@ -298,12 +298,12 @@ export class SourceContext {
         // }
 
         if (addSymbolTable) {
-            console.debug(
-                "Adding dependencies from",
-                this.fileName,
-                "to",
-                context.fileName
-            );
+            // console.debug(
+            //     "Adding dependencies from",
+            //     this.fileName,
+            //     "to",
+            //     context.fileName
+            // );
             this.symbolTable.addDependencies(context.symbolTable);
         }
     }
