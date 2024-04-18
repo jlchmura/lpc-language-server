@@ -65,7 +65,7 @@ efun("object_name", LpcTypes.stringType, false, ["ob", LpcTypes.objectType]);
 efun("objectp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("playerp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("previous_object", LpcTypes.objectType, true, ["i", LpcTypes.intType]);
-efun("present", LpcTypes.objectType, false, ["str", FundamentalType.stringType], ["env", LpcTypes.objectType]);
+efun("present", LpcTypes.objectType, true, ["str", FundamentalType.stringType], ["env", LpcTypes.objectType]);
 efun("printf", LpcTypes.voidType, true, ["fmt", LpcTypes.stringType], ["var...", LpcTypes.mixedType, true]);
 efun("pointerp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("query_once_interactive", LpcTypes.intType, false, ["ob", LpcTypes.objectType]);
