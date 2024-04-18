@@ -449,7 +449,7 @@ expression
     ;
 
 catchExpr
-    : CATCH '(' expression (',' expression)* ';' Identifier* ')'
+    : CATCH '(' expression (',' expression)* (';' Identifier)* ')'
     ;
 
 bracketExpression

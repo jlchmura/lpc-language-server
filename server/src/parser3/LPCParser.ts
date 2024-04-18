@@ -4524,14 +4524,14 @@ export class LPCParser extends antlr.Parser {
                 this.errorHandler.sync(this);
                 _la = this.tokenStream.LA(1);
             }
-            this.state = 935;
-            this.match(LPCParser.SEMI);
             this.state = 939;
             this.errorHandler.sync(this);
             _la = this.tokenStream.LA(1);
-            while (_la === 1) {
+            while (_la === 79) {
                 {
                 {
+                this.state = 935;
+                this.match(LPCParser.SEMI);
                 this.state = 936;
                 this.match(LPCParser.Identifier);
                 }
@@ -5290,8 +5290,8 @@ export class LPCParser extends antlr.Parser {
         0,0,0,921,924,3,142,71,0,922,924,3,144,72,0,923,921,1,0,0,0,923,
         922,1,0,0,0,924,131,1,0,0,0,925,926,5,4,0,0,926,927,5,101,0,0,927,
         932,3,130,65,0,928,929,5,80,0,0,929,931,3,130,65,0,930,928,1,0,0,
-        0,931,934,1,0,0,0,932,930,1,0,0,0,932,933,1,0,0,0,933,935,1,0,0,
-        0,934,932,1,0,0,0,935,939,5,79,0,0,936,938,5,1,0,0,937,936,1,0,0,
+        0,931,934,1,0,0,0,932,930,1,0,0,0,932,933,1,0,0,0,933,939,1,0,0,
+        0,934,932,1,0,0,0,935,936,5,79,0,0,936,938,5,1,0,0,937,935,1,0,0,
         0,938,941,1,0,0,0,939,937,1,0,0,0,939,940,1,0,0,0,940,942,1,0,0,
         0,941,939,1,0,0,0,942,943,5,102,0,0,943,133,1,0,0,0,944,946,5,105,
         0,0,945,947,5,64,0,0,946,945,1,0,0,0,946,947,1,0,0,0,947,948,1,0,
@@ -9372,9 +9372,6 @@ export class CatchExprContext extends antlr.ParserRuleContext {
 
         return this.getRuleContext(i, ExpressionContext);
     }
-    public SEMI(): antlr.TerminalNode {
-        return this.getToken(LPCParser.SEMI, 0)!;
-    }
     public PAREN_CLOSE(): antlr.TerminalNode {
         return this.getToken(LPCParser.PAREN_CLOSE, 0)!;
     }
@@ -9385,6 +9382,15 @@ export class CatchExprContext extends antlr.ParserRuleContext {
     		return this.getTokens(LPCParser.COMMA);
     	} else {
     		return this.getToken(LPCParser.COMMA, i);
+    	}
+    }
+    public SEMI(): antlr.TerminalNode[];
+    public SEMI(i: number): antlr.TerminalNode | null;
+    public SEMI(i?: number): antlr.TerminalNode | null | antlr.TerminalNode[] {
+    	if (i === undefined) {
+    		return this.getTokens(LPCParser.SEMI);
+    	} else {
+    		return this.getToken(LPCParser.SEMI, i);
     	}
     }
     public Identifier(): antlr.TerminalNode[];
