@@ -30,6 +30,7 @@ efun("deep_inventory", LpcTypes.objectArrayType, true, ["ob", LpcTypes.objectTyp
 efun("destruct", LpcTypes.voidType, false, ["ob", LpcTypes.objectType]);
 efun("environment", LpcTypes.objectType, true, ["ob", LpcTypes.objectType]);
 efun("explode", LpcTypes.stringArrayType, false, ["str", LpcTypes.stringType], ["del", LpcTypes.stringType]);
+efun("filter_objects", LpcTypes.objectArrayType, true, ["arr", LpcTypes.objectArrayType], ["fun", LpcTypes.stringType], ["extra", LpcTypes.mixedType], ["args...", LpcTypes.mixedType, true]);
 efun("find_object", LpcTypes.objectType, false, ["file", LpcTypes.stringType]);
 efun("first_inventory", LpcTypes.objectType, true, ["ob", LpcTypes.stringType]);
 efun("find_call_out", LpcTypes.intType, true, ["func", LpcTypes.mixedType]);
@@ -54,6 +55,8 @@ efun("mappingp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("member", LpcTypes.intType, true, ["array", LpcTypes.mixedArrayType], ["elem", LpcTypes.mixedType], ["start", LpcTypes.intType]);
 efun("min", LpcTypes.intType, true, ["arg", LpcTypes.mixedType], ["arg1", LpcTypes.mixedType]);
 efun("m_indices", LpcTypes.mixedArrayType, false, ["map", LpcTypes.mappingType]);
+efun("m_entry", LpcTypes.mixedArrayType, true, ["map", LpcTypes.mappingType], ["key", LpcTypes.mixedType]);
+efun("move_object", LpcTypes.voidType, false, ["item", LpcTypes.mixedType], ["dest", LpcTypes.mixedType]);
 efun("next_inventory", LpcTypes.objectType, false, ["ob", LpcTypes.objectType]);
 efun("notify_fail", LpcTypes.voidType, false, ["msg", LpcTypes.stringType]);
 efun("object_name", LpcTypes.stringType, false, ["ob", LpcTypes.objectType]);
