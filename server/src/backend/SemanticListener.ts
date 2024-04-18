@@ -202,12 +202,20 @@ export class SemanticListener extends LPCParserListener {
         this.addPogramToStack(EfunSymbols, stack);
 
         // add all dependencies to the stack second
-        for (const importFilename of imports) {
+        // must be done recurisvely
+        const processed = new Set<string>();
+        while (imports.length > 0) {
+            const importFilename = imports.shift();
             const importCtx = backend.getContext(importFilename);
-            if (!!importCtx) {
-                const importTbl = importCtx.symbolTable;
+            if (!!importCtx && !processed.has(importFilename)) {
+                processed.add(importFilename);
 
+                const importTbl = importCtx.symbolTable;
                 this.addPogramToStack(importTbl, stack);
+
+                imports.push(
+                    ...(backend.getDependencies(importFilename) ?? [])
+                );
             }
         }
 

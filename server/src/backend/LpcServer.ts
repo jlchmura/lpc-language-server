@@ -58,7 +58,7 @@ export class LpcServer {
     private facade: LpcFacade;
 
     /** timers used to debounce change events */
-    private changeTimers = new Map<string, ReturnType<typeof setTimeout>>(); // Keyed by file name.
+    private changeTimers = new Map<string, NodeJS.Timeout>(); // Keyed by file name.
 
     private hasConfigurationCapability = false;
     private hasWorkspaceFolderCapability = false;
@@ -81,6 +81,9 @@ export class LpcServer {
     );
 
     constructor(private connection: Connection) {
+        this.connection.onExit(() => {
+            console.warn("Connection closed.");
+        });
         this.connection.onInitialize((params) => {
             return this.onIntialize(params);
         });
@@ -92,6 +95,7 @@ export class LpcServer {
                     undefined
                 );
             }
+
             if (this.hasWorkspaceFolderCapability) {
                 connection.workspace.onDidChangeWorkspaceFolders((_event) => {
                     connection.console.log(
@@ -142,12 +146,15 @@ export class LpcServer {
 
         // Completion Provider
         this.connection.onCompletion(async (params) => {
+            console.debug("OnCompletion", params.textDocument.uri);
             const doc = this.documents.get(params.textDocument.uri);
 
             // force doc to update so that code completion can use the latest token positions
             // this is needed for situations where code completion is triggered automatically
             // (like a call_other arrow `->`)
-            this.flushChangeTimer(doc);
+            // --
+            // this doesn't seem necesary any more and was causing extra diags to be run, so i'm removing it.
+            //this.flushChangeTimer(doc);
 
             return this.completionProvider.provideCompletionItems(
                 doc,
@@ -217,6 +224,7 @@ export class LpcServer {
 
         this.documents.onDidChangeContent((e) => {
             const filename = e.document.uri;
+            console.debug("OnChange", e.document.uri);
             try {
                 // always update text, but debounce reparse and other updates
                 this.facade.setText(e.document);
@@ -333,7 +341,7 @@ export class LpcServer {
             const uri = URI.file(filename).toString();
             const doc = this.documents.get(uri);
             if (!!doc) {
-                this.flushChangeTimer(doc);
+                //this.flushChangeTimer(doc);
                 this.processDiagnostic(doc);
             }
         };
@@ -368,7 +376,11 @@ export class LpcServer {
 
         // send grouped results
         for (const diagResult of result) {
-            console.debug(`Sending diagnostics for ${diagResult.uri}`);
+            console.debug(
+                `Sending ${
+                    diagResult.diagnostics?.length ?? 0
+                } diagnostics for ${diagResult.uri}`
+            );
 
             const { uri, diagnostics, version } = diagResult;
 
