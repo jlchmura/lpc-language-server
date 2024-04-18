@@ -155,11 +155,15 @@ export class CallStack {
     }
 
     public setReturnValue(value: any, sym: BaseSymbol) {
-        let type = LpcTypes.mixedType;
-        if (sym instanceof TypedSymbol) {
-            type = sym.type;
+        if (value instanceof StackValue) {
+            this.peek().returnValue = value;
+        } else {
+            let type = LpcTypes.mixedType;
+            if (sym instanceof TypedSymbol) {
+                type = sym.type;
+            }
+            this.peek().returnValue = new StackValue(value, type, sym);
         }
-        this.peek().returnValue = new StackValue(value, type, sym);
     }
 
     public clearValue(name: string) {

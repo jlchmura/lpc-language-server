@@ -31,7 +31,13 @@ export class VariableSymbol
 
     eval(stack: CallStack, scope?: any) {
         if (scope !== undefined) {
-            this.value = scope;
+            if (scope instanceof StackValue) {
+                this.value = scope.value;
+                this.type = scope.type;
+            } else {
+                this.value = scope;
+            }
+
             stack.addLocal(
                 this.name,
                 new StackValue(this.value, this.type, this)

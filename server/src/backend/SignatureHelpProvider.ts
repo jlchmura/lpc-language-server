@@ -11,6 +11,7 @@ import { ContextSymbolTable } from "./ContextSymbolTable";
 import { firstEntry, trimStart } from "../utils";
 import { ParserRuleContext } from "antlr4ng";
 import { MethodInvocationContext } from "../parser3/LPCParser";
+import { ArrowSymbol } from "../symbols/arrowSymbol";
 
 export class SignatureHelpProvider {
     constructor(private backend: LpcFacade) {}
@@ -30,15 +31,19 @@ export class SignatureHelpProvider {
         );
         if (!info) return undefined;
 
-        if (!(info.symbol instanceof MethodInvocationSymbol)) {
+        let methodInvoc: MethodInvocationSymbol;
+        if (info.symbol instanceof ArrowSymbol) {
+            methodInvoc = (info.symbol as ArrowSymbol).methodInvocation;
+        } else if (!(info.symbol instanceof MethodInvocationSymbol)) {
             console.warn(
                 "expected method invocation symbol but got something else",
                 info.symbol
             );
             return;
+        } else {
+            methodInvoc = info.symbol as MethodInvocationSymbol;
         }
 
-        const methodInvoc = info.symbol as MethodInvocationSymbol;
         const method = methodInvoc?.getMethodSymbol();
 
         if (!method) return { signatures: [] };

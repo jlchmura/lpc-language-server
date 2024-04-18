@@ -298,11 +298,18 @@ export class DetailsVisitor
 
                 // everything up to the arrow goes into an expression
                 const exprCtx = ctx.children.slice(0, arrowIdx);
-
                 if (exprCtx.length > 1) {
                     // parse children into an expression
-                    this.withScope(
+                    const mergedCtx = new PrimaryExpressionContext(
                         ctx,
+                        ctx.invokingState
+                    );
+                    mergedCtx.start = (exprCtx[0] as ParserRuleContext).start;
+                    mergedCtx.stop = (
+                        exprCtx[exprCtx.length - 1] as ParserRuleContext
+                    ).stop;
+                    this.withScope(
+                        mergedCtx,
                         ExpressionSymbol,
                         ["#primary-expression#"],
                         (s) => {

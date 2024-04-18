@@ -15,7 +15,11 @@ import { DefineSymbol } from "../symbols/defineSymbol";
 import { VariableSymbol } from "../symbols/variableSymbol";
 import { EvalScope } from "../symbols/base";
 import { AssignmentSymbol } from "../symbols/assignmentSymbol";
-import { EfunSymbol, MethodSymbol } from "../symbols/methodSymbol";
+import {
+    EfunSymbol,
+    MethodDeclarationSymbol,
+    MethodSymbol,
+} from "../symbols/methodSymbol";
 import { InlineClosureSymbol } from "../symbols/closureSymbol";
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import { resolveOfTypeSync } from "../utils";
@@ -60,6 +64,10 @@ export class ContextSymbolTable extends SymbolTable {
         // only resolve of type MethodSymbol, because we don't want the
         // function headers here.
         return resolveOfTypeSync(this, name, MethodSymbol, false);
+    }
+
+    public getFunctionHeader(name: string): MethodSymbol | undefined {
+        return resolveOfTypeSync(this, name, MethodDeclarationSymbol, false);
     }
 
     public symbolExists(

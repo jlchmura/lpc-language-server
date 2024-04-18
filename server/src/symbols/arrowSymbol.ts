@@ -102,8 +102,12 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
             this.objectRef = obj;
             this.objContext = obj.context;
         } else {
-            // TODO report this as a diagnostic?
-            console.debug("expected object reference info", obj);
+            const ctx = this.target.context as ParserRuleContext;
+            addDiagnostic(this, {
+                message: "Unable to validate function",
+                range: rangeFromTokens(ctx.start, ctx.stop),
+                type: DiagnosticSeverity.Warning,
+            });
             return undefined;
         }
 
@@ -123,7 +127,9 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
         // to find the actual function symbol which will be in the source
         // object's symbol table
         const symTbl = this.objContext?.symbolTable; // (obj as ObjectReferenceInfo).context?.symbolTable;
-        const funSym = symTbl?.getFunction(this.functionName);
+        const funSym =
+            symTbl?.getFunction(this.functionName) ??
+            symTbl?.getFunctionHeader(this.functionName);
 
         if (!funSym) {
             const ctx = (this.target ?? this).context as ParserRuleContext;

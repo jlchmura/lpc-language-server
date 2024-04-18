@@ -302,11 +302,17 @@ export class EfunSymbol
     eval(stack: CallStack, scope?: any) {
         const ownerProgram = (stack.root.symbol as ContextSymbolTable).owner;
         switch (this.name) {
+            // NTBLA: put current object on the stack and return that instead of loading a new
+            // instance of the object
             case "this_object":
-                return new ObjectReferenceInfo(
-                    ownerProgram.fileName,
-                    true,
-                    ownerProgram
+                return new StackValue(
+                    new ObjectReferenceInfo(
+                        ownerProgram.fileName,
+                        true,
+                        ownerProgram
+                    ),
+                    LpcTypes.objectType,
+                    this
                 );
             // TODO: this is just a quick hack to get the player object
             // need a better way to check if references are already loaded.
@@ -316,7 +322,11 @@ export class EfunSymbol
                     backend.filenameToAbsolutePath(OBJ_PLAYER_FILENAME);
                 const playerCtx = backend.loadLpc(filename);
 
-                return new ObjectReferenceInfo(filename, true, playerCtx);
+                return new StackValue(
+                    new ObjectReferenceInfo(filename, true, playerCtx),
+                    LpcTypes.objectType,
+                    this
+                );
         }
 
         return scope;
