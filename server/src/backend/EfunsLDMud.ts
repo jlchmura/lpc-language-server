@@ -11,6 +11,7 @@ export const EfunSymbols = new ContextSymbolTable("Efun Symbols", {
 type efunArg = [name: string, type: IType, allowMulti?: boolean];
 
 efun("abs", LpcTypes.intType, false, ["number", LpcTypes.intType]);
+efun("all_environment", LpcTypes.objectArrayType, true, ["ob", LpcTypes.objectType]);
 efun("all_inventory", LpcTypes.objectArrayType, false, ["ob", LpcTypes.objectType]);
 efun("allocate", LpcTypes.mixedArrayType, true, ["sizes", LpcTypes.intArrayType], ["init_value", LpcTypes.mixedType]);
 efun("add_action", LpcTypes.voidType, true, ["fun", FundamentalType.stringType], ["cmd", FundamentalType.stringType], ["flag", FundamentalType.integerType]);
@@ -92,6 +93,7 @@ efun("regreplace", LpcTypes.stringType, false, ["txt", LpcTypes.stringType], ["p
 efun("restore_object", LpcTypes.intType, false, ["name", LpcTypes.stringType]);
 efun("rename", LpcTypes.intType, false, ["from", LpcTypes.stringType], ["to", LpcTypes.stringType]);
 efun("rm", LpcTypes.intType, false, ["file", LpcTypes.stringType]);
+efun("save_object", LpcTypes.intType, true, ["name", LpcTypes.stringType], ["format", LpcTypes.intType]);
 efun("say", LpcTypes.voidType, true, ["msg", LpcTypes.stringType], ["exclude", LpcTypes.objectArrayType]);
 efun("set_extra_wizinfo", LpcTypes.voidType, false, ["wiz", LpcTypes.objectType], ["extra", LpcTypes.mixedType]);
 efun("set_heart_beat", LpcTypes.intType, true, ["flag", LpcTypes.intType]);
