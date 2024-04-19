@@ -10,6 +10,8 @@ import { DefinePreprocessorDirectiveContext } from "./LPCParser.js";
 import { SelectionDirectiveContext } from "./LPCParser.js";
 import { SelectionDirectiveTypeSingleContext } from "./LPCParser.js";
 import { SelectionDirectiveTypeWithArgContext } from "./LPCParser.js";
+import { DirectiveIfTestExpressionContext } from "./LPCParser.js";
+import { DirectiveIfArgumentContext } from "./LPCParser.js";
 import { DirectiveTypeWithArgumentsContext } from "./LPCParser.js";
 import { DirectiveArgumentContext } from "./LPCParser.js";
 import { DirectiveDefineParamContext } from "./LPCParser.js";
@@ -154,6 +156,18 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      * @return the visitor result
      */
     visitSelectionDirectiveTypeWithArg?: (ctx: SelectionDirectiveTypeWithArgContext) => Result;
+    /**
+     * Visit a parse tree produced by `LPCParser.directiveIfTestExpression`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitDirectiveIfTestExpression?: (ctx: DirectiveIfTestExpressionContext) => Result;
+    /**
+     * Visit a parse tree produced by `LPCParser.directiveIfArgument`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitDirectiveIfArgument?: (ctx: DirectiveIfArgumentContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.directiveTypeWithArguments`.
      * @param ctx the parse tree

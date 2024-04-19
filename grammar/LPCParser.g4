@@ -30,6 +30,7 @@ definePreprocessorDirective
 
 selectionDirective
     : HASH selectionDirectiveTypeWithArg NOT? directiveArgument
+    | HASH (IF|ELIF) directiveIfTestExpression
     | HASH selectionDirectiveTypeSingle
     ;
 
@@ -39,12 +40,27 @@ selectionDirectiveTypeSingle
     ;
 
 selectionDirectiveTypeWithArg
-    : IF
-    | IFDEF
-    | IFNDEF
-    | ELIF
+    : IFDEF
+    | IFNDEF    
     ;
 
+directiveIfTestExpression
+    : NOT? directiveIfArgument
+    | directiveIfTestExpression (AND_AND directiveIfTestExpression)+
+    | directiveIfTestExpression (OR_OR directiveIfTestExpression)+
+    | directiveIfTestExpression (EQ directiveIfTestExpression)+
+    | directiveIfTestExpression (NE directiveIfTestExpression)+
+    | directiveIfTestExpression (LT directiveIfTestExpression)+
+    | directiveIfTestExpression (GT directiveIfTestExpression)+
+    | directiveIfTestExpression (LE directiveIfTestExpression)+
+    | directiveIfTestExpression (GE directiveIfTestExpression)+    
+    ;
+
+directiveIfArgument
+    : Identifier (PAREN_OPEN Identifier PAREN_CLOSE)?
+    | StringLiteral
+    | IntegerConstant
+    ;
 
 directiveTypeWithArguments
     : UNDEF
@@ -55,7 +71,7 @@ directiveTypeWithArguments
 directiveArgument
     : Identifier
     | StringLiteral
-    | IntegerConstant
+    | IntegerConstant    
     ;
 
 // #define
