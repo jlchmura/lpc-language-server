@@ -12,7 +12,7 @@ program: (declaration | preprocessorDirective | inheritStatement)* EOF;
 
 preprocessorDirective
     : selectionDirective    
-    | HASH directiveTypeWithArguments directiveArgument
+    | directiveTypeWithArguments directiveArgument
     | definePreprocessorDirective
     | includeDirective
     | HASH directiveTypePragma Identifier (COMMA Identifier)*

@@ -4,7 +4,7 @@
 //
 lexer grammar LPCLexer;
 
-channels {
+channels { 
     COMMENTS_CHANNEL
 }
 
@@ -23,7 +23,7 @@ CONST: 'const';
 CONTINUE: 'continue';
 DEFAULT: 'default';
 DO: 'do';
-ECHO: 'echo';
+ECHO: '#echo';
 ELSE: 'else';
 ELIF: 'elif';
 ENDIF: 'endif';
@@ -41,7 +41,7 @@ IN: 'in';
 INCLUDE: 'include';
 INHERIT: 'inherit';
 INT: 'int';
-LINE: 'line';
+LINE: '#line';
 MAPPING: 'mapping';
 MIXED: 'mixed';
 OBJECT: 'object';
@@ -55,7 +55,7 @@ SWITCH: 'switch';
 TYPEDEF: 'typedef';
 UNION: 'union';
 UNKNOWN: 'unknown';
-UNDEF: 'undef';
+UNDEF: '#undef';
 VOID: 'void';
 VOLATILE: 'volatile';
 WHILE: 'while';
