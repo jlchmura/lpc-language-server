@@ -333,6 +333,7 @@ export class LpcServer {
         this.importDir = [
             path.join(rootFolderPath, "sys"),
             path.join(rootFolderPath, "obj"),
+            path.join(rootFolderPath, "room"),
         ];
         this.facade = new LpcFacade(this.importDir, rootFolderPath);
 
