@@ -84,6 +84,7 @@ inheritStatement
 inheritSuperExpression
     : SUPER_ACCESSOR expression
     | StringLiteral SUPER_ACCESSOR expression
+    | Identifier SUPER_ACCESSOR expression
     ;
 
 declaration
@@ -206,10 +207,10 @@ statement
     | block
     | selectionStatement
     | iterationStatement
-    | jumpStatement
+    | jumpStatement    
     | variableDeclaration
     | selectionDirective
-    | returnStatement
+    | returnStatement    
     //| preprocessorDirective
     ;
 
