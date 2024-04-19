@@ -299,7 +299,7 @@ callOtherTarget
     ;
 
 lambdaExpression
-    : SINGLEQUOT Identifier
+    : HASH? SINGLEQUOT Identifier
     | HASH SINGLEQUOT expression
     | HASH SINGLEQUOT PLUS
     | HASH SINGLEQUOT MINUS
@@ -330,6 +330,7 @@ lambdaExpression
     | HASH SINGLEQUOT QUESTION
     | HASH SINGLEQUOT SHL
     | HASH SINGLEQUOT SHR
+    | HASH SINGLEQUOT SQUARE_OPEN
     ;
 
 rightShiftAssignment
