@@ -154,7 +154,7 @@ Identifier: [$a-zA-Z_] [a-zA-Z_0-9]* -> type(Identifier);
 COMMENT: '/*' .*? '*/' -> channel(COMMENTS_CHANNEL);
 LINE_COMMENT: '//' .*? '\n' -> channel(COMMENTS_CHANNEL);
 
-DEFINE: HASH 'define' -> pushMode(DEFINE_MODE);
+DEFINE: HASH [ \t]* 'define' -> pushMode(DEFINE_MODE);
 
 WS: [ \t\r\n]+ -> channel(HIDDEN);
 
