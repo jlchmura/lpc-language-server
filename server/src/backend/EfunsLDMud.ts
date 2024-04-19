@@ -61,7 +61,7 @@ efun("m_delete", LpcTypes.mappingType, true, ["map", LpcTypes.mappingType], ["ke
 efun("m_indices", LpcTypes.mixedArrayType, false, ["map", LpcTypes.mappingType]);
 efun("m_entry", LpcTypes.mixedArrayType, true, ["map", LpcTypes.mappingType], ["key", LpcTypes.mixedType]);
 efun("m_reallocate", LpcTypes.mappingType, true, ["m", LpcTypes.mappingType], ["width", LpcTypes.intType]);
-efun("m_values", LpcTypes.mixedArrayType, false, ["map", LpcTypes.mappingType], ["index", LpcTypes.intType]);
+efun("m_values", LpcTypes.mixedArrayType, true, ["map", LpcTypes.mappingType], ["index", LpcTypes.intType]);
 efun("move_object", LpcTypes.voidType, false, ["item", LpcTypes.mixedType], ["dest", LpcTypes.mixedType]);
 efun("next_inventory", LpcTypes.objectType, false, ["ob", LpcTypes.objectType]);
 efun("notify_fail", LpcTypes.voidType, false, ["msg", LpcTypes.stringType]);

@@ -257,8 +257,12 @@ defaultStatement
 iterationStatement
     : WHILE PAREN_OPEN expression PAREN_CLOSE (statement|SEMI)
     | DO statement WHILE PAREN_OPEN expression PAREN_CLOSE SEMI
-    | FOR PAREN_OPEN expression? (COMMA expression)* SEMI expression? SEMI expression? (COMMA expression)* PAREN_CLOSE (statement|SEMI)
+    | FOR PAREN_OPEN forVariable (COMMA forVariable)* SEMI expression? SEMI expression? (COMMA expression)* PAREN_CLOSE (statement|SEMI)
     | FOREACH PAREN_OPEN typeSpecifier? Identifier (IN | COLON) expression PAREN_CLOSE (statement|SEMI)
+    ;
+
+forVariable
+    : primitiveTypeSpecifier? arraySpecifier=STAR? variableName=Identifier ASSIGN variableInitializer
     ;
 
 returnStatement

@@ -61,6 +61,7 @@ import { CaseExpressionContext } from "./LPCParser.js";
 import { CaseStatementContext } from "./LPCParser.js";
 import { DefaultStatementContext } from "./LPCParser.js";
 import { IterationStatementContext } from "./LPCParser.js";
+import { ForVariableContext } from "./LPCParser.js";
 import { ReturnStatementContext } from "./LPCParser.js";
 import { JumpStatementContext } from "./LPCParser.js";
 import { CallOtherTargetContext } from "./LPCParser.js";
@@ -467,6 +468,12 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      * @return the visitor result
      */
     visitIterationStatement?: (ctx: IterationStatementContext) => Result;
+    /**
+     * Visit a parse tree produced by `LPCParser.forVariable`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitForVariable?: (ctx: ForVariableContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.returnStatement`.
      * @param ctx the parse tree
