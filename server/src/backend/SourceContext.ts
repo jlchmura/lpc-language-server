@@ -210,12 +210,13 @@ export class SourceContext {
         this.diagnostics.length = 0;
 
         this.symbolTable.clear();
+
         this.symbolTable.addDependencies(SourceContext.globalSymbols);
         this.symbolTable.addDependencies(EfunSymbols);
 
-        if (!this.fileName.endsWith("simul_efun.h")) {
+        if (!this.fileName.endsWith("simul_efun.c")) {
             this.info.imports.push({
-                filename: `"/sys/simul_efun.h"`,
+                filename: `"/obj/simul_efun.c"`,
                 symbol: undefined,
             });
         }
@@ -232,14 +233,6 @@ export class SourceContext {
                 this.tree = this.parser.program();
             } else {
                 throw e;
-            }
-        }
-
-        if (this.tree && this.tree.getChildCount() > 0) {
-            try {
-                // get into about the lpc program here, if needed
-            } catch (e) {
-                // ignored
             }
         }
 

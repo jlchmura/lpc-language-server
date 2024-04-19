@@ -8,13 +8,9 @@ import {
     IDiagnosticEntry,
     ISymbolInfo,
 } from "../types";
-
-import { URI } from "vscode-uri";
-import { FoldingRange, TextDocuments } from "vscode-languageserver";
-import { normalizeFilename, testFilename } from "../utils";
+import { FoldingRange } from "vscode-languageserver";
+import { normalizeFilename } from "../utils";
 import { IncludeSymbol } from "../symbols/includeSymbol";
-import { ContextSymbolTable } from "./ContextSymbolTable";
-import { LpcServer } from "./LpcServer";
 import { TextDocument } from "vscode-languageserver-textdocument";
 
 export interface IContextEntry {
@@ -39,6 +35,8 @@ export class LpcFacade {
         string,
         IContextEntry
     >();
+
+    private depChain: Set<string>;
 
     public onRunDiagnostics: (filename: string) => void;
 
@@ -67,6 +65,7 @@ export class LpcFacade {
 
     public loadLpc(fileName: string, source?: string): SourceContext {
         fileName = normalizeFilename(fileName);
+
         let contextEntry = this.getContextEntry(fileName);
         if (!contextEntry) {
             if (!source) {
@@ -143,55 +142,80 @@ export class LpcFacade {
         }
     }
 
-    public addDependency(filename: string, dep: ContextImportInfo) {
-        const contextEntry = this.getContextEntry(filename);
-        if (contextEntry) {
-            const depContext = this.loadDependency(contextEntry, dep.filename);
-            if (depContext) {
-                // increment ref counter for the dependency
-                const depContextEntry = this.getContextEntry(
-                    depContext.fileName
+    private addDependency(filename: string, dep: ContextImportInfo) {
+        try {
+            const contextEntry = this.getContextEntry(filename);
+            if (contextEntry) {
+                const depContext = this.loadDependency(
+                    contextEntry,
+                    dep.filename
                 );
-                depContextEntry.refCount++;
+                if (depContext) {
+                    // increment ref counter for the dependency
+                    const depContextEntry = this.getContextEntry(
+                        depContext.fileName
+                    );
+                    depContextEntry.refCount++;
 
-                if (!!dep.symbol) {
-                    (dep.symbol as IncludeSymbol).isLoaded = true;
+                    if (!!dep.symbol) {
+                        (dep.symbol as IncludeSymbol).isLoaded = true;
+                    }
+                    contextEntry.context.addAsReferenceTo(depContext);
                 }
-                contextEntry.context.addAsReferenceTo(depContext);
+                return depContext;
             }
-            return depContext;
+        } catch (e) {
+            console.log(
+                `Error adding dependency ${dep.filename} to ${filename}: ${e}`
+            );
         }
     }
 
     private parseLpc(contextEntry: IContextEntry) {
         const context = contextEntry.context;
-        const oldDependencies = contextEntry.dependencies;
-        const oldReferences = [...context.getReferences()];
-
-        contextEntry.dependencies = [];
-        const info = context.parse();
-
-        // load file-level dependencies (imports & inherits)
-        const newDependencies = info.imports;
-
-        for (const dep of newDependencies) {
-            this.addDependency(contextEntry.filename, dep);
+        const isDepChainRoot = !this.depChain;
+        if (isDepChainRoot) {
+            this.depChain = new Set<string>([context.fileName]);
+        } else {
+            this.depChain.add(context.fileName);
         }
 
-        // re-parse any documents that depend on this one
-        for (const ref of oldReferences) {
-            const refCtx = this.getContextEntry(ref.fileName);
-            this.parseLpc(refCtx);
+        try {
+            const oldDependencies = contextEntry.dependencies;
+            const oldReferences = [...context.getReferences()];
 
-            // send a notification to the server to re-send diags for this doc
-            if (!!this.onRunDiagnostics) this.onRunDiagnostics(ref.fileName);
+            contextEntry.dependencies = [];
+            const info = context.parse();
+
+            // load file-level dependencies (imports & inherits)
+            const newDependencies = info.imports;
+
+            for (const dep of newDependencies) {
+                this.addDependency(contextEntry.filename, dep);
+            }
+
+            // re-parse any documents that depend on this one
+            for (const ref of oldReferences) {
+                const refCtx = this.getContextEntry(ref.fileName);
+                this.parseLpc(refCtx);
+
+                // send a notification to the server to re-send diags for this doc
+                if (!!this.onRunDiagnostics)
+                    this.onRunDiagnostics(ref.fileName);
+            }
+
+            // Release all old dependencies. This will only unload grammars which have
+            // not been ref-counted by the above dependency loading (or which are not used by other
+            // grammars).
+            for (const dep of oldDependencies) {
+                this.releaseLpc(dep);
+            }
+        } catch (e) {
+            console.log(`Error parsing ${contextEntry.filename}: ${e}`);
         }
 
-        // Release all old dependencies. This will only unload grammars which have
-        // not been ref-counted by the above dependency loading (or which are not used by other
-        // grammars).
-        for (const dep of oldDependencies) {
-            this.releaseLpc(dep);
+        if (isDepChainRoot) {
+            this.depChain = undefined;
         }
     }
 
@@ -223,6 +247,12 @@ export class LpcFacade {
         const depInfo = contextEntry.context.resolveFilename(depName);
         if (!!depInfo?.fullPath) {
             const depPath = depInfo.fullPath;
+
+            if (this.depChain.has(depPath)) {
+                console.info("Skipping cyclic dependency", depPath);
+                return undefined;
+            }
+
             try {
                 fs.accessSync(depPath, fs.constants.R_OK);
                 contextEntry.dependencies.push(depPath);
@@ -230,7 +260,7 @@ export class LpcFacade {
 
                 return depContextEntry;
             } catch (e) {
-                // ignore
+                console.log(`Error loading dependency ${depPath}: ${e}`);
             }
         }
 
