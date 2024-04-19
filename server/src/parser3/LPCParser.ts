@@ -4394,7 +4394,7 @@ export class LPCParser extends antlr.Parser {
         let _la: number;
         try {
             let alternative: number;
-            this.state = 932;
+            this.state = 933;
             this.errorHandler.sync(this);
             switch (this.interpreter.adaptivePredict(this.tokenStream, 94, this.context) ) {
             case 1:
@@ -4496,6 +4496,14 @@ export class LPCParser extends antlr.Parser {
                 this.catchExpr();
                 }
                 break;
+            case 9:
+                localContext = new InheritExpressionContext(localContext);
+                this.enterOuterAlt(localContext, 9);
+                {
+                this.state = 932;
+                this.inheritSuperExpression();
+                }
+                break;
             }
         }
         catch (re) {
@@ -4515,20 +4523,20 @@ export class LPCParser extends antlr.Parser {
         let localContext = new ExpressionContext(this.context, this.state);
         this.enterRule(localContext, 132, LPCParser.RULE_expression);
         try {
-            this.state = 936;
+            this.state = 937;
             this.errorHandler.sync(this);
             switch (this.interpreter.adaptivePredict(this.tokenStream, 95, this.context) ) {
             case 1:
                 this.enterOuterAlt(localContext, 1);
                 {
-                this.state = 934;
+                this.state = 935;
                 this.assignmentExpression();
                 }
                 break;
             case 2:
                 this.enterOuterAlt(localContext, 2);
                 {
-                this.state = 935;
+                this.state = 936;
                 this.nonAssignmentExpression();
                 }
                 break;
@@ -4554,45 +4562,45 @@ export class LPCParser extends antlr.Parser {
         try {
             this.enterOuterAlt(localContext, 1);
             {
-            this.state = 938;
-            this.match(LPCParser.CATCH);
             this.state = 939;
-            this.match(LPCParser.PAREN_OPEN);
+            this.match(LPCParser.CATCH);
             this.state = 940;
+            this.match(LPCParser.PAREN_OPEN);
+            this.state = 941;
             this.expression();
-            this.state = 945;
+            this.state = 946;
             this.errorHandler.sync(this);
             _la = this.tokenStream.LA(1);
             while (_la === 80) {
                 {
                 {
-                this.state = 941;
-                this.match(LPCParser.COMMA);
                 this.state = 942;
+                this.match(LPCParser.COMMA);
+                this.state = 943;
                 this.expression();
                 }
                 }
-                this.state = 947;
+                this.state = 948;
                 this.errorHandler.sync(this);
                 _la = this.tokenStream.LA(1);
             }
-            this.state = 952;
+            this.state = 953;
             this.errorHandler.sync(this);
             _la = this.tokenStream.LA(1);
             while (_la === 79) {
                 {
                 {
-                this.state = 948;
-                this.match(LPCParser.SEMI);
                 this.state = 949;
+                this.match(LPCParser.SEMI);
+                this.state = 950;
                 this.match(LPCParser.Identifier);
                 }
                 }
-                this.state = 954;
+                this.state = 955;
                 this.errorHandler.sync(this);
                 _la = this.tokenStream.LA(1);
             }
-            this.state = 955;
+            this.state = 956;
             this.match(LPCParser.PAREN_CLOSE);
             }
         }
@@ -4614,113 +4622,113 @@ export class LPCParser extends antlr.Parser {
         this.enterRule(localContext, 136, LPCParser.RULE_bracketExpression);
         let _la: number;
         try {
-            this.state = 991;
+            this.state = 992;
             this.errorHandler.sync(this);
             switch (this.interpreter.adaptivePredict(this.tokenStream, 105, this.context) ) {
             case 1:
                 this.enterOuterAlt(localContext, 1);
                 {
-                this.state = 957;
+                this.state = 958;
                 this.match(LPCParser.SQUARE_OPEN);
-                this.state = 959;
+                this.state = 960;
                 this.errorHandler.sync(this);
                 _la = this.tokenStream.LA(1);
                 if (_la === 64) {
                     {
-                    this.state = 958;
+                    this.state = 959;
                     this.match(LPCParser.LT);
                     }
                 }
 
-                this.state = 961;
-                this.expression();
                 this.state = 962;
+                this.expression();
+                this.state = 963;
                 this.match(LPCParser.SQUARE_CLOSE);
                 }
                 break;
             case 2:
                 this.enterOuterAlt(localContext, 2);
                 {
-                this.state = 964;
+                this.state = 965;
                 this.match(LPCParser.SQUARE_OPEN);
-                this.state = 966;
+                this.state = 967;
                 this.errorHandler.sync(this);
                 _la = this.tokenStream.LA(1);
                 if (_la === 64) {
                     {
-                    this.state = 965;
+                    this.state = 966;
                     this.match(LPCParser.LT);
                     }
                 }
 
-                this.state = 969;
+                this.state = 970;
                 this.errorHandler.sync(this);
                 _la = this.tokenStream.LA(1);
                 if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 2097170) !== 0) || ((((_la - 55)) & ~0x1F) === 0 && ((1 << (_la - 55)) & 806125671) !== 0) || ((((_la - 97)) & ~0x1F) === 0 && ((1 << (_la - 97)) & 505877) !== 0)) {
                     {
-                    this.state = 968;
+                    this.state = 969;
                     this.expression();
                     }
                 }
 
-                this.state = 971;
+                this.state = 972;
                 this.match(LPCParser.DOUBLEDOT);
-                this.state = 973;
+                this.state = 974;
                 this.errorHandler.sync(this);
                 _la = this.tokenStream.LA(1);
                 if (_la === 64) {
                     {
-                    this.state = 972;
+                    this.state = 973;
                     this.match(LPCParser.LT);
                     }
                 }
 
-                this.state = 976;
+                this.state = 977;
                 this.errorHandler.sync(this);
                 _la = this.tokenStream.LA(1);
                 if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 2097170) !== 0) || ((((_la - 55)) & ~0x1F) === 0 && ((1 << (_la - 55)) & 806125671) !== 0) || ((((_la - 97)) & ~0x1F) === 0 && ((1 << (_la - 97)) & 505877) !== 0)) {
                     {
-                    this.state = 975;
+                    this.state = 976;
                     this.expression();
                     }
                 }
 
-                this.state = 978;
+                this.state = 979;
                 this.match(LPCParser.SQUARE_CLOSE);
                 }
                 break;
             case 3:
                 this.enterOuterAlt(localContext, 3);
                 {
-                this.state = 979;
+                this.state = 980;
                 this.match(LPCParser.SQUARE_OPEN);
-                this.state = 981;
+                this.state = 982;
                 this.errorHandler.sync(this);
                 _la = this.tokenStream.LA(1);
                 if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 2097170) !== 0) || ((((_la - 55)) & ~0x1F) === 0 && ((1 << (_la - 55)) & 806125671) !== 0) || ((((_la - 97)) & ~0x1F) === 0 && ((1 << (_la - 97)) & 505877) !== 0)) {
                     {
-                    this.state = 980;
+                    this.state = 981;
                     this.expression();
                     }
                 }
 
-                this.state = 987;
+                this.state = 988;
                 this.errorHandler.sync(this);
                 _la = this.tokenStream.LA(1);
                 while (_la === 80) {
                     {
                     {
-                    this.state = 983;
-                    this.match(LPCParser.COMMA);
                     this.state = 984;
+                    this.match(LPCParser.COMMA);
+                    this.state = 985;
                     this.expression();
                     }
                     }
-                    this.state = 989;
+                    this.state = 990;
                     this.errorHandler.sync(this);
                     _la = this.tokenStream.LA(1);
                 }
-                this.state = 990;
+                this.state = 991;
                 this.match(LPCParser.SQUARE_CLOSE);
                 }
                 break;
@@ -4745,17 +4753,17 @@ export class LPCParser extends antlr.Parser {
         try {
             this.enterOuterAlt(localContext, 1);
             {
-            this.state = 994;
+            this.state = 995;
             this.errorHandler.sync(this);
             switch (this.interpreter.adaptivePredict(this.tokenStream, 106, this.context) ) {
             case 1:
                 {
-                this.state = 993;
+                this.state = 994;
                 this.match(LPCParser.AND);
                 }
                 break;
             }
-            this.state = 996;
+            this.state = 997;
             this.expression();
             }
         }
@@ -4779,29 +4787,29 @@ export class LPCParser extends antlr.Parser {
         try {
             this.enterOuterAlt(localContext, 1);
             {
-            this.state = 998;
+            this.state = 999;
             this.argument();
-            this.state = 1005;
+            this.state = 1006;
             this.errorHandler.sync(this);
             _la = this.tokenStream.LA(1);
             while (_la === 80) {
                 {
                 {
-                this.state = 999;
+                this.state = 1000;
                 this.match(LPCParser.COMMA);
-                this.state = 1001;
+                this.state = 1002;
                 this.errorHandler.sync(this);
                 _la = this.tokenStream.LA(1);
                 if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 2097170) !== 0) || ((((_la - 55)) & ~0x1F) === 0 && ((1 << (_la - 55)) & 806125671) !== 0) || ((((_la - 97)) & ~0x1F) === 0 && ((1 << (_la - 97)) & 505877) !== 0)) {
                     {
-                    this.state = 1000;
+                    this.state = 1001;
                     this.argument();
                     }
                 }
 
                 }
                 }
-                this.state = 1007;
+                this.state = 1008;
                 this.errorHandler.sync(this);
                 _la = this.tokenStream.LA(1);
             }
@@ -4827,21 +4835,21 @@ export class LPCParser extends antlr.Parser {
         try {
             this.enterOuterAlt(localContext, 1);
             {
-            this.state = 1008;
+            this.state = 1009;
             this.expression();
-            this.state = 1013;
+            this.state = 1014;
             this.errorHandler.sync(this);
             _la = this.tokenStream.LA(1);
             while (_la === 80) {
                 {
                 {
-                this.state = 1009;
-                this.match(LPCParser.COMMA);
                 this.state = 1010;
+                this.match(LPCParser.COMMA);
+                this.state = 1011;
                 this.expression();
                 }
                 }
-                this.state = 1015;
+                this.state = 1016;
                 this.errorHandler.sync(this);
                 _la = this.tokenStream.LA(1);
             }
@@ -4866,11 +4874,11 @@ export class LPCParser extends antlr.Parser {
         try {
             this.enterOuterAlt(localContext, 1);
             {
-            this.state = 1016;
-            this.conditionalExpressionBase(0);
             this.state = 1017;
-            this.assignmentOperator();
+            this.conditionalExpressionBase(0);
             this.state = 1018;
+            this.assignmentOperator();
+            this.state = 1019;
             this.expression();
             }
         }
@@ -4897,26 +4905,19 @@ export class LPCParser extends antlr.Parser {
             case 1:
                 this.enterOuterAlt(localContext, 1);
                 {
-                this.state = 1020;
+                this.state = 1021;
                 this.inlineClosureExpression();
                 }
                 break;
             case 2:
                 this.enterOuterAlt(localContext, 2);
                 {
-                this.state = 1021;
+                this.state = 1022;
                 this.lambdaExpression();
                 }
                 break;
             case 3:
                 this.enterOuterAlt(localContext, 3);
-                {
-                this.state = 1022;
-                this.inheritSuperExpression();
-                }
-                break;
-            case 4:
-                this.enterOuterAlt(localContext, 4);
                 {
                 this.state = 1023;
                 this.conditionalExpressionBase(0);
@@ -5062,16 +5063,16 @@ export class LPCParser extends antlr.Parser {
         1,64,3,64,893,8,64,1,64,3,64,896,8,64,1,64,3,64,899,8,64,1,64,5,
         64,902,8,64,10,64,12,64,905,9,64,5,64,907,8,64,10,64,12,64,910,9,
         64,1,65,1,65,1,65,1,65,1,65,1,65,1,65,1,65,1,65,1,65,1,65,1,65,1,
-        65,1,65,1,65,5,65,927,8,65,10,65,12,65,930,9,65,1,65,3,65,933,8,
-        65,1,66,1,66,3,66,937,8,66,1,67,1,67,1,67,1,67,1,67,5,67,944,8,67,
-        10,67,12,67,947,9,67,1,67,1,67,5,67,951,8,67,10,67,12,67,954,9,67,
-        1,67,1,67,1,68,1,68,3,68,960,8,68,1,68,1,68,1,68,1,68,1,68,3,68,
-        967,8,68,1,68,3,68,970,8,68,1,68,1,68,3,68,974,8,68,1,68,3,68,977,
-        8,68,1,68,1,68,1,68,3,68,982,8,68,1,68,1,68,5,68,986,8,68,10,68,
-        12,68,989,9,68,1,68,3,68,992,8,68,1,69,3,69,995,8,69,1,69,1,69,1,
-        70,1,70,1,70,3,70,1002,8,70,5,70,1004,8,70,10,70,12,70,1007,9,70,
-        1,71,1,71,1,71,5,71,1012,8,71,10,71,12,71,1015,9,71,1,72,1,72,1,
-        72,1,72,1,73,1,73,1,73,1,73,3,73,1025,8,73,1,73,0,1,124,74,0,2,4,
+        65,1,65,1,65,5,65,927,8,65,10,65,12,65,930,9,65,1,65,1,65,3,65,934,
+        8,65,1,66,1,66,3,66,938,8,66,1,67,1,67,1,67,1,67,1,67,5,67,945,8,
+        67,10,67,12,67,948,9,67,1,67,1,67,5,67,952,8,67,10,67,12,67,955,
+        9,67,1,67,1,67,1,68,1,68,3,68,961,8,68,1,68,1,68,1,68,1,68,1,68,
+        3,68,968,8,68,1,68,3,68,971,8,68,1,68,1,68,3,68,975,8,68,1,68,3,
+        68,978,8,68,1,68,1,68,1,68,3,68,983,8,68,1,68,1,68,5,68,987,8,68,
+        10,68,12,68,990,9,68,1,68,3,68,993,8,68,1,69,3,69,996,8,69,1,69,
+        1,69,1,70,1,70,1,70,3,70,1003,8,70,5,70,1005,8,70,10,70,12,70,1008,
+        9,70,1,71,1,71,1,71,5,71,1013,8,71,10,71,12,71,1016,9,71,1,72,1,
+        72,1,72,1,72,1,73,1,73,1,73,3,73,1025,8,73,1,73,0,1,124,74,0,2,4,
         6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,
         50,52,54,56,58,60,62,64,66,68,70,72,74,76,78,80,82,84,86,88,90,92,
         94,96,98,100,102,104,106,108,110,112,114,116,118,120,122,124,126,
@@ -5095,9 +5096,9 @@ export class LPCParser extends antlr.Parser {
         0,104,620,1,0,0,0,106,623,1,0,0,0,108,632,1,0,0,0,110,643,1,0,0,
         0,112,651,1,0,0,0,114,745,1,0,0,0,116,747,1,0,0,0,118,751,1,0,0,
         0,120,772,1,0,0,0,122,774,1,0,0,0,124,776,1,0,0,0,126,878,1,0,0,
-        0,128,880,1,0,0,0,130,932,1,0,0,0,132,936,1,0,0,0,134,938,1,0,0,
-        0,136,991,1,0,0,0,138,994,1,0,0,0,140,998,1,0,0,0,142,1008,1,0,0,
-        0,144,1016,1,0,0,0,146,1024,1,0,0,0,148,152,3,38,19,0,149,152,3,
+        0,128,880,1,0,0,0,130,933,1,0,0,0,132,937,1,0,0,0,134,939,1,0,0,
+        0,136,992,1,0,0,0,138,995,1,0,0,0,140,999,1,0,0,0,142,1009,1,0,0,
+        0,144,1017,1,0,0,0,146,1024,1,0,0,0,148,152,3,38,19,0,149,152,3,
         2,1,0,150,152,3,34,17,0,151,148,1,0,0,0,151,149,1,0,0,0,151,150,
         1,0,0,0,152,155,1,0,0,0,153,151,1,0,0,0,153,154,1,0,0,0,154,156,
         1,0,0,0,155,153,1,0,0,0,156,157,5,0,0,1,157,1,1,0,0,0,158,176,3,
@@ -5335,51 +5336,51 @@ export class LPCParser extends antlr.Parser {
         0,0,0,900,902,3,136,68,0,901,900,1,0,0,0,902,905,1,0,0,0,903,901,
         1,0,0,0,903,904,1,0,0,0,904,907,1,0,0,0,905,903,1,0,0,0,906,898,
         1,0,0,0,907,910,1,0,0,0,908,906,1,0,0,0,908,909,1,0,0,0,909,129,
-        1,0,0,0,910,908,1,0,0,0,911,933,3,118,59,0,912,913,7,16,0,0,913,
-        914,5,101,0,0,914,915,3,132,66,0,915,916,5,102,0,0,916,933,1,0,0,
-        0,917,933,5,1,0,0,918,919,5,101,0,0,919,920,3,132,66,0,920,921,5,
-        102,0,0,921,933,1,0,0,0,922,933,3,56,28,0,923,933,3,60,30,0,924,
+        1,0,0,0,910,908,1,0,0,0,911,934,3,118,59,0,912,913,7,16,0,0,913,
+        914,5,101,0,0,914,915,3,132,66,0,915,916,5,102,0,0,916,934,1,0,0,
+        0,917,934,5,1,0,0,918,919,5,101,0,0,919,920,3,132,66,0,920,921,5,
+        102,0,0,921,934,1,0,0,0,922,934,3,56,28,0,923,934,3,60,30,0,924,
         928,5,112,0,0,925,927,5,112,0,0,926,925,1,0,0,0,927,930,1,0,0,0,
-        928,926,1,0,0,0,928,929,1,0,0,0,929,933,1,0,0,0,930,928,1,0,0,0,
-        931,933,3,134,67,0,932,911,1,0,0,0,932,912,1,0,0,0,932,917,1,0,0,
-        0,932,918,1,0,0,0,932,922,1,0,0,0,932,923,1,0,0,0,932,924,1,0,0,
-        0,932,931,1,0,0,0,933,131,1,0,0,0,934,937,3,144,72,0,935,937,3,146,
-        73,0,936,934,1,0,0,0,936,935,1,0,0,0,937,133,1,0,0,0,938,939,5,4,
-        0,0,939,940,5,101,0,0,940,945,3,132,66,0,941,942,5,80,0,0,942,944,
-        3,132,66,0,943,941,1,0,0,0,944,947,1,0,0,0,945,943,1,0,0,0,945,946,
-        1,0,0,0,946,952,1,0,0,0,947,945,1,0,0,0,948,949,5,79,0,0,949,951,
-        5,1,0,0,950,948,1,0,0,0,951,954,1,0,0,0,952,950,1,0,0,0,952,953,
-        1,0,0,0,953,955,1,0,0,0,954,952,1,0,0,0,955,956,5,102,0,0,956,135,
-        1,0,0,0,957,959,5,105,0,0,958,960,5,64,0,0,959,958,1,0,0,0,959,960,
-        1,0,0,0,960,961,1,0,0,0,961,962,3,132,66,0,962,963,5,106,0,0,963,
-        992,1,0,0,0,964,966,5,105,0,0,965,967,5,64,0,0,966,965,1,0,0,0,966,
-        967,1,0,0,0,967,969,1,0,0,0,968,970,3,132,66,0,969,968,1,0,0,0,969,
-        970,1,0,0,0,970,971,1,0,0,0,971,973,5,81,0,0,972,974,5,64,0,0,973,
-        972,1,0,0,0,973,974,1,0,0,0,974,976,1,0,0,0,975,977,3,132,66,0,976,
-        975,1,0,0,0,976,977,1,0,0,0,977,978,1,0,0,0,978,992,5,106,0,0,979,
-        981,5,105,0,0,980,982,3,132,66,0,981,980,1,0,0,0,981,982,1,0,0,0,
-        982,987,1,0,0,0,983,984,5,80,0,0,984,986,3,132,66,0,985,983,1,0,
-        0,0,986,989,1,0,0,0,987,985,1,0,0,0,987,988,1,0,0,0,988,990,1,0,
-        0,0,989,987,1,0,0,0,990,992,5,106,0,0,991,957,1,0,0,0,991,964,1,
-        0,0,0,991,979,1,0,0,0,992,137,1,0,0,0,993,995,5,70,0,0,994,993,1,
-        0,0,0,994,995,1,0,0,0,995,996,1,0,0,0,996,997,3,132,66,0,997,139,
-        1,0,0,0,998,1005,3,138,69,0,999,1001,5,80,0,0,1000,1002,3,138,69,
-        0,1001,1000,1,0,0,0,1001,1002,1,0,0,0,1002,1004,1,0,0,0,1003,999,
-        1,0,0,0,1004,1007,1,0,0,0,1005,1003,1,0,0,0,1005,1006,1,0,0,0,1006,
-        141,1,0,0,0,1007,1005,1,0,0,0,1008,1013,3,132,66,0,1009,1010,5,80,
-        0,0,1010,1012,3,132,66,0,1011,1009,1,0,0,0,1012,1015,1,0,0,0,1013,
-        1011,1,0,0,0,1013,1014,1,0,0,0,1014,143,1,0,0,0,1015,1013,1,0,0,
-        0,1016,1017,3,124,62,0,1017,1018,3,122,61,0,1018,1019,3,132,66,0,
-        1019,145,1,0,0,0,1020,1025,3,78,39,0,1021,1025,3,114,57,0,1022,1025,
-        3,36,18,0,1023,1025,3,124,62,0,1024,1020,1,0,0,0,1024,1021,1,0,0,
-        0,1024,1022,1,0,0,0,1024,1023,1,0,0,0,1025,147,1,0,0,0,111,151,153,
-        172,175,187,193,209,221,226,248,254,261,265,270,285,289,295,303,
-        319,322,325,336,339,347,350,353,363,370,374,381,389,400,405,408,
-        413,418,424,429,435,443,446,459,468,475,497,501,510,512,519,523,
-        527,531,536,540,542,550,558,567,584,589,593,599,605,610,618,620,
-        623,626,634,643,651,745,767,772,790,797,804,811,818,825,832,839,
-        846,853,855,857,878,884,892,895,898,903,908,928,932,936,945,952,
-        959,966,969,973,976,981,987,991,994,1001,1005,1013,1024
+        928,926,1,0,0,0,928,929,1,0,0,0,929,934,1,0,0,0,930,928,1,0,0,0,
+        931,934,3,134,67,0,932,934,3,36,18,0,933,911,1,0,0,0,933,912,1,0,
+        0,0,933,917,1,0,0,0,933,918,1,0,0,0,933,922,1,0,0,0,933,923,1,0,
+        0,0,933,924,1,0,0,0,933,931,1,0,0,0,933,932,1,0,0,0,934,131,1,0,
+        0,0,935,938,3,144,72,0,936,938,3,146,73,0,937,935,1,0,0,0,937,936,
+        1,0,0,0,938,133,1,0,0,0,939,940,5,4,0,0,940,941,5,101,0,0,941,946,
+        3,132,66,0,942,943,5,80,0,0,943,945,3,132,66,0,944,942,1,0,0,0,945,
+        948,1,0,0,0,946,944,1,0,0,0,946,947,1,0,0,0,947,953,1,0,0,0,948,
+        946,1,0,0,0,949,950,5,79,0,0,950,952,5,1,0,0,951,949,1,0,0,0,952,
+        955,1,0,0,0,953,951,1,0,0,0,953,954,1,0,0,0,954,956,1,0,0,0,955,
+        953,1,0,0,0,956,957,5,102,0,0,957,135,1,0,0,0,958,960,5,105,0,0,
+        959,961,5,64,0,0,960,959,1,0,0,0,960,961,1,0,0,0,961,962,1,0,0,0,
+        962,963,3,132,66,0,963,964,5,106,0,0,964,993,1,0,0,0,965,967,5,105,
+        0,0,966,968,5,64,0,0,967,966,1,0,0,0,967,968,1,0,0,0,968,970,1,0,
+        0,0,969,971,3,132,66,0,970,969,1,0,0,0,970,971,1,0,0,0,971,972,1,
+        0,0,0,972,974,5,81,0,0,973,975,5,64,0,0,974,973,1,0,0,0,974,975,
+        1,0,0,0,975,977,1,0,0,0,976,978,3,132,66,0,977,976,1,0,0,0,977,978,
+        1,0,0,0,978,979,1,0,0,0,979,993,5,106,0,0,980,982,5,105,0,0,981,
+        983,3,132,66,0,982,981,1,0,0,0,982,983,1,0,0,0,983,988,1,0,0,0,984,
+        985,5,80,0,0,985,987,3,132,66,0,986,984,1,0,0,0,987,990,1,0,0,0,
+        988,986,1,0,0,0,988,989,1,0,0,0,989,991,1,0,0,0,990,988,1,0,0,0,
+        991,993,5,106,0,0,992,958,1,0,0,0,992,965,1,0,0,0,992,980,1,0,0,
+        0,993,137,1,0,0,0,994,996,5,70,0,0,995,994,1,0,0,0,995,996,1,0,0,
+        0,996,997,1,0,0,0,997,998,3,132,66,0,998,139,1,0,0,0,999,1006,3,
+        138,69,0,1000,1002,5,80,0,0,1001,1003,3,138,69,0,1002,1001,1,0,0,
+        0,1002,1003,1,0,0,0,1003,1005,1,0,0,0,1004,1000,1,0,0,0,1005,1008,
+        1,0,0,0,1006,1004,1,0,0,0,1006,1007,1,0,0,0,1007,141,1,0,0,0,1008,
+        1006,1,0,0,0,1009,1014,3,132,66,0,1010,1011,5,80,0,0,1011,1013,3,
+        132,66,0,1012,1010,1,0,0,0,1013,1016,1,0,0,0,1014,1012,1,0,0,0,1014,
+        1015,1,0,0,0,1015,143,1,0,0,0,1016,1014,1,0,0,0,1017,1018,3,124,
+        62,0,1018,1019,3,122,61,0,1019,1020,3,132,66,0,1020,145,1,0,0,0,
+        1021,1025,3,78,39,0,1022,1025,3,114,57,0,1023,1025,3,124,62,0,1024,
+        1021,1,0,0,0,1024,1022,1,0,0,0,1024,1023,1,0,0,0,1025,147,1,0,0,
+        0,111,151,153,172,175,187,193,209,221,226,248,254,261,265,270,285,
+        289,295,303,319,322,325,336,339,347,350,353,363,370,374,381,389,
+        400,405,408,413,418,424,429,435,443,446,459,468,475,497,501,510,
+        512,519,523,527,531,536,540,542,550,558,567,584,589,593,599,605,
+        610,618,620,623,626,634,643,651,745,767,772,790,797,804,811,818,
+        825,832,839,846,853,855,857,878,884,892,895,898,903,908,928,933,
+        937,946,953,960,967,970,974,977,982,988,992,995,1002,1006,1014,1024
     ];
 
     private static __ATN: antlr.ATN;
@@ -9197,6 +9198,32 @@ export class PrimaryExpressionStartContext extends antlr.ParserRuleContext {
         super.copyFrom(ctx);
     }
 }
+export class InheritExpressionContext extends PrimaryExpressionStartContext {
+    public constructor(ctx: PrimaryExpressionStartContext) {
+        super(ctx.parent, ctx.invokingState);
+        super.copyFrom(ctx);
+    }
+    public inheritSuperExpression(): InheritSuperExpressionContext {
+        return this.getRuleContext(0, InheritSuperExpressionContext)!;
+    }
+    public override enterRule(listener: LPCParserListener): void {
+        if(listener.enterInheritExpression) {
+             listener.enterInheritExpression(this);
+        }
+    }
+    public override exitRule(listener: LPCParserListener): void {
+        if(listener.exitInheritExpression) {
+             listener.exitInheritExpression(this);
+        }
+    }
+    public override accept<Result>(visitor: LPCParserVisitor<Result>): Result | null {
+        if (visitor.visitInheritExpression) {
+            return visitor.visitInheritExpression(this);
+        } else {
+            return visitor.visitChildren(this);
+        }
+    }
+}
 export class CloneObjectExpressionContext extends PrimaryExpressionStartContext {
     public _ob?: ExpressionContext;
     public constructor(ctx: PrimaryExpressionStartContext) {
@@ -9768,9 +9795,6 @@ export class NonAssignmentExpressionContext extends antlr.ParserRuleContext {
     }
     public lambdaExpression(): LambdaExpressionContext | null {
         return this.getRuleContext(0, LambdaExpressionContext);
-    }
-    public inheritSuperExpression(): InheritSuperExpressionContext | null {
-        return this.getRuleContext(0, InheritSuperExpressionContext);
     }
     public conditionalExpressionBase(): ConditionalExpressionBaseContext | null {
         return this.getRuleContext(0, ConditionalExpressionBaseContext);

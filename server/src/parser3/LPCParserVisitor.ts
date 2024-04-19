@@ -93,6 +93,7 @@ import { PrimaryArrayExpressionContext } from "./LPCParser.js";
 import { PrimaryMappingExpressionContext } from "./LPCParser.js";
 import { StringConcatExpressionContext } from "./LPCParser.js";
 import { CatchExpressionContext } from "./LPCParser.js";
+import { InheritExpressionContext } from "./LPCParser.js";
 import { ExpressionContext } from "./LPCParser.js";
 import { CatchExprContext } from "./LPCParser.js";
 import { BracketExpressionContext } from "./LPCParser.js";
@@ -682,6 +683,13 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      * @return the visitor result
      */
     visitCatchExpression?: (ctx: CatchExpressionContext) => Result;
+    /**
+     * Visit a parse tree produced by the `inheritExpression`
+     * labeled alternative in `LPCParser.primaryExpressionStart`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitInheritExpression?: (ctx: InheritExpressionContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.expression`.
      * @param ctx the parse tree

@@ -446,6 +446,7 @@ primaryExpressionStart
     | mappingExpression                     # primaryMappingExpression
     | StringLiteral StringLiteral*          # stringConcatExpression        
     | catchExpr                             # catchExpression
+    | inheritSuperExpression                # inheritExpression
     ;
 
 expression
@@ -484,7 +485,6 @@ assignmentExpression
 
 nonAssignmentExpression
     : inlineClosureExpression
-    | lambdaExpression
-    | inheritSuperExpression
+    | lambdaExpression    
     | conditionalExpressionBase
     ;
