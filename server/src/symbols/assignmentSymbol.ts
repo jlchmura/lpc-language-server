@@ -4,6 +4,10 @@ import { SymbolKind } from "../types";
 import { AssignmentExpressionContext } from "../parser3/LPCParser";
 import { VariableIdentifierSymbol, VariableSymbol } from "./variableSymbol";
 import { CallStack } from "../backend/CallStack";
+import { addDiagnostic } from "./Symbol";
+import { DiagnosticSeverity } from "vscode-languageserver";
+import { rangeFromTokens } from "../utils";
+import { ParserRuleContext } from "antlr4ng";
 
 export class AssignmentSymbol
     extends ScopedSymbol
@@ -59,7 +63,12 @@ export class AssignmentSymbol
             case "&&=":
                 return lh.eval(stack, lh.eval(stack) && rhResult);
             default:
-                throw "operator not supported";
+                const ctx = this.context as ParserRuleContext;
+                addDiagnostic(this, {
+                    message: `Unknown operator in assignment expression [${this.operator}]`,
+                    range: rangeFromTokens(ctx.start, ctx.stop),
+                    type: DiagnosticSeverity.Error,
+                });
         }
     }
 }

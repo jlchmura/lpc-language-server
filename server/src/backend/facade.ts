@@ -262,11 +262,11 @@ export class LpcFacade {
         const context = this.getContext(fileName);
 
         if (!!context && context.needsValidation) {
-            try {
-                return context.getDiagnostics();
-            } catch (e) {
-                console.log(`Error getting diagnostics for ${fileName}: ${e}`);
-            }
+            //try {
+            return context.getDiagnostics();
+            // } catch (e) {
+            //     console.log(`Error getting diagnostics for ${fileName}: ${e}`);
+            // }
         }
 
         return undefined;

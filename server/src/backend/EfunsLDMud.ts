@@ -56,8 +56,12 @@ efun("map", LpcTypes.mixedArrayType, true, ["arr", LpcTypes.mixedArrayType], ["f
 efun("mappingp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("member", LpcTypes.intType, true, ["array", LpcTypes.mixedArrayType], ["elem", LpcTypes.mixedType], ["start", LpcTypes.intType]);
 efun("min", LpcTypes.intType, true, ["arg", LpcTypes.mixedType], ["arg1", LpcTypes.mixedType]);
+efun("m_add", LpcTypes.mappingType, true, ["map", LpcTypes.mappingType], ["key", LpcTypes.mixedType], ["val", LpcTypes.mixedType]);
+efun("m_delete", LpcTypes.mappingType, true, ["map", LpcTypes.mappingType], ["key", LpcTypes.mixedType]);
 efun("m_indices", LpcTypes.mixedArrayType, false, ["map", LpcTypes.mappingType]);
 efun("m_entry", LpcTypes.mixedArrayType, true, ["map", LpcTypes.mappingType], ["key", LpcTypes.mixedType]);
+efun("m_reallocate", LpcTypes.mappingType, true, ["m", LpcTypes.mappingType], ["width", LpcTypes.intType]);
+efun("m_values", LpcTypes.mixedArrayType, false, ["map", LpcTypes.mappingType], ["index", LpcTypes.intType]);
 efun("move_object", LpcTypes.voidType, false, ["item", LpcTypes.mixedType], ["dest", LpcTypes.mixedType]);
 efun("next_inventory", LpcTypes.objectType, false, ["ob", LpcTypes.objectType]);
 efun("notify_fail", LpcTypes.voidType, false, ["msg", LpcTypes.stringType]);
@@ -90,6 +94,8 @@ efun("this_interactive", LpcTypes.objectType, false);
 efun("this_object", LpcTypes.objectType, false);
 efun("this_player", LpcTypes.objectType, false);
 efun("time", LpcTypes.intType, false);
+efun("to_int", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
+efun("widthof", LpcTypes.intType, false, ["map", LpcTypes.mappingType]);
 efun("write", LpcTypes.voidType, false, ["msg", LpcTypes.mixedType]);
 
 function efun(

@@ -130,7 +130,7 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
                     this.functionName ?? ""
                 }]`,
                 range: rangeFromTokens(ctx.start, ctx.stop),
-                type: DiagnosticSeverity.Warning,
+                type: DiagnosticSeverity.Information,
             });
             return undefined;
         }
