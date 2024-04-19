@@ -3,6 +3,7 @@ import {
     IScopedSymbol,
     ScopedSymbol,
     SymbolConstructor,
+    SymbolTable,
 } from "antlr4-c3";
 import { ParseTree } from "antlr4ng";
 import { ILexicalRange, SymbolKind } from "../types";
@@ -28,10 +29,27 @@ export function getSymbolsOfTypeSync<
     }
 
     if (!localOnly && scope instanceof ContextSymbolTable) {
-        const deps = (scope as ContextSymbolTable).getDependencies();
-        for (const dependency of deps) {
-            symbols.push(...getSymbolsOfTypeSync(dependency, t, localOnly));
+        let tbl = scope as SymbolTable;
+        const seen = new Set<string>([tbl.name]);
+        const deps = Array.from(
+            (scope as ContextSymbolTable).getDependencies()
+        );
+
+        while (deps.length > 0) {
+            tbl = deps.shift();
+            if (!tbl || seen.has(tbl.name)) continue;
+            seen.add(tbl.name);
+
+            symbols.push(...getSymbolsOfTypeSync(tbl, t, false));
+            if (tbl instanceof ContextSymbolTable) {
+                deps.push(
+                    ...Array.from((tbl as ContextSymbolTable).getDependencies())
+                );
+            }
         }
+        // for (const dependency of deps) {
+        //     symbols.push(...getSymbolsOfTypeSync(dependency, t, localOnly));
+        // }
     }
 
     return symbols;
