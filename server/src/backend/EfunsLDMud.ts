@@ -89,6 +89,7 @@ efun("say", LpcTypes.voidType, true, ["msg", LpcTypes.stringType], ["exclude", L
 efun("set_extra_wizinfo", LpcTypes.voidType, false, ["wiz", LpcTypes.objectType], ["extra", LpcTypes.mixedType]);
 efun("set_heart_beat", LpcTypes.intType, true, ["flag", LpcTypes.intType]);
 efun("set_light", LpcTypes.voidType, true, ["intensity", LpcTypes.intType]);
+efun("set_this_object", LpcTypes.voidType, false, ["ob_to_pretend_to_be", LpcTypes.objectType]);
 efun("set_prompt", LpcTypes.stringType, true, ["prompt", LpcTypes.stringType], ["ob", LpcTypes.objectType]);
 efun("sprintf", LpcTypes.stringType, true, ["fmt", LpcTypes.stringType], ["var...", LpcTypes.mixedType, true]);
 efun("set_bit", LpcTypes.stringType, false, ["str", LpcTypes.stringType], ["n", LpcTypes.intType]);

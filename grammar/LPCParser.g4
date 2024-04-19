@@ -121,7 +121,7 @@ parameterList
     ;
 
 parameter
-    : paramType=typeSpecifier? paramName=Identifier #primitiveTypeParameterExpression    
+    : VARARGS? paramType=typeSpecifier? paramName=Identifier #primitiveTypeParameterExpression    
     | paramType=STRUCT structName=Identifier paramName=Identifier #structParameterExpression
     ;
 
