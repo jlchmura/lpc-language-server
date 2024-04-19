@@ -35,8 +35,10 @@ efun("deep_inventory", LpcTypes.objectArrayType, true, ["ob", LpcTypes.objectTyp
 efun("destruct", LpcTypes.voidType, false, ["ob", LpcTypes.objectType]);
 efun("enable_commands", LpcTypes.voidType, false);
 efun("environment", LpcTypes.objectType, true, ["ob", LpcTypes.objectType]);
+efun("exec", LpcTypes.intType, false, ["new", LpcTypes.objectType], ["old", LpcTypes.objectType]);
 efun("explode", LpcTypes.stringArrayType, false, ["str", LpcTypes.stringType], ["del", LpcTypes.stringType]);
 efun("file_size", LpcTypes.intType, false, ["file", LpcTypes.stringType]);
+efun("filter", LpcTypes.mixedArrayType, true, ["arr", LpcTypes.mixedArrayType], ["fun", LpcTypes.stringType], ["ob", LpcTypes.stringType], ["...extra", LpcTypes.mixedType,true]);
 efun("filter_objects", LpcTypes.objectArrayType, true, ["arr", LpcTypes.objectArrayType], ["fun", LpcTypes.stringType], ["extra", LpcTypes.mixedType], ["args...", LpcTypes.mixedType, true]);
 efun("find_object", LpcTypes.objectType, false, ["file", LpcTypes.stringType]);
 efun("first_inventory", LpcTypes.objectType, true, ["ob", LpcTypes.stringType]);
@@ -46,6 +48,7 @@ efun("floor", LpcTypes.intType, false, ["number", LpcTypes.intType]);
 efun("funcall", LpcTypes.mixedType, true, ["fun", LpcTypes.closureType], ["args...", LpcTypes.mixedArrayType, true]);
 efun("function_exists", LpcTypes.intType, false, ["fun", LpcTypes.stringType], ["ob", LpcTypes.objectType]);
 efun("get_dir", LpcTypes.mixedArrayType, true, ["path", LpcTypes.stringType], ["flags", LpcTypes.intType]);
+efun("get_error_file", LpcTypes.mixedType, true, ["name", LpcTypes.stringType], ["set_forget_flag", LpcTypes.intType]);
 efun("get_extra_wizinfo", LpcTypes.mixedType, false, ["wiz", LpcTypes.objectType]);
 efun("hash", LpcTypes.intType, true, ["method", LpcTypes.intArrayType], ["arg", LpcTypes.stringType],["iterations", LpcTypes.intType]);
 efun("implode", LpcTypes.stringType, true, ["arr", LpcTypes.mixedArrayType], ["del", LpcTypes.stringType]);
@@ -55,6 +58,7 @@ efun("interactive_info", LpcTypes.mixedType, true, ["ob", LpcTypes.objectType],[
 efun("intp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("invert_bits", LpcTypes.stringType, false, ["str", LpcTypes.stringType]);
 efun("json_serialize", LpcTypes.stringType, false, ["data", LpcTypes.mixedType]);
+efun("lambda", LpcTypes.closureType, false, ["arr", LpcTypes.mixedArrayType], ["mixed", LpcTypes.mixedType]);
 efun("living", LpcTypes.intType, false, ["ob", LpcTypes.objectType]);
 efun("localtime", LpcTypes.intArrayType, false, ["clock", LpcTypes.intType]);
 efun("load_name", LpcTypes.stringType, true, ["ob", LpcTypes.objectType]);
@@ -96,6 +100,7 @@ efun("rename", LpcTypes.intType, false, ["from", LpcTypes.stringType], ["to", Lp
 efun("rm", LpcTypes.intType, false, ["file", LpcTypes.stringType]);
 efun("save_object", LpcTypes.intType, true, ["name", LpcTypes.stringType], ["format", LpcTypes.intType]);
 efun("say", LpcTypes.voidType, true, ["msg", LpcTypes.stringType], ["exclude", LpcTypes.objectArrayType]);
+efun("send_imp", LpcTypes.intType, false, ["host", LpcTypes.stringType], ["port", LpcTypes.intType], ["msg", LpcTypes.stringType]); // TODO: deprecated
 efun("set_driver_hook", LpcTypes.voidType, false, ["what", LpcTypes.intType], ["arg", LpcTypes.closureType]);
 efun("set_extra_wizinfo", LpcTypes.voidType, false, ["wiz", LpcTypes.objectType], ["extra", LpcTypes.mixedType]);
 efun("set_heart_beat", LpcTypes.intType, true, ["flag", LpcTypes.intType]);
