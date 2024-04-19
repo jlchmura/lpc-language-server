@@ -75,6 +75,7 @@ efun("previous_object", LpcTypes.objectType, true, ["i", LpcTypes.intType]);
 efun("present", LpcTypes.objectType, true, ["str", FundamentalType.stringType], ["env", LpcTypes.objectType]);
 efun("printf", LpcTypes.voidType, true, ["fmt", LpcTypes.stringType], ["var...", LpcTypes.mixedType, true]);
 efun("pointerp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
+efun("query_ip_number", LpcTypes.stringType, true, ["ob", LpcTypes.objectType]);
 efun("query_once_interactive", LpcTypes.intType, false, ["ob", LpcTypes.objectType]);
 efun("query_verb", LpcTypes.stringType, true, ["flag", LpcTypes.intType]);
 efun("random", LpcTypes.intType, true, ["n", LpcTypes.intType]);
