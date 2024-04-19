@@ -755,16 +755,16 @@ export class SourceContext {
 
                     break;
                 }
-                case LPCLexer.ARRAY_OPEN: {
-                    result.push({
-                        kind: SymbolKind.Operator,
-                        name: "({ val })",
-                        description: "Array initializer",
-                        source: this.fileName,
-                    });
+                // case LPCLexer.ARRAY_OPEN: {
+                //     result.push({
+                //         kind: SymbolKind.Operator,
+                //         name: "({ val })",
+                //         description: "Array initializer",
+                //         source: this.fileName,
+                //     });
 
-                    break;
-                }
+                //     break;
+                // }
                 case LPCLexer.ASSIGN: {
                     result.push({
                         kind: SymbolKind.Operator,

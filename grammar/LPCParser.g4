@@ -150,7 +150,7 @@ structMemberDeclaration
     ;
 
 arrayExpression
-    : ARRAY_OPEN (expression (COMMA expression)*)? COMMA? ARRAY_CLOSE
+    : PAREN_OPEN CURLY_OPEN (expression (COMMA expression)*)? COMMA? CURLY_CLOSE PAREN_CLOSE
     ;
 
 mappingContent
@@ -346,6 +346,7 @@ literal
 
 castExpression
     : PAREN_OPEN typeSpecifier PAREN_CLOSE expression                        #primitiveTypeCastExpression
+    | PAREN_OPEN CURLY_OPEN typeSpecifier CURLY_CLOSE PAREN_CLOSE expression #declarativeTypeCastExpression
     | PAREN_OPEN LT Identifier GT expression (COMMA expression)* PAREN_CLOSE #structCastExpression
     ;
 

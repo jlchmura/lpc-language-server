@@ -119,9 +119,6 @@ BITAND_ASSIGN: '&=';
 BITOR_ASSIGN: '|=';
 XOR_ASSIGN: '^=';
 SHL_ASSIGN: '<<=';
-// array & mapping brackets
-ARRAY_OPEN: '({';
-ARRAY_CLOSE: '})';
 MAPPING_OPEN: '([';
 ARROW: '->';
 

@@ -71,11 +71,11 @@ efun("m_indices", LpcTypes.mixedArrayType, false, ["map", LpcTypes.mappingType])
 efun("m_entry", LpcTypes.mixedArrayType, true, ["map", LpcTypes.mappingType], ["key", LpcTypes.mixedType]);
 efun("m_reallocate", LpcTypes.mappingType, true, ["m", LpcTypes.mappingType], ["width", LpcTypes.intType]);
 efun("m_values", LpcTypes.mixedArrayType, true, ["map", LpcTypes.mappingType], ["index", LpcTypes.intType]);
-// mapping mkmapping(mixed *arr1, mixed *arr2,...)
 efun("mkmapping", LpcTypes.mappingType, true, ["...arr", LpcTypes.mixedArrayType, true]);
 efun("move_object", LpcTypes.voidType, false, ["item", LpcTypes.mixedType], ["dest", LpcTypes.mixedType]);
 efun("next_inventory", LpcTypes.objectType, false, ["ob", LpcTypes.objectType]);
 efun("notify_fail", LpcTypes.voidType, false, ["msg", LpcTypes.stringType]);
+efun("object_info", LpcTypes.mixedType, true, ["ob", LpcTypes.objectType],["what", LpcTypes.intType]);
 efun("object_name", LpcTypes.stringType, false, ["ob", LpcTypes.objectType]);
 efun("objectp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("playerp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
@@ -87,6 +87,7 @@ efun("query_actions", LpcTypes.mixedArrayType, true, ["ob", LpcTypes.objectType]
 efun("query_ip_number", LpcTypes.stringType, true, ["ob", LpcTypes.objectType]);
 efun("query_once_interactive", LpcTypes.intType, false, ["ob", LpcTypes.objectType]);
 efun("query_verb", LpcTypes.stringType, true, ["flag", LpcTypes.intType]);
+efun("raise_error", LpcTypes.voidType, false, ["arg", LpcTypes.stringType]);
 efun("random", LpcTypes.intType, true, ["n", LpcTypes.intType]);
 efun("read_file", LpcTypes.stringType, true, ["file", LpcTypes.stringType], ["start", LpcTypes.intType], ["len", LpcTypes.intType]);
 efun("regreplace", LpcTypes.stringType, false, ["txt", LpcTypes.stringType], ["pattern", LpcTypes.stringType], ["replacepattern", LpcTypes.closureType], ["flags", LpcTypes.intType]);
@@ -95,6 +96,7 @@ efun("rename", LpcTypes.intType, false, ["from", LpcTypes.stringType], ["to", Lp
 efun("rm", LpcTypes.intType, false, ["file", LpcTypes.stringType]);
 efun("save_object", LpcTypes.intType, true, ["name", LpcTypes.stringType], ["format", LpcTypes.intType]);
 efun("say", LpcTypes.voidType, true, ["msg", LpcTypes.stringType], ["exclude", LpcTypes.objectArrayType]);
+efun("set_driver_hook", LpcTypes.voidType, false, ["what", LpcTypes.intType], ["arg", LpcTypes.closureType]);
 efun("set_extra_wizinfo", LpcTypes.voidType, false, ["wiz", LpcTypes.objectType], ["extra", LpcTypes.mixedType]);
 efun("set_heart_beat", LpcTypes.intType, true, ["flag", LpcTypes.intType]);
 efun("set_light", LpcTypes.voidType, true, ["intensity", LpcTypes.intType]);
