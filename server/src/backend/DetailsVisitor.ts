@@ -66,7 +66,12 @@ import {
     PreprocessorSymbol,
 } from "../symbols/Symbol";
 import { FoldingRange } from "vscode-languageserver";
-import { ContextImportInfo, LpcTypes, typeNameToIType } from "../types";
+import {
+    COMMENT_CHANNEL_NUM,
+    ContextImportInfo,
+    LpcTypes,
+    typeNameToIType,
+} from "../types";
 import { LPCLexer } from "../parser3/LPCLexer";
 import {
     VariableIdentifierSymbol,
@@ -108,7 +113,6 @@ import {
 
 import { ArrowSymbol } from "../symbols/arrowSymbol";
 
-const COMMENT_CHANNEL_NUM = 2;
 type ScopedSymbolConstructor = new (...args: any[]) => ScopedSymbol;
 
 export class DetailsVisitor

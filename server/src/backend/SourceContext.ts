@@ -33,6 +33,7 @@ import {
     SymbolKind,
     LpcTypes,
     DependencySearchType,
+    SOURCEMAP_CHANNEL_NUM,
 } from "../types";
 import { ContextErrorListener } from "./ContextErrorListener";
 import { ContextLexerErrorListener } from "./ContextLexerErrorListener";
@@ -55,6 +56,7 @@ import { LpcFacade } from "./facade";
 import { DetailsVisitor } from "./DetailsVisitor";
 import { DiagnosticSeverity, FoldingRange } from "vscode-languageserver";
 import {
+    firstEntry,
     lexRangeFromContext as lexRangeFromContext,
     normalizeFilename,
     pushIfDefined,
@@ -88,6 +90,17 @@ import { ArrowSymbol, ArrowType } from "../symbols/arrowSymbol";
 import { LPCPreprocessorLexer } from "../preprocessor/LPCPreprocessorLexer";
 import { LPCPreprocessorParser } from "../preprocessor/LPCPreprocessorParser";
 import { TestParser } from "./TestParser";
+
+const mapAnnotationReg = /\[\[@(.+?)\]\]/;
+
+type macroDefinition = {
+    /** the text that will get substituted for the macro */
+    value: string;
+    filename: string;
+    line: number;
+    column: number;
+    args?: string[];
+};
 
 /**
  * Source context for a single LPC file.
@@ -127,6 +140,7 @@ export class SourceContext {
     private lexer: LPCLexer;
     public tokenStream: CommonTokenStream;
     public commentStream: CommonTokenStream;
+    public sourcemapStream: CommonTokenStream;
     private preParser: LPCPreprocessorParser;
     private parser: LPCParser;
     private errorListener: ContextErrorListener = new ContextErrorListener(
@@ -142,7 +156,7 @@ export class SourceContext {
      * Holds #define macros pulled out during the preprocessing phase. The map's key is the macro name with the `#` symbol removed.
      * The map value is the expanded text of the macro
      */
-    private macroTable: Map<string, string> = new Map();
+    private macroTable: Map<string, macroDefinition> = new Map();
     /** source code from the IDE (unmodifier - i.e. macros have not been replaced) */
     private sourceText: string = "";
     /** each array entry corresponds to a line number in sourceText. Each array element is
@@ -182,6 +196,11 @@ export class SourceContext {
             LPCLexer.COMMENT
         );
 
+        this.sourcemapStream = new CommonTokenStream(
+            this.lexer,
+            LPCLexer.SOURCEMAP
+        );
+
         this.parser = new TestParser(this.tokenStream);
         this.parser.buildParseTrees = true;
 
@@ -218,23 +237,26 @@ export class SourceContext {
         // for each line in the source text
         this.sourceMap = [];
         const lines = this.sourceText.split(/\r?\n/);
-        let offset = 0;
         for (let i = 0; i < lines.length; i++) {
             let line = lines[i];
             this.sourceMap[i] = new Map();
             // for each macro in the macro table
-            for (const [key, value] of this.macroTable) {
-                const regex = new RegExp(`\\b${key}\\b`, "g");
+            for (const [key, def] of this.macroTable) {
+                const regex = new RegExp(`\\b${key}(?!]]|.*")\\b`, "g");
+                const { value } = def;
+                // we'll add an annotation to the source text to help us map back to the original source later
+                const annotation = `[[@${key}]]`;
+                const sub = annotation + value;
+
                 let match;
                 while ((match = regex.exec(line))) {
                     const start = match.index;
                     const end = start + key.length;
                     // update the source map with the offset
-                    offset += value.length;
-                    this.sourceMap[i].set(end, offset);
+                    this.sourceMap[i].set(start, annotation.length);
+                    this.sourceMap[i].set(end, value.length);
                     // replace the macro with the expanded text
-                    line =
-                        line.substring(0, start) + value + line.substring(end);
+                    line = line.substring(0, start) + sub + line.substring(end);
                 }
             }
             // update the source text with the new line
@@ -245,8 +267,20 @@ export class SourceContext {
 
     public parse(): IContextDetails {
         this.macroTable.clear();
-        this.macroTable.set("TO", "this_object()");
-        this.macroTable.set("TP", "this_player()");
+
+        // for testing purposes
+        this.macroTable.set("TO", {
+            value: "this_object()",
+            filename: this.backend.filenameToAbsolutePath("/sys/globals.h"),
+            line: 1,
+            column: 1,
+        });
+        this.macroTable.set("TP", {
+            value: "this_player()",
+            filename: this.backend.filenameToAbsolutePath("/sys/globals.h"),
+            line: 2,
+            column: 1,
+        });
 
         // pre-process
         const sourceText = this.processMacros();
@@ -550,7 +584,7 @@ export class SourceContext {
         let lexerColumn = column;
         for (const [sourceColumn, offset] of colMap) {
             if (sourceColumn <= column) {
-                lexerColumn = column + offset;
+                lexerColumn += offset;
             } else {
                 break;
             }
@@ -577,6 +611,43 @@ export class SourceContext {
         );
         if (!terminal || !(terminal instanceof TerminalNode)) {
             return undefined;
+        }
+
+        const tokenIndex = terminal.symbol.tokenIndex;
+        const mapping = firstEntry(
+            this.tokenStream.getHiddenTokensToLeft(
+                tokenIndex,
+                SOURCEMAP_CHANNEL_NUM
+            )
+        );
+        if (!!mapping) {
+            // mappingText is a string in the format of: [[@<source_row>,<source_col>,<source_symbol>]]
+            // pull out the symbol from that string
+            const mappingText = mapping.text;
+            const mappingMatch = mappingText.match(mapAnnotationReg);
+            if (mappingMatch) {
+                const sourceSymbol = mappingMatch[1];
+                const macroDef = this.macroTable.get(sourceSymbol);
+                if (!!macroDef) {
+                    const { column, line: row } = macroDef;
+                    const columnEnd = column + sourceSymbol.length;
+                    return [
+                        {
+                            symbol: undefined,
+                            name: sourceSymbol,
+                            kind: SymbolKind.Define,
+                            source: macroDef.filename,
+                            definition: {
+                                range: {
+                                    start: { column, row },
+                                    end: { column: columnEnd, row },
+                                },
+                                text: sourceSymbol,
+                            },
+                        },
+                    ];
+                }
+            }
         }
 
         // If limitToChildren is set we only want to show info for symbols in specific contexts.

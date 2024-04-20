@@ -8,6 +8,9 @@ import {
 } from "antlr4-c3";
 import { DiagnosticSeverity } from "vscode-languageserver";
 
+export const COMMENT_CHANNEL_NUM = 2;
+export const SOURCEMAP_CHANNEL_NUM = 3;
+
 export interface IDiagnosticEntry {
     type: DiagnosticSeverity;
     message: string;
