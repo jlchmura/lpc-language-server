@@ -34,6 +34,7 @@ import {
     LpcTypes,
     DependencySearchType,
     SOURCEMAP_CHANNEL_NUM,
+    MacroDefinition,
 } from "../types";
 import { ContextErrorListener } from "./ContextErrorListener";
 import { ContextLexerErrorListener } from "./ContextLexerErrorListener";
@@ -88,19 +89,14 @@ import { IncludeSymbol } from "../symbols/includeSymbol";
 import { URI } from "vscode-uri";
 import { ArrowSymbol, ArrowType } from "../symbols/arrowSymbol";
 import { LPCPreprocessorLexer } from "../preprocessor/LPCPreprocessorLexer";
-import { LPCPreprocessorParser } from "../preprocessor/LPCPreprocessorParser";
+import {
+    LPCPreprocessorParser,
+    LpcDocumentContext,
+} from "../preprocessor/LPCPreprocessorParser";
 import { TestParser } from "./TestParser";
+import { PreprocessorListener } from "./PreprocessorListener";
 
 const mapAnnotationReg = /\[\[@(.+?)\]\]/;
-
-type macroDefinition = {
-    /** the text that will get substituted for the macro */
-    value: string;
-    filename: string;
-    line: number;
-    column: number;
-    args?: string[];
-};
 
 /**
  * Source context for a single LPC file.
@@ -140,7 +136,7 @@ export class SourceContext {
     private lexer: LPCLexer;
     public tokenStream: CommonTokenStream;
     public commentStream: CommonTokenStream;
-    public sourcemapStream: CommonTokenStream;
+    public preTokenStream: CommonTokenStream;
     private preParser: LPCPreprocessorParser;
     private parser: LPCParser;
     private errorListener: ContextErrorListener = new ContextErrorListener(
@@ -156,7 +152,7 @@ export class SourceContext {
      * Holds #define macros pulled out during the preprocessing phase. The map's key is the macro name with the `#` symbol removed.
      * The map value is the expanded text of the macro
      */
-    private macroTable: Map<string, macroDefinition> = new Map();
+    private macroTable: Map<string, MacroDefinition> = new Map();
     /** source code from the IDE (unmodifier - i.e. macros have not been replaced) */
     private sourceText: string = "";
     /** each array entry corresponds to a line number in sourceText. Each array element is
@@ -184,28 +180,31 @@ export class SourceContext {
         // }
 
         this.lexer = new LPCLexer(CharStream.fromString(""));
+        this.preLexer = new LPCPreprocessorLexer(CharStream.fromString(""));
 
         // There won't be lexer errors actually. They are silently bubbled up and will cause parser errors.
         this.lexer.removeErrorListeners();
         this.lexer.addErrorListener(this.lexerErrorListener);
+        this.preLexer.removeErrorListeners();
 
         this.tokenStream = new CommonTokenStream(this.lexer);
+        this.preTokenStream = new CommonTokenStream(this.preLexer);
 
         this.commentStream = new CommonTokenStream(
             this.lexer,
             LPCLexer.COMMENT
         );
 
-        this.sourcemapStream = new CommonTokenStream(
-            this.lexer,
-            LPCLexer.SOURCEMAP
-        );
-
         this.parser = new TestParser(this.tokenStream);
         this.parser.buildParseTrees = true;
 
+        this.preParser = new LPCPreprocessorParser(this.preTokenStream);
+        this.preParser.buildParseTrees = true;
+
         this.parser.removeErrorListeners();
         this.parser.addErrorListener(this.errorListener);
+        this.preParser.removeErrorListeners();
+        this.preParser.addErrorListener(this.errorListener);
     }
 
     public get hasErrors(): boolean {
@@ -228,6 +227,43 @@ export class SourceContext {
         this.sourceText = source;
     }
 
+    private parseMacroTable() {
+        this.macroTable.clear();
+
+        // reset lexer & token stream
+        this.preLexer.inputStream = CharStream.fromString(this.sourceText);
+        this.preLexer.reset();
+        this.preTokenStream.setTokenSource(this.preLexer);
+
+        this.preParser.reset();
+        // use default instead of bailout here.
+        // the method of using bailout and re-parsing using LL mode was causing problems
+        // with code completion
+        this.preParser.errorHandler = new DefaultErrorStrategy();
+        this.preParser.interpreter.predictionMode = PredictionMode.SLL;
+        this.preParser.buildParseTrees = true;
+
+        let tree: LpcDocumentContext;
+        try {
+            tree = this.preParser.lpcDocument();
+        } catch (e) {
+            return;
+        }
+
+        const rw = new TokenStreamRewriter(this.preTokenStream);
+
+        const listener = new PreprocessorListener(
+            this.macroTable,
+            this.fileName,
+            rw
+        );
+
+        ParseTreeWalker.DEFAULT.walk(listener, tree);
+
+        const newtext = rw.getText();
+        this.sourceText = newtext;
+    }
+
     /**
      * Replace macros in the source text with their expanded text from the macro table.  In sourceText, the macros
      * will match the `key` of macroTable exactly (include case). They will not include a hash `#` symbol.
@@ -242,8 +278,10 @@ export class SourceContext {
             this.sourceMap[i] = new Map();
             // for each macro in the macro table
             for (const [key, def] of this.macroTable) {
-                const regex = new RegExp(`\\b${key}(?!]]|.*")\\b`, "g");
                 const { value } = def;
+                if (!value) continue;
+
+                const regex = new RegExp(`\\b${key}(?!]]|.*")\\b`, "g");
                 // we'll add an annotation to the source text to help us map back to the original source later
                 const annotation = `[[@${key}]]`;
                 const sub = annotation + value;
@@ -266,7 +304,7 @@ export class SourceContext {
     }
 
     public parse(): IContextDetails {
-        this.macroTable.clear();
+        this.parseMacroTable();
 
         // for testing purposes
         this.macroTable.set("TO", {

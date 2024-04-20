@@ -115,3 +115,12 @@ export enum DependencySearchType {
     Local,
     Global,
 }
+
+export type MacroDefinition = {
+    /** the text that will get substituted for the macro */
+    value: string;
+    filename: string;
+    line: number;
+    column: number;
+    args?: string[];
+};

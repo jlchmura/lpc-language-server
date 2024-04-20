@@ -3,8 +3,9 @@
 import { AbstractParseTreeVisitor } from "antlr4ng";
 
 
-import { ObjectiveCDocumentContext } from "./LPCPreprocessorParser.js";
-import { TextContext } from "./LPCPreprocessorParser.js";
+import { LpcDocumentContext } from "./LPCPreprocessorParser.js";
+import { CodeTextContext } from "./LPCPreprocessorParser.js";
+import { PreprocessorDirectiveContext } from "./LPCPreprocessorParser.js";
 import { CodeContext } from "./LPCPreprocessorParser.js";
 import { PreprocessorImportContext } from "./LPCPreprocessorParser.js";
 import { PreprocessorConditionalContext } from "./LPCPreprocessorParser.js";
@@ -29,17 +30,25 @@ import { PreprocessorDefinedContext } from "./LPCPreprocessorParser.js";
  */
 export class LPCPreprocessorParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
     /**
-     * Visit a parse tree produced by `LPCPreprocessorParser.objectiveCDocument`.
+     * Visit a parse tree produced by `LPCPreprocessorParser.lpcDocument`.
      * @param ctx the parse tree
      * @return the visitor result
      */
-    visitObjectiveCDocument?: (ctx: ObjectiveCDocumentContext) => Result;
+    visitLpcDocument?: (ctx: LpcDocumentContext) => Result;
     /**
-     * Visit a parse tree produced by `LPCPreprocessorParser.text`.
+     * Visit a parse tree produced by the `codeText`
+     * labeled alternative in `LPCPreprocessorParser.text`.
      * @param ctx the parse tree
      * @return the visitor result
      */
-    visitText?: (ctx: TextContext) => Result;
+    visitCodeText?: (ctx: CodeTextContext) => Result;
+    /**
+     * Visit a parse tree produced by the `preprocessorDirective`
+     * labeled alternative in `LPCPreprocessorParser.text`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitPreprocessorDirective?: (ctx: PreprocessorDirectiveContext) => Result;
     /**
      * Visit a parse tree produced by `LPCPreprocessorParser.code`.
      * @param ctx the parse tree

@@ -5,13 +5,13 @@ options {
     tokenVocab = LPCPreprocessorLexer;
 }
 
-objectiveCDocument
+lpcDocument
     : text* EOF
     ;
 
 text
-    : code
-    | SHARP directive (NEW_LINE | EOF)
+    : code                              # codeText
+    | SHARP directive (NEW_LINE | EOF)  # preprocessorDirective
     ;
 
 code

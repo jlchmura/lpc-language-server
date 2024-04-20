@@ -81,7 +81,7 @@ TEXT
 SLASH
 
 rule names:
-objectiveCDocument
+lpcDocument
 text
 code
 directive

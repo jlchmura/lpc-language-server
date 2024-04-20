@@ -108,8 +108,13 @@ export class LpcServer {
         // Symbol Provider
         this.connection.onDocumentSymbol((params) => {
             const doc = this.documents.get(params.textDocument.uri);
-            const result = this.symbolProvider.getSymbols(doc);
-            return result;
+            try {
+                const result = this.symbolProvider.getSymbols(doc);
+                return result;
+            } catch (e) {
+                console.error(e);
+                return [];
+            }
         });
 
         // Definition Provider

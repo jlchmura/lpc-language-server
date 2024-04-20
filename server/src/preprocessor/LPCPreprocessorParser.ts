@@ -50,7 +50,7 @@ export class LPCPreprocessorParser extends antlr.Parser {
     public static readonly DIRECITVE_TEXT_NEW_LINE = 36;
     public static readonly TEXT = 37;
     public static readonly SLASH = 38;
-    public static readonly RULE_objectiveCDocument = 0;
+    public static readonly RULE_lpcDocument = 0;
     public static readonly RULE_text = 1;
     public static readonly RULE_code = 2;
     public static readonly RULE_directive = 3;
@@ -74,8 +74,7 @@ export class LPCPreprocessorParser extends antlr.Parser {
         "TEXT", "SLASH"
     ];
     public static readonly ruleNames = [
-        "objectiveCDocument", "text", "code", "directive", "directive_text", 
-        "preprocessor_expression",
+        "lpcDocument", "text", "code", "directive", "directive_text", "preprocessor_expression",
     ];
 
     public get grammarFileName(): string { return "LPCPreprocessorParser.g4"; }
@@ -92,9 +91,9 @@ export class LPCPreprocessorParser extends antlr.Parser {
         super(input);
         this.interpreter = new antlr.ParserATNSimulator(this, LPCPreprocessorParser._ATN, LPCPreprocessorParser.decisionsToDFA, new antlr.PredictionContextCache());
     }
-    public objectiveCDocument(): ObjectiveCDocumentContext {
-        let localContext = new ObjectiveCDocumentContext(this.context, this.state);
-        this.enterRule(localContext, 0, LPCPreprocessorParser.RULE_objectiveCDocument);
+    public lpcDocument(): LpcDocumentContext {
+        let localContext = new LpcDocumentContext(this.context, this.state);
+        this.enterRule(localContext, 0, LPCPreprocessorParser.RULE_lpcDocument);
         let _la: number;
         try {
             this.enterOuterAlt(localContext, 1);
@@ -139,6 +138,7 @@ export class LPCPreprocessorParser extends antlr.Parser {
             this.errorHandler.sync(this);
             switch (this.tokenStream.LA(1)) {
             case LPCPreprocessorParser.CODE:
+                localContext = new CodeTextContext(localContext);
                 this.enterOuterAlt(localContext, 1);
                 {
                 this.state = 20;
@@ -146,6 +146,7 @@ export class LPCPreprocessorParser extends antlr.Parser {
                 }
                 break;
             case LPCPreprocessorParser.SHARP:
+                localContext = new PreprocessorDirectiveContext(localContext);
                 this.enterOuterAlt(localContext, 2);
                 {
                 this.state = 21;
@@ -718,7 +719,7 @@ export class LPCPreprocessorParser extends antlr.Parser {
     private static readonly decisionsToDFA = LPCPreprocessorParser._ATN.decisionToState.map( (ds: antlr.DecisionState, index: number) => new antlr.DFA(ds, index) );
 }
 
-export class ObjectiveCDocumentContext extends antlr.ParserRuleContext {
+export class LpcDocumentContext extends antlr.ParserRuleContext {
     public constructor(parent: antlr.ParserRuleContext | null, invokingState: number) {
         super(parent, invokingState);
     }
@@ -735,21 +736,21 @@ export class ObjectiveCDocumentContext extends antlr.ParserRuleContext {
         return this.getRuleContext(i, TextContext);
     }
     public override get ruleIndex(): number {
-        return LPCPreprocessorParser.RULE_objectiveCDocument;
+        return LPCPreprocessorParser.RULE_lpcDocument;
     }
     public override enterRule(listener: LPCPreprocessorParserListener): void {
-        if(listener.enterObjectiveCDocument) {
-             listener.enterObjectiveCDocument(this);
+        if(listener.enterLpcDocument) {
+             listener.enterLpcDocument(this);
         }
     }
     public override exitRule(listener: LPCPreprocessorParserListener): void {
-        if(listener.exitObjectiveCDocument) {
-             listener.exitObjectiveCDocument(this);
+        if(listener.exitLpcDocument) {
+             listener.exitLpcDocument(this);
         }
     }
     public override accept<Result>(visitor: LPCPreprocessorParserVisitor<Result>): Result | null {
-        if (visitor.visitObjectiveCDocument) {
-            return visitor.visitObjectiveCDocument(this);
+        if (visitor.visitLpcDocument) {
+            return visitor.visitLpcDocument(this);
         } else {
             return visitor.visitChildren(this);
         }
@@ -761,14 +762,23 @@ export class TextContext extends antlr.ParserRuleContext {
     public constructor(parent: antlr.ParserRuleContext | null, invokingState: number) {
         super(parent, invokingState);
     }
-    public code(): CodeContext | null {
-        return this.getRuleContext(0, CodeContext);
+    public override get ruleIndex(): number {
+        return LPCPreprocessorParser.RULE_text;
     }
-    public SHARP(): antlr.TerminalNode | null {
-        return this.getToken(LPCPreprocessorParser.SHARP, 0);
+    public override copyFrom(ctx: TextContext): void {
+        super.copyFrom(ctx);
     }
-    public directive(): DirectiveContext | null {
-        return this.getRuleContext(0, DirectiveContext);
+}
+export class PreprocessorDirectiveContext extends TextContext {
+    public constructor(ctx: TextContext) {
+        super(ctx.parent, ctx.invokingState);
+        super.copyFrom(ctx);
+    }
+    public SHARP(): antlr.TerminalNode {
+        return this.getToken(LPCPreprocessorParser.SHARP, 0)!;
+    }
+    public directive(): DirectiveContext {
+        return this.getRuleContext(0, DirectiveContext)!;
     }
     public NEW_LINE(): antlr.TerminalNode | null {
         return this.getToken(LPCPreprocessorParser.NEW_LINE, 0);
@@ -776,22 +786,45 @@ export class TextContext extends antlr.ParserRuleContext {
     public EOF(): antlr.TerminalNode | null {
         return this.getToken(LPCPreprocessorParser.EOF, 0);
     }
-    public override get ruleIndex(): number {
-        return LPCPreprocessorParser.RULE_text;
-    }
     public override enterRule(listener: LPCPreprocessorParserListener): void {
-        if(listener.enterText) {
-             listener.enterText(this);
+        if(listener.enterPreprocessorDirective) {
+             listener.enterPreprocessorDirective(this);
         }
     }
     public override exitRule(listener: LPCPreprocessorParserListener): void {
-        if(listener.exitText) {
-             listener.exitText(this);
+        if(listener.exitPreprocessorDirective) {
+             listener.exitPreprocessorDirective(this);
         }
     }
     public override accept<Result>(visitor: LPCPreprocessorParserVisitor<Result>): Result | null {
-        if (visitor.visitText) {
-            return visitor.visitText(this);
+        if (visitor.visitPreprocessorDirective) {
+            return visitor.visitPreprocessorDirective(this);
+        } else {
+            return visitor.visitChildren(this);
+        }
+    }
+}
+export class CodeTextContext extends TextContext {
+    public constructor(ctx: TextContext) {
+        super(ctx.parent, ctx.invokingState);
+        super.copyFrom(ctx);
+    }
+    public code(): CodeContext {
+        return this.getRuleContext(0, CodeContext)!;
+    }
+    public override enterRule(listener: LPCPreprocessorParserListener): void {
+        if(listener.enterCodeText) {
+             listener.enterCodeText(this);
+        }
+    }
+    public override exitRule(listener: LPCPreprocessorParserListener): void {
+        if(listener.exitCodeText) {
+             listener.exitCodeText(this);
+        }
+    }
+    public override accept<Result>(visitor: LPCPreprocessorParserVisitor<Result>): Result | null {
+        if (visitor.visitCodeText) {
+            return visitor.visitCodeText(this);
         } else {
             return visitor.visitChildren(this);
         }

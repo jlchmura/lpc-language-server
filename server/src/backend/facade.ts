@@ -211,7 +211,7 @@ export class LpcFacade {
                 this.releaseLpc(dep);
             }
         } catch (e) {
-            console.log(`Error parsing ${contextEntry.filename}: ${e}`);
+            console.error(`Error parsing ${contextEntry.filename}: ${e}`, e);
         }
 
         if (isDepChainRoot) {

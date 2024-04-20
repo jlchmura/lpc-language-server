@@ -3,8 +3,9 @@
 import { ErrorNode, ParseTreeListener, ParserRuleContext, TerminalNode } from "antlr4ng";
 
 
-import { ObjectiveCDocumentContext } from "./LPCPreprocessorParser.js";
-import { TextContext } from "./LPCPreprocessorParser.js";
+import { LpcDocumentContext } from "./LPCPreprocessorParser.js";
+import { CodeTextContext } from "./LPCPreprocessorParser.js";
+import { PreprocessorDirectiveContext } from "./LPCPreprocessorParser.js";
 import { CodeContext } from "./LPCPreprocessorParser.js";
 import { PreprocessorImportContext } from "./LPCPreprocessorParser.js";
 import { PreprocessorConditionalContext } from "./LPCPreprocessorParser.js";
@@ -26,25 +27,39 @@ import { PreprocessorDefinedContext } from "./LPCPreprocessorParser.js";
  */
 export class LPCPreprocessorParserListener implements ParseTreeListener {
     /**
-     * Enter a parse tree produced by `LPCPreprocessorParser.objectiveCDocument`.
+     * Enter a parse tree produced by `LPCPreprocessorParser.lpcDocument`.
      * @param ctx the parse tree
      */
-    enterObjectiveCDocument?: (ctx: ObjectiveCDocumentContext) => void;
+    enterLpcDocument?: (ctx: LpcDocumentContext) => void;
     /**
-     * Exit a parse tree produced by `LPCPreprocessorParser.objectiveCDocument`.
+     * Exit a parse tree produced by `LPCPreprocessorParser.lpcDocument`.
      * @param ctx the parse tree
      */
-    exitObjectiveCDocument?: (ctx: ObjectiveCDocumentContext) => void;
+    exitLpcDocument?: (ctx: LpcDocumentContext) => void;
     /**
-     * Enter a parse tree produced by `LPCPreprocessorParser.text`.
+     * Enter a parse tree produced by the `codeText`
+     * labeled alternative in `LPCPreprocessorParser.text`.
      * @param ctx the parse tree
      */
-    enterText?: (ctx: TextContext) => void;
+    enterCodeText?: (ctx: CodeTextContext) => void;
     /**
-     * Exit a parse tree produced by `LPCPreprocessorParser.text`.
+     * Exit a parse tree produced by the `codeText`
+     * labeled alternative in `LPCPreprocessorParser.text`.
      * @param ctx the parse tree
      */
-    exitText?: (ctx: TextContext) => void;
+    exitCodeText?: (ctx: CodeTextContext) => void;
+    /**
+     * Enter a parse tree produced by the `preprocessorDirective`
+     * labeled alternative in `LPCPreprocessorParser.text`.
+     * @param ctx the parse tree
+     */
+    enterPreprocessorDirective?: (ctx: PreprocessorDirectiveContext) => void;
+    /**
+     * Exit a parse tree produced by the `preprocessorDirective`
+     * labeled alternative in `LPCPreprocessorParser.text`.
+     * @param ctx the parse tree
+     */
+    exitPreprocessorDirective?: (ctx: PreprocessorDirectiveContext) => void;
     /**
      * Enter a parse tree produced by `LPCPreprocessorParser.code`.
      * @param ctx the parse tree
