@@ -152,6 +152,10 @@ export class SourceContext {
      * Holds #define macros pulled out during the preprocessing phase. The map's key is the macro name with the `#` symbol removed.
      * The map value is the expanded text of the macro
      */
+    private localMacroTable: Map<string, MacroDefinition> = new Map();
+    /**
+     * combined table that includes dependencies
+     */
     private macroTable: Map<string, MacroDefinition> = new Map();
 
     /** source code from the IDE (unmodifier - i.e. macros have not been replaced) */
@@ -229,7 +233,7 @@ export class SourceContext {
     }
 
     private parseMacroTable() {
-        this.macroTable.clear();
+        this.localMacroTable.clear();
 
         // reset lexer & token stream
         this.preLexer.inputStream = CharStream.fromString(this.sourceText);
@@ -254,7 +258,7 @@ export class SourceContext {
         const rw = new TokenStreamRewriter(this.preTokenStream);
 
         const listener = new PreprocessorListener(
-            this.macroTable,
+            this.localMacroTable,
             this.fileName,
             rw
         );
@@ -263,14 +267,8 @@ export class SourceContext {
 
         const newtext = rw.getText();
         this.sourceText = newtext;
-    }
 
-    /**
-     * Replace macros in the source text with their expanded text from the macro table.  In sourceText, the macros
-     * will match the `key` of macroTable exactly (include case). They will not include a hash `#` symbol.
-     * Every time a substitution is made, update the sourcemap with the offset so that tokens after the macro can be mapped back to the original
-     */
-    private processMacros(): string {
+        // now combine macro tables from dependencies
         // get dependency macro tables and combine into one
         const deps = Array.from(this.symbolTable.getDependencies())
             .filter(
@@ -279,10 +277,17 @@ export class SourceContext {
             )
             .map((depTbl) => depTbl.owner);
         const depMacroTables = deps.map((depCtx) => depCtx.macroTable);
-        const combinedMacros = depMacroTables.reduce((acc, ctxTable) => {
+        this.macroTable = depMacroTables.reduce((acc, ctxTable) => {
             return new Map([...acc, ...ctxTable]);
-        }, this.macroTable);
+        }, this.localMacroTable);
+    }
 
+    /**
+     * Replace macros in the source text with their expanded text from the macro table.  In sourceText, the macros
+     * will match the `key` of macroTable exactly (include case). They will not include a hash `#` symbol.
+     * Every time a substitution is made, update the sourcemap with the offset so that tokens after the macro can be mapped back to the original
+     */
+    private processMacros(): string {
         // for each line in the source text
         this.sourceMap = [];
         const lines = this.sourceText.split(/\r?\n/);
@@ -290,7 +295,7 @@ export class SourceContext {
             let line = lines[i];
             this.sourceMap[i] = new Map();
             // for each macro in the macro table
-            for (const [key, def] of combinedMacros) {
+            for (const [key, def] of this.macroTable) {
                 const { value } = def;
                 if (!value) continue;
 
