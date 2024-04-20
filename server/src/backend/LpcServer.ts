@@ -8,6 +8,7 @@ import {
     DiagnosticSeverity,
     DidChangeConfigurationNotification,
     Disposable,
+    DocumentHighlight,
     InitializeParams,
     InitializeResult,
     InitializedParams,
@@ -50,6 +51,7 @@ import {
     isInstanceOfIRenameableSymbol,
 } from "../symbols/base";
 import { RenameProvider } from "./RenameProvider";
+import { HighlightProvider } from "./HighlightProvider";
 
 const CHANGE_DEBOUNCE_MS = 500;
 
@@ -74,6 +76,7 @@ export class LpcServer {
     private completionProvider: CompletionProvider;
     private signatureHelpProvider: SignatureHelpProvider;
     private renameProvider: RenameProvider;
+    private highlighProvider: HighlightProvider;
 
     /** document listener */
     private readonly documents: TextDocuments<TextDocument> = new TextDocuments(
@@ -247,6 +250,13 @@ export class LpcServer {
                 console.error("Error in doc change content:\n", e);
             }
         });
+
+        this.connection.onDocumentHighlight((params) => {
+            const result = this.highlighProvider.getHighlights(
+                params.textDocument.uri
+            );
+            return result;
+        });
     }
 
     /**
@@ -317,6 +327,7 @@ export class LpcServer {
                 signatureHelpProvider: {
                     triggerCharacters: ["(", ","],
                 },
+                documentHighlightProvider: true,
             },
         };
 
@@ -359,6 +370,7 @@ export class LpcServer {
         this.completionProvider = new CompletionProvider(this.facade);
         this.signatureHelpProvider = new SignatureHelpProvider(this.facade);
         this.renameProvider = new RenameProvider(this.facade);
+        this.highlighProvider = new HighlightProvider(this.facade);
 
         return result;
     }

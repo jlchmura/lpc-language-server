@@ -153,6 +153,7 @@ export class SourceContext {
      * The map value is the expanded text of the macro
      */
     private macroTable: Map<string, MacroDefinition> = new Map();
+
     /** source code from the IDE (unmodifier - i.e. macros have not been replaced) */
     private sourceText: string = "";
     /** each array entry corresponds to a line number in sourceText. Each array element is
@@ -270,6 +271,18 @@ export class SourceContext {
      * Every time a substitution is made, update the sourcemap with the offset so that tokens after the macro can be mapped back to the original
      */
     private processMacros(): string {
+        // get dependency macro tables and combine into one
+        const deps = Array.from(this.symbolTable.getDependencies())
+            .filter(
+                (depTbl): depTbl is ContextSymbolTable =>
+                    !!(depTbl as ContextSymbolTable).owner
+            )
+            .map((depTbl) => depTbl.owner);
+        const depMacroTables = deps.map((depCtx) => depCtx.macroTable);
+        const combinedMacros = depMacroTables.reduce((acc, ctxTable) => {
+            return new Map([...acc, ...ctxTable]);
+        }, this.macroTable);
+
         // for each line in the source text
         this.sourceMap = [];
         const lines = this.sourceText.split(/\r?\n/);
@@ -277,7 +290,7 @@ export class SourceContext {
             let line = lines[i];
             this.sourceMap[i] = new Map();
             // for each macro in the macro table
-            for (const [key, def] of this.macroTable) {
+            for (const [key, def] of combinedMacros) {
                 const { value } = def;
                 if (!value) continue;
 
