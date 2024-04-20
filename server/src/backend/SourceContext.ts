@@ -13,6 +13,7 @@ import {
     PredictionMode,
     TerminalNode,
     Token,
+    TokenStreamRewriter,
 } from "antlr4ng";
 import { LPCLexer } from "../parser3/LPCLexer";
 import {
@@ -84,6 +85,9 @@ import { InheritSymbol, getParentOfType } from "../symbols/Symbol";
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import { URI } from "vscode-uri";
 import { ArrowSymbol, ArrowType } from "../symbols/arrowSymbol";
+import { LPCPreprocessorLexer } from "../preprocessor/LPCPreprocessorLexer";
+import { LPCPreprocessorParser } from "../preprocessor/LPCPreprocessorParser";
+import { TestParser } from "./TestParser";
 
 /**
  * Source context for a single LPC file.
@@ -119,9 +123,11 @@ export class SourceContext {
     }
 
     // grammar parsing stuff
+    private preLexer: LPCPreprocessorLexer;
     private lexer: LPCLexer;
     public tokenStream: CommonTokenStream;
     public commentStream: CommonTokenStream;
+    private preParser: LPCPreprocessorParser;
     private parser: LPCParser;
     private errorListener: ContextErrorListener = new ContextErrorListener(
         this.diagnostics
@@ -129,7 +135,20 @@ export class SourceContext {
     private lexerErrorListener: ContextLexerErrorListener =
         new ContextLexerErrorListener(this.diagnostics);
 
-    private tree: ProgramContext | undefined; // The root context from the last parse run.
+    /** The root context from the last parse run. */
+    private tree: ProgramContext | undefined;
+
+    /**
+     * Holds #define macros pulled out during the preprocessing phase. The map's key is the macro name with the `#` symbol removed.
+     * The map value is the expanded text of the macro
+     */
+    private macroTable: Map<string, string> = new Map();
+    /** source code from the IDE (unmodifier - i.e. macros have not been replaced) */
+    private sourceText: string = "";
+    /** each array entry corresponds to a line number in sourceText. Each array element is
+     * a mapping that holds a column number in the sourceText line and the offset from that point in the line forward
+     */
+    private sourceMap: Map<number, number>[] = [];
 
     public constructor(
         public backend: LpcFacade,
@@ -157,12 +176,13 @@ export class SourceContext {
         this.lexer.addErrorListener(this.lexerErrorListener);
 
         this.tokenStream = new CommonTokenStream(this.lexer);
+
         this.commentStream = new CommonTokenStream(
             this.lexer,
             LPCLexer.COMMENT
         );
 
-        this.parser = new LPCParser(this.tokenStream);
+        this.parser = new TestParser(this.tokenStream);
         this.parser.buildParseTrees = true;
 
         this.parser.removeErrorListeners();
@@ -186,12 +206,55 @@ export class SourceContext {
      * @param source The new content of the editor.
      */
     public setText(source: string): void {
-        this.lexer.inputStream = CharStream.fromString(source);
+        this.sourceText = source;
+    }
+
+    /**
+     * Replace macros in the source text with their expanded text from the macro table.  In sourceText, the macros
+     * will match the `key` of macroTable exactly (include case). They will not include a hash `#` symbol.
+     * Every time a substitution is made, update the sourcemap with the offset so that tokens after the macro can be mapped back to the original
+     */
+    private processMacros(): string {
+        // for each line in the source text
+        this.sourceMap = [];
+        const lines = this.sourceText.split(/\r?\n/);
+        let offset = 0;
+        for (let i = 0; i < lines.length; i++) {
+            let line = lines[i];
+            this.sourceMap[i] = new Map();
+            // for each macro in the macro table
+            for (const [key, value] of this.macroTable) {
+                const regex = new RegExp(`\\b${key}\\b`, "g");
+                let match;
+                while ((match = regex.exec(line))) {
+                    const start = match.index;
+                    const end = start + key.length;
+                    // update the source map with the offset
+                    offset += value.length;
+                    this.sourceMap[i].set(end, offset);
+                    // replace the macro with the expanded text
+                    line =
+                        line.substring(0, start) + value + line.substring(end);
+                }
+            }
+            // update the source text with the new line
+            lines[i] = line;
+        }
+        return lines.join("\n");
     }
 
     public parse(): IContextDetails {
+        this.macroTable.clear();
+        this.macroTable.set("TO", "this_object()");
+        this.macroTable.set("TP", "this_player()");
+
+        // pre-process
+        const sourceText = this.processMacros();
+
         // Rewind the input stream for a new parse run.
+        this.lexer.inputStream = CharStream.fromString(sourceText);
         this.lexer.reset();
+
         this.tokenStream.setTokenSource(this.lexer);
 
         this.parser.reset();
@@ -472,6 +535,30 @@ export class SourceContext {
         return this.symbolTable.resolveSync(symbolName, false);
     }
 
+    /**
+     * convert sourcText column/row to lexer column/row using the sourceMap
+     * @param column
+     * @param row
+     * @returns
+     */
+    public sourceToTokenLocation(
+        column: number,
+        row: number
+    ): { column: number; row: number } {
+        // convert sourcText column/row to lexer column/row using the sourceMap
+        const colMap = this.sourceMap[row - 1]!;
+        let lexerColumn = column;
+        for (const [sourceColumn, offset] of colMap) {
+            if (sourceColumn <= column) {
+                lexerColumn = column + offset;
+            } else {
+                break;
+            }
+        }
+
+        return { column: lexerColumn, row };
+    }
+
     public symbolAtPosition(
         column: number,
         row: number,
@@ -481,9 +568,11 @@ export class SourceContext {
             return undefined;
         }
 
+        const { column: lexerColumn } = this.sourceToTokenLocation(column, row);
+
         const terminal = BackendUtils.parseTreeFromPosition(
             this.tree,
-            column,
+            lexerColumn,
             row
         );
         if (!terminal || !(terminal instanceof TerminalNode)) {
@@ -737,6 +826,8 @@ export class SourceContext {
                 break;
             }
         }
+
+        console.debug("autocomplete token found", token.text);
 
         const candidates = core.collectCandidates(index);
 

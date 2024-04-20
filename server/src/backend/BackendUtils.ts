@@ -15,10 +15,14 @@ export class BackendUtils {
      *
      * @returns The parse tree which covers the given position or undefined if none could be found.
      */
-    public static parseTreeFromPosition = (root: ParseTree, column: number, row: number): ParseTree | null => {
+    public static parseTreeFromPosition = (
+        root: ParseTree,
+        column: number,
+        row: number
+    ): ParseTree | null => {
         // Does the root node actually contain the position? If not we don't need to look further.
         if (root instanceof TerminalNode) {
-            const terminal = (root);
+            const terminal = root;
             const token = terminal.symbol;
             if (token?.line !== row) {
                 return null;
@@ -31,23 +35,36 @@ export class BackendUtils {
 
             return null;
         } else {
-            const context = (root as ParserRuleContext);
-            if (!context.start || !context.stop) { // Invalid tree?
+            const context = root as ParserRuleContext;
+            if (!context.start || !context.stop) {
+                // Invalid tree?
                 return null;
             }
 
-            if (context.start.line > row || (context.start.line === row && column < context.start.column)) {
+            if (
+                context.start.line > row ||
+                (context.start.line === row && column < context.start.column)
+            ) {
                 return null;
             }
 
-            const tokenStop = context.stop.column + (context.stop.stop - context.stop.start + 1);
-            if (context.stop.line < row || (context.stop.line === row && tokenStop < column)) {
+            const tokenStop =
+                context.stop.column +
+                (context.stop.stop - context.stop.start + 1);
+            if (
+                context.stop.line < row ||
+                (context.stop.line === row && tokenStop < column)
+            ) {
                 return null;
             }
 
             if (context.children) {
                 for (const child of context.children) {
-                    const result = BackendUtils.parseTreeFromPosition(child, column, row);
+                    const result = BackendUtils.parseTreeFromPosition(
+                        child,
+                        column,
+                        row
+                    );
                     if (result) {
                         return result;
                     }
@@ -55,8 +72,6 @@ export class BackendUtils {
             }
 
             return context;
-
         }
     };
-
 }
