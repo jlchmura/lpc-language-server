@@ -1041,11 +1041,11 @@ export class SourceContext {
                     if (s instanceof ArrowSymbol) {
                         if (
                             s.ArrowType == ArrowType.CallOther &&
-                            !!s.objectRef
+                            !!s.objContext
                         ) {
                             // call other
                             promises.push(
-                                s.objectRef.context.symbolTable
+                                s.objContext.symbolTable
                                     .getAllSymbols(MethodSymbol, false)
                                     .then((symbols) => {
                                         // filter out efuns
