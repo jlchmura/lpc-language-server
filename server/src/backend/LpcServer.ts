@@ -152,9 +152,7 @@ export class LpcServer {
             // force doc to update so that code completion can use the latest token positions
             // this is needed for situations where code completion is triggered automatically
             // (like a call_other arrow `->`)
-            // --
-            // this doesn't seem necesary any more and was causing extra diags to be run, so i'm removing it.
-            //this.flushChangeTimer(doc);
+            this.flushChangeTimer(doc);
 
             return this.completionProvider.provideCompletionItems(
                 doc,

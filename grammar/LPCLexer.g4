@@ -153,7 +153,7 @@ COMMENT: '/*' .*? '*/' -> channel(COMMENTS_CHANNEL);
 LINE_COMMENT: '//' .*? '\n' -> channel(COMMENTS_CHANNEL);
 
 // sourcemaps
-SOURCEMAP: '[[@' .* ']]' -> channel(SOURCEMAP_CHANNEL);
+SOURCEMAP: '[[@' .*? ']]' -> channel(SOURCEMAP_CHANNEL);
 
 DEFINE: HASH [ \t]* 'define' -> pushMode(DEFINE_MODE);
 

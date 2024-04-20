@@ -254,7 +254,7 @@ export class SourceContext {
                     const end = start + key.length;
                     // update the source map with the offset
                     this.sourceMap[i].set(start, annotation.length);
-                    this.sourceMap[i].set(end, value.length);
+                    this.sourceMap[i].set(end, value.length - key.length);
                     // replace the macro with the expanded text
                     line = line.substring(0, start) + sub + line.substring(end);
                 }
@@ -581,16 +581,16 @@ export class SourceContext {
     ): { column: number; row: number } {
         // convert sourcText column/row to lexer column/row using the sourceMap
         const colMap = this.sourceMap[row - 1]!;
-        let lexerColumn = column;
+        let totalOffset = 0;
         for (const [sourceColumn, offset] of colMap) {
             if (sourceColumn <= column) {
-                lexerColumn += offset;
+                totalOffset += offset;
             } else {
                 break;
             }
         }
 
-        return { column: lexerColumn, row };
+        return { column: column + totalOffset, row };
     }
 
     public symbolAtPosition(
@@ -880,9 +880,14 @@ export class SourceContext {
         ]);
 
         // Search the token index which covers our caret position.
-        let index: number;
         this.tokenStream.fill();
+        let index: number;
         let token: Token;
+
+        // adjust column for source offsets
+        const { column: lexerColumn } = this.sourceToTokenLocation(column, row);
+        column = lexerColumn;
+
         for (index = 0; ; ++index) {
             token = this.tokenStream.get(index);
             //console.log(token.toString());
@@ -898,7 +903,7 @@ export class SourceContext {
             }
         }
 
-        console.debug("autocomplete token found", token.text);
+        console.debug("autocomplete token found", token.text, column);
 
         const candidates = core.collectCandidates(index);
 
