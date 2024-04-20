@@ -19,13 +19,15 @@ export interface IDiagnosticEntry {
     related?: IDiagnosticEntry;
 }
 
+export type IPosition = { column: number; row: number };
+
 /**
  * A range within a text. Just like the range object in vscode the end position is not included in the range.
  * Hence when start and end position are equal the range is empty.
  */
 export interface ILexicalRange {
-    start: { column: number; row: number };
-    end: { column: number; row: number };
+    start: IPosition;
+    end: IPosition;
 }
 
 export type ContextImportInfo = {
@@ -120,7 +122,7 @@ export type MacroDefinition = {
     /** the text that will get substituted for the macro */
     value: string;
     filename: string;
-    line: number;
-    column: number;
+    start: IPosition;
+    end: IPosition;
     args?: string[];
 };

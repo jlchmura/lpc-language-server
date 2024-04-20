@@ -306,20 +306,6 @@ export class SourceContext {
     public parse(): IContextDetails {
         this.parseMacroTable();
 
-        // for testing purposes
-        this.macroTable.set("TO", {
-            value: "this_object()",
-            filename: this.backend.filenameToAbsolutePath("/sys/globals.h"),
-            line: 1,
-            column: 1,
-        });
-        this.macroTable.set("TP", {
-            value: "this_player()",
-            filename: this.backend.filenameToAbsolutePath("/sys/globals.h"),
-            line: 2,
-            column: 1,
-        });
-
         // pre-process
         const sourceText = this.processMacros();
 
@@ -488,7 +474,24 @@ export class SourceContext {
     }
 
     public listTopLevelSymbols(includeDependencies: boolean): ISymbolInfo[] {
-        return this.symbolTable.listTopLevelSymbols(includeDependencies);
+        const symbols =
+            this.symbolTable.listTopLevelSymbols(includeDependencies);
+
+        for (const [macro, def] of this.macroTable.entries()) {
+            const { start, end, filename, value } = def;
+
+            symbols.push({
+                kind: SymbolKind.Define,
+                name: macro,
+                source: filename,
+                definition: {
+                    text: value,
+                    range: { start, end },
+                },
+            });
+        }
+
+        return symbols;
     }
 
     public static getKindFromSymbol(symbol: BaseSymbol): SymbolKind {
@@ -667,7 +670,7 @@ export class SourceContext {
                 const sourceSymbol = mappingMatch[1];
                 const macroDef = this.macroTable.get(sourceSymbol);
                 if (!!macroDef) {
-                    const { column, line: row } = macroDef;
+                    const { start } = macroDef;
                     const columnEnd = column + sourceSymbol.length;
                     return [
                         {
@@ -677,7 +680,7 @@ export class SourceContext {
                             source: macroDef.filename,
                             definition: {
                                 range: {
-                                    start: { column, row },
+                                    start: start,
                                     end: { column: columnEnd, row },
                                 },
                                 text: sourceSymbol,

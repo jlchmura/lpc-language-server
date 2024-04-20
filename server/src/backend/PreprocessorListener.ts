@@ -25,8 +25,8 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
             const def: MacroDefinition = {
                 value,
                 filename: this.filename,
-                line: ctx.start.line,
-                column: ctx.start.column,
+                start: { row: ctx.start.line, column: ctx.start.column },
+                end: { row: ctx.stop.line, column: ctx.stop.column },
             };
 
             this.macroTable.set(name, def);

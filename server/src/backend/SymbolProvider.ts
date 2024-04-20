@@ -63,9 +63,9 @@ export class LpcSymbolProvider {
 
         let description = symbolDescriptionFromEnum(symbol.kind);
         const kind = translateSymbolKind(symbol.kind);
-        let children: DocumentSymbol[] = symbol.children.map((child) =>
-            this.createDocumentSymbol(child)
-        );
+        let children: DocumentSymbol[] =
+            symbol.children?.map((child) => this.createDocumentSymbol(child)) ??
+            [];
 
         const docSym = DocumentSymbol.create(
             symbol.name,
