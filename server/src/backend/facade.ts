@@ -59,7 +59,6 @@ export class LpcFacade {
         }
 
         const newPath = path.join(this.workspaceDir, filename);
-        console.log(`filenameToAbsolutePath '${filename}' -> '${newPath}'`);
         return newPath;
     }
 
@@ -194,15 +193,18 @@ export class LpcFacade {
                 this.addDependency(contextEntry.filename, dep);
             }
 
-            // re-parse any documents that depend on this one
-            for (const ref of oldReferences) {
-                const refCtx = this.getContextEntry(ref.fileName);
-                this.parseLpc(refCtx);
+            // queue dependencies to reparse & run their diags
+            // NTBLA: improve this
+            setTimeout(() => {
+                for (const ref of oldReferences) {
+                    const refCtx = this.getContextEntry(ref.fileName);
+                    this.parseLpc(refCtx);
 
-                // send a notification to the server to re-send diags for this doc
-                if (!!this.onRunDiagnostics)
-                    this.onRunDiagnostics(ref.fileName);
-            }
+                    // send a notification to the server to re-send diags for this doc
+                    if (!!this.onRunDiagnostics)
+                        this.onRunDiagnostics(ref.fileName);
+                }
+            }, 1);
 
             // Release all old dependencies. This will only unload grammars which have
             // not been ref-counted by the above dependency loading (or which are not used by other

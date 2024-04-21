@@ -160,6 +160,8 @@ export class SourceContext {
 
     /** source code from the IDE (unmodifier - i.e. macros have not been replaced) */
     private sourceText: string = "";
+    /** flag that indicates if the text needs compiling, kind of like a dirty state */
+    private needsCompile = false;
     /** each array entry corresponds to a line number in sourceText. Each array element is
      * a mapping that holds a column number in the sourceText line and the offset from that point in the line forward
      */
@@ -230,6 +232,7 @@ export class SourceContext {
      */
     public setText(source: string): void {
         this.sourceText = source;
+        this.needsCompile = true;
     }
 
     private parseMacroTable() {
@@ -322,6 +325,8 @@ export class SourceContext {
     }
 
     public parse(): IContextDetails {
+        console.debug(`Parsing ${this.fileName}`);
+
         this.parseMacroTable();
 
         // pre-process
@@ -386,6 +391,8 @@ export class SourceContext {
         this.tree.accept(visitor);
 
         //this.info.unreferencedRules = this.symbolTable.getUnreferencedSymbols();
+
+        this.needsCompile = false;
 
         return this.info;
     }
@@ -471,7 +478,8 @@ export class SourceContext {
     }
 
     private runSemanticAnalysisIfNeeded() {
-        if (!this.semanticAnalysisDone && this.tree) {
+        // don't run analysis if the code state is dirty. needs a compile first
+        if (!this.semanticAnalysisDone && this.tree && !this.needsCompile) {
             this.semanticAnalysisDone = true;
 
             const semanticListener = new SemanticListener(

@@ -198,7 +198,7 @@ export class LpcServer {
 
         this.documents.onDidChangeContent((e) => {
             const filename = e.document.uri;
-            console.debug("OnChange", e.document.uri);
+            //console.debug("OnChange", e.document.uri);
             try {
                 // always update text, but debounce reparse and other updates
                 this.facade.setText(e.document);
