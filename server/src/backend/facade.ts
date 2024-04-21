@@ -13,6 +13,9 @@ import { normalizeFilename } from "../utils";
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import { TextDocument } from "vscode-languageserver-textdocument";
 
+/** ms delay before reparsing a depenency */
+const DEP_FILE_REPARSE_TIME = 250;
+
 export interface IContextEntry {
     context: SourceContext;
     refCount: number;
@@ -194,7 +197,7 @@ export class LpcFacade {
             }
 
             // queue dependencies to reparse & run their diags
-            // NTBLA: improve this
+            // NTBLA: improve
             setTimeout(() => {
                 for (const ref of oldReferences) {
                     const refCtx = this.getContextEntry(ref.fileName);
@@ -204,7 +207,7 @@ export class LpcFacade {
                     if (!!this.onRunDiagnostics)
                         this.onRunDiagnostics(ref.fileName);
                 }
-            }, 1);
+            }, DEP_FILE_REPARSE_TIME);
 
             // Release all old dependencies. This will only unload grammars which have
             // not been ref-counted by the above dependency loading (or which are not used by other
