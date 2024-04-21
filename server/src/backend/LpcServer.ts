@@ -1,55 +1,23 @@
 import { LpcFacade } from "./facade";
 import {
-    CompletionItem,
-    CompletionList,
     Connection,
-    Diagnostic,
-    DiagnosticRelatedInformation,
-    DiagnosticSeverity,
     DidChangeConfigurationNotification,
-    Disposable,
-    DocumentHighlight,
     InitializeParams,
     InitializeResult,
-    InitializedParams,
-    Location,
-    MarkupContent,
-    NotificationType,
-    NotificationType0,
-    OptionalVersionedTextDocumentIdentifier,
-    Position,
-    Range,
-    TextDocumentEdit,
     TextDocumentSyncKind,
     TextDocuments,
-    TextEdit,
-    WorkspaceEdit,
 } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import * as path from "path";
 import { URI } from "vscode-uri";
 import { LpcSymbolProvider } from "./SymbolProvider";
 import { LpcDefinitionProvider } from "./DefinitionProvider";
-import { IDiagnosticEntry, ILexicalRange, ISymbolInfo } from "../types";
 import { CodeLensProvider } from "./CodeLensProvider";
-import {
-    completionDetails,
-    completionSortKeys,
-    generateSymbolDoc,
-    translateCompletionKind,
-} from "../symbols/Symbol";
+
 import { HoverProvider } from "./HoverProvider";
-import { lexRangeToLspRange } from "../utils";
 import { DiagnosticProvider } from "./DiagnosticProvider";
-import { MethodSymbol } from "../symbols/methodSymbol";
-import { SourceContext } from "./SourceContext";
-import { EfunSymbols } from "./EfunsLDMud";
 import { CompletionProvider } from "./CompletionProvider";
 import { SignatureHelpProvider } from "./SignatureHelpProvider";
-import {
-    IRenameableSymbol,
-    isInstanceOfIRenameableSymbol,
-} from "../symbols/base";
 import { RenameProvider } from "./RenameProvider";
 import { HighlightProvider } from "./HighlightProvider";
 

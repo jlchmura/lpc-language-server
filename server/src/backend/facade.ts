@@ -222,7 +222,6 @@ export class LpcFacade {
     /**
      * Call this to refresh the internal input stream as a preparation to a reparse call
      * or for code completion.
-     * Does nothing if no grammar has been loaded for that file name.
      *
      * @param fileName The grammar file name.
      * @param source The grammar code.
