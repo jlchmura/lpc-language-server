@@ -688,7 +688,7 @@ export class SourceContext {
                 const sourceSymbol = mappingMatch[1];
                 const macroDef = this.macroTable.get(sourceSymbol);
                 if (!!macroDef) {
-                    const { start } = macroDef;
+                    const { start, end } = macroDef;
                     const columnEnd = column + sourceSymbol.length;
                     return [
                         {
@@ -699,7 +699,7 @@ export class SourceContext {
                             definition: {
                                 range: {
                                     start: start,
-                                    end: { column: columnEnd, row },
+                                    end: end,
                                 },
                                 text: sourceSymbol,
                             },
