@@ -6,6 +6,8 @@ import {
 import { LPCPreprocessorParserListener } from "../preprocessor/LPCPreprocessorParserListener";
 import { MacroDefinition } from "../types";
 
+const REG_DEFINE_WITHARGS = /(.*)\((.+)\)/g;
+
 export class PreprocessorListener extends LPCPreprocessorParserListener {
     constructor(
         public macroTable: Map<string, MacroDefinition>,
@@ -21,7 +23,26 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
         const name = ctx.CONDITIONAL_SYMBOL()?.getText();
         const value = ctx.directive_text()?.getText();
 
-        if (!!name) {
+        const nameMatch = REG_DEFINE_WITHARGS.exec(name);
+        if (!!nameMatch && !!nameMatch[2]) {
+            // function type macro
+            const nameOnly = nameMatch[1]; // just the name
+            const argStr = nameMatch[2]; // the arguments portion
+            const argArr = argStr.split(",").map((a) => a.trim());
+
+            const def: MacroDefinition = {
+                value,
+                filename: this.filename,
+                start: { row: ctx.start.line, column: ctx.start.column },
+                end: { row: ctx.stop.line, column: ctx.stop.column },
+                regex: new RegExp(`\\b${nameOnly}\\(`, "g"),
+                annotation: `[[@${nameOnly}]]`,
+                args: argArr,
+            };
+
+            this.macroTable.set(nameOnly, def);
+        } else if (!!name) {
+            // regular macro
             const def: MacroDefinition = {
                 value,
                 filename: this.filename,
