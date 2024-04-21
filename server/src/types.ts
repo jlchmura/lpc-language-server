@@ -125,4 +125,6 @@ export type MacroDefinition = {
     start: IPosition;
     end: IPosition;
     args?: string[];
+    regex: RegExp;
+    annotation: string;
 };

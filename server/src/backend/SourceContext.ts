@@ -244,9 +244,6 @@ export class SourceContext {
         this.preTokenStream.setTokenSource(this.preLexer);
 
         this.preParser.reset();
-        // use default instead of bailout here.
-        // the method of using bailout and re-parsing using LL mode was causing problems
-        // with code completion
         this.preParser.errorHandler = new DefaultErrorStrategy();
         this.preParser.interpreter.predictionMode = PredictionMode.SLL;
         this.preParser.buildParseTrees = true;
@@ -297,15 +294,13 @@ export class SourceContext {
         for (let i = 0; i < lines.length; i++) {
             let line = lines[i];
             this.sourceMap[i] = new Map();
+
+            if (line.trim().length == 0) continue;
+
             // for each macro in the macro table
             for (const [key, def] of this.macroTable) {
-                const { value } = def;
+                const { value, regex, annotation } = def;
                 if (!value) continue;
-
-                const regex = new RegExp(`\\b${key}(?!]]|.*")\\b`, "g");
-                // we'll add an annotation to the source text to help us map back to the original source later
-                const annotation = `[[@${key}]]`;
-                const sub = annotation + value;
 
                 let match;
                 while ((match = regex.exec(line))) {
@@ -315,7 +310,11 @@ export class SourceContext {
                     this.sourceMap[i].set(start, annotation.length);
                     this.sourceMap[i].set(end, value.length - key.length);
                     // replace the macro with the expanded text
-                    line = line.substring(0, start) + sub + line.substring(end);
+                    line =
+                        line.substring(0, start) +
+                        annotation +
+                        value +
+                        line.substring(end);
                 }
             }
             // update the source text with the new line
