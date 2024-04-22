@@ -124,7 +124,14 @@ export type MacroDefinition = {
     filename: string;
     start: IPosition;
     end: IPosition;
+    /**
+     * array of arg names in the order they will be passed to the macro
+     */
     args?: string[];
+    /**
+     * The macro value string with the arg names marked with a unique string [[@<argName>]]
+     */
+    markedValue?: string;
     regex: RegExp;
     annotation: string;
 };

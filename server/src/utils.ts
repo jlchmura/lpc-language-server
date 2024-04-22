@@ -252,3 +252,8 @@ export function testFilename(
         return filename;
     }
 }
+
+/** escape a string for use in regex */
+export function escapeRegExp(str: string) {
+    return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+}

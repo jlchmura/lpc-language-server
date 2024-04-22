@@ -35,6 +35,7 @@ import {
     DependencySearchType,
     SOURCEMAP_CHANNEL_NUM,
     MacroDefinition,
+    IPosition,
 } from "../types";
 import { ContextErrorListener } from "./ContextErrorListener";
 import { ContextLexerErrorListener } from "./ContextLexerErrorListener";
@@ -95,6 +96,7 @@ import {
 } from "../preprocessor/LPCPreprocessorParser";
 import { TestParser } from "./TestParser";
 import { PreprocessorListener } from "./PreprocessorListener";
+import { MacroProcessor } from "./Macros";
 
 const mapAnnotationReg = /\[\[@(.+?)\]\]/;
 
@@ -160,6 +162,9 @@ export class SourceContext {
 
     /** source code from the IDE (unmodifier - i.e. macros have not been replaced) */
     private sourceText: string = "";
+    /** source code after the preprocess has been run */
+    private preprocessedText: string = "";
+
     /** flag that indicates if the text needs compiling, kind of like a dirty state */
     private needsCompile = false;
     /** each array entry corresponds to a line number in sourceText. Each array element is
@@ -266,7 +271,7 @@ export class SourceContext {
         ParseTreeWalker.DEFAULT.walk(listener, tree);
 
         const newtext = rw.getText();
-        this.sourceText = newtext;
+        this.preprocessedText = newtext;
 
         // now combine macro tables from dependencies
         // get dependency macro tables and combine into one
@@ -290,7 +295,9 @@ export class SourceContext {
     private processMacros(): string {
         // for each line in the source text
         this.sourceMap = [];
-        const lines = this.sourceText.split(/\r?\n/);
+        const lines = this.preprocessedText.split(/\r?\n/);
+        const macroProcessor = new MacroProcessor();
+
         for (let i = 0; i < lines.length; i++) {
             let line = lines[i];
             this.sourceMap[i] = new Map();
@@ -299,27 +306,46 @@ export class SourceContext {
 
             // for each macro in the macro table
             for (const [key, def] of this.macroTable) {
-                const { value, regex, annotation } = def;
+                const { args, value, regex, annotation } = def;
+                // skip if there is no value
                 if (!value) continue;
 
-                let match;
+                let match: RegExpExecArray;
                 while ((match = regex.exec(line))) {
                     const start = match.index;
-                    const end = start + key.length;
-                    // update the source map with the offset
-                    this.sourceMap[i].set(start, annotation.length);
-                    this.sourceMap[i].set(end, value.length - key.length);
-                    // replace the macro with the expanded text
-                    line =
-                        line.substring(0, start) +
-                        annotation +
-                        value +
-                        line.substring(end);
+
+                    if (!!args) {
+                        // special handling for function-type
+
+                        // store line back in array
+                        lines[i] = line;
+
+                        macroProcessor.processMacroFunction(lines, key, def, {
+                            row: i,
+                            column: start,
+                        });
+
+                        // restore current line var
+                        line = lines[i];
+                    } else {
+                        const end = start + key.length;
+                        // update the source map with the offset
+                        this.sourceMap[i].set(start, annotation.length);
+                        this.sourceMap[i].set(end, value.length - key.length);
+                        // replace the macro with the expanded text
+                        line =
+                            line.substring(0, start) +
+                            annotation +
+                            value +
+                            line.substring(end);
+                    }
                 }
             }
+
             // update the source text with the new line
             lines[i] = line;
         }
+
         return lines.join("\n");
     }
 
