@@ -304,42 +304,49 @@ export class SourceContext {
 
             if (line.trim().length == 0) continue;
 
-            // for each macro in the macro table
+            // first process macro functions
             for (const [key, def] of this.macroTable) {
                 const { args, value, regex, annotation } = def;
-                // skip if there is no value
-                if (!value) continue;
+                // skip if there is no value or no args (its not a function)
+                if (!value || !args) continue;
 
                 let match: RegExpExecArray;
+                regex.lastIndex = 0;
                 while ((match = regex.exec(line))) {
                     const start = match.index;
+                    macroProcessor.processMacroFunction(lines, key, def, {
+                        row: i,
+                        column: start,
+                    });
+                }
 
-                    if (!!args) {
-                        // special handling for function-type
+                // update line
+                line = lines[i];
+            }
 
-                        // store line back in array
-                        lines[i] = line;
+            // now non-function macros
+            for (const [key, def] of this.macroTable) {
+                const { args, regex, annotation } = def;
+                const value = def.value ?? "";
 
-                        macroProcessor.processMacroFunction(lines, key, def, {
-                            row: i,
-                            column: start,
-                        });
+                // skip if there is no value or its a function
+                if (!!args) continue;
 
-                        // restore current line var
-                        line = lines[i];
-                    } else {
-                        const end = start + key.length;
-                        // update the source map with the offset
-                        this.sourceMap[i].set(start, annotation.length + 1); // +1 for the space
-                        this.sourceMap[i].set(end, value.length - key.length);
-                        // replace the macro with the expanded text
-                        line =
-                            line.substring(0, start) +
-                            " " + // add a space to separate the annotation from the previous token
-                            annotation +
-                            value +
-                            line.substring(end);
-                    }
+                let match: RegExpExecArray;
+                regex.lastIndex = 0;
+                while ((match = regex.exec(line))) {
+                    const start = match.index;
+                    const end = start + key.length;
+                    // update the source map with the offset
+                    this.sourceMap[i].set(start, annotation.length + 1); // +1 for the space
+                    this.sourceMap[i].set(end, value.length - key.length);
+                    // replace the macro with the expanded text
+                    line =
+                        line.substring(0, start) +
+                        " " + // add a space to separate the annotation from the previous token
+                        annotation +
+                        value +
+                        line.substring(end);
                 }
             }
 
