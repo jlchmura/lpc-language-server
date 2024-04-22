@@ -344,7 +344,7 @@ export class SourceContext {
                     } else if (
                         !inQuot &&
                         line.startsWith(key, j) &&
-                        line[j - 3] != "[[@"
+                        !line.startsWith("[[@", j - 3)
                     ) {
                         const start = j;
                         const end = start + key.length;
