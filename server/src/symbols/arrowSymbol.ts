@@ -124,7 +124,8 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
             this.objectRef = obj;
             this.objContext = obj.context;
         } else {
-            const ctx = this.target.context as ParserRuleContext;
+            const ctx = (this.target?.context ??
+                this.context) as ParserRuleContext;
             addDiagnostic(this, {
                 message: `Unable to validate function [${
                     this.functionName ?? ""

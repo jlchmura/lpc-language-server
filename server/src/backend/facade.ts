@@ -13,6 +13,9 @@ import { normalizeFilename } from "../utils";
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import { TextDocument } from "vscode-languageserver-textdocument";
 
+/** ms delay before reparsing a depenency */
+const DEP_FILE_REPARSE_TIME = 250;
+
 export interface IContextEntry {
     context: SourceContext;
     refCount: number;
@@ -59,7 +62,6 @@ export class LpcFacade {
         }
 
         const newPath = path.join(this.workspaceDir, filename);
-        console.log(`filenameToAbsolutePath '${filename}' -> '${newPath}'`);
         return newPath;
     }
 
@@ -194,15 +196,18 @@ export class LpcFacade {
                 this.addDependency(contextEntry.filename, dep);
             }
 
-            // re-parse any documents that depend on this one
-            for (const ref of oldReferences) {
-                const refCtx = this.getContextEntry(ref.fileName);
-                this.parseLpc(refCtx);
+            // queue dependencies to reparse & run their diags
+            // NTBLA: improve
+            setTimeout(() => {
+                for (const ref of oldReferences) {
+                    const refCtx = this.getContextEntry(ref.fileName);
+                    this.parseLpc(refCtx);
 
-                // send a notification to the server to re-send diags for this doc
-                if (!!this.onRunDiagnostics)
-                    this.onRunDiagnostics(ref.fileName);
-            }
+                    // send a notification to the server to re-send diags for this doc
+                    if (!!this.onRunDiagnostics)
+                        this.onRunDiagnostics(ref.fileName);
+                }
+            }, DEP_FILE_REPARSE_TIME);
 
             // Release all old dependencies. This will only unload grammars which have
             // not been ref-counted by the above dependency loading (or which are not used by other
@@ -211,7 +216,7 @@ export class LpcFacade {
                 this.releaseLpc(dep);
             }
         } catch (e) {
-            console.log(`Error parsing ${contextEntry.filename}: ${e}`);
+            console.error(`Error parsing ${contextEntry.filename}: ${e}`, e);
         }
 
         if (isDepChainRoot) {
@@ -222,7 +227,6 @@ export class LpcFacade {
     /**
      * Call this to refresh the internal input stream as a preparation to a reparse call
      * or for code completion.
-     * Does nothing if no grammar has been loaded for that file name.
      *
      * @param fileName The grammar file name.
      * @param source The grammar code.

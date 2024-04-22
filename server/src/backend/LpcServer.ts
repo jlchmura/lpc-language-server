@@ -1,55 +1,25 @@
 import { LpcFacade } from "./facade";
 import {
-    CompletionItem,
-    CompletionList,
     Connection,
-    Diagnostic,
-    DiagnosticRelatedInformation,
-    DiagnosticSeverity,
     DidChangeConfigurationNotification,
-    Disposable,
     InitializeParams,
     InitializeResult,
-    InitializedParams,
-    Location,
-    MarkupContent,
-    NotificationType,
-    NotificationType0,
-    OptionalVersionedTextDocumentIdentifier,
-    Position,
-    Range,
-    TextDocumentEdit,
     TextDocumentSyncKind,
     TextDocuments,
-    TextEdit,
-    WorkspaceEdit,
 } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import * as path from "path";
 import { URI } from "vscode-uri";
 import { LpcSymbolProvider } from "./SymbolProvider";
 import { LpcDefinitionProvider } from "./DefinitionProvider";
-import { IDiagnosticEntry, ILexicalRange, ISymbolInfo } from "../types";
 import { CodeLensProvider } from "./CodeLensProvider";
-import {
-    completionDetails,
-    completionSortKeys,
-    generateSymbolDoc,
-    translateCompletionKind,
-} from "../symbols/Symbol";
+
 import { HoverProvider } from "./HoverProvider";
-import { lexRangeToLspRange } from "../utils";
 import { DiagnosticProvider } from "./DiagnosticProvider";
-import { MethodSymbol } from "../symbols/methodSymbol";
-import { SourceContext } from "./SourceContext";
-import { EfunSymbols } from "./EfunsLDMud";
 import { CompletionProvider } from "./CompletionProvider";
 import { SignatureHelpProvider } from "./SignatureHelpProvider";
-import {
-    IRenameableSymbol,
-    isInstanceOfIRenameableSymbol,
-} from "../symbols/base";
 import { RenameProvider } from "./RenameProvider";
+import { HighlightProvider } from "./HighlightProvider";
 
 const CHANGE_DEBOUNCE_MS = 500;
 
@@ -74,6 +44,7 @@ export class LpcServer {
     private completionProvider: CompletionProvider;
     private signatureHelpProvider: SignatureHelpProvider;
     private renameProvider: RenameProvider;
+    private highlighProvider: HighlightProvider;
 
     /** document listener */
     private readonly documents: TextDocuments<TextDocument> = new TextDocuments(
@@ -108,8 +79,13 @@ export class LpcServer {
         // Symbol Provider
         this.connection.onDocumentSymbol((params) => {
             const doc = this.documents.get(params.textDocument.uri);
-            const result = this.symbolProvider.getSymbols(doc);
-            return result;
+            try {
+                const result = this.symbolProvider.getSymbols(doc);
+                return result;
+            } catch (e) {
+                console.error(e);
+                return [];
+            }
         });
 
         // Definition Provider
@@ -152,9 +128,7 @@ export class LpcServer {
             // force doc to update so that code completion can use the latest token positions
             // this is needed for situations where code completion is triggered automatically
             // (like a call_other arrow `->`)
-            // --
-            // this doesn't seem necesary any more and was causing extra diags to be run, so i'm removing it.
-            //this.flushChangeTimer(doc);
+            this.flushChangeTimer(doc);
 
             return this.completionProvider.provideCompletionItems(
                 doc,
@@ -224,7 +198,7 @@ export class LpcServer {
 
         this.documents.onDidChangeContent((e) => {
             const filename = e.document.uri;
-            console.debug("OnChange", e.document.uri);
+            //console.debug("OnChange", e.document.uri);
             try {
                 // always update text, but debounce reparse and other updates
                 this.facade.setText(e.document);
@@ -243,6 +217,13 @@ export class LpcServer {
             } catch (e) {
                 console.error("Error in doc change content:\n", e);
             }
+        });
+
+        this.connection.onDocumentHighlight((params) => {
+            const result = this.highlighProvider.getHighlights(
+                params.textDocument.uri
+            );
+            return result;
         });
     }
 
@@ -314,6 +295,7 @@ export class LpcServer {
                 signatureHelpProvider: {
                     triggerCharacters: ["(", ","],
                 },
+                documentHighlightProvider: true,
             },
         };
 
@@ -356,6 +338,7 @@ export class LpcServer {
         this.completionProvider = new CompletionProvider(this.facade);
         this.signatureHelpProvider = new SignatureHelpProvider(this.facade);
         this.renameProvider = new RenameProvider(this.facade);
+        this.highlighProvider = new HighlightProvider(this.facade);
 
         return result;
     }

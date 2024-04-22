@@ -29,7 +29,7 @@ export class HoverProvider {
         // use the first symbol with a doc comment - in the case of methods, the method
         // or header may have the comment
         let info = symbolInfo?.find(
-            (s) => !!(s.symbol as LpcBaseMethodSymbol)?.doc
+            (s) => !!(s?.symbol as LpcBaseMethodSymbol)?.doc
         );
         if (!info) {
             info = firstEntry(symbolInfo);

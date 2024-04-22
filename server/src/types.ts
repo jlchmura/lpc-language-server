@@ -8,6 +8,9 @@ import {
 } from "antlr4-c3";
 import { DiagnosticSeverity } from "vscode-languageserver";
 
+export const COMMENT_CHANNEL_NUM = 2;
+export const SOURCEMAP_CHANNEL_NUM = 3;
+
 export interface IDiagnosticEntry {
     type: DiagnosticSeverity;
     message: string;
@@ -16,13 +19,15 @@ export interface IDiagnosticEntry {
     related?: IDiagnosticEntry;
 }
 
+export type IPosition = { column: number; row: number };
+
 /**
  * A range within a text. Just like the range object in vscode the end position is not included in the range.
  * Hence when start and end position are equal the range is empty.
  */
 export interface ILexicalRange {
-    start: { column: number; row: number };
-    end: { column: number; row: number };
+    start: IPosition;
+    end: IPosition;
 }
 
 export type ContextImportInfo = {
@@ -112,3 +117,21 @@ export enum DependencySearchType {
     Local,
     Global,
 }
+
+export type MacroDefinition = {
+    /** the text that will get substituted for the macro */
+    value: string;
+    filename: string;
+    start: IPosition;
+    end: IPosition;
+    /**
+     * array of arg names in the order they will be passed to the macro
+     */
+    args?: string[];
+    /**
+     * The macro value string with the arg names marked with a unique string [[@<argName>]]
+     */
+    markedValue?: string;
+    regex: RegExp;
+    annotation: string;
+};

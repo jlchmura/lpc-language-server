@@ -13,6 +13,7 @@ import {
     PredictionMode,
     TerminalNode,
     Token,
+    TokenStreamRewriter,
 } from "antlr4ng";
 import { LPCLexer } from "../parser3/LPCLexer";
 import {
@@ -32,6 +33,9 @@ import {
     SymbolKind,
     LpcTypes,
     DependencySearchType,
+    SOURCEMAP_CHANNEL_NUM,
+    MacroDefinition,
+    IPosition,
 } from "../types";
 import { ContextErrorListener } from "./ContextErrorListener";
 import { ContextLexerErrorListener } from "./ContextLexerErrorListener";
@@ -54,6 +58,7 @@ import { LpcFacade } from "./facade";
 import { DetailsVisitor } from "./DetailsVisitor";
 import { DiagnosticSeverity, FoldingRange } from "vscode-languageserver";
 import {
+    firstEntry,
     lexRangeFromContext as lexRangeFromContext,
     normalizeFilename,
     pushIfDefined,
@@ -84,6 +89,16 @@ import { InheritSymbol, getParentOfType } from "../symbols/Symbol";
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import { URI } from "vscode-uri";
 import { ArrowSymbol, ArrowType } from "../symbols/arrowSymbol";
+import { LPCPreprocessorLexer } from "../preprocessor/LPCPreprocessorLexer";
+import {
+    LPCPreprocessorParser,
+    LpcDocumentContext,
+} from "../preprocessor/LPCPreprocessorParser";
+import { TestParser } from "./TestParser";
+import { PreprocessorListener } from "./PreprocessorListener";
+import { MacroProcessor } from "./Macros";
+
+const mapAnnotationReg = /\[\[@(.+?)\]\]/;
 
 /**
  * Source context for a single LPC file.
@@ -119,9 +134,12 @@ export class SourceContext {
     }
 
     // grammar parsing stuff
+    private preLexer: LPCPreprocessorLexer;
     private lexer: LPCLexer;
     public tokenStream: CommonTokenStream;
     public commentStream: CommonTokenStream;
+    public preTokenStream: CommonTokenStream;
+    private preParser: LPCPreprocessorParser;
     private parser: LPCParser;
     private errorListener: ContextErrorListener = new ContextErrorListener(
         this.diagnostics
@@ -129,7 +147,30 @@ export class SourceContext {
     private lexerErrorListener: ContextLexerErrorListener =
         new ContextLexerErrorListener(this.diagnostics);
 
-    private tree: ProgramContext | undefined; // The root context from the last parse run.
+    /** The root context from the last parse run. */
+    private tree: ProgramContext | undefined;
+
+    /**
+     * Holds #define macros pulled out during the preprocessing phase. The map's key is the macro name with the `#` symbol removed.
+     * The map value is the expanded text of the macro
+     */
+    private localMacroTable: Map<string, MacroDefinition> = new Map();
+    /**
+     * combined table that includes dependencies
+     */
+    private macroTable: Map<string, MacroDefinition> = new Map();
+
+    /** source code from the IDE (unmodifier - i.e. macros have not been replaced) */
+    private sourceText: string = "";
+    /** source code after the preprocess has been run */
+    private preprocessedText: string = "";
+
+    /** flag that indicates if the text needs compiling, kind of like a dirty state */
+    private needsCompile = false;
+    /** each array entry corresponds to a line number in sourceText. Each array element is
+     * a mapping that holds a column number in the sourceText line and the offset from that point in the line forward
+     */
+    private sourceMap: Map<number, number>[] = [];
 
     public constructor(
         public backend: LpcFacade,
@@ -151,22 +192,31 @@ export class SourceContext {
         // }
 
         this.lexer = new LPCLexer(CharStream.fromString(""));
+        this.preLexer = new LPCPreprocessorLexer(CharStream.fromString(""));
 
         // There won't be lexer errors actually. They are silently bubbled up and will cause parser errors.
         this.lexer.removeErrorListeners();
         this.lexer.addErrorListener(this.lexerErrorListener);
+        this.preLexer.removeErrorListeners();
 
         this.tokenStream = new CommonTokenStream(this.lexer);
+        this.preTokenStream = new CommonTokenStream(this.preLexer);
+
         this.commentStream = new CommonTokenStream(
             this.lexer,
             LPCLexer.COMMENT
         );
 
-        this.parser = new LPCParser(this.tokenStream);
+        this.parser = new TestParser(this.tokenStream);
         this.parser.buildParseTrees = true;
+
+        this.preParser = new LPCPreprocessorParser(this.preTokenStream);
+        this.preParser.buildParseTrees = true;
 
         this.parser.removeErrorListeners();
         this.parser.addErrorListener(this.errorListener);
+        this.preParser.removeErrorListeners();
+        this.preParser.addErrorListener(this.errorListener);
     }
 
     public get hasErrors(): boolean {
@@ -186,12 +236,131 @@ export class SourceContext {
      * @param source The new content of the editor.
      */
     public setText(source: string): void {
-        this.lexer.inputStream = CharStream.fromString(source);
+        this.sourceText = source;
+        this.needsCompile = true;
+    }
+
+    private parseMacroTable() {
+        this.localMacroTable.clear();
+
+        // reset lexer & token stream
+        this.preLexer.inputStream = CharStream.fromString(this.sourceText);
+        this.preLexer.reset();
+        this.preTokenStream.setTokenSource(this.preLexer);
+
+        this.preParser.reset();
+        this.preParser.errorHandler = new DefaultErrorStrategy();
+        this.preParser.interpreter.predictionMode = PredictionMode.SLL;
+        this.preParser.buildParseTrees = true;
+
+        let tree: LpcDocumentContext;
+        try {
+            tree = this.preParser.lpcDocument();
+        } catch (e) {
+            return;
+        }
+
+        const rw = new TokenStreamRewriter(this.preTokenStream);
+
+        const listener = new PreprocessorListener(
+            this.localMacroTable,
+            this.fileName,
+            rw
+        );
+
+        ParseTreeWalker.DEFAULT.walk(listener, tree);
+
+        const newtext = rw.getText();
+        this.preprocessedText = newtext;
+
+        // now combine macro tables from dependencies
+        // get dependency macro tables and combine into one
+        const deps = Array.from(this.symbolTable.getDependencies())
+            .filter(
+                (depTbl): depTbl is ContextSymbolTable =>
+                    !!(depTbl as ContextSymbolTable).owner
+            )
+            .map((depTbl) => depTbl.owner);
+        const depMacroTables = deps.map((depCtx) => depCtx.macroTable);
+        this.macroTable = depMacroTables.reduce((acc, ctxTable) => {
+            return new Map([...acc, ...ctxTable]);
+        }, this.localMacroTable);
+    }
+
+    /**
+     * Replace macros in the source text with their expanded text from the macro table.  In sourceText, the macros
+     * will match the `key` of macroTable exactly (include case). They will not include a hash `#` symbol.
+     * Every time a substitution is made, update the sourcemap with the offset so that tokens after the macro can be mapped back to the original
+     */
+    private processMacros(): string {
+        // for each line in the source text
+        this.sourceMap = [];
+        const lines = this.preprocessedText.split(/\r?\n/);
+        const macroProcessor = new MacroProcessor();
+
+        for (let i = 0; i < lines.length; i++) {
+            let line = lines[i];
+            this.sourceMap[i] = new Map();
+
+            if (line.trim().length == 0) continue;
+
+            // for each macro in the macro table
+            for (const [key, def] of this.macroTable) {
+                const { args, value, regex, annotation } = def;
+                // skip if there is no value
+                if (!value) continue;
+
+                let match: RegExpExecArray;
+                while ((match = regex.exec(line))) {
+                    const start = match.index;
+
+                    if (!!args) {
+                        // special handling for function-type
+
+                        // store line back in array
+                        lines[i] = line;
+
+                        macroProcessor.processMacroFunction(lines, key, def, {
+                            row: i,
+                            column: start,
+                        });
+
+                        // restore current line var
+                        line = lines[i];
+                    } else {
+                        const end = start + key.length;
+                        // update the source map with the offset
+                        this.sourceMap[i].set(start, annotation.length);
+                        this.sourceMap[i].set(end, value.length - key.length);
+                        // replace the macro with the expanded text
+                        line =
+                            line.substring(0, start) +
+                            annotation +
+                            value +
+                            line.substring(end);
+                    }
+                }
+            }
+
+            // update the source text with the new line
+            lines[i] = line;
+        }
+
+        return lines.join("\n");
     }
 
     public parse(): IContextDetails {
+        console.debug(`Parsing ${this.fileName}`);
+
+        this.parseMacroTable();
+
+        // pre-process
+        const sourceText = this.processMacros();
+
         // Rewind the input stream for a new parse run.
+        this.lexer.inputStream = CharStream.fromString(sourceText);
         this.lexer.reset();
+
         this.tokenStream.setTokenSource(this.lexer);
 
         this.parser.reset();
@@ -247,6 +416,8 @@ export class SourceContext {
         this.tree.accept(visitor);
 
         //this.info.unreferencedRules = this.symbolTable.getUnreferencedSymbols();
+
+        this.needsCompile = false;
 
         return this.info;
     }
@@ -332,7 +503,8 @@ export class SourceContext {
     }
 
     private runSemanticAnalysisIfNeeded() {
-        if (!this.semanticAnalysisDone && this.tree) {
+        // don't run analysis if the code state is dirty. needs a compile first
+        if (!this.semanticAnalysisDone && this.tree && !this.needsCompile) {
             this.semanticAnalysisDone = true;
 
             const semanticListener = new SemanticListener(
@@ -353,7 +525,24 @@ export class SourceContext {
     }
 
     public listTopLevelSymbols(includeDependencies: boolean): ISymbolInfo[] {
-        return this.symbolTable.listTopLevelSymbols(includeDependencies);
+        const symbols =
+            this.symbolTable.listTopLevelSymbols(includeDependencies);
+
+        for (const [macro, def] of this.macroTable.entries()) {
+            const { start, end, filename, value } = def;
+
+            symbols.push({
+                kind: SymbolKind.Define,
+                name: macro,
+                source: filename,
+                definition: {
+                    text: value,
+                    range: { start, end },
+                },
+            });
+        }
+
+        return symbols;
     }
 
     public static getKindFromSymbol(symbol: BaseSymbol): SymbolKind {
@@ -472,6 +661,30 @@ export class SourceContext {
         return this.symbolTable.resolveSync(symbolName, false);
     }
 
+    /**
+     * convert sourcText column/row to lexer column/row using the sourceMap
+     * @param column
+     * @param row
+     * @returns
+     */
+    public sourceToTokenLocation(
+        column: number,
+        row: number
+    ): { column: number; row: number } {
+        // convert sourcText column/row to lexer column/row using the sourceMap
+        const colMap = this.sourceMap[row - 1]!;
+        let totalOffset = 0;
+        for (const [sourceColumn, offset] of colMap) {
+            if (sourceColumn <= column) {
+                totalOffset += offset;
+            } else {
+                break;
+            }
+        }
+
+        return { column: column + totalOffset, row };
+    }
+
     public symbolAtPosition(
         column: number,
         row: number,
@@ -481,13 +694,52 @@ export class SourceContext {
             return undefined;
         }
 
+        const { column: lexerColumn } = this.sourceToTokenLocation(column, row);
+
         const terminal = BackendUtils.parseTreeFromPosition(
             this.tree,
-            column,
+            lexerColumn,
             row
         );
         if (!terminal || !(terminal instanceof TerminalNode)) {
             return undefined;
+        }
+
+        const tokenIndex = terminal.symbol.tokenIndex;
+        const mapping = firstEntry(
+            this.tokenStream.getHiddenTokensToLeft(
+                tokenIndex,
+                SOURCEMAP_CHANNEL_NUM
+            )
+        );
+        if (!!mapping) {
+            // mappingText is a string in the format of: [[@<source_row>,<source_col>,<source_symbol>]]
+            // pull out the symbol from that string
+            const mappingText = mapping.text;
+            const mappingMatch = mappingText.match(mapAnnotationReg);
+            if (mappingMatch) {
+                const sourceSymbol = mappingMatch[1];
+                const macroDef = this.macroTable.get(sourceSymbol);
+                if (!!macroDef) {
+                    const { start, end } = macroDef;
+                    const columnEnd = column + sourceSymbol.length;
+                    return [
+                        {
+                            symbol: undefined,
+                            name: sourceSymbol,
+                            kind: SymbolKind.Define,
+                            source: macroDef.filename,
+                            definition: {
+                                range: {
+                                    start: start,
+                                    end: end,
+                                },
+                                text: sourceSymbol,
+                            },
+                        },
+                    ];
+                }
+            }
         }
 
         // If limitToChildren is set we only want to show info for symbols in specific contexts.
@@ -720,9 +972,14 @@ export class SourceContext {
         ]);
 
         // Search the token index which covers our caret position.
-        let index: number;
         this.tokenStream.fill();
+        let index: number;
         let token: Token;
+
+        // adjust column for source offsets
+        const { column: lexerColumn } = this.sourceToTokenLocation(column, row);
+        column = lexerColumn;
+
         for (index = 0; ; ++index) {
             token = this.tokenStream.get(index);
             //console.log(token.toString());
@@ -737,6 +994,8 @@ export class SourceContext {
                 break;
             }
         }
+
+        console.debug("autocomplete token found", token.text, column);
 
         const candidates = core.collectCandidates(index);
 
@@ -833,11 +1092,11 @@ export class SourceContext {
                     if (s instanceof ArrowSymbol) {
                         if (
                             s.ArrowType == ArrowType.CallOther &&
-                            !!s.objectRef
+                            !!s.objContext
                         ) {
                             // call other
                             promises.push(
-                                s.objectRef.context.symbolTable
+                                s.objContext.symbolTable
                                     .getAllSymbols(MethodSymbol, false)
                                     .then((symbols) => {
                                         // filter out efuns

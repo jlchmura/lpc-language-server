@@ -127,11 +127,12 @@ export class LPCParser extends antlr.Parser {
     public static readonly LoadObject = 113;
     public static readonly COMMENT = 114;
     public static readonly LINE_COMMENT = 115;
-    public static readonly DEFINE = 116;
-    public static readonly WS = 117;
-    public static readonly END_DEFINE = 118;
-    public static readonly STRING_END = 119;
-    public static readonly NEWLINE = 120;
+    public static readonly SOURCEMAP = 116;
+    public static readonly DEFINE = 117;
+    public static readonly WS = 118;
+    public static readonly END_DEFINE = 119;
+    public static readonly STRING_END = 120;
+    public static readonly NEWLINE = 121;
     public static readonly RULE_program = 0;
     public static readonly RULE_preprocessorDirective = 1;
     public static readonly RULE_includeDirective = 2;
@@ -226,7 +227,7 @@ export class LPCParser extends antlr.Parser {
         "'&&='", "'&='", "'|='", "'^='", "'<<='", "'(['", "'->'", "'('", 
         "')'", "'{'", "'}'", "'['", "']'", "'\\'", null, null, null, null, 
         null, null, "'clone_object'", "'load_object'", null, null, null, 
-        null, "'\\n'", null, "'\\\\n'"
+        null, null, "'\\n'", null, "'\\\\n'"
     ];
 
     public static readonly symbolicNames = [
@@ -247,8 +248,8 @@ export class LPCParser extends antlr.Parser {
         "PAREN_OPEN", "PAREN_CLOSE", "CURLY_OPEN", "CURLY_CLOSE", "SQUARE_OPEN", 
         "SQUARE_CLOSE", "BACKSLASH", "IntegerConstant", "FloatingConstant", 
         "HexIntConstant", "STRING_START", "StringLiteral", "CharacterConstant", 
-        "CloneObject", "LoadObject", "COMMENT", "LINE_COMMENT", "DEFINE", 
-        "WS", "END_DEFINE", "STRING_END", "NEWLINE"
+        "CloneObject", "LoadObject", "COMMENT", "LINE_COMMENT", "SOURCEMAP", 
+        "DEFINE", "WS", "END_DEFINE", "STRING_END", "NEWLINE"
     ];
     public static readonly ruleNames = [
         "program", "preprocessorDirective", "includeDirective", "definePreprocessorDirective", 
@@ -299,7 +300,7 @@ export class LPCParser extends antlr.Parser {
             this.state = 157;
             this.errorHandler.sync(this);
             _la = this.tokenStream.LA(1);
-            while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 4162979938) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 41917561) !== 0) || _la === 116) {
+            while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 4162979938) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 41917561) !== 0) || _la === 117) {
                 {
                 this.state = 155;
                 this.errorHandler.sync(this);
@@ -5463,7 +5464,7 @@ export class LPCParser extends antlr.Parser {
     }
 
     public static readonly _serializedATN: number[] = [
-        4,1,120,1128,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,
+        4,1,121,1128,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,
         7,6,2,7,7,7,2,8,7,8,2,9,7,9,2,10,7,10,2,11,7,11,2,12,7,12,2,13,7,
         13,2,14,7,14,2,15,7,15,2,16,7,16,2,17,7,17,2,18,7,18,2,19,7,19,2,
         20,7,20,2,21,7,21,2,22,7,22,2,23,7,23,2,24,7,24,2,25,7,25,2,26,7,
@@ -5597,7 +5598,7 @@ export class LPCParser extends antlr.Parser {
         1,0,0,0,175,176,1,0,0,0,176,179,1,0,0,0,177,175,1,0,0,0,178,162,
         1,0,0,0,178,163,1,0,0,0,178,166,1,0,0,0,178,167,1,0,0,0,178,168,
         1,0,0,0,179,3,1,0,0,0,180,181,5,21,0,0,181,182,3,26,13,0,182,183,
-        3,28,14,0,183,5,1,0,0,0,184,185,5,116,0,0,185,186,5,118,0,0,186,
+        3,28,14,0,183,5,1,0,0,0,184,185,5,117,0,0,185,186,5,119,0,0,186,
         7,1,0,0,0,187,188,5,21,0,0,188,190,3,12,6,0,189,191,5,73,0,0,190,
         189,1,0,0,0,190,191,1,0,0,0,191,192,1,0,0,0,192,193,3,20,10,0,193,
         200,1,0,0,0,194,195,5,21,0,0,195,196,7,0,0,0,196,200,3,14,7,0,197,

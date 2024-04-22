@@ -1,7 +1,7 @@
 import { IType, TypedSymbol } from "antlr4-c3";
 import { EvalScope, IEvaluatableSymbol, IKindSymbol } from "./base";
 import { SymbolKind } from "../types";
-import { CallStack } from "../backend/CallStack";
+import { CallStack, StackValue } from "../backend/CallStack";
 
 export class LiteralSymbol
     extends TypedSymbol
@@ -16,6 +16,7 @@ export class LiteralSymbol
     }
 
     eval(stack: CallStack, scope: EvalScope) {
-        return this.value;
+        return new StackValue(this.value, this.type, this);
+        //return this.value;
     }
 }

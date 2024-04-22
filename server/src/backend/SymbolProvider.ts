@@ -43,7 +43,7 @@ export class LpcSymbolProvider {
     }
 
     private createDocumentSymbol(symbol: ISymbolInfo): DocumentSymbol {
-        if (!symbol.definition || !symbol.name) return undefined;
+        if (!symbol?.definition || !symbol?.name) return undefined;
 
         const startRow =
             symbol.definition.range.start.row > 0
@@ -63,9 +63,9 @@ export class LpcSymbolProvider {
 
         let description = symbolDescriptionFromEnum(symbol.kind);
         const kind = translateSymbolKind(symbol.kind);
-        let children: DocumentSymbol[] = symbol.children.map((child) =>
-            this.createDocumentSymbol(child)
-        );
+        let children: DocumentSymbol[] =
+            symbol.children?.map((child) => this.createDocumentSymbol(child)) ??
+            [];
 
         const docSym = DocumentSymbol.create(
             symbol.name,
