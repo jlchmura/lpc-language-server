@@ -41,6 +41,8 @@ export class MacroProcessor {
 
             let valToSub = "";
             if (startPos.row == endPos.row) {
+                if (!lines[startPos.row]) debugger;
+
                 valToSub = lines[startPos.row].substring(
                     startPos.column,
                     endPos.column
@@ -174,6 +176,7 @@ export class MacroProcessor {
                 col++;
             }
             j++;
+            col = 0;
         }
     }
 }

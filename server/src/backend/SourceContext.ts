@@ -358,8 +358,6 @@ export class SourceContext {
         // pre-process
         const sourceText = this.processMacros();
 
-        console.debug("new source text:\n" + sourceText);
-
         // Rewind the input stream for a new parse run.
         this.lexer.inputStream = CharStream.fromString(sourceText);
         this.lexer.reset();
