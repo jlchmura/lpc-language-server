@@ -10,6 +10,7 @@ import { CodeContext } from "./LPCPreprocessorParser.js";
 import { PreprocessorImportContext } from "./LPCPreprocessorParser.js";
 import { PreprocessorConditionalContext } from "./LPCPreprocessorParser.js";
 import { PreprocessorDefContext } from "./LPCPreprocessorParser.js";
+import { PreprocessorUndefContext } from "./LPCPreprocessorParser.js";
 import { PreprocessorPragmaContext } from "./LPCPreprocessorParser.js";
 import { PreprocessorDefineContext } from "./LPCPreprocessorParser.js";
 import { Directive_textContext } from "./LPCPreprocessorParser.js";
@@ -76,6 +77,13 @@ export class LPCPreprocessorParserVisitor<Result> extends AbstractParseTreeVisit
      * @return the visitor result
      */
     visitPreprocessorDef?: (ctx: PreprocessorDefContext) => Result;
+    /**
+     * Visit a parse tree produced by the `preprocessorUndef`
+     * labeled alternative in `LPCPreprocessorParser.directive`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitPreprocessorUndef?: (ctx: PreprocessorUndefContext) => Result;
     /**
      * Visit a parse tree produced by the `preprocessorPragma`
      * labeled alternative in `LPCPreprocessorParser.directive`.

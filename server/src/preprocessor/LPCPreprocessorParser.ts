@@ -298,7 +298,7 @@ export class LPCPreprocessorParser extends antlr.Parser {
                 }
                 break;
             case LPCPreprocessorParser.UNDEF:
-                localContext = new PreprocessorDefContext(localContext);
+                localContext = new PreprocessorUndefContext(localContext);
                 this.enterOuterAlt(localContext, 8);
                 {
                 this.state = 44;
@@ -893,9 +893,6 @@ export class PreprocessorDefContext extends DirectiveContext {
     public IFNDEF(): antlr.TerminalNode | null {
         return this.getToken(LPCPreprocessorParser.IFNDEF, 0);
     }
-    public UNDEF(): antlr.TerminalNode | null {
-        return this.getToken(LPCPreprocessorParser.UNDEF, 0);
-    }
     public override enterRule(listener: LPCPreprocessorParserListener): void {
         if(listener.enterPreprocessorDef) {
              listener.enterPreprocessorDef(this);
@@ -909,6 +906,35 @@ export class PreprocessorDefContext extends DirectiveContext {
     public override accept<Result>(visitor: LPCPreprocessorParserVisitor<Result>): Result | null {
         if (visitor.visitPreprocessorDef) {
             return visitor.visitPreprocessorDef(this);
+        } else {
+            return visitor.visitChildren(this);
+        }
+    }
+}
+export class PreprocessorUndefContext extends DirectiveContext {
+    public constructor(ctx: DirectiveContext) {
+        super(ctx.parent, ctx.invokingState);
+        super.copyFrom(ctx);
+    }
+    public UNDEF(): antlr.TerminalNode {
+        return this.getToken(LPCPreprocessorParser.UNDEF, 0)!;
+    }
+    public CONDITIONAL_SYMBOL(): antlr.TerminalNode {
+        return this.getToken(LPCPreprocessorParser.CONDITIONAL_SYMBOL, 0)!;
+    }
+    public override enterRule(listener: LPCPreprocessorParserListener): void {
+        if(listener.enterPreprocessorUndef) {
+             listener.enterPreprocessorUndef(this);
+        }
+    }
+    public override exitRule(listener: LPCPreprocessorParserListener): void {
+        if(listener.exitPreprocessorUndef) {
+             listener.exitPreprocessorUndef(this);
+        }
+    }
+    public override accept<Result>(visitor: LPCPreprocessorParserVisitor<Result>): Result | null {
+        if (visitor.visitPreprocessorUndef) {
+            return visitor.visitPreprocessorUndef(this);
         } else {
             return visitor.visitChildren(this);
         }

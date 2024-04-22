@@ -26,7 +26,7 @@ directive
     | ENDIF                                     # preprocessorConditional
     | IFDEF CONDITIONAL_SYMBOL                  # preprocessorDef
     | IFNDEF CONDITIONAL_SYMBOL                 # preprocessorDef
-    | UNDEF CONDITIONAL_SYMBOL                  # preprocessorDef
+    | UNDEF CONDITIONAL_SYMBOL                  # preprocessorUndef
     | PRAGMA directive_text                     # preprocessorPragma
     | DEFINE CONDITIONAL_SYMBOL directive_text? # preprocessorDefine
     ;

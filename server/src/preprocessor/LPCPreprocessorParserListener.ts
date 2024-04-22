@@ -10,6 +10,7 @@ import { CodeContext } from "./LPCPreprocessorParser.js";
 import { PreprocessorImportContext } from "./LPCPreprocessorParser.js";
 import { PreprocessorConditionalContext } from "./LPCPreprocessorParser.js";
 import { PreprocessorDefContext } from "./LPCPreprocessorParser.js";
+import { PreprocessorUndefContext } from "./LPCPreprocessorParser.js";
 import { PreprocessorPragmaContext } from "./LPCPreprocessorParser.js";
 import { PreprocessorDefineContext } from "./LPCPreprocessorParser.js";
 import { Directive_textContext } from "./LPCPreprocessorParser.js";
@@ -106,6 +107,18 @@ export class LPCPreprocessorParserListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitPreprocessorDef?: (ctx: PreprocessorDefContext) => void;
+    /**
+     * Enter a parse tree produced by the `preprocessorUndef`
+     * labeled alternative in `LPCPreprocessorParser.directive`.
+     * @param ctx the parse tree
+     */
+    enterPreprocessorUndef?: (ctx: PreprocessorUndefContext) => void;
+    /**
+     * Exit a parse tree produced by the `preprocessorUndef`
+     * labeled alternative in `LPCPreprocessorParser.directive`.
+     * @param ctx the parse tree
+     */
+    exitPreprocessorUndef?: (ctx: PreprocessorUndefContext) => void;
     /**
      * Enter a parse tree produced by the `preprocessorPragma`
      * labeled alternative in `LPCPreprocessorParser.directive`.

@@ -6,6 +6,8 @@ export class MacroProcessor {
     private closingParenPos: IPosition;
     private openParenPos: IPosition;
 
+    // NTBLA: validate number of args
+
     public processMacroFunction(
         lines: string[],
         name: string,

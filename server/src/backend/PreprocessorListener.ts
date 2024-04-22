@@ -2,6 +2,7 @@ import { TokenStreamRewriter } from "antlr4ng";
 import {
     PreprocessorDefineContext,
     PreprocessorDirectiveContext,
+    PreprocessorUndefContext,
 } from "../preprocessor/LPCPreprocessorParser";
 import { LPCPreprocessorParserListener } from "../preprocessor/LPCPreprocessorParserListener";
 
@@ -57,6 +58,16 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
 
             this.macroTable.set(name, def);
         }
+
+        const start = ctx.parent.start;
+        const stop = ctx.stop;
+        const lines = stop.line - start.line;
+        this.rewriter.replace(start, stop, "\n".repeat(lines));
+    };
+
+    enterPreprocessorUndef = (ctx: PreprocessorUndefContext) => {
+        const name = ctx.CONDITIONAL_SYMBOL()?.getText();
+        this.macroTable.delete(name);
 
         const start = ctx.parent.start;
         const stop = ctx.stop;
