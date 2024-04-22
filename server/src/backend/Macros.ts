@@ -98,7 +98,8 @@ export class MacroProcessor {
         }
 
         // now slice in the final value at start.pos
-        const macroMark = `[[@${name}]]`;
+        // plus a space to sep the annotation from previous token
+        const macroMark = ` [[@${name}]]`;
         const valueToSub = macroMark + argMarkedValue;
         lines[pos.row] =
             lines[pos.row].substring(0, pos.column) +

@@ -330,11 +330,12 @@ export class SourceContext {
                     } else {
                         const end = start + key.length;
                         // update the source map with the offset
-                        this.sourceMap[i].set(start, annotation.length);
+                        this.sourceMap[i].set(start, annotation.length + 1); // +1 for the space
                         this.sourceMap[i].set(end, value.length - key.length);
                         // replace the macro with the expanded text
                         line =
                             line.substring(0, start) +
+                            " " + // add a space to separate the annotation from the previous token
                             annotation +
                             value +
                             line.substring(end);
@@ -356,6 +357,8 @@ export class SourceContext {
 
         // pre-process
         const sourceText = this.processMacros();
+
+        console.debug("new source text:\n" + sourceText);
 
         // Rewind the input stream for a new parse run.
         this.lexer.inputStream = CharStream.fromString(sourceText);
