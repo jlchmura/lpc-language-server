@@ -233,10 +233,14 @@ export class LpcServer {
             (params) => {
                 const doc = this.documents.get(params.textDocument.uri);
                 try {
-                    const result = this.facade.getSemanticTokens(doc.uri);
+                    const result = this.facade.getSemanticTokens(doc?.uri);
                     return result;
                 } catch (e) {
-                    console.error("Error in semantic token request:\n", e);
+                    console.error(
+                        "Error in semantic token request:\n",
+                        params,
+                        e
+                    );
                     return undefined;
                 }
             }

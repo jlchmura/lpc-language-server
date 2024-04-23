@@ -45,6 +45,7 @@ import {
     InheritStatementContext,
     InlineClosureExpressionContext,
     LPCParser,
+    LambdaExpressionContext,
     LiteralContext,
     MethodInvocationContext,
     MultiplicativeExpressionContext,
@@ -65,11 +66,12 @@ import {
     InheritSymbol,
     PreprocessorSymbol,
 } from "../symbols/Symbol";
-import { FoldingRange } from "vscode-languageserver";
+import { FoldingRange, SemanticTokensBuilder } from "vscode-languageserver";
 import {
     COMMENT_CHANNEL_NUM,
     ContextImportInfo,
     LpcTypes,
+    SemanticTokenTypes,
     typeNameToIType,
 } from "../types";
 import { LPCLexer } from "../parser3/LPCLexer";
@@ -129,7 +131,8 @@ export class DetailsVisitor
         private backend: LpcFacade,
         private symbolTable: ContextSymbolTable,
         private imports: ContextImportInfo[],
-        private objectImports: string[]
+        private objectImports: string[],
+        private tokenBuilder: SemanticTokensBuilder
     ) {
         super();
     }
@@ -156,7 +159,13 @@ export class DetailsVisitor
             table.addDependencies(this.symbolTable);
 
             table.tree = this.defineParser.program();
-            const vis = new DetailsVisitor(this.backend, table, [], []);
+            const vis = new DetailsVisitor(
+                this.backend,
+                table,
+                [],
+                [],
+                this.tokenBuilder
+            );
             table.tree.accept(vis);
 
             return table;
@@ -810,6 +819,20 @@ export class DetailsVisitor
             this.addNewSymbol(LiteralSymbol, ctx, "string", FundamentalType.stringType, trimQuotes(ctx.StringLiteral().getText()));
         }
         
+        return undefined;
+    };
+
+    visitLambdaExpression = (ctx: LambdaExpressionContext) => {
+        const { start, stop } = ctx;
+
+        this.tokenBuilder.push(
+            start.line - 1,
+            start.column,
+            stop.stop - start.start + 1,
+            SemanticTokenTypes.Parameter,
+            0
+        );
+
         return undefined;
     };
 

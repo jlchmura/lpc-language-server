@@ -83,7 +83,14 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
         }
     };
 
-    private markContextAsUnexecutable(ctx: ParserRuleContext) {
+    /**
+     * generate semantic tokens for the context so that the IDE
+     * will mark it as commented out.
+     * @param ctx
+     */
+    private markContextAsUnexecutable(ctx: ParserRuleContext) {}
+
+    private markContext(ctx: ParserRuleContext, tokenType: number) {
         const { start, stop } = ctx;
 
         if (start.line == stop.line) {
@@ -125,6 +132,7 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
 
         this.inConditional = true;
         this.isExecutable = this.macroTable.has(symName) === shouldExist;
+        const i = 0;
     };
 
     enterPreprocessorDefine = (ctx: PreprocessorDefineContext) => {
@@ -134,7 +142,10 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
             return;
         }
 
-        const name = ctx.CONDITIONAL_SYMBOL()?.getText();
+        this.markContext(ctx.parent, 1); //ntbla make 1 a constant
+
+        const nameCtx = ctx.CONDITIONAL_SYMBOL();
+        const name = nameCtx?.getText();
         const value = ctx.directive_text()?.getText().trim();
 
         REG_DEFINE_WITHARGS.lastIndex = 0;

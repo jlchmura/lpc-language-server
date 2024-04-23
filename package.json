@@ -27,12 +27,33 @@
         "singleQuote": false,
         "bracketSameLine": true
     },
-    "activationEvents": [
-        "onLanguage:lpc"
-    ],
     "repository": {
         "type": "git",
         "url": "https://github.com/jlchmura/lpc-language-server"
+    },
+    "contributes": {
+        "languages": [
+            {
+                "id": "lpc",
+                "aliases": [
+                    "LPC",
+                    "lpc"
+                ],
+                "extensions": [
+                    ".lpc",
+                    ".c",
+                    ".h"
+                ],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "lpc",
+                "scopeName": "source.lpc",
+                "path": "./syntaxes/lpc.tmLanguage"
+            }
+        ]
     },
     "keywords": [
         "LPC",

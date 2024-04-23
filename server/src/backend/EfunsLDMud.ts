@@ -117,6 +117,7 @@ efun("strrstr", LpcTypes.intType, true, ["str", LpcTypes.stringType], ["str2", L
 efun("strstr", LpcTypes.intType, true, ["str", LpcTypes.stringType], ["str2", LpcTypes.stringType],["pos", LpcTypes.intType]);
 efun("stringp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("sizeof", LpcTypes.intType, false, ["val", LpcTypes.mixedType]);
+efun("symbol_function", LpcTypes.closureType, true, ["arg", LpcTypes.stringType], ["ob", LpcTypes.mixedType]);
 efun("test_bit", LpcTypes.intType, false, ["str", LpcTypes.stringType], ["n", LpcTypes.intType]);
 efun("tell_object", LpcTypes.voidType, false, ["ob", LpcTypes.objectType], ["msg", LpcTypes.stringType]);
 efun("tell_room", LpcTypes.voidType, true, ["ob", LpcTypes.objectType], ["msg", LpcTypes.stringType], ["exclude", LpcTypes.objectArrayType]);

@@ -180,6 +180,7 @@ export class SourceContext {
 
     private highlights: DocumentHighlight[] = [];
     private semanticTokens: SemanticTokens;
+    private semanticTokenBuilder: SemanticTokensBuilder;
 
     public constructor(
         public backend: LpcFacade,
@@ -270,16 +271,13 @@ export class SourceContext {
         }
 
         const rw = new TokenStreamRewriter(this.preTokenStream);
-        const tokenBuilder = new SemanticTokensBuilder();
 
         const listener = new PreprocessorListener(
             this.localMacroTable,
             this.fileName,
             rw,
-            tokenBuilder
+            this.semanticTokenBuilder
         );
-
-        this.semanticTokens = tokenBuilder.build();
 
         ParseTreeWalker.DEFAULT.walk(listener, tree);
 
@@ -392,6 +390,7 @@ export class SourceContext {
         console.debug(`Parsing ${this.fileName}`);
 
         this.highlights = [];
+        this.semanticTokenBuilder = new SemanticTokensBuilder();
 
         this.parseMacroTable();
 
@@ -452,13 +451,20 @@ export class SourceContext {
             this.backend,
             this.symbolTable,
             this.info.imports,
-            this.info.objectImports
+            this.info.objectImports,
+            this.semanticTokenBuilder
         );
-        this.tree.accept(visitor);
+        try {
+            this.tree.accept(visitor);
+        } catch (e) {
+            console.error("Error in details visitor", e);
+        }
 
         //this.info.unreferencedRules = this.symbolTable.getUnreferencedSymbols();
 
         this.needsCompile = false;
+
+        this.semanticTokens = this.semanticTokenBuilder.build();
 
         return this.info;
     }
@@ -545,7 +551,12 @@ export class SourceContext {
 
     private runSemanticAnalysisIfNeeded() {
         // don't run analysis if the code state is dirty. needs a compile first
-        if (!this.semanticAnalysisDone && this.tree && !this.needsCompile) {
+        if (
+            !this.semanticAnalysisDone &&
+            this.tree &&
+            !this.needsCompile &&
+            this.symbolTable
+        ) {
             this.semanticAnalysisDone = true;
 
             const semanticListener = new SemanticListener(

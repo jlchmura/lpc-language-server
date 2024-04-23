@@ -135,3 +135,11 @@ export type MacroDefinition = {
     regex: RegExp;
     annotation: string;
 };
+
+export const SemanticTokenTypes = {
+    Comment: 0,
+    Macro: 1,
+    Operator: 2,
+    Method: 3,
+    Parameter: 4,
+} as const;

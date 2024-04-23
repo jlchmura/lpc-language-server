@@ -108,7 +108,7 @@ export class SemanticListener extends LPCParserListener {
         const symbol = id.getText();
 
         const ss = this.symbolTable.symbolWithContextSync(ctx);
-        const scope = ss.getParentOfType(ScopedSymbol);
+        const scope = ss?.getParentOfType(ScopedSymbol);
         const parentContext = this.symbolTable.findSymbolDefinition(ctx);
         const parentScope = parentContext?.getParentOfType(ScopedSymbol);
 

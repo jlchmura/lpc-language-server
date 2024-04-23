@@ -96,16 +96,16 @@ export function activate(context: ExtensionContext) {
     const legend: SemanticTokensLegend = {
         tokenTypes: [
             SemanticTokenTypes.comment,
-            SemanticTokenTypes.type,
-            SemanticTokenTypes.parameter,
-            SemanticTokenTypes.variable,
-            SemanticTokenTypes.method,
             SemanticTokenTypes.macro,
+            SemanticTokenTypes.operator,
+            "function.lpc",
+            "parameter.lpc",
+            SemanticTokenTypes.type,
+            SemanticTokenTypes.variable,
             SemanticTokenTypes.keyword,
             SemanticTokenTypes.modifier,
             SemanticTokenTypes.string,
             SemanticTokenTypes.number,
-            SemanticTokenTypes.operator,
         ],
         tokenModifiers: [
             SemanticTokenModifiers.documentation,
