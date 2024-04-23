@@ -52,7 +52,7 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
                 filename: this.filename,
                 start: { row: ctx.start.line, column: ctx.start.column },
                 end: { row: ctx.stop.line, column: ctx.stop.column },
-                regex: new RegExp(`\\b${name}(?!]]|.*")\\b`, "g"),
+                regex: new RegExp(`\\b${name}\\b`, "g"),
                 annotation: `[[@${name}]]`,
             };
 
@@ -96,18 +96,22 @@ function identifyArgInstances(macroValue: string, args: string[]) {
             isEscape = true;
         } else {
             const remainderString = macroValue.substring(i);
+            const strBack1 = macroValue.substring(i - 1);
 
             // check each arg
             for (let j = 0; j < args.length; j++) {
                 const arg = args[j];
-                if (remainderString.startsWith(arg)) {
+                if (
+                    remainderString.startsWith(arg) &&
+                    strBack1.match(`\\b${arg}\\b`)?.index == 1
+                ) {
                     // substitute the mark for the variable name
                     const mark = `[[@${arg}]]`;
                     const markLen = mark.length;
                     macroValue =
                         macroValue.substring(0, i) +
                         mark +
-                        macroValue.substring(i + 1);
+                        macroValue.substring(i + arg.length);
 
                     // advance i past the mark
                     i += markLen;

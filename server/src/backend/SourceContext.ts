@@ -337,6 +337,8 @@ export class SourceContext {
                     inEsc = false;
 
                 while (j < line.length) {
+                    regex.lastIndex = 0;
+                    //if (j == 682) debugger;
                     if (line[j] === '"' && !inEsc) {
                         inQuot = !inQuot;
                     } else if (line[j] === "\\") {
@@ -344,7 +346,8 @@ export class SourceContext {
                     } else if (
                         !inQuot &&
                         line.startsWith(key, j) &&
-                        !line.startsWith("[[@", j - 3)
+                        !line.startsWith("[[@", j - 3) && // not a macro annotation
+                        line.substring(j - 1).match(`\\b${key}\\b`)?.index == 1 // must be a whole word match
                     ) {
                         const start = j;
                         const end = start + key.length;
@@ -358,6 +361,8 @@ export class SourceContext {
                             annotation +
                             value +
                             line.substring(end);
+                    } else {
+                        inEsc = false; // turn off escape
                     }
                     j++;
                 }

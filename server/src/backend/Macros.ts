@@ -43,8 +43,6 @@ export class MacroProcessor {
 
             let valToSub = "";
             if (startPos.row == endPos.row) {
-                if (!lines[startPos.row]) debugger;
-
                 valToSub = lines[startPos.row].substring(
                     startPos.column,
                     endPos.column
@@ -64,7 +62,7 @@ export class MacroProcessor {
             }
 
             // remove newlines to make things easier
-            valToSub = valToSub.replace(/\n/g, "");
+            valToSub = valToSub.replace(/\n/g, "").trim();
 
             // now substitute the value by appending the arg value just after each arg mark
             const mark = `[[@${argName}]]`;
