@@ -8,7 +8,7 @@ import {
     IDiagnosticEntry,
     ISymbolInfo,
 } from "../types";
-import { FoldingRange } from "vscode-languageserver";
+import { FoldingRange, SemanticTokens } from "vscode-languageserver";
 import { normalizeFilename } from "../utils";
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import { TextDocument } from "vscode-languageserver-textdocument";
@@ -395,5 +395,11 @@ export class LpcFacade {
         const context = this.getContext(fileName);
 
         return context?.getFoldingRanges();
+    }
+
+    public getSemanticTokens(fileName: string): SemanticTokens {
+        const context = this.getContext(fileName);
+
+        return context?.getSemanticTokens();
     }
 }

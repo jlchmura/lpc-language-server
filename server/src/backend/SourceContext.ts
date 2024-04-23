@@ -60,6 +60,8 @@ import {
     DiagnosticSeverity,
     DocumentHighlight,
     FoldingRange,
+    SemanticTokens,
+    SemanticTokensBuilder,
 } from "vscode-languageserver";
 import {
     firstEntry,
@@ -177,6 +179,7 @@ export class SourceContext {
     private sourceMap: Map<number, number>[] = [];
 
     private highlights: DocumentHighlight[] = [];
+    private semanticTokens: SemanticTokens;
 
     public constructor(
         public backend: LpcFacade,
@@ -267,13 +270,16 @@ export class SourceContext {
         }
 
         const rw = new TokenStreamRewriter(this.preTokenStream);
+        const tokenBuilder = new SemanticTokensBuilder();
 
         const listener = new PreprocessorListener(
             this.localMacroTable,
             this.fileName,
             rw,
-            this.highlights
+            tokenBuilder
         );
+
+        this.semanticTokens = tokenBuilder.build();
 
         ParseTreeWalker.DEFAULT.walk(listener, tree);
 
@@ -1323,5 +1329,9 @@ export class SourceContext {
             fullPath: undefined,
             type: undefined,
         };
+    }
+
+    public getSemanticTokens() {
+        return this.semanticTokens;
     }
 }

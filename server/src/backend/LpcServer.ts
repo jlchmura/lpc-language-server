@@ -1,5 +1,6 @@
 import { LpcFacade } from "./facade";
 import {
+    ColorInformation,
     Connection,
     DidChangeConfigurationNotification,
     InitializeParams,
@@ -225,6 +226,21 @@ export class LpcServer {
             );
             return result;
         });
+
+        // semantic token request
+        this.connection.onRequest(
+            "textDocument/semanticTokens/full",
+            (params) => {
+                const doc = this.documents.get(params.textDocument.uri);
+                try {
+                    const result = this.facade.getSemanticTokens(doc.uri);
+                    return result;
+                } catch (e) {
+                    console.error("Error in semantic token request:\n", e);
+                    return undefined;
+                }
+            }
+        );
     }
 
     /**

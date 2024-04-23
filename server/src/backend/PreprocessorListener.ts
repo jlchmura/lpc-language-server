@@ -1,4 +1,4 @@
-import { TokenStreamRewriter } from "antlr4ng";
+import { ParserRuleContext, TokenStreamRewriter } from "antlr4ng";
 import {
     CodeTextContext,
     PreprocessorConditionalContext,
@@ -15,6 +15,10 @@ import { MacroDefinition, IPosition } from "../types";
 import {
     DocumentHighlight,
     DocumentHighlightKind,
+    SemanticTokenModifiers,
+    SemanticTokenTypes,
+    SemanticTokens,
+    SemanticTokensBuilder,
 } from "vscode-languageserver";
 import { getSelectionRange, lexRangeToLspRange } from "../utils";
 
@@ -28,7 +32,7 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
         public macroTable: Map<string, MacroDefinition>,
         private filename: string,
         private rewriter: TokenStreamRewriter,
-        private highlights: DocumentHighlight[]
+        private tokenBuilder: SemanticTokensBuilder
     ) {
         super();
     }
@@ -40,16 +44,21 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
 
             const str = ctx.getText();
 
+            // the preprocessor sees continugious code lines as a single token, so split those and build semantic tokesn individually
+            const lines = str.split("\n");
+            for (let i = 0; i < lines.length; i++) {
+                this.tokenBuilder.push(
+                    ctx.start.line - 1 + i,
+                    0,
+                    lines[i].length,
+                    0,
+                    0
+                );
+            }
+
             // regex to replace all characters with a space except newlines
             const newStr = str.replace(/./g, (c) => (c == "\n" ? c : " "));
             this.rewriter.replace(start, stop, newStr);
-
-            this.highlights.push(
-                DocumentHighlight.create(
-                    getSelectionRange(ctx),
-                    DocumentHighlightKind.Text
-                )
-            );
         }
     };
 
@@ -74,6 +83,32 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
         }
     };
 
+    private markContextAsUnexecutable(ctx: ParserRuleContext) {
+        const { start, stop } = ctx;
+
+        if (start.line == stop.line) {
+            // add to the token builder
+            this.tokenBuilder.push(start.line - 1, start.column, 999, 0, 0);
+        } else {
+            // add the first line
+            this.tokenBuilder.push(
+                start.line - 1,
+                start.column,
+                start.stop - start.start + 1,
+                0,
+                0
+            );
+
+            // add intermediate lines
+            for (let i = start.line + 1; i < stop.line; i++) {
+                this.tokenBuilder.push(i - 1, 0, 999, 0, 0);
+            }
+
+            // add the last line
+            this.tokenBuilder.push(stop.line - 1, 0, stop.column, 0, 0);
+        }
+    }
+
     enterPreprocessorConditionalEnd = (
         ctx: PreprocessorConditionalEndContext
     ) => {
@@ -93,6 +128,12 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
     };
 
     enterPreprocessorDefine = (ctx: PreprocessorDefineContext) => {
+        if (!this.isExecutable) {
+            // use parent context so that it includes the hash
+            this.markContextAsUnexecutable(ctx.parent);
+            return;
+        }
+
         const name = ctx.CONDITIONAL_SYMBOL()?.getText();
         const value = ctx.directive_text()?.getText().trim();
 
