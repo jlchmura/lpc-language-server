@@ -27,8 +27,6 @@ UNDEF   : 'undef';
 IFDEF   : 'ifdef';
 IFNDEF  : 'ifndef';
 ENDIF   : 'endif';
-TRUE    : T R U E;
-FALSE   : F A L S E;
 
 BANG     : '!';
 LPAREN   : '(';

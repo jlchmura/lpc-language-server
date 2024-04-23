@@ -9,7 +9,9 @@ import { PreprocessorDirectiveContext } from "./LPCPreprocessorParser.js";
 import { CodeContext } from "./LPCPreprocessorParser.js";
 import { PreprocessorImportContext } from "./LPCPreprocessorParser.js";
 import { PreprocessorConditionalContext } from "./LPCPreprocessorParser.js";
-import { PreprocessorDefContext } from "./LPCPreprocessorParser.js";
+import { PreprocessorConditionalElseContext } from "./LPCPreprocessorParser.js";
+import { PreprocessorConditionalEndContext } from "./LPCPreprocessorParser.js";
+import { PreprocessorConditionalDefContext } from "./LPCPreprocessorParser.js";
 import { PreprocessorUndefContext } from "./LPCPreprocessorParser.js";
 import { PreprocessorPragmaContext } from "./LPCPreprocessorParser.js";
 import { PreprocessorDefineContext } from "./LPCPreprocessorParser.js";
@@ -71,12 +73,26 @@ export class LPCPreprocessorParserVisitor<Result> extends AbstractParseTreeVisit
      */
     visitPreprocessorConditional?: (ctx: PreprocessorConditionalContext) => Result;
     /**
-     * Visit a parse tree produced by the `preprocessorDef`
+     * Visit a parse tree produced by the `preprocessorConditionalElse`
      * labeled alternative in `LPCPreprocessorParser.directive`.
      * @param ctx the parse tree
      * @return the visitor result
      */
-    visitPreprocessorDef?: (ctx: PreprocessorDefContext) => Result;
+    visitPreprocessorConditionalElse?: (ctx: PreprocessorConditionalElseContext) => Result;
+    /**
+     * Visit a parse tree produced by the `preprocessorConditionalEnd`
+     * labeled alternative in `LPCPreprocessorParser.directive`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitPreprocessorConditionalEnd?: (ctx: PreprocessorConditionalEndContext) => Result;
+    /**
+     * Visit a parse tree produced by the `preprocessorConditionalDef`
+     * labeled alternative in `LPCPreprocessorParser.directive`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitPreprocessorConditionalDef?: (ctx: PreprocessorConditionalDefContext) => Result;
     /**
      * Visit a parse tree produced by the `preprocessorUndef`
      * labeled alternative in `LPCPreprocessorParser.directive`.

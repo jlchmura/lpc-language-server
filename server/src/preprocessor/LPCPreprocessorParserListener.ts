@@ -9,7 +9,9 @@ import { PreprocessorDirectiveContext } from "./LPCPreprocessorParser.js";
 import { CodeContext } from "./LPCPreprocessorParser.js";
 import { PreprocessorImportContext } from "./LPCPreprocessorParser.js";
 import { PreprocessorConditionalContext } from "./LPCPreprocessorParser.js";
-import { PreprocessorDefContext } from "./LPCPreprocessorParser.js";
+import { PreprocessorConditionalElseContext } from "./LPCPreprocessorParser.js";
+import { PreprocessorConditionalEndContext } from "./LPCPreprocessorParser.js";
+import { PreprocessorConditionalDefContext } from "./LPCPreprocessorParser.js";
 import { PreprocessorUndefContext } from "./LPCPreprocessorParser.js";
 import { PreprocessorPragmaContext } from "./LPCPreprocessorParser.js";
 import { PreprocessorDefineContext } from "./LPCPreprocessorParser.js";
@@ -96,17 +98,41 @@ export class LPCPreprocessorParserListener implements ParseTreeListener {
      */
     exitPreprocessorConditional?: (ctx: PreprocessorConditionalContext) => void;
     /**
-     * Enter a parse tree produced by the `preprocessorDef`
+     * Enter a parse tree produced by the `preprocessorConditionalElse`
      * labeled alternative in `LPCPreprocessorParser.directive`.
      * @param ctx the parse tree
      */
-    enterPreprocessorDef?: (ctx: PreprocessorDefContext) => void;
+    enterPreprocessorConditionalElse?: (ctx: PreprocessorConditionalElseContext) => void;
     /**
-     * Exit a parse tree produced by the `preprocessorDef`
+     * Exit a parse tree produced by the `preprocessorConditionalElse`
      * labeled alternative in `LPCPreprocessorParser.directive`.
      * @param ctx the parse tree
      */
-    exitPreprocessorDef?: (ctx: PreprocessorDefContext) => void;
+    exitPreprocessorConditionalElse?: (ctx: PreprocessorConditionalElseContext) => void;
+    /**
+     * Enter a parse tree produced by the `preprocessorConditionalEnd`
+     * labeled alternative in `LPCPreprocessorParser.directive`.
+     * @param ctx the parse tree
+     */
+    enterPreprocessorConditionalEnd?: (ctx: PreprocessorConditionalEndContext) => void;
+    /**
+     * Exit a parse tree produced by the `preprocessorConditionalEnd`
+     * labeled alternative in `LPCPreprocessorParser.directive`.
+     * @param ctx the parse tree
+     */
+    exitPreprocessorConditionalEnd?: (ctx: PreprocessorConditionalEndContext) => void;
+    /**
+     * Enter a parse tree produced by the `preprocessorConditionalDef`
+     * labeled alternative in `LPCPreprocessorParser.directive`.
+     * @param ctx the parse tree
+     */
+    enterPreprocessorConditionalDef?: (ctx: PreprocessorConditionalDefContext) => void;
+    /**
+     * Exit a parse tree produced by the `preprocessorConditionalDef`
+     * labeled alternative in `LPCPreprocessorParser.directive`.
+     * @param ctx the parse tree
+     */
+    exitPreprocessorConditionalDef?: (ctx: PreprocessorConditionalDefContext) => void;
     /**
      * Enter a parse tree produced by the `preprocessorUndef`
      * labeled alternative in `LPCPreprocessorParser.directive`.

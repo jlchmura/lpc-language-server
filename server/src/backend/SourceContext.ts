@@ -56,7 +56,11 @@ import { BackendUtils } from "./BackendUtils";
 import { LpcFacade } from "./facade";
 
 import { DetailsVisitor } from "./DetailsVisitor";
-import { DiagnosticSeverity, FoldingRange } from "vscode-languageserver";
+import {
+    DiagnosticSeverity,
+    DocumentHighlight,
+    FoldingRange,
+} from "vscode-languageserver";
 import {
     firstEntry,
     lexRangeFromContext as lexRangeFromContext,
@@ -172,6 +176,8 @@ export class SourceContext {
      */
     private sourceMap: Map<number, number>[] = [];
 
+    private highlights: DocumentHighlight[] = [];
+
     public constructor(
         public backend: LpcFacade,
         public fileName: string,
@@ -265,7 +271,8 @@ export class SourceContext {
         const listener = new PreprocessorListener(
             this.localMacroTable,
             this.fileName,
-            rw
+            rw,
+            this.highlights
         );
 
         ParseTreeWalker.DEFAULT.walk(listener, tree);
@@ -377,6 +384,8 @@ export class SourceContext {
 
     public parse(): IContextDetails {
         console.debug(`Parsing ${this.fileName}`);
+
+        this.highlights = [];
 
         this.parseMacroTable();
 

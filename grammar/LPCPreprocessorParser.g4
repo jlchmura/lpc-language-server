@@ -22,10 +22,10 @@ directive
     : INCLUDE directive_text                    # preprocessorImport
     | IF preprocessor_expression                # preprocessorConditional
     | ELIF preprocessor_expression              # preprocessorConditional
-    | ELSE                                      # preprocessorConditional
-    | ENDIF                                     # preprocessorConditional
-    | IFDEF CONDITIONAL_SYMBOL                  # preprocessorDef
-    | IFNDEF CONDITIONAL_SYMBOL                 # preprocessorDef
+    | ELSE                                      # preprocessorConditionalElse
+    | ENDIF                                     # preprocessorConditionalEnd
+    | IFDEF CONDITIONAL_SYMBOL                  # preprocessorConditionalDef
+    | IFNDEF CONDITIONAL_SYMBOL                 # preprocessorConditionalDef
     | UNDEF CONDITIONAL_SYMBOL                  # preprocessorUndef
     | PRAGMA directive_text                     # preprocessorPragma
     | DEFINE CONDITIONAL_SYMBOL directive_text? # preprocessorDefine
@@ -36,9 +36,7 @@ directive_text
     ;
 
 preprocessor_expression
-    : TRUE                                                                     # preprocessorConstant
-    | FALSE                                                                    # preprocessorConstant
-    | DECIMAL_LITERAL                                                          # preprocessorConstant
+    : DECIMAL_LITERAL                                                          # preprocessorConstant
     | DIRECTIVE_STRING                                                         # preprocessorConstant
     | CONDITIONAL_SYMBOL (LPAREN preprocessor_expression RPAREN)?              # preprocessorConditionalSymbol
     | LPAREN preprocessor_expression RPAREN                                    # preprocessorParenthesis

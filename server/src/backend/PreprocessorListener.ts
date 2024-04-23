@@ -1,5 +1,10 @@
 import { TokenStreamRewriter } from "antlr4ng";
 import {
+    CodeTextContext,
+    PreprocessorConditionalContext,
+    PreprocessorConditionalDefContext,
+    PreprocessorConditionalElseContext,
+    PreprocessorConditionalEndContext,
     PreprocessorDefineContext,
     PreprocessorDirectiveContext,
     PreprocessorUndefContext,
@@ -7,19 +12,85 @@ import {
 import { LPCPreprocessorParserListener } from "../preprocessor/LPCPreprocessorParserListener";
 
 import { MacroDefinition, IPosition } from "../types";
+import {
+    DocumentHighlight,
+    DocumentHighlightKind,
+} from "vscode-languageserver";
+import { getSelectionRange, lexRangeToLspRange } from "../utils";
 
 const REG_DEFINE_WITHARGS = /(.*)\((.+)\)/g;
 
 export class PreprocessorListener extends LPCPreprocessorParserListener {
+    inConditional = false;
+    isExecutable = true;
+
     constructor(
         public macroTable: Map<string, MacroDefinition>,
         private filename: string,
-        private rewriter: TokenStreamRewriter
+        private rewriter: TokenStreamRewriter,
+        private highlights: DocumentHighlight[]
     ) {
         super();
     }
 
+    enterCodeText = (ctx: CodeTextContext) => {
+        if (!this.isExecutable) {
+            // replace the text with empty spaces
+            const { start, stop } = ctx;
+
+            const str = ctx.getText();
+
+            // regex to replace all characters with a space except newlines
+            const newStr = str.replace(/./g, (c) => (c == "\n" ? c : " "));
+            this.rewriter.replace(start, stop, newStr);
+
+            this.highlights.push(
+                DocumentHighlight.create(
+                    getSelectionRange(ctx),
+                    DocumentHighlightKind.Text
+                )
+            );
+        }
+    };
+
     enterPreprocessorDirective = (ctx: PreprocessorDirectiveContext) => {};
+
+    enterPreprocessorConditional = (ctx: PreprocessorConditionalContext) => {
+        const exp = ctx.preprocessor_expression();
+
+        const i = 0;
+    };
+
+    enterPreprocessorConditionalElse = (
+        ctx: PreprocessorConditionalElseContext
+    ) => {
+        if (this.inConditional) {
+            this.isExecutable = !this.isExecutable;
+        } else {
+            // this is an error - log it
+            console.error(
+                "found an #ELSE outside of conditional directive block"
+            );
+        }
+    };
+
+    enterPreprocessorConditionalEnd = (
+        ctx: PreprocessorConditionalEndContext
+    ) => {
+        this.inConditional = false;
+        this.isExecutable = true;
+    };
+
+    enterPreprocessorConditionalDef = (
+        ctx: PreprocessorConditionalDefContext
+    ) => {
+        const sym = ctx.CONDITIONAL_SYMBOL();
+        const shouldExist = !!ctx.IFDEF() ? true : false;
+        const symName = sym?.getText();
+
+        this.inConditional = true;
+        this.isExecutable = this.macroTable.has(symName) === shouldExist;
+    };
 
     enterPreprocessorDefine = (ctx: PreprocessorDefineContext) => {
         const name = ctx.CONDITIONAL_SYMBOL()?.getText();
