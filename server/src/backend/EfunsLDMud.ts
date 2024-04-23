@@ -22,6 +22,7 @@ efun("call_other", LpcTypes.mixedType, true, ["ob", LpcTypes.objectType], ["fun"
 efun("call_out", LpcTypes.intType, true, ["fun", LpcTypes.stringType], ["delay", LpcTypes.intType], ["args...", LpcTypes.mixedType, true]);
 efun("caller_stack", LpcTypes.objectArrayType, true, ["add_interactive", LpcTypes.intType]);
 efun("caller_stack_depth", LpcTypes.intType, false);
+efun("cat", LpcTypes.intType, true, ["path", LpcTypes.stringType], ["start", LpcTypes.intType], ["num", LpcTypes.intType]);
 efun("clone_object", LpcTypes.objectType, false, ["file", LpcTypes.stringType]);
 efun("clonep", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("clones", LpcTypes.objectArrayType, true, ["ob", LpcTypes.objectType],["what", LpcTypes.intType]);
@@ -95,6 +96,7 @@ efun("raise_error", LpcTypes.voidType, false, ["arg", LpcTypes.stringType]);
 efun("random", LpcTypes.intType, true, ["n", LpcTypes.intType]);
 efun("read_file", LpcTypes.stringType, true, ["file", LpcTypes.stringType], ["start", LpcTypes.intType], ["len", LpcTypes.intType]);
 efun("regreplace", LpcTypes.stringType, false, ["txt", LpcTypes.stringType], ["pattern", LpcTypes.stringType], ["replacepattern", LpcTypes.closureType], ["flags", LpcTypes.intType]);
+efun("remove_call_out", LpcTypes.intType, true, ["fun", LpcTypes.stringType]);
 efun("restore_object", LpcTypes.intType, false, ["name", LpcTypes.stringType]);
 efun("rename", LpcTypes.intType, false, ["from", LpcTypes.stringType], ["to", LpcTypes.stringType]);
 efun("rm", LpcTypes.intType, false, ["file", LpcTypes.stringType]);
