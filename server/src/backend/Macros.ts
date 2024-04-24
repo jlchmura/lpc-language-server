@@ -3,6 +3,13 @@ import { escapeRegExp } from "../utils";
 
 export type MacroTable = Map<string, MacroDefinition>;
 
+type MacroInstance = {
+    key: string;
+    start: IPosition;
+    end: IPosition;
+    commas: IPosition[];
+};
+
 export class MacroProcessor {
     private commaPos: IPosition[];
     private closingParenPos: IPosition;
@@ -28,8 +35,7 @@ export class MacroProcessor {
      */
     private findMacroInstances() {
         const code = this.code;
-        const instances: { key: string; start: IPosition; end: IPosition }[] =
-            [];
+        const instances: MacroInstance[] = [];
         const macroArr = Array.from(this.macroTable.values());
         // order function macros first, then regular, but keep their definition order beyond that.
         const macroOrder = [
@@ -70,11 +76,14 @@ export class MacroProcessor {
                 ) {
                     const start: IPosition = { row, column };
                     let end = { row, column: column + key.length };
+                    const commas: IPosition[] = [];
 
                     // if this is a macro with arguments, find the closing paren
                     // we'll need to temporarily scroll forward to find the closing paren
                     if (!!def.args) {
-                        let openCharCount = 0;
+                        let openCharCount = 0,
+                            openQuote = false,
+                            subEscape = false;
                         // scroll past the name to the opening paren
                         let k = j + key.length;
                         let c = column + key.length;
@@ -89,24 +98,58 @@ export class MacroProcessor {
                             }
                         }
                         openCharCount++;
-                        while (openCharCount > 0) {
+                        while (openCharCount > 0 && k < code.length) {
                             k++;
                             c++;
-                            // track line changes
-                            if (code[k] === "\n") {
-                                r++;
-                                c = -1;
-                            } else if (code[k] === "(") {
-                                openCharCount++;
-                            } else if (code[k] === ")") {
-                                openCharCount--;
+                            switch (code[k]) {
+                                case "\n":
+                                    if (!subEscape) {
+                                        r++;
+                                        c = -1;
+                                    }
+                                    break;
+                                case "\\":
+                                    subEscape = true;
+                                    // nothing else can happen, so continue
+                                    continue;
+                                case "(":
+                                case "[":
+                                    if (!openQuote) {
+                                        openCharCount++;
+                                    }
+                                    break;
+                                case ")":
+                                case "]":
+                                    if (!openQuote) {
+                                        openCharCount--;
+                                    }
+                                    break;
+                                case '"':
+                                    if (!subEscape) {
+                                        openQuote = !openQuote;
+                                    }
+                                    break;
+                                case ",":
+                                    if (!openQuote && openCharCount == 1) {
+                                        // this is a comma that separates arguments
+                                        commas.push({ row: r, column: c });
+                                    }
+                                    break;
                             }
+
+                            subEscape = false;
+                        } // end of k loop
+
+                        if (openCharCount > 0) {
+                            // NTBLA: send to diagnostics
+                            console.error("Macro missing closing paren: ", key);
+                            continue;
                         }
 
                         end = { row: r, column: c };
                     }
 
-                    instances.push({ key, start, end });
+                    instances.push({ key, start, end, commas });
                 } else {
                     inEsc = false; // turn off escape
                 }
