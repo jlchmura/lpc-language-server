@@ -67,8 +67,15 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
 
     enterPreprocessorConditional = (ctx: PreprocessorConditionalContext) => {
         const exp = ctx.preprocessor_expression();
+        const expStr = exp.getText().trim();
 
-        const i = 0;
+        this.inConditional = true;
+        if (expStr.trim() == "0") {
+            this.isExecutable = false;
+        } else {
+            this.isExecutable = true;
+        }
+        // ntbla: handle defined()
     };
 
     enterPreprocessorConditionalElse = (
@@ -132,6 +139,12 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
     ) => {
         this.inConditional = false;
         this.isExecutable = true;
+
+        // replace with spaces
+        const { start, stop } = ctx.parent;
+        const str = ctx.parent.getText();
+        const newStr = str.replace(/./g, (c) => (c == "\n" ? c : " "));
+        this.rewriter.replace(start, stop, newStr);
     };
 
     enterPreprocessorConditionalDef = (
@@ -143,7 +156,12 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
 
         this.inConditional = true;
         this.isExecutable = this.macroTable.has(symName) === shouldExist;
-        const i = 0;
+
+        // replace with spaces
+        const { start, stop } = ctx.parent;
+        const str = ctx.parent.getText();
+        const newStr = str.replace(/./g, (c) => (c == "\n" ? c : " "));
+        this.rewriter.replace(start, stop, newStr);
     };
 
     enterPreprocessorDefine = (ctx: PreprocessorDefineContext) => {
