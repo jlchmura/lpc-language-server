@@ -81,22 +81,26 @@ export class MacroProcessor {
                     // if this is a macro with arguments, find the closing paren
                     // we'll need to temporarily scroll forward to find the closing paren
                     if (!!def.args) {
+                        // setup some new counters for this sub loop
                         let openCharCount = 0,
                             openQuote = false,
                             subEscape = false;
-                        // scroll past the name to the opening paren
                         let k = j + key.length;
                         let c = column + key.length;
                         let r = row;
+
+                        // scroll past the name to the opening paren
                         while (code[k] !== "(") {
                             k++;
                             c++;
-                            // track line changes
+                            // need to track line changes
                             if (code[k] === "\n") {
                                 r++;
                                 c = -1;
                             }
                         }
+
+                        // now look for commas and the final closing paren
                         openCharCount++;
                         while (openCharCount > 0 && k < code.length) {
                             k++;
@@ -135,7 +139,7 @@ export class MacroProcessor {
                                         commas.push({ row: r, column: c });
                                     }
                                     break;
-                            }
+                            } // end of switch
 
                             subEscape = false;
                         } // end of k loop
@@ -146,8 +150,9 @@ export class MacroProcessor {
                             continue;
                         }
 
+                        // this is the closing paren of the macro function
                         end = { row: r, column: c };
-                    }
+                    } // end of macro-function test
 
                     instances.push({ key, start, end, commas });
                 } else {
