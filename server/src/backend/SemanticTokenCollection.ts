@@ -1,4 +1,5 @@
 import { SemanticTokens, SemanticTokensBuilder } from "vscode-languageserver";
+import { SourceMap } from "./SourceMap";
 
 type tokenData = {
     line: number;
@@ -11,6 +12,8 @@ type tokenData = {
 export class SemanticTokenCollection {
     private tokens: tokenData[] = [];
 
+    constructor() {}
+
     public add(
         line: number,
         column: number,
@@ -21,7 +24,7 @@ export class SemanticTokenCollection {
         this.tokens.push({ line, column, length, tokenType, tokenModifiers });
     }
 
-    public build(): SemanticTokens {
+    public build(sourceMap: SourceMap): SemanticTokens {
         const builder = new SemanticTokensBuilder();
         // sort tokens because vscode's api is dumb and doesn't do it for us
         this.tokens.sort((a, b) => {
@@ -37,9 +40,15 @@ export class SemanticTokenCollection {
                 // this is rediculous... WHY VSCODE?!
                 modifiers |= (1 << modifier) >>> 0;
             }
-            builder.push(
+
+            const sourceMapping = sourceMap.getSourceLocation(
                 token.line - 1,
-                token.column,
+                token.column
+            );
+
+            builder.push(
+                sourceMapping?.row ?? token.line - 1,
+                sourceMapping?.column ?? token.column,
                 token.length,
                 token.tokenType,
                 modifiers

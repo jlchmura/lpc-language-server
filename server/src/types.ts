@@ -119,6 +119,8 @@ export enum DependencySearchType {
 }
 
 export type MacroDefinition = {
+    /** the name of the macro */
+    name: string;
     /** the text that will get substituted for the macro */
     value: string;
     filename: string;

@@ -195,6 +195,7 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
             const argArr = argStr.split(",").map((a) => a.trim());
 
             const def: MacroDefinition = {
+                name: nameOnly,
                 value,
                 filename: this.filename,
                 start: { row: ctx.start.line, column: ctx.start.column },
@@ -209,6 +210,7 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
         } else if (!!name) {
             // regular macro
             const def: MacroDefinition = {
+                name,
                 value,
                 filename: this.filename,
                 start: { row: ctx.start.line, column: ctx.start.column },

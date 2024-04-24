@@ -104,6 +104,7 @@ import { TestParser } from "./TestParser";
 import { PreprocessorListener } from "./PreprocessorListener";
 import { MacroProcessor } from "./Macros";
 import { SemanticTokenCollection } from "./SemanticTokenCollection";
+import { SourceMap } from "./SourceMap";
 
 const mapAnnotationReg = /\[\[@(.+?)\]\]/;
 
@@ -174,10 +175,8 @@ export class SourceContext {
 
     /** flag that indicates if the text needs compiling, kind of like a dirty state */
     private needsCompile = false;
-    /** each array entry corresponds to a line number in sourceText. Each array element is
-     * a mapping that holds a column number in the sourceText line and the offset from that point in the line forward
-     */
-    private sourceMap: Map<number, number>[] = [];
+
+    private sourceMap: SourceMap;
 
     private highlights: DocumentHighlight[] = [];
     private cachedSemanticTokens: SemanticTokens;
@@ -306,17 +305,19 @@ export class SourceContext {
      */
     private processMacros(): string {
         // for each line in the source text
-        this.sourceMap = [];
         const lines = this.preprocessedText.split(/\r?\n/);
-        const macroProcessor = new MacroProcessor();
+        const macroProcessor = new MacroProcessor(
+            this.macroTable,
+            this.preprocessedText
+        );
+        macroProcessor.markMacros();
 
         for (let i = 0; i < lines.length; i++) {
             let line = lines[i];
-            this.sourceMap[i] = new Map();
-
             if (line.trim().length == 0) continue;
 
             // first process macro functions
+            // these can span multiple lines but will be collapsed into a single line (the current one)
             for (const [key, def] of this.macroTable) {
                 const { args, value, regex, annotation } = def;
                 // skip if there is no value or no args (its not a function)
@@ -336,7 +337,7 @@ export class SourceContext {
                 line = lines[i];
             }
 
-            // now non-function macros
+            // regular macros for the current line only.
             for (const [key, def] of this.macroTable) {
                 const { args, regex, annotation } = def;
                 const value = def.value ?? "";
@@ -350,7 +351,6 @@ export class SourceContext {
 
                 while (j < line.length) {
                     regex.lastIndex = 0;
-                    //if (j == 682) debugger;
                     if (line[j] === '"' && !inEsc) {
                         inQuot = !inQuot;
                     } else if (line[j] === "\\") {
@@ -364,8 +364,19 @@ export class SourceContext {
                         const start = j;
                         const end = start + key.length;
                         // update the source map with the offset
-                        this.sourceMap[i].set(start, annotation.length + 1); // +1 for the space
-                        this.sourceMap[i].set(end, value.length - key.length);
+                        this.sourceMap.addMapping(
+                            i,
+                            start,
+                            i,
+                            annotation.length + 1
+                        ); // +1 for the space
+                        //this.sourceMap[i].set(start, annotation.length + 1); // +1 for the space
+                        this.sourceMap.addMapping(
+                            i,
+                            end,
+                            i,
+                            end + value.length - key.length
+                        );
                         // replace the macro with the expanded text
                         line =
                             line.substring(0, start) +
@@ -390,7 +401,9 @@ export class SourceContext {
     public parse(): IContextDetails {
         console.debug(`Parsing ${this.fileName}`);
 
+        this.sourceMap = new SourceMap();
         this.highlights = [];
+        this.cachedSemanticTokens = undefined;
         this.semanticTokens = new SemanticTokenCollection();
 
         this.parseMacroTable();
@@ -465,7 +478,7 @@ export class SourceContext {
 
         this.needsCompile = false;
 
-        this.cachedSemanticTokens = this.semanticTokens.build();
+        this.cachedSemanticTokens = this.semanticTokens.build(this.sourceMap);
 
         return this.info;
     }
@@ -720,22 +733,8 @@ export class SourceContext {
      * @param row
      * @returns
      */
-    public sourceToTokenLocation(
-        column: number,
-        row: number
-    ): { column: number; row: number } {
-        // convert sourcText column/row to lexer column/row using the sourceMap
-        const colMap = this.sourceMap[row - 1]!;
-        let totalOffset = 0;
-        for (const [sourceColumn, offset] of colMap) {
-            if (sourceColumn <= column) {
-                totalOffset += offset;
-            } else {
-                break;
-            }
-        }
-
-        return { column: column + totalOffset, row };
+    public sourceToTokenLocation(column: number, row: number): IPosition {
+        return this.sourceMap.getGeneratedLocation(row, column);
     }
 
     public symbolAtPosition(

@@ -1,13 +1,122 @@
 import { IPosition, MacroDefinition } from "../types";
 import { escapeRegExp } from "../utils";
 
+export type MacroTable = Map<string, MacroDefinition>;
+
 export class MacroProcessor {
     private commaPos: IPosition[];
     private closingParenPos: IPosition;
     private openParenPos: IPosition;
 
-    // NTBLA: validate number of args
+    constructor(private macroTable: MacroTable, private code: string) {}
 
+    /**
+     * process the current line and tag all instances of macros
+     * @param line
+     * @param macros
+     */
+    public markMacros() {
+        // first, find all macro instances in the code
+        const macroInstances = this.findMacroInstances();
+        console.debug("Found macro instances: ", macroInstances);
+    }
+
+    /**
+     * Find all instances of c-style precprocessor macros in this line of code and return their starting index.
+     * @param line
+     * @param macros
+     */
+    private findMacroInstances() {
+        const code = this.code;
+        const instances: { key: string; start: IPosition; end: IPosition }[] =
+            [];
+        const macroArr = Array.from(this.macroTable.values());
+        // order function macros first, then regular, but keep their definition order beyond that.
+        const macroOrder = [
+            ...macroArr.filter((m) => !!m.args),
+            ...macroArr.filter((m) => !m.args),
+        ];
+
+        let row = 0,
+            column = -1;
+        let j = -1;
+        let inQuot = false,
+            inEsc = false;
+
+        while (j++ < code.length) {
+            column++;
+            if (!inEsc && code[j] === "\n") {
+                row++;
+                column = -1;
+                continue;
+            } else if (!inEsc && code[j] === '"') {
+                inQuot = !inQuot;
+                continue;
+            } else if (code[j] === "\\") {
+                inEsc = true;
+                continue;
+            } else if (inQuot) {
+                // if we're in a quote then it can't be a macro
+                continue;
+            }
+
+            // next character might be a macro
+            for (const def of macroOrder) {
+                const key = def.name;
+                const startWithKey = !!def.args ? key + "(" : key;
+                if (
+                    code.startsWith(startWithKey, j) &&
+                    code.substring(j - 1).match(`\\b${key}\\b`)?.index == 1 // must be a whole word match
+                ) {
+                    const start: IPosition = { row, column };
+                    let end = { row, column: column + key.length };
+
+                    // if this is a macro with arguments, find the closing paren
+                    // we'll need to temporarily scroll forward to find the closing paren
+                    if (!!def.args) {
+                        let openCharCount = 0;
+                        // scroll past the name to the opening paren
+                        let k = j + key.length;
+                        let c = column + key.length;
+                        let r = row;
+                        while (code[k] !== "(") {
+                            k++;
+                            c++;
+                            // track line changes
+                            if (code[k] === "\n") {
+                                r++;
+                                c = -1;
+                            }
+                        }
+                        openCharCount++;
+                        while (openCharCount > 0) {
+                            k++;
+                            c++;
+                            // track line changes
+                            if (code[k] === "\n") {
+                                r++;
+                                c = -1;
+                            } else if (code[k] === "(") {
+                                openCharCount++;
+                            } else if (code[k] === ")") {
+                                openCharCount--;
+                            }
+                        }
+
+                        end = { row: r, column: c };
+                    }
+
+                    instances.push({ key, start, end });
+                } else {
+                    inEsc = false; // turn off escape
+                }
+            }
+        }
+
+        return instances;
+    }
+
+    // NTBLA: validate number of args
     public processMacroFunction(
         lines: string[],
         name: string,
