@@ -142,4 +142,18 @@ export const SemanticTokenTypes = {
     Operator: 2,
     Method: 3,
     Parameter: 4,
+    Define: 5,
+    String: 6,
+    Number: 7,
+    Type: 8,
+    Variable: 9,
+} as const;
+
+export const SemanticTokenModifiers = {
+    Declaration: 0,
+    Definition: 1,
+    Documentation: 2,
+    Static: 3,
+    DefaultLibrary: 4,
+    Local: 5,
 } as const;

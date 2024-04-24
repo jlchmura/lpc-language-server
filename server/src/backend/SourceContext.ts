@@ -103,6 +103,7 @@ import {
 import { TestParser } from "./TestParser";
 import { PreprocessorListener } from "./PreprocessorListener";
 import { MacroProcessor } from "./Macros";
+import { SemanticTokenCollection } from "./SemanticTokenCollection";
 
 const mapAnnotationReg = /\[\[@(.+?)\]\]/;
 
@@ -179,8 +180,8 @@ export class SourceContext {
     private sourceMap: Map<number, number>[] = [];
 
     private highlights: DocumentHighlight[] = [];
-    private semanticTokens: SemanticTokens;
-    private semanticTokenBuilder: SemanticTokensBuilder;
+    private cachedSemanticTokens: SemanticTokens;
+    private semanticTokens: SemanticTokenCollection;
 
     public constructor(
         public backend: LpcFacade,
@@ -276,7 +277,7 @@ export class SourceContext {
             this.localMacroTable,
             this.fileName,
             rw,
-            this.semanticTokenBuilder
+            this.semanticTokens
         );
 
         ParseTreeWalker.DEFAULT.walk(listener, tree);
@@ -390,7 +391,7 @@ export class SourceContext {
         console.debug(`Parsing ${this.fileName}`);
 
         this.highlights = [];
-        this.semanticTokenBuilder = new SemanticTokensBuilder();
+        this.semanticTokens = new SemanticTokenCollection();
 
         this.parseMacroTable();
 
@@ -452,7 +453,7 @@ export class SourceContext {
             this.symbolTable,
             this.info.imports,
             this.info.objectImports,
-            this.semanticTokenBuilder
+            this.semanticTokens
         );
         try {
             this.tree.accept(visitor);
@@ -464,7 +465,7 @@ export class SourceContext {
 
         this.needsCompile = false;
 
-        this.semanticTokens = this.semanticTokenBuilder.build();
+        this.cachedSemanticTokens = this.semanticTokens.build();
 
         return this.info;
     }
@@ -1343,6 +1344,6 @@ export class SourceContext {
     }
 
     public getSemanticTokens() {
-        return this.semanticTokens;
+        return this.cachedSemanticTokens;
     }
 }

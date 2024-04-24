@@ -1,5 +1,10 @@
 import { ParserRuleContext, Token } from "antlr4ng";
-import { Position, Range } from "vscode-languageserver";
+import {
+    Position,
+    Range,
+    SemanticTokens,
+    SemanticTokensBuilder,
+} from "vscode-languageserver";
 import { ILexicalRange } from "./types";
 import {
     BaseSymbol,

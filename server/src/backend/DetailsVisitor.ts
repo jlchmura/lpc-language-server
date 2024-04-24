@@ -8,6 +8,7 @@ import {
     ParserRuleContext,
     PredictionMode,
     TerminalNode,
+    Token,
 } from "antlr4ng";
 import { LPCParserVisitor } from "../parser3/LPCParserVisitor";
 import {
@@ -71,6 +72,7 @@ import {
     COMMENT_CHANNEL_NUM,
     ContextImportInfo,
     LpcTypes,
+    SemanticTokenModifiers,
     SemanticTokenTypes,
     typeNameToIType,
 } from "../types";
@@ -114,6 +116,7 @@ import {
 } from "../symbols/base";
 
 import { ArrowSymbol } from "../symbols/arrowSymbol";
+import { SemanticTokenCollection } from "./SemanticTokenCollection";
 
 type ScopedSymbolConstructor = new (...args: any[]) => ScopedSymbol;
 
@@ -132,7 +135,7 @@ export class DetailsVisitor
         private symbolTable: ContextSymbolTable,
         private imports: ContextImportInfo[],
         private objectImports: string[],
-        private tokenBuilder: SemanticTokensBuilder
+        private tokenBuilder: SemanticTokenCollection
     ) {
         super();
     }
@@ -352,6 +355,10 @@ export class DetailsVisitor
                 if (!!callOtherTargetCtx) {
                     this.visit(callOtherTargetCtx);
                     target = symbol.lastChild as IEvaluatableSymbol;
+                    this.markContext(
+                        callOtherTargetCtx,
+                        SemanticTokenTypes.Method
+                    );
                 }
                 if (!!methodInvocationCtx) {
                     this.visitMethodInvocation(methodInvocationCtx);
@@ -380,6 +387,39 @@ export class DetailsVisitor
         }
     };
 
+    private markToken(
+        token: Token,
+        tokenType: number,
+        tokenModifiers: number[] = []
+    ) {
+        if (!token) return;
+
+        this.tokenBuilder.add(
+            token.line,
+            token.column,
+            token.stop - token.start + 1,
+            tokenType,
+            tokenModifiers
+        );
+    }
+
+    private markContext(
+        ctx: ParserRuleContext,
+        tokenType: number,
+        tokenModifiers: number[] = []
+    ) {
+        if (!ctx) return;
+        const { start, stop } = ctx;
+
+        this.tokenBuilder.add(
+            start.line,
+            start.column,
+            stop.stop - start.start + 1,
+            tokenType,
+            tokenModifiers
+        );
+    }
+
     visitCallOtherTarget = (ctx: CallOtherTargetContext) => {
         // the call other target can be an identifier, a string literal, or an expression
         if (ctx.Identifier()) {
@@ -389,6 +429,7 @@ export class DetailsVisitor
                 ctx.Identifier().getText()
             );
             fid.nameRange = lexRangeFromToken(ctx.Identifier().symbol);
+            this.markToken(ctx.Identifier().symbol, SemanticTokenTypes.Method);
         } else if (ctx.expression()) {
             return this.visitExpression(ctx.expression());
         } else {
@@ -420,18 +461,29 @@ export class DetailsVisitor
         if (nextSib instanceof MethodInvocationContext) {
             // if the next symbol is a method invocation, then its a function
             symbolType = FunctionIdentifierSymbol;
+            this.markContext(ctx, SemanticTokenTypes.Method, []);
         } else if (nextSib instanceof BracketExpressionContext) {
             // if the next symbol is a bracket expression, then its a variable
             symbolType = VariableIdentifierSymbol;
+            this.markContext(ctx, SemanticTokenTypes.Variable, [
+                SemanticTokenModifiers.Local,
+            ]);
         } else if (priExp.ARROW()?.length > 0) {
             // if there's an arrow anywhere after that then its a variable
             symbolType = VariableIdentifierSymbol;
+            this.markContext(ctx, SemanticTokenTypes.Variable, [
+                SemanticTokenModifiers.Local,
+            ]);
         } else if (priExp.methodInvocation().length > 0) {
             // method invocation means its a function
             symbolType = FunctionIdentifierSymbol;
+            this.markContext(ctx, SemanticTokenTypes.Method, []);
         } else {
             // otherwise its a variable
             symbolType = VariableIdentifierSymbol;
+            this.markContext(ctx, SemanticTokenTypes.Variable, [
+                SemanticTokenModifiers.Local,
+            ]);
         }
 
         const newSym = this.addNewSymbol(symbolType, ctx, `${name}`);
@@ -492,6 +544,8 @@ export class DetailsVisitor
     ) => {
         // ctx will either be scalar or array, it doesn't matter right now
 
+        this.markContext(ctx.primitiveTypeSpecifier(), SemanticTokenTypes.Type);
+
         let tt = ctx.primitiveTypeSpecifier()?.getText();
         let varType: IType;
         if (tt) {
@@ -529,6 +583,7 @@ export class DetailsVisitor
                 nm,
                 varType
             );
+            this.markToken(varDecl._variableName, SemanticTokenTypes.Variable);
 
             const initCtx = varDecl.variableInitializer();
             if (!!initCtx) {
@@ -670,6 +725,11 @@ export class DetailsVisitor
             header.functionModifier()?.map((m) => m.getText()) ?? []
         );
 
+        this.markToken(header._functionName, SemanticTokenTypes.Method, [
+            SemanticTokenModifiers.Definition,
+        ]);
+        this.markContext(header.typeSpecifier(), SemanticTokenTypes.Type);
+
         return this.withScope(
             ctx,
             MethodDeclarationSymbol,
@@ -695,6 +755,11 @@ export class DetailsVisitor
         const mods = new Set(
             header.functionModifier()?.map((m) => m.getText()) ?? []
         );
+
+        this.markToken(header._functionName, SemanticTokenTypes.Method, [
+            SemanticTokenModifiers.Declaration,
+        ]);
+        this.markContext(header.typeSpecifier(), SemanticTokenTypes.Type);
 
         return this.withScope(ctx, MethodSymbol, [nm, retType, mods], (s) => {
             s.nameRange = lexRangeFromToken(header._functionName);
@@ -725,6 +790,11 @@ export class DetailsVisitor
                 name = pExp._paramName.text;
                 typeName = pExp._paramType?.getText();
                 type = typeNameToIType.get(typeName);
+
+                this.markToken(pExp._paramName, SemanticTokenTypes.Parameter, [
+                    SemanticTokenModifiers.Declaration,
+                ]);
+                this.markContext(pExp._paramType, SemanticTokenTypes.Type);
             } else {
                 const sExp = p as StructParameterExpressionContext;
                 name = sExp._paramName.text;
@@ -813,26 +883,20 @@ export class DetailsVisitor
     visitLiteral = (ctx: LiteralContext) => {
         if (!!ctx.IntegerConstant()) {
             this.addNewSymbol(LiteralSymbol, ctx, "int", FundamentalType.integerType, +ctx.IntegerConstant().getText());
+            this.markToken(ctx.StringLiteral()?.symbol, SemanticTokenTypes.Number);
         } else if (!!ctx.FloatingConstant()) {
             this.addNewSymbol(LiteralSymbol, ctx, "float", FundamentalType.floatType, +ctx.FloatingConstant().getText());
+            this.markToken(ctx.StringLiteral()?.symbol, SemanticTokenTypes.Number);
         } else if (!!ctx.StringLiteral()) {
             this.addNewSymbol(LiteralSymbol, ctx, "string", FundamentalType.stringType, trimQuotes(ctx.StringLiteral().getText()));
+            this.markToken(ctx.StringLiteral()?.symbol, SemanticTokenTypes.String);
         }
         
         return undefined;
     };
 
     visitLambdaExpression = (ctx: LambdaExpressionContext) => {
-        const { start, stop } = ctx;
-
-        this.tokenBuilder.push(
-            start.line - 1,
-            start.column,
-            stop.stop - start.start + 1,
-            SemanticTokenTypes.Parameter,
-            0
-        );
-
+        this.markContext(ctx, SemanticTokenTypes.Parameter);
         return undefined;
     };
 

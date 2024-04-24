@@ -1,4 +1,4 @@
-import { ParserRuleContext, TokenStreamRewriter } from "antlr4ng";
+import { ParserRuleContext, Token, TokenStreamRewriter } from "antlr4ng";
 import {
     CodeTextContext,
     PreprocessorConditionalContext,
@@ -8,19 +8,20 @@ import {
     PreprocessorDefineContext,
     PreprocessorDirectiveContext,
     PreprocessorUndefContext,
+    TextContext,
 } from "../preprocessor/LPCPreprocessorParser";
 import { LPCPreprocessorParserListener } from "../preprocessor/LPCPreprocessorParserListener";
 
-import { MacroDefinition, IPosition } from "../types";
+import { MacroDefinition, IPosition, SemanticTokenTypes } from "../types";
 import {
     DocumentHighlight,
     DocumentHighlightKind,
     SemanticTokenModifiers,
-    SemanticTokenTypes,
     SemanticTokens,
     SemanticTokensBuilder,
 } from "vscode-languageserver";
 import { getSelectionRange, lexRangeToLspRange } from "../utils";
+import { SemanticTokenCollection } from "./SemanticTokenCollection";
 
 const REG_DEFINE_WITHARGS = /(.*)\((.+)\)/g;
 
@@ -32,7 +33,7 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
         public macroTable: Map<string, MacroDefinition>,
         private filename: string,
         private rewriter: TokenStreamRewriter,
-        private tokenBuilder: SemanticTokensBuilder
+        private tokenBuilder: SemanticTokenCollection
     ) {
         super();
     }
@@ -47,12 +48,12 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
             // the preprocessor sees continugious code lines as a single token, so split those and build semantic tokesn individually
             const lines = str.split("\n");
             for (let i = 0; i < lines.length; i++) {
-                this.tokenBuilder.push(
-                    ctx.start.line - 1 + i,
+                this.tokenBuilder.add(
+                    ctx.start.line + i,
                     0,
                     lines[i].length,
-                    0,
-                    0
+                    SemanticTokenTypes.Comment,
+                    []
                 );
             }
 
@@ -88,32 +89,42 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
      * will mark it as commented out.
      * @param ctx
      */
-    private markContextAsUnexecutable(ctx: ParserRuleContext) {}
+    private markContextAsUnexecutable(ctx: ParserRuleContext) {
+        this.markContext(ctx, SemanticTokenTypes.Comment);
+    }
 
     private markContext(ctx: ParserRuleContext, tokenType: number) {
         const { start, stop } = ctx;
 
         if (start.line == stop.line) {
             // add to the token builder
-            this.tokenBuilder.push(start.line - 1, start.column, 999, 0, 0);
+            this.tokenBuilder.add(start.line, start.column, 999, tokenType, []);
         } else {
             // add the first line
-            this.tokenBuilder.push(
-                start.line - 1,
+            this.tokenBuilder.add(
+                start.line,
                 start.column,
                 start.stop - start.start + 1,
-                0,
-                0
+                tokenType
             );
 
             // add intermediate lines
             for (let i = start.line + 1; i < stop.line; i++) {
-                this.tokenBuilder.push(i - 1, 0, 999, 0, 0);
+                this.tokenBuilder.add(i, 0, 999, tokenType);
             }
 
             // add the last line
-            this.tokenBuilder.push(stop.line - 1, 0, stop.column, 0, 0);
+            this.tokenBuilder.add(stop.line, 0, stop.column, tokenType);
         }
+    }
+
+    private markToken(token: Token, tokenType: number) {
+        this.tokenBuilder.add(
+            token.line,
+            token.column,
+            token.stop - token.start + 1,
+            tokenType
+        );
     }
 
     enterPreprocessorConditionalEnd = (
@@ -142,11 +153,20 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
             return;
         }
 
-        this.markContext(ctx.parent, 1); //ntbla make 1 a constant
-
         const nameCtx = ctx.CONDITIONAL_SYMBOL();
         const name = nameCtx?.getText();
         const value = ctx.directive_text()?.getText().trim();
+
+        this.markContext(ctx.parent, SemanticTokenTypes.Macro);
+        // this.markToken(
+        //     (ctx.parent as unknown as PreprocessorDirectiveContext)
+        //         .SHARP()
+        //         .getSymbol(),
+        //     SemanticTokenTypes.Define
+        // );
+        // this.markToken(ctx.DEFINE().getSymbol(), SemanticTokenTypes.Define);
+        // if (!!nameCtx)
+        //     this.markToken(nameCtx.getSymbol(), SemanticTokenTypes.Macro);
 
         REG_DEFINE_WITHARGS.lastIndex = 0;
         const nameMatch = REG_DEFINE_WITHARGS.exec(name);
