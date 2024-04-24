@@ -305,97 +305,16 @@ export class SourceContext {
      */
     private processMacros(): string {
         // for each line in the source text
-        const lines = this.preprocessedText.split(/\r?\n/);
+        // const lines = this.preprocessedText.split(/\r?\n/);
         const macroProcessor = new MacroProcessor(
             this.macroTable,
+            this.sourceMap,
             this.preprocessedText
         );
+
         macroProcessor.markMacros();
-
-        for (let i = 0; i < lines.length; i++) {
-            let line = lines[i];
-            if (line.trim().length == 0) continue;
-
-            // first process macro functions
-            // these can span multiple lines but will be collapsed into a single line (the current one)
-            for (const [key, def] of this.macroTable) {
-                const { args, value, regex, annotation } = def;
-                // skip if there is no value or no args (its not a function)
-                if (!value || !args) continue;
-
-                let match: RegExpExecArray;
-                regex.lastIndex = 0;
-                while ((match = regex.exec(line))) {
-                    const start = match.index;
-                    macroProcessor.processMacroFunction(lines, key, def, {
-                        row: i,
-                        column: start,
-                    });
-                }
-
-                // update line
-                line = lines[i];
-            }
-
-            // regular macros for the current line only.
-            for (const [key, def] of this.macroTable) {
-                const { args, regex, annotation } = def;
-                const value = def.value ?? "";
-
-                // skip if there is no value or its a function
-                if (!!args) continue;
-
-                let j = 0;
-                let inQuot = false,
-                    inEsc = false;
-
-                while (j < line.length) {
-                    regex.lastIndex = 0;
-                    if (line[j] === '"' && !inEsc) {
-                        inQuot = !inQuot;
-                    } else if (line[j] === "\\") {
-                        inEsc = true;
-                    } else if (
-                        !inQuot &&
-                        line.startsWith(key, j) &&
-                        !line.startsWith("[[@", j - 3) && // not a macro annotation
-                        line.substring(j - 1).match(`\\b${key}\\b`)?.index == 1 // must be a whole word match
-                    ) {
-                        const start = j;
-                        const end = start + key.length;
-                        // update the source map with the offset
-                        this.sourceMap.addMapping(
-                            i,
-                            start,
-                            i,
-                            annotation.length + 1
-                        ); // +1 for the space
-                        //this.sourceMap[i].set(start, annotation.length + 1); // +1 for the space
-                        this.sourceMap.addMapping(
-                            i,
-                            end,
-                            i,
-                            end + value.length - key.length
-                        );
-                        // replace the macro with the expanded text
-                        line =
-                            line.substring(0, start) +
-                            " " + // add a space to separate the annotation from the previous token
-                            annotation +
-                            value +
-                            line.substring(end);
-                    } else {
-                        inEsc = false; // turn off escape
-                    }
-                    j++;
-                }
-            }
-
-            // update the source text with the new line
-            lines[i] = line;
-        }
-
-        return lines.join("\n");
+        const newSource = macroProcessor.replaceMacros();
+        return newSource;
     }
 
     public parse(): IContextDetails {

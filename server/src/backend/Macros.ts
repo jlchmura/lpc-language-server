@@ -1,5 +1,6 @@
 import { IPosition, MacroDefinition } from "../types";
 import { escapeRegExp } from "../utils";
+import { SourceMap } from "./SourceMap";
 
 export type MacroTable = Map<string, MacroDefinition>;
 
@@ -15,7 +16,13 @@ export class MacroProcessor {
     private closingParenPos: IPosition;
     private openParenPos: IPosition;
 
-    constructor(private macroTable: MacroTable, private code: string) {}
+    private macroInstances: MacroInstance[] = [];
+
+    constructor(
+        private macroTable: MacroTable,
+        private sourceMap: SourceMap,
+        private code: string
+    ) {}
 
     /**
      * process the current line and tag all instances of macros
@@ -24,8 +31,9 @@ export class MacroProcessor {
      */
     public markMacros() {
         // first, find all macro instances in the code
-        const macroInstances = this.findMacroInstances();
-        console.debug("Found macro instances: ", macroInstances);
+        this.macroInstances = this.findMacroInstances();
+
+        console.debug("Found macro instances: ", this.macroInstances);
     }
 
     /**
@@ -164,8 +172,108 @@ export class MacroProcessor {
         return instances;
     }
 
+    public replaceMacros() {
+        const lines = this.code.split("\n");
+
+        // sort macros by start.row then start.column
+        // this is so that once we set a source map, it won't change
+        this.macroInstances.sort((a, b) => {
+            if (a.start.row < b.start.row) {
+                return -1;
+            } else if (a.start.row > b.start.row) {
+                return 1;
+            } else {
+                return a.start.column - b.start.column;
+            }
+        });
+
+        for (const inst of this.macroInstances) {
+            const def = this.macroTable.get(inst.key);
+            if (def) {
+                if (!!def.args) {
+                    this.processMacroFunction(lines, inst.key, def, inst.start);
+                } else {
+                    this.processMacro(
+                        lines,
+                        inst.key,
+                        def,
+                        inst.start,
+                        inst.end
+                    );
+                }
+            }
+        }
+
+        return lines.join("\n");
+    }
+
+    /**
+     * replaces an instance of a standard macro with its value
+     * @param lines array of sourcecode lines
+     * @param name macro name
+     * @param def macro definition
+     * @param sourceStart the starting position in the source doc
+     * @param sourceEnd the ending positiong of the macro reference in the source doc
+     */
+    private processMacro(
+        lines: string[],
+        name: string,
+        def: MacroDefinition,
+        sourceStart: IPosition,
+        sourceEnd: IPosition
+    ) {
+        const { value } = def;
+        console.debug(`Processing macro: ${name} => ${value}`);
+
+        // compute the start and end of the macro instance using the sourcemap
+        const start = this.sourceMap.getGeneratedLocation(
+            sourceStart.row,
+            sourceStart.column
+        );
+        const end = this.sourceMap.getGeneratedLocation(
+            sourceEnd.row,
+            sourceEnd.column
+        );
+
+        if (start.row != end.row) {
+            console.error(
+                "Macro spans multiple lines, which is not supported: ",
+                name
+            );
+        }
+
+        // first, clear all text in `lines[]` between the start and end of the macro instance
+        let i = start.row;
+        lines[i] =
+            lines[i].substring(0, start.column) +
+            lines[i].substring(end.column);
+
+        // now slice in the final value at start.pos
+        // plus a space to sep the annotation from previous token
+        const macroMark = ` [[@${name}]]`;
+        const valueToSub = macroMark + value;
+        lines[start.row] =
+            lines[start.row].substring(0, start.column) +
+            valueToSub +
+            lines[start.row].substring(start.column);
+
+        // now add sourcemaps for the start of the macro and then end
+        this.sourceMap.addMapping(
+            start.row,
+            start.column + macroMark.length,
+            start.row,
+            start.column
+        );
+        this.sourceMap.addMapping(
+            start.row,
+            start.column + valueToSub.length,
+            end.row,
+            end.column + 1
+        );
+    }
+
     // NTBLA: validate number of args
-    public processMacroFunction(
+    private processMacroFunction(
         lines: string[],
         name: string,
         def: MacroDefinition,
