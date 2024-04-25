@@ -66,7 +66,8 @@ export class SourceMap {
     }
 
     /**
-     * convert sourcText column/row to lexer column/row using the sourceMap
+     * convert sourcText column/row to lexer column/row using the sourceMap.
+     * row/column are 1-based
      * @param column
      * @param row
      * @returns
@@ -89,6 +90,13 @@ export class SourceMap {
         };
     }
 
+    /**
+     * Find the source location based on a position in the generated text.
+     * line/column are 1-based
+     * @param generatedLine
+     * @param generatedColumn
+     * @returns
+     */
     public getSourceLocation(
         generatedLine: number,
         generatedColumn: number
@@ -98,12 +106,14 @@ export class SourceMap {
         if (!m) {
             return undefined;
         }
-        const lineOffset = generatedLine - m.line;
-        const columnOffset = generatedColumn - m.column;
+
+        const lineOffset = m.sourceLine - m.line;
+        const columnOffset = m.sourceColumn - m.column;
 
         return {
-            column: m.sourceColumn + columnOffset,
-            row: m.sourceLine + lineOffset,
+            column:
+                generatedColumn + (m.line == generatedLine ? columnOffset : 0),
+            row: generatedLine + lineOffset,
         };
     }
 }
