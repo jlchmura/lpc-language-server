@@ -80,12 +80,12 @@ export class SourceMap {
         if (!m) return { column: sourceColumn, row: sourceLine };
 
         // adjust the line and column based on the offset
-        const lineOffset = sourceLine - m.sourceLine;
-        const columnOffset = sourceColumn - m.sourceColumn;
+        const lineOffset = m.line - m.sourceLine;
+        const columnOffset = m.column - m.sourceColumn;
 
         return {
-            column: m.column + columnOffset,
-            row: m.line + lineOffset,
+            column: sourceColumn + (m.line == sourceLine ? columnOffset : 0),
+            row: sourceLine + lineOffset,
         };
     }
 
