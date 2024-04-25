@@ -1,5 +1,6 @@
 import { IPosition, MacroDefinition } from "../types";
 import { escapeRegExp } from "../utils";
+import { SemanticTokenCollection } from "./SemanticTokenCollection";
 import { SourceMap } from "./SourceMap";
 
 export type MacroTable = Map<string, MacroDefinition>;
@@ -8,20 +9,19 @@ type MacroInstance = {
     key: string;
     start: IPosition;
     end: IPosition;
-    commas: IPosition[];
+    openParen?: IPosition;
+    closeParen?: IPosition;
+    commas?: IPosition[];
 };
 
 export class MacroProcessor {
-    private commaPos: IPosition[];
-    private closingParenPos: IPosition;
-    private openParenPos: IPosition;
-
     private macroInstances: MacroInstance[] = [];
 
     constructor(
         private macroTable: MacroTable,
         private sourceMap: SourceMap,
-        private code: string
+        private code: string,
+        private semanticTokens: SemanticTokenCollection
     ) {}
 
     /**
@@ -84,7 +84,7 @@ export class MacroProcessor {
                 ) {
                     const start: IPosition = { row, column };
                     let end = { row, column: column + key.length };
-                    const commas: IPosition[] = [];
+                    const instance: MacroInstance = { key, start, end };
 
                     // if this is a macro with arguments, find the closing paren
                     // we'll need to temporarily scroll forward to find the closing paren
@@ -97,6 +97,9 @@ export class MacroProcessor {
                         let c = column + key.length;
                         let r = row;
 
+                        // init some function-specific things in the instance
+                        instance.commas = [];
+
                         // scroll past the name to the opening paren
                         while (code[k] !== "(") {
                             k++;
@@ -107,6 +110,9 @@ export class MacroProcessor {
                                 c = -1;
                             }
                         }
+
+                        // store position of the opening paren
+                        instance.openParen = { row: r, column: c };
 
                         // now look for commas and the final closing paren
                         openCharCount++;
@@ -135,6 +141,14 @@ export class MacroProcessor {
                                     if (!openQuote) {
                                         openCharCount--;
                                     }
+                                    if (openCharCount == 0) {
+                                        // found the final closing paren, log it.
+                                        instance.closeParen = {
+                                            row: r,
+                                            column: c,
+                                        };
+                                        // ntbla: check if char is actually a paren and log diags if not
+                                    }
                                     break;
                                 case '"':
                                     if (!subEscape) {
@@ -144,7 +158,10 @@ export class MacroProcessor {
                                 case ",":
                                     if (!openQuote && openCharCount == 1) {
                                         // this is a comma that separates arguments
-                                        commas.push({ row: r, column: c });
+                                        instance.commas.push({
+                                            row: r,
+                                            column: c,
+                                        });
                                     }
                                     break;
                             } // end of switch
@@ -162,11 +179,12 @@ export class MacroProcessor {
                         end = { row: r, column: c };
                     } // end of macro-function test
 
-                    instances.push({ key, start, end, commas });
+                    instance.end = end; // update the end position
+                    instances.push(instance);
                 } else {
                     inEsc = false; // turn off escape
-                }
-            }
+                } //end of macro startsWith test
+            } //end of macroOrder loop
         }
 
         return instances;
@@ -191,7 +209,7 @@ export class MacroProcessor {
             const def = this.macroTable.get(inst.key);
             if (def) {
                 if (!!def.args) {
-                    this.processMacroFunction(lines, inst.key, def, inst.start);
+                    this.processMacroFunction(lines, inst.key, def, inst);
                 } else {
                     this.processMacro(
                         lines,
@@ -272,38 +290,58 @@ export class MacroProcessor {
         );
     }
 
-    // NTBLA: validate number of args
+    /**
+     * Process an occurance of a macro function
+     * @param lines source code lines array
+     * @param name name of the macro
+     * @param def macro definition
+     * @param sourceStart start of the macro function occurance
+     * @param sourceEnd end of the macro function occurance
+     * @param commas position of commas in the macro function occurance
+     */
     private processMacroFunction(
         lines: string[],
         name: string,
         def: MacroDefinition,
-        pos: IPosition
+        instance: MacroInstance
     ) {
+        // NTBLA: validate number of args
         console.debug("Processing macro function: ", name);
 
-        // now find location of commas in the macro call
-        this.identifyCommas(lines, {
-            row: pos.row,
-            column: pos.column + name.length,
-        });
-
         let argMarkedValue = def.markedValue;
+        const { start, end, commas, openParen, closeParen } = instance;
+        const { annotation } = def;
 
         let argIdx = 0;
+        const originPos = this.sourceMap.getGeneratedLocation(
+            start.row,
+            start.column
+        );
+        // const argOrigin = this.sourceMap.getGeneratedLocation(
+        //     openParen.row + 1,
+        //     openParen.column
+        // );
+
+        // add a sourcemap for the start of the macro (past the annotation)
+        this.sourceMap.addMapping(
+            start.row,
+            start.column + annotation.length + 1 + 1, // +1 for space after annotation
+            originPos.row,
+            originPos.column
+        );
+
         while (argIdx < def.args.length) {
             const argName = def.args[argIdx];
             // start position of the arg value
             const startPos = {
-                ...(argIdx == 0
-                    ? this.openParenPos
-                    : this.commaPos[argIdx - 1]),
+                ...(argIdx == 0 ? openParen : commas[argIdx - 1]),
             };
             startPos.column++;
             // end position of the arg value
             const endPos = {
-                ...(argIdx == this.commaPos.length || this.commaPos.length == 0
-                    ? this.closingParenPos
-                    : this.commaPos[argIdx]),
+                ...(argIdx == commas.length || commas.length == 0
+                    ? closeParen
+                    : commas[argIdx]),
             };
 
             let valToSub = "";
@@ -340,108 +378,44 @@ export class MacroProcessor {
 
             console.debug(` |- Substituting arg ${argName} => ${valToSub}`);
             argIdx++;
-        }
+        } //end of arg loop
 
         // finally, after all marks have been replaced with their values, we'll put the code back together
         // first, clear all text in `lines[]` between the start of the macro instance and closing paren, which may be on different lines
-        let i = pos.row;
-        let j = this.closingParenPos.row;
+        let i = start.row;
+        let j = closeParen.row;
 
         if (i == j) {
             lines[i] =
-                lines[i].substring(0, pos.column) +
-                lines[i].substring(this.closingParenPos.column + 1);
+                lines[i].substring(0, start.column) +
+                lines[i].substring(closeParen.column + 1);
         } else {
             // opening line
-            lines[i] = lines[i].substring(0, pos.column);
+            lines[i] = lines[i].substring(0, start.column);
             // inbetween lines
             while (i < j) {
                 i++;
                 lines[i] = "";
             }
             // closing line
-            if (i != j)
-                lines[j] = lines[j].substring(this.closingParenPos.column);
+            if (i != j) lines[j] = lines[j].substring(closeParen.column);
         }
 
         // now slice in the final value at start.pos
         // plus a space to sep the annotation from previous token
-        const macroMark = ` [[@${name}]]`;
-        const valueToSub = macroMark + argMarkedValue;
-        lines[pos.row] =
-            lines[pos.row].substring(0, pos.column) +
+        const valueToSub = " " + annotation + argMarkedValue;
+        lines[start.row] =
+            lines[start.row].substring(0, start.column) +
             valueToSub +
-            lines[pos.row].substring(pos.column);
+            lines[start.row].substring(start.column);
+
+        this.sourceMap.addMapping(
+            i,
+            originPos.column + valueToSub.length,
+            closeParen.row,
+            closeParen.column
+        );
 
         const jjj = 0;
-    }
-
-    public identifyCommas(lines: string[], pos: IPosition): void {
-        const i = pos.row,
-            start = pos.column;
-
-        this.commaPos = [];
-        this.closingParenPos = undefined;
-        this.openParenPos = undefined;
-
-        // we need to identify the line & column of each comma
-        // as well as the final closing paren.  a comma only counts if it is not
-        // inside a known set of characters: (, [, "
-        let j = i,
-            col = start,
-            curLine: string;
-        let openCharCount = 0,
-            openQuote = false;
-        while (!this.closingParenPos && j < lines.length) {
-            curLine = lines[j];
-            while (!this.closingParenPos && col < curLine.length) {
-                switch (curLine[col]) {
-                    case "(":
-                    case "[":
-                        if (openCharCount == 0 && curLine[col] == "(") {
-                            this.openParenPos = {
-                                row: j,
-                                column: col,
-                            };
-                        }
-                        openCharCount++;
-                        break;
-                    case ",":
-                        // there will always be one for the opening paren of the macro
-                        if (openCharCount == 1) {
-                            this.commaPos.push({
-                                row: j,
-                                column: col,
-                            });
-                        }
-                        break;
-                    case ")":
-                    case "]":
-                        openCharCount--;
-                        if (openCharCount == 0) {
-                            // this is the end of the macro
-                            this.closingParenPos = {
-                                row: j,
-                                column: col,
-                            };
-                        }
-                        break;
-                    case '"':
-                        if (!openQuote) {
-                            openQuote = true;
-                            openCharCount++;
-                        } else if (col > 0 && curLine[col - 1] != "\\") {
-                            // not an escaped quote
-                            // and there is an open quote, so this must be the close
-                            openQuote = false;
-                            openCharCount--;
-                        }
-                        break;
-                }
-                col++;
-            }
-            j++;
-            col = 0;
-        }
     }
 }

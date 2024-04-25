@@ -43,12 +43,12 @@ export class SemanticTokenCollection {
 
             const sourceMapping = sourceMap.getSourceLocation(
                 token.line - 1,
-                token.column
+                token.column + 1
             );
 
             builder.push(
                 sourceMapping?.row ?? token.line - 1,
-                sourceMapping?.column ?? token.column,
+                sourceMapping?.column - 1 ?? token.column,
                 token.length,
                 token.tokenType,
                 modifiers

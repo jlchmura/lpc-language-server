@@ -65,6 +65,45 @@ export class SourceMap {
         }
     }
 
+    private findEntryByGeneratedPosition(
+        generatedLine: number,
+        generatedColumn: number
+    ): SourceMapping | undefined {
+        // find the closets mapping
+        // using this algorithm borrowed from nodes sourcemap
+        let first = 0;
+        let count = this.mapping.length;
+        while (count > 1) {
+            const step = count >> 1;
+            const middle = first + step;
+            const mapping = this.mapping[middle];
+            if (
+                generatedLine < mapping.line ||
+                (generatedLine === mapping.line &&
+                    generatedColumn < mapping.column)
+            ) {
+                count = step;
+            } else {
+                first = middle;
+                count -= step;
+            }
+        }
+
+        const m = this.mapping[first];
+        if (
+            !first &&
+            m &&
+            (generatedLine < m.line ||
+                (generatedLine === m.line && generatedColumn < m.column))
+        ) {
+            return undefined;
+        } else if (!m) {
+            return undefined;
+        } else {
+            return m;
+        }
+    }
+
     /**
      * convert sourcText column/row to lexer column/row using the sourceMap.
      * row/column are 1-based
@@ -101,7 +140,10 @@ export class SourceMap {
         generatedLine: number,
         generatedColumn: number
     ): IPosition | undefined {
-        const m = this.findEntry(generatedLine, generatedColumn);
+        const m = this.findEntryByGeneratedPosition(
+            generatedLine,
+            generatedColumn
+        );
         // adjust the line and column based on the offset
         if (!m) {
             return undefined;

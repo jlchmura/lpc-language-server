@@ -309,7 +309,8 @@ export class SourceContext {
         const macroProcessor = new MacroProcessor(
             this.macroTable,
             this.sourceMap,
-            this.preprocessedText
+            this.preprocessedText,
+            this.semanticTokens
         );
 
         macroProcessor.markMacros();
