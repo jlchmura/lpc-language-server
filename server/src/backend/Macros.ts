@@ -392,13 +392,14 @@ export class MacroProcessor {
         } else {
             // opening line
             lines[i] = lines[i].substring(0, start.column);
+
             // inbetween lines
-            while (i < j) {
+            while (i < j - 1) {
                 i++;
                 lines[i] = "";
             }
             // closing line
-            if (i != j) lines[j] = lines[j].substring(closeParen.column);
+            if (i != j) lines[j] = lines[j].substring(closeParen.column + 1); // +1 to eat the closing paren
         }
 
         // now slice in the final value at start.pos
@@ -414,6 +415,14 @@ export class MacroProcessor {
             originPos.column + valueToSub.length,
             closeParen.row,
             closeParen.column
+        );
+
+        // the next char after the closing paren should be in the same place
+        this.sourceMap.addMapping(
+            closeParen.row,
+            closeParen.column + 1,
+            closeParen.row,
+            closeParen.column + 1
         );
 
         const jjj = 0;

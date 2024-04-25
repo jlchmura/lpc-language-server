@@ -27,14 +27,8 @@ export class SemanticTokenCollection {
     public build(sourceMap: SourceMap): SemanticTokens {
         const builder = new SemanticTokensBuilder();
         // sort tokens because vscode's api is dumb and doesn't do it for us
-        this.tokens.sort((a, b) => {
-            if (a.line === b.line) {
-                return a.column - b.column;
-            } else {
-                return a.line - b.line;
-            }
-        });
-        this.tokens.forEach((token) => {
+
+        const mapped = this.tokens.map((token) => {
             let modifiers = 0;
             for (const modifier of token.tokenModifiers) {
                 // this is rediculous... WHY VSCODE?!
@@ -46,14 +40,26 @@ export class SemanticTokenCollection {
                 token.column + 1
             );
 
-            builder.push(
+            return [
                 sourceMapping?.row ?? token.line - 1,
-                sourceMapping?.column - 1 ?? token.column,
+                !!sourceMapping ? sourceMapping?.column - 1 : token.column,
                 token.length,
                 token.tokenType,
-                modifiers
-            );
+                modifiers,
+            ];
         });
+
+        // sort after we've translated to source locations
+        mapped.sort((a, b) => {
+            if (a[0] === b[0]) {
+                return a[1] - b[1];
+            }
+            return a[0] - b[0];
+        });
+
+        for (const token of mapped) {
+            builder.push(token[0], token[1], token[2], token[3], token[4]);
+        }
 
         return builder.build();
     }
