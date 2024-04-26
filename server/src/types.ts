@@ -20,6 +20,7 @@ export interface IDiagnosticEntry {
 }
 
 export type IPosition = { column: number; row: number };
+export type IIndexedPosition = { index: number } & IPosition;
 
 /**
  * A range within a text. Just like the range object in vscode the end position is not included in the range.
@@ -132,9 +133,10 @@ export type MacroDefinition = {
     args?: string[];
     /**
      * The macro value string with the arg names marked with a unique string [[@<argName>]]
+     *
      */
     markedValue?: string;
-    regex: RegExp;
+    //regex: RegExp;
     annotation: string;
 };
 

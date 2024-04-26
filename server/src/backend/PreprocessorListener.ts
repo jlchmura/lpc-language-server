@@ -200,7 +200,7 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
                 filename: this.filename,
                 start: { row: ctx.start.line, column: ctx.start.column },
                 end: { row: ctx.stop.line, column: ctx.stop.column },
-                regex: new RegExp(`\\b${nameOnly}\\(`, "g"),
+                //regex: new RegExp(`\\b${nameOnly}\\(`, "g"),
                 annotation: `[[@${nameOnly}]]`,
                 args: argArr,
                 markedValue: identifyArgInstances(value, argArr),
@@ -215,7 +215,7 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
                 filename: this.filename,
                 start: { row: ctx.start.line, column: ctx.start.column },
                 end: { row: ctx.stop.line, column: ctx.stop.column },
-                regex: new RegExp(`\\b${name}\\b`, "g"),
+                //regex: new RegExp(`\\b${name}\\b`, "g"),
                 annotation: `[[@${name}]]`,
             };
 

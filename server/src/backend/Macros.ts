@@ -1,7 +1,9 @@
-import { IPosition, MacroDefinition } from "../types";
+import { IIndexedPosition, IPosition, MacroDefinition } from "../types";
 import { escapeRegExp } from "../utils";
 import { SemanticTokenCollection } from "./SemanticTokenCollection";
 import { SourceMap } from "./SourceMap";
+
+const MacroNameRegex = /^[a-zA-Z][a-zA-Z0-9_]*/;
 
 export type MacroTable = Map<string, MacroDefinition>;
 
@@ -9,14 +11,22 @@ type MacroInstance = {
     key: string;
     start: IPosition;
     end: IPosition;
-    openParen?: IPosition;
-    closeParen?: IPosition;
-    commas?: IPosition[];
+    startIndex: number;
+    endIndex: number;
+    openParen?: IIndexedPosition;
+    closeParen?: IIndexedPosition;
+    commas?: IIndexedPosition[];
     disabled?: boolean;
 };
 
 export class MacroProcessor {
     private macroInstances: MacroInstance[] = [];
+
+    private builders = new CodeBuilderCollection(this.sourceMap, []);
+
+    private codeIdx = 0;
+    private row = 1;
+    private column = 1;
 
     constructor(
         private macroTable: MacroTable,
@@ -24,6 +34,26 @@ export class MacroProcessor {
         private code: string,
         private semanticTokens: SemanticTokenCollection
     ) {}
+
+    private reset() {
+        this.codeIdx = 0;
+        this.row = 1;
+        this.column = 1;
+    }
+
+    private seekToIndex(index: number): string {
+        const startIdx = this.codeIdx;
+        while (this.codeIdx <= index) {
+            this.column++;
+            if (this.code[this.codeIdx] == "\n") {
+                this.row++;
+                this.column = 1;
+            }
+            this.codeIdx++;
+        }
+
+        return this.code.substring(startIdx, this.codeIdx);
+    }
 
     /**
      * process the current line and tag all instances of macros
@@ -85,7 +115,14 @@ export class MacroProcessor {
                 ) {
                     const start: IPosition = { row, column };
                     let end = { row, column: column + key.length };
-                    const instance: MacroInstance = { key, start, end };
+                    let endIndex = j + key.length;
+                    const instance: MacroInstance = {
+                        key,
+                        start,
+                        end,
+                        startIndex: j,
+                        endIndex: j + key.length,
+                    };
 
                     // if this is a macro with arguments, find the closing paren
                     // we'll need to temporarily scroll forward to find the closing paren
@@ -113,7 +150,7 @@ export class MacroProcessor {
                         }
 
                         // store position of the opening paren
-                        instance.openParen = { row: r, column: c };
+                        instance.openParen = { row: r, column: c, index: k };
 
                         // now look for commas and the final closing paren
                         openCharCount++;
@@ -147,6 +184,7 @@ export class MacroProcessor {
                                         instance.closeParen = {
                                             row: r,
                                             column: c,
+                                            index: k,
                                         };
                                         // ntbla: check if char is actually a paren and log diags if not
                                     }
@@ -162,6 +200,7 @@ export class MacroProcessor {
                                         instance.commas.push({
                                             row: r,
                                             column: c,
+                                            index: k,
                                         });
                                     }
                                     break;
@@ -178,9 +217,11 @@ export class MacroProcessor {
 
                         // this is the closing paren of the macro function
                         end = { row: r, column: c };
+                        endIndex = k;
                     } // end of macro-function test
 
                     instance.end = end; // update the end position
+                    instance.endIndex = endIndex;
                     instances.push(instance);
                 } else {
                     inEsc = false; // turn off escape
@@ -192,8 +233,6 @@ export class MacroProcessor {
     }
 
     public replaceMacros() {
-        const lines = this.code.split("\n");
-
         // sort macros by start.row then start.column
         // this is so that once we set a source map, it won't change
         this.macroInstances.sort((a, b) => {
@@ -206,35 +245,120 @@ export class MacroProcessor {
             }
         });
 
-        for (let i = 0; i < this.macroInstances.length; i++) {
-            this.applyMacroInstance(lines, i);
-        }
+        let rootBuilder = this.builders;
+        this.createBuildersForSequence(rootBuilder, 0, this.code.length - 1);
 
-        return lines.join("\n");
+        const finalCode = this.builders.build(0, 1, 1);
+
+        return finalCode;
     }
 
-    private applyMacroInstance(lines: string[], index: number) {
-        const inst = this.macroInstances[index];
-        const def = this.macroTable.get(inst.key);
-        if (def && !inst.disabled) {
-            if (!!def.args) {
-                let j = index;
-                while (
-                    j++ < this.macroInstances.length &&
-                    this.macroInstances[j]?.end.row == inst.end.row &&
-                    this.macroInstances[j]?.end.column <= inst.end.column
-                ) {
-                    // scroll forward and apply other macros that occur before the end of this one
-                    this.applyMacroInstance(lines, j);
+    private createBuildersForSequence(
+        rootBuilder: CodeBuilderCollection,
+        startMacroIndex: number,
+        endIndex: number
+    ) {
+        let b: CodeBuilder;
+        let i: number;
+        for (
+            i = startMacroIndex;
+            i < this.macroInstances.length &&
+            this.codeIdx <= this.macroInstances[i].startIndex;
+            i++
+        ) {
+            const inst = this.macroInstances[i];
+            const def = this.macroTable.get(inst.key);
+
+            // put the text before the macro into the builder
+            const startRow = this.row;
+            const startCol = this.column;
+            const txt = this.seekToIndex(inst.startIndex - 1);
+            if (txt.length > 0) {
+                b = new CodeBuilderString(
+                    this.sourceMap,
+                    txt,
+                    startRow,
+                    startCol
+                );
+                rootBuilder.add(b);
+            }
+
+            if (!!inst.openParen) {
+                const args: CodeBuilder[] = [];
+
+                this.seekToIndex(inst.openParen.index + 1); // skip the open paren
+
+                // create builders for each arg
+                for (let j = 0; j < def.args.length; j++) {
+                    const prevComma = inst.commas[j - 1] || inst.openParen;
+                    const nextComma = inst.commas[j] || inst.closeParen;
+
+                    const argBuilder = (args[j] = new CodeBuilderCollection(
+                        this.sourceMap,
+                        []
+                    ));
+
+                    // create a build for this arg.  adjust i based on which macros it consumed.
+                    i = this.createBuildersForSequence(
+                        argBuilder,
+                        i,
+                        nextComma.index - 1
+                    );
+
+                    this.seekToIndex(nextComma.index); // skip the comma
                 }
-                this.processMacroFunction(lines, inst.key, def, inst);
-                inst.disabled = true;
+
+                b = new CodeBuilderFunctionMacro(
+                    this.sourceMap,
+                    inst,
+                    this.macroTable.get(inst.key),
+                    args
+                );
+                rootBuilder.add(b);
             } else {
-                this.processMacro(lines, inst.key, def, inst.start, inst.end);
-                inst.disabled = true;
+                b = new CodeBuilderMacro(
+                    this.sourceMap,
+                    inst,
+                    this.macroTable.get(inst.key)
+                );
+                rootBuilder.add(b);
             }
         }
+
+        // if there is any text left, add it to the builder
+        const startRow = this.row;
+        const startCol = this.column;
+        const txt = this.seekToIndex(endIndex);
+        if (txt.length > 0) {
+            b = new CodeBuilderString(this.sourceMap, txt, startRow, startCol);
+            rootBuilder.add(b);
+        }
+
+        return i;
     }
+
+    // private applyMacroInstance(lines: string[], index: number) {
+    //     const inst = this.macroInstances[index];
+    //     const def = this.macroTable.get(inst.key);
+    //     if (def && !inst.disabled) {
+    //         if (!!def.args) {
+    //             let j = index;
+    //             while (
+    //                 j++ < this.macroInstances.length &&
+    //                 this.macroInstances[j]?.end.row == inst.end.row &&
+    //                 this.macroInstances[j]?.end.column <= inst.end.column
+    //             ) {
+    //                 // scroll forward and apply other macros that occur before the end of this one
+    //                 this.applyMacroInstance(lines, j);
+    //             }
+    //             this.processMacroFunction(lines, inst.key, def, inst);
+    //             inst.disabled = true;
+    //         } else {
+    //             this.processMacro(lines, inst.key, def, inst.start, inst.end);
+    //             inst.disabled = true;
+    //         }
+    //     }
+    // }
 
     /**
      * replaces an instance of a standard macro with its value
@@ -244,62 +368,62 @@ export class MacroProcessor {
      * @param sourceStart the starting position in the source doc
      * @param sourceEnd the ending positiong of the macro reference in the source doc
      */
-    private processMacro(
-        lines: string[],
-        name: string,
-        def: MacroDefinition,
-        sourceStart: IPosition,
-        sourceEnd: IPosition
-    ) {
-        const { value } = def;
-        console.debug(`Processing macro: ${name} => ${value}`);
+    // private processMacro(
+    //     lines: string[],
+    //     name: string,
+    //     def: MacroDefinition,
+    //     sourceStart: IPosition,
+    //     sourceEnd: IPosition
+    // ) {
+    //     const { value } = def;
+    //     console.debug(`Processing macro: ${name} => ${value}`);
 
-        // compute the start and end of the macro instance using the sourcemap
-        const start = this.sourceMap.getGeneratedLocation(
-            sourceStart.row,
-            sourceStart.column
-        );
-        const end = this.sourceMap.getGeneratedLocation(
-            sourceEnd.row,
-            sourceEnd.column
-        );
+    //     // compute the start and end of the macro instance using the sourcemap
+    //     const start = this.sourceMap.getGeneratedLocation(
+    //         sourceStart.row,
+    //         sourceStart.column
+    //     );
+    //     const end = this.sourceMap.getGeneratedLocation(
+    //         sourceEnd.row,
+    //         sourceEnd.column
+    //     );
 
-        if (start.row != end.row) {
-            console.error(
-                "Macro spans multiple lines, which is not supported: ",
-                name
-            );
-        }
+    //     if (start.row != end.row) {
+    //         console.error(
+    //             "Macro spans multiple lines, which is not supported: ",
+    //             name
+    //         );
+    //     }
 
-        // first, clear all text in `lines[]` between the start and end of the macro instance
-        let i = start.row;
-        lines[i] =
-            lines[i].substring(0, start.column) +
-            lines[i].substring(end.column);
+    //     // first, clear all text in `lines[]` between the start and end of the macro instance
+    //     let i = start.row;
+    //     lines[i] =
+    //         lines[i].substring(0, start.column) +
+    //         lines[i].substring(end.column);
 
-        // now slice in the final value at start.pos
-        // plus a space to sep the annotation from previous token
-        const macroMark = ` [[@${name}]]`;
-        const valueToSub = macroMark + value;
-        lines[start.row] =
-            lines[start.row].substring(0, start.column) +
-            valueToSub +
-            lines[start.row].substring(start.column);
+    //     // now slice in the final value at start.pos
+    //     // plus a space to sep the annotation from previous token
+    //     const macroMark = ` [[@${name}]]`;
+    //     const valueToSub = macroMark + value;
+    //     lines[start.row] =
+    //         lines[start.row].substring(0, start.column) +
+    //         valueToSub +
+    //         lines[start.row].substring(start.column);
 
-        // now add sourcemaps for the start of the macro and then end
-        this.sourceMap.addMapping(
-            start.row,
-            start.column + macroMark.length,
-            start.row,
-            start.column
-        );
-        this.sourceMap.addMapping(
-            start.row,
-            start.column + valueToSub.length,
-            end.row,
-            end.column + 1
-        );
-    }
+    //     // now add sourcemaps for the start of the macro and then end
+    //     this.sourceMap.addMapping(
+    //         start.row,
+    //         start.column + macroMark.length,
+    //         start.row,
+    //         start.column
+    //     );
+    //     this.sourceMap.addMapping(
+    //         start.row,
+    //         start.column + valueToSub.length,
+    //         end.row,
+    //         end.column + 1
+    //     );
+    // }
 
     /**
      * Process an occurance of a macro function
@@ -310,146 +434,287 @@ export class MacroProcessor {
      * @param sourceEnd end of the macro function occurance
      * @param commas position of commas in the macro function occurance
      */
-    private processMacroFunction(
-        lines: string[],
-        name: string,
-        def: MacroDefinition,
-        instance: MacroInstance
+    // private processMacroFunction(
+    //     lines: string[],
+    //     name: string,
+    //     def: MacroDefinition,
+    //     instance: MacroInstance
+    // ) {
+    //     // NTBLA: validate number of args
+    //     console.debug("Processing macro function: ", name);
+
+    //     let argMarkedValue = def.markedValue;
+    //     const { start, end, commas, openParen, closeParen } = instance;
+    //     const { annotation } = def;
+
+    //     let argIdx = 0;
+    //     const originPos = this.sourceMap.getGeneratedLocation(
+    //         start.row,
+    //         start.column
+    //     );
+    //     // const argOrigin = this.sourceMap.getGeneratedLocation(
+    //     //     openParen.row + 1,
+    //     //     openParen.column
+    //     // );
+
+    //     // add a sourcemap for the start of the macro (past the annotation)
+    //     this.sourceMap.addMapping(
+    //         start.row,
+    //         start.column + annotation.length + 1 + 1, // +1 for space after annotation
+    //         originPos.row,
+    //         originPos.column
+    //     );
+
+    //     // adjust each common position using sourcemap
+
+    //     while (argIdx < def.args.length) {
+    //         const argName = def.args[argIdx];
+    //         // start position of the arg value
+    //         let startPos = {
+    //             ...(argIdx == 0 ? openParen : commas[argIdx - 1]),
+    //         };
+
+    //         startPos = this.sourceMap.getGeneratedLocation(
+    //             startPos.row,
+    //             startPos.column + 1,
+    //         );
+
+    //         // end position of the arg value
+    //         let endPos = {
+    //             ...(argIdx == commas.length || commas.length == 0
+    //                 ? closeParen
+    //                 : commas[argIdx]),
+    //         };
+    //         endPos = this.sourceMap.getGeneratedLocation(
+    //             endPos.row,
+    //             endPos.column + 1
+    //         );
+    //         endPos.column--;
+
+    //         let valToSub = "";
+    //         if (startPos.row == endPos.row) {
+    //             valToSub = lines[startPos.row].substring(
+    //                 startPos.column,
+    //                 endPos.column
+    //             );
+    //         } else {
+    //             let j = startPos.row;
+    //             while (j <= endPos.row) {
+    //                 if (j == startPos.row) {
+    //                     valToSub += lines[j].substring(startPos.column);
+    //                 } else if (j == endPos.row) {
+    //                     valToSub += lines[j].substring(0, endPos.column);
+    //                 } else {
+    //                     valToSub += lines[j];
+    //                 }
+    //                 j++;
+    //             }
+    //         }
+
+    //         // remove newlines to make things easier
+    //         valToSub = valToSub.replace(/\n/g, "").trim();
+
+    //         // now substitute the value by appending the arg value just after each arg mark
+    //         const mark = `[[@${argName}]]`;
+
+    //         argMarkedValue = argMarkedValue.replace(
+    //             new RegExp(escapeRegExp(mark), "g"),
+    //             // add a space at the beginning so that the mark combined with potential marco paren doesn't look like an array open
+    //             " " + mark + valToSub
+    //         );
+
+    //         console.debug(` |- Substituting arg ${argName} => ${valToSub}`);
+    //         argIdx++;
+    //     } //end of arg loop
+
+    //     // finally, after all marks have been replaced with their values, we'll put the code back together
+    //     // first, clear all text in `lines[]` between the start of the macro instance and closing paren, which may be on different lines
+    //     let i = start.row;
+    //     let j = closeParen.row;
+
+    //     if (i == j) {
+    //         lines[i] =
+    //             lines[i].substring(0, start.column) +
+    //             lines[i].substring(closeParen.column + 1);
+    //     } else {
+    //         // opening line
+    //         lines[i] = lines[i].substring(0, start.column);
+
+    //         // inbetween lines
+    //         while (i < j - 1) {
+    //             i++;
+    //             lines[i] = "";
+    //         }
+    //         // closing line
+    //         if (i != j) lines[j] = lines[j].substring(closeParen.column + 1); // +1 to eat the closing paren
+    //     }
+
+    //     // now slice in the final value at start.pos
+    //     // plus a space to sep the annotation from previous token
+    //     const valueToSub = " " + annotation + argMarkedValue;
+    //     lines[start.row] =
+    //         lines[start.row].substring(0, start.column) +
+    //         valueToSub +
+    //         lines[start.row].substring(start.column);
+
+    //     this.sourceMap.addMapping(
+    //         i,
+    //         originPos.column + valueToSub.length,
+    //         closeParen.row,
+    //         closeParen.column
+    //     );
+
+    //     // the next char after the closing paren should be in the same place
+    //     this.sourceMap.addMapping(
+    //         closeParen.row,
+    //         closeParen.column + 1,
+    //         closeParen.row,
+    //         closeParen.column + 1
+    //     );
+
+    //     this.sourceMap.resort();
+
+    //     const jjj = 0;
+    // }
+}
+
+abstract class CodeBuilder {
+    constructor(protected sourceMap: SourceMap) {}
+    abstract build(index: number, line: number, column: number): string;
+}
+class CodeBuilderCollection extends CodeBuilder {
+    constructor(sourceMap: SourceMap, private builders: CodeBuilder[]) {
+        super(sourceMap);
+    }
+
+    build(index: number, line: number, column: number): string {
+        return this.builders.map((b) => b.build(index, line, column)).join("");
+    }
+
+    public add(builder: CodeBuilder) {
+        this.builders.push(builder);
+    }
+}
+class CodeBuilderString extends CodeBuilder {
+    hasSourceMap = false;
+
+    constructor(
+        sourceMap: SourceMap,
+        private value: string,
+        private sourceLine: number,
+        private sourceColumn: number
     ) {
-        // NTBLA: validate number of args
-        console.debug("Processing macro function: ", name);
+        super(sourceMap);
+    }
+    build(index: number, line: number, column: number): string {
+        if (!this.hasSourceMap) {
+            this.sourceMap.addMapping(
+                line,
+                column + 1,
+                this.sourceLine,
+                this.sourceColumn
+            );
+            this.hasSourceMap = true;
+        }
+        return ` ${this.value}`;
+    }
+}
+class CodeBuilderMacro extends CodeBuilder {
+    private hasSourceMap = false;
 
-        let argMarkedValue = def.markedValue;
-        const { start, end, commas, openParen, closeParen } = instance;
-        const { annotation } = def;
+    constructor(
+        sourceMap: SourceMap,
+        protected inst: MacroInstance,
+        protected def: MacroDefinition
+    ) {
+        super(sourceMap);
+    }
+    build(index: number, line: number, column: number): string {
+        const { start } = this.inst;
+        const { annotation, value } = this.def;
 
-        let argIdx = 0;
-        const originPos = this.sourceMap.getGeneratedLocation(
+        if (!this.hasSourceMap) {
+            this.sourceMap.addMapping(
+                line,
+                column + 1 + annotation.length,
+                start.row,
+                start.column
+            ); //  +1 for the space
+            this.hasSourceMap = true;
+        }
+        return ` ${annotation}${value}`;
+    }
+}
+class CodeBuilderFunctionMacro extends CodeBuilder {
+    private hasSourceMap = false;
+
+    constructor(
+        sourceMap: SourceMap,
+        protected inst: MacroInstance,
+        protected def: MacroDefinition,
+        protected args: CodeBuilder[]
+    ) {
+        super(sourceMap);
+    }
+    build(index: number, line: number, column: number): string {
+        const origCol = column;
+        const { start, openParen, closeParen } = this.inst;
+        const { annotation, markedValue, name, args: argNames } = this.def;
+
+        if (!this.hasSourceMap) {
+            this.sourceMap.addMapping(
+                line,
+                column + 1 + annotation.length,
+                start.row,
+                start.column
+            ); //  +1 for the space
+            this.hasSourceMap = true;
+        }
+
+        let code: string = ` ${annotation}`;
+
+        // add sourcemap to start of the macro
+        this.sourceMap.addMapping(
+            line,
+            origCol + code.length,
             start.row,
             start.column
         );
-        // const argOrigin = this.sourceMap.getGeneratedLocation(
-        //     openParen.row + 1,
-        //     openParen.column
-        // );
 
-        // add a sourcemap for the start of the macro (past the annotation)
-        this.sourceMap.addMapping(
-            start.row,
-            start.column + annotation.length + 1 + 1, // +1 for space after annotation
-            originPos.row,
-            originPos.column
-        );
-
-        // adjust each common position using sourcemap
-
-        while (argIdx < def.args.length) {
-            const argName = def.args[argIdx];
-            // start position of the arg value
-            let startPos = {
-                ...(argIdx == 0 ? openParen : commas[argIdx - 1]),
-            };
-
-            startPos = this.sourceMap.getGeneratedLocation(
-                startPos.row,
-                startPos.column + 1
-            );
-
-            // end position of the arg value
-            let endPos = {
-                ...(argIdx == commas.length || commas.length == 0
-                    ? closeParen
-                    : commas[argIdx]),
-            };
-            endPos = this.sourceMap.getGeneratedLocation(
-                endPos.row,
-                endPos.column + 1
-            );
-            endPos.column--;
-
-            let valToSub = "";
-            if (startPos.row == endPos.row) {
-                valToSub = lines[startPos.row].substring(
-                    startPos.column,
-                    endPos.column
+        let i = 0;
+        while (i < markedValue.length) {
+            if (markedValue.startsWith("[[@", i)) {
+                // we've found a mark
+                const markEnd = markedValue.indexOf("]]", i) + 2;
+                const mark = markedValue.substring(i, markEnd);
+                const argIdx = argNames.indexOf(
+                    mark.substring(3, mark.length - 2)
                 );
+
+                // build arg code
+                code += this.args[argIdx].build(
+                    index,
+                    line,
+                    origCol + code.length
+                );
+
+                i = markEnd - 1;
             } else {
-                let j = startPos.row;
-                while (j <= endPos.row) {
-                    if (j == startPos.row) {
-                        valToSub += lines[j].substring(startPos.column);
-                    } else if (j == endPos.row) {
-                        valToSub += lines[j].substring(0, endPos.column);
-                    } else {
-                        valToSub += lines[j];
-                    }
-                    j++;
-                }
+                code += markedValue[i];
             }
-
-            // remove newlines to make things easier
-            valToSub = valToSub.replace(/\n/g, "").trim();
-
-            // now substitute the value by appending the arg value just after each arg mark
-            const mark = `[[@${argName}]]`;
-
-            argMarkedValue = argMarkedValue.replace(
-                new RegExp(escapeRegExp(mark), "g"),
-                // add a space at the beginning so that the mark combined with potential marco paren doesn't look like an array open
-                " " + mark + valToSub
-            );
-
-            console.debug(` |- Substituting arg ${argName} => ${valToSub}`);
-            argIdx++;
-        } //end of arg loop
-
-        // finally, after all marks have been replaced with their values, we'll put the code back together
-        // first, clear all text in `lines[]` between the start of the macro instance and closing paren, which may be on different lines
-        let i = start.row;
-        let j = closeParen.row;
-
-        if (i == j) {
-            lines[i] =
-                lines[i].substring(0, start.column) +
-                lines[i].substring(closeParen.column + 1);
-        } else {
-            // opening line
-            lines[i] = lines[i].substring(0, start.column);
-
-            // inbetween lines
-            while (i < j - 1) {
-                i++;
-                lines[i] = "";
-            }
-            // closing line
-            if (i != j) lines[j] = lines[j].substring(closeParen.column + 1); // +1 to eat the closing paren
+            i++;
         }
 
-        // now slice in the final value at start.pos
-        // plus a space to sep the annotation from previous token
-        const valueToSub = " " + annotation + argMarkedValue;
-        lines[start.row] =
-            lines[start.row].substring(0, start.column) +
-            valueToSub +
-            lines[start.row].substring(start.column);
+        //code += this.argBuilder.build(index, line, origCol + code.length);
 
+        // add sourcemap to close paren
         this.sourceMap.addMapping(
-            i,
-            originPos.column + valueToSub.length,
+            line,
+            origCol + code.length - 1,
             closeParen.row,
             closeParen.column
         );
 
-        // the next char after the closing paren should be in the same place
-        this.sourceMap.addMapping(
-            closeParen.row,
-            closeParen.column + 1,
-            closeParen.row,
-            closeParen.column + 1
-        );
-
-        this.sourceMap.resort();
-
-        const jjj = 0;
+        return code;
     }
 }
