@@ -12,6 +12,7 @@ type MacroInstance = {
     openParen?: IPosition;
     closeParen?: IPosition;
     commas?: IPosition[];
+    disabled?: boolean;
 };
 
 export class MacroProcessor {
@@ -205,24 +206,34 @@ export class MacroProcessor {
             }
         });
 
-        for (const inst of this.macroInstances) {
-            const def = this.macroTable.get(inst.key);
-            if (def) {
-                if (!!def.args) {
-                    this.processMacroFunction(lines, inst.key, def, inst);
-                } else {
-                    this.processMacro(
-                        lines,
-                        inst.key,
-                        def,
-                        inst.start,
-                        inst.end
-                    );
-                }
-            }
+        for (let i = 0; i < this.macroInstances.length; i++) {
+            this.applyMacroInstance(lines, i);
         }
 
         return lines.join("\n");
+    }
+
+    private applyMacroInstance(lines: string[], index: number) {
+        const inst = this.macroInstances[index];
+        const def = this.macroTable.get(inst.key);
+        if (def && !inst.disabled) {
+            if (!!def.args) {
+                let j = index;
+                while (
+                    j++ < this.macroInstances.length &&
+                    this.macroInstances[j]?.end.row == inst.end.row &&
+                    this.macroInstances[j]?.end.column <= inst.end.column
+                ) {
+                    // scroll forward and apply other macros that occur before the end of this one
+                    this.applyMacroInstance(lines, j);
+                }
+                this.processMacroFunction(lines, inst.key, def, inst);
+                inst.disabled = true;
+            } else {
+                this.processMacro(lines, inst.key, def, inst.start, inst.end);
+                inst.disabled = true;
+            }
+        }
     }
 
     /**
@@ -330,19 +341,31 @@ export class MacroProcessor {
             originPos.column
         );
 
+        // adjust each common position using sourcemap
+
         while (argIdx < def.args.length) {
             const argName = def.args[argIdx];
             // start position of the arg value
-            const startPos = {
+            let startPos = {
                 ...(argIdx == 0 ? openParen : commas[argIdx - 1]),
             };
-            startPos.column++;
+
+            startPos = this.sourceMap.getGeneratedLocation(
+                startPos.row,
+                startPos.column + 1
+            );
+
             // end position of the arg value
-            const endPos = {
+            let endPos = {
                 ...(argIdx == commas.length || commas.length == 0
                     ? closeParen
                     : commas[argIdx]),
             };
+            endPos = this.sourceMap.getGeneratedLocation(
+                endPos.row,
+                endPos.column + 1
+            );
+            endPos.column--;
 
             let valToSub = "";
             if (startPos.row == endPos.row) {
@@ -424,6 +447,8 @@ export class MacroProcessor {
             closeParen.row,
             closeParen.column + 1
         );
+
+        this.sourceMap.resort();
 
         const jjj = 0;
     }

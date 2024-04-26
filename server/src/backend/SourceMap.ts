@@ -12,6 +12,16 @@ export class SourceMap {
 
     constructor() {}
 
+    public resort() {
+        this.mapping.sort((a, b) => {
+            if (a.line == b.line) {
+                return a.column - b.column;
+            } else {
+                return a.line - b.line;
+            }
+        });
+    }
+
     public addMapping(
         generatedLine: number,
         generatedColumn: number,

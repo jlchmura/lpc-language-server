@@ -666,8 +666,12 @@ export class SourceContext {
             return undefined;
         }
 
-        const { column: lexerColumn, row: lexerRow } =
-            this.sourceToTokenLocation(column, row);
+        let { column: lexerColumn, row: lexerRow } = this.sourceToTokenLocation(
+            column,
+            row - 1
+        );
+
+        lexerRow += 1;
 
         const terminal = BackendUtils.parseTreeFromPosition(
             this.tree,
