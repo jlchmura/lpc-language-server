@@ -22,7 +22,12 @@ type MacroInstance = {
 export class MacroProcessor {
     private macroInstances: MacroInstance[] = [];
 
-    private builders = new CodeBuilderCollection(this.sourceMap, []);
+    private writer: CodeWriter = new CodeWriter();
+    private builders = new CodeBuilderCollection(
+        this.sourceMap,
+        [],
+        this.writer
+    );
 
     private codeIdx = 0;
     private row = 1;
@@ -248,8 +253,10 @@ export class MacroProcessor {
         let rootBuilder = this.builders;
         this.createBuildersForSequence(rootBuilder, 0, this.code.length - 1);
 
-        const finalCode = this.builders.build(0, 1, 1);
+        this.builders.build(0);
 
+        const finalCode = this.writer.code;
+        const lines = finalCode.split("\n");
         return finalCode;
     }
 
@@ -260,14 +267,19 @@ export class MacroProcessor {
     ) {
         let b: CodeBuilder;
         let i: number;
-        for (
-            i = startMacroIndex;
-            i < this.macroInstances.length &&
-            this.codeIdx <= this.macroInstances[i].startIndex;
-            i++
-        ) {
+        for (i = startMacroIndex; i < this.macroInstances.length; i++) {
             const inst = this.macroInstances[i];
             const def = this.macroTable.get(inst.key);
+
+            if (
+                inst.disabled ||
+                // macro must intersect current codeIdx and endIndex
+                !(inst.endIndex >= this.codeIdx && inst.startIndex <= endIndex)
+            )
+                continue;
+
+            // mark as disabled so we don't process this macro again
+            inst.disabled = true;
 
             // put the text before the macro into the builder
             const startRow = this.row;
@@ -278,7 +290,8 @@ export class MacroProcessor {
                     this.sourceMap,
                     txt,
                     startRow,
-                    startCol
+                    startCol,
+                    this.writer
                 );
                 rootBuilder.add(b);
             }
@@ -295,11 +308,12 @@ export class MacroProcessor {
 
                     const argBuilder = (args[j] = new CodeBuilderCollection(
                         this.sourceMap,
-                        []
+                        [],
+                        this.writer
                     ));
 
                     // create a build for this arg.  adjust i based on which macros it consumed.
-                    i = this.createBuildersForSequence(
+                    this.createBuildersForSequence(
                         argBuilder,
                         i,
                         nextComma.index - 1
@@ -312,16 +326,24 @@ export class MacroProcessor {
                     this.sourceMap,
                     inst,
                     this.macroTable.get(inst.key),
-                    args
+                    args,
+                    this.writer
                 );
                 rootBuilder.add(b);
             } else {
+                const macro = this.macroTable.get(inst.key);
                 b = new CodeBuilderMacro(
                     this.sourceMap,
                     inst,
-                    this.macroTable.get(inst.key)
+                    macro,
+                    this.writer
                 );
                 rootBuilder.add(b);
+
+                const t = this.seekToIndex(
+                    this.codeIdx + macro.name.length - 1
+                ); // skip the macro name
+                const i = 0;
             }
         }
 
@@ -330,7 +352,13 @@ export class MacroProcessor {
         const startCol = this.column;
         const txt = this.seekToIndex(endIndex);
         if (txt.length > 0) {
-            b = new CodeBuilderString(this.sourceMap, txt, startRow, startCol);
+            b = new CodeBuilderString(
+                this.sourceMap,
+                txt,
+                startRow,
+                startCol,
+                this.writer
+            );
             rootBuilder.add(b);
         }
 
@@ -578,17 +606,44 @@ export class MacroProcessor {
     // }
 }
 
-abstract class CodeBuilder {
-    constructor(protected sourceMap: SourceMap) {}
-    abstract build(index: number, line: number, column: number): string;
-}
-class CodeBuilderCollection extends CodeBuilder {
-    constructor(sourceMap: SourceMap, private builders: CodeBuilder[]) {
-        super(sourceMap);
+class CodeWriter {
+    private _code: string = "";
+
+    public get code() {
+        return this._code;
     }
 
-    build(index: number, line: number, column: number): string {
-        return this.builders.map((b) => b.build(index, line, column)).join("");
+    public line = 1;
+    public column = 1;
+
+    write(text: string) {
+        this._code += text;
+        for (let i = 0; i < text.length; i++) {
+            if (text[i] == "\n") {
+                this.line++;
+                this.column = 1;
+            } else {
+                this.column++;
+            }
+        }
+    }
+}
+
+abstract class CodeBuilder {
+    constructor(protected sourceMap: SourceMap, protected writer: CodeWriter) {}
+    abstract build(index: number): void;
+}
+class CodeBuilderCollection extends CodeBuilder {
+    constructor(
+        sourceMap: SourceMap,
+        private builders: CodeBuilder[],
+        writer: CodeWriter
+    ) {
+        super(sourceMap, writer);
+    }
+
+    build(index: number): void {
+        this.builders.forEach((b) => b.build(index));
     }
 
     public add(builder: CodeBuilder) {
@@ -602,21 +657,22 @@ class CodeBuilderString extends CodeBuilder {
         sourceMap: SourceMap,
         private value: string,
         private sourceLine: number,
-        private sourceColumn: number
+        private sourceColumn: number,
+        writer: CodeWriter
     ) {
-        super(sourceMap);
+        super(sourceMap, writer);
     }
-    build(index: number, line: number, column: number): string {
+    build(index: number): void {
         if (!this.hasSourceMap) {
             this.sourceMap.addMapping(
-                line,
-                column + 1,
+                this.writer.line,
+                this.writer.column + 1,
                 this.sourceLine,
                 this.sourceColumn
             );
             this.hasSourceMap = true;
         }
-        return ` ${this.value}`;
+        this.writer.write(` ${this.value}`);
     }
 }
 class CodeBuilderMacro extends CodeBuilder {
@@ -625,24 +681,25 @@ class CodeBuilderMacro extends CodeBuilder {
     constructor(
         sourceMap: SourceMap,
         protected inst: MacroInstance,
-        protected def: MacroDefinition
+        protected def: MacroDefinition,
+        writer: CodeWriter
     ) {
-        super(sourceMap);
+        super(sourceMap, writer);
     }
-    build(index: number, line: number, column: number): string {
+    build(index: number) {
         const { start } = this.inst;
         const { annotation, value } = this.def;
 
         if (!this.hasSourceMap) {
             this.sourceMap.addMapping(
-                line,
-                column + 1 + annotation.length,
+                this.writer.line,
+                this.writer.column + 1 + annotation.length,
                 start.row,
                 start.column
             ); //  +1 for the space
             this.hasSourceMap = true;
         }
-        return ` ${annotation}${value}`;
+        this.writer.write(` ${annotation}${value}`);
     }
 }
 class CodeBuilderFunctionMacro extends CodeBuilder {
@@ -652,31 +709,32 @@ class CodeBuilderFunctionMacro extends CodeBuilder {
         sourceMap: SourceMap,
         protected inst: MacroInstance,
         protected def: MacroDefinition,
-        protected args: CodeBuilder[]
+        protected args: CodeBuilder[],
+        writer: CodeWriter
     ) {
-        super(sourceMap);
+        super(sourceMap, writer);
     }
-    build(index: number, line: number, column: number): string {
-        const origCol = column;
+    build(index: number) {
+        const origCol = this.writer.column;
         const { start, openParen, closeParen } = this.inst;
         const { annotation, markedValue, name, args: argNames } = this.def;
 
         if (!this.hasSourceMap) {
             this.sourceMap.addMapping(
-                line,
-                column + 1 + annotation.length,
+                this.writer.line,
+                this.writer.column + 1 + annotation.length,
                 start.row,
                 start.column
             ); //  +1 for the space
             this.hasSourceMap = true;
         }
 
-        let code: string = ` ${annotation}`;
+        this.writer.write(` ${annotation}`);
 
         // add sourcemap to start of the macro
         this.sourceMap.addMapping(
-            line,
-            origCol + code.length,
+            this.writer.line,
+            this.writer.column,
             start.row,
             start.column
         );
@@ -692,15 +750,12 @@ class CodeBuilderFunctionMacro extends CodeBuilder {
                 );
 
                 // build arg code
-                code += this.args[argIdx].build(
-                    index,
-                    line,
-                    origCol + code.length
-                );
+
+                this.args[argIdx].build(index);
 
                 i = markEnd - 1;
             } else {
-                code += markedValue[i];
+                this.writer.write(markedValue[i]);
             }
             i++;
         }
@@ -708,13 +763,12 @@ class CodeBuilderFunctionMacro extends CodeBuilder {
         //code += this.argBuilder.build(index, line, origCol + code.length);
 
         // add sourcemap to close paren
+        //this.writer.write(")");
         this.sourceMap.addMapping(
-            line,
-            origCol + code.length - 1,
+            this.writer.line,
+            this.writer.column,
             closeParen.row,
             closeParen.column
         );
-
-        return code;
     }
 }

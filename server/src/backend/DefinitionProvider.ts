@@ -35,7 +35,10 @@ export class LpcDefinitionProvider {
                 // if (info.definition.range.start.row - 1 < 0) {
                 //     const i = 0;
                 // }
-                const range = Range.create(
+
+                // NTBLA: do sourcemapping in symbolInfo instead
+                const sourceMap = this.backend.getSourcemap(document.uri);
+                const range = sourceMap.createSourceRange(
                     info.definition.range.start.row - 1,
                     info.definition.range.start.column,
                     info.definition.range.end.row - 1,

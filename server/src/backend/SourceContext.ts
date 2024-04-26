@@ -176,7 +176,7 @@ export class SourceContext {
     /** flag that indicates if the text needs compiling, kind of like a dirty state */
     private needsCompile = false;
 
-    private sourceMap: SourceMap;
+    public sourceMap: SourceMap;
 
     private highlights: DocumentHighlight[] = [];
     private cachedSemanticTokens: SemanticTokens;
@@ -668,10 +668,8 @@ export class SourceContext {
 
         let { column: lexerColumn, row: lexerRow } = this.sourceToTokenLocation(
             column,
-            row - 1
+            row
         );
-
-        lexerRow += 1;
 
         const terminal = BackendUtils.parseTreeFromPosition(
             this.tree,

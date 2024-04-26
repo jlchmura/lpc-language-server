@@ -1,4 +1,5 @@
 import { IPosition } from "../types";
+import { Range } from "vscode-languageserver";
 
 type SourceMapping = {
     line: number;
@@ -167,5 +168,22 @@ export class SourceMap {
                 generatedColumn + (m.line == generatedLine ? columnOffset : 0),
             row: generatedLine + lineOffset,
         };
+    }
+
+    public createSourceRange(
+        startLine: number,
+        startChar: number,
+        endLine: number,
+        endChar: number
+    ): Range {
+        const start = this.getSourceLocation(startLine, startChar);
+        const end = this.getSourceLocation(endLine, endChar);
+
+        return Range.create(
+            start?.row ?? startLine,
+            start?.column ?? startChar,
+            end?.row ?? endLine,
+            end?.column ?? endChar
+        );
     }
 }

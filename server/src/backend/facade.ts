@@ -12,6 +12,7 @@ import { FoldingRange, SemanticTokens } from "vscode-languageserver";
 import { normalizeFilename } from "../utils";
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import { TextDocument } from "vscode-languageserver-textdocument";
+import { SourceMap } from "./SourceMap";
 
 /** ms delay before reparsing a depenency */
 const DEP_FILE_REPARSE_TIME = 250;
@@ -401,5 +402,11 @@ export class LpcFacade {
         const context = this.getContext(fileName);
 
         return context?.getSemanticTokens();
+    }
+
+    public getSourcemap(fileName: string): SourceMap {
+        const context = this.getContext(fileName);
+
+        return context?.sourceMap;
     }
 }
