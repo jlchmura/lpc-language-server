@@ -93,7 +93,7 @@ export class MacroProcessor {
         let inQuot = false,
             inEsc = false;
 
-        while (j++ < code.length) {
+        while (++j < code.length) {
             column++;
             if (!inEsc && code[j] === "\n") {
                 row++;
@@ -298,6 +298,7 @@ export class MacroProcessor {
                     startCol,
                     this.writer
                 );
+
                 rootBuilder.add(b);
             }
 
@@ -332,7 +333,8 @@ export class MacroProcessor {
                     inst,
                     this.macroTable.get(inst.key),
                     args,
-                    this.writer
+                    this.writer,
+                    this.macroTable
                 );
                 rootBuilder.add(b);
             } else {
@@ -341,7 +343,8 @@ export class MacroProcessor {
                     this.sourceMap,
                     inst,
                     macro,
-                    this.writer
+                    this.writer,
+                    this.macroTable
                 );
                 rootBuilder.add(b);
 
@@ -364,6 +367,7 @@ export class MacroProcessor {
                 startCol,
                 this.writer
             );
+
             rootBuilder.add(b);
         }
 
@@ -397,11 +401,14 @@ class CodeWriter {
 abstract class CodeBuilder {
     constructor(protected sourceMap: SourceMap, protected writer: CodeWriter) {}
     abstract build(index: number): void;
+
+    // public onBuild: (str: string) => CodeBuilder[] | undefined = () =>
+    //     undefined;
 }
 class CodeBuilderCollection extends CodeBuilder {
     constructor(
         sourceMap: SourceMap,
-        private builders: CodeBuilder[],
+        public builders: CodeBuilder[],
         writer: CodeWriter
     ) {
         super(sourceMap, writer);
@@ -440,6 +447,7 @@ class CodeBuilderString extends CodeBuilder {
         this.writer.write(` ${this.value}`);
     }
 }
+
 class CodeBuilderMacro extends CodeBuilder {
     private hasSourceMap = false;
 
@@ -447,13 +455,15 @@ class CodeBuilderMacro extends CodeBuilder {
         sourceMap: SourceMap,
         protected inst: MacroInstance,
         protected def: MacroDefinition,
-        writer: CodeWriter
+        writer: CodeWriter,
+        private macroTable: MacroTable
     ) {
         super(sourceMap, writer);
     }
     build(index: number) {
         const { start } = this.inst;
-        const { annotation, value } = this.def;
+        const { annotation } = this.def;
+        let { value } = this.def;
 
         if (!this.hasSourceMap) {
             this.sourceMap.addMapping(
@@ -464,7 +474,23 @@ class CodeBuilderMacro extends CodeBuilder {
             ); //  +1 for the space
             this.hasSourceMap = true;
         }
-        this.writer.write(` ${annotation}${value ?? ""}`);
+
+        this.writer.write(` ${annotation}`);
+
+        // before writing the value, process any nested macros
+        // NTBLA: also test for letters
+        if (value?.length > 0) {
+            const parser = new MacroProcessor(
+                this.macroTable,
+                new SourceMap(),
+                value,
+                new SemanticTokenCollection()
+            );
+            parser.markMacros();
+            value = parser.replaceMacros();
+        }
+
+        this.writer.write(`${value ?? ""}`);
     }
 }
 class CodeBuilderFunctionMacro extends CodeBuilder {
@@ -475,14 +501,16 @@ class CodeBuilderFunctionMacro extends CodeBuilder {
         protected inst: MacroInstance,
         protected def: MacroDefinition,
         protected args: CodeBuilder[],
-        writer: CodeWriter
+        writer: CodeWriter,
+        private macroTable: MacroTable
     ) {
         super(sourceMap, writer);
     }
     build(index: number) {
         const origCol = this.writer.column;
         const { start, openParen, closeParen } = this.inst;
-        const { annotation, markedValue, name, args: argNames } = this.def;
+        const { annotation, name, args: argNames } = this.def;
+        let { markedValue } = this.def;
 
         if (!this.hasSourceMap) {
             this.sourceMap.addMapping(
@@ -504,6 +532,18 @@ class CodeBuilderFunctionMacro extends CodeBuilder {
             start.column
         );
 
+        // parse the macro value for nested macros
+        if (markedValue?.length > 0) {
+            const parser = new MacroProcessor(
+                this.macroTable,
+                new SourceMap(),
+                markedValue,
+                new SemanticTokenCollection()
+            );
+            parser.markMacros();
+            markedValue = parser.replaceMacros();
+        }
+
         let i = 0;
         while (i < markedValue.length) {
             if (markedValue.startsWith("[[@", i)) {
@@ -514,10 +554,14 @@ class CodeBuilderFunctionMacro extends CodeBuilder {
                     mark.substring(3, mark.length - 2)
                 );
 
-                // build arg code
-
-                this.args[argIdx].build(index);
-
+                // there may be marks in there for submacros,
+                // so those won't be found in the arg table
+                if (argIdx >= 0) {
+                    // build arg code
+                    this.args[argIdx].build(index);
+                } else {
+                    // not an arg, so we can drop this mark
+                }
                 i = markEnd - 1;
             } else {
                 this.writer.write(markedValue[i]);

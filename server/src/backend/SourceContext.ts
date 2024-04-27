@@ -316,16 +316,6 @@ export class SourceContext {
         macroProcessor.markMacros();
         let newSource = macroProcessor.replaceMacros();
 
-        // make 1 more pass to pick up any macros inserted by functions
-        macroProcessor = new MacroProcessor(
-            this.macroTable,
-            new SourceMap(),
-            newSource,
-            new SemanticTokenCollection()
-        );
-        macroProcessor.markMacros();
-        newSource = macroProcessor.replaceMacros();
-
         return newSource;
     }
 
