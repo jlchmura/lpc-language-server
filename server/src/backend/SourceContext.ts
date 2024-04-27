@@ -306,7 +306,7 @@ export class SourceContext {
     private processMacros(): string {
         // for each line in the source text
         // const lines = this.preprocessedText.split(/\r?\n/);
-        const macroProcessor = new MacroProcessor(
+        let macroProcessor = new MacroProcessor(
             this.macroTable,
             this.sourceMap,
             this.preprocessedText,
@@ -314,7 +314,18 @@ export class SourceContext {
         );
 
         macroProcessor.markMacros();
-        const newSource = macroProcessor.replaceMacros();
+        let newSource = macroProcessor.replaceMacros();
+
+        // make 1 more pass to pick up any macros inserted by functions
+        macroProcessor = new MacroProcessor(
+            this.macroTable,
+            new SourceMap(),
+            newSource,
+            new SemanticTokenCollection()
+        );
+        macroProcessor.markMacros();
+        newSource = macroProcessor.replaceMacros();
+
         return newSource;
     }
 
