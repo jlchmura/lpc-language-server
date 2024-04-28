@@ -176,15 +176,6 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
         const value = ctx.directive_text()?.getText().trim();
 
         this.markContext(ctx.parent, SemanticTokenTypes.Macro);
-        // this.markToken(
-        //     (ctx.parent as unknown as PreprocessorDirectiveContext)
-        //         .SHARP()
-        //         .getSymbol(),
-        //     SemanticTokenTypes.Define
-        // );
-        // this.markToken(ctx.DEFINE().getSymbol(), SemanticTokenTypes.Define);
-        // if (!!nameCtx)
-        //     this.markToken(nameCtx.getSymbol(), SemanticTokenTypes.Macro);
 
         REG_DEFINE_WITHARGS.lastIndex = 0;
         const nameMatch = REG_DEFINE_WITHARGS.exec(name);
@@ -200,7 +191,6 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
                 filename: this.filename,
                 start: { row: ctx.start.line, column: ctx.start.column },
                 end: { row: ctx.stop.line, column: ctx.stop.column },
-                //regex: new RegExp(`\\b${nameOnly}\\(`, "g"),
                 annotation: `[[@${nameOnly}]]`,
                 args: argArr,
                 markedValue: identifyArgInstances(value, argArr),
@@ -215,7 +205,6 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
                 filename: this.filename,
                 start: { row: ctx.start.line, column: ctx.start.column },
                 end: { row: ctx.stop.line, column: ctx.stop.column },
-                //regex: new RegExp(`\\b${name}\\b`, "g"),
                 annotation: `[[@${name}]]`,
             };
 

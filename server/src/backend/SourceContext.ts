@@ -250,7 +250,10 @@ export class SourceContext {
         this.needsCompile = true;
     }
 
-    private parseMacroTable() {
+    /**
+     * Runs the preprocessor parser to extract #define macros and populate the macro table for this file.
+     */
+    private parseMacroTable(): void {
         this.localMacroTable.clear();
 
         // reset lexer & token stream
@@ -294,32 +297,12 @@ export class SourceContext {
             .map((depTbl) => depTbl.owner);
         const depMacroTables = deps.map((depCtx) => depCtx.macroTable);
 
+        // combine macro tables. local table must be last
         this.macroTable = depMacroTables
             .concat(this.localMacroTable)
             .reduce((acc, ctxTable) => {
                 return new Map([...acc, ...ctxTable]);
             }, new Map<string, MacroDefinition>());
-    }
-
-    /**
-     * Replace macros in the source text with their expanded text from the macro table.  In sourceText, the macros
-     * will match the `key` of macroTable exactly (include case). They will not include a hash `#` symbol.
-     * Every time a substitution is made, update the sourcemap with the offset so that tokens after the macro can be mapped back to the original
-     */
-    private processMacros(): string {
-        // for each line in the source text
-        // const lines = this.preprocessedText.split(/\r?\n/);
-        let macroProcessor = new MacroProcessor(
-            this.macroTable,
-            this.sourceMap,
-            this.preprocessedText,
-            this.semanticTokens
-        );
-
-        macroProcessor.markMacros();
-        let newSource = macroProcessor.replaceMacros();
-
-        return newSource;
     }
 
     public parse(): IContextDetails {
@@ -332,8 +315,15 @@ export class SourceContext {
 
         this.parseMacroTable();
 
-        // pre-process
-        const sourceText = this.processMacros();
+        // process macros
+        const macroProcessor = new MacroProcessor(
+            this.macroTable,
+            this.sourceMap,
+            this.preprocessedText,
+            this.semanticTokens
+        );
+        macroProcessor.markMacros();
+        const sourceText = macroProcessor.replaceMacros();
 
         // Rewind the input stream for a new parse run.
         this.lexer.inputStream = CharStream.fromString(sourceText);

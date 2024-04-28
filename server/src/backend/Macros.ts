@@ -80,8 +80,15 @@ export class MacroProcessor {
     /**
      * Find all instances of c-style precprocessor macros in this line of code and return their starting index.
      */
-    private findMacroInstances() {
+    private findMacroInstances(): MacroInstance[] {
         const code = this.code;
+
+        // some quick bailout code for when there are no macros
+        // there must be at least one letter
+        if (!/[a-zA-Z]/.test(code)) {
+            return [];
+        }
+
         const instances: MacroInstance[] = [];
         const macroArr = Array.from(this.macroTable.values());
         // order function macros first, then regular, but keep their definition order beyond that.
@@ -253,6 +260,8 @@ export class MacroProcessor {
      * @returns string containing a version of the code with macros replaced
      */
     public replaceMacros() {
+        if (this.macroInstances.length == 0) return this.code;
+
         // sort macros by start.row then start.column
         // this is so that once we set a source map, it won't change
         this.macroInstances.sort((a, b) => {
@@ -266,13 +275,13 @@ export class MacroProcessor {
         });
 
         let rootBuilder = this.builders;
-        // make a first pass for functions only
         this.createBuildersForSequence(rootBuilder, 0, this.code.length - 1);
 
+        // build the new source code
         this.builders.build(0);
 
         const finalCode = this.writer.code;
-        const lines = finalCode.split("\n");
+        //const lines = finalCode.split("\n");
         return finalCode;
     }
 
@@ -287,8 +296,9 @@ export class MacroProcessor {
         startMacroIndex: number,
         endIndex: number
     ) {
-        let b: CodeBuilder;
+        /** current index in the `macroInstances` array */
         let i: number;
+
         for (i = startMacroIndex; i < this.macroInstances.length; i++) {
             const inst = this.macroInstances[i];
             const def = this.macroTable.get(inst.key);
@@ -306,27 +316,28 @@ export class MacroProcessor {
             // put the text before the macro into the builder
             const startRow = this.row;
             const startCol = this.column;
-            const txt = this.seekToIndex(inst.startIndex - 1);
+            const txt = this.seekToIndex(inst.startIndex - 1); // advance to start o fmacro
             if (txt.length > 0) {
-                b = new CodeBuilderString(
-                    this.sourceMap,
-                    txt,
-                    startRow,
-                    startCol,
-                    this.writer
+                rootBuilder.add(
+                    new CodeBuilderString(
+                        this.sourceMap,
+                        txt,
+                        startRow,
+                        startCol,
+                        this.writer
+                    )
                 );
-
-                rootBuilder.add(b);
             }
 
             if (!!inst.openParen) {
+                // function macros
+
                 const args: CodeBuilder[] = [];
 
-                const seekTxt = this.seekToIndex(inst.openParen.index); // skip the open paren
+                this.seekToIndex(inst.openParen.index); // skip the open paren
 
                 // create builders for each arg
                 for (let j = 0; j < def.args.length; j++) {
-                    const prevComma = inst.commas[j - 1] || inst.openParen;
                     const nextComma = inst.commas[j] || inst.closeParen;
 
                     const argBuilder = (args[j] = new CodeBuilderCollection(
@@ -345,30 +356,31 @@ export class MacroProcessor {
                     this.seekToIndex(nextComma.index); // skip the comma
                 }
 
-                b = new CodeBuilderFunctionMacro(
-                    this.sourceMap,
-                    inst,
-                    this.macroTable.get(inst.key),
-                    args,
-                    this.writer,
-                    this.macroTable
+                rootBuilder.add(
+                    new CodeBuilderFunctionMacro(
+                        this.sourceMap,
+                        inst,
+                        this.macroTable.get(inst.key),
+                        args,
+                        this.writer,
+                        this.macroTable
+                    )
                 );
-                rootBuilder.add(b);
             } else {
+                // regular macro
                 const macro = this.macroTable.get(inst.key);
-                b = new CodeBuilderMacro(
-                    this.sourceMap,
-                    inst,
-                    macro,
-                    this.writer,
-                    this.macroTable
+                rootBuilder.add(
+                    new CodeBuilderMacro(
+                        this.sourceMap,
+                        inst,
+                        macro,
+                        this.writer,
+                        this.macroTable
+                    )
                 );
-                rootBuilder.add(b);
 
-                const t = this.seekToIndex(
-                    this.codeIdx + macro.name.length - 1
-                ); // skip the macro name
-                const i = 0;
+                // skip the macro name
+                this.seekToIndex(this.codeIdx + macro.name.length - 1);
             }
         }
 
@@ -377,15 +389,15 @@ export class MacroProcessor {
         const startCol = this.column;
         const txt = this.seekToIndex(endIndex);
         if (txt.length > 0) {
-            b = new CodeBuilderString(
-                this.sourceMap,
-                txt,
-                startRow,
-                startCol,
-                this.writer
+            rootBuilder.add(
+                new CodeBuilderString(
+                    this.sourceMap,
+                    txt,
+                    startRow,
+                    startCol,
+                    this.writer
+                )
             );
-
-            rootBuilder.add(b);
         }
 
         return i;
@@ -418,13 +430,15 @@ class CodeWriter {
     }
 }
 
+/** base code builder class */
 abstract class CodeBuilder {
     constructor(protected sourceMap: SourceMap, protected writer: CodeWriter) {}
     abstract build(index: number): void;
-
-    // public onBuild: (str: string) => CodeBuilder[] | undefined = () =>
-    //     undefined;
 }
+
+/**
+ * A code builder that contains other code builders
+ */
 class CodeBuilderCollection extends CodeBuilder {
     constructor(
         sourceMap: SourceMap,
@@ -442,6 +456,10 @@ class CodeBuilderCollection extends CodeBuilder {
         this.builders.push(builder);
     }
 }
+
+/**
+ * A code builder that writes a string to the code
+ */
 class CodeBuilderString extends CodeBuilder {
     hasSourceMap = false;
 
@@ -468,6 +486,9 @@ class CodeBuilderString extends CodeBuilder {
     }
 }
 
+/**
+ * A code builder that writes a macro to the code
+ */
 class CodeBuilderMacro extends CodeBuilder {
     private hasSourceMap = false;
 
@@ -513,6 +534,10 @@ class CodeBuilderMacro extends CodeBuilder {
         this.writer.write(`${value ?? ""}`);
     }
 }
+
+/**
+ * A code builder that writes a function macro to the code
+ */
 class CodeBuilderFunctionMacro extends CodeBuilder {
     private hasSourceMap = false;
 
@@ -527,9 +552,8 @@ class CodeBuilderFunctionMacro extends CodeBuilder {
         super(sourceMap, writer);
     }
     build(index: number) {
-        const origCol = this.writer.column;
-        const { start, openParen, closeParen } = this.inst;
-        const { annotation, name, args: argNames } = this.def;
+        const { start, closeParen } = this.inst;
+        const { annotation, args: argNames } = this.def;
         let { markedValue } = this.def;
 
         if (!this.hasSourceMap) {
@@ -564,6 +588,7 @@ class CodeBuilderFunctionMacro extends CodeBuilder {
             markedValue = parser.replaceMacros();
         }
 
+        // now first marked arguments and replace them with their values
         let i = 0;
         while (i < markedValue.length) {
             if (markedValue.startsWith("[[@", i)) {
@@ -589,10 +614,7 @@ class CodeBuilderFunctionMacro extends CodeBuilder {
             i++;
         }
 
-        //code += this.argBuilder.build(index, line, origCol + code.length);
-
-        // add sourcemap to close paren
-        //this.writer.write(")");
+        // add sourcemap to close paren (which has already been written)
         this.sourceMap.addMapping(
             this.writer.line,
             this.writer.column,
