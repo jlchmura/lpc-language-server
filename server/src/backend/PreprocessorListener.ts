@@ -195,11 +195,12 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
             const argArr = argStr.split(",").map((a) => a.trim());
 
             const def: MacroDefinition = {
+                name: nameOnly,
                 value,
                 filename: this.filename,
                 start: { row: ctx.start.line, column: ctx.start.column },
                 end: { row: ctx.stop.line, column: ctx.stop.column },
-                regex: new RegExp(`\\b${nameOnly}\\(`, "g"),
+                //regex: new RegExp(`\\b${nameOnly}\\(`, "g"),
                 annotation: `[[@${nameOnly}]]`,
                 args: argArr,
                 markedValue: identifyArgInstances(value, argArr),
@@ -209,11 +210,12 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
         } else if (!!name) {
             // regular macro
             const def: MacroDefinition = {
+                name,
                 value,
                 filename: this.filename,
                 start: { row: ctx.start.line, column: ctx.start.column },
                 end: { row: ctx.stop.line, column: ctx.stop.column },
-                regex: new RegExp(`\\b${name}\\b`, "g"),
+                //regex: new RegExp(`\\b${name}\\b`, "g"),
                 annotation: `[[@${name}]]`,
             };
 
