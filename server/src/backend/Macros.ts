@@ -107,11 +107,15 @@ export class MacroProcessor {
                 continue;
             } else if (inQuot) {
                 // if we're in a quote then it can't be a macro
+                inEsc = false;
                 continue;
             } else if (!code[j].match(/[a-zA-Z]/)) {
                 // macros must start with a letter so if it doesn't, skip
+                inEsc = false;
                 continue;
             }
+
+            inEsc = false;
 
             // next character might be a macro
             for (const def of macroOrder) {

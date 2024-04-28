@@ -293,9 +293,12 @@ export class SourceContext {
             )
             .map((depTbl) => depTbl.owner);
         const depMacroTables = deps.map((depCtx) => depCtx.macroTable);
-        this.macroTable = depMacroTables.reduce((acc, ctxTable) => {
-            return new Map([...acc, ...ctxTable]);
-        }, this.localMacroTable);
+
+        this.macroTable = depMacroTables
+            .concat(this.localMacroTable)
+            .reduce((acc, ctxTable) => {
+                return new Map([...acc, ...ctxTable]);
+            }, new Map<string, MacroDefinition>());
     }
 
     /**
