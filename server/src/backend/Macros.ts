@@ -3,8 +3,6 @@ import { escapeRegExp } from "../utils";
 import { SemanticTokenCollection } from "./SemanticTokenCollection";
 import { SourceMap } from "./SourceMap";
 
-const MacroNameRegex = /^[a-zA-Z][a-zA-Z0-9_]*/;
-
 export type MacroTable = Map<string, MacroDefinition>;
 
 type MacroInstance = {
@@ -19,10 +17,14 @@ type MacroInstance = {
     disabled?: boolean;
 };
 
+/**
+ * Processes a code file to identify and replace macros
+ */
 export class MacroProcessor {
     private macroInstances: MacroInstance[] = [];
-
+    /** code write that will generate the final code */
     private writer: CodeWriter = new CodeWriter();
+    /** macro builders */
     private builders = new CodeBuilderCollection(
         this.sourceMap,
         [],
@@ -40,12 +42,17 @@ export class MacroProcessor {
         private semanticTokens: SemanticTokenCollection
     ) {}
 
+    /** reset the code cursor to the beginning of the file */
     private reset() {
         this.codeIdx = 0;
         this.row = 1;
         this.column = 1;
     }
 
+    /**
+     * moves to the specified index and returns a string containing
+     * any characters passed along the way
+     */
     private seekToIndex(index: number): string {
         const startIdx = this.codeIdx;
         while (this.codeIdx <= index) {
@@ -61,9 +68,7 @@ export class MacroProcessor {
     }
 
     /**
-     * process the current line and tag all instances of macros
-     * @param line
-     * @param macros
+     * Finds instances of macros and tags them for later replacement
      */
     public markMacros() {
         // first, find all macro instances in the code
@@ -74,8 +79,6 @@ export class MacroProcessor {
 
     /**
      * Find all instances of c-style precprocessor macros in this line of code and return their starting index.
-     * @param line
-     * @param macros
      */
     private findMacroInstances() {
         const code = this.code;
@@ -245,6 +248,10 @@ export class MacroProcessor {
         return instances;
     }
 
+    /**
+     * Replaces all macro instances with their values, handling nested macros along the way
+     * @returns string containing a version of the code with macros replaced
+     */
     public replaceMacros() {
         // sort macros by start.row then start.column
         // this is so that once we set a source map, it won't change
@@ -269,6 +276,12 @@ export class MacroProcessor {
         return finalCode;
     }
 
+    /**
+     * Recursively create builders for the code sequence
+     * @param rootBuilder the builder to add the new builders to
+     * @param startMacroIndex the index of the first macro to process
+     * @param endIndex the index of the last character to process
+     */
     private createBuildersForSequence(
         rootBuilder: CodeBuilderCollection,
         startMacroIndex: number,
@@ -379,6 +392,9 @@ export class MacroProcessor {
     }
 }
 
+/**
+ * Writes code to a string, tracking line and column numbers
+ */
 class CodeWriter {
     private _code: string = "";
 
