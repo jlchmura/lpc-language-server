@@ -95,7 +95,7 @@ export function activate(context: ExtensionContext) {
 
     const legend: SemanticTokensLegend = {
         tokenTypes: [
-            SemanticTokenTypes.comment,
+            "comment.block.preprocessor",
             SemanticTokenTypes.macro,
             SemanticTokenTypes.operator,
             SemanticTokenTypes.method,

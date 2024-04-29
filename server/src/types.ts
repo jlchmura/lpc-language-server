@@ -124,8 +124,11 @@ export type MacroDefinition = {
     name: string;
     /** the text that will get substituted for the macro */
     value: string;
+    /** filename this macro is defined in */
     filename: string;
+    /* starting position of the macro */
     start: IPosition;
+    /* ending position of the macro */
     end: IPosition;
     /**
      * array of arg names in the order they will be passed to the macro
@@ -136,7 +139,7 @@ export type MacroDefinition = {
      *
      */
     markedValue?: string;
-    //regex: RegExp;
+    /** annotation that will be used to tag this macro */
     annotation: string;
 };
 

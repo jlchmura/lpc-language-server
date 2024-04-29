@@ -544,9 +544,10 @@ export class DetailsVisitor
     ) => {
         // ctx will either be scalar or array, it doesn't matter right now
 
-        this.markContext(ctx.primitiveTypeSpecifier(), SemanticTokenTypes.Type);
+        //this.markContext(ctx.primitiveTypeSpecifier(), SemanticTokenTypes.Type);
 
         let tt = ctx.primitiveTypeSpecifier()?.getText();
+        let i: number;
         let varType: IType;
         if (tt) {
             const isArray = tt.endsWith("*");
@@ -728,7 +729,7 @@ export class DetailsVisitor
         this.markToken(header._functionName, SemanticTokenTypes.Method, [
             SemanticTokenModifiers.Definition,
         ]);
-        this.markContext(header.typeSpecifier(), SemanticTokenTypes.Type);
+        //this.markContext(header.typeSpecifier(), SemanticTokenTypes.Type);
 
         return this.withScope(
             ctx,
@@ -759,7 +760,7 @@ export class DetailsVisitor
         this.markToken(header._functionName, SemanticTokenTypes.Method, [
             SemanticTokenModifiers.Declaration,
         ]);
-        this.markContext(header.typeSpecifier(), SemanticTokenTypes.Type);
+        //this.markContext(header.typeSpecifier(), SemanticTokenTypes.Type);
 
         return this.withScope(ctx, MethodSymbol, [nm, retType, mods], (s) => {
             s.nameRange = lexRangeFromToken(header._functionName);
@@ -794,7 +795,7 @@ export class DetailsVisitor
                 this.markToken(pExp._paramName, SemanticTokenTypes.Parameter, [
                     SemanticTokenModifiers.Declaration,
                 ]);
-                this.markContext(pExp._paramType, SemanticTokenTypes.Type);
+                //this.markContext(pExp._paramType, SemanticTokenTypes.Type);
             } else {
                 const sExp = p as StructParameterExpressionContext;
                 name = sExp._paramName.text;

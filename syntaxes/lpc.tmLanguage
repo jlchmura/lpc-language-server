@@ -92,7 +92,7 @@
 				<key>match</key>
 				<string>\b(float|int|void|object|class|mapping|string|mixed|function|ref)\b</string>
 				<key>name</key>
-				<string>storage.type.lpc</string>
+				<string>support.type.primitive.lpc</string>
 			</dict>
 			<dict>
 				<key>comment</key>
