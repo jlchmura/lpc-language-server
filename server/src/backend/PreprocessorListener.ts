@@ -218,12 +218,26 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
     };
 
     enterPreprocessorUndef = (ctx: PreprocessorUndefContext) => {
-        const name = ctx.CONDITIONAL_SYMBOL()?.getText();
-        this.macroTable.delete(name);
-
         const start = ctx.parent.start;
         const stop = ctx.stop;
         const lines = stop.line - start.line;
+
+        if (!this.isExecutable) {
+            // the preprocessor sees continugious code lines as a single token, so split those and build semantic tokesn individually
+            for (let i = 0; i <= lines; i++) {
+                this.tokenBuilder.add(
+                    ctx.start.line + i,
+                    0,
+                    999,
+                    SemanticTokenTypes.Comment,
+                    []
+                );
+            }
+        } else {
+            const name = ctx.CONDITIONAL_SYMBOL()?.getText();
+            this.macroTable.delete(name);
+        }
+
         this.rewriter.replace(start, stop, "\n".repeat(lines));
     };
 }
