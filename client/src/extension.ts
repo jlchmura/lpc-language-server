@@ -109,6 +109,7 @@ export function activate(context: ExtensionContext) {
             SemanticTokenTypes.modifier,
         ],
         tokenModifiers: [
+            "",
             SemanticTokenModifiers.documentation,
             SemanticTokenModifiers.declaration,
             SemanticTokenModifiers.definition,

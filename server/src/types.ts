@@ -157,10 +157,10 @@ export const SemanticTokenTypes = {
 } as const;
 
 export const SemanticTokenModifiers = {
-    Declaration: 0,
-    Definition: 1,
-    Documentation: 2,
-    Static: 3,
-    DefaultLibrary: 4,
-    Local: 5,
+    Declaration: 1,
+    Definition: 2,
+    Documentation: 3,
+    Static: 4,
+    DefaultLibrary: 5,
+    Local: 6,
 } as const;

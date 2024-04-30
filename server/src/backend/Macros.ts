@@ -1,4 +1,9 @@
-import { IIndexedPosition, IPosition, MacroDefinition } from "../types";
+import {
+    IIndexedPosition,
+    IPosition,
+    MacroDefinition,
+    SemanticTokenTypes,
+} from "../types";
 import { escapeRegExp } from "../utils";
 import { SemanticTokenCollection } from "./SemanticTokenCollection";
 import { SourceMap } from "./SourceMap";
@@ -139,6 +144,15 @@ export class MacroProcessor {
                     const start: IPosition = { row, column };
                     let end = { row, column: column + key.length };
                     let endIndex = j + key.length;
+
+                    // mark the semantic token
+                    this.semanticTokens.add(
+                        row + 1,
+                        column,
+                        key.length,
+                        SemanticTokenTypes.Macro
+                    );
+
                     const instance: MacroInstance = {
                         key,
                         start,
@@ -363,7 +377,8 @@ export class MacroProcessor {
                         this.macroTable.get(inst.key),
                         args,
                         this.writer,
-                        this.macroTable
+                        this.macroTable,
+                        this.semanticTokens
                     )
                 );
             } else {
@@ -375,7 +390,8 @@ export class MacroProcessor {
                         inst,
                         macro,
                         this.writer,
-                        this.macroTable
+                        this.macroTable,
+                        this.semanticTokens
                     )
                 );
 
@@ -497,7 +513,8 @@ class CodeBuilderMacro extends CodeBuilder {
         protected inst: MacroInstance,
         protected def: MacroDefinition,
         writer: CodeWriter,
-        private macroTable: MacroTable
+        private macroTable: MacroTable,
+        private semanticTokens: SemanticTokenCollection
     ) {
         super(sourceMap, writer);
     }
@@ -531,6 +548,13 @@ class CodeBuilderMacro extends CodeBuilder {
             value = parser.replaceMacros();
         }
 
+        const col = this.writer.column;
+        const line = this.writer.line;
+        this.semanticTokens.ignoreRange({
+            start: { row: line, column: col + 1 },
+            end: { row: line, column: col + 1 + (value?.length ?? 0) },
+        });
+
         this.writer.write(`${value ?? ""}`);
     }
 }
@@ -547,7 +571,8 @@ class CodeBuilderFunctionMacro extends CodeBuilder {
         protected def: MacroDefinition,
         protected args: CodeBuilder[],
         writer: CodeWriter,
-        private macroTable: MacroTable
+        private macroTable: MacroTable,
+        private semanticTokens: SemanticTokenCollection
     ) {
         super(sourceMap, writer);
     }
@@ -567,6 +592,11 @@ class CodeBuilderFunctionMacro extends CodeBuilder {
         }
 
         this.writer.write(` ${annotation}`);
+
+        const ignoreStart: IPosition = {
+            row: this.writer.line,
+            column: this.writer.column + 1,
+        };
 
         // add sourcemap to start of the macro
         this.sourceMap.addMapping(
@@ -613,6 +643,11 @@ class CodeBuilderFunctionMacro extends CodeBuilder {
             }
             i++;
         }
+
+        this.semanticTokens.ignoreRange({
+            start: ignoreStart,
+            end: { row: this.writer.line, column: this.writer.column },
+        });
 
         // add sourcemap to close paren (which has already been written)
         this.sourceMap.addMapping(

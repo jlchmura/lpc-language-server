@@ -1,5 +1,6 @@
 import { SemanticTokens, SemanticTokensBuilder } from "vscode-languageserver";
 import { SourceMap } from "./SourceMap";
+import { ILexicalRange } from "../types";
 
 type tokenData = {
     line: number;
@@ -11,6 +12,7 @@ type tokenData = {
 
 export class SemanticTokenCollection {
     private tokens: tokenData[] = [];
+    private ignoredRanges: ILexicalRange[] = [];
 
     constructor() {}
 
@@ -24,30 +26,68 @@ export class SemanticTokenCollection {
         this.tokens.push({ line, column, length, tokenType, tokenModifiers });
     }
 
+    /**
+     * marks a range of the document as ignored, so that semantic tokens won't be added.
+     * this is needed for macros, where the substituted value has code that will later be parsed as symbols
+     */
+    public ignoreRange(range: ILexicalRange) {
+        this.ignoredRanges.push(range);
+    }
+
+    private isIgnored(line: number, column: number): boolean {
+        /** assumes ignoredRanges has been sorted */
+
+        for (const range of this.ignoredRanges) {
+            // test if line/column is within the range
+            if (
+                range.start.row <= line &&
+                range.end.row >= line &&
+                (range.start.row !== line || range.start.column <= column) &&
+                (range.end.row !== line || range.end.column >= column)
+            ) {
+                return true;
+            } else if (range.end.row < line) {
+                break;
+            }
+        }
+
+        return false;
+    }
+
     public build(sourceMap: SourceMap): SemanticTokens {
         const builder = new SemanticTokensBuilder();
-        // sort tokens because vscode's api is dumb and doesn't do it for us
 
-        const mapped = this.tokens.map((token) => {
-            let modifiers = 0;
-            for (const modifier of token.tokenModifiers) {
-                // this is rediculous... WHY VSCODE?!
-                modifiers |= (1 << modifier) >>> 0;
+        // sort ranges
+        this.ignoredRanges.sort((a, b) => {
+            if (a.start.row === b.start.row) {
+                return a.start.column - b.start.column;
             }
-
-            const sourceMapping = sourceMap.getSourceLocation(
-                token.line - 1,
-                token.column + 1
-            );
-
-            return [
-                sourceMapping?.row ?? token.line - 1,
-                !!sourceMapping ? sourceMapping?.column - 1 : token.column,
-                token.length,
-                token.tokenType,
-                modifiers,
-            ];
+            return a.start.row - b.start.row;
         });
+
+        // sort tokens because vscode's api is dumb and doesn't do it for us
+        const mapped = this.tokens
+            .filter((token) => !this.isIgnored(token.line, token.column))
+            .map((token) => {
+                let modifiers = 0;
+                for (const modifier of token.tokenModifiers) {
+                    // this is rediculous... WHY VSCODE?!
+                    modifiers |= (1 << modifier) >>> 0;
+                }
+
+                const sourceMapping = sourceMap.getSourceLocation(
+                    token.line - 1,
+                    token.column + 1
+                );
+
+                return [
+                    sourceMapping?.row ?? token.line - 1,
+                    !!sourceMapping ? sourceMapping?.column - 1 : token.column,
+                    token.length,
+                    token.tokenType,
+                    modifiers,
+                ];
+            });
 
         // sort after we've translated to source locations
         mapped.sort((a, b) => {
