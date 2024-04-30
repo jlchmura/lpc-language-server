@@ -16,6 +16,14 @@ export class SemanticTokenCollection {
 
     constructor() {}
 
+    /**
+     * Add a token. Line and column are 1-based
+     * @param line 1-based line number of the token's starting position
+     * @param column 1-based column number of the token's starting position
+     * @param length length of the token
+     * @param tokenType type of the token
+     * @param tokenModifiers optional array of token modifiers
+     */
     public add(
         line: number,
         column: number,
@@ -34,8 +42,17 @@ export class SemanticTokenCollection {
         this.ignoredRanges.push(range);
     }
 
-    private isIgnored(line: number, column: number): boolean {
+    /**
+     * test if a token (based on start position)
+     * @param line
+     * @param column
+     * @returns
+     */
+    private isIgnored(token: tokenData): boolean {
         /** assumes ignoredRanges has been sorted */
+        const { line, column } = token;
+
+        // NTBLA: change this to use binary search
 
         for (const range of this.ignoredRanges) {
             // test if line/column is within the range
@@ -54,6 +71,11 @@ export class SemanticTokenCollection {
         return false;
     }
 
+    /**
+     * Build the semantic token result sent to the client extension
+     * @param sourceMap sourcemap to use in translating token positions
+     * @returns SemanticTokens result
+     */
     public build(sourceMap: SourceMap): SemanticTokens {
         const builder = new SemanticTokensBuilder();
 
@@ -67,7 +89,7 @@ export class SemanticTokenCollection {
 
         // sort tokens because vscode's api is dumb and doesn't do it for us
         const mapped = this.tokens
-            .filter((token) => !this.isIgnored(token.line, token.column))
+            .filter((token) => !this.isIgnored(token))
             .map((token) => {
                 let modifiers = 0;
                 for (const modifier of token.tokenModifiers) {
