@@ -233,6 +233,7 @@ export class LpcServer {
             (params) => {
                 const doc = this.documents.get(params.textDocument.uri);
                 try {
+                    this.flushChangeTimer(doc);
                     const result = this.facade.getSemanticTokens(doc?.uri);
                     return result;
                 } catch (e) {
