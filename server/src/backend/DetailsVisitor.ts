@@ -44,6 +44,7 @@ import {
     IncludeDirectiveContext,
     InclusiveOrExpressionContext,
     InheritStatementContext,
+    InheritSuperExpressionContext,
     InlineClosureExpressionContext,
     LPCParser,
     LambdaExpressionContext,
@@ -62,11 +63,7 @@ import {
     StructParameterExpressionContext,
     StructVariableDeclarationContext,
 } from "../parser3/LPCParser";
-import {
-    IdentifierSymbol,
-    InheritSymbol,
-    PreprocessorSymbol,
-} from "../symbols/Symbol";
+import { IdentifierSymbol, PreprocessorSymbol } from "../symbols/Symbol";
 import { FoldingRange, SemanticTokensBuilder } from "vscode-languageserver";
 import {
     COMMENT_CHANNEL_NUM,
@@ -117,6 +114,10 @@ import {
 
 import { ArrowSymbol } from "../symbols/arrowSymbol";
 import { SemanticTokenCollection } from "./SemanticTokenCollection";
+import {
+    InheritSuperAccessorSymbol,
+    InheritSymbol,
+} from "../symbols/inheritSymbol";
 
 type ScopedSymbolConstructor = new (...args: any[]) => ScopedSymbol;
 
@@ -615,12 +616,29 @@ export class DetailsVisitor
     };
 
     visitInheritStatement = (ctx: InheritStatementContext) => {
-        let filename = ctx._inheritTarget!.text;
+        let filename = trimQuotes(ctx._inheritTarget!.text);
 
-        const symbol = this.addNewSymbol(InheritSymbol, ctx, filename);
+        const symbol = this.addNewSymbol(
+            InheritSymbol,
+            ctx,
+            filename,
+            filename
+        );
         this.imports.push({ filename, symbol });
 
         return undefined;
+    };
+
+    visitInheritSuperExpression = (ctx: InheritSuperExpressionContext) => {
+        const filename = ctx._filename?.text ?? "";
+        return this.withScope(
+            ctx,
+            InheritSuperAccessorSymbol,
+            ["#inherit-super#" + filename, filename],
+            (s) => {
+                return this.visitChildren(ctx);
+            }
+        );
     };
 
     visitInlineClosureExpression = (ctx: InlineClosureExpressionContext) => {

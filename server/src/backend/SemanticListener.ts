@@ -12,15 +12,8 @@ import {
     PrimaryExpressionContext,
     ProgramContext,
 } from "../parser3/LPCParser";
-import {
-    ScopedSymbol,
-    TypeKind,
-    MethodSymbol as BaseMethodSymbol,
-    BaseSymbol,
-    IType,
-    SymbolTable,
-} from "antlr4-c3";
-import { InheritSymbol } from "../symbols/Symbol";
+import { ScopedSymbol, MethodSymbol as BaseMethodSymbol } from "antlr4-c3";
+
 import {
     areSetsEqual,
     areTwoParameterArraysEqual,
@@ -50,6 +43,7 @@ import { SourceContext } from "./SourceContext";
 import { DefineSymbol } from "../symbols/defineSymbol";
 import { CallStack, StackValue } from "./CallStack";
 import { EfunSymbols } from "./EfunsLDMud";
+import { InheritSymbol } from "../symbols/inheritSymbol";
 
 export class SemanticListener extends LPCParserListener {
     private seenSymbols = new Map<string, Token>();

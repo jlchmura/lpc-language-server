@@ -13,7 +13,12 @@ import {
     getSymbolsOfTypeSync,
     IRenameableSymbol,
 } from "./base";
-import { ILexicalRange, LpcTypes, SymbolKind } from "../types";
+import {
+    FUNCTION_INHERIT_ACC_NAME_KEY,
+    ILexicalRange,
+    LpcTypes,
+    SymbolKind,
+} from "../types";
 
 import { DiagnosticSeverity, FoldingRange } from "vscode-languageserver";
 import { ExpressionSymbol } from "./expressionSymbol";
@@ -29,6 +34,7 @@ import { ContextSymbolTable } from "../backend/ContextSymbolTable";
 import { CallStack, StackFrame, StackValue } from "../backend/CallStack";
 import { ParserRuleContext, Token } from "antlr4ng";
 import { addDiagnostic } from "./Symbol";
+import { InheritSuperAccessorSymbol } from "./inheritSymbol";
 
 export const MAX_CALLDEPTH_SIZE = 10;
 const OBJ_PLAYER_FILENAME = "/obj/player";
@@ -147,10 +153,28 @@ export class MethodInvocationSymbol
         // find the function that this invocation points to
         const funcIdValue = stack.getValue<string>(FUNCTION_NAME_KEY);
         stack.clearValue(FUNCTION_NAME_KEY);
-
         const methodName = (this.methodName = funcIdValue?.value);
-        const methodSymbol = (this.methodSymbol =
-            stack.getFunction(methodName));
+
+        let methodSymbol: MethodSymbol;
+
+        // there may be a super accessor
+        const superAccValue = stack.getValue<string>(
+            FUNCTION_INHERIT_ACC_NAME_KEY
+        );
+        stack.clearValue(FUNCTION_INHERIT_ACC_NAME_KEY);
+
+        const superAcc = this.getParentOfType(InheritSuperAccessorSymbol);
+        if (!!superAcc) {
+            // this is a special case where we need to get the method from the super accessor's symbol table
+            methodSymbol = this.methodSymbol =
+                superAcc.objSymbolTable?.resolveSync(
+                    methodName,
+                    true
+                ) as MethodSymbol;
+        } else {
+            // just get method out of stack
+            methodSymbol = this.methodSymbol = stack.getFunction(methodName);
+        }
 
         if (!funcIdValue) {
             const ctx = this.context as ParserRuleContext;
@@ -188,9 +212,6 @@ export class MethodInvocationSymbol
      */
     public getMethodSymbol() {
         // find the context that this method is being invoked on
-        const ctx = this.context as ParserRuleContext;
-        const methodObj = getSibling(ctx, -1);
-        const methodName = this.methodName; //trimQuotes(methodObj.getText());
         return this.methodSymbol;
         // // symbol table that will be used to look up definition
         // let lookupTable: ContextSymbolTable = this

@@ -99,8 +99,8 @@ inheritStatement
 
 inheritSuperExpression
     : SUPER_ACCESSOR expression
-    | StringLiteral SUPER_ACCESSOR expression
-    | Identifier SUPER_ACCESSOR expression
+    | filename=StringLiteral SUPER_ACCESSOR expression
+    | filename=Identifier SUPER_ACCESSOR expression
     ;
 
 declaration

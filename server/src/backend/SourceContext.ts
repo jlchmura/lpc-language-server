@@ -92,7 +92,7 @@ import {
 } from "../symbols/methodSymbol";
 import { CloneObjectSymbol } from "../symbols/objectSymbol";
 import { EfunSymbols } from "./EfunsLDMud";
-import { InheritSymbol, getParentOfType } from "../symbols/Symbol";
+
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import { URI } from "vscode-uri";
 import { ArrowSymbol, ArrowType } from "../symbols/arrowSymbol";
@@ -106,6 +106,10 @@ import { PreprocessorListener } from "./PreprocessorListener";
 import { MacroProcessor } from "./Macros";
 import { SemanticTokenCollection } from "./SemanticTokenCollection";
 import { SourceMap } from "./SourceMap";
+import {
+    InheritSuperAccessorSymbol,
+    InheritSymbol,
+} from "../symbols/inheritSymbol";
 
 const mapAnnotationReg = /\[\[@(.+?)\]\]/;
 
@@ -818,14 +822,23 @@ export class SourceContext {
                     const symbolsToReturn: BaseSymbol[] = [];
                     let lookupSymbolTable = this.symbolTable;
 
-                    if (symbol.parent instanceof ArrowSymbol) {
-                        const callOtherSymbol = symbol.parent as ArrowSymbol;
+                    let parentSymbol: BaseSymbol;
+                    if ((parentSymbol = symbol.getParentOfType(ArrowSymbol))) {
+                        const callOtherSymbol = parentSymbol as ArrowSymbol;
                         // if the symbol object wasn't loaded, just return undefined
                         // that error will be caught and reported elsewhere
                         if (!callOtherSymbol.objContext) return undefined;
 
                         lookupSymbolTable =
                             callOtherSymbol.objContext.symbolTable;
+                    } else if (
+                        (parentSymbol = symbol.parent.getParentOfType(
+                            InheritSuperAccessorSymbol
+                        ))
+                    ) {
+                        const inheritSymbol =
+                            parentSymbol as InheritSuperAccessorSymbol;
+                        lookupSymbolTable = inheritSymbol.objSymbolTable;
                     }
                     // look for the method implementation
                     symbol = resolveOfTypeSync(

@@ -1389,7 +1389,7 @@ export class LPCParser extends antlr.Parser {
                 this.enterOuterAlt(localContext, 2);
                 {
                 this.state = 325;
-                this.match(LPCParser.StringLiteral);
+                localContext._filename = this.match(LPCParser.StringLiteral);
                 this.state = 326;
                 this.match(LPCParser.SUPER_ACCESSOR);
                 this.state = 327;
@@ -1400,7 +1400,7 @@ export class LPCParser extends antlr.Parser {
                 this.enterOuterAlt(localContext, 3);
                 {
                 this.state = 328;
-                this.match(LPCParser.Identifier);
+                localContext._filename = this.match(LPCParser.Identifier);
                 this.state = 329;
                 this.match(LPCParser.SUPER_ACCESSOR);
                 this.state = 330;
@@ -6860,6 +6860,7 @@ export class InheritStatementContext extends antlr.ParserRuleContext {
 
 
 export class InheritSuperExpressionContext extends antlr.ParserRuleContext {
+    public _filename?: Token | null;
     public constructor(parent: antlr.ParserRuleContext | null, invokingState: number) {
         super(parent, invokingState);
     }

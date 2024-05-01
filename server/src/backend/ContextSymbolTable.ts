@@ -9,7 +9,6 @@ import {
 import { ParseTree, ParserRuleContext, TerminalNode, Token } from "antlr4ng";
 import { SourceContext } from "./SourceContext";
 import { ISymbolInfo, SymbolGroupKind, SymbolKind } from "../types";
-import { InheritSymbol } from "../symbols/Symbol";
 import { FoldingRange } from "vscode-languageserver";
 import { DefineSymbol } from "../symbols/defineSymbol";
 import { VariableSymbol } from "../symbols/variableSymbol";
@@ -24,6 +23,7 @@ import {
 import { InlineClosureSymbol } from "../symbols/closureSymbol";
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import { resolveOfTypeSync } from "../utils";
+import { InheritSymbol } from "../symbols/inheritSymbol";
 
 type HighlightSymbolResult = {
     symbol: BaseSymbol;

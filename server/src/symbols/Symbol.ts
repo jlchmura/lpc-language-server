@@ -33,22 +33,6 @@ export class IdentifierSymbol extends LpcBaseSymbol<IdentifierExpressionContext>
     }
 }
 
-export class InheritSymbol
-    extends LpcBaseSymbol<InheritStatementContext>
-    implements IEvaluatableSymbol
-{
-    public isLoaded = false;
-    public filename: string;
-
-    public get kind() {
-        return SymbolKind.Inherit;
-    }
-
-    eval(stack: CallStack, scope?: any) {
-        return scope;
-    }
-}
-
 export class ArgumentSymbol extends TypedSymbol implements IKindSymbol {
     public get kind() {
         return SymbolKind.Variable;
