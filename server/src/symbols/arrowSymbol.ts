@@ -105,8 +105,9 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
         // we may have an objContext that we want to return
 
         // function name could be an expression, so evaluate that
+        const targetResult = this.target?.eval(stack);
         if (!this.functionName || this.functionName == "#fn") {
-            this.functionName = this.target?.eval(stack);
+            this.functionName = targetResult;
         }
 
         if (!this.functionName) {
@@ -193,6 +194,8 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
         });
 
         const result = funSym.eval(stack, argVals);
+        this.target?.eval(stack); // eval target again to put fn name on stack
+        methodInvok?.eval(stack);
 
         stack.pop();
         return result;
