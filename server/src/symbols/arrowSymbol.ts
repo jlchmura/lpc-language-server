@@ -193,9 +193,9 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
             stack.addFunction(f.name, f);
         });
 
-        const result = funSym.eval(stack, argVals);
+        //const result = funSym.eval(stack, argVals);
         this.target?.eval(stack); // eval target again to put fn name on stack
-        methodInvok?.eval(stack);
+        const result = methodInvok?.eval(stack);
 
         stack.pop();
         return result;

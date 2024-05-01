@@ -71,15 +71,13 @@ export class LpcBaseMethodSymbol
     nameRange: ILexicalRange;
 
     eval(stack: CallStack, params: IEvaluatableSymbol[] = []) {
-        // TODO: make function arguments available
-
-        // paramScope.forEach((value, key) => {
-        //     this.scope.set(key, value as VariableSymbol);
-        // });
-
         // add a new stack frame
         const args = new Map<string, StackValue>();
         const locals = new Map<string, StackValue>();
+        params?.forEach((p) => {
+            const argVal = p.eval(stack) as StackValue;
+            locals.set(p.name, argVal);
+        });
         stack.push(new StackFrame(this, args, locals, stack.root));
 
         let result: any = 0;
@@ -171,7 +169,7 @@ export class MethodInvocationSymbol
             });
         }
 
-        const prms = this.children.filter((c) =>
+        const prms = this.getArguments().filter((c) =>
             isInstanceOfIEvaluatableSymbol(c)
         ) as IEvaluatableSymbol[];
         // for (const child of this.children) {
