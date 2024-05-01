@@ -302,7 +302,7 @@ export class LpcServer {
                 // Tell the client that this server supports code completion.
                 completionProvider: {
                     resolveProvider: true,
-                    triggerCharacters: [">"],
+                    triggerCharacters: [">", "*"],
                 },
                 renameProvider: true,
                 documentSymbolProvider: true,
