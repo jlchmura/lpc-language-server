@@ -779,6 +779,9 @@ export class SourceContext {
                         },
                     },
                 ];
+            case LPCParser.RULE_functionModifier:
+            case LPCParser.RULE_variableModifier:
+            case LPCParser.RULE_primitiveTypeSpecifier:
             case LPCParser.RULE_assignmentExpression:
             case LPCParser.RULE_primaryExpression:
             case LPCParser.RULE_primaryExpressionStart:
@@ -812,12 +815,13 @@ export class SourceContext {
                     );
                 } else if (symbol instanceof MethodSymbol) {
                     // look for the method implementation
-                    const symbol = resolveOfTypeSync(
+                    symbol ??= resolveOfTypeSync(
                         this.symbolTable,
                         name,
                         MethodDeclarationSymbol
                     );
-                    return [this.getSymbolInfo(symbol)];
+                    const si = this.getSymbolInfo(symbol);
+                    return [si];
                 } else if (symbol instanceof FunctionIdentifierSymbol) {
                     const symbolsToReturn: BaseSymbol[] = [];
                     let lookupSymbolTable = this.symbolTable;

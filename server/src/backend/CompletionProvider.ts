@@ -8,6 +8,7 @@ import {
     MarkupContent,
     Position,
     Range,
+    TextEdit,
     integer,
 } from "vscode-languageserver";
 import {
@@ -17,6 +18,9 @@ import {
     translateCompletionKind,
 } from "../symbols/Symbol";
 import { EfunSymbols } from "./EfunsLDMud";
+import { firstEntry } from "../utils";
+import { LpcBaseMethodSymbol, MethodSymbol } from "../symbols/methodSymbol";
+import { LpcTypes } from "../types";
 
 export class CompletionProvider {
     constructor(private backend: LpcFacade) {}
@@ -27,15 +31,86 @@ export class CompletionProvider {
     ): Promise<CompletionItem[]> {
         if (this.isPotentiallyValidDocCompletionPosition(document, position)) {
             // doc comment
-            return [
-                {
-                    label: "/** */",
-                    data: "doc-comment",
-                    kind: CompletionItemKind.Text,
-                    sortText: "00/**",
-                    detail: "Doc Comment",
-                },
-            ];
+
+            // find the next symbol
+            let paramText: string = "";
+            const symbolInfo = firstEntry(
+                this.backend.symbolInfoAtPosition(
+                    document.uri,
+                    position.character - 2,
+                    position.line + 2,
+                    true
+                )
+            );
+            if (!!symbolInfo) {
+                const symbol = symbolInfo.symbol;
+
+                // find the range of the comment
+                const lineNum = position.line;
+                const line = document.getText(
+                    Range.create(lineNum, 0, lineNum, integer.MAX_VALUE)
+                );
+                const prefix = line
+                    .slice(0, position.character)
+                    .match(/\/\**\s*$/);
+                const suffix = line
+                    .slice(position.character)
+                    .match(/^\s*\**\//);
+
+                const start = {
+                    ...position,
+                    character:
+                        position.character + (prefix ? -prefix[0].length : 0),
+                };
+                const end = {
+                    ...start,
+                    character:
+                        position.character + (suffix ? suffix[0].length : 0),
+                };
+                const range = Range.create(start, end);
+
+                if (symbol instanceof MethodSymbol) {
+                    // if this is a method, add the params and return type to the snippet
+                    let paramIdx = 1;
+                    const paramSymbols = symbol.getParametersSync();
+                    paramSymbols.forEach((param) => {
+                        const typeString = !!param.type
+                            ? ` \{${param.type.name}\}`
+                            : "";
+                        paramText += `\n * @param${typeString} ${param.name} \$${paramIdx}`;
+                        paramIdx++;
+                    });
+
+                    // return type
+                    const returnType = symbol.returnType;
+                    if (!!returnType && returnType != LpcTypes.voidType) {
+                        const typeString = ` {${returnType.name}} \$${paramIdx}`;
+                        paramText += `\n * @return${typeString}`;
+                    }
+                }
+
+                // construct the replacement
+                return [
+                    {
+                        label: "/** */",
+                        data: {
+                            position: position,
+                            uri: document.uri,
+                        },
+                        kind: CompletionItemKind.Text,
+                        sortText: "00/**",
+                        detail: "Doc Comment",
+                        // use a textedit to replace the range with the snippet
+                        textEdit: TextEdit.replace(
+                            range,
+                            `/**\n * \$0${paramText}\n */`
+                        ),
+                        insertTextFormat: InsertTextFormat.Snippet,
+                    },
+                ];
+            }
+
+            return [];
         } else {
             return this.backend
                 .getCodeCompletionCandidates(
@@ -63,12 +138,8 @@ export class CompletionProvider {
 
     public resolveCompletionItem(item: CompletionItem): CompletionItem {
         const sourceCtx = this.backend.getContext(item.data.source);
-        if (item.data == "doc-comment") {
-            return {
-                ...item,
-                insertText: "\n * $1\n ",
-                insertTextFormat: InsertTextFormat.Snippet,
-            };
+        if (item.label == "/** */") {
+            return item;
         } else {
             const info =
                 sourceCtx?.getSymbolInfo(item.label) ??
