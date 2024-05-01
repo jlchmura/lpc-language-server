@@ -59,6 +59,7 @@ import { DetailsVisitor } from "./DetailsVisitor";
 import {
     DiagnosticSeverity,
     DocumentHighlight,
+    DocumentHighlightKind,
     FoldingRange,
     SemanticTokens,
     SemanticTokensBuilder,
@@ -800,6 +801,11 @@ export class SourceContext {
                         name,
                         DefineSymbol
                     );
+                    symbol ??= resolveOfTypeSync(
+                        searchScope,
+                        name,
+                        ParameterSymbol
+                    );
                 } else if (symbol instanceof MethodSymbol) {
                     // look for the method implementation
                     const symbol = resolveOfTypeSync(
@@ -1257,6 +1263,39 @@ export class SourceContext {
             fullPath: undefined,
             type: undefined,
         };
+    }
+
+    public getSymbolOccurrences(
+        symbolName: string,
+        localOnly: boolean
+    ): ISymbolInfo[] {
+        const result = this.symbolTable.getSymbolOccurrences(
+            symbolName,
+            localOnly
+        );
+
+        // apply sourcemapping to results
+        return result.map((r) => {
+            if (!!r.definition) {
+                const origRange = r.definition.range;
+                const newRange = this.sourceMap.getSourceRange(origRange);
+                r.definition = { ...r.definition, range: newRange };
+            }
+            return r;
+        });
+    }
+
+    public getHighlights(symbolName: string): DocumentHighlight[] {
+        const results = this.symbolTable.getSymbolsToHighlight(symbolName);
+
+        return results.map((r) => {
+            const range = this.sourceMap.getSourceRangeFromToken(r.token);
+
+            return {
+                range,
+                kind: DocumentHighlightKind.Text,
+            };
+        }) as DocumentHighlight[];
     }
 
     public getSemanticTokens() {

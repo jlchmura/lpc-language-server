@@ -515,12 +515,14 @@ export class DetailsVisitor
         varDecls.forEach((varDecl, idx) => {
             const structCtx = structNames[idx];
             const varNm = varDecl._variableName?.text;
+
             const structName = structCtx?.getText(); // NTBLA: store this in the type somewhere
             const varSym = this.addNewSymbol(
                 VariableSymbol,
                 structCtx,
                 varNm,
-                LpcTypes.structType
+                LpcTypes.structType,
+                varDecl._variableName
             );
 
             const initCtx = varDecl.variableInitializer();
@@ -582,7 +584,8 @@ export class DetailsVisitor
                 VariableSymbol,
                 varDecl.Identifier(),
                 nm,
-                varType
+                varType,
+                varDecl._variableName
             );
             this.markToken(varDecl._variableName, SemanticTokenTypes.Variable);
 
@@ -785,9 +788,10 @@ export class DetailsVisitor
     visitParameterList = (ctx: ParameterListContext) => {
         const prms = ctx.parameter();
         prms.forEach((p) => {
-            let name: string, typeName: string, type: IType;
+            let name: string, typeName: string, type: IType, nameToken: Token;
             if (p instanceof PrimitiveTypeParameterExpressionContext) {
                 const pExp = p as PrimitiveTypeParameterExpressionContext;
+                nameToken = pExp._paramName;
                 name = pExp._paramName.text;
                 typeName = pExp._paramType?.getText();
                 type = typeNameToIType.get(typeName);
@@ -798,11 +802,19 @@ export class DetailsVisitor
                 //this.markContext(pExp._paramType, SemanticTokenTypes.Type);
             } else {
                 const sExp = p as StructParameterExpressionContext;
+                nameToken = sExp._paramName;
                 name = sExp._paramName.text;
                 typeName = "struct";
                 type = LpcTypes.closureType;
             }
-            this.addNewSymbol(MethodParameterSymbol, p, name, null, type);
+            this.addNewSymbol(
+                MethodParameterSymbol,
+                p,
+                name,
+                null,
+                type,
+                nameToken
+            );
         });
         return undefined;
     };

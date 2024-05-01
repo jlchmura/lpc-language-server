@@ -18,6 +18,7 @@ import { resolveOfTypeSync } from "../utils";
 import { DefineSymbol } from "./defineSymbol";
 import { VariableDeclaratorContext } from "../parser3/LPCParser";
 import { CallStack, StackValue } from "../backend/CallStack";
+import { Token } from "antlr4ng";
 
 export class VariableSymbol
     extends TypedSymbol
@@ -25,7 +26,7 @@ export class VariableSymbol
 {
     public value: any;
 
-    constructor(name: string, type: IType) {
+    constructor(name: string, type: IType, public nameToken?: Token) {
         super(name, type);
     }
 

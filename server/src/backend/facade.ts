@@ -359,10 +359,7 @@ export class LpcFacade {
         symbolName: string
     ): ISymbolInfo[] {
         const context = this.getContext(fileName);
-        const result = context.symbolTable.getSymbolOccurrences(
-            symbolName,
-            false
-        );
+        const result = context.getSymbolOccurrences(symbolName, false);
 
         return result.sort((lhs: ISymbolInfo, rhs: ISymbolInfo) => {
             return lhs.kind - rhs.kind;
@@ -408,5 +405,10 @@ export class LpcFacade {
         const context = this.getContext(fileName);
 
         return context?.sourceMap;
+    }
+
+    public getHighlights(fileName: string, symbolName: string) {
+        const context = this.getContext(fileName);
+        return context?.getHighlights(symbolName);
     }
 }

@@ -1,4 +1,5 @@
-import { IPosition } from "../types";
+import { Token } from "antlr4ng";
+import { ILexicalRange, IPosition } from "../types";
 import { Range } from "vscode-languageserver";
 
 type SourceMapping = {
@@ -167,6 +168,35 @@ export class SourceMap {
             column:
                 generatedColumn + (m.line == generatedLine ? columnOffset : 0),
             row: generatedLine + lineOffset,
+        };
+    }
+
+    public getSourceRangeFromToken(token: Token): Range {
+        const { column, line, start, stop } = token;
+        const sourceStart = this.getSourceLocation(line, column);
+
+        return {
+            start: {
+                line: sourceStart.row,
+                character: sourceStart.column,
+            },
+            end: {
+                line: sourceStart.row,
+                character: sourceStart.column + stop - start + 1,
+            },
+        };
+    }
+
+    public getSourceRange(range: ILexicalRange) {
+        const mapped = this.createSourceRange(
+            range.start.row,
+            range.start.column,
+            range.end.row,
+            range.end.column
+        );
+        return {
+            start: { row: mapped.start.line, column: mapped.start.character },
+            end: { row: mapped.end.line, column: mapped.end.character },
         };
     }
 

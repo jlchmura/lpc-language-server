@@ -6,7 +6,7 @@ import {
     MethodSymbol as BaseMethodSymbol,
     SymbolConstructor,
 } from "antlr4-c3";
-import { ParseTree, ParserRuleContext, TerminalNode } from "antlr4ng";
+import { ParseTree, ParserRuleContext, TerminalNode, Token } from "antlr4ng";
 import { SourceContext } from "./SourceContext";
 import { ISymbolInfo, SymbolGroupKind, SymbolKind } from "../types";
 import { InheritSymbol } from "../symbols/Symbol";
@@ -18,11 +18,17 @@ import { AssignmentSymbol } from "../symbols/assignmentSymbol";
 import {
     EfunSymbol,
     MethodDeclarationSymbol,
+    MethodParameterSymbol,
     MethodSymbol,
 } from "../symbols/methodSymbol";
 import { InlineClosureSymbol } from "../symbols/closureSymbol";
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import { resolveOfTypeSync } from "../utils";
+
+type HighlightSymbolResult = {
+    symbol: BaseSymbol;
+    token: Token;
+};
 
 export class ContextSymbolTable extends SymbolTable {
     public tree: ParserRuleContext; // Set by the owning source context after each parse run.
@@ -416,6 +422,30 @@ export class ContextSymbolTable extends SymbolTable {
         } else {
             return 0;
         }
+    }
+
+    public getSymbolsToHighlight(symbolName: string) {
+        const results: HighlightSymbolResult[] = [];
+        const symbols = this.getAllNestedSymbolsSync(symbolName);
+        for (const symbol of symbols) {
+            if (symbol instanceof VariableSymbol) {
+                results.push({
+                    symbol,
+                    token: symbol.nameToken,
+                });
+            } else if (symbol instanceof MethodParameterSymbol) {
+                results.push({
+                    symbol,
+                    token: symbol.nameToken,
+                });
+            } else {
+                results.push({
+                    symbol,
+                    token: (symbol.context as ParserRuleContext).start,
+                });
+            }
+        }
+        return results;
     }
 
     public getSymbolOccurrences(

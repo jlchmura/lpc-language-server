@@ -27,7 +27,7 @@ import { SourceContext } from "../backend/SourceContext";
 import { CallOtherSymbol, ObjectReferenceInfo } from "./objectSymbol";
 import { ContextSymbolTable } from "../backend/ContextSymbolTable";
 import { CallStack, StackFrame, StackValue } from "../backend/CallStack";
-import { ParserRuleContext } from "antlr4ng";
+import { ParserRuleContext, Token } from "antlr4ng";
 import { addDiagnostic } from "./Symbol";
 
 export const MAX_CALLDEPTH_SIZE = 10;
@@ -38,6 +38,10 @@ export class MethodParameterSymbol
     extends ParameterSymbol
     implements IKindSymbol, IEvaluatableSymbol
 {
+    constructor(name: string, type: IType, public nameToken?: Token) {
+        super(name, undefined, type);
+    }
+
     eval() {
         return this.value;
     }

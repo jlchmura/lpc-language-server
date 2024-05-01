@@ -222,7 +222,8 @@ export class LpcServer {
 
         this.connection.onDocumentHighlight((params) => {
             const result = this.highlighProvider.getHighlights(
-                params.textDocument.uri
+                params.textDocument.uri,
+                params.position
             );
             return result;
         });
@@ -316,7 +317,7 @@ export class LpcServer {
                 signatureHelpProvider: {
                     triggerCharacters: ["(", ","],
                 },
-                documentHighlightProvider: true,
+                //documentHighlightProvider: true,
             },
         };
 
