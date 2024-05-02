@@ -13,12 +13,7 @@ import {
     getSymbolsOfTypeSync,
     IRenameableSymbol,
 } from "./base";
-import {
-    FUNCTION_INHERIT_ACC_NAME_KEY,
-    ILexicalRange,
-    LpcTypes,
-    SymbolKind,
-} from "../types";
+import { ILexicalRange, LpcTypes, SymbolKind } from "../types";
 
 import { DiagnosticSeverity, FoldingRange } from "vscode-languageserver";
 import { ExpressionSymbol } from "./expressionSymbol";
@@ -156,12 +151,6 @@ export class MethodInvocationSymbol
         const methodName = (this.methodName = funcIdValue?.value);
 
         let methodSymbol: MethodSymbol;
-
-        // there may be a super accessor
-        const superAccValue = stack.getValue<string>(
-            FUNCTION_INHERIT_ACC_NAME_KEY
-        );
-        stack.clearValue(FUNCTION_INHERIT_ACC_NAME_KEY);
 
         const superAcc = this.getParentOfType(InheritSuperAccessorSymbol);
         if (!!superAcc) {

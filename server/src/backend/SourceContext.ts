@@ -61,6 +61,7 @@ import {
     DocumentHighlight,
     DocumentHighlightKind,
     FoldingRange,
+    Position,
     SemanticTokens,
     SemanticTokensBuilder,
 } from "vscode-languageserver";
@@ -654,6 +655,18 @@ export class SourceContext {
      */
     public sourceToTokenLocation(column: number, row: number): IPosition {
         return this.sourceMap.getGeneratedLocation(row, column);
+    }
+
+    public symbolContainingPosition(
+        position: Position
+    ): BaseSymbol | undefined {
+        // sourcemap the position
+        const mapped = this.sourceMap.getGeneratedLocation(
+            position.line + 1,
+            position.character + 1
+        );
+        const mappedPos = Position.create(mapped.row, mapped.column);
+        return this.symbolTable.symbolContainingPosition(mappedPos);
     }
 
     public symbolAtPosition(

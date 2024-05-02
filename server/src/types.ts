@@ -165,5 +165,3 @@ export const SemanticTokenModifiers = {
     DefaultLibrary: 5,
     Local: 6,
 } as const;
-
-export const FUNCTION_INHERIT_ACC_NAME_KEY = "$$$super_accessor_id$$$";

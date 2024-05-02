@@ -254,6 +254,11 @@ export class LpcServer {
      * @param filename
      */
     private flushChangeTimer(document: TextDocument) {
+        if (!document) {
+            console.warn("null doc passed to change timer flush");
+            return;
+        }
+
         const filename = document.uri;
         const timer = this.changeTimers.get(filename);
         if (timer) {

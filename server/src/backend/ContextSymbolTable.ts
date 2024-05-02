@@ -6,10 +6,16 @@ import {
     MethodSymbol as BaseMethodSymbol,
     SymbolConstructor,
 } from "antlr4-c3";
-import { ParseTree, ParserRuleContext, TerminalNode, Token } from "antlr4ng";
+import {
+    Interval,
+    ParseTree,
+    ParserRuleContext,
+    TerminalNode,
+    Token,
+} from "antlr4ng";
 import { SourceContext } from "./SourceContext";
 import { ISymbolInfo, SymbolGroupKind, SymbolKind } from "../types";
-import { FoldingRange } from "vscode-languageserver";
+import { FoldingRange, Position, Range } from "vscode-languageserver";
 import { DefineSymbol } from "../symbols/defineSymbol";
 import { VariableSymbol } from "../symbols/variableSymbol";
 import { EvalScope } from "../symbols/base";
@@ -358,6 +364,42 @@ export class ContextSymbolTable extends SymbolTable {
         result.push(...symbols);
 
         return result;
+    }
+
+    public symbolContainingPosition(pos: Position): BaseSymbol | undefined {
+        const findRecursive = (
+            parent: ScopedSymbol
+        ): BaseSymbol | undefined => {
+            for (const symbol of parent.children) {
+                if (!symbol.context) {
+                    continue;
+                }
+
+                const context = symbol.context as ParserRuleContext;
+                const start = context.start;
+                const stop = context.stop;
+
+                // start & stop msut be defined, and line & col must contain the position
+                if (
+                    start &&
+                    stop &&
+                    start.line <= pos.line + 1 &&
+                    stop.line >= pos.line + 1 &&
+                    start.column <= pos.character + 1 &&
+                    stop.column >= pos.character + 1
+                ) {
+                    if (symbol instanceof ScopedSymbol) {
+                        return findRecursive(symbol);
+                    } else {
+                        return symbol;
+                    }
+                }
+            }
+
+            return parent;
+        };
+
+        return findRecursive(this);
     }
 
     /**

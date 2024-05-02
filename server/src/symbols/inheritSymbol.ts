@@ -7,7 +7,7 @@ import {
 } from "./base";
 
 import { SourceContext } from "../backend/SourceContext";
-import { FUNCTION_INHERIT_ACC_NAME_KEY, LpcTypes, SymbolKind } from "../types";
+import { LpcTypes, SymbolKind } from "../types";
 import { InheritStatementContext } from "../parser3/LPCParser";
 import { CallStack, StackValue } from "../backend/CallStack";
 import { ContextSymbolTable } from "../backend/ContextSymbolTable";
@@ -77,14 +77,6 @@ export class InheritSuperAccessorSymbol
             this.objSymbolTable = this.objContext
                 .symbolTable as ContextSymbolTable;
         }
-
-        // the next symbol should be the method invocation
-        // store the function name on the stack so that the method invocation
-        // can access it
-        stack.addLocal(
-            FUNCTION_INHERIT_ACC_NAME_KEY,
-            new StackValue(this.filename, LpcTypes.stringType, this)
-        );
 
         // evaluate children
         for (const symbol of this.children) {

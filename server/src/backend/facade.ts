@@ -8,11 +8,12 @@ import {
     IDiagnosticEntry,
     ISymbolInfo,
 } from "../types";
-import { FoldingRange, SemanticTokens } from "vscode-languageserver";
+import { FoldingRange, Position, SemanticTokens } from "vscode-languageserver";
 import { normalizeFilename } from "../utils";
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { SourceMap } from "./SourceMap";
+import { BaseSymbol } from "antlr4-c3";
 
 /** ms delay before reparsing a depenency */
 const DEP_FILE_REPARSE_TIME = 250;
@@ -333,6 +334,14 @@ export class LpcFacade {
         const context = this.getContext(fileName);
 
         return context?.listTopLevelSymbols(!fullList);
+    }
+
+    public symbolContainingPosition(
+        fileName: string,
+        pos: Position
+    ): BaseSymbol | undefined {
+        const context = this.getContext(fileName);
+        return context?.symbolContainingPosition(pos);
     }
 
     public symbolInfoAtPosition(

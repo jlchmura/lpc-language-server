@@ -78,8 +78,6 @@ export class MacroProcessor {
     public markMacros() {
         // first, find all macro instances in the code
         this.macroInstances = this.findMacroInstances();
-
-        console.debug("Found macro instances: ", this.macroInstances);
     }
 
     /**

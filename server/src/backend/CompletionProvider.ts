@@ -32,43 +32,37 @@ export class CompletionProvider {
         if (this.isPotentiallyValidDocCompletionPosition(document, position)) {
             // doc comment
 
+            // find the range of the comment
+            const lineNum = position.line;
+            const line = document.getText(
+                Range.create(lineNum, 0, lineNum, integer.MAX_VALUE)
+            );
+            const prefix = line.slice(0, position.character).match(/\/\**\s*$/);
+            const suffix = line.slice(position.character).match(/^\s*\**\//);
+
+            const start = {
+                ...position,
+                character:
+                    position.character + (prefix ? -prefix[0].length : 0),
+            };
+            const end = {
+                ...start,
+                character: position.character + (suffix ? suffix[0].length : 0),
+            };
+            const range = Range.create(start, end);
+
             // find the next symbol
             let paramText: string = "";
-            const symbolInfo = firstEntry(
-                this.backend.symbolInfoAtPosition(
-                    document.uri,
-                    position.character - 2,
-                    position.line + 2,
-                    true
-                )
+            const searchPosition = Position.create(
+                position.line,
+                position.character - 2
             );
-            if (!!symbolInfo) {
-                const symbol = symbolInfo.symbol;
+            const symbol = this.backend.symbolContainingPosition(
+                document.uri,
+                searchPosition
+            );
 
-                // find the range of the comment
-                const lineNum = position.line;
-                const line = document.getText(
-                    Range.create(lineNum, 0, lineNum, integer.MAX_VALUE)
-                );
-                const prefix = line
-                    .slice(0, position.character)
-                    .match(/\/\**\s*$/);
-                const suffix = line
-                    .slice(position.character)
-                    .match(/^\s*\**\//);
-
-                const start = {
-                    ...position,
-                    character:
-                        position.character + (prefix ? -prefix[0].length : 0),
-                };
-                const end = {
-                    ...start,
-                    character:
-                        position.character + (suffix ? suffix[0].length : 0),
-                };
-                const range = Range.create(start, end);
-
+            if (!!symbol) {
                 if (symbol instanceof MethodSymbol) {
                     // if this is a method, add the params and return type to the snippet
                     let paramIdx = 1;
@@ -88,29 +82,27 @@ export class CompletionProvider {
                         paramText += `\n * @return${typeString}`;
                     }
                 }
-
-                // construct the replacement
-                return [
-                    {
-                        label: "/** */",
-                        data: {
-                            position: position,
-                            uri: document.uri,
-                        },
-                        kind: CompletionItemKind.Text,
-                        sortText: "00/**",
-                        detail: "Doc Comment",
-                        // use a textedit to replace the range with the snippet
-                        textEdit: TextEdit.replace(
-                            range,
-                            `/**\n * \$0${paramText}\n */`
-                        ),
-                        insertTextFormat: InsertTextFormat.Snippet,
-                    },
-                ];
             }
 
-            return [];
+            // construct the replacement
+            return [
+                {
+                    label: "/** */",
+                    data: {
+                        position: position,
+                        uri: document.uri,
+                    },
+                    kind: CompletionItemKind.Text,
+                    sortText: "00/**",
+                    detail: "Doc Comment",
+                    // use a textedit to replace the range with the snippet
+                    textEdit: TextEdit.replace(
+                        range,
+                        `/**\n * \$0${paramText}\n */`
+                    ),
+                    insertTextFormat: InsertTextFormat.Snippet,
+                },
+            ];
         } else {
             return this.backend
                 .getCodeCompletionCandidates(
