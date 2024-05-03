@@ -4,7 +4,6 @@ import {
     CompletionItem,
     CompletionItemKind,
     InsertTextFormat,
-    InsertTextMode,
     MarkupContent,
     Position,
     Range,
@@ -18,10 +17,14 @@ import {
     translateCompletionKind,
 } from "../symbols/Symbol";
 import { EfunSymbols } from "./EfunsLDMud";
-import { firstEntry } from "../utils";
 import { LpcBaseMethodSymbol, MethodSymbol } from "../symbols/methodSymbol";
-import { LpcTypes } from "../types";
-import { performance } from "perf_hooks";
+import { LpcTypes, SymbolKind } from "../types";
+import { ArrowSymbol } from "../symbols/arrowSymbol";
+import { ContextSymbolTable } from "./ContextSymbolTable";
+import { VariableSymbol } from "../symbols/variableSymbol";
+import { BaseSymbol, ScopedSymbol } from "antlr4-c3";
+import { LpcBaseSymbol } from "../symbols/base";
+import { getSelfOrParentOfType, getSymbolsFromAllParents } from "../utils";
 
 export class CompletionProvider {
     constructor(private backend: LpcFacade) {}
@@ -31,101 +34,9 @@ export class CompletionProvider {
         position: Position
     ): Promise<CompletionItem[]> {
         if (this.isPotentiallyValidDocCompletionPosition(document, position)) {
-            // doc comment
-
-            // find the range of the comment
-            const lineNum = position.line;
-            const line = document.getText(
-                Range.create(lineNum, 0, lineNum, integer.MAX_VALUE)
-            );
-            const prefix = line.slice(0, position.character).match(/\/\**\s*$/);
-            const suffix = line.slice(position.character).match(/^\s*\**\//);
-
-            const start = {
-                ...position,
-                character:
-                    position.character + (prefix ? -prefix[0].length : 0),
-            };
-            const end = {
-                ...start,
-                character: position.character + (suffix ? suffix[0].length : 0),
-            };
-            const range = Range.create(start, end);
-
-            // find the next symbol
-            let paramText: string = "";
-            const searchPosition = Position.create(
-                position.line,
-                position.character - 2
-            );
-            const symbol = this.backend.symbolContainingPosition(
-                document.uri,
-                searchPosition
-            );
-
-            if (!!symbol) {
-                if (symbol instanceof MethodSymbol) {
-                    // if this is a method, add the params and return type to the snippet
-                    let paramIdx = 1;
-                    const paramSymbols = symbol.getParametersSync();
-                    paramSymbols.forEach((param) => {
-                        const typeString = !!param.type
-                            ? ` \{${param.type.name}\}`
-                            : "";
-                        paramText += `\n * @param${typeString} ${param.name} \$${paramIdx}`;
-                        paramIdx++;
-                    });
-
-                    // return type
-                    const returnType = symbol.returnType;
-                    if (!!returnType && returnType != LpcTypes.voidType) {
-                        const typeString = ` {${returnType.name}} \$${paramIdx}`;
-                        paramText += `\n * @return${typeString}`;
-                    }
-                }
-            }
-
-            // construct the replacement
-            return [
-                {
-                    label: "/** */",
-                    data: {
-                        position: position,
-                        uri: document.uri,
-                    },
-                    kind: CompletionItemKind.Text,
-                    sortText: "00/**",
-                    detail: "Doc Comment",
-                    // use a textedit to replace the range with the snippet
-                    textEdit: TextEdit.replace(
-                        range,
-                        `/**\n * \$0${paramText}\n */`
-                    ),
-                    insertTextFormat: InsertTextFormat.Snippet,
-                },
-            ];
+            return this.provideDocCommentCompletion(document, position);
         } else {
-            return this.backend
-                .getCodeCompletionCandidates(
-                    document.uri,
-                    position.character,
-                    position.line + 1
-                )
-                .then((candidates) => {
-                    const completionList: CompletionItem[] = [];
-                    candidates.forEach((c) => {
-                        const item = CompletionItem.create(c.name);
-                        item.data = {
-                            source: c.source,
-                        };
-                        item.kind = translateCompletionKind(c.kind);
-                        item.sortText =
-                            (completionSortKeys.get(c.kind) ?? "99") + c.name;
-
-                        completionList.push(item);
-                    });
-                    return completionList;
-                });
+            return this.provideCodeCompletionItems(document, position);
         }
     }
 
@@ -152,6 +63,186 @@ export class CompletionProvider {
         }
     }
 
+    private async provideCodeCompletionItems(
+        document: TextDocument,
+        position: Position
+    ): Promise<CompletionItem[]> {
+        const lineNum = position.line;
+        const line = document.getText(
+            Range.create(lineNum, 0, lineNum, integer.MAX_VALUE)
+        );
+
+        // get the current symbol
+        const searchPosition = Position.create(
+            position.line,
+            position.character - 1
+        );
+        const symbol = this.backend.symbolContainingPosition(
+            document.uri,
+            searchPosition
+        );
+
+        const symbolTable = this.backend.getContext(document.uri)?.symbolTable;
+        const symbols: BaseSymbol[] = [];
+
+        if (symbol instanceof ContextSymbolTable) {
+            // program level
+            symbols.push(
+                ...(await symbolTable.getAllSymbols(MethodSymbol, false)),
+                ...(await symbolTable.getAllSymbols(VariableSymbol, false))
+            );
+        }
+        if (symbol instanceof ArrowSymbol) {
+            symbols.push(
+                ...(await symbol.objContext.symbolTable?.getAllSymbols(
+                    MethodSymbol,
+                    false
+                ))
+            );
+        } else if (
+            symbol instanceof MethodSymbol ||
+            symbol.symbolPath.some((p) => p instanceof MethodSymbol)
+        ) {
+            // get the first scoped parent
+            const scope = getSelfOrParentOfType(symbol, ScopedSymbol);
+
+            symbols.push(
+                ...(await symbolTable.getAllSymbols(MethodSymbol, false)), // any method symbol is valid
+                ...(await getSymbolsFromAllParents(
+                    scope,
+                    VariableSymbol,
+                    false
+                )) // variables start w/ this scope and go up
+            );
+        } else {
+            console.debug("[COMPLETE] " + symbol.context, symbol);
+        }
+
+        if (symbols.length > 0) {
+            // dedupe symbols based on name
+            const dedupedSymbols = new Map<string, BaseSymbol>();
+            symbols.forEach((s) => {
+                dedupedSymbols.set(s.name, s);
+            });
+
+            const results: CompletionItem[] = [];
+            dedupedSymbols.forEach((s) => {
+                const kind =
+                    (s as LpcBaseMethodSymbol)?.kind ?? SymbolKind.Unknown;
+                const item = CompletionItem.create(s.name);
+                item.kind = translateCompletionKind(kind);
+                item.sortText = (completionSortKeys.get(kind) ?? "99") + s.name;
+                item.data = {
+                    source: (s.symbolTable as ContextSymbolTable)?.owner
+                        ?.fileName,
+                };
+                results.push(item);
+            });
+
+            return results;
+        }
+
+        return this.backend
+            .getCodeCompletionCandidates(
+                document.uri,
+                position.character,
+                position.line + 1
+            )
+            .then((candidates) => {
+                const completionList: CompletionItem[] = [];
+                candidates.forEach((c) => {
+                    const item = CompletionItem.create(c.name);
+                    item.data = {
+                        source: c.source,
+                    };
+                    item.kind = translateCompletionKind(c.kind);
+                    item.sortText =
+                        (completionSortKeys.get(c.kind) ?? "99") + c.name;
+
+                    completionList.push(item);
+                });
+                return completionList;
+            });
+    }
+
+    private provideDocCommentCompletion(
+        document: TextDocument,
+        position: Position
+    ): CompletionItem[] {
+        // doc comment
+
+        // find the range of the comment
+        const lineNum = position.line;
+        const line = document.getText(
+            Range.create(lineNum, 0, lineNum, integer.MAX_VALUE)
+        );
+        const prefix = line.slice(0, position.character).match(/\/\**\s*$/);
+        const suffix = line.slice(position.character).match(/^\s*\**\//);
+
+        const start = {
+            ...position,
+            character: position.character + (prefix ? -prefix[0].length : 0),
+        };
+        const end = {
+            ...start,
+            character: position.character + (suffix ? suffix[0].length : 0),
+        };
+        const range = Range.create(start, end);
+
+        // find the next symbol
+        let paramText: string = "";
+        const searchPosition = Position.create(
+            position.line + 1,
+            position.character - 1
+        );
+        const symbol = this.backend.symbolContainingPosition(
+            document.uri,
+            searchPosition
+        );
+
+        if (!!symbol) {
+            if (symbol instanceof MethodSymbol) {
+                // if this is a method, add the params and return type to the snippet
+                let paramIdx = 1;
+                const paramSymbols = symbol.getParametersSync();
+                paramSymbols.forEach((param) => {
+                    const typeString = !!param.type
+                        ? ` \{${param.type.name}\}`
+                        : "";
+                    paramText += `\n * @param${typeString} ${param.name} \$${paramIdx}`;
+                    paramIdx++;
+                });
+
+                // return type
+                const returnType = symbol.returnType;
+                if (!!returnType && returnType != LpcTypes.voidType) {
+                    const typeString = ` {${returnType.name}} \$${paramIdx}`;
+                    paramText += `\n * @return${typeString}`;
+                }
+            }
+        }
+
+        // construct the replacement
+        return [
+            {
+                label: "/** */",
+                data: {
+                    position: position,
+                    uri: document.uri,
+                },
+                kind: CompletionItemKind.Text,
+                sortText: "00/**",
+                detail: "Doc Comment",
+                // use a textedit to replace the range with the snippet
+                textEdit: TextEdit.replace(
+                    range,
+                    `/**\n * \$0${paramText}\n */`
+                ),
+                insertTextFormat: InsertTextFormat.Snippet,
+            },
+        ];
+    }
+
     private isPotentiallyValidDocCompletionPosition(
         document: TextDocument,
         position: Position
@@ -163,7 +254,10 @@ export class CompletionProvider {
             Range.create(lineNum, 0, lineNum, integer.MAX_VALUE)
         );
         const prefix = line.slice(0, position.character);
-        if (!/^\s*$|\/\*\*\s*$|^\s*\/\*\*+\s*$/.test(prefix)) {
+        if (
+            !prefix.endsWith("*") ||
+            !/^\s*$|\/\*\*\s*$|^\s*\/\*\*+\s*$/.test(prefix)
+        ) {
             return false;
         }
 

@@ -246,8 +246,18 @@ export class LpcServer {
             (params) => {
                 const doc = this.documents.get(params.textDocument.uri);
                 try {
+                    performance.mark("semantic-token-request-start");
+
                     this.flushChangeTimer(doc);
                     const result = this.facade.getSemanticTokens(doc?.uri);
+
+                    performance.mark("semantic-token-request-end");
+                    performance.measure(
+                        "semantic-token-request",
+                        "semantic-token-request-start",
+                        "semantic-token-request-end"
+                    );
+
                     return result;
                 } catch (e) {
                     console.error(

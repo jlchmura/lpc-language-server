@@ -3,23 +3,14 @@ import {
     BaseSymbol,
     ISymbolTableOptions,
     ScopedSymbol,
-    MethodSymbol as BaseMethodSymbol,
     SymbolConstructor,
 } from "antlr4-c3";
-import {
-    Interval,
-    ParseTree,
-    ParserRuleContext,
-    TerminalNode,
-    Token,
-} from "antlr4ng";
+import { ParseTree, ParserRuleContext, TerminalNode, Token } from "antlr4ng";
 import { SourceContext } from "./SourceContext";
 import { ISymbolInfo, SymbolGroupKind, SymbolKind } from "../types";
-import { FoldingRange, Position, Range } from "vscode-languageserver";
+import { FoldingRange } from "vscode-languageserver";
 import { DefineSymbol } from "../symbols/defineSymbol";
 import { VariableSymbol } from "../symbols/variableSymbol";
-import { EvalScope } from "../symbols/base";
-import { AssignmentSymbol } from "../symbols/assignmentSymbol";
 import {
     EfunSymbol,
     MethodDeclarationSymbol,
@@ -366,21 +357,29 @@ export class ContextSymbolTable extends SymbolTable {
         return result;
     }
 
-    public symbolContainingPosition(pos: Position): BaseSymbol | undefined {
+    /**
+     * Look up a symbol using a generated document position (one-based)
+     * @returns Symbol or undefined if one could not be found
+     */
+    public symbolContainingPosition(
+        line: number,
+        column: number
+    ): BaseSymbol | undefined {
         const findRecursive = (
             parent: ScopedSymbol
         ): BaseSymbol | undefined => {
             for (const symbol of parent.children) {
-                if (!symbol.context) {
+                if (!symbol.context || symbol.context instanceof TerminalNode) {
                     continue;
                 }
 
                 const context = symbol.context as ParserRuleContext;
                 const start = context.start;
                 const stop = context.stop;
+                const stopCol = stop.column + (stop.text?.length ?? 0);
 
-                const posLine = pos.line + 1;
-                const posCol = pos.character + 1;
+                const posLine = line;
+                const posCol = column;
 
                 // start & stop msut be defined, and line & col must contain the position
                 if (
@@ -389,7 +388,7 @@ export class ContextSymbolTable extends SymbolTable {
                     (start.line < posLine ||
                         (start.line == posLine && start.column <= posCol)) &&
                     (stop.line > posLine ||
-                        (stop.line == posLine && stop.column >= posCol))
+                        (stop.line == posLine && stopCol >= posCol))
                 ) {
                     if (symbol instanceof ScopedSymbol) {
                         return findRecursive(symbol);

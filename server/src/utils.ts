@@ -11,6 +11,7 @@ import {
     IScopedSymbol,
     TypedSymbol,
     SymbolConstructor,
+    ScopedSymbol,
 } from "antlr4-c3";
 import { ContextSymbolTable } from "./backend/ContextSymbolTable";
 import { URI } from "vscode-uri";
@@ -261,4 +262,57 @@ export function testFilename(
 /** escape a string for use in regex */
 export function escapeRegExp(str: string) {
     return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+}
+
+/**
+ * Returns the first symbol that matches type t.  The first match can be the symbol itself
+ * @param symbol
+ * @param t
+ * @returns
+ */
+export function getSelfOrParentOfType<
+    T extends BaseSymbol,
+    Args extends unknown[]
+>(symbol: BaseSymbol, t: SymbolConstructor<T, Args>) {
+    return symbol instanceof t ? symbol : symbol.getParentOfType(t);
+}
+
+/**
+ * @param t The type of the objects to return.
+ * @param localOnly If true only child symbols are returned, otherwise also symbols from the parent of this symbol
+ *                  (recursively).
+ *
+ * @returns A promise resolving to all symbols of the the given type, accessible from this scope (if localOnly is
+ *          false), within the owning symbol table.
+ */
+export async function getSymbolsFromAllParents<
+    T extends BaseSymbol,
+    Args extends unknown[]
+>(
+    symbol: ScopedSymbol,
+    t: SymbolConstructor<T, Args>,
+    localOnly = false
+): Promise<T[]> {
+    const result: T[] = [];
+
+    // Special handling for namespaces, which act like grouping symbols in this scope,
+    // so we show them as available in this scope.
+    for (const child of symbol.children) {
+        if (child instanceof t) {
+            result.push(child);
+        }
+    }
+
+    if (!localOnly) {
+        if (symbol.parent) {
+            const childSymbols = await getSymbolsFromAllParents(
+                symbol.parent as ScopedSymbol,
+                t,
+                false
+            );
+            result.push(...childSymbols);
+        }
+    }
+
+    return result;
 }

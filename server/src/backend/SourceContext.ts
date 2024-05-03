@@ -1,11 +1,8 @@
 import * as fs from "fs";
 import {
-    BailErrorStrategy,
     CharStream,
     CommonTokenStream,
     DefaultErrorStrategy,
-    ErrorNode,
-    IInterpreterData,
     ParseCancellationException,
     ParseTree,
     ParseTreeWalker,
@@ -31,7 +28,6 @@ import {
     ISymbolInfo,
     IDefinition,
     SymbolKind,
-    LpcTypes,
     DependencySearchType,
     SOURCEMAP_CHANNEL_NUM,
     MacroDefinition,
@@ -43,14 +39,9 @@ import { ContextSymbolTable } from "./ContextSymbolTable";
 import { SemanticListener } from "./SemanticListener";
 import {
     BaseSymbol,
-    BlockSymbol,
     CodeCompletionCore,
-    IType,
-    MethodSymbol as BaseMethodSymbol,
     ParameterSymbol,
     ScopedSymbol,
-    FundamentalType,
-    VariableSymbol as VariableSymbolBase,
 } from "antlr4-c3";
 import { BackendUtils } from "./BackendUtils";
 import { LpcFacade } from "./facade";
@@ -63,7 +54,6 @@ import {
     FoldingRange,
     Position,
     SemanticTokens,
-    SemanticTokensBuilder,
 } from "vscode-languageserver";
 import {
     firstEntry,
@@ -74,11 +64,7 @@ import {
     testFilename,
     trimQuotes,
 } from "../utils";
-import {
-    IFoldableSymbol,
-    getSymbolsOfTypeSync,
-    isInstanceOfIKindSymbol,
-} from "../symbols/base";
+import { IFoldableSymbol, isInstanceOfIKindSymbol } from "../symbols/base";
 import { DefineSymbol } from "../symbols/defineSymbol";
 import {
     VariableIdentifierSymbol,
@@ -88,7 +74,6 @@ import {
     EfunSymbol,
     FunctionIdentifierSymbol,
     MethodDeclarationSymbol,
-    MethodInvocationSymbol,
     MethodSymbol,
 } from "../symbols/methodSymbol";
 import { CloneObjectSymbol } from "../symbols/objectSymbol";
@@ -669,13 +654,15 @@ export class SourceContext {
     public symbolContainingPosition(
         position: Position
     ): BaseSymbol | undefined {
-        // sourcemap the position
+        // sourcemap the position - convert from zero-based
         const mapped = this.sourceMap.getGeneratedLocation(
             position.line + 1,
             position.character + 1
         );
-        const mappedPos = Position.create(mapped.row, mapped.column);
-        return this.symbolTable.symbolContainingPosition(mappedPos);
+        return this.symbolTable.symbolContainingPosition(
+            mapped.row,
+            mapped.column
+        );
     }
 
     public symbolAtPosition(
@@ -998,7 +985,7 @@ export class SourceContext {
 
         for (index = 0; ; ++index) {
             token = this.tokenStream.get(index);
-            //console.log(token.toString());
+
             if (token.type === Token.EOF || token.line > row) {
                 break;
             }
@@ -1014,6 +1001,13 @@ export class SourceContext {
         console.debug("autocomplete token found", token.text, column);
 
         const candidates = core.collectCandidates(index);
+
+        performance.mark("get-completion-candidates-collected");
+        performance.measure(
+            "collected-candidates",
+            "get-completion-candidates-start",
+            "get-completion-candidates-collected"
+        );
 
         const result: ISymbolInfo[] = [];
         candidates.tokens.forEach((following: number[], type: number) => {
@@ -1208,6 +1202,12 @@ export class SourceContext {
         });
 
         performance.mark("get-completion-candidates-end");
+        performance.measure(
+            "assembled-candidates",
+            "get-completion-candidates-collected",
+            "get-completion-candidates-end"
+        );
+
         performance.measure(
             "get-completion-candidates",
             "get-completion-candidates-start",

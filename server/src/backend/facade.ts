@@ -1,13 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { SourceContext } from "./SourceContext";
-
-import {
-    ContextImportInfo,
-    DependencySearchType,
-    IDiagnosticEntry,
-    ISymbolInfo,
-} from "../types";
+import { ContextImportInfo, IDiagnosticEntry, ISymbolInfo } from "../types";
 import { FoldingRange, Position, SemanticTokens } from "vscode-languageserver";
 import { normalizeFilename } from "../utils";
 import { IncludeSymbol } from "../symbols/includeSymbol";
@@ -359,6 +353,12 @@ export class LpcFacade {
         return context?.listTopLevelSymbols(!fullList);
     }
 
+    /**
+     * Look up a symbol using a document positio (zero-based).
+     * @param fileName Document file name
+     * @param pos Document position
+     * @returns Symbol or undefined if one could not be found
+     */
     public symbolContainingPosition(
         fileName: string,
         pos: Position
