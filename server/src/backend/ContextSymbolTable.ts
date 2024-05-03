@@ -379,14 +379,17 @@ export class ContextSymbolTable extends SymbolTable {
                 const start = context.start;
                 const stop = context.stop;
 
+                const posLine = pos.line + 1;
+                const posCol = pos.character + 1;
+
                 // start & stop msut be defined, and line & col must contain the position
                 if (
                     start &&
                     stop &&
-                    start.line <= pos.line + 1 &&
-                    stop.line >= pos.line + 1 &&
-                    start.column <= pos.character + 1 &&
-                    stop.column >= pos.character + 1
+                    (start.line < posLine ||
+                        (start.line == posLine && start.column <= posCol)) &&
+                    (stop.line > posLine ||
+                        (stop.line == posLine && stop.column >= posCol))
                 ) {
                     if (symbol instanceof ScopedSymbol) {
                         return findRecursive(symbol);
