@@ -21,8 +21,9 @@ import { CompletionProvider } from "./CompletionProvider";
 import { SignatureHelpProvider } from "./SignatureHelpProvider";
 import { RenameProvider } from "./RenameProvider";
 import { HighlightProvider } from "./HighlightProvider";
+import { performance } from "perf_hooks";
 
-const CHANGE_DEBOUNCE_MS = 500;
+const CHANGE_DEBOUNCE_MS = 250;
 
 export class LpcServer {
     private importDir: string[] | undefined;
@@ -123,6 +124,8 @@ export class LpcServer {
 
         // Completion Provider
         this.connection.onCompletion(async (params) => {
+            performance.mark("completion-start");
+
             console.debug("OnCompletion", params.textDocument.uri);
             const doc = this.documents.get(params.textDocument.uri);
 
@@ -131,10 +134,19 @@ export class LpcServer {
             // (like a call_other arrow `->`)
             this.flushChangeTimer(doc);
 
-            return this.completionProvider.provideCompletionItems(
+            const result = this.completionProvider.provideCompletionItems(
                 doc,
                 params.position
             );
+
+            performance.mark("completion-end");
+            performance.measure(
+                "completion",
+                "completion-start",
+                "completion-end"
+            );
+
+            return result;
         });
         this.connection.onCompletionResolve((item) => {
             return this.completionProvider.resolveCompletionItem(item);

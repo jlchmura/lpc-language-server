@@ -14,6 +14,7 @@ import { IncludeSymbol } from "../symbols/includeSymbol";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { SourceMap } from "./SourceMap";
 import { BaseSymbol } from "antlr4-c3";
+import { PerformanceObserver, performance } from "perf_hooks";
 
 /** ms delay before reparsing a depenency */
 const DEP_FILE_REPARSE_TIME = 250;
@@ -50,6 +51,19 @@ export class LpcFacade {
         public workspaceDir: string
     ) {
         console.log("LpcFacade created", importDir, workspaceDir);
+
+        const obs = new PerformanceObserver((list) => {
+            list.getEntries().forEach((entry) => {
+                console.log(
+                    `[Perf] ${entry.name} took ${entry.duration} ms`,
+                    entry.detail
+                );
+            });
+
+            performance.clearMarks();
+            performance.clearMeasures();
+        });
+        obs.observe({ entryTypes: ["measure"], buffered: true });
     }
 
     public filenameToAbsolutePath(filename: string): string {
@@ -176,6 +190,8 @@ export class LpcFacade {
     }
 
     private parseLpc(contextEntry: IContextEntry) {
+        performance.mark("parse-lpc-start");
+
         const context = contextEntry.context;
         const isDepChainRoot = !this.depChain;
         if (isDepChainRoot) {
@@ -224,6 +240,13 @@ export class LpcFacade {
         if (isDepChainRoot) {
             this.depChain = undefined;
         }
+
+        performance.mark("parse-lpc-end");
+        performance.measure(
+            "parse-lpc: " + contextEntry.filename,
+            "parse-lpc-start",
+            "parse-lpc-end"
+        );
     }
 
     /**

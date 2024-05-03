@@ -111,6 +111,7 @@ import {
     InheritSuperAccessorSymbol,
     InheritSymbol,
 } from "../symbols/inheritSymbol";
+import { performance } from "perf_hooks";
 
 const mapAnnotationReg = /\[\[@(.+?)\]\]/;
 
@@ -312,6 +313,8 @@ export class SourceContext {
     }
 
     public parse(): IContextDetails {
+        performance.mark("parse-start");
+
         console.debug(`Parsing ${this.fileName}`);
 
         this.sourceMap = new SourceMap();
@@ -400,6 +403,12 @@ export class SourceContext {
 
         this.cachedSemanticTokens = this.semanticTokens.build(this.sourceMap);
 
+        performance.mark("parse-end");
+        performance.measure(
+            "parse: " + this.fileName,
+            "parse-start",
+            "parse-end"
+        );
         return this.info;
     }
 
@@ -950,6 +959,8 @@ export class SourceContext {
             return [];
         }
 
+        performance.mark("get-completion-candidates-start");
+
         const core = new CodeCompletionCore(this.parser);
 
         core.ignoredTokens = new Set([
@@ -1191,34 +1202,17 @@ export class SourceContext {
                                 )?.owner?.fileName,
                             });
                         }
-                        // const info = this.getSymbolInfo(symbol);
-
-                        // if (symbol instanceof MethodSymbol) {
-
-                        //     result.push({
-                        //         kind: SourceContext.getKindFromSymbol(symbol),
-                        //         name: symbol.name,
-                        //         source: this.fileName,
-                        //         line: info.line,
-                        //         definition: info.definition,
-                        //         description: info.description,
-                        //     });
-                        // } else {
-                        //     result.push({
-                        //         kind: SourceContext.getKindFromSymbol(symbol),
-                        //         name: symbol.name,
-                        //         source: this.fileName,
-                        //         definition: SourceContext.definitionForContext(
-                        //             symbol.context,
-                        //             true
-                        //         ),
-                        //         description: undefined,
-                        //     });
-                        // }
                     }
                 });
             }
         });
+
+        performance.mark("get-completion-candidates-end");
+        performance.measure(
+            "get-completion-candidates",
+            "get-completion-candidates-start",
+            "get-completion-candidates-end"
+        );
 
         return result;
     }

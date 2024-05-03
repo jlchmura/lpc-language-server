@@ -21,6 +21,7 @@ import { EfunSymbols } from "./EfunsLDMud";
 import { firstEntry } from "../utils";
 import { LpcBaseMethodSymbol, MethodSymbol } from "../symbols/methodSymbol";
 import { LpcTypes } from "../types";
+import { performance } from "perf_hooks";
 
 export class CompletionProvider {
     constructor(private backend: LpcFacade) {}
