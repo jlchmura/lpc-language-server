@@ -30,6 +30,7 @@ efun("clones", LpcTypes.objectArrayType, true, ["ob", LpcTypes.objectType],["wha
 efun("closurep", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("clear_bit", LpcTypes.stringType, false, ["str", LpcTypes.stringType], ["n", LpcTypes.intType]);
 efun("command", LpcTypes.intType, true, ["str", LpcTypes.stringType], ["ob", LpcTypes.objectType]);
+efun("configure_object", LpcTypes.voidType, false, ["ob", LpcTypes.objectType], ["what", LpcTypes.intType], ["data", LpcTypes.mixedType]);
 efun("copy", LpcTypes.mixedType, false, ["val", LpcTypes.mixedType]);
 efun("creator", LpcTypes.stringType, false, ["ob", LpcTypes.objectType]);
 efun("ctime", LpcTypes.stringType, false, ["clock", LpcTypes.intType]);
