@@ -292,7 +292,8 @@ export async function getSymbolsFromAllParents<
 >(
     symbol: ScopedSymbol,
     t: SymbolConstructor<T, Args>,
-    localOnly = false
+    localOnly = false,
+    excludeGlobals = false
 ): Promise<T[]> {
     const result: T[] = [];
 
@@ -306,6 +307,14 @@ export async function getSymbolsFromAllParents<
 
     if (!localOnly) {
         if (symbol.parent) {
+            if (excludeGlobals && symbol.parent instanceof ContextSymbolTable) {
+                const tbl = symbol.parent as ContextSymbolTable;
+                if (!tbl.owner || tbl.name.endsWith("simul_efun.c")) {
+                    // do not include anything from this parent
+                    return result;
+                }
+            }
+
             const childSymbols = await getSymbolsFromAllParents(
                 symbol.parent as ScopedSymbol,
                 t,

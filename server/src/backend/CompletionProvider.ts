@@ -17,7 +17,11 @@ import {
     translateCompletionKind,
 } from "../symbols/Symbol";
 import { EfunSymbols } from "./EfunsLDMud";
-import { LpcBaseMethodSymbol, MethodSymbol } from "../symbols/methodSymbol";
+import {
+    EfunSymbol,
+    LpcBaseMethodSymbol,
+    MethodSymbol,
+} from "../symbols/methodSymbol";
 import { LpcTypes, SymbolKind } from "../types";
 import { ArrowSymbol } from "../symbols/arrowSymbol";
 import { ContextSymbolTable } from "./ContextSymbolTable";
@@ -93,9 +97,11 @@ export class CompletionProvider {
             );
         } else if (symbol instanceof ArrowSymbol) {
             symbols.push(
-                ...(await symbol.objContext.symbolTable?.getAllSymbols(
+                ...(await getSymbolsFromAllParents(
+                    symbol.objContext.symbolTable,
                     MethodSymbol,
-                    false
+                    false,
+                    true
                 ))
             );
         } else if (
