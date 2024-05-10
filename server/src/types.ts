@@ -89,6 +89,7 @@ export interface ISymbolInfo {
 
 // prettier-ignore
 export namespace LpcTypes {    
+    export const bytesType: IType = new FundamentalType("bytes", TypeKind.String);
     export const intType: IType = FundamentalType.integerType;
     export const intArrayType: IType = new ArrayType("int *", ReferenceKind.Instance, LpcTypes.intType);
     export const stringType: IType=FundamentalType.stringType;

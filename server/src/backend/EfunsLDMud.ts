@@ -41,6 +41,8 @@ efun("enable_commands", LpcTypes.voidType, false);
 efun("environment", LpcTypes.objectType, true, ["ob", LpcTypes.objectType]);
 efun("exec", LpcTypes.intType, false, ["new", LpcTypes.objectType], ["old", LpcTypes.objectType]);
 efun("explode", LpcTypes.stringArrayType, false, ["str", LpcTypes.stringType], ["del", LpcTypes.stringType]);
+efun("extern_call", LpcTypes.intType, false);
+efun("file_name", LpcTypes.stringType, false, ["ob", LpcTypes.objectType]);
 efun("file_size", LpcTypes.intType, false, ["file", LpcTypes.stringType]);
 efun("filter", LpcTypes.mixedArrayType, true, ["arr", LpcTypes.mixedArrayType], ["fun", LpcTypes.stringType], ["ob", LpcTypes.stringType], ["...extra", LpcTypes.mixedType,true]);
 efun("filter_objects", LpcTypes.objectArrayType, true, ["arr", LpcTypes.objectArrayType], ["fun", LpcTypes.stringType], ["extra", LpcTypes.mixedType], ["args...", LpcTypes.mixedType, true]);
@@ -54,9 +56,11 @@ efun("function_exists", LpcTypes.intType, false, ["fun", LpcTypes.stringType], [
 efun("get_dir", LpcTypes.mixedArrayType, true, ["path", LpcTypes.stringType], ["flags", LpcTypes.intType]);
 efun("get_error_file", LpcTypes.mixedType, true, ["name", LpcTypes.stringType], ["set_forget_flag", LpcTypes.intType]);
 efun("get_extra_wizinfo", LpcTypes.mixedType, false, ["wiz", LpcTypes.objectType]);
+efun("getuid", LpcTypes.stringType, false, ["ob", LpcTypes.objectType]);
 efun("hash", LpcTypes.intType, true, ["method", LpcTypes.intArrayType], ["arg", LpcTypes.stringType],["iterations", LpcTypes.intType]);
 efun("implode", LpcTypes.stringType, true, ["arr", LpcTypes.mixedArrayType], ["del", LpcTypes.stringType]);
 efun("interactive", LpcTypes.intType, true, ["ob", LpcTypes.objectType]);
+efun("inherit_list", LpcTypes.stringArrayType, true, ["ob", LpcTypes.objectType], ["flags", LpcTypes.intType]);
 efun("input_to", LpcTypes.voidType, true, ["fun", LpcTypes.stringType], ["flag", LpcTypes.intType], ["msg", LpcTypes.stringType], ["args...", LpcTypes.mixedType, true]);
 efun("interactive_info", LpcTypes.mixedType, true, ["ob", LpcTypes.objectType],["what", LpcTypes.intType]);
 efun("intp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
@@ -89,7 +93,9 @@ efun("objectp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("playerp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("previous_object", LpcTypes.objectType, true, ["i", LpcTypes.intType]);
 efun("present", LpcTypes.objectType, true, ["str", FundamentalType.stringType], ["env", LpcTypes.objectType]);
+efun("present_clone", LpcTypes.objectType, true, ["str", FundamentalType.stringType], ["env", LpcTypes.objectType], ["n", LpcTypes.intType]);
 efun("printf", LpcTypes.voidType, true, ["fmt", LpcTypes.stringType], ["var...", LpcTypes.mixedType, true]);
+efun("program_name", LpcTypes.stringType, true, ["ob", LpcTypes.objectType]);
 efun("pointerp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("query_actions", LpcTypes.mixedArrayType, true, ["ob", LpcTypes.objectType], ["mask_or_verb", LpcTypes.mixedType]);
 efun("query_ip_number", LpcTypes.stringType, true, ["ob", LpcTypes.objectType]);
@@ -125,6 +131,7 @@ efun("strstr", LpcTypes.intType, true, ["str", LpcTypes.stringType], ["str2", Lp
 efun("stringp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("sizeof", LpcTypes.intType, false, ["val", LpcTypes.mixedType]);
 efun("symbol_function", LpcTypes.closureType, true, ["arg", LpcTypes.stringType], ["ob", LpcTypes.mixedType]);
+efun("snoop", LpcTypes.objectType, true, ["snooper", LpcTypes.objectType], ["snoopee", LpcTypes.objectType]);
 efun("test_bit", LpcTypes.intType, false, ["str", LpcTypes.stringType], ["n", LpcTypes.intType]);
 efun("tell_object", LpcTypes.voidType, false, ["ob", LpcTypes.objectType], ["msg", LpcTypes.stringType]);
 efun("tell_room", LpcTypes.voidType, true, ["ob", LpcTypes.objectType], ["msg", LpcTypes.stringType], ["exclude", LpcTypes.objectArrayType]);
@@ -133,13 +140,18 @@ efun("this_interactive", LpcTypes.objectType, false);
 efun("this_object", LpcTypes.objectType, false);
 efun("this_player", LpcTypes.objectType, false);
 efun("time", LpcTypes.intType, false);
+efun("to_string", LpcTypes.stringType, false, ["arg", LpcTypes.mixedType]);
+efun("to_text", LpcTypes.stringType, true, ["bytesequence", LpcTypes.bytesType], ["encoding", LpcTypes.stringType]);
 efun("tls_available", LpcTypes.intType, false);
 efun("tls_init_connection", LpcTypes.intType, true, ["ob", LpcTypes.objectType], ["fun", LpcTypes.stringType], ["fob", LpcTypes.mixedType], ["...extra", LpcTypes.mixedType,true]);
 efun("to_int", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
+efun("transpose_array", LpcTypes.mixedArrayType, false, ["arr", LpcTypes.mixedArrayType]);
 efun("users", LpcTypes.objectArrayType, false);
 efun("widthof", LpcTypes.intType, false, ["map", LpcTypes.mappingType]);
 efun("write", LpcTypes.voidType, false, ["msg", LpcTypes.mixedType]);
 efun("write_file", LpcTypes.intType, true, ["file", LpcTypes.stringType], ["str", LpcTypes.stringType], ["flags", LpcTypes.intType]);
+efun("unmkmapping", LpcTypes.mixedArrayType, false, ["map", LpcTypes.mappingType]);
+efun("unique_array", LpcTypes.objectArrayType, true, ["obarr", LpcTypes.objectArrayType], ["fun", LpcTypes.stringType], ["extra", LpcTypes.mixedType], ["skip", LpcTypes.mixedType]);
 
 function efun(
     name: string,
