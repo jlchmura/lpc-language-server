@@ -74,23 +74,33 @@ export class CloneObjectSymbol
 
     private loadSource() {
         if (!this.isLoaded) {
-            const ownerContext = (this.symbolTable as ContextSymbolTable).owner;
-            const backend = ownerContext.backend;
+            const ctx = this.context as ParserRuleContext;
 
-            this.sourceContext = backend.loadLpc(this.filename);
-
-            if (!!this.sourceContext) {
-                this.isLoaded = true;
-                // add a reference to the owner context so that diagnostics
-                // will update when we make modificatinos to the source file
-                ownerContext.addAsReferenceTo(this.sourceContext);
-            } else {
-                const ctx = this.context as ParserRuleContext;
+            if (!this.filename) {
                 addDiagnostic(this, {
-                    message: "could not load source for: " + this.filename,
+                    message: "Unable to resolve filename",
                     range: rangeFromTokens(ctx.start, ctx.stop),
-                    type: DiagnosticSeverity.Warning,
+                    type: DiagnosticSeverity.Information,
                 });
+            } else {
+                const ownerContext = (this.symbolTable as ContextSymbolTable)
+                    .owner;
+                const backend = ownerContext.backend;
+
+                this.sourceContext = backend.loadLpc(this.filename);
+
+                if (!!this.sourceContext) {
+                    this.isLoaded = true;
+                    // add a reference to the owner context so that diagnostics
+                    // will update when we make modificatinos to the source file
+                    ownerContext.addAsReferenceTo(this.sourceContext, false);
+                } else {
+                    addDiagnostic(this, {
+                        message: "could not load source for: " + this.filename,
+                        range: rangeFromTokens(ctx.start, ctx.stop),
+                        type: DiagnosticSeverity.Warning,
+                    });
+                }
             }
         }
     }
