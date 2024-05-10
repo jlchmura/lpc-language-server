@@ -46,18 +46,18 @@ export class LpcFacade {
     ) {
         console.log("LpcFacade created", importDir, workspaceDir);
 
-        const obs = new PerformanceObserver((list) => {
-            list.getEntries().forEach((entry) => {
-                console.log(
-                    `[Perf] ${entry.name} took ${entry.duration} ms`,
-                    entry.detail
-                );
-            });
+        // const obs = new PerformanceObserver((list) => {
+        //     list.getEntries().forEach((entry) => {
+        //         console.log(
+        //             `[Perf] ${entry.name} took ${entry.duration} ms`,
+        //             entry.detail
+        //         );
+        //     });
 
-            performance.clearMarks();
-            performance.clearMeasures();
-        });
-        obs.observe({ entryTypes: ["measure"], buffered: true });
+        //     performance.clearMarks();
+        //     performance.clearMeasures();
+        // });
+        // obs.observe({ entryTypes: ["measure"], buffered: true });
     }
 
     public filenameToAbsolutePath(filename: string): string {
@@ -442,5 +442,23 @@ export class LpcFacade {
     public getHighlights(fileName: string, symbolName: string) {
         const context = this.getContext(fileName);
         return context?.getHighlights(symbolName);
+    }
+
+    public parseAllFiles() {
+        // const dirsToProcess = [this.workspaceDir];
+        // while (dirsToProcess.length > 0) {
+        //     const dir = dirsToProcess.pop();
+        //     const files = fs.readdirSync(dir, { withFileTypes: true });
+        //     files.forEach((file) => {
+        //         if (file.isDirectory())
+        //             dirsToProcess.push(path.join(dir, file.name));
+        //         else if (file.name.endsWith(".c") || file.name.endsWith(".h")) {
+        //             const filename = path.join(dir, file.name);
+        //             const txt = fs.readFileSync(filename, "utf8");
+        //             this.loadLpc(filename, txt);
+        //             this.onRunDiagnostics(filename);
+        //         }
+        //     });
+        // }
     }
 }

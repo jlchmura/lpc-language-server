@@ -390,7 +390,15 @@ export class LpcServer {
         this.renameProvider = new RenameProvider(this.facade);
         this.highlighProvider = new HighlightProvider(this.facade);
 
+        setTimeout(() => {
+            this.parseAllFiles();
+        }, 5000);
+
         return result;
+    }
+
+    private parseAllFiles() {
+        this.facade.parseAllFiles();
     }
 
     // private clDisp: Disposable;
