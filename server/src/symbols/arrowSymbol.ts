@@ -48,9 +48,11 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
     public objectRef: ObjectReferenceInfo;
     public objContext: SourceContext;
 
+    public hasEvaluated: boolean = false;
+
     eval(stack: CallStack, scope?: any) {
         const srcValue = this.source.eval(stack) as StackValue;
-
+        this.hasEvaluated = true;
         // only evaluate as a struct if the source object is
         // specifically known to be a struct
         if (srcValue?.type?.name == "struct") {

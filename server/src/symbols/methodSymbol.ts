@@ -82,6 +82,9 @@ export class LpcBaseMethodSymbol
         params: IEvaluatableSymbol[] = [],
         callScope?: RootFrame
     ) {
+        if (this.name == "open") {
+            const i = 0;
+        }
         // add a new stack frame
         const args = new Map<string, StackValue>();
         const locals = new Map<string, StackValue>();
@@ -331,8 +334,10 @@ export class EfunSymbol
         ) as MethodParameterSymbol[];
     }
 
-    eval(stack: CallStack, scope?: any) {
+    eval(stack: CallStack, params: IEvaluatableSymbol[] = [], scope?: any) {
         const ownerProgram = (stack.root.symbol as ContextSymbolTable).owner;
+
+        // handle special efuns cases
         switch (this.name) {
             // NTBLA: put current object on the stack and return that instead of loading a new
             // instance of the object
@@ -360,6 +365,14 @@ export class EfunSymbol
                     this
                 );
         }
+
+        // evaluate params
+        params?.forEach((p) => {
+            const argVal = p.eval(stack) as StackValue;
+            // don't need to store, we're not really running
+            // code for efuns
+            //locals.set(p.name, argVal);
+        });
 
         return scope;
     }

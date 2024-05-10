@@ -832,16 +832,17 @@ export class SourceContext {
                     let lookupSymbolTable = this.symbolTable;
 
                     // the invocation will cache the function symbol.. try to find that first
-                    if (symbol.nextSibling instanceof MethodInvocationSymbol) {
+                    if (
+                        !!(symbol.nextSibling as MethodInvocationSymbol)
+                            ?.methodSymbol
+                    ) {
                         const methodInvoc =
                             symbol.nextSibling as MethodInvocationSymbol;
                         symbol = methodInvoc.methodSymbol;
                         lookupSymbolTable =
                             symbol.symbolTable as ContextSymbolTable;
-                    }
-
-                    // if the symbol wasn't cached, try to look it up in other ways
-                    if (!symbol) {
+                    } else {
+                        // if the symbol wasn't cached, try to look it up in other ways
                         let parentSymbol: BaseSymbol;
                         if (
                             (parentSymbol = symbol.getParentOfType(ArrowSymbol))

@@ -1,6 +1,6 @@
-import { LpcFacade } from "./facade";
+import * as path from "path";
+import { performance } from "perf_hooks";
 import {
-    ColorInformation,
     Connection,
     DidChangeConfigurationNotification,
     InitializeParams,
@@ -9,21 +9,22 @@ import {
     TextDocuments,
 } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import * as path from "path";
 import { URI } from "vscode-uri";
+import { LpcFacade } from "./facade";
 import { LpcSymbolProvider } from "./SymbolProvider";
 import { LpcDefinitionProvider } from "./DefinitionProvider";
 import { CodeLensProvider } from "./CodeLensProvider";
-
 import { HoverProvider } from "./HoverProvider";
 import { DiagnosticProvider } from "./DiagnosticProvider";
-import { CompletionProvider } from "./CompletionProvider";
+import {
+    CompletionProvider,
+    isPotentiallyValidDocCompletionPosition,
+} from "./CompletionProvider";
 import { SignatureHelpProvider } from "./SignatureHelpProvider";
 import { RenameProvider } from "./RenameProvider";
 import { HighlightProvider } from "./HighlightProvider";
-import { performance } from "perf_hooks";
 
-const CHANGE_DEBOUNCE_MS = 250;
+const CHANGE_DEBOUNCE_MS = 150;
 
 export class LpcServer {
     private importDir: string[] | undefined;
@@ -35,7 +36,6 @@ export class LpcServer {
     private hasConfigurationCapability = false;
     private hasWorkspaceFolderCapability = false;
     private hasDiagnosticRelatedInformationCapability = false;
-    private foldingRangeLimit = Number.MAX_VALUE;
 
     // providers
     private symbolProvider: LpcSymbolProvider;
@@ -105,6 +105,7 @@ export class LpcServer {
             }
         });
 
+        // implementation provider
         this.connection.onImplementation((params) => {
             const doc = this.documents.get(params.textDocument.uri);
             const result = this.definitionProvider.getDefinition(
@@ -167,6 +168,7 @@ export class LpcServer {
             }
         });
 
+        // Signature Help Provider
         this.connection.onSignatureHelp((params) => {
             const doc = this.documents.get(params.textDocument.uri);
             try {
@@ -211,7 +213,6 @@ export class LpcServer {
 
         this.documents.onDidChangeContent((e) => {
             const filename = e.document.uri;
-            //console.debug("OnChange", e.document.uri);
             try {
                 // always update text, but debounce reparse and other updates
                 this.facade.setText(e.document);
@@ -423,11 +424,5 @@ export class LpcServer {
                 version,
             });
         }
-        // this.connection.sendDiagnostics({
-        //     uri: document.uri,
-        //     diagnostics: results,
-        //     version: document.version,
-        // });
-        //return results;
     }
 }

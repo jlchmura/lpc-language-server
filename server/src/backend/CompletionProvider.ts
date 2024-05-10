@@ -17,17 +17,13 @@ import {
     translateCompletionKind,
 } from "../symbols/Symbol";
 import { EfunSymbols } from "./EfunsLDMud";
-import {
-    EfunSymbol,
-    LpcBaseMethodSymbol,
-    MethodSymbol,
-} from "../symbols/methodSymbol";
+import { LpcBaseMethodSymbol, MethodSymbol } from "../symbols/methodSymbol";
 import { LpcTypes, SymbolKind } from "../types";
 import { ArrowSymbol } from "../symbols/arrowSymbol";
 import { ContextSymbolTable } from "./ContextSymbolTable";
 import { VariableSymbol } from "../symbols/variableSymbol";
 import { BaseSymbol, ScopedSymbol, SymbolTable } from "antlr4-c3";
-import { LpcBaseSymbol } from "../symbols/base";
+
 import { getSelfOrParentOfType, getSymbolsFromAllParents } from "../utils";
 
 export class CompletionProvider {
@@ -37,7 +33,7 @@ export class CompletionProvider {
         document: TextDocument,
         position: Position
     ): Promise<CompletionItem[]> {
-        if (this.isPotentiallyValidDocCompletionPosition(document, position)) {
+        if (isPotentiallyValidDocCompletionPosition(document, position)) {
             return this.provideDocCommentCompletion(document, position);
         } else {
             return this.provideCodeCompletionItems(document, position);
@@ -247,27 +243,27 @@ export class CompletionProvider {
             },
         ];
     }
+}
 
-    private isPotentiallyValidDocCompletionPosition(
-        document: TextDocument,
-        position: Position
-    ): boolean {
-        // Only show the JSdoc completion when the everything before the cursor is whitespace
-        // or could be the opening of a comment
-        const lineNum = position.line;
-        const line = document.getText(
-            Range.create(lineNum, 0, lineNum, integer.MAX_VALUE)
-        );
-        const prefix = line.slice(0, position.character);
-        if (
-            !prefix.endsWith("*") ||
-            !/^\s*$|\/\*\*\s*$|^\s*\/\*\*+\s*$/.test(prefix)
-        ) {
-            return false;
-        }
-
-        // And everything after is possibly a closing comment or more whitespace
-        const suffix = line.slice(position.character);
-        return /^\s*(\*+\/)?\s*$/.test(suffix);
+export function isPotentiallyValidDocCompletionPosition(
+    document: TextDocument,
+    position: Position
+): boolean {
+    // Only show the JSdoc completion when the everything before the cursor is whitespace
+    // or could be the opening of a comment
+    const lineNum = position.line;
+    const line = document.getText(
+        Range.create(lineNum, 0, lineNum, integer.MAX_VALUE)
+    );
+    const prefix = line.slice(0, position.character);
+    if (
+        !prefix.endsWith("*") ||
+        !/^\s*$|\/\*\*\s*$|^\s*\/\*\*+\s*$/.test(prefix)
+    ) {
+        return false;
     }
+
+    // And everything after is possibly a closing comment or more whitespace
+    const suffix = line.slice(position.character);
+    return /^\s*(\*+\/)?\s*$/.test(suffix);
 }
