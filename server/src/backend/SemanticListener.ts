@@ -282,7 +282,7 @@ export class SemanticListener extends LPCParserListener {
                 // find first arg that wasn't provided
                 const notProvidedArg = methodParams[callArgs.length];
                 const entry = this.logDiagnostic(
-                    `Expected ${methodParams.length} arguments, but got ${callArgs.length}`,
+                    `Wrong number of arguments to ${methodName}: expected ${methodParams.length}, got ${callArgs.length}`,
                     rangeStart,
                     rangeEnd
                 );

@@ -22,7 +22,7 @@ import { LpcTypes, SymbolKind } from "../types";
 import { ArrowSymbol } from "../symbols/arrowSymbol";
 import { ContextSymbolTable } from "./ContextSymbolTable";
 import { VariableSymbol } from "../symbols/variableSymbol";
-import { BaseSymbol, ScopedSymbol } from "antlr4-c3";
+import { BaseSymbol, ScopedSymbol, SymbolTable } from "antlr4-c3";
 import { LpcBaseSymbol } from "../symbols/base";
 import { getSelfOrParentOfType, getSymbolsFromAllParents } from "../utils";
 
@@ -85,14 +85,13 @@ export class CompletionProvider {
         const symbolTable = this.backend.getContext(document.uri)?.symbolTable;
         const symbols: BaseSymbol[] = [];
 
-        if (symbol instanceof ContextSymbolTable) {
+        if (symbol instanceof SymbolTable) {
             // program level
             symbols.push(
                 ...(await symbolTable.getAllSymbols(MethodSymbol, false)),
                 ...(await symbolTable.getAllSymbols(VariableSymbol, false))
             );
-        }
-        if (symbol instanceof ArrowSymbol) {
+        } else if (symbol instanceof ArrowSymbol) {
             symbols.push(
                 ...(await symbol.objContext.symbolTable?.getAllSymbols(
                     MethodSymbol,
