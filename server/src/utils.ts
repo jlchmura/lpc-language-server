@@ -12,6 +12,7 @@ import {
     TypedSymbol,
     SymbolConstructor,
     ScopedSymbol,
+    SymbolTable,
 } from "antlr4-c3";
 import { ContextSymbolTable } from "./backend/ContextSymbolTable";
 import { URI } from "vscode-uri";

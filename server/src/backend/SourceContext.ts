@@ -57,6 +57,7 @@ import {
 } from "vscode-languageserver";
 import {
     firstEntry,
+    getSibling,
     lexRangeFromContext as lexRangeFromContext,
     normalizeFilename,
     pushIfDefined,
@@ -74,6 +75,7 @@ import {
     EfunSymbol,
     FunctionIdentifierSymbol,
     MethodDeclarationSymbol,
+    MethodInvocationSymbol,
     MethodSymbol,
 } from "../symbols/methodSymbol";
 import { CloneObjectSymbol } from "../symbols/objectSymbol";
@@ -829,30 +831,45 @@ export class SourceContext {
                     const symbolsToReturn: BaseSymbol[] = [];
                     let lookupSymbolTable = this.symbolTable;
 
-                    let parentSymbol: BaseSymbol;
-                    if ((parentSymbol = symbol.getParentOfType(ArrowSymbol))) {
-                        const callOtherSymbol = parentSymbol as ArrowSymbol;
-                        // if the symbol object wasn't loaded, just return undefined
-                        // that error will be caught and reported elsewhere
-                        if (!callOtherSymbol.objContext) return undefined;
-
+                    // the invocation will cache the function symbol.. try to find that first
+                    if (symbol.nextSibling instanceof MethodInvocationSymbol) {
+                        const methodInvoc =
+                            symbol.nextSibling as MethodInvocationSymbol;
+                        symbol = methodInvoc.methodSymbol;
                         lookupSymbolTable =
-                            callOtherSymbol.objContext.symbolTable;
-                    } else if (
-                        (parentSymbol = symbol.parent.getParentOfType(
-                            InheritSuperAccessorSymbol
-                        ))
-                    ) {
-                        const inheritSymbol =
-                            parentSymbol as InheritSuperAccessorSymbol;
-                        lookupSymbolTable = inheritSymbol.objSymbolTable;
+                            symbol.symbolTable as ContextSymbolTable;
                     }
-                    // look for the method implementation
-                    symbol = resolveOfTypeSync(
-                        lookupSymbolTable,
-                        name,
-                        MethodDeclarationSymbol
-                    );
+
+                    // if the symbol wasn't cached, try to look it up in other ways
+                    if (!symbol) {
+                        let parentSymbol: BaseSymbol;
+                        if (
+                            (parentSymbol = symbol.getParentOfType(ArrowSymbol))
+                        ) {
+                            const callOtherSymbol = parentSymbol as ArrowSymbol;
+                            // if the symbol object wasn't loaded, just return undefined
+                            // that error will be caught and reported elsewhere
+                            if (!callOtherSymbol.objContext) return undefined;
+
+                            lookupSymbolTable =
+                                callOtherSymbol.objContext.symbolTable;
+                        } else if (
+                            (parentSymbol = symbol.parent.getParentOfType(
+                                InheritSuperAccessorSymbol
+                            ))
+                        ) {
+                            const inheritSymbol =
+                                parentSymbol as InheritSuperAccessorSymbol;
+                            lookupSymbolTable = inheritSymbol.objSymbolTable;
+                        }
+                        // look for the method implementation
+                        symbol = resolveOfTypeSync(
+                            lookupSymbolTable,
+                            name,
+                            MethodDeclarationSymbol
+                        );
+                    }
+
                     pushIfDefined(symbolsToReturn, symbol);
 
                     // also add the method header

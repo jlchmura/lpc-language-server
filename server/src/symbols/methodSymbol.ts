@@ -26,7 +26,13 @@ import {
 import { SourceContext } from "../backend/SourceContext";
 import { CallOtherSymbol, ObjectReferenceInfo } from "./objectSymbol";
 import { ContextSymbolTable } from "../backend/ContextSymbolTable";
-import { CallStack, StackFrame, StackValue } from "../backend/CallStack";
+import {
+    CallStack,
+    RootFrame,
+    StackFrame,
+    StackValue,
+    getFunctionFromFrame,
+} from "../backend/CallStack";
 import { ParserRuleContext, Token } from "antlr4ng";
 import { addDiagnostic } from "./Symbol";
 import { InheritSuperAccessorSymbol } from "./inheritSymbol";
@@ -71,15 +77,23 @@ export class LpcBaseMethodSymbol
     }
     nameRange: ILexicalRange;
 
-    eval(stack: CallStack, params: IEvaluatableSymbol[] = []) {
+    eval(
+        stack: CallStack,
+        params: IEvaluatableSymbol[] = [],
+        callScope?: RootFrame
+    ) {
         // add a new stack frame
         const args = new Map<string, StackValue>();
         const locals = new Map<string, StackValue>();
+
+        // params eval on the main stack
         params?.forEach((p) => {
             const argVal = p.eval(stack) as StackValue;
             locals.set(p.name, argVal);
         });
-        stack.push(new StackFrame(this, args, locals, stack.root));
+
+        // the function's root frame is the callScope (if it was passed)
+        stack.push(new StackFrame(this, args, locals, callScope ?? stack.root));
 
         let result: any = 0;
 
@@ -129,8 +143,8 @@ export class MethodInvocationSymbol
     extends ScopedSymbol
     implements IEvaluatableSymbol, IKindSymbol
 {
-    private methodName: string;
-    private methodSymbol: MethodSymbol;
+    public methodName: string;
+    public methodSymbol: MethodSymbol;
 
     public getArguments() {
         return getSymbolsOfTypeSync(this, ExpressionSymbol);
@@ -144,7 +158,10 @@ export class MethodInvocationSymbol
         super(name);
     }
 
-    eval(stack: CallStack, scope?: any) {
+    eval(stack: CallStack, callScope?: RootFrame) {
+        // if a callScope was passed, that stack frame is used for fn lookup
+        const fnLookupFrame = callScope ?? stack.getCurrentRoot();
+
         // find the function that this invocation points to
         const funcIdValue = stack.getValue<string>(FUNCTION_NAME_KEY);
         stack.clearValue(FUNCTION_NAME_KEY);
@@ -158,11 +175,14 @@ export class MethodInvocationSymbol
             methodSymbol = this.methodSymbol =
                 superAcc.objSymbolTable?.resolveSync(
                     methodName,
-                    true
+                    false
                 ) as MethodSymbol;
         } else {
             // just get method out of stack
-            methodSymbol = this.methodSymbol = stack.getFunction(methodName);
+            methodSymbol = this.methodSymbol = getFunctionFromFrame(
+                fnLookupFrame,
+                methodName
+            );
         }
 
         if (!funcIdValue) {
@@ -193,7 +213,7 @@ export class MethodInvocationSymbol
         //     }
         // }
 
-        return methodSymbol?.eval(stack, prms);
+        return methodSymbol?.eval(stack, prms, callScope);
     }
 
     /**

@@ -4,6 +4,7 @@ import {
     RootFrame,
     StackFrame,
     StackValue,
+    addFunctionToFrame,
 } from "../backend/CallStack";
 import { LpcBaseMethodSymbol, MethodInvocationSymbol } from "./methodSymbol";
 import { ObjectReferenceInfo } from "./objectSymbol";
@@ -176,28 +177,19 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
             new Map<string, any>(),
             new Map<string, any>()
         );
-        const stackFrame = new StackFrame(
-            funSym,
-            new Map<string, any>(),
-            new Map<string, any>(),
-            rootFrame
-        );
-
-        stack.push(stackFrame);
 
         // since we have a new root frame, we need to add the functions for the arrow's program
         // NTBLA: create the root frame in the source context so taht funs don't have to be re-added every time
         const funs =
             getSymbolsOfTypeSync(symTbl, LpcBaseMethodSymbol, false) ?? [];
         funs.forEach((f) => {
-            stack.addFunction(f.name, f);
+            addFunctionToFrame(rootFrame, f.name, f);
         });
 
         //const result = funSym.eval(stack, argVals);
-        this.target?.eval(stack); // eval target again to put fn name on stack
-        const result = methodInvok?.eval(stack);
+        this.target?.eval(stack, rootFrame); // eval target again to put fn name on stack
+        const result = methodInvok?.eval(stack, rootFrame);
 
-        stack.pop();
         return result;
     }
 

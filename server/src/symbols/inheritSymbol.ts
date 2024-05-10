@@ -1,4 +1,4 @@
-import { ScopedSymbol } from "antlr4-c3";
+import { ScopedSymbol, SymbolTable } from "antlr4-c3";
 import {
     IEvaluatableSymbol,
     LpcBaseSymbol,
@@ -59,17 +59,30 @@ export class InheritSuperAccessorSymbol
             // if there is no filename, we have to find the inherit symbol that this accessor is attached to
             // and use the first one.  (this technically allows a glob pattern)
             // get the root symbol table
+
+            // NTBLA this is incorrect. need to search all inherits for the first one that has this symbol
+            // but exclude the current doc's symbol table
+
             const tbl = this.symbolTable;
-            const inheritSymbol = firstEntry(
-                getSymbolsOfTypeSync(tbl, InheritSymbol)
+            const inheritSymbols = getSymbolsOfTypeSync(
+                tbl,
+                InheritSymbol,
+                false
             );
-            if (!!inheritSymbol?.filename) {
-                this.objContext = this.loadObject(inheritSymbol.filename);
-                this.objSymbolTable = this.objContext
-                    .symbolTable as ContextSymbolTable;
-            } else {
-                // ntbla add diags
-            }
+            this.objSymbolTable = new ContextSymbolTable(
+                `inherit-${this.filename}`,
+                {}
+            );
+
+            // loop through inheritSymbols, load their contexts and add their symbol tables
+            // as dependencies to this symbol table
+            const depTables = inheritSymbols.map((inheritSymbol) => {
+                const ctx = this.loadObject(inheritSymbol.filename);
+                const tbl = ctx.symbolTable as ContextSymbolTable;
+                return tbl;
+            });
+
+            this.objSymbolTable.addDependencies(...depTables);
         } else if (this.filename == "efun") {
             this.objSymbolTable = SourceContext.efunSymbols;
         } else {

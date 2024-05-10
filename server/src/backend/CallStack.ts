@@ -53,8 +53,8 @@ export class CallStack {
         return this.stack.pop();
     }
 
-    public peek() {
-        return this.stack[this.stack.length - 1];
+    public peek(offset: number = 1) {
+        return this.stack[this.stack.length - offset];
     }
 
     public get length() {
@@ -76,17 +76,14 @@ export class CallStack {
 
     /** add a function to the call stack */
     public addFunction(name: string, value: MethodSymbol) {
-        this.getRootForFrame().locals.set(
-            name,
-            new StackValue(value, value.returnType, value)
-        );
+        addFunctionToFrame(this.getCurrentRoot(), name, value);
     }
 
-    protected getRootForFrame() {
+    public getCurrentRoot() {
         let frame = this.peek();
 
         while (!!frame) {
-            if (!frame.parent) return frame;
+            if (!frame.parent) return frame as RootFrame;
             frame = frame.parent;
         }
 
@@ -94,7 +91,7 @@ export class CallStack {
     }
 
     public doesFunctionExist(name: string): boolean {
-        const rootFrame = this.getRootForFrame();
+        const rootFrame = this.getCurrentRoot();
         return (
             rootFrame.locals.has(name) &&
             rootFrame.locals.get(name).value instanceof LpcBaseMethodSymbol
@@ -103,14 +100,7 @@ export class CallStack {
 
     /** get a function */
     public getFunction(name: string): MethodSymbol {
-        const rootFrame = this.getRootForFrame();
-        const local = rootFrame.locals.get(name);
-        if (local?.symbol instanceof LpcBaseMethodSymbol) {
-            return local.symbol;
-        } else {
-            // TODO: send to diag?
-            console.warn("Function " + name + " not found in stack");
-        }
+        return getFunctionFromFrame(this.getCurrentRoot(), name);
     }
 
     public addLocal(name: string, value: StackValue) {
@@ -146,13 +136,7 @@ export class CallStack {
     protected walkStackToProgram<T>(
         action: (frame: StackFrame) => T | undefined
     ) {
-        let parent = this.peek();
-        while (!!parent) {
-            const result = action(parent);
-            if (result) return result;
-            parent = parent.parent;
-        }
-        return undefined;
+        return walkStackToProgram(this.peek(), action);
     }
 
     public setReturnValue(value: any, sym: BaseSymbol) {
@@ -168,22 +152,12 @@ export class CallStack {
     }
 
     public clearValue(name: string) {
-        const result = this.walkStackToProgram((frame) => {
-            if (frame.locals.has(name)) {
-                frame.locals.delete(name);
-                return true;
-            }
-        });
-
-        return false;
+        const result = this.peek().clearValue(name);
+        return result;
     }
 
     public getValue<T>(name: string): StackValue {
-        const result = this.walkStackToProgram((frame) => {
-            if (frame.locals.has(name)) {
-                return frame.locals.get(name) as StackValue<T>;
-            }
-        });
+        const result = this.peek().getValue<T>(name);
 
         if (!result) {
             console.warn("Variable " + name + " not found in stack");
@@ -206,6 +180,64 @@ export class StackFrame {
     ) {
         //super(symbol, locals);
     }
+
+    public getValue<T>(name: string): StackValue {
+        const result = walkStackToProgram(this, (frame) => {
+            if (frame.locals.has(name)) {
+                return frame.locals.get(name) as StackValue<T>;
+            }
+        });
+
+        if (!result) {
+            console.warn("Variable " + name + " not found in stack");
+        }
+        return result;
+    }
+
+    public clearValue(name: string) {
+        const result = walkStackToProgram(this, (frame) => {
+            if (frame.locals.has(name)) {
+                frame.locals.delete(name);
+                return true;
+            }
+        });
+
+        return false;
+    }
 }
 
 export class RootFrame extends StackFrame {}
+
+export function addFunctionToFrame(
+    frame: RootFrame,
+    name: string,
+    value: MethodSymbol
+) {
+    frame.locals.set(name, new StackValue(value, value.returnType, value));
+}
+
+export function walkStackToProgram<T>(
+    frame: StackFrame,
+    action: (frame: StackFrame) => T | undefined
+) {
+    let parent = frame;
+    while (!!parent) {
+        const result = action(parent);
+        if (result) return result;
+        parent = parent.parent;
+    }
+    return undefined;
+}
+
+export function getFunctionFromFrame(
+    frame: RootFrame,
+    name: string
+): MethodSymbol {
+    const local = frame.locals.get(name);
+    if (local?.symbol instanceof LpcBaseMethodSymbol) {
+        return local.symbol;
+    } else {
+        // TODO: send to diag?
+        console.warn("Function " + name + " not found in stack");
+    }
+}
