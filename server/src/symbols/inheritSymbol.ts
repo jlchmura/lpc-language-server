@@ -60,9 +60,6 @@ export class InheritSuperAccessorSymbol
             // and use the first one.  (this technically allows a glob pattern)
             // get the root symbol table
 
-            // NTBLA this is incorrect. need to search all inherits for the first one that has this symbol
-            // but exclude the current doc's symbol table
-
             const tbl = this.symbolTable;
             const inheritSymbols = getSymbolsOfTypeSync(
                 tbl,

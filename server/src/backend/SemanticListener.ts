@@ -215,9 +215,12 @@ export class SemanticListener extends LPCParserListener {
 
         // TODO:  this is wrong. We need to evaluate as we add symbols
         // to the stack to match the order in which LPC runs code.
+        const fn1 = stack.getFunction("query_data");
 
         // now add this program to the stack
         this.addPogramToStack(progSymbol, stack);
+
+        const fn2 = stack.getFunction("query_data");
 
         // now evaluate this program
         for (const child of progSymbol.children) {
@@ -231,15 +234,17 @@ export class SemanticListener extends LPCParserListener {
         for (const child of progSymbol.children) {
             // put each child on the stack.  Evaluate variables as go.
             // we'll come back and evaluate methods later.
-            if (child instanceof MethodSymbol) {
+            if (child instanceof LpcBaseMethodSymbol) {
                 stack.addFunction(child.name, child);
-            } else if (
-                child instanceof LpcBaseMethodSymbol &&
-                !stack.doesFunctionExist(child.name)
-            ) {
-                // add the method to the stack, but only if an actual method definition doesn't already exist
-                stack.addFunction(child.name, child);
-            } else {
+            }
+            // else if (
+            //     child instanceof LpcBaseMethodSymbol &&
+            //     !stack.doesFunctionExist(child.name)
+            // ) {
+            //     // add the method to the stack, but only if an actual method definition doesn't already exist
+            //     stack.addFunction(child.name, child);
+            // }
+            else {
                 if (child instanceof VariableSymbol) {
                     const result = child.eval(stack);
                 } else if (isInstanceOfIEvaluatableSymbol(child)) {

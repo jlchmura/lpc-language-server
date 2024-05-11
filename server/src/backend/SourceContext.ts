@@ -877,7 +877,7 @@ export class SourceContext {
                     symbol = resolveOfTypeSync(
                         lookupSymbolTable,
                         name,
-                        MethodSymbol
+                        MethodDeclarationSymbol
                     );
                     pushIfDefined(symbolsToReturn, symbol);
 

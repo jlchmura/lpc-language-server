@@ -184,6 +184,7 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
         // NTBLA: create the root frame in the source context so taht funs don't have to be re-added every time
         const funs =
             getSymbolsOfTypeSync(symTbl, LpcBaseMethodSymbol, false) ?? [];
+        funs.reverse(); // reverse so that the last function is added first
         funs.forEach((f) => {
             addFunctionToFrame(rootFrame, f.name, f);
         });

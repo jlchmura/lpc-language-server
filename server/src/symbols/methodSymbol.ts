@@ -175,11 +175,24 @@ export class MethodInvocationSymbol
         const superAcc = this.getParentOfType(InheritSuperAccessorSymbol);
         if (!!superAcc) {
             // this is a special case where we need to get the method from the super accessor's symbol table
-            methodSymbol = this.methodSymbol =
-                superAcc.objSymbolTable?.resolveSync(
-                    methodName,
-                    false
-                ) as MethodSymbol;
+            // try actual method first, then definitions & efuns
+
+            // NTBLA: This is actualy incorrectly - each inherit should add a frame to the stack so that we
+            // can just walk up the stack and look for the inherited method.
+
+            methodSymbol = resolveOfTypeSync(
+                superAcc.objSymbolTable,
+                methodName,
+                MethodSymbol,
+                false
+            );
+            methodSymbol ??= resolveOfTypeSync(
+                superAcc.objSymbolTable,
+                methodName,
+                LpcBaseMethodSymbol,
+                false
+            );
+            this.methodSymbol = methodSymbol;
         } else {
             // just get method out of stack
             methodSymbol = this.methodSymbol = getFunctionFromFrame(
