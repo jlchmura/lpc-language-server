@@ -37,7 +37,7 @@ import { ParserRuleContext, Token } from "antlr4ng";
 import { addDiagnostic } from "./Symbol";
 import { InheritSuperAccessorSymbol } from "./inheritSymbol";
 
-export const MAX_CALLDEPTH_SIZE = 10;
+export const MAX_CALLDEPTH_SIZE = 25;
 const OBJ_PLAYER_FILENAME = "/obj/player";
 const FUNCTION_NAME_KEY = "$$$function_id$$$";
 
@@ -104,6 +104,7 @@ export class LpcBaseMethodSymbol
         if (stack.length > MAX_CALLDEPTH_SIZE) {
             const stackTrace = stack.getStackTrace();
             //console.debug("Max call stack exceeded: " + this.name, stackTrace);
+            stack.pop();
             return undefined;
         }
 
