@@ -118,8 +118,11 @@ import {
     InheritSuperAccessorSymbol,
     InheritSymbol,
 } from "../symbols/inheritSymbol";
+import { LpcFileHandler } from "./FileHandler";
 
-type ScopedSymbolConstructor = new (...args: any[]) => ScopedSymbol;
+type GenericConstructorParameters<T> = ConstructorParameters<
+    new (...args: any[]) => T
+>;
 
 export class DetailsVisitor
     extends AbstractParseTreeVisitor<ScopedSymbol>
@@ -135,8 +138,8 @@ export class DetailsVisitor
         private backend: LpcFacade,
         private symbolTable: ContextSymbolTable,
         private imports: ContextImportInfo[],
-        private objectImports: string[],
-        private tokenBuilder: SemanticTokenCollection
+        private tokenBuilder: SemanticTokenCollection,
+        private fileHandler: LpcFileHandler
     ) {
         super();
     }
@@ -145,6 +148,7 @@ export class DetailsVisitor
      * Parse a synthentic code block from a define directive
      * @param str code block string
      * @returns symbol table
+     * @deprecated
      */
     private parseDefine(str: string) {
         this.defineLexer.inputStream = CharStream.fromString(str);
@@ -155,23 +159,20 @@ export class DetailsVisitor
         this.defineParser.interpreter.predictionMode = PredictionMode.SLL;
         // no recovery needed, just bail
         this.defineParser.errorHandler = new BailErrorStrategy();
-
         try {
             const table = new ContextSymbolTable("define", {
                 allowDuplicateSymbols: true,
             });
             table.addDependencies(this.symbolTable);
-
             table.tree = this.defineParser.program();
             const vis = new DetailsVisitor(
                 this.backend,
                 table,
                 [],
-                [],
-                this.tokenBuilder
+                this.tokenBuilder,
+                this.fileHandler
             );
             table.tree.accept(vis);
-
             return table;
         } catch (e) {
             const i = 0;
@@ -307,74 +308,82 @@ export class DetailsVisitor
 
         if (ctx.ARROW().length > 0) {
             // if there is an arrow and invocation, then this is a call_other expression
-            return this.withScope(ctx, ArrowSymbol, ["->"], (symbol) => {
-                // first find the arrow because there can be multiple expressions before it
-                const arrowIdx = ctx.children.findIndex(
-                    (c) => c.getText() === "->"
-                );
-
-                // everything up to the arrow goes into an expression
-                const exprCtx = ctx.children.slice(0, arrowIdx);
-                if (exprCtx.length > 1) {
-                    // parse children into an expression
-                    const mergedCtx = new PrimaryExpressionContext(
-                        ctx,
-                        ctx.invokingState
+            return this.withScope(
+                ctx,
+                ArrowSymbol,
+                ["->", this.fileHandler],
+                (symbol) => {
+                    // first find the arrow because there can be multiple expressions before it
+                    const arrowIdx = ctx.children.findIndex(
+                        (c) => c.getText() === "->"
                     );
-                    mergedCtx.start = (exprCtx[0] as ParserRuleContext).start;
-                    mergedCtx.stop = (
-                        exprCtx[exprCtx.length - 1] as ParserRuleContext
-                    ).stop;
-                    this.withScope(
-                        mergedCtx,
-                        ExpressionSymbol,
-                        ["#primary-expression#"],
-                        (s) => {
-                            exprCtx.forEach((c) => this.visit(c));
-                        }
-                    );
-                } else if (exprCtx.length === 1) {
-                    // if there's only one child, then just visit it
-                    // and the first child becomes the source Object
-                    this.visit(exprCtx[0]);
-                } else {
-                    // this shoudn't happen
-                    throw new Error("Invalid call_other expression");
+
+                    // everything up to the arrow goes into an expression
+                    const exprCtx = ctx.children.slice(0, arrowIdx);
+                    if (exprCtx.length > 1) {
+                        // parse children into an expression
+                        const mergedCtx = new PrimaryExpressionContext(
+                            ctx,
+                            ctx.invokingState
+                        );
+                        mergedCtx.start = (
+                            exprCtx[0] as ParserRuleContext
+                        ).start;
+                        mergedCtx.stop = (
+                            exprCtx[exprCtx.length - 1] as ParserRuleContext
+                        ).stop;
+                        this.withScope(
+                            mergedCtx,
+                            ExpressionSymbol,
+                            ["#primary-expression#"],
+                            (s) => {
+                                exprCtx.forEach((c) => this.visit(c));
+                            }
+                        );
+                    } else if (exprCtx.length === 1) {
+                        // if there's only one child, then just visit it
+                        // and the first child becomes the source Object
+                        this.visit(exprCtx[0]);
+                    } else {
+                        // this shoudn't happen
+                        throw new Error("Invalid call_other expression");
+                    }
+
+                    // we should end up with one child, which is the source object
+                    const sourceObject = symbol.lastChild as IEvaluatableSymbol;
+
+                    // after the arrow we should have a call other target and a method invocation
+                    // but those may be missing if the user is typing and the code is incomplete
+                    const callOtherTargetCtx = ctx._target;
+                    const methodInvocationCtx = ctx._invocation;
+
+                    let target: IEvaluatableSymbol;
+                    let methodInvoc: MethodInvocationSymbol;
+
+                    if (!!callOtherTargetCtx) {
+                        this.visit(callOtherTargetCtx);
+                        target = symbol.lastChild as IEvaluatableSymbol;
+                        this.markContext(
+                            callOtherTargetCtx,
+                            SemanticTokenTypes.Method
+                        );
+                    }
+                    if (!!methodInvocationCtx) {
+                        this.visitMethodInvocation(methodInvocationCtx);
+                        methodInvoc =
+                            symbol.lastChild as MethodInvocationSymbol;
+                    }
+
+                    // at this point we have to figure out which type of symbol we're dealing with \
+                    // and fill in its properties
+                    symbol.source = sourceObject;
+                    symbol.target = target;
+                    symbol.methodInvocation = methodInvoc;
+                    symbol.functionName = target?.name;
+
+                    return symbol;
                 }
-
-                // we should end up with one child, which is the source object
-                const sourceObject = symbol.lastChild as IEvaluatableSymbol;
-
-                // after the arrow we should have a call other target and a method invocation
-                // but those may be missing if the user is typing and the code is incomplete
-                const callOtherTargetCtx = ctx._target;
-                const methodInvocationCtx = ctx._invocation;
-
-                let target: IEvaluatableSymbol;
-                let methodInvoc: MethodInvocationSymbol;
-
-                if (!!callOtherTargetCtx) {
-                    this.visit(callOtherTargetCtx);
-                    target = symbol.lastChild as IEvaluatableSymbol;
-                    this.markContext(
-                        callOtherTargetCtx,
-                        SemanticTokenTypes.Method
-                    );
-                }
-                if (!!methodInvocationCtx) {
-                    this.visitMethodInvocation(methodInvocationCtx);
-                    methodInvoc = symbol.lastChild as MethodInvocationSymbol;
-                }
-
-                // at this point we have to figure out which type of symbol we're dealing with \
-                // and fill in its properties
-                symbol.source = sourceObject;
-                symbol.target = target;
-                symbol.methodInvocation = methodInvoc;
-                symbol.functionName = target?.name;
-
-                return symbol;
-            });
+            );
         } else {
             // standard expression
             return this.withScope(
@@ -503,9 +512,14 @@ export class DetailsVisitor
         let name = "#clone-object#";
         if (ctx.LoadObject()) name = "#load-object#";
 
-        return this.withScope(ctx, CloneObjectSymbol, [name], (s) => {
-            return this.visitChildren(ctx);
-        });
+        return this.withScope(
+            ctx,
+            CloneObjectSymbol,
+            [name, this.fileHandler],
+            (s) => {
+                return this.visitChildren(ctx);
+            }
+        );
     };
 
     visitStructVariableDeclaration = (
@@ -610,7 +624,7 @@ export class DetailsVisitor
         let filename = ctx.directiveIncludeFile().getText();
 
         const symbol = this.addNewSymbol(IncludeSymbol, ctx, filename);
-        this.imports.push({ filename, symbol });
+        symbol.isLoaded = this.fileHandler.doesImportFile(filename);
 
         return undefined;
     };
@@ -634,7 +648,7 @@ export class DetailsVisitor
         return this.withScope(
             ctx,
             InheritSuperAccessorSymbol,
-            ["#inherit-super#" + filename, filename],
+            ["#inherit-super#" + filename, filename, this.fileHandler],
             (s) => {
                 return this.visitChildren(ctx);
             }
@@ -955,8 +969,8 @@ export class DetailsVisitor
 
     protected withScope<T, S extends ScopedSymbol>(
         tree: ParseTree,
-        type: new (...args: any[]) => S,
-        args: any[],
+        type: new (...args: GenericConstructorParameters<T>) => S,
+        args: GenericConstructorParameters<T>,
         action: (symbol: S) => T
     ): T {
         const scope = this.symbolTable.addNewSymbolOfType(

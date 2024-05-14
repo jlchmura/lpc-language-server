@@ -88,7 +88,7 @@ efun("m_values", LpcTypes.mixedArrayType, true, ["map", LpcTypes.mappingType], [
 efun("map_objects", LpcTypes.mixedArrayType, true, ["arr", LpcTypes.objectArrayType], ["fun", LpcTypes.stringType], ["extra", LpcTypes.mixedType], ["args...", LpcTypes.mixedType, true]);
 efun("mkmapping", LpcTypes.mappingType, true, ["...arr", LpcTypes.mixedArrayType, true]);
 efun("mkdir", LpcTypes.intType, false, ["path", LpcTypes.stringType]);
-efun("move_object", LpcTypes.voidType, false, ["item", LpcTypes.mixedType], ["dest", LpcTypes.mixedType]);
+efun("move_object", LpcTypes.voidType, true, ["item", LpcTypes.mixedType], ["dest", LpcTypes.mixedType]);
 efun("next_inventory", LpcTypes.objectType, false, ["ob", LpcTypes.objectType]);
 efun("notify_fail", LpcTypes.voidType, false, ["msg", LpcTypes.stringType]);
 efun("object_info", LpcTypes.mixedType, true, ["ob", LpcTypes.objectType],["what", LpcTypes.intType]);

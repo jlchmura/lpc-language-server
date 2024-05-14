@@ -205,7 +205,7 @@ export class LpcServer {
         this.documents.onDidOpen((e) => {
             this.facade.loadLpc(e.document.uri, e.document.getText());
 
-            this.processDiagnostic(e.document);
+            this.processDiagnostic(e.document.uri, e.document.version);
         });
         this.documents.onDidClose((e) => {
             this.facade.releaseLpc(e.document.uri);
@@ -296,7 +296,7 @@ export class LpcServer {
         this.codeLenseProvider.resolveCodeLens;
         this.facade.reparse(filename);
 
-        this.processDiagnostic(document);
+        this.processDiagnostic(document.uri, document.version);
 
         //force refresh codelense
         //this.registerCodelensProvider();
@@ -375,7 +375,9 @@ export class LpcServer {
             const doc = this.documents.get(uri);
             if (!!doc) {
                 //this.flushChangeTimer(doc);
-                this.processDiagnostic(doc);
+                this.processDiagnostic(doc.uri, doc.version);
+            } else {
+                this.processDiagnostic(uri, 0);
             }
         };
 
@@ -413,8 +415,8 @@ export class LpcServer {
     //     });
     // }
 
-    public processDiagnostic(document: TextDocument) {
-        const result = this.diagnosticProvider.processDiagnostic(document);
+    public processDiagnostic(uri: string, version: number) {
+        const result = this.diagnosticProvider.processDiagnostic(uri, version);
 
         // send grouped results
         for (const diagResult of result) {

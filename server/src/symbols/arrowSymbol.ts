@@ -2,7 +2,6 @@ import { IEvaluatableSymbol, getSymbolsOfTypeSync } from "./base";
 import {
     CallStack,
     RootFrame,
-    StackFrame,
     StackValue,
     addFunctionToFrame,
 } from "../backend/CallStack";
@@ -11,14 +10,11 @@ import { ObjectReferenceInfo } from "./objectSymbol";
 import { SourceContext } from "../backend/SourceContext";
 import { ParserRuleContext } from "antlr4ng";
 import { ContextSymbolTable } from "../backend/ContextSymbolTable";
-import {
-    normalizeFilename,
-    rangeFromTokens,
-    resolveOfTypeSync,
-} from "../utils";
+import { rangeFromTokens } from "../utils";
 import { DiagnosticSeverity } from "vscode-languageserver";
 import { addDiagnostic } from "./Symbol";
 import { ScopedSymbol } from "antlr4-c3";
+import { LpcFileHandler } from "../backend/FileHandler";
 
 export enum ArrowType {
     CallOther,
@@ -49,6 +45,10 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
     public objContext: SourceContext;
 
     public hasEvaluated: boolean = false;
+
+    constructor(name: string, private fileHandler: LpcFileHandler) {
+        super(name);
+    }
 
     eval(stack: CallStack, scope?: any) {
         const srcValue = this.source.eval(stack) as StackValue;
@@ -197,14 +197,9 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
     }
 
     loadObject(filename: string) {
-        // get access to the backend
-        const ownerContext = (this.symbolTable as ContextSymbolTable).owner;
-        const backend = ownerContext.backend;
-
         // load context for this arrow's object symbol
-        const sourceContext = backend.loadLpc(
-            normalizeFilename(backend.filenameToAbsolutePath(filename))
-        );
+        const sourceContext = this.fileHandler.loadReference(filename, this);
+
         if (!sourceContext) {
             const ctx = this.context as ParserRuleContext;
             addDiagnostic(this, {

@@ -40,7 +40,7 @@ export interface IContextDetails {
     //unreferencedRules: string[];
     unreferencedMethods: string[];
     imports: ContextImportInfo[];
-    objectImports: string[];
+    objectReferences: Record<string, BaseSymbol[]>;
 }
 
 export enum SymbolKind {

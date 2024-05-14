@@ -15,6 +15,7 @@ import { firstEntry, normalizeFilename, rangeFromTokens } from "../utils";
 import { addDiagnostic } from "./Symbol";
 import { ParserRuleContext } from "antlr4ng";
 import { DiagnosticSeverity } from "vscode-languageserver";
+import { LpcFileHandler } from "../backend/FileHandler";
 
 export class InheritSymbol
     extends LpcBaseSymbol<InheritStatementContext>
@@ -46,7 +47,11 @@ export class InheritSuperAccessorSymbol
         return SymbolKind.InheritSuperAccessor;
     }
 
-    constructor(name: string, public filename: string) {
+    constructor(
+        name: string,
+        public filename: string,
+        private fileHandler: LpcFileHandler
+    ) {
         super(name);
     }
 
@@ -99,14 +104,8 @@ export class InheritSuperAccessorSymbol
     }
 
     loadObject(filename: string) {
-        // get access to the backend
-        const ownerContext = (this.symbolTable as ContextSymbolTable).owner;
-        const backend = ownerContext.backend;
-
         // load context for this arrow's object symbol
-        const sourceContext = backend.loadLpc(
-            normalizeFilename(backend.filenameToAbsolutePath(filename))
-        );
+        const sourceContext = this.fileHandler.loadReference(filename);
         if (!sourceContext) {
             const ctx = this.context as ParserRuleContext;
             addDiagnostic(this, {

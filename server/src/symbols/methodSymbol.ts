@@ -349,6 +349,7 @@ export class EfunSymbol
 
     eval(stack: CallStack, params: IEvaluatableSymbol[] = [], scope?: any) {
         const ownerProgram = (stack.root.symbol as ContextSymbolTable).owner;
+        const { fileHandler } = ownerProgram;
 
         // handle special efuns cases
         switch (this.name) {
@@ -367,13 +368,17 @@ export class EfunSymbol
             // TODO: this is just a quick hack to get the player object
             // need a better way to check if references are already loaded.
             case "this_player":
-                const backend = ownerProgram.backend;
-                const filename =
-                    backend.filenameToAbsolutePath(OBJ_PLAYER_FILENAME);
-                const playerCtx = backend.loadLpc(filename);
+                const playerCtx = fileHandler.loadReference(
+                    OBJ_PLAYER_FILENAME,
+                    this
+                );
 
                 return new StackValue(
-                    new ObjectReferenceInfo(filename, true, playerCtx),
+                    new ObjectReferenceInfo(
+                        playerCtx.fileName,
+                        true,
+                        playerCtx
+                    ),
                     LpcTypes.objectType,
                     this
                 );

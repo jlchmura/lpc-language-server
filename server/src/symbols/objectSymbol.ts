@@ -14,6 +14,7 @@ import { ParserRuleContext } from "antlr4ng";
 import { DiagnosticSeverity } from "vscode-languageserver";
 import { CallStack, StackFrame, StackValue } from "../backend/CallStack";
 import { ArrowSymbol } from "./arrowSymbol";
+import { LpcFileHandler } from "../backend/FileHandler";
 
 export class ObjectReferenceInfo {
     constructor(
@@ -31,8 +32,9 @@ export class CloneObjectSymbol
     private sourceContext: SourceContext;
 
     public relativeFileName: string;
+    public filename?: string;
 
-    constructor(name: string, public filename?: string) {
+    constructor(name: string, private fileHandler: LpcFileHandler) {
         super(name);
     }
 
@@ -83,17 +85,13 @@ export class CloneObjectSymbol
                     type: DiagnosticSeverity.Information,
                 });
             } else {
-                const ownerContext = (this.symbolTable as ContextSymbolTable)
-                    .owner;
-                const backend = ownerContext.backend;
-
-                this.sourceContext = backend.loadLpc(this.filename);
+                this.sourceContext = this.fileHandler.loadReference(
+                    this.filename,
+                    this
+                );
 
                 if (!!this.sourceContext) {
                     this.isLoaded = true;
-                    // add a reference to the owner context so that diagnostics
-                    // will update when we make modificatinos to the source file
-                    ownerContext.addAsReferenceTo(this.sourceContext, false);
                 } else {
                     addDiagnostic(this, {
                         message: "could not load source for: " + this.filename,

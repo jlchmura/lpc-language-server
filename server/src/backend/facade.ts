@@ -9,19 +9,22 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { SourceMap } from "./SourceMap";
 import { BaseSymbol } from "antlr4-c3";
 import { PerformanceObserver, performance } from "perf_hooks";
+import { randomInt } from "crypto";
 
 /** ms delay before reparsing a depenency */
 const DEP_FILE_REPARSE_TIME = 250;
 
-export interface IContextEntry {
+export type IContextEntry = {
     context: SourceContext;
     refCount: number;
     /**
      * List of filenames that this context depends on.
      */
     dependencies: string[];
+    references: string[];
     filename: string;
-}
+    id: number;
+};
 
 /**
  * this stores the context of the LPC runtime which contains
@@ -35,8 +38,6 @@ export class LpcFacade {
         string,
         IContextEntry
     >();
-
-    private depChain: Set<string>;
 
     public onRunDiagnostics: (filename: string) => void;
 
@@ -76,6 +77,18 @@ export class LpcFacade {
     }
 
     public loadLpc(fileName: string, source?: string): SourceContext {
+        const depChain = new Set<string>();
+        const context = this.loadLpcInternal(fileName, source, depChain);
+
+        console.debug("[LOAD] " + fileName, depChain);
+
+        return context;
+    }
+    public loadLpcInternal(
+        fileName: string,
+        source: string = undefined,
+        depChain: Set<string>
+    ): SourceContext {
         fileName = normalizeFilename(fileName);
 
         let contextEntry = this.getContextEntry(fileName);
@@ -99,28 +112,61 @@ export class LpcFacade {
                 this.workspaceDir,
                 this.importDir
             );
+
+            context.onLoadImports = (imports) => {
+                this.loadImports(fileName, imports, depChain);
+            };
+
             contextEntry = {
                 context,
                 refCount: 0,
                 dependencies: [],
+                references: [],
                 filename: fileName,
+                id: randomInt(1000000),
             };
             this.sourceContexts.set(fileName, contextEntry);
 
             // Do an initial parse run and load all dependencies of this context
             // and pass their references to this context.
             context.setText(source);
-            this.parseLpc(contextEntry);
+            this.parseLpc(contextEntry, depChain);
         }
         contextEntry.refCount++;
 
         return contextEntry.context;
     }
 
+    /**
+     * load imports and add them as dependencies to fileName
+     * @param fileName file file we are loading imports for
+     * @param imports array of import filenames to load
+     */
+    private loadImports(
+        fileName: string,
+        imports: string[],
+        depChain: Set<string>
+    ) {
+        const contextEntry = this.getContextEntry(fileName);
+        if (contextEntry) {
+            for (const imp of imports) {
+                // const importFilename =
+                //     contextEntry.context.resolveFilename(imp);
+                this.addDependency(
+                    fileName,
+                    {
+                        filename: imp,
+                    } as ContextImportInfo,
+                    depChain
+                );
+            }
+        }
+    }
+
     public getDependencies(fileName: string): string[] {
         const contextEntry = this.getContextEntry(fileName);
         if (contextEntry) {
-            return contextEntry.dependencies;
+            return [...contextEntry.dependencies];
         }
 
         return [];
@@ -150,17 +196,63 @@ export class LpcFacade {
                 for (const dep of contextEntry.dependencies) {
                     this.internalReleaseLpc(dep, contextEntry);
                 }
+
+                for (const ref of contextEntry.references) {
+                    this.internalReleaseLpc(ref);
+                }
             }
         }
     }
 
-    private addDependency(filename: string, dep: ContextImportInfo) {
+    /**
+     * Add a reference from `filename` to `refFilename`, which happens
+     * when a ref is loaded by load_object or this_player()
+     * @param filename current filename
+     * @param refFilename filename of the reference (i.e. the load object)
+     */
+    public addReference(filename: string, refFilename: string) {
+        try {
+            const contextEntry = this.getContextEntry(filename);
+            if (contextEntry) {
+                contextEntry.references.push(refFilename);
+
+                const depCtx = this.loadLpcInternal(
+                    refFilename,
+                    undefined,
+                    new Set<string>()
+                );
+                const depContextEntry = this.getContextEntry(refFilename);
+                if (depContextEntry) {
+                    depContextEntry.refCount++;
+                }
+
+                return depCtx;
+            }
+        } catch (e) {
+            console.log(
+                `Error adding reference ${refFilename} to ${filename}: ${e}`
+            );
+        }
+    }
+
+    /**
+     * Add a dependency to this file
+     * @param filename filename that we're adding a depdency TO
+     * @param dep the dependency to add
+     * @returns
+     */
+    private addDependency(
+        filename: string,
+        dep: ContextImportInfo,
+        depChain: Set<string>
+    ) {
         try {
             const contextEntry = this.getContextEntry(filename);
             if (contextEntry) {
                 const depContext = this.loadDependency(
                     contextEntry,
-                    dep.filename
+                    dep.filename,
+                    depChain
                 );
                 if (depContext) {
                     // increment ref counter for the dependency
@@ -183,43 +275,49 @@ export class LpcFacade {
         }
     }
 
-    private parseLpc(contextEntry: IContextEntry) {
+    private parseLpc(
+        contextEntry: IContextEntry,
+        depChain: Set<string>,
+        reparseRefs: boolean = false
+    ) {
         performance.mark("parse-lpc-start");
 
         const context = contextEntry.context;
-        const isDepChainRoot = !this.depChain;
-        if (isDepChainRoot) {
-            this.depChain = new Set<string>([context.fileName]);
-        } else {
-            this.depChain.add(context.fileName);
+
+        if (context.fileName.endsWith("monster.c")) {
+            const ii = 0;
         }
+        depChain.add(context.fileName);
 
         try {
-            const oldDependencies = contextEntry.dependencies;
+            const oldDependencies = [...contextEntry.dependencies];
             const oldReferences = [...context.getReferences()];
 
             contextEntry.dependencies = [];
+
             const info = context.parse();
 
             // load file-level dependencies (imports & inherits)
-            const newDependencies = info.imports;
+            const newDependencies = [...info.imports];
 
             for (const dep of newDependencies) {
-                this.addDependency(contextEntry.filename, dep);
+                this.addDependency(contextEntry.filename, dep, depChain);
             }
 
             // queue dependencies to reparse & run their diags
             // NTBLA: improve
-            setTimeout(() => {
-                for (const ref of oldReferences) {
-                    const refCtx = this.getContextEntry(ref.fileName);
-                    this.parseLpc(refCtx);
+            if (reparseRefs) {
+                setTimeout(() => {
+                    for (const ref of oldReferences) {
+                        const refCtx = this.getContextEntry(ref.fileName);
+                        this.parseLpc(refCtx, new Set());
 
-                    // send a notification to the server to re-send diags for this doc
-                    if (!!this.onRunDiagnostics)
-                        this.onRunDiagnostics(ref.fileName);
-                }
-            }, DEP_FILE_REPARSE_TIME);
+                        // send a notification to the server to re-send diags for this doc
+                        if (!!this.onRunDiagnostics)
+                            this.onRunDiagnostics(ref.fileName);
+                    }
+                }, DEP_FILE_REPARSE_TIME);
+            }
 
             // Release all old dependencies. This will only unload grammars which have
             // not been ref-counted by the above dependency loading (or which are not used by other
@@ -231,9 +329,7 @@ export class LpcFacade {
             console.error(`Error parsing ${contextEntry.filename}: ${e}`, e);
         }
 
-        if (isDepChainRoot) {
-            this.depChain = undefined;
-        }
+        depChain.delete(context.fileName);
 
         performance.mark("parse-lpc-end");
         performance.measure(
@@ -265,13 +361,14 @@ export class LpcFacade {
      */
     private loadDependency(
         contextEntry: IContextEntry,
-        depName: string
+        depName: string,
+        depChain: Set<string>
     ): SourceContext | undefined {
         const depInfo = contextEntry.context.resolveFilename(depName);
         if (!!depInfo?.fullPath) {
             const depPath = depInfo.fullPath;
 
-            if (this.depChain.has(depPath)) {
+            if (depChain.has(depPath)) {
                 console.info("Skipping cyclic dependency", depPath);
                 return undefined;
             }
@@ -279,7 +376,11 @@ export class LpcFacade {
             try {
                 fs.accessSync(depPath, fs.constants.R_OK);
                 contextEntry.dependencies.push(depPath);
-                const depContextEntry = this.loadLpc(depPath);
+                const depContextEntry = this.loadLpcInternal(
+                    depPath,
+                    undefined,
+                    depChain
+                );
 
                 return depContextEntry;
             } catch (e) {
@@ -305,7 +406,7 @@ export class LpcFacade {
     ): SourceContext {
         const contextEntry = this.getContextEntry(fileName);
         if (!contextEntry && !!source) {
-            return this.loadLpc(fileName, source);
+            return this.loadLpcInternal(fileName, source, new Set<string>());
         }
 
         return contextEntry?.context;
@@ -333,7 +434,7 @@ export class LpcFacade {
     public reparse(fileName: string): void {
         const contextEntry = this.getContextEntry(fileName);
         if (contextEntry) {
-            this.parseLpc(contextEntry);
+            this.parseLpc(contextEntry, new Set(), true);
         }
     }
 
@@ -445,7 +546,7 @@ export class LpcFacade {
     }
 
     public parseAllFiles() {
-        // const dirsToProcess = [this.workspaceDir];
+        const dirsToProcess = [this.workspaceDir];
         // while (dirsToProcess.length > 0) {
         //     const dir = dirsToProcess.pop();
         //     const files = fs.readdirSync(dir, { withFileTypes: true });

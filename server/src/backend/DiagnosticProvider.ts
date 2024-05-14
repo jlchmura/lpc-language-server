@@ -33,8 +33,8 @@ export class DiagnosticProvider {
      * Processes diangostics for the given document and sends back to the language client.
      * @param document
      */
-    public processDiagnostic(document: TextDocument): DocDiagnostics[] {
-        const entries = this.facade.getDiagnostics(document.uri);
+    public processDiagnostic(uri: string, version: number): DocDiagnostics[] {
+        const entries = this.facade.getDiagnostics(uri);
         const results: DocDiagnostics[] = [];
 
         // if diag for the doc is undefined, that means diags failed
@@ -45,14 +45,14 @@ export class DiagnosticProvider {
         }
 
         results.push({
-            version: document.version,
-            uri: document.uri,
-            diagnostics: this.convertDiagnosticEntries(document.uri, entries),
+            version: version,
+            uri: uri,
+            diagnostics: this.convertDiagnosticEntries(uri, entries),
         });
 
         // recursively send diagnostics for dependencies
         // if any dependencies need validation, reprocess them as well
-        const deps = this.facade.getDependencies(document.uri) ?? [];
+        const deps = this.facade.getDependencies(uri) ?? [];
         const visited = new Set<string>();
 
         while (deps.length > 0) {

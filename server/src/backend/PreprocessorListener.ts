@@ -7,6 +7,7 @@ import {
     PreprocessorConditionalEndContext,
     PreprocessorDefineContext,
     PreprocessorDirectiveContext,
+    PreprocessorImportContext,
     PreprocessorUndefContext,
     TextContext,
 } from "../preprocessor/LPCPreprocessorParser";
@@ -33,7 +34,8 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
         public macroTable: Map<string, MacroDefinition>,
         private filename: string,
         private rewriter: TokenStreamRewriter,
-        private tokenBuilder: SemanticTokenCollection
+        private tokenBuilder: SemanticTokenCollection,
+        private includeFiles: string[]
     ) {
         super();
     }
@@ -162,6 +164,11 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
         const str = ctx.parent.getText();
         const newStr = str.replace(/./g, (c) => (c == "\n" ? c : " "));
         this.rewriter.replace(start, stop, newStr);
+    };
+
+    enterPreprocessorImport = (ctx: PreprocessorImportContext) => {
+        const includeFile = ctx.directive_text().getText();
+        this.includeFiles.push(includeFile);
     };
 
     enterPreprocessorDefine = (ctx: PreprocessorDefineContext) => {

@@ -99,6 +99,7 @@ import {
     InheritSymbol,
 } from "../symbols/inheritSymbol";
 import { performance } from "perf_hooks";
+import { LpcFileHandler } from "./FileHandler";
 
 const mapAnnotationReg = /\[\[@(.+?)\]\]/;
 
@@ -112,18 +113,20 @@ export class SourceContext {
 
     public static efunSymbols = EfunSymbols;
 
+    public fileHandler = new LpcFileHandler(this.backend, this);
     public symbolTable: ContextSymbolTable;
     public sourceId: string;
     public info: IContextDetails = {
         unreferencedMethods: [],
         imports: [],
-        objectImports: [],
+        objectReferences: {},
     };
+
+    public onLoadImports: (imports: string[]) => void = () => {};
 
     /* @internal */
     public diagnostics: IDiagnosticEntry[] = [];
 
-    // eslint-disable-next-line no-use-before-define
     private references: SourceContext[] = []; // Contexts referencing us.
 
     // Result related fields.
@@ -247,7 +250,7 @@ export class SourceContext {
     /**
      * Runs the preprocessor parser to extract #define macros and populate the macro table for this file.
      */
-    private parseMacroTable(): void {
+    private preProcess(): void {
         this.localMacroTable.clear();
 
         // reset lexer & token stream
@@ -269,11 +272,13 @@ export class SourceContext {
 
         const rw = new TokenStreamRewriter(this.preTokenStream);
 
+        const includeFiles: string[] = [];
         const listener = new PreprocessorListener(
             this.localMacroTable,
             this.fileName,
             rw,
-            this.semanticTokens
+            this.semanticTokens,
+            includeFiles
         );
 
         ParseTreeWalker.DEFAULT.walk(listener, tree);
@@ -281,15 +286,16 @@ export class SourceContext {
         const newtext = rw.getText();
         this.preprocessedText = newtext;
 
-        // now combine macro tables from dependencies
-        // get dependency macro tables and combine into one
-        const deps = Array.from(this.symbolTable.getDependencies())
-            .filter(
-                (depTbl): depTbl is ContextSymbolTable =>
-                    !!(depTbl as ContextSymbolTable).owner
-            )
-            .map((depTbl) => depTbl.owner);
-        const depMacroTables = deps.map((depCtx) => depCtx.macroTable);
+        // let the backend load imports so that we can access their macro tables
+        this.onLoadImports(includeFiles);
+
+        const depMacroTables = includeFiles
+            .map((file) => {
+                const depFilename = this.resolveFilename(file);
+                const ctx = this.backend.getContext(depFilename.fullPath);
+                return ctx?.macroTable;
+            })
+            .filter((mt) => !!mt);
 
         // combine macro tables. local table must be last
         this.macroTable = depMacroTables
@@ -304,12 +310,21 @@ export class SourceContext {
 
         console.debug(`Parsing ${this.fileName}`);
 
+        this.info.imports.length = 0;
+        this.semanticAnalysisDone = false;
+        this.diagnostics.length = 0;
+
+        this.symbolTable.clear();
+        this.symbolTable.addDependencies(SourceContext.globalSymbols);
+        this.symbolTable.addDependencies(EfunSymbols);
+
         this.sourceMap = new SourceMap();
         this.highlights = [];
         this.cachedSemanticTokens = undefined;
         this.semanticTokens = new SemanticTokenCollection();
 
-        this.parseMacroTable();
+        // run the preprocessor. This will load #includes and replace macros
+        this.preProcess();
 
         // process macros
         const macroProcessor = new MacroProcessor(
@@ -335,17 +350,6 @@ export class SourceContext {
         this.parser.interpreter.predictionMode = PredictionMode.SLL;
 
         this.tree = undefined;
-
-        this.info.imports.length = 0;
-        this.info.objectImports.length = 0;
-
-        this.semanticAnalysisDone = false;
-        this.diagnostics.length = 0;
-
-        this.symbolTable.clear();
-
-        this.symbolTable.addDependencies(SourceContext.globalSymbols);
-        this.symbolTable.addDependencies(EfunSymbols);
 
         if (!this.fileName.endsWith("simul_efun.c")) {
             this.info.imports.push({
@@ -375,8 +379,8 @@ export class SourceContext {
             this.backend,
             this.symbolTable,
             this.info.imports,
-            this.info.objectImports,
-            this.semanticTokens
+            this.semanticTokens,
+            this.fileHandler
         );
         try {
             this.tree.accept(visitor);
@@ -800,7 +804,7 @@ export class SourceContext {
                 searchScope =
                     symbol instanceof ScopedSymbol
                         ? symbol
-                        : symbol.getParentOfType(ScopedSymbol);
+                        : symbol?.getParentOfType(ScopedSymbol);
 
                 if (symbol instanceof VariableIdentifierSymbol) {
                     symbol = resolveOfTypeSync(
@@ -1286,8 +1290,10 @@ export class SourceContext {
         for (const p of searchPaths) {
             const depPath = path.join(p, filenameNormed);
             if (fs.existsSync(depPath)) {
+                const relPath =
+                    "/" + path.relative(this.backend.workspaceDir, depPath);
                 return {
-                    filename: filenameNormed,
+                    filename: relPath,
                     fullPath: depPath,
                     type: fileType,
                 };
