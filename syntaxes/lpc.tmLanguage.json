@@ -1,0 +1,660 @@
+{
+    "fileTypes": ["c", "h", "lpc"],
+    "firstLineMatch": "(-[*]-( [Mm]ode:)? [Ll][Pp][Cc] -[*]-|^#!/.*\\blpc\\b)",
+    "foldingStartMarker": "(?x)\n     /\\*\\*(?!\\*)\n    |^(?![^{]*?//|[^{]*?/\\*(?!.*?\\*/.*?\\{)).*?\n    \\{\\s*($|//|/\\*(?!.*?\\*/.*\\S))\n    |(^\\s*//\\s*(\\{\\{\\{))",
+    "foldingStopMarker": "(?<!\\*)\\n\\*\\*/|^\\s*\\}|//\\s*\\}\\}\\}$",
+    "keyEquivalent": "^~C",
+    "name": "LPC",
+    "patterns": [
+        {
+            "include": "#preprocessor-rule-enabled"
+        },
+        {
+            "include": "#preprocessor-rule-enabled-block"
+        },
+        {
+            "include": "#preprocessor-rule-disabled"
+        },
+        {
+            "include": "#preprocessor-rule-disabled-block"
+        },
+        {
+            "include": "#preprocessor-rule-other"
+        },
+        {
+            "include": "#preprocessor-rule-other-block"
+        },
+        {
+            "include": "#disabled"
+        },
+        {
+            "include": "#dot_access"
+        },
+        {
+            "include": "#parens"
+        },
+        {
+            "include": "#comments"
+        },
+        {
+            "include": "#pragma-mark"
+        },
+        {
+            "include": "#fncall"
+        },
+        {
+            "include": "#block"
+        },
+        {
+            "comment": "Control flow keywords",
+            "match": "\\b(if|else|while|for|foreach|do|return|continue|break|switch|case|default|catch|inherit)\\b",
+            "name": "keyword.control.lpc"
+        },
+        {
+            "match": "\\b(float|int|void|object|class|mapping|string|mixed|function|ref)\\b",
+            "name": "support.type.primitive.lpc"
+        },
+        {
+            "comment": "Modifiers",
+            "match": "\\b(public|private|protected|nosave|nomask|varargs)\\b",
+            "name": "storage.modifier.lpc"
+        },
+        {
+            "comment": "Numeric values",
+            "match": "(?:\\b|(?<!\\.)(?=\\.))((0(x|X)[0-9a-fA-F]*)|(([0-9_]+\\.?[0-9_]*)|(\\.[0-9_]+))((-)?[0-9_]+)?)\\b",
+            "name": "constant.numeric.lpc"
+        },
+        {
+            "include": "#operators"
+        },
+        {
+            "comment": "For @strings that span multiple lines.",
+            "begin": "@{1,2}(\\w+)",
+            "end": "^\\1\\b",
+            "name": "string.unquoted.lpc"
+        },
+        {
+            "begin": "\"",
+            "beginCaptures": {
+                "0": {
+                    "name": "punctuation.definition.string.begin.lpc"
+                }
+            },
+            "end": "\"",
+            "endCaptures": {
+                "0": {
+                    "name": "punctuation.definition.string.end.lpc"
+                }
+            },
+            "name": "string.quoted.double.lpc",
+            "patterns": [
+                {
+                    "include": "#string_escaped_char"
+                },
+                {
+                    "include": "#string_placeholder"
+                }
+            ]
+        },
+        {
+            "match": "'[^']*'",
+            "name": "string.quoted.single.lpc",
+            "patterns": [
+                {
+                    "include": "#string_escaped_char"
+                }
+            ]
+        },
+        {
+            "begin": "(?x)\n                 ^\\s*\\#\\s*(define)\\s+           # define\n                 ((?<id>[a-zA-Z_][a-zA-Z0-9_]*))    # macro name\n                 (?:                                # and optionally:\n                   (\\()                            # an open parenthesis\n                     (\n                       \\s* \\g<id> \\s*            # first argument\n                       ((,) \\s* \\g<id> \\s*)*     # additional arguments\n                       (?:\\.\\.\\.)?               # varargs ellipsis?\n                     )\n                   (\\))                             # a close parenthesis\n                 )?",
+            "beginCaptures": {
+                "1": {
+                    "name": "keyword.control.import.define.lpc"
+                },
+                "2": {
+                    "name": "entity.name.function.preprocessor.lpc"
+                },
+                "4": {
+                    "name": "punctuation.definition.parameters.lpc"
+                },
+                "5": {
+                    "name": "variable.parameter.preprocessor.lpc"
+                },
+                "7": {
+                    "name": "punctuation.separator.parameters.lpc"
+                },
+                "8": {
+                    "name": "punctuation.definition.parameters.lpc"
+                }
+            },
+            "end": "(?=(?://|/\\*))|$|\\n",
+            "name": "meta.preprocessor.macro.lpc",
+            "patterns": [
+                {
+                    "match": "(?>\\\\\\s*\\n)",
+                    "name": "punctuation.separator.continuation.lpc"
+                },
+                {
+                    "include": "$base"
+                }
+            ]
+        },
+        {
+            "begin": "^\\s*#\\s*(include)\\b",
+            "captures": {
+                "1": {
+                    "name": "keyword.control.import.include.lpc"
+                }
+            },
+            "end": "(?=(?://|/\\*))|$",
+            "name": "meta.preprocessor.include.lpc",
+            "patterns": [
+                {
+                    "match": "(?>\\\\\\s*\\n)",
+                    "name": "punctuation.separator.continuation.lpc"
+                },
+                {
+                    "begin": "\\\"",
+                    "beginCaptures": {
+                        "0": {
+                            "name": "punctuation.definition.string.begin.lpc"
+                        }
+                    },
+                    "end": "\\\"",
+                    "endCaptures": {
+                        "0": {
+                            "name": "punctuation.definition.string.end.lpc"
+                        }
+                    },
+                    "name": "string.quoted.double.include.lpc"
+                },
+                {
+                    "begin": "<",
+                    "beginCaptures": {
+                        "0": {
+                            "name": "punctuation.definition.string.begin.lpc"
+                        }
+                    },
+                    "end": ">",
+                    "endCaptures": {
+                        "0": {
+                            "name": "punctuation.definition.string.end.lpc"
+                        }
+                    },
+                    "name": "string.quoted.other.lt-gt.include.lpc"
+                }
+            ]
+        },
+        {
+            "begin": "^\\s*#\\s*(define|echo|elif|else|if|ifdef|ifndef|pragma|undef|endif)\\b",
+            "captures": {
+                "1": {
+                    "name": "keyword.control.import.lpc"
+                }
+            },
+            "end": "(?=(?://|/\\*))|$",
+            "name": "meta.preprocessor.lpc",
+            "patterns": [
+                {
+                    "match": "(?>\\\\\\s*\\n)",
+                    "name": "punctuation.separator.continuation.lpc"
+                }
+            ]
+        },
+        {
+            "begin": "(?x)(?:^|(?:(?=\\s)(?<!else|return)(?<=\\w)|(?=\\s*[[:alnum:]_.|\\(\\)])))(\\s*)(?!\\b(while|for|do|if|else|switch|catch|return|foreach|object|int|float|function|mapping|string|mixed|class)\\b\\s*)((?:`\\(\\)|`[-<.>^|&*~/+%=!\\[\\]]+|`[[:alpha:]_][[:alnum:]_]*+|[[:alpha:]_][[:alnum:]_]*+)++)\\s*(?=\\()",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.whitespace.function.leading.lpc"
+                },
+                "3": {
+                    "name": "entity.name.function.lpc"
+                },
+                "4": {
+                    "name": "punctuation.definition.parameters.lpc"
+                }
+            },
+            "end": "(?<=\\})|(?=#)|(;)",
+            "name": "meta.function.lpc",
+            "patterns": [
+                {
+                    "include": "#comments"
+                },
+                {
+                    "include": "#parens"
+                },
+                {
+                    "match": "\\bconstant\\b",
+                    "name": "storage.modifier.lpc"
+                },
+                {
+                    "include": "#block"
+                }
+            ]
+        },
+        {
+            "match": ";",
+            "name": "punctuation.terminator.statement.lpc"
+        },
+        {
+            "match": ",",
+            "name": "punctuation.separator.delimiter.lpc"
+        },
+        {
+            "match": "\\.\\.\\.",
+            "name": "punctuation.vararg-ellipses.lpc"
+        }
+    ],
+    "repository": {
+        "block": {
+            "begin": "\\{",
+            "end": "\\}",
+            "name": "meta.block.lpc",
+            "patterns": [
+                {
+                    "include": "#block_innards"
+                }
+            ]
+        },
+        "block_innards": {
+            "patterns": [
+                {
+                    "include": "#fncall"
+                },
+                {
+                    "include": "#block"
+                },
+                {
+                    "include": "$base"
+                }
+            ]
+        },
+        "comments": {
+            "patterns": [
+                {
+                    "begin": "/\\*",
+                    "captures": {
+                        "0": {
+                            "name": "punctuation.definition.comment.lpc"
+                        }
+                    },
+                    "end": "\\*/",
+                    "name": "comment.block.lpc"
+                },
+                {
+                    "captures": {
+                        "1": {
+                            "name": "punctuation.definition.comment.lpc"
+                        }
+                    },
+                    "match": "(//).*$\\n?",
+                    "name": "comment.line.double-slash.lpc"
+                }
+            ]
+        },
+        "disabled": {
+            "begin": "^\\s*#\\s*if(n?def)?\\b.*$",
+            "comment": "eat nested preprocessor if(def)s",
+            "end": "^\\s*#\\s*endif\\b.*$",
+            "patterns": [
+                {
+                    "include": "#disabled"
+                },
+                {
+                    "include": "#pragma-mark"
+                }
+            ]
+        },
+        "fncall": {
+            "patterns": [
+                {
+                    "captures": {
+                        "1": {
+                            "name": "punctuation.whitespace.function-call.leading.lpc"
+                        },
+                        "2": {
+                            "name": "support.function.any-method.lpc"
+                        },
+                        "3": {
+                            "name": "punctuation.definition.parameters.lpc"
+                        }
+                    },
+                    "match": "(?x)\n\t\t\t\t\t\t\t(?: (?= \\s )  (?:(?<=else|new|return) | (?<!\\w)) (\\s+))?\n\t\t\t\t\t\t\t(?:\\b\\w+->)?  # Added this part to match 'object->'\n\t\t\t\t\t\t\t(\\b\n\t\t\t\t\t\t\t(?!(while|for|do|if|else|foreach|switch|\n\t\t\t\t\t\t\t\tcatch|return|\n\t\t\t\t\t\t\t\tmapping|mixed|int|float|class|function|\n\t\t\t\t\t\t\t\tstring|object)\\s*\\()\n\t\t\t\t\t\t\t(?: `\\(\\)                  |\n\t\t\t\t\t\t\t\t`[-<.>^|&*~/+%=!\\[\\]]+ |\n\t\t\t\t\t\t\t\t`[[:alnum:]_]            |\n\t\t\t\t\t\t\t\t[[:alpha:]_][[:alnum:]_]*+\\b\n\t\t\t\t\t\t\t)++    # actual name\n\t\t\t\t\t\t\t)\n\t\t\t\t\t\t\t\\s*(\\()",
+                    "name": "meta.function-call.lpc"
+                },
+                {
+                    "include": "#block"
+                }
+            ]
+        },
+        "parens": {
+            "begin": "\\(",
+            "end": "\\)",
+            "name": "meta.parens.lpc",
+            "patterns": [
+                {
+                    "include": "$base"
+                }
+            ]
+        },
+        "pragma-mark": {
+            "captures": {
+                "1": {
+                    "name": "meta.preprocessor.lpc"
+                },
+                "2": {
+                    "name": "keyword.control.import.pragma.lpc"
+                },
+                "3": {
+                    "name": "meta.toc-list.pragma-mark.lpc"
+                }
+            },
+            "match": "^\\s*(#\\s*(pragma\\s+mark)\\s+(.*))",
+            "name": "meta.section"
+        },
+        "preprocessor-rule-disabled": {
+            "begin": "^\\s*(#(if)\\s+(0)\\b).*",
+            "captures": {
+                "1": {
+                    "name": "meta.preprocessor.lpc"
+                },
+                "2": {
+                    "name": "keyword.control.import.if.lpc"
+                },
+                "3": {
+                    "name": "constant.numeric.preprocessor.lpc"
+                }
+            },
+            "end": "^\\s*(#\\s*(endif)\\b)",
+            "patterns": [
+                {
+                    "begin": "^\\s*(#\\s*(else)\\b)",
+                    "captures": {
+                        "1": {
+                            "name": "meta.preprocessor.lpc"
+                        },
+                        "2": {
+                            "name": "keyword.control.import.else.lpc"
+                        }
+                    },
+                    "end": "(?=^\\s*#\\s*endif\\b.*$)",
+                    "patterns": [
+                        {
+                            "include": "$base"
+                        }
+                    ]
+                },
+                {
+                    "begin": "",
+                    "end": "(?=^\\s*#\\s*(else|endif)\\b.*$)",
+                    "name": "comment.block.preprocessor.if-branch",
+                    "patterns": [
+                        {
+                            "include": "#disabled"
+                        },
+                        {
+                            "include": "#pragma-mark"
+                        }
+                    ]
+                }
+            ]
+        },
+        "preprocessor-rule-disabled-block": {
+            "begin": "^\\s*(#(if)\\s+(0)\\b).*",
+            "captures": {
+                "1": {
+                    "name": "meta.preprocessor.lpc"
+                },
+                "2": {
+                    "name": "keyword.control.import.if.lpc"
+                },
+                "3": {
+                    "name": "constant.numeric.preprocessor.lpc"
+                }
+            },
+            "end": "^\\s*(#\\s*(endif)\\b)",
+            "patterns": [
+                {
+                    "begin": "^\\s*(#\\s*(else)\\b)",
+                    "captures": {
+                        "1": {
+                            "name": "meta.preprocessor.lpc"
+                        },
+                        "2": {
+                            "name": "keyword.control.import.else.lpc"
+                        }
+                    },
+                    "end": "(?=^\\s*#\\s*endif\\b.*$)",
+                    "patterns": [
+                        {
+                            "include": "#block_innards"
+                        }
+                    ]
+                },
+                {
+                    "begin": "",
+                    "end": "(?=^\\s*#\\s*(else|endif)\\b.*$)",
+                    "name": "comment.block.preprocessor.if-branch.in-block",
+                    "patterns": [
+                        {
+                            "include": "#disabled"
+                        },
+                        {
+                            "include": "#pragma-mark"
+                        }
+                    ]
+                }
+            ]
+        },
+        "preprocessor-rule-enabled": {
+            "begin": "^\\s*(#(if)\\s+(0*1)\\b)",
+            "captures": {
+                "1": {
+                    "name": "meta.preprocessor.lpc"
+                },
+                "2": {
+                    "name": "keyword.control.import.if.lpc"
+                },
+                "3": {
+                    "name": "constant.numeric.preprocessor.lpc"
+                }
+            },
+            "end": "^\\s*(#\\s*(endif)\\b)",
+            "patterns": [
+                {
+                    "begin": "^\\s*(#\\s*(else)\\b).*",
+                    "captures": {
+                        "1": {
+                            "name": "meta.preprocessor.lpc"
+                        },
+                        "2": {
+                            "name": "keyword.control.import.else.lpc"
+                        }
+                    },
+                    "contentName": "comment.block.preprocessor.else-branch",
+                    "end": "(?=^\\s*#\\s*endif\\b.*$)",
+                    "patterns": [
+                        {
+                            "include": "#disabled"
+                        },
+                        {
+                            "include": "#pragma-mark"
+                        }
+                    ]
+                },
+                {
+                    "begin": "",
+                    "end": "(?=^\\s*#\\s*(else|endif)\\b.*$)",
+                    "patterns": [
+                        {
+                            "include": "$base"
+                        }
+                    ]
+                }
+            ]
+        },
+        "preprocessor-rule-enabled-block": {
+            "begin": "^\\s*(#(if)\\s+(0*1)\\b)",
+            "captures": {
+                "1": {
+                    "name": "meta.preprocessor.lpc"
+                },
+                "2": {
+                    "name": "keyword.control.import.if.lpc"
+                },
+                "3": {
+                    "name": "constant.numeric.preprocessor.lpc"
+                }
+            },
+            "end": "^\\s*(#\\s*(endif)\\b)",
+            "patterns": [
+                {
+                    "begin": "^\\s*(#\\s*(else)\\b).*",
+                    "captures": {
+                        "1": {
+                            "name": "meta.preprocessor.lpc"
+                        },
+                        "2": {
+                            "name": "keyword.control.import.else.lpc"
+                        }
+                    },
+                    "contentName": "comment.block.preprocessor.else-branch.in-block",
+                    "end": "(?=^\\s*#\\s*endif\\b.*$)",
+                    "patterns": [
+                        {
+                            "include": "#disabled"
+                        },
+                        {
+                            "include": "#pragma-mark"
+                        }
+                    ]
+                },
+                {
+                    "begin": "",
+                    "end": "(?=^\\s*#\\s*(else|endif)\\b.*$)",
+                    "patterns": [
+                        {
+                            "include": "#block_innards"
+                        }
+                    ]
+                }
+            ]
+        },
+        "preprocessor-rule-other": {
+            "begin": "^\\s*(#\\s*(if(n?def)?)\\b.*?(?:(?=(?://|/\\*))|$))",
+            "captures": {
+                "1": {
+                    "name": "meta.preprocessor.lpc"
+                },
+                "2": {
+                    "name": "keyword.control.import.lpc"
+                }
+            },
+            "end": "^\\s*(#\\s*(endif)\\b).*$",
+            "patterns": [
+                {
+                    "include": "$base"
+                }
+            ]
+        },
+        "preprocessor-rule-other-block": {
+            "begin": "^\\s*(#\\s*(if(n?def)?)\\b.*?(?:(?=(?://|/\\*))|$))",
+            "captures": {
+                "1": {
+                    "name": "meta.preprocessor.lpc"
+                },
+                "2": {
+                    "name": "keyword.control.import.lpc"
+                }
+            },
+            "end": "^\\s*(#\\s*(endif)\\b).*$",
+            "patterns": [
+                {
+                    "include": "#block_innards"
+                }
+            ]
+        },
+        "string_escaped_char": {
+            "patterns": [
+                {
+                    "match": "\\\\(\\\\|[0-3]\\d{,2}|[4-7]\\d?|x[a-fA-F0-9]{,2}|u[a-fA-F0-9]{,4}|U[a-fA-F0-9]{,8}|d[0-9]+|[[:alnum:]'\"?])",
+                    "name": "constant.character.escape.lpc"
+                },
+                {
+                    "match": "\\\\.",
+                    "name": "invalid.illegal.unknown-escape.lpc"
+                }
+            ]
+        },
+        "string_placeholder": {
+            "patterns": [
+                {
+                    "match": "(?x) %\n\t\t\t\t\t\t(\\d+\\$)?                           \t # field (argument #)\n\t\t\t\t\t\t[#0\\- +']*                           # flags\n\t\t\t\t\t\t[,;:_]?                              # separator character (AltiVec)\n\t\t\t\t\t\t((-?\\d+)|\\*(-?\\d+\\$)?)?          \t # minimum field width\n\t\t\t\t\t\t(\\.((-?\\d+)|\\*(-?\\d+\\$)?)?)?    \t # precision\n\t\t\t\t\t\t(hh|h|ll|l|j|t|z|q|L|vh|vl|v|hv|hl)? # length modifier\n\t\t\t\t\t\t[diouxXDOUeEfFgGaACcSspn%]           # conversion type",
+                    "name": "constant.other.placeholder.lpc"
+                },
+                {
+                    "match": "%(?!\\s|%)(!<%)",
+                    "name": "invalid.illegal.placeholder.lpc"
+                }
+            ]
+        },
+        "dot_access": {
+            "match": "\\b[a-zA-Z_][a-zA-Z0-9_]*\\s*(\\.|->)\\s*[a-zA-Z_][a-zA-Z0-9_]*\\b",
+            "captures": {
+                "1": {
+                    "name": "keyword.operator.access.lpc"
+                }
+            }
+        },
+        "operators": {
+            "patterns": [
+                {
+                    "match": "\\-\\-",
+                    "name": "keyword.operator.decrement.lpc"
+                },
+                {
+                    "match": "\\+\\+",
+                    "name": "keyword.operator.increment.lpc"
+                },
+                {
+                    "match": "[\\+\\-\\*/%]\\s*=",
+                    "name": "keyword.operator.assignment.compound.lpc"
+                },
+                {
+                    "match": "&=|\\^=|<<=|>>=|\\|=",
+                    "name": "keyword.operator.assignment.compound.bitwise.lpc"
+                },
+                {
+                    "match": "<<|>>",
+                    "name": "keyword.operator.bitwise.shift.lpc"
+                },
+                {
+                    "match": "&|\\~|\\^|\\|",
+                    "name": "keyword.operator.bitwise.lpc"
+                },
+                {
+                    "match": "!=|==",
+                    "name": "keyword.operator.comparison.lpc"
+                },
+                {
+                    "match": "<=|>=|<|>",
+                    "name": "keyword.operator.relational.lpc"
+                },
+                {
+                    "match": "&&|!|\\|\\|",
+                    "name": "keyword.operator.logical.lpc"
+                },
+                {
+                    "match": "=",
+                    "name": "keyword.operator.assignment.lpc"
+                },
+                {
+                    "match": "%|\\*|/|-|\\+",
+                    "name": "keyword.operator.arithmetic.lpc"
+                }
+            ]
+        }
+    },
+    "scopeName": "source.lpc",
+    "uuid": "f0c5f4ad-3e8a-4add-9ebf-2ce1d5e5262f"
+}

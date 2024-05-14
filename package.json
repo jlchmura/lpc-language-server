@@ -51,7 +51,7 @@
             {
                 "language": "lpc",
                 "scopeName": "source.lpc",
-                "path": "./syntaxes/lpc.tmLanguage"
+                "path": "./syntaxes/lpc.tmLanguage.json"
             }
         ]
     },
