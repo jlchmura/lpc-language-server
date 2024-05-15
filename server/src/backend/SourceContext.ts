@@ -100,6 +100,7 @@ import {
 } from "../symbols/inheritSymbol";
 import { performance } from "perf_hooks";
 import { LpcFileHandler } from "./FileHandler";
+import { LpcConfig } from "./LpcConfig";
 
 const mapAnnotationReg = /\[\[@(.+?)\]\]/;
 
@@ -183,7 +184,8 @@ export class SourceContext {
         public backend: LpcFacade,
         public fileName: string,
         private extensionDir: string,
-        private importDir: string[]
+        private importDir: string[],
+        private config: LpcConfig
     ) {
         this.sourceId = path.basename(fileName);
         this.symbolTable = new ContextSymbolTable(
@@ -252,6 +254,18 @@ export class SourceContext {
      */
     private preProcess(): void {
         this.localMacroTable.clear();
+
+        // add macros from config
+        for (const [key, val] of this.config.defines ?? new Map()) {
+            this.localMacroTable.set(key, {
+                value: val,
+                start: { column: 0, row: 1 },
+                end: { column: 0, row: 1 },
+                filename: "lpc-config",
+                name: key,
+                annotation: `[[@${key}]]`,
+            });
+        }
 
         // reset lexer & token stream
         this.preLexer.inputStream = CharStream.fromString(this.sourceText);

@@ -122,7 +122,7 @@ export class MacroProcessor {
                 // if we're in a quote then it can't be a macro
                 inEsc = false;
                 continue;
-            } else if (!code[j].match(/[a-zA-Z]/)) {
+            } else if (!code[j].match(/[a-zA-Z_]/)) {
                 // macros must start with a letter so if it doesn't, skip
                 inEsc = false;
                 continue;

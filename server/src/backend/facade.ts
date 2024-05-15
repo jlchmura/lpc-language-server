@@ -10,6 +10,7 @@ import { SourceMap } from "./SourceMap";
 import { BaseSymbol } from "antlr4-c3";
 import { PerformanceObserver, performance } from "perf_hooks";
 import { randomInt } from "crypto";
+import { LpcConfig } from "./LpcConfig";
 
 /** ms delay before reparsing a depenency */
 const DEP_FILE_REPARSE_TIME = 250;
@@ -43,7 +44,8 @@ export class LpcFacade {
 
     public constructor(
         public importDir: string[],
-        public workspaceDir: string
+        public workspaceDir: string,
+        public config: LpcConfig
     ) {
         console.log("LpcFacade created", importDir, workspaceDir);
 
@@ -110,7 +112,8 @@ export class LpcFacade {
                 this,
                 fileName,
                 this.workspaceDir,
-                this.importDir
+                this.importDir,
+                this.config
             );
 
             context.onLoadImports = (imports) => {
@@ -568,8 +571,6 @@ export class LpcFacade {
                 }
             });
         }
-
-        console.debug("[PARSE-ALL] Complete");
 
         performance.mark("parse-all-end");
         performance.measure("parse-all", "parse-all-start", "parse-all-end");

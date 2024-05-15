@@ -5,14 +5,8 @@ import {
     DidChangeConfigurationNotification,
     InitializeParams,
     InitializeResult,
-    NotificationType,
-    ProgressType,
-    ShowMessageNotification,
     TextDocumentSyncKind,
     TextDocuments,
-    WorkDoneProgress,
-    WorkDoneProgressBegin,
-    WorkDoneProgressCreateRequest,
 } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { URI } from "vscode-uri";
@@ -22,19 +16,18 @@ import { LpcDefinitionProvider } from "./DefinitionProvider";
 import { CodeLensProvider } from "./CodeLensProvider";
 import { HoverProvider } from "./HoverProvider";
 import { DiagnosticProvider } from "./DiagnosticProvider";
-import {
-    CompletionProvider,
-    isPotentiallyValidDocCompletionPosition,
-} from "./CompletionProvider";
+import { CompletionProvider } from "./CompletionProvider";
 import { SignatureHelpProvider } from "./SignatureHelpProvider";
 import { RenameProvider } from "./RenameProvider";
 import { HighlightProvider } from "./HighlightProvider";
+import { LpcConfig, loadLpcConfig } from "./LpcConfig";
 
 const CHANGE_DEBOUNCE_MS = 150;
 
 export class LpcServer {
     private importDir: string[] | undefined;
     private facade: LpcFacade;
+    private config: LpcConfig;
 
     /** timers used to debounce change events */
     private changeTimers = new Map<string, NodeJS.Timeout>(); // Keyed by file name.
@@ -392,7 +385,15 @@ export class LpcServer {
             path.join(rootFolderPath, "obj"),
             path.join(rootFolderPath, "room"),
         ];
-        this.facade = new LpcFacade(this.importDir, rootFolderPath);
+
+        this.config = loadLpcConfig(
+            path.join(rootFolderPath, "lpc-config.json")
+        );
+        this.facade = new LpcFacade(
+            this.importDir,
+            rootFolderPath,
+            this.config
+        );
 
         // hook up the run diagnostic event emitter
         this.facade.onRunDiagnostics = (filename) => {
