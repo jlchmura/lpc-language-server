@@ -79,24 +79,29 @@ export class LpcBaseMethodSymbol
 
     eval(
         stack: CallStack,
-        params: IEvaluatableSymbol[] = [],
+        args: IEvaluatableSymbol[] = [],
         callScope?: RootFrame
     ) {
         if (this.name == "open") {
             const i = 0;
         }
         // add a new stack frame
-        const args = new Map<string, StackValue>();
         const locals = new Map<string, StackValue>();
 
-        // params eval on the main stack
-        params?.forEach((p) => {
-            const argVal = p.eval(stack) as StackValue;
+        // args eval on the main stack
+        const params = this.getParametersSync();
+        params.forEach((p, idx) => {
+            const argSym = args.length > idx ? args[idx] : undefined;
+            const argVal =
+                argSym?.eval(stack) ??
+                new StackValue(0, LpcTypes.intType, argSym);
             locals.set(p.name, argVal);
         });
 
         // the function's root frame is the callScope (if it was passed)
-        stack.push(new StackFrame(this, args, locals, callScope ?? stack.root));
+        stack.push(
+            new StackFrame(this, undefined, locals, callScope ?? stack.root)
+        );
 
         let result: any = 0;
 

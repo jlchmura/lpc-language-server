@@ -839,6 +839,7 @@ export class DetailsVisitor
                 typeName = "struct";
                 type = LpcTypes.closureType;
             }
+
             this.addNewSymbol(MethodParameterSymbol, p, name, type, nameToken);
         });
         return undefined;
