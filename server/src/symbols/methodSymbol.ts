@@ -363,6 +363,7 @@ export class EfunSymbol
         switch (this.name) {
             // NTBLA: put current object on the stack and return that instead of loading a new
             // instance of the object
+            case "first_inventory":
             case "next_inventory":
                 return new StackValue(undefined, LpcTypes.objectType, this);
             case "this_object":

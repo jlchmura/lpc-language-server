@@ -5,8 +5,14 @@ import {
     DidChangeConfigurationNotification,
     InitializeParams,
     InitializeResult,
+    NotificationType,
+    ProgressType,
+    ShowMessageNotification,
     TextDocumentSyncKind,
     TextDocuments,
+    WorkDoneProgress,
+    WorkDoneProgressBegin,
+    WorkDoneProgressCreateRequest,
 } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { URI } from "vscode-uri";
@@ -270,6 +276,27 @@ export class LpcServer {
                 }
             }
         );
+
+        this.connection.onRequest("textDocument/processAll", (params) => {
+            let i = 0;
+
+            this.connection.sendNotification(
+                "lpc/processing",
+                "Processing all files..."
+            );
+
+            const p = new Promise((resolve) => {
+                this.facade.parseAllFiles();
+                resolve(true);
+            }).then(() => {
+                this.connection.sendNotification(
+                    "lpc/processAll-complete",
+                    "Done processing all files."
+                );
+            });
+
+            return true;
+        });
     }
 
     /**
@@ -392,15 +419,7 @@ export class LpcServer {
         this.renameProvider = new RenameProvider(this.facade);
         this.highlighProvider = new HighlightProvider(this.facade);
 
-        setTimeout(() => {
-            this.parseAllFiles();
-        }, 5000);
-
         return result;
-    }
-
-    private parseAllFiles() {
-        this.facade.parseAllFiles();
     }
 
     // private clDisp: Disposable;

@@ -14,6 +14,10 @@ import {
     CancellationToken,
     ProviderResult,
     SemanticTokens,
+    commands,
+    TextEditor,
+    TextEditorEdit,
+    window,
 } from "vscode";
 
 import {
@@ -26,8 +30,10 @@ import {
     ServerOptions,
     TransportKind,
 } from "vscode-languageclient/node";
+import { ProgressIndicator } from "./ProgressIndicator";
 
 let client: LanguageClient;
+const progress = new ProgressIndicator();
 
 export function activate(context: ExtensionContext) {
     // The server is implemented in node
@@ -127,6 +133,30 @@ export function activate(context: ExtensionContext) {
             legend
         )
     );
+
+    context.subscriptions.push(
+        commands.registerTextEditorCommand(
+            "lpc.processAll",
+            async (textEditor: TextEditor, _edit: TextEditorEdit) => {
+                progress.startAnimation();
+                return await client
+                    .sendRequest("textDocument/processAll", {})
+                    .catch((e) => {
+                        console.error("Error sending process all request", e);
+                        progress.stopAnimation();
+                        return e;
+                    });
+            }
+        )
+    );
+
+    client.onNotification("lpc/processAll-complete", (params) => {
+        progress.stopAnimation();
+    });
+
+    client.onNotification("lpc/processing", (params) => {
+        window.showInformationMessage(params);
+    });
 }
 
 export function deactivate(): Thenable<void> | undefined {

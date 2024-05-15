@@ -548,29 +548,30 @@ export class LpcFacade {
     public parseAllFiles() {
         const dirsToProcess = [this.workspaceDir];
 
-        // performance.mark("parse-all-start");
-        // while (dirsToProcess.length > 0) {
-        //     const dir = dirsToProcess.pop();
-        //     const files = fs.readdirSync(dir, { withFileTypes: true });
-        //     files.forEach((file) => {
-        //         if (file.isDirectory())
-        //             dirsToProcess.push(path.join(dir, file.name));
-        //         else if (file.name.endsWith(".c") || file.name.endsWith(".h")) {
-        //             try {
-        //                 const filename = path.join(dir, file.name);
-        //                 const txt = fs.readFileSync(filename, "utf8");
-        //                 this.loadLpc(filename, txt);
-        //                 this.onRunDiagnostics(filename);
-        //             } catch (e) {
-        //                 console.error(`Error parsing ${file.name}: ${e}`);
-        //             }
-        //         }
-        //     });
-        // }
+        performance.mark("parse-all-start");
+        while (dirsToProcess.length > 0) {
+            const dir = dirsToProcess.pop();
+            const files = fs.readdirSync(dir, { withFileTypes: true });
+            files.forEach((file) => {
+                if (file.isDirectory())
+                    dirsToProcess.push(path.join(dir, file.name));
+                else if (file.name.endsWith(".c") || file.name.endsWith(".h")) {
+                    try {
+                        const filename = path.join(dir, file.name);
+                        const txt = fs.readFileSync(filename, "utf8");
+                        this.loadLpc(filename, txt);
+                        this.onRunDiagnostics(filename);
+                        this.releaseLpc(filename);
+                    } catch (e) {
+                        console.error(`Error parsing ${file.name}: ${e}`);
+                    }
+                }
+            });
+        }
 
-        // console.debug("[PARSE-ALL] Complete");
+        console.debug("[PARSE-ALL] Complete");
 
-        // performance.mark("parse-all-end");
-        // performance.measure("parse-all", "parse-all-start", "parse-all-end");
+        performance.mark("parse-all-end");
+        performance.measure("parse-all", "parse-all-start", "parse-all-end");
     }
 }
