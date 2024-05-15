@@ -104,7 +104,7 @@ export class CallStack {
     }
 
     public addLocal(name: string, value: StackValue) {
-        this.peek().locals.set(name, value);
+        this.peek().addValue(name, value);
     }
 
     /**
@@ -176,6 +176,8 @@ export class CallStack {
 export class StackFrame {
     public returnValue: StackValue;
 
+    private lookupCache: Map<string, StackValue> = new Map();
+
     constructor(
         public symbol: ScopedSymbol,
         public args: Map<string, StackValue>,
@@ -185,12 +187,23 @@ export class StackFrame {
         //super(symbol, locals);
     }
 
+    public addValue(name: string, value: StackValue) {
+        this.lookupCache.delete(name);
+        this.locals.set(name, value);
+    }
+
     public getValue<T>(name: string): StackValue {
+        if (this.lookupCache.has(name)) {
+            return this.lookupCache.get(name);
+        }
+
         const result = walkStackToProgram(this, (frame) => {
             if (frame.locals.has(name)) {
                 return frame.locals.get(name) as StackValue<T>;
             }
         });
+
+        this.lookupCache.set(name, result);
 
         if (!result) {
             console.warn("Variable " + name + " not found in stack");
@@ -199,6 +212,8 @@ export class StackFrame {
     }
 
     public clearValue(name: string) {
+        this.lookupCache.delete(name);
+
         const result = walkStackToProgram(this, (frame) => {
             if (frame.locals.has(name)) {
                 frame.locals.delete(name);

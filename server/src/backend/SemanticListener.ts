@@ -44,6 +44,7 @@ import { DefineSymbol } from "../symbols/defineSymbol";
 import { CallStack, StackValue } from "./CallStack";
 import { EfunSymbols } from "./EfunsLDMud";
 import { InheritSymbol } from "../symbols/inheritSymbol";
+import { addPogramToStack } from "./CallStackUtils";
 
 export class SemanticListener extends LPCParserListener {
     private seenSymbols = new Map<string, Token>();
@@ -193,7 +194,7 @@ export class SemanticListener extends LPCParserListener {
 
         // add globals (efuns, etc) to the stack first
         // NTBLA: what about SEFUNS
-        this.addPogramToStack(EfunSymbols, stack);
+        addPogramToStack(EfunSymbols, stack);
 
         // add all dependencies to the stack second
         // must be done recurisvely
@@ -205,7 +206,7 @@ export class SemanticListener extends LPCParserListener {
                 processed.add(importFilename);
 
                 const importTbl = importCtx.symbolTable;
-                this.addPogramToStack(importTbl, stack);
+                addPogramToStack(importTbl, stack);
 
                 imports.push(
                     ...(backend.getDependencies(importFilename) ?? [])
@@ -217,38 +218,12 @@ export class SemanticListener extends LPCParserListener {
         // to the stack to match the order in which LPC runs code.
 
         // now add this program to the stack
-        this.addPogramToStack(progSymbol, stack);
+        addPogramToStack(progSymbol, stack);
 
         // now evaluate this program
         for (const child of progSymbol.children) {
             if (child instanceof MethodSymbol) {
                 const result = child.eval(stack);
-            }
-        }
-    }
-
-    private addPogramToStack(progSymbol: ScopedSymbol, stack: CallStack) {
-        for (const child of progSymbol.children) {
-            // put each child on the stack.  Evaluate variables as go.
-            // we'll come back and evaluate methods later.
-            if (child instanceof LpcBaseMethodSymbol) {
-                stack.addFunction(child.name, child);
-            }
-            // else if (
-            //     child instanceof LpcBaseMethodSymbol &&
-            //     !stack.doesFunctionExist(child.name)
-            // ) {
-            //     // add the method to the stack, but only if an actual method definition doesn't already exist
-            //     stack.addFunction(child.name, child);
-            // }
-            else {
-                if (child instanceof VariableSymbol) {
-                    const result = child.eval(stack);
-                } else if (isInstanceOfIEvaluatableSymbol(child)) {
-                    const result = child.eval(stack);
-                } else {
-                    console.debug("node not evaluable: " + child.name);
-                }
             }
         }
     }

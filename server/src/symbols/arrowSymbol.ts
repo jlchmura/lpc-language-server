@@ -15,6 +15,10 @@ import { DiagnosticSeverity } from "vscode-languageserver";
 import { addDiagnostic } from "./Symbol";
 import { ScopedSymbol } from "antlr4-c3";
 import { LpcFileHandler } from "../backend/FileHandler";
+import {
+    addDependenciesToStack,
+    addPogramToStack,
+} from "../backend/CallStackUtils";
 
 export enum ArrowType {
     CallOther,
@@ -174,11 +178,8 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
 
         // create a new root frame for this object
         // this doesn't need to go on the stack, it's just a temporary frame
-        const rootFrame = new RootFrame(
-            symTbl,
-            new Map<string, any>(),
-            new Map<string, any>()
-        );
+        const arrowStack = new CallStack(symTbl);
+        const rootFrame = arrowStack.root;
 
         // since we have a new root frame, we need to add the functions for the arrow's program
         // NTBLA: create the root frame in the source context so taht funs don't have to be re-added every time
@@ -188,6 +189,10 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
         funs.forEach((f) => {
             addFunctionToFrame(rootFrame, f.name, f);
         });
+
+        // after new root frame is on the stack, add the arrow's program to the stack
+        addDependenciesToStack(this.fileHandler, symTbl, arrowStack);
+        addPogramToStack(symTbl, arrowStack);
 
         //const result = funSym.eval(stack, argVals);
         this.target?.eval(stack, rootFrame); // eval target again to put fn name on stack

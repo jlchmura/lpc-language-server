@@ -27,6 +27,12 @@ export class LpcFileHandler {
 
     public loadImport(filename: string) {}
 
+    public getDependencies(filename: string) {
+        // get a list of dependencies for a given file
+        const depFiles = this.backend.getDependencies(filename);
+        return depFiles.map((f) => this.backend.getContext(f));
+    }
+
     public doesReferenceFile(filename: string): boolean {
         const refFilename = this.backend.filenameToAbsolutePath(filename);
         const refs = this.sourceContext.info.objectReferences;
