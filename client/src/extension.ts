@@ -57,8 +57,9 @@ export function activate(context: ExtensionContext) {
         documentSelector: docSel,
         synchronize: {
             // Notify the server about file changes to '.clientrc files contained in the workspace
-            fileEvents: workspace.createFileSystemWatcher("**/.clientrc"),
+            fileEvents: workspace.createFileSystemWatcher("**/lpcconfig.json"),
         },
+        diagnosticCollectionName: "LPC",
     };
 
     // Create the language client and start the client.
