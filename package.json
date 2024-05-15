@@ -31,6 +31,10 @@
         "type": "git",
         "url": "https://github.com/jlchmura/lpc-language-server"
     },
+    "activationEvents": [
+        "workspaceContains:**/*.c",
+        "workspaceContains:lpc-config.json"
+    ],
     "contributes": {
         "languages": [
             {
@@ -44,7 +48,7 @@
                     ".c",
                     ".h"
                 ],
-                "configuration": "./language-configuration.json"
+                "configuration": "./lpc-config.json"
             }
         ],
         "grammars": [

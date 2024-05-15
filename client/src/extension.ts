@@ -62,8 +62,8 @@ export function activate(context: ExtensionContext) {
         // Register the server for plain text documents
         documentSelector: docSel,
         synchronize: {
-            // Notify the server about file changes to '.clientrc files contained in the workspace
-            fileEvents: workspace.createFileSystemWatcher("**/lpcconfig.json"),
+            // Notify the server about file changes to lpc config files contained in the workspace
+            fileEvents: workspace.createFileSystemWatcher("**/lpc-config.json"),
         },
         diagnosticCollectionName: "LPC",
     };
