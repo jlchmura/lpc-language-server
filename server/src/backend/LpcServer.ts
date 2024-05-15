@@ -420,11 +420,11 @@ export class LpcServer {
 
         // send grouped results
         for (const diagResult of result) {
-            console.debug(
-                `Sending ${
-                    diagResult.diagnostics?.length ?? 0
-                } diagnostics for ${diagResult.uri}`
-            );
+            // console.debug(
+            //     `Sending ${
+            //         diagResult.diagnostics?.length ?? 0
+            //     } diagnostics for ${diagResult.uri}`
+            // );
 
             const { uri, diagnostics, version } = diagResult;
 

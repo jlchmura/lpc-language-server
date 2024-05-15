@@ -12,13 +12,14 @@ import {
     isInstanceOfIEvaluatableSymbol,
     IRenameableSymbol,
 } from "./base";
-import { ILexicalRange, SymbolKind } from "../types";
-import { IdentifierSymbol } from "./Symbol";
+import { ILexicalRange, LpcTypes, SymbolKind } from "../types";
+import { ArgumentSymbol, IdentifierSymbol } from "./Symbol";
 import { resolveOfTypeSync } from "../utils";
 import { DefineSymbol } from "./defineSymbol";
 import { VariableDeclaratorContext } from "../parser3/LPCParser";
 import { CallStack, StackValue } from "../backend/CallStack";
 import { Token } from "antlr4ng";
+import { LpcBaseMethodSymbol } from "./methodSymbol";
 
 export class VariableSymbol
     extends TypedSymbol
@@ -38,12 +39,9 @@ export class VariableSymbol
             } else {
                 this.value = scope;
             }
-
-            stack.addLocal(
-                this.name,
-                new StackValue(this.value, this.type, this)
-            );
         }
+
+        stack.addLocal(this.name, new StackValue(this.value, this.type, this));
 
         return new StackValue(this.value, this.type, this);
     }
@@ -63,10 +61,8 @@ export class VariableIdentifierSymbol
 {
     nameRange: ILexicalRange;
     eval(stack: CallStack, scope?: any) {
-        const def = this.findDeclaration() as IEvaluatableSymbol;
-        if (this.name == "tp") {
-            const i = 0;
-        }
+        //const def = this.findDeclaration() as IEvaluatableSymbol;
+        const def = stack.getValue(this.name)?.symbol as IEvaluatableSymbol;
         return def?.eval(stack, scope);
     }
     public findDeclaration() {
@@ -75,7 +71,8 @@ export class VariableIdentifierSymbol
             this.name,
             VariableSymbol
         );
-        defSymbol ??= resolveOfTypeSync(this.parent, this.name, DefineSymbol);
+        defSymbol ??= resolveOfTypeSync(this.parent, this.name, ArgumentSymbol);
+
         return defSymbol;
     }
 }

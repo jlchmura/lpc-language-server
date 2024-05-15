@@ -158,11 +158,15 @@ export class CallStack {
 
     public getValue<T>(name: string): StackValue {
         const result = this.peek().getValue<T>(name);
-
-        if (!result) {
-            console.warn("Variable " + name + " not found in stack");
-        }
         return result;
+    }
+
+    public isCallerInStack(symbol: BaseSymbol): boolean {
+        return (
+            walkStackToProgram(this.peek(2), (frame) => {
+                return frame.symbol.name === symbol.name;
+            }) || false
+        );
     }
 }
 

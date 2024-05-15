@@ -101,7 +101,7 @@ export class LpcBaseMethodSymbol
         let result: any = 0;
 
         // don't eval past this many recurssions, just to be safe.
-        if (stack.length > MAX_CALLDEPTH_SIZE) {
+        if (stack.length > MAX_CALLDEPTH_SIZE || stack.isCallerInStack(this)) {
             const stackTrace = stack.getStackTrace();
             //console.debug("Max call stack exceeded: " + this.name, stackTrace);
             stack.pop();
@@ -356,6 +356,8 @@ export class EfunSymbol
         switch (this.name) {
             // NTBLA: put current object on the stack and return that instead of loading a new
             // instance of the object
+            case "next_inventory":
+                return new StackValue(undefined, LpcTypes.objectType, this);
             case "this_object":
                 return new StackValue(
                     new ObjectReferenceInfo(

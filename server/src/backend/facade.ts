@@ -47,18 +47,18 @@ export class LpcFacade {
     ) {
         console.log("LpcFacade created", importDir, workspaceDir);
 
-        // const obs = new PerformanceObserver((list) => {
-        //     list.getEntries().forEach((entry) => {
-        //         console.log(
-        //             `[Perf] ${entry.name} took ${entry.duration} ms`,
-        //             entry.detail
-        //         );
-        //     });
+        const obs = new PerformanceObserver((list) => {
+            list.getEntries().forEach((entry) => {
+                console.log(
+                    `[Perf] ${entry.name} took ${entry.duration} ms`,
+                    entry.detail
+                );
+            });
 
-        //     performance.clearMarks();
-        //     performance.clearMeasures();
-        // });
-        // obs.observe({ entryTypes: ["measure"], buffered: true });
+            performance.clearMarks();
+            performance.clearMeasures();
+        });
+        obs.observe({ entryTypes: ["measure"], buffered: true });
     }
 
     public filenameToAbsolutePath(filename: string): string {
@@ -547,6 +547,8 @@ export class LpcFacade {
 
     public parseAllFiles() {
         const dirsToProcess = [this.workspaceDir];
+
+        // performance.mark("parse-all-start");
         // while (dirsToProcess.length > 0) {
         //     const dir = dirsToProcess.pop();
         //     const files = fs.readdirSync(dir, { withFileTypes: true });
@@ -554,12 +556,21 @@ export class LpcFacade {
         //         if (file.isDirectory())
         //             dirsToProcess.push(path.join(dir, file.name));
         //         else if (file.name.endsWith(".c") || file.name.endsWith(".h")) {
-        //             const filename = path.join(dir, file.name);
-        //             const txt = fs.readFileSync(filename, "utf8");
-        //             this.loadLpc(filename, txt);
-        //             this.onRunDiagnostics(filename);
+        //             try {
+        //                 const filename = path.join(dir, file.name);
+        //                 const txt = fs.readFileSync(filename, "utf8");
+        //                 this.loadLpc(filename, txt);
+        //                 this.onRunDiagnostics(filename);
+        //             } catch (e) {
+        //                 console.error(`Error parsing ${file.name}: ${e}`);
+        //             }
         //         }
         //     });
         // }
+
+        // console.debug("[PARSE-ALL] Complete");
+
+        // performance.mark("parse-all-end");
+        // performance.measure("parse-all", "parse-all-start", "parse-all-end");
     }
 }
