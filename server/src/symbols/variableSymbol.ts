@@ -61,20 +61,20 @@ export class VariableIdentifierSymbol
 {
     nameRange: ILexicalRange;
     eval(stack: CallStack, scope?: any) {
-        //const def = this.findDeclaration() as IEvaluatableSymbol;
+        //const def = this.findDeclarationSymbol() as IEvaluatableSymbol;
         const def = stack.getValue(this.name)?.symbol as IEvaluatableSymbol;
         return def?.eval(stack, scope);
     }
-    public findDeclaration() {
-        let defSymbol: BaseSymbol = resolveOfTypeSync(
-            this.parent,
-            this.name,
-            VariableSymbol
-        );
-        defSymbol ??= resolveOfTypeSync(this.parent, this.name, ArgumentSymbol);
+    // public findDeclarationSymbol() {
+    //     let defSymbol: BaseSymbol = resolveOfTypeSync(
+    //         this.parent,
+    //         this.name,
+    //         VariableSymbol
+    //     );
+    //     defSymbol ??= resolveOfTypeSync(this.parent, this.name, ArgumentSymbol);
 
-        return defSymbol;
-    }
+    //     return defSymbol;
+    // }
 }
 
 export class VariableInitializerSymbol
