@@ -278,8 +278,6 @@ export class LpcServer {
         );
 
         this.connection.onRequest("textDocument/processAll", (params) => {
-            let i = 0;
-
             this.connection.sendNotification(
                 "lpc/processing",
                 "Processing all files..."

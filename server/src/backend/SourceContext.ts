@@ -308,7 +308,7 @@ export class SourceContext {
     public parse(): IContextDetails {
         performance.mark("parse-start");
 
-        console.debug(`Parsing ${this.fileName}`);
+        // console.debug(`Parsing ${this.fileName}`);
 
         this.info.imports.length = 0;
         this.semanticAnalysisDone = false;

@@ -49,6 +49,9 @@
                     ".h"
                 ],
                 "configuration": "./lpc-config.json"
+            },
+            {
+                "id": "lpc-lsp"
             }
         ],
         "grammars": [

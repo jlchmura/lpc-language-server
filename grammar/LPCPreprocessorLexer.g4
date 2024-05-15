@@ -13,7 +13,7 @@ SLASH             : '/'                                          -> type(CODE);
 CHARACTER_LITERAL : '\'' (EscapeSequence | ~('\'' | '\\')) ~'#'      -> type(CODE);
 QUOTE_STRING      : '\'' (EscapeSequence | ~('\'' | '\\'))* ~'#'     -> type(CODE);
 STRING            : StringFragment                               -> type(CODE);
-CODE              : (~[#'"/]|'#\'')+;
+CODE              : (~[#"/]|'#\'')+;
 
 mode DIRECTIVE_MODE;
 
