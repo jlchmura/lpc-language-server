@@ -1,0 +1,45 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+        {
+            "anyOf": [
+                {
+                    "$ref": "#/definitions/definesDefinition"
+                }
+            ]
+        }
+    ],
+    "definitions": {
+        "//": {
+            "explainer": "https://www.typescriptlang.org/docs/handbook/tsconfig-json.html#overview",
+            "reference": "https://www.typescriptlang.org/tsconfig",
+            "reference metadata": "https://github.com/microsoft/TypeScript-Website/blob/v2/packages/tsconfig-reference/scripts/tsconfigRules.ts"
+        },
+        "defineDefinition": {
+            "properties": {
+                "define": {
+                    "type": ["object"],
+                    "items": {
+                        "type": ["string", "null"]
+                    }
+                }
+            }
+        },
+        "definesDefinition": {
+            "properties": {
+                "defines": {
+                    "$comment": "The value of 'null' is UNDOCUMENTED (https://github.com/microsoft/TypeScript/pull/18058).",
+                    "description": "Specifies a list of glob patterns that match files to be included in compilation. If no 'files' or 'include' property is present in a tsconfig.json, the compiler defaults to including all files in the containing directory and subdirectories except those specified by 'exclude'. Requires TypeScript version 2.0 or later.",
+                    "type": ["array", "null"],
+                    "uniqueItems": true,
+                    "items": {
+                        "allOf": [{ "$ref": "#/definitions/defineDefinition" }]
+                    }
+                }
+            }
+        }
+    },
+    "id": "https://json.schemastore.org/lpc-config",
+    "title": "JSON schema for the LPC parser's configuration file",
+    "type": "object"
+}

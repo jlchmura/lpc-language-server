@@ -11,9 +11,9 @@ LINE_COMMENT      : '//' ~[\r\n]*                                -> type(CODE);
 SLASH             : '/'                                          -> type(CODE);
 // char literal / quoted strings don't have an ending quote on purpose. we don't care in the preprocessor
 CHARACTER_LITERAL : '\'' (EscapeSequence | ~('\'' | '\\')) ~'#'      -> type(CODE);
-QUOTE_STRING      : '\'' (EscapeSequence | ~('\'' | '\\'))* ~'#'     -> type(CODE);
+//QUOTE_STRING      : '\'' (EscapeSequence | ~('\'' | '\\'))* ~'#'     -> type(CODE);
 STRING            : StringFragment                               -> type(CODE);
-CODE              : (~[#"/]|'#\'')+;
+CODE              : (~[#'"/]|'#\'')+;
 
 mode DIRECTIVE_MODE;
 

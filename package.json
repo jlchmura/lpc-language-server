@@ -67,6 +67,16 @@
                 "title": "Process All Files",
                 "category": "LPC"
             }
+        ],
+        "jsonValidation": [
+            {
+                "fileMatch": "lpc-config.json",
+                "url": "./schemas/lpc.schema.json"
+            },
+            {
+                "fileMatch": "lpc-config.json",
+                "url": "./schemas/lpc-config.schema.json"
+            }
         ]
     },
     "keywords": [

@@ -1,0 +1,12 @@
+{
+    "allowTrailingCommas": true,
+    "title": "JSON schema for the LPC parser's configuration file",
+    "type": "object",
+    "default": {
+        "defines": [
+            {
+                "__VERSION__": "1.0"
+            }
+        ]
+    }
+}
