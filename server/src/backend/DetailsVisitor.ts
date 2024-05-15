@@ -144,55 +144,9 @@ export class DetailsVisitor
         super();
     }
 
-    /**
-     * Parse a synthentic code block from a define directive
-     * @param str code block string
-     * @returns symbol table
-     * @deprecated
-     */
-    private parseDefine(str: string) {
-        this.defineLexer.inputStream = CharStream.fromString(str);
-        // reset everything
-        this.defineLexer.reset();
-        this.defineTokenStream.setTokenSource(this.defineLexer);
-        this.defineParser.reset();
-        this.defineParser.interpreter.predictionMode = PredictionMode.SLL;
-        // no recovery needed, just bail
-        this.defineParser.errorHandler = new BailErrorStrategy();
-        try {
-            const table = new ContextSymbolTable("define", {
-                allowDuplicateSymbols: true,
-            });
-            table.addDependencies(this.symbolTable);
-            table.tree = this.defineParser.program();
-            const vis = new DetailsVisitor(
-                this.backend,
-                table,
-                [],
-                this.tokenBuilder,
-                this.fileHandler
-            );
-            table.tree.accept(vis);
-            return table;
-        } catch (e) {
-            const i = 0;
-        }
-    }
-
-    /**
-     * This parser goes a bit above and beyond when it comes to define directives.
-     * Because we want to be able to validate the code that uses them, for example
-     * to know that `TP` is the same as `this_player()`.  To do this, the define
-     * will be reassembled into a fake function or variable and re-parsed. Assuming
-     * the parse is successful, it will then be merged into the original symbol table
-     * and assigned to the define's context.  This way the token stream is not modified.
-     * @param ctx
-     * @returns
-     */
     visitDefinePreprocessorDirective = (
         ctx: DefinePreprocessorDirectiveContext
     ) => {
-        const tokenIdx = ctx.start.tokenIndex;
         const defineStr = ctx.END_DEFINE()?.getText()?.trim();
 
         // trim everything after the first space
@@ -204,74 +158,7 @@ export class DetailsVisitor
         // strip escaped newlines
         value = value.replace(/\\\n/g, "");
 
-        // is this a macro?
-        if (label.includes("(")) {
-            // re-assemble this as a fake function and parse it
-            // the newline before the semi is intention, incase the define has a
-            // comment after it
-            let funcStr = `${label} { return ${value}\n; }\n`;
-            try {
-                let table = this.parseDefine(funcStr);
-                if (!table) {
-                    // try one more time without the return
-                    // there may be a better way to do this instead of trying to parse twice
-                    funcStr = `${label} { ${value}; }\n`;
-                    table = this.parseDefine(funcStr);
-                }
-                // now there should be a method symbol in there
-                const methodSym = firstEntry(
-                    getSymbolsOfTypeSync(table, MethodSymbol)
-                );
-                if (!!methodSym) {
-                    // create a new method that will be on this file's symbol table
-                    const defineMethodSym = this.addNewSymbol(
-                        MethodSymbol,
-                        ctx,
-                        methodSym.name
-                    );
-                    defineMethodSym.functionModifiers = new Set();
-
-                    // move params over
-                    while (methodSym.children.length > 0) {
-                        defineMethodSym.addSymbol(methodSym.firstChild);
-                    }
-
-                    return undefined;
-                }
-            } catch {}
-        } else {
-            // not a macro, but the value may still have an expression
-            const varStr = `${label} = ${value}\n;`;
-            try {
-                const table = this.parseDefine(varStr);
-                // add a variable symbol to this file's table
-                const varSym = this.addNewSymbol(
-                    DefineVariableSymbol,
-                    ctx,
-                    label
-                );
-                // if there is an initializer, move its children over
-                const varInit = firstEntry(
-                    getSymbolsOfTypeSync(table, VariableInitializerSymbol)
-                );
-                if (!!varInit) {
-                    this.withScope(
-                        ctx,
-                        VariableInitializerSymbol,
-                        ["#initializer#", varSym],
-                        (s) => {
-                            while (varInit.children.length > 0) {
-                                s.addSymbol(varInit.firstChild);
-                            }
-                        }
-                    );
-
-                    return undefined;
-                }
-            } catch {}
-        }
-
-        // this is a final fallback - just add a symbol so we can resolve it
+        // just add a symbol so we can resolve it
         const sym = this.symbolTable.addNewSymbolOfType(
             DefineSymbol,
             this.scope,

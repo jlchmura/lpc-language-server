@@ -224,11 +224,11 @@ export function walkStackToProgram<T>(
     frame: StackFrame,
     action: (frame: StackFrame) => T | undefined
 ) {
-    let parent = frame;
-    while (!!parent) {
-        const result = action(parent);
+    let f = frame;
+    while (!!f) {
+        const result = action(f);
         if (result) return result;
-        parent = parent.parent;
+        f = f.parent;
     }
     return undefined;
 }

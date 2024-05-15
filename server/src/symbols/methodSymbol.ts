@@ -36,6 +36,7 @@ import {
 import { ParserRuleContext, Token } from "antlr4ng";
 import { addDiagnostic } from "./Symbol";
 import { InheritSuperAccessorSymbol } from "./inheritSymbol";
+import { VariableSymbol } from "./variableSymbol";
 
 export const MAX_CALLDEPTH_SIZE = 25;
 const OBJ_PLAYER_FILENAME = "/obj/player";
@@ -92,10 +93,11 @@ export class LpcBaseMethodSymbol
         const params = this.getParametersSync();
         params.forEach((p, idx) => {
             const argSym = args.length > idx ? args[idx] : undefined;
-            const argVal =
-                argSym?.eval(stack) ??
-                new StackValue(0, LpcTypes.intType, argSym);
-            locals.set(p.name, argVal);
+            const argVal = argSym?.eval(stack, callScope) as StackValue;
+            const paramVal = argVal
+                ? new StackValue(argVal.value, argVal.type, p)
+                : new StackValue(0, LpcTypes.intType, p);
+            locals.set(p.name, paramVal);
         });
 
         // the function's root frame is the callScope (if it was passed)
