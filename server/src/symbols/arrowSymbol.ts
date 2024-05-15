@@ -5,7 +5,7 @@ import {
     StackValue,
     addFunctionToFrame,
 } from "../backend/CallStack";
-import { LpcBaseMethodSymbol, MethodInvocationSymbol } from "./methodSymbol";
+import { MethodInvocationSymbol } from "./methodSymbol";
 import { ObjectReferenceInfo } from "./objectSymbol";
 import { SourceContext } from "../backend/SourceContext";
 import { ParserRuleContext } from "antlr4ng";
@@ -183,14 +183,9 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
 
         // since we have a new root frame, we need to add the functions for the arrow's program
         // NTBLA: create the root frame in the source context so taht funs don't have to be re-added every time
-        const funs =
-            getSymbolsOfTypeSync(symTbl, LpcBaseMethodSymbol, false) ?? [];
-        funs.reverse(); // reverse so that the last function is added first
-        funs.forEach((f) => {
-            addFunctionToFrame(rootFrame, f.name, f);
-        });
 
         // after new root frame is on the stack, add the arrow's program to the stack
+        addPogramToStack(this.fileHandler.efunSymbols, arrowStack);
         addDependenciesToStack(this.fileHandler, symTbl, arrowStack);
         addPogramToStack(symTbl, arrowStack);
 

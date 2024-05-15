@@ -1,13 +1,15 @@
-import { BaseSymbol } from "antlr4-c3";
+import { BaseSymbol, SymbolTable } from "antlr4-c3";
 import { SourceContext } from "./SourceContext";
 import { LpcFacade } from "./facade";
 import { BackendUtils } from "./BackendUtils";
 import { normalizeFilename } from "../utils";
+import { ContextSymbolTable } from "./ContextSymbolTable";
 
 export class LpcFileHandler {
     constructor(
         private backend: LpcFacade,
-        private sourceContext: SourceContext
+        private sourceContext: SourceContext,
+        public efunSymbols: ContextSymbolTable
     ) {}
 
     public loadReference(filename: string, symbol?: BaseSymbol): SourceContext {

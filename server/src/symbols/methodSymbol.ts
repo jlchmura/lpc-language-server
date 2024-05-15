@@ -174,7 +174,7 @@ export class MethodInvocationSymbol
         const fnLookupFrame = callScope ?? stack.getCurrentRoot();
 
         // find the function that this invocation points to
-        const funcIdValue = stack.getValue<string>(FUNCTION_NAME_KEY);
+        const funcIdValue = stack.getValue<string>(FUNCTION_NAME_KEY, this);
         stack.clearValue(FUNCTION_NAME_KEY);
         const methodName = (this.methodName = funcIdValue?.value);
 

@@ -62,7 +62,8 @@ export class VariableIdentifierSymbol
     nameRange: ILexicalRange;
     eval(stack: CallStack, scope?: any) {
         //const def = this.findDeclarationSymbol() as IEvaluatableSymbol;
-        const def = stack.getValue(this.name)?.symbol as IEvaluatableSymbol;
+        const def = stack.getValue(this.name, this)
+            ?.symbol as IEvaluatableSymbol;
         return def?.eval(stack, scope);
     }
     // public findDeclarationSymbol() {

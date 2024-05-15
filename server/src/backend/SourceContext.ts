@@ -113,7 +113,7 @@ export class SourceContext {
 
     public static efunSymbols = EfunSymbols;
 
-    public fileHandler = new LpcFileHandler(this.backend, this);
+    public fileHandler = new LpcFileHandler(this.backend, this, EfunSymbols);
     public symbolTable: ContextSymbolTable;
     public sourceId: string;
     public info: IContextDetails = {

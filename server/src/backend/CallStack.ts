@@ -22,7 +22,7 @@ export class StackValue<T = any> {
 let lastExecId = 1;
 export class CallStack {
     private readonly stack: StackFrame[] = [];
-    private readonly rootFrame: StackFrame;
+    private rootFrame: StackFrame;
 
     public executionId: number;
 
@@ -43,14 +43,31 @@ export class CallStack {
         this.stack.push(this.rootFrame);
     }
 
+    private getRootForFrame(frame: StackFrame) {
+        return walkStackToProgram(frame, (f) =>
+            f instanceof RootFrame ? f : undefined
+        );
+    }
+
     public push(frame: StackFrame) {
         // if the frame did not have a program assigned, then assign the root frame
         if (!frame.parent) frame.parent = this.rootFrame;
+        else {
+            const root = this.getRootForFrame(frame);
+            if (!!root) {
+                this.rootFrame = root;
+            }
+        }
         this.stack.push(frame);
     }
 
     public pop() {
-        return this.stack.pop();
+        const poppedFrame = this.stack.pop();
+        const root = this.getRootForFrame(this.peek());
+        if (!!root) {
+            this.rootFrame = root;
+        }
+        return poppedFrame;
     }
 
     public peek(offset: number = 1) {
@@ -156,8 +173,14 @@ export class CallStack {
         return result;
     }
 
-    public getValue<T>(name: string): StackValue {
-        const result = this.peek().getValue<T>(name);
+    /**
+     * Get a value from the stack
+     * @param name Name of the value to get
+     * @param symbol Symbol requesting the value
+     * @returns
+     */
+    public getValue<T>(name: string, symbol: BaseSymbol): StackValue {
+        const result = this.peek().getValue<T>(name, symbol);
         return result;
     }
 
@@ -192,7 +215,12 @@ export class StackFrame {
         this.locals.set(name, value);
     }
 
-    public getValue<T>(name: string): StackValue {
+    /**
+     * Get a value from the stack
+     * @param name the name of the value to get
+     * @param symbol the symbol that is requesting the value
+     */
+    public getValue<T>(name: string, symbol: BaseSymbol): StackValue {
         if (this.lookupCache.has(name)) {
             return this.lookupCache.get(name);
         }
@@ -206,7 +234,10 @@ export class StackFrame {
         this.lookupCache.set(name, result);
 
         if (!result) {
-            console.warn("Variable " + name + " not found in stack");
+            const ctx = symbol.context as ParserRuleContext;
+            const owner = symbol.symbolTable.name;
+            const str = `Variable ${name} not found in stack; ${owner} at ${ctx.start.line}:${ctx.start.column}`;
+            console.warn(str);
         }
         return result;
     }
