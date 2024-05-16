@@ -695,6 +695,7 @@ export class SourceContext {
             lexerColumn,
             lexerRow
         );
+
         if (!terminal || !(terminal instanceof TerminalNode)) {
             return undefined;
         }

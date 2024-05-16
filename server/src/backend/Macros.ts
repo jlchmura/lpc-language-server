@@ -524,7 +524,7 @@ class CodeBuilderMacro extends CodeBuilder {
             this.sourceMap.addMapping(
                 this.writer.line,
                 this.writer.column + 1 + annotation.length,
-                start.row,
+                start.row + 1,
                 start.column
             ); //  +1 for the space
             this.hasSourceMap = true;
@@ -582,7 +582,7 @@ class CodeBuilderFunctionMacro extends CodeBuilder {
             this.sourceMap.addMapping(
                 this.writer.line,
                 this.writer.column + 1 + annotation.length,
-                start.row,
+                start.row + 1,
                 start.column
             ); //  +1 for the space
             this.hasSourceMap = true;
@@ -599,7 +599,7 @@ class CodeBuilderFunctionMacro extends CodeBuilder {
         this.sourceMap.addMapping(
             this.writer.line,
             this.writer.column,
-            start.row,
+            start.row + 1,
             start.column
         );
 

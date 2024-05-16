@@ -11,6 +11,8 @@ type SourceMapping = {
 
 export class SourceMap {
     private mapping: SourceMapping[] = [];
+    private mappingBySource: SourceMapping[] = [];
+    private isSorted = false;
 
     constructor() {}
 
@@ -22,6 +24,17 @@ export class SourceMap {
                 return a.line - b.line;
             }
         });
+
+        this.mappingBySource = [...this.mapping];
+        this.mappingBySource.sort((a, b) => {
+            if (a.sourceLine == b.sourceLine) {
+                return a.sourceColumn - b.sourceColumn;
+            } else {
+                return a.sourceLine - b.sourceLine;
+            }
+        });
+
+        this.isSorted = true;
     }
 
     public addMapping(
@@ -36,20 +49,31 @@ export class SourceMap {
             sourceLine: sourceLine,
             sourceColumn: sourceColumn,
         });
+
+        this.isSorted = false;
+    }
+
+    private ensureSorted() {
+        if (!this.isSorted) {
+            this.resort();
+        }
     }
 
     private findEntry(
         sourceLine: number,
         sourceColumn: number
     ): SourceMapping | undefined {
+        this.ensureSorted();
         // find the closets mapping
         // using this algorithm borrowed from nodes sourcemap
+        const sortedMapping = this.mappingBySource;
+
         let first = 0;
-        let count = this.mapping.length;
+        let count = sortedMapping.length;
         while (count > 1) {
             const step = count >> 1;
             const middle = first + step;
-            const mapping = this.mapping[middle];
+            const mapping = sortedMapping[middle];
             if (
                 sourceLine < mapping.sourceLine ||
                 (sourceLine === mapping.sourceLine &&
@@ -62,7 +86,7 @@ export class SourceMap {
             }
         }
 
-        const m = this.mapping[first];
+        const m = sortedMapping[first];
         if (
             !first &&
             m &&
@@ -81,6 +105,7 @@ export class SourceMap {
         generatedLine: number,
         generatedColumn: number
     ): SourceMapping | undefined {
+        this.ensureSorted();
         // find the closets mapping
         // using this algorithm borrowed from nodes sourcemap
         let first = 0;
