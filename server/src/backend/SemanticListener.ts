@@ -10,6 +10,7 @@ import {
     InheritStatementContext,
     MethodInvocationContext,
     PrimaryExpressionContext,
+    PrimitiveTypeVariableDeclarationContext,
     ProgramContext,
 } from "../parser3/LPCParser";
 import { ScopedSymbol, MethodSymbol as BaseMethodSymbol } from "antlr4-c3";
@@ -18,36 +19,33 @@ import {
     areSetsEqual,
     areTwoParameterArraysEqual,
     getSibling,
-    normalizeFilename,
     rangeFromTokens,
     resolveOfTypeSync,
-    trimQuotes,
 } from "../utils";
-import { VariableSymbol } from "../symbols/variableSymbol";
+
 import {
     EfunSymbol,
-    LpcBaseMethodSymbol,
     MethodDeclarationSymbol,
     MethodInvocationSymbol,
     MethodSymbol,
 } from "../symbols/methodSymbol";
-import {
-    IEvaluatableSymbol,
-    getSymbolsOfTypeSync,
-    isInstanceOfIEvaluatableSymbol,
-} from "../symbols/base";
+
 import { CallOtherSymbol } from "../symbols/objectSymbol";
 import { DiagnosticSeverity } from "vscode-languageserver";
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import { SourceContext } from "./SourceContext";
-import { DefineSymbol } from "../symbols/defineSymbol";
-import { CallStack, StackValue } from "./CallStack";
+import { CallStack } from "./CallStack";
 import { EfunSymbols } from "./EfunsLDMud";
 import { InheritSymbol } from "../symbols/inheritSymbol";
 import { addPogramToStack } from "./CallStackUtils";
+import { ensureLpcConfig } from "./LpcConfig";
+import { getDriverInfo } from "../driver/Driver";
+import { addDiagnostic } from "../symbols/Symbol";
 
 export class SemanticListener extends LPCParserListener {
     private seenSymbols = new Map<string, Token>();
+    private config = ensureLpcConfig();
+    private driver = getDriverInfo();
 
     public constructor(
         private diagnostics: IDiagnosticEntry[],
@@ -181,6 +179,30 @@ export class SemanticListener extends LPCParserListener {
                     `Function parameters do not match its definition`,
                     funStart,
                     funEnd
+                );
+            }
+        }
+    };
+
+    exitPrimitiveTypeVariableDeclaration = (
+        ctx: PrimitiveTypeVariableDeclarationContext
+    ) => {
+        const objName = ctx._objectName;
+
+        if (!!objName?.text) {
+            const { version } = this.config.driver;
+
+            if (
+                !this.driver.checkFeatureCompatibility(
+                    "NamedObjectTypes",
+                    version
+                )
+            ) {
+                this.logDiagnostic(
+                    `Named object type not supported by driver version ${version}`,
+                    objName,
+                    objName,
+                    DiagnosticSeverity.Warning
                 );
             }
         }

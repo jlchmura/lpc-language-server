@@ -257,7 +257,7 @@ export class SourceContext {
         // add macros from config
         const config = ensureLpcConfig();
         const configDefines = new Map(config.defines ?? []);
-        configDefines.set("__VERSION__", config.driver.driverVersion);
+        configDefines.set("__VERSION__", config.driver.version);
 
         for (const [key, val] of config.defines ?? new Map()) {
             this.localMacroTable.set(key, {

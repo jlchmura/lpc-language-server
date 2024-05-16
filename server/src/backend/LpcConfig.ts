@@ -15,8 +15,8 @@ enum DriverType {
 }
 
 type DriverInfo = {
-    driverType: DriverType;
-    driverVersion: string;
+    type: DriverType;
+    version: string;
 };
 
 type DiagnosticsInfo = {
@@ -31,8 +31,8 @@ export class LpcConfig {
     ]);
 
     public driver: DriverInfo = {
-        driverType: DriverType.LDMud,
-        driverVersion: "3.3.720",
+        type: DriverType.LDMud,
+        version: "3.3.720",
     };
     public diagnostics: DiagnosticsInfo = {
         callOtherTargetUnknown: DiagnosticLevel.Info,

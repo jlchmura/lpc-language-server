@@ -28,7 +28,7 @@ export class LpcSymbolProvider {
             if (!symbols) return [];
 
             for (const symbol of symbols) {
-                if (!symbol.definition) {
+                if (!symbol || !symbol.definition || !symbol.name) {
                     continue;
                 }
 
@@ -64,8 +64,9 @@ export class LpcSymbolProvider {
         let description = symbolDescriptionFromEnum(symbol.kind);
         const kind = translateSymbolKind(symbol.kind);
         let children: DocumentSymbol[] =
-            symbol.children?.map((child) => this.createDocumentSymbol(child)) ??
-            [];
+            symbol.children
+                ?.filter((child) => !!child?.name)
+                .map((child) => this.createDocumentSymbol(child)) ?? [];
 
         const docSym = DocumentSymbol.create(
             symbol.name,
