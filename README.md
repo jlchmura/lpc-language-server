@@ -1,15 +1,18 @@
 # LPC Language Services
 
-Language server and VSCode extension that provides language support for LPC (Lars Pensjö C) - an object-oriented programming language derived from C and developed originally by Lars Pensjö to facilitate MUD building on LPMuds.
+Language server and VSCode extension that provides rich language support for LPC (Lars Pensjö C) - an object-oriented programming language derived from C and developed originally by Lars Pensjö to facilitate MUD building on LPMuds.
+
+Currently supports [LDMud](https://www.ldmud.eu/), with [FluffOS](https://www.fluffos.info/) support coming soon.
 
 ## Features
 
 -   Code Completion
--   Diagnostic messages
+-   Diagnostics
 -   Quick info
 -   Signature help, with type info
 -   Go to definitions (f12)
 -   Go to implementations (ctrl/cmd+f12)
+-   Go to symbol (cltr/cmd+o)
 -   Code outline
 -   Code navigation
 -   [Include / sefun support](#includes--sefuns)
@@ -19,7 +22,7 @@ Language server and VSCode extension that provides language support for LPC (Lar
 
 When the language server encounters an `#include`, it will search for a `sys` folder in the root of your project, in addition to local folders.
 
-In addition, the language server will attempt to load a file `sys/simul_efun.h` and add it as a reference to each LPC file opened. This will allow you to specify function headers for your sefuns, so that the language server can validate those function calls.
+In addition, the language server will attempt to load a file `obj/simul_efun.c` and add it as a reference to each LPC file opened. This will allow you to specify function headers for your sefuns, so that the language server can validate those function calls.
 
 `this_object()` will evaluate to the current program.
 `this_player()` will attempt to load `obj/player.c`.
@@ -54,7 +57,5 @@ Todo: Add a way to run just the language server, for use with editors other than
 
 ## Grammar ToDo's
 
--   Better support for #if/else/etc preprocessor directives
+-   LWObjects
 -   Coroutines
-
-## Evaluation Engine Todo
