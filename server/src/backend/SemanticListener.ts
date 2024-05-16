@@ -35,12 +35,13 @@ import { DiagnosticSeverity } from "vscode-languageserver";
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import { SourceContext } from "./SourceContext";
 import { CallStack } from "./CallStack";
-import { EfunSymbols } from "./EfunsLDMud";
+
 import { InheritSymbol } from "../symbols/inheritSymbol";
 import { addPogramToStack } from "./CallStackUtils";
 import { ensureLpcConfig } from "./LpcConfig";
 import { getDriverInfo } from "../driver/Driver";
 import { addDiagnostic } from "../symbols/Symbol";
+import { EfunSymbols } from "../driver/EfunsLDMud";
 
 export class SemanticListener extends LPCParserListener {
     private seenSymbols = new Map<string, Token>();
