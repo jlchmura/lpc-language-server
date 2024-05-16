@@ -168,7 +168,7 @@ export class SourceContext {
     private preprocessedText: string = "";
 
     /** flag that indicates if the text needs compiling, kind of like a dirty state */
-    private needsCompile = false;
+    public needsCompile = true;
 
     public sourceMap: SourceMap;
 

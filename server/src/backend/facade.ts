@@ -2,7 +2,13 @@ import * as fs from "fs";
 import * as path from "path";
 import { SourceContext } from "./SourceContext";
 import { ContextImportInfo, IDiagnosticEntry, ISymbolInfo } from "../types";
-import { FoldingRange, Position, SemanticTokens } from "vscode-languageserver";
+import {
+    CancellationToken,
+    CancellationTokenSource,
+    FoldingRange,
+    Position,
+    SemanticTokens,
+} from "vscode-languageserver";
 import { normalizeFilename } from "../utils";
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import { TextDocument } from "vscode-languageserver-textdocument";
@@ -12,7 +18,7 @@ import { PerformanceObserver, performance } from "perf_hooks";
 import { randomInt } from "crypto";
 
 /** ms delay before reparsing a depenency */
-const DEP_FILE_REPARSE_TIME = 250;
+const DEP_FILE_REPARSE_TIME = 300;
 
 export type IContextEntry = {
     context: SourceContext;
@@ -40,6 +46,10 @@ export class LpcFacade {
     >();
 
     public onRunDiagnostics: (filename: string) => void;
+
+    private depReparseQueue: string[] = [];
+    private depReparseTimer: NodeJS.Timeout;
+    private depReparseCancel: CancellationTokenSource | undefined = undefined;
 
     public constructor(
         public importDir: string[],
@@ -284,9 +294,6 @@ export class LpcFacade {
 
         const context = contextEntry.context;
 
-        if (context.fileName.endsWith("monster.c")) {
-            const ii = 0;
-        }
         depChain.add(context.fileName);
 
         try {
@@ -305,17 +312,22 @@ export class LpcFacade {
             }
 
             // queue dependencies to reparse & run their diags
-            // NTBLA: improve
             if (reparseRefs) {
-                setTimeout(() => {
-                    for (const ref of oldReferences) {
-                        const refCtx = this.getContextEntry(ref.fileName);
-                        this.parseLpc(refCtx, new Set());
-
-                        // send a notification to the server to re-send diags for this doc
-                        if (!!this.onRunDiagnostics)
-                            this.onRunDiagnostics(ref.fileName);
-                    }
+                // cancel existing parse
+                if (this.depReparseCancel) {
+                    this.depReparseCancel.cancel();
+                }
+                // cancel a queued parse
+                if (this.depReparseTimer) {
+                    clearTimeout(this.depReparseTimer);
+                }
+                // queue up new deps
+                for (const ref of oldReferences) {
+                    this.depReparseQueue.push(ref.fileName);
+                }
+                // start delayed reparse timer
+                this.depReparseTimer = setTimeout(() => {
+                    this.reparseDependencyQueue();
                 }, DEP_FILE_REPARSE_TIME);
             }
 
@@ -539,6 +551,40 @@ export class LpcFacade {
     public getHighlights(fileName: string, symbolName: string) {
         const context = this.getContext(fileName);
         return context?.getHighlights(symbolName);
+    }
+
+    public reparseDependencyQueue() {
+        if (!!this.depReparseCancel) return;
+        this.depReparseCancel = new CancellationTokenSource();
+        const token = this.depReparseCancel.token;
+
+        const seen = new Set<string>();
+
+        while (
+            this.depReparseQueue.length > 0 &&
+            !token.isCancellationRequested
+        ) {
+            const dep = this.depReparseQueue.pop();
+
+            // so that we only process each dep once per reparse
+            if (seen.has(dep)) continue;
+            seen.add(dep);
+
+            const ctx = this.getContextEntry(dep);
+
+            // push this context's refs to the queue
+            this.depReparseQueue.push(
+                ...ctx?.context?.getReferences()?.map((r) => r.fileName)
+            );
+
+            if (ctx) {
+                this.parseLpc(ctx, new Set());
+            }
+
+            // send a notification to the server to re-send diags for this doc
+            if (!!this.onRunDiagnostics) this.onRunDiagnostics(dep);
+        }
+        this.depReparseCancel = undefined;
     }
 
     public parseAllFiles() {
