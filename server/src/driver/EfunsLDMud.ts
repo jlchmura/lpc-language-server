@@ -1,7 +1,8 @@
-import { FundamentalType, IType, ParameterSymbol, SymbolConstructor } from "antlr4-c3";
-import { ContextSymbolTable } from "./ContextSymbolTable";
+import { FundamentalType, IType } from "antlr4-c3";
+import { ContextSymbolTable } from "../backend/ContextSymbolTable";
 import { LpcTypes } from "../types";
 import { EfunSymbol, EfunParamSymbol } from "../symbols/methodSymbol";
+
 
 
 export const EfunSymbols = new ContextSymbolTable("Efun Symbols", {

@@ -10,7 +10,6 @@ import { SourceMap } from "./SourceMap";
 import { BaseSymbol } from "antlr4-c3";
 import { PerformanceObserver, performance } from "perf_hooks";
 import { randomInt } from "crypto";
-import { LpcConfig } from "./LpcConfig";
 
 /** ms delay before reparsing a depenency */
 const DEP_FILE_REPARSE_TIME = 250;

@@ -16,7 +16,7 @@ import {
     generateSymbolDoc,
     translateCompletionKind,
 } from "../symbols/Symbol";
-import { EfunSymbols } from "./EfunsLDMud";
+
 import { LpcBaseMethodSymbol, MethodSymbol } from "../symbols/methodSymbol";
 import { LpcTypes, SymbolKind } from "../types";
 import { ArrowSymbol } from "../symbols/arrowSymbol";
@@ -25,6 +25,7 @@ import { VariableSymbol } from "../symbols/variableSymbol";
 import { BaseSymbol, ScopedSymbol, SymbolTable } from "antlr4-c3";
 
 import { getSelfOrParentOfType, getSymbolsFromAllParents } from "../utils";
+import { EfunSymbols } from "../driver/EfunsLDMud";
 
 export class CompletionProvider {
     constructor(private backend: LpcFacade) {}

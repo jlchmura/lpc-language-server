@@ -20,7 +20,7 @@ import { CompletionProvider } from "./CompletionProvider";
 import { SignatureHelpProvider } from "./SignatureHelpProvider";
 import { RenameProvider } from "./RenameProvider";
 import { HighlightProvider } from "./HighlightProvider";
-import { LpcConfig, loadLpcConfig } from "./LpcConfig";
+import { loadLpcConfig } from "./LpcConfig";
 
 const CHANGE_DEBOUNCE_MS = 150;
 

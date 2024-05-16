@@ -1,6 +1,6 @@
 import { Token } from "antlr4ng";
 import { LPCParserListener } from "../parser3/LPCParserListener";
-import { IDiagnosticEntry, LpcTypes, SymbolGroupKind } from "../types";
+import { IDiagnosticEntry, SymbolGroupKind } from "../types";
 import { ContextSymbolTable } from "./ContextSymbolTable";
 import {
     CallOtherTargetContext,
@@ -14,7 +14,6 @@ import {
     ProgramContext,
 } from "../parser3/LPCParser";
 import { ScopedSymbol, MethodSymbol as BaseMethodSymbol } from "antlr4-c3";
-
 import {
     areSetsEqual,
     areTwoParameterArraysEqual,
@@ -22,25 +21,21 @@ import {
     rangeFromTokens,
     resolveOfTypeSync,
 } from "../utils";
-
 import {
     EfunSymbol,
     MethodDeclarationSymbol,
     MethodInvocationSymbol,
     MethodSymbol,
 } from "../symbols/methodSymbol";
-
 import { CallOtherSymbol } from "../symbols/objectSymbol";
 import { DiagnosticSeverity } from "vscode-languageserver";
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import { SourceContext } from "./SourceContext";
 import { CallStack } from "./CallStack";
-
 import { InheritSymbol } from "../symbols/inheritSymbol";
 import { addPogramToStack } from "./CallStackUtils";
 import { ensureLpcConfig } from "./LpcConfig";
 import { getDriverInfo } from "../driver/Driver";
-import { addDiagnostic } from "../symbols/Symbol";
 import { EfunSymbols } from "../driver/EfunsLDMud";
 
 export class SemanticListener extends LPCParserListener {

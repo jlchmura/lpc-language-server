@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import * as path from "path";
 import {
     CharStream,
     CommonTokenStream,
@@ -21,7 +22,6 @@ import {
     StructVariableDeclarationContext,
     VariableDeclaratorContext,
 } from "../parser3/LPCParser";
-import * as path from "path";
 import {
     IContextDetails,
     IDiagnosticEntry,
@@ -45,7 +45,6 @@ import {
 } from "antlr4-c3";
 import { BackendUtils } from "./BackendUtils";
 import { LpcFacade } from "./facade";
-
 import { DetailsVisitor } from "./DetailsVisitor";
 import {
     DiagnosticSeverity,
@@ -57,7 +56,6 @@ import {
 } from "vscode-languageserver";
 import {
     firstEntry,
-    getSibling,
     lexRangeFromContext as lexRangeFromContext,
     normalizeFilename,
     pushIfDefined,
@@ -65,6 +63,7 @@ import {
     testFilename,
     trimQuotes,
 } from "../utils";
+import { EfunSymbols } from "../driver/EfunsLDMud";
 import { IFoldableSymbol, isInstanceOfIKindSymbol } from "../symbols/base";
 import { DefineSymbol } from "../symbols/defineSymbol";
 import {
@@ -79,7 +78,6 @@ import {
     MethodSymbol,
 } from "../symbols/methodSymbol";
 import { CloneObjectSymbol } from "../symbols/objectSymbol";
-import { EfunSymbols } from "./EfunsLDMud";
 
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import { URI } from "vscode-uri";
@@ -89,7 +87,6 @@ import {
     LPCPreprocessorParser,
     LpcDocumentContext,
 } from "../preprocessor/LPCPreprocessorParser";
-import { TestParser } from "./TestParser";
 import { PreprocessorListener } from "./PreprocessorListener";
 import { MacroProcessor } from "./Macros";
 import { SemanticTokenCollection } from "./SemanticTokenCollection";
@@ -108,11 +105,10 @@ const mapAnnotationReg = /\[\[@(.+?)\]\]/;
  * Source context for a single LPC file.
  */
 export class SourceContext {
+    public static efunSymbols = EfunSymbols;
     public static globalSymbols = new ContextSymbolTable("Global Symbols", {
         allowDuplicateSymbols: false,
     });
-
-    public static efunSymbols = EfunSymbols;
 
     public fileHandler = new LpcFileHandler(this.backend, this, EfunSymbols);
     public symbolTable: ContextSymbolTable;
@@ -215,7 +211,7 @@ export class SourceContext {
             LPCLexer.COMMENT
         );
 
-        this.parser = new TestParser(this.tokenStream);
+        this.parser = new LPCParser(this.tokenStream);
         this.parser.buildParseTrees = true;
 
         this.preParser = new LPCPreprocessorParser(this.preTokenStream);
@@ -902,7 +898,7 @@ export class SourceContext {
 
                     // it could also be an efun
                     symbol = resolveOfTypeSync(
-                        SourceContext.efunSymbols, // efuns always come from here
+                        EfunSymbols, // efuns always come from here
                         name,
                         EfunSymbol
                     );
