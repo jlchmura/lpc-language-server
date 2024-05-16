@@ -156,16 +156,18 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
 
         if (!funSym) {
             const ctx = (this.target ?? this).context as ParserRuleContext;
+
+            const diagCode = !!this.objContext
+                ? DiagnosticCodes.CallOtherLfunNotFound
+                : DiagnosticCodes.CallOtherTargetUnknown;
+
             addDiagnostic(this, {
                 message: `Function '${
                     this.functionName ?? ""
                 }' may be undefined`,
                 range: rangeFromTokens(ctx.start, ctx.stop),
-                // if objContext is not defined, meaning the arrow object couldn't
-                // be loaded, then treat this as a warning
-                type: !!this.objContext
-                    ? DiagnosticSeverity.Error
-                    : DiagnosticSeverity.Warning,
+                code: diagCode,
+                type: DiagnosticSeverity.Error,
             });
             return undefined;
         }

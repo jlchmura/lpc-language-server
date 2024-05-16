@@ -128,7 +128,7 @@
                 }
             },
             "end": "(?=(?://|/\\*))|$|\\n",
-            "name": "meta.preprocessor.macro.lpc",
+            "name": "entity.name.function.macro.lpc",
             "patterns": [
                 {
                     "match": "(?>\\\\\\s*\\n)",
@@ -313,7 +313,7 @@
                             "name": "punctuation.whitespace.function-call.leading.lpc"
                         },
                         "2": {
-                            "name": "support.function.any-method.lpc"
+                            "name": "entity.name.function.lpc"
                         },
                         "3": {
                             "name": "punctuation.definition.parameters.lpc"

@@ -255,8 +255,9 @@ export class SourceContext {
         const configDefines = new Map(config.defines ?? []);
         configDefines.set("__VERSION__", config.driver.version);
 
+        const configMacroTable = new Map<string, MacroDefinition>();
         for (const [key, val] of config.defines ?? new Map()) {
-            this.localMacroTable.set(key, {
+            configMacroTable.set(key, {
                 value: val,
                 start: { column: 0, row: 1 },
                 end: { column: 0, row: 1 },
@@ -311,11 +312,13 @@ export class SourceContext {
             .filter((mt) => !!mt);
 
         // combine macro tables. local table must be last
-        this.macroTable = depMacroTables
-            .concat(this.localMacroTable)
-            .reduce((acc, ctxTable) => {
-                return new Map([...acc, ...ctxTable]);
-            }, new Map<string, MacroDefinition>());
+        this.macroTable = [
+            configMacroTable,
+            ...depMacroTables,
+            this.localMacroTable,
+        ].reduce((acc, ctxTable) => {
+            return new Map([...acc, ...ctxTable]);
+        }, new Map<string, MacroDefinition>());
     }
 
     public parse(): IContextDetails {
@@ -521,6 +524,9 @@ export class SourceContext {
 
         for (const [macro, def] of this.macroTable.entries()) {
             const { start, end, filename, value } = def;
+
+            // only list macros from this file
+            if (filename !== this.fileName) continue;
 
             symbols.push({
                 kind: SymbolKind.Define,

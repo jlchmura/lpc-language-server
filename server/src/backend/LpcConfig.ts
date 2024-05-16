@@ -21,6 +21,7 @@ type DriverInfo = {
 
 type DiagnosticsInfo = {
     callOtherTargetUnknown: DiagnosticLevel;
+    callOtherLfunNotFound: DiagnosticLevel;
 };
 
 export class LpcConfig {
@@ -36,6 +37,7 @@ export class LpcConfig {
     };
     public diagnostics: DiagnosticsInfo = {
         callOtherTargetUnknown: DiagnosticLevel.Info,
+        callOtherLfunNotFound: DiagnosticLevel.Error,
     };
 }
 

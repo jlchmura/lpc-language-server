@@ -46,7 +46,11 @@ export class HoverProvider {
                 defPrefix = "";
             }
 
-            const sourceLine = `${path.basename(info.source)}${
+            const sourceFilename =
+                typeof info.source === "string"
+                    ? path.basename(info.source)
+                    : info.source;
+            const sourceLine = `${sourceFilename}${
                 !!info.line ? ":" + info.line : ""
             }`;
 

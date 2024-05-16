@@ -76,6 +76,13 @@
                             "anyOf": [
                                 { "$ref": "#/definitions/diagnosticLevelEnum" }
                             ]
+                        },
+                        "callOtherLfunNotFound": {
+                            "description": "Sets the level of diagnostic reported when a call other function is not found.",
+                            "default": "error",
+                            "anyOf": [
+                                { "$ref": "#/definitions/diagnosticLevelEnum" }
+                            ]
                         }
                     }
                 }
