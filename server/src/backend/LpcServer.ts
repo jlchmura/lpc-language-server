@@ -220,9 +220,9 @@ export class LpcServer {
         // send document open/close/changes to facade
         this.documents.onDidOpen((e) => {
             this.facade.loadLpc(e.document.uri, e.document.getText());
-
             this.processDiagnostic(e.document.uri, e.document.version);
         });
+
         this.documents.onDidClose((e) => {
             this.facade.releaseLpc(e.document.uri);
         });

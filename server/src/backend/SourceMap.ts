@@ -9,6 +9,11 @@ type SourceMapping = {
     sourceColumn: number;
 };
 
+/**
+ * Source map to translate between the code editor's version
+ * of the text and the generated source text that
+ * comes out of the preprocessor and macro compiler.
+ */
 export class SourceMap {
     private mapping: SourceMapping[] = [];
     private mappingBySource: SourceMapping[] = [];

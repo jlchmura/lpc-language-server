@@ -13,18 +13,12 @@ import {
     getSymbolsOfTypeSync,
     IRenameableSymbol,
 } from "./base";
-import { DiagnosticCodes, ILexicalRange, LpcTypes, SymbolKind } from "../types";
-
+import { ILexicalRange, LpcTypes, SymbolKind } from "../types";
 import { DiagnosticSeverity, FoldingRange } from "vscode-languageserver";
 import { ExpressionSymbol } from "./expressionSymbol";
-import {
-    getSibling,
-    rangeFromTokens,
-    resolveOfTypeSync,
-    trimQuotes,
-} from "../utils";
+import { rangeFromTokens, resolveOfTypeSync } from "../utils";
 import { SourceContext } from "../backend/SourceContext";
-import { CallOtherSymbol, ObjectReferenceInfo } from "./objectSymbol";
+import { ObjectReferenceInfo } from "./objectSymbol";
 import { ContextSymbolTable } from "../backend/ContextSymbolTable";
 import {
     CallStack,
@@ -36,7 +30,6 @@ import {
 import { ParserRuleContext, Token } from "antlr4ng";
 import { addDiagnostic } from "./Symbol";
 import { InheritSuperAccessorSymbol } from "./inheritSymbol";
-import { VariableSymbol } from "./variableSymbol";
 
 export const MAX_CALLDEPTH_SIZE = 25;
 const OBJ_PLAYER_FILENAME = "/obj/player";

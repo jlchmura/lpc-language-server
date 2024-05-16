@@ -9,23 +9,21 @@ import {
     PreprocessorDirectiveContext,
     PreprocessorImportContext,
     PreprocessorUndefContext,
-    TextContext,
 } from "../preprocessor/LPCPreprocessorParser";
 import { LPCPreprocessorParserListener } from "../preprocessor/LPCPreprocessorParserListener";
-
-import { MacroDefinition, IPosition, SemanticTokenTypes } from "../types";
-import {
-    DocumentHighlight,
-    DocumentHighlightKind,
-    SemanticTokenModifiers,
-    SemanticTokens,
-    SemanticTokensBuilder,
-} from "vscode-languageserver";
-import { getSelectionRange, lexRangeToLspRange } from "../utils";
+import { MacroDefinition, SemanticTokenTypes } from "../types";
 import { SemanticTokenCollection } from "./SemanticTokenCollection";
 
 const REG_DEFINE_WITHARGS = /(.*)\((.+)\)/g;
 
+/**
+ * Handles preprocessor directives.
+ *
+ * - This listener will handle conditional directives
+ *   and _comment_ out any code text that is not within an active conditional block.
+ * - Macro directives will be parsed and added to the macro table.
+ * - Import directives are parsed and the import file added to a list (to be handled by SourceContext)
+ */
 export class PreprocessorListener extends LPCPreprocessorParserListener {
     inConditional = false;
     isExecutable = true;

@@ -1,14 +1,7 @@
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { LpcFacade } from "./facade";
-import {
-    CancellationToken,
-    DocumentSymbol,
-    Location,
-    Range,
-    SymbolInformation,
-} from "vscode-languageserver";
-import { URI } from "vscode-uri";
-import { ISymbolInfo, SymbolKind } from "../types";
+import { DocumentSymbol, Range } from "vscode-languageserver";
+import { ISymbolInfo } from "../types";
 import {
     symbolDescriptionFromEnum,
     translateSymbolKind,

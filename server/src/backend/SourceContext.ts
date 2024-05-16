@@ -78,7 +78,6 @@ import {
     MethodSymbol,
 } from "../symbols/methodSymbol";
 import { CloneObjectSymbol } from "../symbols/objectSymbol";
-
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import { URI } from "vscode-uri";
 import { ArrowSymbol, ArrowType } from "../symbols/arrowSymbol";
@@ -322,8 +321,6 @@ export class SourceContext {
     }
 
     public parse(): IContextDetails {
-        performance.mark("parse-start");
-
         // console.debug(`Parsing ${this.fileName}`);
 
         this.info.imports.length = 0;
@@ -410,12 +407,6 @@ export class SourceContext {
 
         this.cachedSemanticTokens = this.semanticTokens.build(this.sourceMap);
 
-        performance.mark("parse-end");
-        performance.measure(
-            "parse: " + this.fileName,
-            "parse-start",
-            "parse-end"
-        );
         return this.info;
     }
 
