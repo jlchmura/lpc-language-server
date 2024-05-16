@@ -135,7 +135,7 @@ export function activate(context: ExtensionContext) {
     );
 
     context.subscriptions.push(
-        commands.registerTextEditorCommand(
+        commands.registerCommand(
             "lpc.processAll",
             async (textEditor: TextEditor, _edit: TextEditorEdit) => {
                 progress.startAnimation();
