@@ -57,7 +57,7 @@ directiveIfTestExpression
     ;
 
 directiveIfArgument
-    : Identifier (PAREN_OPEN Identifier PAREN_CLOSE)?
+    : Identifier (PAREN_OPEN (Identifier|StringLiteral|IntegerConstant) PAREN_CLOSE)?
     | StringLiteral
     | IntegerConstant
     ;
