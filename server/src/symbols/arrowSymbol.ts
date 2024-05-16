@@ -19,6 +19,7 @@ import {
     addDependenciesToStack,
     addPogramToStack,
 } from "../backend/CallStackUtils";
+import { DiagnosticCodes } from "../types";
 
 export enum ArrowType {
     CallOther,
@@ -140,6 +141,7 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
                 }]`,
                 range: rangeFromTokens(ctx.start, ctx.stop),
                 type: DiagnosticSeverity.Information,
+                code: DiagnosticCodes.CallOtherTargetUnknown,
             });
             return undefined;
         }

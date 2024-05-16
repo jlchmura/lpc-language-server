@@ -7,6 +7,12 @@
                     "$ref": "#/definitions/definesDefinition"
                 }
             ]
+        },
+        {
+            "$ref": "#/definitions/driverDefinition"
+        },
+        {
+            "$ref": "#/definitions/diagnosticsDefinition"
         }
     ],
     "definitions": {
@@ -29,7 +35,7 @@
             "properties": {
                 "defines": {
                     "$comment": "The value of 'null' is UNDOCUMENTED (https://github.com/microsoft/TypeScript/pull/18058).",
-                    "description": "Specifies a list of glob patterns that match files to be included in compilation. If no 'files' or 'include' property is present in a tsconfig.json, the compiler defaults to including all files in the containing directory and subdirectories except those specified by 'exclude'. Requires TypeScript version 2.0 or later.",
+                    "description": "Specifies a list of defines that would normally be provided by the driver. These will be made available to all LPC files",
                     "type": ["array", "null"],
                     "uniqueItems": true,
                     "items": {
@@ -37,6 +43,46 @@
                     }
                 }
             }
+        },
+        "driverDefinition": {
+            "properties": {
+                "driver": {
+                    "properties": {
+                        "type": {
+                            "description": "Type of MUD driver",
+                            "enum": ["ldmud", "fluffos"],
+                            "default": "ldmud"
+                        },
+                        "version": {
+                            "description": "Version of the MUD driver",
+                            "type": ["string", "null"]
+                        },
+                        "compatMode": {
+                            "description": "Compatibility mode for the MUD driver",
+                            "type": ["boolean", "null"],
+                            "default": false
+                        }
+                    }
+                }
+            }
+        },
+        "diagnosticsDefinition": {
+            "properties": {
+                "diagnostics": {
+                    "properties": {
+                        "callOtherTargetUnknown": {
+                            "description": "Sets the level of diagnostic reported when then type of a call other target cannot be loaded or identified.",
+                            "default": "info",
+                            "anyOf": [
+                                { "$ref": "#/definitions/diagnosticLevelEnum" }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "diagnosticLevelEnum": {
+            "enum": ["error", "warning", "info", "hint", "none"]
         }
     },
     "id": "https://json.schemastore.org/lpc-config",

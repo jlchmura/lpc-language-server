@@ -100,7 +100,7 @@ import {
 } from "../symbols/inheritSymbol";
 import { performance } from "perf_hooks";
 import { LpcFileHandler } from "./FileHandler";
-import { LpcConfig } from "./LpcConfig";
+import { ensureLpcConfig } from "./LpcConfig";
 
 const mapAnnotationReg = /\[\[@(.+?)\]\]/;
 
@@ -184,8 +184,7 @@ export class SourceContext {
         public backend: LpcFacade,
         public fileName: string,
         private extensionDir: string,
-        private importDir: string[],
-        private config: LpcConfig
+        private importDir: string[]
     ) {
         this.sourceId = path.basename(fileName);
         this.symbolTable = new ContextSymbolTable(
@@ -256,7 +255,11 @@ export class SourceContext {
         this.localMacroTable.clear();
 
         // add macros from config
-        for (const [key, val] of this.config.defines ?? new Map()) {
+        const config = ensureLpcConfig();
+        const configDefines = new Map(config.defines ?? []);
+        configDefines.set("__VERSION__", config.driver.driverVersion);
+
+        for (const [key, val] of config.defines ?? new Map()) {
             this.localMacroTable.set(key, {
                 value: val,
                 start: { column: 0, row: 1 },
@@ -513,9 +516,7 @@ export class SourceContext {
     public getDiagnostics(): IDiagnosticEntry[] {
         this.runSemanticAnalysisIfNeeded();
 
-        return this.diagnostics?.map((d) => {
-            return d;
-        });
+        return [...this.diagnostics];
     }
 
     public listTopLevelSymbols(includeDependencies: boolean): ISymbolInfo[] {
@@ -1257,14 +1258,16 @@ export class SourceContext {
     public addDiagnostic(diagnostic: IDiagnosticEntry): void {
         // check if this diagnostic already exists
         // NTBLA make this more efficient
+        const { message, range } = diagnostic;
+
         if (
             !this.diagnostics.some(
                 (d) =>
-                    d.message == diagnostic.message &&
-                    d.range.start.row == diagnostic.range.start.row &&
-                    d.range.start.column == diagnostic.range.start.column &&
-                    d.range.end.row == diagnostic.range.end.row &&
-                    d.range.end.column == diagnostic.range.end.column
+                    d.message == message &&
+                    d.range.start.row == range.start.row &&
+                    d.range.start.column == range.start.column &&
+                    d.range.end.row == range.end.row &&
+                    d.range.end.column == range.end.column
             )
         ) {
             this.diagnostics.push(diagnostic);

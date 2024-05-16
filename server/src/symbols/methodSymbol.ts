@@ -13,7 +13,7 @@ import {
     getSymbolsOfTypeSync,
     IRenameableSymbol,
 } from "./base";
-import { ILexicalRange, LpcTypes, SymbolKind } from "../types";
+import { DiagnosticCodes, ILexicalRange, LpcTypes, SymbolKind } from "../types";
 
 import { DiagnosticSeverity, FoldingRange } from "vscode-languageserver";
 import { ExpressionSymbol } from "./expressionSymbol";

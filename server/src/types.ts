@@ -11,11 +11,16 @@ import { DiagnosticSeverity } from "vscode-languageserver";
 export const COMMENT_CHANNEL_NUM = 2;
 export const SOURCEMAP_CHANNEL_NUM = 3;
 
+export const DiagnosticCodes = {
+    CallOtherTargetUnknown: "callOtherTargetUnknown",
+} as const;
+
 export interface IDiagnosticEntry {
     type: DiagnosticSeverity;
     message: string;
     range: ILexicalRange;
     source?: string;
+    code?: string;
     related?: IDiagnosticEntry;
 }
 

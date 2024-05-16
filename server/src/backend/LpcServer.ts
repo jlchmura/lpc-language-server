@@ -27,7 +27,6 @@ const CHANGE_DEBOUNCE_MS = 150;
 export class LpcServer {
     private importDir: string[] | undefined;
     private facade: LpcFacade;
-    private config: LpcConfig;
 
     /** timers used to debounce change events */
     private changeTimers = new Map<string, NodeJS.Timeout>(); // Keyed by file name.
@@ -74,6 +73,24 @@ export class LpcServer {
                         "Workspace folder change event received."
                     );
                 });
+            }
+        });
+
+        this.connection.onDidChangeWatchedFiles((params) => {
+            const configFileChange = params.changes.find((c) =>
+                c.uri.endsWith("lpc-config.json")
+            );
+            if (!!configFileChange) {
+                const configUri = URI.parse(configFileChange.uri);
+                loadLpcConfig(configUri.fsPath);
+                console.debug("LPC Config reloaded");
+
+                // re-send diagnostics for all open files
+                setTimeout(() => {
+                    this.documents.all().forEach((doc) => {
+                        this.processDiagnostic(doc.uri, doc.version);
+                    });
+                }, 10);
             }
         });
 
@@ -386,14 +403,10 @@ export class LpcServer {
             path.join(rootFolderPath, "room"),
         ];
 
-        this.config = loadLpcConfig(
-            path.join(rootFolderPath, "lpc-config.json")
-        );
-        this.facade = new LpcFacade(
-            this.importDir,
-            rootFolderPath,
-            this.config
-        );
+        // load the config
+        loadLpcConfig(path.join(rootFolderPath, "lpc-config.json"));
+
+        this.facade = new LpcFacade(this.importDir, rootFolderPath);
 
         // hook up the run diagnostic event emitter
         this.facade.onRunDiagnostics = (filename) => {

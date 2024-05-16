@@ -9,6 +9,11 @@ import { lexRangeToLspRange } from "../utils";
 import { LpcFacade } from "./facade";
 import { IDiagnosticEntry } from "../types";
 import { URI } from "vscode-uri";
+import {
+    LpcConfig,
+    ensureLpcConfig,
+    getDiagnosticLevelFromConfig,
+} from "./LpcConfig";
 
 type DocDiagnostics = {
     uri: string;
@@ -88,13 +93,26 @@ export class DiagnosticProvider {
         uri: string,
         entries: IDiagnosticEntry[]
     ): Diagnostic[] {
+        const config = ensureLpcConfig();
         const diags: Diagnostic[] = [];
         for (const entry of entries) {
+            const { code } = entry;
             const range = lexRangeToLspRange(entry.range);
+
+            const severity = getDiagnosticLevelFromConfig(
+                config,
+                code,
+                entry.type
+            );
+            if (severity === undefined) {
+                // if severity is undefined then we don't want to show this diagnostic
+                continue;
+            }
+
             const diagnostic = Diagnostic.create(
                 range,
                 entry.message,
-                entry.type,
+                severity,
                 undefined,
                 entry.source
             );

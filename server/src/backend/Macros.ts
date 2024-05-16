@@ -4,7 +4,6 @@ import {
     MacroDefinition,
     SemanticTokenTypes,
 } from "../types";
-import { escapeRegExp } from "../utils";
 import { SemanticTokenCollection } from "./SemanticTokenCollection";
 import { SourceMap } from "./SourceMap";
 

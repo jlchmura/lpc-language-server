@@ -320,12 +320,12 @@ export class ContextSymbolTable extends SymbolTable {
         return result;
     }
 
-    public listChildSymbolsOfType<T extends BaseSymbol, Args extends unknown[]>(
-        s: ScopedSymbol,
-        t: SymbolConstructor<T, Args>
-    ): ISymbolInfo[] {
-        return this.symbolsOfType(t, true, s);
-    }
+    // public listChildSymbolsOfType<T extends BaseSymbol, Args extends unknown[]>(
+    //     s: ScopedSymbol,
+    //     t: SymbolConstructor<T, Args>
+    // ): ISymbolInfo[] {
+    //     return this.symbolsOfType(t, true, s);
+    // }
 
     public listTopLevelSymbols(localOnly: boolean): ISymbolInfo[] {
         const result: ISymbolInfo[] = [];

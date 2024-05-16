@@ -1,11 +1,73 @@
-import * as path from "path";
 import * as fs from "fs";
+import { DiagnosticSeverity } from "vscode-languageserver";
+
+enum DiagnosticLevel {
+    Error = "error",
+    Warning = "warning",
+    Info = "info",
+    Hint = "hint",
+    None = "none",
+}
+
+enum DriverType {
+    LDMud = "ldmud",
+    FluffOS = "fluffos",
+}
+
+type DriverInfo = {
+    driverType: DriverType;
+    driverVersion: string;
+};
+
+type DiagnosticsInfo = {
+    callOtherTargetUnknown: DiagnosticLevel;
+};
 
 export class LpcConfig {
     public defines: Map<string, string> = new Map([
-        ["__HOST_NAME__", "localhost"],
-        ["__MASTER_OBJECT__", "/obj/master"],
+        ["__HOST_NAME__", '"localhost"'],
+        ["__MASTER_OBJECT__", '"/obj/master"'],
+        ["TLS_PORT", "5555"],
     ]);
+
+    public driver: DriverInfo = {
+        driverType: DriverType.LDMud,
+        driverVersion: "3.3.720",
+    };
+    public diagnostics: DiagnosticsInfo = {
+        callOtherTargetUnknown: DiagnosticLevel.Info,
+    };
+}
+
+export function getDiagnosticLevelFromConfig(
+    config: LpcConfig,
+    code: string,
+    defaultLevel: DiagnosticSeverity
+): DiagnosticSeverity {
+    const configLevel = config.diagnostics[code];
+    switch (configLevel) {
+        case DiagnosticLevel.Error:
+            return DiagnosticSeverity.Error;
+        case DiagnosticLevel.Warning:
+            return DiagnosticSeverity.Warning;
+        case DiagnosticLevel.Info:
+            return DiagnosticSeverity.Information;
+        case DiagnosticLevel.Hint:
+            return DiagnosticSeverity.Hint;
+        case DiagnosticLevel.None:
+            return undefined;
+    }
+
+    return defaultLevel;
+}
+
+let globalConfig: LpcConfig | null = null;
+export function ensureLpcConfig(): LpcConfig {
+    if (!globalConfig) {
+        throw "LPC config not loaded";
+    } else {
+        return globalConfig;
+    }
 }
 
 export function loadLpcConfig(filename: string): LpcConfig {
@@ -17,10 +79,20 @@ export function loadLpcConfig(filename: string): LpcConfig {
 
         rawConfig.defines.forEach((defObj: any) => {
             const key = Object.keys(defObj)[0];
-            config.defines.set(key, defObj[key]);
+            let val = defObj[key];
+            if (typeof val === "string") {
+                val = `"${val}"`;
+            }
+            config.defines.set(key, val);
         });
 
-        return config;
+        config.driver = { ...config.driver, ...rawConfig.driver };
+        config.diagnostics = {
+            ...config.diagnostics,
+            ...rawConfig.diagnostics,
+        };
+
+        return (globalConfig = config);
     } catch (e) {
         console.warn(
             `Failed to load LPC config file ${filename}: ${e.message}`

@@ -44,8 +44,7 @@ export class LpcFacade {
 
     public constructor(
         public importDir: string[],
-        public workspaceDir: string,
-        public config: LpcConfig
+        public workspaceDir: string
     ) {
         console.log("LpcFacade created", importDir, workspaceDir);
 
@@ -112,8 +111,7 @@ export class LpcFacade {
                 this,
                 fileName,
                 this.workspaceDir,
-                this.importDir,
-                this.config
+                this.importDir
             );
 
             context.onLoadImports = (imports) => {
@@ -418,12 +416,8 @@ export class LpcFacade {
     public getDiagnostics(fileName: string): IDiagnosticEntry[] {
         const context = this.getContext(fileName);
 
-        if (!!context && context.needsValidation) {
-            //try {
+        if (!!context) {
             return context.getDiagnostics();
-            // } catch (e) {
-            //     console.log(`Error getting diagnostics for ${fileName}: ${e}`);
-            // }
         }
 
         return undefined;
