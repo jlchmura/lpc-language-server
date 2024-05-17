@@ -1,8 +1,6 @@
-import { BaseSymbol, SymbolTable } from "antlr4-c3";
+import { BaseSymbol } from "antlr4-c3";
 import { SourceContext } from "./SourceContext";
 import { LpcFacade } from "./facade";
-import { BackendUtils } from "./BackendUtils";
-import { normalizeFilename } from "../utils";
 import { ContextSymbolTable } from "./ContextSymbolTable";
 
 export class LpcFileHandler {

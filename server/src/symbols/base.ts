@@ -1,13 +1,12 @@
 import {
     BaseSymbol,
     IScopedSymbol,
-    ScopedSymbol,
     SymbolConstructor,
     SymbolTable,
 } from "antlr4-c3";
 import { ParseTree } from "antlr4ng";
 import { ILexicalRange, SymbolKind } from "../types";
-import { FoldingRange, Range, TextEdit } from "vscode-languageserver";
+import { FoldingRange } from "vscode-languageserver";
 import { CallStack } from "../backend/CallStack";
 import { ContextSymbolTable } from "../backend/ContextSymbolTable";
 

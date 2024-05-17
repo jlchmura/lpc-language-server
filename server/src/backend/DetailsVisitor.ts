@@ -1,13 +1,10 @@
 import * as commentParser from "comment-parser";
 import {
     AbstractParseTreeVisitor,
-    BailErrorStrategy,
     CharStream,
     CommonTokenStream,
     ParseTree,
     ParserRuleContext,
-    PredictionMode,
-    TerminalNode,
     Token,
 } from "antlr4ng";
 import { LPCParserVisitor } from "../parser3/LPCParserVisitor";
@@ -18,7 +15,6 @@ import {
     IType,
     ReferenceKind,
     ScopedSymbol,
-    SymbolTable,
     SymbolConstructor,
 } from "antlr4-c3";
 import { ContextSymbolTable } from "./ContextSymbolTable";
@@ -34,9 +30,13 @@ import {
     ConditionalExpressionContext,
     ConditionalOrExpressionContext,
     DefinePreprocessorDirectiveContext,
+    DoWhileStatementContext,
     EqualityExpressionContext,
     ExclusiveOrExpressionContext,
     ExpressionContext,
+    ForEachStatementContext,
+    ForEachVariableContext,
+    ForStatementContext,
     FunctionDeclarationContext,
     FunctionHeaderDeclarationContext,
     IdentifierExpressionContext,
@@ -46,6 +46,7 @@ import {
     InheritStatementContext,
     InheritSuperExpressionContext,
     InlineClosureExpressionContext,
+    IterationStatementContext,
     LPCParser,
     LambdaExpressionContext,
     LiteralContext,
@@ -54,17 +55,18 @@ import {
     ParameterListContext,
     PrimaryExpressionContext,
     PrimitiveTypeParameterExpressionContext,
+    PrimitiveTypeSpecifierContext,
     PrimitiveTypeVariableDeclarationContext,
-    ProgramContext,
     RelationalExpresionContext,
     ReturnStatementContext,
     SelectionDirectiveContext,
-    StructDeclarationContext,
     StructParameterExpressionContext,
     StructVariableDeclarationContext,
+    VariableDeclaratorContext,
+    WhileStatementContext,
 } from "../parser3/LPCParser";
-import { IdentifierSymbol, PreprocessorSymbol } from "../symbols/Symbol";
-import { FoldingRange, SemanticTokensBuilder } from "vscode-languageserver";
+import { PreprocessorSymbol } from "../symbols/Symbol";
+import { FoldingRange } from "vscode-languageserver";
 import {
     COMMENT_CHANNEL_NUM,
     ContextImportInfo,
@@ -79,7 +81,7 @@ import {
     VariableInitializerSymbol,
     VariableSymbol,
 } from "../symbols/variableSymbol";
-import { DefineSymbol, DefineVariableSymbol } from "../symbols/defineSymbol";
+import { DefineSymbol } from "../symbols/defineSymbol";
 import { AssignmentSymbol } from "../symbols/assignmentSymbol";
 import { InlineClosureSymbol } from "../symbols/closureSymbol";
 import {
@@ -95,9 +97,7 @@ import {
     firstEntry,
     getSibling,
     lastEntry,
-    lexRangeFromContext,
     lexRangeFromToken,
-    normalizeFilename,
     trimQuotes,
 } from "../utils";
 import { LiteralSymbol } from "../symbols/literalSymbol";
@@ -106,12 +106,7 @@ import { ConditionalSymbol } from "../symbols/conditionalSymbol";
 import { CloneObjectSymbol } from "../symbols/objectSymbol";
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import { IfSymbol, SelectionSymbol } from "../symbols/selectionSymbol";
-import {
-    IEvaluatableSymbol,
-    IRenameableSymbol,
-    getSymbolsOfTypeSync,
-} from "../symbols/base";
-
+import { IEvaluatableSymbol, IRenameableSymbol } from "../symbols/base";
 import { ArrowSymbol } from "../symbols/arrowSymbol";
 import { SemanticTokenCollection } from "./SemanticTokenCollection";
 import {
@@ -119,6 +114,7 @@ import {
     InheritSymbol,
 } from "../symbols/inheritSymbol";
 import { LpcFileHandler } from "./FileHandler";
+import { ForEachSymbol, IterationSymbol } from "../symbols/forSymbol";
 
 type GenericConstructorParameters<T> = ConstructorParameters<
     new (...args: any[]) => T
@@ -129,10 +125,6 @@ export class DetailsVisitor
     implements LPCParserVisitor<ScopedSymbol>
 {
     protected scope = this.symbolTable as ScopedSymbol;
-
-    private defineLexer = new LPCLexer(CharStream.fromString(""));
-    private defineTokenStream = new CommonTokenStream(this.defineLexer);
-    private defineParser = new LPCParser(this.defineTokenStream);
 
     constructor(
         private backend: LpcFacade,
@@ -412,9 +404,10 @@ export class DetailsVisitor
     visitStructVariableDeclaration = (
         ctx: StructVariableDeclarationContext
     ) => {
-        const varDecls = ctx.variableDeclarator();
+        const varDecls = ctx.variableDeclaratorExpression();
         const structNames = ctx.Identifier();
-        varDecls.forEach((varDecl, idx) => {
+        varDecls.forEach((varDeclExp, idx) => {
+            const varDecl = varDeclExp.variableDeclarator();
             const structCtx = structNames[idx];
             const varNm = varDecl._variableName?.text;
 
@@ -427,7 +420,7 @@ export class DetailsVisitor
                 varDecl._variableName
             );
 
-            const initCtx = varDecl.variableInitializer();
+            const initCtx = varDeclExp.variableInitializer();
             if (!!initCtx) {
                 return this.withScope(
                     initCtx,
@@ -443,15 +436,8 @@ export class DetailsVisitor
         return undefined;
     };
 
-    visitPrimitiveTypeVariableDeclaration = (
-        ctx: PrimitiveTypeVariableDeclarationContext
-    ) => {
-        // ctx will either be scalar or array, it doesn't matter right now
-
-        //this.markContext(ctx.primitiveTypeSpecifier(), SemanticTokenTypes.Type);
-
-        let tt = ctx.primitiveTypeSpecifier()?.getText();
-        let i: number;
+    parsePrimitiveType(ctx: PrimitiveTypeSpecifierContext) {
+        let tt = ctx.getText();
         let varType: IType;
         if (tt) {
             const isArray = tt.endsWith("*");
@@ -460,10 +446,13 @@ export class DetailsVisitor
             }
             switch (tt) {
                 case "int":
-                    varType = FundamentalType.integerType;
+                    varType = LpcTypes.intType;
                     break;
                 case "string":
-                    varType = FundamentalType.stringType;
+                    varType = LpcTypes.stringType;
+                    break;
+                case "object":
+                    varType = LpcTypes.objectType;
                     break;
                 case "float":
                     varType = FundamentalType.floatType;
@@ -479,24 +468,50 @@ export class DetailsVisitor
             }
         }
 
-        const varDecls = ctx.variableDeclarator();
-        varDecls.forEach((varDecl) => {
-            const nm = varDecl._variableName?.text;
-            const varSym = this.addNewSymbol(
-                VariableSymbol,
-                varDecl.Identifier(),
-                nm,
-                varType,
-                varDecl._variableName
-            );
-            this.markToken(varDecl._variableName, SemanticTokenTypes.Variable);
+        return varType;
+    }
 
-            const initCtx = varDecl.variableInitializer();
+    parseVariableDeclaration(
+        varDecl: VariableDeclaratorContext,
+        varType: IType
+    ): VariableSymbol {
+        const nm = varDecl._variableName?.text;
+        const varSym = this.addNewSymbol(
+            VariableSymbol,
+            varDecl.Identifier(),
+            nm,
+            varType,
+            varDecl._variableName
+        );
+
+        this.markToken(varDecl._variableName, SemanticTokenTypes.Variable);
+
+        return varSym;
+    }
+
+    visitPrimitiveTypeVariableDeclaration = (
+        ctx: PrimitiveTypeVariableDeclarationContext
+    ) => {
+        // ctx will either be scalar or array, it doesn't matter right now
+
+        const typeCtx = ctx.primitiveTypeSpecifier();
+        const varType = typeCtx
+            ? this.parsePrimitiveType(ctx.primitiveTypeSpecifier())
+            : LpcTypes.unknownType;
+
+        const varDecls = ctx.variableDeclaratorExpression();
+        varDecls.forEach((varDeclExp) => {
+            const varSym = this.parseVariableDeclaration(
+                varDeclExp.variableDeclarator(),
+                varType
+            );
+
+            const initCtx = varDeclExp.variableInitializer();
             if (!!initCtx) {
                 return this.withScope(
                     initCtx,
                     VariableInitializerSymbol,
-                    ["#initializer#" + nm, varSym],
+                    ["#initializer#" + varSym.name, varSym],
                     (s) => {
                         return this.visitChildren(initCtx);
                     }
@@ -787,6 +802,42 @@ export class DetailsVisitor
             return this.visitChildren(ctx);
         });
     }
+
+    parseIterationStatement(
+        ctx: ParserRuleContext,
+        symbolType: typeof IterationSymbol
+    ) {
+        const tokenIdx = ctx.start.tokenIndex;
+        const name = "#iteration_" + tokenIdx;
+
+        return this.withScope(ctx, symbolType, [name, "for"], (s) => {
+            // s.foldingRange = FoldingRange.create(
+            //     ctx.start.line - 1,
+            //     ctx.stop.line - 2,
+            //     ctx.start.column,
+            //     ctx.stop.column
+            // );
+            return this.visitChildren(ctx);
+        });
+    }
+
+    visitForEachStatement = (ctx: ForEachStatementContext) =>
+        this.parseIterationStatement(ctx, ForEachSymbol);
+    visitForStatement = (ctx: ForStatementContext) =>
+        this.parseIterationStatement(ctx, IterationSymbol);
+    visitDoWhileStatement = (ctx: DoWhileStatementContext) =>
+        this.parseIterationStatement(ctx, IterationSymbol);
+    visitWhileStatement = (ctx: WhileStatementContext) =>
+        this.parseIterationStatement(ctx, IterationSymbol);
+
+    visitForEachVariable = (ctx: ForEachVariableContext) => {
+        const varType = this.parsePrimitiveType(ctx.primitiveTypeSpecifier());
+        const varSym = this.parseVariableDeclaration(
+            ctx.variableDeclarator(),
+            varType
+        );
+        return undefined;
+    };
 
     visitEqualityExpression = (ctx: EqualityExpressionContext) =>
         this.parseConditionalSymbol(ctx, ctx._op.text);

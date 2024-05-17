@@ -20,7 +20,10 @@ import {
     PrimitiveTypeVariableDeclarationContext,
     ProgramContext,
     StructVariableDeclarationContext,
+    VariableDeclarationContext,
     VariableDeclaratorContext,
+    VariableDeclaratorExpressionContext,
+    VariableInitializerContext,
 } from "../parser3/LPCParser";
 import {
     IContextDetails,
@@ -97,6 +100,7 @@ import {
 import { performance } from "perf_hooks";
 import { LpcFileHandler } from "./FileHandler";
 import { ensureLpcConfig } from "./LpcConfig";
+import { getParentContextOfType, getParentOfType } from "../symbols/Symbol";
 
 const mapAnnotationReg = /\[\[@(.+?)\]\]/;
 
@@ -567,6 +571,7 @@ export class SourceContext {
         if (ctx instanceof ParserRuleContext) {
             let start = ctx.start!.start;
             let stop = ctx.stop!.stop;
+            let rangeCtx = ctx; // ctx to use for symbol range
 
             if (ctx instanceof FunctionDeclarationContext) {
                 // function only needs the function header
@@ -574,35 +579,44 @@ export class SourceContext {
                 start = funHeader.start!.start;
                 stop = funHeader.stop!.stop;
             } else if (ctx instanceof VariableDeclaratorContext) {
-                // varialbes need a little reconstruction since a declarator can have multiple variables
+                // variables need a little reconstruction since a declarator can have multiple variables
                 const name = ctx._variableName.text;
                 let type: string, mods: string;
+                const parentDeclCtx = getParentContextOfType(
+                    ctx,
+                    VariableDeclarationContext
+                );
+                const declExpCtx = getParentContextOfType(
+                    ctx,
+                    VariableDeclaratorExpressionContext
+                );
+                rangeCtx = declExpCtx ?? parentDeclCtx ?? ctx; // for variables, use the entire declaration for its range
                 if (
-                    ctx.parent instanceof
+                    parentDeclCtx instanceof
                     PrimitiveTypeVariableDeclarationContext
                 ) {
-                    type = ctx.parent.primitiveTypeSpecifier()?.getText();
-                    mods = ctx.parent
+                    type = parentDeclCtx.primitiveTypeSpecifier()?.getText();
+                    mods = parentDeclCtx
                         .variableModifier()
                         ?.map((m) => m.getText())
                         .join(" ");
                     if (!!ctx.STAR() && !!type) type += " *";
                 } else if (
-                    ctx.parent instanceof StructVariableDeclarationContext
+                    parentDeclCtx instanceof StructVariableDeclarationContext
                 ) {
                     type = "struct";
-                    mods = ctx.parent
+                    mods = parentDeclCtx
                         .variableModifier()
                         ?.map((m) => m.getText())
                         .join(" ");
                 }
 
                 result.text = [mods, type, name]
-                    .filter((s) => s.length > 0)
+                    .filter((s) => s?.length > 0)
                     .join(" ");
             }
 
-            result.range = lexRangeFromContext(ctx);
+            result.range = lexRangeFromContext(rangeCtx);
 
             if (!result.text) {
                 const inputStream = ctx.start?.tokenSource?.inputStream;

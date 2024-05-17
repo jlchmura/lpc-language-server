@@ -52,7 +52,7 @@ export function lexRangeFromContext(ctx: ParserRuleContext): ILexicalRange {
         },
         end: {
             row: ctx.stop.line,
-            column: ctx.stop.column,
+            column: ctx.stop.column + (ctx.stop.text?.length ?? 1),
         },
     };
 }

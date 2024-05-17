@@ -12,20 +12,23 @@ import {
     isInstanceOfIEvaluatableSymbol,
     IRenameableSymbol,
 } from "./base";
-import { ILexicalRange, LpcTypes, SymbolKind } from "../types";
-import { ArgumentSymbol, IdentifierSymbol } from "./Symbol";
+import { IDefinition, ILexicalRange, LpcTypes, SymbolKind } from "../types";
+import { ArgumentSymbol, IdentifierSymbol, addDiagnostic } from "./Symbol";
 import { resolveOfTypeSync } from "../utils";
 import { DefineSymbol } from "./defineSymbol";
 import { VariableDeclaratorContext } from "../parser3/LPCParser";
 import { CallStack, StackValue } from "../backend/CallStack";
 import { Token } from "antlr4ng";
 import { LpcBaseMethodSymbol } from "./methodSymbol";
+import { DiagnosticSeverity } from "vscode-languageserver";
 
 export class VariableSymbol
     extends TypedSymbol
     implements IKindSymbol, IEvaluatableSymbol
 {
     public value: any;
+
+    public lpcModifiers: Set<string> = new Set<string>();
 
     constructor(name: string, type: IType, public nameToken?: Token) {
         super(name, type);
@@ -49,6 +52,24 @@ export class VariableSymbol
     public get kind() {
         return SymbolKind.Variable;
     }
+
+    public getDefinition(): IDefinition {
+        const def: IDefinition = {
+            text: "",
+            range: {
+                start: { column: 0, row: 0 },
+                end: { column: 0, row: 0 },
+            },
+        };
+
+        const mods = new Array(this.lpcModifiers ?? []).join(" ");
+        const type = this.type.name;
+        const name = this.name;
+
+        def.text = [mods, type, name].filter((s) => s?.length > 0).join(" ");
+
+        return def;
+    }
 }
 
 /**
@@ -64,6 +85,15 @@ export class VariableIdentifierSymbol
         //const def = this.findDeclarationSymbol() as IEvaluatableSymbol;
         const def = stack.getValue(this.name, this)
             ?.symbol as IEvaluatableSymbol;
+
+        if (!def) {
+            addDiagnostic(this, {
+                message: `Cannot find name '${this.name}'.`,
+                range: this.nameRange,
+                type: DiagnosticSeverity.Error,
+            });
+        }
+
         return def?.eval(stack, scope);
     }
     // public findDeclarationSymbol() {

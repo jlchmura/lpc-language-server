@@ -11,7 +11,6 @@ import {
     Token,
     ATNSimulator,
 } from "antlr4ng";
-
 import { IDiagnosticEntry } from "../types";
 import { DiagnosticSeverity } from "vscode-languageserver";
 

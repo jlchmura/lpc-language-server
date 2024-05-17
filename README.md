@@ -6,28 +6,23 @@ Currently supports [LDMud](https://www.ldmud.eu/), with [FluffOS](https://www.fl
 
 ## Features
 
--   Code Completion
+-   Code Completion / [IntelliSense](#intellisense) - Results appear for symbols as you type, including lfuns.
 -   Diagnostics
--   Quick info
+-   Hover info
 -   Signature help, with type info
--   Go to definitions (f12)
--   Go to implementations (ctrl/cmd+f12)
--   Go to symbol (cltr/cmd+o)
+-   Code navigation - Jump to or peek at a symbol's declaration
+    -   Go to definitions (f12)
+    -   Go to implementations (ctrl/cmd+f12)
+    -   Go to symbol (cltr/cmd+o)
 -   Code outline
 -   Code navigation
 -   [Include / sefun support](#includes--sefuns)
--   [IntelliSense](#intellisense) support
 
 ### Includes / sefuns
 
-When the language server encounters an `#include`, it will search for a `sys` folder in the root of your project, in addition to local folders.
+When the language server encounters an `#include`, it will search for a `sys` folder in the root of your project, as well as local folders.
 
-In addition, the language server will attempt to load a file `obj/simul_efun.c` and add it as a reference to each LPC file opened. This will allow you to specify function headers for your sefuns, so that the language server can validate those function calls.
-
-`this_object()` will evaluate to the current program.
-`this_player()` will attempt to load `obj/player.c`.
-
-All of these things will be user configurable in the future.
+In addition, the language server will attempt to load a file `obj/simul_efun.c` and add it as a reference to each LPC file opened, so that the language server can validate those sefun calls.
 
 ### Intellisense
 
@@ -46,16 +41,18 @@ int doCommand(string cmd) {
 }
 ```
 
-## Development
-
-There are currently two launch configs set up:
-
-1. To launch the vscode extension host, which creates a language client, runs the server, and connects.
-2. To run bin.ts using node - for quick debugging and testing of things.
-
-Todo: Add a way to run just the language server, for use with editors other than VSCode.
+## Setting up your workspace
 
 ## Grammar ToDo's
 
 -   LWObjects
 -   Coroutines
+-   FluffOS specific syntax
+
+## Credits
+
+Syntax highlighting is based on the [LPC Language](https://marketplace.visualstudio.com/items?itemName=undeadfish.vscode-lpc-lang) VS Code extension by Gwenn Reece, adjusted for LDMud.
+
+Original inspiration for the structure of this project came from Mike Lischke's [ANTLR4 grammar syntax support](https://marketplace.visualstudio.com/items?itemName=mike-lischke.vscode-antlr4).
+
+Many thanks for the fellow MUD admins, wizards, and LPC aficionados in the LPC Discord for their inspiration.

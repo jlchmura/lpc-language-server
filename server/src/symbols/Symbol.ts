@@ -26,6 +26,7 @@ import { VariableSymbol } from "./variableSymbol";
 import { ContextSymbolTable } from "../backend/ContextSymbolTable";
 import { CallStack } from "../backend/CallStack";
 import { Block } from "comment-parser";
+import { ParseTree, ParserRuleContext } from "antlr4ng";
 
 export class IdentifierSymbol extends LpcBaseSymbol<IdentifierExpressionContext> {
     public get kind() {
@@ -229,3 +230,23 @@ export function getParentOfType<T extends BaseSymbol, Args extends unknown[]>(
     if (symbol instanceof t) return symbol;
     return (symbol.symbolPath.find((s) => s instanceof t) as T) ?? undefined;
 }
+
+export function getParentContextOfType<
+    T extends ParserRuleContext,
+    Args extends unknown[]
+>(
+    ctx: ParserRuleContext,
+    t: ParserRuleContextConstructor<T, Args>
+): T | undefined {
+    let p = ctx.parent;
+    while (!!p) {
+        if (p instanceof t) return p as T;
+        else p = (p as ParserRuleContext).parent;
+    }
+    return undefined;
+}
+
+type ParserRuleContextConstructor<
+    T extends ParseTree,
+    Args extends unknown[]
+> = new (...args: Args) => T;

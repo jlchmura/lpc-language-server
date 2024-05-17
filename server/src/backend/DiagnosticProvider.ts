@@ -1,19 +1,13 @@
 import {
     Diagnostic,
     DiagnosticRelatedInformation,
-    DiagnosticSeverity,
     Location,
 } from "vscode-languageserver";
-import { TextDocument } from "vscode-languageserver-textdocument";
 import { lexRangeToLspRange } from "../utils";
 import { LpcFacade } from "./facade";
 import { IDiagnosticEntry } from "../types";
 import { URI } from "vscode-uri";
-import {
-    LpcConfig,
-    ensureLpcConfig,
-    getDiagnosticLevelFromConfig,
-} from "./LpcConfig";
+import { ensureLpcConfig, getDiagnosticLevelFromConfig } from "./LpcConfig";
 
 type DocDiagnostics = {
     uri: string;

@@ -11,7 +11,6 @@ import {
     Token,
     ATNSimulator,
 } from "antlr4ng";
-
 import { IDiagnosticEntry } from "../types";
 import { DiagnosticSeverity } from "vscode-languageserver";
 
@@ -20,7 +19,6 @@ export class ContextErrorListener extends BaseErrorListener {
         super();
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public override syntaxError<S extends Token, T extends ATNSimulator>(
         recognizer: Recognizer<T>,
         offendingSymbol: S | null,

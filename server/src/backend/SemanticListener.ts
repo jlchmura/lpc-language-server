@@ -92,35 +92,27 @@ export class SemanticListener extends LPCParserListener {
         }
     };
 
-    exitIdentifierExpression = (ctx: IdentifierExpressionContext): void => {
-        const id = ctx.Identifier();
-        const symbol = id.getText();
+    // exitIdentifierExpression = (ctx: IdentifierExpressionContext): void => {
+    //     const id = ctx.Identifier();
+    //     const symbol = id.getText();
 
-        const ss = this.symbolTable.symbolWithContextSync(ctx);
-        const scope = ss?.getParentOfType(ScopedSymbol);
-        const parentContext = this.symbolTable.findSymbolDefinition(ctx);
-        const parentScope = parentContext?.getParentOfType(ScopedSymbol);
+    //     const ss = this.symbolTable.symbolWithContextSync(ctx);
+    //     const scope = ss?.getParentOfType(ScopedSymbol);
+    //     const parentContext = this.symbolTable.findSymbolDefinition(ctx);
+    //     const parentScope = parentContext?.getParentOfType(ScopedSymbol);
 
-        this.checkSymbolExistence(
-            true,
-            SymbolGroupKind.Identifier,
-            symbol,
-            "Unknown symbol",
-            id.symbol,
-            parentScope
-        );
-        this.symbolTable.incrementSymbolRefCount(symbol);
-    };
+    //     this.checkSymbolExistence(
+    //         true,
+    //         SymbolGroupKind.Identifier,
+    //         symbol,
+    //         "Unknown symbol",
+    //         id.symbol,
+    //         parentScope
+    //     );
+    //     this.symbolTable.incrementSymbolRefCount(symbol);
+    // };
 
-    exitCallOtherTarget = (ctx: CallOtherTargetContext) => {
-        // find the object that the method is being called on
-        const target = getSibling(ctx, -2); // -1 is the arrow
-        const symbol = this.symbolTable.symbolWithContextSync(target);
-
-        const symbolCont = this.symbolTable.symbolContainingContext(ctx);
-
-        const i = 0;
-    };
+    exitCallOtherTarget = (ctx: CallOtherTargetContext) => {};
 
     exitFunctionDeclaration = (ctx: FunctionDeclarationContext) => {
         const symbol = this.symbolTable.symbolWithContextSync(

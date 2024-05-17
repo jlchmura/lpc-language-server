@@ -4,6 +4,7 @@ import {
     ISymbolTableOptions,
     ScopedSymbol,
     SymbolConstructor,
+    ParameterSymbol,
 } from "antlr4-c3";
 import { ParseTree, ParserRuleContext, TerminalNode, Token } from "antlr4ng";
 import { SourceContext } from "./SourceContext";
@@ -90,13 +91,35 @@ export class ContextSymbolTable extends SymbolTable {
     ): BaseSymbol | undefined {
         switch (kind) {
             case SymbolKind.Include:
-                return context.resolveSync(name, localOnly) as IncludeSymbol;
+                return resolveOfTypeSync(
+                    context,
+                    name,
+                    IncludeSymbol,
+                    localOnly
+                );
             case SymbolKind.Define:
-                return context.resolveSync(name, localOnly) as DefineSymbol;
+                return resolveOfTypeSync(
+                    context,
+                    name,
+                    DefineSymbol,
+                    localOnly
+                );
             case SymbolKind.Method:
-                return context.resolveSync(name, localOnly) as MethodSymbol;
+                return resolveOfTypeSync(
+                    context,
+                    name,
+                    MethodSymbol,
+                    localOnly
+                );
             case SymbolKind.Variable:
-                return context.resolveSync(name, localOnly) as VariableSymbol;
+                return (
+                    resolveOfTypeSync(
+                        context,
+                        name,
+                        VariableSymbol,
+                        localOnly
+                    ) ?? resolveOfTypeSync(context, name, ParameterSymbol)
+                );
             default:
         }
 
@@ -289,15 +312,26 @@ export class ContextSymbolTable extends SymbolTable {
             const root = symbol.root as ContextSymbolTable;
 
             let children: ISymbolInfo[] = [];
+
             if (symbol instanceof ScopedSymbol) {
-                children.push(
-                    ...this.symbolsOfType(VariableSymbol, localOnly, symbol),
-                    ...this.symbolsOfType(
-                        InlineClosureSymbol,
-                        localOnly,
-                        symbol
-                    )
-                );
+                const searchScopes: ScopedSymbol[] = [symbol];
+                while (searchScopes.length > 0) {
+                    const scope = searchScopes.shift();
+                    children.push(
+                        ...this.symbolsOfType(VariableSymbol, localOnly, scope),
+                        ...this.symbolsOfType(
+                            InlineClosureSymbol,
+                            localOnly,
+                            scope
+                        )
+                    );
+
+                    searchScopes.push(
+                        ...(scope.children.filter(
+                            (c) => c instanceof ScopedSymbol
+                        ) as ScopedSymbol[])
+                    );
+                }
             }
 
             const definition = SourceContext.definitionForContext(

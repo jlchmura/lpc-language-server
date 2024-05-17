@@ -1,10 +1,6 @@
-import {
-    DocumentHighlight,
-    DocumentHighlightKind,
-    Position,
-} from "vscode-languageserver";
+import { DocumentHighlight, Position } from "vscode-languageserver";
 import { LpcFacade } from "./facade";
-import { firstEntry, lexRangeToLspRange } from "../utils";
+import { firstEntry } from "../utils";
 
 export class HighlightProvider {
     constructor(private backend: LpcFacade) {}
@@ -22,7 +18,6 @@ export class HighlightProvider {
         if (!info) return [];
 
         const occs = this.backend.getHighlights(filename, info.name);
-        console.debug("highlights", occs);
         return occs;
     }
 }

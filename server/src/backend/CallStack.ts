@@ -1,7 +1,6 @@
 import {
     BaseSymbol,
     IType,
-    MemberVisibility,
     ScopedSymbol,
     TypedSymbol,
     VariableSymbol as VariableSymbolBase,

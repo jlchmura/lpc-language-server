@@ -172,12 +172,16 @@ variableModifier
     ;
 
 variableDeclaration
-    : variableModifier* primitiveTypeSpecifier? objectName=StringLiteral? variableDeclarator (COMMA variableDeclarator)* SEMI #primitiveTypeVariableDeclaration
-    | variableModifier* STRUCT structName=Identifier variableDeclarator (COMMA structName=Identifier variableDeclarator)* SEMI #structVariableDeclaration
+    : variableModifier* primitiveTypeSpecifier? objectName=StringLiteral? variableDeclaratorExpression (COMMA variableDeclaratorExpression)* SEMI #primitiveTypeVariableDeclaration
+    | variableModifier* STRUCT structName=Identifier variableDeclaratorExpression (COMMA structName=Identifier variableDeclaratorExpression)* SEMI #structVariableDeclaration
+    ;
+
+variableDeclaratorExpression
+    : variableDeclarator (ASSIGN variableInitializer)?
     ;
 
 variableDeclarator
-    : arraySpecifier=STAR? variableName=Identifier (ASSIGN variableInitializer)?
+    : arraySpecifier=STAR? variableName=Identifier
     ;
 
 variableInitializer
@@ -272,14 +276,26 @@ defaultStatement
     ;
 
 iterationStatement
-    : WHILE PAREN_OPEN expression PAREN_CLOSE (statement|SEMI)
-    | DO statement WHILE PAREN_OPEN expression PAREN_CLOSE SEMI
-    | FOR PAREN_OPEN forVariable (COMMA forVariable)* SEMI expression? SEMI expression? (COMMA expression)* PAREN_CLOSE (statement|SEMI)
-    | FOREACH PAREN_OPEN typeSpecifier? Identifier (IN | COLON) expression PAREN_CLOSE (statement|SEMI)
+    : WHILE PAREN_OPEN expression PAREN_CLOSE (statement|SEMI)                  #whileStatement
+    | DO statement WHILE PAREN_OPEN expression PAREN_CLOSE SEMI                 #doWhileStatement
+    | FOR PAREN_OPEN forRangeExpression PAREN_CLOSE (statement|SEMI)            #forStatement
+    | FOREACH PAREN_OPEN foreachRangeExpression PAREN_CLOSE (statement|SEMI)    #forEachStatement
+    ;
+
+forRangeExpression
+    : forVariable (COMMA forVariable)* SEMI expression? SEMI expression? (COMMA expression)*
+    ;
+
+foreachRangeExpression
+    : forEachVariable (COMMA forEachVariable)* (IN | COLON) expression
     ;
 
 forVariable
     : primitiveTypeSpecifier? arraySpecifier=STAR? variableName=Identifier ASSIGN variableInitializer
+    ;
+
+forEachVariable
+    : primitiveTypeSpecifier? variableDeclarator
     ;
 
 returnStatement

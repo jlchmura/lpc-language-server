@@ -13,7 +13,6 @@ import {
 import { firstEntry, lexRangeToLspRange } from "../utils";
 import { SymbolKind } from "../types";
 import { LpcBaseMethodSymbol, MethodSymbol } from "../symbols/methodSymbol";
-import { Block } from "comment-parser";
 
 export class HoverProvider {
     constructor(private backend: LpcFacade) {}
@@ -57,7 +56,7 @@ export class HoverProvider {
             let commentDoc = "";
 
             commentDoc = generateSymbolDoc(info.symbol);
-            doTest("a");
+
             const result: Hover = {
                 range: lexRangeToLspRange(definition?.range),
                 contents: {
@@ -78,10 +77,3 @@ export class HoverProvider {
         }
     }
 }
-
-/**
- * test fn
- * @param {string} a - a string
- * @returns {void} something
- */
-function doTest(a) {}

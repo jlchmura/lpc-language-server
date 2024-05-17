@@ -111,6 +111,7 @@ export namespace LpcTypes {
     export const mixedArrayType: IType = new ArrayType("mixed *", ReferenceKind.Instance, LpcTypes.mixedType);
     export const functionType: IType = new FundamentalType("function", TypeKind.Unknown);
     export const structType: IType = new FundamentalType("struct", TypeKind.Class);
+    export const unknownType: IType = new FundamentalType("unknown", TypeKind.Unknown);
 }
 
 export const typeNameToIType = new Map<string, IType>([

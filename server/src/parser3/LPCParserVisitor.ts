@@ -43,6 +43,7 @@ import { MappingEmptyInitializerContext } from "./LPCParser.js";
 import { VariableModifierContext } from "./LPCParser.js";
 import { PrimitiveTypeVariableDeclarationContext } from "./LPCParser.js";
 import { StructVariableDeclarationContext } from "./LPCParser.js";
+import { VariableDeclaratorExpressionContext } from "./LPCParser.js";
 import { VariableDeclaratorContext } from "./LPCParser.js";
 import { VariableInitializerContext } from "./LPCParser.js";
 import { PrimitiveTypeSpecifierContext } from "./LPCParser.js";
@@ -62,8 +63,14 @@ import { SwitchStatementContext } from "./LPCParser.js";
 import { CaseExpressionContext } from "./LPCParser.js";
 import { CaseStatementContext } from "./LPCParser.js";
 import { DefaultStatementContext } from "./LPCParser.js";
-import { IterationStatementContext } from "./LPCParser.js";
+import { WhileStatementContext } from "./LPCParser.js";
+import { DoWhileStatementContext } from "./LPCParser.js";
+import { ForStatementContext } from "./LPCParser.js";
+import { ForEachStatementContext } from "./LPCParser.js";
+import { ForRangeExpressionContext } from "./LPCParser.js";
+import { ForeachRangeExpressionContext } from "./LPCParser.js";
 import { ForVariableContext } from "./LPCParser.js";
+import { ForEachVariableContext } from "./LPCParser.js";
 import { ReturnStatementContext } from "./LPCParser.js";
 import { JumpStatementContext } from "./LPCParser.js";
 import { CallOtherTargetContext } from "./LPCParser.js";
@@ -365,6 +372,12 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      */
     visitStructVariableDeclaration?: (ctx: StructVariableDeclarationContext) => Result;
     /**
+     * Visit a parse tree produced by `LPCParser.variableDeclaratorExpression`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitVariableDeclaratorExpression?: (ctx: VariableDeclaratorExpressionContext) => Result;
+    /**
      * Visit a parse tree produced by `LPCParser.variableDeclarator`.
      * @param ctx the parse tree
      * @return the visitor result
@@ -479,17 +492,57 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      */
     visitDefaultStatement?: (ctx: DefaultStatementContext) => Result;
     /**
-     * Visit a parse tree produced by `LPCParser.iterationStatement`.
+     * Visit a parse tree produced by the `whileStatement`
+     * labeled alternative in `LPCParser.iterationStatement`.
      * @param ctx the parse tree
      * @return the visitor result
      */
-    visitIterationStatement?: (ctx: IterationStatementContext) => Result;
+    visitWhileStatement?: (ctx: WhileStatementContext) => Result;
+    /**
+     * Visit a parse tree produced by the `doWhileStatement`
+     * labeled alternative in `LPCParser.iterationStatement`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitDoWhileStatement?: (ctx: DoWhileStatementContext) => Result;
+    /**
+     * Visit a parse tree produced by the `forStatement`
+     * labeled alternative in `LPCParser.iterationStatement`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitForStatement?: (ctx: ForStatementContext) => Result;
+    /**
+     * Visit a parse tree produced by the `forEachStatement`
+     * labeled alternative in `LPCParser.iterationStatement`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitForEachStatement?: (ctx: ForEachStatementContext) => Result;
+    /**
+     * Visit a parse tree produced by `LPCParser.forRangeExpression`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitForRangeExpression?: (ctx: ForRangeExpressionContext) => Result;
+    /**
+     * Visit a parse tree produced by `LPCParser.foreachRangeExpression`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitForeachRangeExpression?: (ctx: ForeachRangeExpressionContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.forVariable`.
      * @param ctx the parse tree
      * @return the visitor result
      */
     visitForVariable?: (ctx: ForVariableContext) => Result;
+    /**
+     * Visit a parse tree produced by `LPCParser.forEachVariable`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitForEachVariable?: (ctx: ForEachVariableContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.returnStatement`.
      * @param ctx the parse tree
