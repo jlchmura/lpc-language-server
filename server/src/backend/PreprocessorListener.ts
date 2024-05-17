@@ -25,8 +25,16 @@ const REG_DEFINE_WITHARGS = /(.*)\((.+)\)/g;
  * - Import directives are parsed and the import file added to a list (to be handled by SourceContext)
  */
 export class PreprocessorListener extends LPCPreprocessorParserListener {
-    inConditional = false;
-    isExecutable = true;
+    private conditionalStack: boolean[] = [];
+
+    get inConditional() {
+        return this.conditionalStack.length > 0;
+    }
+    get isExecutable() {
+        return this.conditionalStack.length > 0
+            ? this.conditionalStack[this.conditionalStack.length - 1]
+            : true;
+    }
 
     constructor(
         public macroTable: Map<string, MacroDefinition>,
@@ -69,24 +77,20 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
         const exp = ctx.preprocessor_expression();
         const expStr = exp.getText().trim();
 
-        this.inConditional = true;
-        if (expStr.trim() == "0") {
-            this.isExecutable = false;
-        } else {
-            this.isExecutable = true;
-        }
-        // ntbla: handle defined()
+        this.conditionalStack.push(expStr.trim() == "0" ? false : true);
     };
 
     enterPreprocessorConditionalElse = (
         ctx: PreprocessorConditionalElseContext
     ) => {
         if (this.inConditional) {
-            this.isExecutable = !this.isExecutable;
+            this.conditionalStack[this.conditionalStack.length - 1] =
+                !this.isExecutable;
         } else {
             // this is an error - log it
             console.error(
-                "found an #ELSE outside of conditional directive block"
+                "found an #ELSE outside of conditional directive block",
+                `${this.filename}:${ctx.start.line}:${ctx.start.column}`
             );
         }
     };
@@ -137,8 +141,7 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
     enterPreprocessorConditionalEnd = (
         ctx: PreprocessorConditionalEndContext
     ) => {
-        this.inConditional = false;
-        this.isExecutable = true;
+        this.conditionalStack.pop();
 
         // replace with spaces
         const { start, stop } = ctx.parent;
@@ -154,8 +157,9 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
         const shouldExist = !!ctx.IFDEF() ? true : false;
         const symName = sym?.getText();
 
-        this.inConditional = true;
-        this.isExecutable = this.macroTable.has(symName) === shouldExist;
+        this.conditionalStack.push(
+            this.macroTable.has(symName) === shouldExist
+        );
 
         // replace with spaces
         const { start, stop } = ctx.parent;
