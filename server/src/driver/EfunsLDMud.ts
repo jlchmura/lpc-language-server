@@ -125,6 +125,7 @@ efun("rmdir", LpcTypes.intType, false, ["dir", LpcTypes.stringType]);
 efun("rusage", LpcTypes.intArrayType, false);
 efun("save_object", LpcTypes.intType, true, ["name", LpcTypes.stringType], ["format", LpcTypes.intType]);
 efun("say", LpcTypes.voidType, true, ["msg", LpcTypes.stringType], ["exclude", LpcTypes.objectArrayType]);
+efun("send_erq", LpcTypes.intType, true, ["request", LpcTypes.intType], ["data", LpcTypes.bytesType], ["callback", LpcTypes.closureType]);
 efun("send_imp", LpcTypes.intType, false, ["host", LpcTypes.stringType], ["port", LpcTypes.intType], ["msg", LpcTypes.stringType]); // TODO: deprecated
 efun("set_driver_hook", LpcTypes.voidType, false, ["what", LpcTypes.intType], ["arg", LpcTypes.closureType]);
 efun("set_environment", LpcTypes.voidType, false, ["item", LpcTypes.objectType], ["env", LpcTypes.objectType]);
@@ -162,6 +163,8 @@ efun("tls_query_connection_info", LpcTypes.intArrayType, false, ["ob", LpcTypes.
 efun("tls_query_connection_state", LpcTypes.intType, false, ["ob", LpcTypes.objectType]);
 efun("to_int", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("transpose_array", LpcTypes.mixedArrayType, false, ["arr", LpcTypes.mixedArrayType]);
+efun("trim", LpcTypes.stringType, true, ["s", LpcTypes.stringType], ["where", LpcTypes.intType], ["ch", LpcTypes.stringType]);
+efun("typeof", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("users", LpcTypes.objectArrayType, false);
 efun("widthof", LpcTypes.intType, false, ["map", LpcTypes.mappingType]);
 efun("wizlist_info", LpcTypes.mixedType, false);
