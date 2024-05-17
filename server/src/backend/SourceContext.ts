@@ -1294,7 +1294,7 @@ export class SourceContext {
         });
 
         // figure out the search type
-        let depName = filename;
+        let depName = (filename = filename.trim());
         let fileType = DependencySearchType.Local;
         if (depName !== (filename = testFilename(filename, '"', '"'))) {
             fileType = DependencySearchType.Local;
