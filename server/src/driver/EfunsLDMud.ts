@@ -64,6 +64,7 @@ efun("get_extra_wizinfo", LpcTypes.mixedType, false, ["wiz", LpcTypes.objectType
 efun("geteuid", LpcTypes.stringType, false, ["ob", LpcTypes.objectType]);
 efun("getuid", LpcTypes.stringType, false, ["ob", LpcTypes.objectType]);
 efun("hash", LpcTypes.intType, true, ["method", LpcTypes.intArrayType], ["arg", LpcTypes.stringType],["iterations", LpcTypes.intType]);
+efun("heart_beat_info", LpcTypes.objectType, false);
 efun("implode", LpcTypes.stringType, true, ["arr", LpcTypes.mixedArrayType], ["del", LpcTypes.stringType]);
 efun("interactive", LpcTypes.intType, true, ["ob", LpcTypes.objectType]);
 efun("inherit_list", LpcTypes.stringArrayType, true, ["ob", LpcTypes.objectType], ["flags", LpcTypes.intType]);
@@ -109,6 +110,7 @@ efun("pointerp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("query_actions", LpcTypes.mixedArrayType, true, ["ob", LpcTypes.objectType], ["mask_or_verb", LpcTypes.mixedType]);
 efun("query_ip_number", LpcTypes.stringType, true, ["ob", LpcTypes.objectType]);
 efun("query_once_interactive", LpcTypes.intType, false, ["ob", LpcTypes.objectType]);
+efun("query_snoop", LpcTypes.objectType, true, ["ob", LpcTypes.objectType]);
 efun("query_verb", LpcTypes.stringType, true, ["flag", LpcTypes.intType]);
 efun("quote", LpcTypes.mixedType, false, ["arg", LpcTypes.mixedType]);
 efun("raise_error", LpcTypes.voidType, false, ["arg", LpcTypes.stringType]);
@@ -132,6 +134,7 @@ efun("set_environment", LpcTypes.voidType, false, ["item", LpcTypes.objectType],
 efun("set_extra_wizinfo", LpcTypes.voidType, false, ["wiz", LpcTypes.objectType], ["extra", LpcTypes.mixedType]);
 efun("set_heart_beat", LpcTypes.intType, true, ["flag", LpcTypes.intType]);
 efun("set_light", LpcTypes.voidType, true, ["intensity", LpcTypes.intType]);
+efun("set_is_wizard", LpcTypes.intType, true, ["ob", LpcTypes.objectType], ["n", LpcTypes.intType]);
 efun("set_this_object", LpcTypes.voidType, false, ["ob_to_pretend_to_be", LpcTypes.objectType]);
 efun("set_this_player", LpcTypes.voidType, false, ["ob", LpcTypes.objectType]);
 efun("set_prompt", LpcTypes.stringType, true, ["prompt", LpcTypes.stringType], ["ob", LpcTypes.objectType]);

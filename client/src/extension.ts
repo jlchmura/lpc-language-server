@@ -160,6 +160,7 @@ export function activate(context: ExtensionContext) {
 }
 
 export function deactivate(): Thenable<void> | undefined {
+    console.log("Deactivating extension");
     if (!client) {
         return undefined;
     }

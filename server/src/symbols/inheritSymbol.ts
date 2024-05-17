@@ -78,11 +78,13 @@ export class InheritSuperAccessorSymbol
 
             // loop through inheritSymbols, load their contexts and add their symbol tables
             // as dependencies to this symbol table
-            const depTables = inheritSymbols.map((inheritSymbol) => {
-                const ctx = this.loadObject(inheritSymbol.filename);
-                const tbl = ctx.symbolTable as ContextSymbolTable;
-                return tbl;
-            });
+            const depTables = inheritSymbols
+                .map((inheritSymbol) => {
+                    const ctx = this.loadObject(inheritSymbol.filename);
+                    const tbl = ctx?.symbolTable as ContextSymbolTable;
+                    return tbl;
+                })
+                .filter((tbl) => !!tbl);
 
             this.objSymbolTable.addDependencies(...depTables);
         } else if (this.filename == "efun") {
