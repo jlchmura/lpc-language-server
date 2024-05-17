@@ -63,7 +63,7 @@ export function getDiagnosticLevelFromConfig(
     return defaultLevel;
 }
 
-let globalConfig: LpcConfig | null = null;
+let globalConfig: LpcConfig | null = new LpcConfig();
 export function ensureLpcConfig(): LpcConfig {
     if (!globalConfig) {
         throw "LPC config not loaded";
@@ -94,11 +94,12 @@ export function loadLpcConfig(filename: string): LpcConfig {
             ...rawConfig.diagnostics,
         };
 
-        return (globalConfig = config);
+        globalConfig = config;
     } catch (e) {
         console.warn(
             `Failed to load LPC config file ${filename}: ${e.message}`
         );
-        return new LpcConfig();
     }
+
+    return globalConfig;
 }
