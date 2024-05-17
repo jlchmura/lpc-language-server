@@ -103,13 +103,26 @@ export class MacroProcessor {
             column = -1;
         let j = -1;
         let inQuot = false,
-            inEsc = false;
+            inEsc = false,
+            inLineComment = false,
+            inBlockComment = false;
 
         while (++j < code.length) {
             column++;
             if (!inEsc && code[j] === "\n") {
                 row++;
                 column = -1;
+                inLineComment = false;
+                continue;
+            } else if (
+                inBlockComment &&
+                code[j] === "*" &&
+                code[j + 1] === "/"
+            ) {
+                inBlockComment = false;
+                j++;
+                continue;
+            } else if (inLineComment || inBlockComment) {
                 continue;
             } else if (!inEsc && code[j] === '"') {
                 inQuot = !inQuot;
@@ -120,6 +133,14 @@ export class MacroProcessor {
             } else if (inQuot) {
                 // if we're in a quote then it can't be a macro
                 inEsc = false;
+                continue;
+            } else if (code[j] == "/" && code[j + 1] == "/") {
+                inLineComment = true;
+                j++;
+                continue;
+            } else if (code[j] == "/" && code[j + 1] == "*") {
+                inBlockComment = true;
+                j++;
                 continue;
             } else if (!code[j].match(/[a-zA-Z_]/)) {
                 // macros must start with a letter so if it doesn't, skip
@@ -136,7 +157,8 @@ export class MacroProcessor {
 
                 if (
                     code.startsWith(startWithKey, j) &&
-                    code.substring(j - 1).match(`\\b${key}\\b`)?.index == 1 // must be a whole word match
+                    code.substring(j - 1).match(`\\b${key}\\b`)?.index ==
+                        Math.min(j, 1) // must be a whole word match
                 ) {
                     const start: IPosition = { row, column };
                     let end = { row, column: column + key.length };
