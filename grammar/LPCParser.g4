@@ -317,6 +317,7 @@ callOtherTarget
 lambdaExpression
     : HASH? SINGLEQUOT Identifier
     | HASH SINGLEQUOT expression
+    | HASH SINGLEQUOT NOT
     | HASH SINGLEQUOT PLUS
     | HASH SINGLEQUOT MINUS
     | HASH SINGLEQUOT STAR
