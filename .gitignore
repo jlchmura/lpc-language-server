@@ -8,3 +8,4 @@ parser2
 test.c
 test*.c
 .DS_Store
+*.vsix
