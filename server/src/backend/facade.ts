@@ -90,8 +90,6 @@ export class LpcFacade {
         const depChain = new Set<string>();
         const context = this.loadLpcInternal(fileName, source, depChain);
 
-        console.debug("[LOAD] " + fileName, depChain);
-
         return context;
     }
     public loadLpcInternal(
