@@ -20,6 +20,7 @@ import {
     getSibling,
     rangeFromTokens,
     resolveOfTypeSync,
+    symbolWithContextSync,
 } from "../utils";
 import {
     EfunSymbol,
@@ -60,26 +61,27 @@ export class SemanticListener extends LPCParserListener {
         // }
     };
 
-    /**
-     * validate that the include file was loaded
-     * @param ctx
-     */
-    exitIncludeDirective = (ctx: IncludeDirectiveContext) => {
-        const symbol = this.symbolTable.symbolWithContextSync(
-            ctx
-        ) as IncludeSymbol;
-        if (!symbol?.isLoaded) {
-            this.logDiagnostic(
-                "Could not load include file '" + symbol.name + "'",
-                ctx.start,
-                ctx.stop,
-                DiagnosticSeverity.Warning
-            );
-        }
-    };
+    // /**
+    //  * validate that the include file was loaded
+    //  * @param ctx
+    //  */
+    // exitIncludeDirective = (ctx: IncludeDirectiveContext) => {
+    //     const symbol = symbolWithContextSync(this.symbolTable,
+    //         ctx
+    //     ) as IncludeSymbol;
+    //     if (!symbol?.isLoaded) {
+    //         this.logDiagnostic(
+    //             "Could not load include file '" + symbol.name + "'",
+    //             ctx.start,
+    //             ctx.stop,
+    //             DiagnosticSeverity.Warning
+    //         );
+    //     }
+    // };
 
     exitInheritStatement = (ctx: InheritStatementContext) => {
-        const symbol = this.symbolTable.symbolWithContextSync(
+        const symbol = symbolWithContextSync(
+            this.symbolTable,
             ctx
         ) as InheritSymbol;
         if (!symbol?.isLoaded) {
@@ -96,7 +98,7 @@ export class SemanticListener extends LPCParserListener {
     //     const id = ctx.Identifier();
     //     const symbol = id.getText();
 
-    //     const ss = this.symbolTable.symbolWithContextSync(ctx);
+    //     const ss = symbolWithContextSync(this.symbolTable,ctx);
     //     const scope = ss?.getParentOfType(ScopedSymbol);
     //     const parentContext = this.symbolTable.findSymbolDefinition(ctx);
     //     const parentScope = parentContext?.getParentOfType(ScopedSymbol);
@@ -115,7 +117,8 @@ export class SemanticListener extends LPCParserListener {
     exitCallOtherTarget = (ctx: CallOtherTargetContext) => {};
 
     exitFunctionDeclaration = (ctx: FunctionDeclarationContext) => {
-        const symbol = this.symbolTable.symbolWithContextSync(
+        const symbol = symbolWithContextSync(
+            this.symbolTable,
             ctx
         ) as MethodSymbol;
         if (!symbol) return;
@@ -250,7 +253,8 @@ export class SemanticListener extends LPCParserListener {
         rangeStart = methodObj.start;
 
         // get the method invocation symbol
-        const methodInvSymbol = this.symbolTable.symbolWithContextSync(
+        const methodInvSymbol = symbolWithContextSync(
+            this.symbolTable,
             ctx
         ) as MethodInvocationSymbol;
 

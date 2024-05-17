@@ -20,7 +20,7 @@ import {
 } from "../symbols/methodSymbol";
 import { InlineClosureSymbol } from "../symbols/closureSymbol";
 import { IncludeSymbol } from "../symbols/includeSymbol";
-import { resolveOfTypeSync } from "../utils";
+import { resolveOfTypeSync, symbolWithContextSync } from "../utils";
 import { InheritSymbol } from "../symbols/inheritSymbol";
 
 type HighlightSymbolResult = {
@@ -488,8 +488,9 @@ export class ContextSymbolTable extends SymbolTable {
         localOnly = false
     ): BaseSymbol | undefined {
         if (context instanceof TerminalNode) context = context.parent;
-        const sym =
-            this.symbolWithContextSync(context)?.getParentOfType(ScopedSymbol);
+        const sym = symbolWithContextSync(this, context)?.getParentOfType(
+            ScopedSymbol
+        );
         return sym?.resolveSync(context.getText(), localOnly);
     }
 

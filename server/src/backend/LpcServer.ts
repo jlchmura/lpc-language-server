@@ -30,6 +30,7 @@ export class LpcServer {
 
     /** timers used to debounce change events */
     private changeTimers = new Map<string, NodeJS.Timeout>(); // Keyed by file name.
+    private lastSeenVersion = new Map<string, number>(); // Keyed by file name.
 
     private hasConfigurationCapability = false;
     private hasWorkspaceFolderCapability = false;
@@ -228,8 +229,17 @@ export class LpcServer {
         });
 
         this.documents.onDidChangeContent((e) => {
-            const filename = e.document.uri;
+            const { uri: filename, version } = e.document;
             try {
+                if (this.lastSeenVersion.get(filename) === version) {
+                    console.debug(
+                        `Skipping change event for ${filename} version ${version}`
+                    );
+                    return;
+                }
+
+                this.lastSeenVersion.set(filename, version);
+
                 // always update text, but debounce reparse and other updates
                 this.facade.setText(e.document);
 

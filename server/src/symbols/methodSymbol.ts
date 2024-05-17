@@ -242,28 +242,6 @@ export class MethodInvocationSymbol
     public getMethodSymbol() {
         // find the context that this method is being invoked on
         return this.methodSymbol;
-        // // symbol table that will be used to look up definition
-        // let lookupTable: ContextSymbolTable = this
-        //     .symbolTable as ContextSymbolTable;
-
-        // // if this is a call to another object, use that object's symbol table
-        // if (this.parent instanceof CallOtherSymbol) {
-        //     const callOtherSymbol = this.symbolTable.symbolWithContextSync(
-        //         ctx.parent
-        //     ) as CallOtherSymbol;
-        //     if (!!callOtherSymbol.objContext) {
-        //         lookupTable = callOtherSymbol.objContext.symbolTable;
-        //     } else {
-        //         return undefined;
-        //     }
-        // }
-
-        // // get the symbol for the method
-        // const methodSymbol = lookupTable.resolveSync(
-        //     methodName,
-        //     false
-        // ) as MethodSymbol;
-        // return methodSymbol;
     }
 }
 

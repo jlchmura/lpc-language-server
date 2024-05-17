@@ -1,10 +1,13 @@
+import { DiagnosticSeverity } from "vscode-languageserver";
 import { CallStack } from "../backend/CallStack";
 import { ContextSymbolTable } from "../backend/ContextSymbolTable";
 import { SourceContext } from "../backend/SourceContext";
 import { IncludeDirectiveContext } from "../parser3/LPCParser";
 import { SymbolKind } from "../types";
-import { normalizeFilename, testFilename } from "../utils";
+import { normalizeFilename, rangeFromTokens, testFilename } from "../utils";
+import { addDiagnostic } from "./Symbol";
 import { IEvaluatableSymbol, LpcBaseSymbol } from "./base";
+import { ParserRuleContext } from "antlr4ng";
 
 export class IncludeSymbol
     extends LpcBaseSymbol<IncludeDirectiveContext>
@@ -46,6 +49,15 @@ export class IncludeSymbol
     }
 
     eval(stack: CallStack, scope?: any) {
+        if (!this.isLoaded) {
+            const ctx = this.context as ParserRuleContext;
+            addDiagnostic(this, {
+                message: "Could not load include file '" + this.name + "'",
+                type: DiagnosticSeverity.Warning,
+                range: rangeFromTokens(ctx.start, ctx.stop),
+            });
+        }
+
         return scope;
     }
 }

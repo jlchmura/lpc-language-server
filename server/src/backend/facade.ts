@@ -57,18 +57,18 @@ export class LpcFacade {
     ) {
         console.log("LpcFacade created", importDir, workspaceDir);
 
-        const obs = new PerformanceObserver((list) => {
-            list.getEntries().forEach((entry) => {
-                console.log(
-                    `[Perf] ${entry.name} took ${entry.duration} ms`,
-                    entry.detail
-                );
-            });
+        // const obs = new PerformanceObserver((list) => {
+        //     list.getEntries().forEach((entry) => {
+        //         console.log(
+        //             `[Perf] ${entry.name} took ${entry.duration} ms`,
+        //             entry.detail
+        //         );
+        //     });
 
-            performance.clearMarks();
-            performance.clearMeasures();
-        });
-        obs.observe({ entryTypes: ["measure"], buffered: true });
+        //     performance.clearMarks();
+        //     performance.clearMeasures();
+        // });
+        // obs.observe({ entryTypes: ["measure"], buffered: true });
     }
 
     public filenameToAbsolutePath(filename: string): string {
@@ -379,7 +379,9 @@ export class LpcFacade {
             const depPath = depInfo.fullPath;
 
             if (depChain.has(depPath)) {
-                console.info("Skipping cyclic dependency", depPath);
+                console.info(
+                    `Skipping cyclic dependency from ${contextEntry.filename} -> ${depPath}`
+                );
                 return undefined;
             }
 
@@ -576,7 +578,7 @@ export class LpcFacade {
             );
 
             if (ctx) {
-                this.parseLpc(ctx, new Set());
+                this.parseLpc(ctx, new Set(), false);
             }
 
             // send a notification to the server to re-send diags for this doc

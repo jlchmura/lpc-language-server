@@ -61,6 +61,7 @@ efun("function_exists", LpcTypes.intType, false, ["fun", LpcTypes.stringType], [
 efun("get_dir", LpcTypes.mixedArrayType, true, ["path", LpcTypes.stringType], ["flags", LpcTypes.intType]);
 efun("get_error_file", LpcTypes.mixedType, true, ["name", LpcTypes.stringType], ["set_forget_flag", LpcTypes.intType]);
 efun("get_extra_wizinfo", LpcTypes.mixedType, false, ["wiz", LpcTypes.objectType]);
+efun("geteuid", LpcTypes.stringType, false, ["ob", LpcTypes.objectType]);
 efun("getuid", LpcTypes.stringType, false, ["ob", LpcTypes.objectType]);
 efun("hash", LpcTypes.intType, true, ["method", LpcTypes.intArrayType], ["arg", LpcTypes.stringType],["iterations", LpcTypes.intType]);
 efun("implode", LpcTypes.stringType, true, ["arr", LpcTypes.mixedArrayType], ["del", LpcTypes.stringType]);
@@ -109,6 +110,7 @@ efun("query_actions", LpcTypes.mixedArrayType, true, ["ob", LpcTypes.objectType]
 efun("query_ip_number", LpcTypes.stringType, true, ["ob", LpcTypes.objectType]);
 efun("query_once_interactive", LpcTypes.intType, false, ["ob", LpcTypes.objectType]);
 efun("query_verb", LpcTypes.stringType, true, ["flag", LpcTypes.intType]);
+efun("quote", LpcTypes.mixedType, false, ["arg", LpcTypes.mixedType]);
 efun("raise_error", LpcTypes.voidType, false, ["arg", LpcTypes.stringType]);
 efun("random", LpcTypes.intType, true, ["n", LpcTypes.intType]);
 efun("read_bytes", LpcTypes.bytesType, true, ["file", LpcTypes.stringType], ["start", LpcTypes.intType], ["len", LpcTypes.intType]);

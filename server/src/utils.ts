@@ -1,4 +1,4 @@
-import { ParserRuleContext, Token } from "antlr4ng";
+import { ParseTree, ParserRuleContext, Token } from "antlr4ng";
 import {
     Position,
     Range,
@@ -335,4 +335,61 @@ export async function getSymbolsFromAllParents<
     }
 
     return result;
+}
+
+export function symbolWithContextSync(
+    symbolTable: ContextSymbolTable,
+    context: ParseTree,
+    localOnly = true
+): BaseSymbol | undefined {
+    /**
+     * Local function to find a symbol recursively.
+     *
+     * @param symbol The symbol to search through.
+     *
+     * @returns The symbol with the given context, if found.
+     */
+    const findRecursive = (symbol: BaseSymbol): BaseSymbol | undefined => {
+        if (symbol.context === context) {
+            return symbol;
+        }
+
+        if (symbol instanceof ScopedSymbol) {
+            for (const child of symbol.children) {
+                const result = findRecursive(child);
+                if (result) {
+                    return result;
+                }
+            }
+        }
+
+        return undefined;
+    };
+
+    let symbols: BaseSymbol[];
+    // try {
+    symbols = symbolTable.getAllSymbolsSync(BaseSymbol, true);
+    for (const symbol of symbols) {
+        const result = findRecursive(symbol);
+        if (result) {
+            return result;
+        }
+    }
+    // } catch (e) {
+    //     const i = 0;
+    // }
+
+    if (!localOnly) {
+        for (const dependency of symbolTable.getDependencies()) {
+            symbols = dependency.getAllSymbolsSync(BaseSymbol);
+            for (const symbol of symbols) {
+                const result = findRecursive(symbol);
+                if (result) {
+                    return result;
+                }
+            }
+        }
+    }
+
+    return undefined;
 }

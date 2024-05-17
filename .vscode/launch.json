@@ -8,9 +8,9 @@
             "name": "Launch Client",
             "runtimeExecutable": "${execPath}",
             "args": [
-                "${workspaceRoot}/../lp-245",
+                "${workspaceRoot}/../infinity-lib",
                 //"${workspaceRoot}/../lpc-test",
-                // "${workspaceRoot}/../lpc-test/test.c",
+                //"${workspaceRoot}/../lpc-test/test.c",
                 "--extensionDevelopmentPath=${workspaceRoot}"
             ],
             "autoAttachChildProcesses": true,

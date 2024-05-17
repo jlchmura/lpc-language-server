@@ -96,7 +96,7 @@ export function loadLpcConfig(filename: string): LpcConfig {
 
         globalConfig = config;
     } catch (e) {
-        console.warn(
+        console.info(
             `Failed to load LPC config file ${filename}: ${e.message}`
         );
     }
