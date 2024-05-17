@@ -100,6 +100,8 @@ export namespace LpcTypes {
     export const bytesType: IType = new FundamentalType("bytes", TypeKind.String);
     export const intType: IType = FundamentalType.integerType;
     export const intArrayType: IType = new ArrayType("int *", ReferenceKind.Instance, LpcTypes.intType);
+    export const floatType: IType = FundamentalType.floatType;
+    export const floatArrayType: IType = new ArrayType("float *", ReferenceKind.Instance, LpcTypes.floatType);
     export const stringType: IType=FundamentalType.stringType;
     export const stringArrayType: IType = new ArrayType("string *", ReferenceKind.Instance, LpcTypes.stringType);
     export const closureType: IType = new FundamentalType("closure", TypeKind.Class);

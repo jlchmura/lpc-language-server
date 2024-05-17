@@ -90,7 +90,7 @@ export class InheritSuperAccessorSymbol
         } else {
             this.objContext = this.loadObject(this.filename);
             this.objSymbolTable = this.objContext
-                .symbolTable as ContextSymbolTable;
+                ?.symbolTable as ContextSymbolTable;
         }
 
         // evaluate children

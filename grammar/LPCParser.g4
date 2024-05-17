@@ -291,7 +291,7 @@ foreachRangeExpression
     ;
 
 forVariable
-    : primitiveTypeSpecifier? arraySpecifier=STAR? variableName=Identifier ASSIGN variableInitializer
+    : primitiveTypeSpecifier? arraySpecifier=STAR? variableName=Identifier (ASSIGN variableInitializer | INC | DEC) 
     ;
 
 forEachVariable
