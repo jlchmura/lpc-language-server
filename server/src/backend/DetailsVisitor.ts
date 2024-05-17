@@ -437,7 +437,7 @@ export class DetailsVisitor
     };
 
     parsePrimitiveType(ctx: PrimitiveTypeSpecifierContext) {
-        let tt = ctx.getText();
+        let tt = ctx?.getText();
         let varType: IType;
         if (tt) {
             const isArray = tt.endsWith("*");

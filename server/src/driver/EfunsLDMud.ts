@@ -97,6 +97,7 @@ efun("notify_fail", LpcTypes.voidType, false, ["msg", LpcTypes.stringType]);
 efun("object_info", LpcTypes.mixedType, true, ["ob", LpcTypes.objectType],["what", LpcTypes.intType]);
 efun("object_name", LpcTypes.stringType, false, ["ob", LpcTypes.objectType]);
 efun("objectp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
+efun("order_alist", LpcTypes.mixedArrayType, true, ["keys", LpcTypes.mixedArrayType], ["data", LpcTypes.mixedArrayType], ["...args", LpcTypes.mixedType, true]);
 efun("playerp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("previous_object", LpcTypes.objectType, true, ["i", LpcTypes.intType]);
 efun("present", LpcTypes.objectType, true, ["str", FundamentalType.stringType], ["env", LpcTypes.objectType]);
@@ -167,6 +168,7 @@ efun("write_file", LpcTypes.intType, true, ["file", LpcTypes.stringType], ["str"
 efun("unbound_lambda", LpcTypes.closureType, false, ["args", LpcTypes.mixedArrayType], ["mixed", LpcTypes.mixedType]);
 efun("unmkmapping", LpcTypes.mixedArrayType, false, ["map", LpcTypes.mappingType]);
 efun("unique_array", LpcTypes.objectArrayType, true, ["obarr", LpcTypes.objectArrayType], ["fun", LpcTypes.stringType], ["extra", LpcTypes.mixedType], ["skip", LpcTypes.mixedType]);
+efun("utime", LpcTypes.intArrayType, false);
 
 function efun(
     name: string,

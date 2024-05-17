@@ -212,6 +212,9 @@ export class MethodInvocationSymbol
         } else if (!methodSymbol) {
             const ctx = (funcIdValue?.symbol ?? this)
                 .context as ParserRuleContext;
+            // if (methodName == "call_other") {
+            //     const ii = 0;
+            // }
             addDiagnostic(this, {
                 message: `Function '${methodName ?? ""}' may be undefined`,
                 range: rangeFromTokens(ctx.start, ctx.stop),

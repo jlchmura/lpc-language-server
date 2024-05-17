@@ -6,7 +6,12 @@ import {
     VariableSymbol as VariableSymbolBase,
 } from "antlr4-c3";
 import { LpcTypes } from "../types";
-import { LpcBaseMethodSymbol, MethodSymbol } from "../symbols/methodSymbol";
+import {
+    EfunParamSymbol,
+    EfunSymbol,
+    LpcBaseMethodSymbol,
+    MethodSymbol,
+} from "../symbols/methodSymbol";
 import { ParserRuleContext } from "antlr4ng";
 import { ContextSymbolTable } from "./ContextSymbolTable";
 
@@ -120,6 +125,9 @@ export class CallStack {
     }
 
     public addLocal(name: string, value: StackValue) {
+        // if (name == "call_other" && !(value.symbol instanceof EfunSymbol)) {
+        //     const i = 0;
+        // }
         this.peek().addValue(name, value);
     }
 
@@ -232,12 +240,12 @@ export class StackFrame {
 
         this.lookupCache.set(name, result);
 
-        if (!result) {
-            const ctx = symbol.context as ParserRuleContext;
-            const owner = symbol.symbolTable.name;
-            const str = `Variable ${name} not found in stack; ${owner} at ${ctx.start.line}:${ctx.start.column}`;
-            console.warn(str);
-        }
+        // if (!result) {
+        //     const ctx = symbol.context as ParserRuleContext;
+        //     const owner = symbol.symbolTable.name;
+        //     const str = `Variable ${name} not found in stack; ${owner} at ${ctx.start.line}:${ctx.start.column}`;
+        //     console.warn(str);
+        // }
         return result;
     }
 
@@ -287,6 +295,6 @@ export function getFunctionFromFrame(
         return local.symbol;
     } else {
         // TODO: send to diag?
-        console.warn("Function " + name + " not found in stack");
+        //console.warn("Function " + name + " not found in stack");
     }
 }

@@ -111,8 +111,12 @@ export function resolveOfTypeSync<T extends BaseSymbol, Args extends unknown[]>(
     scope: IScopedSymbol,
     name: string,
     t: SymbolConstructor<T, Args>,
-    localOnly: boolean = false
+    localOnly: boolean = false,
+    cnt: number = 0
 ): T {
+    // if (cnt > 100) {
+    //     const i = 0;
+    // }
     for (const child of scope.children) {
         if (child.name === name && child instanceof t) {
             return child;
@@ -120,13 +124,19 @@ export function resolveOfTypeSync<T extends BaseSymbol, Args extends unknown[]>(
     }
 
     if (!localOnly && !!scope.parent) {
-        return resolveOfTypeSync(scope.parent, name, t, localOnly);
+        return resolveOfTypeSync(scope.parent, name, t, localOnly, cnt + 1);
     }
 
     if (!localOnly) {
         const deps = (scope as ContextSymbolTable).getDependencies();
         for (const dependency of deps) {
-            const result = resolveOfTypeSync(dependency, name, t, localOnly);
+            const result = resolveOfTypeSync(
+                dependency,
+                name,
+                t,
+                localOnly,
+                cnt + 1
+            );
             if (!!result) {
                 return result;
             }
