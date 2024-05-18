@@ -77,7 +77,23 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
         const exp = ctx.preprocessor_expression();
         const expStr = exp.getText().trim();
 
-        this.conditionalStack.push(expStr.trim() == "0" ? false : true);
+        let flag = true;
+        if (expStr == "0") {
+            flag = false;
+        } else if (expStr == "1") {
+            flag = true;
+        } else if (expStr.includes("defined(")) {
+            flag = true; // NTBLA implement this
+        } else {
+            flag = this.macroTable.has(expStr);
+        }
+
+        this.conditionalStack.push(flag);
+
+        const { start, stop } = ctx.parent;
+        const str = ctx.parent.getText();
+        const newStr = str.replace(/./g, (c) => (c == "\n" ? c : " "));
+        this.rewriter.replace(start, stop, newStr);
     };
 
     enterPreprocessorConditionalElse = (

@@ -74,10 +74,11 @@ export class LpcFacade {
     public filenameToAbsolutePath(filename: string): string {
         if (!filename) return filename;
         else if (typeof filename !== "string") {
-            console.error(
+            console.trace(
                 "filenameToAbsolutePath: filename is not a string",
                 filename
             );
+            return "";
         }
         if (filename.startsWith(this.workspaceDir)) {
             return filename;

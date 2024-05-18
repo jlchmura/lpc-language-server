@@ -60,6 +60,7 @@ directiveIfArgument
     : Identifier (PAREN_OPEN (Identifier|StringLiteral|IntegerConstant) PAREN_CLOSE)?
     | StringLiteral
     | IntegerConstant
+    | nonAssignmentExpression
     ;
 
 directiveTypeWithArguments
@@ -252,7 +253,7 @@ elseExpression
     : ELSE statement
     ;
 ifExpression
-    : IF PAREN_OPEN expression PAREN_CLOSE statement
+    : IF PAREN_OPEN expression PAREN_CLOSE (statement | SEMI)
     ;
 
 ifStatement
