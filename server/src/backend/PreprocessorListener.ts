@@ -109,6 +109,11 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
                 `${this.filename}:${ctx.start.line}:${ctx.start.column}`
             );
         }
+
+        const { start, stop } = ctx.parent;
+        const str = ctx.parent.getText();
+        const newStr = str.replace(/./g, (c) => (c == "\n" ? c : " "));
+        this.rewriter.replace(start, stop, newStr);
     };
 
     /**

@@ -25,6 +25,7 @@ import { DirectiveIncludeFileGlobalContext } from "./LPCParser.js";
 import { DirectiveIncludeFileLocalContext } from "./LPCParser.js";
 import { DirectiveTypePragmaContext } from "./LPCParser.js";
 import { InheritStatementContext } from "./LPCParser.js";
+import { InheritSuperStatementContext } from "./LPCParser.js";
 import { InheritSuperExpressionContext } from "./LPCParser.js";
 import { DeclarationContext } from "./LPCParser.js";
 import { FunctionModifierContext } from "./LPCParser.js";
@@ -61,6 +62,7 @@ import { IfExpressionContext } from "./LPCParser.js";
 import { IfStatementContext } from "./LPCParser.js";
 import { SwitchStatementContext } from "./LPCParser.js";
 import { CaseExpressionContext } from "./LPCParser.js";
+import { CaseConditionContext } from "./LPCParser.js";
 import { CaseStatementContext } from "./LPCParser.js";
 import { DefaultStatementContext } from "./LPCParser.js";
 import { WhileStatementContext } from "./LPCParser.js";
@@ -345,6 +347,16 @@ export class LPCParserListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitInheritStatement?: (ctx: InheritStatementContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.inheritSuperStatement`.
+     * @param ctx the parse tree
+     */
+    enterInheritSuperStatement?: (ctx: InheritSuperStatementContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.inheritSuperStatement`.
+     * @param ctx the parse tree
+     */
+    exitInheritSuperStatement?: (ctx: InheritSuperStatementContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.inheritSuperExpression`.
      * @param ctx the parse tree
@@ -717,6 +729,16 @@ export class LPCParserListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitCaseExpression?: (ctx: CaseExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.caseCondition`.
+     * @param ctx the parse tree
+     */
+    enterCaseCondition?: (ctx: CaseConditionContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.caseCondition`.
+     * @param ctx the parse tree
+     */
+    exitCaseCondition?: (ctx: CaseConditionContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.caseStatement`.
      * @param ctx the parse tree

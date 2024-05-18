@@ -46,14 +46,7 @@ selectionDirectiveTypeWithArg
 
 directiveIfTestExpression
     : NOT? directiveIfArgument
-    | directiveIfTestExpression (AND_AND directiveIfTestExpression)+
-    | directiveIfTestExpression (OR_OR directiveIfTestExpression)+
-    | directiveIfTestExpression (EQ directiveIfTestExpression)+
-    | directiveIfTestExpression (NE directiveIfTestExpression)+
-    | directiveIfTestExpression (LT directiveIfTestExpression)+
-    | directiveIfTestExpression (GT directiveIfTestExpression)+
-    | directiveIfTestExpression (LE directiveIfTestExpression)+
-    | directiveIfTestExpression (GE directiveIfTestExpression)+    
+    | directiveIfTestExpression ((AND_AND | OR_OR | EQ | NE | LT | GT | LE | GE) directiveIfTestExpression)+    
     ;
 
 directiveIfArgument
@@ -98,10 +91,12 @@ inheritStatement
     : INHERIT inheritTarget=(StringLiteral | Identifier) SEMI
     ;
 
+inheritSuperStatement
+    : inheritSuperExpression SEMI
+    ;
+
 inheritSuperExpression
-    : SUPER_ACCESSOR expression
-    | filename=StringLiteral SUPER_ACCESSOR expression
-    | filename=Identifier SUPER_ACCESSOR expression
+    : filename=(Identifier|StringLiteral)? COLON COLON expression
     ;
 
 declaration
@@ -266,9 +261,11 @@ switchStatement
     ;
 
 caseExpression
-    : (StringLiteral|MINUS? IntegerConstant|Identifier|CharacterConstant)
-    | (StringLiteral|MINUS? IntegerConstant|Identifier|CharacterConstant) DOUBLEDOT (StringLiteral|MINUS? IntegerConstant|Identifier|CharacterConstant)
+    : caseCondition (DOUBLEDOT caseCondition)?
     ;
+
+caseCondition: (StringLiteral|MINUS? IntegerConstant|Identifier|CharacterConstant);
+
 caseStatement
     : CASE caseExpression COLON statement*
     ;
@@ -457,14 +454,14 @@ conditionalExpressionBase
 unaryExpression
     : castExpression
     | primaryExpression
-    | PLUS expression
-    | MINUS expression
-    | NOT expression
-    | BNOT expression  
-    | INC expression
-    | DEC expression
-    | AND expression
-    | STAR expression     
+    | (PLUS|MINUS|NOT|BNOT|INC|DEC|AND|STAR) expression
+    // | MINUS expression
+    // | NOT expression
+    // | BNOT expression  
+    // | INC expression
+    // | DEC expression
+    // | AND expression
+    // | STAR expression         
     ;
 
 primaryExpression
@@ -520,7 +517,8 @@ assignmentExpression
     ;
 
 nonAssignmentExpression
-    : inlineClosureExpression
+    : inheritSuperExpression // inherit must come before inline closure
+    | inlineClosureExpression
     | lambdaExpression    
-    | conditionalExpressionBase
+    | conditionalExpressionBase    
     ;

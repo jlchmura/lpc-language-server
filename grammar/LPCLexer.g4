@@ -106,7 +106,7 @@ SINGLEQUOT: '\'';
 //DOUBLEQUOT: '"';
 
 // for inheritance
-SUPER_ACCESSOR: '::';
+// SUPER_ACCESSOR: '::';
 // assignmenet operators
 ASSIGN: '=';
 ADD_ASSIGN: '+=';

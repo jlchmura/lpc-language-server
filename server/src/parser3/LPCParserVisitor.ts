@@ -25,6 +25,7 @@ import { DirectiveIncludeFileGlobalContext } from "./LPCParser.js";
 import { DirectiveIncludeFileLocalContext } from "./LPCParser.js";
 import { DirectiveTypePragmaContext } from "./LPCParser.js";
 import { InheritStatementContext } from "./LPCParser.js";
+import { InheritSuperStatementContext } from "./LPCParser.js";
 import { InheritSuperExpressionContext } from "./LPCParser.js";
 import { DeclarationContext } from "./LPCParser.js";
 import { FunctionModifierContext } from "./LPCParser.js";
@@ -61,6 +62,7 @@ import { IfExpressionContext } from "./LPCParser.js";
 import { IfStatementContext } from "./LPCParser.js";
 import { SwitchStatementContext } from "./LPCParser.js";
 import { CaseExpressionContext } from "./LPCParser.js";
+import { CaseConditionContext } from "./LPCParser.js";
 import { CaseStatementContext } from "./LPCParser.js";
 import { DefaultStatementContext } from "./LPCParser.js";
 import { WhileStatementContext } from "./LPCParser.js";
@@ -257,6 +259,12 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      * @return the visitor result
      */
     visitInheritStatement?: (ctx: InheritStatementContext) => Result;
+    /**
+     * Visit a parse tree produced by `LPCParser.inheritSuperStatement`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitInheritSuperStatement?: (ctx: InheritSuperStatementContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.inheritSuperExpression`.
      * @param ctx the parse tree
@@ -479,6 +487,12 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      * @return the visitor result
      */
     visitCaseExpression?: (ctx: CaseExpressionContext) => Result;
+    /**
+     * Visit a parse tree produced by `LPCParser.caseCondition`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitCaseCondition?: (ctx: CaseConditionContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.caseStatement`.
      * @param ctx the parse tree
