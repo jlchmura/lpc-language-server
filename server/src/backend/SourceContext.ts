@@ -256,10 +256,10 @@ export class SourceContext {
         // add macros from config
         const config = ensureLpcConfig();
         const configDefines = new Map(config.defines ?? []);
-        configDefines.set("__VERSION__", config.driver.version);
+        configDefines.set("__VERSION__", `"${config.driver.version}"`);
 
         const configMacroTable = new Map<string, MacroDefinition>();
-        for (const [key, val] of config.defines ?? new Map()) {
+        for (const [key, val] of configDefines ?? new Map()) {
             configMacroTable.set(key, {
                 value: val,
                 start: { column: 0, row: 1 },
@@ -385,6 +385,7 @@ export class SourceContext {
                 this.parser.errorHandler = new DefaultErrorStrategy();
                 this.parser.interpreter.predictionMode = PredictionMode.LL;
                 this.tree = this.parser.program();
+                console.debug(`Bailed out to LL mode for ${this.fileName}`);
             } else {
                 throw e;
             }
@@ -493,7 +494,7 @@ export class SourceContext {
         if (
             !this.semanticAnalysisDone &&
             this.tree &&
-            !this.needsCompile &&
+            //!this.needsCompile &&
             this.symbolTable
         ) {
             this.semanticAnalysisDone = true;
@@ -507,7 +508,8 @@ export class SourceContext {
         }
     }
 
-    public getDiagnostics(): IDiagnosticEntry[] {
+    public getDiagnostics(force = false): IDiagnosticEntry[] {
+        if (force) this.semanticAnalysisDone = false;
         this.runSemanticAnalysisIfNeeded();
 
         return [...this.diagnostics];

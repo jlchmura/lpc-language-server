@@ -19,6 +19,8 @@ import { randomInt } from "crypto";
 
 /** ms delay before reparsing a depenency */
 const DEP_FILE_REPARSE_TIME = 300;
+/** ms delay before reparsing the next dep in the queue */
+const DEP_FILE_REPARSE_WORKTIME = 10;
 
 export type IContextEntry = {
     context: SourceContext;
@@ -45,9 +47,9 @@ export class LpcFacade {
         IContextEntry
     >();
 
-    public onRunDiagnostics: (filename: string) => void;
+    public onRunDiagnostics: (filename: string, force: boolean) => void;
 
-    private depReparseQueue: string[] = [];
+    private depReparseQueue = new Set<string>();
     private depReparseTimer: NodeJS.Timeout;
     private depReparseCancel: CancellationTokenSource | undefined = undefined;
 
@@ -325,10 +327,10 @@ export class LpcFacade {
                 if (this.depReparseTimer) {
                     clearTimeout(this.depReparseTimer);
                 }
+
                 // queue up new deps
-                for (const ref of oldReferences) {
-                    this.depReparseQueue.push(ref.fileName);
-                }
+                this.queueRefsForReparse(contextEntry.filename);
+
                 // start delayed reparse timer
                 this.depReparseTimer = setTimeout(() => {
                     this.reparseDependencyQueue();
@@ -430,11 +432,11 @@ export class LpcFacade {
         return contextEntry?.context;
     }
 
-    public getDiagnostics(fileName: string): IDiagnosticEntry[] {
+    public getDiagnostics(fileName: string, force = false): IDiagnosticEntry[] {
         const context = this.getContext(fileName);
 
         if (!!context) {
-            return context.getDiagnostics();
+            return context.getDiagnostics(force);
         }
 
         return undefined;
@@ -559,38 +561,75 @@ export class LpcFacade {
         return context?.getHighlights(symbolName);
     }
 
-    public reparseDependencyQueue() {
-        if (!!this.depReparseCancel) return;
-        this.depReparseCancel = new CancellationTokenSource();
-        const token = this.depReparseCancel.token;
+    /**
+     * Add this file's refs, and all of their refs (recursively) to the reparse queue.
+     * @param fileName
+     */
+    public queueRefsForReparse(fileName: string) {
+        const ctx = this.getContextEntry(fileName);
+        const refs = ctx?.context?.getReferences();
+        while (refs.length > 0) {
+            const ref = refs.pop();
+            if (
+                !this.depReparseQueue.has(ref.fileName) &&
+                ref.fileName !== fileName
+            ) {
+                const refCtx = this.getContextEntry(ref.fileName);
+                if (!refCtx) continue;
 
-        const seen = new Set<string>();
+                refs.push(...refCtx?.context?.getReferences());
+                this.depReparseQueue.add(ref.fileName);
+            }
+        }
+    }
+
+    public reparseDependencyQueue() {
+        if (!this.depReparseCancel) {
+            this.depReparseCancel = new CancellationTokenSource();
+        }
+
+        const token = this.depReparseCancel.token;
+        //const seen = new Set<string>();
 
         while (
-            this.depReparseQueue.length > 0 &&
+            this.depReparseQueue.size > 0 &&
             !token.isCancellationRequested
         ) {
-            const dep = this.depReparseQueue.pop();
+            const depsItr = this.depReparseQueue.values();
+            const depEntry = depsItr?.next();
+
+            if (depEntry.done) break;
+            else if (!depEntry.value) continue;
+
+            const dep = depEntry.value;
+            this.depReparseQueue.delete(dep);
 
             // so that we only process each dep once per reparse
-            if (seen.has(dep)) continue;
-            seen.add(dep);
+            // if (seen.has(dep)) continue;
+            // seen.add(dep);
 
             const ctx = this.getContextEntry(dep);
+            if (!ctx) continue;
 
-            // push this context's refs to the queue
-            this.depReparseQueue.push(
-                ...ctx?.context?.getReferences()?.map((r) => r.fileName)
-            );
+            console.debug(`Reparse ${dep} (${ctx?.id})`);
 
             if (ctx) {
-                this.parseLpc(ctx, new Set(), false);
+                //this.parseLpc(ctx, new Set(), false);
             }
 
             // send a notification to the server to re-send diags for this doc
-            if (!!this.onRunDiagnostics) this.onRunDiagnostics(dep);
+            if (!!this.onRunDiagnostics) this.onRunDiagnostics(dep, true);
+
+            break; // only process one at a time
         }
-        this.depReparseCancel = undefined;
+
+        if (this.depReparseQueue.size == 0 || token.isCancellationRequested) {
+            this.depReparseCancel = undefined;
+        } else {
+            this.depReparseTimer = setTimeout(() => {
+                this.reparseDependencyQueue();
+            }, DEP_FILE_REPARSE_WORKTIME);
+        }
     }
 
     public parseAllFiles() {
@@ -608,7 +647,7 @@ export class LpcFacade {
                         const filename = path.join(dir, file.name);
                         const txt = fs.readFileSync(filename, "utf8");
                         this.loadLpc(filename, txt);
-                        this.onRunDiagnostics(filename);
+                        this.onRunDiagnostics(filename, false);
                         this.releaseLpc(filename);
                     } catch (e) {
                         console.error(`Error parsing ${file.name}: ${e}`);

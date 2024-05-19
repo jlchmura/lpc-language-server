@@ -108,6 +108,9 @@ export class MacroProcessor {
             inBlockComment = false;
 
         while (++j < code.length) {
+            // if (row == 237) {
+            //     const xx = 0;
+            // }
             column++;
             if (!inEsc && code[j] === "\n") {
                 row++;

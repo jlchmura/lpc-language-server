@@ -32,8 +32,12 @@ export class DiagnosticProvider {
      * Processes diangostics for the given document and sends back to the language client.
      * @param document
      */
-    public processDiagnostic(uri: string, version: number): DocDiagnostics[] {
-        const entries = this.facade.getDiagnostics(uri);
+    public processDiagnostic(
+        uri: string,
+        version: number,
+        force = false
+    ): DocDiagnostics[] {
+        const entries = this.facade.getDiagnostics(uri, force);
         const results: DocDiagnostics[] = [];
 
         // if diag for the doc is undefined, that means diags failed

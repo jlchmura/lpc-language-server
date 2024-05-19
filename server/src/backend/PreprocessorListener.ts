@@ -75,7 +75,7 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
 
     enterPreprocessorConditional = (ctx: PreprocessorConditionalContext) => {
         const exp = ctx.preprocessor_expression();
-        const expStr = exp.getText().trim();
+        let expStr = exp.getText().trim();
 
         let flag = true;
         if (expStr == "0") {

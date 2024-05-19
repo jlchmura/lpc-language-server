@@ -419,14 +419,14 @@ export class LpcServer {
         this.facade = new LpcFacade(this.importDir, rootFolderPath);
 
         // hook up the run diagnostic event emitter
-        this.facade.onRunDiagnostics = (filename) => {
+        this.facade.onRunDiagnostics = (filename, force) => {
             const uri = URI.file(filename).toString();
             const doc = this.documents.get(uri);
             if (!!doc) {
                 //this.flushChangeTimer(doc);
-                this.processDiagnostic(doc.uri, doc.version);
+                this.processDiagnostic(doc.uri, doc.version, force);
             } else {
-                this.processDiagnostic(uri, 0);
+                this.processDiagnostic(uri, 0, force);
             }
         };
 
@@ -456,8 +456,12 @@ export class LpcServer {
     //     });
     // }
 
-    public processDiagnostic(uri: string, version: number) {
-        const result = this.diagnosticProvider.processDiagnostic(uri, version);
+    public processDiagnostic(uri: string, version: number, force = false) {
+        const result = this.diagnosticProvider.processDiagnostic(
+            uri,
+            version,
+            force
+        );
 
         // send grouped results
         for (const diagResult of result) {
