@@ -16,6 +16,12 @@ import { SemanticTokenCollection } from "./SemanticTokenCollection";
 
 const REG_DEFINE_WITHARGS = /(.*)\((.+)\)/g;
 
+enum ConditionalState {
+    Disabled = 0,
+    Enabled = 1,
+    Ignored = 2,
+}
+
 /**
  * Handles preprocessor directives.
  *
@@ -25,14 +31,15 @@ const REG_DEFINE_WITHARGS = /(.*)\((.+)\)/g;
  * - Import directives are parsed and the import file added to a list (to be handled by SourceContext)
  */
 export class PreprocessorListener extends LPCPreprocessorParserListener {
-    private conditionalStack: boolean[] = [];
+    private conditionalStack: ConditionalState[] = [];
 
     get inConditional() {
         return this.conditionalStack.length > 0;
     }
     get isExecutable() {
         return this.conditionalStack.length > 0
-            ? this.conditionalStack[this.conditionalStack.length - 1]
+            ? this.conditionalStack[this.conditionalStack.length - 1] ===
+                  ConditionalState.Enabled
             : true;
     }
 
@@ -74,21 +81,27 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
     enterPreprocessorDirective = (ctx: PreprocessorDirectiveContext) => {};
 
     enterPreprocessorConditional = (ctx: PreprocessorConditionalContext) => {
-        const exp = ctx.preprocessor_expression();
-        let expStr = exp.getText().trim();
-
-        let flag = true;
-        if (expStr == "0") {
-            flag = false;
-        } else if (expStr == "1") {
-            flag = true;
-        } else if (expStr.includes("defined(")) {
-            flag = true; // NTBLA implement this
+        if (this.inConditional && !this.isExecutable) {
+            this.conditionalStack.push(ConditionalState.Ignored);
         } else {
-            flag = this.macroTable.has(expStr);
-        }
+            const exp = ctx.preprocessor_expression();
+            let expStr = exp.getText().trim();
 
-        this.conditionalStack.push(flag);
+            let flag = true;
+            if (expStr == "0") {
+                flag = false;
+            } else if (expStr == "1") {
+                flag = true;
+            } else if (expStr.includes("defined(")) {
+                flag = true; // NTBLA implement this
+            } else {
+                flag = this.macroTable.has(expStr);
+            }
+
+            this.conditionalStack.push(
+                flag ? ConditionalState.Enabled : ConditionalState.Disabled
+            );
+        }
 
         const { start, stop } = ctx.parent;
         const str = ctx.parent.getText();
@@ -100,8 +113,13 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
         ctx: PreprocessorConditionalElseContext
     ) => {
         if (this.inConditional) {
-            this.conditionalStack[this.conditionalStack.length - 1] =
-                !this.isExecutable;
+            const st = this.conditionalStack[this.conditionalStack.length - 1];
+            if (st !== ConditionalState.Ignored) {
+                this.conditionalStack[this.conditionalStack.length - 1] =
+                    st === ConditionalState.Enabled
+                        ? ConditionalState.Disabled
+                        : ConditionalState.Enabled;
+            }
         } else {
             // this is an error - log it
             console.error(
@@ -174,13 +192,19 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
     enterPreprocessorConditionalDef = (
         ctx: PreprocessorConditionalDefContext
     ) => {
-        const sym = ctx.CONDITIONAL_SYMBOL();
-        const shouldExist = !!ctx.IFDEF() ? true : false;
-        const symName = sym?.getText();
+        if (this.inConditional && !this.isExecutable) {
+            this.conditionalStack.push(ConditionalState.Ignored);
+        } else {
+            const sym = ctx.CONDITIONAL_SYMBOL();
+            const shouldExist = !!ctx.IFDEF() ? true : false;
+            const symName = sym?.getText();
 
-        this.conditionalStack.push(
-            this.macroTable.has(symName) === shouldExist
-        );
+            this.conditionalStack.push(
+                this.macroTable.has(symName) === shouldExist
+                    ? ConditionalState.Enabled
+                    : ConditionalState.Disabled
+            );
+        }
 
         // replace with spaces
         const { start, stop } = ctx.parent;
