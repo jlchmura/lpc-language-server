@@ -60,18 +60,18 @@ export class LpcFacade {
     ) {
         console.log("LpcFacade created", importDir, workspaceDir);
 
-        // const obs = new PerformanceObserver((list) => {
-        //     list.getEntries().forEach((entry) => {
-        //         console.log(
-        //             `[Perf] ${entry.name} took ${entry.duration} ms`,
-        //             entry.detail
-        //         );
-        //     });
+        const obs = new PerformanceObserver((list) => {
+            list.getEntries().forEach((entry) => {
+                console.log(
+                    `[Perf] ${entry.name} took ${entry.duration} ms`,
+                    entry.detail
+                );
+            });
 
-        //     performance.clearMarks();
-        //     performance.clearMeasures();
-        // });
-        // obs.observe({ entryTypes: ["measure"], buffered: true });
+            performance.clearMarks();
+            performance.clearMeasures();
+        });
+        obs.observe({ entryTypes: ["measure"], buffered: true });
     }
 
     public filenameToAbsolutePath(filename: string): string {
@@ -391,9 +391,13 @@ export class LpcFacade {
         if (!!depInfo?.fullPath) {
             const depPath = depInfo.fullPath;
 
-            if (depChain.has(depPath)) {
+            // get first entry of depChain
+            const firstDep = depChain.values().next().value;
+
+            if (firstDep === depPath) {
                 console.info(
-                    `Skipping cyclic dependency from ${contextEntry.filename} -> ${depPath}`
+                    `Skipping cyclic dependency from ${contextEntry.filename} -> ${depPath}`,
+                    depChain
                 );
                 return undefined;
             }

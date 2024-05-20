@@ -21,7 +21,11 @@ import {
 } from "../symbols/methodSymbol";
 import { InlineClosureSymbol } from "../symbols/closureSymbol";
 import { IncludeSymbol } from "../symbols/includeSymbol";
-import { resolveOfTypeSync, symbolWithContextSync } from "../utils";
+import {
+    resolveOfTypeSync,
+    symbolWithContextSync,
+    walkParents,
+} from "../utils";
 import { InheritSymbol } from "../symbols/inheritSymbol";
 
 type HighlightSymbolResult = {
@@ -56,6 +60,7 @@ export class ContextSymbolTable extends SymbolTable {
         }
 
         this.symbolReferences.clear();
+        this.symbolCache.clear();
 
         super.clear();
     }
@@ -97,24 +102,12 @@ export class ContextSymbolTable extends SymbolTable {
             return this.symbolCache.get(name);
         }
 
-        const seen = new Set<IScopedSymbol>(); // try track and prevent loops
-        const searchSymbols: IScopedSymbol[] = [this];
-
-        while (searchSymbols.length > 0) {
-            const symbol = searchSymbols.shift();
-            seen.add(symbol);
-
-            for (const child of symbol.children) {
-                if (child.name === name) {
-                    this.symbolCache.set(name, child);
-                    return child;
-                }
+        return walkParents(this, localOnly, false, (symbol) => {
+            if (symbol.name == name) {
+                this.symbolCache.set(name, symbol);
+                return symbol;
             }
-
-            if (!localOnly && symbol.parent && !seen.has(symbol.parent)) {
-                searchSymbols.push(symbol.parent);
-            }
-        }
+        });
     }
 
     private getSymbolOfType(
@@ -616,5 +609,36 @@ export class ContextSymbolTable extends SymbolTable {
         }
 
         return result;
+    }
+
+    /**
+     * TODO: add optional position dependency (only symbols defined before a given caret pos are viable).
+     *
+     * @param t The type of the objects to return.
+     * @param localOnly If true only child symbols are returned, otherwise also symbols from the parent of this symbol
+     *                  (recursively).
+     *
+     * @returns A promise resolving to all symbols of the the given type, accessible from this scope (if localOnly is
+     *          false), within the owning symbol table.
+     */
+    override async getAllSymbols<T extends BaseSymbol>(
+        t,
+        localOnly = false
+    ): Promise<T[]> {
+        const tbl = this;
+        const p = new Promise<T[]>((res, rej) => {
+            const result = [];
+            walkParents(tbl, localOnly, false, (symbol) => {
+                if (symbol instanceof t) {
+                    result.push(symbol);
+                }
+
+                // always return undefined so we keep walking
+                return undefined;
+            });
+
+            res(result);
+        });
+        return p;
     }
 }

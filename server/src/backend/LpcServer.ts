@@ -56,6 +56,9 @@ export class LpcServer {
         this.connection.onExit(() => {
             console.warn("Connection closed.");
         });
+        this.connection.onShutdown(() => {
+            console.info("Shutdown");
+        });
         this.connection.onInitialize((params) => {
             return this.onIntialize(params);
         });
@@ -348,7 +351,7 @@ export class LpcServer {
     private processDocChange(document: TextDocument) {
         const filename = document.uri;
         this.changeTimers.delete(filename);
-        this.codeLenseProvider.resolveCodeLens;
+        //this.codeLenseProvider.resolveCodeLens;
         this.facade.reparse(filename);
 
         this.processDiagnostic(document.uri, document.version);

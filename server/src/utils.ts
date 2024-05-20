@@ -1,10 +1,5 @@
 import { ParseTree, ParserRuleContext, Token } from "antlr4ng";
-import {
-    Position,
-    Range,
-    SemanticTokens,
-    SemanticTokensBuilder,
-} from "vscode-languageserver";
+import { Position, Range } from "vscode-languageserver";
 import { ILexicalRange } from "./types";
 import {
     BaseSymbol,
@@ -116,37 +111,12 @@ export function resolveOfTypeSync<T extends BaseSymbol, Args extends unknown[]>(
 ): T {
     if (!scope) return undefined;
 
-    for (const child of scope.children) {
-        if (child.name === name && child instanceof t) {
-            return child;
+    return walkParents(scope, localOnly, false, (s) => {
+        if (s instanceof t && s.name === name) {
+            return s;
         }
-    }
-
-    if (!localOnly && !!scope.parent) {
-        return resolveOfTypeSync(scope.parent, name, t, localOnly, cnt + 1);
-    }
-
-    if (!localOnly) {
-        const deps = (scope as ContextSymbolTable).getDependencies();
-        for (const dependency of deps) {
-            try {
-                const result = resolveOfTypeSync(
-                    dependency,
-                    name,
-                    t,
-                    localOnly,
-                    cnt + 1
-                );
-                if (!!result) {
-                    return result;
-                }
-            } catch (e) {
-                debugger;
-            }
-        }
-    }
-
-    return undefined;
+        return undefined;
+    });
 }
 
 /**
@@ -291,6 +261,44 @@ export function getSelfOrParentOfType<
     return symbol instanceof t ? symbol : symbol.getParentOfType(t);
 }
 
+export function walkParents<T extends BaseSymbol>(
+    symbol: IScopedSymbol,
+    localOnly: boolean = false,
+    excludeGlobals: boolean = false,
+    action: (symbol: T) => T | undefined
+) {
+    const seen = new Set<IScopedSymbol>(); // try track and prevent loops
+    const searchSymbols: IScopedSymbol[] = [symbol];
+
+    while (searchSymbols.length > 0) {
+        const ss = searchSymbols.shift();
+        seen.add(ss);
+
+        for (const child of ss.children) {
+            const result = action(child as T); // Update the type of the parameter
+            if (!!result) return result;
+        }
+
+        if (!localOnly && ss.parent && !seen.has(ss.parent)) {
+            searchSymbols.push(ss.parent);
+        }
+
+        if (!localOnly && ss instanceof ContextSymbolTable) {
+            const tbl = ss;
+            const deps = tbl.getDependencies() as Set<ContextSymbolTable>;
+            for (const dep of deps) {
+                if (
+                    !seen.has(dep) &&
+                    (!excludeGlobals ||
+                        (dep.owner && !dep.name.endsWith("simul_efun.c")))
+                ) {
+                    searchSymbols.push(dep);
+                }
+            }
+        }
+    }
+}
+
 /**
  * @param t The type of the objects to return.
  * @param localOnly If true only child symbols are returned, otherwise also symbols from the parent of this symbol
@@ -308,36 +316,20 @@ export async function getSymbolsFromAllParents<
     localOnly = false,
     excludeGlobals = false
 ): Promise<T[]> {
-    const result: T[] = [];
-
-    // Special handling for namespaces, which act like grouping symbols in this scope,
-    // so we show them as available in this scope.
-    for (const child of symbol.children) {
-        if (child instanceof t) {
-            result.push(child);
-        }
-    }
-
-    if (!localOnly) {
-        if (symbol.parent) {
-            if (excludeGlobals && symbol.parent instanceof ContextSymbolTable) {
-                const tbl = symbol.parent as ContextSymbolTable;
-                if (!tbl.owner || tbl.name.endsWith("simul_efun.c")) {
-                    // do not include anything from this parent
-                    return result;
-                }
+    const p = new Promise<T[]>((resolve, reject) => {
+        const result: T[] = [];
+        walkParents(symbol, localOnly, excludeGlobals, (s) => {
+            if (s instanceof t) {
+                result.push(s);
             }
 
-            const childSymbols = await getSymbolsFromAllParents(
-                symbol.parent as ScopedSymbol,
-                t,
-                false
-            );
-            result.push(...childSymbols);
-        }
-    }
+            // always return undefined to continue the search
+            return undefined;
+        });
+        resolve(result);
+    });
 
-    return result;
+    return p;
 }
 
 export function symbolWithContextSync(

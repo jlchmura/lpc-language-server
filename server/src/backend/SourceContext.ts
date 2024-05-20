@@ -433,18 +433,24 @@ export class SourceContext {
     ): void {
         // Check for mutual inclusion. References are organized like a mesh.
         const pipeline: SourceContext[] = [context];
+        const seenRefs: Set<SourceContext> = new Set();
+
         while (pipeline.length > 0) {
             const current = pipeline.shift();
             if (!current) {
                 continue;
             }
 
-            if (current.references.indexOf(this) > -1) {
+            if (current == this) {
                 return; // Already in the list.
             }
 
-            pipeline.push(...current.references);
+            if (!seenRefs.has(current)) {
+                seenRefs.add(current);
+                pipeline.push(...current.references);
+            }
         }
+
         context.references.push(this);
 
         // if (
