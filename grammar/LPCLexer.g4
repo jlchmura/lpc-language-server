@@ -151,7 +151,7 @@ Identifier: [$a-zA-Z_] [a-zA-Z_0-9]* -> type(Identifier);
 
 // Whitespace and comments
 COMMENT: '/*' .*? '*/' -> channel(COMMENTS_CHANNEL);
-LINE_COMMENT: '//' .*? '\n' -> channel(COMMENTS_CHANNEL);
+LINE_COMMENT: '//' .*? ('\n'|EOF) -> channel(COMMENTS_CHANNEL);
 
 // sourcemaps
 SOURCEMAP: '[[@' .*? ']]' -> channel(SOURCEMAP_CHANNEL);
