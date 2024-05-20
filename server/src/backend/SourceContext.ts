@@ -348,6 +348,7 @@ export class SourceContext {
             this.macroTable,
             this.sourceMap,
             this.preprocessedText,
+            this.fileName,
             this.semanticTokens
         );
         macroProcessor.markMacros();

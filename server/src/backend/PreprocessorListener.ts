@@ -227,6 +227,10 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
         if (!this.isExecutable) {
             // use parent context so that it includes the hash
             this.markContextAsUnexecutable(ctx.parent);
+            const start = ctx.parent.start;
+            const stop = ctx.stop;
+            const lines = stop.line - start.line;
+            this.rewriter.replace(start, stop, "\n".repeat(lines));
             return;
         }
 
@@ -333,7 +337,7 @@ function identifyArgInstances(macroValue: string, args: string[]) {
                 const arg = args[j];
                 if (
                     remainderString.startsWith(arg) &&
-                    strBack1.match(`\\b${arg}\\b`)?.index == 1
+                    strBack1.match(`\\b${arg}\\b`)?.index == Math.min(j, 1)
                 ) {
                     // substitute the mark for the variable name
                     const mark = `[[@${arg}]]`;

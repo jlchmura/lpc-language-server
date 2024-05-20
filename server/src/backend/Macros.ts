@@ -4,6 +4,7 @@ import {
     MacroDefinition,
     SemanticTokenTypes,
 } from "../types";
+import { containsPosition } from "../utils";
 import { SemanticTokenCollection } from "./SemanticTokenCollection";
 import { SourceMap } from "./SourceMap";
 
@@ -43,6 +44,7 @@ export class MacroProcessor {
         private macroTable: MacroTable,
         private sourceMap: SourceMap,
         private code: string,
+        private filename: string,
         private semanticTokens: SemanticTokenCollection
     ) {}
 
@@ -157,11 +159,15 @@ export class MacroProcessor {
             for (const def of macroOrder) {
                 const key = def.name;
                 const startWithKey = !!def.args ? key + "(" : key;
+                const sameFile = def.filename === this.filename;
 
                 if (
                     code.startsWith(startWithKey, j) &&
                     code.substring(j - 1).match(`\\b${key}\\b`)?.index ==
-                        Math.min(j, 1) // must be a whole word match
+                        Math.min(j, 1) && // must be a whole word match
+                    // must not be the macro definition itself
+                    (!sameFile ||
+                        !containsPosition(def.start, def.end, { row, column }))
                 ) {
                     const start: IPosition = { row, column };
                     let end = { row, column: column + key.length };
@@ -564,6 +570,7 @@ class CodeBuilderMacro extends CodeBuilder {
                 this.macroTable,
                 new SourceMap(),
                 value,
+                "",
                 new SemanticTokenCollection()
             );
             parser.markMacros();
@@ -634,6 +641,7 @@ class CodeBuilderFunctionMacro extends CodeBuilder {
                 this.macroTable,
                 new SourceMap(),
                 markedValue,
+                "",
                 new SemanticTokenCollection()
             );
             parser.markMacros();

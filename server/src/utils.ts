@@ -1,6 +1,6 @@
 import { ParseTree, ParserRuleContext, Token } from "antlr4ng";
 import { Position, Range } from "vscode-languageserver";
-import { ILexicalRange } from "./types";
+import { ILexicalRange, IPosition } from "./types";
 import {
     BaseSymbol,
     IScopedSymbol,
@@ -19,6 +19,23 @@ export function getSelectionRange(ctx: ParserRuleContext): Range {
         Position.create(stop.line - 1, stop.column)
     );
     return rng;
+}
+
+export function containsPosition(
+    start: IPosition,
+    end: IPosition,
+    pos: IPosition
+) {
+    if (pos.row < start.row || pos.row > end.row) {
+        return false;
+    }
+    if (pos.row === start.row && pos.column < start.column) {
+        return false;
+    }
+    if (pos.row === end.row && pos.column > end.column) {
+        return false;
+    }
+    return true;
 }
 
 /**
