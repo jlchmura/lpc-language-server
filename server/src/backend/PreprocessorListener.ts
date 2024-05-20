@@ -248,6 +248,9 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
             const argStr = nameMatch[2]; // the arguments portion
             const argArr = argStr.split(",").map((a) => a.trim());
 
+            if (nameOnly == "Replace_String") {
+                const ii = 0;
+            }
             const def: MacroDefinition = {
                 name: nameOnly,
                 value,
@@ -337,7 +340,7 @@ function identifyArgInstances(macroValue: string, args: string[]) {
                 const arg = args[j];
                 if (
                     remainderString.startsWith(arg) &&
-                    strBack1.match(`\\b${arg}\\b`)?.index == Math.min(j, 1)
+                    strBack1.match(`\\b${arg}\\b`)?.index == Math.min(i, 1)
                 ) {
                     // substitute the mark for the variable name
                     const mark = `[[@${arg}]]`;
