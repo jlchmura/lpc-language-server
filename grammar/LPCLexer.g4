@@ -72,6 +72,7 @@ NOSAVE: 'nosave';
 NOMASK: 'nomask';
 VARARGS: 'varargs';
 
+EFUNACCESSOR: 'efun::';
 
 // Operators
 PLUS: '+';

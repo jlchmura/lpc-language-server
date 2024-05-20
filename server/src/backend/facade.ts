@@ -51,7 +51,8 @@ export class LpcFacade {
 
     private depReparseQueue = new Set<string>();
     private depReparseTimer: NodeJS.Timeout;
-    private depReparseCancel: CancellationTokenSource | undefined = undefined;
+    private depReparseCancel: CancellationTokenSource | undefined =
+        new CancellationTokenSource();
 
     public constructor(
         public importDir: string[],
@@ -319,14 +320,18 @@ export class LpcFacade {
 
             // queue dependencies to reparse & run their diags
             if (reparseRefs) {
-                // cancel existing parse
-                if (this.depReparseCancel) {
-                    this.depReparseCancel.cancel();
-                }
                 // cancel a queued parse
                 if (this.depReparseTimer) {
                     clearTimeout(this.depReparseTimer);
                 }
+
+                // cancel existing parse
+                if (this.depReparseCancel) {
+                    this.depReparseCancel.cancel();
+                    this.depReparseCancel.dispose();
+                }
+
+                this.depReparseCancel = new CancellationTokenSource();
 
                 // queue up new deps
                 this.queueRefsForReparse(contextEntry.filename);
@@ -577,16 +582,18 @@ export class LpcFacade {
                 const refCtx = this.getContextEntry(ref.fileName);
                 if (!refCtx) continue;
 
-                refs.push(...refCtx?.context?.getReferences());
+                // only the first-level refs need to be re-parsed in this situation
+                //refs.push(...refCtx?.context?.getReferences());
+
                 this.depReparseQueue.add(ref.fileName);
             }
         }
     }
 
     public reparseDependencyQueue() {
-        if (!this.depReparseCancel) {
-            this.depReparseCancel = new CancellationTokenSource();
-        }
+        // if (!this.depReparseCancel) {
+        //     this.depReparseCancel = new CancellationTokenSource();
+        // }
 
         const token = this.depReparseCancel.token;
         //const seen = new Set<string>();
@@ -624,7 +631,7 @@ export class LpcFacade {
         }
 
         if (this.depReparseQueue.size == 0 || token.isCancellationRequested) {
-            this.depReparseCancel = undefined;
+            // do nothing
         } else {
             this.depReparseTimer = setTimeout(() => {
                 this.reparseDependencyQueue();

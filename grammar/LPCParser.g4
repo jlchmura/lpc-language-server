@@ -96,7 +96,8 @@ inheritSuperStatement
     ;
 
 inheritSuperExpression
-    : filename=(Identifier|StringLiteral)? COLON COLON expression
+    : EFUNACCESSOR expression
+    | filename=StringLiteral? COLON COLON expression
     ;
 
 declaration

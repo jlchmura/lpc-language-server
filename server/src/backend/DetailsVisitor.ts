@@ -546,7 +546,8 @@ export class DetailsVisitor
     };
 
     visitInheritSuperExpression = (ctx: InheritSuperExpressionContext) => {
-        const filename = ctx._filename?.text ?? "";
+        const filename =
+            ctx._filename?.text ?? (!!ctx.EFUNACCESSOR() ? "efun" : "");
         return this.withScope(
             ctx,
             InheritSuperAccessorSymbol,
