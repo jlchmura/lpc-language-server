@@ -228,6 +228,7 @@ statement
     | variableDeclaration
     | selectionDirective
     | returnStatement    
+    | SEMI
     //| preprocessorDirective
     ;
 
