@@ -79,7 +79,7 @@ export function loadLpcConfig(filename: string): LpcConfig {
         const data = fs.readFileSync(filename, "utf8");
         const rawConfig = JSON.parse(data);
 
-        rawConfig.defines.forEach((defObj: any) => {
+        rawConfig.defines?.forEach((defObj: any) => {
             const key = Object.keys(defObj)[0];
             let val = defObj[key];
             if (typeof val === "string") {
