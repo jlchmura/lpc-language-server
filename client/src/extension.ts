@@ -47,7 +47,6 @@ export function activate(context: ExtensionContext) {
     // Otherwise the run options are used
     const serverOptions: ServerOptions = {
         run: { module: serverModule, transport: TransportKind.ipc },
-
         debug: {
             module: serverModule,
             transport: TransportKind.ipc,
@@ -84,7 +83,7 @@ export function activate(context: ExtensionContext) {
             document: TextDocument,
             token: CancellationToken
         ): Promise<SemanticTokens> {
-            console.log("[Request] textDocument/semanticTokens/full");
+            //console.log("[Request] textDocument/semanticTokens/full");
 
             return client
                 .sendRequest("textDocument/semanticTokens/full", {

@@ -17,9 +17,7 @@ import { DirectiveArgumentContext } from "./LPCParser.js";
 import { DirectiveDefineParamContext } from "./LPCParser.js";
 import { DirectiveDefineArgumentContext } from "./LPCParser.js";
 import { DirectiveTypeIncludeContext } from "./LPCParser.js";
-import { IncludeGlobalFileContext } from "./LPCParser.js";
-import { IncludeLocalFileContext } from "./LPCParser.js";
-import { IncludeDefineContext } from "./LPCParser.js";
+import { DirectiveIncludeFileContext } from "./LPCParser.js";
 import { DirectiveIncludeFilenameContext } from "./LPCParser.js";
 import { DirectiveIncludeFileGlobalContext } from "./LPCParser.js";
 import { DirectiveIncludeFileLocalContext } from "./LPCParser.js";
@@ -209,26 +207,11 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      */
     visitDirectiveTypeInclude?: (ctx: DirectiveTypeIncludeContext) => Result;
     /**
-     * Visit a parse tree produced by the `includeGlobalFile`
-     * labeled alternative in `LPCParser.directiveIncludeFile`.
+     * Visit a parse tree produced by `LPCParser.directiveIncludeFile`.
      * @param ctx the parse tree
      * @return the visitor result
      */
-    visitIncludeGlobalFile?: (ctx: IncludeGlobalFileContext) => Result;
-    /**
-     * Visit a parse tree produced by the `includeLocalFile`
-     * labeled alternative in `LPCParser.directiveIncludeFile`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitIncludeLocalFile?: (ctx: IncludeLocalFileContext) => Result;
-    /**
-     * Visit a parse tree produced by the `includeDefine`
-     * labeled alternative in `LPCParser.directiveIncludeFile`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitIncludeDefine?: (ctx: IncludeDefineContext) => Result;
+    visitDirectiveIncludeFile?: (ctx: DirectiveIncludeFileContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.directiveIncludeFilename`.
      * @param ctx the parse tree

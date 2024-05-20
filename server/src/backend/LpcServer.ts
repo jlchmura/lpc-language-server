@@ -220,12 +220,21 @@ export class LpcServer {
 
         // send document open/close/changes to facade
         this.documents.onDidOpen((e) => {
-            this.facade.loadLpc(e.document.uri, e.document.getText());
-            this.processDiagnostic(e.document.uri, e.document.version);
+            try {
+                this.facade.loadLpc(e.document.uri, e.document.getText());
+                this.lastSeenVersion.set(e.document.uri, e.document.version);
+                this.processDiagnostic(e.document.uri, e.document.version);
+            } catch (e) {
+                console.error("Error in doc open:\n", e);
+            }
         });
 
         this.documents.onDidClose((e) => {
-            this.facade.releaseLpc(e.document.uri);
+            try {
+                this.facade.releaseLpc(e.document.uri);
+            } catch (e) {
+                console.error("Error in doc close:\n", e);
+            }
         });
 
         this.documents.onDidChangeContent((e) => {
@@ -330,6 +339,7 @@ export class LpcServer {
         const filename = document.uri;
         const timer = this.changeTimers.get(filename);
         if (timer) {
+            console.debug(`Flushing change timer for ${filename}`);
             clearTimeout(timer);
             this.processDocChange(document);
         }

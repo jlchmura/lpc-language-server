@@ -5,6 +5,7 @@ import {
     ScopedSymbol,
     SymbolConstructor,
     ParameterSymbol,
+    IScopedSymbol,
 } from "antlr4-c3";
 import { ParseTree, ParserRuleContext, TerminalNode, Token } from "antlr4ng";
 import { SourceContext } from "./SourceContext";
@@ -29,9 +30,10 @@ type HighlightSymbolResult = {
 };
 
 export class ContextSymbolTable extends SymbolTable {
-    public tree: ParserRuleContext; // Set by the owning source context after each parse run.
-
+    private symbolCache: Map<string, BaseSymbol> = new Map();
     private symbolReferences = new Map<string, number>();
+
+    public tree: ParserRuleContext; // Set by the owning source context after each parse run.
 
     public foldingRanges: Set<FoldingRange> = new Set<FoldingRange>();
 
@@ -81,6 +83,38 @@ export class ContextSymbolTable extends SymbolTable {
         const result =
             this.getSymbolOfType(name, kind, localOnly, context) !== undefined;
         return result;
+    }
+
+    /**
+     * @param name The name of the symbol to resolve.
+     * @param localOnly If true only child symbols are returned, otherwise also symbols from the parent of this symbol
+     *
+     * @returns the first symbol with a given name, in the order of appearance in this scope
+     *          or any of the parent scopes (conditionally).
+     */
+    override resolveSync(name, localOnly = false) {
+        if (this.symbolCache.has(name)) {
+            return this.symbolCache.get(name);
+        }
+
+        const seen = new Set<IScopedSymbol>(); // try track and prevent loops
+        const searchSymbols: IScopedSymbol[] = [this];
+
+        while (searchSymbols.length > 0) {
+            const symbol = searchSymbols.shift();
+            seen.add(symbol);
+
+            for (const child of symbol.children) {
+                if (child.name === name) {
+                    this.symbolCache.set(name, child);
+                    return child;
+                }
+            }
+
+            if (!localOnly && symbol.parent && !seen.has(symbol.parent)) {
+                searchSymbols.push(symbol.parent);
+            }
+        }
     }
 
     private getSymbolOfType(

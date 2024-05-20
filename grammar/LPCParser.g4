@@ -76,9 +76,9 @@ directiveDefineArgument: expression ;
 directiveTypeInclude: INCLUDE;
 
 directiveIncludeFile
-    : directiveIncludeFileGlobal    #includeGlobalFile
-    | directiveIncludeFileLocal     #includeLocalFile
-    | Identifier                    #includeDefine
+    : directiveIncludeFileGlobal    //includeGlobalFile
+    | directiveIncludeFileLocal     //includeLocalFile
+    | Identifier                    //includeDefine
     ;
 directiveIncludeFilename: Identifier (DOT Identifier)?;
 directiveIncludeFileGlobal: LT directiveIncludeFilename GT;
@@ -315,38 +315,39 @@ callOtherTarget
 
 lambdaExpression
     : HASH? SINGLEQUOT Identifier
-    | HASH SINGLEQUOT expression
-    | HASH SINGLEQUOT NOT
-    | HASH SINGLEQUOT PLUS
-    | HASH SINGLEQUOT MINUS
-    | HASH SINGLEQUOT STAR
-    | HASH SINGLEQUOT DIV
-    | HASH SINGLEQUOT MOD
-    | HASH SINGLEQUOT LT
-    | HASH SINGLEQUOT GT
-    | HASH SINGLEQUOT LE
-    | HASH SINGLEQUOT GE
-    | HASH SINGLEQUOT EQ
-    | HASH SINGLEQUOT NE
-    | HASH SINGLEQUOT AND
-    | HASH SINGLEQUOT OR
-    | HASH SINGLEQUOT XOR
-    | HASH SINGLEQUOT AND_AND
-    | HASH SINGLEQUOT OR_OR
-    | HASH SINGLEQUOT ADD_ASSIGN
-    | HASH SINGLEQUOT SUB_ASSIGN
-    | HASH SINGLEQUOT MUL_ASSIGN
-    | HASH SINGLEQUOT DIV_ASSIGN
-    | HASH SINGLEQUOT MOD_ASSIGN    
-    | HASH SINGLEQUOT AND_ASSIGN
-    | HASH SINGLEQUOT OR_ASSIGN
-    | HASH SINGLEQUOT BITAND_ASSIGN
-    | HASH SINGLEQUOT BITOR_ASSIGN
-    | HASH SINGLEQUOT XOR_ASSIGN
-    | HASH SINGLEQUOT QUESTION
-    | HASH SINGLEQUOT SHL
-    | HASH SINGLEQUOT SHR
-    | HASH SINGLEQUOT SQUARE_OPEN
+    | HASH SINGLEQUOT (expression | NOT | PLUS | MINUS | STAR | DIV | MOD | LT | GT | LE | GE | EQ | NE | AND | OR | XOR | AND_AND | OR_OR | ADD_ASSIGN | SUB_ASSIGN | MUL_ASSIGN | DIV_ASSIGN | MOD_ASSIGN | AND_ASSIGN | OR_ASSIGN | BITAND_ASSIGN | BITOR_ASSIGN | XOR_ASSIGN | QUESTION | SHL | SHR | SQUARE_OPEN)
+    // | HASH SINGLEQUOT expression
+    // | HASH SINGLEQUOT NOT
+    // | HASH SINGLEQUOT PLUS
+    // | HASH SINGLEQUOT MINUS
+    // | HASH SINGLEQUOT STAR
+    // | HASH SINGLEQUOT DIV
+    // | HASH SINGLEQUOT MOD
+    // | HASH SINGLEQUOT LT
+    // | HASH SINGLEQUOT GT
+    // | HASH SINGLEQUOT LE
+    // | HASH SINGLEQUOT GE
+    // | HASH SINGLEQUOT EQ
+    // | HASH SINGLEQUOT NE
+    // | HASH SINGLEQUOT AND
+    // | HASH SINGLEQUOT OR
+    // | HASH SINGLEQUOT XOR
+    // | HASH SINGLEQUOT AND_AND
+    // | HASH SINGLEQUOT OR_OR
+    // | HASH SINGLEQUOT ADD_ASSIGN
+    // | HASH SINGLEQUOT SUB_ASSIGN
+    // | HASH SINGLEQUOT MUL_ASSIGN
+    // | HASH SINGLEQUOT DIV_ASSIGN
+    // | HASH SINGLEQUOT MOD_ASSIGN    
+    // | HASH SINGLEQUOT AND_ASSIGN
+    // | HASH SINGLEQUOT OR_ASSIGN
+    // | HASH SINGLEQUOT BITAND_ASSIGN
+    // | HASH SINGLEQUOT BITOR_ASSIGN
+    // | HASH SINGLEQUOT XOR_ASSIGN
+    // | HASH SINGLEQUOT QUESTION
+    // | HASH SINGLEQUOT SHL
+    // | HASH SINGLEQUOT SHR
+    // | HASH SINGLEQUOT SQUARE_OPEN    
     ;
 
 rightShiftAssignment
@@ -455,14 +456,7 @@ conditionalExpressionBase
 unaryExpression
     : castExpression
     | primaryExpression
-    | (PLUS|MINUS|NOT|BNOT|INC|DEC|AND|STAR) expression
-    // | MINUS expression
-    // | NOT expression
-    // | BNOT expression  
-    // | INC expression
-    // | DEC expression
-    // | AND expression
-    // | STAR expression         
+    | (PLUS|MINUS|NOT|BNOT|INC|DEC|AND|STAR) expression     
     ;
 
 primaryExpression

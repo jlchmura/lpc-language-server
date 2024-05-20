@@ -114,9 +114,6 @@ export function resolveOfTypeSync<T extends BaseSymbol, Args extends unknown[]>(
     localOnly: boolean = false,
     cnt: number = 0
 ): T {
-    // if (cnt > 100) {
-    //     const i = 0;
-    // }
     if (!scope) return undefined;
 
     for (const child of scope.children) {

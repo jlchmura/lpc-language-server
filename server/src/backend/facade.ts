@@ -60,18 +60,18 @@ export class LpcFacade {
     ) {
         console.log("LpcFacade created", importDir, workspaceDir);
 
-        const obs = new PerformanceObserver((list) => {
-            list.getEntries().forEach((entry) => {
-                console.log(
-                    `[Perf] ${entry.name} took ${entry.duration} ms`,
-                    entry.detail
-                );
-            });
+        // const obs = new PerformanceObserver((list) => {
+        //     list.getEntries().forEach((entry) => {
+        //         console.log(
+        //             `[Perf] ${entry.name} took ${entry.duration} ms`,
+        //             entry.detail
+        //         );
+        //     });
 
-            performance.clearMarks();
-            performance.clearMeasures();
-        });
-        obs.observe({ entryTypes: ["measure"], buffered: true });
+        //     performance.clearMarks();
+        //     performance.clearMeasures();
+        // });
+        // obs.observe({ entryTypes: ["measure"], buffered: true });
     }
 
     public filenameToAbsolutePath(filename: string): string {
