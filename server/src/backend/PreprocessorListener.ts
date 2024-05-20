@@ -87,6 +87,10 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
             const exp = ctx.preprocessor_expression();
             let expStr = exp.getText().trim();
 
+            if (this.macroTable.has(expStr)) {
+                expStr = this.macroTable.get(expStr).value;
+            }
+
             let flag = true;
             if (expStr == "0") {
                 flag = false;
@@ -95,7 +99,8 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
             } else if (expStr.includes("defined(")) {
                 flag = true; // NTBLA implement this
             } else {
-                flag = this.macroTable.has(expStr);
+                // some other string
+                flag = true; // NTBLA implement this
             }
 
             this.conditionalStack.push(
