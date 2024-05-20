@@ -5,6 +5,9 @@
             "anyOf": [
                 {
                     "$ref": "#/definitions/definesDefinition"
+                },
+                {
+                    "$ref": "#/definitions/excludeDefinition"
                 }
             ]
         },
@@ -90,6 +93,19 @@
         },
         "diagnosticLevelEnum": {
             "enum": ["error", "warning", "info", "hint", "none"]
+        },
+        "excludeDefinition": {
+            "properties": {
+                "exclude": {
+                    "$comment": "The value of 'null' is UNDOCUMENTED (https://github.com/microsoft/TypeScript/pull/18058).",
+                    "description": "Specifies a list of files to be excluded from compilation.",
+                    "type": ["array", "null"],
+                    "uniqueItems": true,
+                    "items": {
+                        "type": ["string", "null"]
+                    }
+                }
+            }
         }
     },
     "id": "https://json.schemastore.org/lpc-config",

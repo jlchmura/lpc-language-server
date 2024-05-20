@@ -309,21 +309,17 @@ export class LpcServer {
             }
         );
 
-        this.connection.onRequest("textDocument/processAll", (params) => {
+        this.connection.onRequest("textDocument/processAll", async (params) => {
             this.connection.sendNotification(
                 "lpc/processing",
                 "Processing all files..."
             );
 
-            const p = new Promise((resolve) => {
-                this.facade.parseAllFiles();
-                resolve(true);
-            }).then(() => {
-                this.connection.sendNotification(
-                    "lpc/processAll-complete",
-                    "Done processing all files."
-                );
-            });
+            await this.facade.parseAllFiles();
+            this.connection.sendNotification(
+                "lpc/processAll-complete",
+                "Done processing all files."
+            );
 
             return true;
         });

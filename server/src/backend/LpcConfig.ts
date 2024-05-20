@@ -31,6 +31,8 @@ export class LpcConfig {
         ["TLS_PORT", "5555"],
     ]);
 
+    public exclude: string[] = [];
+
     public driver: DriverInfo = {
         type: DriverType.LDMud,
         version: "3.3.720",
@@ -88,6 +90,7 @@ export function loadLpcConfig(filename: string): LpcConfig {
             config.defines.set(key, val);
         });
 
+        config.exclude = rawConfig.exclude as string[];
         config.driver = { ...config.driver, ...rawConfig.driver };
         config.diagnostics = {
             ...config.diagnostics,

@@ -16,6 +16,8 @@ import { SourceMap } from "./SourceMap";
 import { BaseSymbol } from "antlr4-c3";
 import { PerformanceObserver, performance } from "perf_hooks";
 import { randomInt } from "crypto";
+import { ensureLpcConfig } from "./LpcConfig";
+import { glob } from "glob";
 
 /** ms delay before reparsing a depenency */
 const DEP_FILE_REPARSE_TIME = 300;
@@ -643,25 +645,55 @@ export class LpcFacade {
         }
     }
 
-    public parseAllFiles() {
+    public async parseAllFiles() {
         const dirsToProcess = [this.workspaceDir];
+        const config = ensureLpcConfig();
 
         performance.mark("parse-all-start");
+
+        const globExcludes =
+            config.exclude?.length > 0
+                ? await glob.glob(config.exclude, {
+                      cwd: this.workspaceDir,
+                      root: this.workspaceDir,
+                      matchBase: true,
+                  })
+                : [];
+
+        const excludeFiles = new Set(
+            globExcludes.map((f) => path.join(this.workspaceDir, f))
+        );
+
+        console.debug(`Excluding files:`, excludeFiles);
         while (dirsToProcess.length > 0) {
             const dir = dirsToProcess.pop();
             const files = fs.readdirSync(dir, { withFileTypes: true });
             files.forEach((file) => {
-                if (file.isDirectory())
-                    dirsToProcess.push(path.join(dir, file.name));
-                else if (file.name.endsWith(".c") || file.name.endsWith(".h")) {
+                const filename = path.join(dir, file.name);
+                if (file.isDirectory()) {
+                    if (excludeFiles.has(filename)) {
+                        console.debug(
+                            `Skipping dir ${filename} due to exclusion`
+                        );
+                    } else {
+                        dirsToProcess.push(filename);
+                    }
+                } else if (
+                    file.name.endsWith(".c") ||
+                    file.name.endsWith(".h")
+                ) {
+                    if (excludeFiles.has(filename)) {
+                        console.debug(`Skipping ${filename} due to exclusion`);
+                        return;
+                    }
+
                     try {
-                        const filename = path.join(dir, file.name);
                         const txt = fs.readFileSync(filename, "utf8");
                         this.loadLpc(filename, txt);
                         this.onRunDiagnostics(filename, false);
                         this.releaseLpc(filename);
                     } catch (e) {
-                        console.error(`Error parsing ${file.name}: ${e}`);
+                        console.trace(`Error parsing ${filename}: ${e}`);
                     }
                 }
             });

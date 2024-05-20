@@ -86,7 +86,7 @@ export class LpcBaseMethodSymbol
         const params = this.getParametersSync();
         params.forEach((p, idx) => {
             const argSym = args.length > idx ? args[idx] : undefined;
-            if (!!argSym && !isInstanceOfIEvaluatableSymbol(argSym)) debugger;
+            //if (!!argSym && !isInstanceOfIEvaluatableSymbol(argSym)) debugger;
             const argVal = argSym?.eval(stack, callScope) as StackValue;
             const paramVal = argVal
                 ? new StackValue(argVal.value, argVal.type, p)

@@ -9,6 +9,10 @@ import { ILexicalRange, SymbolKind } from "../types";
 import { FoldingRange } from "vscode-languageserver";
 import { CallStack } from "../backend/CallStack";
 import { ContextSymbolTable } from "../backend/ContextSymbolTable";
+import {
+    getSymbolsFromAllParents,
+    getSymbolsFromAllParentsSync,
+} from "../utils";
 
 export type EvalScope = any;
 
@@ -16,42 +20,7 @@ export function getSymbolsOfTypeSync<
     T extends BaseSymbol,
     Args extends unknown[]
 >(scope: IScopedSymbol, t: SymbolConstructor<T, Args>, localOnly = true): T[] {
-    const symbols: T[] = [];
-    for (const child of scope.children) {
-        if (child instanceof t) {
-            symbols.push(child);
-        }
-    }
-
-    if (!localOnly && !!scope.parent) {
-        symbols.push(...getSymbolsOfTypeSync(scope.parent, t, localOnly));
-    }
-
-    if (!localOnly && scope instanceof ContextSymbolTable) {
-        let tbl = scope as SymbolTable;
-        const seen = new Set<string>([tbl.name]);
-        const deps = Array.from(
-            (scope as ContextSymbolTable).getDependencies()
-        );
-
-        while (deps.length > 0) {
-            tbl = deps.shift();
-            if (!tbl || seen.has(tbl.name)) continue;
-            seen.add(tbl.name);
-
-            symbols.push(...getSymbolsOfTypeSync(tbl, t, false));
-            if (tbl instanceof ContextSymbolTable) {
-                deps.push(
-                    ...Array.from((tbl as ContextSymbolTable).getDependencies())
-                );
-            }
-        }
-        // for (const dependency of deps) {
-        //     symbols.push(...getSymbolsOfTypeSync(dependency, t, localOnly));
-        // }
-    }
-
-    return symbols;
+    return getSymbolsFromAllParentsSync(scope, t, localOnly, false);
 }
 
 export interface IFoldableSymbol extends BaseSymbol {

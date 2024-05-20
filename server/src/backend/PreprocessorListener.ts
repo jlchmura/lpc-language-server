@@ -307,9 +307,14 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
  * @param args array of arg names
  */
 function identifyArgInstances(macroValue: string, args: string[]) {
+    if (!macroValue) {
+        return " ";
+    }
+
     let i = 0;
     let inQuote = false;
     let isEscape = false;
+
     while (i < macroValue.length) {
         if (inQuote && macroValue[i] == '"' && !isEscape) {
             inQuote = false;

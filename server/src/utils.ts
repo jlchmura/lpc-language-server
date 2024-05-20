@@ -7,7 +7,6 @@ import {
     TypedSymbol,
     SymbolConstructor,
     ScopedSymbol,
-    SymbolTable,
 } from "antlr4-c3";
 import { ContextSymbolTable } from "./backend/ContextSymbolTable";
 import { URI } from "vscode-uri";
@@ -311,25 +310,51 @@ export async function getSymbolsFromAllParents<
     T extends BaseSymbol,
     Args extends unknown[]
 >(
-    symbol: ScopedSymbol,
+    symbol: IScopedSymbol,
     t: SymbolConstructor<T, Args>,
     localOnly = false,
     excludeGlobals = false
 ): Promise<T[]> {
     const p = new Promise<T[]>((resolve, reject) => {
-        const result: T[] = [];
-        walkParents(symbol, localOnly, excludeGlobals, (s) => {
-            if (s instanceof t) {
-                result.push(s);
-            }
-
-            // always return undefined to continue the search
-            return undefined;
-        });
+        const result: T[] = getSymbolsFromAllParentsSync(
+            symbol,
+            t,
+            localOnly,
+            excludeGlobals
+        );
         resolve(result);
     });
 
     return p;
+}
+
+/**
+ * @param t The type of the objects to return.
+ * @param localOnly If true only child symbols are returned, otherwise also symbols from the parent of this symbol
+ *                  (recursively).
+ *
+ * @returns A promise resolving to all symbols of the the given type, accessible from this scope (if localOnly is
+ *          false), within the owning symbol table.
+ */
+export function getSymbolsFromAllParentsSync<
+    T extends BaseSymbol,
+    Args extends unknown[]
+>(
+    symbol: IScopedSymbol,
+    t: SymbolConstructor<T, Args>,
+    localOnly = false,
+    excludeGlobals = false
+): T[] {
+    const result: T[] = [];
+    walkParents(symbol, localOnly, excludeGlobals, (s) => {
+        if (s instanceof t) {
+            result.push(s);
+        }
+
+        // always return undefined to continue the search
+        return undefined;
+    });
+    return result;
 }
 
 export function symbolWithContextSync(
