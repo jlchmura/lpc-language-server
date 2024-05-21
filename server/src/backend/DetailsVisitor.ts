@@ -57,7 +57,7 @@ import {
     PrimitiveTypeParameterExpressionContext,
     PrimitiveTypeSpecifierContext,
     PrimitiveTypeVariableDeclarationContext,
-    RelationalExpresionContext,
+    RelationalExpressionContext,
     ReturnStatementContext,
     SelectionDirectiveContext,
     StructParameterExpressionContext,
@@ -799,9 +799,11 @@ export class DetailsVisitor
     };
 
     parseConditionalSymbol(ctx: ParserRuleContext, operator: string) {
-        return this.withScope(ctx, ConditionalSymbol, [operator], (s) => {
-            return this.visitChildren(ctx);
-        });
+        if (operator) {
+            return this.withScope(ctx, ConditionalSymbol, [operator], (s) => {
+                return this.visitChildren(ctx);
+            });
+        }
     }
 
     parseIterationStatement(
@@ -841,19 +843,19 @@ export class DetailsVisitor
     };
 
     visitEqualityExpression = (ctx: EqualityExpressionContext) =>
-        this.parseConditionalSymbol(ctx, ctx._op.text);
-    visitRelationalExpresion = (ctx: RelationalExpresionContext) =>
-        this.parseConditionalSymbol(ctx, ctx._op.text);
+        this.parseConditionalSymbol(ctx, ctx._op?.text);
+    visitRelationalExpresion = (ctx: RelationalExpressionContext) =>
+        this.parseConditionalSymbol(ctx, ctx._op?.text);
     visitAndExpression = (ctx: AndExpressionContext) =>
-        this.parseConditionalSymbol(ctx, ctx._op.text);
+        this.parseConditionalSymbol(ctx, ctx._op?.text);
     visitExclusiveOrExpression = (ctx: ExclusiveOrExpressionContext) =>
-        this.parseConditionalSymbol(ctx, ctx._op.text);
+        this.parseConditionalSymbol(ctx, ctx._op?.text);
     visitInclusiveOrExpression = (ctx: InclusiveOrExpressionContext) =>
-        this.parseConditionalSymbol(ctx, ctx._op.text);
+        this.parseConditionalSymbol(ctx, ctx._op?.text);
     visitConditionalAndExpression = (ctx: ConditionalAndExpressionContext) =>
-        this.parseConditionalSymbol(ctx, ctx._op.text);
+        this.parseConditionalSymbol(ctx, ctx._op?.text);
     visitConditionalOrExpression = (ctx: ConditionalOrExpressionContext) =>
-        this.parseConditionalSymbol(ctx, ctx._op.text);
+        this.parseConditionalSymbol(ctx, ctx._op?.text);
 
     // TODO: ternary expression
 

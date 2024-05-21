@@ -192,11 +192,13 @@ export class CallStack {
     }
 
     public isCallerInStack(symbol: BaseSymbol): boolean {
-        return (
-            walkStackToProgram(this.peek(2), (frame) => {
-                return frame.symbol.name === symbol.name;
-            }) || false
-        );
+        for (let i = this.stack.length - 2; i >= 0; i--) {
+            if (this.stack[i].symbol.name === symbol.name) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
 
@@ -290,6 +292,10 @@ export function getFunctionFromFrame(
     frame: RootFrame,
     name: string
 ): MethodSymbol {
+    if (!(frame instanceof RootFrame)) {
+        console.trace("Frame is not a RootFrame");
+        return undefined;
+    }
     const local = frame.locals.get(name);
     if (local?.symbol instanceof LpcBaseMethodSymbol) {
         return local.symbol;

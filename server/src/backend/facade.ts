@@ -56,6 +56,8 @@ export class LpcFacade {
     private depReparseCancel: CancellationTokenSource | undefined =
         new CancellationTokenSource();
 
+    private parseAllCancel = new CancellationTokenSource();
+
     public constructor(
         public importDir: string[],
         public workspaceDir: string
@@ -98,6 +100,10 @@ export class LpcFacade {
     }
 
     public loadLpc(fileName: string, source?: string): SourceContext {
+        this.parseAllCancel.cancel();
+        this.parseAllCancel.dispose();
+        this.parseAllCancel = new CancellationTokenSource();
+
         const depChain = new Set<string>();
         const context = this.loadLpcInternal(fileName, source, depChain);
 
@@ -646,6 +652,7 @@ export class LpcFacade {
     }
 
     public async parseAllFiles() {
+        const token = this.parseAllCancel.token;
         const dirsToProcess = [this.workspaceDir];
         const config = ensureLpcConfig();
 
@@ -665,10 +672,13 @@ export class LpcFacade {
         );
 
         console.debug(`Excluding files:`, excludeFiles);
-        while (dirsToProcess.length > 0) {
+        while (dirsToProcess.length > 0 && !token.isCancellationRequested) {
             const dir = dirsToProcess.pop();
             const files = fs.readdirSync(dir, { withFileTypes: true });
-            files.forEach((file) => {
+
+            for (const file of files) {
+                if (token.isCancellationRequested) break;
+
                 const filename = path.join(dir, file.name);
                 if (file.isDirectory()) {
                     if (excludeFiles.has(filename)) {
@@ -687,16 +697,37 @@ export class LpcFacade {
                         return;
                     }
 
-                    try {
-                        const txt = fs.readFileSync(filename, "utf8");
-                        this.loadLpc(filename, txt);
-                        this.onRunDiagnostics(filename, false);
-                        this.releaseLpc(filename);
-                    } catch (e) {
-                        console.trace(`Error parsing ${filename}: ${e}`);
-                    }
+                    const p = new Promise((resolve, reject) => {
+                        fs.readFile(
+                            filename,
+                            { encoding: "utf8" },
+                            (err, txt) => {
+                                try {
+                                    this.loadLpcInternal(
+                                        filename,
+                                        txt,
+                                        new Set()
+                                    );
+                                    this.onRunDiagnostics(filename, false);
+
+                                    //this.releaseLpc(filename);
+                                    resolve(txt);
+                                } catch (e) {
+                                    console.trace(
+                                        `Error parsing ${filename}: ${e}`
+                                    );
+                                    resolve(undefined);
+                                }
+                            }
+                        );
+                    });
+                    await p;
                 }
-            });
+            }
+        }
+
+        if (token.isCancellationRequested) {
+            console.debug("Parse all cancelled");
         }
 
         performance.mark("parse-all-end");
