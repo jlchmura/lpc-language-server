@@ -38,6 +38,7 @@ import { addPogramToStack } from "./CallStackUtils";
 import { ensureLpcConfig } from "./LpcConfig";
 import { getDriverInfo } from "../driver/Driver";
 import { EfunSymbols } from "../driver/EfunsLDMud";
+import { isInstanceOfIEvaluatableSymbol } from "../symbols/base";
 
 export class SemanticListener extends LPCParserListener {
     private seenSymbols = new Map<string, Token>();

@@ -174,8 +174,14 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
 
         // the method invocation symbol will have the call arguments
         const methodInvok = this.methodInvocation;
-        if (!(methodInvok instanceof MethodInvocationSymbol))
-            console.warn("expected a method invocation", this.name);
+        if (!(methodInvok instanceof MethodInvocationSymbol)) {
+            console.warn(
+                "expected a method invocation",
+                this.name,
+                this.symbolTable.name,
+                (this.context as ParserRuleContext).start.line
+            );
+        }
 
         // evaluate the argumnents
         const argVals = methodInvok?.getArguments().map((a) => a.eval(stack));

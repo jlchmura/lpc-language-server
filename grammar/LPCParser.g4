@@ -393,7 +393,7 @@ assignmentOperator
 //      hit. I've reverted back to the original.
 conditionalExpressionBase
     : conditionalExpressionBase conditionalExpression
-    | unaryExpression           
+    | unaryExpression
     ;  
 
 conditionalExpression
@@ -407,7 +407,7 @@ conditionalExpression
     | (op=(LT | GT | LE | GE) conditionalExpressionBase) #relationalExpression
     | (op=(SHL | SHR) conditionalExpressionBase) #shiftExpression
     | (op=(PLUS | MINUS) conditionalExpressionBase) #additiveExpression
-    | (op=(STAR | DIV | MOD) conditionalExpressionBase) #multiplicativeExpression    
+    | (op=(STAR | DIV | MOD) conditionalExpressionBase) #multiplicativeExpression        
     ;
 
   

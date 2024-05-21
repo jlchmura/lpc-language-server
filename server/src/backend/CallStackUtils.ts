@@ -1,10 +1,11 @@
 import { ScopedSymbol } from "antlr4-c3";
-import { CallStack } from "./CallStack";
+import { CallStack, StackValue } from "./CallStack";
 import { LpcBaseMethodSymbol } from "../symbols/methodSymbol";
 import { VariableSymbol } from "../symbols/variableSymbol";
 import { isInstanceOfIEvaluatableSymbol } from "../symbols/base";
 import { ContextSymbolTable } from "./ContextSymbolTable";
 import { LpcFileHandler } from "./FileHandler";
+import { LpcTypes } from "../types";
 
 export function addPogramToStack(progSymbol: ScopedSymbol, stack: CallStack) {
     for (const child of progSymbol.children) {
@@ -22,9 +23,13 @@ export function addPogramToStack(progSymbol: ScopedSymbol, stack: CallStack) {
         // }
         else {
             if (child instanceof VariableSymbol) {
-                const result = child.eval(stack);
+                stack.addLocal(
+                    child.name,
+                    new StackValue(undefined, LpcTypes.unknownType, child)
+                );
+                //const result = child.eval(stack);
             } else if (isInstanceOfIEvaluatableSymbol(child)) {
-                const result = child.eval(stack);
+                //const result = child.eval(stack);
             } else {
                 console.debug("node not evaluable: " + child.name);
             }
