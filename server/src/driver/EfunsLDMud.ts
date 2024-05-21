@@ -150,6 +150,7 @@ efun("strrstr", LpcTypes.intType, true, ["str", LpcTypes.stringType], ["str2", L
 efun("strstr", LpcTypes.intType, true, ["str", LpcTypes.stringType], ["str2", LpcTypes.stringType],["pos", LpcTypes.intType]);
 efun("stringp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("sizeof", LpcTypes.intType, false, ["val", LpcTypes.mixedType]);
+efun("sort_array", LpcTypes.mixedArrayType, true, ["arr", LpcTypes.mixedArrayType], ["wrong_order", LpcTypes.stringType], ["ob", LpcTypes.objectType], ["...extra", LpcTypes.mixedType,true]);
 efun("symbol_function", LpcTypes.closureType, true, ["arg", LpcTypes.stringType], ["ob", LpcTypes.mixedType]);
 efun("snoop", LpcTypes.objectType, true, ["snooper", LpcTypes.objectType], ["snoopee", LpcTypes.objectType]);
 efun("test_bit", LpcTypes.intType, false, ["str", LpcTypes.stringType], ["n", LpcTypes.intType]);
