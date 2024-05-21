@@ -656,7 +656,7 @@ export class LpcFacade {
         const dirsToProcess = [this.workspaceDir];
         const config = ensureLpcConfig();
 
-        performance.mark("parse-all-start");
+        const timeStart = performance.now();
 
         const globExcludes =
             config.exclude?.length > 0
@@ -729,8 +729,10 @@ export class LpcFacade {
         if (token.isCancellationRequested) {
             console.debug("Parse all cancelled");
         }
-
-        performance.mark("parse-all-end");
-        performance.measure("parse-all", "parse-all-start", "parse-all-end");
+        const timeEnd = performance.now();
+        console.log(
+            `Parsed all files in ${timeEnd - timeStart} ms`,
+            this.sourceContexts.size
+        );
     }
 }

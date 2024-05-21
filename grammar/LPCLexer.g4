@@ -9,9 +9,6 @@ channels {
     SOURCEMAP_CHANNEL
 }
 
-tokens {
-    Identifier
-}
 
 // Keywords
 
@@ -72,7 +69,9 @@ NOSAVE: 'nosave';
 NOMASK: 'nomask';
 VARARGS: 'varargs';
 
+// for inheritance
 EFUNACCESSOR: 'efun::';
+SUPER_ACCESSOR: '::';
 
 // Operators
 PLUS: '+';
@@ -106,8 +105,6 @@ DOT: '.';
 SINGLEQUOT: '\'';
 //DOUBLEQUOT: '"';
 
-// for inheritance
-// SUPER_ACCESSOR: '::';
 // assignmenet operators
 ASSIGN: '=';
 ADD_ASSIGN: '+=';
@@ -147,7 +144,7 @@ CloneObject: 'clone_object';
 LoadObject: 'load_object';
 
 // Identifiers
-Identifier: [$a-zA-Z_] [a-zA-Z_0-9]* -> type(Identifier);
+Identifier: [$a-zA-Z_] [a-zA-Z_0-9]*;
 
 // Whitespace and comments
 COMMENT: '/*' .*? '*/' -> channel(COMMENTS_CHANNEL);

@@ -5,6 +5,7 @@ import {
     CommonTokenStream,
     ParseTree,
     ParserRuleContext,
+    TerminalNode,
     Token,
 } from "antlr4ng";
 import { LPCParserVisitor } from "../parser3/LPCParserVisitor";
@@ -29,6 +30,7 @@ import {
     ConditionalAndExpressionContext,
     ConditionalExpressionContext,
     ConditionalOrExpressionContext,
+    ConditionalTernaryExpressionContext,
     DefinePreprocessorDirectiveContext,
     DoWhileStatementContext,
     EqualityExpressionContext,
@@ -749,18 +751,19 @@ export class DetailsVisitor
     };
 
     visitAssignmentExpression = (ctx: AssignmentExpressionContext) => {
-        const lhsCtx = ctx.conditionalExpressionBase();
+        //const lhsCtx = ctx.conditionalExpressionBase();
         const rhsCtx = ctx.expression();
         const op = ctx.assignmentOperator().getText();
-
-        return this.withScope(
-            ctx,
-            AssignmentSymbol,
-            ["#assignment#", op],
-            (s) => {
-                return this.visitChildren(ctx);
-            }
-        );
+        if (op && ctx.children.length >= 2) {
+            return this.withScope(
+                ctx,
+                AssignmentSymbol,
+                ["#assignment#", op],
+                (s) => {
+                    return this.visitChildren(ctx);
+                }
+            );
+        }
     };
 
     visitExpression = (ctx: ExpressionContext) => {
@@ -773,29 +776,50 @@ export class DetailsVisitor
         // }
     };
 
-    visitConditionalExpression = (ctx: ConditionalExpressionContext) => {
-        return this.withScope(
-            ctx,
-            ExpressionSymbol,
-            ["#conditional-expression#"],
-            (s) => {
-                return this.visitChildren(ctx);
-            }
-        );
+    // visitConditionalExpression = (ctx: ConditionalExpressionContext) => {
+    //     if (ctx._op?.text) {
+    //         return this.withScope(
+    //             ctx,
+    //             ExpressionSymbol,
+    //             ["#conditional-expression#"],
+    //             (s) => {
+    //                 return this.visitChildren(ctx);
+    //             }
+    //         );
+    //     }
+    // };
+
+    visitConditionalTernaryExpression = (
+        ctx: ConditionalTernaryExpressionContext
+    ) => {
+        if (ctx._op?.text) {
+            return this.withScope(
+                ctx,
+                ExpressionSymbol,
+                ["#conditional-ternary-expression#"],
+                (s) => {
+                    return this.visitChildren(ctx);
+                }
+            );
+        }
     };
 
     visitAdditiveExpression = (ctx: AdditiveExpressionContext) => {
         const operator = ctx._op.text;
-        return this.withScope(ctx, OperatorSymbol, [operator], (s) => {
-            return this.visitChildren(ctx);
-        });
+        if (operator) {
+            return this.withScope(ctx, OperatorSymbol, [operator], (s) => {
+                return this.visitChildren(ctx);
+            });
+        }
     };
 
     visitMultiplicativeExpression = (ctx: MultiplicativeExpressionContext) => {
         const operator = ctx._op.text;
-        return this.withScope(ctx, OperatorSymbol, [operator], (s) => {
-            return this.visitChildren(ctx);
-        });
+        if (operator) {
+            return this.withScope(ctx, OperatorSymbol, [operator], (s) => {
+                return this.visitChildren(ctx);
+            });
+        }
     };
 
     parseConditionalSymbol(ctx: ParserRuleContext, operator: string) {

@@ -82,7 +82,7 @@ import { DeclarativeTypeCastExpressionContext } from "./LPCParser.js";
 import { StructCastExpressionContext } from "./LPCParser.js";
 import { AssignmentOperatorContext } from "./LPCParser.js";
 import { ConditionalExpressionBaseContext } from "./LPCParser.js";
-import { ConditionalExpressionContext } from "./LPCParser.js";
+import { ConditionalTernaryExpressionContext } from "./LPCParser.js";
 import { ConditionalOrExpressionContext } from "./LPCParser.js";
 import { ConditionalAndExpressionContext } from "./LPCParser.js";
 import { InclusiveOrExpressionContext } from "./LPCParser.js";
@@ -93,7 +93,6 @@ import { RelationalExpressionContext } from "./LPCParser.js";
 import { ShiftExpressionContext } from "./LPCParser.js";
 import { AdditiveExpressionContext } from "./LPCParser.js";
 import { MultiplicativeExpressionContext } from "./LPCParser.js";
-import { RangeExpressionContext } from "./LPCParser.js";
 import { UnaryExpressionContext } from "./LPCParser.js";
 import { PrimaryExpressionContext } from "./LPCParser.js";
 import { LiteralExpressionContext } from "./LPCParser.js";
@@ -937,125 +936,137 @@ export class LPCParserListener implements ParseTreeListener {
      */
     exitConditionalExpressionBase?: (ctx: ConditionalExpressionBaseContext) => void;
     /**
-     * Enter a parse tree produced by `LPCParser.conditionalExpression`.
+     * Enter a parse tree produced by the `conditionalTernaryExpression`
+     * labeled alternative in `LPCParser.conditionalExpression`.
      * @param ctx the parse tree
      */
-    enterConditionalExpression?: (ctx: ConditionalExpressionContext) => void;
+    enterConditionalTernaryExpression?: (ctx: ConditionalTernaryExpressionContext) => void;
     /**
-     * Exit a parse tree produced by `LPCParser.conditionalExpression`.
+     * Exit a parse tree produced by the `conditionalTernaryExpression`
+     * labeled alternative in `LPCParser.conditionalExpression`.
      * @param ctx the parse tree
      */
-    exitConditionalExpression?: (ctx: ConditionalExpressionContext) => void;
+    exitConditionalTernaryExpression?: (ctx: ConditionalTernaryExpressionContext) => void;
     /**
-     * Enter a parse tree produced by `LPCParser.conditionalOrExpression`.
+     * Enter a parse tree produced by the `conditionalOrExpression`
+     * labeled alternative in `LPCParser.conditionalExpression`.
      * @param ctx the parse tree
      */
     enterConditionalOrExpression?: (ctx: ConditionalOrExpressionContext) => void;
     /**
-     * Exit a parse tree produced by `LPCParser.conditionalOrExpression`.
+     * Exit a parse tree produced by the `conditionalOrExpression`
+     * labeled alternative in `LPCParser.conditionalExpression`.
      * @param ctx the parse tree
      */
     exitConditionalOrExpression?: (ctx: ConditionalOrExpressionContext) => void;
     /**
-     * Enter a parse tree produced by `LPCParser.conditionalAndExpression`.
+     * Enter a parse tree produced by the `conditionalAndExpression`
+     * labeled alternative in `LPCParser.conditionalExpression`.
      * @param ctx the parse tree
      */
     enterConditionalAndExpression?: (ctx: ConditionalAndExpressionContext) => void;
     /**
-     * Exit a parse tree produced by `LPCParser.conditionalAndExpression`.
+     * Exit a parse tree produced by the `conditionalAndExpression`
+     * labeled alternative in `LPCParser.conditionalExpression`.
      * @param ctx the parse tree
      */
     exitConditionalAndExpression?: (ctx: ConditionalAndExpressionContext) => void;
     /**
-     * Enter a parse tree produced by `LPCParser.inclusiveOrExpression`.
+     * Enter a parse tree produced by the `inclusiveOrExpression`
+     * labeled alternative in `LPCParser.conditionalExpression`.
      * @param ctx the parse tree
      */
     enterInclusiveOrExpression?: (ctx: InclusiveOrExpressionContext) => void;
     /**
-     * Exit a parse tree produced by `LPCParser.inclusiveOrExpression`.
+     * Exit a parse tree produced by the `inclusiveOrExpression`
+     * labeled alternative in `LPCParser.conditionalExpression`.
      * @param ctx the parse tree
      */
     exitInclusiveOrExpression?: (ctx: InclusiveOrExpressionContext) => void;
     /**
-     * Enter a parse tree produced by `LPCParser.exclusiveOrExpression`.
+     * Enter a parse tree produced by the `exclusiveOrExpression`
+     * labeled alternative in `LPCParser.conditionalExpression`.
      * @param ctx the parse tree
      */
     enterExclusiveOrExpression?: (ctx: ExclusiveOrExpressionContext) => void;
     /**
-     * Exit a parse tree produced by `LPCParser.exclusiveOrExpression`.
+     * Exit a parse tree produced by the `exclusiveOrExpression`
+     * labeled alternative in `LPCParser.conditionalExpression`.
      * @param ctx the parse tree
      */
     exitExclusiveOrExpression?: (ctx: ExclusiveOrExpressionContext) => void;
     /**
-     * Enter a parse tree produced by `LPCParser.andExpression`.
+     * Enter a parse tree produced by the `andExpression`
+     * labeled alternative in `LPCParser.conditionalExpression`.
      * @param ctx the parse tree
      */
     enterAndExpression?: (ctx: AndExpressionContext) => void;
     /**
-     * Exit a parse tree produced by `LPCParser.andExpression`.
+     * Exit a parse tree produced by the `andExpression`
+     * labeled alternative in `LPCParser.conditionalExpression`.
      * @param ctx the parse tree
      */
     exitAndExpression?: (ctx: AndExpressionContext) => void;
     /**
-     * Enter a parse tree produced by `LPCParser.equalityExpression`.
+     * Enter a parse tree produced by the `equalityExpression`
+     * labeled alternative in `LPCParser.conditionalExpression`.
      * @param ctx the parse tree
      */
     enterEqualityExpression?: (ctx: EqualityExpressionContext) => void;
     /**
-     * Exit a parse tree produced by `LPCParser.equalityExpression`.
+     * Exit a parse tree produced by the `equalityExpression`
+     * labeled alternative in `LPCParser.conditionalExpression`.
      * @param ctx the parse tree
      */
     exitEqualityExpression?: (ctx: EqualityExpressionContext) => void;
     /**
-     * Enter a parse tree produced by `LPCParser.relationalExpression`.
+     * Enter a parse tree produced by the `relationalExpression`
+     * labeled alternative in `LPCParser.conditionalExpression`.
      * @param ctx the parse tree
      */
     enterRelationalExpression?: (ctx: RelationalExpressionContext) => void;
     /**
-     * Exit a parse tree produced by `LPCParser.relationalExpression`.
+     * Exit a parse tree produced by the `relationalExpression`
+     * labeled alternative in `LPCParser.conditionalExpression`.
      * @param ctx the parse tree
      */
     exitRelationalExpression?: (ctx: RelationalExpressionContext) => void;
     /**
-     * Enter a parse tree produced by `LPCParser.shiftExpression`.
+     * Enter a parse tree produced by the `shiftExpression`
+     * labeled alternative in `LPCParser.conditionalExpression`.
      * @param ctx the parse tree
      */
     enterShiftExpression?: (ctx: ShiftExpressionContext) => void;
     /**
-     * Exit a parse tree produced by `LPCParser.shiftExpression`.
+     * Exit a parse tree produced by the `shiftExpression`
+     * labeled alternative in `LPCParser.conditionalExpression`.
      * @param ctx the parse tree
      */
     exitShiftExpression?: (ctx: ShiftExpressionContext) => void;
     /**
-     * Enter a parse tree produced by `LPCParser.additiveExpression`.
+     * Enter a parse tree produced by the `additiveExpression`
+     * labeled alternative in `LPCParser.conditionalExpression`.
      * @param ctx the parse tree
      */
     enterAdditiveExpression?: (ctx: AdditiveExpressionContext) => void;
     /**
-     * Exit a parse tree produced by `LPCParser.additiveExpression`.
+     * Exit a parse tree produced by the `additiveExpression`
+     * labeled alternative in `LPCParser.conditionalExpression`.
      * @param ctx the parse tree
      */
     exitAdditiveExpression?: (ctx: AdditiveExpressionContext) => void;
     /**
-     * Enter a parse tree produced by `LPCParser.multiplicativeExpression`.
+     * Enter a parse tree produced by the `multiplicativeExpression`
+     * labeled alternative in `LPCParser.conditionalExpression`.
      * @param ctx the parse tree
      */
     enterMultiplicativeExpression?: (ctx: MultiplicativeExpressionContext) => void;
     /**
-     * Exit a parse tree produced by `LPCParser.multiplicativeExpression`.
+     * Exit a parse tree produced by the `multiplicativeExpression`
+     * labeled alternative in `LPCParser.conditionalExpression`.
      * @param ctx the parse tree
      */
     exitMultiplicativeExpression?: (ctx: MultiplicativeExpressionContext) => void;
-    /**
-     * Enter a parse tree produced by `LPCParser.rangeExpression`.
-     * @param ctx the parse tree
-     */
-    enterRangeExpression?: (ctx: RangeExpressionContext) => void;
-    /**
-     * Exit a parse tree produced by `LPCParser.rangeExpression`.
-     * @param ctx the parse tree
-     */
-    exitRangeExpression?: (ctx: RangeExpressionContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.unaryExpression`.
      * @param ctx the parse tree

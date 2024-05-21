@@ -97,7 +97,7 @@ inheritSuperStatement
 
 inheritSuperExpression
     : EFUNACCESSOR expression
-    | filename=StringLiteral? COLON COLON expression
+    | filename=StringLiteral? SUPER_ACCESSOR expression
     ;
 
 declaration
@@ -392,75 +392,79 @@ assignmentOperator
 // JC - Turns out combinging these all as labelled alternative has causes a huge performance 
 //      hit. I've reverted back to the original.
 conditionalExpressionBase
-    : conditionalExpression
-    // : unaryExpression           #tempUnaryExpression
-    // | conditionalExpression     #tempConditionalExpression
-    // | conditionalExpressionBase (QUESTION expression COLON expression) #conditionalExpression
-    // | conditionalExpressionBase (op=OR_OR conditionalExpressionBase)+ #conditionalOrExpression
-    // | conditionalExpressionBase (op=AND_AND conditionalExpressionBase)+ #conditionalAndExpression
-    // | conditionalExpressionBase (op=OR conditionalExpressionBase)+ #inclusiveOrExpression
-    // | conditionalExpressionBase (op=XOR conditionalExpressionBase)+ #exclusiveOrExpression
-    // | conditionalExpressionBase (op=AND conditionalExpressionBase)+ #andExpression
-    // | conditionalExpressionBase (op=(EQ | NE) conditionalExpressionBase)+ #equalityExpression
-    // | conditionalExpressionBase (op=(LT | GT | LE | GE) conditionalExpressionBase)+ #relationalExpresion
-    // | conditionalExpressionBase (op=(SHL | SHR) conditionalExpressionBase)+ #shiftExpression
-    // | conditionalExpressionBase (op=(PLUS | MINUS) conditionalExpressionBase)+ #additiveExpression
-    // | conditionalExpressionBase (op=(STAR | DIV | MOD) conditionalExpressionBase)+ #multiplicativeExpression    
-    ;    
+    : conditionalExpressionBase conditionalExpression
+    | unaryExpression           
+    ;  
 
 conditionalExpression
-    : conditionalOrExpression (QUESTION expression COLON expression)?
+    : (op=QUESTION expression COLON expression) #conditionalTernaryExpression
+    | (op=OR_OR conditionalExpressionBase) #conditionalOrExpression
+    | (op=AND_AND conditionalExpressionBase) #conditionalAndExpression
+    | (op=OR conditionalExpressionBase) #inclusiveOrExpression
+    | (op=XOR conditionalExpressionBase) #exclusiveOrExpression
+    | (op=AND conditionalExpressionBase) #andExpression
+    | (op=(EQ | NE) conditionalExpressionBase) #equalityExpression
+    | (op=(LT | GT | LE | GE) conditionalExpressionBase) #relationalExpression
+    | (op=(SHL | SHR) conditionalExpressionBase) #shiftExpression
+    | (op=(PLUS | MINUS) conditionalExpressionBase) #additiveExpression
+    | (op=(STAR | DIV | MOD) conditionalExpressionBase) #multiplicativeExpression    
     ;
 
-conditionalOrExpression
-    : conditionalAndExpression (op=OR_OR conditionalAndExpression)*
-    ;
+  
 
-conditionalAndExpression
-    : inclusiveOrExpression (op=AND_AND inclusiveOrExpression)*
-    ;
+// conditionalExpression
+//     : conditionalOrExpression (op=QUESTION expression COLON expression)?
+//     ;
 
-inclusiveOrExpression
-    : exclusiveOrExpression (op=OR exclusiveOrExpression)*
-    ;
+// conditionalOrExpression
+//     : conditionalAndExpression (op=OR_OR conditionalAndExpression)*
+//     ;
 
-exclusiveOrExpression
-    : andExpression (op=XOR andExpression)*
-    ;
+// conditionalAndExpression
+//     : inclusiveOrExpression (op=AND_AND inclusiveOrExpression)*
+//     ;
 
-andExpression
-    : equalityExpression (op=AND equalityExpression)*
-    ;
+// inclusiveOrExpression
+//     : exclusiveOrExpression (op=OR exclusiveOrExpression)*
+//     ;
 
-equalityExpression
-    : relationalExpression (op=(EQ | NE) relationalExpression)*
-    ;
+// exclusiveOrExpression
+//     : andExpression (op=XOR andExpression)*
+//     ;
 
-relationalExpression
-    : shiftExpression (op=(LT | GT | LE | GE) shiftExpression)*
-    ;
+// andExpression
+//     : equalityExpression (op=AND equalityExpression)*
+//     ;
 
-shiftExpression
-    : additiveExpression (op=(SHL | SHR) additiveExpression)*
-    ;
+// equalityExpression
+//     : relationalExpression (op=(EQ | NE) relationalExpression)*
+//     ;
 
-additiveExpression
-    : multiplicativeExpression (op=(PLUS | MINUS) multiplicativeExpression)*
-    ;
+// relationalExpression
+//     : shiftExpression (op=(LT | GT | LE | GE) shiftExpression)*
+//     ;
 
-multiplicativeExpression
-    : rangeExpression (op=(STAR | DIV | MOD) rangeExpression)*    
-    ;
+// shiftExpression
+//     : additiveExpression (op=(SHL | SHR) additiveExpression)*
+//     ;
 
-rangeExpression
-    : unaryExpression
-    | unaryExpression? DOUBLEDOT unaryExpression?
-    ;
+// additiveExpression
+//     : multiplicativeExpression (op=(PLUS | MINUS) multiplicativeExpression)*
+//     ;
+
+// multiplicativeExpression
+//     : unaryExpression (op=(STAR | DIV | MOD) unaryExpression)*    
+//     ;
+
+// rangeExpression
+//     : unaryExpression
+//     | unaryExpression? DOUBLEDOT unaryExpression?
+//     ;
 
 unaryExpression
     : castExpression
     | primaryExpression
-    | (PLUS|MINUS|NOT|BNOT|INC|DEC|AND|STAR) expression     
+    | (PLUS|MINUS|NOT|BNOT|INC|DEC|AND|STAR) expression
     ;
 
 primaryExpression
@@ -516,9 +520,9 @@ assignmentExpression
     ;
 
 nonAssignmentExpression
-    : inheritSuperExpression // inherit must come before inline closure
+    : inheritSuperExpression
     | inlineClosureExpression
     | lambdaExpression    
-    | unaryExpression
+    //| unaryExpression
     | conditionalExpressionBase    
     ;
