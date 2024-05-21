@@ -88,7 +88,7 @@ directiveTypePragma: PRAGMA;
 
 // inherit
 inheritStatement
-    : INHERIT inheritTarget=(StringLiteral | Identifier) SEMI
+    : INHERIT (StringLiteral (PLUS? StringLiteral)*) SEMI
     ;
 
 inheritSuperStatement

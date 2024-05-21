@@ -534,7 +534,10 @@ export class DetailsVisitor
     };
 
     visitInheritStatement = (ctx: InheritStatementContext) => {
-        let filename = trimQuotes(ctx._inheritTarget!.text);
+        const stringLits = ctx.StringLiteral();
+        const filename = stringLits
+            .map((s) => trimQuotes(s.getText()))
+            .join("");
 
         const symbol = this.addNewSymbol(
             InheritSymbol,
