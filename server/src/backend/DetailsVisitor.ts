@@ -62,6 +62,7 @@ import {
     RelationalExpressionContext,
     ReturnStatementContext,
     SelectionDirectiveContext,
+    StringConcatExpressionContext,
     StructParameterExpressionContext,
     StructVariableDeclarationContext,
     VariableDeclaratorContext,
@@ -899,6 +900,22 @@ export class DetailsVisitor
             this.markToken(ctx.StringLiteral()?.symbol, SemanticTokenTypes.String);
         }
         
+        return undefined;
+    };
+
+    visitStringConcatExpression = (ctx: StringConcatExpressionContext) => {
+        const stringLits = ctx.StringLiteral();
+        const concatStr = stringLits
+            .map((s) => trimQuotes(s.getText()))
+            .join("");
+        this.addNewSymbol(
+            LiteralSymbol,
+            ctx,
+            "string",
+            FundamentalType.stringType,
+            concatStr
+        );
+        this.markToken(ctx.start, SemanticTokenTypes.String);
         return undefined;
     };
 

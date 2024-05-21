@@ -4311,18 +4311,42 @@ export class LPCParser extends antlr.Parser {
             this.errorHandler.sync(this);
             switch (this.interpreter.adaptivePredict(this.tokenStream, 95, this.context) ) {
             case 1:
-                localContext = new LiteralExpressionContext(localContext);
+                localContext = new StringConcatExpressionContext(localContext);
                 this.enterOuterAlt(localContext, 1);
                 {
                 this.state = 882;
-                this.literal();
+                this.match(LPCParser.StringLiteral);
+                this.state = 886;
+                this.errorHandler.sync(this);
+                alternative = this.interpreter.adaptivePredict(this.tokenStream, 94, this.context);
+                while (alternative !== 2 && alternative !== antlr.ATN.INVALID_ALT_NUMBER) {
+                    if (alternative === 1) {
+                        {
+                        {
+                        this.state = 883;
+                        this.match(LPCParser.StringLiteral);
+                        }
+                        }
+                    }
+                    this.state = 888;
+                    this.errorHandler.sync(this);
+                    alternative = this.interpreter.adaptivePredict(this.tokenStream, 94, this.context);
+                }
                 }
                 break;
             case 2:
-                localContext = new CloneObjectExpressionContext(localContext);
+                localContext = new LiteralExpressionContext(localContext);
                 this.enterOuterAlt(localContext, 2);
                 {
-                this.state = 883;
+                this.state = 889;
+                this.literal();
+                }
+                break;
+            case 3:
+                localContext = new CloneObjectExpressionContext(localContext);
+                this.enterOuterAlt(localContext, 3);
+                {
+                this.state = 890;
                 _la = this.tokenStream.LA(1);
                 if(!(_la === 112 || _la === 113)) {
                 this.errorHandler.recoverInline(this);
@@ -4331,74 +4355,50 @@ export class LPCParser extends antlr.Parser {
                     this.errorHandler.reportMatch(this);
                     this.consume();
                 }
-                this.state = 884;
+                this.state = 891;
                 this.match(LPCParser.PAREN_OPEN);
                 {
-                this.state = 885;
+                this.state = 892;
                 (localContext as CloneObjectExpressionContext)._ob = this.expression();
                 }
-                this.state = 886;
+                this.state = 893;
                 this.match(LPCParser.PAREN_CLOSE);
-                }
-                break;
-            case 3:
-                localContext = new IdentifierExpressionContext(localContext);
-                this.enterOuterAlt(localContext, 3);
-                {
-                this.state = 888;
-                this.match(LPCParser.Identifier);
                 }
                 break;
             case 4:
-                localContext = new ParenExpressionContext(localContext);
+                localContext = new IdentifierExpressionContext(localContext);
                 this.enterOuterAlt(localContext, 4);
                 {
-                this.state = 889;
-                this.match(LPCParser.PAREN_OPEN);
-                this.state = 890;
-                this.expression();
-                this.state = 891;
-                this.match(LPCParser.PAREN_CLOSE);
+                this.state = 895;
+                this.match(LPCParser.Identifier);
                 }
                 break;
             case 5:
-                localContext = new PrimaryArrayExpressionContext(localContext);
+                localContext = new ParenExpressionContext(localContext);
                 this.enterOuterAlt(localContext, 5);
                 {
-                this.state = 893;
-                this.arrayExpression();
+                this.state = 896;
+                this.match(LPCParser.PAREN_OPEN);
+                this.state = 897;
+                this.expression();
+                this.state = 898;
+                this.match(LPCParser.PAREN_CLOSE);
                 }
                 break;
             case 6:
-                localContext = new PrimaryMappingExpressionContext(localContext);
+                localContext = new PrimaryArrayExpressionContext(localContext);
                 this.enterOuterAlt(localContext, 6);
                 {
-                this.state = 894;
-                this.mappingExpression();
+                this.state = 900;
+                this.arrayExpression();
                 }
                 break;
             case 7:
-                localContext = new StringConcatExpressionContext(localContext);
+                localContext = new PrimaryMappingExpressionContext(localContext);
                 this.enterOuterAlt(localContext, 7);
                 {
-                this.state = 895;
-                this.match(LPCParser.StringLiteral);
-                this.state = 899;
-                this.errorHandler.sync(this);
-                alternative = this.interpreter.adaptivePredict(this.tokenStream, 94, this.context);
-                while (alternative !== 2 && alternative !== antlr.ATN.INVALID_ALT_NUMBER) {
-                    if (alternative === 1) {
-                        {
-                        {
-                        this.state = 896;
-                        this.match(LPCParser.StringLiteral);
-                        }
-                        }
-                    }
-                    this.state = 901;
-                    this.errorHandler.sync(this);
-                    alternative = this.interpreter.adaptivePredict(this.tokenStream, 94, this.context);
-                }
+                this.state = 901;
+                this.mappingExpression();
                 }
                 break;
             case 8:
@@ -4968,8 +4968,8 @@ export class LPCParser extends antlr.Parser {
         850,8,72,1,73,1,73,5,73,854,8,73,10,73,12,73,857,9,73,1,73,1,73,
         1,73,1,73,1,73,3,73,864,8,73,1,73,3,73,867,8,73,1,73,3,73,870,8,
         73,1,73,5,73,873,8,73,10,73,12,73,876,9,73,5,73,878,8,73,10,73,12,
-        73,881,9,73,1,74,1,74,1,74,1,74,1,74,1,74,1,74,1,74,1,74,1,74,1,
-        74,1,74,1,74,1,74,1,74,5,74,898,8,74,10,74,12,74,901,9,74,1,74,1,
+        73,881,9,73,1,74,1,74,5,74,885,8,74,10,74,12,74,888,9,74,1,74,1,
+        74,1,74,1,74,1,74,1,74,1,74,1,74,1,74,1,74,1,74,1,74,1,74,1,74,1,
         74,3,74,905,8,74,1,75,1,75,3,75,909,8,75,1,76,1,76,1,76,1,76,1,76,
         5,76,916,8,76,10,76,12,76,919,9,76,1,76,1,76,5,76,923,8,76,10,76,
         12,76,926,9,76,1,76,1,76,1,77,1,77,3,77,932,8,77,1,77,1,77,1,77,
@@ -5234,15 +5234,15 @@ export class LPCParser extends antlr.Parser {
         0,0,871,873,3,154,77,0,872,871,1,0,0,0,873,876,1,0,0,0,874,872,1,
         0,0,0,874,875,1,0,0,0,875,878,1,0,0,0,876,874,1,0,0,0,877,869,1,
         0,0,0,878,881,1,0,0,0,879,877,1,0,0,0,879,880,1,0,0,0,880,147,1,
-        0,0,0,881,879,1,0,0,0,882,905,3,134,67,0,883,884,7,18,0,0,884,885,
-        5,99,0,0,885,886,3,150,75,0,886,887,5,100,0,0,887,905,1,0,0,0,888,
-        905,5,114,0,0,889,890,5,99,0,0,890,891,3,150,75,0,891,892,5,100,
-        0,0,892,905,1,0,0,0,893,905,3,62,31,0,894,905,3,66,33,0,895,899,
-        5,110,0,0,896,898,5,110,0,0,897,896,1,0,0,0,898,901,1,0,0,0,899,
-        897,1,0,0,0,899,900,1,0,0,0,900,905,1,0,0,0,901,899,1,0,0,0,902,
-        905,3,152,76,0,903,905,3,42,21,0,904,882,1,0,0,0,904,883,1,0,0,0,
-        904,888,1,0,0,0,904,889,1,0,0,0,904,893,1,0,0,0,904,894,1,0,0,0,
-        904,895,1,0,0,0,904,902,1,0,0,0,904,903,1,0,0,0,905,149,1,0,0,0,
+        0,0,0,881,879,1,0,0,0,882,886,5,110,0,0,883,885,5,110,0,0,884,883,
+        1,0,0,0,885,888,1,0,0,0,886,884,1,0,0,0,886,887,1,0,0,0,887,905,
+        1,0,0,0,888,886,1,0,0,0,889,905,3,134,67,0,890,891,7,18,0,0,891,
+        892,5,99,0,0,892,893,3,150,75,0,893,894,5,100,0,0,894,905,1,0,0,
+        0,895,905,5,114,0,0,896,897,5,99,0,0,897,898,3,150,75,0,898,899,
+        5,100,0,0,899,905,1,0,0,0,900,905,3,62,31,0,901,905,3,66,33,0,902,
+        905,3,152,76,0,903,905,3,42,21,0,904,882,1,0,0,0,904,889,1,0,0,0,
+        904,890,1,0,0,0,904,895,1,0,0,0,904,896,1,0,0,0,904,900,1,0,0,0,
+        904,901,1,0,0,0,904,902,1,0,0,0,904,903,1,0,0,0,905,149,1,0,0,0,
         906,909,3,162,81,0,907,909,3,164,82,0,908,906,1,0,0,0,908,907,1,
         0,0,0,909,151,1,0,0,0,910,911,5,3,0,0,911,912,5,99,0,0,912,917,3,
         150,75,0,913,914,5,81,0,0,914,916,3,150,75,0,915,913,1,0,0,0,916,
@@ -5277,7 +5277,7 @@ export class LPCParser extends antlr.Parser {
         435,439,442,449,457,468,473,478,481,488,494,499,505,513,516,530,
         539,546,564,570,574,583,585,593,597,603,611,619,628,644,652,654,
         661,666,670,676,684,691,694,701,704,710,719,727,730,768,770,799,
-        804,815,843,849,855,863,866,869,874,879,899,904,908,917,924,931,
+        804,815,843,849,855,863,866,869,874,879,886,904,908,917,924,931,
         938,941,945,948,953,959,963,966,973,977,985,996
     ];
 
@@ -9649,32 +9649,6 @@ export class LiteralExpressionContext extends PrimaryExpressionStartContext {
         }
     }
 }
-export class PrimaryArrayExpressionContext extends PrimaryExpressionStartContext {
-    public constructor(ctx: PrimaryExpressionStartContext) {
-        super(ctx.parent, ctx.invokingState);
-        super.copyFrom(ctx);
-    }
-    public arrayExpression(): ArrayExpressionContext {
-        return this.getRuleContext(0, ArrayExpressionContext)!;
-    }
-    public override enterRule(listener: LPCParserListener): void {
-        if(listener.enterPrimaryArrayExpression) {
-             listener.enterPrimaryArrayExpression(this);
-        }
-    }
-    public override exitRule(listener: LPCParserListener): void {
-        if(listener.exitPrimaryArrayExpression) {
-             listener.exitPrimaryArrayExpression(this);
-        }
-    }
-    public override accept<Result>(visitor: LPCParserVisitor<Result>): Result | null {
-        if (visitor.visitPrimaryArrayExpression) {
-            return visitor.visitPrimaryArrayExpression(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
-    }
-}
 export class StringConcatExpressionContext extends PrimaryExpressionStartContext {
     public constructor(ctx: PrimaryExpressionStartContext) {
         super(ctx.parent, ctx.invokingState);
@@ -9702,6 +9676,32 @@ export class StringConcatExpressionContext extends PrimaryExpressionStartContext
     public override accept<Result>(visitor: LPCParserVisitor<Result>): Result | null {
         if (visitor.visitStringConcatExpression) {
             return visitor.visitStringConcatExpression(this);
+        } else {
+            return visitor.visitChildren(this);
+        }
+    }
+}
+export class PrimaryArrayExpressionContext extends PrimaryExpressionStartContext {
+    public constructor(ctx: PrimaryExpressionStartContext) {
+        super(ctx.parent, ctx.invokingState);
+        super.copyFrom(ctx);
+    }
+    public arrayExpression(): ArrayExpressionContext {
+        return this.getRuleContext(0, ArrayExpressionContext)!;
+    }
+    public override enterRule(listener: LPCParserListener): void {
+        if(listener.enterPrimaryArrayExpression) {
+             listener.enterPrimaryArrayExpression(this);
+        }
+    }
+    public override exitRule(listener: LPCParserListener): void {
+        if(listener.exitPrimaryArrayExpression) {
+             listener.exitPrimaryArrayExpression(this);
+        }
+    }
+    public override accept<Result>(visitor: LPCParserVisitor<Result>): Result | null {
+        if (visitor.visitPrimaryArrayExpression) {
+            return visitor.visitPrimaryArrayExpression(this);
         } else {
             return visitor.visitChildren(this);
         }

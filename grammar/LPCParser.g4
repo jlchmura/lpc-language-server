@@ -358,7 +358,7 @@ rightShiftAssignment
 literal
     : IntegerConstant
     | FloatingConstant
-    | StringLiteral
+    //| StringLiteral
     | CharacterConstant
     | HexIntConstant
     ;
@@ -474,13 +474,13 @@ primaryExpression
     ;
 
 primaryExpressionStart
-    : literal                               # literalExpression
+    : StringLiteral StringLiteral*          # stringConcatExpression        
+    | literal                               # literalExpression
     | (CloneObject|LoadObject) PAREN_OPEN (ob=expression) PAREN_CLOSE   # cloneObjectExpression 
     | Identifier                            # identifierExpression    
     | PAREN_OPEN expression PAREN_CLOSE     # parenExpression    
     | arrayExpression                       # primaryArrayExpression
-    | mappingExpression                     # primaryMappingExpression
-    | StringLiteral StringLiteral*          # stringConcatExpression        
+    | mappingExpression                     # primaryMappingExpression    
     | catchExpr                             # catchExpression
     | inheritSuperExpression                # inheritExpression
     ;
