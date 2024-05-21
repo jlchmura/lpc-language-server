@@ -133,7 +133,7 @@ fragment HexDigit: [0-9] | [A-F] | [a-f];
 
 // Literals
 IntegerConstant: [0-9]+;
-FloatingConstant: [0-9]* '.' [0-9]+ ([eE] [+-]? [0-9]+)?;
+FloatingConstant: [0-9]* '.' ([0-9]+ ([eE] [+-]? [0-9]+)?)?;
 HexIntConstant: '0' [xX] HexDigit+;
 STRING_START: '"' -> mode(STRING_MODE);
 StringLiteral: STRING_START STRING_CONTENT* STRING_END;
