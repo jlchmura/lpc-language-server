@@ -80,7 +80,7 @@ DIRECTIVE_STRING_QUOTE : '"'   -> type(TEXT), popMode;
 DIRECTIVE_STRING_TEXT  : ~[\r\n\\"]+ -> type(TEXT);
 
 fragment EscapeSequence:
-    '\\' ('b' | 't' | 'n' | 'f' | 'r' | '"' | '\'' | '\\')
+    '\\' ('a' | 'b' | 't' | 'n' | 'f' | 'r' | '"' | '\'' | '\\')
     | OctalEscape
     | UnicodeEscape
 ;

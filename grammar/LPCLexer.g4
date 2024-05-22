@@ -54,6 +54,7 @@ TYPEDEF: 'typedef';
 //UNION: 'union';
 //UNKNOWN: 'unknown';
 UNDEF: '#undef';
+VIRTUAL: 'virtual';
 VOID: 'void';
 VOLATILE: 'volatile';
 WHILE: 'while';
@@ -70,7 +71,7 @@ NOMASK: 'nomask';
 VARARGS: 'varargs';
 
 // for inheritance
-EFUNACCESSOR: 'efun::';
+//EFUNACCESSOR: 'efun::';
 SUPER_ACCESSOR: '::';
 
 // Operators
@@ -103,7 +104,7 @@ COMMA: ',';
 TRIPPLEDOT: '...';
 DOUBLEDOT: '..';
 DOT: '.';
-SINGLEQUOT: '\'';
+
 //DOUBLEQUOT: '"';
 
 // assignmenet operators
@@ -157,6 +158,8 @@ SOURCEMAP: '[[@' .*? ']]' -> channel(SOURCEMAP_CHANNEL);
 DEFINE: HASH [ \t]* 'define' -> pushMode(DEFINE_MODE);
 
 WS: [ \t\r\n]+ -> channel(HIDDEN);
+
+SINGLEQUOT: '\'';
 
 // to handle #define that can be multiline
 mode DEFINE_MODE;    

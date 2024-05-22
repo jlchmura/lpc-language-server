@@ -88,7 +88,7 @@ directiveTypePragma: PRAGMA;
 
 // inherit
 inheritStatement
-    : INHERIT inheritFile SEMI
+    : VIRTUAL? INHERIT inheritFile SEMI
     ;
 
 inheritFile
@@ -103,8 +103,7 @@ inheritSuperStatement
     ;
 
 inheritSuperExpression
-    : EFUNACCESSOR expression
-    | filename=StringLiteral? SUPER_ACCESSOR expression
+    : filename=(StringLiteral|Identifier)? SUPER_ACCESSOR expression
     ;
 
 declaration
@@ -401,6 +400,7 @@ statement
     | jumpStatement    
     | variableDeclaration    
     | returnStatement    
+    | includePreprocessorDirective // this is really handled by the preprocessor, but including here for convenience in symbol nav
     | SEMI
     //| preprocessorDirective
     ;
