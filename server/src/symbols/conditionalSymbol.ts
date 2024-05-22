@@ -17,8 +17,8 @@ export class ConditionalSymbol
 
         if (!lhs || !rhs) return undefined;
 
-        const lhResult = lhs.eval(stack);
-        const rhResult = rhs.eval(stack);
+        const lhResult = lhs.eval(stack)?.value;
+        const rhResult = rhs.eval(stack)?.value;
 
         switch (this.name) {
             case "==":

@@ -467,7 +467,7 @@ foreachRangeExpression
     ;
 
 forVariable
-    : primitiveTypeSpecifier? arraySpecifier=STAR? variableName=Identifier (ASSIGN variableInitializer | INC | DEC) 
+    : primitiveTypeSpecifier? variableDeclarator (ASSIGN variableInitializer | INC | DEC) 
     ;
 
 forEachVariable

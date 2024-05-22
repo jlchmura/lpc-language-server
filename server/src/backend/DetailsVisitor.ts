@@ -36,6 +36,7 @@ import {
     ForEachStatementContext,
     ForEachVariableContext,
     ForStatementContext,
+    ForVariableContext,
     FunctionDeclarationContext,
     FunctionHeaderDeclarationContext,
     IdentifierExpressionContext,
@@ -871,12 +872,21 @@ export class DetailsVisitor
 
     visitForEachStatement = (ctx: ForEachStatementContext) =>
         this.parseIterationStatement(ctx, ForEachSymbol);
-    visitForStatement = (ctx: ForStatementContext) =>
-        this.parseIterationStatement(ctx, IterationSymbol);
     visitDoWhileStatement = (ctx: DoWhileStatementContext) =>
         this.parseIterationStatement(ctx, IterationSymbol);
     visitWhileStatement = (ctx: WhileStatementContext) =>
         this.parseIterationStatement(ctx, IterationSymbol);
+    visitForStatement = (ctx: ForStatementContext) =>
+        this.parseIterationStatement(ctx, IterationSymbol);
+
+    visitForVariable = (ctx: ForVariableContext) => {
+        const varType = this.parsePrimitiveType(ctx.primitiveTypeSpecifier());
+        const varSym = this.parseVariableDeclaration(
+            ctx.variableDeclarator(),
+            varType
+        );
+        return undefined;
+    };
 
     visitForEachVariable = (ctx: ForEachVariableContext) => {
         const varType = this.parsePrimitiveType(ctx.primitiveTypeSpecifier());

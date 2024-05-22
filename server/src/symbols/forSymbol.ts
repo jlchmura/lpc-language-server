@@ -1,6 +1,6 @@
 import { ScopedSymbol } from "antlr4-c3";
 import { IEvaluatableSymbol, LpcBaseSymbol } from "./base";
-import { CallStack } from "../backend/CallStack";
+import { CallStack, StackFrame } from "../backend/CallStack";
 import { VariableSymbol } from "./variableSymbol";
 
 export class IterationSymbol
@@ -12,9 +12,13 @@ export class IterationSymbol
     }
 
     eval(stack: CallStack, scope: any) {
+        stack.push(new StackFrame(this, undefined, new Map(), stack.peek()));
+
         this.children.forEach((child) => {
             (child as IEvaluatableSymbol).eval(stack, scope);
         });
+
+        stack.pop();
     }
 }
 
