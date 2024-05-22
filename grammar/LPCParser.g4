@@ -341,6 +341,7 @@ inlineClosureExpression
 
 lambdaExpression
     : HASH? SINGLEQUOT Identifier
+    | HASH SINGLEQUOT bracketExpression // must come before the SQUARE_OPEN in the next rule
     | HASH SINGLEQUOT (NOT | PLUS | MINUS | STAR | DIV | MOD | LT | GT | LE | GE | EQ | NE | AND | OR | XOR | AND_AND | OR_OR | ADD_ASSIGN | SUB_ASSIGN | MUL_ASSIGN | DIV_ASSIGN | MOD_ASSIGN | AND_ASSIGN | OR_ASSIGN | BITAND_ASSIGN | BITOR_ASSIGN | XOR_ASSIGN | QUESTION | SHL | SHR | SQUARE_OPEN)
     | HASH SINGLEQUOT expression      
     ;
