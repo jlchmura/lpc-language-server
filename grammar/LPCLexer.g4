@@ -51,7 +51,7 @@ STRING: 'string';
 SYMBOL: 'symbol';
 SWITCH: 'switch';
 TYPEDEF: 'typedef';
-UNION: 'union';
+//UNION: 'union';
 //UNKNOWN: 'unknown';
 UNDEF: '#undef';
 VOID: 'void';
