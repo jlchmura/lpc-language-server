@@ -137,6 +137,7 @@ export function activate(context: ExtensionContext) {
         commands.registerCommand(
             "lpc.processAll",
             async (textEditor: TextEditor, _edit: TextEditorEdit) => {
+                client.diagnostics.clear();
                 progress.startAnimation();
                 return await client
                     .sendRequest("textDocument/processAll", {})

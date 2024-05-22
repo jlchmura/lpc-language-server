@@ -23,7 +23,7 @@ directive
     | IF preprocessor_expression                # preprocessorConditional
     | ELIF preprocessor_expression              # preprocessorConditional
     | ELSE                                      # preprocessorConditionalElse
-    | ENDIF preprocessor_expression             # preprocessorConditionalEnd
+    | ENDIF preprocessor_expression?            # preprocessorConditionalEnd
     | IFDEF CONDITIONAL_SYMBOL                  # preprocessorConditionalDef
     | IFNDEF CONDITIONAL_SYMBOL                 # preprocessorConditionalDef
     | UNDEF CONDITIONAL_SYMBOL                  # preprocessorUndef
