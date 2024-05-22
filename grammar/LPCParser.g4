@@ -165,7 +165,7 @@ variableModifier
 
 variableDeclaration
     : variableModifier* primitiveTypeSpecifier? objectName=StringLiteral? variableDeclaratorExpression (COMMA variableDeclaratorExpression)* SEMI #primitiveTypeVariableDeclaration
-    | variableModifier* STRUCT structName=Identifier variableDeclaratorExpression (COMMA structName=Identifier variableDeclaratorExpression)* SEMI #structVariableDeclaration
+    | variableModifier* STRUCT structName=Identifier variableDeclaratorExpression (COMMA structName=Identifier? variableDeclaratorExpression)* SEMI #structVariableDeclaration
     ;
 
 variableDeclaratorExpression
