@@ -3,6 +3,7 @@ import {
     AbstractParseTreeVisitor,
     ParseTree,
     ParserRuleContext,
+    TerminalNode,
     Token,
 } from "antlr4ng";
 import { LPCParserVisitor } from "../parser3/LPCParserVisitor";
@@ -533,7 +534,20 @@ export class DetailsVisitor
     };
 
     visitInheritStatement = (ctx: InheritStatementContext) => {
-        const stringLits = ctx.StringLiteral();
+        const stringLits: TerminalNode[] = [];
+        let inhCtxs: ParseTree[] = [ctx.inheritFile()];
+        while (inhCtxs.length > 0) {
+            const inh = inhCtxs.shift();
+            if (
+                inh instanceof TerminalNode &&
+                inh.symbol.type === LPCLexer.StringLiteral
+            ) {
+                stringLits.push(inh);
+            } else if (inh instanceof ParserRuleContext) {
+                inhCtxs.push(...inh.children);
+            }
+        }
+        stringLits.sort((a, b) => a.symbol.tokenIndex - b.symbol.tokenIndex);
         const filename = stringLits
             .map((s) => trimQuotes(s.getText()))
             .join("");

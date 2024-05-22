@@ -88,7 +88,14 @@ directiveTypePragma: PRAGMA;
 
 // inherit
 inheritStatement
-    : INHERIT (StringLiteral (PLUS? StringLiteral)*) SEMI
+    : INHERIT inheritFile SEMI
+    ;
+
+inheritFile
+    : StringLiteral        
+    | Identifier // not really allowed, but will handle in semantic analysis
+    | PAREN_OPEN inheritFile PAREN_CLOSE
+    | inheritFile PLUS? inheritFile
     ;
 
 inheritSuperStatement
@@ -146,18 +153,6 @@ structMemberDeclaration
     : typeSpecifier Identifier SEMI
     ;
 
-arrayExpression
-    : PAREN_OPEN CURLY_OPEN (expression (COMMA expression)*)? COMMA? CURLY_CLOSE PAREN_CLOSE
-    ;
-
-mappingContent
-    : mappingKey=expression (COLON expression (SEMI expression)*)?
-    ;
-
-mappingExpression
-    : MAPPING_OPEN (mappingContent (COMMA mappingContent)*)? COMMA? SQUARE_CLOSE PAREN_CLOSE    #mappingValueInitializer
-    | MAPPING_OPEN COLON expression SQUARE_CLOSE PAREN_CLOSE                                    #mappingEmptyInitializer
-    ;
 
 variableModifier
     : STATIC
@@ -206,14 +201,12 @@ methodInvocation
     : PAREN_OPEN argumentList? PAREN_CLOSE
     ;
 
-arrayTypeSpecifier
-    : primitiveTypeSpecifier? STAR
-    ;
-
 typeSpecifier
     : primitiveTypeSpecifier
     | arrayTypeSpecifier    
     ;
+
+// Expressions:
 
 expression
     : assignmentExpression
@@ -342,11 +335,47 @@ bracketExpression
     | SQUARE_OPEN expression? (COMMA expression)* SQUARE_CLOSE
     ;
 
-
-
 inlineClosureExpression
     : PAREN_OPEN COLON (expression|statement*) COLON PAREN_CLOSE
     ;
+
+lambdaExpression
+    : HASH? SINGLEQUOT Identifier
+    | HASH SINGLEQUOT (NOT | PLUS | MINUS | STAR | DIV | MOD | LT | GT | LE | GE | EQ | NE | AND | OR | XOR | AND_AND | OR_OR | ADD_ASSIGN | SUB_ASSIGN | MUL_ASSIGN | DIV_ASSIGN | MOD_ASSIGN | AND_ASSIGN | OR_ASSIGN | BITAND_ASSIGN | BITOR_ASSIGN | XOR_ASSIGN | QUESTION | SHL | SHR | SQUARE_OPEN)
+    | HASH SINGLEQUOT expression      
+    ;
+
+castExpression
+    : PAREN_OPEN typeSpecifier PAREN_CLOSE unaryExpression                        #primitiveTypeCastExpression
+    | PAREN_OPEN CURLY_OPEN typeSpecifier CURLY_CLOSE PAREN_CLOSE unaryExpression #declarativeTypeCastExpression
+    | PAREN_OPEN LT Identifier GT unaryExpression (COMMA unaryExpression)* PAREN_CLOSE        #structCastExpression
+    ;
+
+expressionList
+    : expression (COMMA expression)*
+    ;
+
+// Arrays & Mappings
+
+arrayTypeSpecifier
+    : primitiveTypeSpecifier? STAR
+    ;
+
+arrayExpression
+    : PAREN_OPEN CURLY_OPEN (expression (COMMA expression)*)? COMMA? CURLY_CLOSE PAREN_CLOSE
+    ;
+
+mappingContent
+    : mappingKey=expression (COLON expression (SEMI expression)*)?
+    ;
+
+mappingExpression
+    : MAPPING_OPEN (mappingContent (COMMA mappingContent)*)? COMMA? SQUARE_CLOSE PAREN_CLOSE    #mappingValueInitializer
+    | MAPPING_OPEN COLON expression SQUARE_CLOSE PAREN_CLOSE                                    #mappingEmptyInitializer
+    ;
+
+
+// Statements
 
 statement
     : expressionStatement
@@ -443,23 +472,11 @@ callOtherTarget
     | StringLiteral
     ;
 
-lambdaExpression
-    : HASH? SINGLEQUOT Identifier
-    | HASH SINGLEQUOT (NOT | PLUS | MINUS | STAR | DIV | MOD | LT | GT | LE | GE | EQ | NE | AND | OR | XOR | AND_AND | OR_OR | ADD_ASSIGN | SUB_ASSIGN | MUL_ASSIGN | DIV_ASSIGN | MOD_ASSIGN | AND_ASSIGN | OR_ASSIGN | BITAND_ASSIGN | BITOR_ASSIGN | XOR_ASSIGN | QUESTION | SHL | SHR | SQUARE_OPEN)
-    | HASH SINGLEQUOT expression      
-    ;
-
 literal
     : IntegerConstant
     | FloatingConstant    
     | CharacterConstant
     | HexIntConstant
-    ;
-
-castExpression
-    : PAREN_OPEN typeSpecifier PAREN_CLOSE unaryExpression                        #primitiveTypeCastExpression
-    | PAREN_OPEN CURLY_OPEN typeSpecifier CURLY_CLOSE PAREN_CLOSE unaryExpression #declarativeTypeCastExpression
-    | PAREN_OPEN LT Identifier GT unaryExpression (COMMA unaryExpression)* PAREN_CLOSE        #structCastExpression
     ;
 
 argument
@@ -470,9 +487,5 @@ argument
 // code completion & signature help while typing.  So we will validate in the semantic analyzer
 argumentList
     : argument (COMMA argument?)*
-    ;
-
-expressionList
-    : expression (COMMA expression)*
     ;
 
