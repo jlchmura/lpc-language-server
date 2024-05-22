@@ -36,18 +36,19 @@ export class LPCPreprocessorParser extends antlr.Parser {
     public static readonly GT = 22;
     public static readonly LE = 23;
     public static readonly GE = 24;
-    public static readonly DIRECTIVE_WHITESPACES = 25;
-    public static readonly DIRECTIVE_STRING = 26;
-    public static readonly CONDITIONAL_SYMBOL = 27;
-    public static readonly DECIMAL_LITERAL = 28;
-    public static readonly FLOAT = 29;
-    public static readonly NEW_LINE = 30;
-    public static readonly DIRECITVE_COMMENT = 31;
-    public static readonly DIRECITVE_LINE_COMMENT = 32;
-    public static readonly DIRECITVE_NEW_LINE = 33;
-    public static readonly DIRECITVE_TEXT_NEW_LINE = 34;
-    public static readonly TEXT = 35;
-    public static readonly SLASH = 36;
+    public static readonly STAR = 25;
+    public static readonly DIRECTIVE_WHITESPACES = 26;
+    public static readonly DIRECTIVE_STRING = 27;
+    public static readonly CONDITIONAL_SYMBOL = 28;
+    public static readonly DECIMAL_LITERAL = 29;
+    public static readonly FLOAT = 30;
+    public static readonly NEW_LINE = 31;
+    public static readonly DIRECITVE_COMMENT = 32;
+    public static readonly DIRECITVE_LINE_COMMENT = 33;
+    public static readonly DIRECITVE_NEW_LINE = 34;
+    public static readonly DIRECITVE_TEXT_NEW_LINE = 35;
+    public static readonly TEXT = 36;
+    public static readonly SLASH = 37;
     public static readonly RULE_lpcDocument = 0;
     public static readonly RULE_text = 1;
     public static readonly RULE_code = 2;
@@ -59,16 +60,17 @@ export class LPCPreprocessorParser extends antlr.Parser {
         null, "'#'", null, null, "'pragma'", null, "'defined'", "'if'", 
         "'elif'", "'else'", "'undef'", "'ifdef'", "'ifndef'", "'endif'", 
         "'!'", "'('", "')'", "'=='", "'!='", "'&&'", "'||'", "'<'", "'>'", 
-        "'<='", "'>='"
+        "'<='", "'>='", "'*'"
     ];
 
     public static readonly symbolicNames = [
         null, "SHARP", "CODE", "INCLUDE", "PRAGMA", "DEFINE", "DEFINED", 
         "IF", "ELIF", "ELSE", "UNDEF", "IFDEF", "IFNDEF", "ENDIF", "BANG", 
         "LPAREN", "RPAREN", "EQUAL", "NOTEQUAL", "AND", "OR", "LT", "GT", 
-        "LE", "GE", "DIRECTIVE_WHITESPACES", "DIRECTIVE_STRING", "CONDITIONAL_SYMBOL", 
-        "DECIMAL_LITERAL", "FLOAT", "NEW_LINE", "DIRECITVE_COMMENT", "DIRECITVE_LINE_COMMENT", 
-        "DIRECITVE_NEW_LINE", "DIRECITVE_TEXT_NEW_LINE", "TEXT", "SLASH"
+        "LE", "GE", "STAR", "DIRECTIVE_WHITESPACES", "DIRECTIVE_STRING", 
+        "CONDITIONAL_SYMBOL", "DECIMAL_LITERAL", "FLOAT", "NEW_LINE", "DIRECITVE_COMMENT", 
+        "DIRECITVE_LINE_COMMENT", "DIRECITVE_NEW_LINE", "DIRECITVE_TEXT_NEW_LINE", 
+        "TEXT", "SLASH"
     ];
     public static readonly ruleNames = [
         "lpcDocument", "text", "code", "directive", "directive_text", "preprocessor_expression",
@@ -152,7 +154,7 @@ export class LPCPreprocessorParser extends antlr.Parser {
                 this.directive();
                 this.state = 23;
                 _la = this.tokenStream.LA(1);
-                if(!(_la === -1 || _la === 30)) {
+                if(!(_la === -1 || _la === 31)) {
                 this.errorHandler.recoverInline(this);
                 }
                 else {
@@ -325,7 +327,7 @@ export class LPCPreprocessorParser extends antlr.Parser {
                 this.state = 51;
                 this.errorHandler.sync(this);
                 _la = this.tokenStream.LA(1);
-                if (_la === 35) {
+                if (_la === 36) {
                     {
                     this.state = 50;
                     this.directive_text();
@@ -371,7 +373,7 @@ export class LPCPreprocessorParser extends antlr.Parser {
                 this.state = 58;
                 this.errorHandler.sync(this);
                 _la = this.tokenStream.LA(1);
-            } while (_la === 35);
+            } while (_la === 36);
             }
         }
         catch (re) {
@@ -584,7 +586,7 @@ export class LPCPreprocessorParser extends antlr.Parser {
                         this.state = 95;
                         (localContext as PreprocessorBinaryContext)._op = this.tokenStream.LT(1);
                         _la = this.tokenStream.LA(1);
-                        if(!((((_la) & ~0x1F) === 0 && ((1 << _la) & 31457280) !== 0))) {
+                        if(!((((_la) & ~0x1F) === 0 && ((1 << _la) & 65011712) !== 0))) {
                             (localContext as PreprocessorBinaryContext)._op = this.errorHandler.recoverInline(this);
                         }
                         else {
@@ -640,15 +642,15 @@ export class LPCPreprocessorParser extends antlr.Parser {
     }
 
     public static readonly _serializedATN: number[] = [
-        4,1,36,103,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,1,0,5,
+        4,1,37,103,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,1,0,5,
         0,14,8,0,10,0,12,0,17,9,0,1,0,1,0,1,1,1,1,1,1,1,1,1,1,3,1,26,8,1,
         1,2,4,2,29,8,2,11,2,12,2,30,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,
         1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,3,3,52,8,3,3,3,54,8,3,1,
         4,4,4,57,8,4,11,4,12,4,58,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,3,5,69,
         8,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,3,5,82,8,5,3,5,84,
         8,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,5,5,98,8,5,10,
-        5,12,5,101,9,5,1,5,0,1,10,6,0,2,4,6,8,10,0,3,1,1,30,30,1,0,17,18,
-        1,0,21,24,121,0,15,1,0,0,0,2,25,1,0,0,0,4,28,1,0,0,0,6,53,1,0,0,
+        5,12,5,101,9,5,1,5,0,1,10,6,0,2,4,6,8,10,0,3,1,1,31,31,1,0,17,18,
+        1,0,21,25,121,0,15,1,0,0,0,2,25,1,0,0,0,4,28,1,0,0,0,6,53,1,0,0,
         0,8,56,1,0,0,0,10,83,1,0,0,0,12,14,3,2,1,0,13,12,1,0,0,0,14,17,1,
         0,0,0,15,13,1,0,0,0,15,16,1,0,0,0,16,18,1,0,0,0,17,15,1,0,0,0,18,
         19,5,0,0,1,19,1,1,0,0,0,20,26,3,4,2,0,21,22,5,1,0,0,22,23,3,6,3,
@@ -656,18 +658,18 @@ export class LPCPreprocessorParser extends antlr.Parser {
         0,0,0,27,29,5,2,0,0,28,27,1,0,0,0,29,30,1,0,0,0,30,28,1,0,0,0,30,
         31,1,0,0,0,31,5,1,0,0,0,32,33,5,3,0,0,33,54,3,8,4,0,34,35,5,7,0,
         0,35,54,3,10,5,0,36,37,5,8,0,0,37,54,3,10,5,0,38,54,5,9,0,0,39,54,
-        5,13,0,0,40,41,5,11,0,0,41,54,5,27,0,0,42,43,5,12,0,0,43,54,5,27,
-        0,0,44,45,5,10,0,0,45,54,5,27,0,0,46,47,5,4,0,0,47,54,3,8,4,0,48,
-        49,5,5,0,0,49,51,5,27,0,0,50,52,3,8,4,0,51,50,1,0,0,0,51,52,1,0,
+        5,13,0,0,40,41,5,11,0,0,41,54,5,28,0,0,42,43,5,12,0,0,43,54,5,28,
+        0,0,44,45,5,10,0,0,45,54,5,28,0,0,46,47,5,4,0,0,47,54,3,8,4,0,48,
+        49,5,5,0,0,49,51,5,28,0,0,50,52,3,8,4,0,51,50,1,0,0,0,51,52,1,0,
         0,0,52,54,1,0,0,0,53,32,1,0,0,0,53,34,1,0,0,0,53,36,1,0,0,0,53,38,
         1,0,0,0,53,39,1,0,0,0,53,40,1,0,0,0,53,42,1,0,0,0,53,44,1,0,0,0,
-        53,46,1,0,0,0,53,48,1,0,0,0,54,7,1,0,0,0,55,57,5,35,0,0,56,55,1,
+        53,46,1,0,0,0,53,48,1,0,0,0,54,7,1,0,0,0,55,57,5,36,0,0,56,55,1,
         0,0,0,57,58,1,0,0,0,58,56,1,0,0,0,58,59,1,0,0,0,59,9,1,0,0,0,60,
-        61,6,5,-1,0,61,84,5,28,0,0,62,84,5,26,0,0,63,68,5,27,0,0,64,65,5,
+        61,6,5,-1,0,61,84,5,29,0,0,62,84,5,27,0,0,63,68,5,28,0,0,64,65,5,
         15,0,0,65,66,3,10,5,0,66,67,5,16,0,0,67,69,1,0,0,0,68,64,1,0,0,0,
         68,69,1,0,0,0,69,84,1,0,0,0,70,71,5,15,0,0,71,72,3,10,5,0,72,73,
         5,16,0,0,73,84,1,0,0,0,74,75,5,14,0,0,75,84,3,10,5,6,76,81,5,6,0,
-        0,77,82,5,27,0,0,78,79,5,15,0,0,79,80,5,27,0,0,80,82,5,16,0,0,81,
+        0,77,82,5,28,0,0,78,79,5,15,0,0,79,80,5,28,0,0,80,82,5,16,0,0,81,
         77,1,0,0,0,81,78,1,0,0,0,82,84,1,0,0,0,83,60,1,0,0,0,83,62,1,0,0,
         0,83,63,1,0,0,0,83,70,1,0,0,0,83,74,1,0,0,0,83,76,1,0,0,0,84,99,
         1,0,0,0,85,86,10,5,0,0,86,87,7,1,0,0,87,98,3,10,5,6,88,89,10,4,0,
@@ -1240,6 +1242,9 @@ export class PreprocessorBinaryContext extends Preprocessor_expressionContext {
     }
     public GE(): antlr.TerminalNode | null {
         return this.getToken(LPCPreprocessorParser.GE, 0);
+    }
+    public STAR(): antlr.TerminalNode | null {
+        return this.getToken(LPCPreprocessorParser.STAR, 0);
     }
     public override enterRule(listener: LPCPreprocessorParserListener): void {
         if(listener.enterPreprocessorBinary) {

@@ -351,10 +351,11 @@ lambdaOpenBracketExpression
 
 lambdaExpression
     : HASH? SINGLEQUOT fn=Identifier
-    | HASH SINGLEQUOT (WHILE) // reserved words that are specifically allowed here
+    | HASH SINGLEQUOT (WHILE|RETURN) // reserved words that are specifically allowed here
     | HASH SINGLEQUOT bracketExpression // must come before the SQUARE_OPEN in the next rule
     | HASH SINGLEQUOT lambdaOpenBracketExpression
     | HASH SINGLEQUOT op=(NOT | PLUS | MINUS | STAR | DIV | MOD | LT | GT | LE | GE | EQ | NE | AND | OR | XOR | AND_AND | OR_OR | ASSIGN | ADD_ASSIGN | SUB_ASSIGN | MUL_ASSIGN | DIV_ASSIGN | MOD_ASSIGN | AND_ASSIGN | OR_ASSIGN | BITAND_ASSIGN | BITOR_ASSIGN | XOR_ASSIGN | QUESTION | SHL | SHR | SQUARE_OPEN | COMMA)
+    | HASH SINGLEQUOT PAREN_OPEN (CURLY_OPEN|SQUARE_OPEN) // lambda collections
     | HASH SINGLEQUOT expression      
     ;
 

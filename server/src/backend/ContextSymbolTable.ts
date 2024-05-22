@@ -234,6 +234,7 @@ export class ContextSymbolTable extends SymbolTable {
             symbol = temp;
         }
 
+        symbol = symbol as BaseSymbol;
         let kind = SourceContext.getKindFromSymbol(symbol);
         const name = symbol.name;
 
@@ -370,7 +371,7 @@ export class ContextSymbolTable extends SymbolTable {
                 kind: SourceContext.getKindFromSymbol(symbol),
                 name: symbol.name,
                 source: root.owner
-                    ? `${root.owner.fileName}:${definition.range.start}`
+                    ? `${root.owner.fileName}:${definition?.range.start}`
                     : "Driver efun",
                 definition: definition,
                 description: undefined,

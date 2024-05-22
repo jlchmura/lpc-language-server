@@ -41,6 +41,8 @@ LT       : '<';
 GT       : '>';
 LE       : '<=';
 GE       : '>=';
+STAR     : '*';
+
 
 DIRECTIVE_WHITESPACES  : [ \t]+ -> channel(HIDDEN);
 DIRECTIVE_STRING       : StringFragment;
