@@ -77,9 +77,9 @@ import { PrimaryMappingExpressionContext } from "./LPCParser.js";
 import { CatchExpressionContext } from "./LPCParser.js";
 import { InheritExpressionContext } from "./LPCParser.js";
 import { CatchExprContext } from "./LPCParser.js";
+import { InlineClosureExpressionContext } from "./LPCParser.js";
 import { BracketExpressionContext } from "./LPCParser.js";
 import { LambdaOpenBracketExpressionContext } from "./LPCParser.js";
-import { InlineClosureExpressionContext } from "./LPCParser.js";
 import { LambdaExpressionContext } from "./LPCParser.js";
 import { PrimitiveTypeCastExpressionContext } from "./LPCParser.js";
 import { DeclarativeTypeCastExpressionContext } from "./LPCParser.js";
@@ -893,6 +893,16 @@ export class LPCParserListener implements ParseTreeListener {
      */
     exitCatchExpr?: (ctx: CatchExprContext) => void;
     /**
+     * Enter a parse tree produced by `LPCParser.inlineClosureExpression`.
+     * @param ctx the parse tree
+     */
+    enterInlineClosureExpression?: (ctx: InlineClosureExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.inlineClosureExpression`.
+     * @param ctx the parse tree
+     */
+    exitInlineClosureExpression?: (ctx: InlineClosureExpressionContext) => void;
+    /**
      * Enter a parse tree produced by `LPCParser.bracketExpression`.
      * @param ctx the parse tree
      */
@@ -912,16 +922,6 @@ export class LPCParserListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitLambdaOpenBracketExpression?: (ctx: LambdaOpenBracketExpressionContext) => void;
-    /**
-     * Enter a parse tree produced by `LPCParser.inlineClosureExpression`.
-     * @param ctx the parse tree
-     */
-    enterInlineClosureExpression?: (ctx: InlineClosureExpressionContext) => void;
-    /**
-     * Exit a parse tree produced by `LPCParser.inlineClosureExpression`.
-     * @param ctx the parse tree
-     */
-    exitInlineClosureExpression?: (ctx: InlineClosureExpressionContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.lambdaExpression`.
      * @param ctx the parse tree

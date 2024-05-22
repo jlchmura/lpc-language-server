@@ -176,6 +176,7 @@ efun("trim", LpcTypes.stringType, true, ["s", LpcTypes.stringType], ["where", Lp
 efun("typeof", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("throw", LpcTypes.voidType, false, ["arg", LpcTypes.mixedType]);
 efun("users", LpcTypes.objectArrayType, false);
+efun("walk_mapping", LpcTypes.voidType, true, ["map", LpcTypes.mappingType], ["fun", LpcTypes.stringType], ["ob", LpcTypes.stringType], ["extra", LpcTypes.mixedType], ["...args", LpcTypes.mixedType,true]);
 efun("widthof", LpcTypes.intType, false, ["map", LpcTypes.mappingType]);
 efun("wizlist_info", LpcTypes.mixedType, false);
 efun("write", LpcTypes.voidType, false, ["msg", LpcTypes.mixedType]);
