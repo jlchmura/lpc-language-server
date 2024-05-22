@@ -424,7 +424,10 @@ caseExpression
     : caseCondition (DOUBLEDOT caseCondition)?
     ;
 
-caseCondition: (StringLiteral|MINUS? IntegerConstant|HexIntConstant|Identifier|CharacterConstant);
+caseCondition
+    : (StringLiteral|MINUS? IntegerConstant|HexIntConstant|Identifier|CharacterConstant)
+    | PAREN_OPEN additiveExpression PAREN_CLOSE
+    ;
 
 caseStatement
     : CASE caseExpression COLON statement*
@@ -436,7 +439,7 @@ defaultStatement
 iterationStatement
     : WHILE PAREN_OPEN expression PAREN_CLOSE (statement|SEMI)                  #whileStatement
     | DO statement WHILE PAREN_OPEN expression PAREN_CLOSE SEMI                 #doWhileStatement
-    | FOR PAREN_OPEN forRangeExpression PAREN_CLOSE (statement|SEMI)            #forStatement
+    | FOR PAREN_OPEN (forRangeExpression|SEMI SEMI) PAREN_CLOSE (statement|SEMI)            #forStatement
     | FOREACH PAREN_OPEN foreachRangeExpression PAREN_CLOSE (statement|SEMI)    #forEachStatement
     ;
 
