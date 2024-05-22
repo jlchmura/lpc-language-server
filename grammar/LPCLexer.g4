@@ -100,6 +100,7 @@ QUESTION: '?';
 COLON: ':';
 SEMI: ';';
 COMMA: ',';
+TRIPPLEDOT: '...';
 DOUBLEDOT: '..';
 DOT: '.';
 SINGLEQUOT: '\'';

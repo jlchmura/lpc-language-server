@@ -174,6 +174,7 @@ efun("transfer", LpcTypes.intType, true, ["item", LpcTypes.objectType], ["dest",
 efun("transpose_array", LpcTypes.mixedArrayType, false, ["arr", LpcTypes.mixedArrayType]);
 efun("trim", LpcTypes.stringType, true, ["s", LpcTypes.stringType], ["where", LpcTypes.intType], ["ch", LpcTypes.stringType]);
 efun("typeof", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
+efun("throw", LpcTypes.voidType, false, ["arg", LpcTypes.mixedType]);
 efun("users", LpcTypes.objectArrayType, false);
 efun("widthof", LpcTypes.intType, false, ["map", LpcTypes.mappingType]);
 efun("wizlist_info", LpcTypes.mixedType, false);
