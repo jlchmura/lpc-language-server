@@ -69,8 +69,15 @@ DIRECTIVE_COMMENT       : '/*' .*? '*/'   -> channel(COMMENTS_CHANNEL), type(DIR
 DIRECTIVE_LINE_COMMENT:
     '//' ~[\r\n]* -> channel(COMMENTS_CHANNEL), type(DIRECITVE_LINE_COMMENT)
 ;
-DIRECTIVE_SLASH : '/' -> type(TEXT);
-TEXT            : ~[\r\n\\/]+;
+DIRECTIVE_SLASH : '/' ~[/*] -> type(TEXT);
+DIRECTIVE_QUOTE: '"' -> type(TEXT), pushMode(DIRECTIVE_STRING_MODE);
+TEXT            : ~[\r\n\\/"]+;
+
+mode DIRECTIVE_STRING_MODE;
+
+DIRECTIVE_STRING_ESCAPE: '\\' . -> type(TEXT);
+DIRECTIVE_STRING_QUOTE : '"'   -> type(TEXT), popMode;
+DIRECTIVE_STRING_TEXT  : ~[\r\n\\"]+ -> type(TEXT);
 
 fragment EscapeSequence:
     '\\' ('b' | 't' | 'n' | 'f' | 'r' | '"' | '\'' | '\\')

@@ -166,6 +166,6 @@ mode DEFINE_MODE;
 
 // string mode will handle escaped quotes
 mode STRING_MODE;
-    STRING_CONTENT : (~["\\\n] | '\\' .) -> more;
+    STRING_CONTENT : (~["\\\n] | '\n' | '\\' .) -> more;
     STRING_END: '"' -> mode(DEFAULT_MODE);
     

@@ -49,6 +49,7 @@ export class LPCPreprocessorParser extends antlr.Parser {
     public static readonly DIRECITVE_TEXT_NEW_LINE = 35;
     public static readonly TEXT = 36;
     public static readonly SLASH = 37;
+    public static readonly DIRECTIVE_STRING_QUOTE = 38;
     public static readonly RULE_lpcDocument = 0;
     public static readonly RULE_text = 1;
     public static readonly RULE_code = 2;
@@ -60,7 +61,8 @@ export class LPCPreprocessorParser extends antlr.Parser {
         null, "'#'", null, null, "'pragma'", null, "'defined'", "'if'", 
         "'elif'", "'else'", "'undef'", "'ifdef'", "'ifndef'", "'endif'", 
         "'!'", "'('", "')'", "'=='", "'!='", "'&&'", "'||'", "'<'", "'>'", 
-        "'<='", "'>='", "'*'"
+        "'<='", "'>='", "'*'", null, null, null, null, null, null, null, 
+        null, null, null, null, "'/'", "'\"'"
     ];
 
     public static readonly symbolicNames = [
@@ -70,7 +72,7 @@ export class LPCPreprocessorParser extends antlr.Parser {
         "LE", "GE", "STAR", "DIRECTIVE_WHITESPACES", "DIRECTIVE_STRING", 
         "CONDITIONAL_SYMBOL", "DECIMAL_LITERAL", "FLOAT", "NEW_LINE", "DIRECITVE_COMMENT", 
         "DIRECITVE_LINE_COMMENT", "DIRECITVE_NEW_LINE", "DIRECITVE_TEXT_NEW_LINE", 
-        "TEXT", "SLASH"
+        "TEXT", "SLASH", "DIRECTIVE_STRING_QUOTE"
     ];
     public static readonly ruleNames = [
         "lpcDocument", "text", "code", "directive", "directive_text", "preprocessor_expression",
@@ -666,7 +668,7 @@ export class LPCPreprocessorParser extends antlr.Parser {
     }
 
     public static readonly _serializedATN: number[] = [
-        4,1,37,106,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,1,0,5,
+        4,1,38,106,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,1,0,5,
         0,14,8,0,10,0,12,0,17,9,0,1,0,1,0,1,1,1,1,1,1,1,1,1,1,3,1,26,8,1,
         1,2,4,2,29,8,2,11,2,12,2,30,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,
         3,3,42,8,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,3,3,55,8,

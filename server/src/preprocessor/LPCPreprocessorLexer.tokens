@@ -35,7 +35,9 @@ DIRECITVE_NEW_LINE=34
 DIRECITVE_TEXT_NEW_LINE=35
 TEXT=36
 SLASH=37
+DIRECTIVE_STRING_QUOTE=38
 '#'=1
+'/'=37
 'pragma'=4
 'defined'=6
 'if'=7
@@ -57,3 +59,4 @@ SLASH=37
 '<='=23
 '>='=24
 '*'=25
+'"'=38

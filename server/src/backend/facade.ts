@@ -698,7 +698,7 @@ export class LpcFacade {
                 ) {
                     if (excludeFiles.has(filename)) {
                         console.debug(`Skipping ${filename} due to exclusion`);
-                        return;
+                        continue;
                     }
 
                     const p = new Promise((resolve, reject) => {
