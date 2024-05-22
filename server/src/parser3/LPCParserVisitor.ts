@@ -78,6 +78,7 @@ import { CatchExpressionContext } from "./LPCParser.js";
 import { InheritExpressionContext } from "./LPCParser.js";
 import { CatchExprContext } from "./LPCParser.js";
 import { BracketExpressionContext } from "./LPCParser.js";
+import { LambdaOpenBracketExpressionContext } from "./LPCParser.js";
 import { InlineClosureExpressionContext } from "./LPCParser.js";
 import { LambdaExpressionContext } from "./LPCParser.js";
 import { PrimitiveTypeCastExpressionContext } from "./LPCParser.js";
@@ -590,6 +591,12 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      * @return the visitor result
      */
     visitBracketExpression?: (ctx: BracketExpressionContext) => Result;
+    /**
+     * Visit a parse tree produced by `LPCParser.lambdaOpenBracketExpression`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitLambdaOpenBracketExpression?: (ctx: LambdaOpenBracketExpressionContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.inlineClosureExpression`.
      * @param ctx the parse tree

@@ -335,19 +335,25 @@ catchExpr
     : CATCH '(' expression (',' expression)* (';' Identifier)* ')'
     ;
 
+inlineClosureExpression
+    : PAREN_OPEN COLON (expression|statement*) COLON PAREN_CLOSE
+    ;
+    
 bracketExpression
     : SQUARE_OPEN LT? expression SQUARE_CLOSE
     | SQUARE_OPEN LT? expression? DOUBLEDOT LT? expression? SQUARE_CLOSE    
     | SQUARE_OPEN expression? (COMMA expression)* SQUARE_CLOSE
     ;
 
-inlineClosureExpression
-    : PAREN_OPEN COLON (expression|statement*) COLON PAREN_CLOSE
+lambdaOpenBracketExpression
+    : SQUARE_OPEN LT? expression 
+    | SQUARE_OPEN LT? expression? DOUBLEDOT LT? expression?     
     ;
 
 lambdaExpression
     : HASH? SINGLEQUOT Identifier
     | HASH SINGLEQUOT bracketExpression // must come before the SQUARE_OPEN in the next rule
+    | HASH SINGLEQUOT lambdaOpenBracketExpression
     | HASH SINGLEQUOT (NOT | PLUS | MINUS | STAR | DIV | MOD | LT | GT | LE | GE | EQ | NE | AND | OR | XOR | AND_AND | OR_OR | ADD_ASSIGN | SUB_ASSIGN | MUL_ASSIGN | DIV_ASSIGN | MOD_ASSIGN | AND_ASSIGN | OR_ASSIGN | BITAND_ASSIGN | BITOR_ASSIGN | XOR_ASSIGN | QUESTION | SHL | SHR | SQUARE_OPEN)
     | HASH SINGLEQUOT expression      
     ;
