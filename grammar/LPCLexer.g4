@@ -52,7 +52,7 @@ SYMBOL: 'symbol';
 SWITCH: 'switch';
 TYPEDEF: 'typedef';
 UNION: 'union';
-UNKNOWN: 'unknown';
+//UNKNOWN: 'unknown';
 UNDEF: '#undef';
 VOID: 'void';
 VOLATILE: 'volatile';

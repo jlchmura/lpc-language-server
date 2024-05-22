@@ -193,8 +193,7 @@ primitiveTypeSpecifier
     | MIXED
     | STATUS
     | CLOSURE
-    | SYMBOL    
-    | UNKNOWN
+    | SYMBOL        
     ;
 
 methodInvocation
