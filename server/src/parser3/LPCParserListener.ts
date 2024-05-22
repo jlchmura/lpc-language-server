@@ -17,10 +17,8 @@ import { DirectiveArgumentContext } from "./LPCParser.js";
 import { DirectiveDefineParamContext } from "./LPCParser.js";
 import { DirectiveDefineArgumentContext } from "./LPCParser.js";
 import { DirectiveTypeIncludeContext } from "./LPCParser.js";
+import { DirectiveGlobalFileContext } from "./LPCParser.js";
 import { DirectiveIncludeFileContext } from "./LPCParser.js";
-import { DirectiveIncludeFilenameContext } from "./LPCParser.js";
-import { DirectiveIncludeFileGlobalContext } from "./LPCParser.js";
-import { DirectiveIncludeFileLocalContext } from "./LPCParser.js";
 import { DirectiveTypePragmaContext } from "./LPCParser.js";
 import { InheritStatementContext } from "./LPCParser.js";
 import { InheritFileContext } from "./LPCParser.js";
@@ -265,6 +263,16 @@ export class LPCParserListener implements ParseTreeListener {
      */
     exitDirectiveTypeInclude?: (ctx: DirectiveTypeIncludeContext) => void;
     /**
+     * Enter a parse tree produced by `LPCParser.directiveGlobalFile`.
+     * @param ctx the parse tree
+     */
+    enterDirectiveGlobalFile?: (ctx: DirectiveGlobalFileContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.directiveGlobalFile`.
+     * @param ctx the parse tree
+     */
+    exitDirectiveGlobalFile?: (ctx: DirectiveGlobalFileContext) => void;
+    /**
      * Enter a parse tree produced by `LPCParser.directiveIncludeFile`.
      * @param ctx the parse tree
      */
@@ -274,36 +282,6 @@ export class LPCParserListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitDirectiveIncludeFile?: (ctx: DirectiveIncludeFileContext) => void;
-    /**
-     * Enter a parse tree produced by `LPCParser.directiveIncludeFilename`.
-     * @param ctx the parse tree
-     */
-    enterDirectiveIncludeFilename?: (ctx: DirectiveIncludeFilenameContext) => void;
-    /**
-     * Exit a parse tree produced by `LPCParser.directiveIncludeFilename`.
-     * @param ctx the parse tree
-     */
-    exitDirectiveIncludeFilename?: (ctx: DirectiveIncludeFilenameContext) => void;
-    /**
-     * Enter a parse tree produced by `LPCParser.directiveIncludeFileGlobal`.
-     * @param ctx the parse tree
-     */
-    enterDirectiveIncludeFileGlobal?: (ctx: DirectiveIncludeFileGlobalContext) => void;
-    /**
-     * Exit a parse tree produced by `LPCParser.directiveIncludeFileGlobal`.
-     * @param ctx the parse tree
-     */
-    exitDirectiveIncludeFileGlobal?: (ctx: DirectiveIncludeFileGlobalContext) => void;
-    /**
-     * Enter a parse tree produced by `LPCParser.directiveIncludeFileLocal`.
-     * @param ctx the parse tree
-     */
-    enterDirectiveIncludeFileLocal?: (ctx: DirectiveIncludeFileLocalContext) => void;
-    /**
-     * Exit a parse tree produced by `LPCParser.directiveIncludeFileLocal`.
-     * @param ctx the parse tree
-     */
-    exitDirectiveIncludeFileLocal?: (ctx: DirectiveIncludeFileLocalContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.directiveTypePragma`.
      * @param ctx the parse tree

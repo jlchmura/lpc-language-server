@@ -774,9 +774,7 @@ export class SourceContext {
         }
 
         switch (parent.ruleIndex) {
-            case LPCParser.RULE_directiveIncludeFilename:
-            case LPCParser.RULE_directiveIncludeFileLocal:
-            case LPCParser.RULE_directiveIncludeFileGlobal:
+            case LPCParser.RULE_directiveIncludeFile:
                 const includeSymbol = this.symbolTable.symbolContainingContext(
                     terminal
                 ) as IncludeSymbol;
@@ -798,6 +796,7 @@ export class SourceContext {
                     },
                 ];
             case LPCParser.RULE_inheritStatement:
+            case LPCParser.RULE_inheritFile:
                 const inheritSymbol = this.symbolTable.symbolContainingContext(
                     terminal
                 ) as InheritSymbol;

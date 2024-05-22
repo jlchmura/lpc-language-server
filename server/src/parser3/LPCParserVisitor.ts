@@ -17,10 +17,8 @@ import { DirectiveArgumentContext } from "./LPCParser.js";
 import { DirectiveDefineParamContext } from "./LPCParser.js";
 import { DirectiveDefineArgumentContext } from "./LPCParser.js";
 import { DirectiveTypeIncludeContext } from "./LPCParser.js";
+import { DirectiveGlobalFileContext } from "./LPCParser.js";
 import { DirectiveIncludeFileContext } from "./LPCParser.js";
-import { DirectiveIncludeFilenameContext } from "./LPCParser.js";
-import { DirectiveIncludeFileGlobalContext } from "./LPCParser.js";
-import { DirectiveIncludeFileLocalContext } from "./LPCParser.js";
 import { DirectiveTypePragmaContext } from "./LPCParser.js";
 import { InheritStatementContext } from "./LPCParser.js";
 import { InheritFileContext } from "./LPCParser.js";
@@ -212,29 +210,17 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      */
     visitDirectiveTypeInclude?: (ctx: DirectiveTypeIncludeContext) => Result;
     /**
+     * Visit a parse tree produced by `LPCParser.directiveGlobalFile`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitDirectiveGlobalFile?: (ctx: DirectiveGlobalFileContext) => Result;
+    /**
      * Visit a parse tree produced by `LPCParser.directiveIncludeFile`.
      * @param ctx the parse tree
      * @return the visitor result
      */
     visitDirectiveIncludeFile?: (ctx: DirectiveIncludeFileContext) => Result;
-    /**
-     * Visit a parse tree produced by `LPCParser.directiveIncludeFilename`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitDirectiveIncludeFilename?: (ctx: DirectiveIncludeFilenameContext) => Result;
-    /**
-     * Visit a parse tree produced by `LPCParser.directiveIncludeFileGlobal`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitDirectiveIncludeFileGlobal?: (ctx: DirectiveIncludeFileGlobalContext) => Result;
-    /**
-     * Visit a parse tree produced by `LPCParser.directiveIncludeFileLocal`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitDirectiveIncludeFileLocal?: (ctx: DirectiveIncludeFileLocalContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.directiveTypePragma`.
      * @param ctx the parse tree

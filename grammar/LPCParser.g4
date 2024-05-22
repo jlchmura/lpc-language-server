@@ -75,14 +75,13 @@ directiveDefineArgument: expression ;
 // #include <file> | #include "file"
 directiveTypeInclude: INCLUDE;
 
+directiveGlobalFile: LT Identifier (DOT Identifier)? GT;
+
 directiveIncludeFile
-    : directiveIncludeFileGlobal    //includeGlobalFile
-    | directiveIncludeFileLocal     //includeLocalFile
-    | Identifier                    //includeDefine
+    : globalFile=directiveGlobalFile
+    | localFile=StringLiteral
+    | defineFile=Identifier
     ;
-directiveIncludeFilename: Identifier (DOT Identifier)?;
-directiveIncludeFileGlobal: LT directiveIncludeFilename GT;
-directiveIncludeFileLocal: StringLiteral;
 
 directiveTypePragma: PRAGMA;
 

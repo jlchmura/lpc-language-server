@@ -16,8 +16,8 @@ export class OperatorSymbol extends ScopedSymbol implements IEvaluatableSymbol {
         const lhs = this.children[0] as IEvaluatableSymbol;
         const rhs = this.children[1] as IEvaluatableSymbol;
 
-        const lhsValue = lhs?.eval(stack);
-        const rhsValue = rhs?.eval(stack);
+        const lhsValue = lhs?.eval(stack)?.value;
+        const rhsValue = rhs?.eval(stack)?.value;
 
         switch (this.name) {
             case "+":
