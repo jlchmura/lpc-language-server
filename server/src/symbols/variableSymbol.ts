@@ -21,6 +21,7 @@ import { CallStack, StackValue } from "../backend/CallStack";
 import { Token } from "antlr4ng";
 import { LpcBaseMethodSymbol } from "./methodSymbol";
 import { DiagnosticSeverity } from "vscode-languageserver";
+import { InlineClosureSymbol } from "./closureSymbol";
 
 export class VariableSymbol
     extends TypedSymbol
@@ -86,7 +87,14 @@ export class VariableIdentifierSymbol
         const def = stack.getValue(this.name, this)
             ?.symbol as IEvaluatableSymbol;
 
-        if (!def) {
+        if (
+            !def &&
+            // exclude valid closure vars from this check
+            !(
+                this.name.startsWith("$") &&
+                this.symbolPath.some((s) => s instanceof InlineClosureSymbol)
+            )
+        ) {
             addDiagnostic(this, {
                 message: `Cannot find name '${this.name}'.`,
                 range: this.nameRange,
