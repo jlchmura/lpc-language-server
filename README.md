@@ -18,12 +18,6 @@ Currently supports [LDMud](https://www.ldmud.eu/), with [FluffOS](https://www.fl
 -   Code navigation
 -   [Include / sefun support](#includes--sefuns)
 
-### Includes / sefuns
-
-When the language server encounters an `#include`, it will search for a `sys` folder in the root of your project, as well as local folders.
-
-In addition, the language server will attempt to load a file `obj/simul_efun.c` and add it as a reference to each LPC file opened, so that the language server can validate those sefun calls.
-
 ### Intellisense
 
 LPC Language Services uses [JSDoc-style](https://www.typescriptlang.org/docs/handbook/jsdoc-supported-types.html) comments to provide IntelliSense support.
@@ -43,6 +37,8 @@ int doCommand(string cmd) {
 
 ## Setting up your workspace
 
+See `lpc-config.json`
+
 ## Grammar ToDo's
 
 -   LWObjects
@@ -53,6 +49,11 @@ int doCommand(string cmd) {
 
 Syntax highlighting is based on the [LPC Language](https://marketplace.visualstudio.com/items?itemName=undeadfish.vscode-lpc-lang) VS Code extension by Gwenn Reece, adjusted for LDMud.
 
-Original inspiration for the structure of this project came from Mike Lischke's [ANTLR4 grammar syntax support](https://marketplace.visualstudio.com/items?itemName=mike-lischke.vscode-antlr4).
+Original inspiration for the structure of this project came from Mike Lischke's [ANTLR4 grammar syntax support](https://marketplace.visualstudio.com/items?itemName=mike-lischke.vscode-antlr4). This language server would not have been possible without Mike's work on the ANTLR4-ng package.
 
 Many thanks for the fellow MUD admins, wizards, and LPC aficionados in the LPC Discord for their inspiration.
+
+## Contact / Feature Requests / Bugs
+
+Feedback welcome. You can open an issue in the [lpc-language-server repo](https://github.com/jlchmura/lpc-language-server/issues).
+Otherwise, you can usually find me on the LPC Discord or idling on [Infinity Mud](https://infinitymud.com/).
