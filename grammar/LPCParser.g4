@@ -8,38 +8,38 @@ options {
     tokenVocab = LPCLexer;
 }
 
+// Entrypoint
 program: (declaration | preprocessorDirective | inheritStatement)* EOF;
 
+// Preprocessor directives - These are mostly handled by preprocessing step
 preprocessorDirective
-    : selectionDirective    
+    : selectionPreprocessorDirective    
     | directiveTypeWithArguments directiveArgument
     | definePreprocessorDirective
-    | includeDirective
+    | includePreprocessorDirective
     | HASH directiveTypePragma Identifier (COMMA Identifier)*
     ;
 
-includeDirective
+includePreprocessorDirective
     : HASH directiveTypeInclude directiveIncludeFile
     ;
-
 
 definePreprocessorDirective
     : DEFINE END_DEFINE
     ;
 
-
-selectionDirective
-    : HASH selectionDirectiveTypeWithArg NOT? directiveArgument
+selectionPreprocessorDirective
+    : HASH selectionPreprocessorDirectiveTypeWithArg NOT? directiveArgument
     | HASH (IF|ELIF) directiveIfTestExpression
-    | HASH selectionDirectiveTypeSingle
+    | HASH selectionPreprocessorDirectiveTypeSingle
     ;
 
-selectionDirectiveTypeSingle
+selectionPreprocessorDirectiveTypeSingle
     : ELSE
     | ENDIF
     ;
 
-selectionDirectiveTypeWithArg
+selectionPreprocessorDirectiveTypeWithArg
     : IFDEF
     | IFNDEF    
     ;
@@ -215,6 +215,135 @@ typeSpecifier
     | arrayTypeSpecifier    
     ;
 
+expression
+    : assignmentExpression
+    | nonAssignmentExpression
+    ;
+
+nonAssignmentExpression
+    : inheritSuperExpression
+    | inlineClosureExpression
+    | lambdaExpression        
+    | conditionalExpression
+    ;
+
+assignmentExpression
+    : unaryExpression assignmentOperator expression
+    ;
+
+assignmentOperator
+    : ASSIGN
+    | ADD_ASSIGN
+    | SUB_ASSIGN
+    | MUL_ASSIGN
+    | DIV_ASSIGN
+    | MOD_ASSIGN
+    | AND_ASSIGN
+    | OR_ASSIGN
+    | BITAND_ASSIGN
+    | BITOR_ASSIGN
+    | XOR_ASSIGN
+    | SHL_ASSIGN
+    | rightShiftAssignment
+    ;
+
+rightShiftAssignment
+    : first = '>' second = '>=' {$first.index + 1 == $second.index}? // make sure there is nothing between the tokens
+    ;
+
+conditionalExpression
+    : conditionalTernaryExpression
+    ;
+
+conditionalTernaryExpression
+    : conditionalOrExpression (op=QUESTION expression COLON expression)?
+    ;
+
+conditionalOrExpression
+    : conditionalAndExpression (op=OR_OR conditionalAndExpression)*
+    ;
+
+conditionalAndExpression
+    : inclusiveOrExpression (op=AND_AND inclusiveOrExpression)*
+    ;
+
+inclusiveOrExpression
+    : exclusiveOrExpression (op=OR exclusiveOrExpression)*
+    ;
+
+exclusiveOrExpression
+    : andExpression (op=XOR andExpression)*
+    ;
+
+andExpression
+    : equalityExpression (op=AND equalityExpression)*
+    ;
+
+equalityExpression
+    : relationalExpression (op=(EQ | NE) relationalExpression)*
+    ;
+
+relationalExpression
+    : shiftExpression (op=(LT | GT | LE | GE) shiftExpression)*
+    ;
+
+shiftExpression
+    : additiveExpression (op=(SHL | SHR) additiveExpression)*
+    ;
+
+additiveExpression
+    : multiplicativeExpression (op=(PLUS | MINUS) multiplicativeExpression)*
+    ;
+
+multiplicativeExpression
+    : unaryOrAssignmentExpression (op=(STAR | DIV | MOD) unaryOrAssignmentExpression)*
+    ;
+
+unaryOrAssignmentExpression
+    : assignmentExpression
+    | unaryExpression
+    ;
+// rangeExpression
+//     : unaryExpression
+//     | unaryExpression? DOUBLEDOT unaryExpression?
+//     ;
+
+unaryExpression
+    : castExpression
+    | primaryExpression
+    | (PLUS|MINUS|NOT|BNOT|INC|DEC|AND|STAR) unaryExpression    
+    ;
+
+primaryExpression
+    : pe = primaryExpressionStart bracketExpression* (
+        (methodInvocation | INC | DEC | (ARROW target=callOtherTarget? invocation=methodInvocation?) | Identifier) bracketExpression*
+    )*
+    ;
+
+primaryExpressionStart
+    : StringLiteral StringLiteral*          # stringConcatExpression        
+    | literal                               # literalExpression
+    | (CloneObject|LoadObject) PAREN_OPEN (ob=expression) PAREN_CLOSE   # cloneObjectExpression 
+    | Identifier                            # identifierExpression    
+    | PAREN_OPEN expression PAREN_CLOSE     # parenExpression    
+    | arrayExpression                       # primaryArrayExpression
+    | mappingExpression                     # primaryMappingExpression    
+    | catchExpr                             # catchExpression
+    | inheritSuperExpression                # inheritExpression    
+    ;
+
+catchExpr
+    : CATCH '(' expression (',' expression)* (';' Identifier)* ')'
+    ;
+
+bracketExpression
+    : SQUARE_OPEN LT? expression SQUARE_CLOSE
+    | SQUARE_OPEN LT? expression? DOUBLEDOT LT? expression? SQUARE_CLOSE    
+    | SQUARE_OPEN expression? (COMMA expression)* SQUARE_CLOSE
+    ;
+
+
+
 inlineClosureExpression
     : PAREN_OPEN COLON (expression|statement*) COLON PAREN_CLOSE
     ;
@@ -225,8 +354,7 @@ statement
     | selectionStatement
     | iterationStatement
     | jumpStatement    
-    | variableDeclaration
-    | selectionDirective
+    | variableDeclaration    
     | returnStatement    
     | SEMI
     //| preprocessorDirective
@@ -317,49 +445,13 @@ callOtherTarget
 
 lambdaExpression
     : HASH? SINGLEQUOT Identifier
-    | HASH SINGLEQUOT (expression | NOT | PLUS | MINUS | STAR | DIV | MOD | LT | GT | LE | GE | EQ | NE | AND | OR | XOR | AND_AND | OR_OR | ADD_ASSIGN | SUB_ASSIGN | MUL_ASSIGN | DIV_ASSIGN | MOD_ASSIGN | AND_ASSIGN | OR_ASSIGN | BITAND_ASSIGN | BITOR_ASSIGN | XOR_ASSIGN | QUESTION | SHL | SHR | SQUARE_OPEN)
-    // | HASH SINGLEQUOT expression
-    // | HASH SINGLEQUOT NOT
-    // | HASH SINGLEQUOT PLUS
-    // | HASH SINGLEQUOT MINUS
-    // | HASH SINGLEQUOT STAR
-    // | HASH SINGLEQUOT DIV
-    // | HASH SINGLEQUOT MOD
-    // | HASH SINGLEQUOT LT
-    // | HASH SINGLEQUOT GT
-    // | HASH SINGLEQUOT LE
-    // | HASH SINGLEQUOT GE
-    // | HASH SINGLEQUOT EQ
-    // | HASH SINGLEQUOT NE
-    // | HASH SINGLEQUOT AND
-    // | HASH SINGLEQUOT OR
-    // | HASH SINGLEQUOT XOR
-    // | HASH SINGLEQUOT AND_AND
-    // | HASH SINGLEQUOT OR_OR
-    // | HASH SINGLEQUOT ADD_ASSIGN
-    // | HASH SINGLEQUOT SUB_ASSIGN
-    // | HASH SINGLEQUOT MUL_ASSIGN
-    // | HASH SINGLEQUOT DIV_ASSIGN
-    // | HASH SINGLEQUOT MOD_ASSIGN    
-    // | HASH SINGLEQUOT AND_ASSIGN
-    // | HASH SINGLEQUOT OR_ASSIGN
-    // | HASH SINGLEQUOT BITAND_ASSIGN
-    // | HASH SINGLEQUOT BITOR_ASSIGN
-    // | HASH SINGLEQUOT XOR_ASSIGN
-    // | HASH SINGLEQUOT QUESTION
-    // | HASH SINGLEQUOT SHL
-    // | HASH SINGLEQUOT SHR
-    // | HASH SINGLEQUOT SQUARE_OPEN    
-    ;
-
-rightShiftAssignment
-    : first = '>' second = '>=' {$first.index + 1 == $second.index}? // make sure there is nothing between the tokens
+    | HASH SINGLEQUOT (NOT | PLUS | MINUS | STAR | DIV | MOD | LT | GT | LE | GE | EQ | NE | AND | OR | XOR | AND_AND | OR_OR | ADD_ASSIGN | SUB_ASSIGN | MUL_ASSIGN | DIV_ASSIGN | MOD_ASSIGN | AND_ASSIGN | OR_ASSIGN | BITAND_ASSIGN | BITOR_ASSIGN | XOR_ASSIGN | QUESTION | SHL | SHR | SQUARE_OPEN)
+    | HASH SINGLEQUOT expression      
     ;
 
 literal
     : IntegerConstant
-    | FloatingConstant
-    //| StringLiteral
+    | FloatingConstant    
     | CharacterConstant
     | HexIntConstant
     ;
@@ -369,144 +461,6 @@ castExpression
     | PAREN_OPEN CURLY_OPEN typeSpecifier CURLY_CLOSE PAREN_CLOSE unaryExpression #declarativeTypeCastExpression
     | PAREN_OPEN LT Identifier GT unaryExpression (COMMA unaryExpression)* PAREN_CLOSE        #structCastExpression
     ;
-
-assignmentOperator
-    : ASSIGN
-    | ADD_ASSIGN
-    | SUB_ASSIGN
-    | MUL_ASSIGN
-    | DIV_ASSIGN
-    | MOD_ASSIGN
-    | AND_ASSIGN
-    | OR_ASSIGN
-    | BITAND_ASSIGN
-    | BITOR_ASSIGN
-    | XOR_ASSIGN
-    | SHL_ASSIGN
-    ;
-
-
-// JC - I original had these broken out into separate expressions, like the C# grammar
-// but I don't see why that is necesary.  It seems to just add extra nodes to the tree
-// that don't provide any benefit over labelled alternatives.
-// the individual expressions are commented out below in case they're needed in the future
-// JC - Turns out combinging these all as labelled alternative has causes a huge performance 
-//      hit. I've reverted back to the original.
-conditionalExpressionBase
-    : conditionalTernaryExpression
-    // : conditionalExpressionBase conditionalExpression
-    // | unaryExpression
-    //| assignmentExpression
-    ;  
-
-// conditionalExpression
-//     : (op=QUESTION expression COLON expression) #conditionalTernaryExpression
-//     | (op=OR_OR conditionalExpressionBase)+ #conditionalOrExpression
-//     | (op=AND_AND conditionalExpressionBase)+ #conditionalAndExpression
-//     | (op=OR conditionalExpressionBase)+ #inclusiveOrExpression
-//     | (op=XOR conditionalExpressionBase)+ #exclusiveOrExpression
-//     | (op=AND conditionalExpressionBase)+ #andExpression
-//     | (op=(EQ | NE) conditionalExpressionBase)+ #equalityExpression
-//     | (op=(LT | GT | LE | GE) conditionalExpressionBase)+ #relationalExpression
-//     | (op=(SHL | SHR) conditionalExpressionBase)+ #shiftExpression
-//     | (op=(PLUS | MINUS) conditionalExpressionBase)+ #additiveExpression
-//     | (op=(STAR | DIV | MOD) conditionalExpressionBase)+ #multiplicativeExpression        
-//     ;
-
-  
-
-conditionalTernaryExpression
-    : conditionalOrExpression (op=QUESTION expression COLON expression)?
-    ;
-
-conditionalOrExpression
-    : conditionalAndExpression (op=OR_OR conditionalAndExpression)*
-    ;
-
-conditionalAndExpression
-    : inclusiveOrExpression (op=AND_AND inclusiveOrExpression)*
-    ;
-
-inclusiveOrExpression
-    : exclusiveOrExpression (op=OR exclusiveOrExpression)*
-    ;
-
-exclusiveOrExpression
-    : andExpression (op=XOR andExpression)*
-    ;
-
-andExpression
-    : equalityExpression (op=AND equalityExpression)*
-    ;
-
-equalityExpression
-    : relationalExpression (op=(EQ | NE) relationalExpression)*
-    ;
-
-relationalExpression
-    : shiftExpression (op=(LT | GT | LE | GE) shiftExpression)*
-    ;
-
-shiftExpression
-    : additiveExpression (op=(SHL | SHR) additiveExpression)*
-    ;
-
-additiveExpression
-    : multiplicativeExpression (op=(PLUS | MINUS) multiplicativeExpression)*
-    ;
-
-multiplicativeExpression
-    : finalExpression (op=(STAR | DIV | MOD) finalExpression)*
-    ;
-
-finalExpression
-    : assignmentExpression
-    | unaryExpression
-    ;
-// rangeExpression
-//     : unaryExpression
-//     | unaryExpression? DOUBLEDOT unaryExpression?
-//     ;
-
-unaryExpression
-    : castExpression
-    | primaryExpression
-    | (PLUS|MINUS|NOT|BNOT|INC|DEC|AND|STAR) unaryExpression    
-    ;
-
-primaryExpression
-    : pe = primaryExpressionStart bracketExpression* (
-        (methodInvocation | INC | DEC | (ARROW target=callOtherTarget? invocation=methodInvocation?) | Identifier) bracketExpression*
-    )*
-    ;
-
-primaryExpressionStart
-    : StringLiteral StringLiteral*          # stringConcatExpression        
-    | literal                               # literalExpression
-    | (CloneObject|LoadObject) PAREN_OPEN (ob=expression) PAREN_CLOSE   # cloneObjectExpression 
-    | Identifier                            # identifierExpression    
-    | PAREN_OPEN expression PAREN_CLOSE     # parenExpression    
-    | arrayExpression                       # primaryArrayExpression
-    | mappingExpression                     # primaryMappingExpression    
-    | catchExpr                             # catchExpression
-    | inheritSuperExpression                # inheritExpression    
-    ;
-
-expression
-    : assignmentExpression
-    | nonAssignmentExpression
-    ;
-
-catchExpr
-    : CATCH '(' expression (',' expression)* (';' Identifier)* ')'
-    ;
-
-bracketExpression
-    : SQUARE_OPEN LT? expression SQUARE_CLOSE
-    | SQUARE_OPEN LT? expression? DOUBLEDOT LT? expression? SQUARE_CLOSE    
-    | SQUARE_OPEN expression? (COMMA expression)* SQUARE_CLOSE
-    ;
-
 
 argument
     : AND? expression
@@ -522,14 +476,3 @@ expressionList
     : expression (COMMA expression)*
     ;
 
-assignmentExpression
-    : unaryExpression assignmentOperator expression
-    ;
-
-nonAssignmentExpression
-    : inheritSuperExpression
-    | inlineClosureExpression
-    | lambdaExpression    
-    //| unaryExpression
-    | conditionalExpressionBase
-    ;

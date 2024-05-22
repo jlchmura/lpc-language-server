@@ -5,8 +5,6 @@ import { ContextSymbolTable } from "./ContextSymbolTable";
 import {
     CallOtherTargetContext,
     FunctionDeclarationContext,
-    IdentifierExpressionContext,
-    IncludeDirectiveContext,
     InheritStatementContext,
     MethodInvocationContext,
     PrimaryExpressionContext,

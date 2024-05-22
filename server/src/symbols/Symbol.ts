@@ -2,27 +2,15 @@ import {
     BaseSymbol,
     ScopedSymbol,
     MethodSymbol as BaseMethodSymbol,
-    ParameterSymbol,
     TypedSymbol,
     SymbolConstructor,
     IType,
 } from "antlr4-c3";
 import { IDiagnosticEntry, SymbolKind } from "../types";
 import * as vscodelang from "vscode-languageserver";
-import {
-    IdentifierExpressionContext,
-    IncludeDirectiveContext,
-    InheritStatementContext,
-} from "../parser3/LPCParser";
-import {
-    EvalScope,
-    IEvaluatableSymbol,
-    IFoldableSymbol,
-    IKindSymbol,
-    LpcBaseSymbol,
-    getSymbolsOfTypeSync,
-} from "./base";
-import { VariableSymbol } from "./variableSymbol";
+import { IdentifierExpressionContext } from "../parser3/LPCParser";
+import { IEvaluatableSymbol, IKindSymbol, LpcBaseSymbol } from "./base";
+
 import { ContextSymbolTable } from "../backend/ContextSymbolTable";
 import { CallStack } from "../backend/CallStack";
 import { Block } from "comment-parser";

@@ -1,11 +1,8 @@
 import * as commentParser from "comment-parser";
 import {
     AbstractParseTreeVisitor,
-    CharStream,
-    CommonTokenStream,
     ParseTree,
     ParserRuleContext,
-    TerminalNode,
     Token,
 } from "antlr4ng";
 import { LPCParserVisitor } from "../parser3/LPCParserVisitor";
@@ -42,13 +39,11 @@ import {
     FunctionHeaderDeclarationContext,
     IdentifierExpressionContext,
     IfStatementContext,
-    IncludeDirectiveContext,
+    IncludePreprocessorDirectiveContext,
     InclusiveOrExpressionContext,
     InheritStatementContext,
     InheritSuperExpressionContext,
     InlineClosureExpressionContext,
-    IterationStatementContext,
-    LPCParser,
     LambdaExpressionContext,
     LiteralContext,
     MethodInvocationContext,
@@ -60,7 +55,7 @@ import {
     PrimitiveTypeVariableDeclarationContext,
     RelationalExpressionContext,
     ReturnStatementContext,
-    SelectionDirectiveContext,
+    SelectionPreprocessorDirectiveContext,
     StringConcatExpressionContext,
     StructParameterExpressionContext,
     StructVariableDeclarationContext,
@@ -164,11 +159,13 @@ export class DetailsVisitor
         return this.visitChildren(ctx);
     };
 
-    visitSelectionDirective = (ctx: SelectionDirectiveContext) => {
+    visitSelectionPreprocessorDirective = (
+        ctx: SelectionPreprocessorDirectiveContext
+    ) => {
         const tokenIdx = ctx.start.tokenIndex;
         const label =
-            ctx.selectionDirectiveTypeSingle()?.getText() ||
-            ctx.selectionDirectiveTypeWithArg()?.getText();
+            ctx.selectionPreprocessorDirectiveTypeSingle()?.getText() ||
+            ctx.selectionPreprocessorDirectiveTypeWithArg()?.getText();
         const name = label + "_" + tokenIdx;
 
         if (!!name) {
@@ -524,7 +521,9 @@ export class DetailsVisitor
         return undefined;
     };
 
-    visitIncludeDirective = (ctx: IncludeDirectiveContext) => {
+    visitIncludePreprocessorDirective = (
+        ctx: IncludePreprocessorDirectiveContext
+    ) => {
         let filename = ctx.directiveIncludeFile().getText();
 
         const symbol = this.addNewSymbol(IncludeSymbol, ctx, filename);
@@ -900,11 +899,7 @@ export class DetailsVisitor
         } else if (!!ctx.FloatingConstant()) {
             this.addNewSymbol(LiteralSymbol, ctx, "float", FundamentalType.floatType, +ctx.FloatingConstant().getText());
             this.markToken(ctx.FloatingConstant()?.symbol, SemanticTokenTypes.Number);
-        } 
-        // else if (!!ctx.StringLiteral()) {
-        //     this.addNewSymbol(LiteralSymbol, ctx, "string", FundamentalType.stringType, trimQuotes(ctx.StringLiteral().getText()));
-        //     this.markToken(ctx.StringLiteral()?.symbol, SemanticTokenTypes.String);
-        // }
+        }       
         
         return undefined;
     };

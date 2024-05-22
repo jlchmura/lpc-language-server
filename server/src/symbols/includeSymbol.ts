@@ -1,16 +1,16 @@
 import { DiagnosticSeverity } from "vscode-languageserver";
 import { CallStack } from "../backend/CallStack";
 import { ContextSymbolTable } from "../backend/ContextSymbolTable";
-import { SourceContext } from "../backend/SourceContext";
-import { IncludeDirectiveContext } from "../parser3/LPCParser";
+
 import { SymbolKind } from "../types";
-import { normalizeFilename, rangeFromTokens, testFilename } from "../utils";
+import { rangeFromTokens } from "../utils";
 import { addDiagnostic } from "./Symbol";
 import { IEvaluatableSymbol, LpcBaseSymbol } from "./base";
 import { ParserRuleContext } from "antlr4ng";
+import { IncludePreprocessorDirectiveContext } from "../parser3/LPCParser";
 
 export class IncludeSymbol
-    extends LpcBaseSymbol<IncludeDirectiveContext>
+    extends LpcBaseSymbol<IncludePreprocessorDirectiveContext>
     implements IEvaluatableSymbol
 {
     public isLoaded = false;
