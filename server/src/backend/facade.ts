@@ -668,7 +668,11 @@ export class LpcFacade {
                 : [];
 
         const excludeFiles = new Set(
-            globExcludes.map((f) => path.join(this.workspaceDir, f))
+            globExcludes.map((f) =>
+                f.startsWith(this.workspaceDir)
+                    ? f
+                    : path.join(this.workspaceDir, f)
+            )
         );
 
         console.debug(`Excluding files:`, excludeFiles);
