@@ -28,7 +28,6 @@ import {
     CallOtherTargetContext,
     CloneObjectExpressionContext,
     ConditionalAndExpressionContext,
-    ConditionalExpressionContext,
     ConditionalOrExpressionContext,
     ConditionalTernaryExpressionContext,
     DefinePreprocessorDirectiveContext,
@@ -756,7 +755,8 @@ export class DetailsVisitor
 
     visitAssignmentExpression = (ctx: AssignmentExpressionContext) => {
         //const lhsCtx = ctx.conditionalExpressionBase();
-        const rhsCtx = ctx.expression();
+        //const rhsCtx = ctx.expression();
+
         const op = ctx.assignmentOperator().getText();
         if (op && ctx.children.length >= 2) {
             return this.withScope(
@@ -806,24 +806,28 @@ export class DetailsVisitor
                 }
             );
         }
+
+        return this.visitChildren(ctx);
     };
 
     visitAdditiveExpression = (ctx: AdditiveExpressionContext) => {
-        const operator = ctx._op.text;
+        const operator = ctx._op?.text;
         if (operator) {
             return this.withScope(ctx, OperatorSymbol, [operator], (s) => {
                 return this.visitChildren(ctx);
             });
         }
+        return this.visitChildren(ctx);
     };
 
     visitMultiplicativeExpression = (ctx: MultiplicativeExpressionContext) => {
-        const operator = ctx._op.text;
+        const operator = ctx._op?.text;
         if (operator) {
             return this.withScope(ctx, OperatorSymbol, [operator], (s) => {
                 return this.visitChildren(ctx);
             });
         }
+        return this.visitChildren(ctx);
     };
 
     parseConditionalSymbol(ctx: ParserRuleContext, operator: string) {
@@ -832,6 +836,7 @@ export class DetailsVisitor
                 return this.visitChildren(ctx);
             });
         }
+        return this.visitChildren(ctx);
     }
 
     parseIterationStatement(
@@ -891,14 +896,15 @@ export class DetailsVisitor
     visitLiteral = (ctx: LiteralContext) => {
         if (!!ctx.IntegerConstant()) {
             this.addNewSymbol(LiteralSymbol, ctx, "int", FundamentalType.integerType, +ctx.IntegerConstant().getText());
-            this.markToken(ctx.StringLiteral()?.symbol, SemanticTokenTypes.Number);
+            this.markToken(ctx.IntegerConstant()?.symbol, SemanticTokenTypes.Number);
         } else if (!!ctx.FloatingConstant()) {
             this.addNewSymbol(LiteralSymbol, ctx, "float", FundamentalType.floatType, +ctx.FloatingConstant().getText());
-            this.markToken(ctx.StringLiteral()?.symbol, SemanticTokenTypes.Number);
-        } else if (!!ctx.StringLiteral()) {
-            this.addNewSymbol(LiteralSymbol, ctx, "string", FundamentalType.stringType, trimQuotes(ctx.StringLiteral().getText()));
-            this.markToken(ctx.StringLiteral()?.symbol, SemanticTokenTypes.String);
-        }
+            this.markToken(ctx.FloatingConstant()?.symbol, SemanticTokenTypes.Number);
+        } 
+        // else if (!!ctx.StringLiteral()) {
+        //     this.addNewSymbol(LiteralSymbol, ctx, "string", FundamentalType.stringType, trimQuotes(ctx.StringLiteral().getText()));
+        //     this.markToken(ctx.StringLiteral()?.symbol, SemanticTokenTypes.String);
+        // }
         
         return undefined;
     };

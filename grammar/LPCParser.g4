@@ -249,6 +249,7 @@ elseIfExpression
 elseExpression
     : ELSE statement
     ;
+    
 ifExpression
     : IF PAREN_OPEN expression PAREN_CLOSE (statement | SEMI)
     ;
@@ -364,9 +365,9 @@ literal
     ;
 
 castExpression
-    : PAREN_OPEN typeSpecifier PAREN_CLOSE expression                        #primitiveTypeCastExpression
-    | PAREN_OPEN CURLY_OPEN typeSpecifier CURLY_CLOSE PAREN_CLOSE expression #declarativeTypeCastExpression
-    | PAREN_OPEN LT Identifier GT expression (COMMA expression)* PAREN_CLOSE #structCastExpression
+    : PAREN_OPEN typeSpecifier PAREN_CLOSE unaryExpression                        #primitiveTypeCastExpression
+    | PAREN_OPEN CURLY_OPEN typeSpecifier CURLY_CLOSE PAREN_CLOSE unaryExpression #declarativeTypeCastExpression
+    | PAREN_OPEN LT Identifier GT unaryExpression (COMMA unaryExpression)* PAREN_CLOSE        #structCastExpression
     ;
 
 assignmentOperator
@@ -392,70 +393,76 @@ assignmentOperator
 // JC - Turns out combinging these all as labelled alternative has causes a huge performance 
 //      hit. I've reverted back to the original.
 conditionalExpressionBase
-    : conditionalExpressionBase conditionalExpression
-    | unaryExpression
+    : conditionalTernaryExpression
+    // : conditionalExpressionBase conditionalExpression
+    // | unaryExpression
+    //| assignmentExpression
     ;  
 
-conditionalExpression
-    : (op=QUESTION expression COLON expression) #conditionalTernaryExpression
-    | (op=OR_OR conditionalExpressionBase) #conditionalOrExpression
-    | (op=AND_AND conditionalExpressionBase) #conditionalAndExpression
-    | (op=OR conditionalExpressionBase) #inclusiveOrExpression
-    | (op=XOR conditionalExpressionBase) #exclusiveOrExpression
-    | (op=AND conditionalExpressionBase) #andExpression
-    | (op=(EQ | NE) conditionalExpressionBase) #equalityExpression
-    | (op=(LT | GT | LE | GE) conditionalExpressionBase) #relationalExpression
-    | (op=(SHL | SHR) conditionalExpressionBase) #shiftExpression
-    | (op=(PLUS | MINUS) conditionalExpressionBase) #additiveExpression
-    | (op=(STAR | DIV | MOD) conditionalExpressionBase) #multiplicativeExpression        
-    ;
+// conditionalExpression
+//     : (op=QUESTION expression COLON expression) #conditionalTernaryExpression
+//     | (op=OR_OR conditionalExpressionBase)+ #conditionalOrExpression
+//     | (op=AND_AND conditionalExpressionBase)+ #conditionalAndExpression
+//     | (op=OR conditionalExpressionBase)+ #inclusiveOrExpression
+//     | (op=XOR conditionalExpressionBase)+ #exclusiveOrExpression
+//     | (op=AND conditionalExpressionBase)+ #andExpression
+//     | (op=(EQ | NE) conditionalExpressionBase)+ #equalityExpression
+//     | (op=(LT | GT | LE | GE) conditionalExpressionBase)+ #relationalExpression
+//     | (op=(SHL | SHR) conditionalExpressionBase)+ #shiftExpression
+//     | (op=(PLUS | MINUS) conditionalExpressionBase)+ #additiveExpression
+//     | (op=(STAR | DIV | MOD) conditionalExpressionBase)+ #multiplicativeExpression        
+//     ;
 
   
 
-// conditionalExpression
-//     : conditionalOrExpression (op=QUESTION expression COLON expression)?
-//     ;
+conditionalTernaryExpression
+    : conditionalOrExpression (op=QUESTION expression COLON expression)?
+    ;
 
-// conditionalOrExpression
-//     : conditionalAndExpression (op=OR_OR conditionalAndExpression)*
-//     ;
+conditionalOrExpression
+    : conditionalAndExpression (op=OR_OR conditionalAndExpression)*
+    ;
 
-// conditionalAndExpression
-//     : inclusiveOrExpression (op=AND_AND inclusiveOrExpression)*
-//     ;
+conditionalAndExpression
+    : inclusiveOrExpression (op=AND_AND inclusiveOrExpression)*
+    ;
 
-// inclusiveOrExpression
-//     : exclusiveOrExpression (op=OR exclusiveOrExpression)*
-//     ;
+inclusiveOrExpression
+    : exclusiveOrExpression (op=OR exclusiveOrExpression)*
+    ;
 
-// exclusiveOrExpression
-//     : andExpression (op=XOR andExpression)*
-//     ;
+exclusiveOrExpression
+    : andExpression (op=XOR andExpression)*
+    ;
 
-// andExpression
-//     : equalityExpression (op=AND equalityExpression)*
-//     ;
+andExpression
+    : equalityExpression (op=AND equalityExpression)*
+    ;
 
-// equalityExpression
-//     : relationalExpression (op=(EQ | NE) relationalExpression)*
-//     ;
+equalityExpression
+    : relationalExpression (op=(EQ | NE) relationalExpression)*
+    ;
 
-// relationalExpression
-//     : shiftExpression (op=(LT | GT | LE | GE) shiftExpression)*
-//     ;
+relationalExpression
+    : shiftExpression (op=(LT | GT | LE | GE) shiftExpression)*
+    ;
 
-// shiftExpression
-//     : additiveExpression (op=(SHL | SHR) additiveExpression)*
-//     ;
+shiftExpression
+    : additiveExpression (op=(SHL | SHR) additiveExpression)*
+    ;
 
-// additiveExpression
-//     : multiplicativeExpression (op=(PLUS | MINUS) multiplicativeExpression)*
-//     ;
+additiveExpression
+    : multiplicativeExpression (op=(PLUS | MINUS) multiplicativeExpression)*
+    ;
 
-// multiplicativeExpression
-//     : unaryExpression (op=(STAR | DIV | MOD) unaryExpression)*    
-//     ;
+multiplicativeExpression
+    : finalExpression (op=(STAR | DIV | MOD) finalExpression)*
+    ;
 
+finalExpression
+    : assignmentExpression
+    | unaryExpression
+    ;
 // rangeExpression
 //     : unaryExpression
 //     | unaryExpression? DOUBLEDOT unaryExpression?
@@ -464,7 +471,7 @@ conditionalExpression
 unaryExpression
     : castExpression
     | primaryExpression
-    | (PLUS|MINUS|NOT|BNOT|INC|DEC|AND|STAR) expression
+    | (PLUS|MINUS|NOT|BNOT|INC|DEC|AND|STAR) unaryExpression    
     ;
 
 primaryExpression
@@ -482,7 +489,7 @@ primaryExpressionStart
     | arrayExpression                       # primaryArrayExpression
     | mappingExpression                     # primaryMappingExpression    
     | catchExpr                             # catchExpression
-    | inheritSuperExpression                # inheritExpression
+    | inheritSuperExpression                # inheritExpression    
     ;
 
 expression
@@ -516,7 +523,7 @@ expressionList
     ;
 
 assignmentExpression
-    : conditionalExpressionBase assignmentOperator expression
+    : unaryExpression assignmentOperator expression
     ;
 
 nonAssignmentExpression
@@ -524,5 +531,5 @@ nonAssignmentExpression
     | inlineClosureExpression
     | lambdaExpression    
     //| unaryExpression
-    | conditionalExpressionBase    
+    | conditionalExpressionBase
     ;
