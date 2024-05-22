@@ -24,8 +24,8 @@ directive
     | ELIF preprocessor_expression              # preprocessorConditional
     | ELSE                                      # preprocessorConditionalElse
     | ENDIF preprocessor_expression?            # preprocessorConditionalEnd
-    | IFDEF CONDITIONAL_SYMBOL                  # preprocessorConditionalDef
-    | IFNDEF CONDITIONAL_SYMBOL                 # preprocessorConditionalDef
+    | IFDEF (CONDITIONAL_SYMBOL|DECIMAL_LITERAL)                  # preprocessorConditionalDef
+    | IFNDEF (CONDITIONAL_SYMBOL|DECIMAL_LITERAL)                 # preprocessorConditionalDef
     | UNDEF CONDITIONAL_SYMBOL                  # preprocessorUndef
     | PRAGMA directive_text                     # preprocessorPragma
     | DEFINE CONDITIONAL_SYMBOL directive_text? # preprocessorDefine
