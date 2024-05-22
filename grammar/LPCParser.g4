@@ -344,19 +344,21 @@ bracketExpression
     | SQUARE_OPEN expression? (COMMA expression)* SQUARE_CLOSE
     ;
 
-lambdaOpenBracketExpression
-    : SQUARE_OPEN LT? expression 
-    | SQUARE_OPEN LT? expression? DOUBLEDOT LT? expression?     
+lambdaArrayIndexor
+    : SQUARE_OPEN LT DOUBLEDOT? LT?
+    | SQUARE_OPEN DOUBLEDOT LT?
     ;
 
 lambdaExpression
     : HASH? SINGLEQUOT fn=Identifier
-    | HASH SINGLEQUOT (WHILE|RETURN) // reserved words that are specifically allowed here
-    | HASH SINGLEQUOT bracketExpression // must come before the SQUARE_OPEN in the next rule
-    | HASH SINGLEQUOT lambdaOpenBracketExpression
-    | HASH SINGLEQUOT op=(NOT | PLUS | MINUS | STAR | DIV | MOD | LT | GT | LE | GE | EQ | NE | AND | OR | XOR | AND_AND | OR_OR | ASSIGN | ADD_ASSIGN | SUB_ASSIGN | MUL_ASSIGN | DIV_ASSIGN | MOD_ASSIGN | AND_ASSIGN | OR_ASSIGN | BITAND_ASSIGN | BITOR_ASSIGN | XOR_ASSIGN | QUESTION | SHL | SHR | SQUARE_OPEN | COMMA)
-    | HASH SINGLEQUOT PAREN_OPEN (CURLY_OPEN|SQUARE_OPEN) // lambda collections
-    | HASH SINGLEQUOT expression      
+    | HASH SINGLEQUOT (
+        (WHILE|RETURN) // reserved words that are specifically allowed here
+        | (bracketExpression) // must come before the SQUARE_OPEN in the next rule
+        | (lambdaArrayIndexor)
+        | (op=(NOT | PLUS | MINUS | STAR | DIV | MOD | LT | GT | LE | GE | EQ | NE | AND | OR | XOR | AND_AND | OR_OR | ASSIGN | ADD_ASSIGN | SUB_ASSIGN | MUL_ASSIGN | DIV_ASSIGN | MOD_ASSIGN | AND_ASSIGN | OR_ASSIGN | BITAND_ASSIGN | BITOR_ASSIGN | XOR_ASSIGN | QUESTION | SHL | SHR | SQUARE_OPEN | COMMA))
+        | (PAREN_OPEN (CURLY_OPEN|SQUARE_OPEN)) // lambda collections
+        | (expression      )
+    )
     ;
 
 castExpression

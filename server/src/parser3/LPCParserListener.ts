@@ -79,7 +79,7 @@ import { InheritExpressionContext } from "./LPCParser.js";
 import { CatchExprContext } from "./LPCParser.js";
 import { InlineClosureExpressionContext } from "./LPCParser.js";
 import { BracketExpressionContext } from "./LPCParser.js";
-import { LambdaOpenBracketExpressionContext } from "./LPCParser.js";
+import { LambdaArrayIndexorContext } from "./LPCParser.js";
 import { LambdaExpressionContext } from "./LPCParser.js";
 import { PrimitiveTypeCastExpressionContext } from "./LPCParser.js";
 import { DeclarativeTypeCastExpressionContext } from "./LPCParser.js";
@@ -913,15 +913,15 @@ export class LPCParserListener implements ParseTreeListener {
      */
     exitBracketExpression?: (ctx: BracketExpressionContext) => void;
     /**
-     * Enter a parse tree produced by `LPCParser.lambdaOpenBracketExpression`.
+     * Enter a parse tree produced by `LPCParser.lambdaArrayIndexor`.
      * @param ctx the parse tree
      */
-    enterLambdaOpenBracketExpression?: (ctx: LambdaOpenBracketExpressionContext) => void;
+    enterLambdaArrayIndexor?: (ctx: LambdaArrayIndexorContext) => void;
     /**
-     * Exit a parse tree produced by `LPCParser.lambdaOpenBracketExpression`.
+     * Exit a parse tree produced by `LPCParser.lambdaArrayIndexor`.
      * @param ctx the parse tree
      */
-    exitLambdaOpenBracketExpression?: (ctx: LambdaOpenBracketExpressionContext) => void;
+    exitLambdaArrayIndexor?: (ctx: LambdaArrayIndexorContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.lambdaExpression`.
      * @param ctx the parse tree
