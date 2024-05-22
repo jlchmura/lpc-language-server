@@ -519,7 +519,16 @@ export class SourceContext {
         if (force) this.semanticAnalysisDone = false;
         this.runSemanticAnalysisIfNeeded();
 
-        return [...this.diagnostics];
+        return this.diagnostics.map((d) => {
+            d.range = this.sourceMap.getSourceRange(d.range);
+
+            if (!!d.related?.range)
+                d.related.range = this.sourceMap.getSourceRange(
+                    d.related.range
+                );
+
+            return d;
+        });
     }
 
     public listTopLevelSymbols(includeDependencies: boolean): ISymbolInfo[] {
