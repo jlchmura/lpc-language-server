@@ -455,12 +455,12 @@ defaultStatement
 iterationStatement
     : WHILE PAREN_OPEN expression PAREN_CLOSE (statement|SEMI)                  #whileStatement
     | DO statement WHILE PAREN_OPEN expression PAREN_CLOSE SEMI                 #doWhileStatement
-    | FOR PAREN_OPEN (forRangeExpression|SEMI SEMI) PAREN_CLOSE (statement|SEMI)            #forStatement
+    | FOR PAREN_OPEN (forRangeExpression) PAREN_CLOSE (statement|SEMI)            #forStatement
     | FOREACH PAREN_OPEN foreachRangeExpression PAREN_CLOSE (statement|SEMI)    #forEachStatement
     ;
 
 forRangeExpression
-    : forVariable (COMMA forVariable)* SEMI expression? SEMI expression? (COMMA expression)*
+    : (forVariable (COMMA forVariable)*)? SEMI expression? SEMI expression? (COMMA expression)*
     ;
 
 foreachRangeExpression
