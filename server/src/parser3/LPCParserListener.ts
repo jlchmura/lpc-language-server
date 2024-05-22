@@ -44,6 +44,7 @@ import { VariableDeclaratorContext } from "./LPCParser.js";
 import { VariableInitializerContext } from "./LPCParser.js";
 import { PrimitiveTypeSpecifierContext } from "./LPCParser.js";
 import { MethodInvocationContext } from "./LPCParser.js";
+import { StructTypeSpecifierContext } from "./LPCParser.js";
 import { TypeSpecifierContext } from "./LPCParser.js";
 import { ExpressionContext } from "./LPCParser.js";
 import { NonAssignmentExpressionContext } from "./LPCParser.js";
@@ -69,6 +70,7 @@ import { StringConcatExpressionContext } from "./LPCParser.js";
 import { LiteralExpressionContext } from "./LPCParser.js";
 import { CloneObjectExpressionContext } from "./LPCParser.js";
 import { IdentifierExpressionContext } from "./LPCParser.js";
+import { StructInitializerExpressionContext } from "./LPCParser.js";
 import { ParenExpressionContext } from "./LPCParser.js";
 import { PrimaryArrayExpressionContext } from "./LPCParser.js";
 import { PrimaryMappingExpressionContext } from "./LPCParser.js";
@@ -540,6 +542,16 @@ export class LPCParserListener implements ParseTreeListener {
      */
     exitMethodInvocation?: (ctx: MethodInvocationContext) => void;
     /**
+     * Enter a parse tree produced by `LPCParser.structTypeSpecifier`.
+     * @param ctx the parse tree
+     */
+    enterStructTypeSpecifier?: (ctx: StructTypeSpecifierContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.structTypeSpecifier`.
+     * @param ctx the parse tree
+     */
+    exitStructTypeSpecifier?: (ctx: StructTypeSpecifierContext) => void;
+    /**
      * Enter a parse tree produced by `LPCParser.typeSpecifier`.
      * @param ctx the parse tree
      */
@@ -797,6 +809,18 @@ export class LPCParserListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitIdentifierExpression?: (ctx: IdentifierExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by the `structInitializerExpression`
+     * labeled alternative in `LPCParser.primaryExpressionStart`.
+     * @param ctx the parse tree
+     */
+    enterStructInitializerExpression?: (ctx: StructInitializerExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by the `structInitializerExpression`
+     * labeled alternative in `LPCParser.primaryExpressionStart`.
+     * @param ctx the parse tree
+     */
+    exitStructInitializerExpression?: (ctx: StructInitializerExpressionContext) => void;
     /**
      * Enter a parse tree produced by the `parenExpression`
      * labeled alternative in `LPCParser.primaryExpressionStart`.

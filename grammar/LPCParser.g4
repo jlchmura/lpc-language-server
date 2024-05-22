@@ -201,9 +201,14 @@ methodInvocation
     : PAREN_OPEN argumentList? PAREN_CLOSE
     ;
 
+structTypeSpecifier
+    : STRUCT Identifier
+    ;
+
 typeSpecifier
     : primitiveTypeSpecifier
-    | arrayTypeSpecifier    
+    | arrayTypeSpecifier        
+    | structTypeSpecifier
     ;
 
 // Expressions:
@@ -318,6 +323,7 @@ primaryExpressionStart
     | literal                               # literalExpression
     | (CloneObject|LoadObject) PAREN_OPEN (ob=expression) PAREN_CLOSE   # cloneObjectExpression 
     | Identifier                            # identifierExpression    
+    | PAREN_OPEN LT structName=Identifier GT expression (',' expression)* PAREN_CLOSE # structInitializerExpression
     | PAREN_OPEN expression PAREN_CLOSE     # parenExpression    
     | arrayExpression                       # primaryArrayExpression
     | mappingExpression                     # primaryMappingExpression    

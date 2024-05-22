@@ -44,6 +44,7 @@ import { VariableDeclaratorContext } from "./LPCParser.js";
 import { VariableInitializerContext } from "./LPCParser.js";
 import { PrimitiveTypeSpecifierContext } from "./LPCParser.js";
 import { MethodInvocationContext } from "./LPCParser.js";
+import { StructTypeSpecifierContext } from "./LPCParser.js";
 import { TypeSpecifierContext } from "./LPCParser.js";
 import { ExpressionContext } from "./LPCParser.js";
 import { NonAssignmentExpressionContext } from "./LPCParser.js";
@@ -69,6 +70,7 @@ import { StringConcatExpressionContext } from "./LPCParser.js";
 import { LiteralExpressionContext } from "./LPCParser.js";
 import { CloneObjectExpressionContext } from "./LPCParser.js";
 import { IdentifierExpressionContext } from "./LPCParser.js";
+import { StructInitializerExpressionContext } from "./LPCParser.js";
 import { ParenExpressionContext } from "./LPCParser.js";
 import { PrimaryArrayExpressionContext } from "./LPCParser.js";
 import { PrimaryMappingExpressionContext } from "./LPCParser.js";
@@ -375,6 +377,12 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      */
     visitMethodInvocation?: (ctx: MethodInvocationContext) => Result;
     /**
+     * Visit a parse tree produced by `LPCParser.structTypeSpecifier`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitStructTypeSpecifier?: (ctx: StructTypeSpecifierContext) => Result;
+    /**
      * Visit a parse tree produced by `LPCParser.typeSpecifier`.
      * @param ctx the parse tree
      * @return the visitor result
@@ -528,6 +536,13 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      * @return the visitor result
      */
     visitIdentifierExpression?: (ctx: IdentifierExpressionContext) => Result;
+    /**
+     * Visit a parse tree produced by the `structInitializerExpression`
+     * labeled alternative in `LPCParser.primaryExpressionStart`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitStructInitializerExpression?: (ctx: StructInitializerExpressionContext) => Result;
     /**
      * Visit a parse tree produced by the `parenExpression`
      * labeled alternative in `LPCParser.primaryExpressionStart`.
