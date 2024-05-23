@@ -343,6 +343,21 @@ export class SourceContext {
         // run the preprocessor. This will load #includes and replace macros
         this.preProcess();
 
+        // get the dir of this file relative to project root
+        const relativeDir = path.relative(
+            this.backend.workspaceDir,
+            this.fileName
+        );
+        const fileDir = path.dirname(relativeDir);
+        this.macroTable.set("__DIR__", {
+            value: `"/${fileDir}/"`,
+            name: "__DIR__",
+            start: { column: 0, row: 1 },
+            end: { column: 0, row: 1 },
+            annotation: " [[@__DIR__]]",
+            filename: this.fileName,
+        });
+
         // process macros
         const macroProcessor = new MacroProcessor(
             this.macroTable,

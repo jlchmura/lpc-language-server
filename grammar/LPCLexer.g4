@@ -32,7 +32,6 @@ FOR: 'for';
 FOREACH: 'foreach';
 FUNCTIONS: 'functions';
 FUNCTION: 'function';
-GOTO: 'goto';
 HASH: '#';
 IF: 'if';
 IFDEF: 'ifdef';
@@ -145,7 +144,7 @@ IntegerConstant: [0-9]+;
 FloatingConstant: [0-9]* '.' [0-9]+ ([eE] [+-]? [0-9]+)? ;
 HexIntConstant: '0' [xX] HexDigit+;
 STRING_START: '"' -> mode(STRING_MODE);
-StringLiteral: STRING_START STRING_CONTENT* STRING_END;
+StringLiteral: 'b'? STRING_START STRING_CONTENT* STRING_END;
 CharacterConstant: '\'' (~['\r\n\\] | '\\' .) '\'';
 
 // efuns that need special handling
@@ -153,7 +152,7 @@ CloneObject: 'clone_object';
 LoadObject: 'load_object';
 
 // Identifiers
-Identifier: [$a-zA-Z_] [a-zA-Z_0-9]*;
+Identifier: ([$a-zA-Z_] [a-zA-Z_0-9]*);
 
 
 // Whitespace and comments

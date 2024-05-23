@@ -129,7 +129,7 @@ declaration
     : functionHeaderDeclaration
     | functionDeclaration
     | structDeclaration
-    | variableDeclaration    
+    | variableDeclarationStatement
     ;
 
 
@@ -160,11 +160,12 @@ functionDeclaration
 
 parameterList
     : parameter (COMMA parameter)*
+    | VOID
     ;
 
 parameter
-    : VARARGS? paramType=unionableTypeSpecifier? paramName=Identifier #primitiveTypeParameterExpression    
-    | paramType=STRUCT structName=Identifier STAR? paramName=Identifier #structParameterExpression
+    : VARARGS? paramType=unionableTypeSpecifier? paramName=validIdentifiers (ASSIGN expression)? #primitiveTypeParameterExpression    
+    | paramType=STRUCT structName=Identifier STAR? paramName=validIdentifiers #structParameterExpression
     ;
 
 structDeclaration
@@ -172,7 +173,7 @@ structDeclaration
     ;
 
 structMemberDeclaration
-    : unionableTypeSpecifier Identifier SEMI
+    : typeSpecifier Identifier SEMI
     ;
 
 structMemberInitializer
@@ -182,6 +183,7 @@ structMemberInitializer
 
 variableModifier
     : STATIC
+    | DEPRECATED
     | PRIVATE
     | PROTECTED
     | PUBLIC
@@ -189,9 +191,13 @@ variableModifier
     | NOSAVE
     ;
 
+variableDeclarationStatement
+    : variableDeclaration SEMI
+    ;
+
 variableDeclaration
-    : variableModifier* unionableTypeSpecifier? objectName=StringLiteral? variableDeclaratorExpression (COMMA variableDeclaratorExpression)* SEMI #primitiveTypeVariableDeclaration
-    | variableModifier* STRUCT structName=Identifier variableDeclaratorExpression (COMMA structName=Identifier? variableDeclaratorExpression)* SEMI #structVariableDeclaration
+    : variableModifier* unionableTypeSpecifier? objectName=StringLiteral? variableDeclaratorExpression (COMMA variableDeclaratorExpression)* #primitiveTypeVariableDeclaration
+    | variableModifier* STRUCT structName=Identifier variableDeclaratorExpression (COMMA structName=Identifier? variableDeclaratorExpression)* #structVariableDeclaration
     ;
 
 variableDeclaratorExpression
@@ -233,13 +239,13 @@ structTypeSpecifier
     ;
 
 typeSpecifier
-    : unionableTypeSpecifier
-    | structTypeSpecifier
+    : unionableTypeSpecifier    
     ;
 
 unionableTypeSpecifier
     : primitiveTypeSpecifier STAR? (OR unionableTypeSpecifier)*
     | LT typeSpecifier GT STAR? (OR unionableTypeSpecifier)*    
+    | structTypeSpecifier (OR unionableTypeSpecifier)*
     ;
 
 // Arrays & Mappings
@@ -265,15 +271,21 @@ expression
     | nonAssignmentExpression
     ;
 
+commaExpression
+    : expression (COMMA expression)?
+    | PAREN_OPEN commaExpression PAREN_CLOSE
+    ;
+
 nonAssignmentExpression
     : inheritSuperExpression
     | inlineClosureExpression
-    | lambdaExpression        
-    | conditionalExpression    
+    | lambdaExpression
+    | conditionalExpression
+    | variableDeclaration
     ;
 
 assignmentExpression
-    : unaryExpression assignmentOperator expression
+    : unaryExpression assignmentOperator commaExpression
     ;
 
 assignmentOperator
@@ -301,7 +313,7 @@ conditionalExpression
     ;
 
 conditionalTernaryExpression
-    : conditionalOrExpression (op=QUESTION expression COLON expression)?
+    : conditionalOrExpression (op=QUESTION commaExpression COLON commaExpression)?
     ;
 
 conditionalOrExpression
@@ -325,7 +337,7 @@ andExpression
     ;
 
 equalityExpression
-    : relationalExpression (op=(EQ | NE) relationalExpression)*
+    : relationalExpression (op=(EQ | NE | IN) relationalExpression)*
     ;
 
 relationalExpression
@@ -341,13 +353,13 @@ additiveExpression
     ;
 
 multiplicativeExpression
-    : commaExpression (op=(STAR | DIV | MOD) commaExpression)*
+    : unaryOrAssignmentExpression (op=(STAR | DIV | MOD) unaryOrAssignmentExpression)*
     ;
 
-// the c-style comma operator. yuk
-commaExpression
-    : unaryOrAssignmentExpression (op=COMMA unaryOrAssignmentExpression)?
-    ;
+// // the c-style comma operator. yuk
+// commaExpression
+//     : unaryOrAssignmentExpression (op=COMMA unaryOrAssignmentExpression)?
+//     ;
 
 unaryOrAssignmentExpression
     : assignmentExpression
@@ -381,13 +393,24 @@ primaryExpressionStart
     : StringLiteral StringLiteral*          # stringConcatExpression        
     | literal                               # literalExpression
     | (CloneObject|LoadObject) PAREN_OPEN (ob=expression) PAREN_CLOSE   # cloneObjectExpression 
-    | Identifier                            # identifierExpression    
-    | PAREN_OPEN LT structName=Identifier GT (structMemberInitializer (',' structMemberInitializer)*)? PAREN_CLOSE # structInitializerExpression
+    | validIdentifiers                            # identifierExpression    
+    | PAREN_OPEN LT structName=Identifier GT (structMemberInitializer (COMMA structMemberInitializer)*)? COMMA? PAREN_CLOSE # structInitializerExpression
     | PAREN_OPEN expression PAREN_CLOSE     # parenExpression    
     | arrayExpression                       # primaryArrayExpression
     | mappingExpression                     # primaryMappingExpression    
     | catchExpr                             # catchExpression
     | inheritSuperExpression                # inheritExpression    
+    ;
+
+
+// list of keywords that are not reserved keywords and thus can be used as identifiers
+validIdentifiers
+    : Identifier
+    | FUNCTIONS
+    | VARIABLES
+    | STRUCTS
+    | IN
+    | CHAR
     ;
 
 catchExpr
@@ -400,9 +423,9 @@ inlineClosureExpression
     ;
 
 bracketExpression
-    : SQUARE_OPEN LT? expression SQUARE_CLOSE
-    | SQUARE_OPEN LT? expression? DOUBLEDOT LT? expression? SQUARE_CLOSE    
-    | SQUARE_OPEN expression? (COMMA expression)* SQUARE_CLOSE
+    // i don't love using commaExpression here - because its not really a comma operator, but this is needed to get it to parse
+    : SQUARE_OPEN LT? commaExpression SQUARE_CLOSE
+    | SQUARE_OPEN LT? expression? DOUBLEDOT LT? expression? SQUARE_CLOSE        
     ;
 
 lambdaArrayIndexor
@@ -411,12 +434,12 @@ lambdaArrayIndexor
     ;
 
 lambdaExpression
-    : HASH? SINGLEQUOT fn=Identifier
+    : HASH? SINGLEQUOT fn=(Identifier|CloneObject|LoadObject)
     | HASH SINGLEQUOT (
         (WHILE|RETURN) // reserved words that are specifically allowed here
         | (bracketExpression) // must come before the SQUARE_OPEN in the next rule
         | (lambdaArrayIndexor)
-        | (op=(NOT | PLUS | MINUS | STAR | DIV | MOD | LT | GT | LE | GE | EQ | NE | AND | OR | XOR | AND_AND | OR_OR | ASSIGN | ADD_ASSIGN | SUB_ASSIGN | MUL_ASSIGN | DIV_ASSIGN | MOD_ASSIGN | AND_ASSIGN | OR_ASSIGN | BITAND_ASSIGN | BITOR_ASSIGN | XOR_ASSIGN | QUESTION | SHL | SHR | SQUARE_OPEN | COMMA))
+        | (op=(NOT | PLUS | MINUS | STAR | DIV | MOD | LT | GT | LE | GE | EQ | NE | AND | OR | XOR | AND_AND | OR_OR | ASSIGN | ADD_ASSIGN | SUB_ASSIGN | MUL_ASSIGN | DIV_ASSIGN | MOD_ASSIGN | AND_ASSIGN | OR_ASSIGN | BITAND_ASSIGN | BITOR_ASSIGN | XOR_ASSIGN | QUESTION | SHL | SHR | SQUARE_OPEN | COMMA) | QUESTION NOT)
         | (PAREN_OPEN (CURLY_OPEN|SQUARE_OPEN)) // lambda collections
         | (expression      )
     )
@@ -441,7 +464,7 @@ statement
     | selectionStatement
     | iterationStatement
     | jumpStatement    
-    | variableDeclaration    
+    | variableDeclarationStatement
     | returnStatement    
     | includePreprocessorDirective // this is really handled by the preprocessor, but including here for convenience in symbol nav
     | SEMI
@@ -515,11 +538,11 @@ forVariable
     ;
 
 forEachVariable
-    : primitiveTypeSpecifier? variableDeclarator
+    : typeSpecifier? variableDeclarator
     ;
 
 returnStatement
-    : RETURN expression? SEMI
+    : RETURN commaExpression? SEMI
     ;
 
 jumpStatement

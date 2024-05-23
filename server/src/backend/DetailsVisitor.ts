@@ -62,6 +62,8 @@ import {
     StringConcatExpressionContext,
     StructParameterExpressionContext,
     StructVariableDeclarationContext,
+    TypeSpecifierContext,
+    ValidIdentifiersContext,
     VariableDeclaratorContext,
     WhileStatementContext,
 } from "../parser3/LPCParser";
@@ -344,7 +346,7 @@ export class DetailsVisitor
         const priExp = ctx.parent as unknown as PrimaryExpressionContext;
         const isVar = priExp.methodInvocation().length === 0; // if its not a method invocation, then its a variable reference
         const parentSymbol = this.scope;
-        const name = ctx.Identifier().getText();
+        const name = ctx.validIdentifiers().getText();
 
         let symbolType: SymbolConstructor<BaseSymbol, unknown[]>;
 
@@ -379,7 +381,7 @@ export class DetailsVisitor
 
         const newSym = this.addNewSymbol(symbolType, ctx, `${name}`);
         (newSym as IRenameableSymbol).nameRange = lexRangeFromToken(
-            ctx.Identifier().getSymbol()
+            this.getValidIdentifier(ctx.validIdentifiers()).symbol
         );
         return undefined;
     };
@@ -437,6 +439,15 @@ export class DetailsVisitor
 
         return undefined;
     };
+
+    parseTypeSpecifier(ctx: TypeSpecifierContext) {
+        const u = ctx.unionableTypeSpecifier();
+        if (u?.structTypeSpecifier()) {
+            return LpcTypes.structType;
+        } else {
+            return this.parsePrimitiveType(u?.primitiveTypeSpecifier());
+        }
+    }
 
     parsePrimitiveType(ctx: PrimitiveTypeSpecifierContext) {
         let tt = ctx?.getText();
@@ -741,25 +752,33 @@ export class DetailsVisitor
         });
     };
 
+    getValidIdentifier(ctx: ValidIdentifiersContext) {
+        return ctx.children.find(
+            (c) => c instanceof TerminalNode
+        ) as TerminalNode;
+    }
+
     visitParameterList = (ctx: ParameterListContext) => {
         const prms = ctx.parameter();
         prms.forEach((p) => {
             let name: string, typeName: string, type: IType, nameToken: Token;
             if (p instanceof PrimitiveTypeParameterExpressionContext) {
                 const pExp = p as PrimitiveTypeParameterExpressionContext;
-                nameToken = pExp._paramName;
-                name = pExp._paramName.text;
+                const id = this.getValidIdentifier(pExp._paramName);
+                nameToken = id.symbol;
+                name = pExp._paramName.getText();
                 typeName = pExp._paramType?.getText();
                 type = typeNameToIType.get(typeName);
 
-                this.markToken(pExp._paramName, SemanticTokenTypes.Parameter, [
+                this.markToken(id.symbol, SemanticTokenTypes.Parameter, [
                     SemanticTokenModifiers.Declaration,
                 ]);
                 //this.markContext(pExp._paramType, SemanticTokenTypes.Type);
             } else {
                 const sExp = p as StructParameterExpressionContext;
-                nameToken = sExp._paramName;
-                name = sExp._paramName.text;
+                const id = this.getValidIdentifier(sExp._paramName);
+                nameToken = id.symbol;
+                name = id.getText();
                 typeName = "struct";
                 type = LpcTypes.closureType;
             }
@@ -847,7 +866,7 @@ export class DetailsVisitor
     };
 
     visitCommaExpression = (ctx: CommaExpressionContext) => {
-        const operator = ctx._op?.text;
+        const operator = ","; // ctx._op?.text;
         if (operator) {
             return this.withScope(ctx, OperatorSymbol, [operator], (s) => {
                 return this.visitChildren(ctx);
@@ -902,7 +921,7 @@ export class DetailsVisitor
     };
 
     visitForEachVariable = (ctx: ForEachVariableContext) => {
-        const varType = this.parsePrimitiveType(ctx.primitiveTypeSpecifier());
+        const varType = this.parseTypeSpecifier(ctx.typeSpecifier());
         const varSym = this.parseVariableDeclaration(
             ctx.variableDeclarator(),
             varType

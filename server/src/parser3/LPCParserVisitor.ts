@@ -39,6 +39,7 @@ import { StructDeclarationContext } from "./LPCParser.js";
 import { StructMemberDeclarationContext } from "./LPCParser.js";
 import { StructMemberInitializerContext } from "./LPCParser.js";
 import { VariableModifierContext } from "./LPCParser.js";
+import { VariableDeclarationStatementContext } from "./LPCParser.js";
 import { PrimitiveTypeVariableDeclarationContext } from "./LPCParser.js";
 import { StructVariableDeclarationContext } from "./LPCParser.js";
 import { VariableDeclaratorExpressionContext } from "./LPCParser.js";
@@ -54,6 +55,7 @@ import { MappingContentContext } from "./LPCParser.js";
 import { MappingValueInitializerContext } from "./LPCParser.js";
 import { MappingEmptyInitializerContext } from "./LPCParser.js";
 import { ExpressionContext } from "./LPCParser.js";
+import { CommaExpressionContext } from "./LPCParser.js";
 import { NonAssignmentExpressionContext } from "./LPCParser.js";
 import { AssignmentExpressionContext } from "./LPCParser.js";
 import { AssignmentOperatorContext } from "./LPCParser.js";
@@ -70,7 +72,6 @@ import { RelationalExpressionContext } from "./LPCParser.js";
 import { ShiftExpressionContext } from "./LPCParser.js";
 import { AdditiveExpressionContext } from "./LPCParser.js";
 import { MultiplicativeExpressionContext } from "./LPCParser.js";
-import { CommaExpressionContext } from "./LPCParser.js";
 import { UnaryOrAssignmentExpressionContext } from "./LPCParser.js";
 import { UnaryExpressionContext } from "./LPCParser.js";
 import { PrimaryExpressionContext } from "./LPCParser.js";
@@ -84,6 +85,7 @@ import { PrimaryArrayExpressionContext } from "./LPCParser.js";
 import { PrimaryMappingExpressionContext } from "./LPCParser.js";
 import { CatchExpressionContext } from "./LPCParser.js";
 import { InheritExpressionContext } from "./LPCParser.js";
+import { ValidIdentifiersContext } from "./LPCParser.js";
 import { CatchExprContext } from "./LPCParser.js";
 import { InlineClosureExpressionContext } from "./LPCParser.js";
 import { BracketExpressionContext } from "./LPCParser.js";
@@ -349,6 +351,12 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      */
     visitVariableModifier?: (ctx: VariableModifierContext) => Result;
     /**
+     * Visit a parse tree produced by `LPCParser.variableDeclarationStatement`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitVariableDeclarationStatement?: (ctx: VariableDeclarationStatementContext) => Result;
+    /**
      * Visit a parse tree produced by the `primitiveTypeVariableDeclaration`
      * labeled alternative in `LPCParser.variableDeclaration`.
      * @param ctx the parse tree
@@ -442,6 +450,12 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      * @return the visitor result
      */
     visitExpression?: (ctx: ExpressionContext) => Result;
+    /**
+     * Visit a parse tree produced by `LPCParser.commaExpression`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitCommaExpression?: (ctx: CommaExpressionContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.nonAssignmentExpression`.
      * @param ctx the parse tree
@@ -539,12 +553,6 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      */
     visitMultiplicativeExpression?: (ctx: MultiplicativeExpressionContext) => Result;
     /**
-     * Visit a parse tree produced by `LPCParser.commaExpression`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitCommaExpression?: (ctx: CommaExpressionContext) => Result;
-    /**
      * Visit a parse tree produced by `LPCParser.unaryOrAssignmentExpression`.
      * @param ctx the parse tree
      * @return the visitor result
@@ -632,6 +640,12 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      * @return the visitor result
      */
     visitInheritExpression?: (ctx: InheritExpressionContext) => Result;
+    /**
+     * Visit a parse tree produced by `LPCParser.validIdentifiers`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitValidIdentifiers?: (ctx: ValidIdentifiersContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.catchExpr`.
      * @param ctx the parse tree
