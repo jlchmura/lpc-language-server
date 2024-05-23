@@ -31,6 +31,7 @@ export class LpcConfig {
         ["TLS_PORT", "5555"],
     ]);
 
+    public include: string[] = ["/sys"];
     public exclude: string[] = [];
 
     public driver: DriverInfo = {
@@ -90,7 +91,8 @@ export function loadLpcConfig(filename: string): LpcConfig {
             config.defines.set(key, val);
         });
 
-        config.exclude = rawConfig.exclude as string[];
+        config.exclude = (rawConfig.exclude as string[]) ?? config.exclude;
+        config.include = (rawConfig.include as string[]) ?? config.include;
         config.driver = { ...config.driver, ...rawConfig.driver };
         config.diagnostics = {
             ...config.diagnostics,

@@ -360,7 +360,7 @@ export class EfunSymbol
 
                 return new StackValue(
                     new ObjectReferenceInfo(
-                        playerCtx.fileName,
+                        playerCtx?.fileName,
                         true,
                         playerCtx
                     ),

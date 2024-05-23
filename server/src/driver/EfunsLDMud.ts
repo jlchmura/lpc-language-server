@@ -49,6 +49,7 @@ efun("explode", LpcTypes.stringArrayType, false, ["str", LpcTypes.stringType], [
 efun("extern_call", LpcTypes.intType, false);
 efun("file_name", LpcTypes.stringType, false, ["ob", LpcTypes.objectType]);
 efun("file_size", LpcTypes.intType, false, ["file", LpcTypes.stringType]);
+
 efun("filter", LpcTypes.mixedArrayType, true, ["arr", LpcTypes.mixedArrayType], ["fun", LpcTypes.stringType], ["ob", LpcTypes.stringType], ["...extra", LpcTypes.mixedType,true]);
 efun("filter_objects", LpcTypes.objectArrayType, true, ["arr", LpcTypes.objectArrayType], ["fun", LpcTypes.stringType], ["extra", LpcTypes.mixedType], ["args...", LpcTypes.mixedType, true]);
 efun("find_object", LpcTypes.objectType, false, ["file", LpcTypes.stringType]);
@@ -141,6 +142,7 @@ efun("set_is_wizard", LpcTypes.intType, true, ["ob", LpcTypes.objectType], ["n",
 efun("set_this_object", LpcTypes.voidType, false, ["ob_to_pretend_to_be", LpcTypes.objectType]);
 efun("set_this_player", LpcTypes.voidType, false, ["ob", LpcTypes.objectType]);
 efun("set_prompt", LpcTypes.stringType, true, ["prompt", LpcTypes.stringType], ["ob", LpcTypes.objectType]);
+efun("seteuid", LpcTypes.intType, false, ["str", LpcTypes.stringType]);
 efun("shadow", LpcTypes.intType, false, ["ob", LpcTypes.objectType]);
 efun("shutdown", LpcTypes.voidType, true, ["exit_code", LpcTypes.intType]);
 efun("sprintf", LpcTypes.stringType, true, ["fmt", LpcTypes.stringType], ["var...", LpcTypes.mixedType, true]);

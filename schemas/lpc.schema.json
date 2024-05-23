@@ -8,6 +8,9 @@
                 },
                 {
                     "$ref": "#/definitions/excludeDefinition"
+                },
+                {
+                    "$ref": "#/definitions/includeDefinition"
                 }
             ]
         },
@@ -99,6 +102,19 @@
                 "exclude": {
                     "$comment": "The value of 'null' is UNDOCUMENTED (https://github.com/microsoft/TypeScript/pull/18058).",
                     "description": "Specifies a list of files to be excluded from compilation.",
+                    "type": ["array", "null"],
+                    "uniqueItems": true,
+                    "items": {
+                        "type": ["string", "null"]
+                    }
+                }
+            }
+        },
+        "includeDefinition": {
+            "properties": {
+                "include": {
+                    "$comment": "The value of 'null' is UNDOCUMENTED (https://github.com/microsoft/TypeScript/pull/18058).",
+                    "description": "Specifies a list of system include directories that will be searched when importing files. If this option is not specified, a default folder of '/sys' will be used.",
                     "type": ["array", "null"],
                     "uniqueItems": true,
                     "items": {

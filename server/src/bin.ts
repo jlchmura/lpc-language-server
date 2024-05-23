@@ -27,7 +27,7 @@ const parser = new LPCParser(tStream);
 const filename = process.argv[2];
 const dir = path.dirname(filename);
 
-const backend = new LpcFacade([dir], dir);
+const backend = new LpcFacade(dir);
 //main file
 const ctxFile = backend.loadLpc(filename, code);
 

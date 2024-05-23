@@ -41,6 +41,8 @@ export type IContextEntry = {
  * source context, dependencies, and code for each LPC file.
  */
 export class LpcFacade {
+    private importDir: string[];
+
     /**
      * Mapping file names to SourceContext instances.
      */
@@ -58,11 +60,14 @@ export class LpcFacade {
 
     private parseAllCancel = new CancellationTokenSource();
 
-    public constructor(
-        public importDir: string[],
-        public workspaceDir: string
-    ) {
-        console.log("LpcFacade created", importDir, workspaceDir);
+    public constructor(public workspaceDir: string) {
+        const config = ensureLpcConfig();
+        this.importDir = config.include.map((dir) => {
+            if (dir.startsWith("/")) dir = dir.slice(1);
+            return path.join(workspaceDir, dir);
+        });
+
+        console.log("LpcFacade created", this.importDir, workspaceDir);
 
         const obs = new PerformanceObserver((list) => {
             list.getEntries().forEach((entry) => {

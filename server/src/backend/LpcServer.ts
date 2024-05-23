@@ -25,7 +25,6 @@ import { loadLpcConfig } from "./LpcConfig";
 const CHANGE_DEBOUNCE_MS = 150;
 
 export class LpcServer {
-    private importDir: string[] | undefined;
     private facade: LpcFacade;
 
     /** timers used to debounce change events */
@@ -416,16 +415,10 @@ export class LpcServer {
         const rootFolderUri = URI.parse(rootFolder);
         const rootFolderPath = rootFolderUri.fsPath;
 
-        this.importDir = [
-            path.join(rootFolderPath, "sys"),
-            path.join(rootFolderPath, "obj"),
-            path.join(rootFolderPath, "room"),
-        ];
-
         // load the config
         loadLpcConfig(path.join(rootFolderPath, "lpc-config.json"));
 
-        this.facade = new LpcFacade(this.importDir, rootFolderPath);
+        this.facade = new LpcFacade(rootFolderPath);
 
         // hook up the run diagnostic event emitter
         this.facade.onRunDiagnostics = (filename, force) => {

@@ -133,10 +133,10 @@ export class MacroProcessor {
                 inQuot = !inQuot;
                 continue;
             } else if (code[j] === "\\") {
-                inEsc = true;
+                inEsc = !inEsc;
                 continue;
-            } else if (inQuot) {
-                // if we're in a quote then it can't be a macro
+            } else if (inEsc || inQuot) {
+                // if we're in a quote or escape then it can't be a macro
                 inEsc = false;
                 continue;
             } else if (code[j] == "/" && code[j + 1] == "/") {
@@ -230,7 +230,7 @@ export class MacroProcessor {
                                     }
                                     break;
                                 case "\\":
-                                    subEscape = true;
+                                    subEscape = !subEscape;
                                     // nothing else can happen, so continue
                                     continue;
                                 case "(":
