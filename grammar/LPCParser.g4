@@ -87,8 +87,28 @@ directiveTypePragma: PRAGMA;
 
 // inherit
 inheritStatement
-    : VIRTUAL? INHERIT inheritFile SEMI
+    : (
+        inherit
+        | VIRTUAL inherit
+        | (DEFAULT defaultModifier+)? inheritModifier+ inherit
+    ) SEMI    
     ;
+
+inheritModifier
+    : functionModifier+ FUNCTIONS
+    | variableModifier+ (VARIABLES|STRUCTS)
+    ;
+
+inherit
+    : INHERIT inheritFile
+    ;
+
+defaultModifier
+    : PRIVATE
+    | PROTECTED
+    | VISIBLE
+    | PUBLIC
+    | STATIC;
 
 inheritFile
     : StringLiteral        
@@ -111,6 +131,8 @@ declaration
     | structDeclaration
     | variableDeclaration    
     ;
+
+
 
 functionModifier
     : DEPRECATED
@@ -141,7 +163,7 @@ parameterList
     ;
 
 parameter
-    : VARARGS? paramType=typeSpecifier? paramName=Identifier #primitiveTypeParameterExpression    
+    : VARARGS? paramType=unionableTypeSpecifier? paramName=Identifier #primitiveTypeParameterExpression    
     | paramType=STRUCT structName=Identifier STAR? paramName=Identifier #structParameterExpression
     ;
 
@@ -168,7 +190,7 @@ variableModifier
     ;
 
 variableDeclaration
-    : variableModifier* primitiveTypeSpecifier? objectName=StringLiteral? variableDeclaratorExpression (COMMA variableDeclaratorExpression)* SEMI #primitiveTypeVariableDeclaration
+    : variableModifier* unionableTypeSpecifier? objectName=StringLiteral? variableDeclaratorExpression (COMMA variableDeclaratorExpression)* SEMI #primitiveTypeVariableDeclaration
     | variableModifier* STRUCT structName=Identifier variableDeclaratorExpression (COMMA structName=Identifier? variableDeclaratorExpression)* SEMI #structVariableDeclaration
     ;
 
@@ -209,13 +231,13 @@ structTypeSpecifier
     ;
 
 typeSpecifier
-    : unionableTypeSpecifier (OR unionableTypeSpecifier)*    
+    : unionableTypeSpecifier
     | structTypeSpecifier
     ;
 
 unionableTypeSpecifier
-    : primitiveTypeSpecifier
-    | arrayTypeSpecifier    
+    : primitiveTypeSpecifier (OR unionableTypeSpecifier)*
+    | arrayTypeSpecifier (OR unionableTypeSpecifier)*    
     ;
 
 arrayTypeSpecifier

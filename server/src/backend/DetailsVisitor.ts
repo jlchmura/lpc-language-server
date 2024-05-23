@@ -495,9 +495,9 @@ export class DetailsVisitor
     ) => {
         // ctx will either be scalar or array, it doesn't matter right now
 
-        const typeCtx = ctx.primitiveTypeSpecifier();
+        const typeCtx = ctx.unionableTypeSpecifier()?.primitiveTypeSpecifier();
         const varType = typeCtx
-            ? this.parsePrimitiveType(ctx.primitiveTypeSpecifier())
+            ? this.parsePrimitiveType(typeCtx)
             : LpcTypes.unknownType;
 
         const varDecls = ctx.variableDeclaratorExpression();
@@ -536,9 +536,11 @@ export class DetailsVisitor
 
     visitInheritStatement = (ctx: InheritStatementContext) => {
         const stringLits: TerminalNode[] = [];
-        let inhCtxs: ParseTree[] = [ctx.inheritFile()];
+        let inhCtxs: ParseTree[] = [ctx?.inherit()?.inheritFile()];
         while (inhCtxs.length > 0) {
             const inh = inhCtxs.shift();
+            if (!inh) continue;
+
             if (
                 inh instanceof TerminalNode &&
                 inh.symbol.type === LPCLexer.StringLiteral

@@ -613,7 +613,12 @@ export class SourceContext {
                     parentDeclCtx instanceof
                     PrimitiveTypeVariableDeclarationContext
                 ) {
-                    type = parentDeclCtx.primitiveTypeSpecifier()?.getText();
+                    // NTBLA: handle unions
+
+                    type = parentDeclCtx
+                        .unionableTypeSpecifier()
+                        ?.primitiveTypeSpecifier()
+                        ?.getText();
                     mods = parentDeclCtx
                         .variableModifier()
                         ?.map((m) => m.getText())

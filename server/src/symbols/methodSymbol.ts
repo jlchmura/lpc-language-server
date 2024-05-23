@@ -76,9 +76,8 @@ export class LpcBaseMethodSymbol
         args: IEvaluatableSymbol[] = [],
         callScope?: RootFrame
     ) {
-        if (this.name == "open") {
-            const i = 0;
-        }
+        args = args ?? [];
+
         // add a new stack frame
         const locals = new Map<string, StackValue>();
 

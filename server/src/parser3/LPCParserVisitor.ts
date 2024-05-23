@@ -21,6 +21,9 @@ import { DirectiveGlobalFileContext } from "./LPCParser.js";
 import { DirectiveIncludeFileContext } from "./LPCParser.js";
 import { DirectiveTypePragmaContext } from "./LPCParser.js";
 import { InheritStatementContext } from "./LPCParser.js";
+import { InheritModifierContext } from "./LPCParser.js";
+import { InheritContext } from "./LPCParser.js";
+import { DefaultModifierContext } from "./LPCParser.js";
 import { InheritFileContext } from "./LPCParser.js";
 import { InheritSuperStatementContext } from "./LPCParser.js";
 import { InheritSuperExpressionContext } from "./LPCParser.js";
@@ -235,6 +238,24 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      * @return the visitor result
      */
     visitInheritStatement?: (ctx: InheritStatementContext) => Result;
+    /**
+     * Visit a parse tree produced by `LPCParser.inheritModifier`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitInheritModifier?: (ctx: InheritModifierContext) => Result;
+    /**
+     * Visit a parse tree produced by `LPCParser.inherit`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitInherit?: (ctx: InheritContext) => Result;
+    /**
+     * Visit a parse tree produced by `LPCParser.defaultModifier`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitDefaultModifier?: (ctx: DefaultModifierContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.inheritFile`.
      * @param ctx the parse tree

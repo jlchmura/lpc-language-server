@@ -21,6 +21,9 @@ import { DirectiveGlobalFileContext } from "./LPCParser.js";
 import { DirectiveIncludeFileContext } from "./LPCParser.js";
 import { DirectiveTypePragmaContext } from "./LPCParser.js";
 import { InheritStatementContext } from "./LPCParser.js";
+import { InheritModifierContext } from "./LPCParser.js";
+import { InheritContext } from "./LPCParser.js";
+import { DefaultModifierContext } from "./LPCParser.js";
 import { InheritFileContext } from "./LPCParser.js";
 import { InheritSuperStatementContext } from "./LPCParser.js";
 import { InheritSuperExpressionContext } from "./LPCParser.js";
@@ -304,6 +307,36 @@ export class LPCParserListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitInheritStatement?: (ctx: InheritStatementContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.inheritModifier`.
+     * @param ctx the parse tree
+     */
+    enterInheritModifier?: (ctx: InheritModifierContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.inheritModifier`.
+     * @param ctx the parse tree
+     */
+    exitInheritModifier?: (ctx: InheritModifierContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.inherit`.
+     * @param ctx the parse tree
+     */
+    enterInherit?: (ctx: InheritContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.inherit`.
+     * @param ctx the parse tree
+     */
+    exitInherit?: (ctx: InheritContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.defaultModifier`.
+     * @param ctx the parse tree
+     */
+    enterDefaultModifier?: (ctx: DefaultModifierContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.defaultModifier`.
+     * @param ctx the parse tree
+     */
+    exitDefaultModifier?: (ctx: DefaultModifierContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.inheritFile`.
      * @param ctx the parse tree
