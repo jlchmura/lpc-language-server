@@ -63,7 +63,7 @@ directiveTypeWithArguments
     ;
 
 directiveArgument
-    : Identifier
+    : Identifier (MINUS Identifier)*
     | StringLiteral
     | IntegerConstant    
     ;
@@ -266,6 +266,7 @@ assignmentExpression
 
 assignmentOperator
     : ASSIGN
+    | COMMA  // comma operator
     | ADD_ASSIGN
     | SUB_ASSIGN
     | MUL_ASSIGN

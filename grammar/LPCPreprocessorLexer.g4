@@ -46,7 +46,7 @@ STAR     : '*';
 
 DIRECTIVE_WHITESPACES  : [ \t]+ -> channel(HIDDEN);
 DIRECTIVE_STRING       : StringFragment;
-CONDITIONAL_SYMBOL     : LETTER (LETTER | [0-9])*;
+CONDITIONAL_SYMBOL     : LETTER (LETTER | [0-9-])*;
 DECIMAL_LITERAL        : [0-9]+;
 FLOAT                  : ([0-9]+ '.' [0-9]* | '.' [0-9]+);
 NEW_LINE               : '\r'? '\n'      -> mode(DEFAULT_MODE);
