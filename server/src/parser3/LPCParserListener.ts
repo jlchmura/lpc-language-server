@@ -46,6 +46,7 @@ import { MethodInvocationContext } from "./LPCParser.js";
 import { StructTypeSpecifierContext } from "./LPCParser.js";
 import { TypeSpecifierContext } from "./LPCParser.js";
 import { UnionableTypeSpecifierContext } from "./LPCParser.js";
+import { ArrayTypeSpecifierContext } from "./LPCParser.js";
 import { ExpressionContext } from "./LPCParser.js";
 import { NonAssignmentExpressionContext } from "./LPCParser.js";
 import { AssignmentExpressionContext } from "./LPCParser.js";
@@ -85,7 +86,6 @@ import { PrimitiveTypeCastExpressionContext } from "./LPCParser.js";
 import { DeclarativeTypeCastExpressionContext } from "./LPCParser.js";
 import { StructCastExpressionContext } from "./LPCParser.js";
 import { ExpressionListContext } from "./LPCParser.js";
-import { ArrayTypeSpecifierContext } from "./LPCParser.js";
 import { ArrayExpressionContext } from "./LPCParser.js";
 import { MappingContentContext } from "./LPCParser.js";
 import { MappingValueInitializerContext } from "./LPCParser.js";
@@ -563,6 +563,16 @@ export class LPCParserListener implements ParseTreeListener {
      */
     exitUnionableTypeSpecifier?: (ctx: UnionableTypeSpecifierContext) => void;
     /**
+     * Enter a parse tree produced by `LPCParser.arrayTypeSpecifier`.
+     * @param ctx the parse tree
+     */
+    enterArrayTypeSpecifier?: (ctx: ArrayTypeSpecifierContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.arrayTypeSpecifier`.
+     * @param ctx the parse tree
+     */
+    exitArrayTypeSpecifier?: (ctx: ArrayTypeSpecifierContext) => void;
+    /**
      * Enter a parse tree produced by `LPCParser.expression`.
      * @param ctx the parse tree
      */
@@ -978,16 +988,6 @@ export class LPCParserListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitExpressionList?: (ctx: ExpressionListContext) => void;
-    /**
-     * Enter a parse tree produced by `LPCParser.arrayTypeSpecifier`.
-     * @param ctx the parse tree
-     */
-    enterArrayTypeSpecifier?: (ctx: ArrayTypeSpecifierContext) => void;
-    /**
-     * Exit a parse tree produced by `LPCParser.arrayTypeSpecifier`.
-     * @param ctx the parse tree
-     */
-    exitArrayTypeSpecifier?: (ctx: ArrayTypeSpecifierContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.arrayExpression`.
      * @param ctx the parse tree

@@ -207,14 +207,18 @@ structTypeSpecifier
     ;
 
 typeSpecifier
-    : primitiveTypeSpecifier
-    | arrayTypeSpecifier        
-    | structTypeSpecifier
+    : unionableTypeSpecifier (OR unionableTypeSpecifier)*    
+    | structTypeSpecifier    
     ;
 
 unionableTypeSpecifier
-    : typeSpecifier
-    | typeSpecifier (OR typeSpecifier)*
+    : primitiveTypeSpecifier
+    | arrayTypeSpecifier    
+    ;
+
+arrayTypeSpecifier
+    : primitiveTypeSpecifier? STAR
+    | LT typeSpecifier GT STAR?
     ;
 
 // Expressions:
@@ -376,8 +380,8 @@ lambdaExpression
     ;
 
 castExpression
-    : PAREN_OPEN unionableTypeSpecifier PAREN_CLOSE unaryExpression                             #primitiveTypeCastExpression
-    | PAREN_OPEN CURLY_OPEN unionableTypeSpecifier CURLY_CLOSE PAREN_CLOSE unaryExpression      #declarativeTypeCastExpression
+    : PAREN_OPEN typeSpecifier PAREN_CLOSE unaryExpression                             #primitiveTypeCastExpression
+    | PAREN_OPEN CURLY_OPEN typeSpecifier CURLY_CLOSE PAREN_CLOSE unaryExpression      #declarativeTypeCastExpression
     | PAREN_OPEN LT Identifier GT unaryExpression (COMMA unaryExpression)* PAREN_CLOSE          #structCastExpression
     ;
 
@@ -386,10 +390,6 @@ expressionList
     ;
 
 // Arrays & Mappings
-
-arrayTypeSpecifier
-    : primitiveTypeSpecifier? STAR
-    ;
 
 arrayExpression
     : PAREN_OPEN CURLY_OPEN (expression (COMMA expression)*)? COMMA? CURLY_CLOSE PAREN_CLOSE
