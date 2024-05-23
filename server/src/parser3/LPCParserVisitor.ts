@@ -34,6 +34,7 @@ import { PrimitiveTypeParameterExpressionContext } from "./LPCParser.js";
 import { StructParameterExpressionContext } from "./LPCParser.js";
 import { StructDeclarationContext } from "./LPCParser.js";
 import { StructMemberDeclarationContext } from "./LPCParser.js";
+import { StructMemberInitializerContext } from "./LPCParser.js";
 import { VariableModifierContext } from "./LPCParser.js";
 import { PrimitiveTypeVariableDeclarationContext } from "./LPCParser.js";
 import { StructVariableDeclarationContext } from "./LPCParser.js";
@@ -313,6 +314,12 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      * @return the visitor result
      */
     visitStructMemberDeclaration?: (ctx: StructMemberDeclarationContext) => Result;
+    /**
+     * Visit a parse tree produced by `LPCParser.structMemberInitializer`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitStructMemberInitializer?: (ctx: StructMemberInitializerContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.variableModifier`.
      * @param ctx the parse tree

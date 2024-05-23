@@ -34,6 +34,7 @@ import { PrimitiveTypeParameterExpressionContext } from "./LPCParser.js";
 import { StructParameterExpressionContext } from "./LPCParser.js";
 import { StructDeclarationContext } from "./LPCParser.js";
 import { StructMemberDeclarationContext } from "./LPCParser.js";
+import { StructMemberInitializerContext } from "./LPCParser.js";
 import { VariableModifierContext } from "./LPCParser.js";
 import { PrimitiveTypeVariableDeclarationContext } from "./LPCParser.js";
 import { StructVariableDeclarationContext } from "./LPCParser.js";
@@ -436,6 +437,16 @@ export class LPCParserListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitStructMemberDeclaration?: (ctx: StructMemberDeclarationContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.structMemberInitializer`.
+     * @param ctx the parse tree
+     */
+    enterStructMemberInitializer?: (ctx: StructMemberInitializerContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.structMemberInitializer`.
+     * @param ctx the parse tree
+     */
+    exitStructMemberInitializer?: (ctx: StructMemberInitializerContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.variableModifier`.
      * @param ctx the parse tree
