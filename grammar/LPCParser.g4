@@ -365,7 +365,7 @@ primaryExpressionStart
     | literal                               # literalExpression
     | (CloneObject|LoadObject) PAREN_OPEN (ob=expression) PAREN_CLOSE   # cloneObjectExpression 
     | Identifier                            # identifierExpression    
-    | PAREN_OPEN LT structName=Identifier GT structMemberInitializer (',' structMemberInitializer)* PAREN_CLOSE # structInitializerExpression
+    | PAREN_OPEN LT structName=Identifier GT (structMemberInitializer (',' structMemberInitializer)*)? PAREN_CLOSE # structInitializerExpression
     | PAREN_OPEN expression PAREN_CLOSE     # parenExpression    
     | arrayExpression                       # primaryArrayExpression
     | mappingExpression                     # primaryMappingExpression    
