@@ -75,7 +75,7 @@ directiveDefineArgument: expression ;
 // #include <file> | #include "file"
 directiveTypeInclude: INCLUDE;
 
-directiveGlobalFile: LT FileIdentifier GT;
+directiveGlobalFile: LT Identifier (DIV | DOT | Identifier)* GT;
 
 directiveIncludeFile
     : globalFile=directiveGlobalFile
@@ -311,7 +311,14 @@ unaryExpression
 
 primaryExpression
     : pe = primaryExpressionStart bracketExpression* (
-        (methodInvocation | INC | DEC | (ARROW target=callOtherTarget? invocation=methodInvocation?) | Identifier) bracketExpression*
+        (
+            methodInvocation 
+            | INC 
+            | DEC 
+            | (ARROW target=callOtherTarget? invocation=methodInvocation?)  // arrow fn or struct member access
+            | Identifier
+            | (DOT structMember=Identifier) // struct member access
+        ) bracketExpression*
     )*
     ;
 
