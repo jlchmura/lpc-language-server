@@ -153,6 +153,7 @@ efun("stringp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("sizeof", LpcTypes.intType, false, ["val", LpcTypes.mixedType]);
 efun("strftime", LpcTypes.stringType, true, ["fmt", LpcTypes.stringType], ["clock", LpcTypes.intType], ["localized", LpcTypes.intType]);
 efun("sort_array", LpcTypes.mixedArrayType, true, ["arr", LpcTypes.mixedArrayType], ["wrong_order", LpcTypes.stringType], ["ob", LpcTypes.objectType], ["...extra", LpcTypes.mixedType,true]);
+efun("structp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("symbol_function", LpcTypes.closureType, true, ["arg", LpcTypes.stringType], ["ob", LpcTypes.mixedType]);
 efun("snoop", LpcTypes.objectType, true, ["snooper", LpcTypes.objectType], ["snoopee", LpcTypes.objectType]);
 efun("test_bit", LpcTypes.intType, false, ["str", LpcTypes.stringType], ["n", LpcTypes.intType]);

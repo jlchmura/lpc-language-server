@@ -210,6 +210,7 @@ variableInitializer
 
 primitiveTypeSpecifier
     : VOID
+    | BYTES
     | CHAR
     | INT   
     | FLOAT     

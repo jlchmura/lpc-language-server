@@ -13,6 +13,7 @@ channels {
 // Keywords
 
 BREAK: 'break';
+BYTES: 'bytes';
 CASE: 'case';
 CATCH: 'catch';
 CHAR: 'char';
