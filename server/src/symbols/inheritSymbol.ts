@@ -56,11 +56,9 @@ export class InheritSuperAccessorSymbol
     }
 
     eval(stack: CallStack, scope?: any) {
-        if (
-            !this.filename ||
-            this.filename.length == 0 ||
-            this.filename.startsWith("*")
-        ) {
+        if (this.filename == "efun") {
+            this.objSymbolTable = SourceContext.efunSymbols;
+        } else {
             // if there is no filename, we have to find the inherit symbol that this accessor is attached to
             // and use the first one.  (this technically allows a glob pattern)
             // get the root symbol table
@@ -78,7 +76,14 @@ export class InheritSuperAccessorSymbol
 
             // loop through inheritSymbols, load their contexts and add their symbol tables
             // as dependencies to this symbol table
-            const depTables = inheritSymbols
+            let inheritsToAdd =
+                !this.filename || this.filename.startsWith("*")
+                    ? inheritSymbols
+                    : inheritSymbols.filter((i) =>
+                          i.name.endsWith(this.filename)
+                      );
+
+            const depTables = inheritsToAdd
                 .map((inheritSymbol) => {
                     const ctx = this.loadObject(inheritSymbol.filename);
                     const tbl = ctx?.symbolTable as ContextSymbolTable;
@@ -87,12 +92,6 @@ export class InheritSuperAccessorSymbol
                 .filter((tbl) => !!tbl);
 
             this.objSymbolTable.addDependencies(...depTables);
-        } else if (this.filename == "efun") {
-            this.objSymbolTable = SourceContext.efunSymbols;
-        } else {
-            this.objContext = this.loadObject(this.filename);
-            this.objSymbolTable = this.objContext
-                ?.symbolTable as ContextSymbolTable;
         }
 
         // evaluate children

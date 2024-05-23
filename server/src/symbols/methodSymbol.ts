@@ -96,7 +96,7 @@ export class LpcBaseMethodSymbol
 
         // the function's root frame is the callScope (if it was passed)
         stack.push(
-            new StackFrame(this, undefined, locals, callScope ?? stack.root)
+            new StackFrame(this, undefined, locals, callScope ?? stack.peek())
         );
 
         let result: any = 0;
