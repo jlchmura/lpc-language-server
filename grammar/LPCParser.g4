@@ -212,6 +212,11 @@ typeSpecifier
     | structTypeSpecifier
     ;
 
+unionableTypeSpecifier
+    : typeSpecifier
+    | typeSpecifier (OR typeSpecifier)*
+    ;
+
 // Expressions:
 
 expression
@@ -371,9 +376,9 @@ lambdaExpression
     ;
 
 castExpression
-    : PAREN_OPEN typeSpecifier PAREN_CLOSE unaryExpression                        #primitiveTypeCastExpression
-    | PAREN_OPEN CURLY_OPEN typeSpecifier CURLY_CLOSE PAREN_CLOSE unaryExpression #declarativeTypeCastExpression
-    | PAREN_OPEN LT Identifier GT unaryExpression (COMMA unaryExpression)* PAREN_CLOSE        #structCastExpression
+    : PAREN_OPEN unionableTypeSpecifier PAREN_CLOSE unaryExpression                             #primitiveTypeCastExpression
+    | PAREN_OPEN CURLY_OPEN unionableTypeSpecifier CURLY_CLOSE PAREN_CLOSE unaryExpression      #declarativeTypeCastExpression
+    | PAREN_OPEN LT Identifier GT unaryExpression (COMMA unaryExpression)* PAREN_CLOSE          #structCastExpression
     ;
 
 expressionList

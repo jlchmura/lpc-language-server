@@ -45,6 +45,7 @@ import { PrimitiveTypeSpecifierContext } from "./LPCParser.js";
 import { MethodInvocationContext } from "./LPCParser.js";
 import { StructTypeSpecifierContext } from "./LPCParser.js";
 import { TypeSpecifierContext } from "./LPCParser.js";
+import { UnionableTypeSpecifierContext } from "./LPCParser.js";
 import { ExpressionContext } from "./LPCParser.js";
 import { NonAssignmentExpressionContext } from "./LPCParser.js";
 import { AssignmentExpressionContext } from "./LPCParser.js";
@@ -382,6 +383,12 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      * @return the visitor result
      */
     visitTypeSpecifier?: (ctx: TypeSpecifierContext) => Result;
+    /**
+     * Visit a parse tree produced by `LPCParser.unionableTypeSpecifier`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitUnionableTypeSpecifier?: (ctx: UnionableTypeSpecifierContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.expression`.
      * @param ctx the parse tree
