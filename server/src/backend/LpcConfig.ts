@@ -31,6 +31,7 @@ export class LpcConfig {
         ["TLS_PORT", "5555"],
         ["__INT_MAX__", "2147483647"],
         ["__INT_MIN__", "-2147483648"],
+        ["__HEART_BEAT_INTERVAL__", "2"],
     ]);
 
     public include: string[] = ["/sys"];

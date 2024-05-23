@@ -32,6 +32,7 @@ efun("clones", LpcTypes.objectArrayType, true, ["ob", LpcTypes.objectType],["wha
 efun("closurep", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("clear_bit", LpcTypes.stringType, false, ["str", LpcTypes.stringType], ["n", LpcTypes.intType]);
 efun("command", LpcTypes.intType, true, ["str", LpcTypes.stringType], ["ob", LpcTypes.objectType]);
+efun("configure_interactive", LpcTypes.voidType, false, ["ob", LpcTypes.objectType], ["what", LpcTypes.intType], ["data", LpcTypes.mixedType]);
 efun("configure_object", LpcTypes.voidType, false, ["ob", LpcTypes.objectType], ["what", LpcTypes.intType], ["data", LpcTypes.mixedType]);
 efun("copy", LpcTypes.mixedType, false, ["val", LpcTypes.mixedType]);
 efun("creator", LpcTypes.stringType, false, ["ob", LpcTypes.objectType]);
@@ -62,8 +63,8 @@ efun("function_exists", LpcTypes.intType, false, ["fun", LpcTypes.stringType], [
 efun("get_dir", LpcTypes.mixedArrayType, true, ["path", LpcTypes.stringType], ["flags", LpcTypes.intType]);
 efun("get_error_file", LpcTypes.mixedType, true, ["name", LpcTypes.stringType], ["set_forget_flag", LpcTypes.intType]);
 efun("get_extra_wizinfo", LpcTypes.mixedType, false, ["wiz", LpcTypes.objectType]);
-efun("geteuid", LpcTypes.stringType, false, ["ob", LpcTypes.objectType]);
-efun("getuid", LpcTypes.stringType, false, ["ob", LpcTypes.objectType]);
+efun("geteuid", LpcTypes.stringType, true, ["ob", LpcTypes.objectType]);
+efun("getuid", LpcTypes.stringType, true, ["ob", LpcTypes.objectType]);
 efun("hash", LpcTypes.intType, true, ["method", LpcTypes.intArrayType], ["arg", LpcTypes.stringType],["iterations", LpcTypes.intType]);
 efun("heart_beat_info", LpcTypes.objectType, false);
 efun("implode", LpcTypes.stringType, true, ["arr", LpcTypes.mixedArrayType], ["del", LpcTypes.stringType]);

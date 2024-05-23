@@ -101,6 +101,7 @@ import { performance } from "perf_hooks";
 import { LpcFileHandler } from "./FileHandler";
 import { ensureLpcConfig } from "./LpcConfig";
 import { getParentContextOfType, getParentOfType } from "../symbols/Symbol";
+import { DriverVersion } from "../driver/DriverVersion";
 
 const mapAnnotationReg = /\[\[@(.+?)\]\]/;
 
@@ -256,7 +257,12 @@ export class SourceContext {
         // add macros from config
         const config = ensureLpcConfig();
         const configDefines = new Map(config.defines ?? []);
+        const ver = DriverVersion.from(config.driver.version);
         configDefines.set("__VERSION__", `"${config.driver.version}"`);
+        configDefines.set("__VERSION_MAJOR__", ver.major.toString());
+        configDefines.set("__VERSION_MINOR__", ver.minor.toString());
+        configDefines.set("__VERSION_MICRO__", ver.micro.toString());
+        configDefines.set("__VERSION_PATCH__", "0");
 
         const configMacroTable = new Map<string, MacroDefinition>();
         for (const [key, val] of configDefines ?? new Map()) {
@@ -613,7 +619,7 @@ export class SourceContext {
                 stop = funHeader.stop!.stop;
             } else if (ctx instanceof VariableDeclaratorContext) {
                 // variables need a little reconstruction since a declarator can have multiple variables
-                const name = ctx._variableName.text;
+                const name = ctx._variableName.getText();
                 let type: string, mods: string;
                 const parentDeclCtx = getParentContextOfType(
                     ctx,

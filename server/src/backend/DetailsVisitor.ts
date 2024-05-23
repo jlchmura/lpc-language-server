@@ -413,7 +413,7 @@ export class DetailsVisitor
         varDecls.forEach((varDeclExp, idx) => {
             const varDecl = varDeclExp.variableDeclarator();
             const structCtx = structNames[idx];
-            const varNm = varDecl._variableName?.text;
+            const varNm = varDecl._variableName?.getText();
 
             const structName = structCtx?.getText(); // NTBLA: store this in the type somewhere
             const varSym = this.addNewSymbol(
@@ -488,16 +488,19 @@ export class DetailsVisitor
         varDecl: VariableDeclaratorContext,
         varType: IType
     ): VariableSymbol {
-        const nm = varDecl._variableName?.text;
+        const nm = varDecl._variableName?.getText();
         const varSym = this.addNewSymbol(
             VariableSymbol,
-            varDecl.Identifier(),
+            varDecl.validIdentifiers(),
             nm,
             varType,
             varDecl._variableName
         );
 
-        this.markToken(varDecl._variableName, SemanticTokenTypes.Variable);
+        this.markToken(
+            this.getValidIdentifier(varDecl._variableName).symbol,
+            SemanticTokenTypes.Variable
+        );
 
         return varSym;
     }

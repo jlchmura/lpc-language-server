@@ -204,7 +204,7 @@ variableDeclaratorExpression
     ;
 
 variableDeclarator
-    : arraySpecifier=STAR? variableName=Identifier
+    : arraySpecifier=STAR? variableName=validIdentifiers
     ;
 
 variableInitializer
@@ -533,11 +533,11 @@ forRangeExpression
     ;
 
 foreachRangeExpression
-    : forEachVariable (COMMA forEachVariable)* (IN | COLON) expression
+    : forEachVariable (COMMA forEachVariable)* (IN | COLON) expression (DOUBLEDOT expression)?
     ;
 
 forVariable
-    : primitiveTypeSpecifier? variableDeclarator (ASSIGN variableInitializer | INC | DEC) 
+    : primitiveTypeSpecifier? variableDeclarator (ASSIGN variableInitializer | INC | DEC)?
     | unaryOrAssignmentExpression
     ;
 

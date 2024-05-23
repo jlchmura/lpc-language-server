@@ -1,12 +1,12 @@
 /**
  * Holds the version of a driver along with utility functions to compare versions.
- * Version is in the format of "major.minor.patch" where each part is a number.
+ * Version is in the format of "major.minor.micro" where each part is a number.
  */
 export class DriverVersion {
     constructor(
         public major: number,
         public minor: number,
-        public patch: number
+        public micro: number
     ) {}
 
     static from(version: string) {
@@ -24,7 +24,7 @@ export class DriverVersion {
         if (
             this.major === other.major &&
             this.minor === other.minor &&
-            this.patch >= other.patch
+            this.micro >= other.micro
         ) {
             return true;
         }

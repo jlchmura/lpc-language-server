@@ -42,6 +42,8 @@ GT       : '>';
 LE       : '<=';
 GE       : '>=';
 STAR     : '*';
+PLUS     : '+';
+MINUS    : '-';
 
 
 DIRECTIVE_WHITESPACES  : [ \t]+ -> channel(HIDDEN);

@@ -44,6 +44,6 @@ preprocessor_expression
     | preprocessor_expression op = (EQUAL | NOTEQUAL) preprocessor_expression  # preprocessorBinary
     | preprocessor_expression op = AND preprocessor_expression                 # preprocessorBinary
     | preprocessor_expression op = OR preprocessor_expression                  # preprocessorBinary
-    | preprocessor_expression op = (LT | GT | LE | GE | STAR) preprocessor_expression # preprocessorBinary
+    | preprocessor_expression op = (LT | GT | LE | GE | STAR | PLUS | MINUS) preprocessor_expression # preprocessorBinary
     | DEFINED (CONDITIONAL_SYMBOL | LPAREN CONDITIONAL_SYMBOL RPAREN)          # preprocessorDefined
     ;
