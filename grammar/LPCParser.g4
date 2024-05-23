@@ -205,12 +205,12 @@ methodInvocation
     ;
 
 structTypeSpecifier
-    : STRUCT Identifier
+    : STRUCT Identifier STAR?
     ;
 
 typeSpecifier
     : unionableTypeSpecifier (OR unionableTypeSpecifier)*    
-    | structTypeSpecifier    
+    | structTypeSpecifier
     ;
 
 unionableTypeSpecifier
