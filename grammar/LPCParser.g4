@@ -142,7 +142,7 @@ parameterList
 
 parameter
     : VARARGS? paramType=typeSpecifier? paramName=Identifier #primitiveTypeParameterExpression    
-    | paramType=STRUCT structName=Identifier paramName=Identifier #structParameterExpression
+    | paramType=STRUCT structName=Identifier STAR? paramName=Identifier #structParameterExpression
     ;
 
 structDeclaration
