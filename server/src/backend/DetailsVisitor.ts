@@ -25,6 +25,7 @@ import {
     BracketExpressionContext,
     CallOtherTargetContext,
     CloneObjectExpressionContext,
+    CommaExpressionContext,
     ConditionalAndExpressionContext,
     ConditionalOrExpressionContext,
     ConditionalTernaryExpressionContext,
@@ -836,6 +837,16 @@ export class DetailsVisitor
     };
 
     visitMultiplicativeExpression = (ctx: MultiplicativeExpressionContext) => {
+        const operator = ctx._op?.text;
+        if (operator) {
+            return this.withScope(ctx, OperatorSymbol, [operator], (s) => {
+                return this.visitChildren(ctx);
+            });
+        }
+        return this.visitChildren(ctx);
+    };
+
+    visitCommaExpression = (ctx: CommaExpressionContext) => {
         const operator = ctx._op?.text;
         if (operator) {
             return this.withScope(ctx, OperatorSymbol, [operator], (s) => {

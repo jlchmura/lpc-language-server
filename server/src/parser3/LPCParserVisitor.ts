@@ -50,6 +50,10 @@ import { StructTypeSpecifierContext } from "./LPCParser.js";
 import { TypeSpecifierContext } from "./LPCParser.js";
 import { UnionableTypeSpecifierContext } from "./LPCParser.js";
 import { ArrayTypeSpecifierContext } from "./LPCParser.js";
+import { ArrayExpressionContext } from "./LPCParser.js";
+import { MappingContentContext } from "./LPCParser.js";
+import { MappingValueInitializerContext } from "./LPCParser.js";
+import { MappingEmptyInitializerContext } from "./LPCParser.js";
 import { ExpressionContext } from "./LPCParser.js";
 import { NonAssignmentExpressionContext } from "./LPCParser.js";
 import { AssignmentExpressionContext } from "./LPCParser.js";
@@ -67,6 +71,7 @@ import { RelationalExpressionContext } from "./LPCParser.js";
 import { ShiftExpressionContext } from "./LPCParser.js";
 import { AdditiveExpressionContext } from "./LPCParser.js";
 import { MultiplicativeExpressionContext } from "./LPCParser.js";
+import { CommaExpressionContext } from "./LPCParser.js";
 import { UnaryOrAssignmentExpressionContext } from "./LPCParser.js";
 import { UnaryExpressionContext } from "./LPCParser.js";
 import { PrimaryExpressionContext } from "./LPCParser.js";
@@ -89,10 +94,6 @@ import { PrimitiveTypeCastExpressionContext } from "./LPCParser.js";
 import { DeclarativeTypeCastExpressionContext } from "./LPCParser.js";
 import { StructCastExpressionContext } from "./LPCParser.js";
 import { ExpressionListContext } from "./LPCParser.js";
-import { ArrayExpressionContext } from "./LPCParser.js";
-import { MappingContentContext } from "./LPCParser.js";
-import { MappingValueInitializerContext } from "./LPCParser.js";
-import { MappingEmptyInitializerContext } from "./LPCParser.js";
 import { StatementContext } from "./LPCParser.js";
 import { ExpressionStatementContext } from "./LPCParser.js";
 import { BlockContext } from "./LPCParser.js";
@@ -417,6 +418,32 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      */
     visitArrayTypeSpecifier?: (ctx: ArrayTypeSpecifierContext) => Result;
     /**
+     * Visit a parse tree produced by `LPCParser.arrayExpression`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitArrayExpression?: (ctx: ArrayExpressionContext) => Result;
+    /**
+     * Visit a parse tree produced by `LPCParser.mappingContent`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitMappingContent?: (ctx: MappingContentContext) => Result;
+    /**
+     * Visit a parse tree produced by the `mappingValueInitializer`
+     * labeled alternative in `LPCParser.mappingExpression`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitMappingValueInitializer?: (ctx: MappingValueInitializerContext) => Result;
+    /**
+     * Visit a parse tree produced by the `mappingEmptyInitializer`
+     * labeled alternative in `LPCParser.mappingExpression`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitMappingEmptyInitializer?: (ctx: MappingEmptyInitializerContext) => Result;
+    /**
      * Visit a parse tree produced by `LPCParser.expression`.
      * @param ctx the parse tree
      * @return the visitor result
@@ -518,6 +545,12 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      * @return the visitor result
      */
     visitMultiplicativeExpression?: (ctx: MultiplicativeExpressionContext) => Result;
+    /**
+     * Visit a parse tree produced by `LPCParser.commaExpression`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitCommaExpression?: (ctx: CommaExpressionContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.unaryOrAssignmentExpression`.
      * @param ctx the parse tree
@@ -663,32 +696,6 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      * @return the visitor result
      */
     visitExpressionList?: (ctx: ExpressionListContext) => Result;
-    /**
-     * Visit a parse tree produced by `LPCParser.arrayExpression`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitArrayExpression?: (ctx: ArrayExpressionContext) => Result;
-    /**
-     * Visit a parse tree produced by `LPCParser.mappingContent`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitMappingContent?: (ctx: MappingContentContext) => Result;
-    /**
-     * Visit a parse tree produced by the `mappingValueInitializer`
-     * labeled alternative in `LPCParser.mappingExpression`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitMappingValueInitializer?: (ctx: MappingValueInitializerContext) => Result;
-    /**
-     * Visit a parse tree produced by the `mappingEmptyInitializer`
-     * labeled alternative in `LPCParser.mappingExpression`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitMappingEmptyInitializer?: (ctx: MappingEmptyInitializerContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.statement`.
      * @param ctx the parse tree

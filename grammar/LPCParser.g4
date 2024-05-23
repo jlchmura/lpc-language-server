@@ -246,10 +246,27 @@ arrayTypeSpecifier
     | LT typeSpecifier GT STAR?
     ;
 
+
+// Arrays & Mappings
+
+arrayExpression
+    : PAREN_OPEN CURLY_OPEN (expression (COMMA expression)*)? COMMA? CURLY_CLOSE PAREN_CLOSE
+    ;
+
+mappingContent
+    : mappingKey=expression (COLON expression (SEMI expression)*)?
+    ;
+
+mappingExpression
+    : MAPPING_OPEN (mappingContent (COMMA mappingContent)*)? COMMA? SQUARE_CLOSE PAREN_CLOSE    #mappingValueInitializer
+    | MAPPING_OPEN COLON expression SQUARE_CLOSE PAREN_CLOSE                                    #mappingEmptyInitializer
+    ;
+
+
 // Expressions:
 
 expression
-    : assignmentExpression
+    : assignmentExpression    
     | nonAssignmentExpression
     ;
 
@@ -257,7 +274,7 @@ nonAssignmentExpression
     : inheritSuperExpression
     | inlineClosureExpression
     | lambdaExpression        
-    | conditionalExpression
+    | conditionalExpression    
     ;
 
 assignmentExpression
@@ -266,7 +283,6 @@ assignmentExpression
 
 assignmentOperator
     : ASSIGN
-    | COMMA  // comma operator
     | ADD_ASSIGN
     | SUB_ASSIGN
     | MUL_ASSIGN
@@ -330,7 +346,12 @@ additiveExpression
     ;
 
 multiplicativeExpression
-    : unaryOrAssignmentExpression (op=(STAR | DIV | MOD) unaryOrAssignmentExpression)*
+    : commaExpression (op=(STAR | DIV | MOD) commaExpression)*
+    ;
+
+// the c-style comma operator. yuk
+commaExpression
+    : unaryOrAssignmentExpression (op=COMMA unaryOrAssignmentExpression)?
     ;
 
 unaryOrAssignmentExpression
@@ -414,21 +435,6 @@ castExpression
 
 expressionList
     : expression (COMMA expression)*
-    ;
-
-// Arrays & Mappings
-
-arrayExpression
-    : PAREN_OPEN CURLY_OPEN (expression (COMMA expression)*)? COMMA? CURLY_CLOSE PAREN_CLOSE
-    ;
-
-mappingContent
-    : mappingKey=expression (COLON expression (SEMI expression)*)?
-    ;
-
-mappingExpression
-    : MAPPING_OPEN (mappingContent (COMMA mappingContent)*)? COMMA? SQUARE_CLOSE PAREN_CLOSE    #mappingValueInitializer
-    | MAPPING_OPEN COLON expression SQUARE_CLOSE PAREN_CLOSE                                    #mappingEmptyInitializer
     ;
 
 

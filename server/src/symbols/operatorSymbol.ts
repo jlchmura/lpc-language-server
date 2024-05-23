@@ -20,6 +20,8 @@ export class OperatorSymbol extends ScopedSymbol implements IEvaluatableSymbol {
         const rhsValue = rhs?.eval(stack)?.value;
 
         switch (this.name) {
+            case "-":
+                return rhsValue;
             case "+":
                 return lhsValue + rhsValue;
             case "-":

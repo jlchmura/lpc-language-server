@@ -50,6 +50,10 @@ import { StructTypeSpecifierContext } from "./LPCParser.js";
 import { TypeSpecifierContext } from "./LPCParser.js";
 import { UnionableTypeSpecifierContext } from "./LPCParser.js";
 import { ArrayTypeSpecifierContext } from "./LPCParser.js";
+import { ArrayExpressionContext } from "./LPCParser.js";
+import { MappingContentContext } from "./LPCParser.js";
+import { MappingValueInitializerContext } from "./LPCParser.js";
+import { MappingEmptyInitializerContext } from "./LPCParser.js";
 import { ExpressionContext } from "./LPCParser.js";
 import { NonAssignmentExpressionContext } from "./LPCParser.js";
 import { AssignmentExpressionContext } from "./LPCParser.js";
@@ -67,6 +71,7 @@ import { RelationalExpressionContext } from "./LPCParser.js";
 import { ShiftExpressionContext } from "./LPCParser.js";
 import { AdditiveExpressionContext } from "./LPCParser.js";
 import { MultiplicativeExpressionContext } from "./LPCParser.js";
+import { CommaExpressionContext } from "./LPCParser.js";
 import { UnaryOrAssignmentExpressionContext } from "./LPCParser.js";
 import { UnaryExpressionContext } from "./LPCParser.js";
 import { PrimaryExpressionContext } from "./LPCParser.js";
@@ -89,10 +94,6 @@ import { PrimitiveTypeCastExpressionContext } from "./LPCParser.js";
 import { DeclarativeTypeCastExpressionContext } from "./LPCParser.js";
 import { StructCastExpressionContext } from "./LPCParser.js";
 import { ExpressionListContext } from "./LPCParser.js";
-import { ArrayExpressionContext } from "./LPCParser.js";
-import { MappingContentContext } from "./LPCParser.js";
-import { MappingValueInitializerContext } from "./LPCParser.js";
-import { MappingEmptyInitializerContext } from "./LPCParser.js";
 import { StatementContext } from "./LPCParser.js";
 import { ExpressionStatementContext } from "./LPCParser.js";
 import { BlockContext } from "./LPCParser.js";
@@ -606,6 +607,50 @@ export class LPCParserListener implements ParseTreeListener {
      */
     exitArrayTypeSpecifier?: (ctx: ArrayTypeSpecifierContext) => void;
     /**
+     * Enter a parse tree produced by `LPCParser.arrayExpression`.
+     * @param ctx the parse tree
+     */
+    enterArrayExpression?: (ctx: ArrayExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.arrayExpression`.
+     * @param ctx the parse tree
+     */
+    exitArrayExpression?: (ctx: ArrayExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.mappingContent`.
+     * @param ctx the parse tree
+     */
+    enterMappingContent?: (ctx: MappingContentContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.mappingContent`.
+     * @param ctx the parse tree
+     */
+    exitMappingContent?: (ctx: MappingContentContext) => void;
+    /**
+     * Enter a parse tree produced by the `mappingValueInitializer`
+     * labeled alternative in `LPCParser.mappingExpression`.
+     * @param ctx the parse tree
+     */
+    enterMappingValueInitializer?: (ctx: MappingValueInitializerContext) => void;
+    /**
+     * Exit a parse tree produced by the `mappingValueInitializer`
+     * labeled alternative in `LPCParser.mappingExpression`.
+     * @param ctx the parse tree
+     */
+    exitMappingValueInitializer?: (ctx: MappingValueInitializerContext) => void;
+    /**
+     * Enter a parse tree produced by the `mappingEmptyInitializer`
+     * labeled alternative in `LPCParser.mappingExpression`.
+     * @param ctx the parse tree
+     */
+    enterMappingEmptyInitializer?: (ctx: MappingEmptyInitializerContext) => void;
+    /**
+     * Exit a parse tree produced by the `mappingEmptyInitializer`
+     * labeled alternative in `LPCParser.mappingExpression`.
+     * @param ctx the parse tree
+     */
+    exitMappingEmptyInitializer?: (ctx: MappingEmptyInitializerContext) => void;
+    /**
      * Enter a parse tree produced by `LPCParser.expression`.
      * @param ctx the parse tree
      */
@@ -775,6 +820,16 @@ export class LPCParserListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitMultiplicativeExpression?: (ctx: MultiplicativeExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.commaExpression`.
+     * @param ctx the parse tree
+     */
+    enterCommaExpression?: (ctx: CommaExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.commaExpression`.
+     * @param ctx the parse tree
+     */
+    exitCommaExpression?: (ctx: CommaExpressionContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.unaryOrAssignmentExpression`.
      * @param ctx the parse tree
@@ -1021,50 +1076,6 @@ export class LPCParserListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitExpressionList?: (ctx: ExpressionListContext) => void;
-    /**
-     * Enter a parse tree produced by `LPCParser.arrayExpression`.
-     * @param ctx the parse tree
-     */
-    enterArrayExpression?: (ctx: ArrayExpressionContext) => void;
-    /**
-     * Exit a parse tree produced by `LPCParser.arrayExpression`.
-     * @param ctx the parse tree
-     */
-    exitArrayExpression?: (ctx: ArrayExpressionContext) => void;
-    /**
-     * Enter a parse tree produced by `LPCParser.mappingContent`.
-     * @param ctx the parse tree
-     */
-    enterMappingContent?: (ctx: MappingContentContext) => void;
-    /**
-     * Exit a parse tree produced by `LPCParser.mappingContent`.
-     * @param ctx the parse tree
-     */
-    exitMappingContent?: (ctx: MappingContentContext) => void;
-    /**
-     * Enter a parse tree produced by the `mappingValueInitializer`
-     * labeled alternative in `LPCParser.mappingExpression`.
-     * @param ctx the parse tree
-     */
-    enterMappingValueInitializer?: (ctx: MappingValueInitializerContext) => void;
-    /**
-     * Exit a parse tree produced by the `mappingValueInitializer`
-     * labeled alternative in `LPCParser.mappingExpression`.
-     * @param ctx the parse tree
-     */
-    exitMappingValueInitializer?: (ctx: MappingValueInitializerContext) => void;
-    /**
-     * Enter a parse tree produced by the `mappingEmptyInitializer`
-     * labeled alternative in `LPCParser.mappingExpression`.
-     * @param ctx the parse tree
-     */
-    enterMappingEmptyInitializer?: (ctx: MappingEmptyInitializerContext) => void;
-    /**
-     * Exit a parse tree produced by the `mappingEmptyInitializer`
-     * labeled alternative in `LPCParser.mappingExpression`.
-     * @param ctx the parse tree
-     */
-    exitMappingEmptyInitializer?: (ctx: MappingEmptyInitializerContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.statement`.
      * @param ctx the parse tree

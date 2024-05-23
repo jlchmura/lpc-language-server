@@ -42,9 +42,6 @@ export class AssignmentSymbol
         const rhResult = this.rhs.eval(stack, scope);
 
         switch (this.operator) {
-            case ",":
-                lh.eval(stack);
-                return rhResult;
             case "=":
                 return lh.eval(stack, rhResult);
             case "+=":
