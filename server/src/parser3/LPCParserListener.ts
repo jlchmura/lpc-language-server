@@ -49,7 +49,6 @@ import { MethodInvocationContext } from "./LPCParser.js";
 import { StructTypeSpecifierContext } from "./LPCParser.js";
 import { TypeSpecifierContext } from "./LPCParser.js";
 import { UnionableTypeSpecifierContext } from "./LPCParser.js";
-import { ArrayTypeSpecifierContext } from "./LPCParser.js";
 import { ArrayExpressionContext } from "./LPCParser.js";
 import { MappingContentContext } from "./LPCParser.js";
 import { MappingValueInitializerContext } from "./LPCParser.js";
@@ -596,16 +595,6 @@ export class LPCParserListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitUnionableTypeSpecifier?: (ctx: UnionableTypeSpecifierContext) => void;
-    /**
-     * Enter a parse tree produced by `LPCParser.arrayTypeSpecifier`.
-     * @param ctx the parse tree
-     */
-    enterArrayTypeSpecifier?: (ctx: ArrayTypeSpecifierContext) => void;
-    /**
-     * Exit a parse tree produced by `LPCParser.arrayTypeSpecifier`.
-     * @param ctx the parse tree
-     */
-    exitArrayTypeSpecifier?: (ctx: ArrayTypeSpecifierContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.arrayExpression`.
      * @param ctx the parse tree

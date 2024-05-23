@@ -168,11 +168,11 @@ parameter
     ;
 
 structDeclaration
-    : STRUCT structName=Identifier CURLY_OPEN structMembers=structMemberDeclaration* CURLY_CLOSE SEMI
+    : STRUCT structName=Identifier (PAREN_OPEN structInherits=Identifier PAREN_CLOSE)? CURLY_OPEN structMembers=structMemberDeclaration* CURLY_CLOSE SEMI
     ;
 
 structMemberDeclaration
-    : typeSpecifier Identifier SEMI
+    : unionableTypeSpecifier Identifier SEMI
     ;
 
 structMemberInitializer
@@ -221,6 +221,7 @@ primitiveTypeSpecifier
     | STATUS
     | CLOSURE
     | SYMBOL        
+    | LWOBJECT
     ;
 
 methodInvocation
@@ -237,15 +238,9 @@ typeSpecifier
     ;
 
 unionableTypeSpecifier
-    : primitiveTypeSpecifier (OR unionableTypeSpecifier)*
-    | arrayTypeSpecifier (OR unionableTypeSpecifier)*    
+    : primitiveTypeSpecifier STAR? (OR unionableTypeSpecifier)*
+    | LT typeSpecifier GT STAR? (OR unionableTypeSpecifier)*    
     ;
-
-arrayTypeSpecifier
-    : primitiveTypeSpecifier? STAR
-    | LT typeSpecifier GT STAR?
-    ;
-
 
 // Arrays & Mappings
 

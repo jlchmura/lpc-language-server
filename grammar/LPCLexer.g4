@@ -42,6 +42,7 @@ INCLUDE: 'include';
 INHERIT: 'inherit';
 INT: 'int';
 LINE: '#line';
+LWOBJECT: 'lwobject';
 MAPPING: 'mapping';
 MIXED: 'mixed';
 OBJECT: 'object';
