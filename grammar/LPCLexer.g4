@@ -64,6 +64,7 @@ PRIVATE: 'private';
 PROTECTED: 'protected';
 PUBLIC: 'public';
 STATIC: 'static';
+VISIBLE: 'visible';
 
 NOSHADOW: 'noshadow';
 NOSAVE: 'nosave';

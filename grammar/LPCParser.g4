@@ -120,6 +120,7 @@ functionModifier
     | NOSHADOW     
     | NOMASK
     | VARARGS
+    | VISIBLE
     ;
 
 functionHeader
