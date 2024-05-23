@@ -80,6 +80,7 @@ efun("localtime", LpcTypes.intArrayType, false, ["clock", LpcTypes.intType]);
 efun("load_name", LpcTypes.stringType, true, ["ob", LpcTypes.objectType]);
 efun("load_object", LpcTypes.objectType, false, ["file", LpcTypes.stringType]);
 efun("lower_case", LpcTypes.stringType, false, ["str", LpcTypes.stringType]);
+efun("master", LpcTypes.objectType, true, ["dont_load", LpcTypes.intType]);
 efun("map", LpcTypes.mixedArrayType, true, ["arr", LpcTypes.mixedArrayType], ["fun", LpcTypes.closureType], ["ob", LpcTypes.stringType], ["extra", LpcTypes.mappingType]);
 efun("max", LpcTypes.intType, true, ["arg", LpcTypes.mixedType], ["arg1", LpcTypes.mixedType, true]);
 efun("mappingp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);

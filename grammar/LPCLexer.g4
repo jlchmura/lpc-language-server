@@ -126,6 +126,7 @@ BITAND_ASSIGN: '&=';
 BITOR_ASSIGN: '|=';
 XOR_ASSIGN: '^=';
 SHL_ASSIGN: '<<=';
+RSH_ASSIGN: '>>=';
 MAPPING_OPEN: '([';
 ARROW: '->';
 

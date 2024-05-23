@@ -29,6 +29,8 @@ export class LpcConfig {
         ["__HOST_NAME__", '"localhost"'],
         ["__MASTER_OBJECT__", '"/obj/master"'],
         ["TLS_PORT", "5555"],
+        ["__INT_MAX__", "2147483647"],
+        ["__INT_MIN__", "-2147483648"],
     ]);
 
     public include: string[] = ["/sys"];

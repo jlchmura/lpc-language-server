@@ -59,7 +59,6 @@ import { CommaExpressionContext } from "./LPCParser.js";
 import { NonAssignmentExpressionContext } from "./LPCParser.js";
 import { AssignmentExpressionContext } from "./LPCParser.js";
 import { AssignmentOperatorContext } from "./LPCParser.js";
-import { RightShiftAssignmentContext } from "./LPCParser.js";
 import { ConditionalExpressionContext } from "./LPCParser.js";
 import { ConditionalTernaryExpressionContext } from "./LPCParser.js";
 import { ConditionalOrExpressionContext } from "./LPCParser.js";
@@ -105,6 +104,7 @@ import { IfExpressionContext } from "./LPCParser.js";
 import { IfStatementContext } from "./LPCParser.js";
 import { SwitchStatementContext } from "./LPCParser.js";
 import { CaseExpressionContext } from "./LPCParser.js";
+import { CaseOperatorsContext } from "./LPCParser.js";
 import { CaseConditionContext } from "./LPCParser.js";
 import { CaseStatementContext } from "./LPCParser.js";
 import { DefaultStatementContext } from "./LPCParser.js";
@@ -475,12 +475,6 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      */
     visitAssignmentOperator?: (ctx: AssignmentOperatorContext) => Result;
     /**
-     * Visit a parse tree produced by `LPCParser.rightShiftAssignment`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitRightShiftAssignment?: (ctx: RightShiftAssignmentContext) => Result;
-    /**
      * Visit a parse tree produced by `LPCParser.conditionalExpression`.
      * @param ctx the parse tree
      * @return the visitor result
@@ -763,6 +757,12 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      * @return the visitor result
      */
     visitCaseExpression?: (ctx: CaseExpressionContext) => Result;
+    /**
+     * Visit a parse tree produced by `LPCParser.caseOperators`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitCaseOperators?: (ctx: CaseOperatorsContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.caseCondition`.
      * @param ctx the parse tree

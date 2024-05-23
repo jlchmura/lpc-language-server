@@ -88,9 +88,8 @@ directiveTypePragma: PRAGMA;
 // inherit
 inheritStatement
     : (
-        inherit
-        | VIRTUAL inherit
-        | (DEFAULT defaultModifier+)? inheritModifier+ inherit
+        inherit        
+        | (DEFAULT defaultModifier+)? inheritModifier* VIRTUAL? inherit
     ) SEMI    
     ;
 
@@ -244,7 +243,7 @@ typeSpecifier
 
 unionableTypeSpecifier
     : primitiveTypeSpecifier STAR? (OR unionableTypeSpecifier)*
-    | LT typeSpecifier GT STAR? (OR unionableTypeSpecifier)*    
+    | LT typeSpecifier GT STAR* (OR unionableTypeSpecifier)*    
     | structTypeSpecifier (OR unionableTypeSpecifier)*
     ;
 
@@ -301,12 +300,12 @@ assignmentOperator
     | BITOR_ASSIGN
     | XOR_ASSIGN
     | SHL_ASSIGN
-    | rightShiftAssignment
+    | RSH_ASSIGN
     ;
 
-rightShiftAssignment
-    : first = '>' second = '>=' {$first.index + 1 == $second.index}? // make sure there is nothing between the tokens
-    ;
+// rightShiftAssignment
+//     : first = '>' second = '>=' {$first.index + 1 == $second.index}? // make sure there is nothing between the tokens
+//     ;
 
 conditionalExpression
     : conditionalTernaryExpression
@@ -419,7 +418,7 @@ catchExpr
 
 inlineClosureExpression
     : PAREN_OPEN COLON (expression|statement*) COLON PAREN_CLOSE
-    | FUNCTION typeSpecifier PAREN_OPEN parameterList? PAREN_CLOSE block
+    | FUNCTION typeSpecifier? PAREN_OPEN parameterList? PAREN_CLOSE block
     ;
 
 bracketExpression
@@ -466,12 +465,12 @@ statement
     | jumpStatement    
     | variableDeclarationStatement
     | returnStatement    
-    | includePreprocessorDirective // this is really handled by the preprocessor, but including here for convenience in symbol nav
+    | includePreprocessorDirective // this is really handled by the preprocessor, but including here for convenience in symbol nav    
     | SEMI
     //| preprocessorDirective
     ;
 
-expressionStatement: expression SEMI;
+expressionStatement: commaExpression SEMI;
 
 block: CURLY_OPEN statement* CURLY_CLOSE;
 
@@ -503,11 +502,15 @@ switchStatement
     ;
 
 caseExpression
-    : caseCondition (DOUBLEDOT caseCondition)?
+    : caseCondition (caseOperators caseCondition)* (DOUBLEDOT caseCondition (caseOperators caseCondition)*)?
+    ;
+
+caseOperators
+    : PLUS | MINUS | STAR | DIV
     ;
 
 caseCondition
-    : (StringLiteral|MINUS? IntegerConstant|HexIntConstant|Identifier|CharacterConstant)
+    : MINUS? (StringLiteral|IntegerConstant|HexIntConstant|Identifier|CharacterConstant)
     | PAREN_OPEN additiveExpression PAREN_CLOSE
     ;
 
@@ -535,6 +538,7 @@ foreachRangeExpression
 
 forVariable
     : primitiveTypeSpecifier? variableDeclarator (ASSIGN variableInitializer | INC | DEC) 
+    | unaryOrAssignmentExpression
     ;
 
 forEachVariable
