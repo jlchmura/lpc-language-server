@@ -183,7 +183,7 @@ variableDeclarator
 variableInitializer
     : expression
     | arrayExpression
-    | mappingExpression
+    | mappingExpression    
     ;
 
 primitiveTypeSpecifier
@@ -356,6 +356,7 @@ catchExpr
 
 inlineClosureExpression
     : PAREN_OPEN COLON (expression|statement*) COLON PAREN_CLOSE
+    | FUNCTION typeSpecifier PAREN_OPEN parameterList? PAREN_CLOSE block
     ;
 
 bracketExpression

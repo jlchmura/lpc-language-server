@@ -30,6 +30,7 @@ EXTERN: 'extern';
 FLOAT: 'float';
 FOR: 'for';
 FOREACH: 'foreach';
+FUNCTION: 'function';
 GOTO: 'goto';
 HASH: '#';
 IF: 'if';

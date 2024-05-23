@@ -392,17 +392,6 @@ export class ContextSymbolTable extends SymbolTable {
     public listTopLevelSymbols(localOnly: boolean): ISymbolInfo[] {
         const result: ISymbolInfo[] = [];
 
-        // const options = this.resolveSync("options", true);
-        // if (options) {
-        //     const tokenVocab = options.resolveSync("tokenVocab", true);
-        //     if (tokenVocab) {
-        //         const value = this.getSymbolInfo(tokenVocab);
-        //         if (value) {
-        //             result.push(value);
-        //         }
-        //     }
-        // }
-
         let symbols = this.symbolsOfType(IncludeSymbol, localOnly);
         result.push(...symbols);
         symbols = this.symbolsOfType(EfunSymbol, localOnly);
@@ -415,6 +404,8 @@ export class ContextSymbolTable extends SymbolTable {
         result.push(...symbols);
         symbols = this.symbolsOfType(DefineSymbol, localOnly);
         result.push(...symbols);
+
+        // NTBLA: add structs
 
         return result;
     }
