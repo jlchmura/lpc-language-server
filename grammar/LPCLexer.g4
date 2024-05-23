@@ -60,6 +60,7 @@ VOLATILE: 'volatile';
 WHILE: 'while';
 
 // modifiers
+DEPRECATED: 'deprecated';
 PRIVATE: 'private';
 PROTECTED: 'protected';
 PUBLIC: 'public';

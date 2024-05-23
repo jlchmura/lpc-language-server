@@ -113,7 +113,8 @@ declaration
     ;
 
 functionModifier
-    : STATIC
+    : DEPRECATED
+    | STATIC
     | PRIVATE
     | PROTECTED
     | PUBLIC
