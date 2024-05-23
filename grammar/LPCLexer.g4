@@ -147,6 +147,7 @@ LoadObject: 'load_object';
 
 // Identifiers
 Identifier: [$a-zA-Z_] [a-zA-Z_0-9]*;
+FileIdentifier: [$a-zA-Z_] [a-zA-Z_0-9/.]*;
 
 // Whitespace and comments
 COMMENT: '/*' .*? '*/' -> channel(COMMENTS_CHANNEL);

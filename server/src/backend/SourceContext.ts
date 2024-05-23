@@ -783,6 +783,7 @@ export class SourceContext {
         }
 
         switch (parent.ruleIndex) {
+            case LPCParser.RULE_directiveGlobalFile:
             case LPCParser.RULE_directiveIncludeFile:
                 const includeSymbol = this.symbolTable.symbolContainingContext(
                     terminal

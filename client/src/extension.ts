@@ -18,6 +18,7 @@ import {
     TextEditor,
     TextEditorEdit,
     window,
+    DefinitionProvider,
 } from "vscode";
 
 import {
@@ -132,6 +133,23 @@ export function activate(context: ExtensionContext) {
             legend
         )
     );
+
+    const p: DefinitionProvider = {
+        // provideDefinition(document: TextDocument, position: any, token: CancellationToken) {
+        //     return client.sendRequest("textDocument/definition", {
+        //         textDocument: { uri: document.uri.toString() },
+        //         position: position
+        //     }).then((res) => res);
+        // }
+        provideDefinition(document, position, cancellationToken) {
+            const token = document.getWordRangeAtPosition(position);
+            const word = document.getText(token);
+            console.log("provideDefinition", word);
+            return [];
+        },
+    };
+
+    context.subscriptions.push(languages.registerDefinitionProvider(docSel, p));
 
     context.subscriptions.push(
         commands.registerCommand(

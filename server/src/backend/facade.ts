@@ -717,8 +717,9 @@ export class LpcFacade {
                                     //this.releaseLpc(filename);
                                     resolve(txt);
                                 } catch (e) {
-                                    console.trace(
-                                        `Error parsing ${filename}: ${e}`
+                                    console.error(
+                                        `Error parsing ${filename}: ${e}`,
+                                        (e as Error).stack
                                     );
                                     resolve(undefined);
                                 }

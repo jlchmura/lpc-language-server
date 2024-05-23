@@ -75,7 +75,7 @@ directiveDefineArgument: expression ;
 // #include <file> | #include "file"
 directiveTypeInclude: INCLUDE;
 
-directiveGlobalFile: LT Identifier (DOT Identifier)? GT;
+directiveGlobalFile: LT FileIdentifier GT;
 
 directiveIncludeFile
     : globalFile=directiveGlobalFile

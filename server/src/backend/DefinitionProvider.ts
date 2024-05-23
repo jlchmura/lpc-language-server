@@ -18,6 +18,7 @@ export class LpcDefinitionProvider {
             position.line + 1,
             true
         );
+        //console.debug("DefinitionProvider.getDefinition", infoList);
         if (!infoList || infoList.length == 0) return null;
 
         const results = infoList.map((info) => {
