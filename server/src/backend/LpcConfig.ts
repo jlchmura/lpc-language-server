@@ -39,7 +39,7 @@ export class LpcConfig {
         ["__BOOT_TIME__", "1"],
     ]);
 
-    public include: string[] = ["/sys", "/room"];
+    public include: string[] = ["/sys", "/obj", "/room"];
     public exclude: string[] = [];
 
     public driver: DriverInfo = {

@@ -177,3 +177,5 @@ export const SemanticTokenModifiers = {
     DefaultLibrary: 5,
     Local: 6,
 } as const;
+
+export const FUNCTION_NAME_KEY = "$$$function_id$$$";

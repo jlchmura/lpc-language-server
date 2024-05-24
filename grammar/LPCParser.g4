@@ -374,7 +374,7 @@ unaryExpression
     ;
 
 primaryExpression
-    : pe = primaryExpressionStart bracketExpression* (
+    : super=inheritSuperExpression? pe = primaryExpressionStart bracketExpression* (
         (
             methodInvocation 
             | INC 
@@ -388,7 +388,7 @@ primaryExpression
 
 primaryExpressionStart
     : literal                               # literalExpression
-    | inheritSuperExpression                # inheritExpression    
+    //| inheritSuperExpression                # inheritExpression    
     | StringLiteral StringLiteral*          # stringConcatExpression
     | (CloneObject|LoadObject) PAREN_OPEN (ob=expression) PAREN_CLOSE   # cloneObjectExpression 
     | validIdentifiers                            # identifierExpression    

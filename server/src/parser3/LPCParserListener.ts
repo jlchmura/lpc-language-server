@@ -75,7 +75,6 @@ import { UnaryOrAssignmentExpressionContext } from "./LPCParser.js";
 import { UnaryExpressionContext } from "./LPCParser.js";
 import { PrimaryExpressionContext } from "./LPCParser.js";
 import { LiteralExpressionContext } from "./LPCParser.js";
-import { InheritExpressionContext } from "./LPCParser.js";
 import { StringConcatExpressionContext } from "./LPCParser.js";
 import { CloneObjectExpressionContext } from "./LPCParser.js";
 import { IdentifierExpressionContext } from "./LPCParser.js";
@@ -864,18 +863,6 @@ export class LPCParserListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitLiteralExpression?: (ctx: LiteralExpressionContext) => void;
-    /**
-     * Enter a parse tree produced by the `inheritExpression`
-     * labeled alternative in `LPCParser.primaryExpressionStart`.
-     * @param ctx the parse tree
-     */
-    enterInheritExpression?: (ctx: InheritExpressionContext) => void;
-    /**
-     * Exit a parse tree produced by the `inheritExpression`
-     * labeled alternative in `LPCParser.primaryExpressionStart`.
-     * @param ctx the parse tree
-     */
-    exitInheritExpression?: (ctx: InheritExpressionContext) => void;
     /**
      * Enter a parse tree produced by the `stringConcatExpression`
      * labeled alternative in `LPCParser.primaryExpressionStart`.

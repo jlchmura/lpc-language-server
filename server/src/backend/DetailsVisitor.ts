@@ -45,7 +45,6 @@ import {
     IncludePreprocessorDirectiveContext,
     InclusiveOrExpressionContext,
     InheritStatementContext,
-    InheritSuperExpressionContext,
     InlineClosureExpressionContext,
     LambdaExpressionContext,
     LiteralContext,
@@ -266,6 +265,17 @@ export class DetailsVisitor
                     symbol.functionName = target?.name;
 
                     return symbol;
+                }
+            );
+        } else if (ctx._super_) {
+            const superCtx = ctx._super_;
+            const filename = superCtx._filename?.text ?? "";
+            return this.withScope(
+                ctx,
+                InheritSuperAccessorSymbol,
+                ["#inherit-super#" + filename, filename, this.fileHandler],
+                (s) => {
+                    return this.visitChildren(ctx);
                 }
             );
         } else {
@@ -591,17 +601,17 @@ export class DetailsVisitor
         return undefined;
     };
 
-    visitInheritSuperExpression = (ctx: InheritSuperExpressionContext) => {
-        const filename = ctx._filename?.text ?? "";
-        return this.withScope(
-            ctx,
-            InheritSuperAccessorSymbol,
-            ["#inherit-super#" + filename, filename, this.fileHandler],
-            (s) => {
-                return this.visitChildren(ctx);
-            }
-        );
-    };
+    // visitInheritSuperExpression = (ctx: InheritSuperExpressionContext) => {
+    //     const filename = ctx._filename?.text ?? "";
+    //     return this.withScope(
+    //         ctx,
+    //         InheritSuperAccessorSymbol,
+    //         ["#inherit-super#" + filename, filename, this.fileHandler],
+    //         (s) => {
+    //             return this.visitChildren(ctx);
+    //         }
+    //     );
+    // };
 
     visitInlineClosureExpression = (ctx: InlineClosureExpressionContext) => {
         let parent = ctx.parent;
@@ -899,7 +909,7 @@ export class DetailsVisitor
     };
 
     visitCommaExpression = (ctx: CommaExpressionContext) => {
-        const operator = ","; // ctx._op?.text;
+        const operator = ctx.COMMA()?.getText();
         if (operator) {
             return this.withScope(ctx, OperatorSymbol, [operator], (s) => {
                 return this.visitChildren(ctx);
@@ -945,6 +955,17 @@ export class DetailsVisitor
         this.parseIterationStatement(ctx, IterationSymbol);
 
     visitForVariable = (ctx: ForVariableContext) => {
+        if (ctx.variableDeclarator()) {
+            const varType = this.parsePrimitiveType(
+                ctx.primitiveTypeSpecifier()
+            );
+            const varSym = this.parseVariableDeclaration(
+                ctx.variableDeclarator(),
+                varType
+            );
+            return undefined;
+        }
+
         //const varType = this.parsePrimitiveType(ctx.primitiveTypeSpecifier());
         return this.visitChildren(ctx);
         // const varName = ctx.va

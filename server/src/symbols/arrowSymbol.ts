@@ -19,7 +19,7 @@ import {
     addDependenciesToStack,
     addPogramToStack,
 } from "../backend/CallStackUtils";
-import { DiagnosticCodes } from "../types";
+import { DiagnosticCodes, FUNCTION_NAME_KEY } from "../types";
 
 export enum ArrowType {
     CallOther,
@@ -169,7 +169,6 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
                 code: diagCode,
                 type: DiagnosticSeverity.Error,
             });
-            return undefined;
         }
 
         // the method invocation symbol will have the call arguments
@@ -185,6 +184,12 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
 
         // evaluate the argumnents
         const argVals = methodInvok?.getArguments().map((a) => a.eval(stack));
+
+        if (!symTbl || !methodInvok) {
+            // clear the temp function pointer
+            stack.clearValue(FUNCTION_NAME_KEY);
+            return undefined;
+        }
 
         // create a new root frame for this object
         // this doesn't need to go on the stack, it's just a temporary frame

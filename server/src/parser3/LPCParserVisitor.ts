@@ -75,7 +75,6 @@ import { UnaryOrAssignmentExpressionContext } from "./LPCParser.js";
 import { UnaryExpressionContext } from "./LPCParser.js";
 import { PrimaryExpressionContext } from "./LPCParser.js";
 import { LiteralExpressionContext } from "./LPCParser.js";
-import { InheritExpressionContext } from "./LPCParser.js";
 import { StringConcatExpressionContext } from "./LPCParser.js";
 import { CloneObjectExpressionContext } from "./LPCParser.js";
 import { IdentifierExpressionContext } from "./LPCParser.js";
@@ -571,13 +570,6 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      * @return the visitor result
      */
     visitLiteralExpression?: (ctx: LiteralExpressionContext) => Result;
-    /**
-     * Visit a parse tree produced by the `inheritExpression`
-     * labeled alternative in `LPCParser.primaryExpressionStart`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitInheritExpression?: (ctx: InheritExpressionContext) => Result;
     /**
      * Visit a parse tree produced by the `stringConcatExpression`
      * labeled alternative in `LPCParser.primaryExpressionStart`.

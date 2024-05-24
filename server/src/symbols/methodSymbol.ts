@@ -13,7 +13,12 @@ import {
     getSymbolsOfTypeSync,
     IRenameableSymbol,
 } from "./base";
-import { ILexicalRange, LpcTypes, SymbolKind } from "../types";
+import {
+    FUNCTION_NAME_KEY,
+    ILexicalRange,
+    LpcTypes,
+    SymbolKind,
+} from "../types";
 import { DiagnosticSeverity, FoldingRange } from "vscode-languageserver";
 import { ExpressionSymbol } from "./expressionSymbol";
 import { rangeFromTokens, resolveOfTypeSync } from "../utils";
@@ -33,7 +38,6 @@ import { InheritSuperAccessorSymbol } from "./inheritSymbol";
 
 export const MAX_CALLDEPTH_SIZE = 25;
 const OBJ_PLAYER_FILENAME = "/obj/player";
-const FUNCTION_NAME_KEY = "$$$function_id$$$";
 
 export class MethodParameterSymbol
     extends ParameterSymbol
