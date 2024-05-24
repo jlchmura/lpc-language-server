@@ -200,7 +200,7 @@ variableDeclaratorExpression
     ;
 
 variableDeclarator
-    : arraySpecifier=STAR? variableName=validIdentifiers
+    : arraySpecifier=(STAR|ARRAY)? variableName=validIdentifiers
     ;
 
 variableInitializer
@@ -230,7 +230,7 @@ methodInvocation
     ;
 
 structTypeSpecifier
-    : STRUCT Identifier STAR?
+    : STRUCT Identifier (STAR|ARRAY)?
     ;
 
 typeSpecifier
@@ -238,8 +238,8 @@ typeSpecifier
     ;
 
 unionableTypeSpecifier
-    : primitiveTypeSpecifier STAR? (OR unionableTypeSpecifier)*
-    | LT typeSpecifier GT STAR* (OR unionableTypeSpecifier)*    
+    : primitiveTypeSpecifier (STAR|ARRAY)? (OR unionableTypeSpecifier)*
+    | LT typeSpecifier GT (STAR|ARRAY)* (OR unionableTypeSpecifier)*    
     | structTypeSpecifier (OR unionableTypeSpecifier)*
     ;
 
@@ -370,6 +370,7 @@ unaryOrAssignmentExpression
 unaryExpression
     : castExpression
     | primaryExpression    
+    | lambdaExpression
     | (PLUS|MINUS|NOT|BNOT|INC|DEC|AND|STAR) unaryExpression    
     ;
 
@@ -402,7 +403,9 @@ primaryExpressionStart
 
 // list of keywords that are not reserved keywords and thus can be used as identifiers
 validIdentifiers
-    : Identifier    
+    : Identifier        
+    | ARRAY
+    | BYTES
     | FUNCTIONS
     | VARIABLES
     | STRUCTS
@@ -501,12 +504,12 @@ caseExpression
     ;
 
 caseOperators
-    : PLUS | MINUS | STAR | DIV
+    : PLUS | MINUS | STAR | DIV 
     ;
 
 caseCondition
     : MINUS? (StringLiteral|IntegerConstant|HexIntConstant|Identifier|CharacterConstant)
-    | PAREN_OPEN additiveExpression PAREN_CLOSE
+    | PAREN_OPEN shiftExpression PAREN_CLOSE
     ;
 
 caseStatement

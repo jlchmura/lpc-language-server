@@ -11,7 +11,7 @@ channels {
 
 
 // Keywords
-
+ARRAY: 'array';
 BREAK: 'break';
 BYTES: 'bytes';
 CASE: 'case';

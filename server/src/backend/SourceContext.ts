@@ -133,6 +133,7 @@ export class SourceContext {
 
     // Result related fields.
     private semanticAnalysisDone = false; // Includes determining reference counts.
+    private parseSuccessful = true;
     /**
      * Indicates that semantic analysis / validation needs to be run
      */
@@ -208,6 +209,7 @@ export class SourceContext {
         // There won't be lexer errors actually. They are silently bubbled up and will cause parser errors.
         this.lexer.removeErrorListeners();
         this.lexer.addErrorListener(this.lexerErrorListener);
+
         this.preLexer.removeErrorListeners();
 
         this.tokenStream = new CommonTokenStream(this.lexer);
@@ -364,6 +366,7 @@ export class SourceContext {
         const config = ensureLpcConfig();
         // console.debug(`Parsing ${this.fileName}`);
 
+        this.parseSuccessful = true;
         this.info.imports.length = 0;
         this.semanticAnalysisDone = false;
         this.diagnostics.length = 0;
@@ -439,6 +442,8 @@ export class SourceContext {
         // console.log(this.dfa);
         this.symbolTable.tree = this.tree;
 
+        this.parseSuccessful = this.diagnostics.length == 0;
+
         const visitor = new DetailsVisitor(
             this.backend,
             this.symbolTable,
@@ -455,7 +460,6 @@ export class SourceContext {
         //this.info.unreferencedRules = this.symbolTable.getUnreferencedSymbols();
 
         this.needsCompile = false;
-
         this.cachedSemanticTokens = this.semanticTokens.build(this.sourceMap);
 
         return this.info;
@@ -544,6 +548,7 @@ export class SourceContext {
     private runSemanticAnalysisIfNeeded() {
         // don't run analysis if the code state is dirty. needs a compile first
         if (
+            this.parseSuccessful &&
             !this.semanticAnalysisDone &&
             this.tree &&
             //!this.needsCompile &&
