@@ -219,8 +219,13 @@ export class PreprocessorListener extends LPCPreprocessorParserListener {
     };
 
     enterPreprocessorImport = (ctx: PreprocessorImportContext) => {
-        const includeFile = ctx.directive_text().getText();
-        this.includeFiles.push(includeFile);
+        let includeFile = ctx
+            .directive_text()
+            .getText()
+            .replace(/__DIR__/g, this.macroTable.get("__DIR__").value);
+        let parts = includeFile.split('"');
+        const finalFile = parts.join("");
+        this.includeFiles.push(finalFile);
     };
 
     enterPreprocessorDefine = (ctx: PreprocessorDefineContext) => {

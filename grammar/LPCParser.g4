@@ -79,7 +79,7 @@ directiveGlobalFile: LT Identifier (DIV | DOT | Identifier)* GT;
 
 directiveIncludeFile
     : globalFile=directiveGlobalFile
-    | localFile=StringLiteral
+    | localFile=StringLiteral StringLiteral*
     | defineFile=Identifier
     ;
 

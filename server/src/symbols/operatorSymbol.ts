@@ -38,7 +38,7 @@ export class OperatorSymbol extends ScopedSymbol implements IEvaluatableSymbol {
                 return lhsValue ^ rhsValue;
         }
 
-        throw "operator not implements " + this.name;
+        throw "OpSymbol: operator not implements " + this.name;
     }
 
     public get kind() {

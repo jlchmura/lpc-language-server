@@ -1,7 +1,7 @@
 import { ScopedSymbol } from "antlr4-c3";
 import { IEvaluatableSymbol } from "./base";
-import { SymbolKind } from "../types";
-import { CallStack } from "../backend/CallStack";
+import { LpcTypes, SymbolKind } from "../types";
+import { CallStack, StackValue } from "../backend/CallStack";
 
 export class ConditionalSymbol
     extends ScopedSymbol
@@ -41,9 +41,13 @@ export class ConditionalSymbol
                 return lhResult && rhResult;
             case "||":
                 return lhResult || rhResult;
+            case "^":
+                return lhResult ^ rhResult;
+            case "in":
+                return new StackValue(1, LpcTypes.intType, this);
         }
 
-        throw "operator not implemented " + this.name;
+        throw "Conditional Symbol: operator not implemented " + this.name;
     }
 
     public get kind() {

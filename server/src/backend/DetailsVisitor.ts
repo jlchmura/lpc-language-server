@@ -441,7 +441,7 @@ export class DetailsVisitor
     };
 
     parseTypeSpecifier(ctx: TypeSpecifierContext) {
-        const u = ctx.unionableTypeSpecifier();
+        const u = ctx?.unionableTypeSpecifier();
         if (u?.structTypeSpecifier()) {
             return LpcTypes.structType;
         } else {
@@ -488,19 +488,22 @@ export class DetailsVisitor
         varDecl: VariableDeclaratorContext,
         varType: IType
     ): VariableSymbol {
-        const nm = varDecl._variableName?.getText();
+        const varNameSym = varDecl._variableName;
+        const nm = varNameSym?.getText();
         const varSym = this.addNewSymbol(
             VariableSymbol,
             varDecl.validIdentifiers(),
             nm,
             varType,
-            varDecl._variableName
+            varNameSym
         );
 
-        this.markToken(
-            this.getValidIdentifier(varDecl._variableName).symbol,
-            SemanticTokenTypes.Variable
-        );
+        if (varNameSym) {
+            this.markToken(
+                this.getValidIdentifier(varNameSym).symbol,
+                SemanticTokenTypes.Variable
+            );
+        }
 
         return varSym;
     }
@@ -541,7 +544,13 @@ export class DetailsVisitor
     visitIncludePreprocessorDirective = (
         ctx: IncludePreprocessorDirectiveContext
     ) => {
-        let filename = ctx.directiveIncludeFile().getText();
+        const fileCtx = ctx.directiveIncludeFile();
+
+        let filename = fileCtx._globalFile?.getText();
+        if (!filename) {
+            const stringLits = fileCtx.StringLiteral();
+            filename = stringLits.map((s) => trimQuotes(s.getText())).join("");
+        }
 
         const symbol = this.addNewSymbol(IncludeSymbol, ctx, filename);
         symbol.isLoaded = this.fileHandler.doesImportFile(filename);
@@ -756,7 +765,7 @@ export class DetailsVisitor
     };
 
     getValidIdentifier(ctx: ValidIdentifiersContext) {
-        return ctx.children.find(
+        return ctx?.children.find(
             (c) => c instanceof TerminalNode
         ) as TerminalNode;
     }
