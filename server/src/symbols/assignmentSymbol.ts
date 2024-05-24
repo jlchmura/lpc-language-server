@@ -1,8 +1,5 @@
-import { TypedSymbol, IType, ScopedSymbol } from "antlr4-c3";
-import { IKindSymbol, IEvaluatableSymbol } from "./base";
-import { SymbolKind } from "../types";
-import { AssignmentExpressionContext } from "../parser3/LPCParser";
-import { VariableIdentifierSymbol, VariableSymbol } from "./variableSymbol";
+import { ScopedSymbol } from "antlr4-c3";
+import { IEvaluatableSymbol } from "./base";
 import { CallStack } from "../backend/CallStack";
 import { addDiagnostic } from "./Symbol";
 import { DiagnosticSeverity } from "vscode-languageserver";

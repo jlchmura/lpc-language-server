@@ -21,11 +21,12 @@ import { LpcFacade } from "./facade";
 import {
     AdditiveExpressionContext,
     AndExpressionContext,
-    AssignmentExpressionContext,
+    AssignmentOrConditionalExpressionContext,
     BracketExpressionContext,
     CallOtherTargetContext,
     CloneObjectExpressionContext,
     CommaExpressionContext,
+    CommaableExpressionContext,
     ConditionalAndExpressionContext,
     ConditionalOrExpressionContext,
     ConditionalTernaryExpressionContext,
@@ -62,7 +63,6 @@ import {
     StructParameterExpressionContext,
     StructVariableDeclarationContext,
     TypeSpecifierContext,
-    UnaryOrAssignmentExpressionContext,
     ValidIdentifiersContext,
     VariableDeclaratorContext,
     WhileStatementContext,
@@ -811,31 +811,10 @@ export class DetailsVisitor
         return undefined;
     };
 
-    visitUnaryOrAssignmentExpression = (
-        ctx: UnaryOrAssignmentExpressionContext
+    visitAssignmentOrConditionalExpression = (
+        ctx: AssignmentOrConditionalExpressionContext
     ) => {
-        if (!!ctx._assignment) {
-            const op = ctx._assignment.getText();
-            if (op && ctx.children.length >= 2) {
-                return this.withScope(
-                    ctx,
-                    AssignmentSymbol,
-                    ["#assignment#", op],
-                    (s) => {
-                        return this.visitChildren(ctx);
-                    }
-                );
-            }
-        } else {
-            return this.visit(ctx.unaryExpression());
-        }
-    };
-
-    visitAssignmentExpression = (ctx: AssignmentExpressionContext) => {
-        //const lhsCtx = ctx.conditionalExpressionBase();
-        //const rhsCtx = ctx.expression();
-
-        const op = ctx.assignmentOperator().getText();
+        const op = ctx._op?.getText();
         if (op && ctx.children.length >= 2) {
             return this.withScope(
                 ctx,
@@ -846,6 +825,8 @@ export class DetailsVisitor
                 }
             );
         }
+
+        return this.visitChildren(ctx);
     };
 
     visitExpression = (ctx: ExpressionContext) => {
@@ -909,7 +890,7 @@ export class DetailsVisitor
     };
 
     visitCommaExpression = (ctx: CommaExpressionContext) => {
-        const operator = ctx.COMMA()?.getText();
+        const operator = firstEntry(ctx.COMMA())?.getText();
         if (operator) {
             return this.withScope(ctx, OperatorSymbol, [operator], (s) => {
                 return this.visitChildren(ctx);
