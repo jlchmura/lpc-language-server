@@ -887,7 +887,7 @@ export class SourceContext {
             case LPCParser.RULE_functionModifier:
             case LPCParser.RULE_variableModifier:
             case LPCParser.RULE_primitiveTypeSpecifier:
-            case LPCParser.RULE_assignmentExpression:
+            case LPCParser.RULE_assignmentOrConditionalExpression:
             case LPCParser.RULE_primaryExpression:
             case LPCParser.RULE_primaryExpressionStart:
             case LPCParser.RULE_functionHeader:
@@ -1259,7 +1259,7 @@ export class SourceContext {
                         });
                     }
                     break;
-                case LPCParser.RULE_assignmentExpression:
+                case LPCParser.RULE_assignmentOrConditionalExpression:
                     promises.push(
                         this.symbolTable.getAllSymbols(VariableSymbol)
                     );

@@ -55,11 +55,10 @@ import { MappingValueInitializerContext } from "./LPCParser.js";
 import { MappingKeylessInitializerContext } from "./LPCParser.js";
 import { MappingEmptyInitializerContext } from "./LPCParser.js";
 import { ExpressionContext } from "./LPCParser.js";
-import { CommaExpressionContext } from "./LPCParser.js";
-import { NonAssignmentExpressionContext } from "./LPCParser.js";
-import { AssignmentExpressionContext } from "./LPCParser.js";
+import { CommaableExpressionContext } from "./LPCParser.js";
 import { AssignmentOperatorContext } from "./LPCParser.js";
-import { ConditionalExpressionContext } from "./LPCParser.js";
+import { CommaExpressionContext } from "./LPCParser.js";
+import { AssignmentOrConditionalExpressionContext } from "./LPCParser.js";
 import { ConditionalTernaryExpressionContext } from "./LPCParser.js";
 import { ConditionalOrExpressionContext } from "./LPCParser.js";
 import { ConditionalAndExpressionContext } from "./LPCParser.js";
@@ -71,7 +70,6 @@ import { RelationalExpressionContext } from "./LPCParser.js";
 import { ShiftExpressionContext } from "./LPCParser.js";
 import { AdditiveExpressionContext } from "./LPCParser.js";
 import { MultiplicativeExpressionContext } from "./LPCParser.js";
-import { UnaryOrAssignmentExpressionContext } from "./LPCParser.js";
 import { UnaryExpressionContext } from "./LPCParser.js";
 import { PrimaryExpressionContext } from "./LPCParser.js";
 import { LiteralExpressionContext } from "./LPCParser.js";
@@ -662,35 +660,15 @@ export class LPCParserListener implements ParseTreeListener {
      */
     exitExpression?: (ctx: ExpressionContext) => void;
     /**
-     * Enter a parse tree produced by `LPCParser.commaExpression`.
+     * Enter a parse tree produced by `LPCParser.commaableExpression`.
      * @param ctx the parse tree
      */
-    enterCommaExpression?: (ctx: CommaExpressionContext) => void;
+    enterCommaableExpression?: (ctx: CommaableExpressionContext) => void;
     /**
-     * Exit a parse tree produced by `LPCParser.commaExpression`.
+     * Exit a parse tree produced by `LPCParser.commaableExpression`.
      * @param ctx the parse tree
      */
-    exitCommaExpression?: (ctx: CommaExpressionContext) => void;
-    /**
-     * Enter a parse tree produced by `LPCParser.nonAssignmentExpression`.
-     * @param ctx the parse tree
-     */
-    enterNonAssignmentExpression?: (ctx: NonAssignmentExpressionContext) => void;
-    /**
-     * Exit a parse tree produced by `LPCParser.nonAssignmentExpression`.
-     * @param ctx the parse tree
-     */
-    exitNonAssignmentExpression?: (ctx: NonAssignmentExpressionContext) => void;
-    /**
-     * Enter a parse tree produced by `LPCParser.assignmentExpression`.
-     * @param ctx the parse tree
-     */
-    enterAssignmentExpression?: (ctx: AssignmentExpressionContext) => void;
-    /**
-     * Exit a parse tree produced by `LPCParser.assignmentExpression`.
-     * @param ctx the parse tree
-     */
-    exitAssignmentExpression?: (ctx: AssignmentExpressionContext) => void;
+    exitCommaableExpression?: (ctx: CommaableExpressionContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.assignmentOperator`.
      * @param ctx the parse tree
@@ -702,15 +680,25 @@ export class LPCParserListener implements ParseTreeListener {
      */
     exitAssignmentOperator?: (ctx: AssignmentOperatorContext) => void;
     /**
-     * Enter a parse tree produced by `LPCParser.conditionalExpression`.
+     * Enter a parse tree produced by `LPCParser.commaExpression`.
      * @param ctx the parse tree
      */
-    enterConditionalExpression?: (ctx: ConditionalExpressionContext) => void;
+    enterCommaExpression?: (ctx: CommaExpressionContext) => void;
     /**
-     * Exit a parse tree produced by `LPCParser.conditionalExpression`.
+     * Exit a parse tree produced by `LPCParser.commaExpression`.
      * @param ctx the parse tree
      */
-    exitConditionalExpression?: (ctx: ConditionalExpressionContext) => void;
+    exitCommaExpression?: (ctx: CommaExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.assignmentOrConditionalExpression`.
+     * @param ctx the parse tree
+     */
+    enterAssignmentOrConditionalExpression?: (ctx: AssignmentOrConditionalExpressionContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.assignmentOrConditionalExpression`.
+     * @param ctx the parse tree
+     */
+    exitAssignmentOrConditionalExpression?: (ctx: AssignmentOrConditionalExpressionContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.conditionalTernaryExpression`.
      * @param ctx the parse tree
@@ -821,16 +809,6 @@ export class LPCParserListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitMultiplicativeExpression?: (ctx: MultiplicativeExpressionContext) => void;
-    /**
-     * Enter a parse tree produced by `LPCParser.unaryOrAssignmentExpression`.
-     * @param ctx the parse tree
-     */
-    enterUnaryOrAssignmentExpression?: (ctx: UnaryOrAssignmentExpressionContext) => void;
-    /**
-     * Exit a parse tree produced by `LPCParser.unaryOrAssignmentExpression`.
-     * @param ctx the parse tree
-     */
-    exitUnaryOrAssignmentExpression?: (ctx: UnaryOrAssignmentExpressionContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.unaryExpression`.
      * @param ctx the parse tree

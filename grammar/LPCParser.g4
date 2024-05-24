@@ -53,7 +53,7 @@ directiveIfArgument
     : Identifier (PAREN_OPEN (Identifier|StringLiteral|IntegerConstant) PAREN_CLOSE)?
     | StringLiteral
     | IntegerConstant
-    | nonAssignmentExpression
+    | expression
     ;
 
 directiveTypeWithArguments
@@ -263,25 +263,15 @@ mappingExpression
 
 // Expressions:
 
+/** The default expression - comma expressions are not allowed here */
 expression
-    : assignmentExpression    
-    | nonAssignmentExpression
+    : assignmentOrConditionalExpression
     ;
 
-commaExpression
-    : expression (COMMA expression)?
-    //: expression
-    ;
-
-nonAssignmentExpression
+/** For instances where comma expressions are allowed */
+commaableExpression
     : inlineClosureExpression
-    | conditionalExpression
-    //| PAREN_OPEN commaExpression PAREN_CLOSE   
-    //| variableDeclaration
-    ;
-
-assignmentExpression
-    : unaryExpression assignmentOperator commaExpression
+    | commaExpression
     ;
 
 assignmentOperator
@@ -304,12 +294,17 @@ assignmentOperator
 //     : first = '>' second = '>=' {$first.index + 1 == $second.index}? // make sure there is nothing between the tokens
 //     ;
 
-conditionalExpression
-    : conditionalTernaryExpression
+// the c-style comma operator. yuk
+commaExpression
+    : assignmentOrConditionalExpression (op=COMMA assignmentOrConditionalExpression)*
+    ;
+    
+assignmentOrConditionalExpression
+    : conditionalTernaryExpression (op=assignmentOperator conditionalTernaryExpression)*
     ;
 
 conditionalTernaryExpression
-    : conditionalOrExpression (op=QUESTION commaExpression COLON expression)?
+    : conditionalOrExpression (op=QUESTION expression COLON expression)?
     ;
 
 conditionalOrExpression
@@ -349,18 +344,10 @@ additiveExpression
     ;
 
 multiplicativeExpression
-    : unaryOrAssignmentExpression (op=(STAR | DIV | MOD) unaryOrAssignmentExpression)*
+    : unaryExpression (op=(STAR | DIV | MOD) unaryExpression)*
     ;
 
-// // the c-style comma operator. yuk
-// commaExpression
-//     : unaryOrAssignmentExpression (op=COMMA unaryOrAssignmentExpression)?
-//     ;
 
-unaryOrAssignmentExpression
-    : unaryExpression (assignment=assignmentOperator commaExpression)?        
-    | PAREN_OPEN variableDeclaration PAREN_CLOSE
-    ;
     
 // rangeExpression
 //     : unaryExpression
@@ -371,6 +358,7 @@ unaryExpression
     : castExpression
     | primaryExpression    
     | lambdaExpression
+    | inlineClosureExpression
     | (PLUS|MINUS|NOT|BNOT|INC|DEC|AND|STAR) unaryExpression    
     ;
 
@@ -394,7 +382,7 @@ primaryExpressionStart
     | (CloneObject|LoadObject) PAREN_OPEN (ob=expression) PAREN_CLOSE   # cloneObjectExpression 
     | validIdentifiers                            # identifierExpression    
     | PAREN_OPEN LT structName=Identifier GT (structMemberInitializer (COMMA structMemberInitializer)*)? COMMA? PAREN_CLOSE # structInitializerExpression    
-    | PAREN_OPEN commaExpression PAREN_CLOSE # parenExpression
+    | PAREN_OPEN commaableExpression PAREN_CLOSE # parenExpression
     | arrayExpression                       # primaryArrayExpression
     | mappingExpression                     # primaryMappingExpression    
     | catchExpr                             # catchExpression    
@@ -423,7 +411,7 @@ inlineClosureExpression
     ;
 
 bracketExpression
-    // i don't love using commaExpression here - because its not really a comma operator, but this is needed to get it to parse
+    // i don't love using expression here - because its not really a comma operator, but this is needed to get it to parse
     : SQUARE_OPEN LT? expression (COMMA expression)? SQUARE_CLOSE
     | SQUARE_OPEN LT? expression? DOUBLEDOT LT? expression? SQUARE_CLOSE        
     ;
@@ -466,7 +454,7 @@ statement
     | jumpStatement    
     | variableDeclarationStatement    
     | includePreprocessorDirective // this is really handled by the preprocessor, but including here for convenience in symbol nav    
-    | commaExpression SEMI        
+    | commaableExpression SEMI        
     //| preprocessorDirective
     ;
 
@@ -536,7 +524,7 @@ foreachRangeExpression
 
 forVariable
     : primitiveTypeSpecifier? variableDeclarator (ASSIGN variableInitializer | INC | DEC)?
-    | unaryOrAssignmentExpression
+    | expression
     ;
 
 forEachVariable
@@ -544,7 +532,7 @@ forEachVariable
     ;
 
 returnStatement
-    : RETURN commaExpression? SEMI
+    : RETURN commaableExpression? SEMI
     ;
 
 jumpStatement
