@@ -63,6 +63,7 @@ import {
     StructParameterExpressionContext,
     StructVariableDeclarationContext,
     TypeSpecifierContext,
+    UnaryOrAssignmentExpressionContext,
     ValidIdentifiersContext,
     VariableDeclaratorContext,
     WhileStatementContext,
@@ -800,6 +801,26 @@ export class DetailsVisitor
         return undefined;
     };
 
+    visitUnaryOrAssignmentExpression = (
+        ctx: UnaryOrAssignmentExpressionContext
+    ) => {
+        if (!!ctx._assignment) {
+            const op = ctx._assignment.getText();
+            if (op && ctx.children.length >= 2) {
+                return this.withScope(
+                    ctx,
+                    AssignmentSymbol,
+                    ["#assignment#", op],
+                    (s) => {
+                        return this.visitChildren(ctx);
+                    }
+                );
+            }
+        } else {
+            return this.visit(ctx.unaryExpression());
+        }
+    };
+
     visitAssignmentExpression = (ctx: AssignmentExpressionContext) => {
         //const lhsCtx = ctx.conditionalExpressionBase();
         //const rhsCtx = ctx.expression();
@@ -924,12 +945,14 @@ export class DetailsVisitor
         this.parseIterationStatement(ctx, IterationSymbol);
 
     visitForVariable = (ctx: ForVariableContext) => {
-        const varType = this.parsePrimitiveType(ctx.primitiveTypeSpecifier());
-        const varSym = this.parseVariableDeclaration(
-            ctx.variableDeclarator(),
-            varType
-        );
-        return undefined;
+        //const varType = this.parsePrimitiveType(ctx.primitiveTypeSpecifier());
+        return this.visitChildren(ctx);
+        // const varName = ctx.va
+        // const varSym = this.parseVariableDeclaration(
+        //     ctx.variableDeclarator(),
+        //     varType
+        // );
+        // return undefined;
     };
 
     visitForEachVariable = (ctx: ForEachVariableContext) => {

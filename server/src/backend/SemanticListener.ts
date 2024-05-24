@@ -134,12 +134,14 @@ export class SemanticListener extends LPCParserListener {
 
         if (!!functionDef) {
             // validate that everything matches
-            if (
-                !areSetsEqual(
-                    symbol.functionModifiers,
-                    functionDef.functionModifiers
-                )
-            ) {
+            // but ignore the deprecated flag
+
+            const symbolMods = new Set(symbol.functionModifiers);
+            symbolMods.delete("deprecated");
+            const defMods = new Set(functionDef.functionModifiers);
+            defMods.delete("deprecated");
+
+            if (!areSetsEqual(symbolMods, defMods)) {
                 this.logDiagnostic(
                     "Function modifiers do not match",
                     funStart,

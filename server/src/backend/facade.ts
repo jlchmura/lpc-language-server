@@ -70,10 +70,14 @@ export class LpcFacade {
         console.log("LpcFacade created", this.importDir, workspaceDir);
 
         const obs = new PerformanceObserver((list) => {
+            // instantiate
+            const rows: any = [];
+            //console.log("ms        | filename");
             list.getEntries().forEach((entry) => {
                 console.log(
-                    `[Perf] ${entry.name} took ${entry.duration} ms`,
-                    entry.detail
+                    `${entry.duration.toFixed(4).padStart(9, " ")} | ${
+                        entry.name
+                    }`
                 );
             });
 

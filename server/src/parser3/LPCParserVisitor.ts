@@ -25,7 +25,6 @@ import { InheritModifierContext } from "./LPCParser.js";
 import { InheritContext } from "./LPCParser.js";
 import { DefaultModifierContext } from "./LPCParser.js";
 import { InheritFileContext } from "./LPCParser.js";
-import { InheritSuperStatementContext } from "./LPCParser.js";
 import { InheritSuperExpressionContext } from "./LPCParser.js";
 import { DeclarationContext } from "./LPCParser.js";
 import { FunctionModifierContext } from "./LPCParser.js";
@@ -53,6 +52,7 @@ import { UnionableTypeSpecifierContext } from "./LPCParser.js";
 import { ArrayExpressionContext } from "./LPCParser.js";
 import { MappingContentContext } from "./LPCParser.js";
 import { MappingValueInitializerContext } from "./LPCParser.js";
+import { MappingKeylessInitializerContext } from "./LPCParser.js";
 import { MappingEmptyInitializerContext } from "./LPCParser.js";
 import { ExpressionContext } from "./LPCParser.js";
 import { CommaExpressionContext } from "./LPCParser.js";
@@ -74,8 +74,9 @@ import { MultiplicativeExpressionContext } from "./LPCParser.js";
 import { UnaryOrAssignmentExpressionContext } from "./LPCParser.js";
 import { UnaryExpressionContext } from "./LPCParser.js";
 import { PrimaryExpressionContext } from "./LPCParser.js";
-import { StringConcatExpressionContext } from "./LPCParser.js";
 import { LiteralExpressionContext } from "./LPCParser.js";
+import { InheritExpressionContext } from "./LPCParser.js";
+import { StringConcatExpressionContext } from "./LPCParser.js";
 import { CloneObjectExpressionContext } from "./LPCParser.js";
 import { IdentifierExpressionContext } from "./LPCParser.js";
 import { StructInitializerExpressionContext } from "./LPCParser.js";
@@ -83,7 +84,6 @@ import { ParenExpressionContext } from "./LPCParser.js";
 import { PrimaryArrayExpressionContext } from "./LPCParser.js";
 import { PrimaryMappingExpressionContext } from "./LPCParser.js";
 import { CatchExpressionContext } from "./LPCParser.js";
-import { InheritExpressionContext } from "./LPCParser.js";
 import { ValidIdentifiersContext } from "./LPCParser.js";
 import { CatchExprContext } from "./LPCParser.js";
 import { InlineClosureExpressionContext } from "./LPCParser.js";
@@ -95,7 +95,6 @@ import { DeclarativeTypeCastExpressionContext } from "./LPCParser.js";
 import { StructCastExpressionContext } from "./LPCParser.js";
 import { ExpressionListContext } from "./LPCParser.js";
 import { StatementContext } from "./LPCParser.js";
-import { ExpressionStatementContext } from "./LPCParser.js";
 import { BlockContext } from "./LPCParser.js";
 import { SelectionStatementContext } from "./LPCParser.js";
 import { ElseIfExpressionContext } from "./LPCParser.js";
@@ -265,12 +264,6 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      */
     visitInheritFile?: (ctx: InheritFileContext) => Result;
     /**
-     * Visit a parse tree produced by `LPCParser.inheritSuperStatement`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitInheritSuperStatement?: (ctx: InheritSuperStatementContext) => Result;
-    /**
      * Visit a parse tree produced by `LPCParser.inheritSuperExpression`.
      * @param ctx the parse tree
      * @return the visitor result
@@ -438,6 +431,13 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      */
     visitMappingValueInitializer?: (ctx: MappingValueInitializerContext) => Result;
     /**
+     * Visit a parse tree produced by the `mappingKeylessInitializer`
+     * labeled alternative in `LPCParser.mappingExpression`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitMappingKeylessInitializer?: (ctx: MappingKeylessInitializerContext) => Result;
+    /**
      * Visit a parse tree produced by the `mappingEmptyInitializer`
      * labeled alternative in `LPCParser.mappingExpression`.
      * @param ctx the parse tree
@@ -565,19 +565,26 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      */
     visitPrimaryExpression?: (ctx: PrimaryExpressionContext) => Result;
     /**
-     * Visit a parse tree produced by the `stringConcatExpression`
-     * labeled alternative in `LPCParser.primaryExpressionStart`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitStringConcatExpression?: (ctx: StringConcatExpressionContext) => Result;
-    /**
      * Visit a parse tree produced by the `literalExpression`
      * labeled alternative in `LPCParser.primaryExpressionStart`.
      * @param ctx the parse tree
      * @return the visitor result
      */
     visitLiteralExpression?: (ctx: LiteralExpressionContext) => Result;
+    /**
+     * Visit a parse tree produced by the `inheritExpression`
+     * labeled alternative in `LPCParser.primaryExpressionStart`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitInheritExpression?: (ctx: InheritExpressionContext) => Result;
+    /**
+     * Visit a parse tree produced by the `stringConcatExpression`
+     * labeled alternative in `LPCParser.primaryExpressionStart`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitStringConcatExpression?: (ctx: StringConcatExpressionContext) => Result;
     /**
      * Visit a parse tree produced by the `cloneObjectExpression`
      * labeled alternative in `LPCParser.primaryExpressionStart`.
@@ -627,13 +634,6 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      * @return the visitor result
      */
     visitCatchExpression?: (ctx: CatchExpressionContext) => Result;
-    /**
-     * Visit a parse tree produced by the `inheritExpression`
-     * labeled alternative in `LPCParser.primaryExpressionStart`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitInheritExpression?: (ctx: InheritExpressionContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.validIdentifiers`.
      * @param ctx the parse tree
@@ -703,12 +703,6 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      * @return the visitor result
      */
     visitStatement?: (ctx: StatementContext) => Result;
-    /**
-     * Visit a parse tree produced by `LPCParser.expressionStatement`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitExpressionStatement?: (ctx: ExpressionStatementContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.block`.
      * @param ctx the parse tree

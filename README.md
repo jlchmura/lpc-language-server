@@ -39,6 +39,10 @@ int doCommand(string cmd) {
 
 See `lpc-config.json`
 
+### Example
+
+For an example mudlib, pre-configured to work with LPC Language Services, see this slightly modified version of the [LP 2.4.5 mudlib](https://github.com/jlchmura/lp-245). LPC Language Services can parse and validate this entire lib without errors.
+
 ## Grammar ToDo's
 
 -   LWObjects

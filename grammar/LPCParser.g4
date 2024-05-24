@@ -116,12 +116,8 @@ inheritFile
     | inheritFile PLUS? inheritFile
     ;
 
-inheritSuperStatement
-    : inheritSuperExpression SEMI
-    ;
-
 inheritSuperExpression
-    : filename=(StringLiteral|Identifier)? SUPER_ACCESSOR expression
+    : filename=(StringLiteral|Identifier)? SUPER_ACCESSOR 
     ;
 
 declaration
@@ -258,8 +254,9 @@ mappingContent
     ;
 
 mappingExpression
-    : MAPPING_OPEN (mappingContent (COMMA mappingContent)*)? COMMA? SQUARE_CLOSE PAREN_CLOSE    #mappingValueInitializer
-    | MAPPING_OPEN COLON expression SQUARE_CLOSE PAREN_CLOSE                                    #mappingEmptyInitializer
+    : MAPPING_OPEN (mappingContent (COMMA mappingContent)*) COMMA? SQUARE_CLOSE PAREN_CLOSE    #mappingValueInitializer
+    | MAPPING_OPEN COLON expression SQUARE_CLOSE PAREN_CLOSE                                   #mappingKeylessInitializer
+    | MAPPING_OPEN SQUARE_CLOSE PAREN_CLOSE                                                    #mappingEmptyInitializer
     ;
 
 
@@ -272,15 +269,15 @@ expression
 
 commaExpression
     : expression (COMMA expression)?
-    | PAREN_OPEN commaExpression PAREN_CLOSE
+    //: expression
     ;
 
 nonAssignmentExpression
-    : inheritSuperExpression
-    | inlineClosureExpression
+    : inlineClosureExpression
     | lambdaExpression
     | conditionalExpression
-    | variableDeclaration
+    //| PAREN_OPEN commaExpression PAREN_CLOSE   
+    //| variableDeclaration
     ;
 
 assignmentExpression
@@ -312,7 +309,7 @@ conditionalExpression
     ;
 
 conditionalTernaryExpression
-    : conditionalOrExpression (op=QUESTION commaExpression COLON commaExpression)?
+    : conditionalOrExpression (op=QUESTION commaExpression COLON expression)?
     ;
 
 conditionalOrExpression
@@ -361,9 +358,10 @@ multiplicativeExpression
 //     ;
 
 unaryOrAssignmentExpression
-    : assignmentExpression
-    | unaryExpression
+    : unaryExpression (assignment=assignmentOperator commaExpression)?        
+    | PAREN_OPEN variableDeclaration PAREN_CLOSE
     ;
+    
 // rangeExpression
 //     : unaryExpression
 //     | unaryExpression? DOUBLEDOT unaryExpression?
@@ -371,7 +369,7 @@ unaryOrAssignmentExpression
 
 unaryExpression
     : castExpression
-    | primaryExpression
+    | primaryExpression    
     | (PLUS|MINUS|NOT|BNOT|INC|DEC|AND|STAR) unaryExpression    
     ;
 
@@ -389,27 +387,27 @@ primaryExpression
     ;
 
 primaryExpressionStart
-    : StringLiteral StringLiteral*          # stringConcatExpression        
-    | literal                               # literalExpression
+    : literal                               # literalExpression
+    | inheritSuperExpression                # inheritExpression    
+    | StringLiteral StringLiteral*          # stringConcatExpression
     | (CloneObject|LoadObject) PAREN_OPEN (ob=expression) PAREN_CLOSE   # cloneObjectExpression 
     | validIdentifiers                            # identifierExpression    
-    | PAREN_OPEN LT structName=Identifier GT (structMemberInitializer (COMMA structMemberInitializer)*)? COMMA? PAREN_CLOSE # structInitializerExpression
-    | PAREN_OPEN expression PAREN_CLOSE     # parenExpression    
+    | PAREN_OPEN LT structName=Identifier GT (structMemberInitializer (COMMA structMemberInitializer)*)? COMMA? PAREN_CLOSE # structInitializerExpression    
+    | PAREN_OPEN commaExpression PAREN_CLOSE # parenExpression
     | arrayExpression                       # primaryArrayExpression
     | mappingExpression                     # primaryMappingExpression    
-    | catchExpr                             # catchExpression
-    | inheritSuperExpression                # inheritExpression    
+    | catchExpr                             # catchExpression    
     ;
 
 
 // list of keywords that are not reserved keywords and thus can be used as identifiers
 validIdentifiers
-    : Identifier
+    : Identifier    
     | FUNCTIONS
     | VARIABLES
     | STRUCTS
     | IN
-    | CHAR
+    | CHAR    
     ;
 
 catchExpr
@@ -423,7 +421,7 @@ inlineClosureExpression
 
 bracketExpression
     // i don't love using commaExpression here - because its not really a comma operator, but this is needed to get it to parse
-    : SQUARE_OPEN LT? commaExpression SQUARE_CLOSE
+    : SQUARE_OPEN LT? expression (COMMA expression)? SQUARE_CLOSE
     | SQUARE_OPEN LT? expression? DOUBLEDOT LT? expression? SQUARE_CLOSE        
     ;
 
@@ -458,19 +456,16 @@ expressionList
 // Statements
 
 statement
-    : expressionStatement
-    | block
+    : block
+    | SEMI
     | selectionStatement
     | iterationStatement
     | jumpStatement    
-    | variableDeclarationStatement
-    | returnStatement    
+    | variableDeclarationStatement    
     | includePreprocessorDirective // this is really handled by the preprocessor, but including here for convenience in symbol nav    
-    | SEMI
+    | commaExpression SEMI        
     //| preprocessorDirective
     ;
-
-expressionStatement: commaExpression SEMI;
 
 block: CURLY_OPEN statement* CURLY_CLOSE;
 
@@ -489,7 +484,7 @@ elseExpression
     ;
     
 ifExpression
-    : IF PAREN_OPEN expression PAREN_CLOSE (statement | SEMI)
+    : IF PAREN_OPEN expression PAREN_CLOSE statement
     ;
 
 ifStatement

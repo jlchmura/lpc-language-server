@@ -102,6 +102,7 @@ import { LpcFileHandler } from "./FileHandler";
 import { ensureLpcConfig } from "./LpcConfig";
 import { getParentContextOfType } from "../symbols/Symbol";
 import { DriverVersion } from "../driver/DriverVersion";
+import { stdout } from "process";
 
 const mapAnnotationReg = /\[\[@(.+?)\]\]/;
 
@@ -180,6 +181,8 @@ export class SourceContext {
     private cachedSemanticTokens: SemanticTokens;
     private semanticTokens: SemanticTokenCollection;
 
+    private dfa: string = "";
+
     public constructor(
         public backend: LpcFacade,
         public fileName: string,
@@ -217,6 +220,18 @@ export class SourceContext {
 
         this.parser = new LPCParser(this.tokenStream);
         this.parser.buildParseTrees = true;
+
+        // if (this.fileName.endsWith("test.c")) {
+        //     this.parser.setTrace(true);
+        //     this.parser.printer = {
+        //         print: (str: string) => {
+        //             this.dfa += str;
+        //         },
+        //         println: (str: string) => {
+        //             this.dfa += str + "\n";
+        //         },
+        //     };
+        // }
 
         this.preParser = new LPCPreprocessorParser(this.preTokenStream);
         this.preParser.buildParseTrees = true;
@@ -383,6 +398,9 @@ export class SourceContext {
         this.tokenStream.setTokenSource(this.lexer);
 
         this.parser.reset();
+        // if (this.fileName.endsWith("test.c")) {
+        //     this.parser.setTrace(true);
+        // }
         // use default instead of bailout here.
         // the method of using bailout and re-parsing using LL mode was causing problems
         // with code completion
@@ -416,6 +434,9 @@ export class SourceContext {
             }
         }
 
+        // this.dfa = "";
+        // this.parser.dumpDFA();
+        // console.log(this.dfa);
         this.symbolTable.tree = this.tree;
 
         const visitor = new DetailsVisitor(
@@ -867,6 +888,7 @@ export class SourceContext {
             case LPCParser.RULE_functionHeader:
             case LPCParser.RULE_callOtherTarget:
             case LPCParser.RULE_assignmentOperator:
+            case LPCParser.RULE_validIdentifiers:
             case LPCParser.RULE_expression:
             case LPCParser.RULE_statement: // it may be an incompletel function, which will show up as a statement
                 symbol = this.symbolTable.symbolContainingContext(terminal);
