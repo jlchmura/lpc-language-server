@@ -62,7 +62,7 @@ efun("find_call_out", LpcTypes.intType, true, ["func", LpcTypes.mixedType]);
 efun("floatp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("floor", LpcTypes.intType, false, ["number", LpcTypes.intType]);
 efun("funcall", LpcTypes.mixedType, true, ["fun", LpcTypes.closureType], ["args...", LpcTypes.mixedArrayType, true]);
-efun("function_exists", LpcTypes.intType, false, ["fun", LpcTypes.stringType], ["ob", LpcTypes.objectType]);
+efun("function_exists", LpcTypes.intType, true, ["fun", LpcTypes.stringType], ["ob", LpcTypes.objectType],["flags", LpcTypes.intType]);
 efun("get_dir", LpcTypes.mixedArrayType, true, ["path", LpcTypes.stringType], ["flags", LpcTypes.intType]);
 efun("get_eval_cost", LpcTypes.intType, false);
 efun("get_error_file", LpcTypes.mixedType, true, ["name", LpcTypes.stringType], ["set_forget_flag", LpcTypes.intType]);
@@ -106,7 +106,7 @@ efun("next_bit", LpcTypes.intType, true, ["str", LpcTypes.stringType], ["start",
 efun("next_inventory", LpcTypes.objectType, false, ["ob", LpcTypes.objectType]);
 efun("notify_fail", LpcTypes.voidType, false, ["msg", LpcTypes.stringType]);
 efun("object_info", LpcTypes.mixedType, true, ["ob", LpcTypes.objectType],["what", LpcTypes.intType]);
-efun("object_name", LpcTypes.stringType, false, ["ob", LpcTypes.objectType]);
+efun("object_name", LpcTypes.stringType, true, ["ob", LpcTypes.objectType]);
 efun("objectp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("order_alist", LpcTypes.mixedArrayType, true, ["keys", LpcTypes.mixedArrayType], ["data", LpcTypes.mixedArrayType], ["...args", LpcTypes.mixedType, true]);
 efun("playerp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);

@@ -183,6 +183,7 @@ variableModifier
     | PROTECTED
     | PUBLIC
     | NOSHADOW
+    | NOMASK
     | NOSAVE
     ;
 
@@ -274,7 +275,6 @@ commaExpression
 
 nonAssignmentExpression
     : inlineClosureExpression
-    | lambdaExpression
     | conditionalExpression
     //| PAREN_OPEN commaExpression PAREN_CLOSE   
     //| variableDeclaration
