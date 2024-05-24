@@ -24,6 +24,10 @@ type DiagnosticsInfo = {
     callOtherLfunNotFound: DiagnosticLevel;
 };
 
+type FilesInfo = {
+    simul_efun: string;
+};
+
 export class LpcConfig {
     public defines: Map<string, string> = new Map([
         ["__HOST_NAME__", '"localhost"'],
@@ -32,6 +36,7 @@ export class LpcConfig {
         ["__INT_MAX__", "2147483647"],
         ["__INT_MIN__", "-2147483648"],
         ["__HEART_BEAT_INTERVAL__", "2"],
+        ["__BOOT_TIME__", "1"],
     ]);
 
     public include: string[] = ["/sys"];
@@ -44,6 +49,10 @@ export class LpcConfig {
     public diagnostics: DiagnosticsInfo = {
         callOtherTargetUnknown: DiagnosticLevel.Info,
         callOtherLfunNotFound: DiagnosticLevel.Error,
+    };
+
+    public files: FilesInfo = {
+        simul_efun: "/obj/simul_efun.c",
     };
 }
 
@@ -93,6 +102,11 @@ export function loadLpcConfig(filename: string): LpcConfig {
             }
             config.defines.set(key, val);
         });
+
+        config.files = {
+            ...config.files,
+            ...rawConfig.files,
+        };
 
         config.exclude = (rawConfig.exclude as string[]) ?? config.exclude;
         config.include = (rawConfig.include as string[]) ?? config.include;

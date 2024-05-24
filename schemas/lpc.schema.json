@@ -19,6 +19,9 @@
         },
         {
             "$ref": "#/definitions/diagnosticsDefinition"
+        },
+        {
+            "$ref": "#/definitions/filesDefinition"
         }
     ],
     "definitions": {
@@ -110,11 +113,24 @@
                 }
             }
         },
+        "filesDefinition": {
+            "properties": {
+                "files": {
+                    "description": "Specifies a list of system include directories that will be searched when importing files. If this option is not specified, a default folder of '/sys' will be used.",
+                    "properties": {
+                        "simul_efun": {
+                            "description": "Sets the location of the simul_efun file.",
+                            "default": "/obj/simul_efun.c",
+                            "type": ["string", "null"]
+                        }
+                    }
+                }
+            }
+        },
         "includeDefinition": {
             "properties": {
                 "include": {
-                    "$comment": "The value of 'null' is UNDOCUMENTED (https://github.com/microsoft/TypeScript/pull/18058).",
-                    "description": "Specifies a list of system include directories that will be searched when importing files. If this option is not specified, a default folder of '/sys' will be used.",
+                    "description": "Specifies a list of files to be included in the compilation.",
                     "type": ["array", "null"],
                     "uniqueItems": true,
                     "items": {

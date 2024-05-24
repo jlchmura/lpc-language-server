@@ -100,7 +100,7 @@ import {
 import { performance } from "perf_hooks";
 import { LpcFileHandler } from "./FileHandler";
 import { ensureLpcConfig } from "./LpcConfig";
-import { getParentContextOfType, getParentOfType } from "../symbols/Symbol";
+import { getParentContextOfType } from "../symbols/Symbol";
 import { DriverVersion } from "../driver/DriverVersion";
 
 const mapAnnotationReg = /\[\[@(.+?)\]\]/;
@@ -346,6 +346,7 @@ export class SourceContext {
     }
 
     public parse(): IContextDetails {
+        const config = ensureLpcConfig();
         // console.debug(`Parsing ${this.fileName}`);
 
         this.info.imports.length = 0;
@@ -390,9 +391,11 @@ export class SourceContext {
 
         this.tree = undefined;
 
-        if (!this.fileName.endsWith("simul_efun.c")) {
+        // get just the filename of the simul_efun
+        const simulEfunFilename = path.basename(config.files.simul_efun);
+        if (!this.fileName.endsWith(simulEfunFilename)) {
             this.info.imports.push({
-                filename: `"/obj/simul_efun.c"`,
+                filename: `"${config.files.simul_efun}"`,
                 symbol: undefined,
             });
         }

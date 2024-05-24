@@ -1,3 +1,4 @@
+import * as path from "path";
 import { ParseTree, ParserRuleContext, Token } from "antlr4ng";
 import { Position, Range } from "vscode-languageserver";
 import { ILexicalRange, IPosition } from "./types";
@@ -10,6 +11,7 @@ import {
 } from "antlr4-c3";
 import { ContextSymbolTable } from "./backend/ContextSymbolTable";
 import { URI } from "vscode-uri";
+import { ensureLpcConfig } from "./backend/LpcConfig";
 
 export function getSelectionRange(ctx: ParserRuleContext): Range {
     const start = ctx.start;
@@ -285,6 +287,8 @@ export function walkParents<T extends BaseSymbol>(
 ) {
     const seen = new Set<IScopedSymbol>(); // try track and prevent loops
     const searchSymbols: IScopedSymbol[] = [symbol];
+    const config = ensureLpcConfig();
+    const simulEfunFilename = path.basename(config.files.simul_efun);
 
     while (searchSymbols.length > 0) {
         const ss = searchSymbols.shift();
@@ -306,7 +310,7 @@ export function walkParents<T extends BaseSymbol>(
                 if (
                     !seen.has(dep) &&
                     (!excludeGlobals ||
-                        (dep.owner && !dep.name.endsWith("simul_efun.c")))
+                        (dep.owner && !dep.name.endsWith(simulEfunFilename)))
                 ) {
                     searchSymbols.push(dep);
                 }
