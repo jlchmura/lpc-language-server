@@ -6,7 +6,8 @@ lexer grammar LPCLexer;
 
 channels { 
     COMMENTS_CHANNEL,
-    SOURCEMAP_CHANNEL
+    SOURCEMAP_CHANNEL,
+    DISABLED_CHANNEL    // code that is disabled by a preprocessor conditional
 }
 
 

@@ -12,41 +12,65 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { LpcFacade } from "./backend/facade";
 import { MethodSymbol } from "./symbols/methodSymbol";
 import { VariableSymbol } from "./symbols/variableSymbol";
+import { ReadableStream } from "stream/web";
+import { ReadableString } from "./parser3/ReadableString";
+import { UnbufferedCharStream } from "./parser3/UnbufferedCharStream";
+import { LPCTokenFactor } from "./parser3/LPCTokenFactory";
+import { LPCPreprocessingLexer } from "./parser3/LPCPreprocessingLexer";
+import { LPCToken } from "./parser3/LPCToken";
 
 //import { LpcFacade } from "./backend/facade";
-
-const code = fs.existsSync(process.argv[2])
-    ? fs.readFileSync(process.argv[2], "utf-8")
+const filename = process.argv[2];
+const code = fs.existsSync(filename)
+    ? fs.readFileSync(filename, "utf-8")
     : process.argv.slice(2).join(" ").replace(/\\n/g, "\n");
+
+// const codeStream = new ReadableString(code);
+// const unbuf = new UnbufferedCharStream(codeStream, 256);
+// for (let i = 0; i < 10; i++) {
+//     console.log(`${i}: ${String.fromCharCode(unbuf.LA(0))}`);
+//     unbuf.consume();
+// }
+
 const doc = TextDocument.create("uri", "lpc", 0, code);
 const stream = CharStream.fromString(code);
-const lexer = new LPCLexer(stream);
+const lexer = new LPCPreprocessingLexer(stream);
+lexer.tokenFactory = new LPCTokenFactor(filename);
+
 const tStream = new CommonTokenStream(lexer);
 const parser = new LPCParser(tStream);
+parser.setTokenFactory(lexer.tokenFactory);
 
-const filename = process.argv[2];
-const dir = path.dirname(filename);
+const finalTokens = lexer.getAllTokens();
+finalTokens.forEach((t) => {
+    console.log((t as LPCToken).toString());
+});
 
-const backend = new LpcFacade(dir);
-//main file
-const ctxFile = backend.loadLpc(filename, code);
+const tree = parser.program();
 
-const tree = ctxFile.symbolTable;
+//const filename = process.argv[2];
+//const dir = path.dirname(filename);
 
-const m = tree.getAllSymbolsSync(MethodSymbol, false);
-const v = tree.getAllNestedSymbolsSync("subFn");
+// const backend = new LpcFacade(dir);
+// //main file
+// const ctxFile = backend.loadLpc(filename, code);
 
-// trigger semantic analysis
-backend.getDiagnostics(filename);
+// const tree = ctxFile.symbolTable;
 
-const tbl = backend.getContext(filename).symbolTable;
+// const m = tree.getAllSymbolsSync(MethodSymbol, false);
+// const v = tree.getAllNestedSymbolsSync("subFn");
 
-const varI = tbl.resolveSync("i") as VariableSymbol;
-const varS = tbl.resolveSync("t") as VariableSymbol;
-const finalValue = varI.value;
-const finalTValue = varS?.value;
+// // trigger semantic analysis
+// backend.getDiagnostics(filename);
 
-console.log("i", finalValue);
-console.log("t", finalTValue);
+// const tbl = backend.getContext(filename).symbolTable;
+
+// const varI = tbl.resolveSync("i") as VariableSymbol;
+// const varS = m[0].resolveSync("s") as VariableSymbol;
+// const finalValue = varI?.value;
+// const finalTValue = varS?.value;
+
+// console.log("i", finalValue);
+// console.log("t", finalTValue);
 
 const i = 0;

@@ -138,7 +138,8 @@ export class LPCLexer extends antlr.Lexer {
     public static readonly STRING_MODE = 2;
 
     public static readonly channelNames = [
-        "DEFAULT_TOKEN_CHANNEL", "HIDDEN", "COMMENTS_CHANNEL", "SOURCEMAP_CHANNEL"
+        "DEFAULT_TOKEN_CHANNEL", "HIDDEN", "COMMENTS_CHANNEL", "SOURCEMAP_CHANNEL", 
+                                           "DISABLED_CHANNEL"
     ];
 
     public static readonly literalNames = [
