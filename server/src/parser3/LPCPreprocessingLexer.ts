@@ -19,15 +19,17 @@ export class LPCPreprocessingLexer extends LPCLexer {
     /** the token buffer */
     buffer: Token[] = [];
 
+    private isConsumingDirective = false;
+
     /** tracks the state of preprocessor conditionals */
     private conditionalStack: ConditionalState[] = [];
 
     /** indicates if we are inside one or more preprocessor conditionals */
-    get inConditional() {
+    private get inConditional() {
         return this.conditionalStack.length > 0;
     }
     /** indicates if the next token is executable code or not */
-    get isExecutable() {
+    private get isExecutable() {
         return this.conditionalStack.length > 0
             ? this.conditionalStack[this.conditionalStack.length - 1] ===
                   ConditionalState.Enabled
@@ -35,11 +37,11 @@ export class LPCPreprocessingLexer extends LPCLexer {
     }
 
     /** indicates if macro substitutions are allowed for the next token */
-    allowSubstitutions = true;
+    private allowSubstitutions = true;
     /** the macro table */
-    macroTable: Map<string, MacroDefinition> = new Map();
+    private macroTable: Map<string, MacroDefinition> = new Map();
     /** set of disabled macros that should not be applied to the next macro */
-    disabledMacros: Set<string> = new Set();
+    private disabledMacros: Set<string> = new Set();
     /** lexer used for processing macro bodies */
     private readonly macroLexer: LPCLexer;
 
@@ -64,12 +66,15 @@ export class LPCPreprocessingLexer extends LPCLexer {
      * escaped newlines, when the conditional is split across multiple lines separated by a backslash.
      * @returns array containing the tokens that were consumed
      */
-    private consumeToEndOfDirective(): Token[] {
+    private consumeToEndOfDirective(tokenLimit: number = undefined): Token[] {
+        this.isConsumingDirective = true;
         const consumedTokens: Token[] = [];
         let t: Token | undefined = undefined;
+        let i = 0;
         while (
             !(t?.type == LPCLexer.WS && t?.text.indexOf("\n") >= 0) &&
-            t?.type != LPCLexer.EOF
+            t?.type != LPCLexer.EOF &&
+            (tokenLimit === undefined || i < tokenLimit)
         ) {
             t = super.nextToken();
             consumedTokens.push(t);
@@ -78,7 +83,9 @@ export class LPCPreprocessingLexer extends LPCLexer {
                 t = super.nextToken();
                 consumedTokens.push(t);
             }
+            i++;
         }
+        this.isConsumingDirective = false;
         return consumedTokens;
     }
 
@@ -90,9 +97,13 @@ export class LPCPreprocessingLexer extends LPCLexer {
     private processDirective(token: Token): boolean {
         this.emitAndPush(token);
 
-        const directiveToken = super.nextToken();
+        const directiveTokens = this.consumeToEndOfDirective(
+            token.type == LPCLexer.DEFINE ? 1 : undefined
+        );
+        const directiveToken =
+            token.type == LPCLexer.HASH ? directiveTokens.shift() : token; // special case for define
 
-        const ltoken = token as LPCToken;
+        const ltoken = directiveToken as LPCToken;
 
         // there are certain conditionals that are applied even if code is disabled
         switch (directiveToken.type) {
@@ -108,7 +119,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
                         token.channel = DISABLED_CHANNEL;
                     });
                 } else {
-                    const ifTokens = this.consumeToEndOfDirective();
+                    const ifTokens = directiveTokens;
                     ifTokens.shift(); // remove the space
 
                     // very basic processing
@@ -173,7 +184,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
             case LPCLexer.IFDEF:
             case LPCLexer.IFNDEF:
                 this.allowSubstitutions = true;
-                const conditionalTokens = this.consumeToEndOfDirective();
+                const conditionalTokens = directiveTokens;
                 if (this.inConditional && !this.isExecutable) {
                     this.conditionalStack.push(ConditionalState.Ignored);
                     // disable this entire conditional
@@ -184,7 +195,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
                 } else {
                     const shouldExist =
                         token.type == LPCLexer.IFDEF ? true : false;
-                    const conditionalTokens = this.consumeToEndOfDirective();
+                    const conditionalTokens = directiveTokens;
                     conditionalTokens.shift(); // remove the space
                     const symName = conditionalTokens
                         .map((t) => t.text)
@@ -213,16 +224,19 @@ export class LPCPreprocessingLexer extends LPCLexer {
             case LPCLexer.DEFINE:
                 this.allowSubstitutions = false;
 
-                const defValToken = super.nextToken();
+                const defValToken = directiveTokens.shift()!;
                 const defVal = defValToken.text.trim();
                 // macro name is everything up to the first space
                 const nameEndIndex = defVal.match(/[(\s]/)?.index;
                 const spaceIndex = defVal.indexOf(" ");
+                const openParenIndex = defVal.indexOf("(");
+                const closingParenIndex = defVal.indexOf(")");
+
                 const macroName = defVal.substring(0, nameEndIndex);
 
                 // macro value is everything after the first space
-                const macroValue = defVal.substring(spaceIndex + 1);
-                const isFn = nameEndIndex != spaceIndex;
+                const isFn = closingParenIndex >= 0;
+                const macroValue = defVal.substring(closingParenIndex + 1);
 
                 const def: MacroDefinition = {
                     value: macroValue,
@@ -239,9 +253,6 @@ export class LPCPreprocessingLexer extends LPCLexer {
 
                 if (isFn) {
                     def.argIndex = new Map();
-
-                    const openParenIndex = defVal.indexOf("(");
-                    const closingParenIndex = defVal.indexOf(")");
 
                     // lex the args
                     const args = defVal
@@ -260,8 +271,8 @@ export class LPCPreprocessingLexer extends LPCLexer {
                 return true;
             case LPCLexer.UNDEF:
                 this.allowSubstitutions = false;
-                const spaceToken = super.nextToken();
-                const undefToken = super.nextToken();
+                const spaceToken = directiveTokens.shift()!;
+                const undefToken = directiveTokens.shift()!;
                 const undefMacroName = undefToken.text.trim();
                 this.macroTable.delete(undefMacroName);
 
@@ -271,9 +282,12 @@ export class LPCPreprocessingLexer extends LPCLexer {
     }
 
     override emitToken(token: Token): void {
-        if (
+        if (this.isConsumingDirective) {
+            this.emitAndPush(token);
+            return;
+        } else if (
             (token.type == LPCLexer.HASH || token.type == LPCLexer.DEFINE) &&
-            token.column == 1
+            token.column - (token.text?.length ?? 0) == 0
         ) {
             if (this.processDirective(token)) {
                 return;
@@ -285,8 +299,6 @@ export class LPCPreprocessingLexer extends LPCLexer {
             this.emitAndPush(token);
             return;
         }
-
-        const ltoken = token as LPCToken;
 
         if (
             this.allowSubstitutions &&
