@@ -82,19 +82,28 @@ export class LPCPreprocessingLexer extends LPCLexer {
         return consumedTokens;
     }
 
-    override emitToken(token: Token): void {
+    /**
+     * handles preprocessor directives
+     * @param token the first token - should be a hash
+     * @returns true if the token was consumed as a directive, false otherwise
+     */
+    private processDirective(token: Token): boolean {
+        this.emitAndPush(token);
+
+        const directiveToken = super.nextToken();
+
         const ltoken = token as LPCToken;
 
         // there are certain conditionals that are applied even if code is disabled
-        switch (token.type) {
+        switch (directiveToken.type) {
             case LPCLexer.IF:
             case LPCLexer.ELIF:
                 this.allowSubstitutions = false;
-                this.emitAndPush(token);
+
                 if (this.inConditional && !this.isExecutable) {
                     this.conditionalStack.push(ConditionalState.Ignored);
                     // disable this entire conditional
-                    token.channel = DISABLED_CHANNEL;
+                    token.channel = directiveToken.channel = DISABLED_CHANNEL;
                     this.consumeToEndOfDirective().forEach((t) => {
                         token.channel = DISABLED_CHANNEL;
                     });
@@ -132,10 +141,9 @@ export class LPCPreprocessingLexer extends LPCLexer {
                     );
                 }
                 this.allowSubstitutions = true;
-                return;
+                return true;
             case LPCLexer.ELSE:
                 this.allowSubstitutions = true;
-                this.emitAndPush(token);
                 if (this.inConditional) {
                     const st =
                         this.conditionalStack[this.conditionalStack.length - 1];
@@ -155,20 +163,21 @@ export class LPCPreprocessingLexer extends LPCLexer {
                     );
                 }
                 this.allowSubstitutions = true;
-                return;
+                return true;
             case LPCLexer.ENDIF:
-                this.emitAndPush(token);
                 this.conditionalStack.pop();
-                return;
+                // set this back to NOT disabled
+                token.channel = directiveToken.channel =
+                    LPCLexer.DEFAULT_TOKEN_CHANNEL;
+                return true;
             case LPCLexer.IFDEF:
             case LPCLexer.IFNDEF:
                 this.allowSubstitutions = true;
-                this.emitAndPush(token);
                 const conditionalTokens = this.consumeToEndOfDirective();
                 if (this.inConditional && !this.isExecutable) {
                     this.conditionalStack.push(ConditionalState.Ignored);
                     // disable this entire conditional
-                    token.channel = DISABLED_CHANNEL;
+                    token.channel = directiveToken.channel = DISABLED_CHANNEL;
                     conditionalTokens.forEach((t) => {
                         token.channel = DISABLED_CHANNEL;
                     });
@@ -189,19 +198,20 @@ export class LPCPreprocessingLexer extends LPCLexer {
                     );
                 }
                 this.allowSubstitutions = false;
-                return;
+                return true;
         }
 
         if (!this.isExecutable) {
-            token.channel = DISABLED_CHANNEL;
-            this.emitAndPush(token);
-            return;
+            token.channel = directiveToken.channel = DISABLED_CHANNEL;
+            this.consumeToEndOfDirective().forEach((t) => {
+                token.channel = DISABLED_CHANNEL;
+            });
+            return true;
         }
 
-        switch (token.type) {
+        switch (directiveToken.type) {
             case LPCLexer.DEFINE:
                 this.allowSubstitutions = false;
-                this.emitAndPush(token);
 
                 const defValToken = super.nextToken();
                 const defVal = defValToken.text.trim();
@@ -247,18 +257,36 @@ export class LPCPreprocessingLexer extends LPCLexer {
                 this.macroTable.set(macroName, def);
 
                 this.allowSubstitutions = true;
-                return;
+                return true;
             case LPCLexer.UNDEF:
                 this.allowSubstitutions = false;
-                this.emitAndPush(token);
                 const spaceToken = super.nextToken();
                 const undefToken = super.nextToken();
                 const undefMacroName = undefToken.text.trim();
                 this.macroTable.delete(undefMacroName);
 
                 this.allowSubstitutions = true;
-                return;
+                return true;
         }
+    }
+
+    override emitToken(token: Token): void {
+        if (
+            (token.type == LPCLexer.HASH || token.type == LPCLexer.DEFINE) &&
+            token.column == 1
+        ) {
+            if (this.processDirective(token)) {
+                return;
+            }
+        }
+
+        if (!this.isExecutable) {
+            token.channel = DISABLED_CHANNEL;
+            this.emitAndPush(token);
+            return;
+        }
+
+        const ltoken = token as LPCToken;
 
         if (
             this.allowSubstitutions &&
