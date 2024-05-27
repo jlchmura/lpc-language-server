@@ -1,3 +1,4 @@
+import * as fs from "fs";
 import { BaseSymbol } from "antlr4-c3";
 import { SourceContext } from "./SourceContext";
 import { LpcFacade } from "./facade";
@@ -27,7 +28,11 @@ export class LpcFileHandler implements IFileHandler {
     }
 
     public loadImport(filename: string): LoadImportResult {
-        throw "not implemented";
+        const importInfo = this.sourceContext.resolveFilename(filename);
+        const source = !!importInfo.fullPath
+            ? fs.readFileSync(importInfo.fullPath, "utf-8")
+            : "";
+        return { uri: importInfo.fullPath, source };
     }
 
     public getDependencies(filename: string) {

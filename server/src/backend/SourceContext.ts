@@ -103,6 +103,8 @@ import { ensureLpcConfig } from "./LpcConfig";
 import { getParentContextOfType } from "../symbols/Symbol";
 import { DriverVersion } from "../driver/DriverVersion";
 import { stdout } from "process";
+import { LPCPreprocessingLexer } from "../parser3/LPCPreprocessingLexer";
+import { LPCTokenFactor } from "../parser3/LPCTokenFactory";
 
 const mapAnnotationReg = /\[\[@(.+?)\]\]/;
 
@@ -143,7 +145,7 @@ export class SourceContext {
 
     // grammar parsing stuff
     private preLexer: LPCPreprocessorLexer;
-    private lexer: LPCLexer;
+    private lexer: LPCPreprocessingLexer;
     public tokenStream: CommonTokenStream;
     public commentStream: CommonTokenStream;
     public preTokenStream: CommonTokenStream;
@@ -203,45 +205,26 @@ export class SourceContext {
         //     // add built-in symbols here
         // }
 
-        this.lexer = new LPCLexer(CharStream.fromString(""));
-        this.preLexer = new LPCPreprocessorLexer(CharStream.fromString(""));
+        this.lexer = new LPCPreprocessingLexer(CharStream.fromString(""));
+        this.lexer.tokenFactory = new LPCTokenFactor(this.fileName);
+        this.lexer.fileHandler = this.fileHandler;
 
         // There won't be lexer errors actually. They are silently bubbled up and will cause parser errors.
         this.lexer.removeErrorListeners();
         this.lexer.addErrorListener(this.lexerErrorListener);
 
-        this.preLexer.removeErrorListeners();
-
         this.tokenStream = new CommonTokenStream(this.lexer);
-        this.preTokenStream = new CommonTokenStream(this.preLexer);
-
         this.commentStream = new CommonTokenStream(
             this.lexer,
             LPCLexer.COMMENT
         );
 
         this.parser = new LPCParser(this.tokenStream);
+        this.parser.setTokenFactory(this.lexer.tokenFactory);
         this.parser.buildParseTrees = true;
-
-        // if (this.fileName.endsWith("test.c")) {
-        //     this.parser.setTrace(true);
-        //     this.parser.printer = {
-        //         print: (str: string) => {
-        //             this.dfa += str;
-        //         },
-        //         println: (str: string) => {
-        //             this.dfa += str + "\n";
-        //         },
-        //     };
-        // }
-
-        this.preParser = new LPCPreprocessorParser(this.preTokenStream);
-        this.preParser.buildParseTrees = true;
 
         this.parser.removeErrorListeners();
         this.parser.addErrorListener(this.errorListener);
-        this.preParser.removeErrorListeners();
-        this.preParser.addErrorListener(this.errorListener);
     }
 
     public get hasErrors(): boolean {
@@ -270,43 +253,6 @@ export class SourceContext {
      */
     private preProcess(): void {
         this.localMacroTable.clear();
-
-        // add macros from config
-        const config = ensureLpcConfig();
-        const configDefines = new Map(config.defines ?? []);
-        const ver = DriverVersion.from(config.driver.version);
-        configDefines.set("__VERSION__", `"${config.driver.version}"`);
-        configDefines.set("__VERSION_MAJOR__", ver.major.toString());
-        configDefines.set("__VERSION_MINOR__", ver.minor.toString());
-        configDefines.set("__VERSION_MICRO__", ver.micro.toString());
-        configDefines.set("__VERSION_PATCH__", "0");
-
-        // get the dir of this file relative to project root
-        const relativeDir = path.relative(
-            this.backend.workspaceDir,
-            this.fileName
-        );
-        const fileDir = path.dirname(relativeDir);
-        this.localMacroTable.set("__DIR__", {
-            value: `"/${fileDir}/"`,
-            start: { column: 0, row: 1 },
-            end: { column: 0, row: 1 },
-            filename: "lpc-config",
-            name: "__DIR__",
-            annotation: " [[@__DIR__]]",
-        });
-
-        const configMacroTable = new Map<string, MacroDefinition>();
-        for (const [key, val] of configDefines ?? new Map()) {
-            configMacroTable.set(key, {
-                value: val,
-                start: { column: 0, row: 1 },
-                end: { column: 0, row: 1 },
-                filename: "lpc-config",
-                name: key,
-                annotation: `[[@${key}]]`,
-            });
-        }
 
         // reset lexer & token stream
         this.preLexer.inputStream = CharStream.fromString(this.sourceText);
@@ -354,7 +300,7 @@ export class SourceContext {
 
         // combine macro tables. local table must be last
         this.macroTable = [
-            configMacroTable,
+            //configMacroTable,
             ...depMacroTables,
             this.localMacroTable,
         ].reduce((acc, ctxTable) => {
@@ -363,8 +309,44 @@ export class SourceContext {
     }
 
     public parse(): IContextDetails {
+        this.macroTable.clear();
+
         const config = ensureLpcConfig();
-        // console.debug(`Parsing ${this.fileName}`);
+
+        // add macros from config
+        const configDefines = new Map(config.defines ?? []);
+        const ver = DriverVersion.from(config.driver.version);
+        configDefines.set("__VERSION__", `"${config.driver.version}"`);
+        configDefines.set("__VERSION_MAJOR__", ver.major.toString());
+        configDefines.set("__VERSION_MINOR__", ver.minor.toString());
+        configDefines.set("__VERSION_MICRO__", ver.micro.toString());
+        configDefines.set("__VERSION_PATCH__", "0");
+
+        // get the dir of this file relative to project root
+        const relativeDir = path.relative(
+            this.backend.workspaceDir,
+            this.fileName
+        );
+        const fileDir = path.dirname(relativeDir);
+        this.macroTable.set("__DIR__", {
+            value: `"/${fileDir}/"`,
+            start: { column: 0, row: 1 },
+            end: { column: 0, row: 1 },
+            filename: "lpc-config",
+            name: "__DIR__",
+            annotation: " [[@__DIR__]]",
+        });
+
+        for (const [key, val] of configDefines ?? new Map()) {
+            this.macroTable.set(key, {
+                value: val,
+                start: { column: 0, row: 1 },
+                end: { column: 0, row: 1 },
+                filename: "lpc-config",
+                name: key,
+                annotation: `[[@${key}]]`,
+            });
+        }
 
         this.parseSuccessful = true;
         this.info.imports.length = 0;
@@ -381,21 +363,21 @@ export class SourceContext {
         this.semanticTokens = new SemanticTokenCollection();
 
         // run the preprocessor. This will load #includes and replace macros
-        this.preProcess();
+        //this.preProcess();
 
         // process macros
-        const macroProcessor = new MacroProcessor(
-            this.macroTable,
-            this.sourceMap,
-            this.preprocessedText,
-            this.fileName,
-            this.semanticTokens
-        );
-        macroProcessor.markMacros();
-        const sourceText = macroProcessor.replaceMacros();
+        // const macroProcessor = new MacroProcessor(
+        //     this.macroTable,
+        //     this.sourceMap,
+        //     this.preprocessedText,
+        //     this.fileName,
+        //     this.semanticTokens
+        // );
+        // macroProcessor.markMacros();
+        // const sourceText = macroProcessor.replaceMacros();
 
         // Rewind the input stream for a new parse run.
-        this.lexer.inputStream = CharStream.fromString(sourceText);
+        this.lexer.inputStream = CharStream.fromString(this.sourceText);
         this.lexer.reset();
 
         this.tokenStream.setTokenSource(this.lexer);

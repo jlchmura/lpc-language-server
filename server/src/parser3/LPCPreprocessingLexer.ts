@@ -199,8 +199,8 @@ export class LPCPreprocessingLexer extends LPCLexer {
     ): boolean {
         directiveTokens.shift(); // remove the space
         const includeFilename = directiveTokens
-            .map((t) => t.text)
-            .join(" ")
+            .map((t) => t.text.trim())
+            .join("")
             .trim();
 
         if (!this.fileHandler) {
@@ -229,10 +229,13 @@ export class LPCPreprocessingLexer extends LPCLexer {
         this.isConsumingDirective = false;
         this.allowSubstitutions = true;
 
-        this.emitQueue.push(...includeTokens);
-        // includeTokens.forEach((t) => {
-        //     this.emitToken(t);
-        // });
+        if (includeFile.uri.endsWith("snoop.h")) {
+            const i = 0;
+        }
+
+        if (includeTokens?.length > 0) {
+            this.emitQueue.push(...includeTokens);
+        }
 
         (this.macroLexer.tokenFactory as LPCTokenFactor).filenameStack.pop();
         return true;
