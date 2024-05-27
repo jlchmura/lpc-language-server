@@ -3,6 +3,7 @@ import { LPCLexer } from "./LPCLexer";
 import { LPCTokenFactor } from "./LPCTokenFactory";
 import { MacroDefinition } from "../types";
 import { LPCToken } from "./LPCToken";
+import { IFileHandler } from "../backend/types";
 
 const DISABLED_CHANNEL_NAME = "DISABLED_CHANNEL";
 export const DISABLED_CHANNEL = LPCLexer.channelNames.indexOf(
@@ -16,6 +17,8 @@ enum ConditionalState {
 }
 
 export class LPCPreprocessingLexer extends LPCLexer {
+    public fileHandler: IFileHandler;
+
     /** the token buffer */
     buffer: Token[] = [];
 
@@ -54,9 +57,6 @@ export class LPCPreprocessingLexer extends LPCLexer {
 
     override nextToken(): Token {
         if (this.buffer.length == 0) {
-            // we're pulling a token from the source doc, which means macro processing has ended
-            // turn all macros back on.
-            this.disabledMacros.clear();
             super.nextToken();
         }
         return this.buffer.shift()!;
@@ -66,8 +66,12 @@ export class LPCPreprocessingLexer extends LPCLexer {
      * escaped newlines, when the conditional is split across multiple lines separated by a backslash.
      * @returns array containing the tokens that were consumed
      */
-    private consumeToEndOfDirective(tokenLimit: number = undefined): Token[] {
+    private consumeToEndOfDirective(
+        allowSubstitutions = false,
+        tokenLimit: number = undefined
+    ): Token[] {
         this.isConsumingDirective = true;
+        this.allowSubstitutions = allowSubstitutions;
         const consumedTokens: Token[] = [];
         let t: Token | undefined = undefined;
         let i = 0;
@@ -76,16 +80,19 @@ export class LPCPreprocessingLexer extends LPCLexer {
             t?.type != LPCLexer.EOF &&
             (tokenLimit === undefined || i < tokenLimit)
         ) {
-            t = super.nextToken();
+            t = this.nextToken();
             consumedTokens.push(t);
             if (t?.type == LPCLexer.BACKSLASH) {
                 // consume the newline
-                t = super.nextToken();
+                t = this.nextToken();
                 consumedTokens.push(t);
             }
             i++;
         }
         this.isConsumingDirective = false;
+        this.allowSubstitutions = true;
+
+        //this.buffer.push(...consumedTokens);
         return consumedTokens;
     }
 
@@ -95,9 +102,8 @@ export class LPCPreprocessingLexer extends LPCLexer {
      * @returns true if the token was consumed as a directive, false otherwise
      */
     private processDirective(token: Token): boolean {
-        this.emitAndPush(token);
-
         const directiveTokens = this.consumeToEndOfDirective(
+            token.type == LPCLexer.INCLUDE,
             token.type == LPCLexer.DEFINE ? 1 : undefined
         );
         const directiveToken =
@@ -221,6 +227,53 @@ export class LPCPreprocessingLexer extends LPCLexer {
         }
 
         switch (directiveToken.type) {
+            case LPCLexer.INCLUDE:
+                directiveTokens.shift(); // remove the space
+                const includeFilename = directiveTokens
+                    .map((t) => t.text)
+                    .join(" ")
+                    .trim();
+
+                if (!this.fileHandler) {
+                    console.warn(
+                        `Could not load ${includeFilename}, no file handler set.`
+                    );
+                }
+
+                const includeFile =
+                    this.fileHandler.loadImport(includeFilename);
+
+                (
+                    this.macroLexer.tokenFactory as LPCTokenFactor
+                ).filenameStack.push(includeFile.uri);
+
+                // lex the the include file
+                this.macroLexer.inputStream = CharStream.fromString(
+                    includeFile.source
+                );
+                this.macroLexer.reset();
+                const includeTokens = this.macroLexer.getAllTokens();
+
+                // check if last token is EOF and remove it
+                if (
+                    includeTokens[includeTokens.length - 1].type ===
+                    LPCLexer.EOF
+                ) {
+                    includeTokens.pop();
+                }
+
+                // push via emit to ensure that the tokens are processed by the preprocessor
+                this.isConsumingDirective = false;
+                this.allowSubstitutions = true;
+
+                includeTokens.forEach((t) => {
+                    this.emitToken(t);
+                });
+
+                (
+                    this.macroLexer.tokenFactory as LPCTokenFactor
+                ).filenameStack.pop();
+                return true;
             case LPCLexer.DEFINE:
                 this.allowSubstitutions = false;
 
@@ -289,6 +342,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
             (token.type == LPCLexer.HASH || token.type == LPCLexer.DEFINE) &&
             token.column - (token.text?.length ?? 0) == 0
         ) {
+            this.emitAndPush(token);
             if (this.processDirective(token)) {
                 return;
             }
@@ -331,14 +385,14 @@ export class LPCPreprocessingLexer extends LPCLexer {
 
                 // scroll forward to the opening paren
                 while (t?.type != LPCLexer.PAREN_OPEN) {
-                    t = super.nextToken();
+                    t = this.nextToken();
                     t.channel = LPCLexer.HIDDEN;
                     parenCount++;
                 }
 
                 // keep scrolling until all the parens are closed
                 while (parenCount > 0) {
-                    t = super.nextToken();
+                    t = this.nextToken();
                     if (t?.type == LPCLexer.PAREN_OPEN) {
                         parenCount++;
                     } else if (t?.type == LPCLexer.PAREN_CLOSE) {
@@ -364,6 +418,9 @@ export class LPCPreprocessingLexer extends LPCLexer {
                     this.emitToken(t); // send back through lexer for more macro substitutions
                 }
             });
+
+            this.disabledMacros.delete(token.text);
+
             return;
         }
 
