@@ -2,8 +2,9 @@ import { BaseSymbol } from "antlr4-c3";
 import { SourceContext } from "./SourceContext";
 import { LpcFacade } from "./facade";
 import { ContextSymbolTable } from "./ContextSymbolTable";
+import { IFileHandler, LoadImportResult } from "./types";
 
-export class LpcFileHandler {
+export class LpcFileHandler implements IFileHandler {
     constructor(
         private backend: LpcFacade,
         private sourceContext: SourceContext,
@@ -25,7 +26,9 @@ export class LpcFileHandler {
         return this.backend.addReference(fromFilename, toFilename);
     }
 
-    public loadImport(filename: string) {}
+    public loadImport(filename: string): LoadImportResult {
+        throw "not implemented";
+    }
 
     public getDependencies(filename: string) {
         // get a list of dependencies for a given file

@@ -22,7 +22,6 @@ export class LPCPreprocessingLexer extends LPCLexer {
 
     /** the token buffer */
     buffer: Token[] = [];
-    emitQueue: Token[] = [];
 
     private isConsumingDirective = false;
 
@@ -50,7 +49,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
     /** lexer used for processing macro bodies */
     private readonly macroLexer: LPCLexer;
 
-    constructor(input: CharStream) {
+    constructor(input: CharStream, private filename: string) {
         super(input);
 
         this.macroLexer = new LPCLexer(input);
@@ -58,9 +57,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
     }
 
     override nextToken(): Token {
-        if (this.emitQueue.length > 0) {
-            this.emitToken(this.emitQueue.shift());
-        } else if (this.buffer.length == 0) {
+        if (this.buffer.length == 0) {
             // we're pulling a token from the source doc, which means macro processing has ended
             // turn all macros back on.
             super.nextToken();
@@ -71,6 +68,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
         if (this.isConsumingDirective) {
             return token;
         } else if (
+            token.channel == LPCLexer.DEFAULT_TOKEN_CHANNEL &&
             (token.type == LPCLexer.HASH || token.type == LPCLexer.DEFINE) &&
             token.column - (token.text?.length ?? 0) == 0
         ) {
@@ -100,6 +98,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
 
             // mark macro as hidden and emit
             token.channel = LPCLexer.HIDDEN;
+            this.emitAndPush(token);
 
             if (isFn) {
                 // scroll forward through the macro params all the way to the closing paren
@@ -141,11 +140,9 @@ export class LPCPreprocessingLexer extends LPCLexer {
             // emit the macro body, substituting args when encountered
             macroDef.bodyTokens.forEach((t) => {
                 if (isFn && argIndex.has(t.text)) {
-                    this.emitQueue.push(...fnParams[argIndex.get(t.text)]);
-                    //this.emitAndPush(fnParams[argIndex.get(t.text)]);
+                    this.emitAndPush(fnParams[argIndex.get(t.text)]);
                 } else {
-                    this.emitQueue.push(t);
-                    //this.emitToken(t); // send back through lexer for more macro substitutions
+                    this.emitToken(t); // send back through lexer for more macro substitutions
                 }
             });
 
@@ -188,7 +185,6 @@ export class LPCPreprocessingLexer extends LPCLexer {
         this.allowSubstitutions = true;
 
         //this.buffer.push(...consumedTokens);
-        this.emitQueue.push(...consumedTokens);
         return consumedTokens;
     }
 
@@ -219,8 +215,8 @@ export class LPCPreprocessingLexer extends LPCLexer {
                     this.conditionalStack.push(ConditionalState.Ignored);
                     // disable this entire conditional
                     token.channel = directiveToken.channel = DISABLED_CHANNEL;
-                    directiveTokens.forEach((t) => {
-                        t.channel = DISABLED_CHANNEL;
+                    this.consumeToEndOfDirective().forEach((t) => {
+                        token.channel = DISABLED_CHANNEL;
                     });
                 } else {
                     const ifTokens = directiveTokens;
@@ -254,12 +250,6 @@ export class LPCPreprocessingLexer extends LPCLexer {
                             ? ConditionalState.Enabled
                             : ConditionalState.Disabled
                     );
-
-                    // hide everything
-                    token.channel = directiveToken.channel = LPCLexer.HIDDEN;
-                    directiveTokens.forEach((t) => {
-                        t.channel = token.channel;
-                    });
                 }
                 this.allowSubstitutions = true;
                 return true;
@@ -284,22 +274,12 @@ export class LPCPreprocessingLexer extends LPCLexer {
                     );
                 }
                 this.allowSubstitutions = true;
-                // hide everything
-                token.channel = directiveToken.channel = LPCLexer.HIDDEN;
-                directiveTokens.forEach((t) => {
-                    t.channel = token.channel;
-                });
                 return true;
             case LPCLexer.ENDIF:
                 this.conditionalStack.pop();
                 // set this back to NOT disabled
                 token.channel = directiveToken.channel =
                     LPCLexer.DEFAULT_TOKEN_CHANNEL;
-                // hide everything
-                token.channel = directiveToken.channel = LPCLexer.HIDDEN;
-                directiveTokens.forEach((t) => {
-                    t.channel = token.channel;
-                });
                 return true;
             case LPCLexer.IFDEF:
             case LPCLexer.IFNDEF:
@@ -329,13 +309,6 @@ export class LPCPreprocessingLexer extends LPCLexer {
                     );
                 }
                 this.allowSubstitutions = false;
-
-                // hide everything
-                token.channel = directiveToken.channel = LPCLexer.HIDDEN;
-                directiveTokens.forEach((t) => {
-                    t.channel = token.channel;
-                });
-
                 return true;
         }
 
@@ -375,21 +348,13 @@ export class LPCPreprocessingLexer extends LPCLexer {
                 this.macroLexer.reset();
                 const includeTokens = this.macroLexer.getAllTokens();
 
-                // check if last token is EOF and remove it
-                if (
-                    includeTokens[includeTokens.length - 1].type == LPCLexer.EOF
-                ) {
-                    includeTokens.pop();
-                }
-
                 // push via emit to ensure that the tokens are processed by the preprocessor
                 this.isConsumingDirective = false;
                 this.allowSubstitutions = true;
 
-                this.emitQueue.push(...includeTokens);
-                // includeTokens.forEach((t) => {
-                //     this.emitToken(t);
-                // });
+                includeTokens.forEach((t) => {
+                    this.emitToken(t);
+                });
 
                 (
                     this.macroLexer.tokenFactory as LPCTokenFactor

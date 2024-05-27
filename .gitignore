@@ -7,5 +7,6 @@ grammar/test
 parser2
 test.c
 test*.c
+test*.h
 .DS_Store
 *.vsix

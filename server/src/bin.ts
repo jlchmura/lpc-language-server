@@ -2,7 +2,12 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import { CharStream, CommonTokenStream, ConsoleErrorListener } from "antlr4ng";
+import {
+    BailErrorStrategy,
+    CharStream,
+    CommonTokenStream,
+    ConsoleErrorListener,
+} from "antlr4ng";
 import { LPCLexer } from "./parser3/LPCLexer";
 import { LPCParser } from "./parser3/LPCParser";
 import { CodeCompletionCore, NamespaceSymbol, SymbolTable } from "antlr4-c3";
@@ -18,6 +23,17 @@ import { UnbufferedCharStream } from "./parser3/UnbufferedCharStream";
 import { LPCTokenFactor } from "./parser3/LPCTokenFactory";
 import { LPCPreprocessingLexer } from "./parser3/LPCPreprocessingLexer";
 import { LPCToken } from "./parser3/LPCToken";
+import { IFileHandler } from "./backend/types";
+
+class MockFileHandler implements IFileHandler {
+    constructor() {}
+
+    public loadImport(filename: string): { uri: string; source: string } {
+        filename = filename.slice(1, -1);
+        const source = fs.readFileSync(filename, "utf-8");
+        return { uri: filename, source };
+    }
+}
 
 //import { LpcFacade } from "./backend/facade";
 const filename = process.argv[2];
@@ -35,10 +51,13 @@ const code = fs.existsSync(filename)
 const doc = TextDocument.create("uri", "lpc", 0, code);
 const stream = CharStream.fromString(code);
 const lexer = new LPCPreprocessingLexer(stream);
+lexer.fileHandler = new MockFileHandler();
 lexer.tokenFactory = new LPCTokenFactor(filename);
 
 const tStream = new CommonTokenStream(lexer);
 const parser = new LPCParser(tStream);
+parser.errorHandler = new BailErrorStrategy();
+parser.addErrorListener(new ConsoleErrorListener());
 parser.setTokenFactory(lexer.tokenFactory);
 
 const finalTokens = lexer.getAllTokens();

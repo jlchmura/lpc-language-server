@@ -174,7 +174,7 @@ SINGLEQUOT: '\'';
 mode DEFINE_MODE;    
     DEFINE_CONTENT: (~[\n\\]+ | '\\' ~'\n' ) '\\\n'? -> more;
     NEWLINE: '\\\n' -> more;
-    END_DEFINE: '\n' -> popMode;
+    END_DEFINE: ('\n'|EOF) -> popMode;
 
 // string mode will handle escaped quotes
 mode STRING_MODE;

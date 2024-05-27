@@ -8,7 +8,11 @@ import {
 import { LPCToken } from "./LPCToken";
 
 export class LPCTokenFactor implements TokenFactory<LPCToken> {
-    constructor(protected filename: string) {}
+    public filenameStack: string[] = [];
+
+    constructor(protected filename: string) {
+        this.filenameStack.push(filename);
+    }
 
     create(
         source: [TokenSource, CharStream],
@@ -30,7 +34,7 @@ export class LPCTokenFactor implements TokenFactory<LPCToken> {
         t.line = line;
         const input = source[1];
         t.text = input.getTextFromInterval(Interval.of(start, stop));
-        t.filename = this.filename;
+        t.filename = this.filenameStack[this.filenameStack.length - 1];
 
         return t;
     }

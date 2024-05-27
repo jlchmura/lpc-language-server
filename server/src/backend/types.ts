@@ -29,6 +29,15 @@ export interface IScriptSnapshot {
     dispose?(): void;
 }
 
+export type LoadImportResult = {
+    uri: string;
+    source: string;
+};
+
+export interface IFileHandler {
+    loadImport(filename: string): LoadImportResult;
+}
+
 export interface TextChangeRange {
     span: TextSpan;
     newLength: number;
