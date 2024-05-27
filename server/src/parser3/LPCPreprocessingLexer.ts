@@ -3,7 +3,6 @@ import { LPCLexer } from "./LPCLexer";
 import { LPCTokenFactor } from "./LPCTokenFactory";
 import { MacroDefinition } from "../types";
 import { LPCToken } from "./LPCToken";
-import { LpcFileHandler } from "../backend/FileHandler";
 import { IFileHandler } from "../backend/types";
 
 const DISABLED_CHANNEL_NAME = "DISABLED_CHANNEL";
@@ -16,13 +15,20 @@ enum ConditionalState {
     Enabled = 1,
     Ignored = 2,
 }
-
+/**
+ * @description
+ *   nextToken() calls emit, which genearates a token and passes it to emitToken,
+ * which sets the token returned by nextToken.
+ *
+ * Our override of emitToken should only ever add to the buffer.
+ */
 export class LPCPreprocessingLexer extends LPCLexer {
     public fileHandler: IFileHandler;
 
     /** the token buffer */
     buffer: Token[] = [];
-    emitQueue: Token[] = [];
+    /** queue of tokens to process a directive */
+    directiveTokens: Token[] = [];
 
     private isConsumingDirective = false;
 
@@ -58,138 +64,49 @@ export class LPCPreprocessingLexer extends LPCLexer {
     }
 
     override nextToken(): Token {
-        if (this.emitQueue.length > 0) {
-            this.emitToken(this.emitQueue.shift());
-        } else if (this.buffer.length == 0) {
-            // we're pulling a token from the source doc, which means macro processing has ended
-            // turn all macros back on.
+        if (this.buffer.length == 0) {
+            // buffer is empty so pull a token from the source doc
+            // this will trigger emitToken which will add a token to the buffer
             super.nextToken();
         }
 
+        if (this.buffer.length == 0) debugger;
+
+        // get the next directive
         const token = this.buffer.shift()!;
 
-        if (this.isConsumingDirective) {
-            return token;
-        } else if (
-            (token.type == LPCLexer.HASH || token.type == LPCLexer.DEFINE) &&
-            token.column - (token.text?.length ?? 0) == 0
-        ) {
-            if (this.processDirective(token)) {
-                return token;
-            }
+        // are we starting to consume a directive?
+        if (token.type == LPCLexer.HASH || token.type == LPCLexer.DEFINE) {
+            this.isConsumingDirective = true;
+            this.allowSubstitutions = false;
         }
 
-        if (
-            this.allowSubstitutions &&
-            !this.disabledMacros.has(token.text) &&
-            this.macroTable.has(token.text) &&
-            token.channel == LPCLexer.DEFAULT_TOKEN_CHANNEL
-        ) {
-            // macro can only be applied once to this stream of tokens.
-            this.disabledMacros.add(token.text);
+        if (this.isConsumingDirective) {
+            // queue directive tokens
+            this.directiveTokens.push(token);
 
-            const macroDef = this.macroTable.get(token.text)!;
-            const { argIndex } = macroDef;
-            const isFn = !!argIndex;
-
-            // fill in an empty array for each arg
-            let fnParams: Token[][] = isFn
-                ? Array(macroDef.args.length).fill([])
-                : undefined;
-            if (isFn) fnParams = fnParams.map((_, i) => []);
-
-            // mark macro as hidden and emit
-            token.channel = LPCLexer.HIDDEN;
-
-            if (isFn) {
-                // scroll forward through the macro params all the way to the closing paren
-                // hide them all
-                let t: Token = undefined;
-                let parenCount = 0; // number of open parens we've seen
-                let paramIndex = 0; // index of the current param we're on
-
-                // scroll forward to the opening paren
-                while (
-                    t?.type != LPCLexer.PAREN_OPEN &&
-                    t?.type != LPCLexer.EOF
-                ) {
-                    t = this.nextToken();
-                    t.channel = LPCLexer.HIDDEN;
-                    parenCount++;
-                }
-
-                // keep scrolling until all the parens are closed
-                while (parenCount > 0 && t.type != LPCLexer.EOF) {
-                    t = this.nextToken();
-                    if (t?.type == LPCLexer.PAREN_OPEN) {
-                        parenCount++;
-                    } else if (t?.type == LPCLexer.PAREN_CLOSE) {
-                        parenCount--;
-                    } else if (t?.type == LPCLexer.COMMA && parenCount == 1) {
-                        paramIndex++;
-                        // hide commas
-                        t.channel = LPCLexer.HIDDEN;
-                    } else {
-                        fnParams[paramIndex].push(t);
-                    }
-                }
-
-                // hide the closing paren
-                t.channel = LPCLexer.HIDDEN;
+            if (token.type == LPCLexer.INCLUDE) {
+                // turn substitutions back on for the include directive
+                this.allowSubstitutions = true;
             }
 
-            // emit the macro body, substituting args when encountered
-            macroDef.bodyTokens.forEach((t) => {
-                if (isFn && argIndex.has(t.text)) {
-                    this.emitQueue.push(...fnParams[argIndex.get(t.text)]);
-                    //this.emitAndPush(fnParams[argIndex.get(t.text)]);
-                } else {
-                    this.emitQueue.push(t);
-                    //this.emitToken(t); // send back through lexer for more macro substitutions
-                }
-            });
+            // check if we're at the end
+            if (
+                token.type == LPCLexer.EOF ||
+                (token.text.indexOf("\n") >= 0 &&
+                    this.directiveTokens[this.directiveTokens.length - 1]
+                        ?.type != LPCLexer.BACKSLASH)
+            ) {
+                // end of directive
+                this.processDirective(this.directiveTokens);
 
-            this.disabledMacros.delete(token.text);
-
-            return token;
+                this.directiveTokens = [];
+                this.isConsumingDirective = false;
+                this.allowSubstitutions = true;
+            }
         }
 
         return token;
-    }
-
-    /** consume tokens until we reach the end of the directive (newline). This will also handle
-     * escaped newlines, when the conditional is split across multiple lines separated by a backslash.
-     * @returns array containing the tokens that were consumed
-     */
-    private consumeToEndOfDirective(
-        allowSubstitutions = false,
-        tokenLimit: number = undefined
-    ): Token[] {
-        this.isConsumingDirective = true;
-        this.allowSubstitutions = false;
-        const consumedTokens: Token[] = [];
-        let t: Token | undefined = undefined;
-        let i = 0;
-        while (
-            !(t?.type == LPCLexer.WS && t?.text.indexOf("\n") >= 0) &&
-            t?.type != LPCLexer.EOF &&
-            (tokenLimit === undefined || i < tokenLimit)
-        ) {
-            t = this.nextToken();
-            consumedTokens.push(t);
-            if (t?.type == LPCLexer.BACKSLASH) {
-                // consume the newline
-                t = this.nextToken();
-                consumedTokens.push(t);
-            }
-            i++;
-        }
-        this.isConsumingDirective = false;
-        this.allowSubstitutions = true;
-
-        //this.buffer.push(...consumedTokens);
-        this.emitQueue.push(...consumedTokens);
-        return consumedTokens;
     }
 
     private processInclude(
@@ -233,11 +150,15 @@ export class LPCPreprocessingLexer extends LPCLexer {
             const i = 0;
         }
 
-        if (includeTokens?.length > 0) {
-            this.emitQueue.push(...includeTokens);
-        }
-
         (this.macroLexer.tokenFactory as LPCTokenFactor).filenameStack.pop();
+
+        includeTokens?.forEach((t) => {
+            this.emitToken(t); // emit each token so that macro substitutions are applied
+        });
+        // if (includeTokens?.length > 0) {
+        //     this.buffer.push(...includeTokens);
+        // }
+
         return true;
     }
 
@@ -454,13 +375,9 @@ export class LPCPreprocessingLexer extends LPCLexer {
      * @param token the first token - should be a hash
      * @returns true if the token was consumed as a directive, false otherwise
      */
-    private processDirective(token: Token): boolean {
-        //this.emitAndPush(token);
+    private processDirective(directiveTokens: Token[]): boolean {
+        const token = directiveTokens.shift(); // the hash will be back, remove it.
 
-        const directiveTokens = this.consumeToEndOfDirective(
-            token.type == LPCLexer.INCLUDE,
-            token.type == LPCLexer.DEFINE ? 1 : undefined
-        );
         const directiveToken =
             token.type == LPCLexer.HASH ? directiveTokens.shift() : token; // special case for define
 
@@ -488,7 +405,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
 
         if (!this.isExecutable) {
             token.channel = directiveToken.channel = DISABLED_CHANNEL;
-            this.consumeToEndOfDirective().forEach((t) => {
+            directiveTokens.forEach((t) => {
                 token.channel = DISABLED_CHANNEL;
             });
             return true;
@@ -521,21 +438,83 @@ export class LPCPreprocessingLexer extends LPCLexer {
 
         if (!this.isExecutable) {
             token.channel = DISABLED_CHANNEL;
-            // this.emitAndPush(token);
-            // return;
         }
 
-        super.emitToken(token);
-        this.buffer.push(token);
-        // this.emitAndPush(token);
-    }
+        if (
+            this.allowSubstitutions &&
+            !this.disabledMacros.has(token.text) &&
+            this.macroTable.has(token.text) &&
+            token.channel == LPCLexer.DEFAULT_TOKEN_CHANNEL
+        ) {
+            // macro can only be applied once to this stream of tokens.
+            this.disabledMacros.add(token.text);
 
-    private emitAndPush(tokens: Token | Token[]) {
-        const tokenArray = Array.isArray(tokens) ? tokens : [tokens];
-        tokenArray.forEach((t) => {
-            //super.emitToken(t);
-            if (!t) debugger;
-            this.buffer.push(t);
-        });
+            const macroDef = this.macroTable.get(token.text)!;
+            const { argIndex } = macroDef;
+            const isFn = !!argIndex;
+
+            // fill in an empty array for each arg
+            let fnParams: Token[][] = isFn
+                ? Array(macroDef.args.length).fill([])
+                : undefined;
+            if (isFn) fnParams = fnParams.map((_, i) => []);
+
+            // mark macro as hidden and emit
+            token.channel = LPCLexer.HIDDEN;
+
+            if (isFn) {
+                // scroll forward through the macro params all the way to the closing paren
+                // hide them all
+                let t: Token = undefined;
+                let parenCount = 0; // number of open parens we've seen
+                let paramIndex = 0; // index of the current param we're on
+
+                // scroll forward to the opening paren
+                while (
+                    t?.type != LPCLexer.PAREN_OPEN &&
+                    t?.type != LPCLexer.EOF
+                ) {
+                    t = this.nextToken();
+                    t.channel = LPCLexer.HIDDEN;
+                    parenCount++;
+                }
+
+                // keep scrolling until all the parens are closed
+                while (parenCount > 0 && t.type != LPCLexer.EOF) {
+                    t = this.nextToken();
+                    if (t?.type == LPCLexer.PAREN_OPEN) {
+                        parenCount++;
+                    } else if (t?.type == LPCLexer.PAREN_CLOSE) {
+                        parenCount--;
+                    } else if (t?.type == LPCLexer.COMMA && parenCount == 1) {
+                        paramIndex++;
+                        // hide commas
+                        t.channel = LPCLexer.HIDDEN;
+                    } else {
+                        fnParams[paramIndex].push(t);
+                    }
+                }
+
+                // hide the closing paren
+                t.channel = LPCLexer.HIDDEN;
+            }
+
+            // emit the macro body, substituting args when encountered
+            this.buffer.push(token);
+            macroDef.bodyTokens.forEach((t) => {
+                if (isFn && argIndex.has(t.text)) {
+                    this.buffer.push(...fnParams[argIndex.get(t.text)]);
+                } else {
+                    this.buffer.push(t);
+                }
+            });
+
+            this.disabledMacros.delete(token.text);
+            return;
+        }
+
+        // we don't eve need to call super.emitToken because we'll always return from the buffer
+        //super.emitToken(token);
+        this.buffer.push(token);
     }
 }
