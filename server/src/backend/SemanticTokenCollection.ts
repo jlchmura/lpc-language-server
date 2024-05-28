@@ -1,5 +1,4 @@
 import { SemanticTokens, SemanticTokensBuilder } from "vscode-languageserver";
-import { SourceMap } from "./SourceMap";
 import { ILexicalRange } from "../types";
 
 type tokenData = {
@@ -76,7 +75,7 @@ export class SemanticTokenCollection {
      * @param sourceMap sourcemap to use in translating token positions
      * @returns SemanticTokens result
      */
-    public build(sourceMap: SourceMap): SemanticTokens {
+    public build(): SemanticTokens {
         const builder = new SemanticTokensBuilder();
 
         // sort ranges
@@ -97,14 +96,9 @@ export class SemanticTokenCollection {
                     modifiers |= (1 << modifier) >>> 0;
                 }
 
-                const sourceMapping = sourceMap.getSourceLocation(
-                    token.line - 1,
-                    token.column + 1
-                );
-
                 return [
-                    sourceMapping?.row ?? token.line - 1,
-                    !!sourceMapping ? sourceMapping?.column - 1 : token.column,
+                    token.line - 1,
+                    token.column,
                     token.length,
                     token.tokenType,
                     modifiers,

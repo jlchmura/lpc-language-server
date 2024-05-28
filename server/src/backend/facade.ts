@@ -12,7 +12,6 @@ import {
 import { normalizeFilename } from "../utils";
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { SourceMap } from "./SourceMap";
 import { BaseSymbol } from "antlr4-c3";
 import { PerformanceObserver, performance } from "perf_hooks";
 import { randomInt } from "crypto";
@@ -574,12 +573,6 @@ export class LpcFacade {
         const context = this.getContext(fileName);
 
         return context?.getSemanticTokens();
-    }
-
-    public getSourcemap(fileName: string): SourceMap {
-        const context = this.getContext(fileName);
-
-        return context?.sourceMap;
     }
 
     public getHighlights(fileName: string, symbolName: string) {

@@ -55,10 +55,12 @@ import {
     DocumentHighlightKind,
     FoldingRange,
     Position,
+    Range,
     SemanticTokens,
 } from "vscode-languageserver";
 import {
     firstEntry,
+    getSelectionRange,
     lexRangeFromContext as lexRangeFromContext,
     normalizeFilename,
     pushIfDefined,
@@ -90,9 +92,9 @@ import {
     LpcDocumentContext,
 } from "../preprocessor/LPCPreprocessorParser";
 import { PreprocessorListener } from "./PreprocessorListener";
-import { MacroProcessor } from "./Macros";
+
 import { SemanticTokenCollection } from "./SemanticTokenCollection";
-import { SourceMap } from "./SourceMap";
+
 import {
     InheritSuperAccessorSymbol,
     InheritSymbol,
@@ -178,8 +180,6 @@ export class SourceContext {
     /** flag that indicates if the text needs compiling, kind of like a dirty state */
     public needsCompile = true;
 
-    public sourceMap: SourceMap;
-
     private highlights: DocumentHighlight[] = [];
     private cachedSemanticTokens: SemanticTokens;
     private semanticTokens: SemanticTokenCollection;
@@ -248,66 +248,6 @@ export class SourceContext {
         this.needsCompile = true;
     }
 
-    /**
-     * Runs the preprocessor parser to extract #define macros and populate the macro table for this file.
-     */
-    private preProcess(): void {
-        this.localMacroTable.clear();
-
-        // reset lexer & token stream
-        this.preLexer.inputStream = CharStream.fromString(this.sourceText);
-        this.preLexer.reset();
-        this.preTokenStream.setTokenSource(this.preLexer);
-
-        this.preParser.reset();
-        this.preParser.errorHandler = new DefaultErrorStrategy();
-        this.preParser.interpreter.predictionMode = PredictionMode.SLL;
-        this.preParser.buildParseTrees = true;
-
-        let tree: LpcDocumentContext;
-        try {
-            tree = this.preParser.lpcDocument();
-        } catch (e) {
-            return;
-        }
-
-        const rw = new TokenStreamRewriter(this.preTokenStream);
-
-        const includeFiles: string[] = [];
-        const listener = new PreprocessorListener(
-            this.localMacroTable,
-            this.fileName,
-            rw,
-            this.semanticTokens,
-            includeFiles
-        );
-
-        ParseTreeWalker.DEFAULT.walk(listener, tree);
-
-        const newtext = rw.getText();
-        this.preprocessedText = newtext;
-
-        // let the backend load imports so that we can access their macro tables
-        this.onLoadImports(includeFiles);
-
-        const depMacroTables = includeFiles
-            .map((file) => {
-                const depFilename = this.resolveFilename(file);
-                const ctx = this.backend.getContext(depFilename.fullPath);
-                return ctx?.macroTable;
-            })
-            .filter((mt) => !!mt);
-
-        // combine macro tables. local table must be last
-        this.macroTable = [
-            //configMacroTable,
-            ...depMacroTables,
-            this.localMacroTable,
-        ].reduce((acc, ctxTable) => {
-            return new Map([...acc, ...ctxTable]);
-        }, new Map<string, MacroDefinition>());
-    }
-
     public parse(): IContextDetails {
         this.macroTable.clear();
 
@@ -357,7 +297,6 @@ export class SourceContext {
         this.symbolTable.addDependencies(SourceContext.globalSymbols);
         this.symbolTable.addDependencies(EfunSymbols);
 
-        this.sourceMap = new SourceMap();
         this.highlights = [];
         this.cachedSemanticTokens = undefined;
         this.semanticTokens = new SemanticTokenCollection();
@@ -403,6 +342,17 @@ export class SourceContext {
             });
         }
 
+        this.tokenStream.reset();
+        this.tokenStream.fill();
+        const allTokens = this.tokenStream.getTokens();
+
+        const newSource = allTokens
+            .filter((t) => t.channel == 0)
+            .map((t) => t.text)
+            .join("");
+
+        this.tokenStream.reset();
+        this.tokenStream.fill();
         try {
             this.tree = this.parser.program();
         } catch (e) {
@@ -442,7 +392,7 @@ export class SourceContext {
         //this.info.unreferencedRules = this.symbolTable.getUnreferencedSymbols();
 
         this.needsCompile = false;
-        this.cachedSemanticTokens = this.semanticTokens.build(this.sourceMap);
+        this.cachedSemanticTokens = this.semanticTokens.build();
 
         return this.info;
     }
@@ -552,13 +502,6 @@ export class SourceContext {
         this.runSemanticAnalysisIfNeeded();
 
         return this.diagnostics.map((d) => {
-            d.range = this.sourceMap.getSourceRange(d.range);
-
-            if (!!d.related?.range)
-                d.related.range = this.sourceMap.getSourceRange(
-                    d.related.range
-                );
-
             return d;
         });
     }
@@ -718,27 +661,12 @@ export class SourceContext {
         return this.symbolTable.resolveSync(symbolName, false);
     }
 
-    /**
-     * convert sourcText column/row to lexer column/row using the sourceMap
-     * @param column
-     * @param row
-     * @returns
-     */
-    public sourceToTokenLocation(column: number, row: number): IPosition {
-        return this.sourceMap.getGeneratedLocation(row, column);
-    }
-
     public symbolContainingPosition(
         position: Position
     ): BaseSymbol | undefined {
-        // sourcemap the position - convert from zero-based
-        const mapped = this.sourceMap.getGeneratedLocation(
-            position.line + 1,
-            position.character + 1
-        );
         return this.symbolTable.symbolContainingPosition(
-            mapped.row,
-            mapped.column
+            position.line,
+            position.character
         );
     }
 
@@ -751,15 +679,10 @@ export class SourceContext {
             return undefined;
         }
 
-        let { column: lexerColumn, row: lexerRow } = this.sourceToTokenLocation(
-            column,
-            row
-        );
-
         const terminal = BackendUtils.parseTreeFromPosition(
             this.tree,
-            lexerColumn,
-            lexerRow
+            column,
+            row
         );
 
         if (!terminal || !(terminal instanceof TerminalNode)) {
@@ -1073,10 +996,6 @@ export class SourceContext {
         this.tokenStream.fill();
         let index: number;
         let token: Token;
-
-        // adjust column for source offsets
-        const { column: lexerColumn } = this.sourceToTokenLocation(column, row);
-        column = lexerColumn;
 
         for (index = 0; ; ++index) {
             token = this.tokenStream.get(index);
@@ -1398,24 +1317,15 @@ export class SourceContext {
         );
 
         // apply sourcemapping to results
-        return result.map((r) => {
-            if (!!r.definition) {
-                const origRange = r.definition.range;
-                const newRange = this.sourceMap.getSourceRange(origRange);
-                r.definition = { ...r.definition, range: newRange };
-            }
-            return r;
-        });
+        return result;
     }
 
     public getHighlights(symbolName: string): DocumentHighlight[] {
         const results = this.symbolTable.getSymbolsToHighlight(symbolName);
 
         return results.map((r) => {
-            const range = this.sourceMap.getSourceRangeFromToken(r.token);
-
             return {
-                range,
+                range: getSelectionRange(r.symbol.context as ParserRuleContext),
                 kind: DocumentHighlightKind.Text,
             };
         }) as DocumentHighlight[];

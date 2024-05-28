@@ -37,7 +37,9 @@ export class DiagnosticProvider {
         version: number,
         force = false
     ): DocDiagnostics[] {
-        const entries = this.facade.getDiagnostics(uri, force);
+        const entries = this.facade
+            .getDiagnostics(uri, force)
+            .filter((d) => !d.filename || d.filename === uri);
         const results: DocDiagnostics[] = [];
 
         // if diag for the doc is undefined, that means diags failed
