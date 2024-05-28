@@ -23,6 +23,7 @@ type MacroState = {
     name: string;
     def: MacroDefinition;
     parenCount: number;
+    paramIndex: number;
     fnParams?: Token[][];
 };
 
@@ -35,6 +36,9 @@ type MacroState = {
  */
 export class LPCPreprocessingLexer extends LPCLexer {
     public fileHandler: IFileHandler;
+
+    /** the last token index we've emitted */
+    tokenIndex: number = 0;
 
     /** the token buffer */
     buffer: Token[] = [];
@@ -126,18 +130,37 @@ export class LPCPreprocessingLexer extends LPCLexer {
         if (
             this.allowSubstitutions &&
             token.type == LPCLexer.Identifier &&
-            this.macroTable.has(token.text)
+            this.isExecutable &&
+            this.macroTable.has(token.text) &&
+            !this.disabledMacros.has(token.text)
         ) {
+            const def = this.macroTable.get(token.text)!;
+
+            // init params array for function macros
+
+            let fnParams: Token[][];
+            if (!!def.args) {
+                fnParams = Array(def.args.length).fill([]);
+                fnParams = fnParams.map((_, i) => []);
+            }
+
             this.macroStack.push({
                 tokens: [],
-                def: this.macroTable.get(token.text)!,
+                def,
                 name: token.text,
+                fnParams,
                 parenCount: 0,
+                paramIndex: 0,
             });
+
+            // hide the macro name
+            // ntbla: mark this as a macro channel?
+            token.channel = LPCLexer.HIDDEN;
+
             this.disabledMacros.add(token.text);
         }
 
-        if (this.isConsumingMacro) {
+        if (this.isConsumingMacro && this.isExecutable) {
             token.channel = LPCLexer.HIDDEN; // hide by default
 
             const macro = peekStack(this.macroStack);
@@ -150,26 +173,32 @@ export class LPCPreprocessingLexer extends LPCLexer {
             let macroDone = false;
 
             if (isFn) {
-                // fn
                 // scroll forward through the macro params all the way to the closing paren
                 switch (token.type) {
                     case LPCLexer.PAREN_OPEN:
+                        // hide the first paren
+                        if (macro.parenCount == 0)
+                            token.channel = LPCLexer.HIDDEN;
                         macro.parenCount++;
                         break;
                     case LPCLexer.PAREN_CLOSE:
                         macro.parenCount--;
+                        // hide the closing paren
+                        if (macro.parenCount == 0) {
+                            token.channel = LPCLexer.HIDDEN;
+                            macroDone = true;
+                        }
                         break;
                     case LPCLexer.COMMA:
                         if (macro.parenCount == 1) {
                             // hide commas
                             token.channel = LPCLexer.HIDDEN;
+                            macro.paramIndex++;
                         }
                         break;
-                }
-
-                if (macro.parenCount == 0) {
-                    // done with the macro
-                    macroDone = true;
+                    default:
+                        if (macro.parenCount > 0)
+                            fnParams[macro.paramIndex].push(token);
                 }
             } else {
                 // not fn, this macro is done
@@ -178,19 +207,21 @@ export class LPCPreprocessingLexer extends LPCLexer {
 
             if (macroDone) {
                 // emit the macro body, substituting args when encountered
-                // def.bodyTokens.forEach((t) => {
-                //     if (isFn && argIndex.has(t.text)) {
-                //         this.buffer.push(...fnParams[argIndex.get(t.text)]);
-                //     } else {
-                //         this.buffer.push(t);
-                //     }
-                // });
+                def.bodyTokens.forEach((t) => {
+                    if (isFn && argIndex.has(t.text)) {
+                        this.buffer.push(...fnParams[argIndex.get(t.text)]);
+                    } else {
+                        this.buffer.push(t);
+                    }
+                });
 
                 this.disabledMacros.delete(token.text);
                 this.macroStack.pop();
             }
         }
 
+        // need to copy the token here so that the tokenIndex is correct
+        token.tokenIndex = this.tokenIndex++;
         return token;
     }
 
