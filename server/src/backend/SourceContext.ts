@@ -321,6 +321,7 @@ export class SourceContext {
 
         // Rewind the input stream for a new parse run.
         this.lexer.inputStream = CharStream.fromString(this.sourceText);
+        this.lexer.macroTable = this.macroTable;
         this.lexer.reset();
 
         this.tokenStream.setTokenSource(this.lexer);

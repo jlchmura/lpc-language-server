@@ -5,7 +5,7 @@ import { MacroDefinition } from "../types";
 import { LPCToken } from "./LPCToken";
 import { IFileHandler } from "../backend/types";
 
-const MacroReg = /([a-zA-Z_-]+)(?:\s*\(([\w\s,]+)\))?\s+(\S.*)/;
+const MacroReg = /([a-zA-Z_-]+)(?:\s*\(([\w\s,]+)\))?\s+(?!\/\*|\/\/)(\S.*)/;
 
 const DISABLED_CHANNEL_NAME = "DISABLED_CHANNEL";
 const DIRECTIVE_CHANNEL_NAME = "DIRECTIVE_CHANNEL";
@@ -79,7 +79,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
     /** indicates if macro substitutions are allowed for the next token */
     private allowSubstitutions = true;
     /** the macro table */
-    private macroTable: Map<string, MacroDefinition> = new Map();
+    public macroTable: Map<string, MacroDefinition> = new Map();
     /** set of disabled macros that should not be applied to the next macro */
     private disabledMacros: Set<string> = new Set();
     /** lexer used for processing macro bodies */
@@ -103,7 +103,9 @@ export class LPCPreprocessingLexer extends LPCLexer {
 
         // get the next directive
         const token = this.buffer.shift()!;
-
+        if (token.text == "GETDIR_NAMES") {
+            const ii = 0;
+        }
         // are we starting to consume a directive?
         if (
             (token.type == LPCLexer.HASH || token.type == LPCLexer.DEFINE) &&
@@ -231,7 +233,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
                 // collect tokens for this substitution
                 const macroBuffer: Token[] = [];
 
-                def.bodyTokens.forEach((bodyToken: LPCToken) => {
+                def.bodyTokens?.forEach((bodyToken: LPCToken) => {
                     if (bodyToken.channel == 0) {
                         const t = fac.cloneToken(bodyToken);
                         t.line = refTkn.line;
@@ -608,6 +610,10 @@ export class LPCPreprocessingLexer extends LPCLexer {
         }
 
         this.buffer.push(token);
+    }
+
+    public addMacros(configMacros: Map<string, string>) {
+        // NTBLA parse and lex config macrogs
     }
 }
 
