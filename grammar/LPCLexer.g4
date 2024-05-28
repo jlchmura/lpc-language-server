@@ -6,7 +6,7 @@ lexer grammar LPCLexer;
 
 channels { 
     COMMENTS_CHANNEL,
-    SOURCEMAP_CHANNEL,
+    DIRECTIVE_CHANNEL,
     DISABLED_CHANNEL    // code that is disabled by a preprocessor conditional
 }
 
@@ -160,9 +160,6 @@ Identifier: ([$a-zA-Z_] [a-zA-Z_0-9]*);
 // Whitespace and comments
 COMMENT: '/*' .*? '*/' -> channel(COMMENTS_CHANNEL);
 LINE_COMMENT: '//' .*? ('\n'|EOF) -> channel(COMMENTS_CHANNEL);
-
-// sourcemaps
-SOURCEMAP: '[[@' .*? ']]' -> channel(SOURCEMAP_CHANNEL);
 
 DEFINE: HASH [ \t]* 'define' -> pushMode(DEFINE_MODE);
 

@@ -11,6 +11,7 @@ import {
 export class LPCToken extends CommonToken {
     public filename: string;
     public lineIntervals: Interval[];
+    public relatedToken: Token | undefined;
 
     constructor(details: {
         source: [TokenSource, CharStream];

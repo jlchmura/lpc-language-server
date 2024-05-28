@@ -8,9 +8,17 @@ import { IFileHandler } from "../backend/types";
 const MacroReg = /(\w+)(?:\s*\(([\w\s,]+)\))?\s+(.*)/;
 
 const DISABLED_CHANNEL_NAME = "DISABLED_CHANNEL";
+const DIRECTIVE_CHANNEL_NAME = "DIRECTIVE_CHANNEL";
+const COMMENT_CHANNEL_NAME = "COMMENT_CHANNEL";
+
 export const DISABLED_CHANNEL = LPCLexer.channelNames.indexOf(
     DISABLED_CHANNEL_NAME
 );
+export const DIRECTIVE_CHANNEL = LPCLexer.channelNames.indexOf(
+    DIRECTIVE_CHANNEL_NAME
+);
+export const COMMENT_CHANNEL =
+    LPCLexer.channelNames.indexOf(COMMENT_CHANNEL_NAME);
 
 enum ConditionalState {
     Disabled = 0,
@@ -103,6 +111,10 @@ export class LPCPreprocessingLexer extends LPCLexer {
         }
 
         if (this.isConsumingDirective) {
+            // put directives on the directive channel by default.
+            // they may get disabled or hidden later
+            token.channel = DIRECTIVE_CHANNEL;
+
             // queue directive tokens
             this.directiveTokens.push(token);
 
@@ -137,7 +149,6 @@ export class LPCPreprocessingLexer extends LPCLexer {
             const def = this.macroTable.get(token.text)!;
 
             // init params array for function macros
-
             let fnParams: Token[][];
             if (!!def.args) {
                 fnParams = Array(def.args.length).fill([]);
@@ -207,7 +218,8 @@ export class LPCPreprocessingLexer extends LPCLexer {
 
             if (macroDone) {
                 // emit the macro body, substituting args when encountered
-                def.bodyTokens.forEach((t) => {
+                def.bodyTokens.forEach((t: LPCToken) => {
+                    t.relatedToken = macro.tokens[0]; // the first token is the triggering token
                     if (isFn && argIndex.has(t.text)) {
                         this.buffer.push(...fnParams[argIndex.get(t.text)]);
                     } else {
@@ -268,7 +280,8 @@ export class LPCPreprocessingLexer extends LPCLexer {
 
         (this.macroLexer.tokenFactory as LPCTokenFactor).filenameStack.pop();
 
-        includeTokens?.forEach((t) => {
+        includeTokens?.forEach((t: LPCToken) => {
+            t.relatedToken = token;
             this.emitToken(t); // emit each token so that macro substitutions are applied
         });
         // if (includeTokens?.length > 0) {

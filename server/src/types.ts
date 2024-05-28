@@ -9,9 +9,6 @@ import {
 import { Token } from "antlr4ng";
 import { DiagnosticSeverity } from "vscode-languageserver";
 
-export const COMMENT_CHANNEL_NUM = 2;
-export const SOURCEMAP_CHANNEL_NUM = 3;
-
 export const DiagnosticCodes = {
     /** occurs when the target of a call other (eg `target->fn()`) is unknown, therefore the lfun cannot be validated */
     CallOtherTargetUnknown: "callOtherTargetUnknown",

@@ -51,7 +51,7 @@ lexer.fileHandler = new MockFileHandler();
 //const lexer = new LPCLexer(stream);
 lexer.tokenFactory = new LPCTokenFactor(filename);
 
-const tStream = new CommonTokenStream(lexer);
+const tStream = new CommonTokenStream(lexer, 0);
 const parser = new LPCParser(tStream);
 parser.errorHandler = new BailErrorStrategy();
 parser.addErrorListener(new ConsoleErrorListener());
@@ -63,9 +63,9 @@ finalTokens.forEach((t) => {
 });
 
 lexer.reset();
-lexer.inputStream = CharStream.fromString(code);
-tStream.setTokenSource(lexer);
-parser.reset();
+// lexer.inputStream = CharStream.fromString(code);
+// tStream.setTokenSource(lexer);
+// parser.reset();
 const tree = parser.program();
 console.log("tree", tree.children);
 //const filename = process.argv[2];

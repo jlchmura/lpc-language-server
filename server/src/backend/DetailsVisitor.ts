@@ -26,7 +26,6 @@ import {
     CallOtherTargetContext,
     CloneObjectExpressionContext,
     CommaExpressionContext,
-    CommaableExpressionContext,
     ConditionalAndExpressionContext,
     ConditionalOrExpressionContext,
     ConditionalTernaryExpressionContext,
@@ -70,7 +69,6 @@ import {
 import { PreprocessorSymbol } from "../symbols/Symbol";
 import { FoldingRange } from "vscode-languageserver";
 import {
-    COMMENT_CHANNEL_NUM,
     ContextImportInfo,
     LpcTypes,
     SemanticTokenModifiers,
@@ -117,6 +115,7 @@ import {
 } from "../symbols/inheritSymbol";
 import { LpcFileHandler } from "./FileHandler";
 import { ForEachSymbol, IterationSymbol } from "../symbols/forSymbol";
+import { COMMENT_CHANNEL } from "../parser3/LPCPreprocessingLexer";
 
 type GenericConstructorParameters<T> = ConstructorParameters<
     new (...args: any[]) => T
@@ -1100,7 +1099,7 @@ export class DetailsVisitor
         const tokenIdx = ctx.start.tokenIndex;
         const comments = source?.tokenStream?.getHiddenTokensToLeft(
             tokenIdx,
-            COMMENT_CHANNEL_NUM
+            COMMENT_CHANNEL
         );
         if (comments?.length > 0) {
             const commentText = lastEntry(comments)?.text ?? "";

@@ -32,7 +32,6 @@ import {
     IDefinition,
     SymbolKind,
     DependencySearchType,
-    SOURCEMAP_CHANNEL_NUM,
     MacroDefinition,
     IPosition,
 } from "../types";
@@ -105,7 +104,10 @@ import { ensureLpcConfig } from "./LpcConfig";
 import { getParentContextOfType } from "../symbols/Symbol";
 import { DriverVersion } from "../driver/DriverVersion";
 import { stdout } from "process";
-import { LPCPreprocessingLexer } from "../parser3/LPCPreprocessingLexer";
+import {
+    DIRECTIVE_CHANNEL,
+    LPCPreprocessingLexer,
+} from "../parser3/LPCPreprocessingLexer";
 import { LPCTokenFactor } from "../parser3/LPCTokenFactory";
 
 const mapAnnotationReg = /\[\[@(.+?)\]\]/;
@@ -693,7 +695,7 @@ export class SourceContext {
         const mapping = firstEntry(
             this.tokenStream.getHiddenTokensToLeft(
                 tokenIndex,
-                SOURCEMAP_CHANNEL_NUM
+                DIRECTIVE_CHANNEL
             )
         );
         if (!!mapping) {
@@ -897,7 +899,7 @@ export class SourceContext {
 
                     return symbolsToReturn.map((s) => this.getSymbolInfo(s));
                 } else if (
-                    symbol.symbolPath.some(
+                    symbol?.symbolPath.some(
                         (p) => p instanceof CloneObjectSymbol
                     )
                 ) {
