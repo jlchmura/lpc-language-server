@@ -290,21 +290,7 @@ export class SourceContext {
             this.fileName
         );
         const fileDir = path.dirname(relativeDir);
-        this.macroTable.set("__DIR__", {
-            value: `"/${fileDir}/"`,
-            filename: "lpc-config",
-            name: "__DIR__",
-            token: undefined,
-        });
-
-        for (const [key, val] of configDefines ?? new Map()) {
-            this.macroTable.set(key, {
-                value: val,
-                filename: "lpc-config",
-                name: key,
-                token: undefined,
-            });
-        }
+        configDefines.set("__DIR__", `"/${fileDir}/"`);
 
         this.parseSuccessful = true;
         this.info.imports.length = 0;
@@ -321,9 +307,9 @@ export class SourceContext {
 
         // Rewind the input stream for a new parse run.
         this.lexer.inputStream = CharStream.fromString(this.sourceText);
-        this.lexer.macroTable = this.macroTable;
         this.lexer.reset();
 
+        this.lexer.addMacros(configDefines);
         this.tokenStream.setTokenSource(this.lexer);
 
         this.parser.reset();

@@ -311,14 +311,10 @@ export class LPCPreprocessingLexer extends LPCLexer {
         );
 
         // lex the the include file
-        this.macroLexer.inputStream = CharStream.fromString(includeFile.source);
-        this.macroLexer.reset();
-        const includeTokens = this.macroLexer.getAllTokens();
-
-        // check if last token is EOF and remove it
-        if (includeTokens[includeTokens.length - 1].type == LPCLexer.EOF) {
-            includeTokens.pop();
-        }
+        const includeTokens = this.lexMacro(
+            includeFile.uri,
+            includeFile.source
+        );
 
         // push via emit to ensure that the tokens are processed by the preprocessor
         this.isConsumingDirective = false;
@@ -327,8 +323,6 @@ export class LPCPreprocessingLexer extends LPCLexer {
         if (includeFile.uri.endsWith("snoop.h")) {
             const i = 0;
         }
-
-        (this.macroLexer.tokenFactory as LPCTokenFactor).filenameStack.pop();
 
         includeTokens?.forEach((t: LPCToken) => {
             t.relatedToken = token;
@@ -367,9 +361,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
         };
 
         // lex the body
-        this.macroLexer.inputStream = CharStream.fromString(macroValue);
-        this.macroLexer.reset();
-        def.bodyTokens = this.macroLexer.getAllTokens();
+        def.bodyTokens = this.lexMacro(filename, macroValue);
 
         if (isFn) {
             def.argIndex = new Map();
@@ -612,8 +604,46 @@ export class LPCPreprocessingLexer extends LPCLexer {
         this.buffer.push(token);
     }
 
+    private lexMacro(filename: string, macroBody: string): Token[] {
+        if (!macroBody) return undefined;
+
+        const fac = this.tokenFactory as LPCTokenFactor;
+        fac.filenameStack.push(filename);
+
+        // lex the the include file
+        this.macroLexer.inputStream = CharStream.fromString(macroBody);
+        this.macroLexer.reset();
+        const tokens = this.macroLexer.getAllTokens();
+
+        // check if last token is EOF and remove it
+        if (peekStack(tokens)?.type == LPCLexer.EOF) {
+            tokens.pop();
+        }
+
+        fac.filenameStack.pop();
+        return tokens;
+    }
+
+    override reset(seekBack?: boolean): void {
+        this.macroTable.clear();
+        this.buffer = [];
+    }
+
+    /**
+     * Adds a set of key/value pairs as macros to the lexer.
+     * @param configMacros key/value pairs where `key` is the macro name and `value` is the macro value
+     */
     public addMacros(configMacros: Map<string, string>) {
-        // NTBLA parse and lex config macrogs
+        for (const [name, value] of configMacros.entries()) {
+            const def: MacroDefinition = {
+                name,
+                value,
+                bodyTokens: this.lexMacro("internal", value),
+                filename: undefined,
+                token: undefined,
+            };
+            this.macroTable.set(name, def);
+        }
     }
 }
 
