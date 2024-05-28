@@ -5,7 +5,7 @@ import { MacroDefinition } from "../types";
 import { LPCToken } from "./LPCToken";
 import { IFileHandler } from "../backend/types";
 
-const MacroReg = /(\w+)(?:\s*\(([\w\s,]+)\))?\s+(.*)/;
+const MacroReg = /([a-zA-Z_-]+)(?:\s*\(([\w\s,]+)\))?\s+(\S.*)/;
 
 const DISABLED_CHANNEL_NAME = "DISABLED_CHANNEL";
 const DIRECTIVE_CHANNEL_NAME = "DIRECTIVE_CHANNEL";
@@ -330,11 +330,8 @@ export class LPCPreprocessingLexer extends LPCLexer {
 
         includeTokens?.forEach((t: LPCToken) => {
             t.relatedToken = token;
-            this.emitToken(t); // emit each token so that macro substitutions are applied
         });
-        // if (includeTokens?.length > 0) {
-        //     this.buffer.push(...includeTokens);
-        // }
+        this.buffer.unshift(...includeTokens);
 
         return true;
     }
@@ -361,9 +358,9 @@ export class LPCPreprocessingLexer extends LPCLexer {
         const filename = fac.filenameStack[fac.filenameStack.length - 1];
         const def: MacroDefinition = {
             value: macroValue.trim(),
+            token: directiveToken,
             name: macroName,
             filename: filename,
-            annotation: "",
             args: isFn ? [] : undefined,
         };
 

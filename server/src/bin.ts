@@ -60,11 +60,19 @@ finalTokens.forEach((t) => {
     console.log((t as LPCToken).toString());
 });
 
+const newSource = finalTokens
+    .filter((t) => t.channel == 0 || t.type == LPCLexer.WS)
+    .map((t) => t.text)
+    .join("");
+
 //lexer.reset();
 // lexer.inputStream = CharStream.fromString(code);
 // tStream.setTokenSource(lexer);
 // parser.reset();
+
 tStream.reset();
+tStream.fill();
+
 const tree = parser.program();
 console.log("tree", tree.children);
 //const filename = process.argv[2];

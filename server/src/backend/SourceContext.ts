@@ -63,6 +63,7 @@ import {
     lexRangeFromContext as lexRangeFromContext,
     normalizeFilename,
     pushIfDefined,
+    rangeFromTokens,
     resolveOfTypeSync,
     testFilename,
     trimQuotes,
@@ -291,21 +292,17 @@ export class SourceContext {
         const fileDir = path.dirname(relativeDir);
         this.macroTable.set("__DIR__", {
             value: `"/${fileDir}/"`,
-            start: { column: 0, row: 1 },
-            end: { column: 0, row: 1 },
             filename: "lpc-config",
             name: "__DIR__",
-            annotation: " [[@__DIR__]]",
+            token: undefined,
         });
 
         for (const [key, val] of configDefines ?? new Map()) {
             this.macroTable.set(key, {
                 value: val,
-                start: { column: 0, row: 1 },
-                end: { column: 0, row: 1 },
                 filename: "lpc-config",
                 name: key,
-                annotation: `[[@${key}]]`,
+                token: undefined,
             });
         }
 
@@ -522,7 +519,7 @@ export class SourceContext {
             this.symbolTable.listTopLevelSymbols(includeDependencies);
 
         for (const [macro, def] of this.macroTable.entries()) {
-            const { start, end, filename, value } = def;
+            const { filename, value } = def;
 
             // only list macros from this file
             if (filename !== this.fileName) continue;
@@ -533,7 +530,7 @@ export class SourceContext {
                 source: filename,
                 definition: {
                     text: value,
-                    range: { start, end },
+                    range: rangeFromTokens(def.token, def.token),
                 },
             });
         }
@@ -732,46 +729,46 @@ export class SourceContext {
             row
         ) as TerminalNode;
 
-        if (!token && (!terminal || !(terminal instanceof TerminalNode))) {
+        if (!terminal || !(terminal instanceof TerminalNode)) {
             return undefined;
         }
 
-        const tokenIndex = terminal.symbol?.tokenIndex;
-        const mapping = firstEntry(
-            this.tokenStream.getHiddenTokensToLeft(
-                tokenIndex,
-                DIRECTIVE_CHANNEL
-            )
-        );
-        if (!!mapping) {
-            // mappingText is a string in the format of: [[@<source_row>,<source_col>,<source_symbol>]]
-            // pull out the symbol from that string
-            const mappingText = mapping.text;
-            const mappingMatch = mappingText.match(mapAnnotationReg);
-            if (mappingMatch) {
-                const sourceSymbol = mappingMatch[1];
-                const macroDef = this.macroTable.get(sourceSymbol);
-                if (!!macroDef) {
-                    const { start, end } = macroDef;
-                    const columnEnd = column + sourceSymbol.length;
-                    return [
-                        {
-                            symbol: undefined,
-                            name: sourceSymbol,
-                            kind: SymbolKind.Define,
-                            source: macroDef.filename,
-                            definition: {
-                                range: {
-                                    start: start,
-                                    end: end,
-                                },
-                                text: sourceSymbol,
-                            },
-                        },
-                    ];
-                }
-            }
-        }
+        // const tokenIndex = terminal.symbol?.tokenIndex;
+        // const mapping = firstEntry(
+        //     this.tokenStream.getHiddenTokensToLeft(
+        //         tokenIndex,
+        //         DIRECTIVE_CHANNEL
+        //     )
+        // );
+        // if (!!mapping) {
+        //     // mappingText is a string in the format of: [[@<source_row>,<source_col>,<source_symbol>]]
+        //     // pull out the symbol from that string
+        //     const mappingText = mapping.text;
+        //     const mappingMatch = mappingText.match(mapAnnotationReg);
+        //     if (mappingMatch) {
+        //         const sourceSymbol = mappingMatch[1];
+        //         const macroDef = this.macroTable.get(sourceSymbol);
+        //         if (!!macroDef) {
+        //             const { start, end } = macroDef;
+        //             const columnEnd = column + sourceSymbol.length;
+        //             return [
+        //                 {
+        //                     symbol: undefined,
+        //                     name: sourceSymbol,
+        //                     kind: SymbolKind.Define,
+        //                     source: macroDef.filename,
+        //                     definition: {
+        //                         range: {
+        //                             start: start,
+        //                             end: end,
+        //                         },
+        //                         text: sourceSymbol,
+        //                     },
+        //                 },
+        //             ];
+        //         }
+        //     }
+        // }
 
         // If limitToChildren is set we only want to show info for symbols in specific contexts.
         // These are contexts which are used as subrules in rule definitions.
@@ -779,7 +776,7 @@ export class SourceContext {
             return [this.getSymbolInfo(terminal.getText())];
         }
 
-        let parent = terminal.parent as ParserRuleContext;
+        let parent = terminal?.parent as ParserRuleContext;
         let symbol: BaseSymbol;
         let name: string;
         let searchScope: ScopedSymbol;

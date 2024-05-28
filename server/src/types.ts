@@ -134,31 +134,20 @@ export enum DependencySearchType {
 export type MacroDefinition = {
     /** the name of the macro */
     name: string;
+    token: Token;
     /** the text that will get substituted for the macro */
     value: string;
     /** filename this macro is defined in */
     filename: string;
     /** tokens of the macro body */
     bodyTokens?: Token[];
-    /** tokens of the macro args */
-    argTokens?: Token[];
-    /* starting position of the macro */
-    start?: IPosition;
-    /* ending position of the macro */
-    end?: IPosition;
+
     /**
      * array of arg names in the order they will be passed to the macro
      */
     args?: string[];
     /** name of each arg and the index of each */
     argIndex?: Map<string, number>;
-    /**
-     * The macro value string with the arg names marked with a unique string [[@<argName>]]
-     *
-     */
-    markedValue?: string;
-    /** annotation that will be used to tag this macro */
-    annotation: string;
 };
 
 export const SemanticTokenTypes = {
