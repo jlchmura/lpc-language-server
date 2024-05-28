@@ -12,7 +12,7 @@
         "lint": "eslint ./client/src ./server/src --ext .ts,.tsx",
         "postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
         "test": "sh ./scripts/e2e.sh",
-        "generate": "npm run gen:lpc && npm run gen:pre",
+        "generate": "npm run gen:lpc",
         "vsce:package": "vsce package",
         "vsce:publish": "vsce publish",
         "gen:lpc": "npx antlr4ng -Dlanguage=TypeScript grammar/LPCLexer.g4 grammar/LPCParser.g4 -o server/src/parser3 -Xexact-output-dir -visitor -listener",

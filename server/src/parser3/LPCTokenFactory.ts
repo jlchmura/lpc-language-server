@@ -38,4 +38,15 @@ export class LPCTokenFactor implements TokenFactory<LPCToken> {
 
         return t;
     }
+
+    cloneToken(t: LPCToken): LPCToken {
+        const newToken = new LPCToken({ ...t });
+
+        newToken.line = t.line;
+        newToken.text = t.text;
+        newToken.filename = t.filename;
+        newToken.relatedToken = t.relatedToken;
+
+        return newToken;
+    }
 }

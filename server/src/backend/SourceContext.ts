@@ -85,12 +85,6 @@ import { CloneObjectSymbol } from "../symbols/objectSymbol";
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import { URI } from "vscode-uri";
 import { ArrowSymbol, ArrowType } from "../symbols/arrowSymbol";
-import { LPCPreprocessorLexer } from "../preprocessor/LPCPreprocessorLexer";
-import {
-    LPCPreprocessorParser,
-    LpcDocumentContext,
-} from "../preprocessor/LPCPreprocessorParser";
-import { PreprocessorListener } from "./PreprocessorListener";
 
 import { SemanticTokenCollection } from "./SemanticTokenCollection";
 
@@ -106,9 +100,11 @@ import { DriverVersion } from "../driver/DriverVersion";
 import { stdout } from "process";
 import {
     DIRECTIVE_CHANNEL,
+    DISABLED_CHANNEL,
     LPCPreprocessingLexer,
 } from "../parser3/LPCPreprocessingLexer";
 import { LPCTokenFactor } from "../parser3/LPCTokenFactory";
+import { LPCToken } from "../parser3/LPCToken";
 
 const mapAnnotationReg = /\[\[@(.+?)\]\]/;
 
@@ -148,12 +144,10 @@ export class SourceContext {
     }
 
     // grammar parsing stuff
-    private preLexer: LPCPreprocessorLexer;
     private lexer: LPCPreprocessingLexer;
     public tokenStream: CommonTokenStream;
     public commentStream: CommonTokenStream;
-    public preTokenStream: CommonTokenStream;
-    private preParser: LPCPreprocessorParser;
+    public directiveStream: CommonTokenStream;
     private parser: LPCParser;
     private errorListener: ContextErrorListener = new ContextErrorListener(
         this.diagnostics
@@ -165,19 +159,12 @@ export class SourceContext {
     private tree: ProgramContext | undefined;
 
     /**
-     * Holds #define macros pulled out during the preprocessing phase. The map's key is the macro name with the `#` symbol removed.
-     * The map value is the expanded text of the macro
-     */
-    private localMacroTable: Map<string, MacroDefinition> = new Map();
-    /**
      * combined table that includes dependencies
      */
     private macroTable: Map<string, MacroDefinition> = new Map();
 
     /** source code from the IDE (unmodifier - i.e. macros have not been replaced) */
     private sourceText: string = "";
-    /** source code after the preprocess has been run */
-    private preprocessedText: string = "";
 
     /** flag that indicates if the text needs compiling, kind of like a dirty state */
     public needsCompile = true;
@@ -186,7 +173,8 @@ export class SourceContext {
     private cachedSemanticTokens: SemanticTokens;
     private semanticTokens: SemanticTokenCollection;
 
-    private dfa: string = "";
+    private allTokens: LPCToken[] = [];
+    private symbolNameCache: Map<string, LPCToken[]> = new Map();
 
     public constructor(
         public backend: LpcFacade,
@@ -207,7 +195,10 @@ export class SourceContext {
         //     // add built-in symbols here
         // }
 
-        this.lexer = new LPCPreprocessingLexer(CharStream.fromString(""));
+        this.lexer = new LPCPreprocessingLexer(
+            CharStream.fromString(""),
+            this.fileName
+        );
         this.lexer.tokenFactory = new LPCTokenFactor(this.fileName);
         this.lexer.fileHandler = this.fileHandler;
 
@@ -219,6 +210,10 @@ export class SourceContext {
         this.commentStream = new CommonTokenStream(
             this.lexer,
             LPCLexer.COMMENT
+        );
+        this.directiveStream = new CommonTokenStream(
+            this.lexer,
+            DIRECTIVE_CHANNEL
         );
 
         this.parser = new LPCParser(this.tokenStream);
@@ -248,6 +243,30 @@ export class SourceContext {
     public setText(source: string): void {
         this.sourceText = source;
         this.needsCompile = true;
+    }
+
+    private buildTokenCache(tokens: LPCToken[]) {
+        this.symbolNameCache.clear();
+
+        this.allTokens = tokens.filter(
+            (t) => t.channel != DISABLED_CHANNEL && t.filename == this.fileName
+        );
+        this.allTokens.sort((a, b) => {
+            if (a.line === b.line) {
+                return a.column - b.column;
+            }
+            return a.line - b.line;
+        });
+
+        for (const token of tokens) {
+            if (token.type === LPCLexer.Identifier) {
+                const name = token.text;
+                if (!this.symbolNameCache.has(name)) {
+                    this.symbolNameCache.set(name, []);
+                }
+                this.symbolNameCache.get(name)?.push(token);
+            }
+        }
     }
 
     public parse(): IContextDetails {
@@ -303,20 +322,6 @@ export class SourceContext {
         this.cachedSemanticTokens = undefined;
         this.semanticTokens = new SemanticTokenCollection();
 
-        // run the preprocessor. This will load #includes and replace macros
-        //this.preProcess();
-
-        // process macros
-        // const macroProcessor = new MacroProcessor(
-        //     this.macroTable,
-        //     this.sourceMap,
-        //     this.preprocessedText,
-        //     this.fileName,
-        //     this.semanticTokens
-        // );
-        // macroProcessor.markMacros();
-        // const sourceText = macroProcessor.replaceMacros();
-
         // Rewind the input stream for a new parse run.
         this.lexer.inputStream = CharStream.fromString(this.sourceText);
         this.lexer.reset();
@@ -324,9 +329,7 @@ export class SourceContext {
         this.tokenStream.setTokenSource(this.lexer);
 
         this.parser.reset();
-        // if (this.fileName.endsWith("test.c")) {
-        //     this.parser.setTrace(true);
-        // }
+
         // use default instead of bailout here.
         // the method of using bailout and re-parsing using LL mode was causing problems
         // with code completion
@@ -346,15 +349,24 @@ export class SourceContext {
 
         this.tokenStream.reset();
         this.tokenStream.fill();
-        const allTokens = this.tokenStream.getTokens();
+        const allTokens = this.tokenStream.getTokens() as LPCToken[];
+
+        if (this.fileName.endsWith("living.c")) {
+            const ii = 0;
+        }
+        this.buildTokenCache([
+            ...allTokens,
+            ...(this.directiveStream.getTokens() as LPCToken[]),
+        ]);
 
         const newSource = allTokens
-            .filter((t) => t.channel == 0)
+            .filter((t) => t.channel == 0 || t.channel == 1)
             .map((t) => t.text)
             .join("");
 
         this.tokenStream.reset();
         this.tokenStream.fill();
+
         try {
             this.tree = this.parser.program();
         } catch (e) {
@@ -371,9 +383,6 @@ export class SourceContext {
             }
         }
 
-        // this.dfa = "";
-        // this.parser.dumpDFA();
-        // console.log(this.dfa);
         this.symbolTable.tree = this.tree;
 
         this.parseSuccessful = this.diagnostics.length == 0;
@@ -672,6 +681,41 @@ export class SourceContext {
         );
     }
 
+    private findTokenAtPosition(column: number, line: number) {
+        const arr = this.allTokens;
+        let first = 0;
+        let count = arr.length;
+
+        // use binary search to find the token in allTokens that contains the position
+        while (count > 0) {
+            const step = count >> 1;
+            const it = first + step;
+            const token = arr[it];
+            if (
+                token.line < line ||
+                (token.line === line && token.column < column)
+            ) {
+                first = it + 1;
+                count -= step + 1;
+            } else {
+                count = step;
+            }
+        }
+
+        const m = arr[first];
+        if (
+            !first &&
+            m &&
+            (line < m.line || (line === m.line && column < m.column))
+        ) {
+            return undefined;
+        } else if (!m) {
+            return undefined;
+        } else {
+            return m;
+        }
+    }
+
     public symbolAtPosition(
         column: number,
         row: number,
@@ -681,17 +725,18 @@ export class SourceContext {
             return undefined;
         }
 
+        const token = this.findTokenAtPosition(column, row);
         const terminal = BackendUtils.parseTreeFromPosition(
             this.tree,
             column,
             row
-        );
+        ) as TerminalNode;
 
-        if (!terminal || !(terminal instanceof TerminalNode)) {
+        if (!token && (!terminal || !(terminal instanceof TerminalNode))) {
             return undefined;
         }
 
-        const tokenIndex = terminal.symbol.tokenIndex;
+        const tokenIndex = terminal.symbol?.tokenIndex;
         const mapping = firstEntry(
             this.tokenStream.getHiddenTokensToLeft(
                 tokenIndex,
@@ -745,6 +790,7 @@ export class SourceContext {
         }
 
         switch (parent.ruleIndex) {
+            case LPCParser.RULE_directiveTypeInclude:
             case LPCParser.RULE_directiveGlobalFile:
             case LPCParser.RULE_directiveIncludeFile:
                 const includeSymbol = this.symbolTable.symbolContainingContext(

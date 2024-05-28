@@ -12,9 +12,7 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { LpcFacade } from "./backend/facade";
 import { MethodSymbol } from "./symbols/methodSymbol";
 import { VariableSymbol } from "./symbols/variableSymbol";
-import { ReadableStream } from "stream/web";
-import { ReadableString } from "./parser3/ReadableString";
-import { UnbufferedCharStream } from "./parser3/UnbufferedCharStream";
+
 import { LPCTokenFactor } from "./parser3/LPCTokenFactory";
 import { LPCPreprocessingLexer } from "./parser3/LPCPreprocessingLexer";
 import { LPCToken } from "./parser3/LPCToken";
@@ -46,9 +44,8 @@ const code = fs.existsSync(filename)
 
 const doc = TextDocument.create("uri", "lpc", 0, code);
 const stream = CharStream.fromString(code);
-const lexer = new LPCPreprocessingLexer(stream);
+const lexer = new LPCPreprocessingLexer(stream, filename);
 lexer.fileHandler = new MockFileHandler();
-//const lexer = new LPCLexer(stream);
 lexer.tokenFactory = new LPCTokenFactor(filename);
 
 const tStream = new CommonTokenStream(lexer, 0);
@@ -57,15 +54,17 @@ parser.errorHandler = new BailErrorStrategy();
 parser.addErrorListener(new ConsoleErrorListener());
 parser.setTokenFactory(lexer.tokenFactory);
 
-const finalTokens = lexer.getAllTokens();
+tStream.fill();
+const finalTokens = tStream.getTokens();
 finalTokens.forEach((t) => {
     console.log((t as LPCToken).toString());
 });
 
-lexer.reset();
+//lexer.reset();
 // lexer.inputStream = CharStream.fromString(code);
 // tStream.setTokenSource(lexer);
 // parser.reset();
+tStream.reset();
 const tree = parser.program();
 console.log("tree", tree.children);
 //const filename = process.argv[2];
