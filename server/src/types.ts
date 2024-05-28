@@ -20,6 +20,7 @@ export const DiagnosticCodes = {
 } as const;
 
 export interface IDiagnosticEntry {
+    filename?: string;
     type: DiagnosticSeverity;
     message: string;
     range: ILexicalRange;

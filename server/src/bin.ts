@@ -2,12 +2,7 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import {
-    BailErrorStrategy,
-    CharStream,
-    CommonTokenStream,
-    ConsoleErrorListener,
-} from "antlr4ng";
+import { BailErrorStrategy, CharStream, CommonTokenStream } from "antlr4ng";
 import { LPCLexer } from "./parser3/LPCLexer";
 import { LPCParser } from "./parser3/LPCParser";
 import { CodeCompletionCore, NamespaceSymbol, SymbolTable } from "antlr4-c3";
@@ -24,6 +19,7 @@ import { LPCTokenFactor } from "./parser3/LPCTokenFactory";
 import { LPCPreprocessingLexer } from "./parser3/LPCPreprocessingLexer";
 import { LPCToken } from "./parser3/LPCToken";
 import { IFileHandler } from "./backend/types";
+import { ConsoleErrorListener } from "./ConsoleErrorListener";
 
 class MockFileHandler implements IFileHandler {
     constructor() {}
@@ -52,6 +48,7 @@ const doc = TextDocument.create("uri", "lpc", 0, code);
 const stream = CharStream.fromString(code);
 const lexer = new LPCPreprocessingLexer(stream);
 lexer.fileHandler = new MockFileHandler();
+//const lexer = new LPCLexer(stream);
 lexer.tokenFactory = new LPCTokenFactor(filename);
 
 const tStream = new CommonTokenStream(lexer);
@@ -65,8 +62,12 @@ finalTokens.forEach((t) => {
     console.log((t as LPCToken).toString());
 });
 
+lexer.reset();
+lexer.inputStream = CharStream.fromString(code);
+tStream.setTokenSource(lexer);
+parser.reset();
 const tree = parser.program();
-
+console.log("tree", tree.children);
 //const filename = process.argv[2];
 //const dir = path.dirname(filename);
 

@@ -5,6 +5,8 @@ import { MacroDefinition } from "../types";
 import { LPCToken } from "./LPCToken";
 import { IFileHandler } from "../backend/types";
 
+const MacroReg = /(\w+)(?:\s*\(([\w\s,]+)\))?\s+(.*)/;
+
 const DISABLED_CHANNEL_NAME = "DISABLED_CHANNEL";
 export const DISABLED_CHANNEL = LPCLexer.channelNames.indexOf(
     DISABLED_CHANNEL_NAME
@@ -15,6 +17,15 @@ enum ConditionalState {
     Enabled = 1,
     Ignored = 2,
 }
+
+type MacroState = {
+    tokens: Token[];
+    name: string;
+    def: MacroDefinition;
+    parenCount: number;
+    fnParams?: Token[][];
+};
+
 /**
  * @description
  *   nextToken() calls emit, which genearates a token and passes it to emitToken,
@@ -29,8 +40,14 @@ export class LPCPreprocessingLexer extends LPCLexer {
     buffer: Token[] = [];
     /** queue of tokens to process a directive */
     directiveTokens: Token[] = [];
+    macroTokens: Token[] = [];
 
     private isConsumingDirective = false;
+
+    private macroStack: MacroState[] = [];
+    private get isConsumingMacro() {
+        return this.macroStack.length > 0;
+    }
 
     /** tracks the state of preprocessor conditionals */
     private conditionalStack: ConditionalState[] = [];
@@ -106,6 +123,74 @@ export class LPCPreprocessingLexer extends LPCLexer {
             }
         }
 
+        if (
+            this.allowSubstitutions &&
+            token.type == LPCLexer.Identifier &&
+            this.macroTable.has(token.text)
+        ) {
+            this.macroStack.push({
+                tokens: [],
+                def: this.macroTable.get(token.text)!,
+                name: token.text,
+                parenCount: 0,
+            });
+            this.disabledMacros.add(token.text);
+        }
+
+        if (this.isConsumingMacro) {
+            token.channel = LPCLexer.HIDDEN; // hide by default
+
+            const macro = peekStack(this.macroStack);
+            macro.tokens.push(token);
+
+            const { def, fnParams } = macro;
+            const { argIndex } = def;
+            const isFn = !!argIndex;
+
+            let macroDone = false;
+
+            if (isFn) {
+                // fn
+                // scroll forward through the macro params all the way to the closing paren
+                switch (token.type) {
+                    case LPCLexer.PAREN_OPEN:
+                        macro.parenCount++;
+                        break;
+                    case LPCLexer.PAREN_CLOSE:
+                        macro.parenCount--;
+                        break;
+                    case LPCLexer.COMMA:
+                        if (macro.parenCount == 1) {
+                            // hide commas
+                            token.channel = LPCLexer.HIDDEN;
+                        }
+                        break;
+                }
+
+                if (macro.parenCount == 0) {
+                    // done with the macro
+                    macroDone = true;
+                }
+            } else {
+                // not fn, this macro is done
+                macroDone = true;
+            }
+
+            if (macroDone) {
+                // emit the macro body, substituting args when encountered
+                // def.bodyTokens.forEach((t) => {
+                //     if (isFn && argIndex.has(t.text)) {
+                //         this.buffer.push(...fnParams[argIndex.get(t.text)]);
+                //     } else {
+                //         this.buffer.push(t);
+                //     }
+                // });
+
+                this.disabledMacros.delete(token.text);
+                this.macroStack.pop();
+            }
+        }
+
         return token;
     }
 
@@ -169,24 +254,23 @@ export class LPCPreprocessingLexer extends LPCLexer {
     ): boolean {
         const defValToken = directiveTokens.shift()!;
         const defVal = defValToken.text.trim();
-        // macro name is everything up to the first space
-        const nameEndIndex = defVal.match(/[(\s]/)?.index;
-        const spaceIndex = defVal.indexOf(" ");
-        const openParenIndex = defVal.indexOf("(");
-        const closingParenIndex = defVal.indexOf(")");
+        const matches = defVal.match(MacroReg);
 
-        const macroName = defVal.substring(0, nameEndIndex);
+        if (!matches) return false;
+
+        const macroName = matches[1];
+        const macroArgs = matches[2];
+        const macroValue = matches[3];
 
         // macro value is everything after the first space
-        const isFn = closingParenIndex >= 0;
-        const macroValue = defVal.substring(
-            defVal.indexOf(" ", closingParenIndex)
-        );
+        const isFn = macroArgs?.length > 0;
 
+        const fac = this.tokenFactory as LPCTokenFactor;
+        const filename = fac.filenameStack[fac.filenameStack.length - 1];
         const def: MacroDefinition = {
-            value: macroValue,
+            value: macroValue.trim(),
             name: macroName,
-            filename: "macro.h",
+            filename: filename,
             annotation: "",
             args: isFn ? [] : undefined,
         };
@@ -200,9 +284,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
             def.argIndex = new Map();
 
             // lex the args
-            const args = defVal
-                .substring(openParenIndex + 1, closingParenIndex)
-                .split(",");
+            const args = macroArgs.split(",");
             args.forEach((a, i) => {
                 def.argIndex.set(a.trim(), i);
             });
@@ -440,81 +522,85 @@ export class LPCPreprocessingLexer extends LPCLexer {
             token.channel = DISABLED_CHANNEL;
         }
 
-        if (
-            this.allowSubstitutions &&
-            !this.disabledMacros.has(token.text) &&
-            this.macroTable.has(token.text) &&
-            token.channel == LPCLexer.DEFAULT_TOKEN_CHANNEL
-        ) {
-            // macro can only be applied once to this stream of tokens.
-            this.disabledMacros.add(token.text);
+        // if (
+        //     this.allowSubstitutions &&
+        //     !this.disabledMacros.has(token.text) &&
+        //     this.macroTable.has(token.text) &&
+        //     token.channel == LPCLexer.DEFAULT_TOKEN_CHANNEL
+        // ) {
+        //     // macro can only be applied once to this stream of tokens.
+        //     this.disabledMacros.add(token.text);
 
-            const macroDef = this.macroTable.get(token.text)!;
-            const { argIndex } = macroDef;
-            const isFn = !!argIndex;
+        //     const macroDef = this.macroTable.get(token.text)!;
+        //     const { argIndex } = macroDef;
+        //     const isFn = !!argIndex;
 
-            // fill in an empty array for each arg
-            let fnParams: Token[][] = isFn
-                ? Array(macroDef.args.length).fill([])
-                : undefined;
-            if (isFn) fnParams = fnParams.map((_, i) => []);
+        //     // fill in an empty array for each arg
+        //     let fnParams: Token[][] = isFn
+        //         ? Array(macroDef.args.length).fill([])
+        //         : undefined;
+        //     if (isFn) fnParams = fnParams.map((_, i) => []);
 
-            // mark macro as hidden and emit
-            token.channel = LPCLexer.HIDDEN;
+        //     // mark macro as hidden and emit
+        //     token.channel = LPCLexer.HIDDEN;
 
-            if (isFn) {
-                // scroll forward through the macro params all the way to the closing paren
-                // hide them all
-                let t: Token = undefined;
-                let parenCount = 0; // number of open parens we've seen
-                let paramIndex = 0; // index of the current param we're on
+        //     if (isFn) {
+        //         // scroll forward through the macro params all the way to the closing paren
+        //         // hide them all
+        //         let t: Token = undefined;
+        //         let parenCount = 0; // number of open parens we've seen
+        //         let paramIndex = 0; // index of the current param we're on
 
-                // scroll forward to the opening paren
-                while (
-                    t?.type != LPCLexer.PAREN_OPEN &&
-                    t?.type != LPCLexer.EOF
-                ) {
-                    t = this.nextToken();
-                    t.channel = LPCLexer.HIDDEN;
-                    parenCount++;
-                }
+        //         // scroll forward to the opening paren
+        //         while (
+        //             t?.type != LPCLexer.PAREN_OPEN &&
+        //             t?.type != LPCLexer.EOF
+        //         ) {
+        //             t = this.nextToken();
+        //             t.channel = LPCLexer.HIDDEN;
+        //             parenCount++;
+        //         }
 
-                // keep scrolling until all the parens are closed
-                while (parenCount > 0 && t.type != LPCLexer.EOF) {
-                    t = this.nextToken();
-                    if (t?.type == LPCLexer.PAREN_OPEN) {
-                        parenCount++;
-                    } else if (t?.type == LPCLexer.PAREN_CLOSE) {
-                        parenCount--;
-                    } else if (t?.type == LPCLexer.COMMA && parenCount == 1) {
-                        paramIndex++;
-                        // hide commas
-                        t.channel = LPCLexer.HIDDEN;
-                    } else {
-                        fnParams[paramIndex].push(t);
-                    }
-                }
+        //         // keep scrolling until all the parens are closed
+        //         while (parenCount > 0 && t.type != LPCLexer.EOF) {
+        //             t = this.nextToken();
+        //             if (t?.type == LPCLexer.PAREN_OPEN) {
+        //                 parenCount++;
+        //             } else if (t?.type == LPCLexer.PAREN_CLOSE) {
+        //                 parenCount--;
+        //             } else if (t?.type == LPCLexer.COMMA && parenCount == 1) {
+        //                 paramIndex++;
+        //                 // hide commas
+        //                 t.channel = LPCLexer.HIDDEN;
+        //             } else {
+        //                 fnParams[paramIndex].push(t);
+        //             }
+        //         }
 
-                // hide the closing paren
-                t.channel = LPCLexer.HIDDEN;
-            }
+        //         // hide the closing paren
+        //         t.channel = LPCLexer.HIDDEN;
+        //     }
 
-            // emit the macro body, substituting args when encountered
-            this.buffer.push(token);
-            macroDef.bodyTokens.forEach((t) => {
-                if (isFn && argIndex.has(t.text)) {
-                    this.buffer.push(...fnParams[argIndex.get(t.text)]);
-                } else {
-                    this.buffer.push(t);
-                }
-            });
+        //     // emit the macro body, substituting args when encountered
+        //     this.buffer.push(token);
+        //     macroDef.bodyTokens.forEach((t) => {
+        //         if (isFn && argIndex.has(t.text)) {
+        //             this.buffer.push(...fnParams[argIndex.get(t.text)]);
+        //         } else {
+        //             this.buffer.push(t);
+        //         }
+        //     });
 
-            this.disabledMacros.delete(token.text);
-            return;
-        }
+        //     this.disabledMacros.delete(token.text);
+        //     return;
+        // }
 
         // we don't eve need to call super.emitToken because we'll always return from the buffer
         //super.emitToken(token);
         this.buffer.push(token);
     }
+}
+
+function peekStack<T>(stack: T[]) {
+    return stack[stack.length - 1];
 }
