@@ -51,6 +51,7 @@ efun("environment", LpcTypes.objectType, true, ["ob", LpcTypes.objectType]);
 efun("exec", LpcTypes.intType, false, ["new", LpcTypes.objectType], ["old", LpcTypes.objectType]);
 efun("explode", LpcTypes.stringArrayType, false, ["str", LpcTypes.stringType], ["del", LpcTypes.stringType]);
 efun("extern_call", LpcTypes.intType, false);
+efun("filter_array", LpcTypes.mixedArrayType, true, ["arr", LpcTypes.mixedArrayType], ["fun", LpcTypes.stringType], ["ob", LpcTypes.stringType], ["extra", LpcTypes.mixedType], ["args", LpcTypes.mixedType, true]);
 efun("file_name", LpcTypes.stringType, false, ["ob", LpcTypes.objectType]);
 efun("file_size", LpcTypes.intType, false, ["file", LpcTypes.stringType]);
 efun("filter", LpcTypes.mixedArrayType, true, ["arr", LpcTypes.mixedArrayType], ["fun", LpcTypes.stringType], ["ob", LpcTypes.stringType], ["...extra", LpcTypes.mixedType,true]);
@@ -100,6 +101,7 @@ efun("m_indices", LpcTypes.mixedArrayType, false, ["map", LpcTypes.mappingType])
 efun("m_entry", LpcTypes.mixedArrayType, true, ["map", LpcTypes.mappingType], ["key", LpcTypes.mixedType]);
 efun("m_reallocate", LpcTypes.mappingType, true, ["m", LpcTypes.mappingType], ["width", LpcTypes.intType]);
 efun("m_values", LpcTypes.mixedArrayType, true, ["map", LpcTypes.mappingType], ["index", LpcTypes.intType]);
+efun("map_array", LpcTypes.mixedArrayType, true, ["arr", LpcTypes.mixedArrayType], ["fun", LpcTypes.stringType], ["ob", LpcTypes.mixedType], ["extra", LpcTypes.mixedType]);
 efun("map_objects", LpcTypes.mixedArrayType, true, ["arr", LpcTypes.objectArrayType], ["fun", LpcTypes.stringType], ["extra", LpcTypes.mixedType], ["args...", LpcTypes.mixedType, true]);
 efun("mkmapping", LpcTypes.mappingType, true, ["...arr", LpcTypes.mixedArrayType, true]);
 efun("mkdir", LpcTypes.intType, false, ["path", LpcTypes.stringType]);
@@ -117,9 +119,12 @@ efun("present", LpcTypes.objectType, true, ["str", FundamentalType.stringType], 
 efun("present_clone", LpcTypes.objectType, true, ["str", FundamentalType.stringType], ["env", LpcTypes.objectType], ["n", LpcTypes.intType]);
 efun("printf", LpcTypes.voidType, true, ["fmt", LpcTypes.stringType], ["var...", LpcTypes.mixedType, true]);
 efun("program_name", LpcTypes.stringType, true, ["ob", LpcTypes.objectType]);
+efun("program_time", LpcTypes.intType, true, ["ob", LpcTypes.objectType]);
 efun("pointerp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("query_actions", LpcTypes.mixedArrayType, true, ["ob", LpcTypes.objectType], ["mask_or_verb", LpcTypes.mixedType]);
+efun("query_editing", LpcTypes.mixedType, true, ["ob", LpcTypes.objectType]);
 efun("query_ip_number", LpcTypes.stringType, true, ["ob", LpcTypes.objectType]);
+efun("query_load_average", LpcTypes.stringType, false);
 efun("query_once_interactive", LpcTypes.intType, false, ["ob", LpcTypes.objectType]);
 efun("query_notify_fail", LpcTypes.mixedType, true, ["flag", LpcTypes.intType]);
 efun("query_shadowing", LpcTypes.objectArrayType, false, ["ob", LpcTypes.objectType]);
