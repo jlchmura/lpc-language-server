@@ -37,6 +37,7 @@ import { ensureLpcConfig } from "./LpcConfig";
 import { getDriverInfo } from "../driver/Driver";
 import { EfunSymbols } from "../driver/EfunsLDMud";
 import { isInstanceOfIEvaluatableSymbol } from "../symbols/base";
+import { LPCToken } from "../parser3/LPCToken";
 
 export class SemanticListener extends LPCParserListener {
     private seenSymbols = new Map<string, Token>();
@@ -346,6 +347,7 @@ export class SemanticListener extends LPCParserListener {
     ) {
         offendingTokenEnd = offendingTokenEnd ?? offendingTokenStart;
         const entry: IDiagnosticEntry = {
+            filename: (offendingTokenStart as LPCToken).filename,
             type: type,
             message: message,
             range: rangeFromTokens(offendingTokenStart, offendingTokenEnd),

@@ -99,6 +99,7 @@ import {
 } from "../parser3/LPCPreprocessingLexer";
 import { LPCTokenFactor } from "../parser3/LPCTokenFactory";
 import { LPCToken } from "../parser3/LPCToken";
+import { URI } from "vscode-uri";
 
 const mapAnnotationReg = /\[\[@(.+?)\]\]/;
 
@@ -509,6 +510,7 @@ export class SourceContext {
         this.runSemanticAnalysisIfNeeded();
 
         return this.diagnostics.map((d) => {
+            d.filename = URI.parse(d.filename).toString();
             return d;
         });
     }
@@ -1286,9 +1288,15 @@ export class SourceContext {
         // check if this diagnostic already exists
         // NTBLA make this more efficient
         const { message, range } = diagnostic;
+        let diagCtx: SourceContext | undefined = this;
+
+        if (diagnostic.filename != this.fileName) {
+            diagCtx = this.backend.getContext(diagnostic.filename) ?? this;
+        }
 
         if (
-            !this.diagnostics.some(
+            (!diagnostic || diagnostic.filename == this.fileName) &&
+            !diagCtx.diagnostics.some(
                 (d) =>
                     d.message == message &&
                     d.range.start.row == range.start.row &&
@@ -1297,7 +1305,7 @@ export class SourceContext {
                     d.range.end.column == range.end.column
             )
         ) {
-            this.diagnostics.push(diagnostic);
+            diagCtx.diagnostics.push(diagnostic);
         }
     }
 

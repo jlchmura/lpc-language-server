@@ -10,6 +10,8 @@ import {
     RecognitionException,
     Token,
     ATNSimulator,
+    BufferedTokenStream,
+    CommonTokenStream,
 } from "antlr4ng";
 import { IDiagnosticEntry } from "../types";
 import { DiagnosticSeverity } from "vscode-languageserver";
@@ -29,7 +31,7 @@ export class ContextErrorListener extends BaseErrorListener {
         _e: RecognitionException | null
     ): void {
         const lt = offendingSymbol as unknown as LPCToken;
-
+        // get a better message
         const error: IDiagnosticEntry = {
             filename: lt.filename,
             type: DiagnosticSeverity.Error,
@@ -51,28 +53,30 @@ export class ContextErrorListener extends BaseErrorListener {
                 column + offendingSymbol.stop - offendingSymbol.start + 1;
         }
 
-        if (
-            lt.relatedToken &&
-            lt.filename != (lt.relatedToken as LPCToken).filename
-        ) {
-            const relToken = lt.relatedToken as LPCToken;
-            const tokenLen = relToken.stop - relToken.start + 1;
-            const topErrr: IDiagnosticEntry = {
-                filename: relToken.filename,
-                type: DiagnosticSeverity.Error,
-                message: "One or more errors occurred in this file",
-                range: {
-                    start: { column: relToken.column, row: relToken.line },
-                    end: {
-                        column: relToken.column + tokenLen,
-                        row: relToken.line,
-                    },
-                },
-                related: error,
-            };
-            this.errorList.push(topErrr);
-        } else {
-            this.errorList.push(error);
-        }
+        this.errorList.push(error);
+
+        // if (
+        //     lt.relatedToken &&
+        //     lt.filename != (lt.relatedToken as LPCToken).filename
+        // ) {
+        //     const relToken = lt.relatedToken as LPCToken;
+        //     const tokenLen = relToken.stop - relToken.start + 1;
+        //     const topErrr: IDiagnosticEntry = {
+        //         filename: relToken.filename,
+        //         type: DiagnosticSeverity.Error,
+        //         message: "One or more errors occurred in this file",
+        //         range: {
+        //             start: { column: relToken.column, row: relToken.line },
+        //             end: {
+        //                 column: relToken.column + tokenLen,
+        //                 row: relToken.line,
+        //             },
+        //         },
+        //         related: error,
+        //     };
+        //     this.errorList.push(topErrr);
+        // } else {
+        //     this.errorList.push(error);
+        // }
     }
 }

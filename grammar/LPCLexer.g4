@@ -57,7 +57,7 @@ SWITCH: 'switch';
 TYPEDEF: 'typedef';
 //UNION: 'union';
 //UNKNOWN: 'unknown';
-UNDEF: '#undef';
+UNDEF: 'undef';
 VARIABLES: 'variables';
 VIRTUAL: 'virtual';
 VOID: 'void';

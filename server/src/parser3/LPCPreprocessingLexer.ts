@@ -175,7 +175,11 @@ export class LPCPreprocessingLexer extends LPCLexer {
         }
 
         if (this.isConsumingMacro && this.isExecutable) {
-            token.channel = LPCLexer.HIDDEN; // hide by default
+            if (token.channel == LPCLexer.DEFAULT_TOKEN_CHANNEL) {
+                // move regular tokens to directive.  we'll move them back later
+                // when they are used in the macro body
+                token.channel = DIRECTIVE_CHANNEL;
+            }
 
             const macro = peekStack(this.macroStack);
             macro.tokens.push(token);
@@ -242,8 +246,10 @@ export class LPCPreprocessingLexer extends LPCLexer {
                             const tks = fnParams[argIndex.get(t.text)].map(
                                 (tk: LPCToken) => {
                                     const newToken = fac.cloneToken(tk);
-                                    newToken.channel =
-                                        LPCLexer.DEFAULT_TOKEN_CHANNEL;
+                                    if (newToken.channel == DIRECTIVE_CHANNEL) {
+                                        newToken.channel =
+                                            LPCLexer.DEFAULT_TOKEN_CHANNEL;
+                                    }
                                     newToken.line = refTkn.line;
                                     return newToken;
                                 }

@@ -57,7 +57,7 @@ directiveIfArgument
     ;
 
 directiveTypeWithArguments
-    : UNDEF
+    : HASH UNDEF
     | ECHO
     | LINE
     ;

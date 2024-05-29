@@ -14,7 +14,12 @@ import { IEvaluatableSymbol, IKindSymbol, LpcBaseSymbol } from "./base";
 import { ContextSymbolTable } from "../backend/ContextSymbolTable";
 import { CallStack } from "../backend/CallStack";
 import { Block } from "comment-parser";
-import { ParseTree, ParserRuleContext, Token } from "antlr4ng";
+import {
+    ParseTree,
+    ParseTreePatternMatcher,
+    ParserRuleContext,
+    Token,
+} from "antlr4ng";
 import { LPCToken } from "../parser3/LPCToken";
 
 export class IdentifierSymbol extends LpcBaseSymbol<IdentifierExpressionContext> {
@@ -156,6 +161,12 @@ export class ITypedSymbol {
  * @param d
  */
 export function addDiagnostic(symbol: BaseSymbol, d: IDiagnosticEntry) {
+    if (!d.filename) {
+        // get the filename out of the token
+        const parseTree = symbol.context as ParserRuleContext;
+        const lpcToken = parseTree.start as LPCToken;
+        d.filename = lpcToken.filename;
+    }
     const ctx = (symbol.symbolTable as ContextSymbolTable).owner;
     ctx.addDiagnostic(d);
 }

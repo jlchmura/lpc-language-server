@@ -80,7 +80,9 @@ export class DiagnosticProvider {
                     uri: depUri,
                     diagnostics: this.convertDiagnosticEntries(
                         depUri,
-                        depDiagEntries
+                        depDiagEntries.filter(
+                            (d) => !d.filename || d.filename === dep
+                        )
                     ),
                 });
             }
