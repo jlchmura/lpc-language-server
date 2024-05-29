@@ -169,8 +169,10 @@ SINGLEQUOT: '\'';
 
 // to handle #define that can be multiline
 mode DEFINE_MODE;    
-    DEFINE_CONTENT: (~[\n\\]+ | '\\' ~'\n' ) '\\\n'? -> more;
+    DEFINE_CONTENT: (~[\n\\/]+ | '\\' ~'\n' | '/' ~[*/]) '\\\n'? -> more;
     NEWLINE: '\\\n' -> more;
+    DEFINE_COMMENT: '//' ~[\n]+ -> more;
+    DEFINE_BLOCK_COMMENT: '/*' (~[*/]+ | '*' ~'/' | '/' )+ '*/' -> more;
     END_DEFINE: ('\n'|EOF) -> popMode;
 
 // string mode will handle escaped quotes
