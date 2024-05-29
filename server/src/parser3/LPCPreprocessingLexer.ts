@@ -277,6 +277,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
         directiveToken: Token,
         directiveTokens: Token[]
     ): boolean {
+        const lt = token as LPCToken;
         // move back to the default channel
         token.channel = directiveToken.channel = LPCLexer.DEFAULT_TOKEN_CHANNEL;
         directiveTokens
@@ -297,7 +298,14 @@ export class LPCPreprocessingLexer extends LPCLexer {
             );
         }
 
-        const includeFile = this.fileHandler.loadImport(includeFilename);
+        const includeFile = this.fileHandler.loadImport(
+            lt.filename,
+            includeFilename
+        );
+
+        if (!includeFile?.source) {
+            console.warn("Could not load include file ", includeFilename);
+        }
 
         // lex the the include file
         const includeTokens = this.lexMacro(
@@ -309,14 +317,12 @@ export class LPCPreprocessingLexer extends LPCLexer {
         this.isConsumingDirective = false;
         this.allowSubstitutions = true;
 
-        if (includeFile.uri.endsWith("snoop.h")) {
-            const i = 0;
+        if (!!includeTokens) {
+            includeTokens?.forEach((t: LPCToken) => {
+                t.relatedToken = token;
+            });
+            this.buffer.unshift(...includeTokens);
         }
-
-        includeTokens?.forEach((t: LPCToken) => {
-            t.relatedToken = token;
-        });
-        this.buffer.unshift(...includeTokens);
 
         return true;
     }
@@ -631,7 +637,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
     private lexMacro(filename: string, macroBody: string): Token[] {
         if (!macroBody) return undefined;
 
-        const fac = this.tokenFactory as LPCTokenFactor;
+        const fac = this.macroLexer.tokenFactory as LPCTokenFactor;
         fac.filenameStack.push(filename);
 
         // lex the the include file

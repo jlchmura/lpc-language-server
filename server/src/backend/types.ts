@@ -35,7 +35,7 @@ export type LoadImportResult = {
 };
 
 export interface IFileHandler {
-    loadImport(filename: string): LoadImportResult;
+    loadImport(sourceFilename: string, filename: string): LoadImportResult;
 }
 
 export interface TextChangeRange {

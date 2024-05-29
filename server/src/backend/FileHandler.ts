@@ -27,8 +27,14 @@ export class LpcFileHandler implements IFileHandler {
         return this.backend.addReference(fromFilename, toFilename);
     }
 
-    public loadImport(filename: string): LoadImportResult {
-        const importInfo = this.sourceContext.resolveFilename(filename);
+    public loadImport(
+        sourceFilename: string,
+        filename: string
+    ): LoadImportResult {
+        const importInfo = this.backend.resolveFilename(
+            filename,
+            sourceFilename
+        );
         const source = !!importInfo.fullPath
             ? fs.readFileSync(importInfo.fullPath, "utf-8")
             : "";

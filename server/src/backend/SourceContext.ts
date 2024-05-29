@@ -1306,53 +1306,7 @@ export class SourceContext {
     }
 
     public resolveFilename(filename: string) {
-        const contextInfo = this.backend.getContextEntry(this.fileName);
-        const contextFullPath = contextInfo.filename;
-        const contextFilename = contextFullPath.startsWith("file:")
-            ? URI.parse(contextFullPath).fsPath
-            : contextFullPath;
-        const basePath = path.dirname(contextFilename);
-        const fullImportDirs = this.importDir.map((dir) => {
-            return path.isAbsolute(dir) ? dir : path.join(basePath, dir);
-        });
-
-        // figure out the search type
-        let depName = (filename = filename.trim());
-        let fileType = DependencySearchType.Local;
-        if (depName !== (filename = testFilename(filename, '"', '"'))) {
-            fileType = DependencySearchType.Local;
-        } else if (depName !== (filename = testFilename(filename, "<", ">"))) {
-            fileType = DependencySearchType.Global;
-        }
-
-        const filenameNormed = normalizeFilename(filename);
-
-        const searchPaths = [basePath, ...fullImportDirs];
-        if (fileType === DependencySearchType.Global) {
-            searchPaths.reverse();
-        }
-
-        if (filenameNormed.includes("/"))
-            searchPaths.push(this.backend.workspaceDir);
-
-        for (const p of searchPaths) {
-            const depPath = path.join(p, filenameNormed);
-            if (fs.existsSync(depPath)) {
-                const relPath =
-                    "/" + path.relative(this.backend.workspaceDir, depPath);
-                return {
-                    filename: relPath,
-                    fullPath: depPath,
-                    type: fileType,
-                };
-            }
-        }
-
-        return {
-            filename: filename,
-            fullPath: undefined,
-            type: undefined,
-        };
+        return this.backend.resolveFilename(filename, this.fileName);
     }
 
     public getSymbolOccurrences(

@@ -54,6 +54,8 @@ export function lexRangeToLspRange(range: ILexicalRange) {
     const startRow = start.row === 0 ? 0 : start.row - 1;
     const endRow = end.row === 0 ? 0 : end.row - 1;
 
+    if (start.column < 0) debugger;
+
     return Range.create(startRow, start.column, endRow, end.column);
 }
 

@@ -1,7 +1,12 @@
 import * as fs from "fs";
 import * as path from "path";
 import { SourceContext } from "./SourceContext";
-import { ContextImportInfo, IDiagnosticEntry, ISymbolInfo } from "../types";
+import {
+    ContextImportInfo,
+    DependencySearchType,
+    IDiagnosticEntry,
+    ISymbolInfo,
+} from "../types";
 import {
     CancellationToken,
     CancellationTokenSource,
@@ -9,7 +14,7 @@ import {
     Position,
     SemanticTokens,
 } from "vscode-languageserver";
-import { normalizeFilename } from "../utils";
+import { normalizeFilename, testFilename } from "../utils";
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { BaseSymbol } from "antlr4-c3";
@@ -17,6 +22,7 @@ import { PerformanceObserver, performance } from "perf_hooks";
 import { randomInt } from "crypto";
 import { ensureLpcConfig } from "./LpcConfig";
 import { glob } from "glob";
+import { URI } from "vscode-uri";
 
 /** ms delay before reparsing a depenency */
 const DEP_FILE_REPARSE_TIME = 300;
@@ -105,6 +111,59 @@ export class LpcFacade {
 
         const newPath = path.join(this.workspaceDir, filename);
         return newPath;
+    }
+
+    /**
+     * Resolves a local filename to its absolute path
+     * @param filename The filename to resolve
+     * @param referenceFilename The filename of the source doc that loading the file
+     * @returns
+     */
+    public resolveFilename(filename: string, referenceFilename: string) {
+        const normedRefFilename = referenceFilename.startsWith("file:")
+            ? URI.parse(referenceFilename).fsPath
+            : referenceFilename;
+        const basePath = path.dirname(normedRefFilename);
+
+        const fullImportDirs = this.importDir.map((dir) => {
+            return path.isAbsolute(dir) ? dir : path.join(basePath, dir);
+        });
+
+        // figure out the search type
+        let depName = (filename = filename.trim());
+        let fileType = DependencySearchType.Local;
+        if (depName !== (filename = testFilename(filename, '"', '"'))) {
+            fileType = DependencySearchType.Local;
+        } else if (depName !== (filename = testFilename(filename, "<", ">"))) {
+            fileType = DependencySearchType.Global;
+        }
+
+        const filenameNormed = normalizeFilename(filename);
+
+        const searchPaths = [basePath, ...fullImportDirs];
+        if (fileType === DependencySearchType.Global) {
+            searchPaths.reverse();
+        }
+
+        if (filenameNormed.includes("/")) searchPaths.push(this.workspaceDir);
+
+        for (const p of searchPaths) {
+            const depPath = path.join(p, filenameNormed);
+            if (fs.existsSync(depPath)) {
+                const relPath = "/" + path.relative(this.workspaceDir, depPath);
+                return {
+                    filename: relPath,
+                    fullPath: depPath,
+                    type: fileType,
+                };
+            }
+        }
+
+        return {
+            filename: filename,
+            fullPath: undefined,
+            type: undefined,
+        };
     }
 
     public loadLpc(fileName: string, source?: string): SourceContext {
