@@ -296,11 +296,11 @@ export class DetailsVisitor
         tokenModifiers: number[] = []
     ) {
         if (!token) return;
-
+        const len = token.stop - token.start + 1;
         this.tokenBuilder.add(
             token.line,
-            token.column,
-            token.stop - token.start + 1,
+            token.column - len,
+            len,
             tokenType,
             tokenModifiers
         );
@@ -314,10 +314,11 @@ export class DetailsVisitor
         if (!ctx) return;
         const { start, stop } = ctx;
 
+        const len = stop.stop - start.start + 1;
         this.tokenBuilder.add(
             start.line,
-            start.column,
-            stop.stop - start.start + 1,
+            start.column - len,
+            len,
             tokenType,
             tokenModifiers
         );

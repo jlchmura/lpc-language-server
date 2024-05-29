@@ -299,10 +299,6 @@ export class LPCPreprocessingLexer extends LPCLexer {
 
         const includeFile = this.fileHandler.loadImport(includeFilename);
 
-        (this.macroLexer.tokenFactory as LPCTokenFactor).filenameStack.push(
-            includeFile.uri
-        );
-
         // lex the the include file
         const includeTokens = this.lexMacro(
             includeFile.uri,
@@ -388,7 +384,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
         };
 
         // lex the body
-        def.bodyTokens = this.lexMacro(filename, macroValue);
+        def.bodyTokens = this.lexMacro(filename + "-macro", macroValue);
 
         if (isFn) {
             def.argIndex = new Map();
