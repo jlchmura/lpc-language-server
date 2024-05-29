@@ -22,7 +22,7 @@ export class LPCTokenFactor implements TokenFactory<LPCToken> {
         start: number,
         stop: number,
         line: number,
-        charPositionInLine: number
+        column: number
     ): LPCToken {
         const t: LPCToken = new LPCToken({
             source: source,
@@ -30,8 +30,11 @@ export class LPCTokenFactor implements TokenFactory<LPCToken> {
             channel: channel,
             start: start,
             stop: stop,
+            line: line,
+            column: column,
         });
         t.line = line;
+        t.column = column;
         const input = source[1];
         t.text = input.getTextFromInterval(Interval.of(start, stop));
         t.filename = this.filenameStack[this.filenameStack.length - 1];

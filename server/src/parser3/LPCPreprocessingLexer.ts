@@ -102,7 +102,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
         // are we starting to consume a directive?
         if (
             (token.type == LPCLexer.HASH || token.type == LPCLexer.DEFINE) &&
-            token.column - (token.text.length ?? 0) == 0
+            token.column == 0
         ) {
             this.isConsumingDirective = true;
             this.allowSubstitutions = false;
@@ -288,6 +288,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
 
         directiveTokens.shift(); // remove the space
         const includeFilename = directiveTokens
+            .filter((t) => t.channel == LPCLexer.DEFAULT_TOKEN_CHANNEL)
             .map((t) => t.text.trim())
             .join("")
             .trim();
@@ -332,6 +333,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
         directiveToken: Token,
         directiveTokens: Token[]
     ): boolean {
+        const lt = token as LPCToken;
         const defValToken = directiveTokens.shift()!;
         let defVal = defValToken.text.trim();
         let isFn = false;
@@ -379,8 +381,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
             }
         }
 
-        const fac = this.tokenFactory as LPCTokenFactor;
-        const filename = fac.filenameStack[fac.filenameStack.length - 1];
+        const filename = lt.filename;
         const def: MacroDefinition = {
             value: macroValue.trim(),
             token: directiveToken,
@@ -390,7 +391,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
         };
 
         // lex the body
-        def.bodyTokens = this.lexMacro(filename + "-macro", macroValue);
+        def.bodyTokens = this.lexMacro(filename + ":" + macroName, macroValue);
 
         if (isFn) {
             def.argIndex = new Map();

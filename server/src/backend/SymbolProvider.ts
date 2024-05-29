@@ -40,21 +40,14 @@ export class LpcSymbolProvider {
             return undefined;
         }
 
-        const startRow =
-            symbol.definition.range.start.row > 0
-                ? symbol.definition.range.start.row - 1
-                : 0;
-        const endRow =
-            symbol.definition.range.end.row > 0
-                ? symbol.definition.range.end.row - 1
-                : 0;
+        const startRow = Math.max(0, symbol.definition.range.start.row - 1);
+        const endRow = Math.max(0, symbol.definition.range.end.row - 1);
         const range = Range.create(
             startRow,
             symbol.definition.range.start.column,
             endRow,
             symbol.definition.range.end.column
         );
-        //const location = Location.create(symbol.source, range);
 
         let description = symbolDescriptionFromEnum(symbol.kind);
         const kind = translateSymbolKind(symbol.kind);

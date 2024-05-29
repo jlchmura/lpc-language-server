@@ -299,7 +299,7 @@ export class DetailsVisitor
         const len = token.stop - token.start + 1;
         this.tokenBuilder.add(
             token.line,
-            token.column - len,
+            token.column,
             len,
             tokenType,
             tokenModifiers
@@ -317,7 +317,7 @@ export class DetailsVisitor
         const len = stop.stop - start.start + 1;
         this.tokenBuilder.add(
             start.line,
-            start.column - len,
+            start.column,
             len,
             tokenType,
             tokenModifiers

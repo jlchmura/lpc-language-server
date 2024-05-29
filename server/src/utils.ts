@@ -221,11 +221,11 @@ export function normalizeFilename(filename: string) {
 export function rangeFromTokens(start: Token, end: Token): ILexicalRange {
     return {
         start: {
-            column: start.column - (start.stop - start.start + 1),
+            column: Math.max(0, start.column),
             row: start.line,
         },
         end: {
-            column: end.column,
+            column: Math.max(0, end.column),
             row: end.line,
         },
     } as ILexicalRange;

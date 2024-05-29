@@ -11,7 +11,6 @@ import {
     PredictionMode,
     TerminalNode,
     Token,
-    TokenStreamRewriter,
 } from "antlr4ng";
 import { LPCLexer } from "../parser3/LPCLexer";
 import {
@@ -23,7 +22,6 @@ import {
     VariableDeclarationContext,
     VariableDeclaratorContext,
     VariableDeclaratorExpressionContext,
-    VariableInitializerContext,
 } from "../parser3/LPCParser";
 import {
     IContextDetails,
@@ -31,9 +29,7 @@ import {
     ISymbolInfo,
     IDefinition,
     SymbolKind,
-    DependencySearchType,
     MacroDefinition,
-    IPosition,
     SemanticTokenTypes,
     SemanticTokenModifiers,
 } from "../types";
@@ -56,18 +52,15 @@ import {
     DocumentHighlightKind,
     FoldingRange,
     Position,
-    Range,
     SemanticTokens,
 } from "vscode-languageserver";
 import {
-    firstEntry,
     getSelectionRange,
     lexRangeFromContext as lexRangeFromContext,
     normalizeFilename,
     pushIfDefined,
     rangeFromTokens,
     resolveOfTypeSync,
-    testFilename,
     trimQuotes,
 } from "../utils";
 import { EfunSymbols } from "../driver/EfunsLDMud";
@@ -86,7 +79,6 @@ import {
 } from "../symbols/methodSymbol";
 import { CloneObjectSymbol } from "../symbols/objectSymbol";
 import { IncludeSymbol } from "../symbols/includeSymbol";
-import { URI } from "vscode-uri";
 import { ArrowSymbol, ArrowType } from "../symbols/arrowSymbol";
 
 import { SemanticTokenCollection } from "./SemanticTokenCollection";
@@ -100,7 +92,6 @@ import { LpcFileHandler } from "./FileHandler";
 import { ensureLpcConfig } from "./LpcConfig";
 import { getParentContextOfType } from "../symbols/Symbol";
 import { DriverVersion } from "../driver/DriverVersion";
-import { stdout } from "process";
 import {
     DIRECTIVE_CHANNEL,
     DISABLED_CHANNEL,
@@ -399,7 +390,7 @@ export class SourceContext {
                 if (token.channel == DISABLED_CHANNEL) {
                     this.semanticTokens.add(
                         token.line,
-                        token.column - token.text.length,
+                        token.column,
                         token.text.length,
                         SemanticTokenTypes.Comment
                     );
