@@ -258,8 +258,8 @@ export class LPCPreprocessingLexer extends LPCLexer {
             token.channel = DISABLED_CHANNEL;
         }
 
+        // do some final checks
         if (token.type == LPCLexer.EOF) {
-            // do some final checks
             if (!this.isExecutable) {
                 throw "missing #endif";
             } else if (this.isConsumingMacro) {
@@ -335,7 +335,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
         let isFn = false;
 
         // scroll through the characters of the string defVal
-        // until we find either whitespace or an open paren (without using regex)
+        // until we find either whitespace or an open paren
         // the chars up to that point are macroName.
         let i = 0;
         for (
@@ -367,6 +367,8 @@ export class LPCPreprocessingLexer extends LPCLexer {
                 !defVal.startsWith("//") &&
                 !defVal.startsWith("/*")
             ) {
+                // this is a function macro
+                // evertyting that's left is the value
                 isFn = true;
                 macroValue = defVal.trim();
 
@@ -375,7 +377,6 @@ export class LPCPreprocessingLexer extends LPCLexer {
             }
         }
 
-        // macro value is everything after the first space
         const fac = this.tokenFactory as LPCTokenFactor;
         const filename = fac.filenameStack[fac.filenameStack.length - 1];
         const def: MacroDefinition = {
@@ -520,7 +521,8 @@ export class LPCPreprocessingLexer extends LPCLexer {
                 token.channel = DISABLED_CHANNEL;
             });
         } else {
-            const shouldExist = token.type == LPCLexer.IFDEF ? true : false;
+            const shouldExist =
+                directiveToken.type == LPCLexer.IFDEF ? true : false;
             const conditionalTokens = directiveTokens;
             conditionalTokens.shift(); // remove the space
             const symName = conditionalTokens
@@ -657,6 +659,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
     override reset(seekBack?: boolean): void {
         super.reset(seekBack);
 
+        this.conditionalStack = [];
         this.macroTable.clear();
         this.buffer = [];
     }

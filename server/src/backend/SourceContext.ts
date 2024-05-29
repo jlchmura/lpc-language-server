@@ -34,6 +34,8 @@ import {
     DependencySearchType,
     MacroDefinition,
     IPosition,
+    SemanticTokenTypes,
+    SemanticTokenModifiers,
 } from "../types";
 import { ContextErrorListener } from "./ContextErrorListener";
 import { ContextLexerErrorListener } from "./ContextLexerErrorListener";
@@ -147,8 +149,9 @@ export class SourceContext {
     // grammar parsing stuff
     private lexer: LPCPreprocessingLexer;
     public tokenStream: CommonTokenStream;
-    public commentStream: CommonTokenStream;
-    public directiveStream: CommonTokenStream;
+    private commentStream: CommonTokenStream;
+    private directiveStream: CommonTokenStream;
+
     private parser: LPCParser;
     private errorListener: ContextErrorListener = new ContextErrorListener(
         this.diagnostics
@@ -335,18 +338,16 @@ export class SourceContext {
         this.tokenStream.fill();
         const allTokens = this.tokenStream.getTokens() as LPCToken[];
 
-        if (this.fileName.endsWith("living.c")) {
-            const ii = 0;
-        }
         this.buildTokenCache([
             ...allTokens,
             ...(this.directiveStream.getTokens() as LPCToken[]),
         ]);
+        this.processTokens(allTokens);
 
-        const newSource = allTokens
-            .filter((t) => t.channel == 0 || t.channel == 1)
-            .map((t) => t.text)
-            .join("");
+        // const newSource = allTokens
+        //     .filter((t) => t.channel == 0 || t.channel == 1)
+        //     .map((t) => t.text)
+        //     .join("");
 
         this.tokenStream.reset();
         this.tokenStream.fill();
@@ -390,6 +391,21 @@ export class SourceContext {
         this.cachedSemanticTokens = this.semanticTokens.build();
 
         return this.info;
+    }
+
+    private processTokens(tokens: LPCToken[]) {
+        tokens.forEach((token) => {
+            if (token.filename == this.fileName) {
+                if (token.channel == DISABLED_CHANNEL) {
+                    this.semanticTokens.add(
+                        token.line,
+                        token.column - token.text.length,
+                        token.text.length,
+                        SemanticTokenTypes.Comment
+                    );
+                }
+            }
+        });
     }
 
     /**
