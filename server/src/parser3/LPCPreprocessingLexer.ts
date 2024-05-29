@@ -193,6 +193,8 @@ export class LPCPreprocessingLexer extends LPCLexer {
                         // hide the first paren
                         if (macro.parenCount == 0)
                             token.channel = LPCLexer.HIDDEN;
+                        else fnParams[macro.paramIndex].push(token);
+
                         macro.parenCount++;
                         break;
                     case LPCLexer.PAREN_CLOSE:
@@ -201,6 +203,8 @@ export class LPCPreprocessingLexer extends LPCLexer {
                         if (macro.parenCount == 0) {
                             token.channel = LPCLexer.HIDDEN;
                             macroDone = true;
+                        } else {
+                            fnParams[macro.paramIndex].push(token);
                         }
                         break;
                     case LPCLexer.COMMA:
@@ -208,6 +212,8 @@ export class LPCPreprocessingLexer extends LPCLexer {
                             // hide commas
                             token.channel = LPCLexer.HIDDEN;
                             macro.paramIndex++;
+                        } else {
+                            fnParams[macro.paramIndex].push(token);
                         }
                         break;
                     default:
@@ -236,6 +242,8 @@ export class LPCPreprocessingLexer extends LPCLexer {
                             const tks = fnParams[argIndex.get(t.text)].map(
                                 (tk: LPCToken) => {
                                     const newToken = fac.cloneToken(tk);
+                                    newToken.channel =
+                                        LPCLexer.DEFAULT_TOKEN_CHANNEL;
                                     newToken.line = refTkn.line;
                                     return newToken;
                                 }

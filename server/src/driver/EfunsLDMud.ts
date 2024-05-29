@@ -21,6 +21,7 @@ efun("attach_erq_demon", LpcTypes.intType, true, ["ob", LpcTypes.objectType], ["
 efun("bind_lambda", LpcTypes.closureType, true, ["cl", LpcTypes.closureType], ["ob", LpcTypes.objectType]);
 efun("binary_message", LpcTypes.intType, true, ["msg", LpcTypes.mixedType], ["flags", LpcTypes.intType]);
 efun("capitalize", LpcTypes.stringType, false, ["str", LpcTypes.stringType]);
+efun("call_out", LpcTypes.intType, true, ["fun", LpcTypes.stringType], ["delay", LpcTypes.intType], ["args", LpcTypes.mixedArrayType, true]);
 efun("call_other", LpcTypes.mixedType, true, ["ob", LpcTypes.objectType], ["fun", LpcTypes.stringType], ["args...", LpcTypes.mixedType, true]);
 efun("call_out", LpcTypes.intType, true, ["fun", LpcTypes.stringType], ["delay", LpcTypes.intType], ["args...", LpcTypes.mixedType, true]);
 efun("caller_stack", LpcTypes.objectArrayType, true, ["add_interactive", LpcTypes.intType]);
@@ -63,6 +64,7 @@ efun("floatp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("floor", LpcTypes.intType, false, ["number", LpcTypes.intType]);
 efun("funcall", LpcTypes.mixedType, true, ["fun", LpcTypes.closureType], ["args...", LpcTypes.mixedArrayType, true]);
 efun("function_exists", LpcTypes.intType, true, ["fun", LpcTypes.stringType], ["ob", LpcTypes.objectType],["flags", LpcTypes.intType]);
+efun("functionlist", LpcTypes.mixedArrayType, true, ["ob", LpcTypes.objectType], ["flags", LpcTypes.intType]);
 efun("get_dir", LpcTypes.mixedArrayType, true, ["path", LpcTypes.stringType], ["flags", LpcTypes.intType]);
 efun("get_eval_cost", LpcTypes.intType, false);
 efun("get_error_file", LpcTypes.mixedType, true, ["name", LpcTypes.stringType], ["set_forget_flag", LpcTypes.intType]);
@@ -131,6 +133,7 @@ efun("read_file", LpcTypes.stringType, true, ["file", LpcTypes.stringType], ["st
 efun("regexp", LpcTypes.stringArrayType, true, ["list", LpcTypes.stringArrayType], ["pattern", LpcTypes.stringType], ["opt", LpcTypes.intType]);
 efun("regexplode", LpcTypes.stringArrayType, true, ["text", LpcTypes.stringType], ["pattern", LpcTypes.stringType], ["opt", LpcTypes.intType]);
 efun("regreplace", LpcTypes.stringType, false, ["txt", LpcTypes.stringType], ["pattern", LpcTypes.stringType], ["replacepattern", LpcTypes.closureType], ["flags", LpcTypes.intType]);
+efun("remove_action", LpcTypes.intType, true, ["verb", LpcTypes.intType], ["ob", LpcTypes.objectType]);
 efun("remove_call_out", LpcTypes.intType, true, ["fun", LpcTypes.stringType]);
 efun("remove_interactive", LpcTypes.voidType, false, ["ob", LpcTypes.objectType]);
 efun("restore_object", LpcTypes.intType, false, ["name", LpcTypes.stringType]);
