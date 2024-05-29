@@ -121,7 +121,10 @@ export class DiagnosticProvider {
             if (!!related) {
                 diagnostic.relatedInformation = [
                     DiagnosticRelatedInformation.create(
-                        Location.create(uri, lexRangeToLspRange(related.range)),
+                        Location.create(
+                            related.filename ?? uri,
+                            lexRangeToLspRange(related.range)
+                        ),
                         related.message
                     ),
                 ];

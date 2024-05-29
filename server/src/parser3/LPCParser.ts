@@ -371,14 +371,14 @@ export class LPCParser extends antlr.Parser {
             this.match(LPCParser.EOF);
             }
         }
-        catch (re) {
-            if (re instanceof antlr.RecognitionException) {
-                this.errorHandler.reportError(this, re);
-                this.errorHandler.recover(this, re);
-            } else {
-                throw re;
-            }
-        }
+        // catch (re) {
+        //     if (re instanceof antlr.RecognitionException) {
+        //         this.errorHandler.reportError(this, re);
+        //         this.errorHandler.recover(this, re);
+        //     } else {
+        //         throw re;
+        //     }
+        // }
         finally {
             this.exitRule();
         }

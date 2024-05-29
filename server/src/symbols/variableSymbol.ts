@@ -21,6 +21,7 @@ import { Token } from "antlr4ng";
 
 import { DiagnosticSeverity } from "vscode-languageserver";
 import { InlineClosureSymbol } from "./closureSymbol";
+import { LPCToken } from "../parser3/LPCToken";
 
 export class VariableSymbol
     extends TypedSymbol
@@ -96,6 +97,7 @@ export class VariableIdentifierSymbol
             )
         ) {
             addDiagnostic(this, {
+                filename: (this.context.start as LPCToken).filename,
                 message: `Cannot find name '${this.name}'.`,
                 range: this.nameRange,
                 type: DiagnosticSeverity.Error,

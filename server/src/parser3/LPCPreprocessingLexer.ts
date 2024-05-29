@@ -96,9 +96,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
 
         // get the next directive
         const token = this.buffer.shift()!;
-        if (token.text == "GETDIR_NAMES") {
-            const ii = 0;
-        }
+
         // are we starting to consume a directive?
         if (
             (token.type == LPCLexer.HASH || token.type == LPCLexer.DEFINE) &&
@@ -335,7 +333,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
     ): boolean {
         const lt = token as LPCToken;
         const defValToken = directiveTokens.shift()!;
-        let defVal = defValToken.text.trim();
+        let defVal = defValToken?.text.trim();
         let isFn = false;
 
         // scroll through the characters of the string defVal
@@ -431,7 +429,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
             // very basic processing
             // NTBLA: improve this
             let expStr = ifTokens
-                .map((t) => t.text)
+                .map((t) => t?.text)
                 .join(" ")
                 .trim();
 
@@ -505,7 +503,9 @@ export class LPCPreprocessingLexer extends LPCLexer {
         // hide everything
         token.channel = directiveToken.channel = DIRECTIVE_CHANNEL;
         directiveTokens.forEach((t) => {
-            t.channel = token.channel;
+            if (t.channel != COMMENT_CHANNEL) {
+                t.channel = token.channel;
+            }
         });
         return true;
     }
@@ -529,7 +529,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
             const conditionalTokens = directiveTokens;
             conditionalTokens.shift(); // remove the space
             const symName = conditionalTokens
-                .map((t) => t.text)
+                .map((t) => t?.text)
                 .join(" ")
                 .trim();
 
@@ -556,7 +556,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
     ): boolean {
         const spaceToken = directiveTokens.shift()!;
         const undefToken = directiveTokens.shift()!;
-        const undefMacroName = undefToken.text.trim();
+        const undefMacroName = undefToken?.text.trim();
         this.macroTable.delete(undefMacroName);
 
         return true;

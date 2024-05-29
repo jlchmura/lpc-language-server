@@ -265,6 +265,10 @@ export class SourceContext {
     }
 
     public parse(): IContextDetails {
+        if (this.fileName.endsWith("simul_efun.c")) {
+            const ii = 0;
+        }
+
         this.macroTable.clear();
 
         const config = ensureLpcConfig();
@@ -368,7 +372,8 @@ export class SourceContext {
             this.symbolTable,
             this.info.imports,
             this.semanticTokens,
-            this.fileHandler
+            this.fileHandler,
+            this.fileName
         );
         try {
             this.tree.accept(visitor);

@@ -29,6 +29,7 @@ export class ContextErrorListener extends BaseErrorListener {
         _e: RecognitionException | null
     ): void {
         const lt = offendingSymbol as unknown as LPCToken;
+
         const error: IDiagnosticEntry = {
             filename: lt.filename,
             type: DiagnosticSeverity.Error,
@@ -49,6 +50,29 @@ export class ContextErrorListener extends BaseErrorListener {
             error.range.end.column =
                 column + offendingSymbol.stop - offendingSymbol.start + 1;
         }
-        this.errorList.push(error);
+
+        if (
+            lt.relatedToken &&
+            lt.filename != (lt.relatedToken as LPCToken).filename
+        ) {
+            const relToken = lt.relatedToken as LPCToken;
+            const tokenLen = relToken.stop - relToken.start + 1;
+            const topErrr: IDiagnosticEntry = {
+                filename: relToken.filename,
+                type: DiagnosticSeverity.Error,
+                message: "One or more errors occurred in this file",
+                range: {
+                    start: { column: relToken.column, row: relToken.line },
+                    end: {
+                        column: relToken.column + tokenLen,
+                        row: relToken.line,
+                    },
+                },
+                related: error,
+            };
+            this.errorList.push(topErrr);
+        } else {
+            this.errorList.push(error);
+        }
     }
 }

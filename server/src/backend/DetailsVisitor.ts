@@ -116,6 +116,7 @@ import {
 import { LpcFileHandler } from "./FileHandler";
 import { ForEachSymbol, IterationSymbol } from "../symbols/forSymbol";
 import { COMMENT_CHANNEL } from "../parser3/LPCPreprocessingLexer";
+import { LPCToken } from "../parser3/LPCToken";
 
 type GenericConstructorParameters<T> = ConstructorParameters<
     new (...args: any[]) => T
@@ -132,7 +133,8 @@ export class DetailsVisitor
         private symbolTable: ContextSymbolTable,
         private imports: ContextImportInfo[],
         private tokenBuilder: SemanticTokenCollection,
-        private fileHandler: LpcFileHandler
+        private fileHandler: LpcFileHandler,
+        private filename: string
     ) {
         super();
     }
@@ -295,7 +297,7 @@ export class DetailsVisitor
         tokenType: number,
         tokenModifiers: number[] = []
     ) {
-        if (!token) return;
+        if (!token || (token as LPCToken).filename != this.filename) return;
         const len = token.stop - token.start + 1;
         this.tokenBuilder.add(
             token.line,
@@ -313,6 +315,8 @@ export class DetailsVisitor
     ) {
         if (!ctx) return;
         const { start, stop } = ctx;
+
+        if ((start as LPCToken).filename != this.filename) return;
 
         const len = stop.stop - start.start + 1;
         this.tokenBuilder.add(
