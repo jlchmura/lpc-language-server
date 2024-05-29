@@ -2,7 +2,12 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import { BailErrorStrategy, CharStream, CommonTokenStream } from "antlr4ng";
+import {
+    BailErrorStrategy,
+    CharStream,
+    CommonTokenStream,
+    PredictionMode,
+} from "antlr4ng";
 import { LPCLexer } from "./parser3/LPCLexer";
 import { LPCParser } from "./parser3/LPCParser";
 import { CodeCompletionCore, NamespaceSymbol, SymbolTable } from "antlr4-c3";
@@ -22,10 +27,17 @@ import { ConsoleErrorListener } from "./ConsoleErrorListener";
 class MockFileHandler implements IFileHandler {
     constructor() {}
 
-    public loadImport(filename: string): { uri: string; source: string } {
+    public loadImport(
+        refFilename: string,
+        filename: string
+    ): { uri: string; source: string } {
         filename = filename.slice(1, -1);
-        const source = fs.readFileSync(filename, "utf-8");
-        return { uri: filename, source };
+        if (fs.existsSync(filename)) {
+            const source = fs.readFileSync(filename, "utf-8");
+            return { uri: filename, source };
+        } else {
+            return { uri: filename, source: "" };
+        }
     }
 }
 
@@ -73,6 +85,7 @@ const newSource = finalTokens
 tStream.reset();
 tStream.fill();
 
+//parser.interpreter.predictionMode = PredictionMode.SLL;
 const tree = parser.program();
 console.log("tree", tree.children);
 //const filename = process.argv[2];

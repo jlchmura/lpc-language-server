@@ -7,7 +7,7 @@ import { IFileHandler } from "../backend/types";
 
 const DISABLED_CHANNEL_NAME = "DISABLED_CHANNEL";
 const DIRECTIVE_CHANNEL_NAME = "DIRECTIVE_CHANNEL";
-const COMMENT_CHANNEL_NAME = "COMMENT_CHANNEL";
+const COMMENT_CHANNEL_NAME = "COMMENTS_CHANNEL";
 
 export const DISABLED_CHANNEL = LPCLexer.channelNames.indexOf(
     DISABLED_CHANNEL_NAME
@@ -321,7 +321,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
         // lex the the include file
         const includeTokens = this.lexMacro(
             includeFile.uri,
-            includeFile.source
+            includeFile.source + "\n" // add a newline just to be safe
         );
 
         // push via emit to ensure that the tokens are processed by the preprocessor
@@ -367,7 +367,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
         ) {}
 
         const macroName = defVal.substring(0, i);
-        defVal = defVal.substring(i);
+        defVal = defVal.substring(i).trim();
 
         let macroValue = defVal.trim();
         let macroArgs = "";
@@ -396,6 +396,9 @@ export class LPCPreprocessingLexer extends LPCLexer {
                 macroArgs = tempVal;
             }
         }
+
+        // replace all '\\n' with '\n'
+        macroValue = macroValue.replace(/\\\n/g, "\n");
 
         const filename = lt.filename;
         const def: MacroDefinition = {
@@ -447,6 +450,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
             // very basic processing
             // NTBLA: improve this
             let expStr = ifTokens
+                .filter((t) => t.channel != COMMENT_CHANNEL)
                 .map((t) => t?.text)
                 .join(" ")
                 .trim();

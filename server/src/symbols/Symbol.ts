@@ -14,7 +14,8 @@ import { IEvaluatableSymbol, IKindSymbol, LpcBaseSymbol } from "./base";
 import { ContextSymbolTable } from "../backend/ContextSymbolTable";
 import { CallStack } from "../backend/CallStack";
 import { Block } from "comment-parser";
-import { ParseTree, ParserRuleContext } from "antlr4ng";
+import { ParseTree, ParserRuleContext, Token } from "antlr4ng";
+import { LPCToken } from "../parser3/LPCToken";
 
 export class IdentifierSymbol extends LpcBaseSymbol<IdentifierExpressionContext> {
     public get kind() {
