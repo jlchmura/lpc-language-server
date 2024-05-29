@@ -114,7 +114,10 @@ export class LPCPreprocessingLexer extends LPCLexer {
             }
 
             // queue directive tokens
-            this.directiveTokens.push(token);
+            // don't add EOF tokens to the directive
+            if (token.type != LPCLexer.EOF) {
+                this.directiveTokens.push(token);
+            }
 
             if (token.type == LPCLexer.INCLUDE) {
                 // turn substitutions back on for the include directive
@@ -258,6 +261,15 @@ export class LPCPreprocessingLexer extends LPCLexer {
 
         // do some final checks
         if (token.type == LPCLexer.EOF) {
+            if (token.channel != 0) {
+                const filename = (this.tokenFactory as LPCTokenFactor)
+                    ?.filenameStack[0];
+                console.warn(
+                    `EOF token was is channel ${token.channel}, moving to default. [${filename}]`
+                );
+                token.channel = 0;
+            }
+
             if (!this.isExecutable) {
                 throw "missing #endif";
             } else if (this.isConsumingMacro) {
@@ -331,6 +343,12 @@ export class LPCPreprocessingLexer extends LPCLexer {
         directiveToken: Token,
         directiveTokens: Token[]
     ): boolean {
+        // move everyone back to default
+        token.channel = directiveToken.channel = LPCLexer.DEFAULT_TOKEN_CHANNEL;
+        directiveTokens.forEach((t) => {
+            t.channel = LPCLexer.DEFAULT_TOKEN_CHANNEL;
+        });
+
         const lt = token as LPCToken;
         const defValToken = directiveTokens.shift()!;
         let defVal = defValToken?.text.trim();
