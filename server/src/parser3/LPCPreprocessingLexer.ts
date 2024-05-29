@@ -5,8 +5,6 @@ import { MacroDefinition } from "../types";
 import { LPCToken } from "./LPCToken";
 import { IFileHandler } from "../backend/types";
 
-const MacroReg = /([a-zA-Z_-]+)(?:\s*\(([\w\s,]+)\))?\s+(?!\/\*|\/\/)(\S.*)/;
-
 const DISABLED_CHANNEL_NAME = "DISABLED_CHANNEL";
 const DIRECTIVE_CHANNEL_NAME = "DIRECTIVE_CHANNEL";
 const COMMENT_CHANNEL_NAME = "COMMENT_CHANNEL";
@@ -45,17 +43,12 @@ type MacroState = {
 export class LPCPreprocessingLexer extends LPCLexer {
     public fileHandler: IFileHandler;
 
-    /** the last token index we've emitted */
-    tokenIndex: number = 0;
-
     /** the token buffer */
-    buffer: Token[] = [];
+    private buffer: Token[] = [];
     /** queue of tokens to process a directive */
-    directiveTokens: Token[] = [];
-    macroTokens: Token[] = [];
+    private directiveTokens: Token[] = [];
 
     private isConsumingDirective = false;
-
     private macroStack: MacroState[] = [];
     private get isConsumingMacro() {
         return this.macroStack.length > 0;
@@ -79,7 +72,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
     /** indicates if macro substitutions are allowed for the next token */
     private allowSubstitutions = true;
     /** the macro table */
-    public macroTable: Map<string, MacroDefinition> = new Map();
+    private macroTable: Map<string, MacroDefinition> = new Map();
     /** set of disabled macros that should not be applied to the next macro */
     private disabledMacros: Set<string> = new Set();
     /** lexer used for processing macro bodies */
@@ -338,18 +331,51 @@ export class LPCPreprocessingLexer extends LPCLexer {
         directiveTokens: Token[]
     ): boolean {
         const defValToken = directiveTokens.shift()!;
-        const defVal = defValToken.text.trim();
-        const matches = defVal.match(MacroReg);
+        let defVal = defValToken.text.trim();
+        let isFn = false;
 
-        if (!matches) return false;
+        // scroll through the characters of the string defVal
+        // until we find either whitespace or an open paren (without using regex)
+        // the chars up to that point are macroName.
+        let i = 0;
+        for (
+            i = 0;
+            i < defVal.length &&
+            !isWS(defVal.charCodeAt(i)) &&
+            defVal.charAt(i) != "(";
+            i++
+        ) {}
 
-        const macroName = matches[1];
-        const macroArgs = matches[2];
-        const macroValue = matches[3];
+        const macroName = defVal.substring(0, i);
+        defVal = defVal.substring(i);
+
+        let macroValue = defVal.trim();
+        let macroArgs = "";
+        if (defVal.charAt(0) == "(") {
+            // this might be a macro function, find the closing paren
+            let parenCount = 1;
+            let j = 1;
+            for (; parenCount > 0 && j < defVal.length; j++) {
+                if (defVal.charAt(j) == "(") parenCount++;
+                if (defVal.charAt(j) == ")") parenCount--;
+            }
+            const tempVal = defVal.substring(1, j - 1);
+            defVal = defVal.substring(j).trim();
+
+            if (
+                defVal.length > 0 &&
+                !defVal.startsWith("//") &&
+                !defVal.startsWith("/*")
+            ) {
+                isFn = true;
+                macroValue = defVal.trim();
+
+                // parse the args - remove outermost parens
+                macroArgs = tempVal;
+            }
+        }
 
         // macro value is everything after the first space
-        const isFn = macroArgs?.length > 0;
-
         const fac = this.tokenFactory as LPCTokenFactor;
         const filename = fac.filenameStack[fac.filenameStack.length - 1];
         const def: MacroDefinition = {
@@ -624,7 +650,13 @@ export class LPCPreprocessingLexer extends LPCLexer {
         return tokens;
     }
 
+    /**
+     * Reset the lexer and its macro table
+     * @param seekBack
+     */
     override reset(seekBack?: boolean): void {
+        super.reset(seekBack);
+
         this.macroTable.clear();
         this.buffer = [];
     }
@@ -649,4 +681,10 @@ export class LPCPreprocessingLexer extends LPCLexer {
 
 function peekStack<T>(stack: T[]) {
     return stack[stack.length - 1];
+}
+
+function isWS(charCode: number) {
+    return (
+        charCode === 32 || charCode === 9 || charCode === 13 || charCode === 10
+    );
 }
