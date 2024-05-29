@@ -134,13 +134,12 @@ export class LPCParser extends antlr.Parser {
     public static readonly Identifier = 120;
     public static readonly COMMENT = 121;
     public static readonly LINE_COMMENT = 122;
-    public static readonly SOURCEMAP = 123;
-    public static readonly DEFINE = 124;
-    public static readonly WS = 125;
-    public static readonly SINGLEQUOT = 126;
-    public static readonly END_DEFINE = 127;
-    public static readonly STRING_END = 128;
-    public static readonly NEWLINE = 129;
+    public static readonly DEFINE = 123;
+    public static readonly WS = 124;
+    public static readonly SINGLEQUOT = 125;
+    public static readonly END_DEFINE = 126;
+    public static readonly STRING_END = 127;
+    public static readonly NEWLINE = 128;
     public static readonly RULE_program = 0;
     public static readonly RULE_preprocessorDirective = 1;
     public static readonly RULE_includePreprocessorDirective = 2;
@@ -258,7 +257,7 @@ export class LPCParser extends antlr.Parser {
         "'||='", "'&&='", "'&='", "'|='", "'^='", "'<<='", "'>>='", "'(['", 
         "'->'", "'('", "')'", "'{'", "'}'", "'['", "']'", "'\\'", null, 
         null, null, null, null, null, "'clone_object'", "'load_object'", 
-        null, null, null, null, null, null, "'''", "'\\n'", null, "'\\\\n'"
+        null, null, null, null, null, "'''", null, null, "'\\\\n'"
     ];
 
     public static readonly symbolicNames = [
@@ -281,8 +280,7 @@ export class LPCParser extends antlr.Parser {
         "SQUARE_CLOSE", "BACKSLASH", "IntegerConstant", "FloatingConstant", 
         "HexIntConstant", "STRING_START", "StringLiteral", "CharacterConstant", 
         "CloneObject", "LoadObject", "Identifier", "COMMENT", "LINE_COMMENT", 
-        "SOURCEMAP", "DEFINE", "WS", "SINGLEQUOT", "END_DEFINE", "STRING_END", 
-        "NEWLINE"
+        "DEFINE", "WS", "SINGLEQUOT", "END_DEFINE", "STRING_END", "NEWLINE"
     ];
     public static readonly ruleNames = [
         "program", "preprocessorDirective", "includePreprocessorDirective", 
@@ -340,7 +338,7 @@ export class LPCParser extends antlr.Parser {
             this.state = 201;
             this.errorHandler.sync(this);
             _la = this.tokenStream.LA(1);
-            while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 4099019978) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 2415719399) !== 0) || _la === 70 || ((((_la - 116)) & ~0x1F) === 0 && ((1 << (_la - 116)) & 273) !== 0)) {
+            while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 4099019978) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 2415719399) !== 0) || _la === 70 || ((((_la - 116)) & ~0x1F) === 0 && ((1 << (_la - 116)) & 145) !== 0)) {
                 {
                 this.state = 199;
                 this.errorHandler.sync(this);
@@ -2317,7 +2315,7 @@ export class LPCParser extends antlr.Parser {
             this.state = 550;
             this.errorHandler.sync(this);
             _la = this.tokenStream.LA(1);
-            if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 74449002) !== 0) || ((((_la - 38)) & ~0x1F) === 0 && ((1 << (_la - 38)) & 868221057) !== 0) || ((((_la - 76)) & ~0x1F) === 0 && ((1 << (_la - 76)) & 671088665) !== 0) || ((((_la - 112)) & ~0x1F) === 0 && ((1 << (_la - 112)) & 16887) !== 0)) {
+            if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 74449002) !== 0) || ((((_la - 38)) & ~0x1F) === 0 && ((1 << (_la - 38)) & 868221057) !== 0) || ((((_la - 76)) & ~0x1F) === 0 && ((1 << (_la - 76)) & 671088665) !== 0) || ((((_la - 112)) & ~0x1F) === 0 && ((1 << (_la - 112)) & 8695) !== 0)) {
                 {
                 this.state = 549;
                 this.argumentList();
@@ -2579,7 +2577,7 @@ export class LPCParser extends antlr.Parser {
             this.state = 608;
             this.errorHandler.sync(this);
             _la = this.tokenStream.LA(1);
-            if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 74449002) !== 0) || ((((_la - 38)) & ~0x1F) === 0 && ((1 << (_la - 38)) & 868221057) !== 0) || ((((_la - 76)) & ~0x1F) === 0 && ((1 << (_la - 76)) & 671088665) !== 0) || ((((_la - 112)) & ~0x1F) === 0 && ((1 << (_la - 112)) & 16887) !== 0)) {
+            if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 74449002) !== 0) || ((((_la - 38)) & ~0x1F) === 0 && ((1 << (_la - 38)) & 868221057) !== 0) || ((((_la - 76)) & ~0x1F) === 0 && ((1 << (_la - 76)) & 671088665) !== 0) || ((((_la - 112)) & ~0x1F) === 0 && ((1 << (_la - 112)) & 8695) !== 0)) {
                 {
                 this.state = 600;
                 this.expression();
@@ -3759,7 +3757,7 @@ export class LPCParser extends antlr.Parser {
                 this.state = 837;
                 this.errorHandler.sync(this);
                 _la = this.tokenStream.LA(1);
-                if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 74449002) !== 0) || ((((_la - 38)) & ~0x1F) === 0 && ((1 << (_la - 38)) & 868221057) !== 0) || ((((_la - 76)) & ~0x1F) === 0 && ((1 << (_la - 76)) & 671088665) !== 0) || ((((_la - 112)) & ~0x1F) === 0 && ((1 << (_la - 112)) & 16887) !== 0)) {
+                if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 74449002) !== 0) || ((((_la - 38)) & ~0x1F) === 0 && ((1 << (_la - 38)) & 868221057) !== 0) || ((((_la - 76)) & ~0x1F) === 0 && ((1 << (_la - 76)) & 671088665) !== 0) || ((((_la - 112)) & ~0x1F) === 0 && ((1 << (_la - 112)) & 8695) !== 0)) {
                     {
                     this.state = 829;
                     this.structMemberInitializer();
@@ -3971,7 +3969,7 @@ export class LPCParser extends antlr.Parser {
                     this.state = 879;
                     this.errorHandler.sync(this);
                     _la = this.tokenStream.LA(1);
-                    while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 2768112366) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 4152272887) !== 0) || ((((_la - 66)) & ~0x1F) === 0 && ((1 << (_la - 66)) & 549907) !== 0) || ((((_la - 103)) & ~0x1F) === 0 && ((1 << (_la - 103)) & 8646165) !== 0)) {
+                    while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 2768112366) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 4152272887) !== 0) || ((((_la - 66)) & ~0x1F) === 0 && ((1 << (_la - 66)) & 549907) !== 0) || ((((_la - 103)) & ~0x1F) === 0 && ((1 << (_la - 103)) & 4451861) !== 0)) {
                         {
                         {
                         this.state = 876;
@@ -4100,7 +4098,7 @@ export class LPCParser extends antlr.Parser {
                 this.state = 914;
                 this.errorHandler.sync(this);
                 _la = this.tokenStream.LA(1);
-                if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 74449002) !== 0) || ((((_la - 38)) & ~0x1F) === 0 && ((1 << (_la - 38)) & 868221057) !== 0) || ((((_la - 76)) & ~0x1F) === 0 && ((1 << (_la - 76)) & 671088665) !== 0) || ((((_la - 112)) & ~0x1F) === 0 && ((1 << (_la - 112)) & 16887) !== 0)) {
+                if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 74449002) !== 0) || ((((_la - 38)) & ~0x1F) === 0 && ((1 << (_la - 38)) & 868221057) !== 0) || ((((_la - 76)) & ~0x1F) === 0 && ((1 << (_la - 76)) & 671088665) !== 0) || ((((_la - 112)) & ~0x1F) === 0 && ((1 << (_la - 112)) & 8695) !== 0)) {
                     {
                     this.state = 913;
                     this.expression();
@@ -4122,7 +4120,7 @@ export class LPCParser extends antlr.Parser {
                 this.state = 921;
                 this.errorHandler.sync(this);
                 _la = this.tokenStream.LA(1);
-                if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 74449002) !== 0) || ((((_la - 38)) & ~0x1F) === 0 && ((1 << (_la - 38)) & 868221057) !== 0) || ((((_la - 76)) & ~0x1F) === 0 && ((1 << (_la - 76)) & 671088665) !== 0) || ((((_la - 112)) & ~0x1F) === 0 && ((1 << (_la - 112)) & 16887) !== 0)) {
+                if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 74449002) !== 0) || ((((_la - 38)) & ~0x1F) === 0 && ((1 << (_la - 38)) & 868221057) !== 0) || ((((_la - 76)) & ~0x1F) === 0 && ((1 << (_la - 76)) & 671088665) !== 0) || ((((_la - 112)) & ~0x1F) === 0 && ((1 << (_la - 112)) & 8695) !== 0)) {
                     {
                     this.state = 920;
                     this.expression();
@@ -4586,7 +4584,7 @@ export class LPCParser extends antlr.Parser {
             this.state = 1015;
             this.errorHandler.sync(this);
             _la = this.tokenStream.LA(1);
-            while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 2768112366) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 4152272887) !== 0) || ((((_la - 66)) & ~0x1F) === 0 && ((1 << (_la - 66)) & 549907) !== 0) || ((((_la - 103)) & ~0x1F) === 0 && ((1 << (_la - 103)) & 8646165) !== 0)) {
+            while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 2768112366) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 4152272887) !== 0) || ((((_la - 66)) & ~0x1F) === 0 && ((1 << (_la - 66)) & 549907) !== 0) || ((((_la - 103)) & ~0x1F) === 0 && ((1 << (_la - 103)) & 4451861) !== 0)) {
                 {
                 {
                 this.state = 1012;
@@ -5033,7 +5031,7 @@ export class LPCParser extends antlr.Parser {
             this.state = 1103;
             this.errorHandler.sync(this);
             _la = this.tokenStream.LA(1);
-            while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 2768112366) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 4152272887) !== 0) || ((((_la - 66)) & ~0x1F) === 0 && ((1 << (_la - 66)) & 549907) !== 0) || ((((_la - 103)) & ~0x1F) === 0 && ((1 << (_la - 103)) & 8646165) !== 0)) {
+            while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 2768112366) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 4152272887) !== 0) || ((((_la - 66)) & ~0x1F) === 0 && ((1 << (_la - 66)) & 549907) !== 0) || ((((_la - 103)) & ~0x1F) === 0 && ((1 << (_la - 103)) & 4451861) !== 0)) {
                 {
                 {
                 this.state = 1100;
@@ -5073,7 +5071,7 @@ export class LPCParser extends antlr.Parser {
             this.state = 1111;
             this.errorHandler.sync(this);
             _la = this.tokenStream.LA(1);
-            while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 2768112366) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 4152272887) !== 0) || ((((_la - 66)) & ~0x1F) === 0 && ((1 << (_la - 66)) & 549907) !== 0) || ((((_la - 103)) & ~0x1F) === 0 && ((1 << (_la - 103)) & 8646165) !== 0)) {
+            while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 2768112366) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 4152272887) !== 0) || ((((_la - 66)) & ~0x1F) === 0 && ((1 << (_la - 66)) & 549907) !== 0) || ((((_la - 103)) & ~0x1F) === 0 && ((1 << (_la - 103)) & 4451861) !== 0)) {
                 {
                 {
                 this.state = 1108;
@@ -5245,7 +5243,7 @@ export class LPCParser extends antlr.Parser {
             this.state = 1156;
             this.errorHandler.sync(this);
             _la = this.tokenStream.LA(1);
-            if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 2758934762) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 4026573671) !== 0) || ((((_la - 66)) & ~0x1F) === 0 && ((1 << (_la - 66)) & 25603) !== 0) || ((((_la - 103)) & ~0x1F) === 0 && ((1 << (_la - 103)) & 8646149) !== 0)) {
+            if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 2758934762) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 4026573671) !== 0) || ((((_la - 66)) & ~0x1F) === 0 && ((1 << (_la - 66)) & 25603) !== 0) || ((((_la - 103)) & ~0x1F) === 0 && ((1 << (_la - 103)) & 4451845) !== 0)) {
                 {
                 this.state = 1148;
                 this.forVariable();
@@ -5273,7 +5271,7 @@ export class LPCParser extends antlr.Parser {
             this.state = 1160;
             this.errorHandler.sync(this);
             _la = this.tokenStream.LA(1);
-            if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 74449002) !== 0) || ((((_la - 38)) & ~0x1F) === 0 && ((1 << (_la - 38)) & 868221057) !== 0) || ((((_la - 76)) & ~0x1F) === 0 && ((1 << (_la - 76)) & 671088665) !== 0) || ((((_la - 112)) & ~0x1F) === 0 && ((1 << (_la - 112)) & 16887) !== 0)) {
+            if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 74449002) !== 0) || ((((_la - 38)) & ~0x1F) === 0 && ((1 << (_la - 38)) & 868221057) !== 0) || ((((_la - 76)) & ~0x1F) === 0 && ((1 << (_la - 76)) & 671088665) !== 0) || ((((_la - 112)) & ~0x1F) === 0 && ((1 << (_la - 112)) & 8695) !== 0)) {
                 {
                 this.state = 1159;
                 this.expression();
@@ -5285,7 +5283,7 @@ export class LPCParser extends antlr.Parser {
             this.state = 1164;
             this.errorHandler.sync(this);
             _la = this.tokenStream.LA(1);
-            if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 74449002) !== 0) || ((((_la - 38)) & ~0x1F) === 0 && ((1 << (_la - 38)) & 868221057) !== 0) || ((((_la - 76)) & ~0x1F) === 0 && ((1 << (_la - 76)) & 671088665) !== 0) || ((((_la - 112)) & ~0x1F) === 0 && ((1 << (_la - 112)) & 16887) !== 0)) {
+            if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 74449002) !== 0) || ((((_la - 38)) & ~0x1F) === 0 && ((1 << (_la - 38)) & 868221057) !== 0) || ((((_la - 76)) & ~0x1F) === 0 && ((1 << (_la - 76)) & 671088665) !== 0) || ((((_la - 112)) & ~0x1F) === 0 && ((1 << (_la - 112)) & 8695) !== 0)) {
                 {
                 this.state = 1163;
                 this.expression();
@@ -5506,7 +5504,7 @@ export class LPCParser extends antlr.Parser {
             this.state = 1207;
             this.errorHandler.sync(this);
             _la = this.tokenStream.LA(1);
-            if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 74449002) !== 0) || ((((_la - 38)) & ~0x1F) === 0 && ((1 << (_la - 38)) & 868221057) !== 0) || ((((_la - 76)) & ~0x1F) === 0 && ((1 << (_la - 76)) & 671088665) !== 0) || ((((_la - 112)) & ~0x1F) === 0 && ((1 << (_la - 112)) & 16887) !== 0)) {
+            if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 74449002) !== 0) || ((((_la - 38)) & ~0x1F) === 0 && ((1 << (_la - 38)) & 868221057) !== 0) || ((((_la - 76)) & ~0x1F) === 0 && ((1 << (_la - 76)) & 671088665) !== 0) || ((((_la - 112)) & ~0x1F) === 0 && ((1 << (_la - 112)) & 8695) !== 0)) {
                 {
                 this.state = 1206;
                 this.commaableExpression();
@@ -5712,7 +5710,7 @@ export class LPCParser extends antlr.Parser {
                 this.state = 1236;
                 this.errorHandler.sync(this);
                 _la = this.tokenStream.LA(1);
-                if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 74449002) !== 0) || ((((_la - 38)) & ~0x1F) === 0 && ((1 << (_la - 38)) & 868221057) !== 0) || ((((_la - 76)) & ~0x1F) === 0 && ((1 << (_la - 76)) & 671088665) !== 0) || ((((_la - 112)) & ~0x1F) === 0 && ((1 << (_la - 112)) & 16887) !== 0)) {
+                if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 74449002) !== 0) || ((((_la - 38)) & ~0x1F) === 0 && ((1 << (_la - 38)) & 868221057) !== 0) || ((((_la - 76)) & ~0x1F) === 0 && ((1 << (_la - 76)) & 671088665) !== 0) || ((((_la - 112)) & ~0x1F) === 0 && ((1 << (_la - 112)) & 8695) !== 0)) {
                     {
                     this.state = 1235;
                     this.argument();
@@ -5776,7 +5774,7 @@ export class LPCParser extends antlr.Parser {
     }
 
     public static readonly _serializedATN: number[] = [
-        4,1,129,1247,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,
+        4,1,128,1247,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,
         7,6,2,7,7,7,2,8,7,8,2,9,7,9,2,10,7,10,2,11,7,11,2,12,7,12,2,13,7,
         13,2,14,7,14,2,15,7,15,2,16,7,16,2,17,7,17,2,18,7,18,2,19,7,19,2,
         20,7,20,2,21,7,21,2,22,7,22,2,23,7,23,2,24,7,24,2,25,7,25,2,26,7,
@@ -5935,7 +5933,7 @@ export class LPCParser extends antlr.Parser {
         0,220,223,1,0,0,0,221,219,1,0,0,0,222,206,1,0,0,0,222,207,1,0,0,
         0,222,210,1,0,0,0,222,211,1,0,0,0,222,212,1,0,0,0,223,3,1,0,0,0,
         224,225,5,22,0,0,225,226,3,26,13,0,226,227,3,30,15,0,227,5,1,0,0,
-        0,228,229,5,124,0,0,229,230,5,127,0,0,230,7,1,0,0,0,231,232,5,22,
+        0,228,229,5,123,0,0,229,230,5,126,0,0,230,7,1,0,0,0,231,232,5,22,
         0,0,232,234,3,12,6,0,233,235,5,79,0,0,234,233,1,0,0,0,234,235,1,
         0,0,0,235,236,1,0,0,0,236,237,3,20,10,0,237,244,1,0,0,0,238,239,
         5,22,0,0,239,240,7,0,0,0,240,244,3,14,7,0,241,242,5,22,0,0,242,244,
@@ -6153,8 +6151,8 @@ export class LPCParser extends antlr.Parser {
         5,109,0,0,935,937,5,88,0,0,936,938,5,70,0,0,937,936,1,0,0,0,937,
         938,1,0,0,0,938,940,1,0,0,0,939,926,1,0,0,0,939,934,1,0,0,0,940,
         141,1,0,0,0,941,943,5,22,0,0,942,941,1,0,0,0,942,943,1,0,0,0,943,
-        944,1,0,0,0,944,945,5,126,0,0,945,962,7,23,0,0,946,947,5,22,0,0,
-        947,959,5,126,0,0,948,960,7,24,0,0,949,960,3,138,69,0,950,960,3,
+        944,1,0,0,0,944,945,5,125,0,0,945,962,7,23,0,0,946,947,5,22,0,0,
+        947,959,5,125,0,0,948,960,7,24,0,0,949,960,3,138,69,0,950,960,3,
         140,70,0,951,955,7,25,0,0,952,953,5,83,0,0,953,955,5,79,0,0,954,
         951,1,0,0,0,954,952,1,0,0,0,955,960,1,0,0,0,956,957,5,105,0,0,957,
         960,7,26,0,0,958,960,3,94,47,0,959,948,1,0,0,0,959,949,1,0,0,0,959,

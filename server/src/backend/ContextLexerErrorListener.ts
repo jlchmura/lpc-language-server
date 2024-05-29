@@ -13,6 +13,7 @@ import {
 } from "antlr4ng";
 import { IDiagnosticEntry } from "../types";
 import { DiagnosticSeverity } from "vscode-languageserver";
+import { LPCToken } from "../parser3/LPCToken";
 
 export class ContextLexerErrorListener extends BaseErrorListener {
     public constructor(private errorList: IDiagnosticEntry[]) {
@@ -28,9 +29,13 @@ export class ContextLexerErrorListener extends BaseErrorListener {
         msg: string,
         _e: RecognitionException | null
     ): void {
+        const lt = _offendingSymbol as unknown as LPCToken;
+        const { filename } = lt;
         const error: IDiagnosticEntry = {
+            filename,
             type: DiagnosticSeverity.Error,
             message: msg,
+
             range: {
                 start: {
                     column,

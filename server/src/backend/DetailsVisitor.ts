@@ -26,7 +26,6 @@ import {
     CallOtherTargetContext,
     CloneObjectExpressionContext,
     CommaExpressionContext,
-    CommaableExpressionContext,
     ConditionalAndExpressionContext,
     ConditionalOrExpressionContext,
     ConditionalTernaryExpressionContext,
@@ -70,7 +69,6 @@ import {
 import { PreprocessorSymbol } from "../symbols/Symbol";
 import { FoldingRange } from "vscode-languageserver";
 import {
-    COMMENT_CHANNEL_NUM,
     ContextImportInfo,
     LpcTypes,
     SemanticTokenModifiers,
@@ -117,6 +115,8 @@ import {
 } from "../symbols/inheritSymbol";
 import { LpcFileHandler } from "./FileHandler";
 import { ForEachSymbol, IterationSymbol } from "../symbols/forSymbol";
+import { COMMENT_CHANNEL } from "../parser3/LPCPreprocessingLexer";
+import { LPCToken } from "../parser3/LPCToken";
 
 type GenericConstructorParameters<T> = ConstructorParameters<
     new (...args: any[]) => T
@@ -133,7 +133,8 @@ export class DetailsVisitor
         private symbolTable: ContextSymbolTable,
         private imports: ContextImportInfo[],
         private tokenBuilder: SemanticTokenCollection,
-        private fileHandler: LpcFileHandler
+        private fileHandler: LpcFileHandler,
+        private filename: string
     ) {
         super();
     }
@@ -296,12 +297,12 @@ export class DetailsVisitor
         tokenType: number,
         tokenModifiers: number[] = []
     ) {
-        if (!token) return;
-
+        if (!token || (token as LPCToken).filename != this.filename) return;
+        const len = token.stop - token.start + 1;
         this.tokenBuilder.add(
             token.line,
             token.column,
-            token.stop - token.start + 1,
+            len,
             tokenType,
             tokenModifiers
         );
@@ -315,10 +316,13 @@ export class DetailsVisitor
         if (!ctx) return;
         const { start, stop } = ctx;
 
+        if ((start as LPCToken).filename != this.filename) return;
+
+        const len = stop.stop - start.start + 1;
         this.tokenBuilder.add(
             start.line,
             start.column,
-            stop.stop - start.start + 1,
+            len,
             tokenType,
             tokenModifiers
         );
@@ -1100,7 +1104,7 @@ export class DetailsVisitor
         const tokenIdx = ctx.start.tokenIndex;
         const comments = source?.tokenStream?.getHiddenTokensToLeft(
             tokenIdx,
-            COMMENT_CHANNEL_NUM
+            COMMENT_CHANNEL
         );
         if (comments?.length > 0) {
             const commentText = lastEntry(comments)?.text ?? "";

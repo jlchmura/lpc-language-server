@@ -6,10 +6,8 @@ import {
     ReferenceKind,
     TypeKind,
 } from "antlr4-c3";
+import { Token } from "antlr4ng";
 import { DiagnosticSeverity } from "vscode-languageserver";
-
-export const COMMENT_CHANNEL_NUM = 2;
-export const SOURCEMAP_CHANNEL_NUM = 3;
 
 export const DiagnosticCodes = {
     /** occurs when the target of a call other (eg `target->fn()`) is unknown, therefore the lfun cannot be validated */
@@ -19,6 +17,7 @@ export const DiagnosticCodes = {
 } as const;
 
 export interface IDiagnosticEntry {
+    filename?: string;
     type: DiagnosticSeverity;
     message: string;
     range: ILexicalRange;
@@ -135,25 +134,20 @@ export enum DependencySearchType {
 export type MacroDefinition = {
     /** the name of the macro */
     name: string;
+    token: Token;
     /** the text that will get substituted for the macro */
     value: string;
     /** filename this macro is defined in */
     filename: string;
-    /* starting position of the macro */
-    start: IPosition;
-    /* ending position of the macro */
-    end: IPosition;
+    /** tokens of the macro body */
+    bodyTokens?: Token[];
+
     /**
      * array of arg names in the order they will be passed to the macro
      */
     args?: string[];
-    /**
-     * The macro value string with the arg names marked with a unique string [[@<argName>]]
-     *
-     */
-    markedValue?: string;
-    /** annotation that will be used to tag this macro */
-    annotation: string;
+    /** name of each arg and the index of each */
+    argIndex?: Map<string, number>;
 };
 
 export const SemanticTokenTypes = {

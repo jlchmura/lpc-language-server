@@ -3,6 +3,7 @@ import { LpcFacade } from "./facade";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { URI } from "vscode-uri";
 import { SymbolKind } from "../types";
+import { lexRangeToLspRange } from "../utils";
 
 export class LpcDefinitionProvider {
     constructor(private backend: LpcFacade) {}
@@ -36,17 +37,10 @@ export class LpcDefinitionProvider {
                 // if (info.definition.range.start.row - 1 < 0) {
                 //     const i = 0;
                 // }
+                const { range } = info.definition;
+                const lspRange = lexRangeToLspRange(range);
 
-                // NTBLA: do sourcemapping in symbolInfo instead
-                const sourceMap = this.backend.getSourcemap(document.uri);
-                const range = sourceMap.createSourceRange(
-                    info.definition.range.start.row - 1,
-                    info.definition.range.start.column,
-                    info.definition.range.end.row - 1,
-                    info.definition.range.end.column
-                );
-
-                return LocationLink.create(info.source, range, range);
+                return LocationLink.create(info.source, lspRange, lspRange);
             } else {
                 // Empty for built-in entities.
                 return null;

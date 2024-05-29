@@ -54,6 +54,8 @@ export function lexRangeToLspRange(range: ILexicalRange) {
     const startRow = start.row === 0 ? 0 : start.row - 1;
     const endRow = end.row === 0 ? 0 : end.row - 1;
 
+    if (start.column < 0) debugger;
+
     return Range.create(startRow, start.column, endRow, end.column);
 }
 
@@ -219,11 +221,11 @@ export function normalizeFilename(filename: string) {
 export function rangeFromTokens(start: Token, end: Token): ILexicalRange {
     return {
         start: {
-            column: start.column,
+            column: Math.max(0, start.column),
             row: start.line,
         },
         end: {
-            column: end.column + end.stop - end.start + 1,
+            column: Math.max(0, end.column),
             row: end.line,
         },
     } as ILexicalRange;

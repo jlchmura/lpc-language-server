@@ -47,7 +47,7 @@ export function addDependenciesToStack(
 
     while (imports.length > 0) {
         const importCtx = imports.shift();
-        const importFilename = importCtx.fileName;
+        const importFilename = importCtx?.fileName;
         if (!!importCtx && !processed.has(importFilename)) {
             processed.add(importFilename);
 

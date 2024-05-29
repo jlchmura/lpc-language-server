@@ -6,7 +6,8 @@ lexer grammar LPCLexer;
 
 channels { 
     COMMENTS_CHANNEL,
-    SOURCEMAP_CHANNEL
+    DIRECTIVE_CHANNEL,
+    DISABLED_CHANNEL    // code that is disabled by a preprocessor conditional
 }
 
 
@@ -160,9 +161,6 @@ Identifier: ([$a-zA-Z_] [a-zA-Z_0-9]*);
 COMMENT: '/*' .*? '*/' -> channel(COMMENTS_CHANNEL);
 LINE_COMMENT: '//' .*? ('\n'|EOF) -> channel(COMMENTS_CHANNEL);
 
-// sourcemaps
-SOURCEMAP: '[[@' .*? ']]' -> channel(SOURCEMAP_CHANNEL);
-
 DEFINE: HASH [ \t]* 'define' -> pushMode(DEFINE_MODE);
 
 WS: [ \t\r\n]+ -> channel(HIDDEN);
@@ -171,9 +169,11 @@ SINGLEQUOT: '\'';
 
 // to handle #define that can be multiline
 mode DEFINE_MODE;    
-    DEFINE_CONTENT: (~[\n\\]+ | '\\' ~'\n' ) '\\\n'? -> more;
+    DEFINE_CONTENT: (~[\n\\/]+ | '\\' ~'\n' | '/' ~[*/]) '\\\n'? -> more;
     NEWLINE: '\\\n' -> more;
-    END_DEFINE: '\n' -> popMode;
+    DEFINE_COMMENT: '//' ~[\n]+ -> more;
+    DEFINE_BLOCK_COMMENT: '/*' (~[*/]+ | '*' ~'/' | '/' )+ '*/' -> more;
+    END_DEFINE: ('\n'|EOF) -> popMode;
 
 // string mode will handle escaped quotes
 mode STRING_MODE;

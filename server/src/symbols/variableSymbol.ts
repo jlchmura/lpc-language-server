@@ -12,16 +12,16 @@ import {
     isInstanceOfIEvaluatableSymbol,
     IRenameableSymbol,
 } from "./base";
-import { IDefinition, ILexicalRange, LpcTypes, SymbolKind } from "../types";
-import { ArgumentSymbol, IdentifierSymbol, addDiagnostic } from "./Symbol";
-import { resolveOfTypeSync } from "../utils";
-import { DefineSymbol } from "./defineSymbol";
-import { VariableDeclaratorContext } from "../parser3/LPCParser";
+import { IDefinition, ILexicalRange, SymbolKind } from "../types";
+import { IdentifierSymbol, addDiagnostic } from "./Symbol";
+import { rangeFromTokens } from "../utils";
+
 import { CallStack, StackValue } from "../backend/CallStack";
 import { Token } from "antlr4ng";
-import { LpcBaseMethodSymbol } from "./methodSymbol";
+
 import { DiagnosticSeverity } from "vscode-languageserver";
 import { InlineClosureSymbol } from "./closureSymbol";
+import { LPCToken } from "../parser3/LPCToken";
 
 export class VariableSymbol
     extends TypedSymbol
@@ -82,7 +82,9 @@ export class VariableIdentifierSymbol
     implements IEvaluatableSymbol, IRenameableSymbol
 {
     nameRange: ILexicalRange;
+
     eval(stack: CallStack, scope?: any) {
+        this.nameRange = rangeFromTokens(this.context.start, this.context.stop);
         const def = stack.getValue(this.name, this)
             ?.symbol as IEvaluatableSymbol;
 
@@ -95,6 +97,7 @@ export class VariableIdentifierSymbol
             )
         ) {
             addDiagnostic(this, {
+                filename: (this.context.start as LPCToken).filename,
                 message: `Cannot find name '${this.name}'.`,
                 range: this.nameRange,
                 type: DiagnosticSeverity.Error,

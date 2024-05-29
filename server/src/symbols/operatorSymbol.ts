@@ -22,8 +22,6 @@ export class OperatorSymbol extends ScopedSymbol implements IEvaluatableSymbol {
         switch (this.name) {
             case ",":
                 return rhsValue;
-            case "-":
-                return rhsValue;
             case "+":
                 return lhsValue + rhsValue;
             case "-":

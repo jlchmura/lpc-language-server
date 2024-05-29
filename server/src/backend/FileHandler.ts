@@ -1,9 +1,11 @@
+import * as fs from "fs";
 import { BaseSymbol } from "antlr4-c3";
 import { SourceContext } from "./SourceContext";
 import { LpcFacade } from "./facade";
 import { ContextSymbolTable } from "./ContextSymbolTable";
+import { IFileHandler, LoadImportResult } from "./types";
 
-export class LpcFileHandler {
+export class LpcFileHandler implements IFileHandler {
     constructor(
         private backend: LpcFacade,
         private sourceContext: SourceContext,
@@ -25,7 +27,19 @@ export class LpcFileHandler {
         return this.backend.addReference(fromFilename, toFilename);
     }
 
-    public loadImport(filename: string) {}
+    public loadImport(
+        sourceFilename: string,
+        filename: string
+    ): LoadImportResult {
+        const importInfo = this.backend.resolveFilename(
+            filename,
+            sourceFilename
+        );
+        const source = !!importInfo.fullPath
+            ? fs.readFileSync(importInfo.fullPath, "utf-8")
+            : "";
+        return { uri: importInfo.fullPath, source };
+    }
 
     public getDependencies(filename: string) {
         // get a list of dependencies for a given file
