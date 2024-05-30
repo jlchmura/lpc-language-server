@@ -10,29 +10,32 @@ import {
 export class LpcSymbolProvider {
     constructor(private backend: LpcFacade) {}
 
-    public getSymbols(document: TextDocument) {
-        try {
-            const symbols = this.backend.listTopLevelSymbols(
-                document.uri,
-                false
-            );
-            const symbolsList: DocumentSymbol[] = [];
+    public async getSymbols(document: TextDocument): Promise<DocumentSymbol[]> {
+        const p = new Promise<DocumentSymbol[]>(async (resolve, reject) => {
+            try {
+                const symbols = await this.backend.listTopLevelSymbols(
+                    document.uri,
+                    false
+                );
+                const symbolsList: DocumentSymbol[] = [];
 
-            if (!symbols) return [];
+                if (!symbols) return [];
 
-            for (const symbol of symbols) {
-                if (!symbol || !symbol.definition || !symbol.name) {
-                    continue;
+                for (const symbol of symbols) {
+                    if (!symbol || !symbol.definition || !symbol.name) {
+                        continue;
+                    }
+
+                    const info = this.createDocumentSymbol(symbol);
+                    symbolsList.push(info);
                 }
 
-                const info = this.createDocumentSymbol(symbol);
-                symbolsList.push(info);
+                resolve(symbolsList);
+            } catch (e) {
+                reject(e);
             }
-
-            return symbolsList;
-        } catch (e) {
-            const i = 0;
-        }
+        });
+        return p;
     }
 
     private createDocumentSymbol(symbol: ISymbolInfo): DocumentSymbol {

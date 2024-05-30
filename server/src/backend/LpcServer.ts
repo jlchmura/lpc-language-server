@@ -98,10 +98,10 @@ export class LpcServer {
         });
 
         // Symbol Provider
-        this.connection.onDocumentSymbol((params) => {
+        this.connection.onDocumentSymbol(async (params) => {
             const doc = this.documents.get(params.textDocument.uri);
             try {
-                const result = this.symbolProvider.getSymbols(doc);
+                const result = await this.symbolProvider.getSymbols(doc);
                 return result;
             } catch (e) {
                 console.error(e);
@@ -281,30 +281,34 @@ export class LpcServer {
         // semantic token request
         this.connection.onRequest(
             "textDocument/semanticTokens/full",
-            (params) => {
+            async (params) => {
                 const doc = this.documents.get(params.textDocument.uri);
-                try {
-                    performance.mark("semantic-token-request-start");
+                const p = new Promise((resolve, reject) => {
+                    try {
+                        performance.mark("semantic-token-request-start");
 
-                    this.flushChangeTimer(doc);
-                    const result = this.facade.getSemanticTokens(doc?.uri);
+                        this.flushChangeTimer(doc);
+                        const result = this.facade.getSemanticTokens(doc?.uri);
 
-                    performance.mark("semantic-token-request-end");
-                    performance.measure(
-                        "semantic-token-request",
-                        "semantic-token-request-start",
-                        "semantic-token-request-end"
-                    );
+                        performance.mark("semantic-token-request-end");
+                        performance.measure(
+                            "semantic-token-request",
+                            "semantic-token-request-start",
+                            "semantic-token-request-end"
+                        );
 
-                    return result;
-                } catch (e) {
-                    console.error(
-                        "Error in semantic token request:\n",
-                        params,
-                        e
-                    );
-                    return undefined;
-                }
+                        resolve(result);
+                    } catch (e) {
+                        console.error(
+                            "Error in semantic token request:\n",
+                            params,
+                            e
+                        );
+                        resolve(undefined);
+                    }
+                });
+
+                return p;
             }
         );
 

@@ -517,10 +517,12 @@ export class SourceContext {
         });
     }
 
-    public listTopLevelSymbols(includeDependencies: boolean): ISymbolInfo[] {
-        const symbols = this.symbolTable
-            .listTopLevelSymbols(includeDependencies)
-            .filter((s) => s.filename == this.fileName);
+    public async listTopLevelSymbols(
+        includeDependencies: boolean
+    ): Promise<ISymbolInfo[]> {
+        const symbols = (
+            await this.symbolTable.listTopLevelSymbols(includeDependencies)
+        ).filter((s) => s.filename == this.fileName);
 
         for (const [macro, def] of this.macroTable.entries()) {
             const { filename, value } = def;

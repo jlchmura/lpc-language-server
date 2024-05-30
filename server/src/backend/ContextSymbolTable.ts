@@ -327,14 +327,14 @@ export class ContextSymbolTable extends SymbolTable {
         } as ISymbolInfo;
     }
 
-    private symbolsOfType<T extends BaseSymbol, Args extends unknown[]>(
+    private async symbolsOfType<T extends BaseSymbol, Args extends unknown[]>(
         t: SymbolConstructor<T, Args>,
         localOnly = false,
         context: ScopedSymbol = this
-    ): ISymbolInfo[] {
+    ): Promise<ISymbolInfo[]> {
         const result: ISymbolInfo[] = [];
 
-        const symbols = context.getAllSymbolsSync(t, localOnly);
+        const symbols = await context.getAllSymbols(t, localOnly);
         const filtered = new Set(symbols); // Filter for duplicates.
 
         for (const symbol of filtered) {
@@ -350,12 +350,16 @@ export class ContextSymbolTable extends SymbolTable {
                 while (searchScopes.length > 0) {
                     const scope = searchScopes.shift();
                     children.push(
-                        ...this.symbolsOfType(VariableSymbol, localOnly, scope),
-                        ...this.symbolsOfType(
+                        ...(await this.symbolsOfType(
+                            VariableSymbol,
+                            localOnly,
+                            scope
+                        )),
+                        ...(await this.symbolsOfType(
                             InlineClosureSymbol,
                             localOnly,
                             scope
-                        )
+                        ))
                     );
 
                     searchScopes.push(
@@ -394,20 +398,22 @@ export class ContextSymbolTable extends SymbolTable {
     //     return this.symbolsOfType(t, true, s);
     // }
 
-    public listTopLevelSymbols(localOnly: boolean): ISymbolInfo[] {
+    public async listTopLevelSymbols(
+        localOnly: boolean
+    ): Promise<ISymbolInfo[]> {
         const result: ISymbolInfo[] = [];
 
-        let symbols = this.symbolsOfType(IncludeSymbol, localOnly);
+        let symbols = await this.symbolsOfType(IncludeSymbol, localOnly);
         result.push(...symbols);
-        symbols = this.symbolsOfType(EfunSymbol, localOnly);
+        symbols = await this.symbolsOfType(EfunSymbol, localOnly);
         result.push(...symbols);
-        symbols = this.symbolsOfType(MethodSymbol, localOnly);
+        symbols = await this.symbolsOfType(MethodSymbol, localOnly);
         result.push(...symbols);
-        symbols = this.symbolsOfType(VariableSymbol, localOnly);
+        symbols = await this.symbolsOfType(VariableSymbol, localOnly);
         result.push(...symbols);
-        symbols = this.symbolsOfType(InheritSymbol, localOnly);
+        symbols = await this.symbolsOfType(InheritSymbol, localOnly);
         result.push(...symbols);
-        symbols = this.symbolsOfType(DefineSymbol, localOnly);
+        symbols = await this.symbolsOfType(DefineSymbol, localOnly);
         result.push(...symbols);
 
         // NTBLA: add structs

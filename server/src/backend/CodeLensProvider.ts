@@ -8,9 +8,9 @@ export class CodeLensProvider {
 
     constructor(private backend: LpcFacade) {}
 
-    public provideCodeLenses(document: TextDocument) {
+    public async provideCodeLenses(document: TextDocument) {
         const filename = (this.documentName = document.uri);
-        const symbols = this.backend.listTopLevelSymbols(filename, false);
+        const symbols = await this.backend.listTopLevelSymbols(filename, false);
         const lenses: CodeLens[] = [];
         for (const symbol of symbols) {
             if (!symbol.definition) {

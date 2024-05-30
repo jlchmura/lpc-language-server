@@ -556,12 +556,11 @@ export class LpcFacade {
      * @param fullList If true, includes symbols from all dependencies as well.
      * @returns A list of symbol info entries.
      */
-    public listTopLevelSymbols(
+    public async listTopLevelSymbols(
         fileName: string,
         fullList: boolean
-    ): ISymbolInfo[] {
+    ): Promise<ISymbolInfo[]> {
         const context = this.getContext(fileName);
-
         return context?.listTopLevelSymbols(!fullList);
     }
 
