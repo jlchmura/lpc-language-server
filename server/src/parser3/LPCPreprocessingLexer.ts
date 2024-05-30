@@ -368,7 +368,8 @@ export class LPCPreprocessingLexer extends LPCLexer {
 
         const lt = token as LPCToken;
         const defValToken = directiveTokens.shift()!;
-        let defVal = defValToken?.text.trim();
+        // replace all '\\n' with '\n'
+        let defVal = defValToken?.text.replace(/\\\n/g, "\n").trim();
         let isFn = false;
 
         // scroll through the characters of the string defVal
@@ -418,9 +419,6 @@ export class LPCPreprocessingLexer extends LPCLexer {
                 macroArgs = tempVal;
             }
         }
-
-        // replace all '\\n' with '\n'
-        macroValue = macroValue.replace(/\\\n/g, "\n");
 
         const filename = lt.filename;
         const def: MacroDefinition = {
