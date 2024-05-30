@@ -30,6 +30,7 @@ export class LpcDefinitionProvider {
             // to limit the amount of text we only pass on the smallest range which is possible.
             // Yet we need the correct start position to not break the goto-definition feature.
             if (
+                !!info &&
                 info.definition &&
                 info.kind != SymbolKind.Efun &&
                 (!implementationOnly ||

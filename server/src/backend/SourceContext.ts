@@ -730,7 +730,8 @@ export class SourceContext {
         const terminal = BackendUtils.parseTreeFromPosition(
             this.tree,
             column,
-            row
+            row,
+            this.fileName
         ) as TerminalNode;
 
         if (!terminal || !(terminal instanceof TerminalNode)) {

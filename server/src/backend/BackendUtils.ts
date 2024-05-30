@@ -4,6 +4,7 @@
  */
 
 import { ParseTree, ParserRuleContext, TerminalNode } from "antlr4ng";
+import { LPCToken } from "../parser3/LPCToken";
 
 export class BackendUtils {
     /**
@@ -18,43 +19,51 @@ export class BackendUtils {
     public static parseTreeFromPosition = (
         root: ParseTree,
         column: number,
-        row: number
+        row: number,
+        filename?: string
     ): ParseTree | null => {
         // Does the root node actually contain the position? If not we don't need to look further.
         if (root instanceof TerminalNode) {
             const terminal = root;
-            const token = terminal.symbol;
+            const token = terminal.symbol as LPCToken;
             if (token?.line !== row) {
                 return null;
             }
 
             const tokenStop = token.column + (token.stop - token.start + 1);
-            if (token.column <= column && tokenStop >= column) {
+            if (
+                token.column <= column &&
+                tokenStop >= column &&
+                (!filename || token.filename == filename)
+            ) {
                 return terminal;
             }
 
             return null;
         } else {
             const context = root as ParserRuleContext;
-            if (!context.start || !context.stop) {
+            const start = context.start as LPCToken;
+            const stop = context.stop as LPCToken;
+
+            if (!start || !stop) {
                 // Invalid tree?
                 return null;
             }
 
+            if (filename && start.filename !== filename) {
+                // token is from a different source file
+                return null;
+            }
+
             if (
-                context.start.line > row ||
-                (context.start.line === row && column < context.start.column)
+                start.line > row ||
+                (start.line === row && column < start.column)
             ) {
                 return null;
             }
 
-            const tokenStop =
-                context.stop.column +
-                (context.stop.stop - context.stop.start + 1);
-            if (
-                context.stop.line < row ||
-                (context.stop.line === row && tokenStop < column)
-            ) {
+            const tokenStop = stop.column + (stop.stop - stop.start + 1);
+            if (stop.line < row || (stop.line === row && tokenStop < column)) {
                 return null;
             }
 
@@ -63,7 +72,8 @@ export class BackendUtils {
                     const result = BackendUtils.parseTreeFromPosition(
                         child,
                         column,
-                        row
+                        row,
+                        filename
                     );
                     if (result) {
                         return result;
