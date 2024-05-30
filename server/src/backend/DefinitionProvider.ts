@@ -4,6 +4,8 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { URI } from "vscode-uri";
 import { SymbolKind } from "../types";
 import { lexRangeToLspRange } from "../utils";
+import { ParserRuleContext } from "antlr4ng";
+import { LPCToken } from "../parser3/LPCToken";
 
 export class LpcDefinitionProvider {
     constructor(private backend: LpcFacade) {}
@@ -40,7 +42,12 @@ export class LpcDefinitionProvider {
                 const { range } = info.definition;
                 const lspRange = lexRangeToLspRange(range);
 
-                return LocationLink.create(info.source, lspRange, lspRange);
+                // get the filename from the token
+                const sContext = info.symbol.context as ParserRuleContext;
+                const token = sContext.start as LPCToken;
+                const filename = token.filename;
+
+                return LocationLink.create(filename, lspRange, lspRange);
             } else {
                 // Empty for built-in entities.
                 return null;

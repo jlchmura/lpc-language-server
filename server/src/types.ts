@@ -89,6 +89,7 @@ export interface ISymbolInfo {
     line?: number;
     definition?: IDefinition;
     children?: ISymbolInfo[];
+    filename?: string;
 
     /** Used for code completion. Provides a small description for certain symbols. */
     description?: string;

@@ -144,7 +144,6 @@ export function activate(context: ExtensionContext) {
         provideDefinition(document, position, cancellationToken) {
             const token = document.getWordRangeAtPosition(position);
             const word = document.getText(token);
-            console.log("provideDefinition", word);
             return [];
         },
     };

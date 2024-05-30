@@ -192,7 +192,7 @@ variableDeclarationStatement
     ;
 
 variableDeclaration
-    : variableModifier* unionableTypeSpecifier? objectName=StringLiteral? variableDeclaratorExpression (COMMA variableDeclaratorExpression)* #primitiveTypeVariableDeclaration
+    : variableModifier* unionableTypeSpecifier objectName=StringLiteral? variableDeclaratorExpression (COMMA variableDeclaratorExpression)* #primitiveTypeVariableDeclaration
     | variableModifier* STRUCT structName=Identifier variableDeclaratorExpression (COMMA structName=Identifier? variableDeclaratorExpression)* #structVariableDeclaration
     ;
 

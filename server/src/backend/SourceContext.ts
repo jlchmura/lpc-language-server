@@ -516,8 +516,9 @@ export class SourceContext {
     }
 
     public listTopLevelSymbols(includeDependencies: boolean): ISymbolInfo[] {
-        const symbols =
-            this.symbolTable.listTopLevelSymbols(includeDependencies);
+        const symbols = this.symbolTable
+            .listTopLevelSymbols(includeDependencies)
+            .filter((s) => s.filename == this.fileName);
 
         for (const [macro, def] of this.macroTable.entries()) {
             const { filename, value } = def;
@@ -710,6 +711,8 @@ export class SourceContext {
         } else if (!m) {
             return undefined;
         } else {
+            // NTBLA: why do we need this?
+            if (first > 0 && arr[first].column > column) return arr[first - 1];
             return m;
         }
     }

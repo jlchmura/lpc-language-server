@@ -27,6 +27,7 @@ import {
     walkParents,
 } from "../utils";
 import { InheritSymbol } from "../symbols/inheritSymbol";
+import { LPCToken } from "../parser3/LPCToken";
 
 type HighlightSymbolResult = {
     symbol: BaseSymbol;
@@ -338,6 +339,9 @@ export class ContextSymbolTable extends SymbolTable {
 
         for (const symbol of filtered) {
             const root = symbol.root as ContextSymbolTable;
+            const parserContext = symbol.context as ParserRuleContext;
+            const token = parserContext.start as LPCToken;
+            const filename = token.filename;
 
             let children: ISymbolInfo[] = [];
 
@@ -371,10 +375,11 @@ export class ContextSymbolTable extends SymbolTable {
                 kind: SourceContext.getKindFromSymbol(symbol),
                 name: symbol.name,
                 source: root.owner
-                    ? `${root.owner.fileName}:${definition?.range.start}`
+                    ? `${filename}:${definition?.range.start}`
                     : "Driver efun",
                 definition: definition,
                 description: undefined,
+                filename: filename,
                 children: children,
             });
         }

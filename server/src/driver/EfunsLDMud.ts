@@ -21,7 +21,8 @@ efun("attach_erq_demon", LpcTypes.intType, true, ["ob", LpcTypes.objectType], ["
 efun("bind_lambda", LpcTypes.closureType, true, ["cl", LpcTypes.closureType], ["ob", LpcTypes.objectType]);
 efun("binary_message", LpcTypes.intType, true, ["msg", LpcTypes.mixedType], ["flags", LpcTypes.intType]);
 efun("capitalize", LpcTypes.stringType, false, ["str", LpcTypes.stringType]);
-efun("call_out", LpcTypes.intType, true, ["fun", LpcTypes.stringType], ["delay", LpcTypes.intType], ["args", LpcTypes.mixedArrayType, true]);
+efun("call_direct", LpcTypes.mixedType, true, ["ob", LpcTypes.objectType], ["fun", LpcTypes.stringType], ["args...", LpcTypes.mixedType, true]);
+efun("call_out", LpcTypes.intType, true, ["fun", LpcTypes.stringType], ["delay", LpcTypes.intType], ["args...", LpcTypes.mixedArrayType, true]);
 efun("call_other", LpcTypes.mixedType, true, ["ob", LpcTypes.objectType], ["fun", LpcTypes.stringType], ["args...", LpcTypes.mixedType, true]);
 efun("call_out", LpcTypes.intType, true, ["fun", LpcTypes.stringType], ["delay", LpcTypes.intType], ["args...", LpcTypes.mixedType, true]);
 efun("caller_stack", LpcTypes.objectArrayType, true, ["add_interactive", LpcTypes.intType]);
