@@ -727,12 +727,16 @@ export class SourceContext {
         }
 
         const token = this.findTokenAtPosition(column, row);
-        const terminal = BackendUtils.parseTreeFromPosition(
+        const terminal = BackendUtils.parseTreeFromTokenIndex(
             this.tree,
-            column,
-            row,
-            this.fileName
+            token.tokenIndex
         ) as TerminalNode;
+        // const terminal = BackendUtils.parseTreeFromPosition(
+        //     this.tree,
+        //     column,
+        //     row,
+        //     this.fileName
+        // ) as TerminalNode;
 
         if (!terminal || !(terminal instanceof TerminalNode)) {
             return undefined;

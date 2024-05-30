@@ -7,6 +7,33 @@ import { ParseTree, ParserRuleContext, TerminalNode } from "antlr4ng";
 import { LPCToken } from "../parser3/LPCToken";
 
 export class BackendUtils {
+    public static parseTreeFromTokenIndex(root: ParseTree, tokenIndex: number) {
+        const search: ParseTree[] = [root];
+
+        while (search.length > 0) {
+            const current = search.pop();
+            if (current instanceof TerminalNode) {
+                if (current.getSymbol().tokenIndex === tokenIndex) {
+                    return current;
+                }
+            } else {
+                const context = current as ParserRuleContext;
+                if (
+                    context.start &&
+                    context.start.tokenIndex <= tokenIndex &&
+                    context.stop &&
+                    context.stop.tokenIndex >= tokenIndex
+                ) {
+                    if (context.children) {
+                        search.push(...context.children);
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
     /**
      * Get the lowest level parse tree, which covers the given position.
      *

@@ -143,6 +143,7 @@ efun("regreplace", LpcTypes.stringType, false, ["txt", LpcTypes.stringType], ["p
 efun("remove_action", LpcTypes.intType, true, ["verb", LpcTypes.intType], ["ob", LpcTypes.objectType]);
 efun("remove_call_out", LpcTypes.intType, true, ["fun", LpcTypes.stringType]);
 efun("remove_interactive", LpcTypes.voidType, false, ["ob", LpcTypes.objectType]);
+efun("replace_program", LpcTypes.voidType, true, ["program", LpcTypes.stringType]);
 efun("restore_object", LpcTypes.intType, false, ["name", LpcTypes.stringType]);
 efun("rename", LpcTypes.intType, false, ["from", LpcTypes.stringType], ["to", LpcTypes.stringType]);
 efun("rm", LpcTypes.intType, false, ["file", LpcTypes.stringType]);
