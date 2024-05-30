@@ -32,14 +32,14 @@ export class DiagnosticProvider {
      * Processes diangostics for the given document and sends back to the language client.
      * @param document
      */
-    public processDiagnostic(
+    public async processDiagnostic(
         uri: string,
         version: number,
         force = false
-    ): DocDiagnostics[] {
-        const entries = this.facade
-            .getDiagnostics(uri, force)
-            .filter((d) => !d.filename || d.filename === uri);
+    ): Promise<DocDiagnostics[]> {
+        const entries = (await this.facade.getDiagnostics(uri, force)).filter(
+            (d) => !d.filename || d.filename === uri
+        );
         const results: DocDiagnostics[] = [];
 
         // if diag for the doc is undefined, that means diags failed
@@ -73,7 +73,7 @@ export class DiagnosticProvider {
                 deps.push(...moreDeps);
             }
 
-            const depDiagEntries = this.facade.getDiagnostics(dep);
+            const depDiagEntries = await this.facade.getDiagnostics(dep);
             const depUri = URI.file(dep).toString();
             if (!!depDiagEntries) {
                 results.push({

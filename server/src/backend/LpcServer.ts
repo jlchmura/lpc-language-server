@@ -89,9 +89,9 @@ export class LpcServer {
                 console.debug("LPC Config reloaded");
 
                 // re-send diagnostics for all open files
-                setTimeout(() => {
-                    this.documents.all().forEach((doc) => {
-                        this.processDiagnostic(doc.uri, doc.version);
+                setTimeout(async () => {
+                    this.documents.all().forEach(async (doc) => {
+                        await this.processDiagnostic(doc.uri, doc.version);
                     });
                 }, 10);
             }
@@ -152,7 +152,7 @@ export class LpcServer {
             // force doc to update so that code completion can use the latest token positions
             // this is needed for situations where code completion is triggered automatically
             // (like a call_other arrow `->`)
-            this.flushChangeTimer(doc);
+            await this.flushChangeTimer(doc);
 
             const result = this.completionProvider.provideCompletionItems(
                 doc,
@@ -188,10 +188,10 @@ export class LpcServer {
         });
 
         // Signature Help Provider
-        this.connection.onSignatureHelp((params) => {
+        this.connection.onSignatureHelp(async (params) => {
             const doc = this.documents.get(params.textDocument.uri);
             try {
-                this.flushChangeTimer(doc);
+                await this.flushChangeTimer(doc);
                 return this.signatureHelpProvider.getSignatureHelp(
                     doc,
                     params.position
@@ -225,7 +225,9 @@ export class LpcServer {
             try {
                 this.facade.loadLpc(e.document.uri, e.document.getText());
                 this.lastSeenVersion.set(e.document.uri, e.document.version);
-                this.processDiagnostic(e.document.uri, e.document.version);
+                setTimeout(async () => {
+                    this.processDiagnostic(e.document.uri, e.document.version);
+                }, 1);
             } catch (e) {
                 console.error("Error in doc open:\n", e);
             }
@@ -261,8 +263,8 @@ export class LpcServer {
 
                 this.changeTimers.set(
                     filename,
-                    setTimeout(() => {
-                        this.processDocChange(e.document);
+                    setTimeout(async () => {
+                        await this.processDocChange(e.document);
                     }, CHANGE_DEBOUNCE_MS)
                 );
             } catch (e) {
@@ -283,11 +285,11 @@ export class LpcServer {
             "textDocument/semanticTokens/full",
             async (params) => {
                 const doc = this.documents.get(params.textDocument.uri);
-                const p = new Promise((resolve, reject) => {
+                const p = new Promise(async (resolve, reject) => {
                     try {
                         performance.mark("semantic-token-request-start");
 
-                        this.flushChangeTimer(doc);
+                        await this.flushChangeTimer(doc);
                         const result = this.facade.getSemanticTokens(doc?.uri);
 
                         performance.mark("semantic-token-request-end");
@@ -332,7 +334,7 @@ export class LpcServer {
      * Checks if a file has a pending doc change and if so, forces the reparse ahead of schedule.
      * @param filename
      */
-    private flushChangeTimer(document: TextDocument) {
+    private async flushChangeTimer(document: TextDocument) {
         if (!document) {
             console.warn("null doc passed to change timer flush");
             return;
@@ -343,17 +345,17 @@ export class LpcServer {
         if (timer) {
             console.debug(`Flushing change timer for ${filename}`);
             clearTimeout(timer);
-            this.processDocChange(document);
+            await this.processDocChange(document);
         }
     }
 
-    private processDocChange(document: TextDocument) {
+    private async processDocChange(document: TextDocument) {
         const filename = document.uri;
         this.changeTimers.delete(filename);
         //this.codeLenseProvider.resolveCodeLens;
         this.facade.reparse(filename);
 
-        this.processDiagnostic(document.uri, document.version);
+        await this.processDiagnostic(document.uri, document.version);
 
         //force refresh codelense
         //this.registerCodelensProvider();
@@ -462,8 +464,12 @@ export class LpcServer {
     //     });
     // }
 
-    public processDiagnostic(uri: string, version: number, force = false) {
-        const result = this.diagnosticProvider.processDiagnostic(
+    public async processDiagnostic(
+        uri: string,
+        version: number,
+        force = false
+    ) {
+        const result = await this.diagnosticProvider.processDiagnostic(
             uri,
             version,
             force

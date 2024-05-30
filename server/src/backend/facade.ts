@@ -527,11 +527,14 @@ export class LpcFacade {
         return contextEntry?.context;
     }
 
-    public getDiagnostics(fileName: string, force = false): IDiagnosticEntry[] {
+    public async getDiagnostics(
+        fileName: string,
+        force = false
+    ): Promise<IDiagnosticEntry[]> {
         const context = this.getContext(fileName);
 
         if (!!context) {
-            return context.getDiagnostics(force);
+            return await context.getDiagnostics(force);
         }
 
         return undefined;

@@ -507,14 +507,18 @@ export class SourceContext {
         }
     }
 
-    public getDiagnostics(force = false): IDiagnosticEntry[] {
-        if (force) this.semanticAnalysisDone = false;
-        this.runSemanticAnalysisIfNeeded();
+    public async getDiagnostics(force = false): Promise<IDiagnosticEntry[]> {
+        const p = new Promise<IDiagnosticEntry[]>((resolve, reject) => {
+            if (force) this.semanticAnalysisDone = false;
+            this.runSemanticAnalysisIfNeeded();
 
-        return this.diagnostics.map((d) => {
-            d.filename = URI.parse(d.filename).toString();
-            return d;
+            const diags = this.diagnostics.map((d) => {
+                d.filename = URI.parse(d.filename).toString();
+                return d;
+            });
+            resolve(diags);
         });
+        return p;
     }
 
     public async listTopLevelSymbols(
