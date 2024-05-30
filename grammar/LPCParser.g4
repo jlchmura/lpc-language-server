@@ -201,7 +201,7 @@ variableDeclaratorExpression
     ;
 
 variableDeclarator
-    : arraySpecifier=(STAR|ARRAY)? variableName=validIdentifiers
+    : arraySpecifier=STAR? variableName=validIdentifiers
     ;
 
 variableInitializer
@@ -231,7 +231,7 @@ methodInvocation
     ;
 
 structTypeSpecifier
-    : STRUCT Identifier (STAR|ARRAY)?
+    : STRUCT Identifier STAR?
     ;
 
 typeSpecifier
@@ -239,8 +239,8 @@ typeSpecifier
     ;
 
 unionableTypeSpecifier
-    : primitiveTypeSpecifier (STAR|ARRAY)? (OR unionableTypeSpecifier)*
-    | LT typeSpecifier GT (STAR|ARRAY)* (OR unionableTypeSpecifier)*    
+    : primitiveTypeSpecifier STAR? (OR unionableTypeSpecifier)*
+    | LT typeSpecifier GT STAR* (OR unionableTypeSpecifier)*    
     | structTypeSpecifier (OR unionableTypeSpecifier)*
     ;
 
@@ -391,8 +391,7 @@ primaryExpressionStart
 
 // list of keywords that are not reserved keywords and thus can be used as identifiers
 validIdentifiers
-    : Identifier        
-    | ARRAY
+    : Identifier            
     | BYTES
     | FUNCTIONS
     | VARIABLES

@@ -8,7 +8,7 @@
             "name": "Launch Client",
             "runtimeExecutable": "${execPath}",
             "args": [
-                "${workspaceRoot}/../infinity-lib",
+                "${workspaceRoot}/../StickLib",
                 // "${workspaceRoot}/../lpc-test",
                 // "${workspaceRoot}/../lpc-test/test.c",
                 "--extensionDevelopmentPath=${workspaceRoot}"
