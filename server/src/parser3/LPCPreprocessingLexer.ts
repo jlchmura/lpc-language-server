@@ -221,8 +221,9 @@ export class LPCPreprocessingLexer extends LPCLexer {
                         }
                         break;
                     default:
-                        if (macro.parenCount > 0)
+                        if (macro.parenCount > 0) {
                             fnParams[macro.paramIndex].push(token);
+                        }
                 }
             } else {
                 // not fn, this macro is done
@@ -394,9 +395,14 @@ export class LPCPreprocessingLexer extends LPCLexer {
                 if (defVal.charAt(j) == ")") parenCount--;
             }
             const tempVal = defVal.substring(1, j - 1);
-            defVal = defVal.substring(j).trim();
+            defVal = defVal.substring(j);
+
+            // for this to be a macro, there must be a space and then something else after it
+            const hasSpace = isWS(defVal.charCodeAt(0));
+            defVal = defVal.trim();
 
             if (
+                hasSpace &&
                 defVal.length > 0 &&
                 !defVal.startsWith("//") &&
                 !defVal.startsWith("/*")

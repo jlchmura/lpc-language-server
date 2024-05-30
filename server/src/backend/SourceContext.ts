@@ -875,7 +875,7 @@ export class SourceContext {
                     );
                 } else if (symbol instanceof MethodSymbol) {
                     // look for the method implementation
-                    symbol ??= resolveOfTypeSync(
+                    symbol = resolveOfTypeSync(
                         this.symbolTable,
                         name,
                         MethodDeclarationSymbol

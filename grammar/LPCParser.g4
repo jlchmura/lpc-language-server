@@ -454,6 +454,7 @@ statement
     | variableDeclarationStatement    
     | includePreprocessorDirective // this is really handled by the preprocessor, but including here for convenience in symbol nav    
     | commaableExpression SEMI        
+    | definePreprocessorDirective // this is really handled by the preprocessor, but including here for convenience in symbol nav    
     //| preprocessorDirective
     ;
 

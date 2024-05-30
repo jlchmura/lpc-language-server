@@ -147,8 +147,19 @@ export class LpcFacade {
 
         if (filenameNormed.includes("/")) searchPaths.push(this.workspaceDir);
 
-        for (const p of searchPaths) {
-            const depPath = path.join(p, filenameNormed);
+        const filesToCheck = searchPaths
+            .map((p) => path.join(p, filenameNormed))
+            .concat(
+                ...searchPaths.map((p) => {
+                    // remove extension from filename as a fallback
+                    const parsedFn = path.parse(filenameNormed);
+                    parsedFn.ext = "";
+                    parsedFn.base = parsedFn.name;
+                    return path.join(p, path.format(parsedFn));
+                })
+            );
+
+        for (const depPath of filesToCheck) {
             if (fs.existsSync(depPath)) {
                 const relPath = "/" + path.relative(this.workspaceDir, depPath);
                 return {

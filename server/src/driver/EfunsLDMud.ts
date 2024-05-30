@@ -71,6 +71,7 @@ efun("get_dir", LpcTypes.mixedArrayType, true, ["path", LpcTypes.stringType], ["
 efun("get_eval_cost", LpcTypes.intType, false);
 efun("get_error_file", LpcTypes.mixedType, true, ["name", LpcTypes.stringType], ["set_forget_flag", LpcTypes.intType]);
 efun("get_extra_wizinfo", LpcTypes.mixedType, false, ["wiz", LpcTypes.objectType]);
+efun("get_type_info", LpcTypes.mixedType, true, ["arg", LpcTypes.mixedType], ["flag", LpcTypes.intType]);
 efun("geteuid", LpcTypes.stringType, true, ["ob", LpcTypes.objectType]);
 efun("getuid", LpcTypes.stringType, true, ["ob", LpcTypes.objectType]);
 efun("hash", LpcTypes.intType, true, ["method", LpcTypes.intArrayType], ["arg", LpcTypes.stringType],["iterations", LpcTypes.intType]);
