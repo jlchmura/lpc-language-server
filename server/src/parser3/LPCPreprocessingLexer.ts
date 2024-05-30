@@ -4,6 +4,8 @@ import { LPCTokenFactor } from "./LPCTokenFactory";
 import { MacroDefinition } from "../types";
 import { LPCToken } from "./LPCToken";
 import { IFileHandler } from "../backend/types";
+import { ContextLexerErrorListener } from "../backend/ContextLexerErrorListener";
+import { ConsoleErrorListener } from "../ConsoleErrorListener";
 
 const DISABLED_CHANNEL_NAME = "DISABLED_CHANNEL";
 const DIRECTIVE_CHANNEL_NAME = "DIRECTIVE_CHANNEL";

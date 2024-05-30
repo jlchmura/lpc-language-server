@@ -6,6 +6,7 @@ import { SymbolKind } from "../types";
 import { lexRangeToLspRange } from "../utils";
 import { ParserRuleContext } from "antlr4ng";
 import { LPCToken } from "../parser3/LPCToken";
+import { IncludeSymbol } from "../symbols/includeSymbol";
 
 export class LpcDefinitionProvider {
     constructor(private backend: LpcFacade) {}
@@ -46,7 +47,13 @@ export class LpcDefinitionProvider {
                 // get the filename from the token
                 const sContext = info.symbol.context as ParserRuleContext;
                 const token = sContext.start as LPCToken;
-                const filename = token.filename;
+                const filename =
+                    info.symbol instanceof IncludeSymbol
+                        ? this.backend.resolveFilename(
+                              info.symbol.filename,
+                              document.uri
+                          ).fullPath
+                        : token.filename;
 
                 return LocationLink.create(filename, lspRange, lspRange);
             } else {

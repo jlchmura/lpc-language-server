@@ -30,12 +30,11 @@ export class ContextLexerErrorListener extends BaseErrorListener {
         _e: RecognitionException | null
     ): void {
         const lt = _offendingSymbol as unknown as LPCToken;
-        const { filename } = lt;
+        const filename: string = lt?.filename;
         const error: IDiagnosticEntry = {
             filename,
             type: DiagnosticSeverity.Error,
             message: msg,
-
             range: {
                 start: {
                     column,

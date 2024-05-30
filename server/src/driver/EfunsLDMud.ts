@@ -196,6 +196,7 @@ efun("tls_query_connection_info", LpcTypes.intArrayType, false, ["ob", LpcTypes.
 efun("tls_query_connection_state", LpcTypes.intType, false, ["ob", LpcTypes.objectType]);
 efun("to_int", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("to_float", LpcTypes.floatType, false, ["arg", LpcTypes.intType]);
+efun("to_object", LpcTypes.objectType, false, ["arg", LpcTypes.stringType]);
 efun("transfer", LpcTypes.intType, true, ["item", LpcTypes.objectType], ["dest", LpcTypes.objectType]);
 efun("transpose_array", LpcTypes.mixedArrayType, false, ["arr", LpcTypes.mixedArrayType]);
 efun("trim", LpcTypes.stringType, true, ["s", LpcTypes.stringType], ["where", LpcTypes.intType], ["ch", LpcTypes.stringType]);
