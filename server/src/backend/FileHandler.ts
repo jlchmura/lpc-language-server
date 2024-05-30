@@ -35,10 +35,15 @@ export class LpcFileHandler implements IFileHandler {
             filename,
             sourceFilename
         );
-        const source = !!importInfo.fullPath
-            ? fs.readFileSync(importInfo.fullPath, "utf-8")
-            : "";
-        return { uri: importInfo.fullPath, source };
+        try {
+            const source = !!importInfo.fullPath
+                ? fs.readFileSync(importInfo.fullPath, "utf-8")
+                : "";
+
+            return { uri: importInfo.fullPath, source };
+        } catch (e) {
+            return { uri: importInfo.fullPath, source: undefined };
+        }
     }
 
     public getDependencies(filename: string) {

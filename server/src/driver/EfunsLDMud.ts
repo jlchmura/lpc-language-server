@@ -13,7 +13,7 @@ type efunArg = [name: string, type: IType, allowMulti?: boolean];
 
 efun("abs", LpcTypes.intType, false, ["number", LpcTypes.intType]);
 efun("all_environment", LpcTypes.objectArrayType, true, ["ob", LpcTypes.objectType]);
-efun("all_inventory", LpcTypes.objectArrayType, false, ["ob", LpcTypes.objectType]);
+efun("all_inventory", LpcTypes.objectArrayType, true, ["ob", LpcTypes.objectType]);
 efun("allocate", LpcTypes.mixedArrayType, true, ["sizes", LpcTypes.intArrayType], ["init_value", LpcTypes.mixedType]);
 efun("add_action", LpcTypes.voidType, true, ["fun", FundamentalType.stringType], ["cmd", FundamentalType.stringType], ["flag", FundamentalType.integerType]);
 efun("apply", LpcTypes.mixedType, true, ["cl", LpcTypes.closureType], ["args", LpcTypes.mixedArrayType, true]);

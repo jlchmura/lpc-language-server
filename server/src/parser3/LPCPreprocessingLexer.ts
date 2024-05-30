@@ -332,13 +332,14 @@ export class LPCPreprocessingLexer extends LPCLexer {
         );
 
         if (!includeFile?.source) {
+            // TODO: add diagnostic
             console.warn("Could not load include file ", includeFilename);
         }
 
         // lex the the include file
         const includeTokens = this.lexMacro(
             includeFile.uri,
-            includeFile.source + "\n" // add a newline just to be safe
+            (includeFile.source ?? "") + "\n" // add a newline just to be safe
         );
 
         // push via emit to ensure that the tokens are processed by the preprocessor
@@ -724,6 +725,10 @@ export class LPCPreprocessingLexer extends LPCLexer {
             };
             this.macroTable.set(name, def);
         }
+    }
+
+    public getMacros() {
+        return this.macroTable;
     }
 }
 

@@ -586,6 +586,7 @@ export class LpcFacade {
         limitToChildren = true
     ): ISymbolInfo[] | undefined {
         const context = this.getContext(fileName);
+        if (context.needsCompile) context.parse();
 
         return context?.symbolAtPosition(column, row, limitToChildren);
     }
