@@ -213,6 +213,8 @@ efun("tls_refresh_certs", LpcTypes.voidType, false);
 efun("to_int", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("to_float", LpcTypes.floatType, false, ["arg", LpcTypes.intType]);
 efun("to_object", LpcTypes.objectType, false, ["arg", LpcTypes.stringType]);
+efun("trace", LpcTypes.intType, true, ["traceflags", LpcTypes.intType]);
+efun("traceprefix", LpcTypes.stringType, true, ["prefix", LpcTypes.stringType]);
 efun("transfer", LpcTypes.intType, true, ["item", LpcTypes.objectType], ["dest", LpcTypes.objectType]);
 efun("transpose_array", LpcTypes.mixedArrayType, false, ["arr", LpcTypes.mixedArrayType]);
 efun("trim", LpcTypes.stringType, true, ["s", LpcTypes.stringType], ["where", LpcTypes.intType], ["ch", LpcTypes.stringType]);

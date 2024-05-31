@@ -975,7 +975,7 @@ export class SourceContext {
                         },
                     ];
                 } else {
-                    symbol = searchScope.resolveSync(name, false);
+                    symbol = searchScope?.resolveSync(name, false);
                 }
 
                 break;
