@@ -24,6 +24,7 @@ import { DiagnosticCodes, FUNCTION_NAME_KEY } from "../types";
 export enum ArrowType {
     CallOther,
     StructMember,
+    Unknown,
 }
 
 /**
@@ -53,6 +54,7 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
 
     constructor(name: string, private fileHandler: LpcFileHandler) {
         super(name);
+        this.ArrowType = ArrowType.Unknown;
     }
 
     eval(stack: CallStack, scope?: any) {
@@ -60,7 +62,10 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
         this.hasEvaluated = true;
         // only evaluate as a struct if the source object is
         // specifically known to be a struct
-        if (srcValue?.type?.name == "struct") {
+        if (
+            this.ArrowType == ArrowType.StructMember ||
+            srcValue?.type?.name == "struct"
+        ) {
             this.ArrowType = ArrowType.StructMember;
             return this.evalStruct(stack, scope, srcValue);
         } else {
@@ -86,7 +91,7 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
             });
         }
 
-        // NTBLA: Eval struct member access here
+        this.target.eval(stack);
 
         return scope;
     }

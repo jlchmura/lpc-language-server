@@ -8,8 +8,8 @@ import {
     InheritStatementContext,
     MethodInvocationContext,
     PrimaryExpressionContext,
-    PrimitiveTypeVariableDeclarationContext,
     ProgramContext,
+    VariableDeclarationContext,
 } from "../parser3/LPCParser";
 import { ScopedSymbol, MethodSymbol as BaseMethodSymbol } from "antlr4-c3";
 import {
@@ -177,9 +177,7 @@ export class SemanticListener extends LPCParserListener {
         }
     };
 
-    exitPrimitiveTypeVariableDeclaration = (
-        ctx: PrimitiveTypeVariableDeclarationContext
-    ) => {
+    exitVariableDeclaration = (ctx: VariableDeclarationContext) => {
         const objName = ctx._objectName;
 
         if (!!objName?.text) {

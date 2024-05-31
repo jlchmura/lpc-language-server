@@ -199,6 +199,7 @@ efun("this_player", LpcTypes.objectType, false);
 efun("time", LpcTypes.intType, false);
 efun("to_bytes", LpcTypes.bytesType, true, ["unicode", LpcTypes.stringType], ["encoding", LpcTypes.stringType]);
 efun("to_string", LpcTypes.stringType, false, ["arg", LpcTypes.mixedType]);
+efun("to_struct", LpcTypes.mappingType, true, ["data", LpcTypes.mixedType], ["template", LpcTypes.mappingType]);
 efun("to_text", LpcTypes.stringType, true, ["bytesequence", LpcTypes.bytesType], ["encoding", LpcTypes.stringType]);
 efun("tls_available", LpcTypes.intType, false);
 efun("tls_error", LpcTypes.stringType, false, ["errorno", LpcTypes.intType]);

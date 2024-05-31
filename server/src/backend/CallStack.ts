@@ -128,7 +128,7 @@ export class CallStack {
         // if (name == "call_other" && !(value.symbol instanceof EfunSymbol)) {
         //     const i = 0;
         // }
-        this.peek().addValue(name, value);
+        return this.peek().addValue(name, value);
     }
 
     /**
@@ -222,6 +222,7 @@ export class StackFrame {
     public addValue(name: string, value: StackValue) {
         this.lookupCache.delete(name);
         this.locals.set(name, value);
+        return value;
     }
 
     /**

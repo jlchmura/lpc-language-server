@@ -16,9 +16,8 @@ import { LPCLexer } from "../parser3/LPCLexer";
 import {
     FunctionDeclarationContext,
     LPCParser,
-    PrimitiveTypeVariableDeclarationContext,
     ProgramContext,
-    StructVariableDeclarationContext,
+    StructDeclarationContext,
     VariableDeclarationContext,
     VariableDeclaratorContext,
     VariableDeclaratorExpressionContext,
@@ -607,10 +606,7 @@ export class SourceContext {
                     VariableDeclaratorExpressionContext
                 );
                 rangeCtx = declExpCtx ?? parentDeclCtx ?? ctx; // for variables, use the entire declaration for its range
-                if (
-                    parentDeclCtx instanceof
-                    PrimitiveTypeVariableDeclarationContext
-                ) {
+                if (parentDeclCtx instanceof VariableDeclarationContext) {
                     // NTBLA: handle unions
 
                     type = parentDeclCtx
@@ -622,15 +618,14 @@ export class SourceContext {
                         ?.map((m) => m.getText())
                         .join(" ");
                     if (!!ctx.STAR() && !!type) type += " *";
-                } else if (
-                    parentDeclCtx instanceof StructVariableDeclarationContext
-                ) {
-                    type = "struct";
-                    mods = parentDeclCtx
-                        .variableModifier()
-                        ?.map((m) => m.getText())
-                        .join(" ");
                 }
+                // else if (parentDeclCtx instanceof StructDeclarationContext) {
+                //     type = "struct";
+                //     mods = parentDeclCtx
+                //         .variableModifier()
+                //         ?.map((m) => m.getText())
+                //         .join(" ");
+                // }
 
                 result.text = [mods, type, name]
                     .filter((s) => s?.length > 0)

@@ -15,13 +15,11 @@ import {
 import { IDefinition, ILexicalRange, SymbolKind } from "../types";
 import { IdentifierSymbol, addDiagnostic } from "./Symbol";
 import { rangeFromTokens } from "../utils";
-
 import { CallStack, StackValue } from "../backend/CallStack";
 import { Token } from "antlr4ng";
-
 import { DiagnosticSeverity } from "vscode-languageserver";
-import { InlineClosureSymbol } from "./closureSymbol";
 import { LPCToken } from "../parser3/LPCToken";
+import { InlineClosureSymbol } from "./methodSymbol";
 
 export class VariableSymbol
     extends TypedSymbol

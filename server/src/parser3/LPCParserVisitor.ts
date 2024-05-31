@@ -34,13 +34,12 @@ import { FunctionDeclarationContext } from "./LPCParser.js";
 import { ParameterListContext } from "./LPCParser.js";
 import { PrimitiveTypeParameterExpressionContext } from "./LPCParser.js";
 import { StructParameterExpressionContext } from "./LPCParser.js";
-import { StructDeclarationContext } from "./LPCParser.js";
 import { StructMemberDeclarationContext } from "./LPCParser.js";
 import { StructMemberInitializerContext } from "./LPCParser.js";
 import { VariableModifierContext } from "./LPCParser.js";
+import { StructDeclarationContext } from "./LPCParser.js";
 import { VariableDeclarationStatementContext } from "./LPCParser.js";
-import { PrimitiveTypeVariableDeclarationContext } from "./LPCParser.js";
-import { StructVariableDeclarationContext } from "./LPCParser.js";
+import { VariableDeclarationContext } from "./LPCParser.js";
 import { VariableDeclaratorExpressionContext } from "./LPCParser.js";
 import { VariableDeclaratorContext } from "./LPCParser.js";
 import { VariableInitializerContext } from "./LPCParser.js";
@@ -317,12 +316,6 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      */
     visitStructParameterExpression?: (ctx: StructParameterExpressionContext) => Result;
     /**
-     * Visit a parse tree produced by `LPCParser.structDeclaration`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitStructDeclaration?: (ctx: StructDeclarationContext) => Result;
-    /**
      * Visit a parse tree produced by `LPCParser.structMemberDeclaration`.
      * @param ctx the parse tree
      * @return the visitor result
@@ -341,25 +334,23 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      */
     visitVariableModifier?: (ctx: VariableModifierContext) => Result;
     /**
+     * Visit a parse tree produced by `LPCParser.structDeclaration`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitStructDeclaration?: (ctx: StructDeclarationContext) => Result;
+    /**
      * Visit a parse tree produced by `LPCParser.variableDeclarationStatement`.
      * @param ctx the parse tree
      * @return the visitor result
      */
     visitVariableDeclarationStatement?: (ctx: VariableDeclarationStatementContext) => Result;
     /**
-     * Visit a parse tree produced by the `primitiveTypeVariableDeclaration`
-     * labeled alternative in `LPCParser.variableDeclaration`.
+     * Visit a parse tree produced by `LPCParser.variableDeclaration`.
      * @param ctx the parse tree
      * @return the visitor result
      */
-    visitPrimitiveTypeVariableDeclaration?: (ctx: PrimitiveTypeVariableDeclarationContext) => Result;
-    /**
-     * Visit a parse tree produced by the `structVariableDeclaration`
-     * labeled alternative in `LPCParser.variableDeclaration`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitStructVariableDeclaration?: (ctx: StructVariableDeclarationContext) => Result;
+    visitVariableDeclaration?: (ctx: VariableDeclarationContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.variableDeclaratorExpression`.
      * @param ctx the parse tree

@@ -95,6 +95,14 @@ export interface ISymbolInfo {
     description?: string;
 }
 
+export class StructType extends FundamentalType {
+    static readonly UnknownStruct = new StructType("unknown");
+
+    constructor(public structName: string) {
+        super("struct", TypeKind.Class);
+    }
+}
+
 // prettier-ignore
 export namespace LpcTypes {    
     export const bytesType: IType = new FundamentalType("bytes", TypeKind.String);
@@ -112,7 +120,7 @@ export namespace LpcTypes {
     export const mixedType: IType = new FundamentalType("mixed", TypeKind.Unknown);
     export const mixedArrayType: IType = new ArrayType("mixed *", ReferenceKind.Instance, LpcTypes.mixedType);
     export const functionType: IType = new FundamentalType("function", TypeKind.Unknown);
-    export const structType: IType = new FundamentalType("struct", TypeKind.Class);
+    export const structType: IType = StructType.UnknownStruct;
     export const unknownType: IType = new FundamentalType("unknown", TypeKind.Unknown);
 }
 

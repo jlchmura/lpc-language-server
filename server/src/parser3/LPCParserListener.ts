@@ -34,13 +34,12 @@ import { FunctionDeclarationContext } from "./LPCParser.js";
 import { ParameterListContext } from "./LPCParser.js";
 import { PrimitiveTypeParameterExpressionContext } from "./LPCParser.js";
 import { StructParameterExpressionContext } from "./LPCParser.js";
-import { StructDeclarationContext } from "./LPCParser.js";
 import { StructMemberDeclarationContext } from "./LPCParser.js";
 import { StructMemberInitializerContext } from "./LPCParser.js";
 import { VariableModifierContext } from "./LPCParser.js";
+import { StructDeclarationContext } from "./LPCParser.js";
 import { VariableDeclarationStatementContext } from "./LPCParser.js";
-import { PrimitiveTypeVariableDeclarationContext } from "./LPCParser.js";
-import { StructVariableDeclarationContext } from "./LPCParser.js";
+import { VariableDeclarationContext } from "./LPCParser.js";
 import { VariableDeclaratorExpressionContext } from "./LPCParser.js";
 import { VariableDeclaratorContext } from "./LPCParser.js";
 import { VariableInitializerContext } from "./LPCParser.js";
@@ -440,16 +439,6 @@ export class LPCParserListener implements ParseTreeListener {
      */
     exitStructParameterExpression?: (ctx: StructParameterExpressionContext) => void;
     /**
-     * Enter a parse tree produced by `LPCParser.structDeclaration`.
-     * @param ctx the parse tree
-     */
-    enterStructDeclaration?: (ctx: StructDeclarationContext) => void;
-    /**
-     * Exit a parse tree produced by `LPCParser.structDeclaration`.
-     * @param ctx the parse tree
-     */
-    exitStructDeclaration?: (ctx: StructDeclarationContext) => void;
-    /**
      * Enter a parse tree produced by `LPCParser.structMemberDeclaration`.
      * @param ctx the parse tree
      */
@@ -480,6 +469,16 @@ export class LPCParserListener implements ParseTreeListener {
      */
     exitVariableModifier?: (ctx: VariableModifierContext) => void;
     /**
+     * Enter a parse tree produced by `LPCParser.structDeclaration`.
+     * @param ctx the parse tree
+     */
+    enterStructDeclaration?: (ctx: StructDeclarationContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.structDeclaration`.
+     * @param ctx the parse tree
+     */
+    exitStructDeclaration?: (ctx: StructDeclarationContext) => void;
+    /**
      * Enter a parse tree produced by `LPCParser.variableDeclarationStatement`.
      * @param ctx the parse tree
      */
@@ -490,29 +489,15 @@ export class LPCParserListener implements ParseTreeListener {
      */
     exitVariableDeclarationStatement?: (ctx: VariableDeclarationStatementContext) => void;
     /**
-     * Enter a parse tree produced by the `primitiveTypeVariableDeclaration`
-     * labeled alternative in `LPCParser.variableDeclaration`.
+     * Enter a parse tree produced by `LPCParser.variableDeclaration`.
      * @param ctx the parse tree
      */
-    enterPrimitiveTypeVariableDeclaration?: (ctx: PrimitiveTypeVariableDeclarationContext) => void;
+    enterVariableDeclaration?: (ctx: VariableDeclarationContext) => void;
     /**
-     * Exit a parse tree produced by the `primitiveTypeVariableDeclaration`
-     * labeled alternative in `LPCParser.variableDeclaration`.
+     * Exit a parse tree produced by `LPCParser.variableDeclaration`.
      * @param ctx the parse tree
      */
-    exitPrimitiveTypeVariableDeclaration?: (ctx: PrimitiveTypeVariableDeclarationContext) => void;
-    /**
-     * Enter a parse tree produced by the `structVariableDeclaration`
-     * labeled alternative in `LPCParser.variableDeclaration`.
-     * @param ctx the parse tree
-     */
-    enterStructVariableDeclaration?: (ctx: StructVariableDeclarationContext) => void;
-    /**
-     * Exit a parse tree produced by the `structVariableDeclaration`
-     * labeled alternative in `LPCParser.variableDeclaration`.
-     * @param ctx the parse tree
-     */
-    exitStructVariableDeclaration?: (ctx: StructVariableDeclarationContext) => void;
+    exitVariableDeclaration?: (ctx: VariableDeclarationContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.variableDeclaratorExpression`.
      * @param ctx the parse tree

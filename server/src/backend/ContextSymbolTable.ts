@@ -15,11 +15,11 @@ import { DefineSymbol } from "../symbols/defineSymbol";
 import { VariableSymbol } from "../symbols/variableSymbol";
 import {
     EfunSymbol,
+    InlineClosureSymbol,
     MethodDeclarationSymbol,
     MethodParameterSymbol,
     MethodSymbol,
 } from "../symbols/methodSymbol";
-import { InlineClosureSymbol } from "../symbols/closureSymbol";
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import {
     resolveOfTypeSync,

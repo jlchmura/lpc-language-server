@@ -163,12 +163,8 @@ parameter
     | paramType=STRUCT structName=Identifier STAR? paramName=validIdentifiers #structParameterExpression
     ;
 
-structDeclaration
-    : STRUCT structName=Identifier (PAREN_OPEN structInherits=Identifier PAREN_CLOSE)? CURLY_OPEN structMembers=structMemberDeclaration* CURLY_CLOSE SEMI
-    ;
-
 structMemberDeclaration
-    : typeSpecifier Identifier SEMI
+    : unionableTypeSpecifier Identifier SEMI
     ;
 
 structMemberInitializer
@@ -187,13 +183,17 @@ variableModifier
     | NOSAVE
     ;
 
+// struct decl needs to be above variable decl
+structDeclaration
+    : STRUCT structName=Identifier (PAREN_OPEN structInherits=Identifier PAREN_CLOSE)? CURLY_OPEN structMemberDeclaration* CURLY_CLOSE SEMI
+    ;
+
 variableDeclarationStatement
     : variableDeclaration SEMI
     ;
 
-variableDeclaration
-    : variableModifier* unionableTypeSpecifier objectName=StringLiteral? variableDeclaratorExpression (COMMA variableDeclaratorExpression)* #primitiveTypeVariableDeclaration
-    | variableModifier* STRUCT structName=Identifier variableDeclaratorExpression (COMMA structName=Identifier? variableDeclaratorExpression)* #structVariableDeclaration
+variableDeclaration    
+    : variableModifier* type=unionableTypeSpecifier objectName=StringLiteral? variableDeclaratorExpression? (COMMA variableDeclaratorExpression)*
     ;
 
 variableDeclaratorExpression
@@ -207,7 +207,7 @@ variableDeclarator
 variableInitializer
     : expression
     | arrayExpression
-    | mappingExpression    
+    | mappingExpression        
     ;
 
 primitiveTypeSpecifier
@@ -368,9 +368,9 @@ primaryExpression
             methodInvocation 
             | INC 
             | DEC 
-            | (ARROW target=callOtherTarget? invocation=methodInvocation?)  // arrow fn or struct member access
+            | (ARROW target=callOtherTarget? invocation=methodInvocation)  // arrow fn
+            | ((DOT|ARROW) structMember=Identifier) // struct member access
             | Identifier
-            | (DOT structMember=Identifier) // struct member access
         ) bracketExpression*
     )*
     ;

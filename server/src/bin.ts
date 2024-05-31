@@ -23,6 +23,10 @@ import { LPCPreprocessingLexer } from "./parser3/LPCPreprocessingLexer";
 import { LPCToken } from "./parser3/LPCToken";
 import { IFileHandler } from "./backend/types";
 import { ConsoleErrorListener } from "./ConsoleErrorListener";
+import { ContextSymbolTable } from "./backend/ContextSymbolTable";
+import { DetailsVisitor } from "./backend/DetailsVisitor";
+import { SemanticTokenCollection } from "./backend/SemanticTokenCollection";
+import { LpcFileHandler } from "./backend/FileHandler";
 
 class MockFileHandler implements IFileHandler {
     constructor() {}
@@ -88,6 +92,18 @@ tStream.fill();
 //parser.interpreter.predictionMode = PredictionMode.SLL;
 const tree = parser.program();
 console.log("tree", tree.children);
+
+const symbolTable = new ContextSymbolTable("test", {}, undefined);
+const detailsVisitor = new DetailsVisitor(
+    undefined,
+    symbolTable,
+    [],
+    new SemanticTokenCollection(),
+    lexer.fileHandler as LpcFileHandler,
+    ""
+);
+tree.accept(detailsVisitor);
+
 //const filename = process.argv[2];
 //const dir = path.dirname(filename);
 

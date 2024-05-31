@@ -396,3 +396,9 @@ export class EfunParamSymbol extends MethodParameterSymbol {
         super(name, type);
     }
 }
+
+export class InlineClosureSymbol extends MethodSymbol implements IKindSymbol {
+    public get kind() {
+        return SymbolKind.InlineClosure;
+    }
+}

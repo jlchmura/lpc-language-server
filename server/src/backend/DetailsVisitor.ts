@@ -54,15 +54,18 @@ import {
     PrimaryExpressionContext,
     PrimitiveTypeParameterExpressionContext,
     PrimitiveTypeSpecifierContext,
-    PrimitiveTypeVariableDeclarationContext,
     RelationalExpressionContext,
     ReturnStatementContext,
     SelectionPreprocessorDirectiveContext,
     StringConcatExpressionContext,
+    StructDeclarationContext,
+    StructMemberDeclarationContext,
     StructParameterExpressionContext,
-    StructVariableDeclarationContext,
     TypeSpecifierContext,
+    UnionableTypeSpecifierContext,
     ValidIdentifiersContext,
+    VariableDeclarationContext,
+    VariableDeclarationStatementContext,
     VariableDeclaratorContext,
     WhileStatementContext,
 } from "../parser3/LPCParser";
@@ -73,6 +76,7 @@ import {
     LpcTypes,
     SemanticTokenModifiers,
     SemanticTokenTypes,
+    StructType,
     typeNameToIType,
 } from "../types";
 import { LPCLexer } from "../parser3/LPCLexer";
@@ -83,7 +87,6 @@ import {
 } from "../symbols/variableSymbol";
 import { DefineSymbol } from "../symbols/defineSymbol";
 import { AssignmentSymbol } from "../symbols/assignmentSymbol";
-import { InlineClosureSymbol } from "../symbols/closureSymbol";
 import {
     FunctionIdentifierSymbol,
     MethodDeclarationSymbol,
@@ -91,6 +94,7 @@ import {
     MethodParameterSymbol,
     MethodSymbol,
     ReturnSymbol,
+    InlineClosureSymbol,
 } from "../symbols/methodSymbol";
 import { ExpressionSymbol } from "../symbols/expressionSymbol";
 import {
@@ -107,7 +111,7 @@ import { CloneObjectSymbol } from "../symbols/objectSymbol";
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import { IfSymbol, SelectionSymbol } from "../symbols/selectionSymbol";
 import { IEvaluatableSymbol, IRenameableSymbol } from "../symbols/base";
-import { ArrowSymbol } from "../symbols/arrowSymbol";
+import { ArrowSymbol, ArrowType } from "../symbols/arrowSymbol";
 import { SemanticTokenCollection } from "./SemanticTokenCollection";
 import {
     InheritSuperAccessorSymbol,
@@ -117,6 +121,10 @@ import { LpcFileHandler } from "./FileHandler";
 import { ForEachSymbol, IterationSymbol } from "../symbols/forSymbol";
 import { COMMENT_CHANNEL } from "../parser3/LPCPreprocessingLexer";
 import { LPCToken } from "../parser3/LPCToken";
+import {
+    StructDeclarationSymbol,
+    StructMemberIdentifierSymbol,
+} from "../symbols/structSymbol";
 
 type GenericConstructorParameters<T> = ConstructorParameters<
     new (...args: any[]) => T
@@ -189,13 +197,13 @@ export class DetailsVisitor
         // NTBLA: need to refactor and combine callother and member access into an "Arrow" symbol
         // because the method I used below breaks call other autocomplete
         // autocomplete will need to load values based on the evaluated symbol type
-
-        if (ctx.ARROW().length > 0) {
+        if (ctx.ARROW().length > 0 || ctx.DOT().length > 0) {
+            const arrowChars = ctx.ARROW().length > 0 ? "->" : ".";
             // if there is an arrow and invocation, then this is a call_other expression
             return this.withScope(
                 ctx,
                 ArrowSymbol,
-                ["->", this.fileHandler],
+                [arrowChars, this.fileHandler],
                 (symbol) => {
                     // first find the arrow because there can be multiple expressions before it
                     const arrowIdx = ctx.children.findIndex(
@@ -240,6 +248,7 @@ export class DetailsVisitor
                     // but those may be missing if the user is typing and the code is incomplete
                     const callOtherTargetCtx = ctx._target;
                     const methodInvocationCtx = ctx._invocation;
+                    const structMemberCtx = ctx._structMember;
 
                     let target: IEvaluatableSymbol;
                     let methodInvoc: MethodInvocationSymbol;
@@ -256,6 +265,19 @@ export class DetailsVisitor
                         this.visitMethodInvocation(methodInvocationCtx);
                         methodInvoc =
                             symbol.lastChild as MethodInvocationSymbol;
+                        symbol.ArrowType = ArrowType.CallOther; // definitely a call other
+                    }
+                    if (!!structMemberCtx) {
+                        target = this.addNewSymbol(
+                            StructMemberIdentifierSymbol,
+                            ctx,
+                            structMemberCtx.text
+                        );
+                        this.markToken(
+                            structMemberCtx,
+                            SemanticTokenTypes.Variable
+                        );
+                        symbol.ArrowType = ArrowType.StructMember; // definitely a struct
                     }
 
                     // at this point we have to figure out which type of symbol we're dealing with \
@@ -263,7 +285,9 @@ export class DetailsVisitor
                     symbol.source = sourceObject;
                     symbol.target = target;
                     symbol.methodInvocation = methodInvoc;
-                    symbol.functionName = target?.name;
+                    symbol.functionName = !!methodInvoc
+                        ? target?.name
+                        : undefined;
 
                     return symbol;
                 }
@@ -330,6 +354,7 @@ export class DetailsVisitor
 
     visitCallOtherTarget = (ctx: CallOtherTargetContext) => {
         // the call other target can be an identifier, a string literal, or an expression
+
         if (ctx.Identifier()) {
             const fid = this.addNewSymbol(
                 FunctionIdentifierSymbol,
@@ -420,45 +445,25 @@ export class DetailsVisitor
         );
     };
 
-    visitStructVariableDeclaration = (
-        ctx: StructVariableDeclarationContext
-    ) => {
-        const varDecls = ctx.variableDeclaratorExpression();
-        const structNames = ctx.Identifier();
-        varDecls.forEach((varDeclExp, idx) => {
-            const varDecl = varDeclExp.variableDeclarator();
-            const structCtx = structNames[idx];
-            const varNm = varDecl._variableName?.getText();
+    visitStructDeclaration = (ctx: StructDeclarationContext) => {
+        const name = ctx._structName.text;
+        const inheritsFromName = ctx._structInherits;
 
-            const structName = structCtx?.getText(); // NTBLA: store this in the type somewhere
-            const varSym = this.addNewSymbol(
-                VariableSymbol,
-                structCtx,
-                varNm,
-                LpcTypes.structType,
-                varDecl._variableName
-            );
-
-            const initCtx = varDeclExp.variableInitializer();
-            if (!!initCtx) {
-                return this.withScope(
-                    initCtx,
-                    VariableInitializerSymbol,
-                    ["#initializer#" + varNm, varSym],
-                    (s) => {
-                        return this.visitChildren(initCtx);
-                    }
-                );
+        return this.withScope(
+            ctx,
+            StructDeclarationSymbol,
+            [name, inheritsFromName],
+            (s) => {
+                return this.visitChildren(ctx);
             }
-        });
-
-        return undefined;
+        );
     };
 
-    parseTypeSpecifier(ctx: TypeSpecifierContext) {
-        const u = ctx?.unionableTypeSpecifier();
+    parseTypeSpecifier(ctx: UnionableTypeSpecifierContext) {
+        const u = ctx;
         if (u?.structTypeSpecifier()) {
-            return LpcTypes.structType;
+            const spec = u.structTypeSpecifier();
+            return new StructType(spec.Identifier().getText());
         } else {
             return this.parsePrimitiveType(u?.primitiveTypeSpecifier());
         }
@@ -523,15 +528,28 @@ export class DetailsVisitor
         return varSym;
     }
 
-    visitPrimitiveTypeVariableDeclaration = (
-        ctx: PrimitiveTypeVariableDeclarationContext
-    ) => {
+    visitStructMemberDeclaration = (ctx: StructMemberDeclarationContext) => {
+        const typeCtx = ctx.unionableTypeSpecifier();
+        const varType =
+            this.parseTypeSpecifier(typeCtx) ?? LpcTypes.unknownType;
+
+        const varName = ctx.Identifier().getText();
+        this.addNewSymbol(
+            VariableSymbol,
+            ctx,
+            varName,
+            varType,
+            ctx.Identifier()
+        );
+        return undefined;
+    };
+
+    visitVariableDeclaration = (ctx: VariableDeclarationContext) => {
         // ctx will either be scalar or array, it doesn't matter right now
 
-        const typeCtx = ctx.unionableTypeSpecifier()?.primitiveTypeSpecifier();
-        const varType = typeCtx
-            ? this.parsePrimitiveType(typeCtx)
-            : LpcTypes.unknownType;
+        const typeCtx = ctx.unionableTypeSpecifier();
+        const varType =
+            this.parseTypeSpecifier(typeCtx) ?? LpcTypes.unknownType;
 
         const varDecls = ctx.variableDeclaratorExpression();
         varDecls.forEach((varDeclExp) => {
@@ -962,7 +980,9 @@ export class DetailsVisitor
     };
 
     visitForEachVariable = (ctx: ForEachVariableContext) => {
-        const varType = this.parseTypeSpecifier(ctx.typeSpecifier());
+        const varType = this.parseTypeSpecifier(
+            ctx.typeSpecifier()?.unionableTypeSpecifier()
+        );
         const varSym = this.parseVariableDeclaration(
             ctx.variableDeclarator(),
             varType

@@ -6,6 +6,7 @@ import { isInstanceOfIEvaluatableSymbol } from "../symbols/base";
 import { ContextSymbolTable } from "./ContextSymbolTable";
 import { LpcFileHandler } from "./FileHandler";
 import { LpcTypes } from "../types";
+import { StructDeclarationSymbol } from "../symbols/structSymbol";
 
 export function addPogramToStack(progSymbol: ScopedSymbol, stack: CallStack) {
     for (const child of progSymbol.children) {
@@ -28,6 +29,12 @@ export function addPogramToStack(progSymbol: ScopedSymbol, stack: CallStack) {
                     new StackValue(undefined, LpcTypes.unknownType, child)
                 );
                 //const result = child.eval(stack);
+            } else if (child instanceof StructDeclarationSymbol) {
+                stack.addLocal(
+                    child.name,
+                    new StackValue(undefined, LpcTypes.structType, child)
+                );
+                child.eval(stack);
             } else if (isInstanceOfIEvaluatableSymbol(child)) {
                 //const result = child.eval(stack);
             } else {
