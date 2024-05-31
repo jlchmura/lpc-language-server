@@ -112,6 +112,7 @@ export function activate(context: ExtensionContext) {
             SemanticTokenTypes.number,
             SemanticTokenTypes.type,
             SemanticTokenTypes.variable,
+            SemanticTokenTypes.property,
             SemanticTokenTypes.keyword,
             SemanticTokenTypes.modifier,
         ],

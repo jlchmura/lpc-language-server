@@ -272,11 +272,13 @@ export class DetailsVisitor
                             ctx,
                             structMemberCtx.text
                         );
+
+                        symbol.ArrowType = ArrowType.StructMember; // definitely a struct
+
                         this.markToken(
                             structMemberCtx,
-                            SemanticTokenTypes.Variable
+                            SemanticTokenTypes.Property
                         );
-                        symbol.ArrowType = ArrowType.StructMember; // definitely a struct
                     }
 
                     // at this point we have to figure out which type of symbol we're dealing with \

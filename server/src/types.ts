@@ -170,6 +170,7 @@ export const SemanticTokenTypes = {
     Number: 7,
     Type: 8,
     Variable: 9,
+    Property: 10,
 } as const;
 
 export const SemanticTokenModifiers = {

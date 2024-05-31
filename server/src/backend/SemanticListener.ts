@@ -299,10 +299,11 @@ export class SemanticListener extends LPCParserListener {
                     // create range based on any extra args
                     const offenderStart = callArgs[methodParams.length].start;
                     const offenderEnd = callArgs[callArgs.length - 1].stop;
+
                     const entry = this.logDiagnostic(
                         `Expected ${methodParams.length} arguments, but got ${callArgs.length}`,
                         offenderStart,
-                        offenderEnd
+                        ctx.PAREN_CLOSE().getSymbol()
                     );
                 }
             }
@@ -343,12 +344,19 @@ export class SemanticListener extends LPCParserListener {
         offendingTokenEnd: Token,
         type: DiagnosticSeverity = DiagnosticSeverity.Error
     ) {
-        offendingTokenEnd = offendingTokenEnd ?? offendingTokenStart;
+        let start = offendingTokenStart as LPCToken;
+        let end = offendingTokenEnd as LPCToken;
+
+        if (start.relatedToken) start = start.relatedToken as LPCToken;
+        if (end.relatedToken) end = end.relatedToken as LPCToken;
+
+        end = end ?? start;
+
         const entry: IDiagnosticEntry = {
-            filename: (offendingTokenStart as LPCToken).filename,
+            filename: start.filename,
             type: type,
             message: message,
-            range: rangeFromTokens(offendingTokenStart, offendingTokenEnd),
+            range: rangeFromTokens(start, end),
         };
         this.diagnostics.push(entry);
         return entry;
