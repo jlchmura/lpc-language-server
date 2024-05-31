@@ -45,15 +45,15 @@ export class LpcDefinitionProvider {
                 const lspRange = lexRangeToLspRange(range);
 
                 // get the filename from the token
-                const sContext = info.symbol.context as ParserRuleContext;
-                const token = sContext.start as LPCToken;
+                const sContext = info.symbol?.context as ParserRuleContext;
+                const token = sContext?.start as LPCToken;
                 const filename =
                     info.symbol instanceof IncludeSymbol
                         ? this.backend.resolveFilename(
                               info.symbol.filename,
                               document.uri
                           ).fullPath
-                        : token.filename;
+                        : token?.filename;
 
                 return LocationLink.create(filename, lspRange, lspRange);
             } else {

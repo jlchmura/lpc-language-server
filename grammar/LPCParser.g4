@@ -421,7 +421,7 @@ lambdaArrayIndexor
     ;
 
 lambdaExpression
-    : HASH? SINGLEQUOT fn=(Identifier|CloneObject|LoadObject)
+    : HASH? LAMBDA_IDENTIFIER // SINGLEQUOT fn=(Identifier|CloneObject|LoadObject)
     | HASH SINGLEQUOT (
         (WHILE|RETURN) // reserved words that are specifically allowed here
         | (bracketExpression) // must come before the SQUARE_OPEN in the next rule

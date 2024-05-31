@@ -32,7 +32,8 @@ export class LpcSymbolProvider {
 
                 resolve(symbolsList);
             } catch (e) {
-                reject(e);
+                console.warn("Symbol provider error", e);
+                resolve([]);
             }
         });
         return p;

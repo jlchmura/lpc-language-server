@@ -8,7 +8,7 @@
             "name": "Launch Client",
             "runtimeExecutable": "${execPath}",
             "args": [
-                "${workspaceRoot}/../lp-245",
+                "${workspaceRoot}/../mg-mudlib",
                 // "${workspaceRoot}/../lpc-test",
                 // "${workspaceRoot}/../lpc-test/test.c",
                 "--extensionDevelopmentPath=${workspaceRoot}"

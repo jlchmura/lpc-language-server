@@ -148,6 +148,9 @@ STRING_START: '"' -> mode(STRING_MODE);
 StringLiteral: 'b'? STRING_START STRING_CONTENT* STRING_END;
 CharacterConstant: '\'' (~['\r\n\\] | '\\' .) '\'';
 
+LAMBDA_IDENTIFIER: '\'' ([$a-zA-Z_] [a-zA-Z_0-9]* ('::' [$a-zA-Z_] [a-zA-Z_0-9]*)?);
+SINGLEQUOT: '\'';
+
 // efuns that need special handling
 CloneObject: 'clone_object';
 LoadObject: 'load_object';
@@ -164,7 +167,7 @@ DEFINE: HASH [ \t]* 'define' -> pushMode(DEFINE_MODE);
 
 WS: [ \t\r\n]+ -> channel(HIDDEN);
 
-SINGLEQUOT: '\'';
+
 
 // to handle #define that can be multiline
 mode DEFINE_MODE;    

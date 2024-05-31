@@ -509,14 +509,19 @@ export class SourceContext {
 
     public async getDiagnostics(force = false): Promise<IDiagnosticEntry[]> {
         const p = new Promise<IDiagnosticEntry[]>((resolve, reject) => {
-            if (force) this.semanticAnalysisDone = false;
-            this.runSemanticAnalysisIfNeeded();
+            try {
+                if (force) this.semanticAnalysisDone = false;
+                this.runSemanticAnalysisIfNeeded();
 
-            const diags = this.diagnostics.map((d) => {
-                d.filename = URI.parse(d.filename).toString();
-                return d;
-            });
-            resolve(diags);
+                const diags = this.diagnostics.map((d) => {
+                    d.filename = URI.parse(d.filename).toString();
+                    return d;
+                });
+                resolve(diags);
+            } catch (e) {
+                console.error("Error getting diagnostics", e);
+                resolve([]);
+            }
         });
         return p;
     }
