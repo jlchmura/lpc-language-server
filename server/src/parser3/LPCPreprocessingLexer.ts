@@ -6,6 +6,7 @@ import { LPCToken } from "./LPCToken";
 import { IFileHandler } from "../backend/types";
 import { ContextLexerErrorListener } from "../backend/ContextLexerErrorListener";
 import { ConsoleErrorListener } from "../ConsoleErrorListener";
+import { trimQuotes } from "../utils";
 
 const DISABLED_CHANNEL_NAME = "DISABLED_CHANNEL";
 const DIRECTIVE_CHANNEL_NAME = "DIRECTIVE_CHANNEL";
@@ -111,9 +112,9 @@ export class LPCPreprocessingLexer extends LPCLexer {
         if (this.isConsumingDirective) {
             // put directives on the directive channel by default.
             // they may get disabled or hidden later
-            if (token.channel == LPCLexer.DEFAULT_TOKEN_CHANNEL) {
-                token.channel = DIRECTIVE_CHANNEL;
-            }
+            // if (token.channel == LPCLexer.DEFAULT_TOKEN_CHANNEL) {
+            //     token.channel = DIRECTIVE_CHANNEL;
+            // }
 
             // queue directive tokens
             // don't add EOF tokens to the directive
@@ -307,16 +308,16 @@ export class LPCPreprocessingLexer extends LPCLexer {
         const lt = token as LPCToken;
         // move back to the default channel
         token.channel = directiveToken.channel = LPCLexer.DEFAULT_TOKEN_CHANNEL;
-        directiveTokens
-            .filter((t) => t.channel == DIRECTIVE_CHANNEL)
-            .forEach((t) => {
-                t.channel = LPCLexer.DEFAULT_TOKEN_CHANNEL;
-            });
+        // directiveTokens
+        //     .filter((t) => t.channel == DIRECTIVE_CHANNEL)
+        //     .forEach((t) => {
+        //         t.channel = LPCLexer.DEFAULT_TOKEN_CHANNEL;
+        //     });
 
         directiveTokens.shift(); // remove the space
         const includeFilename = directiveTokens
             .filter((t) => t.channel == LPCLexer.DEFAULT_TOKEN_CHANNEL)
-            .map((t) => t.text.trim())
+            .map((t) => trimQuotes(t.text.trim()))
             .join("")
             .trim();
 
@@ -333,7 +334,10 @@ export class LPCPreprocessingLexer extends LPCLexer {
 
         if (!includeFile?.source) {
             // TODO: add diagnostic
-            console.warn("Could not load include file ", includeFilename);
+            const filename = (token as LPCToken).filename;
+            console.warn(
+                `${filename}:${token.line}: could not load include file ${includeFilename}`
+            );
         }
 
         // lex the the include file

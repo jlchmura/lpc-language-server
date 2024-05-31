@@ -70,6 +70,7 @@ efun("floor", LpcTypes.intType, false, ["number", LpcTypes.intType]);
 efun("funcall", LpcTypes.mixedType, true, ["fun", LpcTypes.closureType], ["args...", LpcTypes.mixedArrayType, true]);
 efun("function_exists", LpcTypes.intType, true, ["fun", LpcTypes.stringType], ["ob", LpcTypes.objectType],["flags", LpcTypes.intType]);
 efun("functionlist", LpcTypes.mixedArrayType, true, ["ob", LpcTypes.objectType], ["flags", LpcTypes.intType]);
+efun("garbage_collection", LpcTypes.voidType, true, ["filename", LpcTypes.stringType], ["flag", LpcTypes.intType]);
 efun("get_dir", LpcTypes.mixedArrayType, true, ["path", LpcTypes.stringType], ["flags", LpcTypes.intType]);
 efun("get_eval_cost", LpcTypes.intType, false);
 efun("get_error_file", LpcTypes.mixedType, true, ["name", LpcTypes.stringType], ["set_forget_flag", LpcTypes.intType]);
@@ -127,6 +128,7 @@ efun("previous_object", LpcTypes.objectType, true, ["i", LpcTypes.intType]);
 efun("present", LpcTypes.objectType, true, ["str", FundamentalType.stringType], ["env", LpcTypes.objectType]);
 efun("present_clone", LpcTypes.objectType, true, ["str", FundamentalType.stringType], ["env", LpcTypes.objectType], ["n", LpcTypes.intType]);
 efun("printf", LpcTypes.voidType, true, ["fmt", LpcTypes.stringType], ["var...", LpcTypes.mixedType, true]);
+efun("process_string", LpcTypes.stringType, false, ["str", LpcTypes.stringType]);
 efun("program_name", LpcTypes.stringType, true, ["ob", LpcTypes.objectType]);
 efun("program_time", LpcTypes.intType, true, ["ob", LpcTypes.objectType]);
 efun("pointerp", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
@@ -161,6 +163,7 @@ efun("save_object", LpcTypes.intType, true, ["name", LpcTypes.stringType], ["for
 efun("say", LpcTypes.voidType, true, ["msg", LpcTypes.stringType], ["exclude", LpcTypes.objectArrayType]);
 efun("send_erq", LpcTypes.intType, true, ["request", LpcTypes.intType], ["data", LpcTypes.bytesType], ["callback", LpcTypes.closureType]);
 efun("send_imp", LpcTypes.intType, false, ["host", LpcTypes.stringType], ["port", LpcTypes.intType], ["msg", LpcTypes.stringType]); // TODO: deprecated
+efun("send_udp", LpcTypes.intType, true, ["host", LpcTypes.stringType], ["port", LpcTypes.intType], ["msg", LpcTypes.bytesType]);
 efun("set_driver_hook", LpcTypes.voidType, false, ["what", LpcTypes.intType], ["arg", LpcTypes.closureType]);
 efun("set_environment", LpcTypes.voidType, false, ["item", LpcTypes.objectType], ["env", LpcTypes.objectType]);
 efun("set_extra_wizinfo", LpcTypes.voidType, false, ["wiz", LpcTypes.objectType], ["extra", LpcTypes.mixedType]);

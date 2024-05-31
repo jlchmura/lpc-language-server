@@ -29,8 +29,8 @@ export class StructMemberIdentifierSymbol
             structVarName,
             this
         );
-        const structType = varValue.type as StructType;
-        const structTypeName = structType.structName;
+        const structType = varValue?.type as StructType;
+        const structTypeName = structType?.structName;
 
         const structDef = this.symbolTable.resolveSync(
             structTypeName,
