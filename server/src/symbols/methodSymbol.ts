@@ -100,13 +100,17 @@ export class LpcBaseMethodSymbol
                 : new StackValue(0, p.type, p);
             locals.set(p.name, paramVal);
 
-            if (argVal && p.type.name != argVal.type.name) {
+            if (
+                !!argVal?.type?.name &&
+                p.type?.name != argVal.type?.name &&
+                p.type != LpcTypes.unknownType
+            ) {
                 addDiagnostic(argSym, {
-                    message: `Argument type mismatch: expected ${p.type.name}, got ${argVal.type.name}`,
+                    message: `Argument type mismatch: expected ${p.type?.name}, got ${argVal.type?.name}`,
                     range: lexRangeFromContext(
                         argSym.context as ParserRuleContext
                     ),
-                    type: DiagnosticSeverity.Error,
+                    type: DiagnosticSeverity.Warning,
                 });
             }
         });

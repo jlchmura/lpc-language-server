@@ -358,7 +358,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
             this.buffer.unshift(...includeTokens);
         }
 
-        console.debug(`${filename}:${token.line}: included ${includeFilename}`);
+        //console.debug(`${filename}:${token.line}: included ${includeFilename}`);
 
         return true;
     }

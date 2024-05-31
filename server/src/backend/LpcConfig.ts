@@ -26,6 +26,8 @@ type DiagnosticsInfo = {
 
 type FilesInfo = {
     simul_efun: string;
+    init_files: string[];
+    master: string;
 };
 
 export class LpcConfig {
@@ -53,6 +55,8 @@ export class LpcConfig {
 
     public files: FilesInfo = {
         simul_efun: "/obj/simul_efun.c",
+        master: "/obj/master.c",
+        init_files: ["/obj/init_files"],
     };
 }
 
@@ -106,6 +110,9 @@ export function loadLpcConfig(filename: string): LpcConfig {
         config.files = {
             ...config.files,
             ...rawConfig.files,
+            init_files:
+                (rawConfig.files?.init_files as string[]) ??
+                config.files?.init_files,
         };
 
         config.exclude = (rawConfig.exclude as string[]) ?? config.exclude;
@@ -118,7 +125,7 @@ export function loadLpcConfig(filename: string): LpcConfig {
 
         globalConfig = config;
     } catch (e) {
-        console.info(
+        console.warn(
             `Failed to load LPC config file ${filename}: ${e.message}`
         );
     }

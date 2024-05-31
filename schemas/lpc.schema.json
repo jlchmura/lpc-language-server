@@ -118,10 +118,24 @@
                 "files": {
                     "description": "Specifies a list of system include directories that will be searched when importing files. If this option is not specified, a default folder of '/sys' will be used.",
                     "properties": {
+                        "master": {
+                            "description": "Sets the location of the master object.",
+                            "default": "/obj/master.c",
+                            "type": ["string", "null"]
+                        },
                         "simul_efun": {
                             "description": "Sets the location of the simul_efun file.",
                             "default": "/obj/simul_efun.c",
                             "type": ["string", "null"]
+                        },
+                        "init_files": {
+                            "description": "Sets the locations of the init file(s).",
+                            "default": ["/obj/init_file"],
+                            "type": ["array", "null"],
+                            "uniqueItems": true,
+                            "items": {
+                                "type": ["string", "null"]
+                            }
                         }
                     }
                 }

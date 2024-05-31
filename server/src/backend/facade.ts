@@ -751,6 +751,41 @@ export class LpcFacade {
         );
 
         console.debug(`Excluding files:`, excludeFiles);
+
+        const filesToProcess: string[] = [];
+
+        // add master file
+        const masterFileInfo = this.resolveFilename(
+            config.files.master,
+            this.workspaceDir
+        );
+        if (!excludeFiles.has(masterFileInfo.fullPath)) {
+            if (fs.existsSync(masterFileInfo.fullPath)) {
+                filesToProcess.push(masterFileInfo.fullPath);
+            }
+        }
+        // add files from init_files
+        config.files.init_files.forEach((initFile) => {
+            const fileInfo = this.resolveFilename(initFile, this.workspaceDir);
+            if (!fileInfo.fullPath) return;
+
+            const initFileSource = fs.readFileSync(fileInfo.fullPath, "utf8");
+            const lines = initFileSource.split("\n");
+            for (const line of lines) {
+                const l = line.trim();
+                if (l.length == 0) continue;
+                const lineFileInfo = this.resolveFilename(l, fileInfo.fullPath);
+                if (
+                    lineFileInfo.fullPath &&
+                    fs.existsSync(lineFileInfo.fullPath) &&
+                    !excludeFiles.has(lineFileInfo.fullPath)
+                ) {
+                    filesToProcess.push(lineFileInfo.fullPath);
+                }
+            }
+        });
+
+        // now process everything else
         while (dirsToProcess.length > 0 && !token.isCancellationRequested) {
             const dir = dirsToProcess.pop();
             const files = fs.readdirSync(dir, { withFileTypes: true });
@@ -767,43 +802,43 @@ export class LpcFacade {
                     } else {
                         dirsToProcess.push(filename);
                     }
-                } else if (
-                    file.name.endsWith(".c") ||
-                    file.name.endsWith(".h")
-                ) {
+                } else if (file.name.endsWith(".c")) {
                     if (excludeFiles.has(filename)) {
                         console.debug(`Skipping ${filename} due to exclusion`);
                         continue;
                     }
 
-                    const p = new Promise((resolve, reject) => {
-                        fs.readFile(
-                            filename,
-                            { encoding: "utf8" },
-                            (err, txt) => {
-                                try {
-                                    this.loadLpcInternal(
-                                        filename,
-                                        txt,
-                                        new Set()
-                                    );
-                                    this.onRunDiagnostics(filename, false);
-
-                                    //this.releaseLpc(filename);
-                                    resolve(txt);
-                                } catch (e) {
-                                    console.error(
-                                        `Error parsing ${filename}: ${e}`,
-                                        (e as Error).stack
-                                    );
-                                    resolve(undefined);
-                                }
-                            }
-                        );
-                    });
-                    await p;
+                    filesToProcess.push(filename);
                 }
             }
+        }
+
+        for (const filename of filesToProcess) {
+            if (token.isCancellationRequested) break;
+            const p = new Promise((resolve, reject) => {
+                fs.readFile(filename, { encoding: "utf8" }, (err, txt) => {
+                    try {
+                        const ctx = this.loadLpcInternal(
+                            filename,
+                            txt,
+                            new Set()
+                        );
+                        if (ctx.needsValidation) {
+                            this.onRunDiagnostics(filename, false);
+                        }
+
+                        //this.releaseLpc(filename);
+                        resolve(txt);
+                    } catch (e) {
+                        console.error(
+                            `Error parsing ${filename}: ${e}`,
+                            (e as Error).stack
+                        );
+                        resolve(undefined);
+                    }
+                });
+            });
+            await p;
         }
 
         if (token.isCancellationRequested) {

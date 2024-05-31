@@ -281,6 +281,7 @@ export class SourceContext {
         configDefines.set("__VERSION_MINOR__", ver.minor.toString());
         configDefines.set("__VERSION_MICRO__", ver.micro.toString());
         configDefines.set("__VERSION_PATCH__", "0");
+        configDefines.set("__RESET_TIME__", "1");
 
         // get the dir of this file relative to project root
         const relativeDir = path.relative(
