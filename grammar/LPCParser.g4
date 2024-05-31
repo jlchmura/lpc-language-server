@@ -159,8 +159,8 @@ parameterList
     ;
 
 parameter
-    : VARARGS? paramType=unionableTypeSpecifier? paramName=validIdentifiers (ASSIGN expression)? #primitiveTypeParameterExpression    
-    | paramType=STRUCT structName=Identifier STAR? paramName=validIdentifiers #structParameterExpression
+    : VARARGS? paramType=unionableTypeSpecifier? paramName=validIdentifiers (ASSIGN expression)? 
+    //| paramType=STRUCT structName=Identifier STAR? paramName=validIdentifiers #structParameterExpression
     ;
 
 structMemberDeclaration

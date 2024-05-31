@@ -52,7 +52,6 @@ import {
     MultiplicativeExpressionContext,
     ParameterListContext,
     PrimaryExpressionContext,
-    PrimitiveTypeParameterExpressionContext,
     PrimitiveTypeSpecifierContext,
     RelationalExpressionContext,
     ReturnStatementContext,
@@ -60,12 +59,9 @@ import {
     StringConcatExpressionContext,
     StructDeclarationContext,
     StructMemberDeclarationContext,
-    StructParameterExpressionContext,
-    TypeSpecifierContext,
     UnionableTypeSpecifierContext,
     ValidIdentifiersContext,
     VariableDeclarationContext,
-    VariableDeclarationStatementContext,
     VariableDeclaratorContext,
     WhileStatementContext,
 } from "../parser3/LPCParser";
@@ -447,7 +443,7 @@ export class DetailsVisitor
 
     visitStructDeclaration = (ctx: StructDeclarationContext) => {
         const name = ctx._structName.text;
-        const inheritsFromName = ctx._structInherits;
+        const inheritsFromName = ctx._structInherits?.text;
 
         return this.withScope(
             ctx,
@@ -806,27 +802,21 @@ export class DetailsVisitor
     visitParameterList = (ctx: ParameterListContext) => {
         const prms = ctx.parameter();
         prms.forEach((p) => {
-            let name: string, typeName: string, type: IType, nameToken: Token;
-            if (p instanceof PrimitiveTypeParameterExpressionContext) {
-                const pExp = p as PrimitiveTypeParameterExpressionContext;
-                const id = this.getValidIdentifier(pExp._paramName);
-                nameToken = id.symbol;
-                name = pExp._paramName.getText();
-                typeName = pExp._paramType?.getText();
-                type = typeNameToIType.get(typeName);
-
-                this.markToken(id.symbol, SemanticTokenTypes.Parameter, [
-                    SemanticTokenModifiers.Declaration,
-                ]);
-                //this.markContext(pExp._paramType, SemanticTokenTypes.Type);
-            } else {
-                const sExp = p as StructParameterExpressionContext;
-                const id = this.getValidIdentifier(sExp._paramName);
-                nameToken = id.symbol;
-                name = id.getText();
-                typeName = "struct";
-                type = LpcTypes.closureType;
+            if (p.start.line == 126) {
+                const ii = 0;
             }
+            const typeCtx = p.unionableTypeSpecifier();
+            const typeName = typeCtx?.getText();
+            const type =
+                this.parseTypeSpecifier(typeCtx) ?? LpcTypes.unknownType;
+
+            const id = this.getValidIdentifier(p._paramName);
+            const nameToken = id.symbol;
+            const name = p._paramName?.getText();
+
+            this.markToken(id.symbol, SemanticTokenTypes.Parameter, [
+                SemanticTokenModifiers.Declaration,
+            ]);
 
             this.addNewSymbol(MethodParameterSymbol, p, name, type, nameToken);
         });

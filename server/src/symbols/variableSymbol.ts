@@ -37,7 +37,7 @@ export class VariableSymbol
         if (scope !== undefined) {
             if (scope instanceof StackValue) {
                 this.value = scope.value;
-                this.type = scope.type;
+                this.type ??= scope.type;
             } else {
                 this.value = scope;
             }

@@ -306,6 +306,8 @@ export class LPCPreprocessingLexer extends LPCLexer {
         directiveTokens: Token[]
     ): boolean {
         const lt = token as LPCToken;
+        const filename = (token as LPCToken).filename;
+
         // move back to the default channel
         token.channel = directiveToken.channel = LPCLexer.DEFAULT_TOKEN_CHANNEL;
         // directiveTokens
@@ -334,7 +336,6 @@ export class LPCPreprocessingLexer extends LPCLexer {
 
         if (!includeFile?.source) {
             // TODO: add diagnostic
-            const filename = (token as LPCToken).filename;
             console.warn(
                 `${filename}:${token.line}: could not load include file ${includeFilename}`
             );
@@ -356,6 +357,8 @@ export class LPCPreprocessingLexer extends LPCLexer {
             });
             this.buffer.unshift(...includeTokens);
         }
+
+        console.debug(`${filename}:${token.line}: included ${includeFilename}`);
 
         return true;
     }

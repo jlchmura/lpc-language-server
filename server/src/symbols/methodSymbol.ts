@@ -21,7 +21,11 @@ import {
 } from "../types";
 import { DiagnosticSeverity, FoldingRange } from "vscode-languageserver";
 import { ExpressionSymbol } from "./expressionSymbol";
-import { rangeFromTokens, resolveOfTypeSync } from "../utils";
+import {
+    lexRangeFromContext,
+    rangeFromTokens,
+    resolveOfTypeSync,
+} from "../utils";
 import { SourceContext } from "../backend/SourceContext";
 import { ObjectReferenceInfo } from "./objectSymbol";
 import { ContextSymbolTable } from "../backend/ContextSymbolTable";
@@ -92,9 +96,19 @@ export class LpcBaseMethodSymbol
             //if (!!argSym && !isInstanceOfIEvaluatableSymbol(argSym)) debugger;
             const argVal = argSym?.eval(stack, callScope) as StackValue;
             const paramVal = argVal
-                ? new StackValue(argVal.value, argVal.type, p)
-                : new StackValue(0, LpcTypes.intType, p);
+                ? new StackValue(argVal.value, p.type, p)
+                : new StackValue(0, p.type, p);
             locals.set(p.name, paramVal);
+
+            if (argVal && p.type.name != argVal.type.name) {
+                addDiagnostic(argSym, {
+                    message: `Argument type mismatch: expected ${p.type.name}, got ${argVal.type.name}`,
+                    range: lexRangeFromContext(
+                        argSym.context as ParserRuleContext
+                    ),
+                    type: DiagnosticSeverity.Error,
+                });
+            }
         });
 
         // the function's root frame is the callScope (if it was passed)

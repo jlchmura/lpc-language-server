@@ -34,7 +34,7 @@ export class StructMemberIdentifierSymbol
 
         const structDef = this.symbolTable.resolveSync(
             structTypeName,
-            true
+            false
         ) as StructDeclarationSymbol;
         const members = structDef?.members ?? new Map();
 
@@ -44,7 +44,7 @@ export class StructMemberIdentifierSymbol
         if (!members.has(this.name)) {
             addDiagnostic(this, {
                 filename: (memberNameToken as LPCToken).filename,
-                message: `Cannot struct member '${this.name}'.`,
+                message: `Unknown struct member '${this.name}'.`,
                 range: nameRange,
                 type: DiagnosticSeverity.Error,
             });
@@ -71,6 +71,25 @@ export class StructDeclarationSymbol
 
     eval(stack: CallStack, scope?: any) {
         this.members = new Map();
+
+        let inheritStructName = this.inheritsFromName;
+        while (!!inheritStructName) {
+            const inhStruct = this.symbolTable.resolveSync(
+                inheritStructName,
+                false
+            ) as StructDeclarationSymbol;
+            if (!inhStruct) {
+                break;
+            }
+
+            // copy into this struct
+            for (const [key, value] of inhStruct.members) {
+                this.members.set(key, value);
+            }
+
+            inheritStructName = inhStruct.inheritsFromName;
+        }
+
         this.getMemberSymbols().forEach((member) => {
             this.members.set(
                 member.name,

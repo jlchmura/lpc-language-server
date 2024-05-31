@@ -32,8 +32,7 @@ import { FunctionHeaderContext } from "./LPCParser.js";
 import { FunctionHeaderDeclarationContext } from "./LPCParser.js";
 import { FunctionDeclarationContext } from "./LPCParser.js";
 import { ParameterListContext } from "./LPCParser.js";
-import { PrimitiveTypeParameterExpressionContext } from "./LPCParser.js";
-import { StructParameterExpressionContext } from "./LPCParser.js";
+import { ParameterContext } from "./LPCParser.js";
 import { StructMemberDeclarationContext } from "./LPCParser.js";
 import { StructMemberInitializerContext } from "./LPCParser.js";
 import { VariableModifierContext } from "./LPCParser.js";
@@ -415,29 +414,15 @@ export class LPCParserListener implements ParseTreeListener {
      */
     exitParameterList?: (ctx: ParameterListContext) => void;
     /**
-     * Enter a parse tree produced by the `primitiveTypeParameterExpression`
-     * labeled alternative in `LPCParser.parameter`.
+     * Enter a parse tree produced by `LPCParser.parameter`.
      * @param ctx the parse tree
      */
-    enterPrimitiveTypeParameterExpression?: (ctx: PrimitiveTypeParameterExpressionContext) => void;
+    enterParameter?: (ctx: ParameterContext) => void;
     /**
-     * Exit a parse tree produced by the `primitiveTypeParameterExpression`
-     * labeled alternative in `LPCParser.parameter`.
+     * Exit a parse tree produced by `LPCParser.parameter`.
      * @param ctx the parse tree
      */
-    exitPrimitiveTypeParameterExpression?: (ctx: PrimitiveTypeParameterExpressionContext) => void;
-    /**
-     * Enter a parse tree produced by the `structParameterExpression`
-     * labeled alternative in `LPCParser.parameter`.
-     * @param ctx the parse tree
-     */
-    enterStructParameterExpression?: (ctx: StructParameterExpressionContext) => void;
-    /**
-     * Exit a parse tree produced by the `structParameterExpression`
-     * labeled alternative in `LPCParser.parameter`.
-     * @param ctx the parse tree
-     */
-    exitStructParameterExpression?: (ctx: StructParameterExpressionContext) => void;
+    exitParameter?: (ctx: ParameterContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.structMemberDeclaration`.
      * @param ctx the parse tree
