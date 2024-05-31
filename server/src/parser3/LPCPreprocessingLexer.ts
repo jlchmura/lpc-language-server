@@ -278,9 +278,9 @@ export class LPCPreprocessingLexer extends LPCLexer {
 
         // do some final checks
         if (token.type == LPCLexer.EOF) {
+            const filename = (this.tokenFactory as LPCTokenFactor)
+                ?.filenameStack[0];
             if (token.channel != 0) {
-                const filename = (this.tokenFactory as LPCTokenFactor)
-                    ?.filenameStack[0];
                 console.warn(
                     `EOF token was is channel ${token.channel}, moving to default. [${filename}]`
                 );
@@ -288,7 +288,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
             }
 
             if (!this.isExecutable) {
-                throw "missing #endif";
+                console.warn(`${filename}: missing #endif`);
             } else if (this.isConsumingMacro) {
                 throw "missing macro end";
             } else if (this.disabledMacros.size > 0) {
@@ -619,8 +619,8 @@ export class LPCPreprocessingLexer extends LPCLexer {
         // there are certain conditionals that are applied even if code is disabled
         switch (directiveToken.type) {
             case LPCLexer.IF:
-            case LPCLexer.ELIF:
                 return this.processIf(token, directiveToken, directiveTokens);
+            case LPCLexer.ELIF:
             case LPCLexer.ELSE:
                 return this.processElse(token, directiveToken, directiveTokens);
             case LPCLexer.ENDIF:
