@@ -35,6 +35,7 @@ efun("clones", LpcTypes.objectArrayType, true, ["ob", LpcTypes.objectType],["wha
 efun("closurep", LpcTypes.intType, false, ["arg", LpcTypes.mixedType]);
 efun("clear_bit", LpcTypes.stringType, false, ["str", LpcTypes.stringType], ["n", LpcTypes.intType]);
 efun("command", LpcTypes.intType, true, ["str", LpcTypes.stringType], ["ob", LpcTypes.objectType]);
+efun("command_stack", LpcTypes.mixedType, false);
 efun("configure_driver", LpcTypes.voidType, false, ["what", LpcTypes.intType], ["data", LpcTypes.mixedType]);
 efun("configure_interactive", LpcTypes.voidType, false, ["ob", LpcTypes.objectType], ["what", LpcTypes.intType], ["data", LpcTypes.mixedType]);
 efun("configure_object", LpcTypes.voidType, false, ["ob", LpcTypes.objectType], ["what", LpcTypes.intType], ["data", LpcTypes.mixedType]);
@@ -113,6 +114,7 @@ efun("m_sizeof", LpcTypes.intType, false, ["map", LpcTypes.mappingType]);
 efun("m_values", LpcTypes.mixedArrayType, true, ["map", LpcTypes.mappingType], ["index", LpcTypes.intType]);
 efun("map_array", LpcTypes.mixedArrayType, true, ["arr", LpcTypes.mixedArrayType], ["fun", LpcTypes.stringType], ["ob", LpcTypes.mixedType], ["extra", LpcTypes.mixedType]);
 efun("map_objects", LpcTypes.mixedArrayType, true, ["arr", LpcTypes.objectArrayType], ["fun", LpcTypes.stringType], ["extra", LpcTypes.mixedType], ["args...", LpcTypes.mixedType, true]);
+efun("md5_crypt", LpcTypes.stringType, false, ["str", LpcTypes.stringType], ["seed", LpcTypes.intType]);
 efun("mkmapping", LpcTypes.mappingType, true, ["...arr", LpcTypes.mixedArrayType, true]);
 efun("mkdir", LpcTypes.intType, false, ["path", LpcTypes.stringType]);
 efun("move_object", LpcTypes.voidType, true, ["item", LpcTypes.mixedType], ["dest", LpcTypes.mixedType]);
@@ -157,6 +159,7 @@ efun("remove_interactive", LpcTypes.voidType, false, ["ob", LpcTypes.objectType]
 efun("replace_program", LpcTypes.voidType, true, ["program", LpcTypes.stringType]);
 efun("restore_object", LpcTypes.intType, false, ["name", LpcTypes.stringType]);
 efun("rename", LpcTypes.intType, false, ["from", LpcTypes.stringType], ["to", LpcTypes.stringType]);
+efun("rename_object", LpcTypes.voidType, false, ["ob", LpcTypes.objectType], ["new_name", LpcTypes.stringType]);
 efun("rm", LpcTypes.intType, false, ["file", LpcTypes.stringType]);
 efun("rmdir", LpcTypes.intType, false, ["dir", LpcTypes.stringType]);
 efun("rusage", LpcTypes.intArrayType, false);
@@ -178,6 +181,11 @@ efun("set_this_object", LpcTypes.voidType, false, ["ob_to_pretend_to_be", LpcTyp
 efun("set_this_player", LpcTypes.voidType, false, ["ob", LpcTypes.objectType]);
 efun("set_prompt", LpcTypes.stringType, true, ["prompt", LpcTypes.stringType], ["ob", LpcTypes.objectType]);
 efun("seteuid", LpcTypes.intType, false, ["str", LpcTypes.stringType]);
+// sqlite efuns - need drvier version check
+efun("sl_close", LpcTypes.voidType, false);
+efun("sl_exec", LpcTypes.mixedArrayType, true, ["statement", LpcTypes.stringType], ["...args", LpcTypes.mixedType, true]);
+efun("sl_insert_id", LpcTypes.intType, false);
+efun("sl_open", LpcTypes.intType, true, ["filename", LpcTypes.stringType]);
 efun("shadow", LpcTypes.intType, false, ["ob", LpcTypes.objectType]);
 efun("shutdown", LpcTypes.voidType, true, ["exit_code", LpcTypes.intType]);
 efun("sprintf", LpcTypes.stringType, true, ["fmt", LpcTypes.stringType], ["var...", LpcTypes.mixedType, true]);
