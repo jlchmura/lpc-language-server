@@ -56,7 +56,7 @@ export class LpcConfig {
     public files: FilesInfo = {
         simul_efun: "/obj/simul_efun.c",
         master: "/obj/master.c",
-        init_files: ["/obj/init_files"],
+        init_files: ["/room/init_files"],
     };
 }
 

@@ -149,6 +149,7 @@ efun("read_bytes", LpcTypes.bytesType, true, ["file", LpcTypes.stringType], ["st
 efun("read_file", LpcTypes.stringType, true, ["file", LpcTypes.stringType], ["start", LpcTypes.intType], ["len", LpcTypes.intType]);
 efun("regexp", LpcTypes.stringArrayType, true, ["list", LpcTypes.stringArrayType], ["pattern", LpcTypes.stringType], ["opt", LpcTypes.intType]);
 efun("regexplode", LpcTypes.stringArrayType, true, ["text", LpcTypes.stringType], ["pattern", LpcTypes.stringType], ["opt", LpcTypes.intType]);
+efun("regmatch", LpcTypes.stringType, true, ["text", LpcTypes.stringType], ["pattern", LpcTypes.stringType], ["opt", LpcTypes.intType], ["start", LpcTypes.intType]);
 efun("regreplace", LpcTypes.stringType, false, ["txt", LpcTypes.stringType], ["pattern", LpcTypes.stringType], ["replacepattern", LpcTypes.closureType], ["flags", LpcTypes.intType]);
 efun("remove_action", LpcTypes.intType, true, ["verb", LpcTypes.intType], ["ob", LpcTypes.objectType]);
 efun("remove_call_out", LpcTypes.intType, true, ["fun", LpcTypes.stringType]);
@@ -200,6 +201,7 @@ efun("this_interactive", LpcTypes.objectType, false);
 efun("this_object", LpcTypes.objectType, false);
 efun("this_player", LpcTypes.objectType, false);
 efun("time", LpcTypes.intType, false);
+efun("to_array", LpcTypes.mixedArrayType, false, ["str", LpcTypes.stringType]);
 efun("to_bytes", LpcTypes.bytesType, true, ["unicode", LpcTypes.stringType], ["encoding", LpcTypes.stringType]);
 efun("to_string", LpcTypes.stringType, false, ["arg", LpcTypes.mixedType]);
 efun("to_struct", LpcTypes.mappingType, true, ["data", LpcTypes.mixedType], ["template", LpcTypes.mappingType]);

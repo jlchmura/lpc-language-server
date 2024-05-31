@@ -130,7 +130,7 @@
                         },
                         "init_files": {
                             "description": "Sets the locations of the init file(s).",
-                            "default": ["/obj/init_file"],
+                            "default": ["/room/init_file"],
                             "type": ["array", "null"],
                             "uniqueItems": true,
                             "items": {

@@ -203,7 +203,7 @@ export class DetailsVisitor
                 (symbol) => {
                     // first find the arrow because there can be multiple expressions before it
                     const arrowIdx = ctx.children.findIndex(
-                        (c) => c.getText() === "->"
+                        (c) => c.getText() == arrowChars
                     );
 
                     // everything up to the arrow goes into an expression
@@ -226,6 +226,9 @@ export class DetailsVisitor
                             ["#primary-expression#"],
                             (s) => {
                                 exprCtx.forEach((c) => this.visit(c));
+                                if (s.children.length == 1) {
+                                    const ii = 0;
+                                }
                             }
                         );
                     } else if (exprCtx.length === 1) {
