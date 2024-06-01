@@ -293,11 +293,10 @@ export function getFunctionFromFrame(
     frame: RootFrame,
     name: string
 ): MethodSymbol {
-    if (!(frame instanceof RootFrame)) {
-        console.trace("Frame is not a RootFrame");
-        return undefined;
-    }
-    const local = frame.locals.get(name);
+    const local = walkStackToProgram(frame, (f) => {
+        return f.locals?.get(name);
+    });
+
     if (local?.symbol instanceof LpcBaseMethodSymbol) {
         return local.symbol;
     } else {
