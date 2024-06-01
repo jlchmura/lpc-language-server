@@ -37,15 +37,60 @@ int doCommand(string cmd) {
 
 ## Setting up your workspace
 
-See `lpc-config.json`
+The VS Code LPC Language Services extension does not use your MUD driver to compile code. As such, several configuration options are available to help the language server understand the structure of your mudlib.
 
 ### Example
 
 For an example mudlib, pre-configured to work with LPC Language Services, see this slightly modified version of the [LP 2.4.5 mudlib](https://github.com/jlchmura/lp-245). LPC Language Services can parse and validate this entire lib without errors.
 
+### LPC Config
+
+Language services can be customized by creating an `lpc-config.json` file in the root folder of your workspace. The available options are as follows:
+
+#### Driver Options - `driver`
+
+| Setting   | Description                                                                                |
+| --------- | ------------------------------------------------------------------------------------------ |
+| `type`    | Driver type. Valid options are `ldmud` or `fluffos`. (Currently only `ldmud` is supported) |
+| `version` | The driver version string, i.e. `"3.6.7"`                                                  |
+
+#### File Locations - `files`
+
+| Setting      | Description                                                             |
+| ------------ | ----------------------------------------------------------------------- |
+| `master`     | The location of your master object. Defaults to `"/obj/master.c"`       |
+| `simul_efun` | The location of your simul_efun file. Defaults to `"/obj/simul_efun.c"` |
+| `init_files` | An array of init files. Defaults to `["/room/init_files"]`              |
+
+#### Include Dirs - `include`
+
+An array of folders that are searched when including files via the `#include` directive.
+
+Defaults to `["/sys", "/obj", "/room"]`
+
+#### Exclude Dirs - `exclude`
+
+An array of [glob patterns](https://code.visualstudio.com/docs/editor/glob-patterns) of directories and files that are excluded from language services. Excluded files will not report errors unless specifically opened in VS Code.
+
+#### Predefined Macros - `defines`
+
+Since your code is not being evaluating in the mud driver, you may need to simulate one or more defines that are normally provided by the driver's compiler. Values are an array of key value pairs. Example:
+
+```json
+"defines": [
+  { "__HOST_NAME__": '"localhost"' },
+  { "TLS_PORT": "5555" }
+]
+```
+
+In the example above, `__HOST_NAME__` will be defined as the _string_ value `"localhost"`. `TLS_PORT` on the other hand, will be defined as an _int_ value `5555`.
+
 ## Grammar ToDo's
 
+Language services is a work in progress. Some major areas that have yet to be implemented are:
+
 -   LWObjects
+-   Named object validation
 -   Coroutines
 -   FluffOS specific syntax
 
