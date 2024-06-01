@@ -22,6 +22,10 @@ export class ObjectReferenceInfo {
         public isLoaded?: boolean,
         public context?: SourceContext
     ) {}
+
+    toString() {
+        return `${this.filename}:${this.isLoaded}`;
+    }
 }
 
 export class CloneObjectSymbol

@@ -210,10 +210,11 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
         addPogramToStack(symTbl, arrowStack);
 
         //const result = funSym.eval(stack, argVals);
-        this.target?.eval(stack, rootFrame); // eval target again to put fn name on stack
-        const result = methodInvok?.eval(stack, rootFrame);
-
-        return result;
+        if (!!funSym) {
+            this.target?.eval(stack, rootFrame); // eval target again to put fn name on stack
+            const result = methodInvok?.eval(stack, rootFrame);
+            return result;
+        }
     }
 
     loadObject(filename: string) {

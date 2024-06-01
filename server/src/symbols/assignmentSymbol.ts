@@ -1,6 +1,6 @@
 import { ScopedSymbol } from "antlr4-c3";
 import { IEvaluatableSymbol } from "./base";
-import { CallStack } from "../backend/CallStack";
+import { CallStack, StackValue } from "../backend/CallStack";
 import { addDiagnostic } from "./Symbol";
 import { DiagnosticSeverity } from "vscode-languageserver";
 import { rangeFromTokens } from "../utils";
@@ -36,35 +36,60 @@ export class AssignmentSymbol
 
     eval(stack: CallStack, scope?: any) {
         const lh = this.lhs;
-        const rhResult = this.rhs.eval(stack, scope);
+
+        const lhResult = lh.eval(stack);
+        const rhResult = this.rhs.eval(stack);
+
+        const lhVal =
+            (lhResult instanceof StackValue ? lhResult.value : lhResult) ?? "";
+        const rhVal =
+            (rhResult instanceof StackValue ? rhResult.value : rhResult) ?? "";
+
+        if (lhVal == "[object Object]") {
+            const ii = 0;
+        }
+
+        let newVal: any = undefined;
 
         switch (this.operator) {
             case "=":
                 return lh.eval(stack, rhResult);
             case "+=":
-                return lh.eval(stack, lh.eval(stack) + rhResult);
+                newVal = lhVal + rhVal;
+                break;
             case "-=":
-                return lh.eval(stack, lh.eval(stack) - rhResult);
+                newVal = lhVal - rhVal;
+                break;
             case "*=":
-                return lh.eval(stack, lh.eval(stack) * rhResult);
+                newVal = lhVal * rhVal;
+                break;
             case "/=":
-                return lh.eval(stack, lh.eval(stack) / rhResult);
+                newVal = lhVal / rhVal;
+                break;
             case "%=":
-                return lh.eval(stack, lh.eval(stack) % rhResult);
+                newVal = lhVal % rhVal;
+                break;
             case "|=":
-                return lh.eval(stack, lh.eval(stack) | rhResult);
+                newVal = lhVal | rhVal;
+                break;
             case "&=":
-                return lh.eval(stack, lh.eval(stack) & rhResult);
+                newVal = lhVal & rhVal;
+                break;
             case "||=":
-                return lh.eval(stack, lh.eval(stack) || rhResult);
+                newVal = lhVal || rhVal;
+                break;
             case "&&=":
-                return lh.eval(stack, lh.eval(stack) && rhResult);
+                newVal = lhVal && rhVal;
+                break;
             case "<<=":
-                return lh.eval(stack, lh.eval(stack) << rhResult);
+                newVal = lhVal << rhVal;
+                break;
             case ">>=":
-                return lh.eval(stack, lh.eval(stack) >> rhResult);
+                newVal = lhVal >> rhVal;
+                break;
             case "^=":
-                return lh.eval(stack, lh.eval(stack) ^ rhResult);
+                newVal = lhVal ^ rhVal;
+                break;
             default:
                 const ctx = this.context as ParserRuleContext;
                 addDiagnostic(this, {
@@ -72,6 +97,13 @@ export class AssignmentSymbol
                     range: rangeFromTokens(ctx.start, ctx.stop),
                     type: DiagnosticSeverity.Error,
                 });
+        }
+
+        if (!!newVal) {
+            lh.eval(
+                stack,
+                new StackValue(newVal, lhResult?.type ?? rhResult?.type, this)
+            );
         }
     }
 }

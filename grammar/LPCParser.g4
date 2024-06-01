@@ -293,9 +293,9 @@ assignmentOperator
 conditionalExpression[int _p]
     : (castExpression | primaryExpression | lambdaExpression | inlineClosureExpression | op=(PLUS|MINUS|NOT|BNOT|INC|DEC|AND|STAR) conditionalExpression[{$_p}])
     ( 
-    //   { 18 >= $_p }? arrow=(ARROW|DOT) conditionalExpression[19]
-    // | { 17 >= $_p }? SQUARE_OPEN bracketIndex1=conditionalExpression[0]? DOUBLEDOT bracketIndex2=conditionalExpression[0]? SQUARE_CLOSE
-    // | { 16 >= $_p }? SQUARE_OPEN bracketIndex=conditionalExpression[0] SQUARE_CLOSE
+    //  { 18 >= $_p }? arrow=(ARROW|DOT) arrowTarget=validIdentifiers methodInvocation conditionalExpression[19]
+    // | { 17 >= $_p }? SQUARE_OPEN bracketIndex1=conditionalExpression[0]? DOUBLEDOT bracketIndex2=conditionalExpression[0]? SQUARE_CLOSE conditionalExpression[18]
+    // | { 16 >= $_p }? SQUARE_OPEN bracketIndex=conditionalExpression[0] SQUARE_CLOSE conditionalExpression[17]
       { 15 >= $_p }? op=(STAR|DIV|MOD) conditionalExpression[16]
     | { 14 >= $_p }? op=(PLUS|MINUS) conditionalExpression[15]
     | { 13 >= $_p }? op=(SHL|SHR) conditionalExpression[14]
