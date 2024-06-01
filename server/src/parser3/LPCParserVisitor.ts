@@ -55,20 +55,7 @@ import { MappingEmptyInitializerContext } from "./LPCParser.js";
 import { ExpressionContext } from "./LPCParser.js";
 import { CommaableExpressionContext } from "./LPCParser.js";
 import { AssignmentOperatorContext } from "./LPCParser.js";
-import { CommaExpressionContext } from "./LPCParser.js";
-import { AssignmentOrConditionalExpressionContext } from "./LPCParser.js";
-import { ConditionalTernaryExpressionContext } from "./LPCParser.js";
-import { ConditionalOrExpressionContext } from "./LPCParser.js";
-import { ConditionalAndExpressionContext } from "./LPCParser.js";
-import { InclusiveOrExpressionContext } from "./LPCParser.js";
-import { ExclusiveOrExpressionContext } from "./LPCParser.js";
-import { AndExpressionContext } from "./LPCParser.js";
-import { EqualityExpressionContext } from "./LPCParser.js";
-import { RelationalExpressionContext } from "./LPCParser.js";
-import { ShiftExpressionContext } from "./LPCParser.js";
-import { AdditiveExpressionContext } from "./LPCParser.js";
-import { MultiplicativeExpressionContext } from "./LPCParser.js";
-import { UnaryExpressionContext } from "./LPCParser.js";
+import { ConditionalExpressionContext } from "./LPCParser.js";
 import { PrimaryExpressionContext } from "./LPCParser.js";
 import { LiteralExpressionContext } from "./LPCParser.js";
 import { StringConcatExpressionContext } from "./LPCParser.js";
@@ -442,89 +429,11 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      */
     visitAssignmentOperator?: (ctx: AssignmentOperatorContext) => Result;
     /**
-     * Visit a parse tree produced by `LPCParser.commaExpression`.
+     * Visit a parse tree produced by `LPCParser.conditionalExpression`.
      * @param ctx the parse tree
      * @return the visitor result
      */
-    visitCommaExpression?: (ctx: CommaExpressionContext) => Result;
-    /**
-     * Visit a parse tree produced by `LPCParser.assignmentOrConditionalExpression`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitAssignmentOrConditionalExpression?: (ctx: AssignmentOrConditionalExpressionContext) => Result;
-    /**
-     * Visit a parse tree produced by `LPCParser.conditionalTernaryExpression`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitConditionalTernaryExpression?: (ctx: ConditionalTernaryExpressionContext) => Result;
-    /**
-     * Visit a parse tree produced by `LPCParser.conditionalOrExpression`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitConditionalOrExpression?: (ctx: ConditionalOrExpressionContext) => Result;
-    /**
-     * Visit a parse tree produced by `LPCParser.conditionalAndExpression`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitConditionalAndExpression?: (ctx: ConditionalAndExpressionContext) => Result;
-    /**
-     * Visit a parse tree produced by `LPCParser.inclusiveOrExpression`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitInclusiveOrExpression?: (ctx: InclusiveOrExpressionContext) => Result;
-    /**
-     * Visit a parse tree produced by `LPCParser.exclusiveOrExpression`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitExclusiveOrExpression?: (ctx: ExclusiveOrExpressionContext) => Result;
-    /**
-     * Visit a parse tree produced by `LPCParser.andExpression`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitAndExpression?: (ctx: AndExpressionContext) => Result;
-    /**
-     * Visit a parse tree produced by `LPCParser.equalityExpression`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitEqualityExpression?: (ctx: EqualityExpressionContext) => Result;
-    /**
-     * Visit a parse tree produced by `LPCParser.relationalExpression`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitRelationalExpression?: (ctx: RelationalExpressionContext) => Result;
-    /**
-     * Visit a parse tree produced by `LPCParser.shiftExpression`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitShiftExpression?: (ctx: ShiftExpressionContext) => Result;
-    /**
-     * Visit a parse tree produced by `LPCParser.additiveExpression`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitAdditiveExpression?: (ctx: AdditiveExpressionContext) => Result;
-    /**
-     * Visit a parse tree produced by `LPCParser.multiplicativeExpression`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitMultiplicativeExpression?: (ctx: MultiplicativeExpressionContext) => Result;
-    /**
-     * Visit a parse tree produced by `LPCParser.unaryExpression`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitUnaryExpression?: (ctx: UnaryExpressionContext) => Result;
+    visitConditionalExpression?: (ctx: ConditionalExpressionContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.primaryExpression`.
      * @param ctx the parse tree

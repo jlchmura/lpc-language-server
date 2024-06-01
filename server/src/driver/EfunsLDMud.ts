@@ -95,7 +95,7 @@ efun("json_parse", LpcTypes.mixedType, false, ["jsonstring", LpcTypes.stringType
 efun("lambda", LpcTypes.closureType, false, ["arr", LpcTypes.mixedArrayType], ["mixed", LpcTypes.mixedType]);
 efun("limited", LpcTypes.mixedType, true, ["fun", LpcTypes.closureType], ["tag", LpcTypes.intType], ["value", LpcTypes.intType], ["args...", LpcTypes.mixedType, true]);
 efun("living", LpcTypes.intType, false, ["ob", LpcTypes.objectType]);
-efun("localtime", LpcTypes.intArrayType, false, ["clock", LpcTypes.intType]);
+efun("localtime", LpcTypes.intArrayType, true, ["clock", LpcTypes.intType]);
 efun("load_name", LpcTypes.stringType, true, ["ob", LpcTypes.objectType]);
 efun("load_object", LpcTypes.objectType, false, ["file", LpcTypes.stringType]);
 efun("lower_case", LpcTypes.stringType, false, ["str", LpcTypes.stringType]);

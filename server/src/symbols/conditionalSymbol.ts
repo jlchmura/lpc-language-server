@@ -45,6 +45,8 @@ export class ConditionalSymbol
                 return lhResult ^ rhResult;
             case "in":
                 return new StackValue(1, LpcTypes.intType, this);
+            case "?":
+                return lhResult ? rhResult : undefined;
         }
 
         throw "Conditional Symbol: operator not implemented " + this.name;

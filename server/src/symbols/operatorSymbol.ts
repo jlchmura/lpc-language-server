@@ -34,9 +34,20 @@ export class OperatorSymbol extends ScopedSymbol implements IEvaluatableSymbol {
                 return lhsValue % rhsValue;
             case "^":
                 return lhsValue ^ rhsValue;
+            case "&":
+            case "|":
+            case "~":
+                return lhsValue | rhsValue;
+            case "<<":
+            case ">>":
+            case "--":
+            case "++":
+                return lhsValue;
+            case "!":
+                return !rhsValue;
         }
 
-        throw "OpSymbol: operator not implements " + this.name;
+        throw `OperatorSymbol: Unknown symbol [${this.name}]`;
     }
 
     public get kind() {
