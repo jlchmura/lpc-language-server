@@ -299,7 +299,7 @@ export class SemanticListener extends LPCParserListener {
                         methodSymbol instanceof EfunSymbol &&
                         methodSymbol.allowsMultiArgs()
                     ) &&
-                    !lastEntry(methodParams).name.endsWith("...")
+                    lastEntry(methodParams)?.varArgs !== true
                 ) {
                     // create range based on any extra args
                     const offenderStart = callArgs[methodParams.length].start;

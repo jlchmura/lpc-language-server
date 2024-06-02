@@ -792,6 +792,7 @@ export class DetailsVisitor
             const typeName = typeCtx?.getText();
             const type =
                 this.parseTypeSpecifier(typeCtx) ?? LpcTypes.unknownType;
+            const varArgs = !!p.VARARGS();
 
             const id = this.getValidIdentifier(p._paramName);
             const nameToken = id.symbol;
@@ -801,7 +802,14 @@ export class DetailsVisitor
                 SemanticTokenModifiers.Declaration,
             ]);
 
-            this.addNewSymbol(MethodParameterSymbol, p, name, type, nameToken);
+            this.addNewSymbol(
+                MethodParameterSymbol,
+                p,
+                name,
+                type,
+                nameToken,
+                varArgs
+            );
         });
         return undefined;
     };

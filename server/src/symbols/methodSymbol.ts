@@ -47,7 +47,12 @@ export class MethodParameterSymbol
     extends ParameterSymbol
     implements IKindSymbol, IEvaluatableSymbol
 {
-    constructor(name: string, type: IType, public nameToken?: Token) {
+    constructor(
+        name: string,
+        type: IType,
+        public nameToken?: Token,
+        public varArgs = false
+    ) {
         super(name, undefined, type);
     }
 
