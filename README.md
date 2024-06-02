@@ -78,7 +78,7 @@ Since your code is not being evaluating in the mud driver, you may need to simul
 
 ```json
 "defines": [
-  { "__HOST_NAME__": '"localhost"' },
+  { "__HOST_NAME__": "\"localhost\"" },
   { "TLS_PORT": "5555" }
 ]
 ```
