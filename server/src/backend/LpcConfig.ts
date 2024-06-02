@@ -50,7 +50,7 @@ export class LpcConfig {
     };
     public diagnostics: DiagnosticsInfo = {
         callOtherTargetUnknown: DiagnosticLevel.Info,
-        callOtherLfunNotFound: DiagnosticLevel.Error,
+        callOtherLfunNotFound: DiagnosticLevel.Hint,
     };
 
     public files: FilesInfo = {

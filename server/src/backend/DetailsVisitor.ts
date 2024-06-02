@@ -19,20 +19,12 @@ import {
 import { ContextSymbolTable } from "./ContextSymbolTable";
 import { LpcFacade } from "./facade";
 import {
-    AdditiveExpressionContext,
-    AndExpressionContext,
-    AssignmentOrConditionalExpressionContext,
     BracketExpressionContext,
     CallOtherTargetContext,
     CloneObjectExpressionContext,
-    CommaExpressionContext,
-    ConditionalAndExpressionContext,
-    ConditionalOrExpressionContext,
-    ConditionalTernaryExpressionContext,
+    ConditionalExpressionContext,
     DefinePreprocessorDirectiveContext,
     DoWhileStatementContext,
-    EqualityExpressionContext,
-    ExclusiveOrExpressionContext,
     ExpressionContext,
     ForEachStatementContext,
     ForEachVariableContext,
@@ -43,17 +35,14 @@ import {
     IdentifierExpressionContext,
     IfStatementContext,
     IncludePreprocessorDirectiveContext,
-    InclusiveOrExpressionContext,
     InheritStatementContext,
     InlineClosureExpressionContext,
     LambdaExpressionContext,
     LiteralContext,
     MethodInvocationContext,
-    MultiplicativeExpressionContext,
     ParameterListContext,
     PrimaryExpressionContext,
     PrimitiveTypeSpecifierContext,
-    RelationalExpressionContext,
     ReturnStatementContext,
     SelectionPreprocessorDirectiveContext,
     StringConcatExpressionContext,
@@ -65,7 +54,7 @@ import {
     VariableDeclaratorContext,
     WhileStatementContext,
 } from "../parser3/LPCParser";
-import { PreprocessorSymbol } from "../symbols/Symbol";
+import { PreprocessorSymbol, addDiagnostic } from "../symbols/Symbol";
 import { FoldingRange } from "vscode-languageserver";
 import {
     ContextImportInfo,
@@ -195,6 +184,7 @@ export class DetailsVisitor
         // autocomplete will need to load values based on the evaluated symbol type
         if (ctx.ARROW().length > 0 || ctx.DOT().length > 0) {
             const arrowChars = ctx.ARROW().length > 0 ? "->" : ".";
+
             // if there is an arrow and invocation, then this is a call_other expression
             return this.withScope(
                 ctx,
@@ -624,18 +614,6 @@ export class DetailsVisitor
         return undefined;
     };
 
-    // visitInheritSuperExpression = (ctx: InheritSuperExpressionContext) => {
-    //     const filename = ctx._filename?.text ?? "";
-    //     return this.withScope(
-    //         ctx,
-    //         InheritSuperAccessorSymbol,
-    //         ["#inherit-super#" + filename, filename, this.fileHandler],
-    //         (s) => {
-    //             return this.visitChildren(ctx);
-    //         }
-    //     );
-    // };
-
     visitInlineClosureExpression = (ctx: InlineClosureExpressionContext) => {
         let parent = ctx.parent;
         let name: string | undefined = undefined;
@@ -828,22 +806,43 @@ export class DetailsVisitor
         return undefined;
     };
 
-    visitAssignmentOrConditionalExpression = (
-        ctx: AssignmentOrConditionalExpressionContext
-    ) => {
-        const op = ctx._op?.getText();
-        if (op && ctx.children.length >= 2) {
+    visitConditionalExpression = (ctx: ConditionalExpressionContext) => {
+        if (ctx._p > 0) {
+            const ii = 0;
+        }
+        if (ctx._assignOp) {
             return this.withScope(
                 ctx,
                 AssignmentSymbol,
-                ["#assignment#", op],
+                ["#conditional-expression#", ctx._assignOp.getText()],
                 (s) => {
                     return this.visitChildren(ctx);
                 }
             );
+        } else if (ctx._cond) {
+            const operator = ctx._cond?.text;
+            return this.withScope(ctx, ConditionalSymbol, [operator], (s) => {
+                return this.visitChildren(ctx);
+            });
+        } else if (ctx._ternOp) {
+            // TODO: ternary expression
+            return this.withScope(
+                ctx,
+                ConditionalSymbol,
+                [ctx._ternOp.text],
+                (s) => {
+                    return this.visitChildren(ctx);
+                }
+            );
+        } else if (ctx._op) {
+            const operator = ctx._op?.text;
+            return this.withScope(ctx, OperatorSymbol, [operator], (s) => {
+                return this.visitChildren(ctx);
+            });
         }
 
-        return this.visitChildren(ctx);
+        // none of the above, pass through to unary, etc.
+        this.visitChildren(ctx);
     };
 
     visitExpression = (ctx: ExpressionContext) => {
@@ -855,75 +854,6 @@ export class DetailsVisitor
         //     return this.visitChildren(ctx);
         // }
     };
-
-    // visitConditionalExpression = (ctx: ConditionalExpressionContext) => {
-    //     if (ctx._op?.text) {
-    //         return this.withScope(
-    //             ctx,
-    //             ExpressionSymbol,
-    //             ["#conditional-expression#"],
-    //             (s) => {
-    //                 return this.visitChildren(ctx);
-    //             }
-    //         );
-    //     }
-    // };
-
-    visitConditionalTernaryExpression = (
-        ctx: ConditionalTernaryExpressionContext
-    ) => {
-        if (ctx._op?.text) {
-            return this.withScope(
-                ctx,
-                ExpressionSymbol,
-                ["#conditional-ternary-expression#"],
-                (s) => {
-                    return this.visitChildren(ctx);
-                }
-            );
-        }
-
-        return this.visitChildren(ctx);
-    };
-
-    visitAdditiveExpression = (ctx: AdditiveExpressionContext) => {
-        const operator = ctx._op?.text;
-        if (operator) {
-            return this.withScope(ctx, OperatorSymbol, [operator], (s) => {
-                return this.visitChildren(ctx);
-            });
-        }
-        return this.visitChildren(ctx);
-    };
-
-    visitMultiplicativeExpression = (ctx: MultiplicativeExpressionContext) => {
-        const operator = ctx._op?.text;
-        if (operator) {
-            return this.withScope(ctx, OperatorSymbol, [operator], (s) => {
-                return this.visitChildren(ctx);
-            });
-        }
-        return this.visitChildren(ctx);
-    };
-
-    visitCommaExpression = (ctx: CommaExpressionContext) => {
-        const operator = firstEntry(ctx.COMMA())?.getText();
-        if (operator) {
-            return this.withScope(ctx, OperatorSymbol, [operator], (s) => {
-                return this.visitChildren(ctx);
-            });
-        }
-        return this.visitChildren(ctx);
-    };
-
-    parseConditionalSymbol(ctx: ParserRuleContext, operator: string) {
-        if (operator) {
-            return this.withScope(ctx, ConditionalSymbol, [operator], (s) => {
-                return this.visitChildren(ctx);
-            });
-        }
-        return this.visitChildren(ctx);
-    }
 
     parseIterationStatement(
         ctx: ParserRuleContext,
@@ -985,23 +915,6 @@ export class DetailsVisitor
         return undefined;
     };
 
-    visitEqualityExpression = (ctx: EqualityExpressionContext) =>
-        this.parseConditionalSymbol(ctx, ctx._op?.text);
-    visitRelationalExpresion = (ctx: RelationalExpressionContext) =>
-        this.parseConditionalSymbol(ctx, ctx._op?.text);
-    visitAndExpression = (ctx: AndExpressionContext) =>
-        this.parseConditionalSymbol(ctx, ctx._op?.text);
-    visitExclusiveOrExpression = (ctx: ExclusiveOrExpressionContext) =>
-        this.parseConditionalSymbol(ctx, ctx._op?.text);
-    visitInclusiveOrExpression = (ctx: InclusiveOrExpressionContext) =>
-        this.parseConditionalSymbol(ctx, ctx._op?.text);
-    visitConditionalAndExpression = (ctx: ConditionalAndExpressionContext) =>
-        this.parseConditionalSymbol(ctx, ctx._op?.text);
-    visitConditionalOrExpression = (ctx: ConditionalOrExpressionContext) =>
-        this.parseConditionalSymbol(ctx, ctx._op?.text);
-
-    // TODO: ternary expression
-
     // prettier-ignore
     visitLiteral = (ctx: LiteralContext) => {
         if (!!ctx.IntegerConstant()) {
@@ -1035,35 +948,6 @@ export class DetailsVisitor
         this.markContext(ctx, SemanticTokenTypes.Parameter);
         return undefined;
     };
-
-    //  visitTerminal = (node: TerminalNode) => {
-    //      switch (node.symbol.type) {
-    // //         case LPCLexer.PLUS:
-    // //         case LPCLexer.MINUS:
-    // //         case LPCLexer.STAR:
-    // //         case LPCLexer.DIV:
-    // //         case LPCLexer.MOD:
-    // //         case LPCLexer.SHL:
-    // //         case LPCLexer.SHR:
-    // //         case LPCLexer.AND:
-    // //         case LPCLexer.OR:
-    // //         case LPCLexer.XOR:
-    // //         case LPCLexer.NOT:
-    // //         case LPCLexer.INC:
-    // //         case LPCLexer.DEC:
-    // //             this.addNewSymbol(OperatorSymbol, node, node.getText());
-    // //             break;
-    //         case LPCLexer.Identifier:
-    //             this.addNewSymbol(IdentifierSymbol, node, node.getText());
-    //             break;
-    //         default:
-    //             // Ignore the rest.
-    //             break;
-
-    //      }
-
-    //     return undefined;
-    // };
 
     protected withScope<T, S extends ScopedSymbol>(
         tree: ParseTree,

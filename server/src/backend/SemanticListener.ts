@@ -15,6 +15,7 @@ import { ScopedSymbol, MethodSymbol as BaseMethodSymbol } from "antlr4-c3";
 import {
     areSetsEqual,
     areTwoParameterArraysEqual,
+    firstEntry,
     getSibling,
     rangeFromTokens,
     resolveOfTypeSync,
@@ -38,6 +39,7 @@ import { getDriverInfo } from "../driver/Driver";
 import { EfunSymbols } from "../driver/EfunsLDMud";
 import { isInstanceOfIEvaluatableSymbol } from "../symbols/base";
 import { LPCToken } from "../parser3/LPCToken";
+import { LDMudFeatures } from "../driver/DriverLdMud";
 
 export class SemanticListener extends LPCParserListener {
     private seenSymbols = new Map<string, Token>();
@@ -324,19 +326,26 @@ export class SemanticListener extends LPCParserListener {
         }
     };
 
-    // exitPrimaryExpression = (ctx: PrimaryExpressionContext) => {
-    //     if (
-    //         ctx.ARROW().length > 0 &&
-    //         (ctx.callOtherTarget().length === 0 ||
-    //             ctx.methodInvocation().length === 0)
-    //     ) {
-    //         this.logDiagnostic(
-    //             "Call_other expression missing function name",
-    //             ctx.start,
-    //             ctx.stop
-    //         );
-    //     }
-    // };
+    exitPrimaryExpression = (ctx: PrimaryExpressionContext) => {
+        if (ctx.DOT()?.length > 0) {
+            const { version } = this.config.driver;
+
+            if (
+                !this.driver.checkFeatureCompatibility(
+                    LDMudFeatures.DotCallStrict,
+                    version
+                )
+            ) {
+                const dot = firstEntry(ctx.DOT());
+                this.logDiagnostic(
+                    `call_strict operator form (.) not supported by driver version ${version}`,
+                    dot.getSymbol(),
+                    dot.getSymbol(),
+                    DiagnosticSeverity.Warning
+                );
+            }
+        }
+    };
 
     private logDiagnostic(
         message: string,

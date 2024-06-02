@@ -265,13 +265,13 @@ mappingExpression
 
 /** The default expression - comma expressions are not allowed here */
 expression
-    : assignmentOrConditionalExpression
+    : conditionalExpression[4] // skip comma
     ;
 
 /** For instances where comma expressions are allowed */
 commaableExpression
     : inlineClosureExpression
-    | commaExpression
+    | conditionalExpression[0]
     ;
 
 assignmentOperator
@@ -290,62 +290,83 @@ assignmentOperator
     | RSH_ASSIGN
     ;
 
+conditionalExpression[int _p]
+    : (castExpression | primaryExpression | lambdaExpression | inlineClosureExpression | op=(PLUS|MINUS|NOT|BNOT|INC|DEC|AND|STAR) conditionalExpression[{$_p}])
+    ( 
+    //  { 18 >= $_p }? arrow=(ARROW|DOT) arrowTarget=validIdentifiers methodInvocation conditionalExpression[19]
+    // | { 17 >= $_p }? SQUARE_OPEN bracketIndex1=conditionalExpression[0]? DOUBLEDOT bracketIndex2=conditionalExpression[0]? SQUARE_CLOSE conditionalExpression[18]
+    // | { 16 >= $_p }? SQUARE_OPEN bracketIndex=conditionalExpression[0] SQUARE_CLOSE conditionalExpression[17]
+      { 15 >= $_p }? op=(STAR|DIV|MOD) conditionalExpression[16]
+    | { 14 >= $_p }? op=(PLUS|MINUS) conditionalExpression[15]
+    | { 13 >= $_p }? op=(SHL|SHR) conditionalExpression[14]
+    | { 12 >= $_p }? cond=(LT|GT|LE|GE) conditionalExpression[13]
+    | { 11 >= $_p }? cond=(EQ|NE|IN) conditionalExpression[12]
+    | { 10 >= $_p }? op=AND conditionalExpression[11]
+    | { 9 >= $_p }? op=XOR conditionalExpression[10]
+    | { 8 >= $_p }? op=OR conditionalExpression[9]
+    | { 7 >= $_p }? cond=AND_AND conditionalExpression[8]
+    | { 6 >= $_p }? cond=OR_OR conditionalExpression[7]
+    | { 5 >= $_p }? ternOp=QUESTION conditionalExpression[5] ternOp2=COLON conditionalExpression[5]
+    | { 4 >= $_p }? assignOp=assignmentOperator conditionalExpression[5]    
+    | { 2 >= $_p }? op=COMMA conditionalExpression[4]
+    )*
+    ;
 // rightShiftAssignment
 //     : first = '>' second = '>=' {$first.index + 1 == $second.index}? // make sure there is nothing between the tokens
 //     ;
 
 // the c-style comma operator. yuk
-commaExpression
-    : assignmentOrConditionalExpression (op=COMMA assignmentOrConditionalExpression)*
-    ;
+// commaExpression
+//     : assignmentOrConditionalExpression (op=COMMA assignmentOrConditionalExpression)*
+//     ;
     
-assignmentOrConditionalExpression
-    : conditionalTernaryExpression (op=assignmentOperator conditionalTernaryExpression)*
-    ;
+// assignmentOrConditionalExpression
+//     : conditionalTernaryExpression (op=assignmentOperator conditionalTernaryExpression)*
+//     ;
 
-conditionalTernaryExpression
-    : conditionalOrExpression (op=QUESTION expression COLON expression)?
-    ;
+// conditionalTernaryExpression
+//     : conditionalOrExpression (op=QUESTION expression COLON expression)?
+//     ;
 
-conditionalOrExpression
-    : conditionalAndExpression (op=OR_OR conditionalAndExpression)*
-    ;
+// conditionalOrExpression
+//     : conditionalAndExpression (op=OR_OR conditionalAndExpression)*
+//     ;
 
-conditionalAndExpression
-    : inclusiveOrExpression (op=AND_AND inclusiveOrExpression)*
-    ;
+// conditionalAndExpression
+//     : inclusiveOrExpression (op=AND_AND inclusiveOrExpression)*
+//     ;
 
-inclusiveOrExpression
-    : exclusiveOrExpression (op=OR exclusiveOrExpression)*
-    ;
+// inclusiveOrExpression
+//     : exclusiveOrExpression (op=OR exclusiveOrExpression)*
+//     ;
 
-exclusiveOrExpression
-    : andExpression (op=XOR andExpression)*
-    ;
+// exclusiveOrExpression
+//     : andExpression (op=XOR andExpression)*
+//     ;
 
-andExpression
-    : equalityExpression (op=AND equalityExpression)*
-    ;
+// andExpression
+//     : equalityExpression (op=AND equalityExpression)*
+//     ;
 
-equalityExpression
-    : relationalExpression (op=(EQ | NE | IN) relationalExpression)*
-    ;
+// equalityExpression
+//     : relationalExpression (op=(EQ | NE | IN) relationalExpression)*
+//     ;
 
-relationalExpression
-    : shiftExpression (op=(LT | GT | LE | GE) shiftExpression)*
-    ;
+// relationalExpression
+//     : shiftExpression (op=(LT | GT | LE | GE) shiftExpression)*
+//     ;
 
-shiftExpression
-    : additiveExpression (op=(SHL | SHR) additiveExpression)*
-    ;
+// shiftExpression
+//     : additiveExpression (op=(SHL | SHR) additiveExpression)*
+//     ;
 
-additiveExpression
-    : multiplicativeExpression (op=(PLUS | MINUS) multiplicativeExpression)*
-    ;
+// additiveExpression
+//     : multiplicativeExpression (op=(PLUS | MINUS) multiplicativeExpression)*
+//     ;
 
-multiplicativeExpression
-    : unaryExpression (op=(STAR | DIV | MOD) unaryExpression)*
-    ;
+// multiplicativeExpression
+//     : unaryExpression (op=(STAR | DIV | MOD) unaryExpression)*
+//     ;
 
 
     
@@ -354,16 +375,18 @@ multiplicativeExpression
 //     | unaryExpression? DOUBLEDOT unaryExpression?
 //     ;
 
-unaryExpression
-    : castExpression
-    | primaryExpression    
-    | lambdaExpression
-    | inlineClosureExpression
-    | (PLUS|MINUS|NOT|BNOT|INC|DEC|AND|STAR) unaryExpression    
-    ;
+// unaryExpression
+//     : castExpression
+//     | primaryExpression    
+//     | lambdaExpression
+//     | inlineClosureExpression
+//     | (PLUS|MINUS|NOT|BNOT|INC|DEC|AND|STAR) conditionalExpression[0]    
+//     ;
 
 primaryExpression
-    : super=inheritSuperExpression? pe = primaryExpressionStart bracketExpression* (
+    : super=inheritSuperExpression? pe = primaryExpressionStart 
+    bracketExpression* 
+    (
         (
             methodInvocation 
             | INC 
@@ -371,7 +394,8 @@ primaryExpression
             | (ARROW target=callOtherTarget? invocation=methodInvocation)  // arrow fn
             | ((DOT|ARROW) structMember=Identifier) // struct member access
             | Identifier
-        ) bracketExpression*
+        ) 
+        bracketExpression*
     )*
     ;
 
@@ -433,9 +457,9 @@ lambdaExpression
     ;
 
 castExpression
-    : PAREN_OPEN typeSpecifier PAREN_CLOSE unaryExpression                             #primitiveTypeCastExpression
-    | PAREN_OPEN CURLY_OPEN typeSpecifier CURLY_CLOSE PAREN_CLOSE unaryExpression      #declarativeTypeCastExpression
-    | PAREN_OPEN LT Identifier GT unaryExpression (COMMA unaryExpression)* PAREN_CLOSE          #structCastExpression
+    : PAREN_OPEN typeSpecifier PAREN_CLOSE conditionalExpression[16]                             #primitiveTypeCastExpression
+    | PAREN_OPEN CURLY_OPEN typeSpecifier CURLY_CLOSE PAREN_CLOSE conditionalExpression[16]      #declarativeTypeCastExpression
+    | PAREN_OPEN LT Identifier GT conditionalExpression[16] (COMMA conditionalExpression[16])* PAREN_CLOSE          #structCastExpression
     ;
 
 expressionList
@@ -497,7 +521,7 @@ caseOperators
 
 caseCondition
     : MINUS? (StringLiteral|IntegerConstant|HexIntConstant|Identifier|CharacterConstant)
-    | PAREN_OPEN shiftExpression PAREN_CLOSE
+    | PAREN_OPEN conditionalExpression[13]  PAREN_CLOSE // NTBLA see if we can use tokens instead of expression here
     ;
 
 caseStatement

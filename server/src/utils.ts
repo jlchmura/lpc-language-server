@@ -12,6 +12,7 @@ import {
 import { ContextSymbolTable } from "./backend/ContextSymbolTable";
 import { URI } from "vscode-uri";
 import { ensureLpcConfig } from "./backend/LpcConfig";
+import { trimQuotes } from "./parser3/parser-utils";
 
 export function getSelectionRange(ctx: ParserRuleContext): Range {
     const start = ctx.start;
@@ -22,6 +23,8 @@ export function getSelectionRange(ctx: ParserRuleContext): Range {
     );
     return rng;
 }
+
+export { trimQuotes };
 
 export function containsPosition(
     start: IPosition,
@@ -137,17 +140,6 @@ export function resolveOfTypeSync<T extends BaseSymbol, Args extends unknown[]>(
         }
         return undefined;
     });
-}
-
-/**
- * remove quotes from the start & end of the string
- * @param str
- */
-export function trimQuotes(str: string) {
-    if (str.startsWith('"') && str.endsWith('"')) {
-        return str.slice(1, -1);
-    }
-    return str;
 }
 
 /**
