@@ -54,7 +54,7 @@ import {
     VariableDeclaratorContext,
     WhileStatementContext,
 } from "../parser3/LPCParser";
-import { PreprocessorSymbol } from "../symbols/Symbol";
+import { PreprocessorSymbol, addDiagnostic } from "../symbols/Symbol";
 import { FoldingRange } from "vscode-languageserver";
 import {
     ContextImportInfo,
@@ -184,6 +184,7 @@ export class DetailsVisitor
         // autocomplete will need to load values based on the evaluated symbol type
         if (ctx.ARROW().length > 0 || ctx.DOT().length > 0) {
             const arrowChars = ctx.ARROW().length > 0 ? "->" : ".";
+
             // if there is an arrow and invocation, then this is a call_other expression
             return this.withScope(
                 ctx,
@@ -613,18 +614,6 @@ export class DetailsVisitor
         return undefined;
     };
 
-    // visitInheritSuperExpression = (ctx: InheritSuperExpressionContext) => {
-    //     const filename = ctx._filename?.text ?? "";
-    //     return this.withScope(
-    //         ctx,
-    //         InheritSuperAccessorSymbol,
-    //         ["#inherit-super#" + filename, filename, this.fileHandler],
-    //         (s) => {
-    //             return this.visitChildren(ctx);
-    //         }
-    //     );
-    // };
-
     visitInlineClosureExpression = (ctx: InlineClosureExpressionContext) => {
         let parent = ctx.parent;
         let name: string | undefined = undefined;
@@ -959,35 +948,6 @@ export class DetailsVisitor
         this.markContext(ctx, SemanticTokenTypes.Parameter);
         return undefined;
     };
-
-    //  visitTerminal = (node: TerminalNode) => {
-    //      switch (node.symbol.type) {
-    // //         case LPCLexer.PLUS:
-    // //         case LPCLexer.MINUS:
-    // //         case LPCLexer.STAR:
-    // //         case LPCLexer.DIV:
-    // //         case LPCLexer.MOD:
-    // //         case LPCLexer.SHL:
-    // //         case LPCLexer.SHR:
-    // //         case LPCLexer.AND:
-    // //         case LPCLexer.OR:
-    // //         case LPCLexer.XOR:
-    // //         case LPCLexer.NOT:
-    // //         case LPCLexer.INC:
-    // //         case LPCLexer.DEC:
-    // //             this.addNewSymbol(OperatorSymbol, node, node.getText());
-    // //             break;
-    //         case LPCLexer.Identifier:
-    //             this.addNewSymbol(IdentifierSymbol, node, node.getText());
-    //             break;
-    //         default:
-    //             // Ignore the rest.
-    //             break;
-
-    //      }
-
-    //     return undefined;
-    // };
 
     protected withScope<T, S extends ScopedSymbol>(
         tree: ParseTree,
