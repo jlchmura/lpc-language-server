@@ -22,6 +22,21 @@ type DriverInfo = {
 type DiagnosticsInfo = {
     callOtherTargetUnknown: DiagnosticLevel;
     callOtherLfunNotFound: DiagnosticLevel;
+    argumentTypeMismatch: DiagnosticLevel;
+    argumentsMissing: DiagnosticLevel;
+    argumentsTooMany: DiagnosticLevel;
+    functionNotFound: DiagnosticLevel;
+    variableNotFound: DiagnosticLevel;
+};
+
+const defaultDiagnostics: DiagnosticsInfo = {
+    callOtherTargetUnknown: DiagnosticLevel.Info,
+    callOtherLfunNotFound: DiagnosticLevel.Hint,
+    argumentTypeMismatch: DiagnosticLevel.Warning,
+    argumentsMissing: DiagnosticLevel.Warning,
+    argumentsTooMany: DiagnosticLevel.Error,
+    functionNotFound: DiagnosticLevel.Warning,
+    variableNotFound: DiagnosticLevel.Error,
 };
 
 type FilesInfo = {
@@ -48,10 +63,7 @@ export class LpcConfig {
         type: DriverType.LDMud,
         version: "3.3.720",
     };
-    public diagnostics: DiagnosticsInfo = {
-        callOtherTargetUnknown: DiagnosticLevel.Info,
-        callOtherLfunNotFound: DiagnosticLevel.Hint,
-    };
+    public diagnostics: DiagnosticsInfo = defaultDiagnostics;
 
     public files: FilesInfo = {
         simul_efun: "/obj/simul_efun.c",

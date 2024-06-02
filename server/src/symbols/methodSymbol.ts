@@ -106,10 +106,12 @@ export class LpcBaseMethodSymbol
                 p.type != LpcTypes.unknownType
             ) {
                 addDiagnostic(argSym, {
-                    message: `Argument type mismatch: expected ${p.type?.name}, got ${argVal.type?.name}`,
+                    message: `Argument of type '${argVal.type?.name}' is not assignable to parameter of type '${p.type?.name}'.`,
+                    source: "argumentTypeMismatch",
                     range: lexRangeFromContext(
                         argSym.context as ParserRuleContext
                     ),
+                    code: "argumentTypeMismatch",
                     type: DiagnosticSeverity.Warning,
                 });
             }
@@ -238,9 +240,11 @@ export class MethodInvocationSymbol
             //     const ii = 0;
             // }
             addDiagnostic(this, {
-                message: `Function '${methodName ?? ""}' may be undefined`,
+                message: `Cannot find function named '${methodName ?? ""}'.`,
                 range: rangeFromTokens(ctx.start, ctx.stop),
-                type: DiagnosticSeverity.Error,
+                type: DiagnosticSeverity.Warning,
+                code: "functionNotFound",
+                source: "functionNotFound",
             });
         }
 
@@ -280,21 +284,6 @@ export class FunctionIdentifierSymbol
         return SymbolKind.Keyword;
     }
 
-    public findDeclaration() {
-        let defSymbol: IEvaluatableSymbol = resolveOfTypeSync(
-            this.parent,
-            this.name,
-            MethodSymbol
-        );
-        defSymbol ??= resolveOfTypeSync(
-            SourceContext.efunSymbols,
-            this.name,
-            EfunSymbol
-        );
-
-        return defSymbol;
-    }
-
     eval(stack: CallStack, scope?: any) {
         // the next symbol should be the method invocation
         // store the function name on the stack so that the method invocation
@@ -303,8 +292,6 @@ export class FunctionIdentifierSymbol
             FUNCTION_NAME_KEY,
             new StackValue(this.name, LpcTypes.stringType, this)
         );
-
-        // const def = stack.getFunction(this.name);
         // return def?.eval(stack, scope);
     }
 }

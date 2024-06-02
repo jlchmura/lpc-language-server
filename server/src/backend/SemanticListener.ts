@@ -17,6 +17,7 @@ import {
     areTwoParameterArraysEqual,
     firstEntry,
     getSibling,
+    lastEntry,
     rangeFromTokens,
     resolveOfTypeSync,
     symbolWithContextSync,
@@ -37,7 +38,6 @@ import { addPogramToStack } from "./CallStackUtils";
 import { ensureLpcConfig } from "./LpcConfig";
 import { getDriverInfo } from "../driver/Driver";
 import { EfunSymbols } from "../driver/EfunsLDMud";
-import { isInstanceOfIEvaluatableSymbol } from "../symbols/base";
 import { LPCToken } from "../parser3/LPCToken";
 import { LDMudFeatures } from "../driver/DriverLdMud";
 
@@ -275,9 +275,11 @@ export class SemanticListener extends LPCParserListener {
                 // find first arg that wasn't provided
                 const notProvidedArg = methodParams[callArgs.length];
                 const entry = this.logDiagnostic(
-                    `Wrong number of arguments to ${methodName}: expected ${methodParams.length}, got ${callArgs.length}`,
+                    `Expected ${methodParams.length} arguments, but got ${callArgs.length}.`,
                     rangeStart,
-                    rangeEnd
+                    rangeEnd,
+                    DiagnosticSeverity.Error,
+                    "argumentsMissing"
                 );
 
                 // get the definition for that method
@@ -296,16 +298,19 @@ export class SemanticListener extends LPCParserListener {
                     !(
                         methodSymbol instanceof EfunSymbol &&
                         methodSymbol.allowsMultiArgs()
-                    )
+                    ) &&
+                    !lastEntry(methodParams).name.endsWith("...")
                 ) {
                     // create range based on any extra args
                     const offenderStart = callArgs[methodParams.length].start;
                     const offenderEnd = callArgs[callArgs.length - 1].stop;
 
                     const entry = this.logDiagnostic(
-                        `Expected ${methodParams.length} arguments, but got ${callArgs.length}`,
+                        `Expected ${methodParams.length} arguments, but got ${callArgs.length}.`,
                         offenderStart,
-                        ctx.PAREN_CLOSE().getSymbol()
+                        ctx.PAREN_CLOSE().getSymbol(),
+                        DiagnosticSeverity.Error,
+                        "argumentsTooMany"
                     );
                 }
             }
@@ -351,7 +356,8 @@ export class SemanticListener extends LPCParserListener {
         message: string,
         offendingTokenStart: Token,
         offendingTokenEnd: Token,
-        type: DiagnosticSeverity = DiagnosticSeverity.Error
+        type: DiagnosticSeverity = DiagnosticSeverity.Error,
+        source?: string
     ) {
         let start = offendingTokenStart as LPCToken;
         let end = offendingTokenEnd as LPCToken;
@@ -366,6 +372,8 @@ export class SemanticListener extends LPCParserListener {
             type: type,
             message: message,
             range: rangeFromTokens(start, end),
+            source: source,
+            code: source,
         };
         this.diagnostics.push(entry);
         return entry;

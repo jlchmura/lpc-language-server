@@ -1,17 +1,5 @@
-import {
-    TypedSymbol,
-    IType,
-    BaseSymbol,
-    ScopedSymbol,
-    FundamentalType,
-} from "antlr4-c3";
-import {
-    IKindSymbol,
-    IEvaluatableSymbol,
-    getSymbolsOfTypeSync,
-    isInstanceOfIEvaluatableSymbol,
-    IRenameableSymbol,
-} from "./base";
+import { TypedSymbol, IType, ScopedSymbol, FundamentalType } from "antlr4-c3";
+import { IKindSymbol, IEvaluatableSymbol, IRenameableSymbol } from "./base";
 import { IDefinition, ILexicalRange, SymbolKind } from "../types";
 import { IdentifierSymbol, addDiagnostic } from "./Symbol";
 import { rangeFromTokens } from "../utils";
@@ -99,6 +87,8 @@ export class VariableIdentifierSymbol
                 message: `Cannot find name '${this.name}'.`,
                 range: this.nameRange,
                 type: DiagnosticSeverity.Error,
+                code: "variableNotFound",
+                source: "variableNotFound",
             });
         }
 

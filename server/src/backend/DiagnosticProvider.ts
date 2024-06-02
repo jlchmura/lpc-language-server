@@ -116,7 +116,7 @@ export class DiagnosticProvider {
                 entry.message,
                 severity,
                 undefined,
-                entry.source
+                !!entry.source ? `lpc(${entry.source})` : undefined
             );
 
             const { related } = entry;

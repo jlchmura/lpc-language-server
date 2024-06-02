@@ -245,9 +245,9 @@ export class LpcServer {
             const { uri: filename, version } = e.document;
             try {
                 if (this.lastSeenVersion.get(filename) === version) {
-                    console.debug(
-                        `Skipping change event for ${filename} version ${version}`
-                    );
+                    // console.debug(
+                    //     `Skipping change event for ${filename} version ${version}`
+                    // );
                     return;
                 }
 

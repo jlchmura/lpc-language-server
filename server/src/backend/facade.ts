@@ -8,7 +8,6 @@ import {
     ISymbolInfo,
 } from "../types";
 import {
-    CancellationToken,
     CancellationTokenSource,
     FoldingRange,
     Position,
@@ -74,22 +73,22 @@ export class LpcFacade {
 
         console.log("LpcFacade created", this.importDir, workspaceDir);
 
-        const obs = new PerformanceObserver((list) => {
-            // instantiate
-            const rows: any = [];
-            //console.log("ms        | filename");
-            list.getEntries().forEach((entry) => {
-                console.log(
-                    `${entry.duration.toFixed(4).padStart(9, " ")} | ${
-                        entry.name
-                    }`
-                );
-            });
+        // const obs = new PerformanceObserver((list) => {
+        //     // instantiate
+        //     const rows: any = [];
+        //     //console.log("ms        | filename");
+        //     list.getEntries().forEach((entry) => {
+        //         console.log(
+        //             `${entry.duration.toFixed(4).padStart(9, " ")} | ${
+        //                 entry.name
+        //             }`
+        //         );
+        //     });
 
-            performance.clearMarks();
-            performance.clearMeasures();
-        });
-        obs.observe({ entryTypes: ["measure"], buffered: true });
+        //     performance.clearMarks();
+        //     performance.clearMeasures();
+        // });
+        // obs.observe({ entryTypes: ["measure"], buffered: true });
     }
 
     public filenameToAbsolutePath(filename: string): string {
