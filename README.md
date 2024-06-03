@@ -85,6 +85,26 @@ Since your code is not being evaluating in the mud driver, you may need to simul
 
 In the example above, `__HOST_NAME__` will be defined as the _string_ value `"localhost"`. `TLS_PORT` on the other hand, will be defined as an _int_ value `5555`.
 
+#### Diagnostics - `diagnostics`
+
+The severity level of several diagnostics can be controlled through this configuration option. When a LPC language services reports a diagnostic, the _code_ is printed at the end the message and enclosed in `lpc()`, i.e. `lpc(functionNotFound)`.
+
+For example, to turn off the `functionNotFound` error completely:
+
+```json
+"diagnostics": {
+  "functionNotFound": "none"
+}
+```
+
+Valid severity levels are:
+
+-   `error`
+-   `warning`
+-   `info`
+-   `hint`
+-   `none`
+
 ## Grammar ToDo's
 
 Language services is a work in progress. Some major areas that have yet to be implemented are:
