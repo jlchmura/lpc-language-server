@@ -671,6 +671,6 @@
             ]
         }
     },
-    "scopeName": "source.lpc",
+    "scopeName": "source.lpc.lang-server",
     "uuid": "f0c5f4ad-3e8a-4add-9ebf-2ce1d5e5262f"
 }
