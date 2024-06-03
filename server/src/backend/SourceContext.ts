@@ -809,7 +809,8 @@ export class SourceContext {
                         symbol: includeSymbol,
                         name: filename,
                         kind: SymbolKind.Inherit,
-                        source: includeSymbol.fullPath,
+                        filename: includeSymbol.fullPath,
+                        source: this.fileName,
                         definition: {
                             range: {
                                 start: { column: 0, row: 1 },
@@ -831,9 +832,10 @@ export class SourceContext {
                         symbol: inheritSymbol,
                         name: inheritSymbol.name,
                         kind: SymbolKind.Inherit,
-                        source: this.backend.filenameToAbsolutePath(
+                        filename: this.backend.filenameToAbsolutePath(
                             normalizeFilename(trimQuotes(inheritSymbol.name))
                         ),
+                        source: this.fileName,
                         definition: {
                             range: {
                                 start: { column: 0, row: 1 },

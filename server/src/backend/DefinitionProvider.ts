@@ -53,7 +53,7 @@ export class LpcDefinitionProvider {
                               info.symbol.filename,
                               document.uri
                           ).fullPath
-                        : token?.filename;
+                        : info.filename ?? token?.filename;
 
                 return LocationLink.create(filename, lspRange, lspRange);
             } else {

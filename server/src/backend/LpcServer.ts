@@ -401,7 +401,7 @@ export class LpcServer {
                     resolveProvider: true,
                     triggerCharacters: [">", "*"],
                 },
-                renameProvider: true,
+                renameProvider: false,
                 documentSymbolProvider: true,
                 // codeLensProvider: {
                 //     resolveProvider: true,
