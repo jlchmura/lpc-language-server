@@ -480,9 +480,9 @@ export class LpcServer {
         uri: string,
         version: number,
         force = false
-    ) {
+    ) {        
         const result = await this.diagnosticProvider.processDiagnostic(
-            uri,
+            URI.parse(uri).toString(),
             version,
             force
         );

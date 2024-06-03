@@ -55,8 +55,8 @@ export class LpcDefinitionProvider {
                               document.uri
                           ).fullPath
                         : info.filename ?? token?.filename;
-
-                return LocationLink.create(filename, lspRange, lspRange);
+                            const uri = URI.file(filename);
+                return LocationLink.create(uri.toString(), lspRange, lspRange);
             } else {
                 // Empty for built-in entities.
                 return null;

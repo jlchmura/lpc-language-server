@@ -514,7 +514,7 @@ export class SourceContext {
                 this.runSemanticAnalysisIfNeeded();
 
                 const diags = this.diagnostics.map((d) => {
-                    d.filename = URI.parse(d.filename).toString();
+                    d.filename = URI.file(d.filename).toString();
                     return d;
                 });
                 resolve(diags);
