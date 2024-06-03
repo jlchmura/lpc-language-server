@@ -37,7 +37,7 @@ export class DiagnosticProvider {
         version: number,
         force = false
     ): Promise<DocDiagnostics[]> {
-        const entries = (await this.facade.getDiagnostics(uri, force)).filter(
+        const entries = (await this.facade.getDiagnostics(uri, force))?.filter(
             (d) => !d.filename || d.filename === uri
         );
         const results: DocDiagnostics[] = [];

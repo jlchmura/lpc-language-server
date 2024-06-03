@@ -75,13 +75,16 @@ export class CompletionProvider {
 
         // get the current symbol
         const searchPosition = Position.create(
-            position.line,
-            position.character - 1
+            position.line + 1,
+            position.character
         );
-        const symbol = this.backend.symbolContainingPosition(
+        let symbol = this.backend.symbolContainingPosition(
             document.uri,
             searchPosition
         );
+
+        // use arrow parent if we're on an arrow symbol
+        if (symbol.parent instanceof ArrowSymbol) symbol = symbol.parent;
 
         const symbolTable = this.backend.getContext(document.uri)?.symbolTable;
         const symbols: BaseSymbol[] = [];
@@ -95,7 +98,7 @@ export class CompletionProvider {
         } else if (symbol instanceof ArrowSymbol) {
             symbols.push(
                 ...(await getSymbolsFromAllParents(
-                    symbol.objContext.symbolTable,
+                    symbol.symbolTable,
                     MethodSymbol,
                     false,
                     true

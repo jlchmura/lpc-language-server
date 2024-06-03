@@ -490,7 +490,6 @@ export class SourceContext {
     private runSemanticAnalysisIfNeeded() {
         // don't run analysis if the code state is dirty. needs a compile first
         if (
-            this.parseSuccessful &&
             !this.semanticAnalysisDone &&
             this.tree &&
             //!this.needsCompile &&
@@ -511,6 +510,7 @@ export class SourceContext {
         const p = new Promise<IDiagnosticEntry[]>((resolve, reject) => {
             try {
                 if (force) this.semanticAnalysisDone = false;
+                else if (!this.parseSuccessful) resolve(undefined);
                 this.runSemanticAnalysisIfNeeded();
 
                 const diags = this.diagnostics.map((d) => {
@@ -721,7 +721,12 @@ export class SourceContext {
             return undefined;
         } else {
             // NTBLA: why do we need this?
-            if (first > 0 && arr[first].column > column) return arr[first - 1];
+            if (
+                first > 0 &&
+                (arr[first].column > column ||
+                    arr[first].text?.trim().length == 0)
+            )
+                return arr[first - 1];
             return m;
         }
     }
@@ -820,6 +825,7 @@ export class SourceContext {
                         },
                     },
                 ];
+            case LPCParser.RULE_inherit:
             case LPCParser.RULE_inheritStatement:
             case LPCParser.RULE_inheritFile:
                 const inheritSymbol = this.symbolTable.symbolContainingContext(
