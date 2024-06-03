@@ -343,7 +343,6 @@ export class LpcServer {
         const filename = document.uri;
         const timer = this.changeTimers.get(filename);
         if (timer) {
-            console.debug(`Flushing change timer for ${filename}`);
             clearTimeout(timer);
             await this.processDocChange(document);
         }

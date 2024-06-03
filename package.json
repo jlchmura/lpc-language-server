@@ -1,8 +1,15 @@
 {
     "name": "lpc",
-    "version": "0.9.0",
+    "displayName": "LPC",
+    "version": "0.9.9",
+    "galleryBanner": {
+        "color": "#000000",
+        "theme": "dark"
+    },
     "description": "Rich language support for LPC (Lars Pensjö C)",
     "main": "out/client/src/extension.js",
+    "publisher": "jlchmura",
+    "icon": "lpc-icon.png",
     "scripts": {
         "start": "npm run compile:bin && NODE_OPTIONS='--enable-source-maps' node out/server/src/bin.js test.c",
         "vscode:prepublish": "npm run compile",
@@ -21,6 +28,9 @@
     "engines": {
         "vscode": "^1.75.0"
     },
+    "categories": [
+        "Programming Languages"
+    ],
     "prettier": {
         "trailingComma": "es5",
         "tabWidth": 4,
@@ -92,7 +102,9 @@
         "LDMUD",
         "VSCode"
     ],
-    "author": "jlchmura",
+    "author": {
+        "name": "jlchmura"
+    },
     "license": "MIT",
     "bugs": {
         "url": "https://github.com/jlchmura/lpc-language-server/issues"

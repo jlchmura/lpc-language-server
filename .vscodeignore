@@ -14,6 +14,7 @@ client/
 server/
 grammar/
 test*.c
+test*.h
 !out/server/src/server.js
 !out/server/src/server.map.js
 !out/client/src/extension.js
