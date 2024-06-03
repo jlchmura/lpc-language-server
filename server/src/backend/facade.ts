@@ -63,6 +63,7 @@ export class LpcFacade {
         new CancellationTokenSource();
 
     private parseAllCancel = new CancellationTokenSource();
+    private parseAllComplete = false;
 
     public constructor(public workspaceDir: string) {
         const config = ensureLpcConfig();
@@ -712,7 +713,15 @@ export class LpcFacade {
         }
     }
 
+    public async parseAllIfNeeded() {
+        if (!this.parseAllComplete) {
+            await this.parseAllFiles();
+        }
+    }
+
     public async parseAllFiles() {
+        this.parseAllComplete = false;
+
         const token = this.parseAllCancel.token;
         const dirsToProcess = [this.workspaceDir];
         const config = ensureLpcConfig();
@@ -835,5 +844,6 @@ export class LpcFacade {
             `Parsed all files in ${timeEnd - timeStart} ms`,
             this.sourceContexts.size
         );
+        this.parseAllComplete = true;
     }
 }

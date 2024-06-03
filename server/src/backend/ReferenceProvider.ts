@@ -23,6 +23,9 @@ export class ReferenceProvider {
         doc: TextDocument,
         position: Position
     ): Promise<Location[]> {
+        // NTBLA: decide if we should automatically parse all or not
+        //await this.backend.parseAllIfNeeded();
+
         const p = new Promise<Location[]>((resolve, reject) => {
             const results: Location[] = [];
 
