@@ -310,10 +310,11 @@ export class DetailsVisitor
     private markToken(
         token: Token,
         tokenType: number,
-        tokenModifiers: number[] = []
+        tokenModifiers: number[] = [],
+        len?: number
     ) {
         if (!token || (token as LPCToken).filename != this.filename) return;
-        const len = token.stop - token.start + 1;
+        len ??= token.stop - token.start + 1;
         this.tokenBuilder.add(
             token.line,
             token.column,
@@ -953,7 +954,22 @@ export class DetailsVisitor
     };
 
     visitLambdaExpression = (ctx: LambdaExpressionContext) => {
-        this.markContext(ctx, SemanticTokenTypes.Parameter);
+        if (ctx.LAMBDA_IDENTIFIER()) {
+            // this is a special case
+            const token = ctx.LAMBDA_IDENTIFIER().symbol;
+            this.markToken(token, SemanticTokenTypes.LambdaPrefix, [], 1);
+        } else {
+            let prefixStart = (ctx.HASH() ?? ctx.SINGLEQUOT())?.symbol;
+            const prefixEnd = ctx.SINGLEQUOT()?.symbol ?? prefixStart;
+            const expEnd = ctx.stop;
+
+            this.markToken(
+                prefixStart,
+                SemanticTokenTypes.LambdaPrefix,
+                [],
+                prefixEnd.column - prefixStart.column + 1
+            );
+        }
         return undefined;
     };
 

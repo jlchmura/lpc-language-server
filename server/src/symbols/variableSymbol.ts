@@ -84,7 +84,7 @@ export class VariableIdentifierSymbol
         ) {
             addDiagnostic(this, {
                 filename: (this.context.start as LPCToken).filename,
-                message: `Cannot find name '${this.name}'.`,
+                message: `Variable '${this.name}' not declared.`,
                 range: this.nameRange,
                 type: DiagnosticSeverity.Error,
                 code: "variableNotFound",

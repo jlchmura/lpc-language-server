@@ -113,6 +113,7 @@ export function activate(context: ExtensionContext) {
             SemanticTokenTypes.type,
             SemanticTokenTypes.variable,
             SemanticTokenTypes.property,
+            "punctuation.lambda.lpc",
             SemanticTokenTypes.keyword,
             SemanticTokenTypes.modifier,
         ],

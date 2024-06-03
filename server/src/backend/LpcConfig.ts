@@ -61,7 +61,7 @@ export class LpcConfig {
 
     public driver: DriverInfo = {
         type: DriverType.LDMud,
-        version: "3.3.720",
+        version: "3.6.7",
     };
     public diagnostics: DiagnosticsInfo = defaultDiagnostics;
 

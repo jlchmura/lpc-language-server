@@ -91,7 +91,7 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
             });
         }
 
-        this.target.eval(stack);
+        this.target?.eval(stack);
 
         return scope;
     }
