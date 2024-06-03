@@ -97,7 +97,7 @@
             ]
         },
         {
-            "match": "'[^']*'",
+            "match": "'[^']{1}'",
             "name": "string.quoted.single.lpc",
             "patterns": [
                 {
@@ -107,8 +107,19 @@
         },
         {
             "comment": "LDmud Lambda functions",
-            "match": "(#?')(\\w+|,|[>.\"=<?!|]+)",
-            "name": "keyword.operator.lambda.lpc"
+            "match": "(#?')(?:(\\w+(?::{2}\\w+)?)|(,|[\\[=>.\"<?!|]+))",
+            "name": "keyword.operator.lambda.lpc",
+            "captures": {
+                "1": {
+                    "name": "punctuation.definition.lambda.lpc"
+                },
+                "2": {
+                    "name": "variable.lambda.lpc"
+                },
+                "3": {
+                    "name": "keyword.operator.lambda.lpc"
+                }
+            }
         },
         {
             "begin": "(?x)\n                 ^\\s*\\#\\s*(define)\\s+           # define\n                 ((?<id>[a-zA-Z_][a-zA-Z0-9_]*))    # macro name\n                 (?:                                # and optionally:\n                   (\\()                            # an open parenthesis\n                     (\n                       \\s* \\g<id> \\s*            # first argument\n                       ((,) \\s* \\g<id> \\s*)*     # additional arguments\n                       (?:\\.\\.\\.)?               # varargs ellipsis?\n                     )\n                   (\\))                             # a close parenthesis\n                 )?",
