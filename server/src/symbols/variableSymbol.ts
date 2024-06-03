@@ -1,5 +1,17 @@
-import { TypedSymbol, IType, ScopedSymbol, FundamentalType } from "antlr4-c3";
-import { IKindSymbol, IEvaluatableSymbol, IRenameableSymbol } from "./base";
+import {
+    TypedSymbol,
+    IType,
+    ScopedSymbol,
+    FundamentalType,
+    BaseSymbol,
+} from "antlr4-c3";
+import {
+    IKindSymbol,
+    IEvaluatableSymbol,
+    IRenameableSymbol,
+    IReferenceableSymbol,
+    isInstanceOfIReferenceableSymbol,
+} from "./base";
 import { IDefinition, ILexicalRange, SymbolKind } from "../types";
 import { IdentifierSymbol, addDiagnostic } from "./Symbol";
 import { rangeFromTokens } from "../utils";
@@ -11,11 +23,11 @@ import { InlineClosureSymbol } from "./methodSymbol";
 
 export class VariableSymbol
     extends TypedSymbol
-    implements IKindSymbol, IEvaluatableSymbol
+    implements IKindSymbol, IEvaluatableSymbol, IReferenceableSymbol
 {
     public value: any;
-
     public lpcModifiers: Set<string> = new Set<string>();
+    public references: Set<BaseSymbol> = new Set<BaseSymbol>();
 
     constructor(name: string, type: IType, public nameToken?: Token) {
         super(name, type);
@@ -57,6 +69,10 @@ export class VariableSymbol
 
         return def;
     }
+
+    public addReference(symbol: BaseSymbol) {
+        this.references.add(symbol);
+    }
 }
 
 /**
@@ -90,6 +106,10 @@ export class VariableIdentifierSymbol
                 code: "variableNotFound",
                 source: "variableNotFound",
             });
+        }
+
+        if (isInstanceOfIReferenceableSymbol(def)) {
+            def.addReference(this);
         }
 
         return def?.eval(stack, scope);

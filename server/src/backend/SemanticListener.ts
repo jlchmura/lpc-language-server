@@ -378,42 +378,4 @@ export class SemanticListener extends LPCParserListener {
         this.diagnostics.push(entry);
         return entry;
     }
-
-    protected checkSymbolExistence(
-        mustExist: boolean,
-        kind: SymbolGroupKind,
-        symbol: string,
-        message: string,
-        offendingToken: Token,
-        context?: ScopedSymbol
-    ): void {
-        if (
-            this.symbolTable.symbolExistsInGroup(
-                symbol,
-                kind,
-                false,
-                context
-            ) !== mustExist
-        ) {
-            const entry: IDiagnosticEntry = {
-                type: DiagnosticSeverity.Error,
-                message: message + " '" + symbol + "'",
-                range: {
-                    start: {
-                        column: offendingToken.column,
-                        row: offendingToken.line,
-                    },
-                    end: {
-                        column:
-                            offendingToken.column +
-                            offendingToken.stop -
-                            offendingToken.start +
-                            1,
-                        row: offendingToken.line,
-                    },
-                },
-            };
-            this.diagnostics.push(entry);
-        }
-    }
 }

@@ -612,19 +612,6 @@ export class LpcFacade {
         });
     }
 
-    /**
-     * Count how many times a symbol has been referenced. The given file must contain the definition of this symbol.
-     *
-     * @param fileName The grammar file name.
-     * @param symbol The symbol for which to determine the reference count.
-     * @returns The reference count.
-     */
-    public countReferences(fileName: string, symbol: string): number {
-        const context = this.getContext(fileName);
-
-        return context.getReferenceCount(symbol);
-    }
-
     public async getCodeCompletionCandidates(
         fileName: string,
         column: number,

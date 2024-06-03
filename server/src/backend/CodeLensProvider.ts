@@ -40,15 +40,15 @@ export class CodeLensProvider {
 
     public resolveCodeLens(codeLens: CodeLens): CodeLens {
         const symbol = codeLens.data as ISymbolInfo;
-        const refs = this.backend.countReferences(
-            this.documentName,
-            symbol.name
-        );
-        codeLens.command = {
-            title: refs === 1 ? "1 reference" : `${refs} references`,
-            command: "",
-            arguments: undefined,
-        };
+        // const refs = this.backend.countReferences(
+        //     this.documentName,
+        //     symbol.name
+        // );
+        // codeLens.command = {
+        //     title: refs === 1 ? "1 reference" : `${refs} references`,
+        //     command: "",
+        //     arguments: undefined,
+        // };
 
         return codeLens;
     }

@@ -1,4 +1,8 @@
-import { IEvaluatableSymbol, getSymbolsOfTypeSync } from "./base";
+import {
+    IEvaluatableSymbol,
+    getSymbolsOfTypeSync,
+    isInstanceOfIReferenceableSymbol,
+} from "./base";
 import {
     CallStack,
     RootFrame,
@@ -174,6 +178,8 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
                 code: diagCode,
                 type: DiagnosticSeverity.Error,
             });
+        } else if (isInstanceOfIReferenceableSymbol(funSym)) {
+            funSym.addReference(this);
         }
 
         // the method invocation symbol will have the call arguments

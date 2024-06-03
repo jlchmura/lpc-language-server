@@ -998,18 +998,6 @@ export class SourceContext {
         return undefined;
     }
 
-    public getReferenceCount(symbol: string): number {
-        this.runSemanticAnalysisIfNeeded();
-
-        let result = this.symbolTable.getReferenceCount(symbol);
-
-        for (const reference of this.references) {
-            result += reference.getReferenceCount(symbol);
-        }
-
-        return result;
-    }
-
     public async getCodeCompletionCandidates(
         column: number,
         row: number

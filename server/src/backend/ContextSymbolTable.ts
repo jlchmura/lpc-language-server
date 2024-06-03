@@ -36,7 +36,6 @@ type HighlightSymbolResult = {
 
 export class ContextSymbolTable extends SymbolTable {
     private symbolCache: Map<string, BaseSymbol> = new Map();
-    private symbolReferences = new Map<string, number>();
 
     public tree: ParserRuleContext; // Set by the owning source context after each parse run.
 
@@ -60,7 +59,6 @@ export class ContextSymbolTable extends SymbolTable {
             }
         }
 
-        this.symbolReferences.clear();
         this.symbolCache.clear();
 
         super.clear();
@@ -152,78 +150,6 @@ export class ContextSymbolTable extends SymbolTable {
         }
 
         return undefined;
-    }
-
-    public incrementSymbolRefCount(symbolName: string): void {
-        const reference = this.symbolReferences.get(symbolName);
-        if (reference) {
-            this.symbolReferences.set(symbolName, reference + 1);
-        } else {
-            this.symbolReferences.set(symbolName, 1);
-        }
-    }
-
-    public symbolExistsInGroup(
-        symbol: string,
-        kind: SymbolGroupKind,
-        localOnly: boolean,
-        context: ScopedSymbol = this
-    ): boolean {
-        // Group of lookups.
-        switch (kind) {
-            case SymbolGroupKind.Identifier: {
-                if (
-                    this.symbolExists(
-                        symbol,
-                        SymbolKind.Variable,
-                        localOnly,
-                        context
-                    )
-                ) {
-                    return true;
-                }
-                if (
-                    this.symbolExists(
-                        symbol,
-                        SymbolKind.Method,
-                        localOnly,
-                        context
-                    )
-                ) {
-                    return true;
-                }
-
-                break;
-            }
-            // case SymbolGroupKind.TokenRef: {
-            //     if (this.symbolExists(symbol, SymbolKind.BuiltInLexerToken, localOnly)) {
-            //         return true;
-            //     }
-            //     if (this.symbolExists(symbol, SymbolKind.VirtualLexerToken, localOnly)) {
-            //         return true;
-            //     }
-            //     if (this.symbolExists(symbol, SymbolKind.FragmentLexerToken, localOnly)) {
-            //         return true;
-            //     }
-            //     if (this.symbolExists(symbol, SymbolKind.LexerRule, localOnly)) {
-            //         return true;
-            //     }
-            //     break;
-            // }
-
-            // case SymbolGroupKind.RuleRef: {
-            //     if (this.symbolExists(symbol, SymbolKind.ParserRule, localOnly)) {
-            //         return true;
-            //     }
-            //     break;
-            // }
-
-            default: {
-                break;
-            }
-        }
-
-        return false;
     }
 
     public getSymbolInfo(symbol: string | BaseSymbol): ISymbolInfo | undefined {
@@ -522,15 +448,6 @@ export class ContextSymbolTable extends SymbolTable {
             ScopedSymbol
         );
         return sym?.resolveSync(context.getText(), localOnly);
-    }
-
-    public getReferenceCount(symbolName: string): number {
-        const reference = this.symbolReferences.get(symbolName);
-        if (reference) {
-            return reference;
-        } else {
-            return 0;
-        }
     }
 
     public getSymbolsToHighlight(symbolName: string) {

@@ -21,6 +21,7 @@ import { SignatureHelpProvider } from "./SignatureHelpProvider";
 import { RenameProvider } from "./RenameProvider";
 import { HighlightProvider } from "./HighlightProvider";
 import { loadLpcConfig } from "./LpcConfig";
+import { ReferenceProvider } from "./ReferenceProvider";
 
 const CHANGE_DEBOUNCE_MS = 150;
 
@@ -45,6 +46,7 @@ export class LpcServer {
     private signatureHelpProvider: SignatureHelpProvider;
     private renameProvider: RenameProvider;
     private highlighProvider: HighlightProvider;
+    private referenceProvider: ReferenceProvider;
 
     /** document listener */
     private readonly documents: TextDocuments<TextDocument> = new TextDocuments(
@@ -272,6 +274,15 @@ export class LpcServer {
             }
         });
 
+        this.connection.onReferences(async (params) => {
+            const doc = this.documents.get(params.textDocument.uri);
+            const result = this.referenceProvider.handleReferenceRequest(
+                doc,
+                params.position
+            );
+            return result;
+        });
+
         this.connection.onDocumentHighlight((params) => {
             const result = this.highlighProvider.getHighlights(
                 params.textDocument.uri,
@@ -403,6 +414,7 @@ export class LpcServer {
                 signatureHelpProvider: {
                     triggerCharacters: ["(", ","],
                 },
+                referencesProvider: true,
                 //documentHighlightProvider: true,
             },
         };
@@ -447,6 +459,7 @@ export class LpcServer {
         this.signatureHelpProvider = new SignatureHelpProvider(this.facade);
         this.renameProvider = new RenameProvider(this.facade);
         this.highlighProvider = new HighlightProvider(this.facade);
+        this.referenceProvider = new ReferenceProvider(this.facade);
 
         return result;
     }

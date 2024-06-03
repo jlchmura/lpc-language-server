@@ -4,6 +4,7 @@ import {
     ScopedSymbol,
     MethodSymbol as BaseMethodSymbol,
     ParameterSymbol,
+    BaseSymbol,
 } from "antlr4-c3";
 import {
     IKindSymbol,
@@ -12,6 +13,8 @@ import {
     isInstanceOfIEvaluatableSymbol,
     getSymbolsOfTypeSync,
     IRenameableSymbol,
+    IReferenceableSymbol,
+    isInstanceOfIReferenceableSymbol,
 } from "./base";
 import {
     FUNCTION_NAME_KEY,
@@ -71,9 +74,12 @@ export class LpcBaseMethodSymbol
         IFoldableSymbol,
         IKindSymbol,
         IEvaluatableSymbol,
-        IRenameableSymbol
+        IRenameableSymbol,
+        IReferenceableSymbol
 {
     doc: commentParser.Block;
+
+    public references: Set<BaseSymbol> = new Set<BaseSymbol>();
 
     constructor(
         name: string,
@@ -145,6 +151,18 @@ export class LpcBaseMethodSymbol
             }
         }
 
+        if (!(this instanceof MethodDeclarationSymbol)) {
+            // try to find declaration and add a ref
+            const decl = resolveOfTypeSync(
+                this.symbolTable,
+                this.name,
+                MethodDeclarationSymbol
+            );
+            if (isInstanceOfIReferenceableSymbol(decl)) {
+                decl.addReference(this);
+            }
+        }
+
         return stack.pop().returnValue;
     }
 
@@ -154,6 +172,10 @@ export class LpcBaseMethodSymbol
 
     public getParametersSync() {
         return getSymbolsOfTypeSync(this, MethodParameterSymbol);
+    }
+
+    public addReference(symbol: BaseSymbol): void {
+        this.references.add(symbol);
     }
 
     foldingRange: FoldingRange;
@@ -297,7 +319,12 @@ export class FunctionIdentifierSymbol
             FUNCTION_NAME_KEY,
             new StackValue(this.name, LpcTypes.stringType, this)
         );
-        // return def?.eval(stack, scope);
+
+        // try to find the def here and add a reference
+        const stackFn = stack.getFunction(this.name);
+        if (isInstanceOfIReferenceableSymbol(stackFn)) {
+            stackFn.addReference(this);
+        }
     }
 }
 

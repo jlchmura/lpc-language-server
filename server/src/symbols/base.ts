@@ -49,6 +49,19 @@ export function isInstanceOfIEvaluatableSymbol(
     return (symbol as unknown as IEvaluatableSymbol).eval !== undefined;
 }
 
+export interface IReferenceableSymbol extends BaseSymbol {
+    references: Set<BaseSymbol>;
+
+    addReference(symbol: BaseSymbol): void;
+}
+export function isInstanceOfIReferenceableSymbol(
+    symbol: BaseSymbol
+): symbol is IReferenceableSymbol {
+    return (
+        (symbol as unknown as IReferenceableSymbol)?.addReference !== undefined
+    );
+}
+
 export interface IKindSymbol extends BaseSymbol {
     kind: SymbolKind;
 }
