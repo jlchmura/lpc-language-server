@@ -176,6 +176,9 @@ export function activate(context: ExtensionContext) {
     client.onNotification("lpc/processing", (params) => {
         window.showInformationMessage(params);
     });
+    client.onNotification("lpc/info", (params) => {
+        window.showWarningMessage(params);
+    });
 }
 
 export function deactivate(): Thenable<void> | undefined {

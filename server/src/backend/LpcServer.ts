@@ -275,6 +275,13 @@ export class LpcServer {
         });
 
         this.connection.onReferences(async (params) => {
+            if (!this.facade.parseAllComplete) {
+                this.connection.sendNotification(
+                    "lpc/info",
+                    "Please run the 'Process All Files' command first."
+                );
+            }
+
             const doc = this.documents.get(params.textDocument.uri);
             const result = this.referenceProvider.handleReferenceRequest(
                 doc,
@@ -480,7 +487,7 @@ export class LpcServer {
         uri: string,
         version: number,
         force = false
-    ) {        
+    ) {
         const result = await this.diagnosticProvider.processDiagnostic(
             URI.parse(uri).toString(),
             version,

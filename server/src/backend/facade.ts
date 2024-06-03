@@ -63,7 +63,7 @@ export class LpcFacade {
         new CancellationTokenSource();
 
     private parseAllCancel = new CancellationTokenSource();
-    private parseAllComplete = false;
+    public parseAllComplete = false;
 
     public constructor(public workspaceDir: string) {
         const config = ensureLpcConfig();
