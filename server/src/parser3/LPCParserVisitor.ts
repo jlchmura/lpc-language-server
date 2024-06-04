@@ -2,6 +2,9 @@
 
 import { AbstractParseTreeVisitor } from "antlr4ng";
 
+ 
+    import {LPCParserBase} from "./LPCParserBase";
+
 
 import { ProgramContext } from "./LPCParser.js";
 import { PreprocessorDirectiveContext } from "./LPCParser.js";
@@ -62,6 +65,7 @@ import { StringConcatExpressionContext } from "./LPCParser.js";
 import { CloneObjectExpressionContext } from "./LPCParser.js";
 import { IdentifierExpressionContext } from "./LPCParser.js";
 import { StructInitializerExpressionContext } from "./LPCParser.js";
+import { FluffCloneObjectExpressionContext } from "./LPCParser.js";
 import { ParenExpressionContext } from "./LPCParser.js";
 import { PrimaryArrayExpressionContext } from "./LPCParser.js";
 import { PrimaryMappingExpressionContext } from "./LPCParser.js";
@@ -475,6 +479,13 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      * @return the visitor result
      */
     visitStructInitializerExpression?: (ctx: StructInitializerExpressionContext) => Result;
+    /**
+     * Visit a parse tree produced by the `fluffCloneObjectExpression`
+     * labeled alternative in `LPCParser.primaryExpressionStart`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitFluffCloneObjectExpression?: (ctx: FluffCloneObjectExpressionContext) => Result;
     /**
      * Visit a parse tree produced by the `parenExpression`
      * labeled alternative in `LPCParser.primaryExpressionStart`.

@@ -101,7 +101,7 @@ import {
 import { LPCTokenFactor } from "../parser3/LPCTokenFactory";
 import { LPCToken } from "../parser3/LPCToken";
 import { URI } from "vscode-uri";
-import { FluffOSFeatures } from "../driver/DriverFluffOS";
+
 import { FeatureValidationResult, IDriver } from "../driver/types";
 import { getDriverInfo } from "../driver/Driver";
 
@@ -221,7 +221,11 @@ export class SourceContext {
             DIRECTIVE_CHANNEL
         );
 
+        this.config = ensureLpcConfig();
+        this.driver = getDriverInfo();
+
         this.parser = new LPCParser(this.tokenStream);
+        this.parser.driverType = this.config.driver.type;
         this.parser.setTokenFactory(this.lexer.tokenFactory);
         this.parser.buildParseTrees = true;
 

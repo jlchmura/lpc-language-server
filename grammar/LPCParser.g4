@@ -3,9 +3,13 @@
 // Copyright (c) 2023-2024, John Chmura
 //
 parser grammar LPCParser;
+@header { 
+    import {LPCParserBase} from "./LPCParserBase";
+}
 
 options {
     tokenVocab = LPCLexer;
+    superClass = LPCParserBase;
 }
 
 // Entrypoint
@@ -405,13 +409,14 @@ primaryExpressionStart
     : literal                               # literalExpression
     //| inheritSuperExpression                # inheritExpression    
     | StringLiteral StringLiteral*          # stringConcatExpression
-    | (NEW|CloneObject|LoadObject) PAREN_OPEN (ob=expression) (COMMA expression)* PAREN_CLOSE   # cloneObjectExpression 
+    | (CloneObject|LoadObject) PAREN_OPEN (ob=expression) (COMMA expression)* PAREN_CLOSE   # cloneObjectExpression 
     | validIdentifiers                            # identifierExpression    
     | (
         (NEW PAREN_OPEN CLASS structName=Identifier (COMMA structMemberInitializer)* PAREN_CLOSE) // Fluff
         |
         (PAREN_OPEN LT structName=Identifier GT (structMemberInitializer (COMMA structMemberInitializer)*)? COMMA? PAREN_CLOSE) // LD
       ) # structInitializerExpression        
+    | {this.isFluff()}? NEW PAREN_OPEN (ob=expression) (COMMA expression)* PAREN_CLOSE   # fluffCloneObjectExpression 
     | PAREN_OPEN commaableExpression PAREN_CLOSE # parenExpression
     | arrayExpression                       # primaryArrayExpression
     | mappingExpression                     # primaryMappingExpression    
@@ -427,9 +432,9 @@ validIdentifiers
     | VARIABLES
     | STRUCTS
     | IN
-    | CHAR    
-    | CLASS
-    | NEW
+    | CHAR
+    // these are only available in LD
+    | {this.isLD()}? (CLASS|NEW)
     ;
 
 catchExpr

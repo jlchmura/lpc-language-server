@@ -25,6 +25,7 @@ import {
     DefinePreprocessorDirectiveContext,
     DoWhileStatementContext,
     ExpressionContext,
+    FluffCloneObjectExpressionContext,
     ForEachStatementContext,
     ForEachVariableContext,
     ForStatementContext,
@@ -419,6 +420,21 @@ export class DetailsVisitor
         return undefined;
     };
 
+    visitFluffCloneObjectExpression = (
+        ctx: FluffCloneObjectExpressionContext
+    ) => {
+        let name = "#new#";
+
+        return this.withScope(
+            ctx,
+            CloneObjectSymbol,
+            [name, this.fileHandler],
+            (s) => {
+                return this.visitChildren(ctx);
+            }
+        );
+    };
+
     /**
      * this handles clone_object and load_object
      * @param ctx
@@ -427,7 +443,6 @@ export class DetailsVisitor
     visitCloneObjectExpression = (ctx: CloneObjectExpressionContext) => {
         let name = "#clone-object#";
         if (ctx.LoadObject()) name = "#load-object#";
-        else if (ctx.NEW()) name = "#new#";
 
         return this.withScope(
             ctx,

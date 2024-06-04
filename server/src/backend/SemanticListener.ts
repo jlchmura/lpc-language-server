@@ -7,6 +7,7 @@ import {
     CatchExprContext,
     CatchExpressionContext,
     CloneObjectExpressionContext,
+    FluffCloneObjectExpressionContext,
     FunctionDeclarationContext,
     InheritStatementContext,
     InheritSuperExpressionContext,
@@ -469,15 +470,18 @@ export class SemanticListener extends LPCParserListener {
         }
     };
 
+    enterFluffCloneObjectExpression = (
+        ctx: FluffCloneObjectExpressionContext
+    ) => {
+        this.validateFeatureSupported(
+            ctx,
+            ctx.NEW().getSymbol(),
+            FluffOSFeatures.SyntaxNew,
+            "new(string filename) syntax not supported"
+        );
+    };
+
     enterCloneObjectExpression = (ctx: CloneObjectExpressionContext) => {
-        if (!!ctx.NEW()) {
-            this.validateFeatureSupported(
-                ctx,
-                ctx.NEW().getSymbol(),
-                FluffOSFeatures.SyntaxNew,
-                "new(string filename) syntax not supported"
-            );
-        }
         if (ctx.COMMA()?.length > 0) {
             this.validateFeatureSupported(
                 ctx,
