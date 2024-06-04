@@ -28,6 +28,9 @@ const DEP_FILE_REPARSE_TIME = 300;
 /** ms delay before reparsing the next dep in the queue */
 const DEP_FILE_REPARSE_WORKTIME = 10;
 
+/** ms delay between when a full parse is cancelled and when it is restarted */
+const TIME_BETWEEN_REPARSE = 1000;
+
 export type IContextEntry = {
     context: SourceContext;
     refCount: number;
@@ -64,6 +67,7 @@ export class LpcFacade {
 
     private parseAllCancel = new CancellationTokenSource();
     public parseAllComplete = false;
+    private parseAllFileQueue: string[] = [];
 
     public constructor(public workspaceDir: string) {
         const config = ensureLpcConfig();
@@ -90,6 +94,10 @@ export class LpcFacade {
         //     performance.clearMeasures();
         // });
         // obs.observe({ entryTypes: ["measure"], buffered: true });
+        setTimeout(async () => {
+            await this.queueInitFilesForParse();
+            await this.doParseAll();
+        }, 500);
     }
 
     public filenameToAbsolutePath(filename: string): string {
@@ -719,36 +727,9 @@ export class LpcFacade {
         }
     }
 
-    public async parseAllFiles() {
-        this.parseAllComplete = false;
-
-        const token = this.parseAllCancel.token;
-        const dirsToProcess = [this.workspaceDir];
+    private async queueInitFilesForParse() {
         const config = ensureLpcConfig();
-
-        const timeStart = performance.now();
-
-        const globExcludes =
-            config.exclude?.length > 0
-                ? await glob.glob(config.exclude, {
-                      cwd: this.workspaceDir,
-                      root: this.workspaceDir,
-                      matchBase: true,
-                  })
-                : [];
-
-        const excludeFiles = new Set(
-            globExcludes.map((f) =>
-                f.startsWith(this.workspaceDir)
-                    ? f
-                    : path.join(this.workspaceDir, f)
-            )
-        );
-
-        console.debug(`Excluding files:`, excludeFiles);
-
-        const filesToProcess: string[] = [];
-
+        const excludeFiles = await this.getExludes();
         // add master file
         const masterFileInfo = this.resolveFilename(
             config.files.master,
@@ -756,7 +737,7 @@ export class LpcFacade {
         );
         if (!excludeFiles.has(masterFileInfo.fullPath)) {
             if (fs.existsSync(masterFileInfo.fullPath)) {
-                filesToProcess.push(masterFileInfo.fullPath);
+                this.parseAllFileQueue.push(masterFileInfo.fullPath);
             }
         }
         // add files from init_files
@@ -775,40 +756,50 @@ export class LpcFacade {
                     fs.existsSync(lineFileInfo.fullPath) &&
                     !excludeFiles.has(lineFileInfo.fullPath)
                 ) {
-                    filesToProcess.push(lineFileInfo.fullPath);
+                    this.parseAllFileQueue.push(lineFileInfo.fullPath);
                 }
             }
         });
+    }
 
-        // now process everything else
-        while (dirsToProcess.length > 0 && !token.isCancellationRequested) {
-            const dir = dirsToProcess.pop();
-            const files = fs.readdirSync(dir, { withFileTypes: true });
+    private async getExludes(): Promise<Set<string>> {
+        const config = ensureLpcConfig();
 
-            for (const file of files) {
-                if (token.isCancellationRequested) break;
+        const globExcludes =
+            config.exclude?.length > 0
+                ? await glob.glob(config.exclude, {
+                      cwd: this.workspaceDir,
+                      root: this.workspaceDir,
+                      matchBase: true,
+                  })
+                : [];
 
-                const filename = path.join(dir, file.name);
-                if (file.isDirectory()) {
-                    if (excludeFiles.has(filename)) {
-                        console.debug(
-                            `Skipping dir ${filename} due to exclusion`
-                        );
-                    } else {
-                        dirsToProcess.push(filename);
-                    }
-                } else if (file.name.endsWith(".c")) {
-                    if (excludeFiles.has(filename)) {
-                        console.debug(`Skipping ${filename} due to exclusion`);
-                        continue;
-                    }
+        const excludeFiles = new Set(
+            globExcludes.map((f) =>
+                f.startsWith(this.workspaceDir)
+                    ? f
+                    : path.join(this.workspaceDir, f)
+            )
+        );
 
-                    filesToProcess.push(filename);
-                }
+        return excludeFiles;
+    }
+
+    private async doParseAll() {
+        const token = this.parseAllCancel.token;
+
+        token.onCancellationRequested(() => {
+            // requeue after some time
+            if (this.parseAllFileQueue.length > 0) {
+                setTimeout(() => {
+                    this.doParseAll();
+                }, TIME_BETWEEN_REPARSE);
             }
-        }
+        });
 
-        for (const filename of filesToProcess) {
+        const { parseAllFileQueue } = this;
+
+        for (const filename of parseAllFileQueue) {
             if (token.isCancellationRequested) break;
             const p = new Promise((resolve, reject) => {
                 fs.readFile(filename, { encoding: "utf8" }, (err, txt) => {
@@ -839,11 +830,54 @@ export class LpcFacade {
         if (token.isCancellationRequested) {
             console.debug("Parse all cancelled");
         }
+    }
+
+    public async parseAllFiles() {
+        const timeStart = performance.now();
+
+        this.parseAllComplete = false;
+        this.queueInitFilesForParse();
+        const token = this.parseAllCancel.token;
+
+        const dirsToProcess = [this.workspaceDir];
+        const { parseAllFileQueue } = this;
+        const excludeFiles = await this.getExludes();
+
+        // now process everything else
+        while (dirsToProcess.length > 0 && !token.isCancellationRequested) {
+            const dir = dirsToProcess.pop();
+            const files = fs.readdirSync(dir, { withFileTypes: true });
+
+            for (const file of files) {
+                if (token.isCancellationRequested) break;
+
+                const filename = path.join(dir, file.name);
+                if (file.isDirectory()) {
+                    if (excludeFiles.has(filename)) {
+                        console.debug(
+                            `Skipping dir ${filename} due to exclusion`
+                        );
+                    } else {
+                        dirsToProcess.push(filename);
+                    }
+                } else if (file.name.endsWith(".c")) {
+                    if (excludeFiles.has(filename)) {
+                        console.debug(`Skipping ${filename} due to exclusion`);
+                        continue;
+                    }
+
+                    parseAllFileQueue.push(filename);
+                }
+            }
+        }
+
+        await this.doParseAll();
+
+        this.parseAllComplete = true;
         const timeEnd = performance.now();
         console.log(
             `Parsed all files in ${timeEnd - timeStart} ms`,
             this.sourceContexts.size
         );
-        this.parseAllComplete = true;
     }
 }

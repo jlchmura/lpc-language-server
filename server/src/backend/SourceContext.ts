@@ -290,6 +290,7 @@ export class SourceContext {
         );
         const fileDir = path.dirname(relativeDir);
         configDefines.set("__DIR__", `"/${fileDir}/"`);
+        configDefines.set("__FILE__", `"${relativeDir}"`);
 
         this.parseSuccessful = true;
         this.info.imports.length = 0;
