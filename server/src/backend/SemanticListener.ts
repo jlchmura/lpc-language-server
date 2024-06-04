@@ -16,6 +16,7 @@ import {
     PrimaryExpressionContext,
     PrimitiveTypeSpecifierContext,
     ProgramContext,
+    StructDeclarationContext,
     StructInitializerExpressionContext,
     VariableDeclarationContext,
 } from "../parser3/LPCParser";
@@ -445,13 +446,32 @@ export class SemanticListener extends LPCParserListener {
         }
     };
 
+    enterStructDeclaration = (ctx: StructDeclarationContext) => {
+        if (!ctx.SEMI() && this.config.driver.type == "ldmud") {
+            this.logDiagnostic(
+                "Struct declaration must end with a semicolon",
+                ctx.stop,
+                ctx.stop,
+                DiagnosticSeverity.Error
+            );
+        }
+    };
+
     enterCloneObjectExpression = (ctx: CloneObjectExpressionContext) => {
         if (!!ctx.NEW()) {
             this.validateFeatureSupported(
                 ctx,
                 ctx.NEW().getSymbol(),
-                FluffOSFeatures.SyntaxNewStruct,
+                FluffOSFeatures.SyntaxNew,
                 "new(string filename) syntax not supported"
+            );
+        }
+        if (!!ctx.COMMA()) {
+            this.validateFeatureSupported(
+                ctx,
+                firstEntry(ctx.COMMA()).getSymbol(),
+                FluffOSFeatures.SyntaxNewArgs,
+                "additional clone arguments are not supported"
             );
         }
     };

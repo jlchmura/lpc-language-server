@@ -185,7 +185,7 @@ variableModifier
 
 // struct decl needs to be above variable decl
 structDeclaration
-    : (STRUCT|CLASS) structName=Identifier (PAREN_OPEN structInherits=Identifier PAREN_CLOSE)? CURLY_OPEN structMemberDeclaration* CURLY_CLOSE SEMI
+    : (STRUCT|CLASS) structName=Identifier (PAREN_OPEN structInherits=Identifier PAREN_CLOSE)? CURLY_OPEN structMemberDeclaration* CURLY_CLOSE SEMI?
     ;
 
 variableDeclarationStatement
@@ -405,10 +405,10 @@ primaryExpressionStart
     : literal                               # literalExpression
     //| inheritSuperExpression                # inheritExpression    
     | StringLiteral StringLiteral*          # stringConcatExpression
-    | (NEW|CloneObject|LoadObject) PAREN_OPEN (ob=expression) PAREN_CLOSE   # cloneObjectExpression 
+    | (NEW|CloneObject|LoadObject) PAREN_OPEN (ob=expression) (COMMA expression)* PAREN_CLOSE   # cloneObjectExpression 
     | validIdentifiers                            # identifierExpression    
     | (
-        (NEW PAREN_OPEN CLASS structName=Identifier PAREN_CLOSE) // Fluff
+        (NEW PAREN_OPEN CLASS structName=Identifier (COMMA structMemberInitializer)* PAREN_CLOSE) // Fluff
         |
         (PAREN_OPEN LT structName=Identifier GT (structMemberInitializer (COMMA structMemberInitializer)*)? COMMA? PAREN_CLOSE) // LD
       ) # structInitializerExpression        
@@ -417,7 +417,6 @@ primaryExpressionStart
     | mappingExpression                     # primaryMappingExpression    
     | catchExpr                             # catchExpression    
     ;
-
 
 // list of keywords that are not reserved keywords and thus can be used as identifiers
 validIdentifiers

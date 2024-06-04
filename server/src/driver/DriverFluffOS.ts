@@ -13,6 +13,7 @@ export const FluffOSFeatures = {
     SyntaxArgSpreadOperator: "SyntaxArgSpreadOperator",
     SyntaxFunctionPointer: "SyntaxFunctionPointer", // https://www.fluffos.info/lpc/types/function.html#available-kinds-of-function-pointers
     SyntaxNew: "SyntaxNew",
+    SyntaxNewArgs: "SyntaxNewArgs", // "new" with arguments, e.g. `new ("ob", 1, 2, 3)`  https://www.fluffos.info/efun/objects/new.html#description
     SyntaxNewStruct: "SyntaxNewStruct",
     SyntaxCatchBlock: "SyntaxCatchBlock",
     SyntaxPrivateInherit: "SyntaxPrivateInherit",
