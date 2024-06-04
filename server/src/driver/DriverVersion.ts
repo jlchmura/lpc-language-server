@@ -34,13 +34,10 @@ export class DriverVersion {
 
 function parseVersion(version: string): DriverVersion {
     const parts = version.split(".");
-    if (parts.length !== 3) {
-        throw new Error(`Invalid version format: ${version}`);
-    }
 
     return new DriverVersion(
         parseInt(parts[0]),
-        parseInt(parts[1]),
-        parseInt(parts[2])
+        parts.length > 1 ? parseInt(parts[1]) : 0,
+        parts.length > 2 ? parseInt(parts[2]) : 0
     );
 }

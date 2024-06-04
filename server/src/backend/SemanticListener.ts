@@ -6,6 +6,7 @@ import {
     CallOtherTargetContext,
     FunctionDeclarationContext,
     InheritStatementContext,
+    LiteralContext,
     MethodInvocationContext,
     PrimaryExpressionContext,
     ProgramContext,
@@ -40,11 +41,13 @@ import { getDriverInfo } from "../driver/Driver";
 import { EfunSymbols } from "../driver/EfunsLDMud";
 import { LPCToken } from "../parser3/LPCToken";
 import { LDMudFeatures } from "../driver/DriverLdMud";
+import { FluffOSFeatures } from "../driver/DriverFluffOS";
+import { FeatureValidationResult, IDriver } from "../driver/types";
 
 export class SemanticListener extends LPCParserListener {
     private seenSymbols = new Map<string, Token>();
     private config = ensureLpcConfig();
-    private driver = getDriverInfo();
+    private driver: IDriver = getDriverInfo();
 
     public constructor(
         private diagnostics: IDiagnosticEntry[],
@@ -348,6 +351,37 @@ export class SemanticListener extends LPCParserListener {
                     dot.getSymbol(),
                     DiagnosticSeverity.Warning
                 );
+            }
+        }
+    };
+
+    exitLiteral = (ctx: LiteralContext) => {
+        // format thousands separator in fluffos
+        // e.g. 1_000_000
+        if (ctx.IntegerConstant() || ctx.FloatingConstant()) {
+            const txt = ctx.getText();
+            if (txt.indexOf("_") > -1) {
+                const { version, type } = this.config.driver;
+
+                const check = this.driver.checkFeatureCompatibility(
+                    FluffOSFeatures.NumericConstThousandSeparator,
+                    version
+                );
+
+                let msg: string =
+                    "Numeric constant with underscore not supported by driver ";
+                if (check == FeatureValidationResult.NotSupported) {
+                    msg += `type ${type}`;
+                } else if (
+                    check == FeatureValidationResult.VersionNotSufficient
+                ) {
+                    msg += `version ${version}`;
+                }
+
+                if (check != FeatureValidationResult.Supported) {
+                    const sym = ctx.IntegerConstant().getSymbol();
+                    this.logDiagnostic(msg, sym, sym, DiagnosticSeverity.Error);
+                }
             }
         }
     };

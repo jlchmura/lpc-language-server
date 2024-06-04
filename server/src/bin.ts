@@ -1,7 +1,14 @@
 #!/usr/bin/env node
 import * as fs from "fs";
 import * as path from "path";
-import { BailErrorStrategy, CharStream, CommonTokenStream } from "antlr4ng";
+import {
+    BailErrorStrategy,
+    CharStream,
+    CommonTokenStream,
+    DefaultErrorStrategy,
+    ParseCancellationException,
+    PredictionMode,
+} from "antlr4ng";
 import { LPCLexer } from "./parser3/LPCLexer";
 import { LPCParser } from "./parser3/LPCParser";
 import { TextDocument } from "vscode-languageserver-textdocument";
@@ -50,9 +57,12 @@ lexer.tokenFactory = new LPCTokenFactor(filename);
 
 const tStream = new CommonTokenStream(lexer, 0);
 const parser = new LPCParser(tStream);
-parser.errorHandler = new BailErrorStrategy();
+parser.errorHandler = new DefaultErrorStrategy();
+parser.interpreter.predictionMode = PredictionMode.SLL;
+parser.removeErrorListeners();
 parser.addErrorListener(new ConsoleErrorListener());
 parser.setTokenFactory(lexer.tokenFactory);
+parser.buildParseTrees = true;
 
 tStream.fill();
 const finalTokens = tStream.getTokens();
@@ -74,9 +84,15 @@ tStream.reset();
 tStream.fill();
 
 //parser.interpreter.predictionMode = PredictionMode.SLL;
-const tree = parser.program();
-console.log("tree", tree.children);
-
+try {
+    const tree = parser.program();
+    console.log("tree", tree.children);
+} catch (e) {
+    if (!(e instanceof ParseCancellationException)) {
+        throw e;
+    }
+    console.warn("Parse error");
+}
 //const filename = process.argv[2];
 //const dir = path.dirname(filename);
 

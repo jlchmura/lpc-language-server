@@ -1,6 +1,10 @@
 import {
+    ATNConfigSet,
     ATNSimulator,
     BaseErrorListener,
+    BitSet,
+    DFA,
+    Parser,
     RecognitionException,
     Recognizer,
 } from "antlr4ng";

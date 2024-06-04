@@ -915,9 +915,9 @@ export class DetailsVisitor
     };
 
     // prettier-ignore
-    visitLiteral = (ctx: LiteralContext) => {
+    visitLiteral = (ctx: LiteralContext) => {        
         if (!!ctx.IntegerConstant()) {
-            this.addNewSymbol(LiteralSymbol, ctx, "int", FundamentalType.integerType, +ctx.IntegerConstant().getText());
+            this.addNewSymbol(LiteralSymbol, ctx, "int", FundamentalType.integerType, +ctx.IntegerConstant().getText().replace("_",""));
             this.markToken(ctx.IntegerConstant()?.symbol, SemanticTokenTypes.Number);
         } else if (!!ctx.FloatingConstant()) {
             this.addNewSymbol(LiteralSymbol, ctx, "float", FundamentalType.floatType, +ctx.FloatingConstant().getText());

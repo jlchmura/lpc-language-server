@@ -5,19 +5,17 @@ import {
     IDriver,
 } from "./types";
 
-export const LDMudFeatures = {
-    NamedObjectTypes: "NamedObjectTypes",
-    DotCallStrict: "DotCallStrict",
+export const FluffOSFeatures = {
+    NumericConstThousandSeparator: "NumericConstThousandSeparator",
 } as const;
 
-export class DriverLDMud implements IDriver {
+export class DriverFluffOS implements IDriver {
     Compatibility: DriverVersionCompatibility = {
-        NamedObjectTypes: DriverVersion.from("3.6.5"),
-        DotCallStrict: DriverVersion.from("3.6.2"),
+        NumericConstThousandSeparator: DriverVersion.from("0"),
     };
 
     public checkFeatureCompatibility(
-        feature: keyof typeof LDMudFeatures,
+        feature: keyof typeof FluffOSFeatures,
         driverVersion: string
     ): FeatureValidationResult {
         const requiredVersion = this.Compatibility[feature];
