@@ -6,6 +6,7 @@ import {
     CallOtherTargetContext,
     CatchExprContext,
     CatchExpressionContext,
+    CloneObjectExpressionContext,
     FunctionDeclarationContext,
     InheritStatementContext,
     LiteralContext,
@@ -420,6 +421,17 @@ export class SemanticListener extends LPCParserListener {
                 ctx._structName,
                 LDMudFeatures.SyntaxStructInitializer,
                 "<Identifier> struct initializer syntax not supported"
+            );
+        }
+    };
+
+    enterCloneObjectExpression = (ctx: CloneObjectExpressionContext) => {
+        if (!!ctx.NEW()) {
+            this.validateFeatureSupported(
+                ctx,
+                ctx.NEW().getSymbol(),
+                FluffOSFeatures.SyntaxNewStruct,
+                "new(string filename) syntax not supported"
             );
         }
     };

@@ -426,6 +426,7 @@ export class DetailsVisitor
     visitCloneObjectExpression = (ctx: CloneObjectExpressionContext) => {
         let name = "#clone-object#";
         if (ctx.LoadObject()) name = "#load-object#";
+        else if (ctx.NEW()) name = "#new#";
 
         return this.withScope(
             ctx,

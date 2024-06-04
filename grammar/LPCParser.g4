@@ -403,7 +403,7 @@ primaryExpressionStart
     : literal                               # literalExpression
     //| inheritSuperExpression                # inheritExpression    
     | StringLiteral StringLiteral*          # stringConcatExpression
-    | (CloneObject|LoadObject) PAREN_OPEN (ob=expression) PAREN_CLOSE   # cloneObjectExpression 
+    | (NEW|CloneObject|LoadObject) PAREN_OPEN (ob=expression) PAREN_CLOSE   # cloneObjectExpression 
     | validIdentifiers                            # identifierExpression    
     | (
         (NEW PAREN_OPEN CLASS structName=Identifier PAREN_CLOSE) // Fluff

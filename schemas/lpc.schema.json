@@ -144,7 +144,7 @@
         "includeDefinition": {
             "properties": {
                 "include": {
-                    "description": "Specifies a list of files to be included in the compilation.",
+                    "description": "Specifies a list of folders that are scanned for global includes.",
                     "type": ["array", "null"],
                     "uniqueItems": true,
                     "items": {

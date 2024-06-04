@@ -9,7 +9,8 @@
             "runtimeExecutable": "${execPath}",
             "args": [
                 //"${workspaceRoot}/../lp-245",
-                "${workspaceRoot}/../lpc-test",
+                "${workspaceRoot}/../lima/lib",
+                //"${workspaceRoot}/../lpc-test",
                 // "${workspaceRoot}/../lpc-test/test.c",
                 "--extensionDevelopmentPath=${workspaceRoot}"
             ],
