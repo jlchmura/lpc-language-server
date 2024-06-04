@@ -11,6 +11,7 @@ export const FluffOSFeatures = {
     SyntaxFunctionType: "SyntaxFunctionType", // https://www.fluffos.info/lpc/types/general.html#function
     SyntaxClass: "SyntaxClass",
     SyntaxArgSpreadOperator: "SyntaxArgSpreadOperator",
+    SyntaxFunctionPointer: "SyntaxFunctionPointer", // https://www.fluffos.info/lpc/types/function.html#available-kinds-of-function-pointers
     SyntaxNew: "SyntaxNew",
     SyntaxNewStruct: "SyntaxNewStruct",
     SyntaxCatchBlock: "SyntaxCatchBlock",
@@ -22,6 +23,7 @@ export class DriverFluffOS implements IDriver {
         NumericConstThousandSeparator: DriverVersion.from("0"),
         SyntaxBufferType: DriverVersion.from("0"),
         SyntaxFunctionType: DriverVersion.from("0"),
+        SyntaxFunctionPointer: DriverVersion.from("0"),
         SyntaxClass: DriverVersion.from("0"),
         SyntaxArgSpreadOperator: DriverVersion.from("0"),
         SyntaxNew: DriverVersion.from("0"),

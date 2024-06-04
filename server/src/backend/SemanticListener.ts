@@ -9,6 +9,7 @@ import {
     CloneObjectExpressionContext,
     FunctionDeclarationContext,
     InheritStatementContext,
+    InlineClosureExpressionContext,
     LiteralContext,
     MethodInvocationContext,
     ParameterContext,
@@ -133,25 +134,16 @@ export class SemanticListener extends LPCParserListener {
         }
     };
 
-    // exitIdentifierExpression = (ctx: IdentifierExpressionContext): void => {
-    //     const id = ctx.Identifier();
-    //     const symbol = id.getText();
-
-    //     const ss = symbolWithContextSync(this.symbolTable,ctx);
-    //     const scope = ss?.getParentOfType(ScopedSymbol);
-    //     const parentContext = this.symbolTable.findSymbolDefinition(ctx);
-    //     const parentScope = parentContext?.getParentOfType(ScopedSymbol);
-
-    //     this.checkSymbolExistence(
-    //         true,
-    //         SymbolGroupKind.Identifier,
-    //         symbol,
-    //         "Unknown symbol",
-    //         id.symbol,
-    //         parentScope
-    //     );
-    //     this.symbolTable.incrementSymbolRefCount(symbol);
-    // };
+    exitInlineClosureExpression = (ctx: InlineClosureExpressionContext) => {
+        if (ctx.COMMA?.length > 0) {
+            this.validateFeatureSupported(
+                ctx,
+                firstEntry(ctx.COMMA()).getSymbol(),
+                FluffOSFeatures.SyntaxFunctionPointer,
+                "class not supported"
+            );
+        }
+    };
 
     exitCallOtherTarget = (ctx: CallOtherTargetContext) => {};
 

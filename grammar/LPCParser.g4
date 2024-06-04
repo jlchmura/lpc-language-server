@@ -308,7 +308,7 @@ conditionalExpression[int _p]
     | { 8 >= $_p }? op=OR conditionalExpression[9]
     | { 7 >= $_p }? cond=AND_AND conditionalExpression[8]
     | { 6 >= $_p }? cond=OR_OR conditionalExpression[7]
-    | { 5 >= $_p }? ternOp=QUESTION conditionalExpression[5] ternOp2=COLON conditionalExpression[5]
+    | { 5 >= $_p }? ternOp=QUESTION conditionalExpression[4] ternOp2=COLON conditionalExpression[4]
     | { 4 >= $_p }? assignOp=assignmentOperator conditionalExpression[5]    
     | { 2 >= $_p }? op=COMMA conditionalExpression[4]
     )*
@@ -437,7 +437,8 @@ catchExpr
     ;
 
 inlineClosureExpression
-    : PAREN_OPEN COLON (expression|statement*) COLON PAREN_CLOSE
+    : PAREN_OPEN COLON Identifier (COMMA (expression))* COLON PAREN_CLOSE // Fluff-only function pointer
+    | PAREN_OPEN COLON (expression|statement*) COLON PAREN_CLOSE
     | FUNCTION typeSpecifier? PAREN_OPEN parameterList? PAREN_CLOSE block
     ;
 
