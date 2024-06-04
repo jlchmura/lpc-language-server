@@ -117,7 +117,7 @@ inheritFile
     ;
 
 inheritSuperExpression
-    : filename=(StringLiteral|Identifier)? SUPER_ACCESSOR 
+    : filename=(StringLiteral|Identifier|OBJECT)? SUPER_ACCESSOR 
     ;
 
 declaration

@@ -9,6 +9,7 @@ import {
     CloneObjectExpressionContext,
     FunctionDeclarationContext,
     InheritStatementContext,
+    InheritSuperExpressionContext,
     InlineClosureExpressionContext,
     LiteralContext,
     MethodInvocationContext,
@@ -131,6 +132,17 @@ export class SemanticListener extends LPCParserListener {
                 ctx.FUNCTION().getSymbol(),
                 FluffOSFeatures.SyntaxFunctionType,
                 "`function` type not supported"
+            );
+        }
+    };
+
+    exitInheritSuperExpression = (ctx: InheritSuperExpressionContext) => {
+        if (!!ctx.OBJECT()) {
+            this.validateFeatureSupported(
+                ctx,
+                ctx.OBJECT().getSymbol(),
+                FluffOSFeatures.SyntaxObjectSupperAccessor,
+                "inherit object not supported"
             );
         }
     };
