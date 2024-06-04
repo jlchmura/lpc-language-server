@@ -85,6 +85,7 @@ import {
     firstEntry,
     getSibling,
     lastEntry,
+    lexRangeFromContext,
     lexRangeFromToken,
     trimQuotes,
 } from "../utils";
@@ -716,13 +717,13 @@ export class DetailsVisitor
         ctx: FunctionHeaderDeclarationContext
     ) => {
         const header = ctx.functionHeader();
-        const nm = header._functionName.text;
+        const nm = header._functionName?.getText();
         const retType = typeNameToIType.get(header.typeSpecifier()?.getText());
         const mods = new Set(
             header.functionModifier()?.map((m) => m.getText()) ?? []
         );
 
-        this.markToken(header._functionName, SemanticTokenTypes.Method, [
+        this.markContext(header._functionName, SemanticTokenTypes.Method, [
             SemanticTokenModifiers.Definition,
         ]);
 
@@ -731,7 +732,7 @@ export class DetailsVisitor
             MethodDeclarationSymbol,
             [nm, retType, mods],
             (s) => {
-                s.nameRange = lexRangeFromToken(header._functionName);
+                s.nameRange = lexRangeFromContext(header._functionName);
                 s.doc = this.getPrefixComments(ctx);
                 s.foldingRange = FoldingRange.create(
                     ctx.start.line - 1,
@@ -746,19 +747,19 @@ export class DetailsVisitor
 
     visitFunctionDeclaration = (ctx: FunctionDeclarationContext) => {
         const header = ctx.functionHeader();
-        const nm = header._functionName.text;
+        const nm = header._functionName.getText();
         const retType = typeNameToIType.get(header.typeSpecifier()?.getText());
         const mods = new Set(
             header.functionModifier()?.map((m) => m.getText()) ?? []
         );
 
-        this.markToken(header._functionName, SemanticTokenTypes.Method, [
+        this.markContext(header._functionName, SemanticTokenTypes.Method, [
             SemanticTokenModifiers.Declaration,
         ]);
         //this.markContext(header.typeSpecifier(), SemanticTokenTypes.Type);
 
         return this.withScope(ctx, MethodSymbol, [nm, retType, mods], (s) => {
-            s.nameRange = lexRangeFromToken(header._functionName);
+            s.nameRange = lexRangeFromContext(header._functionName);
             s.doc = this.getPrefixComments(ctx);
             s.foldingRange = FoldingRange.create(
                 ctx.start.line - 1,

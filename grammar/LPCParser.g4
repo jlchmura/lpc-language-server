@@ -117,7 +117,7 @@ inheritFile
     ;
 
 inheritSuperExpression
-    : filename=(StringLiteral|Identifier|OBJECT)? SUPER_ACCESSOR 
+    : filename=(StringLiteral|Identifier|OBJECT)? SUPER_ACCESSOR  // object is fluff only (SyntaxObjectSupperAccessor)
     ;
 
 declaration
@@ -142,7 +142,7 @@ functionModifier
     ;
 
 functionHeader
-    : functionModifier* typeSpecifier? functionName=Identifier PAREN_OPEN functionArgs=parameterList? PAREN_CLOSE
+    : functionModifier* typeSpecifier? functionName=validIdentifiers PAREN_OPEN functionArgs=parameterList? PAREN_CLOSE
     ;
 
 functionHeaderDeclaration
@@ -428,6 +428,8 @@ validIdentifiers
     | STRUCTS
     | IN
     | CHAR    
+    | CLASS
+    | NEW
     ;
 
 catchExpr

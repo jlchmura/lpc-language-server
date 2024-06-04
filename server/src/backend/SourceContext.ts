@@ -272,13 +272,6 @@ export class SourceContext {
                     }
                     this.symbolNameCache.get(name)?.push(token);
                     break;
-                case LPCLexer.CLASS:
-                    this.validateTokenSupported(
-                        token,
-                        FluffOSFeatures.SyntaxClass,
-                        "Keyword `class` not supported"
-                    );
-                    break;
             }
         }
     }
@@ -566,9 +559,9 @@ export class SourceContext {
         const p = new Promise<IDiagnosticEntry[]>((resolve, reject) => {
             try {
                 if (force) this.semanticAnalysisDone = false;
-                else if (this.parseSuccessful) {
-                    this.runSemanticAnalysisIfNeeded();
-                }
+                //else if (this.parseSuccessful) {
+                this.runSemanticAnalysisIfNeeded();
+                //}
 
                 const diags = this.diagnostics.map((d) => {
                     d.filename = URI.file(d.filename).toString();

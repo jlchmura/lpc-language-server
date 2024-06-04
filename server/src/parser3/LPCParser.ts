@@ -326,7 +326,7 @@ export class LPCParser extends antlr.Parser {
             this.state = 175;
             this.errorHandler.sync(this);
             _la = this.tokenStream.LA(1);
-            while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 3770952140) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 1072893591) !== 0) || _la === 72 || _la === 124 || _la === 127) {
+            while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 3907267020) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 1072926623) !== 0) || _la === 72 || _la === 124 || _la === 127) {
                 {
                 this.state = 173;
                 this.errorHandler.sync(this);
@@ -1622,22 +1622,22 @@ export class LPCParser extends antlr.Parser {
             }
             this.state = 394;
             this.errorHandler.sync(this);
-            _la = this.tokenStream.LA(1);
-            if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 1078198732) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 134807) !== 0) || _la === 72) {
+            switch (this.interpreter.adaptivePredict(this.tokenStream, 33, this.context) ) {
+            case 1:
                 {
                 this.state = 393;
                 this.typeSpecifier();
                 }
+                break;
             }
-
             this.state = 396;
-            localContext._functionName = this.match(LPCParser.Identifier);
+            localContext._functionName = this.validIdentifiers();
             this.state = 397;
             this.match(LPCParser.PAREN_OPEN);
             this.state = 399;
             this.errorHandler.sync(this);
             _la = this.tokenStream.LA(1);
-            if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 1214513612) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 537038743) !== 0) || _la === 72 || _la === 124) {
+            if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 1214513612) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 537038751) !== 0) || _la === 72 || _la === 124) {
                 {
                 this.state = 398;
                 localContext._functionArgs = this.parameterList();
@@ -2065,7 +2065,7 @@ export class LPCParser extends antlr.Parser {
             this.state = 476;
             this.errorHandler.sync(this);
             _la = this.tokenStream.LA(1);
-            if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 136314956) !== 0) || ((((_la - 40)) & ~0x1F) === 0 && ((1 << (_la - 40)) & 33554561) !== 0) || _la === 124) {
+            if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 136315084) !== 0) || ((((_la - 35)) & ~0x1F) === 0 && ((1 << (_la - 35)) & 1073745953) !== 0) || _la === 124) {
                 {
                 this.state = 475;
                 this.variableDeclaratorExpression();
@@ -2259,7 +2259,7 @@ export class LPCParser extends antlr.Parser {
             this.state = 504;
             this.errorHandler.sync(this);
             _la = this.tokenStream.LA(1);
-            if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 148897900) !== 0) || ((((_la - 35)) & ~0x1F) === 0 && ((1 << (_la - 35)) & 2013270051) !== 0) || ((((_la - 68)) & ~0x1F) === 0 && ((1 << (_la - 68)) & 25603) !== 0) || ((((_la - 105)) & ~0x1F) === 0 && ((1 << (_la - 105)) & 978437) !== 0)) {
+            if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 148898028) !== 0) || ((((_la - 35)) & ~0x1F) === 0 && ((1 << (_la - 35)) & 2013270051) !== 0) || ((((_la - 68)) & ~0x1F) === 0 && ((1 << (_la - 68)) & 25603) !== 0) || ((((_la - 105)) & ~0x1F) === 0 && ((1 << (_la - 105)) & 978437) !== 0)) {
                 {
                 this.state = 503;
                 this.argumentList();
@@ -2509,7 +2509,7 @@ export class LPCParser extends antlr.Parser {
             this.state = 562;
             this.errorHandler.sync(this);
             _la = this.tokenStream.LA(1);
-            if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 148897900) !== 0) || ((((_la - 35)) & ~0x1F) === 0 && ((1 << (_la - 35)) & 2013270051) !== 0) || ((((_la - 68)) & ~0x1F) === 0 && ((1 << (_la - 68)) & 25603) !== 0) || ((((_la - 105)) & ~0x1F) === 0 && ((1 << (_la - 105)) & 978437) !== 0)) {
+            if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 148898028) !== 0) || ((((_la - 35)) & ~0x1F) === 0 && ((1 << (_la - 35)) & 2013270051) !== 0) || ((((_la - 68)) & ~0x1F) === 0 && ((1 << (_la - 68)) & 25603) !== 0) || ((((_la - 105)) & ~0x1F) === 0 && ((1 << (_la - 105)) & 978437) !== 0)) {
                 {
                 this.state = 554;
                 this.expression();
@@ -3371,7 +3371,7 @@ export class LPCParser extends antlr.Parser {
                     this.state = 751;
                     this.errorHandler.sync(this);
                     _la = this.tokenStream.LA(1);
-                    if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 148897900) !== 0) || ((((_la - 35)) & ~0x1F) === 0 && ((1 << (_la - 35)) & 2013270051) !== 0) || ((((_la - 68)) & ~0x1F) === 0 && ((1 << (_la - 68)) & 25603) !== 0) || ((((_la - 105)) & ~0x1F) === 0 && ((1 << (_la - 105)) & 978437) !== 0)) {
+                    if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 148898028) !== 0) || ((((_la - 35)) & ~0x1F) === 0 && ((1 << (_la - 35)) & 2013270051) !== 0) || ((((_la - 68)) & ~0x1F) === 0 && ((1 << (_la - 68)) & 25603) !== 0) || ((((_la - 105)) & ~0x1F) === 0 && ((1 << (_la - 105)) & 978437) !== 0)) {
                         {
                         this.state = 743;
                         this.structMemberInitializer();
@@ -3476,7 +3476,7 @@ export class LPCParser extends antlr.Parser {
             {
             this.state = 768;
             _la = this.tokenStream.LA(1);
-            if(!((((_la) & ~0x1F) === 0 && ((1 << _la) & 136314956) !== 0) || _la === 40 || _la === 47 || _la === 124)) {
+            if(!((((_la) & ~0x1F) === 0 && ((1 << _la) & 136315084) !== 0) || ((((_la - 35)) & ~0x1F) === 0 && ((1 << (_la - 35)) & 4129) !== 0) || _la === 124)) {
             this.errorHandler.recoverInline(this);
             }
             else {
@@ -3677,7 +3677,7 @@ export class LPCParser extends antlr.Parser {
                 this.state = 824;
                 this.errorHandler.sync(this);
                 _la = this.tokenStream.LA(1);
-                if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 1214513612) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 537038743) !== 0) || _la === 72 || _la === 124) {
+                if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 1214513612) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 537038751) !== 0) || _la === 72 || _la === 124) {
                     {
                     this.state = 823;
                     this.parameterList();
@@ -3764,7 +3764,7 @@ export class LPCParser extends antlr.Parser {
                 this.state = 846;
                 this.errorHandler.sync(this);
                 _la = this.tokenStream.LA(1);
-                if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 148897900) !== 0) || ((((_la - 35)) & ~0x1F) === 0 && ((1 << (_la - 35)) & 2013270051) !== 0) || ((((_la - 68)) & ~0x1F) === 0 && ((1 << (_la - 68)) & 25603) !== 0) || ((((_la - 105)) & ~0x1F) === 0 && ((1 << (_la - 105)) & 978437) !== 0)) {
+                if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 148898028) !== 0) || ((((_la - 35)) & ~0x1F) === 0 && ((1 << (_la - 35)) & 2013270051) !== 0) || ((((_la - 68)) & ~0x1F) === 0 && ((1 << (_la - 68)) & 25603) !== 0) || ((((_la - 105)) & ~0x1F) === 0 && ((1 << (_la - 105)) & 978437) !== 0)) {
                     {
                     this.state = 845;
                     this.expression();
@@ -3786,7 +3786,7 @@ export class LPCParser extends antlr.Parser {
                 this.state = 853;
                 this.errorHandler.sync(this);
                 _la = this.tokenStream.LA(1);
-                if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 148897900) !== 0) || ((((_la - 35)) & ~0x1F) === 0 && ((1 << (_la - 35)) & 2013270051) !== 0) || ((((_la - 68)) & ~0x1F) === 0 && ((1 << (_la - 68)) & 25603) !== 0) || ((((_la - 105)) & ~0x1F) === 0 && ((1 << (_la - 105)) & 978437) !== 0)) {
+                if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 148898028) !== 0) || ((((_la - 35)) & ~0x1F) === 0 && ((1 << (_la - 35)) & 2013270051) !== 0) || ((((_la - 68)) & ~0x1F) === 0 && ((1 << (_la - 68)) & 25603) !== 0) || ((((_la - 105)) & ~0x1F) === 0 && ((1 << (_la - 105)) & 978437) !== 0)) {
                     {
                     this.state = 852;
                     this.expression();
@@ -4906,7 +4906,7 @@ export class LPCParser extends antlr.Parser {
             this.state = 1088;
             this.errorHandler.sync(this);
             _la = this.tokenStream.LA(1);
-            if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 1222902124) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 3221392799) !== 0) || ((((_la - 64)) & ~0x1F) === 0 && ((1 << (_la - 64)) & 409651) !== 0) || ((((_la - 105)) & ~0x1F) === 0 && ((1 << (_la - 105)) & 978437) !== 0)) {
+            if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 1222902252) !== 0) || ((((_la - 32)) & ~0x1F) === 0 && ((1 << (_la - 32)) & 3221392799) !== 0) || ((((_la - 64)) & ~0x1F) === 0 && ((1 << (_la - 64)) & 409651) !== 0) || ((((_la - 105)) & ~0x1F) === 0 && ((1 << (_la - 105)) & 978437) !== 0)) {
                 {
                 this.state = 1080;
                 this.forVariable();
@@ -4934,7 +4934,7 @@ export class LPCParser extends antlr.Parser {
             this.state = 1092;
             this.errorHandler.sync(this);
             _la = this.tokenStream.LA(1);
-            if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 148897900) !== 0) || ((((_la - 35)) & ~0x1F) === 0 && ((1 << (_la - 35)) & 2013270051) !== 0) || ((((_la - 68)) & ~0x1F) === 0 && ((1 << (_la - 68)) & 25603) !== 0) || ((((_la - 105)) & ~0x1F) === 0 && ((1 << (_la - 105)) & 978437) !== 0)) {
+            if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 148898028) !== 0) || ((((_la - 35)) & ~0x1F) === 0 && ((1 << (_la - 35)) & 2013270051) !== 0) || ((((_la - 68)) & ~0x1F) === 0 && ((1 << (_la - 68)) & 25603) !== 0) || ((((_la - 105)) & ~0x1F) === 0 && ((1 << (_la - 105)) & 978437) !== 0)) {
                 {
                 this.state = 1091;
                 this.expression();
@@ -4946,7 +4946,7 @@ export class LPCParser extends antlr.Parser {
             this.state = 1096;
             this.errorHandler.sync(this);
             _la = this.tokenStream.LA(1);
-            if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 148897900) !== 0) || ((((_la - 35)) & ~0x1F) === 0 && ((1 << (_la - 35)) & 2013270051) !== 0) || ((((_la - 68)) & ~0x1F) === 0 && ((1 << (_la - 68)) & 25603) !== 0) || ((((_la - 105)) & ~0x1F) === 0 && ((1 << (_la - 105)) & 978437) !== 0)) {
+            if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 148898028) !== 0) || ((((_la - 35)) & ~0x1F) === 0 && ((1 << (_la - 35)) & 2013270051) !== 0) || ((((_la - 68)) & ~0x1F) === 0 && ((1 << (_la - 68)) & 25603) !== 0) || ((((_la - 105)) & ~0x1F) === 0 && ((1 << (_la - 105)) & 978437) !== 0)) {
                 {
                 this.state = 1095;
                 this.expression();
@@ -5167,7 +5167,7 @@ export class LPCParser extends antlr.Parser {
             this.state = 1139;
             this.errorHandler.sync(this);
             _la = this.tokenStream.LA(1);
-            if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 148897900) !== 0) || ((((_la - 35)) & ~0x1F) === 0 && ((1 << (_la - 35)) & 2013270051) !== 0) || ((((_la - 68)) & ~0x1F) === 0 && ((1 << (_la - 68)) & 25603) !== 0) || ((((_la - 105)) & ~0x1F) === 0 && ((1 << (_la - 105)) & 978437) !== 0)) {
+            if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 148898028) !== 0) || ((((_la - 35)) & ~0x1F) === 0 && ((1 << (_la - 35)) & 2013270051) !== 0) || ((((_la - 68)) & ~0x1F) === 0 && ((1 << (_la - 68)) & 25603) !== 0) || ((((_la - 105)) & ~0x1F) === 0 && ((1 << (_la - 105)) & 978437) !== 0)) {
                 {
                 this.state = 1138;
                 this.commaableExpression();
@@ -5384,7 +5384,7 @@ export class LPCParser extends antlr.Parser {
                 this.state = 1170;
                 this.errorHandler.sync(this);
                 _la = this.tokenStream.LA(1);
-                if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 148897900) !== 0) || ((((_la - 35)) & ~0x1F) === 0 && ((1 << (_la - 35)) & 2013270051) !== 0) || ((((_la - 68)) & ~0x1F) === 0 && ((1 << (_la - 68)) & 25603) !== 0) || ((((_la - 105)) & ~0x1F) === 0 && ((1 << (_la - 105)) & 978437) !== 0)) {
+                if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 148898028) !== 0) || ((((_la - 35)) & ~0x1F) === 0 && ((1 << (_la - 35)) & 2013270051) !== 0) || ((((_la - 68)) & ~0x1F) === 0 && ((1 << (_la - 68)) & 25603) !== 0) || ((((_la - 105)) & ~0x1F) === 0 && ((1 << (_la - 105)) & 978437) !== 0)) {
                     {
                     this.state = 1169;
                     this.argument();
@@ -5585,12 +5585,12 @@ export class LPCParser extends antlr.Parser {
         52,56,58,60,2,0,7,7,41,41,11,0,2,3,6,6,8,8,18,18,22,22,30,30,32,
         34,36,36,39,39,42,43,49,49,1,0,92,104,4,0,63,65,68,69,78,78,81,82,
         1,0,65,67,1,0,63,64,1,0,70,71,1,0,72,75,2,0,27,27,76,77,2,0,91,91,
-        106,106,2,0,35,35,122,123,7,0,2,3,6,6,21,21,27,27,40,40,47,47,124,
-        124,2,0,38,38,51,51,6,0,63,67,70,81,83,85,88,88,92,102,111,111,2,
-        0,109,109,111,111,1,0,63,66,4,0,114,114,116,116,118,119,124,124,
-        2,0,27,27,86,86,2,0,114,116,119,119,1301,0,175,1,0,0,0,2,196,1,0,
-        0,0,4,198,1,0,0,0,6,202,1,0,0,0,8,217,1,0,0,0,10,219,1,0,0,0,12,
-        221,1,0,0,0,14,223,1,0,0,0,16,250,1,0,0,0,18,256,1,0,0,0,20,268,
+        106,106,2,0,35,35,122,123,8,0,2,3,6,7,21,21,27,27,35,35,40,40,47,
+        47,124,124,2,0,38,38,51,51,6,0,63,67,70,81,83,85,88,88,92,102,111,
+        111,2,0,109,109,111,111,1,0,63,66,4,0,114,114,116,116,118,119,124,
+        124,2,0,27,27,86,86,2,0,114,116,119,119,1301,0,175,1,0,0,0,2,196,
+        1,0,0,0,4,198,1,0,0,0,6,202,1,0,0,0,8,217,1,0,0,0,10,219,1,0,0,0,
+        12,221,1,0,0,0,14,223,1,0,0,0,16,250,1,0,0,0,18,256,1,0,0,0,20,268,
         1,0,0,0,22,270,1,0,0,0,24,281,1,0,0,0,26,283,1,0,0,0,28,285,1,0,
         0,0,30,304,1,0,0,0,32,306,1,0,0,0,34,330,1,0,0,0,36,348,1,0,0,0,
         38,350,1,0,0,0,40,353,1,0,0,0,42,362,1,0,0,0,44,375,1,0,0,0,46,383,
@@ -5678,7 +5678,7 @@ export class LPCParser extends antlr.Parser {
         1,0,0,0,387,389,3,48,24,0,388,387,1,0,0,0,389,392,1,0,0,0,390,388,
         1,0,0,0,390,391,1,0,0,0,391,394,1,0,0,0,392,390,1,0,0,0,393,395,
         3,84,42,0,394,393,1,0,0,0,394,395,1,0,0,0,395,396,1,0,0,0,396,397,
-        5,124,0,0,397,399,5,107,0,0,398,400,3,56,28,0,399,398,1,0,0,0,399,
+        3,106,53,0,397,399,5,107,0,0,398,400,3,56,28,0,399,398,1,0,0,0,399,
         400,1,0,0,0,400,401,1,0,0,0,401,402,5,108,0,0,402,51,1,0,0,0,403,
         404,3,50,25,0,404,405,5,87,0,0,405,53,1,0,0,0,406,407,3,50,25,0,
         407,408,3,124,62,0,408,55,1,0,0,0,409,414,3,58,29,0,410,411,5,88,
@@ -7142,7 +7142,7 @@ export class FunctionModifierContext extends antlr.ParserRuleContext {
 
 
 export class FunctionHeaderContext extends antlr.ParserRuleContext {
-    public _functionName?: Token | null;
+    public _functionName?: ValidIdentifiersContext;
     public _functionArgs?: ParameterListContext;
     public constructor(parent: antlr.ParserRuleContext | null, invokingState: number) {
         super(parent, invokingState);
@@ -7153,8 +7153,8 @@ export class FunctionHeaderContext extends antlr.ParserRuleContext {
     public PAREN_CLOSE(): antlr.TerminalNode {
         return this.getToken(LPCParser.PAREN_CLOSE, 0)!;
     }
-    public Identifier(): antlr.TerminalNode {
-        return this.getToken(LPCParser.Identifier, 0)!;
+    public validIdentifiers(): ValidIdentifiersContext {
+        return this.getRuleContext(0, ValidIdentifiersContext)!;
     }
     public functionModifier(): FunctionModifierContext[];
     public functionModifier(i: number): FunctionModifierContext | null;
@@ -9100,6 +9100,12 @@ export class ValidIdentifiersContext extends antlr.ParserRuleContext {
     }
     public CHAR(): antlr.TerminalNode | null {
         return this.getToken(LPCParser.CHAR, 0);
+    }
+    public CLASS(): antlr.TerminalNode | null {
+        return this.getToken(LPCParser.CLASS, 0);
+    }
+    public NEW(): antlr.TerminalNode | null {
+        return this.getToken(LPCParser.NEW, 0);
     }
     public override get ruleIndex(): number {
         return LPCParser.RULE_validIdentifiers;

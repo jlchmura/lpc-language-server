@@ -31,6 +31,9 @@ export class ContextErrorListener extends BaseErrorListener {
         _e: RecognitionException | null
     ): void {
         const lt = offendingSymbol as unknown as LPCToken;
+        if (lt.filename.endsWith("bull_board.c")) {
+            const ii = 0;
+        }
         // get a better message
         const error: IDiagnosticEntry = {
             filename: lt.filename,

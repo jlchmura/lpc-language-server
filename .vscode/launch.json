@@ -8,8 +8,8 @@
             "name": "Launch Client",
             "runtimeExecutable": "${execPath}",
             "args": [
-                //"${workspaceRoot}/../sticklib",
-                "${workspaceRoot}/../lima/lib",
+                "${workspaceRoot}/../lp-245",
+                //"${workspaceRoot}/../lima/lib",
                 //"${workspaceRoot}/../lpc-test",
                 // "${workspaceRoot}/../lpc-test/test.c",
                 "--extensionDevelopmentPath=${workspaceRoot}"
