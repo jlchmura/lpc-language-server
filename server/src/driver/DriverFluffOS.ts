@@ -7,21 +7,27 @@ import {
 
 export const FluffOSFeatures = {
     NumericConstThousandSeparator: "NumericConstThousandSeparator",
+    SyntaxBufferType: "SyntaxBufferType", // https://www.fluffos.info/lpc/types/buffer.html#buffer
+    SyntaxFunctionType: "SyntaxFunctionType", // https://www.fluffos.info/lpc/types/general.html#function
     SyntaxClass: "SyntaxClass",
     SyntaxArgSpreadOperator: "SyntaxArgSpreadOperator",
     SyntaxNew: "SyntaxNew",
     SyntaxNewStruct: "SyntaxNewStruct",
     SyntaxCatchBlock: "SyntaxCatchBlock",
+    SyntaxPrivateInherit: "SyntaxPrivateInherit",
 } as const;
 
 export class DriverFluffOS implements IDriver {
     Compatibility: DriverVersionCompatibility = {
         NumericConstThousandSeparator: DriverVersion.from("0"),
+        SyntaxBufferType: DriverVersion.from("0"),
+        SyntaxFunctionType: DriverVersion.from("0"),
         SyntaxClass: DriverVersion.from("0"),
         SyntaxArgSpreadOperator: DriverVersion.from("0"),
         SyntaxNew: DriverVersion.from("0"),
         SyntaxNewStruct: DriverVersion.from("0"),
         SyntaxCatchBlock: DriverVersion.from("0"),
+        SyntaxPrivateInherit: DriverVersion.from("0"),
     };
 
     public checkFeatureCompatibility(

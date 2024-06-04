@@ -88,7 +88,7 @@ directiveTypePragma: PRAGMA;
 // inherit
 inheritStatement
     : (
-        inherit        
+        PRIVATE? inherit        
         | (DEFAULT defaultModifier+)? inheritModifier* VIRTUAL? inherit
     ) SEMI    
     ;
@@ -213,9 +213,11 @@ variableInitializer
 primitiveTypeSpecifier
     : VOID
     | BYTES
+    | BUFFER // Fluff-only
     | CHAR
     | INT   
     | FLOAT     
+    | FUNCTION // Fluff-only
     | STRING    
     | OBJECT
     | MAPPING
@@ -421,6 +423,7 @@ primaryExpressionStart
 validIdentifiers
     : Identifier            
     | BYTES
+    | BUFFER
     | FUNCTIONS
     | VARIABLES
     | STRUCTS

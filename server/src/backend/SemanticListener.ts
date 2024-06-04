@@ -13,6 +13,7 @@ import {
     MethodInvocationContext,
     ParameterContext,
     PrimaryExpressionContext,
+    PrimitiveTypeSpecifierContext,
     ProgramContext,
     StructInitializerExpressionContext,
     VariableDeclarationContext,
@@ -101,6 +102,33 @@ export class SemanticListener extends LPCParserListener {
                 ctx.start,
                 ctx.stop,
                 DiagnosticSeverity.Warning
+            );
+        }
+
+        if (ctx.PRIVATE()) {
+            this.validateFeatureSupported(
+                ctx,
+                ctx.PRIVATE().getSymbol(),
+                FluffOSFeatures.SyntaxPrivateInherit,
+                "private inherit not supported"
+            );
+        }
+    };
+
+    enterPrimitiveTypeSpecifier = (ctx: PrimitiveTypeSpecifierContext) => {
+        if (ctx.BUFFER()) {
+            this.validateFeatureSupported(
+                ctx,
+                ctx.BUFFER().getSymbol(),
+                FluffOSFeatures.SyntaxBufferType,
+                "`buffer` type not supported"
+            );
+        } else if (ctx.FUNCTION()) {
+            this.validateFeatureSupported(
+                ctx,
+                ctx.FUNCTION().getSymbol(),
+                FluffOSFeatures.SyntaxFunctionType,
+                "`function` type not supported"
             );
         }
     };
