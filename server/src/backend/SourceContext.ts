@@ -802,6 +802,17 @@ export class SourceContext {
         }
 
         switch (parent.ruleIndex) {
+            case LPCParser.RULE_lambdaExpression:
+                let lambdaName = terminal.getText();
+                // remove prefix
+                if (lambdaName.startsWith("#'"))
+                    lambdaName = lambdaName.slice(2);
+                else if (lambdaName.startsWith("'"))
+                    lambdaName = lambdaName.slice(1);
+
+                symbol = this.symbolTable.resolveSync(lambdaName, false);
+
+                break;
             case LPCParser.RULE_directiveTypeInclude:
             case LPCParser.RULE_directiveGlobalFile:
             case LPCParser.RULE_directiveIncludeFile:
