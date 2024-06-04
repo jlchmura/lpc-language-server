@@ -34,7 +34,7 @@ import {
 } from "../types";
 import { ContextErrorListener } from "./ContextErrorListener";
 import { ContextLexerErrorListener } from "./ContextLexerErrorListener";
-import { ContextSymbolTable } from "./ContextSymbolTable";
+import { ContextSymbolTable, SymbolTableCache } from "./ContextSymbolTable";
 import { SemanticListener } from "./SemanticListener";
 import {
     BaseSymbol,
@@ -117,6 +117,7 @@ export class SourceContext {
     public info: IContextDetails = {
         unreferencedMethods: [],
         imports: [],
+        includes: [],
         objectReferences: {},
     };
 
@@ -192,7 +193,8 @@ export class SourceContext {
 
         this.lexer = new LPCPreprocessingLexer(
             CharStream.fromString(""),
-            this.fileName
+            this.fileName,
+            this.info.includes
         );
         this.lexer.tokenFactory = new LPCTokenFactor(this.fileName);
         this.lexer.fileHandler = this.fileHandler;
@@ -294,6 +296,7 @@ export class SourceContext {
 
         this.parseSuccessful = true;
         this.info.imports.length = 0;
+        this.info.includes.length = 0;
         this.semanticAnalysisDone = false;
         this.diagnostics.length = 0;
 
@@ -372,7 +375,6 @@ export class SourceContext {
         this.macroTable = this.lexer.getMacros();
 
         const visitor = new DetailsVisitor(
-            this.backend,
             this.symbolTable,
             this.info.imports,
             this.semanticTokens,
@@ -746,12 +748,6 @@ export class SourceContext {
             this.tree,
             token.tokenIndex
         ) as TerminalNode;
-        // const terminal = BackendUtils.parseTreeFromPosition(
-        //     this.tree,
-        //     column,
-        //     row,
-        //     this.fileName
-        // ) as TerminalNode;
 
         const macroDef = this.macroTable.get(token?.text);
 

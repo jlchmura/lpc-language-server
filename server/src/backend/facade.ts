@@ -22,6 +22,7 @@ import { randomInt } from "crypto";
 import { ensureLpcConfig } from "./LpcConfig";
 import { glob } from "glob";
 import { URI } from "vscode-uri";
+import { ContextSymbolTable, SymbolTableCache } from "./ContextSymbolTable";
 
 /** ms delay before reparsing a depenency */
 const DEP_FILE_REPARSE_TIME = 300;
@@ -68,6 +69,8 @@ export class LpcFacade {
     private parseAllCancel = new CancellationTokenSource();
     public parseAllComplete = false;
     private parseAllFileQueue: string[] = [];
+
+    public includeRefs: Map<string, Set<string>> = new Map();
 
     public constructor(public workspaceDir: string) {
         const config = ensureLpcConfig();
@@ -400,6 +403,7 @@ export class LpcFacade {
         try {
             const oldDependencies = [...contextEntry.dependencies];
             const oldReferences = [...context.getReferences()];
+            const oldIncludes = [...context.info.includes];
 
             contextEntry.dependencies = [];
 
@@ -407,6 +411,7 @@ export class LpcFacade {
 
             // load file-level dependencies (imports & inherits)
             const newDependencies = [...info.imports];
+            const newIncludes = [...info.includes];
 
             for (const dep of newDependencies) {
                 this.addDependency(contextEntry.filename, dep, depChain);
@@ -441,6 +446,19 @@ export class LpcFacade {
             // grammars).
             for (const dep of oldDependencies) {
                 this.releaseLpc(dep);
+            }
+
+            for (const include of oldIncludes) {
+                if (this.includeRefs.has(include)) {
+                    this.includeRefs.get(include).delete(context.fileName);
+                }
+            }
+
+            for (const include of newIncludes) {
+                if (!this.includeRefs.has(include)) {
+                    this.includeRefs.set(include, new Set());
+                }
+                this.includeRefs.get(include).add(context.fileName);
             }
         } catch (e) {
             console.error(`Error parsing ${contextEntry.filename}: ${e}`, e);

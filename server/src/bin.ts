@@ -43,7 +43,8 @@ const code = fs.existsSync(filename)
 
 const doc = TextDocument.create("uri", "lpc", 0, code);
 const stream = CharStream.fromString(code);
-const lexer = new LPCPreprocessingLexer(stream, filename);
+const includes = [];
+const lexer = new LPCPreprocessingLexer(stream, filename, includes);
 lexer.fileHandler = new MockFileHandler();
 lexer.tokenFactory = new LPCTokenFactor(filename);
 

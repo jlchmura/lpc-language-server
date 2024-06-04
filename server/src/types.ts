@@ -47,6 +47,7 @@ export interface IContextDetails {
     //unreferencedRules: string[];
     unreferencedMethods: string[];
     imports: ContextImportInfo[];
+    includes: string[];
     objectReferences: Record<string, BaseSymbol[]>;
 }
 

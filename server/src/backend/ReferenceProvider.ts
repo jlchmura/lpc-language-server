@@ -3,6 +3,7 @@ import { LpcFacade } from "./facade";
 import { Location } from "vscode-languageserver";
 import {
     firstEntry,
+    getFilenameForSymbol,
     lexRangeFromContext,
     lexRangeToLspRange,
     rangeFromTokens,
@@ -15,6 +16,7 @@ import { ContextSymbolTable } from "./ContextSymbolTable";
 import { ParserRuleContext } from "antlr4ng";
 import { LPCToken } from "../parser3/LPCToken";
 import { BaseSymbol } from "antlr4-c3";
+import { URI } from "vscode-uri";
 
 export class ReferenceProvider {
     constructor(private backend: LpcFacade) {}
@@ -23,53 +25,65 @@ export class ReferenceProvider {
         doc: TextDocument,
         position: Position
     ): Promise<Location[]> {
+        const docFilename = URI.parse(doc.uri).fsPath;
         // NTBLA: decide if we should automatically parse all or not
         //await this.backend.parseAllIfNeeded();
 
-        const p = new Promise<Location[]>((resolve, reject) => {
-            const results: Location[] = [];
+        const results: Location[] = [];
+        const seen: Set<BaseSymbol> = new Set();
 
-            const symbolInfo = this.backend.symbolInfoAtPosition(
-                doc.uri,
-                position.character,
-                position.line + 1,
-                false
-            );
+        const symbolInfo = this.backend.symbolInfoAtPosition(
+            doc.uri,
+            position.character,
+            position.line + 1,
+            true
+        );
 
-            const sym = firstEntry(symbolInfo)?.symbol;
-            if (!sym) {
-                return [];
-            } else if (!isInstanceOfIReferenceableSymbol(sym)) {
-                return [];
-            }
+        const sym = firstEntry(symbolInfo)?.symbol;
+        if (!sym) {
+            return [];
+        } else if (!isInstanceOfIReferenceableSymbol(sym)) {
+            return [];
+        }
 
-            const seen: Set<BaseSymbol> = new Set();
-            const refsToScan: BaseSymbol[] = [...sym.references];
+        const refsToScan: BaseSymbol[] = [sym];
 
-            while (refsToScan.length > 0) {
-                const ref = refsToScan.pop();
-                if (seen.has(ref)) continue;
-                seen.add(ref);
-
-                if (isInstanceOfIReferenceableSymbol(ref)) {
-                    refsToScan.push(...ref.references);
+        // check this files inludes to see if the symbol is defined in another file
+        const symFile = getFilenameForSymbol(sym);
+        if (this.backend.includeRefs.has(symFile)) {
+            const files = [symFile, ...this.backend.includeRefs.get(symFile)];
+            for (const file of files) {
+                const refCtx = this.backend.loadLpc(file);
+                const refSym = await refCtx.symbolTable.resolve(sym.name, true);
+                if (
+                    isInstanceOfIReferenceableSymbol(refSym) &&
+                    getFilenameForSymbol(refSym) === file
+                ) {
+                    refsToScan.push(refSym);
                 }
+            }
+        }
 
-                const parseInfo = ref.context as ParserRuleContext;
-                const token = parseInfo.start as LPCToken;
-                const filename = token.filename;
-                const range = lexRangeToLspRange(
-                    lexRangeFromContext(parseInfo)
-                );
+        while (refsToScan.length > 0) {
+            const ref = refsToScan.pop();
+            if (seen.has(ref)) continue;
+            seen.add(ref);
 
-                results.push({
-                    uri: filename,
-                    range: range,
-                });
+            if (isInstanceOfIReferenceableSymbol(ref)) {
+                refsToScan.push(...ref.references);
             }
 
-            resolve(results);
-        });
-        return p;
+            const parseInfo = ref.context as ParserRuleContext;
+            const token = parseInfo.start as LPCToken;
+            const filename = token.filename;
+            const range = lexRangeToLspRange(lexRangeFromContext(parseInfo));
+
+            results.push({
+                uri: filename,
+                range: range,
+            });
+        }
+
+        return results;
     }
 }

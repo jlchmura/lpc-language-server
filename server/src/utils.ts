@@ -13,6 +13,7 @@ import { ContextSymbolTable } from "./backend/ContextSymbolTable";
 import { URI } from "vscode-uri";
 import { ensureLpcConfig } from "./backend/LpcConfig";
 import { trimQuotes } from "./parser3/parser-utils";
+import { LPCToken } from "./parser3/LPCToken";
 
 export function getSelectionRange(ctx: ParserRuleContext): Range {
     const start = ctx.start;
@@ -427,4 +428,12 @@ export function symbolWithContextSync(
     }
 
     return undefined;
+}
+
+export function getFilenameForContext(ctx: ParserRuleContext) {
+    return (ctx.start as LPCToken).filename;
+}
+
+export function getFilenameForSymbol(symbol: BaseSymbol) {
+    return getFilenameForContext(symbol.context as ParserRuleContext);
 }

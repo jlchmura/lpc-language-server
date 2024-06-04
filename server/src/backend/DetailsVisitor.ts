@@ -16,8 +16,7 @@ import {
     ScopedSymbol,
     SymbolConstructor,
 } from "antlr4-c3";
-import { ContextSymbolTable } from "./ContextSymbolTable";
-import { LpcFacade } from "./facade";
+import { ContextSymbolTable, SymbolTableCache } from "./ContextSymbolTable";
 import {
     BracketExpressionContext,
     CallOtherTargetContext,
@@ -54,7 +53,7 @@ import {
     VariableDeclaratorContext,
     WhileStatementContext,
 } from "../parser3/LPCParser";
-import { PreprocessorSymbol, addDiagnostic } from "../symbols/Symbol";
+import { PreprocessorSymbol } from "../symbols/Symbol";
 import { FoldingRange } from "vscode-languageserver";
 import {
     ContextImportInfo,
@@ -122,7 +121,6 @@ export class DetailsVisitor
     protected scope = this.symbolTable as ScopedSymbol;
 
     constructor(
-        private backend: LpcFacade,
         private symbolTable: ContextSymbolTable,
         private imports: ContextImportInfo[],
         private tokenBuilder: SemanticTokenCollection,
@@ -135,6 +133,8 @@ export class DetailsVisitor
     visitDefinePreprocessorDirective = (
         ctx: DefinePreprocessorDirectiveContext
     ) => {
+        // NTBLA: remove this
+
         const defineStr = ctx.END_DEFINE()?.getText()?.trim();
 
         // trim everything after the first space
@@ -724,7 +724,6 @@ export class DetailsVisitor
         this.markToken(header._functionName, SemanticTokenTypes.Method, [
             SemanticTokenModifiers.Definition,
         ]);
-        //this.markContext(header.typeSpecifier(), SemanticTokenTypes.Type);
 
         return this.withScope(
             ctx,
@@ -859,9 +858,6 @@ export class DetailsVisitor
         return this.withScope(ctx, ExpressionSymbol, ["#expression#"], (s) => {
             return this.visitChildren(ctx);
         });
-        // } else {
-        //     return this.visitChildren(ctx);
-        // }
     };
 
     parseIterationStatement(
@@ -905,12 +901,6 @@ export class DetailsVisitor
 
         //const varType = this.parsePrimitiveType(ctx.primitiveTypeSpecifier());
         return this.visitChildren(ctx);
-        // const varName = ctx.va
-        // const varSym = this.parseVariableDeclaration(
-        //     ctx.variableDeclarator(),
-        //     varType
-        // );
-        // return undefined;
     };
 
     visitForEachVariable = (ctx: ForEachVariableContext) => {

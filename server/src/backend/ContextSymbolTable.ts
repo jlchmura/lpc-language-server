@@ -29,6 +29,8 @@ import {
 import { InheritSymbol } from "../symbols/inheritSymbol";
 import { LPCToken } from "../parser3/LPCToken";
 
+export type SymbolTableCache = Map<string, SymbolTable>;
+
 type HighlightSymbolResult = {
     symbol: BaseSymbol;
     token: Token;
