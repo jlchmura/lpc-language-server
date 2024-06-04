@@ -1,7 +1,7 @@
 import * as path from "path";
 import { ParseTree, ParserRuleContext, Token } from "antlr4ng";
-import { Position, Range } from "vscode-languageserver";
-import { ILexicalRange, IPosition } from "./types";
+import { DiagnosticSeverity, Position, Range } from "vscode-languageserver";
+import { IDiagnosticEntry, ILexicalRange, IPosition } from "./types";
 import {
     BaseSymbol,
     IScopedSymbol,
@@ -436,4 +436,32 @@ export function getFilenameForContext(ctx: ParserRuleContext) {
 
 export function getFilenameForSymbol(symbol: BaseSymbol) {
     return getFilenameForContext(symbol.context as ParserRuleContext);
+}
+
+export function logDiagnosticForTokens(
+    diagnostics: IDiagnosticEntry[],
+    message: string,
+    offendingTokenStart: Token,
+    offendingTokenEnd: Token,
+    type: DiagnosticSeverity = DiagnosticSeverity.Error,
+    source?: string
+) {
+    let start = offendingTokenStart as LPCToken;
+    let end = offendingTokenEnd as LPCToken;
+
+    if (start.relatedToken) start = start.relatedToken as LPCToken;
+    if (end.relatedToken) end = end.relatedToken as LPCToken;
+
+    end = end ?? start;
+
+    const entry: IDiagnosticEntry = {
+        filename: start.filename,
+        type: type,
+        message: message,
+        range: rangeFromTokens(start, end),
+        source: source,
+        code: source,
+    };
+    diagnostics.push(entry);
+    return entry;
 }

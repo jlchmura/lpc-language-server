@@ -1,4 +1,4 @@
-import { Token } from "antlr4ng";
+import { ParserRuleContext, Token } from "antlr4ng";
 import { LPCParserListener } from "../parser3/LPCParserListener";
 import { IDiagnosticEntry, SymbolGroupKind } from "../types";
 import { ContextSymbolTable } from "./ContextSymbolTable";
@@ -8,6 +8,7 @@ import {
     InheritStatementContext,
     LiteralContext,
     MethodInvocationContext,
+    ParameterContext,
     PrimaryExpressionContext,
     ProgramContext,
     VariableDeclarationContext,
@@ -19,6 +20,7 @@ import {
     firstEntry,
     getSibling,
     lastEntry,
+    logDiagnosticForTokens,
     rangeFromTokens,
     resolveOfTypeSync,
     symbolWithContextSync,
@@ -386,6 +388,53 @@ export class SemanticListener extends LPCParserListener {
         }
     };
 
+    enterParameter = (ctx: ParameterContext) => {
+        const { version, type } = this.config.driver;
+
+        if (ctx.TRIPPLEDOT()) {
+            this.validateFeatureSupported(
+                ctx,
+                ctx.TRIPPLEDOT().getSymbol(),
+                FluffOSFeatures.SyntaxArgSpreadOperator,
+                "Argument spread operator not supported"
+            );
+        }
+    };
+
+    private validateFeatureSupported(
+        ctx: ParserRuleContext,
+        token: Token,
+        feature: string,
+        failMsg: string
+    ): boolean {
+        let msgSuffix: string;
+        switch (
+            this.driver.checkFeatureCompatibility(
+                feature,
+                this.config.driver.version
+            )
+        ) {
+            case FeatureValidationResult.NotSupported:
+                msgSuffix = `by driver type ${this.config.driver.type}`;
+                break;
+            case FeatureValidationResult.VersionNotSufficient:
+                msgSuffix = `by driver version ${this.config.driver.version}`;
+                break;
+            case FeatureValidationResult.Supported:
+                return true;
+        }
+
+        logDiagnosticForTokens(
+            this.diagnostics,
+            `${failMsg} ${msgSuffix}`,
+            token,
+            token,
+            DiagnosticSeverity.Error
+        );
+
+        return false;
+    }
+
     private logDiagnostic(
         message: string,
         offendingTokenStart: Token,
@@ -393,23 +442,13 @@ export class SemanticListener extends LPCParserListener {
         type: DiagnosticSeverity = DiagnosticSeverity.Error,
         source?: string
     ) {
-        let start = offendingTokenStart as LPCToken;
-        let end = offendingTokenEnd as LPCToken;
-
-        if (start.relatedToken) start = start.relatedToken as LPCToken;
-        if (end.relatedToken) end = end.relatedToken as LPCToken;
-
-        end = end ?? start;
-
-        const entry: IDiagnosticEntry = {
-            filename: start.filename,
-            type: type,
-            message: message,
-            range: rangeFromTokens(start, end),
-            source: source,
-            code: source,
-        };
-        this.diagnostics.push(entry);
-        return entry;
+        return logDiagnosticForTokens(
+            this.diagnostics,
+            message,
+            offendingTokenStart,
+            offendingTokenEnd,
+            type,
+            source
+        );
     }
 }

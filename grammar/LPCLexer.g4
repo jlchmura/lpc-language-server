@@ -17,6 +17,7 @@ BYTES: 'bytes';
 CASE: 'case';
 CATCH: 'catch';
 CHAR: 'char';
+CLASS: 'class';
 CLOSURE: 'closure';
 CONST: 'const';
 CONTINUE: 'continue';

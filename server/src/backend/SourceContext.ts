@@ -46,6 +46,7 @@ import { BackendUtils } from "./BackendUtils";
 import { LpcFacade } from "./facade";
 import { DetailsVisitor } from "./DetailsVisitor";
 import {
+    Diagnostic,
     DiagnosticSeverity,
     DocumentHighlight,
     DocumentHighlightKind,
@@ -56,6 +57,7 @@ import {
 import {
     getSelectionRange,
     lexRangeFromContext as lexRangeFromContext,
+    logDiagnosticForTokens,
     normalizeFilename,
     pushIfDefined,
     rangeFromTokens,
@@ -88,7 +90,7 @@ import {
 } from "../symbols/inheritSymbol";
 import { performance } from "perf_hooks";
 import { LpcFileHandler } from "./FileHandler";
-import { ensureLpcConfig } from "./LpcConfig";
+import { LpcConfig, ensureLpcConfig } from "./LpcConfig";
 import { getParentContextOfType } from "../symbols/Symbol";
 import { DriverVersion } from "../driver/DriverVersion";
 import {
@@ -99,6 +101,9 @@ import {
 import { LPCTokenFactor } from "../parser3/LPCTokenFactory";
 import { LPCToken } from "../parser3/LPCToken";
 import { URI } from "vscode-uri";
+import { FluffOSFeatures } from "../driver/DriverFluffOS";
+import { FeatureValidationResult, IDriver } from "../driver/types";
+import { getDriverInfo } from "../driver/Driver";
 
 const mapAnnotationReg = /\[\[@(.+?)\]\]/;
 
@@ -171,6 +176,9 @@ export class SourceContext {
 
     private allTokens: LPCToken[] = [];
     private symbolNameCache: Map<string, LPCToken[]> = new Map();
+
+    private config: LpcConfig;
+    private driver: IDriver;
 
     public constructor(
         public backend: LpcFacade,
@@ -256,14 +264,47 @@ export class SourceContext {
         });
 
         for (const token of tokens) {
-            if (token.type === LPCLexer.Identifier) {
-                const name = token.text;
-                if (!this.symbolNameCache.has(name)) {
-                    this.symbolNameCache.set(name, []);
-                }
-                this.symbolNameCache.get(name)?.push(token);
+            switch (token.type) {
+                case LPCLexer.Identifier:
+                    const name = token.text;
+                    if (!this.symbolNameCache.has(name)) {
+                        this.symbolNameCache.set(name, []);
+                    }
+                    this.symbolNameCache.get(name)?.push(token);
+                    break;
+                case LPCLexer.CLASS:
+                    this.validateTokenSupported(
+                        token,
+                        FluffOSFeatures.SyntaxClass,
+                        "Keyword not supported"
+                    );
+                    break;
             }
         }
+    }
+
+    private validateTokenSupported(
+        token: LPCToken,
+        feature: string,
+        failMsg: string
+    ): boolean {
+        if (
+            this.driver.checkFeatureCompatibility(
+                feature,
+                this.config.driver.version
+            ) === FeatureValidationResult.NotSupported
+        ) {
+            logDiagnosticForTokens(
+                this.diagnostics,
+                `${failMsg} by the driver version ${this.config.driver.version}`,
+                token,
+                token,
+                DiagnosticSeverity.Error
+            );
+            return false;
+        }
+
+        return true;
     }
 
     public parse(): IContextDetails {
@@ -273,7 +314,8 @@ export class SourceContext {
 
         this.macroTable.clear();
 
-        const config = ensureLpcConfig();
+        const config = (this.config = ensureLpcConfig());
+        this.driver = getDriverInfo();
 
         // add macros from config
         const configDefines = new Map(config.defines ?? []);

@@ -159,7 +159,7 @@ parameterList
     ;
 
 parameter
-    : VARARGS? paramType=unionableTypeSpecifier? paramName=validIdentifiers (ASSIGN expression)? 
+    : VARARGS? paramType=unionableTypeSpecifier? paramName=validIdentifiers (ASSIGN expression | TRIPPLEDOT)? 
     //| paramType=STRUCT structName=Identifier STAR? paramName=validIdentifiers #structParameterExpression
     ;
 
@@ -185,7 +185,7 @@ variableModifier
 
 // struct decl needs to be above variable decl
 structDeclaration
-    : STRUCT structName=Identifier (PAREN_OPEN structInherits=Identifier PAREN_CLOSE)? CURLY_OPEN structMemberDeclaration* CURLY_CLOSE SEMI
+    : (STRUCT|CLASS) structName=Identifier (PAREN_OPEN structInherits=Identifier PAREN_CLOSE)? CURLY_OPEN structMemberDeclaration* CURLY_CLOSE SEMI
     ;
 
 variableDeclarationStatement
@@ -231,7 +231,7 @@ methodInvocation
     ;
 
 structTypeSpecifier
-    : STRUCT Identifier STAR?
+    : (STRUCT|CLASS) Identifier STAR?
     ;
 
 typeSpecifier

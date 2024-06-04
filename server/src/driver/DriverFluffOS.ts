@@ -7,11 +7,15 @@ import {
 
 export const FluffOSFeatures = {
     NumericConstThousandSeparator: "NumericConstThousandSeparator",
+    SyntaxClass: "TokenTypeClass",
+    SyntaxArgSpreadOperator: "SyntaxArgSpreadOperator",
 } as const;
 
 export class DriverFluffOS implements IDriver {
     Compatibility: DriverVersionCompatibility = {
         NumericConstThousandSeparator: DriverVersion.from("0"),
+        SyntaxClass: DriverVersion.from("0"),
+        SyntaxArgSpreadOperator: DriverVersion.from("0"),
     };
 
     public checkFeatureCompatibility(
