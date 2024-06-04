@@ -7,7 +7,7 @@ import {
 
 export const FluffOSFeatures = {
     NumericConstThousandSeparator: "NumericConstThousandSeparator",
-    SyntaxClass: "TokenTypeClass",
+    SyntaxClass: "SyntaxClass",
     SyntaxArgSpreadOperator: "SyntaxArgSpreadOperator",
     SyntaxNewStruct: "SyntaxNewStruct",
     SyntaxCatchBlock: "SyntaxCatchBlock",

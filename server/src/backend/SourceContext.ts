@@ -276,7 +276,7 @@ export class SourceContext {
                     this.validateTokenSupported(
                         token,
                         FluffOSFeatures.SyntaxClass,
-                        "Keyword not supported"
+                        "Keyword `class` not supported"
                     );
                     break;
             }
@@ -288,23 +288,34 @@ export class SourceContext {
         feature: string,
         failMsg: string
     ): boolean {
-        if (
+        const { type, version } = this.config.driver;
+
+        let msgSuffix: string;
+        switch (
             this.driver.checkFeatureCompatibility(
                 feature,
                 this.config.driver.version
-            ) === FeatureValidationResult.NotSupported
+            )
         ) {
-            logDiagnosticForTokens(
-                this.diagnostics,
-                `${failMsg} by the driver version ${this.config.driver.version}`,
-                token,
-                token,
-                DiagnosticSeverity.Error
-            );
-            return false;
+            case FeatureValidationResult.NotSupported:
+                msgSuffix = `by driver type ${type}`;
+                break;
+            case FeatureValidationResult.VersionNotSufficient:
+                msgSuffix = `by ${type} driver version ${version}`;
+                break;
+            default:
+                return true;
         }
 
-        return true;
+        logDiagnosticForTokens(
+            this.diagnostics,
+            `${failMsg} ${msgSuffix}`,
+            token,
+            token,
+            DiagnosticSeverity.Error
+        );
+
+        return false;
     }
 
     public parse(): IContextDetails {
@@ -380,12 +391,6 @@ export class SourceContext {
         this.tokenStream.fill();
         const allTokens = this.tokenStream.getTokens() as LPCToken[];
 
-        this.buildTokenCache([
-            ...allTokens,
-            ...(this.directiveStream.getTokens() as LPCToken[]),
-        ]);
-        this.processTokens(allTokens);
-
         // const newSource = allTokens
         //     .filter((t) => t.channel == 0 || t.channel == 1)
         //     .map((t) => t.text)
@@ -412,6 +417,12 @@ export class SourceContext {
 
         this.symbolTable.tree = this.tree;
         this.parseSuccessful = this.diagnostics.length == 0;
+
+        this.buildTokenCache([
+            ...allTokens,
+            ...(this.directiveStream.getTokens() as LPCToken[]),
+        ]);
+        this.processTokens(allTokens);
 
         // get the macrotable from the lexer's preprocessor
         this.macroTable = this.lexer.getMacros();
@@ -555,8 +566,9 @@ export class SourceContext {
         const p = new Promise<IDiagnosticEntry[]>((resolve, reject) => {
             try {
                 if (force) this.semanticAnalysisDone = false;
-                else if (!this.parseSuccessful) resolve(undefined);
-                this.runSemanticAnalysisIfNeeded();
+                else if (this.parseSuccessful) {
+                    this.runSemanticAnalysisIfNeeded();
+                }
 
                 const diags = this.diagnostics.map((d) => {
                     d.filename = URI.file(d.filename).toString();

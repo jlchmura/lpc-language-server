@@ -429,7 +429,7 @@ validIdentifiers
     ;
 
 catchExpr
-    : CATCH '(' expression (',' expression)* (';' Identifier)* ')' // LD
+    : CATCH PAREN_OPEN expression (COMMA expression)* (SEMI Identifier)* PAREN_CLOSE // LD
     | CATCH block        // Fluff
     ;
 
@@ -584,12 +584,12 @@ literal
     ;
 
 argument
-    : AND? expression
+    : AND? expression TRIPPLEDOT?
     ;
 
 // The argument after comma is reall required, but that causes parsing errors that negatively impact 
 // code completion & signature help while typing.  So we will validate in the semantic analyzer
 argumentList
-    : argument (COMMA argument?)* TRIPPLEDOT? // trippledot must be last
+    : argument (COMMA argument?)* // trippledot must be last
     ;
 

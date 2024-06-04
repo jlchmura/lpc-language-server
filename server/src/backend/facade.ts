@@ -827,7 +827,7 @@ export class LpcFacade {
                             txt,
                             new Set()
                         );
-                        if (ctx.needsValidation) {
+                        if (ctx?.needsValidation) {
                             this.onRunDiagnostics(filename, false);
                         }
 

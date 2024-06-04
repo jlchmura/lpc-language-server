@@ -5,6 +5,7 @@ import { ContextSymbolTable } from "./ContextSymbolTable";
 import {
     CallOtherTargetContext,
     CatchExprContext,
+    CatchExpressionContext,
     FunctionDeclarationContext,
     InheritStatementContext,
     LiteralContext,
@@ -427,7 +428,7 @@ export class SemanticListener extends LPCParserListener {
         if (!!ctx.block()) {
             this.validateFeatureSupported(
                 ctx,
-                ctx.block().CURLY_OPEN().getSymbol(),
+                ctx.CATCH().getSymbol(),
                 FluffOSFeatures.SyntaxCatchBlock,
                 "catch {} syntax not supported"
             );
