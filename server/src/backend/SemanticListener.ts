@@ -4,6 +4,7 @@ import { IDiagnosticEntry, SymbolGroupKind } from "../types";
 import { ContextSymbolTable } from "./ContextSymbolTable";
 import {
     CallOtherTargetContext,
+    CatchExprContext,
     FunctionDeclarationContext,
     InheritStatementContext,
     LiteralContext,
@@ -418,6 +419,17 @@ export class SemanticListener extends LPCParserListener {
                 ctx._structName,
                 LDMudFeatures.SyntaxStructInitializer,
                 "<Identifier> struct initializer syntax not supported"
+            );
+        }
+    };
+
+    enterCatchExpr = (ctx: CatchExprContext) => {
+        if (!!ctx.block()) {
+            this.validateFeatureSupported(
+                ctx,
+                ctx.block().CURLY_OPEN().getSymbol(),
+                FluffOSFeatures.SyntaxCatchBlock,
+                "catch {} syntax not supported"
             );
         }
     };

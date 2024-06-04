@@ -429,7 +429,8 @@ validIdentifiers
     ;
 
 catchExpr
-    : CATCH '(' expression (',' expression)* (';' Identifier)* ')'
+    : CATCH '(' expression (',' expression)* (';' Identifier)* ')' // LD
+    | CATCH block        // Fluff
     ;
 
 inlineClosureExpression

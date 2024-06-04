@@ -10,6 +10,7 @@ export const FluffOSFeatures = {
     SyntaxClass: "TokenTypeClass",
     SyntaxArgSpreadOperator: "SyntaxArgSpreadOperator",
     SyntaxNewStruct: "SyntaxNewStruct",
+    SyntaxCatchBlock: "SyntaxCatchBlock",
 } as const;
 
 export class DriverFluffOS implements IDriver {
@@ -17,6 +18,8 @@ export class DriverFluffOS implements IDriver {
         NumericConstThousandSeparator: DriverVersion.from("0"),
         SyntaxClass: DriverVersion.from("0"),
         SyntaxArgSpreadOperator: DriverVersion.from("0"),
+        SyntaxNewStruct: DriverVersion.from("0"),
+        SyntaxCatchBlock: DriverVersion.from("0"),
     };
 
     public checkFeatureCompatibility(
