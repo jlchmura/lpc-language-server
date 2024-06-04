@@ -136,7 +136,7 @@ export class SemanticListener extends LPCParserListener {
     };
 
     exitInlineClosureExpression = (ctx: InlineClosureExpressionContext) => {
-        if (ctx.COMMA?.length > 0) {
+        if (ctx.COMMA()?.length > 0) {
             this.validateFeatureSupported(
                 ctx,
                 firstEntry(ctx.COMMA()).getSymbol(),
@@ -466,7 +466,7 @@ export class SemanticListener extends LPCParserListener {
                 "new(string filename) syntax not supported"
             );
         }
-        if (!!ctx.COMMA()) {
+        if (ctx.COMMA()?.length > 0) {
             this.validateFeatureSupported(
                 ctx,
                 firstEntry(ctx.COMMA()).getSymbol(),

@@ -512,10 +512,10 @@ export class DetailsVisitor
         );
 
         if (varNameSym) {
-            this.markToken(
-                this.getValidIdentifier(varNameSym).symbol,
-                SemanticTokenTypes.Variable
-            );
+            const id = this.getValidIdentifier(varNameSym);
+            if (id) {
+                this.markToken(id.symbol, SemanticTokenTypes.Variable);
+            }
         }
 
         return varSym;

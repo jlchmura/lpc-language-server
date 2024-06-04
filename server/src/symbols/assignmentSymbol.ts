@@ -38,7 +38,7 @@ export class AssignmentSymbol
         const lh = this.lhs;
 
         const lhResult = lh.eval(stack);
-        const rhResult = this.rhs.eval(stack);
+        const rhResult = this.rhs?.eval(stack);
 
         const lhVal =
             (lhResult instanceof StackValue ? lhResult.value : lhResult) ?? "";
