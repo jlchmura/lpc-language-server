@@ -49,10 +49,10 @@ Language services can be customized by creating an `lpc-config.json` file in the
 
 #### Driver Options - `driver`
 
-| Setting   | Description                                                                                |
-| --------- | ------------------------------------------------------------------------------------------ |
-| `type`    | Driver type. Valid options are `ldmud` or `fluffos`. (Currently only `ldmud` is supported) |
-| `version` | The driver version string, i.e. `"3.6.7"`                                                  |
+| Setting   | Description                                          |
+| --------- | ---------------------------------------------------- |
+| `type`    | Driver type. Valid options are `ldmud` or `fluffos`. |
+| `version` | The driver version string, i.e. `"3.6.7"`            |
 
 #### File Locations - `files`
 
