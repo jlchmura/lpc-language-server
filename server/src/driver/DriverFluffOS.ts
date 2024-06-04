@@ -9,6 +9,7 @@ export const FluffOSFeatures = {
     NumericConstThousandSeparator: "NumericConstThousandSeparator",
     SyntaxClass: "TokenTypeClass",
     SyntaxArgSpreadOperator: "SyntaxArgSpreadOperator",
+    SyntaxNewStruct: "SyntaxNewStruct",
 } as const;
 
 export class DriverFluffOS implements IDriver {

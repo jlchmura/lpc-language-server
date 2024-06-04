@@ -45,6 +45,7 @@ LINE: '#line';
 LWOBJECT: 'lwobject';
 MAPPING: 'mapping';
 MIXED: 'mixed';
+NEW: 'new';
 OBJECT: 'object';
 PRAGMA: 'pragma';
 RETURN: 'return';

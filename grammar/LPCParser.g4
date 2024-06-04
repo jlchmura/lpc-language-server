@@ -405,7 +405,11 @@ primaryExpressionStart
     | StringLiteral StringLiteral*          # stringConcatExpression
     | (CloneObject|LoadObject) PAREN_OPEN (ob=expression) PAREN_CLOSE   # cloneObjectExpression 
     | validIdentifiers                            # identifierExpression    
-    | PAREN_OPEN LT structName=Identifier GT (structMemberInitializer (COMMA structMemberInitializer)*)? COMMA? PAREN_CLOSE # structInitializerExpression    
+    | (
+        (NEW PAREN_OPEN CLASS structName=Identifier PAREN_CLOSE) // Fluff
+        |
+        (PAREN_OPEN LT structName=Identifier GT (structMemberInitializer (COMMA structMemberInitializer)*)? COMMA? PAREN_CLOSE) // LD
+      ) # structInitializerExpression        
     | PAREN_OPEN commaableExpression PAREN_CLOSE # parenExpression
     | arrayExpression                       # primaryArrayExpression
     | mappingExpression                     # primaryMappingExpression    

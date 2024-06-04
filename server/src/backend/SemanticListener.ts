@@ -11,6 +11,7 @@ import {
     ParameterContext,
     PrimaryExpressionContext,
     ProgramContext,
+    StructInitializerExpressionContext,
     VariableDeclarationContext,
 } from "../parser3/LPCParser";
 import { ScopedSymbol, MethodSymbol as BaseMethodSymbol } from "antlr4-c3";
@@ -397,6 +398,26 @@ export class SemanticListener extends LPCParserListener {
                 ctx.TRIPPLEDOT().getSymbol(),
                 FluffOSFeatures.SyntaxArgSpreadOperator,
                 "Argument spread operator not supported"
+            );
+        }
+    };
+
+    enterStructInitializerExpression = (
+        ctx: StructInitializerExpressionContext
+    ) => {
+        if (ctx.NEW()) {
+            this.validateFeatureSupported(
+                ctx,
+                ctx.NEW().getSymbol(),
+                FluffOSFeatures.SyntaxNewStruct,
+                "new(class Identifier) syntax not supported"
+            );
+        } else {
+            this.validateFeatureSupported(
+                ctx,
+                ctx._structName,
+                LDMudFeatures.SyntaxStructInitializer,
+                "<Identifier> struct initializer syntax not supported"
             );
         }
     };

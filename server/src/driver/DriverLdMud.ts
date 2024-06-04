@@ -8,12 +8,14 @@ import {
 export const LDMudFeatures = {
     NamedObjectTypes: "NamedObjectTypes",
     DotCallStrict: "DotCallStrict",
+    SyntaxStructInitializer: "SyntaxStructInitializer",
 } as const;
 
 export class DriverLDMud implements IDriver {
     Compatibility: DriverVersionCompatibility = {
         NamedObjectTypes: DriverVersion.from("3.6.5"),
         DotCallStrict: DriverVersion.from("3.6.2"),
+        SyntaxStructInitializer: DriverVersion.from("0.0.0"),
     };
 
     public checkFeatureCompatibility(
