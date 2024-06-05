@@ -51,7 +51,6 @@ export class LPCPreprocessingLexer extends LPCLexer {
     private directiveTokens: Token[] = [];
 
     private isConsumingTextFormat = false;
-    private textMark: string | undefined;
 
     private isConsumingDirective = false;
     private macroStack: MacroState[] = [];
@@ -156,8 +155,12 @@ export class LPCPreprocessingLexer extends LPCLexer {
             token.type == LPCLexer.TextFormatDirective
         ) {
             this.isConsumingTextFormat = true;
+            console.debug(
+                `Searching for end of text formatting directive '${this._textMark}'`
+            );
         }
 
+        // handling for FluffOS text formatting directives
         if (this.isConsumingTextFormat) {
             token.channel = this.isExecutable
                 ? LPCLexer.HIDDEN
@@ -165,41 +168,50 @@ export class LPCPreprocessingLexer extends LPCLexer {
 
             // we can use the directivetoken buffer for this
             this.directiveTokens.push(token);
-            this.mode = LPCLexer.TEXT_FORMAT_MODE;
 
-            if (this.directiveTokens.length == 2) {
-                // save the mark
-                // the second token is the mark
-                this.textMark = this.directiveTokens[1].text?.trim();
-            } else if (token.text?.trim() == this.textMark) {
-                // the final string will be tokens 2 to n-1
+            if (this.directiveTokens.length > 1) {
+                if (token.type != LPCLexer.TEXT_FORMAT_END) {
+                    throw "Excepted text formatting end mark";
+                }
+
                 if (this.isExecutable) {
-                    const arrayMode = this.directiveTokens[0].text == "@@";
-                    let s = this.directiveTokens
-                        .slice(2, -1)
-                        .map((t) => t.text.replace(/"/g, '\\"'))
-                        .join("");
+                    let txt = token.text.trim();
+                    // confirm that the last n chars of txt match the mark
+                    if (!txt.endsWith(this._textMark)) {
+                        throw (
+                            "Text formatting end mark did not match " +
+                            this._textMark
+                        );
+                    }
 
-                    let finalStr: string = `"${s}"`;
+                    // remove the end mark and trim again
+                    txt = txt
+                        .substring(0, txt.length - this._textMark.length)
+                        .trim();
+
+                    // convert to quoted string or array of strings and tokenize
+                    const arrayMode = this.directiveTokens[0].text == "@@";
+                    txt = txt.replace(/\\/g, "\\\\").replace(/"/g, '\\"'); // escape double quotes
+
+                    let finalStr: string = `"${txt}"`;
                     if (arrayMode) {
-                        s = s
+                        txt = txt
                             .split("\n")
                             .map((line) => `"${line}"`)
                             .join(",\n");
-                        finalStr = `({ ${s} })`;
+                        finalStr = `({ ${txt} })`;
                     }
 
                     const stringTokens = this.lexMacro(
                         (token as LPCToken).filename +
                             ":textformat:" +
-                            this.textMark,
+                            this._textMark,
                         finalStr
                     );
                     this.buffer.push(...stringTokens);
                 }
 
-                // switch lexer back to default mode - the lexer grammar can't do this on its own
-                this.mode = LPCLexer.DEFAULT_MODE;
+                this.directiveTokens.length = 0;
                 this.isConsumingTextFormat = false;
             }
 

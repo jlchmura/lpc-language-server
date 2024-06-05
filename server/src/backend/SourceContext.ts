@@ -360,6 +360,7 @@ export class SourceContext {
 
         // Rewind the input stream for a new parse run.
         this.lexer.inputStream = CharStream.fromString(this.sourceText);
+        this.lexer.driverType = config.driver.type;
         this.lexer.reset();
 
         this.lexer.addMacros(configDefines);
@@ -370,6 +371,7 @@ export class SourceContext {
         // use default instead of bailout here.
         // the method of using bailout and re-parsing using LL mode was causing problems
         // with code completion
+        this.parser.driverType = config.driver.type;
         this.parser.errorHandler = new DefaultErrorStrategy();
         this.parser.interpreter.predictionMode = PredictionMode.SLL;
 

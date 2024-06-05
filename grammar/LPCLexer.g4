@@ -4,7 +4,16 @@
 //
 lexer grammar LPCLexer;
 
+@header { 
+    import {LPCLexerBase} from "./LPCLexerBase";
+}
+
 @members {    
+    _textMark = "";
+}
+
+options {
+    superClass=LPCLexerBase;
 }
 
 channels { 
@@ -21,7 +30,7 @@ BYTES: 'bytes';
 CASE: 'case';
 CATCH: 'catch';
 CHAR: 'char';
-CLASS: 'class';
+CLASS: 'class' { this.isFluff() }?;
 CLOSURE: 'closure';
 CONST: 'const';
 CONTINUE: 'continue';
@@ -49,7 +58,7 @@ LINE: '#line';
 LWOBJECT: 'lwobject';
 MAPPING: 'mapping';
 MIXED: 'mixed';
-NEW: 'new';
+NEW: 'new' { this.isFluff() }?;
 OBJECT: 'object';
 PRAGMA: 'pragma';
 RETURN: 'return';
@@ -150,7 +159,10 @@ fragment HexDigit: [0-9] | [A-F] | [a-f];
 IntegerConstant: [0-9] ('_'? [0-9])*;
 FloatingConstant: [0-9]* '.' [0-9]+ ([eE] [+-]? [0-9]+)? ;
 HexIntConstant: '0' [xX] HexDigit+;
-TextFormatDirective: '@' '@'? -> mode(TEXT_FORMAT_MODE); // Fluff-Only
+TextFormatDirective: 
+    '@' '@'? ([$a-zA-Z_] [a-zA-Z_0-9]*) 
+    { this._textMark = this.text.substring(this.text.startsWith("@@") ? 2 : 1); } 
+    { this.isFluff() }? -> mode(TEXT_FORMAT_MODE); // Fluff-Only
 STRING_START: '"' -> mode(STRING_MODE);
 StringLiteral: 'b'? STRING_START STRING_CONTENT* STRING_END;
 CharacterConstant: '\'' (~['\r\n\\] | '\\' .) '\'';
@@ -190,8 +202,7 @@ mode STRING_MODE;
     STRING_END: '"' -> mode(DEFAULT_MODE);
     
 mode TEXT_FORMAT_MODE;
-    // for fluff @ and @@ text formatting preprocessor directives
-    // we'll tokenize groups of strings separated by whitespace
-    // the preprocessor will switch the mode back when it detects the end mark
-    TEXT_FORMAT_CONTENT: ~[ \t\r\n]+;
-    TEXT_FORMAT_WS: [ \t\r\n]+;
+    // for fluff @ and @@ text formatting preprocessor directives    
+    TEXT_FORMAT_CONTENT: ~[\r\n]+ { this.text.trim() != this._textMark }? -> more;
+    TEXT_FORMAT_END: [\r\n]+ [ \t]* ~[\r\n]+ [ \t]* [\r\n]+ { this.text.trim() == this._textMark }? -> mode(DEFAULT_MODE);
+    TEXT_FORMAT_WS: [ \t\r\n]+ -> more;

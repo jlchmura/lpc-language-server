@@ -433,8 +433,6 @@ validIdentifiers
     | STRUCTS
     | IN
     | CHAR
-    // these are only available in LD
-    | {this.isLD()}? (CLASS|NEW)
     ;
 
 catchExpr
