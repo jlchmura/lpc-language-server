@@ -5,6 +5,7 @@ import { MacroDefinition } from "../types";
 import { LPCToken } from "./LPCToken";
 import { IFileHandler } from "../backend/types";
 import { trimQuotes } from "./parser-utils";
+import { firstEntry, lastEntry } from "../utils";
 
 const DISABLED_CHANNEL_NAME = "DISABLED_CHANNEL";
 const DIRECTIVE_CHANNEL_NAME = "DIRECTIVE_CHANNEL";
@@ -48,6 +49,9 @@ export class LPCPreprocessingLexer extends LPCLexer {
     private buffer: Token[] = [];
     /** queue of tokens to process a directive */
     private directiveTokens: Token[] = [];
+
+    private isConsumingTextFormat = false;
+    private textMark: string | undefined;
 
     private isConsumingDirective = false;
     private macroStack: MacroState[] = [];
@@ -145,6 +149,61 @@ export class LPCPreprocessingLexer extends LPCLexer {
                 this.isConsumingDirective = false;
                 this.allowSubstitutions = true;
             }
+        }
+
+        if (
+            !this.isConsumingDirective &&
+            token.type == LPCLexer.TextFormatDirective
+        ) {
+            this.isConsumingTextFormat = true;
+        }
+
+        if (this.isConsumingTextFormat) {
+            token.channel = this.isExecutable
+                ? LPCLexer.HIDDEN
+                : DISABLED_CHANNEL;
+
+            // we can use the directivetoken buffer for this
+            this.directiveTokens.push(token);
+            this.mode = LPCLexer.TEXT_FORMAT_MODE;
+
+            if (this.directiveTokens.length == 2) {
+                // save the mark
+                // the second token is the mark
+                this.textMark = this.directiveTokens[1].text?.trim();
+            } else if (token.text?.trim() == this.textMark) {
+                // the final string will be tokens 2 to n-1
+                if (this.isExecutable) {
+                    const arrayMode = this.directiveTokens[0].text == "@@";
+                    let s = this.directiveTokens
+                        .slice(2, -1)
+                        .map((t) => t.text.replace(/"/g, '\\"'))
+                        .join("");
+
+                    let finalStr: string = `"${s}"`;
+                    if (arrayMode) {
+                        s = s
+                            .split("\n")
+                            .map((line) => `"${line}"`)
+                            .join(",\n");
+                        finalStr = `({ ${s} })`;
+                    }
+
+                    const stringTokens = this.lexMacro(
+                        (token as LPCToken).filename +
+                            ":textformat:" +
+                            this.textMark,
+                        finalStr
+                    );
+                    this.buffer.push(...stringTokens);
+                }
+
+                // switch lexer back to default mode - the lexer grammar can't do this on its own
+                this.mode = LPCLexer.DEFAULT_MODE;
+                this.isConsumingTextFormat = false;
+            }
+
+            return token;
         }
 
         if (

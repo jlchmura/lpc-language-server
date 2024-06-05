@@ -416,7 +416,7 @@ export class ContextSymbolTable extends SymbolTable {
 
                 if (
                     symbol.context
-                        .getSourceInterval()
+                        ?.getSourceInterval()
                         .properlyContains(context.getSourceInterval())
                 ) {
                     let child;

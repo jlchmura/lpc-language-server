@@ -4,6 +4,9 @@
 //
 lexer grammar LPCLexer;
 
+@members {    
+}
+
 channels { 
     COMMENTS_CHANNEL,
     DIRECTIVE_CHANNEL,
@@ -147,6 +150,7 @@ fragment HexDigit: [0-9] | [A-F] | [a-f];
 IntegerConstant: [0-9] ('_'? [0-9])*;
 FloatingConstant: [0-9]* '.' [0-9]+ ([eE] [+-]? [0-9]+)? ;
 HexIntConstant: '0' [xX] HexDigit+;
+TextFormatDirective: '@' '@'? -> mode(TEXT_FORMAT_MODE); // Fluff-Only
 STRING_START: '"' -> mode(STRING_MODE);
 StringLiteral: 'b'? STRING_START STRING_CONTENT* STRING_END;
 CharacterConstant: '\'' (~['\r\n\\] | '\\' .) '\'';
@@ -185,3 +189,9 @@ mode STRING_MODE;
     STRING_CONTENT : (~["\\\n] | '\n' | '\\' .) -> more;
     STRING_END: '"' -> mode(DEFAULT_MODE);
     
+mode TEXT_FORMAT_MODE;
+    // for fluff @ and @@ text formatting preprocessor directives
+    // we'll tokenize groups of strings separated by whitespace
+    // the preprocessor will switch the mode back when it detects the end mark
+    TEXT_FORMAT_CONTENT: ~[ \t\r\n]+;
+    TEXT_FORMAT_WS: [ \t\r\n]+;
