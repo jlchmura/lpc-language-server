@@ -106,7 +106,7 @@ export class LpcFacade {
     public filenameToAbsolutePath(filename: string): string {
         if (!filename) return filename;
         else if (typeof filename !== "string") {
-            console.trace(
+            console.warn(
                 "filenameToAbsolutePath: filename is not a string",
                 filename
             );

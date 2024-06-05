@@ -812,12 +812,14 @@ export class DetailsVisitor
             const varArgs = !!p.VARARGS();
 
             const id = this.getValidIdentifier(p._paramName);
-            const nameToken = id.symbol;
+            const nameToken = id?.symbol;
             const name = p._paramName?.getText();
 
-            this.markToken(id.symbol, SemanticTokenTypes.Parameter, [
-                SemanticTokenModifiers.Declaration,
-            ]);
+            if (!!id) {
+                this.markToken(id.symbol, SemanticTokenTypes.Parameter, [
+                    SemanticTokenModifiers.Declaration,
+                ]);
+            }
 
             this.addNewSymbol(
                 MethodParameterSymbol,

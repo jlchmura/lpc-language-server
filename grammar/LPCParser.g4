@@ -146,7 +146,7 @@ functionModifier
     ;
 
 functionHeader
-    : functionModifier* typeSpecifier? functionName=validIdentifiers PAREN_OPEN functionArgs=parameterList? PAREN_CLOSE
+    : functionModifier* typeSpecifier? functionName=validIdentifiers PAREN_OPEN functionArgs=parameterList[true]? PAREN_CLOSE
     ;
 
 functionHeaderDeclaration
@@ -157,14 +157,15 @@ functionDeclaration
     : functionHeader block
     ;
 
-parameterList
-    : parameter (COMMA parameter)*
+parameterList[boolean _isHeader]
+    : parameter[_isHeader] (COMMA parameter[_isHeader])*
     | VOID
     ;
 
-parameter
-    : VARARGS? paramType=unionableTypeSpecifier? paramName=validIdentifiers (ASSIGN expression | TRIPPLEDOT)? 
-    //| paramType=STRUCT structName=Identifier STAR? paramName=validIdentifiers #structParameterExpression
+parameter[boolean _isHeader]
+    : {$_isHeader==false}? VARARGS? paramType=unionableTypeSpecifier? paramName=validIdentifiers (ASSIGN expression | TRIPPLEDOT)? 
+    | {$_isHeader && this.isFluff()}? VARARGS? paramType=unionableTypeSpecifier paramName=validIdentifiers? // param name is optional in fluff
+    | VARARGS? paramType=unionableTypeSpecifier? paramName=validIdentifiers    
     ;
 
 structMemberDeclaration
@@ -443,7 +444,7 @@ catchExpr
 inlineClosureExpression
     : PAREN_OPEN COLON Identifier (COMMA (expression))* COLON PAREN_CLOSE // Fluff-only function pointer
     | PAREN_OPEN COLON (expression|statement*) COLON PAREN_CLOSE
-    | FUNCTION typeSpecifier? PAREN_OPEN parameterList? PAREN_CLOSE block
+    | FUNCTION typeSpecifier? PAREN_OPEN parameterList[false]? PAREN_CLOSE block
     ;
 
 bracketExpression

@@ -2,7 +2,10 @@
 
 ## 1.0.7
 
-Added support for FluffOS string formatting preprocessor shortcuts (`@` and `@@`) - https://www.fluffos.info/concepts/general/preprocessor.html#text-formatting-shortcuts
+#### FluffOS
+
+-   Added support for string formatting preprocessor shortcuts (`@` and `@@`) - https://www.fluffos.info/concepts/general/preprocessor.html#text-formatting-shortcuts
+-   Allow function forward defines without parameter variable names.
 
 ## 1.0.3
 

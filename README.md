@@ -35,6 +35,10 @@ int doCommand(string cmd) {
 }
 ```
 
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md).
+
 ## Setting up your workspace
 
 The VS Code LPC Language Services extension does not use your MUD driver to compile code. As such, several configuration options are available to help the language server understand the structure of your mudlib.
