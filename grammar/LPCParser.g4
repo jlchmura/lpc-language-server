@@ -188,9 +188,13 @@ variableModifier
     | NOSAVE
     ;
 
+structModifier
+    : PRIVATE
+    ;
+
 // struct decl needs to be above variable decl
 structDeclaration
-    : (STRUCT|CLASS) structName=Identifier (PAREN_OPEN structInherits=Identifier PAREN_CLOSE)? CURLY_OPEN structMemberDeclaration* CURLY_CLOSE SEMI?
+    : ({this.isFluff()}? structModifier)? (STRUCT|CLASS) structName=Identifier (PAREN_OPEN structInherits=Identifier PAREN_CLOSE)? CURLY_OPEN structMemberDeclaration* CURLY_CLOSE SEMI?
     ;
 
 variableDeclarationStatement

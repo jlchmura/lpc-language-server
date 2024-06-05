@@ -5,6 +5,7 @@
 #### FluffOS
 
 -   Allow spread operator in function forward declaration
+-   Add struct modifiers (`private`)
 
 ## 1.0.7
 
