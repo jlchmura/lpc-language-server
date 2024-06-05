@@ -542,7 +542,7 @@ export class DetailsVisitor
         const varType =
             this.parseTypeSpecifier(typeCtx) ?? LpcTypes.unknownType;
 
-        const varName = ctx.Identifier().getText();
+        const varName = ctx.Identifier()?.getText();
         this.addNewSymbol(
             VariableSymbol,
             ctx,

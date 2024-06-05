@@ -223,13 +223,14 @@ export class LpcServer {
         });
 
         // send document open/close/changes to facade
-        this.documents.onDidOpen((e) => {
+        this.documents.onDidOpen(async (e) => {
             try {
                 this.facade.loadLpc(e.document.uri, e.document.getText());
                 this.lastSeenVersion.set(e.document.uri, e.document.version);
-                setTimeout(async () => {
-                    this.processDiagnostic(e.document.uri, e.document.version);
-                }, 1);
+                await this.processDiagnostic(
+                    e.document.uri,
+                    e.document.version
+                );
             } catch (e) {
                 console.error("Error in doc open:\n", e);
             }
@@ -504,7 +505,7 @@ export class LpcServer {
 
             const { uri, diagnostics, version } = diagResult;
 
-            this.connection.sendDiagnostics({
+            await this.connection.sendDiagnostics({
                 uri,
                 diagnostics,
                 version,

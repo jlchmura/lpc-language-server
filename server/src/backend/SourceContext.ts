@@ -568,8 +568,12 @@ export class SourceContext {
                 //}
 
                 const diags = this.diagnostics.map((d) => {
-                    d.filename = URI.file(d.filename).toString();
-                    return d;
+                    return {
+                        ...d,
+                        filename: !!d?.filename
+                            ? URI.file(d.filename).toString()
+                            : "",
+                    };
                 });
                 resolve(diags);
             } catch (e) {
