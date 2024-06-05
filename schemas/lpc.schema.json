@@ -128,6 +128,11 @@
                             "default": "/obj/simul_efun.c",
                             "type": ["string", "null"]
                         },
+                        "global_include": {
+                            "description": "When defined, this file will be included at the top of all files just as if it had been included with a #include statement.",
+                            "default": null,
+                            "type": ["string", "null"]
+                        },
                         "init_files": {
                             "description": "Sets the locations of the init file(s).",
                             "default": ["/room/init_file"],

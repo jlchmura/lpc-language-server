@@ -807,6 +807,16 @@ export class LPCPreprocessingLexer extends LPCLexer {
             };
             this.macroTable.set(name, def);
         }
+
+        // if a global include is specified, add it as the first set of tokens
+        if (this.macroTable.has("__GLOBAL_INCLUDE__")) {
+            const globalInclude = this.macroTable.get("__GLOBAL_INCLUDE__");
+            const globalIncludeTokens = this.lexMacro(
+                "global_include",
+                `#include ${globalInclude.value}\n`
+            );
+            this.buffer.push(...globalIncludeTokens);
+        }
     }
 
     public getMacros() {

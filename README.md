@@ -60,11 +60,12 @@ Language services can be customized by creating an `lpc-config.json` file in the
 
 #### File Locations - `files`
 
-| Setting      | Description                                                             |
-| ------------ | ----------------------------------------------------------------------- |
-| `master`     | The location of your master object. Defaults to `"/obj/master.c"`       |
-| `simul_efun` | The location of your simul_efun file. Defaults to `"/obj/simul_efun.c"` |
-| `init_files` | An array of init files. Defaults to `["/room/init_files"]`              |
+| Setting          | Description                                                             |
+| ---------------- | ----------------------------------------------------------------------- |
+| `master`         | The location of your master object. Defaults to `"/obj/master.c"`       |
+| `simul_efun`     | The location of your simul_efun file. Defaults to `"/obj/simul_efun.c"` |
+| `init_files`     | An array of init files. Defaults to `["/room/init_files"]`              |
+| `global_include` | When provided, will add this file as an `#include` to each file.        |
 
 #### Include Dirs - `include`
 

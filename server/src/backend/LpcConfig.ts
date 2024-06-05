@@ -43,6 +43,7 @@ type FilesInfo = {
     simul_efun: string;
     init_files: string[];
     master: string;
+    global_include: string;
 };
 
 export class LpcConfig {
@@ -69,6 +70,7 @@ export class LpcConfig {
         simul_efun: "/obj/simul_efun.c",
         master: "/obj/master.c",
         init_files: ["/room/init_files"],
+        global_include: "",
     };
 }
 

@@ -344,6 +344,18 @@ export class SourceContext {
         configDefines.set("__DIR__", `"/${fileDir}/"`);
         configDefines.set("__FILE__", `"${relativeDir}"`);
 
+        const globalInclude = config.files.global_include;
+        if (globalInclude?.length > 0) {
+            // resolve the global filename
+            const globalFilename = this.resolveFilename(globalInclude);
+            if (
+                this.fileName !== globalFilename.fullPath &&
+                !this.fileName.endsWith(".h")
+            ) {
+                configDefines.set("__GLOBAL_INCLUDE__", `"${globalInclude}"`);
+            }
+        }
+
         this.parseSuccessful = true;
         this.info.imports.length = 0;
         this.info.includes.length = 0;
