@@ -164,7 +164,7 @@ parameterList[boolean _isHeader]
 
 parameter[boolean _isHeader]
     : {$_isHeader==false}? VARARGS? paramType=unionableTypeSpecifier? paramName=validIdentifiers (ASSIGN expression | TRIPPLEDOT)? 
-    | {$_isHeader && this.isFluff()}? VARARGS? paramType=unionableTypeSpecifier paramName=validIdentifiers? // param name is optional in fluff
+    | {$_isHeader && this.isFluff()}? VARARGS? paramType=unionableTypeSpecifier paramName=validIdentifiers? TRIPPLEDOT? // param name is optional in fluff
     | VARARGS? paramType=unionableTypeSpecifier? paramName=validIdentifiers    
     ;
 
@@ -442,7 +442,7 @@ catchExpr
     ;
 
 inlineClosureExpression
-    : PAREN_OPEN COLON Identifier (COMMA (expression))* COLON PAREN_CLOSE // Fluff-only function pointer
+    : {this.isFluff()}? PAREN_OPEN COLON expression (COMMA (expression))* COLON PAREN_CLOSE // Fluff-only function pointer
     | PAREN_OPEN COLON (expression|statement*) COLON PAREN_CLOSE
     | FUNCTION typeSpecifier? PAREN_OPEN parameterList[false]? PAREN_CLOSE block
     ;

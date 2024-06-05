@@ -1,11 +1,17 @@
 # LPC Language Services Changelog
 
+## 1.0.8
+
+#### FluffOS
+
+-   Allow spread operator in function forward declaration
+
 ## 1.0.7
 
 -   Allow whitespace between opening parent and square bracket of a mapping
 -   Make `status` a reserved word for LD only.
 -   Added `global_include` option to the [files section](README.md#file-locations---files) of lpc-config (mainly for FluffOS)
--   Refactor clone_object symbol creation so that it can be detected as a keyword in FluffOS.
+-   Refactor `clone_object` symbol creation so that it can be detected as a keyword in FluffOS.
 
 #### FluffOS
 
