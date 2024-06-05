@@ -299,6 +299,24 @@ export class DetailsVisitor
                     return this.visitChildren(ctx);
                 }
             );
+        } else if (
+            ctx.methodInvocation()?.length > 0 &&
+            ctx._pe instanceof IdentifierExpressionContext &&
+            ctx._pe.getText() == "clone_object"
+        ) {
+            const fnIdCtx = ctx._pe.validIdentifiers();
+            const fnName = fnIdCtx?.getText();
+            return this.withScope(
+                ctx,
+                CloneObjectSymbol,
+                [fnName, this.fileHandler],
+                (s) => {
+                    this.markContext(fnIdCtx, SemanticTokenTypes.Method, [
+                        SemanticTokenModifiers.DefaultLibrary,
+                    ]);
+                    return this.visitChildren(ctx?.methodInvocation()?.at(0));
+                }
+            );
         } else {
             // standard expression
             return this.withScope(
@@ -388,9 +406,6 @@ export class DetailsVisitor
         let symbolType: SymbolConstructor<BaseSymbol, unknown[]>;
 
         const nextSib = getSibling(ctx, 1);
-        if (nextSib.getText() == "clone_object") {
-            const ii = 0;
-        }
         if (nextSib instanceof MethodInvocationContext) {
             // if the next symbol is a method invocation, then its a function
             symbolType = FunctionIdentifierSymbol;

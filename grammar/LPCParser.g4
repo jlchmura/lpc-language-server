@@ -410,7 +410,7 @@ primaryExpressionStart
     : literal                               # literalExpression
     //| inheritSuperExpression                # inheritExpression    
     | StringLiteral StringLiteral*          # stringConcatExpression
-    | (CloneObject|LoadObject) PAREN_OPEN (ob=expression) (COMMA expression)* PAREN_CLOSE   # cloneObjectExpression 
+    | (LoadObject) PAREN_OPEN (ob=expression) (COMMA expression)* PAREN_CLOSE   # cloneObjectExpression 
     | validIdentifiers                            # identifierExpression    
     | (
         (NEW PAREN_OPEN CLASS structName=Identifier (COMMA structMemberInitializer)* PAREN_CLOSE) // Fluff
