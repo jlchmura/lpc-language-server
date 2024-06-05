@@ -253,6 +253,7 @@ unionableTypeSpecifier
     : primitiveTypeSpecifier STAR? (OR unionableTypeSpecifier)*
     | LT typeSpecifier GT STAR* (OR unionableTypeSpecifier)*    
     | structTypeSpecifier (OR unionableTypeSpecifier)*
+    | STAR (OR unionableTypeSpecifier)* // typeless array
     ;
 
 // Arrays & Mappings

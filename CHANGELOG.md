@@ -2,6 +2,8 @@
 
 ## 1.0.8
 
+-   Allow array type declaration without a primitive type
+
 #### FluffOS
 
 -   Allow spread operator in function forward declaration
