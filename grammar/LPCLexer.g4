@@ -62,7 +62,7 @@ NEW: 'new' { this.isFluff() }?;
 OBJECT: 'object';
 PRAGMA: 'pragma';
 RETURN: 'return';
-STATUS: 'status';
+STATUS: 'status' { this.isLD() }?;
 STRUCTS: 'structs';
 STRUCT: 'struct';
 STRING: 'string';
@@ -142,7 +142,7 @@ BITOR_ASSIGN: '|=';
 XOR_ASSIGN: '^=';
 SHL_ASSIGN: '<<=';
 RSH_ASSIGN: '>>=';
-MAPPING_OPEN: '([';
+MAPPING_OPEN: '(' [ \t\n\r]* '[';
 ARROW: '->';
 
 PAREN_OPEN: '(';

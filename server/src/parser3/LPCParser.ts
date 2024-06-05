@@ -250,10 +250,10 @@ export class LPCParser extends LPCParserBase {
         "'>='", "'=='", "'!='", "'&'", "'|'", "'^'", "'!'", "'~'", "'&&'", 
         "'||'", "'?'", "':'", "';'", "','", "'...'", "'..'", "'.'", "'='", 
         "'+='", "'-='", "'*='", "'/='", "'%='", "'||='", "'&&='", "'&='", 
-        "'|='", "'^='", "'<<='", "'>>='", "'(['", "'->'", "'('", "')'", 
-        "'{'", "'}'", "'['", "']'", "'\\'", null, null, null, null, null, 
-        null, null, null, "'''", "'clone_object'", "'load_object'", null, 
-        null, null, null, null, null, null, null, "'\\\\n'"
+        "'|='", "'^='", "'<<='", "'>>='", null, "'->'", "'('", "')'", "'{'", 
+        "'}'", "'['", "']'", "'\\'", null, null, null, null, null, null, 
+        null, null, "'''", "'clone_object'", "'load_object'", null, null, 
+        null, null, null, null, null, null, "'\\\\n'"
     ];
 
     public static readonly symbolicNames = [
