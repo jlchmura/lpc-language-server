@@ -25,7 +25,7 @@ preprocessorDirective
     ;
 
 includePreprocessorDirective
-    : HASH directiveTypeInclude directiveIncludeFile
+    : HASH directiveTypeInclude directiveIncludeFile ({ this.isFluff() }? SEMI)?
     ;
 
 definePreprocessorDirective

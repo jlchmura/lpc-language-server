@@ -138,8 +138,11 @@ export class LPCPreprocessingLexer extends LPCLexer {
             if (
                 token.type == LPCLexer.EOF ||
                 (token.text.indexOf("\n") >= 0 &&
-                    this.directiveTokens[this.directiveTokens.length - 1]
-                        ?.type != LPCLexer.BACKSLASH)
+                    this.directiveTokens.at(-1)?.type != LPCLexer.BACKSLASH) ||
+                // fluff inherits can end with semi
+                (this.isFluff() &&
+                    this.directiveTokens.at(1)?.type == LPCLexer.INCLUDE &&
+                    token.type == LPCLexer.SEMI)
             ) {
                 // end of directive
                 this.processDirective(this.directiveTokens);
@@ -391,7 +394,12 @@ export class LPCPreprocessingLexer extends LPCLexer {
 
         directiveTokens.shift(); // remove the space
         const includeFilename = directiveTokens
-            .filter((t) => t.channel == LPCLexer.DEFAULT_TOKEN_CHANNEL)
+            // filter out fluff's semicolon
+            .filter(
+                (t) =>
+                    t.channel == LPCLexer.DEFAULT_TOKEN_CHANNEL &&
+                    t.type != LPCLexer.SEMI
+            )
             .map((t) => trimQuotes(t.text.trim()))
             .join("")
             .trim();

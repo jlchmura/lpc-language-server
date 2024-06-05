@@ -1,11 +1,12 @@
 import { DriverLDMud } from "./DriverLdMud";
 import { ensureLpcConfig } from "../backend/LpcConfig";
 import { DriverFluffOS } from "./DriverFluffOS";
+import { IDriver } from "./types";
 
 const supportedDriverLdMud = new DriverLDMud();
 const supportedDriverFluffOS = new DriverFluffOS();
 
-export function getDriverInfo() {
+export function getDriverInfo():IDriver {
     const config = ensureLpcConfig();
     switch (config.driver.type) {
         case "ldmud":

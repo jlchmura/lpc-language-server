@@ -111,6 +111,9 @@ import {
     StructDeclarationSymbol,
     StructMemberIdentifierSymbol,
 } from "../symbols/structSymbol";
+import { getDriverInfo } from "../driver/Driver";
+import { ensureLpcConfig } from "./LpcConfig";
+import { FluffOSFeatures } from "../driver/DriverFluffOS";
 
 type GenericConstructorParameters<T> = ConstructorParameters<
     new (...args: any[]) => T
@@ -385,6 +388,9 @@ export class DetailsVisitor
         let symbolType: SymbolConstructor<BaseSymbol, unknown[]>;
 
         const nextSib = getSibling(ctx, 1);
+        if (nextSib.getText() == "clone_object") {
+            const ii = 0;
+        }
         if (nextSib instanceof MethodInvocationContext) {
             // if the next symbol is a method invocation, then its a function
             symbolType = FunctionIdentifierSymbol;
@@ -809,7 +815,7 @@ export class DetailsVisitor
             const typeName = typeCtx?.getText();
             const type =
                 this.parseTypeSpecifier(typeCtx) ?? LpcTypes.unknownType;
-            const varArgs = !!p.VARARGS();
+            let varArgs = !!p.VARARGS() || !!p.TRIPPLEDOT();
 
             const id = this.getValidIdentifier(p._paramName);
             const nameToken = id?.symbol;

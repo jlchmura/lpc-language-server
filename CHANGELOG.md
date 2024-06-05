@@ -10,6 +10,8 @@
 
 -   Added support for string formatting preprocessor shortcuts (`@` and `@@`) - https://www.fluffos.info/concepts/general/preprocessor.html#text-formatting-shortcuts
 -   Allow function forward defines without parameter variable names.
+-   Allow SEMI at the end of `#include` statements
+-   Add function argument spread operator (`...`)
 
 ## 1.0.3
 
