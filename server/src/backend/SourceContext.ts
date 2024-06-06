@@ -832,6 +832,7 @@ export class SourceContext {
                     name: macroDef.name,
                     kind: SymbolKind.Define,
                     source: macroDef.filename,
+                    filename: macroDef.filename,
                     definition: {
                         range: {
                             start: { column: column, row: line },

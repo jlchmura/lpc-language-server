@@ -9,6 +9,7 @@
 -   Fix: Struct member declarations can have multiple variables separated by commas
 -   Fix: Multiline defines not tokenized correctly when lines end with `\r\n`
 -   Fix: Global include filename resolves incorrectly in windows.
+-   Fix: Goto def (f12) not working for macros defined in included files.
 
 #### FluffOS
 
