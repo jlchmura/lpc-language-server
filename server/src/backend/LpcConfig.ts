@@ -28,6 +28,9 @@ type DiagnosticsInfo = {
     functionNotFound: DiagnosticLevel;
     variableNotFound: DiagnosticLevel;
     functionModifiersMismatch: DiagnosticLevel;
+    functionParameterMismatch: DiagnosticLevel;
+    memberNotFound: DiagnosticLevel;
+    fileNotResolved: DiagnosticLevel;
 };
 
 const defaultDiagnostics: DiagnosticsInfo = {
@@ -39,6 +42,9 @@ const defaultDiagnostics: DiagnosticsInfo = {
     functionNotFound: DiagnosticLevel.Warning,
     variableNotFound: DiagnosticLevel.Error,
     functionModifiersMismatch: DiagnosticLevel.Error,
+    functionParameterMismatch: DiagnosticLevel.Error,
+    memberNotFound: DiagnosticLevel.Warning,
+    fileNotResolved: DiagnosticLevel.Info,
 };
 
 type FilesInfo = {

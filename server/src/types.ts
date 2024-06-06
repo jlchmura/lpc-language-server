@@ -15,6 +15,9 @@ export const DiagnosticCodes = {
     /** When the lfun of a call other (eg `target->lfun()` cannot be found */
     CallOtherLfunNotFound: "callOtherLfunNotFound",
     FunctionModifiersMismatch: "functionModifiersMismatch",
+    FunctionParameterMismatch: "functionParameterMismatch",
+    MemberNotFound: "memberNotFound",
+    FileNotResolved: "fileNotResolved",
 } as const;
 
 export interface IDiagnosticEntry {

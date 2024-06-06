@@ -218,7 +218,9 @@ export class SemanticListener extends LPCParserListener {
                 this.logDiagnostic(
                     `Function parameters do not match its definition`,
                     funStart,
-                    funEnd
+                    funEnd,
+                    DiagnosticSeverity.Error,
+                    DiagnosticCodes.FunctionParameterMismatch
                 );
             }
         }

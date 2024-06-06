@@ -8,7 +8,7 @@ import { addDiagnostic } from "./Symbol";
 import { LPCToken } from "../parser3/LPCToken";
 import { DiagnosticSeverity } from "vscode-languageserver";
 import { ArrowSymbol } from "./arrowSymbol";
-import { StructType } from "../types";
+import { DiagnosticCodes, StructType } from "../types";
 
 export class StructMemberIdentifierSymbol
     extends LpcBaseSymbol<PrimaryExpressionContext>
@@ -44,9 +44,10 @@ export class StructMemberIdentifierSymbol
         if (!members.has(this.name)) {
             addDiagnostic(this, {
                 filename: (memberNameToken as LPCToken).filename,
-                message: `Unknown struct member '${this.name}'.`,
+                message: `Member not found '${this.name}'.`,
                 range: nameRange,
-                type: DiagnosticSeverity.Error,
+                type: DiagnosticSeverity.Warning,
+                source: DiagnosticCodes.MemberNotFound,
             });
             return undefined;
         }

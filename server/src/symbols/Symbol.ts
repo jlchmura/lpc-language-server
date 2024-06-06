@@ -167,6 +167,7 @@ export function addDiagnostic(symbol: BaseSymbol, d: IDiagnosticEntry) {
         const lpcToken = parseTree.start as LPCToken;
         d.filename = lpcToken.filename;
     }
+    d.code ??= d.source;
     const ctx = (symbol.symbolTable as ContextSymbolTable).owner;
     ctx.addDiagnostic(d);
 }

@@ -15,6 +15,7 @@ import { DiagnosticSeverity } from "vscode-languageserver";
 import { CallStack, StackFrame, StackValue } from "../backend/CallStack";
 import { ArrowSymbol } from "./arrowSymbol";
 import { LpcFileHandler } from "../backend/FileHandler";
+import { DiagnosticCodes } from "../types";
 
 export class ObjectReferenceInfo {
     constructor(
@@ -87,6 +88,7 @@ export class CloneObjectSymbol
                     message: "Unable to resolve filename",
                     range: rangeFromTokens(ctx.start, ctx.stop),
                     type: DiagnosticSeverity.Information,
+                    source: DiagnosticCodes.FileNotResolved,
                 });
             } else {
                 this.sourceContext = this.fileHandler.loadReference(
