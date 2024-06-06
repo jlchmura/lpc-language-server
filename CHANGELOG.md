@@ -12,6 +12,7 @@
 -   Fix: Global include filename resolves incorrectly in windows.
 -   Fix: Goto def (f12) not working for macros defined in included files.
 -   Fix: Multiline defines were not parsed correctly in windows.
+-   Fix: Diagnostics would sometimes disappear when file is inherited by another file.
 
 #### FluffOS
 

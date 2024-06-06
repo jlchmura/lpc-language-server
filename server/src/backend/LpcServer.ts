@@ -450,14 +450,17 @@ export class LpcServer {
         this.facade = new LpcFacade(rootFolderPath);
 
         // hook up the run diagnostic event emitter
-        this.facade.onRunDiagnostics = (filename, force) => {
+        this.facade.onRunDiagnostics = async (filename, force) => {
             const uri = URI.file(filename).toString();
             const doc = this.documents.get(uri);
             if (!!doc) {
                 //this.flushChangeTimer(doc);
-                this.processDiagnostic(doc.uri, doc.version, force);
+                await this.processDiagnostic(doc.uri, doc.version, force);
             } else {
-                this.processDiagnostic(uri, 0, force);
+                if (uri.endsWith("living.c")) {
+                    const ii = 0;
+                }
+                await this.processDiagnostic(uri, 0, force);
             }
         };
 

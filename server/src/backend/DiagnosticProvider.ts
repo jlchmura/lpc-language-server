@@ -36,7 +36,7 @@ export class DiagnosticProvider {
         uri: string,
         version: number,
         force = false
-    ): Promise<DocDiagnostics[]> {        
+    ): Promise<DocDiagnostics[]> {
         const entries = (await this.facade.getDiagnostics(uri, force))?.filter(
             (d) => !d.filename || d.filename === uri
         );
@@ -76,15 +76,21 @@ export class DiagnosticProvider {
             const depDiagEntries = await this.facade.getDiagnostics(dep);
             const depUri = URI.file(dep).toString();
             if (!!depDiagEntries) {
-                results.push({
-                    uri: depUri,
-                    diagnostics: this.convertDiagnosticEntries(
-                        depUri,
-                        depDiagEntries.filter(
-                            (d) => !d.filename || d.filename === dep
-                        )
-                    ),
-                });
+                const filteredEntires = depDiagEntries.filter(
+                    (d) => !d.filename || d.filename === dep
+                );
+
+                if (filteredEntires.length > 0) {
+                    results.push({
+                        uri: depUri,
+                        diagnostics: this.convertDiagnosticEntries(
+                            depUri,
+                            depDiagEntries.filter(
+                                (d) => !d.filename || d.filename === dep
+                            )
+                        ),
+                    });
+                }
             }
         }
 

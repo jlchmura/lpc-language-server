@@ -61,7 +61,10 @@ export class LpcFacade {
     >();
 
     public onProcessingEvent: events.EventEmitter = new events.EventEmitter();
-    public onRunDiagnostics: (filename: string, force: boolean) => void;
+    public onRunDiagnostics: (
+        filename: string,
+        force: boolean
+    ) => Promise<void>;
 
     private depReparseQueue = new Set<string>();
     private depReparseTimer: NodeJS.Timeout;
@@ -823,27 +826,32 @@ export class LpcFacade {
         for (const filename of parseAllFileQueue) {
             if (token.isCancellationRequested) break;
             const p = new Promise((resolve, reject) => {
-                fs.readFile(filename, { encoding: "utf8" }, (err, txt) => {
-                    try {
-                        const ctx = this.loadLpcInternal(
-                            filename,
-                            txt,
-                            new Set()
-                        );
+                fs.readFile(
+                    filename,
+                    { encoding: "utf8" },
+                    async (err, txt) => {
+                        try {
+                            const ctx = this.loadLpcInternal(
+                                filename,
+                                txt,
+                                new Set()
+                            );
 
-                        this.onRunDiagnostics(filename, false);
+                            await this.onRunDiagnostics(filename, false);
 
-                        //this.releaseLpc(filename);
-                        resolve(txt);
-                    } catch (e) {
-                        console.error(
-                            `Error parsing ${filename}: ${e}`,
-                            (e as Error).stack
-                        );
-                        resolve(undefined);
+                            //this.releaseLpc(filename);
+                            resolve(txt);
+                        } catch (e) {
+                            console.error(
+                                `Error parsing ${filename}: ${e}`,
+                                (e as Error).stack
+                            );
+                            resolve(undefined);
+                        }
                     }
-                });
+                );
             });
+
             await p;
         }
 
