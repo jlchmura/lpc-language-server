@@ -192,8 +192,8 @@ WS: [ \t\r\n]+ -> channel(HIDDEN);
 
 // to handle #define that can be multiline
 mode DEFINE_MODE;    
-    DEFINE_CONTENT: (~[\n\\/]+ | '\\' ~'\n' | '/' ~[*/]) '\\\n'? -> more;
-    NEWLINE: '\\\n' -> more;
+    DEFINE_CONTENT: (~[\n\\/]+ | '\\' ~[\r\n] | '/' ~[*/]) ('\\' '\r'? '\n')? -> more;
+    NEWLINE: '\\' '\r'? '\n' -> more;
     DEFINE_COMMENT: '//' ~[\n]+ -> more;
     DEFINE_BLOCK_COMMENT: '/*' (~'*' | '*' ~'/' )+? '*'+ '/' -> more;
     END_DEFINE: ('\n'|EOF) -> popMode;

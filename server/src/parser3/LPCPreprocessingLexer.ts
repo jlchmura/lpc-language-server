@@ -138,6 +138,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
             if (
                 token.type == LPCLexer.EOF ||
                 (token.text.indexOf("\n") >= 0 &&
+                    !token.text.trimEnd().endsWith("\\") &&
                     this.directiveTokens.at(-1)?.type != LPCLexer.BACKSLASH) ||
                 // fluff inherits can end with semi
                 (this.isFluff() &&
@@ -510,6 +511,12 @@ export class LPCPreprocessingLexer extends LPCLexer {
                 macroArgs = tempVal;
             }
         }
+
+        // strip \r's
+        macroValue = macroValue.replace(/\r/g, "");
+
+        // replace escaped newlines
+        macroValue = macroValue.replace(/\\\n/g, "\n");
 
         const filename = lt.filename;
         const def: MacroDefinition = {
