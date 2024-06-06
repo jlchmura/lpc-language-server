@@ -10,6 +10,7 @@
 -   Fix: Multiline defines not tokenized correctly when lines end with `\r\n`
 -   Fix: Global include filename resolves incorrectly in windows.
 -   Fix: Goto def (f12) not working for macros defined in included files.
+-   Fix: Multiline defines were not parsed correctly in windows.
 
 #### FluffOS
 

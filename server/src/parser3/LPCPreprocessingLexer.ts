@@ -479,7 +479,15 @@ export class LPCPreprocessingLexer extends LPCLexer {
         const macroName = defVal.substring(0, i);
         defVal = defVal.substring(i).trim();
 
+            if (macroName=="ONE_EXIT") {
+                const ii=0;
+            }
+
+        // strip \r's and replace escaped newlines
+        defVal = defVal.replace(/\r/g, "").replace(/\\\n/g, "\n");
+
         let macroValue = defVal.trim();
+        
         let macroArgs = "";
         if (defVal.charAt(0) == "(") {
             // this might be a macro function, find the closing paren
@@ -511,13 +519,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
                 macroArgs = tempVal;
             }
         }
-
-        // strip \r's
-        macroValue = macroValue.replace(/\r/g, "");
-
-        // replace escaped newlines
-        macroValue = macroValue.replace(/\\\n/g, "\n");
-
+        
         const filename = lt.filename;
         const def: MacroDefinition = {
             value: macroValue.trim(),
