@@ -169,15 +169,23 @@ export function activate(context: ExtensionContext) {
         )
     );
 
-    client.onNotification("lpc/processAll-complete", (params) => {
+    client.onNotification("lpc/processing-start", (params) => {
+        progress.startAnimation();
+    });
+    client.onNotification("lpc/processing-stop", (params) => {
         progress.stopAnimation();
     });
-
+    client.onNotification("lpc/processing-complete", (params) => {
+        progress.stopAnimation();
+    });
     client.onNotification("lpc/processing", (params) => {
         window.showInformationMessage(params);
     });
     client.onNotification("lpc/info", (params) => {
         window.showWarningMessage(params);
+    });
+    client.onNotification("lpc/set-driver-type", (params: string) => {
+        progress.driverType = params;
     });
 }
 

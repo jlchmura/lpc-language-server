@@ -9,16 +9,6 @@ enum DiagnosticLevel {
     None = "none",
 }
 
-enum DriverType {
-    LDMud = "ldmud",
-    FluffOS = "fluffos",
-}
-
-type DriverInfo = {
-    type: DriverType;
-    version: string;
-};
-
 type DiagnosticsInfo = {
     callOtherTargetUnknown: DiagnosticLevel;
     callOtherLfunNotFound: DiagnosticLevel;
@@ -54,7 +44,26 @@ type FilesInfo = {
     global_include: string;
 };
 
-export class LpcConfig {
+export enum DriverType {
+    LDMud = "ldmud",
+    FluffOS = "fluffos",
+}
+
+export type DriverInfo = {
+    type: DriverType;
+    version: string;
+};
+
+export interface ILpcConfig {
+    defines: Map<string, string>;
+    include: string[];
+    exclude: string[];
+    driver: DriverInfo;
+    diagnostics: DiagnosticsInfo;
+    files: FilesInfo;
+}
+
+export class LpcConfig implements ILpcConfig {
     public defines: Map<string, string> = new Map([
         ["__HOST_NAME__", '"localhost"'],
         ["__MASTER_OBJECT__", '"/obj/master"'],

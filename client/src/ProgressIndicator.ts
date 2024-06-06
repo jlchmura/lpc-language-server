@@ -15,31 +15,50 @@ export class ProgressIndicator {
     private timer: ReturnType<typeof setInterval> | null;
     private progress = 0;
 
+    public driverType: string = "";
+
     public constructor() {
         this.statusBarItem = window.createStatusBarItem(
             StatusBarAlignment.Left,
             0
         );
-        this.statusBarItem.hide();
-        this.statusBarItem.tooltip = "LPC Language Server";
+        this.setText();
+    }
+
+    private setText() {
+        this.statusBarItem.text = this.baseText();
+        this.statusBarItem.tooltip =
+            "LPC Language Server - Driver Type: " + this.driverType;
     }
 
     public startAnimation(): void {
         this.statusBarItem.show();
-        this.timer = setInterval(() => {
-            const index =
-                this.progress % ProgressIndicator.progressChars.length;
-            this.statusBarItem.text =
-                "LPC " + ProgressIndicator.progressChars.charAt(index);
-            this.progress++;
-        }, 50);
+        if (!this.timer) {
+            this.timer = setInterval(() => {
+                const index =
+                    this.progress % ProgressIndicator.progressChars.length;
+                this.statusBarItem.text = `${this.baseText()} ${ProgressIndicator.progressChars.charAt(
+                    index
+                )}`;
+                this.progress++;
+            }, 50);
+        }
     }
 
     public stopAnimation(): void {
         if (this.timer) {
             clearInterval(this.timer);
             this.timer = null;
-            this.statusBarItem.hide();
+            this.statusBarItem.text = this.baseText();
         }
+    }
+
+    private baseText(): string {
+        return `LPC [${this.driverType}]`;
+    }
+
+    public setDriverType(type: string) {
+        this.driverType = type;
+        this.setText();
     }
 }

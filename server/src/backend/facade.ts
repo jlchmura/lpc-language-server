@@ -23,6 +23,7 @@ import { ensureLpcConfig } from "./LpcConfig";
 import { glob } from "glob";
 import { URI } from "vscode-uri";
 import { ContextSymbolTable, SymbolTableCache } from "./ContextSymbolTable";
+import * as events from "events";
 
 /** ms delay before reparsing a depenency */
 const DEP_FILE_REPARSE_TIME = 300;
@@ -59,6 +60,7 @@ export class LpcFacade {
         IContextEntry
     >();
 
+    public onProcessingEvent: events.EventEmitter = new events.EventEmitter();
     public onRunDiagnostics: (filename: string, force: boolean) => void;
 
     private depReparseQueue = new Set<string>();
@@ -805,6 +807,7 @@ export class LpcFacade {
 
     private async doParseAll() {
         const token = this.parseAllCancel.token;
+        const { parseAllFileQueue } = this;
 
         token.onCancellationRequested(() => {
             // requeue after some time
@@ -815,7 +818,7 @@ export class LpcFacade {
             }
         });
 
-        const { parseAllFileQueue } = this;
+        this.onProcessingEvent.emit("start", parseAllFileQueue);
 
         for (const filename of parseAllFileQueue) {
             if (token.isCancellationRequested) break;
@@ -847,6 +850,8 @@ export class LpcFacade {
         if (token.isCancellationRequested) {
             console.debug("Parse all cancelled");
         }
+
+        this.onProcessingEvent.emit("stop", parseAllFileQueue);
     }
 
     public async parseAllFiles() {

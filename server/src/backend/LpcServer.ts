@@ -20,7 +20,7 @@ import { CompletionProvider } from "./CompletionProvider";
 import { SignatureHelpProvider } from "./SignatureHelpProvider";
 import { RenameProvider } from "./RenameProvider";
 import { HighlightProvider } from "./HighlightProvider";
-import { loadLpcConfig } from "./LpcConfig";
+import { DriverType, ensureLpcConfig, loadLpcConfig } from "./LpcConfig";
 import { ReferenceProvider } from "./ReferenceProvider";
 
 const CHANGE_DEBOUNCE_MS = 150;
@@ -79,6 +79,8 @@ export class LpcServer {
                     );
                 });
             }
+
+            this.sendDriverType();
         });
 
         this.connection.onDidChangeWatchedFiles((params) => {
@@ -88,6 +90,7 @@ export class LpcServer {
             if (!!configFileChange) {
                 const configUri = URI.parse(configFileChange.uri);
                 loadLpcConfig(configUri.fsPath);
+                this.sendDriverType();
                 console.debug("LPC Config reloaded");
 
                 // re-send diagnostics for all open files
@@ -340,8 +343,9 @@ export class LpcServer {
             );
 
             await this.facade.parseAllFiles();
+
             this.connection.sendNotification(
-                "lpc/processAll-complete",
+                "lpc/processing-complete",
                 "Done processing all files."
             );
 
@@ -457,6 +461,13 @@ export class LpcServer {
             }
         };
 
+        this.facade.onProcessingEvent.on("start", () => {
+            this.connection.sendNotification("lpc/processing-start");
+        });
+        this.facade.onProcessingEvent.on("stop", () => {
+            this.connection.sendNotification("lpc/processing-stop");
+        });
+
         // init providers
         this.symbolProvider = new LpcSymbolProvider(this.facade);
         this.definitionProvider = new LpcDefinitionProvider(this.facade);
@@ -511,5 +522,12 @@ export class LpcServer {
                 version,
             });
         }
+    }
+
+    private sendDriverType() {
+        const config = ensureLpcConfig();
+        const driverType =
+            config.driver.type == DriverType.LDMud ? "LDMud" : "FluffOS";
+        this.connection.sendNotification("lpc/set-driver-type", driverType);
     }
 }
