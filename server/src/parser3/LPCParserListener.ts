@@ -20,7 +20,6 @@ import { DirectiveArgumentContext } from "./LPCParser.js";
 import { DirectiveDefineParamContext } from "./LPCParser.js";
 import { DirectiveDefineArgumentContext } from "./LPCParser.js";
 import { DirectiveTypeIncludeContext } from "./LPCParser.js";
-import { DirectiveGlobalFileContext } from "./LPCParser.js";
 import { DirectiveIncludeFileContext } from "./LPCParser.js";
 import { DirectiveTypePragmaContext } from "./LPCParser.js";
 import { InheritStatementContext } from "./LPCParser.js";
@@ -29,6 +28,7 @@ import { InheritContext } from "./LPCParser.js";
 import { DefaultModifierContext } from "./LPCParser.js";
 import { InheritFileContext } from "./LPCParser.js";
 import { InheritSuperExpressionContext } from "./LPCParser.js";
+import { GlobalModifierStatementContext } from "./LPCParser.js";
 import { DeclarationContext } from "./LPCParser.js";
 import { FunctionModifierContext } from "./LPCParser.js";
 import { FunctionHeaderContext } from "./LPCParser.js";
@@ -256,16 +256,6 @@ export class LPCParserListener implements ParseTreeListener {
      */
     exitDirectiveTypeInclude?: (ctx: DirectiveTypeIncludeContext) => void;
     /**
-     * Enter a parse tree produced by `LPCParser.directiveGlobalFile`.
-     * @param ctx the parse tree
-     */
-    enterDirectiveGlobalFile?: (ctx: DirectiveGlobalFileContext) => void;
-    /**
-     * Exit a parse tree produced by `LPCParser.directiveGlobalFile`.
-     * @param ctx the parse tree
-     */
-    exitDirectiveGlobalFile?: (ctx: DirectiveGlobalFileContext) => void;
-    /**
      * Enter a parse tree produced by `LPCParser.directiveIncludeFile`.
      * @param ctx the parse tree
      */
@@ -345,6 +335,16 @@ export class LPCParserListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitInheritSuperExpression?: (ctx: InheritSuperExpressionContext) => void;
+    /**
+     * Enter a parse tree produced by `LPCParser.globalModifierStatement`.
+     * @param ctx the parse tree
+     */
+    enterGlobalModifierStatement?: (ctx: GlobalModifierStatementContext) => void;
+    /**
+     * Exit a parse tree produced by `LPCParser.globalModifierStatement`.
+     * @param ctx the parse tree
+     */
+    exitGlobalModifierStatement?: (ctx: GlobalModifierStatementContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.declaration`.
      * @param ctx the parse tree

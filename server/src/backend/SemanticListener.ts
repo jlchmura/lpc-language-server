@@ -1,6 +1,6 @@
 import { ParserRuleContext, Token } from "antlr4ng";
 import { LPCParserListener } from "../parser3/LPCParserListener";
-import { IDiagnosticEntry, SymbolGroupKind } from "../types";
+import { DiagnosticCodes, IDiagnosticEntry, SymbolGroupKind } from "../types";
 import { ContextSymbolTable } from "./ContextSymbolTable";
 import {
     CallOtherTargetContext,
@@ -191,7 +191,9 @@ export class SemanticListener extends LPCParserListener {
                 this.logDiagnostic(
                     "Function modifiers do not match",
                     funStart,
-                    funEnd
+                    funEnd,
+                    DiagnosticSeverity.Error,
+                    DiagnosticCodes.FunctionModifiersMismatch
                 );
             }
 

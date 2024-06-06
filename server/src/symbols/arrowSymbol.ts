@@ -151,6 +151,7 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
                 range: rangeFromTokens(ctx.start, ctx.stop),
                 type: DiagnosticSeverity.Information,
                 code: DiagnosticCodes.CallOtherTargetUnknown,
+                source: DiagnosticCodes.CallOtherTargetUnknown,
             });
             return undefined;
         }

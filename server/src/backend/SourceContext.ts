@@ -879,7 +879,7 @@ export class SourceContext {
 
                 break;
             case LPCParser.RULE_directiveTypeInclude:
-            case LPCParser.RULE_directiveGlobalFile:
+            case LPCParser.RULE_includePreprocessorDirective:
             case LPCParser.RULE_directiveIncludeFile:
                 const includeSymbol = this.symbolTable.symbolContainingContext(
                     terminal

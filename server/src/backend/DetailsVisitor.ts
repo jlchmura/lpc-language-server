@@ -609,7 +609,7 @@ export class DetailsVisitor
     ) => {
         const fileCtx = ctx.directiveIncludeFile();
 
-        let filename = fileCtx._globalFile?.getText();
+        let filename = fileCtx.getText();
         if (!filename) {
             const stringLits = fileCtx.StringLiteral();
             filename = stringLits.map((s) => trimQuotes(s.getText())).join("");

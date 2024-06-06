@@ -3,11 +3,14 @@
 ## 1.0.8
 
 -   Allow array type declaration without a primitive type
+-   Added more diagnostic codes to lpc-config.
+-   Fixed: Parsing error when including a bracketed path with a forward slash
 
 #### FluffOS
 
 -   Allow spread operator in function forward declaration
 -   Add struct modifiers (`private`)
+-   Add global visibility modifiers
 
 ## 1.0.7
 

@@ -13,7 +13,13 @@ options {
 }
 
 // Entrypoint
-program: (declaration | preprocessorDirective | inheritStatement)* EOF;
+program
+    : (
+        declaration 
+        | preprocessorDirective 
+        | inheritStatement
+        | { this.isFluff() }? globalModifierStatement // fluffos global modifiers
+    )* EOF;
 
 // Preprocessor directives - These are mostly handled by preprocessing step
 preprocessorDirective
@@ -79,10 +85,8 @@ directiveDefineArgument: expression ;
 // #include <file> | #include "file"
 directiveTypeInclude: INCLUDE;
 
-directiveGlobalFile: LT Identifier (DIV | DOT | Identifier)* GT;
-
 directiveIncludeFile
-    : globalFile=directiveGlobalFile
+    : globalFile=IncludeGlobalFile
     | localFile=StringLiteral StringLiteral*
     | defineFile=Identifier
     ;
@@ -124,14 +128,20 @@ inheritSuperExpression
     : filename=(StringLiteral|Identifier|OBJECT)? SUPER_ACCESSOR  // object is fluff only (SyntaxObjectSupperAccessor)
     ;
 
+globalModifierStatement
+    : (
+        PRIVATE
+        | PROTECTED
+        | PUBLIC
+      ) COLON
+    ;
+
 declaration
     : functionHeaderDeclaration
     | functionDeclaration
     | structDeclaration
     | variableDeclarationStatement
     ;
-
-
 
 functionModifier
     : DEPRECATED

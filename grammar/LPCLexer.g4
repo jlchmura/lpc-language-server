@@ -170,6 +170,8 @@ CharacterConstant: '\'' (~['\r\n\\] | '\\' .) '\'';
 LAMBDA_IDENTIFIER: '\'' ([$a-zA-Z_] [a-zA-Z_0-9]* ('::' [$a-zA-Z_] [a-zA-Z_0-9]*)?);
 SINGLEQUOT: '\'';
 
+IncludeGlobalFile: '<' ([$a-zA-Z_] [./a-zA-Z_0-9]*) '>';
+
 // efuns that need special handling
 //CloneObject: 'clone_object';
 LoadObject: 'load_object';

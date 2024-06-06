@@ -20,7 +20,6 @@ import { DirectiveArgumentContext } from "./LPCParser.js";
 import { DirectiveDefineParamContext } from "./LPCParser.js";
 import { DirectiveDefineArgumentContext } from "./LPCParser.js";
 import { DirectiveTypeIncludeContext } from "./LPCParser.js";
-import { DirectiveGlobalFileContext } from "./LPCParser.js";
 import { DirectiveIncludeFileContext } from "./LPCParser.js";
 import { DirectiveTypePragmaContext } from "./LPCParser.js";
 import { InheritStatementContext } from "./LPCParser.js";
@@ -29,6 +28,7 @@ import { InheritContext } from "./LPCParser.js";
 import { DefaultModifierContext } from "./LPCParser.js";
 import { InheritFileContext } from "./LPCParser.js";
 import { InheritSuperExpressionContext } from "./LPCParser.js";
+import { GlobalModifierStatementContext } from "./LPCParser.js";
 import { DeclarationContext } from "./LPCParser.js";
 import { FunctionModifierContext } from "./LPCParser.js";
 import { FunctionHeaderContext } from "./LPCParser.js";
@@ -203,12 +203,6 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      */
     visitDirectiveTypeInclude?: (ctx: DirectiveTypeIncludeContext) => Result;
     /**
-     * Visit a parse tree produced by `LPCParser.directiveGlobalFile`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitDirectiveGlobalFile?: (ctx: DirectiveGlobalFileContext) => Result;
-    /**
      * Visit a parse tree produced by `LPCParser.directiveIncludeFile`.
      * @param ctx the parse tree
      * @return the visitor result
@@ -256,6 +250,12 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      * @return the visitor result
      */
     visitInheritSuperExpression?: (ctx: InheritSuperExpressionContext) => Result;
+    /**
+     * Visit a parse tree produced by `LPCParser.globalModifierStatement`.
+     * @param ctx the parse tree
+     * @return the visitor result
+     */
+    visitGlobalModifierStatement?: (ctx: GlobalModifierStatementContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.declaration`.
      * @param ctx the parse tree
