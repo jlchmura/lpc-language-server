@@ -563,14 +563,12 @@ export class DetailsVisitor
         const varType =
             this.parseTypeSpecifier(typeCtx) ?? LpcTypes.unknownType;
 
-        const varName = ctx.Identifier()?.getText();
-        this.addNewSymbol(
-            VariableSymbol,
-            ctx,
-            varName,
-            varType,
-            ctx.Identifier()
-        );
+        const ids = ctx.Identifier();
+        for (const id of ids) {
+            const varName = id.getText();
+            this.addNewSymbol(VariableSymbol, ctx, varName, varType, id);
+        }
+
         return undefined;
     };
 

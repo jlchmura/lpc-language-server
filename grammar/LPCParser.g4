@@ -179,7 +179,7 @@ parameter[boolean _isHeader]
     ;
 
 structMemberDeclaration
-    : unionableTypeSpecifier Identifier SEMI
+    : unionableTypeSpecifier Identifier (COMMA Identifier)* SEMI
     ;
 
 structMemberInitializer
@@ -204,7 +204,9 @@ structModifier
 
 // struct decl needs to be above variable decl
 structDeclaration
-    : ({this.isFluff()}? structModifier)? (STRUCT|CLASS) structName=Identifier (PAREN_OPEN structInherits=Identifier PAREN_CLOSE)? CURLY_OPEN structMemberDeclaration* CURLY_CLOSE SEMI?
+    : ({this.isFluff()}? structModifier)? (STRUCT|CLASS) structName=Identifier (PAREN_OPEN structInherits=Identifier PAREN_CLOSE)? 
+        CURLY_OPEN structMemberDeclaration* CURLY_CLOSE 
+        SEMI?
     ;
 
 variableDeclarationStatement
