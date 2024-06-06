@@ -537,7 +537,11 @@ ifStatement
 
 // Switch, case, and default statements
 switchStatement
-    : SWITCH PAREN_OPEN expression PAREN_CLOSE CURLY_OPEN (caseStatement | defaultStatement)* CURLY_CLOSE
+    : SWITCH PAREN_OPEN expression PAREN_CLOSE 
+        CURLY_OPEN 
+        variableDeclarationStatement* // this is weird, but technically allowed
+        ( caseStatement | defaultStatement )* 
+        CURLY_CLOSE
     ;
 
 caseExpression

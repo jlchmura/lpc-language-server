@@ -4,6 +4,7 @@
 
 -   Allow array type declaration without a primitive type
 -   Added more diagnostic codes to lpc-config.
+-   Allow variable declarations in switch body before first case.
 -   Fixed: Parsing error when including a bracketed path with a forward slash
 
 #### FluffOS
