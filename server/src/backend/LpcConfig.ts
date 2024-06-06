@@ -117,7 +117,10 @@ export function loadLpcConfig(filename: string): LpcConfig {
         rawConfig.defines?.forEach((defObj: any) => {
             const key = Object.keys(defObj)[0];
             let val = defObj[key];
-            if (typeof val === "string") {
+            if (
+                typeof val === "string" &&
+                !(val.startsWith('"') && val.endsWith('"'))
+            ) {
                 val = `"${val}"`;
             }
             config.defines.set(key, val);
