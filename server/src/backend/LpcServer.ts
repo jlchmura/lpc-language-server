@@ -457,9 +457,6 @@ export class LpcServer {
                 //this.flushChangeTimer(doc);
                 await this.processDiagnostic(doc.uri, doc.version, force);
             } else {
-                if (uri.endsWith("living.c")) {
-                    const ii = 0;
-                }
                 await this.processDiagnostic(uri, 0, force);
             }
         };
