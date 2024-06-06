@@ -8,6 +8,7 @@
 -   Fix: Parsing error when including a bracketed path with a forward slash
 -   Fix: Struct member declarations can have multiple variables separated by commas
 -   Fix: Multiline defines not tokenized correctly when lines end with `\r\n`
+-   Fix: Global include filename resolves incorrectly in windows.
 
 #### FluffOS
 

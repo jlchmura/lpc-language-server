@@ -827,7 +827,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
         if (this.macroTable.has("__GLOBAL_INCLUDE__")) {
             const globalInclude = this.macroTable.get("__GLOBAL_INCLUDE__");
             const globalIncludeTokens = this.lexMacro(
-                "global_include",
+                (this.tokenFactory as LPCTokenFactor).filenameStack[0] + '-global_include',
                 `#include ${globalInclude.value}\n`
             );
             this.buffer.push(...globalIncludeTokens);
