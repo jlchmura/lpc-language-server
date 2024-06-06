@@ -159,9 +159,9 @@ export class LPCPreprocessingLexer extends LPCLexer {
             token.type == LPCLexer.TextFormatDirective
         ) {
             this.isConsumingTextFormat = true;
-            console.debug(
-                `Searching for end of text formatting directive '${this._textMark}'`
-            );
+            // console.debug(
+            //     `Searching for end of text formatting directive '${this._textMark}'`
+            // );
         }
 
         // handling for FluffOS text formatting directives
@@ -479,15 +479,15 @@ export class LPCPreprocessingLexer extends LPCLexer {
         const macroName = defVal.substring(0, i);
         defVal = defVal.substring(i).trim();
 
-            if (macroName=="ONE_EXIT") {
-                const ii=0;
-            }
+        if (macroName == "ONE_EXIT") {
+            const ii = 0;
+        }
 
         // strip \r's and replace escaped newlines
         defVal = defVal.replace(/\r/g, "").replace(/\\\n/g, "\n");
 
         let macroValue = defVal.trim();
-        
+
         let macroArgs = "";
         if (defVal.charAt(0) == "(") {
             // this might be a macro function, find the closing paren
@@ -519,7 +519,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
                 macroArgs = tempVal;
             }
         }
-        
+
         const filename = lt.filename;
         const def: MacroDefinition = {
             value: macroValue.trim(),
@@ -829,7 +829,8 @@ export class LPCPreprocessingLexer extends LPCLexer {
         if (this.macroTable.has("__GLOBAL_INCLUDE__")) {
             const globalInclude = this.macroTable.get("__GLOBAL_INCLUDE__");
             const globalIncludeTokens = this.lexMacro(
-                (this.tokenFactory as LPCTokenFactor).filenameStack[0] + '-global_include',
+                (this.tokenFactory as LPCTokenFactor).filenameStack[0] +
+                    "-global_include",
                 `#include ${globalInclude.value}\n`
             );
             this.buffer.push(...globalIncludeTokens);
