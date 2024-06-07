@@ -25,7 +25,7 @@ channels {
 
 // Keywords
 BREAK: 'break';
-BUFFER: 'buffer';
+BUFFER: 'buffer' { this.isFluff() }?;
 BYTES: 'bytes';
 CASE: 'case';
 CATCH: 'catch';
@@ -170,7 +170,7 @@ CharacterConstant: '\'' (~['\r\n\\] | '\\' .) '\'';
 LAMBDA_IDENTIFIER: '\'' ([$a-zA-Z_] [a-zA-Z_0-9]* ('::' [$a-zA-Z_] [a-zA-Z_0-9]*)?);
 SINGLEQUOT: '\'';
 
-IncludeGlobalFile: '<' ([$a-zA-Z_] [./a-zA-Z_0-9]*) '>';
+BracketedIdentifier: '<' ([$a-zA-Z_] [./a-zA-Z_0-9]*) '>';
 
 // efuns that need special handling
 //CloneObject: 'clone_object';

@@ -80,7 +80,6 @@ import { LambdaExpressionContext } from "./LPCParser.js";
 import { PrimitiveTypeCastExpressionContext } from "./LPCParser.js";
 import { DeclarativeTypeCastExpressionContext } from "./LPCParser.js";
 import { StructCastExpressionContext } from "./LPCParser.js";
-import { ExpressionListContext } from "./LPCParser.js";
 import { StatementContext } from "./LPCParser.js";
 import { BlockContext } from "./LPCParser.js";
 import { SelectionStatementContext } from "./LPCParser.js";
@@ -887,16 +886,6 @@ export class LPCParserListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitStructCastExpression?: (ctx: StructCastExpressionContext) => void;
-    /**
-     * Enter a parse tree produced by `LPCParser.expressionList`.
-     * @param ctx the parse tree
-     */
-    enterExpressionList?: (ctx: ExpressionListContext) => void;
-    /**
-     * Exit a parse tree produced by `LPCParser.expressionList`.
-     * @param ctx the parse tree
-     */
-    exitExpressionList?: (ctx: ExpressionListContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.statement`.
      * @param ctx the parse tree

@@ -86,7 +86,7 @@ directiveDefineArgument: expression ;
 directiveTypeInclude: INCLUDE;
 
 directiveIncludeFile
-    : globalFile=IncludeGlobalFile
+    : globalFile=BracketedIdentifier
     | localFile=StringLiteral StringLiteral*
     | defineFile=Identifier
     ;
@@ -426,16 +426,16 @@ primaryExpression
 primaryExpressionStart
     : literal                               # literalExpression
     //| inheritSuperExpression                # inheritExpression    
-    | StringLiteral StringLiteral*          # stringConcatExpression
+    | StringLiteral StringLiteral*          # stringConcatExpression    
     | (LoadObject) PAREN_OPEN (ob=expression) (COMMA expression)* PAREN_CLOSE   # cloneObjectExpression 
     | validIdentifiers                            # identifierExpression    
     | (
-        (NEW PAREN_OPEN CLASS structName=Identifier (COMMA structMemberInitializer)* PAREN_CLOSE) // Fluff
+        { this.isFluff() }? (NEW PAREN_OPEN CLASS structName=Identifier (COMMA structMemberInitializer)* PAREN_CLOSE) // Fluff
         |
-        (PAREN_OPEN LT structName=Identifier GT (structMemberInitializer (COMMA structMemberInitializer)*)? COMMA? PAREN_CLOSE) // LD
+        { this.isLD() }? (PAREN_OPEN structName=BracketedIdentifier (structMemberInitializer (COMMA structMemberInitializer)*)? COMMA? PAREN_CLOSE) // LD
       ) # structInitializerExpression        
     | {this.isFluff()}? NEW PAREN_OPEN (ob=expression) (COMMA expression)* PAREN_CLOSE   # fluffCloneObjectExpression 
-    | PAREN_OPEN commaableExpression PAREN_CLOSE # parenExpression
+    | PAREN_OPEN commaableExpression PAREN_CLOSE # parenExpression    
     | arrayExpression                       # primaryArrayExpression
     | mappingExpression                     # primaryMappingExpression    
     | catchExpr                             # catchExpression    
@@ -492,11 +492,6 @@ castExpression
     | PAREN_OPEN CURLY_OPEN typeSpecifier CURLY_CLOSE PAREN_CLOSE conditionalExpression[16]      #declarativeTypeCastExpression
     | PAREN_OPEN LT Identifier GT conditionalExpression[16] (COMMA conditionalExpression[16])* PAREN_CLOSE          #structCastExpression
     ;
-
-expressionList
-    : expression (COMMA expression)*
-    ;
-
 
 // Statements
 
