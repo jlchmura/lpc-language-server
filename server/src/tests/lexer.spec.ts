@@ -8,6 +8,7 @@ import { LPCToken } from "../parser3/LPCToken";
 import { DriverType, LpcConfig, setLpcConfig } from "../backend/LpcConfig";
 import { LexerTextErrorListener } from "./LexerTestErrorListener";
 import { IDiagnosticEntry } from "../types";
+import { LPCLexer } from "../parser3/LPCLexer";
 
 describe("Test", () => {
     beforeAll(() => {});
@@ -26,34 +27,16 @@ describe("Test", () => {
     });
 
     it("Should lex basic.c", () => {
-        const filename = path.join(
-            process.cwd(),
-            "server/src/tests/test-assets/basic.c"
-        );
-        const stream = CharStream.fromString(
-            fs.readFileSync(filename, "utf8").toString()
-        );
-        const lexer = new LPCPreprocessingLexer(stream, filename, []);
-        lexer.tokenFactory = new LPCTokenFactor(filename);
+        const lexer = getLexer("basic.c");
         const tokens = lexer.getAllTokens();
 
         expect(tokens?.length).toBeGreaterThan(0);
     });
 
     it("Should lex all LDMud syntax", () => {
-        const filename = path.join(
-            process.cwd(),
-            "server/src/tests/test-assets/ldmud.c"
-        );
-        const stream = CharStream.fromString(
-            fs.readFileSync(filename, "utf8").toString()
-        );
-        const lexer = new LPCPreprocessingLexer(stream, filename, []);
         const lexDiags: IDiagnosticEntry[] = [];
-        lexer.addErrorListener(new LexerTextErrorListener(lexDiags));
+        const lexer = getLexer("ldmud.c", lexDiags);
         lexer.driverType = DriverType.LDMud;
-        lexer.tokenFactory = new LPCTokenFactor(filename);
-        lexer.fileHandler = new TestFileHandler();
         const tokens = lexer.getAllTokens();
 
         expect(lexDiags.length).toBe(0);
@@ -65,19 +48,9 @@ describe("Test", () => {
     });
 
     it("Should lex all FluffOS syntax", () => {
-        const filename = path.join(
-            process.cwd(),
-            "server/src/tests/test-assets/fluffos.c"
-        );
-        const stream = CharStream.fromString(
-            fs.readFileSync(filename, "utf8").toString()
-        );
-        const lexer = new LPCPreprocessingLexer(stream, filename, []);
         const lexDiags: IDiagnosticEntry[] = [];
-        lexer.addErrorListener(new LexerTextErrorListener(lexDiags));
+        const lexer = getLexer("fluffos.c", lexDiags);
         lexer.driverType = DriverType.FluffOS;
-        lexer.tokenFactory = new LPCTokenFactor(filename);
-        lexer.fileHandler = new TestFileHandler();
         const tokens = lexer.getAllTokens();
 
         expect(lexDiags.length).toBe(0);
@@ -87,4 +60,77 @@ describe("Test", () => {
                 .length
         ).toBeGreaterThan(0);
     });
+
+    it("should reset the lexer", () => {
+        const lexDiags: IDiagnosticEntry[] = [];
+        const lexer = getLexer("ldmud.c", lexDiags);
+        lexer.driverType = DriverType.LDMud;
+        const tokens = lexer.getAllTokens();
+
+        expect(lexer.getMacros().size).toBeGreaterThan(0);
+        lexer.reset();
+        expect(lexer.getMacros().size).toBe(0);
+    });
+
+    it("should add macros to the lexer", () => {
+        const lexer = getLexerFromString("string s = foo;");
+        lexer.addMacros(new Map([["foo", '"bar"']]));
+        const t = lexer.getAllTokens().at(-2);
+        expect(t.text).toBe('"bar"');
+    });
+
+    it("should add a global include", () => {
+        const lexer = getLexerFromString("\n\n");
+        lexer.addMacros(new Map([["__GLOBAL_INCLUDE__", '"fluffos.h"']]));
+        const tokens = lexer.getAllTokens();
+        expect(tokens.at(0).type).toBe(LPCLexer.HASH);
+        expect(
+            (tokens.at(6) as LPCToken).filename.endsWith("fluffos.h")
+        ).toBeTruthy();
+    });
+
+    it("should add filename to tokens", () => {
+        const lexer = getLexer("basic.c");
+        const tokens = lexer.getAllTokens();
+        const t = tokens[0] as LPCToken;
+        expect(t.filename).toContain("basic.c");
+        expect(t.toString()).toContain("basic.c");
+    });
+
+    it("should return vocab", () => {
+        const lexer = getLexer("basic.c");
+        const vocab = lexer.vocabulary;
+        expect(vocab).toBeDefined();
+    });
 });
+
+function getStream(filename: string): CharStream {
+    const f = path.join(
+        process.cwd(),
+        "server/src/tests/test-assets/",
+        filename
+    );
+    return CharStream.fromString(fs.readFileSync(f, "utf8").toString());
+}
+
+function getLexer(
+    filename: string,
+    diags: IDiagnosticEntry[] = []
+): LPCPreprocessingLexer {
+    const stream = getStream(filename);
+    const lexer = new LPCPreprocessingLexer(stream, filename, []);
+    lexer.tokenFactory = new LPCTokenFactor(filename);
+    lexer.fileHandler = new TestFileHandler();
+    return lexer;
+}
+
+function getLexerFromString(
+    s: string,
+    diags: IDiagnosticEntry[] = []
+): LPCPreprocessingLexer {
+    const stream = CharStream.fromString(s);
+    const lexer = new LPCPreprocessingLexer(stream, "test.c", []);
+    lexer.tokenFactory = new LPCTokenFactor("test.c");
+    lexer.fileHandler = new TestFileHandler();
+    return lexer;
+}

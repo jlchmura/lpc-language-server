@@ -479,10 +479,6 @@ export class LPCPreprocessingLexer extends LPCLexer {
         const macroName = defVal.substring(0, i);
         defVal = defVal.substring(i).trim();
 
-        if (macroName == "ONE_EXIT") {
-            const ii = 0;
-        }
-
         // strip \r's and replace escaped newlines
         defVal = defVal.replace(/\r/g, "").replace(/\\\n/g, "\n");
 

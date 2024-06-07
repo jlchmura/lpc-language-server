@@ -120,3 +120,12 @@ testStringShortcut() {
         ARR
         ;
 }
+
+testNewKeyword() {
+    // new class
+    class c1 c = new(class c1);
+
+    // new object
+    object o = new("/obj/room");
+    object o2 = new ("/obj/room2", "arg1", "arg2");
+}
