@@ -61,6 +61,12 @@ object *arrObject2 = ({ find_object("/obj/room"), find_object("/obj/room2") });
 // mapping declarations
 mapping map;
 mapping map2 = ([ "a": 1, "b": 2, "c": 3 ]);
+mapping mapEmpty = ([]);
+mapping map4 = ([ 1, 2, 3 ]);
+mapping map5 = ([ "a": 1; 2, "b": 3; 4 ]);
+
+bytes b1;
+bytes b2 = b"foo";
 
 // closure declarations
 closure cl;
@@ -71,7 +77,14 @@ struct struct1 {
     int i;
     string str;   
 };
-struct struct1 s1;
+
+// inherited struct
+struct inheritedStruct (struct1) {
+    int j;
+};
+
+struct struct1 s1; // struct instance
+
 
 // function forward defines
 int test();
@@ -286,3 +299,99 @@ testStringAccess() {
 #undef LDMUD_H
 #undef NOTDEFINED // <-- that should not throw errors
 
+// super accessor
+string query_name() {
+    string n = "obj"::query_name();
+    return ::query_name();
+}
+
+// function params/arguments
+void fnWithParams(int a, int b, varargs int c) {
+    write(a);
+    write(b);
+    write(c);
+}
+
+void testCall() {
+    fnWithParams(1, 2, 3);
+    fnWithParams(1, 2, 3, 5, 6); // should also work because of varargs
+}
+
+// struct usages and access 
+int testStructs() {
+    struct struct1 s = (<struct1> 1, "a");
+    struct struct1 s2 = (<struct1> i: 1, str: "a");
+    s->i = 1;
+    s->str = "a";
+    return s->i;
+}
+
+// unionable types
+public <int|string*>* testUnionable() {
+    <int|object> tmp = 0;
+    return ({ 1, "a" });
+}
+
+public string* fnArrayReturn() {
+    return ({});
+}
+
+// load object
+void testLoadObject() {
+    object o = load_object("obj");
+    object o2 = load_object("obj");
+    object o3 = clone_object("obj");
+}
+
+// catch expression
+void testCatch() {
+    object o;
+    if (catch(o=load_object("obj");publish)) {
+        write("error");
+    }    
+}
+
+// inline closures 
+void testInlineClosures() {
+    string *s = filter(explode(read_file(f), "\n"), (: return $[0..7]=="#define"; :));
+    filter(({}), (: $1==1 :));
+}
+
+// cast expressions
+void testCastExpressions() {
+    mixed m = "foo";
+    string s = ({ string })m;
+    string s = (string)m;
+
+    m = 1;
+    int i = ({ int })m;
+    int i = (int)m;
+
+    struct struct1 s1 = (<struct1>)m;
+}
+
+
+//foreach
+void testForEach() {
+    int *arr = ({ 1, 2, 3 });
+    foreach(int i : arr) {
+        write(i);
+    }
+
+    mapping map = ([ "a": 1, "b": 2, "c": 3 ]);
+    foreach(string key, int val : map) {
+        write(key);
+        write(val);
+    }
+
+    foreach(int i in arr) {
+        write(i);
+    }
+}
+
+// arrow functions
+void testArrowFunctions() {
+    object o = clone_object("obj");
+    string nm = o->query_name();
+    return nm;
+}

@@ -2,7 +2,7 @@
 #define MACRO_FN (x) (x+1)
 
 // directives
-#include "fluffos.h"
+#include "fluffos.h"; // fluff allows semi after include
 
 #if FLUFFOS_H 
 int isLd=1;
@@ -61,6 +61,8 @@ mapping map2 = ([ "a": 1, "b": 2, "c": 3 ]);
 // closure declarations
 closure cl;
 closure cl2 = (: $1 :);
+
+buffer b1;
 
 // struct declarations
 struct struct1 {
@@ -137,4 +139,17 @@ private:
 int isPrivate1;
 string isPrivate2;
 void fnIsPrivate() {}
+
+
+// function params/arguments
+void fnWithParams(int a, int b, int c...) {
+    write(a);
+    write(b);
+    write(c);
+}
+
+void testCall() {
+    fnWithParams(1, 2, 3);
+    fnWithParams(1, 2, 3, 5, 6); // should also work because of spread
+}
 
