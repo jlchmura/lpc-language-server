@@ -3,6 +3,7 @@
 
 // directives
 #include "ldmud.h"
+
 #if LDMUD_H 
 int isLd=1;
 #else 
@@ -26,6 +27,8 @@ int isLd2=0;
     int c=3; \
     return x;
 
+// inherit
+inherit "obj";
 
 // variable declarations
 private int iPrivate=0;

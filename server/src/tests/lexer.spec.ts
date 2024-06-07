@@ -5,10 +5,11 @@ import { LPCPreprocessingLexer } from "../parser3/LPCPreprocessingLexer";
 import { LPCTokenFactor } from "../parser3/LPCTokenFactory";
 import { TestFileHandler } from "./TestFileHandler";
 import { LPCToken } from "../parser3/LPCToken";
-import { DriverType, LpcConfig, setLpcConfig } from "../backend/LpcConfig";
-import { LexerTextErrorListener } from "./LexerTestErrorListener";
+import { DriverType } from "../backend/LpcConfig";
 import { IDiagnosticEntry } from "../types";
 import { LPCLexer } from "../parser3/LPCLexer";
+import { trimQuotes } from "../parser3/parser-utils";
+import { getLexer, getLexerFromString } from "./test-utils";
 
 describe("Test", () => {
     beforeAll(() => {});
@@ -102,35 +103,24 @@ describe("Test", () => {
         const vocab = lexer.vocabulary;
         expect(vocab).toBeDefined();
     });
+
+    it("should report error when a text shortuct doesn't end", () => {
+        const lexDiags: IDiagnosticEntry[] = [];
+        const lexer = getLexerFromString(
+            `string s = @FOO
+            line 1
+            line 2 
+        `,
+            lexDiags
+        );
+
+        expect(lexer.getAllTokens).toThrow();
+    });
 });
 
-function getStream(filename: string): CharStream {
-    const f = path.join(
-        process.cwd(),
-        "server/src/tests/test-assets/",
-        filename
-    );
-    return CharStream.fromString(fs.readFileSync(f, "utf8").toString());
-}
-
-function getLexer(
-    filename: string,
-    diags: IDiagnosticEntry[] = []
-): LPCPreprocessingLexer {
-    const stream = getStream(filename);
-    const lexer = new LPCPreprocessingLexer(stream, filename, []);
-    lexer.tokenFactory = new LPCTokenFactor(filename);
-    lexer.fileHandler = new TestFileHandler();
-    return lexer;
-}
-
-function getLexerFromString(
-    s: string,
-    diags: IDiagnosticEntry[] = []
-): LPCPreprocessingLexer {
-    const stream = CharStream.fromString(s);
-    const lexer = new LPCPreprocessingLexer(stream, "test.c", []);
-    lexer.tokenFactory = new LPCTokenFactor("test.c");
-    lexer.fileHandler = new TestFileHandler();
-    return lexer;
-}
+describe("Parser Utils", () => {
+    it("should trim quotes", () => {
+        expect(trimQuotes('"foo"')).toEqual("foo");
+        expect(trimQuotes("foo")).toEqual("foo");
+    });
+});

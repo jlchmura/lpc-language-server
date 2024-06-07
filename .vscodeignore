@@ -21,3 +21,4 @@ test*.h
 !out/client/src/extension.map.js
 jest.config.ts
 tests/
+coverage/

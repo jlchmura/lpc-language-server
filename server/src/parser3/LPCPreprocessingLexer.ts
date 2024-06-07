@@ -182,9 +182,9 @@ export class LPCPreprocessingLexer extends LPCLexer {
                     let txt = token.text.trim();
                     // confirm that the last n chars of txt match the mark
                     if (!txt.endsWith(this._textMark)) {
-                        throw (
+                        throw new Error(
                             "Text formatting end mark did not match " +
-                            this._textMark
+                                this._textMark
                         );
                     }
 

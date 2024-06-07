@@ -27,6 +27,8 @@ int isLd2=0;
     int c=3; \
     return x;
 
+// inherit
+inherit "obj";
 
 // variable declarations
 private int iPrivate=0;
@@ -129,3 +131,10 @@ testNewKeyword() {
     object o = new("/obj/room");
     object o2 = new ("/obj/room2", "arg1", "arg2");
 }
+
+// global modifier statement
+private:
+int isPrivate1;
+string isPrivate2;
+void fnIsPrivate() {}
+
