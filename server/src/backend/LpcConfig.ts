@@ -122,6 +122,10 @@ export function ensureLpcConfig(): LpcConfig {
     }
 }
 
+export function setLpcConfig(config: LpcConfig): void {
+    globalConfig = config;
+}
+
 export function loadLpcConfig(filename: string): LpcConfig {
     try {
         fs.accessSync(filename, fs.constants.R_OK);

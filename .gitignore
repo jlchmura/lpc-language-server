@@ -10,3 +10,4 @@ test*.c
 test*.h
 .DS_Store
 *.vsix
+coverage
