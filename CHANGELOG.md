@@ -1,5 +1,10 @@
 # LPC Language Services Changelog
 
+## 1.0.9
+
+-   Fix: Regression parsing struct initializers in LD.
+-   Started added unit tests for the parser, lexer, and pre-processor.
+
 ## 1.0.8
 
 -   Allow array type declaration without a primitive type
