@@ -6,6 +6,12 @@ import { LPCTokenFactor } from "../parser3/LPCTokenFactory";
 import { TestFileHandler } from "./TestFileHandler";
 import { IDiagnosticEntry } from "../types";
 
+const baseDir = path.join(process.cwd(), "server/src/tests/test-assets/");
+
+export function resolveTestFilePath(filename: string): string {
+    return path.join(baseDir, filename);
+}
+
 function getStream(filename: string): CharStream {
     const f = path.join(
         process.cwd(),
