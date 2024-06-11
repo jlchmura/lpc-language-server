@@ -156,6 +156,14 @@ testSwitch(int i) {
         case 3..4:        
             j++;
             break;
+        // case statements can have math in them
+        case 4+1 .. 10 * 2:
+            j+=2;
+            break;
+        // they can also have parens
+        case (20+1) .. 30:
+            j+=3;
+            break;
         default:
             return 3;
     }
@@ -323,6 +331,11 @@ int testStructs() {
     struct struct1 s2 = (<struct1> i: 1, str: "a");
     s->i = 1;
     s->str = "a";
+
+    // struct cast 
+    struct struct1 s3 = (<struct struct1>)s;
+    struct struct1 s3 = ({<struct struct1>})s;
+
     return s->i;
 }
 
@@ -394,4 +407,51 @@ void testArrowFunctions() {
     object o = clone_object("obj");
     string nm = o->query_name();
     return nm;
+}
+
+
+void testConditionalExpressions() {
+
+    int i = 1;
+    int j = i << 2; // shift left
+    j = i >> 2;     // shift right
+    j = (i++) ^ 2;      // xor
+ 
+    return (i++, j);
+}
+
+/** a massive unbound lambda from sticklib's mudlib */
+void testLambda() {
+    set_driver_hook(
+        H_MOVE_OBJECT0,
+        unbound_lambda( ({'item, 'dest}), ({#',,
+        ({#'efun::set_environment, 'item, 'dest}),
+        ({#'?, ({#'living, 'item}), ({#',,
+            ({#'efun::set_this_player, 'item}),
+            ({#'call_other, 'dest, "init"}),
+            ({#'?, ({#'!=, ({#'environment, 'item}), 'dest}), ({#'return})}),
+          }) }),
+        ({#'=, 'others, ({#'all_inventory, 'dest}) }),
+        ({#'=, ({#'[, 'others, ({#'member, 'others, 'item}) }), 0}),
+        ({#'filter, 'others,
+          ({#'bind_lambda,
+            unbound_lambda( ({'ob, 'item}),
+          ({#'?, ({#'living, 'ob}), ({#',,
+              ({#'efun::set_this_player, 'ob}),
+              ({#'call_other, 'item, "init"}),
+            }) })
+            )
+          }),
+          'item,
+        }),
+        ({#'?, ({#'living, 'item}), ({#',,
+            ({#'efun::set_this_player, 'item}),
+            ({#'filter_objects, 'others, "init"}),
+          }) }),
+        ({#'?, ({#'living, 'dest}), ({#',,
+            ({#'efun::set_this_player, 'dest}),
+            ({#'call_other, 'item, "init"}),
+          }) }),
+      }) )
+      );
 }

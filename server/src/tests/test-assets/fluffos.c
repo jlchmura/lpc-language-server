@@ -125,6 +125,11 @@ testStringShortcut() {
         ;
 }
 
+class testClass {
+    int i;
+    string str;
+};
+
 testNewKeyword() {
     // new class
     class c1 c = new(class c1);
