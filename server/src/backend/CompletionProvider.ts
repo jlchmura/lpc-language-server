@@ -24,8 +24,9 @@ import { ContextSymbolTable } from "./ContextSymbolTable";
 import { VariableSymbol } from "../symbols/variableSymbol";
 import { BaseSymbol, ScopedSymbol, SymbolTable } from "antlr4-c3";
 
-import { getSelfOrParentOfType, getSymbolsFromAllParents } from "../utils";
+import { getSelfOrParentOfType } from "../utils";
 import { EfunSymbols } from "../driver/EfunsLDMud";
+import { getSymbolsFromAllParents } from "./symbol-utils";
 
 export class CompletionProvider {
     constructor(private backend: LpcFacade) {}

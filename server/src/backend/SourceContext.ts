@@ -61,7 +61,6 @@ import {
     normalizeFilename,
     pushIfDefined,
     rangeFromTokens,
-    resolveOfTypeSync,
     trimQuotes,
 } from "../utils";
 import { EfunSymbols } from "../driver/EfunsLDMud";
@@ -104,6 +103,7 @@ import { URI } from "vscode-uri";
 
 import { FeatureValidationResult, IDriver } from "../driver/types";
 import { getDriverInfo } from "../driver/Driver";
+import { resolveOfTypeSync } from "./symbol-utils";
 
 const mapAnnotationReg = /\[\[@(.+?)\]\]/;
 

@@ -1,18 +1,9 @@
-import {
-    BaseSymbol,
-    IScopedSymbol,
-    SymbolConstructor,
-    SymbolTable,
-} from "antlr4-c3";
+import { BaseSymbol, IScopedSymbol, SymbolConstructor } from "antlr4-c3";
 import { ParseTree } from "antlr4ng";
 import { ILexicalRange, SymbolKind } from "../types";
 import { FoldingRange } from "vscode-languageserver";
 import { CallStack } from "../backend/CallStack";
-import { ContextSymbolTable } from "../backend/ContextSymbolTable";
-import {
-    getSymbolsFromAllParents,
-    getSymbolsFromAllParentsSync,
-} from "../utils";
+import { getSymbolsFromAllParentsSync } from "../backend/symbol-utils";
 
 export type EvalScope = any;
 

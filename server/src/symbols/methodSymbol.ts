@@ -24,12 +24,8 @@ import {
 } from "../types";
 import { DiagnosticSeverity, FoldingRange } from "vscode-languageserver";
 import { ExpressionSymbol } from "./expressionSymbol";
-import {
-    lexRangeFromContext,
-    rangeFromTokens,
-    resolveOfTypeSync,
-} from "../utils";
-import { SourceContext } from "../backend/SourceContext";
+import { lexRangeFromContext, rangeFromTokens } from "../utils";
+
 import { ObjectReferenceInfo } from "./objectSymbol";
 import { ContextSymbolTable } from "../backend/ContextSymbolTable";
 import {
@@ -42,6 +38,7 @@ import {
 import { ParserRuleContext, Token } from "antlr4ng";
 import { addDiagnostic } from "./Symbol";
 import { InheritSuperAccessorSymbol } from "./inheritSymbol";
+import { resolveOfTypeSync } from "../backend/symbol-utils";
 
 export const MAX_CALLDEPTH_SIZE = 25;
 const OBJ_PLAYER_FILENAME = "/obj/player";

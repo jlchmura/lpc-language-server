@@ -21,13 +21,13 @@ import {
     MethodSymbol,
 } from "../symbols/methodSymbol";
 import { IncludeSymbol } from "../symbols/includeSymbol";
-import {
-    resolveOfTypeSync,
-    symbolWithContextSync,
-    walkParents,
-} from "../utils";
 import { InheritSymbol } from "../symbols/inheritSymbol";
 import { LPCToken } from "../parser3/LPCToken";
+import {
+    resolveOfTypeSync,
+    walkParents,
+    symbolWithContextSync,
+} from "./symbol-utils";
 
 export type SymbolTableCache = Map<string, SymbolTable>;
 

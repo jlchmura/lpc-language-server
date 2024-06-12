@@ -65,4 +65,11 @@ describe("SourceContext", () => {
             });
         });
     });
+
+    describe("code completion", () => {
+        it("should provide code completion results", async () => {
+            const result = await ctx.getCodeCompletionCandidates(20, 116);
+            expect(result?.length).toBeDefined();
+        });
+    });
 });

@@ -30,9 +30,6 @@ import {
     getSibling,
     lastEntry,
     logDiagnosticForTokens,
-    rangeFromTokens,
-    resolveOfTypeSync,
-    symbolWithContextSync,
 } from "../utils";
 import {
     EfunSymbol,
@@ -54,6 +51,7 @@ import { LPCToken } from "../parser3/LPCToken";
 import { LDMudFeatures } from "../driver/DriverLdMud";
 import { FluffOSFeatures } from "../driver/DriverFluffOS";
 import { FeatureValidationResult, IDriver } from "../driver/types";
+import { symbolWithContextSync, resolveOfTypeSync } from "./symbol-utils";
 
 export class SemanticListener extends LPCParserListener {
     private seenSymbols = new Map<string, Token>();

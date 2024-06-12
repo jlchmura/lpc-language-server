@@ -113,6 +113,7 @@ struct struct1 accessStruct(int i) {
 #define NESTED_MACRO M2 "bar"
 testNestedMacro() {
     write(NESTED_MACRO);
+    this_object()->commaExpr();
 }
 
 // comma expressions
