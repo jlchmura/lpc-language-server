@@ -46,7 +46,7 @@ describe("utils.ts", () => {
         if (isWin) {
             // it should parse file uri's from windows that contain a drive letter
             expect(normalizeFilename("file:///c:/path/to/file")).toBe(
-                "c:/path/to/file.c"
+                "c:\\path\\to\\file.c"
             );
         }
 
