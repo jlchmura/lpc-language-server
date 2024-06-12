@@ -1,4 +1,3 @@
-import * as fs from "fs";
 import * as path from "path";
 import {
     CharStream,
@@ -17,7 +16,6 @@ import {
     FunctionDeclarationContext,
     LPCParser,
     ProgramContext,
-    StructDeclarationContext,
     VariableDeclarationContext,
     VariableDeclaratorContext,
     VariableDeclaratorExpressionContext,
@@ -30,11 +28,10 @@ import {
     SymbolKind,
     MacroDefinition,
     SemanticTokenTypes,
-    SemanticTokenModifiers,
 } from "../types";
 import { ContextErrorListener } from "./ContextErrorListener";
 import { ContextLexerErrorListener } from "./ContextLexerErrorListener";
-import { ContextSymbolTable, SymbolTableCache } from "./ContextSymbolTable";
+import { ContextSymbolTable } from "./ContextSymbolTable";
 import { SemanticListener } from "./SemanticListener";
 import {
     BaseSymbol,
@@ -80,9 +77,7 @@ import {
 import { CloneObjectSymbol } from "../symbols/objectSymbol";
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import { ArrowSymbol, ArrowType } from "../symbols/arrowSymbol";
-
 import { SemanticTokenCollection } from "./SemanticTokenCollection";
-
 import {
     InheritSuperAccessorSymbol,
     InheritSymbol,
@@ -100,7 +95,6 @@ import {
 import { LPCTokenFactor } from "../parser3/LPCTokenFactory";
 import { LPCToken } from "../parser3/LPCToken";
 import { URI } from "vscode-uri";
-
 import { FeatureValidationResult, IDriver } from "../driver/types";
 import { getDriverInfo } from "../driver/Driver";
 import { resolveOfTypeSync } from "./symbol-utils";

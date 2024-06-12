@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
+import * as events from "events";
 import { SourceContext } from "./SourceContext";
 import {
     ContextImportInfo,
@@ -22,8 +23,6 @@ import { randomInt } from "crypto";
 import { ensureLpcConfig } from "./LpcConfig";
 import { glob } from "glob";
 import { URI } from "vscode-uri";
-import { ContextSymbolTable, SymbolTableCache } from "./ContextSymbolTable";
-import * as events from "events";
 
 /** ms delay before reparsing a depenency */
 const DEP_FILE_REPARSE_TIME = 300;

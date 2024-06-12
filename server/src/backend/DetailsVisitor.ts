@@ -16,7 +16,7 @@ import {
     ScopedSymbol,
     SymbolConstructor,
 } from "antlr4-c3";
-import { ContextSymbolTable, SymbolTableCache } from "./ContextSymbolTable";
+import { ContextSymbolTable } from "./ContextSymbolTable";
 import {
     BracketExpressionContext,
     CallOtherTargetContext,
@@ -111,9 +111,6 @@ import {
     StructDeclarationSymbol,
     StructMemberIdentifierSymbol,
 } from "../symbols/structSymbol";
-import { getDriverInfo } from "../driver/Driver";
-import { ensureLpcConfig } from "./LpcConfig";
-import { FluffOSFeatures } from "../driver/DriverFluffOS";
 
 type GenericConstructorParameters<T> = ConstructorParameters<
     new (...args: any[]) => T

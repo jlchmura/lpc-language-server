@@ -1,3 +1,4 @@
+import * as path from "path";
 import {
     BaseSymbol,
     IScopedSymbol,
@@ -5,7 +6,6 @@ import {
     SymbolConstructor,
 } from "antlr4-c3";
 import { ensureLpcConfig } from "./LpcConfig";
-import * as path from "path";
 import { ContextSymbolTable } from "./ContextSymbolTable";
 import { ParseTree } from "antlr4ng";
 

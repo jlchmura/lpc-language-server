@@ -5,11 +5,10 @@ import {
     ScopedSymbol,
     SymbolConstructor,
     ParameterSymbol,
-    IScopedSymbol,
 } from "antlr4-c3";
 import { ParseTree, ParserRuleContext, TerminalNode, Token } from "antlr4ng";
 import { SourceContext } from "./SourceContext";
-import { ISymbolInfo, SymbolGroupKind, SymbolKind } from "../types";
+import { ISymbolInfo, SymbolKind } from "../types";
 import { FoldingRange } from "vscode-languageserver";
 import { DefineSymbol } from "../symbols/defineSymbol";
 import { VariableSymbol } from "../symbols/variableSymbol";
