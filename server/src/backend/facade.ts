@@ -1,28 +1,28 @@
-import * as fs from "fs";
-import * as path from "path";
+import { BaseSymbol } from "antlr4-c3";
+import { randomInt } from "crypto";
 import * as events from "events";
-import { SourceContext } from "./SourceContext";
-import {
-    ContextImportInfo,
-    DependencySearchType,
-    IDiagnosticEntry,
-    ISymbolInfo,
-} from "../types";
+import * as fs from "fs";
+import { glob } from "glob";
+import * as path from "path";
+import { performance } from "perf_hooks";
 import {
     CancellationTokenSource,
     FoldingRange,
     Position,
     SemanticTokens,
 } from "vscode-languageserver";
-import { normalizeFilename, testFilename } from "../utils";
-import { IncludeSymbol } from "../symbols/includeSymbol";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { BaseSymbol } from "antlr4-c3";
-import { PerformanceObserver, performance } from "perf_hooks";
-import { randomInt } from "crypto";
-import { ensureLpcConfig } from "./LpcConfig";
-import { glob } from "glob";
 import { URI } from "vscode-uri";
+import { IncludeSymbol } from "../symbols/includeSymbol";
+import {
+    ContextImportInfo,
+    DependencySearchType,
+    IDiagnosticEntry,
+    ISymbolInfo,
+} from "../types";
+import { normalizeFilename, testFilename } from "../utils";
+import { ensureLpcConfig } from "./LpcConfig";
+import { SourceContext } from "./SourceContext";
 
 /** ms delay before reparsing a depenency */
 const DEP_FILE_REPARSE_TIME = 300;

@@ -1,17 +1,17 @@
 import {
-    SymbolTable,
     BaseSymbol,
     ISymbolTableOptions,
+    ParameterSymbol,
     ScopedSymbol,
     SymbolConstructor,
-    ParameterSymbol,
+    SymbolTable,
 } from "antlr4-c3";
 import { ParseTree, ParserRuleContext, TerminalNode, Token } from "antlr4ng";
-import { SourceContext } from "./SourceContext";
-import { ISymbolInfo, SymbolKind } from "../types";
 import { FoldingRange } from "vscode-languageserver";
+import { LPCToken } from "../parser3/LPCToken";
 import { DefineSymbol } from "../symbols/defineSymbol";
-import { VariableSymbol } from "../symbols/variableSymbol";
+import { IncludeSymbol } from "../symbols/includeSymbol";
+import { InheritSymbol } from "../symbols/inheritSymbol";
 import {
     EfunSymbol,
     InlineClosureSymbol,
@@ -19,13 +19,13 @@ import {
     MethodParameterSymbol,
     MethodSymbol,
 } from "../symbols/methodSymbol";
-import { IncludeSymbol } from "../symbols/includeSymbol";
-import { InheritSymbol } from "../symbols/inheritSymbol";
-import { LPCToken } from "../parser3/LPCToken";
+import { VariableSymbol } from "../symbols/variableSymbol";
+import { ISymbolInfo, SymbolKind } from "../types";
+import { SourceContext } from "./SourceContext";
 import {
     resolveOfTypeSync,
-    walkParents,
     symbolWithContextSync,
+    walkParents,
 } from "./symbol-utils";
 
 export type SymbolTableCache = Map<string, SymbolTable>;

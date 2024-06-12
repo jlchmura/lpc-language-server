@@ -1,4 +1,9 @@
-import * as path from "path";
+import {
+    BaseSymbol,
+    CodeCompletionCore,
+    ParameterSymbol,
+    ScopedSymbol,
+} from "antlr4-c3";
 import {
     CharStream,
     CommonTokenStream,
@@ -11,6 +16,21 @@ import {
     TerminalNode,
     Token,
 } from "antlr4ng";
+import * as path from "path";
+import { performance } from "perf_hooks";
+import {
+    DiagnosticSeverity,
+    DocumentHighlight,
+    DocumentHighlightKind,
+    FoldingRange,
+    Position,
+    SemanticTokens,
+} from "vscode-languageserver";
+import { URI } from "vscode-uri";
+import { getDriverInfo } from "../driver/Driver";
+import { DriverVersion } from "../driver/DriverVersion";
+import { EfunSymbols } from "../driver/EfunsLDMud";
+import { FeatureValidationResult, IDriver } from "../driver/types";
 import { LPCLexer } from "../parser3/LPCLexer";
 import {
     FunctionDeclarationContext,
@@ -21,52 +41,21 @@ import {
     VariableDeclaratorExpressionContext,
 } from "../parser3/LPCParser";
 import {
-    IContextDetails,
-    IDiagnosticEntry,
-    ISymbolInfo,
-    IDefinition,
-    SymbolKind,
-    MacroDefinition,
-    SemanticTokenTypes,
-} from "../types";
-import { ContextErrorListener } from "./ContextErrorListener";
-import { ContextLexerErrorListener } from "./ContextLexerErrorListener";
-import { ContextSymbolTable } from "./ContextSymbolTable";
-import { SemanticListener } from "./SemanticListener";
-import {
-    BaseSymbol,
-    CodeCompletionCore,
-    ParameterSymbol,
-    ScopedSymbol,
-} from "antlr4-c3";
-import { BackendUtils } from "./BackendUtils";
-import { LpcFacade } from "./facade";
-import { DetailsVisitor } from "./DetailsVisitor";
-import {
-    Diagnostic,
-    DiagnosticSeverity,
-    DocumentHighlight,
-    DocumentHighlightKind,
-    FoldingRange,
-    Position,
-    SemanticTokens,
-} from "vscode-languageserver";
-import {
-    getSelectionRange,
-    lexRangeFromContext as lexRangeFromContext,
-    logDiagnosticForTokens,
-    normalizeFilename,
-    pushIfDefined,
-    rangeFromTokens,
-    trimQuotes,
-} from "../utils";
-import { EfunSymbols } from "../driver/EfunsLDMud";
+    DIRECTIVE_CHANNEL,
+    DISABLED_CHANNEL,
+    LPCPreprocessingLexer,
+} from "../parser3/LPCPreprocessingLexer";
+import { LPCToken } from "../parser3/LPCToken";
+import { LPCTokenFactor } from "../parser3/LPCTokenFactory";
+import { getParentContextOfType } from "../symbols/Symbol";
+import { ArrowSymbol, ArrowType } from "../symbols/arrowSymbol";
 import { IFoldableSymbol, isInstanceOfIKindSymbol } from "../symbols/base";
 import { DefineSymbol } from "../symbols/defineSymbol";
+import { IncludeSymbol } from "../symbols/includeSymbol";
 import {
-    VariableIdentifierSymbol,
-    VariableSymbol,
-} from "../symbols/variableSymbol";
+    InheritSuperAccessorSymbol,
+    InheritSymbol,
+} from "../symbols/inheritSymbol";
 import {
     EfunSymbol,
     FunctionIdentifierSymbol,
@@ -75,31 +64,39 @@ import {
     MethodSymbol,
 } from "../symbols/methodSymbol";
 import { CloneObjectSymbol } from "../symbols/objectSymbol";
-import { IncludeSymbol } from "../symbols/includeSymbol";
-import { ArrowSymbol, ArrowType } from "../symbols/arrowSymbol";
-import { SemanticTokenCollection } from "./SemanticTokenCollection";
 import {
-    InheritSuperAccessorSymbol,
-    InheritSymbol,
-} from "../symbols/inheritSymbol";
-import { performance } from "perf_hooks";
+    VariableIdentifierSymbol,
+    VariableSymbol,
+} from "../symbols/variableSymbol";
+import {
+    IContextDetails,
+    IDefinition,
+    IDiagnosticEntry,
+    ISymbolInfo,
+    MacroDefinition,
+    SemanticTokenTypes,
+    SymbolKind,
+} from "../types";
+import {
+    getSelectionRange,
+    lexRangeFromContext,
+    logDiagnosticForTokens,
+    normalizeFilename,
+    pushIfDefined,
+    rangeFromTokens,
+    trimQuotes,
+} from "../utils";
+import { BackendUtils } from "./BackendUtils";
+import { ContextErrorListener } from "./ContextErrorListener";
+import { ContextLexerErrorListener } from "./ContextLexerErrorListener";
+import { ContextSymbolTable } from "./ContextSymbolTable";
+import { DetailsVisitor } from "./DetailsVisitor";
 import { LpcFileHandler } from "./FileHandler";
 import { LpcConfig, ensureLpcConfig } from "./LpcConfig";
-import { getParentContextOfType } from "../symbols/Symbol";
-import { DriverVersion } from "../driver/DriverVersion";
-import {
-    DIRECTIVE_CHANNEL,
-    DISABLED_CHANNEL,
-    LPCPreprocessingLexer,
-} from "../parser3/LPCPreprocessingLexer";
-import { LPCTokenFactor } from "../parser3/LPCTokenFactory";
-import { LPCToken } from "../parser3/LPCToken";
-import { URI } from "vscode-uri";
-import { FeatureValidationResult, IDriver } from "../driver/types";
-import { getDriverInfo } from "../driver/Driver";
+import { SemanticListener } from "./SemanticListener";
+import { SemanticTokenCollection } from "./SemanticTokenCollection";
+import { LpcFacade } from "./facade";
 import { resolveOfTypeSync } from "./symbol-utils";
-
-const mapAnnotationReg = /\[\[@(.+?)\]\]/;
 
 /**
  * Source context for a single LPC file.
