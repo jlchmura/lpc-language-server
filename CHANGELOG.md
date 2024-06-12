@@ -1,5 +1,10 @@
 # LPC Language Services Changelog
 
+## 1.0.10
+
+-   The `lpc-config.json` file is now used to determine the LPC _root_ folder.
+    If no config file is found, the VS Code workspace root is used.
+
 ## 1.0.9
 
 -   Fix: Regression parsing struct initializers in LD.

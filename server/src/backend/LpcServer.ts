@@ -22,6 +22,8 @@ import { RenameProvider } from "./RenameProvider";
 import { HighlightProvider } from "./HighlightProvider";
 import { DriverType, ensureLpcConfig, loadLpcConfig } from "./LpcConfig";
 import { ReferenceProvider } from "./ReferenceProvider";
+import { glob } from "glob";
+import { findLpcRoot } from "./server-utils";
 
 const CHANGE_DEBOUNCE_MS = 150;
 
@@ -440,13 +442,12 @@ export class LpcServer {
         }
 
         const folders = params.workspaceFolders;
-        const rootFolder = folders && folders.length > 0 ? folders[0].uri : "";
-        const rootFolderUri = URI.parse(rootFolder);
-        const rootFolderPath = rootFolderUri.fsPath;
+
+        // find the lpc-config.json file
+        const rootFolderPath = findLpcRoot(folders);
 
         // load the config
         loadLpcConfig(path.join(rootFolderPath, "lpc-config.json"));
-
         this.facade = new LpcFacade(rootFolderPath);
 
         // hook up the run diagnostic event emitter

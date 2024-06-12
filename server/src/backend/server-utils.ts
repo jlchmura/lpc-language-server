@@ -2,8 +2,12 @@
  * Portions of this file were copied from https://github.com/microsoft/TypeScript/
  * which carries the Apache 2.0 license.
  */
-
+import * as fs from "fs";
+import { WorkspaceFolder } from "vscode-languageserver";
 import { TextSpan, TextChangeRange, CharacterCodes } from "./types";
+import { URI } from "vscode-uri";
+import { glob } from "glob";
+import * as path from "path";
 
 export const unchangedTextChangeRange = createTextChangeRange(
     createTextSpan(0, 0),
@@ -216,4 +220,25 @@ export function computeLineStarts(text: string): number[] {
     }
     result.push(lineStart);
     return result;
+}
+
+export function findLpcRoot(folders: WorkspaceFolder[]) {
+    // find the lpc-config.json file
+    let rootFolderPath: string = undefined;
+    if (folders && folders.length > 0) {
+        for (const folder of folders) {
+            const rootFolder = folder.uri;
+            const rootFolderUri = URI.parse(rootFolder);
+            rootFolderPath ??= rootFolderUri.fsPath;
+            const globMatches = glob.globSync("**/lpc-config.json", {
+                nodir: true,
+                absolute: true,
+                cwd: rootFolderUri.fsPath,
+            });
+            if (globMatches.length > 0) {
+                return path.dirname(globMatches[0]);
+            }
+        }
+    }
+    return rootFolderPath;
 }
