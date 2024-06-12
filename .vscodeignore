@@ -1,4 +1,5 @@
 .vscode/**
+.github/**
 .git/**
 node_modules/**
 **/*.ts

@@ -4,28 +4,28 @@
 name: Node.js CI
 
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    push:
+        branches: ["main"]
+    pull_request:
+        branches: ["main"]
 
 jobs:
-  build:
+    build:
+        runs-on: ${{ matrix.os }}
 
-    runs-on: [ubuntu-latest, windows-latest, macos-latest]
+        strategy:
+            matrix:
+                node-version: [16.x, 18.x]
+                os: [ubuntu-latest, windows-latest, macos-latest]
+                # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
-    strategy:
-      matrix:
-        node-version: [16.x, 18.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
-    steps:
-    - uses: actions/checkout@v4
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - run: npm ci
-    - run: npm run compile --if-present
-    - run: npm test
+        steps:
+            - uses: actions/checkout@v4
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v3
+              with:
+                  node-version: ${{ matrix.node-version }}
+                  cache: "npm"
+            - run: npm ci
+            - run: npm run compile --if-present
+            - run: npm test
