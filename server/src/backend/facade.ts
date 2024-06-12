@@ -20,7 +20,11 @@ import {
     IDiagnosticEntry,
     ISymbolInfo,
 } from "../types";
-import { normalizeFilename, testFilename } from "../utils";
+import {
+    areWeTestingWithJest,
+    normalizeFilename,
+    testFilename,
+} from "../utils";
 import { ensureLpcConfig } from "./LpcConfig";
 import { SourceContext } from "./SourceContext";
 
@@ -83,7 +87,9 @@ export class LpcFacade {
             return path.join(workspaceDir, dir);
         });
 
-        console.log("LpcFacade created", this.importDir, workspaceDir);
+        if (!areWeTestingWithJest()) {
+            console.log("LpcFacade created", this.importDir, workspaceDir);
+        }
 
         // const obs = new PerformanceObserver((list) => {
         //     // instantiate

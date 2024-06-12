@@ -1131,7 +1131,7 @@ export class SourceContext {
             }
         }
 
-        console.debug("autocomplete token found", token.text, column);
+        //console.debug("autocomplete token found", token.text, column);
 
         const candidates = core.collectCandidates(index);
 

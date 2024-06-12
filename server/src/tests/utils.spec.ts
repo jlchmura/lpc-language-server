@@ -29,19 +29,26 @@ describe("utils.ts", () => {
     });
 
     it("should normalize filenames", () => {
+        const isWin = process.platform === "win32";
+
         expect(normalizeFilename(undefined)).toBeUndefined();
         expect(normalizeFilename("")).toBe("");
 
-        expect(normalizeFilename("/path/to/file")).toBe("/path/to/file.c");
+        if (!isWin) {
+            expect(normalizeFilename("/path/to/file")).toBe("/path/to/file.c");
 
-        // it should parse filenames that look like URI's
-        expect(normalizeFilename("file:///path/to/file")).toBe(
-            "/path/to/file.c"
-        );
-        // it should parse file uri's from windows that contain a drive letter
-        expect(normalizeFilename("file:///c:/path/to/file")).toBe(
-            "c:/path/to/file.c"
-        );
+            // it should parse filenames that look like URI's
+            expect(normalizeFilename("file:///path/to/file")).toBe(
+                "/path/to/file.c"
+            );
+        }
+
+        if (isWin) {
+            // it should parse file uri's from windows that contain a drive letter
+            expect(normalizeFilename("file:///c:/path/to/file")).toBe(
+                "c:/path/to/file.c"
+            );
+        }
 
         // it should not chnage the extension if one was provided
         expect(normalizeFilename("test.h")).toBe("test.h");
