@@ -43,6 +43,12 @@ See [CHANGELOG.md](CHANGELOG.md).
 
 The VS Code LPC Language Services extension does not use your MUD driver to compile code. As such, several configuration options are available to help the language server understand the structure of your mudlib.
 
+### Workspace Root vs Lib Root
+
+LPC Language Services will use the location of your `lpc-config.json` file to determine the root folder of your mudlib. If no config file is found, the VS Code workspace root is used.
+
+For example, see the [LIMA mudlib](https://github.com/fluffos/lima) in which the config file should be placed in the `lib` folder.
+
 ### Example
 
 For an example mudlib, pre-configured to work with LPC Language Services, see this slightly modified version of the [LP 2.4.5 mudlib](https://github.com/jlchmura/lp-245). LPC Language Services can parse and validate this entire lib without errors.
@@ -109,6 +115,14 @@ Valid severity levels are:
 -   `info`
 -   `hint`
 -   `none`
+
+##### Disabling Code Diagnostics
+
+All semantic diagnostics can be disabled by setting the config to `"off"`. Syntax errors will always be reported. Example:
+
+```json
+"diagnostics": "off"
+```
 
 ## Grammar ToDo's
 

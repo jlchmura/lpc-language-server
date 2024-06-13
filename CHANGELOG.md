@@ -3,7 +3,8 @@
 ## 1.0.10
 
 -   The `lpc-config.json` file is now used to determine the LPC _root_ folder.
-    If no config file is found, the VS Code workspace root is used.
+    If no config file is found, the VS Code workspace root is used. See: [Workspace Root vs Lib Root](./README.md#file-locations---files)
+-   Added the ability to [turn off all semantic diagnostics](./README.md#disabling-code-diagnostics).
 
 ## 1.0.9
 

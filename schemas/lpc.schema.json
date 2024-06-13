@@ -75,25 +75,34 @@
                 }
             }
         },
+        "diagnosticProperties": {
+            "properties": {
+                "callOtherTargetUnknown": {
+                    "description": "Sets the level of diagnostic reported when then type of a call other target cannot be loaded or identified.",
+                    "default": "info",
+                    "anyOf": [{ "$ref": "#/definitions/diagnosticLevelEnum" }]
+                },
+                "callOtherLfunNotFound": {
+                    "description": "Sets the level of diagnostic reported when a call other function is not found.",
+                    "default": "error",
+                    "anyOf": [{ "$ref": "#/definitions/diagnosticLevelEnum" }]
+                }
+            }
+        },
         "diagnosticsDefinition": {
             "properties": {
                 "diagnostics": {
-                    "properties": {
-                        "callOtherTargetUnknown": {
-                            "description": "Sets the level of diagnostic reported when then type of a call other target cannot be loaded or identified.",
-                            "default": "info",
-                            "anyOf": [
-                                { "$ref": "#/definitions/diagnosticLevelEnum" }
-                            ]
+                    "anyOf": [
+                        {
+                            "description": "Turns off all diagnostics.",
+                            "enum": ["off"],
+                            "default": "off"
                         },
-                        "callOtherLfunNotFound": {
-                            "description": "Sets the level of diagnostic reported when a call other function is not found.",
-                            "default": "error",
-                            "anyOf": [
-                                { "$ref": "#/definitions/diagnosticLevelEnum" }
-                            ]
+                        {
+                            "type": "object",
+                            "$ref": "#/definitions/diagnosticProperties"
                         }
-                    }
+                    ]
                 }
             }
         },

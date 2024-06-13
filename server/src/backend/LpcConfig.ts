@@ -81,7 +81,9 @@ export class LpcConfig implements ILpcConfig {
         type: DriverType.LDMud,
         version: "3.6.7",
     };
+
     public diagnostics: DiagnosticsInfo = defaultDiagnostics;
+    public allDiagnosticsOff: boolean = false;
 
     public files: FilesInfo = {
         simul_efun: "/obj/simul_efun.c",
@@ -96,6 +98,10 @@ export function getDiagnosticLevelFromConfig(
     code: string,
     defaultLevel: DiagnosticSeverity
 ): DiagnosticSeverity {
+    if (config.allDiagnosticsOff) {
+        return undefined;
+    }
+
     const configLevel = config.diagnostics[code];
     switch (configLevel) {
         case DiagnosticLevel.Error:
@@ -160,6 +166,9 @@ export function loadLpcConfig(filename: string): LpcConfig {
             ...config.diagnostics,
             ...rawConfig.diagnostics,
         };
+        if (rawConfig.diagnostics === "off") {
+            config.allDiagnosticsOff = true;
+        }
 
         globalConfig = config;
     } catch (e) {
