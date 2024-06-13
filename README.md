@@ -4,6 +4,8 @@ Language server and VSCode extension that provides rich language support for LPC
 
 Currently supports [LDMud](https://www.ldmud.eu/). Partial [FluffOS](https://www.fluffos.info/) support was added in version `1.0.4` (more coming soon).
 
+Install from the VS Code Marketplace: https://marketplace.visualstudio.com/items?itemName=jlchmura.lpc
+
 ## Features
 
 -   Code Completion / [IntelliSense](#intellisense) - Results appear for symbols as you type, including lfuns.
