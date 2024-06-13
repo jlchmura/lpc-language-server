@@ -51,6 +51,8 @@ LPC Language Services will use the location of your `lpc-config.json` file to de
 
 For example, see the [LIMA mudlib](https://github.com/fluffos/lima) in which the config file should be placed in the `lib` folder.
 
+**Please note**: After creating (or moving) your `lpc-config` file, you will need to restart VS Code.
+
 ### Example
 
 For an example mudlib, pre-configured to work with LPC Language Services, see this slightly modified version of the [LP 2.4.5 mudlib](https://github.com/jlchmura/lp-245). LPC Language Services can parse and validate this entire lib without errors.
