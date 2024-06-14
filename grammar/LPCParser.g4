@@ -278,7 +278,7 @@ unionableTypeSpecifier
 // Arrays & Mappings
 
 arrayExpression
-    : PAREN_OPEN CURLY_OPEN (expression (COMMA expression)*)? COMMA? TRIPPLEDOT? CURLY_CLOSE PAREN_CLOSE
+    : PAREN_OPEN CURLY_OPEN (expression TRIPPLEDOT? (COMMA expression TRIPPLEDOT?)*)? COMMA? CURLY_CLOSE PAREN_CLOSE
     ;
 
 mappingContent
@@ -445,7 +445,7 @@ primaryExpressionStart
         |
         { this.isLD() }? (PAREN_OPEN structName=BracketedIdentifier (structMemberInitializer (COMMA structMemberInitializer)*)? COMMA? PAREN_CLOSE) // LD
       ) # structInitializerExpression        
-    | {this.isFluff()}? NEW PAREN_OPEN (ob=expression) (COMMA expression)* PAREN_CLOSE   # fluffCloneObjectExpression 
+    | {this.isFluff()}? NEW PAREN_OPEN (ob=expression) (COMMA expression TRIPPLEDOT?)* PAREN_CLOSE   # fluffCloneObjectExpression 
     | PAREN_OPEN commaableExpression PAREN_CLOSE # parenExpression    
     | arrayExpression                       # primaryArrayExpression
     | mappingExpression                     # primaryMappingExpression    
@@ -459,6 +459,7 @@ validIdentifiers
     | BUFFER
     | FUNCTIONS
     | VARIABLES
+    | VISIBLE
     | STRUCTS
     | SYMBOL
     | IN
@@ -471,7 +472,7 @@ catchExpr
     ;
 
 inlineClosureExpression
-    : {this.isFluff()}? PAREN_OPEN COLON expression (COMMA (expression))* COLON PAREN_CLOSE // Fluff-only function pointer
+    : {this.isFluff()}? PAREN_OPEN COLON expression (COMMA expression)* COLON PAREN_CLOSE // Fluff-only function pointer
     | PAREN_OPEN COLON (expression|statement*) COLON PAREN_CLOSE
     | FUNCTION typeSpecifier? PAREN_OPEN parameterList[false]? PAREN_CLOSE block
     ;

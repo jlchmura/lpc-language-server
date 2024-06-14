@@ -19,6 +19,7 @@ export const DiagnosticCodes = {
     FunctionParameterMismatch: "functionParameterMismatch",
     MemberNotFound: "memberNotFound",
     FileNotResolved: "fileNotResolved",
+    StructMembmerAsFunction: "structMemberAsFunction",
 } as const;
 
 export interface IDiagnosticEntry {

@@ -92,6 +92,7 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
                 message: `Cannot call methods on struct members`,
                 range: rangeFromTokens(ctx.start, ctx.stop),
                 type: DiagnosticSeverity.Error,
+                code: DiagnosticCodes.StructMembmerAsFunction,
             });
         }
 

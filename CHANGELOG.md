@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.0.12
+
+-   Fix: Some Fluff-only keywords were being dropped from macro definitions
+
 ## 1.0.11
 
 -   Fix: Remove comma expression ambiguity in grammar that caused an infinite loop when parsing large array initializers.

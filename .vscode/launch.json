@@ -9,7 +9,8 @@
             "runtimeExecutable": "${execPath}",
             "args": [
                 //"${workspaceRoot}/../lp-245",
-                "${workspaceRoot}/../StickLib",
+                "${workspaceRoot}/../lima",
+                //"${workspaceRoot}/../StickLib",
                 //"${workspaceRoot}/../nightmare-residuum",
                 //"${workspaceRoot}/../lpc-test",
                 // "${workspaceRoot}/../lpc-test/test.c",

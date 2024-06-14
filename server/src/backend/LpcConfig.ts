@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import { DiagnosticSeverity } from "vscode-languageserver";
+import { DiagnosticSeverity, decimal } from "vscode-languageserver";
 
 enum DiagnosticLevel {
     Error = "error",
@@ -22,6 +22,7 @@ type DiagnosticsInfo = {
     functionParameterMismatch: DiagnosticLevel;
     memberNotFound: DiagnosticLevel;
     fileNotResolved: DiagnosticLevel;
+    structMemberAsFunction: DiagnosticLevel;
 };
 
 const defaultDiagnostics: DiagnosticsInfo = {
@@ -37,6 +38,7 @@ const defaultDiagnostics: DiagnosticsInfo = {
     functionParameterMismatch: DiagnosticLevel.Error,
     memberNotFound: DiagnosticLevel.Warning,
     fileNotResolved: DiagnosticLevel.Info,
+    structMemberAsFunction: DiagnosticLevel.Error,
 };
 
 type FilesInfo = {

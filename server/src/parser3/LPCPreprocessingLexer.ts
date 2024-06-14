@@ -319,7 +319,10 @@ export class LPCPreprocessingLexer extends LPCLexer {
                 const macroBuffer: Token[] = [];
 
                 def.bodyTokens?.forEach((bodyToken: LPCToken) => {
-                    if (bodyToken.channel == 0) {
+                    if (
+                        bodyToken.channel == LPCLexer.DEFAULT_TOKEN_CHANNEL ||
+                        bodyToken.channel == LPCLexer.HIDDEN
+                    ) {
                         const t = fac.cloneToken(bodyToken);
                         t.line = refTkn.line;
                         t.relatedToken = refTkn; // the first token is the triggering token
@@ -396,11 +399,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
         directiveTokens.shift(); // remove the space
         const includeFilename = directiveTokens
             // filter out fluff's semicolon
-            .filter(
-                (t) =>
-                    t.channel == LPCLexer.DEFAULT_TOKEN_CHANNEL &&
-                    t.type != LPCLexer.SEMI
-            )
+            .filter((t) => t.type != LPCLexer.SEMI)
             .map((t) => trimQuotes(t.text.trim()))
             .join("")
             .trim();
@@ -780,6 +779,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
         fac.filenameStack.push(filename);
 
         // lex the the include file
+        this.macroLexer.driverType = this.driverType;
         this.macroLexer.inputStream = CharStream.fromString(macroBody);
         this.macroLexer.reset();
         const tokens = this.macroLexer.getAllTokens();
