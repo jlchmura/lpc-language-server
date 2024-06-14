@@ -8,8 +8,8 @@
             "name": "Launch Client",
             "runtimeExecutable": "${execPath}",
             "args": [
-                //"${workspaceRoot}/../lp-245",
-                "${workspaceRoot}/../lima",
+                "${workspaceRoot}/../lp-245",
+                //"${workspaceRoot}/../lima",
                 //"${workspaceRoot}/../StickLib",
                 //"${workspaceRoot}/../nightmare-residuum",
                 //"${workspaceRoot}/../lpc-test",

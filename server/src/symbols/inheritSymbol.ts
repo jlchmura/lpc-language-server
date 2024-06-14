@@ -7,7 +7,7 @@ import {
 } from "./base";
 
 import { SourceContext } from "../backend/SourceContext";
-import { LpcTypes, SymbolKind } from "../types";
+import { DiagnosticCodes, LpcTypes, SymbolKind } from "../types";
 import { InheritStatementContext } from "../parser3/LPCParser";
 import { CallStack, StackValue } from "../backend/CallStack";
 import { ContextSymbolTable } from "../backend/ContextSymbolTable";
@@ -113,6 +113,7 @@ export class InheritSuperAccessorSymbol
                 message: "could not load source for: " + filename,
                 range: rangeFromTokens(ctx.start, ctx.stop),
                 type: DiagnosticSeverity.Warning,
+                code: DiagnosticCodes.ObjectNotFound,
             });
         }
         return sourceContext;

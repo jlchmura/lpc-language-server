@@ -14,6 +14,7 @@ export const DiagnosticCodes = {
     CallOtherTargetUnknown: "callOtherTargetUnknown",
     /** When the lfun of a call other (eg `target->lfun()` cannot be found */
     CallOtherLfunNotFound: "callOtherLfunNotFound",
+    ObjectNotFound: "objectNotFound",
     FunctionModifiersMismatch: "functionModifiersMismatch",
     FunctionReturnMismatch: "functionReturnMismatch",
     FunctionParameterMismatch: "functionParameterMismatch",

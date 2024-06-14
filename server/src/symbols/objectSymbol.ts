@@ -103,6 +103,7 @@ export class CloneObjectSymbol
                         message: "could not load source for: " + this.filename,
                         range: rangeFromTokens(ctx.start, ctx.stop),
                         type: DiagnosticSeverity.Warning,
+                        code: DiagnosticCodes.ObjectNotFound,
                     });
                 }
             }

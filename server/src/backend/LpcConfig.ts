@@ -23,6 +23,7 @@ type DiagnosticsInfo = {
     memberNotFound: DiagnosticLevel;
     fileNotResolved: DiagnosticLevel;
     structMemberAsFunction: DiagnosticLevel;
+    objectNotFound: DiagnosticLevel;
 };
 
 const defaultDiagnostics: DiagnosticsInfo = {
@@ -39,6 +40,7 @@ const defaultDiagnostics: DiagnosticsInfo = {
     memberNotFound: DiagnosticLevel.Warning,
     fileNotResolved: DiagnosticLevel.Info,
     structMemberAsFunction: DiagnosticLevel.Error,
+    objectNotFound: DiagnosticLevel.Warning,
 };
 
 type FilesInfo = {

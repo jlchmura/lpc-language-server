@@ -235,6 +235,7 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
                 message: "could not load source for: " + filename,
                 range: rangeFromTokens(ctx.start, ctx.stop),
                 type: DiagnosticSeverity.Warning,
+                code: DiagnosticCodes.ObjectNotFound,
             });
         }
         return sourceContext;
