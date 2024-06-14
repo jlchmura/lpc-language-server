@@ -76,6 +76,7 @@ directiveArgument
     : Identifier (MINUS Identifier)*
     | StringLiteral
     | IntegerConstant    
+    | PRIVATE // this is apparently legal - shows up in mg-mudlib
     ;
 
 // #define
@@ -169,8 +170,8 @@ functionDeclaration
     ;
 
 parameterList[boolean _isHeader]
-    : parameter[_isHeader] (COMMA parameter[_isHeader])*
-    | VOID
+    : VOID 
+    | parameter[_isHeader] (COMMA parameter[_isHeader])*    
     ;
 
 parameter[boolean _isHeader]
@@ -223,7 +224,7 @@ variableDeclaratorExpression
     ;
 
 variableDeclarator
-    : arraySpecifier=STAR? variableName=validIdentifiers
+    : arraySpecifier=STAR* variableName=validIdentifiers
     ;
 
 variableInitializer
@@ -447,7 +448,7 @@ primaryExpressionStart
         { this.isLD() }? (PAREN_OPEN structName=BracketedIdentifier (structMemberInitializer (COMMA structMemberInitializer)*)? COMMA? PAREN_CLOSE) // LD
       ) # structInitializerExpression        
     | {this.isFluff()}? NEW PAREN_OPEN (ob=expression) (COMMA expression TRIPPLEDOT?)* PAREN_CLOSE   # fluffCloneObjectExpression 
-    | PAREN_OPEN commaableExpression PAREN_CLOSE # parenExpression    
+    | PAREN_OPEN (commaableExpression | variableDeclaration) PAREN_CLOSE # parenExpression
     | arrayExpression                       # primaryArrayExpression
     | mappingExpression                     # primaryMappingExpression    
     | catchExpr                             # catchExpression    

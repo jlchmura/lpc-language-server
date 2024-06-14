@@ -5,6 +5,7 @@
 -   Fix: Some Fluff-only keywords were being dropped from macro definitions
 -   Fix: Super accessor was not allowing all valid identifiers as a prefix
 -   Fix: Preprocessor did not recognize directives with a space after the `#` symbol.
+-   Fix: Parser did not allow variable declarations inside an if statement's conditional expression
 
 ## 1.0.11
 
