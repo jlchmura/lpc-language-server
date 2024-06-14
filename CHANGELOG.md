@@ -3,6 +3,7 @@
 ## 1.0.12
 
 -   Fix: Some Fluff-only keywords were being dropped from macro definitions
+-   Fix: Super accessor was not allowing all valid identifiers as a prefix
 
 ## 1.0.11
 

@@ -287,7 +287,10 @@ export class DetailsVisitor
             );
         } else if (ctx._super_) {
             const superCtx = ctx._super_;
-            const filename = superCtx._filename?.text ?? "";
+            const filename =
+                superCtx._filename?.text ??
+                superCtx._validIdFilename?.getText() ??
+                "";
             return this.withScope(
                 ctx,
                 InheritSuperAccessorSymbol,

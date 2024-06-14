@@ -126,6 +126,7 @@ inheritFile
 
 inheritSuperExpression
     : filename=(StringLiteral|Identifier|OBJECT)? SUPER_ACCESSOR  // object is fluff only (SyntaxObjectSupperAccessor)
+    | validIdFilename=validIdentifiers SUPER_ACCESSOR
     ;
 
 globalModifierStatement
