@@ -681,7 +681,12 @@ export class SourceContext {
                         .variableModifier()
                         ?.map((m) => m.getText())
                         .join(" ");
-                    if (!!ctx.STAR() && !!type) type += " *";
+
+                    if (
+                        !!parentDeclCtx.unionableTypeSpecifier()?.STAR() &&
+                        !!type
+                    )
+                        type += " *";
                 }
                 // else if (parentDeclCtx instanceof StructDeclarationContext) {
                 //     type = "struct";

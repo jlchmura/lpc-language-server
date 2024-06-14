@@ -8,8 +8,9 @@
             "name": "Launch Client",
             "runtimeExecutable": "${execPath}",
             "args": [
-                //"${workspaceRoot}/../mg-mudlib",
-                "${workspaceRoot}/../lima",
+                //"${workspaceRoot}/../lp-245",
+                "${workspaceRoot}/../StickLib",
+                //"${workspaceRoot}/../nightmare-residuum",
                 //"${workspaceRoot}/../lpc-test",
                 // "${workspaceRoot}/../lpc-test/test.c",
                 "--extensionDevelopmentPath=${workspaceRoot}"

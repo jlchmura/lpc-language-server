@@ -18,6 +18,7 @@ type DiagnosticsInfo = {
     functionNotFound: DiagnosticLevel;
     variableNotFound: DiagnosticLevel;
     functionModifiersMismatch: DiagnosticLevel;
+    functionReturnMismatch: DiagnosticLevel;
     functionParameterMismatch: DiagnosticLevel;
     memberNotFound: DiagnosticLevel;
     fileNotResolved: DiagnosticLevel;
@@ -32,6 +33,7 @@ const defaultDiagnostics: DiagnosticsInfo = {
     functionNotFound: DiagnosticLevel.Warning,
     variableNotFound: DiagnosticLevel.Error,
     functionModifiersMismatch: DiagnosticLevel.Error,
+    functionReturnMismatch: DiagnosticLevel.Error,
     functionParameterMismatch: DiagnosticLevel.Error,
     memberNotFound: DiagnosticLevel.Warning,
     fileNotResolved: DiagnosticLevel.Info,
@@ -98,7 +100,7 @@ export function getDiagnosticLevelFromConfig(
     code: string,
     defaultLevel: DiagnosticSeverity
 ): DiagnosticSeverity {
-    if (config.allDiagnosticsOff) {
+    if (!!code && config.allDiagnosticsOff) {
         return undefined;
     }
 

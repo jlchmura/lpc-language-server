@@ -226,9 +226,9 @@ variableDeclarator
     ;
 
 variableInitializer
-    : expression
-    | arrayExpression
+    : arrayExpression
     | mappingExpression        
+    | expression
     ;
 
 primitiveTypeSpecifier
@@ -254,7 +254,7 @@ methodInvocation
     ;
 
 structTypeSpecifier
-    : (STRUCT|CLASS) Identifier STAR?
+    : (STRUCT|CLASS) Identifier
     ;
 
 typeSpecifier
@@ -262,16 +262,23 @@ typeSpecifier
     ;
 
 unionableTypeSpecifier
-    : primitiveTypeSpecifier STAR? (OR unionableTypeSpecifier)*
-    | LT typeSpecifier GT STAR* (OR unionableTypeSpecifier)*    
-    | structTypeSpecifier (OR unionableTypeSpecifier)*
-    | STAR (OR unionableTypeSpecifier)* // typeless array
+    : 
+    ( 
+      (
+        (
+        primitiveTypeSpecifier
+        | LT typeSpecifier GT 
+        | structTypeSpecifier         
+        ) STAR*
+      ) 
+      | STAR+ // typeless array
+    ) (OR unionableTypeSpecifier)*
     ;
 
 // Arrays & Mappings
 
 arrayExpression
-    : PAREN_OPEN CURLY_OPEN (expression (COMMA expression)*)? COMMA? CURLY_CLOSE PAREN_CLOSE
+    : PAREN_OPEN CURLY_OPEN (expression (COMMA expression)*)? COMMA? TRIPPLEDOT? CURLY_CLOSE PAREN_CLOSE
     ;
 
 mappingContent
@@ -295,7 +302,7 @@ expression
 /** For instances where comma expressions are allowed */
 commaableExpression
     : inlineClosureExpression
-    | conditionalExpression[0]
+    | conditionalExpression[4] (op=COMMA conditionalExpression[4])*
     ;
 
 assignmentOperator
@@ -315,26 +322,30 @@ assignmentOperator
     ;
 
 conditionalExpression[int _p]
-    : (castExpression | primaryExpression | lambdaExpression | inlineClosureExpression | op=(PLUS|MINUS|NOT|BNOT|INC|DEC|AND|STAR) conditionalExpression[{$_p}])
-    ( 
-    //  { 18 >= $_p }? arrow=(ARROW|DOT) arrowTarget=validIdentifiers methodInvocation conditionalExpression[19]
-    // | { 17 >= $_p }? SQUARE_OPEN bracketIndex1=conditionalExpression[0]? DOUBLEDOT bracketIndex2=conditionalExpression[0]? SQUARE_CLOSE conditionalExpression[18]
-    // | { 16 >= $_p }? SQUARE_OPEN bracketIndex=conditionalExpression[0] SQUARE_CLOSE conditionalExpression[17]
+    : 
+    (
+        castExpression 
+        | primaryExpression 
+        | lambdaExpression 
+        | inlineClosureExpression       
+        | op=(PLUS|MINUS|NOT|BNOT|INC|DEC|AND|STAR) conditionalExpression[{$_p}]
+    )
+    (     
       { 15 >= $_p }? op=(STAR|DIV|MOD) conditionalExpression[16]
     | { 14 >= $_p }? op=(PLUS|MINUS) conditionalExpression[15]
     | { 13 >= $_p }? op=(SHL|SHR) conditionalExpression[14]
     | { 12 >= $_p }? cond=(LT|GT|LE|GE) conditionalExpression[13]
     | { 11 >= $_p }? cond=(EQ|NE|IN) conditionalExpression[12]
     | { 10 >= $_p }? op=AND conditionalExpression[11]
-    | { 9 >= $_p }? op=XOR conditionalExpression[10]
-    | { 8 >= $_p }? op=OR conditionalExpression[9]
-    | { 7 >= $_p }? cond=AND_AND conditionalExpression[8]
-    | { 6 >= $_p }? cond=OR_OR conditionalExpression[7]
-    | { 5 >= $_p }? ternOp=QUESTION conditionalExpression[4] ternOp2=COLON conditionalExpression[4]
-    | { 4 >= $_p }? assignOp=assignmentOperator conditionalExpression[5]    
-    | { 2 >= $_p }? op=COMMA conditionalExpression[4]
+    | { 9  >= $_p }? op=XOR conditionalExpression[10]
+    | { 8  >= $_p }? op=OR conditionalExpression[9]
+    | { 7  >= $_p }? cond=AND_AND conditionalExpression[8]
+    | { 6  >= $_p }? cond=OR_OR conditionalExpression[7]
+    | { 5  >= $_p }? ternOp=QUESTION conditionalExpression[4] ternOp2=COLON conditionalExpression[4]
+    | { 4  >= $_p }? assignOp=assignmentOperator conditionalExpression[5]    
+    //| { 2  >= $_p }? op=COMMA conditionalExpression[4]
     )*
-    ;
+    ;    
 // rightShiftAssignment
 //     : first = '>' second = '>=' {$first.index + 1 == $second.index}? // make sure there is nothing between the tokens
 //     ;
@@ -449,6 +460,7 @@ validIdentifiers
     | FUNCTIONS
     | VARIABLES
     | STRUCTS
+    | SYMBOL
     | IN
     | CHAR
     ;

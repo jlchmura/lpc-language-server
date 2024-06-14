@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.0.11
+
+-   Fix: Remove comma expression ambiguity in grammar that caused an infinite loop when parsing large array initializers.
+
 ## 1.0.10
 
 -   The `lpc-config.json` file is now used to determine the LPC _root_ folder.

@@ -158,3 +158,14 @@ void testCall() {
     fnWithParams(1, 2, 3, 5, 6); // should also work because of spread
 }
 
+void testArrayWithSpread() {
+    int *arr = ({ 1, 2, 3 });
+    int *arr2 = ({ 1, arr... });
+}
+
+// keywords that can also be used as identifiers 
+void testValidIdentifiers() {
+
+    string symbol;
+
+}

@@ -52,11 +52,13 @@ const doc = TextDocument.create("uri", "lpc", 0, code);
 const stream = CharStream.fromString(code);
 const includes = [];
 const lexer = new LPCPreprocessingLexer(stream, filename, includes);
+lexer.driverType = "fluffos";
 lexer.fileHandler = new MockFileHandler();
 lexer.tokenFactory = new LPCTokenFactor(filename);
 
 const tStream = new CommonTokenStream(lexer, 0);
 const parser = new LPCParser(tStream);
+parser.driverType = lexer.driverType;
 parser.errorHandler = new DefaultErrorStrategy();
 parser.interpreter.predictionMode = PredictionMode.SLL;
 parser.removeErrorListeners();

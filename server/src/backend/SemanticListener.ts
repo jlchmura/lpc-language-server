@@ -203,7 +203,9 @@ export class SemanticListener extends LPCParserListener {
                         functionDef.returnType?.name ?? "unspecified"
                     })`,
                     funStart,
-                    funEnd
+                    funEnd,
+                    DiagnosticSeverity.Warning,
+                    DiagnosticCodes.FunctionReturnMismatch
                 );
             }
 
