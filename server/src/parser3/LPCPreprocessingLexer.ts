@@ -707,8 +707,23 @@ export class LPCPreprocessingLexer extends LPCLexer {
     private processDirective(directiveTokens: Token[]): boolean {
         const token = directiveTokens.shift(); // the hash will be back, remove it.
 
-        const directiveToken =
-            token.type == LPCLexer.HASH ? directiveTokens.shift() : token; // special case for define
+        let directiveToken: LPCToken =
+            token.type == LPCLexer.HASH ? undefined : (token as LPCToken);
+        while (!directiveToken && directiveTokens.length > 0) {
+            const t = directiveTokens.shift();
+            if (t.text?.trim()?.length > 0) {
+                directiveToken = t as LPCToken;
+            }
+        }
+
+        if (!directiveToken) {
+            // this is an error - log it
+            console.error(
+                "found an empty directive",
+                `${(token as LPCToken).filename}:${token.line}:${token.column}`
+            );
+            return true;
+        }
 
         // there are certain conditionals that are applied even if code is disabled
         switch (directiveToken.type) {
