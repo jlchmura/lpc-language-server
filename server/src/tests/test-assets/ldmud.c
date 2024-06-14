@@ -468,3 +468,9 @@ void testMultiCommaExpression() {
     while( i && common1[ e1  ] == common2[ e2  ] ) e1--, e2--, i--;
 }
 
+// var decl inside paren exp
+void testVarDeclInsideParenExp() {
+    if ((int i=fn()) != 1) {
+        write(i);
+    }
+}
