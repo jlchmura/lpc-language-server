@@ -268,3 +268,32 @@ export function logDiagnosticForTokens(
 export function areWeTestingWithJest() {
     return process.env.JEST_WORKER_ID !== undefined;
 }
+
+export function isWS(charCode: number) {
+    return (
+        charCode === 32 || charCode === 9 || charCode === 13 || charCode === 10
+    );
+}
+
+export function parseMacroNameFromDefineString(s: string) {
+    let defVal = s?.replace(/\\\n/g, "\n").trim() ?? "";
+
+    // scroll through the characters of the string defVal
+    // until we find either whitespace or an open paren
+    // the chars up to that point are macroName.
+    let i = 0;
+    for (
+        i = 0;
+        i < defVal.length &&
+        !isWS(defVal.charCodeAt(i)) &&
+        defVal.charAt(i) != "(";
+        i++
+    ) {}
+
+    const macroName = defVal.substring(0, i);
+    return {
+        name: macroName,
+        index: i,
+        remainingText: defVal.substring(i).trim(),
+    };
+}

@@ -816,7 +816,7 @@ export class SourceContext {
 
         const macroDef = this.macroTable.get(token?.text);
 
-        if (!!macroDef) {
+        if (!!macroDef && macroDef.token) {
             const macroToken = macroDef.token as LPCToken;
             const { column, line } = macroToken;
 
@@ -829,6 +829,7 @@ export class SourceContext {
                     kind: SymbolKind.Define,
                     source: macroDef.filename,
                     filename: macroDef.filename,
+                    token: token,
                     definition: {
                         range: {
                             start: { column: column, row: line },

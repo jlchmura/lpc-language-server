@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.0.13
+
+-   Show macro expansion in hover
+
 ## 1.0.12
 
 -   Fix: Some Fluff-only keywords were being dropped from macro definitions

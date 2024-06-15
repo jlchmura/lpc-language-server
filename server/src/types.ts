@@ -8,6 +8,7 @@ import {
 } from "antlr4-c3";
 import { Token } from "antlr4ng";
 import { DiagnosticSeverity } from "vscode-languageserver";
+import { LPCToken } from "./parser3/LPCToken";
 
 export const DiagnosticCodes = {
     /** occurs when the target of a call other (eg `target->fn()`) is unknown, therefore the lfun cannot be validated */
@@ -92,7 +93,10 @@ export interface IDefinition {
 export interface ISymbolInfo {
     kind: SymbolKind;
     name: string;
+    /** the resolved symbol */
     symbol?: BaseSymbol;
+    /** the token that references this symbol */
+    token?: LPCToken;
     source: string;
     line?: number;
     definition?: IDefinition;

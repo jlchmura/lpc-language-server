@@ -13,6 +13,7 @@ import {
 import { firstEntry, lexRangeToLspRange } from "../utils";
 import { SymbolKind } from "../types";
 import { LpcBaseMethodSymbol, MethodSymbol } from "../symbols/methodSymbol";
+import { DefineSymbol } from "../symbols/defineSymbol";
 
 export class HoverProvider {
     constructor(private backend: LpcFacade) {}
@@ -45,17 +46,31 @@ export class HoverProvider {
                 defPrefix = "";
             }
 
+            const lineNum = info.line ?? info.definition?.range?.start.row;
             const sourceFilename =
                 typeof info.source === "string"
                     ? path.basename(info.source)
                     : info.source;
             const sourceLine = `${sourceFilename}${
-                !!info.line ? ":" + info.line : ""
+                !!lineNum ? ":" + lineNum : ""
             }`;
 
             let commentDoc = "";
 
             commentDoc = generateSymbolDoc(info.symbol);
+
+            if (
+                !commentDoc &&
+                info.symbol instanceof DefineSymbol &&
+                info.token
+            ) {
+                // special handling for macros.. show what they expand to.
+                const macroToken = info.token!;
+                commentDoc =
+                    "\nExpands to:\n```lpc\n" +
+                    macroToken.generatedCode +
+                    "\n```";
+            }
 
             const result: Hover = {
                 range: lexRangeToLspRange(definition?.range),

@@ -88,6 +88,7 @@ import {
     lastEntry,
     lexRangeFromContext,
     lexRangeFromToken,
+    parseMacroNameFromDefineString,
     trimQuotes,
 } from "../utils";
 import { LiteralSymbol } from "../symbols/literalSymbol";
@@ -139,14 +140,9 @@ export class DetailsVisitor
 
         const defineStr = ctx.END_DEFINE()?.getText()?.trim();
 
-        // trim everything after the first space
-        // find the first index of a space or tab in defineStr
-        const idx = findSpaceOrTabNotInParentheses(defineStr);
-        const label = idx > 0 ? defineStr.substring(0, idx) : defineStr;
-        let value = defineStr.substring(idx + 1);
-
-        // strip escaped newlines
-        value = value.replace(/\\\n/g, "");
+        const nameResult = parseMacroNameFromDefineString(defineStr);
+        const label = nameResult?.name ?? defineStr;
+        const value = ""; // ntbla: this can be removed
 
         // just add a symbol so we can resolve it
         const sym = this.symbolTable.addNewSymbolOfType(
