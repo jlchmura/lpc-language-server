@@ -267,8 +267,8 @@ export class ContextSymbolTable extends SymbolTable {
         for (const symbol of filtered) {
             const root = symbol.root as ContextSymbolTable;
             const parserContext = symbol.context as ParserRuleContext;
-            const token = parserContext.start as LPCToken;
-            const filename = token.filename;
+            const token = parserContext?.start as LPCToken;
+            const filename = token?.filename ?? "";
 
             let children: ISymbolInfo[] = [];
 

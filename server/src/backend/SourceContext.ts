@@ -434,7 +434,8 @@ export class SourceContext {
             this.info.imports,
             this.semanticTokens,
             this.fileHandler,
-            this.fileName
+            this.fileName,
+            configDefines
         );
         try {
             this.tree.accept(visitor);
@@ -816,9 +817,9 @@ export class SourceContext {
 
         const macroDef = this.macroTable.get(token?.text);
 
-        if (!!macroDef && macroDef.token) {
-            const macroToken = macroDef.token as LPCToken;
-            const { column, line } = macroToken;
+        if (!!macroDef) {
+            const macroToken = macroDef?.token as LPCToken;
+            const { column, line } = macroToken ?? { column: 0, line: 0 };
 
             const symbol = this.symbolTable.resolveSync(macroDef.name, false);
 
@@ -827,8 +828,8 @@ export class SourceContext {
                     symbol: symbol,
                     name: macroDef.name,
                     kind: SymbolKind.Define,
-                    source: macroDef.filename,
-                    filename: macroDef.filename,
+                    source: macroDef.filename ?? "",
+                    filename: macroDef.filename ?? "",
                     token: token,
                     definition: {
                         range: {

@@ -128,9 +128,23 @@ export class DetailsVisitor
         private imports: ContextImportInfo[],
         private tokenBuilder: SemanticTokenCollection,
         private fileHandler: LpcFileHandler,
-        private filename: string
+        private filename: string,
+        private configDefines: Map<string, string>
     ) {
         super();
+        this.visitConfigDefines();
+    }
+
+    visitConfigDefines() {
+        for (const [key, value] of this.configDefines.entries()) {
+            const sym = this.symbolTable.addNewSymbolOfType(
+                DefineSymbol,
+                this.scope,
+                key,
+                value
+            );
+            sym.context = undefined;
+        }
     }
 
     visitDefinePreprocessorDirective = (

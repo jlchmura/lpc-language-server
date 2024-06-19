@@ -67,7 +67,7 @@ export class HoverProvider {
                 // special handling for macros.. show what they expand to.
                 const macroToken = info.token!;
                 commentDoc =
-                    "\nExpands to:\n```lpc\n" +
+                    "\nMacro expands to:\n```lpc\n" +
                     macroToken.generatedCode +
                     "\n```";
             }
