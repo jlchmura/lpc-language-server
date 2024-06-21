@@ -17,6 +17,7 @@ type DiagnosticsInfo = {
     argumentsTooMany: DiagnosticLevel;
     functionNotFound: DiagnosticLevel;
     variableNotFound: DiagnosticLevel;
+    functionUnknown: DiagnosticLevel;
     functionModifiersMismatch: DiagnosticLevel;
     functionReturnMismatch: DiagnosticLevel;
     functionParameterMismatch: DiagnosticLevel;
@@ -34,6 +35,7 @@ const defaultDiagnostics: DiagnosticsInfo = {
     argumentsTooMany: DiagnosticLevel.Error,
     functionNotFound: DiagnosticLevel.Warning,
     variableNotFound: DiagnosticLevel.Error,
+    functionUnknown: DiagnosticLevel.Hint,
     functionModifiersMismatch: DiagnosticLevel.Error,
     functionReturnMismatch: DiagnosticLevel.Error,
     functionParameterMismatch: DiagnosticLevel.Error,
