@@ -1,10 +1,17 @@
 import * as fs from "fs";
 import * as path from "path";
-import { CharStream } from "antlr4ng";
+import {
+    BailErrorStrategy,
+    CharStream,
+    CommonTokenStream,
+    PredictionMode,
+} from "antlr4ng";
 import { LPCPreprocessingLexer } from "../parser3/LPCPreprocessingLexer";
 import { LPCTokenFactor } from "../parser3/LPCTokenFactory";
 import { TestFileHandler } from "./TestFileHandler";
 import { IDiagnosticEntry } from "../types";
+import { LPCParser } from "../parser3/LPCParser";
+import { DriverType } from "../backend/LpcConfig";
 
 const baseDir = path.join(process.cwd(), "server/src/tests/test-assets/");
 
@@ -41,4 +48,20 @@ export function getLexerFromString(
     lexer.tokenFactory = new LPCTokenFactor("test.c");
     lexer.fileHandler = new TestFileHandler();
     return lexer;
+}
+
+export function getParser(filename: string, driverType: DriverType) {
+    const lexer = getLexer(filename);
+    lexer.driverType = driverType;
+
+    const tokenStream = new CommonTokenStream(lexer);
+    tokenStream.fill();
+
+    const parser = new LPCParser(tokenStream);
+    parser.interpreter.predictionMode = PredictionMode.SLL;
+    parser.driverType = lexer.driverType;
+    parser.setTokenFactory(lexer.tokenFactory);
+    parser.buildParseTrees = true;
+    parser.errorHandler = new BailErrorStrategy();
+    return parser;
 }
