@@ -175,7 +175,14 @@ parameterList[boolean _isHeader]
     ;
 
 parameter[boolean _isHeader]
-    : {$_isHeader==false}? VARARGS? paramType=unionableTypeSpecifier? paramName=validIdentifiers (ASSIGN expression | TRIPPLEDOT)? 
+    : {$_isHeader==false}? VARARGS? 
+        paramType=unionableTypeSpecifier? 
+        paramName=validIdentifiers 
+        (
+              ASSIGN expression 
+            | { this.isFluff() }? COLON inlineClosureExpression
+            | TRIPPLEDOT
+        )? 
     | {$_isHeader && this.isFluff()}? VARARGS? paramType=unionableTypeSpecifier paramName=validIdentifiers? TRIPPLEDOT? // param name is optional in fluff
     | VARARGS? paramType=unionableTypeSpecifier? paramName=validIdentifiers    
     ;
