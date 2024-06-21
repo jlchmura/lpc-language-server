@@ -4,6 +4,7 @@
 
 -   Fix: [[FLUFFOS] Default parameters causing errors #9](https://github.com/jlchmura/lpc-language-server/issues/9)
 -   Fix: [[FLUFFOS] #undef inside a function #13](https://github.com/jlchmura/lpc-language-server/issues/13)
+-   Fix: [[FLUFFOS] Syntactic sugar for evaluate() reporting diagnostic that can't be configured #10](https://github.com/jlchmura/lpc-language-server/issues/10)
 
 ## 1.0.14
 

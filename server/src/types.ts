@@ -16,6 +16,9 @@ export const DiagnosticCodes = {
     /** When the lfun of a call other (eg `target->lfun()` cannot be found */
     CallOtherLfunNotFound: "callOtherLfunNotFound",
     ObjectNotFound: "objectNotFound",
+    /** Occurs when the target of a method invocation is unknown and the function cannot be validated */
+    FunctionUnknown: "functionUnknown",
+    FunctionNotFound: "functionNotFound",
     FunctionModifiersMismatch: "functionModifiersMismatch",
     FunctionReturnMismatch: "functionReturnMismatch",
     FunctionParameterMismatch: "functionParameterMismatch",

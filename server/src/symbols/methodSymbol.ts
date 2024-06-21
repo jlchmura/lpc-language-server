@@ -17,6 +17,7 @@ import {
     isInstanceOfIReferenceableSymbol,
 } from "./base";
 import {
+    DiagnosticCodes,
     FUNCTION_NAME_KEY,
     ILexicalRange,
     LpcTypes,
@@ -255,7 +256,8 @@ export class MethodInvocationSymbol
             addDiagnostic(this, {
                 message: `Function could not be validated`,
                 range: rangeFromTokens(ctx.start, ctx.stop),
-                type: DiagnosticSeverity.Warning,
+                type: DiagnosticSeverity.Hint,
+                code: DiagnosticCodes.FunctionUnknown,
             });
         } else if (!methodSymbol) {
             const ctx = (funcIdValue?.symbol ?? this)
@@ -267,8 +269,7 @@ export class MethodInvocationSymbol
                 message: `Cannot find function named '${methodName ?? ""}'.`,
                 range: rangeFromTokens(ctx.start, ctx.stop),
                 type: DiagnosticSeverity.Warning,
-                code: "functionNotFound",
-                source: "functionNotFound",
+                code: DiagnosticCodes.FunctionNotFound,
             });
         }
 
