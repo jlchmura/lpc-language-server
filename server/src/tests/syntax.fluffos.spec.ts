@@ -8,4 +8,14 @@ describe("FluffOS-specific Syntax Tests", () => {
 
         expect(tree).toBeDefined();
     });
+
+    it("should parse function argument defaults", () => {
+        const parser = getParser(
+            "syntax-functions.fluffos.c",
+            DriverType.FluffOS
+        );
+        const tree = parser.program();
+
+        expect(tree).toBeDefined();
+    });
 });

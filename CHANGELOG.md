@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.0.15
+
+-   Fix: [FLUFFOS] Default parameters causing errors #9
+
 ## 1.0.14
 
 -   Fix: [FLUFFOS] Case statements with no leading or trailing value #8
