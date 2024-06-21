@@ -2,7 +2,8 @@
 
 ## 1.0.15
 
--   Fix: [FLUFFOS] Default parameters causing errors #9
+-   Fix: [[FLUFFOS] Default parameters causing errors #9](https://github.com/jlchmura/lpc-language-server/issues/9)
+-   Fix: [[FLUFFOS] #undef inside a function #13](https://github.com/jlchmura/lpc-language-server/issues/13)
 
 ## 1.0.14
 

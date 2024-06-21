@@ -524,10 +524,8 @@ statement
     | iterationStatement
     | jumpStatement    
     | variableDeclarationStatement    
-    | includePreprocessorDirective // this is really handled by the preprocessor, but including here for convenience in symbol nav    
     | commaableExpression SEMI        
-    | definePreprocessorDirective // this is really handled by the preprocessor, but including here for convenience in symbol nav    
-    //| preprocessorDirective
+    | preprocessorDirective // this is really handled by the preprocessor, but including here for convenience in symbol nav            
     ;
 
 block: CURLY_OPEN statement* CURLY_CLOSE;
