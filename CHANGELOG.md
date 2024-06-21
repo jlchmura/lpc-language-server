@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.0.14
+
+-   Fix: [FLUFFOS] Case statements with no leading or trailing value #8
+
 ## 1.0.13
 
 -   Show macro expansion in hover

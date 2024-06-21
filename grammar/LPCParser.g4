@@ -558,6 +558,10 @@ switchStatement
 
 caseExpression
     : caseCondition (caseOperators caseCondition)* (DOUBLEDOT caseCondition (caseOperators caseCondition)*)?
+    | { this.isFluff() }? (
+            (DOUBLEDOT caseCondition (caseOperators caseCondition)*) |
+            ( MINUS? caseCondition (caseOperators caseCondition)* DOUBLEDOT )
+        )
     ;
 
 caseOperators
@@ -566,7 +570,7 @@ caseOperators
 
 caseCondition
     : MINUS? (StringLiteral|IntegerConstant|HexIntConstant|Identifier|CharacterConstant)
-    | PAREN_OPEN conditionalExpression[13]  PAREN_CLOSE // NTBLA see if we can use tokens instead of expression here
+    | PAREN_OPEN conditionalExpression[13] PAREN_CLOSE // NTBLA see if we can use tokens instead of expression here
     ;
 
 caseStatement
