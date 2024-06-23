@@ -11,3 +11,4 @@
 #include "async.h"
 #include "buffers.h"
 #include "calls.h"
+#include "contrib.h"
