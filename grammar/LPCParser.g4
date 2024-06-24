@@ -248,6 +248,8 @@ primitiveTypeSpecifier
     | INT   
     | FLOAT     
     | FUNCTION // Fluff-only
+    | LPCTYPE // LD-only
+    | QUOTEDARRAY // LD-only
     | STRING    
     | OBJECT
     | MAPPING
