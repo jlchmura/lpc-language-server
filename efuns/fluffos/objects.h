@@ -185,14 +185,15 @@ object next_inventory( object ob );
  * which will be used to initialize values in the returned class. If you are
  * passing arguments to the class, you must specify the member name and the
  * value of the members you would like to initialize.
- *
- * Object example:
  * 
+ * ### Object example:
+ * ```lpc
  * object ob = new("/obj/torch") ; // clone a torch object
  * object money = new("/obj/money", 10, "dollars" ) ; // clone a money object and set initial values
- * 
- * Class example:
- * 
+ * ```
+ *
+ * ### Class example:
+ * ```lpc
  * class ClassPerson {
  * string name ;
  * int age ;
@@ -201,14 +202,12 @@ object next_inventory( object ob );
  * class ClassPerson person = new(class ClassPerson) ;
  * person.name = "Bob" ;
  * person.age = 42 ;
- * 
  * // or
- * 
  * class ClassPerson person = new(class ClassPerson, name: "Bob", age: 42) ;
- *
+ * ```
  */
-object new( string filename... );
-class ClassName new(class ClassName... ) ;
+varargs object new(string filename, mixed args...);
+varargs class ClassName new(class ClassName, mixed args... ) ;
 
 /**
  * move_object() - move current object to another environment
@@ -344,10 +343,11 @@ object clone_object( string name... );
  * loaded.   An example use of children() is to find all objects that have
  * been cloned from the user object:
  * 
+ * ```
  * object *list;
  * 
  * list = children("/obj/user");
- * 
+ * ```
  * This lets you find all users  (both  netdead  and  interactive  whereas
  * users() only reports interactive users).
  *

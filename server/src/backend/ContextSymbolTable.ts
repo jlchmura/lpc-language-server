@@ -186,7 +186,15 @@ export class ContextSymbolTable extends SymbolTable {
                     definition: {
                         text: `${txt}(${efun
                             .getParametersSync()
-                            .map((p) => p.name)
+                            .map((p) => {
+                                let t = p.type.name;
+
+                                let nm = p.name ?? "";
+                                if (p.varArgs) {
+                                    nm += "...";
+                                }
+                                return `${t} ${nm}`.trim();
+                            })
                             .join(", ")
                             .trim()})`,
                         range: {
@@ -194,6 +202,7 @@ export class ContextSymbolTable extends SymbolTable {
                             end: { column: 0, row: 1 },
                         },
                     },
+                    symbol: efun,
                     description: undefined,
                     children: [],
                 };
@@ -360,7 +369,14 @@ export class ContextSymbolTable extends SymbolTable {
             parent: ScopedSymbol
         ): BaseSymbol | undefined => {
             for (const symbol of parent.children) {
-                if (!symbol.context || symbol.context instanceof TerminalNode) {
+                const startToken = (symbol.context as ParserRuleContext)
+                    ?.start as LPCToken;
+                const filename = startToken?.filename;
+                if (
+                    !symbol.context ||
+                    symbol.context instanceof TerminalNode ||
+                    filename != this.owner?.fileName
+                ) {
                     continue;
                 }
 

@@ -12,8 +12,8 @@
                 //"${workspaceRoot}/../lima",
                 //"${workspaceRoot}/../StickLib",
                 //"${workspaceRoot}/../nightmare-residuum",
-                //"${workspaceRoot}/../lp-245",
-                "${workspaceRoot}/efuns/fluffos",
+                "${workspaceRoot}/../lp-245",
+                //"${workspaceRoot}/efuns/ldmud",
                 "--extensionDevelopmentPath=${workspaceRoot}"
             ],
             "autoAttachChildProcesses": true,
@@ -42,11 +42,11 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch Parse Fluff",
+            "name": "Launch Parse Docs",
             "skipFiles": ["<node_internals>/**"],
-            "program": "${workspaceFolder}/out/server/src/parse-fluff-docs.js",
+            "program": "${workspaceFolder}/out/server/src/parse-ld-docs.js",
             "args": ["test.c"],
-            "preLaunchTask": "compile:parsefluff",
+            "preLaunchTask": "compile:parseld",
             "sourceMaps": true,
             "outFiles": ["${workspaceFolder}/out/**/*.js"]
         },

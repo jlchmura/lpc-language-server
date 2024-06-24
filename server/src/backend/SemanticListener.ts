@@ -36,15 +36,12 @@ import {
 } from "../symbols/methodSymbol";
 import { CallOtherSymbol } from "../symbols/objectSymbol";
 import { DiagnosticSeverity } from "vscode-languageserver";
-import { IncludeSymbol } from "../symbols/includeSymbol";
 import { SourceContext } from "./SourceContext";
 import { CallStack } from "./CallStack";
 import { InheritSymbol } from "../symbols/inheritSymbol";
 import { addPogramToStack } from "./CallStackUtils";
 import { ensureLpcConfig } from "./LpcConfig";
 import { getDriverInfo } from "../driver/Driver";
-import { EfunSymbols } from "../driver/EfunsLDMud";
-import { LPCToken } from "../parser3/LPCToken";
 import { LDMudFeatures } from "../driver/DriverLdMud";
 import { FluffOSFeatures } from "../driver/DriverFluffOS";
 import { FeatureValidationResult, IDriver } from "../driver/types";
@@ -250,10 +247,11 @@ export class SemanticListener extends LPCParserListener {
         const programFilename = this.sourceContext.fileName;
         const backend = this.sourceContext.backend;
         const imports = backend.getDependencies(programFilename);
+        const driver = getDriverInfo();
 
         // add globals (efuns, etc) to the stack first
         // NTBLA: what about SEFUNS
-        addPogramToStack(EfunSymbols, stack);
+        addPogramToStack(driver.efuns, stack);
 
         // add all dependencies to the stack second
         // must be done recurisvely

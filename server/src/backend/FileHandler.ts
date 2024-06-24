@@ -2,14 +2,12 @@ import * as fs from "fs";
 import { BaseSymbol } from "antlr4-c3";
 import { SourceContext } from "./SourceContext";
 import { LpcFacade } from "./facade";
-import { ContextSymbolTable } from "./ContextSymbolTable";
 import { IFileHandler, LoadImportResult } from "./types";
 
 export class LpcFileHandler implements IFileHandler {
     constructor(
         private backend: LpcFacade,
-        private sourceContext: SourceContext,
-        public efunSymbols: ContextSymbolTable
+        private sourceContext: SourceContext
     ) {}
 
     public loadReference(filename: string, symbol?: BaseSymbol): SourceContext {

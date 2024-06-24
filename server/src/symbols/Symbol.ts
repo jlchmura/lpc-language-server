@@ -10,16 +10,10 @@ import { IDiagnosticEntry, SymbolKind } from "../types";
 import * as vscodelang from "vscode-languageserver";
 import { IdentifierExpressionContext } from "../parser3/LPCParser";
 import { IEvaluatableSymbol, IKindSymbol, LpcBaseSymbol } from "./base";
-
 import { ContextSymbolTable } from "../backend/ContextSymbolTable";
 import { CallStack } from "../backend/CallStack";
 import { Block } from "comment-parser";
-import {
-    ParseTree,
-    ParseTreePatternMatcher,
-    ParserRuleContext,
-    Token,
-} from "antlr4ng";
+import { ParseTree, ParserRuleContext } from "antlr4ng";
 import { LPCToken } from "../parser3/LPCToken";
 
 export class IdentifierSymbol extends LpcBaseSymbol<IdentifierExpressionContext> {

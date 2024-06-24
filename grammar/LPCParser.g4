@@ -183,8 +183,8 @@ parameter[boolean _isHeader]
             | { this.isFluff() }? COLON inlineClosureExpression
             | TRIPPLEDOT
         )? 
-    | {$_isHeader && this.isFluff()}? VARARGS? paramType=unionableTypeSpecifier paramName=validIdentifiers? TRIPPLEDOT? // param name is optional in fluff
-    | VARARGS? paramType=unionableTypeSpecifier? paramName=validIdentifiers    
+    | {$_isHeader && this.isFluff()}? VARARGS? paramType=unionableTypeSpecifier AND? paramName=validIdentifiers? TRIPPLEDOT? // param name is optional in fluff
+    | VARARGS? paramType=unionableTypeSpecifier? AND? paramName=validIdentifiers    
     ;
 
 structMemberDeclaration
@@ -245,9 +245,12 @@ primitiveTypeSpecifier
     | BYTES
     | BUFFER // Fluff-only
     | CHAR
+    | COROUTINE // LD-only
     | INT   
     | FLOAT     
     | FUNCTION // Fluff-only
+    | LPCTYPE // LD-only
+    | QUOTEDARRAY // LD-only
     | STRING    
     | OBJECT
     | MAPPING
@@ -256,7 +259,7 @@ primitiveTypeSpecifier
     | CLOSURE
     | SYMBOL        
     | LWOBJECT
-    | UNKNOWN // fluff-only
+    | UNKNOWN 
     ;
 
 methodInvocation

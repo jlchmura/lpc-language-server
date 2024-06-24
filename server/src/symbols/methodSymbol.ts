@@ -364,7 +364,7 @@ export class EfunSymbol
     public getParametersSync() {
         return getSymbolsOfTypeSync(
             this,
-            EfunParamSymbol
+            MethodParameterSymbol
         ) as MethodParameterSymbol[];
     }
 
@@ -422,10 +422,11 @@ export class EfunSymbol
     public allowsMultiArgs() {
         const prms = this.getParametersSync();
         if (prms.length === 0) return false;
-        return (prms[prms.length - 1] as EfunParamSymbol).allowMulti;
+        return prms[prms.length - 1].varArgs;
     }
 }
 
+/** @deprecated */
 export class EfunParamSymbol extends MethodParameterSymbol {
     constructor(name: string, type: IType, public allowMulti?: boolean) {
         super(name, type);

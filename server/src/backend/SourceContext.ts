@@ -29,7 +29,6 @@ import {
 import { URI } from "vscode-uri";
 import { getDriverInfo } from "../driver/Driver";
 import { DriverVersion } from "../driver/DriverVersion";
-import { EfunSymbols } from "../driver/EfunsLDMud";
 import { FeatureValidationResult, IDriver } from "../driver/types";
 import { LPCLexer } from "../parser3/LPCLexer";
 import {
@@ -92,7 +91,7 @@ import { ContextLexerErrorListener } from "./ContextLexerErrorListener";
 import { ContextSymbolTable } from "./ContextSymbolTable";
 import { DetailsVisitor } from "./DetailsVisitor";
 import { LpcFileHandler } from "./FileHandler";
-import { LpcConfig, ensureLpcConfig } from "./LpcConfig";
+import { DriverType, LpcConfig, ensureLpcConfig } from "./LpcConfig";
 import { SemanticListener } from "./SemanticListener";
 import { SemanticTokenCollection } from "./SemanticTokenCollection";
 import { LpcFacade } from "./facade";
@@ -102,12 +101,11 @@ import { resolveOfTypeSync } from "./symbol-utils";
  * Source context for a single LPC file.
  */
 export class SourceContext {
-    public static efunSymbols = EfunSymbols;
     public static globalSymbols = new ContextSymbolTable("Global Symbols", {
         allowDuplicateSymbols: false,
     });
 
-    public fileHandler = new LpcFileHandler(this.backend, this, EfunSymbols);
+    public fileHandler = new LpcFileHandler(this.backend, this);
     public symbolTable: ContextSymbolTable;
     public sourceId: string;
     public info: IContextDetails = {
@@ -223,6 +221,8 @@ export class SourceContext {
         this.parser.removeErrorListeners();
         this.parser.addErrorListener(this.errorListener);
     }
+
+    public static initEfuns(driverType: DriverType) {}
 
     public get hasErrors(): boolean {
         for (const diagnostic of this.diagnostics) {
@@ -355,7 +355,7 @@ export class SourceContext {
 
         this.symbolTable.clear();
         this.symbolTable.addDependencies(SourceContext.globalSymbols);
-        this.symbolTable.addDependencies(EfunSymbols);
+        this.symbolTable.addDependencies(this.driver.efuns);
 
         this.highlights = [];
         this.cachedSemanticTokens = undefined;
@@ -1027,7 +1027,7 @@ export class SourceContext {
 
                     // it could also be an efun
                     symbol = resolveOfTypeSync(
-                        EfunSymbols, // efuns always come from here
+                        this.driver.efuns, // efuns always come from here
                         name,
                         EfunSymbol
                     );

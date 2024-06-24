@@ -1,3 +1,4 @@
 {
-    "diagnostics": "off"
+    "diagnostics": "off",
+    "exclude": ["/efuns"]
 }

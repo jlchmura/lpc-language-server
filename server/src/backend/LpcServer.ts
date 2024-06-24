@@ -447,6 +447,7 @@ export class LpcServer {
 
         // load the config
         loadLpcConfig(path.join(rootFolderPath, "lpc-config.json"));
+
         this.facade = new LpcFacade(rootFolderPath);
 
         // hook up the run diagnostic event emitter

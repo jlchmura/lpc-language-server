@@ -159,7 +159,6 @@ void enable_wizard( void );
 
 /**
  * domain_stats() - returns statistics gathered on domains
-author_stats() - returns statistics gathered on authors
  *
  * Both  domain_stats()  and author_stats() return information stored in a
  * mapping.  If no argument is specified, then information is returned  on
@@ -191,12 +190,10 @@ author_stats() - returns statistics gathered on authors
  * of info0.
  *
  */
-mapping domain_stats( string domain | void );
-mapping author_stats( string domain | void );
+mapping domain_stats( void|string domain  );
 
 /**
- * domain_stats() - returns statistics gathered on domains
-author_stats() - returns statistics gathered on authors
+ * author_stats() - returns statistics gathered on authors
  *
  * Both  domain_stats()  and author_stats() return information stored in a
  * mapping.  If no argument is specified, then information is returned  on
@@ -228,6 +225,5 @@ author_stats() - returns statistics gathered on authors
  * of info0.
  *
  */
-mapping domain_stats( string domain | void );
-mapping author_stats( string domain | void );
+mapping author_stats( void|string domain  );
 

@@ -1,7 +1,7 @@
 {
     "name": "lpc",
     "displayName": "LPC",
-    "version": "1.0.15",
+    "version": "1.0.16",
     "galleryBanner": {
         "color": "#000000",
         "theme": "dark"
@@ -16,7 +16,9 @@
         "compile": "tsc -b && esbuild client/src/extension.ts server/src/server.ts --bundle --outdir=out --external:vscode --platform=node --format=cjs --sourcemap=external --sourcemap",
         "compile:bin": "tsc -b && esbuild server/src/bin.ts --bundle --outdir=out/server/src --external:vscode --platform=node --format=cjs --sourcemap=external --sourcemap",
         "parsefluff": "npm run compile:parsefluff && NODE_OPTIONS='--enable-source-maps' node out/server/src/parse-fluff-docs.js",
+        "parseld": "npm run compile:parseld && NODE_OPTIONS='--enable-source-maps' node out/server/src/parse-ld-docs.js",
         "compile:parsefluff": "tsc -b && esbuild server/src/parse-fluff-docs.ts --bundle --outdir=out/server/src --external:vscode --platform=node --format=cjs --sourcemap=external --sourcemap",
+        "compile:parseld": "tsc -b && esbuild server/src/parse-ld-docs.ts --bundle --outdir=out/server/src --external:vscode --platform=node --format=cjs --sourcemap=external --sourcemap",
         "watch": "npm run compile -- --sourcemap --watch",
         "lint": "eslint ./client/src ./server/src --ext .ts,.tsx",
         "postinstall": "cd client && npm install && cd ../server && npm install && cd ..",

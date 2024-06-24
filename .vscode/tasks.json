@@ -52,6 +52,14 @@
             "problemMatcher": [],
             "label": "compile:parsefluff",
             "detail": "tsc -b && esbuild server/src/parse-fluff-docs.ts --bundle --outdir=out/server/src --external:vscode --platform=node --format=cjs --sourcemap=external --sourcemap"
+        },
+        {
+            "type": "npm",
+            "script": "compile:parseld",
+            "group": "build",
+            "problemMatcher": [],
+            "label": "compile:parseld",
+            "detail": "tsc -b && esbuild server/src/parse-ld-docs.ts --bundle --outdir=out/server/src --external:vscode --platform=node --format=cjs --sourcemap=external --sourcemap"
         }
     ]
 }

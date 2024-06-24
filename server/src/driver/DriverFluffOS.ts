@@ -4,6 +4,8 @@ import {
     FeatureValidationResult,
     IDriver,
 } from "./types";
+import { ContextSymbolTable } from "../backend/ContextSymbolTable";
+import { parseEfuns } from "./EfunParser";
 
 export const FluffOSFeatures = {
     NumericConstThousandSeparator: "NumericConstThousandSeparator",
@@ -21,6 +23,8 @@ export const FluffOSFeatures = {
 } as const;
 
 export class DriverFluffOS implements IDriver {
+    public efuns: ContextSymbolTable;
+
     Compatibility: DriverVersionCompatibility = {
         NumericConstThousandSeparator: DriverVersion.from("0"),
         SyntaxBufferType: DriverVersion.from("0"),
@@ -35,6 +39,13 @@ export class DriverFluffOS implements IDriver {
         SyntaxCatchBlock: DriverVersion.from("0"),
         SyntaxPrivateInherit: DriverVersion.from("0"),
     };
+
+    constructor() {
+        this.efuns = new ContextSymbolTable("efuns", {
+            allowDuplicateSymbols: true,
+        });
+        parseEfuns("fluffos", this.efuns);
+    }
 
     public checkFeatureCompatibility(
         feature: keyof typeof FluffOSFeatures,
