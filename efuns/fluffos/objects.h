@@ -206,7 +206,7 @@ object next_inventory( object ob );
  * class ClassPerson person = new(class ClassPerson, name: "Bob", age: 42) ;
  * ```
  */
-varargs object new( string filename, mixed args... );
+varargs object new(string filename, mixed args...);
 varargs class ClassName new(class ClassName, mixed args... ) ;
 
 /**

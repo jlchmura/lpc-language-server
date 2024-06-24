@@ -187,11 +187,13 @@ export class ContextSymbolTable extends SymbolTable {
                         text: `${txt}(${efun
                             .getParametersSync()
                             .map((p) => {
-                                let nm = p.name ?? p.type.name;
+                                let t = p.type.name;
+
+                                let nm = p.name ?? "";
                                 if (p.varArgs) {
                                     nm += "...";
                                 }
-                                return nm;
+                                return `${t} ${nm}`.trim();
                             })
                             .join(", ")
                             .trim()})`,

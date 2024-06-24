@@ -170,6 +170,9 @@ export class EfunVisitor
                 case "object":
                     varType = LpcTypes.objectType;
                     break;
+                case "mixed":
+                    varType = LpcTypes.mixedType;
+                    break;
                 case "float":
                     varType = FundamentalType.floatType;
                     break;
