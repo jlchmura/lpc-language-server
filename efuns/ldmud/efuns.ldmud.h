@@ -1,0 +1,1 @@
+/* ldmud efuns */
