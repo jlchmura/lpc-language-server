@@ -369,7 +369,14 @@ export class ContextSymbolTable extends SymbolTable {
             parent: ScopedSymbol
         ): BaseSymbol | undefined => {
             for (const symbol of parent.children) {
-                if (!symbol.context || symbol.context instanceof TerminalNode) {
+                const startToken = (symbol.context as ParserRuleContext)
+                    ?.start as LPCToken;
+                const filename = startToken?.filename;
+                if (
+                    !symbol.context ||
+                    symbol.context instanceof TerminalNode ||
+                    filename != this.owner?.fileName
+                ) {
                     continue;
                 }
 
