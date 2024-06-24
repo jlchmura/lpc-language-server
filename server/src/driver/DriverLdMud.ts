@@ -6,6 +6,7 @@ import {
     IDriver,
 } from "./types";
 import { ContextSymbolTable } from "../backend/ContextSymbolTable";
+import { parseEfuns } from "./EfunParser";
 
 export const LDMudFeatures = {
     NamedObjectTypes: "NamedObjectTypes",
@@ -26,6 +27,7 @@ export class DriverLDMud implements IDriver {
         this.efuns = new ContextSymbolTable("efuns", {
             allowDuplicateSymbols: true,
         });
+        parseEfuns("ldmud", this.efuns);
     }
 
     public checkFeatureCompatibility(

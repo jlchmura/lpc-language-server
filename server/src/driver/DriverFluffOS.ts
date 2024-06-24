@@ -1,19 +1,11 @@
-import * as path from "path";
-import * as fs from "fs";
-import { SymbolTable } from "antlr4-c3";
 import { DriverVersion } from "./DriverVersion";
 import {
     DriverVersionCompatibility,
     FeatureValidationResult,
     IDriver,
 } from "./types";
-import { LPCPreprocessingLexer } from "../parser3/LPCPreprocessingLexer";
-import { BailErrorStrategy, CharStream, CommonTokenStream } from "antlr4ng";
-import { LPCParser } from "../parser3/LPCParser";
-import { LPCTokenFactor } from "../parser3/LPCTokenFactory";
-import { EfunFileHandler } from "./EfunFileHandler";
-import { EfunVisitor } from "./EfunVisitor";
 import { ContextSymbolTable } from "../backend/ContextSymbolTable";
+import { parseEfuns } from "./EfunParser";
 
 export const FluffOSFeatures = {
     NumericConstThousandSeparator: "NumericConstThousandSeparator",
@@ -52,7 +44,7 @@ export class DriverFluffOS implements IDriver {
         this.efuns = new ContextSymbolTable("efuns", {
             allowDuplicateSymbols: true,
         });
-        this.parseEfuns();
+        parseEfuns("fluffos", this.efuns);
     }
 
     public checkFeatureCompatibility(
@@ -66,41 +58,5 @@ export class DriverFluffOS implements IDriver {
         return DriverVersion.from(driverVersion).gte(requiredVersion)
             ? FeatureValidationResult.Supported
             : FeatureValidationResult.VersionNotSufficient;
-    }
-
-    private parseEfuns() {
-        const rootDir = process.argv[2];
-        const efunDir = path.join(rootDir, "fluffos");
-        const efunFile = path.join(efunDir, "efuns.fluffos.h");
-
-        if (!fs.existsSync(efunFile)) {
-            throw new Error(`Cannot find efun file ${efunFile}`);
-        }
-
-        const includes: string[] = [];
-        const code = fs.readFileSync(efunFile, "utf-8");
-        const stream = CharStream.fromString(code);
-        // get a lexer
-        const lexer = new LPCPreprocessingLexer(stream, efunFile, includes);
-        lexer.tokenFactory = new LPCTokenFactor(efunFile);
-        lexer.fileHandler = new EfunFileHandler();
-        lexer.driverType = "fluffos";
-        // get tokens
-        const tokenStream = new CommonTokenStream(lexer);
-        tokenStream.fill();
-        // setup the parser
-        const parser = new LPCParser(tokenStream);
-        parser.driverType = lexer.driverType;
-        parser.setTokenFactory(lexer.tokenFactory);
-        parser.errorHandler = new BailErrorStrategy();
-        parser.buildParseTrees = true;
-
-        const efunParseTree = parser.program();
-
-        // populate symbol table
-        const vis = new EfunVisitor(this.efuns, tokenStream);
-        vis.visit(efunParseTree);
-
-        const ii = 0;
     }
 }
