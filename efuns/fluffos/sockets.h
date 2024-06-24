@@ -9,8 +9,6 @@
  * address must be specified.  The address is of the form: "127.0.0.1 23".
  *
  */
-#include <socket_err.h>
-
 int socket_write( int s, mixed message,
                   void | string address );
 
@@ -125,8 +123,6 @@ string socket_error( int error );
  * used with DATAGRAM mode sockets.
  *
  */
-#include <socket_err.h>
-
 int socket_create( int mode, string read_callback,
                    void | string close_callback );
 

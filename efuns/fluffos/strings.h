@@ -42,7 +42,8 @@ int strwidth( string str );
  * rchr().)  The empty string or null value cannot be searched for.
  *
  */
-int strsrch( string str, string substr | int char, int flag );
+int strsrch( string str, string substr, int flag );
+int strsrch( string str, int char, int flag );
 
 /**
  * strlen() - return the number of UTF-8 characters in a supplied string
@@ -278,7 +279,7 @@ string sprintf( string format... );
  * sha1("something") = "1af17e73721dbe0c40011b82ed4bb1a7dbe3ce29"
  *
  */
-string sha1(string str | buffer bf);
+string sha1(buffer|string str);
 
 /**
  * set_bit() - set a bit in a bitstring
@@ -340,9 +341,6 @@ string rtrim( string str, string ch);
 string replace_string( str, pattern, replace );
 string replace_string( str, pattern, replace, max );
 string replace_string( str, pattern, replace, first, last );
-
-string str, pattern replace;
-int max, first, last;
 
 /**
  * regexp() - regular expression handler

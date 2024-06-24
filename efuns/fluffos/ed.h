@@ -33,7 +33,7 @@ int query_ed_mode();
  * Only one ed session can be active per object at a time.
  *
  */
-string ed_start(string file | void, int restricted | void);
+string ed_start(void|string file, void|int restricted);
 
 /**
  * ed_cmd() - send a command to an ed session

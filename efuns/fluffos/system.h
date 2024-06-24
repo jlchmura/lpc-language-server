@@ -24,7 +24,7 @@ int uptime( void );
  * out of memory.
  *
  */
-void trace_start(string filename, int auto_stop_sec = 30)
+void trace_start(string filename, int auto_stop_sec = 30);
 
 /**
  * trace_end - stop collecting driver trace
@@ -36,7 +36,7 @@ void trace_start(string filename, int auto_stop_sec = 30)
  * out of memory.
  *
  */
-void trace_end()
+void trace_end();
 
 /**
  * time_ns() - return the number of nanoseconds since January 1, 1970
@@ -190,7 +190,7 @@ int perf_counter_ns( void );
  * before the driver decides it is in an infinite loop.
  *
  */
-void max_eval_cost()
+void max_eval_cost();
 
 /**
  * localtime() - convert to local time
@@ -222,8 +222,6 @@ void max_eval_cost()
  * int        LT_ISDST    If DST is currently being observed
  *
  */
-#include <localtime.h>
-
 mixed *localtime( int time );
 
 /**
@@ -331,7 +329,7 @@ int find_call_out( int handle ) ;
  * before the driver decides it is in an infinite loop.
  *
  */
-int eval_cost()
+int eval_cost();
 
 /**
  * errorp() - determine whether or not a given variable is an error code
@@ -383,7 +381,7 @@ string *deep_inherit_list( object obj );
  * If no arguments are provided, it will use the current time.
  *
  */
-string ctime( int clock | void );
+string ctime(void| int clock );
 
 /**
  * call_out_info() - get pending call_out() information

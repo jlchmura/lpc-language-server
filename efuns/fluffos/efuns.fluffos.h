@@ -14,7 +14,7 @@
 #include "contrib.h"
 #include "db.h"
 #include "ed.h" 
-#include "external.h"
+#include "external.h" 
 #include "filesystem.h"
 #include "floats.h"
 #include "functions.h" 

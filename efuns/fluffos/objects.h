@@ -152,7 +152,7 @@ object present( mixed str, object ob );
  * existence.
  *
  */
-object *objects( void | string func | function f );
+object *objects( void | string | function func );
 
 /**
  * objectp() - determine whether or not a given variable is an object

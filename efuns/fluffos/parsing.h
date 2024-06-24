@@ -194,7 +194,7 @@ void parse_init();
  * }
  *
  */
-int parse_command( string command, object env|object *oblist,
+int parse_command( string command, object|object* env,
                    string pattern, mixed arg... );
 
 /**

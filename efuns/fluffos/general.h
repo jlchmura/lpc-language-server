@@ -66,7 +66,7 @@ string typeof( mixed var );
  * TBW
  *
  */
-float * translate(float *, float, float, float)
+float * translate(float *, float, float, float);
 
 /**
  * start_request_term_type
@@ -74,7 +74,7 @@ float * translate(float *, float, float, float)
  * TBW
  *
  */
-void start_request_term_type()
+void start_request_term_type();
 
 /**
  * sizeof()  -  return the number of elements in an array, mapping, buffer
@@ -93,7 +93,7 @@ int sizeof( mixed var );
  * TBW
  *
  */
-string * shallow_inherit_list(object)
+string * shallow_inherit_list(object);
 
 /**
  * send_zmp
@@ -101,7 +101,7 @@ string * shallow_inherit_list(object)
  * TBW
  *
  */
-void send_zmp(string, string *)
+void send_zmp(string, string *);
 
 /**
  * scale
@@ -109,7 +109,7 @@ void send_zmp(string, string *)
  * TBW
  *
  */
-float * scale(float *, float, float, float)
+float * scale(float *, float, float, float);
 
 /**
  * save_variable() - save the value of variable into a string
@@ -126,7 +126,7 @@ string save_variable( mixed var );
  * TBW
  *
  */
-float * rotate_z(float *, float)
+float * rotate_z(float *, float);
 
 /**
  * rotate_y
@@ -134,7 +134,7 @@ float * rotate_z(float *, float)
  * TBW
  *
  */
-float * rotate_y(float *, float)
+float * rotate_y(float *, float);
 
 /**
  * rotate_x
@@ -142,7 +142,7 @@ float * rotate_y(float *, float)
  * TBW
  *
  */
-float * rotate_x(float *, float)
+float * rotate_x(float *, float);
 
 /**
  * restore_variable() - restore value of a variable from a string
@@ -159,7 +159,7 @@ mixed restore_variable( string value );
  * TBW
  *
  */
-void request_term_type()
+void request_term_type();
 
 /**
  * request_term_size
@@ -167,7 +167,7 @@ void request_term_type()
  * TBW
  *
  */
-void request_term_size(int)
+void request_term_size(int);
 
 /**
  * parse_remove
@@ -175,7 +175,7 @@ void request_term_size(int)
  * TBW
  *
  */
-void parse_remove(string)
+void parse_remove(string);
 
 /**
  * parse_my_rules
@@ -183,7 +183,7 @@ void parse_remove(string)
  * TBW
  *
  */
-mixed parse_my_rules(object, string, int)
+mixed parse_my_rules(object, string, int);
 
 /**
  * parse_dump
@@ -191,7 +191,7 @@ mixed parse_my_rules(object, string, int)
  * TBW
  *
  */
-string parse_dump()
+string parse_dump();
 
 /**
  * parse_add_synonym
@@ -199,7 +199,7 @@ string parse_dump()
  * TBW
  *
  */
-void parse_add_synonym(string, string, string)
+void parse_add_synonym(string, string, string);
 
 /**
  * nullp() - determine whether or not a given variable is null.
@@ -222,7 +222,7 @@ int nullp( mixed arg );
  * TBW
  *
  */
-float norm(int * | float *)
+float norm(int * | float *);
 
 /**
  * next_bit
@@ -230,7 +230,7 @@ float norm(int * | float *)
  * TBW
  *
  */
-int next_bit(string, int)
+int next_bit(string, int);
 
 /**
  * map()  - modify an mapping, array, or string via application of a func‐
@@ -258,7 +258,7 @@ mapping map( mapping | mixed* | string x,
  * TBW
  *
  */
-float * lookat_rotate2(float *, float, float, float, float, float, float)
+float * lookat_rotate2(float *, float, float, float, float, float, float);
 
 /**
  * lookat_rotate
@@ -266,7 +266,7 @@ float * lookat_rotate2(float *, float, float, float, float, float, float)
  * TBW
  *
  */
-float * lookat_rotate(float *, float, float, float)
+float * lookat_rotate(float *, float, float, float);
 
 /**
  * log2
@@ -274,7 +274,7 @@ float * lookat_rotate(float *, float, float, float)
  * TBW
  *
  */
-float log2(float | int)
+float log2(float | int);
 
 /**
  * log10
@@ -282,7 +282,7 @@ float log2(float | int)
  * TBW
  *
  */
-float log10(float | int)
+float log10(float | int);
 
 /**
  * id_matrix
@@ -290,7 +290,7 @@ float log10(float | int)
  * TBW
  *
  */
-float * id_matrix()
+float * id_matrix();
 
 /**
  * filter
@@ -319,10 +319,10 @@ float * id_matrix()
 mixed filter(string|mapping|mixed* source,
              string filter_function,
              object|string ob,
-             mixed *extra...)
+             mixed *extra...);
 mixed filter(string|mapping|mixed* source,
              function f,
-             mixed *extra... )
+             mixed *extra... );
 
 /**
  * explode_reversible
@@ -330,7 +330,7 @@ mixed filter(string|mapping|mixed* source,
  * TBW
  *
  */
-string * explode_reversible(string, string)
+string * explode_reversible(string, string);
 
 /**
  * dump_trace
@@ -338,7 +338,7 @@ string * explode_reversible(string, string)
  * TBW
  *
  */
-mixed * dump_trace()
+mixed * dump_trace();
 
 /**
  * dump_stralloc
@@ -346,7 +346,7 @@ mixed * dump_trace()
  * TBW
  *
  */
-string dump_stralloc(string)
+string dump_stralloc(string);
 
 /**
  * dump_jemalloc
@@ -354,7 +354,7 @@ string dump_stralloc(string)
  * TBW
  *
  */
-void dump_jemalloc()
+void dump_jemalloc();
 
 /**
  * dotprod
@@ -362,7 +362,7 @@ void dump_jemalloc()
  * TBW
  *
  */
-float dotprod(int * | float *, int * | float *)
+float dotprod(int * | float *, int * | float *);
 
 /**
  * distance
@@ -370,7 +370,7 @@ float dotprod(int * | float *, int * | float *)
  * TBW
  *
  */
-float distance(int * | float *, int * | float *)
+float distance(int * | float *, int * | float *);
 
 /**
  * destructed_objects
@@ -378,7 +378,7 @@ float distance(int * | float *, int * | float *)
  * TBW
  *
  */
-mixed * destructed_objects()
+mixed * destructed_objects();
 
 /**
  * compress_file
@@ -386,7 +386,7 @@ mixed * destructed_objects()
  * TBW
  *
  */
-int compress_file(string, string)
+int compress_file(string, string);
 
 /**
  * compress
@@ -394,7 +394,7 @@ int compress_file(string, string)
  * TBW
  *
  */
-buffer compress(string | buffer)
+buffer compress(string | buffer);
 
 /**
  * clear_debug_level
@@ -420,7 +420,7 @@ buffer compress(string | buffer)
  * clear_debug_level("call_out");
  *
  */
-void clear_debug_level(string)
+void clear_debug_level(string);
 
 /**
  * classp
@@ -442,7 +442,7 @@ void clear_debug_level(string)
  * }
  *
  */
-int classp(mixed arg)
+int classp(mixed arg);
 
 /**
  * check_memory
@@ -450,7 +450,7 @@ int classp(mixed arg)
  * TBW
  *
  */
-string check_memory(int)
+string check_memory(int);
 
 /**
  * angle
@@ -458,7 +458,7 @@ string check_memory(int)
  * TBW
  *
  */
-float angle(int * | float *, int * | float *)
+float angle(int * | float *, int * | float *);
 
 /**
  * act_mxp
@@ -466,5 +466,5 @@ float angle(int * | float *, int * | float *)
  * TBW
  *
  */
-void act_mxp()
+void act_mxp();
 
