@@ -483,6 +483,9 @@ export class DetailsVisitor
                 tt = tt.substring(0, tt.length - 1);
             }
             switch (tt) {
+                case "bytes":
+                    varType = LpcTypes.bytesType;
+                    break;
                 case "int":
                     varType = LpcTypes.intType;
                     break;
@@ -494,6 +497,9 @@ export class DetailsVisitor
                     break;
                 case "float":
                     varType = FundamentalType.floatType;
+                    break;
+                case "unknown":
+                    varType = LpcTypes.unknownType;
                     break;
             }
 

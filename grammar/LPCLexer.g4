@@ -34,6 +34,7 @@ CLASS: 'class' { this.isFluff() }?;
 CLOSURE: 'closure';
 CONST: 'const';
 CONTINUE: 'continue';
+COROUTINE: 'coroutine' { this.isLD() }?;
 DEFAULT: 'default';
 DO: 'do';
 ECHO: '#echo';
@@ -78,7 +79,7 @@ VIRTUAL: 'virtual';
 VOID: 'void';
 VOLATILE: 'volatile';
 WHILE: 'while';
-UNKNOWN: 'unknown' { this.isFluff() }?;
+UNKNOWN: 'unknown';
 
 // modifiers
 DEPRECATED: 'deprecated';
