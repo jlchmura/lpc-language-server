@@ -155,11 +155,9 @@ string set_prompt(mixed prompt, object ob);
  * @deprecated
  *
  */
-object set_modify_command(object);
-
-object set_modify_command(string);
-
-object set_modify_command(int);
+object set_modify_command(object c);
+object set_modify_command(string c);
+object set_modify_command(int c);
 
 /**
  * set_max_commands
@@ -242,8 +240,7 @@ void set_max_commands(int num, object obj);
  * @deprecated
  *
  */
-void set_limits(int tag, int value... );
-
+void set_limits(int tag, varargs int value );
 void set_limits(int *limits);
 
 /**
@@ -318,7 +315,7 @@ int set_heart_beat(int flag);
  * @deprecated
  *
  */
-void set_extra_wizinfo_size(int);
+void set_extra_wizinfo_size(int i);
 
 /**
  * set_connection_charset
@@ -349,10 +346,8 @@ void set_extra_wizinfo_size(int);
  *
  */
 void set_connection_charset(int *bitvector, int quote_iac);
-
 void set_connection_charset(string charset, int quote_iac);
-
-void set_connection_charset(0, int quote_iac);
+void set_connection_charset(int zero, int quote_iac);
 
 /**
  * set_combine_charset
@@ -394,7 +389,7 @@ void set_combine_charset(int *bitvector);
 
 void set_combine_charset(string charset);
 
-void set_combine_charset(0);
+varargs void set_combine_charset(int zero);
 
 /**
  * set_buffer_size
@@ -664,8 +659,7 @@ string query_load_average(void);
  *
  */
 int * query_limits();
-
-int * query_limits(int default);
+int * query_limits(int d);
 
 /**
  * query_ip_number
@@ -835,11 +829,8 @@ mixed query_editing(object ob);
  * @deprecated
  *
  */
-Compat mode;
-
-int parse_command (string cmd, object  env, string fmt, mixed &var... );
-
-int parse_command (string cmd, object* arr, string fmt, mixed &var... );
+int parse_command (string cmd, object  env, string fmt, varargs mixed &var );
+int parse_command (string cmd, object* arr, string fmt, varargs mixed &var );
 
 /**
  * order_alist
@@ -871,7 +862,7 @@ int parse_command (string cmd, object* arr, string fmt, mixed &var... );
  * @deprecated
  *
  */
-mixed * order_alist(mixed *keys, mixed *|void data... );
+mixed * order_alist(mixed *keys,varargs mixed *|void data );
 
 /**
  * obsolete
@@ -934,7 +925,7 @@ int member_array(mixed item, string arr);
  * @deprecated
  *
  */
-int mapping_contains(mixed &data1, ..., &dataN, map, key);
+int mapping_contains(varargs mixed &data1, map, key);
 
 /**
  * map_mapping
@@ -962,9 +953,9 @@ int mapping_contains(mixed &data1, ..., &dataN, map, key);
  * @deprecated
  *
  */
-mapping map_mapping(mapping m, string func, string|object ob... );
+mapping map_mapping(mapping m, string func, varargs string|object ob );
 
-mapping map_mapping(mapping m, closure cl... );
+mapping map_mapping(mapping m, varargs closure cl );
 
 /**
  * map_array
@@ -1060,8 +1051,7 @@ mixed * intersect_alist(mixed * list1, mixed * list2);
  * @deprecated
  *
  */
-mixed * insert_alist(mixed key, mixed data..., mixed * alist);
-
+mixed * insert_alist(mixed key, varargs mixed data, mixed * alist);
 int     insert_alist(mixed key, mixed * keys);
 
 /**
@@ -1207,9 +1197,8 @@ mixed get_combine_charset(int mode);
  * @deprecated
  *
  */
-mapping filter_mapping(mapping, string func, string|object ob... );
-
-mapping filter_mapping(mapping, closure cl... );
+mapping filter_mapping(mapping m, string func, varargs string|object ob );
+mapping filter_mapping(mapping m, varargs closure cl );
 
 /**
  * filter_array
@@ -1242,13 +1231,9 @@ mapping filter_mapping(mapping, closure cl... );
  * @deprecated
  *
  */
-mixed *filter_array(mixed *arr, string fun, string|object ob,;
-
-mixed extra... );
-
-mixed *filter_array(mixed *arr, closure cl, mixed extra... );
-
-mixed *filter_array(mixed *arr, mapping map, mixed extra... );
+mixed *filter_array(mixed *arr, string fun, string|object ob, varargs mixed extra );
+mixed *filter_array(mixed *arr, closure cl, varargs mixed extra );
+mixed *filter_array(mixed *arr, mapping map, varargs mixed extra );
 
 /**
  * file_name
@@ -2091,7 +2076,7 @@ string creator_file(mixed ob);
  * @deprecated
  *
  */
-mapping copy_mapping(mapping);
+mapping copy_mapping(mapping m);
 
 /**
  * cat
@@ -2172,10 +2157,8 @@ int cat(string path, int start, int num);
  *
  */
 int   assoc(mixed key, mixed *keys);
-
-mixed assoc(mixed key, mixed *alist [, mixed fail]);
-
-mixed assoc(mixed key, mixed *keys, mixed *data [, mixed fail]);
+varargs mixed assoc(mixed key, mixed *alist , mixed fail);
+varargs mixed assoc(mixed key, mixed *keys, mixed *data , mixed fail);
 
 /**
  * allocate_mapping
