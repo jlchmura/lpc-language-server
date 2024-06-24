@@ -1,55 +1,57 @@
 {
-	"version": "2.0.0",
-	"tasks": [
-		{
-			"label": "compile",
-			"type": "npm",
-			"script": "compile",
-			"group": "build",
-			"presentation": {
-				"panel": "dedicated",
-				"reveal": "never"
-			},						
-			"problemMatcher": [
-				"$tsc"
-			]
-		},
-		{
-			"label": "compile:bin",
-			"type": "npm",
-			"script": "compile:bin",
-			"group": "build",
-			"presentation": {
-				"panel": "dedicated",
-				"reveal": "never"
-			},						
-			"problemMatcher": [
-				"$tsc"
-			]
-		},
-		{
-			"label": "watch",
-			"type": "npm",
-			"script": "watch",
-			"isBackground": true,
-			"group": {
-				"kind": "build",
-				"isDefault": true
-			},
-			"presentation": {
-				"panel": "dedicated",
-				"reveal": "never"
-			},
-			"problemMatcher": [
-				"$tsc-watch"
-			]
-		},
-		{
-			"type": "npm",
-			"script": "postinstall",
-			"problemMatcher": [],
-			"label": "npm: postinstall",
-			"detail": "cd client && npm install && cd ../server && npm install && cd .."
-		}
-	]
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "compile",
+            "type": "npm",
+            "script": "compile",
+            "group": "build",
+            "presentation": {
+                "panel": "dedicated",
+                "reveal": "never"
+            },
+            "problemMatcher": ["$tsc"]
+        },
+        {
+            "label": "compile:bin",
+            "type": "npm",
+            "script": "compile:bin",
+            "group": "build",
+            "presentation": {
+                "panel": "dedicated",
+                "reveal": "never"
+            },
+            "problemMatcher": ["$tsc"]
+        },
+        {
+            "label": "watch",
+            "type": "npm",
+            "script": "watch",
+            "isBackground": true,
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "panel": "dedicated",
+                "reveal": "never"
+            },
+            "problemMatcher": ["$tsc-watch"]
+        },
+        {
+            "type": "npm",
+            "script": "postinstall",
+            "problemMatcher": [],
+            "label": "npm: postinstall",
+            "detail": "cd client && npm install && cd ../server && npm install && cd .."
+        },
+        {
+            "type": "npm",
+            "script": "compile:parsefluff",
+            "group": "build",
+            "problemMatcher": [],
+            "label": "compile:parsefluff",
+            "detail": "tsc -b && esbuild server/src/parse-fluff-docs.ts --bundle --outdir=out/server/src --external:vscode --platform=node --format=cjs --sourcemap=external --sourcemap"
+        }
+    ]
 }

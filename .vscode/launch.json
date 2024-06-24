@@ -12,8 +12,8 @@
                 //"${workspaceRoot}/../lima",
                 //"${workspaceRoot}/../StickLib",
                 //"${workspaceRoot}/../nightmare-residuum",
-                "${workspaceRoot}/../lp-245",
-                // "${workspaceRoot}/../lpc-test/test.c",
+                //"${workspaceRoot}/../lp-245",
+                "${workspaceRoot}/efuns/fluffos",
                 "--extensionDevelopmentPath=${workspaceRoot}"
             ],
             "autoAttachChildProcesses": true,
@@ -36,6 +36,17 @@
             "program": "${workspaceFolder}/out/server/src/bin.js",
             "args": ["test.c"],
             "preLaunchTask": "compile:bin",
+            "sourceMaps": true,
+            "outFiles": ["${workspaceFolder}/out/**/*.js"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Parse Fluff",
+            "skipFiles": ["<node_internals>/**"],
+            "program": "${workspaceFolder}/out/server/src/parse-fluff-docs.js",
+            "args": ["test.c"],
+            "preLaunchTask": "compile:parsefluff",
             "sourceMaps": true,
             "outFiles": ["${workspaceFolder}/out/**/*.js"]
         },
