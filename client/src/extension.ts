@@ -42,16 +42,24 @@ export function activate(context: ExtensionContext) {
         path.join("out", "server", "src", "server.js")
     );
 
+    // get location of efuns folder and pass to server as an argument
+    const efunDir = context.asAbsolutePath("efuns");
+
     let debugOptions = { execArgv: ["--nolazy"] };
 
     // If the extension is launched in debug mode then the debug server options are used
     // Otherwise the run options are used
     const serverOptions: ServerOptions = {
-        run: { module: serverModule, transport: TransportKind.ipc },
+        run: {
+            module: serverModule,
+            transport: TransportKind.ipc,
+            args: [efunDir],
+        },
         debug: {
             module: serverModule,
             transport: TransportKind.ipc,
             options: debugOptions,
+            args: [efunDir],
         },
     };
 
@@ -102,7 +110,7 @@ export function activate(context: ExtensionContext) {
 
     const legend: SemanticTokensLegend = {
         tokenTypes: [
-            "comment.block.preprocessor",
+            "comment-block-preprocessor",
             SemanticTokenTypes.macro,
             SemanticTokenTypes.operator,
             SemanticTokenTypes.method,
@@ -110,10 +118,10 @@ export function activate(context: ExtensionContext) {
             "define",
             SemanticTokenTypes.string,
             SemanticTokenTypes.number,
-            SemanticTokenTypes.type,
+            "lpc-type",
             SemanticTokenTypes.variable,
             SemanticTokenTypes.property,
-            "punctuation.lambda.lpc",
+            "lambda",
             SemanticTokenTypes.keyword,
             SemanticTokenTypes.modifier,
         ],

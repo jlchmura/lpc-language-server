@@ -91,6 +91,39 @@
                 "fileMatch": "lpc-config.json",
                 "url": "./schemas/lpc-config.schema.json"
             }
+        ],
+        "semanticTokenTypes": [
+            {
+                "id": "lpc-type",
+                "superType": "support",
+                "description": "Primitive LPC type"
+            },
+            {
+                "id": "lambda",
+                "superType": "operator",
+                "description": "Lambda operator"
+            },
+            {
+                "id": "comment-block-preprocessor",
+                "superType": "comment",
+                "description": "Code that is disabled by the preprocessor"
+            }
+        ],
+        "semanticTokenScopes": [
+            {
+                "language": "lpc",
+                "scopes": {
+                    "lpc-type": [
+                        "support.type.primitive.lpc"
+                    ],
+                    "lambda": [
+                        "punctuation.lambda.lpc"
+                    ],
+                    "comment-block-preprocessor": [
+                        "comment.block.preprocessor.lpc"
+                    ]
+                }
+            }
         ]
     },
     "keywords": [
