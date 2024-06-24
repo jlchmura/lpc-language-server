@@ -20,12 +20,14 @@ const efunsByFile = new Map<string, efunDef[]>();
 // Walk through the directories
 const dir = process.cwd();
 const rootDir = path.resolve(dir, "../");
-const files = glob.globSync("ldmud/doc/efun/*", {
-    cwd: rootDir,
-});
+const files = glob
+    .globSync("ldmud/doc/obsolete/*", {
+        cwd: rootDir,
+    })
+    .filter((f) => !f.endsWith(".de"));
 
-const filesObs = glob.globSync("ldmud/doc/obsolete/*", {});
-files.push(...filesObs.filter((f) => !f.endsWith(".de")));
+// const filesObs = glob.globSync("ldmud/doc/obsolete/*", {});
+// files.push(...filesObs.filter((f) => !f.endsWith(".de")));
 
 let lines: string[];
 let blockLines: string[];
@@ -127,6 +129,10 @@ efunsByFile.forEach((efuns, filename) => {
         let syn = efun.since.trim();
         if (syn.length > 0) {
             outfile.write(" * @since " + syn + "\n");
+        }
+
+        if (filename.startsWith("obsolete")) {
+            outfile.write(" * @deprecated\n");
         }
 
         outfile.write(` *\n`);
