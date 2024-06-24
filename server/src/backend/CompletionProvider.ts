@@ -24,8 +24,8 @@ import { ContextSymbolTable } from "./ContextSymbolTable";
 import { VariableSymbol } from "../symbols/variableSymbol";
 import { BaseSymbol, ScopedSymbol, SymbolTable } from "antlr4-c3";
 import { getSelfOrParentOfType } from "../utils";
-import { EfunSymbols } from "../driver/EfunsLDMud";
 import { getSymbolsFromAllParents } from "./symbol-utils";
+import { getDriverInfo } from "../driver/Driver";
 
 export class CompletionProvider {
     constructor(private backend: LpcFacade) {}
@@ -43,12 +43,14 @@ export class CompletionProvider {
 
     public resolveCompletionItem(item: CompletionItem): CompletionItem {
         const sourceCtx = this.backend.getContext(item.data.source);
+        const driver = getDriverInfo();
+
         if (item.label == "/** */") {
             return item;
         } else {
             const info =
                 sourceCtx?.getSymbolInfo(item.label) ??
-                EfunSymbols.getSymbolInfo(item.label);
+                driver.efuns.getSymbolInfo(item.label);
             if (!!info) {
                 item.detail =
                     info.description !== undefined
