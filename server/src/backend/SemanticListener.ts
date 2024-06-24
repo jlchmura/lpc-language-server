@@ -5,9 +5,7 @@ import { ContextSymbolTable } from "./ContextSymbolTable";
 import {
     CallOtherTargetContext,
     CatchExprContext,
-    CatchExpressionContext,
     CloneObjectExpressionContext,
-    FluffCloneObjectExpressionContext,
     FunctionDeclarationContext,
     InheritStatementContext,
     InheritSuperExpressionContext,
@@ -446,10 +444,10 @@ export class SemanticListener extends LPCParserListener {
     enterStructInitializerExpression = (
         ctx: StructInitializerExpressionContext
     ) => {
-        if (ctx.NEW()) {
+        if (ctx.CLASS()) {
             this.validateFeatureSupported(
                 ctx,
-                ctx.NEW().getSymbol(),
+                ctx.CLASS().getSymbol(),
                 FluffOSFeatures.SyntaxNewStruct,
                 "new(class Identifier) syntax not supported"
             );
@@ -474,16 +472,16 @@ export class SemanticListener extends LPCParserListener {
         }
     };
 
-    enterFluffCloneObjectExpression = (
-        ctx: FluffCloneObjectExpressionContext
-    ) => {
-        this.validateFeatureSupported(
-            ctx,
-            ctx.NEW().getSymbol(),
-            FluffOSFeatures.SyntaxNew,
-            "new(string filename) syntax not supported"
-        );
-    };
+    // enterFluffCloneObjectExpression = (
+    //     ctx: FluffCloneObjectExpressionContext
+    // ) => {
+    //     this.validateFeatureSupported(
+    //         ctx,
+    //         ctx.NEW().getSymbol(),
+    //         FluffOSFeatures.SyntaxNew,
+    //         "new(string filename) syntax not supported"
+    //     );
+    // };
 
     enterCloneObjectExpression = (ctx: CloneObjectExpressionContext) => {
         if (ctx.COMMA()?.length > 0) {

@@ -66,7 +66,6 @@ import { StringConcatExpressionContext } from "./LPCParser.js";
 import { CloneObjectExpressionContext } from "./LPCParser.js";
 import { IdentifierExpressionContext } from "./LPCParser.js";
 import { StructInitializerExpressionContext } from "./LPCParser.js";
-import { FluffCloneObjectExpressionContext } from "./LPCParser.js";
 import { ParenExpressionContext } from "./LPCParser.js";
 import { PrimaryArrayExpressionContext } from "./LPCParser.js";
 import { PrimaryMappingExpressionContext } from "./LPCParser.js";
@@ -730,18 +729,6 @@ export class LPCParserListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitStructInitializerExpression?: (ctx: StructInitializerExpressionContext) => void;
-    /**
-     * Enter a parse tree produced by the `fluffCloneObjectExpression`
-     * labeled alternative in `LPCParser.primaryExpressionStart`.
-     * @param ctx the parse tree
-     */
-    enterFluffCloneObjectExpression?: (ctx: FluffCloneObjectExpressionContext) => void;
-    /**
-     * Exit a parse tree produced by the `fluffCloneObjectExpression`
-     * labeled alternative in `LPCParser.primaryExpressionStart`.
-     * @param ctx the parse tree
-     */
-    exitFluffCloneObjectExpression?: (ctx: FluffCloneObjectExpressionContext) => void;
     /**
      * Enter a parse tree produced by the `parenExpression`
      * labeled alternative in `LPCParser.primaryExpressionStart`.

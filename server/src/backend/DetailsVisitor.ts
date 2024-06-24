@@ -25,7 +25,6 @@ import {
     DefinePreprocessorDirectiveContext,
     DoWhileStatementContext,
     ExpressionContext,
-    FluffCloneObjectExpressionContext,
     ForEachStatementContext,
     ForEachVariableContext,
     ForStatementContext,
@@ -451,20 +450,20 @@ export class DetailsVisitor
         return undefined;
     };
 
-    visitFluffCloneObjectExpression = (
-        ctx: FluffCloneObjectExpressionContext
-    ) => {
-        let name = "#new#";
+    // visitFluffCloneObjectExpression = (
+    //     ctx: FluffCloneObjectExpressionContext
+    // ) => {
+    //     let name = "#new#";
 
-        return this.withScope(
-            ctx,
-            CloneObjectSymbol,
-            [name, this.fileHandler],
-            (s) => {
-                return this.visitChildren(ctx);
-            }
-        );
-    };
+    //     return this.withScope(
+    //         ctx,
+    //         CloneObjectSymbol,
+    //         [name, this.fileHandler],
+    //         (s) => {
+    //             return this.visitChildren(ctx);
+    //         }
+    //     );
+    // };
 
     /**
      * this handles clone_object and load_object

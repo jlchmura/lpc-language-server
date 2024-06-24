@@ -449,12 +449,11 @@ primaryExpressionStart
     | StringLiteral StringLiteral*          # stringConcatExpression    
     | (LoadObject) PAREN_OPEN (ob=expression) (COMMA expression)* PAREN_CLOSE   # cloneObjectExpression 
     | validIdentifiers                            # identifierExpression    
-    | (
-        { this.isFluff() }? (NEW PAREN_OPEN CLASS structName=Identifier (COMMA structMemberInitializer)* PAREN_CLOSE) // Fluff
-        |
+    | (    
+        { this.isFluff() }? (PAREN_OPEN CLASS structName=Identifier (COMMA structMemberInitializer)* PAREN_CLOSE) // Fluff
+        |    
         { this.isLD() }? (PAREN_OPEN structName=BracketedIdentifier (structMemberInitializer (COMMA structMemberInitializer)*)? COMMA? PAREN_CLOSE) // LD
-      ) # structInitializerExpression        
-    | {this.isFluff()}? NEW PAREN_OPEN (ob=expression) (COMMA expression TRIPPLEDOT?)* PAREN_CLOSE   # fluffCloneObjectExpression 
+      ) # structInitializerExpression            
     | PAREN_OPEN (commaableExpression | variableDeclaration) PAREN_CLOSE # parenExpression
     | arrayExpression                       # primaryArrayExpression
     | mappingExpression                     # primaryMappingExpression    
@@ -473,6 +472,7 @@ validIdentifiers
     | SYMBOL
     | IN
     | CHAR
+    | { this.isFluff() }? CATCH
     ;
 
 catchExpr
@@ -634,6 +634,7 @@ literal
 
 argument
     : AND? expression TRIPPLEDOT?
+    | { this.isFluff() }? structTypeSpecifier
     ;
 
 // The argument after comma is reall required, but that causes parsing errors that negatively impact 

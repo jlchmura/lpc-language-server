@@ -22,7 +22,6 @@ import { RenameProvider } from "./RenameProvider";
 import { HighlightProvider } from "./HighlightProvider";
 import { DriverType, ensureLpcConfig, loadLpcConfig } from "./LpcConfig";
 import { ReferenceProvider } from "./ReferenceProvider";
-import { glob } from "glob";
 import { findLpcRoot } from "./server-utils";
 
 const CHANGE_DEBOUNCE_MS = 150;
