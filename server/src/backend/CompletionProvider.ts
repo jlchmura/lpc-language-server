@@ -23,7 +23,6 @@ import { ArrowSymbol } from "../symbols/arrowSymbol";
 import { ContextSymbolTable } from "./ContextSymbolTable";
 import { VariableSymbol } from "../symbols/variableSymbol";
 import { BaseSymbol, ScopedSymbol, SymbolTable } from "antlr4-c3";
-
 import { getSelfOrParentOfType } from "../utils";
 import { EfunSymbols } from "../driver/EfunsLDMud";
 import { getSymbolsFromAllParents } from "./symbol-utils";

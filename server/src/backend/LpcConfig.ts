@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import { DiagnosticSeverity, decimal } from "vscode-languageserver";
+import { DiagnosticSeverity } from "vscode-languageserver";
 
 enum DiagnosticLevel {
     Error = "error",

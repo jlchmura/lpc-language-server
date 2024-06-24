@@ -506,6 +506,8 @@ export class DetailsVisitor
             }
         }
 
+        this.markContext(ctx, SemanticTokenTypes.Type);
+
         return varType;
     }
 

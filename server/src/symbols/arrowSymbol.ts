@@ -3,12 +3,7 @@ import {
     getSymbolsOfTypeSync,
     isInstanceOfIReferenceableSymbol,
 } from "./base";
-import {
-    CallStack,
-    RootFrame,
-    StackValue,
-    addFunctionToFrame,
-} from "../backend/CallStack";
+import { CallStack, StackValue } from "../backend/CallStack";
 import { MethodInvocationSymbol } from "./methodSymbol";
 import { ObjectReferenceInfo } from "./objectSymbol";
 import { SourceContext } from "../backend/SourceContext";
@@ -24,6 +19,7 @@ import {
     addPogramToStack,
 } from "../backend/CallStackUtils";
 import { DiagnosticCodes, FUNCTION_NAME_KEY } from "../types";
+import { getDriverInfo } from "../driver/Driver";
 
 export enum ArrowType {
     CallOther,
@@ -213,7 +209,8 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
         // NTBLA: create the root frame in the source context so taht funs don't have to be re-added every time
 
         // after new root frame is on the stack, add the arrow's program to the stack
-        addPogramToStack(this.fileHandler.efunSymbols, arrowStack);
+        const driver = getDriverInfo();
+        addPogramToStack(driver.efuns, arrowStack);
         addDependenciesToStack(this.fileHandler, symTbl, arrowStack);
         addPogramToStack(symTbl, arrowStack);
 

@@ -16,6 +16,7 @@ import { addDiagnostic } from "./Symbol";
 import { ParserRuleContext } from "antlr4ng";
 import { DiagnosticSeverity } from "vscode-languageserver";
 import { LpcFileHandler } from "../backend/FileHandler";
+import { getDriverInfo } from "../driver/Driver";
 
 export class InheritSymbol
     extends LpcBaseSymbol<InheritStatementContext>
@@ -57,7 +58,8 @@ export class InheritSuperAccessorSymbol
 
     eval(stack: CallStack, scope?: any) {
         if (this.filename == "efun") {
-            this.objSymbolTable = SourceContext.efunSymbols;
+            const driver = getDriverInfo();
+            this.objSymbolTable = driver.efuns;
         } else {
             // if there is no filename, we have to find the inherit symbol that this accessor is attached to
             // and use the first one.  (this technically allows a glob pattern)
