@@ -98,7 +98,7 @@ export class DriverFluffOS implements IDriver {
         const efunParseTree = parser.program();
 
         // populate symbol table
-        const vis = new EfunVisitor(this.efuns);
+        const vis = new EfunVisitor(this.efuns, tokenStream);
         vis.visit(efunParseTree);
 
         const ii = 0;

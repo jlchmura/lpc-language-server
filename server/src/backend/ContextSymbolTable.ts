@@ -186,7 +186,13 @@ export class ContextSymbolTable extends SymbolTable {
                     definition: {
                         text: `${txt}(${efun
                             .getParametersSync()
-                            .map((p) => p.name)
+                            .map((p) => {
+                                let nm = p.name ?? p.type.name;
+                                if (p.varArgs) {
+                                    nm += "...";
+                                }
+                                return nm;
+                            })
                             .join(", ")
                             .trim()})`,
                         range: {
@@ -194,6 +200,7 @@ export class ContextSymbolTable extends SymbolTable {
                             end: { column: 0, row: 1 },
                         },
                     },
+                    symbol: efun,
                     description: undefined,
                     children: [],
                 };

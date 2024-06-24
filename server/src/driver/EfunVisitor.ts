@@ -1,4 +1,12 @@
-import { AbstractParseTreeVisitor, ParseTree } from "antlr4ng";
+import * as commentParser from "comment-parser";
+import {
+    AbstractParseTreeVisitor,
+    CommonTokenStream,
+    ParseTree,
+    ParserRuleContext,
+    TerminalNode,
+    TokenStream,
+} from "antlr4ng";
 import { LPCParserVisitor } from "../parser3/LPCParserVisitor";
 import {
     ArrayType,
@@ -14,9 +22,12 @@ import {
     ParameterContext,
     PrimitiveTypeSpecifierContext,
     UnionableTypeSpecifierContext,
+    ValidIdentifiersContext,
 } from "../parser3/LPCParser";
 import { EfunSymbol, MethodParameterSymbol } from "../symbols/methodSymbol";
 import { LpcTypes, StructType } from "../types";
+import { COMMENT_CHANNEL } from "../parser3/LPCPreprocessingLexer";
+import { firstEntry, lastEntry } from "../utils";
 
 type GenericConstructorParameters<T> = ConstructorParameters<
     new (...args: any[]) => T
@@ -28,7 +39,10 @@ export class EfunVisitor
 {
     protected scope = this.symbolTable as ScopedSymbol;
 
-    constructor(private symbolTable: SymbolTable) {
+    constructor(
+        private symbolTable: SymbolTable,
+        private tokenStream: CommonTokenStream
+    ) {
         super();
     }
 
@@ -52,6 +66,7 @@ export class EfunVisitor
             EfunSymbol,
             [name, returnTypeCtx, mods],
             (efunSymbol) => {
+                efunSymbol.doc = this.getPrefixComments(ctx);
                 return this.visitChildren(ctx);
             }
         );
@@ -63,17 +78,22 @@ export class EfunVisitor
             (this.scope as EfunSymbol).functionModifiers.add("varargs");
         }
 
-        const name = ctx._paramName?.getText();
+        if (this.scope.name == "new") {
+            const ii = 0;
+        }
+        const name = this.getValidIdentifier(ctx._paramName)?.getText();
         const type =
             this.parseTypeSpecifier(ctx._paramType) ?? LpcTypes.unknownType;
         const isVarArgs = !!ctx.TRIPPLEDOT() || !!ctx.VARARGS();
 
-        this.addNewSymbol(MethodParameterSymbol, ctx, [
-            name,
+        this.addNewSymbol(
+            MethodParameterSymbol,
+            ctx,
+            name ?? "",
             type,
             ctx._paramName,
-            isVarArgs,
-        ]);
+            isVarArgs
+        );
 
         return undefined;
     };
@@ -165,5 +185,42 @@ export class EfunVisitor
         }
 
         return varType;
+    }
+
+    /**
+     * get code comments to the left a context
+     * @param ctx
+     * @returns
+     */
+    private getPrefixComments(ctx: ParserRuleContext) {
+        const tokenIdx = ctx.start.tokenIndex;
+        const comments = this.tokenStream.getHiddenTokensToLeft(
+            tokenIdx,
+            COMMENT_CHANNEL
+        );
+        if (comments?.length > 0) {
+            const commentText = lastEntry(comments)?.text ?? "";
+            const blocks = commentParser.parse(commentText, {
+                spacing: "preserve",
+            });
+            return firstEntry(blocks);
+        }
+
+        return undefined;
+    }
+
+    getValidIdentifier(ctx: ValidIdentifiersContext) {
+        const search = ctx?.children ?? [];
+        while (search.length > 0) {
+            const c = search.shift();
+            if (c instanceof TerminalNode) {
+                return c;
+            }
+            if (c instanceof ParserRuleContext) {
+                search.unshift(...c.children);
+            }
+        }
+
+        return undefined;
     }
 }
