@@ -256,6 +256,7 @@ primitiveTypeSpecifier
     | CLOSURE
     | SYMBOL        
     | LWOBJECT
+    | UNKNOWN // fluff-only
     ;
 
 methodInvocation
@@ -446,9 +447,8 @@ primaryExpression
 primaryExpressionStart
     : literal                               # literalExpression
     //| inheritSuperExpression                # inheritExpression    
-    | StringLiteral StringLiteral*          # stringConcatExpression    
-    | (LoadObject) PAREN_OPEN (ob=expression) (COMMA expression)* PAREN_CLOSE   # cloneObjectExpression 
-    | validIdentifiers                            # identifierExpression    
+    | StringLiteral StringLiteral*          # stringConcatExpression        
+    | validIdentifiers                      # identifierExpression    
     | (    
         { this.isFluff() }? (PAREN_OPEN CLASS structName=Identifier (COMMA structMemberInitializer)* PAREN_CLOSE) // Fluff
         |    

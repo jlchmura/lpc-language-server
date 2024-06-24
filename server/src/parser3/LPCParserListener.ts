@@ -63,7 +63,6 @@ import { ConditionalExpressionContext } from "./LPCParser.js";
 import { PrimaryExpressionContext } from "./LPCParser.js";
 import { LiteralExpressionContext } from "./LPCParser.js";
 import { StringConcatExpressionContext } from "./LPCParser.js";
-import { CloneObjectExpressionContext } from "./LPCParser.js";
 import { IdentifierExpressionContext } from "./LPCParser.js";
 import { StructInitializerExpressionContext } from "./LPCParser.js";
 import { ParenExpressionContext } from "./LPCParser.js";
@@ -693,18 +692,6 @@ export class LPCParserListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitStringConcatExpression?: (ctx: StringConcatExpressionContext) => void;
-    /**
-     * Enter a parse tree produced by the `cloneObjectExpression`
-     * labeled alternative in `LPCParser.primaryExpressionStart`.
-     * @param ctx the parse tree
-     */
-    enterCloneObjectExpression?: (ctx: CloneObjectExpressionContext) => void;
-    /**
-     * Exit a parse tree produced by the `cloneObjectExpression`
-     * labeled alternative in `LPCParser.primaryExpressionStart`.
-     * @param ctx the parse tree
-     */
-    exitCloneObjectExpression?: (ctx: CloneObjectExpressionContext) => void;
     /**
      * Enter a parse tree produced by the `identifierExpression`
      * labeled alternative in `LPCParser.primaryExpressionStart`.

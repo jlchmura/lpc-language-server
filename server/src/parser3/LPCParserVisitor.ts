@@ -63,7 +63,6 @@ import { ConditionalExpressionContext } from "./LPCParser.js";
 import { PrimaryExpressionContext } from "./LPCParser.js";
 import { LiteralExpressionContext } from "./LPCParser.js";
 import { StringConcatExpressionContext } from "./LPCParser.js";
-import { CloneObjectExpressionContext } from "./LPCParser.js";
 import { IdentifierExpressionContext } from "./LPCParser.js";
 import { StructInitializerExpressionContext } from "./LPCParser.js";
 import { ParenExpressionContext } from "./LPCParser.js";
@@ -463,13 +462,6 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      * @return the visitor result
      */
     visitStringConcatExpression?: (ctx: StringConcatExpressionContext) => Result;
-    /**
-     * Visit a parse tree produced by the `cloneObjectExpression`
-     * labeled alternative in `LPCParser.primaryExpressionStart`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitCloneObjectExpression?: (ctx: CloneObjectExpressionContext) => Result;
     /**
      * Visit a parse tree produced by the `identifierExpression`
      * labeled alternative in `LPCParser.primaryExpressionStart`.

@@ -20,7 +20,6 @@ import { ContextSymbolTable } from "./ContextSymbolTable";
 import {
     BracketExpressionContext,
     CallOtherTargetContext,
-    CloneObjectExpressionContext,
     ConditionalExpressionContext,
     DefinePreprocessorDirectiveContext,
     DoWhileStatementContext,
@@ -311,7 +310,8 @@ export class DetailsVisitor
         } else if (
             ctx.methodInvocation()?.length > 0 &&
             ctx._pe instanceof IdentifierExpressionContext &&
-            ctx._pe.getText() == "clone_object"
+            (ctx._pe.getText() == "clone_object" ||
+                ctx._pe.getText() == "load_object")
         ) {
             const fnIdCtx = ctx._pe.validIdentifiers();
             const fnName = fnIdCtx?.getText();
@@ -448,40 +448,6 @@ export class DetailsVisitor
             this.getValidIdentifier(ctx.validIdentifiers()).symbol
         );
         return undefined;
-    };
-
-    // visitFluffCloneObjectExpression = (
-    //     ctx: FluffCloneObjectExpressionContext
-    // ) => {
-    //     let name = "#new#";
-
-    //     return this.withScope(
-    //         ctx,
-    //         CloneObjectSymbol,
-    //         [name, this.fileHandler],
-    //         (s) => {
-    //             return this.visitChildren(ctx);
-    //         }
-    //     );
-    // };
-
-    /**
-     * this handles clone_object and load_object
-     * @param ctx
-     * @returns
-     */
-    visitCloneObjectExpression = (ctx: CloneObjectExpressionContext) => {
-        let name = "#clone-object#";
-        if (ctx.LoadObject()) name = "#load-object#";
-
-        return this.withScope(
-            ctx,
-            CloneObjectSymbol,
-            [name, this.fileHandler],
-            (s) => {
-                return this.visitChildren(ctx);
-            }
-        );
     };
 
     visitStructDeclaration = (ctx: StructDeclarationContext) => {

@@ -76,6 +76,7 @@ VIRTUAL: 'virtual';
 VOID: 'void';
 VOLATILE: 'volatile';
 WHILE: 'while';
+UNKNOWN: 'unknown' { this.isFluff() }?;
 
 // modifiers
 DEPRECATED: 'deprecated';
@@ -170,10 +171,6 @@ LAMBDA_IDENTIFIER: '\'' ([$a-zA-Z_] [a-zA-Z_0-9]* ('::' [$a-zA-Z_] [a-zA-Z_0-9]*
 SINGLEQUOT: '\'';
 
 BracketedIdentifier: '<' ([$a-zA-Z_] [./a-zA-Z_0-9]*) '>';
-
-// efuns that need special handling
-//CloneObject: 'clone_object';
-LoadObject: 'load_object';
 
 // Identifiers
 Identifier: ([$a-zA-Z_] [a-zA-Z_0-9]*);

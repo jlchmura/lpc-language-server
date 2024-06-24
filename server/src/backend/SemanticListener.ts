@@ -5,7 +5,6 @@ import { ContextSymbolTable } from "./ContextSymbolTable";
 import {
     CallOtherTargetContext,
     CatchExprContext,
-    CloneObjectExpressionContext,
     FunctionDeclarationContext,
     InheritStatementContext,
     InheritSuperExpressionContext,
@@ -468,28 +467,6 @@ export class SemanticListener extends LPCParserListener {
                 ctx.stop,
                 ctx.stop,
                 DiagnosticSeverity.Error
-            );
-        }
-    };
-
-    // enterFluffCloneObjectExpression = (
-    //     ctx: FluffCloneObjectExpressionContext
-    // ) => {
-    //     this.validateFeatureSupported(
-    //         ctx,
-    //         ctx.NEW().getSymbol(),
-    //         FluffOSFeatures.SyntaxNew,
-    //         "new(string filename) syntax not supported"
-    //     );
-    // };
-
-    enterCloneObjectExpression = (ctx: CloneObjectExpressionContext) => {
-        if (ctx.COMMA()?.length > 0) {
-            this.validateFeatureSupported(
-                ctx,
-                firstEntry(ctx.COMMA()).getSymbol(),
-                FluffOSFeatures.SyntaxNewArgs,
-                "additional clone arguments are not supported"
             );
         }
     };

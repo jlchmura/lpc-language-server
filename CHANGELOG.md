@@ -1,5 +1,10 @@
 # LPC Language Services Changelog
 
+## 1.0.16
+
+-   Added `unknown` type to FluffOS parser
+-   Removed `new` and `load_object` from parser. These are now handled as efuns.
+
 ## 1.0.15
 
 -   Fix: [[FLUFFOS] Default parameters causing errors #9](https://github.com/jlchmura/lpc-language-server/issues/9)
