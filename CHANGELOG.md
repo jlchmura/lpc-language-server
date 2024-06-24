@@ -4,6 +4,10 @@
 
 -   Added `unknown` type to FluffOS parser
 -   Removed `new` and `load_object` from parser. These are now handled as efuns.
+-   Efuns are now read out of .h files packaged with the extension.
+-   Added FluffOS efuns
+-   Converted LD efuns to .h file format.
+-   Various parser tweaks for missing types (lwobject, unknown, etc)
 
 ## 1.0.15
 

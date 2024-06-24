@@ -2,7 +2,7 @@
 
 Language server and VSCode extension that provides rich language support for LPC (Lars Pensjö C) - an object-oriented programming language derived from C and developed originally by Lars Pensjö to facilitate MUD building on LPMuds.
 
-Currently supports [LDMud](https://www.ldmud.eu/). Partial [FluffOS](https://www.fluffos.info/) support was added in version `1.0.4` (more coming soon).
+Currently supports [LDMud](https://www.ldmud.eu/) and [FluffOS](https://www.fluffos.info/).
 
 Install from the VS Code Marketplace: https://marketplace.visualstudio.com/items?itemName=jlchmura.lpc
 
