@@ -9,11 +9,11 @@
             "runtimeExecutable": "${execPath}",
             "args": [
                 //"${workspaceRoot}/../mg-mudlib",
-                "${workspaceRoot}/../lima",
+                //"${workspaceRoot}/../lima",
                 //"${workspaceRoot}/../StickLib",
                 //"${workspaceRoot}/../nightmare-residuum",
                 //"${workspaceRoot}/../lp-245",
-                //"${workspaceRoot}/efuns/fluffos",
+                "${workspaceRoot}/efuns/ldmud",
                 "--extensionDevelopmentPath=${workspaceRoot}"
             ],
             "autoAttachChildProcesses": true,

@@ -1462,9 +1462,9 @@ void tell_room(string|object ob, string str);
 
 void tell_room(string|object ob, string str, object *exclude);
 
-void tell_room(string|object ob, mixed *|mapping|struct|object|lwobject msg);
+void tell_room(string|object ob, mixed *|mapping|struct s|object|lwobject msg);
 
-void tell_room(string|object ob, mixed *|mapping|struct|object|lwobject msg, object *exclude);
+void tell_room(string|object ob, mixed *|mapping|struct s|object|lwobject msg, object *exclude);
 
 /**
  * tell_object
@@ -1509,9 +1509,7 @@ void tell_room(string|object ob, mixed *|mapping|struct|object|lwobject msg, obj
  */
 void tell_object(object|string ob, string str);
 
-void tell_object(object|string ob,;
-
-mixed *|mapping|struct|object|lwobject msg);
+void tell_object(object|string ob, mixed *|mapping|struct s|object|lwobject msg);
 
 /**
  * tan
@@ -1521,7 +1519,7 @@ mixed *|mapping|struct|object|lwobject msg);
  * @since LDMud 3.2.9 added integers as arguments.
  *
  */
-float tan(int|float);
+float tan(int|float f);
 
 /**
  * symbolp
@@ -1665,7 +1663,7 @@ int structp(mixed arg);
           for SI_UNIQUE_NAME.
  *
  */
-mixed * struct_info(struct st, int what);
+mixed * struct_info(struct st s, int what);
 
 /**
  * strstr
@@ -1841,7 +1839,7 @@ string strftime(string fmt, int clock, int localized);
  * @since LDMud 3.3.713/3.2.13 introduced the '+' specifier.
  *
  */
-int sscanf(string str, string fmt, mixed var1, mixed var2... );
+int sscanf(string str, string fmt, mixed var1,varargs mixed var2 );
 
 /**
  * sqrt
@@ -1851,7 +1849,7 @@ int sscanf(string str, string fmt, mixed var1, mixed var2... );
  * @since LDMud 3.2.9 added integers as arguments.
  *
  */
-float sqrt(int|float);
+float sqrt(int|float s);
 
 /**
  * sprintf
@@ -2040,7 +2038,7 @@ float sqrt(int|float);
         LDMud 3.2.10 added modifier '#' for '%O'/'%Q' and the datatype '%b'.
  *
  */
-string sprintf(string fmt... );
+string sprintf(varargs string fmt);
 
 /**
  * sort_array
@@ -2109,9 +2107,7 @@ mixed * sort_array(mixed *arr, string wrong_order);
 
 mixed * sort_array(mixed *arr, string wrong_order, object|string ob);
 
-mixed * sort_array(mixed *arr, string wrong_order, object|string ob;
-
-, varargs mixed extra);
+mixed * sort_array(mixed *arr, string wrong_order, object|string ob, varargs mixed extra);
 
 mixed * sort_array(mixed *arr, closure cl);
 
@@ -2199,7 +2195,7 @@ int sl_insert_id();
  * @since Added in LDMud 3.3.713.
  *
  */
-mixed * sl_exec(string statement... );
+mixed * sl_exec(varargs string statement);
 
 /**
  * sl_close
@@ -2253,7 +2249,7 @@ int sizeof(struct xxx val);
  * @since LDMud 3.2.9 added integers as arguments.
  *
  */
-float sin(int|float);
+float sin(int|float n);
 
 /**
  * shutdown
@@ -2420,11 +2416,9 @@ int shadow(object ob);
         Since LDMud 3.3.719 obsoleted by hash().
  *
  */
-string sha1(string arg [, int iterations ]);
-
-string sha1(bytes  arg [, int iterations ]);
-
-string sha1(int  * arg [, int iterations ]);
+string sha1(string arg , int iterations );
+string sha1(bytes  arg , int iterations );
+string sha1(int  * arg , int iterations );
 
 /**
  * sgn
@@ -2849,11 +2843,9 @@ void say(string str, object exclude);
 
 void say(string str, object *excludes);
 
-void say(mixed *|mapping|struct|object|lwobject msg);
-
-void say(mixed *|mapping|struct|object|lwobject msg, object exclude);
-
-void say(mixed *|mapping|struct|object|lwobject msg, object *excludes);
+void say(mixed *|mapping|struct s|object|lwobject msg);
+void say(mixed *|mapping|struct s|object|lwobject msg, object exclude);
+void say(mixed *|mapping|struct s|object|lwobject msg, object *excludes);
 
 /**
  * save_value
@@ -2933,9 +2925,8 @@ string save_value(mixed value, int format);
         LDMud 3.5.0 added savefile format version 2.
  *
  */
-int    save_object(string name [, int format]);
-
-string save_object([int format]);
+varargs int    save_object(string name, int format);
+varargs string save_object(int format);
 
 /**
  * rusage
@@ -2966,11 +2957,9 @@ int * rusage(void);
         LDMud 3.3.556 added the <start> parameter.
  *
  */
-int rmember(mixed *array, mixed elem [, int start]);
-
-int rmember(string s, int elem [, int start]);
-
-int rmember(bytes s, int elem [, int start]);
+varargs int rmember(mixed *array, mixed elem , int start);
+varargs int rmember(string s, int elem , int start);
+varargs int rmember(bytes s, int elem , int start);
 
 /**
  * rmdir
@@ -3304,9 +3293,7 @@ int remove_action(int|string verb, object ob);
         LDMud 3.2.9.
  *
  */
-string regreplace(string txt, string pattern,;
-
-closure|string replacepattern, int flags);
+string regreplace(string txt, string pattern,closure|string replacepattern, int flags);
 
 /**
  * regmatch
@@ -3572,7 +3559,7 @@ void raise_error(string arg);
  * @since Introduced in 3.2@70
  *
  */
-mixed quote(mixed);
+mixed quote(mixed a);
 
 /**
  * query_verb
@@ -3792,7 +3779,7 @@ string process_string(string str);
  *
  *
  */
-void printf(string format... );
+void printf(varargs string format );
 
 /**
  * previous_object
@@ -4076,9 +4063,7 @@ string pg_conv_string(string str);
  */
 int pg_connect(string conn, string fun);
 
-int pg_connect(string conn, string fun, string|object obj,;
-
-varargs mixed extra );
+int pg_connect(string conn, string fun, string|object obj,varargs mixed extra );
 
 int pg_connect(string conn, closure cl, varargs mixed extra );
 
@@ -4224,9 +4209,8 @@ void pg_close();
  * @since LDMud 3.3.258 removed the compat-mode parse_command().
  *
  */
-int parse_command(string cmd, object  env, string fmt, mixed &var... );
-
-int parse_command(string cmd, object *arr, string fmt, mixed &var... );
+int parse_command(string cmd, object  env, string fmt, varargs mixed &var );
+int parse_command(string cmd, object *arr, string fmt, varargs mixed &var );
 
 /**
  * or_bits
@@ -4675,7 +4659,7 @@ int next_bit (string str, int start, int find_cleared);
  * @since LDMud 3.6.5 introduced lightweight objects.
  *
  */
-lwobject new_lwobject(string name... );
+lwobject new_lwobject(varargs string name );
 
 /**
  * net_connect
@@ -4724,9 +4708,8 @@ int net_connect(string host, int port);
  *
  *
  */
-int negate(int);
-
-float negate(float);
+int negate(int n);
+float negate(float n);
 
 /**
  * move_object
@@ -4808,9 +4791,9 @@ int mktime(int *ts);
  * @since LDMud 3.3.433 added the conversion from structs.
  *
  */
-mapping mkmapping(mixed *arr1, mixed *arr2... );
+mapping mkmapping(mixed *arr1, varargs mixed *arr2 );
 
-mapping mkmapping(struct st);
+mapping mkmapping(struct st s);
 
 /**
  * mkdir
@@ -4838,11 +4821,11 @@ int mkdir(string path);
  * @since Introduced in LDMud 3.2.9.
  *
  */
-string|bytes min(string|bytes arg... );
+string|bytes min(varargs string|bytes arg );
 
 string|bytes min(string|bytes *arg_array);
 
-int|float    min(int|float arg... );
+int|float    min(varargs int|float arg );
 
 int|float    min(int|float *arg_array);
 
@@ -4861,12 +4844,9 @@ int|float    min(int|float *arg_array);
  * @since LDMud 3.3.556 added the <start> parameter.
  *
  */
-int member(mixed *array, mixed elem [, int start]);
-
-int member(string s, int elem [, int start]);
-
-int member(bytes s, int elem [, int start]);
-
+varargs int member(mixed *array, mixed elem , int start);
+varargs int member(string s, int elem , int start);
+varargs int member(bytes s, int elem , int start);
 int member(mapping m, mixed key);
 
 /**
@@ -4924,11 +4904,9 @@ string md5_crypt(bytes str, string seed);
         Since LDMud 3.3.719 obsoleted by hash().
  *
  */
-string md5(string arg [, int iterations]);
-
-string md5(bytes arg [, int iterations]);
-
-string md5(int *  arg [, int iterations]);
+string md5(string arg , int iterations);
+string md5(bytes arg , int iterations);
+string md5(int *  arg , int iterations);
 
 /**
  * max
@@ -4946,12 +4924,9 @@ string md5(int *  arg [, int iterations]);
  * @since Introduced in LDMud 3.2.9.
  *
  */
-string|bytes max(string|bytes arg... );
-
+string|bytes max(varargs string|bytes arg );
 string|bytes max(string|bytes *arg_array);
-
-int|float    max(int|float arg... );
-
+int|float    max(varargs int|float arg );
 int|float    max(int|float *arg_array);
 
 /**
@@ -5048,9 +5023,9 @@ mixed * map_objects(string   *arr, string fun, varargs mixed extra );
  * @since In LDMud 3.2.6 renamed from map_mapping() and complemented by map().
  *
  */
-mapping map_indices(mapping m, string func, string|object ob... );
+mapping map_indices(mapping m, string func, varargs string|object ob );
 
-mapping map_indices(mapping m, closure cl... );
+mapping map_indices(mapping m, varargs closure cl );
 
 /**
  * map
@@ -5131,28 +5106,16 @@ mapping map_indices(mapping m, closure cl... );
  *
  */
 mixed * map(mixed *arg, string func, string|object ob, varargs mixed extra);
-
 mixed * map(mixed *arg, closure cl, varargs mixed extra);
-
-mixed * map(mixed *arg, mapping m [, int idx]);
-
-mixed * map(struct arg, string func, string|object ob, varargs mixed extra);
-
-mixed * map(struct arg, closure cl, varargs mixed extra);
-
-mixed * map(struct arg, mapping m [, int idx]);
-
-mapping map(mapping arg, string func, string|object ob;
-
-, varargs mixed extra);
-
+varargs mixed * map(mixed *arg, mapping m, int idx);
+mixed * map(struct arg s, string func, string|object ob, varargs mixed extra);
+mixed * map(struct arg s, closure cl, varargs mixed extra);
+varargs mixed * map(struct arg s, mapping m , int idx);
+mapping map(mapping arg, string func, string|object ob, varargs mixed extra);
 mapping map(mapping arg, closure cl, varargs mixed extra);
-
 string map(string arg, string func, string|object ob, varargs mixed extra);
-
 string map(string arg, closure cl, varargs mixed extra);
-
-string map(string arg, mapping m [, int idx]);
+varargs string map(string arg, mapping m , int idx);
 
 /**
  * make_shared_string
@@ -5172,7 +5135,6 @@ string map(string arg, mapping m [, int idx]);
  *
  */
 string make_shared_string(string str);
-
 bytes make_shared_string(bytes str);
 
 /**
@@ -5277,7 +5239,7 @@ mapping m_delete(mapping map, mixed key);
  * @since Renamed from 'mapping_contains()' in LDMud 3.2.6.
  *
  */
-int m_contains(mixed &data1, ..., &dataN, map, key);
+int m_contains(varargs mixed &data1, map, key);
 
 /**
  * m_allocate
@@ -5350,7 +5312,7 @@ mapping m_allocate(int size, int width);
  * @since Introduced in LDMud 3.2.9.
  *
  */
-mapping m_add(mapping map, mixed key, [mixed data...]);
+varargs mapping m_add(mapping map, mixed key, varargs mixed data);
 
 /**
  * lwobjectp
@@ -5651,7 +5613,7 @@ int living(object ob);
  */
 mixed limited(closure fun);
 
-mixed limited(closure fun, int tag, int value... );
+mixed limited(closure fun, int tag, varargs int value );
 
 mixed limited(closure fun, int *limits);
 
@@ -5721,7 +5683,7 @@ int last_bit(string str);
  * @since Introduced in 3.2@70.
  *
  */
-closure lambda(mixed *arr, mixed);
+closure lambda(mixed *arr, mixed m);
 
 /**
  * json_serialize
@@ -5753,7 +5715,7 @@ closure lambda(mixed *arr, mixed);
  * @since Added in LDMud 3.5.0
  *
  */
-string json_serialize(mixed <data>);
+string json_serialize(mixed data);
 
 /**
  * json_parse
@@ -6118,9 +6080,9 @@ mixed * input_to_info(object player);
  */
 void input_to(string|closure fun);
 
-void input_to(string|closure fun, int flag... );
+void input_to(string|closure fun, varargs int flag );
 
-void input_to(string|closure fun, int flag, string|closure prompt... );
+void input_to(string|closure fun, int flag, varargs string|closure prompt );
 
 /**
  * inherit_list
@@ -6422,11 +6384,9 @@ object * heart_beat_info();
         LDMud 3.3.719 added the iteration-based evaluation cost.
  *
  */
-string hash(int method, string arg [, int iterations ] );
-
-string hash(int method, bytes  arg [, int iterations ] );
-
-string hash(int method, int *  arg [, int iterations ] );
+varargs string hash(int method, string arg , int iterations  );
+varargs string hash(int method, bytes  arg , int iterations  );
+varargs string hash(int method, int *  arg , int iterations  );
 
 /**
  * gmtime
@@ -6913,7 +6873,7 @@ mixed function_exists(string str, object|lwobject ob, int flags);
         introduced with 3.2.1.
  *
  */
-mixed funcall(closure cl, mixed arg ...);
+mixed funcall(closure cl, varargs mixed arg );
 
 /**
  * floor
@@ -6940,7 +6900,7 @@ float floor(float arg);
  *
  *
  */
-int floatp(mixed);
+int floatp(mixed n);
 
 /**
  * first_inventory
@@ -7061,9 +7021,7 @@ int find_call_out(closure func);
  *
  *
  */
-<object|lwobject> * filter_objects(<object|lwobject> *arr,;
-
-string fun, varargs mixed extra );
+<object|lwobject> * filter_objects(<object|lwobject> *arr,string fun, varargs mixed extra );
 
 /**
  * filter_indices
@@ -7083,9 +7041,8 @@ string fun, varargs mixed extra );
         by efun filter().
  *
  */
-mapping filter_indices(mapping, string func, string|object ob... );
-
-mapping filter_indices(mapping, closure cl... );
+mapping filter_indices(mapping m, string func, varargs string|object ob );
+mapping filter_indices(mapping m, varargs closure cl );
 
 /**
  * filter
@@ -7138,26 +7095,13 @@ mapping filter_indices(mapping, closure cl... );
         LDMud 3.3.439 added filtering of strings.
  *
  */
-mixed * filter(mixed *arg, string fun, string|object ob;
-
-, varargs mixed extra);
-
+mixed * filter(mixed *arg, string fun, string|object ob, varargs mixed extra);
 mixed * filter(mixed *arg, closure cl, varargs mixed extra);
-
 mixed * filter(mixed *arg, mapping map, varargs mixed extra);
-
-string  filter(string arg, string fun, string|object ob;
-
-, varargs mixed extra);
-
+string  filter(string arg, string fun, string|object ob, varargs mixed extra);
 string  filter(string arg, closure cl, varargs mixed extra);
-
 string  filter(string arg, mapping map, varargs mixed extra);
-
-mapping filter(mapping arg, string func, string|object ob;
-
-, varargs mixed extra);
-
+mapping filter(mapping arg, string func, string|object ob, varargs mixed extra);
 mapping filter(mapping arg, closure cl, varargs mixed extra);
 
 /**
@@ -7185,7 +7129,7 @@ int file_size(string file);
  * @since Introduced in 3.2@263 resp. 3.2.1@12
  *
  */
-int extern_call();;
+int extern_call();
 
 /**
  * explode
@@ -7241,7 +7185,7 @@ bytes *  explode(bytes str, bytes del);
  */
 string expand_define(string name);
 
-string expand_define(string name, string arg... );
+string expand_define(string name, varargs string arg );
 
 /**
  * exp
@@ -7251,7 +7195,7 @@ string expand_define(string name, string arg... );
  * @since LDMud 3.2.9 added integers as arguments.
  *
  */
-float exp(int|float);
+float exp(int|float n);
 
 /**
  * execute_command
@@ -8637,7 +8581,7 @@ int count_bits(string str);
  * @since LDMud 3.2.9 added integers as arguments.
  *
  */
-float cos(int|float);
+float cos(int|float n);
 
 /**
  * copy_file
@@ -8697,9 +8641,7 @@ int copy_file(string from, string to);
  * @since Introduced in LDMud 3.3.166.
  *
  */
-string copy_bits(string src, string dest;
-
-[, int srcstart [, int deststart [, int copylen ]]]);
+varargs string copy_bits(string src, string dest, int srcstart , int deststart , int copylen);
 
 /**
  * copy
@@ -9219,14 +9161,8 @@ void configure_driver(int what, mixed data);
  *
  */
 closure compile_string(symbol* args, string str);
-
-closure compile_string(symbol* args, string str;
-
-, struct compile_string_options opts);
-
-closure compile_string(symbol* args, string &str;
-
-, struct compile_string_options opts);
+closure compile_string(symbol* args, string str, struct compile_string_options opts);
+closure compile_string(symbol* args, string &str, struct compile_string_options opts);
 
 /**
  * command_stack_depth
@@ -9304,7 +9240,7 @@ int command(string str, object ob);
  * @since Introduced in 3.2@70
  *
  */
-int closurep(mixed);
+int closurep(mixed c);
 
 /**
  * clones
@@ -9347,7 +9283,7 @@ object * clones();
 
 object * clones(int what);
 
-object * clones(string|object obj [, int what]);
+varargs object * clones(string|object obj , int what);
 
 /**
  * clonep
@@ -9449,9 +9385,8 @@ int clonep(mixed  arg);
         share_variables pragma.
  *
  */
-object clone_object(string name... );
-
-object clone_object(object template... );
+object clone_object(varargs string name );
+object clone_object(varargs object template );
 
 /**
  * clear_bit
@@ -9463,7 +9398,7 @@ object clone_object(object template... );
  * between 0 and 63 ( 2^6=64) in one character. Starting
  * character is the blank character " " which has the value 0.
  * The first charcter in the string is the one with the lowest
- * bits (0-5).
+ * bits (0-5). 
  *
  * @example 
  * string s;
@@ -9586,9 +9521,9 @@ float ceil(int|float arg);
         LDMud 3.6.7 added the 'limit' modifier.
  *
  */
-mixed catch(expr, expr... );
-
-mixed catch(expr, expr, ... ; modifiers);
+// mixed catch(expr, expr... );
+//mixed catch(expr, expr, ... ; modifiers);
+// NOTE: catch is handled in parser 
 
 /**
  * capitalize
@@ -9683,15 +9618,8 @@ int caller_stack_depth(void);
  * @since Introduced in LDMud 3.6.2.
  *
  */
-unknown call_strict(object|string ob, string func... );
-
-unknown call_strict(object*|string* ob, string func... );
-
-ob.fun(...);
-
-ob."fun"(...);
-
-ob.(fun)(...);
+unknown call_strict(object|string ob, varargs string func );
+unknown call_strict(object*|string* ob, varargs string func );
 
 /**
  * call_resolved
@@ -9728,9 +9656,9 @@ ob.(fun)(...);
         LDMud 3.6.2 added array calls.
  *
  */
-int call_resolved(mixed result, object ob, string func... );
+int call_resolved(mixed result, object ob, varargs string func );
 
-int* call_resolved(mixed* result, object* ob, string func... );
+int* call_resolved(mixed* result, object* ob, varargs string func );
 
 /**
  * call_out_info
@@ -9801,9 +9729,8 @@ mixed * call_out_info(void);
  *
  *
  */
-void call_out(string fun, int delay, mixed arg... );
-
-void call_out(closure cl, int delay, mixed arg... );
+void call_out(string fun, int delay, varargs mixed arg );
+void call_out(closure cl, int delay, varargs mixed arg );
 
 /**
  * call_other
@@ -9891,15 +9818,8 @@ void call_out(closure cl, int delay, mixed arg... );
         LDMud 3.5.0 made the call on arrays of objects non-optional.
  *
  */
-unknown call_other(object ob, string fun, mixed arg... );
-
-unknown call_other(object *ob, string fun, mixed arg... );
-
-ob->fun (mixed arg... );
-
-ob->"fun" (mixed arg... );
-
-ob->(fun) (mixed arg... );
+unknown call_other(object ob, string fun, varargs mixed arg );
+unknown call_other(object *ob, string fun, varargs mixed arg );
 
 /**
  * call_direct_strict
@@ -9929,9 +9849,8 @@ ob->(fun) (mixed arg... );
  * @since Introduced in LDMud 3.6.2.
  *
  */
-unknown call_direct_strict(object|string ob, string func... );
-
-unknown call_direct_strict(object*|string* ob, string func... );
+unknown call_direct_strict(object|string ob, varargs string func );
+unknown call_direct_strict(object*|string* ob, varargs string func );
 
 /**
  * call_direct_resolved
@@ -9964,9 +9883,8 @@ unknown call_direct_strict(object*|string* ob, string func... );
         LDMud 3.6.2 added array calls.
  *
  */
-int call_direct_resolved(mixed result, object ob, string func... );
-
-int* call_direct_resolved(mixed* result, object* ob, string func... );
+int call_direct_resolved(mixed result, object ob, varargs string func );
+int* call_direct_resolved(mixed* result, object* ob, varargs string func );
 
 /**
  * call_direct
@@ -10034,9 +9952,9 @@ int* call_direct_resolved(mixed* result, object* ob, string func... );
         LDMud 3.5.0 made the call on arrays of objects non-optional.
  *
  */
-unknown call_direct(object ob, string fun, mixed arg... );
+unknown call_direct(object ob, string fun, varargs mixed arg );
 
-unknown call_direct(object *ob, string fun, mixed arg... );
+unknown call_direct(object *ob, string fun, varargs mixed arg );
 
 /**
  * call_coroutine
@@ -10119,7 +10037,7 @@ object blueprint(string|object|lwobject ob);
  * @since Introduced in 3.2@82.
  *
  */
-closure bind_lambda(closure, object|lwobject ob);
+closure bind_lambda(closure c, object|lwobject ob);
 
 /**
  * binary_message
@@ -10165,7 +10083,7 @@ int binary_message(int *|bytes message, int flags);
  * @since Introducted in LDMud 3.3.344.
  *
  */
-int baseof(struct b, struct s);
+int baseof(struct b s1, struct s s2);
 
 /**
  * attach_erq_demon
@@ -10227,7 +10145,7 @@ float atan2(int|float y, int|float x);
  * @since LDMud 3.2.9 added integers as arguments.
  *
  */
-float atan(int|float);
+float atan(int|float n);
 
 /**
  * asin
@@ -10236,7 +10154,7 @@ float atan(int|float);
  *
  *
  */
-float asin(float);
+float asin(float n);
 
 /**
  * apply
@@ -10284,7 +10202,7 @@ float asin(float);
         LDMud 3.3.266 added support for structs.
  *
  */
-mixed apply(closure cl... );
+mixed apply(varargs closure cl );
 
 /**
  * and_bits
@@ -10505,7 +10423,7 @@ void add_action(string|closure fun, string cmd, int flag);
  *
  *
  */
-float acos(float);
+float acos(float n);
 
 /**
  * abs
@@ -10524,102 +10442,4 @@ float acos(float);
 int   abs(int arg);
 
 float abs(float arg);
-
-/**
- * []
- *
- * Return one element from a string/array (first form), or a slice
- * (substring resp. subarray) of a string/array/mapping (second form).
- * 
- * The indexes <index>, <from> and <to> are numbered 0 to
- * strlen(str)-1, sizeof(arr)-1 resp. widthof(m)-1.
- * 
- * If an index is written '<value', the value is counted from the
- * end of the string/array/mapping and is numbered 1 to strlen(str),
- * sizeof(arr) resp. widthof(m).
- * 
- * If an index is written '>value', the value is counted from the
- * end of the string/array/mapping if it is negative (starting with
- * -1 for the last element), and from the beginning if it is positive
- * (starting with 0 for the first element).
- * 
- * If <from> is omitted, it defaults to the beginning of the
- * string/array/mapping.
- * If <to> is omitted, it defaults to the beginning of the
- * string/array/mapping.
- * 
- * In the first form, the <index> must be within the bounds of
- * the string/array, or a runtime error occurs.
- * In the second form, the indexes will be fitted to the bounds of
- * the string/array/mapping. If <from> is greater than <to>, or both
- * outside the bounds, an empty string/array ("" resp. ({})) will
- * be returned.
- * 
- * The closure notation is straightforward:
- * 
- * [index]          -> ({'#[,       arr, index })
- * [<index]         -> ({'#[<,      arr, index })
- * [>index]         -> ({'#[>,      arr, index })
- * [from..to]       -> ({'#[..],    arr, from, to })
- * [<from..to]      -> ({'#[<..],   arr, from, to })
- * [from..<to]      -> ({'#[..<],   arr, from, to })
- * [<from..<to]     -> ({'#[<..<],  arr, from, to })
- * [>from..to]      -> ({'#[>..],   arr, from, to })
- * [from..>to]      -> ({'#[..>],   arr, from, to })
- * [>from..<to]     -> ({'#[>..<],  arr, from, to })
- * [<from..>to]     -> ({'#[<..>],  arr, from, to })
- * [>from..>to]     -> ({'#[>..>],  arr, from, to })
- * [key,index]      -> ({'#[,],     m, index })
- * [key,<index]     -> ({'#[,<],    m, index })
- * [key,>index]     -> ({'#[,>],    m, index })
- * [key,from..to]   -> ({'#[,..],   m, from, to })
- * [key,<from..to]  -> ({'#[,<..],  m, from, to })
- * [key,from..<to]  -> ({'#[,..<],  m, from, to })
- * [key,<from..<to] -> ({'#[,<..<], m, from, to })
- * [key,>from..to]  -> ({'#[,>..],  m, from, to })
- * [key,from..>to]  -> ({'#[,..>],  m, from, to })
- * [key,>from..<to] -> ({'#[,>..<], m, from, to })
- * [key,<from..>to] -> ({'#[,<..>], m, from, to })
- * [key,>from..>to] -> ({'#[,>..>], m, from, to })
- *
- * @example 
- * foo = ({ 1, 2, 3, 4 });         str = "test";
- * 
- * foo[1]     -> 1                 str[1] -> 'e' == 101
- * foo[1..2]  -> ({ 2, 3 })        str[1..2]  -> "es"
- * foo[2..1]  -> ({ })             str[2..1]  -> ""
- * foo[0..<2] -> ({ 1, 2 })        str[0..<2]  -> "tes"
- * foo[..<2]  -> ({ 1, 2 })        str[..<2]  -> "tes"
- * foo[<3..]  -> ({ 2, 3, 4 })     str[<3..]  -> "est"
- * 
- * foo[1] = 5                -> foo == ({ 1, 5, 3, 4 })
- * foo[1..2] = ({ 5, 6, 7 }) -> foo == ({ 1, 5, 6, 7, 4 })
- * foo[1..2] = ({ })         -> foo == ({ 1, 4 })
- * 
- * str[1] = 'a'              -> str == "tast"
- * str[1..2] = "bar"         -> str == "tbart"
- * str[1..2] = ""            -> str == "tt"
- *
- * @since slice_array() is the old form of the [] operator on arrays.
-        extract() is the old form of the [] operator on strings.
-        Both ARE NO LONGER SUPPORTED and should not be used anymore!
-
-        The syntax for ``counting from last element'' has changed
-        between versions 3.1.J and 3.1.K from ``-1'' to ``<1''.
-        foo[0..-1] is now an empty string resp. array.
-
-        LDMud 3.3 introduced the '>' indexing method.
-
-        LDMud 3.6.6 introduced range indexing for mappings.
- *
- */
-mixed   arr[index];
-
-int     str[index];
-
-mixed * arr[from .. to];
-
-string  str[from .. to];
-
-mixed   m[key, from .. to];
 
