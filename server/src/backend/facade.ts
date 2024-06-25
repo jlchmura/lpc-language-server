@@ -842,7 +842,9 @@ export class LpcFacade {
                                 new Set()
                             );
 
-                            await this.onRunDiagnostics(filename, false);
+                            if (!!this.onRunDiagnostics) {
+                                await this.onRunDiagnostics(filename, false);
+                            }
 
                             //this.releaseLpc(filename);
                             resolve(txt);

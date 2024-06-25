@@ -1,4 +1,4 @@
-import { ScopedSymbol } from "antlr4-c3";
+import { BaseSymbol, IType, ScopedSymbol } from "antlr4-c3";
 import { CallStack, StackValue } from "./CallStack";
 import { LpcBaseMethodSymbol } from "../symbols/methodSymbol";
 import { VariableSymbol } from "../symbols/variableSymbol";
@@ -66,4 +66,12 @@ export function addDependenciesToStack(
             );
         }
     }
+}
+
+export function asStackValue(
+    value: any,
+    type?: IType,
+    symbol?: BaseSymbol
+): StackValue {
+    return new StackValue(value, type ?? LpcTypes.unknownType, symbol);
 }

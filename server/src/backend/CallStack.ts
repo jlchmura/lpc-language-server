@@ -29,6 +29,7 @@ export class CallStack {
     private rootFrame: StackFrame;
 
     public executionId: number;
+    public diagnosticMode: boolean = true;
 
     public get root() {
         return this.rootFrame;

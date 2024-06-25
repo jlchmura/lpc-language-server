@@ -2,6 +2,7 @@ import { ScopedSymbol } from "antlr4-c3";
 import { IEvaluatableSymbol } from "./base";
 import { LpcTypes, SymbolKind } from "../types";
 import { CallStack, StackValue } from "../backend/CallStack";
+import { asStackValue } from "../backend/CallStackUtils";
 
 export class ConditionalSymbol
     extends ScopedSymbol
@@ -22,31 +23,35 @@ export class ConditionalSymbol
 
         switch (this.name) {
             case "==":
-                return lhResult == rhResult;
+                return asStackValue(lhResult == rhResult, lhResult?.type, this);
             case "!=":
-                return lhResult != rhResult;
+                return asStackValue(lhResult != rhResult, lhResult?.type, this);
             case "<":
-                return lhResult < rhResult;
+                return asStackValue(lhResult < rhResult, lhResult?.type, this);
             case ">":
-                return lhResult > rhResult;
+                return asStackValue(lhResult > rhResult, lhResult?.type, this);
             case "<=":
-                return lhResult <= rhResult;
+                return asStackValue(lhResult <= rhResult, lhResult?.type, this);
             case ">=":
-                return lhResult >= rhResult;
+                return asStackValue(lhResult >= rhResult, lhResult?.type, this);
             case "|":
-                return lhResult | rhResult;
+                return asStackValue(lhResult | rhResult, lhResult?.type, this);
             case "&":
-                return lhResult & rhResult;
+                return asStackValue(lhResult & rhResult, lhResult?.type, this);
             case "&&":
-                return lhResult && rhResult;
+                return asStackValue(lhResult && rhResult, lhResult?.type, this);
             case "||":
-                return lhResult || rhResult;
+                return asStackValue(lhResult || rhResult, lhResult?.type, this);
             case "^":
-                return lhResult ^ rhResult;
+                return asStackValue(lhResult ^ rhResult, lhResult?.type, this);
             case "in":
                 return new StackValue(1, LpcTypes.intType, this);
             case "?":
-                return lhResult ? rhResult : undefined;
+                return asStackValue(
+                    lhResult ? rhResult : undefined,
+                    lhResult?.type,
+                    this
+                );
         }
 
         throw "Conditional Symbol: operator not implemented " + this.name;

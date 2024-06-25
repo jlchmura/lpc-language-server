@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.0.17
+
+-   Improvements to code evaluation (strings, operators, brackets, arrays)
+
 ## 1.0.16
 
 -   Added `unknown` type to FluffOS parser

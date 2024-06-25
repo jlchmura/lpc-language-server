@@ -147,6 +147,9 @@ export class SourceContext {
 
     /** The root context from the last parse run. */
     private tree: ProgramContext | undefined;
+    public getParseTree(): ProgramContext | undefined {
+        return this.tree;
+    }
 
     /**
      * combined table that includes dependencies

@@ -2,6 +2,7 @@ import { ScopedSymbol } from "antlr4-c3";
 import { IEvaluatableSymbol } from "./base";
 import { SymbolKind } from "../types";
 import { CallStack } from "../backend/CallStack";
+import { asStackValue } from "../backend/CallStackUtils";
 
 export class OperatorSymbol extends ScopedSymbol implements IEvaluatableSymbol {
     constructor(
@@ -13,38 +14,38 @@ export class OperatorSymbol extends ScopedSymbol implements IEvaluatableSymbol {
     }
 
     eval(stack: CallStack, scope?: any) {
-        const lhs = this.children[0] as IEvaluatableSymbol;
-        const rhs = this.children[1] as IEvaluatableSymbol;
+        const lhs = this.lhs;
+        const rhs = this.rhs;
 
         const lhsValue = lhs?.eval(stack)?.value;
         const rhsValue = rhs?.eval(stack)?.value;
 
         switch (this.name) {
             case ",":
-                return rhsValue;
+                return asStackValue(rhsValue, rhsValue?.type, this);
             case "+":
-                return lhsValue + rhsValue;
+                return asStackValue(lhsValue + rhsValue, lhsValue?.type, this);
             case "-":
-                return lhsValue - rhsValue;
+                return asStackValue(lhsValue - rhsValue, lhsValue?.type, this);
             case "*":
-                return lhsValue * rhsValue;
+                return asStackValue(lhsValue * rhsValue, lhsValue?.type, this);
             case "/":
-                return lhsValue / rhsValue;
+                return asStackValue(lhsValue / rhsValue, lhsValue?.type, this);
             case "%":
-                return lhsValue % rhsValue;
+                return asStackValue(lhsValue % rhsValue, lhsValue?.type, this);
             case "^":
-                return lhsValue ^ rhsValue;
+                return asStackValue(lhsValue ^ rhsValue, lhsValue?.type, this);
             case "&":
             case "|":
             case "~":
-                return lhsValue | rhsValue;
+                return asStackValue(lhsValue | rhsValue, lhsValue?.type, this);
             case "<<":
             case ">>":
             case "--":
             case "++":
-                return lhsValue;
+                return asStackValue(lhsValue, lhsValue?.type, this);
             case "!":
-                return !rhsValue;
+                return asStackValue(!rhsValue, rhsValue?.type, this);
         }
 
         throw `OperatorSymbol: Unknown symbol [${this.name}]`;

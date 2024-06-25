@@ -57,8 +57,8 @@ export class MethodParameterSymbol
         super(name, undefined, type);
     }
 
-    eval() {
-        return this.value;
+    eval(stack: CallStack) {
+        return stack.getValue(this.name, this);
     }
 
     public get kind() {
@@ -404,6 +404,27 @@ export class EfunSymbol
                         playerCtx
                     ),
                     LpcTypes.objectType,
+                    this
+                );
+            case "explode":
+                const str = params[0].eval(stack) as StackValue;
+                const delim = params[1].eval(stack) as StackValue;
+                const strVal = str?.value ?? 0;
+                const delimVal = delim?.value;
+
+                if (
+                    str?.type?.name != "string" ||
+                    delim?.type?.name != "string"
+                ) {
+                    return undefined;
+                }
+                if (strVal == 0 || delimVal == 0) {
+                    return undefined;
+                }
+
+                return new StackValue(
+                    strVal.split(delimVal),
+                    LpcTypes.stringArrayType,
                     this
                 );
         }
