@@ -903,8 +903,12 @@ export class DetailsVisitor
                     opSym.lhs = lastOpSym;
                 }
 
-                this.visitChildren(ctx.children[i + 1] as ParserRuleContext);
-                opSym.rhs = lastEntry(opSym.children) as IEvaluatableSymbol;
+                if (ctx.children[i + 1] instanceof ParserRuleContext) {
+                    this.visitChildren(
+                        ctx.children[i + 1] as ParserRuleContext
+                    );
+                    opSym.rhs = lastEntry(opSym.children) as IEvaluatableSymbol;
+                }
 
                 this.markToken(
                     (child as TerminalNode).symbol,
