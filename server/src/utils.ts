@@ -152,6 +152,21 @@ export function normalizeFileExtension(filename: string) {
     return filename;
 }
 
+export function toLibPath(filename: string, workspaceRoot: string) {
+    if (filename.startsWith(workspaceRoot)) {
+        filename = filename.slice(workspaceRoot.length + 1);
+    }
+
+    // replace backslashes with forward slashes
+    filename = filename.replace(/\\/g, "/");
+    // add leading slash if needed
+    if (!filename.startsWith("/")) {
+        filename = "/" + filename;
+    }
+
+    return filename;
+}
+
 export function normalizeFilename(filename: string) {
     if (!filename) return filename;
 

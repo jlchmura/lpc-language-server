@@ -5,6 +5,9 @@ import { LpcFacade } from "./facade";
 import { IFileHandler, LoadImportResult } from "./types";
 
 export class LpcFileHandler implements IFileHandler {
+    /** additional search dirs that can be used for this file */
+    public searchDirs: string[] = [];
+
     constructor(
         private backend: LpcFacade,
         private sourceContext: SourceContext
@@ -31,7 +34,8 @@ export class LpcFileHandler implements IFileHandler {
     ): LoadImportResult {
         const importInfo = this.backend.resolveFilename(
             filename,
-            sourceFilename
+            sourceFilename,
+            this.searchDirs
         );
         try {
             const source = !!importInfo.fullPath

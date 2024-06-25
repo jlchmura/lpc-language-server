@@ -3,6 +3,7 @@
 ## 1.0.17
 
 -   Improvements to code evaluation (strings, operators, brackets, arrays)
+-   Executes FluffOS `get_include_path` apply when evaluating files.
 
 ## 1.0.16
 
