@@ -33,8 +33,8 @@ export class BracketExpressionSymbol
             }
         }
 
-        const scopeVal = scope.value;
-        const childVal = childScope.value;
+        const scopeVal = scope?.value;
+        const childVal = childScope?.value;
         if (!!scopeVal && !!childVal) {
             return new StackValue(
                 scopeVal[childVal],

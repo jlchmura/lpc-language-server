@@ -886,10 +886,10 @@ export class DetailsVisitor
             for (let i = 1; i < ctx.children.length; i += 2) {
                 const child = ctx.children[i - 1];
                 const operator = ctx.children[i].getText();
-                let opSym = (this.scope = new OperatorSymbol(
-                    operator,
-                    undefined,
-                    undefined
+                let opSym = (this.scope = this.addNewSymbol(
+                    OperatorSymbol,
+                    ctx,
+                    operator
                 ));
 
                 if (i == 1) {

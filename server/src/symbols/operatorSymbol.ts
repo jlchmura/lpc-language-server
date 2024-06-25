@@ -48,7 +48,8 @@ export class OperatorSymbol extends ScopedSymbol implements IEvaluatableSymbol {
                 return asStackValue(!rhsValue, rhsValue?.type, this);
         }
 
-        throw `OperatorSymbol: Unknown symbol [${this.name}]`;
+        console.warn(`OperatorSymbol: Unknown symbol [${this.name}]`);
+        return undefined;
     }
 
     public get kind() {
