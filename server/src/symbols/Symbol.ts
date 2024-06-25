@@ -179,6 +179,11 @@ export function generateSymbolDoc(symbol: BaseSymbol) {
 
         commentDoc = "\n";
         commentDoc += doc.description;
+        doc.tags
+            .filter((t) => t.tag == "example")
+            .forEach((tag) => {
+                commentDoc += "\n#### Example\n" + tag.description + "\n";
+            });
 
         doc.tags
             .filter((t) => t.tag == "param")
@@ -204,6 +209,13 @@ export function generateSymbolDoc(symbol: BaseSymbol) {
             }
             if (returnTag.description) {
                 commentDoc += ` - ${returnTag.description}`;
+            }
+        }
+        const depTag = doc.tags.find((t) => t.tag === "deprecated");
+        if (!!depTag) {
+            commentDoc += "\n\n_@deprecated:_";
+            if (depTag.description) {
+                commentDoc += ` ${depTag.description}`;
             }
         }
 

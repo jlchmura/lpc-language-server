@@ -6,7 +6,6 @@
  * Should return 1 if ob is allowed to set its euid to newid.
  * Objects are always allowed to set their euid to 0.
  *
- * @deprecated
  *
  */
 int valid_seteuid(object ob, string newid);
@@ -18,9 +17,8 @@ int valid_seteuid(object ob, string newid);
  * lines given to the output. Only a maximum of about 1000 bytes will
  * be printed.
  *
- * @since Deprecated in LDMud 3.3.720.
+ * @deprecated Deprecated in LDMud 3.3.720.
         Removed in LDMud 3.5.0
- * @deprecated
  *
  */
 void tail(string file);
@@ -33,8 +31,7 @@ void tail(string file);
  * Please do not use it in new code and start to phase
  * it out in old code.
  *
- * @since Removed in LDMud 3.5.0
- * @deprecated
+ * @deprecated Removed in LDMud 3.5.0
  *
  */
 int strlen(string str);
@@ -58,10 +55,9 @@ int strlen(string str);
  * Available only if the driver is compiled with MCCP enabled;
  * __MCCP__ is defined in that case.
  *
- * @since Added in LDMud 3.3.447, backported to LDMud 3.2.10.
+ * @deprecated Added in LDMud 3.3.447, backported to LDMud 3.2.10.
         LDMud 3.3.666 added the possibility to enable outgoing compression
         when the telnet machine is enabled (not backported).
- * @deprecated
  *
  */
 int start_mccp_compress(int telopt);
@@ -77,8 +73,7 @@ int start_mccp_compress(int telopt);
  * 
  * DO NOT USE THIS EFUN ANYMORE.
  *
- * @since Removed in LDMud 3.3.
- * @deprecated
+ * @deprecated Removed in LDMud 3.3.
  *
  */
 mixed *slice_array(mixed *array, int from, int to);
@@ -100,9 +95,8 @@ mixed *slice_array(mixed *array, int from, int to);
  * If strict euid usage is enforced, objects with euid 0 cannot
  * load or clone other objects.
  *
- * @since Since 3.2.1@47, this efun is availabe only when using euids.
+ * @deprecated Since 3.2.1@47, this efun is availabe only when using euids.
         Since 3.2.7, this efun is always available.
- * @deprecated
  *
  */
 int seteuid(string str);
@@ -120,7 +114,6 @@ int seteuid(string str);
  * If the first arg is the number 0, the prompt is not changed,
  * just returned.
  *
- * @deprecated
  *
  */
 string set_prompt(mixed prompt, object ob);
@@ -149,10 +142,9 @@ string set_prompt(mixed prompt, object ob);
  * from modify_command() to something else using the
  * H_MODIFY_COMMAND_FNAME hook.
  *
- * @since Up to 3.2.1@108 the lfun called was hardcoded as
+ * @deprecated Up to 3.2.1@108 the lfun called was hardcoded as
         'modify_command'. The hook H_MODIFY_COMMAND_FNAME introduced
         in 3.2.1@109 allows to change the name.
- * @deprecated
  *
  */
 object set_modify_command(object c);
@@ -191,8 +183,7 @@ object set_modify_command(int c);
  * modified max_commands will be rebound from the master object
  * to the returned object.
  *
- * @since Introduced in LDMud 3.2.10.
- * @deprecated
+ * @deprecated Introduced in LDMud 3.2.10.
  *
  */
 void set_max_commands(int num);
@@ -233,11 +224,10 @@ void set_max_commands(int num, object obj);
  * --> set new eval_cost limit to unlimited, keep the current
  * array size limit, and limit mapping sizes to 5000.
  *
- * @since Introduced in LDMud 3.2.7.
+ * @deprecated Introduced in LDMud 3.2.7.
         LDMud 3.3.563 introduced LIMIT_COST.
         LDMud 3.3.677 introduced LIMIT_MAPPING_KEYS, LIMIT_MAPPING_SIZE.
         LDMud 3.5.0 introduced LIMIT_MEMORY.
- * @deprecated
  *
  */
 void set_limits(int tag, varargs int value );
@@ -255,7 +245,6 @@ void set_limits(int *limits);
  * Note that the value of the argument is added to the light of
  * the current object.
  *
- * @deprecated
  *
  */
 int set_light(int n);
@@ -270,8 +259,7 @@ int set_light(int n);
  * parser, that affects permissions for dumpallobj etc, which are
  * by default free for every user.
  *
- * @since Since 3.2.7 this efun is optional.
- * @deprecated
+ * @deprecated Since 3.2.7 this efun is optional.
  *
  */
 int set_is_wizard(object ob, int n);
@@ -295,7 +283,6 @@ int set_is_wizard(object ob, int n);
  * Note that heart_beat()s are called only if there are interactive
  * players in the game.
  *
- * @deprecated
  *
  */
 int set_heart_beat(int flag);
@@ -312,7 +299,6 @@ int set_heart_beat(int flag);
  * The value is only used to allocate a proper empty 'extra' value
  * for newly created wizlist entries.
  *
- * @deprecated
  *
  */
 void set_extra_wizinfo_size(int i);
@@ -339,10 +325,9 @@ void set_extra_wizinfo_size(int i);
  * 255 will be quoted so that it is not interpreted as IAC by the
  * telnet protocol. This is the default.
  *
- * @since Introduced in 3.2.1@40.
+ * @deprecated Introduced in 3.2.1@40.
         LDMud 3.2.8 added the ability to specify the charset as a string.
         LDMud 3.2.10 added the ability to reset the charset to the default.
- * @deprecated
  *
  */
 void set_connection_charset(int *bitvector, int quote_iac);
@@ -380,9 +365,8 @@ void set_connection_charset(int zero, int quote_iac);
  * // Disable any previous setting.
  * set_combine_charset("");
  *
- * @since Introduced in LDMud 3.2.8.
+ * @deprecated Introduced in LDMud 3.2.8.
         LDMud 3.2.10 added the ability to reset the charset to the default.
- * @deprecated
  *
  */
 void set_combine_charset(int *bitvector);
@@ -401,8 +385,7 @@ varargs void set_combine_charset(int zero);
  * Modifying the buffer size may result in a better IO
  * throughput, but can also worsen it.
  *
- * @since Introduced in 3.2.1@34
- * @deprecated
+ * @deprecated Introduced in 3.2.1@34
  *
  */
 int set_buffer_size(int size);
@@ -418,11 +401,10 @@ int set_buffer_size(int size);
  * Note that the auto-include-string is cleared when the master
  * object is reloaded.
  *
- * @since LDMud 3.2.9 replaced this efun with driver hook H_AUTO_INCLUDE.
+ * @deprecated LDMud 3.2.9 replaced this efun with driver hook H_AUTO_INCLUDE.
           This old version is available if the driver is compiled
           with USE_DEPRECATED.
         Removed in LDMud 3.3.
- * @deprecated
  *
  */
 void set_auto_include_string (string arg);
@@ -448,11 +430,10 @@ void set_auto_include_string (string arg);
  * until the next send_imp() - the latter one might return '0' even
  * if itself was successful.
  *
- * @since LDMud 3.2.9 renamed this efun to send_udp(), and also changed the
+ * @deprecated LDMud 3.2.9 renamed this efun to send_udp(), and also changed the
           privilege violation string and the apply names. This old version
           is available if the driver is compiled with USE_DEPRECATED.
         Removed in LDMud 3.3.
- * @deprecated
  *
  */
 int send_imp(string host, int port, string message);
@@ -464,8 +445,7 @@ int send_imp(string host, int port, int * message);
  *
  * 
  *
- * @since Fully integrated into the driver with the 3.2 line.
- * @deprecated
+ * @deprecated Fully integrated into the driver with the 3.2 line.
  *
  */
 /**
@@ -481,11 +461,10 @@ int send_imp(string host, int port, int * message);
  * and if the driver is compiled with USE_DEPRECATED, it will then
  * call receive_imp().
  *
- * @since The 'hostport' argument was added in 3.2.1.
+ * @deprecated The 'hostport' argument was added in 3.2.1.
         LDMud 3.2.9 renamed this method to receive_udp(); this old version
         is supported if the driver is compiled with USE_DEPRECATED.
         Removed in LDMud 3.3.
- * @deprecated
  *
  */
 void receive_imp(string host, string msg, int hostport);
@@ -495,8 +474,7 @@ void receive_imp(string host, string msg, int hostport);
  *
  * Returns the port number of the UDP socket.
  *
- * @since LDMud 3.2.9 renamed this efun from query_imp_port().
- * @deprecated
+ * @deprecated LDMud 3.2.9 renamed this efun from query_imp_port().
  *
  */
 int query_udp_port(void);
@@ -507,7 +485,6 @@ int query_udp_port(void);
  * Returns the user who currently snoops victim. The calling
  * object must be privileged by the master object.
  *
- * @deprecated
  *
  */
 object query_snoop(object victim);
@@ -518,8 +495,7 @@ object query_snoop(object victim);
  * The function returns the object which <obj> is currently
  * shadowing, or 0 if <obj> is not a shadow.
  *
- * @since Introduced in 3.2.1@73.
- * @deprecated
+ * @deprecated Introduced in 3.2.1@73.
  *
  */
 object query_shadowing (object obj);
@@ -529,7 +505,6 @@ object query_shadowing (object obj);
  *
  * True if the object is or once was interactive.
  *
- * @deprecated
  *
  */
 int query_once_interactive(object ob);
@@ -551,7 +526,6 @@ int query_once_interactive(object ob);
  * If -1 is given, the number of ports open for connections is
  * returned.
  *
- * @deprecated
  *
  */
 int query_mud_port(void);
@@ -574,8 +548,7 @@ int query_mud_port(int num);
  * Available only if the driver is compiled with MCCP enabled;
  * __MCCP__ is defined in that case.
  *
- * @since Added in LDMud 3.3.447, backported to LDMud 3.2.10.
- * @deprecated
+ * @deprecated Added in LDMud 3.3.447, backported to LDMud 3.2.10.
  *
  */
 int * query_mccp_stats();
@@ -588,8 +561,7 @@ int * query_mccp_stats(object player);
  * This efun returns current whether the client uses compression
  * or not ( default this_player() ).
  *
- * @since Added in LDMud 3.3.447, backported to LDMud 3.2.10.
- * @deprecated
+ * @deprecated Added in LDMud 3.3.447, backported to LDMud 3.2.10.
  *
  */
 int query_mccp();
@@ -602,7 +574,6 @@ int query_mccp(object player);
  * Returns the load of the mud. Two figures are given, executed
  * commands/second and compiled lines/second.
  *
- * @deprecated
  *
  */
 string query_load_average(void);
@@ -650,12 +621,11 @@ string query_load_average(void);
  * query_limits(1)
  * --> returns the default runtime limits
  *
- * @since Introduced in LDMud 3.2.7.
+ * @deprecated Introduced in LDMud 3.2.7.
         LIMIT_CALLOUTS introduced in LDMud 3.2.9.
         LIMIT_COST introduced in LDMud 3.3.563.
         LDMud 3.3.677 introduced LIMIT_MAPPING_KEYS, LIMIT_MAPPING_SIZE.
         LDMud 3.5.0 introduced LIMIT_MEMORY.
- * @deprecated
  *
  */
 int * query_limits();
@@ -676,8 +646,7 @@ int * query_limits(int d);
  * ob[4.. 7]: sin_addr
  * ob[8..15]: undefined.
  *
- * @since The return of the struct sockaddr_in was introduced in 3.2.1@81.
- * @deprecated
+ * @deprecated The return of the struct sockaddr_in was introduced in 3.2.1@81.
  *
  */
 string query_ip_number(object  ob);
@@ -692,7 +661,6 @@ string query_ip_number(mixed & ob);
  * to find out these names in parallel. If there are any failures
  * to find the ip-name, then the ip-number is returned instead.
  *
- * @deprecated
  *
  */
 string query_ip_name(object ob);
@@ -704,7 +672,6 @@ string query_ip_name(object ob);
  * the object that has called the input_to() is returned,
  * else 0.
  *
- * @deprecated
  *
  */
 object query_input_pending(object ob);
@@ -715,10 +682,9 @@ object query_input_pending(object ob);
  * Returns the port number that is used for the inter mud
  * protocol.
  *
- * @since LDMud 3.2.9 renamed this efun to query_udp_port(). This version
+ * @deprecated LDMud 3.2.9 renamed this efun to query_udp_port(). This version
         is available if the driver is compiled with USE_DEPRECATED.
         Removed in LDMud 3.3.
- * @deprecated
  *
  */
 int query_imp_port(void);
@@ -729,7 +695,6 @@ int query_imp_port(void);
  * Query how many seconds an interactive object <ob> has been idle.
  * If <ob> is not an interactive object an error will be thrown.
  *
- * @deprecated
  *
  */
 int query_idle(object ob);
@@ -742,7 +707,6 @@ int query_idle(object ob);
  * second argument, the object where ed() was called is returned,
  * else 0.
  *
- * @deprecated
  *
  */
 mixed query_editing(object ob);
@@ -825,8 +789,7 @@ mixed query_editing(object ob);
  * mode and non-compat mode drivers mainly in how the efun
  * retrieves the necessary information from the mudlib objects.
  *
- * @since LDMud 3.3.258 removed the compat-mode parse_command().
- * @deprecated
+ * @deprecated LDMud 3.3.258 removed the compat-mode parse_command().
  *
  */
 int parse_command (string cmd, object  env, string fmt, varargs mixed &var );
@@ -858,8 +821,7 @@ int parse_command (string cmd, object* arr, string fmt, varargs mixed &var );
  * The function is available only if the driver is compiled with
  * alist support. In that case, __ALISTS__ is defined.
  *
- * @since LDMud 3.3 made this an optional efun.
- * @deprecated
+ * @deprecated LDMud 3.3 made this an optional efun.
  *
  */
 mixed * order_alist(mixed *keys,varargs mixed *|void data );
@@ -871,7 +833,6 @@ mixed * order_alist(mixed *keys,varargs mixed *|void data );
  * the game driver, since they can come in handy when reworking
  * old LPC code.
  *
- * @deprecated
  *
  */
 /**
@@ -881,9 +842,8 @@ mixed * order_alist(mixed *keys,varargs mixed *|void data );
  * by sprintf() to print a meaningful name in addition to the
  * normal object_name().
  *
- * @since Renamed in LDMud 3.2.6 to printf_obj_name() due to the introduction
+ * @deprecated Renamed in LDMud 3.2.6 to printf_obj_name() due to the introduction
         of an efun with this name.
- * @deprecated
  *
  */
 string object_name(object ob);
@@ -899,9 +859,8 @@ string object_name(object ob);
  * member_array() is good for unsorted but assoc() is faster for
  * sorted arrays.
  *
- * @since Superseeded by member().
+ * @deprecated Superseeded by member().
         Removed in LDMud 3.3.
- * @deprecated
  *
  */
 int member_array(mixed item, mixed *arr);
@@ -918,11 +877,10 @@ int member_array(mixed item, string arr);
  * It is possible to use this function for a 0-value mapping, in
  * which case it has the same effect as member(E).
  *
- * @since Renamed to 'm_contains()' in LDMud 3.2.6.
+ * @deprecated Renamed to 'm_contains()' in LDMud 3.2.6.
         Since LDMud 3.2.9, not available if driver is compiled without
           USE_DEPRECATED.
         Removed in LDMud 3.3.
- * @deprecated
  *
  */
 int mapping_contains(varargs mixed &data1, map, key);
@@ -946,11 +904,10 @@ int mapping_contains(varargs mixed &data1, map, key);
  * Also note that the behaviour of this function is different from
  * map_array().
  *
- * @since In LDMud 3.2.6 renamed to map_indices().
+ * @deprecated In LDMud 3.2.6 renamed to map_indices().
         Since LDMud 3.2.9, not available if driver is compiled without
           USE_DEPRECATED.
         Removed in LDMud 3.3.
- * @deprecated
  *
  */
 mapping map_mapping(mapping m, string func, varargs string|object ob );
@@ -976,11 +933,10 @@ mapping map_mapping(mapping m, varargs closure cl );
  * like &(i[0]). If <ob> is omitted, or neither a string nor an object,
  * it defaults to this_object().
  *
- * @since Since LDMud 3.2.6 obsoleted by map().
+ * @deprecated Since LDMud 3.2.6 obsoleted by map().
         Since LDMud 3.2.9, not available if driver is compiled without
           USE_DEPRECATED.
         Removed in LDMud 3.3.
- * @deprecated
  *
  */
 mixed *map_array(mixed *arr, string fun, string|object ob, mixed extra);
@@ -993,10 +949,9 @@ mixed *map_array(mixed *arr, closure cl, mixed extra);
  * Returns the number of indices in mapping 'map'.
  * This function is in fact an alias for sizeof().
  *
- * @since Since LDMud 3.2.9, not available if driver is compiled without
+ * @deprecated Since LDMud 3.2.9, not available if driver is compiled without
           USE_DEPRECATED.
         Removed in LDMud 3.3.
- * @deprecated
  *
  */
 int m_sizeof(mapping map);
@@ -1013,8 +968,7 @@ int m_sizeof(mapping map);
  * @example 
  * new_list = intersect_alist(list1, list2);
  *
- * @since LDMud 3.3 made this an optional efun.
- * @deprecated
+ * @deprecated LDMud 3.3 made this an optional efun.
  *
  */
 mixed * intersect_alist(mixed * list1, mixed * list2);
@@ -1047,8 +1001,7 @@ mixed * intersect_alist(mixed * list1, mixed * list2);
  * The function is available only if the driver is compiled with
  * alist support. In that case, __ALISTS__ is defined.
  *
- * @since LDMud 3.3 made this an optional efun.
- * @deprecated
+ * @deprecated LDMud 3.3 made this an optional efun.
  *
  */
 mixed * insert_alist(mixed key, varargs mixed data, mixed * alist);
@@ -1089,11 +1042,10 @@ int     insert_alist(mixed key, mixed * keys);
  * a little worse than a medium-skilled lpc-programmer would
  * generate, because it is scattered all over the program.
  *
- * @since Since LDMud 3.3, order_alist() is no longer accepted without
+ * @deprecated Since LDMud 3.3, order_alist() is no longer accepted without
           INITIALIZATION_BY___INIT.
         LDMud 3.3.378 replaced this static choice of initialisation
           methods by compile-time pragmas.
- * @deprecated
  *
  */
 /**
@@ -1102,9 +1054,8 @@ int     insert_alist(mixed key, mixed * keys);
  * Return the string to be used as root-uid.
  * Under !native, the function is expendable.
  *
- * @since In 3.2.1@40, get_root_uid() was renamed to get_master_uid()
+ * @deprecated In 3.2.1@40, get_root_uid() was renamed to get_master_uid()
         and recieved a new semantic.
- * @deprecated
  *
  */
 string get_root_uid(void);
@@ -1123,8 +1074,7 @@ string get_root_uid(void);
  * which causes a LPC call - actions and calls to input_to()
  * alike.
  *
- * @since Introduced in LDMud 3.2.10.
- * @deprecated
+ * @deprecated Introduced in LDMud 3.2.10.
  *
  */
 int get_max_commands();
@@ -1149,8 +1099,7 @@ int get_max_commands(object obj);
  * 
  * If there is no current interactive, the function returns 0.
  *
- * @since Introduced in LDMud 3.2.10.
- * @deprecated
+ * @deprecated Introduced in LDMud 3.2.10.
  *
  */
 mixed get_connection_charset(int mode);
@@ -1169,8 +1118,7 @@ mixed get_connection_charset(int mode);
  * 
  * If there is no current interactive, the function returns 0.
  *
- * @since Introduced in LDMud 3.2.10.
- * @deprecated
+ * @deprecated Introduced in LDMud 3.2.10.
  *
  */
 mixed get_combine_charset(int mode);
@@ -1190,11 +1138,10 @@ mixed get_combine_charset(int mode);
  * If <ob> is omitted, or neither a string nor an object, it
  * defaults to this_object().
  *
- * @since In LDMud 3.2.6 renamed to filter_indices().
+ * @deprecated In LDMud 3.2.6 renamed to filter_indices().
         Since LDMud 3.2.9, not available if driver is compiled without
           USE_DEPRECATED.
         Removed in LDMud 3.3.
- * @deprecated
  *
  */
 mapping filter_mapping(mapping m, string func, varargs string|object ob );
@@ -1224,11 +1171,10 @@ mapping filter_mapping(mapping m, varargs closure cl );
  * only the elements of the array which belong to the map (as
  * keys) will be returned (i.e. map[arr[index]] != 0).
  *
- * @since Since LDMud 3.2.6 obsoleted by efun filter().
+ * @deprecated Since LDMud 3.2.6 obsoleted by efun filter().
         Since LDMud 3.2.9, not available if driver is compiled without
           USE_DEPRECATED.
         Removed in LDMud 3.3 .
- * @deprecated
  *
  */
 mixed *filter_array(mixed *arr, string fun, string|object ob, varargs mixed extra );
@@ -1262,12 +1208,11 @@ mixed *filter_array(mixed *arr, mapping map, varargs mixed extra );
  * This is guaranteed to be true for all objects ob that are not
  * destructed.
  *
- * @since In LDMud 3.2.6 renamed to object_name(), this old name is
+ * @deprecated In LDMud 3.2.6 renamed to object_name(), this old name is
         available as alias.
         Since LDMud 3.2.9, not available if driver is compiled without
           USE_DEPRECATED.
         Removed in LDMud 3.3 .
- * @deprecated
  *
  */
 string file_name();
@@ -1283,8 +1228,7 @@ string file_name(object ob);
  * 
  * DO NOT USE THIS EFUN ANYMORE.
  *
- * @since Removed in LDMud 3.3.
- * @deprecated
+ * @deprecated Removed in LDMud 3.3.
  *
  */
 string extract(string str, int from, int to);
@@ -1297,9 +1241,8 @@ string extract(string str, int from);
  * Set the uid of object ob to the current object's effective uid.
  * It is only possible when object ob has an effective uid of 0.
  *
- * @since Since 3.2.1@47, this efun is availabe only when using euids.
+ * @deprecated Since 3.2.1@47, this efun is availabe only when using euids.
         Since 3.2.7, this efun is always available.
- * @deprecated
  *
  */
 void export_uid(object ob);
@@ -1315,8 +1258,7 @@ void export_uid(object ob);
  * Available only if the driver is compiled with MCCP enabled;
  * __MCCP__ is defined in that case.
  *
- * @since Added in LDMud 3.3.447, backported to LDMud 3.2.10.
- * @deprecated
+ * @deprecated Added in LDMud 3.3.447, backported to LDMud 3.2.10.
  *
  */
 int end_mccp_compress();
@@ -1341,8 +1283,7 @@ int end_mccp_compress();
  * may vanish if a more consistent way of handling network connections
  * is introduced.
  *
- * @since Introduced in LDMud 3.2.10.
- * @deprecated
+ * @deprecated Introduced in LDMud 3.2.10.
  *
  */
 int enable_telnet(int num);
@@ -1368,7 +1309,6 @@ int enable_telnet(int num, object obj);
  * This will make the current object a living object which then
  * can be accessed via find_living("dummymonster").
  *
- * @deprecated
  *
  */
 void enable_commands();
@@ -1382,11 +1322,10 @@ void enable_commands();
  * 
  * Don't use it in your own objects!
  *
- * @since Introduced in 3.2.1@1, renamed to 'set_environment()' in LDMud 3.2.6.
+ * @deprecated Introduced in 3.2.1@1, renamed to 'set_environment()' in LDMud 3.2.6.
         Since LDMud 3.2.9, not available if driver is compiled without
           USE_DEPRECATED.
         Removed in LDMud 3.3 .
- * @deprecated
  *
  */
 void efun308(object item, object env);
@@ -1399,7 +1338,6 @@ void efun308(object item, object env);
  * 
  * This is the opposite to the efun enable_commands().
  *
- * @deprecated
  *
  */
 void disable_commands();
@@ -1412,8 +1350,7 @@ void disable_commands();
  * %s at the place where the name given in the #include statement
  * has to be inserted.
  *
- * @since Dropped in 3.2.1, replaced by H_INCLUDE_DIRS hook.
- * @deprecated
+ * @deprecated Dropped in 3.2.1, replaced by H_INCLUDE_DIRS hook.
  *
  */
 string *define_include_dirs(void);
@@ -1996,7 +1933,7 @@ string *define_include_dirs(void);
  * Please note that the counter may overflow, especially on 32 bit
  * systems. As a result, it can also be negative.
  *
- * @since Since 3.2.7, DINFO_STATUS returns the status information instead
+ * @deprecated Since 3.2.7, DINFO_STATUS returns the status information instead
           of printing it.
         DINFO_DUMP introduced with 3.2.7.
         LDMud 3.2.8 added the data size of the object to the result of
@@ -2029,7 +1966,6 @@ string *define_include_dirs(void);
         LDMud 3.3.718 added DIT_CURRENT_DEPTH to DINFO_TRACE.
         LDMud 3.3.719 added DINFO_EVAL_NUMBER
         LDMud 3.5.0 removed the ptmalloc values for DINFO_DATA:DID_MEMORY.
- * @deprecated
  *
  */
 mixed debug_info(int flag);
@@ -2058,8 +1994,7 @@ mixed debug_info(int flag, mixed arg2, mixed arg3);
  * If this function is not provided by the master object, no
  * other object can be loaded.
  *
- * @since Dropped in 3.2.1, replaced by the _UID driver hooks.
- * @deprecated
+ * @deprecated Dropped in 3.2.1, replaced by the _UID driver hooks.
  *
  */
 string creator_file(mixed ob);
@@ -2071,9 +2006,8 @@ string creator_file(mixed ob);
  * just passing a reference, like adding/subtraction from a
  * mapping do.
  *
- * @since Superseeded by the copy() efun.
+ * @deprecated Superseeded by the copy() efun.
         Removed in LDMud 3.3.
- * @deprecated
  *
  */
 mapping copy_mapping(mapping m);
@@ -2107,9 +2041,8 @@ mapping copy_mapping(mapping m);
  * This will print out the file "/doc/efun/cat" begining at line
  * 5 and ending with line 13.
  *
- * @since Deprecated in LDMud 3.3.719.
+ * @deprecated Deprecated in LDMud 3.3.719.
         Removed in LDMud 3.5.0
- * @deprecated
  *
  */
 int cat(string path, int start, int num);
@@ -2152,8 +2085,7 @@ int cat(string path, int start, int num);
  * The function is available only if the driver is compiled with
  * alist support. In that case, __ALISTS__ is defined.
  *
- * @since LDMud 3.3 made this an optional efun.
- * @deprecated
+ * @deprecated LDMud 3.3 made this an optional efun.
  *
  */
 int   assoc(mixed key, mixed *keys);
@@ -2177,11 +2109,10 @@ varargs mixed assoc(mixed key, mixed *keys, mixed *data , mixed fail);
  * mapping to have a certain width even if you don't provide
  * all the data items for the keys yet.
  *
- * @since Renamed to 'm_allocate()' in LDMud 3.2.6.
+ * @deprecated Renamed to 'm_allocate()' in LDMud 3.2.6.
         Since LDMud 3.2.9, not available if driver is compiled without
           USE_DEPRECATED.
         Removed in LDMud 3.3.
- * @deprecated
  *
  */
 mapping allocate_mapping(int size, int width);
@@ -2217,9 +2148,8 @@ mapping allocate_mapping(int size, int width);
  * wizards, list of visitors in a pub, list of customers having
  * some sort of credit, information remembered about items etc.
  *
- * @since LDMud 3.3 made alists an optional efun.
+ * @deprecated LDMud 3.3 made alists an optional efun.
         LDMud 3.5 removed the support for alists.
- * @deprecated
  *
  */
 /**
@@ -2227,8 +2157,7 @@ mapping allocate_mapping(int size, int width);
  *
  * 
  *
- * @since Removed in LDMud 3.3, obsoleted by add_action().
- * @deprecated
+ * @deprecated Removed in LDMud 3.3, obsoleted by add_action().
  *
  */
 /**
@@ -2244,8 +2173,7 @@ mapping allocate_mapping(int size, int width);
  * [marion Sun Jan 19 1992 Don't use it. This file is retained
  * because of somewhat nostalgic reasons.]
  *
- * @since Removed in LDMud 3.3, obsoleted by add_action().
- * @deprecated
+ * @deprecated Removed in LDMud 3.3, obsoleted by add_action().
  *
  */
 void add_verb(string str);

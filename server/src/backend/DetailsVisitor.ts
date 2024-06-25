@@ -757,6 +757,7 @@ export class DetailsVisitor
                     ctx.start.column,
                     ctx.stop.column
                 );
+
                 return this.visitChildren(ctx);
             }
         );

@@ -1238,7 +1238,7 @@ object|lwobject this_object(void);
 /**
  * this_interactive
  *
- * this_interactive() returns the current interactive object, if
+ * `this_interactive()` returns the current interactive object, if
  * any, i.e. the one who "hit the RETURN key".
  *
  *
@@ -1480,24 +1480,28 @@ void tell_room(string|object ob, mixed *|mapping|struct s|object|lwobject msg, o
  * passed to the lfun catch_msg() in the target.
  *
  * @example 
+ * ```
  * object who;
  * who=find_player("wessex");
  * tell_object(who, "Hi!\n");
- * 
+ * ```
  * Just tell Wessex a simple "Hi!".
  * 
- * 
  * Object 1 (living with the name "dummymonster"):
+ * ```
  * void catch_tell(string str) {
  * write("Received: "+str+"\n");
  * }
+ * ```
  * Object 2:
+ * ```
  * void func() {
  * object who;
  * who=find_living("dummymonster");
  * tell_object(who, "Follow me, mortal one!\n");
- * ...
+ * ... 
  * }
+ * ```
  * 
  * This examples shows how tell_object() together with
  * catch_tell() works.
@@ -9930,6 +9934,7 @@ int* call_direct_resolved(mixed* result, object* ob, varargs string func );
  * the appropriate type before you can use it for anything.
  *
  * @example 
+ * ```
  * // All the following statements call the lfun QueryProp()
  * // in the current player with the argument P_SHORT.
  * string str, fun;
@@ -9937,23 +9942,22 @@ int* call_direct_resolved(mixed* result, object* ob, varargs string func );
  * str = (string)call_direct(this_player(), "QueryProp", P_SHORT);
  * fun = "QueryProp";
  * str = (string)call_direct(this_player(), fun, P_SHORT);
- * 
+ * ```
  * You have to do explicit type casting because of the unknown
  * return type, if you have set #pragma strict_types.
- * 
+ * ```
  * // This statement calls the lfun short() in all interactive users
  * // and stores the collected results in a variable.
  * string *s;
  * 
  * s = (string *)call_direct(users(), "short");
- *
+ * ```
  * @since Introduced in LDMud 3.3.113 with the H_DEFAULT_METHOD hook.
         LDMud 3.2.10 made the call on arrays of objects configurable.
         LDMud 3.5.0 made the call on arrays of objects non-optional.
  *
  */
 unknown call_direct(object ob, string fun, varargs mixed arg );
-
 unknown call_direct(object *ob, string fun, varargs mixed arg );
 
 /**
@@ -9997,7 +10001,7 @@ int bytesp(mixed arg);
  *
  *
  */
-void break_point();
+//void break_point();
 
 /**
  * blueprint
@@ -10013,10 +10017,11 @@ void break_point();
  * In COMPAT mode the returned blueprint does not start with a "/".
  *
  * @example 
+ * ```
  * blueprint("/std/thing"))               -> /std/thing
  * blueprint(find_object("/std/thing"))   -> /std/thing
  * blueprint(clone_object("/std/thing"))  -> /std/thing
- *
+ * ```
  * @since Introduced in LDMud 3.2.9.
  *
  */
@@ -10112,9 +10117,10 @@ int baseof(struct b s1, struct s s2);
  *
  * @example 
  * To restart the (default) erq, write in
+ * ```
  * master.c::stale_erq(closure c):
  * attach_erq_demon("", 0);
- *
+ * ```
  * @since Introduced in 3.2.1@61.
  *
  */
@@ -10170,28 +10176,28 @@ float asin(float n);
  * @example 
  * The flattening of the last argument is the important difference
  * between apply() and funcall(). For example:
- * 
+ * ```
  * mixed eval(object ob, string func, mixed *args)
  * {
  * return apply(#'call_other, ob, func, args);
  * }
- * 
+ * ```
  * This will result in calling
- * 
+ * ```
  * ob->func(args[0],args[1],...,args[sizeof(args)-1]).
- * 
+ * ```
  * Using funcall() instead of apply() would have given us
- * 
+ * ```
  * ob->func(args).
- * 
+ * ```
  * 
  * Of course, with the '...' operator we could also write
- * 
+ * ```
  * mixed eval(object ob, string func, mixed *args)
  * {
  * return funcall(#'call_other, ob, func, args...);
  * }
- * 
+ * ```
  * and achieve the same result.
  *
  * @since Introduced in 3.2@70
@@ -10213,6 +10219,7 @@ mixed apply(varargs closure cl );
  * bits in the input strings are set, too.
  *
  * @example 
+ * ```
  * string s1, s2, s3;
  * 
  * s1 = set_bit("", 3); s1 = set_bit(s1, 15);  -> s1 is "( ("
@@ -10221,7 +10228,7 @@ mixed apply(varargs closure cl );
  * s3 = and_bits(s1, s2);
  * 
  * -> s3 is now "8", ie. a bitstring with bit 3 set only.
- *
+ * ```
  *
  */
 string and_bits(string str1, string str2);
@@ -10247,13 +10254,14 @@ string and_bits(string str1, string str2);
  * use is to construct big empty arrays.
  *
  * @example 
+ * ```
  * string *buffer;
  * buffer = allocate(50);
  * buffer = allocate(50, "");
  * 
  * buffer = allocate( ({ 2, 3 }) )
  * --> ({ ({ 0, 0, 0 }), ({ 0, 0, 0 }) })
- *
+ * ```
  * @since LDMud 3.2.9 added the initialization value and the multi-dimensional
           allocation.
  *
@@ -10354,36 +10362,38 @@ object * all_environment(object o);
  * have the behaviour defined there.
  *
  * @example 
+ * ```
  * add_action("GoInside", "enter");
+ * ```
  * 
  * When typing "enter" the function GoInside() will be invoked.
- * 
+ * ```
  * add_action("DisFunc", "dis", AA_SHORT);
- * 
+ * ```
  * Whenever you type in a command which starts with "dis" the
  * function DisFunc() will be called. To get the real word which
  * was typed in (because until now you only know that it was a
  * command beginning with "dis") you have to call the efun
  * query_verb().
- * 
+ * ```
  * add_action("DisFunc", "disconnect", AA_NOSPACE);
- * 
+ * ```
  * The function DisFunc() will be called for all commands which
  * use "disconnect" or a shortened form like "di", "dis" or
  * "discon" as verb. The command 'disconnecting' will _not_
  * be recognized. To get the real word which was typed in
  * you have to call the efun query_verb().
  * 
- * 
+ * ```
  * add_action("...", "cmd");
  * add_action("...", "xcmd", AA_SHORT);
  * add_action("...", "scmd", AA_NOSPACE);
  * add_action("...", "icmd", AA_IMM_ARGS);
- * 
+ * ```
  * When given the following commands, the driver will parse it
  * as described below. 'verb' is what query_verb() would return,
  * 'arg' is what would be passed to the command function.
- * 
+ * ```
  * "cmd"          -> verb "cmd",     arg 0
  * "cmd foo bar"  -> verb "cmd",     arg "foo bar"
  * 
@@ -10404,7 +10414,7 @@ object * all_environment(object o);
  * "icmdfoo"      -> verb "icmd",    arg "foo"
  * "icmd foo bar" -> verb "icmd",    arg " foo bar"
  * "icmdfoo bar"  -> verb "icmd",    arg "foo bar"
- *
+ * ```
  * @since The flag < 0 argument was supported since 3.2@127, but not
         really implemented before LDMud 3.2.8.
         LDMud 3.2.9 introduced the AA_IMM_ARGS flag.
@@ -10413,7 +10423,6 @@ object * all_environment(object o);
  *
  */
 void add_action(string|closure fun, string cmd);
-
 void add_action(string|closure fun, string cmd, int flag);
 
 /**
@@ -10431,10 +10440,11 @@ float acos(float n);
  * Returns the absolute value of the argument <arg>.
  *
  * @example 
- * abs(-18)    - returns 18
- * abs(11)     - returns 11
- * abs(-1.974) - returns 1.974
- * ...
+ * ```
+ * abs(-18)    // returns 18
+ * abs(11)     // returns 11
+ * abs(-1.974) // returns 1.974
+ * ```
  *
  * @since Introduced in LDMud 3.2.6.
  *

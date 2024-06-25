@@ -38,6 +38,7 @@ export class EfunVisitor
     implements LPCParserVisitor<ScopedSymbol>
 {
     protected scope = this.symbolTable as ScopedSymbol;
+    private docCache = new Map<string, commentParser.Block>();
 
     constructor(
         private symbolTable: SymbolTable,
@@ -67,6 +68,15 @@ export class EfunVisitor
             [name, returnTypeCtx, mods],
             (efunSymbol) => {
                 efunSymbol.doc = this.getPrefixComments(ctx);
+
+                if (!!efunSymbol.doc) {
+                    this.docCache.set(name, efunSymbol.doc);
+                } else {
+                    // if doc is missing, try to find it in the doc cache
+                    // the first overload of this symbol probably has the doc
+                    efunSymbol.doc = this.docCache.get(name);
+                }
+
                 return this.visitChildren(ctx);
             }
         );
