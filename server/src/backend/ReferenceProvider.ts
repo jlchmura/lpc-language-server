@@ -17,6 +17,11 @@ import { ParserRuleContext } from "antlr4ng";
 import { LPCToken } from "../parser3/LPCToken";
 import { BaseSymbol } from "antlr4-c3";
 import { URI } from "vscode-uri";
+import {
+    FunctionHeaderContext,
+    FunctionHeaderDeclarationContext,
+} from "../parser3/LPCParser";
+import { LpcBaseMethodSymbol } from "../symbols/methodSymbol";
 
 export class ReferenceProvider {
     constructor(private backend: LpcFacade) {}
@@ -73,11 +78,24 @@ export class ReferenceProvider {
                 refsToScan.push(...ref.references);
             }
 
-            const parseInfo = ref.context as ParserRuleContext;
+            let parseInfo = ref.context as ParserRuleContext;
+            if (ref instanceof LpcBaseMethodSymbol) {
+                // use the name context instead
+                const header = parseInfo.children.find(
+                    (c) => c instanceof FunctionHeaderContext
+                ) as FunctionHeaderContext;
+                if (header?._functionName) {
+                    parseInfo = header._functionName;
+                }
+            }
             const token = parseInfo.start as LPCToken;
             const filename = token.filename;
             const range = lexRangeToLspRange(lexRangeFromContext(parseInfo));
 
+            // if (range.end.line > range.start.line) {
+            //     range.end.line = range.start.line;
+            //     range.end.character = 999;
+            // }
             results.push({
                 uri: filename,
                 range: range,

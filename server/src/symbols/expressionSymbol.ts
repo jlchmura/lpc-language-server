@@ -34,7 +34,7 @@ export class BracketExpressionSymbol
         }
 
         const indexVal = childScope?.value;
-        if (indexVal != undefined) {
+        if (indexVal != undefined && !!scope) {
             return scope?.bracket(indexVal);
         }
 
