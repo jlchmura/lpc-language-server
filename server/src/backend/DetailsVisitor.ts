@@ -883,7 +883,8 @@ export class DetailsVisitor
         } else if (ctx._op) {
             let lastOpSym: OperatorSymbol;
             let origScope = this.scope;
-            for (let i = 1; i < ctx.children.length; i += 2) {
+
+            for (let i = ctx.children.length - 2; i > 0; i -= 2) {
                 const child = ctx.children[i - 1];
                 const operator = ctx.children[i].getText();
                 let opSym = (this.scope = this.addNewSymbol(
@@ -892,22 +893,14 @@ export class DetailsVisitor
                     operator
                 ));
 
-                if (i == 1) {
-                    this.visitChildren(
-                        ctx.children[i - 1] as ParserRuleContext
-                    );
-                    opSym.lhs = firstEntry(
-                        opSym.children
-                    ) as IEvaluatableSymbol;
-                } else {
-                    opSym.lhs = lastOpSym;
-                }
+                this.visit(ctx.children[i - 1] as ParserRuleContext);
+                opSym.lhs = firstEntry(opSym.children) as IEvaluatableSymbol;
 
-                if (ctx.children[i + 1] instanceof ParserRuleContext) {
-                    this.visitChildren(
-                        ctx.children[i + 1] as ParserRuleContext
-                    );
-                    opSym.rhs = lastEntry(opSym.children) as IEvaluatableSymbol;
+                this.visit(ctx.children[i + 1] as ParserRuleContext);
+                opSym.rhs = lastEntry(opSym.children) as IEvaluatableSymbol;
+
+                if (lastOpSym) {
+                    lastOpSym.lhs = opSym;
                 }
 
                 this.markToken(
@@ -919,7 +912,7 @@ export class DetailsVisitor
             }
 
             this.scope = origScope;
-            this.scope.children.push(lastOpSym);
+            //this.scope.children.push(lastOpSym);
             return lastOpSym;
         }
 
