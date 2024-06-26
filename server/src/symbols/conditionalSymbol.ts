@@ -18,43 +18,14 @@ export class ConditionalSymbol
 
         if (!lhs || !rhs) return undefined;
 
-        const lhResult = lhs.eval(stack)?.value;
-        const rhResult = rhs.eval(stack)?.value;
+        const lhResult = lhs.eval(stack) as StackValue;
+        const rhResult = rhs.eval(stack) as StackValue;
 
-        switch (this.name) {
-            case "==":
-                return asStackValue(lhResult == rhResult, lhResult?.type, this);
-            case "!=":
-                return asStackValue(lhResult != rhResult, lhResult?.type, this);
-            case "<":
-                return asStackValue(lhResult < rhResult, lhResult?.type, this);
-            case ">":
-                return asStackValue(lhResult > rhResult, lhResult?.type, this);
-            case "<=":
-                return asStackValue(lhResult <= rhResult, lhResult?.type, this);
-            case ">=":
-                return asStackValue(lhResult >= rhResult, lhResult?.type, this);
-            case "|":
-                return asStackValue(lhResult | rhResult, lhResult?.type, this);
-            case "&":
-                return asStackValue(lhResult & rhResult, lhResult?.type, this);
-            case "&&":
-                return asStackValue(lhResult && rhResult, lhResult?.type, this);
-            case "||":
-                return asStackValue(lhResult || rhResult, lhResult?.type, this);
-            case "^":
-                return asStackValue(lhResult ^ rhResult, lhResult?.type, this);
-            case "in":
-                return new StackValue(1, LpcTypes.intType, this);
-            case "?":
-                return asStackValue(
-                    lhResult ? rhResult : undefined,
-                    lhResult?.type,
-                    this
-                );
+        if (!lhResult) {
+            return undefined;
         }
 
-        throw "Conditional Symbol: operator not implemented " + this.name;
+        return lhResult.execConditional(this.name, rhResult);
     }
 
     public get kind() {

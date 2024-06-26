@@ -275,7 +275,7 @@ export class SourceContext {
                 ];
                 const fnResult = applyFn?.eval(stack, callArgs, stack.root);
                 if (!!fnResult?.value) {
-                    (fnResult?.value as StackValue[]).forEach((s) => {
+                    (fnResult?.value as StackValue[])?.forEach((s) => {
                         if (s.value != ":DEFAULT:") {
                             this.fileHandler.searchDirs.push(
                                 path.join(this.backend.workspaceDir, s.value)

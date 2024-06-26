@@ -1,6 +1,6 @@
 import { ScopedSymbol } from "antlr4-c3";
 import { IEvaluatableSymbol, isInstanceOfIEvaluatableSymbol } from "./base";
-import { CallStack, StackValue } from "../backend/CallStack";
+import { ArrayStackValue, CallStack, StackValue } from "../backend/CallStack";
 import { LpcTypes } from "../types";
 
 export class ExpressionSymbol
@@ -33,14 +33,9 @@ export class BracketExpressionSymbol
             }
         }
 
-        const scopeVal = scope?.value;
-        const childVal = childScope?.value;
-        if (!!scopeVal && !!childVal) {
-            return new StackValue(
-                scopeVal[childVal],
-                LpcTypes.mixedArrayType,
-                this
-            );
+        const indexVal = childScope?.value;
+        if (indexVal != undefined) {
+            return scope?.bracket(indexVal);
         }
 
         return scope;

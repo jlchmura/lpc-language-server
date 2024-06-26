@@ -35,60 +35,60 @@ export class AssignmentSymbol
     }
 
     eval(stack: CallStack, scope?: any) {
-        const lh = this.lhs;
+        const { lhs, rhs } = this;
 
-        const lhResult = lh.eval(stack);
-        const rhResult = this.rhs?.eval(stack);
+        const rhsResult: StackValue = rhs?.eval(stack);
+        let lhsResult: StackValue = undefined;
 
-        const lhVal =
-            (lhResult instanceof StackValue ? lhResult.value : lhResult) ?? "";
-        const rhVal =
-            (rhResult instanceof StackValue ? rhResult.value : rhResult) ?? "";
-
-        if (lhVal == "[object Object]") {
-            const ii = 0;
+        if (this.operator === "=") {
+            return lhs.eval(stack, rhsResult);
+        } else {
+            lhsResult = lhs?.eval(stack);
         }
 
-        let newVal: any = undefined;
+        if (!lhsResult || !rhsResult) {
+            return undefined;
+        }
 
+        let newVal: StackValue = undefined;
         switch (this.operator) {
             case "=":
-                return lh.eval(stack, rhResult);
+                return lhs.eval(stack, rhsResult);
             case "+=":
-                newVal = lhVal + rhVal;
+                newVal = lhsResult.execOp("+", rhsResult);
                 break;
             case "-=":
-                newVal = lhVal - rhVal;
+                newVal = lhsResult.execOp("-", rhsResult);
                 break;
             case "*=":
-                newVal = lhVal * rhVal;
+                newVal = lhsResult.execOp("*", rhsResult);
                 break;
             case "/=":
-                newVal = lhVal / rhVal;
+                newVal = lhsResult.execOp("/", rhsResult);
                 break;
             case "%=":
-                newVal = lhVal % rhVal;
+                newVal = lhsResult.execOp("%", rhsResult);
                 break;
             case "|=":
-                newVal = lhVal | rhVal;
+                newVal = lhsResult.execOp("|", rhsResult);
                 break;
             case "&=":
-                newVal = lhVal & rhVal;
+                newVal = lhsResult.execOp("&", rhsResult);
                 break;
             case "||=":
-                newVal = lhVal || rhVal;
+                newVal = lhsResult.execOp("||", rhsResult);
                 break;
             case "&&=":
-                newVal = lhVal && rhVal;
+                newVal = lhsResult.execOp("&&", rhsResult);
                 break;
             case "<<=":
-                newVal = lhVal << rhVal;
+                newVal = lhsResult.execOp("<<", rhsResult);
                 break;
             case ">>=":
-                newVal = lhVal >> rhVal;
+                newVal = lhsResult.execOp(">>", rhsResult);
                 break;
             case "^=":
-                newVal = lhVal ^ rhVal;
+                newVal = lhsResult.execOp("^", rhsResult);
                 break;
             default:
                 const ctx = this.context as ParserRuleContext;
@@ -100,10 +100,7 @@ export class AssignmentSymbol
         }
 
         if (!!newVal) {
-            lh.eval(
-                stack,
-                new StackValue(newVal, lhResult?.type ?? rhResult?.type, this)
-            );
+            lhs.eval(stack, newVal);
         }
     }
 }

@@ -1,12 +1,13 @@
 import { ScopedSymbol } from "antlr4-c3";
 import { IEvaluatableSymbol, isInstanceOfIEvaluatableSymbol } from "./base";
-import { CallStack, StackValue } from "../backend/CallStack";
+import { ArrayStackValue, CallStack, StackValue } from "../backend/CallStack";
 import { LpcTypes } from "../types";
+import { asStackValue } from "../backend/CallStackUtils";
 
 export class ArraySymbol extends ScopedSymbol implements IEvaluatableSymbol {
     private elements: StackValue[] = [];
 
-    eval(stack: CallStack, scope?: any) {
+    eval(stack: CallStack) {
         let i = 0;
         for (const child of this.children) {
             if (isInstanceOfIEvaluatableSymbol(child)) {
@@ -17,6 +18,10 @@ export class ArraySymbol extends ScopedSymbol implements IEvaluatableSymbol {
             i++;
         }
 
-        return new StackValue(this.elements, LpcTypes.mixedArrayType, this);
+        return new ArrayStackValue(
+            this.elements,
+            LpcTypes.mixedArrayType,
+            this
+        );
     }
 }
