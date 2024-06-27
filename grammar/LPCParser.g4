@@ -636,13 +636,13 @@ literal
     ;
 
 argument
-    : AND? expression TRIPPLEDOT?
-    | { this.isFluff() }? structTypeSpecifier
+    : AND? expression TRIPPLEDOT?     
     ;
 
 // The argument after comma is reall required, but that causes parsing errors that negatively impact 
 // code completion & signature help while typing.  So we will validate in the semantic analyzer
 argumentList
     : argument (COMMA argument?)* // trippledot must be last
+    | { this.isFluff() }? structTypeSpecifier (COMMA Identifier COLON expression)* // fluff-os new syntax
     ;
 
