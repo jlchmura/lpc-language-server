@@ -1084,12 +1084,14 @@ export class SourceContext {
                     pushIfDefined(symbolsToReturn, symbol);
 
                     // it could also be an efun
-                    symbol = resolveOfTypeSync(
-                        this.driver.efuns, // efuns always come from here
-                        name,
-                        EfunSymbol
-                    );
-                    pushIfDefined(symbolsToReturn, symbol);
+                    if (symbolsToReturn.length == 0) {
+                        symbol = resolveOfTypeSync(
+                            this.driver.efuns, // efuns always come from here
+                            name,
+                            EfunSymbol
+                        );
+                        pushIfDefined(symbolsToReturn, symbol);
+                    }
 
                     return symbolsToReturn.map((s) => this.getSymbolInfo(s));
                 } else if (
