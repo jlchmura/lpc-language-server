@@ -304,7 +304,7 @@ export class SourceContext {
     }
 
     private buildTokenCache(tokens: LPCToken[]) {
-        this.symbolNameCache.clear();
+        this.symbolNameCache?.clear();
 
         this.allTokens = tokens.filter(
             (t) => t.channel != DISABLED_CHANNEL && t.filename == this.fileName
@@ -365,8 +365,9 @@ export class SourceContext {
     }
 
     public parse(): IContextDetails {
-        if (this.fileName.endsWith("simul_efun.c")) {
-            const ii = 0;
+        if (!this.symbolTable) {
+            // This context has been disposed.
+            return;
         }
 
         this.macroTable.clear();
@@ -1485,7 +1486,7 @@ export class SourceContext {
     public softRelease() {
         this.sourceText = undefined;
         this.allTokens.length = 0;
-        this.symbolNameCache.clear();
+        this.symbolNameCache?.clear();
         this.lexer.reset();
         this.parser.reset();
         this.tokenStream.reset();
@@ -1499,12 +1500,12 @@ export class SourceContext {
      */
     public cleanup() {
         this.softRelease();
-        this.symbolTable.clear();
+        this.symbolTable?.clear();
         this.symbolTable = undefined;
         this.parser = undefined;
         this.tree = undefined;
         this.diagnostics.length = 0;
         this.semanticAnalysisDone = false;
-        this.macroTable.clear();
+        this.macroTable?.clear();
     }
 }

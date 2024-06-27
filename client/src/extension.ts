@@ -45,7 +45,7 @@ export function activate(context: ExtensionContext) {
     // get location of efuns folder and pass to server as an argument
     const efunDir = context.asAbsolutePath("efuns");
 
-    let debugOptions = { execArgv: ["--nolazy", "--expose-gc"] };
+    let debugOptions = { execArgv: ["--nolazy", "--inspect", "--expose-gc"] };
 
     // If the extension is launched in debug mode then the debug server options are used
     // Otherwise the run options are used
@@ -165,7 +165,7 @@ export function activate(context: ExtensionContext) {
         commands.registerCommand(
             "lpc.processAll",
             async (textEditor: TextEditor, _edit: TextEditorEdit) => {
-                client.diagnostics.clear();
+                client?.diagnostics?.clear();
                 progress.startAnimation();
                 return await client
                     .sendRequest("textDocument/processAll", {})

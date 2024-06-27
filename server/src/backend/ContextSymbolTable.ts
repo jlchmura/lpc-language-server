@@ -60,7 +60,7 @@ export class ContextSymbolTable extends SymbolTable {
             }
         }
 
-        this.symbolCache.clear();
+        this.symbolCache?.clear();
 
         super.clear();
     }

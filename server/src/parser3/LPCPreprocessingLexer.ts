@@ -819,7 +819,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
         super.reset(seekBack);
 
         this.conditionalStack = [];
-        this.macroTable.clear();
+        this.macroTable?.clear();
         this.buffer = [];
     }
 
