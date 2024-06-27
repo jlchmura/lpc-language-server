@@ -12,7 +12,7 @@
                 //"${workspaceRoot}/../lima",
                 //"${workspaceRoot}/../StickLib",
                 //"${workspaceRoot}/../nightmare-residuum",
-                "${workspaceRoot}/../lp-245",
+                "${workspaceRoot}/../fluff-test",
                 //"${workspaceRoot}/efuns/ldmud",
                 "--extensionDevelopmentPath=${workspaceRoot}"
             ],
