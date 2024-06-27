@@ -231,7 +231,7 @@ export class ArrayStackValue<T = any> extends StackValue<StackValue<T>[]> {
         operator: string,
         rhs: ArrayStackValue<T>
     ): ArrayStackValue<T> {
-        const rhsVal = rhs?.value ?? [];
+        const rhsVal = Array.isArray(rhs?.value) ? rhs.value : [];
         switch (operator) {
             case "+":
                 return new ArrayStackValue(
