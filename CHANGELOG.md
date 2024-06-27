@@ -6,6 +6,7 @@
 -   Executes FluffOS `get_include_path` apply when evaluating files.
 -   Fix: [Found reference range is too large #20](https://github.com/jlchmura/lpc-language-server/issues/20)
 -   Fix: [[FLUFFOS] Class instantiation #19](https://github.com/jlchmura/lpc-language-server/issues/19)
+-   Fix: [Reference incorrectly mapped to efun #23](https://github.com/jlchmura/lpc-language-server/issues/23)
 
 ## 1.0.16
 
