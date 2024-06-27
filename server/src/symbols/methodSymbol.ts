@@ -400,7 +400,6 @@ export class EfunSymbol
             // TODO: this is just a quick hack to get the player object
             // need a better way to check if references are already loaded.
             case "this_interactive":
-            case "this_character":
             case "this_user":
             case "this_player":
                 const config = ensureLpcConfig();
