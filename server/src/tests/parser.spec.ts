@@ -16,11 +16,20 @@ describe("Test", () => {
         expect(tree.children.length).toBeGreaterThan(0);
     });
 
-    it("Should parse FluffOS syntax", () => {
-        const parser = getParser("fluffos.c", DriverType.FluffOS);
+    describe("FluffOS", () => {
+        it("Should parse FluffOS syntax", () => {
+            const parser = getParser("fluffos.c", DriverType.FluffOS);
 
-        const tree = parser.program();
-        expect(tree).toBeDefined();
-        expect(tree.children.length).toBeGreaterThan(0);
+            const tree = parser.program();
+            expect(tree).toBeDefined();
+            expect(tree.children.length).toBeGreaterThan(0);
+        });
+        it("should parse the new() class syntax", () => {
+            const parser = getParser("fluffos-new.c", DriverType.FluffOS);
+
+            const tree = parser.program();
+            expect(tree).toBeDefined();
+            expect(tree.children.length).toBeGreaterThan(0);
+        });
     });
 });

@@ -5676,47 +5676,30 @@ export class LPCParser extends LPCParserBase {
         this.enterRule(localContext, 166, LPCParser.RULE_argument);
         let _la: number;
         try {
-            this.state = 1247;
+            this.enterOuterAlt(localContext, 1);
+            {
+            this.state = 1239;
             this.errorHandler.sync(this);
-            switch (this.interpreter.adaptivePredict(this.tokenStream, 164, this.context) ) {
+            switch (this.interpreter.adaptivePredict(this.tokenStream, 162, this.context) ) {
             case 1:
-                this.enterOuterAlt(localContext, 1);
                 {
-                this.state = 1239;
-                this.errorHandler.sync(this);
-                switch (this.interpreter.adaptivePredict(this.tokenStream, 162, this.context) ) {
-                case 1:
-                    {
-                    this.state = 1238;
-                    this.match(LPCParser.AND);
-                    }
-                    break;
+                this.state = 1238;
+                this.match(LPCParser.AND);
                 }
-                this.state = 1241;
-                this.expression();
-                this.state = 1243;
-                this.errorHandler.sync(this);
-                _la = this.tokenStream.LA(1);
-                if (_la === 92) {
-                    {
-                    this.state = 1242;
-                    this.match(LPCParser.TRIPPLEDOT);
-                    }
+                break;
+            }
+            this.state = 1241;
+            this.expression();
+            this.state = 1243;
+            this.errorHandler.sync(this);
+            _la = this.tokenStream.LA(1);
+            if (_la === 92) {
+                {
+                this.state = 1242;
+                this.match(LPCParser.TRIPPLEDOT);
                 }
+            }
 
-                }
-                break;
-            case 2:
-                this.enterOuterAlt(localContext, 2);
-                {
-                this.state = 1245;
-                if (!( this.isFluff() )) {
-                    throw this.createFailedPredicateException(" this.isFluff() ");
-                }
-                this.state = 1246;
-                this.structTypeSpecifier();
-                }
-                break;
             }
         }
         catch (re) {
@@ -5737,34 +5720,71 @@ export class LPCParser extends LPCParserBase {
         this.enterRule(localContext, 168, LPCParser.RULE_argumentList);
         let _la: number;
         try {
-            this.enterOuterAlt(localContext, 1);
-            {
-            this.state = 1249;
-            this.argument();
-            this.state = 1256;
+            this.state = 1266;
             this.errorHandler.sync(this);
-            _la = this.tokenStream.LA(1);
-            while (_la === 91) {
+            switch (this.interpreter.adaptivePredict(this.tokenStream, 167, this.context) ) {
+            case 1:
+                this.enterOuterAlt(localContext, 1);
                 {
-                {
-                this.state = 1250;
-                this.match(LPCParser.COMMA);
+                this.state = 1245;
+                this.argument();
                 this.state = 1252;
                 this.errorHandler.sync(this);
-                switch (this.interpreter.adaptivePredict(this.tokenStream, 165, this.context) ) {
-                case 1:
+                _la = this.tokenStream.LA(1);
+                while (_la === 91) {
                     {
-                    this.state = 1251;
-                    this.argument();
+                    {
+                    this.state = 1246;
+                    this.match(LPCParser.COMMA);
+                    this.state = 1248;
+                    this.errorHandler.sync(this);
+                    switch (this.interpreter.adaptivePredict(this.tokenStream, 164, this.context) ) {
+                    case 1:
+                        {
+                        this.state = 1247;
+                        this.argument();
+                        }
+                        break;
                     }
-                    break;
+                    }
+                    }
+                    this.state = 1254;
+                    this.errorHandler.sync(this);
+                    _la = this.tokenStream.LA(1);
                 }
                 }
+                break;
+            case 2:
+                this.enterOuterAlt(localContext, 2);
+                {
+                this.state = 1255;
+                if (!( this.isFluff() )) {
+                    throw this.createFailedPredicateException(" this.isFluff() ");
                 }
-                this.state = 1258;
+                this.state = 1256;
+                this.structTypeSpecifier();
+                this.state = 1263;
                 this.errorHandler.sync(this);
                 _la = this.tokenStream.LA(1);
-            }
+                while (_la === 91) {
+                    {
+                    {
+                    this.state = 1257;
+                    this.match(LPCParser.COMMA);
+                    this.state = 1258;
+                    this.match(LPCParser.Identifier);
+                    this.state = 1259;
+                    this.match(LPCParser.COLON);
+                    this.state = 1260;
+                    this.expression();
+                    }
+                    }
+                    this.state = 1265;
+                    this.errorHandler.sync(this);
+                    _la = this.tokenStream.LA(1);
+                }
+                }
+                break;
             }
         }
         catch (re) {
@@ -5805,8 +5825,8 @@ export class LPCParser extends LPCParserBase {
             return this.inlineClosureExpression_sempred(localContext as InlineClosureExpressionContext, predIndex);
         case 69:
             return this.caseExpression_sempred(localContext as CaseExpressionContext, predIndex);
-        case 83:
-            return this.argument_sempred(localContext as ArgumentContext, predIndex);
+        case 84:
+            return this.argumentList_sempred(localContext as ArgumentListContext, predIndex);
         }
         return true;
     }
@@ -5915,7 +5935,7 @@ export class LPCParser extends LPCParserBase {
         }
         return true;
     }
-    private argument_sempred(localContext: ArgumentContext | null, predIndex: number): boolean {
+    private argumentList_sempred(localContext: ArgumentListContext | null, predIndex: number): boolean {
         switch (predIndex) {
         case 25:
             return  this.isFluff() ;
@@ -5924,7 +5944,7 @@ export class LPCParser extends LPCParserBase {
     }
 
     public static readonly _serializedATN: number[] = [
-        4,1,134,1260,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,
+        4,1,134,1269,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,
         7,6,2,7,7,7,2,8,7,8,2,9,7,9,2,10,7,10,2,11,7,11,2,12,7,12,2,13,7,
         13,2,14,7,14,2,15,7,15,2,16,7,16,2,17,7,17,2,18,7,18,2,19,7,19,2,
         20,7,20,2,21,7,21,2,22,7,22,2,23,7,23,2,24,7,24,2,25,7,25,2,26,7,
@@ -6033,42 +6053,43 @@ export class LPCParser extends LPCParserBase {
         1,77,3,77,1206,8,77,1,77,3,77,1209,8,77,1,78,3,78,1212,8,78,1,78,
         1,78,1,79,1,79,3,79,1218,8,79,1,79,1,79,1,80,1,80,1,80,1,80,1,80,
         3,80,1227,8,80,1,81,1,81,1,81,1,81,1,81,1,81,3,81,1235,8,81,1,82,
-        1,82,1,83,3,83,1240,8,83,1,83,1,83,3,83,1244,8,83,1,83,1,83,3,83,
-        1248,8,83,1,84,1,84,1,84,3,84,1253,8,84,5,84,1255,8,84,10,84,12,
-        84,1258,9,84,1,84,0,2,14,40,85,0,2,4,6,8,10,12,14,16,18,20,22,24,
-        26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,
-        70,72,74,76,78,80,82,84,86,88,90,92,94,96,98,100,102,104,106,108,
-        110,112,114,116,118,120,122,124,126,128,130,132,134,136,138,140,
-        142,144,146,148,150,152,154,156,158,160,162,164,166,168,0,28,2,0,
-        16,16,25,25,2,0,15,15,17,17,1,0,26,27,2,0,75,80,86,87,3,0,117,117,
-        122,122,127,127,2,0,42,42,49,49,1,0,56,60,3,0,37,37,122,122,127,
-        127,1,0,56,58,2,0,55,61,63,64,2,0,55,59,61,63,2,0,7,7,43,43,13,0,
-        2,3,6,6,8,8,11,11,19,19,23,23,31,31,33,37,39,39,41,41,44,45,51,51,
-        54,54,1,0,95,107,4,0,66,68,71,72,81,81,84,85,1,0,68,70,1,0,66,67,
-        1,0,73,74,1,0,75,78,2,0,28,28,79,80,2,0,94,94,109,109,2,0,40,40,
-        53,53,6,0,66,70,73,84,86,88,91,91,95,105,114,114,2,0,112,112,114,
-        114,1,0,66,69,4,0,117,117,119,119,122,123,127,127,2,0,28,28,89,89,
-        2,0,117,119,123,123,1412,0,177,1,0,0,0,2,198,1,0,0,0,4,200,1,0,0,
-        0,6,207,1,0,0,0,8,222,1,0,0,0,10,224,1,0,0,0,12,226,1,0,0,0,14,228,
-        1,0,0,0,16,255,1,0,0,0,18,261,1,0,0,0,20,274,1,0,0,0,22,276,1,0,
-        0,0,24,287,1,0,0,0,26,289,1,0,0,0,28,300,1,0,0,0,30,302,1,0,0,0,
-        32,326,1,0,0,0,34,344,1,0,0,0,36,346,1,0,0,0,38,349,1,0,0,0,40,358,
-        1,0,0,0,42,377,1,0,0,0,44,379,1,0,0,0,46,386,1,0,0,0,48,388,1,0,
-        0,0,50,393,1,0,0,0,52,406,1,0,0,0,54,409,1,0,0,0,56,421,1,0,0,0,
-        58,463,1,0,0,0,60,465,1,0,0,0,62,480,1,0,0,0,64,482,1,0,0,0,66,484,
-        1,0,0,0,68,488,1,0,0,0,70,508,1,0,0,0,72,514,1,0,0,0,74,531,1,0,
-        0,0,76,539,1,0,0,0,78,547,1,0,0,0,80,549,1,0,0,0,82,551,1,0,0,0,
-        84,557,1,0,0,0,86,560,1,0,0,0,88,581,1,0,0,0,90,590,1,0,0,0,92,614,
-        1,0,0,0,94,650,1,0,0,0,96,652,1,0,0,0,98,663,1,0,0,0,100,665,1,0,
-        0,0,102,673,1,0,0,0,104,721,1,0,0,0,106,804,1,0,0,0,108,818,1,0,
-        0,0,110,841,1,0,0,0,112,880,1,0,0,0,114,908,1,0,0,0,116,923,1,0,
-        0,0,118,944,1,0,0,0,120,972,1,0,0,0,122,984,1,0,0,0,124,986,1,0,
-        0,0,126,997,1,0,0,0,128,999,1,0,0,0,130,1006,1,0,0,0,132,1009,1,
-        0,0,0,134,1015,1,0,0,0,136,1025,1,0,0,0,138,1093,1,0,0,0,140,1095,
-        1,0,0,0,142,1105,1,0,0,0,144,1107,1,0,0,0,146,1116,1,0,0,0,148,1156,
+        1,82,1,83,3,83,1240,8,83,1,83,1,83,3,83,1244,8,83,1,84,1,84,1,84,
+        3,84,1249,8,84,5,84,1251,8,84,10,84,12,84,1254,9,84,1,84,1,84,1,
+        84,1,84,1,84,1,84,5,84,1262,8,84,10,84,12,84,1265,9,84,3,84,1267,
+        8,84,1,84,0,2,14,40,85,0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,
+        32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,72,74,
+        76,78,80,82,84,86,88,90,92,94,96,98,100,102,104,106,108,110,112,
+        114,116,118,120,122,124,126,128,130,132,134,136,138,140,142,144,
+        146,148,150,152,154,156,158,160,162,164,166,168,0,28,2,0,16,16,25,
+        25,2,0,15,15,17,17,1,0,26,27,2,0,75,80,86,87,3,0,117,117,122,122,
+        127,127,2,0,42,42,49,49,1,0,56,60,3,0,37,37,122,122,127,127,1,0,
+        56,58,2,0,55,61,63,64,2,0,55,59,61,63,2,0,7,7,43,43,13,0,2,3,6,6,
+        8,8,11,11,19,19,23,23,31,31,33,37,39,39,41,41,44,45,51,51,54,54,
+        1,0,95,107,4,0,66,68,71,72,81,81,84,85,1,0,68,70,1,0,66,67,1,0,73,
+        74,1,0,75,78,2,0,28,28,79,80,2,0,94,94,109,109,2,0,40,40,53,53,6,
+        0,66,70,73,84,86,88,91,91,95,105,114,114,2,0,112,112,114,114,1,0,
+        66,69,4,0,117,117,119,119,122,123,127,127,2,0,28,28,89,89,2,0,117,
+        119,123,123,1422,0,177,1,0,0,0,2,198,1,0,0,0,4,200,1,0,0,0,6,207,
+        1,0,0,0,8,222,1,0,0,0,10,224,1,0,0,0,12,226,1,0,0,0,14,228,1,0,0,
+        0,16,255,1,0,0,0,18,261,1,0,0,0,20,274,1,0,0,0,22,276,1,0,0,0,24,
+        287,1,0,0,0,26,289,1,0,0,0,28,300,1,0,0,0,30,302,1,0,0,0,32,326,
+        1,0,0,0,34,344,1,0,0,0,36,346,1,0,0,0,38,349,1,0,0,0,40,358,1,0,
+        0,0,42,377,1,0,0,0,44,379,1,0,0,0,46,386,1,0,0,0,48,388,1,0,0,0,
+        50,393,1,0,0,0,52,406,1,0,0,0,54,409,1,0,0,0,56,421,1,0,0,0,58,463,
+        1,0,0,0,60,465,1,0,0,0,62,480,1,0,0,0,64,482,1,0,0,0,66,484,1,0,
+        0,0,68,488,1,0,0,0,70,508,1,0,0,0,72,514,1,0,0,0,74,531,1,0,0,0,
+        76,539,1,0,0,0,78,547,1,0,0,0,80,549,1,0,0,0,82,551,1,0,0,0,84,557,
+        1,0,0,0,86,560,1,0,0,0,88,581,1,0,0,0,90,590,1,0,0,0,92,614,1,0,
+        0,0,94,650,1,0,0,0,96,652,1,0,0,0,98,663,1,0,0,0,100,665,1,0,0,0,
+        102,673,1,0,0,0,104,721,1,0,0,0,106,804,1,0,0,0,108,818,1,0,0,0,
+        110,841,1,0,0,0,112,880,1,0,0,0,114,908,1,0,0,0,116,923,1,0,0,0,
+        118,944,1,0,0,0,120,972,1,0,0,0,122,984,1,0,0,0,124,986,1,0,0,0,
+        126,997,1,0,0,0,128,999,1,0,0,0,130,1006,1,0,0,0,132,1009,1,0,0,
+        0,134,1015,1,0,0,0,136,1025,1,0,0,0,138,1093,1,0,0,0,140,1095,1,
+        0,0,0,142,1105,1,0,0,0,144,1107,1,0,0,0,146,1116,1,0,0,0,148,1156,
         1,0,0,0,150,1166,1,0,0,0,152,1183,1,0,0,0,154,1208,1,0,0,0,156,1211,
         1,0,0,0,158,1215,1,0,0,0,160,1226,1,0,0,0,162,1234,1,0,0,0,164,1236,
-        1,0,0,0,166,1247,1,0,0,0,168,1249,1,0,0,0,170,176,3,46,23,0,171,
+        1,0,0,0,166,1239,1,0,0,0,168,1266,1,0,0,0,170,176,3,46,23,0,171,
         176,3,2,1,0,172,176,3,32,16,0,173,174,4,0,0,0,174,176,3,44,22,0,
         175,170,1,0,0,0,175,171,1,0,0,0,175,172,1,0,0,0,175,173,1,0,0,0,
         176,179,1,0,0,0,177,175,1,0,0,0,177,178,1,0,0,0,178,180,1,0,0,0,
@@ -6412,23 +6433,26 @@ export class LPCParser extends LPCParserBase {
         1233,1,0,0,0,1235,163,1,0,0,0,1236,1237,7,27,0,0,1237,165,1,0,0,
         0,1238,1240,5,81,0,0,1239,1238,1,0,0,0,1239,1240,1,0,0,0,1240,1241,
         1,0,0,0,1241,1243,3,96,48,0,1242,1244,5,92,0,0,1243,1242,1,0,0,0,
-        1243,1244,1,0,0,0,1244,1248,1,0,0,0,1245,1246,4,83,25,0,1246,1248,
-        3,84,42,0,1247,1239,1,0,0,0,1247,1245,1,0,0,0,1248,167,1,0,0,0,1249,
-        1256,3,166,83,0,1250,1252,5,91,0,0,1251,1253,3,166,83,0,1252,1251,
-        1,0,0,0,1252,1253,1,0,0,0,1253,1255,1,0,0,0,1254,1250,1,0,0,0,1255,
-        1258,1,0,0,0,1256,1254,1,0,0,0,1256,1257,1,0,0,0,1257,169,1,0,0,
-        0,1258,1256,1,0,0,0,167,175,177,195,198,205,213,222,230,239,243,
-        250,255,261,268,274,282,296,300,305,312,314,319,323,326,333,340,
-        344,358,362,367,371,377,386,393,397,402,418,421,425,428,437,441,
-        445,448,451,454,457,460,463,471,480,488,495,501,506,514,519,522,
-        528,534,539,547,553,568,573,579,581,587,594,599,603,606,609,621,
-        624,632,636,650,660,663,673,715,717,721,727,735,741,746,751,759,
-        771,783,786,789,792,797,804,818,827,834,841,851,863,866,872,876,
-        880,884,889,895,898,902,905,908,913,916,921,923,926,937,942,944,
-        967,972,984,990,997,1019,1023,1033,1038,1040,1051,1061,1064,1074,
-        1078,1086,1091,1093,1098,1105,1113,1121,1130,1146,1154,1156,1163,
-        1166,1170,1174,1180,1188,1195,1198,1205,1208,1211,1217,1226,1234,
-        1239,1243,1247,1252,1256
+        1243,1244,1,0,0,0,1244,167,1,0,0,0,1245,1252,3,166,83,0,1246,1248,
+        5,91,0,0,1247,1249,3,166,83,0,1248,1247,1,0,0,0,1248,1249,1,0,0,
+        0,1249,1251,1,0,0,0,1250,1246,1,0,0,0,1251,1254,1,0,0,0,1252,1250,
+        1,0,0,0,1252,1253,1,0,0,0,1253,1267,1,0,0,0,1254,1252,1,0,0,0,1255,
+        1256,4,84,25,0,1256,1263,3,84,42,0,1257,1258,5,91,0,0,1258,1259,
+        5,127,0,0,1259,1260,5,89,0,0,1260,1262,3,96,48,0,1261,1257,1,0,0,
+        0,1262,1265,1,0,0,0,1263,1261,1,0,0,0,1263,1264,1,0,0,0,1264,1267,
+        1,0,0,0,1265,1263,1,0,0,0,1266,1245,1,0,0,0,1266,1255,1,0,0,0,1267,
+        169,1,0,0,0,168,175,177,195,198,205,213,222,230,239,243,250,255,
+        261,268,274,282,296,300,305,312,314,319,323,326,333,340,344,358,
+        362,367,371,377,386,393,397,402,418,421,425,428,437,441,445,448,
+        451,454,457,460,463,471,480,488,495,501,506,514,519,522,528,534,
+        539,547,553,568,573,579,581,587,594,599,603,606,609,621,624,632,
+        636,650,660,663,673,715,717,721,727,735,741,746,751,759,771,783,
+        786,789,792,797,804,818,827,834,841,851,863,866,872,876,880,884,
+        889,895,898,902,905,908,913,916,921,923,926,937,942,944,967,972,
+        984,990,997,1019,1023,1033,1038,1040,1051,1061,1064,1074,1078,1086,
+        1091,1093,1098,1105,1113,1121,1130,1146,1154,1156,1163,1166,1170,
+        1174,1180,1188,1195,1198,1205,1208,1211,1217,1226,1234,1239,1243,
+        1248,1252,1263,1266
     ];
 
     private static __ATN: antlr.ATN;
@@ -11350,17 +11374,14 @@ export class ArgumentContext extends antlr.ParserRuleContext {
     public constructor(parent: antlr.ParserRuleContext | null, invokingState: number) {
         super(parent, invokingState);
     }
-    public expression(): ExpressionContext | null {
-        return this.getRuleContext(0, ExpressionContext);
+    public expression(): ExpressionContext {
+        return this.getRuleContext(0, ExpressionContext)!;
     }
     public AND(): antlr.TerminalNode | null {
         return this.getToken(LPCParser.AND, 0);
     }
     public TRIPPLEDOT(): antlr.TerminalNode | null {
         return this.getToken(LPCParser.TRIPPLEDOT, 0);
-    }
-    public structTypeSpecifier(): StructTypeSpecifierContext | null {
-        return this.getRuleContext(0, StructTypeSpecifierContext);
     }
     public override get ruleIndex(): number {
         return LPCParser.RULE_argument;
@@ -11406,6 +11427,36 @@ export class ArgumentListContext extends antlr.ParserRuleContext {
     	} else {
     		return this.getToken(LPCParser.COMMA, i);
     	}
+    }
+    public structTypeSpecifier(): StructTypeSpecifierContext | null {
+        return this.getRuleContext(0, StructTypeSpecifierContext);
+    }
+    public Identifier(): antlr.TerminalNode[];
+    public Identifier(i: number): antlr.TerminalNode | null;
+    public Identifier(i?: number): antlr.TerminalNode | null | antlr.TerminalNode[] {
+    	if (i === undefined) {
+    		return this.getTokens(LPCParser.Identifier);
+    	} else {
+    		return this.getToken(LPCParser.Identifier, i);
+    	}
+    }
+    public COLON(): antlr.TerminalNode[];
+    public COLON(i: number): antlr.TerminalNode | null;
+    public COLON(i?: number): antlr.TerminalNode | null | antlr.TerminalNode[] {
+    	if (i === undefined) {
+    		return this.getTokens(LPCParser.COLON);
+    	} else {
+    		return this.getToken(LPCParser.COLON, i);
+    	}
+    }
+    public expression(): ExpressionContext[];
+    public expression(i: number): ExpressionContext | null;
+    public expression(i?: number): ExpressionContext[] | ExpressionContext | null {
+        if (i === undefined) {
+            return this.getRuleContexts(ExpressionContext);
+        }
+
+        return this.getRuleContext(i, ExpressionContext);
     }
     public override get ruleIndex(): number {
         return LPCParser.RULE_argumentList;
