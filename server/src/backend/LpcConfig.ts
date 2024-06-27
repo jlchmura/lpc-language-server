@@ -50,6 +50,7 @@ type FilesInfo = {
     init_files: string[];
     master: string;
     global_include: string;
+    player: string;
 };
 
 export enum DriverType {
@@ -98,6 +99,7 @@ export class LpcConfig implements ILpcConfig {
         master: "/obj/master.c",
         init_files: ["/room/init_files"],
         global_include: "",
+        player: "/obj/player.c",
     };
 }
 

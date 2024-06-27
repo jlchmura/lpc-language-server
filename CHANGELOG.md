@@ -5,7 +5,7 @@
 -   Improvements to code evaluation (strings, operators, brackets, arrays)
 -   Executes FluffOS `get_include_path` apply when evaluating files.
 -   Fix: [Found reference range is too large #20](https://github.com/jlchmura/lpc-language-server/issues/20)
--   Fix [[FLUFFOS] Class instantiation #19](https://github.com/jlchmura/lpc-language-server/issues/19)
+-   Fix: [[FLUFFOS] Class instantiation #19](https://github.com/jlchmura/lpc-language-server/issues/19)
 
 ## 1.0.16
 

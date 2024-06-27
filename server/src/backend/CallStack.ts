@@ -240,9 +240,9 @@ export class ArrayStackValue<T = any> extends StackValue<StackValue<T>[]> {
                     this.symbol
                 );
             case "-":
-                const rhSet = new Set(rhsVal.map((v) => v.value));
+                const rhSet = new Set(rhsVal.map((v) => v?.value));
                 return new ArrayStackValue(
-                    this.value.filter((v) => !rhSet.has(v.value)),
+                    this.value.filter((v) => !rhSet.has(v?.value)),
                     this.type,
                     this.symbol
                 );

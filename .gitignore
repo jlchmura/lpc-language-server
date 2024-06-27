@@ -11,3 +11,5 @@ test*.h
 .DS_Store
 *.vsix
 coverage
+*.heapsnapshot
+vscode-profile-*.*

@@ -463,10 +463,14 @@ export class LpcServer {
         };
 
         this.facade.onProcessingEvent.on("start", () => {
+            console.info("process all start", process.memoryUsage());
             this.connection.sendNotification("lpc/processing-start");
         });
         this.facade.onProcessingEvent.on("stop", () => {
             this.connection.sendNotification("lpc/processing-stop");
+            console.info("process all stop", process.memoryUsage());
+            global.gc();
+            console.info("process post GC", process.memoryUsage());
         });
 
         // init providers

@@ -144,7 +144,6 @@ export class SourceContext {
     // grammar parsing stuff
     private lexer: LPCPreprocessingLexer;
     public tokenStream: CommonTokenStream;
-    private commentStream: CommonTokenStream;
     private directiveStream: CommonTokenStream;
 
     private parser: LPCParser;
@@ -213,10 +212,6 @@ export class SourceContext {
         this.lexer.addErrorListener(this.lexerErrorListener);
 
         this.tokenStream = new CommonTokenStream(this.lexer);
-        this.commentStream = new CommonTokenStream(
-            this.lexer,
-            LPCLexer.COMMENT
-        );
         this.directiveStream = new CommonTokenStream(
             this.lexer,
             DIRECTIVE_CHANNEL
@@ -590,7 +585,7 @@ export class SourceContext {
             context.references.splice(index, 1);
         }
 
-        this.symbolTable.removeDependency(context.symbolTable);
+        this.symbolTable?.removeDependency(context.symbolTable);
     }
 
     public getDependencies(): SourceContext[] {
@@ -868,7 +863,7 @@ export class SourceContext {
         row: number,
         limitToChildren: boolean
     ): ISymbolInfo[] | undefined {
-        if (!this.tree) {
+        if (!this.tree || !(this.allTokens?.length > 0)) {
             return undefined;
         }
 
@@ -1482,5 +1477,32 @@ export class SourceContext {
 
     public getSemanticTokens() {
         return this.cachedSemanticTokens;
+    }
+
+    /** releases objects that aren't needed if the file isn't open in the editor */
+    public softRelease() {
+        this.sourceText = undefined;
+        this.allTokens.length = 0;
+        this.symbolNameCache.clear();
+        this.lexer.reset();
+        this.parser.reset();
+        this.tokenStream.reset();
+        this.semanticTokens = undefined;
+        this.cachedSemanticTokens = undefined;
+        this.highlights = [];
+    }
+
+    /**
+     * Releases all resources associated with this context.
+     */
+    public cleanup() {
+        this.softRelease();
+        this.symbolTable.clear();
+        this.symbolTable = undefined;
+        this.parser = undefined;
+        this.tree = undefined;
+        this.diagnostics.length = 0;
+        this.semanticAnalysisDone = false;
+        this.macroTable.clear();
     }
 }

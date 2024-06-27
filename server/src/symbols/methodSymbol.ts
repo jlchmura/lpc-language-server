@@ -42,9 +42,9 @@ import { addDiagnostic } from "./Symbol";
 import { InheritSuperAccessorSymbol } from "./inheritSymbol";
 import { resolveOfTypeSync } from "../backend/symbol-utils";
 import { asStackValue } from "../backend/CallStackUtils";
+import { ensureLpcConfig } from "../backend/LpcConfig";
 
 export const MAX_CALLDEPTH_SIZE = 25;
-const OBJ_PLAYER_FILENAME = "/obj/player";
 
 export class MethodParameterSymbol
     extends ParameterSymbol
@@ -399,9 +399,12 @@ export class EfunSymbol
                 );
             // TODO: this is just a quick hack to get the player object
             // need a better way to check if references are already loaded.
+            case "this_interactive":
+            case "this_user":
             case "this_player":
+                const config = ensureLpcConfig();
                 const playerCtx = fileHandler.loadReference(
-                    OBJ_PLAYER_FILENAME,
+                    config.files.player,
                     this
                 );
 
@@ -426,13 +429,13 @@ export class EfunSymbol
                 ) {
                     return undefined;
                 }
-                if (strVal == 0 || delimVal == 0) {
+                if (strVal == 0 || delimVal == 0 || typeof strVal != "string") {
                     return undefined;
                 }
 
                 return new ArrayStackValue<string>(
                     (strVal as string)
-                        .split(delimVal)
+                        ?.split(delimVal)
                         .map((s) => asStackValue(s, LpcTypes.stringType, this)),
                     LpcTypes.stringArrayType,
                     this

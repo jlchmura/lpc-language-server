@@ -46,6 +46,7 @@ export type IContextEntry = {
     references: string[];
     filename: string;
     id: number;
+    disposed: boolean;
 };
 
 /**
@@ -271,7 +272,9 @@ export class LpcFacade {
                 references: [],
                 filename: fileName,
                 id: randomInt(1000000),
+                disposed: false,
             };
+
             this.sourceContexts.set(fileName, contextEntry);
 
             // Do an initial parse run and load all dependencies of this context
@@ -337,7 +340,7 @@ export class LpcFacade {
 
             contextEntry.refCount--;
             if (contextEntry.refCount === 0) {
-                this.sourceContexts.delete(fileName);
+                this.sourceContexts.delete(normalizeFilename(fileName));
 
                 // Release also all dependencies.
                 for (const dep of contextEntry.dependencies) {
@@ -347,6 +350,9 @@ export class LpcFacade {
                 for (const ref of contextEntry.references) {
                     this.internalReleaseLpc(ref);
                 }
+
+                contextEntry.context.cleanup();
+                contextEntry.disposed = true;
             }
         }
     }
@@ -571,7 +577,8 @@ export class LpcFacade {
     }
 
     public getContextEntry(fileName: string): IContextEntry {
-        return this.sourceContexts.get(normalizeFilename(fileName));
+        const ce = this.sourceContexts.get(normalizeFilename(fileName));
+        return ce?.disposed === false ? ce : undefined;
     }
 
     public getContext(

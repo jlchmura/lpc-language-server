@@ -1,10 +1,10 @@
 import { ScopedSymbol } from "antlr4-c3";
-import { IEvaluatableSymbol } from "./base";
-import { CallStack, StackValue } from "../backend/CallStack";
-import { addDiagnostic } from "./Symbol";
-import { DiagnosticSeverity } from "vscode-languageserver";
-import { rangeFromTokens } from "../utils";
 import { ParserRuleContext } from "antlr4ng";
+import { DiagnosticSeverity } from "vscode-languageserver";
+import { CallStack, StackValue } from "../backend/CallStack";
+import { rangeFromTokens } from "../utils";
+import { addDiagnostic } from "./Symbol";
+import { IEvaluatableSymbol } from "./base";
 
 export class AssignmentSymbol
     extends ScopedSymbol
@@ -46,7 +46,7 @@ export class AssignmentSymbol
             lhsResult = lhs?.eval(stack);
         }
 
-        if (!lhsResult || !rhsResult) {
+        if (!lhsResult || !rhsResult || !lhsResult.execOp) {
             return undefined;
         }
 

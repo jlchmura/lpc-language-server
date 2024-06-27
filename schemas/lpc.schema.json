@@ -137,6 +137,11 @@
                             "default": "/obj/simul_efun.c",
                             "type": ["string", "null"]
                         },
+                        "player": {
+                            "description": "Sets the location of the player object.",
+                            "default": "/obj/player.c",
+                            "type": ["string", "null"]
+                        },
                         "global_include": {
                             "description": "When defined, this file will be included at the top of all files just as if it had been included with a #include statement.",
                             "default": null,

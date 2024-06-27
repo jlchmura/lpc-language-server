@@ -24,3 +24,5 @@ jest.config.ts
 tests/
 coverage/
 lpc-config.json
+*.heapsnapshot
+vscode-profile-*.*

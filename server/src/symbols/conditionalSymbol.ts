@@ -25,7 +25,11 @@ export class ConditionalSymbol
             return undefined;
         }
 
-        return lhResult.execConditional(this.name, rhResult);
+        if (!!lhResult.execConditional) {
+            return lhResult.execConditional(this.name, rhResult);
+        }
+
+        return asStackValue(0, LpcTypes.intType, this);
     }
 
     public get kind() {
