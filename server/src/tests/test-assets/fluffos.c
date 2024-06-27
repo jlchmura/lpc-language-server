@@ -173,3 +173,14 @@ void testValidIdentifiers() {
 
 }
 
+// two forms of catch in Fluff
+void testCatches() {
+    if (err=catch(this_user()->quit_character())) {
+        message("error", "Error quitting out: " + err, this_user());
+    }
+
+    mixed m = catch {
+        destruct(this_object());
+    };    
+}
+

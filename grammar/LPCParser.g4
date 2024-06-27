@@ -474,8 +474,7 @@ validIdentifiers
     | STRUCTS
     | SYMBOL
     | IN
-    | CHAR
-    | { this.isFluff() }? CATCH
+    | CHAR    
     ;
 
 catchExpr
