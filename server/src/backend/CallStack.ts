@@ -6,14 +6,10 @@ import {
     VariableSymbol as VariableSymbolBase,
 } from "antlr4-c3";
 import { LpcTypes } from "../types";
-import {
-    EfunParamSymbol,
-    EfunSymbol,
-    LpcBaseMethodSymbol,
-    MethodSymbol,
-} from "../symbols/methodSymbol";
+import { LpcBaseMethodSymbol, MethodSymbol } from "../symbols/methodSymbol";
 import { ParserRuleContext } from "antlr4ng";
 import { ContextSymbolTable } from "./ContextSymbolTable";
+import { asStackValue } from "./CallStackUtils";
 
 export class StackValue<T = any> {
     constructor(
@@ -21,6 +17,243 @@ export class StackValue<T = any> {
         public type: IType,
         public symbol: BaseSymbol
     ) {}
+
+    execConditional(operator: string, rhs: StackValue): StackValue {
+        const rhsVal = rhs?.value;
+        const lhsVal = this.value as any;
+        switch (operator) {
+            case "==":
+                return asStackValue(
+                    lhsVal == rhsVal,
+                    LpcTypes.intType,
+                    this.symbol
+                );
+            case "!=":
+                return asStackValue(
+                    lhsVal != rhsVal,
+                    LpcTypes.intType,
+                    this.symbol
+                );
+            case "<":
+                return asStackValue(
+                    lhsVal < rhsVal,
+                    LpcTypes.intType,
+                    this.symbol
+                );
+            case ">":
+                return asStackValue(
+                    lhsVal > rhsVal,
+                    LpcTypes.intType,
+                    this.symbol
+                );
+            case "<=":
+                return asStackValue(
+                    lhsVal <= rhsVal,
+                    LpcTypes.intType,
+                    this.symbol
+                );
+            case ">=":
+                return asStackValue(
+                    lhsVal >= rhsVal,
+                    LpcTypes.intType,
+                    this.symbol
+                );
+            case "|":
+                return asStackValue(
+                    lhsVal | rhsVal,
+                    LpcTypes.intType,
+                    this.symbol
+                );
+            case "&":
+                return asStackValue(
+                    lhsVal & rhsVal,
+                    LpcTypes.intType,
+                    this.symbol
+                );
+            case "&&":
+                return asStackValue(
+                    lhsVal && rhsVal,
+                    LpcTypes.intType,
+                    this.symbol
+                );
+            case "||":
+                return asStackValue(
+                    lhsVal || rhsVal,
+                    LpcTypes.intType,
+                    this.symbol
+                );
+            case "^":
+                return asStackValue(
+                    lhsVal ^ rhsVal,
+                    LpcTypes.intType,
+                    this.symbol
+                );
+            case "in":
+                return asStackValue(1, LpcTypes.intType, this.symbol);
+            case "?":
+                return asStackValue(
+                    lhsVal ? rhsVal : undefined,
+                    this.type,
+                    this.symbol
+                );
+            default:
+                console.warn("Unsupported operator [" + operator + "]", this);
+        }
+
+        return this;
+    }
+
+    execOp(operator: string, rhs: StackValue): StackValue {
+        const rhsVal = rhs?.value;
+        switch (operator) {
+            case "+":
+                return asStackValue(
+                    this.value + rhsVal,
+                    this.type,
+                    this.symbol
+                );
+            case "!":
+                return asStackValue(!rhsVal, this.type, this.symbol);
+            case ",":
+                return asStackValue(rhsVal, rhs?.type, this.symbol);
+            // default:
+            //     console.warn("Unsupported operator [" + operator + "]", this);
+        }
+
+        return this;
+    }
+
+    bracket(index: number): StackValue {
+        switch (typeof this.value) {
+            case "string":
+                return new StackValue(
+                    this.value[index],
+                    LpcTypes.stringType,
+                    this.symbol
+                );
+            default:
+                return asStackValue(
+                    this.value,
+                    LpcTypes.unknownType,
+                    this.symbol
+                );
+        }
+    }
+}
+
+export class NumericStackValue extends StackValue<number> {
+    override execOp(
+        operator: string,
+        rhs: NumericStackValue
+    ): NumericStackValue {
+        const rhsVal = rhs?.value;
+        switch (operator) {
+            case "+":
+                return new NumericStackValue(
+                    this.value + rhsVal,
+                    this.type,
+                    this.symbol
+                );
+            case "-":
+                return new NumericStackValue(
+                    this.value - rhsVal,
+                    this.type,
+                    this.symbol
+                );
+            case "*":
+                return new NumericStackValue(
+                    this.value * rhsVal,
+                    this.type,
+                    this.symbol
+                );
+            case "/":
+                return new NumericStackValue(
+                    this.value / rhsVal,
+                    this.type,
+                    this.symbol
+                );
+            case "%":
+                return new NumericStackValue(
+                    this.value % rhsVal,
+                    this.type,
+                    this.symbol
+                );
+            case "^":
+                return new NumericStackValue(
+                    this.value ^ rhsVal,
+                    this.type,
+                    this.symbol
+                );
+            case "&":
+            case "|":
+            case "~":
+                return new NumericStackValue(
+                    this.value | rhsVal,
+                    this.type,
+                    this.symbol
+                );
+            case "<<":
+                return new NumericStackValue(
+                    this.value << 1,
+                    this.type,
+                    this.symbol
+                );
+            case ">>":
+                return new NumericStackValue(
+                    this.value >> 1,
+                    this.type,
+                    this.symbol
+                );
+            case "--":
+                return new NumericStackValue(
+                    this.value--,
+                    this.type,
+                    this.symbol
+                );
+            case "++":
+                return new NumericStackValue(
+                    this.value++,
+                    this.type,
+                    this.symbol
+                );
+            default:
+                return super.execOp(operator, rhs);
+        }
+    }
+}
+
+export class ArrayStackValue<T = any> extends StackValue<StackValue<T>[]> {
+    constructor(values: StackValue<T>[], type: IType, symbol: BaseSymbol) {
+        super(values, type, symbol);
+    }
+
+    override execOp(
+        operator: string,
+        rhs: ArrayStackValue<T>
+    ): ArrayStackValue<T> {
+        const rhsVal = rhs?.value ?? [];
+        switch (operator) {
+            case "+":
+                return new ArrayStackValue(
+                    this.value.concat(rhsVal),
+                    this.type,
+                    this.symbol
+                );
+            case "-":
+                const rhSet = new Set(rhsVal.map((v) => v.value));
+                return new ArrayStackValue(
+                    this.value.filter((v) => !rhSet.has(v.value)),
+                    this.type,
+                    this.symbol
+                );
+            default:
+                return super.execOp(operator, rhs);
+        }
+    }
+
+    bracket(index: number): StackValue {
+        return this.value[index];
+    }
 }
 
 let lastExecId = 1;
@@ -29,6 +262,7 @@ export class CallStack {
     private rootFrame: StackFrame;
 
     public executionId: number;
+    public diagnosticMode: boolean = true;
 
     public get root() {
         return this.rootFrame;
@@ -142,7 +376,7 @@ export class CallStack {
             if (frame.locals.has(name)) {
                 frame.locals.set(
                     name,
-                    new StackValue(
+                    asStackValue(
                         value,
                         frame.locals.get(name).type,
                         frame.locals.get(name).symbol
@@ -171,7 +405,7 @@ export class CallStack {
             if (sym instanceof TypedSymbol) {
                 type = sym.type;
             }
-            this.peek().returnValue = new StackValue(value, type, sym);
+            this.peek().returnValue = asStackValue(value, type, sym);
         }
     }
 
@@ -231,8 +465,10 @@ export class StackFrame {
      * @param symbol the symbol that is requesting the value
      */
     public getValue<T>(name: string, symbol: BaseSymbol): StackValue {
+        let val: StackValue;
         if (this.lookupCache.has(name)) {
-            return this.lookupCache.get(name);
+            val = this.lookupCache.get(name);
+            return val;
         }
 
         const result = walkStackToProgram(this, (frame) => {
@@ -273,7 +509,7 @@ export function addFunctionToFrame(
     name: string,
     value: MethodSymbol
 ) {
-    frame.locals.set(name, new StackValue(value, value.returnType, value));
+    frame.locals.set(name, asStackValue(value, value.returnType, value));
 }
 
 export function walkStackToProgram<T>(

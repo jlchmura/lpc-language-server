@@ -47,8 +47,6 @@ mixed *socket_status(void | int);
  * rity violation, bad socket descriptor vbalues, etc.
  *
  */
-#include <socket_err.h>
-
 int socket_release( int socket, object ob,
                     string release_callback );
 
@@ -69,7 +67,7 @@ int socket_release( int socket, object ob,
  * Where fd is the listening socket.
  *
  */
-#include <socket_err.h>
+
 
 int socket_listen( int s, string listen_callback );
 
@@ -80,7 +78,7 @@ int socket_listen( int s, string listen_callback );
  * error.
  *
  */
-#include <socket_err.h>
+
 
 string socket_error( int error );
 
@@ -151,7 +149,7 @@ int socket_create( int mode, string read_callback,
  * Where fd is the socket which is ready to be written to.
  *
  */
-#include <socket_err.h>
+
 
 int socket_connect( int s, string address,
                     string read_callback,
@@ -163,7 +161,7 @@ int socket_connect( int s, string address,
  * socket_close() closes socket s. This frees a socket efun slot for use.
  *
  */
-#include <socket_err.h>
+
 
 int socket_close( int s );
 
@@ -176,7 +174,7 @@ int socket_close( int s );
  * assigned to the socket s.
  *
  */
-#include <socket_err.h>
+
 
 int socket_bind( int s, int port );
 
@@ -189,7 +187,7 @@ int socket_bind( int s, int port );
  * "127.0.0.1 23".
  *
  */
-#include <socket_err.h>
+
 
 string socket_address( int s );
 
@@ -217,7 +215,7 @@ string socket_address( int s );
  * callback function and only with the socket specified.
  *
  */
-#include <socket_err.h>
+
 
 int socket_acquire( int socket, string read_callback,
                     string write_callback,
@@ -263,7 +261,7 @@ int socket_acquire( int socket, string read_callback,
  * Where fd is the socket which has closed.
  *
  */
-#include <socket_err.h>
+
 
 int socket_accept( int s, string read_callback,
                    string write_callback );

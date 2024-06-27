@@ -1,5 +1,10 @@
-import { ScopedSymbol } from "antlr4-c3";
-import { CallStack, StackValue } from "./CallStack";
+import { BaseSymbol, IType, ScopedSymbol, TypeKind } from "antlr4-c3";
+import {
+    ArrayStackValue,
+    CallStack,
+    NumericStackValue,
+    StackValue,
+} from "./CallStack";
 import { LpcBaseMethodSymbol } from "../symbols/methodSymbol";
 import { VariableSymbol } from "../symbols/variableSymbol";
 import { isInstanceOfIEvaluatableSymbol } from "../symbols/base";
@@ -65,5 +70,23 @@ export function addDependenciesToStack(
                 ...(fileHandler.getDependencies(importFilename) ?? [])
             );
         }
+    }
+}
+
+export function asStackValue(
+    value: any,
+    type?: IType,
+    symbol?: BaseSymbol
+): StackValue {
+    if (typeof value === "number" || type?.kind == TypeKind.Integer) {
+        return new NumericStackValue(value, type ?? LpcTypes.intType, symbol);
+    } else if (Array.isArray(value) && value.length > 0) {
+        return new ArrayStackValue(
+            value.map((v) => asStackValue(v, LpcTypes.mixedType, this)),
+            type ?? LpcTypes.mixedArrayType,
+            symbol
+        );
+    } else {
+        return new StackValue(value, type ?? LpcTypes.unknownType, symbol);
     }
 }

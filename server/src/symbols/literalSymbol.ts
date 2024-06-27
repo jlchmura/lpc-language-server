@@ -1,7 +1,13 @@
 import { IType, TypedSymbol } from "antlr4-c3";
 import { EvalScope, IEvaluatableSymbol, IKindSymbol } from "./base";
 import { SymbolKind } from "../types";
-import { CallStack, StackValue } from "../backend/CallStack";
+import {
+    ArrayStackValue,
+    CallStack,
+    NumericStackValue,
+    StackValue,
+} from "../backend/CallStack";
+import { asStackValue } from "../backend/CallStackUtils";
 
 export class LiteralSymbol
     extends TypedSymbol
@@ -16,7 +22,14 @@ export class LiteralSymbol
     }
 
     eval(stack: CallStack, scope: EvalScope) {
-        return new StackValue(this.value, this.type, this);
+        if (typeof this.value === "number") {
+            return new NumericStackValue(this.value, this.type, this);
+        } else if (Array.isArray(this.value) && this.value.length > 0) {
+            // check if its an array
+            return new ArrayStackValue(this.value, this.type, this);
+        } else {
+            return asStackValue(this.value, this.type, this);
+        }
         //return this.value;
     }
 }

@@ -9,7 +9,10 @@ import { LPCParser } from "../parser3/LPCParser";
 import { EfunVisitor } from "./EfunVisitor";
 
 export function parseEfuns(driverType: string, efuns: ContextSymbolTable) {
-    const rootDir = process.argv[2] ?? path.join(process.cwd(), "efuns");
+    const rootDir =
+        process.argv[2]?.length > 0
+            ? process.argv[2]
+            : path.join(process.cwd(), "efuns");
     const efunDir = path.join(rootDir, driverType);
     const efunFile = path.join(efunDir, `efuns.${driverType}.h`);
 

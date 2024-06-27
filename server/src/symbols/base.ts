@@ -31,8 +31,8 @@ export function isInstanceOfIRenameableSymbol(
     return (symbol as unknown as IRenameableSymbol)?.nameRange !== undefined;
 }
 
-export interface IEvaluatableSymbol extends BaseSymbol {
-    eval(stack: CallStack, scope?: any): any;
+export interface IEvaluatableSymbol<T = any> extends BaseSymbol {
+    eval(stack: CallStack, scope?: T): any;
 }
 export function isInstanceOfIEvaluatableSymbol(
     symbol: BaseSymbol

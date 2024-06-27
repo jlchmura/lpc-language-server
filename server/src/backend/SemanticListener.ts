@@ -243,6 +243,10 @@ export class SemanticListener extends LPCParserListener {
     };
 
     evaluateProgram(progSymbol: ScopedSymbol) {
+        if (this.sourceContext.fileName.endsWith("master.c")) {
+            const ii = 0;
+        }
+
         const stack = new CallStack(progSymbol);
         const programFilename = this.sourceContext.fileName;
         const backend = this.sourceContext.backend;

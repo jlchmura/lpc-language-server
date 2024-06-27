@@ -48,7 +48,11 @@ import { LPCToken } from "../parser3/LPCToken";
 import { LPCTokenFactor } from "../parser3/LPCTokenFactory";
 import { getParentContextOfType } from "../symbols/Symbol";
 import { ArrowSymbol, ArrowType } from "../symbols/arrowSymbol";
-import { IFoldableSymbol, isInstanceOfIKindSymbol } from "../symbols/base";
+import {
+    IEvaluatableSymbol,
+    IFoldableSymbol,
+    isInstanceOfIKindSymbol,
+} from "../symbols/base";
 import { DefineSymbol } from "../symbols/defineSymbol";
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import {
@@ -72,6 +76,7 @@ import {
     IDefinition,
     IDiagnosticEntry,
     ISymbolInfo,
+    LpcTypes,
     MacroDefinition,
     SemanticTokenTypes,
     SymbolKind,
@@ -83,6 +88,7 @@ import {
     normalizeFilename,
     pushIfDefined,
     rangeFromTokens,
+    toLibPath,
     trimQuotes,
 } from "../utils";
 import { BackendUtils } from "./BackendUtils";
@@ -96,6 +102,9 @@ import { SemanticListener } from "./SemanticListener";
 import { SemanticTokenCollection } from "./SemanticTokenCollection";
 import { LpcFacade } from "./facade";
 import { resolveOfTypeSync } from "./symbol-utils";
+import { CallStack, StackValue } from "./CallStack";
+import { addPogramToStack } from "./CallStackUtils";
+import { LiteralSymbol } from "../symbols/literalSymbol";
 
 /**
  * Source context for a single LPC file.
@@ -147,6 +156,9 @@ export class SourceContext {
 
     /** The root context from the last parse run. */
     private tree: ProgramContext | undefined;
+    public getParseTree(): ProgramContext | undefined {
+        return this.tree;
+    }
 
     /**
      * combined table that includes dependencies
@@ -220,9 +232,60 @@ export class SourceContext {
 
         this.parser.removeErrorListeners();
         this.parser.addErrorListener(this.errorListener);
+
+        try {
+            this.onCompile();
+        } catch (e) {
+            console.warn("Could not run applies for " + this.fileName, e);
+        }
     }
 
-    public static initEfuns(driverType: DriverType) {}
+    /** runs various driver apply's on compile */
+    private onCompile() {
+        const config = ensureLpcConfig();
+        // run the fluff driver get_include_path to get the search dirs
+        if (
+            config.driver.type == "fluffos" &&
+            this.fileName != this.resolveFilename(config.files.master).fullPath
+        ) {
+            const localFilename = toLibPath(
+                this.fileName,
+                this.backend.workspaceDir
+            );
+            const driver = getDriverInfo();
+            const master = this.backend.getMasterFile();
+
+            if (!!master) {
+                // setup eval stack
+                const stack = new CallStack(master.symbolTable);
+                stack.diagnosticMode = false;
+                addPogramToStack(driver.efuns, stack);
+                addPogramToStack(master.symbolTable, stack);
+
+                // find the get_include_path apply and run it
+                const applyFn = master.symbolTable.resolveSync(
+                    "get_include_path"
+                ) as MethodSymbol;
+                const callArgs: IEvaluatableSymbol[] = [
+                    new LiteralSymbol(
+                        "string",
+                        LpcTypes.stringType,
+                        localFilename
+                    ),
+                ];
+                const fnResult = applyFn?.eval(stack, callArgs, stack.root);
+                if (!!fnResult?.value) {
+                    (fnResult?.value as StackValue[])?.forEach((s) => {
+                        if (s.value != ":DEFAULT:") {
+                            this.fileHandler.searchDirs.push(
+                                path.join(this.backend.workspaceDir, s.value)
+                            );
+                        }
+                    });
+                }
+            }
+        }
+    }
 
     public get hasErrors(): boolean {
         for (const diagnostic of this.diagnostics) {

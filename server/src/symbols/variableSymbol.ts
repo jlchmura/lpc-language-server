@@ -20,6 +20,8 @@ import { Token } from "antlr4ng";
 import { DiagnosticSeverity } from "vscode-languageserver";
 import { LPCToken } from "../parser3/LPCToken";
 import { InlineClosureSymbol } from "./methodSymbol";
+import { asStackValue } from "../backend/CallStackUtils";
+import { resolveOfTypeSync } from "../backend/symbol-utils";
 
 export class VariableSymbol
     extends TypedSymbol
@@ -33,19 +35,22 @@ export class VariableSymbol
         super(name, type);
     }
 
-    eval(stack: CallStack, scope?: any) {
+    eval(stack: CallStack, scope?: StackValue) {
+        let sval: StackValue = stack.getValue(this.name, this);
         if (scope !== undefined) {
             if (scope instanceof StackValue) {
                 this.value = scope.value;
                 this.type ??= scope.type;
+                sval = scope;
+                sval.symbol = this;
             } else {
                 this.value = scope;
+                sval = asStackValue(this.value, this.type, this);
             }
+            stack.addLocal(this.name, scope);
         }
 
-        stack.addLocal(this.name, new StackValue(this.value, this.type, this));
-
-        return new StackValue(this.value, this.type, this);
+        return sval;
     }
 
     public get kind() {
@@ -87,8 +92,9 @@ export class VariableIdentifierSymbol
 
     eval(stack: CallStack, scope?: any) {
         this.nameRange = rangeFromTokens(this.context.start, this.context.stop);
-        const def = stack.getValue(this.name, this)
-            ?.symbol as IEvaluatableSymbol;
+        const stackVal = stack.getValue(this.name, this);
+        const def = resolveOfTypeSync(this.parent, this.name, VariableSymbol);
+        //const def = stackVal?.symbol as IEvaluatableSymbol;
 
         if (
             !def &&
@@ -112,7 +118,7 @@ export class VariableIdentifierSymbol
             def.addReference(this);
         }
 
-        return def?.eval(stack, scope);
+        return def?.eval(stack, scope) ?? stackVal;
     }
     // public findDeclarationSymbol() {
     //     let defSymbol: BaseSymbol = resolveOfTypeSync(

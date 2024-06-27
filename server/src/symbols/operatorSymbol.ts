@@ -1,7 +1,8 @@
 import { ScopedSymbol } from "antlr4-c3";
 import { IEvaluatableSymbol } from "./base";
 import { SymbolKind } from "../types";
-import { CallStack } from "../backend/CallStack";
+import { CallStack, StackValue } from "../backend/CallStack";
+import { asStackValue } from "../backend/CallStackUtils";
 
 export class OperatorSymbol extends ScopedSymbol implements IEvaluatableSymbol {
     constructor(
@@ -13,41 +14,16 @@ export class OperatorSymbol extends ScopedSymbol implements IEvaluatableSymbol {
     }
 
     eval(stack: CallStack, scope?: any) {
-        const lhs = this.children[0] as IEvaluatableSymbol;
-        const rhs = this.children[1] as IEvaluatableSymbol;
+        const lhs = this.lhs;
+        const rhs = this.rhs;
 
-        const lhsValue = lhs?.eval(stack)?.value;
-        const rhsValue = rhs?.eval(stack)?.value;
-
-        switch (this.name) {
-            case ",":
-                return rhsValue;
-            case "+":
-                return lhsValue + rhsValue;
-            case "-":
-                return lhsValue - rhsValue;
-            case "*":
-                return lhsValue * rhsValue;
-            case "/":
-                return lhsValue / rhsValue;
-            case "%":
-                return lhsValue % rhsValue;
-            case "^":
-                return lhsValue ^ rhsValue;
-            case "&":
-            case "|":
-            case "~":
-                return lhsValue | rhsValue;
-            case "<<":
-            case ">>":
-            case "--":
-            case "++":
-                return lhsValue;
-            case "!":
-                return !rhsValue;
+        const lhsResult = lhs?.eval(stack);
+        const rhsResult = rhs?.eval(stack);
+        if (lhsResult instanceof StackValue) {
+            return lhsResult.execOp(this.name, rhsResult);
         }
 
-        throw `OperatorSymbol: Unknown symbol [${this.name}]`;
+        return undefined;
     }
 
     public get kind() {

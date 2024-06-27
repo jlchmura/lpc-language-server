@@ -18,6 +18,7 @@ import {
 } from "antlr4-c3";
 import { ContextSymbolTable } from "./ContextSymbolTable";
 import {
+    ArrayExpressionContext,
     BracketExpressionContext,
     CallOtherTargetContext,
     ConditionalExpressionContext,
@@ -79,7 +80,10 @@ import {
     ReturnSymbol,
     InlineClosureSymbol,
 } from "../symbols/methodSymbol";
-import { ExpressionSymbol } from "../symbols/expressionSymbol";
+import {
+    BracketExpressionSymbol,
+    ExpressionSymbol,
+} from "../symbols/expressionSymbol";
 import {
     firstEntry,
     getSibling,
@@ -110,6 +114,7 @@ import {
     StructDeclarationSymbol,
     StructMemberIdentifierSymbol,
 } from "../symbols/structSymbol";
+import { ArraySymbol } from "../symbols/arraySymbol";
 
 type GenericConstructorParameters<T> = ConstructorParameters<
     new (...args: any[]) => T
@@ -166,6 +171,17 @@ export class DetailsVisitor
         sym.context = ctx;
 
         return this.visitChildren(ctx);
+    };
+
+    visitBracketExpression = (ctx: BracketExpressionContext) => {
+        return this.withScope(
+            ctx,
+            BracketExpressionSymbol,
+            ["#bracket-expression#"],
+            (s) => {
+                return this.visitChildren(ctx);
+            }
+        );
     };
 
     visitSelectionPreprocessorDirective = (
@@ -865,10 +881,39 @@ export class DetailsVisitor
                 }
             );
         } else if (ctx._op) {
-            const operator = ctx._op?.text;
-            return this.withScope(ctx, OperatorSymbol, [operator], (s) => {
-                return this.visitChildren(ctx);
-            });
+            let lastOpSym: OperatorSymbol;
+            let origScope = this.scope;
+
+            for (let i = ctx.children.length - 2; i > 0; i -= 2) {
+                const child = ctx.children[i - 1];
+                const operator = ctx.children[i].getText();
+                let opSym = (this.scope = this.addNewSymbol(
+                    OperatorSymbol,
+                    ctx,
+                    operator
+                ));
+
+                this.visit(ctx.children[i - 1] as ParserRuleContext);
+                opSym.lhs = firstEntry(opSym.children) as IEvaluatableSymbol;
+
+                this.visit(ctx.children[i + 1] as ParserRuleContext);
+                opSym.rhs = lastEntry(opSym.children) as IEvaluatableSymbol;
+
+                if (lastOpSym) {
+                    lastOpSym.lhs = opSym;
+                }
+
+                this.markToken(
+                    (child as TerminalNode).symbol,
+                    SemanticTokenTypes.Operator
+                );
+
+                lastOpSym = opSym;
+            }
+
+            this.scope = origScope;
+            //this.scope.children.push(lastOpSym);
+            return lastOpSym;
         }
 
         // none of the above, pass through to unary, etc.
@@ -983,6 +1028,12 @@ export class DetailsVisitor
             );
         }
         return undefined;
+    };
+
+    visitArrayExpression = (ctx: ArrayExpressionContext) => {
+        return this.withScope(ctx, ArraySymbol, ["#array-expression#"], (s) => {
+            return this.visitChildren(ctx);
+        });
     };
 
     protected withScope<T, S extends ScopedSymbol>(

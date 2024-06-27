@@ -1,3 +1,4 @@
+import * as path from "path";
 import { ParserRuleContext, Token } from "antlr4ng";
 import { DiagnosticSeverity, Position, Range } from "vscode-languageserver";
 import { IDiagnosticEntry, ILexicalRange } from "./types";
@@ -150,6 +151,21 @@ export function normalizeFileExtension(filename: string) {
     }
 
     return filename;
+}
+
+export function toLibPath(filename: string, workspaceRoot: string) {
+   // Normalize paths to avoid issues with different slashes
+  const normalizedFullPath = path.normalize(filename);
+  const normalizedBasePath = path.normalize(workspaceRoot);
+
+  // Get the relative path
+  let relativePath = path.relative(normalizedBasePath, normalizedFullPath);
+
+  // Replace backslashes with forward slashes
+  relativePath = relativePath.replace(/\\/g, '/');
+
+  // Ensure the path starts with a forward slash
+  return '/' + relativePath;
 }
 
 export function normalizeFilename(filename: string) {

@@ -80,6 +80,8 @@ export class LpcFacade {
 
     public includeRefs: Map<string, Set<string>> = new Map();
 
+    private masterFile: SourceContext;
+
     public constructor(public workspaceDir: string) {
         const config = ensureLpcConfig();
         this.importDir = config.include.map((dir) => {
@@ -107,10 +109,23 @@ export class LpcFacade {
         //     performance.clearMeasures();
         // });
         // obs.observe({ entryTypes: ["measure"], buffered: true });
+        this.initMaster();
+
         setTimeout(async () => {
             await this.queueInitFilesForParse();
             await this.doParseAll();
         }, 500);
+    }
+
+    /** parses the master file */
+    private initMaster() {
+        const config = ensureLpcConfig();
+        const masterFileInfo = this.resolveFilename(
+            config.files.master,
+            this.workspaceDir
+        );
+
+        this.masterFile = this.loadLpc(masterFileInfo.fullPath);
     }
 
     public filenameToAbsolutePath(filename: string): string {
@@ -140,7 +155,11 @@ export class LpcFacade {
      * @param referenceFilename The filename of the source doc that loading the file
      * @returns
      */
-    public resolveFilename(filename: string, referenceFilename: string) {
+    public resolveFilename(
+        filename: string,
+        referenceFilename: string,
+        searchDirs?: string[]
+    ) {
         const normedRefFilename = referenceFilename.startsWith("file:")
             ? URI.parse(referenceFilename).fsPath
             : referenceFilename;
@@ -161,7 +180,11 @@ export class LpcFacade {
 
         const filenameNormed = normalizeFilename(filename);
 
-        const searchPaths = [basePath, ...fullImportDirs];
+        const searchPaths = [
+            basePath,
+            ...fullImportDirs,
+            ...(searchDirs ?? []),
+        ];
         if (fileType === DependencySearchType.Global) {
             searchPaths.reverse();
         }
@@ -842,7 +865,9 @@ export class LpcFacade {
                                 new Set()
                             );
 
-                            await this.onRunDiagnostics(filename, false);
+                            if (!!this.onRunDiagnostics) {
+                                await this.onRunDiagnostics(filename, false);
+                            }
 
                             //this.releaseLpc(filename);
                             resolve(txt);
@@ -914,5 +939,9 @@ export class LpcFacade {
             `Parsed all files in ${timeEnd - timeStart} ms`,
             this.sourceContexts.size
         );
+    }
+
+    public getMasterFile() {
+        return this.masterFile;
     }
 }

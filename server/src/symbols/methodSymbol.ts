@@ -30,6 +30,7 @@ import { lexRangeFromContext, rangeFromTokens } from "../utils";
 import { ObjectReferenceInfo } from "./objectSymbol";
 import { ContextSymbolTable } from "../backend/ContextSymbolTable";
 import {
+    ArrayStackValue,
     CallStack,
     RootFrame,
     StackFrame,
@@ -40,6 +41,7 @@ import { ParserRuleContext, Token } from "antlr4ng";
 import { addDiagnostic } from "./Symbol";
 import { InheritSuperAccessorSymbol } from "./inheritSymbol";
 import { resolveOfTypeSync } from "../backend/symbol-utils";
+import { asStackValue } from "../backend/CallStackUtils";
 
 export const MAX_CALLDEPTH_SIZE = 25;
 const OBJ_PLAYER_FILENAME = "/obj/player";
@@ -57,8 +59,8 @@ export class MethodParameterSymbol
         super(name, undefined, type);
     }
 
-    eval() {
-        return this.value;
+    eval(stack: CallStack) {
+        return stack.getValue(this.name, this);
     }
 
     public get kind() {
@@ -104,9 +106,7 @@ export class LpcBaseMethodSymbol
             const argSym = args.length > idx ? args[idx] : undefined;
             //if (!!argSym && !isInstanceOfIEvaluatableSymbol(argSym)) debugger;
             const argVal = argSym?.eval(stack, callScope) as StackValue;
-            const paramVal = argVal
-                ? new StackValue(argVal.value, p.type, p)
-                : new StackValue(0, p.type, p);
+            const paramVal = argVal ?? asStackValue(0, p.type, p);
             locals.set(p.name, paramVal);
 
             if (
@@ -368,9 +368,17 @@ export class EfunSymbol
         ) as MethodParameterSymbol[];
     }
 
-    eval(stack: CallStack, params: IEvaluatableSymbol[] = [], scope?: any) {
+    eval(
+        stack: CallStack,
+        args: IEvaluatableSymbol[] = [],
+        callScope?: RootFrame
+    ) {
         const ownerProgram = (stack.root.symbol as ContextSymbolTable).owner;
         const { fileHandler } = ownerProgram;
+
+        const argEval = args?.map((a) => {
+            return a?.eval(stack, callScope) as StackValue;
+        });
 
         // handle special efuns cases
         switch (this.name) {
@@ -406,17 +414,32 @@ export class EfunSymbol
                     LpcTypes.objectType,
                     this
                 );
+            case "explode":
+                const str = argEval[0];
+                const delim = argEval[1];
+                const strVal = str?.value ?? 0;
+                const delimVal = delim?.value;
+
+                if (
+                    str?.type?.name != "string" ||
+                    delim?.type?.name != "string"
+                ) {
+                    return undefined;
+                }
+                if (strVal == 0 || delimVal == 0) {
+                    return undefined;
+                }
+
+                return new ArrayStackValue<string>(
+                    (strVal as string)
+                        .split(delimVal)
+                        .map((s) => asStackValue(s, LpcTypes.stringType, this)),
+                    LpcTypes.stringArrayType,
+                    this
+                );
         }
 
-        // evaluate params
-        params?.forEach((p) => {
-            const argVal = p.eval(stack) as StackValue;
-            // don't need to store, we're not really running
-            // code for efuns
-            //locals.set(p.name, argVal);
-        });
-
-        return scope;
+        return undefined;
     }
 
     public allowsMultiArgs() {
