@@ -1,5 +1,10 @@
 # LPC Language Services Changelog
 
+## 1.0.18
+
+-   Better handling of disposed contexts
+-   Fix: [[FLUFFOS] Parser error on catch blocks #25](https://github.com/jlchmura/lpc-language-server/issues/25)
+
 ## 1.0.17
 
 -   Improvements to code evaluation (strings, operators, brackets, arrays)
