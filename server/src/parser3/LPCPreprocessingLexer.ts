@@ -307,7 +307,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
                         break;
                     default:
                         if (macro.parenCount > 0) {
-                            fnParams[macro.paramIndex].push(token);
+                            fnParams[macro.paramIndex]?.push(token);
                         }
                 }
             } else {
@@ -410,7 +410,9 @@ export class LPCPreprocessingLexer extends LPCLexer {
         directiveTokens.shift(); // remove the space
         const includeFilename = directiveTokens
             // filter out fluff's semicolon
-            .filter((t) => t.type != LPCLexer.SEMI)
+            .filter(
+                (t) => t.type != LPCLexer.SEMI && t.channel != COMMENT_CHANNEL
+            )
             .map((t) => trimQuotes(t.text.trim()))
             .join("")
             .trim();
