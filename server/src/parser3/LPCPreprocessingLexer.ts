@@ -411,7 +411,9 @@ export class LPCPreprocessingLexer extends LPCLexer {
         const includeFilename = directiveTokens
             // filter out fluff's semicolon
             .filter(
-                (t) => t.type != LPCLexer.SEMI && t.channel != COMMENT_CHANNEL
+                (t) =>
+                    t.type != LPCLexer.SEMI &&
+                    t.channel == LPCLexer.DEFAULT_TOKEN_CHANNEL
             )
             .map((t) => trimQuotes(t.text.trim()))
             .join("")
