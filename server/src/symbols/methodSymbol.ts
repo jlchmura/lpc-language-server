@@ -5,6 +5,7 @@ import {
     MethodSymbol as BaseMethodSymbol,
     ParameterSymbol,
     BaseSymbol,
+    TypeKind,
 } from "antlr4-c3";
 import {
     IKindSymbol,
@@ -383,6 +384,8 @@ export class EfunSymbol
             return a?.eval(stack, callScope) as StackValue;
         });
 
+        const config = ensureLpcConfig();
+
         // handle special efuns cases
         switch (this.name) {
             // NTBLA: put current object on the stack and return that instead of loading a new
@@ -405,7 +408,6 @@ export class EfunSymbol
             case "this_interactive":
             case "this_user":
             case "this_player":
-                const config = ensureLpcConfig();
                 const playerCtx = fileHandler.loadReference(
                     config.files.player,
                     this
@@ -420,6 +422,23 @@ export class EfunSymbol
                     LpcTypes.objectType,
                     this
                 );
+            case "users":
+                const playerUsersCtx = fileHandler.loadReference(
+                    config.files.player,
+                    this
+                );
+
+                const playerObj = new ObjectReferenceInfo(
+                    playerUsersCtx?.fileName,
+                    true,
+                    playerUsersCtx
+                );
+                return asStackValue(
+                    [playerObj],
+                    LpcTypes.objectArrayType,
+                    this
+                );
+                break;
             case "explode":
                 const str = argEval[0];
                 const delim = argEval[1];
@@ -443,6 +462,9 @@ export class EfunSymbol
                     LpcTypes.stringArrayType,
                     this
                 );
+            case "new":
+            case "clone_object":
+                return cloneObjectImpl(stack, argEval, callScope, this);
         }
 
         return undefined;
@@ -465,5 +487,35 @@ export class EfunParamSymbol extends MethodParameterSymbol {
 export class InlineClosureSymbol extends MethodSymbol implements IKindSymbol {
     public get kind() {
         return SymbolKind.InlineClosure;
+    }
+}
+
+function cloneObjectImpl(
+    stack: CallStack,
+    argVals: StackValue[],
+    callScope: RootFrame,
+    symbol: EfunSymbol
+) {
+    const ownerProgram = (stack.root.symbol as ContextSymbolTable).owner;
+    const { fileHandler } = ownerProgram;
+
+    // what type is the first arg?
+    const firstArg = argVals.at(0);
+    if (!firstArg) {
+        return undefined;
+    }
+
+    if (firstArg.type.kind == TypeKind.String) {
+        const filename = firstArg.value;
+        const ctx = fileHandler.loadReference(filename, symbol);
+        if (!ctx) {
+            return undefined;
+        }
+
+        const info = new ObjectReferenceInfo();
+        info.filename = filename;
+        info.isLoaded = true;
+        info.context = ctx;
+        return asStackValue(info);
     }
 }
