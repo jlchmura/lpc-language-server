@@ -223,7 +223,7 @@ variableDeclarationStatement
     ;
 
 variableDeclaration    
-    : variableModifier* type=unionableTypeSpecifier objectName=StringLiteral? variableDeclaratorExpression? (COMMA variableDeclaratorExpression)*
+    : variableModifier* type=unionableTypeSpecifier? objectName=StringLiteral? variableDeclaratorExpression (COMMA variableDeclaratorExpression)*
     ;
 
 variableDeclaratorExpression

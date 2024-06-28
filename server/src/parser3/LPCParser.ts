@@ -2253,28 +2253,28 @@ export class LPCParser extends LPCParserBase {
                 this.errorHandler.sync(this);
                 _la = this.tokenStream.LA(1);
             }
-            this.state = 517;
-            localContext._type_ = this.unionableTypeSpecifier();
-            this.state = 519;
+            this.state = 518;
+            this.errorHandler.sync(this);
+            switch (this.interpreter.adaptivePredict(this.tokenStream, 56, this.context) ) {
+            case 1:
+                {
+                this.state = 517;
+                localContext._type_ = this.unionableTypeSpecifier();
+                }
+                break;
+            }
+            this.state = 521;
             this.errorHandler.sync(this);
             _la = this.tokenStream.LA(1);
             if (_la === 122) {
                 {
-                this.state = 518;
+                this.state = 520;
                 localContext._objectName = this.match(LPCParser.StringLiteral);
                 }
             }
 
-            this.state = 522;
-            this.errorHandler.sync(this);
-            _la = this.tokenStream.LA(1);
-            if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 272629836) !== 0) || ((((_la - 42)) & ~0x1F) === 0 && ((1 << (_la - 42)) & 67371145) !== 0) || _la === 127) {
-                {
-                this.state = 521;
-                this.variableDeclaratorExpression();
-                }
-            }
-
+            this.state = 523;
+            this.variableDeclaratorExpression();
             this.state = 528;
             this.errorHandler.sync(this);
             _la = this.tokenStream.LA(1);
@@ -4643,7 +4643,7 @@ export class LPCParser extends LPCParserBase {
             this.state = 1021;
             this.errorHandler.sync(this);
             _la = this.tokenStream.LA(1);
-            while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 2156399052) !== 0) || ((((_la - 33)) & ~0x1F) === 0 && ((1 << (_la - 33)) & 2011438431) !== 0) || _la === 68 || _la === 75) {
+            while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 2429028812) !== 0) || ((((_la - 33)) & ~0x1F) === 0 && ((1 << (_la - 33)) & 2145722207) !== 0) || _la === 68 || _la === 75 || _la === 122 || _la === 127) {
                 {
                 {
                 this.state = 1018;
@@ -5904,7 +5904,7 @@ export class LPCParser extends LPCParserBase {
         8,31,1,32,1,32,1,33,1,33,1,34,1,34,3,34,489,8,34,1,34,1,34,1,34,
         1,34,1,34,3,34,496,8,34,1,34,1,34,5,34,500,8,34,10,34,12,34,503,
         9,34,1,34,1,34,3,34,507,8,34,1,35,1,35,1,35,1,36,5,36,513,8,36,10,
-        36,12,36,516,9,36,1,36,1,36,3,36,520,8,36,1,36,3,36,523,8,36,1,36,
+        36,12,36,516,9,36,1,36,3,36,519,8,36,1,36,3,36,522,8,36,1,36,1,36,
         1,36,5,36,527,8,36,10,36,12,36,530,9,36,1,37,1,37,1,37,3,37,535,
         8,37,1,38,5,38,538,8,38,10,38,12,38,541,9,38,1,38,1,38,1,39,1,39,
         1,39,3,39,548,8,39,1,40,1,40,1,41,1,41,3,41,554,8,41,1,41,1,41,1,
@@ -6112,9 +6112,9 @@ export class LPCParser extends LPCParserBase {
         506,5,113,0,0,505,507,5,90,0,0,506,505,1,0,0,0,506,507,1,0,0,0,507,
         69,1,0,0,0,508,509,3,72,36,0,509,510,5,90,0,0,510,71,1,0,0,0,511,
         513,3,64,32,0,512,511,1,0,0,0,513,516,1,0,0,0,514,512,1,0,0,0,514,
-        515,1,0,0,0,515,517,1,0,0,0,516,514,1,0,0,0,517,519,3,88,44,0,518,
-        520,5,122,0,0,519,518,1,0,0,0,519,520,1,0,0,0,520,522,1,0,0,0,521,
-        523,3,74,37,0,522,521,1,0,0,0,522,523,1,0,0,0,523,528,1,0,0,0,524,
+        515,1,0,0,0,515,518,1,0,0,0,516,514,1,0,0,0,517,519,3,88,44,0,518,
+        517,1,0,0,0,518,519,1,0,0,0,519,521,1,0,0,0,520,522,5,122,0,0,521,
+        520,1,0,0,0,521,522,1,0,0,0,522,523,1,0,0,0,523,528,3,74,37,0,524,
         525,5,91,0,0,525,527,3,74,37,0,526,524,1,0,0,0,527,530,1,0,0,0,528,
         526,1,0,0,0,528,529,1,0,0,0,529,73,1,0,0,0,530,528,1,0,0,0,531,534,
         3,76,38,0,532,533,5,95,0,0,533,535,3,78,39,0,534,532,1,0,0,0,534,
@@ -6355,7 +6355,7 @@ export class LPCParser extends LPCParserBase {
         195,198,205,213,222,230,239,243,250,255,261,268,274,282,296,300,
         305,312,314,319,323,326,333,340,344,358,362,367,371,377,386,393,
         397,402,418,421,425,428,437,441,445,448,451,454,457,460,463,471,
-        480,488,495,501,506,514,519,522,528,534,539,547,553,568,573,579,
+        480,488,495,501,506,514,518,521,528,534,539,547,553,568,573,579,
         581,587,594,599,603,606,609,621,624,632,636,650,660,663,673,715,
         717,721,727,735,741,746,751,759,771,783,786,789,792,797,804,815,
         822,829,839,851,854,860,864,868,872,877,883,886,890,893,896,901,
@@ -8070,8 +8070,14 @@ export class VariableDeclarationContext extends antlr.ParserRuleContext {
     public constructor(parent: antlr.ParserRuleContext | null, invokingState: number) {
         super(parent, invokingState);
     }
-    public unionableTypeSpecifier(): UnionableTypeSpecifierContext {
-        return this.getRuleContext(0, UnionableTypeSpecifierContext)!;
+    public variableDeclaratorExpression(): VariableDeclaratorExpressionContext[];
+    public variableDeclaratorExpression(i: number): VariableDeclaratorExpressionContext | null;
+    public variableDeclaratorExpression(i?: number): VariableDeclaratorExpressionContext[] | VariableDeclaratorExpressionContext | null {
+        if (i === undefined) {
+            return this.getRuleContexts(VariableDeclaratorExpressionContext);
+        }
+
+        return this.getRuleContext(i, VariableDeclaratorExpressionContext);
     }
     public variableModifier(): VariableModifierContext[];
     public variableModifier(i: number): VariableModifierContext | null;
@@ -8082,15 +8088,6 @@ export class VariableDeclarationContext extends antlr.ParserRuleContext {
 
         return this.getRuleContext(i, VariableModifierContext);
     }
-    public variableDeclaratorExpression(): VariableDeclaratorExpressionContext[];
-    public variableDeclaratorExpression(i: number): VariableDeclaratorExpressionContext | null;
-    public variableDeclaratorExpression(i?: number): VariableDeclaratorExpressionContext[] | VariableDeclaratorExpressionContext | null {
-        if (i === undefined) {
-            return this.getRuleContexts(VariableDeclaratorExpressionContext);
-        }
-
-        return this.getRuleContext(i, VariableDeclaratorExpressionContext);
-    }
     public COMMA(): antlr.TerminalNode[];
     public COMMA(i: number): antlr.TerminalNode | null;
     public COMMA(i?: number): antlr.TerminalNode | null | antlr.TerminalNode[] {
@@ -8099,6 +8096,9 @@ export class VariableDeclarationContext extends antlr.ParserRuleContext {
     	} else {
     		return this.getToken(LPCParser.COMMA, i);
     	}
+    }
+    public unionableTypeSpecifier(): UnionableTypeSpecifierContext | null {
+        return this.getRuleContext(0, UnionableTypeSpecifierContext);
     }
     public StringLiteral(): antlr.TerminalNode | null {
         return this.getToken(LPCParser.StringLiteral, 0);

@@ -474,3 +474,12 @@ void testVarDeclInsideParenExp() {
         write(i);
     }
 }
+
+// declarations with an without types
+static string textarr, textArr2;
+static notypeArr, noTypeArr2;
+nomask *noTypeArr3;
+
+
+
+

@@ -3,7 +3,9 @@
 ## 1.0.18
 
 -   Better handling of disposed contexts
+-   Memory cleanup
 -   Fix: [[FLUFFOS] Parser error on catch blocks #25](https://github.com/jlchmura/lpc-language-server/issues/25)
+-   Fix: Parser error on variable declarations without types
 
 ## 1.0.17
 
