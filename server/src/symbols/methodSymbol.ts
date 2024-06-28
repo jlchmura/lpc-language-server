@@ -5,6 +5,7 @@ import {
     MethodSymbol as BaseMethodSymbol,
     ParameterSymbol,
     BaseSymbol,
+    TypeKind,
 } from "antlr4-c3";
 import {
     IKindSymbol,
@@ -15,6 +16,7 @@ import {
     IRenameableSymbol,
     IReferenceableSymbol,
     isInstanceOfIReferenceableSymbol,
+    IReferenceSymbol,
 } from "./base";
 import {
     DiagnosticCodes,
@@ -102,29 +104,32 @@ export class LpcBaseMethodSymbol
 
         // args eval on the main stack
         const params = this.getParametersSync();
-        params.forEach((p, idx) => {
-            const argSym = args.length > idx ? args[idx] : undefined;
-            //if (!!argSym && !isInstanceOfIEvaluatableSymbol(argSym)) debugger;
-            const argVal = argSym?.eval(stack, callScope) as StackValue;
-            const paramVal = argVal ?? asStackValue(0, p.type, p);
-            locals.set(p.name, paramVal);
 
-            if (
-                !!argVal?.type?.name &&
-                p.type?.name != argVal.type?.name &&
-                p.type != LpcTypes.unknownType
-            ) {
-                addDiagnostic(argSym, {
-                    message: `Argument of type '${argVal.type?.name}' is not assignable to parameter of type '${p.type?.name}'.`,
-                    source: "argumentTypeMismatch",
-                    range: lexRangeFromContext(
-                        argSym.context as ParserRuleContext
-                    ),
-                    code: "argumentTypeMismatch",
-                    type: DiagnosticSeverity.Warning,
-                });
-            }
-        });
+        if (!!params?.forEach) {
+            params?.forEach((p, idx) => {
+                const argSym = args.length > idx ? args[idx] : undefined;
+                //if (!!argSym && !isInstanceOfIEvaluatableSymbol(argSym)) debugger;
+                const argVal = argSym?.eval(stack, callScope) as StackValue;
+                const paramVal = argVal ?? asStackValue(0, p.type, p);
+                locals.set(p.name, paramVal);
+
+                if (
+                    !!argVal?.type?.name &&
+                    p.type?.name != argVal.type?.name &&
+                    p.type != LpcTypes.unknownType
+                ) {
+                    addDiagnostic(argSym, {
+                        message: `Argument of type '${argVal.type?.name}' is not assignable to parameter of type '${p.type?.name}'.`,
+                        source: "argumentTypeMismatch",
+                        range: lexRangeFromContext(
+                            argSym.context as ParserRuleContext
+                        ),
+                        code: "argumentTypeMismatch",
+                        type: DiagnosticSeverity.Warning,
+                    });
+                }
+            });
+        }
 
         // the function's root frame is the callScope (if it was passed)
         stack.push(
@@ -302,14 +307,41 @@ export class MethodInvocationSymbol
  */
 export class FunctionIdentifierSymbol
     extends ScopedSymbol
-    implements IKindSymbol, IEvaluatableSymbol, IRenameableSymbol
+    implements
+        IKindSymbol,
+        IEvaluatableSymbol,
+        IRenameableSymbol,
+        IReferenceSymbol
 {
+    reference: BaseSymbol;
+    setReference(symbol: BaseSymbol): BaseSymbol {
+        return (this.reference = symbol);
+    }
+    getReference(): BaseSymbol {
+        if (!this.reference) {
+            // try to fill in the ref if it wasn't already identified
+            this.reference = resolveOfTypeSync(
+                this.symbolTable,
+                this.name,
+                LpcBaseMethodSymbol,
+                false
+            );
+            if (isInstanceOfIReferenceableSymbol(this.reference)) {
+                this.reference.addReference(this);
+            }
+        }
+        return this.reference;
+    }
+
     nameRange: ILexicalRange;
     public get kind() {
         return SymbolKind.Keyword;
     }
 
     eval(stack: CallStack, scope?: any) {
+        if (this.name == "set_setting") {
+            const ii = 0;
+        }
         // the next symbol should be the method invocation
         // store the function name on the stack so that the method invocation
         // can access it
@@ -322,6 +354,7 @@ export class FunctionIdentifierSymbol
         const stackFn = stack.getFunction(this.name);
         if (isInstanceOfIReferenceableSymbol(stackFn)) {
             stackFn.addReference(this);
+            this.setReference(stackFn);
         }
     }
 }
@@ -380,6 +413,8 @@ export class EfunSymbol
             return a?.eval(stack, callScope) as StackValue;
         });
 
+        const config = ensureLpcConfig();
+
         // handle special efuns cases
         switch (this.name) {
             // NTBLA: put current object on the stack and return that instead of loading a new
@@ -402,7 +437,6 @@ export class EfunSymbol
             case "this_interactive":
             case "this_user":
             case "this_player":
-                const config = ensureLpcConfig();
                 const playerCtx = fileHandler.loadReference(
                     config.files.player,
                     this
@@ -417,6 +451,23 @@ export class EfunSymbol
                     LpcTypes.objectType,
                     this
                 );
+            case "users":
+                const playerUsersCtx = fileHandler.loadReference(
+                    config.files.player,
+                    this
+                );
+
+                const playerObj = new ObjectReferenceInfo(
+                    playerUsersCtx?.fileName,
+                    true,
+                    playerUsersCtx
+                );
+                return asStackValue(
+                    [playerObj],
+                    LpcTypes.objectArrayType,
+                    this
+                );
+                break;
             case "explode":
                 const str = argEval[0];
                 const delim = argEval[1];
@@ -440,6 +491,9 @@ export class EfunSymbol
                     LpcTypes.stringArrayType,
                     this
                 );
+            case "new":
+            case "clone_object":
+                return cloneObjectImpl(stack, argEval, callScope, this);
         }
 
         return undefined;
@@ -462,5 +516,35 @@ export class EfunParamSymbol extends MethodParameterSymbol {
 export class InlineClosureSymbol extends MethodSymbol implements IKindSymbol {
     public get kind() {
         return SymbolKind.InlineClosure;
+    }
+}
+
+function cloneObjectImpl(
+    stack: CallStack,
+    argVals: StackValue[],
+    callScope: RootFrame,
+    symbol: EfunSymbol
+) {
+    const ownerProgram = (stack.root.symbol as ContextSymbolTable).owner;
+    const { fileHandler } = ownerProgram;
+
+    // what type is the first arg?
+    const firstArg = argVals.at(0);
+    if (!firstArg) {
+        return undefined;
+    }
+
+    if (firstArg.type.kind == TypeKind.String) {
+        const filename = firstArg.value;
+        const ctx = fileHandler.loadReference(filename, symbol);
+        if (!ctx) {
+            return undefined;
+        }
+
+        const info = new ObjectReferenceInfo();
+        info.filename = filename;
+        info.isLoaded = true;
+        info.context = ctx;
+        return asStackValue(info);
     }
 }

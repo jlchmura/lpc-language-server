@@ -11,6 +11,7 @@ import {
     IRenameableSymbol,
     IReferenceableSymbol,
     isInstanceOfIReferenceableSymbol,
+    IReferenceSymbol,
 } from "./base";
 import { IDefinition, ILexicalRange, SymbolKind } from "../types";
 import { IdentifierSymbol, addDiagnostic } from "./Symbol";
@@ -86,8 +87,16 @@ export class VariableSymbol
  */
 export class VariableIdentifierSymbol
     extends IdentifierSymbol
-    implements IEvaluatableSymbol, IRenameableSymbol
+    implements IEvaluatableSymbol, IRenameableSymbol, IReferenceSymbol
 {
+    private reference: BaseSymbol;
+    setReference(symbol: BaseSymbol): BaseSymbol {
+        return (this.reference = symbol);
+    }
+    getReference(): BaseSymbol {
+        return this.reference;
+    }
+
     nameRange: ILexicalRange;
 
     eval(stack: CallStack, scope?: any) {
@@ -116,6 +125,7 @@ export class VariableIdentifierSymbol
 
         if (isInstanceOfIReferenceableSymbol(def)) {
             def.addReference(this);
+            this.setReference(def);
         }
 
         return def?.eval(stack, scope) ?? stackVal;

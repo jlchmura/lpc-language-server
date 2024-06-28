@@ -10,6 +10,8 @@ import {
 } from "../utils";
 import {
     IReferenceableSymbol,
+    getSymbolsOfTypeSync,
+    isInstanceOfIReferenceSymbol,
     isInstanceOfIReferenceableSymbol,
 } from "../symbols/base";
 import { ContextSymbolTable } from "./ContextSymbolTable";
@@ -37,41 +39,63 @@ export class ReferenceProvider {
         const results: Location[] = [];
         const seen: Set<BaseSymbol> = new Set();
 
-        const symbolInfo = this.backend.symbolInfoAtPosition(
-            doc.uri,
-            position.character,
-            position.line + 1,
-            true
-        );
+        const sym = this.backend.symbolContainingPosition(doc.uri, position);
 
-        const sym = firstEntry(symbolInfo)?.symbol;
         if (!sym) {
             return [];
-        } else if (!isInstanceOfIReferenceableSymbol(sym)) {
-            return [];
         }
+        // else if (!isInstanceOfIReferenceableSymbol(sym)) {
+        //     return [];
+        // }
 
         const refsToScan: BaseSymbol[] = [sym];
+        if (isInstanceOfIReferenceSymbol(sym))
+            refsToScan.push(sym.getReference());
 
         // check this files inludes to see if the symbol is defined in another file
         const symFile = getFilenameForSymbol(sym);
-        if (this.backend.includeRefs.has(symFile)) {
-            const files = [symFile, ...this.backend.includeRefs.get(symFile)];
-            for (const file of files) {
-                const refCtx = this.backend.loadLpc(file);
-                const refSym = await refCtx.symbolTable.resolve(sym.name, true);
-                if (
-                    isInstanceOfIReferenceableSymbol(refSym) &&
-                    getFilenameForSymbol(refSym) === file
-                ) {
-                    refsToScan.push(refSym);
+
+        const files = [
+            symFile,
+            ...(this.backend.includeRefs.get(symFile) ?? []),
+            ...(this.backend.fileRefs.get(symFile) ?? []),
+        ];
+        const seenFiles = new Set<string>();
+        // scan files
+        for (const file of files) {
+            if (seenFiles.has(file)) continue;
+            seenFiles.add(file);
+
+            const refCtx = this.backend.loadLpc(file);
+
+            // look for name matches and make sure their references are
+            // filled in.
+            const { symbolTable } = refCtx;
+            const candidates = await symbolTable.getAllSymbolsByName(sym.name);
+            candidates.forEach((c) => {
+                if (!!c && isInstanceOfIReferenceSymbol(c)) {
+                    c.getReference(); // to make sure its filled in
+                }
+            });
+
+            const refSym = await refCtx.symbolTable.resolve(sym.name, true);
+
+            if (
+                isInstanceOfIReferenceableSymbol(refSym) &&
+                getFilenameForSymbol(refSym) === file
+            ) {
+                refsToScan.push(refSym);
+                if (isInstanceOfIReferenceSymbol(refSym)) {
+                    refsToScan.push(refSym.getReference());
                 }
             }
+
+            files.push(...(this.backend.fileRefs.get(file) ?? []));
         }
 
         while (refsToScan.length > 0) {
             const ref = refsToScan.pop();
-            if (seen.has(ref)) continue;
+            if (!ref || seen.has(ref)) continue;
             seen.add(ref);
 
             if (isInstanceOfIReferenceableSymbol(ref)) {

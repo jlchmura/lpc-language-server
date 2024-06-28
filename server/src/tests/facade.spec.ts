@@ -52,7 +52,7 @@ describe("facade", () => {
         const fn = resolveTestFilePath("ldmud.c");
         const ctx = facade.loadLpc(fn);
         const symbol = facade.symbolContainingPosition(fn, {
-            line: 63,
+            line: 62,
             character: 10,
         });
         expect(symbol).toBeDefined();

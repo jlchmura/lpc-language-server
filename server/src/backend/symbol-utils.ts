@@ -53,8 +53,7 @@ export function resolveOfTypeSync<T extends BaseSymbol, Args extends unknown[]>(
     scope: IScopedSymbol,
     name: string,
     t: SymbolConstructor<T, Args>,
-    localOnly: boolean = false,
-    cnt: number = 0
+    localOnly: boolean = false
 ): T {
     if (!scope) return undefined;
 
@@ -179,5 +178,15 @@ export function symbolWithContextSync(
         }
     }
 
+    return undefined;
+}
+
+export function getImmediateParentOfType<
+    T extends BaseSymbol,
+    Args extends unknown[]
+>(symbol: BaseSymbol, t: SymbolConstructor<T, Args>): T {
+    if (symbol.parent instanceof t) {
+        return symbol.parent;
+    }
     return undefined;
 }

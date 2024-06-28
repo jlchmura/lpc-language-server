@@ -96,7 +96,6 @@ import {
 import { LiteralSymbol } from "../symbols/literalSymbol";
 import { OperatorSymbol } from "../symbols/operatorSymbol";
 import { ConditionalSymbol } from "../symbols/conditionalSymbol";
-import { CloneObjectSymbol } from "../symbols/objectSymbol";
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import { IfSymbol, SelectionSymbol } from "../symbols/selectionSymbol";
 import { IEvaluatableSymbol, IRenameableSymbol } from "../symbols/base";
@@ -323,25 +322,25 @@ export class DetailsVisitor
                     return this.visitChildren(ctx);
                 }
             );
-        } else if (
-            ctx.methodInvocation()?.length > 0 &&
-            ctx._pe instanceof IdentifierExpressionContext &&
-            (ctx._pe.getText() == "clone_object" ||
-                ctx._pe.getText() == "load_object")
-        ) {
-            const fnIdCtx = ctx._pe.validIdentifiers();
-            const fnName = fnIdCtx?.getText();
-            return this.withScope(
-                ctx,
-                CloneObjectSymbol,
-                [fnName, this.fileHandler],
-                (s) => {
-                    this.markContext(fnIdCtx, SemanticTokenTypes.Method, [
-                        SemanticTokenModifiers.DefaultLibrary,
-                    ]);
-                    return this.visitChildren(ctx?.methodInvocation()?.at(0));
-                }
-            );
+            // } else if (
+            //     ctx.methodInvocation()?.length > 0 &&
+            //     ctx._pe instanceof IdentifierExpressionContext &&
+            //     (ctx._pe.getText() == "clone_object" ||
+            //         ctx._pe.getText() == "load_object")
+            // ) {
+            //     const fnIdCtx = ctx._pe.validIdentifiers();
+            //     const fnName = fnIdCtx?.getText();
+            //     return this.withScope(
+            //         ctx,
+            //         CloneObjectSymbol,
+            //         [fnName, this.fileHandler],
+            //         (s) => {
+            //             this.markContext(fnIdCtx, SemanticTokenTypes.Method, [
+            //                 SemanticTokenModifiers.DefaultLibrary,
+            //             ]);
+            //             return this.visitChildren(ctx?.methodInvocation()?.at(0));
+            //         }
+            //     );
         } else {
             // standard expression
             return this.withScope(

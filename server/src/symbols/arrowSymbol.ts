@@ -1,6 +1,7 @@
 import {
     IEvaluatableSymbol,
     getSymbolsOfTypeSync,
+    isInstanceOfIReferenceSymbol,
     isInstanceOfIReferenceableSymbol,
 } from "./base";
 import { CallStack, StackValue } from "../backend/CallStack";
@@ -124,12 +125,12 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
             this.functionName = targetResult;
         }
 
-        if (!this.functionName) {
-            // TODO send via diagnostic?
-            console.warn(
-                "could not determine function name for arrow: " + this.name
-            );
-        }
+        // if (!this.functionName) {
+        //     // TODO send via diagnostic?
+        //     console.warn(
+        //         "could not determine function name for arrow: " + this.name
+        //     );
+        // }
 
         const obj = srcValue?.value;
         if (typeof obj === "string") {
@@ -177,22 +178,26 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
                 type: DiagnosticSeverity.Error,
             });
         } else if (isInstanceOfIReferenceableSymbol(funSym)) {
-            funSym.addReference(this);
+            // store reference information
+            funSym.addReference(this.target ?? this);
+            if (isInstanceOfIReferenceSymbol(this.target)) {
+                this.target.setReference(funSym);
+            }
         }
 
         // the method invocation symbol will have the call arguments
         const methodInvok = this.methodInvocation;
-        if (!(methodInvok instanceof MethodInvocationSymbol)) {
-            console.warn(
-                "expected a method invocation",
-                this.name,
-                this.symbolTable.name,
-                (this.context as ParserRuleContext).start.line
-            );
-        }
+        // if (!(methodInvok instanceof MethodInvocationSymbol)) {
+        //     console.warn(
+        //         "expected a method invocation",
+        //         this.name,
+        //         this.symbolTable.name,
+        //         (this.context as ParserRuleContext).start.line
+        //     );
+        // }
 
         // evaluate the argumnents
-        const argVals = methodInvok?.getArguments().map((a) => a.eval(stack));
+        const argVals = methodInvok?.getArguments()?.map((a) => a.eval(stack));
 
         if (!symTbl || !methodInvok) {
             // clear the temp function pointer
