@@ -52,13 +52,13 @@ export class ContextSymbolTable extends SymbolTable {
 
     public override clear(): void {
         // Before clearing the dependencies make sure the owners are updated.
-        if (this.owner) {
-            for (const dep of this.dependencies) {
-                if (dep instanceof ContextSymbolTable && dep.owner) {
-                    this.owner.removeDependency(dep.owner);
-                }
-            }
-        }
+        // if (this.owner) {
+        //     for (const dep of this.dependencies) {
+        //         if (dep instanceof ContextSymbolTable && dep.owner) {
+        //             this.owner.removeDependency(dep.owner);
+        //         }
+        //     }
+        // }
 
         this.symbolCache?.clear();
 

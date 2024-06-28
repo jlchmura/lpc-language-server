@@ -62,6 +62,7 @@ import {
 import {
     EfunSymbol,
     FunctionIdentifierSymbol,
+    LpcBaseMethodSymbol,
     MethodDeclarationSymbol,
     MethodInvocationSymbol,
     MethodSymbol,
@@ -100,7 +101,7 @@ import { DriverType, LpcConfig, ensureLpcConfig } from "./LpcConfig";
 import { SemanticListener } from "./SemanticListener";
 import { SemanticTokenCollection } from "./SemanticTokenCollection";
 import { LpcFacade } from "./facade";
-import { resolveOfTypeSync } from "./symbol-utils";
+import { getImmediateParentOfType, resolveOfTypeSync } from "./symbol-utils";
 import { CallStack, StackValue } from "./CallStack";
 import { addPogramToStack } from "./CallStackUtils";
 import { LiteralSymbol } from "../symbols/literalSymbol";
@@ -553,6 +554,10 @@ export class SourceContext {
         const pipeline: SourceContext[] = [context];
         const seenRefs: Set<SourceContext> = new Set();
 
+        if (addSymbolTable) {
+            this.symbolTable.addDependencies(context.symbolTable);
+        }
+
         while (pipeline.length > 0) {
             const current = pipeline.shift();
             if (!current) {
@@ -577,10 +582,6 @@ export class SourceContext {
         // ) {
         //     const i = 0;
         // }
-
-        if (addSymbolTable) {
-            this.symbolTable.addDependencies(context.symbolTable);
-        }
     }
 
     /**
@@ -594,7 +595,7 @@ export class SourceContext {
             context.references.splice(index, 1);
         }
 
-        this.symbolTable?.removeDependency(context.symbolTable);
+        //this.symbolTable?.removeDependency(context.symbolTable);
     }
 
     public getDependencies(): SourceContext[] {
@@ -1056,7 +1057,10 @@ export class SourceContext {
                         // if the symbol wasn't cached, try to look it up in other ways
                         let parentSymbol: BaseSymbol;
                         if (
-                            (parentSymbol = symbol.getParentOfType(ArrowSymbol))
+                            (parentSymbol = getImmediateParentOfType(
+                                symbol,
+                                ArrowSymbol
+                            ))
                         ) {
                             const callOtherSymbol = parentSymbol as ArrowSymbol;
                             // if the symbol object wasn't loaded, just return undefined
@@ -1078,7 +1082,7 @@ export class SourceContext {
                         symbol = resolveOfTypeSync(
                             lookupSymbolTable,
                             name,
-                            MethodDeclarationSymbol
+                            LpcBaseMethodSymbol
                         );
                     }
 

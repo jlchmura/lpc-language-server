@@ -89,12 +89,14 @@ export class VariableIdentifierSymbol
     extends IdentifierSymbol
     implements IEvaluatableSymbol, IRenameableSymbol, IReferenceSymbol
 {
+    private reference: BaseSymbol;
     setReference(symbol: BaseSymbol): BaseSymbol {
-        throw new Error("Method not implemented.");
+        return (this.reference = symbol);
     }
     getReference(): BaseSymbol {
-        throw new Error("Method not implemented.");
+        return this.reference;
     }
+
     nameRange: ILexicalRange;
 
     eval(stack: CallStack, scope?: any) {

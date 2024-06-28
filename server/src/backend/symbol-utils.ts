@@ -181,3 +181,13 @@ export function symbolWithContextSync(
 
     return undefined;
 }
+
+export function getImmediateParentOfType<
+    T extends BaseSymbol,
+    Args extends unknown[]
+>(symbol: BaseSymbol, t: SymbolConstructor<T, Args>): T {
+    if (symbol.parent instanceof t) {
+        return symbol.parent;
+    }
+    return undefined;
+}
