@@ -318,6 +318,18 @@ export class FunctionIdentifierSymbol
         return (this.reference = symbol);
     }
     getReference(): BaseSymbol {
+        if (!this.reference) {
+            // try to fill in the ref if it wasn't already identified
+            this.reference = resolveOfTypeSync(
+                this.symbolTable,
+                this.name,
+                LpcBaseMethodSymbol,
+                false
+            );
+            if (isInstanceOfIReferenceableSymbol(this.reference)) {
+                this.reference.addReference(this);
+            }
+        }
         return this.reference;
     }
 
@@ -327,6 +339,9 @@ export class FunctionIdentifierSymbol
     }
 
     eval(stack: CallStack, scope?: any) {
+        if (this.name == "set_setting") {
+            const ii = 0;
+        }
         // the next symbol should be the method invocation
         // store the function name on the stack so that the method invocation
         // can access it
@@ -339,7 +354,7 @@ export class FunctionIdentifierSymbol
         const stackFn = stack.getFunction(this.name);
         if (isInstanceOfIReferenceableSymbol(stackFn)) {
             stackFn.addReference(this);
-            this.setReference(stackFn);6
+            this.setReference(stackFn);
         }
     }
 }

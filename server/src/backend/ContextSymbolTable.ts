@@ -548,6 +548,41 @@ export class ContextSymbolTable extends SymbolTable {
     }
 
     /**
+     * Gets all symbols from this table (at any level) that match the given name.
+     * @param name
+     * @returns
+     */
+    public getAllSymbolsByNameSync(name: string): BaseSymbol[] {
+        const stack: BaseSymbol[] = [this];
+        const results: BaseSymbol[] = [];
+        while (stack.length > 0) {
+            const s = stack.pop();
+
+            if (s.name === name) {
+                results.push(s);
+            }
+
+            if (s instanceof ScopedSymbol) {
+                stack.push(...s.children);
+            }
+        }
+
+        return results;
+    }
+
+    /**
+     * Gets all symbols from this table (at any level) that match the given name.
+     * @param name
+     * @returns
+     */
+    public getAllSymbolsByName(name: string): Promise<BaseSymbol[]> {
+        return new Promise<BaseSymbol[]>((res, rej) => {
+            const results = this.getAllSymbolsByNameSync(name);
+            res(results);
+        });
+    }
+
+    /**
      * TODO: add optional position dependency (only symbols defined before a given caret pos are viable).
      *
      * @param t The type of the objects to return.
@@ -565,7 +600,7 @@ export class ContextSymbolTable extends SymbolTable {
         const p = new Promise<T[]>((res, rej) => {
             const result = [];
             walkParents(tbl, localOnly, false, (symbol) => {
-                if (symbol instanceof t) {
+                if (!!symbol && symbol instanceof t) {
                     result.push(symbol);
                 }
 

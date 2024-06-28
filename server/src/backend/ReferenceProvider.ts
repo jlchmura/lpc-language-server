@@ -10,6 +10,7 @@ import {
 } from "../utils";
 import {
     IReferenceableSymbol,
+    getSymbolsOfTypeSync,
     isInstanceOfIReferenceSymbol,
     isInstanceOfIReferenceableSymbol,
 } from "../symbols/base";
@@ -60,11 +61,25 @@ export class ReferenceProvider {
             ...(this.backend.fileRefs.get(symFile) ?? []),
         ];
         const seenFiles = new Set<string>();
+        // scan files
         for (const file of files) {
             if (seenFiles.has(file)) continue;
             seenFiles.add(file);
+
             const refCtx = this.backend.loadLpc(file);
+
+            // look for name matches and make sure their references are
+            // filled in.
+            const { symbolTable } = refCtx;
+            const candidates = await symbolTable.getAllSymbolsByName(sym.name);
+            candidates.forEach((c) => {
+                if (!!c && isInstanceOfIReferenceSymbol(c)) {
+                    c.getReference(); // to make sure its filled in
+                }
+            });
+
             const refSym = await refCtx.symbolTable.resolve(sym.name, true);
+
             if (
                 isInstanceOfIReferenceableSymbol(refSym) &&
                 getFilenameForSymbol(refSym) === file

@@ -53,8 +53,7 @@ export function resolveOfTypeSync<T extends BaseSymbol, Args extends unknown[]>(
     scope: IScopedSymbol,
     name: string,
     t: SymbolConstructor<T, Args>,
-    localOnly: boolean = false,
-    cnt: number = 0
+    localOnly: boolean = false
 ): T {
     if (!scope) return undefined;
 
