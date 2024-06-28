@@ -1,5 +1,10 @@
 # LPC Language Services Changelog
 
+## 1.0.19
+
+-   Fix: [[FLUFFOS] Find All References quirks #18](https://github.com/jlchmura/lpc-language-server/issues/18)
+-   Major improvements to symbol lookup in Find References and Goto Definition
+
 ## 1.0.18
 
 -   Better handling of disposed contexts
