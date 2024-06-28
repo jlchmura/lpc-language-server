@@ -45,7 +45,7 @@ export function activate(context: ExtensionContext) {
     // get location of efuns folder and pass to server as an argument
     const efunDir = context.asAbsolutePath("efuns");
 
-    let debugOptions = { execArgv: ["--nolazy", "--inspect", "--expose-gc"] };
+    let debugOptions = { execArgv: ["--nolazy", "--inspect"] };
 
     // If the extension is launched in debug mode then the debug server options are used
     // Otherwise the run options are used
@@ -53,7 +53,7 @@ export function activate(context: ExtensionContext) {
         run: {
             module: serverModule,
             transport: TransportKind.ipc,
-            options: { execArgv: ["--expose-gc"] },
+            options: { execArgv: [] },
             args: [efunDir],
         },
         debug: {
