@@ -434,8 +434,8 @@ export class LPCPreprocessingLexer extends LPCLexer {
 
         if (!includeFile?.source) {
             // TODO: add diagnostic
-            console.warn(
-                `${filename}:${token.line}: could not load include file ${includeFilename}`
+            console.info(
+                `${filename}:${token.line}: could not find include file ${includeFilename}`
             );
         }
 

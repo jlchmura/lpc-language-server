@@ -231,10 +231,8 @@ export class LpcServer {
             try {
                 this.facade.loadLpc(e.document.uri, e.document.getText());
                 this.lastSeenVersion.set(e.document.uri, e.document.version);
-                await this.processDiagnostic(
-                    e.document.uri,
-                    e.document.version
-                );
+
+                await this.processDocChange(e.document);
             } catch (e) {
                 console.error("Error in doc open:\n", e);
             }
@@ -376,9 +374,14 @@ export class LpcServer {
         const filename = document.uri;
         this.changeTimers.delete(filename);
         //this.codeLenseProvider.resolveCodeLens;
-        this.facade.reparse(filename);
 
-        await this.processDiagnostic(document.uri, document.version);
+        // make sure the context hasn't been disposed
+        const ce = this.facade.getContextEntry(filename);
+        if (!ce.disposed) {
+            this.facade.reparse(filename);
+
+            await this.processDiagnostic(document.uri, document.version);
+        }
 
         //force refresh codelense
         //this.registerCodelensProvider();

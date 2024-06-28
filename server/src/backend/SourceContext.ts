@@ -180,6 +180,11 @@ export class SourceContext {
     private config: LpcConfig;
     private driver: IDriver;
 
+    /** flag that indicates if this file has been soft released */
+    public softReleased = false;
+    /** flag that indicates if this context has been disposed */
+    public disposed = false;
+
     public constructor(
         public backend: LpcFacade,
         public fileName: string,
@@ -365,7 +370,7 @@ export class SourceContext {
     }
 
     public parse(): IContextDetails {
-        if (!this.symbolTable) {
+        if (this.disposed) {
             // This context has been disposed.
             return;
         }
@@ -507,6 +512,10 @@ export class SourceContext {
         this.needsCompile = false;
         this.cachedSemanticTokens = this.semanticTokens.build();
 
+        // everything has been reparsed, so this file is no longer
+        // in a soft released state
+        this.softReleased = false;
+
         return this.info;
     }
 
@@ -627,10 +636,10 @@ export class SourceContext {
     public async getDiagnostics(force = false): Promise<IDiagnosticEntry[]> {
         const p = new Promise<IDiagnosticEntry[]>((resolve, reject) => {
             try {
+                if (this.disposed) resolve([]);
                 if (force) this.semanticAnalysisDone = false;
-                //else if (this.parseSuccessful) {
+
                 this.runSemanticAnalysisIfNeeded();
-                //}
 
                 const diags = this.diagnostics.map((d) => {
                     return {
@@ -1484,6 +1493,7 @@ export class SourceContext {
 
     /** releases objects that aren't needed if the file isn't open in the editor */
     public softRelease() {
+        this.softReleased = true;
         this.sourceText = undefined;
         this.allTokens.length = 0;
         this.lexer.inputStream = CharStream.fromString("");
@@ -1499,6 +1509,7 @@ export class SourceContext {
      * Releases all resources associated with this context.
      */
     public cleanup() {
+        this.disposed = true;
         this.softRelease();
         this.symbolTable?.clear();
         this.symbolTable = undefined;

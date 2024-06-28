@@ -76,6 +76,12 @@ export class LpcFacade {
     private depReparseCancel: CancellationTokenSource | undefined =
         new CancellationTokenSource();
 
+    /**
+     * set of files that have been scanned.  Once a file has been scanned, either because
+     * it was opened in the editor & parsed, or parseAll hit it,
+     * the parseAll operation does not need to scan it again.
+     */
+    private scannedFiles = new Set<string>();
     private parseAllCount = 0;
     private parseAllCancel = new CancellationTokenSource();
     public parseAllComplete = false;
@@ -242,32 +248,50 @@ export class LpcFacade {
         this.parseAllCancel = new CancellationTokenSource();
 
         const depChain = new Set<string>();
-        const context = this.loadLpcInternal(fileName, source, depChain);
+        const context = this.loadLpcInternal(fileName, source, depChain, true);
 
         return context;
     }
-    public loadLpcInternal(
+
+    /**
+     * Loads an LPC file into the context.
+     * @param fileName filename to load
+     * @param source source code to load (will be loaded from filesystem if not provided)
+     * @param depChain dependency chain for this load sequence
+     * @param restoreSoftRelease When true, will restore a soft-released file.
+     * @returns SourceContext for the specified file
+     */
+    private loadLpcInternal(
         fileName: string,
         source: string = undefined,
-        depChain: Set<string>
+        depChain: Set<string>,
+        restoreSoftRelease = false
     ): SourceContext {
         fileName = normalizeFilename(fileName);
 
-        let contextEntry = this.getContextEntry(fileName);
-        if (!contextEntry) {
-            if (!source) {
-                try {
-                    if (path.isAbsolute(fileName)) {
-                        source = fs.readFileSync(fileName, "utf8");
-                    } else {
-                        fs.statSync(path.join(this.workspaceDir, fileName));
-                        source = fs.readFileSync(fileName, "utf8");
-                    }
-                } catch (e) {
-                    return undefined;
-                }
-            }
+        this.scannedFiles.add(fileName);
 
+        let contextEntry = this.getContextEntry(fileName);
+
+        // are we going to need source?
+        if (
+            (!contextEntry ||
+                (contextEntry.context.softReleased && restoreSoftRelease)) &&
+            !source
+        ) {
+            try {
+                if (path.isAbsolute(fileName)) {
+                    source = fs.readFileSync(fileName, "utf8");
+                } else {
+                    fs.statSync(path.join(this.workspaceDir, fileName));
+                    source = fs.readFileSync(fileName, "utf8");
+                }
+            } catch (e) {
+                return undefined;
+            }
+        }
+
+        if (!contextEntry) {
             const context = new SourceContext(
                 this,
                 fileName,
@@ -295,9 +319,12 @@ export class LpcFacade {
             // and pass their references to this context.
             context.setText(source);
             this.parseLpc(contextEntry, depChain);
+        } else if (contextEntry.context.softReleased && restoreSoftRelease) {
+            // set the text, which will trigger a reparse later
+            contextEntry.context.setText(source);
         }
-        contextEntry.refCount++;
 
+        contextEntry.refCount++;
         return contextEntry.context;
     }
 
@@ -336,13 +363,13 @@ export class LpcFacade {
         return [];
     }
 
-    public releaseLpc(fileName: string, softRelease = false): void {
-        this.internalReleaseLpc(fileName, softRelease);
+    public releaseLpc(fileName: string): void {
+        this.internalReleaseLpc(fileName);
     }
 
     private internalReleaseLpc(
         fileName: string,
-        softRelease = false,
+
         referencing?: IContextEntry
     ): void {
         const contextEntry = this.getContextEntry(fileName);
@@ -359,22 +386,21 @@ export class LpcFacade {
 
                 // Release also all dependencies.
                 for (const dep of contextEntry.dependencies) {
-                    this.internalReleaseLpc(dep, softRelease, contextEntry);
+                    this.internalReleaseLpc(dep, contextEntry);
                 }
 
                 for (const ref of contextEntry.references) {
-                    this.internalReleaseLpc(ref, softRelease);
+                    this.internalReleaseLpc(ref);
                 }
 
                 contextEntry.context.cleanup();
                 contextEntry.disposed = true;
-            } else if (softRelease) {
-                if (
-                    !!this.workspaceDocs &&
-                    !this.workspaceDocs.get(contextEntry.filename)
-                ) {
-                    contextEntry.context.softRelease();
-                }
+            } else if (
+                !!this.workspaceDocs &&
+                !this.workspaceDocs.get(contextEntry.filename)
+            ) {
+                // if the file is not open, soft release it
+                contextEntry.context.softRelease();
             }
         }
     }
@@ -916,9 +942,12 @@ export class LpcFacade {
 
         while (parseAllFileQueue.length > 0 && !token.isCancellationRequested) {
             const filename = parseAllFileQueue.shift();
+
+            if (this.scannedFiles.has(filename)) {
+                continue;
+            }
             this.parseAllCount++;
-            //for (const filename of parseAllFileQueue) {
-            //    if (token.isCancellationRequested) break;
+
             const p = new Promise((resolve, reject) => {
                 fs.readFile(
                     filename,
@@ -935,7 +964,7 @@ export class LpcFacade {
                                 await this.onRunDiagnostics(filename, false);
                             }
 
-                            this.releaseLpc(filename, true);
+                            this.releaseLpc(filename);
                             resolve(txt);
                         } catch (e) {
                             console.error(
@@ -948,9 +977,9 @@ export class LpcFacade {
                 );
             });
 
-            // p.finally(() => {
-            //     console.log("done", filename);
-            // });
+            p.finally(() => {
+                this.scannedFiles.add(filename);
+            });
             await p;
         }
 
