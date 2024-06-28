@@ -10,6 +10,7 @@ import {
 } from "../utils";
 import {
     IReferenceableSymbol,
+    isInstanceOfIReferenceSymbol,
     isInstanceOfIReferenceableSymbol,
 } from "../symbols/base";
 import { ContextSymbolTable } from "./ContextSymbolTable";
@@ -47,6 +48,8 @@ export class ReferenceProvider {
         // }
 
         const refsToScan: BaseSymbol[] = [sym];
+        if (isInstanceOfIReferenceSymbol(sym))
+            refsToScan.push(sym.getReference());
 
         // check this files inludes to see if the symbol is defined in another file
         const symFile = getFilenameForSymbol(sym);
@@ -67,6 +70,9 @@ export class ReferenceProvider {
                 getFilenameForSymbol(refSym) === file
             ) {
                 refsToScan.push(refSym);
+                if (isInstanceOfIReferenceSymbol(refSym)) {
+                    refsToScan.push(refSym.getReference());
+                }
             }
 
             files.push(...(this.backend.fileRefs.get(file) ?? []));
@@ -74,7 +80,7 @@ export class ReferenceProvider {
 
         while (refsToScan.length > 0) {
             const ref = refsToScan.pop();
-            if (seen.has(ref)) continue;
+            if (!ref || seen.has(ref)) continue;
             seen.add(ref);
 
             if (isInstanceOfIReferenceableSymbol(ref)) {

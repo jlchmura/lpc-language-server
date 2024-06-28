@@ -16,6 +16,7 @@ import {
     IRenameableSymbol,
     IReferenceableSymbol,
     isInstanceOfIReferenceableSymbol,
+    IReferenceSymbol,
 } from "./base";
 import {
     DiagnosticCodes,
@@ -306,8 +307,20 @@ export class MethodInvocationSymbol
  */
 export class FunctionIdentifierSymbol
     extends ScopedSymbol
-    implements IKindSymbol, IEvaluatableSymbol, IRenameableSymbol
+    implements
+        IKindSymbol,
+        IEvaluatableSymbol,
+        IRenameableSymbol,
+        IReferenceSymbol
 {
+    reference: BaseSymbol;
+    setReference(symbol: BaseSymbol): BaseSymbol {
+        return (this.reference = symbol);
+    }
+    getReference(): BaseSymbol {
+        return this.reference;
+    }
+
     nameRange: ILexicalRange;
     public get kind() {
         return SymbolKind.Keyword;
@@ -326,6 +339,7 @@ export class FunctionIdentifierSymbol
         const stackFn = stack.getFunction(this.name);
         if (isInstanceOfIReferenceableSymbol(stackFn)) {
             stackFn.addReference(this);
+            this.setReference(stackFn);6
         }
     }
 }

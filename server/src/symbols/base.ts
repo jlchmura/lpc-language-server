@@ -52,6 +52,17 @@ export function isInstanceOfIReferenceableSymbol(
         (symbol as unknown as IReferenceableSymbol)?.addReference !== undefined
     );
 }
+export interface IReferenceSymbol extends BaseSymbol {
+    /** Set the symbol that this one references */
+    setReference(symbol: BaseSymbol): BaseSymbol;
+    /** Get the symbol that this one references */
+    getReference(): BaseSymbol;
+}
+export function isInstanceOfIReferenceSymbol(
+    symbol: BaseSymbol
+): symbol is IReferenceSymbol {
+    return (symbol as unknown as IReferenceSymbol)?.getReference !== undefined;
+}
 
 export interface IKindSymbol extends BaseSymbol {
     kind: SymbolKind;

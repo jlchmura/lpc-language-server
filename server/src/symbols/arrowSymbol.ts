@@ -1,6 +1,7 @@
 import {
     IEvaluatableSymbol,
     getSymbolsOfTypeSync,
+    isInstanceOfIReferenceSymbol,
     isInstanceOfIReferenceableSymbol,
 } from "./base";
 import { CallStack, StackValue } from "../backend/CallStack";
@@ -177,7 +178,11 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
                 type: DiagnosticSeverity.Error,
             });
         } else if (isInstanceOfIReferenceableSymbol(funSym)) {
-            funSym.addReference(this);
+            // store reference information
+            funSym.addReference(this.target ?? this);
+            if (isInstanceOfIReferenceSymbol(this.target)) {
+                this.target.setReference(funSym);
+            }
         }
 
         // the method invocation symbol will have the call arguments

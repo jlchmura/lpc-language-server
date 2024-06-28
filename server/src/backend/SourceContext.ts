@@ -66,7 +66,6 @@ import {
     MethodInvocationSymbol,
     MethodSymbol,
 } from "../symbols/methodSymbol";
-import { CloneObjectSymbol } from "../symbols/objectSymbol";
 import {
     VariableIdentifierSymbol,
     VariableSymbol,
@@ -1104,30 +1103,30 @@ export class SourceContext {
                     }
 
                     return symbolsToReturn.map((s) => this.getSymbolInfo(s));
-                } else if (
-                    symbol?.symbolPath.some(
-                        (p) => p instanceof CloneObjectSymbol
-                    )
-                ) {
-                    // this is a special situation where we want to nav directly to the file
-                    const objSymbol = symbol.symbolPath.find(
-                        (p) => p instanceof CloneObjectSymbol
-                    ) as CloneObjectSymbol;
-                    return [
-                        {
-                            symbol: objSymbol,
-                            name: objSymbol.relativeFileName,
-                            kind: SymbolKind.Include,
-                            source: objSymbol.filename,
-                            definition: {
-                                range: {
-                                    start: { column: 0, row: 1 },
-                                    end: { column: 0, row: 1 },
-                                },
-                                text: `#include ${objSymbol.relativeFileName}`,
-                            },
-                        },
-                    ];
+                    // } else if (
+                    //     symbol?.symbolPath.some(
+                    //         (p) => p instanceof EfunSymbol && p.name=="new" || p.name=="clone_object"
+                    //     )
+                    // ) {
+                    //     // this is a special situation where we want to nav directly to the file
+                    //     const objSymbol = symbol.symbolPath.find(
+                    //         (p) => p instanceof EfunSymbol
+                    //     ) as EfunSymbol;
+                    //     return [
+                    //         {
+                    //             symbol: objSymbol,
+                    //             name: objSymbol.relativeFileName,
+                    //             kind: SymbolKind.Include,
+                    //             source: objSymbol.filename,
+                    //             definition: {
+                    //                 range: {
+                    //                     start: { column: 0, row: 1 },
+                    //                     end: { column: 0, row: 1 },
+                    //                 },
+                    //                 text: `#include ${objSymbol.relativeFileName}`,
+                    //             },
+                    //         },
+                    //     ];
                 } else {
                     symbol = searchScope?.resolveSync(name, false);
                 }
