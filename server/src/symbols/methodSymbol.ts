@@ -102,29 +102,32 @@ export class LpcBaseMethodSymbol
 
         // args eval on the main stack
         const params = this.getParametersSync();
-        params.forEach((p, idx) => {
-            const argSym = args.length > idx ? args[idx] : undefined;
-            //if (!!argSym && !isInstanceOfIEvaluatableSymbol(argSym)) debugger;
-            const argVal = argSym?.eval(stack, callScope) as StackValue;
-            const paramVal = argVal ?? asStackValue(0, p.type, p);
-            locals.set(p.name, paramVal);
 
-            if (
-                !!argVal?.type?.name &&
-                p.type?.name != argVal.type?.name &&
-                p.type != LpcTypes.unknownType
-            ) {
-                addDiagnostic(argSym, {
-                    message: `Argument of type '${argVal.type?.name}' is not assignable to parameter of type '${p.type?.name}'.`,
-                    source: "argumentTypeMismatch",
-                    range: lexRangeFromContext(
-                        argSym.context as ParserRuleContext
-                    ),
-                    code: "argumentTypeMismatch",
-                    type: DiagnosticSeverity.Warning,
-                });
-            }
-        });
+        if (!!params?.forEach) {
+            params?.forEach((p, idx) => {
+                const argSym = args.length > idx ? args[idx] : undefined;
+                //if (!!argSym && !isInstanceOfIEvaluatableSymbol(argSym)) debugger;
+                const argVal = argSym?.eval(stack, callScope) as StackValue;
+                const paramVal = argVal ?? asStackValue(0, p.type, p);
+                locals.set(p.name, paramVal);
+
+                if (
+                    !!argVal?.type?.name &&
+                    p.type?.name != argVal.type?.name &&
+                    p.type != LpcTypes.unknownType
+                ) {
+                    addDiagnostic(argSym, {
+                        message: `Argument of type '${argVal.type?.name}' is not assignable to parameter of type '${p.type?.name}'.`,
+                        source: "argumentTypeMismatch",
+                        range: lexRangeFromContext(
+                            argSym.context as ParserRuleContext
+                        ),
+                        code: "argumentTypeMismatch",
+                        type: DiagnosticSeverity.Warning,
+                    });
+                }
+            });
+        }
 
         // the function's root frame is the callScope (if it was passed)
         stack.push(
