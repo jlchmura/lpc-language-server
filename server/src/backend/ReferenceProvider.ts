@@ -37,36 +37,39 @@ export class ReferenceProvider {
         const results: Location[] = [];
         const seen: Set<BaseSymbol> = new Set();
 
-        const symbolInfo = this.backend.symbolInfoAtPosition(
-            doc.uri,
-            position.character,
-            position.line + 1,
-            true
-        );
+        const sym = this.backend.symbolContainingPosition(doc.uri, position);
 
-        const sym = firstEntry(symbolInfo)?.symbol;
         if (!sym) {
             return [];
-        } else if (!isInstanceOfIReferenceableSymbol(sym)) {
-            return [];
         }
+        // else if (!isInstanceOfIReferenceableSymbol(sym)) {
+        //     return [];
+        // }
 
         const refsToScan: BaseSymbol[] = [sym];
 
         // check this files inludes to see if the symbol is defined in another file
         const symFile = getFilenameForSymbol(sym);
-        if (this.backend.includeRefs.has(symFile)) {
-            const files = [symFile, ...this.backend.includeRefs.get(symFile)];
-            for (const file of files) {
-                const refCtx = this.backend.loadLpc(file);
-                const refSym = await refCtx.symbolTable.resolve(sym.name, true);
-                if (
-                    isInstanceOfIReferenceableSymbol(refSym) &&
-                    getFilenameForSymbol(refSym) === file
-                ) {
-                    refsToScan.push(refSym);
-                }
+
+        const files = [
+            symFile,
+            ...(this.backend.includeRefs.get(symFile) ?? []),
+            ...(this.backend.fileRefs.get(symFile) ?? []),
+        ];
+        const seenFiles = new Set<string>();
+        for (const file of files) {
+            if (seenFiles.has(file)) continue;
+            seenFiles.add(file);
+            const refCtx = this.backend.loadLpc(file);
+            const refSym = await refCtx.symbolTable.resolve(sym.name, true);
+            if (
+                isInstanceOfIReferenceableSymbol(refSym) &&
+                getFilenameForSymbol(refSym) === file
+            ) {
+                refsToScan.push(refSym);
             }
+
+            files.push(...(this.backend.fileRefs.get(file) ?? []));
         }
 
         while (refsToScan.length > 0) {

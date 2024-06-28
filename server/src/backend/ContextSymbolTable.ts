@@ -365,10 +365,11 @@ export class ContextSymbolTable extends SymbolTable {
         line: number,
         column: number
     ): BaseSymbol | undefined {
-        const findRecursive = (
-            parent: ScopedSymbol
-        ): BaseSymbol | undefined => {
-            for (const symbol of parent.children) {
+        const stack: ScopedSymbol[] = [this];
+        let currentSymbol: ScopedSymbol | undefined;
+
+        while ((currentSymbol = stack.pop())) {
+            for (const symbol of currentSymbol.children) {
                 const startToken = (symbol.context as ParserRuleContext)
                     ?.start as LPCToken;
                 const filename = startToken?.filename;
@@ -385,32 +386,30 @@ export class ContextSymbolTable extends SymbolTable {
                 const stop = context.stop;
                 const stopCol = stop.column + (stop.text?.length ?? 0);
 
-                const posLine = line;
-                const posCol = column;
-
-                // start & stop msut be defined, and line & col must contain the position
-                if (
-                    start &&
-                    stop &&
-                    (start.line < posLine ||
-                        (start.line == posLine && start.column <= posCol)) &&
-                    (stop.line > posLine ||
-                        (stop.line == posLine && stopCol >= posCol))
+                // start & stop must be defined, and line & col must contain the position
+                if (!start || !stop) continue;
+                else if (start.line > line) break;
+                else if (
+                    (start.line < line ||
+                        (start.line == line && start.column <= column)) &&
+                    (stop.line > line ||
+                        (stop.line == line && stopCol >= column))
                 ) {
                     if (symbol instanceof ScopedSymbol) {
-                        return findRecursive(symbol);
+                        stack.push(symbol);
                     } else {
                         return symbol;
                     }
                 }
             }
 
-            return parent;
-        };
+            if (stack.length == 0) {
+                return currentSymbol;
+            }
+        }
 
-        return findRecursive(this);
+        return undefined;
     }
-
     /**
      * Does a depth-first search in the table for a symbol which contains the given context.
      * The search is based on the token indices which the context covers and goes down as much as possible to find

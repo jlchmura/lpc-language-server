@@ -821,7 +821,7 @@ export class SourceContext {
         position: Position
     ): BaseSymbol | undefined {
         return this.symbolTable.symbolContainingPosition(
-            position.line,
+            position.line + 1,
             position.character
         );
     }
