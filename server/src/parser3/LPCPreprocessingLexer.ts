@@ -143,8 +143,10 @@ export class LPCPreprocessingLexer extends LPCLexer {
             if (
                 token.type == LPCLexer.EOF ||
                 (token.text.indexOf("\n") >= 0 &&
-                    !token.text.trimEnd().endsWith("\\") &&
-                    this.directiveTokens.at(-1)?.type != LPCLexer.BACKSLASH) ||
+                    // make sure string doesn't end with \ or \\n
+                    !(
+                        token.text.endsWith("\\") || token.text.endsWith("\\\n")
+                    )) ||
                 // fluff inherits can end with semi
                 (this.isFluff() &&
                     this.directiveTokens.at(1)?.type == LPCLexer.INCLUDE &&

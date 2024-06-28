@@ -194,7 +194,7 @@ mode DEFINE_MODE;
     DEFINE_CONTENT: (~[\n\\/]+ | '\\' ~[\r\n] | '/' ~[*/]) ('\\' '\r'? '\n')? -> more;
     NEWLINE: '\\' '\r'? '\n' -> more;
     DEFINE_COMMENT: '//' ~[\n]+ -> more;
-    DEFINE_BLOCK_COMMENT: '/*' (~'*' | '*' ~'/' )+? '*'+ '/' -> more;
+    DEFINE_BLOCK_COMMENT: '/*' (~'*' | '*' ~'/' )+? '*'+ '/' -> more;    
     END_DEFINE: ('\n'|EOF) -> popMode;
 
 // string mode will handle escaped quotes

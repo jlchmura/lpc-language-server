@@ -480,6 +480,11 @@ static string textarr, textArr2;
 static notypeArr, noTypeArr2;
 nomask *noTypeArr3;
 
+// weird define case where there is a slash and then an empty line
+#define DEFWITHEMPTYLINE \
+    "string val of define"\
+
+testPostDefineEmptyLine() { /* this should parse successfully */ }
 
 
 

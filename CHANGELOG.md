@@ -6,6 +6,7 @@
 -   Memory cleanup
 -   Fix: [[FLUFFOS] Parser error on catch blocks #25](https://github.com/jlchmura/lpc-language-server/issues/25)
 -   Fix: Parser error on variable declarations without types
+-   Fix: Preprocessor included two many tokens when end of define ended with a \
 
 ## 1.0.17
 

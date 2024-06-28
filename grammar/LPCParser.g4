@@ -79,9 +79,6 @@ directiveArgument
     | PRIVATE // this is apparently legal - shows up in mg-mudlib
     ;
 
-// #define
-directiveDefineParam: PAREN_OPEN Identifier (COMMA Identifier)* PAREN_CLOSE;
-directiveDefineArgument: expression ;
 
 // #include <file> | #include "file"
 directiveTypeInclude: INCLUDE;

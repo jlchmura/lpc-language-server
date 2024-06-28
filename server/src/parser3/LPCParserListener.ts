@@ -17,8 +17,6 @@ import { DirectiveIfTestExpressionContext } from "./LPCParser.js";
 import { DirectiveIfArgumentContext } from "./LPCParser.js";
 import { DirectiveTypeWithArgumentsContext } from "./LPCParser.js";
 import { DirectiveArgumentContext } from "./LPCParser.js";
-import { DirectiveDefineParamContext } from "./LPCParser.js";
-import { DirectiveDefineArgumentContext } from "./LPCParser.js";
 import { DirectiveTypeIncludeContext } from "./LPCParser.js";
 import { DirectiveIncludeFileContext } from "./LPCParser.js";
 import { DirectiveTypePragmaContext } from "./LPCParser.js";
@@ -222,26 +220,6 @@ export class LPCParserListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitDirectiveArgument?: (ctx: DirectiveArgumentContext) => void;
-    /**
-     * Enter a parse tree produced by `LPCParser.directiveDefineParam`.
-     * @param ctx the parse tree
-     */
-    enterDirectiveDefineParam?: (ctx: DirectiveDefineParamContext) => void;
-    /**
-     * Exit a parse tree produced by `LPCParser.directiveDefineParam`.
-     * @param ctx the parse tree
-     */
-    exitDirectiveDefineParam?: (ctx: DirectiveDefineParamContext) => void;
-    /**
-     * Enter a parse tree produced by `LPCParser.directiveDefineArgument`.
-     * @param ctx the parse tree
-     */
-    enterDirectiveDefineArgument?: (ctx: DirectiveDefineArgumentContext) => void;
-    /**
-     * Exit a parse tree produced by `LPCParser.directiveDefineArgument`.
-     * @param ctx the parse tree
-     */
-    exitDirectiveDefineArgument?: (ctx: DirectiveDefineArgumentContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.directiveTypeInclude`.
      * @param ctx the parse tree
