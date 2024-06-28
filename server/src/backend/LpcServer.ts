@@ -448,7 +448,7 @@ export class LpcServer {
         // load the config
         loadLpcConfig(path.join(rootFolderPath, "lpc-config.json"));
 
-        this.facade = new LpcFacade(rootFolderPath);
+        this.facade = new LpcFacade(rootFolderPath, this.documents);
 
         // hook up the run diagnostic event emitter
         this.facade.onRunDiagnostics = async (filename, force) => {
@@ -466,12 +466,22 @@ export class LpcServer {
             console.info("process all start", process.memoryUsage());
             this.connection.sendNotification("lpc/processing-start");
         });
-        this.facade.onProcessingEvent.on("stop", () => {
-            this.connection.sendNotification("lpc/processing-stop");
-            console.info("process all stop", process.memoryUsage());
-            global.gc();
-            console.info("process post GC", process.memoryUsage());
-        });
+        this.facade.onProcessingEvent.on(
+            "stop",
+            (queue: [], parseAllCount: number) => {
+                this.connection.sendNotification("lpc/processing-stop");
+                console.info(
+                    `process all stop [${parseAllCount} done/${
+                        queue?.length ?? 0
+                    } left]`,
+                    process.memoryUsage()
+                );
+                // setTimeout(() => {
+                //     global.gc();
+                //     console.info("process post GC", process.memoryUsage());
+                // });
+            }
+        );
 
         // init providers
         this.symbolProvider = new LpcSymbolProvider(this.facade);

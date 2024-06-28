@@ -10,6 +10,7 @@ import {
     FoldingRange,
     Position,
     SemanticTokens,
+    TextDocuments,
 } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { URI } from "vscode-uri";
@@ -43,7 +44,7 @@ export type IContextEntry = {
      * List of filenames that this context depends on.
      */
     dependencies: string[];
-    references: string[];
+    references: Set<string>;
     filename: string;
     id: number;
     disposed: boolean;
@@ -75,15 +76,28 @@ export class LpcFacade {
     private depReparseCancel: CancellationTokenSource | undefined =
         new CancellationTokenSource();
 
+    private parseAllCount = 0;
     private parseAllCancel = new CancellationTokenSource();
     public parseAllComplete = false;
     private parseAllFileQueue: string[] = [];
 
+    /** Stores information about which files reference an include.
+     * The key is the include filename, the set contains a list of files that reference it
+     */
     public includeRefs: Map<string, Set<string>> = new Map();
+
+    /**
+     * Stores info about which files reference a given file.
+     * For a given key, the value is a list of filenames that reference it.
+     */
+    public fileRefs: Map<string, Set<string>> = new Map();
 
     private masterFile: SourceContext;
 
-    public constructor(public workspaceDir: string) {
+    public constructor(
+        public workspaceDir: string,
+        private workspaceDocs: TextDocuments<TextDocument>
+    ) {
         const config = ensureLpcConfig();
         this.importDir = config.include.map((dir) => {
             if (dir.startsWith("/")) dir = dir.slice(1);
@@ -269,7 +283,7 @@ export class LpcFacade {
                 context,
                 refCount: 0,
                 dependencies: [],
-                references: [],
+                references: new Set(),
                 filename: fileName,
                 id: randomInt(1000000),
                 disposed: false,
@@ -322,12 +336,13 @@ export class LpcFacade {
         return [];
     }
 
-    public releaseLpc(fileName: string): void {
-        this.internalReleaseLpc(fileName);
+    public releaseLpc(fileName: string, softRelease = false): void {
+        this.internalReleaseLpc(fileName, softRelease);
     }
 
     private internalReleaseLpc(
         fileName: string,
+        softRelease = false,
         referencing?: IContextEntry
     ): void {
         const contextEntry = this.getContextEntry(fileName);
@@ -344,15 +359,22 @@ export class LpcFacade {
 
                 // Release also all dependencies.
                 for (const dep of contextEntry.dependencies) {
-                    this.internalReleaseLpc(dep, contextEntry);
+                    this.internalReleaseLpc(dep, softRelease, contextEntry);
                 }
 
                 for (const ref of contextEntry.references) {
-                    this.internalReleaseLpc(ref);
+                    this.internalReleaseLpc(ref, softRelease);
                 }
 
                 contextEntry.context.cleanup();
                 contextEntry.disposed = true;
+            } else if (softRelease) {
+                if (
+                    !!this.workspaceDocs &&
+                    !this.workspaceDocs.get(contextEntry.filename)
+                ) {
+                    contextEntry.context.softRelease();
+                }
             }
         }
     }
@@ -367,7 +389,8 @@ export class LpcFacade {
         try {
             const contextEntry = this.getContextEntry(filename);
             if (contextEntry) {
-                contextEntry.references.push(refFilename);
+                const isNewRef = !contextEntry.references.has(refFilename);
+                contextEntry.references.add(refFilename);
 
                 const depCtx = this.loadLpcInternal(
                     refFilename,
@@ -375,7 +398,8 @@ export class LpcFacade {
                     new Set<string>()
                 );
                 const depContextEntry = this.getContextEntry(refFilename);
-                if (depContextEntry) {
+                if (depContextEntry && isNewRef) {
+                    // only increment ref counter if this is a new reference
                     depContextEntry.refCount++;
                 }
 
@@ -418,7 +442,14 @@ export class LpcFacade {
                         (dep.symbol as IncludeSymbol).isLoaded = true;
                     }
                     contextEntry.context.addAsReferenceTo(depContext);
+
+                    const depFile = depContext.fileName;
+                    if (!this.fileRefs.has(depFile)) {
+                        this.fileRefs.set(depFile, new Set());
+                    }
+                    this.fileRefs.get(depFile).add(filename);
                 }
+
                 return depContext;
             }
         } catch (e) {
@@ -438,10 +469,15 @@ export class LpcFacade {
         const context = contextEntry.context;
 
         depChain.add(context.fileName);
+        if (!this.fileRefs.has(context.fileName)) {
+            this.fileRefs.set(context.fileName, new Set());
+        }
 
         try {
             const oldDependencies = [...contextEntry.dependencies];
-            const oldReferences = [...context.getReferences()];
+            const oldReferences = [
+                ...context.getReferences().map((ref) => ref.fileName),
+            ];
             const oldIncludes = [...context.info.includes];
 
             contextEntry.dependencies = [];
@@ -451,6 +487,21 @@ export class LpcFacade {
             // load file-level dependencies (imports & inherits)
             const newDependencies = [...info.imports];
             const newIncludes = [...info.includes];
+            const newReferences = [
+                ...context.getReferences().map((ref) => ref.fileName),
+            ];
+
+            for (const ref of oldReferences.concat(oldDependencies)) {
+                if (this.fileRefs.has(ref)) {
+                    this.fileRefs.get(ref).delete(context.fileName);
+                }
+            }
+            for (const ref of newReferences) {
+                if (!this.fileRefs.has(ref)) {
+                    this.fileRefs.set(ref, new Set());
+                }
+                this.fileRefs.get(ref).add(context.fileName);
+            }
 
             for (const dep of newDependencies) {
                 this.addDependency(contextEntry.filename, dep, depChain);
@@ -483,7 +534,7 @@ export class LpcFacade {
             // Release all old dependencies. This will only unload grammars which have
             // not been ref-counted by the above dependency loading (or which are not used by other
             // grammars).
-            for (const dep of oldDependencies) {
+            for (const dep of oldDependencies.concat(oldReferences)) {
                 this.releaseLpc(dep);
             }
 
@@ -499,6 +550,11 @@ export class LpcFacade {
                 }
                 this.includeRefs.get(include).add(context.fileName);
             }
+
+            // console.debug(
+            //     `Refs [${context.fileName}]:`,
+            //     this.fileRefs.get(context.fileName)
+            // );
         } catch (e) {
             console.error(`Error parsing ${contextEntry.filename}: ${e}`, e);
         }
@@ -789,15 +845,15 @@ export class LpcFacade {
         const config = ensureLpcConfig();
         const excludeFiles = await this.getExludes();
         // add master file
-        const masterFileInfo = this.resolveFilename(
-            config.files.master,
-            this.workspaceDir
-        );
-        if (!excludeFiles.has(masterFileInfo.fullPath)) {
-            if (fs.existsSync(masterFileInfo.fullPath)) {
-                this.parseAllFileQueue.push(masterFileInfo.fullPath);
-            }
-        }
+        // const masterFileInfo = this.resolveFilename(
+        //     config.files.master,
+        //     this.workspaceDir
+        // );
+        // if (!excludeFiles.has(masterFileInfo.fullPath)) {
+        //     if (fs.existsSync(masterFileInfo.fullPath)) {
+        //         this.parseAllFileQueue.push(masterFileInfo.fullPath);
+        //     }
+        // }
         // add files from init_files
         config.files.init_files.forEach((initFile) => {
             const fileInfo = this.resolveFilename(initFile, this.workspaceDir);
@@ -858,8 +914,11 @@ export class LpcFacade {
 
         this.onProcessingEvent.emit("start", parseAllFileQueue);
 
-        for (const filename of parseAllFileQueue) {
-            if (token.isCancellationRequested) break;
+        while (parseAllFileQueue.length > 0 && !token.isCancellationRequested) {
+            const filename = parseAllFileQueue.shift();
+            this.parseAllCount++;
+            //for (const filename of parseAllFileQueue) {
+            //    if (token.isCancellationRequested) break;
             const p = new Promise((resolve, reject) => {
                 fs.readFile(
                     filename,
@@ -876,7 +935,7 @@ export class LpcFacade {
                                 await this.onRunDiagnostics(filename, false);
                             }
 
-                            //this.releaseLpc(filename);
+                            this.releaseLpc(filename, true);
                             resolve(txt);
                         } catch (e) {
                             console.error(
@@ -889,6 +948,9 @@ export class LpcFacade {
                 );
             });
 
+            // p.finally(() => {
+            //     console.log("done", filename);
+            // });
             await p;
         }
 
@@ -896,7 +958,11 @@ export class LpcFacade {
             console.debug("Parse all cancelled");
         }
 
-        this.onProcessingEvent.emit("stop", parseAllFileQueue);
+        this.onProcessingEvent.emit(
+            "stop",
+            parseAllFileQueue,
+            this.parseAllCount
+        );
     }
 
     public async parseAllFiles() {

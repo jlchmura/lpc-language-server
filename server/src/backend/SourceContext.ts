@@ -423,11 +423,11 @@ export class SourceContext {
         // Rewind the input stream for a new parse run.
         this.lexer.inputStream = CharStream.fromString(this.sourceText);
         this.lexer.driverType = config.driver.type;
-        this.lexer.reset();
 
+        //this.tokenStream.setTokenSource(this.lexer);
+        this.lexer.reset();
         this.lexer.addMacros(configDefines);
         this.tokenStream.setTokenSource(this.lexer);
-
         this.parser.reset();
 
         // use default instead of bailout here.
@@ -1486,13 +1486,13 @@ export class SourceContext {
     public softRelease() {
         this.sourceText = undefined;
         this.allTokens.length = 0;
-        this.symbolNameCache?.clear();
-        this.lexer.reset();
-        this.parser.reset();
-        this.tokenStream.reset();
-        this.semanticTokens = undefined;
+        this.lexer.inputStream = CharStream.fromString("");
+        //this.lexer.reset();
+        this.tokenStream.setTokenSource(undefined); // this will clear the buffered tokens
+        this.semanticTokens.clear();
         this.cachedSemanticTokens = undefined;
-        this.highlights = [];
+        this.highlights.length = 0;
+        this.symbolNameCache?.clear();
     }
 
     /**
@@ -1502,7 +1502,9 @@ export class SourceContext {
         this.softRelease();
         this.symbolTable?.clear();
         this.symbolTable = undefined;
+        this.lexer = undefined;
         this.parser = undefined;
+        this.tokenStream = undefined;
         this.tree = undefined;
         this.diagnostics.length = 0;
         this.semanticAnalysisDone = false;

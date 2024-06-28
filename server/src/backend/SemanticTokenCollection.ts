@@ -15,6 +15,10 @@ export class SemanticTokenCollection {
 
     constructor() {}
 
+    public clear() {
+        this.tokens.length = 0;
+    }
+
     /**
      * Add a token. Line and column are 1-based
      * @param line 1-based line number of the token's starting position

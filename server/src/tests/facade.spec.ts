@@ -9,7 +9,7 @@ describe("facade", () => {
     let facade: LpcFacade;
 
     beforeEach(() => {
-        facade = new LpcFacade(baseDir);
+        facade = new LpcFacade(baseDir, undefined);
     });
 
     it("Should instantiate a new facade", () => {

@@ -52,7 +52,7 @@ const filename = path.join(workDir, process.argv[3]);
 const configFile = path.join(workDir, "lpc-config.json");
 const config = loadLpcConfig(configFile);
 
-const facade = new LpcFacade(workDir);
+const facade = new LpcFacade(workDir, undefined);
 const ctx = facade.loadLpc(filename);
 
 const semanticListener = new SemanticListener(

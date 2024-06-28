@@ -10,7 +10,7 @@ describe("SourceContext", () => {
     let ctx: SourceContext;
 
     beforeEach(() => {
-        facade = new LpcFacade(baseDir);
+        facade = new LpcFacade(baseDir, undefined);
     });
 
     describe("general", () => {
