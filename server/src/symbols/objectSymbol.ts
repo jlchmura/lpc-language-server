@@ -51,7 +51,7 @@ export class CloneObjectSymbol
         let evalResult: string | StackValue;
         for (const child of this.children) {
             if (isInstanceOfIEvaluatableSymbol(child)) {
-                evalResult = child.eval(stack, filename);
+                evalResult = child.eval(stack);
             } else {
                 throw "not evaluable";
             }

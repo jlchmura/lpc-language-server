@@ -152,10 +152,11 @@ export class LpcFacade {
     public filenameToAbsolutePath(filename: string): string {
         if (!filename) return filename;
         else if (typeof filename !== "string") {
-            console.warn(
-                "filenameToAbsolutePath: filename is not a string",
-                filename
-            );
+            // NTBLA: track this down and handle it
+            // console.warn(
+            //     "filenameToAbsolutePath: filename is not a string",
+            //     filename
+            // );
             return "";
         }
         if (filename.startsWith(this.workspaceDir)) {
