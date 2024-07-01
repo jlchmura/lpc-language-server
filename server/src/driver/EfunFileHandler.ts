@@ -6,7 +6,7 @@ import { IFileHandler } from "../backend/types";
 export class EfunFileHandler implements IFileHandler {
     constructor() {}
 
-    public loadImport(
+    public loadInclude(
         refFilename: string,
         filename: string
     ): { uri: string; source: string } {

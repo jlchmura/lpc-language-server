@@ -3,6 +3,7 @@ import { DriverType } from "../backend/LpcConfig";
 import { LPCParser } from "../parser3/LPCParser";
 import { getLexer } from "./test-utils";
 import { LPCPreprocessingLexer } from "../parser3/LPCPreprocessingLexer";
+import { TestFileHandler } from "./TestFileHandler";
 
 describe("Test", () => {
     beforeAll(() => {});
@@ -15,6 +16,14 @@ describe("Test", () => {
         const parser = getParser("preproc.c", DriverType.LDMud);
         const tree = parser.program();
         expect(tree).toBeDefined();
+    });
+
+    it("should report include files", () => {
+        const lexer = getLexer("includes-test.c", []);
+        const tokens = lexer.getAllTokens();
+        const handler = lexer.fileHandler as TestFileHandler;
+
+        expect(handler.includes?.length).toEqual(2);
     });
 });
 

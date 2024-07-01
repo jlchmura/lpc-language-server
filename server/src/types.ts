@@ -58,8 +58,8 @@ export interface IContextDetails {
     //unreferencedRules: string[];
     unreferencedMethods: string[];
     imports: ContextImportInfo[];
+    /** list of files that are included by `#include` directives */
     includes: string[];
-    objectReferences: Record<string, BaseSymbol[]>;
 }
 
 export enum SymbolKind {

@@ -612,7 +612,7 @@ export class DetailsVisitor
         }
 
         const symbol = this.addNewSymbol(IncludeSymbol, ctx, filename);
-        symbol.isLoaded = this.fileHandler.doesImportFile(filename);
+        symbol.isLoaded = this.fileHandler.doesIncludeFile(filename);
 
         return undefined;
     };

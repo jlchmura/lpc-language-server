@@ -20,11 +20,10 @@ export function parseEfuns(driverType: string, efuns: ContextSymbolTable) {
         throw new Error(`Cannot find efun file ${efunFile}`);
     }
 
-    const includes: string[] = [];
     const code = fs.readFileSync(efunFile, "utf-8");
     const stream = CharStream.fromString(code);
     // get a lexer
-    const lexer = new LPCPreprocessingLexer(stream, efunFile, includes);
+    const lexer = new LPCPreprocessingLexer(stream, efunFile);
     lexer.tokenFactory = new LPCTokenFactor(efunFile);
     lexer.fileHandler = new EfunFileHandler();
     lexer.driverType = driverType;

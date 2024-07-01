@@ -10,25 +10,32 @@ export class LpcFileHandler implements IFileHandler {
 
     constructor(
         private backend: LpcFacade,
-        private sourceContext: SourceContext
+        private sourceContext: SourceContext,
+        /** list of files that are loaded via `#include` directives */
+        private includes: string[]
     ) {}
 
+    /**
+     * Adds a reference to another file. This may be an `inherit` or it may be
+     * the loading of another object such as `load_object` or `clone_object`.
+     * This method is NOT to be used for `#include` files.
+     * @param filename The filename to load
+     * @param symbol The symbol that is referencing the file
+     */
     public loadReference(filename: string, symbol?: BaseSymbol): SourceContext {
         const fromFilename = this.sourceContext.fileName;
         const toFilename = this.backend.filenameToAbsolutePath(filename);
-        const refs = this.sourceContext.info.objectReferences;
-
-        if (symbol) {
-            const refSymbols = refs[fromFilename]
-                ? refs[fromFilename]
-                : (refs[fromFilename] = []);
-            refSymbols.push(symbol);
-        }
 
         return this.backend.addReference(fromFilename, toFilename);
     }
 
-    public loadImport(
+    /**
+     * Loads an INCLUDE file
+     * @param sourceFilename The filename that is loading the include
+     * @param filename The filename of the include file
+     * @returns
+     */
+    public loadInclude(
         sourceFilename: string,
         filename: string
     ): LoadImportResult {
@@ -37,6 +44,9 @@ export class LpcFileHandler implements IFileHandler {
             sourceFilename,
             this.searchDirs
         );
+
+        this.includes.push(importInfo.fullPath);
+
         try {
             const source = !!importInfo.fullPath
                 ? fs.readFileSync(importInfo.fullPath, "utf-8")
@@ -54,13 +64,7 @@ export class LpcFileHandler implements IFileHandler {
         return depFiles.map((f) => this.backend.getContext(f));
     }
 
-    public doesReferenceFile(filename: string): boolean {
-        const refFilename = this.backend.filenameToAbsolutePath(filename);
-        const refs = this.sourceContext.info.objectReferences;
-        return !!refs[refFilename];
-    }
-
-    public doesImportFile(filename: string): boolean {
+    public doesIncludeFile(filename: string): boolean {
         const refFilename = this.sourceContext.resolveFilename(filename);
         const deps = this.backend.getDependencies(this.sourceContext.fileName);
         return !!deps.find((f) => f === refFilename.fullPath);

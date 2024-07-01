@@ -15,11 +15,7 @@ describe("Test", () => {
     beforeAll(() => {});
 
     it("Should exist", () => {
-        const lexer = new LPCPreprocessingLexer(
-            CharStream.fromString(""),
-            "",
-            []
-        );
+        const lexer = new LPCPreprocessingLexer(CharStream.fromString(""), "");
         expect(lexer).toBeDefined();
 
         expect(lexer).toHaveProperty("driverType");

@@ -3,6 +3,8 @@
  * which carries the Apache 2.0 license.
  */
 
+import { DependencySearchType } from "../types";
+
 /**
  * Represents an immutable snapshot of a script at a specified time.Once acquired, the
  * snapshot is observably immutable. i.e. the same calls with the same parameters will return
@@ -34,8 +36,14 @@ export type LoadImportResult = {
     source: string;
 };
 
+export type ResolvedFilename = {
+    filename: string;
+    fullPath: string;
+    type: DependencySearchType;
+};
+
 export interface IFileHandler {
-    loadImport(sourceFilename: string, filename: string): LoadImportResult;
+    loadInclude(sourceFilename: string, filename: string): LoadImportResult;
 }
 
 export interface TextChangeRange {

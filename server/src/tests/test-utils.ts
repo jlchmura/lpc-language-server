@@ -33,7 +33,7 @@ export function getLexer(
     diags: IDiagnosticEntry[] = []
 ): LPCPreprocessingLexer {
     const stream = getStream(filename);
-    const lexer = new LPCPreprocessingLexer(stream, filename, []);
+    const lexer = new LPCPreprocessingLexer(stream, filename);
     lexer.tokenFactory = new LPCTokenFactor(filename);
     lexer.fileHandler = new TestFileHandler();
     return lexer;
@@ -44,7 +44,7 @@ export function getLexerFromString(
     diags: IDiagnosticEntry[] = []
 ): LPCPreprocessingLexer {
     const stream = CharStream.fromString(s);
-    const lexer = new LPCPreprocessingLexer(stream, "test.c", []);
+    const lexer = new LPCPreprocessingLexer(stream, "test.c");
     lexer.tokenFactory = new LPCTokenFactor("test.c");
     lexer.fileHandler = new TestFileHandler();
     return lexer;

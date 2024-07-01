@@ -87,11 +87,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
     /** lexer used for processing macro bodies */
     private readonly macroLexer: LPCLexer;
 
-    constructor(
-        input: CharStream,
-        filename: string,
-        private includes: string[]
-    ) {
+    constructor(input: CharStream, filename: string) {
         super(input);
 
         this.macroLexer = new LPCLexer(input);
@@ -427,12 +423,10 @@ export class LPCPreprocessingLexer extends LPCLexer {
             );
         }
 
-        const includeFile = this.fileHandler.loadImport(
+        const includeFile = this.fileHandler.loadInclude(
             lt.filename,
             includeFilename
         );
-
-        this.includes.push(includeFile.uri);
 
         if (!includeFile?.source) {
             // TODO: add diagnostic

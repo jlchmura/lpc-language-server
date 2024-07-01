@@ -28,6 +28,7 @@ import {
 } from "../utils";
 import { ensureLpcConfig } from "./LpcConfig";
 import { SourceContext } from "./SourceContext";
+import { ResolvedFilename } from "./types";
 
 /** ms delay before reparsing a depenency */
 const DEP_FILE_REPARSE_TIME = 300;
@@ -184,7 +185,7 @@ export class LpcFacade {
         filename: string,
         referenceFilename: string,
         searchDirs?: string[]
-    ) {
+    ): ResolvedFilename {
         const normedRefFilename = referenceFilename.startsWith("file:")
             ? URI.parse(referenceFilename).fsPath
             : referenceFilename;

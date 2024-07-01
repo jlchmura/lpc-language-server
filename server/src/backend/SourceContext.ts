@@ -105,13 +105,12 @@ import { getImmediateParentOfType, resolveOfTypeSync } from "./symbol-utils";
 import { CallStack, StackValue } from "./CallStack";
 import { addPogramToStack } from "./CallStackUtils";
 import { LiteralSymbol } from "../symbols/literalSymbol";
+import { ResolvedFilename } from "./types";
 
 /**
  * Source context for a single LPC file.
  */
 export class SourceContext {
-    /** file handler for this source file */
-    public fileHandler = new LpcFileHandler(this.backend, this);
     /** symbol table for this sourc efile */
     public symbolTable: ContextSymbolTable;
 
@@ -120,8 +119,14 @@ export class SourceContext {
         unreferencedMethods: [],
         imports: [],
         includes: [],
-        objectReferences: {},
     };
+
+    /** file handler for this source file */
+    public fileHandler = new LpcFileHandler(
+        this.backend,
+        this,
+        this.info.includes
+    );
 
     /* @internal */
     public diagnostics: IDiagnosticEntry[] = [];
@@ -194,8 +199,7 @@ export class SourceContext {
 
         this.lexer = new LPCPreprocessingLexer(
             CharStream.fromString(""),
-            this.fileName,
-            this.info.includes
+            this.fileName
         );
         this.lexer.tokenFactory = new LPCTokenFactor(this.fileName);
         this.lexer.fileHandler = this.fileHandler;
@@ -1443,7 +1447,7 @@ export class SourceContext {
         }
     }
 
-    public resolveFilename(filename: string) {
+    public resolveFilename(filename: string): ResolvedFilename {
         return this.backend.resolveFilename(filename, this.fileName);
     }
 

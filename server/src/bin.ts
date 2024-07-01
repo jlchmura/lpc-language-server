@@ -32,7 +32,7 @@ import { loadLpcConfig } from "./backend/LpcConfig";
 class MockFileHandler implements IFileHandler {
     constructor() {}
 
-    public loadImport(
+    public loadInclude(
         refFilename: string,
         filename: string
     ): { uri: string; source: string } {
