@@ -64,6 +64,7 @@ OBJECT: 'object';
 PRAGMA: 'pragma';
 QUOTEDARRAY: 'quotedarray' { this.isLD() }?;
 RETURN: 'return';
+REF: 'ref' { this.isFluff() }?;
 STATUS: 'status' { this.isLD() }?;
 STRUCTS: 'structs';
 STRUCT: 'struct';

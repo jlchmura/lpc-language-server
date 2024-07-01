@@ -279,7 +279,9 @@ unionableTypeSpecifier
         primitiveTypeSpecifier
         | LT typeSpecifier GT 
         | structTypeSpecifier         
-        ) STAR*
+        ) 
+        REF?
+        STAR*
       ) 
       | STAR+ // typeless array
     ) (OR unionableTypeSpecifier)*
@@ -632,7 +634,7 @@ literal
     ;
 
 argument
-    : AND? expression TRIPPLEDOT?     
+    : (AND|REF)? expression TRIPPLEDOT?     
     ;
 
 // The argument after comma is reall required, but that causes parsing errors that negatively impact 

@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.0.20
+
+-   Fix: [[FLUFFOS] Parser does not like the ref keyword in function definitions #29](https://github.com/jlchmura/lpc-language-server/issues/29)
+
 ## 1.0.19
 
 -   Fix: [[FLUFFOS] Find All References quirks #18](https://github.com/jlchmura/lpc-language-server/issues/18)
