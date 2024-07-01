@@ -123,8 +123,6 @@ export class SourceContext {
         objectReferences: {},
     };
 
-    public onLoadImports: (imports: string[]) => void = () => {};
-
     /* @internal */
     public diagnostics: IDiagnosticEntry[] = [];
 

@@ -305,10 +305,6 @@ export class LpcFacade {
                 this.masterFile
             );
 
-            context.onLoadImports = (imports) => {
-                this.loadImports(fileName, imports, depChain);
-            };
-
             // store the entry
             contextEntry = {
                 context,
@@ -326,37 +322,14 @@ export class LpcFacade {
             // and pass their references to this context.
             context.setText(source);
             this.parseLpc(contextEntry, depChain);
+
+            contextEntry.refCount++;
         } else if (contextEntry.context.softReleased && restoreSoftRelease) {
             // set the text, which will trigger a reparse later
             contextEntry.context.setText(source);
         }
 
-        contextEntry.refCount++;
         return contextEntry.context;
-    }
-
-    /**
-     * load imports and add them as dependencies to fileName
-     * @param fileName file file we are loading imports for
-     * @param imports array of import filenames to load
-     */
-    private loadImports(
-        fileName: string,
-        imports: string[],
-        depChain: Set<string>
-    ) {
-        const contextEntry = this.getContextEntry(fileName);
-        if (contextEntry) {
-            for (const imp of imports) {
-                this.addDependency(
-                    fileName,
-                    {
-                        filename: imp,
-                    } as ContextImportInfo,
-                    depChain
-                );
-            }
-        }
     }
 
     public getDependencies(fileName: string): string[] {
