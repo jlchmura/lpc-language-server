@@ -297,7 +297,8 @@ export class LpcFacade {
                 this,
                 fileName,
                 this.workspaceDir,
-                this.importDir
+                this.importDir,
+                this.masterFile
             );
 
             context.onLoadImports = (imports) => {

@@ -97,7 +97,7 @@ import { ContextLexerErrorListener } from "./ContextLexerErrorListener";
 import { ContextSymbolTable } from "./ContextSymbolTable";
 import { DetailsVisitor } from "./DetailsVisitor";
 import { LpcFileHandler } from "./FileHandler";
-import { DriverType, LpcConfig, ensureLpcConfig } from "./LpcConfig";
+import { ensureLpcConfig } from "./LpcConfig";
 import { SemanticListener } from "./SemanticListener";
 import { SemanticTokenCollection } from "./SemanticTokenCollection";
 import { LpcFacade } from "./facade";
@@ -110,13 +110,12 @@ import { LiteralSymbol } from "../symbols/literalSymbol";
  * Source context for a single LPC file.
  */
 export class SourceContext {
-    public static globalSymbols = new ContextSymbolTable("Global Symbols", {
-        allowDuplicateSymbols: false,
-    });
-
+    /** file handler for this source file */
     public fileHandler = new LpcFileHandler(this.backend, this);
+    /** symbol table for this sourc efile */
     public symbolTable: ContextSymbolTable;
-    public sourceId: string;
+
+    /** stores info about imports and includes */
     public info: IContextDetails = {
         unreferencedMethods: [],
         imports: [],
@@ -129,7 +128,8 @@ export class SourceContext {
     /* @internal */
     public diagnostics: IDiagnosticEntry[] = [];
 
-    private references: SourceContext[] = []; // Contexts referencing us.
+    /**  Contexts referencing us  */
+    private references: SourceContext[] = [];
 
     // Result related fields.
     private semanticAnalysisDone = false; // Includes determining reference counts.
@@ -145,7 +145,6 @@ export class SourceContext {
     private lexer: LPCPreprocessingLexer;
     public tokenStream: CommonTokenStream;
     private directiveStream: CommonTokenStream;
-
     private parser: LPCParser;
     private errorListener: ContextErrorListener = new ContextErrorListener(
         this.diagnostics
@@ -177,9 +176,6 @@ export class SourceContext {
     private allTokens: LPCToken[] = [];
     private symbolNameCache: Map<string, LPCToken[]> = new Map();
 
-    private config: LpcConfig;
-    private driver: IDriver;
-
     /** flag that indicates if this file has been soft released */
     public softReleased = false;
     /** flag that indicates if this context has been disposed */
@@ -189,20 +185,14 @@ export class SourceContext {
         public backend: LpcFacade,
         public fileName: string,
         private extensionDir: string,
-        private importDir: string[]
+        private importDir: string[],
+        private masterFile: SourceContext
     ) {
-        this.sourceId = path.basename(fileName);
         this.symbolTable = new ContextSymbolTable(
-            this.sourceId,
+            path.basename(fileName),
             { allowDuplicateSymbols: true },
             this
         );
-
-        // Initialize static global symbol table, if not yet done.
-        // const sizeOfEfun = SourceContext.globalSymbols.resolveSync("sizeof");
-        // if (!sizeOfEfun) {
-        //     // add built-in symbols here
-        // }
 
         this.lexer = new LPCPreprocessingLexer(
             CharStream.fromString(""),
@@ -222,14 +212,12 @@ export class SourceContext {
             DIRECTIVE_CHANNEL
         );
 
-        this.config = ensureLpcConfig();
-        this.driver = getDriverInfo();
+        const config = ensureLpcConfig();
 
         this.parser = new LPCParser(this.tokenStream);
-        this.parser.driverType = this.config.driver.type;
+        this.parser.driverType = config.driver.type;
         this.parser.setTokenFactory(this.lexer.tokenFactory);
         this.parser.buildParseTrees = true;
-
         this.parser.removeErrorListeners();
         this.parser.addErrorListener(this.errorListener);
 
@@ -246,6 +234,7 @@ export class SourceContext {
         // run the fluff driver get_include_path to get the search dirs
         if (
             config.driver.type == "fluffos" &&
+            !!this.masterFile &&
             this.fileName != this.resolveFilename(config.files.master).fullPath
         ) {
             const localFilename = toLibPath(
@@ -253,7 +242,7 @@ export class SourceContext {
                 this.backend.workspaceDir
             );
             const driver = getDriverInfo();
-            const master = this.backend.getMasterFile();
+            const master = this.masterFile;
 
             if (!!master) {
                 // setup eval stack
@@ -339,14 +328,13 @@ export class SourceContext {
         feature: string,
         failMsg: string
     ): boolean {
-        const { type, version } = this.config.driver;
+        const config = ensureLpcConfig();
+        const driver = getDriverInfo();
+        const { type, version } = config.driver;
 
         let msgSuffix: string;
         switch (
-            this.driver.checkFeatureCompatibility(
-                feature,
-                this.config.driver.version
-            )
+            driver.checkFeatureCompatibility(feature, config.driver.version)
         ) {
             case FeatureValidationResult.NotSupported:
                 msgSuffix = `by driver type ${type}`;
@@ -377,8 +365,8 @@ export class SourceContext {
 
         this.macroTable.clear();
 
-        const config = (this.config = ensureLpcConfig());
-        this.driver = getDriverInfo();
+        const config = ensureLpcConfig();
+        const driver = getDriverInfo();
 
         // add macros from config
         const configDefines = new Map(config.defines ?? []);
@@ -418,8 +406,7 @@ export class SourceContext {
         this.diagnostics.length = 0;
 
         this.symbolTable.clear();
-        this.symbolTable.addDependencies(SourceContext.globalSymbols);
-        this.symbolTable.addDependencies(this.driver.efuns);
+        this.symbolTable.addDependencies(driver.efuns);
 
         this.highlights = [];
         this.cachedSemanticTokens = undefined;
@@ -1098,8 +1085,9 @@ export class SourceContext {
 
                     // it could also be an efun
                     if (symbolsToReturn.length == 0) {
+                        const driver = getDriverInfo();
                         symbol = resolveOfTypeSync(
-                            this.driver.efuns, // efuns always come from here
+                            driver.efuns, // efuns always come from here
                             name,
                             EfunSymbol
                         );
@@ -1333,11 +1321,6 @@ export class SourceContext {
                         }
                     } else {
                         // Lexer rules.
-                        promises.push(
-                            SourceContext.globalSymbols.getAllSymbols(
-                                EfunSymbol
-                            )
-                        );
                         promises.push(
                             this.symbolTable.getAllSymbols(VariableSymbol)
                         );

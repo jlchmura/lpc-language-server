@@ -212,7 +212,7 @@ export class ContextSymbolTable extends SymbolTable {
             case SymbolKind.Include:
                 // Get the source id from a dependent module.
                 this.dependencies.forEach((table: ContextSymbolTable) => {
-                    if (table.owner && table.owner.sourceId.includes(name)) {
+                    if (table.owner && table.name.includes(name)) {
                         return {
                             // TODO: implement a best match search.
                             kind,
