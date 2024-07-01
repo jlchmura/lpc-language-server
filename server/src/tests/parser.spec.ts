@@ -31,5 +31,15 @@ describe("Test", () => {
             expect(tree).toBeDefined();
             expect(tree.children.length).toBeGreaterThan(0);
         });
+        it("should handle the `ref` keyword", () => {
+            const parser = getParser(
+                "call-by-ref.fluffos.c",
+                DriverType.FluffOS
+            );
+
+            const tree = parser.program();
+            expect(tree).toBeDefined();
+            expect(tree.children.length).toBeGreaterThan(0);
+        });
     });
 });
