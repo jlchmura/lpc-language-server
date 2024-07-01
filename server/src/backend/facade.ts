@@ -55,6 +55,7 @@ export type IContextEntry = {
  * source context, dependencies, and code for each LPC file.
  */
 export class LpcFacade {
+    /** directors that are scanned for imports */
     private importDir: string[];
 
     /**
@@ -87,7 +88,8 @@ export class LpcFacade {
     public parseAllComplete = false;
     private parseAllFileQueue: string[] = [];
 
-    /** Stores information about which files reference an include.
+    /**
+     * Stores information about which files reference an include.
      * The key is the include filename, the set contains a list of files that reference it
      */
     public includeRefs: Map<string, Set<string>> = new Map();
@@ -98,6 +100,7 @@ export class LpcFacade {
      */
     public fileRefs: Map<string, Set<string>> = new Map();
 
+    /** the lib's compiled master.c file */
     private masterFile: SourceContext;
 
     public constructor(
@@ -293,6 +296,7 @@ export class LpcFacade {
         }
 
         if (!contextEntry) {
+            // create new context
             const context = new SourceContext(
                 this,
                 fileName,
@@ -305,6 +309,7 @@ export class LpcFacade {
                 this.loadImports(fileName, imports, depChain);
             };
 
+            // store the entry
             contextEntry = {
                 context,
                 refCount: 0,
@@ -343,8 +348,6 @@ export class LpcFacade {
         const contextEntry = this.getContextEntry(fileName);
         if (contextEntry) {
             for (const imp of imports) {
-                // const importFilename =
-                //     contextEntry.context.resolveFilename(imp);
                 this.addDependency(
                     fileName,
                     {
@@ -654,10 +657,6 @@ export class LpcFacade {
 
         // Ignore the dependency if we cannot find the source file for it.
         return undefined;
-    }
-
-    public isContextLoaded(fileName: string): boolean {
-        return !!this.getContextEntry(fileName);
     }
 
     public getContextEntry(fileName: string): IContextEntry {

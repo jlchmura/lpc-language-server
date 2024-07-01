@@ -71,10 +71,14 @@ describe("facade", () => {
     it("should indicate if a context is not loaded", () => {
         const fn = resolveTestFilePath("ldmud.c");
 
-        expect(facade.isContextLoaded(fn)).toBeFalsy();
+        function isContextLoaded(fn: string) {
+            return facade.getContext(fn) !== undefined;
+        }
+
+        expect(isContextLoaded(fn)).toBeFalsy();
 
         const ctx = facade.loadLpc(fn);
-        expect(facade.isContextLoaded(fn)).toBeTruthy();
+        expect(isContextLoaded(fn)).toBeTruthy();
     });
 
     it("should return diagnostics", async () => {
