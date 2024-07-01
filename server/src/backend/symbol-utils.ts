@@ -7,7 +7,8 @@ import {
 } from "antlr4-c3";
 import { ensureLpcConfig } from "./LpcConfig";
 import { ContextSymbolTable } from "./ContextSymbolTable";
-import { ParseTree } from "antlr4ng";
+import { ParseTree, ParserRuleContext } from "antlr4ng";
+import { LPCToken } from "../parser3/LPCToken";
 
 export function walkParents<T extends BaseSymbol>(
     symbol: IScopedSymbol,

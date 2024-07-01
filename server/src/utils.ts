@@ -154,18 +154,18 @@ export function normalizeFileExtension(filename: string) {
 }
 
 export function toLibPath(filename: string, workspaceRoot: string) {
-   // Normalize paths to avoid issues with different slashes
-  const normalizedFullPath = path.normalize(filename);
-  const normalizedBasePath = path.normalize(workspaceRoot);
+    // Normalize paths to avoid issues with different slashes
+    const normalizedFullPath = path.normalize(filename);
+    const normalizedBasePath = path.normalize(workspaceRoot);
 
-  // Get the relative path
-  let relativePath = path.relative(normalizedBasePath, normalizedFullPath);
+    // Get the relative path
+    let relativePath = path.relative(normalizedBasePath, normalizedFullPath);
 
-  // Replace backslashes with forward slashes
-  relativePath = relativePath.replace(/\\/g, '/');
+    // Replace backslashes with forward slashes
+    relativePath = relativePath.replace(/\\/g, "/");
 
-  // Ensure the path starts with a forward slash
-  return '/' + relativePath;
+    // Ensure the path starts with a forward slash
+    return "/" + relativePath;
 }
 
 export function normalizeFilename(filename: string) {
@@ -246,7 +246,7 @@ export function getSelfOrParentOfType<
 }
 
 export function getFilenameForContext(ctx: ParserRuleContext) {
-    return (ctx.start as LPCToken).filename;
+    return (ctx?.start as LPCToken)?.filename;
 }
 
 export function getFilenameForSymbol(symbol: BaseSymbol) {
@@ -312,4 +312,46 @@ export function parseMacroNameFromDefineString(s: string) {
         index: i,
         remainingText: defVal.substring(i).trim(),
     };
+}
+
+/**
+ * Remove the *first* occurrence of `item` from the array.
+ *
+ * @internal
+ */
+export function unorderedRemoveItem<T>(array: T[], item: T) {
+    return unorderedRemoveFirstItemWhere(array, (element) => element === item);
+}
+
+/** Remove the *first* element satisfying `predicate`. */
+function unorderedRemoveFirstItemWhere<T>(
+    array: T[],
+    predicate: (element: T) => boolean
+) {
+    for (let i = 0; i < array.length; i++) {
+        if (predicate(array[i])) {
+            unorderedRemoveItemAt(array, i);
+            return true;
+        }
+    }
+    return false;
+}
+/** @internal */
+export function unorderedRemoveItemAt<T>(array: T[], index: number): void {
+    // Fill in the "hole" left at `index`.
+    array[index] = array[array.length - 1];
+    array.pop();
+}
+
+/**
+ * Remove an item by index from an array, moving everything to its right one space left.
+ *
+ * @internal
+ */
+export function orderedRemoveItemAt<T>(array: T[], index: number): void {
+    // This seems to be faster than either `array.splice(i, 1)` or `array.copyWithin(i, i+ 1)`.
+    for (let i = index; i < array.length - 1; i++) {
+        array[i] = array[i + 1];
+    }
+    array.pop();
 }

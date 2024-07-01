@@ -33,6 +33,7 @@ export class ReferenceProvider {
         position: Position
     ): Promise<Location[]> {
         const docFilename = URI.parse(doc.uri).fsPath;
+
         // NTBLA: decide if we should automatically parse all or not
         //await this.backend.parseAllIfNeeded();
 
@@ -44,10 +45,8 @@ export class ReferenceProvider {
         if (!sym) {
             return [];
         }
-        // else if (!isInstanceOfIReferenceableSymbol(sym)) {
-        //     return [];
-        // }
 
+        // collect possible references - they will be scanned later to confirm
         const refsToScan: BaseSymbol[] = [sym];
         if (isInstanceOfIReferenceSymbol(sym))
             refsToScan.push(sym.getReference());
@@ -56,30 +55,32 @@ export class ReferenceProvider {
         const symFile = getFilenameForSymbol(sym);
 
         const files = [
-            symFile,
-            ...(this.backend.includeRefs.get(symFile) ?? []),
-            ...(this.backend.fileRefs.get(symFile) ?? []),
+            symFile, // the current file
+            ...(this.backend.includeRefs.get(symFile) ?? []), // any included files
+            ...(this.backend.fileRefs.get(symFile) ?? []), // any files that reference this one
         ];
+
+        // now scan the files
         const seenFiles = new Set<string>();
-        // scan files
         for (const file of files) {
             if (seenFiles.has(file)) continue;
             seenFiles.add(file);
 
+            // TODO: this might leave files in memory that aren't needed
             const refCtx = this.backend.loadLpc(file);
 
-            // look for name matches and make sure their references are
-            // filled in.
+            // look for name matches and make sure their references are filled in.
             const { symbolTable } = refCtx;
             const candidates = await symbolTable.getAllSymbolsByName(sym.name);
             candidates.forEach((c) => {
                 if (!!c && isInstanceOfIReferenceSymbol(c)) {
-                    c.getReference(); // to make sure its filled in
+                    // make sure the reference is filled in
+                    c.getReference();
                 }
             });
 
+            // now find the "definition" symbol and add any its file
             const refSym = await refCtx.symbolTable.resolve(sym.name, true);
-
             if (
                 isInstanceOfIReferenceableSymbol(refSym) &&
                 getFilenameForSymbol(refSym) === file
@@ -116,10 +117,6 @@ export class ReferenceProvider {
             const filename = token.filename;
             const range = lexRangeToLspRange(lexRangeFromContext(parseInfo));
 
-            // if (range.end.line > range.start.line) {
-            //     range.end.line = range.start.line;
-            //     range.end.character = 999;
-            // }
             results.push({
                 uri: filename,
                 range: range,

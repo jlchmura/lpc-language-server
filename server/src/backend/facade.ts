@@ -20,6 +20,7 @@ import {
     DependencySearchType,
     IDiagnosticEntry,
     ISymbolInfo,
+    createMultiMap,
 } from "../types";
 import {
     areWeTestingWithJest,
@@ -90,16 +91,16 @@ export class LpcFacade {
     private parseAllFileQueue: string[] = [];
 
     /**
-     * Stores information about which files reference an include.
+     * Stores information about which files are references via an include.
      * The key is the include filename, the set contains a list of files that reference it
      */
-    public includeRefs: Map<string, Set<string>> = new Map();
+    public includeRefs = createMultiMap<string, string>();
 
     /**
      * Stores info about which files reference a given file.
      * For a given key, the value is a list of filenames that reference it.
      */
-    public fileRefs: Map<string, Set<string>> = new Map();
+    public fileRefs = createMultiMap<string, string>();
 
     /** the lib's compiled master.c file */
     private masterFile: SourceContext;
@@ -449,10 +450,7 @@ export class LpcFacade {
                     contextEntry.context.addAsReferenceTo(depContext);
 
                     const depFile = depContext.fileName;
-                    if (!this.fileRefs.has(depFile)) {
-                        this.fileRefs.set(depFile, new Set());
-                    }
-                    this.fileRefs.get(depFile).add(filename);
+                    this.fileRefs.add(depFile, filename);
                 }
 
                 return depContext;
@@ -464,6 +462,7 @@ export class LpcFacade {
         }
     }
 
+    /** parses an lpc file and updates references */
     private parseLpc(
         contextEntry: IContextEntry,
         depChain: Set<string>,
@@ -472,11 +471,7 @@ export class LpcFacade {
         performance.mark("parse-lpc-start");
 
         const context = contextEntry.context;
-
         depChain.add(context.fileName);
-        if (!this.fileRefs.has(context.fileName)) {
-            this.fileRefs.set(context.fileName, new Set());
-        }
 
         try {
             const oldDependencies = [...contextEntry.dependencies];
@@ -487,27 +482,25 @@ export class LpcFacade {
 
             contextEntry.dependencies = [];
 
+            // parse
             const info = context.parse();
 
-            // load file-level dependencies (imports & inherits)
             const newDependencies = [...info.imports];
             const newIncludes = [...info.includes];
             const newReferences = [
                 ...context.getReferences().map((ref) => ref.fileName),
             ];
 
+            // update file references
             for (const ref of oldReferences.concat(oldDependencies)) {
-                if (this.fileRefs.has(ref)) {
-                    this.fileRefs.get(ref).delete(context.fileName);
-                }
+                this.fileRefs.remove(ref, context.fileName);
             }
             for (const ref of newReferences) {
-                if (!this.fileRefs.has(ref)) {
-                    this.fileRefs.set(ref, new Set());
-                }
-                this.fileRefs.get(ref).add(context.fileName);
+                this.fileRefs.add(ref, context.fileName);
             }
 
+            // add new dependencies
+            // this is done before removed old ones so that the ref count doesn't drop below 1 which would cause a file to be cleaned up
             for (const dep of newDependencies) {
                 this.addDependency(contextEntry.filename, dep, depChain);
             }
@@ -536,30 +529,19 @@ export class LpcFacade {
                 }, DEP_FILE_REPARSE_TIME);
             }
 
-            // Release all old dependencies. This will only unload grammars which have
-            // not been ref-counted by the above dependency loading (or which are not used by other
-            // grammars).
+            // release old dependencies & references
+            // if any of their ref counts becomes 0, they will be cleaned up
             for (const dep of oldDependencies.concat(oldReferences)) {
                 this.releaseLpc(dep);
             }
 
+            // update include file references
             for (const include of oldIncludes) {
-                if (this.includeRefs.has(include)) {
-                    this.includeRefs.get(include).delete(context.fileName);
-                }
+                this.includeRefs.remove(include, context.fileName);
             }
-
             for (const include of newIncludes) {
-                if (!this.includeRefs.has(include)) {
-                    this.includeRefs.set(include, new Set());
-                }
-                this.includeRefs.get(include).add(context.fileName);
+                this.includeRefs.add(include, context.fileName);
             }
-
-            // console.debug(
-            //     `Refs [${context.fileName}]:`,
-            //     this.fileRefs.get(context.fileName)
-            // );
         } catch (e) {
             console.error(`Error parsing ${contextEntry.filename}: ${e}`, e);
         }

@@ -10,8 +10,8 @@
             "args": [
                 //"${workspaceRoot}/../mg-mudlib",
                 //"${workspaceRoot}/../lima",
-                //"${workspaceRoot}/../StickLib",
-                "${workspaceRoot}/../nightmare-residuum",
+                "${workspaceRoot}/../StickLib",
+                //"${workspaceRoot}/../nightmare-residuum",
                 //"${workspaceRoot}/../infinity-lib",
                 //"${workspaceRoot}/../fluff-test",
                 //"${workspaceRoot}/efuns/ldmud",

@@ -38,6 +38,7 @@ import {
     StackFrame,
     StackValue,
     getFunctionFromFrame,
+    walkStackToProgram,
 } from "../backend/CallStack";
 import { ParserRuleContext, Token } from "antlr4ng";
 import { addDiagnostic } from "./Symbol";
@@ -339,9 +340,6 @@ export class FunctionIdentifierSymbol
     }
 
     eval(stack: CallStack, scope?: any) {
-        if (this.name == "set_setting") {
-            const ii = 0;
-        }
         // the next symbol should be the method invocation
         // store the function name on the stack so that the method invocation
         // can access it
@@ -494,6 +492,8 @@ export class EfunSymbol
             case "new":
             case "clone_object":
                 return cloneObjectImpl(stack, argEval, callScope, this);
+            case "previous_object":
+                return previousObjectImpl(stack);
         }
 
         return undefined;
@@ -517,6 +517,26 @@ export class InlineClosureSymbol extends MethodSymbol implements IKindSymbol {
     public get kind() {
         return SymbolKind.InlineClosure;
     }
+}
+
+function previousObjectImpl(stack: CallStack) {
+    const filename = stack.peek().filename;
+    let symbol = stack.peek().symbol;
+
+    for (let i = stack.length - 1; i >= 0; i--) {
+        const frame = stack.at(i);
+        if (frame.filename != filename) {
+            symbol = frame.symbol;
+            break;
+        }
+    }
+
+    const ownerCtx = (symbol?.symbolTable as ContextSymbolTable)?.owner;
+    const info = new ObjectReferenceInfo();
+    info.context = ownerCtx;
+    info.filename = ownerCtx?.fileName;
+    info.isLoaded = !!ownerCtx;
+    return asStackValue(info);
 }
 
 function cloneObjectImpl(

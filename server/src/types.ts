@@ -9,6 +9,7 @@ import {
 import { Token } from "antlr4ng";
 import { DiagnosticSeverity } from "vscode-languageserver";
 import { LPCToken } from "./parser3/LPCToken";
+import { unorderedRemoveItem } from "./utils";
 
 export const DiagnosticCodes = {
     /** occurs when the target of a call other (eg `target->fn()`) is unknown, therefore the lfun cannot be validated */
@@ -199,3 +200,43 @@ export const SemanticTokenModifiers = {
 } as const;
 
 export const FUNCTION_NAME_KEY = "$$$function_id$$$";
+
+/** @internal */
+export interface MultiMap<K, V> extends Map<K, Set<V>> {
+    /**
+     * Adds the value to an array of values associated with the key, and returns the array.
+     * Creates the array if it does not already exist.
+     */
+    add(key: K, value: V): Set<V>;
+    /**
+     * Removes a value from an array of values associated with the key.
+     * Does not preserve the order of those values.
+     * Does nothing if `key` is not in `map`, or `value` is not in `map[key]`.
+     */
+    remove(key: K, value: V): void;
+}
+
+export function createMultiMap<K, V>(): MultiMap<K, V> {
+    const map = new Map<K, Set<V>>() as MultiMap<K, V>;
+    map.add = multiMapAdd;
+    map.remove = multiMapRemove;
+    return map;
+}
+function multiMapAdd<K, V>(this: MultiMap<K, V>, key: K, value: V) {
+    let values = this.get(key);
+    if (values) {
+        values.add(value);
+    } else {
+        this.set(key, (values = new Set([value])));
+    }
+    return values;
+}
+function multiMapRemove<K, V>(this: MultiMap<K, V>, key: K, value: V) {
+    const values = this.get(key);
+    if (values) {
+        values.delete(value);
+        if (values.size === 0) {
+            this.delete(key);
+        }
+    }
+}

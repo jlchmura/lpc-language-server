@@ -10,6 +10,7 @@ import { LpcBaseMethodSymbol, MethodSymbol } from "../symbols/methodSymbol";
 import { ParserRuleContext } from "antlr4ng";
 import { ContextSymbolTable } from "./ContextSymbolTable";
 import { asStackValue } from "./CallStackUtils";
+import { getFilenameForSymbol } from "../utils";
 
 export class StackValue<T = any> {
     constructor(
@@ -271,10 +272,14 @@ export class CallStack {
     constructor(public readonly symbol: ScopedSymbol) {
         //super(symbol, new Map<string, StackValue>());
         this.executionId = lastExecId++;
+        const filename =
+            symbol instanceof ContextSymbolTable ? symbol.name : undefined;
         this.rootFrame = new RootFrame(
             symbol,
             new Map<string, StackValue>(),
-            new Map<string, StackValue>()
+            new Map<string, StackValue>(),
+            undefined,
+            filename
         );
 
         // push directly so a parent doesn't get assigned
@@ -310,6 +315,10 @@ export class CallStack {
 
     public peek(offset: number = 1) {
         return this.stack[this.stack.length - offset];
+    }
+
+    public at(index: number) {
+        return this.stack.at(index);
     }
 
     public get length() {
@@ -440,17 +449,23 @@ export class CallStack {
  * Represents a stack frame in the call stack for the LPC program
  */
 export class StackFrame {
+    public filename: string;
     public returnValue: StackValue;
-
     private lookupCache: Map<string, StackValue> = new Map();
 
     constructor(
         public symbol: ScopedSymbol,
         public args: Map<string, StackValue>,
         public locals: Map<string, StackValue>,
-        public parent: StackFrame = null
+        public parent: StackFrame = null,
+        filename: string = null
     ) {
+        this.filename = filename ?? getFilenameForSymbol(symbol);
         //super(symbol, locals);
+    }
+
+    toString() {
+        return `${this.filename}:${this.symbol?.name}`;
     }
 
     public addValue(name: string, value: StackValue) {
