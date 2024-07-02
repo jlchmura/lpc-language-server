@@ -132,7 +132,7 @@ export class LpcFacade {
         const obs = new PerformanceObserver((list) => {
             list?.getEntries()?.forEach((entry) => {
                 console.log(
-                    `${entry.duration?.toFixed(4).padStart(9, " ")} | ${
+                    `${entry.duration?.toFixed(4).padStart(9, " ")}ms | ${
                         entry?.name
                     }`
                 );
@@ -581,11 +581,11 @@ export class LpcFacade {
         depChain.delete(context.fileName);
 
         performance.mark("parse-lpc-end");
-        performance.measure(
-            "parse-lpc: " + contextEntry.filename,
-            "parse-lpc-start",
-            "parse-lpc-end"
-        );
+        // performance.measure(
+        //     "parse-lpc: " + contextEntry.filename,
+        //     "parse-lpc-start",
+        //     "parse-lpc-end"
+        // );
     }
 
     /**
