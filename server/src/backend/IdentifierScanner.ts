@@ -96,7 +96,7 @@ export class IdentifierScanner {
 
         const file = this.stack.pop();
 
-        const promise = new Promise<void>((resolve, reject) => {
+        const promise = new Promise<boolean>((resolve, reject) => {
             fs.readFile(file, "utf8", (err, data) => {
                 if (err) {
                     console.error(`Error reading file ${file}: ${err}`);
@@ -148,10 +148,10 @@ export class IdentifierScanner {
                         }
                     });
 
-                    resolve();
+                    resolve(true);
                 } catch (e) {
                     console.error(`Error scanning file ${file}: ${e}`);
-                    reject(e);
+                    resolve(false);
                 }
             });
         });
