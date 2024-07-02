@@ -170,10 +170,12 @@ export class LpcFacade {
     /** scans all LPC files to build the identifier cache */
     private buildIdentifierCache() {
         const cache = createMultiMap<string, string>();
+
         const scanner = new IdentifierScanner(
             this,
             this.workspaceDir,
             cache,
+            this.includeRefs,
             (file) => this.masterFile.getIncludePath(file)
         );
 
@@ -359,6 +361,8 @@ export class LpcFacade {
         } else if (contextEntry.context.softReleased && restoreSoftRelease) {
             // set the text, which will trigger a reparse later
             contextEntry.context.setText(source);
+
+            console.debug("Reload from soft release: " + contextEntry.filename);
         }
 
         contextEntry.refCount++;
@@ -409,7 +413,9 @@ export class LpcFacade {
                 contextEntry.disposed = true;
             } else if (
                 !!this.workspaceDocs &&
-                !this.workspaceDocs.get(contextEntry.filename)
+                !this.workspaceDocs.get(
+                    URI.file(contextEntry.filename).toString()
+                )
             ) {
                 // if the file is not open, soft release it
                 contextEntry.context.softRelease();

@@ -2,27 +2,21 @@ import { Position, TextDocument } from "vscode-languageserver-textdocument";
 import { LpcFacade } from "./facade";
 import { Location } from "vscode-languageserver";
 import {
-    firstEntry,
     getFilenameForSymbol,
     lexRangeFromContext,
     lexRangeToLspRange,
-    rangeFromTokens,
 } from "../utils";
 import {
     IReferenceableSymbol,
-    getSymbolsOfTypeSync,
     isInstanceOfIReferenceSymbol,
     isInstanceOfIReferenceableSymbol,
 } from "../symbols/base";
-import { ContextSymbolTable } from "./ContextSymbolTable";
+
 import { ParserRuleContext } from "antlr4ng";
 import { LPCToken } from "../parser3/LPCToken";
 import { BaseSymbol } from "antlr4-c3";
 import { URI } from "vscode-uri";
-import {
-    FunctionHeaderContext,
-    FunctionHeaderDeclarationContext,
-} from "../parser3/LPCParser";
+import { FunctionHeaderContext } from "../parser3/LPCParser";
 import { LpcBaseMethodSymbol } from "../symbols/methodSymbol";
 
 export class ReferenceProvider {
@@ -99,13 +93,26 @@ export class ReferenceProvider {
             files.push(...(this.backend.fileRefs.get(file) ?? []));
         }
 
-        while (refsToScan.length > 0) {
-            const ref = refsToScan.pop();
+        // now, the original symbol is either a reference or referencable.
+        let definitionSymbol: BaseSymbol;
+        if (isInstanceOfIReferenceSymbol(sym)) {
+            definitionSymbol = sym.getReference();
+        } else if (isInstanceOfIReferenceableSymbol(sym)) {
+            definitionSymbol = sym;
+        } else {
+            // this should never happen
+            console.log("Unexpected symbol type in reference provider");
+        }
+
+        const finalList = [definitionSymbol];
+
+        while (finalList.length > 0) {
+            const ref = finalList.pop();
             if (!ref || seen.has(ref)) continue;
             seen.add(ref);
 
             if (isInstanceOfIReferenceableSymbol(ref)) {
-                refsToScan.push(...ref.references);
+                finalList.push(...ref.references);
             }
 
             let parseInfo = ref.context as ParserRuleContext;

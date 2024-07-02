@@ -59,6 +59,8 @@ export class IdentifierScanner {
         private workspaceDir: string,
         /** the identifier token cache. key is the identifier, value is a set of files containing that identifier */
         private tokenCache: MultiMap<string, string>,
+        /** include ref mapping, which maps an include file to all the files that reference it */
+        private includeRefs: MultiMap<string, string>,
         private resolveIncludeDirs: (filename: string) => string[]
     ) {}
 
@@ -105,6 +107,7 @@ export class IdentifierScanner {
                 try {
                     const config = ensureLpcConfig();
                     const extraIncludeDirs = this.resolveIncludeDirs(file);
+                    const includeFiles: string[] = [];
                     const lexer = new LPCPreprocessingLexer(
                         CharStream.fromString(data),
                         file
@@ -113,14 +116,17 @@ export class IdentifierScanner {
                     lexer.fileHandler = new IdentifierScannerFileHandler(
                         this.backend,
                         extraIncludeDirs,
-                        []
+                        includeFiles
                     );
                     lexer.addMacros(
                         this.backend.getDriverPredefinedMacros(file)
                     );
 
-                    const tokens = lexer.getAllTokens();
+                    includeFiles.forEach((f) => {
+                        this.includeRefs.add(f, file);
+                    });
 
+                    const tokens = lexer.getAllTokens();
                     tokens.forEach((token) => {
                         switch (token.type) {
                             case LPCLexer.Identifier:
