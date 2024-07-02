@@ -4,7 +4,7 @@ import * as events from "events";
 import * as fs from "fs";
 import { glob } from "glob";
 import * as path from "path";
-import { performance } from "perf_hooks";
+import { PerformanceObserver, performance } from "perf_hooks";
 import {
     CancellationTokenSource,
     FoldingRange,
@@ -20,6 +20,7 @@ import {
     DependencySearchType,
     IDiagnosticEntry,
     ISymbolInfo,
+    MultiMap,
     createMultiMap,
 } from "../types";
 import {
@@ -30,6 +31,9 @@ import {
 import { ensureLpcConfig } from "./LpcConfig";
 import { SourceContext } from "./SourceContext";
 import { ResolvedFilename } from "./types";
+import { IdentifierScanner } from "./IdentifierScanner";
+import { MasterFileContext } from "../driver/MasterFile";
+import { DriverVersion } from "../driver/DriverVersion";
 
 /** ms delay before reparsing a depenency */
 const DEP_FILE_REPARSE_TIME = 300;
@@ -102,8 +106,14 @@ export class LpcFacade {
      */
     public fileRefs = createMultiMap<string, string>();
 
+    /**
+     * Stores a mapping of *possible* identifiers to the files that contain them.
+     * This map is built during facade startup
+     */
+    public identifierCache: MultiMap<string, string>;
+
     /** the lib's compiled master.c file */
-    private masterFile: SourceContext;
+    private masterFile: MasterFileContext;
 
     public constructor(
         public workspaceDir: string,
@@ -119,28 +129,28 @@ export class LpcFacade {
             console.log("LpcFacade created", this.importDir, workspaceDir);
         }
 
-        // const obs = new PerformanceObserver((list) => {
-        //     // instantiate
-        //     const rows: any = [];
-        //     //console.log("ms        | filename");
-        //     list.getEntries().forEach((entry) => {
-        //         console.log(
-        //             `${entry.duration.toFixed(4).padStart(9, " ")} | ${
-        //                 entry.name
-        //             }`
-        //         );
-        //     });
+        const obs = new PerformanceObserver((list) => {
+            list?.getEntries()?.forEach((entry) => {
+                console.log(
+                    `${entry.duration?.toFixed(4).padStart(9, " ")} | ${
+                        entry?.name
+                    }`
+                );
+                performance.clearMeasures(entry.name);
+            });
+        });
+        obs.observe({ entryTypes: ["measure"], buffered: true });
 
-        //     performance.clearMarks();
-        //     performance.clearMeasures();
-        // });
-        // obs.observe({ entryTypes: ["measure"], buffered: true });
         this.initMaster();
 
         setTimeout(async () => {
             await this.queueInitFilesForParse();
             await this.doParseAll();
-        }, 500);
+        }, 1000);
+
+        setTimeout(() => {
+            this.buildIdentifierCache();
+        }, 250);
     }
 
     /** parses the master file */
@@ -151,7 +161,29 @@ export class LpcFacade {
             this.workspaceDir
         );
 
-        this.masterFile = this.loadLpc(masterFileInfo.fullPath);
+        this.masterFile = new MasterFileContext(
+            this.workspaceDir,
+            this.loadLpc(masterFileInfo.fullPath)
+        );
+    }
+
+    /** scans all LPC files to build the identifier cache */
+    private buildIdentifierCache() {
+        const cache = createMultiMap<string, string>();
+        const scanner = new IdentifierScanner(
+            this,
+            this.workspaceDir,
+            cache,
+            (file) => this.masterFile.getIncludePath(file)
+        );
+
+        const cancel = new CancellationTokenSource();
+        scanner.scanFiles(cancel.token).then(() => {
+            console.log(
+                `Identifier scan complete, found ${cache.size} identifiers`
+            );
+            this.identifierCache = cache;
+        });
     }
 
     public filenameToAbsolutePath(filename: string): string {
@@ -302,7 +334,7 @@ export class LpcFacade {
             const context = new SourceContext(
                 this,
                 fileName,
-                this.workspaceDir,
+                (file) => this.getDriverPredefinedMacros(file),
                 this.importDir,
                 this.masterFile
             );
@@ -324,12 +356,12 @@ export class LpcFacade {
             // and pass their references to this context.
             context.setText(source);
             this.parseLpc(contextEntry, depChain);
-
-            contextEntry.refCount++;
         } else if (contextEntry.context.softReleased && restoreSoftRelease) {
             // set the text, which will trigger a reparse later
             contextEntry.context.setText(source);
         }
+
+        contextEntry.refCount++;
 
         return contextEntry.context;
     }
@@ -999,6 +1031,44 @@ export class LpcFacade {
             `Parsed all files in ${timeEnd - timeStart} ms`,
             this.sourceContexts.size
         );
+    }
+
+    public getDriverPredefinedMacros(filename: string): Map<string, string> {
+        const config = ensureLpcConfig();
+
+        // add macros from config
+        const configDefines = new Map(config.defines ?? []);
+        const ver = DriverVersion.from(config.driver.version);
+        configDefines.set("__VERSION__", `"${config.driver.version}"`);
+        configDefines.set("__VERSION_MAJOR__", ver.major.toString());
+        configDefines.set("__VERSION_MINOR__", ver.minor.toString());
+        configDefines.set("__VERSION_MICRO__", ver.micro.toString());
+        configDefines.set("__VERSION_PATCH__", "0");
+        configDefines.set("__RESET_TIME__", "1");
+
+        // get the dir of this file relative to project root
+        const relativeDir = path.relative(this.workspaceDir, filename);
+        const fileDir = path.dirname(relativeDir);
+        configDefines.set("__DIR__", `"/${fileDir}/"`);
+        configDefines.set("__FILE__", `"${relativeDir}"`);
+
+        const globalInclude = config.files.global_include;
+        if (globalInclude?.length > 0) {
+            // resolve the global filename
+
+            const globalFilename = this.resolveFilename(
+                globalInclude,
+                filename
+            );
+            if (
+                filename !== globalFilename.fullPath &&
+                !filename.endsWith(".h")
+            ) {
+                configDefines.set("__GLOBAL_INCLUDE__", `"${globalInclude}"`);
+            }
+        }
+
+        return configDefines;
     }
 
     public getMasterFile() {

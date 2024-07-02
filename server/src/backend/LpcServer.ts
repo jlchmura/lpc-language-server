@@ -278,11 +278,12 @@ export class LpcServer {
         });
 
         this.connection.onReferences(async (params) => {
-            if (!this.facade.parseAllComplete) {
+            if (!this.facade.identifierCache) {
                 this.connection.sendNotification(
                     "lpc/info",
-                    "Please run the 'Process All Files' command first."
+                    "Files scan in progress, please try again."
                 );
+                return;
             }
 
             const doc = this.documents.get(params.textDocument.uri);

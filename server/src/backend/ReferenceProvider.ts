@@ -34,9 +34,6 @@ export class ReferenceProvider {
     ): Promise<Location[]> {
         const docFilename = URI.parse(doc.uri).fsPath;
 
-        // NTBLA: decide if we should automatically parse all or not
-        //await this.backend.parseAllIfNeeded();
-
         const results: Location[] = [];
         const seen: Set<BaseSymbol> = new Set();
 
@@ -44,6 +41,15 @@ export class ReferenceProvider {
 
         if (!sym) {
             return [];
+        }
+
+        // get a list of files that possibly contain this symbol
+        const candidateFiles =
+            this.backend.identifierCache.get(sym.name) ?? new Set<string>();
+
+        // parse all of those files
+        for (const candidateFile of candidateFiles) {
+            const ctx = this.backend.loadLpc(candidateFile);
         }
 
         // collect possible references - they will be scanned later to confirm
@@ -121,6 +127,11 @@ export class ReferenceProvider {
                 uri: filename,
                 range: range,
             });
+        }
+
+        // release candidate files
+        for (const candidateFile of candidateFiles) {
+            this.backend.releaseLpc(candidateFile);
         }
 
         return results;
