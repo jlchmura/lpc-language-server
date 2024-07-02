@@ -179,7 +179,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
 
             if (this.directiveTokens.length > 1) {
                 if (token.type != LPCLexer.TEXT_FORMAT_END) {
-                    throw "Excepted text formatting end mark";
+                    throw "Expected text formatting end mark";
                 }
 
                 if (this.isExecutable) {
