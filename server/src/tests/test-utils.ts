@@ -12,6 +12,7 @@ import { TestFileHandler } from "./TestFileHandler";
 import { IDiagnosticEntry } from "../types";
 import { LPCParser } from "../parser3/LPCParser";
 import { DriverType } from "../backend/LpcConfig";
+import { LPCLexer } from "../parser3/LPCLexer";
 
 const baseDir = path.join(process.cwd(), "server/src/tests/test-assets/");
 
@@ -50,8 +51,7 @@ export function getLexerFromString(
     return lexer;
 }
 
-export function getParser(filename: string, driverType: DriverType) {
-    const lexer = getLexer(filename);
+function getParserImpl(lexer: LPCLexer, driverType: DriverType) {
     lexer.driverType = driverType;
 
     const tokenStream = new CommonTokenStream(lexer);
@@ -64,4 +64,13 @@ export function getParser(filename: string, driverType: DriverType) {
     parser.buildParseTrees = true;
     parser.errorHandler = new BailErrorStrategy();
     return parser;
+}
+
+export function getParserFromString(code: string, driverType: DriverType) {
+    const lexer = getLexerFromString(code);
+    return getParserImpl(lexer, driverType);
+}
+
+export function getParser(filename: string, driverType: DriverType) {
+    return getParserImpl(getLexer(filename), driverType);
 }

@@ -1,5 +1,5 @@
 import { DriverType } from "../backend/LpcConfig";
-import { getParser } from "./test-utils";
+import { getParser, getParserFromString } from "./test-utils";
 
 describe("Test", () => {
     beforeAll(() => {});
@@ -38,6 +38,16 @@ describe("Test", () => {
             );
 
             const tree = parser.program();
+            expect(tree).toBeDefined();
+            expect(tree.children.length).toBeGreaterThan(0);
+        });
+
+        it("should parse numbers with underscores", () => {
+            const testCode = "test() { int x = 1_000; float f = 1_000.0; }";
+            const parser = getParserFromString(testCode, DriverType.FluffOS);
+            const tree = parser.program();
+
+            expect(parser.numberOfSyntaxErrors).toEqual(0);
             expect(tree).toBeDefined();
             expect(tree.children.length).toBeGreaterThan(0);
         });

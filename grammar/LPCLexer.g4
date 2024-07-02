@@ -161,8 +161,9 @@ fragment HexDigit: [0-9] | [A-F] | [a-f];
 
 // Literals
 IntegerConstant: [0-9] ('_'? [0-9])*;
-FloatingConstant: [0-9]* '.' [0-9]+ ([eE] [+-]? [0-9]+)? ;
+FloatingConstant: [0-9] ('_'? [0-9])* '.' [0-9]+ ([eE] [+-]? [0-9]+)? ;
 HexIntConstant: '0' [xX] HexDigit+;
+
 TextFormatDirective: 
     '@' '@'? ([$a-zA-Z_] [a-zA-Z_0-9]*) 
     { this._textMark = this.text.substring(this.text.startsWith("@@") ? 2 : 1); } 

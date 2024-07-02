@@ -3,6 +3,7 @@
 ## 1.0.20
 
 -   Fix: [[FLUFFOS] Parser does not like the ref keyword in function definitions #29](https://github.com/jlchmura/lpc-language-server/issues/29)
+-   Fix: [FLUFFOS] Allow underscores in float literals (e.g. `1_000_000.0`)
 
 ## 1.0.19
 
