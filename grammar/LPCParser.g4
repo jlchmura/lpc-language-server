@@ -336,11 +336,13 @@ assignmentOperator
 conditionalExpression[int _p]
     : 
     (
+        ({ 16 >= $_p }? op=(PLUS|MINUS|NOT|BNOT|INC|DEC|AND|STAR))?
+        (
         castExpression 
         | primaryExpression 
         | lambdaExpression 
-        | inlineClosureExpression       
-        | op=(PLUS|MINUS|NOT|BNOT|INC|DEC|AND|STAR) conditionalExpression[{$_p}]
+        | inlineClosureExpression               
+        )
     )
     (     
       { 15 >= $_p }? op=(STAR|DIV|MOD) conditionalExpression[16]

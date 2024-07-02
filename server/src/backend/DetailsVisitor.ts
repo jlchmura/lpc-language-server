@@ -883,31 +883,51 @@ export class DetailsVisitor
             let lastOpSym: OperatorSymbol;
             let origScope = this.scope;
 
-            for (let i = ctx.children.length - 2; i > 0; i -= 2) {
-                const child = ctx.children[i - 1];
-                const operator = ctx.children[i].getText();
+            if (ctx.children.length == 2) {
+                // unary operator
+                const operator = ctx.children[0].getText();
                 let opSym = (this.scope = this.addNewSymbol(
                     OperatorSymbol,
                     ctx,
                     operator
                 ));
 
-                this.visit(ctx.children[i - 1] as ParserRuleContext);
-                opSym.lhs = firstEntry(opSym.children) as IEvaluatableSymbol;
-
-                this.visit(ctx.children[i + 1] as ParserRuleContext);
-                opSym.rhs = lastEntry(opSym.children) as IEvaluatableSymbol;
-
-                if (lastOpSym) {
-                    lastOpSym.lhs = opSym;
-                }
+                this.visit(ctx.children[1] as ParserRuleContext);
+                opSym.lhs = lastEntry(opSym.children) as IEvaluatableSymbol;
 
                 this.markToken(
-                    (child as TerminalNode).symbol,
+                    (ctx.children[0] as TerminalNode).symbol,
                     SemanticTokenTypes.Operator
                 );
+            } else {
+                for (let i = ctx.children.length - 2; i > 0; i -= 2) {
+                    const child = ctx.children[i - 1];
+                    const operator = ctx.children[i].getText();
+                    let opSym = (this.scope = this.addNewSymbol(
+                        OperatorSymbol,
+                        ctx,
+                        operator
+                    ));
 
-                lastOpSym = opSym;
+                    this.visit(ctx.children[i - 1] as ParserRuleContext);
+                    opSym.lhs = firstEntry(
+                        opSym.children
+                    ) as IEvaluatableSymbol;
+
+                    this.visit(ctx.children[i + 1] as ParserRuleContext);
+                    opSym.rhs = lastEntry(opSym.children) as IEvaluatableSymbol;
+
+                    if (lastOpSym) {
+                        lastOpSym.lhs = opSym;
+                    }
+
+                    this.markToken(
+                        (child as TerminalNode).symbol,
+                        SemanticTokenTypes.Operator
+                    );
+
+                    lastOpSym = opSym;
+                }
             }
 
             this.scope = origScope;
