@@ -14,12 +14,13 @@ import { IncludeSymbol } from "../symbols/includeSymbol";
 import { InheritSymbol } from "../symbols/inheritSymbol";
 import {
     EfunSymbol,
-    InlineClosureSymbol,
     MethodDeclarationSymbol,
-    MethodParameterSymbol,
     MethodSymbol,
 } from "../symbols/methodSymbol";
-import { VariableSymbol } from "../symbols/variableSymbol";
+import {
+    VariableSymbol,
+    MethodParameterSymbol,
+} from "../symbols/variableSymbol";
 import { ISymbolInfo, SymbolKind } from "../types";
 import { SourceContext } from "./SourceContext";
 import {
@@ -27,6 +28,7 @@ import {
     symbolWithContextSync,
     walkParents,
 } from "./symbol-utils";
+import { InlineClosureSymbol } from "../symbols/closureSymbol";
 
 export type SymbolTableCache = Map<string, SymbolTable>;
 

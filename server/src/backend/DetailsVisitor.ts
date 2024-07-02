@@ -68,6 +68,7 @@ import {
     VariableIdentifierSymbol,
     VariableInitializerSymbol,
     VariableSymbol,
+    MethodParameterSymbol,
 } from "../symbols/variableSymbol";
 import { DefineSymbol } from "../symbols/defineSymbol";
 import { AssignmentSymbol } from "../symbols/assignmentSymbol";
@@ -75,10 +76,8 @@ import {
     FunctionIdentifierSymbol,
     MethodDeclarationSymbol,
     MethodInvocationSymbol,
-    MethodParameterSymbol,
     MethodSymbol,
     ReturnSymbol,
-    InlineClosureSymbol,
 } from "../symbols/methodSymbol";
 import {
     BracketExpressionSymbol,
@@ -114,6 +113,7 @@ import {
     StructMemberIdentifierSymbol,
 } from "../symbols/structSymbol";
 import { ArraySymbol } from "../symbols/arraySymbol";
+import { InlineClosureSymbol } from "../symbols/closureSymbol";
 
 type GenericConstructorParameters<T> = ConstructorParameters<
     new (...args: any[]) => T

@@ -23,10 +23,11 @@ import {
     UnionableTypeSpecifierContext,
     ValidIdentifiersContext,
 } from "../parser3/LPCParser";
-import { EfunSymbol, MethodParameterSymbol } from "../symbols/methodSymbol";
+import { EfunSymbol } from "../symbols/methodSymbol";
 import { LpcTypes, StructType } from "../types";
 import { COMMENT_CHANNEL } from "../parser3/LPCPreprocessingLexer";
 import { firstEntry, lastEntry } from "../utils";
+import { MethodParameterSymbol } from "../symbols/variableSymbol";
 
 type GenericConstructorParameters<T> = ConstructorParameters<
     new (...args: any[]) => T

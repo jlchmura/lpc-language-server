@@ -20,9 +20,9 @@ import { CallStack, StackValue } from "../backend/CallStack";
 import { Token } from "antlr4ng";
 import { DiagnosticSeverity } from "vscode-languageserver";
 import { LPCToken } from "../parser3/LPCToken";
-import { InlineClosureSymbol } from "./methodSymbol";
 import { asStackValue } from "../backend/CallStackUtils";
 import { resolveOfTypeSync } from "../backend/symbol-utils";
+import { InlineClosureSymbol } from "./closureSymbol";
 
 export class VariableSymbol
     extends TypedSymbol
@@ -165,5 +165,27 @@ export class VariableInitializerSymbol
         }
 
         this.variable.eval(stack, evalResult);
+    }
+}
+
+export class MethodParameterSymbol
+    extends VariableSymbol
+    implements IKindSymbol, IEvaluatableSymbol
+{
+    constructor(
+        name: string,
+        type: IType,
+        nameToken?: Token,
+        public varArgs = false
+    ) {
+        super(name, type, nameToken);
+    }
+
+    eval(stack: CallStack) {
+        return stack.getValue(this.name, this);
+    }
+
+    public get kind() {
+        return SymbolKind.Variable;
     }
 }

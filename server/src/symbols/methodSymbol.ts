@@ -28,7 +28,6 @@ import {
 import { DiagnosticSeverity, FoldingRange } from "vscode-languageserver";
 import { ExpressionSymbol } from "./expressionSymbol";
 import { lexRangeFromContext, rangeFromTokens } from "../utils";
-
 import { ObjectReferenceInfo } from "./objectSymbol";
 import { ContextSymbolTable } from "../backend/ContextSymbolTable";
 import {
@@ -38,7 +37,6 @@ import {
     StackFrame,
     StackValue,
     getFunctionFromFrame,
-    walkStackToProgram,
 } from "../backend/CallStack";
 import { ParserRuleContext, Token } from "antlr4ng";
 import { addDiagnostic } from "./Symbol";
@@ -46,30 +44,9 @@ import { InheritSuperAccessorSymbol } from "./inheritSymbol";
 import { resolveOfTypeSync } from "../backend/symbol-utils";
 import { asStackValue } from "../backend/CallStackUtils";
 import { ensureLpcConfig } from "../backend/LpcConfig";
+import { MethodParameterSymbol } from "./variableSymbol";
 
 export const MAX_CALLDEPTH_SIZE = 25;
-
-export class MethodParameterSymbol
-    extends ParameterSymbol
-    implements IKindSymbol, IEvaluatableSymbol
-{
-    constructor(
-        name: string,
-        type: IType,
-        public nameToken?: Token,
-        public varArgs = false
-    ) {
-        super(name, undefined, type);
-    }
-
-    eval(stack: CallStack) {
-        return stack.getValue(this.name, this);
-    }
-
-    public get kind() {
-        return SymbolKind.Variable;
-    }
-}
 
 export class LpcBaseMethodSymbol
     extends BaseMethodSymbol
@@ -510,12 +487,6 @@ export class EfunSymbol
 export class EfunParamSymbol extends MethodParameterSymbol {
     constructor(name: string, type: IType, public allowMulti?: boolean) {
         super(name, type);
-    }
-}
-
-export class InlineClosureSymbol extends MethodSymbol implements IKindSymbol {
-    public get kind() {
-        return SymbolKind.InlineClosure;
     }
 }
 
