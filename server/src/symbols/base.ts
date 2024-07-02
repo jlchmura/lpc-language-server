@@ -4,6 +4,7 @@ import { ILexicalRange, SymbolKind } from "../types";
 import { FoldingRange } from "vscode-languageserver";
 import { CallStack } from "../backend/CallStack";
 import { getSymbolsFromAllParentsSync } from "../backend/symbol-utils";
+import { SourceContext } from "../backend/SourceContext";
 
 export type EvalScope = any;
 
@@ -81,4 +82,16 @@ export class LpcBaseSymbol<C extends ParseTree = ParseTree>
         return SymbolKind.Unknown;
     }
     override context: C;
+}
+
+export class ObjectReferenceInfo {
+    constructor(
+        public filename?: string,
+        public isLoaded?: boolean,
+        public context?: SourceContext
+    ) {}
+
+    toString() {
+        return `${this.filename}:${this.isLoaded}`;
+    }
 }

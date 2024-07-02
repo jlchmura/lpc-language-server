@@ -43,16 +43,13 @@ export class ReferenceProvider {
             return [];
         }
 
+        // collect possible references - they will be scanned later to confirm
+
         // get a list of files that possibly contain this symbol
         const candidateFiles =
             this.backend.identifierCache.get(sym.name) ?? new Set<string>();
 
-        // parse all of those files
-        for (const candidateFile of candidateFiles) {
-            const ctx = this.backend.loadLpc(candidateFile);
-        }
-
-        // collect possible references - they will be scanned later to confirm
+        // add the symbol and its reference to the list
         const refsToScan: BaseSymbol[] = [sym];
         if (isInstanceOfIReferenceSymbol(sym))
             refsToScan.push(sym.getReference());
@@ -64,6 +61,7 @@ export class ReferenceProvider {
             symFile, // the current file
             ...(this.backend.includeRefs.get(symFile) ?? []), // any included files
             ...(this.backend.fileRefs.get(symFile) ?? []), // any files that reference this one
+            ...(candidateFiles ?? []),
         ];
 
         // now scan the files
@@ -72,8 +70,9 @@ export class ReferenceProvider {
             if (seenFiles.has(file)) continue;
             seenFiles.add(file);
 
-            // TODO: this might leave files in memory that aren't needed
+            // load files and evaluate them so that any arrow symbols will be resolved
             const refCtx = this.backend.loadLpc(file);
+            refCtx.evaluateProgram();
 
             // look for name matches and make sure their references are filled in.
             const { symbolTable } = refCtx;
@@ -85,7 +84,7 @@ export class ReferenceProvider {
                 }
             });
 
-            // now find the "definition" symbol and add any its file
+            // find the "definition" symbol and add any its file
             const refSym = await refCtx.symbolTable.resolve(sym.name, true);
             if (
                 isInstanceOfIReferenceableSymbol(refSym) &&

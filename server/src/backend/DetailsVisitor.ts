@@ -75,7 +75,6 @@ import { AssignmentSymbol } from "../symbols/assignmentSymbol";
 import {
     FunctionIdentifierSymbol,
     MethodDeclarationSymbol,
-    MethodInvocationSymbol,
     MethodSymbol,
     ReturnSymbol,
 } from "../symbols/methodSymbol";
@@ -114,6 +113,7 @@ import {
 } from "../symbols/structSymbol";
 import { ArraySymbol } from "../symbols/arraySymbol";
 import { InlineClosureSymbol } from "../symbols/closureSymbol";
+import { MethodInvocationSymbol } from "../symbols/methodInvocationSymbol";
 
 type GenericConstructorParameters<T> = ConstructorParameters<
     new (...args: any[]) => T

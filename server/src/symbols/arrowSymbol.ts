@@ -1,12 +1,10 @@
 import {
     IEvaluatableSymbol,
-    getSymbolsOfTypeSync,
+    ObjectReferenceInfo,
     isInstanceOfIReferenceSymbol,
     isInstanceOfIReferenceableSymbol,
 } from "./base";
 import { CallStack, StackValue } from "../backend/CallStack";
-import { MethodInvocationSymbol } from "./methodSymbol";
-import { ObjectReferenceInfo } from "./objectSymbol";
 import { SourceContext } from "../backend/SourceContext";
 import { ParserRuleContext } from "antlr4ng";
 import { ContextSymbolTable } from "../backend/ContextSymbolTable";
@@ -21,6 +19,7 @@ import {
 } from "../backend/CallStackUtils";
 import { DiagnosticCodes, FUNCTION_NAME_KEY } from "../types";
 import { getDriverInfo } from "../driver/Driver";
+import { MethodInvocationSymbol } from "./methodInvocationSymbol";
 
 export enum ArrowType {
     CallOther,

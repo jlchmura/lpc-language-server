@@ -1,5 +1,10 @@
 import { IType, TypeKind } from "antlr4-c3";
-import { IEvaluatableSymbol, IKindSymbol, getSymbolsOfTypeSync } from "./base";
+import {
+    IEvaluatableSymbol,
+    IKindSymbol,
+    ObjectReferenceInfo,
+    getSymbolsOfTypeSync,
+} from "./base";
 import { MethodSymbol } from "./methodSymbol";
 import { LpcTypes, SymbolKind } from "../types";
 import { MethodParameterSymbol } from "./variableSymbol";
@@ -12,7 +17,6 @@ import {
 import { asStackValue } from "../backend/CallStackUtils";
 import { ContextSymbolTable } from "../backend/ContextSymbolTable";
 import { ensureLpcConfig } from "../backend/LpcConfig";
-import { ObjectReferenceInfo } from "./objectSymbol";
 
 export class EfunSymbol
     extends MethodSymbol

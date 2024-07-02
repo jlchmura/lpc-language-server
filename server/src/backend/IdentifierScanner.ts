@@ -62,6 +62,10 @@ export class IdentifierScanner {
         private resolveIncludeDirs: (filename: string) => string[]
     ) {}
 
+    /**
+     * Scans all files in the workspace and builds the identifier cache
+     * @param token cancellation token
+     */
     public async scanFiles(token: CancellationToken) {
         performance.mark("identifier-scan-start");
         await this.addFilesForScanning(token);

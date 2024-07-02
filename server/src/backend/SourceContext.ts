@@ -68,7 +68,6 @@ import {
     FunctionIdentifierSymbol,
     LpcBaseMethodSymbol,
     MethodDeclarationSymbol,
-    MethodInvocationSymbol,
     MethodSymbol,
 } from "../symbols/methodSymbol";
 import {
@@ -76,7 +75,6 @@ import {
     IDefinition,
     IDiagnosticEntry,
     ISymbolInfo,
-    LpcTypes,
     MacroDefinition,
     SemanticTokenTypes,
     SymbolKind,
@@ -88,7 +86,6 @@ import {
     normalizeFilename,
     pushIfDefined,
     rangeFromTokens,
-    toLibPath,
     trimQuotes,
 } from "../utils";
 import { BackendUtils } from "./BackendUtils";
@@ -108,6 +105,7 @@ import { LiteralSymbol } from "../symbols/literalSymbol";
 import { ResolvedFilename } from "./types";
 import { EfunSymbol } from "../symbols/efunSymbol";
 import { MasterFileContext } from "../driver/MasterFile";
+import { MethodInvocationSymbol } from "../symbols/methodInvocationSymbol";
 
 /**
  * Source context for a single LPC file.
@@ -552,6 +550,10 @@ export class SourceContext {
             );
             ParseTreeWalker.DEFAULT.walk(semanticListener, this.tree);
         }
+    }
+
+    public evaluateProgram() {
+        this.runSemanticAnalysisIfNeeded();
     }
 
     public async getDiagnostics(force = false): Promise<IDiagnosticEntry[]> {

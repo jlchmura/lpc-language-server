@@ -150,7 +150,7 @@ export class LpcFacade {
 
         setTimeout(() => {
             this.buildIdentifierCache();
-        }, 250);
+        }, 50);
     }
 
     /** parses the master file */
