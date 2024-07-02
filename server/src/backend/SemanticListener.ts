@@ -29,7 +29,6 @@ import {
     logDiagnosticForTokens,
 } from "../utils";
 import {
-    EfunSymbol,
     MethodDeclarationSymbol,
     MethodInvocationSymbol,
     MethodSymbol,
@@ -46,6 +45,7 @@ import { LDMudFeatures } from "../driver/DriverLdMud";
 import { FluffOSFeatures } from "../driver/DriverFluffOS";
 import { FeatureValidationResult, IDriver } from "../driver/types";
 import { symbolWithContextSync, resolveOfTypeSync } from "./symbol-utils";
+import { EfunSymbol } from "../symbols/efunSymbol";
 
 export class SemanticListener extends LPCParserListener {
     private seenSymbols = new Map<string, Token>();

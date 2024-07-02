@@ -47,30 +47,30 @@ import {
 import { LPCToken } from "../parser3/LPCToken";
 import { LPCTokenFactor } from "../parser3/LPCTokenFactory";
 import { getParentContextOfType } from "../symbols/Symbol";
-import { ArrowSymbol, ArrowType } from "../symbols/arrowSymbol";
 import {
     IEvaluatableSymbol,
     IFoldableSymbol,
     isInstanceOfIKindSymbol,
 } from "../symbols/base";
+import {
+    VariableIdentifierSymbol,
+    VariableSymbol,
+} from "../symbols/variableSymbol";
+import { ArrowSymbol, ArrowType } from "../symbols/arrowSymbol";
 import { DefineSymbol } from "../symbols/defineSymbol";
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import {
     InheritSuperAccessorSymbol,
     InheritSymbol,
 } from "../symbols/inheritSymbol";
+
 import {
-    EfunSymbol,
     FunctionIdentifierSymbol,
     LpcBaseMethodSymbol,
     MethodDeclarationSymbol,
     MethodInvocationSymbol,
     MethodSymbol,
 } from "../symbols/methodSymbol";
-import {
-    VariableIdentifierSymbol,
-    VariableSymbol,
-} from "../symbols/variableSymbol";
 import {
     IContextDetails,
     IDefinition,
@@ -106,6 +106,7 @@ import { CallStack, StackValue } from "./CallStack";
 import { addPogramToStack } from "./CallStackUtils";
 import { LiteralSymbol } from "../symbols/literalSymbol";
 import { ResolvedFilename } from "./types";
+import { EfunSymbol } from "../symbols/efunSymbol";
 
 /**
  * Source context for a single LPC file.

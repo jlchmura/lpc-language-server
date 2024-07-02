@@ -12,11 +12,7 @@ import { LPCToken } from "../parser3/LPCToken";
 import { DefineSymbol } from "../symbols/defineSymbol";
 import { IncludeSymbol } from "../symbols/includeSymbol";
 import { InheritSymbol } from "../symbols/inheritSymbol";
-import {
-    EfunSymbol,
-    MethodDeclarationSymbol,
-    MethodSymbol,
-} from "../symbols/methodSymbol";
+import { MethodDeclarationSymbol, MethodSymbol } from "../symbols/methodSymbol";
 import {
     VariableSymbol,
     MethodParameterSymbol,
@@ -29,6 +25,7 @@ import {
     walkParents,
 } from "./symbol-utils";
 import { InlineClosureSymbol } from "../symbols/closureSymbol";
+import { EfunSymbol } from "../symbols/efunSymbol";
 
 export type SymbolTableCache = Map<string, SymbolTable>;
 
