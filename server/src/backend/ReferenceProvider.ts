@@ -16,9 +16,14 @@ import { ParserRuleContext } from "antlr4ng";
 import { LPCToken } from "../parser3/LPCToken";
 import { BaseSymbol, ScopedSymbol } from "antlr4-c3";
 import { URI } from "vscode-uri";
-import { FunctionHeaderContext } from "../parser3/LPCParser";
+import {
+    FunctionHeaderContext,
+    VariableDeclarationContext,
+    VariableDeclaratorExpressionContext,
+} from "../parser3/LPCParser";
 import { LpcBaseMethodSymbol } from "../symbols/methodSymbol";
 import { isIdentifierPart } from "./scanner-utils";
+import { VariableIdentifierSymbol } from "../symbols/variableSymbol";
 
 type CandidatePosition = {
     filename: string;

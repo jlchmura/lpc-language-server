@@ -618,7 +618,7 @@ export class DetailsVisitor
                             // not a new declaration, parse as an identifier
                             this.addNewSymbol(
                                 VariableIdentifierSymbol,
-                                varDeclExp,
+                                varDeclExp.variableDeclarator(),
                                 name
                             );
                             this.visit(varDeclExp.variableInitializer());
@@ -628,7 +628,7 @@ export class DetailsVisitor
                 } else {
                     this.addNewSymbol(
                         VariableIdentifierSymbol,
-                        varDeclExp,
+                        varDeclExp.variableDeclarator(),
                         name
                     );
                 }
