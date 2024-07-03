@@ -1083,7 +1083,13 @@ export class DetailsVisitor
             FundamentalType.stringType,
             concatStr
         );
+
         this.markToken(ctx.start, SemanticTokenTypes.String);
+
+        // if (concatStr.match(/\/|\.c/)) {
+        //     console.debug("possible filename: " + concatStr);
+        // }
+
         return undefined;
     };
 
