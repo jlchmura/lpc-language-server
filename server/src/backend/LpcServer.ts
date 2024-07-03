@@ -459,7 +459,7 @@ export class LpcServer {
         };
 
         this.facade.onProcessingEvent.on("start", () => {
-            console.info("process all start", process.memoryUsage());
+            console.info("Proccess queue start", process.memoryUsage());
             this.connection.sendNotification("lpc/processing-start");
         });
         this.facade.onProcessingEvent.on(
@@ -467,7 +467,7 @@ export class LpcServer {
             (queue: [], parseAllCount: number) => {
                 this.connection.sendNotification("lpc/processing-stop");
                 console.info(
-                    `process all stop [${parseAllCount} done/${
+                    `Process queue stop [${parseAllCount} done/${
                         queue?.length ?? 0
                     } left]`,
                     process.memoryUsage()

@@ -122,10 +122,11 @@ export class SourceContext {
     };
 
     /** file handler for this source file */
-    public fileHandler = new LpcFileHandler(
+    public fileHandler: LpcFileHandler = new LpcFileHandler(
         this.backend,
         this,
-        this.info.includes
+        this.info.includes,
+        new Set<string>()
     );
 
     /* @internal */
@@ -317,11 +318,18 @@ export class SourceContext {
         return false;
     }
 
-    public parse(): IContextDetails {
+    public parse(depChain?: Set<string>): IContextDetails {
         if (this.disposed) {
             // This context has been disposed.
             return;
         }
+
+        this.fileHandler = new LpcFileHandler(
+            this.backend,
+            this,
+            this.info.includes,
+            depChain
+        );
 
         this.macroTable.clear();
 
@@ -932,6 +940,7 @@ export class SourceContext {
             case LPCParser.RULE_callOtherTarget:
             case LPCParser.RULE_assignmentOperator:
             case LPCParser.RULE_validIdentifiers:
+            case LPCParser.RULE_variableDeclaratorExpression:
             case LPCParser.RULE_expression:
             case LPCParser.RULE_statement: // it may be an incompletel function, which will show up as a statement
                 symbol = this.symbolTable.symbolContainingContext(terminal);

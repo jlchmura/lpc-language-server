@@ -578,7 +578,63 @@ export class DetailsVisitor
             this.parseTypeSpecifier(typeCtx) ?? LpcTypes.unknownType;
 
         const varDecls = ctx.variableDeclaratorExpression();
+
+        // unfortunately, LPC doesn't require type names, so this might be a
+        // variable declaration, or it might not. We need to do some additional checks to figure that out
+        let isDecl = false;
+        if (varDecls.length > 1) {
+            // if there are multiple declarations then its definitely a declaration
+            isDecl = true;
+        } else if (
+            typeCtx?.structTypeSpecifier() ||
+            typeCtx?.primitiveTypeSpecifier()
+        ) {
+            // if there is a type specifier its a declaration
+            isDecl = true;
+        } else if (ctx.variableModifier()?.length > 0) {
+            // if there are variable modifiers then its a declaration
+            isDecl = true;
+        }
+
         varDecls.forEach((varDeclExp) => {
+            const name = varDeclExp
+                .variableDeclarator()
+                ._variableName.getText();
+
+            // if its not yet determined to be a declaration, then try to resolve the symbol.
+            // If it can't be resolved, then its a new declaration
+            if (!isDecl && !this.symbolTable.resolveSync(name, false)) {
+                isDecl = true;
+            }
+
+            if (!isDecl) {
+                // not a new declaration, parse as an identifier
+                if (varDeclExp.variableInitializer()) {
+                    this.withScope(
+                        varDeclExp,
+                        AssignmentSymbol,
+                        ["#assignment#" + name, "="],
+                        (s) => {
+                            // not a new declaration, parse as an identifier
+                            this.addNewSymbol(
+                                VariableIdentifierSymbol,
+                                varDeclExp,
+                                name
+                            );
+                            this.visit(varDeclExp.variableInitializer());
+                            return s;
+                        }
+                    );
+                } else {
+                    this.addNewSymbol(
+                        VariableIdentifierSymbol,
+                        varDeclExp,
+                        name
+                    );
+                }
+                return;
+            }
+
             const varSym = this.parseVariableDeclaration(
                 varDeclExp.variableDeclarator(),
                 varType
@@ -644,6 +700,8 @@ export class DetailsVisitor
             filename,
             filename
         );
+
+        this.fileHandler.loadReference(filename, symbol);
         this.imports.push({ filename, symbol });
 
         return undefined;

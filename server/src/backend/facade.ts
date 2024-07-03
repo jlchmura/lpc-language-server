@@ -336,8 +336,6 @@ export class LpcFacade {
         } else if (contextEntry.context.softReleased && restoreSoftRelease) {
             // set the text, which will trigger a reparse later
             contextEntry.context.setText(source);
-
-            console.debug("Reload from soft release: " + contextEntry.filename);
         }
 
         contextEntry.refCount++;
@@ -437,17 +435,18 @@ export class LpcFacade {
      * @param dep the dependency to add
      * @returns
      */
-    private addDependency(
+    public addDependency(
         filename: string,
-        dep: ContextImportInfo,
-        depChain: Set<string>
+        depFilename: string,
+        symbol?: BaseSymbol,
+        depChain: Set<string> = new Set()
     ) {
         try {
             const contextEntry = this.getContextEntry(filename);
             if (contextEntry) {
                 const depContext = this.loadDependency(
                     contextEntry,
-                    dep.filename,
+                    depFilename,
                     depChain
                 );
                 if (depContext) {
@@ -457,8 +456,8 @@ export class LpcFacade {
                     );
                     depContextEntry.refCount++;
 
-                    if (!!dep.symbol) {
-                        (dep.symbol as IncludeSymbol).isLoaded = true;
+                    if (!!symbol) {
+                        (symbol as IncludeSymbol).isLoaded = true;
                     }
                     contextEntry.context.addAsReferenceTo(depContext);
 
@@ -470,7 +469,7 @@ export class LpcFacade {
             }
         } catch (e) {
             console.log(
-                `Error adding dependency ${dep.filename} to ${filename}: ${e}`
+                `Error adding dependency ${depFilename} to ${filename}: ${e}`
             );
         }
     }
@@ -496,9 +495,11 @@ export class LpcFacade {
             contextEntry.dependencies = [];
 
             // parse
-            const info = context.parse();
+            const info = context.parse(depChain);
 
-            const newDependencies = [...info.imports];
+            // info.imports doesn't need to be handled here
+            // they are already loaded by the fileHandler in the details visitor
+
             const newIncludes = [...info.includes];
             const newReferences = [
                 ...context.getReferences().map((ref) => ref.fileName),
@@ -510,12 +511,6 @@ export class LpcFacade {
             }
             for (const ref of newReferences) {
                 this.fileRefs.add(ref, context.fileName);
-            }
-
-            // add new dependencies
-            // this is done before removed old ones so that the ref count doesn't drop below 1 which would cause a file to be cleaned up
-            for (const dep of newDependencies) {
-                this.addDependency(contextEntry.filename, dep, depChain);
             }
 
             // queue dependencies to reparse & run their diags
