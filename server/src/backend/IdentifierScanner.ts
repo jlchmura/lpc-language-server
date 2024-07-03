@@ -11,6 +11,10 @@ import { performance } from "perf_hooks";
 import { IFileHandler, LoadImportResult } from "./types";
 import { LpcFacade } from "./facade";
 
+/**
+ * This is no longer used
+ *
+ */
 class IdentifierScannerFileHandler implements IFileHandler {
     constructor(
         private backend: LpcFacade,

@@ -6,6 +6,7 @@ import { glob } from "glob";
 import * as path from "path";
 import { PerformanceObserver, performance } from "perf_hooks";
 import {
+    CancellationToken,
     CancellationTokenSource,
     FoldingRange,
     Position,
@@ -31,7 +32,6 @@ import {
 import { ensureLpcConfig } from "./LpcConfig";
 import { SourceContext } from "./SourceContext";
 import { ResolvedFilename } from "./types";
-import { IdentifierScanner } from "./IdentifierScanner";
 import { MasterFileContext } from "../driver/MasterFile";
 import { DriverVersion } from "../driver/DriverVersion";
 
@@ -147,10 +147,6 @@ export class LpcFacade {
             await this.queueInitFilesForParse();
             await this.doParseAll();
         }, 1000);
-
-        setTimeout(() => {
-            this.buildIdentifierCache();
-        }, 50);
     }
 
     /** parses the master file */
@@ -165,27 +161,6 @@ export class LpcFacade {
             this.workspaceDir,
             this.loadLpc(masterFileInfo.fullPath)
         );
-    }
-
-    /** scans all LPC files to build the identifier cache */
-    private buildIdentifierCache() {
-        const cache = createMultiMap<string, string>();
-
-        const scanner = new IdentifierScanner(
-            this,
-            this.workspaceDir,
-            cache,
-            this.includeRefs,
-            (file) => this.masterFile.getIncludePath(file)
-        );
-
-        const cancel = new CancellationTokenSource();
-        scanner.scanFiles(cancel.token).then(() => {
-            console.log(
-                `Identifier scan complete, found ${cache.size} identifiers`
-            );
-            this.identifierCache = cache;
-        });
     }
 
     public filenameToAbsolutePath(filename: string): string {
@@ -865,7 +840,7 @@ export class LpcFacade {
 
     private async queueInitFilesForParse() {
         const config = ensureLpcConfig();
-        const excludeFiles = await this.getExludes();
+        const excludeFiles = await getExcludes(this.workspaceDir);
         // add master file
         // const masterFileInfo = this.resolveFilename(
         //     config.files.master,
@@ -896,29 +871,6 @@ export class LpcFacade {
                 }
             }
         });
-    }
-
-    private async getExludes(): Promise<Set<string>> {
-        const config = ensureLpcConfig();
-
-        const globExcludes =
-            config.exclude?.length > 0
-                ? await glob.glob(config.exclude, {
-                      cwd: this.workspaceDir,
-                      root: this.workspaceDir,
-                      matchBase: true,
-                  })
-                : [];
-
-        const excludeFiles = new Set(
-            globExcludes.map((f) =>
-                f.toLowerCase().startsWith(this.workspaceDir.toLowerCase())
-                    ? f
-                    : path.join(this.workspaceDir, f)
-            )
-        );
-
-        return excludeFiles;
     }
 
     private async doParseAll() {
@@ -999,7 +951,7 @@ export class LpcFacade {
 
         const dirsToProcess = [this.workspaceDir];
         const { parseAllFileQueue } = this;
-        const excludeFiles = await this.getExludes();
+        const excludeFiles = await getExcludes(this.workspaceDir);
 
         // now process everything else
         while (dirsToProcess.length > 0 && !token.isCancellationRequested) {
@@ -1080,4 +1032,75 @@ export class LpcFacade {
     public getMasterFile() {
         return this.masterFile;
     }
+}
+
+async function getExcludes(workspaceDir: string): Promise<Set<string>> {
+    const config = ensureLpcConfig();
+
+    const globExcludes =
+        config.exclude?.length > 0
+            ? await glob.glob(config.exclude, {
+                  cwd: workspaceDir,
+                  root: workspaceDir,
+                  matchBase: true,
+              })
+            : [];
+
+    const excludeFiles = new Set(
+        globExcludes.map((f) =>
+            f.toLowerCase().startsWith(workspaceDir.toLowerCase())
+                ? f
+                : path.join(workspaceDir, f)
+        )
+    );
+
+    return excludeFiles;
+}
+
+/**
+ * Get a a list of all LPC files in this project, minus any excludes
+ * @param workspaceDir
+ * @param token
+ * @returns
+ */
+export async function getProjectFiles(
+    workspaceDir: string,
+    token: CancellationToken = CancellationToken.None
+): Promise<readonly string[]> {
+    const stack: string[] = [];
+    const dirsToProcess = [workspaceDir];
+    const excludeFiles = await getExcludes(workspaceDir);
+
+    // now process everything else
+    while (dirsToProcess.length > 0 && !token?.isCancellationRequested) {
+        const dir = dirsToProcess.pop();
+        const promise = new Promise<void>((resolve, reject) => {
+            fs.readdir(dir, { withFileTypes: true }, (err, files) => {
+                for (const file of files) {
+                    if (token.isCancellationRequested) break;
+
+                    const filename = path.join(dir, file.name);
+                    if (file.isDirectory()) {
+                        if (excludeFiles.has(filename)) {
+                            // skip
+                        } else {
+                            dirsToProcess.push(filename);
+                        }
+                    } else if (file.name.endsWith(".c")) {
+                        if (excludeFiles.has(filename)) {
+                            continue;
+                        }
+
+                        stack.push(filename);
+                    }
+                }
+
+                resolve();
+            });
+        });
+
+        await promise;
+    }
+
+    return stack;
 }

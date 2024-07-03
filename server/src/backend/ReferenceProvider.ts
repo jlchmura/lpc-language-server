@@ -1,5 +1,6 @@
+import * as fs from "fs";
 import { Position, TextDocument } from "vscode-languageserver-textdocument";
-import { LpcFacade } from "./facade";
+import { LpcFacade, getProjectFiles } from "./facade";
 import { Location } from "vscode-languageserver";
 import {
     getFilenameForSymbol,
@@ -7,18 +8,22 @@ import {
     lexRangeToLspRange,
 } from "../utils";
 import {
-    IReferenceableSymbol,
     isInstanceOfIReferenceSymbol,
     isInstanceOfIReferenceableSymbol,
 } from "../symbols/base";
 
 import { ParserRuleContext } from "antlr4ng";
 import { LPCToken } from "../parser3/LPCToken";
-import { BaseSymbol } from "antlr4-c3";
+import { BaseSymbol, ScopedSymbol } from "antlr4-c3";
 import { URI } from "vscode-uri";
 import { FunctionHeaderContext } from "../parser3/LPCParser";
 import { LpcBaseMethodSymbol } from "../symbols/methodSymbol";
+import { isIdentifierPart } from "./scanner-utils";
 
+type CandidatePosition = {
+    filename: string;
+    position: number;
+};
 export class ReferenceProvider {
     constructor(private backend: LpcFacade) {}
 
@@ -27,21 +32,41 @@ export class ReferenceProvider {
         position: Position
     ): Promise<Location[]> {
         const docFilename = URI.parse(doc.uri).fsPath;
-
         const results: Location[] = [];
         const seen: Set<BaseSymbol> = new Set();
 
         const sym = this.backend.symbolContainingPosition(doc.uri, position);
-
         if (!sym) {
             return [];
         }
 
-        // collect possible references - they will be scanned later to confirm
+        const referenceName = sym.name;
 
-        // get a list of files that possibly contain this symbol
-        const candidateFiles =
-            this.backend.identifierCache.get(sym.name) ?? new Set<string>();
+        // scan all files for candidates
+        // TODO: implemenet scope check so that we don't do a full scan for things like block-scoped variables
+        const projectFiles = await getProjectFiles(this.backend.workspaceDir);
+        const candidatePositions: CandidatePosition[] = [];
+        for (const file of projectFiles) {
+            const readPromise = new Promise<void>((resolve, reject) => {
+                fs.readFile(file, "utf-8", (err, text) => {
+                    const positions = searchForName(text, referenceName);
+                    candidatePositions.push(
+                        ...positions.map((p) => ({
+                            filename: file,
+                            position: p,
+                        }))
+                    );
+                    resolve();
+                });
+            });
+
+            await readPromise;
+        }
+
+        // TODO: cache this
+        const candidateFiles = new Set(
+            candidatePositions.map((cp) => cp.filename)
+        );
 
         // add the symbol and its reference to the list
         const refsToScan: BaseSymbol[] = [sym];
@@ -142,4 +167,57 @@ export class ReferenceProvider {
 
         return results;
     }
+}
+
+/**
+ * Determine the smallest scope in which a symbol may have references.
+ * @param symbol
+ * @returns undefeind if the scope cannot be determined,
+ * which means a reference can be anywhere
+ */
+function getSymbolScope(symbol: BaseSymbol): ScopedSymbol | undefined {
+    // TODO: implement this
+    return undefined;
+}
+
+/**
+ * Searches a file for instances of a symbol name
+ * @param sourceText the source code of the file to scan
+ * @param search
+ * @returns an array of starting positions of the symbol name
+ */
+function searchForName(
+    sourceText: string,
+    search: string,
+    containerStart: number = 0,
+    containerEnd: number = sourceText.length
+): readonly number[] {
+    const positions: number[] = [];
+    if (!search || !search.length) positions;
+
+    const sourceLength = sourceText.length;
+    const symbolNameLength = search.length;
+
+    let position = sourceText.indexOf(search, containerStart);
+    while (position >= 0) {
+        // If we are past the end, stop looking
+        if (position > containerEnd) break;
+
+        // We found a match.  Make sure it's not part of a larger word (i.e. the char
+        // before and after it have to be a non-identifier char).
+        const endPosition = position + symbolNameLength;
+
+        if (
+            (position === 0 ||
+                !isIdentifierPart(sourceText.charCodeAt(position - 1))) &&
+            (endPosition === sourceLength ||
+                !isIdentifierPart(sourceText.charCodeAt(endPosition)))
+        ) {
+            // Found a real match.  Keep searching.
+            positions.push(position);
+        }
+        position = sourceText.indexOf(search, position + symbolNameLength + 1);
+    }
+
+    return positions;
 }

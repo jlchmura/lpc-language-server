@@ -1419,8 +1419,6 @@ export class SourceContext {
 
     /** releases objects that aren't needed if the file isn't open in the editor */
     public softRelease() {
-        console.debug("Soft releasing " + this.fileName);
-
         this.softReleased = true;
         this.sourceText = undefined;
         this.allTokens.length = 0;
