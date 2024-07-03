@@ -28,11 +28,7 @@ import {
     lastEntry,
     logDiagnosticForTokens,
 } from "../utils";
-import {
-    MethodDeclarationSymbol,
-    MethodInvocationSymbol,
-    MethodSymbol,
-} from "../symbols/methodSymbol";
+import { MethodDeclarationSymbol, MethodSymbol } from "../symbols/methodSymbol";
 import { CallOtherSymbol } from "../symbols/objectSymbol";
 import { DiagnosticSeverity } from "vscode-languageserver";
 import { SourceContext } from "./SourceContext";
@@ -46,6 +42,7 @@ import { FluffOSFeatures } from "../driver/DriverFluffOS";
 import { FeatureValidationResult, IDriver } from "../driver/types";
 import { symbolWithContextSync, resolveOfTypeSync } from "./symbol-utils";
 import { EfunSymbol } from "../symbols/efunSymbol";
+import { MethodInvocationSymbol } from "../symbols/methodInvocationSymbol";
 
 export class SemanticListener extends LPCParserListener {
     private seenSymbols = new Map<string, Token>();
@@ -94,7 +91,7 @@ export class SemanticListener extends LPCParserListener {
         ) as InheritSymbol;
         if (!symbol?.isLoaded) {
             this.logDiagnostic(
-                "Could not load inherited file '" + symbol.name + "'",
+                "Could not load inherited file '" + symbol?.name + "'",
                 ctx.start,
                 ctx.stop,
                 DiagnosticSeverity.Warning

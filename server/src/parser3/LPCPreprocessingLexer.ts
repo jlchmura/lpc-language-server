@@ -92,6 +92,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
 
         this.macroLexer = new LPCLexer(input);
         this.macroLexer.tokenFactory = new LPCTokenFactor(filename);
+        this.tokenFactory = new LPCTokenFactor(filename);
     }
 
     override nextToken(): Token {

@@ -6,6 +6,7 @@
 -   Fix: Properly reset lexer state on error.
 -   [FLUFFOS] Added double bang `!!` operator to grammar ([#31](https://github.com/jlchmura/lpc-language-server/issues/31)).
 -   `lpc-config.json` now uses JSONC so comments can be added to the file ([#32](https://github.com/jlchmura/lpc-language-server/issues/32))
+-   Find References no longer requires a user-initiated file scan and is much more memory efficient.
 
 ## 1.0.20
 

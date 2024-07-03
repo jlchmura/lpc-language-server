@@ -4,8 +4,9 @@ import * as events from "events";
 import * as fs from "fs";
 import { glob } from "glob";
 import * as path from "path";
-import { performance } from "perf_hooks";
+import { PerformanceObserver, performance } from "perf_hooks";
 import {
+    CancellationToken,
     CancellationTokenSource,
     FoldingRange,
     Position,
@@ -20,6 +21,7 @@ import {
     DependencySearchType,
     IDiagnosticEntry,
     ISymbolInfo,
+    MultiMap,
     createMultiMap,
 } from "../types";
 import {
@@ -30,6 +32,8 @@ import {
 import { ensureLpcConfig } from "./LpcConfig";
 import { SourceContext } from "./SourceContext";
 import { ResolvedFilename } from "./types";
+import { MasterFileContext } from "../driver/MasterFile";
+import { DriverVersion } from "../driver/DriverVersion";
 
 /** ms delay before reparsing a depenency */
 const DEP_FILE_REPARSE_TIME = 300;
@@ -102,8 +106,14 @@ export class LpcFacade {
      */
     public fileRefs = createMultiMap<string, string>();
 
+    /**
+     * Stores a mapping of *possible* identifiers to the files that contain them.
+     * This map is built during facade startup
+     */
+    public identifierCache: MultiMap<string, string>;
+
     /** the lib's compiled master.c file */
-    private masterFile: SourceContext;
+    private masterFile: MasterFileContext;
 
     public constructor(
         public workspaceDir: string,
@@ -119,28 +129,24 @@ export class LpcFacade {
             console.log("LpcFacade created", this.importDir, workspaceDir);
         }
 
-        // const obs = new PerformanceObserver((list) => {
-        //     // instantiate
-        //     const rows: any = [];
-        //     //console.log("ms        | filename");
-        //     list.getEntries().forEach((entry) => {
-        //         console.log(
-        //             `${entry.duration.toFixed(4).padStart(9, " ")} | ${
-        //                 entry.name
-        //             }`
-        //         );
-        //     });
+        const obs = new PerformanceObserver((list) => {
+            list?.getEntries()?.forEach((entry) => {
+                console.log(
+                    `${entry.duration?.toFixed(4).padStart(9, " ")}ms | ${
+                        entry?.name
+                    }`
+                );
+                performance.clearMeasures(entry.name);
+            });
+        });
+        obs.observe({ entryTypes: ["measure"], buffered: true });
 
-        //     performance.clearMarks();
-        //     performance.clearMeasures();
-        // });
-        // obs.observe({ entryTypes: ["measure"], buffered: true });
         this.initMaster();
 
         setTimeout(async () => {
             await this.queueInitFilesForParse();
             await this.doParseAll();
-        }, 500);
+        }, 1000);
     }
 
     /** parses the master file */
@@ -151,7 +157,10 @@ export class LpcFacade {
             this.workspaceDir
         );
 
-        this.masterFile = this.loadLpc(masterFileInfo.fullPath);
+        this.masterFile = new MasterFileContext(
+            this.workspaceDir,
+            this.loadLpc(masterFileInfo.fullPath)
+        );
     }
 
     public filenameToAbsolutePath(filename: string): string {
@@ -302,7 +311,7 @@ export class LpcFacade {
             const context = new SourceContext(
                 this,
                 fileName,
-                this.workspaceDir,
+                (file) => this.getDriverPredefinedMacros(file),
                 this.importDir,
                 this.masterFile
             );
@@ -324,12 +333,12 @@ export class LpcFacade {
             // and pass their references to this context.
             context.setText(source);
             this.parseLpc(contextEntry, depChain);
-
-            contextEntry.refCount++;
         } else if (contextEntry.context.softReleased && restoreSoftRelease) {
             // set the text, which will trigger a reparse later
             contextEntry.context.setText(source);
         }
+
+        contextEntry.refCount++;
 
         return contextEntry.context;
     }
@@ -377,7 +386,9 @@ export class LpcFacade {
                 contextEntry.disposed = true;
             } else if (
                 !!this.workspaceDocs &&
-                !this.workspaceDocs.get(contextEntry.filename)
+                !this.workspaceDocs.get(
+                    URI.file(contextEntry.filename).toString()
+                )
             ) {
                 // if the file is not open, soft release it
                 contextEntry.context.softRelease();
@@ -424,17 +435,18 @@ export class LpcFacade {
      * @param dep the dependency to add
      * @returns
      */
-    private addDependency(
+    public addDependency(
         filename: string,
-        dep: ContextImportInfo,
-        depChain: Set<string>
+        depFilename: string,
+        symbol?: BaseSymbol,
+        depChain: Set<string> = new Set()
     ) {
         try {
             const contextEntry = this.getContextEntry(filename);
             if (contextEntry) {
                 const depContext = this.loadDependency(
                     contextEntry,
-                    dep.filename,
+                    depFilename,
                     depChain
                 );
                 if (depContext) {
@@ -444,8 +456,8 @@ export class LpcFacade {
                     );
                     depContextEntry.refCount++;
 
-                    if (!!dep.symbol) {
-                        (dep.symbol as IncludeSymbol).isLoaded = true;
+                    if (!!symbol) {
+                        (symbol as IncludeSymbol).isLoaded = true;
                     }
                     contextEntry.context.addAsReferenceTo(depContext);
 
@@ -457,7 +469,7 @@ export class LpcFacade {
             }
         } catch (e) {
             console.log(
-                `Error adding dependency ${dep.filename} to ${filename}: ${e}`
+                `Error adding dependency ${depFilename} to ${filename}: ${e}`
             );
         }
     }
@@ -483,9 +495,11 @@ export class LpcFacade {
             contextEntry.dependencies = [];
 
             // parse
-            const info = context.parse();
+            const info = context.parse(depChain);
 
-            const newDependencies = [...info.imports];
+            // info.imports doesn't need to be handled here
+            // they are already loaded by the fileHandler in the details visitor
+
             const newIncludes = [...info.includes];
             const newReferences = [
                 ...context.getReferences().map((ref) => ref.fileName),
@@ -497,12 +511,6 @@ export class LpcFacade {
             }
             for (const ref of newReferences) {
                 this.fileRefs.add(ref, context.fileName);
-            }
-
-            // add new dependencies
-            // this is done before removed old ones so that the ref count doesn't drop below 1 which would cause a file to be cleaned up
-            for (const dep of newDependencies) {
-                this.addDependency(contextEntry.filename, dep, depChain);
             }
 
             // queue dependencies to reparse & run their diags
@@ -549,11 +557,11 @@ export class LpcFacade {
         depChain.delete(context.fileName);
 
         performance.mark("parse-lpc-end");
-        performance.measure(
-            "parse-lpc: " + contextEntry.filename,
-            "parse-lpc-start",
-            "parse-lpc-end"
-        );
+        // performance.measure(
+        //     "parse-lpc: " + contextEntry.filename,
+        //     "parse-lpc-start",
+        //     "parse-lpc-end"
+        // );
     }
 
     /**
@@ -827,7 +835,7 @@ export class LpcFacade {
 
     private async queueInitFilesForParse() {
         const config = ensureLpcConfig();
-        const excludeFiles = await this.getExludes();
+        const excludeFiles = await getExcludes(this.workspaceDir);
         // add master file
         // const masterFileInfo = this.resolveFilename(
         //     config.files.master,
@@ -858,29 +866,6 @@ export class LpcFacade {
                 }
             }
         });
-    }
-
-    private async getExludes(): Promise<Set<string>> {
-        const config = ensureLpcConfig();
-
-        const globExcludes =
-            config.exclude?.length > 0
-                ? await glob.glob(config.exclude, {
-                      cwd: this.workspaceDir,
-                      root: this.workspaceDir,
-                      matchBase: true,
-                  })
-                : [];
-
-        const excludeFiles = new Set(
-            globExcludes.map((f) =>
-                f.toLowerCase().startsWith(this.workspaceDir.toLowerCase())
-                    ? f
-                    : path.join(this.workspaceDir, f)
-            )
-        );
-
-        return excludeFiles;
     }
 
     private async doParseAll() {
@@ -961,7 +946,7 @@ export class LpcFacade {
 
         const dirsToProcess = [this.workspaceDir];
         const { parseAllFileQueue } = this;
-        const excludeFiles = await this.getExludes();
+        const excludeFiles = await getExcludes(this.workspaceDir);
 
         // now process everything else
         while (dirsToProcess.length > 0 && !token.isCancellationRequested) {
@@ -1001,7 +986,116 @@ export class LpcFacade {
         );
     }
 
+    public getDriverPredefinedMacros(filename: string): Map<string, string> {
+        const config = ensureLpcConfig();
+
+        // add macros from config
+        const configDefines = new Map(config.defines ?? []);
+        const ver = DriverVersion.from(config.driver.version);
+        configDefines.set("__VERSION__", `"${config.driver.version}"`);
+        configDefines.set("__VERSION_MAJOR__", ver.major.toString());
+        configDefines.set("__VERSION_MINOR__", ver.minor.toString());
+        configDefines.set("__VERSION_MICRO__", ver.micro.toString());
+        configDefines.set("__VERSION_PATCH__", "0");
+        configDefines.set("__RESET_TIME__", "1");
+
+        // get the dir of this file relative to project root
+        const relativeDir = path.relative(this.workspaceDir, filename);
+        const fileDir = path.dirname(relativeDir);
+        configDefines.set("__DIR__", `"/${fileDir}/"`);
+        configDefines.set("__FILE__", `"${relativeDir}"`);
+
+        const globalInclude = config.files.global_include;
+        if (globalInclude?.length > 0) {
+            // resolve the global filename
+
+            const globalFilename = this.resolveFilename(
+                globalInclude,
+                filename
+            );
+            if (
+                filename !== globalFilename.fullPath &&
+                !filename.endsWith(".h")
+            ) {
+                configDefines.set("__GLOBAL_INCLUDE__", `"${globalInclude}"`);
+            }
+        }
+
+        return configDefines;
+    }
+
     public getMasterFile() {
         return this.masterFile;
     }
+}
+
+async function getExcludes(workspaceDir: string): Promise<Set<string>> {
+    const config = ensureLpcConfig();
+
+    const globExcludes =
+        config.exclude?.length > 0
+            ? await glob.glob(config.exclude, {
+                  cwd: workspaceDir,
+                  root: workspaceDir,
+                  matchBase: true,
+              })
+            : [];
+
+    const excludeFiles = new Set(
+        globExcludes.map((f) =>
+            f.toLowerCase().startsWith(workspaceDir.toLowerCase())
+                ? f
+                : path.join(workspaceDir, f)
+        )
+    );
+
+    return excludeFiles;
+}
+
+/**
+ * Get a a list of all LPC files in this project, minus any excludes
+ * @param workspaceDir
+ * @param token
+ * @returns
+ */
+export async function getProjectFiles(
+    workspaceDir: string,
+    token: CancellationToken = CancellationToken.None
+): Promise<readonly string[]> {
+    const stack: string[] = [];
+    const dirsToProcess = [workspaceDir];
+    const excludeFiles = await getExcludes(workspaceDir);
+
+    // now process everything else
+    while (dirsToProcess.length > 0 && !token?.isCancellationRequested) {
+        const dir = dirsToProcess.pop();
+        const promise = new Promise<void>((resolve, reject) => {
+            fs.readdir(dir, { withFileTypes: true }, (err, files) => {
+                for (const file of files) {
+                    if (token.isCancellationRequested) break;
+
+                    const filename = path.join(dir, file.name);
+                    if (file.isDirectory()) {
+                        if (excludeFiles.has(filename)) {
+                            // skip
+                        } else {
+                            dirsToProcess.push(filename);
+                        }
+                    } else if (file.name.endsWith(".c")) {
+                        if (excludeFiles.has(filename)) {
+                            continue;
+                        }
+
+                        stack.push(filename);
+                    }
+                }
+
+                resolve();
+            });
+        });
+
+        await promise;
+    }
+
+    return stack;
 }

@@ -1,33 +1,4 @@
-import { BaseSymbol, IType, ScopedSymbol } from "antlr4-c3";
-import {
-    IEvaluatableSymbol,
-    getSymbolsOfTypeSync,
-    isInstanceOfIEvaluatableSymbol,
-} from "./base";
-import { addDiagnostic } from "./Symbol";
-import { normalizeFilename, rangeFromTokens } from "../utils";
-import { MethodInvocationSymbol, MethodSymbol } from "./methodSymbol";
-import { ContextSymbolTable } from "../backend/ContextSymbolTable";
-import { SourceContext } from "../backend/SourceContext";
-
-import { ParserRuleContext } from "antlr4ng";
-import { DiagnosticSeverity } from "vscode-languageserver";
-import { CallStack, StackFrame, StackValue } from "../backend/CallStack";
 import { ArrowSymbol } from "./arrowSymbol";
-import { LpcFileHandler } from "../backend/FileHandler";
-import { DiagnosticCodes } from "../types";
-
-export class ObjectReferenceInfo {
-    constructor(
-        public filename?: string,
-        public isLoaded?: boolean,
-        public context?: SourceContext
-    ) {}
-
-    toString() {
-        return `${this.filename}:${this.isLoaded}`;
-    }
-}
 
 // export class CloneObjectSymbol
 //     extends ScopedSymbol

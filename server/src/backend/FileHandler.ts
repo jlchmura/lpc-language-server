@@ -12,7 +12,9 @@ export class LpcFileHandler implements IFileHandler {
         private backend: LpcFacade,
         private sourceContext: SourceContext,
         /** list of files that are loaded via `#include` directives */
-        private includes: string[]
+        private includes: string[],
+        /** dependency chain */
+        private depChain: Set<string>
     ) {}
 
     /**
@@ -22,11 +24,20 @@ export class LpcFileHandler implements IFileHandler {
      * @param filename The filename to load
      * @param symbol The symbol that is referencing the file
      */
-    public loadReference(filename: string, symbol?: BaseSymbol): SourceContext {
+    public loadReference(
+        filename: string,
+        symbol?: BaseSymbol,
+        depChain?: Set<string>
+    ): SourceContext {
         const fromFilename = this.sourceContext.fileName;
-        const toFilename = this.backend.filenameToAbsolutePath(filename);
+        const toFilename = filename;
 
-        return this.backend.addReference(fromFilename, toFilename);
+        return this.backend.addDependency(
+            fromFilename,
+            toFilename,
+            symbol,
+            depChain
+        );
     }
 
     /**

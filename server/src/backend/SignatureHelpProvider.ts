@@ -6,12 +6,13 @@ import {
     SignatureHelp,
     SignatureInformation,
 } from "vscode-languageserver";
-import { MethodInvocationSymbol } from "../symbols/methodSymbol";
+
 import { ContextSymbolTable } from "./ContextSymbolTable";
 import { firstEntry, trimStart } from "../utils";
 import { ParserRuleContext } from "antlr4ng";
-import { MethodInvocationContext } from "../parser3/LPCParser";
+
 import { ArrowSymbol } from "../symbols/arrowSymbol";
+import { MethodInvocationSymbol } from "../symbols/methodInvocationSymbol";
 
 export class SignatureHelpProvider {
     constructor(private backend: LpcFacade) {}

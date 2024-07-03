@@ -1,6 +1,7 @@
 import * as path from "path";
 import { performance } from "perf_hooks";
 import {
+    CancellationToken,
     Connection,
     DidChangeConfigurationNotification,
     InitializeParams,
@@ -277,21 +278,18 @@ export class LpcServer {
             }
         });
 
-        this.connection.onReferences(async (params) => {
-            if (!this.facade.parseAllComplete) {
-                this.connection.sendNotification(
-                    "lpc/info",
-                    "Please run the 'Process All Files' command first."
-                );
+        this.connection.onReferences(
+            async (params, token: CancellationToken) => {
+                const doc = this.documents.get(params.textDocument.uri);
+                const result =
+                    await this.referenceProvider.handleReferenceRequest(
+                        doc,
+                        params.position,
+                        token
+                    );
+                return result;
             }
-
-            const doc = this.documents.get(params.textDocument.uri);
-            const result = this.referenceProvider.handleReferenceRequest(
-                doc,
-                params.position
-            );
-            return result;
-        });
+        );
 
         this.connection.onDocumentHighlight((params) => {
             const result = this.highlighProvider.getHighlights(
@@ -466,7 +464,7 @@ export class LpcServer {
         };
 
         this.facade.onProcessingEvent.on("start", () => {
-            console.info("process all start", process.memoryUsage());
+            console.info("Proccess queue start", process.memoryUsage());
             this.connection.sendNotification("lpc/processing-start");
         });
         this.facade.onProcessingEvent.on(
@@ -474,7 +472,7 @@ export class LpcServer {
             (queue: [], parseAllCount: number) => {
                 this.connection.sendNotification("lpc/processing-stop");
                 console.info(
-                    `process all stop [${parseAllCount} done/${
+                    `Process queue stop [${parseAllCount} done/${
                         queue?.length ?? 0
                     } left]`,
                     process.memoryUsage()

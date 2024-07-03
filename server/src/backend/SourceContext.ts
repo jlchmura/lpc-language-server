@@ -68,7 +68,6 @@ import {
     FunctionIdentifierSymbol,
     LpcBaseMethodSymbol,
     MethodDeclarationSymbol,
-    MethodInvocationSymbol,
     MethodSymbol,
 } from "../symbols/methodSymbol";
 import {
@@ -76,7 +75,6 @@ import {
     IDefinition,
     IDiagnosticEntry,
     ISymbolInfo,
-    LpcTypes,
     MacroDefinition,
     SemanticTokenTypes,
     SymbolKind,
@@ -88,7 +86,6 @@ import {
     normalizeFilename,
     pushIfDefined,
     rangeFromTokens,
-    toLibPath,
     trimQuotes,
 } from "../utils";
 import { BackendUtils } from "./BackendUtils";
@@ -107,6 +104,8 @@ import { addPogramToStack } from "./CallStackUtils";
 import { LiteralSymbol } from "../symbols/literalSymbol";
 import { ResolvedFilename } from "./types";
 import { EfunSymbol } from "../symbols/efunSymbol";
+import { MasterFileContext } from "../driver/MasterFile";
+import { MethodInvocationSymbol } from "../symbols/methodInvocationSymbol";
 
 /**
  * Source context for a single LPC file.
@@ -123,10 +122,11 @@ export class SourceContext {
     };
 
     /** file handler for this source file */
-    public fileHandler = new LpcFileHandler(
+    public fileHandler: LpcFileHandler = new LpcFileHandler(
         this.backend,
         this,
-        this.info.includes
+        this.info.includes,
+        new Set<string>()
     );
 
     /* @internal */
@@ -188,9 +188,9 @@ export class SourceContext {
     public constructor(
         public backend: LpcFacade,
         public fileName: string,
-        private extensionDir: string,
+        private getDriverMacros: (filename: string) => Map<string, string>,
         private importDir: string[],
-        private masterFile: SourceContext
+        private masterFile: MasterFileContext
     ) {
         this.symbolTable = new ContextSymbolTable(
             path.basename(fileName),
@@ -233,50 +233,8 @@ export class SourceContext {
 
     /** runs various driver apply's on compile */
     private onCompile() {
-        const config = ensureLpcConfig();
-        // run the fluff driver get_include_path to get the search dirs
-        if (
-            config.driver.type == "fluffos" &&
-            !!this.masterFile &&
-            this.fileName != this.resolveFilename(config.files.master).fullPath
-        ) {
-            const localFilename = toLibPath(
-                this.fileName,
-                this.backend.workspaceDir
-            );
-            const driver = getDriverInfo();
-            const master = this.masterFile;
-
-            if (!!master) {
-                // setup eval stack
-                const stack = new CallStack(master.symbolTable);
-                stack.diagnosticMode = false;
-                addPogramToStack(driver.efuns, stack);
-                addPogramToStack(master.symbolTable, stack);
-
-                // find the get_include_path apply and run it
-                const applyFn = master.symbolTable.resolveSync(
-                    "get_include_path"
-                ) as MethodSymbol;
-                const callArgs: IEvaluatableSymbol[] = [
-                    new LiteralSymbol(
-                        "string",
-                        LpcTypes.stringType,
-                        localFilename
-                    ),
-                ];
-                const fnResult = applyFn?.eval(stack, callArgs, stack.root);
-                if (!!fnResult?.value) {
-                    (fnResult?.value as StackValue[])?.forEach((s) => {
-                        if (s.value != ":DEFAULT:") {
-                            this.fileHandler.searchDirs.push(
-                                path.join(this.backend.workspaceDir, s.value)
-                            );
-                        }
-                    });
-                }
-            }
-        }
+        const searchDirs = this.masterFile?.getIncludePath(this.fileName) ?? [];
+        this.fileHandler.searchDirs.push(...searchDirs);
     }
 
     public get hasErrors(): boolean {
@@ -360,11 +318,18 @@ export class SourceContext {
         return false;
     }
 
-    public parse(): IContextDetails {
+    public parse(depChain?: Set<string>): IContextDetails {
         if (this.disposed) {
             // This context has been disposed.
             return;
         }
+
+        this.fileHandler = new LpcFileHandler(
+            this.backend,
+            this,
+            this.info.includes,
+            depChain
+        );
 
         this.macroTable.clear();
 
@@ -372,35 +337,7 @@ export class SourceContext {
         const driver = getDriverInfo();
 
         // add macros from config
-        const configDefines = new Map(config.defines ?? []);
-        const ver = DriverVersion.from(config.driver.version);
-        configDefines.set("__VERSION__", `"${config.driver.version}"`);
-        configDefines.set("__VERSION_MAJOR__", ver.major.toString());
-        configDefines.set("__VERSION_MINOR__", ver.minor.toString());
-        configDefines.set("__VERSION_MICRO__", ver.micro.toString());
-        configDefines.set("__VERSION_PATCH__", "0");
-        configDefines.set("__RESET_TIME__", "1");
-
-        // get the dir of this file relative to project root
-        const relativeDir = path.relative(
-            this.backend.workspaceDir,
-            this.fileName
-        );
-        const fileDir = path.dirname(relativeDir);
-        configDefines.set("__DIR__", `"/${fileDir}/"`);
-        configDefines.set("__FILE__", `"${relativeDir}"`);
-
-        const globalInclude = config.files.global_include;
-        if (globalInclude?.length > 0) {
-            // resolve the global filename
-            const globalFilename = this.resolveFilename(globalInclude);
-            if (
-                this.fileName !== globalFilename.fullPath &&
-                !this.fileName.endsWith(".h")
-            ) {
-                configDefines.set("__GLOBAL_INCLUDE__", `"${globalInclude}"`);
-            }
-        }
+        const configDefines = this.getDriverMacros(this.fileName);
 
         this.parseSuccessful = true;
         this.info.imports.length = 0;
@@ -416,7 +353,7 @@ export class SourceContext {
         this.semanticTokens = new SemanticTokenCollection();
 
         // Rewind the input stream for a new parse run.
-        this.lexer.inputStream = CharStream.fromString(this.sourceText);
+        this.lexer.inputStream = CharStream.fromString(this.sourceText ?? "");
         this.lexer.driverType = config.driver.type;
 
         //this.tokenStream.setTokenSource(this.lexer);
@@ -622,6 +559,13 @@ export class SourceContext {
             );
             ParseTreeWalker.DEFAULT.walk(semanticListener, this.tree);
         }
+    }
+
+    public evaluateProgram() {
+        if (this.needsCompile) {
+            this.parse();
+        }
+        this.runSemanticAnalysisIfNeeded();
     }
 
     public async getDiagnostics(force = false): Promise<IDiagnosticEntry[]> {
@@ -996,6 +940,7 @@ export class SourceContext {
             case LPCParser.RULE_callOtherTarget:
             case LPCParser.RULE_assignmentOperator:
             case LPCParser.RULE_validIdentifiers:
+            case LPCParser.RULE_variableDeclaratorExpression:
             case LPCParser.RULE_expression:
             case LPCParser.RULE_statement: // it may be an incompletel function, which will show up as a statement
                 symbol = this.symbolTable.symbolContainingContext(terminal);
@@ -1061,7 +1006,8 @@ export class SourceContext {
                             lookupSymbolTable =
                                 callOtherSymbol.objContext.symbolTable;
                         } else if (
-                            (parentSymbol = symbol.parent.getParentOfType(
+                            (parentSymbol = getImmediateParentOfType(
+                                symbol,
                                 InheritSuperAccessorSymbol
                             ))
                         ) {
