@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import { Position, TextDocument } from "vscode-languageserver-textdocument";
 import { LpcFacade, getProjectFiles } from "./facade";
-import { Location } from "vscode-languageserver";
+import { CancellationToken, Location } from "vscode-languageserver";
 import {
     getFilenameForSymbol,
     lexRangeFromContext,
@@ -16,14 +16,9 @@ import { ParserRuleContext } from "antlr4ng";
 import { LPCToken } from "../parser3/LPCToken";
 import { BaseSymbol, ScopedSymbol } from "antlr4-c3";
 import { URI } from "vscode-uri";
-import {
-    FunctionHeaderContext,
-    VariableDeclarationContext,
-    VariableDeclaratorExpressionContext,
-} from "../parser3/LPCParser";
+import { FunctionHeaderContext } from "../parser3/LPCParser";
 import { LpcBaseMethodSymbol } from "../symbols/methodSymbol";
 import { isIdentifierPart } from "./scanner-utils";
-import { VariableIdentifierSymbol } from "../symbols/variableSymbol";
 
 type CandidatePosition = {
     filename: string;
@@ -34,7 +29,8 @@ export class ReferenceProvider {
 
     public async handleReferenceRequest(
         doc: TextDocument,
-        position: Position
+        position: Position,
+        token: CancellationToken = CancellationToken.None
     ): Promise<Location[]> {
         const docFilename = URI.parse(doc.uri).fsPath;
         const results: Location[] = [];
@@ -49,9 +45,14 @@ export class ReferenceProvider {
 
         // scan all files for candidates
         // TODO: implemenet scope check so that we don't do a full scan for things like block-scoped variables
-        const projectFiles = await getProjectFiles(this.backend.workspaceDir);
+        const projectFiles = await getProjectFiles(
+            this.backend.workspaceDir,
+            token
+        );
         const candidatePositions: CandidatePosition[] = [];
         for (const file of projectFiles) {
+            if (token.isCancellationRequested) break;
+
             const readPromise = new Promise<void>((resolve, reject) => {
                 fs.readFile(file, "utf-8", (err, text) => {
                     const positions = searchForName(text, referenceName);
@@ -91,6 +92,7 @@ export class ReferenceProvider {
         // now scan the files
         const seenFiles = new Set<string>();
         for (const file of files) {
+            if (token.isCancellationRequested) break;
             if (seenFiles.has(file)) continue;
             seenFiles.add(file);
 
@@ -137,6 +139,8 @@ export class ReferenceProvider {
         const finalList = [definitionSymbol];
 
         while (finalList.length > 0) {
+            if (token.isCancellationRequested) break;
+
             const ref = finalList.pop();
             if (!ref || seen.has(ref)) continue;
             seen.add(ref);
@@ -155,8 +159,8 @@ export class ReferenceProvider {
                     parseInfo = header._functionName;
                 }
             }
-            const token = parseInfo.start as LPCToken;
-            const filename = token.filename;
+            const t = parseInfo.start as LPCToken;
+            const filename = t.filename;
             const range = lexRangeToLspRange(lexRangeFromContext(parseInfo));
 
             results.push({
@@ -168,6 +172,10 @@ export class ReferenceProvider {
         // release candidate files
         for (const candidateFile of candidateFiles) {
             this.backend.releaseLpc(candidateFile);
+        }
+
+        if (token.isCancellationRequested) {
+            console.log("Reference provider cancelled");
         }
 
         return results;

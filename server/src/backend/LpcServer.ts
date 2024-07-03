@@ -1,6 +1,7 @@
 import * as path from "path";
 import { performance } from "perf_hooks";
 import {
+    CancellationToken,
     Connection,
     DidChangeConfigurationNotification,
     InitializeParams,
@@ -277,14 +278,18 @@ export class LpcServer {
             }
         });
 
-        this.connection.onReferences(async (params) => {
-            const doc = this.documents.get(params.textDocument.uri);
-            const result = await this.referenceProvider.handleReferenceRequest(
-                doc,
-                params.position
-            );
-            return result;
-        });
+        this.connection.onReferences(
+            async (params, token: CancellationToken) => {
+                const doc = this.documents.get(params.textDocument.uri);
+                const result =
+                    await this.referenceProvider.handleReferenceRequest(
+                        doc,
+                        params.position,
+                        token
+                    );
+                return result;
+            }
+        );
 
         this.connection.onDocumentHighlight((params) => {
             const result = this.highlighProvider.getHighlights(
