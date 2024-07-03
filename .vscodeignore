@@ -26,3 +26,4 @@ coverage/
 lpc-config.json
 *.heapsnapshot
 vscode-profile-*.*
+build*.mjs
