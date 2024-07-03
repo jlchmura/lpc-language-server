@@ -91,7 +91,7 @@ export class SemanticListener extends LPCParserListener {
         ) as InheritSymbol;
         if (!symbol?.isLoaded) {
             this.logDiagnostic(
-                "Could not load inherited file '" + symbol.name + "'",
+                "Could not load inherited file '" + symbol?.name + "'",
                 ctx.start,
                 ctx.stop,
                 DiagnosticSeverity.Warning

@@ -353,7 +353,7 @@ export class SourceContext {
         this.semanticTokens = new SemanticTokenCollection();
 
         // Rewind the input stream for a new parse run.
-        this.lexer.inputStream = CharStream.fromString(this.sourceText);
+        this.lexer.inputStream = CharStream.fromString(this.sourceText ?? "");
         this.lexer.driverType = config.driver.type;
 
         //this.tokenStream.setTokenSource(this.lexer);
