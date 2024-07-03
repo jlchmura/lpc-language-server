@@ -118,6 +118,7 @@ NE: '!=';
 AND: '&';
 OR: '|';
 XOR: '^';
+DOUBLEBANG: '!!' { this.isFluff() }?;
 NOT: '!';
 BNOT: '~';
 AND_AND: '&&';

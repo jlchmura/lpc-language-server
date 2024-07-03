@@ -184,3 +184,15 @@ void testCatches() {
     };    
 }
 
+// double-bang operator 
+void testDoubleBang() {
+    int i = 0;
+    if (!!i) {
+        write("i is not zero");
+    }
+    int i = !!"something";
+    int j = !!(i==1);
+    int k = !!reset();
+    int l = !reset(); 
+}
+    

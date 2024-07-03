@@ -336,7 +336,7 @@ assignmentOperator
 conditionalExpression[int _p]
     : 
     (
-        ({ 16 >= $_p }? op=(PLUS|MINUS|NOT|BNOT|INC|DEC|AND|STAR))?
+        ({ 16 >= $_p }? op=(PLUS|MINUS|DOUBLEBANG|NOT|BNOT|INC|DEC|AND|STAR))?
         (
         castExpression 
         | primaryExpression 

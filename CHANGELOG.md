@@ -4,6 +4,7 @@
 
 -   Fix: [FLUFFOS] Handle whitespace before text formatting shortcut end.
 -   Fix: Properly reset lexer state on error.
+-   [FLUFFOS] Added double bang `!!` operator to grammar.
 
 ## 1.0.20
 
