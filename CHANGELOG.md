@@ -4,7 +4,8 @@
 
 -   Fix: [FLUFFOS] Handle whitespace before text formatting shortcut end.
 -   Fix: Properly reset lexer state on error.
--   [FLUFFOS] Added double bang `!!` operator to grammar.
+-   [FLUFFOS] Added double bang `!!` operator to grammar ([#31](https://github.com/jlchmura/lpc-language-server/issues/31)).
+-   `lpc-config.json` now uses JSONC so comments can be added to the file ([#32](https://github.com/jlchmura/lpc-language-server/issues/32))
 
 ## 1.0.20
 
