@@ -178,7 +178,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
 
             if (this.directiveTokens.length > 1) {
                 if (token.type != LPCLexer.TEXT_FORMAT_END) {
-                    throw "Excepted text formatting end mark";
+                    throw new Error("Expected text formatting end mark");
                 }
 
                 if (this.isExecutable) {
@@ -797,6 +797,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
         // lex the the include file
         this.macroLexer.driverType = this.driverType;
         this.macroLexer.inputStream = CharStream.fromString(macroBody);
+
         this.macroLexer.reset();
         const tokens = this.macroLexer.getAllTokens();
 
@@ -816,9 +817,14 @@ export class LPCPreprocessingLexer extends LPCLexer {
     override reset(seekBack?: boolean): void {
         super.reset(seekBack);
 
+        this.isConsumingDirective = false;
+        this.isConsumingTextFormat = false;
+
         this.conditionalStack = [];
         this.macroTable?.clear();
-        this.buffer = [];
+        this.buffer.length = 0;
+        this.macroStack.length = 0;
+        this.directiveTokens.length = 0;
     }
 
     /**

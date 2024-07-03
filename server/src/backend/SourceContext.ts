@@ -420,6 +420,7 @@ export class SourceContext {
         this.lexer.driverType = config.driver.type;
 
         //this.tokenStream.setTokenSource(this.lexer);
+
         this.lexer.reset();
         this.lexer.addMacros(configDefines);
         this.tokenStream.setTokenSource(this.lexer);
