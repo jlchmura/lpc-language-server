@@ -214,7 +214,7 @@ export class FunctionIdentifierSymbol
         return SymbolKind.Keyword;
     }
 
-    eval(stack: CallStack, scope?: any) {
+    eval(stack: CallStack, rootFrame?: StackFrame) {
         // the next symbol should be the method invocation
         // store the function name on the stack so that the method invocation
         // can access it
@@ -224,7 +224,12 @@ export class FunctionIdentifierSymbol
         );
 
         // try to find the def here and add a reference
-        const stackFn = stack.getFunction(this.name);
+        const stackFn = getFunctionFromFrame(
+            rootFrame instanceof StackFrame
+                ? rootFrame
+                : stack.getCurrentRoot(),
+            this.name
+        );
         if (isInstanceOfIReferenceableSymbol(stackFn)) {
             stackFn.addReference(this);
             this.setReference(stackFn);

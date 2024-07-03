@@ -1,6 +1,7 @@
-import { ScopedSymbol, SymbolTable } from "antlr4-c3";
+import { BaseSymbol, ScopedSymbol, SymbolTable } from "antlr4-c3";
 import {
     IEvaluatableSymbol,
+    IReferenceSymbol,
     LpcBaseSymbol,
     getSymbolsOfTypeSync,
     isInstanceOfIEvaluatableSymbol,
@@ -17,6 +18,10 @@ import { ParserRuleContext } from "antlr4ng";
 import { DiagnosticSeverity } from "vscode-languageserver";
 import { LpcFileHandler } from "../backend/FileHandler";
 import { getDriverInfo } from "../driver/Driver";
+import {
+    addDependenciesToStack,
+    addPogramToStack,
+} from "../backend/CallStackUtils";
 
 export class InheritSymbol
     extends LpcBaseSymbol<InheritStatementContext>
@@ -41,7 +46,6 @@ export class InheritSuperAccessorSymbol
     extends ScopedSymbol
     implements IEvaluatableSymbol
 {
-    public objContext: SourceContext;
     public objSymbolTable: ContextSymbolTable;
 
     public get kind() {
@@ -57,9 +61,10 @@ export class InheritSuperAccessorSymbol
     }
 
     eval(stack: CallStack, scope?: any) {
+        const tablesToUse: ContextSymbolTable[] = [];
         if (this.filename == "efun") {
             const driver = getDriverInfo();
-            this.objSymbolTable = driver.efuns;
+            tablesToUse.push(driver.efuns);
         } else {
             // if there is no filename, we have to find the inherit symbol that this accessor is attached to
             // and use the first one.  (this technically allows a glob pattern)
@@ -70,10 +75,6 @@ export class InheritSuperAccessorSymbol
                 tbl,
                 InheritSymbol,
                 false
-            );
-            this.objSymbolTable = new ContextSymbolTable(
-                `inherit-${this.filename}`,
-                {}
             );
 
             // loop through inheritSymbols, load their contexts and add their symbol tables
@@ -93,15 +94,42 @@ export class InheritSuperAccessorSymbol
                 })
                 .filter((tbl) => !!tbl);
 
-            this.objSymbolTable.addDependencies(...depTables);
+            tablesToUse.push(...depTables);
         }
+
+        // create a new root frame for this object
+        // this doesn't need to go on the stack, it's just a temporary frame
+        const myStack = new CallStack(this);
+        const rootFrame = myStack.root;
+
+        // since we have a new root frame, we need to add the functions for the arrow's program
+        // NTBLA: create the root frame in the source context so taht funs don't have to be re-added every time
+
+        // after new root frame is on the stack, add the arrow's program to the stack
+        const driver = getDriverInfo();
+        addPogramToStack(driver.efuns, myStack);
+        tablesToUse.forEach((tbl) => {
+            addDependenciesToStack(this.fileHandler, tbl, myStack);
+            addPogramToStack(tbl, myStack);
+        });
 
         // evaluate children
         for (const symbol of this.children) {
             if (isInstanceOfIEvaluatableSymbol(symbol)) {
-                symbol.eval(stack, scope);
+                symbol.eval(stack, rootFrame);
             }
         }
+
+        this.objSymbolTable = new ContextSymbolTable(
+            "inherit-" + this.name,
+            {
+                allowDuplicateSymbols: true,
+            },
+            (this.symbolTable as ContextSymbolTable).owner
+        );
+        tablesToUse.forEach((tbl) => {
+            this.objSymbolTable.addDependencies(tbl);
+        });
 
         return scope;
     }

@@ -55,7 +55,7 @@ export function addDependenciesToStack(
     stack: CallStack
 ) {
     const processed = new Set<string>();
-    const imports = fileHandler.getDependencies(program.owner.fileName) ?? [];
+    const imports = fileHandler.getDependencies(program?.owner?.fileName) ?? [];
 
     while (imports.length > 0) {
         const importCtx = imports.shift();

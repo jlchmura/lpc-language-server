@@ -1006,7 +1006,8 @@ export class SourceContext {
                             lookupSymbolTable =
                                 callOtherSymbol.objContext.symbolTable;
                         } else if (
-                            (parentSymbol = symbol.parent.getParentOfType(
+                            (parentSymbol = getImmediateParentOfType(
+                                symbol,
                                 InheritSuperAccessorSymbol
                             ))
                         ) {

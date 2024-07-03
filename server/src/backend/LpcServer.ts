@@ -279,7 +279,7 @@ export class LpcServer {
 
         this.connection.onReferences(async (params) => {
             const doc = this.documents.get(params.textDocument.uri);
-            const result = this.referenceProvider.handleReferenceRequest(
+            const result = await this.referenceProvider.handleReferenceRequest(
                 doc,
                 params.position
             );
