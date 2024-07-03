@@ -13,8 +13,8 @@
     "scripts": {
         "start": "npm run compile:bin && NODE_OPTIONS='--enable-source-maps' node out/server/src/bin.js test.c",
         "vscode:prepublish": "npm run compile",
-        "compile": "tsc -b && esbuild client/src/extension.ts server/src/server.ts --bundle --outdir=out --external:vscode --platform=node --format=cjs --sourcemap=external --sourcemap",
-        "compile:bin": "tsc -b && esbuild server/src/bin.ts --bundle --outdir=out/server/src --external:vscode --platform=node --format=cjs --sourcemap=external --sourcemap",
+        "compile": "tsc -b && node ./build.mjs",
+        "compile:bin": "tsc -b && node ./build.bin.mjs",
         "parsefluff": "npm run compile:parsefluff && NODE_OPTIONS='--enable-source-maps' node out/server/src/parse-fluff-docs.js",
         "parseld": "npm run compile:parseld && NODE_OPTIONS='--enable-source-maps' node out/server/src/parse-ld-docs.js",
         "compile:parsefluff": "tsc -b && esbuild server/src/parse-fluff-docs.ts --bundle --outdir=out/server/src --external:vscode --platform=node --format=cjs --sourcemap=external --sourcemap",
@@ -68,6 +68,15 @@
             },
             {
                 "id": "lpc-lsp"
+            },
+            {
+                "id": "jsonc",
+                "aliases": [
+                    "JSON with Comments"
+                ],
+                "filenames": [
+                    "lpc-config.json"
+                ]
             }
         ],
         "grammars": [
@@ -173,6 +182,7 @@
         "comment-parser": "^1.4.1",
         "esbuild": "^0.20.1",
         "glob": "^10.3.15",
+        "jsonc-parser": "^3.3.1",
         "vsce": "^2.15.0",
         "vscode-uri": "^3.0.8"
     }

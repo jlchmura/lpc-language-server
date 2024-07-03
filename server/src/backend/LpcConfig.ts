@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import { parse } from "jsonc-parser";
 import { DiagnosticSeverity } from "vscode-languageserver";
 
 enum DiagnosticLevel {
@@ -147,7 +148,8 @@ export function loadLpcConfig(filename: string): LpcConfig {
         fs.accessSync(filename, fs.constants.R_OK);
         const config = new LpcConfig();
         const data = fs.readFileSync(filename, "utf8");
-        const rawConfig = JSON.parse(data);
+
+        const rawConfig = parse(data);
 
         rawConfig.defines?.forEach((defObj: any) => {
             const key = Object.keys(defObj)[0];
