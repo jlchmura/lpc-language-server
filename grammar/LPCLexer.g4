@@ -118,6 +118,7 @@ NE: '!=';
 AND: '&';
 OR: '|';
 XOR: '^';
+DOUBLEBANG: '!!' { this.isFluff() }?;
 NOT: '!';
 BNOT: '~';
 AND_AND: '&&';
@@ -207,5 +208,5 @@ mode STRING_MODE;
 mode TEXT_FORMAT_MODE;
     // for fluff @ and @@ text formatting preprocessor directives    
     TEXT_FORMAT_CONTENT: ~[\r\n]+ { this.text.trim() != this._textMark }? -> more;
-    TEXT_FORMAT_END: [\r\n]+ [ \t]* ([$a-zA-Z_] [a-zA-Z_0-9]*)+ { this.text.trim() == this._textMark }? -> mode(DEFAULT_MODE);
+    TEXT_FORMAT_END: ([\r\n]+ [ \t]*)+ ([$a-zA-Z_] [a-zA-Z_0-9]*)+ { this.text.trim() == this._textMark }? -> mode(DEFAULT_MODE);
     TEXT_FORMAT_WS: [ \t\r\n]+ -> more;

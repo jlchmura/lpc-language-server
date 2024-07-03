@@ -1,5 +1,11 @@
 # LPC Language Services Changelog
 
+## 1.0.21
+
+-   Fix: [FLUFFOS] Handle whitespace before text formatting shortcut end.
+-   Fix: Properly reset lexer state on error.
+-   [FLUFFOS] Added double bang `!!` operator to grammar.
+
 ## 1.0.20
 
 -   Fix: [[FLUFFOS] Parser does not like the ref keyword in function definitions #29](https://github.com/jlchmura/lpc-language-server/issues/29)
