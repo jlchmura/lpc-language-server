@@ -4,6 +4,7 @@ import {
     IScopedSymbol,
     ScopedSymbol,
     SymbolConstructor,
+    SymbolTable,
 } from "antlr4-c3";
 import { ensureLpcConfig } from "./LpcConfig";
 import { ContextSymbolTable } from "./ContextSymbolTable";
@@ -190,4 +191,13 @@ export function getImmediateParentOfType<
         return symbol.parent;
     }
     return undefined;
+}
+
+/**
+ * Checks if a symbol is a program symbol
+ * @param symbol
+ * @returns
+ */
+export function isProgramSymbol(symbol: BaseSymbol): boolean {
+    return symbol instanceof SymbolTable;
 }

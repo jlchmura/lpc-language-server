@@ -14,11 +14,22 @@ import {
 
 import { ParserRuleContext } from "antlr4ng";
 import { LPCToken } from "../parser3/LPCToken";
-import { BaseSymbol, ScopedSymbol } from "antlr4-c3";
+import {
+    BaseSymbol,
+    IScopedSymbol,
+    MemberVisibility,
+    ScopedSymbol,
+} from "antlr4-c3";
 import { URI } from "vscode-uri";
 import { FunctionHeaderContext } from "../parser3/LPCParser";
-import { LpcBaseMethodSymbol } from "../symbols/methodSymbol";
+import {
+    LpcBaseMethodSymbol,
+    MethodDeclarationSymbol,
+    MethodSymbol,
+} from "../symbols/methodSymbol";
 import { isIdentifierPart } from "./scanner-utils";
+import { VariableSymbol } from "../symbols/variableSymbol";
+import { isProgramSymbol } from "./symbol-utils";
 
 type CandidatePosition = {
     filename: string;
@@ -42,6 +53,26 @@ export class ReferenceProvider {
         }
 
         const referenceName = sym.name;
+
+        const scope = getSymbolScope(sym);
+        if (scope) {
+            (await scope.getAllNestedSymbols(referenceName)).forEach((r) => {
+                // TODO: this technically isn't correct -- a var can be redeclared in a child block
+                // need to check for that.
+                const parseInfo = r.context as ParserRuleContext;
+                const t = parseInfo.start as LPCToken;
+                const filename = t.filename;
+                const range = lexRangeToLspRange(
+                    lexRangeFromContext(parseInfo)
+                );
+                results.push({
+                    uri: filename,
+                    range: range,
+                });
+            });
+
+            return results;
+        }
 
         // scan all files for candidates
         // TODO: implemenet scope check so that we don't do a full scan for things like block-scoped variables
@@ -188,9 +219,48 @@ export class ReferenceProvider {
  * @returns undefeind if the scope cannot be determined,
  * which means a reference can be anywhere
  */
-function getSymbolScope(symbol: BaseSymbol): ScopedSymbol | undefined {
-    // TODO: implement this
-    return undefined;
+function getSymbolScope(symbol: BaseSymbol): IScopedSymbol | undefined {
+    const origSymbol = symbol;
+
+    // try to resolve the symbol to its reference, if we can
+    if (isInstanceOfIReferenceSymbol(symbol)) {
+        symbol = symbol.getReference();
+        symbol = symbol ?? origSymbol;
+    }
+
+    // if the reference is in a different file, we can't determine the scope
+    if (getFilenameForSymbol(symbol) != getFilenameForSymbol(origSymbol)) {
+        return undefined;
+    }
+
+    if (
+        symbol instanceof MethodSymbol ||
+        symbol instanceof MethodDeclarationSymbol
+    ) {
+        // if this is a private method, the scope is the object
+        if (symbol.visibility == MemberVisibility.Private) {
+            return symbol.parent;
+        }
+
+        // otherwise, public methods are accessible anywhere
+        return undefined;
+    }
+
+    if (symbol instanceof VariableSymbol) {
+        // private vars are scoped to the parent
+        if (symbol.visibility == MemberVisibility.Private) {
+            return symbol.parent;
+        }
+
+        // if the parent is not a program, then scope is the parent
+        if (!isProgramSymbol(symbol.parent)) {
+            return symbol.parent;
+        }
+
+        // otherwise, a non-private var at the program level is accessible
+        // by inherited objects, so we can't determine the scope
+        return undefined;
+    }
 }
 
 /**
