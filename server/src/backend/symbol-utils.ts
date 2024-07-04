@@ -67,6 +67,21 @@ export function resolveOfTypeSync<T extends BaseSymbol, Args extends unknown[]>(
     });
 }
 
+export function resolveAncestor(
+    scope: IScopedSymbol,
+    name: string
+): BaseSymbol {
+    if (!scope) return undefined;
+
+    // start with scope.parent
+    return walkParents(scope.parent, false, true, (s) => {
+        if (s.name === name) {
+            return s;
+        }
+        return undefined;
+    });
+}
+
 /**
  * @param t The type of the objects to return.
  * @param localOnly If true only child symbols are returned, otherwise also symbols from the parent of this symbol

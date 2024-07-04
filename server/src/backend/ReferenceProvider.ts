@@ -29,7 +29,7 @@ import {
 } from "../symbols/methodSymbol";
 import { isIdentifierPart } from "./scanner-utils";
 import { VariableSymbol } from "../symbols/variableSymbol";
-import { isProgramSymbol } from "./symbol-utils";
+import { isProgramSymbol, resolveAncestor } from "./symbol-utils";
 
 type CandidatePosition = {
     filename: string;
@@ -225,7 +225,12 @@ function getSymbolScope(symbol: BaseSymbol): IScopedSymbol | undefined {
     // try to resolve the symbol to its reference, if we can
     if (isInstanceOfIReferenceSymbol(symbol)) {
         symbol = symbol.getReference();
-        symbol = symbol ?? origSymbol;
+
+        // fallback to a name resovle of the parent's parent
+        // then we can't determine the scope
+        symbol = resolveAncestor(origSymbol.parent, origSymbol.name);
+
+        if (!symbol) return undefined;
     }
 
     // if the reference is in a different file, we can't determine the scope
