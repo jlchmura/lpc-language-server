@@ -67,6 +67,12 @@ export function resolveOfTypeSync<T extends BaseSymbol, Args extends unknown[]>(
     });
 }
 
+/**
+ * Searches for a symbol with the given name in the parent scopes of the given scope.
+ * @param scope
+ * @param name name of the symbol to search for
+ * @returns undefined if the symbol cannot be found
+ */
 export function resolveAncestor(
     scope: IScopedSymbol,
     name: string
