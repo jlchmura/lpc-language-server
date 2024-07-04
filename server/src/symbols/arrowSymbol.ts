@@ -4,7 +4,7 @@ import {
     isInstanceOfIReferenceSymbol,
     isInstanceOfIReferenceableSymbol,
 } from "./base";
-import { CallStack, StackValue } from "../backend/CallStack";
+import { ArrayStackValue, CallStack, StackValue } from "../backend/CallStack";
 import { SourceContext } from "../backend/SourceContext";
 import { ParserRuleContext } from "antlr4ng";
 import { ContextSymbolTable } from "../backend/ContextSymbolTable";
@@ -138,7 +138,16 @@ export class ArrowSymbol extends ScopedSymbol implements IEvaluatableSymbol {
         } else if (obj instanceof ObjectReferenceInfo) {
             this.objectRef = obj;
             this.objContext = obj.context;
-        } else {
+        } else if (srcValue instanceof ArrayStackValue) {
+            // call other can will invoke a function on each element in an array
+            // grab the first element and use that as the object reference
+            if (obj.at(0)?.value instanceof ObjectReferenceInfo) {
+                this.objectRef = obj.at(0).value as ObjectReferenceInfo;
+                this.objContext = this.objectRef.context;
+            }
+        }
+
+        if (!this.objContext) {
             const ctx = (this.target?.context ??
                 this.context) as ParserRuleContext;
             addDiagnostic(this, {

@@ -90,6 +90,9 @@ export class EfunSymbol
                     LpcTypes.objectType,
                     this
                 );
+            case "filter":
+                // just return the first argument to maintain array reference
+                return argEval[0];
             case "users":
                 const playerUsersCtx = fileHandler.loadReference(
                     config.files.player,

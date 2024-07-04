@@ -250,7 +250,7 @@ export function getFilenameForContext(ctx: ParserRuleContext) {
 }
 
 export function getFilenameForSymbol(symbol: BaseSymbol) {
-    return getFilenameForContext(symbol.context as ParserRuleContext);
+    return getFilenameForContext(symbol?.context as ParserRuleContext);
 }
 
 export function logDiagnosticForTokens(

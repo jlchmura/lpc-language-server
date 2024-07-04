@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.0.22
+
+-   Fix: [Find All References not detecting sefun->fn() calls #35](https://github.com/jlchmura/lpc-language-server/issues/35)
+
 ## 1.0.21
 
 -   Fix: [FLUFFOS] Handle whitespace before text formatting shortcut end.

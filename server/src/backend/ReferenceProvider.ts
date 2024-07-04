@@ -3,6 +3,7 @@ import { Position, TextDocument } from "vscode-languageserver-textdocument";
 import { LpcFacade, getProjectFiles } from "./facade";
 import { CancellationToken, Location } from "vscode-languageserver";
 import {
+    getFilenameForContext,
     getFilenameForSymbol,
     lexRangeFromContext,
     lexRangeToLspRange,
@@ -190,8 +191,8 @@ export class ReferenceProvider {
                     parseInfo = header._functionName;
                 }
             }
-            const t = parseInfo.start as LPCToken;
-            const filename = t.filename;
+
+            const filename = getFilenameForContext(parseInfo);
             const range = lexRangeToLspRange(lexRangeFromContext(parseInfo));
 
             results.push({
@@ -203,10 +204,6 @@ export class ReferenceProvider {
         // release candidate files
         for (const candidateFile of candidateFiles) {
             this.backend.releaseLpc(candidateFile);
-        }
-
-        if (token.isCancellationRequested) {
-            console.log("Reference provider cancelled");
         }
 
         return results;

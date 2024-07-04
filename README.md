@@ -76,6 +76,7 @@ Language services can be customized by creating an `lpc-config.json` file in the
 | `simul_efun`     | The location of your simul_efun file. Defaults to `"/obj/simul_efun.c"` |
 | `init_files`     | An array of init files. Defaults to `["/room/init_files"]`              |
 | `global_include` | When provided, will add this file as an `#include` to each file.        |
+| `player`         | The location of your player file. Defaults to `"/obj/player.c"`         |
 
 #### Include Dirs - `include`
 
