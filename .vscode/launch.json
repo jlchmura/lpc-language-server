@@ -35,7 +35,7 @@
             "name": "Launch Bin",
             "skipFiles": ["<node_internals>/**"],
             "program": "${workspaceFolder}/out/server/src/bin.js",
-            "args": ["", "secure/master.c"],
+            "args": ["", "std/test2.c"],
             "preLaunchTask": "compile:bin",
             "sourceMaps": true,
             "outFiles": ["${workspaceFolder}/out/**/*.js"]

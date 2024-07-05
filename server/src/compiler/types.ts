@@ -44,8 +44,16 @@ export const enum SyntaxKind {
 
     Block,
 
+    // declarations
     FunctionDeclaration,
+    VariableDeclaration,
 
+    // statements
+    VariableStatement,
+    VariableDeclarationList,
+    CatchClause,
+
+    // expressions
     PropertyAccessExpression,
     ElementAccessExpression,
 
@@ -247,7 +255,10 @@ export interface NodeFactory {
         type: TypeNode | undefined,
         body: Block | undefined
     ): FunctionDeclaration;
-    createBlock(statements: readonly Statement[], multiLine?: boolean): Block
+    createBlock(statements: readonly Statement[], multiLine?: boolean): Block    ;
+    createVariableDeclaration(name: string | BindingName, type: TypeNode | undefined, initializer: Expression | undefined): VariableDeclaration;
+    createVariableDeclarationList(declarations: readonly VariableDeclaration[], flags: NodeFlags ): VariableDeclarationList;
+    createVariableStatement(modifiers: readonly Modifier[] | undefined, declarationList: VariableDeclarationList | readonly VariableDeclaration[]): VariableStatement;
 }
 
 /** @internal */
@@ -529,7 +540,11 @@ export type Modifier =
     | VarArgsKeyword
     | DeprecatedKeyword;
 
-export type HasJSDoc = FunctionDeclaration | Block;
+export type HasJSDoc =
+    | FunctionDeclaration
+    | Block
+    | VariableDeclaration
+    | VariableStatement;
 
 // prettier-ignore
 export interface ParameterDeclaration extends NamedDeclaration, JSDocContainer {
@@ -599,4 +614,32 @@ export interface FunctionDeclaration
     readonly modifiers?: NodeArray<Modifier>;
     readonly name?: Identifier;
     readonly body?: FunctionBody;
+}
+
+export interface CatchClause extends Node, LocalsContainer {
+    readonly kind: SyntaxKind.CatchClause;
+    readonly parent: Expression;
+    readonly variableDeclaration?: VariableDeclaration;
+    readonly block: Block;
+}
+
+// prettier-ignore
+export interface VariableDeclaration extends NamedDeclaration, JSDocContainer {
+    readonly kind: SyntaxKind.VariableDeclaration;
+    readonly parent: VariableDeclarationList | CatchClause;
+    readonly name: BindingName;                    // Declared variable name    
+    readonly type?: TypeNode;                      // Optional type annotation
+    readonly initializer?: Expression;             // Optional initializer
+}
+
+export interface VariableDeclarationList extends Node {
+    readonly kind: SyntaxKind.VariableDeclarationList;
+    readonly parent: VariableStatement; // TODO: | ForStatement | ForOfStatement | ForInStatement;
+    readonly declarations: NodeArray<VariableDeclaration>;
+}
+
+export interface VariableStatement extends Statement, FlowContainer {
+    readonly kind: SyntaxKind.VariableStatement;
+    readonly modifiers?: NodeArray<Modifier>;
+    readonly declarationList: VariableDeclarationList;
 }

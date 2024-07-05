@@ -17,6 +17,9 @@ import {
     SourceFile,
     Statement,
     SyntaxKind,
+    VariableDeclaration,
+    VariableDeclarationList,
+    VariableStatement,
 } from "./types";
 import {
     Mutable,
@@ -33,6 +36,7 @@ import {
     ProgramContext,
     ValidIdentifiersContext,
     VariableDeclarationStatementContext,
+    VariableDeclaratorExpressionContext,
 } from "../parser3/LPCParser";
 import { ILpcConfig } from "../config-types";
 import { parseTree } from "jsonc-parser";
@@ -198,8 +202,8 @@ export namespace LpcParser {
         return array;
     }
 
-    function finishNode<T extends Node>(node: T, pos: number, end?: number): T {
-        setTextRangePosEnd(node, pos, end ?? pos);
+    function finishNode<T extends Node>(node: T, pos: number, end: number): T {
+        setTextRangePosEnd(node, pos, end);
         if (contextFlags) {
             (node as Mutable<T>).flags |= contextFlags;
         }
@@ -216,13 +220,17 @@ export namespace LpcParser {
     }
 
     function parseTokenNode<T extends Node>(parserNode: antlr.TerminalNode): T {
-        const pos = getTerminalPos(parserNode);
+        const pos = getTerminalPos(parserNode),
+            end = getTerminalEnd(parserNode);
         const kind = getTerminalKind(parserNode);
-        return finishNode(factoryCreateToken(kind), pos) as T;
+        return finishNode(factoryCreateToken(kind), pos, end) as T;
     }
 
     function getTerminalPos(t: antlr.TerminalNode): number {
         return t.getSymbol().start;
+    }
+    function getTerminalEnd(t: antlr.TerminalNode): number {
+        return t.getSymbol().stop;
     }
 
     function getTerminalKind(t: antlr.TerminalNode): SyntaxKind {
@@ -257,8 +265,10 @@ export namespace LpcParser {
         switch (ruleIndex) {
             case LPCParser.RULE_declaration:
                 return parseDeclaration(tree as DeclarationContext);
-            // case LPCParser.RULE_variableDeclarationStatement:
-            //     return parseVariableStatement(tree as VariableDeclarationStatementContext);
+            case LPCParser.RULE_variableDeclarationStatement:
+                return parseVariableStatement(
+                    tree as VariableDeclarationStatementContext
+                );
         }
     }
 
@@ -289,6 +299,10 @@ export namespace LpcParser {
                     treeNode as FunctionDeclarationContext,
                     pos,
                     getPrecedingJSDocBlock(tree)
+                );
+            case LPCParser.RULE_variableDeclarationStatement:
+                return parseVariableStatement(
+                    treeNode as VariableDeclarationStatementContext
                 );
         }
     }
@@ -358,25 +372,32 @@ export namespace LpcParser {
     ): Identifier {
         if (isIdentifier) {
             identifierCount++;
-            const pos = getNodePos(tree);
+            const pos = getNodePos(tree),
+                end = getNodeEnd(tree);
             // Store original token kind if it is not just an Identifier so we can report appropriate error later in type checker
 
             const text = internIdentifier(tree.getText());
 
-            return finishNode(factoryCreateIdentifier(text), pos);
+            return finishNode(factoryCreateIdentifier(text), pos, end);
         }
 
         // TODO: handle error nodes here
     }
 
     function parseBlock(tree: BlockContext): Block {
-        const pos = getNodePos(tree);
+        const pos = getNodePos(tree),
+            end = getNodeEnd(tree);
         const hasJSDoc = getPrecedingJSDocBlock(tree);
         const multiLine =
             tree.CURLY_OPEN().symbol.line !== tree.CURLY_CLOSE().symbol.line;
-        const statements = parseList(tree.statement(), parseStatement);
+        const statements = parseList(
+            tree
+                .statement()
+                .map((s) => s.getChild(0) as antlr.ParserRuleContext),
+            parseStatement
+        );
         const result = withJSDoc(
-            finishNode(factory.createBlock(statements, multiLine), pos),
+            finishNode(factory.createBlock(statements, multiLine), pos, end),
             hasJSDoc
         );
 
@@ -393,5 +414,62 @@ export namespace LpcParser {
         return blockContent;
     }
 
-    //function parseVariableStatement(tree: VariableDeclarationStatementContext): Variable
+    function parseVariableStatement(
+        tree: VariableDeclarationStatementContext
+    ): VariableStatement {
+        const declTree = tree.variableDeclaration();
+        const declListTree = declTree.variableDeclaratorExpression();
+
+        // TODO: this might not actually be a variable declaration - it might be an assignment opertor
+        // figure that out here or in the type checker?
+
+        const pos = getNodePos(tree),
+            end = getNodeEnd(tree);
+        const declarationList = parseVariableDeclarationList(
+            declListTree,
+            /*inForStatementInitializer*/ false
+        );
+        const modifiers = undefined; // TODO modifiersToFlags(header.functionModifier().map(m=>m.getChild(0)));
+        const jsDoc = getPrecedingJSDocBlock(tree);
+        const node = factory.createVariableStatement(
+            modifiers,
+            declarationList
+        );
+
+        return withJSDoc(finishNode(node, pos, end), jsDoc);
+    }
+
+    function parseVariableDeclarationList(
+        declListTree: VariableDeclaratorExpressionContext[],
+        inForStatementInitializer: boolean
+    ): VariableDeclarationList {
+        const pos = getNodePos(declListTree.at(0)),
+            end = getNodeEnd(declListTree.at(-1));
+        const declarations: VariableDeclaration[] = [];
+
+        for (const declExp of declListTree) {
+            const decl = declExp.variableDeclarator();
+            const jsDoc = getPrecedingJSDocBlock(decl);
+            const name = parseValidIdentifier(decl._variableName);
+            const type = undefined; // TODO: parseType
+            const initializer = undefined; // TODO !declExp.variableInitializer() ? undefined : parseInitializer(declExp.variableInitializer());
+            const node = factory.createVariableDeclaration(
+                name,
+                type,
+                initializer
+            );
+            const nodePos = getNodePos(declExp),
+                nodeEnd = getNodeEnd(declExp);
+
+            declarations.push(
+                withJSDoc(finishNode(node, nodePos, nodeEnd), jsDoc)
+            );
+        }
+
+        const listNode = factory.createVariableDeclarationList(
+            declarations,
+            NodeFlags.None
+        );
+        return finishNode(listNode, pos, end);
+    }
 }

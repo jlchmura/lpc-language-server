@@ -2,7 +2,6 @@ import * as antlr from "antlr4ng";
 import {
     FunctionModifierContext,
     ParameterContext,
-    UnionableTypeSpecifierContext,
 } from "../parser3/LPCParser";
 import { BaseNodeFactory } from "./baseNodeFactory";
 import { emptyArray } from "./core";
@@ -13,8 +12,10 @@ import {
     DeclarationName,
     EndOfFileToken,
     EntityName,
+    Expression,
     FunctionDeclaration,
     Identifier,
+    Modifier,
     MutableNodeArray,
     Node,
     NodeArray,
@@ -26,6 +27,9 @@ import {
     SyntaxKind,
     Token,
     TypeNode,
+    VariableDeclaration,
+    VariableDeclarationList,
+    VariableStatement,
 } from "./types";
 import { Mutable, isNodeArray } from "./utilities";
 
@@ -37,6 +41,9 @@ export function createNodeFactory(baseFactory: BaseNodeFactory): NodeFactory {
         createIdentifier,
         createFunctionDeclaration,
         createBlock,
+        createVariableDeclaration,
+        createVariableDeclarationList,
+        createVariableStatement,
     };
 
     return factory;
@@ -151,6 +158,16 @@ export function createNodeFactory(baseFactory: BaseNodeFactory): NodeFactory {
         return node;
     }
 
+    function asNodeArray<T extends Node>(array: readonly T[]): NodeArray<T>;
+    function asNodeArray<T extends Node>(
+        array: readonly T[] | undefined
+    ): NodeArray<T> | undefined;
+    function asNodeArray<T extends Node>(
+        array: readonly T[] | undefined
+    ): NodeArray<T> | undefined {
+        return array ? createNodeArray(array) : undefined;
+    }
+
     function asName<
         T extends
             | DeclarationName
@@ -161,6 +178,10 @@ export function createNodeFactory(baseFactory: BaseNodeFactory): NodeFactory {
             | undefined
     >(name: string | T): T | Identifier {
         return typeof name === "string" ? createIdentifier(name) : name;
+    }
+
+    function asInitializer(node: Expression | undefined) {
+        return node; // && parenthesizerRules().parenthesizeExpressionForDisallowedComma(node);
     }
 
     // @api
@@ -202,6 +223,54 @@ export function createNodeFactory(baseFactory: BaseNodeFactory): NodeFactory {
         node.jsDoc = undefined; // initialized by parser (JsDocContainer)
         node.locals = undefined; // initialized by binder (LocalsContainer)
         node.nextContainer = undefined; // initialized by binder (LocalsContainer)
+        return node;
+    }
+
+    // @api
+    function createVariableDeclaration(
+        name: string | BindingName,
+        type: TypeNode | undefined,
+        initializer: Expression | undefined
+    ): VariableDeclaration {
+        const node = createBaseDeclaration<VariableDeclaration>(
+            SyntaxKind.VariableDeclaration
+        );
+        node.name = asName(name);
+        node.type = type;
+        node.initializer = asInitializer(initializer);
+        node.jsDoc = undefined; // initialized by parser (JsDocContainer)
+        return node;
+    }
+
+    // @api
+    function createVariableDeclarationList(
+        declarations: readonly VariableDeclaration[],
+        flags = NodeFlags.None
+    ): VariableDeclarationList {
+        const node = createBaseNode<VariableDeclarationList>(
+            SyntaxKind.VariableDeclarationList
+        );
+        node.flags |= flags & NodeFlags.BlockScoped;
+        node.declarations = createNodeArray(declarations);
+        return node;
+    }
+
+    // @api
+    function createVariableStatement(
+        modifiers: readonly Modifier[] | undefined,
+        declarationList:
+            | VariableDeclarationList
+            | readonly VariableDeclaration[]
+    ): VariableStatement {
+        const node = createBaseNode<VariableStatement>(
+            SyntaxKind.VariableStatement
+        );
+        node.modifiers = asNodeArray(modifiers);
+        node.declarationList = Array.isArray(declarationList)
+            ? createVariableDeclarationList(declarationList)
+            : (declarationList as VariableDeclarationList);
+        node.jsDoc = undefined; // initialized by parser (JsDocContainer)
+        node.flowNode = undefined; // initialized by binder (FlowContainer)
         return node;
     }
 }
