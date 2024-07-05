@@ -1,16 +1,31 @@
+import * as antlr from "antlr4ng";
+import {
+    FunctionModifierContext,
+    ParameterContext,
+    UnionableTypeSpecifierContext,
+} from "../parser3/LPCParser";
 import { BaseNodeFactory } from "./baseNodeFactory";
 import { emptyArray } from "./core";
 import {
+    BindingName,
+    Block,
+    Declaration,
+    DeclarationName,
     EndOfFileToken,
+    EntityName,
+    FunctionDeclaration,
+    Identifier,
     MutableNodeArray,
     Node,
     NodeArray,
     NodeFactory,
     NodeFlags,
+    PropertyName,
     SourceFile,
     Statement,
     SyntaxKind,
     Token,
+    TypeNode,
 } from "./types";
 import { Mutable, isNodeArray } from "./utilities";
 
@@ -19,6 +34,9 @@ export function createNodeFactory(baseFactory: BaseNodeFactory): NodeFactory {
         createSourceFile,
         createNodeArray,
         createToken,
+        createIdentifier,
+        createFunctionDeclaration,
+        createBlock,
     };
 
     return factory;
@@ -100,6 +118,90 @@ export function createNodeFactory(baseFactory: BaseNodeFactory): NodeFactory {
     function createToken(token: SyntaxKind.Unknown): Token<SyntaxKind.Unknown>;
     function createToken<TKind extends SyntaxKind>(token: TKind) {
         const node = createBaseToken<Token<TKind>>(token);
+        return node;
+    }
+
+    //
+    // Identifiers
+    //
+
+    function createBaseIdentifier(text: string) {
+        const node = baseFactory.createBaseIdentifierNode(
+            SyntaxKind.Identifier
+        ) as Mutable<Identifier>;
+        node.text = text;
+        node.jsDoc = undefined; // initialized by parser (JsDocContainer)
+        node.flowNode = undefined; // initialized by binder (FlowContainer)
+        node.symbol = undefined!; // initialized by checker
+        return node;
+    }
+    // @api
+    function createIdentifier(text: string): Identifier {
+        const node = createBaseIdentifier(text);
+        return node;
+    }
+
+    function createBaseNode<T extends Node>(kind: T["kind"]) {
+        return baseFactory.createBaseNode(kind) as Mutable<T>;
+    }
+
+    function createBaseDeclaration<T extends Declaration>(kind: T["kind"]) {
+        const node = createBaseNode(kind);
+        node.symbol = undefined!; // initialized by binder
+        return node;
+    }
+
+    function asName<
+        T extends
+            | DeclarationName
+            | Identifier
+            | BindingName
+            | PropertyName
+            | EntityName
+            | undefined
+    >(name: string | T): T | Identifier {
+        return typeof name === "string" ? createIdentifier(name) : name;
+    }
+
+    // @api
+    function createFunctionDeclaration(
+        modifiers: readonly FunctionModifierContext[] | undefined,
+        name: string | Identifier | undefined,
+        parameters: readonly ParameterContext[],
+        type: TypeNode | undefined,
+        body: Block | undefined
+    ) {
+        const node = createBaseDeclaration<FunctionDeclaration>(
+            SyntaxKind.FunctionDeclaration
+        );
+        //node.modifiers = asNodeArray(modifiers);
+        node.name = asName(name);
+        //node.typeParameters = asNodeArray(typeParameters);
+        //node.parameters = createNodeArray(parameters);
+        node.type = type;
+        node.body = body;
+
+        node.typeArguments = undefined; // used in quick info
+        node.jsDoc = undefined; // initialized by parser (JsDocContainer)
+        node.locals = undefined; // initialized by binder (LocalsContainer)
+        node.nextContainer = undefined; // initialized by binder (LocalsContainer)
+        node.endFlowNode = undefined;
+        node.returnFlowNode = undefined;
+        return node;
+    }
+
+    // @api
+    function createBlock(
+        statements: readonly Statement[],
+        multiLine?: boolean
+    ): Block {
+        const node = createBaseNode<Block>(SyntaxKind.Block);
+        node.statements = createNodeArray(statements);
+        node.multiLine = multiLine;
+
+        node.jsDoc = undefined; // initialized by parser (JsDocContainer)
+        node.locals = undefined; // initialized by binder (LocalsContainer)
+        node.nextContainer = undefined; // initialized by binder (LocalsContainer)
         return node;
     }
 }

@@ -1,5 +1,5 @@
 import { BailErrorStrategy, CommonTokenStream, PredictionMode } from "antlr4ng";
-import { DriverType } from "../backend/LpcConfig";
+import { DriverType } from "../config-types";
 import { LPCParser } from "../parser3/LPCParser";
 import { getLexer } from "./test-utils";
 import { LPCPreprocessingLexer } from "../parser3/LPCPreprocessingLexer";

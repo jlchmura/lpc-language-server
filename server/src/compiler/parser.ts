@@ -1,17 +1,17 @@
+import * as antlr from "antlr4ng";
 import {
-    CharStream,
-    CommonTokenStream,
-    DefaultErrorStrategy,
-    PredictionMode,
-    TerminalNode,
-} from "antlr4ng";
-import { LPCPreprocessingLexer } from "../parser3/LPCPreprocessingLexer";
+    COMMENT_CHANNEL,
+    LPCPreprocessingLexer,
+} from "../parser3/LPCPreprocessingLexer";
 import { BaseNodeFactory } from "./baseNodeFactory";
 import { createNodeFactory } from "./nodeFactory";
 import {
+    Block,
     EndOfFileToken,
+    HasJSDoc,
     Identifier,
     Node,
+    NodeArray,
     NodeFlags,
     PrivateIdentifier,
     SourceFile,
@@ -20,19 +20,36 @@ import {
 } from "./types";
 import {
     Mutable,
+    modifiersToFlags,
     objectAllocator,
     setTextRangePosEnd,
     setTextRangePosWidth,
 } from "./utilities";
-import { LPCParser, ProgramContext } from "../parser3/LPCParser";
+import {
+    BlockContext,
+    DeclarationContext,
+    FunctionDeclarationContext,
+    LPCParser,
+    ProgramContext,
+    ValidIdentifiersContext,
+    VariableDeclarationStatementContext,
+} from "../parser3/LPCParser";
+import { ILpcConfig } from "../config-types";
+import { parseTree } from "jsonc-parser";
+import { LPCLexer } from "../parser3/LPCLexer";
 
-namespace Parser {
+export namespace LpcParser {
     // Init some ANTLR stuff
-    const lexer = new LPCPreprocessingLexer(CharStream.fromString(""), "");
-    const tokenStream = new CommonTokenStream(lexer);
+    const lexer = new LPCPreprocessingLexer(
+        antlr.CharStream.fromString(""),
+        ""
+    );
+    const tokenStream = new antlr.CommonTokenStream(lexer);
     const parser = new LPCParser(tokenStream);
-    parser.errorHandler = new DefaultErrorStrategy();
-    parser.interpreter.predictionMode = PredictionMode.SLL;
+    parser.errorHandler = new antlr.DefaultErrorStrategy();
+    parser.interpreter.predictionMode = antlr.PredictionMode.SLL;
+    parser.buildParseTrees = true;
+
     var tree: ProgramContext; // antlr parse tree
 
     // capture constructors in 'initializeState' to avoid null checks
@@ -60,10 +77,16 @@ namespace Parser {
 
     var factory = createNodeFactory(baseNodeFactory);
     // pull out some factories here
-    var { createToken: factoryCreateToken } = factory;
+    var {
+        createToken: factoryCreateToken,
+        createNodeArray: factoryCreateNodeArray,
+        createIdentifier: factoryCreateIdentifier,
+        createBlock: factoryCreateBlock,
+    } = factory;
 
     let fileName: string;
     let sourceText: string;
+    let config: ILpcConfig;
     /** indicates whether we are parsing top-level statements */
     let topLevel = true;
 
@@ -74,14 +97,22 @@ namespace Parser {
     var identifiers: Map<string, string>;
     var identifierCount: number;
 
-    export function parseSourceFile(fileName: string, sourceText: string) {
-        initState(fileName, sourceText);
+    export function parseSourceFile(
+        fileName: string,
+        sourceText: string,
+        config: ILpcConfig
+    ) {
+        initState(fileName, sourceText, config);
         const result = parseSourceFileWorker();
         clearState();
         return result;
     }
 
-    function initState(_fileName: string, _sourceText: string) {
+    function initState(
+        _fileName: string,
+        _sourceText: string,
+        _config: ILpcConfig
+    ) {
         NodeConstructor = objectAllocator.getNodeConstructor();
         TokenConstructor = objectAllocator.getTokenConstructor();
         IdentifierConstructor = objectAllocator.getIdentifierConstructor();
@@ -91,14 +122,24 @@ namespace Parser {
 
         fileName = _fileName;
         sourceText = _sourceText;
+        config = _config;
+
+        nodeCount = 0;
+        topLevel = true;
+        identifiers = new Map<string, string>();
+        identifierCount = 0;
+        tree = undefined!;
 
         // initialize antlr stuff here
-        lexer.inputStream = CharStream.fromString(sourceText);
+        lexer.inputStream = antlr.CharStream.fromString(sourceText);
+        lexer.driverType = config.driver.type;
         lexer.reset();
         // TODO: add macros
 
         tokenStream.setTokenSource(lexer);
+
         parser.reset();
+        parser.driverType = config.driver.type;
 
         tokenStream.reset();
         tokenStream.fill();
@@ -106,8 +147,8 @@ namespace Parser {
 
     function clearState() {
         // reset antlr stuff
-        this.lexer.inputStream = CharStream.fromString("");
-        this.tokenStream.setTokenSource(undefined); // this will clear the buffered tokens
+        lexer.inputStream = antlr.CharStream.fromString("");
+        tokenStream.setTokenSource(undefined); // this will clear the buffered tokens
 
         sourceText = undefined!;
         topLevel = true;
@@ -118,8 +159,13 @@ namespace Parser {
         // execute the antlr parser
         tree = parser.program();
         const eofToken = parseTokenNode<EndOfFileToken>(tree.EOF());
-        const statements = [];
+        const statements = parseList(tree.declaration(), parseStatement);
         const sourceFile = createSourceFile(fileName, statements, eofToken);
+
+        sourceFile.nodeCount = nodeCount;
+        sourceFile.identifierCount = identifierCount;
+        sourceFile.identifiers = identifiers;
+
         return sourceFile;
     }
 
@@ -141,6 +187,17 @@ namespace Parser {
         return sourceFile;
     }
 
+    function createNodeArray<T extends Node>(
+        elements: T[],
+        pos: number,
+        end?: number,
+        hasTrailingComma?: boolean
+    ): NodeArray<T> {
+        const array = factoryCreateNodeArray(elements, hasTrailingComma);
+        setTextRangePosEnd(array, pos, end ?? pos);
+        return array;
+    }
+
     function finishNode<T extends Node>(node: T, pos: number, end?: number): T {
         setTextRangePosEnd(node, pos, end ?? pos);
         if (contextFlags) {
@@ -158,17 +215,183 @@ namespace Parser {
         return node;
     }
 
-    function parseTokenNode<T extends Node>(parserNode: TerminalNode): T {
+    function parseTokenNode<T extends Node>(parserNode: antlr.TerminalNode): T {
         const pos = getTerminalPos(parserNode);
         const kind = getTerminalKind(parserNode);
         return finishNode(factoryCreateToken(kind), pos) as T;
     }
 
-    function getTerminalPos(t: TerminalNode): number {
+    function getTerminalPos(t: antlr.TerminalNode): number {
         return t.getSymbol().start;
     }
 
-    function getTerminalKind(t: TerminalNode): SyntaxKind {
+    function getTerminalKind(t: antlr.TerminalNode): SyntaxKind {
         return t.getSymbol().type;
     }
+
+    function getNodePos(tree: antlr.ParserRuleContext): number {
+        return tree?.start?.start;
+    }
+    function getNodeEnd(tree: antlr.ParserRuleContext): number {
+        return tree?.stop.stop;
+    }
+
+    function parseList<T extends Node>(
+        parseTrees: antlr.ParserRuleContext[],
+        parseElement: (parseTree: antlr.ParserRuleContext) => T
+    ): NodeArray<T> {
+        const list = [];
+        const listPos = getNodePos(parseTrees.at(0));
+        const endPos = getNodePos(parseTrees.at(-1));
+
+        for (const parseTree of parseTrees) {
+            const node = parseElement(parseTree);
+            list.push(node);
+        }
+
+        return createNodeArray(list, listPos, endPos);
+    }
+
+    function parseStatement(tree: antlr.ParserRuleContext): Statement {
+        const ruleIndex = tree.ruleIndex;
+        switch (ruleIndex) {
+            case LPCParser.RULE_declaration:
+                return parseDeclaration(tree as DeclarationContext);
+            // case LPCParser.RULE_variableDeclarationStatement:
+            //     return parseVariableStatement(tree as VariableDeclarationStatementContext);
+        }
+    }
+
+    /** gets a potential jsdoc comment block */
+    function getPrecedingJSDocBlock(
+        tree: antlr.ParserRuleContext
+    ): string | undefined {
+        const tokens = tokenStream.getHiddenTokensToLeft(
+            tree.start.tokenIndex,
+            COMMENT_CHANNEL
+        );
+        if (tokens?.length > 0) {
+            const commentText = tokens.find((t) =>
+                t?.text?.trim()?.startsWith("/**")
+            )?.text;
+            return commentText;
+        }
+        return undefined;
+    }
+
+    function parseDeclaration(tree: DeclarationContext) {
+        const treeNode = tree.getChild(0) as antlr.ParserRuleContext;
+        const pos = getNodePos(tree);
+
+        switch (treeNode.ruleIndex) {
+            case LPCParser.RULE_functionDeclaration:
+                return parseFunctionDeclaration(
+                    treeNode as FunctionDeclarationContext,
+                    pos,
+                    getPrecedingJSDocBlock(tree)
+                );
+        }
+    }
+
+    let hasDeprecatedTag = false;
+    function withJSDoc<T extends HasJSDoc>(node: T, potentialJSDoc: string): T {
+        if (!potentialJSDoc) {
+            return node;
+        }
+
+        //Debug.assert(!node.jsDoc); // Should only be called once per node
+        // const jsDoc = mapDefined(getJSDocCommentRanges(node, sourceText), comment => JSDocParser.parseJSDocComment(node, comment.pos, comment.end - comment.pos));
+        // if (jsDoc.length) node.jsDoc = jsDoc;
+        // if (hasDeprecatedTag) {
+        //     hasDeprecatedTag = false;
+        //     (node as Mutable<T>).flags |= NodeFlags.Deprecated;
+        // }
+        return node;
+    }
+
+    function parseFunctionDeclaration(
+        tree: FunctionDeclarationContext,
+        pos: number,
+        jsDocBlock: string
+    ) {
+        const header = tree.functionHeader();
+        const end = getNodeEnd(tree);
+
+        const name = header._functionName;
+        const mod = header.functionModifier()[0];
+        //const modifiers = modifiersToFlags(header.functionModifier().map(m=>m.getChild(0)));
+        const identifier = parseValidIdentifier(name);
+
+        const returnType = undefined; // parseReturnType(header.typeSpecifier()?.unionableTypeSpecifier());
+
+        const body = parseFunctionBlock(tree.block()); // parseFunctionBlockOrSemicolon(isGenerator | isAsync, Diagnostics.or_expected);
+
+        const node = factory.createFunctionDeclaration(
+            header.functionModifier(),
+            identifier,
+            header.parameterList()?.parameter(),
+            returnType,
+            body
+        );
+
+        return withJSDoc(finishNode(node, pos, end), jsDocBlock);
+    }
+
+    function internIdentifier(text: string): string {
+        let identifier = identifiers.get(text);
+        if (identifier === undefined) {
+            identifiers.set(text, (identifier = text));
+        }
+        return identifier;
+    }
+
+    function parseValidIdentifier(tree: ValidIdentifiersContext): Identifier {
+        return createIdentifier(tree, true);
+    }
+
+    // The 'identifiers' object is used to share a single string instance for
+    // each identifier in order to reduce memory consumption.
+    function createIdentifier(
+        tree: antlr.ParserRuleContext,
+        isIdentifier: boolean
+        //diagnosticMessage?: DiagnosticMessage, privateIdentifierDiagnosticMessage?: DiagnosticMessage
+    ): Identifier {
+        if (isIdentifier) {
+            identifierCount++;
+            const pos = getNodePos(tree);
+            // Store original token kind if it is not just an Identifier so we can report appropriate error later in type checker
+
+            const text = internIdentifier(tree.getText());
+
+            return finishNode(factoryCreateIdentifier(text), pos);
+        }
+
+        // TODO: handle error nodes here
+    }
+
+    function parseBlock(tree: BlockContext): Block {
+        const pos = getNodePos(tree);
+        const hasJSDoc = getPrecedingJSDocBlock(tree);
+        const multiLine =
+            tree.CURLY_OPEN().symbol.line !== tree.CURLY_CLOSE().symbol.line;
+        const statements = parseList(tree.statement(), parseStatement);
+        const result = withJSDoc(
+            finishNode(factory.createBlock(statements, multiLine), pos),
+            hasJSDoc
+        );
+
+        return result;
+    }
+
+    function parseFunctionBlock(tree: BlockContext): Block | undefined {
+        const savedTopLevel = topLevel;
+        topLevel = false;
+
+        const blockContent = parseBlock(tree);
+
+        topLevel = savedTopLevel;
+        return blockContent;
+    }
+
+    //function parseVariableStatement(tree: VariableDeclarationStatementContext): Variable
 }

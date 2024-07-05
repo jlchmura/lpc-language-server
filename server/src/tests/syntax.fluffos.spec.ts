@@ -1,4 +1,4 @@
-import { DriverType } from "../backend/LpcConfig";
+import { DriverType } from "../config-types";
 import { getParser } from "./test-utils";
 
 describe("FluffOS-specific Syntax Tests", () => {

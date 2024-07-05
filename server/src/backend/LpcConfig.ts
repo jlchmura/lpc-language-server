@@ -1,32 +1,14 @@
 import * as fs from "fs";
 import { parse } from "jsonc-parser";
 import { DiagnosticSeverity } from "vscode-languageserver";
-
-enum DiagnosticLevel {
-    Error = "error",
-    Warning = "warning",
-    Info = "info",
-    Hint = "hint",
-    None = "none",
-}
-
-type DiagnosticsInfo = {
-    callOtherTargetUnknown: DiagnosticLevel;
-    callOtherLfunNotFound: DiagnosticLevel;
-    argumentTypeMismatch: DiagnosticLevel;
-    argumentsMissing: DiagnosticLevel;
-    argumentsTooMany: DiagnosticLevel;
-    functionNotFound: DiagnosticLevel;
-    variableNotFound: DiagnosticLevel;
-    functionUnknown: DiagnosticLevel;
-    functionModifiersMismatch: DiagnosticLevel;
-    functionReturnMismatch: DiagnosticLevel;
-    functionParameterMismatch: DiagnosticLevel;
-    memberNotFound: DiagnosticLevel;
-    fileNotResolved: DiagnosticLevel;
-    structMemberAsFunction: DiagnosticLevel;
-    objectNotFound: DiagnosticLevel;
-};
+import {
+    DiagnosticLevel,
+    DiagnosticsInfo,
+    DriverInfo,
+    DriverType,
+    FilesInfo,
+    ILpcConfig,
+} from "../config-types";
 
 const defaultDiagnostics: DiagnosticsInfo = {
     callOtherTargetUnknown: DiagnosticLevel.Info,
@@ -45,33 +27,6 @@ const defaultDiagnostics: DiagnosticsInfo = {
     structMemberAsFunction: DiagnosticLevel.Error,
     objectNotFound: DiagnosticLevel.Warning,
 };
-
-type FilesInfo = {
-    simul_efun: string;
-    init_files: string[];
-    master: string;
-    global_include: string;
-    player: string;
-};
-
-export enum DriverType {
-    LDMud = "ldmud",
-    FluffOS = "fluffos",
-}
-
-export type DriverInfo = {
-    type: DriverType;
-    version: string;
-};
-
-export interface ILpcConfig {
-    defines: Map<string, string>;
-    include: string[];
-    exclude: string[];
-    driver: DriverInfo;
-    diagnostics: DiagnosticsInfo;
-    files: FilesInfo;
-}
 
 export class LpcConfig implements ILpcConfig {
     public defines: Map<string, string> = new Map([

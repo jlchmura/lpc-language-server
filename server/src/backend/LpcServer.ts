@@ -21,9 +21,10 @@ import { CompletionProvider } from "./CompletionProvider";
 import { SignatureHelpProvider } from "./SignatureHelpProvider";
 import { RenameProvider } from "./RenameProvider";
 import { HighlightProvider } from "./HighlightProvider";
-import { DriverType, ensureLpcConfig, loadLpcConfig } from "./LpcConfig";
+import { ensureLpcConfig, loadLpcConfig } from "./LpcConfig";
 import { ReferenceProvider } from "./ReferenceProvider";
 import { findLpcRoot } from "./server-utils";
+import { DriverType } from "../config-types";
 
 const CHANGE_DEBOUNCE_MS = 150;
 

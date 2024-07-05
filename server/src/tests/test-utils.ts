@@ -11,7 +11,7 @@ import { LPCTokenFactor } from "../parser3/LPCTokenFactory";
 import { TestFileHandler } from "./TestFileHandler";
 import { IDiagnosticEntry } from "../types";
 import { LPCParser } from "../parser3/LPCParser";
-import { DriverType } from "../backend/LpcConfig";
+import { DriverType } from "../config-types";
 import { LPCLexer } from "../parser3/LPCLexer";
 
 const baseDir = path.join(process.cwd(), "server/src/tests/test-assets/");

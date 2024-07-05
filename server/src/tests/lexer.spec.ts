@@ -5,7 +5,7 @@ import { LPCPreprocessingLexer } from "../parser3/LPCPreprocessingLexer";
 import { LPCTokenFactor } from "../parser3/LPCTokenFactory";
 import { TestFileHandler } from "./TestFileHandler";
 import { LPCToken } from "../parser3/LPCToken";
-import { DriverType } from "../backend/LpcConfig";
+import { DriverType } from "../config-types";
 import { IDiagnosticEntry } from "../types";
 import { LPCLexer } from "../parser3/LPCLexer";
 import { trimQuotes } from "../parser3/parser-utils";

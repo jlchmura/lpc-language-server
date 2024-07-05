@@ -1,7 +1,9 @@
+import * as antlr from "antlr4ng";
 import { hasProperty } from "./core";
 import {
     Identifier,
     ModifierFlags,
+    ModifierLike,
     Node,
     NodeArray,
     NodeFlags,
@@ -13,6 +15,7 @@ import {
     TextRange,
     Token,
 } from "./types";
+import { LPCLexer } from "../parser3/LPCLexer";
 
 /** @internal */
 export type Mutable<T extends object> = { -readonly [K in keyof T]: T[K] };
@@ -143,4 +146,41 @@ export function setTextRangePosWidth<T extends ReadonlyTextRange>(
     width: number
 ) {
     return setTextRangePosEnd(range, pos, pos + width);
+}
+
+/** @internal */
+export function modifiersToFlags(
+    modifiers: readonly ModifierLike[] | undefined
+) {
+    let flags = ModifierFlags.None;
+    if (modifiers) {
+        for (const modifier of modifiers) {
+            flags |= modifierToFlag(modifier.getSymbol().type);
+        }
+    }
+    return flags;
+}
+
+export function modifierToFlag(tokenType: number): ModifierFlags {
+    switch (tokenType) {
+        case LPCLexer.PUBLIC:
+            return ModifierFlags.Public;
+        case LPCLexer.PROTECTED:
+            return ModifierFlags.Protected;
+        case LPCLexer.PRIVATE:
+            return ModifierFlags.Private;
+        case LPCLexer.STATIC:
+            return ModifierFlags.Static;
+        case LPCLexer.NOMASK:
+            return ModifierFlags.NoMask;
+        case LPCLexer.NOSAVE:
+            return ModifierFlags.NoSave;
+        case LPCLexer.NOSHADOW:
+            return ModifierFlags.NoShadow;
+        case LPCLexer.VISIBLE:
+            return ModifierFlags.Visible;
+        case LPCLexer.DEPRECATED:
+            return ModifierFlags.Deprecated;
+    }
+    return ModifierFlags.None;
 }

@@ -28,6 +28,7 @@ import { LiteralSymbol } from "./symbols/literalSymbol";
 import { LpcTypes } from "./types";
 import { getDriverInfo } from "./driver/Driver";
 import { loadLpcConfig } from "./backend/LpcConfig";
+import { LpcParser } from "./compiler/parser";
 
 class MockFileHandler implements IFileHandler {
     constructor() {}
@@ -49,34 +50,39 @@ class MockFileHandler implements IFileHandler {
 //import { LpcFacade } from "./backend/facade";
 const workDir = path.resolve(process.cwd(), "../fluff-test");
 const filename = path.join(workDir, process.argv[3]);
+const sourceText = fs.readFileSync(filename, "utf-8");
 const configFile = path.join(workDir, "lpc-config.json");
 const config = loadLpcConfig(configFile);
 
-const facade = new LpcFacade(workDir, undefined);
-const ctx = facade.loadLpc(filename);
+const srcFile = LpcParser.parseSourceFile(filename, sourceText, config);
+console.debug("node count:", srcFile.nodeCount);
 
-const semanticListener = new SemanticListener(
-    ctx.diagnostics,
-    ctx.symbolTable,
-    ctx
-);
-ParseTreeWalker.DEFAULT.walk(semanticListener, ctx.getParseTree());
+// const facade = new LpcFacade(workDir, undefined);
+// const ctx = facade.loadLpc(filename);
 
-const driver = getDriverInfo();
-const stack = new CallStack(ctx.symbolTable);
-stack.diagnosticMode = false;
-addPogramToStack(driver.efuns, stack);
-addPogramToStack(ctx.symbolTable, stack);
+// const semanticListener = new SemanticListener(
+//     ctx.diagnostics,
+//     ctx.symbolTable,
+//     ctx
+// );
+// ParseTreeWalker.DEFAULT.walk(semanticListener, ctx.getParseTree());
 
-const applyFn = ctx.symbolTable.resolveSync("get_include_path") as MethodSymbol;
-const callArgs: IEvaluatableSymbol[] = [
-    new LiteralSymbol("string", LpcTypes.stringType, "/domain/test/room.c"),
-];
+// const driver = getDriverInfo();
+// const stack = new CallStack(ctx.symbolTable);
+// stack.diagnosticMode = false;
+// addPogramToStack(driver.efuns, stack);
+// addPogramToStack(ctx.symbolTable, stack);
 
-const fnResult = applyFn.eval(stack, callArgs, stack.root);
+// const applyFn = ctx.symbolTable.resolveSync("get_include_path") as MethodSymbol;
+// const callArgs: IEvaluatableSymbol[] = [
+//     new LiteralSymbol("string", LpcTypes.stringType, "/domain/test/room.c"),
+// ];
 
-const ii = 0;
-console.log("done");
+// const fnResult = applyFn.eval(stack, callArgs, stack.root);
+
+// const ii = 0;
+// console.log("done");
+
 // // const codeStream = new ReadableString(code);
 // // const unbuf = new UnbufferedCharStream(codeStream, 256);
 // // for (let i = 0; i < 10; i++) {

@@ -1,4 +1,4 @@
-import { DriverType } from "../backend/LpcConfig";
+import { DriverType } from "../config-types";
 import { getParser, getParserFromString } from "./test-utils";
 
 describe("Test", () => {

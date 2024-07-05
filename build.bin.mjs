@@ -7,6 +7,6 @@ await esbuild.build({
   external: ['vscode'],
   platform: 'node',
   format: 'cjs',
-  sourcemap: 'external',
+  sourcemap: 'both',
   mainFields: ['module', 'main'],  
 })
