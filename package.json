@@ -174,7 +174,7 @@
         "ts-jest": "^29.1.4",
         "ts-loader": "^6.2.2",
         "ts-node": "10.9.2",
-        "typescript": "5.3.3"
+        "typescript": "^5.4.5"
     },
     "dependencies": {
         "antlr4-c3": "^3.4.1",
