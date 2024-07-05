@@ -4,12 +4,16 @@
         "target": "es2020",
         "moduleResolution": "Node",
         "esModuleInterop": true,
-        "lib": ["es2020", "DOM"],
+        "lib": ["es2020"],
         "outDir": "out",
         "resolveJsonModule": true,
         "sourceMap": true,
         "strict": false,
-        "skipLibCheck": true
+        "skipLibCheck": true,
+        "newLine": "lf",
+        "preserveConstEnums": true,
+        "pretty": true,
+        "noImplicitOverride": true
     },
     "include": ["src"],
     "exclude": ["node_modules", ".vscode-test"],
