@@ -6,6 +6,7 @@ import {
 import { BaseNodeFactory } from "./baseNodeFactory";
 import { emptyArray } from "./core";
 import {
+    ArrayTypeNode,
     BindingName,
     Block,
     Declaration,
@@ -27,6 +28,7 @@ import {
     SyntaxKind,
     Token,
     TypeNode,
+    UnionTypeNode,
     VariableDeclaration,
     VariableDeclarationList,
     VariableStatement,
@@ -44,6 +46,8 @@ export function createNodeFactory(baseFactory: BaseNodeFactory): NodeFactory {
         createVariableDeclaration,
         createVariableDeclarationList,
         createVariableStatement,
+        createUnionTypeNode,
+        createArrayTypeNode,
     };
 
     return factory;
@@ -271,6 +275,22 @@ export function createNodeFactory(baseFactory: BaseNodeFactory): NodeFactory {
             : (declarationList as VariableDeclarationList);
         node.jsDoc = undefined; // initialized by parser (JsDocContainer)
         node.flowNode = undefined; // initialized by binder (FlowContainer)
+        return node;
+    }
+
+    function createUnionTypeNode(
+        types: readonly TypeNode[]
+        //parenthesize: (nodes: readonly TypeNode[]) => readonly TypeNode[]
+    ): UnionTypeNode {
+        const node = createBaseNode<UnionTypeNode>(SyntaxKind.UnionType);
+        node.types = factory.createNodeArray(types); //parenthesize(types));
+        return node;
+    }
+
+    // @api
+    function createArrayTypeNode(elementType: TypeNode): ArrayTypeNode {
+        const node = createBaseNode<ArrayTypeNode>(SyntaxKind.ArrayType);
+        node.elementType = elementType; // parenthesizerRules().parenthesizeNonArrayTypeOfPostfixType(elementType);
         return node;
     }
 }

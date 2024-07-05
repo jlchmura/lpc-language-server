@@ -10,6 +10,7 @@ import {
     EndOfFileToken,
     HasJSDoc,
     Identifier,
+    LexerToSyntaxKind,
     Node,
     NodeArray,
     NodeFlags,
@@ -17,6 +18,8 @@ import {
     SourceFile,
     Statement,
     SyntaxKind,
+    TypeNode,
+    UnionTypeNode,
     VariableDeclaration,
     VariableDeclarationList,
     VariableStatement,
@@ -33,7 +36,9 @@ import {
     DeclarationContext,
     FunctionDeclarationContext,
     LPCParser,
+    PrimitiveTypeSpecifierContext,
     ProgramContext,
+    UnionableTypeSpecifierContext,
     ValidIdentifiersContext,
     VariableDeclarationStatementContext,
     VariableDeclaratorExpressionContext,
@@ -234,7 +239,7 @@ export namespace LpcParser {
     }
 
     function getTerminalKind(t: antlr.TerminalNode): SyntaxKind {
-        return t.getSymbol().type;
+        return LexerToSyntaxKind[t.getSymbol().type];
     }
 
     function getNodePos(tree: antlr.ParserRuleContext): number {
@@ -336,7 +341,9 @@ export namespace LpcParser {
         //const modifiers = modifiersToFlags(header.functionModifier().map(m=>m.getChild(0)));
         const identifier = parseValidIdentifier(name);
 
-        const returnType = undefined; // parseReturnType(header.typeSpecifier()?.unionableTypeSpecifier());
+        const returnType = parseType(
+            header.typeSpecifier()?.unionableTypeSpecifier()
+        );
 
         const body = parseFunctionBlock(tree.block()); // parseFunctionBlockOrSemicolon(isGenerator | isAsync, Diagnostics.or_expected);
 
@@ -414,6 +421,67 @@ export namespace LpcParser {
         return blockContent;
     }
 
+    function parsePrimitiveTypeSpecifier(tree: PrimitiveTypeSpecifierContext) {
+        return parseTokenNode<TypeNode>(tree.getChild(0) as antlr.TerminalNode);
+    }
+
+    function parsePossibleArrayType(
+        tree: UnionableTypeSpecifierContext
+    ): TypeNode {
+        const pos = getNodePos(tree),
+            end = getNodeEnd(tree);
+
+        let typeNode: TypeNode | undefined;
+        if (tree.primitiveTypeSpecifier()) {
+            typeNode = parsePrimitiveTypeSpecifier(
+                tree.primitiveTypeSpecifier()
+            );
+        }
+        if (tree.STAR()) {
+            typeNode = finishNode(
+                factory.createArrayTypeNode(typeNode),
+                pos,
+                end
+            );
+        }
+
+        return typeNode;
+    }
+
+    function parseUnionTypeOrHigher(
+        tree: UnionableTypeSpecifierContext,
+        parseConsituaentType: (tree: UnionableTypeSpecifierContext) => TypeNode,
+        createTypeNode: (types: NodeArray<TypeNode>) => UnionTypeNode
+    ): TypeNode {
+        const pos = getNodePos(tree),
+            end = getNodeEnd(tree);
+
+        const types = [parseConsituaentType(tree)];
+
+        if (tree.OR()?.length > 0) {
+            for (const nextType of tree.unionableTypeSpecifier()) {
+                types.push(parseConsituaentType(nextType));
+            }
+        }
+
+        return finishNode(
+            createTypeNode(createNodeArray(types, pos, end)),
+            pos,
+            end
+        );
+    }
+
+    function parseType(tree: UnionableTypeSpecifierContext): TypeNode {
+        if (!tree) return undefined;
+
+        const type = parseUnionTypeOrHigher(
+            tree,
+            parsePossibleArrayType,
+            factory.createUnionTypeNode
+        );
+        return type;
+    }
+
     function parseVariableStatement(
         tree: VariableDeclarationStatementContext
     ): VariableStatement {
@@ -425,7 +493,9 @@ export namespace LpcParser {
 
         const pos = getNodePos(tree),
             end = getNodeEnd(tree);
+        const type = parseType(declTree._type_);
         const declarationList = parseVariableDeclarationList(
+            type,
             declListTree,
             /*inForStatementInitializer*/ false
         );
@@ -440,6 +510,7 @@ export namespace LpcParser {
     }
 
     function parseVariableDeclarationList(
+        type: TypeNode,
         declListTree: VariableDeclaratorExpressionContext[],
         inForStatementInitializer: boolean
     ): VariableDeclarationList {
@@ -451,7 +522,6 @@ export namespace LpcParser {
             const decl = declExp.variableDeclarator();
             const jsDoc = getPrecedingJSDocBlock(decl);
             const name = parseValidIdentifier(decl._variableName);
-            const type = undefined; // TODO: parseType
             const initializer = undefined; // TODO !declExp.variableInitializer() ? undefined : parseInitializer(declExp.variableInitializer());
             const node = factory.createVariableDeclaration(
                 name,

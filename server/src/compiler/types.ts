@@ -39,6 +39,9 @@ export const enum SyntaxKind {
     MethodDeclaration,
     IndexSignature,
     InferType,
+    ArrayType,
+    UnionType,
+
     // Top Level
     SourceFile,
 
@@ -68,7 +71,40 @@ export const enum SyntaxKind {
     NoMaskKeyword,
     VarArgsKeyword,
     DeprecatedKeyword,
+
+    // type keywords
+    IntKeyword,
+    FloatKeyword,
+    StringKeyword,
+    MixedKeyword,
+    MappingKeyword,
+    UnknownKeyword,
+    VoidKeyword,
+    ObjectKeyword,
 }
+
+export const LexerToSyntaxKind: { [key: number]: SyntaxKind } = {
+    // TYPES
+    [LPCLexer.INT]: SyntaxKind.IntKeyword,
+    [LPCLexer.FLOAT]: SyntaxKind.FloatKeyword,
+    [LPCLexer.STRING]: SyntaxKind.StringKeyword,
+    [LPCLexer.MIXED]: SyntaxKind.MixedKeyword,
+    [LPCLexer.MAPPING]: SyntaxKind.MappingKeyword,
+    [LPCLexer.UNKNOWN]: SyntaxKind.UnknownKeyword,
+    [LPCLexer.VOID]: SyntaxKind.VoidKeyword,
+    [LPCLexer.OBJECT]: SyntaxKind.ObjectKeyword,
+    // MODIFIERS
+    [LPCLexer.PRIVATE]: SyntaxKind.PrivateKeyword,
+    [LPCLexer.PROTECTED]: SyntaxKind.ProtectedKeyword,
+    [LPCLexer.PUBLIC]: SyntaxKind.PublicKeyword,
+    [LPCLexer.STATIC]: SyntaxKind.StaticKeyword,
+    [LPCLexer.VISIBLE]: SyntaxKind.VisibleKeyword,
+    [LPCLexer.NOSAVE]: SyntaxKind.NoSaveKeyword,
+    [LPCLexer.NOSHADOW]: SyntaxKind.NoShadowKeyword,
+    [LPCLexer.NOMASK]: SyntaxKind.NoMaskKeyword,
+    [LPCLexer.VARARGS]: SyntaxKind.VarArgsKeyword,
+    [LPCLexer.DEPRECATED]: SyntaxKind.DeprecatedKeyword,
+};
 
 export type KeywordSyntaxKind =
     | SyntaxKind.PrivateKeyword
@@ -259,6 +295,8 @@ export interface NodeFactory {
     createVariableDeclaration(name: string | BindingName, type: TypeNode | undefined, initializer: Expression | undefined): VariableDeclaration;
     createVariableDeclarationList(declarations: readonly VariableDeclaration[], flags: NodeFlags ): VariableDeclarationList;
     createVariableStatement(modifiers: readonly Modifier[] | undefined, declarationList: VariableDeclarationList | readonly VariableDeclaration[]): VariableStatement;
+    createUnionTypeNode(types: readonly TypeNode[]): UnionTypeNode;
+    createArrayTypeNode(elementType: TypeNode):ArrayTypeNode;
 }
 
 /** @internal */
@@ -384,6 +422,16 @@ export type ModifierLike = antlr.TerminalNode;
 
 export interface TypeNode extends Node {
     _typeNodeBrand: any;
+}
+
+export interface ArrayTypeNode extends TypeNode {
+    readonly kind: SyntaxKind.ArrayType;
+    readonly elementType: TypeNode;
+}
+
+export interface UnionTypeNode extends TypeNode {
+    readonly kind: SyntaxKind.UnionType;
+    readonly types: NodeArray<TypeNode>;
 }
 
 export interface Block extends Statement, LocalsContainer {
