@@ -150,6 +150,11 @@ export const enum SyntaxKind {
     CaretEqualsToken,
 }
 
+export type LiteralSyntaxKind =
+    | SyntaxKind.IntLiteral
+    | SyntaxKind.FloatLiteral
+    | SyntaxKind.StringLiteral;
+
 export const LexerToSyntaxKind: { [key: number]: SyntaxKind } = {
     // TYPES
     [LPCLexer.INT]: SyntaxKind.IntKeyword,
@@ -171,6 +176,20 @@ export const LexerToSyntaxKind: { [key: number]: SyntaxKind } = {
     [LPCLexer.NOMASK]: SyntaxKind.NoMaskKeyword,
     [LPCLexer.VARARGS]: SyntaxKind.VarArgsKeyword,
     [LPCLexer.DEPRECATED]: SyntaxKind.DeprecatedKeyword,
+    // OPERATORS
+    [LPCLexer.ASSIGN]: SyntaxKind.EqualsToken,
+    [LPCLexer.ADD_ASSIGN]: SyntaxKind.PlusEqualsToken,
+    [LPCLexer.SUB_ASSIGN]: SyntaxKind.MinusEqualsToken,
+    [LPCLexer.MUL_ASSIGN]: SyntaxKind.AsteriskEqualsToken,
+    [LPCLexer.XOR_ASSIGN]: SyntaxKind.AsteriskAsteriskEqualsToken,
+    [LPCLexer.DIV_ASSIGN]: SyntaxKind.SlashEqualsToken,
+    [LPCLexer.MOD_ASSIGN]: SyntaxKind.PercentEqualsToken,
+    [LPCLexer.SHL_ASSIGN]: SyntaxKind.LessThanLessThanEqualsToken,
+    [LPCLexer.RSH_ASSIGN]: SyntaxKind.GreaterThanGreaterThanEqualsToken,
+    [LPCLexer.BITOR_ASSIGN]: SyntaxKind.BarEqualsToken,
+    [LPCLexer.BITAND_ASSIGN]: SyntaxKind.AmpersandEqualsToken,
+    [LPCLexer.OR_ASSIGN]: SyntaxKind.BarBarEqualsToken,
+    [LPCLexer.AND_ASSIGN]: SyntaxKind.AmpersandAmpersandEqualsToken,
 };
 
 export type KeywordTypeSyntaxKind =
@@ -523,6 +542,7 @@ export interface NodeFactory {
     createInlineClosure(body: ConciseBody):InlineClosureExpression;
     createBinaryExpression(left: Expression, operator: BinaryOperator | BinaryOperatorToken, right: Expression): BinaryExpression;
     createConditionalExpression(condition: Expression, questionToken: QuestionToken | undefined, whenTrue: Expression, colonToken: ColonToken | undefined, whenFalse: Expression): ConditionalExpression;
+    createLiteralLikeNode(kind: LiteralToken["kind"] , text: string): LiteralToken;
 }
 
 /** @internal */
@@ -703,6 +723,8 @@ export interface StringLiteral extends LiteralExpression, Declaration {
         | NumericLiteral
         | PrivateIdentifier; // Allows a StringLiteral to get its text from another node (used by transforms).
 }
+
+export type LiteralToken = IntegerLiteral | FloatLiteral | StringLiteral;
 
 export interface ElementAccessExpression
     extends MemberExpression,

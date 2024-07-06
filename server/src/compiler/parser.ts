@@ -15,6 +15,7 @@ import {
     Identifier,
     InlineClosureExpression,
     LexerToSyntaxKind,
+    LiteralSyntaxKind,
     Node,
     NodeArray,
     NodeFlags,
@@ -46,6 +47,8 @@ import {
     InlineClosureExpressionContext,
     JumpStatementContext,
     LPCParser,
+    LiteralContext,
+    LiteralExpressionContext,
     PrimaryExpressionContext,
     PrimitiveTypeSpecifierContext,
     ProgramContext,
@@ -593,6 +596,26 @@ export namespace LpcParser {
         return startNode;
     }
 
+    function parseLiteralNode(tree: LiteralContext): Expression {
+        const pos = getNodePos(tree),
+            end = getNodeEnd(tree);
+        const token = tree.getChild(0) as antlr.TerminalNode;
+        let type: LiteralSyntaxKind;
+        switch (token.symbol.type) {
+            case LPCLexer.IntegerConstant:
+                type = SyntaxKind.IntLiteral;
+                break;
+            case LPCLexer.FloatingConstant:
+                type = SyntaxKind.FloatLiteral;
+                break;
+            case LPCLexer.StringLiteral:
+                type = SyntaxKind.StringLiteral;
+                break;
+        }
+        const node = factory.createLiteralLikeNode(type, token.getText());
+        return finishNode(node, pos, end);
+    }
+
     function parsePrimaryExpressionStart(
         tree: antlr.ParserRuleContext
     ): Expression {
@@ -600,14 +623,12 @@ export namespace LpcParser {
             end = getNodeEnd(tree);
 
         const firstChild = tree.children[0] as antlr.ParserRuleContext;
-        switch (firstChild.ruleIndex) {
-            case LPCParser.RULE_validIdentifiers:
-                return parseValidIdentifier(
-                    firstChild as ValidIdentifiersContext
-                );
-            case LPCParser.RULE_literal:
-                return undefined;
+        if (firstChild instanceof ValidIdentifiersContext) {
+            return parseValidIdentifier(firstChild);
+        } else if (firstChild instanceof LiteralContext) {
+            return parseLiteralNode(firstChild);
         }
+
         return undefined;
     }
 
@@ -671,6 +692,9 @@ export namespace LpcParser {
                 const operator = parseTokenNode<BinaryOperatorToken>(
                     opToken.getChild(0) as antlr.TerminalNode
                 );
+                if (!childExpr) {
+                    const ii = 0;
+                }
                 lastExp = makeBinaryExpression(
                     lastExp,
                     operator,

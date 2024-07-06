@@ -20,13 +20,16 @@ import {
     EndOfFileToken,
     EntityName,
     Expression,
+    FloatLiteral,
     FunctionDeclaration,
     Identifier,
     InlineClosureExpression,
+    IntegerLiteral,
     KeywordSyntaxKind,
     KeywordToken,
     KeywordTypeNode,
     KeywordTypeSyntaxKind,
+    LiteralToken,
     Modifier,
     ModifierSyntaxKind,
     ModifierToken,
@@ -42,8 +45,10 @@ import {
     ReturnStatement,
     SourceFile,
     Statement,
+    StringLiteral,
     SyntaxKind,
     Token,
+    TokenFlags,
     TypeNode,
     UnionTypeNode,
     VariableDeclaration,
@@ -69,6 +74,7 @@ export function createNodeFactory(baseFactory: BaseNodeFactory): NodeFactory {
         createInlineClosure,
         createBinaryExpression,
         createConditionalExpression,
+        createLiteralLikeNode,
     };
 
     return factory;
@@ -364,7 +370,6 @@ export function createNodeFactory(baseFactory: BaseNodeFactory): NodeFactory {
             SyntaxKind.BinaryExpression
         );
         const operatorToken = asToken(operator);
-        const operatorKind = operatorToken.kind;
         node.left = left;
         node.operatorToken = operatorToken;
         node.right = right;
@@ -390,5 +395,68 @@ export function createNodeFactory(baseFactory: BaseNodeFactory): NodeFactory {
         node.colonToken = colonToken ?? createToken(SyntaxKind.ColonToken);
         node.whenFalse = whenFalse;
         return node;
+    }
+
+    // @api
+    function createIntegerLiteral(
+        value: string | number,
+        numericLiteralFlags: TokenFlags = TokenFlags.None
+    ): IntegerLiteral {
+        const text = typeof value === "number" ? value + "" : value;
+        //Debug.assert(text.charCodeAt(0) !== CharacterCodes.minus, "Negative numbers should be created in combination with createPrefixUnaryExpression");
+        const node = createBaseDeclaration<IntegerLiteral>(
+            SyntaxKind.IntLiteral
+        );
+        node.text = text;
+        node.numericLiteralFlags = numericLiteralFlags;
+        return node;
+    }
+
+    // @api
+    function createFloatLiteral(
+        value: string | number,
+        numericLiteralFlags: TokenFlags = TokenFlags.None
+    ): FloatLiteral {
+        const text = typeof value === "number" ? value + "" : value;
+        //Debug.assert(text.charCodeAt(0) !== CharacterCodes.minus, "Negative numbers should be created in combination with createPrefixUnaryExpression");
+        const node = createBaseDeclaration<FloatLiteral>(
+            SyntaxKind.FloatLiteral
+        );
+        node.text = text;
+        node.numericLiteralFlags = numericLiteralFlags;
+        return node;
+    }
+
+    function createBaseStringLiteral(text: string) {
+        const node = createBaseDeclaration<StringLiteral>(
+            SyntaxKind.StringLiteral
+        );
+        node.text = text;
+        return node;
+    }
+
+    // @api
+    function createStringLiteral(
+        text: string,
+        hasExtendedUnicodeEscape?: boolean
+    ): StringLiteral {
+        const node = createBaseStringLiteral(text);
+        node.hasExtendedUnicodeEscape = hasExtendedUnicodeEscape;
+        return node;
+    }
+
+    // @api
+    function createLiteralLikeNode(
+        kind: LiteralToken["kind"],
+        text: string
+    ): LiteralToken {
+        switch (kind) {
+            case SyntaxKind.IntLiteral:
+                return createIntegerLiteral(text, /*numericLiteralFlags*/ 0);
+            case SyntaxKind.FloatLiteral:
+                return createFloatLiteral(text);
+            case SyntaxKind.StringLiteral:
+                return createStringLiteral(text, /*isSingleQuote*/ undefined);
+        }
     }
 }
