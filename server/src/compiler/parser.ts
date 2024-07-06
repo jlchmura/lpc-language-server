@@ -6,15 +6,20 @@ import {
 import { BaseNodeFactory } from "./baseNodeFactory";
 import { createNodeFactory } from "./nodeFactory";
 import {
+    BinaryExpression,
+    BinaryOperatorToken,
     Block,
     EndOfFileToken,
+    Expression,
     HasJSDoc,
     Identifier,
+    InlineClosureExpression,
     LexerToSyntaxKind,
     Node,
     NodeArray,
     NodeFlags,
     PrivateIdentifier,
+    ReturnStatement,
     SourceFile,
     Statement,
     SyntaxKind,
@@ -33,11 +38,19 @@ import {
 } from "./utilities";
 import {
     BlockContext,
+    CommaableExpressionContext,
+    ConditionalExpressionContext,
     DeclarationContext,
+    ExpressionContext,
     FunctionDeclarationContext,
+    InlineClosureExpressionContext,
+    JumpStatementContext,
     LPCParser,
+    PrimaryExpressionContext,
     PrimitiveTypeSpecifierContext,
     ProgramContext,
+    ReturnStatementContext,
+    StatementContext,
     UnionableTypeSpecifierContext,
     ValidIdentifiersContext,
     VariableDeclarationStatementContext,
@@ -224,6 +237,13 @@ export namespace LpcParser {
         return node;
     }
 
+    function asToken<T extends Node>(token: antlr.Token): T {
+        const pos = token.start,
+            end = token.stop;
+        const kind = LexerToSyntaxKind[token.type];
+        return finishNode(factoryCreateToken(kind), pos, end) as T;
+    }
+
     function parseTokenNode<T extends Node>(parserNode: antlr.TerminalNode): T {
         const pos = getTerminalPos(parserNode),
             end = getTerminalEnd(parserNode);
@@ -274,6 +294,16 @@ export namespace LpcParser {
                 return parseVariableStatement(
                     tree as VariableDeclarationStatementContext
                 );
+            case LPCParser.RULE_jumpStatement:
+                const jumpTree = tree as JumpStatementContext;
+                if (jumpTree.returnStatement())
+                    return parseReturnStatement(jumpTree.returnStatement());
+                else if (jumpTree.BREAK()) {
+                    // TODO: parse
+                } else if (jumpTree.CONTINUE()) {
+                    // TODO; parse
+                }
+                return undefined;
         }
     }
 
@@ -391,18 +421,23 @@ export namespace LpcParser {
         // TODO: handle error nodes here
     }
 
+    function parseStatementList(
+        tree: StatementContext[]
+    ): NodeArray<Statement> {
+        const statements = parseList(
+            tree.map((s) => s.getChild(0) as antlr.ParserRuleContext),
+            parseStatement
+        );
+        return statements;
+    }
+
     function parseBlock(tree: BlockContext): Block {
         const pos = getNodePos(tree),
             end = getNodeEnd(tree);
         const hasJSDoc = getPrecedingJSDocBlock(tree);
         const multiLine =
             tree.CURLY_OPEN().symbol.line !== tree.CURLY_CLOSE().symbol.line;
-        const statements = parseList(
-            tree
-                .statement()
-                .map((s) => s.getChild(0) as antlr.ParserRuleContext),
-            parseStatement
-        );
+        const statements = parseStatementList(tree.statement());
         const result = withJSDoc(
             finishNode(factory.createBlock(statements, multiLine), pos, end),
             hasJSDoc
@@ -541,5 +576,209 @@ export namespace LpcParser {
             NodeFlags.None
         );
         return finishNode(listNode, pos, end);
+    }
+
+    function parsePrimaryExpression(
+        tree: PrimaryExpressionContext
+    ): Expression {
+        const pos = getNodePos(tree),
+            end = getNodeEnd(tree);
+
+        const startTree = tree.primaryExpressionStart();
+        const startNode = parsePrimaryExpressionStart(startTree);
+
+        if (tree.methodInvocation()) {
+        }
+
+        return startNode;
+    }
+
+    function parsePrimaryExpressionStart(
+        tree: antlr.ParserRuleContext
+    ): Expression {
+        const pos = getNodePos(tree),
+            end = getNodeEnd(tree);
+
+        const firstChild = tree.children[0] as antlr.ParserRuleContext;
+        switch (firstChild.ruleIndex) {
+            case LPCParser.RULE_validIdentifiers:
+                return parseValidIdentifier(
+                    firstChild as ValidIdentifiersContext
+                );
+            case LPCParser.RULE_literal:
+                return undefined;
+        }
+        return undefined;
+    }
+
+    function parseAssignmentExpressionOrHigher(
+        tree: ConditionalExpressionContext
+    ): Expression {
+        const pos = getNodePos(tree),
+            end = getNodeEnd(tree);
+
+        // parse lhs
+        let lhs: Expression;
+        if (tree.castExpression()) {
+            // TODO : parse this
+        } else if (tree.primaryExpression()) {
+            lhs = parsePrimaryExpression(tree.primaryExpression());
+        } else if (tree.lambdaExpression()) {
+            // TODO: parse
+        } else if (tree.inlineClosureExpression()) {
+            lhs = parseInlineClosureLikeExpression(
+                tree.inlineClosureExpression()
+            );
+        }
+
+        // because of how our grammar is structured, we don't have to worry about precendence
+        // find the next operator symbol
+        let lastExp: Expression = lhs;
+
+        if (tree._ternOp) {
+            // ternary operator
+            const trueExpr = parseAssignmentExpressionOrHigher(
+                tree.children[2] as ConditionalExpressionContext
+            );
+            const falseExpr = parseAssignmentExpressionOrHigher(
+                tree.children[4] as ConditionalExpressionContext
+            );
+
+            return finishNode(
+                factory.createConditionalExpression(
+                    lastExp,
+                    asToken(tree._ternOp),
+                    trueExpr,
+                    asToken(tree._ternOp2),
+                    falseExpr
+                ),
+                pos,
+                end
+            );
+        }
+
+        // everythign else is a binary expression
+        for (let i = 1; i < tree.children.length; i += 2) {
+            const childExprTree = tree.children.at(
+                    i + 1
+                ) as ConditionalExpressionContext,
+                opToken = tree.children.at(i);
+            const childExpr = childExprTree
+                ? parseAssignmentExpressionOrHigher(childExprTree)
+                : undefined;
+
+            if (opToken) {
+                const operator = parseTokenNode<BinaryOperatorToken>(
+                    opToken.getChild(0) as antlr.TerminalNode
+                );
+                lastExp = makeBinaryExpression(
+                    lastExp,
+                    operator,
+                    childExpr,
+                    pos,
+                    getNodeEnd(childExprTree)
+                );
+            }
+        }
+
+        return lastExp;
+    }
+
+    function parseCommaExpression(
+        tree: CommaableExpressionContext
+    ): Expression {
+        // Expression[in]:
+        //      InlineClosureExpression
+        //      AssignmentExpression[in]
+        //      AssignmentExpression[in] , AssignmentExpression[in]
+
+        if (tree.inlineClosureExpression()) {
+            return parseInlineClosureLikeExpression(
+                tree.inlineClosureExpression()
+            );
+        }
+
+        const pos = getNodePos(tree),
+            end = getNodeEnd(tree);
+        const children = tree.children;
+
+        // grab the first expression
+        let expr = parseAssignmentExpressionOrHigher(
+            children[0] as ConditionalExpressionContext
+        );
+
+        for (let i = 1; i < children.length; i += 2) {
+            const operator = parseTokenNode<BinaryOperatorToken>(
+                children[i] as antlr.TerminalNode
+            );
+            const rightExpr = parseAssignmentExpressionOrHigher(
+                children[i + 1] as ConditionalExpressionContext
+            );
+
+            expr = makeBinaryExpression(expr, operator, rightExpr, pos, end);
+        }
+
+        return expr;
+    }
+
+    function parseExpression(tree: ExpressionContext): Expression {
+        return parseAssignmentExpressionOrHigher(tree.conditionalExpression());
+    }
+
+    function parseInlineClosureLikeExpression(
+        tree: InlineClosureExpressionContext
+    ): InlineClosureExpression | undefined {
+        const pos = getNodePos(tree),
+            end = getNodeEnd(tree);
+        const jsDoc = getPrecedingJSDocBlock(tree);
+
+        if (tree.COMMA) {
+            // TODO: this is a fluff-style function pointer
+        } else if (tree.FUNCTION) {
+            // TODO: this is an inline function with params and body
+        } else {
+            let body: Block | Expression | undefined;
+            const isMultiLine = tree.start.line !== tree.stop.line;
+            if (tree.expression()) {
+                body = parseExpression(tree.expression().at(0)); // in this case there will only be 1 expression
+            } else if (tree.statement()) {
+                // there can be multiple statements
+                // parse it as a block, even though theres no curly braces
+                const statements = parseStatementList(tree.statement());
+                body = factory.createBlock(statements, isMultiLine);
+            }
+
+            const node = factory.createInlineClosure(body);
+            return withJSDoc(finishNode(node, pos, end), jsDoc);
+        }
+    }
+
+    function parseReturnStatement(
+        tree: ReturnStatementContext
+    ): ReturnStatement {
+        const pos = getNodePos(tree),
+            end = getNodeEnd(tree);
+        const jsDoc = getPrecedingJSDocBlock(tree);
+
+        const expression = parseCommaExpression(tree.commaableExpression());
+
+        return withJSDoc(
+            finishNode(factory.createReturnStatement(expression), pos, end),
+            jsDoc
+        );
+    }
+
+    function makeBinaryExpression(
+        left: Expression,
+        operatorToken: BinaryOperatorToken,
+        right: Expression,
+        pos: number,
+        end: number
+    ): BinaryExpression {
+        return finishNode(
+            factory.createBinaryExpression(left, operatorToken, right),
+            pos,
+            end
+        );
     }
 }

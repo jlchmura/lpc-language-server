@@ -55,10 +55,14 @@ export const enum SyntaxKind {
     VariableStatement,
     VariableDeclarationList,
     CatchClause,
+    ReturnStatement,
 
     // expressions
     PropertyAccessExpression,
     ElementAccessExpression,
+    InlineClosureExpression,
+    BinaryExpression,
+    ConditionalExpression,
 
     // keywords
     PrivateKeyword,
@@ -71,6 +75,7 @@ export const enum SyntaxKind {
     NoMaskKeyword,
     VarArgsKeyword,
     DeprecatedKeyword,
+    InKeyword,
 
     // type keywords
     IntKeyword,
@@ -81,6 +86,68 @@ export const enum SyntaxKind {
     UnknownKeyword,
     VoidKeyword,
     ObjectKeyword,
+
+    // Punctuation
+    OpenBraceToken,
+    CloseBraceToken,
+    OpenParenToken,
+    CloseParenToken,
+    OpenBracketToken,
+    CloseBracketToken,
+    DotToken,
+    DotDotDotToken,
+    SemicolonToken,
+    CommaToken,
+    QuestionDotToken,
+    LessThanToken,
+    LessThanSlashToken,
+    GreaterThanToken,
+    LessThanEqualsToken,
+    GreaterThanEqualsToken,
+    EqualsEqualsToken,
+    ExclamationEqualsToken,
+    EqualsEqualsEqualsToken,
+    ExclamationEqualsEqualsToken,
+    EqualsGreaterThanToken,
+    PlusToken,
+    MinusToken,
+    AsteriskToken,
+    AsteriskAsteriskToken,
+    SlashToken,
+    PercentToken,
+    PlusPlusToken,
+    MinusMinusToken,
+    LessThanLessThanToken,
+    GreaterThanGreaterThanToken,
+    GreaterThanGreaterThanGreaterThanToken,
+    AmpersandToken,
+    BarToken,
+    CaretToken,
+    ExclamationToken,
+    TildeToken,
+    AmpersandAmpersandToken,
+    BarBarToken,
+    QuestionToken,
+    ColonToken,
+    AtToken,
+
+    // Assignments
+    EqualsToken,
+    PlusEqualsToken,
+    MinusEqualsToken,
+    AsteriskEqualsToken,
+    AsteriskAsteriskEqualsToken,
+    SlashEqualsToken,
+    PercentEqualsToken,
+    LessThanLessThanEqualsToken,
+    GreaterThanGreaterThanEqualsToken,
+    GreaterThanGreaterThanGreaterThanEqualsToken,
+    AmpersandEqualsToken,
+    BarEqualsToken,
+    BarBarEqualsToken,
+    AmpersandAmpersandEqualsToken,
+    QuestionQuestionEqualsToken,
+    CaretEqualsToken,
 }
 
 export const LexerToSyntaxKind: { [key: number]: SyntaxKind } = {
@@ -106,6 +173,15 @@ export const LexerToSyntaxKind: { [key: number]: SyntaxKind } = {
     [LPCLexer.DEPRECATED]: SyntaxKind.DeprecatedKeyword,
 };
 
+export type KeywordTypeSyntaxKind =
+    | SyntaxKind.IntKeyword
+    | SyntaxKind.ObjectKeyword
+    | SyntaxKind.StringKeyword
+    | SyntaxKind.FloatKeyword
+    | SyntaxKind.MixedKeyword
+    | SyntaxKind.UnknownKeyword
+    | SyntaxKind.VoidKeyword;
+
 export type KeywordSyntaxKind =
     | SyntaxKind.PrivateKeyword
     | SyntaxKind.ProtectedKeyword
@@ -116,7 +192,14 @@ export type KeywordSyntaxKind =
     | SyntaxKind.NoShadowKeyword
     | SyntaxKind.NoMaskKeyword
     | SyntaxKind.VarArgsKeyword
-    | SyntaxKind.DeprecatedKeyword;
+    | SyntaxKind.DeprecatedKeyword
+    | SyntaxKind.IntKeyword
+    | SyntaxKind.ObjectKeyword
+    | SyntaxKind.StringKeyword
+    | SyntaxKind.FloatKeyword
+    | SyntaxKind.MixedKeyword
+    | SyntaxKind.UnknownKeyword
+    | SyntaxKind.VoidKeyword;
 
 export type ModifierSyntaxKind =
     | SyntaxKind.PrivateKeyword
@@ -129,6 +212,151 @@ export type ModifierSyntaxKind =
     | SyntaxKind.NoMaskKeyword
     | SyntaxKind.VarArgsKeyword
     | SyntaxKind.DeprecatedKeyword;
+
+export type ExponentiationOperator = SyntaxKind.AsteriskAsteriskToken;
+
+export type MultiplicativeOperator =
+    | SyntaxKind.AsteriskToken
+    | SyntaxKind.SlashToken
+    | SyntaxKind.PercentToken;
+
+export type MultiplicativeOperatorOrHigher =
+    | ExponentiationOperator
+    | MultiplicativeOperator;
+
+export type AdditiveOperator = SyntaxKind.PlusToken | SyntaxKind.MinusToken;
+
+export type AdditiveOperatorOrHigher =
+    | MultiplicativeOperatorOrHigher
+    | AdditiveOperator;
+
+export type ShiftOperator =
+    | SyntaxKind.LessThanLessThanToken
+    | SyntaxKind.GreaterThanGreaterThanToken
+    | SyntaxKind.GreaterThanGreaterThanGreaterThanToken;
+
+export type ShiftOperatorOrHigher = AdditiveOperatorOrHigher | ShiftOperator;
+
+export type RelationalOperator =
+    | SyntaxKind.LessThanToken
+    | SyntaxKind.LessThanEqualsToken
+    | SyntaxKind.GreaterThanToken
+    | SyntaxKind.GreaterThanEqualsToken
+    | SyntaxKind.InKeyword;
+
+export type RelationalOperatorOrHigher =
+    | ShiftOperatorOrHigher
+    | RelationalOperator;
+
+export type EqualityOperator =
+    | SyntaxKind.EqualsEqualsToken
+    | SyntaxKind.EqualsEqualsEqualsToken
+    | SyntaxKind.ExclamationEqualsEqualsToken
+    | SyntaxKind.ExclamationEqualsToken;
+
+export type EqualityOperatorOrHigher =
+    | RelationalOperatorOrHigher
+    | EqualityOperator;
+
+export type BitwiseOperator =
+    | SyntaxKind.AmpersandToken
+    | SyntaxKind.BarToken
+    | SyntaxKind.CaretToken;
+
+export type BitwiseOperatorOrHigher =
+    | EqualityOperatorOrHigher
+    | BitwiseOperator;
+
+export type LogicalOperator =
+    | SyntaxKind.AmpersandAmpersandToken
+    | SyntaxKind.BarBarToken;
+export type LogicalOperatorOrHigher = BitwiseOperatorOrHigher | LogicalOperator;
+
+export type CompoundAssignmentOperator =
+    | SyntaxKind.PlusEqualsToken
+    | SyntaxKind.MinusEqualsToken
+    | SyntaxKind.AsteriskAsteriskEqualsToken
+    | SyntaxKind.AsteriskEqualsToken
+    | SyntaxKind.SlashEqualsToken
+    | SyntaxKind.PercentEqualsToken
+    | SyntaxKind.AmpersandEqualsToken
+    | SyntaxKind.BarEqualsToken
+    | SyntaxKind.CaretEqualsToken
+    | SyntaxKind.LessThanLessThanEqualsToken
+    | SyntaxKind.GreaterThanGreaterThanGreaterThanEqualsToken
+    | SyntaxKind.GreaterThanGreaterThanEqualsToken
+    | SyntaxKind.BarBarEqualsToken
+    | SyntaxKind.AmpersandAmpersandEqualsToken;
+
+export type AssignmentOperator =
+    | SyntaxKind.EqualsToken
+    | CompoundAssignmentOperator;
+
+export type AssignmentOperatorOrHigher =
+    | LogicalOperatorOrHigher
+    | AssignmentOperator;
+export type BinaryOperator = AssignmentOperatorOrHigher | SyntaxKind.CommaToken;
+export type BinaryOperatorToken = Token<BinaryOperator>;
+
+export type PunctuationSyntaxKind =
+    | SyntaxKind.OpenBraceToken
+    | SyntaxKind.CloseBraceToken
+    | SyntaxKind.OpenParenToken
+    | SyntaxKind.CloseParenToken
+    | SyntaxKind.OpenBracketToken
+    | SyntaxKind.CloseBracketToken
+    | SyntaxKind.DotToken
+    | SyntaxKind.DotDotDotToken
+    | SyntaxKind.SemicolonToken
+    | SyntaxKind.CommaToken
+    | SyntaxKind.QuestionDotToken
+    | SyntaxKind.LessThanToken
+    | SyntaxKind.LessThanSlashToken
+    | SyntaxKind.GreaterThanToken
+    | SyntaxKind.LessThanEqualsToken
+    | SyntaxKind.GreaterThanEqualsToken
+    | SyntaxKind.EqualsEqualsToken
+    | SyntaxKind.ExclamationEqualsToken
+    | SyntaxKind.EqualsEqualsEqualsToken
+    | SyntaxKind.ExclamationEqualsEqualsToken
+    | SyntaxKind.EqualsGreaterThanToken
+    | SyntaxKind.PlusToken
+    | SyntaxKind.MinusToken
+    | SyntaxKind.AsteriskToken
+    | SyntaxKind.AsteriskAsteriskToken
+    | SyntaxKind.SlashToken
+    | SyntaxKind.PercentToken
+    | SyntaxKind.PlusPlusToken
+    | SyntaxKind.MinusMinusToken
+    | SyntaxKind.LessThanLessThanToken
+    | SyntaxKind.GreaterThanGreaterThanToken
+    | SyntaxKind.GreaterThanGreaterThanGreaterThanToken
+    | SyntaxKind.AmpersandToken
+    | SyntaxKind.BarToken
+    | SyntaxKind.CaretToken
+    | SyntaxKind.ExclamationToken
+    | SyntaxKind.TildeToken
+    | SyntaxKind.AmpersandAmpersandToken
+    | SyntaxKind.AmpersandAmpersandEqualsToken
+    | SyntaxKind.BarBarToken
+    | SyntaxKind.BarBarEqualsToken
+    | SyntaxKind.QuestionQuestionEqualsToken
+    | SyntaxKind.QuestionToken
+    | SyntaxKind.ColonToken
+    | SyntaxKind.AtToken
+    | SyntaxKind.EqualsToken
+    | SyntaxKind.PlusEqualsToken
+    | SyntaxKind.MinusEqualsToken
+    | SyntaxKind.AsteriskEqualsToken
+    | SyntaxKind.AsteriskAsteriskEqualsToken
+    | SyntaxKind.SlashEqualsToken
+    | SyntaxKind.PercentEqualsToken
+    | SyntaxKind.LessThanLessThanEqualsToken
+    | SyntaxKind.GreaterThanGreaterThanEqualsToken
+    | SyntaxKind.GreaterThanGreaterThanGreaterThanEqualsToken
+    | SyntaxKind.AmpersandEqualsToken
+    | SyntaxKind.BarEqualsToken
+    | SyntaxKind.CaretEqualsToken;
 
 /** Types that can have locals */
 export type HasLocals = SourceFile; // | Block  | ForStatement | etc;
@@ -284,19 +512,17 @@ export interface NodeFactory {
 
     createIdentifier(text: string): Identifier;
 
-    createFunctionDeclaration(
-        modifiers: readonly FunctionModifierContext[] | undefined,
-        name: string | Identifier | undefined,    
-        parameters: readonly ParameterContext[],
-        type: TypeNode | undefined,
-        body: Block | undefined
-    ): FunctionDeclaration;
-    createBlock(statements: readonly Statement[], multiLine?: boolean): Block    ;
+    createFunctionDeclaration(modifiers: readonly FunctionModifierContext[] | undefined, name: string | Identifier | undefined, parameters: readonly ParameterContext[], type: TypeNode | undefined, body: Block | undefined): FunctionDeclaration;
+    createBlock(statements: readonly Statement[], multiLine?: boolean): Block;
     createVariableDeclaration(name: string | BindingName, type: TypeNode | undefined, initializer: Expression | undefined): VariableDeclaration;
     createVariableDeclarationList(declarations: readonly VariableDeclaration[], flags: NodeFlags ): VariableDeclarationList;
     createVariableStatement(modifiers: readonly Modifier[] | undefined, declarationList: VariableDeclarationList | readonly VariableDeclaration[]): VariableStatement;
     createUnionTypeNode(types: readonly TypeNode[]): UnionTypeNode;
     createArrayTypeNode(elementType: TypeNode):ArrayTypeNode;
+    createReturnStatement(expression?: Expression): ReturnStatement;
+    createInlineClosure(body: ConciseBody):InlineClosureExpression;
+    createBinaryExpression(left: Expression, operator: BinaryOperator | BinaryOperatorToken, right: Expression): BinaryExpression;
+    createConditionalExpression(condition: Expression, questionToken: QuestionToken | undefined, whenTrue: Expression, colonToken: ColonToken | undefined, whenFalse: Expression): ConditionalExpression;
 }
 
 /** @internal */
@@ -563,6 +789,13 @@ export type BindingName = Identifier;
 export interface KeywordToken<TKind extends KeywordSyntaxKind>
     extends Token<TKind> {}
 
+export interface KeywordTypeNode<
+    TKind extends KeywordTypeSyntaxKind = KeywordTypeSyntaxKind
+> extends KeywordToken<TKind>,
+        TypeNode {
+    readonly kind: TKind;
+}
+
 export interface ModifierToken<TKind extends ModifierSyntaxKind>
     extends KeywordToken<TKind> {}
 export type PrivateKeyword = ModifierToken<SyntaxKind.PrivateKeyword>;
@@ -591,8 +824,10 @@ export type Modifier =
 export type HasJSDoc =
     | FunctionDeclaration
     | Block
+    | InlineClosureExpression
     | VariableDeclaration
-    | VariableStatement;
+    | VariableStatement
+    | ReturnStatement;
 
 // prettier-ignore
 export interface ParameterDeclaration extends NamedDeclaration, JSDocContainer {
@@ -630,11 +865,9 @@ export interface SignatureDeclarationBase
     /** @internal */ typeArguments?: NodeArray<TypeNode>; // Used for quick info, replaces typeParameters for instantiated signatures
 }
 
-export type SignatureDeclaration = FunctionDeclaration;
-//| MethodDeclaration
-//| AccessorDeclaration
-//| FunctionExpression
-//| ArrowFunction;
+export type SignatureDeclaration =
+    | FunctionDeclaration
+    | InlineClosureExpression;
 
 /**
  * Several node kinds share function-like features such as a signature,
@@ -647,12 +880,13 @@ export type SignatureDeclaration = FunctionDeclaration;
 export interface FunctionLikeDeclarationBase extends SignatureDeclarationBase {
     _functionLikeDeclarationBrand: any;
 
-    readonly body?: Block | Expression | undefined;
+    readonly body?: ConciseBody | Expression | undefined;
     /** @internal */ endFlowNode?: FlowNode;
     /** @internal */ returnFlowNode?: FlowNode;
 }
 
 export type FunctionBody = Block;
+export type ConciseBody = FunctionBody | Expression;
 
 export interface FunctionDeclaration
     extends FunctionLikeDeclarationBase,
@@ -690,4 +924,59 @@ export interface VariableStatement extends Statement, FlowContainer {
     readonly kind: SyntaxKind.VariableStatement;
     readonly modifiers?: NodeArray<Modifier>;
     readonly declarationList: VariableDeclarationList;
+}
+
+export interface ReturnStatement extends Statement, FlowContainer {
+    readonly kind: SyntaxKind.ReturnStatement;
+    readonly expression?: Expression;
+}
+
+export interface InlineClosureExpression
+    extends Expression,
+        FunctionLikeDeclarationBase,
+        JSDocContainer,
+        LocalsContainer,
+        FlowContainer {
+    readonly kind: SyntaxKind.InlineClosureExpression;
+    readonly body: ConciseBody;
+    readonly name: never;
+}
+
+export interface BinaryExpression
+    extends Expression,
+        Declaration,
+        JSDocContainer {
+    readonly kind: SyntaxKind.BinaryExpression;
+    readonly left: Expression;
+    readonly operatorToken: BinaryOperatorToken;
+    readonly right: Expression;
+}
+
+// Punctuation
+export interface PunctuationToken<TKind extends PunctuationSyntaxKind>
+    extends Token<TKind> {}
+export type DotToken = PunctuationToken<SyntaxKind.DotToken>;
+export type DotDotDotToken = PunctuationToken<SyntaxKind.DotDotDotToken>;
+export type QuestionToken = PunctuationToken<SyntaxKind.QuestionToken>;
+export type ExclamationToken = PunctuationToken<SyntaxKind.ExclamationToken>;
+export type ColonToken = PunctuationToken<SyntaxKind.ColonToken>;
+export type EqualsToken = PunctuationToken<SyntaxKind.EqualsToken>;
+export type AmpersandAmpersandEqualsToken =
+    PunctuationToken<SyntaxKind.AmpersandAmpersandEqualsToken>;
+export type BarBarEqualsToken = PunctuationToken<SyntaxKind.BarBarEqualsToken>;
+export type QuestionQuestionEqualsToken =
+    PunctuationToken<SyntaxKind.QuestionQuestionEqualsToken>;
+export type AsteriskToken = PunctuationToken<SyntaxKind.AsteriskToken>;
+export type EqualsGreaterThanToken =
+    PunctuationToken<SyntaxKind.EqualsGreaterThanToken>;
+export type PlusToken = PunctuationToken<SyntaxKind.PlusToken>;
+export type MinusToken = PunctuationToken<SyntaxKind.MinusToken>;
+
+export interface ConditionalExpression extends Expression {
+    readonly kind: SyntaxKind.ConditionalExpression;
+    readonly condition: Expression;
+    readonly questionToken: QuestionToken;
+    readonly whenTrue: Expression;
+    readonly colonToken: ColonToken;
+    readonly whenFalse: Expression;
 }

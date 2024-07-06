@@ -7,8 +7,14 @@ import { BaseNodeFactory } from "./baseNodeFactory";
 import { emptyArray } from "./core";
 import {
     ArrayTypeNode,
+    BinaryExpression,
+    BinaryOperator,
+    BinaryOperatorToken,
     BindingName,
     Block,
+    ColonToken,
+    ConciseBody,
+    ConditionalExpression,
     Declaration,
     DeclarationName,
     EndOfFileToken,
@@ -16,13 +22,24 @@ import {
     Expression,
     FunctionDeclaration,
     Identifier,
+    InlineClosureExpression,
+    KeywordSyntaxKind,
+    KeywordToken,
+    KeywordTypeNode,
+    KeywordTypeSyntaxKind,
     Modifier,
+    ModifierSyntaxKind,
+    ModifierToken,
     MutableNodeArray,
     Node,
     NodeArray,
     NodeFactory,
     NodeFlags,
     PropertyName,
+    PunctuationSyntaxKind,
+    PunctuationToken,
+    QuestionToken,
+    ReturnStatement,
     SourceFile,
     Statement,
     SyntaxKind,
@@ -48,6 +65,10 @@ export function createNodeFactory(baseFactory: BaseNodeFactory): NodeFactory {
         createVariableStatement,
         createUnionTypeNode,
         createArrayTypeNode,
+        createReturnStatement,
+        createInlineClosure,
+        createBinaryExpression,
+        createConditionalExpression,
     };
 
     return factory;
@@ -126,7 +147,12 @@ export function createNodeFactory(baseFactory: BaseNodeFactory): NodeFactory {
     }
 
     function createToken(token: SyntaxKind.EndOfFileToken): EndOfFileToken;
+    function createToken<TKind extends PunctuationSyntaxKind>(token: TKind): PunctuationToken<TKind>; // prettier-ignore
     function createToken(token: SyntaxKind.Unknown): Token<SyntaxKind.Unknown>;
+    function createToken<TKind extends KeywordTypeSyntaxKind>(token: TKind): KeywordTypeNode<TKind>; // prettier-ignore
+    function createToken<TKind extends ModifierSyntaxKind>(token: TKind): ModifierToken<TKind>; // prettier-ignore
+    function createToken<TKind extends KeywordSyntaxKind>(token: TKind): KeywordToken<TKind>; // prettier-ignore
+    function createToken<TKind extends SyntaxKind>(token: TKind): Token<TKind>;
     function createToken<TKind extends SyntaxKind>(token: TKind) {
         const node = createBaseToken<Token<TKind>>(token);
         return node;
@@ -182,6 +208,12 @@ export function createNodeFactory(baseFactory: BaseNodeFactory): NodeFactory {
             | undefined
     >(name: string | T): T | Identifier {
         return typeof name === "string" ? createIdentifier(name) : name;
+    }
+
+    function asToken<TKind extends SyntaxKind>(
+        value: TKind | Token<TKind>
+    ): Token<TKind> {
+        return typeof value === "number" ? createToken(value) : value;
     }
 
     function asInitializer(node: Expression | undefined) {
@@ -291,6 +323,72 @@ export function createNodeFactory(baseFactory: BaseNodeFactory): NodeFactory {
     function createArrayTypeNode(elementType: TypeNode): ArrayTypeNode {
         const node = createBaseNode<ArrayTypeNode>(SyntaxKind.ArrayType);
         node.elementType = elementType; // parenthesizerRules().parenthesizeNonArrayTypeOfPostfixType(elementType);
+        return node;
+    }
+
+    // @api
+    function createReturnStatement(expression?: Expression): ReturnStatement {
+        const node = createBaseNode<ReturnStatement>(
+            SyntaxKind.ReturnStatement
+        );
+        node.expression = expression;
+        node.jsDoc = undefined; // initialized by parser (JsDocContainer)
+        node.flowNode = undefined; // initialized by binder (FlowContainer)
+        return node;
+    }
+
+    // @api
+    function createInlineClosure(body: ConciseBody): InlineClosureExpression {
+        const node = createBaseDeclaration<InlineClosureExpression>(
+            SyntaxKind.InlineClosureExpression
+        );
+        node.body = body;
+
+        node.typeArguments = undefined; // used in quick info
+        node.jsDoc = undefined; // initialized by parser (JsDocContainer)
+        node.locals = undefined; // initialized by binder (LocalsContainer)
+        node.nextContainer = undefined; // initialized by binder (LocalsContainer)
+        node.flowNode = undefined; // initialized by binder (FlowContainer)
+        node.endFlowNode = undefined;
+        node.returnFlowNode = undefined;
+        return node;
+    }
+
+    // @api
+    function createBinaryExpression(
+        left: Expression,
+        operator: BinaryOperator | BinaryOperatorToken,
+        right: Expression
+    ): BinaryExpression {
+        const node = createBaseDeclaration<BinaryExpression>(
+            SyntaxKind.BinaryExpression
+        );
+        const operatorToken = asToken(operator);
+        const operatorKind = operatorToken.kind;
+        node.left = left;
+        node.operatorToken = operatorToken;
+        node.right = right;
+        node.jsDoc = undefined; // initialized by parser (JsDocContainer)
+        return node;
+    }
+
+    // @api
+    function createConditionalExpression(
+        condition: Expression,
+        questionToken: QuestionToken | undefined,
+        whenTrue: Expression,
+        colonToken: ColonToken | undefined,
+        whenFalse: Expression
+    ): ConditionalExpression {
+        const node = createBaseNode<ConditionalExpression>(
+            SyntaxKind.ConditionalExpression
+        );
+        node.condition = condition;
+        node.questionToken =
+            questionToken ?? createToken(SyntaxKind.QuestionToken);
+        node.whenTrue = whenTrue;
+        node.colonToken = colonToken ?? createToken(SyntaxKind.ColonToken);
+        node.whenFalse = whenFalse;
         return node;
     }
 }
