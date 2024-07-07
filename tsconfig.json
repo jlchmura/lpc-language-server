@@ -1,8 +1,8 @@
 {
     "compilerOptions": {
         "module": "ESNext",
-        "target": "es2020",
         "moduleResolution": "Node",
+        "target": "es2020",
         "esModuleInterop": true,
         "lib": ["es2020"],
         "outDir": "out",

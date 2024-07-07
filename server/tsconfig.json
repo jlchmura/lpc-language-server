@@ -3,12 +3,16 @@
         "target": "es2020",
         "lib": ["es2020"],
         "module": "ESNext",
-        "moduleResolution": "node",
+        "moduleResolution": "Bundler",
         "sourceMap": true,
         "strict": false,
         "outDir": "out",
         "rootDir": "src",
-        "skipLibCheck": true
+        "skipLibCheck": true,
+        "declaration": true,
+        "declarationMap": true,
+        "composite": true,
+        "strictBindCallApply": false
     },
     "include": ["src"],
     "exclude": ["node_modules", ".vscode-test", "tests"]

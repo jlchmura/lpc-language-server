@@ -2,8 +2,7 @@ import * as antlr from "antlr4ng";
 import { LPCLexer } from "../parser3/LPCLexer";
 import {
     FunctionModifierContext,
-    ParameterContext,
-    UnionableTypeSpecifierContext,
+    ParameterContext,    
 } from "../parser3/LPCParser";
 
 // Note: 'brands' in our syntax nodes serve to give us a small amount of nominal typing.
@@ -16,8 +15,29 @@ import {
 export type NodeId = number;
 export type SymbolId = number;
 
+export interface Symbol {
+    flags: SymbolFlags;
+    name: string;
+    declarations: Declaration[]; // declarations associated with this symbol
+    valueDeclaration?: Declaration; // first value declaration
+    members?: SymbolTable; // members of the symbol if it is a module
+    id: SymbolId; // unique id
+    parent?: Symbol; // parent symbol
+    isReferenced?: boolean; // true if symbol is referenced in the program
+    lastAssignmentPos?: number; // position of last node that assigned a value to this symbol
+};
+
+
+// prettier-ignore
+export type MatchingKeys<TRecord, TMatch, K extends keyof TRecord = keyof TRecord> = K extends (TRecord[K] extends TMatch ? K : never) ? K : never;
+
 /** Simple symbol table using a Map */
 export type SymbolTable = Map<string, Symbol>;
+
+export interface CompilerOptions {
+    allowUnreachableCode?: boolean;
+    // TODO
+}
 
 export const enum SyntaxKind {
     Unknown,
@@ -52,17 +72,44 @@ export const enum SyntaxKind {
     VariableDeclaration,
 
     // statements
-    VariableStatement,
+    VariableStatement, // has marker as first statement
     VariableDeclarationList,
     CatchClause,
     ReturnStatement,
+    IfStatement,
+    WhileStatement,
+    DoStatement,
+    ForStatement,
+    ForInStatement,
+    CaseBlock,
+    BreakStatement,
+    ContinueStatement,
+    SwitchStatement,
+    EmptyStatement, // has marker as last statement
+
+    // binding patterns
+    ObjectBindingPattern,
+    ArrayBindingPattern,
+    BindingElement,
 
     // expressions
+    CallExpression,
     PropertyAccessExpression,
     ElementAccessExpression,
     InlineClosureExpression,
     BinaryExpression,
     ConditionalExpression,
+    ParenthesizedExpression,
+    FunctionExpression,
+    PrefixUnaryExpression,
+    PostfixUnaryExpression,
+    NonNullExpression,
+    ArrayLiteralExpression,
+    SpreadElement,
+    NewExpression,
+    ObjectLiteralExpression,
+    TypeAssertionExpression,
+    PartiallyEmittedExpression,
 
     // keywords
     PrivateKeyword,
@@ -130,6 +177,7 @@ export const enum SyntaxKind {
     QuestionToken,
     ColonToken,
     AtToken,
+    ColonColonToken,
 
     // Assignments
     EqualsToken,
@@ -148,6 +196,35 @@ export const enum SyntaxKind {
     AmpersandAmpersandEqualsToken,
     QuestionQuestionEqualsToken,
     CaretEqualsToken,
+
+    // JSDoc nodes
+    JSDocTypeExpression,
+    JSDocNameReference,
+    JSDocMemberName, // C#p
+    JSDocAllType, // The * type
+    JSDocUnknownType, // The ? type
+    JSDocNullableType,
+    JSDocNonNullableType,
+    JSDocOptionalType,
+    JSDocFunctionType,
+    JSDocVariadicType,
+    JSDocText,
+    JSDocTypeLiteral,
+    JSDocTypeTag,
+    JSDoc,
+
+    // Markers
+    FirstAssignment = EqualsToken,
+    LastAssignment = CaretEqualsToken,
+    FirstToken = Unknown,
+    LastToken = CaretEqualsToken,
+    FirstStatement = VariableStatement,
+    LastStatement = EmptyStatement,
+
+    // Property Assignments
+    ShorthandPropertyAssignment,
+    PropertyAssignment,
+    NumericLiteral,
 }
 
 export type LiteralSyntaxKind =
@@ -317,6 +394,10 @@ export type AssignmentOperatorOrHigher =
 export type BinaryOperator = AssignmentOperatorOrHigher | SyntaxKind.CommaToken;
 export type BinaryOperatorToken = Token<BinaryOperator>;
 
+export type LogicalOrCoalescingAssignmentOperator =
+    | SyntaxKind.AmpersandAmpersandEqualsToken
+    | SyntaxKind.BarBarEqualsToken;
+
 export type PunctuationSyntaxKind =
     | SyntaxKind.OpenBraceToken
     | SyntaxKind.CloseBraceToken
@@ -359,7 +440,6 @@ export type PunctuationSyntaxKind =
     | SyntaxKind.AmpersandAmpersandEqualsToken
     | SyntaxKind.BarBarToken
     | SyntaxKind.BarBarEqualsToken
-    | SyntaxKind.QuestionQuestionEqualsToken
     | SyntaxKind.QuestionToken
     | SyntaxKind.ColonToken
     | SyntaxKind.AtToken
@@ -375,6 +455,7 @@ export type PunctuationSyntaxKind =
     | SyntaxKind.GreaterThanGreaterThanGreaterThanEqualsToken
     | SyntaxKind.AmpersandEqualsToken
     | SyntaxKind.BarEqualsToken
+    | SyntaxKind.ColonToken
     | SyntaxKind.CaretEqualsToken;
 
 /** Types that can have locals */
@@ -384,10 +465,18 @@ export type HasLocals = SourceFile; // | Block  | ForStatement | etc;
 export const enum NodeFlags {
     None               = 0,
     Variable           = 1 << 0,  // Variable declaration
+    OptionalChain      = 1 << 6,  // Chained MemberExpression rooted to a pseudo-OptionalExpression
+    HasImplicitReturn  = 1 << 9,  // If function implicitly returns on one of codepaths (initialized by binding)
+    HasExplicitReturn  = 1 << 10,  // If function has explicit reachable return on one of codepaths (initialized by binding)
     ThisNodeHasError   = 1 << 18, // If the parser encountered an error when parsing the code that created this node
 
+    ReachabilityCheckFlags = HasImplicitReturn | HasExplicitReturn,
+    ReachabilityAndEmitFlags = ReachabilityCheckFlags,
+
     // parse set flags
-    BlockScoped = Variable
+    BlockScoped = Variable,
+
+    
 }
 
 // prettier-ignore
@@ -489,6 +578,13 @@ export const enum TokenFlags {
     IsInvalid = Octal | ContainsLeadingZero | ContainsInvalidSeparator | ContainsInvalidEscape,
 }
 
+export type IsContainer =
+    | SourceFile
+    | FunctionDeclaration
+    | InlineClosureExpression; // TODO: add more;
+
+export type IsBlockScopedContainer = IsContainer | CatchClause | Block; // TODO: add more;
+
 export interface TextRange {
     pos: number;
     end: number;
@@ -499,17 +595,6 @@ export interface ReadonlyTextRange {
     readonly end: number;
 }
 
-export interface Symbol {
-    flags: SymbolFlags;
-    name: string;
-    declarations: Declaration[]; // declarations associated with this symbol
-    valueDeclaration?: Declaration; // first value declaration
-    members?: SymbolTable; // members of the symbol if it is a module
-    id: SymbolId; // unique id
-    parent?: Symbol; // parent symbol
-    isReferenced?: boolean; // true if symbol is referenced in the program
-    lastAssignmentPos?: number; // position of last node that assigned a value to this symbol
-}
 
 export interface Node extends ReadonlyTextRange {
     readonly kind: SyntaxKind;
@@ -580,12 +665,54 @@ export interface FlowContainer extends Node {
     /** @internal */ flowNode?: FlowNode; // Associated FlowNode (initialized by binding)
 }
 
-export type FlowNode = FlowStart; // TODO: add others
+// FlowCondition represents a condition that is known to be true or false at the
+// node's location in the control flow.
+/** @internal */
+export interface FlowCondition extends FlowNodeBase {
+    node: Expression;
+    antecedent: FlowNode;
+}
+
+/** @internal */
+export interface FlowCall extends FlowNodeBase {
+    node: CallExpression;
+    antecedent: FlowNode;
+}
+
+//
+// prettier-ignore
+/** @internal */
+export const enum FlowFlags {
+    Unreachable    = 1 << 0,  // Unreachable code
+    Start          = 1 << 1,  // Start of flow graph
+    BranchLabel    = 1 << 2,  // Non-looping junction
+    LoopLabel      = 1 << 3,  // Looping junction
+    Assignment     = 1 << 4,  // Assignment
+    TrueCondition  = 1 << 5,  // Condition known to be true
+    FalseCondition = 1 << 6,  // Condition known to be false
+    SwitchClause   = 1 << 7,  // Switch statement clause
+    ArrayMutation  = 1 << 8,  // Potential array mutation
+    Call           = 1 << 9,  // Potential assertion call
+    ReduceLabel    = 1 << 10, // Temporarily reduce antecedents of label
+    Referenced     = 1 << 11, // Referenced as antecedent once
+    Shared         = 1 << 12, // Referenced as antecedent more than once
+
+    Label = BranchLabel | LoopLabel,
+    Condition = TrueCondition | FalseCondition,
+}
+
+export type FlowNode =
+    | FlowStart
+    | FlowStart
+    | FlowLabel
+    | FlowAssignment
+    | FlowArrayMutation; // TODO: add others
 
 export interface FlowNodeBase {
     id: number; // Node is used by flow checker
     node: unknown; // Node or other data
     antecedent: FlowNode | FlowNode[] | undefined;
+    flags: FlowFlags;
 }
 
 /** Represents the start of a control flow. */
@@ -593,6 +720,29 @@ export interface FlowStart extends FlowNodeBase {
     // TODO: add nodes
     //node: FunctionExpression | ArrowFunction |etc
     antecedent: undefined;
+}
+
+// FlowLabel represents a junction with multiple possible preceding control flows.
+/** @internal */
+export interface FlowLabel extends FlowNodeBase {
+    node: undefined;
+    antecedent: FlowNode[] | undefined;
+}
+
+// FlowAssignment represents a node that assigns a value to a narrowable reference,
+// i.e. an identifier or a dotted name that starts with an identifier or 'this'.
+/** @internal */
+export interface FlowAssignment extends FlowNodeBase {
+    node: Expression | VariableDeclaration | BindingElement;
+    antecedent: FlowNode;
+}
+
+// FlowArrayMutation represents a node potentially mutates an array, i.e. an
+// operation of the form 'x.push(value)', 'x.unshift(value)' or 'x[n] = value'.
+/** @internal */
+export interface FlowArrayMutation extends FlowNodeBase {
+    node: CallExpression | BinaryExpression;
+    antecedent: FlowNode;
 }
 
 export interface JSDocContainer extends Node {
@@ -616,6 +766,11 @@ export interface SourceFile extends Declaration, LocalsContainer {
     parseDiagnostics: any[]; // TODO
     pragmas: Set<string>; // TODO
     endFlowNode?: FlowNode; // TODO
+}
+
+export interface FileReference extends TextRange {
+    fileName: string;
+    preserve?: boolean;
 }
 
 export interface Statement extends Node, JSDocContainer {
@@ -642,6 +797,50 @@ export interface MemberExpression extends LeftHandSideExpression {
     _memberExpressionBrand: any;
 }
 
+export interface ParenthesizedExpression
+    extends PrimaryExpression,
+        JSDocContainer {
+    readonly kind: SyntaxKind.ParenthesizedExpression;
+    readonly expression: Expression;
+}
+
+export interface ArrayLiteralExpression extends PrimaryExpression {
+    readonly kind: SyntaxKind.ArrayLiteralExpression;
+    readonly elements: NodeArray<Expression>;
+    /** @internal */
+    multiLine?: boolean;
+}
+
+export interface SpreadElement extends Expression {
+    readonly kind: SyntaxKind.SpreadElement;
+    readonly parent: ArrayLiteralExpression | CallExpression | NewExpression;
+    readonly expression: Expression;
+}
+
+export type PrefixUnaryOperator =
+    | SyntaxKind.PlusPlusToken
+    | SyntaxKind.MinusMinusToken
+    | SyntaxKind.PlusToken
+    | SyntaxKind.MinusToken
+    | SyntaxKind.TildeToken
+    | SyntaxKind.ExclamationToken;
+
+export interface PrefixUnaryExpression extends UpdateExpression {
+    readonly kind: SyntaxKind.PrefixUnaryExpression;
+    readonly operator: PrefixUnaryOperator;
+    readonly operand: UnaryExpression;
+}
+
+export type PostfixUnaryOperator =
+    | SyntaxKind.PlusPlusToken
+    | SyntaxKind.MinusMinusToken;
+
+export interface PostfixUnaryExpression extends UpdateExpression {
+    readonly kind: SyntaxKind.PostfixUnaryExpression;
+    readonly operand: LeftHandSideExpression;
+    readonly operator: PostfixUnaryOperator;
+}
+
 export interface PrimaryExpression extends MemberExpression {
     _primaryExpressionBrand: any;
 }
@@ -656,8 +855,12 @@ export interface Identifier
 }
 
 // Typed as a PrimaryExpression due to its presence in BinaryExpressions (#field in expr)
+/**
+ * @deprecated not used in LPC -- remove
+ */
 export interface PrivateIdentifier extends PrimaryExpression {
     readonly kind: SyntaxKind.PrivateIdentifier;
+    readonly text: string;
 }
 
 export interface Statement extends Node, JSDocContainer {
@@ -736,6 +939,10 @@ export interface ElementAccessExpression
     readonly argumentExpression: Expression;
 }
 
+export interface ElementAccessChain extends ElementAccessExpression {
+    _optionalChainBrand: any;
+}
+
 export interface QualifiedName extends Node, FlowContainer {
     readonly kind: SyntaxKind.QualifiedName;
     readonly left: EntityName;
@@ -779,6 +986,11 @@ export interface PropertyAccessExpression
     readonly name: MemberName;
 }
 
+export interface PropertyAccessChain extends PropertyAccessExpression {
+    _optionalChainBrand: any;
+    readonly name: MemberName;
+}
+
 /** Brand for a PropertyAccessExpression which, like a QualifiedName, consists of a sequence of identifiers separated by dots. */
 export interface PropertyAccessEntityNameExpression
     extends PropertyAccessExpression {
@@ -806,7 +1018,100 @@ export interface InferTypeNode extends TypeNode {
     readonly typeParameter: TypeParameterDeclaration;
 }
 
+// prettier-ignore
+export interface BindingElement extends NamedDeclaration, FlowContainer {
+    readonly kind: SyntaxKind.BindingElement;
+    readonly parent: BindingPattern;
+    readonly propertyName?: PropertyName;        // Binding property name (in object binding pattern)
+    readonly dotDotDotToken?: DotDotDotToken;    // Present on rest element (in object binding pattern)
+    readonly name: BindingName;                  // Declared binding element name
+    readonly initializer?: Expression;           // Optional initializer
+}
+
 export type BindingName = Identifier;
+
+export interface ObjectBindingPattern extends Node {
+    readonly kind: SyntaxKind.ObjectBindingPattern;
+    readonly parent:
+        | VariableDeclaration
+        | ParameterDeclaration
+        | BindingElement;
+    readonly elements: NodeArray<BindingElement>;
+}
+
+export interface ObjectLiteralElement extends NamedDeclaration {
+    _objectLiteralBrand: any;
+    readonly name?: PropertyName;
+}
+
+/** Unlike ObjectLiteralElement, excludes JSXAttribute and JSXSpreadAttribute. */
+export type ObjectLiteralElementLike =
+    | PropertyAssignment
+    | ShorthandPropertyAssignment;
+//| SpreadAssignment
+//| MethodDeclaration
+
+export interface PropertyAssignment
+    extends ObjectLiteralElement,
+        JSDocContainer {
+    readonly kind: SyntaxKind.PropertyAssignment;
+    readonly parent: ObjectLiteralExpression;
+    readonly name: PropertyName;
+    readonly initializer: Expression;
+
+    // The following properties are used only to report grammar errors (see `isGrammarError` in utilities.ts)
+    /** @internal */ readonly modifiers?: NodeArray<Modifier> | undefined; // property assignment cannot have decorators or modifiers
+    /** @internal */ readonly questionToken?: QuestionToken | undefined; // property assignment cannot have a question token
+    /** @internal */ readonly exclamationToken?: ExclamationToken | undefined; // property assignment cannot have an exclamation token
+}
+
+/**
+ * This interface is a base interface for ObjectLiteralExpression. ObjectLiteralExpression can only have properties of type
+ * ObjectLiteralElement (e.g. PropertyAssignment, ShorthandPropertyAssignment etc.)
+ */
+export interface ObjectLiteralExpressionBase<T extends ObjectLiteralElement>
+    extends PrimaryExpression,
+        Declaration {
+    readonly properties: NodeArray<T>;
+}
+
+// An ObjectLiteralExpression is the declaration node for an anonymous symbol.
+export interface ObjectLiteralExpression
+    extends ObjectLiteralExpressionBase<ObjectLiteralElementLike>,
+        JSDocContainer {
+    readonly kind: SyntaxKind.ObjectLiteralExpression;
+    /** @internal */
+    multiLine?: boolean;
+}
+
+export interface ShorthandPropertyAssignment
+    extends ObjectLiteralElement,
+        JSDocContainer {
+    readonly kind: SyntaxKind.ShorthandPropertyAssignment;
+    readonly parent: ObjectLiteralExpression;
+    readonly name: Identifier;
+    // used when ObjectLiteralExpression is used in ObjectAssignmentPattern
+    // it is a grammar error to appear in actual object initializer (see `isGrammarError` in utilities.ts):
+    readonly equalsToken?: EqualsToken;
+    readonly objectAssignmentInitializer?: Expression;
+
+    // The following properties are used only to report grammar errors (see `isGrammarError` in utilities.ts)
+    /** @internal */ readonly modifiers?: NodeArray<Modifier> | undefined; // shorthand property assignment cannot have decorators or modifiers
+    /** @internal */ readonly questionToken?: QuestionToken | undefined; // shorthand property assignment cannot have a question token
+    /** @internal */ readonly exclamationToken?: ExclamationToken | undefined; // shorthand property assignment cannot have an exclamation token
+}
+
+export interface ArrayBindingPattern extends Node {
+    readonly kind: SyntaxKind.ArrayBindingPattern;
+    readonly parent:
+        | VariableDeclaration
+        | ParameterDeclaration
+        | BindingElement;
+    readonly elements: NodeArray<ArrayBindingElement>;
+}
+
+export type BindingPattern = ObjectBindingPattern | ArrayBindingPattern;
+export type ArrayBindingElement = BindingElement;
 
 export interface KeywordToken<TKind extends KeywordSyntaxKind>
     extends Token<TKind> {}
@@ -910,6 +1215,12 @@ export interface FunctionLikeDeclarationBase extends SignatureDeclarationBase {
 export type FunctionBody = Block;
 export type ConciseBody = FunctionBody | Expression;
 
+export type FunctionLikeDeclaration = FunctionDeclaration;
+// TODO
+// | MethodDeclaration
+// | FunctionExpression
+// | ArrowFunction
+
 export interface FunctionDeclaration
     extends FunctionLikeDeclarationBase,
         DeclarationStatement,
@@ -938,7 +1249,7 @@ export interface VariableDeclaration extends NamedDeclaration, JSDocContainer {
 
 export interface VariableDeclarationList extends Node {
     readonly kind: SyntaxKind.VariableDeclarationList;
-    readonly parent: VariableStatement; // TODO: | ForStatement | ForOfStatement | ForInStatement;
+    readonly parent: VariableStatement | ForStatement | ForInStatement;
     readonly declarations: NodeArray<VariableDeclaration>;
 }
 
@@ -951,6 +1262,48 @@ export interface VariableStatement extends Statement, FlowContainer {
 export interface ReturnStatement extends Statement, FlowContainer {
     readonly kind: SyntaxKind.ReturnStatement;
     readonly expression?: Expression;
+}
+
+export interface IfStatement extends Statement, FlowContainer {
+    readonly kind: SyntaxKind.IfStatement;
+    readonly expression: Expression;
+    readonly thenStatement: Statement;
+    readonly elseStatement?: Statement;
+}
+
+export interface IterationStatement extends Statement {
+    readonly statement: Statement;
+}
+
+export interface DoStatement extends IterationStatement, FlowContainer {
+    readonly kind: SyntaxKind.DoStatement;
+    readonly expression: Expression;
+}
+
+export interface WhileStatement extends IterationStatement, FlowContainer {
+    readonly kind: SyntaxKind.WhileStatement;
+    readonly expression: Expression;
+}
+
+export type ForInitializer = VariableDeclarationList | Expression;
+
+export interface ForStatement
+    extends IterationStatement,
+        LocalsContainer,
+        FlowContainer {
+    readonly kind: SyntaxKind.ForStatement;
+    readonly initializer?: ForInitializer;
+    readonly condition?: Expression;
+    readonly incrementor?: Expression;
+}
+
+export interface ForInStatement
+    extends IterationStatement,
+        LocalsContainer,
+        FlowContainer {
+    readonly kind: SyntaxKind.ForInStatement;
+    readonly initializer: ForInitializer;
+    readonly expression: Expression;
 }
 
 export interface InlineClosureExpression
@@ -986,8 +1339,6 @@ export type EqualsToken = PunctuationToken<SyntaxKind.EqualsToken>;
 export type AmpersandAmpersandEqualsToken =
     PunctuationToken<SyntaxKind.AmpersandAmpersandEqualsToken>;
 export type BarBarEqualsToken = PunctuationToken<SyntaxKind.BarBarEqualsToken>;
-export type QuestionQuestionEqualsToken =
-    PunctuationToken<SyntaxKind.QuestionQuestionEqualsToken>;
 export type AsteriskToken = PunctuationToken<SyntaxKind.AsteriskToken>;
 export type EqualsGreaterThanToken =
     PunctuationToken<SyntaxKind.EqualsGreaterThanToken>;
@@ -1002,3 +1353,284 @@ export interface ConditionalExpression extends Expression {
     readonly colonToken: ColonToken;
     readonly whenFalse: Expression;
 }
+
+export type AssignmentOperatorToken = Token<AssignmentOperator>;
+export interface AssignmentExpression<TOperator extends AssignmentOperatorToken>
+    extends BinaryExpression {
+    readonly left: LeftHandSideExpression;
+    readonly operatorToken: TOperator;
+}
+
+export interface NewExpression extends PrimaryExpression, Declaration {
+    readonly kind: SyntaxKind.NewExpression;
+    readonly expression: LeftHandSideExpression;
+    readonly typeArguments?: NodeArray<TypeNode>;
+    readonly arguments?: NodeArray<Expression>;
+}
+
+export interface SuperExpression extends PrimaryExpression, FlowContainer {
+    readonly kind: SyntaxKind.ColonColonToken;
+}
+
+export interface SuperElementAccessExpression extends ElementAccessExpression {
+    readonly expression: SuperExpression;
+}
+
+export type SuperProperty = SuperElementAccessExpression;
+
+export interface CallExpression extends LeftHandSideExpression, Declaration {
+    readonly kind: SyntaxKind.CallExpression;
+    readonly expression: LeftHandSideExpression;
+    readonly typeArguments?: NodeArray<TypeNode>;
+    readonly arguments: NodeArray<Expression>;
+}
+
+export interface CallChain extends CallExpression {
+    _optionalChainBrand: any;
+}
+// TODO: I don't think this is needed - remove
+export interface NonNullExpression extends LeftHandSideExpression {
+    readonly kind: SyntaxKind.NonNullExpression;
+    readonly expression: Expression;
+}
+export interface NonNullChain extends NonNullExpression {
+    _optionalChainBrand: any;
+}
+
+export interface TypeAssertion extends UnaryExpression {
+    readonly kind: SyntaxKind.TypeAssertionExpression;
+    readonly type: TypeNode;
+    readonly expression: UnaryExpression;
+}
+
+export const enum OuterExpressionKinds {
+    Parentheses = 1 << 0,
+    TypeAssertions = 1 << 1,
+    PartiallyEmittedExpressions = 1 << 3,
+
+    Assertions = TypeAssertions,
+    All = Parentheses | Assertions | PartiallyEmittedExpressions,
+
+    ExcludeJSDocTypeAssertion = 1 << 4,
+}
+
+/** @internal */
+export type OuterExpression =
+    | ParenthesizedExpression
+    | TypeAssertion
+    | NonNullExpression;
+
+/** @internal */
+export type WrappedExpression<T extends Expression> =
+    | (OuterExpression & { readonly expression: WrappedExpression<T> })
+    | T;
+
+export type JSDocComment = JSDocText; // TODO: | JSDocLink | JSDocLinkCode | JSDocLinkPlain;
+
+export interface JSDoc extends Node {
+    readonly kind: SyntaxKind.JSDoc;
+    readonly parent: HasJSDoc;
+    readonly tags?: NodeArray<JSDocTag>;
+    readonly comment?: string | NodeArray<JSDocComment>;
+}
+
+export interface JSDocText extends Node {
+    readonly kind: SyntaxKind.JSDocText;
+    text: string;
+}
+
+export interface JSDocType extends TypeNode {
+    _jsDocTypeBrand: any;
+}
+
+// represents a top level: { type } expression in a JSDoc comment.
+export interface JSDocTypeExpression extends TypeNode {
+    readonly kind: SyntaxKind.JSDocTypeExpression;
+    readonly type: TypeNode;
+}
+
+export interface JSDocPropertyLikeTag extends JSDocTag, Declaration {
+    readonly parent: JSDoc;
+    readonly name: EntityName;
+    readonly typeExpression?: JSDocTypeExpression;
+    /** Whether the property name came before the type -- non-standard for JSDoc, but Typescript-like */
+    readonly isNameFirst: boolean;
+    readonly isBracketed: boolean;
+}
+
+export interface JSDocTypeLiteral extends JSDocType, Declaration {
+    readonly kind: SyntaxKind.JSDocTypeLiteral;
+    readonly jsDocPropertyTags?: readonly JSDocPropertyLikeTag[];
+    /** If true, then this type literal represents an *array* of its type. */
+    readonly isArrayType: boolean;
+}
+
+export interface JSDocTag extends Node {
+    readonly parent: JSDoc | JSDocTypeLiteral;
+    readonly tagName: Identifier;
+    readonly comment?: string | NodeArray<JSDocComment>;
+}
+
+export interface JSDocTypeTag extends JSDocTag {
+    readonly kind: SyntaxKind.JSDocTypeTag;
+    readonly typeExpression: JSDocTypeExpression;
+}
+
+/** @internal */
+export interface JSDocTypeAssertion extends ParenthesizedExpression {
+    readonly _jsDocTypeAssertionBrand: never;
+}
+
+/**
+ * Corresponds with `ContainerFlags` in binder.ts.
+ *
+ * @internal
+ */
+export type HasContainerFlags =
+    | IsContainer
+    | IsBlockScopedContainer
+    // | IsControlFlowContainer
+    // | IsFunctionLike
+    // | IsFunctionExpression
+    | HasLocals;
+
+/** @internal */
+export type HasFlowNode =
+    | Identifier
+    | SuperExpression
+    | QualifiedName
+    | ElementAccessExpression
+    | PropertyAccessExpression
+    | BindingElement
+    //| FunctionExpression
+    //| ArrowFunction
+    //| MethodDeclaration
+    | VariableStatement
+    //| ExpressionStatement
+    | IfStatement
+    | DoStatement
+    | WhileStatement
+    | ForStatement
+    | ForInStatement
+    // | ContinueStatement
+    //| BreakStatement
+    | ReturnStatement;
+//| SwitchStatement
+
+/** @internal */
+export type HasChildren =
+    // | QualifiedName
+    // | ComputedPropertyName
+    // | TypeParameterDeclaration
+    // | ParameterDeclaration
+    // | PropertySignature
+    // | PropertyDeclaration
+    // | MethodSignature
+    // | MethodDeclaration
+    // | IndexSignatureDeclaration
+    // | FunctionTypeNode
+    // | TypeLiteralNode
+    // | ArrayTypeNode
+    // | UnionTypeNode
+    // | InferTypeNode
+    // | ObjectBindingPattern
+    // | ArrayBindingPattern
+    // | BindingElement
+    // | ArrayLiteralExpression
+    // | ObjectLiteralExpression
+    // | PropertyAccessExpression
+    // | ElementAccessExpression
+    // | CallExpression
+    // | NewExpression
+    // | TypeAssertion
+    // | ParenthesizedExpression
+    // | FunctionExpression
+    // | ArrowFunction
+    // | PrefixUnaryExpression
+    // | PostfixUnaryExpression
+    // | BinaryExpression
+    // | ConditionalExpression
+    // | SpreadElement
+    // | NonNullExpression
+    // | Block
+    // | VariableStatement
+    // | ExpressionStatement
+    // | IfStatement
+    // | DoStatement
+    // | WhileStatement
+    // | ForStatement
+    // | ForInStatement
+    // | ContinueStatement
+    // | BreakStatement
+    | ReturnStatement
+    // | SwitchStatement
+    // | VariableDeclaration
+    // | VariableDeclarationList
+    | FunctionDeclaration;
+// | CaseBlock
+// | ImportDeclaration
+// | ImportAttributes
+// | ImportClause
+// | JsxElement
+// | JsxSelfClosingElement
+// | JsxOpeningElement
+// | JsxClosingElement
+// | JsxFragment
+// | JsxAttribute
+// | JsxAttributes
+// | JsxSpreadAttribute
+// | JsxExpression
+// | JsxNamespacedName
+// | CaseClause
+// | DefaultClause
+// | CatchClause
+// | PropertyAssignment
+// | ShorthandPropertyAssignment
+// | SpreadAssignment
+// | SourceFile
+// | PartiallyEmittedExpression
+// | CommaListExpression
+
+/** @internal */
+export type ForEachChildNodes =
+    | HasChildren
+    // | MissingDeclaration
+    // | JSDocTypeExpression
+    // | JSDocNonNullableType
+    // | JSDocNullableType
+    // | JSDocOptionalType
+    // | JSDocVariadicType
+    // | JSDocFunctionType
+    | JSDoc;
+// | JSDocSeeTag
+// | JSDocNameReference
+// | JSDocMemberName
+// | JSDocParameterTag
+// | JSDocPropertyTag
+// | JSDocAuthorTag
+// | JSDocImplementsTag
+// | JSDocAugmentsTag
+// | JSDocTemplateTag
+// | JSDocTypedefTag
+// | JSDocCallbackTag
+// | JSDocReturnTag
+// | JSDocTypeTag
+// | JSDocThisTag
+// | JSDocEnumTag
+// | JSDocSignature
+// | JSDocLink
+// | JSDocLinkCode
+// | JSDocLinkPlain
+// | JSDocTypeLiteral
+// | JSDocUnknownTag
+// | JSDocClassTag
+// | JSDocPublicTag
+// | JSDocPrivateTag
+// | JSDocProtectedTag
+// | JSDocReadonlyTag
+// | JSDocDeprecatedTag
+// | JSDocThrowsTag
+// | JSDocOverrideTag
+// | JSDocSatisfiesTag
+// | JSDocOverloadTag
+// | JSDocImportTag

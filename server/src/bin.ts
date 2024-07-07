@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import * as fs from "fs";
 import * as path from "path";
+import { Symbol } from "./compiler/types";
 import {
     BailErrorStrategy,
     CharStream,
@@ -29,6 +30,7 @@ import { LpcTypes } from "./types";
 import { getDriverInfo } from "./driver/Driver";
 import { loadLpcConfig } from "./backend/LpcConfig";
 import { LpcParser } from "./compiler/parser";
+import { bindSourceFile } from "./compiler/binder";
 
 class MockFileHandler implements IFileHandler {
     constructor() {}
@@ -55,6 +57,8 @@ const configFile = path.join(workDir, "lpc-config.json");
 const config = loadLpcConfig(configFile);
 
 const srcFile = LpcParser.parseSourceFile(filename, sourceText, config);
+const binder = bindSourceFile(srcFile, {});
+
 console.debug("node count:", srcFile.nodeCount);
 
 // const facade = new LpcFacade(workDir, undefined);
