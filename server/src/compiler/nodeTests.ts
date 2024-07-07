@@ -2,15 +2,23 @@ import {
     BinaryExpression,
     BindingElement,
     Block,
+    CallExpression,
     FunctionDeclaration,
     Identifier,
+    JSDocTypeExpression,
     Node,
     NumericLiteral,
     ParenthesizedExpression,
     PrefixUnaryExpression,
+    PrivateIdentifier,
     PropertyAccessExpression,
+    PropertyAssignment,
+    ShorthandPropertyAssignment,
     SyntaxKind,
+    VariableDeclaration,
+    VariableDeclarationList,
     VariableStatement,
+    VoidExpression,
 } from "./types";
 
 export function isBinaryExpression(node: Node): node is BinaryExpression {
@@ -58,3 +66,48 @@ export function isFunctionDeclaration(node: Node): node is FunctionDeclaration {
 export function isBlock(node: Node): node is Block {
     return node.kind === SyntaxKind.Block;
 }
+
+export function isCallExpression(node: Node): node is CallExpression {
+    return node.kind === SyntaxKind.CallExpression;
+}
+
+export function isVoidExpression(node: Node): node is VoidExpression {
+    return node.kind === SyntaxKind.VoidExpression;
+}
+
+
+// Property assignments
+
+export function isPropertyAssignment(node: Node): node is PropertyAssignment {
+    return node.kind === SyntaxKind.PropertyAssignment;
+}
+
+export function isShorthandPropertyAssignment(node: Node): node is ShorthandPropertyAssignment {
+    return node.kind === SyntaxKind.ShorthandPropertyAssignment;
+}
+
+// export function isSpreadAssignment(node: Node): node is SpreadAssignment {
+//     return node.kind === SyntaxKind.SpreadAssignment;
+// }
+
+export function isVariableDeclaration(node: Node): node is VariableDeclaration {
+    return node.kind === SyntaxKind.VariableDeclaration;
+}
+
+export function isVariableDeclarationList(node: Node): node is VariableDeclarationList {
+    return node.kind === SyntaxKind.VariableDeclarationList;
+}
+
+
+export function isPrivateIdentifier(node: Node): node is PrivateIdentifier {
+    return node.kind === SyntaxKind.PrivateIdentifier;
+}
+
+
+// JSDoc Elements
+
+export function isJSDocTypeExpression(node: Node): node is JSDocTypeExpression {
+    return node.kind === SyntaxKind.JSDocTypeExpression;
+}
+
+

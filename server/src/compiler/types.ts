@@ -1,4 +1,3 @@
-import * as antlr from "antlr4ng";
 import { LPCLexer } from "../parser3/LPCLexer";
 import {
     FunctionModifierContext,
@@ -27,8 +26,6 @@ export interface LpcSymbol {
     lastAssignmentPos?: number; // position of last node that assigned a value to this symbol
 };
 
-
-
 // prettier-ignore
 export type MatchingKeys<TRecord, TMatch, K extends keyof TRecord = keyof TRecord> = K extends (TRecord[K] extends TMatch ? K : never) ? K : never;
 
@@ -47,93 +44,6 @@ export const enum SyntaxKind {
     IntLiteral,
     FloatLiteral,
     StringLiteral,
-
-    // Identifiers
-    Identifier,
-    PrivateIdentifier,
-    // Parse tree nodes
-    QualifiedName,
-    ComputedPropertyName,
-    TypeParameter,
-    Parameter,
-    MethodSignature,
-    MethodDeclaration,
-    IndexSignature,
-    InferType,
-    ArrayType,
-    UnionType,
-
-    // Top Level
-    SourceFile,
-
-    Block,
-
-    // declarations
-    FunctionDeclaration,
-    VariableDeclaration,
-
-    // statements
-    VariableStatement, // has marker as first statement
-    VariableDeclarationList,
-    CatchClause,
-    ReturnStatement,
-    IfStatement,
-    WhileStatement,
-    DoStatement,
-    ForStatement,
-    ForInStatement,
-    CaseBlock,
-    BreakStatement,
-    ContinueStatement,
-    SwitchStatement,
-    EmptyStatement, // has marker as last statement
-
-    // binding patterns
-    ObjectBindingPattern,
-    ArrayBindingPattern,
-    BindingElement,
-
-    // expressions
-    CallExpression,
-    PropertyAccessExpression,
-    ElementAccessExpression,
-    InlineClosureExpression,
-    BinaryExpression,
-    ConditionalExpression,
-    ParenthesizedExpression,
-    FunctionExpression,
-    PrefixUnaryExpression,
-    PostfixUnaryExpression,
-    NonNullExpression,
-    ArrayLiteralExpression,
-    SpreadElement,
-    NewExpression,
-    ObjectLiteralExpression,
-    TypeAssertionExpression,
-    PartiallyEmittedExpression,
-
-    // keywords
-    PrivateKeyword,
-    ProtectedKeyword,
-    PublicKeyword,
-    StaticKeyword,
-    VisibleKeyword,
-    NoSaveKeyword,
-    NoShadowKeyword,
-    NoMaskKeyword,
-    VarArgsKeyword,
-    DeprecatedKeyword,
-    InKeyword,
-
-    // type keywords
-    IntKeyword,
-    FloatKeyword,
-    StringKeyword,
-    MixedKeyword,
-    MappingKeyword,
-    UnknownKeyword,
-    VoidKeyword,
-    ObjectKeyword,
 
     // Punctuation
     OpenBraceToken,
@@ -178,6 +88,7 @@ export const enum SyntaxKind {
     QuestionToken,
     ColonToken,
     AtToken,
+    HashToken,
     ColonColonToken,
 
     // Assignments
@@ -197,6 +108,98 @@ export const enum SyntaxKind {
     AmpersandAmpersandEqualsToken,
     QuestionQuestionEqualsToken,
     CaretEqualsToken,
+ 
+
+    // Identifiers
+    Identifier,
+    PrivateIdentifier,
+    // Parse tree nodes
+    QualifiedName,
+    ComputedPropertyName,
+    TypeParameter,
+    Parameter,
+    MethodSignature,
+    MethodDeclaration,
+    IndexSignature,
+    InferType,
+    ArrayType,
+    UnionType,
+
+    // Top Level
+    SourceFile,
+
+    Block,
+
+    // declarations
+    FunctionDeclaration,
+    VariableDeclaration,
+   
+    // binding patterns
+    ObjectBindingPattern,
+    ArrayBindingPattern,
+    BindingElement,
+
+    // expressions
+    CallExpression,
+    PropertyAccessExpression,
+    ElementAccessExpression,
+    InlineClosureExpression,
+    BinaryExpression,
+    ConditionalExpression,
+    ParenthesizedExpression,
+    FunctionExpression,
+    PrefixUnaryExpression,
+    PostfixUnaryExpression,    
+    NonNullExpression,
+    ArrayLiteralExpression,
+    SpreadElement,
+    NewExpression,
+    ObjectLiteralExpression,
+    TypeAssertionExpression,
+    PartiallyEmittedExpression,
+    VoidExpression,
+
+    // keywords
+    PrivateKeyword,
+    ProtectedKeyword,
+    PublicKeyword,
+    StaticKeyword,
+    VisibleKeyword,
+    NoSaveKeyword,
+    NoShadowKeyword,
+    NoMaskKeyword,
+    VarArgsKeyword,
+    DeprecatedKeyword,
+    InKeyword,
+
+    // type keywords
+    IntKeyword,
+    FloatKeyword,
+    StringKeyword,
+    MixedKeyword,
+    MappingKeyword,
+    UnknownKeyword,
+    VoidKeyword,
+    ObjectKeyword,
+
+    
+
+   
+    // statements
+    VariableStatement, // has marker as first statement
+    VariableDeclarationList,
+    CatchClause,
+    ReturnStatement,
+    IfStatement,
+    WhileStatement,
+    DoStatement,
+    ForStatement,
+    ForInStatement,
+    CaseBlock,
+    BreakStatement,
+    ContinueStatement,
+    SwitchStatement,
+    EmptyStatement, // has marker as last statement
 
     // JSDoc nodes
     JSDocTypeExpression,
@@ -227,6 +230,9 @@ export const enum SyntaxKind {
     PropertyAssignment,
     NumericLiteral,
 }
+
+/** @internal */
+export type PunctuationOrKeywordSyntaxKind = PunctuationSyntaxKind | KeywordSyntaxKind;
 
 export type LiteralSyntaxKind =
     | SyntaxKind.IntLiteral
@@ -469,6 +475,7 @@ export const enum NodeFlags {
     OptionalChain      = 1 << 6,  // Chained MemberExpression rooted to a pseudo-OptionalExpression
     HasImplicitReturn  = 1 << 9,  // If function implicitly returns on one of codepaths (initialized by binding)
     HasExplicitReturn  = 1 << 10,  // If function has explicit reachable return on one of codepaths (initialized by binding)
+    HasAsyncFunctions  = 1 << 12, // If the file has async functions (initialized by binding)
     ThisNodeHasError   = 1 << 18, // If the parser encountered an error when parsing the code that created this node
 
     ReachabilityCheckFlags = HasImplicitReturn | HasExplicitReturn,
@@ -477,7 +484,7 @@ export const enum NodeFlags {
     // parse set flags
     BlockScoped = Variable,
 
-    
+    /** @internal */ IdentifierIsInJSDocNamespace = HasAsyncFunctions, // Indicates whether the identifier is part of a JSDoc namespace
 }
 
 // prettier-ignore
@@ -534,7 +541,19 @@ export const enum SymbolFlags {
     FunctionScopedVariable      = 1 << 0,   // Variable or parameter
     BlockScopedVariable         = 1 << 1,   // A block-scoped variable
     Property                    = 1 << 2,   // Property
-    Funciton                    = 1 << 3,   // Function    
+    Function                    = 1 << 4,   // Function    
+    Class                       = 1 << 5,   // Class
+    ObjectLiteral               = 1 << 12,  // Object Literal
+    Method                      = 1 << 13,  // Method
+    Assignment                  = 1 << 26,  // Assignment treated as declaration (eg `this.prop = 1`)
+
+    Variable = FunctionScopedVariable | BlockScopedVariable,
+    Value = Variable | Property | ObjectLiteral | Function | Method | Class,
+    FunctionExcludes = Value & ~(Function|Class),
+    /** @internal */
+    // The set of things we consider semantically classifiable.  Used to speed up the LS during
+    // classification.
+    Classifiable = Class,// | Enum | TypeAlias | Interface | TypeParameter | Module | Alias,
 }
 
 // prettier-ignore
@@ -765,10 +784,16 @@ export interface SourceFile extends Declaration, LocalsContainer {
     symbolCount: number;
     
     /** @internal */ classifiableNames?: ReadonlySet<string>;
-
-    parseDiagnostics: any[]; // TODO
+    
     pragmas: Set<string>; // TODO
     endFlowNode?: FlowNode; // TODO
+
+    // File-level diagnostics reported by the parser (includes diagnostics about /// references
+    // as well as code diagnostics).
+    /** @internal */ parseDiagnostics: DiagnosticWithLocation[];
+
+    /** @internal */ bindDiagnostics: DiagnosticWithLocation[];
+    /** @internal */ bindSuggestionDiagnostics?: DiagnosticWithLocation[];
 }
 
 export interface FileReference extends TextRange {
@@ -786,6 +811,11 @@ export interface Expression extends Node {
 
 export interface UnaryExpression extends Expression {
     _unaryExpressionBrand: any;
+}
+
+export interface VoidExpression extends UnaryExpression {
+    readonly kind: SyntaxKind.VoidExpression;
+    readonly expression: UnaryExpression;
 }
 
 export interface UpdateExpression extends UnaryExpression {
@@ -870,7 +900,7 @@ export interface Statement extends Node, JSDocContainer {
     _statementBrand: any;
 }
 
-export type ModifierLike = antlr.TerminalNode;
+export type ModifierLike = Modifier;
 
 export interface TypeNode extends Node {
     _typeNodeBrand: any;
@@ -929,6 +959,7 @@ export interface StringLiteral extends LiteralExpression, Declaration {
         | NumericLiteral
         | PrivateIdentifier; // Allows a StringLiteral to get its text from another node (used by transforms).
 }
+export type PropertyNameLiteral = Identifier | StringLiteral | NumericLiteral;
 
 export type LiteralToken = IntegerLiteral | FloatLiteral | StringLiteral;
 
@@ -988,6 +1019,8 @@ export interface PropertyAccessExpression
     readonly expression: LeftHandSideExpression;
     readonly name: MemberName;
 }
+
+export type AccessExpression = PropertyAccessExpression | ElementAccessExpression;
 
 export interface PropertyAccessChain extends PropertyAccessExpression {
     _optionalChainBrand: any;
@@ -1159,12 +1192,32 @@ export type HasJSDoc =
     | VariableStatement
     | ReturnStatement;
 
+
+// NOTE: Changing the following list requires changes to:
+// - `canHaveModifiers` in factory/utilitiesPublic.ts
+// - `updateModifiers` in factory/nodeFactory.ts
+export type HasModifiers =
+    | TypeParameterDeclaration
+    | ParameterDeclaration    
+    // | MethodSignature
+    // | MethodDeclaration    
+    //| IndexSignatureDeclaration
+    //| FunctionExpression
+    //| ArrowFunction    
+    | VariableStatement
+    | FunctionDeclaration
+    //| ClassDeclaration
+    ;
+
+/** LPC doesn't have true classes, but each sourcefile can be considered class-like */
+export type ClassLikeDeclaration = SourceFile; 
+
 // prettier-ignore
 export interface ParameterDeclaration extends NamedDeclaration, JSDocContainer {
     readonly kind: SyntaxKind.Parameter;
     readonly parent: SignatureDeclaration;
     readonly modifiers?: NodeArray<Modifier>;
-    readonly dotDotDotToken?: antlr.Token;    // Present on rest parameter
+    readonly dotDotDotToken?: DotDotDotToken;    // Present on rest parameter
     readonly name: BindingName;                  // Declared parameter name.    
     readonly type?: TypeNode;                    // Optional type annotation
     readonly initializer?: Expression;           // Optional initializer
@@ -1185,9 +1238,7 @@ export interface TypeParameterDeclaration
     expression?: Expression;
 }
 
-export interface SignatureDeclarationBase
-    extends NamedDeclaration,
-        JSDocContainer {
+export interface SignatureDeclarationBase extends NamedDeclaration, JSDocContainer {
     readonly kind: SignatureDeclaration["kind"];
     readonly name?: PropertyName;
     readonly parameters: NodeArray<ParameterDeclaration>;
@@ -1197,6 +1248,7 @@ export interface SignatureDeclarationBase
 
 export type SignatureDeclaration =
     | FunctionDeclaration
+    | JSDocFunctionType
     | InlineClosureExpression;
 
 /**
@@ -1479,6 +1531,11 @@ export interface JSDocTypeTag extends JSDocTag {
     readonly typeExpression: JSDocTypeExpression;
 }
 
+export interface JSDocFunctionType extends JSDocType, SignatureDeclarationBase, LocalsContainer {
+    readonly kind: SyntaxKind.JSDocFunctionType;
+}
+
+
 /** @internal */
 export interface JSDocTypeAssertion extends ParenthesizedExpression {
     readonly _jsDocTypeAssertionBrand: never;
@@ -1637,3 +1694,152 @@ export type ForEachChildNodes =
 // | JSDocSatisfiesTag
 // | JSDocOverloadTag
 // | JSDocImportTag
+
+/** @internal */
+export const enum AssignmentDeclarationKind {
+    None,
+    // F.name = expr
+    Property
+}
+
+/** @internal */
+export type BindableStaticNameExpression =
+    | EntityNameExpression
+    | BindableStaticElementAccessExpression;
+
+
+/** @internal */
+export type LiteralLikeElementAccessExpression = ElementAccessExpression & Declaration & {
+    readonly argumentExpression: StringLiteral | NumericLiteral;
+};
+
+
+/** @internal */
+export type BindableStaticElementAccessExpression = LiteralLikeElementAccessExpression & {
+    readonly expression: BindableStaticNameExpression;
+};
+
+export const enum InternalSymbolName {
+    Call = "__call", // Call signatures    
+    New = "__new", // Constructor signatures
+    Index = "__index", // Index signatures        
+    Missing = "__missing", // Indicates missing symbol
+    Type = "__type", // Anonymous type literal symbol
+    Object = "__object", // Anonymous object literal declaration    
+    Class = "__class", // Unnamed class expression
+    Function = "__function", // Unnamed function expression
+    Computed = "__computed", // Computed property name declaration with dynamic name
+    Resolving = "__resolving__", // Indicator symbol used to mark partially resolved type aliases    
+    Default = "default", // Default export symbol (technically not wholly internal, but included here for usability)    
+    InstantiationExpression = "__instantiationExpression", // Instantiation expressions
+    ImportAttributes = "__importAttributes",
+}
+
+/** @internal */
+export interface RepopulateModuleNotFoundDiagnosticChain {
+    moduleReference: string;    
+    packageName: string | undefined;
+}
+
+/** @internal */
+export type RepopulateDiagnosticChainInfo = RepopulateModuleNotFoundDiagnosticChain;
+
+/**
+ * A linked list of formatted diagnostic messages to be used as part of a multiline message.
+ * It is built from the bottom up, leaving the head to be the "main" diagnostic.
+ * While it seems that DiagnosticMessageChain is structurally similar to DiagnosticMessage,
+ * the difference is that messages are all preformatted in DMC.
+ */
+export interface DiagnosticMessageChain {
+    messageText: string;
+    category: DiagnosticCategory;
+    code: number;
+    next?: DiagnosticMessageChain[];
+    /** @internal */
+    repopulateInfo?: () => RepopulateDiagnosticChainInfo;
+    /** @internal */
+    canonicalHead?: CanonicalDiagnostic;
+}
+
+export interface Diagnostic extends DiagnosticRelatedInformation {
+    /** May store more in future. For now, this will simply be `true` to indicate when a diagnostic is an unused-identifier diagnostic. */
+    reportsUnnecessary?: {};
+
+    reportsDeprecated?: {};
+    source?: string;
+    relatedInformation?: DiagnosticRelatedInformation[];
+    /** @internal */ skippedOn?: keyof CompilerOptions;
+    /**
+     * @internal
+     * Used for deduplication and comparison.
+     * Whenever it is possible for two diagnostics that report the same problem to be produced with
+     * different messages (e.g. "Cannot find name 'foo'" vs "Cannot find name 'foo'. Did you mean 'bar'?"),
+     * this property can be set to a canonical message,
+     * so that those two diagnostics are appropriately considered to be the same.
+     */
+    canonicalHead?: CanonicalDiagnostic;
+}
+
+/** @internal */
+export interface CanonicalDiagnostic {
+    code: number;
+    messageText: string;
+}
+
+export interface DiagnosticMessage {
+    key: string;
+    category: DiagnosticCategory;
+    code: number;
+    message: string;
+    reportsUnnecessary?: {};
+    reportsDeprecated?: {};
+    /** @internal */
+    elidedInCompatabilityPyramid?: boolean;
+}
+
+
+/** @internal */
+export type DiagnosticArguments = (string | number)[];
+
+/** @internal */
+export type DiagnosticAndArguments = [message: DiagnosticMessage, ...args: DiagnosticArguments];
+
+export interface DiagnosticRelatedInformation {
+    category: DiagnosticCategory;
+    code: number;
+    file: SourceFile | undefined;
+    start: number | undefined;
+    length: number | undefined;
+    messageText: string | DiagnosticMessageChain;
+}
+
+export interface DiagnosticWithLocation extends Diagnostic {
+    file: SourceFile;
+    start: number;
+    length: number;
+}
+
+/** @internal */
+export interface DiagnosticWithDetachedLocation extends Diagnostic {
+    file: undefined;
+    fileName: string;
+    start: number;
+    length: number;
+}
+
+export enum DiagnosticCategory {
+    Warning,
+    Error,
+    Suggestion,
+    Message,
+}
+/** @internal */
+export function diagnosticCategoryName(d: { category: DiagnosticCategory; }, lowerCase = true): string {
+    const name = DiagnosticCategory[d.category];
+    return lowerCase ? name.toLowerCase() : name;
+}
+
+export interface TextSpan {
+    start: number;
+    length: number;
+}

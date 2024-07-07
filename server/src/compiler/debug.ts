@@ -628,4 +628,35 @@ export namespace Debug {
     //         return s;
     //     }
     // }
+
+    export function assertGreaterThanOrEqual(a: number, b: number, stackCrawlMark?: AnyFunction): void {
+        if (a < b) {
+            fail(`Expected ${a} >= ${b}`, stackCrawlMark || assertGreaterThanOrEqual);
+        }
+    }
+
+    export function assertLessThanOrEqual(a: number, b: number, stackCrawlMark?: AnyFunction): void {
+        if (a > b) {
+            fail(`Expected ${a} <= ${b}`, stackCrawlMark || assertLessThanOrEqual);
+        }
+    }
+
+    export function checkDefined<T>(value: T | null | undefined, message?: string, stackCrawlMark?: AnyFunction): T { // eslint-disable-line no-restricted-syntax
+        assertIsDefined(value, message, stackCrawlMark || checkDefined);
+        return value;
+    }
+
+
+    export function assertNode<T extends Node, U extends T>(node: T | undefined, test: (node: T) => node is U, message?: string, stackCrawlMark?: AnyFunction): asserts node is U;
+    export function assertNode(node: Node | undefined, test: ((node: Node) => boolean) | undefined, message?: string, stackCrawlMark?: AnyFunction): void;
+    export function assertNode(node: Node | undefined, test: ((node: Node) => boolean) | undefined, message?: string, stackCrawlMark?: AnyFunction) {
+        if (shouldAssertFunction(AssertionLevel.Normal, "assertNode")) {
+            assert(
+                node !== undefined && (test === undefined || test(node)),
+                message || "Unexpected node.",
+                () => `Node ${formatSyntaxKind(node?.kind)} did not pass test '${getFunctionName(test!)}'.`,
+                stackCrawlMark || assertNode,
+            );
+        }
+    }
 }

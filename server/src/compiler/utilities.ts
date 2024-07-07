@@ -1,4 +1,4 @@
-import { AssertionLevel, hasProperty } from "./core";
+import { AssertionLevel, MapLike, emptyArray, hasProperty, some } from "./core";
 import {
     AssignmentExpression,
     BinaryExpression,
@@ -35,27 +35,62 @@ import {
     SymbolTable,
     SyntaxKind,
     TextRange,
-    LpcSymbol,
+    LpcSymbol as Symbol,
     Token,
     WrappedExpression,
     CallExpression,
     CompilerOptions,
     PropertyAccessExpression,
+    Declaration,
+    AssignmentDeclarationKind,
+    AccessExpression,
+    EqualsToken,
+    AssignmentOperatorToken,
+    ElementAccessExpression,
+    BindableStaticElementAccessExpression,
+    ClassLikeDeclaration,
+    PropertyNameLiteral,
+    DiagnosticMessage,
+    DiagnosticArguments,
+    DiagnosticWithLocation,
+    TextSpan,
+    NamedDeclaration,
+    ReturnStatement,
+    DeclarationName,
+    QualifiedName,
+    Diagnostic,
+    DiagnosticRelatedInformation,
 } from "./types";
 import { LPCLexer } from "../parser3/LPCLexer";
 import { Debug } from "./debug";
 import {
     isBinaryExpression,
+    isCallExpression,
     isIdentifier,
+    isJSDocTypeExpression,
     isNumericLiteral,
     isParenthesizedExpression,
+    isPrefixUnaryExpression,
     isPropertyAccessExpression,
+    isVoidExpression,
 } from "./nodeTests";
 import {
+    canHaveModifiers,
+    createTextSpan,
+    createTextSpanFromBounds,
+    escapeLeadingUnderscores,
+    findAncestor,
     getJSDocTypeTag,
+    isClassLike,
     isFunctionLike,
+    isLeftHandSideExpression,
+    isMemberName,
     isStringLiteralLike,
 } from "./utilitiesPublic";
+import { getSymbolId } from "./checker";
+import { skipTrivia } from "./scanner";
+
+let localizedDiagnosticMessages: MapLike<string> | undefined;
 
 /** @internal */
 export type Mutable<T extends object> = { -readonly [K in keyof T]: T[K] };
@@ -70,7 +105,7 @@ export interface ObjectAllocator {
     getIdentifierConstructor(): new (kind: SyntaxKind.Identifier, pos: number, end: number) => Identifier;
     getPrivateIdentifierConstructor(): new (kind: SyntaxKind.PrivateIdentifier, pos: number, end: number) => PrivateIdentifier;
     getSourceFileConstructor(): new (kind: SyntaxKind.SourceFile, pos: number, end: number) => SourceFile;
-    getSymbolConstructor(): new (flags: SymbolFlags, name: string) => LpcSymbol;
+    getSymbolConstructor(): new (flags: SymbolFlags, name: string) => Symbol;
     //getTypeConstructor(): new (checker: TypeChecker, flags: TypeFlags) => Type;
     //getSignatureConstructor(): new (checker: TypeChecker, flags: SignatureFlags) => Signature;
 }
@@ -189,13 +224,11 @@ export function setTextRangePosWidth<T extends ReadonlyTextRange>(
 }
 
 /** @internal */
-export function modifiersToFlags(
-    modifiers: readonly ModifierLike[] | undefined
-) {
+export function modifiersToFlags(modifiers: readonly ModifierLike[] | undefined) {
     let flags = ModifierFlags.None;
     if (modifiers) {
         for (const modifier of modifiers) {
-            flags |= modifierToFlag(modifier.getSymbol().type);
+            flags |= modifierToFlag(modifier.kind);
         }
     }
     return flags;
@@ -708,8 +741,8 @@ export function setParent<T extends Node>(
 }
 
 /** @internal */
-export function createSymbolTable(symbols?: readonly LpcSymbol[]): SymbolTable {
-    const result = new Map<string, LpcSymbol>();
+export function createSymbolTable(symbols?: readonly Symbol[]): SymbolTable {
+    const result = new Map<string, Symbol>();
     if (symbols) {
         for (const symbol of symbols) {
             result.set(symbol.name, symbol);
@@ -822,4 +855,450 @@ export function getSourceFileOfNode(node: Node | undefined): SourceFile | undefi
         node = node.parent;
     }
     return node as SourceFile;
+}
+
+
+/**
+ * A declaration has a dynamic name if all of the following are true:
+ *   1. The declaration has a computed property name.
+ *   2. The computed name is *not* expressed as a StringLiteral.
+ *   3. The computed name is *not* expressed as a NumericLiteral.
+ *   4. The computed name is *not* expressed as a PlusToken or MinusToken
+ *      immediately followed by a NumericLiteral.
+ *
+ * @internal
+ */
+export function hasDynamicName(declaration: Declaration) { //: declaration is DynamicNamedDeclaration | DynamicNamedBinaryExpression {
+    // const name = getNameOfDeclaration(declaration);
+    // return !!name && isDynamicName(name);
+    return false;
+    // TODO
+}
+
+
+/**
+ * Gets the ModifierFlags for syntactic modifiers on the provided node. The modifier flags cache on the node is ignored.
+ *
+ * NOTE: This function does not use `parent` pointers and will not include modifiers from JSDoc.
+ *
+ * @internal
+ */
+export function getSyntacticModifierFlagsNoCache(node: Node): ModifierFlags {
+    let flags = canHaveModifiers(node) ? modifiersToFlags(node.modifiers) : ModifierFlags.None;
+    if (node.kind === SyntaxKind.Identifier && node.flags & NodeFlags.IdentifierIsInJSDocNamespace) {
+        //TODO flags |= ModifierFlags.Export;
+    }
+    return flags;
+}
+
+
+function selectSyntacticModifierFlags(flags: ModifierFlags) {
+    return flags & ModifierFlags.SyntacticModifiers;
+}
+
+function getModifierFlagsWorker(node: Node, includeJSDoc: boolean, alwaysIncludeJSDoc?: boolean): ModifierFlags {
+    if (node.kind >= SyntaxKind.FirstToken && node.kind <= SyntaxKind.LastToken) {
+        return ModifierFlags.None;
+    }
+
+    if (!(node.modifierFlagsCache & ModifierFlags.HasComputedFlags)) {
+        node.modifierFlagsCache = getSyntacticModifierFlagsNoCache(node) | ModifierFlags.HasComputedFlags;
+    }
+  
+    return selectSyntacticModifierFlags(node.modifierFlagsCache);
+}
+
+/**
+ * Gets the ModifierFlags for syntactic modifiers on the provided node. The modifiers will be cached on the node to improve performance.
+ *
+ * NOTE: This function does not use `parent` pointers and will not include modifiers from JSDoc.
+ *
+ * @internal
+ */
+export function getSyntacticModifierFlags(node: Node): ModifierFlags {
+    return getModifierFlagsWorker(node, /*includeJSDoc*/ false);
+}
+
+
+/** @internal */
+export function hasSyntacticModifiers(node: Node) {
+    return getSyntacticModifierFlags(node) !== ModifierFlags.None;
+}
+
+/** @internal */
+export function getSelectedSyntacticModifierFlags(node: Node, flags: ModifierFlags): ModifierFlags {
+    return getSyntacticModifierFlags(node) & flags;
+}
+
+/** @internal */
+export function hasSyntacticModifier(node: Node, flags: ModifierFlags): boolean {
+    return !!getSelectedSyntacticModifierFlags(node, flags);
+}
+
+/// Given a BinaryExpression, returns SpecialPropertyAssignmentKind for the various kinds of property
+/// assignments we treat as special in the binder
+/** @internal */
+export function getAssignmentDeclarationKind(expr: BinaryExpression | CallExpression): AssignmentDeclarationKind {
+    const special = getAssignmentDeclarationKindWorker(expr);
+    return special === AssignmentDeclarationKind.Property  ? special : AssignmentDeclarationKind.None;
+}
+
+/** @internal */
+export function isAccessExpression(node: Node): node is AccessExpression {
+    return node.kind === SyntaxKind.PropertyAccessExpression || node.kind === SyntaxKind.ElementAccessExpression;
+}
+
+function isVoidZero(node: Node) {
+    return isVoidExpression(node) && isNumericLiteral(node.expression) && node.expression.text === "0";
+}
+
+/** @internal */
+export function isAssignmentExpression(node: Node, excludeCompoundAssignment: true): node is AssignmentExpression<EqualsToken>;
+/** @internal */
+export function isAssignmentExpression(node: Node, excludeCompoundAssignment?: false): node is AssignmentExpression<AssignmentOperatorToken>;
+/** @internal */
+export function isAssignmentExpression(node: Node, excludeCompoundAssignment?: boolean): node is AssignmentExpression<AssignmentOperatorToken> {
+    return isBinaryExpression(node)
+        && (excludeCompoundAssignment
+            ? node.operatorToken.kind === SyntaxKind.EqualsToken
+            : isAssignmentOperator(node.operatorToken.kind))
+        && isLeftHandSideExpression(node.left);
+}
+
+/** @internal */
+export function getRightMostAssignedExpression(node: Expression): Expression {
+    while (isAssignmentExpression(node, /*excludeCompoundAssignment*/ true)) {
+        node = node.right;
+    }
+    return node;
+}
+
+/** @internal */
+export function getAssignmentDeclarationPropertyAccessKind(lhs: AccessExpression): AssignmentDeclarationKind {
+    // if (lhs.expression.kind === SyntaxKind.ThisKeyword) {
+    //     return AssignmentDeclarationKind.ThisProperty;
+    // }
+    // else if (isModuleExportsAccessExpression(lhs)) {
+    //     // module.exports = expr
+    //     return AssignmentDeclarationKind.ModuleExports;
+    // }
+    // else if (isBindableStaticNameExpression(lhs.expression, /*excludeThisKeyword*/ true)) {
+    //     if (isPrototypeAccess(lhs.expression)) {
+    //         // F.G....prototype.x = expr
+    //         return AssignmentDeclarationKind.PrototypeProperty;
+    //     }
+
+    //     let nextToLast = lhs;
+    //     while (!isIdentifier(nextToLast.expression)) {
+    //         nextToLast = nextToLast.expression as Exclude<BindableStaticNameExpression, Identifier>;
+    //     }
+    //     const id = nextToLast.expression;
+    //     if (
+    //         (id.escapedText === "exports" ||
+    //             id.escapedText === "module" && getElementOrPropertyAccessName(nextToLast) === "exports") &&
+    //         // ExportsProperty does not support binding with computed names
+    //         isBindableStaticAccessExpression(lhs)
+    //     ) {
+    //         // exports.name = expr OR module.exports.name = expr OR exports["name"] = expr ...
+    //         return AssignmentDeclarationKind.ExportsProperty;
+    //     }
+
+    // TODO: do we need this one?
+
+    //     if (isBindableStaticNameExpression(lhs, /*excludeThisKeyword*/ true) || (isElementAccessExpression(lhs) && isDynamicName(lhs))) {
+    //         // F.G...x = expr
+    //         return AssignmentDeclarationKind.Property;
+    //     }
+    // }
+
+    return AssignmentDeclarationKind.None;
+}
+
+
+function getAssignmentDeclarationKindWorker(expr: BinaryExpression | CallExpression): AssignmentDeclarationKind {
+    if (isCallExpression(expr)) {
+             return AssignmentDeclarationKind.None;
+        // if (!isBindableObjectDefinePropertyCall(expr)) {
+        //     return AssignmentDeclarationKind.None;
+        // }
+        //const entityName = expr.arguments[0];
+        // if (isExportsIdentifier(entityName) || isModuleExportsAccessExpression(entityName)) {
+        //     return AssignmentDeclarationKind.ObjectDefinePropertyExports;
+        // }
+        // if (isBindableStaticAccessExpression(entityName) && getElementOrPropertyAccessName(entityName) === "prototype") {
+        //     return AssignmentDeclarationKind.ObjectDefinePrototypeProperty;
+        // }
+        //return AssignmentDeclarationKind.ObjectDefinePropertyValue;
+    }
+    if (expr.operatorToken.kind !== SyntaxKind.EqualsToken || !isAccessExpression(expr.left) || isVoidZero(getRightMostAssignedExpression(expr))) {
+        return AssignmentDeclarationKind.None;
+    }
+    
+    return getAssignmentDeclarationPropertyAccessKind(expr.left);
+}
+
+
+/**
+ * Does not handle signed numeric names like `a[+0]` - handling those would require handling prefix unary expressions
+ * throughout late binding handling as well, which is awkward (but ultimately probably doable if there is demand)
+ *
+ * @internal
+ */
+export function getElementOrPropertyAccessArgumentExpressionOrName(node: AccessExpression): Identifier | PrivateIdentifier | StringLiteral | NumericLiteral | ElementAccessExpression | undefined {
+    if (isPropertyAccessExpression(node)) {
+        return node.name;
+    }
+    const arg = skipParentheses(node.argumentExpression);
+    if (isNumericLiteral(arg) || isStringLiteralLike(arg)) {
+        return arg;
+    }
+    return node;
+}
+
+
+/**
+ * Any series of property and element accesses, ending in a literal element access
+ *
+ * @internal
+ */
+export function isBindableStaticElementAccessExpression(node: Node, excludeThisKeyword?: boolean): node is BindableStaticElementAccessExpression {
+    return false;
+    // return isLiteralLikeElementAccess(node)
+    //     && ((!excludeThisKeyword && node.expression.kind === SyntaxKind.ThisKeyword) ||
+    //         isEntityNameExpression(node.expression) ||
+    //         isBindableStaticAccessExpression(node.expression, /*excludeThisKeyword*/ true));
+}
+
+/** @internal */
+export function isSignedNumericLiteral(node: Node): node is PrefixUnaryExpression & { operand: NumericLiteral; } {
+    return isPrefixUnaryExpression(node) && (node.operator === SyntaxKind.PlusToken || node.operator === SyntaxKind.MinusToken) && isNumericLiteral(node.operand);
+}
+
+
+/** @internal */
+export function getContainingClass(node: Node): ClassLikeDeclaration | undefined {
+    return findAncestor(node.parent, isClassLike);
+}
+
+
+/** @internal */
+export function getSymbolNameForPrivateIdentifier(containingClassSymbol: Symbol, description: string): string {
+    return `__#${getSymbolId(containingClassSymbol)}@${description}` as string;
+}
+
+
+/** @internal */
+export function isPropertyNameLiteral(node: Node): node is PropertyNameLiteral {
+    switch (node.kind) {
+        case SyntaxKind.Identifier:
+        case SyntaxKind.StringLiteral:
+        //case SyntaxKind.NoSubstitutionTemplateLiteral:
+        case SyntaxKind.NumericLiteral:
+            return true;
+        default:
+            return false;
+    }
+}
+
+
+/** @internal */
+export function getEscapedTextOfIdentifierOrLiteral(node: PropertyNameLiteral): string {
+    return isMemberName(node) ? node.text : escapeLeadingUnderscores(node.text);
+}
+
+function getSpanOfNode(node: Node): TextSpan {
+    return createTextSpan(node.pos, node.end - node.pos);    
+}
+
+/** @internal */
+export function getErrorSpanForNode(sourceFile: SourceFile, node: Node): TextSpan {
+    let errorNode: Node | undefined = node;
+    switch (node.kind) {
+        case SyntaxKind.SourceFile: {
+            const pos = skipTrivia(sourceFile.text, 0, /*stopAfterLineBreak*/ false);
+            if (pos === sourceFile.text.length) {
+                // file is empty - return span for the beginning of the file
+                return createTextSpan(0, 0);
+            }
+            return createTextSpan(node.pos, node.end-node.pos) // TODO: getSpanOfTokenAtPosition(sourceFile, pos);
+        }
+        // This list is a work in progress. Add missing node kinds to improve their error
+        // spans.
+        case SyntaxKind.VariableDeclaration:
+        case SyntaxKind.BindingElement:        
+        case SyntaxKind.FunctionDeclaration:
+        case SyntaxKind.FunctionExpression:
+        case SyntaxKind.MethodDeclaration:        
+            errorNode = (node as NamedDeclaration).name;
+            break;
+        // case SyntaxKind.ArrowFunction:
+        //     return getErrorSpanForArrowFunction(sourceFile, node as ArrowFunction);
+        // case SyntaxKind.CaseClause:
+        // case SyntaxKind.DefaultClause: {
+        //     const start = skipTrivia(sourceFile.text, (node as CaseOrDefaultClause).pos);
+        //     const end = (node as CaseOrDefaultClause).statements.length > 0 ? (node as CaseOrDefaultClause).statements[0].pos : (node as CaseOrDefaultClause).end;
+        //     return createTextSpanFromBounds(start, end);
+        // }
+        case SyntaxKind.ReturnStatement: {
+            const pos = skipTrivia(sourceFile.text, (node as ReturnStatement).pos);
+            return getSpanOfNode(node);
+            //TODO return getSpanOfTokenAtPosition(sourceFile, pos);
+        }        
+        // case SyntaxKind.JSDocSatisfiesTag: {
+        //     const pos = skipTrivia(sourceFile.text, (node as JSDocSatisfiesTag).tagName.pos);
+        //     return getSpanOfTokenAtPosition(sourceFile, pos);
+        // }
+    }
+
+    if (errorNode === undefined) {
+        // If we don't have a better node, then just set the error on the first token of
+        // construct.
+        return getSpanOfNode(node);
+        //TODO return getSpanOfTokenAtPosition(sourceFile, node.pos);
+    }
+    
+    const isMissing = nodeIsMissing(errorNode);
+    const pos = isMissing
+        ? errorNode.pos
+        : skipTrivia(sourceFile.text, errorNode.pos);
+
+    // These asserts should all be satisfied for a properly constructed `errorNode`.
+    if (isMissing) {
+        Debug.assert(pos === errorNode.pos, "This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809");
+        Debug.assert(pos === errorNode.end, "This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809");
+    }
+    else {
+        Debug.assert(pos >= errorNode.pos, "This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809");
+        Debug.assert(pos <= errorNode.end, "This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809");
+    }
+
+    return createTextSpanFromBounds(pos, errorNode.end);
+}
+
+/** @internal */
+export function createDiagnosticForNodeInSourceFile(sourceFile: SourceFile, node: Node, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithLocation {
+    const span = getErrorSpanForNode(sourceFile, node);
+    return createFileDiagnostic(sourceFile, span.start, span.length, message, ...args);
+}
+
+function assertDiagnosticLocation(sourceText: string, start: number, length: number) {
+    Debug.assertGreaterThanOrEqual(start, 0);
+    Debug.assertGreaterThanOrEqual(length, 0);
+    Debug.assertLessThanOrEqual(start, sourceText.length);
+    Debug.assertLessThanOrEqual(start + length, sourceText.length);
+}
+
+/** @internal */
+export function getLocaleSpecificMessage(message: DiagnosticMessage) {
+    return localizedDiagnosticMessages && localizedDiagnosticMessages[message.key] || message.message;
+}
+
+/** @internal */
+export function formatStringFromArgs(text: string, args: DiagnosticArguments): string {
+    return text.replace(/{(\d+)}/g, (_match, index: string) => "" + Debug.checkDefined(args[+index]));
+}
+
+/** @internal */
+export function createFileDiagnostic(file: SourceFile, start: number, length: number, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithLocation {
+    assertDiagnosticLocation(file.text, start, length);
+
+    let text = getLocaleSpecificMessage(message);
+
+    if (some(args)) {
+        text = formatStringFromArgs(text, args);
+    }
+
+    return {
+        file,
+        start,
+        length,
+
+        messageText: text,
+        category: message.category,
+        code: message.code,
+        reportsUnnecessary: message.reportsUnnecessary,
+        reportsDeprecated: message.reportsDeprecated,
+    };
+}
+
+
+/** @internal */
+export function positionIsSynthesized(pos: number): boolean {
+    // This is a fast way of testing the following conditions:
+    //  pos === undefined || pos === null || isNaN(pos) || pos < 0;
+    return !(pos >= 0);
+}
+
+
+/** @internal */
+export function setValueDeclaration(symbol: Symbol, node: Declaration): void {
+    const { valueDeclaration } = symbol;
+    if (
+        !valueDeclaration 
+        //||
+        // !(node.flags & NodeFlags.Ambient && !isInJSFile(node) && !(valueDeclaration.flags & NodeFlags.Ambient)) && (isAssignmentDeclaration(valueDeclaration) && !isAssignmentDeclaration(node)) ||
+        // (valueDeclaration.kind !== node.kind && isEffectiveModuleDeclaration(valueDeclaration))
+    ) {
+        // other kinds of value declarations take precedence over modules and assignment declarations
+        symbol.valueDeclaration = node;
+    }
+}
+
+/** @internal */
+export function getFullWidth(node: Node) {
+    return node.end - node.pos;
+}
+
+function isJSDocTypeExpressionOrChild(node: Node): boolean {
+    return !!findAncestor(node, isJSDocTypeExpression);
+}
+
+
+/** @internal */
+export function getTextOfNodeFromSourceText(sourceText: string, node: Node, includeTrivia = false): string {
+    if (nodeIsMissing(node)) {
+        return "";
+    }
+
+    let text = sourceText.substring(includeTrivia ? node.pos : skipTrivia(sourceText, node.pos), node.end);
+
+    if (isJSDocTypeExpressionOrChild(node)) {
+        // strip space + asterisk at line start
+        text = text.split(/\r\n|\n|\r/).map(line => line.replace(/^\s*\*/, "").trimStart()).join("\n");
+    }
+
+    return text;
+}
+
+
+
+/** @internal */
+export function getSourceTextOfNodeFromSourceFile(sourceFile: SourceFile, node: Node, includeTrivia = false): string {
+    return getTextOfNodeFromSourceText(sourceFile.text, node, includeTrivia);
+}
+
+/** @internal */
+export function getTextOfNode(node: Node, includeTrivia = false): string {
+    return getSourceTextOfNodeFromSourceFile(getSourceFileOfNode(node), node, includeTrivia);
+}
+
+// Return display name of an identifier
+// Computed property names will just be emitted as "[<expr>]", where <expr> is the source
+// text of the expression in the computed property.
+/** @internal */
+export function declarationNameToString(name: DeclarationName | QualifiedName | undefined) {
+    return !name || getFullWidth(name) === 0 ? "(Missing)" : getTextOfNode(name);
+}
+
+/** @internal */
+export function addRelatedInfo<T extends Diagnostic>(diagnostic: T, ...relatedInformation: DiagnosticRelatedInformation[]): T {
+    if (!relatedInformation.length) {
+        return diagnostic;
+    }
+    if (!diagnostic.relatedInformation) {
+        diagnostic.relatedInformation = [];
+    }
+    Debug.assert(diagnostic.relatedInformation !== emptyArray, "Diagnostic had empty array singleton for related info, but is still being constructed!");
+    diagnostic.relatedInformation.push(...relatedInformation);
+    return diagnostic;
 }

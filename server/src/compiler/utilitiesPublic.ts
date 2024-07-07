@@ -1,13 +1,25 @@
-import { isBindingElement } from "./nodeTests";
+import { isBinaryExpression, isBindingElement, isIdentifier, isPropertyAssignment, isVariableDeclaration } from "./nodeTests";
 import {
+    AccessExpression,
+    AssignmentDeclarationKind,
+    BinaryExpression,
     BindingElement,
     Block,
+    CallExpression,
+    ClassLikeDeclaration,
+    Declaration,
+    DeclarationName,
+    ElementAccessExpression,
     Expression,
     FileReference,
     HasLocals,
+    HasModifiers,
+    Identifier,
     IntegerLiteral,
     JSDocTypeTag,
     LeftHandSideExpression,
+    MemberName,
+    NamedDeclaration,
     Node,
     NodeFlags,
     OuterExpressionKinds,
@@ -16,10 +28,11 @@ import {
     Statement,
     StringLiteral,
     SyntaxKind,
+    TextSpan,
     UnaryExpression,
     VariableDeclaration,
 } from "./types";
-import { isFunctionBlock, skipOuterExpressions } from "./utilities";
+import { getAssignmentDeclarationKind, getElementOrPropertyAccessArgumentExpressionOrName, isAccessExpression, isBindableStaticElementAccessExpression, isFunctionBlock, skipOuterExpressions } from "./utilities";
 
 export function isStringLiteralLike(
     node: Node | FileReference
@@ -300,3 +313,151 @@ export function isBooleanLiteral(node: Node): node is IntegerLiteral {
             (node as IntegerLiteral).text === "1")
     );
 }
+
+
+export function canHaveModifiers(node: Node): node is HasModifiers {
+    const kind = node.kind;
+    return kind === SyntaxKind.TypeParameter
+        || kind === SyntaxKind.Parameter        
+        || kind === SyntaxKind.MethodSignature
+        || kind === SyntaxKind.MethodDeclaration
+        
+        || kind === SyntaxKind.IndexSignature
+        
+        || kind === SyntaxKind.FunctionExpression
+        // || kind === SyntaxKind.ArrowFunction
+        // || kind === SyntaxKind.ClassExpression
+        || kind === SyntaxKind.VariableStatement
+        || kind === SyntaxKind.FunctionDeclaration
+        //|| kind === SyntaxKind.ClassDeclaration
+        ;
+}
+
+
+
+/** @internal */
+export function getNonAssignedNameOfDeclaration(declaration: Declaration | Expression): DeclarationName | undefined {
+    switch (declaration.kind) {
+        case SyntaxKind.Identifier:
+            return declaration as Identifier;
+        // case SyntaxKind.JSDocPropertyTag:
+        // case SyntaxKind.JSDocParameterTag: {
+        //     const { name } = declaration as JSDocPropertyLikeTag;
+        //     if (name.kind === SyntaxKind.QualifiedName) {
+        //         return name.right;
+        //     }
+        //     break;
+        // }
+        case SyntaxKind.CallExpression:
+        case SyntaxKind.BinaryExpression: {
+            const expr = declaration as BinaryExpression | CallExpression;
+            switch (getAssignmentDeclarationKind(expr)) {                
+                case AssignmentDeclarationKind.Property:                
+                    return getElementOrPropertyAccessArgumentExpressionOrName((expr as BinaryExpression).left as AccessExpression);
+                default:
+                    return undefined;
+            }
+        }
+        // case SyntaxKind.JSDocTypedefTag:
+        //     return getNameOfJSDocTypedef(declaration as JSDocTypedefTag);
+        // case SyntaxKind.JSDocEnumTag:
+        //     return nameForNamelessJSDocTypedef(declaration as JSDocEnumTag);        
+        case SyntaxKind.ElementAccessExpression:
+            const expr = declaration as ElementAccessExpression;
+            if (isBindableStaticElementAccessExpression(expr)) {
+                return expr.argumentExpression;
+            }
+    }
+    return (declaration as NamedDeclaration).name;
+}
+
+export function getNameOfDeclaration(declaration: Declaration | Expression | undefined): DeclarationName | undefined {
+    if (declaration === undefined) return undefined;
+    return getNonAssignedNameOfDeclaration(declaration) 
+        //|| (isFunctionExpression(declaration) || isArrowFunction(declaration) || isClassExpression(declaration) 
+        ? getAssignedName(declaration) : undefined;
+}
+
+
+/** @internal */
+export function getAssignedName(node: Node): DeclarationName | undefined {
+    if (!node.parent) {
+        return undefined;
+    }
+    else if (isPropertyAssignment(node.parent) || isBindingElement(node.parent)) {
+        return node.parent.name;
+    }
+    else if (isBinaryExpression(node.parent) && node === node.parent.right) {
+        if (isIdentifier(node.parent.left)) {
+            return node.parent.left;
+        }
+        else if (isAccessExpression(node.parent.left)) {
+            return getElementOrPropertyAccessArgumentExpressionOrName(node.parent.left);
+        }
+    }
+    else if (isVariableDeclaration(node.parent) && isIdentifier(node.parent.name)) {
+        return node.parent.name;
+    }
+}
+
+/**
+ * Iterates through the parent chain of a node and performs the callback on each parent until the callback
+ * returns a truthy value, then returns that value.
+ * If no such value is found, it applies the callback until the parent pointer is undefined or the callback returns "quit"
+ * At that point findAncestor returns undefined.
+ */
+export function findAncestor<T extends Node>(node: Node | undefined, callback: (element: Node) => element is T): T | undefined;
+export function findAncestor(node: Node | undefined, callback: (element: Node) => boolean | "quit"): Node | undefined;
+export function findAncestor(node: Node | undefined, callback: (element: Node) => boolean | "quit"): Node | undefined {
+    while (node) {
+        const result = callback(node);
+        if (result === "quit") {
+            return undefined;
+        }
+        else if (result) {
+            return node;
+        }
+        node = node.parent;
+    }
+    return undefined;
+}
+
+export function isClassLike(node: Node): node is ClassLikeDeclaration {
+    return node && (node.kind === SyntaxKind.SourceFile);// TODO || node.kind === SyntaxKind.ClassExpression);
+}
+
+
+export function isMemberName(node: Node): node is MemberName {
+    return node.kind === SyntaxKind.Identifier || node.kind === SyntaxKind.PrivateIdentifier;
+}
+
+
+
+/** Add an extra underscore to identifiers that start with two underscores to avoid issues with magic names like '__proto__' */
+export function escapeLeadingUnderscores(identifier: string): string {
+    return identifier;
+    // TODO: return (identifier.length >= 2 && identifier.charCodeAt(0) === CharacterCodes._ && identifier.charCodeAt(1) === CharacterCodes._ ? "_" + identifier : identifier) as __String;
+}
+
+
+/** @internal */
+export function isNamedDeclaration(node: Node): node is NamedDeclaration & { name: DeclarationName; } {
+    return !!(node as NamedDeclaration).name; // A 'name' property should always be a DeclarationName.
+}
+
+export function createTextSpan(start: number, length: number): TextSpan {
+    if (start < 0) {
+        throw new Error("start < 0");
+    }
+    if (length < 0) {
+        throw new Error("length < 0");
+    }
+
+    return { start, length };
+}
+
+
+export function createTextSpanFromBounds(start: number, end: number) {
+    return createTextSpan(start, end - start);
+}
+

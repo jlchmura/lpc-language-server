@@ -1,13 +1,16 @@
-import { contains, forEach, getRangesWhere } from "./core";
+import { appendIfUnique, contains, forEach, getRangesWhere, length } from "./core";
+import { Debug } from "./debug";
 import {
     isBinaryExpression,
     isBlock,
     isFunctionDeclaration,
     isParenthesizedExpression,
     isPrefixUnaryExpression,
+    isPrivateIdentifier,
     isVariableStatement,
 } from "./nodeTests";
 import { forEachChild } from "./parser";
+import { tokenToString } from "./scanner";
 import {
     ArrayBindingElement,
     ArrayLiteralExpression,
@@ -53,13 +56,35 @@ import {
     SyntaxKind,
     VariableDeclaration,
     WhileStatement,
-    LpcSymbol as Symbol
+    LpcSymbol as Symbol,
+    FunctionDeclaration,
+    Declaration,
+    SymbolTable,
+    ModifierFlags,
+    InternalSymbolName,
+    AssignmentDeclarationKind,
+    JSDocFunctionType,
+    ParameterDeclaration,
+    DiagnosticRelatedInformation,
+    DiagnosticMessage,
+    DiagnosticWithLocation,
+    DiagnosticArguments
 } from "./types";
 import {
     Mutable,
+    addRelatedInfo,
     createBinaryExpressionTrampoline,
+    createDiagnosticForNodeInSourceFile,
     createSymbolTable,
+    declarationNameToString,
+    getAssignmentDeclarationKind,
+    getContainingClass,
+    getEscapedTextOfIdentifierOrLiteral,
     getImmediatelyInvokedFunctionExpression,
+    getSourceFileOfNode,
+    getSymbolNameForPrivateIdentifier,
+    hasDynamicName,
+    hasSyntacticModifier,
     isAssignmentOperator,
     isAssignmentTarget,
     isDottedName,
@@ -69,20 +94,26 @@ import {
     isLogicalOrCoalescingBinaryExpression,
     isLogicalOrCoalescingBinaryOperator,
     isOptionalChain,
+    isPropertyNameLiteral,
+    isSignedNumericLiteral,
     isStringOrNumericLiteralLike,
     nodeIsPresent,
     objectAllocator,
     setParent,
+    setValueDeclaration,
     skipParentheses,
     sliceAfter,
     unreachableCodeIsError,
 } from "./utilities";
 import {
+    canHaveLocals,
     getCombinedNodeFlags,
+    getNameOfDeclaration,
     isBooleanLiteral,
     isExpression,
     isFunctionLike,
     isLeftHandSideExpression,
+    isNamedDeclaration,
     isStatement,
     isStatementButNotDeclaration,
 } from "./utilitiesPublic";
@@ -1022,6 +1053,11 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
         return true;
     }
 
+    function bindEachFunctionsFirst(nodes: NodeArray<Node> | undefined): void {
+        bindEach(nodes, n => n.kind === SyntaxKind.FunctionDeclaration ? bind(n) : undefined);
+        bindEach(nodes, n => n.kind !== SyntaxKind.FunctionDeclaration ? bind(n) : undefined);
+    }
+
     function bindChildren(node: Node): void {
         const saveInAssignmentPattern = inAssignmentPattern;
         // Most nodes aren't valid in an assignment pattern, so we clear the value here
@@ -1128,11 +1164,11 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             // case SyntaxKind.JSDocImportTag:
             //     bindJSDocImportTag(node as JSDocImportTag);
             //     break;
-            // case SyntaxKind.SourceFile: {
-            //     bindEachFunctionsFirst((node as SourceFile).statements);
-            //     bind((node as SourceFile).endOfFileToken);
-            //     break;
-            // }
+            case SyntaxKind.SourceFile: {
+                bindEachFunctionsFirst((node as SourceFile).statements);
+                bind((node as SourceFile).endOfFileToken);
+                break;
+            }
             // case SyntaxKind.Block:
             // case SyntaxKind.ModuleBlock:
             //     bindEachFunctionsFirst((node as Block).statements);
@@ -1159,6 +1195,22 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
         inAssignmentPattern = saveInAssignmentPattern;
     }
 
+    function bindFunctionDeclaration(node: FunctionDeclaration) {
+        
+        // if (isAsyncFunction(node)) {
+        //     emitFlags |= NodeFlags.HasAsyncFunctions;
+        // }
+        
+        //checkStrictModeFunctionName(node);
+        // if (inStrictMode) {
+        //     checkStrictModeFunctionDeclaration(node);
+        //     bindBlockScopedDeclaration(node, SymbolFlags.Function, SymbolFlags.FunctionExcludes);
+        // }
+        // else {
+            declareSymbolAndAddToSymbolTable(node, SymbolFlags.Function, SymbolFlags.FunctionExcludes);
+        //}
+    }
+    
     function bindJSDoc(node: Node) {
         // TODO
         // if (hasJSDocNodes(node)) {
@@ -1342,8 +1394,8 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             //             ? SymbolFlags.PropertyExcludes
             //             : SymbolFlags.MethodExcludes
             //     );
-            // case SyntaxKind.FunctionDeclaration:
-            //     return bindFunctionDeclaration(node as FunctionDeclaration);
+            case SyntaxKind.FunctionDeclaration:
+                return bindFunctionDeclaration(node as FunctionDeclaration);
             // case SyntaxKind.Constructor:
             //     return declareSymbolAndAddToSymbolTable(
             //         node as Declaration,
@@ -1468,9 +1520,10 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             //     return bindExportDeclaration(node as ExportDeclaration);
             // case SyntaxKind.ExportAssignment:
             //     return bindExportAssignment(node as ExportAssignment);
-            // case SyntaxKind.SourceFile:
-            //     updateStrictModeStatementList((node as SourceFile).statements);
-            //     return bindSourceFileIfExternalModule();
+            case SyntaxKind.SourceFile:
+                // updateStrictModeStatementList((node as SourceFile).statements);
+                // return bindSourceFileIfExternalModule();
+                return;
             // case SyntaxKind.Block:
             //     if (!isFunctionLikeOrClassStaticBlockDeclaration(node.parent)) {
             //         return;
@@ -1516,6 +1569,8 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             //         node as JSDocImportTag
             //     );
         }
+
+        Debug.fail("Unhandled node in bindWorker: " + Debug.formatSyntaxKind(node.kind));
     }
 
     function maybeBindExpressionFlowIfCall(node: Expression) {
@@ -1529,6 +1584,305 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             ) {
                 currentFlow = createFlowCall(currentFlow, call);
             }
+        }
+    }    
+
+    // Should not be called on a declaration with a computed property name,
+    // unless it is a well known Symbol.
+    function getDeclarationName(node: Declaration): string | undefined {
+        // if (node.kind === SyntaxKind.ExportAssignment) {
+        //     return (node as ExportAssignment).isExportEquals ? InternalSymbolName.ExportEquals : InternalSymbolName.Default;
+        // }
+
+        const name = getNameOfDeclaration(node);
+        if (name) {
+            // if (isAmbientModule(node)) {
+            //     const moduleName = getTextOfIdentifierOrLiteral(name as Identifier | StringLiteral);
+            //     return (isGlobalScopeAugmentation(node as ModuleDeclaration) ? "__global" : `"${moduleName}"`) as __String;
+            // }
+            if (name.kind === SyntaxKind.ComputedPropertyName) {
+                const nameExpression = name.expression;
+                // treat computed property names where expression is string/numeric literal as just string/numeric literal
+                if (isStringOrNumericLiteralLike(nameExpression)) {
+                    return nameExpression.text;// escapeLeadingUnderscores(nameExpression.text);
+                }
+                if (isSignedNumericLiteral(nameExpression)) {
+                    return tokenToString(nameExpression.operator) + nameExpression.operand.text as string;
+                }
+                else {
+                    Debug.fail("Only computed properties with literal names have declaration names");
+                }
+            }
+            if (isPrivateIdentifier(name)) {
+                // containingClass exists because private names only allowed inside classes
+                const containingClass = getContainingClass(node);
+                if (!containingClass) {
+                    // we can get here in cases where there is already a parse error.
+                    return undefined;
+                }
+                const containingClassSymbol = containingClass.symbol;
+                return getSymbolNameForPrivateIdentifier(containingClassSymbol, name.text);
+            }            
+            return isPropertyNameLiteral(name) ? getEscapedTextOfIdentifierOrLiteral(name) : undefined;
+        }
+        switch (node.kind) {            
+            // case SyntaxKind.FunctionType:
+            // case SyntaxKind.CallSignature:
+            // case SyntaxKind.JSDocSignature:
+            //     return InternalSymbolName.Call;            
+            case SyntaxKind.IndexSignature:
+                return InternalSymbolName.Index;                        
+            case SyntaxKind.BinaryExpression:
+                // if (getAssignmentDeclarationKind(node as BinaryExpression) === AssignmentDeclarationKind.ModuleExports) {
+                //     // module.exports = ...
+                //     return InternalSymbolName.ExportEquals;
+                // }
+                Debug.fail("Unknown binary declaration kind");
+                break;
+            // case SyntaxKind.JSDocFunctionType:
+            //     return (isJSDocConstructSignature(node) ? InternalSymbolName.New : InternalSymbolName.Call);
+            case SyntaxKind.Parameter:
+                // Parameters with names are handled at the top of this function.  Parameters
+                // without names can only come from JSDocFunctionTypes.
+                Debug.assert(node.parent.kind === SyntaxKind.JSDocFunctionType, "Impossible parameter parent kind", () => `parent is: ${Debug.formatSyntaxKind(node.parent.kind)}, expected JSDocFunctionType`);
+                const functionType = node.parent as JSDocFunctionType;
+                const index = functionType.parameters.indexOf(node as ParameterDeclaration);
+                return "arg" + index as string;
+        }
+    }
+
+    function createSymbol(flags: SymbolFlags, name: string): Symbol {
+        symbolCount++;
+        return new Symbol(flags, name);
+    }
+
+     /**
+     * Declares a Symbol for the node and adds it to symbols. Reports errors for conflicting identifier names.
+     * @param symbolTable - The symbol table which node will be added to.
+     * @param parent - node's parent declaration.
+     * @param node - The declaration to be added to the symbol table
+     * @param includes - The SymbolFlags that node has in addition to its declaration type (eg: export, ambient, etc.)
+     * @param excludes - The flags which node cannot be declared alongside in a symbol table. Used to report forbidden declarations.
+     */
+     function declareSymbol(symbolTable: SymbolTable, parent: Symbol | undefined, node: Declaration, includes: SymbolFlags, excludes: SymbolFlags, isReplaceableByMethod?: boolean, isComputedName?: boolean): Symbol {
+        Debug.assert(isComputedName || !hasDynamicName(node));
+        
+        // The exported symbol for an export default function/class node is always named "default"
+        const name = getDeclarationName(node);
+
+        let symbol: Symbol | undefined;
+        if (name === undefined) {
+            symbol = createSymbol(SymbolFlags.None, InternalSymbolName.Missing);
+        }
+        else {
+            // Check and see if the symbol table already has a symbol with this name.  If not,
+            // create a new symbol with this name and add it to the table.  Note that we don't
+            // give the new symbol any flags *yet*.  This ensures that it will not conflict
+            // with the 'excludes' flags we pass in.
+            //
+            // If we do get an existing symbol, see if it conflicts with the new symbol we're
+            // creating.  For example, a 'var' symbol and a 'class' symbol will conflict within
+            // the same symbol table.  If we have a conflict, report the issue on each
+            // declaration we have for this symbol, and then create a new symbol for this
+            // declaration.
+            //
+            // Note that when properties declared in Javascript constructors
+            // (marked by isReplaceableByMethod) conflict with another symbol, the property loses.
+            // Always. This allows the common Javascript pattern of overwriting a prototype method
+            // with an bound instance method of the same type: `this.method = this.method.bind(this)`
+            //
+            // If we created a new symbol, either because we didn't have a symbol with this name
+            // in the symbol table, or we conflicted with an existing symbol, then just add this
+            // node as the sole declaration of the new symbol.
+            //
+            // Otherwise, we'll be merging into a compatible existing symbol (for example when
+            // you have multiple 'vars' with the same name in the same container).  In this case
+            // just add this node into the declarations list of the symbol.
+            symbol = symbolTable.get(name);
+
+            if (includes & SymbolFlags.Classifiable) {
+                classifiableNames.add(name);
+            }
+
+            if (!symbol) {
+                symbolTable.set(name, symbol = createSymbol(SymbolFlags.None, name));
+                //if (isReplaceableByMethod) symbol.isReplaceableByMethod = true;
+            }
+            // else if (isReplaceableByMethod && !symbol.isReplaceableByMethod) {
+            //     // A symbol already exists, so don't add this as a declaration.
+            //     return symbol;
+            // }
+            else if (symbol.flags & excludes) {
+                // if (symbol.isReplaceableByMethod) {
+                //     // Javascript constructor-declared symbols can be discarded in favor of
+                //     // prototype symbols like methods.
+                //     symbolTable.set(name, symbol = createSymbol(SymbolFlags.None, name));
+                // } else 
+                if (!(includes & SymbolFlags.Variable && symbol.flags & SymbolFlags.Assignment)) {
+                    // Assignment declarations are allowed to merge with variables, no matter what other flags they have.
+                    if (isNamedDeclaration(node)) {
+                        setParent(node.name, node);
+                    }
+                    // Report errors every position with duplicate declaration
+                    // Report errors on previous encountered declarations
+                    
+                    // TODO:
+                    let message:DiagnosticMessage ;
+                    // message = symbol.flags & SymbolFlags.BlockScopedVariable
+                    //     ? Diagnostics.Cannot_redeclare_block_scoped_variable_0
+                    //     : Diagnostics.Duplicate_identifier_0;
+                    let messageNeedsName = true;
+
+                    let multipleDefaultExports = false;
+                    if (length(symbol.declarations)) {
+                        // If the current node is a default export of some sort, then check if                        // there are any other default exports that we need to error on.
+                        // We'll know whether we have other default exports depending on if `symbol` already has a declaration list set.
+                        // if (isDefaultExport) {
+                        //     message = Diagnostics.A_module_cannot_have_multiple_default_exports;
+                        //     messageNeedsName = false;
+                        //     multipleDefaultExports = true;
+                        // }
+                        // else {
+                            // This is to properly report an error in the case "export default { }" is after export default of class declaration or function declaration.
+                            // Error on multiple export default in the following case:
+                            // 1. multiple export default of class declaration or function declaration by checking NodeFlags.Default
+                            // 2. multiple export default of export assignment. This one doesn't have NodeFlags.Default on (as export default doesn't considered as modifiers)
+                            // if (
+                            //     symbol.declarations && symbol.declarations.length &&
+                            //     (node.kind === SyntaxKind.ExportAssignment && !(node as ExportAssignment).isExportEquals)
+                            // ) {
+                            //     message = Diagnostics.A_module_cannot_have_multiple_default_exports;
+                            //     messageNeedsName = false;
+                            //     multipleDefaultExports = true;
+                            // }
+                       // }
+                    }
+
+                    const relatedInformation: DiagnosticRelatedInformation[] = [];
+                    // if (isTypeAliasDeclaration(node) && nodeIsMissing(node.type) && hasSyntacticModifier(node, ModifierFlags.Export) && symbol.flags & (SymbolFlags.Alias | SymbolFlags.Type | SymbolFlags.Namespace)) {
+                    //     // export type T; - may have meant export type { T }?
+                    //     relatedInformation.push(createDiagnosticForNode(node, Diagnostics.Did_you_mean_0, `export type { ${unescapeLeadingUnderscores(node.name.escapedText)} }`));
+                    // }
+
+                    const declarationName = getNameOfDeclaration(node) || node;
+                    // TODO: remove this whole forEach?  
+                    forEach(symbol.declarations, (declaration, index) => {
+                        const decl = getNameOfDeclaration(declaration) || declaration;
+                        const diag = messageNeedsName ? createDiagnosticForNode(decl, message, getDisplayName(declaration)) : createDiagnosticForNode(decl, message);
+                        
+                        // file.bindDiagnostics.push(
+                        //     multipleDefaultExports ? addRelatedInfo(diag, createDiagnosticForNode(declarationName, index === 0 ? Diagnostics.Another_export_default_is_here : Diagnostics.and_here)) : diag,
+                        // );
+                        // if (multipleDefaultExports) {
+                        //     relatedInformation.push(createDiagnosticForNode(decl, Diagnostics.The_first_export_default_is_here));
+                        // }
+                    });
+
+                    const diag = messageNeedsName ? createDiagnosticForNode(declarationName, message, getDisplayName(node)) : createDiagnosticForNode(declarationName, message);
+                    file.bindDiagnostics.push(addRelatedInfo(diag, ...relatedInformation));
+
+                    symbol = createSymbol(SymbolFlags.None, name);
+                }
+            }
+        }
+
+        addDeclarationToSymbol(symbol, node, includes);
+        if (symbol.parent) {
+            Debug.assert(symbol.parent === parent, "Existing symbol parent should match new one");
+        }
+        else {
+            symbol.parent = parent;
+        }
+
+        return symbol;
+    }
+
+    function addDeclarationToSymbol(symbol: Symbol, node: Declaration, symbolFlags: SymbolFlags) {
+        symbol.flags |= symbolFlags;
+
+        node.symbol = symbol;
+        symbol.declarations = appendIfUnique(symbol.declarations, node);
+
+        // TODO: if we need to export, add thsi back in
+        // if (symbolFlags & (SymbolFlags.Class | SymbolFlags.Enum | SymbolFlags.Module | SymbolFlags.Variable) && !symbol.exports) {
+        //     symbol.exports = createSymbolTable();
+        // }
+
+        if (symbolFlags & (SymbolFlags.Class | SymbolFlags.ObjectLiteral) && !symbol.members) {
+            symbol.members = createSymbolTable();
+        }
+
+        // On merge of const enum module with class or function, reset const enum only flag (namespaces will already recalculate)
+        // if (symbol.constEnumOnlyModule && (symbol.flags & (SymbolFlags.Function | SymbolFlags.Class | SymbolFlags.RegularEnum))) {
+        //     symbol.constEnumOnlyModule = false;
+        // }
+
+        if (symbolFlags & SymbolFlags.Value) {
+            setValueDeclaration(symbol, node);
+        }
+    }
+
+    /**
+     * Inside the binder, we may create a diagnostic for an as-yet unbound node (with potentially no parent pointers, implying no accessible source file)
+     * If so, the node _must_ be in the current file (as that's the only way anything could have traversed to it to yield it as the error node)
+     * This version of `createDiagnosticForNode` uses the binder's context to account for this, and always yields correct diagnostics even in these situations.
+     */
+    function createDiagnosticForNode(node: Node, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithLocation {
+        return createDiagnosticForNodeInSourceFile(getSourceFileOfNode(node) || file, node, message, ...args);
+    }
+
+    function getDisplayName(node: Declaration): string {
+        return isNamedDeclaration(node) ? declarationNameToString(node.name) : (Debug.checkDefined(getDeclarationName(node)));
+    }
+
+    
+    function declareSourceFileMember(node: Declaration, symbolFlags: SymbolFlags, symbolExcludes: SymbolFlags) {
+        // return isExternalModule(file)
+        //     ? declareModuleMember(node, symbolFlags, symbolExcludes)
+        //     : declareSymbol(file.locals!, /*parent*/ undefined, node, symbolFlags, symbolExcludes);
+        return declareSymbol(file.locals!, /*parent*/ undefined, node, symbolFlags, symbolExcludes)
+    }
+
+    function declareSymbolAndAddToSymbolTable(node: Declaration, symbolFlags: SymbolFlags, symbolExcludes: SymbolFlags): Symbol | undefined {
+        switch (container.kind) {
+            // Modules, source files, and classes need specialized handling for how their
+            // members are declared (for example, a member of a class will go into a specific
+            // symbol table depending on if it is static or not). We defer to specialized
+            // handlers to take care of declaring these child members.
+            
+            case SyntaxKind.SourceFile:
+                return declareSourceFileMember(node, symbolFlags, symbolExcludes);
+
+            
+            // case SyntaxKind.TypeLiteral:
+            // case SyntaxKind.JSDocTypeLiteral:
+            // case SyntaxKind.ObjectLiteralExpression:
+            // case SyntaxKind.InterfaceDeclaration:
+            // case SyntaxKind.JsxAttributes:
+            //     // Interface/Object-types always have their children added to the 'members' of
+            //     // their container. They are only accessible through an instance of their
+            //     // container, and are never in scope otherwise (even inside the body of the
+            //     // object / type / interface declaring them). An exception is type parameters,
+            //     // which are in scope without qualification (similar to 'locals').
+            //     return declareSymbol(container.symbol.members!, container.symbol, node, symbolFlags, symbolExcludes);
+
+            // case SyntaxKind.FunctionType:            
+            // case SyntaxKind.JSDocSignature:
+            // case SyntaxKind.IndexSignature:
+            // case SyntaxKind.MethodDeclaration:
+            // case SyntaxKind.MethodSignature:            
+            case SyntaxKind.FunctionDeclaration:
+            // case SyntaxKind.FunctionExpression:
+            // case SyntaxKind.ArrowFunction:
+            // case SyntaxKind.JSDocFunctionType:            
+                // All the children of these container types are never visible through another
+                // symbol (i.e. through another symbol's 'exports' or 'members').  Instead,
+                // they're only accessed 'lexically' (i.e. from code that exists underneath
+                // their container in the tree). To accomplish this, we simply add their declared
+                // symbol to the 'locals' of the container.  These symbols can then be found as
+                // the type checker walks up the containers, checking them for matching names.
+                if (container.locals) Debug.assertNode(container, canHaveLocals);
+                return declareSymbol(container.locals!, /*parent*/ undefined, node, symbolFlags, symbolExcludes);
         }
     }
 }

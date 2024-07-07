@@ -191,3 +191,60 @@ export function forEach<T, U>(
     }
     return undefined;
 }
+
+
+/** @internal */
+export function length(array: readonly any[] | undefined): number {
+    return array ? array.length : 0;
+}
+
+/** @internal */
+export function some<T>(array: readonly T[] | undefined): array is readonly T[];
+/** @internal */
+export function some<T>(array: readonly T[] | undefined, predicate: (value: T) => boolean): boolean;
+/** @internal */
+export function some<T>(array: readonly T[] | undefined, predicate?: (value: T) => boolean): boolean {
+    if (array) {
+        if (predicate) {
+            for (const v of array) {
+                if (predicate(v)) {
+                    return true;
+                }
+            }
+        }
+        else {
+            return array.length > 0;
+        }
+    }
+    return false;
+}
+
+/**
+ * @return Whether the value was added.
+ *
+ * @internal
+ */
+export function pushIfUnique<T>(array: T[], toAdd: T, equalityComparer?: EqualityComparer<T>): boolean {
+    if (contains(array, toAdd, equalityComparer)) {
+        return false;
+    }
+    else {
+        array.push(toAdd);
+        return true;
+    }
+}
+
+/**
+ * Unlike `pushIfUnique`, this can take `undefined` as an input, and returns a new array.
+ *
+ * @internal
+ */
+export function appendIfUnique<T>(array: T[] | undefined, toAdd: T, equalityComparer?: EqualityComparer<T>): T[] {
+    if (array) {
+        pushIfUnique(array, toAdd, equalityComparer);
+        return array;
+    }
+    else {
+        return [toAdd];
+    }
+}
