@@ -156,6 +156,7 @@ export const enum SyntaxKind {
     SpreadElement,
     NewExpression,
     ObjectLiteralExpression,
+    ClassExpression,
     TypeAssertionExpression,
     PartiallyEmittedExpression,
     VoidExpression,
@@ -568,10 +569,14 @@ export const enum SymbolFlags {
     Classifiable = Class,// | Enum | TypeAlias | Interface | TypeParameter | Module | Alias,
 
     // Scope exclusions
+    PropertyExcludes = None,
     OuterExpressionExcludes = HasComputedFlags,
     PropertyAccessExcludes = OuterExpressionExcludes,
     NodeExcludes = PropertyAccessExcludes,
     ParameterExcludes = NodeExcludes,
+    MethodExcludes = Value & ~Method,
+
+    ClassMember = Method | Property,
 }
 
 // prettier-ignore
@@ -1022,7 +1027,7 @@ export type DeclarationName =
     | PropertyName
     | StringLiteral
     | ElementAccessExpression
-    //| BindingPattern
+    | BindingPattern
     | EntityNameExpression;
 
 export type EntityNameExpression =
@@ -1082,7 +1087,7 @@ export interface BindingElement extends NamedDeclaration, FlowContainer {
     readonly initializer?: Expression;           // Optional initializer
 }
 
-export type BindingName = Identifier;
+export type BindingName = Identifier|BindingPattern;
 
 export interface ObjectBindingPattern extends Node {
     readonly kind: SyntaxKind.ObjectBindingPattern;
@@ -1117,6 +1122,31 @@ export interface PropertyAssignment
     /** @internal */ readonly modifiers?: NodeArray<Modifier> | undefined; // property assignment cannot have decorators or modifiers
     /** @internal */ readonly questionToken?: QuestionToken | undefined; // property assignment cannot have a question token
     /** @internal */ readonly exclamationToken?: ExclamationToken | undefined; // property assignment cannot have an exclamation token
+}
+
+export interface ClassElement extends NamedDeclaration {
+    _classElementBrand: any;
+    readonly name?: PropertyName;
+}
+
+// Note that a MethodDeclaration is considered both a ClassElement and an ObjectLiteralElement.
+// Both the grammars for ClassDeclaration and ObjectLiteralExpression allow for MethodDeclarations
+// as child elements, and so a MethodDeclaration satisfies both interfaces.  This avoids the
+// alternative where we would need separate kinds/types for ClassMethodDeclaration and
+// ObjectLiteralMethodDeclaration, which would look identical.
+//
+// Because of this, it may be necessary to determine what sort of MethodDeclaration you have
+// at later stages of the compiler pipeline.  In that case, you can either check the parent kind
+// of the method, or use helpers like isObjectLiteralMethodDeclaration
+export interface MethodDeclaration extends FunctionLikeDeclarationBase, ClassElement, ObjectLiteralElement, JSDocContainer, LocalsContainer, FlowContainer {
+    readonly kind: SyntaxKind.MethodDeclaration;
+    readonly parent: ClassLikeDeclaration | ObjectLiteralExpression;
+    readonly modifiers?: NodeArray<ModifierLike> | undefined;
+    readonly name: PropertyName;
+    readonly body?: FunctionBody | undefined;
+
+    // The following properties are used only to report grammar errors (see `isGrammarError` in utilities.ts)
+    /** @internal */ readonly exclamationToken?: ExclamationToken | undefined; // A method cannot have an exclamation token
 }
 
 /**
@@ -1267,6 +1297,7 @@ export interface SignatureDeclarationBase extends NamedDeclaration, JSDocContain
 export type SignatureDeclaration =
     | FunctionDeclaration
     | FunctionExpression
+    | MethodDeclaration
     | JSDocFunctionType
     | InlineClosureExpression;
 

@@ -71,6 +71,7 @@ import {
     DiagnosticArguments,
     BindingElement,
     Block,
+    MethodDeclaration,
     
 } from "./types";
 import {
@@ -97,6 +98,8 @@ import {
     isLogicalOrCoalescingAssignmentOperator,
     isLogicalOrCoalescingBinaryExpression,
     isLogicalOrCoalescingBinaryOperator,
+    isObjectLiteralMethod,
+    isObjectLiteralOrClassExpressionMethodOrAccessor,
     isOptionalChain,
     isPartOfParameterDeclaration,
     isPropertyNameLiteral,
@@ -1333,10 +1336,32 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
         forEach(nodes, bindFunction);
     }
 
+    function bindAnonymousDeclaration(node: Declaration, symbolFlags: SymbolFlags, name: string) {
+        const symbol = createSymbol(symbolFlags, name);
+        if (symbolFlags & (SymbolFlags.ClassMember)) {
+            symbol.parent = container.symbol;
+        }
+        addDeclarationToSymbol(symbol, node, symbolFlags);
+        return symbol;
+    }
+
+    function bindPropertyOrMethodOrAccessor(node: Declaration, symbolFlags: SymbolFlags, symbolExcludes: SymbolFlags) {
+        
+        if (currentFlow && isObjectLiteralOrClassExpressionMethodOrAccessor(node)) {
+            node.flowNode = currentFlow;
+        }
+
+        return hasDynamicName(node)
+            ? bindAnonymousDeclaration(node, symbolFlags, InternalSymbolName.Computed)
+            : declareSymbolAndAddToSymbolTable(node, symbolFlags, symbolExcludes);
+    }
+
+
     function bindEachChild(node: Node) {
         forEachChild(node, bind, bindEach);
     }
 
+    
     function bindWorker(node: Node) {
         switch (node.kind) {
             /* Strict mode checks */
@@ -1470,22 +1495,19 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             //         SymbolFlags.Signature,
             //         SymbolFlags.None
             //     );
-            // case SyntaxKind.MethodDeclaration:
-            // case SyntaxKind.MethodSignature:
-            //     // If this is an ObjectLiteralExpression method, then it sits in the same space
-            //     // as other properties in the object literal.  So we use SymbolFlags.PropertyExcludes
-            //     // so that it will conflict with any other object literal members with the same
-            //     // name.
-            //     return bindPropertyOrMethodOrAccessor(
-            //         node as Declaration,
-            //         SymbolFlags.Method |
-            //             ((node as MethodDeclaration).questionToken
-            //                 ? SymbolFlags.Optional
-            //                 : SymbolFlags.None),
-            //         isObjectLiteralMethod(node)
-            //             ? SymbolFlags.PropertyExcludes
-            //             : SymbolFlags.MethodExcludes
-            //     );
+             case SyntaxKind.MethodDeclaration:
+             case SyntaxKind.MethodSignature:
+                // If this is an ObjectLiteralExpression method, then it sits in the same space
+                // as other properties in the object literal.  So we use SymbolFlags.PropertyExcludes
+                // so that it will conflict with any other object literal members with the same
+                // name.
+                return bindPropertyOrMethodOrAccessor(
+                    node as Declaration,
+                    SymbolFlags.None,
+                    isObjectLiteralMethod(node)
+                        ? SymbolFlags.PropertyExcludes
+                        : SymbolFlags.MethodExcludes
+                );
             case SyntaxKind.FunctionDeclaration:
                 return bindFunctionDeclaration(node as FunctionDeclaration);
             // case SyntaxKind.Constructor:

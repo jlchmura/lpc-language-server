@@ -375,7 +375,7 @@ export function getNonAssignedNameOfDeclaration(declaration: Declaration | Expre
 export function getNameOfDeclaration(declaration: Declaration | Expression | undefined): DeclarationName | undefined {
     if (declaration === undefined) return undefined;
     // || isArrowFunction(declaration) || isClassExpression(declaration) 
-    return getNonAssignedNameOfDeclaration(declaration) || (isFunctionExpression(declaration)) ? getAssignedName(declaration) : undefined;
+    return getNonAssignedNameOfDeclaration(declaration) || (isFunctionExpression(declaration) ? getAssignedName(declaration) : undefined);
 }
 
 

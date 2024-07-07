@@ -61,6 +61,7 @@ import {
     QualifiedName,
     Diagnostic,
     DiagnosticRelatedInformation,
+    MethodDeclaration,
 } from "./types";
 import { LPCLexer } from "../parser3/LPCLexer";
 import { Debug } from "./debug";
@@ -1358,4 +1359,16 @@ export function getRootDeclaration(node: Node): Node {
 export function isPartOfParameterDeclaration(node: Declaration): boolean {
     const root = getRootDeclaration(node);
     return root.kind === SyntaxKind.Parameter;
+}
+
+/** @internal */
+export function isObjectLiteralOrClassExpressionMethodOrAccessor(node: Node): node is MethodDeclaration  {
+    return (node.kind === SyntaxKind.MethodDeclaration ) &&
+        (node.parent.kind === SyntaxKind.ObjectLiteralExpression ||
+            node.parent.kind === SyntaxKind.ClassExpression);
+}
+
+/** @internal */
+export function isObjectLiteralMethod(node: Node): node is MethodDeclaration {
+    return node && node.kind === SyntaxKind.MethodDeclaration && node.parent.kind === SyntaxKind.ObjectLiteralExpression;
 }
