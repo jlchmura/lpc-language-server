@@ -180,7 +180,7 @@
         "antlr4-c3": "^3.4.1",
         "antlr4ng": "^3.0.3",
         "comment-parser": "^1.4.1",
-        "esbuild": "^0.20.1",
+        "esbuild": "^0.23.0",
         "glob": "^10.3.15",
         "jsonc-parser": "^3.3.1",
         "vsce": "^2.15.0",

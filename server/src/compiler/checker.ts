@@ -1,4 +1,4 @@
-import { LpcSymbol as Symbol, SymbolId } from "./types";
+import { Symbol, SymbolId } from "./types";
 
 let nextSymbolId = 1;
 let nextNodeId = 1;

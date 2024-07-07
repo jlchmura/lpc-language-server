@@ -56,7 +56,7 @@ import {
     SyntaxKind,
     VariableDeclaration,
     WhileStatement,
-    LpcSymbol as Symbol,
+    Symbol,
     FunctionDeclaration,
     Declaration,
     SymbolTable,
@@ -68,7 +68,10 @@ import {
     DiagnosticRelatedInformation,
     DiagnosticMessage,
     DiagnosticWithLocation,
-    DiagnosticArguments
+    DiagnosticArguments,
+    BindingElement,
+    Block,
+    
 } from "./types";
 import {
     Mutable,
@@ -87,6 +90,7 @@ import {
     hasSyntacticModifier,
     isAssignmentOperator,
     isAssignmentTarget,
+    isBlockOrCatchScoped,
     isDottedName,
     isEntityNameExpression,
     isLogicalOrCoalescingAssignmentExpression,
@@ -94,6 +98,7 @@ import {
     isLogicalOrCoalescingBinaryExpression,
     isLogicalOrCoalescingBinaryOperator,
     isOptionalChain,
+    isPartOfParameterDeclaration,
     isPropertyNameLiteral,
     isSignedNumericLiteral,
     isStringOrNumericLiteralLike,
@@ -109,9 +114,11 @@ import {
     canHaveLocals,
     getCombinedNodeFlags,
     getNameOfDeclaration,
+    isBindingPattern,
     isBooleanLiteral,
     isExpression,
     isFunctionLike,
+    isFunctionLikeOrClassStaticBlockDeclaration,
     isLeftHandSideExpression,
     isNamedDeclaration,
     isStatement,
@@ -1169,12 +1176,12 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
                 bind((node as SourceFile).endOfFileToken);
                 break;
             }
-            // case SyntaxKind.Block:
+            case SyntaxKind.Block:
             // case SyntaxKind.ModuleBlock:
-            //     bindEachFunctionsFirst((node as Block).statements);
-            //     break;
-            // case SyntaxKind.BindingElement:
-            //     bindBindingElementFlow(node as BindingElement);
+                 bindEachFunctionsFirst((node as Block).statements);
+                 break;
+             case SyntaxKind.BindingElement:
+                 bindBindingElementFlow(node as BindingElement);
             //     break;
             // case SyntaxKind.Parameter:
             //     bindParameterFlow(node as ParameterDeclaration);
@@ -1211,6 +1218,34 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
         //}
     }
     
+    function bindBindingElementFlow(node: BindingElement) {
+        // When evaluating a binding pattern, the initializer is evaluated before the binding pattern, per:
+        // - https://tc39.es/ecma262/#sec-destructuring-binding-patterns-runtime-semantics-iteratorbindinginitialization
+        //   - `BindingElement: BindingPattern Initializer?`
+        // - https://tc39.es/ecma262/#sec-runtime-semantics-keyedbindinginitialization
+        //   - `BindingElement: BindingPattern Initializer?`
+        bind(node.dotDotDotToken);
+        bind(node.propertyName);
+        bindInitializer(node.initializer);
+        bind(node.name);
+    }
+    
+    // a BindingElement/Parameter does not have side effects if initializers are not evaluated and used. (see GH#49759)
+    function bindInitializer(node: Expression | undefined) {
+        if (!node) {
+            return;
+        }
+        const entryFlow = currentFlow;
+        bind(node);
+        if (entryFlow === unreachableFlow || entryFlow === currentFlow) {
+            return;
+        }
+        const exitFlow = createBranchLabel();
+        addAntecedent(exitFlow, entryFlow);
+        addAntecedent(exitFlow, currentFlow);
+        currentFlow = finishFlowLabel(exitFlow);
+    }
+
     function bindJSDoc(node: Node) {
         // TODO
         // if (hasJSDocNodes(node)) {
@@ -1228,6 +1263,65 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
         // }
     }
 
+    function bindBlockScopedDeclaration(node: Declaration, symbolFlags: SymbolFlags, symbolExcludes: SymbolFlags) {
+        switch (blockScopeContainer.kind) {
+            // case SyntaxKind.ModuleDeclaration:
+            //     declareModuleMember(node, symbolFlags, symbolExcludes);
+            //     break;
+            case SyntaxKind.SourceFile:
+                // if (isExternalOrCommonJsModule(container as SourceFile)) {
+                //     declareModuleMember(node, symbolFlags, symbolExcludes);
+                //     break;
+                // }
+                // falls through
+            default:
+                Debug.assertNode(blockScopeContainer, canHaveLocals);
+                if (!blockScopeContainer.locals) {
+                    blockScopeContainer.locals = createSymbolTable();
+                    addToContainerChain(blockScopeContainer);
+                }
+                declareSymbol(blockScopeContainer.locals, /*parent*/ undefined, node, symbolFlags, symbolExcludes);
+        }
+    }
+
+
+    function bindVariableDeclarationOrBindingElement(node: VariableDeclaration | BindingElement) {
+        // if (inStrictMode) {
+        //     checkStrictModeEvalOrArguments(node, node.name);
+        // }
+
+        if (!isBindingPattern(node.name)) {
+            const possibleVariableDecl = node.kind === SyntaxKind.VariableDeclaration ? node : node.parent.parent;
+            // if (
+            //     isInJSFile(node) &&
+            //     isVariableDeclarationInitializedToBareOrAccessedRequire(possibleVariableDecl) &&
+            //     !getJSDocTypeTag(node) &&
+            //     !(getCombinedModifierFlags(node) & ModifierFlags.Export)
+            // ) {
+            //     declareSymbolAndAddToSymbolTable(node as Declaration, SymbolFlags.Alias, SymbolFlags.AliasExcludes);
+            // }
+            if (isBlockOrCatchScoped(node)) {
+                bindBlockScopedDeclaration(node, SymbolFlags.BlockScopedVariable, SymbolFlags.BlockScopedVariableExcludes);
+            }
+            else if (isPartOfParameterDeclaration(node)) {
+                // It is safe to walk up parent chain to find whether the node is a destructuring parameter declaration
+                // because its parent chain has already been set up, since parents are set before descending into children.
+                //
+                // If node is a binding element in parameter declaration, we need to use ParameterExcludes.
+                // Using ParameterExcludes flag allows the compiler to report an error on duplicate identifiers in Parameter Declaration
+                // For example:
+                //      function foo([a,a]) {} // Duplicate Identifier error
+                //      function bar(a,a) {}   // Duplicate Identifier error, parameter declaration in this case is handled in bindParameter
+                //                             // which correctly set excluded symbols
+                declareSymbolAndAddToSymbolTable(node, SymbolFlags.FunctionScopedVariable, SymbolFlags.ParameterExcludes);
+            }
+            else {
+                declareSymbolAndAddToSymbolTable(node, SymbolFlags.FunctionScopedVariable, SymbolFlags.FunctionScopedVariableExcludes);
+            }
+        }
+    }
+
+    
     function bindEach(
         nodes: NodeArray<Node> | undefined,
         bindFunction: (node: Node) => void = bind
@@ -1342,10 +1436,8 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             //     return bindTypeParameter(node as TypeParameterDeclaration);
             // case SyntaxKind.Parameter:
             //     return bindParameter(node as ParameterDeclaration);
-            // case SyntaxKind.VariableDeclaration:
-            //     return bindVariableDeclarationOrBindingElement(
-            //         node as VariableDeclaration
-            //     );
+            case SyntaxKind.VariableDeclaration:
+                return bindVariableDeclarationOrBindingElement(node as VariableDeclaration);
             // case SyntaxKind.BindingElement:
             //     (node as BindingElement).flowNode = currentFlow;
             //     return bindVariableDeclarationOrBindingElement(
@@ -1524,15 +1616,16 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
                 // updateStrictModeStatementList((node as SourceFile).statements);
                 // return bindSourceFileIfExternalModule();
                 return;
-            // case SyntaxKind.Block:
-            //     if (!isFunctionLikeOrClassStaticBlockDeclaration(node.parent)) {
-            //         return;
-            //     }
-            // // falls through
+            case SyntaxKind.Block:
+                if (!isFunctionLikeOrClassStaticBlockDeclaration(node.parent)) {
+                    return;
+                }
+            // falls through
             // case SyntaxKind.ModuleBlock:
-            //     return updateStrictModeStatementList(
-            //         (node as Block | ModuleBlock).statements
-            //     );
+                //  return updateStrictModeStatementList(
+                //      (node as Block | ModuleBlock).statements
+                //  );
+                return;
 
             // case SyntaxKind.JSDocParameterTag:
             //     if (node.parent.kind === SyntaxKind.JSDocSignature) {
@@ -1570,7 +1663,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             //     );
         }
 
-        Debug.fail("Unhandled node in bindWorker: " + Debug.formatSyntaxKind(node.kind));
+        console.warn("Unhandled node in bindWorker: " + Debug.formatSyntaxKind(node.kind));        
     }
 
     function maybeBindExpressionFlowIfCall(node: Expression) {
@@ -1676,14 +1769,14 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
         }
         else {
             // Check and see if the symbol table already has a symbol with this name.  If not,
-            // create a new symbol with this name and add it to the table.  Note that we don't
-            // give the new symbol any flags *yet*.  This ensures that it will not conflict
+            // create a new Symbol with this name and add it to the table.  Note that we don't
+            // give the new Symbol any flags *yet*.  This ensures that it will not conflict
             // with the 'excludes' flags we pass in.
             //
-            // If we do get an existing symbol, see if it conflicts with the new symbol we're
+            // If we do get an existing symbol, see if it conflicts with the new Symbol we're
             // creating.  For example, a 'var' symbol and a 'class' symbol will conflict within
             // the same symbol table.  If we have a conflict, report the issue on each
-            // declaration we have for this symbol, and then create a new symbol for this
+            // declaration we have for this symbol, and then create a new Symbol for this
             // declaration.
             //
             // Note that when properties declared in Javascript constructors
@@ -1691,9 +1784,9 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             // Always. This allows the common Javascript pattern of overwriting a prototype method
             // with an bound instance method of the same type: `this.method = this.method.bind(this)`
             //
-            // If we created a new symbol, either because we didn't have a symbol with this name
+            // If we created a new Symbol, either because we didn't have a symbol with this name
             // in the symbol table, or we conflicted with an existing symbol, then just add this
-            // node as the sole declaration of the new symbol.
+            // node as the sole declaration of the new Symbol.
             //
             // Otherwise, we'll be merging into a compatible existing symbol (for example when
             // you have multiple 'vars' with the same name in the same container).  In this case

@@ -9,7 +9,7 @@ import {
 } from "./core";
 import { SortedReadonlyArray } from "./corePublic";
 import { FlowFlags, FlowNode, MatchingKeys, Node, SyntaxKind } from "./types";
-import { getSourceFileOfNode } from "./utilities";
+
 
 /** @internal */
 export enum LogLevel {

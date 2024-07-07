@@ -14,23 +14,24 @@ import {
 export type NodeId = number;
 export type SymbolId = number;
 
-export interface LpcSymbol {
+export interface Symbol {
     flags: SymbolFlags;
     name: string;
     declarations: Declaration[]; // declarations associated with this symbol
     valueDeclaration?: Declaration; // first value declaration
     members?: SymbolTable; // members of the symbol if it is a module
     id: SymbolId; // unique id
-    parent?: LpcSymbol; // parent symbol
+    parent?: Symbol; // parent symbol
     isReferenced?: boolean; // true if symbol is referenced in the program
     lastAssignmentPos?: number; // position of last node that assigned a value to this symbol
+    mergeId: number;
 };
 
 // prettier-ignore
 export type MatchingKeys<TRecord, TMatch, K extends keyof TRecord = keyof TRecord> = K extends (TRecord[K] extends TMatch ? K : never) ? K : never;
 
 /** Simple symbol table using a Map */
-export type SymbolTable = Map<string, LpcSymbol>;
+export type SymbolTable = Map<string, Symbol>;
 
 export interface CompilerOptions {
     allowUnreachableCode?: boolean;
@@ -547,13 +548,30 @@ export const enum SymbolFlags {
     Method                      = 1 << 13,  // Method
     Assignment                  = 1 << 26,  // Assignment treated as declaration (eg `this.prop = 1`)
 
+    HasComputedFlags            = 1 << 31, // Transform flags have been computed.
+
     Variable = FunctionScopedVariable | BlockScopedVariable,
     Value = Variable | Property | ObjectLiteral | Function | Method | Class,
     FunctionExcludes = Value & ~(Function|Class),
+
+    // Variables can be redeclared, but can not redeclare a block-scoped declaration with the
+    // same name, or any other value that is not a variable, e.g. ValueModule or Class
+    FunctionScopedVariableExcludes = Value & ~FunctionScopedVariable,
+
+    // Block-scoped declarations are not allowed to be re-declared
+    // they can not merge with anything in the value space
+    BlockScopedVariableExcludes = Value,
+    
     /** @internal */
     // The set of things we consider semantically classifiable.  Used to speed up the LS during
     // classification.
     Classifiable = Class,// | Enum | TypeAlias | Interface | TypeParameter | Module | Alias,
+
+    // Scope exclusions
+    OuterExpressionExcludes = HasComputedFlags,
+    PropertyAccessExcludes = OuterExpressionExcludes,
+    NodeExcludes = PropertyAccessExcludes,
+    ParameterExcludes = NodeExcludes,
 }
 
 // prettier-ignore
@@ -668,7 +686,7 @@ export type EndOfFileToken = Token<SyntaxKind.EndOfFileToken> & JSDocContainer;
 
 export interface Declaration extends Node {
     _declarationBrand: any;
-    symbol: LpcSymbol; // symbol declared by node (init by binding)
+    symbol: Symbol; // symbol declared by node (init by binding)
 }
 
 export interface LocalsContainer extends Node {
@@ -1037,8 +1055,8 @@ export interface PropertyAccessEntityNameExpression
 
 export interface Declaration extends Node {
     _declarationBrand: any;
-    /** @internal */ symbol: LpcSymbol; // Symbol declared by node (initialized by binding)
-    /** @internal */ localSymbol?: LpcSymbol; // Local symbol declared by node (initialized by binding only for exported nodes)
+    /** @internal */ symbol: Symbol; // Symbol declared by node (initialized by binding)
+    /** @internal */ localSymbol?: Symbol; // Local symbol declared by node (initialized by binding only for exported nodes)
 }
 
 export interface NamedDeclaration extends Declaration {
@@ -1248,6 +1266,7 @@ export interface SignatureDeclarationBase extends NamedDeclaration, JSDocContain
 
 export type SignatureDeclaration =
     | FunctionDeclaration
+    | FunctionExpression
     | JSDocFunctionType
     | InlineClosureExpression;
 
@@ -1262,7 +1281,7 @@ export type SignatureDeclaration =
 export interface FunctionLikeDeclarationBase extends SignatureDeclarationBase {
     _functionLikeDeclarationBrand: any;
 
-    readonly body?: ConciseBody | Expression | undefined;
+    readonly body?: Block | Expression | undefined;
     /** @internal */ endFlowNode?: FlowNode;
     /** @internal */ returnFlowNode?: FlowNode;
 }
@@ -1270,11 +1289,21 @@ export interface FunctionLikeDeclarationBase extends SignatureDeclarationBase {
 export type FunctionBody = Block;
 export type ConciseBody = FunctionBody | Expression;
 
-export type FunctionLikeDeclaration = FunctionDeclaration;
+export type FunctionLikeDeclaration = FunctionDeclaration
 // TODO
 // | MethodDeclaration
-// | FunctionExpression
+ | FunctionExpression
 // | ArrowFunction
+;
+
+
+export interface FunctionExpression extends PrimaryExpression, FunctionLikeDeclarationBase, JSDocContainer, LocalsContainer, FlowContainer {
+    readonly kind: SyntaxKind.FunctionExpression;
+    readonly modifiers?: NodeArray<Modifier>;
+    readonly name?: Identifier;
+    readonly body: FunctionBody; // Required, whereas the member inherited from FunctionDeclaration is optional
+}
+
 
 export interface FunctionDeclaration
     extends FunctionLikeDeclarationBase,
@@ -1579,10 +1608,10 @@ export type HasFlowNode =
 
 /** @internal */
 export type HasChildren =
-    // | QualifiedName
+     | QualifiedName
     // | ComputedPropertyName
     // | TypeParameterDeclaration
-    // | ParameterDeclaration
+     | ParameterDeclaration
     // | PropertySignature
     // | PropertyDeclaration
     // | MethodSignature
@@ -1595,7 +1624,7 @@ export type HasChildren =
     // | InferTypeNode
     // | ObjectBindingPattern
     // | ArrayBindingPattern
-    // | BindingElement
+     | BindingElement
     // | ArrayLiteralExpression
     // | ObjectLiteralExpression
     // | PropertyAccessExpression
@@ -1604,16 +1633,16 @@ export type HasChildren =
     // | NewExpression
     // | TypeAssertion
     // | ParenthesizedExpression
-    // | FunctionExpression
+     | FunctionExpression
     // | ArrowFunction
     // | PrefixUnaryExpression
     // | PostfixUnaryExpression
-    // | BinaryExpression
+     | BinaryExpression
     // | ConditionalExpression
     // | SpreadElement
     // | NonNullExpression
-    // | Block
-    // | VariableStatement
+     | Block
+     | VariableStatement
     // | ExpressionStatement
     // | IfStatement
     // | DoStatement
@@ -1624,9 +1653,9 @@ export type HasChildren =
     // | BreakStatement
     | ReturnStatement
     // | SwitchStatement
-    // | VariableDeclaration
-    // | VariableDeclarationList
-    | FunctionDeclaration;
+     | VariableDeclaration
+     | VariableDeclarationList
+    | FunctionDeclaration
 // | CaseBlock
 // | ImportDeclaration
 // | ImportAttributes
@@ -1647,10 +1676,10 @@ export type HasChildren =
 // | PropertyAssignment
 // | ShorthandPropertyAssignment
 // | SpreadAssignment
-// | SourceFile
+ | SourceFile
 // | PartiallyEmittedExpression
 // | CommaListExpression
-
+;
 /** @internal */
 export type ForEachChildNodes =
     | HasChildren

@@ -8,11 +8,13 @@ import { createNodeFactory } from "./nodeFactory";
 import {
     BinaryExpression,
     BinaryOperatorToken,
+    BindingElement,
     Block,
     EndOfFileToken,
     Expression,
     ForEachChildNodes,
     FunctionDeclaration,
+    FunctionExpression,
     HasJSDoc,
     Identifier,
     InlineClosureExpression,
@@ -22,7 +24,9 @@ import {
     Node,
     NodeArray,
     NodeFlags,
+    ParameterDeclaration,
     PrivateIdentifier,
+    QualifiedName,
     ReturnStatement,
     SourceFile,
     Statement,
@@ -846,12 +850,17 @@ export function forEachChild<T>(
     return fn === undefined ? undefined : fn(node, cbNode, cbNodes);
 }
 
+function forEachChildInBlock<T>(node: Block , cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+    return visitNodes(cbNode, cbNodes, node.statements);
+}
+
+
 // prettier-ignore
 const forEachChildTable: ForEachChildTable = {
-    // [SyntaxKind.QualifiedName]: function forEachChildInQualifiedName<T>(node: QualifiedName, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
-    //     return visitNode(cbNode, node.left) ||
-    //         visitNode(cbNode, node.right);
-    // },
+    [SyntaxKind.QualifiedName]: function forEachChildInQualifiedName<T>(node: QualifiedName, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNode(cbNode, node.left) ||
+            visitNode(cbNode, node.right);
+    },
     // [SyntaxKind.TypeParameter]: function forEachChildInTypeParameter<T>(node: TypeParameterDeclaration, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
     //     return visitNodes(cbNode, cbNodes, node.modifiers) ||
     //         visitNode(cbNode, node.name) ||
@@ -870,14 +879,14 @@ const forEachChildTable: ForEachChildTable = {
     // [SyntaxKind.SpreadAssignment]: function forEachChildInSpreadAssignment<T>(node: SpreadAssignment, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
     //     return visitNode(cbNode, node.expression);
     // },
-    // [SyntaxKind.Parameter]: function forEachChildInParameter<T>(node: ParameterDeclaration, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
-    //     return visitNodes(cbNode, cbNodes, node.modifiers) ||
-    //         visitNode(cbNode, node.dotDotDotToken) ||
-    //         visitNode(cbNode, node.name) ||
-    //         visitNode(cbNode, node.questionToken) ||
-    //         visitNode(cbNode, node.type) ||
-    //         visitNode(cbNode, node.initializer);
-    // },
+    [SyntaxKind.Parameter]: function forEachChildInParameter<T>(node: ParameterDeclaration, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNodes(cbNode, cbNodes, node.modifiers) ||
+            visitNode(cbNode, node.dotDotDotToken) ||
+            visitNode(cbNode, node.name) ||
+            //visitNode(cbNode, node.questionToken) ||
+            visitNode(cbNode, node.type) ||
+            visitNode(cbNode, node.initializer);
+    },
     // [SyntaxKind.PropertyDeclaration]: function forEachChildInPropertyDeclaration<T>(node: PropertyDeclaration, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
     //     return visitNodes(cbNode, cbNodes, node.modifiers) ||
     //         visitNode(cbNode, node.name) ||
@@ -900,18 +909,17 @@ const forEachChildTable: ForEachChildTable = {
     //         visitNode(cbNode, node.exclamationToken) ||
     //         visitNode(cbNode, node.initializer);
     // },
-    // [SyntaxKind.VariableDeclaration]: function forEachChildInVariableDeclaration<T>(node: VariableDeclaration, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
-    //     return visitNode(cbNode, node.name) ||
-    //         visitNode(cbNode, node.exclamationToken) ||
-    //         visitNode(cbNode, node.type) ||
-    //         visitNode(cbNode, node.initializer);
-    // },
-    // [SyntaxKind.BindingElement]: function forEachChildInBindingElement<T>(node: BindingElement, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
-    //     return visitNode(cbNode, node.dotDotDotToken) ||
-    //         visitNode(cbNode, node.propertyName) ||
-    //         visitNode(cbNode, node.name) ||
-    //         visitNode(cbNode, node.initializer);
-    // },
+    [SyntaxKind.VariableDeclaration]: function forEachChildInVariableDeclaration<T>(node: VariableDeclaration, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNode(cbNode, node.name) ||            
+            visitNode(cbNode, node.type) ||
+            visitNode(cbNode, node.initializer);
+    },
+    [SyntaxKind.BindingElement]: function forEachChildInBindingElement<T>(node: BindingElement, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNode(cbNode, node.dotDotDotToken) ||
+            visitNode(cbNode, node.propertyName) ||
+            visitNode(cbNode, node.name) ||
+            visitNode(cbNode, node.initializer);
+    },
     // [SyntaxKind.IndexSignature]: function forEachChildInIndexSignature<T>(node: IndexSignatureDeclaration, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
     //     return visitNodes(cbNode, cbNodes, node.modifiers) ||
     //         visitNodes(cbNode, cbNodes, node.typeParameters) ||
@@ -982,15 +990,13 @@ const forEachChildTable: ForEachChildTable = {
             visitNode(cbNode, node.type) ||
             visitNode(cbNode, node.body);
     },
-    // [SyntaxKind.FunctionExpression]: function forEachChildInFunctionExpression<T>(node: FunctionExpression, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
-    //     return visitNodes(cbNode, cbNodes, node.modifiers) ||
-    //         visitNode(cbNode, node.asteriskToken) ||
-    //         visitNode(cbNode, node.name) ||
-    //         visitNodes(cbNode, cbNodes, node.typeParameters) ||
-    //         visitNodes(cbNode, cbNodes, node.parameters) ||
-    //         visitNode(cbNode, node.type) ||
-    //         visitNode(cbNode, node.body);
-    // },
+    [SyntaxKind.FunctionExpression]: function forEachChildInFunctionExpression<T>(node: FunctionExpression, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNodes(cbNode, cbNodes, node.modifiers) ||            
+            visitNode(cbNode, node.name) ||            
+            visitNodes(cbNode, cbNodes, node.parameters) ||
+            visitNode(cbNode, node.type) ||
+            visitNode(cbNode, node.body);
+    },
     // [SyntaxKind.ArrowFunction]: function forEachChildInArrowFunction<T>(node: ArrowFunction, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
     //     return visitNodes(cbNode, cbNodes, node.modifiers) ||
     //         visitNodes(cbNode, cbNodes, node.typeParameters) ||
@@ -1123,11 +1129,11 @@ const forEachChildTable: ForEachChildTable = {
     // [SyntaxKind.PostfixUnaryExpression]: function forEachChildInPostfixUnaryExpression<T>(node: PostfixUnaryExpression, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
     //     return visitNode(cbNode, node.operand);
     // },
-    // [SyntaxKind.BinaryExpression]: function forEachChildInBinaryExpression<T>(node: BinaryExpression, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
-    //     return visitNode(cbNode, node.left) ||
-    //         visitNode(cbNode, node.operatorToken) ||
-    //         visitNode(cbNode, node.right);
-    // },
+    [SyntaxKind.BinaryExpression]: function forEachChildInBinaryExpression<T>(node: BinaryExpression, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNode(cbNode, node.left) ||
+            visitNode(cbNode, node.operatorToken) ||
+            visitNode(cbNode, node.right);
+    },
     // [SyntaxKind.AsExpression]: function forEachChildInAsExpression<T>(node: AsExpression, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
     //     return visitNode(cbNode, node.expression) ||
     //         visitNode(cbNode, node.type);
@@ -1151,19 +1157,19 @@ const forEachChildTable: ForEachChildTable = {
     // [SyntaxKind.SpreadElement]: function forEachChildInSpreadElement<T>(node: SpreadElement, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
     //     return visitNode(cbNode, node.expression);
     // },
-    // [SyntaxKind.Block]: forEachChildInBlock,
+     [SyntaxKind.Block]: forEachChildInBlock,
     // [SyntaxKind.ModuleBlock]: forEachChildInBlock,
-    // [SyntaxKind.SourceFile]: function forEachChildInSourceFile<T>(node: SourceFile, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
-    //     return visitNodes(cbNode, cbNodes, node.statements) ||
-    //         visitNode(cbNode, node.endOfFileToken);
-    // },
-    // [SyntaxKind.VariableStatement]: function forEachChildInVariableStatement<T>(node: VariableStatement, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
-    //     return visitNodes(cbNode, cbNodes, node.modifiers) ||
-    //         visitNode(cbNode, node.declarationList);
-    // },
-    // [SyntaxKind.VariableDeclarationList]: function forEachChildInVariableDeclarationList<T>(node: VariableDeclarationList, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
-    //     return visitNodes(cbNode, cbNodes, node.declarations);
-    // },
+     [SyntaxKind.SourceFile]: function forEachChildInSourceFile<T>(node: SourceFile, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNodes(cbNode, cbNodes, node.statements) ||
+            visitNode(cbNode, node.endOfFileToken);
+    },
+    [SyntaxKind.VariableStatement]: function forEachChildInVariableStatement<T>(node: VariableStatement, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNodes(cbNode, cbNodes, node.modifiers) ||
+            visitNode(cbNode, node.declarationList);
+    },
+    [SyntaxKind.VariableDeclarationList]: function forEachChildInVariableDeclarationList<T>(node: VariableDeclarationList, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNodes(cbNode, cbNodes, node.declarations);
+    },
     // [SyntaxKind.ExpressionStatement]: function forEachChildInExpressionStatement<T>(node: ExpressionStatement, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
     //     return visitNode(cbNode, node.expression);
     // },

@@ -1,9 +1,10 @@
-import { isBinaryExpression, isBindingElement, isIdentifier, isPropertyAssignment, isVariableDeclaration } from "./nodeTests";
+import { isBinaryExpression, isBindingElement, isFunctionExpression, isIdentifier, isPropertyAssignment, isVariableDeclaration } from "./nodeTests";
 import {
     AccessExpression,
     AssignmentDeclarationKind,
     BinaryExpression,
     BindingElement,
+    BindingPattern,
     Block,
     CallExpression,
     ClassLikeDeclaration,
@@ -373,9 +374,8 @@ export function getNonAssignedNameOfDeclaration(declaration: Declaration | Expre
 
 export function getNameOfDeclaration(declaration: Declaration | Expression | undefined): DeclarationName | undefined {
     if (declaration === undefined) return undefined;
-    return getNonAssignedNameOfDeclaration(declaration) 
-        //|| (isFunctionExpression(declaration) || isArrowFunction(declaration) || isClassExpression(declaration) 
-        ? getAssignedName(declaration) : undefined;
+    // || isArrowFunction(declaration) || isClassExpression(declaration) 
+    return getNonAssignedNameOfDeclaration(declaration) || (isFunctionExpression(declaration)) ? getAssignedName(declaration) : undefined;
 }
 
 
@@ -461,3 +461,18 @@ export function createTextSpanFromBounds(start: number, end: number) {
     return createTextSpan(start, end - start);
 }
 
+/** @internal */
+export function isFunctionLikeOrClassStaticBlockDeclaration(node: Node | undefined): node is SignatureDeclaration  {
+    return !!node && (isFunctionLikeKind(node.kind));
+}
+
+/** @internal */
+export function isBindingPattern(node: Node | undefined): node is BindingPattern {
+    if (node) {
+        const kind = node.kind;
+        return kind === SyntaxKind.ArrayBindingPattern
+            || kind === SyntaxKind.ObjectBindingPattern;
+    }
+
+    return false;
+}

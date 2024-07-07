@@ -1,3 +1,4 @@
+import * as __types from "./types";
 import { AssertionLevel, MapLike, emptyArray, hasProperty, some } from "./core";
 import {
     AssignmentExpression,
@@ -35,7 +36,7 @@ import {
     SymbolTable,
     SyntaxKind,
     TextRange,
-    LpcSymbol as Symbol,
+    Symbol,
     Token,
     WrappedExpression,
     CallExpression,
@@ -80,6 +81,7 @@ import {
     createTextSpanFromBounds,
     escapeLeadingUnderscores,
     findAncestor,
+    getCombinedNodeFlags,
     getJSDocTypeTag,
     isClassLike,
     isFunctionLike,
@@ -94,6 +96,7 @@ let localizedDiagnosticMessages: MapLike<string> | undefined;
 
 /** @internal */
 export type Mutable<T extends object> = { -readonly [K in keyof T]: T[K] };
+
 
 /**
  * @internal
@@ -131,6 +134,23 @@ function Node(this: Mutable<Node>, kind: SyntaxKind, pos: number, end: number) {
     this.modifierFlagsCache = ModifierFlags.None;
     this.parent = undefined!;
     this.original = undefined;
+}
+
+function Symbol(this: Symbol, flags: SymbolFlags, name: string) {
+    // Note: if modifying this, be sure to update SymbolObject in src/services/services.ts
+    this.flags = flags;
+    //this.escapedName = name;
+    this.declarations = undefined;
+    this.valueDeclaration = undefined;
+    this.id = 0;
+    this.mergeId = 0;
+    this.parent = undefined;
+    this.members = undefined;
+    // this.exports = undefined;
+    // this.exportSymbol = undefined;    
+    this.isReferenced = undefined;
+    this.lastAssignmentPos = undefined;
+    (this as any).links = undefined; // used by TransientSymbol
 }
 
 function Identifier(
@@ -1301,4 +1321,41 @@ export function addRelatedInfo<T extends Diagnostic>(diagnostic: T, ...relatedIn
     Debug.assert(diagnostic.relatedInformation !== emptyArray, "Diagnostic had empty array singleton for related info, but is still being constructed!");
     diagnostic.relatedInformation.push(...relatedInformation);
     return diagnostic;
+}
+
+/** @internal */
+export function isBlockOrCatchScoped(declaration: Declaration) {
+    return (getCombinedNodeFlags(declaration) & NodeFlags.BlockScoped) !== 0 ||
+        isCatchClauseVariableDeclarationOrBindingElement(declaration);
+}
+
+
+/** @internal */
+export function isCatchClauseVariableDeclarationOrBindingElement(declaration: Declaration) {
+    const node = getRootDeclaration(declaration);
+    return node.kind === SyntaxKind.VariableDeclaration && node.parent.kind === SyntaxKind.CatchClause;
+}
+
+/** @internal */
+export function getRootDeclaration(node: Node): Node {
+    while (node.kind === SyntaxKind.BindingElement) {
+        node = node.parent.parent;
+    }
+    return node;
+}
+
+
+
+/**
+ * This function returns true if the this node's root declaration is a parameter.
+ * For example, passing a `ParameterDeclaration` will return true, as will passing a
+ * binding element that is a child of a `ParameterDeclaration`.
+ *
+ * If you are looking to test that a `Node` is a `ParameterDeclaration`, use `isParameter`.
+ *
+ * @internal
+ */
+export function isPartOfParameterDeclaration(node: Declaration): boolean {
+    const root = getRootDeclaration(node);
+    return root.kind === SyntaxKind.Parameter;
 }

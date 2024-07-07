@@ -4,6 +4,7 @@ import {
     Block,
     CallExpression,
     FunctionDeclaration,
+    FunctionExpression,
     Identifier,
     JSDocTypeExpression,
     Node,
@@ -110,4 +111,9 @@ export function isJSDocTypeExpression(node: Node): node is JSDocTypeExpression {
     return node.kind === SyntaxKind.JSDocTypeExpression;
 }
 
+
+
+export function isFunctionExpression(node: Node): node is FunctionExpression {
+    return node.kind === SyntaxKind.FunctionExpression;
+}
 
