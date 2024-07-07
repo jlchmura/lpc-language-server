@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import * as fs from "fs";
 import * as path from "path";
-import { Symbol } from "./compiler/types";
+import { LpcSymbol } from "./compiler/types";
 import {
     BailErrorStrategy,
     CharStream,

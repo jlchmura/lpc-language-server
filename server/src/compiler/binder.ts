@@ -1,5 +1,4 @@
 import { contains, forEach, getRangesWhere } from "./core";
-import { Debug } from "./debug";
 import {
     isBinaryExpression,
     isBlock,
@@ -54,6 +53,7 @@ import {
     SyntaxKind,
     VariableDeclaration,
     WhileStatement,
+    LpcSymbol as Symbol
 } from "./types";
 import {
     Mutable,
@@ -71,6 +71,7 @@ import {
     isOptionalChain,
     isStringOrNumericLiteralLike,
     nodeIsPresent,
+    objectAllocator,
     setParent,
     skipParentheses,
     sliceAfter,
@@ -201,6 +202,52 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
     /* eslint-enable no-var */
 
     return bindSourceFile;
+
+    function bindSourceFile(f: SourceFile, opts: CompilerOptions) {
+        file = f;
+        options = opts;
+        //inStrictMode = bindInStrictMode(file, opts);
+        classifiableNames = new Set();
+        symbolCount = 0;
+
+        Symbol = objectAllocator.getSymbolConstructor();
+
+        // Attach debugging information if necessary
+        //Debug.attachFlowNodeDebugInfo(unreachableFlow);
+        //Debug.attachFlowNodeDebugInfo(reportedUnreachableFlow);
+
+        if (!file.locals) {
+            //tracing?.push(tracing.Phase.Bind, "bindSourceFile", { path: file.path }, /*separateBeginAndEnd*/ true);
+            bind(file);
+            //tracing?.pop();
+            file.symbolCount = symbolCount;
+            file.classifiableNames = classifiableNames;
+            // TODO: delayedBindJSDocTypedefTag();
+            // TODO: bindJSDocImports();
+        }
+
+        file = undefined!;
+        options = undefined!;        
+        parent = undefined!;
+        container = undefined!;
+        thisParentContainer = undefined!;
+        blockScopeContainer = undefined!;
+        lastContainer = undefined!;
+        //delayedTypeAliases = undefined!;
+        //jsDocImports = undefined!;
+        seenThisKeyword = false;
+        currentFlow = undefined!;
+        currentBreakTarget = undefined;
+        currentContinueTarget = undefined;
+        currentReturnTarget = undefined;
+        currentTrueTarget = undefined;
+        currentFalseTarget = undefined;
+        currentExceptionTarget = undefined;
+        activeLabelList = undefined;
+        hasExplicitReturn = false;
+        hasFlowEffects = false;
+        inAssignmentPattern = false;        
+    }
 
     function createBindBinaryExpressionFlow() {
         interface WorkArea {

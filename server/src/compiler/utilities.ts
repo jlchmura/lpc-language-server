@@ -35,13 +35,13 @@ import {
     SymbolTable,
     SyntaxKind,
     TextRange,
-    Symbol,
+    LpcSymbol,
     Token,
     WrappedExpression,
     CallExpression,
     CompilerOptions,
     PropertyAccessExpression,
-} from "./lpc";
+} from "./types";
 import { LPCLexer } from "../parser3/LPCLexer";
 import { Debug } from "./debug";
 import {
@@ -70,7 +70,7 @@ export interface ObjectAllocator {
     getIdentifierConstructor(): new (kind: SyntaxKind.Identifier, pos: number, end: number) => Identifier;
     getPrivateIdentifierConstructor(): new (kind: SyntaxKind.PrivateIdentifier, pos: number, end: number) => PrivateIdentifier;
     getSourceFileConstructor(): new (kind: SyntaxKind.SourceFile, pos: number, end: number) => SourceFile;
-    getSymbolConstructor(): new (flags: SymbolFlags, name: string) => Symbol;
+    getSymbolConstructor(): new (flags: SymbolFlags, name: string) => LpcSymbol;
     //getTypeConstructor(): new (checker: TypeChecker, flags: TypeFlags) => Type;
     //getSignatureConstructor(): new (checker: TypeChecker, flags: SignatureFlags) => Signature;
 }
@@ -708,8 +708,8 @@ export function setParent<T extends Node>(
 }
 
 /** @internal */
-export function createSymbolTable(symbols?: readonly Symbol[]): SymbolTable {
-    const result = new Map<string, Symbol>();
+export function createSymbolTable(symbols?: readonly LpcSymbol[]): SymbolTable {
+    const result = new Map<string, LpcSymbol>();
     if (symbols) {
         for (const symbol of symbols) {
             result.set(symbol.name, symbol);
@@ -810,3 +810,16 @@ export function skipParentheses(node: Node, excludeJSDocTypeAssertions?: boolean
         OuterExpressionKinds.Parentheses;
     return skipOuterExpressions(node, flags);
 } // prettier-ignore
+
+
+/** @internal */
+export function getSourceFileOfNode(node: Node): SourceFile;
+/** @internal */
+export function getSourceFileOfNode(node: Node | undefined): SourceFile | undefined;
+/** @internal */
+export function getSourceFileOfNode(node: Node | undefined): SourceFile | undefined {
+    while (node && node.kind !== SyntaxKind.SourceFile) {
+        node = node.parent;
+    }
+    return node as SourceFile;
+}

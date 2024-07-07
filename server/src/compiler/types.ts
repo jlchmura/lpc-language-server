@@ -15,24 +15,25 @@ import {
 export type NodeId = number;
 export type SymbolId = number;
 
-export interface Symbol {
+export interface LpcSymbol {
     flags: SymbolFlags;
     name: string;
     declarations: Declaration[]; // declarations associated with this symbol
     valueDeclaration?: Declaration; // first value declaration
     members?: SymbolTable; // members of the symbol if it is a module
     id: SymbolId; // unique id
-    parent?: Symbol; // parent symbol
+    parent?: LpcSymbol; // parent symbol
     isReferenced?: boolean; // true if symbol is referenced in the program
     lastAssignmentPos?: number; // position of last node that assigned a value to this symbol
 };
+
 
 
 // prettier-ignore
 export type MatchingKeys<TRecord, TMatch, K extends keyof TRecord = keyof TRecord> = K extends (TRecord[K] extends TMatch ? K : never) ? K : never;
 
 /** Simple symbol table using a Map */
-export type SymbolTable = Map<string, Symbol>;
+export type SymbolTable = Map<string, LpcSymbol>;
 
 export interface CompilerOptions {
     allowUnreachableCode?: boolean;
@@ -648,7 +649,7 @@ export type EndOfFileToken = Token<SyntaxKind.EndOfFileToken> & JSDocContainer;
 
 export interface Declaration extends Node {
     _declarationBrand: any;
-    symbol: Symbol; // symbol declared by node (init by binding)
+    symbol: LpcSymbol; // symbol declared by node (init by binding)
 }
 
 export interface LocalsContainer extends Node {
@@ -762,6 +763,8 @@ export interface SourceFile extends Declaration, LocalsContainer {
     nodeCount: number;
     identifierCount: number;
     symbolCount: number;
+    
+    /** @internal */ classifiableNames?: ReadonlySet<string>;
 
     parseDiagnostics: any[]; // TODO
     pragmas: Set<string>; // TODO
@@ -1001,8 +1004,8 @@ export interface PropertyAccessEntityNameExpression
 
 export interface Declaration extends Node {
     _declarationBrand: any;
-    /** @internal */ symbol: Symbol; // Symbol declared by node (initialized by binding)
-    /** @internal */ localSymbol?: Symbol; // Local symbol declared by node (initialized by binding only for exported nodes)
+    /** @internal */ symbol: LpcSymbol; // Symbol declared by node (initialized by binding)
+    /** @internal */ localSymbol?: LpcSymbol; // Local symbol declared by node (initialized by binding only for exported nodes)
 }
 
 export interface NamedDeclaration extends Declaration {
