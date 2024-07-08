@@ -12,6 +12,7 @@ import {
     BinaryOperatorToken,
     BindingName,
     Block,
+    CallExpression,
     ColonToken,
     ConciseBody,
     ConditionalExpression,
@@ -20,6 +21,7 @@ import {
     EndOfFileToken,
     EntityName,
     Expression,
+    ExpressionStatement,
     FloatLiteral,
     FunctionDeclaration,
     Identifier,
@@ -29,6 +31,7 @@ import {
     KeywordToken,
     KeywordTypeNode,
     KeywordTypeSyntaxKind,
+    LeftHandSideExpression,
     LiteralToken,
     Modifier,
     ModifierSyntaxKind,
@@ -76,6 +79,8 @@ export function createNodeFactory(baseFactory: BaseNodeFactory): NodeFactory {
         createBinaryExpression,
         createConditionalExpression,
         createLiteralLikeNode,
+        createCallExpression,
+        createExpressionStatement
     };
 
     return factory;
@@ -459,5 +464,46 @@ export function createNodeFactory(baseFactory: BaseNodeFactory): NodeFactory {
             case SyntaxKind.StringLiteral:
                 return createStringLiteral(text, /*isSingleQuote*/ undefined);
         }
+    }
+
+    function createBaseCallExpression(expression: LeftHandSideExpression,  argumentsArray: NodeArray<Expression>) {
+        const node = createBaseDeclaration<CallExpression>(SyntaxKind.CallExpression);
+        node.expression = expression;                
+        node.arguments = argumentsArray;
+        // node.transformFlags |= propagateChildFlags(node.expression) |
+        //     propagateChildFlags(node.questionDotToken) |
+        //     propagateChildrenFlags(node.typeArguments) |
+        //     propagateChildrenFlags(node.arguments);
+        // if (node.typeArguments) {
+        //     node.transformFlags |= TransformFlags.ContainsTypeScript;
+        // }
+        // if (isSuperProperty(node.expression)) {
+        //     node.transformFlags |= TransformFlags.ContainsLexicalThis;
+        // }
+        return node;
+    }
+
+
+    // @api
+    function createCallExpression(expression: Expression, argumentsArray: readonly Expression[] | undefined) {
+        const node = createBaseCallExpression(
+            expression as LeftHandSideExpression,                        
+            argumentsArray as NodeArray<Expression>,
+        );
+        // if (isImportKeyword(node.expression)) {
+        //     node.transformFlags |= TransformFlags.ContainsDynamicImport;
+        // }
+        return node;
+    }
+
+    // @api
+    function createExpressionStatement(expression: Expression): ExpressionStatement {
+        const node = createBaseNode<ExpressionStatement>(SyntaxKind.ExpressionStatement);
+        node.expression = expression;//parenthesizerRules().parenthesizeExpressionOfExpressionStatement(expression);
+        //node.transformFlags |= propagateChildFlags(node.expression);
+
+        node.jsDoc = undefined; // initialized by parser (JsDocContainer)
+        node.flowNode = undefined; // initialized by binder (FlowContainer)
+        return node;
     }
 }

@@ -73,6 +73,7 @@ import {
     Block,
     MethodDeclaration,
     ReturnStatement,
+    PostfixUnaryExpression,
     
 } from "./types";
 import {
@@ -103,7 +104,7 @@ import {
     isObjectLiteralOrClassExpressionMethodOrAccessor,
     isOptionalChain,
     isPartOfParameterDeclaration,
-    isPropertyNameLiteral,
+    isPropertyNameLiteral,    
     isSignedNumericLiteral,
     isStringOrNumericLiteralLike,
     nodeIsPresent,
@@ -1129,12 +1130,12 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             // case SyntaxKind.LabeledStatement:
             //     bindLabeledStatement(node as LabeledStatement);
             //     break;
-            // case SyntaxKind.PrefixUnaryExpression:
-            //     bindPrefixUnaryExpressionFlow(node as PrefixUnaryExpression);
-            //     break;
-            // case SyntaxKind.PostfixUnaryExpression:
-            //     bindPostfixUnaryExpressionFlow(node as PostfixUnaryExpression);
-            //     break;
+            case SyntaxKind.PrefixUnaryExpression:
+                bindPrefixUnaryExpressionFlow(node as PrefixUnaryExpression);
+                break;
+            case SyntaxKind.PostfixUnaryExpression:
+                bindPostfixUnaryExpressionFlow(node as PostfixUnaryExpression);
+                break;
             case SyntaxKind.BinaryExpression:
                 // if (isDestructuringAssignment(node)) {
                 //     // Carry over whether we are in an assignment pattern to
@@ -1158,9 +1159,9 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             // case SyntaxKind.ElementAccessExpression:
             //     bindAccessExpressionFlow(node as AccessExpression);
             //     break;
-            // case SyntaxKind.CallExpression:
-            //     bindCallExpressionFlow(node as CallExpression);
-            //     break;
+            case SyntaxKind.CallExpression:
+                bindCallExpressionFlow(node as CallExpression);
+                break;
             // case SyntaxKind.NonNullExpression:
             //     bindNonNullExpressionFlow(node as NonNullExpression);
             //     break;
@@ -1202,6 +1203,57 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
         }
         bindJSDoc(node);
         inAssignmentPattern = saveInAssignmentPattern;
+    }
+
+    function bindPostfixUnaryExpressionFlow(node: PostfixUnaryExpression) {
+        bindEachChild(node);
+        if (node.operator === SyntaxKind.PlusPlusToken || node.operator === SyntaxKind.MinusMinusToken) {
+            bindAssignmentTargetFlow(node.operand);
+        }
+    }
+
+
+    function bindPrefixUnaryExpressionFlow(node: PrefixUnaryExpression) {
+        if (node.operator === SyntaxKind.ExclamationToken) {
+            const saveTrueTarget = currentTrueTarget;
+            currentTrueTarget = currentFalseTarget;
+            currentFalseTarget = saveTrueTarget;
+            bindEachChild(node);
+            currentFalseTarget = currentTrueTarget;
+            currentTrueTarget = saveTrueTarget;
+        }
+        else {
+            bindEachChild(node);
+            if (node.operator === SyntaxKind.PlusPlusToken || node.operator === SyntaxKind.MinusMinusToken) {
+                bindAssignmentTargetFlow(node.operand);
+            }
+        }
+    }
+
+    function bindCallExpressionFlow(node: CallExpression) { // TODO | CallChain) {
+        
+        // If the target of the call expression is a function expression or arrow function we have
+        // an immediately invoked function expression (IIFE). Initialize the flowNode property to
+        // the current control flow (which includes evaluation of the IIFE arguments).
+        const expr = skipParentheses(node.expression);
+        if (expr.kind === SyntaxKind.FunctionExpression || expr.kind === SyntaxKind.ArrowFunction) {
+            //bindEach(node.typeArguments);
+            bindEach(node.arguments);
+            bind(node.expression);
+        }
+        else {
+            bindEachChild(node);
+            if (node.expression.kind === SyntaxKind.ColonColonToken) {
+                currentFlow = createFlowCall(currentFlow, node);
+            }
+        }
+    
+        if (node.expression.kind === SyntaxKind.PropertyAccessExpression) {
+            const propertyAccess = node.expression as PropertyAccessExpression;
+            if (isIdentifier(propertyAccess.name) && isNarrowableOperand(propertyAccess.expression)) {
+                currentFlow = createFlowMutation(FlowFlags.ArrayMutation, currentFlow, node);
+            }
+        }
     }
 
     function bindFunctionDeclaration(node: FunctionDeclaration) {
@@ -1544,34 +1596,31 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             //         node as FunctionExpression | ArrowFunction
             //     );
 
-            // case SyntaxKind.CallExpression:
-            //     const assignmentKind = getAssignmentDeclarationKind(
-            //         node as CallExpression
-            //     );
-            //     switch (assignmentKind) {
-            //         case AssignmentDeclarationKind.ObjectDefinePropertyValue:
-            //             return bindObjectDefinePropertyAssignment(
-            //                 node as BindableObjectDefinePropertyCall
-            //             );
-            //         case AssignmentDeclarationKind.ObjectDefinePropertyExports:
-            //             return bindObjectDefinePropertyExport(
-            //                 node as BindableObjectDefinePropertyCall
-            //             );
-            //         case AssignmentDeclarationKind.ObjectDefinePrototypeProperty:
-            //             return bindObjectDefinePrototypeProperty(
-            //                 node as BindableObjectDefinePropertyCall
-            //             );
-            //         case AssignmentDeclarationKind.None:
-            //             break; // Nothing to do
-            //         default:
-            //             return Debug.fail(
-            //                 "Unknown call expression assignment declaration kind"
-            //             );
-            //     }
-            //     if (isInJSFile(node)) {
-            //         bindCallExpression(node as CallExpression);
-            //     }
-            //     break;
+            case SyntaxKind.CallExpression:
+                const assignmentKind = getAssignmentDeclarationKind(
+                    node as CallExpression
+                );
+                switch (assignmentKind) {
+                    // case AssignmentDeclarationKind.ObjectDefinePropertyValue:
+                    //     return bindObjectDefinePropertyAssignment(
+                    //         node as BindableObjectDefinePropertyCall
+                    //     );
+                    // case AssignmentDeclarationKind.ObjectDefinePropertyExports:
+                    //     return bindObjectDefinePropertyExport(
+                    //         node as BindableObjectDefinePropertyCall
+                    //     );
+                    // case AssignmentDeclarationKind.ObjectDefinePrototypeProperty:
+                    //     return bindObjectDefinePrototypeProperty(
+                    //         node as BindableObjectDefinePropertyCall
+                    //     );
+                    case AssignmentDeclarationKind.None:
+                        break; // Nothing to do
+                    default:
+                        return Debug.fail(
+                            "Unknown call expression assignment declaration kind"
+                        );
+                }                
+                break;
 
             // // Members of classes, interfaces, and modules
             // case SyntaxKind.ClassExpression:

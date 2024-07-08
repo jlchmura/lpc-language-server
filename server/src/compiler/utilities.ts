@@ -1410,3 +1410,4 @@ export function nodeIsSynthesized(range: TextRange): boolean {
 export function getEffectiveModifierFlagsNoCache(node: Node): ModifierFlags {
     return getSyntacticModifierFlagsNoCache(node);// TODO:  | getJSDocModifierFlagsNoCache(node);
 }
+

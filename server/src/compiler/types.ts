@@ -178,6 +178,7 @@ export const enum SyntaxKind {
     ElementAccessExpression,
     InlineClosureExpression,
     BinaryExpression,
+    ArrowFunction,
     ConditionalExpression,
     ParenthesizedExpression,
     FunctionExpression,
@@ -225,6 +226,7 @@ export const enum SyntaxKind {
     VariableDeclarationList,
     CatchClause,
     ReturnStatement,
+    ExpressionStatement,
     IfStatement,
     WhileStatement,
     DoStatement,
@@ -256,6 +258,9 @@ export const enum SyntaxKind {
     JSDocTypeTag,
     JSDocImportTag,
     JSDoc,
+
+    // Transformation nodes
+    CommaListExpression,
 
     // Markers
     FirstAssignment = EqualsToken,
@@ -740,6 +745,9 @@ export interface NodeFactory {
     createInlineClosure(body: ConciseBody):InlineClosureExpression;
     createBinaryExpression(left: Expression, operator: BinaryOperator | BinaryOperatorToken, right: Expression): BinaryExpression;
     createConditionalExpression(condition: Expression, questionToken: QuestionToken | undefined, whenTrue: Expression, colonToken: ColonToken | undefined, whenFalse: Expression): ConditionalExpression;
+    createCallExpression(expression: Expression,  argumentsArray: readonly Expression[] | undefined): CallExpression;
+    createExpressionStatement(expression: Expression): ExpressionStatement;
+
     createLiteralLikeNode(kind: LiteralToken["kind"] , text: string): LiteralToken;
 }
 
@@ -1824,6 +1832,7 @@ export type HasJSDoc =
     | InlineClosureExpression
     | VariableDeclaration
     | VariableStatement
+    | ExpressionStatement
     | ReturnStatement;
 
 
@@ -1965,6 +1974,11 @@ export interface VariableStatement extends Statement, FlowContainer {
     readonly declarationList: VariableDeclarationList;
 }
 
+export interface ExpressionStatement extends Statement, FlowContainer {
+    readonly kind: SyntaxKind.ExpressionStatement;
+    readonly expression: Expression;
+}
+
 export interface ReturnStatement extends Statement, FlowContainer {
     readonly kind: SyntaxKind.ReturnStatement;
     readonly expression?: Expression;
@@ -2093,6 +2107,7 @@ export type SuperProperty = SuperElementAccessExpression;
 export interface CallExpression extends LeftHandSideExpression, Declaration {
     readonly kind: SyntaxKind.CallExpression;
     readonly expression: LeftHandSideExpression;
+    /** @deprecated LPC doesn't use type args on call expressions */
     readonly typeArguments?: NodeArray<TypeNode>;
     readonly arguments: NodeArray<Expression>;
 }
@@ -2246,7 +2261,7 @@ export type HasFlowNode =
     //| ArrowFunction
     //| MethodDeclaration
     | VariableStatement
-    //| ExpressionStatement
+    | ExpressionStatement
     | IfStatement
     | DoStatement
     | WhileStatement
@@ -2259,42 +2274,42 @@ export type HasFlowNode =
 
 /** @internal */
 export type HasChildren =
-     | QualifiedName
-    // | ComputedPropertyName
+    | QualifiedName
+    | ComputedPropertyName
     // | TypeParameterDeclaration
-     | ParameterDeclaration
+    | ParameterDeclaration
     // | PropertySignature
     // | PropertyDeclaration
     // | MethodSignature
     // | MethodDeclaration
     // | IndexSignatureDeclaration
     // | FunctionTypeNode
-    // | TypeLiteralNode
-    // | ArrayTypeNode
+    | TypeLiteralNode
+    | ArrayTypeNode
     // | UnionTypeNode
     // | InferTypeNode
     // | ObjectBindingPattern
     // | ArrayBindingPattern
-     | BindingElement
-    // | ArrayLiteralExpression
+    | BindingElement
+    | ArrayLiteralExpression
     // | ObjectLiteralExpression
     // | PropertyAccessExpression
     // | ElementAccessExpression
-    // | CallExpression
+    | CallExpression
     // | NewExpression
     // | TypeAssertion
-    // | ParenthesizedExpression
-     | FunctionExpression
+    | ParenthesizedExpression
+    | FunctionExpression
     // | ArrowFunction
-    // | PrefixUnaryExpression
-    // | PostfixUnaryExpression
-     | BinaryExpression
-    // | ConditionalExpression
+    | PrefixUnaryExpression
+    | PostfixUnaryExpression
+    | BinaryExpression
+    | ConditionalExpression
     // | SpreadElement
     // | NonNullExpression
-     | Block
-     | VariableStatement
-    // | ExpressionStatement
+    | Block
+    | VariableStatement
+    | ExpressionStatement
     // | IfStatement
     // | DoStatement
     // | WhileStatement
@@ -2304,8 +2319,8 @@ export type HasChildren =
     // | BreakStatement
     | ReturnStatement
     // | SwitchStatement
-     | VariableDeclaration
-     | VariableDeclarationList
+    | VariableDeclaration
+    | VariableDeclarationList
     | FunctionDeclaration
 // | CaseBlock
 // | ImportDeclaration
@@ -2329,7 +2344,7 @@ export type HasChildren =
 // | SpreadAssignment
  | SourceFile
 // | PartiallyEmittedExpression
-// | CommaListExpression
+ | CommaListExpression
 ;
 /** @internal */
 export type ForEachChildNodes =
@@ -3667,4 +3682,13 @@ export interface IndexedAccessTypeNode extends TypeNode {
 export interface LiteralTypeNode extends TypeNode {
     readonly kind: SyntaxKind.LiteralType;
     readonly literal: LiteralExpression | PrefixUnaryExpression;//NullLiteral | BooleanLiteral;
+}
+
+
+/**
+ * A list of comma-separated expressions. This node is only created by transformations.
+ */
+export interface CommaListExpression extends Expression {
+    readonly kind: SyntaxKind.CommaListExpression;
+    readonly elements: NodeArray<Expression>;
 }
