@@ -56,6 +56,7 @@ import {
     VariableStatement,
 } from "./types";
 import { Mutable, isNodeArray } from "./utilities";
+import { Debug } from "./debug";
 
 export function createNodeFactory(baseFactory: BaseNodeFactory): NodeFactory {
     const factory: NodeFactory = {
@@ -119,7 +120,7 @@ export function createNodeFactory(baseFactory: BaseNodeFactory): NodeFactory {
                 elements.hasTrailingComma === hasTrailingComma
             ) {
                 // Ensure the transform flags have been aggregated for this NodeArray
-                //Debug.attachNodeArrayDebugInfo(elements);
+                Debug.attachNodeArrayDebugInfo(elements);
                 return elements;
             }
 
@@ -130,7 +131,7 @@ export function createNodeFactory(baseFactory: BaseNodeFactory): NodeFactory {
             array.pos = elements.pos;
             array.end = elements.end;
             array.hasTrailingComma = hasTrailingComma;
-            //Debug.attachNodeArrayDebugInfo(array);
+            Debug.attachNodeArrayDebugInfo(array);
             return array;
         }
 
@@ -144,7 +145,7 @@ export function createNodeFactory(baseFactory: BaseNodeFactory): NodeFactory {
         array.pos = -1;
         array.end = -1;
         array.hasTrailingComma = !!hasTrailingComma;
-        //Debug.attachNodeArrayDebugInfo(array);
+        Debug.attachNodeArrayDebugInfo(array);
         return array;
     }
 

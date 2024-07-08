@@ -72,6 +72,7 @@ import {
     BindingElement,
     Block,
     MethodDeclaration,
+    ReturnStatement,
     
 } from "./types";
 import {
@@ -171,9 +172,8 @@ export function createFlowNode(
     flags: FlowFlags,
     node: unknown,
     antecedent: FlowNode | FlowNode[] | undefined
-): FlowNode {
-    return { flags, id: 0, node, antecedent } as FlowNode;
-    //return Debug.attachFlowNodeDebugInfo({ flags, id: 0, node, antecedent } as FlowNode);
+): FlowNode {    
+    return Debug.attachFlowNodeDebugInfo({ flags, id: 0, node, antecedent } as FlowNode);
 }
 
 const binder = createBinder();
@@ -255,8 +255,8 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
         Symbol = objectAllocator.getSymbolConstructor();
 
         // Attach debugging information if necessary
-        //Debug.attachFlowNodeDebugInfo(unreachableFlow);
-        //Debug.attachFlowNodeDebugInfo(reportedUnreachableFlow);
+        Debug.attachFlowNodeDebugInfo(unreachableFlow);
+        Debug.attachFlowNodeDebugInfo(reportedUnreachableFlow);
 
         if (!file.locals) {
             //tracing?.push(tracing.Phase.Bind, "bindSourceFile", { path: file.path }, /*separateBeginAndEnd*/ true);
@@ -647,19 +647,13 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
     function isNarrowableOperand(expr: Expression): boolean {
         switch (expr.kind) {
             case SyntaxKind.ParenthesizedExpression:
-                return isNarrowableOperand(
-                    (expr as ParenthesizedExpression).expression
-                );
+                return isNarrowableOperand((expr as ParenthesizedExpression).expression);
             case SyntaxKind.BinaryExpression:
                 switch ((expr as BinaryExpression).operatorToken.kind) {
                     case SyntaxKind.EqualsToken:
-                        return isNarrowableOperand(
-                            (expr as BinaryExpression).left
-                        );
+                        return isNarrowableOperand((expr as BinaryExpression).left);
                     case SyntaxKind.CommaToken:
-                        return isNarrowableOperand(
-                            (expr as BinaryExpression).right
-                        );
+                        return isNarrowableOperand((expr as BinaryExpression).right);
                 }
         }
         return containsNarrowableReference(expr);
@@ -780,46 +774,19 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
 
     function isNarrowableReference(expr: Expression): boolean {
         switch (expr.kind) {
-            case SyntaxKind.Identifier:
-            case SyntaxKind.ColonColonToken:
+            case SyntaxKind.Identifier:            
+            case SyntaxKind.ColonColonToken:            
                 return true;
             case SyntaxKind.PropertyAccessExpression:
             case SyntaxKind.ParenthesizedExpression:
             case SyntaxKind.NonNullExpression:
-                return isNarrowableReference(
-                    (
-                        expr as
-                            | PropertyAccessExpression
-                            | ParenthesizedExpression
-                            | NonNullExpression
-                    ).expression
-                );
+                return isNarrowableReference((expr as PropertyAccessExpression | ParenthesizedExpression | NonNullExpression).expression);
             case SyntaxKind.ElementAccessExpression:
-                return (
-                    (isStringOrNumericLiteralLike(
-                        (expr as ElementAccessExpression).argumentExpression
-                    ) ||
-                        isEntityNameExpression(
-                            (expr as ElementAccessExpression).argumentExpression
-                        )) &&
-                    isNarrowableReference(
-                        (expr as ElementAccessExpression).expression
-                    )
-                );
+                return (isStringOrNumericLiteralLike((expr as ElementAccessExpression).argumentExpression) || isEntityNameExpression((expr as ElementAccessExpression).argumentExpression)) &&
+                    isNarrowableReference((expr as ElementAccessExpression).expression);
             case SyntaxKind.BinaryExpression:
-                return (
-                    ((expr as BinaryExpression).operatorToken.kind ===
-                        SyntaxKind.CommaToken &&
-                        isNarrowableReference(
-                            (expr as BinaryExpression).right
-                        )) ||
-                    (isAssignmentOperator(
-                        (expr as BinaryExpression).operatorToken.kind
-                    ) &&
-                        isLeftHandSideExpression(
-                            (expr as BinaryExpression).left
-                        ))
-                );
+                return (expr as BinaryExpression).operatorToken.kind === SyntaxKind.CommaToken && isNarrowableReference((expr as BinaryExpression).right) ||
+                    isAssignmentOperator((expr as BinaryExpression).operatorToken.kind) && isLeftHandSideExpression((expr as BinaryExpression).left);
         }
         return false;
     }
@@ -1088,6 +1055,18 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
         bindEach(nodes, n => n.kind !== SyntaxKind.FunctionDeclaration ? bind(n) : undefined);
     }
 
+    function bindReturnOrThrow(node: ReturnStatement): void {
+        bind(node.expression);
+        if (node.kind === SyntaxKind.ReturnStatement) {
+            hasExplicitReturn = true;
+            if (currentReturnTarget) {
+                addAntecedent(currentReturnTarget, currentFlow);
+            }
+        }
+        currentFlow = unreachableFlow;
+        hasFlowEffects = true;
+    }
+
     function bindChildren(node: Node): void {
         const saveInAssignmentPattern = inAssignmentPattern;
         // Most nodes aren't valid in an assignment pattern, so we clear the value here
@@ -1124,10 +1103,10 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             // case SyntaxKind.IfStatement:
             //     bindIfStatement(node as IfStatement);
             //     break;
-            // case SyntaxKind.ReturnStatement:
+            case SyntaxKind.ReturnStatement:
             // case SyntaxKind.ThrowStatement:
-            //     bindReturnOrThrow(node as ReturnStatement | ThrowStatement);
-            //     break;
+                bindReturnOrThrow(node as ReturnStatement );
+                break;
             // case SyntaxKind.BreakStatement:
             // case SyntaxKind.ContinueStatement:
             //     bindBreakOrContinueStatement(node as BreakOrContinueStatement);
@@ -1315,14 +1294,6 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
 
         if (!isBindingPattern(node.name)) {
             const possibleVariableDecl = node.kind === SyntaxKind.VariableDeclaration ? node : node.parent.parent;
-            // if (
-            //     isInJSFile(node) &&
-            //     isVariableDeclarationInitializedToBareOrAccessedRequire(possibleVariableDecl) &&
-            //     !getJSDocTypeTag(node) &&
-            //     !(getCombinedModifierFlags(node) & ModifierFlags.Export)
-            // ) {
-            //     declareSymbolAndAddToSymbolTable(node as Declaration, SymbolFlags.Alias, SymbolFlags.AliasExcludes);
-            // }
             if (isBlockOrCatchScoped(node)) {
                 bindBlockScopedDeclaration(node, SymbolFlags.BlockScopedVariable, SymbolFlags.BlockScopedVariableExcludes);
             }
@@ -1719,7 +1690,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             ) {
                 currentFlow = createFlowCall(currentFlow, call);
             }
-        }
+        } 
     }    
 
     // Should not be called on a declaration with a computed property name,

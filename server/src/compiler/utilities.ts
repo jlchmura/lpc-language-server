@@ -62,6 +62,11 @@ import {
     Diagnostic,
     DiagnosticRelatedInformation,
     MethodDeclaration,
+    TypeChecker,
+    TypeFlags,
+    Type,
+    SignatureFlags,
+    Signature,
 } from "./types";
 import { LPCLexer } from "../parser3/LPCLexer";
 import { Debug } from "./debug";
@@ -110,8 +115,8 @@ export interface ObjectAllocator {
     getPrivateIdentifierConstructor(): new (kind: SyntaxKind.PrivateIdentifier, pos: number, end: number) => PrivateIdentifier;
     getSourceFileConstructor(): new (kind: SyntaxKind.SourceFile, pos: number, end: number) => SourceFile;
     getSymbolConstructor(): new (flags: SymbolFlags, name: string) => Symbol;
-    //getTypeConstructor(): new (checker: TypeChecker, flags: TypeFlags) => Type;
-    //getSignatureConstructor(): new (checker: TypeChecker, flags: SignatureFlags) => Signature;
+    getTypeConstructor(): new (checker: TypeChecker, flags: TypeFlags) => Type;
+    getSignatureConstructor(): new (checker: TypeChecker, flags: SignatureFlags) => Signature;
 }
 
 /** @internal */
@@ -122,9 +127,25 @@ export const objectAllocator: ObjectAllocator = {
     getPrivateIdentifierConstructor: () => Node as any,
     getSourceFileConstructor: () => Node as any,
     getSymbolConstructor: () => Symbol as any,
-    //getTypeConstructor: () => Type as any,
-    //getSignatureConstructor: () => Signature as any,
+    getTypeConstructor: () => Type as any,
+    getSignatureConstructor: () => Signature as any,
 };
+
+function Type(this: Type, checker: TypeChecker, flags: TypeFlags) {
+    // Note: if modifying this, be sure to update TypeObject in src/services/services.ts
+    this.flags = flags;
+    if (Debug.isDebugging) {// || tracing) {
+        this.checker = checker;
+    }
+}
+
+function Signature(this: Signature, checker: TypeChecker, flags: SignatureFlags) {
+    // Note: if modifying this, be sure to update SignatureObject in src/services/services.ts
+    this.flags = flags;
+    if (Debug.isDebugging) {
+        this.checker = checker;
+    }
+}
 
 function Node(this: Mutable<Node>, kind: SyntaxKind, pos: number, end: number) {
     this.pos = pos;
@@ -513,14 +534,14 @@ export function createBinaryExpressionTrampoline<TOuterState, TState, TResult>(
 function isBinaryLogicalOperator(token: SyntaxKind): boolean {
     return (
         token === SyntaxKind.BarBarToken ||
-        token === SyntaxKind.AmpersandAmpersandToken
+        token === SyntaxKind.AmpersandAmpersandToken 
     );
 }
 
 /** @internal */
 export function isLogicalOperator(token: SyntaxKind): boolean {
     return (
-        isBinaryLogicalOperator(token) || token === SyntaxKind.ExclamationToken
+        isBinaryLogicalOperator(token) || token === SyntaxKind.ExclamationToken || token === SyntaxKind.CommaToken
     );
 }
 
@@ -1371,4 +1392,21 @@ export function isObjectLiteralOrClassExpressionMethodOrAccessor(node: Node): no
 /** @internal */
 export function isObjectLiteralMethod(node: Node): node is MethodDeclaration {
     return node && node.kind === SyntaxKind.MethodDeclaration && node.parent.kind === SyntaxKind.ObjectLiteralExpression;
+}
+
+/** @internal */
+export function nodeIsSynthesized(range: TextRange): boolean {
+    return positionIsSynthesized(range.pos)
+        || positionIsSynthesized(range.end);
+}
+
+/**
+ * Gets the effective ModifierFlags for the provided node, including JSDoc modifiers. The modifier flags cache on the node is ignored.
+ *
+ * NOTE: This function may use `parent` pointers.
+ *
+ * @internal
+ */
+export function getEffectiveModifierFlagsNoCache(node: Node): ModifierFlags {
+    return getSyntacticModifierFlagsNoCache(node);// TODO:  | getJSDocModifierFlagsNoCache(node);
 }

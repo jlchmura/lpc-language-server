@@ -31,6 +31,7 @@ import { getDriverInfo } from "./driver/Driver";
 import { loadLpcConfig } from "./backend/LpcConfig";
 import { LpcParser } from "./compiler/parser";
 import { bindSourceFile } from "./compiler/binder";
+import { Debug } from "./compiler/debug";
 
 class MockFileHandler implements IFileHandler {
     constructor() {}
@@ -48,6 +49,8 @@ class MockFileHandler implements IFileHandler {
         }
     }
 }
+
+Debug.enableDebugInfo();
 
 //import { LpcFacade } from "./backend/facade";
 const workDir = path.resolve(process.cwd(), "../fluff-test");

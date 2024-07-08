@@ -1,4 +1,4 @@
-import { isBinaryExpression, isBindingElement, isFunctionExpression, isIdentifier, isPropertyAssignment, isVariableDeclaration } from "./nodeTests";
+import { isBinaryExpression, isBindingElement, isFunctionExpression, isIdentifier, isPropertyAssignment, isPropertyDeclaration, isVariableDeclaration } from "./nodeTests";
 import {
     AccessExpression,
     AssignmentDeclarationKind,
@@ -30,9 +30,11 @@ import {
     Statement,
     StringLiteral,
     SyntaxKind,
+    Symbol,
     TextSpan,
     UnaryExpression,
     VariableDeclaration,
+    MethodDeclaration,
 } from "./types";
 import { getAssignmentDeclarationKind, getElementOrPropertyAccessArgumentExpressionOrName, isAccessExpression, isBindableStaticElementAccessExpression, isFunctionBlock, skipOuterExpressions } from "./utilities";
 
@@ -481,4 +483,68 @@ export function isBindingPattern(node: Node | undefined): node is BindingPattern
 /** @internal */
 export function isForInOrOfStatement(node: Node): node is ForInStatement {
     return node.kind === SyntaxKind.ForInStatement;
+}
+
+/** @internal */
+export function isMethodOrAccessor(node: Node): node is MethodDeclaration  {
+    switch (node.kind) {
+        case SyntaxKind.MethodDeclaration:        
+            return true;
+        default:
+            return false;
+    }
+}
+
+
+export function symbolName(symbol: Symbol): string {
+    // TODO
+    // if (symbol.valueDeclaration && isPrivateIdentifierClassElementDeclaration(symbol.valueDeclaration)) {
+    //     return idText(symbol.valueDeclaration.name);
+    // }
+    return symbol.name;// unescapeLeadingUnderscores(symbol.escapedName);
+}
+
+
+export function idText(identifierOrPrivateName: Identifier): string { // | PrivateIdentifier): string {
+    return identifierOrPrivateName.text;// unescapeLeadingUnderscores(identifierOrPrivateName.escapedText);
+}
+
+/**
+ * Gets a value indicating whether a node originated in the parse tree.
+ *
+ * @param node The node to test.
+ */
+export function isParseTreeNode(node: Node): boolean {
+    return (node.flags & NodeFlags.Synthesized) === 0;
+}
+
+
+/**
+ * Gets the original parse tree node for a node.
+ *
+ * @param node The original node.
+ * @returns The original parse tree node if found; otherwise, undefined.
+ */
+export function getParseTreeNode(node: Node | undefined): Node | undefined;
+
+/**
+ * Gets the original parse tree node for a node.
+ *
+ * @param node The original node.
+ * @param nodeTest A callback used to ensure the correct type of parse tree node is returned.
+ * @returns The original parse tree node if found; otherwise, undefined.
+ */
+export function getParseTreeNode<T extends Node>(node: T | undefined, nodeTest?: (node: Node) => node is T): T | undefined;
+export function getParseTreeNode(node: Node | undefined, nodeTest?: (node: Node) => boolean): Node | undefined {
+    if (node === undefined || isParseTreeNode(node)) {
+        return node;
+    }
+
+    node = node.original;
+    while (node) {
+        if (isParseTreeNode(node)) {
+            return !nodeTest || nodeTest(node) ? node : undefined;
+        }
+        node = node.original;
+    }
 }

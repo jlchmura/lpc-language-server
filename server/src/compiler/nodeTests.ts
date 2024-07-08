@@ -1,21 +1,33 @@
 import {
+    ArrayTypeNode,
     BinaryExpression,
     BindingElement,
     Block,
     CallExpression,
+    CallSignatureDeclaration,
     FunctionDeclaration,
     FunctionExpression,
     Identifier,
+    ImportTypeNode,
+    IndexedAccessTypeNode,
+    IndexSignatureDeclaration,
     JSDocTypeExpression,
+    LiteralTypeNode,
     Node,
     NumericLiteral,
+    ParameterDeclaration,
     ParenthesizedExpression,
     PrefixUnaryExpression,
     PrivateIdentifier,
     PropertyAccessExpression,
     PropertyAssignment,
+    PropertyDeclaration,
     ShorthandPropertyAssignment,
+    StringLiteral,
     SyntaxKind,
+    TypeLiteralNode,
+    TypeParameterDeclaration,
+    UnionTypeNode,
     VariableDeclaration,
     VariableDeclarationList,
     VariableStatement,
@@ -115,4 +127,54 @@ export function isJSDocTypeExpression(node: Node): node is JSDocTypeExpression {
 
 export function isFunctionExpression(node: Node): node is FunctionExpression {
     return node.kind === SyntaxKind.FunctionExpression;
+}
+
+export function isPropertyDeclaration(node: Node): node is PropertyDeclaration {
+    return node.kind === SyntaxKind.PropertyDeclaration;
+}
+
+
+export function isStringLiteral(node: Node): node is StringLiteral {
+    return node.kind === SyntaxKind.StringLiteral;
+}
+
+export function isTypeParameterDeclaration(node: Node): node is TypeParameterDeclaration {
+    return node.kind === SyntaxKind.TypeParameter;
+}
+
+// TODO(rbuckton): Rename to 'isParameterDeclaration'
+export function isParameter(node: Node): node is ParameterDeclaration {
+    return node.kind === SyntaxKind.Parameter;
+}
+
+export function isCallSignatureDeclaration(node: Node): node is CallSignatureDeclaration {
+    return node.kind === SyntaxKind.CallSignature;
+}
+
+export function isIndexSignatureDeclaration(node: Node): node is IndexSignatureDeclaration {
+    return node.kind === SyntaxKind.IndexSignature;
+}
+
+export function isTypeLiteralNode(node: Node): node is TypeLiteralNode {
+    return node.kind === SyntaxKind.TypeLiteral;
+}
+
+export function isArrayTypeNode(node: Node): node is ArrayTypeNode {
+    return node.kind === SyntaxKind.ArrayType;
+}
+
+export function isUnionTypeNode(node: Node): node is UnionTypeNode {
+    return node.kind === SyntaxKind.UnionType;
+}
+
+export function isIndexedAccessTypeNode(node: Node): node is IndexedAccessTypeNode {
+    return node.kind === SyntaxKind.IndexedAccessType;
+}
+
+export function isLiteralTypeNode(node: Node): node is LiteralTypeNode {
+    return node.kind === SyntaxKind.LiteralType;
+}
+
+export function isImportTypeNode(node: Node): node is ImportTypeNode {
+    return node.kind === SyntaxKind.ImportType;
 }

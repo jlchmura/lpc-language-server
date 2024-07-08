@@ -735,7 +735,7 @@ export namespace LpcParser {
             );
         }
 
-        const pos = getNodePos(tree),
+        let pos = getNodePos(tree),
             end = getNodeEnd(tree);
         const children = tree.children;
 
@@ -745,13 +745,15 @@ export namespace LpcParser {
         );
 
         for (let i = 1; i < children.length; i += 2) {
+            pos = getNodePos(children[i-1] as antlr.ParserRuleContext);
             const operator = parseTokenNode<BinaryOperatorToken>(
                 children[i] as antlr.TerminalNode
             );
             const rightExpr = parseAssignmentExpressionOrHigher(
                 children[i + 1] as ConditionalExpressionContext
             );
-
+            end = getNodeEnd(children[i + 1] as antlr.ParserRuleContext);
+            
             expr = makeBinaryExpression(expr, operator, rightExpr, pos, end);
         }
 
