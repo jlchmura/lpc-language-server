@@ -65,6 +65,7 @@ import {
     ValidIdentifiersContext,
     VariableDeclarationStatementContext,
     VariableDeclaratorExpressionContext,
+    VariableInitializerContext,
 } from "../parser3/LPCParser";
 import { ILpcConfig } from "../config-types";
 import { parseTree } from "jsonc-parser";
@@ -554,6 +555,11 @@ export namespace LpcParser {
         return withJSDoc(finishNode(node, pos, end), jsDoc);
     }
 
+    
+    function parseInitializer(tree: VariableInitializerContext): Expression | undefined {        
+        return tree ? parseAssignmentExpressionOrHigher(tree.expression().conditionalExpression()) : undefined;
+    }
+
     function parseVariableDeclarationList(
         type: TypeNode,
         declListTree: VariableDeclaratorExpressionContext[],
@@ -567,7 +573,7 @@ export namespace LpcParser {
             const decl = declExp.variableDeclarator();
             const jsDoc = getPrecedingJSDocBlock(decl);
             const name = parseValidIdentifier(decl._variableName);
-            const initializer = undefined; // TODO !declExp.variableInitializer() ? undefined : parseInitializer(declExp.variableInitializer());
+            const initializer = !declExp.variableInitializer() ? undefined : parseInitializer(declExp.variableInitializer());
             const node = factory.createVariableDeclaration(
                 name,
                 type,
@@ -697,7 +703,7 @@ export namespace LpcParser {
 
             if (opToken) {
                 const operator = parseTokenNode<BinaryOperatorToken>(
-                    opToken.getChild(0) as antlr.TerminalNode
+                    opToken instanceof antlr.TerminalNode ? opToken : opToken.getChild(0) as antlr.TerminalNode
                 );
                 if (!childExpr) {
                     const ii = 0;

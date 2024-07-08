@@ -13,6 +13,7 @@ import {
     ElementAccessExpression,
     Expression,
     FileReference,
+    ForInStatement,
     HasLocals,
     HasModifiers,
     Identifier,
@@ -475,4 +476,9 @@ export function isBindingPattern(node: Node | undefined): node is BindingPattern
     }
 
     return false;
+}
+
+/** @internal */
+export function isForInOrOfStatement(node: Node): node is ForInStatement {
+    return node.kind === SyntaxKind.ForInStatement;
 }

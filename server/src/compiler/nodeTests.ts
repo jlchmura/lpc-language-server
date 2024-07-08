@@ -116,4 +116,3 @@ export function isJSDocTypeExpression(node: Node): node is JSDocTypeExpression {
 export function isFunctionExpression(node: Node): node is FunctionExpression {
     return node.kind === SyntaxKind.FunctionExpression;
 }
-

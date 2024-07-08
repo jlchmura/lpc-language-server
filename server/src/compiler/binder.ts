@@ -120,6 +120,7 @@ import {
     isBindingPattern,
     isBooleanLiteral,
     isExpression,
+    isForInOrOfStatement,
     isFunctionLike,
     isFunctionLikeOrClassStaticBlockDeclaration,
     isLeftHandSideExpression,
@@ -290,6 +291,25 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
         inAssignmentPattern = false;        
     }
 
+    function bindVariableDeclarationFlow(node: VariableDeclaration) {
+        bindEachChild(node);
+        if (node.initializer || isForInOrOfStatement(node.parent.parent)) {
+            bindInitializedVariableFlow(node);
+        }
+    }
+
+    function bindInitializedVariableFlow(node: VariableDeclaration | ArrayBindingElement) {
+        const name = node.name;//!isOmittedExpression(node) ? node.name : undefined;
+        if (isBindingPattern(name)) {
+            for (const child of name.elements) {
+                bindInitializedVariableFlow(child);
+            }
+        }
+        else {
+            currentFlow = createFlowMutation(FlowFlags.Assignment, currentFlow, node);
+        }
+    }
+    
     function createBindBinaryExpressionFlow() {
         interface WorkArea {
             stackIndex: number;
@@ -1136,25 +1156,25 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             // case SyntaxKind.PostfixUnaryExpression:
             //     bindPostfixUnaryExpressionFlow(node as PostfixUnaryExpression);
             //     break;
-            // case SyntaxKind.BinaryExpression:
-            //     if (isDestructuringAssignment(node)) {
-            //         // Carry over whether we are in an assignment pattern to
-            //         // binary expressions that could actually be an initializer
-            //         inAssignmentPattern = saveInAssignmentPattern;
-            //         bindDestructuringAssignmentFlow(node);
-            //         return;
-            //     }
-            //     bindBinaryExpressionFlow(node as BinaryExpression);
-            //     break;
+            case SyntaxKind.BinaryExpression:
+                // if (isDestructuringAssignment(node)) {
+                //     // Carry over whether we are in an assignment pattern to
+                //     // binary expressions that could actually be an initializer
+                //     inAssignmentPattern = saveInAssignmentPattern;
+                //     bindDestructuringAssignmentFlow(node);
+                //     return;
+                // }
+                bindBinaryExpressionFlow(node as BinaryExpression);
+                break;
             // case SyntaxKind.DeleteExpression:
             //     bindDeleteExpressionFlow(node as DeleteExpression);
             //     break;
             // case SyntaxKind.ConditionalExpression:
             //     bindConditionalExpressionFlow(node as ConditionalExpression);
             //     break;
-            // case SyntaxKind.VariableDeclaration:
-            //     bindVariableDeclarationFlow(node as VariableDeclaration);
-            //     break;
+            case SyntaxKind.VariableDeclaration:
+                bindVariableDeclarationFlow(node as VariableDeclaration);
+                break;
             // case SyntaxKind.PropertyAccessExpression:
             // case SyntaxKind.ElementAccessExpression:
             //     bindAccessExpressionFlow(node as AccessExpression);
