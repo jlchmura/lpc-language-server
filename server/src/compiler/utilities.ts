@@ -1,5 +1,5 @@
 import * as __types from "./types";
-import { AssertionLevel, MapLike, addRange, assertType, binarySearch, compareStringsCaseSensitive, compareValues, emptyArray, filter, find, firstOrUndefined, flatMap, flatMapToMutable, forEach, hasProperty, identity, insertSorted, isString, last, lastOrUndefined, length, returnFalse, returnUndefined, some } from "./core";
+import { AssertionLevel, MapLike, addRange, assertType, binarySearch, compareStringsCaseSensitive, compareValues, contains, emptyArray, filter, find, firstOrUndefined, flatMap, flatMapToMutable, forEach, hasProperty, identity, insertSorted, isString, last, lastOrUndefined, length, returnFalse, returnUndefined, some, startsWith } from "./core";
 import {
     AssignmentExpression,
     BinaryExpression,
@@ -119,6 +119,19 @@ import {
     HasExpressionInitializer,
     JSDocParameterTag,
     HasJSDoc,
+    ClassElement,
+    TypeElement,
+    ObjectLiteralElement,
+    ObjectTypeDeclaration,
+    InterfaceDeclaration,
+    HeritageClause,
+    ParenthesizedTypeNode,
+    ExpressionWithTypeArguments,
+    JSDocTemplateTag,
+    TypeAssertion,
+    ImportTypeNode,
+    PropertyName,
+    TypeAliasDeclaration,
 } from "./types";
 import { LPCLexer } from "../parser3/LPCLexer";
 import { Debug } from "./debug";
@@ -126,13 +139,19 @@ import {
     isBinaryExpression,
     isBindingElement,
     isCallExpression,
+    isClassStaticBlockDeclaration,
     isDecorator,
     isElementAccessExpression,
     isExpressionStatement,
+    isExpressionWithTypeArguments,
     isFunctionDeclaration,
+    isFunctionExpression,
     isGetAccessorDeclaration,
+    isHeritageClause,
     isIdentifier,
     isJSDoc,
+    isJSDocAugmentsTag,
+    isJSDocImplementsTag,
     isJSDocSignature,
     isJSDocTypeExpression,
     isJSDocTypeTag,
@@ -141,12 +160,14 @@ import {
     isObjectLiteralExpression,
     isParameter,
     isParenthesizedExpression,
+    isParenthesizedTypeNode,
     isPrefixUnaryExpression,
     isPrivateIdentifier,
     isPropertyAccessExpression,
     isPropertySignature,
     isSetAccessorDeclaration,
     isSourceFile,
+    isTypeAliasDeclaration,
     isVariableDeclaration,
     isVariableStatement,
     isVoidExpression,
@@ -160,6 +181,7 @@ import {
     findAncestor,
     getCombinedModifierFlags,
     getCombinedNodeFlags,
+    getJSDocAugmentsTag,
     getJSDocParameterTags,
     getJSDocParameterTagsNoCache,
     getJSDocTypeParameterTags,
@@ -175,11 +197,14 @@ import {
     isFunctionLikeOrClassStaticBlockDeclaration,
     isLeftHandSideExpression,
     isMemberName,
+    isMethodOrAccessor,
+    isPropertyName,
     isStringLiteralLike,
     isTypeNode,
+    unescapeLeadingUnderscores,
 } from "./utilitiesPublic";
 import { getSymbolId } from "./checker";
-import { skipTrivia } from "./scanner";
+import { skipTrivia, tokenToString } from "./scanner";
 import { forEachChild } from "./parser";
 import { Comparison, SortedArray } from "./corePublic";
 import { CharacterCodes } from "../backend/types";
@@ -3843,4 +3868,426 @@ export function getParameterSymbolFromJSDoc(node: JSDocParameterTag): Symbol | u
     }
     const parameter = find(decl.parameters, p => p.name.kind === SyntaxKind.Identifier && p.name.text === name);
     return parameter && parameter.symbol;
+}
+
+/** @internal */
+export function getMembersOfDeclaration(node: Declaration): NodeArray<ClassElement | TypeElement | ObjectLiteralElement> | undefined {
+    switch (node.kind) {
+        // case SyntaxKind.InterfaceDeclaration:
+        // case SyntaxKind.ClassDeclaration:
+        case SyntaxKind.ClassExpression:
+        case SyntaxKind.TypeLiteral:
+            return (node as ObjectTypeDeclaration).members;
+        case SyntaxKind.ObjectLiteralExpression:
+            return (node as ObjectLiteralExpression).properties;
+    }
+}
+
+/** @internal */
+export function isDynamicName(name: DeclarationName): boolean {
+    if (!(name.kind === SyntaxKind.ComputedPropertyName || name.kind === SyntaxKind.ElementAccessExpression)) {
+        return false;
+    }
+    const expr = isElementAccessExpression(name) ? skipParentheses(name.argumentExpression) : name.expression;
+    return !isStringOrNumericLiteralLike(expr) &&
+        !isSignedNumericLiteral(expr);
+}
+
+/** @internal */
+export const resolvingEmptyArray: never[] = [];
+
+/** @internal */
+export function getClassLikeDeclarationOfSymbol(symbol: Symbol): ClassLikeDeclaration | undefined {
+    return symbol.declarations?.find(isClassLike);
+}
+
+/** @internal */
+export function getEffectiveBaseTypeNode(node: ClassLikeDeclaration | InterfaceDeclaration) {
+    const baseType = getClassExtendsHeritageElement(node);
+    if (baseType && isInJSFile(node)) {
+        // Prefer an @augments tag because it may have type parameters.
+        const tag = getJSDocAugmentsTag(node);
+        if (tag) {
+            return tag.class;
+        }
+    }
+    return baseType;
+}
+
+/** @internal */
+export function getHeritageClause(clauses: NodeArray<HeritageClause> | undefined, kind: SyntaxKind) {
+    if (clauses) {
+        for (const clause of clauses) {
+            if (clause.token === kind) {
+                return clause;
+            }
+        }
+    }
+
+    return undefined;
+}
+
+/** @internal */
+export function getClassExtendsHeritageElement(node: ClassLikeDeclaration | InterfaceDeclaration) {
+    const heritageClause = getHeritageClause(node.heritageClauses, SyntaxKind.ExtendsKeyword);
+    return heritageClause && heritageClause.types.length > 0 ? heritageClause.types[0] : undefined;
+}
+
+/** @internal */
+export function chainDiagnosticMessages(details: DiagnosticMessageChain | DiagnosticMessageChain[] | undefined, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticMessageChain {
+    let text = getLocaleSpecificMessage(message);
+
+    if (some(args)) {
+        text = formatStringFromArgs(text, args);
+    }
+    return {
+        messageText: text,
+        category: message.category,
+        code: message.code,
+
+        next: details === undefined || Array.isArray(details) ? details as DiagnosticMessageChain[] : [details],
+    };
+}
+
+/** @internal */
+export function getContainingClassStaticBlock(node: Node): Node | undefined {
+    return findAncestor(node.parent, n => {
+        if (isClassLike(n) || isFunctionLike(n)) {
+            return "quit";
+        }
+        return isClassStaticBlockDeclaration(n);
+    });
+}
+
+/** @internal */
+export function isNodeDescendantOf(node: Node, ancestor: Node | undefined): boolean {
+    while (node) {
+        if (node === ancestor) return true;
+        node = node.parent;
+    }
+    return false;
+}
+
+/** @internal */
+export function isNumericLiteralName(name: string) {
+    // The intent of numeric names is that
+    //     - they are names with text in a numeric form, and that
+    //     - setting properties/indexing with them is always equivalent to doing so with the numeric literal 'numLit',
+    //         acquired by applying the abstract 'ToNumber' operation on the name's text.
+    //
+    // The subtlety is in the latter portion, as we cannot reliably say that anything that looks like a numeric literal is a numeric name.
+    // In fact, it is the case that the text of the name must be equal to 'ToString(numLit)' for this to hold.
+    //
+    // Consider the property name '"0xF00D"'. When one indexes with '0xF00D', they are actually indexing with the value of 'ToString(0xF00D)'
+    // according to the ECMAScript specification, so it is actually as if the user indexed with the string '"61453"'.
+    // Thus, the text of all numeric literals equivalent to '61543' such as '0xF00D', '0xf00D', '0170015', etc. are not valid numeric names
+    // because their 'ToString' representation is not equal to their original text.
+    // This is motivated by ECMA-262 sections 9.3.1, 9.8.1, 11.1.5, and 11.2.1.
+    //
+    // Here, we test whether 'ToString(ToNumber(name))' is exactly equal to 'name'.
+    // The '+' prefix operator is equivalent here to applying the abstract ToNumber operation.
+    // Applying the 'toString()' method on a number gives us the abstract ToString operation on a number.
+    //
+    // Note that this accepts the values 'Infinity', '-Infinity', and 'NaN', and that this is intentional.
+    // This is desired behavior, because when indexing with them as numeric entities, you are indexing
+    // with the strings '"Infinity"', '"-Infinity"', and '"NaN"' respectively.
+    return (+name).toString() === name;
+}
+
+/** @internal */
+export type ValueSignatureDeclaration =
+    | FunctionDeclaration
+    | MethodDeclaration
+    // | ConstructorDeclaration
+    // | AccessorDeclaration
+    | FunctionExpression
+    | ArrowFunction;
+
+
+/** @internal */
+export function isValueSignatureDeclaration(node: Node): node is ValueSignatureDeclaration {
+    return isFunctionExpression(node) ||  isMethodOrAccessor(node) || isFunctionDeclaration(node);// || isArrowFunction(node) ||isConstructorDeclaration(node);
+}
+
+/**
+ * Walks up parenthesized types.
+ * It returns both the outermost parenthesized type and its parent.
+ * If given node is not a parenthesiezd type, undefined is return as the former.
+ *
+ * @internal
+ */
+export function walkUpParenthesizedTypesAndGetParentAndChild(node: Node): [ParenthesizedTypeNode | undefined, Node] {
+    let child: ParenthesizedTypeNode | undefined;
+    while (node && node.kind === SyntaxKind.ParenthesizedType) {
+        child = node as ParenthesizedTypeNode;
+        node = node.parent;
+    }
+    return [child, node];
+}
+
+export function isPartOfTypeNode(node: Node): boolean {
+    if (SyntaxKind.FirstTypeNode <= node.kind && node.kind <= SyntaxKind.LastTypeNode) {
+        return true;
+    }
+
+    switch (node.kind) {
+        //case SyntaxKind.AnyKeyword:
+        case SyntaxKind.UnknownKeyword:
+        case SyntaxKind.IntKeyword:
+        case SyntaxKind.FloatKeyword:
+        case SyntaxKind.StringKeyword:
+        // case SyntaxKind.BooleanKeyword:
+        // case SyntaxKind.SymbolKeyword:
+        case SyntaxKind.ObjectKeyword:
+        // case SyntaxKind.UndefinedKeyword:
+        // case SyntaxKind.NullKeyword:
+        // case SyntaxKind.NeverKeyword:
+            return true;
+        case SyntaxKind.VoidKeyword:
+            return node.parent.kind !== SyntaxKind.VoidExpression;
+        case SyntaxKind.ExpressionWithTypeArguments:
+            return isPartOfTypeExpressionWithTypeArguments(node);
+        case SyntaxKind.TypeParameter:
+            return node.parent.kind === SyntaxKind.MappedType || node.parent.kind === SyntaxKind.InferType;
+
+        // Identifiers and qualified names may be type nodes, depending on their context. Climb
+        // above them to find the lowest container
+        case SyntaxKind.Identifier:
+            // If the identifier is the RHS of a qualified name, then it's a type iff its parent is.
+            if (node.parent.kind === SyntaxKind.QualifiedName && (node.parent as QualifiedName).right === node) {
+                node = node.parent;
+            }
+            else if (node.parent.kind === SyntaxKind.PropertyAccessExpression && (node.parent as PropertyAccessExpression).name === node) {
+                node = node.parent;
+            }
+            // At this point, node is either a qualified name or an identifier
+            Debug.assert(node.kind === SyntaxKind.Identifier || node.kind === SyntaxKind.QualifiedName || node.kind === SyntaxKind.PropertyAccessExpression, "'node' was expected to be a qualified name, identifier or property access in 'isPartOfTypeNode'.");
+            // falls through
+
+        case SyntaxKind.QualifiedName:
+        //case SyntaxKind.ThisKeyword: 
+        case SyntaxKind.PropertyAccessExpression: {
+            const { parent } = node;
+            if (parent.kind === SyntaxKind.TypeQuery) {
+                return false;
+            }
+            if (parent.kind === SyntaxKind.ImportType) {
+                return !(parent as ImportTypeNode).isTypeOf;
+            }
+            // Do not recursively call isPartOfTypeNode on the parent. In the example:
+            //
+            //     let a: A.B.C;
+            //
+            // Calling isPartOfTypeNode would consider the qualified name A.B a type node.
+            // Only C and A.B.C are type nodes.
+            if (SyntaxKind.FirstTypeNode <= parent.kind && parent.kind <= SyntaxKind.LastTypeNode) {
+                return true;
+            }
+            switch (parent.kind) {
+                case SyntaxKind.ExpressionWithTypeArguments:
+                    return isPartOfTypeExpressionWithTypeArguments(parent);
+                case SyntaxKind.TypeParameter:
+                    return node === (parent as TypeParameterDeclaration).constraint;
+                case SyntaxKind.JSDocTemplateTag:
+                    return node === (parent as JSDocTemplateTag).constraint;
+                case SyntaxKind.PropertyDeclaration:
+                case SyntaxKind.PropertySignature:
+                case SyntaxKind.Parameter:
+                case SyntaxKind.VariableDeclaration:
+                    return node === (parent as HasType).type;
+                case SyntaxKind.FunctionDeclaration:
+                case SyntaxKind.FunctionExpression:
+                case SyntaxKind.ArrowFunction:
+                //case SyntaxKind.Constructor:
+                case SyntaxKind.MethodDeclaration:
+                case SyntaxKind.MethodSignature:
+                // case SyntaxKind.GetAccessor:
+                // case SyntaxKind.SetAccessor:
+                    return node === (parent as FunctionLikeDeclaration).type;
+                case SyntaxKind.CallSignature:
+                //case SyntaxKind.ConstructSignature:
+                case SyntaxKind.IndexSignature:
+                    return node === (parent as SignatureDeclaration).type;
+                case SyntaxKind.TypeAssertionExpression:
+                    return node === (parent as TypeAssertion).type;
+                case SyntaxKind.CallExpression:
+                case SyntaxKind.NewExpression:
+                //case SyntaxKind.TaggedTemplateExpression:
+                    return contains((parent as CallExpression | __types.TaggedTemplateExpression).typeArguments, node);
+            }
+        }
+    }
+
+    return false;
+}
+
+
+function isPartOfTypeExpressionWithTypeArguments(node: Node) {
+    return isJSDocImplementsTag(node.parent)
+        || isJSDocAugmentsTag(node.parent)
+        || isHeritageClause(node.parent) && !isExpressionWithTypeArgumentsInClassExtendsClause(node);
+}
+
+/** @internal */
+export function isExpressionWithTypeArgumentsInClassExtendsClause(node: Node): node is ExpressionWithTypeArguments {
+    return tryGetClassExtendingExpressionWithTypeArguments(node) !== undefined;
+}
+
+
+
+/**
+ * Get `C` given `N` if `N` is in the position `class C extends N` where `N` is an ExpressionWithTypeArguments.
+ *
+ * @internal
+ */
+export function tryGetClassExtendingExpressionWithTypeArguments(node: Node): ClassLikeDeclaration | undefined {
+    const cls = tryGetClassImplementingOrExtendingExpressionWithTypeArguments(node);
+    return cls && !cls.isImplements ? cls.class : undefined;
+}
+
+/** @internal */
+export interface ClassImplementingOrExtendingExpressionWithTypeArguments {
+    readonly class: ClassLikeDeclaration;
+    readonly isImplements: boolean;
+}
+
+
+/** @internal */
+export function tryGetClassImplementingOrExtendingExpressionWithTypeArguments(node: Node): ClassImplementingOrExtendingExpressionWithTypeArguments | undefined {
+    if (isExpressionWithTypeArguments(node)) {
+        if (isHeritageClause(node.parent) && isClassLike(node.parent.parent)) {
+            return { class: node.parent.parent, isImplements: (node.parent as HeritageClause).token === SyntaxKind.ImplementsKeyword };
+        }
+        if (isJSDocAugmentsTag(node.parent)) {
+            const host = getEffectiveJSDocHost(node.parent);
+            if (host && isClassLike(host)) {
+                return { class: host, isImplements: false };
+            }
+        }
+    }
+    return undefined;
+}
+
+/** @internal */
+export function getPropertyNameForPropertyNameNode(name: PropertyName ): string | undefined {
+    switch (name.kind) {
+        case SyntaxKind.Identifier:
+        case SyntaxKind.PrivateIdentifier:
+            return name.text;
+        case SyntaxKind.StringLiteral:
+        //case SyntaxKind.NoSubstitutionTemplateLiteral:
+        case SyntaxKind.IntLiteral:
+            return escapeLeadingUnderscores(name.text);
+        case SyntaxKind.ComputedPropertyName:
+            const nameExpression = name.expression;
+            if (isStringOrNumericLiteralLike(nameExpression)) {
+                return escapeLeadingUnderscores(nameExpression.text);
+            }
+            else if (isSignedNumericLiteral(nameExpression)) {
+                if (nameExpression.operator === SyntaxKind.MinusToken) {
+                    return tokenToString(nameExpression.operator) + nameExpression.operand.text as string;
+                }
+                return nameExpression.operand.text as string;
+            }
+            return undefined;
+        // case SyntaxKind.JsxNamespacedName:
+        //     return getEscapedTextOfJsxNamespacedName(name);
+        default:
+            return Debug.assertNever(name as never);
+    }
+}
+
+/** @internal */
+export function isKnownSymbol(symbol: Symbol): boolean {
+    return startsWith(symbol.name as string, "__@");
+}
+
+/** @internal */
+export const enum AssignmentKind {
+    None,
+    Definite,
+    Compound,
+}
+
+
+/** @internal */
+export function getAssignmentTargetKind(node: Node): AssignmentKind {
+    const target = getAssignmentTarget(node);
+    if (!target) {
+        return AssignmentKind.None;
+    }
+    switch (target.kind) {
+        case SyntaxKind.BinaryExpression:
+            const binaryOperator = target.operatorToken.kind;
+            return binaryOperator === SyntaxKind.EqualsToken || isLogicalOrCoalescingAssignmentOperator(binaryOperator) ?
+                AssignmentKind.Definite :
+                AssignmentKind.Compound;
+        case SyntaxKind.PrefixUnaryExpression:
+        case SyntaxKind.PostfixUnaryExpression:
+            return AssignmentKind.Compound;
+        case SyntaxKind.ForInStatement:
+        //case SyntaxKind.ForOfStatement:
+            return AssignmentKind.Definite;
+    }
+}
+
+/** @internal */
+export function tryGetPropertyAccessOrIdentifierToString(expr: Expression ): string | undefined {
+    if (isPropertyAccessExpression(expr)) {
+        const baseStr = tryGetPropertyAccessOrIdentifierToString(expr.expression);
+        if (baseStr !== undefined) {
+            return baseStr + "." + entityNameToString(expr.name as EntityNameOrEntityNameExpression);
+        }
+    }
+    else if (isElementAccessExpression(expr)) {
+        const baseStr = tryGetPropertyAccessOrIdentifierToString(expr.expression);
+        if (baseStr !== undefined && isPropertyName(expr.argumentExpression)) {
+            return baseStr + "." + getPropertyNameForPropertyNameNode(expr.argumentExpression);
+        }
+    }
+    else if (isIdentifier(expr)) {
+        return unescapeLeadingUnderscores(expr.text);
+    }
+    // else if (isJsxNamespacedName(expr)) {
+    //     return getTextOfJsxNamespacedName(expr);
+    // }
+    return undefined;
+}
+
+// a node is delete target iff. it is PropertyAccessExpression/ElementAccessExpression with parentheses skipped
+/** @internal */
+export function isDeleteTarget(node: Node): boolean {
+    if (node.kind !== SyntaxKind.PropertyAccessExpression && node.kind !== SyntaxKind.ElementAccessExpression) {
+        return false;
+    }
+    node = walkUpParenthesizedExpressions(node.parent);
+    return node && node.kind === SyntaxKind.DeleteExpression;
+}
+
+/** @internal */
+export function walkUpParenthesizedExpressions(node: Node) {
+    return walkUp(node, SyntaxKind.ParenthesizedExpression);
+}
+
+function walkUp(node: Node, kind: SyntaxKind) {
+    while (node && node.kind === kind) {
+        node = node.parent;
+    }
+    return node;
+}
+
+/** @internal */
+export function skipTypeParentheses(node: TypeNode): TypeNode {
+    while (isParenthesizedTypeNode(node)) node = node.type;
+    return node;
+}
+
+/** @internal */
+export function isTypeAlias(node: Node): node is  TypeAliasDeclaration {//|JSDocTypedefTag | JSDocCallbackTag | JSDocEnumTag {
+    return isTypeAliasDeclaration(node); // || isJSDocTypeAlias(node)
+}
+
+/** @internal */
+export function getContainingFunction(node: Node): SignatureDeclaration | undefined {
+    return findAncestor(node.parent, isFunctionLike);
 }

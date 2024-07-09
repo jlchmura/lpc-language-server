@@ -1,5 +1,5 @@
 import { MapLike } from "./core";
-import { DiagnosticMessage, KeywordSyntaxKind, PunctuationOrKeywordSyntaxKind, SyntaxKind, TokenFlags } from "./types";
+import { DiagnosticMessage, KeywordSyntaxKind, PunctuationOrKeywordSyntaxKind, SourceFileLike, SyntaxKind, TokenFlags } from "./types";
 import { positionIsSynthesized } from "./utilities";
 
 export type ErrorCallback = (message: DiagnosticMessage, length: number, arg0?: any) => void;
@@ -357,3 +357,7 @@ export interface Scanner {
 type ScriptKind=any;
 type LanguageVariant=any;
 type ScriptTarget=any;
+
+export function getLineAndCharacterOfPosition(sourceFile: SourceFileLike, position: number): LineAndCharacter {
+    return computeLineAndCharacterOfPosition(getLineStarts(sourceFile), position);
+}

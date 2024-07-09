@@ -61,6 +61,9 @@ import {
     ModifierFlags,
     HasExpressionInitializer,
     JSDocPropertyLikeTag,
+    PropertyName,
+    NewExpression,
+    TypeReferenceType,
 } from "./types";
 import { getAssignmentDeclarationKind, getEffectiveModifierFlags, getElementOrPropertyAccessArgumentExpressionOrName, getJSDocCommentsAndTags, isAccessExpression, isBindableStaticElementAccessExpression, isFunctionBlock, isTypeNodeKind, isVariableLike, setTextRangePosEnd, skipOuterExpressions } from "./utilities";
 
@@ -1037,4 +1040,42 @@ export function getEffectiveTypeParameterDeclarations(node: any): readonly TypeP
     //     }
     // }
     // return emptyArray;
+}
+
+/** Gets the JSDoc augments tag for the node if present */
+export function getJSDocAugmentsTag(node: Node) {//: JSDocAugmentsTag | undefined {
+    return undefined;
+    //return getFirstJSDocTag(node, isJSDocAugmentsTag);
+}
+
+
+export function getEffectiveConstraintOfTypeParameter(node: TypeParameterDeclaration): TypeNode | undefined {
+    return node.constraint ? node.constraint :
+        isJSDocTemplateTag(node.parent) && node === (node.parent as JSDocTemplateTag).typeParameters[0] ? (node.parent as JSDocTemplateTag).constraint :
+        undefined;
+}
+
+export function isPropertyName(node: Node): node is PropertyName {
+    const kind = node.kind;
+    return kind === SyntaxKind.Identifier
+        || kind === SyntaxKind.PrivateIdentifier
+        || kind === SyntaxKind.StringLiteral
+        || kind === SyntaxKind.IntLiteral        
+        || kind === SyntaxKind.ComputedPropertyName;
+}
+
+export function isCallOrNewExpression(node: Node): node is CallExpression | NewExpression {
+    return node.kind === SyntaxKind.CallExpression || node.kind === SyntaxKind.NewExpression;
+}
+
+export function isAssertionExpression(node: Node) {//: node is ssertionExpression {
+    return false;
+    // const kind = node.kind;
+    // return kind === SyntaxKind.TypeAssertionExpression
+    //     || kind === SyntaxKind.AsExpression;
+}
+
+/** @internal */
+export function isTypeReferenceType(node: Node): node is TypeReferenceType {
+    return node.kind === SyntaxKind.TypeReference || node.kind === SyntaxKind.ExpressionWithTypeArguments;
 }

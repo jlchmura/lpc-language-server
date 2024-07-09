@@ -23,11 +23,13 @@ export interface Symbol {
     declarations: Declaration[]; // declarations associated with this symbol
     valueDeclaration?: Declaration; // first value declaration
     members?: SymbolTable; // members of the symbol if it is a module
+    exports?: SymbolTable;                  // Module exports
     id: SymbolId; // unique id
     parent?: Symbol; // parent symbol
     isReferenced?: SymbolFlags; // true if symbol is referenced in the program
     lastAssignmentPos?: number; // position of last node that assigned a value to this symbol
     mergeId: number;
+    /** @internal */ assignmentDeclarationMembers?: Map<number, Declaration>; // detected late-bound assignment declarations associated with the symbol
 };
 
 // prettier-ignore
@@ -39,6 +41,7 @@ export type SymbolTable = Map<string, Symbol>;
 export interface CompilerOptions {
     allowUnreachableCode?: boolean;
     noErrorTruncation?: boolean;
+    noUncheckedIndexedAccess?: boolean;
     // TODO
 }
 
@@ -127,6 +130,8 @@ export const enum SyntaxKind {
     MethodSignature,
     MethodDeclaration,
     PropertyDeclaration,
+    TypeAliasDeclaration,
+    ImportDeclaration,
     PropertySignature,
     CallSignature,
     IndexSignature,    
@@ -136,7 +141,7 @@ export const enum SyntaxKind {
 
     Block,
     ImportClause,
-    ImportDeclaration,
+    HeritageClause,    
     ImportSpecifier,
     NamedImports,
     ExportSpecifier,
@@ -144,6 +149,7 @@ export const enum SyntaxKind {
     // declarations
     FunctionDeclaration,
     VariableDeclaration,
+    InterfaceDeclaration,
    
     // Type
     TypePredicate,
@@ -178,7 +184,11 @@ export const enum SyntaxKind {
 
     // expressions
     CallExpression,
+    DeleteExpression,
     PropertyAccessExpression,
+    SyntheticExpression,
+    TaggedTemplateExpression,
+    ExpressionWithTypeArguments,
     ElementAccessExpression,
     InlineClosureExpression,
     BinaryExpression,
@@ -201,8 +211,18 @@ export const enum SyntaxKind {
     // keywords
     PrivateKeyword,
     ProtectedKeyword,
+    SuperKeyword = ColonColonToken,
     PublicKeyword,
     StaticKeyword,
+    ExtendsKeyword,
+    /** @deprecated */
+    ReadonlyKeyword,
+    /** @deprecated */
+    UniqueKeyword,
+    /** @deprecated */
+    KeyOfKeyword,
+    /** @deprecated */
+    ImplementsKeyword,
     VisibleKeyword,
     NoSaveKeyword,
     NoShadowKeyword,
@@ -603,6 +623,13 @@ export const enum ModifierFlags {
     
     // JSDoc-only modifiers
     Deprecated =         1 << 16, // Deprecated tag.
+    
+    // Unused tyepscript modifiers
+
+    /** @deprecated not used */
+    Readonly =           1 << 98, // not used
+    /** @deprecated not used */
+    Abstract =           1 << 99, // not used
 
     // Cache-only JSDoc-modifiers. Should match order of Syntactic/JSDoc modifiers, above.
     /** @internal */ JSDocPublic = 1 << 23, // if this value changes, `selectEffectiveModifierFlags` must change accordingly
@@ -640,6 +667,7 @@ export const enum SymbolFlags {
     Property                = 1 << 2,   // Property
     Function                = 1 << 4,   // Function    
     Class                   = 1 << 5,   // Class
+    Interface               = 1 << 6,   // Interface
     ValueModule             = 1 << 9,   // Instantiated module
     NamespaceModule         = 1 << 10,  // Uninstantiated module
     TypeLiteral             = 1 << 11,  // Type Literal or mapped type
@@ -651,10 +679,13 @@ export const enum SymbolFlags {
     TypeAlias               = 1 << 19,  // Type alias
     ExportValue             = 1 << 20,  // Exported value marker (see comment in declareModuleMember in binder)
     Alias                   = 1 << 21,  // An alias for another symbol (see comment in isAliasSymbolDeclaration in checker)
+    Optional                = 1 << 24,  // Optional property
     Transient               = 1 << 25,  // Transient symbol (created during type check)
     Assignment              = 1 << 26,  // Assignment treated as declaration (eg `this.prop = 1`)
 
     HasComputedFlags        = 1 << 31, // Transform flags have been computed.
+    /** @deprecated */
+    Enum                    = 1 << 99, // not used
     All = -1,
 
     Variable = FunctionScopedVariable | BlockScopedVariable,
@@ -684,6 +715,8 @@ export const enum SymbolFlags {
     ParameterExcludes = NodeExcludes,
     MethodExcludes = Value & ~Method,
     TypeParameterExcludes = Type & ~TypeParameter,
+
+    BlockScoped = BlockScopedVariable | Class,
 
     /** @internal */
     LateBindingContainer = Class  | TypeLiteral | ObjectLiteral | Function,
@@ -825,7 +858,8 @@ export const enum TypeFlags {
     Int             = 1 << 3,
     Float           = 1 << 4,
     // Boolean         = 1 << 4,
-    // Enum            = 1 << 5,   // Numeric computed enum member value
+    /** @deprecated not used */
+    Enum            = 1 << 5,   // Numeric computed enum member value
     // BigInt          = 1 << 6,
     StringLiteral   = 1 << 7,
     IntLiteral      = 1 << 8,
@@ -841,13 +875,15 @@ export const enum TypeFlags {
     TypeParameter   = 1 << 18,  // Type parameter
     Object          = 1 << 19,  // Object type
     Union           = 1 << 20,  // Union (T | U)
-    // Intersection    = 1 << 21,  // Intersection (T & U)
+    /** @deprecated not used in LPC */
+    Intersection    = 1 << 21,  // Intersection (T & U)
     Index           = 1 << 22,  // keyof T
     IndexedAccess   = 1 << 23,  // T[K]
     Conditional     = 1 << 24,  // T extends U ? X : Y
     Substitution    = 1 << 25,  // Type parameter substitution
     NonPrimitive    = 1 << 26,  // intrinsic object type
-    // TemplateLiteral = 1 << 27,  // Template literal type
+    /** @deprecated not used in lpc */
+    TemplateLiteral = 1 << 27,  // Template literal type
     StringMapping   = 1 << 28,  // Uppercase/Lowercase type
     /** @internal */
     Reserved1       = 1 << 29,  // Used by union/intersection type construction
@@ -1167,6 +1203,13 @@ export interface UnionType extends UnionOrIntersectionType {
     arrayFallbackSignatures?: readonly Signature[]; // Special remapped signature list for unions of arrays
 }
 
+export interface IntersectionType extends UnionOrIntersectionType {
+    /** @internal */
+    resolvedApparentType: Type;
+    /** @internal */
+    uniqueLiteralFilledInstantiation?: Type; // Instantiation with type parameters mapped to never type
+}
+
 /** @internal */
 export type ObjectFlagsType = NullableType | ObjectType | UnionType ;
 
@@ -1342,6 +1385,30 @@ export interface SourceFile extends Declaration, LocalsContainer {
 
     /** @internal */ bindDiagnostics: DiagnosticWithLocation[];
     /** @internal */ bindSuggestionDiagnostics?: DiagnosticWithLocation[];
+
+    // From class-like declaration
+    readonly heritageClauses?: NodeArray<HeritageClause>;
+    readonly members: NodeArray<ClassElement>;
+}
+
+/**
+ * Subset of properties from SourceFile that are used in multiple utility functions
+ */
+export interface SourceFileLike {
+    readonly text: string;
+    /** @internal */
+    lineMap?: readonly number[];
+    /** @internal */
+    getPositionOfLineAndCharacter?(line: number, character: number, allowEdits?: true): number;
+}
+
+export interface LineAndCharacter {
+    /** 0-based. */
+    line: number;
+    /*
+     * 0-based. This value denotes the character position in line and is different from the 'column' because of tab characters.
+     */
+    character: number;
 }
 
 export interface FileReference extends TextRange {
@@ -1990,7 +2057,8 @@ export type SignatureDeclaration =
     //| MethodSignature
     | IndexSignatureDeclaration
     | InlineClosureExpression
-    //| FunctionTypeNode    
+    | FunctionTypeNode    
+    | ConstructorTypeNode
     | JSDocFunctionType
     | FunctionDeclaration
     | MethodDeclaration        
@@ -2528,6 +2596,7 @@ export const enum InternalSymbolName {
     Function = "__function", // Unnamed function expression
     Computed = "__computed", // Computed property name declaration with dynamic name
     Resolving = "__resolving__", // Indicator symbol used to mark partially resolved type aliases    
+    Constructor = "__constructor", // Constructor implementation
     Default = "default", // Default export symbol (technically not wholly internal, but included here for usability)    
     InstantiationExpression = "__instantiationExpression", // Instantiation expressions
     ImportAttributes = "__importAttributes",
@@ -3072,8 +3141,9 @@ export interface SymbolLinks {
     deferralParent?: Type;                      // Source union/intersection of a deferred type
     cjsExportMerged?: Symbol;                   // Version of the symbol with all non export= exports merged with the export= target
     typeOnlyDeclaration?: TypeOnlyAliasDeclaration | false; // First resolved alias declaration that makes the symbol only usable in type constructs
-    // typeOnlyExportStarMap?: Map<string, ExportDeclaration & { readonly isTypeOnly: true, readonly moduleSpecifier: Expression }>; // Set on a module symbol when some of its exports were resolved through a 'export type * from "mod"' declaration
-    // typeOnlyExportStarName?: string;          // Set to the name of the symbol re-exported by an 'export type *' declaration, when different from the symbol name
+    /** @deprecated */
+    typeOnlyExportStarMap?: Map<string, any>;//ExportDeclaration & { readonly isTypeOnly: true, readonly moduleSpecifier: Expression }>; // Set on a module symbol when some of its exports were resolved through a 'export type * from "mod"' declaration
+    typeOnlyExportStarName?: string;          // Set to the name of the symbol re-exported by an 'export type *' declaration, when different from the symbol name
     isConstructorDeclaredProperty?: boolean;    // Property declared through 'this.x = ...' assignment in constructor
     //tupleLabelDeclaration?: NamedTupleMember | ParameterDeclaration; // Declaration associated with the tuple's label
     accessibleChainCache?: Map<string, Symbol[] | undefined>;
@@ -3133,6 +3203,11 @@ export interface TypeReferenceNode extends NodeWithTypeArguments {
     readonly typeName: EntityName;
 }
 
+export interface TupleTypeNode extends TypeNode {
+    readonly kind: SyntaxKind.TupleType;
+    readonly elements: NodeArray<TypeNode | NamedTupleMember>;
+}
+
 
 /**
  * Type references (ObjectFlags.Reference). When a class or interface has type parameters or
@@ -3146,7 +3221,7 @@ export interface TypeReferenceNode extends NodeWithTypeArguments {
  */
 export interface TypeReference extends ObjectType {
     target: GenericType; // Type reference target
-    node?: TypeReferenceNode | ArrayTypeNode ;
+    node?: TypeReferenceNode | ArrayTypeNode | TupleTypeNode;
     /** @internal */
     mapper?: TypeMapper;
     /** @internal */
@@ -3961,6 +4036,13 @@ export interface AnonymousType extends ObjectType {
     mapper?: TypeMapper; // Instantiation mapper
     instantiations?: Map<string, Type>; // Instantiations of generic type alias (undefined if non-generic)
 }
+
+export interface TypeOperatorNode extends TypeNode {
+    readonly kind: SyntaxKind.TypeOperator;
+    readonly operator: SyntaxKind.KeyOfKeyword | SyntaxKind.UniqueKeyword | SyntaxKind.ReadonlyKeyword;
+    readonly type: TypeNode;
+}
+
 
 
 /** @internal */
@@ -4871,4 +4953,218 @@ export interface NamedTupleMember extends TypeNode, Declaration, JSDocContainer 
     readonly name: Identifier;
     readonly questionToken?: Token<SyntaxKind.QuestionToken>;
     readonly type: TypeNode;
+}
+
+
+// dprint-ignore
+export interface InterfaceTypeWithDeclaredMembers extends InterfaceType {
+    declaredProperties: Symbol[];                   // Declared members
+    declaredCallSignatures: Signature[];            // Declared call signatures
+    declaredConstructSignatures: Signature[];       // Declared construct signatures
+    declaredIndexInfos: IndexInfo[];                // Declared index signatures
+}
+
+export interface ExpressionWithTypeArguments extends MemberExpression, NodeWithTypeArguments {
+    readonly kind: SyntaxKind.ExpressionWithTypeArguments;
+    readonly expression: LeftHandSideExpression;
+}
+
+
+export interface HeritageClause extends Node {
+    readonly kind: SyntaxKind.HeritageClause;
+    readonly parent: InterfaceDeclaration | ClassLikeDeclaration;
+    readonly token: SyntaxKind.ExtendsKeyword | SyntaxKind.ImplementsKeyword;
+    readonly types: NodeArray<ExpressionWithTypeArguments>;
+}
+
+
+export interface InterfaceDeclaration extends DeclarationStatement, JSDocContainer {
+    readonly kind: SyntaxKind.InterfaceDeclaration;
+    readonly modifiers?: NodeArray<ModifierLike>;
+    readonly name: Identifier;
+    readonly typeParameters?: NodeArray<TypeParameterDeclaration>;
+    readonly heritageClauses?: NodeArray<HeritageClause>;
+    readonly members: NodeArray<TypeElement>;
+}
+
+export interface ConditionalTypeNode extends TypeNode, LocalsContainer {
+    readonly kind: SyntaxKind.ConditionalType;
+    readonly checkType: TypeNode;
+    readonly extendsType: TypeNode;
+    readonly trueType: TypeNode;
+    readonly falseType: TypeNode;
+}
+
+export interface ConditionalRoot {
+    node: ConditionalTypeNode;
+    checkType: Type;
+    extendsType: Type;
+    isDistributive: boolean;
+    inferTypeParameters?: TypeParameter[];
+    outerTypeParameters?: TypeParameter[];
+    instantiations?: Map<string, Type>;
+    aliasSymbol?: Symbol;
+    aliasTypeArguments?: Type[];
+}
+
+// T extends U ? X : Y (TypeFlags.Conditional)
+/** @deprecated not used in lpc */
+export interface ConditionalType extends InstantiableType {
+    root: ConditionalRoot;
+    checkType: Type;
+    extendsType: Type;
+    resolvedTrueType?: Type;
+    resolvedFalseType?: Type;
+    /** @internal */
+    resolvedInferredTrueType?: Type; // The `trueType` instantiated with the `combinedMapper`, if present
+    /** @internal */
+    resolvedDefaultConstraint?: Type;
+    /** @internal */
+    resolvedConstraintOfDistributive?: Type | false;
+    /** @internal */
+    mapper?: TypeMapper;
+    /** @internal */
+    combinedMapper?: TypeMapper;
+}
+
+export interface JsxAttributes extends PrimaryExpression, Declaration {
+    readonly properties: NodeArray<any>;
+    readonly kind: SyntaxKind.Unknown;
+    readonly parent: any;
+}
+
+
+// Type parameter substitution (TypeFlags.Substitution)
+// Substitution types are created for type parameters or indexed access types that occur in the
+// true branch of a conditional type. For example, in 'T extends string ? Foo<T> : Bar<T>', the
+// reference to T in Foo<T> is resolved as a substitution type that substitutes 'string & T' for T.
+// Thus, if Foo has a 'string' constraint on its type parameter, T will satisfy it.
+// Substitution type are also created for NoInfer<T> types. Those are represented as substitution
+// types where the constraint is type 'unknown' (which is never generated for the case above).
+export interface SubstitutionType extends InstantiableType {
+    objectFlags: ObjectFlags;
+    baseType: Type; // Target type
+    constraint: Type; // Constraint that target type is known to satisfy
+}
+
+export interface TemplateLiteralType extends InstantiableType {
+    texts: readonly string[]; // Always one element longer than types
+    types: readonly Type[]; // Always at least one element
+}
+
+export interface StringMappingType extends InstantiableType {
+    symbol: Symbol;
+    type: Type;
+}
+
+export interface TupleType extends GenericType {
+    elementFlags: readonly ElementFlags[];
+    /** Number of required or variadic elements */
+    minLength: number;
+    /** Number of initial required or optional elements */
+    fixedLength: number;
+    /** True if tuple has any rest or variadic elements */
+    hasRestElement: boolean;
+    combinedFlags: ElementFlags;
+    readonly: boolean;
+    labeledElementDeclarations?: readonly (NamedTupleMember | ParameterDeclaration | undefined)[];
+}
+
+export interface TupleTypeReference extends TypeReference {
+    target: TupleType;
+}
+
+export interface TypeAliasDeclaration extends DeclarationStatement, JSDocContainer, LocalsContainer {
+    readonly kind: SyntaxKind.TypeAliasDeclaration;
+    readonly modifiers?: NodeArray<ModifierLike>;
+    readonly name: Identifier;
+    readonly typeParameters?: NodeArray<TypeParameterDeclaration>;
+    readonly type: TypeNode;
+}
+
+export type DeclarationWithTypeParameters =
+    | DeclarationWithTypeParameterChildren
+    // | JSDocTypedefTag
+    // | JSDocCallbackTag
+    | JSDocSignature;
+
+export type DeclarationWithTypeParameterChildren =
+    | SignatureDeclaration
+    | ClassLikeDeclaration
+    | InterfaceDeclaration
+    | TypeAliasDeclaration
+    | JSDocTemplateTag;
+
+/** @internal */
+// A SingleSignatureType may have bespoke outer type parameters to handle free type variable inferences
+export interface SingleSignatureType extends AnonymousType {
+    outerTypeParameters?: TypeParameter[];
+}
+
+export interface DeferredTypeReference extends TypeReference {
+    /** @internal */
+    node: TypeReferenceNode | ArrayTypeNode | TupleTypeNode;
+    /** @internal */
+    mapper?: TypeMapper;
+    /** @internal */
+    instantiations?: Map<string, Type>; // Instantiations of generic type alias (undefined if non-generic)
+}
+
+export interface OptionalTypeNode extends TypeNode {
+    readonly kind: SyntaxKind.OptionalType;
+    readonly type: TypeNode;
+}
+
+export interface ParenthesizedTypeNode extends TypeNode {
+    readonly kind: SyntaxKind.ParenthesizedType;
+    readonly type: TypeNode;
+}
+
+export interface TaggedTemplateExpression extends MemberExpression {
+    readonly kind: SyntaxKind.TaggedTemplateExpression;
+    readonly tag: LeftHandSideExpression;
+    readonly typeArguments?: NodeArray<TypeNode>;
+    readonly template: any;
+    /** @internal */ questionDotToken?: any; // NOTE: Invalid syntax, only used to report a grammar error.
+}
+
+/** @internal */
+export const enum IntersectionFlags {
+    None = 0,
+    NoSupertypeReduction = 1 << 0,
+    NoConstraintReduction = 1 << 1,
+}
+
+export interface SyntheticExpression extends Expression {
+    readonly kind: SyntaxKind.SyntheticExpression;
+    readonly isSpread: boolean;
+    readonly type: Type;
+    readonly tupleNameSource?: ParameterDeclaration | NamedTupleMember;
+}
+
+export type TypeReferenceType = TypeReferenceNode | ExpressionWithTypeArguments;
+
+export interface FunctionOrConstructorTypeNodeBase extends TypeNode, SignatureDeclarationBase {
+    readonly kind: SyntaxKind.FunctionType | SyntaxKind.ConstructorType;
+    readonly type: TypeNode;
+}
+
+
+export interface FunctionTypeNode extends FunctionOrConstructorTypeNodeBase, LocalsContainer {
+    readonly kind: SyntaxKind.FunctionType;
+
+    // A function type cannot have modifiers
+    /** @internal */ readonly modifiers?: undefined;
+}
+
+export interface ConstructorTypeNode extends FunctionOrConstructorTypeNodeBase, LocalsContainer {
+    readonly kind: SyntaxKind.ConstructorType;
+    readonly modifiers?: NodeArray<Modifier>;
+}
+
+export type FunctionOrConstructorTypeNode = FunctionTypeNode | ConstructorTypeNode;
+
+/** @internal */
+export interface InstantiationExpressionType extends AnonymousType {
+    node: NodeWithTypeArguments;
 }

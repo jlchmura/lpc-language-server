@@ -9,8 +9,10 @@ import {
     ComputedPropertyName,
     ElementAccessExpression,
     ExpressionStatement,
+    ExpressionWithTypeArguments,
     FunctionDeclaration,
     FunctionExpression,
+    HeritageClause,
     Identifier,
     ImportTypeNode,
     IndexedAccessTypeNode,
@@ -30,6 +32,7 @@ import {
     ObjectLiteralExpression,
     ParameterDeclaration,
     ParenthesizedExpression,
+    ParenthesizedTypeNode,
     PrefixUnaryExpression,
     PrivateIdentifier,
     PropertyAccessExpression,
@@ -42,7 +45,9 @@ import {
     SpreadAssignment,
     StringLiteral,
     SyntaxKind,
+    TypeAliasDeclaration,
     TypeLiteralNode,
+    TypeOperatorNode,
     TypeParameterDeclaration,
     TypeReferenceNode,
     UnionTypeNode,
@@ -267,8 +272,8 @@ export function isMethodDeclaration(node: Node): node is MethodDeclaration {
     return node.kind === SyntaxKind.MethodDeclaration;
 }
 
-export function isHeritageClause(node: Node) {
-    return false;// return node.kind === SyntaxKind.HeritageClause;
+export function isHeritageClause(node: Node): node is HeritageClause {
+    return node.kind === SyntaxKind.HeritageClause;
 }
 
 export function isQualifiedName(node: Node): node is QualifiedName {
@@ -315,3 +320,29 @@ export function isMethodSignature(node: Node) {//: node is MethodSignature {
     return false;//return node.kind === SyntaxKind.MethodSignature;
 }
 
+export function isClassStaticBlockDeclaration(node: Node) {//: node is ClassStaticBlockDeclaration {
+    return false;//return node.kind === SyntaxKind.ClassStaticBlockDeclaration;
+}
+
+export function isExpressionWithTypeArguments(node: Node): node is ExpressionWithTypeArguments {
+    return node.kind === SyntaxKind.ExpressionWithTypeArguments;
+}
+
+export function isTypeAliasDeclaration(node: Node): node is TypeAliasDeclaration {
+    return node.kind === SyntaxKind.TypeAliasDeclaration;
+}
+
+export function isJSDocAugmentsTag(node: Node) {
+    return false; // TODO
+}
+export function isJSDocImplementsTag(node:Node) { 
+    return false; // TODO
+}
+
+export function isParenthesizedTypeNode(node: Node): node is ParenthesizedTypeNode {
+    return node.kind === SyntaxKind.ParenthesizedType;
+}
+
+export function isTypeOperatorNode(node: Node): node is TypeOperatorNode {
+    return node.kind === SyntaxKind.TypeOperator;
+}
