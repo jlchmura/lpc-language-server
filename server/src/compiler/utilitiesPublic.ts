@@ -1,4 +1,6 @@
-import { isBinaryExpression, isBindingElement, isFunctionExpression, isIdentifier, isPropertyAssignment, isPropertyDeclaration, isVariableDeclaration } from "./nodeTests";
+import { addRange, emptyArray, find, flatMap } from "./core";
+import { Debug } from "./debug";
+import { isBinaryExpression, isBindingElement, isFunctionExpression, isIdentifier, isJSDoc, isJSDocDeprecatedTag, isJSDocParameterTag, isJSDocTemplateTag, isJSDocTypeTag, isParameter, isPropertyAssignment, isPropertyDeclaration, isTypeReferenceNode, isVariableDeclaration } from "./nodeTests";
 import {
     AccessExpression,
     AssignmentDeclarationKind,
@@ -35,8 +37,36 @@ import {
     UnaryExpression,
     VariableDeclaration,
     MethodDeclaration,
+    TypeNode,
+    FunctionLikeDeclaration,
+    AssignmentPattern,
+    ObjectLiteralElementLike,
+    CallLikeExpression,
+    PropertyAccessExpression,
+    QualifiedName,
+    ImportTypeNode,
+    FunctionExpression,
+    ArrowFunction,
+    JSDocDeprecatedTag,
+    JSDocTag,
+    HasJSDoc,
+    JSDoc,
+    JSDocContainer,
+    HasInitializer,
+    JSDocParameterTag,
+    TypeParameterDeclaration,
+    JSDocTemplateTag,
+    TextRange,
+    EntityName,
+    ModifierFlags,
+    HasExpressionInitializer,
+    JSDocPropertyLikeTag,
 } from "./types";
-import { getAssignmentDeclarationKind, getElementOrPropertyAccessArgumentExpressionOrName, isAccessExpression, isBindableStaticElementAccessExpression, isFunctionBlock, skipOuterExpressions } from "./utilities";
+import { getAssignmentDeclarationKind, getEffectiveModifierFlags, getElementOrPropertyAccessArgumentExpressionOrName, getJSDocCommentsAndTags, isAccessExpression, isBindableStaticElementAccessExpression, isFunctionBlock, isTypeNodeKind, isVariableLike, setTextRangePosEnd, skipOuterExpressions } from "./utilities";
+
+export function setTextRange<T extends TextRange>(range: T, location: TextRange | undefined): T {
+    return location ? setTextRangePosEnd(range, location.pos, location.end) : range;
+}
 
 export function isStringLiteralLike(
     node: Node | FileReference
@@ -73,7 +103,8 @@ function isLeftHandSideExpressionKind(kind: SyntaxKind): boolean {
         //case SyntaxKind.FunctionExpression:
         case SyntaxKind.Identifier:
         case SyntaxKind.PrivateIdentifier: // technically this is only an Expression if it's in a `#field in expr` BinaryExpression
-        case SyntaxKind.NumericLiteral:
+        case SyntaxKind.IntLiteral:
+        case SyntaxKind.FloatLiteral:
         case SyntaxKind.StringLiteral:
         case SyntaxKind.ColonColonToken:
         case SyntaxKind.NonNullExpression:
@@ -160,33 +191,6 @@ export function isFunctionLike(
     node: Node | undefined
 ): node is SignatureDeclaration {
     return !!node && isFunctionLikeKind(node.kind);
-}
-
-/** @internal */
-export function canHaveLocals(node: Node): node is HasLocals {
-    switch (node.kind) {
-        //case SyntaxKind.ArrowFunction:
-        case SyntaxKind.Block:
-        case SyntaxKind.CaseBlock:
-        case SyntaxKind.CatchClause:
-        case SyntaxKind.ForStatement:
-        case SyntaxKind.ForInStatement:
-        case SyntaxKind.FunctionDeclaration:
-        case SyntaxKind.FunctionExpression:
-        //case SyntaxKind.FunctionType:
-        case SyntaxKind.IndexSignature:
-        // case SyntaxKind.JSDocCallbackTag:
-        // case SyntaxKind.JSDocEnumTag:
-        case SyntaxKind.JSDocFunctionType:
-        // case SyntaxKind.JSDocSignature:
-        // case SyntaxKind.JSDocTypedefTag:
-        case SyntaxKind.MethodDeclaration:
-        case SyntaxKind.MethodSignature:
-        case SyntaxKind.SourceFile:
-            return true;
-        default:
-            return false;
-    }
 }
 
 function isDeclarationKind(kind: SyntaxKind) {
@@ -547,4 +551,490 @@ export function getParseTreeNode(node: Node | undefined, nodeTest?: (node: Node)
         }
         node = node.original;
     }
+}
+
+/** @internal */
+export function canHaveSymbol(node: Node): node is Declaration {
+    // NOTE: This should cover all possible declarations except MissingDeclaration and SemicolonClassElement
+    //       since they aren't actually declarations and can't have a symbol.
+    switch (node.kind) {
+        case SyntaxKind.ArrowFunction:
+        case SyntaxKind.BinaryExpression:
+        case SyntaxKind.BindingElement:
+        case SyntaxKind.CallExpression:
+        case SyntaxKind.CallSignature:
+        // case SyntaxKind.ClassDeclaration:
+        case SyntaxKind.ClassExpression:
+        // case SyntaxKind.ClassStaticBlockDeclaration:
+        // case SyntaxKind.Constructor:
+        case SyntaxKind.ConstructorType:
+        // case SyntaxKind.ConstructSignature:
+        case SyntaxKind.ElementAccessExpression:
+        // case SyntaxKind.EnumDeclaration:
+        // case SyntaxKind.EnumMember:
+        // case SyntaxKind.ExportAssignment:
+        // case SyntaxKind.ExportDeclaration:
+        case SyntaxKind.ExportSpecifier:
+        case SyntaxKind.FunctionDeclaration:
+        case SyntaxKind.FunctionExpression:
+        case SyntaxKind.FunctionType:
+        // case SyntaxKind.GetAccessor:
+        case SyntaxKind.Identifier:
+        case SyntaxKind.ImportClause:
+        // case SyntaxKind.ImportEqualsDeclaration:
+        case SyntaxKind.ImportSpecifier:
+        case SyntaxKind.IndexSignature:
+        // case SyntaxKind.InterfaceDeclaration:
+        // case SyntaxKind.JSDocCallbackTag:
+        // case SyntaxKind.JSDocEnumTag:
+        // case SyntaxKind.JSDocPropertyTag:
+        // case SyntaxKind.JSDocTypedefTag:
+        case SyntaxKind.JSDocFunctionType:
+        case SyntaxKind.JSDocParameterTag:
+        case SyntaxKind.JSDocSignature:
+        case SyntaxKind.JSDocTypeLiteral:        
+        case SyntaxKind.MappedType:
+        case SyntaxKind.MethodDeclaration:
+        case SyntaxKind.MethodSignature:
+        // case SyntaxKind.ModuleDeclaration:
+        case SyntaxKind.NamedTupleMember:
+        // case SyntaxKind.NamespaceExport:
+        // case SyntaxKind.NamespaceExportDeclaration:
+        // case SyntaxKind.NamespaceImport:
+        case SyntaxKind.NewExpression:
+        // case SyntaxKind.NoSubstitutionTemplateLiteral:
+        case SyntaxKind.IntLiteral:
+        case SyntaxKind.FloatLiteral:
+        case SyntaxKind.ObjectLiteralExpression:
+        case SyntaxKind.Parameter:
+        case SyntaxKind.PropertyAccessExpression:
+        case SyntaxKind.PropertyAssignment:
+        case SyntaxKind.PropertyDeclaration:
+        case SyntaxKind.PropertySignature:
+        // case SyntaxKind.SetAccessor:
+        case SyntaxKind.ShorthandPropertyAssignment:
+        case SyntaxKind.SourceFile:
+        case SyntaxKind.SpreadAssignment:
+        case SyntaxKind.StringLiteral:
+        //case SyntaxKind.TypeAliasDeclaration:
+        case SyntaxKind.TypeLiteral:
+        case SyntaxKind.TypeParameter:
+        case SyntaxKind.VariableDeclaration:
+            return true;
+        default:
+            return false;
+    }
+}
+
+/** @internal */
+export function canHaveLocals(node: Node): node is HasLocals {
+    switch (node.kind) {
+        case SyntaxKind.ArrowFunction:
+        case SyntaxKind.Block:
+        case SyntaxKind.CallSignature:
+        case SyntaxKind.CaseBlock:
+        case SyntaxKind.CatchClause:        
+        case SyntaxKind.ConditionalType:        
+        case SyntaxKind.ConstructorType:        
+        case SyntaxKind.ForStatement:
+        case SyntaxKind.ForInStatement:        
+        case SyntaxKind.FunctionDeclaration:
+        case SyntaxKind.FunctionExpression:
+        case SyntaxKind.FunctionType:        
+        case SyntaxKind.IndexSignature:
+        case SyntaxKind.InlineClosureExpression:
+        // case SyntaxKind.JSDocCallbackTag:
+        // case SyntaxKind.JSDocEnumTag:
+        case SyntaxKind.JSDocFunctionType:
+        case SyntaxKind.JSDocSignature:
+        //case SyntaxKind.JSDocTypedefTag:
+        case SyntaxKind.MappedType:
+        case SyntaxKind.MethodDeclaration:
+        case SyntaxKind.MethodSignature:        
+        case SyntaxKind.SourceFile:        
+            return true;
+        default:
+            return false;
+    }
+}
+
+
+/**
+ * Node test that determines whether a node is a valid type node.
+ * This differs from the `isPartOfTypeNode` function which determines whether a node is *part*
+ * of a TypeNode.
+ */
+export function isTypeNode(node: Node): node is TypeNode {
+    return isTypeNodeKind(node.kind);
+}
+
+/** @internal */
+export function isFunctionLikeDeclaration(node: Node): node is FunctionLikeDeclaration {
+    return node && isFunctionLikeDeclarationKind(node.kind);
+}
+
+/**
+ * @deprecated LPC doesn't have costs
+ * @param node 
+ * @returns 
+ */
+export function isConstTypeReference(node: Node) {
+    // TODO remove this
+    return isTypeReferenceNode(node) && isIdentifier(node.typeName) &&
+        node.typeName.text === "const" && !node.typeArguments;
+}
+
+/** @internal */
+export function isAssignmentPattern(node: Node): node is AssignmentPattern {
+    const kind = node.kind;
+    return kind === SyntaxKind.ArrayLiteralExpression
+        || kind === SyntaxKind.ObjectLiteralExpression;
+}
+
+export function isObjectLiteralElementLike(node: Node): node is ObjectLiteralElementLike {
+    const kind = node.kind;
+    return kind === SyntaxKind.PropertyAssignment
+        || kind === SyntaxKind.ShorthandPropertyAssignment
+        || kind === SyntaxKind.SpreadAssignment
+        || kind === SyntaxKind.MethodDeclaration
+        ;
+}
+
+export function isCallLikeExpression(node: Node): node is CallLikeExpression {
+    switch (node.kind) {        
+        case SyntaxKind.CallExpression:
+        case SyntaxKind.NewExpression:        
+            return true;
+        default:
+            return false;
+    }
+}
+
+/** @internal */
+export function isPropertyAccessOrQualifiedNameOrImportTypeNode(node: Node): node is PropertyAccessExpression | QualifiedName | ImportTypeNode {
+    const kind = node.kind;
+    return kind === SyntaxKind.PropertyAccessExpression
+        || kind === SyntaxKind.QualifiedName
+        || kind === SyntaxKind.ImportType;
+}
+
+/**
+ * Remove extra underscore from escaped identifier text content.
+ *
+ * @param identifier The escaped identifier text.
+ * @returns The unescaped identifier text.
+ * @deprecated LPC doesn't need this, but imported for convenience
+ */
+export function unescapeLeadingUnderscores(identifier: string): string {
+    return identifier;
+    // const id = identifier as string;
+    // return id.length >= 3 && id.charCodeAt(0) === CharacterCodes._ && id.charCodeAt(1) === CharacterCodes._ && id.charCodeAt(2) === CharacterCodes._ ? id.substr(1) : id;
+}
+
+/** @internal */
+export function isFunctionExpressionOrArrowFunction(node: Node): node is FunctionExpression | ArrowFunction {
+    return node.kind === SyntaxKind.FunctionExpression || node.kind === SyntaxKind.ArrowFunction;
+}
+
+
+/** @internal */
+export function isCallLikeOrFunctionLikeExpression(node: Node): node is CallLikeExpression | FunctionExpression | ArrowFunction {
+    return isCallLikeExpression(node) || isFunctionExpressionOrArrowFunction(node);
+}
+
+/** @internal */
+export function canHaveJSDoc(node: Node): node is HasJSDoc {
+    switch (node.kind) {
+        case SyntaxKind.ArrowFunction:
+        case SyntaxKind.BinaryExpression:
+        case SyntaxKind.Block:
+        case SyntaxKind.BreakStatement:
+        case SyntaxKind.CallSignature:
+        case SyntaxKind.CaseClause:
+        //case SyntaxKind.ClassDeclaration:
+        case SyntaxKind.ClassExpression:        
+        case SyntaxKind.ConstructorType:        
+        case SyntaxKind.ContinueStatement:        
+        case SyntaxKind.DoStatement:
+        case SyntaxKind.ElementAccessExpression:
+        case SyntaxKind.EmptyStatement:
+        case SyntaxKind.EndOfFileToken:        
+        // case SyntaxKind.ExportAssignment:
+        // case SyntaxKind.ExportDeclaration:
+        // case SyntaxKind.ExportSpecifier:
+        case SyntaxKind.ExpressionStatement:
+        case SyntaxKind.ForInStatement:        
+        case SyntaxKind.ForStatement:
+        case SyntaxKind.FunctionDeclaration:
+        case SyntaxKind.FunctionExpression:
+        case SyntaxKind.FunctionType:        
+        case SyntaxKind.Identifier:
+        case SyntaxKind.IfStatement:
+        case SyntaxKind.ImportDeclaration:        
+        case SyntaxKind.IndexSignature:        
+        case SyntaxKind.JSDocFunctionType:
+        case SyntaxKind.JSDocSignature:        
+        case SyntaxKind.MethodDeclaration:
+        case SyntaxKind.MethodSignature:        
+        case SyntaxKind.NamedTupleMember:        
+        case SyntaxKind.ObjectLiteralExpression:
+        case SyntaxKind.Parameter:
+        case SyntaxKind.ParenthesizedExpression:
+        case SyntaxKind.PropertyAccessExpression:
+        case SyntaxKind.PropertyAssignment:
+        case SyntaxKind.PropertyDeclaration:
+        case SyntaxKind.PropertySignature:
+        case SyntaxKind.ReturnStatement:
+        //case SyntaxKind.SemicolonClassElement:        
+        case SyntaxKind.ShorthandPropertyAssignment:
+        case SyntaxKind.SpreadAssignment:
+        case SyntaxKind.SwitchStatement:
+        //case SyntaxKind.ThrowStatement:
+        //case SyntaxKind.TryStatement:
+        //case SyntaxKind.TypeAliasDeclaration:
+        case SyntaxKind.TypeParameter:
+        case SyntaxKind.VariableDeclaration:
+        case SyntaxKind.VariableStatement:
+        case SyntaxKind.WhileStatement:        
+            return true;
+        default:
+            return false;
+    }
+}
+
+function getJSDocTagsWorker(node: Node, noCache?: boolean): readonly JSDocTag[] {
+    if (!canHaveJSDoc(node)) return emptyArray;
+    let tags = node.jsDoc?.jsDocCache;
+    // If cache is 'null', that means we did the work of searching for JSDoc tags and came up with nothing.
+    if (tags === undefined || noCache) {
+        const comments = getJSDocCommentsAndTags(node, noCache);
+        Debug.assert(comments.length < 2 || comments[0] !== comments[1]);
+        tags = flatMap(comments, j => isJSDoc(j) ? j.tags : j);
+        if (!noCache) {
+            node.jsDoc ??= [];
+            node.jsDoc.jsDocCache = tags;
+        }
+    }
+    return tags;
+}
+
+
+/** Get the first JSDoc tag of a specified kind, or undefined if not present. */
+function getFirstJSDocTag<T extends JSDocTag>(node: Node, predicate: (tag: JSDocTag) => tag is T, noCache?: boolean): T | undefined {
+    return find(getJSDocTagsWorker(node, noCache), predicate);
+}
+
+
+/** Gets the JSDoc deprecated tag for the node if present */
+export function getJSDocDeprecatedTag(node: Node): JSDocDeprecatedTag | undefined {
+    return getFirstJSDocTag(node, isJSDocDeprecatedTag);
+}
+
+
+/**
+ * True if has jsdoc nodes attached to it.
+ *
+ * @internal
+ */
+// TODO: GH#19856 Would like to return `node is Node & { jsDoc: JSDoc[] }` but it causes long compile times
+export function hasJSDocNodes(node: Node): node is HasJSDoc {
+    if (!canHaveJSDoc(node)) return false;
+
+    const { jsDoc } = node as JSDocContainer;
+    return !!jsDoc && jsDoc.length > 0;
+}
+
+/**
+ * True if has initializer node attached to it.
+ *
+ * @internal
+ */
+export function hasInitializer(node: Node): node is HasInitializer {
+    return !!(node as HasInitializer).initializer;
+}
+
+function getJSDocParameterTagsWorker(param: ParameterDeclaration, noCache?: boolean): readonly JSDocParameterTag[] {
+    if (param.name) {
+        if (isIdentifier(param.name)) {
+            const name = param.name.text;
+            return getJSDocTagsWorker(param.parent, noCache).filter((tag): tag is JSDocParameterTag => isJSDocParameterTag(tag) && isIdentifier(tag.name) && tag.name.text === name);
+        }
+        else {
+            const i = param.parent.parameters.indexOf(param);
+            Debug.assert(i > -1, "Parameters should always be in their parents' parameter list");
+            const paramTags = getJSDocTagsWorker(param.parent, noCache).filter(isJSDocParameterTag);
+            if (i < paramTags.length) {
+                return [paramTags[i]];
+            }
+        }
+    }
+    // return empty array for: out-of-order binding patterns and JSDoc function syntax, which has un-named parameters
+    return emptyArray;
+}
+
+/** @internal */
+export function getJSDocParameterTagsNoCache(param: ParameterDeclaration): readonly JSDocParameterTag[] {
+    return getJSDocParameterTagsWorker(param, /*noCache*/ true);
+}
+
+function getJSDocTypeParameterTagsWorker(param: TypeParameterDeclaration, noCache?: boolean): readonly JSDocTemplateTag[] {
+    const name = param.name.text;
+    return getJSDocTagsWorker(param.parent, noCache).filter((tag): tag is JSDocTemplateTag => isJSDocTemplateTag(tag) && tag.typeParameters.some(tp => tp.name.text === name));
+}
+
+
+/**
+ * Gets the JSDoc parameter tags for the node if present.
+ *
+ * @remarks Returns any JSDoc param tag whose name matches the provided
+ * parameter, whether a param tag on a containing function
+ * expression, or a param tag on a variable declaration whose
+ * initializer is the containing function. The tags closest to the
+ * node are returned first, so in the previous example, the param
+ * tag on the containing function expression would be first.
+ *
+ * For binding patterns, parameter tags are matched by position.
+ */
+export function getJSDocParameterTags(param: ParameterDeclaration): readonly JSDocParameterTag[] {
+    return getJSDocParameterTagsWorker(param, /*noCache*/ false);
+}
+
+/** @internal */
+export function getJSDocTypeParameterTagsNoCache(param: TypeParameterDeclaration): readonly JSDocTemplateTag[] {
+    return getJSDocTypeParameterTagsWorker(param, /*noCache*/ true);
+}
+
+
+/**
+ * Gets the JSDoc type parameter tags for the node if present.
+ *
+ * @remarks Returns any JSDoc template tag whose names match the provided
+ * parameter, whether a template tag on a containing function
+ * expression, or a template tag on a variable declaration whose
+ * initializer is the containing function. The tags closest to the
+ * node are returned first, so in the previous example, the template
+ * tag on the containing function expression would be first.
+ */
+export function getJSDocTypeParameterTags(param: TypeParameterDeclaration): readonly JSDocTemplateTag[] {
+    return getJSDocTypeParameterTagsWorker(param, /*noCache*/ false);
+}
+
+/** @internal */
+export function textRangeContainsPositionInclusive(span: TextRange, position: number): boolean {
+    return position >= span.pos && position <= span.end;
+}
+
+/** @internal */
+export function isDeclaration(node: Node): node is NamedDeclaration {
+    if (node.kind === SyntaxKind.TypeParameter) {
+        return (node.parent && node.parent.kind !== SyntaxKind.JSDocTemplateTag);// || isInJSFile(node);
+    }
+
+    return isDeclarationKind(node.kind);
+}
+
+/** @internal */
+export function isGetOrSetAccessorDeclaration(node: Node) {
+    return false;// return node.kind === SyntaxKind.SetAccessor || node.kind === SyntaxKind.GetAccessor;
+}
+
+export function isEntityName(node: Node): node is EntityName {
+    const kind = node.kind;
+    return kind === SyntaxKind.QualifiedName
+        || kind === SyntaxKind.Identifier;
+}
+
+export function getCombinedModifierFlags(node: Declaration): ModifierFlags {
+    return getCombinedFlags(node, getEffectiveModifierFlags);
+}
+
+/** @internal */
+export function isPrivateIdentifierClassElementDeclaration(node: Node) {//: node is PrivateClassElementDeclaration {
+    return false;
+    //return (isPropertyDeclaration(node) || isMethodOrAccessor(node)) && isPrivateIdentifier(node.name);
+}
+
+
+/**
+ * Gets the type node for the node if provided via JSDoc.
+ *
+ * @remarks The search includes any JSDoc param tag that relates
+ * to the provided parameter, for example a type tag on the
+ * parameter itself, or a param tag on a containing function
+ * expression, or a param tag on a variable declaration whose
+ * initializer is the containing function. The tags closest to the
+ * node are examined first, so in the previous example, the type
+ * tag directly on the node would be returned.
+ */
+export function getJSDocType(node: Node): TypeNode | undefined {
+    let tag: JSDocTypeTag | JSDocParameterTag | undefined = getFirstJSDocTag(node, isJSDocTypeTag);
+    if (!tag && isParameter(node)) {
+        tag = find(getJSDocParameterTags(node), tag => !!tag.typeExpression);
+    }
+
+    return tag && tag.typeExpression && tag.typeExpression.type;
+}
+
+/** True if has initializer node attached to it. */
+export function hasOnlyExpressionInitializer(node: Node): node is HasExpressionInitializer {
+    switch (node.kind) {
+        case SyntaxKind.VariableDeclaration:
+        case SyntaxKind.Parameter:
+        case SyntaxKind.BindingElement:
+        case SyntaxKind.PropertyDeclaration:
+        case SyntaxKind.PropertyAssignment:
+        //case SyntaxKind.EnumMember:
+            return true;
+        default:
+            return false;
+    }
+}
+
+export function isJSDocPropertyLikeTag(node: Node): node is JSDocPropertyLikeTag {
+    return node.kind === SyntaxKind.JSDocPropertyTag || node.kind === SyntaxKind.JSDocParameterTag;
+}
+
+
+/**
+ * Gets the effective type parameters. If the node was parsed in a
+ * JavaScript file, gets the type parameters from the `@template` tag from JSDoc.
+ *
+ * This does *not* return type parameters from a jsdoc reference to a generic type, eg
+ *
+ * type Id = <T>(x: T) => T
+ * /** @type {Id} /
+ * function id(x) { return x }
+ */
+export function getEffectiveTypeParameterDeclarations(node: any): readonly TypeParameterDeclaration[] { // TODO DeclarationWithTypeParameters): readonly TypeParameterDeclaration[] {
+    return emptyArray;
+    // if (isJSDocSignature(node)) {
+    //     if (isJSDocOverloadTag(node.parent)) {
+    //         const jsDoc = getJSDocRoot(node.parent);
+    //         if (jsDoc && length(jsDoc.tags)) {
+    //             return flatMap(jsDoc.tags, tag => isJSDocTemplateTag(tag) ? tag.typeParameters : undefined);
+    //         }
+    //     }
+    //     return emptyArray;
+    // }
+    // if (isJSDocTypeAlias(node)) {
+    //     Debug.assert(node.parent.kind === SyntaxKind.JSDoc);
+    //     return flatMap(node.parent.tags, tag => isJSDocTemplateTag(tag) ? tag.typeParameters : undefined);
+    // }
+    // if (node.typeParameters) {
+    //     return node.typeParameters;
+    // }
+    // if (canHaveIllegalTypeParameters(node) && node.typeParameters) {
+    //     return node.typeParameters;
+    // }
+    // if (isInJSFile(node)) {
+    //     const decls = getJSDocTypeParameterDeclarations(node);
+    //     if (decls.length) {
+    //         return decls;
+    //     }
+    //     const typeTag = getJSDocType(node);
+    //     if (typeTag && isFunctionTypeNode(typeTag) && typeTag.typeParameters) {
+    //         return typeTag.typeParameters;
+    //     }
+    // }
+    // return emptyArray;
 }

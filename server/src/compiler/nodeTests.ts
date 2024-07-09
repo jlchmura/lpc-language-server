@@ -1,20 +1,33 @@
 import {
+    ArrayBindingPattern,
     ArrayTypeNode,
     BinaryExpression,
     BindingElement,
     Block,
     CallExpression,
     CallSignatureDeclaration,
+    ComputedPropertyName,
+    ElementAccessExpression,
+    ExpressionStatement,
     FunctionDeclaration,
     FunctionExpression,
     Identifier,
     ImportTypeNode,
     IndexedAccessTypeNode,
     IndexSignatureDeclaration,
+    JSDoc,
+    JSDocDeprecatedTag,
+    JSDocParameterTag,
+    JSDocSignature,
+    JSDocTemplateTag,
     JSDocTypeExpression,
+    JSDocTypeTag,
     LiteralTypeNode,
+    MethodDeclaration,
     Node,
     NumericLiteral,
+    ObjectBindingPattern,
+    ObjectLiteralExpression,
     ParameterDeclaration,
     ParenthesizedExpression,
     PrefixUnaryExpression,
@@ -22,11 +35,16 @@ import {
     PropertyAccessExpression,
     PropertyAssignment,
     PropertyDeclaration,
+    PropertySignature,
+    QualifiedName,
     ShorthandPropertyAssignment,
+    SourceFile,
+    SpreadAssignment,
     StringLiteral,
     SyntaxKind,
     TypeLiteralNode,
     TypeParameterDeclaration,
+    TypeReferenceNode,
     UnionTypeNode,
     VariableDeclaration,
     VariableDeclarationList,
@@ -51,7 +69,7 @@ export function isPrefixUnaryExpression(
 }
 
 export function isNumericLiteral(node: Node): node is NumericLiteral {
-    return node.kind === SyntaxKind.NumericLiteral;
+    return node.kind === SyntaxKind.IntLiteral || node.kind === SyntaxKind.FloatLiteral;
 }
 
 export function isPropertyAccessExpression(
@@ -66,6 +84,15 @@ export function isIdentifier(node: Node): node is Identifier {
 
 export function isVariableStatement(node: Node): node is VariableStatement {
     return node.kind === SyntaxKind.VariableStatement;
+}
+
+// Binding patterns
+export function isObjectBindingPattern(node: Node): node is ObjectBindingPattern {
+    return node.kind === SyntaxKind.ObjectBindingPattern;
+}
+
+export function isArrayBindingPattern(node: Node): node is ArrayBindingPattern {
+    return node.kind === SyntaxKind.ArrayBindingPattern;
 }
 
 export function isBindingElement(node: Node): node is BindingElement {
@@ -178,3 +205,113 @@ export function isLiteralTypeNode(node: Node): node is LiteralTypeNode {
 export function isImportTypeNode(node: Node): node is ImportTypeNode {
     return node.kind === SyntaxKind.ImportType;
 }
+
+// Top-level nodes
+export function isSourceFile(node: Node): node is SourceFile {
+    return node.kind === SyntaxKind.SourceFile;
+}
+
+export function isComputedPropertyName(node: Node): node is ComputedPropertyName {
+    return node.kind === SyntaxKind.ComputedPropertyName;
+}
+
+export function isElementAccessExpression(node: Node): node is ElementAccessExpression {
+    return node.kind === SyntaxKind.ElementAccessExpression;
+}
+
+export function isTypeReferenceNode(node: Node): node is TypeReferenceNode {
+    return node.kind === SyntaxKind.TypeReference;
+}
+
+export function isSpreadAssignment(node: Node): node is SpreadAssignment {
+    return node.kind === SyntaxKind.SpreadAssignment;
+}
+
+export function isJSDocSignature(node: Node): node is JSDocSignature {
+    return node.kind === SyntaxKind.JSDocSignature;
+}
+
+export function isJSDoc(node: Node): node is JSDoc {
+    return node.kind === SyntaxKind.JSDoc;
+}
+
+export function isJSDocDeprecatedTag(node: Node): node is JSDocDeprecatedTag {
+    return node.kind === SyntaxKind.JSDocDeprecatedTag;
+}
+
+export function isExpressionStatement(node: Node): node is ExpressionStatement {
+    return node.kind === SyntaxKind.ExpressionStatement;
+}
+
+export function isJSDocTemplateTag(node: Node): node is JSDocTemplateTag {
+    return node.kind === SyntaxKind.JSDocTemplateTag;
+}
+
+export function isJSDocParameterTag(node: Node): node is JSDocParameterTag {
+    return node.kind === SyntaxKind.JSDocParameterTag;
+}
+
+export function isJSDocTypeTag(node: Node): node is JSDocTypeTag {
+    return node.kind === SyntaxKind.JSDocTypeTag;
+}
+
+export function isObjectLiteralExpression(node: Node): node is ObjectLiteralExpression {
+    return node.kind === SyntaxKind.ObjectLiteralExpression;
+}
+
+export function isDecorator(node: Node) {
+    return false;
+}
+
+export function isMethodDeclaration(node: Node): node is MethodDeclaration {
+    return node.kind === SyntaxKind.MethodDeclaration;
+}
+
+export function isHeritageClause(node: Node) {
+    return false;// return node.kind === SyntaxKind.HeritageClause;
+}
+
+export function isQualifiedName(node: Node): node is QualifiedName {
+    return node.kind === SyntaxKind.QualifiedName;
+}
+
+/** @deprecated */
+export function isModuleBlock(node: Node) {
+    return false;//return node.kind === SyntaxKind.ModuleBlock;
+}
+
+/** @deprecated */
+export function isClassExpression(node: Node) {
+    return false;// return node.kind === SyntaxKind.ClassExpression;
+}
+
+export function isGetAccessorDeclaration(node: Node) {
+    return false;//return node.kind === SyntaxKind.GetAccessor;
+}
+
+export function isSetAccessorDeclaration(node: Node) {
+    return false;//return node.kind === SyntaxKind.SetAccessor;
+}
+
+export function isPropertySignature(node: Node): node is PropertySignature {
+    return node.kind === SyntaxKind.PropertySignature;
+}
+
+export function isJSDocPropertyTag(node: Node) {
+    return false;
+    // TODO
+    //return node.kind === SyntaxKind.JSDocPropertyTag;
+}
+
+export function isOmittedExpression(node: Node) {//: node is OmittedExpression {
+    return false;//return node.kind === SyntaxKind.OmittedExpression;
+}
+
+export function isClassDeclaration(node: Node){//: node is ClassDeclaration {
+    return false;//return node.kind === SyntaxKind.ClassDeclaration;
+}
+
+export function isMethodSignature(node: Node) {//: node is MethodSignature {
+    return false;//return node.kind === SyntaxKind.MethodSignature;
+}
+

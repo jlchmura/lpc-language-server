@@ -3,14 +3,17 @@ import {
     AnyFunction,
     AssertionLevel,
     compareValues,
+    every,
     hasProperty,
+    map,
     noop,
     stableSort,
+    zipWith,
 } from "./core";
 import { SortedReadonlyArray } from "./corePublic";
-import { FlowFlags, FlowLabel, FlowNode, FlowSwitchClause, MatchingKeys, Node, NodeArray, SyntaxKind, Type, Symbol, SymbolFlags, TypeFlags, IntrinsicType, LiteralType, ObjectFlags, ObjectType, Signature, SignatureFlags, NodeFlags, ModifierFlags } from "./types";
+import { FlowFlags, FlowLabel, FlowNode, FlowSwitchClause, MatchingKeys, Node, NodeArray, SyntaxKind, Type, Symbol, SymbolFlags, TypeFlags, IntrinsicType, LiteralType, ObjectFlags, ObjectType, Signature, SignatureFlags, NodeFlags, ModifierFlags, TypeMapper, TypeMapKind } from "./types";
 import { getEffectiveModifierFlagsNoCache, getSourceFileOfNode, getSourceTextOfNodeFromSourceFile, nodeIsSynthesized, objectAllocator } from "./utilities";
-import { getParseTreeNode, idText, isParseTreeNode, symbolName } from "./utilitiesPublic";
+import { getParseTreeNode, idText, isParseTreeNode, symbolName, unescapeLeadingUnderscores } from "./utilitiesPublic";
 import { isArrayTypeNode, isCallSignatureDeclaration, isIdentifier, isImportTypeNode, isIndexedAccessTypeNode, isIndexSignatureDeclaration, isLiteralTypeNode, isNumericLiteral, isParameter, isPrivateIdentifier, isStringLiteral, isTypeLiteralNode, isTypeParameterDeclaration, isUnionTypeNode } from "./nodeTests";
 
 
@@ -905,5 +908,78 @@ export namespace Debug {
         }
 
         isDebugInfoEnabled = true;
+    }
+
+    export function assertNever(member: never, message = "Illegal value:", stackCrawlMark?: AnyFunction): never {
+        const detail = typeof member === "object" && hasProperty(member, "kind") && hasProperty(member, "pos") ? "SyntaxKind: " + formatSyntaxKind((member as Node).kind) : JSON.stringify(member);
+        return fail(`${message} ${detail}`, stackCrawlMark || assertNever);
+    }
+
+    /**
+     * Asserts a value has the specified type in typespace only (does not perform a runtime assertion).
+     * This is useful in cases where we switch on `node.kind` and can be reasonably sure the type is accurate, and
+     * as a result can reduce the number of unnecessary casts.
+     */
+    export function type<T>(value: unknown): asserts value is T;
+    export function type(_value: unknown) {}
+
+    export function assertEachNode<T extends Node, U extends T>(nodes: NodeArray<T>, test: (node: T) => node is U, message?: string, stackCrawlMark?: AnyFunction): asserts nodes is NodeArray<U>;
+    export function assertEachNode<T extends Node, U extends T>(nodes: readonly T[], test: (node: T) => node is U, message?: string, stackCrawlMark?: AnyFunction): asserts nodes is readonly U[];
+    export function assertEachNode<T extends Node, U extends T>(nodes: NodeArray<T> | undefined, test: (node: T) => node is U, message?: string, stackCrawlMark?: AnyFunction): asserts nodes is NodeArray<U> | undefined;
+    export function assertEachNode<T extends Node, U extends T>(nodes: readonly T[] | undefined, test: (node: T) => node is U, message?: string, stackCrawlMark?: AnyFunction): asserts nodes is readonly U[] | undefined;
+    export function assertEachNode(nodes: readonly Node[], test: ((node: Node) => boolean) | undefined, message?: string, stackCrawlMark?: AnyFunction): void;
+    export function assertEachNode(nodes: readonly Node[] | undefined, test: ((node: Node) => boolean) | undefined, message?: string, stackCrawlMark?: AnyFunction) {
+        if (shouldAssertFunction(AssertionLevel.Normal, "assertEachNode")) {
+            assert(
+                test === undefined || every(nodes, test),
+                message || "Unexpected node.",
+                () => `Node array did not pass test '${getFunctionName(test!)}'.`,
+                stackCrawlMark || assertEachNode,
+            );
+        }
+    }
+
+    export type DebugType = Type & { __debugTypeToString(): string; }; // eslint-disable-line @typescript-eslint/naming-convention
+    export class DebugTypeMapper {
+        declare kind: TypeMapKind;
+        __debugToString(): string { // eslint-disable-line @typescript-eslint/naming-convention
+            type<TypeMapper>(this);
+            switch (this.kind) {
+                case TypeMapKind.Function:
+                    return this.debugInfo?.() || "(function mapper)";
+                case TypeMapKind.Simple:
+                    return `${(this.source as DebugType).__debugTypeToString()} -> ${(this.target as DebugType).__debugTypeToString()}`;
+                case TypeMapKind.Array:
+                    return zipWith<DebugType, DebugType | string, unknown>(
+                        this.sources as readonly DebugType[],
+                        this.targets as readonly DebugType[] || map(this.sources, () => "any"),
+                        (s, t) => `${s.__debugTypeToString()} -> ${typeof t === "string" ? t : t.__debugTypeToString()}`,
+                    ).join(", ");
+                case TypeMapKind.Deferred:
+                    return zipWith(
+                        this.sources,
+                        this.targets,
+                        (s, t) => `${(s as DebugType).__debugTypeToString()} -> ${(t() as DebugType).__debugTypeToString()}`,
+                    ).join(", ");
+                case TypeMapKind.Merged:
+                case TypeMapKind.Composite:
+                    return `m1: ${(this.mapper1 as unknown as DebugTypeMapper).__debugToString().split("\n").join("\n    ")}
+m2: ${(this.mapper2 as unknown as DebugTypeMapper).__debugToString().split("\n").join("\n    ")}`;
+                default:
+                    return assertNever(this);
+            }
+        }
+    }
+
+    
+    export function attachDebugPrototypeIfDebug(mapper: TypeMapper): TypeMapper {
+        if (isDebugging) {
+            return Object.setPrototypeOf(mapper, DebugTypeMapper.prototype);
+        }
+        return mapper;
+    }
+
+    export function formatSymbol(symbol: Symbol): string {
+        return `{ name: ${unescapeLeadingUnderscores(symbol.name)}; flags: ${formatSymbolFlags(symbol.flags)}; declarations: ${map(symbol.declarations, node => formatSyntaxKind(node.kind))} }`;
     }
 }

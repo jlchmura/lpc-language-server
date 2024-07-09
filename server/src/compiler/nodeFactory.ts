@@ -1,10 +1,9 @@
-import * as antlr from "antlr4ng";
 import {
     FunctionModifierContext,
     ParameterContext,
 } from "../parser3/LPCParser";
-import { BaseNodeFactory } from "./baseNodeFactory";
-import { emptyArray } from "./core";
+import { BaseNodeFactory, createBaseNodeFactory } from "./baseNodeFactory";
+import { emptyArray, identity } from "./core";
 import {
     ArrayTypeNode,
     BinaryExpression,
@@ -18,6 +17,7 @@ import {
     ConditionalExpression,
     Declaration,
     DeclarationName,
+    ElementAccessExpression,
     EndOfFileToken,
     EntityName,
     Expression,
@@ -41,7 +41,10 @@ import {
     NodeArray,
     NodeFactory,
     NodeFlags,
+    ParenthesizedExpression,
+    PrivateIdentifier,
     PropertyName,
+    PropertyNameLiteral,
     PunctuationSyntaxKind,
     PunctuationToken,
     QuestionToken,
@@ -58,10 +61,42 @@ import {
     VariableDeclarationList,
     VariableStatement,
 } from "./types";
-import { Mutable, isNodeArray } from "./utilities";
+import { Mutable, getTextOfIdentifierOrLiteral, isNodeArray } from "./utilities";
 import { Debug } from "./debug";
 
-export function createNodeFactory(baseFactory: BaseNodeFactory): NodeFactory {
+/** @internal */
+export const enum NodeFactoryFlags {
+    None = 0,
+    // Disables the parenthesizer rules for the factory.
+    NoParenthesizerRules = 1 << 0,
+    // Disables the node converters for the factory.
+    NoNodeConverters = 1 << 1,
+    // Ensures new `PropertyAccessExpression` nodes are created with the `NoIndentation` emit flag set.
+    NoIndentationOnFreshPropertyAccess = 1 << 2,
+    // Do not set an `original` pointer when updating a node.
+    NoOriginalNode = 1 << 3,
+}
+
+const baseFactory = createBaseNodeFactory();
+
+function makeSynthetic(node: Node) {
+    (node as Mutable<Node>).flags |= NodeFlags.Synthesized;
+    return node;
+}
+
+const syntheticFactory: BaseNodeFactory = {
+    createBaseSourceFileNode: kind => makeSynthetic(baseFactory.createBaseSourceFileNode(kind)),
+    createBaseIdentifierNode: kind => makeSynthetic(baseFactory.createBaseIdentifierNode(kind)),
+    createBasePrivateIdentifierNode: kind => makeSynthetic(baseFactory.createBasePrivateIdentifierNode(kind)),
+    createBaseTokenNode: kind => makeSynthetic(baseFactory.createBaseTokenNode(kind)),
+    createBaseNode: kind => makeSynthetic(baseFactory.createBaseNode(kind)),
+};
+
+export const factory = createNodeFactory(NodeFactoryFlags.NoIndentationOnFreshPropertyAccess, syntheticFactory);
+
+export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNodeFactory): NodeFactory {
+    const setOriginal = flags & NodeFactoryFlags.NoOriginalNode ? identity : setOriginalNode;
+    
     const factory: NodeFactory = {
         createSourceFile,
         createNodeArray,
@@ -80,7 +115,13 @@ export function createNodeFactory(baseFactory: BaseNodeFactory): NodeFactory {
         createConditionalExpression,
         createLiteralLikeNode,
         createCallExpression,
-        createExpressionStatement
+        createExpressionStatement,
+        createIntegerLiteral,
+        createFloatLiteral,
+        createStringLiteral,
+        createStringLiteralFromNode,
+        createParenthesizedExpression,
+        createElementAccessExpression
     };
 
     return factory;
@@ -452,6 +493,13 @@ export function createNodeFactory(baseFactory: BaseNodeFactory): NodeFactory {
     }
 
     // @api
+    function createStringLiteralFromNode(sourceNode: PropertyNameLiteral | PrivateIdentifier): StringLiteral {
+        const node = createBaseStringLiteral(getTextOfIdentifierOrLiteral(sourceNode));
+        node.textSourceNode = sourceNode;
+        return node;
+    }
+
+    // @api
     function createLiteralLikeNode(
         kind: LiteralToken["kind"],
         text: string
@@ -506,4 +554,61 @@ export function createNodeFactory(baseFactory: BaseNodeFactory): NodeFactory {
         node.flowNode = undefined; // initialized by binder (FlowContainer)
         return node;
     }
+
+    // @api
+    function createParenthesizedExpression(expression: Expression): ParenthesizedExpression {
+        const node = createBaseNode<ParenthesizedExpression>(SyntaxKind.ParenthesizedExpression);
+        node.expression = expression;
+        //node.transformFlags = propagateChildFlags(node.expression);
+
+        node.jsDoc = undefined; // initialized by parser (JsDocContainer)
+        return node;
+    }
+
+    function createBaseElementAccessExpression(expression: LeftHandSideExpression,  argumentExpression: Expression) {
+        const node = createBaseDeclaration<ElementAccessExpression>(SyntaxKind.ElementAccessExpression);
+        node.expression = expression;
+        //node.questionDotToken = questionDotToken;
+        node.argumentExpression = argumentExpression;
+        // node.transformFlags |= propagateChildFlags(node.expression) |
+        //     propagateChildFlags(node.questionDotToken) |
+        //     propagateChildFlags(node.argumentExpression);
+
+        node.jsDoc = undefined; // initialized by parser (JsDocContainer)
+        node.flowNode = undefined; // initialized by binder (FlowContainer)
+        return node;
+    }
+
+    function asExpression<T extends Expression | undefined>(value: string | number | boolean | T): T | StringLiteral | IntegerLiteral | FloatLiteral {
+        return typeof value === "string" ? createStringLiteral(value) :
+            typeof value === "number" ? createIntegerLiteral(value) :
+            typeof value === "boolean" ? value ? createIntegerLiteral("1") : createIntegerLiteral("0") :
+            value;
+    }
+    
+    // @api
+    function createElementAccessExpression(expression: Expression, index: number | Expression) {
+        const node = createBaseElementAccessExpression(
+            expression as ParenthesizedExpression, // TODO parenthesizerRules().parenthesizeLeftSideOfAccess(expression, /*optionalChain*/ false),
+            asExpression(index),
+        );
+        // if (isSuperKeyword(expression)) {
+        //     // super method calls require a lexical 'this'
+        //     // super method calls require 'super' hoisting in ES2017 and ES2018 async functions and async generators
+        //     node.transformFlags |= TransformFlags.ContainsES2017 |
+        //         TransformFlags.ContainsES2018;
+        // }
+        return node;
+    }    
+}
+
+export function setOriginalNode<T extends Node>(node: T, original: Node | undefined): T {
+    if (node.original !== original) {
+        node.original = original;
+        if (original) {
+            // const emitNode = original.emitNode;
+            // if (emitNode) node.emitNode = mergeEmitNode(emitNode, node.emitNode);
+        }
+    }
+    return node;
 }

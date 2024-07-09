@@ -1,4 +1,65 @@
+import { DiagnosticCategory, DiagnosticMessage } from "./types";
+
+function diag(code: number, category: DiagnosticCategory, key: string, message: string, reportsUnnecessary?: {}, elidedInCompatabilityPyramid?: boolean, reportsDeprecated?: {}): DiagnosticMessage {
+    return { code, category, key, message, reportsUnnecessary, elidedInCompatabilityPyramid, reportsDeprecated };
+}
+
+const blank = diag(0, DiagnosticCategory.Message, "blank", "");
 
 export const Diagnostics = {
+    An_async_iterator_must_have_a_next_method: blank,
+    The_0_property_of_an_async_iterator_must_be_a_method: blank,
+    The_type_returned_by_the_0_method_of_an_async_iterator_must_be_a_promise_for_a_type_with_a_value_property: blank,
+    Type_of_await_operand_must_either_be_a_valid_promise_or_must_not_contain_a_callable_then_member: blank,
+    An_iterator_must_have_a_next_method: blank,
+    The_0_property_of_an_iterator_must_be_a_method: blank,
+    The_type_returned_by_the_0_method_of_an_iterator_must_have_a_value_property:blank,
+    Did_you_forget_to_use_await:blank,
+    The_declaration_was_marked_as_deprecated_here: blank,
+    _0_is_deprecated: blank,
+    The_signature_0_of_1_is_deprecated: blank,
+    Enum_declarations_can_only_merge_with_namespace_or_other_enum_declarations: blank,
+    Cannot_redeclare_block_scoped_variable_0: blank,
+    Duplicate_identifier_0: blank    ,
+    _0_was_also_declared_here: blank,
+    and_here: blank,
+    Declaration_name_conflicts_with_built_in_global_identifier_0: blank,
+    Type_of_instance_member_variable_0_cannot_reference_identifier_1_declared_in_the_constructor: blank,
+    Initializer_of_instance_member_variable_0_cannot_reference_identifier_1_declared_in_the_constructor: blank,
+    Cannot_find_namespace_0_Did_you_mean_1: blank,
+    Could_not_find_name_0_Did_you_mean_1: blank,
+    Cannot_find_name_0_Did_you_mean_1: blank,
+    _0_is_declared_here: blank,
+    Parameter_0_cannot_reference_itself: blank,
+    Parameter_0_cannot_reference_identifier_1_declared_after_it: blank,
+    Cannot_find_namespace_0: blank,
+    Top_level_declarations_in_d_ts_files_must_start_with_either_a_declare_or_export_modifier: blank,
+    Circular_definition_of_import_alias_0: blank,
+    _0_refers_to_a_value_but_is_being_used_as_a_type_here_Did_you_mean_typeof_0: blank,
+    Block_scoped_variable_0_used_before_its_declaration: blank,
+    Class_0_used_before_its_declaration: blank,
+    Enum_0_used_before_its_declaration: blank,
+    Cannot_find_name_0_Did_you_mean_the_static_member_1_0: blank,
+    Cannot_find_name_0_Did_you_mean_the_instance_member_this_0: blank,
+    _0_only_refers_to_a_type_but_is_being_used_as_a_value_here: blank,
+    _0_only_refers_to_a_type_but_is_being_used_as_a_value_here_Do_you_need_to_change_your_target_library_Try_changing_the_lib_compiler_option_to_es2015_or_later: blank,
+    _0_only_refers_to_a_type_but_is_being_used_as_a_value_here_Did_you_mean_to_use_1_in_0: blank,
+    _0_has_no_exported_member_named_1_Did_you_mean_2: blank,
+    Cannot_access_0_1_because_0_is_a_type_but_not_a_namespace_Did_you_mean_to_retrieve_the_type_of_the_property_1_in_0_with_0_1: blank,
+    Namespace_0_has_no_exported_member_1: blank,
+    _0_is_referenced_directly_or_indirectly_in_its_own_type_annotation:blank,
+    _0_implicitly_has_type_any_because_it_does_not_have_a_type_annotation_and_is_referenced_directly_or_indirectly_in_its_own_initializer: blank,
+    Rest_types_may_only_be_created_from_object_types: blank,
+    No_value_exists_in_scope_for_the_shorthand_property_0_Either_declare_one_or_provide_an_initializer: blank,
+    Cannot_find_name_0_Do_you_need_to_change_your_target_library_Try_changing_the_lib_compiler_option_to_1_or_later: blank,
+    Cannot_find_name_0_Did_you_mean_to_write_this_in_an_async_function: blank,
+    Cannot_find_name_0: blank,
+    Cannot_find_name_0_Do_you_need_to_change_your_target_library_Try_changing_the_lib_compiler_option_to_include_dom: blank,
+    Cannot_find_name_0_Do_you_need_to_install_type_definitions_for_jQuery_Try_npm_i_save_dev_types_Slashjquery_and_then_add_jquery_to_the_types_field_in_your_tsconfig: blank,
+    Cannot_find_name_0_Do_you_need_to_install_type_definitions_for_jQuery_Try_npm_i_save_dev_types_Slashjquery: blank,
+    Cannot_find_name_0_Do_you_need_to_install_type_definitions_for_a_test_runner_Try_npm_i_save_dev_types_Slashjest_or_npm_i_save_dev_types_Slashmocha_and_then_add_jest_or_mocha_to_the_types_field_in_your_tsconfig: blank,
+    Cannot_find_name_0_Do_you_need_to_install_type_definitions_for_a_test_runner_Try_npm_i_save_dev_types_Slashjest_or_npm_i_save_dev_types_Slashmocha: blank,
+    Cannot_find_name_0_Do_you_need_to_install_type_definitions_for_node_Try_npm_i_save_dev_types_Slashnode_and_then_add_node_to_the_types_field_in_your_tsconfig: blank,
     
+
 }

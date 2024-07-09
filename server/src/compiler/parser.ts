@@ -4,7 +4,7 @@ import {
     LPCPreprocessingLexer,
 } from "../parser3/LPCPreprocessingLexer";
 import { BaseNodeFactory } from "./baseNodeFactory";
-import { createNodeFactory } from "./nodeFactory";
+import { createNodeFactory, NodeFactoryFlags } from "./nodeFactory";
 import {
     ArrayLiteralExpression,
     ArrayTypeNode,
@@ -34,6 +34,7 @@ import {
     NewExpression,
     Node,
     NodeArray,
+    NodeFactory,
     NodeFlags,
     ParameterDeclaration,
     ParenthesizedExpression,
@@ -125,7 +126,7 @@ export namespace LpcParser {
         createBaseNode: kind => countNode(new NodeConstructor(kind, /*pos*/ 0, /*end*/ 0)),
     };
 
-    var factory = createNodeFactory(baseNodeFactory);
+    var factory = createNodeFactory(NodeFactoryFlags.NoParenthesizerRules | NodeFactoryFlags.NoNodeConverters | NodeFactoryFlags.NoOriginalNode, baseNodeFactory);
     // pull out some factories here
     var {
         createToken: factoryCreateToken,
@@ -1561,6 +1562,29 @@ function visitNodes<T>(cbNode: (node: Node) => T, cbNodes: ((node: NodeArray<Nod
         }
     }
 }
+
+
+let NodeConstructor: new (kind: SyntaxKind, pos: number, end: number) => Node;
+let TokenConstructor: new (kind: SyntaxKind, pos: number, end: number) => Node;
+let IdentifierConstructor: new (kind: SyntaxKind.Identifier, pos: number, end: number) => Node;
+let PrivateIdentifierConstructor: new (kind: SyntaxKind.PrivateIdentifier, pos: number, end: number) => Node;
+let SourceFileConstructor: new (kind: SyntaxKind.SourceFile, pos: number, end: number) => Node;
+
+/**
+ * NOTE: You should not use this, it is only exported to support `createNode` in `~/src/deprecatedCompat/deprecations.ts`.
+ *
+ * @internal
+ */
+export const parseBaseNodeFactory: BaseNodeFactory = {
+    createBaseSourceFileNode: kind => new (SourceFileConstructor || (SourceFileConstructor = objectAllocator.getSourceFileConstructor()))(kind, -1, -1),
+    createBaseIdentifierNode: kind => new (IdentifierConstructor || (IdentifierConstructor = objectAllocator.getIdentifierConstructor()))(kind, -1, -1),
+    createBasePrivateIdentifierNode: kind => new (PrivateIdentifierConstructor || (PrivateIdentifierConstructor = objectAllocator.getPrivateIdentifierConstructor()))(kind, -1, -1),
+    createBaseTokenNode: kind => new (TokenConstructor || (TokenConstructor = objectAllocator.getTokenConstructor()))(kind, -1, -1),
+    createBaseNode: kind => new (NodeConstructor || (NodeConstructor = objectAllocator.getNodeConstructor()))(kind, -1, -1),
+};
+
+/** @internal */
+export const parseNodeFactory: NodeFactory = createNodeFactory(NodeFactoryFlags.NoParenthesizerRules, parseBaseNodeFactory);
 
 function visitNode<T>(
     cbNode: (node: Node) => T,

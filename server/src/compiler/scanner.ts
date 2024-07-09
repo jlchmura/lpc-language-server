@@ -1,6 +1,8 @@
 import { MapLike } from "./core";
-import { KeywordSyntaxKind, PunctuationOrKeywordSyntaxKind, SyntaxKind } from "./types";
+import { DiagnosticMessage, KeywordSyntaxKind, PunctuationOrKeywordSyntaxKind, SyntaxKind, TokenFlags } from "./types";
 import { positionIsSynthesized } from "./utilities";
+
+export type ErrorCallback = (message: DiagnosticMessage, length: number, arg0?: any) => void;
 
 function makeReverseMap(source: Map<string, number>): string[] {
     const result: string[] = [];
@@ -270,3 +272,88 @@ export function skipTrivia(text: string, pos: number, stopAfterLineBreak?: boole
 
     return pos;
 }
+
+export interface Scanner {
+    /** @deprecated use {@link getTokenFullStart} */
+    getStartPos(): number;
+    getToken(): SyntaxKind;
+    getTokenFullStart(): number;
+    getTokenStart(): number;
+    getTokenEnd(): number;
+    /** @deprecated use {@link getTokenEnd} */
+    getTextPos(): number;
+    /** @deprecated use {@link getTokenStart} */
+    getTokenPos(): number;
+    getTokenText(): string;
+    getTokenValue(): string;
+    hasUnicodeEscape(): boolean;
+    hasExtendedUnicodeEscape(): boolean;
+    hasPrecedingLineBreak(): boolean;
+    /** @internal */
+    hasPrecedingJSDocComment(): boolean;
+    isIdentifier(): boolean;
+    isReservedWord(): boolean;
+    isUnterminated(): boolean;
+    /** @internal */
+    getNumericLiteralFlags(): TokenFlags;
+    /** @internal */
+    //getCommentDirectives(): CommentDirective[] | undefined;
+    /** @internal */
+    getTokenFlags(): TokenFlags;
+    reScanGreaterToken(): SyntaxKind;
+    reScanSlashToken(): SyntaxKind;
+    /** @internal */
+    reScanSlashToken(reportErrors?: boolean): SyntaxKind; // eslint-disable-line @typescript-eslint/unified-signatures
+    reScanAsteriskEqualsToken(): SyntaxKind;
+    reScanTemplateToken(isTaggedTemplate: boolean): SyntaxKind;
+    /** @deprecated use {@link reScanTemplateToken}(false) */
+    reScanTemplateHeadOrNoSubstitutionTemplate(): SyntaxKind;
+    scanJsxIdentifier(): SyntaxKind;
+    scanJsxAttributeValue(): SyntaxKind;
+    reScanJsxAttributeValue(): SyntaxKind;
+    
+    reScanLessThanToken(): SyntaxKind;
+    reScanHashToken(): SyntaxKind;
+    reScanQuestionToken(): SyntaxKind;
+    reScanInvalidIdentifier(): SyntaxKind;
+    
+    //scanJsDocToken(): JSDocSyntaxKind;
+    /** @internal */
+    //scanJSDocCommentTextToken(inBackticks: boolean): JSDocSyntaxKind | SyntaxKind.JSDocCommentTextToken;
+    scan(): SyntaxKind;
+
+    getText(): string;
+    /** @internal */
+    clearCommentDirectives(): void;
+    // Sets the text for the scanner to scan.  An optional subrange starting point and length
+    // can be provided to have the scanner only scan a portion of the text.
+    setText(text: string | undefined, start?: number, length?: number): void;
+    setOnError(onError: ErrorCallback | undefined): void;
+    setScriptTarget(scriptTarget: ScriptTarget): void;
+    setLanguageVariant(variant: LanguageVariant): void;
+    setScriptKind(scriptKind: ScriptKind): void;
+    //setJSDocParsingMode(kind: JSDocParsingMode): void;
+    /** @deprecated use {@link resetTokenState} */
+    setTextPos(textPos: number): void;
+    resetTokenState(pos: number): void;
+    /** @internal */
+    setSkipJsDocLeadingAsterisks(skip: boolean): void;
+    // Invokes the provided callback then unconditionally restores the scanner to the state it
+    // was in immediately prior to invoking the callback.  The result of invoking the callback
+    // is returned from this function.
+    lookAhead<T>(callback: () => T): T;
+
+    // Invokes the callback with the scanner set to scan the specified range. When the callback
+    // returns, the scanner is restored to the state it was in before scanRange was called.
+    scanRange<T>(start: number, length: number, callback: () => T): T;
+
+    // Invokes the provided callback.  If the callback returns something falsy, then it restores
+    // the scanner to the state it was in immediately prior to invoking the callback.  If the
+    // callback returns something truthy, then the scanner state is not rolled back.  The result
+    // of invoking the callback is returned from this function.
+    tryScan<T>(callback: () => T): T;
+}
+
+type ScriptKind=any;
+type LanguageVariant=any;
+type ScriptTarget=any;
