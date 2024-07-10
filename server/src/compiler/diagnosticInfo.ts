@@ -106,6 +106,15 @@ export const Diagnostics = {
     Type_instantiation_is_excessively_deep_and_possibly_infinite:blank,
     _0_needs_an_explicit_type_annotation:blank,
     The_containing_function_or_module_body_is_too_large_for_control_flow_analysis:blank,
+    Type_0_must_have_a_Symbol_asyncIterator_method_that_returns_an_async_iterator:blank,
+    Type_0_must_have_a_Symbol_iterator_method_that_returns_an_iterator:blank,
+    Cannot_iterate_value_because_the_next_method_of_its_iterator_expects_type_1_but_for_of_will_always_send_0:blank,
+    Cannot_iterate_value_because_the_next_method_of_its_iterator_expects_type_1_but_array_spread_will_always_send_0:blank,
+    Cannot_iterate_value_because_the_next_method_of_its_iterator_expects_type_1_but_array_destructuring_will_always_send_0:blank,
+    Cannot_delegate_iteration_to_value_because_the_next_method_of_its_iterator_expects_type_1_but_the_containing_generator_will_always_send_0:blank,
+    Type_0_is_not_an_array_type_or_a_string_type_or_does_not_have_a_Symbol_iterator_method_that_returns_an_iterator:blank,
+    Type_0_is_not_an_array_type_or_does_not_have_a_Symbol_iterator_method_that_returns_an_iterator:blank,
+    Type_0_can_only_be_iterated_through_when_using_the_downlevelIteration_flag_or_with_a_target_of_es2015_or_higher:blank,
            
 
 }

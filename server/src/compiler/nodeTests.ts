@@ -346,3 +346,7 @@ export function isParenthesizedTypeNode(node: Node): node is ParenthesizedTypeNo
 export function isTypeOperatorNode(node: Node): node is TypeOperatorNode {
     return node.kind === SyntaxKind.TypeOperator;
 }
+
+export function isTypePredicateNode(node: Node) {//: node is TypePredicateNode {
+    return false;//return node.kind === SyntaxKind.TypePredicate;
+}

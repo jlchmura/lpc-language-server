@@ -173,6 +173,7 @@ import {
     isPrivateIdentifier,
     isPropertyAccessExpression,
     isPropertySignature,
+    isQualifiedName,
     isSetAccessorDeclaration,
     isSourceFile,
     isTypeAliasDeclaration,
@@ -4409,3 +4410,32 @@ function getPos(range: Node) {
 export function indexOfNode(nodeArray: readonly Node[], node: Node) {
     return binarySearch(nodeArray, node, getPos, compareValues);
 }
+
+/** @internal */
+export function identifierIsThisKeyword(id: Identifier): boolean {
+    return id.text === "this";
+}
+
+/** @internal */
+export function isThisIdentifier(node: Node | undefined): boolean {
+    return !!node && node.kind === SyntaxKind.Identifier && identifierIsThisKeyword(node as Identifier);
+}
+
+/** @internal */
+export function isThisInTypeQuery(node: Node): boolean {
+    if (!isThisIdentifier(node)) {
+        return false;
+    }
+
+    while (isQualifiedName(node.parent) && node.parent.left === node) {
+        node = node.parent;
+    }
+
+    return node.parent.kind === SyntaxKind.TypeQuery;
+}
+
+/** @internal */
+export function isInfinityOrNaNString(name: string ): boolean {
+    return name === "Infinity" || name === "-Infinity" || name === "NaN";
+}
+

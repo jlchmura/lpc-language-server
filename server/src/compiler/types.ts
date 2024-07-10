@@ -857,13 +857,15 @@ export const enum TypeFlags {
     String          = 1 << 2,
     Int             = 1 << 3,
     Float           = 1 << 4,
-    // Boolean         = 1 << 4,
+    /** @deprecated only used for iterator tests */
+    Boolean         = 1 << 5,
     /** @deprecated not used */
-    Enum            = 1 << 5,   // Numeric computed enum member value
+    Enum            = 1 << 6,   // Numeric computed enum member value
     // BigInt          = 1 << 6,
     StringLiteral   = 1 << 7,
     IntLiteral      = 1 << 8,
     FloatLiteral    = 1 << 9,
+    BooleanLiteral  = 1 << 10,
     // EnumLiteral     = 1 << 10,  // Always combined with StringLiteral, NumberLiteral, or Union
     // BigIntLiteral   = 1 << 11,
     // ESSymbol        = 1 << 12,  // Type of symbol primitive introduced in ES6
@@ -2905,6 +2907,7 @@ export const enum NodeBuilderFlags {
 export const enum TypePredicateKind {
     Identifier,    
     AssertsIdentifier,
+    
 }
 
 export interface TypePredicateBase {
@@ -5212,4 +5215,16 @@ export type RequireOrImportCall = CallExpression & { expression: Identifier; arg
 // version of a fresh type is identical except for the TypeFlags.FreshObjectLiteral flag.
 export interface FreshObjectLiteralType extends ResolvedType {
     regularType: ResolvedType; // Regular version of fresh type
+}
+
+// Just a place to cache element types of iterables and iterators
+/** @internal */
+export interface IterableOrIteratorType extends ObjectType, UnionType {
+    iterationTypesOfGeneratorReturnType?: IterationTypes;
+    iterationTypesOfAsyncGeneratorReturnType?: IterationTypes;
+    iterationTypesOfIterable?: IterationTypes;
+    iterationTypesOfIterator?: IterationTypes;
+    iterationTypesOfAsyncIterable?: IterationTypes;
+    iterationTypesOfAsyncIterator?: IterationTypes;
+    iterationTypesOfIteratorResult?: IterationTypes;
 }

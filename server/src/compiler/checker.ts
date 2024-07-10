@@ -5,11 +5,11 @@ import { Comparison } from "./corePublic";
 import { Debug } from "./debug";
 import { Diagnostics } from "./diagnosticInfo";
 import { createModeAwareCacheKey } from "./moduleNameResolver";
-import { isParameter, isIdentifier, isPropertyAccessExpression, isSourceFile, isPropertyDeclaration, isBindingElement, isComputedPropertyName, isPrivateIdentifier, isTypeLiteralNode, isBinaryExpression, isFunctionExpression, isVariableDeclaration, isPropertyAssignment, isImportTypeNode, isVariableStatement, isElementAccessExpression, isBlock, isIndexedAccessTypeNode, isStringLiteral, isTypeParameterDeclaration, isLiteralTypeNode, isVariableDeclarationList, isFunctionDeclaration, isJSDocTypeExpression, isCallExpression, isNumericLiteral, isShorthandPropertyAssignment, isCallSignatureDeclaration, isObjectBindingPattern, isParenthesizedExpression, isArrayBindingPattern, isPrefixUnaryExpression, isDecorator, isMethodDeclaration, isHeritageClause, isQualifiedName, isModuleBlock, isClassExpression, isObjectLiteralExpression, isPropertySignature, isJSDocPropertyTag, isOmittedExpression, isClassDeclaration, isMethodSignature, isJSDocTemplateTag, isExpressionWithTypeArguments, isTypeAliasDeclaration, isParenthesizedTypeNode, isTypeOperatorNode } from "./nodeTests";
+import { isParameter, isIdentifier, isPropertyAccessExpression, isSourceFile, isPropertyDeclaration, isBindingElement, isComputedPropertyName, isPrivateIdentifier, isTypeLiteralNode, isBinaryExpression, isFunctionExpression, isVariableDeclaration, isPropertyAssignment, isImportTypeNode, isVariableStatement, isElementAccessExpression, isBlock, isIndexedAccessTypeNode, isStringLiteral, isTypeParameterDeclaration, isLiteralTypeNode, isVariableDeclarationList, isFunctionDeclaration, isJSDocTypeExpression, isCallExpression, isNumericLiteral, isShorthandPropertyAssignment, isCallSignatureDeclaration, isObjectBindingPattern, isParenthesizedExpression, isArrayBindingPattern, isPrefixUnaryExpression, isDecorator, isMethodDeclaration, isHeritageClause, isQualifiedName, isModuleBlock, isClassExpression, isObjectLiteralExpression, isPropertySignature, isJSDocPropertyTag, isOmittedExpression, isClassDeclaration, isMethodSignature, isJSDocTemplateTag, isExpressionWithTypeArguments, isTypeAliasDeclaration, isParenthesizedTypeNode, isTypeOperatorNode, isTypePredicateNode } from "./nodeTests";
 import { forEachChild, parseNodeFactory } from "./parser";
 import { Scanner, skipTrivia, tokenToString } from "./scanner";
-import { Symbol, AccessExpression, AccessFlags, AnonymousType, AnyImportOrJsDocImport, ArrayBindingPattern, ArrayLiteralExpression, ArrayTypeNode, ArrowFunction, AssignmentDeclarationKind, AssignmentPattern, BaseType, BinaryExpression, BinaryOperator, BinaryOperatorToken, BindableStaticNameExpression, BindingElement, BindingName, BindingPattern, Block, CallChain, CallExpression, CallLikeExpression, CallSignatureDeclaration, CancellationToken, CaseBlock, CaseClause, CaseOrDefaultClause, CheckFlags, ClassElement, ClassLikeDeclaration, CompilerOptions, ComputedPropertyName, ConditionalExpression, ContextFlags, Declaration, DeclarationName, DeclarationStatement, DefaultClause, Diagnostic, DiagnosticAndArguments, DiagnosticArguments, DiagnosticCategory, DiagnosticMessage, DiagnosticMessageChain, DiagnosticRelatedInformation, DiagnosticWithLocation, DoStatement, DynamicNamedDeclaration, ElementAccessChain, ElementAccessExpression, EmitResolver, EmitTextWriter, EntityName, EntityNameExpression, EntityNameOrEntityNameExpression, ExclamationToken, Expression, ExpressionStatement, FlowArrayMutation, FlowAssignment, FlowCall, FlowCondition, FlowFlags, FlowLabel, FlowNode, FlowStart, FlowSwitchClause, FlowSwitchClauseData, FlowType, ForInStatement, ForStatement, FreshableIntrinsicType, FreshableType, FunctionDeclaration, FunctionExpression, FunctionLikeDeclaration, GenericType, HasLocals, HasModifiers, Identifier, IdentifierTypePredicate, IfStatement, ImportCall, ImportClause, ImportDeclaration, ImportSpecifier, ImportTypeNode, IndexedAccessType, IndexedAccessTypeNode, IndexFlags, IndexInfo, IndexKind, IndexSignatureDeclaration, IndexType, InferTypeNode, InstantiableType, InterfaceType, InternalSymbolName, IntrinsicType, JSDoc, JSDocComment, JSDocFunctionType, JSDocImportTag, JSDocParameterTag, JSDocPropertyLikeTag, JSDocSignature, JSDocTemplateTag, JSDocTypeAssertion, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, KeywordTypeNode, LateBoundBinaryExpressionDeclaration, LateBoundDeclaration, LateBoundName, LateVisibilityPaintedStatement, LiteralExpression, LiteralType, LiteralTypeNode, MappedType, MappedTypeNode, MatchingKeys, MemberOverrideStatus, MethodDeclaration, MinusToken, Modifier, ModifierFlags, ModuleSpecifierResolutionHost, NamedDeclaration, NewExpression, Node, NodeArray, NodeBuilderFlags, NodeCheckFlags, NodeFlags, NodeWithTypeArguments, NonNullChain, NonNullExpression, NumberLiteralType, NumericLiteral, ObjectBindingPattern, ObjectFlags, ObjectFlagsType, ObjectLiteralElementLike, ObjectLiteralExpression, ObjectType, OuterExpressionKinds, ParameterDeclaration, ParenthesizedExpression, Path, PlusToken, PostfixUnaryExpression, PrefixUnaryExpression, PrivateIdentifier, PropertyAccessChain, PropertyAccessEntityNameExpression, PropertyAccessExpression, PropertyAssignment, PropertyDeclaration, PropertyName, PropertySignature, PunctuationSyntaxKind, QualifiedName, QuestionToken, ResolutionMode, ResolvedType, ReturnStatement, ReverseMappedType, ShorthandPropertyAssignment, Signature, SignatureDeclaration, SignatureFlags, SignatureKind, SourceFile, SpreadElement, Statement, StringLiteral, StringLiteralType, StructuredType, SwitchStatement, SymbolAccessibility, SymbolAccessibilityResult, SymbolFlags, SymbolFormatFlags, SymbolId, SymbolTable, SymbolTracker, SymbolVisibilityResult, SyntaxKind, TextSpan, TokenFlags, TrackedSymbol, TransientSymbol, TransientSymbolLinks, Type, TypeAssertion, TypeChecker, TypeCheckerHost, TypeElement, TypeFlags, TypeFormatFlags, TypeId, TypeLiteralNode, TypeMapKind, TypeMapper, TypeNode, TypeNodeSyntaxKind, TypeOnlyAliasDeclaration, TypeParameter, TypeParameterDeclaration, TypePredicate, TypePredicateKind, TypeReference, TypeReferenceNode, TypeReferenceSerializationKind, TypeVariable, UnionOrIntersectionType, UnionReduction, UnionType, UnionTypeNode, VariableDeclaration, VariableDeclarationList, VariableLikeDeclaration, VariableStatement, VarianceFlags, VoidExpression, WhileStatement, SymbolLinks, NodeLinks, ExternalEmitHelpers, EvolvingArrayType, IterationTypes, PatternAmbientModule, InferenceContext, RelationComparisonResult, VisitResult, Program, ReverseMappedSymbol, MappedSymbol, BindableObjectDefinePropertyCall, WideningContext, BindingElementGrandparent, ElementFlags, NamedTupleMember, HasInitializer, InterfaceTypeWithDeclaredMembers, ExpressionWithTypeArguments, IntersectionType, TypeOperatorNode, ConditionalType, JsxAttributes, SubstitutionType, TemplateLiteralType, StringMappingType, TupleTypeReference, TupleType, Ternary, DeclarationWithTypeParameters, SingleSignatureType, ConditionalTypeNode, TupleTypeNode, DeferredTypeReference, ParenthesizedTypeNode, OptionalTypeNode, IntersectionFlags, SyntheticExpression, ConditionalRoot, InferenceInfo, InferencePriority, InferenceFlags, TypeReferenceType, FunctionOrConstructorTypeNode, InstantiationExpressionType, FlowReduceLabel, FreshObjectLiteralType } from "./types";
-import { objectAllocator, createSymbolTable, createNameResolver, createDiagnosticCollection, getSourceFileOfNode, setTextRangePosEnd, createFileDiagnostic, addRelatedInfo, setValueDeclaration, getImmediatelyInvokedFunctionExpression, getContainingClass, declarationNameToString, nodeIsSynthesized, getRootDeclaration, getTextOfNode, isEntityNameExpression, isBlockOrCatchScoped, getAssignmentDeclarationKind, isAccessExpression, hasSyntacticModifier, nodeIsMissing, isObjectLiteralMethod, isJSDocTypeAssertion, isPropertyAccessEntityNameExpression, modifiersToFlags, setParent, isPartOfParameterDeclaration, hasDynamicName, Mutable, skipParentheses, isCatchClauseVariableDeclarationOrBindingElement, isStringOrNumericLiteralLike, getAssignmentDeclarationPropertyAccessKind, isTypeUsableAsPropertyName, isBindableStaticElementAccessExpression, isAssignmentTarget, isConstAssertion, getSymbolNameForPrivateIdentifier, isOptionalChain, isTypeNodeKind, isAssignmentExpression, isObjectLiteralOrClassExpressionMethodOrAccessor, skipOuterExpressions, getErrorSpanForNode, nodeIsPresent, isDottedName, isAssignmentOperator, createBinaryExpressionTrampoline, isLogicalOrCoalescingBinaryOperator, isLogicalOrCoalescingBinaryExpression, isPropertyNameLiteral, getEscapedTextOfIdentifierOrLiteral, hasSyntacticModifiers, modifierToFlag, isExpressionNode, createEvaluator, getFirstIdentifier, skipTypeChecking, containsParseError, createDiagnosticForNode, createCompilerDiagnostic, createDiagnosticForFileFromMessageChain, createDiagnosticForNodeFromMessageChain, getExpandoInitializer, getNameOfExpando, compareDiagnostics, isTypeDeclaration, getEnclosingBlockScopeContainer, getAncestor, getCanonicalDiagnostic, isValidTypeOnlyAliasUseSite, isInTypeQuery, getContainingClassExcludingClassDecorators, getCheckFlags, getObjectFlags, getSpanOfTokenAtPosition, getFunctionFlags, FunctionFlags, isStatic, getThisContainer, isInJSFile, entityNameToString, getDeclarationOfKind, isAmbientModule, hasEffectiveModifier, getAssignedExpandoInitializer, createTextWriter, getDeclarationModifierFlagsFromSymbol, canHaveFlowNode, getEffectiveTypeAnnotationNode, hasAccessorModifier, isOptionalDeclaration, hasStaticModifier, getDeclaredExpandoInitializer, findConstructorDeclaration, getEffectiveModifierFlags, getPropertyNameFromType, isTransientSymbol, getParameterSymbolFromJSDoc, getMembersOfDeclaration, isDynamicName, resolvingEmptyArray, getClassLikeDeclarationOfSymbol, getEffectiveBaseTypeNode, chainDiagnosticMessages, getContainingClassStaticBlock, isNodeDescendantOf, isNumericLiteralName, isValueSignatureDeclaration, getEffectiveReturnTypeNode, walkUpParenthesizedTypesAndGetParentAndChild, isPartOfTypeNode, getPropertyNameForPropertyNameNode, isKnownSymbol, getAssignmentTargetKind, AssignmentKind, tryGetPropertyAccessOrIdentifierToString, isDeleteTarget, skipTypeParentheses, isTypeAlias, getContainingFunction, isRequireCall, isPushOrUnshiftIdentifier, isInCompoundLikeAssignment, tryGetJSDocSatisfiesTypeNode, isComputedNonLiteralName, indexOfNode } from "./utilities";
+import { Symbol, AccessExpression, AccessFlags, AnonymousType, AnyImportOrJsDocImport, ArrayBindingPattern, ArrayLiteralExpression, ArrayTypeNode, ArrowFunction, AssignmentDeclarationKind, AssignmentPattern, BaseType, BinaryExpression, BinaryOperator, BinaryOperatorToken, BindableStaticNameExpression, BindingElement, BindingName, BindingPattern, Block, CallChain, CallExpression, CallLikeExpression, CallSignatureDeclaration, CancellationToken, CaseBlock, CaseClause, CaseOrDefaultClause, CheckFlags, ClassElement, ClassLikeDeclaration, CompilerOptions, ComputedPropertyName, ConditionalExpression, ContextFlags, Declaration, DeclarationName, DeclarationStatement, DefaultClause, Diagnostic, DiagnosticAndArguments, DiagnosticArguments, DiagnosticCategory, DiagnosticMessage, DiagnosticMessageChain, DiagnosticRelatedInformation, DiagnosticWithLocation, DoStatement, DynamicNamedDeclaration, ElementAccessChain, ElementAccessExpression, EmitResolver, EmitTextWriter, EntityName, EntityNameExpression, EntityNameOrEntityNameExpression, ExclamationToken, Expression, ExpressionStatement, FlowArrayMutation, FlowAssignment, FlowCall, FlowCondition, FlowFlags, FlowLabel, FlowNode, FlowStart, FlowSwitchClause, FlowSwitchClauseData, FlowType, ForInStatement, ForStatement, FreshableIntrinsicType, FreshableType, FunctionDeclaration, FunctionExpression, FunctionLikeDeclaration, GenericType, HasLocals, HasModifiers, Identifier, IdentifierTypePredicate, IfStatement, ImportCall, ImportClause, ImportDeclaration, ImportSpecifier, ImportTypeNode, IndexedAccessType, IndexedAccessTypeNode, IndexFlags, IndexInfo, IndexKind, IndexSignatureDeclaration, IndexType, InferTypeNode, InstantiableType, InterfaceType, InternalSymbolName, IntrinsicType, JSDoc, JSDocComment, JSDocFunctionType, JSDocImportTag, JSDocParameterTag, JSDocPropertyLikeTag, JSDocSignature, JSDocTemplateTag, JSDocTypeAssertion, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, KeywordTypeNode, LateBoundBinaryExpressionDeclaration, LateBoundDeclaration, LateBoundName, LateVisibilityPaintedStatement, LiteralExpression, LiteralType, LiteralTypeNode, MappedType, MappedTypeNode, MatchingKeys, MemberOverrideStatus, MethodDeclaration, MinusToken, Modifier, ModifierFlags, ModuleSpecifierResolutionHost, NamedDeclaration, NewExpression, Node, NodeArray, NodeBuilderFlags, NodeCheckFlags, NodeFlags, NodeWithTypeArguments, NonNullChain, NonNullExpression, NumberLiteralType, NumericLiteral, ObjectBindingPattern, ObjectFlags, ObjectFlagsType, ObjectLiteralElementLike, ObjectLiteralExpression, ObjectType, OuterExpressionKinds, ParameterDeclaration, ParenthesizedExpression, Path, PlusToken, PostfixUnaryExpression, PrefixUnaryExpression, PrivateIdentifier, PropertyAccessChain, PropertyAccessEntityNameExpression, PropertyAccessExpression, PropertyAssignment, PropertyDeclaration, PropertyName, PropertySignature, PunctuationSyntaxKind, QualifiedName, QuestionToken, ResolutionMode, ResolvedType, ReturnStatement, ReverseMappedType, ShorthandPropertyAssignment, Signature, SignatureDeclaration, SignatureFlags, SignatureKind, SourceFile, SpreadElement, Statement, StringLiteral, StringLiteralType, StructuredType, SwitchStatement, SymbolAccessibility, SymbolAccessibilityResult, SymbolFlags, SymbolFormatFlags, SymbolId, SymbolTable, SymbolTracker, SymbolVisibilityResult, SyntaxKind, TextSpan, TokenFlags, TrackedSymbol, TransientSymbol, TransientSymbolLinks, Type, TypeAssertion, TypeChecker, TypeCheckerHost, TypeElement, TypeFlags, TypeFormatFlags, TypeId, TypeLiteralNode, TypeMapKind, TypeMapper, TypeNode, TypeNodeSyntaxKind, TypeOnlyAliasDeclaration, TypeParameter, TypeParameterDeclaration, TypePredicate, TypePredicateKind, TypeReference, TypeReferenceNode, TypeReferenceSerializationKind, TypeVariable, UnionOrIntersectionType, UnionReduction, UnionType, UnionTypeNode, VariableDeclaration, VariableDeclarationList, VariableLikeDeclaration, VariableStatement, VarianceFlags, VoidExpression, WhileStatement, SymbolLinks, NodeLinks, ExternalEmitHelpers, EvolvingArrayType, IterationTypes, PatternAmbientModule, InferenceContext, RelationComparisonResult, VisitResult, Program, ReverseMappedSymbol, MappedSymbol, BindableObjectDefinePropertyCall, WideningContext, BindingElementGrandparent, ElementFlags, NamedTupleMember, HasInitializer, InterfaceTypeWithDeclaredMembers, ExpressionWithTypeArguments, IntersectionType, TypeOperatorNode, ConditionalType, JsxAttributes, SubstitutionType, TemplateLiteralType, StringMappingType, TupleTypeReference, TupleType, Ternary, DeclarationWithTypeParameters, SingleSignatureType, ConditionalTypeNode, TupleTypeNode, DeferredTypeReference, ParenthesizedTypeNode, OptionalTypeNode, IntersectionFlags, SyntheticExpression, ConditionalRoot, InferenceInfo, InferencePriority, InferenceFlags, TypeReferenceType, FunctionOrConstructorTypeNode, InstantiationExpressionType, FlowReduceLabel, FreshObjectLiteralType, IterableOrIteratorType } from "./types";
+import { objectAllocator, createSymbolTable, createNameResolver, createDiagnosticCollection, getSourceFileOfNode, setTextRangePosEnd, createFileDiagnostic, addRelatedInfo, setValueDeclaration, getImmediatelyInvokedFunctionExpression, getContainingClass, declarationNameToString, nodeIsSynthesized, getRootDeclaration, getTextOfNode, isEntityNameExpression, isBlockOrCatchScoped, getAssignmentDeclarationKind, isAccessExpression, hasSyntacticModifier, nodeIsMissing, isObjectLiteralMethod, isJSDocTypeAssertion, isPropertyAccessEntityNameExpression, modifiersToFlags, setParent, isPartOfParameterDeclaration, hasDynamicName, Mutable, skipParentheses, isCatchClauseVariableDeclarationOrBindingElement, isStringOrNumericLiteralLike, getAssignmentDeclarationPropertyAccessKind, isTypeUsableAsPropertyName, isBindableStaticElementAccessExpression, isAssignmentTarget, isConstAssertion, getSymbolNameForPrivateIdentifier, isOptionalChain, isTypeNodeKind, isAssignmentExpression, isObjectLiteralOrClassExpressionMethodOrAccessor, skipOuterExpressions, getErrorSpanForNode, nodeIsPresent, isDottedName, isAssignmentOperator, createBinaryExpressionTrampoline, isLogicalOrCoalescingBinaryOperator, isLogicalOrCoalescingBinaryExpression, isPropertyNameLiteral, getEscapedTextOfIdentifierOrLiteral, hasSyntacticModifiers, modifierToFlag, isExpressionNode, createEvaluator, getFirstIdentifier, skipTypeChecking, containsParseError, createDiagnosticForNode, createCompilerDiagnostic, createDiagnosticForFileFromMessageChain, createDiagnosticForNodeFromMessageChain, getExpandoInitializer, getNameOfExpando, compareDiagnostics, isTypeDeclaration, getEnclosingBlockScopeContainer, getAncestor, getCanonicalDiagnostic, isValidTypeOnlyAliasUseSite, isInTypeQuery, getContainingClassExcludingClassDecorators, getCheckFlags, getObjectFlags, getSpanOfTokenAtPosition, getFunctionFlags, FunctionFlags, isStatic, getThisContainer, isInJSFile, entityNameToString, getDeclarationOfKind, isAmbientModule, hasEffectiveModifier, getAssignedExpandoInitializer, createTextWriter, getDeclarationModifierFlagsFromSymbol, canHaveFlowNode, getEffectiveTypeAnnotationNode, hasAccessorModifier, isOptionalDeclaration, hasStaticModifier, getDeclaredExpandoInitializer, findConstructorDeclaration, getEffectiveModifierFlags, getPropertyNameFromType, isTransientSymbol, getParameterSymbolFromJSDoc, getMembersOfDeclaration, isDynamicName, resolvingEmptyArray, getClassLikeDeclarationOfSymbol, getEffectiveBaseTypeNode, chainDiagnosticMessages, getContainingClassStaticBlock, isNodeDescendantOf, isNumericLiteralName, isValueSignatureDeclaration, getEffectiveReturnTypeNode, walkUpParenthesizedTypesAndGetParentAndChild, isPartOfTypeNode, getPropertyNameForPropertyNameNode, isKnownSymbol, getAssignmentTargetKind, AssignmentKind, tryGetPropertyAccessOrIdentifierToString, isDeleteTarget, skipTypeParentheses, isTypeAlias, getContainingFunction, isRequireCall, isPushOrUnshiftIdentifier, isInCompoundLikeAssignment, tryGetJSDocSatisfiesTypeNode, isComputedNonLiteralName, indexOfNode, isThisInTypeQuery, evaluatorResult, isInfinityOrNaNString, forEachReturnStatement } from "./utilities";
 import { getParseTreeNode, escapeLeadingUnderscores, isTypeNode, isExpression, isFunctionLike, findAncestor, getNameOfDeclaration, isClassLike, isForInOrOfStatement, isStringLiteralLike, canHaveLocals, idText, symbolName, isBindingPattern, canHaveModifiers, isFunctionLikeDeclaration, isNamedDeclaration, isLeftHandSideExpression, walkUpBindingElementsAndPatterns, getJSDocTypeTag, isStatement, isBooleanLiteral, getCombinedNodeFlags, isFunctionLikeOrClassStaticBlockDeclaration, isAssignmentPattern, isObjectLiteralElementLike, isCallLikeExpression, isPropertyAccessOrQualifiedNameOrImportTypeNode, unescapeLeadingUnderscores, isCallLikeOrFunctionLikeExpression, isFunctionExpressionOrArrowFunction, getJSDocDeprecatedTag, textRangeContainsPositionInclusive, isDeclaration, isGetOrSetAccessorDeclaration, isEntityName, canHaveSymbol, getCombinedModifierFlags, isPrivateIdentifierClassElementDeclaration, setTextRange as setTextRangeWorker, getJSDocType, hasOnlyExpressionInitializer, isJSDocPropertyLikeTag, getEffectiveTypeParameterDeclarations, getEffectiveConstraintOfTypeParameter, isPropertyName, isCallOrNewExpression, isConstTypeReference, isAssertionExpression, isTypeReferenceType, hasInitializer, isFunctionOrModuleBlock } from "./utilitiesPublic";
 import { createSyntacticTypeNodeBuilder } from "./expressionToTypeNode";
 import { createGetSymbolWalker } from "./symbolWalker";
@@ -962,18 +962,18 @@ export function createTypeChecker(host: TypeCheckerHost): Partial<TypeChecker> {
     var stringType = createIntrinsicType(TypeFlags.String, "string");
     var intType = createIntrinsicType(TypeFlags.Int, "int");
     var floatType = createIntrinsicType(TypeFlags.Float, "float");    
-    // var falseType = createIntrinsicType(TypeFlags.BooleanLiteral, "false", /*objectFlags*/ undefined, "fresh") as FreshableIntrinsicType;
-    // var regularFalseType = createIntrinsicType(TypeFlags.BooleanLiteral, "false") as FreshableIntrinsicType;
-    // var trueType = createIntrinsicType(TypeFlags.BooleanLiteral, "true", /*objectFlags*/ undefined, "fresh") as FreshableIntrinsicType;
-    // var regularTrueType = createIntrinsicType(TypeFlags.BooleanLiteral, "true") as FreshableIntrinsicType;
-    // trueType.regularType = regularTrueType;
-    // trueType.freshType = trueType;
-    // regularTrueType.regularType = regularTrueType;
-    // regularTrueType.freshType = trueType;
-    // falseType.regularType = regularFalseType;
-    // falseType.freshType = falseType;
-    // regularFalseType.regularType = regularFalseType;
-    // regularFalseType.freshType = falseType;
+    var falseType = createIntrinsicType(TypeFlags.BooleanLiteral, "false", /*objectFlags*/ undefined, "fresh") as FreshableIntrinsicType;
+    var regularFalseType = createIntrinsicType(TypeFlags.BooleanLiteral, "false") as FreshableIntrinsicType;
+    var trueType = createIntrinsicType(TypeFlags.BooleanLiteral, "true", /*objectFlags*/ undefined, "fresh") as FreshableIntrinsicType;
+    var regularTrueType = createIntrinsicType(TypeFlags.BooleanLiteral, "true") as FreshableIntrinsicType;
+    trueType.regularType = regularTrueType;
+    trueType.freshType = trueType;
+    regularTrueType.regularType = regularTrueType;
+    regularTrueType.freshType = trueType;
+    falseType.regularType = regularFalseType;
+    falseType.freshType = falseType;
+    regularFalseType.regularType = regularFalseType;
+    regularFalseType.freshType = falseType;
     //var booleanType = getUnionType([regularFalseType, regularTrueType]);
     //var esSymbolType = createIntrinsicType(TypeFlags.ESSymbol, "symbol");
     var voidType = createIntrinsicType(TypeFlags.Void, "void");
@@ -14422,8 +14422,7 @@ export function createTypeChecker(host: TypeCheckerHost): Partial<TypeChecker> {
                     }
                 }
                 if (type || jsdocPredicate) {
-                    signature.resolvedTypePredicate = type && isTypePredicateNode(type) ?
-                        createTypePredicateFromTypePredicateNode(type, signature) :
+                    signature.resolvedTypePredicate = //type && isTypePredicateNode(type) ? createTypePredicateFromTypePredicateNode(type, signature) :
                         jsdocPredicate || noTypePredicate;
                 }
                 else if (signature.declaration && isFunctionLikeDeclaration(signature.declaration) && (!signature.resolvedReturnType || signature.resolvedReturnType.flags & TypeFlags.Boolean) && getParameterCount(signature) > 0) {
@@ -16313,37 +16312,37 @@ export function createTypeChecker(host: TypeCheckerHost): Partial<TypeChecker> {
         return getUnionTypeFromSortedList(typeSet, objectFlags, aliasSymbol, aliasTypeArguments, origin);
     }
 
-//     function getUnionOrIntersectionTypePredicate(signatures: readonly Signature[], kind: TypeFlags | undefined): TypePredicate | undefined {
-//         let last: TypePredicate | undefined;
-//         const types: Type[] = [];
-//         for (const sig of signatures) {
-//             const pred = getTypePredicateOfSignature(sig);
-//             if (pred) {
-//                 // Constituent type predicates must all have matching kinds. We don't create composite type predicates for assertions.
-//                 if (pred.kind !== TypePredicateKind.This && pred.kind !== TypePredicateKind.Identifier || last && !typePredicateKindsMatch(last, pred)) {
-//                     return undefined;
-//                 }
-//                 last = pred;
-//                 types.push(pred.type);
-//             }
-//             else {
-//                 // In composite union signatures we permit and ignore signatures with a return type `false`.
-//                 const returnType = kind !== TypeFlags.Intersection ? getReturnTypeOfSignature(sig) : undefined;
-//                 if (returnType !== falseType && returnType !== regularFalseType) {
-//                     return undefined;
-//                 }
-//             }
-//         }
-//         if (!last) {
-//             return undefined;
-//         }
-//         const compositeType = getUnionOrIntersectionType(types, kind);
-//         return createTypePredicate(last.kind, last.parameterName, last.parameterIndex, compositeType);
-//     }
+    function getUnionOrIntersectionTypePredicate(signatures: readonly Signature[], kind: TypeFlags | undefined): TypePredicate | undefined {
+        let last: TypePredicate | undefined;
+        const types: Type[] = [];
+        for (const sig of signatures) {
+            const pred = getTypePredicateOfSignature(sig);
+            if (pred) {
+                // Constituent type predicates must all have matching kinds. We don't create composite type predicates for assertions.
+                if ( pred.kind !== TypePredicateKind.Identifier || last && !typePredicateKindsMatch(last, pred)) {
+                    return undefined;
+                }
+                last = pred;
+                types.push(pred.type);
+            }
+            else {
+                // In composite union signatures we permit and ignore signatures with a return type `false`.
+                const returnType = kind !== TypeFlags.Intersection ? getReturnTypeOfSignature(sig) : undefined;
+                if (returnType !== falseType && returnType !== regularFalseType) {
+                    return undefined;
+                }
+            }
+        }
+        if (!last) {
+            return undefined;
+        }
+        const compositeType = getUnionOrIntersectionType(types, kind);
+        return createTypePredicate(last.kind, last.parameterName, last.parameterIndex, compositeType);
+    }
 
-//     function typePredicateKindsMatch(a: TypePredicate, b: TypePredicate): boolean {
-//         return a.kind === b.kind && a.parameterIndex === b.parameterIndex;
-//     }
+    function typePredicateKindsMatch(a: TypePredicate, b: TypePredicate): boolean {
+        return a.kind === b.kind && a.parameterIndex === b.parameterIndex;
+    }
 
     // This function assumes the constituent type list is sorted and deduplicated.
     function getUnionTypeFromSortedList(types: Type[], precomputedObjectFlags: ObjectFlags, aliasSymbol?: Symbol, aliasTypeArguments?: readonly Type[], origin?: Type): Type {
@@ -18595,9 +18594,9 @@ export function createTypeChecker(host: TypeCheckerHost): Partial<TypeChecker> {
         return result;
     }
 
-//     function instantiateTypePredicate(predicate: TypePredicate, mapper: TypeMapper): TypePredicate {
-//         return createTypePredicate(predicate.kind, predicate.parameterName, predicate.parameterIndex, instantiateType(predicate.type, mapper));
-//     }
+    function instantiateTypePredicate(predicate: TypePredicate, mapper: TypeMapper): TypePredicate {
+        return createTypePredicate(predicate.kind, predicate.parameterName, predicate.parameterIndex, instantiateType(predicate.type, mapper));
+    }
 
     function instantiateSignature(signature: Signature, mapper: TypeMapper, eraseTypeParameters?: boolean): Signature {
         let freshTypeParameters: TypeParameter[] | undefined;
@@ -26283,9 +26282,9 @@ export function createTypeChecker(host: TypeCheckerHost): Partial<TypeChecker> {
 //         return witnesses;
 //     }
 
-//     function eachTypeContainedIn(source: Type, types: Type[]) {
-//         return source.flags & TypeFlags.Union ? !forEach((source as UnionType).types, t => !contains(types, t)) : contains(types, source);
-//     }
+    function eachTypeContainedIn(source: Type, types: Type[]) {
+        return source.flags & TypeFlags.Union ? !forEach((source as UnionType).types, t => !contains(types, t)) : contains(types, source);
+    }
 
     function isTypeSubsetOf(source: Type, target: Type) {
         return !!(source === target || source.flags & TypeFlags.Never || target.flags & TypeFlags.Union && isTypeSubsetOfUnion(source, target as UnionType));
@@ -28768,192 +28767,192 @@ export function createTypeChecker(host: TypeCheckerHost): Partial<TypeChecker> {
 //         return type;
 //     }
 
-//     function checkIdentifier(node: Identifier, checkMode: CheckMode | undefined): Type {
-//         if (isThisInTypeQuery(node)) {
-//             return checkThisExpression(node);
-//         }
+    function checkIdentifier(node: Identifier, checkMode: CheckMode | undefined): Type {
+        if (isThisInTypeQuery(node)) {
+            return checkThisExpression(node);
+        }
 
-//         const symbol = getResolvedSymbol(node);
-//         if (symbol === unknownSymbol) {
-//             return errorType;
-//         }
+        const symbol = getResolvedSymbol(node);
+        if (symbol === unknownSymbol) {
+            return errorType;
+        }
 
-//         // As noted in ECMAScript 6 language spec, arrow functions never have an arguments objects.
-//         // Although in down-level emit of arrow function, we emit it using function expression which means that
-//         // arguments objects will be bound to the inner object; emitting arrow function natively in ES6, arguments objects
-//         // will be bound to non-arrow function that contain this arrow function. This results in inconsistent behavior.
-//         // To avoid that we will give an error to users if they use arguments objects in arrow function so that they
-//         // can explicitly bound arguments objects
-//         if (symbol === argumentsSymbol) {
-//             if (isInPropertyInitializerOrClassStaticBlock(node)) {
-//                 error(node, Diagnostics.arguments_cannot_be_referenced_in_property_initializers);
-//                 return errorType;
-//             }
+        // As noted in ECMAScript 6 language spec, arrow functions never have an arguments objects.
+        // Although in down-level emit of arrow function, we emit it using function expression which means that
+        // arguments objects will be bound to the inner object; emitting arrow function natively in ES6, arguments objects
+        // will be bound to non-arrow function that contain this arrow function. This results in inconsistent behavior.
+        // To avoid that we will give an error to users if they use arguments objects in arrow function so that they
+        // can explicitly bound arguments objects
+        if (symbol === argumentsSymbol) {
+            if (isInPropertyInitializerOrClassStaticBlock(node)) {
+                error(node, Diagnostics.arguments_cannot_be_referenced_in_property_initializers);
+                return errorType;
+            }
 
-//             let container = getContainingFunction(node);
-//             if (container) {
-//                 if (languageVersion < ScriptTarget.ES2015) {
-//                     if (container.kind === SyntaxKind.ArrowFunction) {
-//                         error(node, Diagnostics.The_arguments_object_cannot_be_referenced_in_an_arrow_function_in_ES5_Consider_using_a_standard_function_expression);
-//                     }
-//                     else if (hasSyntacticModifier(container, ModifierFlags.Async)) {
-//                         error(node, Diagnostics.The_arguments_object_cannot_be_referenced_in_an_async_function_or_method_in_ES5_Consider_using_a_standard_function_or_method);
-//                     }
-//                 }
+            let container = getContainingFunction(node);
+            if (container) {
+                if (languageVersion < ScriptTarget.ES2015) {
+                    if (container.kind === SyntaxKind.ArrowFunction) {
+                        error(node, Diagnostics.The_arguments_object_cannot_be_referenced_in_an_arrow_function_in_ES5_Consider_using_a_standard_function_expression);
+                    }
+                    else if (hasSyntacticModifier(container, ModifierFlags.Async)) {
+                        error(node, Diagnostics.The_arguments_object_cannot_be_referenced_in_an_async_function_or_method_in_ES5_Consider_using_a_standard_function_or_method);
+                    }
+                }
 
-//                 getNodeLinks(container).flags |= NodeCheckFlags.CaptureArguments;
-//                 while (container && isArrowFunction(container)) {
-//                     container = getContainingFunction(container);
-//                     if (container) {
-//                         getNodeLinks(container).flags |= NodeCheckFlags.CaptureArguments;
-//                     }
-//                 }
-//             }
-//             return getTypeOfSymbol(symbol);
-//         }
+                getNodeLinks(container).flags |= NodeCheckFlags.CaptureArguments;
+                while (container && isArrowFunction(container)) {
+                    container = getContainingFunction(container);
+                    if (container) {
+                        getNodeLinks(container).flags |= NodeCheckFlags.CaptureArguments;
+                    }
+                }
+            }
+            return getTypeOfSymbol(symbol);
+        }
 
-//         if (shouldMarkIdentifierAliasReferenced(node)) {
-//             markLinkedReferences(node, ReferenceHint.Identifier);
-//         }
+        if (shouldMarkIdentifierAliasReferenced(node)) {
+            markLinkedReferences(node, ReferenceHint.Identifier);
+        }
 
-//         const localOrExportSymbol = getExportSymbolOfValueSymbolIfExported(symbol);
-//         const targetSymbol = resolveAliasWithDeprecationCheck(localOrExportSymbol, node);
-//         if (isDeprecatedSymbol(targetSymbol) && isUncalledFunctionReference(node, targetSymbol) && targetSymbol.declarations) {
-//             addDeprecatedSuggestion(node, targetSymbol.declarations, node.text as string);
-//         }
+        const localOrExportSymbol = getExportSymbolOfValueSymbolIfExported(symbol);
+        const targetSymbol = resolveAliasWithDeprecationCheck(localOrExportSymbol, node);
+        if (isDeprecatedSymbol(targetSymbol) && isUncalledFunctionReference(node, targetSymbol) && targetSymbol.declarations) {
+            addDeprecatedSuggestion(node, targetSymbol.declarations, node.text as string);
+        }
 
-//         let declaration = localOrExportSymbol.valueDeclaration;
-//         if (declaration && localOrExportSymbol.flags & SymbolFlags.Class) {
-//             // When we downlevel classes we may emit some code outside of the class body. Due to the fact the
-//             // class name is double-bound, we must ensure we mark references to the class name so that we can
-//             // emit an alias to the class later.
-//             if (isClassLike(declaration) && declaration.name !== node) {
-//                 let container = getThisContainer(node, /*includeArrowFunctions*/ false, /*includeClassComputedPropertyName*/ false);
-//                 while (container.kind !== SyntaxKind.SourceFile && container.parent !== declaration) {
-//                     container = getThisContainer(container, /*includeArrowFunctions*/ false, /*includeClassComputedPropertyName*/ false);
-//                 }
+        let declaration = localOrExportSymbol.valueDeclaration;
+        if (declaration && localOrExportSymbol.flags & SymbolFlags.Class) {
+            // When we downlevel classes we may emit some code outside of the class body. Due to the fact the
+            // class name is double-bound, we must ensure we mark references to the class name so that we can
+            // emit an alias to the class later.
+            if (isClassLike(declaration) && declaration.name !== node) {
+                let container = getThisContainer(node, /*includeArrowFunctions*/ false, /*includeClassComputedPropertyName*/ false);
+                while (container.kind !== SyntaxKind.SourceFile && container.parent !== declaration) {
+                    container = getThisContainer(container, /*includeArrowFunctions*/ false, /*includeClassComputedPropertyName*/ false);
+                }
 
-//                 if (container.kind !== SyntaxKind.SourceFile) {
-//                     getNodeLinks(declaration).flags |= NodeCheckFlags.ContainsConstructorReference;
-//                     getNodeLinks(container).flags |= NodeCheckFlags.ContainsConstructorReference;
-//                     getNodeLinks(node).flags |= NodeCheckFlags.ConstructorReference;
-//                 }
-//             }
-//         }
+                if (container.kind !== SyntaxKind.SourceFile) {
+                    getNodeLinks(declaration).flags |= NodeCheckFlags.ContainsConstructorReference;
+                    getNodeLinks(container).flags |= NodeCheckFlags.ContainsConstructorReference;
+                    getNodeLinks(node).flags |= NodeCheckFlags.ConstructorReference;
+                }
+            }
+        }
 
-//         checkNestedBlockScopedBinding(node, symbol);
+        checkNestedBlockScopedBinding(node, symbol);
 
-//         let type = getNarrowedTypeOfSymbol(localOrExportSymbol, node, checkMode);
-//         const assignmentKind = getAssignmentTargetKind(node);
+        let type = getNarrowedTypeOfSymbol(localOrExportSymbol, node, checkMode);
+        const assignmentKind = getAssignmentTargetKind(node);
 
-//         if (assignmentKind) {
-//             if (
-//                 !(localOrExportSymbol.flags & SymbolFlags.Variable) &&
-//                 !(isInJSFile(node) && localOrExportSymbol.flags & SymbolFlags.ValueModule)
-//             ) {
-//                 const assignmentError = localOrExportSymbol.flags & SymbolFlags.Enum ? Diagnostics.Cannot_assign_to_0_because_it_is_an_enum
-//                     : localOrExportSymbol.flags & SymbolFlags.Class ? Diagnostics.Cannot_assign_to_0_because_it_is_a_class
-//                     : localOrExportSymbol.flags & SymbolFlags.Module ? Diagnostics.Cannot_assign_to_0_because_it_is_a_namespace
-//                     : localOrExportSymbol.flags & SymbolFlags.Function ? Diagnostics.Cannot_assign_to_0_because_it_is_a_function
-//                     : localOrExportSymbol.flags & SymbolFlags.Alias ? Diagnostics.Cannot_assign_to_0_because_it_is_an_import
-//                     : Diagnostics.Cannot_assign_to_0_because_it_is_not_a_variable;
+        if (assignmentKind) {
+            if (
+                !(localOrExportSymbol.flags & SymbolFlags.Variable) &&
+                !(isInJSFile(node) && localOrExportSymbol.flags & SymbolFlags.ValueModule)
+            ) {
+                const assignmentError = localOrExportSymbol.flags & SymbolFlags.Enum ? Diagnostics.Cannot_assign_to_0_because_it_is_an_enum
+                    : localOrExportSymbol.flags & SymbolFlags.Class ? Diagnostics.Cannot_assign_to_0_because_it_is_a_class
+                    : localOrExportSymbol.flags & SymbolFlags.Module ? Diagnostics.Cannot_assign_to_0_because_it_is_a_namespace
+                    : localOrExportSymbol.flags & SymbolFlags.Function ? Diagnostics.Cannot_assign_to_0_because_it_is_a_function
+                    : localOrExportSymbol.flags & SymbolFlags.Alias ? Diagnostics.Cannot_assign_to_0_because_it_is_an_import
+                    : Diagnostics.Cannot_assign_to_0_because_it_is_not_a_variable;
 
-//                 error(node, assignmentError, symbolToString(symbol));
-//                 return errorType;
-//             }
-//             if (isReadonlySymbol(localOrExportSymbol)) {
-//                 if (localOrExportSymbol.flags & SymbolFlags.Variable) {
-//                     error(node, Diagnostics.Cannot_assign_to_0_because_it_is_a_constant, symbolToString(symbol));
-//                 }
-//                 else {
-//                     error(node, Diagnostics.Cannot_assign_to_0_because_it_is_a_read_only_property, symbolToString(symbol));
-//                 }
-//                 return errorType;
-//             }
-//         }
+                error(node, assignmentError, symbolToString(symbol));
+                return errorType;
+            }
+            if (isReadonlySymbol(localOrExportSymbol)) {
+                if (localOrExportSymbol.flags & SymbolFlags.Variable) {
+                    error(node, Diagnostics.Cannot_assign_to_0_because_it_is_a_constant, symbolToString(symbol));
+                }
+                else {
+                    error(node, Diagnostics.Cannot_assign_to_0_because_it_is_a_read_only_property, symbolToString(symbol));
+                }
+                return errorType;
+            }
+        }
 
-//         const isAlias = localOrExportSymbol.flags & SymbolFlags.Alias;
+        const isAlias = localOrExportSymbol.flags & SymbolFlags.Alias;
 
-//         // We only narrow variables and parameters occurring in a non-assignment position. For all other
-//         // entities we simply return the declared type.
-//         if (localOrExportSymbol.flags & SymbolFlags.Variable) {
-//             if (assignmentKind === AssignmentKind.Definite) {
-//                 return isInCompoundLikeAssignment(node) ? getBaseTypeOfLiteralType(type) : type;
-//             }
-//         }
-//         else if (isAlias) {
-//             declaration = getDeclarationOfAliasSymbol(symbol);
-//         }
-//         else {
-//             return type;
-//         }
+        // We only narrow variables and parameters occurring in a non-assignment position. For all other
+        // entities we simply return the declared type.
+        if (localOrExportSymbol.flags & SymbolFlags.Variable) {
+            if (assignmentKind === AssignmentKind.Definite) {
+                return isInCompoundLikeAssignment(node) ? getBaseTypeOfLiteralType(type) : type;
+            }
+        }
+        else if (isAlias) {
+            declaration = getDeclarationOfAliasSymbol(symbol);
+        }
+        else {
+            return type;
+        }
 
-//         if (!declaration) {
-//             return type;
-//         }
+        if (!declaration) {
+            return type;
+        }
 
-//         type = getNarrowableTypeForReference(type, node, checkMode);
+        type = getNarrowableTypeForReference(type, node, checkMode);
 
-//         // The declaration container is the innermost function that encloses the declaration of the variable
-//         // or parameter. The flow container is the innermost function starting with which we analyze the control
-//         // flow graph to determine the control flow based type.
-//         const isParameter = getRootDeclaration(declaration).kind === SyntaxKind.Parameter;
-//         const declarationContainer = getControlFlowContainer(declaration);
-//         let flowContainer = getControlFlowContainer(node);
-//         const isOuterVariable = flowContainer !== declarationContainer;
-//         const isSpreadDestructuringAssignmentTarget = node.parent && node.parent.parent && isSpreadAssignment(node.parent) && isDestructuringAssignmentTarget(node.parent.parent);
-//         const isModuleExports = symbol.flags & SymbolFlags.ModuleExports;
-//         const typeIsAutomatic = type === autoType || type === autoArrayType;
-//         const isAutomaticTypeInNonNull = typeIsAutomatic && node.parent.kind === SyntaxKind.NonNullExpression;
-//         // When the control flow originates in a function expression, arrow function, method, or accessor, and
-//         // we are referencing a closed-over const variable or parameter or mutable local variable past its last
-//         // assignment, we extend the origin of the control flow analysis to include the immediately enclosing
-//         // control flow container.
-//         while (
-//             flowContainer !== declarationContainer && (
-//                 flowContainer.kind === SyntaxKind.FunctionExpression ||
-//                 flowContainer.kind === SyntaxKind.ArrowFunction ||
-//                 isObjectLiteralOrClassExpressionMethodOrAccessor(flowContainer)
-//             ) && (
-//                 isConstantVariable(localOrExportSymbol) && type !== autoArrayType ||
-//                 isParameterOrMutableLocalVariable(localOrExportSymbol) && isPastLastAssignment(localOrExportSymbol, node)
-//             )
-//         ) {
-//             flowContainer = getControlFlowContainer(flowContainer);
-//         }
-//         // We only look for uninitialized variables in strict null checking mode, and only when we can analyze
-//         // the entire control flow graph from the variable's declaration (i.e. when the flow container and
-//         // declaration container are the same).
-//         const assumeInitialized = isParameter || isAlias || isOuterVariable || isSpreadDestructuringAssignmentTarget || isModuleExports || isSameScopedBindingElement(node, declaration) ||
-//             type !== autoType && type !== autoArrayType && (!strictNullChecks || (type.flags & (TypeFlags.AnyOrUnknown | TypeFlags.Void)) !== 0 ||
-//                     isInTypeQuery(node) || isInAmbientOrTypeNode(node) || node.parent.kind === SyntaxKind.ExportSpecifier) ||
-//             node.parent.kind === SyntaxKind.NonNullExpression ||
-//             declaration.kind === SyntaxKind.VariableDeclaration && (declaration as VariableDeclaration).exclamationToken ||
-//             declaration.flags & NodeFlags.Ambient;
-//         const initialType = isAutomaticTypeInNonNull ? undefinedType :
-//             assumeInitialized ? (isParameter ? removeOptionalityFromDeclaredType(type, declaration as VariableLikeDeclaration) : type) :
-//             typeIsAutomatic ? undefinedType : getOptionalType(type);
-//         const flowType = isAutomaticTypeInNonNull ? getNonNullableType(getFlowTypeOfReference(node, type, initialType, flowContainer)) :
-//             getFlowTypeOfReference(node, type, initialType, flowContainer);
-//         // A variable is considered uninitialized when it is possible to analyze the entire control flow graph
-//         // from declaration to use, and when the variable's declared type doesn't include undefined but the
-//         // control flow based type does include undefined.
-//         if (!isEvolvingArrayOperationTarget(node) && (type === autoType || type === autoArrayType)) {
-//             if (flowType === autoType || flowType === autoArrayType) {
-//                 if (noImplicitAny) {
-//                     error(getNameOfDeclaration(declaration), Diagnostics.Variable_0_implicitly_has_type_1_in_some_locations_where_its_type_cannot_be_determined, symbolToString(symbol), typeToString(flowType));
-//                     error(node, Diagnostics.Variable_0_implicitly_has_an_1_type, symbolToString(symbol), typeToString(flowType));
-//                 }
-//                 return convertAutoToAny(flowType);
-//             }
-//         }
-//         else if (!assumeInitialized && !containsUndefinedType(type) && containsUndefinedType(flowType)) {
-//             error(node, Diagnostics.Variable_0_is_used_before_being_assigned, symbolToString(symbol));
-//             // Return the declared type to reduce follow-on errors
-//             return type;
-//         }
-//         return assignmentKind ? getBaseTypeOfLiteralType(flowType) : flowType;
-//     }
+        // The declaration container is the innermost function that encloses the declaration of the variable
+        // or parameter. The flow container is the innermost function starting with which we analyze the control
+        // flow graph to determine the control flow based type.
+        const isParameter = getRootDeclaration(declaration).kind === SyntaxKind.Parameter;
+        const declarationContainer = getControlFlowContainer(declaration);
+        let flowContainer = getControlFlowContainer(node);
+        const isOuterVariable = flowContainer !== declarationContainer;
+        const isSpreadDestructuringAssignmentTarget = node.parent && node.parent.parent && isSpreadAssignment(node.parent) && isDestructuringAssignmentTarget(node.parent.parent);
+        const isModuleExports = symbol.flags & SymbolFlags.ModuleExports;
+        const typeIsAutomatic = type === autoType || type === autoArrayType;
+        const isAutomaticTypeInNonNull = typeIsAutomatic && node.parent.kind === SyntaxKind.NonNullExpression;
+        // When the control flow originates in a function expression, arrow function, method, or accessor, and
+        // we are referencing a closed-over const variable or parameter or mutable local variable past its last
+        // assignment, we extend the origin of the control flow analysis to include the immediately enclosing
+        // control flow container.
+        while (
+            flowContainer !== declarationContainer && (
+                flowContainer.kind === SyntaxKind.FunctionExpression ||
+                flowContainer.kind === SyntaxKind.ArrowFunction ||
+                isObjectLiteralOrClassExpressionMethodOrAccessor(flowContainer)
+            ) && (
+                isConstantVariable(localOrExportSymbol) && type !== autoArrayType ||
+                isParameterOrMutableLocalVariable(localOrExportSymbol) && isPastLastAssignment(localOrExportSymbol, node)
+            )
+        ) {
+            flowContainer = getControlFlowContainer(flowContainer);
+        }
+        // We only look for uninitialized variables in strict null checking mode, and only when we can analyze
+        // the entire control flow graph from the variable's declaration (i.e. when the flow container and
+        // declaration container are the same).
+        const assumeInitialized = isParameter || isAlias || isOuterVariable || isSpreadDestructuringAssignmentTarget || isModuleExports || isSameScopedBindingElement(node, declaration) ||
+            type !== autoType && type !== autoArrayType && (!strictNullChecks || (type.flags & (TypeFlags.AnyOrUnknown | TypeFlags.Void)) !== 0 ||
+                    isInTypeQuery(node) || isInAmbientOrTypeNode(node) || node.parent.kind === SyntaxKind.ExportSpecifier) ||
+            node.parent.kind === SyntaxKind.NonNullExpression ||
+            declaration.kind === SyntaxKind.VariableDeclaration && (declaration as VariableDeclaration).exclamationToken ||
+            declaration.flags & NodeFlags.Ambient;
+        const initialType = isAutomaticTypeInNonNull ? undefinedType :
+            assumeInitialized ? (isParameter ? removeOptionalityFromDeclaredType(type, declaration as VariableLikeDeclaration) : type) :
+            typeIsAutomatic ? undefinedType : getOptionalType(type);
+        const flowType = isAutomaticTypeInNonNull ? getNonNullableType(getFlowTypeOfReference(node, type, initialType, flowContainer)) :
+            getFlowTypeOfReference(node, type, initialType, flowContainer);
+        // A variable is considered uninitialized when it is possible to analyze the entire control flow graph
+        // from declaration to use, and when the variable's declared type doesn't include undefined but the
+        // control flow based type does include undefined.
+        if (!isEvolvingArrayOperationTarget(node) && (type === autoType || type === autoArrayType)) {
+            if (flowType === autoType || flowType === autoArrayType) {
+                if (noImplicitAny) {
+                    error(getNameOfDeclaration(declaration), Diagnostics.Variable_0_implicitly_has_type_1_in_some_locations_where_its_type_cannot_be_determined, symbolToString(symbol), typeToString(flowType));
+                    error(node, Diagnostics.Variable_0_implicitly_has_an_1_type, symbolToString(symbol), typeToString(flowType));
+                }
+                return convertAutoToAny(flowType);
+            }
+        }
+        else if (!assumeInitialized && !containsUndefinedType(type) && containsUndefinedType(flowType)) {
+            error(node, Diagnostics.Variable_0_is_used_before_being_assigned, symbolToString(symbol));
+            // Return the declared type to reduce follow-on errors
+            return type;
+        }
+        return assignmentKind ? getBaseTypeOfLiteralType(flowType) : flowType;
+    }
 
 //     function isSameScopedBindingElement(node: Identifier, declaration: Declaration) {
 //         if (isBindingElement(declaration)) {
@@ -36864,9 +36863,9 @@ export function createTypeChecker(host: TypeCheckerHost): Partial<TypeChecker> {
         return eachTypeContainedIn(mapType(type, getRegularTypeOfLiteralType), switchTypes);
     }
 
-//     function functionHasImplicitReturn(func: FunctionLikeDeclaration) {
-//         return func.endFlowNode && isReachableFlowNode(func.endFlowNode);
-//     }
+    function functionHasImplicitReturn(func: FunctionLikeDeclaration) {
+        return func.endFlowNode && isReachableFlowNode(func.endFlowNode);
+    }
 
 //     /** NOTE: Return value of `[]` means a different thing than `undefined`. `[]` means func returns `void`, `undefined` means it returns `never`. */
 //     function checkAndAggregateReturnExpressionTypes(func: FunctionLikeDeclaration, checkMode: CheckMode | undefined): Type[] | undefined {
@@ -36934,30 +36933,30 @@ export function createTypeChecker(host: TypeCheckerHost): Partial<TypeChecker> {
 //         }
 //     }
 
-//     function getTypePredicateFromBody(func: FunctionLikeDeclaration): TypePredicate | undefined {
-//         switch (func.kind) {
-//             case SyntaxKind.Constructor:
-//             case SyntaxKind.GetAccessor:
-//             case SyntaxKind.SetAccessor:
-//                 return undefined;
-//         }
-//         const functionFlags = getFunctionFlags(func);
-//         if (functionFlags !== FunctionFlags.Normal) return undefined;
+    function getTypePredicateFromBody(func: FunctionLikeDeclaration): TypePredicate | undefined {
+        // switch (func.kind) {
+        //     case SyntaxKind.Constructor:
+        //     case SyntaxKind.GetAccessor:
+        //     case SyntaxKind.SetAccessor:
+        //         return undefined;
+        // }
+        const functionFlags = getFunctionFlags(func);
+        if (functionFlags !== FunctionFlags.Normal) return undefined;
 
-//         // Only attempt to infer a type predicate if there's exactly one return.
-//         let singleReturn: Expression | undefined;
-//         if (func.body && func.body.kind !== SyntaxKind.Block) {
-//             singleReturn = func.body; // arrow function
-//         }
-//         else {
-//             const bailedEarly = forEachReturnStatement(func.body as Block, returnStatement => {
-//                 if (singleReturn || !returnStatement.expression) return true;
-//                 singleReturn = returnStatement.expression;
-//             });
-//             if (bailedEarly || !singleReturn || functionHasImplicitReturn(func)) return undefined;
-//         }
-//         return checkIfExpressionRefinesAnyParameter(func, singleReturn);
-//     }
+        // Only attempt to infer a type predicate if there's exactly one return.
+        let singleReturn: Expression | undefined;
+        if (func.body && func.body.kind !== SyntaxKind.Block) {
+            singleReturn = func.body; // arrow function
+        }
+        else {
+            const bailedEarly = forEachReturnStatement(func.body as Block, returnStatement => {
+                if (singleReturn || !returnStatement.expression) return true;
+                singleReturn = returnStatement.expression;
+            });
+            if (bailedEarly || !singleReturn || functionHasImplicitReturn(func)) return undefined;
+        }
+        return checkIfExpressionRefinesAnyParameter(func, singleReturn);
+    }
 
 //     function checkIfExpressionRefinesAnyParameter(func: FunctionLikeDeclaration, expr: Expression): TypePredicate | undefined {
 //         expr = skipParentheses(expr, /*excludeJSDocTypeAssertions*/ true);
@@ -42839,130 +42838,130 @@ export function createTypeChecker(host: TypeCheckerHost): Partial<TypeChecker> {
         return getIteratedTypeOrElementType(use, inputType, sentType, errorNode, /*checkAssignability*/ true) || anyType;
     }
 
-//     /**
-//      * When consuming an iterable type in a for..of, spread, or iterator destructuring assignment
-//      * we want to get the iterated type of an iterable for ES2015 or later, or the iterated type
-//      * of a iterable (if defined globally) or element type of an array like for ES2015 or earlier.
-//      */
-//     function getIteratedTypeOrElementType(use: IterationUse, inputType: Type, sentType: Type, errorNode: Node | undefined, checkAssignability: boolean): Type | undefined {
-//         const allowAsyncIterables = (use & IterationUse.AllowsAsyncIterablesFlag) !== 0;
-//         if (inputType === neverType) {
-//             if (errorNode) {
-//                 reportTypeNotIterableError(errorNode, inputType, allowAsyncIterables);
-//             }
-//             return undefined;
-//         }
+    /**
+     * When consuming an iterable type in a for..of, spread, or iterator destructuring assignment
+     * we want to get the iterated type of an iterable for ES2015 or later, or the iterated type
+     * of a iterable (if defined globally) or element type of an array like for ES2015 or earlier.
+     */
+    function getIteratedTypeOrElementType(use: IterationUse, inputType: Type, sentType: Type, errorNode: Node | undefined, checkAssignability: boolean): Type | undefined {
+        const allowAsyncIterables = (use & IterationUse.AllowsAsyncIterablesFlag) !== 0;
+        if (inputType === neverType) {
+            if (errorNode) {
+                reportTypeNotIterableError(errorNode, inputType, allowAsyncIterables);
+            }
+            return undefined;
+        }
 
-//         const uplevelIteration = languageVersion >= ScriptTarget.ES2015;
-//         const downlevelIteration = !uplevelIteration && compilerOptions.downlevelIteration;
-//         const possibleOutOfBounds = compilerOptions.noUncheckedIndexedAccess && !!(use & IterationUse.PossiblyOutOfBounds);
+        const uplevelIteration = false;//languageVersion >= ScriptTarget.ES2015;
+        const downlevelIteration = true;// !uplevelIteration && compilerOptions.downlevelIteration;
+        const possibleOutOfBounds = compilerOptions.noUncheckedIndexedAccess && !!(use & IterationUse.PossiblyOutOfBounds);
 
-//         // Get the iterated type of an `Iterable<T>` or `IterableIterator<T>` only in ES2015
-//         // or higher, when inside of an async generator or for-await-if, or when
-//         // downlevelIteration is requested.
-//         if (uplevelIteration || downlevelIteration || allowAsyncIterables) {
-//             // We only report errors for an invalid iterable type in ES2015 or higher.
-//             const iterationTypes = getIterationTypesOfIterable(inputType, use, uplevelIteration ? errorNode : undefined);
-//             if (checkAssignability) {
-//                 if (iterationTypes) {
-//                     const diagnostic = use & IterationUse.ForOfFlag ? Diagnostics.Cannot_iterate_value_because_the_next_method_of_its_iterator_expects_type_1_but_for_of_will_always_send_0 :
-//                         use & IterationUse.SpreadFlag ? Diagnostics.Cannot_iterate_value_because_the_next_method_of_its_iterator_expects_type_1_but_array_spread_will_always_send_0 :
-//                         use & IterationUse.DestructuringFlag ? Diagnostics.Cannot_iterate_value_because_the_next_method_of_its_iterator_expects_type_1_but_array_destructuring_will_always_send_0 :
-//                         use & IterationUse.YieldStarFlag ? Diagnostics.Cannot_delegate_iteration_to_value_because_the_next_method_of_its_iterator_expects_type_1_but_the_containing_generator_will_always_send_0 :
-//                         undefined;
-//                     if (diagnostic) {
-//                         checkTypeAssignableTo(sentType, iterationTypes.nextType, errorNode, diagnostic);
-//                     }
-//                 }
-//             }
-//             if (iterationTypes || uplevelIteration) {
-//                 return possibleOutOfBounds ? includeUndefinedInIndexSignature(iterationTypes && iterationTypes.yieldType) : (iterationTypes && iterationTypes.yieldType);
-//             }
-//         }
+        // Get the iterated type of an `Iterable<T>` or `IterableIterator<T>` only in ES2015
+        // or higher, when inside of an async generator or for-await-if, or when
+        // downlevelIteration is requested.
+        if (uplevelIteration || downlevelIteration || allowAsyncIterables) {
+            // We only report errors for an invalid iterable type in ES2015 or higher.
+            const iterationTypes = getIterationTypesOfIterable(inputType, use, uplevelIteration ? errorNode : undefined);
+            if (checkAssignability) {
+                if (iterationTypes) {
+                    const diagnostic = use & IterationUse.ForOfFlag ? Diagnostics.Cannot_iterate_value_because_the_next_method_of_its_iterator_expects_type_1_but_for_of_will_always_send_0 :
+                        use & IterationUse.SpreadFlag ? Diagnostics.Cannot_iterate_value_because_the_next_method_of_its_iterator_expects_type_1_but_array_spread_will_always_send_0 :
+                        use & IterationUse.DestructuringFlag ? Diagnostics.Cannot_iterate_value_because_the_next_method_of_its_iterator_expects_type_1_but_array_destructuring_will_always_send_0 :
+                        use & IterationUse.YieldStarFlag ? Diagnostics.Cannot_delegate_iteration_to_value_because_the_next_method_of_its_iterator_expects_type_1_but_the_containing_generator_will_always_send_0 :
+                        undefined;
+                    if (diagnostic) {
+                        checkTypeAssignableTo(sentType, iterationTypes.nextType, errorNode, diagnostic);
+                    }
+                }
+            }
+            if (iterationTypes || uplevelIteration) {
+                return possibleOutOfBounds ? includeUndefinedInIndexSignature(iterationTypes && iterationTypes.yieldType) : (iterationTypes && iterationTypes.yieldType);
+            }
+        }
 
-//         let arrayType = inputType;
-//         let hasStringConstituent = false;
+        let arrayType = inputType;
+        let hasStringConstituent = false;
 
-//         // If strings are permitted, remove any string-like constituents from the array type.
-//         // This allows us to find other non-string element types from an array unioned with
-//         // a string.
-//         if (use & IterationUse.AllowsStringInputFlag) {
-//             if (arrayType.flags & TypeFlags.Union) {
-//                 // After we remove all types that are StringLike, we will know if there was a string constituent
-//                 // based on whether the result of filter is a new array.
-//                 const arrayTypes = (inputType as UnionType).types;
-//                 const filteredTypes = filter(arrayTypes, t => !(t.flags & TypeFlags.StringLike));
-//                 if (filteredTypes !== arrayTypes) {
-//                     arrayType = getUnionType(filteredTypes, UnionReduction.Subtype);
-//                 }
-//             }
-//             else if (arrayType.flags & TypeFlags.StringLike) {
-//                 arrayType = neverType;
-//             }
+        // If strings are permitted, remove any string-like constituents from the array type.
+        // This allows us to find other non-string element types from an array unioned with
+        // a string.
+        if (use & IterationUse.AllowsStringInputFlag) {
+            if (arrayType.flags & TypeFlags.Union) {
+                // After we remove all types that are StringLike, we will know if there was a string constituent
+                // based on whether the result of filter is a new array.
+                const arrayTypes = (inputType as UnionType).types;
+                const filteredTypes = filter(arrayTypes, t => !(t.flags & TypeFlags.StringLike));
+                if (filteredTypes !== arrayTypes) {
+                    arrayType = getUnionType(filteredTypes, UnionReduction.Subtype);
+                }
+            }
+            else if (arrayType.flags & TypeFlags.StringLike) {
+                arrayType = neverType;
+            }
 
-//             hasStringConstituent = arrayType !== inputType;
-//             if (hasStringConstituent) {
-//                 // Now that we've removed all the StringLike types, if no constituents remain, then the entire
-//                 // arrayOrStringType was a string.
-//                 if (arrayType.flags & TypeFlags.Never) {
-//                     return possibleOutOfBounds ? includeUndefinedInIndexSignature(stringType) : stringType;
-//                 }
-//             }
-//         }
+            hasStringConstituent = arrayType !== inputType;
+            if (hasStringConstituent) {
+                // Now that we've removed all the StringLike types, if no constituents remain, then the entire
+                // arrayOrStringType was a string.
+                if (arrayType.flags & TypeFlags.Never) {
+                    return possibleOutOfBounds ? includeUndefinedInIndexSignature(stringType) : stringType;
+                }
+            }
+        }
 
-//         if (!isArrayLikeType(arrayType)) {
-//             if (errorNode) {
-//                 // Which error we report depends on whether we allow strings or if there was a
-//                 // string constituent. For example, if the input type is number | string, we
-//                 // want to say that number is not an array type. But if the input was just
-//                 // number and string input is allowed, we want to say that number is not an
-//                 // array type or a string type.
-//                 const allowsStrings = !!(use & IterationUse.AllowsStringInputFlag) && !hasStringConstituent;
-//                 const [defaultDiagnostic, maybeMissingAwait] = getIterationDiagnosticDetails(allowsStrings, downlevelIteration);
-//                 errorAndMaybeSuggestAwait(
-//                     errorNode,
-//                     maybeMissingAwait && !!getAwaitedTypeOfPromise(arrayType),
-//                     defaultDiagnostic,
-//                     typeToString(arrayType),
-//                 );
-//             }
-//             return hasStringConstituent ? possibleOutOfBounds ? includeUndefinedInIndexSignature(stringType) : stringType : undefined;
-//         }
+        if (!isArrayLikeType(arrayType)) {
+            if (errorNode) {
+                // Which error we report depends on whether we allow strings or if there was a
+                // string constituent. For example, if the input type is number | string, we
+                // want to say that number is not an array type. But if the input was just
+                // number and string input is allowed, we want to say that number is not an
+                // array type or a string type.
+                const allowsStrings = !!(use & IterationUse.AllowsStringInputFlag) && !hasStringConstituent;
+                const [defaultDiagnostic, maybeMissingAwait] = getIterationDiagnosticDetails(allowsStrings, downlevelIteration);
+                errorAndMaybeSuggestAwait(
+                    errorNode,
+                    maybeMissingAwait && false,//!!getAwaitedTypeOfPromise(arrayType),
+                    defaultDiagnostic,
+                    typeToString(arrayType),
+                );
+            }
+            return hasStringConstituent ? possibleOutOfBounds ? includeUndefinedInIndexSignature(stringType) : stringType : undefined;
+        }
 
-//         const arrayElementType = getIndexTypeOfType(arrayType, numberType);
-//         if (hasStringConstituent && arrayElementType) {
-//             // This is just an optimization for the case where arrayOrStringType is string | string[]
-//             if (arrayElementType.flags & TypeFlags.StringLike && !compilerOptions.noUncheckedIndexedAccess) {
-//                 return stringType;
-//             }
+        const arrayElementType = getIndexTypeOfType(arrayType, intType);
+        if (hasStringConstituent && arrayElementType) {
+            // This is just an optimization for the case where arrayOrStringType is string | string[]
+            if (arrayElementType.flags & TypeFlags.StringLike && !compilerOptions.noUncheckedIndexedAccess) {
+                return stringType;
+            }
 
-//             return getUnionType(possibleOutOfBounds ? [arrayElementType, stringType, undefinedType] : [arrayElementType, stringType], UnionReduction.Subtype);
-//         }
+            return getUnionType(possibleOutOfBounds ? [arrayElementType, stringType, undefinedType] : [arrayElementType, stringType], UnionReduction.Subtype);
+        }
 
-//         return (use & IterationUse.PossiblyOutOfBounds) ? includeUndefinedInIndexSignature(arrayElementType) : arrayElementType;
+        return (use & IterationUse.PossiblyOutOfBounds) ? includeUndefinedInIndexSignature(arrayElementType) : arrayElementType;
 
-//         function getIterationDiagnosticDetails(allowsStrings: boolean, downlevelIteration: boolean | undefined): [error: DiagnosticMessage, maybeMissingAwait: boolean] {
-//             if (downlevelIteration) {
-//                 return allowsStrings
-//                     ? [Diagnostics.Type_0_is_not_an_array_type_or_a_string_type_or_does_not_have_a_Symbol_iterator_method_that_returns_an_iterator, true]
-//                     : [Diagnostics.Type_0_is_not_an_array_type_or_does_not_have_a_Symbol_iterator_method_that_returns_an_iterator, true];
-//             }
+        function getIterationDiagnosticDetails(allowsStrings: boolean, downlevelIteration: boolean | undefined): [error: DiagnosticMessage, maybeMissingAwait: boolean] {
+            if (downlevelIteration) {
+                return allowsStrings
+                    ? [Diagnostics.Type_0_is_not_an_array_type_or_a_string_type_or_does_not_have_a_Symbol_iterator_method_that_returns_an_iterator, true]
+                    : [Diagnostics.Type_0_is_not_an_array_type_or_does_not_have_a_Symbol_iterator_method_that_returns_an_iterator, true];
+            }
 
-//             const yieldType = getIterationTypeOfIterable(use, IterationTypeKind.Yield, inputType, /*errorNode*/ undefined);
+            const yieldType = getIterationTypeOfIterable(use, IterationTypeKind.Yield, inputType, /*errorNode*/ undefined);
 
-//             if (yieldType) {
-//                 return [Diagnostics.Type_0_can_only_be_iterated_through_when_using_the_downlevelIteration_flag_or_with_a_target_of_es2015_or_higher, false];
-//             }
+            if (yieldType) {
+                return [Diagnostics.Type_0_can_only_be_iterated_through_when_using_the_downlevelIteration_flag_or_with_a_target_of_es2015_or_higher, false];
+            }
 
-//             if (isES2015OrLaterIterable(inputType.symbol?.name)) {
-//                 return [Diagnostics;// TODO .Type_0_can_only_be_iterated_through_when_using_the_downlevelIteration_flag_or_with_a_target_of_es2015_or_higher, true];
-//             }
+            // if (isES2015OrLaterIterable(inputType.symbol?.name)) {
+            //     return [Diagnostics;// TODO .Type_0_can_only_be_iterated_through_when_using_the_downlevelIteration_flag_or_with_a_target_of_es2015_or_higher, true];
+            // }
 
-//             return allowsStrings
-//                 ? [Diagnostics.Type_0_is_not_an_array_type_or_a_string_type, true]
-//                 : [Diagnostics.Type_0_is_not_an_array_type, true];
-//         }
-//     }
+            return allowsStrings
+                ? [Diagnostics.Type_0_is_not_an_array_type_or_a_string_type, true]
+                : [Diagnostics.Type_0_is_not_an_array_type, true];
+        }
+    }
 
 //     function isES2015OrLaterIterable(n: string) {
 //         switch (n) {
@@ -42981,17 +42980,17 @@ export function createTypeChecker(host: TypeCheckerHost): Partial<TypeChecker> {
 //         return false;
 //     }
 
-//     /**
-//      * Gets the requested "iteration type" from an `Iterable`-like or `AsyncIterable`-like type.
-//      */
-//     function getIterationTypeOfIterable(use: IterationUse, typeKind: IterationTypeKind, inputType: Type, errorNode: Node | undefined): Type | undefined {
-//         if (isTypeAny(inputType)) {
-//             return undefined;
-//         }
+    /**
+     * Gets the requested "iteration type" from an `Iterable`-like or `AsyncIterable`-like type.
+     */
+    function getIterationTypeOfIterable(use: IterationUse, typeKind: IterationTypeKind, inputType: Type, errorNode: Node | undefined): Type | undefined {
+        if (isTypeAny(inputType)) {
+            return undefined;
+        }
 
-//         const iterationTypes = getIterationTypesOfIterable(inputType, use, errorNode);
-//         return iterationTypes && iterationTypes[getIterationTypesKeyFromIterationTypeKind(typeKind)];
-//     }
+        const iterationTypes = getIterationTypesOfIterable(inputType, use, errorNode);
+        return iterationTypes && iterationTypes[getIterationTypesKeyFromIterationTypeKind(typeKind)];
+    }
 
     function createIterationTypes(yieldType: Type = neverType, returnType: Type = neverType, nextType: Type = unknownType): IterationTypes {
         // `yieldType` and `returnType` are defaulted to `neverType` they each will be combined
@@ -43018,230 +43017,231 @@ export function createTypeChecker(host: TypeCheckerHost): Partial<TypeChecker> {
         return { yieldType, returnType, nextType };
     }
 
-//     /**
-//      * Combines multiple `IterationTypes` records.
-//      *
-//      * If `array` is empty or all elements are missing or are references to `noIterationTypes`,
-//      * then `noIterationTypes` is returned. Otherwise, an `IterationTypes` record is returned
-//      * for the combined iteration types.
-//      */
-//     function combineIterationTypes(array: (IterationTypes | undefined)[]) {
-//         let yieldTypes: Type[] | undefined;
-//         let returnTypes: Type[] | undefined;
-//         let nextTypes: Type[] | undefined;
-//         for (const iterationTypes of array) {
-//             if (iterationTypes === undefined || iterationTypes === noIterationTypes) {
-//                 continue;
-//             }
-//             if (iterationTypes === anyIterationTypes) {
-//                 return anyIterationTypes;
-//             }
-//             yieldTypes = append(yieldTypes, iterationTypes.yieldType);
-//             returnTypes = append(returnTypes, iterationTypes.returnType);
-//             nextTypes = append(nextTypes, iterationTypes.nextType);
-//         }
-//         if (yieldTypes || returnTypes || nextTypes) {
-//             return createIterationTypes(
-//                 yieldTypes && getUnionType(yieldTypes),
-//                 returnTypes && getUnionType(returnTypes),
-//                 nextTypes && getIntersectionType(nextTypes),
-//             );
-//         }
-//         return noIterationTypes;
-//     }
+    /**
+     * Combines multiple `IterationTypes` records.
+     *
+     * If `array` is empty or all elements are missing or are references to `noIterationTypes`,
+     * then `noIterationTypes` is returned. Otherwise, an `IterationTypes` record is returned
+     * for the combined iteration types.
+     */
+    function combineIterationTypes(array: (IterationTypes | undefined)[]) {
+        let yieldTypes: Type[] | undefined;
+        let returnTypes: Type[] | undefined;
+        let nextTypes: Type[] | undefined;
+        for (const iterationTypes of array) {
+            if (iterationTypes === undefined || iterationTypes === noIterationTypes) {
+                continue;
+            }
+            if (iterationTypes === anyIterationTypes) {
+                return anyIterationTypes;
+            }
+            yieldTypes = append(yieldTypes, iterationTypes.yieldType);
+            returnTypes = append(returnTypes, iterationTypes.returnType);
+            nextTypes = append(nextTypes, iterationTypes.nextType);
+        }
+        if (yieldTypes || returnTypes || nextTypes) {
+            return createIterationTypes(
+                yieldTypes && getUnionType(yieldTypes),
+                returnTypes && getUnionType(returnTypes),
+                nextTypes && getIntersectionType(nextTypes),
+            );
+        }
+        return noIterationTypes;
+    }
 
-//     function getCachedIterationTypes(type: Type, cacheKey: MatchingKeys<IterableOrIteratorType, IterationTypes | undefined>) {
-//         return (type as IterableOrIteratorType)[cacheKey];
-//     }
+    function getCachedIterationTypes(type: Type, cacheKey: MatchingKeys<IterableOrIteratorType, IterationTypes | undefined>) {
+        return (type as IterableOrIteratorType)[cacheKey];
+    }
 
-//     function setCachedIterationTypes(type: Type, cacheKey: MatchingKeys<IterableOrIteratorType, IterationTypes | undefined>, cachedTypes: IterationTypes) {
-//         return (type as IterableOrIteratorType)[cacheKey] = cachedTypes;
-//     }
+    function setCachedIterationTypes(type: Type, cacheKey: MatchingKeys<IterableOrIteratorType, IterationTypes | undefined>, cachedTypes: IterationTypes) {
+        return (type as IterableOrIteratorType)[cacheKey] = cachedTypes;
+    }
 
-//     /**
-//      * Gets the *yield*, *return*, and *next* types from an `Iterable`-like or `AsyncIterable`-like type.
-//      *
-//      * At every level that involves analyzing return types of signatures, we union the return types of all the signatures.
-//      *
-//      * Another thing to note is that at any step of this process, we could run into a dead end,
-//      * meaning either the property is missing, or we run into the anyType. If either of these things
-//      * happens, we return `undefined` to signal that we could not find the iteration type. If a property
-//      * is missing, and the previous step did not result in `any`, then we also give an error if the
-//      * caller requested it. Then the caller can decide what to do in the case where there is no iterated
-//      * type.
-//      *
-//      * For a **for-of** statement, `yield*` (in a normal generator), spread, array
-//      * destructuring, or normal generator we will only ever look for a `[Symbol.iterator]()`
-//      * method.
-//      *
-//      * For an async generator we will only ever look at the `[Symbol.asyncIterator]()` method.
-//      *
-//      * For a **for-await-of** statement or a `yield*` in an async generator we will look for
-//      * the `[Symbol.asyncIterator]()` method first, and then the `[Symbol.iterator]()` method.
-//      */
-//     function getIterationTypesOfIterable(type: Type, use: IterationUse, errorNode: Node | undefined) {
-//         if (isTypeAny(type)) {
-//             return anyIterationTypes;
-//         }
+    /**
+     * Gets the *yield*, *return*, and *next* types from an `Iterable`-like or `AsyncIterable`-like type.
+     *
+     * At every level that involves analyzing return types of signatures, we union the return types of all the signatures.
+     *
+     * Another thing to note is that at any step of this process, we could run into a dead end,
+     * meaning either the property is missing, or we run into the anyType. If either of these things
+     * happens, we return `undefined` to signal that we could not find the iteration type. If a property
+     * is missing, and the previous step did not result in `any`, then we also give an error if the
+     * caller requested it. Then the caller can decide what to do in the case where there is no iterated
+     * type.
+     *
+     * For a **for-of** statement, `yield*` (in a normal generator), spread, array
+     * destructuring, or normal generator we will only ever look for a `[Symbol.iterator]()`
+     * method.
+     *
+     * For an async generator we will only ever look at the `[Symbol.asyncIterator]()` method.
+     *
+     * For a **for-await-of** statement or a `yield*` in an async generator we will look for
+     * the `[Symbol.asyncIterator]()` method first, and then the `[Symbol.iterator]()` method.
+     */
+    function getIterationTypesOfIterable(type: Type, use: IterationUse, errorNode: Node | undefined) {
+        if (isTypeAny(type)) {
+            return anyIterationTypes;
+        }
 
-//         if (!(type.flags & TypeFlags.Union)) {
-//             const errorOutputContainer: { errors: Diagnostic[] | undefined; } | undefined = errorNode ? { errors: undefined } : undefined;
-//             const iterationTypes = getIterationTypesOfIterableWorker(type, use, errorNode, errorOutputContainer);
-//             if (iterationTypes === noIterationTypes) {
-//                 if (errorNode) {
-//                     const rootDiag = reportTypeNotIterableError(errorNode, type, !!(use & IterationUse.AllowsAsyncIterablesFlag));
-//                     if (errorOutputContainer?.errors) {
-//                         addRelatedInfo(rootDiag, ...errorOutputContainer.errors);
-//                     }
-//                 }
-//                 return undefined;
-//             }
-//             else if (errorOutputContainer?.errors?.length) {
-//                 for (const diag of errorOutputContainer.errors) {
-//                     diagnostics.add(diag);
-//                 }
-//             }
-//             return iterationTypes;
-//         }
+        if (!(type.flags & TypeFlags.Union)) {
+            const errorOutputContainer: { errors: Diagnostic[] | undefined; } | undefined = errorNode ? { errors: undefined } : undefined;
+            const iterationTypes = getIterationTypesOfIterableWorker(type, use, errorNode, errorOutputContainer);
+            if (iterationTypes === noIterationTypes) {
+                if (errorNode) {
+                    const rootDiag = reportTypeNotIterableError(errorNode, type, !!(use & IterationUse.AllowsAsyncIterablesFlag));
+                    if (errorOutputContainer?.errors) {
+                        addRelatedInfo(rootDiag, ...errorOutputContainer.errors);
+                    }
+                }
+                return undefined;
+            }
+            else if (errorOutputContainer?.errors?.length) {
+                for (const diag of errorOutputContainer.errors) {
+                    diagnostics.add(diag);
+                }
+            }
+            return iterationTypes;
+        }
 
-//         const cacheKey = use & IterationUse.AllowsAsyncIterablesFlag ? "iterationTypesOfAsyncIterable" : "iterationTypesOfIterable";
-//         const cachedTypes = getCachedIterationTypes(type, cacheKey);
-//         if (cachedTypes) return cachedTypes === noIterationTypes ? undefined : cachedTypes;
+        const cacheKey = use & IterationUse.AllowsAsyncIterablesFlag ? "iterationTypesOfAsyncIterable" : "iterationTypesOfIterable";
+        const cachedTypes = getCachedIterationTypes(type, cacheKey);
+        if (cachedTypes) return cachedTypes === noIterationTypes ? undefined : cachedTypes;
 
-//         let allIterationTypes: IterationTypes[] | undefined;
-//         for (const constituent of (type as UnionType).types) {
-//             const errorOutputContainer: { errors: Diagnostic[] | undefined; } | undefined = errorNode ? { errors: undefined } : undefined;
-//             const iterationTypes = getIterationTypesOfIterableWorker(constituent, use, errorNode, errorOutputContainer);
-//             if (iterationTypes === noIterationTypes) {
-//                 if (errorNode) {
-//                     const rootDiag = reportTypeNotIterableError(errorNode, type, !!(use & IterationUse.AllowsAsyncIterablesFlag));
-//                     if (errorOutputContainer?.errors) {
-//                         addRelatedInfo(rootDiag, ...errorOutputContainer.errors);
-//                     }
-//                 }
-//                 setCachedIterationTypes(type, cacheKey, noIterationTypes);
-//                 return undefined;
-//             }
-//             else if (errorOutputContainer?.errors?.length) {
-//                 for (const diag of errorOutputContainer.errors) {
-//                     diagnostics.add(diag);
-//                 }
-//             }
+        let allIterationTypes: IterationTypes[] | undefined;
+        for (const constituent of (type as UnionType).types) {
+            const errorOutputContainer: { errors: Diagnostic[] | undefined; } | undefined = errorNode ? { errors: undefined } : undefined;
+            const iterationTypes = getIterationTypesOfIterableWorker(constituent, use, errorNode, errorOutputContainer);
+            if (iterationTypes === noIterationTypes) {
+                if (errorNode) {
+                    const rootDiag = reportTypeNotIterableError(errorNode, type, !!(use & IterationUse.AllowsAsyncIterablesFlag));
+                    if (errorOutputContainer?.errors) {
+                        addRelatedInfo(rootDiag, ...errorOutputContainer.errors);
+                    }
+                }
+                setCachedIterationTypes(type, cacheKey, noIterationTypes);
+                return undefined;
+            }
+            else if (errorOutputContainer?.errors?.length) {
+                for (const diag of errorOutputContainer.errors) {
+                    diagnostics.add(diag);
+                }
+            }
 
-//             allIterationTypes = append(allIterationTypes, iterationTypes);
-//         }
+            allIterationTypes = append(allIterationTypes, iterationTypes);
+        }
 
-//         const iterationTypes = allIterationTypes ? combineIterationTypes(allIterationTypes) : noIterationTypes;
-//         setCachedIterationTypes(type, cacheKey, iterationTypes);
-//         return iterationTypes === noIterationTypes ? undefined : iterationTypes;
-//     }
+        const iterationTypes = allIterationTypes ? combineIterationTypes(allIterationTypes) : noIterationTypes;
+        setCachedIterationTypes(type, cacheKey, iterationTypes);
+        return iterationTypes === noIterationTypes ? undefined : iterationTypes;
+    }
 
-//     function getAsyncFromSyncIterationTypes(iterationTypes: IterationTypes, errorNode: Node | undefined) {
-//         if (iterationTypes === noIterationTypes) return noIterationTypes;
-//         if (iterationTypes === anyIterationTypes) return anyIterationTypes;
-//         const { yieldType, returnType, nextType } = iterationTypes;
-//         // if we're requesting diagnostics, report errors for a missing `Awaited<T>`.
-//         if (errorNode) {
-//             getGlobalAwaitedSymbol(/*reportErrors*/ true);
-//         }
-//         return createIterationTypes(
-//             getAwaitedType(yieldType, errorNode) || anyType,
-//             getAwaitedType(returnType, errorNode) || anyType,
-//             nextType,
-//         );
-//     }
+    function getAsyncFromSyncIterationTypes(iterationTypes: IterationTypes, errorNode: Node | undefined) {
+        return undefined;
+        // if (iterationTypes === noIterationTypes) return noIterationTypes;
+        // if (iterationTypes === anyIterationTypes) return anyIterationTypes;
+        // const { yieldType, returnType, nextType } = iterationTypes;
+        // // if we're requesting diagnostics, report errors for a missing `Awaited<T>`.
+        // if (errorNode) {
+        //     getGlobalAwaitedSymbol(/*reportErrors*/ true);
+        // }
+        // return createIterationTypes(
+        //     getAwaitedType(yieldType, errorNode) || anyType,
+        //     getAwaitedType(returnType, errorNode) || anyType,
+        //     nextType,
+        // );
+    }
 
-//     /**
-//      * Gets the *yield*, *return*, and *next* types from a non-union type.
-//      *
-//      * If we are unable to find the *yield*, *return*, and *next* types, `noIterationTypes` is
-//      * returned to indicate to the caller that it should report an error. Otherwise, an
-//      * `IterationTypes` record is returned.
-//      *
-//      * NOTE: You probably don't want to call this directly and should be calling
-//      * `getIterationTypesOfIterable` instead.
-//      */
-//     function getIterationTypesOfIterableWorker(type: Type, use: IterationUse, errorNode: Node | undefined, errorOutputContainer: { errors: Diagnostic[] | undefined; } | undefined) {
-//         if (isTypeAny(type)) {
-//             return anyIterationTypes;
-//         }
+    /**
+     * Gets the *yield*, *return*, and *next* types from a non-union type.
+     *
+     * If we are unable to find the *yield*, *return*, and *next* types, `noIterationTypes` is
+     * returned to indicate to the caller that it should report an error. Otherwise, an
+     * `IterationTypes` record is returned.
+     *
+     * NOTE: You probably don't want to call this directly and should be calling
+     * `getIterationTypesOfIterable` instead.
+     */
+    function getIterationTypesOfIterableWorker(type: Type, use: IterationUse, errorNode: Node | undefined, errorOutputContainer: { errors: Diagnostic[] | undefined; } | undefined) {
+        if (isTypeAny(type)) {
+            return anyIterationTypes;
+        }
 
-//         // If we are reporting errors and encounter a cached `noIterationTypes`, we should ignore the cached value and continue as if nothing was cached.
-//         // In addition, we should not cache any new results for this call.
-//         let noCache = false;
+        // If we are reporting errors and encounter a cached `noIterationTypes`, we should ignore the cached value and continue as if nothing was cached.
+        // In addition, we should not cache any new results for this call.
+        let noCache = false;
 
-//         if (use & IterationUse.AllowsAsyncIterablesFlag) {
-//             const iterationTypes = getIterationTypesOfIterableCached(type, asyncIterationTypesResolver) ||
-//                 getIterationTypesOfIterableFast(type, asyncIterationTypesResolver);
-//             if (iterationTypes) {
-//                 if (iterationTypes === noIterationTypes && errorNode) {
-//                     // ignore the cached value
-//                     noCache = true;
-//                 }
-//                 else {
-//                     return use & IterationUse.ForOfFlag ?
-//                         getAsyncFromSyncIterationTypes(iterationTypes, errorNode) :
-//                         iterationTypes;
-//                 }
-//             }
-//         }
+        // if (use & IterationUse.AllowsAsyncIterablesFlag) {
+        //     const iterationTypes = getIterationTypesOfIterableCached(type, asyncIterationTypesResolver) ||
+        //         getIterationTypesOfIterableFast(type, asyncIterationTypesResolver);
+        //     if (iterationTypes) {
+        //         if (iterationTypes === noIterationTypes && errorNode) {
+        //             // ignore the cached value
+        //             noCache = true;
+        //         }
+        //         else {
+        //             return use & IterationUse.ForOfFlag ?
+        //                 getAsyncFromSyncIterationTypes(iterationTypes, errorNode) :
+        //                 iterationTypes;
+        //         }
+        //     }
+        // }
 
-//         if (use & IterationUse.AllowsSyncIterablesFlag) {
-//             let iterationTypes = getIterationTypesOfIterableCached(type, syncIterationTypesResolver) ||
-//                 getIterationTypesOfIterableFast(type, syncIterationTypesResolver);
-//             if (iterationTypes) {
-//                 if (iterationTypes === noIterationTypes && errorNode) {
-//                     // ignore the cached value
-//                     noCache = true;
-//                 }
-//                 else {
-//                     if (use & IterationUse.AllowsAsyncIterablesFlag) {
-//                         // for a sync iterable in an async context, only use the cached types if they are valid.
-//                         if (iterationTypes !== noIterationTypes) {
-//                             iterationTypes = getAsyncFromSyncIterationTypes(iterationTypes, errorNode);
-//                             return noCache ? iterationTypes : setCachedIterationTypes(type, "iterationTypesOfAsyncIterable", iterationTypes);
-//                         }
-//                     }
-//                     else {
-//                         return iterationTypes;
-//                     }
-//                 }
-//             }
-//         }
+        if (use & IterationUse.AllowsSyncIterablesFlag) {
+            let iterationTypes = getIterationTypesOfIterableCached(type, syncIterationTypesResolver) ||
+                getIterationTypesOfIterableFast(type, syncIterationTypesResolver);
+            if (iterationTypes) {
+                if (iterationTypes === noIterationTypes && errorNode) {
+                    // ignore the cached value
+                    noCache = true;
+                }
+                else {
+                    if (use & IterationUse.AllowsAsyncIterablesFlag) {
+                        // for a sync iterable in an async context, only use the cached types if they are valid.
+                        if (iterationTypes !== noIterationTypes) {
+                            iterationTypes = getAsyncFromSyncIterationTypes(iterationTypes, errorNode);
+                            return noCache ? iterationTypes : setCachedIterationTypes(type, "iterationTypesOfAsyncIterable", iterationTypes);
+                        }
+                    }
+                    else {
+                        return iterationTypes;
+                    }
+                }
+            }
+        }
 
-//         if (use & IterationUse.AllowsAsyncIterablesFlag) {
-//             const iterationTypes = getIterationTypesOfIterableSlow(type, asyncIterationTypesResolver, errorNode, errorOutputContainer, noCache);
-//             if (iterationTypes !== noIterationTypes) {
-//                 return iterationTypes;
-//             }
-//         }
+        // if (use & IterationUse.AllowsAsyncIterablesFlag) {
+        //     const iterationTypes = getIterationTypesOfIterableSlow(type, asyncIterationTypesResolver, errorNode, errorOutputContainer, noCache);
+        //     if (iterationTypes !== noIterationTypes) {
+        //         return iterationTypes;
+        //     }
+        // }
 
-//         if (use & IterationUse.AllowsSyncIterablesFlag) {
-//             let iterationTypes = getIterationTypesOfIterableSlow(type, syncIterationTypesResolver, errorNode, errorOutputContainer, noCache);
-//             if (iterationTypes !== noIterationTypes) {
-//                 if (use & IterationUse.AllowsAsyncIterablesFlag) {
-//                     iterationTypes = getAsyncFromSyncIterationTypes(iterationTypes, errorNode);
-//                     return noCache ? iterationTypes : setCachedIterationTypes(type, "iterationTypesOfAsyncIterable", iterationTypes);
-//                 }
-//                 else {
-//                     return iterationTypes;
-//                 }
-//             }
-//         }
+        if (use & IterationUse.AllowsSyncIterablesFlag) {
+            let iterationTypes = getIterationTypesOfIterableSlow(type, syncIterationTypesResolver, errorNode, errorOutputContainer, noCache);
+            if (iterationTypes !== noIterationTypes) {
+                if (use & IterationUse.AllowsAsyncIterablesFlag) {
+                    iterationTypes = getAsyncFromSyncIterationTypes(iterationTypes, errorNode);
+                    return noCache ? iterationTypes : setCachedIterationTypes(type, "iterationTypesOfAsyncIterable", iterationTypes);
+                }
+                else {
+                    return iterationTypes;
+                }
+            }
+        }
 
-//         return noIterationTypes;
-//     }
+        return noIterationTypes;
+    }
 
-//     /**
-//      * Gets the *yield*, *return*, and *next* types of an `Iterable`-like or
-//      * `AsyncIterable`-like type from the cache.
-//      *
-//      * NOTE: You probably don't want to call this directly and should be calling
-//      * `getIterationTypesOfIterable` instead.
-//      */
-//     function getIterationTypesOfIterableCached(type: Type, resolver: IterationTypesResolver) {
-//         return getCachedIterationTypes(type, resolver.iterableCacheKey);
-//     }
+    /**
+     * Gets the *yield*, *return*, and *next* types of an `Iterable`-like or
+     * `AsyncIterable`-like type from the cache.
+     *
+     * NOTE: You probably don't want to call this directly and should be calling
+     * `getIterationTypesOfIterable` instead.
+     */
+    function getIterationTypesOfIterableCached(type: Type, resolver: IterationTypesResolver) {
+        return getCachedIterationTypes(type, resolver.iterableCacheKey);
+    }
 
 //     function getIterationTypesOfGlobalIterableType(globalType: Type, resolver: IterationTypesResolver) {
 //         const globalIterationTypes = getIterationTypesOfIterableCached(globalType, resolver) ||
@@ -43289,56 +43289,56 @@ export function createTypeChecker(host: TypeCheckerHost): Partial<TypeChecker> {
 //         }
 //     }
 
-//     function getPropertyNameForKnownSymbolName(symbolName: string): string {
-//         const ctorType = getGlobalESSymbolConstructorSymbol(/*reportErrors*/ false);
-//         const uniqueType = ctorType && getTypeOfPropertyOfType(getTypeOfSymbol(ctorType), escapeLeadingUnderscores(symbolName));
-//         return uniqueType && isTypeUsableAsPropertyName(uniqueType) ? getPropertyNameFromType(uniqueType) : `__@${symbolName}` as string;
-//     }
+    function getPropertyNameForKnownSymbolName(symbolName: string): string {
+        const ctorType = getGlobalESSymbolConstructorSymbol(/*reportErrors*/ false);
+        const uniqueType = ctorType && getTypeOfPropertyOfType(getTypeOfSymbol(ctorType), escapeLeadingUnderscores(symbolName));
+        return uniqueType && isTypeUsableAsPropertyName(uniqueType) ? getPropertyNameFromType(uniqueType) : `__@${symbolName}` as string;
+    }
 
-//     /**
-//      * Gets the *yield*, *return*, and *next* types of an `Iterable`-like or `AsyncIterable`-like
-//      * type from its members.
-//      *
-//      * If we successfully found the *yield*, *return*, and *next* types, an `IterationTypes`
-//      * record is returned. Otherwise, `noIterationTypes` is returned.
-//      *
-//      * NOTE: You probably don't want to call this directly and should be calling
-//      * `getIterationTypesOfIterable` instead.
-//      */
-//     function getIterationTypesOfIterableSlow(type: Type, resolver: IterationTypesResolver, errorNode: Node | undefined, errorOutputContainer: { errors: Diagnostic[] | undefined; } | undefined, noCache: boolean) {
-//         const method = getPropertyOfType(type, getPropertyNameForKnownSymbolName(resolver.iteratorSymbolName));
-//         const methodType = method && !(method.flags & SymbolFlags.Optional) ? getTypeOfSymbol(method) : undefined;
-//         if (isTypeAny(methodType)) {
-//             return noCache ? anyIterationTypes : setCachedIterationTypes(type, resolver.iterableCacheKey, anyIterationTypes);
-//         }
+    /**
+     * Gets the *yield*, *return*, and *next* types of an `Iterable`-like or `AsyncIterable`-like
+     * type from its members.
+     *
+     * If we successfully found the *yield*, *return*, and *next* types, an `IterationTypes`
+     * record is returned. Otherwise, `noIterationTypes` is returned.
+     *
+     * NOTE: You probably don't want to call this directly and should be calling
+     * `getIterationTypesOfIterable` instead.
+     */
+    function getIterationTypesOfIterableSlow(type: Type, resolver: IterationTypesResolver, errorNode: Node | undefined, errorOutputContainer: { errors: Diagnostic[] | undefined; } | undefined, noCache: boolean) {
+        const method = getPropertyOfType(type, getPropertyNameForKnownSymbolName(resolver.iteratorSymbolName));
+        const methodType = method && !(method.flags & SymbolFlags.Optional) ? getTypeOfSymbol(method) : undefined;
+        if (isTypeAny(methodType)) {
+            return noCache ? anyIterationTypes : setCachedIterationTypes(type, resolver.iterableCacheKey, anyIterationTypes);
+        }
 
-//         const signatures = methodType ? getSignaturesOfType(methodType, SignatureKind.Call) : undefined;
-//         if (!some(signatures)) {
-//             return noCache ? noIterationTypes : setCachedIterationTypes(type, resolver.iterableCacheKey, noIterationTypes);
-//         }
+        const signatures = methodType ? getSignaturesOfType(methodType, SignatureKind.Call) : undefined;
+        if (!some(signatures)) {
+            return noCache ? noIterationTypes : setCachedIterationTypes(type, resolver.iterableCacheKey, noIterationTypes);
+        }
 
-//         const iteratorType = getIntersectionType(map(signatures, getReturnTypeOfSignature));
-//         const iterationTypes = getIterationTypesOfIteratorWorker(iteratorType, resolver, errorNode, errorOutputContainer, noCache) ?? noIterationTypes;
-//         return noCache ? iterationTypes : setCachedIterationTypes(type, resolver.iterableCacheKey, iterationTypes);
-//     }
+        const iteratorType = getIntersectionType(map(signatures, getReturnTypeOfSignature));
+        const iterationTypes = getIterationTypesOfIteratorWorker(iteratorType, resolver, errorNode, errorOutputContainer, noCache) ?? noIterationTypes;
+        return noCache ? iterationTypes : setCachedIterationTypes(type, resolver.iterableCacheKey, iterationTypes);
+    }
 
-//     function reportTypeNotIterableError(errorNode: Node, type: Type, allowAsyncIterables: boolean): Diagnostic {
-//         const message = allowAsyncIterables
-//             ? Diagnostics.Type_0_must_have_a_Symbol_asyncIterator_method_that_returns_an_async_iterator
-//             : Diagnostics.Type_0_must_have_a_Symbol_iterator_method_that_returns_an_iterator;
-//         const suggestAwait =
-//             // for (const x of Promise<...>) or [...Promise<...>]
-//             !!getAwaitedTypeOfPromise(type)
-//             // for (const x of AsyncIterable<...>)
-//             || (
-//                 !allowAsyncIterables &&
-//                 isForOfStatement(errorNode.parent) &&
-//                 errorNode.parent.expression === errorNode &&
-//                 getGlobalAsyncIterableType(/*reportErrors*/ false) !== emptyGenericType &&
-//                 isTypeAssignableTo(type, getGlobalAsyncIterableType(/*reportErrors*/ false))
-//             );
-//         return errorAndMaybeSuggestAwait(errorNode, suggestAwait, message, typeToString(type));
-//     }
+    function reportTypeNotIterableError(errorNode: Node, type: Type, allowAsyncIterables: boolean): Diagnostic {
+        const message = allowAsyncIterables
+            ? Diagnostics.Type_0_must_have_a_Symbol_asyncIterator_method_that_returns_an_async_iterator
+            : Diagnostics.Type_0_must_have_a_Symbol_iterator_method_that_returns_an_iterator;
+        const suggestAwait = false;
+            // for (const x of Promise<...>) or [...Promise<...>]
+            // !!getAwaitedTypeOfPromise(type)
+            // // for (const x of AsyncIterable<...>)
+            // || (
+            //     !allowAsyncIterables &&
+            //     isForOfStatement(errorNode.parent) &&
+            //     errorNode.parent.expression === errorNode &&
+            //     getGlobalAsyncIterableType(/*reportErrors*/ false) !== emptyGenericType &&
+            //     isTypeAssignableTo(type, getGlobalAsyncIterableType(/*reportErrors*/ false))
+            // );
+        return errorAndMaybeSuggestAwait(errorNode, suggestAwait, message, typeToString(type));
+    }
 
 //     /**
 //      * Gets the *yield*, *return*, and *next* types from an `Iterator`-like or `AsyncIterator`-like type.
@@ -43350,89 +43350,89 @@ export function createTypeChecker(host: TypeCheckerHost): Partial<TypeChecker> {
 //         return getIterationTypesOfIteratorWorker(type, resolver, errorNode, errorOutputContainer, /*noCache*/ false);
 //     }
 
-//     /**
-//      * Gets the *yield*, *return*, and *next* types from an `Iterator`-like or `AsyncIterator`-like type.
-//      *
-//      * If we successfully found the *yield*, *return*, and *next* types, an `IterationTypes`
-//      * record is returned. Otherwise, `undefined` is returned.
-//      *
-//      * NOTE: You probably don't want to call this directly and should be calling
-//      * `getIterationTypesOfIterator` instead.
-//      */
-//     function getIterationTypesOfIteratorWorker(type: Type, resolver: IterationTypesResolver, errorNode: Node | undefined, errorOutputContainer: { errors: Diagnostic[] | undefined; } | undefined, noCache: boolean) {
-//         if (isTypeAny(type)) {
-//             return anyIterationTypes;
-//         }
+    /**
+     * Gets the *yield*, *return*, and *next* types from an `Iterator`-like or `AsyncIterator`-like type.
+     *
+     * If we successfully found the *yield*, *return*, and *next* types, an `IterationTypes`
+     * record is returned. Otherwise, `undefined` is returned.
+     *
+     * NOTE: You probably don't want to call this directly and should be calling
+     * `getIterationTypesOfIterator` instead.
+     */
+    function getIterationTypesOfIteratorWorker(type: Type, resolver: IterationTypesResolver, errorNode: Node | undefined, errorOutputContainer: { errors: Diagnostic[] | undefined; } | undefined, noCache: boolean) {
+        if (isTypeAny(type)) {
+            return anyIterationTypes;
+        }
 
-//         let iterationTypes = getIterationTypesOfIteratorCached(type, resolver) ||
-//             getIterationTypesOfIteratorFast(type, resolver);
+        let iterationTypes = getIterationTypesOfIteratorCached(type, resolver) ||
+            getIterationTypesOfIteratorFast(type, resolver);
 
-//         if (iterationTypes === noIterationTypes && errorNode) {
-//             iterationTypes = undefined;
-//             noCache = true;
-//         }
+        if (iterationTypes === noIterationTypes && errorNode) {
+            iterationTypes = undefined;
+            noCache = true;
+        }
 
-//         iterationTypes ??= getIterationTypesOfIteratorSlow(type, resolver, errorNode, errorOutputContainer, noCache);
-//         return iterationTypes === noIterationTypes ? undefined : iterationTypes;
-//     }
+        iterationTypes ??= getIterationTypesOfIteratorSlow(type, resolver, errorNode, errorOutputContainer, noCache);
+        return iterationTypes === noIterationTypes ? undefined : iterationTypes;
+    }
 
-//     /**
-//      * Gets the iteration types of an `Iterator`-like or `AsyncIterator`-like type from the
-//      * cache.
-//      *
-//      * NOTE: You probably don't want to call this directly and should be calling
-//      * `getIterationTypesOfIterator` instead.
-//      */
-//     function getIterationTypesOfIteratorCached(type: Type, resolver: IterationTypesResolver) {
-//         return getCachedIterationTypes(type, resolver.iteratorCacheKey);
-//     }
+    /**
+     * Gets the iteration types of an `Iterator`-like or `AsyncIterator`-like type from the
+     * cache.
+     *
+     * NOTE: You probably don't want to call this directly and should be calling
+     * `getIterationTypesOfIterator` instead.
+     */
+    function getIterationTypesOfIteratorCached(type: Type, resolver: IterationTypesResolver) {
+        return getCachedIterationTypes(type, resolver.iteratorCacheKey);
+    }
 
-//     /**
-//      * Gets the iteration types of an `Iterator`-like or `AsyncIterator`-like type from the
-//      * cache or from common heuristics.
-//      *
-//      * If we previously analyzed this type and found no iteration types, `noIterationTypes` is
-//      * returned. If we found iteration types, an `IterationTypes` record is returned.
-//      * Otherwise, we return `undefined` to indicate to the caller it should perform a more
-//      * exhaustive analysis.
-//      *
-//      * NOTE: You probably don't want to call this directly and should be calling
-//      * `getIterationTypesOfIterator` instead.
-//      */
-//     function getIterationTypesOfIteratorFast(type: Type, resolver: IterationTypesResolver) {
-//         // As an optimization, if the type is an instantiation of one of the following global types,
-//         // then just grab its related type argument:
-//         // - `IterableIterator<T>` or `AsyncIterableIterator<T>`
-//         // - `Iterator<T, TReturn, TNext>` or `AsyncIterator<T, TReturn, TNext>`
-//         // - `Generator<T, TReturn, TNext>` or `AsyncGenerator<T, TReturn, TNext>`
-//         const globalType = resolver.getGlobalIterableIteratorType(/*reportErrors*/ false);
-//         if (isReferenceToType(type, globalType)) {
-//             const [yieldType] = getTypeArguments(type as GenericType);
-//             // The "return" and "next" types of `IterableIterator` and `AsyncIterableIterator` are defined by the
-//             // iteration types of their `next`, `return`, and `throw` methods. While we define these as `any`
-//             // and `undefined` in our libs by default, a custom lib *could* use different definitions.
-//             const globalIterationTypes = getIterationTypesOfIteratorCached(globalType, resolver) ||
-//                 getIterationTypesOfIteratorSlow(globalType, resolver, /*errorNode*/ undefined, /*errorOutputContainer*/ undefined, /*noCache*/ false);
-//             const { returnType, nextType } = globalIterationTypes === noIterationTypes ? defaultIterationTypes : globalIterationTypes;
-//             return setCachedIterationTypes(type, resolver.iteratorCacheKey, createIterationTypes(yieldType, returnType, nextType));
-//         }
-//         if (
-//             isReferenceToType(type, resolver.getGlobalIteratorType(/*reportErrors*/ false)) ||
-//             isReferenceToType(type, resolver.getGlobalGeneratorType(/*reportErrors*/ false))
-//         ) {
-//             const [yieldType, returnType, nextType] = getTypeArguments(type as GenericType);
-//             return setCachedIterationTypes(type, resolver.iteratorCacheKey, createIterationTypes(yieldType, returnType, nextType));
-//         }
-//     }
+    /**
+     * Gets the iteration types of an `Iterator`-like or `AsyncIterator`-like type from the
+     * cache or from common heuristics.
+     *
+     * If we previously analyzed this type and found no iteration types, `noIterationTypes` is
+     * returned. If we found iteration types, an `IterationTypes` record is returned.
+     * Otherwise, we return `undefined` to indicate to the caller it should perform a more
+     * exhaustive analysis.
+     *
+     * NOTE: You probably don't want to call this directly and should be calling
+     * `getIterationTypesOfIterator` instead.
+     */
+    function getIterationTypesOfIteratorFast(type: Type, resolver: IterationTypesResolver) {
+        // As an optimization, if the type is an instantiation of one of the following global types,
+        // then just grab its related type argument:
+        // - `IterableIterator<T>` or `AsyncIterableIterator<T>`
+        // - `Iterator<T, TReturn, TNext>` or `AsyncIterator<T, TReturn, TNext>`
+        // - `Generator<T, TReturn, TNext>` or `AsyncGenerator<T, TReturn, TNext>`
+        const globalType = resolver.getGlobalIterableIteratorType(/*reportErrors*/ false);
+        if (isReferenceToType(type, globalType)) {
+            const [yieldType] = getTypeArguments(type as GenericType);
+            // The "return" and "next" types of `IterableIterator` and `AsyncIterableIterator` are defined by the
+            // iteration types of their `next`, `return`, and `throw` methods. While we define these as `any`
+            // and `undefined` in our libs by default, a custom lib *could* use different definitions.
+            const globalIterationTypes = getIterationTypesOfIteratorCached(globalType, resolver) ||
+                getIterationTypesOfIteratorSlow(globalType, resolver, /*errorNode*/ undefined, /*errorOutputContainer*/ undefined, /*noCache*/ false);
+            const { returnType, nextType } = globalIterationTypes === noIterationTypes ? defaultIterationTypes : globalIterationTypes;
+            return setCachedIterationTypes(type, resolver.iteratorCacheKey, createIterationTypes(yieldType, returnType, nextType));
+        }
+        if (
+            isReferenceToType(type, resolver.getGlobalIteratorType(/*reportErrors*/ false)) ||
+            isReferenceToType(type, resolver.getGlobalGeneratorType(/*reportErrors*/ false))
+        ) {
+            const [yieldType, returnType, nextType] = getTypeArguments(type as GenericType);
+            return setCachedIterationTypes(type, resolver.iteratorCacheKey, createIterationTypes(yieldType, returnType, nextType));
+        }
+    }
 
-//     function isIteratorResult(type: Type, kind: IterationTypeKind.Yield | IterationTypeKind.Return) {
-//         // From https://tc39.github.io/ecma262/#sec-iteratorresult-interface:
-//         // > [done] is the result status of an iterator `next` method call. If the end of the iterator was reached `done` is `true`.
-//         // > If the end was not reached `done` is `false` and a value is available.
-//         // > If a `done` property (either own or inherited) does not exist, it is consider to have the value `false`.
-//         const doneType = getTypeOfPropertyOfType(type, "done" as string) || falseType;
-//         return isTypeAssignableTo(kind === IterationTypeKind.Yield ? falseType : trueType, doneType);
-//     }
+    function isIteratorResult(type: Type, kind: IterationTypeKind.Yield | IterationTypeKind.Return) {
+        // From https://tc39.github.io/ecma262/#sec-iteratorresult-interface:
+        // > [done] is the result status of an iterator `next` method call. If the end of the iterator was reached `done` is `true`.
+        // > If the end was not reached `done` is `false` and a value is available.
+        // > If a `done` property (either own or inherited) does not exist, it is consider to have the value `false`.
+        const doneType = getTypeOfPropertyOfType(type, "done" as string) || falseType;
+        return isTypeAssignableTo(kind === IterationTypeKind.Yield ? falseType : trueType, doneType);
+    }
 
 //     function isYieldIteratorResult(type: Type) {
 //         return isIteratorResult(type, IterationTypeKind.Yield);
@@ -43488,142 +43488,142 @@ export function createTypeChecker(host: TypeCheckerHost): Partial<TypeChecker> {
 //         return setCachedIterationTypes(type, "iterationTypesOfIteratorResult", createIterationTypes(yieldType, returnType || voidType, /*nextType*/ undefined));
 //     }
 
-//     /**
-//      * Gets the *yield*, *return*, and *next* types of a the `next()`, `return()`, or
-//      * `throw()` method of an `Iterator`-like or `AsyncIterator`-like type.
-//      *
-//      * If we successfully found the *yield*, *return*, and *next* types, an `IterationTypes`
-//      * record is returned. Otherwise, we return `undefined`.
-//      */
-//     function getIterationTypesOfMethod(type: Type, resolver: IterationTypesResolver, methodName: "next" | "return" | "throw", errorNode: Node | undefined, errorOutputContainer: { errors: Diagnostic[] | undefined; } | undefined): IterationTypes | undefined {
-//         const method = getPropertyOfType(type, methodName as string);
+    /**
+     * Gets the *yield*, *return*, and *next* types of a the `next()`, `return()`, or
+     * `throw()` method of an `Iterator`-like or `AsyncIterator`-like type.
+     *
+     * If we successfully found the *yield*, *return*, and *next* types, an `IterationTypes`
+     * record is returned. Otherwise, we return `undefined`.
+     */
+    function getIterationTypesOfMethod(type: Type, resolver: IterationTypesResolver, methodName: "next" | "return" | "throw", errorNode: Node | undefined, errorOutputContainer: { errors: Diagnostic[] | undefined; } | undefined): IterationTypes | undefined {
+        const method = getPropertyOfType(type, methodName as string);
 
-//         // Ignore 'return' or 'throw' if they are missing.
-//         if (!method && methodName !== "next") {
-//             return undefined;
-//         }
+        // Ignore 'return' or 'throw' if they are missing.
+        if (!method && methodName !== "next") {
+            return undefined;
+        }
 
-//         const methodType = method && !(methodName === "next" && (method.flags & SymbolFlags.Optional))
-//             ? methodName === "next" ? getTypeOfSymbol(method) : getTypeWithFacts(getTypeOfSymbol(method), TypeFacts.NEUndefinedOrNull)
-//             : undefined;
+        const methodType = method && !(methodName === "next" && (method.flags & SymbolFlags.Optional))
+            ? methodName === "next" ? getTypeOfSymbol(method) : getTypeWithFacts(getTypeOfSymbol(method), TypeFacts.NEUndefinedOrNull)
+            : undefined;
 
-//         if (isTypeAny(methodType)) {
-//             // `return()` and `throw()` don't provide a *next* type.
-//             return methodName === "next" ? anyIterationTypes : anyIterationTypesExceptNext;
-//         }
+        if (isTypeAny(methodType)) {
+            // `return()` and `throw()` don't provide a *next* type.
+            return methodName === "next" ? anyIterationTypes : anyIterationTypesExceptNext;
+        }
 
-//         // Both async and non-async iterators *must* have a `next` method.
-//         const methodSignatures = methodType ? getSignaturesOfType(methodType, SignatureKind.Call) : emptyArray;
-//         if (methodSignatures.length === 0) {
-//             if (errorNode) {
-//                 const diagnostic = methodName === "next"
-//                     ? resolver.mustHaveANextMethodDiagnostic
-//                     : resolver.mustBeAMethodDiagnostic;
-//                 if (errorOutputContainer) {
-//                     errorOutputContainer.errors ??= [];
-//                     errorOutputContainer.errors.push(createDiagnosticForNode(errorNode, diagnostic, methodName));
-//                 }
-//                 else {
-//                     error(errorNode, diagnostic, methodName);
-//                 }
-//             }
-//             return methodName === "next" ? noIterationTypes : undefined;
-//         }
+        // Both async and non-async iterators *must* have a `next` method.
+        const methodSignatures = methodType ? getSignaturesOfType(methodType, SignatureKind.Call) : emptyArray;
+        if (methodSignatures.length === 0) {
+            if (errorNode) {
+                const diagnostic = methodName === "next"
+                    ? resolver.mustHaveANextMethodDiagnostic
+                    : resolver.mustBeAMethodDiagnostic;
+                if (errorOutputContainer) {
+                    errorOutputContainer.errors ??= [];
+                    errorOutputContainer.errors.push(createDiagnosticForNode(errorNode, diagnostic, methodName));
+                }
+                else {
+                    error(errorNode, diagnostic, methodName);
+                }
+            }
+            return methodName === "next" ? noIterationTypes : undefined;
+        }
 
-//         // If the method signature comes exclusively from the global iterator or generator type,
-//         // create iteration types from its type arguments like `getIterationTypesOfIteratorFast`
-//         // does (so as to remove `undefined` from the next and return types). We arrive here when
-//         // a contextual type for a generator was not a direct reference to one of those global types,
-//         // but looking up `methodType` referred to one of them (and nothing else). E.g., in
-//         // `interface SpecialIterator extends Iterator<number> {}`, `SpecialIterator` is not a
-//         // reference to `Iterator`, but its `next` member derives exclusively from `Iterator`.
-//         if (methodType?.symbol && methodSignatures.length === 1) {
-//             const globalGeneratorType = resolver.getGlobalGeneratorType(/*reportErrors*/ false);
-//             const globalIteratorType = resolver.getGlobalIteratorType(/*reportErrors*/ false);
-//             const isGeneratorMethod = globalGeneratorType.symbol?.members?.get(methodName as string) === methodType.symbol;
-//             const isIteratorMethod = !isGeneratorMethod && globalIteratorType.symbol?.members?.get(methodName as string) === methodType.symbol;
-//             if (isGeneratorMethod || isIteratorMethod) {
-//                 const globalType = isGeneratorMethod ? globalGeneratorType : globalIteratorType;
-//                 const { mapper } = methodType as AnonymousType;
-//                 return createIterationTypes(
-//                     getMappedType(globalType.typeParameters![0], mapper!),
-//                     getMappedType(globalType.typeParameters![1], mapper!),
-//                     methodName === "next" ? getMappedType(globalType.typeParameters![2], mapper!) : undefined,
-//                 );
-//             }
-//         }
+        // If the method signature comes exclusively from the global iterator or generator type,
+        // create iteration types from its type arguments like `getIterationTypesOfIteratorFast`
+        // does (so as to remove `undefined` from the next and return types). We arrive here when
+        // a contextual type for a generator was not a direct reference to one of those global types,
+        // but looking up `methodType` referred to one of them (and nothing else). E.g., in
+        // `interface SpecialIterator extends Iterator<number> {}`, `SpecialIterator` is not a
+        // reference to `Iterator`, but its `next` member derives exclusively from `Iterator`.
+        if (methodType?.symbol && methodSignatures.length === 1) {
+            const globalGeneratorType = resolver.getGlobalGeneratorType(/*reportErrors*/ false);
+            const globalIteratorType = resolver.getGlobalIteratorType(/*reportErrors*/ false);
+            const isGeneratorMethod = globalGeneratorType.symbol?.members?.get(methodName as string) === methodType.symbol;
+            const isIteratorMethod = !isGeneratorMethod && globalIteratorType.symbol?.members?.get(methodName as string) === methodType.symbol;
+            if (isGeneratorMethod || isIteratorMethod) {
+                const globalType = isGeneratorMethod ? globalGeneratorType : globalIteratorType;
+                const { mapper } = methodType as AnonymousType;
+                return createIterationTypes(
+                    getMappedType(globalType.typeParameters![0], mapper!),
+                    getMappedType(globalType.typeParameters![1], mapper!),
+                    methodName === "next" ? getMappedType(globalType.typeParameters![2], mapper!) : undefined,
+                );
+            }
+        }
 
-//         // Extract the first parameter and return type of each signature.
-//         let methodParameterTypes: Type[] | undefined;
-//         let methodReturnTypes: Type[] | undefined;
-//         for (const signature of methodSignatures) {
-//             if (methodName !== "throw" && some(signature.parameters)) {
-//                 methodParameterTypes = append(methodParameterTypes, getTypeAtPosition(signature, 0));
-//             }
-//             methodReturnTypes = append(methodReturnTypes, getReturnTypeOfSignature(signature));
-//         }
+        // Extract the first parameter and return type of each signature.
+        let methodParameterTypes: Type[] | undefined;
+        let methodReturnTypes: Type[] | undefined;
+        for (const signature of methodSignatures) {
+            if (methodName !== "throw" && some(signature.parameters)) {
+                methodParameterTypes = append(methodParameterTypes, getTypeAtPosition(signature, 0));
+            }
+            methodReturnTypes = append(methodReturnTypes, getReturnTypeOfSignature(signature));
+        }
 
-//         // Resolve the *next* or *return* type from the first parameter of a `next()` or
-//         // `return()` method, respectively.
-//         let returnTypes: Type[] | undefined;
-//         let nextType: Type | undefined;
-//         if (methodName !== "throw") {
-//             const methodParameterType = methodParameterTypes ? getUnionType(methodParameterTypes) : unknownType;
-//             if (methodName === "next") {
-//                 // The value of `next(value)` is *not* awaited by async generators
-//                 nextType = methodParameterType;
-//             }
-//             else if (methodName === "return") {
-//                 // The value of `return(value)` *is* awaited by async generators
-//                 const resolvedMethodParameterType = resolver.resolveIterationType(methodParameterType, errorNode) || anyType;
-//                 returnTypes = append(returnTypes, resolvedMethodParameterType);
-//             }
-//         }
+        // Resolve the *next* or *return* type from the first parameter of a `next()` or
+        // `return()` method, respectively.
+        let returnTypes: Type[] | undefined;
+        let nextType: Type | undefined;
+        if (methodName !== "throw") {
+            const methodParameterType = methodParameterTypes ? getUnionType(methodParameterTypes) : unknownType;
+            if (methodName === "next") {
+                // The value of `next(value)` is *not* awaited by async generators
+                nextType = methodParameterType;
+            }
+            else if (methodName === "return") {
+                // The value of `return(value)` *is* awaited by async generators
+                const resolvedMethodParameterType = resolver.resolveIterationType(methodParameterType, errorNode) || anyType;
+                returnTypes = append(returnTypes, resolvedMethodParameterType);
+            }
+        }
 
-//         // Resolve the *yield* and *return* types from the return type of the method (i.e. `IteratorResult`)
-//         let yieldType: Type;
-//         const methodReturnType = methodReturnTypes ? getIntersectionType(methodReturnTypes) : neverType;
-//         const resolvedMethodReturnType = resolver.resolveIterationType(methodReturnType, errorNode) || anyType;
-//         const iterationTypes = getIterationTypesOfIteratorResult(resolvedMethodReturnType);
-//         if (iterationTypes === noIterationTypes) {
-//             if (errorNode) {
-//                 if (errorOutputContainer) {
-//                     errorOutputContainer.errors ??= [];
-//                     errorOutputContainer.errors.push(createDiagnosticForNode(errorNode, resolver.mustHaveAValueDiagnostic, methodName));
-//                 }
-//                 else {
-//                     error(errorNode, resolver.mustHaveAValueDiagnostic, methodName);
-//                 }
-//             }
-//             yieldType = anyType;
-//             returnTypes = append(returnTypes, anyType);
-//         }
-//         else {
-//             yieldType = iterationTypes.yieldType;
-//             returnTypes = append(returnTypes, iterationTypes.returnType);
-//         }
+        // Resolve the *yield* and *return* types from the return type of the method (i.e. `IteratorResult`)
+        let yieldType: Type;
+        const methodReturnType = methodReturnTypes ? getIntersectionType(methodReturnTypes) : neverType;
+        const resolvedMethodReturnType = resolver.resolveIterationType(methodReturnType, errorNode) || anyType;
+        const iterationTypes = getIterationTypesOfIteratorResult(resolvedMethodReturnType);
+        if (iterationTypes === noIterationTypes) {
+            if (errorNode) {
+                if (errorOutputContainer) {
+                    errorOutputContainer.errors ??= [];
+                    errorOutputContainer.errors.push(createDiagnosticForNode(errorNode, resolver.mustHaveAValueDiagnostic, methodName));
+                }
+                else {
+                    error(errorNode, resolver.mustHaveAValueDiagnostic, methodName);
+                }
+            }
+            yieldType = anyType;
+            returnTypes = append(returnTypes, anyType);
+        }
+        else {
+            yieldType = iterationTypes.yieldType;
+            returnTypes = append(returnTypes, iterationTypes.returnType);
+        }
 
-//         return createIterationTypes(yieldType, getUnionType(returnTypes), nextType);
-//     }
+        return createIterationTypes(yieldType, getUnionType(returnTypes), nextType);
+    }
 
-//     /**
-//      * Gets the *yield*, *return*, and *next* types of an `Iterator`-like or `AsyncIterator`-like
-//      * type from its members.
-//      *
-//      * If we successfully found the *yield*, *return*, and *next* types, an `IterationTypes`
-//      * record is returned. Otherwise, `noIterationTypes` is returned.
-//      *
-//      * NOTE: You probably don't want to call this directly and should be calling
-//      * `getIterationTypesOfIterator` instead.
-//      */
-//     function getIterationTypesOfIteratorSlow(type: Type, resolver: IterationTypesResolver, errorNode: Node | undefined, errorOutputContainer: { errors: Diagnostic[] | undefined; } | undefined, noCache: boolean) {
-//         const iterationTypes = combineIterationTypes([
-//             getIterationTypesOfMethod(type, resolver, "next", errorNode, errorOutputContainer),
-//             getIterationTypesOfMethod(type, resolver, "return", errorNode, errorOutputContainer),
-//             getIterationTypesOfMethod(type, resolver, "throw", errorNode, errorOutputContainer),
-//         ]);
-//         return noCache ? iterationTypes : setCachedIterationTypes(type, resolver.iteratorCacheKey, iterationTypes);
-//     }
+    /**
+     * Gets the *yield*, *return*, and *next* types of an `Iterator`-like or `AsyncIterator`-like
+     * type from its members.
+     *
+     * If we successfully found the *yield*, *return*, and *next* types, an `IterationTypes`
+     * record is returned. Otherwise, `noIterationTypes` is returned.
+     *
+     * NOTE: You probably don't want to call this directly and should be calling
+     * `getIterationTypesOfIterator` instead.
+     */
+    function getIterationTypesOfIteratorSlow(type: Type, resolver: IterationTypesResolver, errorNode: Node | undefined, errorOutputContainer: { errors: Diagnostic[] | undefined; } | undefined, noCache: boolean) {
+        const iterationTypes = combineIterationTypes([
+            getIterationTypesOfMethod(type, resolver, "next", errorNode, errorOutputContainer),
+            getIterationTypesOfMethod(type, resolver, "return", errorNode, errorOutputContainer),
+            getIterationTypesOfMethod(type, resolver, "throw", errorNode, errorOutputContainer),
+        ]);
+        return noCache ? iterationTypes : setCachedIterationTypes(type, resolver.iteratorCacheKey, iterationTypes);
+    }
 
     /**
      * Gets the requested "iteration type" from a type that is either `Iterable`-like, `Iterator`-like,
@@ -45079,9 +45079,9 @@ export function createTypeChecker(host: TypeCheckerHost): Partial<TypeChecker> {
             }
         }
 
-        if (symbol.flags & SymbolFlags.EnumMember) {
-            return location ? evaluateEnumMember(expr, symbol, location) : getEnumMemberValue(symbol.valueDeclaration as EnumMember);
-        }
+        // if (symbol.flags & SymbolFlags.EnumMember) {
+        //     return location ? evaluateEnumMember(expr, symbol, location) : getEnumMemberValue(symbol.valueDeclaration as EnumMember);
+        // }
         if (isConstantVariable(symbol)) {
             const declaration = symbol.valueDeclaration;
             if (declaration && isVariableDeclaration(declaration) && !declaration.type && declaration.initializer && (!location || declaration !== location && isBlockScopedNameDeclaredBeforeUse(declaration, location))) {
@@ -45107,10 +45107,10 @@ export function createTypeChecker(host: TypeCheckerHost): Partial<TypeChecker> {
             if (rootSymbol && rootSymbol.flags & SymbolFlags.Enum) {
                 const name = escapeLeadingUnderscores(expr.argumentExpression.text);
                 const member = rootSymbol.exports!.get(name);
-                if (member) {
-                    Debug.assert(getSourceFileOfNode(member.valueDeclaration) === getSourceFileOfNode(rootSymbol.valueDeclaration));
-                    return location ? evaluateEnumMember(expr, member, location) : getEnumMemberValue(member.valueDeclaration as EnumMember);
-                }
+                // if (member) {
+                //     Debug.assert(getSourceFileOfNode(member.valueDeclaration) === getSourceFileOfNode(rootSymbol.valueDeclaration));
+                //     return location ? evaluateEnumMember(expr, member, location) : getEnumMemberValue(member.valueDeclaration as EnumMember);
+                // }
             }
         }
         return evaluatorResult(/*value*/ undefined);
