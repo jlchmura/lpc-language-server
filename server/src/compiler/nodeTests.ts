@@ -1,6 +1,7 @@
 import {
     ArrayBindingPattern,
     ArrayTypeNode,
+    ArrowFunction,
     BinaryExpression,
     BindingElement,
     Block,
@@ -43,6 +44,7 @@ import {
     ShorthandPropertyAssignment,
     SourceFile,
     SpreadAssignment,
+    SpreadElement,
     StringLiteral,
     SyntaxKind,
     TypeAliasDeclaration,
@@ -349,4 +351,12 @@ export function isTypeOperatorNode(node: Node): node is TypeOperatorNode {
 
 export function isTypePredicateNode(node: Node) {//: node is TypePredicateNode {
     return false;//return node.kind === SyntaxKind.TypePredicate;
+}
+
+export function isArrowFunction(node: Node): node is ArrowFunction {
+    return node.kind === SyntaxKind.ArrowFunction;
+}
+
+export function isSpreadElement(node: Node): node is SpreadElement {
+    return node.kind === SyntaxKind.SpreadElement;
 }

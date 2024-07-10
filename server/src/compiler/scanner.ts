@@ -1,6 +1,8 @@
-import { MapLike } from "./core";
-import { DiagnosticMessage, KeywordSyntaxKind, PunctuationOrKeywordSyntaxKind, SourceFileLike, SyntaxKind, TokenFlags } from "./types";
-import { positionIsSynthesized } from "./utilities";
+import { CharacterCodes } from "../backend/types";
+import { binarySearch, compareValues, identity, MapLike } from "./core";
+import { Debug } from "./debug";
+import { DiagnosticMessage, KeywordSyntaxKind, LineAndCharacter, PunctuationOrKeywordSyntaxKind, SourceFileLike, SyntaxKind, TokenFlags } from "./types";
+import { isLineBreak, positionIsSynthesized } from "./utilities";
 
 export type ErrorCallback = (message: DiagnosticMessage, length: number, arg0?: any) => void;
 
@@ -358,6 +360,78 @@ type ScriptKind=any;
 type LanguageVariant=any;
 type ScriptTarget=any;
 
+/** @internal */
+export function getLineStarts(sourceFile: SourceFileLike): readonly number[] {
+    return sourceFile.lineMap || (sourceFile.lineMap = computeLineStarts(sourceFile.text));
+}
+
+/** @internal */
+export function computeLineStarts(text: string): number[] {
+    const result: number[] = [];
+    let pos = 0;
+    let lineStart = 0;
+    while (pos < text.length) {
+        const ch = text.charCodeAt(pos);
+        pos++;
+        switch (ch) {
+            case CharacterCodes.carriageReturn:
+                if (text.charCodeAt(pos) === CharacterCodes.lineFeed) {
+                    pos++;
+                }
+            // falls through
+            case CharacterCodes.lineFeed:
+                result.push(lineStart);
+                lineStart = pos;
+                break;
+            default:
+                if (ch > CharacterCodes.maxAsciiCharacter && isLineBreak(ch)) {
+                    result.push(lineStart);
+                    lineStart = pos;
+                }
+                break;
+        }
+    }
+    result.push(lineStart);
+    return result;
+}
+
+
+
+/**
+ * @internal
+ * We assume the first line starts at position 0 and 'position' is non-negative.
+ */
+export function computeLineOfPosition(lineStarts: readonly number[], position: number, lowerBound?: number) {
+    let lineNumber = binarySearch(lineStarts, position, identity, compareValues, lowerBound);
+    if (lineNumber < 0) {
+        // If the actual position was not found,
+        // the binary search returns the 2's-complement of the next line start
+        // e.g. if the line starts at [5, 10, 23, 80] and the position requested was 20
+        // then the search will return -2.
+        //
+        // We want the index of the previous line start, so we subtract 1.
+        // Review 2's-complement if this is confusing.
+        lineNumber = ~lineNumber - 1;
+        Debug.assert(lineNumber !== -1, "position cannot precede the beginning of the file");
+    }
+    return lineNumber;
+}
+
+/** @internal */
+export function computeLineAndCharacterOfPosition(lineStarts: readonly number[], position: number): LineAndCharacter {
+    const lineNumber = computeLineOfPosition(lineStarts, position);
+    return {
+        line: lineNumber,
+        character: position - lineStarts[lineNumber],
+    };
+}
+
 export function getLineAndCharacterOfPosition(sourceFile: SourceFileLike, position: number): LineAndCharacter {
     return computeLineAndCharacterOfPosition(getLineStarts(sourceFile), position);
 }
+
+/** @internal */
+export function stringToToken(s: string): SyntaxKind | undefined {
+    return textToToken.get(s);
+}
+

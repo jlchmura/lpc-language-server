@@ -1,6 +1,7 @@
-import { addRange, emptyArray, find, flatMap } from "./core";
+import { addRange, emptyArray, find, flatMap, tryCast } from "./core";
 import { Debug } from "./debug";
 import { isBinaryExpression, isBindingElement, isBlock, isFunctionExpression, isIdentifier, isJSDoc, isJSDocDeprecatedTag, isJSDocParameterTag, isJSDocTemplateTag, isJSDocTypeTag, isModuleBlock, isParameter, isPropertyAssignment, isPropertyDeclaration, isSourceFile, isTypeReferenceNode, isVariableDeclaration } from "./nodeTests";
+import { stringToToken } from "./scanner";
 import {
     AccessExpression,
     AssignmentDeclarationKind,
@@ -64,8 +65,9 @@ import {
     PropertyName,
     NewExpression,
     TypeReferenceType,
+    KeywordSyntaxKind,
 } from "./types";
-import { getAssignmentDeclarationKind, getEffectiveModifierFlags, getElementOrPropertyAccessArgumentExpressionOrName, getJSDocCommentsAndTags, isAccessExpression, isBindableStaticElementAccessExpression, isFunctionBlock, isTypeNodeKind, isVariableLike, setTextRangePosEnd, skipOuterExpressions } from "./utilities";
+import { getAssignmentDeclarationKind, getEffectiveModifierFlags, getElementOrPropertyAccessArgumentExpressionOrName, getJSDocCommentsAndTags, isAccessExpression, isBindableStaticElementAccessExpression, isFunctionBlock, isKeyword, isTypeNodeKind, isVariableLike, setTextRangePosEnd, skipOuterExpressions } from "./utilities";
 
 export function setTextRange<T extends TextRange>(range: T, location: TextRange | undefined): T {
     return location ? setTextRangePosEnd(range, location.pos, location.end) : range;
@@ -1099,4 +1101,17 @@ export function isFunctionOrModuleBlock(node: Node): boolean {
 
 export function getJSDocSatisfiesTag(node: Node) {//: JSDocSatisfiesTag | undefined {
     return false;//return getFirstJSDocTag(node, isJSDocSatisfiesTag);
+}
+
+export function isAccessor(node: Node) {//: node is AccessorDeclaration {
+    return false;//return node && (node.kind === SyntaxKind.GetAccessor || node.kind === SyntaxKind.SetAccessor);
+}
+
+/**
+ * If the text of an Identifier matches a keyword (including contextual and TypeScript-specific keywords), returns the
+ * SyntaxKind for the matching keyword.
+ */
+export function identifierToKeywordKind(node: Identifier): KeywordSyntaxKind | undefined {
+    const token = stringToToken(node.text as string);
+    return token ? tryCast(token, isKeyword) : undefined;
 }

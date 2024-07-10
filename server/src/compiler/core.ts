@@ -1203,3 +1203,21 @@ function levenshteinWithMax(s1: string, s2: string, max: number): number | undef
     return res > max ? undefined : res;
 }
 
+/** @internal */
+export function arrayIsEqualTo<T>(array1: readonly T[] | undefined, array2: readonly T[] | undefined, equalityComparer: (a: T, b: T, index: number) => boolean = equateValues): boolean {
+    if (array1 === undefined || array2 === undefined) {
+        return array1 === array2;
+    }
+
+    if (array1.length !== array2.length) {
+        return false;
+    }
+
+    for (let i = 0; i < array1.length; i++) {
+        if (!equalityComparer(array1[i], array2[i], i)) {
+            return false;
+        }
+    }
+
+    return true;
+}

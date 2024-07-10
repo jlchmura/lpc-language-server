@@ -115,6 +115,18 @@ export const Diagnostics = {
     Type_0_is_not_an_array_type_or_a_string_type_or_does_not_have_a_Symbol_iterator_method_that_returns_an_iterator:blank,
     Type_0_is_not_an_array_type_or_does_not_have_a_Symbol_iterator_method_that_returns_an_iterator:blank,
     Type_0_can_only_be_iterated_through_when_using_the_downlevelIteration_flag_or_with_a_target_of_es2015_or_higher:blank,
-           
-
+    Property_0_is_protected_and_only_accessible_through_an_instance_of_class_1_This_is_an_instance_of_class_2:blank,
+    Property_0_is_protected_and_only_accessible_within_class_1_and_its_subclasses:blank    ,
+    Rest_parameter_0_implicitly_has_an_any_type:blank,
+    Parameter_0_implicitly_has_an_1_type:blank,
+    Rest_parameter_0_implicitly_has_an_any_type_but_a_better_type_may_be_inferred_from_usage:blank,
+    Parameter_0_implicitly_has_an_1_type_but_a_better_type_may_be_inferred_from_usage:blank,
+    Parameter_has_a_name_but_no_type_Did_you_mean_0_Colon_1:blank,
+    Member_0_implicitly_has_an_1_type:blank,
+    Member_0_implicitly_has_an_1_type_but_a_better_type_may_be_inferred_from_usage:blank,
+    Binding_element_0_implicitly_has_an_1_type:blank,
+    Type_0_is_not_assignable_to_type_1_with_exactOptionalPropertyTypes_Colon_true_Consider_adding_undefined_to_the_type_of_the_target:blank,
+    The_expected_type_comes_from_this_index_signature:blank,
+    The_expected_type_comes_from_property_0_which_is_declared_here_on_type_1:blank,
+    
 }

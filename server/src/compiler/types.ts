@@ -2907,7 +2907,8 @@ export const enum NodeBuilderFlags {
 export const enum TypePredicateKind {
     Identifier,    
     AssertsIdentifier,
-    
+    AssertsThis,
+    This
 }
 
 export interface TypePredicateBase {
@@ -5228,3 +5229,4 @@ export interface IterableOrIteratorType extends ObjectType, UnionType {
     iterationTypesOfAsyncIterator?: IterationTypes;
     iterationTypesOfIteratorResult?: IterationTypes;
 }
+

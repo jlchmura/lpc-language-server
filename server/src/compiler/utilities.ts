@@ -4530,3 +4530,100 @@ export function isSuperProperty(node: Node): node is SuperProperty {
     return (kind === SyntaxKind.PropertyAccessExpression || kind === SyntaxKind.ElementAccessExpression)
         && (node as PropertyAccessExpression | ElementAccessExpression).expression.kind === SyntaxKind.SuperKeyword;
 }
+
+/** @internal */
+export function hasContextSensitiveParameters(node: FunctionLikeDeclaration) {
+    // Functions with type parameters are not context sensitive.
+    // if (!node.typeParameters) {
+    //     // Functions with any parameters that lack type annotations are context sensitive.
+    //     if (some(node.parameters, p => !getEffectiveTypeAnnotationNode(p))) {
+    //         return true;
+    //     }
+    //     if (node.kind !== SyntaxKind.ArrowFunction) {
+    //         // If the first parameter is not an explicit 'this' parameter, then the function has
+    //         // an implicit 'this' parameter which is subject to contextual typing.
+    //         const parameter = firstOrUndefined(node.parameters);
+    //         if (!(parameter && parameterIsThisKeyword(parameter))) {
+    //             return true;
+    //         }
+    //     }
+    // }
+    return false;
+}
+
+/** @internal */
+export function isWriteOnlyAccess(node: Node) {
+    return accessKind(node) === AccessKind.Write;
+}
+
+
+/** @internal */
+export function isWriteAccess(node: Node) {
+    return accessKind(node) !== AccessKind.Read;
+}
+
+
+const enum AccessKind {
+    /** Only reads from a variable. */
+    Read,
+    /** Only writes to a variable without ever reading it. E.g.: `x=1;`. */
+    Write,
+    /** Reads from and writes to a variable. E.g.: `f(x++);`, `x/=1`. */
+    ReadWrite,
+}
+function accessKind(node: Node): AccessKind {
+    const { parent } = node;
+
+    switch (parent?.kind) {
+        case SyntaxKind.ParenthesizedExpression:
+            return accessKind(parent);
+        case SyntaxKind.PostfixUnaryExpression:
+        case SyntaxKind.PrefixUnaryExpression:
+            const { operator } = parent as PrefixUnaryExpression | PostfixUnaryExpression;
+            return operator === SyntaxKind.PlusPlusToken || operator === SyntaxKind.MinusMinusToken ? AccessKind.ReadWrite : AccessKind.Read;
+        case SyntaxKind.BinaryExpression:
+            const { left, operatorToken } = parent as BinaryExpression;
+            return left === node && isAssignmentOperator(operatorToken.kind) ?
+                operatorToken.kind === SyntaxKind.EqualsToken ? AccessKind.Write : AccessKind.ReadWrite
+                : AccessKind.Read;
+        case SyntaxKind.PropertyAccessExpression:
+            return (parent as PropertyAccessExpression).name !== node ? AccessKind.Read : accessKind(parent);
+        case SyntaxKind.PropertyAssignment: {
+            const parentAccess = accessKind(parent.parent);
+            // In `({ x: varname }) = { x: 1 }`, the left `x` is a read, the right `x` is a write.
+            return node === (parent as PropertyAssignment).name ? reverseAccessKind(parentAccess) : parentAccess;
+        }
+        case SyntaxKind.ShorthandPropertyAssignment:
+            // Assume it's the local variable being accessed, since we don't check public properties for --noUnusedLocals.
+            return node === (parent as ShorthandPropertyAssignment).objectAssignmentInitializer ? AccessKind.Read : accessKind(parent.parent);
+        case SyntaxKind.ArrayLiteralExpression:
+            return accessKind(parent);
+        default:
+            return AccessKind.Read;
+    }
+}
+function reverseAccessKind(a: AccessKind): AccessKind {
+    switch (a) {
+        case AccessKind.Read:
+            return AccessKind.Write;
+        case AccessKind.Write:
+            return AccessKind.Read;
+        case AccessKind.ReadWrite:
+            return AccessKind.ReadWrite;
+        default:
+            return Debug.assertNever(a);
+    }
+}
+
+/** @internal */
+export function isRightSideOfQualifiedNameOrPropertyAccess(node: Node) {
+    return (node.parent.kind === SyntaxKind.QualifiedName && (node.parent as QualifiedName).right === node) ||
+        (node.parent.kind === SyntaxKind.PropertyAccessExpression && (node.parent as PropertyAccessExpression).name === node);
+        //|| (node.parent.kind === SyntaxKind.MetaProperty && (node.parent as MetaProperty).name === node);
+}
+
+/** @internal */
+export function isRightSideOfAccessExpression(node: Node) {
+    return !!node.parent && (isPropertyAccessExpression(node.parent) && node.parent.name === node
+        || isElementAccessExpression(node.parent) && node.parent.argumentExpression === node);
+}
