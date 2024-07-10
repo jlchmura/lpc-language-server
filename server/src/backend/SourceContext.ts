@@ -379,6 +379,11 @@ export class SourceContext {
                 filename: `"${config.files.simul_efun}"`,
                 symbol: undefined,
             });
+            this.fileHandler.loadReference(
+                config.files.simul_efun,
+                undefined,
+                depChain
+            );
         }
 
         this.tokenStream.reset();

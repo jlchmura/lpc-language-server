@@ -3,6 +3,7 @@
 ## 1.0.22
 
 -   Fix: [Find All References not detecting sefun->fn() calls #35](https://github.com/jlchmura/lpc-language-server/issues/35)
+-   Fix: sefun file not being loaded for code completion or symbol info.
 
 ## 1.0.21
 
