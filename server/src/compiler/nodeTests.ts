@@ -13,6 +13,7 @@ import {
     ExpressionWithTypeArguments,
     FunctionDeclaration,
     FunctionExpression,
+    FunctionTypeNode,
     HeritageClause,
     Identifier,
     ImportTypeNode,
@@ -359,4 +360,8 @@ export function isArrowFunction(node: Node): node is ArrowFunction {
 
 export function isSpreadElement(node: Node): node is SpreadElement {
     return node.kind === SyntaxKind.SpreadElement;
+}
+
+export function isFunctionTypeNode(node: Node): node is FunctionTypeNode {
+    return node.kind === SyntaxKind.FunctionType;
 }

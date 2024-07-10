@@ -5,7 +5,7 @@ import { Comparison } from "./corePublic";
 import { Debug } from "./debug";
 import { Diagnostics } from "./diagnosticInfo";
 import { createModeAwareCacheKey } from "./moduleNameResolver";
-import { isParameter, isIdentifier, isPropertyAccessExpression, isSourceFile, isPropertyDeclaration, isBindingElement, isComputedPropertyName, isPrivateIdentifier, isTypeLiteralNode, isBinaryExpression, isFunctionExpression, isVariableDeclaration, isPropertyAssignment, isImportTypeNode, isVariableStatement, isElementAccessExpression, isBlock, isIndexedAccessTypeNode, isStringLiteral, isTypeParameterDeclaration, isLiteralTypeNode, isVariableDeclarationList, isFunctionDeclaration, isJSDocTypeExpression, isCallExpression, isNumericLiteral, isShorthandPropertyAssignment, isCallSignatureDeclaration, isObjectBindingPattern, isParenthesizedExpression, isArrayBindingPattern, isPrefixUnaryExpression, isDecorator, isMethodDeclaration, isHeritageClause, isQualifiedName, isModuleBlock, isClassExpression, isObjectLiteralExpression, isPropertySignature, isJSDocPropertyTag, isOmittedExpression, isClassDeclaration, isMethodSignature, isJSDocTemplateTag, isExpressionWithTypeArguments, isTypeAliasDeclaration, isParenthesizedTypeNode, isTypeOperatorNode, isTypePredicateNode, isArrowFunction, isSpreadElement } from "./nodeTests";
+import { isParameter, isIdentifier, isPropertyAccessExpression, isSourceFile, isPropertyDeclaration, isBindingElement, isComputedPropertyName, isPrivateIdentifier, isTypeLiteralNode, isBinaryExpression, isFunctionExpression, isVariableDeclaration, isPropertyAssignment, isImportTypeNode, isVariableStatement, isElementAccessExpression, isBlock, isIndexedAccessTypeNode, isStringLiteral, isTypeParameterDeclaration, isLiteralTypeNode, isVariableDeclarationList, isFunctionDeclaration, isJSDocTypeExpression, isCallExpression, isNumericLiteral, isShorthandPropertyAssignment, isCallSignatureDeclaration, isObjectBindingPattern, isParenthesizedExpression, isArrayBindingPattern, isPrefixUnaryExpression, isDecorator, isMethodDeclaration, isHeritageClause, isQualifiedName, isModuleBlock, isClassExpression, isObjectLiteralExpression, isPropertySignature, isJSDocPropertyTag, isOmittedExpression, isClassDeclaration, isMethodSignature, isJSDocTemplateTag, isExpressionWithTypeArguments, isTypeAliasDeclaration, isParenthesizedTypeNode, isTypeOperatorNode, isTypePredicateNode, isArrowFunction, isSpreadElement, isFunctionTypeNode } from "./nodeTests";
 import { forEachChild, parseNodeFactory } from "./parser";
 import { Scanner, skipTrivia, tokenToString } from "./scanner";
 import { Symbol, AccessExpression, AccessFlags, AnonymousType, AnyImportOrJsDocImport, ArrayBindingPattern, ArrayLiteralExpression, ArrayTypeNode, ArrowFunction, AssignmentDeclarationKind, AssignmentPattern, BaseType, BinaryExpression, BinaryOperator, BinaryOperatorToken, BindableStaticNameExpression, BindingElement, BindingName, BindingPattern, Block, CallChain, CallExpression, CallLikeExpression, CallSignatureDeclaration, CancellationToken, CaseBlock, CaseClause, CaseOrDefaultClause, CheckFlags, ClassElement, ClassLikeDeclaration, CompilerOptions, ComputedPropertyName, ConditionalExpression, ContextFlags, Declaration, DeclarationName, DeclarationStatement, DefaultClause, Diagnostic, DiagnosticAndArguments, DiagnosticArguments, DiagnosticCategory, DiagnosticMessage, DiagnosticMessageChain, DiagnosticRelatedInformation, DiagnosticWithLocation, DoStatement, DynamicNamedDeclaration, ElementAccessChain, ElementAccessExpression, EmitResolver, EmitTextWriter, EntityName, EntityNameExpression, EntityNameOrEntityNameExpression, ExclamationToken, Expression, ExpressionStatement, FlowArrayMutation, FlowAssignment, FlowCall, FlowCondition, FlowFlags, FlowLabel, FlowNode, FlowStart, FlowSwitchClause, FlowSwitchClauseData, FlowType, ForInStatement, ForStatement, FreshableIntrinsicType, FreshableType, FunctionDeclaration, FunctionExpression, FunctionLikeDeclaration, GenericType, HasLocals, HasModifiers, Identifier, IdentifierTypePredicate, IfStatement, ImportCall, ImportClause, ImportDeclaration, ImportSpecifier, ImportTypeNode, IndexedAccessType, IndexedAccessTypeNode, IndexFlags, IndexInfo, IndexKind, IndexSignatureDeclaration, IndexType, InferTypeNode, InstantiableType, InterfaceType, InternalSymbolName, IntrinsicType, JSDoc, JSDocComment, JSDocFunctionType, JSDocImportTag, JSDocParameterTag, JSDocPropertyLikeTag, JSDocSignature, JSDocTemplateTag, JSDocTypeAssertion, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, KeywordTypeNode, LateBoundBinaryExpressionDeclaration, LateBoundDeclaration, LateBoundName, LateVisibilityPaintedStatement, LiteralExpression, LiteralType, LiteralTypeNode, MappedType, MappedTypeNode, MatchingKeys, MemberOverrideStatus, MethodDeclaration, MinusToken, Modifier, ModifierFlags, ModuleSpecifierResolutionHost, NamedDeclaration, NewExpression, Node, NodeArray, NodeBuilderFlags, NodeCheckFlags, NodeFlags, NodeWithTypeArguments, NonNullChain, NonNullExpression, NumberLiteralType, NumericLiteral, ObjectBindingPattern, ObjectFlags, ObjectFlagsType, ObjectLiteralElementLike, ObjectLiteralExpression, ObjectType, OuterExpressionKinds, ParameterDeclaration, ParenthesizedExpression, Path, PlusToken, PostfixUnaryExpression, PrefixUnaryExpression, PrivateIdentifier, PropertyAccessChain, PropertyAccessEntityNameExpression, PropertyAccessExpression, PropertyAssignment, PropertyDeclaration, PropertyName, PropertySignature, PunctuationSyntaxKind, QualifiedName, QuestionToken, ResolutionMode, ResolvedType, ReturnStatement, ReverseMappedType, ShorthandPropertyAssignment, Signature, SignatureDeclaration, SignatureFlags, SignatureKind, SourceFile, SpreadElement, Statement, StringLiteral, StringLiteralType, StructuredType, SwitchStatement, SymbolAccessibility, SymbolAccessibilityResult, SymbolFlags, SymbolFormatFlags, SymbolId, SymbolTable, SymbolTracker, SymbolVisibilityResult, SyntaxKind, TextSpan, TokenFlags, TrackedSymbol, TransientSymbol, TransientSymbolLinks, Type, TypeAssertion, TypeChecker, TypeCheckerHost, TypeElement, TypeFlags, TypeFormatFlags, TypeId, TypeLiteralNode, TypeMapKind, TypeMapper, TypeNode, TypeNodeSyntaxKind, TypeOnlyAliasDeclaration, TypeParameter, TypeParameterDeclaration, TypePredicate, TypePredicateKind, TypeReference, TypeReferenceNode, TypeReferenceSerializationKind, TypeVariable, UnionOrIntersectionType, UnionReduction, UnionType, UnionTypeNode, VariableDeclaration, VariableDeclarationList, VariableLikeDeclaration, VariableStatement, VarianceFlags, VoidExpression, WhileStatement, SymbolLinks, NodeLinks, ExternalEmitHelpers, EvolvingArrayType, IterationTypes, PatternAmbientModule, InferenceContext, RelationComparisonResult, VisitResult, Program, ReverseMappedSymbol, MappedSymbol, BindableObjectDefinePropertyCall, WideningContext, BindingElementGrandparent, ElementFlags, NamedTupleMember, HasInitializer, InterfaceTypeWithDeclaredMembers, ExpressionWithTypeArguments, IntersectionType, TypeOperatorNode, ConditionalType, JsxAttributes, SubstitutionType, TemplateLiteralType, StringMappingType, TupleTypeReference, TupleType, Ternary, DeclarationWithTypeParameters, SingleSignatureType, ConditionalTypeNode, TupleTypeNode, DeferredTypeReference, ParenthesizedTypeNode, OptionalTypeNode, IntersectionFlags, SyntheticExpression, ConditionalRoot, InferenceInfo, InferencePriority, InferenceFlags, TypeReferenceType, FunctionOrConstructorTypeNode, InstantiationExpressionType, FlowReduceLabel, FreshObjectLiteralType, IterableOrIteratorType, TypeComparer } from "./types";
@@ -13162,15 +13162,16 @@ export function createTypeChecker(host: TypeCheckerHost): Partial<TypeChecker> {
     }
 
     function isConstTypeVariable(type: Type | undefined, depth = 0): boolean {
-        return depth < 5 && !!(type && (
-            type.flags & TypeFlags.TypeParameter && some((type as TypeParameter).symbol?.declarations, d => hasSyntacticModifier(d, ModifierFlags.Const)) ||
-            type.flags & TypeFlags.UnionOrIntersection && some((type as UnionOrIntersectionType).types, t => isConstTypeVariable(t, depth)) ||
-            type.flags & TypeFlags.IndexedAccess && isConstTypeVariable((type as IndexedAccessType).objectType, depth + 1) ||
-            type.flags & TypeFlags.Conditional && isConstTypeVariable(getConstraintOfConditionalType(type as ConditionalType), depth + 1) ||
-            type.flags & TypeFlags.Substitution && isConstTypeVariable((type as SubstitutionType).baseType, depth) ||
-            getObjectFlags(type) & ObjectFlags.Mapped && isConstMappedType(type as MappedType, depth) ||
-            isGenericTupleType(type) && findIndex(getElementTypes(type), (t, i) => !!(type.target.elementFlags[i] & ElementFlags.Variadic) && isConstTypeVariable(t, depth)) >= 0
-        ));
+        return false;
+        // return depth < 5 && !!(type && (
+        //     type.flags & TypeFlags.TypeParameter && some((type as TypeParameter).symbol?.declarations, d => hasSyntacticModifier(d, ModifierFlags.Const)) ||
+        //     type.flags & TypeFlags.UnionOrIntersection && some((type as UnionOrIntersectionType).types, t => isConstTypeVariable(t, depth)) ||
+        //     type.flags & TypeFlags.IndexedAccess && isConstTypeVariable((type as IndexedAccessType).objectType, depth + 1) ||
+        //     type.flags & TypeFlags.Conditional && isConstTypeVariable(getConstraintOfConditionalType(type as ConditionalType), depth + 1) ||
+        //     type.flags & TypeFlags.Substitution && isConstTypeVariable((type as SubstitutionType).baseType, depth) ||
+        //     getObjectFlags(type) & ObjectFlags.Mapped && isConstMappedType(type as MappedType, depth) ||
+        //     isGenericTupleType(type) && findIndex(getElementTypes(type), (t, i) => !!(type.target.elementFlags[i] & ElementFlags.Variadic) && isConstTypeVariable(t, depth)) >= 0
+        // ));
     }
 
     function getConstraintOfIndexedAccess(type: IndexedAccessType) {
@@ -19474,28 +19475,28 @@ export function createTypeChecker(host: TypeCheckerHost): Partial<TypeChecker> {
                         const targetProp = propertyName !== undefined ? getPropertyOfType(target, propertyName) : undefined;
 
                         let issuedElaboration = false;
-                        if (!targetProp) {
-                            const indexInfo = getApplicableIndexInfo(target, nameType);
-                            if (indexInfo && indexInfo.declaration && !getSourceFileOfNode(indexInfo.declaration).hasNoDefaultLib) {
-                                issuedElaboration = true;
-                                addRelatedInfo(reportedDiag, createDiagnosticForNode(indexInfo.declaration, Diagnostics.The_expected_type_comes_from_this_index_signature));
-                            }
-                        }
+                        // if (!targetProp) {
+                        //     const indexInfo = getApplicableIndexInfo(target, nameType);
+                        //     if (indexInfo && indexInfo.declaration && !getSourceFileOfNode(indexInfo.declaration).hasNoDefaultLib) {
+                        //         issuedElaboration = true;
+                        //         addRelatedInfo(reportedDiag, createDiagnosticForNode(indexInfo.declaration, Diagnostics.The_expected_type_comes_from_this_index_signature));
+                        //     }
+                        // }
 
-                        if (!issuedElaboration && (targetProp && length(targetProp.declarations) || target.symbol && length(target.symbol.declarations))) {
-                            const targetNode = targetProp && length(targetProp.declarations) ? targetProp.declarations![0] : target.symbol.declarations![0];
-                            if (!getSourceFileOfNode(targetNode).hasNoDefaultLib) {
-                                addRelatedInfo(
-                                    reportedDiag,
-                                    createDiagnosticForNode(
-                                        targetNode,
-                                        Diagnostics.The_expected_type_comes_from_property_0_which_is_declared_here_on_type_1,
-                                        propertyName && !(nameType.flags & TypeFlags.UniqueESSymbol) ? unescapeLeadingUnderscores(propertyName) : typeToString(nameType),
-                                        typeToString(target),
-                                    ),
-                                );
-                            }
-                        }
+                        // if (!issuedElaboration && (targetProp && length(targetProp.declarations) || target.symbol && length(target.symbol.declarations))) {
+                        //     const targetNode = targetProp && length(targetProp.declarations) ? targetProp.declarations![0] : target.symbol.declarations![0];
+                        //     if (!getSourceFileOfNode(targetNode).hasNoDefaultLib) {
+                        //         addRelatedInfo(
+                        //             reportedDiag,
+                        //             createDiagnosticForNode(
+                        //                 targetNode,
+                        //                 Diagnostics.The_expected_type_comes_from_property_0_which_is_declared_here_on_type_1,
+                        //                 propertyName && !(nameType.flags & TypeFlags.UniqueESSymbol) ? unescapeLeadingUnderscores(propertyName) : typeToString(nameType),
+                        //                 typeToString(target),
+                        //             ),
+                        //         );
+                        //     }
+                        // }
                     }
                 }
             }
@@ -23992,15 +23993,15 @@ export function createTypeChecker(host: TypeCheckerHost): Partial<TypeChecker> {
                 error(declaration, Diagnostics.Function_type_which_lacks_return_type_annotation_implicitly_has_an_0_return_type, typeAsString);
                 return;
             case SyntaxKind.JSDocSignature:
-                if (noImplicitAny && isJSDocOverloadTag(declaration.parent)) {
-                    error(declaration.parent.tagName, Diagnostics.This_overload_implicitly_returns_the_type_0_because_it_lacks_a_return_type_annotation, typeAsString);
-                }
+                // if (noImplicitAny && isJSDocOverloadTag(declaration.parent)) {
+                //     error(declaration.parent.tagName, Diagnostics.This_overload_implicitly_returns_the_type_0_because_it_lacks_a_return_type_annotation, typeAsString);
+                // }
                 return;
             case SyntaxKind.FunctionDeclaration:
             case SyntaxKind.MethodDeclaration:
             case SyntaxKind.MethodSignature:
-            case SyntaxKind.GetAccessor:
-            case SyntaxKind.SetAccessor:
+            // case SyntaxKind.GetAccessor:
+            // case SyntaxKind.SetAccessor:
             case SyntaxKind.FunctionExpression:
             case SyntaxKind.ArrowFunction:
                 if (noImplicitAny && !(declaration as NamedDeclaration).name) {
@@ -24209,7 +24210,7 @@ export function createTypeChecker(host: TypeCheckerHost): Partial<TypeChecker> {
                     objectFlags & ObjectFlags.Anonymous && type.symbol && type.symbol.flags & (SymbolFlags.Function | SymbolFlags.Method | SymbolFlags.Class | SymbolFlags.TypeLiteral | SymbolFlags.ObjectLiteral) && type.symbol.declarations ||
                     objectFlags & (ObjectFlags.Mapped | ObjectFlags.ReverseMapped | ObjectFlags.ObjectRestType | ObjectFlags.InstantiationExpressionType)
                 ) ||
-            type.flags & TypeFlags.UnionOrIntersection && !(type.flags & TypeFlags.EnumLiteral) && !isNonGenericTopLevelType(type) && some((type as UnionOrIntersectionType).types, couldContainTypeVariables));
+            type.flags & TypeFlags.UnionOrIntersection && /*!(type.flags & TypeFlags.EnumLiteral) &&*/ !isNonGenericTopLevelType(type) && some((type as UnionOrIntersectionType).types, couldContainTypeVariables));
         if (type.flags & TypeFlags.ObjectFlagsType) {
             (type as ObjectFlagsType).objectFlags |= ObjectFlags.CouldContainTypeVariablesComputed | (result ? ObjectFlags.CouldContainTypeVariables : 0);
         }
@@ -28126,18 +28127,18 @@ export function createTypeChecker(host: TypeCheckerHost): Partial<TypeChecker> {
                     }
                 }
                 return;
-            case SyntaxKind.ExportSpecifier:
-                const exportDeclaration = (node as ExportSpecifier).parent.parent;
-                if (!(node as ExportSpecifier).isTypeOnly && !exportDeclaration.isTypeOnly && !exportDeclaration.moduleSpecifier) {
-                    const symbol = resolveEntityName((node as ExportSpecifier).propertyName || (node as ExportSpecifier).name, SymbolFlags.Value, /*ignoreErrors*/ true, /*dontResolveAlias*/ true);
-                    if (symbol && isParameterOrMutableLocalVariable(symbol)) {
-                        symbol.lastAssignmentPos = Number.MAX_VALUE;
-                    }
-                }
-                return;
+            // case SyntaxKind.ExportSpecifier:
+            //     const exportDeclaration = (node as ExportSpecifier).parent.parent;
+            //     if (!(node as ExportSpecifier).isTypeOnly && !exportDeclaration.isTypeOnly && !exportDeclaration.moduleSpecifier) {
+            //         const symbol = resolveEntityName((node as ExportSpecifier).propertyName || (node as ExportSpecifier).name, SymbolFlags.Value, /*ignoreErrors*/ true, /*dontResolveAlias*/ true);
+            //         if (symbol && isParameterOrMutableLocalVariable(symbol)) {
+            //             symbol.lastAssignmentPos = Number.MAX_VALUE;
+            //         }
+            //     }
+            //     return;
             case SyntaxKind.InterfaceDeclaration:
             case SyntaxKind.TypeAliasDeclaration:
-            case SyntaxKind.EnumDeclaration:
+            //case SyntaxKind.EnumDeclaration:
                 return;
         }
         if (isTypeNode(node)) {

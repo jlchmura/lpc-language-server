@@ -128,5 +128,22 @@ export const Diagnostics = {
     Type_0_is_not_assignable_to_type_1_with_exactOptionalPropertyTypes_Colon_true_Consider_adding_undefined_to_the_type_of_the_target:blank,
     The_expected_type_comes_from_this_index_signature:blank,
     The_expected_type_comes_from_property_0_which_is_declared_here_on_type_1:blank,
-    
+    The_expected_type_comes_from_the_return_type_of_this_signature:blank,
+    Did_you_mean_to_mark_this_function_as_async: blank,
+    Target_signature_provides_too_few_arguments_Expected_0_or_more_but_got_1: blank,
+    Types_of_parameters_0_and_1_are_incompatible: blank,
+    A_this_based_type_guard_is_not_compatible_with_a_parameter_based_type_guard:blank,
+    Type_predicate_0_is_not_assignable_to_1:blank,
+    Parameter_0_is_not_in_the_same_position_as_parameter_1:blank,
+    Generator_implicitly_has_yield_type_0_because_it_does_not_yield_any_values_Consider_supplying_a_return_type_annotation:blank,
+    Function_expression_which_lacks_return_type_annotation_implicitly_has_an_0_return_type:blank,
+    _0_implicitly_has_an_1_return_type_but_a_better_type_may_be_inferred_from_usage:blank,
+    _0_which_lacks_return_type_annotation_implicitly_has_an_1_yield_type:blank,
+    _0_which_lacks_return_type_annotation_implicitly_has_an_1_return_type:blank,
+    Mapped_object_type_implicitly_has_an_any_template_type:blank,
+    Variable_0_implicitly_has_an_1_type:blank,
+    Variable_0_implicitly_has_an_1_type_but_a_better_type_may_be_inferred_from_usage:blank,
+    Function_type_which_lacks_return_type_annotation_implicitly_has_an_0_return_type:blank,
+    This_overload_implicitly_returns_the_type_0_because_it_lacks_a_return_type_annotation:blank,
+          
 }
