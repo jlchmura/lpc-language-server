@@ -1319,9 +1319,8 @@ export interface FlowNodeBase {
 }
 
 /** Represents the start of a control flow. */
-export interface FlowStart extends FlowNodeBase {
-    // TODO: add nodes
-    //node: FunctionExpression | ArrowFunction |etc
+export interface FlowStart extends FlowNodeBase {    
+    node: FunctionExpression | ArrowFunction | MethodDeclaration | undefined;
     antecedent: undefined;
 }
 
@@ -2004,16 +2003,38 @@ export type HasJSDoc =
 // - `updateModifiers` in factory/nodeFactory.ts
 export type HasModifiers =
     | TypeParameterDeclaration
-    | ParameterDeclaration    
-    // | MethodSignature
-    // | MethodDeclaration    
-    //| IndexSignatureDeclaration
-    //| FunctionExpression
-    //| ArrowFunction    
+    | ParameterDeclaration
+    | ConstructorTypeNode
+    | PropertySignature
+    | PropertyDeclaration
+    | MethodSignature
+    | MethodDeclaration
+    // | ConstructorDeclaration
+    // | GetAccessorDeclaration
+    // | SetAccessorDeclaration
+    | IndexSignatureDeclaration
+    | FunctionExpression
+    | ArrowFunction
+    //| ClassExpression
     | VariableStatement
     | FunctionDeclaration
     //| ClassDeclaration
+    | InterfaceDeclaration
+    | TypeAliasDeclaration
+    // | EnumDeclaration
+    // | ModuleDeclaration
+    // | ImportEqualsDeclaration
+    // | ImportDeclaration
+    // | ExportAssignment
+    // | ExportDeclaration;
     ;
+    
+export interface MethodSignature extends SignatureDeclarationBase, TypeElement, LocalsContainer {
+    readonly kind: SyntaxKind.MethodSignature;
+    readonly parent: TypeLiteralNode | InterfaceDeclaration;
+    readonly modifiers?: NodeArray<Modifier>;
+    readonly name: PropertyName;
+}
 
 /** LPC doesn't have true classes, but each sourcefile can be considered class-like */
 export type ClassLikeDeclaration = SourceFile; 
@@ -2054,7 +2075,7 @@ export interface SignatureDeclarationBase extends NamedDeclaration, JSDocContain
 
 export type SignatureDeclaration =
     | CallSignatureDeclaration    
-    //| MethodSignature
+    | MethodSignature
     | IndexSignatureDeclaration
     | InlineClosureExpression
     | FunctionTypeNode    
@@ -5167,4 +5188,28 @@ export type FunctionOrConstructorTypeNode = FunctionTypeNode | ConstructorTypeNo
 /** @internal */
 export interface InstantiationExpressionType extends AnonymousType {
     node: NodeWithTypeArguments;
+}
+
+/** @internal */
+export interface FlowReduceLabel extends FlowNodeBase {
+    node: FlowReduceLabelData;
+    antecedent: FlowNode;
+}
+
+
+/** @internal */
+export interface FlowReduceLabelData {
+    target: FlowLabel;
+    antecedents: FlowNode[];
+}
+
+/** @internal */
+export type RequireOrImportCall = CallExpression & { expression: Identifier; arguments: [StringLiteral]; };
+
+/** @internal */
+// Object literals are initially marked fresh. Freshness disappears following an assignment,
+// before a type assertion, or when an object literal's type is widened. The regular
+// version of a fresh type is identical except for the TypeFlags.FreshObjectLiteral flag.
+export interface FreshObjectLiteralType extends ResolvedType {
+    regularType: ResolvedType; // Regular version of fresh type
 }

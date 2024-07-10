@@ -1,6 +1,6 @@
 import { addRange, emptyArray, find, flatMap } from "./core";
 import { Debug } from "./debug";
-import { isBinaryExpression, isBindingElement, isFunctionExpression, isIdentifier, isJSDoc, isJSDocDeprecatedTag, isJSDocParameterTag, isJSDocTemplateTag, isJSDocTypeTag, isParameter, isPropertyAssignment, isPropertyDeclaration, isTypeReferenceNode, isVariableDeclaration } from "./nodeTests";
+import { isBinaryExpression, isBindingElement, isBlock, isFunctionExpression, isIdentifier, isJSDoc, isJSDocDeprecatedTag, isJSDocParameterTag, isJSDocTemplateTag, isJSDocTypeTag, isModuleBlock, isParameter, isPropertyAssignment, isPropertyDeclaration, isSourceFile, isTypeReferenceNode, isVariableDeclaration } from "./nodeTests";
 import {
     AccessExpression,
     AssignmentDeclarationKind,
@@ -329,21 +329,33 @@ export function isBooleanLiteral(node: Node): node is IntegerLiteral {
 export function canHaveModifiers(node: Node): node is HasModifiers {
     const kind = node.kind;
     return kind === SyntaxKind.TypeParameter
-        || kind === SyntaxKind.Parameter        
+        || kind === SyntaxKind.Parameter
+        || kind === SyntaxKind.PropertySignature
+        || kind === SyntaxKind.PropertyDeclaration
         || kind === SyntaxKind.MethodSignature
         || kind === SyntaxKind.MethodDeclaration
-        
+        // || kind === SyntaxKind.Constructor
+        // || kind === SyntaxKind.GetAccessor
+        // || kind === SyntaxKind.SetAccessor
         || kind === SyntaxKind.IndexSignature
-        
+        || kind === SyntaxKind.ConstructorType
         || kind === SyntaxKind.FunctionExpression
-        // || kind === SyntaxKind.ArrowFunction
-        // || kind === SyntaxKind.ClassExpression
+        || kind === SyntaxKind.ArrowFunction
+        || kind === SyntaxKind.ClassExpression
+        // @ts-ignore
         || kind === SyntaxKind.VariableStatement
         || kind === SyntaxKind.FunctionDeclaration
         //|| kind === SyntaxKind.ClassDeclaration
+        || kind === SyntaxKind.InterfaceDeclaration
+        || kind === SyntaxKind.TypeAliasDeclaration
+        // || kind === SyntaxKind.EnumDeclaration
+        // || kind === SyntaxKind.ModuleDeclaration
+        // || kind === SyntaxKind.ImportEqualsDeclaration
+        || kind === SyntaxKind.ImportDeclaration
+        // || kind === SyntaxKind.ExportAssignment
+        // || kind === SyntaxKind.ExportDeclaration;
         ;
 }
-
 
 
 /** @internal */
@@ -1078,4 +1090,13 @@ export function isAssertionExpression(node: Node) {//: node is ssertionExpressio
 /** @internal */
 export function isTypeReferenceType(node: Node): node is TypeReferenceType {
     return node.kind === SyntaxKind.TypeReference || node.kind === SyntaxKind.ExpressionWithTypeArguments;
+}
+
+/** @internal */
+export function isFunctionOrModuleBlock(node: Node): boolean {
+    return isSourceFile(node) || isModuleBlock(node) || isBlock(node) && isFunctionLike(node.parent);
+}
+
+export function getJSDocSatisfiesTag(node: Node) {//: JSDocSatisfiesTag | undefined {
+    return false;//return getFirstJSDocTag(node, isJSDocSatisfiesTag);
 }

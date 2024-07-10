@@ -132,6 +132,14 @@ import {
     ImportTypeNode,
     PropertyName,
     TypeAliasDeclaration,
+    RequireOrImportCall,
+    ShiftOperator,
+    ShiftOperatorOrHigher,
+    AdditiveOperatorOrHigher,
+    ExponentiationOperator,
+    MultiplicativeOperator,
+    MultiplicativeOperatorOrHigher,
+    AdditiveOperator,
 } from "./types";
 import { LPCLexer } from "../parser3/LPCLexer";
 import { Debug } from "./debug";
@@ -184,6 +192,7 @@ import {
     getJSDocAugmentsTag,
     getJSDocParameterTags,
     getJSDocParameterTagsNoCache,
+    getJSDocSatisfiesTag,
     getJSDocTypeParameterTags,
     getJSDocTypeParameterTagsNoCache,
     getJSDocTypeTag,
@@ -4290,4 +4299,113 @@ export function isTypeAlias(node: Node): node is  TypeAliasDeclaration {//|JSDoc
 /** @internal */
 export function getContainingFunction(node: Node): SignatureDeclaration | undefined {
     return findAncestor(node.parent, isFunctionLike);
+}
+
+
+/**
+ * Returns true if the node is a CallExpression to the identifier 'require' with
+ * exactly one argument (of the form 'require("name")').
+ * This function does not test if the node is in a JavaScript file or not.
+ *
+ * @internal
+ */
+export function isRequireCall(callExpression: Node, requireStringLiteralLikeArgument: true): callExpression is RequireOrImportCall & { expression: Identifier; arguments: [StringLiteral]; };
+/** @internal */
+export function isRequireCall(callExpression: Node, requireStringLiteralLikeArgument: boolean): callExpression is CallExpression;
+/** @internal */
+export function isRequireCall(callExpression: Node, requireStringLiteralLikeArgument: boolean): callExpression is CallExpression {
+    if (callExpression.kind !== SyntaxKind.CallExpression) {
+        return false;
+    }
+    const { expression, arguments: args } = callExpression as CallExpression;
+
+    if (expression.kind !== SyntaxKind.Identifier || (expression as Identifier).text !== "require") {
+        return false;
+    }
+
+    if (args.length !== 1) {
+        return false;
+    }
+    const arg = args[0];
+    return !requireStringLiteralLikeArgument || isStringLiteralLike(arg);
+}
+
+/** @internal */
+export function isPushOrUnshiftIdentifier(node: Identifier) {
+    return node.text === "push" || node.text === "unshift";
+}
+
+function isCompoundLikeAssignment(assignment: AssignmentExpression<EqualsToken>): boolean {
+    const right = skipParentheses(assignment.right);
+    return right.kind === SyntaxKind.BinaryExpression && isShiftOperatorOrHigher((right as BinaryExpression).operatorToken.kind);
+}
+
+/** @internal */
+export function isInCompoundLikeAssignment(node: Node): boolean {
+    const target = getAssignmentTarget(node);
+    return !!target && isAssignmentExpression(target, /*excludeCompoundAssignment*/ true) && isCompoundLikeAssignment(target);
+}
+
+function isShiftOperator(kind: SyntaxKind): kind is ShiftOperator {
+    return kind === SyntaxKind.LessThanLessThanToken
+        || kind === SyntaxKind.GreaterThanGreaterThanToken
+        || kind === SyntaxKind.GreaterThanGreaterThanGreaterThanToken;
+}
+
+/** @internal */
+export function isShiftOperatorOrHigher(kind: SyntaxKind): kind is ShiftOperatorOrHigher {
+    return isShiftOperator(kind)
+        || isAdditiveOperatorOrHigher(kind);
+}
+
+function isAdditiveOperatorOrHigher(kind: SyntaxKind): kind is AdditiveOperatorOrHigher {
+    return isAdditiveOperator(kind)
+        || isMultiplicativeOperatorOrHigher(kind);
+}
+
+
+function isExponentiationOperator(kind: SyntaxKind): kind is ExponentiationOperator {
+    return kind === SyntaxKind.AsteriskAsteriskToken;
+}
+
+function isMultiplicativeOperator(kind: SyntaxKind): kind is MultiplicativeOperator {
+    return kind === SyntaxKind.AsteriskToken
+        || kind === SyntaxKind.SlashToken
+        || kind === SyntaxKind.PercentToken;
+}
+
+function isMultiplicativeOperatorOrHigher(kind: SyntaxKind): kind is MultiplicativeOperatorOrHigher {
+    return isExponentiationOperator(kind)
+        || isMultiplicativeOperator(kind);
+}
+
+function isAdditiveOperator(kind: SyntaxKind): kind is AdditiveOperator {
+    return kind === SyntaxKind.PlusToken
+        || kind === SyntaxKind.MinusToken;
+}
+
+/** @internal */
+export function tryGetJSDocSatisfiesTypeNode(node: Node) {
+    return undefined;
+    // const tag = getJSDocSatisfiesTag(node);
+    // return tag && tag.typeExpression && tag.typeExpression.type;
+}
+
+/** @internal */
+export function isComputedNonLiteralName(name: PropertyName): boolean {
+    return name.kind === SyntaxKind.ComputedPropertyName && !isStringOrNumericLiteralLike(name.expression);
+}
+
+function getPos(range: Node) {
+    return range.pos;
+}
+
+/**
+ * Note: it is expected that the `nodeArray` and the `node` are within the same file.
+ * For example, searching for a `SourceFile` in a `SourceFile[]` wouldn't work.
+ *
+ * @internal
+ */
+export function indexOfNode(nodeArray: readonly Node[], node: Node) {
+    return binarySearch(nodeArray, node, getPos, compareValues);
 }

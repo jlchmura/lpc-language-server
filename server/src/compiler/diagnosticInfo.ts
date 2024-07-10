@@ -104,6 +104,8 @@ export const Diagnostics = {
     Type_0_has_no_matching_index_signature_for_type_1:blank,
     Index_signature_in_type_0_only_permits_reading:blank,
     Type_instantiation_is_excessively_deep_and_possibly_infinite:blank,
-        
+    _0_needs_an_explicit_type_annotation:blank,
+    The_containing_function_or_module_body_is_too_large_for_control_flow_analysis:blank,
+           
 
 }
