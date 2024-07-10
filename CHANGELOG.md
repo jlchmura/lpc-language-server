@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.0.23
+
+-   Fix: Function signature was incorrect in symbol hover.
+
 ## 1.0.22
 
 -   Fix: [Find All References not detecting sefun->fn() calls #35](https://github.com/jlchmura/lpc-language-server/issues/35)

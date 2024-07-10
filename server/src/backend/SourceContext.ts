@@ -8,6 +8,7 @@ import {
     CharStream,
     CommonTokenStream,
     DefaultErrorStrategy,
+    Interval,
     ParseCancellationException,
     ParseTree,
     ParseTreeWalker,
@@ -106,6 +107,7 @@ import { ResolvedFilename } from "./types";
 import { EfunSymbol } from "../symbols/efunSymbol";
 import { MasterFileContext } from "../driver/MasterFile";
 import { MethodInvocationSymbol } from "../symbols/methodInvocationSymbol";
+import { Interface } from "readline";
 
 /**
  * Source context for a single LPC file.
@@ -638,7 +640,7 @@ export class SourceContext {
      *
      * @returns The definition info for the given rule context.
      */
-    public static definitionForContext(
+    public definitionForContext(
         ctx: ParseTree | undefined,
         keepQuotes: boolean
     ): IDefinition | undefined {
@@ -660,13 +662,9 @@ export class SourceContext {
             let start = ctx.start!.start;
             let stop = ctx.stop!.stop;
             let rangeCtx = ctx; // ctx to use for symbol range
+            const filename = (ctx.start! as LPCToken).filename;
 
-            if (ctx instanceof FunctionDeclarationContext) {
-                // function only needs the function header
-                const funHeader = ctx.functionHeader();
-                start = funHeader.start!.start;
-                stop = funHeader.stop!.stop;
-            } else if (ctx instanceof VariableDeclaratorContext) {
+            if (ctx instanceof VariableDeclaratorContext) {
                 // variables need a little reconstruction since a declarator can have multiple variables
                 const name = ctx._variableName.getText();
                 let type: string, mods: string;
@@ -713,17 +711,7 @@ export class SourceContext {
             result.range = lexRangeFromContext(rangeCtx);
 
             if (!result.text) {
-                const inputStream = ctx.start?.tokenSource?.inputStream;
-                if (inputStream) {
-                    try {
-                        result.text = inputStream.getTextFromRange(start, stop);
-                    } catch (e) {
-                        // The method getText uses an unreliable JS String API which can throw on larger texts.
-                        // In this case we cannot return the text of the given context.
-                        // A context with such a large size is probably an error case anyway (unfinished multi line comment
-                        // or unfinished action).
-                    }
-                }
+                result.text = ctx.getText();
             }
         } else if (ctx instanceof TerminalNode) {
             result.text = ctx.getText();
