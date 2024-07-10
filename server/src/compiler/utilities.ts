@@ -140,6 +140,8 @@ import {
     MultiplicativeOperator,
     MultiplicativeOperatorOrHigher,
     AdditiveOperator,
+    MethodSignature,
+    SuperProperty,
 } from "./types";
 import { LPCLexer } from "../parser3/LPCLexer";
 import { Debug } from "./debug";
@@ -4439,3 +4441,92 @@ export function isInfinityOrNaNString(name: string ): boolean {
     return name === "Infinity" || name === "-Infinity" || name === "NaN";
 }
 
+
+/** @internal */
+export type SuperContainer =
+    | PropertyDeclaration
+    | PropertySignature
+    | MethodDeclaration
+    | MethodSignature;
+    // | ConstructorDeclaration
+    // | GetAccessorDeclaration
+    // | SetAccessorDeclaration
+    // | ClassStaticBlockDeclaration;
+
+
+/** @internal */
+export type SuperContainerOrFunctions =
+    | SuperContainer
+    | FunctionDeclaration
+    | FunctionExpression
+    | ArrowFunction;
+
+
+/**
+ * Given an super call/property node, returns the closest node where
+ * - a super call/property access is legal in the node and not legal in the parent node the node.
+ *   i.e. super call is legal in constructor but not legal in the class body.
+ * - the container is an arrow function (so caller might need to call getSuperContainer again in case it needs to climb higher)
+ * - a super call/property is definitely illegal in the container (but might be legal in some subnode)
+ *   i.e. super property access is illegal in function declaration but can be legal in the statement list
+ *
+ * @internal
+ */
+export function getSuperContainer(node: Node, stopOnFunctions: false): SuperContainer | undefined;
+/** @internal */
+export function getSuperContainer(node: Node, stopOnFunctions: boolean): SuperContainerOrFunctions | undefined;
+export function getSuperContainer(node: Node, stopOnFunctions: boolean) {
+    while (true) {
+        node = node.parent;
+        if (!node) {
+            return undefined;
+        }
+        switch (node.kind) {
+            case SyntaxKind.ComputedPropertyName:
+                node = node.parent;
+                break;
+            case SyntaxKind.FunctionDeclaration:
+            case SyntaxKind.FunctionExpression:
+            case SyntaxKind.ArrowFunction:
+                if (!stopOnFunctions) {
+                    continue;
+                }
+                // falls through
+
+            case SyntaxKind.PropertyDeclaration:
+            case SyntaxKind.PropertySignature:
+            case SyntaxKind.MethodDeclaration:
+            case SyntaxKind.MethodSignature:
+            // case SyntaxKind.Constructor:
+            // case SyntaxKind.GetAccessor:
+            // case SyntaxKind.SetAccessor:
+            // case SyntaxKind.ClassStaticBlockDeclaration:
+                return node as SuperContainerOrFunctions;
+            // case SyntaxKind.Decorator:
+            //     // Decorators are always applied outside of the body of a class or method.
+            //     if (node.parent.kind === SyntaxKind.Parameter && isClassElement(node.parent.parent)) {
+            //         // If the decorator's parent is a Parameter, we resolve the this container from
+            //         // the grandparent class declaration.
+            //         node = node.parent.parent;
+            //     }
+            //     else if (isClassElement(node.parent)) {
+            //         // If the decorator's parent is a class element, we resolve the 'this' container
+            //         // from the parent class declaration.
+            //         node = node.parent;
+            //     }
+            //     break;
+        }
+    }
+}
+
+
+/**
+ * Determines whether a node is a property or element access expression for `super`.
+ *
+ * @internal
+ */
+export function isSuperProperty(node: Node): node is SuperProperty {
+    const kind = node.kind;
+    return (kind === SyntaxKind.PropertyAccessExpression || kind === SyntaxKind.ElementAccessExpression)
+        && (node as PropertyAccessExpression | ElementAccessExpression).expression.kind === SyntaxKind.SuperKeyword;
+}

@@ -8,8 +8,8 @@ import { createModeAwareCacheKey } from "./moduleNameResolver";
 import { isParameter, isIdentifier, isPropertyAccessExpression, isSourceFile, isPropertyDeclaration, isBindingElement, isComputedPropertyName, isPrivateIdentifier, isTypeLiteralNode, isBinaryExpression, isFunctionExpression, isVariableDeclaration, isPropertyAssignment, isImportTypeNode, isVariableStatement, isElementAccessExpression, isBlock, isIndexedAccessTypeNode, isStringLiteral, isTypeParameterDeclaration, isLiteralTypeNode, isVariableDeclarationList, isFunctionDeclaration, isJSDocTypeExpression, isCallExpression, isNumericLiteral, isShorthandPropertyAssignment, isCallSignatureDeclaration, isObjectBindingPattern, isParenthesizedExpression, isArrayBindingPattern, isPrefixUnaryExpression, isDecorator, isMethodDeclaration, isHeritageClause, isQualifiedName, isModuleBlock, isClassExpression, isObjectLiteralExpression, isPropertySignature, isJSDocPropertyTag, isOmittedExpression, isClassDeclaration, isMethodSignature, isJSDocTemplateTag, isExpressionWithTypeArguments, isTypeAliasDeclaration, isParenthesizedTypeNode, isTypeOperatorNode, isTypePredicateNode } from "./nodeTests";
 import { forEachChild, parseNodeFactory } from "./parser";
 import { Scanner, skipTrivia, tokenToString } from "./scanner";
-import { Symbol, AccessExpression, AccessFlags, AnonymousType, AnyImportOrJsDocImport, ArrayBindingPattern, ArrayLiteralExpression, ArrayTypeNode, ArrowFunction, AssignmentDeclarationKind, AssignmentPattern, BaseType, BinaryExpression, BinaryOperator, BinaryOperatorToken, BindableStaticNameExpression, BindingElement, BindingName, BindingPattern, Block, CallChain, CallExpression, CallLikeExpression, CallSignatureDeclaration, CancellationToken, CaseBlock, CaseClause, CaseOrDefaultClause, CheckFlags, ClassElement, ClassLikeDeclaration, CompilerOptions, ComputedPropertyName, ConditionalExpression, ContextFlags, Declaration, DeclarationName, DeclarationStatement, DefaultClause, Diagnostic, DiagnosticAndArguments, DiagnosticArguments, DiagnosticCategory, DiagnosticMessage, DiagnosticMessageChain, DiagnosticRelatedInformation, DiagnosticWithLocation, DoStatement, DynamicNamedDeclaration, ElementAccessChain, ElementAccessExpression, EmitResolver, EmitTextWriter, EntityName, EntityNameExpression, EntityNameOrEntityNameExpression, ExclamationToken, Expression, ExpressionStatement, FlowArrayMutation, FlowAssignment, FlowCall, FlowCondition, FlowFlags, FlowLabel, FlowNode, FlowStart, FlowSwitchClause, FlowSwitchClauseData, FlowType, ForInStatement, ForStatement, FreshableIntrinsicType, FreshableType, FunctionDeclaration, FunctionExpression, FunctionLikeDeclaration, GenericType, HasLocals, HasModifiers, Identifier, IdentifierTypePredicate, IfStatement, ImportCall, ImportClause, ImportDeclaration, ImportSpecifier, ImportTypeNode, IndexedAccessType, IndexedAccessTypeNode, IndexFlags, IndexInfo, IndexKind, IndexSignatureDeclaration, IndexType, InferTypeNode, InstantiableType, InterfaceType, InternalSymbolName, IntrinsicType, JSDoc, JSDocComment, JSDocFunctionType, JSDocImportTag, JSDocParameterTag, JSDocPropertyLikeTag, JSDocSignature, JSDocTemplateTag, JSDocTypeAssertion, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, KeywordTypeNode, LateBoundBinaryExpressionDeclaration, LateBoundDeclaration, LateBoundName, LateVisibilityPaintedStatement, LiteralExpression, LiteralType, LiteralTypeNode, MappedType, MappedTypeNode, MatchingKeys, MemberOverrideStatus, MethodDeclaration, MinusToken, Modifier, ModifierFlags, ModuleSpecifierResolutionHost, NamedDeclaration, NewExpression, Node, NodeArray, NodeBuilderFlags, NodeCheckFlags, NodeFlags, NodeWithTypeArguments, NonNullChain, NonNullExpression, NumberLiteralType, NumericLiteral, ObjectBindingPattern, ObjectFlags, ObjectFlagsType, ObjectLiteralElementLike, ObjectLiteralExpression, ObjectType, OuterExpressionKinds, ParameterDeclaration, ParenthesizedExpression, Path, PlusToken, PostfixUnaryExpression, PrefixUnaryExpression, PrivateIdentifier, PropertyAccessChain, PropertyAccessEntityNameExpression, PropertyAccessExpression, PropertyAssignment, PropertyDeclaration, PropertyName, PropertySignature, PunctuationSyntaxKind, QualifiedName, QuestionToken, ResolutionMode, ResolvedType, ReturnStatement, ReverseMappedType, ShorthandPropertyAssignment, Signature, SignatureDeclaration, SignatureFlags, SignatureKind, SourceFile, SpreadElement, Statement, StringLiteral, StringLiteralType, StructuredType, SwitchStatement, SymbolAccessibility, SymbolAccessibilityResult, SymbolFlags, SymbolFormatFlags, SymbolId, SymbolTable, SymbolTracker, SymbolVisibilityResult, SyntaxKind, TextSpan, TokenFlags, TrackedSymbol, TransientSymbol, TransientSymbolLinks, Type, TypeAssertion, TypeChecker, TypeCheckerHost, TypeElement, TypeFlags, TypeFormatFlags, TypeId, TypeLiteralNode, TypeMapKind, TypeMapper, TypeNode, TypeNodeSyntaxKind, TypeOnlyAliasDeclaration, TypeParameter, TypeParameterDeclaration, TypePredicate, TypePredicateKind, TypeReference, TypeReferenceNode, TypeReferenceSerializationKind, TypeVariable, UnionOrIntersectionType, UnionReduction, UnionType, UnionTypeNode, VariableDeclaration, VariableDeclarationList, VariableLikeDeclaration, VariableStatement, VarianceFlags, VoidExpression, WhileStatement, SymbolLinks, NodeLinks, ExternalEmitHelpers, EvolvingArrayType, IterationTypes, PatternAmbientModule, InferenceContext, RelationComparisonResult, VisitResult, Program, ReverseMappedSymbol, MappedSymbol, BindableObjectDefinePropertyCall, WideningContext, BindingElementGrandparent, ElementFlags, NamedTupleMember, HasInitializer, InterfaceTypeWithDeclaredMembers, ExpressionWithTypeArguments, IntersectionType, TypeOperatorNode, ConditionalType, JsxAttributes, SubstitutionType, TemplateLiteralType, StringMappingType, TupleTypeReference, TupleType, Ternary, DeclarationWithTypeParameters, SingleSignatureType, ConditionalTypeNode, TupleTypeNode, DeferredTypeReference, ParenthesizedTypeNode, OptionalTypeNode, IntersectionFlags, SyntheticExpression, ConditionalRoot, InferenceInfo, InferencePriority, InferenceFlags, TypeReferenceType, FunctionOrConstructorTypeNode, InstantiationExpressionType, FlowReduceLabel, FreshObjectLiteralType, IterableOrIteratorType } from "./types";
-import { objectAllocator, createSymbolTable, createNameResolver, createDiagnosticCollection, getSourceFileOfNode, setTextRangePosEnd, createFileDiagnostic, addRelatedInfo, setValueDeclaration, getImmediatelyInvokedFunctionExpression, getContainingClass, declarationNameToString, nodeIsSynthesized, getRootDeclaration, getTextOfNode, isEntityNameExpression, isBlockOrCatchScoped, getAssignmentDeclarationKind, isAccessExpression, hasSyntacticModifier, nodeIsMissing, isObjectLiteralMethod, isJSDocTypeAssertion, isPropertyAccessEntityNameExpression, modifiersToFlags, setParent, isPartOfParameterDeclaration, hasDynamicName, Mutable, skipParentheses, isCatchClauseVariableDeclarationOrBindingElement, isStringOrNumericLiteralLike, getAssignmentDeclarationPropertyAccessKind, isTypeUsableAsPropertyName, isBindableStaticElementAccessExpression, isAssignmentTarget, isConstAssertion, getSymbolNameForPrivateIdentifier, isOptionalChain, isTypeNodeKind, isAssignmentExpression, isObjectLiteralOrClassExpressionMethodOrAccessor, skipOuterExpressions, getErrorSpanForNode, nodeIsPresent, isDottedName, isAssignmentOperator, createBinaryExpressionTrampoline, isLogicalOrCoalescingBinaryOperator, isLogicalOrCoalescingBinaryExpression, isPropertyNameLiteral, getEscapedTextOfIdentifierOrLiteral, hasSyntacticModifiers, modifierToFlag, isExpressionNode, createEvaluator, getFirstIdentifier, skipTypeChecking, containsParseError, createDiagnosticForNode, createCompilerDiagnostic, createDiagnosticForFileFromMessageChain, createDiagnosticForNodeFromMessageChain, getExpandoInitializer, getNameOfExpando, compareDiagnostics, isTypeDeclaration, getEnclosingBlockScopeContainer, getAncestor, getCanonicalDiagnostic, isValidTypeOnlyAliasUseSite, isInTypeQuery, getContainingClassExcludingClassDecorators, getCheckFlags, getObjectFlags, getSpanOfTokenAtPosition, getFunctionFlags, FunctionFlags, isStatic, getThisContainer, isInJSFile, entityNameToString, getDeclarationOfKind, isAmbientModule, hasEffectiveModifier, getAssignedExpandoInitializer, createTextWriter, getDeclarationModifierFlagsFromSymbol, canHaveFlowNode, getEffectiveTypeAnnotationNode, hasAccessorModifier, isOptionalDeclaration, hasStaticModifier, getDeclaredExpandoInitializer, findConstructorDeclaration, getEffectiveModifierFlags, getPropertyNameFromType, isTransientSymbol, getParameterSymbolFromJSDoc, getMembersOfDeclaration, isDynamicName, resolvingEmptyArray, getClassLikeDeclarationOfSymbol, getEffectiveBaseTypeNode, chainDiagnosticMessages, getContainingClassStaticBlock, isNodeDescendantOf, isNumericLiteralName, isValueSignatureDeclaration, getEffectiveReturnTypeNode, walkUpParenthesizedTypesAndGetParentAndChild, isPartOfTypeNode, getPropertyNameForPropertyNameNode, isKnownSymbol, getAssignmentTargetKind, AssignmentKind, tryGetPropertyAccessOrIdentifierToString, isDeleteTarget, skipTypeParentheses, isTypeAlias, getContainingFunction, isRequireCall, isPushOrUnshiftIdentifier, isInCompoundLikeAssignment, tryGetJSDocSatisfiesTypeNode, isComputedNonLiteralName, indexOfNode, isThisInTypeQuery, evaluatorResult, isInfinityOrNaNString, forEachReturnStatement } from "./utilities";
+import { Symbol, AccessExpression, AccessFlags, AnonymousType, AnyImportOrJsDocImport, ArrayBindingPattern, ArrayLiteralExpression, ArrayTypeNode, ArrowFunction, AssignmentDeclarationKind, AssignmentPattern, BaseType, BinaryExpression, BinaryOperator, BinaryOperatorToken, BindableStaticNameExpression, BindingElement, BindingName, BindingPattern, Block, CallChain, CallExpression, CallLikeExpression, CallSignatureDeclaration, CancellationToken, CaseBlock, CaseClause, CaseOrDefaultClause, CheckFlags, ClassElement, ClassLikeDeclaration, CompilerOptions, ComputedPropertyName, ConditionalExpression, ContextFlags, Declaration, DeclarationName, DeclarationStatement, DefaultClause, Diagnostic, DiagnosticAndArguments, DiagnosticArguments, DiagnosticCategory, DiagnosticMessage, DiagnosticMessageChain, DiagnosticRelatedInformation, DiagnosticWithLocation, DoStatement, DynamicNamedDeclaration, ElementAccessChain, ElementAccessExpression, EmitResolver, EmitTextWriter, EntityName, EntityNameExpression, EntityNameOrEntityNameExpression, ExclamationToken, Expression, ExpressionStatement, FlowArrayMutation, FlowAssignment, FlowCall, FlowCondition, FlowFlags, FlowLabel, FlowNode, FlowStart, FlowSwitchClause, FlowSwitchClauseData, FlowType, ForInStatement, ForStatement, FreshableIntrinsicType, FreshableType, FunctionDeclaration, FunctionExpression, FunctionLikeDeclaration, GenericType, HasLocals, HasModifiers, Identifier, IdentifierTypePredicate, IfStatement, ImportCall, ImportClause, ImportDeclaration, ImportSpecifier, ImportTypeNode, IndexedAccessType, IndexedAccessTypeNode, IndexFlags, IndexInfo, IndexKind, IndexSignatureDeclaration, IndexType, InferTypeNode, InstantiableType, InterfaceType, InternalSymbolName, IntrinsicType, JSDoc, JSDocComment, JSDocFunctionType, JSDocImportTag, JSDocParameterTag, JSDocPropertyLikeTag, JSDocSignature, JSDocTemplateTag, JSDocTypeAssertion, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, KeywordTypeNode, LateBoundBinaryExpressionDeclaration, LateBoundDeclaration, LateBoundName, LateVisibilityPaintedStatement, LiteralExpression, LiteralType, LiteralTypeNode, MappedType, MappedTypeNode, MatchingKeys, MemberOverrideStatus, MethodDeclaration, MinusToken, Modifier, ModifierFlags, ModuleSpecifierResolutionHost, NamedDeclaration, NewExpression, Node, NodeArray, NodeBuilderFlags, NodeCheckFlags, NodeFlags, NodeWithTypeArguments, NonNullChain, NonNullExpression, NumberLiteralType, NumericLiteral, ObjectBindingPattern, ObjectFlags, ObjectFlagsType, ObjectLiteralElementLike, ObjectLiteralExpression, ObjectType, OuterExpressionKinds, ParameterDeclaration, ParenthesizedExpression, Path, PlusToken, PostfixUnaryExpression, PrefixUnaryExpression, PrivateIdentifier, PropertyAccessChain, PropertyAccessEntityNameExpression, PropertyAccessExpression, PropertyAssignment, PropertyDeclaration, PropertyName, PropertySignature, PunctuationSyntaxKind, QualifiedName, QuestionToken, ResolutionMode, ResolvedType, ReturnStatement, ReverseMappedType, ShorthandPropertyAssignment, Signature, SignatureDeclaration, SignatureFlags, SignatureKind, SourceFile, SpreadElement, Statement, StringLiteral, StringLiteralType, StructuredType, SwitchStatement, SymbolAccessibility, SymbolAccessibilityResult, SymbolFlags, SymbolFormatFlags, SymbolId, SymbolTable, SymbolTracker, SymbolVisibilityResult, SyntaxKind, TextSpan, TokenFlags, TrackedSymbol, TransientSymbol, TransientSymbolLinks, Type, TypeAssertion, TypeChecker, TypeCheckerHost, TypeElement, TypeFlags, TypeFormatFlags, TypeId, TypeLiteralNode, TypeMapKind, TypeMapper, TypeNode, TypeNodeSyntaxKind, TypeOnlyAliasDeclaration, TypeParameter, TypeParameterDeclaration, TypePredicate, TypePredicateKind, TypeReference, TypeReferenceNode, TypeReferenceSerializationKind, TypeVariable, UnionOrIntersectionType, UnionReduction, UnionType, UnionTypeNode, VariableDeclaration, VariableDeclarationList, VariableLikeDeclaration, VariableStatement, VarianceFlags, VoidExpression, WhileStatement, SymbolLinks, NodeLinks, ExternalEmitHelpers, EvolvingArrayType, IterationTypes, PatternAmbientModule, InferenceContext, RelationComparisonResult, VisitResult, Program, ReverseMappedSymbol, MappedSymbol, BindableObjectDefinePropertyCall, WideningContext, BindingElementGrandparent, ElementFlags, NamedTupleMember, HasInitializer, InterfaceTypeWithDeclaredMembers, ExpressionWithTypeArguments, IntersectionType, TypeOperatorNode, ConditionalType, JsxAttributes, SubstitutionType, TemplateLiteralType, StringMappingType, TupleTypeReference, TupleType, Ternary, DeclarationWithTypeParameters, SingleSignatureType, ConditionalTypeNode, TupleTypeNode, DeferredTypeReference, ParenthesizedTypeNode, OptionalTypeNode, IntersectionFlags, SyntheticExpression, ConditionalRoot, InferenceInfo, InferencePriority, InferenceFlags, TypeReferenceType, FunctionOrConstructorTypeNode, InstantiationExpressionType, FlowReduceLabel, FreshObjectLiteralType, IterableOrIteratorType, TypeComparer } from "./types";
+import { objectAllocator, createSymbolTable, createNameResolver, createDiagnosticCollection, getSourceFileOfNode, setTextRangePosEnd, createFileDiagnostic, addRelatedInfo, setValueDeclaration, getImmediatelyInvokedFunctionExpression, getContainingClass, declarationNameToString, nodeIsSynthesized, getRootDeclaration, getTextOfNode, isEntityNameExpression, isBlockOrCatchScoped, getAssignmentDeclarationKind, isAccessExpression, hasSyntacticModifier, nodeIsMissing, isObjectLiteralMethod, isJSDocTypeAssertion, isPropertyAccessEntityNameExpression, modifiersToFlags, setParent, isPartOfParameterDeclaration, hasDynamicName, Mutable, skipParentheses, isCatchClauseVariableDeclarationOrBindingElement, isStringOrNumericLiteralLike, getAssignmentDeclarationPropertyAccessKind, isTypeUsableAsPropertyName, isBindableStaticElementAccessExpression, isAssignmentTarget, isConstAssertion, getSymbolNameForPrivateIdentifier, isOptionalChain, isTypeNodeKind, isAssignmentExpression, isObjectLiteralOrClassExpressionMethodOrAccessor, skipOuterExpressions, getErrorSpanForNode, nodeIsPresent, isDottedName, isAssignmentOperator, createBinaryExpressionTrampoline, isLogicalOrCoalescingBinaryOperator, isLogicalOrCoalescingBinaryExpression, isPropertyNameLiteral, getEscapedTextOfIdentifierOrLiteral, hasSyntacticModifiers, modifierToFlag, isExpressionNode, createEvaluator, getFirstIdentifier, skipTypeChecking, containsParseError, createDiagnosticForNode, createCompilerDiagnostic, createDiagnosticForFileFromMessageChain, createDiagnosticForNodeFromMessageChain, getExpandoInitializer, getNameOfExpando, compareDiagnostics, isTypeDeclaration, getEnclosingBlockScopeContainer, getAncestor, getCanonicalDiagnostic, isValidTypeOnlyAliasUseSite, isInTypeQuery, getContainingClassExcludingClassDecorators, getCheckFlags, getObjectFlags, getSpanOfTokenAtPosition, getFunctionFlags, FunctionFlags, isStatic, getThisContainer, isInJSFile, entityNameToString, getDeclarationOfKind, isAmbientModule, hasEffectiveModifier, getAssignedExpandoInitializer, createTextWriter, getDeclarationModifierFlagsFromSymbol, canHaveFlowNode, getEffectiveTypeAnnotationNode, hasAccessorModifier, isOptionalDeclaration, hasStaticModifier, getDeclaredExpandoInitializer, findConstructorDeclaration, getEffectiveModifierFlags, getPropertyNameFromType, isTransientSymbol, getParameterSymbolFromJSDoc, getMembersOfDeclaration, isDynamicName, resolvingEmptyArray, getClassLikeDeclarationOfSymbol, getEffectiveBaseTypeNode, chainDiagnosticMessages, getContainingClassStaticBlock, isNodeDescendantOf, isNumericLiteralName, isValueSignatureDeclaration, getEffectiveReturnTypeNode, walkUpParenthesizedTypesAndGetParentAndChild, isPartOfTypeNode, getPropertyNameForPropertyNameNode, isKnownSymbol, getAssignmentTargetKind, AssignmentKind, tryGetPropertyAccessOrIdentifierToString, isDeleteTarget, skipTypeParentheses, isTypeAlias, getContainingFunction, isRequireCall, isPushOrUnshiftIdentifier, isInCompoundLikeAssignment, tryGetJSDocSatisfiesTypeNode, isComputedNonLiteralName, indexOfNode, isThisInTypeQuery, evaluatorResult, isInfinityOrNaNString, forEachReturnStatement, getSuperContainer, isSuperProperty } from "./utilities";
 import { getParseTreeNode, escapeLeadingUnderscores, isTypeNode, isExpression, isFunctionLike, findAncestor, getNameOfDeclaration, isClassLike, isForInOrOfStatement, isStringLiteralLike, canHaveLocals, idText, symbolName, isBindingPattern, canHaveModifiers, isFunctionLikeDeclaration, isNamedDeclaration, isLeftHandSideExpression, walkUpBindingElementsAndPatterns, getJSDocTypeTag, isStatement, isBooleanLiteral, getCombinedNodeFlags, isFunctionLikeOrClassStaticBlockDeclaration, isAssignmentPattern, isObjectLiteralElementLike, isCallLikeExpression, isPropertyAccessOrQualifiedNameOrImportTypeNode, unescapeLeadingUnderscores, isCallLikeOrFunctionLikeExpression, isFunctionExpressionOrArrowFunction, getJSDocDeprecatedTag, textRangeContainsPositionInclusive, isDeclaration, isGetOrSetAccessorDeclaration, isEntityName, canHaveSymbol, getCombinedModifierFlags, isPrivateIdentifierClassElementDeclaration, setTextRange as setTextRangeWorker, getJSDocType, hasOnlyExpressionInitializer, isJSDocPropertyLikeTag, getEffectiveTypeParameterDeclarations, getEffectiveConstraintOfTypeParameter, isPropertyName, isCallOrNewExpression, isConstTypeReference, isAssertionExpression, isTypeReferenceType, hasInitializer, isFunctionOrModuleBlock } from "./utilitiesPublic";
 import { createSyntacticTypeNodeBuilder } from "./expressionToTypeNode";
 import { createGetSymbolWalker } from "./symbolWalker";
@@ -19275,14 +19275,14 @@ export function createTypeChecker(host: TypeCheckerHost): Partial<TypeChecker> {
             return true;
         }
         switch (node.kind) {
-            case SyntaxKind.AsExpression:
-                if (!isConstAssertion(node)) {
-                    break;
-                }
+            // case SyntaxKind.AsExpression:
+            //     if (!isConstAssertion(node)) {
+            //         break;
+            //     }
                 // fallthrough
-            case SyntaxKind.JsxExpression:
+           // case SyntaxKind.JsxExpression:
             case SyntaxKind.ParenthesizedExpression:
-                return elaborateError((node as AsExpression | ParenthesizedExpression | JsxExpression).expression, source, target, relation, headMessage, containingMessageChain, errorOutputContainer);
+                return elaborateError((node as  ParenthesizedExpression).expression, source, target, relation, headMessage, containingMessageChain, errorOutputContainer);
             case SyntaxKind.BinaryExpression:
                 switch ((node as BinaryExpression).operatorToken.kind) {
                     case SyntaxKind.EqualsToken:
@@ -19294,8 +19294,8 @@ export function createTypeChecker(host: TypeCheckerHost): Partial<TypeChecker> {
                 return elaborateObjectLiteral(node as ObjectLiteralExpression, source, target, relation, containingMessageChain, errorOutputContainer);
             case SyntaxKind.ArrayLiteralExpression:
                 return elaborateArrayLiteral(node as ArrayLiteralExpression, source, target, relation, containingMessageChain, errorOutputContainer);
-            case SyntaxKind.JsxAttributes:
-                return elaborateJsxComponents(node as JsxAttributes, source, target, relation, containingMessageChain, errorOutputContainer);
+            // case SyntaxKind.JsxAttributes:
+            //     return elaborateJsxComponents(node as JsxAttributes, source, target, relation, containingMessageChain, errorOutputContainer);
             case SyntaxKind.ArrowFunction:
                 return elaborateArrowFunction(node as ArrowFunction, source, target, relation, containingMessageChain, errorOutputContainer);
         }
@@ -19723,28 +19723,28 @@ export function createTypeChecker(host: TypeCheckerHost): Partial<TypeChecker> {
 //         }
 //     }
 
-//     function elaborateArrayLiteral(
-//         node: ArrayLiteralExpression,
-//         source: Type,
-//         target: Type,
-//         relation: Map<string, RelationComparisonResult>,
-//         containingMessageChain: (() => DiagnosticMessageChain | undefined) | undefined,
-//         errorOutputContainer: { errors?: Diagnostic[]; skipLogging?: boolean; } | undefined,
-//     ) {
-//         if (target.flags & (TypeFlags.Primitive | TypeFlags.Never)) return false;
-//         if (isTupleLikeType(source)) {
-//             return elaborateElementwise(generateLimitedTupleElements(node, target), source, target, relation, containingMessageChain, errorOutputContainer);
-//         }
-//         // recreate a tuple from the elements, if possible
-//         // Since we're re-doing the expression type, we need to reapply the contextual type
-//         pushContextualType(node, target, /*isCache*/ false);
-//         const tupleizedType = checkArrayLiteral(node, CheckMode.Contextual, /*forceTuple*/ true);
-//         popContextualType();
-//         if (isTupleLikeType(tupleizedType)) {
-//             return elaborateElementwise(generateLimitedTupleElements(node, target), tupleizedType, target, relation, containingMessageChain, errorOutputContainer);
-//         }
-//         return false;
-//     }
+    function elaborateArrayLiteral(
+        node: ArrayLiteralExpression,
+        source: Type,
+        target: Type,
+        relation: Map<string, RelationComparisonResult>,
+        containingMessageChain: (() => DiagnosticMessageChain | undefined) | undefined,
+        errorOutputContainer: { errors?: Diagnostic[]; skipLogging?: boolean; } | undefined,
+    ) {
+        if (target.flags & (TypeFlags.Primitive | TypeFlags.Never)) return false;
+        // if (isTupleLikeType(source)) {
+        //     return elaborateElementwise(generateLimitedTupleElements(node, target), source, target, relation, containingMessageChain, errorOutputContainer);
+        // }
+        // recreate a tuple from the elements, if possible
+        // Since we're re-doing the expression type, we need to reapply the contextual type
+        pushContextualType(node, target, /*isCache*/ false);
+        const tupleizedType = checkArrayLiteral(node, CheckMode.Contextual, /*forceTuple*/ true);
+        popContextualType();
+        if (isTupleLikeType(tupleizedType)) {
+            return elaborateElementwise(generateLimitedTupleElements(node, target), tupleizedType, target, relation, containingMessageChain, errorOutputContainer);
+        }
+        return false;
+    }
 
 //     function* generateObjectLiteralElements(node: ObjectLiteralExpression): ElaborationIterator {
 //         if (!length(node.properties)) return;
@@ -19770,17 +19770,17 @@ export function createTypeChecker(host: TypeCheckerHost): Partial<TypeChecker> {
 //         }
 //     }
 
-//     function elaborateObjectLiteral(
-//         node: ObjectLiteralExpression,
-//         source: Type,
-//         target: Type,
-//         relation: Map<string, RelationComparisonResult>,
-//         containingMessageChain: (() => DiagnosticMessageChain | undefined) | undefined,
-//         errorOutputContainer: { errors?: Diagnostic[]; skipLogging?: boolean; } | undefined,
-//     ) {
-//         if (target.flags & (TypeFlags.Primitive | TypeFlags.Never)) return false;
-//         return elaborateElementwise(generateObjectLiteralElements(node), source, target, relation, containingMessageChain, errorOutputContainer);
-//     }
+    function elaborateObjectLiteral(
+        node: ObjectLiteralExpression,
+        source: Type,
+        target: Type,
+        relation: Map<string, RelationComparisonResult>,
+        containingMessageChain: (() => DiagnosticMessageChain | undefined) | undefined,
+        errorOutputContainer: { errors?: Diagnostic[]; skipLogging?: boolean; } | undefined,
+    ) {
+        if (target.flags & (TypeFlags.Primitive | TypeFlags.Never)) return false;
+        return elaborateElementwise(generateObjectLiteralElements(node), source, target, relation, containingMessageChain, errorOutputContainer);
+    }
 
 //     /**
 //      * This is *not* a bi-directional relationship.
@@ -26352,13 +26352,13 @@ export function createTypeChecker(host: TypeCheckerHost): Partial<TypeChecker> {
         return type.flags & TypeFlags.Never || f(type) ? type : neverType;
     }
 
-//     function removeType(type: Type, targetType: Type) {
-//         return filterType(type, t => t !== targetType);
-//     }
+    function removeType(type: Type, targetType: Type) {
+        return filterType(type, t => t !== targetType);
+    }
 
-//     function countTypes(type: Type) {
-//         return type.flags & TypeFlags.Union ? (type as UnionType).types.length : 1;
-//     }
+    function countTypes(type: Type) {
+        return type.flags & TypeFlags.Union ? (type as UnionType).types.length : 1;
+    }
 
     // Apply a mapping function to a type and return the resulting type. If the source type
     // is a union type, the mapping function is applied to each constituent type and a union
@@ -26629,13 +26629,13 @@ export function createTypeChecker(host: TypeCheckerHost): Partial<TypeChecker> {
             signature.declaration && (getReturnTypeFromAnnotation(signature.declaration) || unknownType).flags & TypeFlags.Never);
     }
 
-//     function getTypePredicateArgument(predicate: TypePredicate, callExpression: CallExpression) {
-//         if (predicate.kind === TypePredicateKind.Identifier || predicate.kind === TypePredicateKind.AssertsIdentifier) {
-//             return callExpression.arguments[predicate.parameterIndex];
-//         }
-//         const invokedExpression = skipParentheses(callExpression.expression);
-//         return isAccessExpression(invokedExpression) ? skipParentheses(invokedExpression.expression) : undefined;
-//     }
+    function getTypePredicateArgument(predicate: TypePredicate, callExpression: CallExpression) {
+        if (predicate.kind === TypePredicateKind.Identifier || predicate.kind === TypePredicateKind.AssertsIdentifier) {
+            return callExpression.arguments[predicate.parameterIndex];
+        }
+        const invokedExpression = skipParentheses(callExpression.expression);
+        return isAccessExpression(invokedExpression) ? skipParentheses(invokedExpression.expression) : undefined;
+    }
 
     function reportFlowControlError(node: Node) {
         const block = findAncestor(node, isFunctionOrModuleBlock) as Block | SourceFile;//ModuleBlock | SourceFile;
@@ -29367,7 +29367,7 @@ export function createTypeChecker(host: TypeCheckerHost): Partial<TypeChecker> {
             while (container && container.kind === SyntaxKind.ArrowFunction) {
                 if (hasSyntacticModifier(container, ModifierFlags.Async)) inAsyncFunction = true;
                 container = getSuperContainer(container, /*stopOnFunctions*/ true);
-                needToCaptureLexicalThis = languageVersion < ScriptTarget.ES2015;
+                needToCaptureLexicalThis = false;//languageVersion < ScriptTarget.ES2015;
             }
             if (container && hasSyntacticModifier(container, ModifierFlags.Async)) inAsyncFunction = true;
         }
@@ -30922,83 +30922,83 @@ export function createTypeChecker(host: TypeCheckerHost): Partial<TypeChecker> {
 //         return isSpreadElement(parent) && isCallOrNewExpression(parent.parent);
 //     }
 
-//     function checkArrayLiteral(node: ArrayLiteralExpression, checkMode: CheckMode | undefined, forceTuple: boolean | undefined): Type {
-//         const elements = node.elements;
-//         const elementCount = elements.length;
-//         const elementTypes: Type[] = [];
-//         const elementFlags: ElementFlags[] = [];
-//         pushCachedContextualType(node);
-//         const inDestructuringPattern = isAssignmentTarget(node);
-//         const inConstContext = isConstContext(node);
-//         const contextualType = getApparentTypeOfContextualType(node, /*contextFlags*/ undefined);
-//         const inTupleContext = isSpreadIntoCallOrNew(node) || !!contextualType && someType(contextualType, t => isTupleLikeType(t) || isGenericMappedType(t) && !t.nameType && !!getHomomorphicTypeVariable(t.target as MappedType || t));
+    function checkArrayLiteral(node: ArrayLiteralExpression, checkMode: CheckMode | undefined, forceTuple: boolean | undefined): Type {
+        const elements = node.elements;
+        const elementCount = elements.length;
+        const elementTypes: Type[] = [];
+        const elementFlags: ElementFlags[] = [];
+        pushCachedContextualType(node);
+        const inDestructuringPattern = isAssignmentTarget(node);
+        const inConstContext = isConstContext(node);
+        const contextualType = getApparentTypeOfContextualType(node, /*contextFlags*/ undefined);
+        const inTupleContext = isSpreadIntoCallOrNew(node) || !!contextualType && someType(contextualType, t => isTupleLikeType(t) || isGenericMappedType(t) && !t.nameType && !!getHomomorphicTypeVariable(t.target as MappedType || t));
 
-//         let hasOmittedExpression = false;
-//         for (let i = 0; i < elementCount; i++) {
-//             const e = elements[i];
-//             if (e.kind === SyntaxKind.SpreadElement) {
-//                 if (languageVersion < LanguageFeatureMinimumTarget.SpreadElements) {
-//                     checkExternalEmitHelpers(e, compilerOptions.downlevelIteration ? ExternalEmitHelpers.SpreadIncludes : ExternalEmitHelpers.SpreadArray);
-//                 }
-//                 const spreadType = checkExpression((e as SpreadElement).expression, checkMode, forceTuple);
-//                 if (isArrayLikeType(spreadType)) {
-//                     elementTypes.push(spreadType);
-//                     elementFlags.push(ElementFlags.Variadic);
-//                 }
-//                 else if (inDestructuringPattern) {
-//                     // Given the following situation:
-//                     //    var c: {};
-//                     //    [...c] = ["", 0];
-//                     //
-//                     // c is represented in the tree as a spread element in an array literal.
-//                     // But c really functions as a rest element, and its purpose is to provide
-//                     // a contextual type for the right hand side of the assignment. Therefore,
-//                     // instead of calling checkExpression on "...c", which will give an error
-//                     // if c is not iterable/array-like, we need to act as if we are trying to
-//                     // get the contextual element type from it. So we do something similar to
-//                     // getContextualTypeForElementExpression, which will crucially not error
-//                     // if there is no index type / iterated type.
-//                     const restElementType = getIndexTypeOfType(spreadType, numberType) ||
-//                         getIteratedTypeOrElementType(IterationUse.Destructuring, spreadType, undefinedType, /*errorNode*/ undefined, /*checkAssignability*/ false) ||
-//                         unknownType;
-//                     elementTypes.push(restElementType);
-//                     elementFlags.push(ElementFlags.Rest);
-//                 }
-//                 else {
-//                     elementTypes.push(checkIteratedTypeOrElementType(IterationUse.Spread, spreadType, undefinedType, (e as SpreadElement).expression));
-//                     elementFlags.push(ElementFlags.Rest);
-//                 }
-//             }
-//             else if (exactOptionalPropertyTypes && e.kind === SyntaxKind.OmittedExpression) {
-//                 hasOmittedExpression = true;
-//                 elementTypes.push(undefinedOrMissingType);
-//                 elementFlags.push(ElementFlags.Optional);
-//             }
-//             else {
-//                 const type = checkExpressionForMutableLocation(e, checkMode, forceTuple);
-//                 elementTypes.push(addOptionality(type, /*isProperty*/ true, hasOmittedExpression));
-//                 elementFlags.push(hasOmittedExpression ? ElementFlags.Optional : ElementFlags.Required);
-//                 if (inTupleContext && checkMode && checkMode & CheckMode.Inferential && !(checkMode & CheckMode.SkipContextSensitive) && isContextSensitive(e)) {
-//                     const inferenceContext = getInferenceContext(node);
-//                     Debug.assert(inferenceContext); // In CheckMode.Inferential we should always have an inference context
-//                     addIntraExpressionInferenceSite(inferenceContext, e, type);
-//                 }
-//             }
-//         }
-//         popContextualType();
-//         if (inDestructuringPattern) {
-//             return createTupleType(elementTypes, elementFlags);
-//         }
-//         if (forceTuple || inConstContext || inTupleContext) {
-//             return createArrayLiteralType(createTupleType(elementTypes, elementFlags, /*readonly*/ inConstContext && !(contextualType && someType(contextualType, isMutableArrayLikeType))));
-//         }
-//         return createArrayLiteralType(createArrayType(
-//             elementTypes.length ?
-//                 getUnionType(sameMap(elementTypes, (t, i) => elementFlags[i] & ElementFlags.Variadic ? getIndexedAccessTypeOrUndefined(t, numberType) || anyType : t), UnionReduction.Subtype) :
-//                 strictNullChecks ? implicitNeverType : undefinedWideningType,
-//             inConstContext,
-//         ));
-//     }
+        let hasOmittedExpression = false;
+        for (let i = 0; i < elementCount; i++) {
+            const e = elements[i];
+            if (e.kind === SyntaxKind.SpreadElement) {
+                if (languageVersion < LanguageFeatureMinimumTarget.SpreadElements) {
+                    checkExternalEmitHelpers(e, compilerOptions.downlevelIteration ? ExternalEmitHelpers.SpreadIncludes : ExternalEmitHelpers.SpreadArray);
+                }
+                const spreadType = checkExpression((e as SpreadElement).expression, checkMode, forceTuple);
+                if (isArrayLikeType(spreadType)) {
+                    elementTypes.push(spreadType);
+                    elementFlags.push(ElementFlags.Variadic);
+                }
+                else if (inDestructuringPattern) {
+                    // Given the following situation:
+                    //    var c: {};
+                    //    [...c] = ["", 0];
+                    //
+                    // c is represented in the tree as a spread element in an array literal.
+                    // But c really functions as a rest element, and its purpose is to provide
+                    // a contextual type for the right hand side of the assignment. Therefore,
+                    // instead of calling checkExpression on "...c", which will give an error
+                    // if c is not iterable/array-like, we need to act as if we are trying to
+                    // get the contextual element type from it. So we do something similar to
+                    // getContextualTypeForElementExpression, which will crucially not error
+                    // if there is no index type / iterated type.
+                    const restElementType = getIndexTypeOfType(spreadType, numberType) ||
+                        getIteratedTypeOrElementType(IterationUse.Destructuring, spreadType, undefinedType, /*errorNode*/ undefined, /*checkAssignability*/ false) ||
+                        unknownType;
+                    elementTypes.push(restElementType);
+                    elementFlags.push(ElementFlags.Rest);
+                }
+                else {
+                    elementTypes.push(checkIteratedTypeOrElementType(IterationUse.Spread, spreadType, undefinedType, (e as SpreadElement).expression));
+                    elementFlags.push(ElementFlags.Rest);
+                }
+            }
+            else if (exactOptionalPropertyTypes && e.kind === SyntaxKind.OmittedExpression) {
+                hasOmittedExpression = true;
+                elementTypes.push(undefinedOrMissingType);
+                elementFlags.push(ElementFlags.Optional);
+            }
+            else {
+                const type = checkExpressionForMutableLocation(e, checkMode, forceTuple);
+                elementTypes.push(addOptionality(type, /*isProperty*/ true, hasOmittedExpression));
+                elementFlags.push(hasOmittedExpression ? ElementFlags.Optional : ElementFlags.Required);
+                if (inTupleContext && checkMode && checkMode & CheckMode.Inferential && !(checkMode & CheckMode.SkipContextSensitive) && isContextSensitive(e)) {
+                    const inferenceContext = getInferenceContext(node);
+                    Debug.assert(inferenceContext); // In CheckMode.Inferential we should always have an inference context
+                    addIntraExpressionInferenceSite(inferenceContext, e, type);
+                }
+            }
+        }
+        popContextualType();
+        if (inDestructuringPattern) {
+            return createTupleType(elementTypes, elementFlags);
+        }
+        if (forceTuple || inConstContext || inTupleContext) {
+            return createArrayLiteralType(createTupleType(elementTypes, elementFlags, /*readonly*/ inConstContext && !(contextualType && someType(contextualType, isMutableArrayLikeType))));
+        }
+        return createArrayLiteralType(createArrayType(
+            elementTypes.length ?
+                getUnionType(sameMap(elementTypes, (t, i) => elementFlags[i] & ElementFlags.Variadic ? getIndexedAccessTypeOrUndefined(t, numberType) || anyType : t), UnionReduction.Subtype) :
+                strictNullChecks ? implicitNeverType : undefinedWideningType,
+            inConstContext,
+        ));
+    }
 
 //     function createArrayLiteralType(type: Type) {
 //         if (!(getObjectFlags(type) & ObjectFlags.Reference)) {
@@ -38810,14 +38810,15 @@ export function createTypeChecker(host: TypeCheckerHost): Partial<TypeChecker> {
 //         return false;
 //     }
 
-//     function isConstContext(node: Expression): boolean {
-//         const parent = node.parent;
-//         return isAssertionExpression(parent) && isConstTypeReference(parent.type) ||
-//             isJSDocTypeAssertion(parent) && isConstTypeReference(getJSDocTypeAssertionType(parent)) ||
-//             isValidConstAssertionArgument(node) && isConstTypeVariable(getContextualType(node, ContextFlags.None)) ||
-//             (isParenthesizedExpression(parent) || isArrayLiteralExpression(parent) || isSpreadElement(parent)) && isConstContext(parent) ||
-//             (isPropertyAssignment(parent) || isShorthandPropertyAssignment(parent) || isTemplateSpan(parent)) && isConstContext(parent.parent);
-//     }
+    function isConstContext(node: Expression): boolean {
+        return false;
+        // const parent = node.parent;
+        // return isAssertionExpression(parent) && isConstTypeReference(parent.type) ||
+        //     isJSDocTypeAssertion(parent) && isConstTypeReference(getJSDocTypeAssertionType(parent)) ||
+        //     isValidConstAssertionArgument(node) && isConstTypeVariable(getContextualType(node, ContextFlags.None)) ||
+        //     (isParenthesizedExpression(parent) || isArrayLiteralExpression(parent) || isSpreadElement(parent)) && isConstContext(parent) ||
+        //     (isPropertyAssignment(parent) || isShorthandPropertyAssignment(parent) || isTemplateSpan(parent)) && isConstContext(parent.parent);
+    }
 
     function checkExpressionForMutableLocation(node: Expression, checkMode: CheckMode | undefined, forceTuple?: boolean): Type {
         const type = checkExpression(node, checkMode, forceTuple);
