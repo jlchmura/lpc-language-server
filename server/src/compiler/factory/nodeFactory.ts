@@ -18,6 +18,7 @@ import {
     DeclarationName,
     EmitNode,
     emptyArray,
+    EmptyStatement,
     EndOfFileToken,
     EntityName,
     Expression,
@@ -26,6 +27,7 @@ import {
     FunctionDeclaration,
     Identifier,
     identity,
+    IfStatement,
     InheritDeclaration,
     InlineClosureExpression,
     IntLiteral,
@@ -133,6 +135,7 @@ export function createNodeFactory(
         createBreakStatement,
         createContinueStatement,
         createInheritDeclaration,
+        createIfStatement,
 
         // Expressions
         createConditionalExpression,
@@ -574,6 +577,27 @@ export function createNodeFactory(
         return node;
     }
 
+    function asEmbeddedStatement<T extends Node>(statement: T): T | EmptyStatement;
+    function asEmbeddedStatement<T extends Node>(statement: T | undefined): T | EmptyStatement | undefined;
+    function asEmbeddedStatement<T extends Node>(statement: T | undefined): T | EmptyStatement | undefined {
+        return statement;
+        //return statement && isNotEmittedStatement(statement) ? setTextRange(setOriginal(createEmptyStatement(), statement), statement) : statement;
+    }
+    
+    // @api
+    function createIfStatement(expression: Expression, thenStatement: Statement, elseStatement?: Statement): IfStatement {
+        const node = createBaseNode<IfStatement>(SyntaxKind.IfStatement);
+        node.expression = expression;
+        node.thenStatement = asEmbeddedStatement(thenStatement);
+        node.elseStatement = asEmbeddedStatement(elseStatement);
+        // node.transformFlags |= propagateChildFlags(node.expression) |
+        //     propagateChildFlags(node.thenStatement) |
+        //     propagateChildFlags(node.elseStatement);
+
+        node.jsDoc = undefined; // initialized by parser (JsDocContainer)
+        node.flowNode = undefined; // initialized by binder (FlowContainer)
+        return node;
+    }
 }
 
 // Utilities

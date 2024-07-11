@@ -1,8 +1,7 @@
 import * as antlr from "antlr4ng";
 import * as parserCore from "../parser3/parser-core";
-import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression } from "./_namespaces/lpc";
+import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement } from "./_namespaces/lpc";
 import { ILpcConfig } from "../config-types";
-import { LPCLexer } from "../parser3/LPCLexer";
 
 export namespace LpcParser {
     // Init some ANTLR stuff
@@ -16,7 +15,7 @@ export namespace LpcParser {
     parser.interpreter.predictionMode = antlr.PredictionMode.SLL;
     parser.buildParseTrees = true;
 
-    var tree: parserCore.ProgramContext; // antlr parse tree
+    var programTree: parserCore.ProgramContext; // antlr parse tree
 
     // capture constructors in 'initializeState' to avoid null checks
     var NodeConstructor: new (kind: SyntaxKind, pos: number, end: number) => Node; // prettier-ignore
@@ -71,7 +70,7 @@ export namespace LpcParser {
         topLevel = true;
         identifiers = new Map<string, string>();
         identifierCount = 0;
-        tree = undefined!;
+        programTree = undefined!;
 
         // initialize antlr stuff here
         lexer.inputStream = antlr.CharStream.fromString(sourceText);
@@ -95,7 +94,7 @@ export namespace LpcParser {
 
         sourceText = undefined!;
         topLevel = true;
-        tree = undefined!; // should this be cleared?
+        programTree = undefined!; // should this be cleared?
     }
 
     export function parseSourceFile(
@@ -111,9 +110,9 @@ export namespace LpcParser {
 
     function parseSourceFileWorker() {
         // execute the antlr parser
-        tree = parser.program();
+        const tree = programTree = parser.program();
         const eofToken = parseTokenNode<EndOfFileToken>(tree.EOF());
-        const statements = parseList(tree.declaration(), parseStatement);
+        const statements = parseList(tree.declaration(), parseStatementWorker);
         const inherits = parseList(tree.inheritStatement(), parseInheritStatement);
         const sourceFile = createSourceFile(fileName, statements, eofToken);
 
@@ -212,9 +211,16 @@ export namespace LpcParser {
         return array;
     }
 
-    function parseStatement(tree: antlr.ParserRuleContext): Statement {
+    function parseStatement(tree: parserCore.StatementContext): Statement {
+        if (tree.children.length > 1 && tree.children[1].getText() != ";") {
+            Debug.assertEqual(tree.children.length, 1, "Expected only 1 child statement");
+        }
+        return parseStatementWorker(tree.children[0] as antlr.ParserRuleContext);
+    }
+
+    function parseStatementWorker(tree: antlr.ParserRuleContext): Statement {
         const ruleIndex = tree.ruleIndex;
-        switch (ruleIndex) {
+        switch (ruleIndex) {            
             case parserCore.LPCParser.RULE_declaration:
                 return parseDeclaration(tree as parserCore.DeclarationContext);
             case parserCore.LPCParser.RULE_variableDeclarationStatement:
@@ -226,14 +232,50 @@ export namespace LpcParser {
                 if (jumpTree.returnStatement())
                     return parseReturnStatement(jumpTree.returnStatement());
                 else if (jumpTree.BREAK()) {
-                    parseBreakOrContinueStatement(jumpTree.BREAK(), SyntaxKind.BreakStatement);
+                    return parseBreakOrContinueStatement(jumpTree.BREAK(), SyntaxKind.BreakStatement);
                 } else if (jumpTree.CONTINUE()) {
-                    parseBreakOrContinueStatement(jumpTree.CONTINUE(), SyntaxKind.ContinueStatement);
+                    return parseBreakOrContinueStatement(jumpTree.CONTINUE(), SyntaxKind.ContinueStatement);
                 }
+                break;  // will fail   
+            case parserCore.LPCParser.RULE_block:
+                return parseBlock(tree as parserCore.BlockContext);
+            case parserCore.LPCParser.RULE_selectionStatement:
+            case parserCore.LPCParser.RULE_ifStatement:
+                const selStmt = tree as parserCore.SelectionStatementContext;
+                if (selStmt.ifStatement())
+                    return parseIfStatement(selStmt.ifStatement());
                 break;                
         }
 
         Debug.fail(`parseStatement unknown parser rule [${ruleIndex}]`);
+    }
+
+    
+
+    function parseIfStatementWorker(tree: parserCore.IfExpressionContext | parserCore.ElseIfExpressionContext, rest: (parserCore.IfExpressionContext | parserCore.ElseIfExpressionContext | parserCore.ElseExpressionContext)[]): IfStatement {
+        const {pos} = getNodePos(tree);
+        const e = parseExpression(tree.expression());
+        
+        Debug.assertEqual(tree.statement().children.length, 1, "Expected only 1 statement");
+        const t = parseStatement(tree.statement());
+
+        const next = rest.shift();
+        const {end} = getNodePos(next);
+
+        if (next instanceof parserCore.ElseExpressionContext) {            
+            const elT = parseStatement(next.statement());
+            return finishNode(factory.createIfStatement(e,t,elT), pos, end);
+        } else {            
+            const nextNode = parseIfStatementWorker(next, rest);            
+            return finishNode(factory.createIfStatement(e,t,nextNode), pos, end);
+        }
+    }
+
+    function parseIfStatement(tree: parserCore.IfStatementContext): IfStatement {                
+        const ifExpr = tree.ifExpression();
+        const rest = [...tree.elseIfExpression(), tree.elseExpression()].filter(e=>!!e);
+
+        return parseIfStatementWorker(ifExpr, rest);        
     }
 
     function parseBreakOrContinueStatement(terminal: antlr.TerminalNode, kind: SyntaxKind): BreakOrContinueStatement {
@@ -556,13 +598,13 @@ export namespace LpcParser {
         const token = tree.getChild(0) as antlr.TerminalNode;
         let type: LiteralSyntaxKind;
         switch (token.symbol.type) {
-            case LPCLexer.IntegerConstant:
+            case parserCore.LPCLexer.IntegerConstant:
                 type = SyntaxKind.IntLiteral;
                 break;
-            case LPCLexer.FloatingConstant:
+            case parserCore.LPCLexer.FloatingConstant:
                 type = SyntaxKind.FloatLiteral;
                 break;
-            case LPCLexer.StringLiteral:
+            case parserCore.LPCLexer.StringLiteral:
                 type = SyntaxKind.StringLiteral;
                 break;
         }
@@ -573,7 +615,7 @@ export namespace LpcParser {
     function parseStringLiteralNode(tree: antlr.TerminalNode): StringLiteral {
         const {pos,end} = getTerminalPos(tree);
         
-        Debug.assertEqual(LPCLexer.StringLiteral, tree.symbol.type, "Expected StringLiteral token type");
+        Debug.assertEqual(parserCore.LPCLexer.StringLiteral, tree.symbol.type, "Expected StringLiteral token type");
         const node = factory.createLiteralLikeNode(SyntaxKind.StringLiteral, tree.getText()) as StringLiteral;
         
         return finishNode(node, pos, end);
@@ -648,10 +690,7 @@ export namespace LpcParser {
     }
 
     function parseStatementList(tree: parserCore.StatementContext[]): NodeArray<Statement> {
-        const statements = parseList(
-            tree.map((s) => s.getChild(0) as antlr.ParserRuleContext),
-            parseStatement
-        );
+        const statements = parseList(tree,parseStatement);
         return statements;
     }
 
@@ -726,9 +765,8 @@ export namespace LpcParser {
         const {pos,end} = getNodePos(tree);
 
         // TODO: get modifiers
-        
-        
-        const stringLiterals = getNestedTerminals(tree.inherit(), LPCLexer.StringLiteral);
+                
+        const stringLiterals = getNestedTerminals(tree.inherit(), parserCore.LPCLexer.StringLiteral);
         const stringNode = parseStringLiterals(stringLiterals);       
 
         const node = factory.createInheritDeclaration(stringNode, undefined);
@@ -737,64 +775,64 @@ export namespace LpcParser {
 }
 
 export const LexerToSyntaxKind: { [key: number]: SyntaxKind } = {
-    [LPCLexer.EOF]: SyntaxKind.EndOfFileToken,
+    [parserCore.LPCLexer.EOF]: SyntaxKind.EndOfFileToken,
     // TYPES
-    [LPCLexer.INT]: SyntaxKind.IntKeyword,
-    [LPCLexer.FLOAT]: SyntaxKind.FloatKeyword,
-    [LPCLexer.STRING]: SyntaxKind.StringKeyword,
-    [LPCLexer.MIXED]: SyntaxKind.MixedKeyword,
-    [LPCLexer.MAPPING]: SyntaxKind.MappingKeyword,
-    [LPCLexer.UNKNOWN]: SyntaxKind.UnknownKeyword,
-    [LPCLexer.VOID]: SyntaxKind.VoidKeyword,
-    [LPCLexer.OBJECT]: SyntaxKind.ObjectKeyword,
+    [parserCore.LPCLexer.INT]: SyntaxKind.IntKeyword,
+    [parserCore.LPCLexer.FLOAT]: SyntaxKind.FloatKeyword,
+    [parserCore.LPCLexer.STRING]: SyntaxKind.StringKeyword,
+    [parserCore.LPCLexer.MIXED]: SyntaxKind.MixedKeyword,
+    [parserCore.LPCLexer.MAPPING]: SyntaxKind.MappingKeyword,
+    [parserCore.LPCLexer.UNKNOWN]: SyntaxKind.UnknownKeyword,
+    [parserCore.LPCLexer.VOID]: SyntaxKind.VoidKeyword,
+    [parserCore.LPCLexer.OBJECT]: SyntaxKind.ObjectKeyword,
     // MODIFIERS
-    [LPCLexer.PRIVATE]: SyntaxKind.PrivateKeyword,
-    [LPCLexer.PROTECTED]: SyntaxKind.ProtectedKeyword,
-    [LPCLexer.PUBLIC]: SyntaxKind.PublicKeyword,
-    [LPCLexer.STATIC]: SyntaxKind.StaticKeyword,
-    [LPCLexer.VISIBLE]: SyntaxKind.VisibleKeyword,
-    [LPCLexer.NOSAVE]: SyntaxKind.NoSaveKeyword,
-    [LPCLexer.NOSHADOW]: SyntaxKind.NoShadowKeyword,
-    [LPCLexer.NOMASK]: SyntaxKind.NoMaskKeyword,
-    [LPCLexer.VARARGS]: SyntaxKind.VarArgsKeyword,
-    [LPCLexer.DEPRECATED]: SyntaxKind.DeprecatedKeyword,
+    [parserCore.LPCLexer.PRIVATE]: SyntaxKind.PrivateKeyword,
+    [parserCore.LPCLexer.PROTECTED]: SyntaxKind.ProtectedKeyword,
+    [parserCore.LPCLexer.PUBLIC]: SyntaxKind.PublicKeyword,
+    [parserCore.LPCLexer.STATIC]: SyntaxKind.StaticKeyword,
+    [parserCore.LPCLexer.VISIBLE]: SyntaxKind.VisibleKeyword,
+    [parserCore.LPCLexer.NOSAVE]: SyntaxKind.NoSaveKeyword,
+    [parserCore.LPCLexer.NOSHADOW]: SyntaxKind.NoShadowKeyword,
+    [parserCore.LPCLexer.NOMASK]: SyntaxKind.NoMaskKeyword,
+    [parserCore.LPCLexer.VARARGS]: SyntaxKind.VarArgsKeyword,
+    [parserCore.LPCLexer.DEPRECATED]: SyntaxKind.DeprecatedKeyword,
     // OPERATORS
-    [LPCLexer.ASSIGN]: SyntaxKind.EqualsToken,
-    [LPCLexer.ADD_ASSIGN]: SyntaxKind.PlusEqualsToken,
-    [LPCLexer.SUB_ASSIGN]: SyntaxKind.MinusEqualsToken,
-    [LPCLexer.MUL_ASSIGN]: SyntaxKind.AsteriskEqualsToken,
-    [LPCLexer.XOR_ASSIGN]: SyntaxKind.AsteriskAsteriskEqualsToken,
-    [LPCLexer.DIV_ASSIGN]: SyntaxKind.SlashEqualsToken,
-    [LPCLexer.MOD_ASSIGN]: SyntaxKind.PercentEqualsToken,
-    [LPCLexer.SHL_ASSIGN]: SyntaxKind.LessThanLessThanEqualsToken,
-    [LPCLexer.RSH_ASSIGN]: SyntaxKind.GreaterThanGreaterThanEqualsToken,
-    [LPCLexer.BITOR_ASSIGN]: SyntaxKind.BarEqualsToken,
-    [LPCLexer.BITAND_ASSIGN]: SyntaxKind.AmpersandEqualsToken,
-    [LPCLexer.OR_ASSIGN]: SyntaxKind.BarBarEqualsToken,
-    [LPCLexer.AND_ASSIGN]: SyntaxKind.AmpersandEqualsToken,
-    [LPCLexer.PLUS]: SyntaxKind.PlusToken,
-    [LPCLexer.MINUS]: SyntaxKind.MinusToken,
-    [LPCLexer.STAR]: SyntaxKind.AsteriskToken,
-    [LPCLexer.DIV]: SyntaxKind.SlashToken,
-    [LPCLexer.MOD]: SyntaxKind.PercentToken,
-    [LPCLexer.INC]: SyntaxKind.PlusPlusToken,
-    [LPCLexer.DEC]: SyntaxKind.MinusMinusToken,
-    [LPCLexer.LT]: SyntaxKind.LessThanToken,
-    [LPCLexer.GT]: SyntaxKind.GreaterThanToken,
-    [LPCLexer.LE]: SyntaxKind.LessThanEqualsToken,
-    [LPCLexer.GE]: SyntaxKind.GreaterThanEqualsToken,
-    [LPCLexer.EQ]: SyntaxKind.EqualsEqualsToken,
-    [LPCLexer.NE]: SyntaxKind.ExclamationEqualsToken,
-    [LPCLexer.AND]: SyntaxKind.AmpersandToken,
-    [LPCLexer.OR]: SyntaxKind.BarToken,
-    [LPCLexer.XOR]: SyntaxKind.CaretToken,
-    [LPCLexer.NOT]: SyntaxKind.ExclamationToken,
-    [LPCLexer.AND_AND]: SyntaxKind.AmpersandAmpersandToken,
-    [LPCLexer.OR_OR]: SyntaxKind.BarBarToken,
-    [LPCLexer.QUESTION]: SyntaxKind.QuestionToken,
-    [LPCLexer.COLON]: SyntaxKind.ColonToken,
-    [LPCLexer.HASH]: SyntaxKind.HashToken,
-    [LPCLexer.DOT]: SyntaxKind.DotToken,
-    [LPCLexer.TRIPPLEDOT]: SyntaxKind.DotDotDotToken,    
-    [LPCLexer.COMMA]: SyntaxKind.CommaToken,
+    [parserCore.LPCLexer.ASSIGN]: SyntaxKind.EqualsToken,
+    [parserCore.LPCLexer.ADD_ASSIGN]: SyntaxKind.PlusEqualsToken,
+    [parserCore.LPCLexer.SUB_ASSIGN]: SyntaxKind.MinusEqualsToken,
+    [parserCore.LPCLexer.MUL_ASSIGN]: SyntaxKind.AsteriskEqualsToken,
+    [parserCore.LPCLexer.XOR_ASSIGN]: SyntaxKind.AsteriskAsteriskEqualsToken,
+    [parserCore.LPCLexer.DIV_ASSIGN]: SyntaxKind.SlashEqualsToken,
+    [parserCore.LPCLexer.MOD_ASSIGN]: SyntaxKind.PercentEqualsToken,
+    [parserCore.LPCLexer.SHL_ASSIGN]: SyntaxKind.LessThanLessThanEqualsToken,
+    [parserCore.LPCLexer.RSH_ASSIGN]: SyntaxKind.GreaterThanGreaterThanEqualsToken,
+    [parserCore.LPCLexer.BITOR_ASSIGN]: SyntaxKind.BarEqualsToken,
+    [parserCore.LPCLexer.BITAND_ASSIGN]: SyntaxKind.AmpersandEqualsToken,
+    [parserCore.LPCLexer.OR_ASSIGN]: SyntaxKind.BarBarEqualsToken,
+    [parserCore.LPCLexer.AND_ASSIGN]: SyntaxKind.AmpersandEqualsToken,
+    [parserCore.LPCLexer.PLUS]: SyntaxKind.PlusToken,
+    [parserCore.LPCLexer.MINUS]: SyntaxKind.MinusToken,
+    [parserCore.LPCLexer.STAR]: SyntaxKind.AsteriskToken,
+    [parserCore.LPCLexer.DIV]: SyntaxKind.SlashToken,
+    [parserCore.LPCLexer.MOD]: SyntaxKind.PercentToken,
+    [parserCore.LPCLexer.INC]: SyntaxKind.PlusPlusToken,
+    [parserCore.LPCLexer.DEC]: SyntaxKind.MinusMinusToken,
+    [parserCore.LPCLexer.LT]: SyntaxKind.LessThanToken,
+    [parserCore.LPCLexer.GT]: SyntaxKind.GreaterThanToken,
+    [parserCore.LPCLexer.LE]: SyntaxKind.LessThanEqualsToken,
+    [parserCore.LPCLexer.GE]: SyntaxKind.GreaterThanEqualsToken,
+    [parserCore.LPCLexer.EQ]: SyntaxKind.EqualsEqualsToken,
+    [parserCore.LPCLexer.NE]: SyntaxKind.ExclamationEqualsToken,
+    [parserCore.LPCLexer.AND]: SyntaxKind.AmpersandToken,
+    [parserCore.LPCLexer.OR]: SyntaxKind.BarToken,
+    [parserCore.LPCLexer.XOR]: SyntaxKind.CaretToken,
+    [parserCore.LPCLexer.NOT]: SyntaxKind.ExclamationToken,
+    [parserCore.LPCLexer.AND_AND]: SyntaxKind.AmpersandAmpersandToken,
+    [parserCore.LPCLexer.OR_OR]: SyntaxKind.BarBarToken,
+    [parserCore.LPCLexer.QUESTION]: SyntaxKind.QuestionToken,
+    [parserCore.LPCLexer.COLON]: SyntaxKind.ColonToken,
+    [parserCore.LPCLexer.HASH]: SyntaxKind.HashToken,
+    [parserCore.LPCLexer.DOT]: SyntaxKind.DotToken,
+    [parserCore.LPCLexer.TRIPPLEDOT]: SyntaxKind.DotDotDotToken,    
+    [parserCore.LPCLexer.COMMA]: SyntaxKind.CommaToken,
 };

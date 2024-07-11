@@ -266,6 +266,8 @@ export const enum SyntaxKind {
     BreakStatement,
     ContinueStatement,
     InheritDeclaration,
+    IfStatement,
+    EmptyStatement,
 
     // Expressions
     ConditionalExpression,
@@ -570,6 +572,7 @@ export interface NodeFactory {
     createBreakStatement(label?: string | Identifier): BreakStatement;
     createContinueStatement(label?: string | Identifier): ContinueStatement;
     createInheritDeclaration(importClause: StringLiteral | BinaryExpression, modifiers: readonly Modifier[] | undefined): InheritDeclaration;
+    createIfStatement(expression: Expression, thenStatement: Statement, elseStatement?: Statement): IfStatement;
 
     // Expressions
     createConditionalExpression(condition: Expression, questionToken: QuestionToken | undefined, whenTrue: Expression, colonToken: ColonToken | undefined, whenFalse: Expression): ConditionalExpression;
@@ -1471,4 +1474,15 @@ export interface StringConcatExpression extends BinaryExpression {
     readonly left: StringLiteral;
     readonly operatorToken: PlusToken;
     readonly right: StringLiteral;
+}
+
+export interface IfStatement extends Statement, FlowContainer {
+    readonly kind: SyntaxKind.IfStatement;
+    readonly expression: Expression;
+    readonly thenStatement: Statement;
+    readonly elseStatement?: Statement;
+}
+
+export interface EmptyStatement extends Statement {
+    readonly kind: SyntaxKind.EmptyStatement;
 }
