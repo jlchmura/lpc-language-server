@@ -10,6 +10,8 @@ import { ensureLpcConfig } from "./LpcConfig";
 import { ContextSymbolTable } from "./ContextSymbolTable";
 import { ParseTree, ParserRuleContext } from "antlr4ng";
 import { LPCToken } from "../parser3/LPCToken";
+import { MethodParameterSymbol } from "../symbols/variableSymbol";
+import { MethodSymbol } from "../symbols/methodSymbol";
 
 export function walkParents<T extends BaseSymbol>(
     symbol: IScopedSymbol,
@@ -66,7 +68,6 @@ export function resolveOfTypeSync<T extends BaseSymbol, Args extends unknown[]>(
         return undefined;
     });
 }
-
 /**
  * Searches for a symbol with the given name in the parent scopes of the given scope.
  * @param scope
@@ -221,4 +222,21 @@ export function getImmediateParentOfType<
  */
 export function isProgramSymbol(symbol: BaseSymbol): boolean {
     return symbol instanceof SymbolTable;
+}
+
+export function functionParametersToString(
+    params: MethodParameterSymbol[]
+): string {
+    return params
+        .map((p) => {
+            let t = p.type.name;
+
+            let nm = p.name ?? "";
+            if (p.varArgs) {
+                nm += "...";
+            }
+            return `${t} ${nm}`.trim();
+        })
+        .join(", ")
+        .trim();
 }

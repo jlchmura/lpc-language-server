@@ -20,12 +20,14 @@ import {
 import { ISymbolInfo, SymbolKind } from "../types";
 import { SourceContext } from "./SourceContext";
 import {
+    functionParametersToString,
     resolveOfTypeSync,
     symbolWithContextSync,
     walkParents,
 } from "./symbol-utils";
 import { InlineClosureSymbol } from "../symbols/closureSymbol";
 import { EfunSymbol } from "../symbols/efunSymbol";
+import { lexRangeFromContext } from "../utils";
 
 export type SymbolTableCache = Map<string, SymbolTable>;
 
@@ -167,45 +169,47 @@ export class ContextSymbolTable extends SymbolTable {
 
         // Special handling for certain symbols.
         switch (kind) {
+            case SymbolKind.MethodDeclaration:
+            case SymbolKind.Method:
             case SymbolKind.Efun:
                 // reconstruct the definition for efuns
-                const efun = symbol as EfunSymbol;
+                const funSymbol = symbol as MethodSymbol;
 
                 // assemble def text prefix
                 const txtArr: string[] = [];
-                txtArr.push(...efun.functionModifiers);
-                txtArr.push(efun.returnType?.name ?? "");
-                txtArr.push(efun.name);
+                txtArr.push(...funSymbol.functionModifiers);
+                txtArr.push(funSymbol.returnType?.name ?? "");
+                txtArr.push(funSymbol.name);
                 const txt = txtArr.filter((t) => t.trim().length > 0).join(" ");
+
+                const source =
+                    kind == SymbolKind.Efun
+                        ? "Driver efun"
+                        : (symbol.root as ContextSymbolTable).owner.fileName;
+                const range =
+                    kind == SymbolKind.Efun
+                        ? {
+                              start: { column: 0, row: 1 },
+                              end: { column: 0, row: 1 },
+                          }
+                        : lexRangeFromContext(
+                              symbol.context as ParserRuleContext
+                          );
 
                 return {
                     kind,
                     name,
-                    source: "Driver efun",
+                    source,
                     definition: {
-                        text: `${txt}(${efun
-                            .getParametersSync()
-                            .map((p) => {
-                                let t = p.type.name;
-
-                                let nm = p.name ?? "";
-                                if (p.varArgs) {
-                                    nm += "...";
-                                }
-                                return `${t} ${nm}`.trim();
-                            })
-                            .join(", ")
-                            .trim()})`,
-                        range: {
-                            start: { column: 0, row: 1 },
-                            end: { column: 0, row: 1 },
-                        },
+                        text: `${txt}(${functionParametersToString(
+                            funSymbol.getParametersSync()
+                        )})`,
+                        range,
                     },
-                    symbol: efun,
+                    symbol: funSymbol,
                     description: undefined,
                     children: [],
                 };
-                break;
             case SymbolKind.Variable:
                 break;
             case SymbolKind.Include:
@@ -217,7 +221,7 @@ export class ContextSymbolTable extends SymbolTable {
                             kind,
                             name,
                             source: table.owner.fileName,
-                            definition: SourceContext.definitionForContext(
+                            definition: table.owner.definitionForContext(
                                 table.tree,
                                 true
                             ),
@@ -253,7 +257,7 @@ export class ContextSymbolTable extends SymbolTable {
                     ? symbolTable.owner.fileName
                     : "Driver efun",
             line: (symbol.context as ParserRuleContext)?.start?.line,
-            definition: SourceContext.definitionForContext(
+            definition: symbolTable.owner.definitionForContext(
                 symbol.context,
                 true
             ),
@@ -305,10 +309,9 @@ export class ContextSymbolTable extends SymbolTable {
                 }
             }
 
-            const definition = SourceContext.definitionForContext(
-                symbol.context,
-                true
-            );
+            const definition = (
+                symbol.symbolTable as ContextSymbolTable
+            ).owner.definitionForContext(symbol.context, true);
 
             result.push({
                 kind: SourceContext.getKindFromSymbol(symbol),
@@ -515,10 +518,7 @@ export class ContextSymbolTable extends SymbolTable {
                         name: symbolName,
                         symbol: symbol,
                         source: owner.fileName,
-                        definition: SourceContext.definitionForContext(
-                            context,
-                            true
-                        ),
+                        definition: owner.definitionForContext(context, true),
                         description: undefined,
                     });
                 }
@@ -532,7 +532,9 @@ export class ContextSymbolTable extends SymbolTable {
                             name: symbolName,
                             source: owner.fileName,
                             symbol: reference,
-                            definition: SourceContext.definitionForContext(
+                            definition: (
+                                symbol.symbolTable as ContextSymbolTable
+                            ).owner.definitionForContext(
                                 reference.context,
                                 true
                             ),

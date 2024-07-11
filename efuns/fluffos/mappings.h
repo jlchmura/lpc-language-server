@@ -129,7 +129,7 @@ mapping
  * (returned by the values() efun).
  *
  */
-
+mixed *keys( mapping m );
 
 /**
  * filter_mapping()  -  remove some elements of a mapping based on a

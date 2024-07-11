@@ -45,7 +45,11 @@ export class EfunSymbol
         args: IEvaluatableSymbol[] = [],
         callScope?: RootFrame
     ) {
-        const ownerProgram = (stack.root.symbol as ContextSymbolTable).owner;
+        const ownerProgram = (stack.root.symbol as ContextSymbolTable)?.owner;
+        if (!ownerProgram) {
+            return asStackValue(undefined, LpcTypes.objectType, this);
+        }
+
         const { fileHandler } = ownerProgram;
 
         const argEval = args?.map((a) => {
@@ -176,7 +180,11 @@ function cloneObjectImpl(
     callScope: RootFrame,
     symbol: EfunSymbol
 ) {
-    const ownerProgram = (stack.root.symbol as ContextSymbolTable).owner;
+    const ownerProgram = (stack.root.symbol as ContextSymbolTable)?.owner;
+    if (!ownerProgram) {
+        return asStackValue(undefined, LpcTypes.objectType, symbol);
+    }
+
     const { fileHandler } = ownerProgram;
 
     // what type is the first arg?

@@ -485,18 +485,24 @@ export class DetailsVisitor
             const spec = u.structTypeSpecifier();
             return new StructType(spec.Identifier().getText());
         } else {
-            return this.parsePrimitiveType(u?.primitiveTypeSpecifier());
+            return this.parsePrimitiveType(
+                u?.primitiveTypeSpecifier(),
+                u?.STAR()?.at(0)
+            );
         }
     }
 
-    parsePrimitiveType(ctx: PrimitiveTypeSpecifierContext) {
+    parsePrimitiveType(
+        ctx: PrimitiveTypeSpecifierContext,
+        star?: TerminalNode
+    ) {
         let tt = ctx?.getText();
         let varType: IType;
         if (tt) {
-            const isArray = tt.endsWith("*");
-            if (isArray) {
-                tt = tt.substring(0, tt.length - 1);
-            }
+            let isArray = tt.endsWith("*");
+            if (isArray) tt = tt.substring(0, tt.length - 1);
+            else isArray = !!star;
+
             switch (tt) {
                 case "bytes":
                     varType = LpcTypes.bytesType;
@@ -509,6 +515,9 @@ export class DetailsVisitor
                     break;
                 case "object":
                     varType = LpcTypes.objectType;
+                    break;
+                case "mixed":
+                    varType = LpcTypes.mixedType;
                     break;
                 case "float":
                     varType = FundamentalType.floatType;
@@ -878,9 +887,6 @@ export class DetailsVisitor
     visitParameterList = (ctx: ParameterListContext) => {
         const prms = ctx.parameter();
         prms.forEach((p) => {
-            if (p.start.line == 126) {
-                const ii = 0;
-            }
             const typeCtx = p.unionableTypeSpecifier();
             const typeName = typeCtx?.getText();
             const type =
