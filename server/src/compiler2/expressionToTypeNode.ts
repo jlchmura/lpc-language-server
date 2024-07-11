@@ -107,7 +107,7 @@ export function createSyntacticTypeNodeBuilder(options: CompilerOptions, resolve
             case SyntaxKind.JSDocSignature:
                 return createReturnFromSignature(node, context);
             default:
-                Debug.assertNever(node, `Node needs to be an inferrable node, found ${Debug.formatSyntaxKind((node as Node).kind)}`);
+                Debug.assertNever(node as never, `Node needs to be an inferrable node, found ${Debug.formatSyntaxKind((node as Node).kind)}`);
         }
     }
     // function getTypeAnnotationFromAccessor(accessor: AccessorDeclaration): TypeNode | undefined {

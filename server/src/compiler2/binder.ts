@@ -74,6 +74,8 @@ import {
     MethodDeclaration,
     ReturnStatement,
     PostfixUnaryExpression,
+    FunctionExpression,
+    ArrowFunction,
     
 } from "./types";
 import {
@@ -942,7 +944,8 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
                     (ContainerFlags.IsFunctionExpression |
                         ContainerFlags.IsObjectLiteralOrClassExpressionMethodOrAccessor)
                 ) {
-                    currentFlow.node = node; // TODO as FunctionExpression | ArrowFunction | MethodDeclaration;
+                    // @ts-ignore
+                    currentFlow.node = node as FunctionExpression | ArrowFunction | MethodDeclaration;
                 }
             }
             // We create a return control flow graph for IIFEs and constructors. For constructors

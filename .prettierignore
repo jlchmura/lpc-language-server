@@ -1,2 +1,3 @@
 EfunsLDMud.ts
 server/src/compiler/*.ts
+server/src/compiler2/**/*.ts

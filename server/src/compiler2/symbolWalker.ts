@@ -1,5 +1,5 @@
-import { getSymbolId } from "./checker";
 import { clear, forEach, getOwnValues } from "./core";
+import { getSymbolId } from "./checker";
 import { Debug } from "./debug";
 import { BaseType, EntityNameOrEntityNameExpression, Identifier, IndexedAccessType, IndexType, InterfaceType, MappedType, ObjectFlags, ObjectType, ResolvedType, Signature, SymbolWalker, SyntaxKind, Type, TypeFlags, TypeParameter, TypePredicate, TypeReference, UnionOrIntersectionType, Symbol } from "./types";
 

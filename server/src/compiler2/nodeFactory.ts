@@ -70,11 +70,11 @@ import { Mutable, formatGeneratedName, getEmitFlags, getTextOfIdentifierOrLitera
 import { Debug } from "./debug";
 import { escapeLeadingUnderscores, getNameOfDeclaration, getNonAssignedNameOfDeclaration, idText, isGeneratedIdentifier, isMemberName, isNodeKind, setTextRange } from "./utilitiesPublic";
 import { isIdentifier, isPrivateIdentifier, isSourceFile } from "./nodeTests";
-import { getNodeId } from "./checker";
 import { getIdentifierTypeArguments, setIdentifierAutoGenerate, setIdentifierTypeArguments } from "./factory/emitNode";
+import { getNodeId } from "./checker";
 
 let nextAutoGenerateId = 0;
-
+ 
 /** @internal */
 export const enum NodeFactoryFlags {
     None = 0,
@@ -133,7 +133,9 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createStringLiteralFromNode,
         createParenthesizedExpression,
         createElementAccessExpression,
-        getDeclarationName
+        getDeclarationName,
+        // createSyntheticExpression,
+        // createSyntaxList
     };
 
     return factory;
