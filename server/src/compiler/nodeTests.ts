@@ -16,6 +16,7 @@ import {
     FunctionTypeNode,
     HeritageClause,
     Identifier,
+    IfStatement,
     ImportTypeNode,
     IndexedAccessTypeNode,
     IndexSignatureDeclaration,
@@ -29,6 +30,7 @@ import {
     LiteralTypeNode,
     MethodDeclaration,
     Node,
+    NonNullExpression,
     NumericLiteral,
     ObjectBindingPattern,
     ObjectLiteralExpression,
@@ -364,4 +366,16 @@ export function isSpreadElement(node: Node): node is SpreadElement {
 
 export function isFunctionTypeNode(node: Node): node is FunctionTypeNode {
     return node.kind === SyntaxKind.FunctionType;
+}
+
+export function isJsxAttributes(node: Node) {//: node is JsxAttributes {
+    return false;//return node.kind === SyntaxKind.JsxAttributes;
+}
+
+export function isNonNullExpression(node: Node): node is NonNullExpression {
+    return node.kind === SyntaxKind.NonNullExpression;
+}
+
+export function isIfStatement(node: Node): node is IfStatement {
+    return node.kind === SyntaxKind.IfStatement;
 }

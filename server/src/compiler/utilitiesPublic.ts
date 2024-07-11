@@ -1,6 +1,6 @@
 import { addRange, emptyArray, find, flatMap, tryCast } from "./core";
 import { Debug } from "./debug";
-import { isBinaryExpression, isBindingElement, isBlock, isFunctionExpression, isIdentifier, isJSDoc, isJSDocDeprecatedTag, isJSDocParameterTag, isJSDocTemplateTag, isJSDocTypeTag, isModuleBlock, isParameter, isPropertyAssignment, isPropertyDeclaration, isSourceFile, isTypeReferenceNode, isVariableDeclaration } from "./nodeTests";
+import { isBinaryExpression, isBindingElement, isBlock, isCallExpression, isFunctionExpression, isIdentifier, isJSDoc, isJSDocDeprecatedTag, isJSDocParameterTag, isJSDocTemplateTag, isJSDocTypeTag, isModuleBlock, isNonNullExpression, isParameter, isPropertyAssignment, isPropertyDeclaration, isSourceFile, isTypeReferenceNode, isVariableDeclaration } from "./nodeTests";
 import { stringToToken } from "./scanner";
 import {
     AccessExpression,
@@ -66,8 +66,16 @@ import {
     NewExpression,
     TypeReferenceType,
     KeywordSyntaxKind,
+    GeneratedIdentifier,
+    HasType,
+    Modifier,
+    OptionalChain,
+    OptionalChainRoot,
+    CallChain,
+    IterationStatement,
+    PrivateIdentifier,
 } from "./types";
-import { getAssignmentDeclarationKind, getEffectiveModifierFlags, getElementOrPropertyAccessArgumentExpressionOrName, getJSDocCommentsAndTags, isAccessExpression, isBindableStaticElementAccessExpression, isFunctionBlock, isKeyword, isTypeNodeKind, isVariableLike, setTextRangePosEnd, skipOuterExpressions } from "./utilities";
+import { getAssignmentDeclarationKind, getEffectiveModifierFlags, getElementOrPropertyAccessArgumentExpressionOrName, getJSDocCommentsAndTags, isAccessExpression, isBindableStaticElementAccessExpression, isFunctionBlock, isKeyword, isOptionalChain, isTypeNodeKind, isVariableLike, setTextRangePosEnd, skipOuterExpressions } from "./utilities";
 
 export function setTextRange<T extends TextRange>(range: T, location: TextRange | undefined): T {
     return location ? setTextRangePosEnd(range, location.pos, location.end) : range;
@@ -211,8 +219,8 @@ function isDeclarationKind(kind: SyntaxKind) {
         kind === SyntaxKind.PropertyAssignment ||
         // || kind === SyntaxKind.PropertyDeclaration
         // || kind === SyntaxKind.PropertySignature
-
         kind === SyntaxKind.ShorthandPropertyAssignment ||
+        // @ts-ignore
         kind === SyntaxKind.TypeParameter ||
         kind === SyntaxKind.VariableDeclaration
         // || kind === SyntaxKind.JSDocTypedefTag
@@ -526,7 +534,7 @@ export function symbolName(symbol: Symbol): string {
 }
 
 
-export function idText(identifierOrPrivateName: Identifier): string { // | PrivateIdentifier): string {
+export function idText(identifierOrPrivateName: Identifier | PrivateIdentifier): string {
     return identifierOrPrivateName.text;// unescapeLeadingUnderscores(identifierOrPrivateName.escapedText);
 }
 
@@ -1114,4 +1122,119 @@ export function isAccessor(node: Node) {//: node is AccessorDeclaration {
 export function identifierToKeywordKind(node: Identifier): KeywordSyntaxKind | undefined {
     const token = stringToToken(node.text as string);
     return token ? tryCast(token, isKeyword) : undefined;
+}
+
+/** @internal */
+export function isGeneratedIdentifier(node: Node): node is GeneratedIdentifier {
+    return false;//return isIdentifier(node) && node.emitNode?.autoGenerate !== undefined;
+}
+
+/** @internal */
+export function isNodeKind(kind: SyntaxKind) {
+    return kind >= SyntaxKind.FirstNode;
+}
+
+
+/**
+ * True if has type node attached to it.
+ *
+ * @internal
+ */
+export function hasType(node: Node): node is HasType {
+    return !!(node as HasType).type;
+}
+
+/** @internal */
+export function isModifierKind(token: SyntaxKind): token is Modifier["kind"] {
+    switch (token) {
+        // case SyntaxKind.AbstractKeyword:
+        // case SyntaxKind.AccessorKeyword:
+        // case SyntaxKind.AsyncKeyword:
+        // case SyntaxKind.ConstKeyword:
+        // case SyntaxKind.DeclareKeyword:
+        // case SyntaxKind.DefaultKeyword:
+        // case SyntaxKind.ExportKeyword:
+        case SyntaxKind.InKeyword:
+        case SyntaxKind.PublicKeyword:
+        case SyntaxKind.PrivateKeyword:
+        case SyntaxKind.ProtectedKeyword:
+        case SyntaxKind.ReadonlyKeyword:
+        case SyntaxKind.StaticKeyword:
+        case SyntaxKind.NoMaskKeyword:
+        case SyntaxKind.NoShadowKeyword:
+        case SyntaxKind.NoSaveKeyword:
+        // case SyntaxKind.OutKeyword:
+        // case SyntaxKind.OverrideKeyword:
+            return true;
+    }
+    return false;
+}
+
+
+export function isModifier(node: Node): node is Modifier {
+    return isModifierKind(node.kind);
+}
+
+/** @internal */
+export function isOptionalChainRoot(node: Node): node is OptionalChainRoot {
+    return isOptionalChain(node) && !isNonNullExpression(node) ;//&& !!node.questionDotToken;
+}
+
+
+/**
+ * Determines whether a node is the outermost `OptionalChain` in an ECMAScript `OptionalExpression`:
+ *
+ * 1. For `a?.b.c`, the outermost chain is `a?.b.c` (`c` is the end of the chain starting at `a?.`)
+ * 2. For `a?.b!`, the outermost chain is `a?.b` (`b` is the end of the chain starting at `a?.`)
+ * 3. For `(a?.b.c).d`, the outermost chain is `a?.b.c` (`c` is the end of the chain starting at `a?.` since parens end the chain)
+ * 4. For `a?.b.c?.d`, both `a?.b.c` and `a?.b.c?.d` are outermost (`c` is the end of the chain starting at `a?.`, and `d` is
+ *   the end of the chain starting at `c?.`)
+ * 5. For `a?.(b?.c).d`, both `b?.c` and `a?.(b?.c)d` are outermost (`c` is the end of the chain starting at `b`, and `d` is
+ *   the end of the chain starting at `a?.`)
+ *
+ * @internal
+ */
+export function isOutermostOptionalChain(node: OptionalChain) {
+    return !isOptionalChain(node.parent) // cases 1, 2, and 3
+        || isOptionalChainRoot(node.parent) // case 4
+        || node !== node.parent.expression; // case 5
+}
+
+
+/**
+ * Determines whether a node is the expression preceding an optional chain (i.e. `a` in `a?.b`).
+ *
+ * @internal
+ */
+export function isExpressionOfOptionalChainRoot(node: Node): node is Expression & { parent: OptionalChainRoot; } {
+    return isOptionalChainRoot(node.parent) && node.parent.expression === node;
+}
+
+export function isCallChain(node: Node): node is CallChain {
+    return isCallExpression(node) && !!(node.flags & NodeFlags.OptionalChain);
+}
+
+export function isIterationStatement(node: Node, lookInLabeledStatements: false): node is IterationStatement;
+export function isIterationStatement(node: Node, lookInLabeledStatements: boolean): node is IterationStatement ;//| LabeledStatement;
+export function isIterationStatement(node: Node, lookInLabeledStatements: boolean): node is IterationStatement {
+    switch (node.kind) {
+        case SyntaxKind.ForStatement:
+        case SyntaxKind.ForInStatement:
+        //case SyntaxKind.ForOfStatement:
+        case SyntaxKind.DoStatement:
+        case SyntaxKind.WhileStatement:
+            return true;
+        // case SyntaxKind.LabeledStatement:
+        //     return lookInLabeledStatements && isIterationStatement((node as LabeledStatement).statement, lookInLabeledStatements);
+    }
+
+    return false;
+}
+
+/** @internal */
+export function isClassInstanceProperty(node: Declaration): boolean {
+    // if (isInJSFile(node) && isExpandoPropertyDeclaration(node)) {
+    //     return (!isBindableStaticAccessExpression(node) || !isPrototypeAccess(node.expression)) && !isBindableStaticNameExpression(node, /*excludeThisKeyword*/ true);
+    // }
+    return node.parent && isClassLike(node.parent) && isPropertyDeclaration(node) /*&& !hasAccessorModifier(node)*/;
 }

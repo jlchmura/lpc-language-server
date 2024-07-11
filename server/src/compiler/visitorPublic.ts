@@ -1,10 +1,10 @@
 import { isArray, some } from "./core";
 import { Debug } from "./debug";
 import { factory } from "./nodeFactory";
-import { isParameter, isBlock, isIdentifier, isTypeParameterDeclaration, isBindingElement, isVariableDeclarationList, isVariableDeclaration } from "./nodeTests";
-import { ConciseBody, Expression, FunctionBody, HasChildren, Identifier, Node, NodeArray, ParameterDeclaration, Statement, SyntaxKind, Visitor,Symbol, TransformationContext, NodesVisitor } from "./types";
-import { setTextRangePosEnd, isOptionalChain } from "./utilities";
-import { isStatement, isBindingPattern, isExpression, isTypeNode, isObjectLiteralElementLike, isMemberName } from "./utilitiesPublic";
+import { isParameter, isBlock, isIdentifier, isTypeParameterDeclaration, isBindingElement, isVariableDeclarationList, isVariableDeclaration, isExpressionWithTypeArguments, isHeritageClause, isJsxAttributes } from "./nodeTests";
+import { ConciseBody, Expression, FunctionBody, HasChildren, Identifier, Node, NodeArray, ParameterDeclaration, Statement, SyntaxKind, Visitor,Symbol, TransformationContext, NodesVisitor, EmitFlags, LexicalEnvironmentFlags } from "./types";
+import { setTextRangePosEnd, isOptionalChain, getEmitFlags, setEmitFlags } from "./utilities";
+import { isStatement, isBindingPattern, isExpression, isTypeNode, isObjectLiteralElementLike, isMemberName, isEntityName, isPropertyName, setTextRange, isModifier } from "./utilitiesPublic";
 
 /**
  * Visits a Node using the supplied visitor, possibly returning a new Node in its place.
@@ -560,12 +560,12 @@ const visitEachChildTable: VisitEachChildTable = {
         );
     },
 
-    [SyntaxKind.Decorator]: function visitEachChildOfDecorator(node, visitor, context, _nodesVisitor, nodeVisitor, _tokenVisitor) {
-        return context.factory.updateDecorator(
-            node,
-            Debug.checkDefined(nodeVisitor(node.expression, visitor, isExpression)),
-        );
-    },
+    // [SyntaxKind.Decorator]: function visitEachChildOfDecorator(node, visitor, context, _nodesVisitor, nodeVisitor, _tokenVisitor) {
+    //     return context.factory.updateDecorator(
+    //         node,
+    //         Debug.checkDefined(nodeVisitor(node.expression, visitor, isExpression)),
+    //     );
+    // },
 
     // Type elements
     [SyntaxKind.PropertySignature]: function visitEachChildOfPropertySignature(node, visitor, context, nodesVisitor, nodeVisitor, tokenVisitor) {
@@ -1596,19 +1596,19 @@ const visitEachChildTable: VisitEachChildTable = {
         );
     },
 
-    [SyntaxKind.JsxSpreadAttribute]: function visitEachChildOfJsxSpreadAttribute(node, visitor, context, _nodesVisitor, nodeVisitor, _tokenVisitor) {
-        return context.factory.updateJsxSpreadAttribute(
-            node,
-            Debug.checkDefined(nodeVisitor(node.expression, visitor, isExpression)),
-        );
-    },
+    // [SyntaxKind.JsxSpreadAttribute]: function visitEachChildOfJsxSpreadAttribute(node, visitor, context, _nodesVisitor, nodeVisitor, _tokenVisitor) {
+    //     return context.factory.updateJsxSpreadAttribute(
+    //         node,
+    //         Debug.checkDefined(nodeVisitor(node.expression, visitor, isExpression)),
+    //     );
+    // },
 
-    [SyntaxKind.JsxExpression]: function visitEachChildOfJsxExpression(node, visitor, context, _nodesVisitor, nodeVisitor, _tokenVisitor) {
-        return context.factory.updateJsxExpression(
-            node,
-            nodeVisitor(node.expression, visitor, isExpression),
-        );
-    },
+    // [SyntaxKind.JsxExpression]: function visitEachChildOfJsxExpression(node, visitor, context, _nodesVisitor, nodeVisitor, _tokenVisitor) {
+    //     return context.factory.updateJsxExpression(
+    //         node,
+    //         nodeVisitor(node.expression, visitor, isExpression),
+    //     );
+    // },
 
     // Clauses
     [SyntaxKind.CaseClause]: function visitEachChildOfCaseClause(node, visitor, context, nodesVisitor, nodeVisitor, _tokenVisitor) {
@@ -1619,12 +1619,12 @@ const visitEachChildTable: VisitEachChildTable = {
         );
     },
 
-    [SyntaxKind.DefaultClause]: function visitEachChildOfDefaultClause(node, visitor, context, nodesVisitor, _nodeVisitor, _tokenVisitor) {
-        return context.factory.updateDefaultClause(
-            node,
-            nodesVisitor(node.statements, visitor, isStatement),
-        );
-    },
+    // [SyntaxKind.DefaultClause]: function visitEachChildOfDefaultClause(node, visitor, context, nodesVisitor, _nodeVisitor, _tokenVisitor) {
+    //     return context.factory.updateDefaultClause(
+    //         node,
+    //         nodesVisitor(node.statements, visitor, isStatement),
+    //     );
+    // },
 
     [SyntaxKind.HeritageClause]: function visitEachChildOfHeritageClause(node, visitor, context, nodesVisitor, _nodeVisitor, _tokenVisitor) {
         return context.factory.updateHeritageClause(

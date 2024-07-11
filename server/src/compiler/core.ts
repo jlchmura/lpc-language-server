@@ -1221,3 +1221,51 @@ export function arrayIsEqualTo<T>(array1: readonly T[] | undefined, array2: read
 
     return true;
 }
+
+/** @internal */
+export function cartesianProduct<T>(arrays: readonly T[][]) {
+    const result: T[][] = [];
+    cartesianProductWorker(arrays, result, /*outer*/ undefined, 0);
+    return result;
+}
+
+function cartesianProductWorker<T>(arrays: readonly (readonly T[])[], result: (readonly T[])[], outer: readonly T[] | undefined, index: number) {
+    for (const element of arrays[index]) {
+        let inner: T[];
+        if (outer) {
+            inner = outer.slice();
+            inner.push(element);
+        }
+        else {
+            inner = [element];
+        }
+        if (index === arrays.length - 1) {
+            result.push(inner);
+        }
+        else {
+            cartesianProductWorker(arrays, result, inner, index + 1);
+        }
+    }
+}
+
+/** @internal */
+export function memoize<T>(callback: () => T): () => T {
+    let value: T;
+    return () => {
+        if (callback) {
+            value = callback();
+            callback = undefined!;
+        }
+        return value;
+    };
+}
+
+/** @internal */
+export function firstOrUndefinedIterator<T>(iter: Iterable<T> | undefined): T | undefined {
+    if (iter !== undefined) {
+        for (const value of iter) {
+            return value;
+        }
+    }
+    return undefined;
+}

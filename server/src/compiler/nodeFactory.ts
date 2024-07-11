@@ -3,7 +3,7 @@ import {
     ParameterContext,
 } from "../parser3/LPCParser";
 import { BaseNodeFactory, createBaseNodeFactory } from "./baseNodeFactory";
-import { emptyArray, identity } from "./core";
+import { emptyArray, hasProperty, identity } from "./core";
 import {
     ArrayTypeNode,
     BinaryExpression,
@@ -18,12 +18,16 @@ import {
     Declaration,
     DeclarationName,
     ElementAccessExpression,
+    EmitFlags,
     EndOfFileToken,
     EntityName,
     Expression,
     ExpressionStatement,
     FloatLiteral,
     FunctionDeclaration,
+    GeneratedIdentifier,
+    GeneratedIdentifierFlags,
+    GeneratedNamePart,
     Identifier,
     InlineClosureExpression,
     IntegerLiteral,
@@ -48,6 +52,7 @@ import {
     PunctuationSyntaxKind,
     PunctuationToken,
     QuestionToken,
+    RedirectInfo,
     ReturnStatement,
     SourceFile,
     Statement,
@@ -61,8 +66,14 @@ import {
     VariableDeclarationList,
     VariableStatement,
 } from "./types";
-import { Mutable, getTextOfIdentifierOrLiteral, isNodeArray } from "./utilities";
+import { Mutable, formatGeneratedName, getEmitFlags, getTextOfIdentifierOrLiteral, isNodeArray, setEmitFlags, setParent } from "./utilities";
 import { Debug } from "./debug";
+import { escapeLeadingUnderscores, getNameOfDeclaration, getNonAssignedNameOfDeclaration, idText, isGeneratedIdentifier, isMemberName, isNodeKind, setTextRange } from "./utilitiesPublic";
+import { isIdentifier, isPrivateIdentifier, isSourceFile } from "./nodeTests";
+import { getNodeId } from "./checker";
+import { getIdentifierTypeArguments, setIdentifierAutoGenerate, setIdentifierTypeArguments } from "./factory/emitNode";
+
+let nextAutoGenerateId = 0;
 
 /** @internal */
 export const enum NodeFactoryFlags {
@@ -121,7 +132,8 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createStringLiteral,
         createStringLiteralFromNode,
         createParenthesizedExpression,
-        createElementAccessExpression
+        createElementAccessExpression,
+        getDeclarationName
     };
 
     return factory;
@@ -600,6 +612,204 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         // }
         return node;
     }    
+
+    function createRedirectedSourceFile(redirectInfo: RedirectInfo) {
+        const node: SourceFile = Object.create(redirectInfo.redirectTarget);
+        Object.defineProperties(node, {
+            id: {
+                get(this: SourceFile) {
+                    return this.redirectInfo!.redirectTarget.id;
+                },
+                set(this: SourceFile, value: SourceFile["id"]) {
+                    this.redirectInfo!.redirectTarget.id = value;
+                },
+            },
+            symbol: {
+                get(this: SourceFile) {
+                    return this.redirectInfo!.redirectTarget.symbol;
+                },
+                set(this: SourceFile, value: SourceFile["symbol"]) {
+                    this.redirectInfo!.redirectTarget.symbol = value;
+                },
+            },
+        });
+        node.redirectInfo = redirectInfo;
+        return node;
+    }
+
+    
+    function cloneRedirectedSourceFile(source: SourceFile) {
+        const node = createRedirectedSourceFile(source.redirectInfo!) as Mutable<SourceFile>;
+        node.flags |= source.flags & ~NodeFlags.Synthesized;
+        node.fileName = source.fileName;
+        node.path = source.path;
+        // node.resolvedPath = source.resolvedPath;
+        // node.originalFileName = source.originalFileName;
+        // node.packageJsonLocations = source.packageJsonLocations;
+        // node.packageJsonScope = source.packageJsonScope;
+        // node.emitNode = undefined;
+        return node;
+    }
+
+
+    function cloneSourceFile(source: SourceFile) {
+        const node = source.redirectInfo ? cloneRedirectedSourceFile(source) : cloneSourceFileWorker(source);
+        setOriginal(node, source);
+        return node;
+    }
+
+    function cloneSourceFileWorker(source: SourceFile) {
+        // TODO: This mechanism for cloning results in megamorphic property reads and writes. In future perf-related
+        //       work, we should consider switching explicit property assignments instead of using `for..in`.
+        const node = baseFactory.createBaseSourceFileNode(SyntaxKind.SourceFile) as Mutable<SourceFile>;
+        node.flags |= source.flags & ~NodeFlags.Synthesized;
+        for (const p in source) {
+            if (hasProperty(node, p) || !hasProperty(source, p)) {
+                continue;
+            }
+            if (p === "emitNode") {
+                //node.emitNode = undefined;
+                continue;
+            }
+            (node as any)[p] = (source as any)[p];
+        }
+        return node;
+    }
+
+    // function cloneGeneratedIdentifier(node: GeneratedIdentifier): GeneratedIdentifier {
+    //     const clone = createBaseIdentifier(node.escapedText) as Mutable<GeneratedIdentifier>;
+    //     clone.flags |= node.flags & ~NodeFlags.Synthesized;
+    //     clone.transformFlags = node.transformFlags;
+    //     setOriginal(clone, node);
+    //     setIdentifierAutoGenerate(clone, { ...node.emitNode.autoGenerate });
+    //     return clone;
+    // }
+
+    function cloneIdentifier(node: Identifier): Identifier {
+        const clone = createBaseIdentifier(node.text);
+        clone.flags |= node.flags & ~NodeFlags.Synthesized;
+        clone.jsDoc = node.jsDoc;
+        clone.flowNode = node.flowNode;
+        clone.symbol = node.symbol;
+        //clone.transformFlags = node.transformFlags;
+        setOriginal(clone, node);
+
+        // clone type arguments for emitter/typeWriter
+        const typeArguments = getIdentifierTypeArguments(node);
+        if (typeArguments) setIdentifierTypeArguments(clone, typeArguments);
+        return clone;
+    }
+
+    // function cloneGeneratedPrivateIdentifier(node: GeneratedPrivateIdentifier): GeneratedPrivateIdentifier {
+    //     const clone = createBasePrivateIdentifier(node.escapedText) as Mutable<GeneratedPrivateIdentifier>;
+    //     clone.flags |= node.flags & ~NodeFlags.Synthesized;
+    //     clone.transformFlags = node.transformFlags;
+    //     setOriginal(clone, node);
+    //     setIdentifierAutoGenerate(clone, { ...node.emitNode.autoGenerate });
+    //     return clone;
+    // }
+
+    function clonePrivateIdentifier(node: PrivateIdentifier): PrivateIdentifier {
+        return node;
+        // const clone = createBasePrivateIdentifier(node.escapedText);
+        // clone.flags |= node.flags & ~NodeFlags.Synthesized;
+        // clone.transformFlags = node.transformFlags;
+        // setOriginal(clone, node);
+        // return clone;
+    }
+
+    // @api
+    function cloneNode<T extends Node | undefined>(node: T): T;
+    function cloneNode<T extends Node>(node: T) {
+        // We don't use "clone" from core.ts here, as we need to preserve the prototype chain of
+        // the original node. We also need to exclude specific properties and only include own-
+        // properties (to skip members already defined on the shared prototype).
+        if (node === undefined) {
+            return node;
+        }
+        if (isSourceFile(node)) {
+            return cloneSourceFile(node) as T & SourceFile;
+        }
+        // if (isGeneratedIdentifier(node)) {
+        //     return cloneGeneratedIdentifier(node) as T & GeneratedIdentifier;
+        // }
+        if (isIdentifier(node)) {
+            return cloneIdentifier(node) as T & Identifier;
+        }
+        // if (isGeneratedPrivateIdentifier(node)) {
+        //     return cloneGeneratedPrivateIdentifier(node) as T & GeneratedPrivateIdentifier;
+        // }
+        if (isPrivateIdentifier(node)) {
+            return clonePrivateIdentifier(node) as T & PrivateIdentifier;
+        }
+
+        const clone = !isNodeKind(node.kind) ? baseFactory.createBaseTokenNode(node.kind) as T :
+            baseFactory.createBaseNode(node.kind) as T;
+
+        (clone as Mutable<T>).flags |= node.flags & ~NodeFlags.Synthesized;
+        //(clone as Mutable<T>).transformFlags = node.transformFlags;
+        setOriginal(clone, node);
+
+        for (const key in node) {
+            if (hasProperty(clone, key) || !hasProperty(node, key)) {
+                continue;
+            }
+
+            clone[key] = node[key];
+        }
+
+        return clone;
+    }
+    
+    function createBaseGeneratedIdentifier(text: string, autoGenerateFlags: GeneratedIdentifierFlags, prefix: string | GeneratedNamePart | undefined, suffix: string | undefined) {
+        const node = createBaseIdentifier(escapeLeadingUnderscores(text)) as Mutable<GeneratedIdentifier>;
+        setIdentifierAutoGenerate(node, {
+            flags: autoGenerateFlags,
+            id: nextAutoGenerateId,
+            prefix,
+            suffix,
+        });
+        nextAutoGenerateId++;
+        return node;
+    }
+    
+    function getName(node: Declaration | undefined, allowComments?: boolean, allowSourceMaps?: boolean, emitFlags: EmitFlags = 0, ignoreAssignedName?: boolean) {
+        const nodeName = ignoreAssignedName ? node && getNonAssignedNameOfDeclaration(node) : getNameOfDeclaration(node);
+        if (nodeName && isIdentifier(nodeName) && !isGeneratedIdentifier(nodeName)) {
+            // TODO(rbuckton): Does this need to be parented?
+            const name = setParent<Identifier>(setTextRange(cloneNode(nodeName), nodeName), (nodeName as Identifier).parent);
+            emitFlags |= getEmitFlags(nodeName);
+            if (!allowSourceMaps) emitFlags |= EmitFlags.NoSourceMap;
+            if (!allowComments) emitFlags |= EmitFlags.NoComments;
+            if (emitFlags) setEmitFlags(name, emitFlags);
+            return name;
+        }
+        return getGeneratedNameForNode(node);
+    }
+    
+    /** Create a unique name generated for a node. */
+    // @api
+    function getGeneratedNameForNode(node: Node | undefined, flags: GeneratedIdentifierFlags = 0, prefix?: string | GeneratedNamePart, suffix?: string): Identifier {
+        Debug.assert(!(flags & GeneratedIdentifierFlags.KindMask), "Argument out of range: flags");
+        const text = !node ? "" :
+            isMemberName(node) ? formatGeneratedName(/*privateName*/ false, prefix, node, suffix, idText) :
+            `generated@${getNodeId(node)}`;
+        if (prefix || suffix) flags |= GeneratedIdentifierFlags.Optimistic;
+        const name = createBaseGeneratedIdentifier(text, GeneratedIdentifierFlags.Node | flags, prefix, suffix);
+        name.original = node;
+        return name;
+    }
+    
+    /**
+     * Gets the name of a declaration for use in declarations.
+     *
+     * @param node The declaration.
+     * @param allowComments A value indicating whether comments may be emitted for the name.
+     * @param allowSourceMaps A value indicating whether source maps may be emitted for the name.
+     */
+    function getDeclarationName(node: Declaration | undefined, allowComments?: boolean, allowSourceMaps?: boolean):Identifier {
+        return getName(node, allowComments, allowSourceMaps);
+    }
 }
 
 export function setOriginalNode<T extends Node>(node: T, original: Node | undefined): T {

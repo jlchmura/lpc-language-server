@@ -11,7 +11,7 @@ import {
     zipWith,
 } from "./core";
 import { SortedReadonlyArray } from "./corePublic";
-import { FlowFlags, FlowLabel, FlowNode, FlowSwitchClause, MatchingKeys, Node, NodeArray, SyntaxKind, Type, Symbol, SymbolFlags, TypeFlags, IntrinsicType, LiteralType, ObjectFlags, ObjectType, Signature, SignatureFlags, NodeFlags, ModifierFlags, TypeMapper, TypeMapKind } from "./types";
+import { FlowFlags, FlowLabel, FlowNode, FlowSwitchClause, MatchingKeys, Node, NodeArray, SyntaxKind, Type, Symbol, SymbolFlags, TypeFlags, IntrinsicType, LiteralType, ObjectFlags, ObjectType, Signature, SignatureFlags, NodeFlags, ModifierFlags, TypeMapper, TypeMapKind, VarianceFlags } from "./types";
 import { getEffectiveModifierFlagsNoCache, getSourceFileOfNode, getSourceTextOfNodeFromSourceFile, nodeIsSynthesized, objectAllocator } from "./utilities";
 import { getParseTreeNode, idText, isParseTreeNode, symbolName, unescapeLeadingUnderscores } from "./utilitiesPublic";
 import { isArrayTypeNode, isCallSignatureDeclaration, isIdentifier, isImportTypeNode, isIndexedAccessTypeNode, isIndexSignatureDeclaration, isLiteralTypeNode, isNumericLiteral, isParameter, isPrivateIdentifier, isStringLiteral, isTypeLiteralNode, isTypeParameterDeclaration, isUnionTypeNode } from "./nodeTests";
@@ -981,5 +981,21 @@ m2: ${(this.mapper2 as unknown as DebugTypeMapper).__debugToString().split("\n")
 
     export function formatSymbol(symbol: Symbol): string {
         return `{ name: ${unescapeLeadingUnderscores(symbol.name)}; flags: ${formatSymbolFlags(symbol.flags)}; declarations: ${map(symbol.declarations, node => formatSyntaxKind(node.kind))} }`;
+    }
+
+    export function formatVariance(varianceFlags: VarianceFlags) {
+        const variance = varianceFlags & VarianceFlags.VarianceMask;
+        let result = variance === VarianceFlags.Invariant ? "in out" :
+            variance === VarianceFlags.Bivariant ? "[bivariant]" :
+            variance === VarianceFlags.Contravariant ? "in" :
+            variance === VarianceFlags.Covariant ? "out" :
+            variance === VarianceFlags.Independent ? "[independent]" : "";
+        if (varianceFlags & VarianceFlags.Unmeasurable) {
+            result += " (unmeasurable)";
+        }
+        else if (varianceFlags & VarianceFlags.Unreliable) {
+            result += " (unreliable)";
+        }
+        return result;
     }
 }

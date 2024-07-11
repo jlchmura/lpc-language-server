@@ -407,7 +407,7 @@ export namespace LpcParser {
 
         const name = header._functionName;
         const mod = header.functionModifier()[0];
-        //const modifiers = modifiersToFlags(header.functionModifier().map(m=>m.getChild(0)));
+        //TODO const modifiers = modifiersToFlags(header.functionModifier().map(m=>m.getChild(0)));
         const identifier = parseValidIdentifier(name);
 
         const returnType = parseType(

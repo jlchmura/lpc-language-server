@@ -134,6 +134,7 @@ export const enum SyntaxKind {
     ImportDeclaration,
     PropertySignature,
     CallSignature,
+    ConstructSignature,
     IndexSignature,    
 
     // Top Level
@@ -144,6 +145,7 @@ export const enum SyntaxKind {
     HeritageClause,    
     ImportSpecifier,
     NamedImports,
+    ExportAssignment,
     ExportSpecifier,
 
     // declarations
@@ -216,6 +218,8 @@ export const enum SyntaxKind {
     StaticKeyword,
     ExtendsKeyword,
     /** @deprecated */
+    ThisKeyword,
+    /** @deprecated */
     ReadonlyKeyword,
     /** @deprecated */
     UniqueKeyword,
@@ -285,6 +289,9 @@ export const enum SyntaxKind {
     JSDocDeprecatedTag,
     JSDoc,
 
+    // Synthesized list
+    SyntaxList,
+
     // Transformation nodes
     CommaListExpression,
 
@@ -299,6 +306,8 @@ export const enum SyntaxKind {
     LastTypeNode = ObjectKeyword,
     FirstKeyword = PrivateKeyword,
     LastKeyword = ObjectKeyword,
+    FirstNode = Identifier,
+
 
     // Clauses
     CaseClause,
@@ -621,6 +630,13 @@ export const enum ModifierFlags {
     VarArgs =            1 << 8,  // Method    
     Async =              1 << 10, // Property/Method/Function
     
+    // NOT USED
+    Default =            1 << 11, // Function/Class (export default declaration)
+    Const =              1 << 12, // Const enum
+    In =                 1 << 13, // Contravariance modifier
+    Out =                1 << 14, // Covariance modifier
+    Decorator =          1 << 15, // Contains a decorator.
+
     // JSDoc-only modifiers
     Deprecated =         1 << 16, // Deprecated tag.
     
@@ -832,7 +848,29 @@ export interface NodeFactory {
     createElementAccessExpression(expression: Expression, index: number | Expression): ElementAccessExpression;
 
     createLiteralLikeNode(kind: LiteralToken["kind"] , text: string): LiteralToken;
+
+
+    getDeclarationName(node: Declaration | undefined, allowComments?: boolean, allowSourceMaps?: boolean):Identifier;
+
+    //
+    // Synthetic Nodes
+    //
+    /** @internal */ createSyntheticExpression(type: Type, isSpread?: boolean, tupleNameSource?: ParameterDeclaration | NamedTupleMember): SyntheticExpression;
+    /** @internal */ createSyntaxList(children: readonly Node[]): SyntaxList;
+
 }
+
+// SyntaxKind.SyntaxList
+export interface SyntaxList extends Node {
+    kind: SyntaxKind.SyntaxList;
+
+    // Unlike other nodes which may or may not have their child nodes calculated,
+    // the entire purpose of a SyntaxList is to hold child nodes.
+    // Instead of using the WeakMap machinery in `nodeChildren.ts`,
+    // we just store the children directly on the SyntaxList.
+    /** @internal */ _children: readonly Node[];
+}
+
 
 /** @internal */
 export interface MutableNodeArray<T extends Node> extends Array<T>, TextRange {
@@ -1362,6 +1400,17 @@ export interface JSDocContainer extends Node {
     jsDoc?: any;
 }
 
+/** @internal */
+export interface RedirectInfo {
+    /** Source file this redirects to. */
+    readonly redirectTarget: SourceFile;
+    /**
+     * Source file for the duplicate package. This will not be used by the Program,
+     * but we need to keep this around so we can watch for changes in underlying.
+     */
+    readonly unredirected: SourceFile;
+}
+
 export interface SourceFile extends Declaration, LocalsContainer {
     readonly kind: SyntaxKind.SourceFile;
     readonly statements: NodeArray<Statement>;
@@ -1379,6 +1428,15 @@ export interface SourceFile extends Declaration, LocalsContainer {
     
     pragmas: Set<string>; // TODO
     endFlowNode?: FlowNode; // TODO
+
+    /**
+     * If two source files are for the same version of the same package, one will redirect to the other.
+     * (See `createRedirectSourceFile` in program.ts.)
+     * The redirect will have this set. The redirected-to source file will be in `redirectTargetsMap`.
+     *
+     * @internal
+     */
+    redirectInfo?: RedirectInfo;
 
     // File-level diagnostics reported by the parser (includes diagnostics about /// references
     // as well as code diagnostics).
@@ -4369,7 +4427,14 @@ export type Visitor<TIn extends Node = Node, TOut extends Node | undefined = TIn
 
 
 // TODO: add this?
-export type TransformationContext = undefined;
+export type TransformationContext = any;
+
+/** @internal */
+export const enum LexicalEnvironmentFlags {
+    None = 0,
+    InParameters = 1 << 0, // currently visiting a parameter list
+    VariablesHoistedInParameters = 1 << 1, // a temp variable was hoisted while visiting a parameter list
+}
 
 
 /**
@@ -5230,3 +5295,148 @@ export interface IterableOrIteratorType extends ObjectType, UnionType {
     iterationTypesOfIteratorResult?: IterationTypes;
 }
 
+
+/** @internal */
+export interface GeneratedIdentifier extends Identifier {
+    //readonly emitNode: EmitNode & { autoGenerate: AutoGenerateInfo; };
+}
+
+// dprint-ignore
+export const enum EmitFlags {
+    None = 0,
+    SingleLine = 1 << 0,                    // The contents of this node should be emitted on a single line.
+    MultiLine = 1 << 1,
+    AdviseOnEmitNode = 1 << 2,              // The printer should invoke the onEmitNode callback when printing this node.
+    NoSubstitution = 1 << 3,                // Disables further substitution of an expression.
+    CapturesThis = 1 << 4,                  // The function captures a lexical `this`
+    NoLeadingSourceMap = 1 << 5,            // Do not emit a leading source map location for this node.
+    NoTrailingSourceMap = 1 << 6,           // Do not emit a trailing source map location for this node.
+    NoSourceMap = NoLeadingSourceMap | NoTrailingSourceMap, // Do not emit a source map location for this node.
+    NoNestedSourceMaps = 1 << 7,            // Do not emit source map locations for children of this node.
+    NoTokenLeadingSourceMaps = 1 << 8,      // Do not emit leading source map location for token nodes.
+    NoTokenTrailingSourceMaps = 1 << 9,     // Do not emit trailing source map location for token nodes.
+    NoTokenSourceMaps = NoTokenLeadingSourceMaps | NoTokenTrailingSourceMaps, // Do not emit source map locations for tokens of this node.
+    NoLeadingComments = 1 << 10,            // Do not emit leading comments for this node.
+    NoTrailingComments = 1 << 11,           // Do not emit trailing comments for this node.
+    NoComments = NoLeadingComments | NoTrailingComments, // Do not emit comments for this node.
+    NoNestedComments = 1 << 12,
+    HelperName = 1 << 13,                   // The Identifier refers to an *unscoped* emit helper (one that is emitted at the top of the file)
+    ExportName = 1 << 14,                   // Ensure an export prefix is added for an identifier that points to an exported declaration with a local name (see SymbolFlags.ExportHasLocal).
+    LocalName = 1 << 15,                    // Ensure an export prefix is not added for an identifier that points to an exported declaration.
+    InternalName = 1 << 16,                 // The name is internal to an ES5 class body function.
+    Indented = 1 << 17,                     // Adds an explicit extra indentation level for class and function bodies when printing (used to match old emitter).
+    NoIndentation = 1 << 18,                // Do not indent the node.
+    AsyncFunctionBody = 1 << 19,
+    ReuseTempVariableScope = 1 << 20,       // Reuse the existing temp variable scope during emit.
+    CustomPrologue = 1 << 21,               // Treat the statement as if it were a prologue directive (NOTE: Prologue directives are *not* transformed).
+    NoHoisting = 1 << 22,                   // Do not hoist this declaration in --module system
+    Iterator = 1 << 23,                     // The expression to a `yield*` should be treated as an Iterator when down-leveling, not an Iterable.
+    NoAsciiEscaping = 1 << 24,              // When synthesizing nodes that lack an original node or textSourceNode, we want to write the text on the node with ASCII escaping substitutions.
+}
+
+// dprint-ignore
+export const enum GeneratedIdentifierFlags {
+    // Kinds
+    None = 0,                           // Not automatically generated.
+    /** @internal */ Auto = 1,             // Automatically generated identifier.
+    /** @internal */ Loop = 2,             // Automatically generated identifier with a preference for '_i'.
+    /** @internal */ Unique = 3,           // Unique name based on the 'text' property.
+    /** @internal */ Node = 4,             // Unique name based on the node in the 'original' property.
+    /** @internal */ KindMask = 7,         // Mask to extract the kind of identifier from its flags.
+
+    // Flags
+    ReservedInNestedScopes = 1 << 3,    // Reserve the generated name in nested scopes
+    Optimistic = 1 << 4,                // First instance won't use '_#' if there's no conflict
+    FileLevel = 1 << 5,                 // Use only the file identifiers list and not generated names to search for conflicts
+    AllowNameSubstitution = 1 << 6, // Used by `module.ts` to indicate generated nodes which can have substitutions performed upon them (as they were generated by an earlier transform phase)
+}
+
+/** @internal */
+export interface GeneratedNamePart {
+    /** an additional prefix to insert before the text sourced from `node` */
+    prefix?: string;
+    node: Identifier | PrivateIdentifier;
+    /** an additional suffix to insert after the text sourced from `node` */
+    suffix?: string;
+}
+
+// dprint-ignore
+/** @internal */
+export interface AutoGenerateInfo {
+    flags: GeneratedIdentifierFlags;            // Specifies whether to auto-generate the text for an identifier.
+    readonly id: number;                        // Ensures unique generated identifiers get unique names, but clones get the same name.
+    readonly prefix?: string | GeneratedNamePart;
+    readonly suffix?: string;
+}
+
+
+/** @internal */
+export interface GeneratedPrivateIdentifier extends PrivateIdentifier {
+    //readonly emitNode: EmitNode & { autoGenerate: AutoGenerateInfo; };
+}
+
+// dprint-ignore
+export const enum EmitHint {
+    SourceFile,              // Emitting a SourceFile
+    Expression,              // Emitting an Expression
+    IdentifierName,          // Emitting an IdentifierName
+    MappedTypeParameter,     // Emitting a TypeParameterDeclaration inside of a MappedTypeNode
+    Unspecified,             // Emitting an otherwise unspecified node
+    EmbeddedStatement,       // Emitting an embedded statement
+    JsxAttributeValue,       // Emitting a JSX attribute value
+    ImportTypeNodeAttributes,// Emitting attributes as part of an ImportTypeNode
+}
+
+export type OptionalChain =
+    | PropertyAccessChain
+    | ElementAccessChain
+    | CallChain
+    | NonNullChain;
+
+/** @internal */
+export interface PropertyAccessChainRoot extends PropertyAccessChain {
+    //readonly questionDotToken: QuestionDotToken;
+}
+/** @internal */
+export interface ElementAccessChainRoot extends ElementAccessChain {
+    //readonly questionDotToken: QuestionDotToken;
+}
+/** @internal */
+export interface CallChainRoot extends CallChain {
+    //readonly questionDotToken: QuestionDotToken;
+}
+
+
+
+/** @internal */
+export type OptionalChainRoot =
+| PropertyAccessChainRoot
+| ElementAccessChainRoot
+| CallChainRoot;
+
+/**
+ * This is either an `export =` or an `export default` declaration.
+ * Unless `isExportEquals` is set, this node was parsed as an `export default`.
+ */
+export interface ExportAssignment extends DeclarationStatement, JSDocContainer {
+    readonly kind: SyntaxKind.ExportAssignment;
+    readonly parent: SourceFile;
+    readonly modifiers?: NodeArray<ModifierLike>;
+    readonly isExportEquals?: boolean;
+    readonly expression: Expression;
+}
+
+
+export interface BreakStatement extends Statement, FlowContainer {
+    readonly kind: SyntaxKind.BreakStatement;
+    readonly label?: Identifier;
+}
+
+export interface ContinueStatement extends Statement, FlowContainer {
+    readonly kind: SyntaxKind.ContinueStatement;
+    readonly label?: Identifier;
+}
+
+export type BreakOrContinueStatement =
+    | BreakStatement
+    | ContinueStatement;

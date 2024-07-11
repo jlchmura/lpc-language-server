@@ -1,5 +1,5 @@
 import * as __types from "./types";
-import { AssertionLevel, MapLike, addRange, assertType, binarySearch, compareStringsCaseSensitive, compareValues, contains, emptyArray, filter, find, firstOrUndefined, flatMap, flatMapToMutable, forEach, hasProperty, identity, insertSorted, isString, last, lastOrUndefined, length, returnFalse, returnUndefined, some, startsWith } from "./core";
+import { AssertionLevel, MapLike, addRange, assertType, binarySearch, compareStringsCaseSensitive, compareValues, contains, emptyArray, filter, find, firstOrUndefined, flatMap, flatMapToMutable, forEach, hasProperty, identity, insertSorted, isString, last, lastOrUndefined, length, noop, returnFalse, returnUndefined, some, startsWith } from "./core";
 import {
     AssignmentExpression,
     BinaryExpression,
@@ -142,6 +142,15 @@ import {
     AdditiveOperator,
     MethodSignature,
     SuperProperty,
+    ImportCall,
+    EmitFlags,
+    GeneratedNamePart,
+    GeneratedIdentifier,
+    GeneratedPrivateIdentifier,
+    IdentifierTypePredicate,
+    TypePredicate,
+    TypePredicateKind,
+    BindableStaticNameExpression,
 } from "./types";
 import { LPCLexer } from "../parser3/LPCLexer";
 import { Debug } from "./debug";
@@ -165,6 +174,7 @@ import {
     isJSDocSignature,
     isJSDocTypeExpression,
     isJSDocTypeTag,
+    isNonNullExpression,
     isNumericLiteral,
     isObjectBindingPattern,
     isObjectLiteralExpression,
@@ -207,6 +217,7 @@ import {
     isFunctionLike,
     isFunctionLikeDeclaration,
     isFunctionLikeOrClassStaticBlockDeclaration,
+    isGeneratedIdentifier,
     isLeftHandSideExpression,
     isMemberName,
     isMethodOrAccessor,
@@ -4626,4 +4637,279 @@ export function isRightSideOfQualifiedNameOrPropertyAccess(node: Node) {
 export function isRightSideOfAccessExpression(node: Node) {
     return !!node.parent && (isPropertyAccessExpression(node.parent) && node.parent.name === node
         || isElementAccessExpression(node.parent) && node.parent.argumentExpression === node);
+}
+
+/** @internal */
+export function concatenateDiagnosticMessageChains(headChain: DiagnosticMessageChain, tailChain: DiagnosticMessageChain): void {
+    let lastChain = headChain;
+    while (lastChain.next) {
+        lastChain = lastChain.next[0];
+    }
+
+    lastChain.next = [tailChain];
+}
+
+
+/** @internal */
+export function isImportCall(n: Node): n is ImportCall {
+    return n.kind === SyntaxKind.CallExpression && (n as CallExpression).expression.kind === SyntaxKind.ImportKeyword;
+}
+
+/**
+ * Gets flags that control emit behavior of a node.
+ *
+ * @internal
+ */
+export function getEmitFlags(node: Node): EmitFlags {
+    return 0;
+    // const emitNode = node.emitNode;
+    // return emitNode && emitNode.flags || 0;
+}
+
+/**
+ * Sets flags that control emit behavior of a node.
+ */
+export function setEmitFlags<T extends Node>(node: T, emitFlags: EmitFlags) {
+    //getOrCreateEmitNode(node).flags = emitFlags;
+    return node;
+}
+
+
+/**
+ * Formats a prefix or suffix of a generated name.
+ *
+ * @internal
+ */
+export function formatGeneratedNamePart(part: string | undefined): string;
+/**
+ * Formats a prefix or suffix of a generated name. If the part is a {@link GeneratedNamePart}, calls {@link generateName} to format the source node.
+ *
+ * @internal
+ */
+export function formatGeneratedNamePart(part: string | GeneratedNamePart | undefined, generateName: (name: GeneratedIdentifier | GeneratedPrivateIdentifier) => string): string;
+/** @internal */
+export function formatGeneratedNamePart(part: string | GeneratedNamePart | undefined, generateName?: (name: GeneratedIdentifier | GeneratedPrivateIdentifier) => string): string {
+    return typeof part === "object" ? formatGeneratedName(/*privateName*/ false, part.prefix, part.node, part.suffix, generateName!) :
+        typeof part === "string" ? part.length > 0 && part.charCodeAt(0) === CharacterCodes.hash ? part.slice(1) : part :
+        "";
+}
+
+
+/**
+ * Formats a generated name.
+ * @param privateName When `true`, inserts a `#` character at the start of the result.
+ * @param prefix The prefix (if any) to include before the base name.
+ * @param baseName The base name for the generated name.
+ * @param suffix The suffix (if any) to include after the base name.
+ *
+ * @internal
+ */
+export function formatGeneratedName(privateName: boolean, prefix: string | undefined, baseName: string, suffix: string | undefined): string;
+/**
+ * Formats a generated name.
+ * @param privateName When `true`, inserts a `#` character at the start of the result.
+ * @param prefix The prefix (if any) to include before the base name.
+ * @param baseName The base name for the generated name.
+ * @param suffix The suffix (if any) to include after the base name.
+ * @param generateName Called to format the source node of {@link prefix} when it is a {@link GeneratedNamePart}.
+ *
+ * @internal
+ */
+export function formatGeneratedName(privateName: boolean, prefix: string | GeneratedNamePart | undefined, baseName: string | Identifier | PrivateIdentifier, suffix: string | GeneratedNamePart | undefined, generateName: (name: GeneratedIdentifier | GeneratedPrivateIdentifier) => string): string;
+/** @internal */
+export function formatGeneratedName(privateName: boolean, prefix: string | GeneratedNamePart | undefined, baseName: string | Identifier | PrivateIdentifier, suffix: string | GeneratedNamePart | undefined, generateName?: (name: GeneratedIdentifier | GeneratedPrivateIdentifier) => string) {
+    prefix = formatGeneratedNamePart(prefix, generateName!);
+    suffix = formatGeneratedNamePart(suffix, generateName!);
+    baseName = formatIdentifier(baseName, generateName);
+    return `${privateName ? "#" : ""}${prefix}${baseName}${suffix}`;
+}
+
+
+
+function formatIdentifier(name: string | Identifier | PrivateIdentifier, generateName?: (name: GeneratedIdentifier | GeneratedPrivateIdentifier) => string) {
+    return typeof name === "string" ? name :
+        formatIdentifierWorker(name, Debug.checkDefined(generateName));
+}
+
+function formatIdentifierWorker(node: Identifier | PrivateIdentifier, generateName: (name: GeneratedIdentifier | GeneratedPrivateIdentifier) => string) {
+    //return isGeneratedPrivateIdentifier(node) ? generateName(node).slice(1) :
+    return   isGeneratedIdentifier(node) ? generateName(node) :
+        isPrivateIdentifier(node) ? (node.text as string).slice(1) :
+        idText(node);
+}
+
+/** @internal */
+export function isIdentifierTypePredicate(predicate: TypePredicate): predicate is IdentifierTypePredicate {
+    return predicate && predicate.kind === TypePredicateKind.Identifier;
+}
+
+/** @internal */
+export function isThisTypePredicate(predicate: TypePredicate){ //: predicate is ThisTypePredicate {
+    return false;// return predicate && predicate.kind === TypePredicateKind.This;
+}
+
+const stringWriter = createSingleLineStringWriter();
+
+function createSingleLineStringWriter(): EmitTextWriter {
+    // Why var? It avoids TDZ checks in the runtime which can be costly.
+    // See: https://github.com/microsoft/TypeScript/issues/52924
+    /* eslint-disable no-var */
+    var str = "";
+    /* eslint-enable no-var */
+    const writeText: (text: string) => void = text => str += text;
+    return {
+        getText: () => str,
+        write: writeText,
+        rawWrite: writeText,
+        writeKeyword: writeText,
+        writeOperator: writeText,
+        writePunctuation: writeText,
+        writeSpace: writeText,
+        writeStringLiteral: writeText,
+        writeLiteral: writeText,
+        writeParameter: writeText,
+        writeProperty: writeText,
+        writeSymbol: (s, _) => writeText(s),
+        writeTrailingSemicolon: writeText,
+        writeComment: writeText,
+        getTextPos: () => str.length,
+        getLine: () => 0,
+        getColumn: () => 0,
+        getIndent: () => 0,
+        isAtStartOfLine: () => false,
+        hasTrailingComment: () => false,
+        hasTrailingWhitespace: () => !!str.length && isWhiteSpaceLike(str.charCodeAt(str.length - 1)),
+
+        // Completely ignore indentation for string writers.  And map newlines to
+        // a single space.
+        writeLine: () => str += " ",
+        increaseIndent: noop,
+        decreaseIndent: noop,
+        clear: () => str = "",
+    };
+}
+
+/** @internal */
+export function usingSingleLineStringWriter(action: (writer: EmitTextWriter) => void): string {
+    const oldString = stringWriter.getText();
+    try {
+        action(stringWriter);
+        return stringWriter.getText();
+    }
+    finally {
+        stringWriter.clear();
+        stringWriter.writeKeyword(oldString);
+    }
+}
+
+/** @internal */
+export function getTrailingSemicolonDeferringWriter(writer: EmitTextWriter): EmitTextWriter {
+    let pendingTrailingSemicolon = false;
+
+    function commitPendingTrailingSemicolon() {
+        if (pendingTrailingSemicolon) {
+            writer.writeTrailingSemicolon(";");
+            pendingTrailingSemicolon = false;
+        }
+    }
+
+    return {
+        ...writer,
+        writeTrailingSemicolon() {
+            pendingTrailingSemicolon = true;
+        },
+        writeLiteral(s) {
+            commitPendingTrailingSemicolon();
+            writer.writeLiteral(s);
+        },
+        writeStringLiteral(s) {
+            commitPendingTrailingSemicolon();
+            writer.writeStringLiteral(s);
+        },
+        writeSymbol(s, sym) {
+            commitPendingTrailingSemicolon();
+            writer.writeSymbol(s, sym);
+        },
+        writePunctuation(s) {
+            commitPendingTrailingSemicolon();
+            writer.writePunctuation(s);
+        },
+        writeKeyword(s) {
+            commitPendingTrailingSemicolon();
+            writer.writeKeyword(s);
+        },
+        writeOperator(s) {
+            commitPendingTrailingSemicolon();
+            writer.writeOperator(s);
+        },
+        writeParameter(s) {
+            commitPendingTrailingSemicolon();
+            writer.writeParameter(s);
+        },
+        writeSpace(s) {
+            commitPendingTrailingSemicolon();
+            writer.writeSpace(s);
+        },
+        writeProperty(s) {
+            commitPendingTrailingSemicolon();
+            writer.writeProperty(s);
+        },
+        writeComment(s) {
+            commitPendingTrailingSemicolon();
+            writer.writeComment(s);
+        },
+        writeLine() {
+            commitPendingTrailingSemicolon();
+            writer.writeLine();
+        },
+        increaseIndent() {
+            commitPendingTrailingSemicolon();
+            writer.increaseIndent();
+        },
+        decreaseIndent() {
+            commitPendingTrailingSemicolon();
+            writer.decreaseIndent();
+        },
+    };
+}
+
+/** @internal */
+export function isNonNullAccess(node: Node): node is AccessExpression {
+    const kind = node.kind;
+    return (kind === SyntaxKind.PropertyAccessExpression
+        || kind === SyntaxKind.ElementAccessExpression) && isNonNullExpression((node as AccessExpression).expression);
+}
+
+/** @internal */
+export function hasDecorators(node: Node): boolean {
+    return hasSyntacticModifier(node, ModifierFlags.Decorator);
+}
+
+/** @internal */
+export function isThisInitializedDeclaration(node: Node | undefined): boolean {
+    return false;//return !!node && isVariableDeclaration(node) && node.initializer?.kind === SyntaxKind.ThisKeyword;
+}
+
+/** @internal */
+export function nodeStartsNewLexicalEnvironment(node: Node): boolean {
+    const kind = node.kind;
+    return kind === SyntaxKind.FunctionExpression
+        || kind === SyntaxKind.FunctionDeclaration
+        || kind === SyntaxKind.ArrowFunction
+        || kind === SyntaxKind.MethodDeclaration
+        //|| kind === SyntaxKind.Constructor
+        // || kind === SyntaxKind.GetAccessor
+        // || kind === SyntaxKind.SetAccessor
+        // || kind === SyntaxKind.ModuleDeclaration
+        || kind === SyntaxKind.SourceFile;
+}
+
+/** @internal */
+export function isThisTypeParameter(type: Type): boolean {
+    return false;//return !!(type.flags & TypeFlags.TypeParameter && (type as TypeParameter).isThisType);
+}
+
+/** @internal */
+export function isBindableStaticNameExpression(node: Node, excludeThisKeyword?: boolean): node is BindableStaticNameExpression {
+    return isEntityNameExpression(node) ;//|| isBindableStaticAccessExpression(node, excludeThisKeyword);
 }

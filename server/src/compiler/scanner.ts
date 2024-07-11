@@ -435,3 +435,93 @@ export function stringToToken(s: string): SyntaxKind | undefined {
     return textToToken.get(s);
 }
 
+function codePointAt(s: string, i: number): number {
+    return s.codePointAt(i) ?? 0;
+}
+
+function isDigit(ch: number): boolean {
+    return ch >= CharacterCodes._0 && ch <= CharacterCodes._9;
+}
+
+function isHexDigit(ch: number): boolean {
+    return isDigit(ch) || ch >= CharacterCodes.A && ch <= CharacterCodes.F || ch >= CharacterCodes.a && ch <= CharacterCodes.f;
+}
+
+function lookupInUnicodeMap(code: number, map: readonly number[]): boolean {
+    // Bail out quickly if it couldn't possibly be in the map.
+    if (code < map[0]) {
+        return false;
+    }
+
+    // Perform binary search in one of the Unicode range maps
+    let lo = 0;
+    let hi: number = map.length;
+    let mid: number;
+
+    while (lo + 1 < hi) {
+        mid = lo + (hi - lo) / 2;
+        // mid has to be even to catch a range's beginning
+        mid -= mid % 2;
+        if (map[mid] <= code && code <= map[mid + 1]) {
+            return true;
+        }
+
+        if (code < map[mid]) {
+            hi = mid;
+        }
+        else {
+            lo = mid + 2;
+        }
+    }
+
+    return false;
+}
+
+function isASCIILetter(ch: number): boolean {
+    return ch >= CharacterCodes.A && ch <= CharacterCodes.Z || ch >= CharacterCodes.a && ch <= CharacterCodes.z;
+}
+
+// Section 6.1.4
+function isWordCharacter(ch: number): boolean {
+    return isASCIILetter(ch) || isDigit(ch) || ch === CharacterCodes._;
+}
+
+
+export function isIdentifierStart(ch: number, languageVersion: ScriptTarget | undefined): boolean {
+    return isASCIILetter(ch) || ch === CharacterCodes.$ || ch === CharacterCodes._ /*||
+        ch > CharacterCodes.maxAsciiCharacter && isUnicodeIdentifierStart(ch, languageVersion)*/;
+}
+
+export function isIdentifierPart(ch: number, languageVersion: ScriptTarget | undefined, identifierVariant?: LanguageVariant): boolean {
+    return isWordCharacter(ch) || ch === CharacterCodes.$ /*||
+        // "-" and ":" are valid in JSX Identifiers
+        (identifierVariant === LanguageVariant.JSX ? (ch === CharacterCodes.minus || ch === CharacterCodes.colon) : false) ||
+        ch > CharacterCodes.maxAsciiCharacter && isUnicodeIdentifierPart(ch, languageVersion)*/;
+}
+
+function charSize(ch: number) {
+    if (ch >= 0x10000) {
+        return 2;
+    }
+    if (ch === CharacterCodes.EOF) {
+        return 0;
+    }
+    return 1;
+}
+
+
+/** @internal */
+export function isIdentifierText(name: string, languageVersion?: ScriptTarget | undefined, identifierVariant?: LanguageVariant): boolean {
+    let ch = codePointAt(name, 0);
+    if (!isIdentifierStart(ch, languageVersion)) {
+        return false;
+    }
+
+    for (let i = charSize(ch); i < name.length; i += charSize(ch)) {
+        if (!isIdentifierPart(ch = codePointAt(name, i), languageVersion, identifierVariant)) {
+            return false;
+        }
+    }
+
+    return true;
+}
