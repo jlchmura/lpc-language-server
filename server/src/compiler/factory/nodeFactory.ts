@@ -7,10 +7,12 @@ import {
     BinaryOperatorToken,
     BindingName,
     Block,
+    BreakStatement,
     CallExpression,
     ColonToken,
     ConciseBody,
     ConditionalExpression,
+    ContinueStatement,
     Debug,
     Declaration,
     DeclarationName,
@@ -127,6 +129,8 @@ export function createNodeFactory(
         createFunctionDeclaration,
         createExpressionStatement,
         createReturnStatement,
+        createBreakStatement,
+        createContinueStatement,
 
         // Expressions
         createConditionalExpression,
@@ -534,6 +538,31 @@ export function createNodeFactory(
         node.flowNode = undefined; // initialized by binder (FlowContainer)
         return node;
     }
+
+    // @api
+    function createBreakStatement(label?: string | Identifier): BreakStatement {
+        const node = createBaseNode<BreakStatement>(SyntaxKind.BreakStatement);
+        node.label = asName(label);
+        // node.transformFlags |= propagateChildFlags(node.label) |
+        //     TransformFlags.ContainsHoistedDeclarationOrCompletion;
+
+        node.jsDoc = undefined; // initialized by parser (JsDocContainer)
+        node.flowNode = undefined; // initialized by binder (FlowContainer)
+        return node;
+    }
+
+    // @api
+    function createContinueStatement(label?: string | Identifier): ContinueStatement {
+        const node = createBaseNode<ContinueStatement>(SyntaxKind.ContinueStatement);
+        node.label = asName(label);
+        // node.transformFlags |= propagateChildFlags(node.label) |
+        //     TransformFlags.ContainsHoistedDeclarationOrCompletion;
+
+        node.jsDoc = undefined; // initialized by parser (JsDocContainer)
+        node.flowNode = undefined; // initialized by binder (FlowContainer)
+        return node;
+    }
+
 }
 
 // Utilities

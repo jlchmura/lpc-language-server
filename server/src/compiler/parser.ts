@@ -1,6 +1,6 @@
 import * as antlr from "antlr4ng";
 import * as parserCore from "../parser3/parser-core";
-import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement } from "./_namespaces/lpc";
+import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement } from "./_namespaces/lpc";
 import { ILpcConfig } from "../config-types";
 import { LPCLexer } from "../parser3/LPCLexer";
 
@@ -216,9 +216,7 @@ export namespace LpcParser {
             case parserCore.LPCParser.RULE_declaration:
                 return parseDeclaration(tree as parserCore.DeclarationContext);
             case parserCore.LPCParser.RULE_variableDeclarationStatement:
-                return parseVariableStatement(
-                    tree as parserCore.VariableDeclarationStatementContext
-                );
+                return parseVariableStatement(tree as parserCore.VariableDeclarationStatementContext);
             case parserCore.LPCParser.RULE_commaableExpression:
                 return parseExpressionStatement(tree as parserCore.CommaableExpressionContext);
             case parserCore.LPCParser.RULE_jumpStatement:
@@ -226,12 +224,23 @@ export namespace LpcParser {
                 if (jumpTree.returnStatement())
                     return parseReturnStatement(jumpTree.returnStatement());
                 else if (jumpTree.BREAK()) {
-                    // TODO: parse
+                    parseBreakOrContinueStatement(jumpTree.BREAK(), SyntaxKind.BreakStatement);
                 } else if (jumpTree.CONTINUE()) {
-                    // TODO; parse
+                    parseBreakOrContinueStatement(jumpTree.CONTINUE(), SyntaxKind.ContinueStatement);
                 }
-                return undefined;
+                break;                
         }
+
+        Debug.fail(`parseStatement unknown parser rule [${ruleIndex}]`);
+    }
+
+    function parseBreakOrContinueStatement(terminal: antlr.TerminalNode, kind: SyntaxKind): BreakOrContinueStatement {
+        const {pos,end} = getTerminalPos(terminal);
+                        
+        const node = kind === SyntaxKind.BreakStatement
+            ? factory.createBreakStatement()
+            : factory.createContinueStatement();
+        return finishNode(node, pos, end);
     }
 
     function parseReturnStatement(tree: parserCore.ReturnStatementContext): ReturnStatement {
@@ -715,60 +724,59 @@ export const LexerToSyntaxKind: { [key: number]: SyntaxKind } = {
     [LPCLexer.INT]: SyntaxKind.IntKeyword,
     [LPCLexer.FLOAT]: SyntaxKind.FloatKeyword,
     [LPCLexer.STRING]: SyntaxKind.StringKeyword,
-    // [LPCLexer.MIXED]: SyntaxKind.MixedKeyword,
-    // [LPCLexer.MAPPING]: SyntaxKind.MappingKeyword,
-    // [LPCLexer.UNKNOWN]: SyntaxKind.UnknownKeyword,
-    // [LPCLexer.VOID]: SyntaxKind.VoidKeyword,
-    // [LPCLexer.OBJECT]: SyntaxKind.ObjectKeyword,
-    // // MODIFIERS
-    // [LPCLexer.PRIVATE]: SyntaxKind.PrivateKeyword,
-    // [LPCLexer.PROTECTED]: SyntaxKind.ProtectedKeyword,
-    // [LPCLexer.PUBLIC]: SyntaxKind.PublicKeyword,
-    // [LPCLexer.STATIC]: SyntaxKind.StaticKeyword,
-    // [LPCLexer.VISIBLE]: SyntaxKind.VisibleKeyword,
-    // [LPCLexer.NOSAVE]: SyntaxKind.NoSaveKeyword,
-    // [LPCLexer.NOSHADOW]: SyntaxKind.NoShadowKeyword,
-    // [LPCLexer.NOMASK]: SyntaxKind.NoMaskKeyword,
-    // [LPCLexer.VARARGS]: SyntaxKind.VarArgsKeyword,
-    // [LPCLexer.DEPRECATED]: SyntaxKind.DeprecatedKeyword,
-    // // OPERATORS
-    // [LPCLexer.ASSIGN]: SyntaxKind.EqualsToken,
-    // [LPCLexer.ADD_ASSIGN]: SyntaxKind.PlusEqualsToken,
-    // [LPCLexer.SUB_ASSIGN]: SyntaxKind.MinusEqualsToken,
-    // [LPCLexer.MUL_ASSIGN]: SyntaxKind.AsteriskEqualsToken,
-    // [LPCLexer.XOR_ASSIGN]: SyntaxKind.AsteriskAsteriskEqualsToken,
-    // [LPCLexer.DIV_ASSIGN]: SyntaxKind.SlashEqualsToken,
-    // [LPCLexer.MOD_ASSIGN]: SyntaxKind.PercentEqualsToken,
-    // [LPCLexer.SHL_ASSIGN]: SyntaxKind.LessThanLessThanEqualsToken,
-    // [LPCLexer.RSH_ASSIGN]: SyntaxKind.GreaterThanGreaterThanEqualsToken,
-    // [LPCLexer.BITOR_ASSIGN]: SyntaxKind.BarEqualsToken,
-    // [LPCLexer.BITAND_ASSIGN]: SyntaxKind.AmpersandEqualsToken,
-    // [LPCLexer.OR_ASSIGN]: SyntaxKind.BarBarEqualsToken,
-    // [LPCLexer.AND_ASSIGN]: SyntaxKind.AmpersandAmpersandEqualsToken,
-    // [LPCLexer.PLUS]: SyntaxKind.PlusToken,
-    // [LPCLexer.MINUS]: SyntaxKind.MinusToken,
-    // [LPCLexer.STAR]: SyntaxKind.AsteriskToken,
-    // [LPCLexer.DIV]: SyntaxKind.SlashToken,
-    // [LPCLexer.MOD]: SyntaxKind.PercentToken,
-    // [LPCLexer.INC]: SyntaxKind.PlusPlusToken,
-    // [LPCLexer.DEC]: SyntaxKind.MinusMinusToken,
-    // [LPCLexer.LT]: SyntaxKind.LessThanToken,
-    // [LPCLexer.GT]: SyntaxKind.GreaterThanToken,
-    // [LPCLexer.LE]: SyntaxKind.LessThanEqualsToken,
-    // [LPCLexer.GE]: SyntaxKind.GreaterThanEqualsToken,
-    // [LPCLexer.EQ]: SyntaxKind.EqualsEqualsToken,
-    // [LPCLexer.NE]: SyntaxKind.ExclamationEqualsToken,
-    // [LPCLexer.AND]: SyntaxKind.AmpersandToken,
-    // [LPCLexer.OR]: SyntaxKind.BarToken,
-    // [LPCLexer.XOR]: SyntaxKind.CaretToken,
-    // [LPCLexer.NOT]: SyntaxKind.ExclamationToken,
-    // [LPCLexer.AND_AND]: SyntaxKind.AmpersandAmpersandToken,
-    // [LPCLexer.OR_OR]: SyntaxKind.BarBarToken,
-    // [LPCLexer.QUESTION]: SyntaxKind.QuestionToken,
-    // [LPCLexer.COLON]: SyntaxKind.ColonToken,
-    // [LPCLexer.HASH]: SyntaxKind.HashToken,
-    // [LPCLexer.DOT]: SyntaxKind.DotToken,
-    // [LPCLexer.TRIPPLEDOT]: SyntaxKind.DotDotDotToken,
-    // //[LPCLexer.DOUBLEBANG]: SyntaxKind.ExclamationExclamationToken,
-    // [LPCLexer.COMMA]: SyntaxKind.CommaToken,
+    [LPCLexer.MIXED]: SyntaxKind.MixedKeyword,
+    [LPCLexer.MAPPING]: SyntaxKind.MappingKeyword,
+    [LPCLexer.UNKNOWN]: SyntaxKind.UnknownKeyword,
+    [LPCLexer.VOID]: SyntaxKind.VoidKeyword,
+    [LPCLexer.OBJECT]: SyntaxKind.ObjectKeyword,
+    // MODIFIERS
+    [LPCLexer.PRIVATE]: SyntaxKind.PrivateKeyword,
+    [LPCLexer.PROTECTED]: SyntaxKind.ProtectedKeyword,
+    [LPCLexer.PUBLIC]: SyntaxKind.PublicKeyword,
+    [LPCLexer.STATIC]: SyntaxKind.StaticKeyword,
+    [LPCLexer.VISIBLE]: SyntaxKind.VisibleKeyword,
+    [LPCLexer.NOSAVE]: SyntaxKind.NoSaveKeyword,
+    [LPCLexer.NOSHADOW]: SyntaxKind.NoShadowKeyword,
+    [LPCLexer.NOMASK]: SyntaxKind.NoMaskKeyword,
+    [LPCLexer.VARARGS]: SyntaxKind.VarArgsKeyword,
+    [LPCLexer.DEPRECATED]: SyntaxKind.DeprecatedKeyword,
+    // OPERATORS
+    [LPCLexer.ASSIGN]: SyntaxKind.EqualsToken,
+    [LPCLexer.ADD_ASSIGN]: SyntaxKind.PlusEqualsToken,
+    [LPCLexer.SUB_ASSIGN]: SyntaxKind.MinusEqualsToken,
+    [LPCLexer.MUL_ASSIGN]: SyntaxKind.AsteriskEqualsToken,
+    [LPCLexer.XOR_ASSIGN]: SyntaxKind.AsteriskAsteriskEqualsToken,
+    [LPCLexer.DIV_ASSIGN]: SyntaxKind.SlashEqualsToken,
+    [LPCLexer.MOD_ASSIGN]: SyntaxKind.PercentEqualsToken,
+    [LPCLexer.SHL_ASSIGN]: SyntaxKind.LessThanLessThanEqualsToken,
+    [LPCLexer.RSH_ASSIGN]: SyntaxKind.GreaterThanGreaterThanEqualsToken,
+    [LPCLexer.BITOR_ASSIGN]: SyntaxKind.BarEqualsToken,
+    [LPCLexer.BITAND_ASSIGN]: SyntaxKind.AmpersandEqualsToken,
+    [LPCLexer.OR_ASSIGN]: SyntaxKind.BarBarEqualsToken,
+    [LPCLexer.AND_ASSIGN]: SyntaxKind.AmpersandEqualsToken,
+    [LPCLexer.PLUS]: SyntaxKind.PlusToken,
+    [LPCLexer.MINUS]: SyntaxKind.MinusToken,
+    [LPCLexer.STAR]: SyntaxKind.AsteriskToken,
+    [LPCLexer.DIV]: SyntaxKind.SlashToken,
+    [LPCLexer.MOD]: SyntaxKind.PercentToken,
+    [LPCLexer.INC]: SyntaxKind.PlusPlusToken,
+    [LPCLexer.DEC]: SyntaxKind.MinusMinusToken,
+    [LPCLexer.LT]: SyntaxKind.LessThanToken,
+    [LPCLexer.GT]: SyntaxKind.GreaterThanToken,
+    [LPCLexer.LE]: SyntaxKind.LessThanEqualsToken,
+    [LPCLexer.GE]: SyntaxKind.GreaterThanEqualsToken,
+    [LPCLexer.EQ]: SyntaxKind.EqualsEqualsToken,
+    [LPCLexer.NE]: SyntaxKind.ExclamationEqualsToken,
+    [LPCLexer.AND]: SyntaxKind.AmpersandToken,
+    [LPCLexer.OR]: SyntaxKind.BarToken,
+    [LPCLexer.XOR]: SyntaxKind.CaretToken,
+    [LPCLexer.NOT]: SyntaxKind.ExclamationToken,
+    [LPCLexer.AND_AND]: SyntaxKind.AmpersandAmpersandToken,
+    [LPCLexer.OR_OR]: SyntaxKind.BarBarToken,
+    [LPCLexer.QUESTION]: SyntaxKind.QuestionToken,
+    [LPCLexer.COLON]: SyntaxKind.ColonToken,
+    [LPCLexer.HASH]: SyntaxKind.HashToken,
+    [LPCLexer.DOT]: SyntaxKind.DotToken,
+    [LPCLexer.TRIPPLEDOT]: SyntaxKind.DotDotDotToken,    
+    [LPCLexer.COMMA]: SyntaxKind.CommaToken,
 };

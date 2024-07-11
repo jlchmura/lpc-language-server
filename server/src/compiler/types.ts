@@ -172,6 +172,10 @@ export const enum SyntaxKind {
     MixedKeyword,
     UnknownKeyword,    
     InKeyword,
+    MappingKeyword,
+    VoidKeyword,
+    BreakKeyword,
+    ContinueKeyword,
 
     // Modifier Keywords
     PrivateKeyword,
@@ -259,6 +263,8 @@ export const enum SyntaxKind {
     ForInStatement,
     ExpressionStatement,
     ReturnStatement,
+    BreakStatement,
+    ContinueStatement,
 
     // Expressions
     ConditionalExpression,
@@ -560,6 +566,8 @@ export interface NodeFactory {
     createFunctionDeclaration(modifiers: readonly Modifier[] | undefined, name: string | Identifier | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode | undefined, body: Block | undefined): FunctionDeclaration;
     createExpressionStatement(expression: Expression): ExpressionStatement;
     createReturnStatement(expression?: Expression): ReturnStatement;
+    createBreakStatement(label?: string | Identifier): BreakStatement;
+    createContinueStatement(label?: string | Identifier): ContinueStatement;
 
     // Expressions
     createConditionalExpression(condition: Expression, questionToken: QuestionToken | undefined, whenTrue: Expression, colonToken: ColonToken | undefined, whenFalse: Expression): ConditionalExpression;
@@ -1435,3 +1443,18 @@ export interface ReturnStatement extends Statement, FlowContainer {
     readonly kind: SyntaxKind.ReturnStatement;
     readonly expression?: Expression;
 }
+
+
+export interface BreakStatement extends Statement, FlowContainer {
+    readonly kind: SyntaxKind.BreakStatement;
+    readonly label?: Identifier;
+}
+
+export interface ContinueStatement extends Statement, FlowContainer {
+    readonly kind: SyntaxKind.ContinueStatement;
+    readonly label?: Identifier;
+}
+
+export type BreakOrContinueStatement =
+    | BreakStatement
+    | ContinueStatement;
