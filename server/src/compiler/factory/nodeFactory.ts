@@ -9,6 +9,8 @@ import {
     Block,
     BreakStatement,
     CallExpression,
+    CaseBlock,
+    CaseOrDefaultClause,
     ColonToken,
     ConciseBody,
     ConditionalExpression,
@@ -49,6 +51,7 @@ import {
     SourceFile,
     Statement,
     StringLiteral,
+    SwitchStatement,
     SyntaxKind,
     Token,
     TokenFlags,
@@ -136,6 +139,8 @@ export function createNodeFactory(
         createContinueStatement,
         createInheritDeclaration,
         createIfStatement,
+        createCaseBlock,
+        createSwitchStatement,
 
         // Expressions
         createConditionalExpression,
@@ -593,6 +598,28 @@ export function createNodeFactory(
         // node.transformFlags |= propagateChildFlags(node.expression) |
         //     propagateChildFlags(node.thenStatement) |
         //     propagateChildFlags(node.elseStatement);
+
+        node.jsDoc = undefined; // initialized by parser (JsDocContainer)
+        node.flowNode = undefined; // initialized by binder (FlowContainer)
+        return node;
+    }
+
+    // @api 
+    function createCaseBlock(clauses: readonly CaseOrDefaultClause[]): CaseBlock {
+        const node = createBaseNode<CaseBlock>(SyntaxKind.CaseBlock);
+        node.clauses = createNodeArray(clauses);
+        node.locals = undefined; // initialized by binder (LocalsContainer)
+        node.nextContainer = undefined; // initialized by binder (LocalsContainer)
+        return node;
+    }
+
+    // @api
+    function createSwitchStatement(expression: Expression, caseBlock: CaseBlock): SwitchStatement {
+        const node = createBaseNode<SwitchStatement>(SyntaxKind.SwitchStatement);
+        node.expression = expression;
+        node.caseBlock = caseBlock;
+        // node.transformFlags |= propagateChildFlags(node.expression) |
+        //     propagateChildFlags(node.caseBlock);
 
         node.jsDoc = undefined; // initialized by parser (JsDocContainer)
         node.flowNode = undefined; // initialized by binder (FlowContainer)

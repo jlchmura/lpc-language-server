@@ -256,6 +256,7 @@ export const enum SyntaxKind {
     Block,
     VariableDeclaration,
     VariableDeclarationList,
+    CaseBlock,
 
     // Statements
     VariableStatement,
@@ -268,6 +269,7 @@ export const enum SyntaxKind {
     InheritDeclaration,
     IfStatement,
     EmptyStatement,
+    SwitchStatement,
 
     // Expressions
     ConditionalExpression,
@@ -277,7 +279,9 @@ export const enum SyntaxKind {
     InlineClosureExpression,
 
     // Clauses
-    CatchClause
+    CatchClause,
+    CaseClause,
+    DefaultClause,
 }
 
 // dprint-ignore
@@ -1486,3 +1490,36 @@ export interface IfStatement extends Statement, FlowContainer {
 export interface EmptyStatement extends Statement {
     readonly kind: SyntaxKind.EmptyStatement;
 }
+
+export interface SwitchStatement extends Statement, FlowContainer {
+    readonly kind: SyntaxKind.SwitchStatement;
+    readonly expression: Expression;
+    readonly caseBlock: CaseBlock;
+    possiblyExhaustive?: boolean; // initialized by binding
+}
+
+
+export interface CaseBlock extends Node, LocalsContainer {
+    readonly kind: SyntaxKind.CaseBlock;
+    readonly parent: SwitchStatement;
+    readonly clauses: NodeArray<CaseOrDefaultClause>;
+}
+
+export interface CaseClause extends Node, JSDocContainer {
+    readonly kind: SyntaxKind.CaseClause;
+    readonly parent: CaseBlock;
+    readonly expression: Expression;
+    readonly statements: NodeArray<Statement>;
+    /** @internal */ fallthroughFlowNode?: FlowNode;
+}
+
+export interface DefaultClause extends Node {
+    readonly kind: SyntaxKind.DefaultClause;
+    readonly parent: CaseBlock;
+    readonly statements: NodeArray<Statement>;
+    /** @internal */ fallthroughFlowNode?: FlowNode;
+}
+
+export type CaseOrDefaultClause =
+    | CaseClause
+    | DefaultClause;

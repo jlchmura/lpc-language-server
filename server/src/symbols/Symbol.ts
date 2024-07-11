@@ -17,7 +17,7 @@ import { ParseTree, ParserRuleContext } from "antlr4ng";
 import { LPCToken } from "../parser3/LPCToken";
 
 export class IdentifierSymbol extends LpcBaseSymbol<IdentifierExpressionContext> {
-    public get kind() {
+    public override get kind() {
         return SymbolKind.Keyword;
     }
 }

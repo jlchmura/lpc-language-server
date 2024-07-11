@@ -185,7 +185,7 @@ export class MethodParameterSymbol
         return stack.getValue(this.name, this);
     }
 
-    public get kind() {
+    public override get kind() {
         return SymbolKind.Variable;
     }
 }

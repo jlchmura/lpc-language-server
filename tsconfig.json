@@ -13,7 +13,7 @@
         "newLine": "lf",
         "preserveConstEnums": true,
         "pretty": true,
-        "noImplicitOverride": true
+        "noImplicitOverride": false
     },
     "include": ["src"],
     "exclude": ["node_modules", ".vscode-test"],

@@ -127,19 +127,19 @@ export class LpcFacade {
 
         if (!areWeTestingWithJest()) {
             console.log("LpcFacade created", this.importDir, workspaceDir);
-        }
 
-        const obs = new PerformanceObserver((list) => {
-            list?.getEntries()?.forEach((entry) => {
-                console.log(
-                    `${entry.duration?.toFixed(4).padStart(9, " ")}ms | ${
-                        entry?.name
-                    }`
-                );
-                performance.clearMeasures(entry.name);
+            const obs = new PerformanceObserver((list) => {
+                list?.getEntries()?.forEach((entry) => {
+                    console.log(
+                        `${entry.duration?.toFixed(4).padStart(9, " ")}ms | ${
+                            entry?.name
+                        }`
+                    );
+                    performance.clearMeasures(entry.name);
+                });
             });
-        });
-        obs.observe({ entryTypes: ["measure"], buffered: true });
+            obs.observe({ entryTypes: ["measure"], buffered: true });
+        }
 
         this.initMaster();
 
