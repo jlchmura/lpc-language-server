@@ -85,8 +85,6 @@ import { IfExpressionContext } from "./LPCParser.js";
 import { IfStatementContext } from "./LPCParser.js";
 import { SwitchStatementContext } from "./LPCParser.js";
 import { CaseExpressionContext } from "./LPCParser.js";
-import { CaseOperatorsContext } from "./LPCParser.js";
-import { CaseConditionContext } from "./LPCParser.js";
 import { CaseStatementContext } from "./LPCParser.js";
 import { DefaultStatementContext } from "./LPCParser.js";
 import { WhileStatementContext } from "./LPCParser.js";
@@ -928,26 +926,6 @@ export class LPCParserListener implements ParseTreeListener {
      * @param ctx the parse tree
      */
     exitCaseExpression?: (ctx: CaseExpressionContext) => void;
-    /**
-     * Enter a parse tree produced by `LPCParser.caseOperators`.
-     * @param ctx the parse tree
-     */
-    enterCaseOperators?: (ctx: CaseOperatorsContext) => void;
-    /**
-     * Exit a parse tree produced by `LPCParser.caseOperators`.
-     * @param ctx the parse tree
-     */
-    exitCaseOperators?: (ctx: CaseOperatorsContext) => void;
-    /**
-     * Enter a parse tree produced by `LPCParser.caseCondition`.
-     * @param ctx the parse tree
-     */
-    enterCaseCondition?: (ctx: CaseConditionContext) => void;
-    /**
-     * Exit a parse tree produced by `LPCParser.caseCondition`.
-     * @param ctx the parse tree
-     */
-    exitCaseCondition?: (ctx: CaseConditionContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.caseStatement`.
      * @param ctx the parse tree

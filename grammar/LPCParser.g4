@@ -308,7 +308,7 @@ mappingExpression
 
 /** The default expression - comma expressions are not allowed here */
 expression
-    : conditionalExpression[4] // skip comma
+    : conditionalExpression[3] // skip comma
     ;
 
 /** For instances where comma expressions are allowed */
@@ -356,7 +356,7 @@ conditionalExpression[int _p]
     | { 7  >= $_p }? cond=AND_AND conditionalExpression[8]
     | { 6  >= $_p }? cond=OR_OR conditionalExpression[7]
     | { 5  >= $_p }? ternOp=QUESTION conditionalExpression[4] ternOp2=COLON conditionalExpression[4]
-    | { 4  >= $_p }? assignOp=assignmentOperator conditionalExpression[5]    
+    | { 4  >= $_p }? assignOp=assignmentOperator conditionalExpression[5]        
     //| { 2  >= $_p }? op=COMMA conditionalExpression[4]
     )*
     ;    
@@ -565,20 +565,8 @@ switchStatement
     ;
 
 caseExpression
-    : caseCondition (caseOperators caseCondition)* (DOUBLEDOT caseCondition (caseOperators caseCondition)*)?
-    | { this.isFluff() }? (
-            (DOUBLEDOT caseCondition (caseOperators caseCondition)*) |
-            ( MINUS? caseCondition (caseOperators caseCondition)* DOUBLEDOT )
-        )
-    ;
-
-caseOperators
-    : PLUS | MINUS | STAR | DIV 
-    ;
-
-caseCondition
-    : MINUS? (StringLiteral|IntegerConstant|HexIntConstant|Identifier|CharacterConstant)
-    | PAREN_OPEN conditionalExpression[13] PAREN_CLOSE // NTBLA see if we can use tokens instead of expression here
+    : expression DOUBLEDOT? expression?
+    | DOUBLEDOT expression
     ;
 
 caseStatement
