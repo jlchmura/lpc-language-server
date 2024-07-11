@@ -3,7 +3,7 @@
 ## 1.0.24
 
 -   Fix: [[FLUFFOS] keys() efun is missing #38](https://github.com/jlchmura/lpc-language-server/issues/38)
--   Fix: Cannot destructure property 'fileHandler' exception reported in [#38](https://github.com/jlchmura/lpc-language-server/issues/38)
+-   Fix: Cannot destructure property 'fileHandler' exception reported in [#37](https://github.com/jlchmura/lpc-language-server/issues/37)
 
 ## 1.0.23
 
