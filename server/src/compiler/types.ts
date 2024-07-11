@@ -278,6 +278,7 @@ export const enum SyntaxKind {
     FunctionExpression,
     CallExpression,
     InlineClosureExpression,
+    PropertyAccessExpression,
 
     // Clauses
     CatchClause,
@@ -513,10 +514,12 @@ export type TypeNodeSyntaxKind =
     | SyntaxKind.JSDocTypeLiteral;
 
 export type PropertyName = Identifier | StringLiteral | IntLiteral;
+export type MemberName = Identifier | Expression;
 
 export type DeclarationName =
     | PropertyName
     | StringLiteral
+    | Expression
     // | ElementAccessExpression
     // | BindingPattern
     // | EntityNameExpression;
@@ -588,7 +591,7 @@ export interface NodeFactory {
     createBinaryExpression(left: Expression, operator: BinaryOperator | BinaryOperatorToken, right: Expression): BinaryExpression;
     createCallExpression(expression: Expression, argumentsArray: readonly Expression[] | undefined): CallExpression;
     createInlineClosure(body: ConciseBody): InlineClosureExpression;
-    
+    createPropertyAccessExpression(expression: Expression, name: string | Identifier | Expression): PropertyAccessExpression;
 }
 
 /** NODES */
@@ -1529,3 +1532,9 @@ export interface DefaultClause extends Node {
 export type CaseOrDefaultClause =
     | CaseClause
     | DefaultClause;
+
+export interface PropertyAccessExpression extends MemberExpression, NamedDeclaration, JSDocContainer, FlowContainer {
+    readonly kind: SyntaxKind.PropertyAccessExpression;
+    readonly expression: LeftHandSideExpression;        
+    readonly name: MemberName;
+}

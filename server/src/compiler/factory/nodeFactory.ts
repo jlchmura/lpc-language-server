@@ -38,6 +38,7 @@ import {
     isNodeArray,
     LeftHandSideExpression,
     LiteralToken,
+    MemberName,
     memoize,
     Modifier,
     Mutable,
@@ -47,6 +48,7 @@ import {
     NodeFactory,
     NodeFlags,
     ParameterDeclaration,
+    PropertyAccessExpression,
     PropertyName,
     QuestionToken,
     ReturnStatement,
@@ -150,7 +152,8 @@ export function createNodeFactory(
         createConditionalExpression,
         createBinaryExpression,
         createCallExpression,
-        createInlineClosure
+        createInlineClosure,
+        createPropertyAccessExpression
     };
 
     return factory;
@@ -648,6 +651,35 @@ export function createNodeFactory(
         //     propagateChildrenFlags(node.statements);
 
         node.jsDoc = undefined; // initialized by parser (JsDocContainer)
+        return node;
+    }
+
+    function createBasePropertyAccessExpression(expression: LeftHandSideExpression, name: MemberName) {
+        const node = createBaseDeclaration<PropertyAccessExpression>(SyntaxKind.PropertyAccessExpression);
+        node.expression = expression;        
+        node.name = name;
+        // node.transformFlags = propagateChildFlags(node.expression) |
+        //     propagateChildFlags(node.questionDotToken) |
+        //     (isIdentifier(node.name) ?
+        //         propagateIdentifierNameFlags(node.name) :
+        //         propagateChildFlags(node.name) | TransformFlags.ContainsPrivateIdentifierInExpression);
+
+        node.jsDoc = undefined; // initialized by parser (JsDocContainer)
+        node.flowNode = undefined; // initialized by binder (FlowContainer)
+        return node;
+    }
+
+    // @api
+    function createPropertyAccessExpression(expression: Expression, name: string | Identifier | Expression): PropertyAccessExpression {
+        // TODO: parenthesize?
+        
+        if (typeof name === "string") {
+            name = asName(name);
+        }
+        const node = createBasePropertyAccessExpression(expression as LeftHandSideExpression, name);
+        
+        // TODO handle super here?
+        
         return node;
     }
 }

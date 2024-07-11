@@ -602,6 +602,12 @@ export namespace LpcParser {
         }
     }
 
+    function parseCallOtherTarget(tree: parserCore.CallOtherTargetContext): Expression {
+        if (tree.Identifier()) return createIdentifier(tree, true);
+        else if (tree.StringLiteral()) return parseStringLiteralNode(tree.StringLiteral());
+        else return parseExpression(tree.expression());
+    }
+
     function parsePrimaryExpression(
         tree: parserCore.PrimaryExpressionContext
     ): Expression {
@@ -613,6 +619,18 @@ export namespace LpcParser {
             leftExp = parseStringLiterals(startTree.StringLiteral());
         } else {
             leftExp = parsePrimaryExpressionStart(startTree);
+
+            if (tree.ARROW().length > 0) {
+                // we have a property access expression
+                const target = tree.callOtherTarget().at(0);
+                if (target) {                
+                    const targetExpr = parseCallOtherTarget(target);
+                    leftExp = factory.createPropertyAccessExpression(leftExp, targetExpr);
+                } else if (tree._structMember) {
+                    const member = tree._structMember;                    
+                    leftExp = factory.createPropertyAccessExpression(leftExp, asIdentifier(member));
+                }
+            }
 
             if (tree.methodInvocation()) {            
                 return parseCallExpressionRest(tree, pos, leftExp as MemberExpression);
@@ -631,7 +649,7 @@ export namespace LpcParser {
             const invocCtx = tree.methodInvocation().at(0);
             const argCtxList = invocCtx.argumentList();
             
-            const args = argCtxList.argument().map(a => {            
+            const args = argCtxList?.argument().map(a => {            
                 const argExp = parseExpression(a.expression());
 
                 if (a.TRIPPLEDOT) {
@@ -736,6 +754,21 @@ export namespace LpcParser {
             identifiers.set(text, (identifier = text));
         }
         return identifier;
+    }
+
+    /**
+     * creates an identifier from a TerminalNode or Antlr Token 
+     */
+    function asIdentifier(token: antlr.Token): Identifier;
+    function asIdentifier(terminal: antlr.TerminalNode): Identifier;
+    function asIdentifier(terminal: antlr.TerminalNode|antlr.Token): Identifier {
+        if (terminal instanceof antlr.TerminalNode) {
+            const { pos,end} = getTerminalPos(terminal);
+            return finishNode(factory.createIdentifier(internIdentifier(terminal.getText())),pos,end);
+        } else {
+            const pos = terminal.start, end = terminal.stop;
+            return finishNode(factory.createIdentifier(internIdentifier(terminal.text)),pos,end);
+        }
     }
 
     // The 'identifiers' object is used to share a single string instance for
