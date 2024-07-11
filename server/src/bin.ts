@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import * as fs from "fs";
 import * as path from "path";
-import { Symbol } from "./compiler/types";
+import { Symbol } from "./compiler2/types";
 import {
     BailErrorStrategy,
     CharStream,
@@ -29,9 +29,9 @@ import { LiteralSymbol } from "./symbols/literalSymbol";
 import { LpcTypes } from "./types";
 import { getDriverInfo } from "./driver/Driver";
 import { loadLpcConfig } from "./backend/LpcConfig";
-import { LpcParser } from "./compiler/parser";
-import { bindSourceFile } from "./compiler/binder";
-import { Debug } from "./compiler/debug";
+import { LpcParser } from "./compiler2/parser";
+import { bindSourceFile } from "./compiler2/binder";
+import { Debug } from "./compiler2/debug";
 
 class MockFileHandler implements IFileHandler {
     constructor() {}
