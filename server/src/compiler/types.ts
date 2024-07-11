@@ -265,6 +265,7 @@ export const enum SyntaxKind {
     ReturnStatement,
     BreakStatement,
     ContinueStatement,
+    InheritDeclaration,
 
     // Expressions
     ConditionalExpression,
@@ -568,6 +569,7 @@ export interface NodeFactory {
     createReturnStatement(expression?: Expression): ReturnStatement;
     createBreakStatement(label?: string | Identifier): BreakStatement;
     createContinueStatement(label?: string | Identifier): ContinueStatement;
+    createInheritDeclaration(importClause: StringLiteral | BinaryExpression, modifiers: readonly Modifier[] | undefined): InheritDeclaration;
 
     // Expressions
     createConditionalExpression(condition: Expression, questionToken: QuestionToken | undefined, whenTrue: Expression, colonToken: ColonToken | undefined, whenFalse: Expression): ConditionalExpression;
@@ -891,11 +893,9 @@ export interface SourceFile extends Declaration, LocalsContainer {
      *
      * @internal
      */
-    setExternalModuleIndicator?: (file: SourceFile) => void;
+    //setExternalModuleIndicator?: (file: SourceFile) => void;
     // The first node that causes this file to be a CommonJS module
-    /** @internal */ commonJsModuleIndicator?: Node;
-    // JS identifier-declarations that are intended to merge with globals
-    /** @internal */ jsGlobalAugmentations?: SymbolTable;
+    
 
     /** @internal */ identifiers: ReadonlyMap<string, string>; // Map from a string to an interned string
     /** @internal */ nodeCount: number;
@@ -922,16 +922,12 @@ export interface SourceFile extends Declaration, LocalsContainer {
     /** @internal */ classifiableNames?: ReadonlySet<string>;
     // // Comments containing @ts-* directives, in order.
     // /** @internal */ commentDirectives?: CommentDirective[];
-    /** @internal */ imports: readonly StringLiteral[];
+    /** @internal */ inherits: NodeArray<InheritDeclaration>;
     // Identifier only if `declare global`
     ///** @internal */ moduleAugmentations: readonly (StringLiteral | Identifier)[];    
     /** @internal */ ambientModuleNames: readonly string[];    
     /** @internal */ version: string;
-    ///** @internal */ pragmas: ReadonlyPragmaMap;
-    /** @internal */ localJsxNamespace?: string;
-    /** @internal */ localJsxFragmentNamespace?: string;
-    /** @internal */ localJsxFactory?: EntityName;
-    /** @internal */ localJsxFragmentFactory?: EntityName;
+    ///** @internal */ pragmas: ReadonlyPragmaMap;    
 
     /** @internal */ endFlowNode?: FlowNode;
 
@@ -1458,3 +1454,21 @@ export interface ContinueStatement extends Statement, FlowContainer {
 export type BreakOrContinueStatement =
     | BreakStatement
     | ContinueStatement;
+
+export interface InheritDeclaration extends Statement {
+    readonly kind: SyntaxKind.InheritDeclaration;
+    readonly parent: SourceFile;
+    readonly modifiers?: NodeArray<Modifier>;
+    readonly inheritClause: InheritClauseType;
+}
+
+export type InheritClauseType = StringLiteral | BinaryExpression;
+
+/**
+ * This is a special type of binary expression where both sides are definitely string literals
+ */
+export interface StringConcatExpression extends BinaryExpression {
+    readonly left: StringLiteral;
+    readonly operatorToken: PlusToken;
+    readonly right: StringLiteral;
+}

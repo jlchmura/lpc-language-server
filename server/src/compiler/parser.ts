@@ -1,6 +1,6 @@
 import * as antlr from "antlr4ng";
 import * as parserCore from "../parser3/parser-core";
-import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement } from "./_namespaces/lpc";
+import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression } from "./_namespaces/lpc";
 import { ILpcConfig } from "../config-types";
 import { LPCLexer } from "../parser3/LPCLexer";
 
@@ -114,11 +114,13 @@ export namespace LpcParser {
         tree = parser.program();
         const eofToken = parseTokenNode<EndOfFileToken>(tree.EOF());
         const statements = parseList(tree.declaration(), parseStatement);
+        const inherits = parseList(tree.inheritStatement(), parseInheritStatement);
         const sourceFile = createSourceFile(fileName, statements, eofToken);
 
         sourceFile.nodeCount = nodeCount;
         sourceFile.identifierCount = identifierCount;
         sourceFile.identifiers = identifiers;
+        sourceFile.inherits = inherits;
 
         return sourceFile;
     }
@@ -498,7 +500,7 @@ export namespace LpcParser {
         const startTree = tree.primaryExpressionStart();
         let leftExp: Expression;
         if (startTree instanceof parserCore.StringConcatExpressionContext) {
-            leftExp = parseStringLiterals(startTree);
+            leftExp = parseStringLiterals(startTree.StringLiteral());
         } else {
             leftExp = parsePrimaryExpressionStart(startTree);
 
@@ -568,14 +570,17 @@ export namespace LpcParser {
         return finishNode(node, pos, end);
     }
 
-    function parseStringLiteralNode(tree: antlr.TerminalNode): LiteralExpression {
+    function parseStringLiteralNode(tree: antlr.TerminalNode): StringLiteral {
         const {pos,end} = getTerminalPos(tree);
-        const node = factory.createLiteralLikeNode(SyntaxKind.StringLiteral, tree.getText());
+        
+        Debug.assertEqual(LPCLexer.StringLiteral, tree.symbol.type, "Expected StringLiteral token type");
+        const node = factory.createLiteralLikeNode(SyntaxKind.StringLiteral, tree.getText()) as StringLiteral;
+        
         return finishNode(node, pos, end);
     }
     
-    function parseStringLiterals(tree: parserCore.StringConcatExpressionContext) {        
-        const literals = tree.StringLiteral();
+    function parseStringLiterals(tree: antlr.TerminalNode[]) {
+        const literals = tree;
 
         const nodes = literals.map((l) => parseStringLiteralNode(l));
         if (nodes.length==1) {
@@ -586,7 +591,7 @@ export namespace LpcParser {
                 left = factory.createBinaryExpression(left, factory.createToken(SyntaxKind.PlusToken), nodes[i]);
             }
 
-            return left as BinaryExpression;
+            return left as StringConcatExpression;
         }        
     }
 
@@ -715,6 +720,19 @@ export namespace LpcParser {
         //     (node as Mutable<T>).flags |= NodeFlags.Deprecated;
         // }
         return node;
+    }
+
+    function parseInheritStatement(tree: parserCore.InheritStatementContext): InheritDeclaration {
+        const {pos,end} = getNodePos(tree);
+
+        // TODO: get modifiers
+        
+        
+        const stringLiterals = getNestedTerminals(tree.inherit(), LPCLexer.StringLiteral);
+        const stringNode = parseStringLiterals(stringLiterals);       
+
+        const node = factory.createInheritDeclaration(stringNode, undefined);
+        return finishNode(node, pos,end);
     }
 }
 

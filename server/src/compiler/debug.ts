@@ -320,4 +320,11 @@ export namespace Debug {
 
         isDebugInfoEnabled = true;
     }
+
+    export function assertEqual<T>(a: T, b: T, msg?: string, msg2?: string, stackCrawlMark?: AnyFunction): void {
+        if (a !== b) {
+            const message = msg ? msg2 ? `${msg} ${msg2}` : msg : "";
+            fail(`Expected ${a} === ${b}. ${message}`, stackCrawlMark || assertEqual);
+        }
+    }
 }

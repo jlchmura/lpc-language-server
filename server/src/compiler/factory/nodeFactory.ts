@@ -26,6 +26,7 @@ import {
     FunctionDeclaration,
     Identifier,
     identity,
+    InheritDeclaration,
     InlineClosureExpression,
     IntLiteral,
     isNodeArray,
@@ -131,6 +132,7 @@ export function createNodeFactory(
         createReturnStatement,
         createBreakStatement,
         createContinueStatement,
+        createInheritDeclaration,
 
         // Expressions
         createConditionalExpression,
@@ -560,6 +562,15 @@ export function createNodeFactory(
 
         node.jsDoc = undefined; // initialized by parser (JsDocContainer)
         node.flowNode = undefined; // initialized by binder (FlowContainer)
+        return node;
+    }
+
+    // @api 
+    function createInheritDeclaration(inheritClause: StringLiteral | BinaryExpression, modifiers: readonly Modifier[] | undefined): InheritDeclaration {
+        const node = createBaseNode<InheritDeclaration>(SyntaxKind.InheritDeclaration);
+        node.modifiers = asNodeArray(modifiers);
+        node.inheritClause = inheritClause;
+        
         return node;
     }
 

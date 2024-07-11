@@ -1,3 +1,5 @@
+import * as antlr from "antlr4ng";
+import * as parserCore from "../parser3/parser-core";
 import { Identifier, ModifierFlags, Node, NodeFlags, ReadonlyTextRange, SourceFile, Symbol, SymbolFlags, SyntaxKind, TextRange, Token, TransformFlags } from "./_namespaces/lpc";
 
 /** @internal */
@@ -138,4 +140,19 @@ export function setTextRangePos<T extends ReadonlyTextRange>(range: T, pos: numb
  */
 export function setTextRangePosWidth<T extends ReadonlyTextRange>(range: T, pos: number, width: number) {
     return setTextRangePosEnd(range, pos, pos + width);
+}
+
+/** gets TerminalNode's from this context and all children contextes */
+export function getNestedTerminals(context: antlr.ParserRuleContext, type?: number) {
+    const children = [...context.children];
+    const result: antlr.TerminalNode[]=[];
+    while (children.length > 0) {
+        const child = children.shift();
+        if (child instanceof antlr.TerminalNode && (type===undefined || child.symbol.type == type)) {
+            result.push(child);
+        } else if (child instanceof antlr.ParserRuleContext) {
+            children.push(...child.children);
+        }
+    }
+    return result;
 }
