@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.0.24
+
+-   Fix: [[FLUFFOS] keys() efun is missing #38](https://github.com/jlchmura/lpc-language-server/issues/38)
+
 ## 1.0.23
 
 -   Fix: Function signature was incorrect in symbol hover.
