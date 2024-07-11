@@ -18,3 +18,4 @@ export const enum Comparison {
     EqualTo = 0,
     GreaterThan = 1,
 }
+

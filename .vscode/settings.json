@@ -3,8 +3,8 @@
         "client/node_modules": true,
         "client/out": true,
         "server/node_modules": true,
-        //"server/out": true,
-        //"out": true,
+        "server/out": true,
+        "out": true,
         "node_modules": true
     },
     "editor.formatOnSave": true,

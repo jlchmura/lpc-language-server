@@ -1599,3 +1599,4 @@ function forEachChildInCallOrNewExpression<T>(node: CallExpression | NewExpressi
         visitNodes(cbNode, cbNodes, node.typeArguments) ||
         visitNodes(cbNode, cbNodes, node.arguments);
 }
+

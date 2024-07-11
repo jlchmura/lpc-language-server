@@ -460,32 +460,17 @@ export type RelationalOperator =
     | SyntaxKind.GreaterThanEqualsToken
     | SyntaxKind.InKeyword;
 
-export type RelationalOperatorOrHigher =
-    | ShiftOperatorOrHigher
-    | RelationalOperator;
-
+export type RelationalOperatorOrHigher = ShiftOperatorOrHigher | RelationalOperator;
 export type EqualityOperator =
     | SyntaxKind.EqualsEqualsToken
     | SyntaxKind.EqualsEqualsEqualsToken
     | SyntaxKind.ExclamationEqualsEqualsToken
     | SyntaxKind.ExclamationEqualsToken;
 
-export type EqualityOperatorOrHigher =
-    | RelationalOperatorOrHigher
-    | EqualityOperator;
-
-export type BitwiseOperator =
-    | SyntaxKind.AmpersandToken
-    | SyntaxKind.BarToken
-    | SyntaxKind.CaretToken;
-
-export type BitwiseOperatorOrHigher =
-    | EqualityOperatorOrHigher
-    | BitwiseOperator;
-
-export type LogicalOperator =
-    | SyntaxKind.AmpersandAmpersandToken
-    | SyntaxKind.BarBarToken;
+export type EqualityOperatorOrHigher = RelationalOperatorOrHigher | EqualityOperator;
+export type BitwiseOperator = SyntaxKind.AmpersandToken | SyntaxKind.BarToken | SyntaxKind.CaretToken;
+export type BitwiseOperatorOrHigher = EqualityOperatorOrHigher | BitwiseOperator;
+export type LogicalOperator = SyntaxKind.AmpersandAmpersandToken | SyntaxKind.BarBarToken;
 export type LogicalOperatorOrHigher = BitwiseOperatorOrHigher | LogicalOperator;
 
 export type CompoundAssignmentOperator =
@@ -504,13 +489,9 @@ export type CompoundAssignmentOperator =
     | SyntaxKind.BarBarEqualsToken
     | SyntaxKind.AmpersandAmpersandEqualsToken;
 
-export type AssignmentOperator =
-    | SyntaxKind.EqualsToken
-    | CompoundAssignmentOperator;
+export type AssignmentOperator = | SyntaxKind.EqualsToken | CompoundAssignmentOperator;
 
-export type AssignmentOperatorOrHigher =
-    | LogicalOperatorOrHigher
-    | AssignmentOperator;
+export type AssignmentOperatorOrHigher = | LogicalOperatorOrHigher | AssignmentOperator;
 export type BinaryOperator = AssignmentOperatorOrHigher | SyntaxKind.CommaToken;
 export type BinaryOperatorToken = Token<BinaryOperator>;
 

@@ -1269,3 +1269,4 @@ export function firstOrUndefinedIterator<T>(iter: Iterable<T> | undefined): T | 
     }
     return undefined;
 }
+

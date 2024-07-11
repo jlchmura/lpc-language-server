@@ -29,9 +29,9 @@ import { LiteralSymbol } from "./symbols/literalSymbol";
 import { LpcTypes } from "./types";
 import { getDriverInfo } from "./driver/Driver";
 import { loadLpcConfig } from "./backend/LpcConfig";
-import { LpcParser } from "./compiler2/parser";
-import { bindSourceFile } from "./compiler2/binder";
-import { Debug } from "./compiler2/debug";
+//import { LpcParser } from "./compiler2/parser";
+//import { bindSourceFile } from "./compiler2/binder";
+import * as p2 from "./compiler/_namespaces/lpc";
 
 class MockFileHandler implements IFileHandler {
     constructor() {}
@@ -50,7 +50,7 @@ class MockFileHandler implements IFileHandler {
     }
 }
 
-Debug.enableDebugInfo();
+p2.Debug.enableDebugInfo();
 
 //import { LpcFacade } from "./backend/facade";
 const workDir = path.resolve(process.cwd(), "../fluff-test");
@@ -59,8 +59,8 @@ const sourceText = fs.readFileSync(filename, "utf-8");
 const configFile = path.join(workDir, "lpc-config.json");
 const config = loadLpcConfig(configFile);
 
-const srcFile = LpcParser.parseSourceFile(filename, sourceText, config);
-const binder = bindSourceFile(srcFile, {});
+const srcFile = p2.LpcParser.parseSourceFile(filename, sourceText, config);
+//const binder = bindSourceFile(srcFile, {});
 
 console.debug("node count:", srcFile.nodeCount);
 
