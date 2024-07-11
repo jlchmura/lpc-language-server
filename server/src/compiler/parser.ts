@@ -1,7 +1,8 @@
 import * as antlr from "antlr4ng";
 import * as parserCore from "../parser3/parser-core";
-import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement } from "./_namespaces/lpc";
+import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause } from "./_namespaces/lpc";
 import { ILpcConfig } from "../config-types";
+
 
 export namespace LpcParser {
     // Init some ANTLR stuff
@@ -244,10 +245,73 @@ export namespace LpcParser {
                 const selStmt = tree as parserCore.SelectionStatementContext;
                 if (selStmt.ifStatement())
                     return parseIfStatement(selStmt.ifStatement());
+                else if (selStmt.switchStatement())
+                    return parseSwitchStatement(selStmt.switchStatement());
                 break;                
         }
 
         Debug.fail(`parseStatement unknown parser rule [${ruleIndex}]`);
+    }
+
+    function parseOptional<N,T extends antlr.ParserRuleContext>(
+        tree: T, 
+        parser: (tree: T) => N
+    ): N {
+        if (tree) {
+            return parser(tree);
+        }
+    }
+
+    function parseCaseStatement(tree: parserCore.CaseStatementContext): CaseClause {
+        const caseExpr = tree.caseExpression();
+        const expressions = caseExpr.expression();
+
+        const expr1 = parseExpression(expressions[0]);
+        const expr2 = parseOptional(expressions.at(1), parseExpression);
+        const statements = parseStatementList(tree.statement());
+
+        // TODO range expression with no left hand expression is Fluff-only.. validate and log diagnostics
+
+        let nodeExpr = expr1;
+        if (caseExpr.DOUBLEDOT()) {
+            // this is a range expression
+            nodeExpr = makeBinaryExpression(expr1, factory.createToken(SyntaxKind.DotDotToken), expr2, getNodePos(tree).pos, getNodePos(tree).end);                
+        }
+
+        const {pos,end} = getNodePos(tree);
+        return finishNode(factory.createCaseClause(nodeExpr, statements), pos, end);
+    }
+
+    function parseDefaultStatement(tree: parserCore.DefaultStatementContext): DefaultClause {
+        const statements = parseStatementList(tree.statement());
+        const {pos,end} = getNodePos(tree);
+        return finishNode(factory.createDefaultClause(statements), pos, end);
+    }
+
+    function parseSwitchStatement(tree: parserCore.SwitchStatementContext): SwitchStatement {
+        const {pos,end} = getNodePos(tree);
+
+        // parse initial expression
+        const expression = parseExpression(tree.expression());
+        // parse code block before case clauses
+        const preBlock = parseList(tree.variableDeclarationStatement(), parseStatementWorker);
+
+        // parse case clauses
+        const clauses:CaseOrDefaultClause[] = tree.caseStatement().map(c=>{
+            return parseCaseStatement(c);            
+        }) ?? [];
+        
+        // parse default clause
+        if (tree.defaultStatement().length > 0) {
+            const defaultClause = parseOptional(tree.defaultStatement().at(0), parseDefaultStatement);
+            clauses.push(defaultClause);
+        }
+
+        // TODO: validate that there is only 1 default statement .. log diagnostics
+        
+        const caseBlock = factory.createCaseBlock(clauses.filter(c=>!!c));        
+        const node = factory.createSwitchStatement(expression, preBlock, caseBlock);
+        return finishNode(node, pos, end);
     }
 
     function parseIfStatementWorker(tree: parserCore.IfExpressionContext | parserCore.ElseIfExpressionContext, rest: (parserCore.IfExpressionContext | parserCore.ElseIfExpressionContext | parserCore.ElseExpressionContext)[]): IfStatement {
@@ -295,7 +359,7 @@ export namespace LpcParser {
         const {pos,end} = getNodePos(tree);
         const jsDoc = getPrecedingJSDocBlock(tree);
 
-        const expression = parseCommaExpression(tree.commaableExpression());
+        const expression = tree.commaableExpression() ? parseCommaExpression(tree.commaableExpression()) : undefined;
         return withJSDoc(finishNode(factory.createReturnStatement(expression), pos, end), jsDoc);
     }
 

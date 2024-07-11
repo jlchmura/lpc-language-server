@@ -143,6 +143,7 @@ export const enum SyntaxKind {
     AtToken,
     HashToken,
     ColonColonToken,
+    DotDotToken,
 
     // Assignments
     EqualsToken,
@@ -577,6 +578,10 @@ export interface NodeFactory {
     createContinueStatement(label?: string | Identifier): ContinueStatement;
     createInheritDeclaration(importClause: StringLiteral | BinaryExpression, modifiers: readonly Modifier[] | undefined): InheritDeclaration;
     createIfStatement(expression: Expression, thenStatement: Statement, elseStatement?: Statement): IfStatement;
+    createSwitchStatement(expression: Expression, preBlock: NodeArray<Statement>, caseBlock: CaseBlock): SwitchStatement;
+    createCaseBlock(clauses: readonly CaseOrDefaultClause[]): CaseBlock;
+    createDefaultClause(statements: readonly Statement[]): DefaultClause;
+    createCaseClause(expression: Expression, statements: readonly Statement[]): CaseClause;
 
     // Expressions
     createConditionalExpression(condition: Expression, questionToken: QuestionToken | undefined, whenTrue: Expression, colonToken: ColonToken | undefined, whenFalse: Expression): ConditionalExpression;
@@ -797,7 +802,7 @@ export type CompoundAssignmentOperator =
 export type AssignmentOperator = | SyntaxKind.EqualsToken | CompoundAssignmentOperator;
 
 export type AssignmentOperatorOrHigher = | LogicalOperatorOrHigher | AssignmentOperator;
-export type BinaryOperator = AssignmentOperatorOrHigher | SyntaxKind.CommaToken;
+export type BinaryOperator = AssignmentOperatorOrHigher | SyntaxKind.CommaToken | SyntaxKind.DotDotToken;
 export type BinaryOperatorToken = Token<BinaryOperator>;
 
 export type LogicalOrCoalescingAssignmentOperator = SyntaxKind.BarBarEqualsToken;
@@ -1494,6 +1499,7 @@ export interface EmptyStatement extends Statement {
 export interface SwitchStatement extends Statement, FlowContainer {
     readonly kind: SyntaxKind.SwitchStatement;
     readonly expression: Expression;
+    readonly preBlock?: NodeArray<Statement>; // LPC can have a code block before the case statemnets
     readonly caseBlock: CaseBlock;
     possiblyExhaustive?: boolean; // initialized by binding
 }

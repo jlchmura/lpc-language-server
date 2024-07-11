@@ -10,6 +10,7 @@ import {
     BreakStatement,
     CallExpression,
     CaseBlock,
+    CaseClause,
     CaseOrDefaultClause,
     ColonToken,
     ConciseBody,
@@ -18,6 +19,7 @@ import {
     Debug,
     Declaration,
     DeclarationName,
+    DefaultClause,
     EmitNode,
     emptyArray,
     EmptyStatement,
@@ -141,6 +143,8 @@ export function createNodeFactory(
         createIfStatement,
         createCaseBlock,
         createSwitchStatement,
+        createCaseClause,
+        createDefaultClause,
 
         // Expressions
         createConditionalExpression,
@@ -614,15 +618,36 @@ export function createNodeFactory(
     }
 
     // @api
-    function createSwitchStatement(expression: Expression, caseBlock: CaseBlock): SwitchStatement {
+    function createSwitchStatement(expression: Expression, preBlock: NodeArray<Statement>, caseBlock: CaseBlock): SwitchStatement {
         const node = createBaseNode<SwitchStatement>(SyntaxKind.SwitchStatement);
         node.expression = expression;
         node.caseBlock = caseBlock;
+        node.preBlock = preBlock;
         // node.transformFlags |= propagateChildFlags(node.expression) |
         //     propagateChildFlags(node.caseBlock);
 
         node.jsDoc = undefined; // initialized by parser (JsDocContainer)
         node.flowNode = undefined; // initialized by binder (FlowContainer)
+        return node;
+    }
+
+    // @api
+    function createDefaultClause(statements: readonly Statement[]): DefaultClause {
+        const node = createBaseNode<DefaultClause>(SyntaxKind.DefaultClause);
+        node.statements = createNodeArray(statements);
+        //node.transformFlags = propagateChildrenFlags(node.statements);
+        return node;
+    }
+
+    // @api
+    function createCaseClause(expression: Expression, statements: readonly Statement[]): CaseClause {
+        const node = createBaseNode<CaseClause>(SyntaxKind.CaseClause);
+        node.expression = expression;//parenthesizerRules().parenthesizeExpressionForDisallowedComma(expression);
+        node.statements = createNodeArray(statements);
+        // node.transformFlags |= propagateChildFlags(node.expression) |
+        //     propagateChildrenFlags(node.statements);
+
+        node.jsDoc = undefined; // initialized by parser (JsDocContainer)
         return node;
     }
 }
