@@ -250,24 +250,28 @@ export namespace LpcParser {
         Debug.fail(`parseStatement unknown parser rule [${ruleIndex}]`);
     }
 
-    
-
     function parseIfStatementWorker(tree: parserCore.IfExpressionContext | parserCore.ElseIfExpressionContext, rest: (parserCore.IfExpressionContext | parserCore.ElseIfExpressionContext | parserCore.ElseExpressionContext)[]): IfStatement {
         const {pos} = getNodePos(tree);
+
+        // get the first test expression
         const e = parseExpression(tree.expression());
         
+        // get the "then" statement
         Debug.assertEqual(tree.statement().children.length, 1, "Expected only 1 statement");
         const t = parseStatement(tree.statement());
 
+        // get the next elseif/else in the sequence (there might not be any)
         const next = rest.shift();
-        const {end} = getNodePos(next);
+        const {end} = getNodePos(next ? next : tree);
 
         if (next instanceof parserCore.ElseExpressionContext) {            
             const elT = parseStatement(next.statement());
             return finishNode(factory.createIfStatement(e,t,elT), pos, end);
-        } else {            
+        } else if (next) {            
             const nextNode = parseIfStatementWorker(next, rest);            
             return finishNode(factory.createIfStatement(e,t,nextNode), pos, end);
+        } else {
+            return finishNode(factory.createIfStatement(e,t), pos, end);
         }
     }
 
