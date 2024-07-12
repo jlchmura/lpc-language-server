@@ -254,7 +254,9 @@ export namespace LpcParser {
                     return parseForStatement(iterStmt);
                 } else if (iterStmt instanceof parserCore.ForEachStatementContext) {
                     return parseForEachStatement(iterStmt);
-                }                
+                } else if (iterStmt instanceof parserCore.DoWhileStatementContext) {
+                    return parseDoWhileStatement(iterStmt);
+                }
 
         }
 
@@ -270,6 +272,15 @@ export namespace LpcParser {
         }
     }
 
+    function parseDoWhileStatement(tree: parserCore.DoWhileStatementContext): Statement {
+        const {pos,end} = getNodePos(tree);
+        const jsDoc = getPrecedingJSDocBlock(tree);
+        const body = parseStatement(tree.statement());
+        const expr = parseExpression(tree.expression());
+        const node = factory.createDoWhileStatement(body, expr);
+        return withJSDoc(finishNode(node, pos, end), jsDoc);
+    }
+
     function parseForEachStatement(tree: parserCore.ForEachStatementContext): Statement {
         const {pos,end} = getNodePos(tree);        
         const jsDoc = getPrecedingJSDocBlock(tree);
@@ -279,6 +290,8 @@ export namespace LpcParser {
         const expr1 = parseExpression(forEachTree.expression().at(0));
         const expr2 = parseOptional(forEachTree.expression().at(1), parseExpression);
         const body = parseStatement(tree.statement());
+
+        // TODO, check for extra artifacts that shouldn't be there (like variable modifiers)
 
         let range = expr1;
         if (forEachTree.DOUBLEDOT()) {

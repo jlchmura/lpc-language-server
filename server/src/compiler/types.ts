@@ -265,6 +265,7 @@ export const enum SyntaxKind {
     VariableStatement,
     ForStatement,
     ForEachStatement,
+    DoWhileStatement,
     ForInStatement,
     ExpressionStatement,
     ReturnStatement,
@@ -590,6 +591,7 @@ export interface NodeFactory {
     createCaseClause(expression: Expression, statements: readonly Statement[]): CaseClause;
     createForStatement(initializer: ForInitializer | undefined, condition: Expression | undefined, incrementor: Expression | undefined, statement: Statement): ForStatement
     createForEachStatement(initializer: ForEachInitializer | undefined, range: Expression | undefined, statement: Statement): ForEachStatement;
+    createDoWhileStatement(statement: Statement, expression: Expression): DoWhileStatement;
 
     // Expressions
     createConditionalExpression(condition: Expression, questionToken: QuestionToken | undefined, whenTrue: Expression, colonToken: ColonToken | undefined, whenFalse: Expression): ConditionalExpression;
@@ -602,6 +604,7 @@ export interface NodeFactory {
 /** NODES */
 export type HasJSDoc = 
     | Block 
+    | DoWhileStatement
     | ForStatement
     | ForEachStatement
     | FunctionDeclaration
@@ -1558,4 +1561,10 @@ export interface ForEachStatement extends IterationStatement, LocalsContainer, F
     readonly kind: SyntaxKind.ForEachStatement;
     readonly initializer: ForEachInitializer;
     readonly range: Expression;    
+}
+
+export interface DoWhileStatement extends IterationStatement, LocalsContainer, FlowContainer {
+    readonly kind: SyntaxKind.DoWhileStatement;
+    readonly statement: Statement;
+    readonly expression: Expression;   
 }

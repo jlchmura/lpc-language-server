@@ -20,6 +20,7 @@ import {
     Declaration,
     DeclarationName,
     DefaultClause,
+    DoWhileStatement,
     EmitNode,
     emptyArray,
     EmptyStatement,
@@ -153,6 +154,7 @@ export function createNodeFactory(
         createDefaultClause,
         createForStatement,
         createForEachStatement,
+        createDoWhileStatement,
 
         // Expressions
         createConditionalExpression,
@@ -722,6 +724,20 @@ export function createNodeFactory(
         node.jsDoc = undefined; // initialized by parser (JsDocContainer)
         node.locals = undefined; // initialized by binder (LocalsContainer)
         node.nextContainer = undefined; // initialized by binder (LocalsContainer)
+        node.flowNode = undefined; // initialized by binder (FlowContainer)
+        return node;
+    }
+
+    // @api
+    function createDoWhileStatement(statement: Statement, expression: Expression): DoWhileStatement {
+        const node = createBaseNode<DoWhileStatement>(SyntaxKind.DoWhileStatement);
+        node.statement = asEmbeddedStatement(statement);
+        node.expression = expression;
+        // node.transformFlags |= propagateChildFlags(node.statement) |
+        //     propagateChildFlags(node.expression) |
+        //     TransformFlags.ContainsHoistedDeclarationOrCompletion;
+
+        node.jsDoc = undefined; // initialized by parser (JsDocContainer)
         node.flowNode = undefined; // initialized by binder (FlowContainer)
         return node;
     }
