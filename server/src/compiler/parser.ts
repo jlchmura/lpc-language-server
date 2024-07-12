@@ -1,7 +1,8 @@
 import * as antlr from "antlr4ng";
 import * as parserCore from "../parser3/parser-core";
-import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray } from "./_namespaces/lpc";
+import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator } from "./_namespaces/lpc";
 import { ILpcConfig } from "../config-types";
+
 
 
 
@@ -143,11 +144,15 @@ export namespace LpcParser {
 
         return sourceFile;
     }
-
-    function parseTokenNode<T extends Node>(parserNode: antlr.TerminalNode): T {
-        const {pos, end} = getTerminalPos(parserNode);            
+    
+    function parseTokenNode<T extends Node>(parserNode: antlr.TerminalNode | antlr.Token): T {
         const kind = getSyntaxKindFromLex(parserNode);
-        return finishNode(factory.createToken(kind), pos, end) as T;
+        if (parserNode instanceof antlr.TerminalNode) {
+            const {pos, end} = getTerminalPos(parserNode);                    
+            return finishNode(factory.createToken(kind), pos, end) as T;
+        } else {
+            return finishNode(factory.createToken(kind), parserNode.start, parserNode.stop) as T;
+        }
     }
 
     function finishNode<T extends Node>(node: T, pos: number, end: number): T {
@@ -177,9 +182,7 @@ export namespace LpcParser {
         return { pos: tree?.start?.start, end: tree?.stop.stop };        
     }
     
-    /** Converts a Lexer terinal node's type to a SyntaxKind */
-    function getSyntaxKindFromLex(t: antlr.Token): SyntaxKind;
-    function getSyntaxKindFromLex(t: antlr.TerminalNode): SyntaxKind;
+    /** Converts a Lexer terinal node's type to a SyntaxKind */    
     function getSyntaxKindFromLex(t: antlr.TerminalNode | antlr.Token): SyntaxKind {
         const lexType = (t instanceof antlr.TerminalNode) ? t.getSymbol().type : (t).type;
         const kind = LexerToSyntaxKind[lexType];
@@ -229,7 +232,7 @@ export namespace LpcParser {
                 return parseVariableStatement(tree as parserCore.VariableDeclarationStatementContext);
             case parserCore.LPCParser.RULE_commaableExpression:
                 return parseExpressionStatement(tree as parserCore.CommaableExpressionContext);
-            case parserCore.LPCParser.RULE_jumpStatement:
+            case parserCore.LPCParser.RULE_jumpStatement: // return, break, continue
                 const jumpTree = tree as parserCore.JumpStatementContext;
                 if (jumpTree.returnStatement())
                     return parseReturnStatement(jumpTree.returnStatement());
@@ -259,8 +262,7 @@ export namespace LpcParser {
                 } else if (iterStmt instanceof parserCore.WhileStatementContext) {
                     return parseWhileStatement(iterStmt);
                 
-                }
-
+                }           
         }
 
         Debug.fail(`parseStatement unknown parser rule [${ruleIndex}]`);
@@ -705,6 +707,21 @@ export namespace LpcParser {
                     const member = tree._structMember;                    
                     leftExp = factory.createPropertyAccessExpression(leftExp, asIdentifier(member));
                 }
+            } else if (tree._op) {
+                let opKind:PostfixUnaryOperator;
+                switch (tree._op.type) {
+                    case parserCore.LPCLexer.DEC:
+                        opKind = SyntaxKind.MinusMinusToken;
+                        break;
+                    case parserCore.LPCLexer.INC:
+                        opKind = SyntaxKind.PlusPlusToken;
+                        break;
+                    default:
+                        Debug.fail("Unknown postfix unary operator");
+                        // TODO log diagnostic                        
+                }
+                                
+                return factory.createPostfixUnaryExpression(leftExp, opKind);
             }
 
             if (tree.methodInvocation()) {            

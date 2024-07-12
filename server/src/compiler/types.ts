@@ -284,6 +284,8 @@ export const enum SyntaxKind {
     CallExpression,
     InlineClosureExpression,
     PropertyAccessExpression,
+    PostfixUnaryExpression,
+    PrefixUnaryExpression,
 
     // Clauses
     CatchClause,
@@ -601,6 +603,7 @@ export interface NodeFactory {
     createCallExpression(expression: Expression, argumentsArray: readonly Expression[] | undefined): CallExpression;
     createInlineClosure(body: ConciseBody): InlineClosureExpression;
     createPropertyAccessExpression(expression: Expression, name: string | Identifier | Expression): PropertyAccessExpression;
+    createPostfixUnaryExpression(operand: Expression, operator: PostfixUnaryOperator): PostfixUnaryExpression;
 }
 
 /** NODES */
@@ -1578,4 +1581,12 @@ export interface WhileStatement extends DoOrWhileStatementBase {
     readonly kind: SyntaxKind.WhileStatement;    
 }
 
-
+export type PostfixUnaryOperator =
+    | SyntaxKind.PlusPlusToken
+    | SyntaxKind.MinusMinusToken;
+    
+export interface PostfixUnaryExpression extends UpdateExpression {
+    readonly kind: SyntaxKind.PostfixUnaryExpression;
+    readonly operand: LeftHandSideExpression;
+    readonly operator: PostfixUnaryOperator;
+}

@@ -53,6 +53,8 @@ import {
     NodeFactory,
     NodeFlags,
     ParameterDeclaration,
+    PostfixUnaryExpression,
+    PostfixUnaryOperator,
     PropertyAccessExpression,
     PropertyName,
     QuestionToken,
@@ -163,7 +165,8 @@ export function createNodeFactory(
         createBinaryExpression,
         createCallExpression,
         createInlineClosure,
-        createPropertyAccessExpression
+        createPropertyAccessExpression,
+        createPostfixUnaryExpression
     };
 
     return factory;
@@ -755,6 +758,24 @@ export function createNodeFactory(
 
         node.jsDoc = undefined; // initialized by parser (JsDocContainer)
         node.flowNode = undefined; // initialized by binder (FlowContainer)
+        return node;
+    }
+
+    // @api
+    function createPostfixUnaryExpression(operand: Expression, operator: PostfixUnaryOperator): PostfixUnaryExpression {
+        const node = createBaseNode<PostfixUnaryExpression>(SyntaxKind.PostfixUnaryExpression);
+        node.operator = operator;
+        node.operand = operand as LeftHandSideExpression;//TODO parenthesizerRules().parenthesizeOperandOfPostfixUnary(operand);
+        //node.transformFlags |= propagateChildFlags(node.operand);
+        // Only set this flag for non-generated identifiers and non-"local" names. See the
+        // comment in `visitPreOrPostfixUnaryExpression` in module.ts
+        // if (
+        //     isIdentifier(node.operand) &&
+        //     !isGeneratedIdentifier(node.operand) &&
+        //     !isLocalName(node.operand)
+        // ) {
+        //     node.transformFlags |= TransformFlags.ContainsUpdateExpressionForIdentifier;
+        // }
         return node;
     }
 }

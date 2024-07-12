@@ -438,8 +438,7 @@ primaryExpression
     (
         (
             methodInvocation 
-            | INC 
-            | DEC 
+            | op=(INC | DEC)            
             | (ARROW target=callOtherTarget? invocation=methodInvocation)  // arrow fn
             | ((DOT|ARROW) structMember=Identifier) // struct member access
             | Identifier
@@ -584,7 +583,7 @@ iterationStatement
     ;
 
 forRangeExpression
-    : init=variableDeclaration SEMI condition=expression? SEMI incrementor=commaableExpression?
+    : init=variableDeclaration? SEMI condition=expression? SEMI incrementor=commaableExpression?
     ;
 
 foreachRangeExpression
