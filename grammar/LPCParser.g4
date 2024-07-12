@@ -588,17 +588,17 @@ forRangeExpression
     ;
 
 foreachRangeExpression
-    : forEachVariable (COMMA forEachVariable)* (IN | COLON) expression (DOUBLEDOT expression)?
+    : variableDeclaration (COMMA variableDeclaration)* (IN | COLON) expression (DOUBLEDOT expression)?
     ;
 
-forVariable
-    : primitiveTypeSpecifier? variableDeclarator (ASSIGN variableInitializer | INC | DEC)?
-    | expression
-    ;
+// forVariable
+//     : primitiveTypeSpecifier? variableDeclarator (ASSIGN variableInitializer | INC | DEC)?
+//     | expression
+//     ;
 
-forEachVariable
-    : typeSpecifier? variableDeclarator
-    ;
+// forEachVariable
+//     : typeSpecifier? variableDeclarator
+//     ;
 
 returnStatement
     : RETURN commaableExpression? SEMI

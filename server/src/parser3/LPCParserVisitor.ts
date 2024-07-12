@@ -93,8 +93,6 @@ import { ForStatementContext } from "./LPCParser.js";
 import { ForEachStatementContext } from "./LPCParser.js";
 import { ForRangeExpressionContext } from "./LPCParser.js";
 import { ForeachRangeExpressionContext } from "./LPCParser.js";
-import { ForVariableContext } from "./LPCParser.js";
-import { ForEachVariableContext } from "./LPCParser.js";
 import { ReturnStatementContext } from "./LPCParser.js";
 import { JumpStatementContext } from "./LPCParser.js";
 import { CallOtherTargetContext } from "./LPCParser.js";
@@ -651,18 +649,6 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      * @return the visitor result
      */
     visitForeachRangeExpression?: (ctx: ForeachRangeExpressionContext) => Result;
-    /**
-     * Visit a parse tree produced by `LPCParser.forVariable`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitForVariable?: (ctx: ForVariableContext) => Result;
-    /**
-     * Visit a parse tree produced by `LPCParser.forEachVariable`.
-     * @param ctx the parse tree
-     * @return the visitor result
-     */
-    visitForEachVariable?: (ctx: ForEachVariableContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.returnStatement`.
      * @param ctx the parse tree

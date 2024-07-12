@@ -26,9 +26,9 @@ import {
     DoWhileStatementContext,
     ExpressionContext,
     ForEachStatementContext,
-    ForEachVariableContext,
+    //ForEachVariableContext,
     ForStatementContext,
-    ForVariableContext,
+    //ForVariableContext,
     FunctionDeclarationContext,
     FunctionHeaderDeclarationContext,
     IdentifierExpressionContext,
@@ -1037,32 +1037,32 @@ export class DetailsVisitor
     visitForStatement = (ctx: ForStatementContext) =>
         this.parseIterationStatement(ctx, IterationSymbol);
 
-    visitForVariable = (ctx: ForVariableContext) => {
-        if (ctx.variableDeclarator()) {
-            const varType = this.parsePrimitiveType(
-                ctx.primitiveTypeSpecifier()
-            );
-            const varSym = this.parseVariableDeclaration(
-                ctx.variableDeclarator(),
-                varType
-            );
-            return undefined;
-        }
+    // visitForVariable = (ctx: ForVariableContext) => {
+    //     if (ctx.variableDeclarator()) {
+    //         const varType = this.parsePrimitiveType(
+    //             ctx.primitiveTypeSpecifier()
+    //         );
+    //         const varSym = this.parseVariableDeclaration(
+    //             ctx.variableDeclarator(),
+    //             varType
+    //         );
+    //         return undefined;
+    //     }
 
-        //const varType = this.parsePrimitiveType(ctx.primitiveTypeSpecifier());
-        return this.visitChildren(ctx);
-    };
+    //     //const varType = this.parsePrimitiveType(ctx.primitiveTypeSpecifier());
+    //     return this.visitChildren(ctx);
+    // };
 
-    visitForEachVariable = (ctx: ForEachVariableContext) => {
-        const varType = this.parseTypeSpecifier(
-            ctx.typeSpecifier()?.unionableTypeSpecifier()
-        );
-        const varSym = this.parseVariableDeclaration(
-            ctx.variableDeclarator(),
-            varType
-        );
-        return undefined;
-    };
+    // visitForEachVariable = (ctx: ForEachVariableContext) => {
+    //     const varType = this.parseTypeSpecifier(
+    //         ctx.typeSpecifier()?.unionableTypeSpecifier()
+    //     );
+    //     const varSym = this.parseVariableDeclaration(
+    //         ctx.variableDeclarator(),
+    //         varType
+    //     );
+    //     return undefined;
+    // };
 
     // prettier-ignore
     visitLiteral = (ctx: LiteralContext) => {        
