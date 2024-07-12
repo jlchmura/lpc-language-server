@@ -581,9 +581,9 @@ export namespace LpcParser {
     function parseInlineClosureLikeExpression(tree: parserCore.InlineClosureExpressionContext): InlineClosureExpression | undefined {
         const {pos,end} = getNodePos(tree);
         
-        if (tree.COMMA) {
+        if (tree.COMMA().length > 0) {
             // TODO: this is a fluff-style function pointer
-        } else if (tree.FUNCTION) {
+        } else if (tree.FUNCTION()) {
             // TODO: this is an inline function with params and body
         } else {
             let body: Block | Expression | undefined;
@@ -881,9 +881,11 @@ export const LexerToSyntaxKind: { [key: number]: SyntaxKind } = {
     [parserCore.LPCLexer.INT]: SyntaxKind.IntKeyword,
     [parserCore.LPCLexer.FLOAT]: SyntaxKind.FloatKeyword,
     [parserCore.LPCLexer.STRING]: SyntaxKind.StringKeyword,
+    [parserCore.LPCLexer.CLOSURE]: SyntaxKind.ClosureKeywoord,
     [parserCore.LPCLexer.MIXED]: SyntaxKind.MixedKeyword,
     [parserCore.LPCLexer.MAPPING]: SyntaxKind.MappingKeyword,
     [parserCore.LPCLexer.UNKNOWN]: SyntaxKind.UnknownKeyword,
+    [parserCore.LPCLexer.STRUCT]: SyntaxKind.StructKeyword,
     [parserCore.LPCLexer.VOID]: SyntaxKind.VoidKeyword,
     [parserCore.LPCLexer.OBJECT]: SyntaxKind.ObjectKeyword,
     // MODIFIERS

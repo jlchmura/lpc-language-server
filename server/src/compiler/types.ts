@@ -169,6 +169,8 @@ export const enum SyntaxKind {
     IntKeyword,
     FloatKeyword,
     StringKeyword,
+    ClosureKeywoord,
+    StructKeyword,
     ObjectKeyword,
     MixedKeyword,
     UnknownKeyword,    
