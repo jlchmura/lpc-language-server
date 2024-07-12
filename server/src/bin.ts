@@ -58,7 +58,7 @@ const configFile = path.join(workDir, "lpc-config.json");
 const config = loadLpcConfig(configFile);
 
 const srcFile = p2.LpcParser.parseSourceFile(filename, sourceText, config);
-const binder = p2.bindSourceFile(srcFile, {});
+p2.bindSourceFile(srcFile, {});
 
 console.debug("node count:", srcFile.nodeCount);
 

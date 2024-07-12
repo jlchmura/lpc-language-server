@@ -1,5 +1,6 @@
 import * as antlr from "antlr4ng";
-import { Signature, Type, Debug, DiagnosticArguments, DiagnosticMessage, DiagnosticRelatedInformation, DiagnosticWithDetachedLocation, DiagnosticWithLocation, Identifier, MapLike, ModifierFlags, Node, NodeFlags, ReadonlyTextRange, some, SourceFile, Symbol, SymbolFlags, SyntaxKind, TextRange, Token, TransformFlags, TypeChecker, TypeFlags, tracing, SignatureFlags, canHaveModifiers, Modifier, skipTrivia, SymbolTable, CallExpression } from "./_namespaces/lpc";
+import { Signature, Type, Debug, DiagnosticArguments, DiagnosticMessage, DiagnosticRelatedInformation, DiagnosticWithDetachedLocation, DiagnosticWithLocation, Identifier, MapLike, ModifierFlags, Node, NodeFlags, ReadonlyTextRange, some, SourceFile, Symbol, SymbolFlags, SyntaxKind, TextRange, Token, TransformFlags, TypeChecker, TypeFlags, tracing, SignatureFlags, canHaveModifiers, Modifier, skipTrivia, SymbolTable, CallExpression, Declaration, getCombinedNodeFlags, BinaryExpression, AssignmentDeclarationKind, isCallExpression, isBinaryExpression, isIdentifier, Diagnostic, emptyArray, PropertyNameLiteral, DeclarationName } from "./_namespaces/lpc";
+import { TextSpan } from "../backend/types";
 
 /** @internal */
 export interface ObjectAllocator {
@@ -446,4 +447,322 @@ export function getImmediatelyInvokedFunctionExpression(func: Node): CallExpress
 /** @internal */
 export function nodeIsPresent(node: Node | undefined): boolean {
     return !nodeIsMissing(node);
+}
+
+/** @internal */
+export function isBlockOrCatchScoped(declaration: Declaration) {
+    return (getCombinedNodeFlags(declaration) & NodeFlags.BlockScoped) !== 0 ||
+        isCatchClauseVariableDeclarationOrBindingElement(declaration);
+}
+
+/** @internal */
+export function isCatchClauseVariableDeclarationOrBindingElement(declaration: Declaration) {
+    const node = getRootDeclaration(declaration);
+    return node.kind === SyntaxKind.VariableDeclaration && node.parent.kind === SyntaxKind.CatchClause;
+}
+
+/** @internal */
+export function getRootDeclaration(node: Node): Node {
+    // while (node.kind === SyntaxKind.BindingElement) {
+    //     node = node.parent.parent;
+    // }
+    return node;
+}
+
+
+/**
+ * This function returns true if the this node's root declaration is a parameter.
+ * For example, passing a `ParameterDeclaration` will return true, as will passing a
+ * binding element that is a child of a `ParameterDeclaration`.
+ *
+ * If you are looking to test that a `Node` is a `ParameterDeclaration`, use `isParameter`.
+ *
+ * @internal
+ */
+export function isPartOfParameterDeclaration(node: Declaration): boolean {
+    const root = getRootDeclaration(node);
+    return root.kind === SyntaxKind.Parameter;
+}
+
+/** @internal */
+export function hasSyntacticModifier(node: Node, flags: ModifierFlags): boolean {
+    return !!getSelectedSyntacticModifierFlags(node, flags);
+}
+
+/** @internal @knipignore */
+export function getSelectedSyntacticModifierFlags(node: Node, flags: ModifierFlags): ModifierFlags {
+    return getSyntacticModifierFlags(node) & flags;
+}
+
+
+/**
+ * Gets the ModifierFlags for syntactic modifiers on the provided node. The modifiers will be cached on the node to improve performance.
+ *
+ * NOTE: This function does not use `parent` pointers and will not include modifiers from JSDoc.
+ *
+ * @internal
+ */
+export function getSyntacticModifierFlags(node: Node): ModifierFlags {
+    return getModifierFlagsWorker(node, /*includeJSDoc*/ false);
+}
+
+function getModifierFlagsWorker(node: Node, includeJSDoc: boolean, alwaysIncludeJSDoc?: boolean): ModifierFlags {
+    if (node.kind >= SyntaxKind.FirstToken && node.kind <= SyntaxKind.LastToken) {
+        return ModifierFlags.None;
+    }
+
+    if (!(node.modifierFlagsCache & ModifierFlags.HasComputedFlags)) {
+        node.modifierFlagsCache = getSyntacticModifierFlagsNoCache(node) | ModifierFlags.HasComputedFlags;
+    }
+
+    // if (alwaysIncludeJSDoc || includeJSDoc && isInJSFile(node)) {
+    //     if (!(node.modifierFlagsCache & ModifierFlags.HasComputedJSDocModifiers) && node.parent) {
+    //         node.modifierFlagsCache |= getRawJSDocModifierFlagsNoCache(node) | ModifierFlags.HasComputedJSDocModifiers;
+    //     }
+    //     return selectEffectiveModifierFlags(node.modifierFlagsCache);
+    // }
+
+    return selectSyntacticModifierFlags(node.modifierFlagsCache);
+}
+
+function selectSyntacticModifierFlags(flags: ModifierFlags) {
+    return flags & ModifierFlags.SyntacticModifiers;
+}
+
+function getAssignmentDeclarationKindWorker(expr: BinaryExpression | CallExpression): AssignmentDeclarationKind {
+    return AssignmentDeclarationKind.None
+    // if (isCallExpression(expr)) {
+    //     if (!isBindableObjectDefinePropertyCall(expr)) {
+    //         return AssignmentDeclarationKind.None;
+    //     }
+    //     const entityName = expr.arguments[0];
+    //     // if (isExportsIdentifier(entityName) || isModuleExportsAccessExpression(entityName)) {
+    //     //     return AssignmentDeclarationKind.ObjectDefinePropertyExports;
+    //     // }
+    //     // if (isBindableStaticAccessExpression(entityName) && getElementOrPropertyAccessName(entityName) === "prototype") {
+    //     //     return AssignmentDeclarationKind.ObjectDefinePrototypeProperty;
+    //     // }
+    //     return AssignmentDeclarationKind.ObjectDefinePropertyValue;
+    // }
+    // if (expr.operatorToken.kind !== SyntaxKind.EqualsToken /*|| !isAccessExpression(expr.left) || isVoidZero(getRightMostAssignedExpression(expr))*/) {
+    //     return AssignmentDeclarationKind.None;
+    // }
+    // // if (isBindableStaticNameExpression(expr.left.expression, /*excludeThisKeyword*/ true) && getElementOrPropertyAccessName(expr.left) === "prototype" && isObjectLiteralExpression(getInitializerOfBinaryExpression(expr))) {
+    // //     // F.prototype = { ... }
+    // //     return AssignmentDeclarationKind.Prototype;
+    // // }
+    // return getAssignmentDeclarationPropertyAccessKind(expr.left);
+}
+
+
+
+/// Given a BinaryExpression, returns SpecialPropertyAssignmentKind for the various kinds of property
+/// assignments we treat as special in the binder
+/** @internal */
+export function getAssignmentDeclarationKind(expr: BinaryExpression | CallExpression): AssignmentDeclarationKind {
+    const special = getAssignmentDeclarationKindWorker(expr);
+    return special === AssignmentDeclarationKind.Property /*|| isInJSFile(expr)*/ ? special : AssignmentDeclarationKind.None;
+}
+
+/** @internal */
+export function isAssignmentDeclaration(decl: Declaration) {
+    return isBinaryExpression(decl) /*|| isAccessExpression(decl)*/ || isIdentifier(decl) || isCallExpression(decl);
+}
+
+
+/** @internal */
+export function setValueDeclaration(symbol: Symbol, node: Declaration): void {
+    const { valueDeclaration } = symbol;
+    if (
+        !valueDeclaration ||
+        !(node.flags & NodeFlags.Ambient /*&& !isInJSFile(node)*/ && !(valueDeclaration.flags & NodeFlags.Ambient)) &&
+            (isAssignmentDeclaration(valueDeclaration) && !isAssignmentDeclaration(node)) ||
+        (valueDeclaration.kind !== node.kind /*&& isEffectiveModuleDeclaration(valueDeclaration)*/)
+    ) {
+        // other kinds of value declarations take precedence over modules and assignment declarations
+        symbol.valueDeclaration = node;
+    }
+}
+
+/** @internal */
+export function addRelatedInfo<T extends Diagnostic>(diagnostic: T, ...relatedInformation: DiagnosticRelatedInformation[]): T {
+    if (!relatedInformation.length) {
+        return diagnostic;
+    }
+    if (!diagnostic.relatedInformation) {
+        diagnostic.relatedInformation = [];
+    }
+    Debug.assert(diagnostic.relatedInformation !== emptyArray, "Diagnostic had empty array singleton for related info, but is still being constructed!");
+    diagnostic.relatedInformation.push(...relatedInformation);
+    return diagnostic;
+}
+
+/** @internal */
+export function isPropertyNameLiteral(node: Node): node is PropertyNameLiteral {
+    switch (node.kind) {
+        case SyntaxKind.Identifier:
+        case SyntaxKind.StringLiteral:
+        // case SyntaxKind.NoSubstitutionTemplateLiteral:
+        case SyntaxKind.IntLiteral:        
+            return true;
+        default:
+            return false;
+    }
+}
+
+/** @internal */
+export function getFullWidth(node: Node) {
+    return node.end - node.pos;
+}
+
+
+// Return display name of an identifier
+// Computed property names will just be emitted as "[<expr>]", where <expr> is the source
+// text of the expression in the computed property.
+/** @internal */
+export function declarationNameToString(name: DeclarationName | /*QualifiedName |*/ undefined) {
+    return !name || getFullWidth(name) === 0 ? "(Missing)" : getTextOfNode(name);
+}
+
+/** @internal */
+export function getTextOfNode(node: Node, includeTrivia = false): string {
+    return getSourceTextOfNodeFromSourceFile(getSourceFileOfNode(node), node, includeTrivia);
+}
+
+/** @internal */
+export function getErrorSpanForNode(sourceFile: SourceFile, node: Node): TextSpan {
+    return createTextSpan(node.pos, node.end - node.pos);
+    // let errorNode: Node | undefined = node;
+    // switch (node.kind) {
+    //     case SyntaxKind.SourceFile: {
+    //         const pos = skipTrivia(sourceFile.text, 0, /*stopAfterLineBreak*/ false);
+    //         if (pos === sourceFile.text.length) {
+    //             // file is empty - return span for the beginning of the file
+    //             return createTextSpan(0, 0);
+    //         }
+    //         return getSpanOfTokenAtPosition(sourceFile, pos);
+    //     }
+    //     // This list is a work in progress. Add missing node kinds to improve their error
+    //     // spans.
+    //     case SyntaxKind.VariableDeclaration:
+    //     case SyntaxKind.BindingElement:
+    //     case SyntaxKind.ClassDeclaration:
+    //     case SyntaxKind.ClassExpression:
+    //     case SyntaxKind.InterfaceDeclaration:
+    //     case SyntaxKind.ModuleDeclaration:
+    //     case SyntaxKind.EnumDeclaration:
+    //     case SyntaxKind.EnumMember:
+    //     case SyntaxKind.FunctionDeclaration:
+    //     case SyntaxKind.FunctionExpression:
+    //     case SyntaxKind.MethodDeclaration:
+    //     case SyntaxKind.GetAccessor:
+    //     case SyntaxKind.SetAccessor:
+    //     case SyntaxKind.TypeAliasDeclaration:
+    //     case SyntaxKind.PropertyDeclaration:
+    //     case SyntaxKind.PropertySignature:
+    //     case SyntaxKind.NamespaceImport:
+    //         errorNode = (node as NamedDeclaration).name;
+    //         break;
+    //     case SyntaxKind.ArrowFunction:
+    //         return getErrorSpanForArrowFunction(sourceFile, node as ArrowFunction);
+    //     case SyntaxKind.CaseClause:
+    //     case SyntaxKind.DefaultClause: {
+    //         const start = skipTrivia(sourceFile.text, (node as CaseOrDefaultClause).pos);
+    //         const end = (node as CaseOrDefaultClause).statements.length > 0 ? (node as CaseOrDefaultClause).statements[0].pos : (node as CaseOrDefaultClause).end;
+    //         return createTextSpanFromBounds(start, end);
+    //     }
+    //     case SyntaxKind.ReturnStatement:
+    //     case SyntaxKind.YieldExpression: {
+    //         const pos = skipTrivia(sourceFile.text, (node as ReturnStatement | YieldExpression).pos);
+    //         return getSpanOfTokenAtPosition(sourceFile, pos);
+    //     }
+    //     case SyntaxKind.SatisfiesExpression: {
+    //         const pos = skipTrivia(sourceFile.text, (node as SatisfiesExpression).expression.end);
+    //         return getSpanOfTokenAtPosition(sourceFile, pos);
+    //     }
+    //     case SyntaxKind.JSDocSatisfiesTag: {
+    //         const pos = skipTrivia(sourceFile.text, (node as JSDocSatisfiesTag).tagName.pos);
+    //         return getSpanOfTokenAtPosition(sourceFile, pos);
+    //     }
+    //     case SyntaxKind.Constructor: {
+    //         const constructorDeclaration = node as ConstructorDeclaration;
+    //         const start = skipTrivia(sourceFile.text, constructorDeclaration.pos);
+    //         const scanner = createScanner(sourceFile.languageVersion, /*skipTrivia*/ true, sourceFile.languageVariant, sourceFile.text, /*onError*/ undefined, start);
+    //         let token = scanner.scan();
+    //         while (token !== SyntaxKind.ConstructorKeyword && token !== SyntaxKind.EndOfFileToken) {
+    //             token = scanner.scan();
+    //         }
+    //         const end = scanner.getTokenEnd();
+    //         return createTextSpanFromBounds(start, end);
+    //     }
+    // }
+
+    // if (errorNode === undefined) {
+    //     // If we don't have a better node, then just set the error on the first token of
+    //     // construct.
+    //     return node.end - node.pos;// getSpanOfTokenAtPosition(sourceFile, node.pos);
+    // }
+
+    // //Debug.assert(!isJSDoc(errorNode));
+
+    // const isMissing = nodeIsMissing(errorNode);
+    // const pos = isMissing// || isJsxText(node)
+    //     ? errorNode.pos
+    //     : skipTrivia(sourceFile.text, errorNode.pos);
+
+    // // These asserts should all be satisfied for a properly constructed `errorNode`.
+    // if (isMissing) {
+    //     Debug.assert(pos === errorNode.pos, "This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809");
+    //     Debug.assert(pos === errorNode.end, "This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809");
+    // }
+    // else {
+    //     Debug.assert(pos >= errorNode.pos, "This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809");
+    //     Debug.assert(pos <= errorNode.end, "This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809");
+    // }
+
+    // return createTextSpanFromBounds(pos, errorNode.end);
+}
+
+export function createTextSpan(start: number, length: number): TextSpan {
+    if (start < 0) {
+        throw new Error("start < 0");
+    }
+    if (length < 0) {
+        throw new Error("length < 0");
+    }
+
+    return { start, length };
+}
+
+export function createTextSpanFromBounds(start: number, end: number) {
+    return createTextSpan(start, end - start);
+}
+
+/** @internal */
+export function createDiagnosticForNodeInSourceFile(sourceFile: SourceFile, node: Node, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithLocation {
+    const span = getErrorSpanForNode(sourceFile, node);
+    return createFileDiagnostic(sourceFile, span.start, span.length, message, ...args);
+}
+
+/** @internal */
+export function createFileDiagnostic(file: SourceFile, start: number, length: number, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithLocation {
+    assertDiagnosticLocation(file.text, start, length);
+
+    let text = getLocaleSpecificMessage(message);
+
+    if (some(args)) {
+        text = formatStringFromArgs(text, args);
+    }
+
+    return {
+        file,
+        start,
+        length,
+
+        messageText: text,
+        category: message.category,
+        code: message.code,
+        reportsUnnecessary: message.reportsUnnecessary,
+        reportsDeprecated: message.reportsDeprecated,
+    };
 }

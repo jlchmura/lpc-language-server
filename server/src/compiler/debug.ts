@@ -1,4 +1,4 @@
-import { AnyFunction, AssertionLevel, Node, NodeArray, objectAllocator, Type,Symbol, SymbolFlags, symbolName, SortedReadonlyArray, compareValues, stableSort, TypeFlags, hasProperty, LiteralType, ObjectType, ObjectFlags, Signature, SignatureFlags, isIdentifier, idText, isStringLiteral, isIntLiteral, isFloatLiteral, SyntaxKind, NodeFlags, ModifierFlags, isParseTreeNode, getEffectiveModifierFlagsNoCache, nodeIsSynthesized, getParseTreeNode, getSourceFileOfNode, getSourceTextOfNodeFromSourceFile, FlowNode, FlowFlags, FlowSwitchClause, FlowLabel, isDefaultClause, maxBy, TypeMapper, TypeMapKind, zipWith, map } from "./_namespaces/lpc";
+import { AnyFunction, AssertionLevel, Node, NodeArray, objectAllocator, Type,Symbol, SymbolFlags, symbolName, SortedReadonlyArray, compareValues, stableSort, TypeFlags, hasProperty, LiteralType, ObjectType, ObjectFlags, Signature, SignatureFlags, isIdentifier, idText, isStringLiteral, isIntLiteral, isFloatLiteral, SyntaxKind, NodeFlags, ModifierFlags, isParseTreeNode, getEffectiveModifierFlagsNoCache, nodeIsSynthesized, getParseTreeNode, getSourceFileOfNode, getSourceTextOfNodeFromSourceFile, FlowNode, FlowFlags, FlowSwitchClause, FlowLabel, isDefaultClause, maxBy, TypeMapper, TypeMapKind, zipWith, map, MatchingKeys, noop } from "./_namespaces/lpc";
 import * as lpc from "./_namespaces/lpc.js";
 
 /** @internal */
@@ -22,7 +22,7 @@ export namespace Debug {
     export let isDebugging = false;
     export let loggingHost: LoggingHost | undefined;
 
-    
+    type AssertionKeys = MatchingKeys<typeof Debug, AnyFunction>;
     let nodeArrayProto: NodeArray<Node> | undefined;
 
     export function attachNodeArrayDebugInfo(array: NodeArray<Node>) {
@@ -877,5 +877,53 @@ m2: ${(this.mapper2 as unknown as DebugTypeMapper).__debugToString().split("\n")
             return Object.setPrototypeOf(mapper, DebugTypeMapper.prototype);
         }
         return mapper;
+    }
+
+    const assertionCache: Partial<Record<AssertionKeys, { level: AssertionLevel; assertion: AnyFunction; }>> = {};
+    
+    /**
+     * Tests whether an assertion function should be executed. If it shouldn't, it is cached and replaced with `ts.noop`.
+     * Replaced assertion functions are restored when `Debug.setAssertionLevel` is set to a high enough level.
+     * @param level The minimum assertion level required.
+     * @param name The name of the current assertion function.
+     */
+    function shouldAssertFunction<K extends AssertionKeys>(level: AssertionLevel, name: K): boolean {
+        if (!shouldAssert(level)) {
+            assertionCache[name] = { level, assertion: Debug[name] };
+            (Debug as any)[name] = noop;
+            return false;
+        }
+        return true;
+    }
+    
+    export function shouldAssert(level: AssertionLevel): boolean {
+        return currentAssertionLevel >= level;
+    }
+
+    export function getFunctionName(func: AnyFunction) {
+        if (typeof func !== "function") {
+            return "";
+        }
+        else if (hasProperty(func, "name")) {
+            return (func as any).name;
+        }
+        else {
+            const text = Function.prototype.toString.call(func);
+            const match = /^function\s+([\w$]+)\s*\(/.exec(text);
+            return match ? match[1] : "";
+        }
+    }
+    
+    export function assertNode<T extends Node, U extends T>(node: T | undefined, test: (node: T) => node is U, message?: string, stackCrawlMark?: AnyFunction): asserts node is U;
+    export function assertNode(node: Node | undefined, test: ((node: Node) => boolean) | undefined, message?: string, stackCrawlMark?: AnyFunction): void;
+    export function assertNode(node: Node | undefined, test: ((node: Node) => boolean) | undefined, message?: string, stackCrawlMark?: AnyFunction) {
+        if (shouldAssertFunction(AssertionLevel.Normal, "assertNode")) {
+            assert(
+                node !== undefined && (test === undefined || test(node)),
+                message || "Unexpected node.",
+                () => `Node ${formatSyntaxKind(node?.kind)} did not pass test '${getFunctionName(test!)}'.`,
+                stackCrawlMark || assertNode,
+            );
+        }
     }
 }

@@ -435,3 +435,35 @@ export function contains<T>(array: readonly T[] | undefined, value: T, equalityC
     }
     return false;
 }
+
+
+/**
+ * Unlike `pushIfUnique`, this can take `undefined` as an input, and returns a new array.
+ *
+ * @internal
+ */
+export function appendIfUnique<T>(array: T[] | undefined, toAdd: T, equalityComparer?: EqualityComparer<T>): T[] {
+    if (array !== undefined) {
+        pushIfUnique(array, toAdd, equalityComparer);
+        return array;
+    }
+    else {
+        return [toAdd];
+    }
+}
+
+
+/**
+ * @return Whether the value was added.
+ *
+ * @internal
+ */
+export function pushIfUnique<T>(array: T[], toAdd: T, equalityComparer?: EqualityComparer<T>): boolean {
+    if (contains(array, toAdd, equalityComparer)) {
+        return false;
+    }
+    else {
+        array.push(toAdd);
+        return true;
+    }
+}

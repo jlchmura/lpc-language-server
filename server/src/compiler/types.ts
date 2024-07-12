@@ -100,7 +100,7 @@ export interface Type {
 export type TypeId = number;
 
 export const enum SyntaxKind {
-    Unknown,
+    Unknown, // fIrst token
     EndOfFileToken,
     
     // Literals
@@ -109,7 +109,7 @@ export const enum SyntaxKind {
     StringLiteral,            
 
     // Punctuation
-    OpenBraceToken,
+    OpenBraceToken, 
     CloseBraceToken,
     OpenParenToken,
     CloseParenToken,
@@ -304,6 +304,7 @@ export const enum SyntaxKind {
 
 
     LastKeyword = DeprecatedKeyword,
+    FirstToken = Unknown,
     LastToken = LastKeyword,
     FirstStatement = VariableStatement,
     LastStatement = SwitchStatement 
@@ -551,6 +552,33 @@ export const enum ModifierFlags {
     NonPublicAccessibilityModifier = Private | Protected,
 
     All = Public | Private | Protected | NoMask | NoShadow | NoSave | Static | VarArgs | Visible | Deprecated,    
+}
+
+/** @internal */
+export const enum AssignmentDeclarationKind {
+    None,
+    /// exports.name = expr
+    /// module.exports.name = expr
+    ExportsProperty,
+    /// module.exports = expr
+    ModuleExports,
+    /// className.prototype.name = expr
+    PrototypeProperty,
+    /// this.name = expr
+    ThisProperty,
+    // F.name = expr
+    Property,
+    // F.prototype = { ... }
+    Prototype,
+    // Object.defineProperty(x, 'name', { value: any, writable?: boolean (false by default) });
+    // Object.defineProperty(x, 'name', { get: Function, set: Function });
+    // Object.defineProperty(x, 'name', { get: Function });
+    // Object.defineProperty(x, 'name', { set: Function });
+    ObjectDefinePropertyValue,
+    // Object.defineProperty(exports || module.exports, 'name', ...);
+    ObjectDefinePropertyExports,
+    // Object.defineProperty(Foo.prototype, 'name', ...);
+    ObjectDefinePrototypeProperty,
 }
 
 /** @internal */
@@ -1567,8 +1595,8 @@ export interface SourceFile extends Declaration, LocalsContainer {
     /** @internal */ parseDiagnostics: DiagnosticWithLocation[];
 
     // // File-level diagnostics reported by the binder.
-    // /** @internal */ bindDiagnostics: DiagnosticWithLocation[];
-    // /** @internal */ bindSuggestionDiagnostics?: DiagnosticWithLocation[];
+    /** @internal */ bindDiagnostics: DiagnosticWithLocation[];
+    /** @internal */ bindSuggestionDiagnostics?: DiagnosticWithLocation[];
 
     // // File-level JSDoc diagnostics reported by the JSDoc parser
     // /** @internal */ jsDocDiagnostics?: DiagnosticWithLocation[];
@@ -1758,6 +1786,8 @@ export interface FloatLiteral extends LiteralExpression, Declaration {
     /** @internal */
     readonly numericLiteralFlags: TokenFlags;
 }
+
+export type PropertyNameLiteral = Identifier | StringLiteral | IntLiteral;
 
 export interface StringLiteral extends LiteralExpression, Declaration {
     readonly kind: SyntaxKind.StringLiteral;
@@ -2510,3 +2540,26 @@ export interface ObjectType extends Type {
     /** @internal */ objectTypeWithoutAbstractConstructSignatures?: ObjectType;
 }
 
+/** @internal */
+export type MatchingKeys<TRecord, TMatch, K extends keyof TRecord = keyof TRecord> = K extends (TRecord[K] extends TMatch ? K : never) ? K : never;
+
+export const enum InternalSymbolName {
+    Call = "__call", // Call signatures
+    Constructor = "__constructor", // Constructor implementations
+    New = "__new", // Constructor signatures
+    Index = "__index", // Index signatures
+    ExportStar = "__export", // Module export * declarations
+    Global = "__global", // Global self-reference
+    Missing = "__missing", // Indicates missing symbol
+    Type = "__type", // Anonymous type literal symbol
+    Object = "__object", // Anonymous object literal declaration    
+    Class = "__class", // Unnamed class expression
+    Function = "__function", // Unnamed function expression
+    Computed = "__computed", // Computed property name declaration with dynamic name
+    Resolving = "__resolving__", // Indicator symbol used to mark partially resolved type aliases
+    ExportEquals = "export=", // Export assignment symbol
+    Default = "default", // Default export symbol (technically not wholly internal, but included here for usability)
+    This = "this",
+    InstantiationExpression = "__instantiationExpression", // Instantiation expressions
+    ImportAttributes = "__importAttributes",
+}
