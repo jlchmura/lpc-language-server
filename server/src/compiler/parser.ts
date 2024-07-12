@@ -1,6 +1,6 @@
 import * as antlr from "antlr4ng";
 import * as parserCore from "../parser3/parser-core";
-import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics } from "./_namespaces/lpc";
+import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier } from "./_namespaces/lpc";
 import { ILpcConfig } from "../config-types";
 
 
@@ -604,6 +604,18 @@ export namespace LpcParser {
         return typeNode;
     }
 
+    function tryParseModifiers(tree: parserCore.VariableModifierContext | parserCore.FunctionModifierContext): Modifier {
+        const {pos,end} = getNodePos(tree);
+        const terminal = tree.getChild(0) as antlr.TerminalNode;
+        const kind = getSyntaxKindFromLex(terminal);
+
+        return finishNode(factory.createToken(kind as Modifier["kind"]), pos, end);
+    }        
+
+    function parseModifiers(tree: parserCore.VariableModifierContext[] | parserCore.FunctionModifierContext[]): NodeArray<Modifier> {
+        return parseList(tree, tryParseModifiers);
+    }
+
     function parseVariableDeclaration(tree: parserCore.VariableDeclarationContext): VariableStatement {
         const declListTree = tree.variableDeclaratorExpression();
 
@@ -617,7 +629,8 @@ export namespace LpcParser {
             declListTree,
             /*inForStatementInitializer*/ false
         );
-        const modifiers = undefined; // TODO modifiersToFlags(header.functionModifier().map(m=>m.getChild(0)));
+        
+        const modifiers = parseModifiers(tree.variableModifier());
         const jsDoc = getPrecedingJSDocBlock(tree);
         const node = factory.createVariableStatement(modifiers, declarationList);
 
@@ -983,9 +996,8 @@ export namespace LpcParser {
         const header = tree.functionHeader();
         const {end} = getNodePos(tree);
 
-        const name = header._functionName;
-        const mod = header.functionModifier()[0];
-        //TODO const modifiers = modifiersToFlags(header.functionModifier().map(m=>m.getChild(0)));
+        const name = header._functionName;        
+        const modifiers = parseModifiers(header.functionModifier());
         const identifier = parseValidIdentifier(name);
 
         const returnType = parseType(
@@ -995,7 +1007,7 @@ export namespace LpcParser {
         const body = parseFunctionBlock(tree.block()); // parseFunctionBlockOrSemicolon(isGenerator | isAsync, Diagnostics.or_expected);
 
         const node = factory.createFunctionDeclaration(
-            undefined, // TODO
+            modifiers,
             identifier,
             [], // TODO
             returnType,
