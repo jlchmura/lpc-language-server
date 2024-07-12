@@ -28,6 +28,8 @@ import {
     Expression,
     ExpressionStatement,
     FloatLiteral,
+    ForInitializer,
+    ForStatement,
     FunctionDeclaration,
     Identifier,
     identity,
@@ -147,6 +149,7 @@ export function createNodeFactory(
         createSwitchStatement,
         createCaseClause,
         createDefaultClause,
+        createForStatement,
 
         // Expressions
         createConditionalExpression,
@@ -680,6 +683,25 @@ export function createNodeFactory(
         
         // TODO handle super here?
         
+        return node;
+    }
+
+    // @api
+    function createForStatement(initializer: ForInitializer | undefined, condition: Expression | undefined, incrementor: Expression | undefined, statement: Statement): ForStatement {
+        const node = createBaseNode<ForStatement>(SyntaxKind.ForStatement);
+        node.initializer = initializer;
+        node.condition = condition;
+        node.incrementor = incrementor;
+        node.statement = asEmbeddedStatement(statement);
+        // node.transformFlags |= propagateChildFlags(node.initializer) |
+        //     propagateChildFlags(node.condition) |
+        //     propagateChildFlags(node.incrementor) |
+        //     propagateChildFlags(node.statement);
+
+        node.jsDoc = undefined; // initialized by parser (JsDocContainer)
+        node.locals = undefined; // initialized by binder (LocalsContainer)
+        node.nextContainer = undefined; // initialized by binder (LocalsContainer)
+        node.flowNode = undefined; // initialized by binder (FlowContainer)
         return node;
     }
 }

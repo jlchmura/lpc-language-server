@@ -1,6 +1,6 @@
 import * as antlr from "antlr4ng";
 import * as parserCore from "../parser3/parser-core";
-import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause } from "./_namespaces/lpc";
+import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray } from "./_namespaces/lpc";
 import { ILpcConfig } from "../config-types";
 
 
@@ -240,14 +240,24 @@ export namespace LpcParser {
                 break;  // will fail   
             case parserCore.LPCParser.RULE_block:
                 return parseBlock(tree as parserCore.BlockContext);
-            case parserCore.LPCParser.RULE_selectionStatement:
-            case parserCore.LPCParser.RULE_ifStatement:
+            case parserCore.LPCParser.RULE_selectionStatement: // if or switch            
                 const selStmt = tree as parserCore.SelectionStatementContext;
                 if (selStmt.ifStatement())
                     return parseIfStatement(selStmt.ifStatement());
                 else if (selStmt.switchStatement())
                     return parseSwitchStatement(selStmt.switchStatement());
-                break;                
+                break;  
+            case parserCore.LPCParser.RULE_iterationStatement: // for, while, do
+                const iterStmt = tree as parserCore.IterationStatementContext;                
+                if (iterStmt instanceof parserCore.ForStatementContext) {
+                    return parseForStatement(iterStmt);
+                }
+                   // return parseForStatement(iterStmt.forStatement());
+                // else if (iterStmt.whileStatement())
+                //     return parseWhileStatement(iterStmt.whileStatement());
+                // else if (iterStmt.doStatement())
+                //     return parseDoStatement(iterStmt.doStatement());
+
         }
 
         Debug.fail(`parseStatement unknown parser rule [${ruleIndex}]`);
@@ -260,6 +270,20 @@ export namespace LpcParser {
         if (tree) {
             return parser(tree);
         }
+    }
+
+    function parseForStatement(tree: parserCore.ForStatementContext): Statement {
+        const {pos,end} = getNodePos(tree);        
+        const forExpr = tree.forRangeExpression();
+        const jsDoc = getPrecedingJSDocBlock(tree);
+
+        const init = parseOptional(forExpr._init, parseCommaExpression);
+        const condition = parseOptional(forExpr._condition, parseExpression);
+        const increment = parseOptional(forExpr._incrementor, parseCommaExpression);        
+        const body = parseOptional(tree.statement(), parseStatement);
+
+        const node = factory.createForStatement(init, condition, increment, body);
+        return withJSDoc(finishNode(node, pos, end), jsDoc);
     }
 
     function parseCaseStatement(tree: parserCore.CaseStatementContext): CaseClause {

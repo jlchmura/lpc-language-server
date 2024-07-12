@@ -587,6 +587,7 @@ export interface NodeFactory {
     createCaseBlock(clauses: readonly CaseOrDefaultClause[]): CaseBlock;
     createDefaultClause(statements: readonly Statement[]): DefaultClause;
     createCaseClause(expression: Expression, statements: readonly Statement[]): CaseClause;
+    createForStatement(initializer: ForInitializer | undefined, condition: Expression | undefined, incrementor: Expression | undefined, statement: Statement): ForStatement
 
     // Expressions
     createConditionalExpression(condition: Expression, questionToken: QuestionToken | undefined, whenTrue: Expression, colonToken: ColonToken | undefined, whenFalse: Expression): ConditionalExpression;
@@ -599,6 +600,7 @@ export interface NodeFactory {
 /** NODES */
 export type HasJSDoc = 
     | Block 
+    | ForStatement
     | FunctionDeclaration
     | ReturnStatement
     | VariableStatement     
@@ -1539,4 +1541,11 @@ export interface PropertyAccessExpression extends MemberExpression, NamedDeclara
     readonly kind: SyntaxKind.PropertyAccessExpression;
     readonly expression: LeftHandSideExpression;        
     readonly name: MemberName;
+}
+
+export interface ForStatement extends IterationStatement, LocalsContainer, FlowContainer {
+    readonly kind: SyntaxKind.ForStatement;
+    readonly initializer?: ForInitializer;
+    readonly condition?: Expression;
+    readonly incrementor?: Expression;
 }
