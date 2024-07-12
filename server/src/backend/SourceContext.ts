@@ -33,10 +33,9 @@ import { DriverVersion } from "../driver/DriverVersion";
 import { FeatureValidationResult, IDriver } from "../driver/types";
 import { LPCLexer } from "../parser3/LPCLexer";
 import {
-    FunctionDeclarationContext,
     LPCParser,
     ProgramContext,
-    VariableDeclarationContext,
+    VariableDeclarationListContext,
     VariableDeclaratorContext,
     VariableDeclaratorExpressionContext,
 } from "../parser3/LPCParser";
@@ -670,14 +669,14 @@ export class SourceContext {
                 let type: string, mods: string;
                 const parentDeclCtx = getParentContextOfType(
                     ctx,
-                    VariableDeclarationContext
+                    VariableDeclarationListContext
                 );
                 const declExpCtx = getParentContextOfType(
                     ctx,
                     VariableDeclaratorExpressionContext
                 );
                 rangeCtx = declExpCtx ?? parentDeclCtx ?? ctx; // for variables, use the entire declaration for its range
-                if (parentDeclCtx instanceof VariableDeclarationContext) {
+                if (parentDeclCtx instanceof VariableDeclarationListContext) {
                     // NTBLA: handle unions
 
                     type = parentDeclCtx
@@ -934,6 +933,7 @@ export class SourceContext {
             case LPCParser.RULE_assignmentOperator:
             case LPCParser.RULE_validIdentifiers:
             case LPCParser.RULE_variableDeclaratorExpression:
+            case LPCParser.RULE_variableDeclarationList:
             case LPCParser.RULE_expression:
             case LPCParser.RULE_statement: // it may be an incompletel function, which will show up as a statement
                 symbol = this.symbolTable.symbolContainingContext(terminal);
@@ -1117,7 +1117,7 @@ export class SourceContext {
             //LPCParser.RULE_callOtherExpression,
             LPCParser.RULE_callOtherTarget,
             LPCParser.RULE_primaryExpressionStart,
-            LPCParser.RULE_variableDeclaration,
+            LPCParser.RULE_variableDeclarationList,
             LPCParser.RULE_literal,
             LPCParser.RULE_primaryExpression,
         ]);
@@ -1301,7 +1301,7 @@ export class SourceContext {
 
                     break;
 
-                case LPCParser.RULE_variableDeclaration:
+                case LPCParser.RULE_variableDeclarationList:
                     // result.push({
                     //     kind: SymbolKind.Variable,
                     //     name: "modifiers type variableName = value",

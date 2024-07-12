@@ -1,5 +1,5 @@
 import * as antlr from "antlr4ng";
-import { Signature, Type, Debug, DiagnosticArguments, DiagnosticMessage, DiagnosticRelatedInformation, DiagnosticWithDetachedLocation, DiagnosticWithLocation, Identifier, MapLike, ModifierFlags, Node, NodeFlags, ReadonlyTextRange, some, SourceFile, Symbol, SymbolFlags, SyntaxKind, TextRange, Token, TransformFlags, TypeChecker, TypeFlags, tracing, SignatureFlags, canHaveModifiers, Modifier, skipTrivia } from "./_namespaces/lpc";
+import { Signature, Type, Debug, DiagnosticArguments, DiagnosticMessage, DiagnosticRelatedInformation, DiagnosticWithDetachedLocation, DiagnosticWithLocation, Identifier, MapLike, ModifierFlags, Node, NodeFlags, ReadonlyTextRange, some, SourceFile, Symbol, SymbolFlags, SyntaxKind, TextRange, Token, TransformFlags, TypeChecker, TypeFlags, tracing, SignatureFlags, canHaveModifiers, Modifier, skipTrivia, SymbolTable, CallExpression } from "./_namespaces/lpc";
 
 /** @internal */
 export interface ObjectAllocator {
@@ -415,4 +415,35 @@ export function setParent<T extends Node>(child: T | undefined, parent: T["paren
         (child as Mutable<T>).parent = parent;
     }
     return child;
+}
+
+/** @internal */
+export function createSymbolTable(symbols?: readonly Symbol[]): SymbolTable {
+    const result = new Map<string, Symbol>();
+    if (symbols) {
+        for (const symbol of symbols) {
+            result.set(symbol.name, symbol);
+        }
+    }
+    return result;
+}
+
+/** @internal */
+export function getImmediatelyInvokedFunctionExpression(func: Node): CallExpression | undefined {
+    if (func.kind === SyntaxKind.FunctionExpression || func.kind === SyntaxKind.InlineClosureExpression) {
+        let prev = func;
+        let parent = func.parent;
+        // while (parent.kind === SyntaxKind.ParenthesizedExpression) {
+        //     prev = parent;
+        //     parent = parent.parent;
+        // }
+        if (parent.kind === SyntaxKind.CallExpression && (parent as CallExpression).expression === prev) {
+            return parent as CallExpression;
+        }
+    }
+}
+
+/** @internal */
+export function nodeIsPresent(node: Node | undefined): boolean {
+    return !nodeIsMissing(node);
 }

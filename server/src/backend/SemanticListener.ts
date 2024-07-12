@@ -17,7 +17,7 @@ import {
     ProgramContext,
     StructDeclarationContext,
     StructInitializerExpressionContext,
-    VariableDeclarationContext,
+    VariableDeclarationListContext,
 } from "../parser3/LPCParser";
 import { ScopedSymbol, MethodSymbol as BaseMethodSymbol } from "antlr4-c3";
 import {
@@ -217,7 +217,7 @@ export class SemanticListener extends LPCParserListener {
         }
     };
 
-    exitVariableDeclaration = (ctx: VariableDeclarationContext) => {
+    exitVariableDeclaration = (ctx: VariableDeclarationListContext) => {
         const objName = ctx._objectName;
 
         if (!!objName?.text) {

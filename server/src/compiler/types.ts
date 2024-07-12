@@ -200,7 +200,7 @@ export const enum SyntaxKind {
     NoShadowKeyword,
     NoMaskKeyword,
     VarArgsKeyword,
-    DeprecatedKeyword,
+    DeprecatedKeyword,  // LastKeyword and LastToken - everything after this will be processed by the binder
 
     // Parse Tree Nodes
 
@@ -272,7 +272,7 @@ export const enum SyntaxKind {
     CaseBlock,
 
     // Statements
-    VariableStatement,
+    VariableStatement, // FirstStatement
     ForStatement,
     ForEachStatement,
     DoWhileStatement,
@@ -285,7 +285,7 @@ export const enum SyntaxKind {
     InheritDeclaration,
     IfStatement,
     EmptyStatement,
-    SwitchStatement,
+    SwitchStatement, // LastStatement
 
     // Expressions
     ConditionalExpression,
@@ -301,6 +301,12 @@ export const enum SyntaxKind {
     CatchClause,
     CaseClause,
     DefaultClause,
+
+
+    LastKeyword = DeprecatedKeyword,
+    LastToken = LastKeyword,
+    FirstStatement = VariableStatement,
+    LastStatement = SwitchStatement 
 }
 
 // dprint-ignore
@@ -660,7 +666,9 @@ export interface NodeFactory {
     createPostfixUnaryExpression(operand: Expression, operator: PostfixUnaryOperator): PostfixUnaryExpression;
 }
 
-export interface CompilerOptions {}
+export interface CompilerOptions {
+    allowUnreachableCode?: boolean;
+}
 
 /** DIAGNOSTICS */
 export interface DiagnosticMessage {
@@ -814,11 +822,35 @@ export type IsBlockScopedContainer =
     | IsContainer
     | CatchClause
     | ForStatement
-    | ForInStatement
+    //| ForInStatement
+    | ForEachStatement
     | WhileStatement
     | DoWhileStatement
     | CaseBlock
     | Block;
+
+export type FunctionLikeDeclaration =
+    | FunctionDeclaration
+    | InlineClosureExpression
+    //| MethodDeclaration    
+    | FunctionExpression
+    ;
+
+/**
+ * Corresponds with `ContainerFlags` in binder.ts.
+ *
+ * @internal
+ */
+export type HasContainerFlags =
+    | IsContainer
+    | IsBlockScopedContainer
+    // | IsControlFlowContainer
+    // | IsFunctionLike
+    // | IsFunctionExpression
+    | HasLocals
+    // | IsInterface
+    // | IsObjectLiteralOrClassExpressionMethodOrAccessor;
+    ;
 
 /** NODES */
 export type HasJSDoc = 
@@ -865,6 +897,232 @@ export type HasModifiers =
     // | ImportDeclaration
     // | ExportAssignment
     // | ExportDeclaration
+    ;
+
+/** @internal */
+export type HasFlowNode =
+    | Identifier
+    // | ThisExpression
+    // | SuperExpression
+    // | QualifiedName
+    // | MetaProperty
+    // | ElementAccessExpression
+    // | BindingElement
+    // | ArrowFunction
+    // | MethodDeclaration
+    // | GetAccessorDeclaration
+    // | SetAccessorDeclaration
+    | PropertyAccessExpression
+    | FunctionExpression
+    | VariableStatement
+    | ExpressionStatement
+    | IfStatement
+    | DoWhileStatement
+    | WhileStatement
+    | ForStatement
+    //| ForInStatement
+    | ForEachStatement    
+    | ContinueStatement
+    | BreakStatement
+    | ReturnStatement
+    | SwitchStatement
+    // | WithStatement
+    // | LabeledStatement
+    // | ThrowStatement
+    // | TryStatement
+    // | DebuggerStatement;
+    ;
+
+// Ideally, `ForEachChildNodes` and `VisitEachChildNodes` would not differ.
+// However, `forEachChild` currently processes JSDoc comment syntax and missing declarations more thoroughly.
+// On the other hand, `visitEachChild` actually processes `Identifier`s (which really *shouldn't* have children,
+// but are constructed as if they could for faked-up `QualifiedName`s in the language service.)
+
+/** @internal */
+export type ForEachChildNodes =
+    | HasChildren
+    // | MissingDeclaration
+    | JSDocTypeExpression
+    // | JSDocNonNullableType
+    // | JSDocNullableType
+    // | JSDocOptionalType
+    // | JSDocVariadicType
+    // | JSDocFunctionType
+    | JSDoc
+    // | JSDocSeeTag
+    // | JSDocNameReference
+    // | JSDocMemberName
+    // | JSDocParameterTag
+    // | JSDocPropertyTag
+    // | JSDocAuthorTag
+    // | JSDocImplementsTag
+    // | JSDocAugmentsTag
+    // | JSDocTemplateTag
+    // | JSDocTypedefTag
+    // | JSDocCallbackTag
+    // | JSDocReturnTag
+    // | JSDocTypeTag
+    // | JSDocThisTag
+    // | JSDocEnumTag
+    | JSDocSignature
+    | JSDocTypeLiteral
+    // | JSDocLink
+    // | JSDocLinkCode
+    // | JSDocLinkPlain
+    // | JSDocUnknownTag
+    // | JSDocClassTag
+    // | JSDocPublicTag
+    // | JSDocPrivateTag
+    // | JSDocProtectedTag
+    // | JSDocReadonlyTag
+    // | JSDocDeprecatedTag
+    // | JSDocThrowsTag
+    // | JSDocOverrideTag
+    // | JSDocSatisfiesTag
+    // | JSDocOverloadTag
+    // | JSDocImportTag;
+    ;
+
+/** @internal */
+export type HasChildren =
+    | ParameterDeclaration
+    // | QualifiedName
+    // | ComputedPropertyName
+    | TypeParameterDeclaration
+    // | Decorator
+    // | PropertySignature
+    // | PropertyDeclaration
+    // | MethodSignature
+    // | MethodDeclaration
+    // | ConstructorDeclaration
+    // | GetAccessorDeclaration
+    // | SetAccessorDeclaration
+    // | ClassStaticBlockDeclaration
+    // | CallSignatureDeclaration
+    // | ConstructSignatureDeclaration
+    // | IndexSignatureDeclaration
+    // | TypePredicateNode
+    // | TypeReferenceNode
+    // | FunctionTypeNode
+    // | ConstructorTypeNode
+    // | TypeQueryNode
+    // | TypeLiteralNode
+    // | TupleTypeNode
+    // | OptionalTypeNode
+    // | RestTypeNode
+    | ArrayTypeNode
+    | UnionTypeNode
+    // | IntersectionTypeNode
+    // | ConditionalTypeNode
+    // | InferTypeNode
+    // | ImportTypeNode
+    // | ImportTypeAssertionContainer
+    // | NamedTupleMember
+    // | ParenthesizedTypeNode
+    // | TypeOperatorNode
+    // | IndexedAccessTypeNode
+    // | MappedTypeNode
+    // | LiteralTypeNode
+    // | TemplateLiteralTypeNode
+    // | TemplateLiteralTypeSpan
+    // | ObjectBindingPattern
+    // | ArrayBindingPattern
+    // | BindingElement
+    // | ArrayLiteralExpression
+    // | ObjectLiteralExpression
+    | PropertyAccessExpression
+    | CallExpression
+    // | ElementAccessExpression
+    // | NewExpression
+    // | TaggedTemplateExpression
+    // | TypeAssertion
+    // | ParenthesizedExpression
+    | FunctionExpression
+    | InlineClosureExpression
+    // | DeleteExpression
+    // | TypeOfExpression
+    // | VoidExpression
+    // | AwaitExpression
+    // | PrefixUnaryExpression
+    | PostfixUnaryExpression
+    | BinaryExpression
+    | ConditionalExpression
+    // | TemplateExpression
+    // | YieldExpression
+    // | SpreadElement
+    // | ClassExpression
+    // | ExpressionWithTypeArguments
+    // | AsExpression
+    // | NonNullExpression
+    // | SatisfiesExpression
+    // | MetaProperty
+    // | TemplateSpan
+    | Block
+    | VariableStatement
+    | ExpressionStatement
+    | IfStatement
+    | DoWhileStatement
+    | WhileStatement
+    | ForStatement
+    //| ForInStatement
+    | ForEachStatement
+    // | ForOfStatement
+    | ContinueStatement
+    | BreakStatement
+    | ReturnStatement
+    | SwitchStatement
+    // | WithStatement
+    // | LabeledStatement
+    // | ThrowStatement
+    // | TryStatement
+    | VariableDeclaration
+    | VariableDeclarationList
+    | FunctionDeclaration
+    // | ClassDeclaration
+    // | InterfaceDeclaration
+    // | TypeAliasDeclaration
+    // | EnumDeclaration
+    // | ModuleDeclaration
+    // | ModuleBlock
+    | CaseBlock
+    // | NamespaceExportDeclaration
+    // | ImportEqualsDeclaration
+    // | ImportDeclaration
+    // | AssertClause
+    // | AssertEntry
+    //| ImportAttributes
+    // | ImportAttribute
+    // | ImportClause
+    // | NamespaceImport
+    // | NamespaceExport
+    // | NamedImports
+    // | ImportSpecifier
+    // | ExportAssignment
+    // | ExportDeclaration
+    // | NamedExports
+    // | ExportSpecifier
+    // | ExternalModuleReference
+    // | JsxElement
+    // | JsxSelfClosingElement
+    // | JsxOpeningElement
+    // | JsxClosingElement
+    // | JsxFragment
+    // | JsxAttribute
+    // | JsxAttributes
+    // | JsxSpreadAttribute
+    // | JsxExpression
+    // | JsxNamespacedName
+    | CaseClause
+    | DefaultClause
+    // | HeritageClause
+    | CatchClause
+    // | PropertyAssignment
+    // | ShorthandPropertyAssignment
+    // | SpreadAssignment
+    // | EnumMember
+    | SourceFile
+    // | PartiallyEmittedExpression
+    // | CommaListExpression;
     ;
 
 export interface NodeArray<T extends Node> extends ReadonlyArray<T>, ReadonlyTextRange {
@@ -1677,7 +1935,7 @@ export interface VariableDeclaration extends NamedDeclaration, JSDocContainer {
 
 export interface VariableDeclarationList extends Node {
     readonly kind: SyntaxKind.VariableDeclarationList;
-    readonly parent: VariableStatement | ForStatement | ForInStatement;
+    readonly parent: VariableStatement | ForStatement | ForEachStatement;
     readonly declarations: NodeArray<VariableDeclaration>;
 }
 
@@ -1685,14 +1943,14 @@ export interface IterationStatement extends Statement {
     readonly statement: Statement;
 }
 
-export type ForInitializer = VariableStatement | Expression;
-export type ForEachInitializer = NodeArray<VariableStatement> | ForInitializer;
+export type ForInitializer = VariableDeclarationList | Expression;
+export type ForEachInitializer = NodeArray<ForInitializer>;
 
-export interface ForInStatement extends IterationStatement, LocalsContainer, FlowContainer {
-    readonly kind: SyntaxKind.ForInStatement;
-    readonly initializer: ForInitializer;
-    readonly expression: Expression;
-}
+// export interface ForInStatement extends IterationStatement, LocalsContainer, FlowContainer {
+//     readonly kind: SyntaxKind.ForInStatement;
+//     readonly initializer: ForInitializer;
+//     readonly expression: Expression;
+// }
 
 export interface ForStatement extends IterationStatement, LocalsContainer, FlowContainer {
     readonly kind: SyntaxKind.ForStatement;
@@ -1937,7 +2195,7 @@ export interface ForStatement extends IterationStatement, LocalsContainer, FlowC
 export interface ForEachStatement extends IterationStatement, LocalsContainer, FlowContainer {
     readonly kind: SyntaxKind.ForEachStatement;
     readonly initializer: ForEachInitializer;
-    readonly range: Expression;    
+    readonly expression: Expression;    
 }
 
 export interface DoOrWhileStatementBase extends IterationStatement, LocalsContainer, FlowContainer {

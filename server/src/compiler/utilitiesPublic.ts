@@ -1,4 +1,4 @@
-import { HasModifiers, hasProperty, Identifier, Node, NodeArray, NodeFlags, Symbol, SyntaxKind } from "./_namespaces/lpc";
+import { HasModifiers, hasProperty, Identifier, Node, NodeArray, NodeFlags, SignatureDeclaration, Symbol, SyntaxKind } from "./_namespaces/lpc";
 
 /** @internal */
 export function isNodeArray<T extends Node>(array: readonly T[]): array is NodeArray<T> {
@@ -79,5 +79,41 @@ export function getParseTreeNode(node: Node | undefined, nodeTest?: (node: Node)
             return !nodeTest || nodeTest(node) ? node : undefined;
         }
         node = node.original;
+    }
+}
+
+export function isFunctionLike(node: Node | undefined): node is SignatureDeclaration {
+    return !!node && isFunctionLikeKind(node.kind);
+}
+
+function isFunctionLikeDeclarationKind(kind: SyntaxKind): boolean {
+    switch (kind) {
+        case SyntaxKind.FunctionDeclaration:
+        // case SyntaxKind.MethodDeclaration:
+        // case SyntaxKind.Constructor:
+        // case SyntaxKind.GetAccessor:
+        // case SyntaxKind.SetAccessor:
+        case SyntaxKind.FunctionExpression:
+        // case SyntaxKind.ArrowFunction:
+            return true;
+        default:
+            return false;
+    }
+}
+
+/** @internal */
+export function isFunctionLikeKind(kind: SyntaxKind): boolean {
+    switch (kind) {
+        // case SyntaxKind.MethodSignature:
+        // case SyntaxKind.CallSignature:
+        case SyntaxKind.JSDocSignature:
+        // case SyntaxKind.ConstructSignature:
+        // case SyntaxKind.IndexSignature:
+        // case SyntaxKind.FunctionType:
+        case SyntaxKind.JSDocFunctionType:
+        // case SyntaxKind.ConstructorType:
+            return true;
+        default:
+            return isFunctionLikeDeclarationKind(kind);
     }
 }

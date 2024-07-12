@@ -722,7 +722,7 @@ export function createNodeFactory(
     function createForEachStatement(initializer: ForEachInitializer | undefined, range: Expression | undefined, statement: Statement): ForEachStatement {
         const node = createBaseNode<ForEachStatement>(SyntaxKind.ForEachStatement);
         node.initializer = initializer;
-        node.range = range;        
+        node.expression = range;        
         node.statement = asEmbeddedStatement(statement);
         // node.transformFlags |= propagateChildFlags(node.initializer) |
         //     propagateChildFlags(node.condition) |

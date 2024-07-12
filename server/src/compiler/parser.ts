@@ -1,6 +1,6 @@
 import * as antlr from "antlr4ng";
 import * as parserCore from "../parser3/parser-core";
-import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken } from "./_namespaces/lpc";
+import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock } from "./_namespaces/lpc";
 import { ILpcConfig } from "../config-types";
 
 
@@ -254,9 +254,9 @@ export namespace LpcParser {
         return kind;
     }
 
-    function parseList<T extends Node>(
-        parseTrees: antlr.ParserRuleContext[],
-        parseElement: (parseTree: antlr.ParserRuleContext) => T
+    function parseList<T extends Node, R extends antlr.ParserRuleContext>(
+        parseTrees: R[],
+        parseElement: (parseTree: R) => T
     ): NodeArray<T> {
         const list = [];
         const {pos,end} = getNodePos(parseTrees.at(0));        
@@ -364,7 +364,7 @@ export namespace LpcParser {
         const jsDoc = getPrecedingJSDocBlock(tree);
         const forEachTree = tree.foreachRangeExpression();
         
-        const init = parseList(forEachTree.variableDeclaration(), parseVariableDeclaration);
+        const init = parseList(forEachTree.variableDeclarationList(), parseVariableDeclarationList);
         const expr1 = parseExpression(forEachTree.expression().at(0));
         const expr2 = parseOptional(forEachTree.expression().at(1), parseExpression);
         const body = parseStatement(tree.statement());
@@ -390,7 +390,7 @@ export namespace LpcParser {
         const forExpr = tree.forRangeExpression();
         const jsDoc = getPrecedingJSDocBlock(tree);
                 
-        const init = parseOptional(forExpr._init, parseVariableDeclaration);
+        const init = parseOptional(forExpr._init,  parseVariableDeclarationList);
         const condition = parseOptional(forExpr._condition, parseExpression);
         const increment = parseOptional(forExpr._incrementor, parseCommaExpression);        
         const body = parseOptional(tree.statement(), parseStatement);
@@ -616,55 +616,46 @@ export namespace LpcParser {
         return parseList(tree, tryParseModifiers);
     }
 
-    function parseVariableDeclaration(tree: parserCore.VariableDeclarationContext): VariableStatement {
+    /** a variable declaration has a Type and Declaration List, but no modifiers */
+    function parseVariableDeclarationList(tree: parserCore.VariableDeclarationListContext, inForStatementInitializer=false): VariableDeclarationList {
         const declListTree = tree.variableDeclaratorExpression();
 
         // TODO: this might not actually be a variable declaration - it might be an assignment opertor
         // figure that out here or in the type checker?
 
-        const {pos,end} = getNodePos(tree);
-        const type = parseType(tree._type_);
-        const declarationList = parseVariableDeclarationList(
-            type,
-            declListTree,
-            /*inForStatementInitializer*/ false
-        );
+        const {pos,end} = getNodePos(tree); 
         
-        const modifiers = parseModifiers(tree.variableModifier());
-        const jsDoc = getPrecedingJSDocBlock(tree);
-        const node = factory.createVariableStatement(modifiers, declarationList);
+        const type = parseType(tree.unionableTypeSpecifier());           
+        const declarationList = parseList(declListTree, (t) => { return parseVariableDeclaration(type, t, inForStatementInitializer); });
+        
+        const node = factory.createVariableDeclarationList(declarationList);
 
-        return withJSDoc(finishNode(node, pos, end), jsDoc);
+        return finishNode(node, pos, end);
     }
     
+    /** A Var Decl Statement has Modifiers and a Decl (Type & Declaration List) */
     function parseVariableStatement(tree: parserCore.VariableDeclarationStatementContext): VariableStatement {
-        const declTree = tree.variableDeclaration();
-        return parseVariableDeclaration(declTree);
+        const declListTree = tree.variableDeclarationList();
+
+        const {pos,end} = getNodePos(tree);
+        const jsDoc = getPrecedingJSDocBlock(tree);
+        const modifiers = parseModifiers(declListTree.variableModifier());
+        const decl = parseVariableDeclarationList(declListTree);
+
+        const node = factory.createVariableStatement(modifiers, decl);
+        return withJSDoc(finishNode(node, pos, end), jsDoc);
     }
 
-    function parseVariableDeclarationList(type: TypeNode, declListTree: parserCore.VariableDeclaratorExpressionContext[], inForStatementInitializer: boolean): VariableDeclarationList {
-        const {pos} = getNodePos(declListTree.at(0)),
-            {end} = getNodePos(declListTree.at(-1));
-        const declarations: VariableDeclaration[] = [];
-
-        for (const declExp of declListTree) {
-            const decl = declExp.variableDeclarator();
-            const jsDoc = getPrecedingJSDocBlock(decl);
-            const name = parseValidIdentifier(decl._variableName);
-            const initializer = !declExp.variableInitializer() ? undefined : parseInitializer(declExp.variableInitializer());
-            const node = factory.createVariableDeclaration(name, type, initializer);
-            const {pos:nodePos,end:nodeEnd} = getNodePos(declExp);
-
-            declarations.push(
-                withJSDoc(finishNode(node, nodePos, nodeEnd), jsDoc)
-            );
-        }
-
-        const listNode = factory.createVariableDeclarationList(
-            declarations,
-            NodeFlags.None
-        );
-        return finishNode(listNode, pos, end);
+    function parseVariableDeclaration(type: TypeNode, declExp: parserCore.VariableDeclaratorExpressionContext, inForStatementInitializer: boolean): VariableDeclaration {
+        const {pos,end} = getNodePos(declExp);
+        
+        const decl = declExp.variableDeclarator();
+        const jsDoc = getPrecedingJSDocBlock(decl);
+        const name = parseValidIdentifier(decl._variableName);
+        const initializer = !declExp.variableInitializer() ? undefined : parseInitializer(declExp.variableInitializer());
+        const node = factory.createVariableDeclaration(name, type, initializer);
+    
+        return withJSDoc(finishNode(node, pos, end), jsDoc);                
     }
 
     function parseInitializer(tree: parserCore.VariableInitializerContext): Expression | undefined {        
@@ -1139,3 +1130,172 @@ export const LexerToSyntaxKind: { [key: number]: SyntaxKind } = {
     [parserCore.LPCLexer.TRIPPLEDOT]: SyntaxKind.DotDotDotToken,    
     [parserCore.LPCLexer.COMMA]: SyntaxKind.CommaToken,
 };
+
+function visitNode<T>(cbNode: (node: Node) => T, node: Node | undefined): T | undefined {
+    return node && cbNode(node);
+}
+
+function visitNodes<T>(cbNode: (node: Node) => T, cbNodes: ((node: NodeArray<Node>) => T | undefined) | undefined, nodes: NodeArray<Node> | undefined): T | undefined {
+    if (nodes) {
+        if (cbNodes) {
+            return cbNodes(nodes);
+        }
+        for (const node of nodes) {
+            const result = cbNode(node);
+            if (result) {
+                return result;
+            }
+        }
+    }
+}
+
+type ForEachChildFunction<TNode> = <T>(node: TNode, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined) => T | undefined;
+type ForEachChildTable = Partial<{ [TNode in ForEachChildNodes as TNode["kind"]]: ForEachChildFunction<TNode>; }>;
+// ^ that type really shouldn't be partial, but I've set it that way until this is filled out.
+const forEachChildTable: ForEachChildTable = {
+    [SyntaxKind.SourceFile]: function forEachChildInSourceFile<T>(node: SourceFile, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNodes(cbNode, cbNodes, node.statements) 
+            || visitNode(cbNode, node.endOfFileToken);
+    },
+    [SyntaxKind.Parameter]: function forEachChildInParameter<T>(node: ParameterDeclaration, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNodes(cbNode, cbNodes, node.modifiers) ||
+            visitNode(cbNode, node.dotDotDotToken) ||
+            visitNode(cbNode, node.name) ||
+            visitNode(cbNode, node.ampToken) ||
+            visitNode(cbNode, node.type) ||
+            visitNode(cbNode, node.initializer);
+    },
+    [SyntaxKind.VariableDeclaration]: function forEachChildInVariableDeclaration<T>(node: VariableDeclaration, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNode(cbNode, node.name) ||            
+            visitNode(cbNode, node.type) ||
+            visitNode(cbNode, node.initializer);
+    },
+    [SyntaxKind.FunctionDeclaration]: function forEachChildInFunctionDeclaration<T>(node: FunctionDeclaration, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNodes(cbNode, cbNodes, node.modifiers) ||
+            visitNode(cbNode, node.asteriskToken) ||
+            visitNode(cbNode, node.name) ||            
+            visitNodes(cbNode, cbNodes, node.parameters) ||
+            visitNode(cbNode, node.type) ||
+            visitNode(cbNode, node.body);
+    },
+    [SyntaxKind.FunctionExpression]: function forEachChildInFunctionExpression<T>(node: FunctionExpression, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNodes(cbNode, cbNodes, node.modifiers) ||
+            visitNode(cbNode, node.asteriskToken) ||
+            visitNode(cbNode, node.name) ||            
+            visitNodes(cbNode, cbNodes, node.parameters) ||
+            visitNode(cbNode, node.type) ||
+            visitNode(cbNode, node.body);
+    },
+    [SyntaxKind.InlineClosureExpression]: function forEachChildInInlineClosureExpression<T>(node: InlineClosureExpression, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNodes(cbNode, cbNodes, node.parameters) ||
+            visitNode(cbNode, node.body);
+    },
+    [SyntaxKind.UnionType]: function forEachChildInUnionOrIntersectionType<T>(node: UnionTypeNode, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNodes(cbNode, cbNodes, node.types);
+    },
+    [SyntaxKind.CallExpression]: forEachChildInCallOrNewExpression,
+    [SyntaxKind.PostfixUnaryExpression]: function forEachChildInPostfixUnaryExpression<T>(node: PostfixUnaryExpression, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNode(cbNode, node.operand);
+    },
+    [SyntaxKind.BinaryExpression]: function forEachChildInBinaryExpression<T>(node: BinaryExpression, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNode(cbNode, node.left) ||
+            visitNode(cbNode, node.operatorToken) ||
+            visitNode(cbNode, node.right);
+    },
+    [SyntaxKind.ConditionalExpression]: function forEachChildInConditionalExpression<T>(node: ConditionalExpression, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNode(cbNode, node.condition) ||
+            visitNode(cbNode, node.questionToken) ||
+            visitNode(cbNode, node.whenTrue) ||
+            visitNode(cbNode, node.colonToken) ||
+            visitNode(cbNode, node.whenFalse);
+    },
+    [SyntaxKind.Block]: forEachChildInBlock,
+    [SyntaxKind.VariableStatement]: function forEachChildInVariableStatement<T>(node: VariableStatement, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNodes(cbNode, cbNodes, node.modifiers) ||
+            visitNode(cbNode, node.declarationList);
+    },
+    [SyntaxKind.VariableDeclarationList]: function forEachChildInVariableDeclarationList<T>(node: VariableDeclarationList, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNodes(cbNode, cbNodes, node.declarations);
+    },
+    [SyntaxKind.ExpressionStatement]: function forEachChildInExpressionStatement<T>(node: ExpressionStatement, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNode(cbNode, node.expression);
+    },
+    [SyntaxKind.IfStatement]: function forEachChildInIfStatement<T>(node: IfStatement, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNode(cbNode, node.expression) ||
+            visitNode(cbNode, node.thenStatement) ||
+            visitNode(cbNode, node.elseStatement);
+    },
+    [SyntaxKind.DoWhileStatement]: function forEachChildInDoStatement<T>(node: DoWhileStatement, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNode(cbNode, node.statement) ||
+            visitNode(cbNode, node.expression);
+    },
+    [SyntaxKind.WhileStatement]: function forEachChildInWhileStatement<T>(node: WhileStatement, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNode(cbNode, node.expression) ||
+            visitNode(cbNode, node.statement);
+    },
+    [SyntaxKind.ForStatement]: function forEachChildInForStatement<T>(node: ForStatement, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNode(cbNode, node.initializer) ||
+            visitNode(cbNode, node.condition) ||
+            visitNode(cbNode, node.incrementor) ||
+            visitNode(cbNode, node.statement);
+    },
+    [SyntaxKind.ForEachStatement]: function forEachChildInForInStatement<T>(node: ForEachStatement, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNodes(cbNode, cbNodes, node.initializer) ||
+            visitNode(cbNode, node.expression) ||
+            visitNode(cbNode, node.statement);
+    },    
+    [SyntaxKind.ContinueStatement]: forEachChildInContinueOrBreakStatement,
+    [SyntaxKind.BreakStatement]: forEachChildInContinueOrBreakStatement,
+    [SyntaxKind.ReturnStatement]: function forEachChildInReturnStatement<T>(node: ReturnStatement, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNode(cbNode, node.expression);
+    },    
+    [SyntaxKind.SwitchStatement]: function forEachChildInSwitchStatement<T>(node: SwitchStatement, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNode(cbNode, node.expression) ||
+            visitNode(cbNode, node.caseBlock);
+    },
+    [SyntaxKind.CaseBlock]: function forEachChildInCaseBlock<T>(node: CaseBlock, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNodes(cbNode, cbNodes, node.clauses);
+    },
+    [SyntaxKind.CaseClause]: function forEachChildInCaseClause<T>(node: CaseClause, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNode(cbNode, node.expression) ||
+            visitNodes(cbNode, cbNodes, node.statements);
+    },
+    [SyntaxKind.DefaultClause]: function forEachChildInDefaultClause<T>(node: DefaultClause, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNodes(cbNode, cbNodes, node.statements);
+    },
+};
+
+function forEachChildInContinueOrBreakStatement<T>(node: ContinueStatement | BreakStatement, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+    return visitNode(cbNode, node.label);
+}
+
+function forEachChildInBlock<T>(node: Block, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+    return visitNodes(cbNode, cbNodes, node.statements);
+}
+
+function forEachChildInCallOrNewExpression<T>(node: CallExpression /*| NewExpression*/, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+    return visitNode(cbNode, node.expression) ||        
+        visitNodes(cbNode, cbNodes, node.arguments);
+}
+
+
+/**
+ * Invokes a callback for each child of the given node. The 'cbNode' callback is invoked for all child nodes
+ * stored in properties. If a 'cbNodes' callback is specified, it is invoked for embedded arrays; otherwise,
+ * embedded arrays are flattened and the 'cbNode' callback is invoked for each element. If a callback returns
+ * a truthy value, iteration stops and that value is returned. Otherwise, undefined is returned.
+ *
+ * @param node a given node to visit its children
+ * @param cbNode a callback to be invoked for all child nodes
+ * @param cbNodes a callback to be invoked for embedded array
+ *
+ * @remarks `forEachChild` must visit the children of a node in the order
+ * that they appear in the source code. The language service depends on this property to locate nodes by position.
+ */
+export function forEachChild<T>(node: Node, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+    if (node === undefined || node.kind <= SyntaxKind.LastToken) {
+        return;
+    }
+    const fn = (forEachChildTable as Record<SyntaxKind, ForEachChildFunction<any>>)[node.kind];
+    return fn === undefined ? undefined : fn(node, cbNode, cbNodes);
+}

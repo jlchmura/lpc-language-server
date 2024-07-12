@@ -49,7 +49,7 @@ import {
     StructMemberDeclarationContext,
     UnionableTypeSpecifierContext,
     ValidIdentifiersContext,
-    VariableDeclarationContext,
+    VariableDeclarationListContext,
     VariableDeclaratorContext,
     WhileStatementContext,
 } from "../parser3/LPCParser";
@@ -579,7 +579,7 @@ export class DetailsVisitor
         return undefined;
     };
 
-    visitVariableDeclaration = (ctx: VariableDeclarationContext) => {
+    visitVariableDeclarationList = (ctx: VariableDeclarationListContext) => {
         // ctx will either be scalar or array, it doesn't matter right now
 
         const typeCtx = ctx.unionableTypeSpecifier();

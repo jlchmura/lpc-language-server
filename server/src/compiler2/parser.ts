@@ -559,28 +559,29 @@ export namespace LpcParser {
     function parseVariableStatement(
         tree: VariableDeclarationStatementContext
     ): VariableStatement {
-        const declTree = tree.variableDeclaration();
-        const declListTree = declTree.variableDeclaratorExpression();
+        return undefined as VariableStatement;
+        // const declTree = tree.variableDeclaration();
+        // const declListTree = declTree.variableDeclaratorExpression();
 
-        // TODO: this might not actually be a variable declaration - it might be an assignment opertor
-        // figure that out here or in the type checker?
+        // // TODO: this might not actually be a variable declaration - it might be an assignment opertor
+        // // figure that out here or in the type checker?
 
-        const pos = getNodePos(tree),
-            end = getNodeEnd(tree);
-        const type = parseType(declTree._type_);
-        const declarationList = parseVariableDeclarationList(
-            type,
-            declListTree,
-            /*inForStatementInitializer*/ false
-        );
-        const modifiers = undefined; // TODO modifiersToFlags(header.functionModifier().map(m=>m.getChild(0)));
-        const jsDoc = getPrecedingJSDocBlock(tree);
-        const node = factory.createVariableStatement(
-            modifiers,
-            declarationList
-        );
+        // const pos = getNodePos(tree),
+        //     end = getNodeEnd(tree);
+        // const type = parseType(declTree._type_);
+        // const declarationList = parseVariableDeclarationList(
+        //     type,
+        //     declListTree,
+        //     /*inForStatementInitializer*/ false
+        // );
+        // const modifiers = undefined; // TODO modifiersToFlags(header.functionModifier().map(m=>m.getChild(0)));
+        // const jsDoc = getPrecedingJSDocBlock(tree);
+        // const node = factory.createVariableStatement(
+        //     modifiers,
+        //     declarationList
+        // );
 
-        return withJSDoc(finishNode(node, pos, end), jsDoc);
+        // return withJSDoc(finishNode(node, pos, end), jsDoc);
     }
 
     

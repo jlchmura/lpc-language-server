@@ -1,4 +1,4 @@
-import { Debug, timestamp } from "./_namespaces/lpc";
+import { combinePaths, Debug, Path, timestamp,Type } from "./_namespaces/lpc";
 import * as performance from "./_namespaces/lpc.performance";
 
 /** @internal */
@@ -11,6 +11,16 @@ export namespace tracingEnabled {
     let fs: typeof import("fs");
     let traceCount = 0;
     let traceFd = 0;
+
+    const typeCatalog: Type[] = []; // NB: id is index + 1
+    let legendPath: string | undefined;
+    const legend: TraceRecord[] = [];    
+
+    interface TraceRecord {
+        configFilePath?: string;
+        tracePath: string;
+        typesPath?: string;
+    }
 
     export const enum Phase {
         Parse = "parse",
@@ -69,4 +79,75 @@ export namespace tracingEnabled {
         performance.mark("endTracing");
         performance.measure("Tracing", "beginTracing", "endTracing");
     }
+
+    export function startTracing(tracingMode: Mode, traceDir: string, configFilePath?: string) {
+        Debug.assert(!tracing, "Tracing already started");
+
+        if (fs === undefined) {
+            try {
+                fs = require("fs");
+            }
+            catch (e) {
+                throw new Error(`tracing requires having fs\n(original error: ${e.message || e})`);
+            }
+        }
+
+        mode = tracingMode;
+        typeCatalog.length = 0;
+
+        if (legendPath === undefined) {
+            legendPath = combinePaths(traceDir, "legend.json");
+        }
+
+        // Note that writing will fail later on if it exists and is not a directory
+        if (!fs.existsSync(traceDir)) {
+            fs.mkdirSync(traceDir, { recursive: true });
+        }
+
+        const countPart = mode === "build" ? `.${process.pid}-${++traceCount}`
+            : mode === "server" ? `.${process.pid}`
+            : ``;
+        const tracePath = combinePaths(traceDir, `trace${countPart}.json`);
+        const typesPath = combinePaths(traceDir, `types${countPart}.json`);
+
+        legend.push({
+            configFilePath,
+            tracePath,
+            typesPath,
+        });
+
+        traceFd = fs.openSync(tracePath, "w");
+        tracing = tracingEnabled; // only when traceFd is properly set
+
+        // Start with a prefix that contains some metadata that the devtools profiler expects (also avoids a warning on import)
+        const meta = { cat: "__metadata", ph: "M", ts: 1000 * timestamp(), pid: 1, tid: 1 };
+        fs.writeSync(
+            traceFd,
+            "[\n"
+                + [{ name: "process_name", args: { name: "tsc" }, ...meta }, { name: "thread_name", args: { name: "Main" }, ...meta }, { name: "TracingStartedInBrowser", ...meta, cat: "disabled-by-default-devtools.timeline" }]
+                    .map(v => JSON.stringify(v)).join(",\n"),
+        );
+    }
+
+    export function dumpLegend() {
+        if (!legendPath) {
+            return;
+        }
+
+        fs.writeFileSync(legendPath, JSON.stringify(legend));
+    }
+
+}
+
+
+// define after tracingEnabled is initialized
+/** @internal */
+export const startTracing = tracingEnabled.startTracing;
+/** @internal */
+export const dumpTracingLegend = tracingEnabled.dumpLegend;
+
+
+/** @internal */
+export interface TracingNode {
+    tracingPath?: Path;
 }
