@@ -1,4 +1,3 @@
-import { UnionType } from "../compiler2/types";
 import { BaseNodeFactory, NodeFactoryFlags } from "./_namespaces/lpc";
 
 // Note: 'brands' in our syntax nodes serve to give us a small amount of nominal typing.
@@ -770,6 +769,57 @@ export interface CanonicalDiagnostic {
 }
 
 
+/**
+ * Declarations that can contain other declarations. Corresponds with `ContainerFlags.IsContainer` in binder.ts.
+ *
+ * @internal
+ */
+export type IsContainer =
+    InlineClosureExpression
+    // | ClassExpression
+    // | ClassDeclaration
+    // | EnumDeclaration
+    // | ObjectLiteralExpression
+    // | TypeLiteralNode
+    | JSDocTypeLiteral
+    // | JsxAttributes
+    // | InterfaceDeclaration
+    // | ModuleDeclaration
+    // | TypeAliasDeclaration
+    // | MappedTypeNode
+    // | IndexSignatureDeclaration
+    | SourceFile
+    // | GetAccessorDeclaration
+    // | SetAccessorDeclaration
+    // | MethodDeclaration
+    // | ConstructorDeclaration
+    | FunctionDeclaration
+    // | MethodSignature
+    // | CallSignatureDeclaration
+    | JSDocSignature
+    // | JSDocFunctionType
+    // | FunctionTypeNode
+    // | ConstructSignatureDeclaration
+    // | ConstructorTypeNode
+    // | ClassStaticBlockDeclaration
+    | FunctionExpression
+    // | ArrowFunction;
+
+/**
+ * Nodes that introduce a new block scope. Corresponds with `ContainerFlags.IsBlockScopedContainer` in binder.ts.
+ *
+ * @internal
+ */
+export type IsBlockScopedContainer =
+    | IsContainer
+    | CatchClause
+    | ForStatement
+    | ForInStatement
+    | WhileStatement
+    | DoWhileStatement
+    | CaseBlock
+    | Block;
+
 /** NODES */
 export type HasJSDoc = 
     | Block 
@@ -1048,21 +1098,144 @@ export interface ConditionalExpression extends Expression {
 }
 
 /** @internal */
-export type FlowNode = Node; // TODO: assign
-    // | FlowUnreachable
-    // | FlowStart
-    // | FlowLabel
-    // | FlowAssignment
-    // | FlowCondition
-    // | FlowSwitchClause
-    // | FlowArrayMutation
-    // | FlowCall;
+export type FlowNode = 
+    | FlowUnreachable
+    | FlowStart
+    | FlowLabel
+    | FlowAssignment
+    | FlowCondition
+    | FlowSwitchClause
+    | FlowArrayMutation
+    | FlowCall;
+
+    
+// FlowStart represents the start of a control flow. For a function expression or arrow
+// function, the node property references the function (which in turn has a flowNode
+// property for the containing control flow).
+/** @internal */
+export interface FlowStart extends FlowNodeBase {
+    node: FunctionExpression | undefined;//| ArrowFunction | MethodDeclaration | GetAccessorDeclaration | SetAccessorDeclaration | undefined;
+    antecedent: undefined;
+}
+
+/** @internal */
+export interface FlowUnreachable extends FlowNodeBase {
+    node: undefined;
+    antecedent: undefined;
+}
+
+/** @internal */
+export interface FlowCall extends FlowNodeBase {
+    node: CallExpression;
+    antecedent: FlowNode;
+}
+
+
+// FlowAssignment represents a node that assigns a value to a narrowable reference,
+// i.e. an identifier or a dotted name that starts with an identifier or 'this'.
+/** @internal */
+export interface FlowAssignment extends FlowNodeBase {
+    node: Expression | VariableDeclaration;// | BindingElement;
+    antecedent: FlowNode;
+}
+
+// FlowCondition represents a condition that is known to be true or false at the
+// node's location in the control flow.
+/** @internal */
+export interface FlowCondition extends FlowNodeBase {
+    node: Expression;
+    antecedent: FlowNode;
+}
+
+
+
 
 export interface FlowContainer extends Node {
     _flowContainerBrand: any;
     /** @internal */ flowNode?: FlowNode; // Associated FlowNode (initialized by binding)
 }
 
+// NOTE: Ensure this is up-to-date with src/debug/debug.ts
+// dprint-ignore
+/** @internal */
+export const enum FlowFlags {
+    Unreachable    = 1 << 0,  // Unreachable code
+    Start          = 1 << 1,  // Start of flow graph
+    BranchLabel    = 1 << 2,  // Non-looping junction
+    LoopLabel      = 1 << 3,  // Looping junction
+    Assignment     = 1 << 4,  // Assignment
+    TrueCondition  = 1 << 5,  // Condition known to be true
+    FalseCondition = 1 << 6,  // Condition known to be false
+    SwitchClause   = 1 << 7,  // Switch statement clause
+    ArrayMutation  = 1 << 8,  // Potential array mutation
+    Call           = 1 << 9,  // Potential assertion call
+    ReduceLabel    = 1 << 10, // Temporarily reduce antecedents of label
+    Referenced     = 1 << 11, // Referenced as antecedent once
+    Shared         = 1 << 12, // Referenced as antecedent more than once
+
+    Label = BranchLabel | LoopLabel,
+    Condition = TrueCondition | FalseCondition,
+}
+
+/** @internal */
+export interface FlowNodeBase {
+    flags: FlowFlags;
+    id: number; // Node id used by flow type cache in checker
+    node: unknown; // Node or other data
+    antecedent: FlowNode | FlowNode[] | undefined;
+}
+
+
+// FlowLabel represents a junction with multiple possible preceding control flows.
+/** @internal */
+export interface FlowLabel extends FlowNodeBase {
+    node: undefined;
+    antecedent: FlowNode[] | undefined;
+}
+
+/** @internal */
+export interface FlowSwitchClause extends FlowNodeBase {
+    node: FlowSwitchClauseData;
+    antecedent: FlowNode;
+}
+
+/** @internal */
+export interface FlowSwitchClauseData {
+    switchStatement: SwitchStatement;
+    clauseStart: number; // Start index of case/default clause range
+    clauseEnd: number; // End index of case/default clause range
+}
+
+// FlowArrayMutation represents a node potentially mutates an array, i.e. an
+// operation of the form 'x.push(value)', 'x.unshift(value)' or 'x[n] = value'.
+/** @internal */
+export interface FlowArrayMutation extends FlowNodeBase {
+    node: CallExpression | BinaryExpression;
+    antecedent: FlowNode;
+}
+
+/** @internal */
+export interface FlowReduceLabel extends FlowNodeBase {
+    node: FlowReduceLabelData;
+    antecedent: FlowNode;
+}
+
+/** @internal */
+export interface FlowReduceLabelData {
+    target: FlowLabel;
+    antecedents: FlowNode[];
+}
+
+export type FlowType = Type | IncompleteType;
+
+// Incomplete types occur during control flow analysis of loops. An IncompleteType
+// is distinguished from a regular type by a flags value of zero. Incomplete type
+// objects are internal to the getFlowTypeOfReference function and never escape it.
+// dprint-ignore
+export interface IncompleteType {
+    flags: TypeFlags | 0;  // No flags set
+    type: Type;            // The type marked incomplete
+}
 
 // Source files are declarations when they are external modules.
 export interface SourceFile extends Declaration, LocalsContainer {
@@ -2029,6 +2202,39 @@ export interface Signature {
     instantiations?: Map<string, Signature>;    // Generic signature instantiation cache
     /** @internal */
     implementationSignatureCache?: Signature;  // Copy of the signature with fresh type parameters to use in checking the body of a potentially self-referential generic function (deferred)
+}
+
+export interface UnionOrIntersectionType extends Type {
+    types: Type[]; // Constituent types
+    /** @internal */
+    objectFlags: ObjectFlags;
+    /** @internal */
+    propertyCache?: SymbolTable; // Cache of resolved properties
+    /** @internal */
+    propertyCacheWithoutObjectFunctionPropertyAugment?: SymbolTable; // Cache of resolved properties that does not augment function or object type properties
+    /** @internal */
+    resolvedProperties: Symbol[];
+    /** @internal */
+    resolvedIndexType: IndexType;
+    /** @internal */
+    resolvedStringIndexType: IndexType;
+    /** @internal */
+    resolvedBaseConstraint: Type;
+}
+
+export interface UnionType extends UnionOrIntersectionType {
+    /** @internal */
+    resolvedReducedType?: Type;
+    /** @internal */
+    regularType?: UnionType;
+    /** @internal */
+    origin?: Type; // Denormalized union, intersection, or index type in which union originates
+    /** @internal */
+    keyPropertyName?: string; // Property with unique unit type that exists in every object/intersection in union type
+    /** @internal */
+    constituentMap?: Map<TypeId, Type>; // Constituents keyed by unit type discriminants
+    /** @internal */
+    arrayFallbackSignatures?: readonly Signature[]; // Special remapped signature list for unions of arrays
 }
 
 /** @internal */

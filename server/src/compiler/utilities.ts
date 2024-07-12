@@ -400,3 +400,19 @@ export function nodeIsMissing(node: Node | undefined): boolean {
 
     return node.pos === node.end && node.pos >= 0 && node.kind !== SyntaxKind.EndOfFileToken;
 }
+
+/**
+ * Bypasses immutability and directly sets the `parent` property of a `Node`.
+ *
+ * @internal
+ */
+export function setParent<T extends Node>(child: T, parent: T["parent"] | undefined): T;
+/** @internal */
+export function setParent<T extends Node>(child: T | undefined, parent: T["parent"] | undefined): T | undefined;
+/** @internal */
+export function setParent<T extends Node>(child: T | undefined, parent: T["parent"] | undefined): T | undefined {
+    if (child && parent) {
+        (child as Mutable<T>).parent = parent;
+    }
+    return child;
+}

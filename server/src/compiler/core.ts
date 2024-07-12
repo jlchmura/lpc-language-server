@@ -1,4 +1,4 @@
-import { Comparer, Comparison, MapLike, SortedArray, SortedReadonlyArray } from "./_namespaces/lpc";
+import { Comparer, Comparison, Debug, MapLike, SortedArray, SortedReadonlyArray } from "./_namespaces/lpc";
 
 /** @internal */
 export function memoize<T>(callback: () => T): () => T {
@@ -175,3 +175,54 @@ export function some<T>(array: readonly T[] | undefined, predicate?: (value: T) 
     }
     return false;
 }
+
+/** @internal */
+export function maxBy<T>(arr: readonly T[], init: number, mapper: (x: T) => number): number {
+    for (let i = 0; i < arr.length; i++) {
+        init = Math.max(init, mapper(arr[i]));
+    }
+    return init;
+}
+
+/** @internal */
+export function zipWith<T, U, V>(arrayA: readonly T[], arrayB: readonly U[], callback: (a: T, b: U, index: number) => V): V[] {
+    const result: V[] = [];
+    Debug.assertEqual(arrayA.length, arrayB.length);
+    for (let i = 0; i < arrayA.length; i++) {
+        result.push(callback(arrayA[i], arrayB[i], i));
+    }
+    return result;
+}
+
+/** @internal */
+export function map<T, U>(array: readonly T[], f: (x: T, i: number) => U): U[];
+/** @internal */
+export function map<T, U>(array: readonly T[] | undefined, f: (x: T, i: number) => U): U[] | undefined;
+/** @internal */
+export function map<T, U>(array: readonly T[] | undefined, f: (x: T, i: number) => U): U[] | undefined {
+    let result: U[] | undefined;
+    if (array !== undefined) {
+        result = [];
+        for (let i = 0; i < array.length; i++) {
+            result.push(f(array[i], i));
+        }
+    }
+    return result;
+}
+
+/** @internal */
+export function isNodeLikeSystem(): boolean {
+    // This is defined here rather than in sys.ts to prevent a cycle from its
+    // use in performanceCore.ts.
+    return typeof process !== "undefined"
+        && !!process.nextTick
+        && !(process as any).browser
+        && typeof require !== "undefined";
+}
+
+/**
+ * Does nothing.
+ *
+ * @internal
+ */
+export function noop(_?: unknown): void {}

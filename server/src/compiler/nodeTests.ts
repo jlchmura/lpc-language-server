@@ -1,4 +1,4 @@
-import { ArrayTypeNode, BinaryExpression, Block, CallExpression, ExpressionStatement, FloatLiteral, FunctionDeclaration, FunctionExpression, Identifier, IfStatement, IntLiteral, JSDoc, JSDocSignature, JSDocTypeExpression, Node, ParameterDeclaration, PropertyAccessExpression, SourceFile, StringLiteral, SyntaxKind, TypeParameterDeclaration, UnionTypeNode, VariableDeclaration, VariableDeclarationList, VariableStatement } from "./_namespaces/lpc";
+import { ArrayTypeNode, BinaryExpression, Block, CallExpression, DefaultClause, ExpressionStatement, FloatLiteral, FunctionDeclaration, FunctionExpression, Identifier, IfStatement, IntLiteral, JSDoc, JSDocSignature, JSDocTypeExpression, Node, ParameterDeclaration, PropertyAccessExpression, SourceFile, StringLiteral, SyntaxKind, TypeParameterDeclaration, UnionTypeNode, VariableDeclaration, VariableDeclarationList, VariableStatement } from "./_namespaces/lpc";
 
 export function isBinaryExpression(node: Node): node is BinaryExpression {
     return node.kind === SyntaxKind.BinaryExpression;
@@ -114,4 +114,8 @@ export function isDecorator(node: Node) {
 
 export function isIfStatement(node: Node): node is IfStatement {
     return node.kind === SyntaxKind.IfStatement;
+}
+
+export function isDefaultClause(node: Node): node is DefaultClause {
+    return node.kind === SyntaxKind.DefaultClause;
 }
