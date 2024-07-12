@@ -264,6 +264,7 @@ export const enum SyntaxKind {
     // Statements
     VariableStatement,
     ForStatement,
+    ForEachStatement,
     ForInStatement,
     ExpressionStatement,
     ReturnStatement,
@@ -588,6 +589,7 @@ export interface NodeFactory {
     createDefaultClause(statements: readonly Statement[]): DefaultClause;
     createCaseClause(expression: Expression, statements: readonly Statement[]): CaseClause;
     createForStatement(initializer: ForInitializer | undefined, condition: Expression | undefined, incrementor: Expression | undefined, statement: Statement): ForStatement
+    createForEachStatement(initializer: ForEachInitializer | undefined, range: Expression | undefined, statement: Statement): ForEachStatement;
 
     // Expressions
     createConditionalExpression(condition: Expression, questionToken: QuestionToken | undefined, whenTrue: Expression, colonToken: ColonToken | undefined, whenFalse: Expression): ConditionalExpression;
@@ -601,6 +603,7 @@ export interface NodeFactory {
 export type HasJSDoc = 
     | Block 
     | ForStatement
+    | ForEachStatement
     | FunctionDeclaration
     | ReturnStatement
     | VariableStatement     
@@ -1302,7 +1305,8 @@ export interface IterationStatement extends Statement {
     readonly statement: Statement;
 }
 
-export type ForInitializer = VariableDeclarationList | Expression;
+export type ForInitializer = VariableStatement | Expression;
+export type ForEachInitializer = NodeArray<VariableStatement> | ForInitializer;
 
 export interface ForInStatement extends IterationStatement, LocalsContainer, FlowContainer {
     readonly kind: SyntaxKind.ForInStatement;
@@ -1548,4 +1552,10 @@ export interface ForStatement extends IterationStatement, LocalsContainer, FlowC
     readonly initializer?: ForInitializer;
     readonly condition?: Expression;
     readonly incrementor?: Expression;
+}
+
+export interface ForEachStatement extends IterationStatement, LocalsContainer, FlowContainer {
+    readonly kind: SyntaxKind.ForEachStatement;
+    readonly initializer: ForEachInitializer;
+    readonly range: Expression;    
 }

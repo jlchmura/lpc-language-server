@@ -584,7 +584,7 @@ iterationStatement
     ;
 
 forRangeExpression
-    : init=commaableExpression? SEMI condition=expression? SEMI incrementor=commaableExpression?
+    : init=variableDeclaration SEMI condition=expression? SEMI incrementor=commaableExpression?
     ;
 
 foreachRangeExpression

@@ -28,6 +28,8 @@ import {
     Expression,
     ExpressionStatement,
     FloatLiteral,
+    ForEachInitializer,
+    ForEachStatement,
     ForInitializer,
     ForStatement,
     FunctionDeclaration,
@@ -150,6 +152,7 @@ export function createNodeFactory(
         createCaseClause,
         createDefaultClause,
         createForStatement,
+        createForEachStatement,
 
         // Expressions
         createConditionalExpression,
@@ -692,6 +695,24 @@ export function createNodeFactory(
         node.initializer = initializer;
         node.condition = condition;
         node.incrementor = incrementor;
+        node.statement = asEmbeddedStatement(statement);
+        // node.transformFlags |= propagateChildFlags(node.initializer) |
+        //     propagateChildFlags(node.condition) |
+        //     propagateChildFlags(node.incrementor) |
+        //     propagateChildFlags(node.statement);
+
+        node.jsDoc = undefined; // initialized by parser (JsDocContainer)
+        node.locals = undefined; // initialized by binder (LocalsContainer)
+        node.nextContainer = undefined; // initialized by binder (LocalsContainer)
+        node.flowNode = undefined; // initialized by binder (FlowContainer)
+        return node;
+    }
+
+    // @api
+    function createForEachStatement(initializer: ForEachInitializer | undefined, range: Expression | undefined, statement: Statement): ForEachStatement {
+        const node = createBaseNode<ForEachStatement>(SyntaxKind.ForEachStatement);
+        node.initializer = initializer;
+        node.range = range;        
         node.statement = asEmbeddedStatement(statement);
         // node.transformFlags |= propagateChildFlags(node.initializer) |
         //     propagateChildFlags(node.condition) |

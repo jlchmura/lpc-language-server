@@ -4,6 +4,7 @@ import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, c
 import { ILpcConfig } from "../config-types";
 
 
+
 export namespace LpcParser {
     // Init some ANTLR stuff
     const lexer = new parserCore.LPCPreprocessingLexer(
@@ -251,12 +252,9 @@ export namespace LpcParser {
                 const iterStmt = tree as parserCore.IterationStatementContext;                
                 if (iterStmt instanceof parserCore.ForStatementContext) {
                     return parseForStatement(iterStmt);
-                }
-                   // return parseForStatement(iterStmt.forStatement());
-                // else if (iterStmt.whileStatement())
-                //     return parseWhileStatement(iterStmt.whileStatement());
-                // else if (iterStmt.doStatement())
-                //     return parseDoStatement(iterStmt.doStatement());
+                } else if (iterStmt instanceof parserCore.ForEachStatementContext) {
+                    return parseForEachStatement(iterStmt);
+                }                
 
         }
 
@@ -272,12 +270,36 @@ export namespace LpcParser {
         }
     }
 
+    function parseForEachStatement(tree: parserCore.ForEachStatementContext): Statement {
+        const {pos,end} = getNodePos(tree);        
+        const jsDoc = getPrecedingJSDocBlock(tree);
+        const forEachTree = tree.foreachRangeExpression();
+        
+        const init = parseList(forEachTree.variableDeclaration(), parseVariableDeclaration);
+        const expr1 = parseExpression(forEachTree.expression().at(0));
+        const expr2 = parseOptional(forEachTree.expression().at(1), parseExpression);
+        const body = parseStatement(tree.statement());
+
+        let range = expr1;
+        if (forEachTree.DOUBLEDOT()) {
+            if (!expr2) {
+                // TODO: log diagnostics
+            }
+            
+            // this is a range expression
+            range = makeBinaryExpression(expr1, factory.createToken(SyntaxKind.DotDotToken), expr2, expr1.pos, expr2.end);            
+        } 
+
+        const node = factory.createForEachStatement(init, range, body);        
+        return withJSDoc(finishNode(node, pos, end), jsDoc);
+    }
+
     function parseForStatement(tree: parserCore.ForStatementContext): Statement {
         const {pos,end} = getNodePos(tree);        
         const forExpr = tree.forRangeExpression();
         const jsDoc = getPrecedingJSDocBlock(tree);
-
-        const init = parseOptional(forExpr._init, parseCommaExpression);
+                
+        const init = parseOptional(forExpr._init, parseVariableDeclaration);
         const condition = parseOptional(forExpr._condition, parseExpression);
         const increment = parseOptional(forExpr._incrementor, parseCommaExpression);        
         const body = parseOptional(tree.statement(), parseStatement);
@@ -487,16 +509,15 @@ export namespace LpcParser {
 
         return typeNode;
     }
-    
-    function parseVariableStatement(tree: parserCore.VariableDeclarationStatementContext): VariableStatement {
-        const declTree = tree.variableDeclaration();
-        const declListTree = declTree.variableDeclaratorExpression();
+
+    function parseVariableDeclaration(tree: parserCore.VariableDeclarationContext): VariableStatement {
+        const declListTree = tree.variableDeclaratorExpression();
 
         // TODO: this might not actually be a variable declaration - it might be an assignment opertor
         // figure that out here or in the type checker?
 
         const {pos,end} = getNodePos(tree);
-        const type = parseType(declTree._type_);
+        const type = parseType(tree._type_);
         const declarationList = parseVariableDeclarationList(
             type,
             declListTree,
@@ -507,6 +528,11 @@ export namespace LpcParser {
         const node = factory.createVariableStatement(modifiers, declarationList);
 
         return withJSDoc(finishNode(node, pos, end), jsDoc);
+    }
+    
+    function parseVariableStatement(tree: parserCore.VariableDeclarationStatementContext): VariableStatement {
+        const declTree = tree.variableDeclaration();
+        return parseVariableDeclaration(declTree);
     }
 
     function parseVariableDeclarationList(type: TypeNode, declListTree: parserCore.VariableDeclaratorExpressionContext[], inForStatementInitializer: boolean): VariableDeclarationList {
