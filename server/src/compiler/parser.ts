@@ -172,6 +172,9 @@ export namespace LpcParser {
         parseErrorAt(range.pos, range.end, message, ...args);
     }
 
+    function parseErrorAtTermina(terminal: antlr.TerminalNode, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithDetachedLocation | undefined {
+        return parseErrorAtToken(terminal.symbol, message, ...args);
+    }
     function parseErrorAtToken(token: antlr.Token, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithDetachedLocation | undefined {
         return parseErrorAt(token.start, token.stop, message, ...args);
     }
@@ -439,9 +442,12 @@ export namespace LpcParser {
         if (tree.defaultStatement().length > 0) {
             const defaultClause = parseOptional(tree.defaultStatement().at(0), parseDefaultStatement);
             clauses.push(defaultClause);
-        }
 
-        // TODO: validate that there is only 1 default statement .. log diagnostics
+            const extraDefault = tree.defaultStatement().at(1);
+            if (extraDefault) {
+                parseErrorAtTermina(extraDefault.DEFAULT(), Diagnostics.A_default_clause_cannot_appear_more_than_once_in_a_switch_statement);
+            }
+        }
         
         const caseBlock = factory.createCaseBlock(clauses.filter(c=>!!c));        
         const node = factory.createSwitchStatement(expression, preBlock, caseBlock);
