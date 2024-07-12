@@ -40,7 +40,7 @@ import { VariableModifierContext } from "./LPCParser.js";
 import { StructModifierContext } from "./LPCParser.js";
 import { StructDeclarationContext } from "./LPCParser.js";
 import { VariableDeclarationStatementContext } from "./LPCParser.js";
-import { VariableDeclarationContext } from "./LPCParser.js";
+import { VariableDeclarationListContext } from "./LPCParser.js";
 import { VariableDeclaratorExpressionContext } from "./LPCParser.js";
 import { VariableDeclaratorContext } from "./LPCParser.js";
 import { VariableInitializerContext } from "./LPCParser.js";
@@ -314,11 +314,11 @@ export class LPCParserVisitor<Result> extends AbstractParseTreeVisitor<Result> {
      */
     visitVariableDeclarationStatement?: (ctx: VariableDeclarationStatementContext) => Result;
     /**
-     * Visit a parse tree produced by `LPCParser.variableDeclaration`.
+     * Visit a parse tree produced by `LPCParser.variableDeclarationList`.
      * @param ctx the parse tree
      * @return the visitor result
      */
-    visitVariableDeclaration?: (ctx: VariableDeclarationContext) => Result;
+    visitVariableDeclarationList?: (ctx: VariableDeclarationListContext) => Result;
     /**
      * Visit a parse tree produced by `LPCParser.variableDeclaratorExpression`.
      * @param ctx the parse tree

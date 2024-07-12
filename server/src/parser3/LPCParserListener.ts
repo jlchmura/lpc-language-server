@@ -40,7 +40,7 @@ import { VariableModifierContext } from "./LPCParser.js";
 import { StructModifierContext } from "./LPCParser.js";
 import { StructDeclarationContext } from "./LPCParser.js";
 import { VariableDeclarationStatementContext } from "./LPCParser.js";
-import { VariableDeclarationContext } from "./LPCParser.js";
+import { VariableDeclarationListContext } from "./LPCParser.js";
 import { VariableDeclaratorExpressionContext } from "./LPCParser.js";
 import { VariableDeclaratorContext } from "./LPCParser.js";
 import { VariableInitializerContext } from "./LPCParser.js";
@@ -447,15 +447,15 @@ export class LPCParserListener implements ParseTreeListener {
      */
     exitVariableDeclarationStatement?: (ctx: VariableDeclarationStatementContext) => void;
     /**
-     * Enter a parse tree produced by `LPCParser.variableDeclaration`.
+     * Enter a parse tree produced by `LPCParser.variableDeclarationList`.
      * @param ctx the parse tree
      */
-    enterVariableDeclaration?: (ctx: VariableDeclarationContext) => void;
+    enterVariableDeclarationList?: (ctx: VariableDeclarationListContext) => void;
     /**
-     * Exit a parse tree produced by `LPCParser.variableDeclaration`.
+     * Exit a parse tree produced by `LPCParser.variableDeclarationList`.
      * @param ctx the parse tree
      */
-    exitVariableDeclaration?: (ctx: VariableDeclarationContext) => void;
+    exitVariableDeclarationList?: (ctx: VariableDeclarationListContext) => void;
     /**
      * Enter a parse tree produced by `LPCParser.variableDeclaratorExpression`.
      * @param ctx the parse tree

@@ -216,10 +216,10 @@ structDeclaration
     ;
 
 variableDeclarationStatement
-    : variableDeclaration SEMI
+    : variableDeclarationList SEMI
     ;
 
-variableDeclaration    
+variableDeclarationList    
     : variableModifier* type=unionableTypeSpecifier? objectName=StringLiteral? variableDeclaratorExpression (COMMA variableDeclaratorExpression)*
     ;
 
@@ -457,7 +457,7 @@ primaryExpressionStart
         |    
         { this.isLD() }? (PAREN_OPEN structName=BracketedIdentifier (structMemberInitializer (COMMA structMemberInitializer)*)? COMMA? PAREN_CLOSE) // LD
       ) # structInitializerExpression            
-    | PAREN_OPEN (commaableExpression | variableDeclaration) PAREN_CLOSE # parenExpression
+    | PAREN_OPEN (commaableExpression | variableDeclarationList) PAREN_CLOSE # parenExpression
     | arrayExpression                       # primaryArrayExpression
     | mappingExpression                     # primaryMappingExpression    
     | catchExpr                             # catchExpression    
@@ -583,11 +583,11 @@ iterationStatement
     ;
 
 forRangeExpression
-    : init=variableDeclaration? SEMI condition=expression? SEMI incrementor=commaableExpression?
+    : init=variableDeclarationList? SEMI condition=expression? SEMI incrementor=commaableExpression?
     ;
 
 foreachRangeExpression
-    : variableDeclaration (COMMA variableDeclaration)* (IN | COLON) expression (DOUBLEDOT expression)?
+    : variableDeclarationList (COMMA variableDeclarationList)* (IN | COLON) expression (DOUBLEDOT expression)?
     ;
 
 // forVariable

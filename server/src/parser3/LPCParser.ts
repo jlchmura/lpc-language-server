@@ -185,7 +185,7 @@ export class LPCParser extends LPCParserBase {
     public static readonly RULE_structModifier = 31;
     public static readonly RULE_structDeclaration = 32;
     public static readonly RULE_variableDeclarationStatement = 33;
-    public static readonly RULE_variableDeclaration = 34;
+    public static readonly RULE_variableDeclarationList = 34;
     public static readonly RULE_variableDeclaratorExpression = 35;
     public static readonly RULE_variableDeclarator = 36;
     public static readonly RULE_variableInitializer = 37;
@@ -287,7 +287,7 @@ export class LPCParser extends LPCParserBase {
         "declaration", "functionModifier", "functionHeader", "functionHeaderDeclaration", 
         "functionDeclaration", "parameterList", "parameter", "structMemberDeclaration", 
         "structMemberInitializer", "variableModifier", "structModifier", 
-        "structDeclaration", "variableDeclarationStatement", "variableDeclaration", 
+        "structDeclaration", "variableDeclarationStatement", "variableDeclarationList", 
         "variableDeclaratorExpression", "variableDeclarator", "variableInitializer", 
         "primitiveTypeSpecifier", "methodInvocation", "structTypeSpecifier", 
         "typeSpecifier", "unionableTypeSpecifier", "arrayExpression", "mappingContent", 
@@ -2141,7 +2141,7 @@ export class LPCParser extends LPCParserBase {
             this.enterOuterAlt(localContext, 1);
             {
             this.state = 483;
-            this.variableDeclaration();
+            this.variableDeclarationList();
             this.state = 484;
             this.match(LPCParser.SEMI);
             }
@@ -2159,9 +2159,9 @@ export class LPCParser extends LPCParserBase {
         }
         return localContext;
     }
-    public variableDeclaration(): VariableDeclarationContext {
-        let localContext = new VariableDeclarationContext(this.context, this.state);
-        this.enterRule(localContext, 68, LPCParser.RULE_variableDeclaration);
+    public variableDeclarationList(): VariableDeclarationListContext {
+        let localContext = new VariableDeclarationListContext(this.context, this.state);
+        this.enterRule(localContext, 68, LPCParser.RULE_variableDeclarationList);
         let _la: number;
         try {
             let alternative: number;
@@ -3582,7 +3582,7 @@ export class LPCParser extends LPCParserBase {
                 case 2:
                     {
                     this.state = 775;
-                    this.variableDeclaration();
+                    this.variableDeclarationList();
                     }
                     break;
                 }
@@ -4943,7 +4943,7 @@ export class LPCParser extends LPCParserBase {
             if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 2429028812) !== 0) || ((((_la - 33)) & ~0x1F) === 0 && ((1 << (_la - 33)) & 4291444319) !== 0) || _la === 69 || _la === 76 || _la === 124 || _la === 129) {
                 {
                 this.state = 1074;
-                localContext._init = this.variableDeclaration();
+                localContext._init = this.variableDeclarationList();
                 }
             }
 
@@ -4994,7 +4994,7 @@ export class LPCParser extends LPCParserBase {
             this.enterOuterAlt(localContext, 1);
             {
             this.state = 1085;
-            this.variableDeclaration();
+            this.variableDeclarationList();
             this.state = 1090;
             this.errorHandler.sync(this);
             _la = this.tokenStream.LA(1);
@@ -5004,7 +5004,7 @@ export class LPCParser extends LPCParserBase {
                 this.state = 1086;
                 this.match(LPCParser.COMMA);
                 this.state = 1087;
-                this.variableDeclaration();
+                this.variableDeclarationList();
                 }
                 }
                 this.state = 1092;
@@ -7527,8 +7527,8 @@ export class VariableDeclarationStatementContext extends antlr.ParserRuleContext
     public constructor(parent: antlr.ParserRuleContext | null, invokingState: number) {
         super(parent, invokingState);
     }
-    public variableDeclaration(): VariableDeclarationContext {
-        return this.getRuleContext(0, VariableDeclarationContext)!;
+    public variableDeclarationList(): VariableDeclarationListContext {
+        return this.getRuleContext(0, VariableDeclarationListContext)!;
     }
     public SEMI(): antlr.TerminalNode {
         return this.getToken(LPCParser.SEMI, 0)!;
@@ -7556,7 +7556,7 @@ export class VariableDeclarationStatementContext extends antlr.ParserRuleContext
 }
 
 
-export class VariableDeclarationContext extends antlr.ParserRuleContext {
+export class VariableDeclarationListContext extends antlr.ParserRuleContext {
     public _type_?: UnionableTypeSpecifierContext;
     public _objectName?: Token | null;
     public constructor(parent: antlr.ParserRuleContext | null, invokingState: number) {
@@ -7596,21 +7596,21 @@ export class VariableDeclarationContext extends antlr.ParserRuleContext {
         return this.getToken(LPCParser.StringLiteral, 0);
     }
     public override get ruleIndex(): number {
-        return LPCParser.RULE_variableDeclaration;
+        return LPCParser.RULE_variableDeclarationList;
     }
     public override enterRule(listener: LPCParserListener): void {
-        if(listener.enterVariableDeclaration) {
-             listener.enterVariableDeclaration(this);
+        if(listener.enterVariableDeclarationList) {
+             listener.enterVariableDeclarationList(this);
         }
     }
     public override exitRule(listener: LPCParserListener): void {
-        if(listener.exitVariableDeclaration) {
-             listener.exitVariableDeclaration(this);
+        if(listener.exitVariableDeclarationList) {
+             listener.exitVariableDeclarationList(this);
         }
     }
     public override accept<Result>(visitor: LPCParserVisitor<Result>): Result | null {
-        if (visitor.visitVariableDeclaration) {
-            return visitor.visitVariableDeclaration(this);
+        if (visitor.visitVariableDeclarationList) {
+            return visitor.visitVariableDeclarationList(this);
         } else {
             return visitor.visitChildren(this);
         }
@@ -8921,8 +8921,8 @@ export class ParenExpressionContext extends PrimaryExpressionStartContext {
     public commaableExpression(): CommaableExpressionContext | null {
         return this.getRuleContext(0, CommaableExpressionContext);
     }
-    public variableDeclaration(): VariableDeclarationContext | null {
-        return this.getRuleContext(0, VariableDeclarationContext);
+    public variableDeclarationList(): VariableDeclarationListContext | null {
+        return this.getRuleContext(0, VariableDeclarationListContext);
     }
     public override enterRule(listener: LPCParserListener): void {
         if(listener.enterParenExpression) {
@@ -10309,7 +10309,7 @@ export class DoWhileStatementContext extends IterationStatementContext {
 
 
 export class ForRangeExpressionContext extends antlr.ParserRuleContext {
-    public _init?: VariableDeclarationContext;
+    public _init?: VariableDeclarationListContext;
     public _condition?: ExpressionContext;
     public _incrementor?: CommaableExpressionContext;
     public constructor(parent: antlr.ParserRuleContext | null, invokingState: number) {
@@ -10324,8 +10324,8 @@ export class ForRangeExpressionContext extends antlr.ParserRuleContext {
     		return this.getToken(LPCParser.SEMI, i);
     	}
     }
-    public variableDeclaration(): VariableDeclarationContext | null {
-        return this.getRuleContext(0, VariableDeclarationContext);
+    public variableDeclarationList(): VariableDeclarationListContext | null {
+        return this.getRuleContext(0, VariableDeclarationListContext);
     }
     public expression(): ExpressionContext | null {
         return this.getRuleContext(0, ExpressionContext);
@@ -10360,14 +10360,14 @@ export class ForeachRangeExpressionContext extends antlr.ParserRuleContext {
     public constructor(parent: antlr.ParserRuleContext | null, invokingState: number) {
         super(parent, invokingState);
     }
-    public variableDeclaration(): VariableDeclarationContext[];
-    public variableDeclaration(i: number): VariableDeclarationContext | null;
-    public variableDeclaration(i?: number): VariableDeclarationContext[] | VariableDeclarationContext | null {
+    public variableDeclarationList(): VariableDeclarationListContext[];
+    public variableDeclarationList(i: number): VariableDeclarationListContext | null;
+    public variableDeclarationList(i?: number): VariableDeclarationListContext[] | VariableDeclarationListContext | null {
         if (i === undefined) {
-            return this.getRuleContexts(VariableDeclarationContext);
+            return this.getRuleContexts(VariableDeclarationListContext);
         }
 
-        return this.getRuleContext(i, VariableDeclarationContext);
+        return this.getRuleContext(i, VariableDeclarationListContext);
     }
     public expression(): ExpressionContext[];
     public expression(i: number): ExpressionContext | null;
