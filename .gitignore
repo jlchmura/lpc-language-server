@@ -13,3 +13,4 @@ test*.h
 coverage
 *.heapsnapshot
 vscode-profile-*.*
+tsconfig.tsbuildinfo
