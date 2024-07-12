@@ -1,6 +1,7 @@
 export * from "../core.js";
 export * from "../corePublic.js";
 export * from "../types.js";
+export * from "../diagnosticInformation.js";
 export * from "../utilities.js";
 export * from "../utilitiesPublic.js";
 export * from "../parser.js";

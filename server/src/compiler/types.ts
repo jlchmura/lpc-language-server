@@ -606,6 +606,115 @@ export interface NodeFactory {
     createPostfixUnaryExpression(operand: Expression, operator: PostfixUnaryOperator): PostfixUnaryExpression;
 }
 
+export interface CompilerOptions {}
+
+/** DIAGNOSTICS */
+export interface DiagnosticMessage {
+    key: string;
+    category: DiagnosticCategory;
+    code: number;
+    message: string;
+    reportsUnnecessary?: {};
+    reportsDeprecated?: {};
+    /** @internal */
+    elidedInCompatabilityPyramid?: boolean;
+}
+
+export enum DiagnosticCategory {
+    Warning,
+    Error,
+    Suggestion,
+    Message,
+}
+/** @internal */
+export function diagnosticCategoryName(d: { category: DiagnosticCategory; }, lowerCase = true): string {
+    const name = DiagnosticCategory[d.category];
+    return lowerCase ? name.toLowerCase() : name;
+}
+
+/** @internal */
+export type DiagnosticArguments = (string | number)[];
+
+/** @internal */
+export type DiagnosticAndArguments = [message: DiagnosticMessage, ...args: DiagnosticArguments];
+
+export interface DiagnosticRelatedInformation {
+    category: DiagnosticCategory;
+    code: number;
+    file: SourceFile | undefined;
+    start: number | undefined;
+    length: number | undefined;
+    messageText: string | DiagnosticMessageChain;
+}
+
+export interface DiagnosticWithLocation extends Diagnostic {
+    file: SourceFile;
+    start: number;
+    length: number;
+}
+
+/** @internal */
+export interface RepopulateModuleNotFoundDiagnosticChain {
+    moduleReference: string;    
+    packageName: string | undefined;
+}
+
+
+/** @internal */
+export type RepopulateDiagnosticChainInfo = RepopulateModuleNotFoundDiagnosticChain;
+
+/**
+ * A linked list of formatted diagnostic messages to be used as part of a multiline message.
+ * It is built from the bottom up, leaving the head to be the "main" diagnostic.
+ * While it seems that DiagnosticMessageChain is structurally similar to DiagnosticMessage,
+ * the difference is that messages are all preformatted in DMC.
+ */
+export interface DiagnosticMessageChain {
+    messageText: string;
+    category: DiagnosticCategory;
+    code: number;
+    next?: DiagnosticMessageChain[];
+    /** @internal */
+    repopulateInfo?: () => RepopulateDiagnosticChainInfo;
+    /** @internal */
+    canonicalHead?: CanonicalDiagnostic;
+}
+
+/** @internal */
+export interface DiagnosticWithDetachedLocation extends Diagnostic {
+    file: undefined;
+    fileName: string;
+    start: number;
+    length: number;
+}
+
+
+export interface Diagnostic extends DiagnosticRelatedInformation {
+    /** May store more in future. For now, this will simply be `true` to indicate when a diagnostic is an unused-identifier diagnostic. */
+    reportsUnnecessary?: {};
+
+    reportsDeprecated?: {};
+    source?: string;
+    relatedInformation?: DiagnosticRelatedInformation[];
+    /** @internal */ skippedOn?: keyof CompilerOptions;
+    /**
+     * @internal
+     * Used for deduplication and comparison.
+     * Whenever it is possible for two diagnostics that report the same problem to be produced with
+     * different messages (e.g. "Cannot find name 'foo'" vs "Cannot find name 'foo'. Did you mean 'bar'?"),
+     * this property can be set to a canonical message,
+     * so that those two diagnostics are appropriately considered to be the same.
+     */
+    canonicalHead?: CanonicalDiagnostic;
+}
+
+/** @internal */
+export interface CanonicalDiagnostic {
+    code: number;
+    messageText: string;
+}
+
+
 /** NODES */
 export type HasJSDoc = 
     | Block 
@@ -935,7 +1044,7 @@ export interface SourceFile extends Declaration, LocalsContainer {
 
     // File-level diagnostics reported by the parser (includes diagnostics about /// references
     // as well as code diagnostics).
-    // /** @internal */ parseDiagnostics: DiagnosticWithLocation[];
+    /** @internal */ parseDiagnostics: DiagnosticWithLocation[];
 
     // // File-level diagnostics reported by the binder.
     // /** @internal */ bindDiagnostics: DiagnosticWithLocation[];

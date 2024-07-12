@@ -145,3 +145,33 @@ function selectIndex(_: unknown, i: number) {
 export function indicesOf(array: readonly unknown[]): number[] {
     return array.map(selectIndex);
 }
+
+/**
+ * Returns the last element of an array if non-empty, `undefined` otherwise.
+ *
+ * @internal
+ */
+export function lastOrUndefined<T>(array: readonly T[] | undefined): T | undefined {
+    return array === undefined || array.length === 0 ? undefined : array[array.length - 1];
+}
+
+/** @internal */
+export function some<T>(array: readonly T[] | undefined): array is readonly T[];
+/** @internal */
+export function some<T>(array: readonly T[] | undefined, predicate: (value: T) => boolean): boolean;
+/** @internal */
+export function some<T>(array: readonly T[] | undefined, predicate?: (value: T) => boolean): boolean {
+    if (array !== undefined) {
+        if (predicate !== undefined) {
+            for (let i = 0; i < array.length; i++) {
+                if (predicate(array[i])) {
+                    return true;
+                }
+            }
+        }
+        else {
+            return array.length > 0;
+        }
+    }
+    return false;
+}

@@ -1,6 +1,6 @@
 import * as antlr from "antlr4ng";
 import * as parserCore from "../parser3/parser-core";
-import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator } from "./_namespaces/lpc";
+import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics } from "./_namespaces/lpc";
 import { ILpcConfig } from "../config-types";
 
 
@@ -34,6 +34,7 @@ export namespace LpcParser {
     var topLevel: boolean = true;
     var contextFlags: NodeFlags;
     var parseErrorBeforeNextFinishedNode = false;
+    var parseDiagnostics: DiagnosticWithDetachedLocation[];
 
     var nodeCount: number;
     var identifiers: Map<string, string>;
@@ -69,6 +70,7 @@ export namespace LpcParser {
         sourceText = _sourceText;
         config = _config;
 
+        parseDiagnostics = [];
         nodeCount = 0;
         topLevel = true;
         identifiers = new Map<string, string>();
@@ -95,6 +97,7 @@ export namespace LpcParser {
         lexer.inputStream = antlr.CharStream.fromString("");
         tokenStream.setTokenSource(undefined); // this will clear the buffered tokens
 
+        parseDiagnostics = undefined!;
         sourceText = undefined!;
         topLevel = true;
         programTree = undefined!; // should this be cleared?
@@ -123,6 +126,7 @@ export namespace LpcParser {
         sourceFile.identifierCount = identifierCount;
         sourceFile.identifiers = identifiers;
         sourceFile.inherits = inherits;
+        sourceFile.parseDiagnostics = attachFileToDiagnostics(parseDiagnostics, sourceFile);
 
         return sourceFile;
     }
@@ -143,6 +147,59 @@ export namespace LpcParser {
         sourceFile.text = sourceText;
 
         return sourceFile;
+    }
+
+    function parseErrorAtPosition(start: number, length: number, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithDetachedLocation | undefined {
+        // Don't report another error if it would just be at the same position as the last error.
+        const lastError = lastOrUndefined(parseDiagnostics);
+        let result: DiagnosticWithDetachedLocation | undefined;
+        if (!lastError || start !== lastError.start) {
+            result = createDetachedDiagnostic(fileName, sourceText, start, length, message, ...args);
+            parseDiagnostics.push(result);
+        }
+
+        // Mark that we've encountered an error.  We'll set an appropriate bit on the next
+        // node we finish so that it can't be reused incrementally.
+        parseErrorBeforeNextFinishedNode = true;
+        return result;
+    }
+    
+    function parseErrorAt(start: number, end: number, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithDetachedLocation | undefined {
+        return parseErrorAtPosition(start, end - start, message, ...args);
+    }
+
+    function parseErrorAtRange(range: TextRange, message: DiagnosticMessage, ...args: DiagnosticArguments): void {
+        parseErrorAt(range.pos, range.end, message, ...args);
+    }
+
+    function parseErrorAtToken(token: antlr.Token, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithDetachedLocation | undefined {
+        return parseErrorAt(token.start, token.stop, message, ...args);
+    }
+
+    function isPosition(pos: any): pos is Position {
+        return (typeof pos==="object") && (typeof pos["pos"]==="number");
+    }
+
+    function createMissingNode<T extends Node>(kind: T["kind"], posOrToken: Position, diagnosticMessage?: DiagnosticMessage, ...args: DiagnosticArguments): T;
+    function createMissingNode<T extends Node>(kind: T["kind"], posOrToken: antlr.Token, diagnosticMessage: DiagnosticMessage, ...args: DiagnosticArguments): T;
+    function createMissingNode<T extends Node>(kind: T["kind"], posOrToken: Position|antlr.Token, diagnosticMessage?: DiagnosticMessage, ...args: DiagnosticArguments): T {
+        let pos: Position;
+        if (isPosition(posOrToken)) {
+            pos = posOrToken;
+            parseErrorAtPosition(posOrToken.pos, 0, diagnosticMessage!, ...args);
+        }
+        else if (diagnosticMessage) {
+            parseErrorAtToken(posOrToken, diagnosticMessage, ...args);
+            pos = createPosition(posOrToken.start, posOrToken.stop);
+        }
+        
+        const result = kind === SyntaxKind.Identifier ? factory.createIdentifier("") :            
+            kind === SyntaxKind.IntLiteral ? factory.createIntLiteral("", /*numericLiteralFlags*/ undefined) :
+            kind === SyntaxKind.FloatLiteral ? factory.createFloatLiteral("", /*numericLiteralFlags*/ undefined) :
+            kind === SyntaxKind.StringLiteral ? factory.createStringLiteral("", /*isSingleQuote*/ undefined) :
+            //kind === SyntaxKind.MissingDeclaration ? factory.createMissingDeclaration() :
+            factory.createToken(kind);
+        return finishNode(result, pos.pos, pos.end) as T;
     }
     
     function parseTokenNode<T extends Node>(parserNode: antlr.TerminalNode | antlr.Token): T {
@@ -172,14 +229,18 @@ export namespace LpcParser {
         return node;
     }
     
-    type Position = { pos: number, end: number };
+    interface Position { pos: number; end: number; __positionBrand:any; };
+
+    function createPosition(pos: number, end: number): Position {
+        return { pos, end } as Position;
+    }
 
     function getTerminalPos(t: antlr.TerminalNode): Position {
-        return { pos: t.getSymbol().start, end: t.getSymbol().stop };
+        return createPosition(t.getSymbol().start, t.getSymbol().stop);
     }    
 
     function getNodePos(tree: antlr.ParserRuleContext): Position {
-        return { pos: tree?.start?.start, end: tree?.stop.stop };        
+        return createPosition(tree?.start?.start, tree?.stop.stop);
     }
     
     /** Converts a Lexer terinal node's type to a SyntaxKind */    
@@ -310,7 +371,7 @@ export namespace LpcParser {
         let range = expr1;
         if (forEachTree.DOUBLEDOT()) {
             if (!expr2) {
-                // TODO: log diagnostics
+                return createMissingNode(SyntaxKind.ExpressionStatement, forEachTree.DOUBLEDOT().symbol, Diagnostics.Expression_expected);                
             }
             
             // this is a range expression

@@ -327,4 +327,21 @@ export namespace Debug {
             fail(`Expected ${a} === ${b}. ${message}`, stackCrawlMark || assertEqual);
         }
     }
+    
+    export function assertGreaterThanOrEqual(a: number, b: number, stackCrawlMark?: AnyFunction): void {
+        if (a < b) {
+            fail(`Expected ${a} >= ${b}`, stackCrawlMark || assertGreaterThanOrEqual);
+        }
+    }
+
+    export function assertLessThanOrEqual(a: number, b: number, stackCrawlMark?: AnyFunction): void {
+        if (a > b) {
+            fail(`Expected ${a} <= ${b}`, stackCrawlMark || assertLessThanOrEqual);
+        }
+    }
+
+    export function checkDefined<T>(value: T | null | undefined, message?: string, stackCrawlMark?: AnyFunction): T { // eslint-disable-line no-restricted-syntax
+        assertIsDefined(value, message, stackCrawlMark || checkDefined);
+        return value;
+    }
 }
