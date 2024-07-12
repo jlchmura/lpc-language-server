@@ -266,6 +266,7 @@ export const enum SyntaxKind {
     ForStatement,
     ForEachStatement,
     DoWhileStatement,
+    WhileStatement,
     ForInStatement,
     ExpressionStatement,
     ReturnStatement,
@@ -592,6 +593,7 @@ export interface NodeFactory {
     createForStatement(initializer: ForInitializer | undefined, condition: Expression | undefined, incrementor: Expression | undefined, statement: Statement): ForStatement
     createForEachStatement(initializer: ForEachInitializer | undefined, range: Expression | undefined, statement: Statement): ForEachStatement;
     createDoWhileStatement(statement: Statement, expression: Expression): DoWhileStatement;
+    createWhileStatement(statement: Statement, expression: Expression): WhileStatement;
 
     // Expressions
     createConditionalExpression(condition: Expression, questionToken: QuestionToken | undefined, whenTrue: Expression, colonToken: ColonToken | undefined, whenFalse: Expression): ConditionalExpression;
@@ -610,7 +612,8 @@ export type HasJSDoc =
     | FunctionDeclaration
     | ReturnStatement
     | VariableStatement     
-    | VariableDeclaration;
+    | VariableDeclaration
+    | WhileStatement;
 
 export type HasLocals = Block | SourceFile;
 
@@ -1563,8 +1566,16 @@ export interface ForEachStatement extends IterationStatement, LocalsContainer, F
     readonly range: Expression;    
 }
 
-export interface DoWhileStatement extends IterationStatement, LocalsContainer, FlowContainer {
-    readonly kind: SyntaxKind.DoWhileStatement;
-    readonly statement: Statement;
-    readonly expression: Expression;   
+export interface DoOrWhileStatementBase extends IterationStatement, LocalsContainer, FlowContainer {
+    readonly expression: Expression;
+} 
+
+export interface DoWhileStatement extends DoOrWhileStatementBase {
+    readonly kind: SyntaxKind.DoWhileStatement;    
 }
+
+export interface WhileStatement extends DoOrWhileStatementBase {
+    readonly kind: SyntaxKind.WhileStatement;    
+}
+
+

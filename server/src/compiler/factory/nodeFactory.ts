@@ -70,6 +70,7 @@ import {
     VariableDeclaration,
     VariableDeclarationList,
     VariableStatement,
+    WhileStatement,
 } from "../_namespaces/lpc";
 
 /** @internal */
@@ -155,6 +156,7 @@ export function createNodeFactory(
         createForStatement,
         createForEachStatement,
         createDoWhileStatement,
+        createWhileStatement,
 
         // Expressions
         createConditionalExpression,
@@ -731,6 +733,20 @@ export function createNodeFactory(
     // @api
     function createDoWhileStatement(statement: Statement, expression: Expression): DoWhileStatement {
         const node = createBaseNode<DoWhileStatement>(SyntaxKind.DoWhileStatement);
+        node.statement = asEmbeddedStatement(statement);
+        node.expression = expression;
+        // node.transformFlags |= propagateChildFlags(node.statement) |
+        //     propagateChildFlags(node.expression) |
+        //     TransformFlags.ContainsHoistedDeclarationOrCompletion;
+
+        node.jsDoc = undefined; // initialized by parser (JsDocContainer)
+        node.flowNode = undefined; // initialized by binder (FlowContainer)
+        return node;
+    }
+
+    // @api
+    function createWhileStatement(statement: Statement, expression: Expression): WhileStatement {
+        const node = createBaseNode<WhileStatement>(SyntaxKind.WhileStatement);
         node.statement = asEmbeddedStatement(statement);
         node.expression = expression;
         // node.transformFlags |= propagateChildFlags(node.statement) |

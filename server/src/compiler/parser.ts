@@ -256,6 +256,9 @@ export namespace LpcParser {
                     return parseForEachStatement(iterStmt);
                 } else if (iterStmt instanceof parserCore.DoWhileStatementContext) {
                     return parseDoWhileStatement(iterStmt);
+                } else if (iterStmt instanceof parserCore.WhileStatementContext) {
+                    return parseWhileStatement(iterStmt);
+                
                 }
 
         }
@@ -270,6 +273,15 @@ export namespace LpcParser {
         if (tree) {
             return parser(tree);
         }
+    }
+
+    function parseWhileStatement(tree: parserCore.WhileStatementContext): Statement {
+        const {pos,end} = getNodePos(tree);
+        const jsDoc = getPrecedingJSDocBlock(tree);
+        const body = parseStatement(tree.statement());
+        const expr = parseExpression(tree.expression());
+        const node = factory.createWhileStatement(body, expr);
+        return withJSDoc(finishNode(node, pos, end), jsDoc);
     }
 
     function parseDoWhileStatement(tree: parserCore.DoWhileStatementContext): Statement {
