@@ -1,5 +1,6 @@
 import {
     addRange,
+    AmpersandToken,
     ArrayTypeNode,
     BaseNodeFactory,
     BinaryExpression,
@@ -20,6 +21,7 @@ import {
     Declaration,
     DeclarationName,
     DefaultClause,
+    DotDotDotToken,
     DoWhileStatement,
     EmitNode,
     emptyArray,
@@ -159,6 +161,7 @@ export function createNodeFactory(
         createForEachStatement,
         createDoWhileStatement,
         createWhileStatement,
+        createParameterDeclaration,
 
         // Expressions
         createConditionalExpression,
@@ -776,6 +779,26 @@ export function createNodeFactory(
         // ) {
         //     node.transformFlags |= TransformFlags.ContainsUpdateExpressionForIdentifier;
         // }
+        return node;
+    }
+
+     // @api
+     function createParameterDeclaration(
+        modifiers: readonly Modifier[] | undefined,
+        dotDotDotToken: DotDotDotToken | undefined,
+        name: string | BindingName,
+        ampToken?: AmpersandToken,
+        type?: TypeNode,
+        initializer?: Expression,
+    ): ParameterDeclaration {
+        const node = createBaseDeclaration<ParameterDeclaration>(SyntaxKind.Parameter);
+        node.modifiers = asNodeArray(modifiers);        
+        node.dotDotDotToken = dotDotDotToken;
+        node.name = asName(name);        
+        node.ampToken = ampToken;
+        node.type = type;
+        node.initializer = asInitializer(initializer);        
+        node.jsDoc = undefined; // initialized by parser (JsDocContainer)
         return node;
     }
 }

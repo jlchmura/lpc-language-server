@@ -1,6 +1,6 @@
 import * as antlr from "antlr4ng";
 import * as parserCore from "../parser3/parser-core";
-import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier } from "./_namespaces/lpc";
+import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken } from "./_namespaces/lpc";
 import { ILpcConfig } from "../config-types";
 
 
@@ -987,7 +987,34 @@ export namespace LpcParser {
         topLevel = savedTopLevel;
         return blockContent;
     }
-    
+
+    function parseFunctionParameter(tree: parserCore.ParameterContext): ParameterDeclaration {
+        const name = parseValidIdentifier(tree._paramName);
+        const type = parseOptional(tree.unionableTypeSpecifier(), parseType);        
+        const trippleDot = tree.TRIPPLEDOT() ? parseTokenNode<DotDotDotToken>(tree.TRIPPLEDOT()) : undefined;
+        const amp = tree.AND() ? parseTokenNode<AmpersandToken>(tree.AND()) : undefined;
+        const varArgs = tree.VARARGS();
+
+        const jsDoc = getPrecedingJSDocBlock(tree);
+
+        // parameters can only have 1 modifier (unless you count the tripple dot and amp)
+        let modifiers: Modifier[] = [];
+        if (varArgs) {            
+            const {pos,end} = getTerminalPos(varArgs);
+            const kind = getSyntaxKindFromLex(varArgs);
+            modifiers = [finishNode(factory.createToken(kind as Modifier["kind"]), pos, end)];
+        }
+
+        let initializer:Expression;        
+        if (tree.ASSIGN()) 
+            initializer = parseOptional(tree.expression(), parseExpression);
+        else if (tree.COLON) 
+            initializer = parseOptional(tree.inlineClosureExpression(), parseInlineClosureLikeExpression);
+
+        const node = factory.createParameterDeclaration(modifiers, trippleDot, name, amp, type, initializer);
+        return withJSDoc(finishNode(node, getNodePos(tree).pos, getNodePos(tree).end), jsDoc);
+    }   
+
     function parseFunctionDeclaration(
         tree: parserCore.FunctionDeclarationContext,
         pos: number,
@@ -1004,12 +1031,14 @@ export namespace LpcParser {
             header.typeSpecifier()?.unionableTypeSpecifier()
         );
 
+        const parameters = parseList(header._functionArgs?.parameter(), parseFunctionParameter);
+
         const body = parseFunctionBlock(tree.block()); // parseFunctionBlockOrSemicolon(isGenerator | isAsync, Diagnostics.or_expected);
 
         const node = factory.createFunctionDeclaration(
             modifiers,
             identifier,
-            [], // TODO
+            parameters,
             returnType,
             body
         );

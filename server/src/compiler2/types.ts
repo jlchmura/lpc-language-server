@@ -2339,6 +2339,7 @@ export interface PunctuationToken<TKind extends PunctuationSyntaxKind>
     extends Token<TKind> {}
 export type DotToken = PunctuationToken<SyntaxKind.DotToken>;
 export type DotDotDotToken = PunctuationToken<SyntaxKind.DotDotDotToken>;
+export type AmpersandToken = PunctuationToken<SyntaxKind.AmpersandToken>;
 export type QuestionToken = PunctuationToken<SyntaxKind.QuestionToken>;
 export type ExclamationToken = PunctuationToken<SyntaxKind.ExclamationToken>;
 export type ColonToken = PunctuationToken<SyntaxKind.ColonToken>;

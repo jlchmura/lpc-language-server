@@ -650,6 +650,7 @@ export interface NodeFactory {
     createForEachStatement(initializer: ForEachInitializer | undefined, range: Expression | undefined, statement: Statement): ForEachStatement;
     createDoWhileStatement(statement: Statement, expression: Expression): DoWhileStatement;
     createWhileStatement(statement: Statement, expression: Expression): WhileStatement;
+    createParameterDeclaration(modifiers: readonly Modifier[] | undefined, dotDotDotToken: DotDotDotToken | undefined, name: string | BindingName, ampToken?: AmpersandToken, type?: TypeNode, initializer?: Expression): ParameterDeclaration;
 
     // Expressions
     createConditionalExpression(condition: Expression, questionToken: QuestionToken | undefined, whenTrue: Expression, colonToken: ColonToken | undefined, whenFalse: Expression): ConditionalExpression;
@@ -777,6 +778,7 @@ export type HasJSDoc =
     | ForEachStatement
     | FunctionDeclaration
     | ReturnStatement
+    | ParameterDeclaration
     | VariableStatement     
     | VariableDeclaration
     | WhileStatement;
@@ -1024,6 +1026,7 @@ export type LogicalOrCoalescingAssignmentOperator = SyntaxKind.BarBarEqualsToken
 // Punctuation
 export interface PunctuationToken<TKind extends PunctuationSyntaxKind> extends Token<TKind> {}
 export type DotToken = PunctuationToken<SyntaxKind.DotToken>;
+export type AmpersandToken = PunctuationToken<SyntaxKind.AmpersandToken>;
 export type DotDotDotToken = PunctuationToken<SyntaxKind.DotDotDotToken>;
 export type QuestionToken = PunctuationToken<SyntaxKind.QuestionToken>;
 export type ExclamationToken = PunctuationToken<SyntaxKind.ExclamationToken>;
@@ -1548,7 +1551,7 @@ export interface ParameterDeclaration extends NamedDeclaration, JSDocContainer {
     readonly modifiers?: NodeArray<Modifier>;
     readonly dotDotDotToken?: DotDotDotToken;    // Present on rest parameter
     readonly name: BindingName;                  // Declared parameter name.
-    readonly questionToken?: QuestionToken;      // Present on optional parameter
+    readonly ampToken?: AmpersandToken;          // Present on "by ref" parameters
     readonly type?: TypeNode;                    // Optional type annotation
     readonly initializer?: Expression;           // Optional initializer
 }

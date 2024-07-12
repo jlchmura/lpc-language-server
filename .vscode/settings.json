@@ -13,5 +13,7 @@
     },
     "[lpc]": {
         "editor.formatOnSave": false
-    }
+    },
+
+    "typescript.preferences.autoImportFileExcludePatterns": ["/**/compiler2/"]
 }
