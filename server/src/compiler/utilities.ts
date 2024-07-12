@@ -1,6 +1,5 @@
 import * as antlr from "antlr4ng";
-import * as parserCore from "../parser3/parser-core";
-import { Debug, DiagnosticArguments, DiagnosticMessage, DiagnosticRelatedInformation, DiagnosticWithDetachedLocation, DiagnosticWithLocation, Identifier, MapLike, ModifierFlags, Node, NodeFlags, ReadonlyTextRange, some, SourceFile, Symbol, SymbolFlags, SyntaxKind, TextRange, Token, TransformFlags } from "./_namespaces/lpc";
+import { Signature, Type, Debug, DiagnosticArguments, DiagnosticMessage, DiagnosticRelatedInformation, DiagnosticWithDetachedLocation, DiagnosticWithLocation, Identifier, MapLike, ModifierFlags, Node, NodeFlags, ReadonlyTextRange, some, SourceFile, Symbol, SymbolFlags, SyntaxKind, TextRange, Token, TransformFlags, TypeChecker, TypeFlags, tracing, SignatureFlags, canHaveModifiers, Modifier, skipTrivia } from "./_namespaces/lpc";
 
 /** @internal */
 export interface ObjectAllocator {
@@ -9,8 +8,8 @@ export interface ObjectAllocator {
     getIdentifierConstructor(): new (kind: SyntaxKind.Identifier, pos: number, end: number) => Identifier;    
     getSourceFileConstructor(): new (kind: SyntaxKind.SourceFile, pos: number, end: number) => SourceFile;
     getSymbolConstructor(): new (flags: SymbolFlags, name: string) => Symbol;
-    //getTypeConstructor(): new (checker: TypeChecker, flags: TypeFlags) => Type;
-    //getSignatureConstructor(): new (checker: TypeChecker, flags: SignatureFlags) => Signature;    
+    getTypeConstructor(): new (checker: TypeChecker, flags: TypeFlags) => Type;
+    getSignatureConstructor(): new (checker: TypeChecker, flags: SignatureFlags) => Signature;    
 }
 
 
@@ -21,10 +20,25 @@ export const objectAllocator: ObjectAllocator = {
     getIdentifierConstructor: () => Identifier as any,    
     getSourceFileConstructor: () => Node as any,
     getSymbolConstructor: () => Symbol as any,
-    // getTypeConstructor: () => Type as any,
-    // getSignatureConstructor: () => Signature as any,    
+    getTypeConstructor: () => Type as any,
+    getSignatureConstructor: () => Signature as any,    
 };
 
+function Signature(this: Signature, checker: TypeChecker, flags: SignatureFlags) {
+    // Note: if modifying this, be sure to update SignatureObject in src/services/services.ts
+    this.flags = flags;
+    if (Debug.isDebugging) {
+        this.checker = checker;
+    }
+}
+
+function Type(this: Type, checker: TypeChecker, flags: TypeFlags) {
+    // Note: if modifying this, be sure to update TypeObject in src/services/services.ts
+    this.flags = flags;
+    if (Debug.isDebugging || tracing) {
+        this.checker = checker;
+    }
+}
 
 function Symbol(this: Symbol, flags: SymbolFlags, name: string) {
     // Note: if modifying this, be sure to update SymbolObject in src/services/services.ts
@@ -247,4 +261,142 @@ function isDiagnosticWithDetachedLocation(diagnostic: DiagnosticRelatedInformati
         && diagnostic.start !== undefined
         && diagnostic.length !== undefined
         && typeof (diagnostic as DiagnosticWithDetachedLocation).fileName === "string";
+}
+
+
+/**
+ * Gets the effective ModifierFlags for the provided node, including JSDoc modifiers. The modifier flags cache on the node is ignored.
+ *
+ * NOTE: This function may use `parent` pointers.
+ *
+ * @internal
+ */
+export function getEffectiveModifierFlagsNoCache(node: Node): ModifierFlags {
+    return getSyntacticModifierFlagsNoCache(node) | getJSDocModifierFlagsNoCache(node);
+}
+
+function getJSDocModifierFlagsNoCache(node: Node): ModifierFlags {
+    return 0; // TODO return selectEffectiveModifierFlags(getRawJSDocModifierFlagsNoCache(node));
+}
+
+/**
+ * Gets the ModifierFlags for syntactic modifiers on the provided node. The modifier flags cache on the node is ignored.
+ *
+ * NOTE: This function does not use `parent` pointers and will not include modifiers from JSDoc.
+ *
+ * @internal
+ * @knipignore
+ */
+export function getSyntacticModifierFlagsNoCache(node: Node): ModifierFlags {
+    let flags = canHaveModifiers(node) ? modifiersToFlags(node.modifiers) : ModifierFlags.None;
+    // if (node.flags & NodeFlags.NestedNamespace || node.kind === SyntaxKind.Identifier && node.flags & NodeFlags.IdentifierIsInJSDocNamespace) {
+    //     flags |= ModifierFlags.Export;
+    // }
+    return flags;
+}
+
+/** @internal */
+export function modifiersToFlags(modifiers: readonly Modifier[] | undefined) {
+    let flags = ModifierFlags.None;
+    if (modifiers) {
+        for (const modifier of modifiers) {
+            flags |= modifierToFlag(modifier.kind);
+        }
+    }
+    return flags;
+}
+
+/** @internal */
+export function modifierToFlag(token: SyntaxKind): ModifierFlags {
+    switch (token) {
+        case SyntaxKind.StaticKeyword:
+            return ModifierFlags.Static;
+        case SyntaxKind.PublicKeyword:
+            return ModifierFlags.Public;
+        case SyntaxKind.ProtectedKeyword:
+            return ModifierFlags.Protected;
+        case SyntaxKind.PrivateKeyword:
+            return ModifierFlags.Private;        
+        case SyntaxKind.NoMaskKeyword:
+            return ModifierFlags.NoMask;
+        case SyntaxKind.NoShadowKeyword:
+            return ModifierFlags.NoShadow;
+        case SyntaxKind.NoSaveKeyword:
+            return ModifierFlags.NoSave;
+        case SyntaxKind.VisibleKeyword:
+            return ModifierFlags.Visible;
+        // case SyntaxKind.AsyncKeyword:
+        //     return ModifierFlags.Async;        
+        // case SyntaxKind.InKeyword:
+        //     return ModifierFlags.In;        
+    }
+    return ModifierFlags.None;
+}
+
+/** @internal */
+export function positionIsSynthesized(pos: number): boolean {
+    // This is a fast way of testing the following conditions:
+    //  pos === undefined || pos === null || isNaN(pos) || pos < 0;
+    return !(pos >= 0);
+}
+
+/** @internal */
+export function nodeIsSynthesized(range: TextRange): boolean {
+    return positionIsSynthesized(range.pos)
+        || positionIsSynthesized(range.end);
+}
+
+/** @internal */
+export function getSourceFileOfNode(node: Node): SourceFile;
+/** @internal */
+export function getSourceFileOfNode(node: Node | undefined): SourceFile | undefined;
+/** @internal */
+export function getSourceFileOfNode(node: Node | undefined): SourceFile | undefined {
+    while (node && node.kind !== SyntaxKind.SourceFile) {
+        node = node.parent;
+    }
+    return node as SourceFile;
+}
+
+/** @internal */
+export function getSourceTextOfNodeFromSourceFile(sourceFile: SourceFile, node: Node, includeTrivia = false): string {
+    return getTextOfNodeFromSourceText(sourceFile.text, node, includeTrivia);
+}
+
+/** @internal */
+export function getTextOfNodeFromSourceText(sourceText: string, node: Node, includeTrivia = false): string {
+    if (nodeIsMissing(node)) {
+        return "";
+    }
+
+    let text = sourceText.substring(includeTrivia ? node.pos : skipTrivia(sourceText, node.pos), node.end);
+
+    // if (isJSDocTypeExpressionOrChild(node)) {
+    //     // strip space + asterisk at line start
+    //     text = text.split(/\r\n|\n|\r/).map(line => line.replace(/^\s*\*/, "").trimStart()).join("\n");
+    // }
+
+    return text;
+}
+
+
+// Returns true if this node is missing from the actual source code. A 'missing' node is different
+// from 'undefined/defined'. When a node is undefined (which can happen for optional nodes
+// in the tree), it is definitely missing. However, a node may be defined, but still be
+// missing.  This happens whenever the parser knows it needs to parse something, but can't
+// get anything in the source code that it expects at that location. For example:
+//
+//          let a: ;
+//
+// Here, the Type in the Type-Annotation is not-optional (as there is a colon in the source
+// code). So the parser will attempt to parse out a type, and will create an actual node.
+// However, this node will be 'missing' in the sense that no actual source-code/tokens are
+// contained within it.
+/** @internal */
+export function nodeIsMissing(node: Node | undefined): boolean {
+    if (node === undefined) {
+        return true;
+    }
+
+    return node.pos === node.end && node.pos >= 0 && node.kind !== SyntaxKind.EndOfFileToken;
 }

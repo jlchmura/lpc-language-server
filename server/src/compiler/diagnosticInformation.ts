@@ -5,5 +5,6 @@ function diag(code: number, category: DiagnosticCategory, key: string, message: 
 }
 
 export const Diagnostics = {
+    Merge_conflict_marker_encountered: diag(1000, DiagnosticCategory.Error, "Merge_conflict_marker_encountered_1000", "Merge conflict marker encountered."),
     Expression_expected: diag(1001, DiagnosticCategory.Error, "Expression_expected_1001", "Expression expected."),
 }

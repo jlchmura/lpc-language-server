@@ -1,5 +1,5 @@
+import { AnyFunction, AssertionLevel, Node, NodeArray, objectAllocator, Type,Symbol, SymbolFlags, symbolName, SortedReadonlyArray, compareValues, stableSort, TypeFlags, hasProperty, LiteralType, ObjectType, ObjectFlags, Signature, SignatureFlags, isIdentifier, idText, isStringLiteral, isIntLiteral, isFloatLiteral, SyntaxKind, NodeFlags, ModifierFlags, isParseTreeNode, getEffectiveModifierFlagsNoCache, nodeIsSynthesized, getParseTreeNode, getSourceFileOfNode, getSourceTextOfNodeFromSourceFile } from "./_namespaces/lpc";
 import * as lpc from "./_namespaces/lpc.js";
-import { AnyFunction, AssertionLevel, Node, NodeArray, objectAllocator, Type,Symbol, SymbolFlags, symbolName, SortedReadonlyArray, compareValues, stableSort, TypeFlags, hasProperty } from "./_namespaces/lpc";
 
 /** @internal */
 export enum LogLevel {
@@ -141,6 +141,18 @@ export namespace Debug {
         return formatEnum(flags, (lpc as any).SymbolFlags, /*isFlags*/ true);
     }
 
+    export function formatObjectFlags(flags: ObjectFlags | undefined): string {
+        return formatEnum(flags, (lpc as any).ObjectFlags, /*isFlags*/ true);
+    }
+
+    export function formatSignatureFlags(flags: SignatureFlags | undefined): string {
+        return formatEnum(flags, (lpc as any).SignatureFlags, /*isFlags*/ true);
+    }
+
+    export function formatTypeFlags(flags: TypeFlags | undefined): string {
+        return formatEnum(flags, (lpc as any).TypeFlags, /*isFlags*/ true);
+    }
+
     /**
      * Injects debug information into frequently used types.
      */
@@ -169,68 +181,68 @@ export namespace Debug {
             },
         });
 
-        // Object.defineProperties(objectAllocator.getTypeConstructor().prototype, {
-        //     // for use with vscode-js-debug's new customDescriptionGenerator in launch.json
-        //     __tsDebuggerDisplay: {
-        //         value(this: Type) {
-        //             const typeHeader = this.flags & TypeFlags.Intrinsic ? `IntrinsicType ${(this as IntrinsicType).intrinsicName}${(this as IntrinsicType).debugIntrinsicName ? ` (${(this as IntrinsicType).debugIntrinsicName})` : ""}` :
-        //                 this.flags & TypeFlags.Nullable ? "NullableType" :
-        //                 this.flags & TypeFlags.StringOrNumberLiteral ? `LiteralType ${JSON.stringify((this as LiteralType).value)}` :                        
-        //                 this.flags & TypeFlags.Union ? "UnionType" :                        
-        //                 this.flags & TypeFlags.Index ? "IndexType" :
-        //                 this.flags & TypeFlags.IndexedAccess ? "IndexedAccessType" :
-        //                 this.flags & TypeFlags.Conditional ? "ConditionalType" :
-        //                 this.flags & TypeFlags.Substitution ? "SubstitutionType" :
-        //                 this.flags & TypeFlags.TypeParameter ? "TypeParameter" :
-        //                 this.flags & TypeFlags.Object ?
-        //                 (this as ObjectType).objectFlags & ObjectFlags.ClassOrInterface ? "InterfaceType" :
-        //                     (this as ObjectType).objectFlags & ObjectFlags.Reference ? "TypeReference" :
-        //                     (this as ObjectType).objectFlags & ObjectFlags.Tuple ? "TupleType" :
-        //                     (this as ObjectType).objectFlags & ObjectFlags.Anonymous ? "AnonymousType" :
-        //                     (this as ObjectType).objectFlags & ObjectFlags.Mapped ? "MappedType" :
-        //                     (this as ObjectType).objectFlags & ObjectFlags.ReverseMapped ? "ReverseMappedType" :
-        //                     (this as ObjectType).objectFlags & ObjectFlags.EvolvingArray ? "EvolvingArrayType" :
-        //                     "ObjectType" :
-        //                 "Type";
-        //             const remainingObjectFlags = this.flags & TypeFlags.Object ? (this as ObjectType).objectFlags & ~ObjectFlags.ObjectTypeKindMask : 0;
-        //             return `${typeHeader}${this.symbol ? ` '${symbolName(this.symbol)}'` : ""}${remainingObjectFlags ? ` (${formatObjectFlags(remainingObjectFlags)})` : ""}`;
-        //         },
-        //     },
-        //     __debugFlags: {
-        //         get(this: Type) {
-        //             return formatTypeFlags(this.flags);
-        //         },
-        //     },
-        //     __debugObjectFlags: {
-        //         get(this: Type) {
-        //             return this.flags & TypeFlags.Object ? formatObjectFlags((this as ObjectType).objectFlags) : "";
-        //         },
-        //     },
-        //     __debugTypeToString: {
-        //         value(this: Type) {
-        //             // avoid recomputing
-        //             let text = weakTypeTextMap.get(this);
-        //             if (text === undefined) {
-        //                 text = this.checker.typeToString(this);
-        //                 weakTypeTextMap.set(this, text);
-        //             }
-        //             return text;
-        //         },
-        //     },
-        // });
+        Object.defineProperties(objectAllocator.getTypeConstructor().prototype, {
+            // for use with vscode-js-debug's new customDescriptionGenerator in launch.json
+            __tsDebuggerDisplay: {
+                value(this: Type) {
+                    const typeHeader = /*this.flags & TypeFlags.Intrinsic ? `IntrinsicType ${(this as IntrinsicType).intrinsicName}${(this as IntrinsicType).debugIntrinsicName ? ` (${(this as IntrinsicType).debugIntrinsicName})` : ""}` :*/
+                        this.flags & TypeFlags.Nullable ? "NullableType" :
+                        this.flags & TypeFlags.StringOrNumberLiteral ? `LiteralType ${JSON.stringify((this as LiteralType).value)}` :                        
+                        this.flags & TypeFlags.Union ? "UnionType" :                        
+                        this.flags & TypeFlags.Index ? "IndexType" :
+                        this.flags & TypeFlags.IndexedAccess ? "IndexedAccessType" :
+                        this.flags & TypeFlags.Conditional ? "ConditionalType" :
+                        this.flags & TypeFlags.Substitution ? "SubstitutionType" :
+                        this.flags & TypeFlags.TypeParameter ? "TypeParameter" :
+                        this.flags & TypeFlags.Object ?
+                        (this as ObjectType).objectFlags & ObjectFlags.ClassOrInterface ? "InterfaceType" :
+                            (this as ObjectType).objectFlags & ObjectFlags.Reference ? "TypeReference" :
+                            (this as ObjectType).objectFlags & ObjectFlags.Tuple ? "TupleType" :
+                            (this as ObjectType).objectFlags & ObjectFlags.Anonymous ? "AnonymousType" :
+                            (this as ObjectType).objectFlags & ObjectFlags.Mapped ? "MappedType" :
+                            (this as ObjectType).objectFlags & ObjectFlags.ReverseMapped ? "ReverseMappedType" :
+                            (this as ObjectType).objectFlags & ObjectFlags.EvolvingArray ? "EvolvingArrayType" :
+                            "ObjectType" :
+                        "Type";
+                    const remainingObjectFlags = this.flags & TypeFlags.Object ? (this as ObjectType).objectFlags & ~ObjectFlags.ObjectTypeKindMask : 0;
+                    return `${typeHeader}${this.symbol ? ` '${symbolName(this.symbol)}'` : ""}${remainingObjectFlags ? ` (${formatObjectFlags(remainingObjectFlags)})` : ""}`;
+                },
+            },
+            __debugFlags: {
+                get(this: Type) {
+                    return formatTypeFlags(this.flags);
+                },
+            },
+            __debugObjectFlags: {
+                get(this: Type) {
+                    return this.flags & TypeFlags.Object ? formatObjectFlags((this as ObjectType).objectFlags) : "";
+                },
+            },
+            __debugTypeToString: {
+                value(this: Type) {
+                    // avoid recomputing
+                    let text = weakTypeTextMap.get(this);
+                    if (text === undefined) {
+                        text = this.checker.typeToString(this);
+                        weakTypeTextMap.set(this, text);
+                    }
+                    return text;
+                },
+            },
+        });
 
-        // Object.defineProperties(objectAllocator.getSignatureConstructor().prototype, {
-        //     __debugFlags: {
-        //         get(this: Signature) {
-        //             return formatSignatureFlags(this.flags);
-        //         },
-        //     },
-        //     __debugSignatureToString: {
-        //         value(this: Signature) {
-        //             return this.checker?.signatureToString(this);
-        //         },
-        //     },
-        // });
+        Object.defineProperties(objectAllocator.getSignatureConstructor().prototype, {
+            __debugFlags: {
+                get(this: Signature) {
+                    return formatSignatureFlags(this.flags);
+                },
+            },
+            __debugSignatureToString: {
+                value(this: Signature) {
+                    return this.checker?.signatureToString(this);
+                },
+            },
+        });
 
         const nodeConstructors = [
             objectAllocator.getNodeConstructor(),
@@ -239,84 +251,84 @@ export namespace Debug {
             objectAllocator.getSourceFileConstructor(),
         ];
 
-        // for (const ctor of nodeConstructors) {
-        //     if (!hasProperty(ctor.prototype, "__debugKind")) {
-        //         Object.defineProperties(ctor.prototype, {
-        //             // for use with vscode-js-debug's new customDescriptionGenerator in launch.json
-        //             __tsDebuggerDisplay: {
-        //                 value(this: Node) {
-        //                     const nodeHeader = isIdentifier(this) ? `Identifier '${idText(this)}'` :
-        //                         //isPrivateIdentifier(this) ? `PrivateIdentifier '${idText(this)}'` :
-        //                         isStringLiteral(this) ? `StringLiteral ${JSON.stringify(this.text.length < 10 ? this.text : this.text.slice(10) + "...")}` :
-        //                         isNumericLiteral(this) ? `NumericLiteral ${this.text}` :                                
-        //                         isTypeParameterDeclaration(this) ? "TypeParameterDeclaration" :
-        //                         isParameter(this) ? "ParameterDeclaration" :                                
-        //                         isCallSignatureDeclaration(this) ? "CallSignatureDeclaration" :                                
-        //                         isIndexSignatureDeclaration(this) ? "IndexSignatureDeclaration" :
-        //                         //isTypePredicateNode(this) ? "TypePredicateNode" :
-        //                         //isTypeReferenceNode(this) ? "TypeReferenceNode" :
-        //                         //isFunctionTypeNode(this) ? "FunctionTypeNode" :                                                                
-        //                         isTypeLiteralNode(this) ? "TypeLiteralNode" :
-        //                         isArrayTypeNode(this) ? "ArrayTypeNode" :                                                                
-        //                         //isRestTypeNode(this) ? "RestTypeNode" :
-        //                         isUnionTypeNode(this) ? "UnionTypeNode" :                                                                                                
-        //                         //isParenthesizedTypeNode(this) ? "ParenthesizedTypeNode" :                                
-        //                         //isTypeOperatorNode(this) ? "TypeOperatorNode" :
-        //                         isIndexedAccessTypeNode(this) ? "IndexedAccessTypeNode" :
-        //                         //isMappedTypeNode(this) ? "MappedTypeNode" :
-        //                         isLiteralTypeNode(this) ? "LiteralTypeNode" :                                
-        //                         isImportTypeNode(this) ? "ImportTypeNode" :
-        //                         formatSyntaxKind(this.kind);
-        //                     return `${nodeHeader}${this.flags ? ` (${formatNodeFlags(this.flags)})` : ""}`;
-        //                 },
-        //             },
-        //             __debugKind: {
-        //                 get(this: Node) {
-        //                     return formatSyntaxKind(this.kind);
-        //                 },
-        //             },
-        //             __debugNodeFlags: {
-        //                 get(this: Node) {
-        //                     return formatNodeFlags(this.flags);
-        //                 },
-        //             },
-        //             __debugModifierFlags: {
-        //                 get(this: Node) {
-        //                     return formatModifierFlags(getEffectiveModifierFlagsNoCache(this));
-        //                 },
-        //             },
-        //             // __debugTransformFlags: {
-        //             //     get(this: Node) {
-        //             //         return formatTransformFlags(this.transformFlags);
-        //             //     },
-        //             // },
-        //             __debugIsParseTreeNode: {
-        //                 get(this: Node) {
-        //                     return isParseTreeNode(this);
-        //                 },
-        //             },
-        //             // __debugEmitFlags: {
-        //             //     get(this: Node) {
-        //             //         return formatEmitFlags(getEmitFlags(this));
-        //             //     },
-        //             // },
-        //             __debugGetText: {
-        //                 value(this: Node, includeTrivia?: boolean) {
-        //                     if (nodeIsSynthesized(this)) return "";
-        //                     // avoid recomputing
-        //                     let text = weakNodeTextMap.get(this);
-        //                     if (text === undefined) {
-        //                         const parseNode = getParseTreeNode(this);
-        //                         const sourceFile = parseNode && getSourceFileOfNode(parseNode);
-        //                         text = sourceFile ? getSourceTextOfNodeFromSourceFile(sourceFile, parseNode, includeTrivia) : "";
-        //                         weakNodeTextMap.set(this, text);
-        //                     }
-        //                     return text;
-        //                 },
-        //             },
-        //         });
-        //     }
-        // }
+        for (const ctor of nodeConstructors) {
+            if (!hasProperty(ctor.prototype, "__debugKind")) {
+                Object.defineProperties(ctor.prototype, {
+                    // for use with vscode-js-debug's new customDescriptionGenerator in launch.json
+                    __tsDebuggerDisplay: {
+                        value(this: Node) {
+                            const nodeHeader = isIdentifier(this) ? `Identifier '${idText(this)}'` :
+                                //isPrivateIdentifier(this) ? `PrivateIdentifier '${idText(this)}'` :
+                                isStringLiteral(this) ? `StringLiteral ${JSON.stringify(this.text.length < 10 ? this.text : this.text.slice(10) + "...")}` :
+                                isIntLiteral(this) ? `NumericLiteral ${this.text}` :                                
+                                isFloatLiteral(this) ? `FloatLiteral ${this.text}` :
+                                // isTypeParameterDeclaration(this) ? "TypeParameterDeclaration" :
+                                // isParameter(this) ? "ParameterDeclaration" :                                
+                                // isCallSignatureDeclaration(this) ? "CallSignatureDeclaration" :                                
+                                // isIndexSignatureDeclaration(this) ? "IndexSignatureDeclaration" :
+                                //isTypePredicateNode(this) ? "TypePredicateNode" :
+                                //isTypeReferenceNode(this) ? "TypeReferenceNode" :
+                                //isFunctionTypeNode(this) ? "FunctionTypeNode" :                                                                
+                                //isTypeLiteralNode(this) ? "TypeLiteralNode" :
+                                // isArrayTypeNode(this) ? "ArrayTypeNode" :                                                                
+                                //isRestTypeNode(this) ? "RestTypeNode" :
+                                // isUnionTypeNode(this) ? "UnionTypeNode" :                                                                                                
+                                //isParenthesizedTypeNode(this) ? "ParenthesizedTypeNode" :                                
+                                //isTypeOperatorNode(this) ? "TypeOperatorNode" :
+                                // isIndexedAccessTypeNode(this) ? "IndexedAccessTypeNode" :
+                                //isMappedTypeNode(this) ? "MappedTypeNode" :
+                                // isLiteralTypeNode(this) ? "LiteralTypeNode" :                                                                
+                                formatSyntaxKind(this.kind);
+                            return `${nodeHeader}${this.flags ? ` (${formatNodeFlags(this.flags)})` : ""}`;
+                        },
+                    },
+                    __debugKind: {
+                        get(this: Node) {
+                            return formatSyntaxKind(this.kind);
+                        },
+                    },
+                    __debugNodeFlags: {
+                        get(this: Node) {
+                            return formatNodeFlags(this.flags);
+                        },
+                    },
+                    __debugModifierFlags: {
+                        get(this: Node) {
+                            return formatModifierFlags(getEffectiveModifierFlagsNoCache(this));
+                        },
+                    },
+                    // __debugTransformFlags: {
+                    //     get(this: Node) {
+                    //         return formatTransformFlags(this.transformFlags);
+                    //     },
+                    // },
+                    __debugIsParseTreeNode: {
+                        get(this: Node) {
+                            return isParseTreeNode(this);
+                        },
+                    },
+                    // __debugEmitFlags: {
+                    //     get(this: Node) {
+                    //         return formatEmitFlags(getEmitFlags(this));
+                    //     },
+                    // },
+                    __debugGetText: {
+                        value(this: Node, includeTrivia?: boolean) {
+                            if (nodeIsSynthesized(this)) return "";
+                            // avoid recomputing
+                            let text = weakNodeTextMap.get(this);
+                            if (text === undefined) {
+                                const parseNode = getParseTreeNode(this);
+                                const sourceFile = parseNode && getSourceFileOfNode(parseNode);
+                                text = sourceFile ? getSourceTextOfNodeFromSourceFile(sourceFile, parseNode, includeTrivia) : "";
+                                weakNodeTextMap.set(this, text);
+                            }
+                            return text;
+                        },
+                    },
+                });
+            }
+        }
 
         isDebugInfoEnabled = true;
     }
@@ -343,5 +355,27 @@ export namespace Debug {
     export function checkDefined<T>(value: T | null | undefined, message?: string, stackCrawlMark?: AnyFunction): T { // eslint-disable-line no-restricted-syntax
         assertIsDefined(value, message, stackCrawlMark || checkDefined);
         return value;
+    }
+
+    export function formatSyntaxKind(kind: SyntaxKind | undefined): string {
+        return formatEnum(kind, (lpc as any).SyntaxKind, /*isFlags*/ false);
+    }
+
+    export function formatNodeFlags(flags: NodeFlags | undefined): string {
+        return formatEnum(flags, (lpc as any).NodeFlags, /*isFlags*/ true);
+    }
+
+    export function formatModifierFlags(flags: ModifierFlags | undefined): string {
+        return formatEnum(flags, (lpc as any).ModifierFlags, /*isFlags*/ true);
+    }
+
+    export function assert(expression: unknown, message?: string, verboseDebugInfo?: string | (() => string), stackCrawlMark?: AnyFunction): asserts expression {
+        if (!expression) {
+            message = message ? `False expression: ${message}` : "False expression.";
+            if (verboseDebugInfo) {
+                message += "\r\nVerbose Debug Information: " + (typeof verboseDebugInfo === "string" ? verboseDebugInfo : verboseDebugInfo());
+            }
+            fail(message, stackCrawlMark || assert);
+        }
     }
 }

@@ -1238,3 +1238,4 @@ export function isClassInstanceProperty(node: Declaration): boolean {
     // }
     return node.parent && isClassLike(node.parent) && isPropertyDeclaration(node) /*&& !hasAccessorModifier(node)*/;
 }
+

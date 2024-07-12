@@ -1,3 +1,4 @@
+import { UnionType } from "../compiler2/types";
 import { BaseNodeFactory, NodeFactoryFlags } from "./_namespaces/lpc";
 
 // Note: 'brands' in our syntax nodes serve to give us a small amount of nominal typing.
@@ -66,6 +67,16 @@ export interface EmitNode {
     // identifierTypeArguments?: NodeArray<TypeNode | TypeParameterDeclaration>; // Only defined on synthesized identifiers. Though not syntactically valid, used in emitting diagnostics, quickinfo, and signature help.
     // autoGenerate: AutoGenerateInfo | undefined; // Used for auto-generated identifiers and private identifiers.
     // generatedImportReference?: ImportSpecifier; // Reference to the generated import specifier this identifier refers to
+}
+
+export interface TypeChecker {
+    // TODO
+    signatureToString(signature: Signature, enclosingDeclaration?: Node, flags?: TypeFormatFlags, kind?: SignatureKind): string;
+}
+
+export const enum SignatureKind {
+    Call,
+    Construct,
 }
 
 // Properties common to all types
@@ -393,6 +404,49 @@ export const enum TypeFlags {
     IncludesError = Reserved2,
     /** @internal */
     NotPrimitiveUnion = Any | Unknown | Void | Never | Object | Intersection | IncludesInstantiable,
+}
+
+// Ensure the shared flags between this and `NodeBuilderFlags` stay in alignment
+// dprint-ignore
+export const enum TypeFormatFlags {
+    None                                    = 0,
+    NoTruncation                            = 1 << 0,  // Don't truncate typeToString result
+    WriteArrayAsGenericType                 = 1 << 1,  // Write Array<T> instead T[]
+    GenerateNamesForShadowedTypeParams      = 1 << 2,   // When a type parameter T is shadowing another T, generate a name for it so it can still be referenced
+    UseStructuralFallback                   = 1 << 3,   // When an alias cannot be named by its symbol, rather than report an error, fallback to a structural printout if possible
+    // hole because there's a hole in node builder flags
+    WriteTypeArgumentsOfSignature           = 1 << 5,  // Write the type arguments instead of type parameters of the signature
+    UseFullyQualifiedType                   = 1 << 6,  // Write out the fully qualified type name (eg. Module.Type, instead of Type)
+    // hole because `UseOnlyExternalAliasing` is here in node builder flags, but functions which take old flags use `SymbolFormatFlags` instead
+    SuppressAnyReturnType                   = 1 << 8,  // If the return type is any-like, don't offer a return type.
+    // hole because `WriteTypeParametersInQualifiedName` is here in node builder flags, but functions which take old flags use `SymbolFormatFlags` for this instead
+    MultilineObjectLiterals                 = 1 << 10, // Always print object literals across multiple lines (only used to map into node builder flags)
+    WriteClassExpressionAsTypeLiteral       = 1 << 11, // Write a type literal instead of (Anonymous class)
+    UseTypeOfFunction                       = 1 << 12, // Write typeof instead of function type literal
+    OmitParameterModifiers                  = 1 << 13, // Omit modifiers on parameters
+
+    UseAliasDefinedOutsideCurrentScope      = 1 << 14, // For a `type T = ... ` defined in a different file, write `T` instead of its value, even though `T` can't be accessed in the current scope.
+    UseSingleQuotesForStringLiteralType     = 1 << 28, // Use single quotes for string literal type
+    NoTypeReduction                         = 1 << 29, // Don't call getReducedType
+    OmitThisParameter                       = 1 << 25,
+
+    // Error Handling
+    AllowUniqueESSymbolType                 = 1 << 20, // This is bit 20 to align with the same bit in `NodeBuilderFlags`
+
+    // TypeFormatFlags exclusive
+    AddUndefined                            = 1 << 17, // Add undefined to types of initialized, non-optional parameters
+    WriteArrowStyleSignature                = 1 << 18, // Write arrow style signature
+
+    // State
+    InArrayType                             = 1 << 19, // Writing an array element type
+    InElementType                           = 1 << 21, // Writing an array or union element type
+    InFirstTypeArgument                     = 1 << 22, // Writing first type argument of the instantiated type
+    InTypeAlias                             = 1 << 23, // Writing type in type alias declaration
+
+    NodeBuilderFlagsMask = NoTruncation | WriteArrayAsGenericType | GenerateNamesForShadowedTypeParams | UseStructuralFallback | WriteTypeArgumentsOfSignature |
+        UseFullyQualifiedType | SuppressAnyReturnType | MultilineObjectLiterals | WriteClassExpressionAsTypeLiteral |
+        UseTypeOfFunction | OmitParameterModifiers | UseAliasDefinedOutsideCurrentScope | AllowUniqueESSymbolType | InTypeAlias |
+        UseSingleQuotesForStringLiteralType | NoTypeReduction | OmitThisParameter,
 }
 
 export const enum NodeFlags {
@@ -728,6 +782,38 @@ export type HasJSDoc =
     | WhileStatement;
 
 export type HasLocals = Block | SourceFile;
+
+
+// NOTE: Changing the following list requires changes to:
+// - `canHaveModifiers` in factory/utilitiesPublic.ts
+// - `updateModifiers` in factory/nodeFactory.ts
+export type HasModifiers =
+    | TypeParameterDeclaration
+    | ParameterDeclaration
+    // | ConstructorTypeNode
+    // | PropertySignature
+    // | PropertyDeclaration
+    // | MethodSignature
+    // | MethodDeclaration
+    // | ConstructorDeclaration
+    // | GetAccessorDeclaration
+    // | SetAccessorDeclaration
+    // | IndexSignatureDeclaration
+    | FunctionExpression
+    // | ArrowFunction
+    // | ClassExpression
+    | VariableStatement
+    | FunctionDeclaration
+    // | ClassDeclaration
+    // | InterfaceDeclaration
+    // | TypeAliasDeclaration
+    // | EnumDeclaration
+    // | ModuleDeclaration
+    // | ImportEqualsDeclaration
+    // | ImportDeclaration
+    // | ExportAssignment
+    // | ExportDeclaration
+    ;
 
 export interface NodeArray<T extends Node> extends ReadonlyArray<T>, ReadonlyTextRange {
     readonly hasTrailingComma: boolean;
@@ -1699,3 +1785,261 @@ export interface PostfixUnaryExpression extends UpdateExpression {
     readonly operand: LeftHandSideExpression;
     readonly operator: PostfixUnaryOperator;
 }
+
+export interface FreshableType extends Type {
+    freshType: FreshableType; // Fresh version of type
+    regularType: FreshableType; // Regular version of type
+}
+
+// String literal types (TypeFlags.StringLiteral)
+// Int literal types (TypeFlags.IntLiteral)
+// Float literal types (TypeFlags.FloatLiteral)
+export interface LiteralType extends FreshableType {
+    value: string | number; // Value of literal
+}
+
+
+// Types included in TypeFlags.ObjectFlagsType have an objectFlags property. Some ObjectFlags
+// are specific to certain types and reuse the same bit position. Those ObjectFlags require a check
+// for a certain TypeFlags value to determine their meaning.
+// dprint-ignore
+export const enum ObjectFlags {
+    None             = 0,
+    Class            = 1 << 0,  // Class
+    Interface        = 1 << 1,  // Interface
+    Reference        = 1 << 2,  // Generic type reference
+    Tuple            = 1 << 3,  // Synthesized generic tuple type
+    Anonymous        = 1 << 4,  // Anonymous
+    Mapped           = 1 << 5,  // Mapped
+    Instantiated     = 1 << 6,  // Instantiated anonymous or mapped type
+    ObjectLiteral    = 1 << 7,  // Originates in an object literal
+    EvolvingArray    = 1 << 8,  // Evolving array type
+    ObjectLiteralPatternWithComputedProperties = 1 << 9,  // Object literal pattern with computed properties
+    ReverseMapped    = 1 << 10, // Object contains a property from a reverse-mapped type
+    JsxAttributes    = 1 << 11, // Jsx attributes type
+    JSLiteral        = 1 << 12, // Object type declared in JS - disables errors on read/write of nonexisting members
+    FreshLiteral     = 1 << 13, // Fresh object literal
+    ArrayLiteral     = 1 << 14, // Originates in an array literal
+    /** @internal */
+    PrimitiveUnion   = 1 << 15, // Union of only primitive types
+    /** @internal */
+    ContainsWideningType = 1 << 16, // Type is or contains undefined or null widening type
+    /** @internal */
+    ContainsObjectOrArrayLiteral = 1 << 17, // Type is or contains object literal type
+    /** @internal */
+    NonInferrableType = 1 << 18, // Type is or contains anyFunctionType or silentNeverType
+    /** @internal */
+    CouldContainTypeVariablesComputed = 1 << 19, // CouldContainTypeVariables flag has been computed
+    /** @internal */
+    CouldContainTypeVariables = 1 << 20, // Type could contain a type variable
+
+    ClassOrInterface = Class | Interface,
+    /** @internal */
+    RequiresWidening = ContainsWideningType | ContainsObjectOrArrayLiteral,
+    /** @internal */
+    PropagatingFlags = ContainsWideningType | ContainsObjectOrArrayLiteral | NonInferrableType,
+    /** @internal */
+    InstantiatedMapped = Mapped | Instantiated,
+    // Object flags that uniquely identify the kind of ObjectType
+    /** @internal */
+    ObjectTypeKindMask = ClassOrInterface | Reference | Tuple | Anonymous | Mapped | ReverseMapped | EvolvingArray,
+
+    // Flags that require TypeFlags.Object
+    ContainsSpread   = 1 << 21,  // Object literal contains spread operation
+    ObjectRestType   = 1 << 22,  // Originates in object rest declaration
+    InstantiationExpressionType = 1 << 23,  // Originates in instantiation expression
+    SingleSignatureType = 1 << 27,  // A single signature type extracted from a potentially broader type
+    /** @internal */
+    IsClassInstanceClone = 1 << 24, // Type is a clone of a class instance type
+    // Flags that require TypeFlags.Object and ObjectFlags.Reference
+    /** @internal */
+    IdenticalBaseTypeCalculated = 1 << 25, // has had `getSingleBaseForNonAugmentingSubtype` invoked on it already
+    /** @internal */
+    IdenticalBaseTypeExists = 1 << 26, // has a defined cachedEquivalentBaseType member
+
+    // Flags that require TypeFlags.UnionOrIntersection or TypeFlags.Substitution
+    /** @internal */
+    IsGenericTypeComputed = 1 << 21, // IsGenericObjectType flag has been computed
+    /** @internal */
+    IsGenericObjectType = 1 << 22, // Union or intersection contains generic object type
+    /** @internal */
+    IsGenericIndexType = 1 << 23, // Union or intersection contains generic index type
+    /** @internal */
+    IsGenericType = IsGenericObjectType | IsGenericIndexType,
+
+    // Flags that require TypeFlags.Union
+    /** @internal */
+    ContainsIntersections = 1 << 24, // Union contains intersections
+    /** @internal */
+    IsUnknownLikeUnionComputed = 1 << 25, // IsUnknownLikeUnion flag has been computed
+    /** @internal */
+    IsUnknownLikeUnion = 1 << 26, // Union of null, undefined, and empty object type
+    /** @internal */
+
+    // Flags that require TypeFlags.Intersection
+    /** @internal */
+    IsNeverIntersectionComputed = 1 << 24, // IsNeverLike flag has been computed
+    /** @internal */
+    IsNeverIntersection = 1 << 25, // Intersection reduces to never
+    /** @internal */
+    IsConstrainedTypeVariable = 1 << 26, // T & C, where T's constraint and C are primitives, object, or {}
+}
+
+
+// dprint-ignore
+/** @internal */
+export const enum SignatureFlags {
+    None = 0,
+
+    // Propagating flags
+    HasRestParameter = 1 << 0,          // Indicates last parameter is rest parameter
+    HasLiteralTypes = 1 << 1,           // Indicates signature is specialized
+    Abstract = 1 << 2,                  // Indicates signature comes from an abstract class, abstract construct signature, or abstract constructor type
+
+    // Non-propagating flags
+    IsInnerCallChain = 1 << 3,          // Indicates signature comes from a CallChain nested in an outer OptionalChain
+    IsOuterCallChain = 1 << 4,          // Indicates signature comes from a CallChain that is the outermost chain of an optional expression
+    IsUntypedSignatureInJSFile = 1 << 5, // Indicates signature is from a js file and has no types
+    IsNonInferrable = 1 << 6,           // Indicates signature comes from a non-inferrable type
+    IsSignatureCandidateForOverloadFailure = 1 << 7,
+
+    // We do not propagate `IsInnerCallChain` or `IsOuterCallChain` to instantiated signatures, as that would result in us
+    // attempting to add `| undefined` on each recursive call to `getReturnTypeOfSignature` when
+    // instantiating the return type.
+    PropagatingFlags = HasRestParameter | HasLiteralTypes | Abstract | IsUntypedSignatureInJSFile | IsSignatureCandidateForOverloadFailure,
+
+    CallChainFlags = IsInnerCallChain | IsOuterCallChain,
+}
+
+export interface JSDocSignature extends JSDocType, Declaration, JSDocContainer, LocalsContainer {
+    readonly kind: SyntaxKind.JSDocSignature;
+    // TODO
+    // readonly typeParameters?: readonly JSDocTemplateTag[];
+    // readonly parameters: readonly JSDocParameterTag[];
+    // readonly type: JSDocReturnTag | undefined;
+}
+
+
+/** @internal */
+export const enum IndexFlags {
+    None = 0,
+    StringsOnly = 1 << 0,
+    NoIndexSignatures = 1 << 1,
+    NoReducibleCheck = 1 << 2,
+}
+
+// keyof T types (TypeFlags.Index)
+export interface IndexType extends InstantiableType {
+    type: InstantiableType | UnionType;
+    /** @internal */
+    indexFlags: IndexFlags;
+}
+
+export interface InstantiableType extends Type {
+    /** @internal */
+    resolvedBaseConstraint?: Type;
+    /** @internal */
+    resolvedIndexType?: IndexType;
+    /** @internal */
+    resolvedStringIndexType?: IndexType;
+}
+
+/** @internal */
+export const enum TypeMapKind {
+    Simple,
+    Array,
+    Deferred,
+    Function,
+    Composite,
+    Merged,
+}
+
+/** @internal */
+export type TypeMapper =
+    | { kind: TypeMapKind.Simple; source: Type; target: Type; }
+    | { kind: TypeMapKind.Array; sources: readonly Type[]; targets: readonly Type[] | undefined; }
+    | { kind: TypeMapKind.Deferred; sources: readonly Type[]; targets: (() => Type)[]; }
+    | { kind: TypeMapKind.Function; func: (t: Type) => Type; debugInfo?: () => string; }
+    | { kind: TypeMapKind.Composite | TypeMapKind.Merged; mapper1: TypeMapper; mapper2: TypeMapper; };
+
+
+// Type parameters (TypeFlags.TypeParameter)
+// dprint-ignore
+export interface TypeParameter extends InstantiableType {
+    /**
+     * Retrieve using getConstraintFromTypeParameter
+     *
+     * @internal
+     */
+    constraint?: Type;        // Constraint
+    /** @internal */
+    default?: Type;
+    /** @internal */
+    target?: TypeParameter;  // Instantiation target
+    /** @internal */
+    mapper?: TypeMapper;     // Instantiation mapper
+    /** @internal */
+    isThisType?: boolean;
+    /** @internal */
+    resolvedDefaultType?: Type;
+}
+
+// dprint-ignore
+export interface Signature {
+    /** @internal */ flags: SignatureFlags;
+    /** @internal */ checker?: TypeChecker;
+    declaration?: SignatureDeclaration | JSDocSignature; // Originating declaration
+    typeParameters?: readonly TypeParameter[];   // Type parameters (undefined if non-generic)
+    parameters: readonly Symbol[];               // Parameters
+    thisParameter?: Symbol;             // symbol of this-type parameter
+    /** @internal */
+    // See comment in `instantiateSignature` for why these are set lazily.
+    resolvedReturnType?: Type;          // Lazily set by `getReturnTypeOfSignature`.
+    /** @internal */
+    // // Lazily set by `getTypePredicateOfSignature`.
+    // // `undefined` indicates a type predicate that has not yet been computed.
+    // // Uses a special `noTypePredicate` sentinel value to indicate that there is no type predicate. This looks like a TypePredicate at runtime to avoid polymorphism.
+    // resolvedTypePredicate?: TypePredicate;
+    /** @internal */
+    minArgumentCount: number;           // Number of non-optional parameters
+    /** @internal */
+    resolvedMinArgumentCount?: number;  // Number of non-optional parameters (excluding trailing `void`)
+    /** @internal */
+    target?: Signature;                 // Instantiation target
+    /** @internal */
+    mapper?: TypeMapper;                // Instantiation mapper
+    /** @internal */
+    compositeSignatures?: Signature[];  // Underlying signatures of a union/intersection signature
+    /** @internal */
+    compositeKind?: TypeFlags;          // TypeFlags.Union if the underlying signatures are from union members, otherwise TypeFlags.Intersection
+    /** @internal */
+    erasedSignatureCache?: Signature;   // Erased version of signature (deferred)
+    /** @internal */
+    canonicalSignatureCache?: Signature; // Canonical version of signature (deferred)
+    /** @internal */
+    baseSignatureCache?: Signature;      // Base version of signature (deferred)
+    /** @internal */
+    optionalCallSignatureCache?: { inner?: Signature, outer?: Signature }; // Optional chained call version of signature (deferred)
+    /** @internal */
+    isolatedSignatureType?: ObjectType; // A manufactured type that just contains the signature for purposes of signature comparison
+    /** @internal */
+    instantiations?: Map<string, Signature>;    // Generic signature instantiation cache
+    /** @internal */
+    implementationSignatureCache?: Signature;  // Copy of the signature with fresh type parameters to use in checking the body of a potentially self-referential generic function (deferred)
+}
+
+/** @internal */
+export type ObjectFlagsType = ObjectType | UnionType;
+
+// Object types (TypeFlags.ObjectType)
+// dprint-ignore
+export interface ObjectType extends Type {
+    objectFlags: ObjectFlags;
+    /** @internal */ members?: SymbolTable;             // Properties by name
+    /** @internal */ properties?: Symbol[];             // Properties
+    /** @internal */ callSignatures?: readonly Signature[];      // Call signatures of type
+    /** @internal */ constructSignatures?: readonly Signature[]; // Construct signatures of type
+    ///** @internal */ indexInfos?: readonly IndexInfo[];  // Index signatures - doesn't exist in LPC
+    /** @internal */ objectTypeWithoutAbstractConstructSignatures?: ObjectType;
+}
+
