@@ -1,4 +1,4 @@
-import { CompilerOptions, Debug, FlowFlags, FlowLabel, FlowNode, HasLocals, IsBlockScopedContainer, IsContainer, Node, objectAllocator, SourceFile, SymbolFlags, Symbol, tracing, setParent, TracingNode, SyntaxKind, isFunctionLike, NodeArray, forEach, forEachChild, Mutable, HasContainerFlags, createSymbolTable, ModifierFlags, FunctionExpression, InlineClosureExpression, NodeFlags, FunctionLikeDeclaration, getImmediatelyInvokedFunctionExpression, nodeIsPresent, contains, isIdentifier, HasFlowNode, performance, VariableDeclaration, isBlockOrCatchScoped, Declaration, canHaveLocals, isPartOfParameterDeclaration, SymbolTable, hasSyntacticModifier, Diagnostics, isNamedDeclaration, length, DiagnosticRelatedInformation, getNameOfDeclaration, appendIfUnique, setValueDeclaration, addRelatedInfo, Identifier, StringLiteral, isPropertyNameLiteral, InternalSymbolName, getAssignmentDeclarationKind, BinaryExpression, AssignmentDeclarationKind, declarationNameToString, createDiagnosticForNodeInSourceFile, getSourceFileOfNode, DiagnosticMessage, DiagnosticArguments, DiagnosticWithLocation, ReturnStatement, IfStatement, Expression, isTruthyLiteral, isFalsyLiteral, FlowCondition, PrefixUnaryExpression, isLogicalOrCoalescingAssignmentExpression, isLogicalOrCoalescingBinaryExpression, isForEachStatement, FlowAssignment, FlowArrayMutation, Block, ConditionalExpression, WhileStatement, Statement, DoWhileStatement, ForStatement, ForEachStatement, BreakOrContinueStatement, SwitchStatement, FlowSwitchClause, CaseBlock, CallExpression, isAssignmentOperator, PropertyAccessExpression, ParenthesizedExpression, isLeftHandSideExpression } from "./_namespaces/lpc";
+import { CompilerOptions, Debug, FlowFlags, FlowLabel, FlowNode, HasLocals, IsBlockScopedContainer, IsContainer, Node, objectAllocator, SourceFile, SymbolFlags, Symbol, tracing, setParent, TracingNode, SyntaxKind, isFunctionLike, NodeArray, forEach, forEachChild, Mutable, HasContainerFlags, createSymbolTable, ModifierFlags, FunctionExpression, InlineClosureExpression, NodeFlags, FunctionLikeDeclaration, getImmediatelyInvokedFunctionExpression, nodeIsPresent, contains, isIdentifier, HasFlowNode, performance, VariableDeclaration, isBlockOrCatchScoped, Declaration, canHaveLocals, isPartOfParameterDeclaration, SymbolTable, hasSyntacticModifier, Diagnostics, isNamedDeclaration, length, DiagnosticRelatedInformation, getNameOfDeclaration, appendIfUnique, setValueDeclaration, addRelatedInfo, Identifier, StringLiteral, isPropertyNameLiteral, InternalSymbolName, getAssignmentDeclarationKind, BinaryExpression, AssignmentDeclarationKind, declarationNameToString, createDiagnosticForNodeInSourceFile, getSourceFileOfNode, DiagnosticMessage, DiagnosticArguments, DiagnosticWithLocation, ReturnStatement, IfStatement, Expression, isTruthyLiteral, isFalsyLiteral, FlowCondition, PrefixUnaryExpression, isLogicalOrCoalescingAssignmentExpression, isLogicalOrCoalescingBinaryExpression, isForEachStatement, FlowAssignment, FlowArrayMutation, Block, ConditionalExpression, WhileStatement, Statement, DoWhileStatement, ForStatement, ForEachStatement, BreakOrContinueStatement, SwitchStatement, FlowSwitchClause, CaseBlock, CallExpression, isAssignmentOperator, PropertyAccessExpression, ParenthesizedExpression, isLeftHandSideExpression, PostfixUnaryExpression, ArrayLiteralExpression, ObjectLiteralExpression } from "./_namespaces/lpc";
 
 const binder = /* @__PURE__ */ createBinder();
 
@@ -237,9 +237,9 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             // case SyntaxKind.PrefixUnaryExpression:
             //     bindPrefixUnaryExpressionFlow(node as PrefixUnaryExpression);
             //     break;
-            // case SyntaxKind.PostfixUnaryExpression:
-            //     bindPostfixUnaryExpressionFlow(node as PostfixUnaryExpression);
-            //     break;
+            case SyntaxKind.PostfixUnaryExpression:
+                bindPostfixUnaryExpressionFlow(node as PostfixUnaryExpression);
+                break;
             // case SyntaxKind.BinaryExpression:
             //     if (isDestructuringAssignment(node)) {
             //         // Carry over whether we are in an assignment pattern to
@@ -1247,6 +1247,44 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             fallthroughFlow = currentFlow;
             if (!(currentFlow.flags & FlowFlags.Unreachable) && i !== clauses.length - 1 && options.noFallthroughCasesInSwitch) {
                 clause.fallthroughFlowNode = currentFlow;
+            }
+        }
+    }
+
+    function bindPostfixUnaryExpressionFlow(node: PostfixUnaryExpression) {
+        bindEachChild(node);
+        if (node.operator === SyntaxKind.PlusPlusToken || node.operator === SyntaxKind.MinusMinusToken) {
+            bindAssignmentTargetFlow(node.operand);
+        }
+    }
+
+    function bindAssignmentTargetFlow(node: Expression) {
+        if (isNarrowableReference(node)) {
+            currentFlow = createFlowMutation(FlowFlags.Assignment, currentFlow, node);
+        }
+        else if (node.kind === SyntaxKind.ArrayLiteralExpression) {
+            // LPC doesn't have spread for arrays or destructuring
+            // for (const e of (node as ArrayLiteralExpression).elements) {
+            //     if (e.kind === SyntaxKind.SpreadElement) {
+            //         bindAssignmentTargetFlow((e as SpreadElement).expression);
+            //     }
+            //     else {
+            //         bindDestructuringTargetFlow(e);
+            //     }
+            // }
+        }
+        else if (node.kind === SyntaxKind.ObjectLiteralExpression) {
+            for (const p of (node as ObjectLiteralExpression).properties) {
+                // no destructuring in LPC
+                // if (p.kind === SyntaxKind.PropertyAssignment) {
+                //     bindDestructuringTargetFlow(p.initializer);
+                // } else 
+                if (p.kind === SyntaxKind.ShorthandPropertyAssignment) {
+                    bindAssignmentTargetFlow(p.name);
+                }
+                // else if (p.kind === SyntaxKind.SpreadAssignment) {
+                //     bindAssignmentTargetFlow(p.expression);
+                // }
             }
         }
     }

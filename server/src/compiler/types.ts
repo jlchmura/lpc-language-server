@@ -216,6 +216,10 @@ export const enum SyntaxKind {
     // Elements
     FunctionDeclaration,
 
+    // Property Assignments
+    PropertyAssignment,
+    ShorthandPropertyAssignment,
+
     // Top Level
     SourceFile,
     
@@ -307,13 +311,14 @@ export const enum SyntaxKind {
     PostfixUnaryExpression,
     ParenthesizedExpression,
     ArrayLiteralExpression,
+    ObjectLiteralExpression,
+    SpreadElement,
     PrefixUnaryExpression,
 
     // Clauses
     CatchClause,
     CaseClause,
-    DefaultClause,
-
+    DefaultClause,    
 
     LastKeyword = DeprecatedKeyword,
     FirstToken = Unknown,
@@ -2676,4 +2681,67 @@ export interface AssignmentExpression<TOperator extends AssignmentOperatorToken>
 export interface ParenthesizedExpression extends PrimaryExpression, JSDocContainer {
     readonly kind: SyntaxKind.ParenthesizedExpression;
     readonly expression: Expression;
+}
+
+export interface ArrayLiteralExpression extends PrimaryExpression {
+    readonly kind: SyntaxKind.ArrayLiteralExpression;
+    readonly elements: NodeArray<Expression>;
+    /** @internal */
+    multiLine?: boolean;
+}
+
+export interface ObjectLiteralElement extends NamedDeclaration {
+    _objectLiteralBrand: any;
+    readonly name?: PropertyName;
+}
+
+export interface PropertyAssignment extends ObjectLiteralElement, JSDocContainer {
+    readonly kind: SyntaxKind.PropertyAssignment;
+    readonly parent: ObjectLiteralExpression;
+    readonly name: PropertyName;
+    readonly initializer: Expression;
+
+    // The following properties are used only to report grammar errors (see `isGrammarError` in utilities.ts)
+    /** @internal */ readonly modifiers?: NodeArray<Modifier> | undefined; // property assignment cannot have decorators or modifiers    
+}
+
+
+export interface ShorthandPropertyAssignment extends ObjectLiteralElement, JSDocContainer {
+    readonly kind: SyntaxKind.ShorthandPropertyAssignment;
+    readonly parent: ObjectLiteralExpression;
+    readonly name: Identifier;
+    // used when ObjectLiteralExpression is used in ObjectAssignmentPattern
+    // it is a grammar error to appear in actual object initializer (see `isGrammarError` in utilities.ts):
+    readonly equalsToken?: EqualsToken;
+    readonly objectAssignmentInitializer?: Expression;
+
+    // The following properties are used only to report grammar errors (see `isGrammarError` in utilities.ts)
+    /** @internal */ readonly modifiers?: NodeArray<Modifier> | undefined; // shorthand property assignment cannot have decorators or modifiers    
+}
+
+/** Unlike ObjectLiteralElement, excludes JSXAttribute and JSXSpreadAttribute. */
+export type ObjectLiteralElementLike =
+    | PropertyAssignment
+    | ShorthandPropertyAssignment
+    // | SpreadAssignment
+    // | MethodDeclaration
+    // | AccessorDeclaration;
+    ;
+
+/**
+ * This interface is a base interface for ObjectLiteralExpression and JSXAttributes to extend from. JSXAttributes is similar to
+ * ObjectLiteralExpression in that it contains array of properties; however, JSXAttributes' properties can only be
+ * JSXAttribute or JSXSpreadAttribute. ObjectLiteralExpression, on the other hand, can only have properties of type
+ * ObjectLiteralElement (e.g. PropertyAssignment, ShorthandPropertyAssignment etc.)
+ */
+export interface ObjectLiteralExpressionBase<T extends ObjectLiteralElement> extends PrimaryExpression, Declaration {
+    readonly properties: NodeArray<T>;
+}
+
+
+// An ObjectLiteralExpression is the declaration node for an anonymous symbol.
+export interface ObjectLiteralExpression extends ObjectLiteralExpressionBase<ObjectLiteralElementLike>, JSDocContainer {
+    readonly kind: SyntaxKind.ObjectLiteralExpression;
+    /** @internal */
+    multiLine?: boolean;
 }
