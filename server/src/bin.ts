@@ -28,8 +28,15 @@ import { IEvaluatableSymbol } from "./symbols/base";
 import { LiteralSymbol } from "./symbols/literalSymbol";
 import { LpcTypes } from "./types";
 import { getDriverInfo } from "./driver/Driver";
-import { loadLpcConfig } from "./backend/LpcConfig";
+import { loadLpcConfig, LpcConfig } from "./backend/LpcConfig";
 import * as p2 from "./compiler/_namespaces/lpc";
+
+import {
+    CompilerOptions,
+    Path,
+    TypeCheckerHost,
+} from "./compiler/_namespaces/lpc";
+import { ILpcConfig } from "./config-types";
 
 class MockFileHandler implements IFileHandler {
     constructor() {}
@@ -57,8 +64,9 @@ const sourceText = fs.readFileSync(filename, "utf-8");
 const configFile = path.join(workDir, "lpc-config.json");
 const config = loadLpcConfig(configFile);
 
-const srcFile = p2.LpcParser.parseSourceFile(filename, sourceText, config);
-p2.bindSourceFile(srcFile, {});
+const host = createHost(filename, sourceText, config);
+const srcFile = host.getSourceFile(filename);
+const checker = p2.createTypeChecker(host); // binder is called by checker
 
 console.debug("node count:", srcFile.nodeCount);
 
@@ -168,3 +176,51 @@ console.debug("node count:", srcFile.nodeCount);
 // // console.log("t", finalTValue);
 
 // const i = 0;
+
+function createHost(
+    filename: string,
+    sourceText: string,
+    config: ILpcConfig
+): TypeCheckerHost {
+    const srcFile = p2.LpcParser.parseSourceFile(filename, sourceText, config);
+    const files: p2.SourceFile[] = [srcFile];
+    const redirectTargetsMap: ReadonlyMap<Path, string[]> = new Map<
+        Path,
+        string[]
+    >();
+
+    const host: TypeCheckerHost = {
+        getCompilerOptions: () => ({} as CompilerOptions),
+        getSourceFiles: () => files,
+        getSourceFile,
+        getProjectReferenceRedirect: () => undefined,
+        isSourceOfProjectReferenceRedirect: () => false,
+        getRedirectReferenceForResolutionFromSourceOfProject: () => undefined,
+        getResolvedModule: () => undefined,
+        typesPackageExists: () => false,
+        packageBundlesTypes: () => false,
+        redirectTargetsMap,
+
+        fileExists: function (path: string): boolean {
+            throw new Error("Function not implemented.");
+        },
+        getCurrentDirectory: function (): string {
+            throw new Error("Function not implemented.");
+        },
+        getFileIncludeReasons: function (): p2.MultiMap<
+            Path,
+            p2.FileIncludeReason
+        > {
+            throw new Error("Function not implemented.");
+        },
+        getCommonSourceDirectory: function (): string {
+            throw new Error("Function not implemented.");
+        },
+    };
+
+    return host;
+
+    function getSourceFile(fileName: string) {
+        return files[0];
+    }
+}

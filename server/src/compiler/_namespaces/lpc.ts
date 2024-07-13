@@ -13,6 +13,7 @@ export * from "../nodeTests.js";
 export * from "../debug.js";
 export * from "../tracing.js";
 export * from "../binder.js";
+export * from "../checker.js";
 export * from "../path.js";
 import * as performance from "./lpc.performance.js";
 export { performance };
