@@ -511,3 +511,148 @@ export function reduceLeft<T>(array: readonly T[] | undefined, f: (memo: T, valu
     }
     return initial;
 }
+
+
+/**
+ * Performs a binary search, finding the index at which `value` occurs in `array`.
+ * If no such index is found, returns the 2's-complement of first index at which
+ * `array[index]` exceeds `value`.
+ * @param array A sorted array whose first element must be no larger than number
+ * @param value The value to be searched for in the array.
+ * @param keySelector A callback used to select the search key from `value` and each element of
+ * `array`.
+ * @param keyComparer A callback used to compare two keys in a sorted array.
+ * @param offset An offset into `array` at which to start the search.
+ *
+ * @internal
+ */
+export function binarySearch<T, U>(array: readonly T[], value: T, keySelector: (v: T) => U, keyComparer: Comparer<U>, offset?: number): number {
+    return binarySearchKey(array, keySelector(value), keySelector, keyComparer, offset);
+}
+
+
+/**
+ * Performs a binary search, finding the index at which an object with `key` occurs in `array`.
+ * If no such index is found, returns the 2's-complement of first index at which
+ * `array[index]` exceeds `key`.
+ * @param array A sorted array whose first element must be no larger than number
+ * @param key The key to be searched for in the array.
+ * @param keySelector A callback used to select the search key from each element of `array`.
+ * @param keyComparer A callback used to compare two keys in a sorted array.
+ * @param offset An offset into `array` at which to start the search.
+ *
+ * @internal
+ */
+export function binarySearchKey<T, U>(array: readonly T[], key: U, keySelector: (v: T, i: number) => U, keyComparer: Comparer<U>, offset?: number): number {
+    if (!some(array)) {
+        return -1;
+    }
+
+    let low = offset ?? 0;
+    let high = array.length - 1;
+    while (low <= high) {
+        const middle = low + ((high - low) >> 1);
+        const midKey = keySelector(array[middle], middle);
+        switch (keyComparer(midKey, key)) {
+            case Comparison.LessThan:
+                low = middle + 1;
+                break;
+            case Comparison.EqualTo:
+                return middle;
+            case Comparison.GreaterThan:
+                high = middle - 1;
+                break;
+        }
+    }
+
+    return ~low;
+}
+
+/** @internal */
+export function insertSorted<T>(
+    array: SortedArray<T>,
+    insert: T,
+    compare: Comparer<T>,
+    equalityComparer?: EqualityComparer<T>,
+    allowDuplicates?: boolean,
+): boolean {
+    if (array.length === 0) {
+        array.push(insert);
+        return true;
+    }
+
+    const insertIndex = binarySearch(array, insert, identity, compare);
+    if (insertIndex < 0) {
+        if (equalityComparer && !allowDuplicates) {
+            const idx = ~insertIndex;
+            if (idx > 0 && equalityComparer(insert, array[idx - 1])) {
+                return false;
+            }
+            if (idx < array.length && equalityComparer(insert, array[idx])) {
+                array.splice(idx, 1, insert);
+                return true;
+            }
+        }
+        array.splice(~insertIndex, 0, insert);
+        return true;
+    }
+
+    if (allowDuplicates) {
+        array.splice(insertIndex, 0, insert);
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * Tests whether a value is an array.
+ *
+ * @internal
+ */
+export function isArray(value: any): value is readonly unknown[] {
+    // See: https://github.com/microsoft/TypeScript/issues/17002
+    return Array.isArray(value);
+}
+
+/** @internal */
+export function flatMapToMutable<T, U>(array: readonly T[] | undefined, mapfn: (x: T, i: number) => U | readonly U[] | undefined): U[] {
+    const result: U[] = [];
+    if (array !== undefined) {
+        for (let i = 0; i < array.length; i++) {
+            const v = mapfn(array[i], i);
+            if (v) {
+                if (isArray(v)) {
+                    addRange(result, v);
+                }
+                else {
+                    result.push(v);
+                }
+            }
+        }
+    }
+    return result;
+}
+
+/** @internal */
+export function concatenate<T>(array1: T[], array2: T[]): T[];
+/** @internal */
+export function concatenate<T>(array1: readonly T[], array2: readonly T[]): readonly T[];
+/** @internal */
+export function concatenate<T>(array1: T[], array2: T[] | undefined): T[]; // eslint-disable-line @typescript-eslint/unified-signatures
+/** @internal */
+export function concatenate<T>(array1: T[] | undefined, array2: T[]): T[]; // eslint-disable-line @typescript-eslint/unified-signatures
+/** @internal */
+export function concatenate<T>(array1: readonly T[], array2: readonly T[] | undefined): readonly T[]; // eslint-disable-line @typescript-eslint/unified-signatures
+/** @internal */
+export function concatenate<T>(array1: readonly T[] | undefined, array2: readonly T[]): readonly T[]; // eslint-disable-line @typescript-eslint/unified-signatures
+/** @internal */
+export function concatenate<T>(array1: T[] | undefined, array2: T[] | undefined): T[] | undefined;
+/** @internal */
+export function concatenate<T>(array1: readonly T[] | undefined, array2: readonly T[] | undefined): readonly T[] | undefined;
+/** @internal */
+export function concatenate<T>(array1: readonly T[] | undefined, array2: readonly T[] | undefined): readonly T[] | undefined {
+    if (array2 === undefined || array2.length === 0) return array1;
+    if (array1 === undefined || array1.length === 0) return array2;
+    return [...array1, ...array2];
+}

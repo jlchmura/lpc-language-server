@@ -1,5 +1,5 @@
 import * as antlr from "antlr4ng";
-import { Signature, Type, Debug, DiagnosticArguments, DiagnosticMessage, DiagnosticRelatedInformation, DiagnosticWithDetachedLocation, DiagnosticWithLocation, Identifier, MapLike, ModifierFlags, Node, NodeFlags, ReadonlyTextRange, some, SourceFile, Symbol, SymbolFlags, SyntaxKind, TextRange, Token, TransformFlags, TypeChecker, TypeFlags, tracing, SignatureFlags, canHaveModifiers, Modifier, skipTrivia, SymbolTable, CallExpression, Declaration, getCombinedNodeFlags, BinaryExpression, AssignmentDeclarationKind, isCallExpression, isBinaryExpression, isIdentifier, Diagnostic, emptyArray, PropertyNameLiteral, DeclarationName, LiteralLikeNode, AssignmentExpression, LogicalOrCoalescingAssignmentOperator, LogicalOperator, Expression, OuterExpressionKinds, OuterExpression, WrappedExpression, PrefixUnaryExpression, PostfixUnaryExpression, ForEachStatement, ShorthandPropertyAssignment, PropertyAssignment, PropertyAccessExpression, ParenthesizedExpression, BinaryOperatorToken, AssertionLevel } from "./_namespaces/lpc";
+import { Signature, Type, Debug, DiagnosticArguments, DiagnosticMessage, DiagnosticRelatedInformation, DiagnosticWithDetachedLocation, DiagnosticWithLocation, Identifier, MapLike, ModifierFlags, Node, NodeFlags, ReadonlyTextRange, some, SourceFile, Symbol, SymbolFlags, SyntaxKind, TextRange, Token, TransformFlags, TypeChecker, TypeFlags, tracing, SignatureFlags, canHaveModifiers, Modifier, skipTrivia, SymbolTable, CallExpression, Declaration, getCombinedNodeFlags, BinaryExpression, AssignmentDeclarationKind, isCallExpression, isBinaryExpression, isIdentifier, Diagnostic, emptyArray, PropertyNameLiteral, DeclarationName, LiteralLikeNode, AssignmentExpression, LogicalOrCoalescingAssignmentOperator, LogicalOperator, Expression, OuterExpressionKinds, OuterExpression, WrappedExpression, PrefixUnaryExpression, PostfixUnaryExpression, ForEachStatement, ShorthandPropertyAssignment, PropertyAssignment, PropertyAccessExpression, ParenthesizedExpression, BinaryOperatorToken, AssertionLevel, DiagnosticCollection, SortedArray, binarySearch, identity, Comparison, DiagnosticMessageChain, compareStringsCaseSensitive, compareValues, insertSorted, flatMapToMutable } from "./_namespaces/lpc";
 import { TextSpan } from "../backend/types";
 
 /** @internal */
@@ -1147,4 +1147,233 @@ export function skipParentheses(node: Node, excludeJSDocTypeAssertions?: boolean
         OuterExpressionKinds.Parentheses | OuterExpressionKinds.ExcludeJSDocTypeAssertion :
         OuterExpressionKinds.Parentheses;
     return skipOuterExpressions(node, flags);
+}
+
+/** @internal */
+export function createDiagnosticCollection(): DiagnosticCollection {
+    let nonFileDiagnostics = [] as Diagnostic[] as SortedArray<Diagnostic>; // See GH#19873
+    const filesWithDiagnostics = [] as string[] as SortedArray<string>;
+    const fileDiagnostics = new Map<string, SortedArray<DiagnosticWithLocation>>();
+    let hasReadNonFileDiagnostics = false;
+
+    return {
+        add,
+        lookup,
+        getGlobalDiagnostics,
+        getDiagnostics,
+    };
+
+    function lookup(diagnostic: Diagnostic): Diagnostic | undefined {
+        let diagnostics: SortedArray<Diagnostic> | undefined;
+        if (diagnostic.file) {
+            diagnostics = fileDiagnostics.get(diagnostic.file.fileName);
+        }
+        else {
+            diagnostics = nonFileDiagnostics;
+        }
+        if (!diagnostics) {
+            return undefined;
+        }
+        const result = binarySearch(diagnostics, diagnostic, identity, compareDiagnosticsSkipRelatedInformation);
+        if (result >= 0) {
+            return diagnostics[result];
+        }
+        if (~result > 0 && diagnosticsEqualityComparer(diagnostic, diagnostics[~result - 1])) {
+            return diagnostics[~result - 1];
+        }
+        return undefined;
+    }
+   
+    function add(diagnostic: Diagnostic): void {
+        let diagnostics: SortedArray<Diagnostic> | undefined;
+        if (diagnostic.file) {
+            diagnostics = fileDiagnostics.get(diagnostic.file.fileName);
+            if (!diagnostics) {
+                diagnostics = [] as Diagnostic[] as SortedArray<DiagnosticWithLocation>; // See GH#19873
+                fileDiagnostics.set(diagnostic.file.fileName, diagnostics as SortedArray<DiagnosticWithLocation>);
+                insertSorted(filesWithDiagnostics, diagnostic.file.fileName, compareStringsCaseSensitive);
+            }
+        }
+        else {
+            // If we've already read the non-file diagnostics, do not modify the existing array.
+            if (hasReadNonFileDiagnostics) {
+                hasReadNonFileDiagnostics = false;
+                nonFileDiagnostics = nonFileDiagnostics.slice() as SortedArray<Diagnostic>;
+            }
+
+            diagnostics = nonFileDiagnostics;
+        }
+
+        insertSorted(diagnostics, diagnostic, compareDiagnosticsSkipRelatedInformation, diagnosticsEqualityComparer);
+    }
+
+    function getGlobalDiagnostics(): Diagnostic[] {
+        hasReadNonFileDiagnostics = true;
+        return nonFileDiagnostics;
+    }
+
+    function getDiagnostics(fileName: string): DiagnosticWithLocation[];
+    function getDiagnostics(): Diagnostic[];
+    function getDiagnostics(fileName?: string): Diagnostic[] {
+        if (fileName) {
+            return fileDiagnostics.get(fileName) || [];
+        }
+
+        const fileDiags: Diagnostic[] = flatMapToMutable(filesWithDiagnostics, f => fileDiagnostics.get(f));
+        if (!nonFileDiagnostics.length) {
+            return fileDiags;
+        }
+        fileDiags.unshift(...nonFileDiagnostics);
+        return fileDiags;
+    }
+}
+
+function getDiagnosticCode(d: Diagnostic): number {
+    return d.canonicalHead?.code || d.code;
+}
+
+function getDiagnosticMessage(d: Diagnostic): string | DiagnosticMessageChain {
+    return d.canonicalHead?.messageText || d.messageText;
+}
+
+function getDiagnosticFilePath(diagnostic: Diagnostic): string | undefined {
+    return diagnostic.file ? diagnostic.file.path : undefined;
+}
+
+// An diagnostic message with more elaboration should be considered *less than* a diagnostic message
+// with less elaboration that is otherwise similar.
+function compareMessageText(
+    d1: Diagnostic,
+    d2: Diagnostic,
+): Comparison {
+    let headMsg1 = getDiagnosticMessage(d1);
+    let headMsg2 = getDiagnosticMessage(d2);
+    if (typeof headMsg1 !== "string") {
+        headMsg1 = headMsg1.messageText;
+    }
+    if (typeof headMsg2 !== "string") {
+        headMsg2 = headMsg2.messageText;
+    }
+    const chain1 = typeof d1.messageText !== "string" ? d1.messageText.next : undefined;
+    const chain2 = typeof d2.messageText !== "string" ? d2.messageText.next : undefined;
+
+    let res = compareStringsCaseSensitive(headMsg1, headMsg2);
+    if (res) {
+        return res;
+    }
+
+    res = compareMessageChain(chain1, chain2);
+    if (res) {
+        return res;
+    }
+
+    if (d1.canonicalHead && !d2.canonicalHead) {
+        return Comparison.LessThan;
+    }
+    if (d2.canonicalHead && !d1.canonicalHead) {
+        return Comparison.GreaterThan;
+    }
+
+    return Comparison.EqualTo;
+}
+
+function compareDiagnosticsSkipRelatedInformation(d1: Diagnostic, d2: Diagnostic): Comparison {
+    const code1 = getDiagnosticCode(d1);
+    const code2 = getDiagnosticCode(d2);
+    return compareStringsCaseSensitive(getDiagnosticFilePath(d1), getDiagnosticFilePath(d2)) ||
+        compareValues(d1.start, d2.start) ||
+        compareValues(d1.length, d2.length) ||
+        compareValues(code1, code2) ||
+        compareMessageText(d1, d2) ||
+        Comparison.EqualTo;
+}
+
+// First compare by size of the message chain,
+// then compare by content of the message chain.
+function compareMessageChain(
+    c1: DiagnosticMessageChain[] | undefined,
+    c2: DiagnosticMessageChain[] | undefined,
+): Comparison {
+    if (c1 === undefined && c2 === undefined) {
+        return Comparison.EqualTo;
+    }
+    if (c1 === undefined) {
+        return Comparison.GreaterThan;
+    }
+    if (c2 === undefined) {
+        return Comparison.LessThan;
+    }
+
+    return compareMessageChainSize(c1, c2) || compareMessageChainContent(c1, c2);
+}
+
+
+function compareMessageChainSize(
+    c1: DiagnosticMessageChain[] | undefined,
+    c2: DiagnosticMessageChain[] | undefined,
+): Comparison {
+    if (c1 === undefined && c2 === undefined) {
+        return Comparison.EqualTo;
+    }
+    if (c1 === undefined) {
+        return Comparison.GreaterThan;
+    }
+    if (c2 === undefined) {
+        return Comparison.LessThan;
+    }
+
+    let res = compareValues(c2.length, c1.length);
+    if (res) {
+        return res;
+    }
+
+    for (let i = 0; i < c2.length; i++) {
+        res = compareMessageChainSize(c1[i].next, c2[i].next);
+        if (res) {
+            return res;
+        }
+    }
+
+    return Comparison.EqualTo;
+}
+
+// Assumes the two chains have the same shape.
+function compareMessageChainContent(
+    c1: DiagnosticMessageChain[],
+    c2: DiagnosticMessageChain[],
+): Comparison {
+    let res;
+    for (let i = 0; i < c2.length; i++) {
+        res = compareStringsCaseSensitive(c1[i].messageText, c2[i].messageText);
+        if (res) {
+            return res;
+        }
+        if (c1[i].next === undefined) {
+            continue;
+        }
+        res = compareMessageChainContent(c1[i].next!, c2[i].next!);
+        if (res) {
+            return res;
+        }
+    }
+    return Comparison.EqualTo;
+}
+
+ /** @internal */
+ export function diagnosticsEqualityComparer(d1: Diagnostic, d2: Diagnostic): boolean {
+    const code1 = getDiagnosticCode(d1);
+    const code2 = getDiagnosticCode(d2);
+    const msg1 = getDiagnosticMessage(d1);
+    const msg2 = getDiagnosticMessage(d2);
+    return compareStringsCaseSensitive(getDiagnosticFilePath(d1), getDiagnosticFilePath(d2)) === Comparison.EqualTo &&
+        compareValues(d1.start, d2.start) === Comparison.EqualTo &&
+        compareValues(d1.length, d2.length) === Comparison.EqualTo &&
+        compareValues(code1, code2) === Comparison.EqualTo &&
+        messageTextEqualityComparer(msg1, msg2);
+}
+
+function messageTextEqualityComparer(m1: string | DiagnosticMessageChain, m2: string | DiagnosticMessageChain): boolean {
+    const t1 = typeof m1 === "string" ? m1 : m1.messageText;
+    const t2 = typeof m2 === "string" ? m2 : m2.messageText;
+    return compareStringsCaseSensitive(t1, t2) === Comparison.EqualTo;
 }

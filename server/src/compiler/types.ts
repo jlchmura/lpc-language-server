@@ -75,8 +75,12 @@ export interface TypeChecker {
     /** @internal */ getTypeCount(): number;
     /** @internal */ getInstantiationCount(): number;
     
-    // TODO
     signatureToString(signature: Signature, enclosingDeclaration?: Node, flags?: TypeFormatFlags, kind?: SignatureKind): string;
+    
+    // Should not be called directly.  Should only be accessed through the Program instance.
+    /** @internal */ getDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken, nodesToCheck?: Node[]): Diagnostic[];
+    
+    // TODO
 }
 
 export type CompilerOptionsValue = string | number | boolean | (string | number)[] | string[] | MapLike<string[]> | ProjectReference[] | null | undefined; // eslint-disable-line no-restricted-syntax
@@ -3168,4 +3172,21 @@ export interface TransientSymbolLinks extends SymbolLinks {
 /** @internal */
 export interface TransientSymbol extends Symbol {
     links: TransientSymbolLinks;
+}
+
+/** @internal */
+export interface DiagnosticCollection {
+    // Adds a diagnostic to this diagnostic collection.
+    add(diagnostic: Diagnostic): void;
+
+    // Returns the first existing diagnostic that is equivalent to the given one (sans related information)
+    lookup(diagnostic: Diagnostic): Diagnostic | undefined;
+
+    // Gets all the diagnostics that aren't associated with a file.
+    getGlobalDiagnostics(): Diagnostic[];
+
+    // If fileName is provided, gets all the diagnostics associated with that file name.
+    // Otherwise, returns all the diagnostics (global and file associated) in this collection.
+    getDiagnostics(): Diagnostic[];
+    getDiagnostics(fileName: string): DiagnosticWithLocation[];
 }

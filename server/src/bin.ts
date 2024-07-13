@@ -67,7 +67,7 @@ const config = loadLpcConfig(configFile);
 const host = createHost(filename, sourceText, config);
 const srcFile = host.getSourceFile(filename);
 const checker = p2.createTypeChecker(host); // binder is called by checker
-
+const diags = checker.getDiagnostics(srcFile);
 console.debug("node count:", srcFile.nodeCount);
 
 // const facade = new LpcFacade(workDir, undefined);
