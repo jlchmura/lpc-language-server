@@ -1136,3 +1136,15 @@ export function createBinaryExpressionTrampoline<TOuterState, TState, TResult>(
         return resultHolder.value;
     }
 }
+
+/** @internal */
+export function skipParentheses(node: Expression, excludeJSDocTypeAssertions?: boolean): Expression;
+/** @internal */
+export function skipParentheses(node: Node, excludeJSDocTypeAssertions?: boolean): Node;
+/** @internal */
+export function skipParentheses(node: Node, excludeJSDocTypeAssertions?: boolean): Node {
+    const flags = excludeJSDocTypeAssertions ?
+        OuterExpressionKinds.Parentheses | OuterExpressionKinds.ExcludeJSDocTypeAssertion :
+        OuterExpressionKinds.Parentheses;
+    return skipOuterExpressions(node, flags);
+}

@@ -2204,8 +2204,8 @@ export interface FunctionDeclaration extends FunctionLikeDeclarationBase, Declar
 export interface CallExpression extends LeftHandSideExpression, Declaration {
     readonly kind: SyntaxKind.CallExpression;
     readonly expression: LeftHandSideExpression;
-    /** @deprecated LPC doesn't use type args on call expressions */
-    readonly typeArguments?: NodeArray<TypeNode>;
+    ///** @deprecated LPC doesn't use type args on call expressions */
+    //readonly typeArguments?: NodeArray<TypeNode>;
     readonly arguments: NodeArray<Expression>;
 }
 
@@ -2751,4 +2751,8 @@ export interface ElementAccessExpression extends MemberExpression, Declaration, 
     readonly kind: SyntaxKind.ElementAccessExpression;
     readonly expression: LeftHandSideExpression;    
     readonly argumentExpression: Expression;
+}
+
+export interface CallChain extends CallExpression {
+    _optionalChainBrand: any;
 }

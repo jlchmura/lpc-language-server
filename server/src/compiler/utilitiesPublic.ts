@@ -1,4 +1,4 @@
-import { AssignmentDeclarationKind, BinaryExpression, CallExpression, Declaration, DeclarationName, Expression, ForEachStatement, getAssignmentDeclarationKind, HasLocals, HasModifiers, hasProperty, Identifier, isBinaryExpression, isFunctionExpression, isIdentifier, isInlineClosureExpression, isVariableDeclaration, LeftHandSideExpression, NamedDeclaration, Node, NodeArray, NodeFlags, OuterExpressionKinds, SignatureDeclaration, skipOuterExpressions, Symbol, SyntaxKind } from "./_namespaces/lpc";
+import { AssignmentDeclarationKind, BinaryExpression, CallExpression, Declaration, DeclarationName, Expression, ForEachStatement, getAssignmentDeclarationKind, HasLocals, HasModifiers, hasProperty, Identifier, isBinaryExpression, isFunctionExpression, isIdentifier, isInlineClosureExpression, isVariableDeclaration, LeftHandSideExpression, NamedDeclaration, Node, NodeArray, NodeFlags, OuterExpressionKinds, ParameterDeclaration, SignatureDeclaration, skipOuterExpressions, Symbol, SyntaxKind } from "./_namespaces/lpc";
 
 /** @internal */
 export function isNodeArray<T extends Node>(array: readonly T[]): array is NodeArray<T> {
@@ -321,3 +321,4 @@ function isLeftHandSideExpressionKind(kind: SyntaxKind): boolean {
             return false;
     }
 }
+
