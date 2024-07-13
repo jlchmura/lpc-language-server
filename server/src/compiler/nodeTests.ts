@@ -1,4 +1,4 @@
-import { ArrayTypeNode, BinaryExpression, Block, CallExpression, DefaultClause, ExpressionStatement, FloatLiteral, FunctionDeclaration, FunctionExpression, Identifier, IfStatement, InlineClosureExpression, IntLiteral, JSDoc, JSDocSignature, JSDocTypeExpression, Node, ParameterDeclaration, PropertyAccessExpression, SourceFile, StringLiteral, SyntaxKind, TypeParameterDeclaration, UnionTypeNode, VariableDeclaration, VariableDeclarationList, VariableStatement } from "./_namespaces/lpc";
+import { ArrayTypeNode, BinaryExpression, Block, CallExpression, DefaultClause, ExpressionStatement, FloatLiteral, FunctionDeclaration, FunctionExpression, Identifier, IfStatement, InlineClosureExpression, IntLiteral, JSDoc, JSDocSignature, JSDocTypeExpression, Node, ParameterDeclaration, ParenthesizedExpression, PrefixUnaryExpression, PropertyAccessExpression, SourceFile, StringLiteral, SyntaxKind, TypeParameterDeclaration, UnionTypeNode, VariableDeclaration, VariableDeclarationList, VariableStatement } from "./_namespaces/lpc";
 
 export function isBinaryExpression(node: Node): node is BinaryExpression {
     return node.kind === SyntaxKind.BinaryExpression;
@@ -124,3 +124,10 @@ export function isInlineClosureExpression(node: Node): node is InlineClosureExpr
     return node.kind === SyntaxKind.InlineClosureExpression;
 }
 
+export function isParenthesizedExpression(node: Node): node is ParenthesizedExpression {
+    return node.kind === SyntaxKind.ParenthesizedExpression;
+}
+
+export function isPrefixUnaryExpression(node: Node): node is PrefixUnaryExpression {
+    return node.kind === SyntaxKind.PrefixUnaryExpression;
+}

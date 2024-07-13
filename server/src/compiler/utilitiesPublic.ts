@@ -165,8 +165,7 @@ export function canHaveLocals(node: Node): node is HasLocals {
         // case SyntaxKind.Constructor:
         // case SyntaxKind.ConstructorType:
         // case SyntaxKind.ConstructSignature:
-        case SyntaxKind.ForStatement:
-        case SyntaxKind.ForInStatement:
+        case SyntaxKind.ForStatement:        
         case SyntaxKind.ForEachStatement:
         case SyntaxKind.FunctionDeclaration:
         case SyntaxKind.FunctionExpression:

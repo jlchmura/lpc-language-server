@@ -1,4 +1,4 @@
-import { CompilerOptions, Debug, FlowFlags, FlowLabel, FlowNode, HasLocals, IsBlockScopedContainer, IsContainer, Node, objectAllocator, SourceFile, SymbolFlags, Symbol, tracing, setParent, TracingNode, SyntaxKind, isFunctionLike, NodeArray, forEach, forEachChild, Mutable, HasContainerFlags, createSymbolTable, ModifierFlags, FunctionExpression, InlineClosureExpression, NodeFlags, FunctionLikeDeclaration, getImmediatelyInvokedFunctionExpression, nodeIsPresent, contains, isIdentifier, HasFlowNode, performance, VariableDeclaration, isBlockOrCatchScoped, Declaration, canHaveLocals, isPartOfParameterDeclaration, SymbolTable, hasSyntacticModifier, Diagnostics, isNamedDeclaration, length, DiagnosticRelatedInformation, getNameOfDeclaration, appendIfUnique, setValueDeclaration, addRelatedInfo, Identifier, StringLiteral, isPropertyNameLiteral, InternalSymbolName, getAssignmentDeclarationKind, BinaryExpression, AssignmentDeclarationKind, declarationNameToString, createDiagnosticForNodeInSourceFile, getSourceFileOfNode, DiagnosticMessage, DiagnosticArguments, DiagnosticWithLocation, ReturnStatement, IfStatement, Expression, isTruthyLiteral, isFalsyLiteral, FlowCondition, PrefixUnaryExpression, isLogicalOrCoalescingAssignmentExpression, isLogicalOrCoalescingBinaryExpression, isForEachStatement, FlowAssignment, FlowArrayMutation, Block, ConditionalExpression, WhileStatement, Statement, DoWhileStatement, ForStatement, ForEachStatement, BreakOrContinueStatement, SwitchStatement, FlowSwitchClause, CaseBlock, CallExpression, isAssignmentOperator, PropertyAccessExpression, ParenthesizedExpression, isLeftHandSideExpression, PostfixUnaryExpression, ArrayLiteralExpression, ObjectLiteralExpression } from "./_namespaces/lpc";
+import { CompilerOptions, Debug, FlowFlags, FlowLabel, FlowNode, HasLocals, IsBlockScopedContainer, IsContainer, Node, objectAllocator, SourceFile, SymbolFlags, Symbol, tracing, setParent, TracingNode, SyntaxKind, isFunctionLike, NodeArray, forEach, forEachChild, Mutable, HasContainerFlags, createSymbolTable, ModifierFlags, FunctionExpression, InlineClosureExpression, NodeFlags, FunctionLikeDeclaration, getImmediatelyInvokedFunctionExpression, nodeIsPresent, contains, isIdentifier, HasFlowNode, performance, VariableDeclaration, isBlockOrCatchScoped, Declaration, canHaveLocals, isPartOfParameterDeclaration, SymbolTable, hasSyntacticModifier, Diagnostics, isNamedDeclaration, length, DiagnosticRelatedInformation, getNameOfDeclaration, appendIfUnique, setValueDeclaration, addRelatedInfo, Identifier, StringLiteral, isPropertyNameLiteral, InternalSymbolName, getAssignmentDeclarationKind, BinaryExpression, AssignmentDeclarationKind, declarationNameToString, createDiagnosticForNodeInSourceFile, getSourceFileOfNode, DiagnosticMessage, DiagnosticArguments, DiagnosticWithLocation, ReturnStatement, IfStatement, Expression, isTruthyLiteral, isFalsyLiteral, FlowCondition, PrefixUnaryExpression, isLogicalOrCoalescingAssignmentExpression, isLogicalOrCoalescingBinaryExpression, isForEachStatement, FlowAssignment, FlowArrayMutation, Block, ConditionalExpression, WhileStatement, Statement, DoWhileStatement, ForStatement, ForEachStatement, BreakOrContinueStatement, SwitchStatement, FlowSwitchClause, CaseBlock, CallExpression, isAssignmentOperator, PropertyAccessExpression, ParenthesizedExpression, isLeftHandSideExpression, PostfixUnaryExpression, ArrayLiteralExpression, ObjectLiteralExpression, isBinaryLogicalOperator, isLogicalOrCoalescingAssignmentOperator, isParenthesizedExpression, isPrefixUnaryExpression, BinaryOperatorToken, isAssignmentTarget, ElementAccessExpression, isBinaryExpression, isDottedName, FlowCall, createBinaryExpressionTrampoline } from "./_namespaces/lpc";
 
 const binder = /* @__PURE__ */ createBinder();
 
@@ -74,6 +74,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
         /*node*/ undefined,
         /*antecedent*/ undefined
     );
+    var bindBinaryExpressionFlow = createBindBinaryExpressionFlow();
         
     return bindSourceFile;
 
@@ -240,16 +241,16 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             case SyntaxKind.PostfixUnaryExpression:
                 bindPostfixUnaryExpressionFlow(node as PostfixUnaryExpression);
                 break;
-            // case SyntaxKind.BinaryExpression:
-            //     if (isDestructuringAssignment(node)) {
-            //         // Carry over whether we are in an assignment pattern to
-            //         // binary expressions that could actually be an initializer
-            //         inAssignmentPattern = saveInAssignmentPattern;
-            //         bindDestructuringAssignmentFlow(node);
-            //         return;
-            //     }
-            //     bindBinaryExpressionFlow(node as BinaryExpression);
-            //     break;
+            case SyntaxKind.BinaryExpression:
+                // if (isDestructuringAssignment(node)) {
+                //     // Carry over whether we are in an assignment pattern to
+                //     // binary expressions that could actually be an initializer
+                //     inAssignmentPattern = saveInAssignmentPattern;
+                //     bindDestructuringAssignmentFlow(node);
+                //     return;
+                // }
+                bindBinaryExpressionFlow(node as BinaryExpression);
+                break;
             // case SyntaxKind.DeleteExpression:
             //     bindDeleteExpressionFlow(node as DeleteExpression);
             //     break;
@@ -945,6 +946,12 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
         //}
     }
 
+    function createFlowCall(antecedent: FlowNode, node: CallExpression) {
+        setFlowNodeReferenced(antecedent);
+        hasFlowEffects = true;
+        return createFlowNode(FlowFlags.Call, node, antecedent) as FlowCall;
+    }
+    
     function createFlowMutation(flags: FlowFlags.Assignment | FlowFlags.ArrayMutation, antecedent: FlowNode, node: Expression | VariableDeclaration){//} | ArrayBindingElement) {
         setFlowNodeReferenced(antecedent);
         hasFlowEffects = true;
@@ -1288,6 +1295,179 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             }
         }
     }
+
+    function isStatementCondition(node: Node) {
+        const parent = node.parent;
+        switch (parent.kind) {
+            case SyntaxKind.IfStatement:
+            case SyntaxKind.WhileStatement:
+            case SyntaxKind.DoWhileStatement:
+                return (parent as IfStatement | WhileStatement | DoWhileStatement).expression === node;
+            case SyntaxKind.ForStatement:
+            case SyntaxKind.ConditionalExpression:
+                return (parent as ForStatement | ConditionalExpression).condition === node;
+        }
+        return false;
+    }
+
+    function isTopLevelLogicalExpression(node: Node): boolean {
+        while (
+            isParenthesizedExpression(node.parent) ||
+            isPrefixUnaryExpression(node.parent) && node.parent.operator === SyntaxKind.ExclamationToken
+        ) {
+            node = node.parent;
+        }
+        return !isStatementCondition(node) &&
+            !isLogicalExpression(node.parent);
+            //&& !(isOptionalChain(node.parent) && node.parent.expression === node);
+    }
+
+    function createBindBinaryExpressionFlow() {
+        interface WorkArea {
+            stackIndex: number;
+            skip: boolean;
+            inStrictModeStack: (boolean | undefined)[];
+            parentStack: (Node | undefined)[];
+        }
+
+        return createBinaryExpressionTrampoline(onEnter, onLeft, onOperator, onRight, onExit, /*foldState*/ undefined);
+
+        function onEnter(node: BinaryExpression, state: WorkArea | undefined) {
+            if (state) {
+                state.stackIndex++;
+                // Emulate the work that `bind` does before reaching `bindChildren`. A normal call to
+                // `bindBinaryExpressionFlow` will already have done this work.
+                setParent(node, parent);
+                const saveInStrictMode = inStrictMode;
+                bindWorker(node);
+                const saveParent = parent;
+                parent = node;
+                state.skip = false;
+                state.inStrictModeStack[state.stackIndex] = saveInStrictMode;
+                state.parentStack[state.stackIndex] = saveParent;
+            }
+            else {
+                state = {
+                    stackIndex: 0,
+                    skip: false,
+                    inStrictModeStack: [undefined],
+                    parentStack: [undefined],
+                };
+            }
+            // TODO: bindLogicalExpression is recursive - if we want to handle deeply nested `&&` expressions
+            // we'll need to handle the `bindLogicalExpression` scenarios in this state machine, too
+            // For now, though, since the common cases are chained `+`, leaving it recursive is fine
+            const operator = node.operatorToken.kind;
+            if (isBinaryLogicalOperator(operator) || isLogicalOrCoalescingAssignmentOperator(operator)) {
+                if (isTopLevelLogicalExpression(node)) {
+                    const postExpressionLabel = createBranchLabel();
+                    const saveCurrentFlow = currentFlow;
+                    const saveHasFlowEffects = hasFlowEffects;
+                    hasFlowEffects = false;
+                    bindLogicalLikeExpression(node, postExpressionLabel, postExpressionLabel);
+                    currentFlow = hasFlowEffects ? finishFlowLabel(postExpressionLabel) : saveCurrentFlow;
+                    hasFlowEffects ||= saveHasFlowEffects;
+                }
+                else {
+                    bindLogicalLikeExpression(node, currentTrueTarget!, currentFalseTarget!);
+                }
+                state.skip = true;
+            }
+            return state;
+        }
+
+        function onLeft(left: Expression, state: WorkArea, node: BinaryExpression) {
+            if (!state.skip) {
+                const maybeBound = maybeBind(left);
+                if (node.operatorToken.kind === SyntaxKind.CommaToken) {
+                    maybeBindExpressionFlowIfCall(left);
+                }
+                return maybeBound;
+            }
+        }
+
+        function onOperator(operatorToken: BinaryOperatorToken, state: WorkArea, _node: BinaryExpression) {
+            if (!state.skip) {
+                bind(operatorToken);
+            }
+        }
+
+        function onRight(right: Expression, state: WorkArea, node: BinaryExpression) {
+            if (!state.skip) {
+                const maybeBound = maybeBind(right);
+                if (node.operatorToken.kind === SyntaxKind.CommaToken) {
+                    maybeBindExpressionFlowIfCall(right);
+                }
+                return maybeBound;
+            }
+        }
+
+        function onExit(node: BinaryExpression, state: WorkArea) {
+            if (!state.skip) {
+                const operator = node.operatorToken.kind;
+                if (isAssignmentOperator(operator) && !isAssignmentTarget(node)) {
+                    bindAssignmentTargetFlow(node.left);
+                    if (operator === SyntaxKind.EqualsToken && node.left.kind === SyntaxKind.ElementAccessExpression) {
+                        const elementAccess = node.left as ElementAccessExpression;
+                        if (isNarrowableOperand(elementAccess.expression)) {
+                            currentFlow = createFlowMutation(FlowFlags.ArrayMutation, currentFlow, node);
+                        }
+                    }
+                }
+            }
+            const savedInStrictMode = state.inStrictModeStack[state.stackIndex];
+            const savedParent = state.parentStack[state.stackIndex];
+            if (savedInStrictMode !== undefined) {
+                inStrictMode = savedInStrictMode;
+            }
+            if (savedParent !== undefined) {
+                parent = savedParent;
+            }
+            state.skip = false;
+            state.stackIndex--;
+        }
+
+        function maybeBind(node: Node) {
+            if (node && isBinaryExpression(node)){// && !isDestructuringAssignment(node)) {
+                return node;
+            }
+            bind(node);
+        }
+    }
+
+    function maybeBindExpressionFlowIfCall(node: Expression) {
+        // A top level or comma expression call expression with a dotted function name and at least one argument
+        // is potentially an assertion and is therefore included in the control flow.
+        if (node.kind === SyntaxKind.CallExpression) {
+            const call = node as CallExpression;
+            if (call.expression.kind !== SyntaxKind.SuperKeyword && isDottedName(call.expression)) {
+                currentFlow = createFlowCall(currentFlow, call);
+            }
+        }
+    }
+
+    function bindLogicalLikeExpression(node: BinaryExpression, trueTarget: FlowLabel, falseTarget: FlowLabel) {
+        const preRightLabel = createBranchLabel();
+        if (node.operatorToken.kind === SyntaxKind.AmpersandAmpersandToken) {
+            bindCondition(node.left, preRightLabel, falseTarget);
+        }
+        else {
+            bindCondition(node.left, trueTarget, preRightLabel);
+        }
+        currentFlow = finishFlowLabel(preRightLabel);
+        bind(node.operatorToken);
+
+        if (isLogicalOrCoalescingAssignmentOperator(node.operatorToken.kind)) {
+            doWithConditionalBranches(bind, node.right, trueTarget, falseTarget);
+            bindAssignmentTargetFlow(node.left);
+
+            addAntecedent(trueTarget, createFlowCondition(FlowFlags.TrueCondition, currentFlow, node));
+            addAntecedent(falseTarget, createFlowCondition(FlowFlags.FalseCondition, currentFlow, node));
+        }
+        else {
+            bindCondition(node.right, trueTarget, falseTarget);
+        }
+    }
 }
 
 /** @internal */
@@ -1363,7 +1543,7 @@ export function getContainerFlags(node: Node): ContainerFlags {
             return ContainerFlags.IsContainer | ContainerFlags.IsControlFlowContainer | ContainerFlags.HasLocals | ContainerFlags.IsFunctionLike;
 
         case SyntaxKind.FunctionExpression:
-        //case SyntaxKind.ArrowFunction:
+        case SyntaxKind.InlineClosureExpression:
             return ContainerFlags.IsContainer | ContainerFlags.IsControlFlowContainer | ContainerFlags.HasLocals | ContainerFlags.IsFunctionLike | ContainerFlags.IsFunctionExpression;
 
         // case SyntaxKind.ModuleBlock:
@@ -1373,7 +1553,7 @@ export function getContainerFlags(node: Node): ContainerFlags {
 
         case SyntaxKind.CatchClause:
         case SyntaxKind.ForStatement:
-        case SyntaxKind.ForInStatement:
+        case SyntaxKind.ForEachStatement:
         // case SyntaxKind.ForOfStatement:
         case SyntaxKind.CaseBlock:
             return ContainerFlags.IsBlockScopedContainer | ContainerFlags.HasLocals;

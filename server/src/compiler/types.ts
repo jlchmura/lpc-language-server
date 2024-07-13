@@ -290,7 +290,7 @@ export const enum SyntaxKind {
     ForEachStatement,
     DoWhileStatement,
     WhileStatement,
-    ForInStatement,
+    //ForInStatement,
     ExpressionStatement,
     ReturnStatement,
     BreakStatement,
@@ -306,6 +306,7 @@ export const enum SyntaxKind {
     FunctionExpression,
     CallExpression,
     NewExpression,
+    ElementAccessExpression,
     InlineClosureExpression,
     PropertyAccessExpression,
     PostfixUnaryExpression,
@@ -2744,4 +2745,10 @@ export interface ObjectLiteralExpression extends ObjectLiteralExpressionBase<Obj
     readonly kind: SyntaxKind.ObjectLiteralExpression;
     /** @internal */
     multiLine?: boolean;
+}
+
+export interface ElementAccessExpression extends MemberExpression, Declaration, JSDocContainer, FlowContainer {
+    readonly kind: SyntaxKind.ElementAccessExpression;
+    readonly expression: LeftHandSideExpression;    
+    readonly argumentExpression: Expression;
 }
