@@ -656,3 +656,8 @@ export function concatenate<T>(array1: readonly T[] | undefined, array2: readonl
     if (array1 === undefined || array1.length === 0) return array2;
     return [...array1, ...array2];
 }
+
+/** @internal */
+export function clear(array: unknown[]): void {
+    array.length = 0;
+}

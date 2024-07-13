@@ -1377,3 +1377,4 @@ function messageTextEqualityComparer(m1: string | DiagnosticMessageChain, m2: st
     const t2 = typeof m2 === "string" ? m2 : m2.messageText;
     return compareStringsCaseSensitive(t1, t2) === Comparison.EqualTo;
 }
+

@@ -1,4 +1,9 @@
-import { SymbolLinks, CancellationToken, createSymbolTable, Declaration, EmitTextWriter, ModifierFlags, Node, NodeFlags, objectAllocator, Scanner, Signature, SignatureKind, SymbolFlags, TypeChecker, TypeCheckerHost, TypeFormatFlags, TypeParameter, CheckFlags, TransientSymbol, TransientSymbolLinks, reduceLeft, bindSourceFile, SourceFile, Diagnostic, createDiagnosticCollection, concatenate, forEach, tracing, performance } from "./_namespaces/lpc";
+import {Type, SymbolLinks, CancellationToken, createSymbolTable, Declaration, EmitTextWriter, ModifierFlags, Node, NodeFlags, objectAllocator, Scanner, Signature, SignatureKind, SymbolFlags, TypeChecker, TypeCheckerHost, TypeFormatFlags, TypeParameter, CheckFlags, TransientSymbol, TransientSymbolLinks, reduceLeft, bindSourceFile, SourceFile, Diagnostic, createDiagnosticCollection, concatenate, forEach, tracing, performance, NodeLinks, NodeCheckFlags, FlowNode, FlowType, clear } from "./_namespaces/lpc";
+
+let nextSymbolId = 1;
+let nextNodeId = 1;
+let nextMergeId = 1;
+let nextFlowId = 1;
 
 /** @internal */
 export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
@@ -65,6 +70,29 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     var diagnostics = createDiagnosticCollection();
     var suggestionDiagnostics = createDiagnosticCollection();
 
+    var suggestionCount = 0;
+    var maximumSuggestionCount = 10;
+    var mergedSymbols: Symbol[] = [];
+    var symbolLinks: SymbolLinks[] = [];
+    var nodeLinks: NodeLinks[] = [];
+    var flowLoopCaches: Map<string, Type>[] = [];
+    var flowLoopNodes: FlowNode[] = [];
+    var flowLoopKeys: string[] = [];
+    var flowLoopTypes: Type[][] = [];
+    var sharedFlowNodes: FlowNode[] = [];
+    var sharedFlowTypes: FlowType[] = [];
+    var flowNodeReachable: (boolean | undefined)[] = [];
+    var flowNodePostSuper: (boolean | undefined)[] = [];
+    var potentialThisCollisions: Node[] = [];
+    var potentialNewTargetCollisions: Node[] = [];
+    var potentialWeakMapSetCollisions: Node[] = [];
+    var potentialReflectCollisions: Node[] = [];
+    //var potentialUnusedRenamedBindingElementsInTypes: BindingElement[] = [];
+    var awaitedTypeStack: number[] = [];
+    var reverseMappedSourceStack: Type[] = [];
+    var reverseMappedTargetStack: Type[] = [];
+    //var reverseExpandingFlags = ExpandingFlags.None;
+    
     const checker:TypeChecker = {
         getNodeCount: () => reduceLeft(host.getSourceFiles(), (n, s) => n + s.nodeCount, 0),
         getIdentifierCount: () => reduceLeft(host.getSourceFiles(), (n, s) => n + s.identifierCount, 0),
@@ -150,10 +178,119 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         tracing?.pop();
     }
 
+    function getNodeLinks(node: Node): NodeLinks {
+        const nodeId = getNodeId(node);
+        return nodeLinks[nodeId] || (nodeLinks[nodeId] = new (NodeLinks as any)());
+    }
+    
+    function checkGrammarSourceFile(node: SourceFile): boolean {
+        return !!(node.flags & NodeFlags.Ambient) && checkGrammarTopLevelElementsForRequiredDeclareModifier(node);
+    }
+
+    function checkGrammarTopLevelElementsForRequiredDeclareModifier(file: SourceFile): boolean {
+        for (const decl of file.statements) {
+            // TODO
+            console.warn("Implement me - grammar check");
+            // if (isDeclaration(decl) || decl.kind === SyntaxKind.VariableStatement) {
+            //     if (checkGrammarTopLevelElementForRequiredDeclareModifier(decl)) {
+            //         return true;
+            //     }
+            // }
+        }
+        return false;
+    }
+
+    function checkSourceElement(node: Node | undefined): void {
+        if (node) {
+            const saveCurrentNode = currentNode;
+            currentNode = node;
+            instantiationCount = 0;
+            checkSourceElementWorker(node);
+            currentNode = saveCurrentNode;
+        }
+    }
+
+    function checkSourceElementWorker(node: Node): void {
+        // TODO
+        console.warn("Implement me - checkSourceElementWorker");
+    }
+
     // Fully type check a source file and collect the relevant diagnostics.
     function checkSourceFileWorker(node: SourceFile) {
-        // TODO
-        console.warn("Implement me");
+        const links = getNodeLinks(node);
+        if (!(links.flags & NodeCheckFlags.TypeChecked)) {
+            // if (skipTypeChecking(node, compilerOptions, host)) {
+            //     return;
+            // }
+
+            // Grammar checking
+            checkGrammarSourceFile(node);
+
+            clear(potentialThisCollisions);
+            clear(potentialNewTargetCollisions);
+            clear(potentialWeakMapSetCollisions);
+            clear(potentialReflectCollisions);
+            //clear(potentialUnusedRenamedBindingElementsInTypes);
+
+            if (links.flags & NodeCheckFlags.PartiallyTypeChecked) {
+                potentialThisCollisions = links.potentialThisCollisions!;
+                potentialNewTargetCollisions = links.potentialNewTargetCollisions!;
+                potentialWeakMapSetCollisions = links.potentialWeakMapSetCollisions!;
+                potentialReflectCollisions = links.potentialReflectCollisions!;
+                //potentialUnusedRenamedBindingElementsInTypes = links.potentialUnusedRenamedBindingElementsInTypes!;
+            }
+
+            forEach(node.statements, checkSourceElement);
+            checkSourceElement(node.endOfFileToken);
+
+            // TODO: 
+            console.warn("Implement rest of me - checkSourceFileWorker");
+            // checkDeferredNodes(node);
+
+            // if (isExternalOrCommonJsModule(node)) {
+            //     registerForUnusedIdentifiersCheck(node);
+            // }
+
+            // addLazyDiagnostic(() => {
+            //     // This relies on the results of other lazy diagnostics, so must be computed after them
+            //     if (!node.isDeclarationFile && (compilerOptions.noUnusedLocals || compilerOptions.noUnusedParameters)) {
+            //         checkUnusedIdentifiers(getPotentiallyUnusedIdentifiers(node), (containingNode, kind, diag) => {
+            //             if (!containsParseError(containingNode) && unusedIsError(kind, !!(containingNode.flags & NodeFlags.Ambient))) {
+            //                 diagnostics.add(diag);
+            //             }
+            //         });
+            //     }
+            //     if (!node.isDeclarationFile) {
+            //         checkPotentialUncheckedRenamedBindingElementsInTypes();
+            //     }
+            // });
+
+            // if (isExternalOrCommonJsModule(node)) {
+            //     checkExternalModuleExports(node);
+            // }
+
+            // if (potentialThisCollisions.length) {
+            //     forEach(potentialThisCollisions, checkIfThisIsCapturedInEnclosingScope);
+            //     clear(potentialThisCollisions);
+            // }
+
+            // if (potentialNewTargetCollisions.length) {
+            //     forEach(potentialNewTargetCollisions, checkIfNewTargetIsCapturedInEnclosingScope);
+            //     clear(potentialNewTargetCollisions);
+            // }
+
+            // if (potentialWeakMapSetCollisions.length) {
+            //     forEach(potentialWeakMapSetCollisions, checkWeakMapSetCollision);
+            //     clear(potentialWeakMapSetCollisions);
+            // }
+
+            // if (potentialReflectCollisions.length) {
+            //     forEach(potentialReflectCollisions, checkReflectCollision);
+            //     clear(potentialReflectCollisions);
+            // }
+
+            links.flags |= NodeCheckFlags.TypeChecked;
+        }
     }
     
     function checkSourceFileNodesWorker(file: SourceFile, nodes: readonly Node[]) {
@@ -198,3 +335,16 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 const SymbolLinks = class implements SymbolLinks {
     declare _symbolLinksBrand: any;
 };
+
+/** @internal */
+export function getNodeId(node: Node): number {
+    if (!node.id) {
+        node.id = nextNodeId;
+        nextNodeId++;
+    }
+    return node.id;
+}
+
+function NodeLinks(this: NodeLinks) {
+    this.flags = NodeCheckFlags.None;
+}

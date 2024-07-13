@@ -451,6 +451,7 @@ export const enum SyntaxKind {
     // Signature Elements
     TypeParameter,
     Parameter,
+    IndexSignature,
 
     // Types
     UnionType,
@@ -526,6 +527,7 @@ export const enum SyntaxKind {
     VariableDeclaration,
     VariableDeclarationList,
     CaseBlock,
+    ClassDeclaration,
 
     // Statements
     VariableStatement, // FirstStatement
@@ -548,6 +550,7 @@ export const enum SyntaxKind {
     BinaryExpression,
     FunctionExpression,
     CallExpression,
+    ClassExpression,
     NewExpression,
     ElementAccessExpression,
     InlineClosureExpression,
@@ -2398,7 +2401,7 @@ export type SignatureDeclaration =
     // | CallSignatureDeclaration
     // | ConstructSignatureDeclaration
     // | MethodSignature
-    // | IndexSignatureDeclaration
+    | IndexSignatureDeclaration
     // | FunctionTypeNode
     // | ConstructorTypeNode
     // | JSDocFunctionType
@@ -3190,3 +3193,164 @@ export interface DiagnosticCollection {
     getDiagnostics(): Diagnostic[];
     getDiagnostics(fileName: string): DiagnosticWithLocation[];
 }
+
+/** @internal */
+export const enum NodeCheckFlags {
+    None                                     = 0,
+    TypeChecked                              = 1 << 0,   // Node has been type checked
+    LexicalThis                              = 1 << 1,   // Lexical 'this' reference
+    CaptureThis                              = 1 << 2,   // Lexical 'this' used in body
+    CaptureNewTarget                         = 1 << 3,   // Lexical 'new.target' used in body
+    SuperInstance                            = 1 << 4,   // Instance 'super' reference
+    SuperStatic                              = 1 << 5,   // Static 'super' reference
+    ContextChecked                           = 1 << 6,   // Contextual types have been assigned
+    MethodWithSuperPropertyAccessInAsync     = 1 << 7,   // A method that contains a SuperProperty access in an async context.
+    MethodWithSuperPropertyAssignmentInAsync = 1 << 8,   // A method that contains a SuperProperty assignment in an async context.
+    CaptureArguments                         = 1 << 9,   // Lexical 'arguments' used in body
+    EnumValuesComputed                       = 1 << 10,  // Values for enum members have been computed, and any errors have been reported for them.
+    LexicalModuleMergesWithClass             = 1 << 11,  // Instantiated lexical module declaration is merged with a previous class declaration.
+    LoopWithCapturedBlockScopedBinding       = 1 << 12,  // Loop that contains block scoped variable captured in closure
+    ContainsCapturedBlockScopeBinding        = 1 << 13,  // Part of a loop that contains block scoped variable captured in closure
+    CapturedBlockScopedBinding               = 1 << 14,  // Block-scoped binding that is captured in some function
+    BlockScopedBindingInLoop                 = 1 << 15,  // Block-scoped binding with declaration nested inside iteration statement
+    NeedsLoopOutParameter                    = 1 << 16,  // Block scoped binding whose value should be explicitly copied outside of the converted loop
+    AssignmentsMarked                        = 1 << 17,  // Parameter assignments have been marked
+    ContainsConstructorReference             = 1 << 18,  // Class or class element that contains a binding that references the class constructor.
+    ConstructorReference                     = 1 << 29,  // Binding to a class constructor inside of the class's body.
+    ContainsClassWithPrivateIdentifiers      = 1 << 20,  // Marked on all block-scoped containers containing a class with private identifiers.
+    ContainsSuperPropertyInStaticInitializer = 1 << 21,  // Marked on all block-scoped containers containing a static initializer with 'super.x' or 'super[x]'.
+    InCheckIdentifier                        = 1 << 22,
+    PartiallyTypeChecked                     = 1 << 23,  // Node has been partially type checked
+
+    /** These flags are LazyNodeCheckFlags and can be calculated lazily by `hasNodeCheckFlag` */
+    LazyFlags = SuperInstance
+        | SuperStatic
+        | MethodWithSuperPropertyAccessInAsync
+        | MethodWithSuperPropertyAssignmentInAsync
+        | ContainsSuperPropertyInStaticInitializer
+        | CaptureArguments
+        | ContainsCapturedBlockScopeBinding
+        | NeedsLoopOutParameter
+        | ContainsConstructorReference
+        | ConstructorReference
+        | CapturedBlockScopedBinding
+        | BlockScopedBindingInLoop
+        | LoopWithCapturedBlockScopedBinding,
+}
+
+/** @internal */
+export interface EvaluatorResult<T extends string | number | undefined = string | number | undefined> {
+    value: T;
+    isSyntacticallyString: boolean;
+    resolvedOtherFiles: boolean;
+    hasExternalReferences: boolean;
+}
+
+export interface ClassElement extends NamedDeclaration {
+    _classElementBrand: any;
+    readonly name?: PropertyName;
+}
+
+
+export interface ClassLikeDeclarationBase extends NamedDeclaration, JSDocContainer {
+    readonly kind: SyntaxKind.ClassDeclaration | SyntaxKind.ClassExpression;
+    readonly name?: Identifier;
+    //readonly typeParameters?: NodeArray<TypeParameterDeclaration>;
+    //readonly heritageClauses?: NodeArray<HeritageClause>;
+    readonly members: NodeArray<ClassElement>;
+}
+
+export interface ClassDeclaration extends ClassLikeDeclarationBase, DeclarationStatement {
+    readonly kind: SyntaxKind.ClassDeclaration;
+    readonly modifiers?: NodeArray<Modifier>;
+    /** May be undefined in `export default class { ... }`. */
+    readonly name?: Identifier;
+}
+
+
+export interface ClassExpression extends ClassLikeDeclarationBase, PrimaryExpression {
+    readonly kind: SyntaxKind.ClassExpression;
+    readonly modifiers?: NodeArray<Modifier>;
+}
+
+export type ClassLikeDeclaration =
+    | ClassDeclaration
+    | ClassExpression;
+    
+export type ObjectTypeDeclaration =
+    | ClassLikeDeclaration
+    //| InterfaceDeclaration
+    //TODO? | TypeLiteralNode
+    ;
+
+export interface TypeElement extends NamedDeclaration {
+    _typeElementBrand: any;
+    readonly name?: PropertyName; 
+}
+    
+
+export interface IndexSignatureDeclaration extends SignatureDeclarationBase, ClassElement, TypeElement, LocalsContainer {
+    readonly kind: SyntaxKind.IndexSignature;
+    readonly parent: ObjectTypeDeclaration;
+    readonly modifiers?: NodeArray<Modifier>;
+    readonly type: TypeNode;
+}
+
+export interface IndexInfo {
+    keyType: Type;
+    type: Type;
+    isReadonly: boolean;
+    declaration?: IndexSignatureDeclaration;
+}
+
+/** @internal */
+export type TrackedSymbol = [symbol: Symbol, enclosingDeclaration: Node | undefined, meaning: SymbolFlags];
+/** @internal */
+export interface SerializedTypeEntry {
+    node: TypeNode;
+    truncating?: boolean;
+    addedLength: number;
+    trackedSymbols: readonly TrackedSymbol[] | undefined;
+}
+
+/** @internal */
+export interface NodeLinks {
+    flags: NodeCheckFlags;              // Set of flags specific to Node
+    calculatedFlags: NodeCheckFlags;    // Set of flags which have definitely been calculated already
+    resolvedType?: Type;                // Cached type of type node
+    resolvedSignature?: Signature;      // Cached signature of signature node or call expression
+    resolvedSymbol?: Symbol;            // Cached name resolution result
+    resolvedIndexInfo?: IndexInfo;      // Cached indexing info resolution result
+    effectsSignature?: Signature;       // Signature with possible control flow effects
+    enumMemberValue?: EvaluatorResult;  // Constant value of enum member
+    isVisible?: boolean;                // Is this node visible
+    containsArgumentsReference?: boolean; // Whether a function-like declaration contains an 'arguments' reference
+    hasReportedStatementInAmbientContext?: boolean; // Cache boolean if we report statements in ambient context    
+    resolvedJsxElementAttributesType?: Type; // resolved element attributes type of a JSX openinglike element
+    resolvedJsxElementAllAttributesType?: Type; // resolved all element attributes type of a JSX openinglike element
+    resolvedJSDocType?: Type;           // Resolved type of a JSDoc type reference
+    switchTypes?: Type[];               // Cached array of switch case expression types
+    jsxNamespace?: Symbol | false;      // Resolved jsx namespace symbol for this node
+    jsxImplicitImportContainer?: Symbol | false; // Resolved module symbol the implicit jsx import of this file should refer to
+    contextFreeType?: Type;             // Cached context-free type used by the first pass of inference; used when a function's return is partially contextually sensitive
+    deferredNodes?: Set<Node>;          // Set of nodes whose checking has been deferred
+    capturedBlockScopeBindings?: Symbol[]; // Block-scoped bindings captured beneath this part of an IterationStatement
+    outerTypeParameters?: TypeParameter[]; // Outer type parameters of anonymous object type
+    isExhaustive?: boolean | 0;         // Is node an exhaustive switch statement (0 indicates in-process resolution)
+    skipDirectInference?: true;         // Flag set by the API `getContextualType` call on a node when `Completions` is passed to force the checker to skip making inferences to a node's type
+    declarationRequiresScopeChange?: boolean; // Set by `useOuterVariableScopeInParameter` in checker when downlevel emit would change the name resolution scope inside of a parameter.
+    serializedTypes?: Map<string, SerializedTypeEntry>; // Collection of types serialized at this location
+    decoratorSignature?: Signature;     // Signature for decorator as if invoked by the runtime.
+    spreadIndices?: { first: number | undefined, last: number | undefined }; // Indices of first and last spread elements in array literal
+    parameterInitializerContainsUndefined?: boolean; // True if this is a parameter declaration whose type annotation contains "undefined".
+    fakeScopeForSignatureDeclaration?: "params" | "typeParams"; // If present, this is a fake scope injected into an enclosing declaration chain.
+    assertionExpressionType?: Type;     // Cached type of the expression of a type assertion
+    potentialThisCollisions?: Node[];
+    potentialNewTargetCollisions?: Node[];
+    potentialWeakMapSetCollisions?: Node[];
+    potentialReflectCollisions?: Node[];
+    //potentialUnusedRenamedBindingElementsInTypes?: BindingElement[];
+    externalHelpersModule?: Symbol;     // Resolved symbol for the external helpers module
+}
+
+
