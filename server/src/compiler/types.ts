@@ -156,7 +156,7 @@ export const enum SyntaxKind {
     DotDotToken,
 
     // Assignments
-    EqualsToken,
+    EqualsToken, // first assignment
     PlusEqualsToken,
     MinusEqualsToken,
     AsteriskEqualsToken,
@@ -170,8 +170,9 @@ export const enum SyntaxKind {
     BarEqualsToken,
     BarBarEqualsToken,    
     QuestionQuestionEqualsToken,
-    CaretEqualsToken,
-    
+    CaretEqualsToken, // last assignment
+
+
     // Identifiers
     Identifier,
 
@@ -265,6 +266,14 @@ export const enum SyntaxKind {
     JSDocSatisfiesTag,
     JSDocImportTag,
 
+    // Synthesized List
+    SyntaxList,
+
+    // Transformation Nodes
+    NotEmittedStatement,
+    PartiallyEmittedExpression,
+    CommaListExpression,
+
     // Declarations
     Block,
     VariableDeclaration,
@@ -292,9 +301,12 @@ export const enum SyntaxKind {
     BinaryExpression,
     FunctionExpression,
     CallExpression,
+    NewExpression,
     InlineClosureExpression,
     PropertyAccessExpression,
     PostfixUnaryExpression,
+    ParenthesizedExpression,
+    ArrayLiteralExpression,
     PrefixUnaryExpression,
 
     // Clauses
@@ -307,7 +319,10 @@ export const enum SyntaxKind {
     FirstToken = Unknown,
     LastToken = LastKeyword,
     FirstStatement = VariableStatement,
-    LastStatement = SwitchStatement 
+    LastStatement = SwitchStatement ,
+    FirstAssignment = EqualsToken,
+    LastAssignment = CaretEqualsToken,
+    SuperKeyword = ColonColonToken,
 }
 
 // dprint-ignore
@@ -582,6 +597,20 @@ export const enum AssignmentDeclarationKind {
 }
 
 /** @internal */
+export type OuterExpression =
+    | ParenthesizedExpression
+    // | TypeAssertion
+    // | SatisfiesExpression
+    // | AsExpression
+    // | NonNullExpression
+    | PartiallyEmittedExpression;
+
+/** @internal */
+export type WrappedExpression<T extends Expression> =
+    | OuterExpression & { readonly expression: WrappedExpression<T>; }
+    | T;
+
+/** @internal */
 export const enum TransformFlags {
     None = 0,
 }
@@ -696,6 +725,21 @@ export interface NodeFactory {
 
 export interface CompilerOptions {
     allowUnreachableCode?: boolean;
+    noFallthroughCasesInSwitch?: boolean;
+}
+
+export const enum OuterExpressionKinds {
+    Parentheses = 1 << 0,
+    /** @deprecated not supported in lpc */
+    TypeAssertions = 1 << 1,    
+    /** @deprecated not supported in lpc */
+    NonNullAssertions = 1 << 2,
+    PartiallyEmittedExpressions = 1 << 3,
+
+    Assertions = TypeAssertions | NonNullAssertions,
+    All = Parentheses | Assertions | PartiallyEmittedExpressions,
+
+    ExcludeJSDocTypeAssertion = 1 << 4,
 }
 
 /** DIAGNOSTICS */
@@ -893,8 +937,44 @@ export type HasJSDoc =
     | VariableDeclaration
     | WhileStatement;
 
-export type HasLocals = Block | SourceFile;
 
+/**
+ * Nodes that can have local symbols. Corresponds with `ContainerFlags.HasLocals`. Constituents should extend
+ * {@link LocalsContainer}.
+ *
+ * @internal
+ */
+export type HasLocals =
+    | InlineClosureExpression
+    | Block
+    //| CallSignatureDeclaration
+    | CaseBlock
+    | CatchClause
+    // | ClassStaticBlockDeclaration
+    // | ConditionalTypeNode
+    // | ConstructorDeclaration
+    // | ConstructorTypeNode
+    // | ConstructSignatureDeclaration
+    | ForStatement
+    | ForEachStatement    
+    | FunctionDeclaration
+    | FunctionExpression
+    // | FunctionTypeNode
+    // | GetAccessorDeclaration
+    // | IndexSignatureDeclaration
+    // | JSDocCallbackTag
+    // | JSDocEnumTag
+    // | JSDocFunctionType
+    | JSDocSignature
+    // | JSDocTypedefTag
+    // | MappedTypeNode
+    // | MethodDeclaration
+    // | MethodSignature
+    // | ModuleDeclaration
+    // | SetAccessorDeclaration
+    | SourceFile
+    //| TypeAliasDeclaration;
+    ;
 
 // NOTE: Changing the following list requires changes to:
 // - `canHaveModifiers` in factory/utilitiesPublic.ts
@@ -1892,6 +1972,14 @@ export interface Expression extends Node {
     _expressionBrand: any;
 }
 
+// Represents an expression that is elided as part of a transformation to emit comments on a
+// not-emitted node. The 'expression' property of a PartiallyEmittedExpression should be emitted.
+export interface PartiallyEmittedExpression extends LeftHandSideExpression {
+    readonly kind: SyntaxKind.PartiallyEmittedExpression;
+    readonly expression: Expression;
+}
+
+
 export interface UnaryExpression extends Expression {
     _unaryExpressionBrand: any;
 }
@@ -2562,4 +2650,30 @@ export const enum InternalSymbolName {
     This = "this",
     InstantiationExpression = "__instantiationExpression", // Instantiation expressions
     ImportAttributes = "__importAttributes",
+}
+
+export type PrefixUnaryOperator =
+    | SyntaxKind.PlusPlusToken
+    | SyntaxKind.MinusMinusToken
+    | SyntaxKind.PlusToken
+    | SyntaxKind.MinusToken
+    | SyntaxKind.TildeToken
+    | SyntaxKind.ExclamationToken;
+
+export interface PrefixUnaryExpression extends UpdateExpression {
+    readonly kind: SyntaxKind.PrefixUnaryExpression;
+    readonly operator: PrefixUnaryOperator;
+    readonly operand: UnaryExpression;
+}
+
+export type AssignmentOperatorToken = Token<AssignmentOperator>;
+
+export interface AssignmentExpression<TOperator extends AssignmentOperatorToken> extends BinaryExpression {
+    readonly left: LeftHandSideExpression;
+    readonly operatorToken: TOperator;
+}
+
+export interface ParenthesizedExpression extends PrimaryExpression, JSDocContainer {
+    readonly kind: SyntaxKind.ParenthesizedExpression;
+    readonly expression: Expression;
 }

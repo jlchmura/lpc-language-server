@@ -1,5 +1,5 @@
 import * as antlr from "antlr4ng";
-import { Signature, Type, Debug, DiagnosticArguments, DiagnosticMessage, DiagnosticRelatedInformation, DiagnosticWithDetachedLocation, DiagnosticWithLocation, Identifier, MapLike, ModifierFlags, Node, NodeFlags, ReadonlyTextRange, some, SourceFile, Symbol, SymbolFlags, SyntaxKind, TextRange, Token, TransformFlags, TypeChecker, TypeFlags, tracing, SignatureFlags, canHaveModifiers, Modifier, skipTrivia, SymbolTable, CallExpression, Declaration, getCombinedNodeFlags, BinaryExpression, AssignmentDeclarationKind, isCallExpression, isBinaryExpression, isIdentifier, Diagnostic, emptyArray, PropertyNameLiteral, DeclarationName } from "./_namespaces/lpc";
+import { Signature, Type, Debug, DiagnosticArguments, DiagnosticMessage, DiagnosticRelatedInformation, DiagnosticWithDetachedLocation, DiagnosticWithLocation, Identifier, MapLike, ModifierFlags, Node, NodeFlags, ReadonlyTextRange, some, SourceFile, Symbol, SymbolFlags, SyntaxKind, TextRange, Token, TransformFlags, TypeChecker, TypeFlags, tracing, SignatureFlags, canHaveModifiers, Modifier, skipTrivia, SymbolTable, CallExpression, Declaration, getCombinedNodeFlags, BinaryExpression, AssignmentDeclarationKind, isCallExpression, isBinaryExpression, isIdentifier, Diagnostic, emptyArray, PropertyNameLiteral, DeclarationName, LiteralLikeNode, AssignmentExpression, LogicalOrCoalescingAssignmentOperator, LogicalOperator, Expression, OuterExpressionKinds, OuterExpression, WrappedExpression } from "./_namespaces/lpc";
 import { TextSpan } from "../backend/types";
 
 /** @internal */
@@ -765,4 +765,89 @@ export function createFileDiagnostic(file: SourceFile, start: number, length: nu
         reportsUnnecessary: message.reportsUnnecessary,
         reportsDeprecated: message.reportsDeprecated,
     };
+}
+
+export function isLiteralLike(node: Node): node is LiteralLikeNode {
+    switch (node.kind) {
+        case SyntaxKind.StringLiteral:
+        case SyntaxKind.IntLiteral:
+        case SyntaxKind.FloatLiteral:
+            return true;
+        default:
+            return false;
+    }
+}
+
+export function isFalsyLiteral(node: Node): boolean {
+    return isLiteralLike(node) && node.text === "0";
+}
+
+export function isTruthyLiteral(node: Node): boolean {
+    return isLiteralLike(node) && node.text.length > 0 && node.text != "0";
+}
+
+/** @internal */
+export function isLogicalOrCoalescingAssignmentExpression(expr: Node): expr is AssignmentExpression<Token<LogicalOrCoalescingAssignmentOperator>> {
+    return isBinaryExpression(expr) && isLogicalOrCoalescingAssignmentOperator(expr.operatorToken.kind);
+}
+
+/** @internal */
+export function isLogicalOrCoalescingAssignmentOperator(token: SyntaxKind): token is LogicalOrCoalescingAssignmentOperator {
+    return token === SyntaxKind.BarBarEqualsToken
+        //|| token === SyntaxKind.AmpersandAmpersandEqualsToken
+        || token === SyntaxKind.QuestionQuestionEqualsToken;
+}
+
+function isBinaryLogicalOperator(token: SyntaxKind): boolean {
+    return token === SyntaxKind.BarBarToken || token === SyntaxKind.AmpersandAmpersandToken;
+}
+
+/** @internal */
+export function isLogicalOrCoalescingBinaryOperator(token: SyntaxKind): token is LogicalOperator {
+    return isBinaryLogicalOperator(token);
+}
+
+/** @internal */
+export function isLogicalOrCoalescingBinaryExpression(expr: Node): expr is BinaryExpression {
+    return isBinaryExpression(expr) && isLogicalOrCoalescingBinaryOperator(expr.operatorToken.kind);
+}
+
+/** @internal */
+export function isAssignmentOperator(token: SyntaxKind): boolean {
+    return token >= SyntaxKind.FirstAssignment && token <= SyntaxKind.LastAssignment;
+}
+
+/** @internal */
+export function isOuterExpression(node: Node, kinds = OuterExpressionKinds.All): node is OuterExpression {
+    switch (node.kind) {
+        case SyntaxKind.ParenthesizedExpression:
+            // if (kinds & OuterExpressionKinds.ExcludeJSDocTypeAssertion && isJSDocTypeAssertion(node)) {
+            //     return false;
+            // }
+            return (kinds & OuterExpressionKinds.Parentheses) !== 0;
+        // case SyntaxKind.TypeAssertionExpression:
+        // case SyntaxKind.AsExpression:
+        // case SyntaxKind.ExpressionWithTypeArguments:
+        // case SyntaxKind.SatisfiesExpression:
+        //    return (kinds & OuterExpressionKinds.TypeAssertions) !== 0;
+        // case SyntaxKind.NonNullExpression:
+        //     return (kinds & OuterExpressionKinds.NonNullAssertions) !== 0;
+        case SyntaxKind.PartiallyEmittedExpression:
+            return (kinds & OuterExpressionKinds.PartiallyEmittedExpressions) !== 0;
+    }
+    return false;
+}
+
+/** @internal */
+export function skipOuterExpressions<T extends Expression>(node: WrappedExpression<T>): T;
+/** @internal */
+export function skipOuterExpressions(node: Expression, kinds?: OuterExpressionKinds): Expression;
+/** @internal */
+export function skipOuterExpressions(node: Node, kinds?: OuterExpressionKinds): Node;
+/** @internal */
+export function skipOuterExpressions(node: Node, kinds = OuterExpressionKinds.All) {
+    while (isOuterExpression(node, kinds)) {
+        node = node.expression;
+    }
+    return node;
 }

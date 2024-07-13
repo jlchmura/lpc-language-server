@@ -1,4 +1,4 @@
-import { AssignmentDeclarationKind, BinaryExpression, CallExpression, Declaration, DeclarationName, Expression, getAssignmentDeclarationKind, HasLocals, HasModifiers, hasProperty, Identifier, isBinaryExpression, isFunctionExpression, isIdentifier, isInlineClosureExpression, isVariableDeclaration, NamedDeclaration, Node, NodeArray, NodeFlags, SignatureDeclaration, Symbol, SyntaxKind } from "./_namespaces/lpc";
+import { AssignmentDeclarationKind, BinaryExpression, CallExpression, Declaration, DeclarationName, Expression, ForEachStatement, getAssignmentDeclarationKind, HasLocals, HasModifiers, hasProperty, Identifier, isBinaryExpression, isFunctionExpression, isIdentifier, isInlineClosureExpression, isVariableDeclaration, LeftHandSideExpression, NamedDeclaration, Node, NodeArray, NodeFlags, OuterExpressionKinds, SignatureDeclaration, skipOuterExpressions, Symbol, SyntaxKind } from "./_namespaces/lpc";
 
 /** @internal */
 export function isNodeArray<T extends Node>(array: readonly T[]): array is NodeArray<T> {
@@ -269,4 +269,56 @@ export function getNameOfDeclaration(declaration: Declaration | Expression | und
     if (declaration === undefined) return undefined;
     return getNonAssignedNameOfDeclaration(declaration) ||
         (isFunctionExpression(declaration) || isInlineClosureExpression(declaration) /*|| isClassExpression(declaration)*/ ? getAssignedName(declaration) : undefined);
+}
+
+/** @internal */
+export function isForEachStatement(node: Node): node is ForEachStatement {
+    return node.kind === SyntaxKind.ForEachStatement;
+}
+
+export function skipPartiallyEmittedExpressions(node: Expression): Expression;
+export function skipPartiallyEmittedExpressions(node: Node): Node;
+export function skipPartiallyEmittedExpressions(node: Node) {
+    return skipOuterExpressions(node, OuterExpressionKinds.PartiallyEmittedExpressions);
+}
+
+
+export function isLeftHandSideExpression(node: Node): node is LeftHandSideExpression {
+    return isLeftHandSideExpressionKind(skipPartiallyEmittedExpressions(node).kind);
+}
+
+function isLeftHandSideExpressionKind(kind: SyntaxKind): boolean {
+    switch (kind) {
+        case SyntaxKind.PropertyAccessExpression:
+        // case SyntaxKind.ElementAccessExpression:
+        case SyntaxKind.NewExpression:
+        case SyntaxKind.CallExpression:        
+        // case SyntaxKind.TaggedTemplateExpression:
+        case SyntaxKind.ArrayLiteralExpression:
+        case SyntaxKind.ParenthesizedExpression:
+        // case SyntaxKind.ObjectLiteralExpression:
+        // case SyntaxKind.ClassExpression:
+        case SyntaxKind.FunctionExpression:
+        case SyntaxKind.Identifier:
+        //case SyntaxKind.PrivateIdentifier: // technically this is only an Expression if it's in a `#field in expr` BinaryExpression
+        //case SyntaxKind.RegularExpressionLiteral:
+        case SyntaxKind.IntLiteral:
+        case SyntaxKind.FloatLiteral:
+        case SyntaxKind.StringLiteral:
+        // case SyntaxKind.NoSubstitutionTemplateLiteral:
+        // case SyntaxKind.TemplateExpression:
+        // case SyntaxKind.FalseKeyword:
+        // case SyntaxKind.NullKeyword:
+        // case SyntaxKind.ThisKeyword:
+        // case SyntaxKind.TrueKeyword:
+        case SyntaxKind.SuperKeyword:
+        // case SyntaxKind.NonNullExpression:
+        // case SyntaxKind.ExpressionWithTypeArguments:
+        // case SyntaxKind.MetaProperty:
+        // case SyntaxKind.ImportKeyword: // technically this is only an Expression if it's in a CallExpression
+        // case SyntaxKind.MissingDeclaration:
+            return true;
+        default:
+            return false;
+    }
 }

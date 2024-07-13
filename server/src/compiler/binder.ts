@@ -1,4 +1,4 @@
-import { CompilerOptions, Debug, FlowFlags, FlowLabel, FlowNode, HasLocals, IsBlockScopedContainer, IsContainer, Node, objectAllocator, SourceFile, SymbolFlags, Symbol, tracing, setParent, TracingNode, SyntaxKind, isFunctionLike, NodeArray, forEach, forEachChild, Mutable, HasContainerFlags, createSymbolTable, ModifierFlags, FunctionExpression, InlineClosureExpression, NodeFlags, FunctionLikeDeclaration, getImmediatelyInvokedFunctionExpression, nodeIsPresent, contains, isIdentifier, HasFlowNode, performance, VariableDeclaration, isBlockOrCatchScoped, Declaration, canHaveLocals, isPartOfParameterDeclaration, SymbolTable, hasSyntacticModifier, Diagnostics, isNamedDeclaration, length, DiagnosticRelatedInformation, getNameOfDeclaration, appendIfUnique, setValueDeclaration, addRelatedInfo, Identifier, StringLiteral, isPropertyNameLiteral, InternalSymbolName, getAssignmentDeclarationKind, BinaryExpression, AssignmentDeclarationKind, declarationNameToString, createDiagnosticForNodeInSourceFile, getSourceFileOfNode, DiagnosticMessage, DiagnosticArguments, DiagnosticWithLocation } from "./_namespaces/lpc";
+import { CompilerOptions, Debug, FlowFlags, FlowLabel, FlowNode, HasLocals, IsBlockScopedContainer, IsContainer, Node, objectAllocator, SourceFile, SymbolFlags, Symbol, tracing, setParent, TracingNode, SyntaxKind, isFunctionLike, NodeArray, forEach, forEachChild, Mutable, HasContainerFlags, createSymbolTable, ModifierFlags, FunctionExpression, InlineClosureExpression, NodeFlags, FunctionLikeDeclaration, getImmediatelyInvokedFunctionExpression, nodeIsPresent, contains, isIdentifier, HasFlowNode, performance, VariableDeclaration, isBlockOrCatchScoped, Declaration, canHaveLocals, isPartOfParameterDeclaration, SymbolTable, hasSyntacticModifier, Diagnostics, isNamedDeclaration, length, DiagnosticRelatedInformation, getNameOfDeclaration, appendIfUnique, setValueDeclaration, addRelatedInfo, Identifier, StringLiteral, isPropertyNameLiteral, InternalSymbolName, getAssignmentDeclarationKind, BinaryExpression, AssignmentDeclarationKind, declarationNameToString, createDiagnosticForNodeInSourceFile, getSourceFileOfNode, DiagnosticMessage, DiagnosticArguments, DiagnosticWithLocation, ReturnStatement, IfStatement, Expression, isTruthyLiteral, isFalsyLiteral, FlowCondition, PrefixUnaryExpression, isLogicalOrCoalescingAssignmentExpression, isLogicalOrCoalescingBinaryExpression, isForEachStatement, FlowAssignment, FlowArrayMutation, Block, ConditionalExpression, WhileStatement, Statement, DoWhileStatement, ForStatement, ForEachStatement, BreakOrContinueStatement, SwitchStatement, FlowSwitchClause, CaseBlock, CallExpression, isAssignmentOperator, PropertyAccessExpression, ParenthesizedExpression, isLeftHandSideExpression } from "./_namespaces/lpc";
 
 const binder = /* @__PURE__ */ createBinder();
 
@@ -130,6 +130,32 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
         setParent(node, parent);
         if (tracing) (node as TracingNode).tracingPath = file.path;
 
+        // Even though in the AST the jsdoc @typedef node belongs to the current node,
+        // its symbol might be in the same scope with the current node's symbol. Consider:
+        //
+        //     /** @typedef {string | number} MyType */
+        //     function foo();
+        //
+        // Here the current node is "foo", which is a container, but the scope of "MyType" should
+        // not be inside "foo". Therefore we always bind @typedef before bind the parent node,
+        // and skip binding this tag later when binding all the other jsdoc tags.
+
+        // First we bind declaration nodes to a symbol if possible. We'll both create a symbol
+        // and then potentially add the symbol to an appropriate symbol table. Possible
+        // destination symbol tables are:
+        //
+        //  1) The 'exports' table of the current container's symbol.
+        //  2) The 'members' table of the current container's symbol.
+        //  3) The 'locals' table of the current container.
+        //
+        // However, not all symbols will end up in any of these tables. 'Anonymous' symbols
+        // (like TypeLiterals for example) will not be put in any table.
+        bindWorker(node);
+        // Then we recurse into the children of the node to bind them as well. For certain
+        // symbols we do specialized work when we recurse. For example, we'll keep track of
+        // the current 'container' node when it changes. This helps us know which symbol table
+        // a local should go into for example. Since terminal nodes are known not to have
+        // children, as an optimization we don't process those.
         if (node.kind > SyntaxKind.LastToken) {
             const saveParent = parent;
             parent = node;
@@ -166,36 +192,36 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             (node as HasFlowNode).flowNode = currentFlow;
         }
         switch (node.kind) {
-            // case SyntaxKind.WhileStatement:
-            //     bindWhileStatement(node as WhileStatement);
-            //     break;
-            // case SyntaxKind.DoStatement:
-            //     bindDoStatement(node as DoStatement);
-            //     break;
-            // case SyntaxKind.ForStatement:
-            //     bindForStatement(node as ForStatement);
-            //     break;
-            // case SyntaxKind.ForInStatement:
+            case SyntaxKind.WhileStatement:
+                bindWhileStatement(node as WhileStatement);
+                break;
+            case SyntaxKind.DoWhileStatement:
+                bindDoWhileStatement(node as DoWhileStatement);
+                break;
+            case SyntaxKind.ForStatement:
+                bindForStatement(node as ForStatement);
+                break;
+            case SyntaxKind.ForEachStatement:
             // case SyntaxKind.ForOfStatement:
-            //     bindForInOrForOfStatement(node as ForInOrOfStatement);
-            //     break;
-            // case SyntaxKind.IfStatement:
-            //     bindIfStatement(node as IfStatement);
-            //     break;
-            // case SyntaxKind.ReturnStatement:
+                bindForInOrForOfStatement(node as ForEachStatement);
+                break;
+            case SyntaxKind.IfStatement:
+                bindIfStatement(node as IfStatement);
+                break;
+            case SyntaxKind.ReturnStatement:
             // case SyntaxKind.ThrowStatement:
-            //     bindReturnOrThrow(node as ReturnStatement | ThrowStatement);
-            //     break;
-            // case SyntaxKind.BreakStatement:
-            // case SyntaxKind.ContinueStatement:
-            //     bindBreakOrContinueStatement(node as BreakOrContinueStatement);
-            //     break;
+                bindReturnOrThrow(node as ReturnStatement);// | ThrowStatement);
+                break;
+            case SyntaxKind.BreakStatement:
+            case SyntaxKind.ContinueStatement:
+                bindBreakOrContinueStatement(node as BreakOrContinueStatement);
+                break;
             // case SyntaxKind.TryStatement:
             //     bindTryStatement(node as TryStatement);
             //     break;
-            // case SyntaxKind.SwitchStatement:
-            //     bindSwitchStatement(node as SwitchStatement);
-            //     break;
+            case SyntaxKind.SwitchStatement:
+                bindSwitchStatement(node as SwitchStatement);
+                break;
             // case SyntaxKind.CaseBlock:
             //     bindCaseBlock(node as CaseBlock);
             //     break;
@@ -227,12 +253,12 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             // case SyntaxKind.DeleteExpression:
             //     bindDeleteExpressionFlow(node as DeleteExpression);
             //     break;
-            // case SyntaxKind.ConditionalExpression:
-            //     bindConditionalExpressionFlow(node as ConditionalExpression);
-            //     break;
-            // case SyntaxKind.VariableDeclaration:
-            //     bindVariableDeclarationFlow(node as VariableDeclaration);
-            //     break;
+            case SyntaxKind.ConditionalExpression:
+                bindConditionalExpressionFlow(node as ConditionalExpression);
+                break;
+            case SyntaxKind.VariableDeclaration:
+                bindVariableDeclarationFlow(node as VariableDeclaration);
+                break;
             // case SyntaxKind.PropertyAccessExpression:
             // case SyntaxKind.ElementAccessExpression:
             //     bindAccessExpressionFlow(node as AccessExpression);
@@ -252,15 +278,15 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             // case SyntaxKind.JSDocImportTag:
             //     bindJSDocImportTag(node as JSDocImportTag);
             //     break;
-            // case SyntaxKind.SourceFile: {
-            //     bindEachFunctionsFirst((node as SourceFile).statements);
-            //     bind((node as SourceFile).endOfFileToken);
-            //     break;
-            // }
-            // case SyntaxKind.Block:
-            // case SyntaxKind.ModuleBlock:
-            //     bindEachFunctionsFirst((node as Block).statements);
-            //     break;
+            case SyntaxKind.SourceFile: {
+                bindEachFunctionsFirst((node as SourceFile).statements);
+                bind((node as SourceFile).endOfFileToken);
+                break;
+            }
+            case SyntaxKind.Block:
+            //case SyntaxKind.ModuleBlock:
+                bindEachFunctionsFirst((node as Block).statements);
+                break;
             // case SyntaxKind.BindingElement:
             //     bindBindingElementFlow(node as BindingElement);
             //     break;
@@ -425,6 +451,27 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             (label.antecedent || (label.antecedent = [])).push(antecedent);
             setFlowNodeReferenced(antecedent);
         }
+    }
+
+    function createFlowCondition(flags: FlowFlags.TrueCondition | FlowFlags.FalseCondition, antecedent: FlowNode, expression: Expression | undefined) {
+        if (antecedent.flags & FlowFlags.Unreachable) {
+            return antecedent;
+        }
+        if (!expression) {
+            return flags & FlowFlags.TrueCondition ? antecedent : unreachableFlow;
+        }
+        if (
+            (isTruthyLiteral(expression) && flags & FlowFlags.FalseCondition ||
+                isFalsyLiteral(expression) && flags & FlowFlags.TrueCondition) 
+            /*&& !isExpressionOfOptionalChainRoot(expression) && !isNullishCoalesce(expression.parent)*/
+        ) {
+            return unreachableFlow;
+        }
+        // if (!isNarrowingExpression(expression)) {
+        //     return antecedent;
+        // }
+        setFlowNodeReferenced(antecedent);
+        return createFlowNode(flags, expression, antecedent) as FlowCondition;
     }
 
     function checkUnreachable(node:Node): boolean {
@@ -706,6 +753,67 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
         return createDiagnosticForNodeInSourceFile(getSourceFileOfNode(node) || file, node, message, ...args);
     }
 
+    function bindReturnOrThrow(node: ReturnStatement /*| ThrowStatement*/): void {
+        bind(node.expression);
+        if (node.kind === SyntaxKind.ReturnStatement) {
+            hasExplicitReturn = true;
+            if (currentReturnTarget) {
+                addAntecedent(currentReturnTarget, currentFlow);
+            }
+        }
+        currentFlow = unreachableFlow;
+        hasFlowEffects = true;
+    }
+
+    function doWithConditionalBranches<T>(action: (value: T) => void, value: T, trueTarget: FlowLabel, falseTarget: FlowLabel) {
+        const savedTrueTarget = currentTrueTarget;
+        const savedFalseTarget = currentFalseTarget;
+        currentTrueTarget = trueTarget;
+        currentFalseTarget = falseTarget;
+        action(value);
+        currentTrueTarget = savedTrueTarget;
+        currentFalseTarget = savedFalseTarget;
+    }
+    
+    function bindCondition(node: Expression | undefined, trueTarget: FlowLabel, falseTarget: FlowLabel) {
+        doWithConditionalBranches(bind, node, trueTarget, falseTarget);
+        if (!node || !isLogicalAssignmentExpression(node) && !isLogicalExpression(node)) {// && !(isOptionalChain(node) && isOutermostOptionalChain(node))) {
+            addAntecedent(trueTarget, createFlowCondition(FlowFlags.TrueCondition, currentFlow, node));
+            addAntecedent(falseTarget, createFlowCondition(FlowFlags.FalseCondition, currentFlow, node));
+        }
+    }
+
+    function isLogicalAssignmentExpression(node: Node) {
+        return isLogicalOrCoalescingAssignmentExpression(node);//skipParentheses(node));
+    }
+
+    function isLogicalExpression(node: Node) {
+        while (true) {
+            if (node.kind === SyntaxKind.ParenthesizedExpression) {
+                node = (node as ParenthesizedExpression).expression;
+            } else if (node.kind === SyntaxKind.PrefixUnaryExpression && (node as PrefixUnaryExpression).operator === SyntaxKind.ExclamationToken) {
+                node = (node as PrefixUnaryExpression).operand;
+            }
+            else {
+                return isLogicalOrCoalescingBinaryExpression(node);
+            }
+        }
+    }
+
+    function bindIfStatement(node: IfStatement): void {
+        const thenLabel = createBranchLabel();
+        const elseLabel = createBranchLabel();
+        const postIfLabel = createBranchLabel();
+        bindCondition(node.expression, thenLabel, elseLabel);
+        currentFlow = finishFlowLabel(thenLabel);
+        bind(node.thenStatement);
+        addAntecedent(postIfLabel, currentFlow);
+        currentFlow = finishFlowLabel(elseLabel);
+        bind(node.elseStatement);
+        addAntecedent(postIfLabel, currentFlow);
+        currentFlow = finishFlowLabel(postIfLabel);
+    }
+    
     function bindBlockScopedDeclaration(node: Declaration, symbolFlags: SymbolFlags, symbolExcludes: SymbolFlags) {
         switch (blockScopeContainer.kind) {            
             case SyntaxKind.SourceFile:
@@ -811,6 +919,336 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
         // return isExternalModule(file)
         //     ? declareModuleMember(node, symbolFlags, symbolExcludes) :
         return declareSymbol(file.locals!, /*parent*/ undefined, node, symbolFlags, symbolExcludes);
+    }
+
+    function bindEachFunctionsFirst(nodes: NodeArray<Node> | undefined): void {
+        bindEach(nodes, n => n.kind === SyntaxKind.FunctionDeclaration ? bind(n) : undefined);
+        bindEach(nodes, n => n.kind !== SyntaxKind.FunctionDeclaration ? bind(n) : undefined);
+    }
+
+    function bindVariableDeclarationFlow(node: VariableDeclaration) {
+        bindEachChild(node);
+        if (node.initializer || isForEachStatement(node.parent.parent)) {
+            bindInitializedVariableFlow(node);
+        }
+    }
+
+    function bindInitializedVariableFlow(node: VariableDeclaration) {//| ArrayBindingElement) {
+        const name = node.name;// !isOmittedExpression(node) ? node.name : undefined;
+        // if (isBindingPattern(name)) {
+        //     for (const child of name.elements) {
+        //         bindInitializedVariableFlow(child);
+        //     }
+        // }
+        // else {
+            currentFlow = createFlowMutation(FlowFlags.Assignment, currentFlow, node);
+        //}
+    }
+
+    function createFlowMutation(flags: FlowFlags.Assignment | FlowFlags.ArrayMutation, antecedent: FlowNode, node: Expression | VariableDeclaration){//} | ArrayBindingElement) {
+        setFlowNodeReferenced(antecedent);
+        hasFlowEffects = true;
+        const result = createFlowNode(flags, node, antecedent) as FlowAssignment | FlowArrayMutation;
+        if (currentExceptionTarget) {
+            addAntecedent(currentExceptionTarget, result);
+        }
+        return result;
+    }
+
+    function bindConditionalExpressionFlow(node: ConditionalExpression) {
+        const trueLabel = createBranchLabel();
+        const falseLabel = createBranchLabel();
+        const postExpressionLabel = createBranchLabel();
+        const saveCurrentFlow = currentFlow;
+        const saveHasFlowEffects = hasFlowEffects;
+        hasFlowEffects = false;
+        bindCondition(node.condition, trueLabel, falseLabel);
+        currentFlow = finishFlowLabel(trueLabel);
+        bind(node.questionToken);
+        bind(node.whenTrue);
+        addAntecedent(postExpressionLabel, currentFlow);
+        currentFlow = finishFlowLabel(falseLabel);
+        bind(node.colonToken);
+        bind(node.whenFalse);
+        addAntecedent(postExpressionLabel, currentFlow);
+        currentFlow = hasFlowEffects ? finishFlowLabel(postExpressionLabel) : saveCurrentFlow;
+        hasFlowEffects ||= saveHasFlowEffects;
+    }
+
+    function setContinueTarget(node: Node, target: FlowLabel) {
+        // LPC doens't have labeled statements?
+        // let label = activeLabelList;
+        // while (label && node.parent.kind === SyntaxKind.LabeledStatement) {
+        //     label.continueTarget = target;
+        //     label = label.next;
+        //     node = node.parent;
+        // }
+        return target;
+    }
+
+    function createLoopLabel() {
+        return createFlowNode(FlowFlags.LoopLabel, /*node*/ undefined, /*antecedent*/ undefined) as FlowLabel;
+    }
+
+    function bindIterativeStatement(node: Statement, breakTarget: FlowLabel, continueTarget: FlowLabel): void {
+        const saveBreakTarget = currentBreakTarget;
+        const saveContinueTarget = currentContinueTarget;
+        currentBreakTarget = breakTarget;
+        currentContinueTarget = continueTarget;
+        bind(node);
+        currentBreakTarget = saveBreakTarget;
+        currentContinueTarget = saveContinueTarget;
+    }
+
+    function bindWhileStatement(node: WhileStatement): void {
+        const preWhileLabel = setContinueTarget(node, createLoopLabel());
+        const preBodyLabel = createBranchLabel();
+        const postWhileLabel = createBranchLabel();
+        addAntecedent(preWhileLabel, currentFlow);
+        currentFlow = preWhileLabel;
+        bindCondition(node.expression, preBodyLabel, postWhileLabel);
+        currentFlow = finishFlowLabel(preBodyLabel);
+        bindIterativeStatement(node.statement, postWhileLabel, preWhileLabel);
+        addAntecedent(preWhileLabel, currentFlow);
+        currentFlow = finishFlowLabel(postWhileLabel);
+    }
+
+    function bindDoWhileStatement(node: DoWhileStatement): void {
+        const preDoLabel = createLoopLabel();
+        const preConditionLabel = setContinueTarget(node, createBranchLabel());
+        const postDoLabel = createBranchLabel();
+        addAntecedent(preDoLabel, currentFlow);
+        currentFlow = preDoLabel;
+        bindIterativeStatement(node.statement, postDoLabel, preConditionLabel);
+        addAntecedent(preConditionLabel, currentFlow);
+        currentFlow = finishFlowLabel(preConditionLabel);
+        bindCondition(node.expression, preDoLabel, postDoLabel);
+        currentFlow = finishFlowLabel(postDoLabel);
+    }
+
+    function bindForStatement(node: ForStatement): void {
+        const preLoopLabel = setContinueTarget(node, createLoopLabel());
+        const preBodyLabel = createBranchLabel();
+        const postLoopLabel = createBranchLabel();
+        bind(node.initializer);
+        addAntecedent(preLoopLabel, currentFlow);
+        currentFlow = preLoopLabel;
+        bindCondition(node.condition, preBodyLabel, postLoopLabel);
+        currentFlow = finishFlowLabel(preBodyLabel);
+        bindIterativeStatement(node.statement, postLoopLabel, preLoopLabel);
+        bind(node.incrementor);
+        addAntecedent(preLoopLabel, currentFlow);
+        currentFlow = finishFlowLabel(postLoopLabel);
+    }
+
+    function bindForInOrForOfStatement(node: ForEachStatement): void {
+        const preLoopLabel = setContinueTarget(node, createLoopLabel());
+        const postLoopLabel = createBranchLabel();
+        bind(node.expression);
+        addAntecedent(preLoopLabel, currentFlow);
+        currentFlow = preLoopLabel;
+        
+        addAntecedent(postLoopLabel, currentFlow);
+        bindEach(node.initializer);
+        // if (node.initializer.kind !== SyntaxKind.VariableDeclarationList) {
+        //     bindAssignmentTargetFlow(node.initializer);
+        // }
+        bindIterativeStatement(node.statement, postLoopLabel, preLoopLabel);
+        addAntecedent(preLoopLabel, currentFlow);
+        currentFlow = finishFlowLabel(postLoopLabel);
+    }
+
+    function findActiveLabel(name: string) {
+        for (let label = activeLabelList; label; label = label.next) {
+            if (label.name === name) {
+                return label;
+            }
+        }
+        return undefined;
+    }
+
+    function bindBreakOrContinueFlow(node: BreakOrContinueStatement, breakTarget: FlowLabel | undefined, continueTarget: FlowLabel | undefined) {
+        const flowLabel = node.kind === SyntaxKind.BreakStatement ? breakTarget : continueTarget;
+        if (flowLabel) {
+            addAntecedent(flowLabel, currentFlow);
+            currentFlow = unreachableFlow;
+            hasFlowEffects = true;
+        }
+    }
+
+    function bindBreakOrContinueStatement(node: BreakOrContinueStatement): void {
+        bind(node.label);
+        if (node.label) {
+            const activeLabel = findActiveLabel(node.label.text);
+            if (activeLabel) {
+                activeLabel.referenced = true;
+                bindBreakOrContinueFlow(node, activeLabel.breakTarget, activeLabel.continueTarget);
+            }
+        }
+        else {
+            bindBreakOrContinueFlow(node, currentBreakTarget, currentContinueTarget);
+        }
+    }
+    
+    function bindSwitchStatement(node: SwitchStatement): void {
+        const postSwitchLabel = createBranchLabel();
+        bind(node.expression);
+        const saveBreakTarget = currentBreakTarget;
+        const savePreSwitchCaseFlow = preSwitchCaseFlow;
+        currentBreakTarget = postSwitchLabel;
+        preSwitchCaseFlow = currentFlow;
+        bind(node.caseBlock);
+        addAntecedent(postSwitchLabel, currentFlow);
+        const hasDefault = forEach(node.caseBlock.clauses, c => c.kind === SyntaxKind.DefaultClause);
+        // We mark a switch statement as possibly exhaustive if it has no default clause and if all
+        // case clauses have unreachable end points (e.g. they all return). Note, we no longer need
+        // this property in control flow analysis, it's there only for backwards compatibility.
+        node.possiblyExhaustive = !hasDefault && !postSwitchLabel.antecedent;
+        if (!hasDefault) {
+            addAntecedent(postSwitchLabel, createFlowSwitchClause(preSwitchCaseFlow, node, 0, 0));
+        }
+        currentBreakTarget = saveBreakTarget;
+        preSwitchCaseFlow = savePreSwitchCaseFlow;
+        currentFlow = finishFlowLabel(postSwitchLabel);
+    }
+    
+    function createFlowSwitchClause(antecedent: FlowNode, switchStatement: SwitchStatement, clauseStart: number, clauseEnd: number) {
+        setFlowNodeReferenced(antecedent);
+        return createFlowNode(FlowFlags.SwitchClause, { switchStatement, clauseStart, clauseEnd }, antecedent) as FlowSwitchClause;
+    }
+
+    function isNarrowableReference(expr: Expression): boolean {
+        switch (expr.kind) {
+            case SyntaxKind.Identifier:
+            //case SyntaxKind.SuperKeyword:
+                return true;
+            case SyntaxKind.PropertyAccessExpression:
+            case SyntaxKind.ParenthesizedExpression:
+            // case SyntaxKind.NonNullExpression:
+                return isNarrowableReference((expr as PropertyAccessExpression | ParenthesizedExpression /*| NonNullExpression*/).expression);
+            // case SyntaxKind.ElementAccessExpression:
+            //     return (isStringOrNumericLiteralLike((expr as ElementAccessExpression).argumentExpression) || isEntityNameExpression((expr as ElementAccessExpression).argumentExpression)) &&
+            //         isNarrowableReference((expr as ElementAccessExpression).expression);
+            case SyntaxKind.BinaryExpression:
+                return (expr as BinaryExpression).operatorToken.kind === SyntaxKind.CommaToken && isNarrowableReference((expr as BinaryExpression).right) ||
+                    isAssignmentOperator((expr as BinaryExpression).operatorToken.kind) && isLeftHandSideExpression((expr as BinaryExpression).left);
+        }
+        return false;
+    }
+
+    function containsNarrowableReference(expr: Expression): boolean {
+        return isNarrowableReference(expr);
+    }
+
+    function hasNarrowableArgument(expr: CallExpression) {
+        if (expr.arguments) {
+            for (const argument of expr.arguments) {
+                if (containsNarrowableReference(argument)) {
+                    return true;
+                }
+            }
+        }
+        if (
+            expr.expression.kind === SyntaxKind.PropertyAccessExpression &&
+            containsNarrowableReference((expr.expression as PropertyAccessExpression).expression)
+        ) {
+            return true;
+        }
+        return false;
+    }
+    
+    function isNarrowingExpression(expr: Expression): boolean {
+        switch (expr.kind) {
+            case SyntaxKind.Identifier:
+                return true;
+            case SyntaxKind.PropertyAccessExpression:
+            //case SyntaxKind.ElementAccessExpression:
+                return containsNarrowableReference(expr);
+            case SyntaxKind.CallExpression:
+                return hasNarrowableArgument(expr as CallExpression);
+            case SyntaxKind.ParenthesizedExpression:
+                // if (isJSDocTypeAssertion(expr)) {
+                //     return false;
+                // }
+                //fallthrough
+            // case SyntaxKind.NonNullExpression:
+                 return isNarrowingExpression((expr as ParenthesizedExpression/* | NonNullExpression*/).expression);
+            case SyntaxKind.BinaryExpression:
+                return isNarrowingBinaryExpression(expr as BinaryExpression);
+            case SyntaxKind.PrefixUnaryExpression:
+                return (expr as PrefixUnaryExpression).operator === SyntaxKind.ExclamationToken && isNarrowingExpression((expr as PrefixUnaryExpression).operand);            
+        }
+        return false;
+    }
+
+    function isNarrowingBinaryExpression(expr: BinaryExpression) {
+        switch (expr.operatorToken.kind) {
+            case SyntaxKind.EqualsToken:
+            case SyntaxKind.BarBarEqualsToken:
+            // case SyntaxKind.AmpersandAmpersandEqualsToken:
+            // case SyntaxKind.QuestionQuestionEqualsToken:
+                return containsNarrowableReference(expr.left);
+            case SyntaxKind.EqualsEqualsToken:
+            case SyntaxKind.ExclamationEqualsToken:
+            case SyntaxKind.EqualsEqualsEqualsToken:
+            case SyntaxKind.ExclamationEqualsEqualsToken:
+                return isNarrowableOperand(expr.left) || isNarrowableOperand(expr.right) ||
+                    isNarrowingTypeofOperands(expr.right, expr.left) || isNarrowingTypeofOperands(expr.left, expr.right);
+                    //|| (isBooleanLiteral(expr.right) && isNarrowingExpression(expr.left) || isBooleanLiteral(expr.left) && isNarrowingExpression(expr.right));
+            case SyntaxKind.InKeyword:
+                return isNarrowingExpression(expr.right);
+            case SyntaxKind.CommaToken:
+                return isNarrowingExpression(expr.right);
+        }
+        return false;
+    }
+
+    function isNarrowingTypeofOperands(expr1: Expression, expr2: Expression) {
+        // lpc does not have typeof
+        return false;//isTypeOfExpression(expr1) && isNarrowableOperand(expr1.expression) && isStringLiteralLike(expr2);
+    }
+
+    function isNarrowableOperand(expr: Expression): boolean {
+        switch (expr.kind) {
+            case SyntaxKind.ParenthesizedExpression:
+                return isNarrowableOperand((expr as ParenthesizedExpression).expression);
+            case SyntaxKind.BinaryExpression:
+                switch ((expr as BinaryExpression).operatorToken.kind) {
+                    case SyntaxKind.EqualsToken:
+                        return isNarrowableOperand((expr as BinaryExpression).left);
+                    case SyntaxKind.CommaToken:
+                        return isNarrowableOperand((expr as BinaryExpression).right);
+                }
+        }
+        return containsNarrowableReference(expr);
+    }
+
+
+    function bindCaseBlock(node: CaseBlock): void {
+        const clauses = node.clauses;
+        const isNarrowingSwitch = isTruthyLiteral(node.parent.expression) || isNarrowingExpression(node.parent.expression);
+        let fallthroughFlow: FlowNode = unreachableFlow;
+
+        for (let i = 0; i < clauses.length; i++) {
+            const clauseStart = i;
+            while (!clauses[i].statements.length && i + 1 < clauses.length) {
+                if (fallthroughFlow === unreachableFlow) {
+                    currentFlow = preSwitchCaseFlow!;
+                }
+                bind(clauses[i]);
+                i++;
+            }
+            const preCaseLabel = createBranchLabel();
+            addAntecedent(preCaseLabel, isNarrowingSwitch ? createFlowSwitchClause(preSwitchCaseFlow!, node.parent, clauseStart, i + 1) : preSwitchCaseFlow!);
+            addAntecedent(preCaseLabel, fallthroughFlow);
+            currentFlow = finishFlowLabel(preCaseLabel);
+            const clause = clauses[i];
+            bind(clause);
+            fallthroughFlow = currentFlow;
+            if (!(currentFlow.flags & FlowFlags.Unreachable) && i !== clauses.length - 1 && options.noFallthroughCasesInSwitch) {
+                clause.fallthroughFlowNode = currentFlow;
+            }
+        }
     }
 }
 
