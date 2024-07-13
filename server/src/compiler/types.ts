@@ -1,4 +1,4 @@
-import { BaseNodeFactory, NodeFactoryFlags } from "./_namespaces/lpc";
+import { BaseNodeFactory, MapLike, MultiMap, NodeFactoryFlags } from "./_namespaces/lpc";
 
 // Note: 'brands' in our syntax nodes serve to give us a small amount of nominal typing.
 // Consider 'Expression'.  Without the brand, 'Expression' is actually no different
@@ -69,9 +69,248 @@ export interface EmitNode {
 }
 
 export interface TypeChecker {
+    /** @internal */ getNodeCount(): number;
+    /** @internal */ getIdentifierCount(): number;
+    /** @internal */ getSymbolCount(): number;
+    /** @internal */ getTypeCount(): number;
+    /** @internal */ getInstantiationCount(): number;
+    
     // TODO
     signatureToString(signature: Signature, enclosingDeclaration?: Node, flags?: TypeFormatFlags, kind?: SignatureKind): string;
 }
+
+export type CompilerOptionsValue = string | number | boolean | (string | number)[] | string[] | MapLike<string[]> | ProjectReference[] | null | undefined; // eslint-disable-line no-restricted-syntax
+
+export interface TypeAcquisition {
+    enable?: boolean;
+    include?: string[];
+    exclude?: string[];
+    disableFilenameBasedTypeAcquisition?: boolean;
+    [option: string]: CompilerOptionsValue | undefined;
+}
+
+
+export interface ProjectReference {
+    /** A normalized path on disk */
+    path: string;
+    /** The path as the user originally wrote it */
+    originalPath?: string;
+    /** @deprecated */
+    prepend?: boolean;
+    /** True if it is intended that this reference form a circularity */
+    circular?: boolean;
+}
+
+/** Either a parsed command line or a parsed tsconfig.json */
+export interface ParsedCommandLine {
+    options: CompilerOptions;
+    typeAcquisition?: TypeAcquisition;
+    fileNames: string[];
+    projectReferences?: readonly ProjectReference[];
+    //watchOptions?: WatchOptions;
+    raw?: any;
+    errors: Diagnostic[];
+    //wildcardDirectories?: MapLike<WatchDirectoryFlags>;
+    compileOnSave?: boolean;
+}
+
+/** @internal */
+export type RedirectTargetsMap = ReadonlyMap<Path, readonly string[]>;
+
+export interface ResolvedProjectReference {
+    commandLine: ParsedCommandLine;
+    sourceFile: SourceFile;
+    references?: readonly (ResolvedProjectReference | undefined)[];
+}
+
+/** @internal */
+export enum FileIncludeKind {
+    RootFile,
+    SourceFromProjectReference,
+    OutputFromProjectReference,
+    Import,
+    ReferenceFile,
+    TypeReferenceDirective,
+    LibFile,
+    LibReferenceDirective,
+    AutomaticTypeDirectiveFile,
+}
+
+/** @internal */
+export interface RootFile {
+    kind: FileIncludeKind.RootFile;
+    index: number;
+}
+
+/** @internal */
+export interface LibFile {
+    kind: FileIncludeKind.LibFile;
+    index?: number;
+}
+
+/** @internal */
+export type ProjectReferenceFileKind =
+    | FileIncludeKind.SourceFromProjectReference
+    | FileIncludeKind.OutputFromProjectReference;
+
+/** @internal */
+export interface ProjectReferenceFile {
+    kind: ProjectReferenceFileKind;
+    index: number;
+}
+
+/** @internal */
+export type ReferencedFileKind =
+    | FileIncludeKind.Import
+    | FileIncludeKind.ReferenceFile
+    | FileIncludeKind.TypeReferenceDirective
+    | FileIncludeKind.LibReferenceDirective;
+
+/** @internal */
+export interface ReferencedFile {
+    kind: ReferencedFileKind;
+    file: Path;
+    index: number;
+}
+
+/** @internal */
+export interface AutomaticTypeDirectiveFile {
+    kind: FileIncludeKind.AutomaticTypeDirectiveFile;
+    typeReference: string;
+    packageId: string | undefined;
+}
+
+/** @internal */
+export type FileIncludeReason =
+    | RootFile
+    | LibFile
+    | ProjectReferenceFile
+    | ReferencedFile
+    | AutomaticTypeDirectiveFile;
+
+/** @internal */
+export interface ResolvedModuleSpecifierInfo {
+    kind: "node_modules" | "paths" | "redirect" | "relative" | "ambient" | undefined;
+    modulePaths: readonly ModulePath[] | undefined;
+    moduleSpecifiers: readonly string[] | undefined;
+    isBlockedByPackageJsonDependencies: boolean | undefined;
+}
+
+type UserPreferences = any;
+type ModuleSpecifierOptions = any;
+
+    /** @internal */
+export interface ModuleSpecifierCache {
+    get(fromFileName: Path, toFileName: Path, preferences: UserPreferences, options: ModuleSpecifierOptions): Readonly<ResolvedModuleSpecifierInfo> | undefined;
+    set(fromFileName: Path, toFileName: Path, preferences: UserPreferences, options: ModuleSpecifierOptions, kind: ResolvedModuleSpecifierInfo["kind"], modulePaths: readonly ModulePath[], moduleSpecifiers: readonly string[]): void;
+    setBlockedByPackageJsonDependencies(fromFileName: Path, toFileName: Path, preferences: UserPreferences, options: ModuleSpecifierOptions, isBlockedByPackageJsonDependencies: boolean): void;
+    setModulePaths(fromFileName: Path, toFileName: Path, preferences: UserPreferences, options: ModuleSpecifierOptions, modulePaths: readonly ModulePath[]): void;
+    clear(): void;
+    count(): number;
+}
+
+/** @internal */
+export interface ModuleSpecifierResolutionHost {
+    useCaseSensitiveFileNames?(): boolean;
+    fileExists(path: string): boolean;
+    getCurrentDirectory(): string;
+    directoryExists?(path: string): boolean;
+    readFile?(path: string): string | undefined;
+    realpath?(path: string): string;
+    //getSymlinkCache?(): SymlinkCache;
+    getModuleSpecifierCache?(): ModuleSpecifierCache;    
+    getGlobalTypingsCacheLocation?(): string | undefined;
+    getNearestAncestorDirectoryWithPackageJson?(fileName: string, rootDir?: string): string | undefined;
+
+    readonly redirectTargetsMap: RedirectTargetsMap;
+    getProjectReferenceRedirect(fileName: string): string | undefined;
+    isSourceOfProjectReferenceRedirect(fileName: string): boolean;
+    getFileIncludeReasons(): MultiMap<Path, FileIncludeReason>;
+    getCommonSourceDirectory(): string;
+
+    getModuleResolutionCache?(): any;//TODO ModuleResolutionCache | undefined;
+    trace?(s: string): void;
+}
+
+/** @internal */
+export interface ModulePath {
+    path: string;
+    isInNodeModules: boolean;
+    isRedirect: boolean;
+}
+
+/**
+ * Represents the result of module resolution.
+ * Module resolution will pick up tsx/jsx/js files even if '--jsx' and '--allowJs' are turned off.
+ * The Program will then filter results based on these flags.
+ *
+ * Prefer to return a `ResolvedModuleFull` so that the file type does not have to be inferred.
+ */
+export interface ResolvedModule {
+    /** Path of the file the module was resolved to. */
+    resolvedFileName: string;
+    /** True if `resolvedFileName` comes from `node_modules`. */
+    isExternalLibraryImport?: boolean;
+    /**
+     * True if the original module reference used a .ts extension to refer directly to a .ts file,
+     * which should produce an error during checking if emit is enabled.
+     */
+    resolvedUsingTsExtension?: boolean;
+}
+
+/**
+ * ResolvedModule with an explicitly provided `extension` property.
+ * Prefer this over `ResolvedModule`.
+ * If changing this, remember to change `moduleResolutionIsEqualTo`.
+ */
+export interface ResolvedModuleFull extends ResolvedModule {
+    /**
+     * @internal
+     * This is a file name with preserved original casing, not a normalized `Path`.
+     */
+    readonly originalPath?: string;
+    /**
+     * Extension of resolvedFileName. This must match what's at the end of resolvedFileName.
+     * This is optional for backwards-compatibility, but will be added if not provided.
+     */
+    extension: string;
+    packageId?: string;
+}
+
+export interface ResolvedModuleWithFailedLookupLocations {
+    readonly resolvedModule: ResolvedModuleFull | undefined;
+    /** @internal */
+    failedLookupLocations?: string[];
+    /** @internal */
+    affectingLocations?: string[];
+    /** @internal */
+    resolutionDiagnostics?: Diagnostic[];
+    /**
+     * @internal
+     * Used to issue a better diagnostic when an unresolvable module may
+     * have been resolvable under different module resolution settings.
+     */
+    alternateResult?: string;
+}
+
+/** @internal */
+export interface TypeCheckerHost extends ModuleSpecifierResolutionHost {
+    getCompilerOptions(): CompilerOptions;
+
+    getSourceFiles(): readonly SourceFile[];
+    getSourceFile(fileName: string): SourceFile | undefined;
+    getProjectReferenceRedirect(fileName: string): string | undefined;
+    isSourceOfProjectReferenceRedirect(fileName: string): boolean;
+    getRedirectReferenceForResolutionFromSourceOfProject(filePath: Path): ResolvedProjectReference | undefined;    
+
+    getResolvedModule(f: SourceFile, moduleName: string): ResolvedModuleWithFailedLookupLocations | undefined;
+
+    readonly redirectTargetsMap: RedirectTargetsMap;
+
+    typesPackageExists(packageName: string): boolean;
+    packageBundlesTypes(packageName: string): boolean;
+}
+
 
 export const enum SignatureKind {
     Call,
@@ -2755,4 +2994,178 @@ export interface ElementAccessExpression extends MemberExpression, Declaration, 
 
 export interface CallChain extends CallExpression {
     _optionalChainBrand: any;
+}
+
+export class OperationCanceledException {}
+
+export interface CancellationToken {
+    isCancellationRequested(): boolean;
+
+    /** @throws OperationCanceledException if isCancellationRequested is true */
+    throwIfCancellationRequested(): void;
+}
+
+// This was previously deprecated in our public API, but is still used internally
+/** @internal */
+export interface SymbolWriter {
+    writeKeyword(text: string): void;
+    writeOperator(text: string): void;
+    writePunctuation(text: string): void;
+    writeSpace(text: string): void;
+    writeStringLiteral(text: string): void;
+    writeParameter(text: string): void;
+    writeProperty(text: string): void;
+    writeSymbol(text: string, symbol: Symbol): void;
+    writeLine(force?: boolean): void;
+    increaseIndent(): void;
+    decreaseIndent(): void;
+    clear(): void;
+}
+
+/** @internal */
+export interface EmitTextWriter extends SymbolWriter {
+    write(s: string): void;
+    writeTrailingSemicolon(text: string): void;
+    writeComment(text: string): void;
+    getText(): string;
+    rawWrite(s: string): void;
+    writeLiteral(s: string): void;
+    getTextPos(): number;
+    getLine(): number;
+    getColumn(): number;
+    getIndent(): number;
+    isAtStartOfLine(): boolean;
+    hasTrailingComment(): boolean;
+    hasTrailingWhitespace(): boolean;
+    nonEscapingWrite?(text: string): void;
+}
+
+export interface Signature {
+    /** @internal */ flags: SignatureFlags;
+    /** @internal */ checker?: TypeChecker;
+    declaration?: SignatureDeclaration | JSDocSignature; // Originating declaration
+    typeParameters?: readonly TypeParameter[];   // Type parameters (undefined if non-generic)
+    parameters: readonly Symbol[];               // Parameters
+    thisParameter?: Symbol;             // symbol of this-type parameter
+    /** @internal */
+    // See comment in `instantiateSignature` for why these are set lazily.
+    resolvedReturnType?: Type;          // Lazily set by `getReturnTypeOfSignature`.
+    /** @internal */
+    // Lazily set by `getTypePredicateOfSignature`.
+    // `undefined` indicates a type predicate that has not yet been computed.
+    // Uses a special `noTypePredicate` sentinel value to indicate that there is no type predicate. This looks like a TypePredicate at runtime to avoid polymorphism.
+    //resolvedTypePredicate?: TypePredicate;
+    /** @internal */
+    minArgumentCount: number;           // Number of non-optional parameters
+    /** @internal */
+    resolvedMinArgumentCount?: number;  // Number of non-optional parameters (excluding trailing `void`)
+    /** @internal */
+    target?: Signature;                 // Instantiation target
+    /** @internal */
+    mapper?: TypeMapper;                // Instantiation mapper
+    /** @internal */
+    compositeSignatures?: Signature[];  // Underlying signatures of a union/intersection signature
+    /** @internal */
+    compositeKind?: TypeFlags;          // TypeFlags.Union if the underlying signatures are from union members, otherwise TypeFlags.Intersection
+    /** @internal */
+    erasedSignatureCache?: Signature;   // Erased version of signature (deferred)
+    /** @internal */
+    canonicalSignatureCache?: Signature; // Canonical version of signature (deferred)
+    /** @internal */
+    baseSignatureCache?: Signature;      // Base version of signature (deferred)
+    /** @internal */
+    optionalCallSignatureCache?: { inner?: Signature, outer?: Signature }; // Optional chained call version of signature (deferred)
+    /** @internal */
+    isolatedSignatureType?: ObjectType; // A manufactured type that just contains the signature for purposes of signature comparison
+    /** @internal */
+    instantiations?: Map<string, Signature>;    // Generic signature instantiation cache
+    /** @internal */
+    implementationSignatureCache?: Signature;  // Copy of the signature with fresh type parameters to use in checking the body of a potentially self-referential generic function (deferred)
+}
+
+/** @internal */
+export interface SymbolLinks {
+    _symbolLinksBrand: any;
+    immediateTarget?: Symbol;                   // Immediate target of an alias. May be another alias. Do not access directly, use `checker.getImmediateAliasedSymbol` instead.
+    aliasTarget?: Symbol,                       // Resolved (non-alias) target of an alias
+    target?: Symbol;                            // Original version of an instantiated symbol
+    type?: Type;                                // Type of value symbol
+    writeType?: Type;                           // Type of value symbol in write contexts
+    nameType?: Type;                            // Type associated with a late-bound symbol
+    // TODO
+    // uniqueESSymbolType?: Type;                  // UniqueESSymbol type for a symbol
+    // declaredType?: Type;                        // Type of class, interface, enum, type alias, or type parameter
+    // typeParameters?: TypeParameter[];           // Type parameters of type alias (undefined if non-generic)
+    // instantiations?: Map<string, Type>;         // Instantiations of generic type alias (undefined if non-generic)
+    // inferredClassSymbol?: Map<SymbolId, TransientSymbol>; // Symbol of an inferred ES5 constructor function
+    // mapper?: TypeMapper;                        // Type mapper for instantiation alias
+    // referenced?: boolean;                       // True if alias symbol has been referenced as a value that can be emitted
+    // containingType?: UnionOrIntersectionType;   // Containing union or intersection type for synthetic property
+    // leftSpread?: Symbol;                        // Left source for synthetic spread property
+    // rightSpread?: Symbol;                       // Right source for synthetic spread property
+    // syntheticOrigin?: Symbol;                   // For a property on a mapped or spread type, points back to the original property
+    // isDiscriminantProperty?: boolean;           // True if discriminant synthetic property
+    // resolvedExports?: SymbolTable;              // Resolved exports of module or combined early- and late-bound static members of a class.
+    // resolvedMembers?: SymbolTable;              // Combined early- and late-bound members of a symbol
+    // exportsChecked?: boolean;                   // True if exports of external module have been checked
+    // typeParametersChecked?: boolean;            // True if type parameters of merged class and interface declarations have been checked.
+    // isDeclarationWithCollidingName?: boolean;   // True if symbol is block scoped redeclaration
+    // bindingElement?: BindingElement;            // Binding element associated with property symbol
+    // originatingImport?: ImportDeclaration | ImportCall; // Import declaration which produced the symbol, present if the symbol is marked as uncallable but had call signatures in `resolveESModuleSymbol`
+    // lateSymbol?: Symbol;                        // Late-bound symbol for a computed property
+    // specifierCache?: Map<ModeAwareCacheKey, string>; // For symbols corresponding to external modules, a cache of incoming path -> module specifier name mappings
+    // extendedContainers?: Symbol[];              // Containers (other than the parent) which this symbol is aliased in
+    // extendedContainersByFile?: Map<NodeId, Symbol[]>; // Containers (other than the parent) which this symbol is aliased in
+    // variances?: VarianceFlags[];                // Alias symbol type argument variance cache
+    // deferralConstituents?: Type[];              // Calculated list of constituents for a deferred type
+    // deferralWriteConstituents?: Type[];         // Constituents of a deferred `writeType`
+    // deferralParent?: Type;                      // Source union/intersection of a deferred type
+    // cjsExportMerged?: Symbol;                   // Version of the symbol with all non export= exports merged with the export= target
+    // typeOnlyDeclaration?: TypeOnlyAliasDeclaration | false; // First resolved alias declaration that makes the symbol only usable in type constructs
+    // typeOnlyExportStarMap?: Map<__String, ExportDeclaration & { readonly isTypeOnly: true, readonly moduleSpecifier: Expression }>; // Set on a module symbol when some of its exports were resolved through a 'export type * from "mod"' declaration
+    // typeOnlyExportStarName?: __String;          // Set to the name of the symbol re-exported by an 'export type *' declaration, when different from the symbol name
+    // isConstructorDeclaredProperty?: boolean;    // Property declared through 'this.x = ...' assignment in constructor
+    // tupleLabelDeclaration?: NamedTupleMember | ParameterDeclaration; // Declaration associated with the tuple's label
+    // accessibleChainCache?: Map<string, Symbol[] | undefined>;
+    // filteredIndexSymbolCache?: Map<string, Symbol> //Symbol with applicable declarations
+    // requestedExternalEmitHelpers?: ExternalEmitHelpers; // External emit helpers already checked for this symbol.
+}
+
+/** @internal */
+export const enum CheckFlags {
+    None              = 0,
+    Instantiated      = 1 << 0,         // Instantiated symbol
+    SyntheticProperty = 1 << 1,         // Property in union or intersection type
+    SyntheticMethod   = 1 << 2,         // Method in union or intersection type
+    Readonly          = 1 << 3,         // Readonly transient symbol
+    ReadPartial       = 1 << 4,         // Synthetic property present in some but not all constituents
+    WritePartial      = 1 << 5,         // Synthetic property present in some but only satisfied by an index signature in others
+    HasNonUniformType = 1 << 6,         // Synthetic property with non-uniform type in constituents
+    HasLiteralType    = 1 << 7,         // Synthetic property with at least one literal type in constituents
+    ContainsPublic    = 1 << 8,         // Synthetic property with public constituent(s)
+    ContainsProtected = 1 << 9,         // Synthetic property with protected constituent(s)
+    ContainsPrivate   = 1 << 10,        // Synthetic property with private constituent(s)
+    ContainsStatic    = 1 << 11,        // Synthetic property with static constituent(s)
+    Late              = 1 << 12,        // Late-bound symbol for a computed property with a dynamic name
+    ReverseMapped     = 1 << 13,        // Property of reverse-inferred homomorphic mapped type
+    OptionalParameter = 1 << 14,        // Optional parameter
+    RestParameter     = 1 << 15,        // Rest parameter
+    DeferredType      = 1 << 16,        // Calculation of the type of this symbol is deferred due to processing costs, should be fetched with `getTypeOfSymbolWithDeferredType`
+    HasNeverType      = 1 << 17,        // Synthetic property with at least one never type in constituents
+    Mapped            = 1 << 18,        // Property of mapped type
+    StripOptional     = 1 << 19,        // Strip optionality in mapped property
+    Unresolved        = 1 << 20,        // Unresolved type alias symbol
+    Synthetic = SyntheticProperty | SyntheticMethod,
+    Discriminant = HasNonUniformType | HasLiteralType,
+    Partial = ReadPartial | WritePartial,
+}
+
+/** @internal */
+export interface TransientSymbolLinks extends SymbolLinks {
+    checkFlags: CheckFlags;
+}
+
+/** @internal */
+export interface TransientSymbol extends Symbol {
+    links: TransientSymbolLinks;
 }

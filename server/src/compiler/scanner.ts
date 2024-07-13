@@ -1,6 +1,8 @@
 import { CharacterCodes } from "../backend/types";
 import { Debug, DiagnosticMessage, Diagnostics, positionIsSynthesized } from "./_namespaces/lpc";
 
+export interface Scanner {}
+
 /** @internal */
 export function skipTrivia(text: string, pos: number, stopAfterLineBreak?: boolean, stopAtComments?: boolean, inJSDoc?: boolean): number {
     if (positionIsSynthesized(pos)) {

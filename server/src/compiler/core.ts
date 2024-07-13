@@ -467,3 +467,47 @@ export function pushIfUnique<T>(array: T[], toAdd: T, equalityComparer?: Equalit
         return true;
     }
 }
+
+/** @internal */
+export interface MultiMap<K, V> extends Map<K, V[]> {
+    /**
+     * Adds the value to an array of values associated with the key, and returns the array.
+     * Creates the array if it does not already exist.
+     */
+    add(key: K, value: V): V[];
+    /**
+     * Removes a value from an array of values associated with the key.
+     * Does not preserve the order of those values.
+     * Does nothing if `key` is not in `map`, or `value` is not in `map[key]`.
+     */
+    remove(key: K, value: V): void;
+}
+
+/** @internal */
+export function reduceLeft<T, U>(array: readonly T[] | undefined, f: (memo: U, value: T, i: number) => U, initial: U, start?: number, count?: number): U;
+/** @internal */
+export function reduceLeft<T>(array: readonly T[], f: (memo: T, value: T, i: number) => T): T | undefined;
+/** @internal */
+export function reduceLeft<T>(array: readonly T[] | undefined, f: (memo: T, value: T, i: number) => T, initial?: T, start?: number, count?: number): T | undefined {
+    if (array && array.length > 0) {
+        const size = array.length;
+        if (size > 0) {
+            let pos = start === undefined || start < 0 ? 0 : start;
+            const end = count === undefined || pos + count > size - 1 ? size - 1 : pos + count;
+            let result: T;
+            if (arguments.length <= 2) {
+                result = array[pos];
+                pos++;
+            }
+            else {
+                result = initial!;
+            }
+            while (pos <= end) {
+                result = f(result, array[pos], pos);
+                pos++;
+            }
+            return result;
+        }
+    }
+    return initial;
+}
