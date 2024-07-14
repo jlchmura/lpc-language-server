@@ -137,6 +137,12 @@ export namespace tracingEnabled {
         fs.writeFileSync(legendPath, JSON.stringify(legend));
     }
 
+    export function recordType(type: Type): void {
+        if (mode !== "server") {
+            typeCatalog.push(type);
+        }
+    }
+
 }
 
 

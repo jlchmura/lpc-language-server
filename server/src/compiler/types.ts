@@ -456,6 +456,7 @@ export const enum SyntaxKind {
     // Types
     UnionType,
     ArrayType,
+    TypeLiteral,
 
     // Elements
     FunctionDeclaration,
@@ -876,6 +877,7 @@ export type TypeNodeSyntaxKind =
     | KeywordTypeSyntaxKind
     | SyntaxKind.UnionType
     | SyntaxKind.ArrayType
+    | SyntaxKind.TypeLiteral
     | SyntaxKind.JSDocTypeExpression
     | SyntaxKind.JSDocAllType
     | SyntaxKind.JSDocUnknownType
@@ -1023,6 +1025,23 @@ export type DiagnosticArguments = (string | number)[];
 
 /** @internal */
 export type DiagnosticAndArguments = [message: DiagnosticMessage, ...args: DiagnosticArguments];
+
+/** @internal */
+export interface DiagnosticCollection {
+    // Adds a diagnostic to this diagnostic collection.
+    add(diagnostic: Diagnostic): void;
+
+    // Returns the first existing diagnostic that is equivalent to the given one (sans related information)
+    lookup(diagnostic: Diagnostic): Diagnostic | undefined;
+
+    // Gets all the diagnostics that aren't associated with a file.
+    getGlobalDiagnostics(): Diagnostic[];
+
+    // If fileName is provided, gets all the diagnostics associated with that file name.
+    // Otherwise, returns all the diagnostics (global and file associated) in this collection.
+    getDiagnostics(): Diagnostic[];
+    getDiagnostics(fileName: string): DiagnosticWithLocation[];
+}
 
 export interface DiagnosticRelatedInformation {
     category: DiagnosticCategory;
@@ -2876,7 +2895,11 @@ export interface ObjectType extends Type {
     /** @internal */ properties?: Symbol[];             // Properties
     /** @internal */ callSignatures?: readonly Signature[];      // Call signatures of type
     /** @internal */ constructSignatures?: readonly Signature[]; // Construct signatures of type
-    ///** @internal */ indexInfos?: readonly IndexInfo[];  // Index signatures - doesn't exist in LPC
+    /** 
+     * @internal 
+     * @deprecated doesn't exist in lpc?
+     */ 
+    indexInfos?: readonly IndexInfo[];  // Index signatures - 
     /** @internal */ objectTypeWithoutAbstractConstructSignatures?: ObjectType;
 }
 
@@ -3047,48 +3070,11 @@ export interface EmitTextWriter extends SymbolWriter {
     nonEscapingWrite?(text: string): void;
 }
 
-export interface Signature {
-    /** @internal */ flags: SignatureFlags;
-    /** @internal */ checker?: TypeChecker;
-    declaration?: SignatureDeclaration | JSDocSignature; // Originating declaration
-    typeParameters?: readonly TypeParameter[];   // Type parameters (undefined if non-generic)
-    parameters: readonly Symbol[];               // Parameters
-    thisParameter?: Symbol;             // symbol of this-type parameter
-    /** @internal */
-    // See comment in `instantiateSignature` for why these are set lazily.
-    resolvedReturnType?: Type;          // Lazily set by `getReturnTypeOfSignature`.
-    /** @internal */
-    // Lazily set by `getTypePredicateOfSignature`.
-    // `undefined` indicates a type predicate that has not yet been computed.
-    // Uses a special `noTypePredicate` sentinel value to indicate that there is no type predicate. This looks like a TypePredicate at runtime to avoid polymorphism.
-    //resolvedTypePredicate?: TypePredicate;
-    /** @internal */
-    minArgumentCount: number;           // Number of non-optional parameters
-    /** @internal */
-    resolvedMinArgumentCount?: number;  // Number of non-optional parameters (excluding trailing `void`)
-    /** @internal */
-    target?: Signature;                 // Instantiation target
-    /** @internal */
-    mapper?: TypeMapper;                // Instantiation mapper
-    /** @internal */
-    compositeSignatures?: Signature[];  // Underlying signatures of a union/intersection signature
-    /** @internal */
-    compositeKind?: TypeFlags;          // TypeFlags.Union if the underlying signatures are from union members, otherwise TypeFlags.Intersection
-    /** @internal */
-    erasedSignatureCache?: Signature;   // Erased version of signature (deferred)
-    /** @internal */
-    canonicalSignatureCache?: Signature; // Canonical version of signature (deferred)
-    /** @internal */
-    baseSignatureCache?: Signature;      // Base version of signature (deferred)
-    /** @internal */
-    optionalCallSignatureCache?: { inner?: Signature, outer?: Signature }; // Optional chained call version of signature (deferred)
-    /** @internal */
-    isolatedSignatureType?: ObjectType; // A manufactured type that just contains the signature for purposes of signature comparison
-    /** @internal */
-    instantiations?: Map<string, Signature>;    // Generic signature instantiation cache
-    /** @internal */
-    implementationSignatureCache?: Signature;  // Copy of the signature with fresh type parameters to use in checking the body of a potentially self-referential generic function (deferred)
-}
+export type CallLikeExpression =
+    | CallExpression
+    //| NewExpression
+    //| TaggedTemplateExpression
+    ;
 
 /** @internal */
 export interface SymbolLinks {
@@ -3099,45 +3085,59 @@ export interface SymbolLinks {
     type?: Type;                                // Type of value symbol
     writeType?: Type;                           // Type of value symbol in write contexts
     nameType?: Type;                            // Type associated with a late-bound symbol
-    // TODO
-    // uniqueESSymbolType?: Type;                  // UniqueESSymbol type for a symbol
-    // declaredType?: Type;                        // Type of class, interface, enum, type alias, or type parameter
-    // typeParameters?: TypeParameter[];           // Type parameters of type alias (undefined if non-generic)
-    // instantiations?: Map<string, Type>;         // Instantiations of generic type alias (undefined if non-generic)
-    // inferredClassSymbol?: Map<SymbolId, TransientSymbol>; // Symbol of an inferred ES5 constructor function
-    // mapper?: TypeMapper;                        // Type mapper for instantiation alias
-    // referenced?: boolean;                       // True if alias symbol has been referenced as a value that can be emitted
-    // containingType?: UnionOrIntersectionType;   // Containing union or intersection type for synthetic property
-    // leftSpread?: Symbol;                        // Left source for synthetic spread property
-    // rightSpread?: Symbol;                       // Right source for synthetic spread property
-    // syntheticOrigin?: Symbol;                   // For a property on a mapped or spread type, points back to the original property
-    // isDiscriminantProperty?: boolean;           // True if discriminant synthetic property
-    // resolvedExports?: SymbolTable;              // Resolved exports of module or combined early- and late-bound static members of a class.
-    // resolvedMembers?: SymbolTable;              // Combined early- and late-bound members of a symbol
-    // exportsChecked?: boolean;                   // True if exports of external module have been checked
-    // typeParametersChecked?: boolean;            // True if type parameters of merged class and interface declarations have been checked.
-    // isDeclarationWithCollidingName?: boolean;   // True if symbol is block scoped redeclaration
-    // bindingElement?: BindingElement;            // Binding element associated with property symbol
-    // originatingImport?: ImportDeclaration | ImportCall; // Import declaration which produced the symbol, present if the symbol is marked as uncallable but had call signatures in `resolveESModuleSymbol`
-    // lateSymbol?: Symbol;                        // Late-bound symbol for a computed property
-    // specifierCache?: Map<ModeAwareCacheKey, string>; // For symbols corresponding to external modules, a cache of incoming path -> module specifier name mappings
-    // extendedContainers?: Symbol[];              // Containers (other than the parent) which this symbol is aliased in
-    // extendedContainersByFile?: Map<NodeId, Symbol[]>; // Containers (other than the parent) which this symbol is aliased in
-    // variances?: VarianceFlags[];                // Alias symbol type argument variance cache
-    // deferralConstituents?: Type[];              // Calculated list of constituents for a deferred type
-    // deferralWriteConstituents?: Type[];         // Constituents of a deferred `writeType`
-    // deferralParent?: Type;                      // Source union/intersection of a deferred type
-    // cjsExportMerged?: Symbol;                   // Version of the symbol with all non export= exports merged with the export= target
+    uniqueESSymbolType?: Type;                  // UniqueESSymbol type for a symbol
+    declaredType?: Type;                        // Type of class, interface, enum, type alias, or type parameter
+    typeParameters?: TypeParameter[];           // Type parameters of type alias (undefined if non-generic)
+    instantiations?: Map<string, Type>;         // Instantiations of generic type alias (undefined if non-generic)
+    inferredClassSymbol?: Map<SymbolId, TransientSymbol>; // Symbol of an inferred ES5 constructor function
+    mapper?: TypeMapper;                        // Type mapper for instantiation alias
+    referenced?: boolean;                       // True if alias symbol has been referenced as a value that can be emitted
+    containingType?: UnionOrIntersectionType;   // Containing union or intersection type for synthetic property
+    leftSpread?: Symbol;                        // Left source for synthetic spread property
+    rightSpread?: Symbol;                       // Right source for synthetic spread property
+    syntheticOrigin?: Symbol;                   // For a property on a mapped or spread type, points back to the original property
+    isDiscriminantProperty?: boolean;           // True if discriminant synthetic property
+    resolvedExports?: SymbolTable;              // Resolved exports of module or combined early- and late-bound static members of a class.
+    resolvedMembers?: SymbolTable;              // Combined early- and late-bound members of a symbol
+    exportsChecked?: boolean;                   // True if exports of external module have been checked
+    typeParametersChecked?: boolean;            // True if type parameters of merged class and interface declarations have been checked.
+    isDeclarationWithCollidingName?: boolean;   // True if symbol is block scoped redeclaration
+    //bindingElement?: BindingElement;            // Binding element associated with property symbol
+    //originatingImport?: ImportDeclaration | ImportCall; // Import declaration which produced the symbol, present if the symbol is marked as uncallable but had call signatures in `resolveESModuleSymbol`
+    lateSymbol?: Symbol;                        // Late-bound symbol for a computed property
+    //specifierCache?: Map<ModeAwareCacheKey, string>; // For symbols corresponding to external modules, a cache of incoming path -> module specifier name mappings
+    extendedContainers?: Symbol[];              // Containers (other than the parent) which this symbol is aliased in
+    extendedContainersByFile?: Map<NodeId, Symbol[]>; // Containers (other than the parent) which this symbol is aliased in
+    variances?: VarianceFlags[];                // Alias symbol type argument variance cache
+    deferralConstituents?: Type[];              // Calculated list of constituents for a deferred type
+    deferralWriteConstituents?: Type[];         // Constituents of a deferred `writeType`
+    deferralParent?: Type;                      // Source union/intersection of a deferred type
+    cjsExportMerged?: Symbol;                   // Version of the symbol with all non export= exports merged with the export= target
     // typeOnlyDeclaration?: TypeOnlyAliasDeclaration | false; // First resolved alias declaration that makes the symbol only usable in type constructs
     // typeOnlyExportStarMap?: Map<__String, ExportDeclaration & { readonly isTypeOnly: true, readonly moduleSpecifier: Expression }>; // Set on a module symbol when some of its exports were resolved through a 'export type * from "mod"' declaration
     // typeOnlyExportStarName?: __String;          // Set to the name of the symbol re-exported by an 'export type *' declaration, when different from the symbol name
-    // isConstructorDeclaredProperty?: boolean;    // Property declared through 'this.x = ...' assignment in constructor
-    // tupleLabelDeclaration?: NamedTupleMember | ParameterDeclaration; // Declaration associated with the tuple's label
-    // accessibleChainCache?: Map<string, Symbol[] | undefined>;
-    // filteredIndexSymbolCache?: Map<string, Symbol> //Symbol with applicable declarations
-    // requestedExternalEmitHelpers?: ExternalEmitHelpers; // External emit helpers already checked for this symbol.
+    isConstructorDeclaredProperty?: boolean;    // Property declared through 'this.x = ...' assignment in constructor
+    //tupleLabelDeclaration?: NamedTupleMember | ParameterDeclaration; // Declaration associated with the tuple's label
+    accessibleChainCache?: Map<string, Symbol[] | undefined>;
+    filteredIndexSymbolCache?: Map<string, Symbol> //Symbol with applicable declarations
+    //requestedExternalEmitHelpers?: ExternalEmitHelpers; // External emit helpers already checked for this symbol.
 }
 
+
+/** @internal */
+export const enum VarianceFlags {
+    Invariant     =      0,  // Neither covariant nor contravariant
+    Covariant     = 1 << 0,  // Covariant
+    Contravariant = 1 << 1,  // Contravariant
+    Bivariant     = Covariant | Contravariant,  // Both covariant and contravariant
+    Independent   = 1 << 2,  // Unwitnessed type parameter
+    VarianceMask  = Invariant | Covariant | Contravariant | Independent, // Mask containing all measured variances without the unmeasurable flag
+    Unmeasurable  = 1 << 3,  // Variance result is unusable - relationship relies on structural comparisons which are not reflected in generic relationships
+    Unreliable    = 1 << 4,  // Variance result is unreliable - checking may produce false negatives, but not false positives
+    AllowsStructuralFallback = Unmeasurable | Unreliable,
+}
+
+// dprint-ignore
 /** @internal */
 export const enum CheckFlags {
     None              = 0,
@@ -3177,21 +3177,56 @@ export interface TransientSymbol extends Symbol {
     links: TransientSymbolLinks;
 }
 
-/** @internal */
-export interface DiagnosticCollection {
-    // Adds a diagnostic to this diagnostic collection.
-    add(diagnostic: Diagnostic): void;
+// Intrinsic types (TypeFlags.Intrinsic)
+export interface IntrinsicType extends Type {
+    intrinsicName: string; // Name of intrinsic type
+    debugIntrinsicName: string | undefined;
+    objectFlags: ObjectFlags;
+}
 
-    // Returns the first existing diagnostic that is equivalent to the given one (sans related information)
-    lookup(diagnostic: Diagnostic): Diagnostic | undefined;
+export type StructuredType = ObjectType | UnionType;
 
-    // Gets all the diagnostics that aren't associated with a file.
-    getGlobalDiagnostics(): Diagnostic[];
+// Resolved object, union, or intersection type
+// dprint-ignore
+export interface ResolvedType extends ObjectType, UnionOrIntersectionType {
+    members: SymbolTable;             // Properties by name
+    properties: Symbol[];             // Properties
+    callSignatures: readonly Signature[];      // Call signatures of type
+    constructSignatures: readonly Signature[]; // Construct signatures of type
+    indexInfos: readonly IndexInfo[];  // Index signatures
+}
 
-    // If fileName is provided, gets all the diagnostics associated with that file name.
-    // Otherwise, returns all the diagnostics (global and file associated) in this collection.
-    getDiagnostics(): Diagnostic[];
-    getDiagnostics(fileName: string): DiagnosticWithLocation[];
+export interface IndexInfo {
+    keyType: Type;
+    type: Type;
+    isReadonly: boolean;
+    declaration?: IndexSignatureDeclaration;
+}
+
+export interface ClassElement extends NamedDeclaration {
+    _classElementBrand: any;
+    readonly name?: PropertyName;
+}
+
+export interface TypeElement extends NamedDeclaration {
+    _typeElementBrand: any;
+    readonly name?: PropertyName; 
+}
+
+// A TypeLiteral is the declaration node for an anonymous symbol.
+export interface TypeLiteralNode extends TypeNode, Declaration {
+    readonly kind: SyntaxKind.TypeLiteral;
+    readonly members: NodeArray<TypeElement>;
+}
+
+
+export type ObjectTypeDeclaration =    TypeLiteralNode;
+
+export interface IndexSignatureDeclaration extends SignatureDeclarationBase, ClassElement, TypeElement, LocalsContainer {
+    readonly kind: SyntaxKind.IndexSignature;
+    readonly parent: ObjectTypeDeclaration;
+    readonly modifiers?: NodeArray<Modifier>;
+    readonly type: TypeNode;
 }
 
 /** @internal */
@@ -3238,7 +3273,6 @@ export const enum NodeCheckFlags {
         | LoopWithCapturedBlockScopedBinding,
 }
 
-/** @internal */
 export interface EvaluatorResult<T extends string | number | undefined = string | number | undefined> {
     value: T;
     isSyntacticallyString: boolean;
@@ -3246,62 +3280,6 @@ export interface EvaluatorResult<T extends string | number | undefined = string 
     hasExternalReferences: boolean;
 }
 
-export interface ClassElement extends NamedDeclaration {
-    _classElementBrand: any;
-    readonly name?: PropertyName;
-}
-
-
-export interface ClassLikeDeclarationBase extends NamedDeclaration, JSDocContainer {
-    readonly kind: SyntaxKind.ClassDeclaration | SyntaxKind.ClassExpression;
-    readonly name?: Identifier;
-    //readonly typeParameters?: NodeArray<TypeParameterDeclaration>;
-    //readonly heritageClauses?: NodeArray<HeritageClause>;
-    readonly members: NodeArray<ClassElement>;
-}
-
-export interface ClassDeclaration extends ClassLikeDeclarationBase, DeclarationStatement {
-    readonly kind: SyntaxKind.ClassDeclaration;
-    readonly modifiers?: NodeArray<Modifier>;
-    /** May be undefined in `export default class { ... }`. */
-    readonly name?: Identifier;
-}
-
-
-export interface ClassExpression extends ClassLikeDeclarationBase, PrimaryExpression {
-    readonly kind: SyntaxKind.ClassExpression;
-    readonly modifiers?: NodeArray<Modifier>;
-}
-
-export type ClassLikeDeclaration =
-    | ClassDeclaration
-    | ClassExpression;
-    
-export type ObjectTypeDeclaration =
-    | ClassLikeDeclaration
-    //| InterfaceDeclaration
-    //TODO? | TypeLiteralNode
-    ;
-
-export interface TypeElement extends NamedDeclaration {
-    _typeElementBrand: any;
-    readonly name?: PropertyName; 
-}
-    
-
-export interface IndexSignatureDeclaration extends SignatureDeclarationBase, ClassElement, TypeElement, LocalsContainer {
-    readonly kind: SyntaxKind.IndexSignature;
-    readonly parent: ObjectTypeDeclaration;
-    readonly modifiers?: NodeArray<Modifier>;
-    readonly type: TypeNode;
-}
-
-export interface IndexInfo {
-    keyType: Type;
-    type: Type;
-    isReadonly: boolean;
-    declaration?: IndexSignatureDeclaration;
-}
 
 /** @internal */
 export type TrackedSymbol = [symbol: Symbol, enclosingDeclaration: Node | undefined, meaning: SymbolFlags];
@@ -3325,7 +3303,7 @@ export interface NodeLinks {
     enumMemberValue?: EvaluatorResult;  // Constant value of enum member
     isVisible?: boolean;                // Is this node visible
     containsArgumentsReference?: boolean; // Whether a function-like declaration contains an 'arguments' reference
-    hasReportedStatementInAmbientContext?: boolean; // Cache boolean if we report statements in ambient context    
+    hasReportedStatementInAmbientContext?: boolean; // Cache boolean if we report statements in ambient context
     resolvedJsxElementAttributesType?: Type; // resolved element attributes type of a JSX openinglike element
     resolvedJsxElementAllAttributesType?: Type; // resolved all element attributes type of a JSX openinglike element
     resolvedJSDocType?: Type;           // Resolved type of a JSDoc type reference
@@ -3352,5 +3330,3 @@ export interface NodeLinks {
     //potentialUnusedRenamedBindingElementsInTypes?: BindingElement[];
     externalHelpersModule?: Symbol;     // Resolved symbol for the external helpers module
 }
-
-

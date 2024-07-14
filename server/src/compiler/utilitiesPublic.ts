@@ -322,3 +322,6 @@ function isLeftHandSideExpressionKind(kind: SyntaxKind): boolean {
     }
 }
 
+export function isCallOrNewExpression(node: Node): node is CallExpression /*| NewExpression*/ {
+    return node.kind === SyntaxKind.CallExpression || node.kind === SyntaxKind.NewExpression;
+}
