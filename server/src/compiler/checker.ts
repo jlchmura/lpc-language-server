@@ -1,4 +1,4 @@
-import {Type,Symbol, SymbolLinks, CancellationToken, createSymbolTable, Declaration, EmitTextWriter, ModifierFlags, Node, NodeFlags, objectAllocator, Scanner, Signature, SignatureKind, SymbolFlags, TypeChecker, TypeCheckerHost, TypeFormatFlags, TypeParameter, CheckFlags, TransientSymbol, TransientSymbolLinks, reduceLeft, bindSourceFile, SourceFile, Diagnostic, createDiagnosticCollection, concatenate, forEach, tracing, performance, NodeLinks, NodeCheckFlags, FlowNode, FlowType, clear, SyntaxKind, TracingNode, CallLikeExpression, CallExpression, isCallOrNewExpression, isBinaryExpression, Expression, SignatureDeclaration, SignatureFlags, emptyArray, TypeFlags, IntrinsicType, ObjectFlags, Debug, BinaryExpression, ObjectType, StructuredType, ResolvedType, SymbolTable, IndexInfo, Identifier, nodeIsMissing, createNameResolver, InternalSymbolName, SymbolId, some, DiagnosticMessage, DiagnosticArguments, createDiagnosticForNode, createCompilerDiagnostic, FunctionLikeDeclaration, PropertyDeclaration, isString, isIdentifier, Diagnostics, findLast, SymbolFormatFlags, isAccessExpression, isFunctionExpression, isAliasableExpression, PropertyAssignment, isVariableDeclarationInitializedToBareOrAccessedRequire, mapDefined, arrayFrom, getSpellingSuggestion, symbolName, startsWith, nodeIsSynthesized, declarationNameToString, getCanonicalDiagnostic, DiagnosticCategory, addRelatedInfo, ParameterDeclaration, BindingElement, isSourceFile, isExternalOrCommonJsModule, isBlockOrCatchScoped, length, every, isValidTypeOnlyAliasUseSite, isWriteOnlyAccess, getCombinedNodeFlags, DiagnosticWithLocation, getJSDocDeprecatedTag, findAncestor, isCallLikeExpression, isFunctionLike, ParenthesizedExpression, isAssignmentExpression, isVariableDeclaration, isBindingElement, PropertyAccessExpression, getEnclosingBlockScopeContainer, isPropertyDeclaration, nodeStartsNewLexicalEnvironment, isIterationStatement, isForStatement, getAncestor, ForStatement, pushIfUnique, isAssignmentTarget, PrefixUnaryExpression, PostfixUnaryExpression, isBlock, isExpressionNode, isPropertyAccessExpression, getAssignmentTargetKind, AssignmentKind, isInCompoundLikeAssignment, UnionType, TypeId, UnionReduction, getRootDeclaration, getImmediatelyInvokedFunctionExpression, isSpreadAssignment, isParameter, VariableDeclaration, isFunctionLikeDeclaration, isTypeNode, forEachChild, tryCast, canHaveFlowNode, ElementAccessExpression, RelationComparisonResult, LiteralType, FreshableType, getObjectFlags, DiagnosticMessageChain, setNodeFlags, isCallExpression, LazyNodeCheckFlags, getSourceFileOfNode, canIncludeBindAndCheckDiagnostics, forEachChildRecursively, isDeclarationName, EntityName, JSDocMemberName, canHaveSymbol, isLiteralTypeNode, isElementAccessExpression, isIndexedAccessTypeNode, TypeNode } from "./_namespaces/lpc";
+import {Type,Symbol, SymbolLinks, CancellationToken, createSymbolTable, Declaration, EmitTextWriter, ModifierFlags, Node, NodeFlags, objectAllocator, Scanner, Signature, SignatureKind, SymbolFlags, TypeChecker, TypeCheckerHost, TypeFormatFlags, TypeParameter, CheckFlags, TransientSymbol, TransientSymbolLinks, reduceLeft, bindSourceFile, SourceFile, Diagnostic, createDiagnosticCollection, concatenate, forEach, tracing, performance, NodeLinks, NodeCheckFlags, FlowNode, FlowType, clear, SyntaxKind, TracingNode, CallLikeExpression, CallExpression, isCallOrNewExpression, isBinaryExpression, Expression, SignatureDeclaration, SignatureFlags, emptyArray, TypeFlags, IntrinsicType, ObjectFlags, Debug, BinaryExpression, ObjectType, StructuredType, ResolvedType, SymbolTable, IndexInfo, Identifier, nodeIsMissing, createNameResolver, InternalSymbolName, SymbolId, some, DiagnosticMessage, DiagnosticArguments, createDiagnosticForNode, createCompilerDiagnostic, FunctionLikeDeclaration, PropertyDeclaration, isString, isIdentifier, Diagnostics, findLast, SymbolFormatFlags, isAccessExpression, isFunctionExpression, isAliasableExpression, PropertyAssignment, isVariableDeclarationInitializedToBareOrAccessedRequire, mapDefined, arrayFrom, getSpellingSuggestion, symbolName, startsWith, nodeIsSynthesized, declarationNameToString, getCanonicalDiagnostic, DiagnosticCategory, addRelatedInfo, ParameterDeclaration, BindingElement, isSourceFile, isExternalOrCommonJsModule, isBlockOrCatchScoped, length, every, isValidTypeOnlyAliasUseSite, isWriteOnlyAccess, getCombinedNodeFlags, DiagnosticWithLocation, getJSDocDeprecatedTag, findAncestor, isCallLikeExpression, isFunctionLike, ParenthesizedExpression, isAssignmentExpression, isVariableDeclaration, isBindingElement, PropertyAccessExpression, getEnclosingBlockScopeContainer, isPropertyDeclaration, nodeStartsNewLexicalEnvironment, isIterationStatement, isForStatement, getAncestor, ForStatement, pushIfUnique, isAssignmentTarget, PrefixUnaryExpression, PostfixUnaryExpression, isBlock, isExpressionNode, isPropertyAccessExpression, getAssignmentTargetKind, AssignmentKind, isInCompoundLikeAssignment, UnionType, TypeId, UnionReduction, getRootDeclaration, getImmediatelyInvokedFunctionExpression, isSpreadAssignment, isParameter, VariableDeclaration, isFunctionLikeDeclaration, isTypeNode, forEachChild, tryCast, canHaveFlowNode, ElementAccessExpression, RelationComparisonResult, LiteralType, FreshableType, getObjectFlags, DiagnosticMessageChain, setNodeFlags, isCallExpression, LazyNodeCheckFlags, getSourceFileOfNode, canIncludeBindAndCheckDiagnostics, forEachChildRecursively, isDeclarationName, EntityName, JSDocMemberName, canHaveSymbol, isLiteralTypeNode, isElementAccessExpression, isIndexedAccessTypeNode, TypeNode, canHaveJSDoc, FlowFlags, FlowArrayMutation, FlowAssignment, FlowCall, FlowCondition, FlowLabel, FlowReduceLabel, FlowSwitchClause, SwitchStatement, createFileDiagnostic, createDiagnosticForFileFromMessageChain, createDiagnosticForNodeFromMessageChain } from "./_namespaces/lpc";
 
 let nextSymbolId = 1;
 let nextNodeId = 1;
@@ -439,8 +439,237 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             return;
         }
 
+        if (canHaveJSDoc(node)) {
+            // TODO
+            console.warn("Implement me - checkJSDocElement");
+            // forEach(node.jsDoc, ({ comment, tags }) => {
+            //     checkJSDocCommentWorker(comment);
+            //     forEach(tags, tag => {
+            //         checkJSDocCommentWorker(tag.comment);
+            //         if (isInJSFile(node)) {
+            //             checkSourceElement(tag);
+            //         }
+            //     });
+            // });
+        }
+        
+        const kind = node.kind;
+        if (cancellationToken) {
+            // Only bother checking on a few construct kinds.  We don't want to be excessively
+            // hitting the cancellation token on every node we check.
+            switch (kind) {
+                // case SyntaxKind.ModuleDeclaration:
+                // case SyntaxKind.ClassDeclaration:
+                // case SyntaxKind.InterfaceDeclaration:
+                case SyntaxKind.FunctionDeclaration:
+                    cancellationToken.throwIfCancellationRequested();
+            }
+        }
+        if (kind >= SyntaxKind.FirstStatement && kind <= SyntaxKind.LastStatement && canHaveFlowNode(node) && node.flowNode && !isReachableFlowNode(node.flowNode)) {
+            errorOrSuggestion(compilerOptions.allowUnreachableCode === false, node, Diagnostics.Unreachable_code_detected);
+        }
+
         // TODO
         console.warn("Implement me - checkSourceElementWorker");
+    }
+
+    function errorOrSuggestion(isError: boolean, location: Node, message: DiagnosticMessage | DiagnosticMessageChain, ...args: DiagnosticArguments): void {
+        // Pseudo-synthesized input node
+        if (location.pos < 0 || location.end < 0) {
+            if (!isError) {
+                return; // Drop suggestions (we have no span to suggest on)
+            }
+            // Issue errors globally
+            const file = getSourceFileOfNode(location);
+            addErrorOrSuggestion(isError, "message" in message ? createFileDiagnostic(file, 0, 0, message, ...args) : createDiagnosticForFileFromMessageChain(file, message)); // eslint-disable-line local/no-in-operator
+            return;
+        }
+        addErrorOrSuggestion(isError, "message" in message ? createDiagnosticForNode(location, message, ...args) : createDiagnosticForNodeFromMessageChain(getSourceFileOfNode(location), location, message)); // eslint-disable-line local/no-in-operator
+    }
+
+    function isReachableFlowNode(flow: FlowNode) {
+        const result = isReachableFlowNodeWorker(flow, /*noCacheCheck*/ false);
+        lastFlowNode = flow;
+        lastFlowNodeReachable = result;
+        return result;
+    }
+
+    function getFlowNodeId(flow: FlowNode): number {
+        if (flow.id <= 0) {
+            flow.id = nextFlowId;
+            nextFlowId++;
+        }
+        return flow.id;
+    }
+
+    function getEffectsSignature(node: CallExpression) {
+        const links = getNodeLinks(node);
+        let signature = links.effectsSignature;
+        console.warn("todo - implement me - getEffectsSignature");
+        // if (signature === undefined) {
+        //     // A call expression parented by an expression statement is a potential assertion. Other call
+        //     // expressions are potential type predicate function calls. In order to avoid triggering
+        //     // circularities in control flow analysis, we use getTypeOfDottedName when resolving the call
+        //     // target expression of an assertion.
+        //     let funcType: Type | undefined;
+        //     if (isBinaryExpression(node)) {
+        //         const rightType = checkNonNullExpression(node.right);
+        //         funcType = getSymbolHasInstanceMethodOfObjectType(rightType);
+        //     }
+        //     else if (node.parent.kind === SyntaxKind.ExpressionStatement) {
+        //         funcType = getTypeOfDottedName(node.expression, /*diagnostic*/ undefined);
+        //     }
+        //     else if (node.expression.kind !== SyntaxKind.SuperKeyword) {
+        //         if (isOptionalChain(node)) {
+        //             funcType = checkNonNullType(
+        //                 getOptionalExpressionType(checkExpression(node.expression), node.expression),
+        //                 node.expression,
+        //             );
+        //         }
+        //         else {
+        //             funcType = checkNonNullExpression(node.expression);
+        //         }
+        //     }
+        //     const signatures = getSignaturesOfType(funcType && getApparentType(funcType) || unknownType, SignatureKind.Call);
+        //     const candidate = signatures.length === 1 && !signatures[0].typeParameters ? signatures[0] :
+        //         some(signatures, hasTypePredicateOrNeverReturnType) ? getResolvedSignature(node) :
+        //         undefined;
+        //     signature = links.effectsSignature = candidate && hasTypePredicateOrNeverReturnType(candidate) ? candidate : unknownSignature;
+        // }
+        return signature === unknownSignature ? undefined : signature;
+    }
+
+    function getReturnTypeOfSignature(signature: Signature): Type {
+        console.warn("todo implement me - getReturnTypeOfSignature");
+        // if (!signature.resolvedReturnType) {
+        //     if (!pushTypeResolution(signature, TypeSystemPropertyName.ResolvedReturnType)) {
+        //         return errorType;
+        //     }
+        //     let type = signature.target ? instantiateType(getReturnTypeOfSignature(signature.target), signature.mapper) :
+        //         signature.compositeSignatures ? instantiateType(getUnionOrIntersectionType(map(signature.compositeSignatures, getReturnTypeOfSignature), signature.compositeKind, UnionReduction.Subtype), signature.mapper) :
+        //         getReturnTypeFromAnnotation(signature.declaration!) ||
+        //         (nodeIsMissing((signature.declaration as FunctionLikeDeclaration).body) ? anyType : getReturnTypeFromBody(signature.declaration as FunctionLikeDeclaration));
+        //     if (signature.flags & SignatureFlags.IsInnerCallChain) {
+        //         type = addOptionalTypeMarker(type);
+        //     }
+        //     else if (signature.flags & SignatureFlags.IsOuterCallChain) {
+        //         type = getOptionalType(type);
+        //     }
+        //     if (!popTypeResolution()) {
+        //         if (signature.declaration) {
+        //             const typeNode = getEffectiveReturnTypeNode(signature.declaration);
+        //             if (typeNode) {
+        //                 error(typeNode, Diagnostics.Return_type_annotation_circularly_references_itself);
+        //             }
+        //             else if (noImplicitAny) {
+        //                 const declaration = signature.declaration as Declaration;
+        //                 const name = getNameOfDeclaration(declaration);
+        //                 if (name) {
+        //                     error(name, Diagnostics._0_implicitly_has_return_type_any_because_it_does_not_have_a_return_type_annotation_and_is_referenced_directly_or_indirectly_in_one_of_its_return_expressions, declarationNameToString(name));
+        //                 }
+        //                 else {
+        //                     error(declaration, Diagnostics.Function_implicitly_has_return_type_any_because_it_does_not_have_a_return_type_annotation_and_is_referenced_directly_or_indirectly_in_one_of_its_return_expressions);
+        //                 }
+        //             }
+        //         }
+        //         type = anyType;
+        //     }
+        //     signature.resolvedReturnType ??= type;
+        // }
+        return signature.resolvedReturnType;
+    }
+
+    function isExhaustiveSwitchStatement(node: SwitchStatement): boolean {
+        const links = getNodeLinks(node);
+        if (links.isExhaustive === undefined) {
+            links.isExhaustive = 0; // Indicate resolution is in process
+            const exhaustive = computeExhaustiveSwitchStatement(node);
+            if (links.isExhaustive === 0) {
+                links.isExhaustive = exhaustive;
+            }
+        }
+        else if (links.isExhaustive === 0) {
+            links.isExhaustive = false; // Resolve circularity to false
+        }
+        return links.isExhaustive;
+    }
+
+    function computeExhaustiveSwitchStatement(node: SwitchStatement): boolean {        
+        console.warn("todo implement me - computeExhaustiveSwitchStatement");
+        return false;
+        // const type = checkExpressionCached(node.expression);
+        // if (!isLiteralType(type)) {
+        //     return false;
+        // }
+        // const switchTypes = getSwitchClauseTypes(node);
+        // if (!switchTypes.length || some(switchTypes, isNeitherUnitTypeNorNever)) {
+        //     return false;
+        // }
+        // return eachTypeContainedIn(mapType(type, getRegularTypeOfLiteralType), switchTypes);
+    }
+
+    
+    function isReachableFlowNodeWorker(flow: FlowNode, noCacheCheck: boolean): boolean {
+        while (true) {
+            if (flow === lastFlowNode) {
+                return lastFlowNodeReachable;
+            }
+            const flags = flow.flags;
+            if (flags & FlowFlags.Shared) {
+                if (!noCacheCheck) {
+                    const id = getFlowNodeId(flow);
+                    const reachable = flowNodeReachable[id];
+                    return reachable !== undefined ? reachable : (flowNodeReachable[id] = isReachableFlowNodeWorker(flow, /*noCacheCheck*/ true));
+                }
+                noCacheCheck = false;
+            }
+            if (flags & (FlowFlags.Assignment | FlowFlags.Condition | FlowFlags.ArrayMutation)) {
+                flow = (flow as FlowAssignment | FlowCondition | FlowArrayMutation).antecedent;
+            }
+            else if (flags & FlowFlags.Call) {
+                const signature = getEffectsSignature((flow as FlowCall).node);
+                if (signature) {                    
+                    if (getReturnTypeOfSignature(signature).flags & TypeFlags.Never) {
+                        return false;
+                    }
+                }
+                flow = (flow as FlowCall).antecedent;
+            }
+            else if (flags & FlowFlags.BranchLabel) {
+                // A branching point is reachable if any branch is reachable.
+                return some((flow as FlowLabel).antecedent, f => isReachableFlowNodeWorker(f, /*noCacheCheck*/ false));
+            }
+            else if (flags & FlowFlags.LoopLabel) {
+                const antecedents = (flow as FlowLabel).antecedent;
+                if (antecedents === undefined || antecedents.length === 0) {
+                    return false;
+                }
+                // A loop is reachable if the control flow path that leads to the top is reachable.
+                flow = antecedents[0];
+            }
+            else if (flags & FlowFlags.SwitchClause) {
+                // The control flow path representing an unmatched value in a switch statement with
+                // no default clause is unreachable if the switch statement is exhaustive.
+                const data = (flow as FlowSwitchClause).node;
+                if (data.clauseStart === data.clauseEnd && isExhaustiveSwitchStatement(data.switchStatement)) {
+                    return false;
+                }
+                flow = (flow as FlowSwitchClause).antecedent;
+            }
+            else if (flags & FlowFlags.ReduceLabel) {
+                // Cache is unreliable once we start adjusting labels
+                lastFlowNode = undefined;
+                const target = (flow as FlowReduceLabel).node.target;
+                const saveAntecedents = target.antecedent;
+                target.antecedent = (flow as FlowReduceLabel).node.antecedents;
+                const result = isReachableFlowNodeWorker((flow as FlowReduceLabel).antecedent, /*noCacheCheck*/ false);
+                target.antecedent = saveAntecedents;
+                return result;
+            }
+            else {
+                return !(flags & FlowFlags.Unreachable);
+            }
+        }
     }
 
     function getNodeCheckFlags(node: Node): NodeCheckFlags {

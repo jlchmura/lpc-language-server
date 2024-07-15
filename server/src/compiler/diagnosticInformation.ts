@@ -22,4 +22,6 @@ export const Diagnostics = {
     Cannot_assign_to_0_because_it_is_a_function: diag(2630, DiagnosticCategory.Error, "Cannot_assign_to_0_because_it_is_a_function_2630", "Cannot assign to '{0}' because it is a function."),
     Cannot_assign_to_0_because_it_is_not_a_variable: diag(2539, DiagnosticCategory.Error, "Cannot_assign_to_0_because_it_is_not_a_variable_2539", "Cannot assign to '{0}' because it is not a variable."),
     Variable_0_is_used_before_being_assigned: diag(2454, DiagnosticCategory.Error, "Variable_0_is_used_before_being_assigned_2454", "Variable '{0}' is used before being assigned."),
+    Unreachable_code_detected: diag(7027, DiagnosticCategory.Error, "Unreachable_code_detected_7027", "Unreachable code detected.", /*reportsUnnecessary*/ true),
+    
 }

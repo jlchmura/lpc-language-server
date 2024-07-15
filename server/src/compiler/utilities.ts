@@ -2522,3 +2522,22 @@ export function canIncludeBindAndCheckDiagnostics(sourceFile: SourceFile, option
 export function isDeclarationName(name: Node): boolean {
     return !isSourceFile(name) && !isBindingPattern(name) && isDeclaration(name.parent) && name.parent.name === name;
 }
+
+/** @internal */
+export function createDiagnosticForFileFromMessageChain(sourceFile: SourceFile, messageChain: DiagnosticMessageChain, relatedInformation?: DiagnosticRelatedInformation[]): DiagnosticWithLocation {
+    return {
+        file: sourceFile,
+        start: 0,
+        length: 0,
+        code: messageChain.code,
+        category: messageChain.category,
+        messageText: messageChain.next ? messageChain : messageChain.messageText,
+        relatedInformation,
+    };
+}
+
+/** @internal */
+export function createDiagnosticForNodeFromMessageChain(sourceFile: SourceFile, node: Node, messageChain: DiagnosticMessageChain, relatedInformation?: DiagnosticRelatedInformation[]): DiagnosticWithLocation {
+    const span = getErrorSpanForNode(sourceFile, node);
+    return createFileDiagnosticFromMessageChain(sourceFile, span.start, span.length, messageChain, relatedInformation);
+}
