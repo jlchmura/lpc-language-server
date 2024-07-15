@@ -690,7 +690,7 @@ export function createNodeFactory(
         // TODO: parenthesize?
         
         if (typeof name === "string") {
-            name = asName(name);
+            name = asName(name) as MemberName;
         }
         const node = createBasePropertyAccessExpression(expression as LeftHandSideExpression, name);
         

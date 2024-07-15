@@ -744,6 +744,7 @@ export const enum NodeFlags {
     HasExplicitReturn  = 1 << 10,  // If function has explicit reachable return on one of codepaths (initialized by binding)
     HasAsyncFunctions  = 1 << 12, // If the file has async (i.e. LD coroutine) functions (initialized by binding)    
     ThisNodeHasError   = 1 << 18, // If the parser encountered an error when parsing the code that created this node
+    ThisNodeOrAnySubNodesHasError = 1 << 20, // If this node or any of its children had an error
     HasAggregatedChildData = 1 << 21, // If we've computed data from children and cached it in this node
 
     JSDoc                                          = 1 << 24, // If node was parsed inside jsdoc
@@ -912,9 +913,9 @@ export type DeclarationName =
     | PropertyName
     | StringLiteral
     | Expression
-    // | ElementAccessExpression
-    // | BindingPattern
-    // | EntityNameExpression;
+    | ElementAccessExpression
+    | BindingPattern
+    | EntityNameExpression;
     ;
 
 export interface Symbol {
@@ -996,6 +997,8 @@ export interface CompilerOptions {
     allowUnreachableCode?: boolean;
     noFallthroughCasesInSwitch?: boolean;
     noCheck?: boolean;
+    noUnusedLocals?: boolean;
+    noUnusedParameters?: boolean;
 }
 
 export const enum OuterExpressionKinds {
@@ -2351,7 +2354,7 @@ export interface NamedDeclaration extends Declaration {
     readonly name?: DeclarationName;
 }
 
-export type BindingName = Identifier; // TODO do we need BindingPattern?
+export type BindingName = Identifier | BindingPattern;
 export interface VariableDeclaration extends NamedDeclaration, JSDocContainer {
     readonly kind: SyntaxKind.VariableDeclaration;
     readonly parent: VariableDeclarationList | CatchClause;

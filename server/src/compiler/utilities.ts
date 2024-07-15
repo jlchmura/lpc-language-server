@@ -2541,3 +2541,46 @@ export function createDiagnosticForNodeFromMessageChain(sourceFile: SourceFile, 
     const span = getErrorSpanForNode(sourceFile, node);
     return createFileDiagnosticFromMessageChain(sourceFile, span.start, span.length, messageChain, relatedInformation);
 }
+
+
+/** @internal */
+export function createFileDiagnosticFromMessageChain(file: SourceFile, start: number, length: number, messageChain: DiagnosticMessageChain, relatedInformation?: DiagnosticRelatedInformation[]): DiagnosticWithLocation {
+    assertDiagnosticLocation(file.text, start, length);
+    return {
+        file,
+        start,
+        length,
+        code: messageChain.code,
+        category: messageChain.category,
+        messageText: messageChain.next ? messageChain : messageChain.messageText,
+        relatedInformation,
+        canonicalHead: messageChain.canonicalHead,
+    };
+}
+
+// Returns true if this node contains a parse error anywhere underneath it.
+/** @internal */
+export function containsParseError(node: Node): boolean {
+    aggregateChildData(node);
+    return (node.flags & NodeFlags.ThisNodeOrAnySubNodesHasError) !== 0;
+}
+
+function aggregateChildData(node: Node): void {
+    if (!(node.flags & NodeFlags.HasAggregatedChildData)) {
+        // A node is considered to contain a parse error if:
+        //  a) the parser explicitly marked that it had an error
+        //  b) any of it's children reported that it had an error.
+        const thisNodeOrAnySubNodesHasError = ((node.flags & NodeFlags.ThisNodeHasError) !== 0) ||
+            forEachChild(node, containsParseError);
+
+        // If so, mark ourselves accordingly.
+        if (thisNodeOrAnySubNodesHasError) {
+            (node as Mutable<Node>).flags |= NodeFlags.ThisNodeOrAnySubNodesHasError;
+        }
+
+        // Also mark that we've propagated the child information to this node.  This way we can
+        // always consult the bit directly on this node without needing to check its children
+        // again.
+        (node as Mutable<Node>).flags |= NodeFlags.HasAggregatedChildData;
+    }
+}

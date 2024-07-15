@@ -949,3 +949,16 @@ export function append<T>(to: T[] | undefined, value: T | undefined): T[] | unde
 export function tryCast<TOut extends TIn, TIn = any>(value: TIn | undefined, test: (value: TIn) => value is TOut): TOut | undefined {
     return value !== undefined && test(value) ? value : undefined;
 }
+
+/** @internal */
+export function first<T>(array: readonly T[]): T {
+    Debug.assert(array.length !== 0);
+    return array[0];
+}
+
+/** @internal */
+export function cast<TOut extends TIn, TIn = any>(value: TIn | undefined, test: (value: TIn) => value is TOut): TOut {
+    if (value !== undefined && test(value)) return value;
+
+    return Debug.fail(`Invalid cast. The supplied value ${value} did not pass the test '${Debug.getFunctionName(test)}'.`);
+}

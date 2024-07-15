@@ -1,4 +1,5 @@
-import {Type,Symbol, SymbolLinks, CancellationToken, createSymbolTable, Declaration, EmitTextWriter, ModifierFlags, Node, NodeFlags, objectAllocator, Scanner, Signature, SignatureKind, SymbolFlags, TypeChecker, TypeCheckerHost, TypeFormatFlags, TypeParameter, CheckFlags, TransientSymbol, TransientSymbolLinks, reduceLeft, bindSourceFile, SourceFile, Diagnostic, createDiagnosticCollection, concatenate, forEach, tracing, performance, NodeLinks, NodeCheckFlags, FlowNode, FlowType, clear, SyntaxKind, TracingNode, CallLikeExpression, CallExpression, isCallOrNewExpression, isBinaryExpression, Expression, SignatureDeclaration, SignatureFlags, emptyArray, TypeFlags, IntrinsicType, ObjectFlags, Debug, BinaryExpression, ObjectType, StructuredType, ResolvedType, SymbolTable, IndexInfo, Identifier, nodeIsMissing, createNameResolver, InternalSymbolName, SymbolId, some, DiagnosticMessage, DiagnosticArguments, createDiagnosticForNode, createCompilerDiagnostic, FunctionLikeDeclaration, PropertyDeclaration, isString, isIdentifier, Diagnostics, findLast, SymbolFormatFlags, isAccessExpression, isFunctionExpression, isAliasableExpression, PropertyAssignment, isVariableDeclarationInitializedToBareOrAccessedRequire, mapDefined, arrayFrom, getSpellingSuggestion, symbolName, startsWith, nodeIsSynthesized, declarationNameToString, getCanonicalDiagnostic, DiagnosticCategory, addRelatedInfo, ParameterDeclaration, BindingElement, isSourceFile, isExternalOrCommonJsModule, isBlockOrCatchScoped, length, every, isValidTypeOnlyAliasUseSite, isWriteOnlyAccess, getCombinedNodeFlags, DiagnosticWithLocation, getJSDocDeprecatedTag, findAncestor, isCallLikeExpression, isFunctionLike, ParenthesizedExpression, isAssignmentExpression, isVariableDeclaration, isBindingElement, PropertyAccessExpression, getEnclosingBlockScopeContainer, isPropertyDeclaration, nodeStartsNewLexicalEnvironment, isIterationStatement, isForStatement, getAncestor, ForStatement, pushIfUnique, isAssignmentTarget, PrefixUnaryExpression, PostfixUnaryExpression, isBlock, isExpressionNode, isPropertyAccessExpression, getAssignmentTargetKind, AssignmentKind, isInCompoundLikeAssignment, UnionType, TypeId, UnionReduction, getRootDeclaration, getImmediatelyInvokedFunctionExpression, isSpreadAssignment, isParameter, VariableDeclaration, isFunctionLikeDeclaration, isTypeNode, forEachChild, tryCast, canHaveFlowNode, ElementAccessExpression, RelationComparisonResult, LiteralType, FreshableType, getObjectFlags, DiagnosticMessageChain, setNodeFlags, isCallExpression, LazyNodeCheckFlags, getSourceFileOfNode, canIncludeBindAndCheckDiagnostics, forEachChildRecursively, isDeclarationName, EntityName, JSDocMemberName, canHaveSymbol, isLiteralTypeNode, isElementAccessExpression, isIndexedAccessTypeNode, TypeNode, canHaveJSDoc, FlowFlags, FlowArrayMutation, FlowAssignment, FlowCall, FlowCondition, FlowLabel, FlowReduceLabel, FlowSwitchClause, SwitchStatement, createFileDiagnostic, createDiagnosticForFileFromMessageChain, createDiagnosticForNodeFromMessageChain } from "./_namespaces/lpc";
+import { CharacterCodes } from "../backend/types";
+import {Type,Symbol, SymbolLinks, CancellationToken, createSymbolTable, Declaration, EmitTextWriter, ModifierFlags, Node, NodeFlags, objectAllocator, Scanner, Signature, SignatureKind, SymbolFlags, TypeChecker, TypeCheckerHost, TypeFormatFlags, TypeParameter, CheckFlags, TransientSymbol, TransientSymbolLinks, reduceLeft, bindSourceFile, SourceFile, Diagnostic, createDiagnosticCollection, concatenate, forEach, tracing, performance, NodeLinks, NodeCheckFlags, FlowNode, FlowType, clear, SyntaxKind, TracingNode, CallLikeExpression, CallExpression, isCallOrNewExpression, isBinaryExpression, Expression, SignatureDeclaration, SignatureFlags, emptyArray, TypeFlags, IntrinsicType, ObjectFlags, Debug, BinaryExpression, ObjectType, StructuredType, ResolvedType, SymbolTable, IndexInfo, Identifier, nodeIsMissing, createNameResolver, InternalSymbolName, SymbolId, some, DiagnosticMessage, DiagnosticArguments, createDiagnosticForNode, createCompilerDiagnostic, FunctionLikeDeclaration, PropertyDeclaration, isString, isIdentifier, Diagnostics, findLast, SymbolFormatFlags, isAccessExpression, isFunctionExpression, isAliasableExpression, PropertyAssignment, isVariableDeclarationInitializedToBareOrAccessedRequire, mapDefined, arrayFrom, getSpellingSuggestion, symbolName, startsWith, nodeIsSynthesized, declarationNameToString, getCanonicalDiagnostic, DiagnosticCategory, addRelatedInfo, ParameterDeclaration, BindingElement, isSourceFile, isExternalOrCommonJsModule, isBlockOrCatchScoped, length, every, isValidTypeOnlyAliasUseSite, isWriteOnlyAccess, getCombinedNodeFlags, DiagnosticWithLocation, getJSDocDeprecatedTag, findAncestor, isCallLikeExpression, isFunctionLike, ParenthesizedExpression, isAssignmentExpression, isVariableDeclaration, isBindingElement, PropertyAccessExpression, getEnclosingBlockScopeContainer, isPropertyDeclaration, nodeStartsNewLexicalEnvironment, isIterationStatement, isForStatement, getAncestor, ForStatement, pushIfUnique, isAssignmentTarget, PrefixUnaryExpression, PostfixUnaryExpression, isBlock, isExpressionNode, isPropertyAccessExpression, getAssignmentTargetKind, AssignmentKind, isInCompoundLikeAssignment, UnionType, TypeId, UnionReduction, getRootDeclaration, getImmediatelyInvokedFunctionExpression, isSpreadAssignment, isParameter, VariableDeclaration, isFunctionLikeDeclaration, isTypeNode, forEachChild, tryCast, canHaveFlowNode, ElementAccessExpression, RelationComparisonResult, LiteralType, FreshableType, getObjectFlags, DiagnosticMessageChain, setNodeFlags, isCallExpression, LazyNodeCheckFlags, getSourceFileOfNode, canIncludeBindAndCheckDiagnostics, forEachChildRecursively, isDeclarationName, EntityName, JSDocMemberName, canHaveSymbol, isLiteralTypeNode, isElementAccessExpression, isIndexedAccessTypeNode, TypeNode, canHaveJSDoc, FlowFlags, FlowArrayMutation, FlowAssignment, FlowCall, FlowCondition, FlowLabel, FlowReduceLabel, FlowSwitchClause, SwitchStatement, createFileDiagnostic, createDiagnosticForFileFromMessageChain, createDiagnosticForNodeFromMessageChain, VariableStatement, HasModifiers, VariableDeclarationList, Block, isFunctionOrModuleBlock, CaseBlock, ForEachStatement, IndexSignatureDeclaration, Path, HasLocals, BindingPattern, idText, isForEachStatement, getNameOfDeclaration, isArrayBindingPattern, first, BindingName, cast, containsParseError } from "./_namespaces/lpc";
 
 let nextSymbolId = 1;
 let nextNodeId = 1;
@@ -109,6 +110,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     var diagnostics = createDiagnosticCollection();
     var suggestionDiagnostics = createDiagnosticCollection();
 
+    var allPotentiallyUnusedIdentifiers = new Map<Path, PotentiallyUnusedIdentifier[]>(); // key is file name
+    
     var suggestionCount = 0;
     var maximumSuggestionCount = 10;
     var mergedSymbols: Symbol[] = [];
@@ -469,8 +472,213 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             errorOrSuggestion(compilerOptions.allowUnreachableCode === false, node, Diagnostics.Unreachable_code_detected);
         }
 
+        // If editing this, keep `isSourceElement` in utilities up to date.
+        switch (kind) {
+            // case SyntaxKind.TypeParameter:
+            //     return checkTypeParameter(node as TypeParameterDeclaration);
+            // case SyntaxKind.Parameter:
+            //     return checkParameter(node as ParameterDeclaration);
+            // case SyntaxKind.PropertyDeclaration:
+            //     return checkPropertyDeclaration(node as PropertyDeclaration);
+            // case SyntaxKind.PropertySignature:
+            //     return checkPropertySignature(node as PropertySignature);
+            // case SyntaxKind.ConstructorType:
+            // case SyntaxKind.FunctionType:
+            // case SyntaxKind.CallSignature:
+            // case SyntaxKind.ConstructSignature:
+            // case SyntaxKind.IndexSignature:
+            //     return checkSignatureDeclaration(node as SignatureDeclaration);
+            // case SyntaxKind.MethodDeclaration:
+            // case SyntaxKind.MethodSignature:
+            //     return checkMethodDeclaration(node as MethodDeclaration | MethodSignature);
+            // case SyntaxKind.ClassStaticBlockDeclaration:
+            //     return checkClassStaticBlockDeclaration(node as ClassStaticBlockDeclaration);                        
+            // case SyntaxKind.TypeLiteral:
+            //     return checkTypeLiteral(node as TypeLiteralNode);
+            // case SyntaxKind.ArrayType:
+            //     return checkArrayType(node as ArrayTypeNode);            
+            // case SyntaxKind.UnionType:            
+            //     return checkUnionOrIntersectionType(node as UnionOrIntersectionTypeNode);
+            // case SyntaxKind.ParenthesizedType:
+            // case SyntaxKind.OptionalType:
+            // case SyntaxKind.RestType:
+            //     return checkSourceElement((node as ParenthesizedTypeNode | OptionalTypeNode | RestTypeNode).type);
+            // case SyntaxKind.ThisType:
+            //     return checkThisType(node as ThisTypeNode);
+            // case SyntaxKind.TypeOperator:
+            //     return checkTypeOperator(node as TypeOperatorNode);            
+            // case SyntaxKind.ImportType:
+            //     return checkImportType(node as ImportTypeNode);
+            // case SyntaxKind.NamedTupleMember:
+            //     return checkNamedTupleMember(node as NamedTupleMember);
+            // case SyntaxKind.JSDocAugmentsTag:
+            //     return checkJSDocAugmentsTag(node as JSDocAugmentsTag);
+            // case SyntaxKind.JSDocImplementsTag:
+            //     return checkJSDocImplementsTag(node as JSDocImplementsTag);
+            // case SyntaxKind.JSDocTypedefTag:
+            // case SyntaxKind.JSDocCallbackTag:
+            // case SyntaxKind.JSDocEnumTag:
+            //     return checkJSDocTypeAliasTag(node as JSDocTypedefTag);
+            // case SyntaxKind.JSDocTemplateTag:
+            //     return checkJSDocTemplateTag(node as JSDocTemplateTag);
+            // case SyntaxKind.JSDocTypeTag:
+            //     return checkJSDocTypeTag(node as JSDocTypeTag);
+            // case SyntaxKind.JSDocLink:
+            // case SyntaxKind.JSDocLinkCode:
+            // case SyntaxKind.JSDocLinkPlain:
+            //     return checkJSDocLinkLikeTag(node as JSDocLink | JSDocLinkCode | JSDocLinkPlain);
+            // case SyntaxKind.JSDocParameterTag:
+            //     return checkJSDocParameterTag(node as JSDocParameterTag);
+            // case SyntaxKind.JSDocPropertyTag:
+            //     return checkJSDocPropertyTag(node as JSDocPropertyTag);
+            // case SyntaxKind.JSDocFunctionType:
+            //     checkJSDocFunctionType(node as JSDocFunctionType);
+            //     // falls through
+            // case SyntaxKind.JSDocNonNullableType:
+            // case SyntaxKind.JSDocNullableType:
+            // case SyntaxKind.JSDocAllType:
+            // case SyntaxKind.JSDocUnknownType:
+            // case SyntaxKind.JSDocTypeLiteral:
+            //     checkJSDocTypeIsInJsFile(node);
+            //     forEachChild(node, checkSourceElement);
+            //     return;
+            // case SyntaxKind.JSDocVariadicType:
+            //     checkJSDocVariadicType(node as JSDocVariadicType);
+            //     return;
+            // case SyntaxKind.JSDocTypeExpression:
+            //     return checkSourceElement((node as JSDocTypeExpression).type);
+            // case SyntaxKind.JSDocPublicTag:
+            // case SyntaxKind.JSDocProtectedTag:
+            // case SyntaxKind.JSDocPrivateTag:
+            //     return checkJSDocAccessibilityModifiers(node as JSDocPublicTag | JSDocProtectedTag | JSDocPrivateTag);
+            // case SyntaxKind.JSDocSatisfiesTag:
+            //     return checkJSDocSatisfiesTag(node as JSDocSatisfiesTag);
+            // case SyntaxKind.JSDocThisTag:
+            //     return checkJSDocThisTag(node as JSDocThisTag);
+            // case SyntaxKind.JSDocImportTag:
+            //     return checkJSDocImportTag(node as JSDocImportTag);
+            // case SyntaxKind.IndexedAccessType:
+            //     return checkIndexedAccessType(node as IndexedAccessTypeNode);
+            // case SyntaxKind.MappedType:
+            //     return checkMappedType(node as MappedTypeNode);
+            // case SyntaxKind.FunctionDeclaration:
+            //     return checkFunctionDeclaration(node as FunctionDeclaration);
+            case SyntaxKind.Block:
+            // case SyntaxKind.ModuleBlock:
+                return checkBlock(node as Block);
+            case SyntaxKind.VariableStatement:
+                return checkVariableStatement(node as VariableStatement);
+            // case SyntaxKind.ExpressionStatement:
+            //     return checkExpressionStatement(node as ExpressionStatement);
+            // case SyntaxKind.IfStatement:
+            //     return checkIfStatement(node as IfStatement);
+            // case SyntaxKind.DoStatement:
+            //     return checkDoStatement(node as DoStatement);
+            // case SyntaxKind.WhileStatement:
+            //     return checkWhileStatement(node as WhileStatement);
+            // case SyntaxKind.ForStatement:
+            //     return checkForStatement(node as ForStatement);
+            // case SyntaxKind.ForInStatement:
+            //     return checkForInStatement(node as ForInStatement);
+            // case SyntaxKind.ForOfStatement:
+            //     return checkForOfStatement(node as ForOfStatement);
+            // case SyntaxKind.ContinueStatement:
+            // case SyntaxKind.BreakStatement:
+            //     return checkBreakOrContinueStatement(node as BreakOrContinueStatement);
+            // case SyntaxKind.ReturnStatement:
+            //     return checkReturnStatement(node as ReturnStatement);
+            // case SyntaxKind.WithStatement:
+            //     return checkWithStatement(node as WithStatement);
+            // case SyntaxKind.SwitchStatement:
+            //     return checkSwitchStatement(node as SwitchStatement);
+            // case SyntaxKind.LabeledStatement:
+            //     return checkLabeledStatement(node as LabeledStatement);
+            // case SyntaxKind.ThrowStatement:
+            //     return checkThrowStatement(node as ThrowStatement);
+            // case SyntaxKind.TryStatement:
+            //     return checkTryStatement(node as TryStatement);
+            // case SyntaxKind.VariableDeclaration:
+            //     return checkVariableDeclaration(node as VariableDeclaration);
+            // case SyntaxKind.BindingElement:
+            //     return checkBindingElement(node as BindingElement);
+            // case SyntaxKind.ClassDeclaration:
+            //     return checkClassDeclaration(node as ClassDeclaration);
+            // case SyntaxKind.InterfaceDeclaration:
+            //     return checkInterfaceDeclaration(node as InterfaceDeclaration);
+            // case SyntaxKind.TypeAliasDeclaration:
+            //     return checkTypeAliasDeclaration(node as TypeAliasDeclaration);
+            // case SyntaxKind.EnumDeclaration:
+            //     return checkEnumDeclaration(node as EnumDeclaration);
+            // case SyntaxKind.ModuleDeclaration:
+            //     return checkModuleDeclaration(node as ModuleDeclaration);
+            // case SyntaxKind.ImportDeclaration:
+            //     return checkImportDeclaration(node as ImportDeclaration);
+            // case SyntaxKind.ImportEqualsDeclaration:
+            //     return checkImportEqualsDeclaration(node as ImportEqualsDeclaration);
+            // case SyntaxKind.ExportDeclaration:
+            //     return checkExportDeclaration(node as ExportDeclaration);
+            // case SyntaxKind.ExportAssignment:
+            //     return checkExportAssignment(node as ExportAssignment);
+            // case SyntaxKind.EmptyStatement:
+            // case SyntaxKind.DebuggerStatement:
+            //     checkGrammarStatementInAmbientContext(node);
+            //     return;
+            // case SyntaxKind.MissingDeclaration:
+            //     return checkMissingDeclaration(node);
+        }
+
         // TODO
         console.warn("Implement me - checkSourceElementWorker");
+    }
+
+    function checkVariableDeclarationList(node: VariableDeclarationList) {
+        const blockScopeKind = getCombinedNodeFlags(node) & NodeFlags.BlockScoped;
+        
+        forEach(node.declarations, checkSourceElement);
+    }
+
+
+    function checkVariableStatement(node: VariableStatement) {
+        // Grammar checking
+        if (!checkGrammarModifiers(node) && !checkGrammarVariableDeclarationList(node.declarationList)) checkGrammarForDisallowedBlockScopedVariableStatement(node);
+        checkVariableDeclarationList(node.declarationList);
+    }
+
+    function checkBlock(node: Block) {
+        // Grammar checking for SyntaxKind.Block
+        if (node.kind === SyntaxKind.Block) {
+            //checkGrammarStatementInAmbientContext(node);
+        }
+        if (isFunctionOrModuleBlock(node)) {
+            const saveFlowAnalysisDisabled = flowAnalysisDisabled;
+            forEach(node.statements, checkSourceElement);
+            flowAnalysisDisabled = saveFlowAnalysisDisabled;
+        }
+        else {
+            forEach(node.statements, checkSourceElement);
+        }
+        if (node.locals) {
+            registerForUnusedIdentifiersCheck(node);
+        }
+    }
+
+    type PotentiallyUnusedIdentifier = SourceFile | /*ClassLikeDeclaration |*/ Block | CaseBlock | ForStatement | ForEachStatement | Exclude<SignatureDeclaration, IndexSignatureDeclaration /*| JSDocFunctionType*/>;
+
+    function registerForUnusedIdentifiersCheck(node: PotentiallyUnusedIdentifier): void {
+        addLazyDiagnostic(registerForUnusedIdentifiersCheckDiagnostics);
+
+        function registerForUnusedIdentifiersCheckDiagnostics() {
+            // May be in a call such as getTypeOfNode that happened to call this. But potentiallyUnusedIdentifiers is only defined in the scope of `checkSourceFile`.
+            const sourceFile = getSourceFileOfNode(node);
+            let potentiallyUnusedIdentifiers = allPotentiallyUnusedIdentifiers.get(sourceFile.path);
+            if (!potentiallyUnusedIdentifiers) {
+                potentiallyUnusedIdentifiers = [];
+                allPotentiallyUnusedIdentifiers.set(sourceFile.path, potentiallyUnusedIdentifiers);
+            }
+            // TODO: GH#22580
+            // Debug.assert(addToSeen(seenPotentiallyUnusedIdentifiers, getNodeId(node)), "Adding potentially-unused identifier twice");
+            potentiallyUnusedIdentifiers.push(node);
+        }
     }
 
     function errorOrSuggestion(isError: boolean, location: Node, message: DiagnosticMessage | DiagnosticMessageChain, ...args: DiagnosticArguments): void {
@@ -500,6 +708,54 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             nextFlowId++;
         }
         return flow.id;
+    }
+
+    function checkGrammarModifiers(node: HasModifiers): boolean {         
+        console.warn("Implement me - checkGrammarModifiers");
+        return false;
+    }
+    
+    
+    function checkGrammarForDisallowedBlockScopedVariableStatement(node: VariableStatement) {
+        return false;
+        // if (!allowLetAndConstDeclarations(node.parent)) {
+        //     const blockScopeKind = getCombinedNodeFlagsCached(node.declarationList) & NodeFlags.BlockScoped;
+        //     if (blockScopeKind) {
+        //         const keyword = blockScopeKind === NodeFlags.Let ? "let" :
+        //             blockScopeKind === NodeFlags.Const ? "const" :
+        //             blockScopeKind === NodeFlags.Using ? "using" :
+        //             blockScopeKind === NodeFlags.AwaitUsing ? "await using" :
+        //             Debug.fail("Unknown BlockScope flag");
+        //         return grammarErrorOnNode(node, Diagnostics._0_declarations_can_only_be_declared_inside_a_block, keyword);
+        //     }
+        // }
+    }
+
+    function checkGrammarVariableDeclarationList(declarationList: VariableDeclarationList): boolean {
+        const declarations = declarationList.declarations;
+       
+        // TODO
+
+
+        // if (!declarationList.declarations.length) {
+        //     return grammarErrorAtPos(declarationList, declarations.pos, declarations.end - declarations.pos, Diagnostics.Variable_declaration_list_cannot_be_empty);
+        // }
+
+        // const blockScopeFlags = declarationList.flags & NodeFlags.BlockScoped;
+        // if ((blockScopeFlags === NodeFlags.Using || blockScopeFlags === NodeFlags.AwaitUsing) && isForInStatement(declarationList.parent)) {
+        //     return grammarErrorOnNode(
+        //         declarationList,
+        //         blockScopeFlags === NodeFlags.Using ?
+        //             Diagnostics.The_left_hand_side_of_a_for_in_statement_cannot_be_a_using_declaration :
+        //             Diagnostics.The_left_hand_side_of_a_for_in_statement_cannot_be_an_await_using_declaration,
+        //     );
+        // }
+
+        // if (blockScopeFlags === NodeFlags.AwaitUsing) {
+        //     return checkAwaitGrammar(declarationList);
+        // }
+
+        return false;
     }
 
     function getEffectsSignature(node: CallExpression) {
@@ -854,37 +1110,29 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             forEach(node.statements, checkSourceElement);
             checkSourceElement(node.endOfFileToken);
 
-            // TODO: 
-            console.warn("Implement rest of me - checkSourceFileWorker");
             checkDeferredNodes(node);
+            
+            registerForUnusedIdentifiersCheck(node);
 
-            // if (isExternalOrCommonJsModule(node)) {
-            //     registerForUnusedIdentifiersCheck(node);
-            // }
+            addLazyDiagnostic(() => {
+                // This relies on the results of other lazy diagnostics, so must be computed after them
+                if (!node.isDeclarationFile && (compilerOptions.noUnusedLocals || compilerOptions.noUnusedParameters)) {
+                    checkUnusedIdentifiers(getPotentiallyUnusedIdentifiers(node), (containingNode, kind, diag) => {
+                        if (!containsParseError(containingNode) && unusedIsError(kind, !!(containingNode.flags & NodeFlags.Ambient))) {
+                            diagnostics.add(diag);
+                        }
+                    });
+                }
+                // if (!node.isDeclarationFile) {
+                //     checkPotentialUncheckedRenamedBindingElementsInTypes();
+                // }
+            });
 
-            // addLazyDiagnostic(() => {
-            //     // This relies on the results of other lazy diagnostics, so must be computed after them
-            //     if (!node.isDeclarationFile && (compilerOptions.noUnusedLocals || compilerOptions.noUnusedParameters)) {
-            //         checkUnusedIdentifiers(getPotentiallyUnusedIdentifiers(node), (containingNode, kind, diag) => {
-            //             if (!containsParseError(containingNode) && unusedIsError(kind, !!(containingNode.flags & NodeFlags.Ambient))) {
-            //                 diagnostics.add(diag);
-            //             }
-            //         });
-            //     }
-            //     if (!node.isDeclarationFile) {
-            //         checkPotentialUncheckedRenamedBindingElementsInTypes();
-            //     }
-            // });
-
+            // TODO: do we need this?
             // if (isExternalOrCommonJsModule(node)) {
             //     checkExternalModuleExports(node);
             // }
-
-            // if (potentialThisCollisions.length) {
-            //     forEach(potentialThisCollisions, checkIfThisIsCapturedInEnclosingScope);
-            //     clear(potentialThisCollisions);
-            // }
-
+            
             // if (potentialNewTargetCollisions.length) {
             //     forEach(potentialNewTargetCollisions, checkIfNewTargetIsCapturedInEnclosingScope);
             //     clear(potentialNewTargetCollisions);
@@ -900,13 +1148,31 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             //     clear(potentialReflectCollisions);
             // }
 
-            links.flags |= NodeCheckFlags.TypeChecked;
+            links.flags |= NodeCheckFlags.TypeChecked;            
         }
     }
     
+    function unusedIsError(kind: UnusedKind, isAmbient: boolean): boolean {
+        if (isAmbient) {
+            return false;
+        }
+        switch (kind) {
+            case UnusedKind.Local:
+                return !!compilerOptions.noUnusedLocals;
+            case UnusedKind.Parameter:
+                return !!compilerOptions.noUnusedParameters;
+            default:
+                return Debug.assertNever(kind);
+        }
+    }
+
+    function getPotentiallyUnusedIdentifiers(sourceFile: SourceFile): readonly PotentiallyUnusedIdentifier[] {
+        return allPotentiallyUnusedIdentifiers.get(sourceFile.path) || emptyArray;
+    }
+
     function checkSourceFileNodesWorker(file: SourceFile, nodes: readonly Node[]) {
         // TODO
-        console.warn("Implement me");
+        console.warn("Implement me - checkSourceFileNodesWorker");
     }
 
     function checkDeferredNodes(context: SourceFile) {
@@ -3551,6 +3817,185 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
         // return undefined;
     }
+
+    function checkUnusedIdentifiers(potentiallyUnusedIdentifiers: readonly PotentiallyUnusedIdentifier[], addDiagnostic: AddUnusedDiagnostic) {
+        for (const node of potentiallyUnusedIdentifiers) {
+            switch (node.kind) {
+                // case SyntaxKind.ClassDeclaration:
+                // case SyntaxKind.ClassExpression:
+                //     checkUnusedClassMembers(node, addDiagnostic);
+                //     checkUnusedTypeParameters(node, addDiagnostic);
+                //     break;
+                case SyntaxKind.SourceFile:                
+                case SyntaxKind.Block:
+                case SyntaxKind.CaseBlock:
+                case SyntaxKind.ForStatement:
+                case SyntaxKind.ForEachStatement:                
+                    checkUnusedLocalsAndParameters(node, addDiagnostic);
+                    break;                
+                case SyntaxKind.FunctionExpression:
+                case SyntaxKind.FunctionDeclaration:
+                case SyntaxKind.InlineClosureExpression:
+                // case SyntaxKind.MethodDeclaration:                
+                    if (node.body) { // Don't report unused parameters in overloads
+                        checkUnusedLocalsAndParameters(node, addDiagnostic);
+                    }                    
+                    break;
+                // case SyntaxKind.MethodSignature:
+                // case SyntaxKind.CallSignature:                
+                // case SyntaxKind.FunctionType:                
+                //     checkUnusedTypeParameters(node, addDiagnostic);
+                //     break;                
+                default:
+                    Debug.assertNever(node, "Node should not have been registered for unused identifiers check");
+            }
+        }
+    }
+
+    function isIdentifierThatStartsWithUnderscore(node: Node) {
+        return isIdentifier(node) && idText(node).charCodeAt(0) === CharacterCodes._;
+    }
+    
+    function isValidUnusedLocalDeclaration(declaration: Declaration): boolean {
+        if (isBindingElement(declaration)) {
+            // if (isObjectBindingPattern(declaration.parent)) {
+            //     /**
+            //      * ignore starts with underscore names _
+            //      * const { a: _a } = { a: 1 }
+            //      */
+            //     return !!(declaration.propertyName && isIdentifierThatStartsWithUnderscore(declaration.name));
+            // }
+            return isIdentifierThatStartsWithUnderscore(declaration.name);
+        }
+        return (isVariableDeclaration(declaration) && isForEachStatement(declaration.parent.parent)) && isIdentifierThatStartsWithUnderscore(declaration.name!);
+    }
+
+    function addToGroup<K, V>(map: Map<string, [K, V[]]>, key: K, value: V, getKey: (key: K) => number | string): void {
+        const keyString = String(getKey(key));
+        const group = map.get(keyString);
+        if (group) {
+            group[1].push(value);
+        }
+        else {
+            map.set(keyString, [key, [value]]);
+        }
+    }
+
+    function tryGetRootParameterDeclaration(node: Node): ParameterDeclaration | undefined {
+        return tryCast(getRootDeclaration(node), isParameter);
+    }
+
+    function errorUnusedLocal(declaration: Declaration, name: string, addDiagnostic: AddUnusedDiagnostic) {
+        const node = getNameOfDeclaration(declaration) || declaration;
+        const message = Diagnostics._0_is_declared_but_its_value_is_never_read;
+        addDiagnostic(declaration, UnusedKind.Local, createDiagnosticForNode(node, message, name));
+    }
+
+    function checkUnusedLocalsAndParameters(nodeWithLocals: HasLocals, addDiagnostic: AddUnusedDiagnostic): void {
+        // Ideally we could use the ImportClause directly as a key, but must wait until we have full ES6 maps. So must store key along with value.
+        //const unusedImports = new Map<string, [ImportClause, ImportedDeclaration[]]>();
+        const unusedDestructures = new Map<string, [BindingPattern, BindingElement[]]>();
+        const unusedVariables = new Map<string, [VariableDeclarationList, VariableDeclaration[]]>();
+        nodeWithLocals.locals!.forEach(local => {
+            // If it's purely a type parameter, ignore, will be checked in `checkUnusedTypeParameters`.
+            // If it's a type parameter merged with a parameter, check if the parameter-side is used.
+            if (local.flags & SymbolFlags.TypeParameter ? !(local.flags & SymbolFlags.Variable && !(local.isReferenced! & SymbolFlags.Variable)) : local.isReferenced || local.exportSymbol) {
+                return;
+            }
+
+            if (local.declarations) {
+                for (const declaration of local.declarations) {
+                    if (isValidUnusedLocalDeclaration(declaration)) {
+                        continue;
+                    }
+
+                    // if (isImportedDeclaration(declaration)) {
+                    //     addToGroup(unusedImports, importClauseFromImported(declaration), declaration, getNodeId);
+                    // }
+                    // else if (isBindingElement(declaration) && isObjectBindingPattern(declaration.parent)) {
+                    //     // In `{ a, ...b }, `a` is considered used since it removes a property from `b`. `b` may still be unused though.
+                    //     const lastElement = last(declaration.parent.elements);
+                    //     if (declaration === lastElement || !last(declaration.parent.elements).dotDotDotToken) {
+                    //         addToGroup(unusedDestructures, declaration.parent, declaration, getNodeId);
+                    //     }
+                    // }
+                    else if (isVariableDeclaration(declaration)) {
+                        const blockScopeKind = getCombinedNodeFlagsCached(declaration) & NodeFlags.BlockScoped;
+                        const name = getNameOfDeclaration(declaration);
+                        if (!name || !isIdentifierThatStartsWithUnderscore(name)) {
+                            addToGroup(unusedVariables, declaration.parent, declaration, getNodeId);
+                        }
+                    }
+                    else {
+                        const parameter = local.valueDeclaration && tryGetRootParameterDeclaration(local.valueDeclaration);
+                        const name = local.valueDeclaration && getNameOfDeclaration(local.valueDeclaration);
+                        if (parameter && name) {
+                            if (!isIdentifierThatStartsWithUnderscore(name)) {
+                                if (isBindingElement(declaration) && isArrayBindingPattern(declaration.parent)) {
+                                    addToGroup(unusedDestructures, declaration.parent, declaration, getNodeId);
+                                }
+                                else {
+                                    addDiagnostic(parameter, UnusedKind.Parameter, createDiagnosticForNode(name, Diagnostics._0_is_declared_but_its_value_is_never_read, symbolName(local)));
+                                }
+                            }
+                        }
+                        else {
+                            errorUnusedLocal(declaration, symbolName(local), addDiagnostic);
+                        }
+                    }
+                }
+            }
+        });
+
+        // unusedImports.forEach(([importClause, unuseds]) => {
+        //     const importDecl = importClause.parent;
+        //     const nDeclarations = (importClause.name ? 1 : 0) +
+        //         (importClause.namedBindings ?
+        //             (importClause.namedBindings.kind === SyntaxKind.NamespaceImport ? 1 : importClause.namedBindings.elements.length)
+        //             : 0);
+        //     if (nDeclarations === unuseds.length) {
+        //         addDiagnostic(
+        //             importDecl,
+        //             UnusedKind.Local,
+        //             unuseds.length === 1
+        //                 ? createDiagnosticForNode(importDecl, Diagnostics._0_is_declared_but_its_value_is_never_read, idText(first(unuseds).name!))
+        //                 : createDiagnosticForNode(importDecl, Diagnostics.All_imports_in_import_declaration_are_unused),
+        //         );
+        //     }
+        //     else {
+        //         for (const unused of unuseds) errorUnusedLocal(unused, idText(unused.name!), addDiagnostic);
+        //     }
+        // });
+       
+        unusedVariables.forEach(([declarationList, declarations]) => {
+            if (declarationList.declarations.length === declarations.length) {
+                addDiagnostic(
+                    declarationList,
+                    UnusedKind.Local,
+                    declarations.length === 1
+                        ? createDiagnosticForNode(first(declarations).name, Diagnostics._0_is_declared_but_its_value_is_never_read, bindingNameText(first(declarations).name))
+                        : createDiagnosticForNode(declarationList.parent.kind === SyntaxKind.VariableStatement ? declarationList.parent : declarationList, Diagnostics.All_variables_are_unused),
+                );
+            }
+            else {
+                for (const decl of declarations) {
+                    addDiagnostic(decl, UnusedKind.Local, createDiagnosticForNode(decl, Diagnostics._0_is_declared_but_its_value_is_never_read, bindingNameText(decl.name)));
+                }
+            }
+        });
+    }
+
+    function bindingNameText(name: BindingName): string {
+        switch (name.kind) {
+            case SyntaxKind.Identifier:
+                return idText(name);
+            case SyntaxKind.ArrayBindingPattern:
+            //case SyntaxKind.ObjectBindingPattern:
+                return bindingNameText(cast(first(name.elements), isBindingElement).name);
+            default:
+                return Debug.assertNever(name);
+        }
+    }    
 }
 
 const SymbolLinks = class implements SymbolLinks {
@@ -3609,4 +4054,12 @@ function isDeclarationNameOrImportPropertyName(name: Node): boolean {
         default:
             return isDeclarationName(name);
     }
+}
+
+/** @param containingNode Node to check for parse error */
+type AddUnusedDiagnostic = (containingNode: Node, type: UnusedKind, diagnostic: DiagnosticWithLocation) => void;
+
+const enum UnusedKind {
+    Local,
+    Parameter,
 }
