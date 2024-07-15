@@ -985,12 +985,12 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
     }
 
     function declareSourceFileMember(node: Declaration, symbolFlags: SymbolFlags, symbolExcludes: SymbolFlags) {        
-        if (hasEffectiveModifier(node, ModifierFlags.Private | ModifierFlags.Protected)) {
+        if (getCombinedModifierFlags(node) & (ModifierFlags.Private | ModifierFlags.Protected)) {        
             // private sourcefile members do not get exported
-            declareSymbol(file.locals!, /*parent*/ undefined, node, symbolFlags, symbolExcludes)
-        }
-
-        return declareModuleMember(node, symbolFlags, symbolExcludes);
+            return declareSymbol(file.locals!, /*parent*/ undefined, node, symbolFlags, symbolExcludes)
+        } 
+        
+        return declareModuleMember(node, symbolFlags, symbolExcludes);        
     }
 
     function declareModuleMember(node: Declaration, symbolFlags: SymbolFlags, symbolExcludes: SymbolFlags): Symbol {
