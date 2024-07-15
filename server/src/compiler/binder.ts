@@ -1,4 +1,4 @@
-import { CompilerOptions, Debug, FlowFlags, FlowLabel, FlowNode, HasLocals, IsBlockScopedContainer, IsContainer, Node, objectAllocator, SourceFile, SymbolFlags, Symbol, tracing, setParent, TracingNode, SyntaxKind, isFunctionLike, NodeArray, forEach, forEachChild, Mutable, HasContainerFlags, createSymbolTable, ModifierFlags, FunctionExpression, InlineClosureExpression, NodeFlags, FunctionLikeDeclaration, getImmediatelyInvokedFunctionExpression, nodeIsPresent, contains, isIdentifier, HasFlowNode, performance, VariableDeclaration, isBlockOrCatchScoped, Declaration, canHaveLocals, isPartOfParameterDeclaration, SymbolTable, hasSyntacticModifier, Diagnostics, isNamedDeclaration, length, DiagnosticRelatedInformation, getNameOfDeclaration, appendIfUnique, setValueDeclaration, addRelatedInfo, Identifier, StringLiteral, isPropertyNameLiteral, InternalSymbolName, getAssignmentDeclarationKind, BinaryExpression, AssignmentDeclarationKind, declarationNameToString, createDiagnosticForNodeInSourceFile, getSourceFileOfNode, DiagnosticMessage, DiagnosticArguments, DiagnosticWithLocation, ReturnStatement, IfStatement, Expression, isTruthyLiteral, isFalsyLiteral, FlowCondition, PrefixUnaryExpression, isLogicalOrCoalescingAssignmentExpression, isLogicalOrCoalescingBinaryExpression, isForEachStatement, FlowAssignment, FlowArrayMutation, Block, ConditionalExpression, WhileStatement, Statement, DoWhileStatement, ForStatement, ForEachStatement, BreakOrContinueStatement, SwitchStatement, FlowSwitchClause, CaseBlock, CallExpression, isAssignmentOperator, PropertyAccessExpression, ParenthesizedExpression, isLeftHandSideExpression, PostfixUnaryExpression, ArrayLiteralExpression, ObjectLiteralExpression, isBinaryLogicalOperator, isLogicalOrCoalescingAssignmentOperator, isParenthesizedExpression, isPrefixUnaryExpression, BinaryOperatorToken, isAssignmentTarget, ElementAccessExpression, isBinaryExpression, isDottedName, FlowCall, createBinaryExpressionTrampoline, CaseClause, CallChain, LeftHandSideExpression, skipParentheses, ParameterDeclaration, ExpressionStatement } from "./_namespaces/lpc";
+import { CompilerOptions, Debug, FlowFlags, FlowLabel, FlowNode, HasLocals, IsBlockScopedContainer, IsContainer, Node, objectAllocator, SourceFile, SymbolFlags, Symbol, tracing, setParent, TracingNode, SyntaxKind, isFunctionLike, NodeArray, forEach, forEachChild, Mutable, HasContainerFlags, createSymbolTable, ModifierFlags, FunctionExpression, InlineClosureExpression, NodeFlags, FunctionLikeDeclaration, getImmediatelyInvokedFunctionExpression, nodeIsPresent, contains, isIdentifier, HasFlowNode, performance, VariableDeclaration, isBlockOrCatchScoped, Declaration, canHaveLocals, isPartOfParameterDeclaration, SymbolTable, hasSyntacticModifier, Diagnostics, isNamedDeclaration, length, DiagnosticRelatedInformation, getNameOfDeclaration, appendIfUnique, setValueDeclaration, addRelatedInfo, Identifier, StringLiteral, isPropertyNameLiteral, InternalSymbolName, getAssignmentDeclarationKind, BinaryExpression, AssignmentDeclarationKind, declarationNameToString, createDiagnosticForNodeInSourceFile, getSourceFileOfNode, DiagnosticMessage, DiagnosticArguments, DiagnosticWithLocation, ReturnStatement, IfStatement, Expression, isTruthyLiteral, isFalsyLiteral, FlowCondition, PrefixUnaryExpression, isLogicalOrCoalescingAssignmentExpression, isLogicalOrCoalescingBinaryExpression, isForEachStatement, FlowAssignment, FlowArrayMutation, Block, ConditionalExpression, WhileStatement, Statement, DoWhileStatement, ForStatement, ForEachStatement, BreakOrContinueStatement, SwitchStatement, FlowSwitchClause, CaseBlock, CallExpression, isAssignmentOperator, PropertyAccessExpression, ParenthesizedExpression, isLeftHandSideExpression, PostfixUnaryExpression, ArrayLiteralExpression, ObjectLiteralExpression, isBinaryLogicalOperator, isLogicalOrCoalescingAssignmentOperator, isParenthesizedExpression, isPrefixUnaryExpression, BinaryOperatorToken, isAssignmentTarget, ElementAccessExpression, isBinaryExpression, isDottedName, FlowCall, createBinaryExpressionTrampoline, CaseClause, CallChain, LeftHandSideExpression, skipParentheses, ParameterDeclaration, ExpressionStatement, FunctionDeclaration, removeFileExtension, hasEffectiveModifier, getCombinedModifierFlags } from "./_namespaces/lpc";
 
 const binder = /* @__PURE__ */ createBinder();
 
@@ -495,20 +495,44 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
     function bindWorker(node: Node) {
         // do speciallized binding work here        
         switch (node.kind) {
-
             // TODO: add identifier / contextural identifier check here
+
+            case SyntaxKind.SourceFile:
+                //updateStrictModeStatementList((node as SourceFile).statements);
+                return bindSourceFileIfExternalModule();
 
             case SyntaxKind.VariableDeclaration:
                 return bindVariableDeclarationOrBindingElement(node as VariableDeclaration);
             case SyntaxKind.Parameter:
                 return bindParameter(node as ParameterDeclaration);
-            // case SyntaxKind.FunctionExpression:
+            case SyntaxKind.FunctionDeclaration:
+                return bindFunctionDeclaration(node as FunctionDeclaration);
+                // case SyntaxKind.FunctionExpression:
             // case SyntaxKind.ArrowFunction:
             //     return bindFunctionExpression(node as FunctionExpression | ArrowFunction);
 
         }
+
+        console.warn("implement me - bindWorker " + Debug.formatSyntaxKind(node.kind));
     }
 
+    function bindFunctionDeclaration(node: FunctionDeclaration) {
+        if (!file.isDeclarationFile && !(node.flags & NodeFlags.Ambient)) {
+            // TODO: async
+            // if (isAsyncFunction(node)) {
+            //     emitFlags |= NodeFlags.HasAsyncFunctions;
+            // }
+        }
+
+        //checkStrictModeFunctionName(node);
+        // if (inStrictMode) {
+        //     checkStrictModeFunctionDeclaration(node);
+        //     bindBlockScopedDeclaration(node, SymbolFlags.Function, SymbolFlags.FunctionExcludes);
+        // }
+        // else {
+            declareSymbolAndAddToSymbolTable(node, SymbolFlags.Function, SymbolFlags.FunctionExcludes);
+        //}
+    }
     
     // Should not be called on a declaration with a computed property name,
     // unless it is a well known Symbol.
@@ -872,8 +896,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
                 // container, and are never in scope otherwise (even inside the body of the
                 // object / type / interface declaring them). An exception is type parameters,
                 // which are in scope without qualification (similar to 'locals').
-                return declareSymbol(container.symbol.members!, container.symbol, node, symbolFlags, symbolExcludes);
-
+                return declareSymbol(container.symbol.members!, container.symbol, node, symbolFlags, symbolExcludes);           
             // case SyntaxKind.FunctionType:
             // case SyntaxKind.ConstructorType:
             // case SyntaxKind.CallSignature:
@@ -903,6 +926,41 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
         }
     }
 
+    function setExportContextFlag(node: Mutable<SourceFile>) {
+        // A declaration source file or ambient module declaration that contains no export declarations (but possibly regular
+        // declarations with export modifiers) is an export context in which declarations are implicitly exported.
+        if (node.flags & NodeFlags.Ambient) {
+            node.flags |= NodeFlags.ExportContext;
+        }
+        else {
+            node.flags &= ~NodeFlags.ExportContext;
+        }
+    }
+
+    function bindSourceFileIfExternalModule() {
+        setExportContextFlag(file);
+        
+        bindSourceFileAsExternalModule();
+    
+        // Create symbol equivalent for the module.exports = {}
+        const originalSymbol = file.symbol;
+        declareSymbol(file.symbol.exports!, file.symbol, file, SymbolFlags.Property, SymbolFlags.All);
+        file.symbol = originalSymbol;    
+    }
+
+    function bindSourceFileAsExternalModule() {
+        bindAnonymousDeclaration(file, SymbolFlags.ValueModule, `"${removeFileExtension(file.fileName)}"` as string);
+    }
+
+    function bindAnonymousDeclaration(node: Declaration, symbolFlags: SymbolFlags, name: string) {
+        const symbol = createSymbol(symbolFlags, name);
+        if (symbolFlags & (SymbolFlags.EnumMember | SymbolFlags.ClassMember)) {
+            symbol.parent = container.symbol;
+        }
+        addDeclarationToSymbol(symbol, node, symbolFlags);
+        return symbol;
+    }
+
     function bindVariableDeclarationOrBindingElement(node: VariableDeclaration /*| BindingElement*/) {    
         const possibleVariableDecl = node.kind === SyntaxKind.VariableDeclaration ? node : node.parent.parent;
         if (isBlockOrCatchScoped(node)) {
@@ -926,11 +984,60 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
     
     }
 
-    function declareSourceFileMember(node: Declaration, symbolFlags: SymbolFlags, symbolExcludes: SymbolFlags) {
-        // return isExternalModule(file)
-        //     ? declareModuleMember(node, symbolFlags, symbolExcludes) :
-        return declareSymbol(file.locals!, /*parent*/ undefined, node, symbolFlags, symbolExcludes);
+    function declareSourceFileMember(node: Declaration, symbolFlags: SymbolFlags, symbolExcludes: SymbolFlags) {        
+        if (hasEffectiveModifier(node, ModifierFlags.Private | ModifierFlags.Protected)) {
+            // private sourcefile members do not get exported
+            declareSymbol(file.locals!, /*parent*/ undefined, node, symbolFlags, symbolExcludes)
+        }
+
+        return declareModuleMember(node, symbolFlags, symbolExcludes);
     }
+
+    function declareModuleMember(node: Declaration, symbolFlags: SymbolFlags, symbolExcludes: SymbolFlags): Symbol {
+        const hasExportModifier = true; // we export everything in LPC !!(getCombinedModifierFlags(node) & ModifierFlags.Export);// || jsdocTreatAsExported(node);
+        if (symbolFlags & SymbolFlags.Alias) {
+            // if (node.kind === SyntaxKind.ExportSpecifier || (node.kind === SyntaxKind.ImportEqualsDeclaration && hasExportModifier)) {
+            //     return declareSymbol(container.symbol.exports!, container.symbol, node, symbolFlags, symbolExcludes);
+            // }
+            // else {
+                Debug.assertNode(container, canHaveLocals);
+                return declareSymbol(container.locals!, /*parent*/ undefined, node, symbolFlags, symbolExcludes);
+            //}
+        }
+        else {
+            // Exported module members are given 2 symbols: A local symbol that is classified with an ExportValue flag,
+            // and an associated export symbol with all the correct flags set on it. There are 2 main reasons:
+            //
+            //   1. We treat locals and exports of the same name as mutually exclusive within a container.
+            //      That means the binder will issue a Duplicate Identifier error if you mix locals and exports
+            //      with the same name in the same container.
+            //      TODO: Make this a more specific error and decouple it from the exclusion logic.
+            //   2. When we checkIdentifier in the checker, we set its resolved symbol to the local symbol,
+            //      but return the export symbol (by calling getExportSymbolOfValueSymbolIfExported). That way
+            //      when the emitter comes back to it, it knows not to qualify the name if it was found in a containing scope.
+
+            // NOTE: Nested ambient modules always should go to to 'locals' table to prevent their automatic merge
+            //       during global merging in the checker. Why? The only case when ambient module is permitted inside another module is module augmentation
+            //       and this case is specially handled. Module augmentations should only be merged with original module definition
+            //       and should never be merged directly with other augmentation, and the latter case would be possible if automatic merge is allowed.
+            //if (isJSDocTypeAlias(node)) Debug.assert(isInJSFile(node)); // We shouldn't add symbols for JSDoc nodes if not in a JS file.
+            if (/*!isAmbientModule(node) &&*/ (hasExportModifier || container.flags & NodeFlags.ExportContext)) {
+                if (!canHaveLocals(container) || !container.locals) {
+                    return declareSymbol(container.symbol.exports!, container.symbol, node, symbolFlags, symbolExcludes); // No local symbol for an unnamed default!
+                }
+                const exportKind = symbolFlags & SymbolFlags.Value ? SymbolFlags.ExportValue : 0;
+                const local = declareSymbol(container.locals, /*parent*/ undefined, node, exportKind, symbolExcludes);
+                local.exportSymbol = declareSymbol(container.symbol.exports!, container.symbol, node, symbolFlags, symbolExcludes);
+                node.localSymbol = local;
+                return local;
+            }
+            else {
+                Debug.assertNode(container, canHaveLocals);
+                return declareSymbol(container.locals!, /*parent*/ undefined, node, symbolFlags, symbolExcludes);
+            }
+        }
+    }
+
 
     function bindParameter(node: ParameterDeclaration /*| JSDocParameterTag*/) {
         // if (node.kind === SyntaxKind.JSDocParameterTag && container.kind !== SyntaxKind.JSDocSignature) {

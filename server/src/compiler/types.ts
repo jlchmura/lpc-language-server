@@ -740,6 +740,7 @@ export const enum NodeFlags {
     None               = 0,
     Variable           = 1 << 0,  // Variable declaration    
     Synthesized        = 1 << 4,  // Node was synthesized during transformation    
+    ExportContext      = 1 << 7,  // Export context (initialized by binding)
     HasImplicitReturn  = 1 << 9,  // If function implicitly returns on one of codepaths (initialized by binding)
     HasExplicitReturn  = 1 << 10,  // If function has explicit reachable return on one of codepaths (initialized by binding)
     HasAsyncFunctions  = 1 << 12, // If the file has async (i.e. LD coroutine) functions (initialized by binding)    
@@ -808,6 +809,7 @@ export const enum ModifierFlags {
     Static =             1 << 8,  // Property/Method
     VarArgs =            1 << 9,
     Visible =            1 << 10,
+    Export =             1 << 11, // Declarations
 
     Deprecated =         1 << 16, // Deprecated tag.
 
@@ -3511,4 +3513,10 @@ export interface IndexedAccessTypeNode extends TypeNode {
     readonly kind: SyntaxKind.IndexedAccessType;
     readonly objectType: TypeNode;
     readonly indexType: TypeNode;
+}
+
+export const enum Extension {
+    C = ".c",
+    Lpc = ".lpc",
+    H = ".h"    
 }
