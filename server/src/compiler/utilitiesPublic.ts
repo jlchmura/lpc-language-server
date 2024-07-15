@@ -1,4 +1,4 @@
-import { AssignmentDeclarationKind, BinaryExpression, CallExpression, Declaration, DeclarationName, Expression, ForEachStatement, getAssignmentDeclarationKind, HasLocals, HasModifiers, hasProperty, Identifier, isBinaryExpression, isFunctionExpression, isIdentifier, isInlineClosureExpression, isVariableDeclaration, LeftHandSideExpression, NamedDeclaration, Node, NodeArray, NodeFlags, OuterExpressionKinds, ParameterDeclaration, SignatureDeclaration, skipOuterExpressions, Symbol, SyntaxKind } from "./_namespaces/lpc";
+import { AssignmentDeclarationKind, BinaryExpression, CallExpression, CallLikeExpression, canHaveJSDoc, Debug, Declaration, DeclarationName, emptyArray, Expression, find, flatMap, ForEachStatement, FunctionLikeDeclaration, getAssignmentDeclarationKind, getJSDocCommentsAndTags, HasLocals, HasModifiers, hasProperty, Identifier, isBinaryExpression, isFunctionExpression, isIdentifier, isInlineClosureExpression, isJSDoc, isJSDocDeprecatedTag, isTypeNodeKind, isVariableDeclaration, IterationStatement, JSDocDeprecatedTag, JSDocTag, LeftHandSideExpression, NamedDeclaration, Node, NodeArray, NodeFlags, OuterExpressionKinds, ParameterDeclaration, SignatureDeclaration, skipOuterExpressions, Symbol, SyntaxKind, TypeNode } from "./_namespaces/lpc";
 
 /** @internal */
 export function isNodeArray<T extends Node>(array: readonly T[]): array is NodeArray<T> {
@@ -325,3 +325,94 @@ function isLeftHandSideExpressionKind(kind: SyntaxKind): boolean {
 export function isCallOrNewExpression(node: Node): node is CallExpression /*| NewExpression*/ {
     return node.kind === SyntaxKind.CallExpression || node.kind === SyntaxKind.NewExpression;
 }
+
+
+/**
+ * Node test that determines whether a node is a valid type node.
+ * This differs from the `isPartOfTypeNode` function which determines whether a node is *part*
+ * of a TypeNode.
+ */
+export function isTypeNode(node: Node): node is TypeNode {
+    return isTypeNodeKind(node.kind);
+}
+
+/** @internal */
+export function isFunctionLikeDeclaration(node: Node): node is FunctionLikeDeclaration {
+    return node && isFunctionLikeDeclarationKind(node.kind);
+}
+
+function getJSDocTagsWorker(node: Node, noCache?: boolean): readonly JSDocTag[] {
+    if (!canHaveJSDoc(node)) return emptyArray;
+    let tags = node.jsDoc?.jsDocCache;
+    // If cache is 'null', that means we did the work of searching for JSDoc tags and came up with nothing.
+    if (tags === undefined || noCache) {
+        const comments = getJSDocCommentsAndTags(node, noCache);
+        Debug.assert(comments.length < 2 || comments[0] !== comments[1]);
+        tags = flatMap(comments, j => isJSDoc(j) ? j.tags : j);
+        if (!noCache) {
+            node.jsDoc ??= [];
+            node.jsDoc.jsDocCache = tags;
+        }
+    }
+    return tags;
+}
+
+/** Get the first JSDoc tag of a specified kind, or undefined if not present. */
+function getFirstJSDocTag<T extends JSDocTag>(node: Node, predicate: (tag: JSDocTag) => tag is T, noCache?: boolean): T | undefined {
+    return find(getJSDocTagsWorker(node, noCache), predicate);
+}
+
+
+/** Gets the JSDoc deprecated tag for the node if present */
+export function getJSDocDeprecatedTag(node: Node): JSDocDeprecatedTag | undefined {
+    return getFirstJSDocTag(node, isJSDocDeprecatedTag);
+}
+
+/**
+ * Iterates through the parent chain of a node and performs the callback on each parent until the callback
+ * returns a truthy value, then returns that value.
+ * If no such value is found, it applies the callback until the parent pointer is undefined or the callback returns "quit"
+ * At that point findAncestor returns undefined.
+ */
+export function findAncestor<T extends Node>(node: Node | undefined, callback: (element: Node) => element is T): T | undefined;
+export function findAncestor(node: Node | undefined, callback: (element: Node) => boolean | "quit"): Node | undefined;
+export function findAncestor(node: Node | undefined, callback: (element: Node) => boolean | "quit"): Node | undefined {
+    while (node) {
+        const result = callback(node);
+        if (result === "quit") {
+            return undefined;
+        }
+        else if (result) {
+            return node;
+        }
+        node = node.parent;
+    }
+    return undefined;
+}
+
+export function isCallLikeExpression(node: Node): node is CallLikeExpression {
+    switch (node.kind) {        
+        case SyntaxKind.CallExpression:
+        case SyntaxKind.NewExpression:        
+            return true;
+        default:
+            return false;
+    }
+}
+
+export function isIterationStatement(node: Node, lookInLabeledStatements: false): node is IterationStatement;
+export function isIterationStatement(node: Node, lookInLabeledStatements: boolean): node is IterationStatement ;//| LabeledStatement;
+export function isIterationStatement(node: Node, lookInLabeledStatements: boolean): node is IterationStatement {
+    switch (node.kind) {
+        case SyntaxKind.ForStatement:
+        case SyntaxKind.ForEachStatement:        
+        case SyntaxKind.DoWhileStatement:
+        case SyntaxKind.WhileStatement:
+            return true;
+        // case SyntaxKind.LabeledStatement:
+        //     return lookInLabeledStatements && isIterationStatement((node as LabeledStatement).statement, lookInLabeledStatements);
+    }
+
+    return false;
+}
+

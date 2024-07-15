@@ -453,11 +453,15 @@ export const enum SyntaxKind {
     Parameter,
     IndexSignature,
 
+    // TypeMember
+    PropertyDeclaration,
+
     // Types
-    UnionType,
+    UnionType, // First Type Node
     ArrayType,
     TypeLiteral,
-
+    ConditionalType,  // Last TYpe Node
+    
     // Elements
     FunctionDeclaration,
 
@@ -528,7 +532,7 @@ export const enum SyntaxKind {
     VariableDeclaration,
     VariableDeclarationList,
     CaseBlock,
-    ClassDeclaration,
+    StructDeclaration,// WAS: ClassDeclaration,
 
     // Statements
     VariableStatement, // FirstStatement
@@ -563,6 +567,9 @@ export const enum SyntaxKind {
     SpreadElement,
     PrefixUnaryExpression,
 
+    // Elements
+    BindingElement,
+
     // Clauses
     CatchClause,
     CaseClause,
@@ -576,6 +583,8 @@ export const enum SyntaxKind {
     FirstAssignment = EqualsToken,
     LastAssignment = CaretEqualsToken,
     SuperKeyword = ColonColonToken,
+    FirstTypeNode = UnionType,
+    LastTypeNode = ConditionalType
 }
 
 // dprint-ignore
@@ -588,10 +597,10 @@ export const enum TypeFlags {
     Enum            = 1 << 5,   // Numeric computed enum member value
     BigInt          = 1 << 6,
     StringLiteral   = 1 << 7,
-    NumberLiteral   = 1 << 8,
+    IntLiteral      = 1 << 8,
     BooleanLiteral  = 1 << 9,
     EnumLiteral     = 1 << 10,  // Always combined with StringLiteral, NumberLiteral, or Union
-    BigIntLiteral   = 1 << 11,
+    FloatLiteral    = 1 << 11,
     ESSymbol        = 1 << 12,  // Type of symbol primitive introduced in ES6
     UniqueESSymbol  = 1 << 13,  // unique symbol
     Void            = 1 << 14,
@@ -618,30 +627,29 @@ export const enum TypeFlags {
     AnyOrUnknown = Any | Unknown,
     /** @internal */
     Nullable = Undefined | Null,
-    Literal = StringLiteral | NumberLiteral | BigIntLiteral | BooleanLiteral,
+    Literal = StringLiteral | IntLiteral | FloatLiteral | BooleanLiteral,
     Unit = Enum | Literal | UniqueESSymbol | Nullable,
     Freshable = Enum | Literal,
-    StringOrNumberLiteral = StringLiteral | NumberLiteral,
+    StringOrNumberLiteral = StringLiteral | IntLiteral,
     /** @internal */
-    StringOrNumberLiteralOrUnique = StringLiteral | NumberLiteral | UniqueESSymbol,
+    StringOrNumberLiteralOrUnique = StringLiteral | IntLiteral | UniqueESSymbol,
     /** @internal */
-    DefinitelyFalsy = StringLiteral | NumberLiteral | BigIntLiteral | BooleanLiteral | Void | Undefined | Null,
+    DefinitelyFalsy = StringLiteral | IntLiteral | FloatLiteral | BooleanLiteral | Void | Undefined | Null,
     PossiblyFalsy = DefinitelyFalsy | String | Number | BigInt | Boolean,
     /** @internal */
     Intrinsic = Any | Unknown | String | Number | BigInt | Boolean | BooleanLiteral | ESSymbol | Void | Undefined | Null | Never | NonPrimitive,
     StringLike = String | StringLiteral | TemplateLiteral | StringMapping,
-    NumberLike = Number | NumberLiteral | Enum,
-    BigIntLike = BigInt | BigIntLiteral,
+    NumberLike = Number | IntLiteral | FloatLiteral | Enum,    
     BooleanLike = Boolean | BooleanLiteral,
     EnumLike = Enum | EnumLiteral,
     ESSymbolLike = ESSymbol | UniqueESSymbol,
     VoidLike = Void | Undefined,
     /** @internal */
-    Primitive = StringLike | NumberLike | BigIntLike | BooleanLike | EnumLike | ESSymbolLike | VoidLike | Null,
+    Primitive = StringLike | NumberLike |  BooleanLike | EnumLike | ESSymbolLike | VoidLike | Null,
     /** @internal */
-    DefinitelyNonNullable = StringLike | NumberLike | BigIntLike | BooleanLike | EnumLike | ESSymbolLike | Object | NonPrimitive,
+    DefinitelyNonNullable = StringLike | NumberLike |  BooleanLike | EnumLike | ESSymbolLike | Object | NonPrimitive,
     /** @internal */
-    DisjointDomains = NonPrimitive | StringLike | NumberLike | BigIntLike | BooleanLike | ESSymbolLike | VoidLike | Null,
+    DisjointDomains = NonPrimitive | StringLike | NumberLike |  BooleanLike | ESSymbolLike | VoidLike | Null,
     UnionOrIntersection = Union | Intersection,
     StructuredType = Object | Union | Intersection,
     TypeVariable = TypeParameter | IndexedAccess,
@@ -657,7 +665,7 @@ export const enum TypeFlags {
     Singleton = Any | Unknown | String | Number | Boolean | BigInt | ESSymbol | Void | Undefined | Null | Never | NonPrimitive,
     // 'Narrowable' types are types where narrowing actually narrows.
     // This *should* be every type other than null, undefined, void, and never
-    Narrowable = Any | Unknown | StructuredOrInstantiable | StringLike | NumberLike | BigIntLike | BooleanLike | ESSymbol | UniqueESSymbol | NonPrimitive,
+    Narrowable = Any | Unknown | StructuredOrInstantiable | StringLike | NumberLike |  BooleanLike | ESSymbol | UniqueESSymbol | NonPrimitive,
     // The following flags are aggregated during union and intersection type construction
     /** @internal */
     IncludesMask = Any | Unknown | Primitive | Never | Object | Union | Intersection | NonPrimitive | TemplateLiteral | StringMapping,
@@ -1207,6 +1215,21 @@ export type HasJSDoc =
     | VariableStatement     
     | VariableDeclaration
     | WhileStatement;
+
+export type HasExpressionInitializer =
+    | VariableDeclaration
+    | ParameterDeclaration
+    | BindingElement
+    | PropertyDeclaration
+    | PropertyAssignment
+    ;
+
+export type HasInitializer =
+    | HasExpressionInitializer
+    | ForStatement
+    | ForEachStatement    
+    // | JsxAttribute;
+    ;
 
 
 /**
@@ -2574,6 +2597,15 @@ export interface PropertyAccessExpression extends MemberExpression, NamedDeclara
     readonly name: MemberName;
 }
 
+/** Brand for a PropertyAccessExpression which, like a QualifiedName, consists of a sequence of identifiers separated by dots. */
+export interface PropertyAccessEntityNameExpression extends PropertyAccessExpression {
+    _propertyAccessExpressionLikeQualifiedNameBrand?: any;
+    readonly expression: EntityNameExpression;
+    readonly name: Identifier;
+}
+
+export type EntityNameExpression = Identifier | PropertyAccessEntityNameExpression;
+
 export interface ForStatement extends IterationStatement, LocalsContainer, FlowContainer {
     readonly kind: SyntaxKind.ForStatement;
     readonly initializer?: ForInitializer;
@@ -3016,6 +3048,8 @@ export interface ObjectLiteralExpression extends ObjectLiteralExpressionBase<Obj
     multiLine?: boolean;
 }
 
+export type AccessExpression = PropertyAccessExpression | ElementAccessExpression;
+
 export interface ElementAccessExpression extends MemberExpression, Declaration, JSDocContainer, FlowContainer {
     readonly kind: SyntaxKind.ElementAccessExpression;
     readonly expression: LeftHandSideExpression;    
@@ -3330,3 +3364,91 @@ export interface NodeLinks {
     //potentialUnusedRenamedBindingElementsInTypes?: BindingElement[];
     externalHelpersModule?: Symbol;     // Resolved symbol for the external helpers module
 }
+
+export interface JSDocTemplateTag extends JSDocTag {
+    readonly kind: SyntaxKind.JSDocTemplateTag;
+    readonly constraint: JSDocTypeExpression | undefined;
+    readonly typeParameters: NodeArray<TypeParameterDeclaration>;
+}
+
+export interface JSDocDeprecatedTag extends JSDocTag {
+    kind: SyntaxKind.JSDocDeprecatedTag;
+}
+
+
+export interface StructDeclaration extends DeclarationStatement {
+    readonly kind: SyntaxKind.StructDeclaration;
+    readonly name: Identifier;
+    readonly members: NodeArray<ClassElement>;
+}
+
+export interface PropertyDeclaration extends ClassElement, JSDocContainer {
+    readonly kind: SyntaxKind.PropertyDeclaration;
+    readonly parent: StructDeclaration;
+    readonly modifiers?: NodeArray<Modifier>;
+    readonly name: PropertyName;    
+    readonly type?: TypeNode;
+    readonly initializer?: Expression;           // Optional initializer
+}
+
+/**
+ * @deprecated not used in LPC?
+ */
+export interface BindingElement extends Node {
+    readonly kind: SyntaxKind.Unknown;
+    __BindingELementbrand: any;   
+    initializer: Expression | undefined;
+}
+
+
+export const enum SymbolFormatFlags {
+    None                                    = 0,
+
+    // Write symbols's type argument if it is instantiated symbol
+    // eg. class C<T> { p: T }   <-- Show p as C<T>.p here
+    //     var a: C<number>;
+    //     var p = a.p; <--- Here p is property of C<number> so show it as C<number>.p instead of just C.p
+    WriteTypeParametersOrArguments          = 1 << 0,
+
+    // Use only external alias information to get the symbol name in the given context
+    // eg.  module m { export class c { } } import x = m.c;
+    // When this flag is specified m.c will be used to refer to the class instead of alias symbol x
+    UseOnlyExternalAliasing                 = 1 << 1,
+
+    // Build symbol name using any nodes needed, instead of just components of an entity name
+    AllowAnyNodeKind                        = 1 << 2,
+
+    // Prefer aliases which are not directly visible
+    UseAliasDefinedOutsideCurrentScope      = 1 << 3,
+
+    // { [E.A]: 1 }
+    /** @internal */ WriteComputedProps      = 1 << 4,
+
+    // Skip building an accessible symbol chain
+    /** @internal */ DoNotIncludeSymbolChain = 1 << 5,
+}
+
+/** @internal */
+export interface VariableDeclarationInitializedTo<T extends Expression> extends VariableDeclaration {
+    readonly initializer: T;
+}
+
+/** @internal */
+export const enum UnionReduction {
+    None = 0,
+    Literal,
+    Subtype,
+}
+
+/** @internal */
+export const enum RelationComparisonResult {
+    None                = 0,
+    Succeeded           = 1 << 0, // Should be truthy
+    Failed              = 1 << 1,
+    Reported            = 1 << 2,
+
+    ReportsUnmeasurable = 1 << 3,
+    ReportsUnreliable   = 1 << 4,
+    ReportsMask         = ReportsUnmeasurable | ReportsUnreliable,
+}
+

@@ -1,4 +1,4 @@
-import { ArrayTypeNode, BinaryExpression, Block, CallExpression, DefaultClause, ExpressionStatement, FloatLiteral, FunctionDeclaration, FunctionExpression, Identifier, IfStatement, InlineClosureExpression, IntLiteral, JSDoc, JSDocSignature, JSDocTypeExpression, Node, ParameterDeclaration, ParenthesizedExpression, PrefixUnaryExpression, PropertyAccessExpression, SourceFile, StringLiteral, SyntaxKind, TypeParameterDeclaration, UnionTypeNode, VariableDeclaration, VariableDeclarationList, VariableStatement } from "./_namespaces/lpc";
+import { ArrayTypeNode, BinaryExpression, BindingElement, Block, CallExpression, DefaultClause, ExpressionStatement, FloatLiteral, ForStatement, FunctionDeclaration, FunctionExpression, Identifier, IfStatement, InlineClosureExpression, IntLiteral, JSDoc, JSDocDeprecatedTag, JSDocSignature, JSDocTemplateTag, JSDocTypeExpression, Node, ParameterDeclaration, ParenthesizedExpression, PrefixUnaryExpression, PropertyAccessExpression, PropertyDeclaration, ShorthandPropertyAssignment, SourceFile, StringLiteral, StructDeclaration, SyntaxKind, TypeParameterDeclaration, UnionTypeNode, VariableDeclaration, VariableDeclarationList, VariableStatement } from "./_namespaces/lpc";
 
 export function isBinaryExpression(node: Node): node is BinaryExpression {
     return node.kind === SyntaxKind.BinaryExpression;
@@ -130,4 +130,37 @@ export function isParenthesizedExpression(node: Node): node is ParenthesizedExpr
 
 export function isPrefixUnaryExpression(node: Node): node is PrefixUnaryExpression {
     return node.kind === SyntaxKind.PrefixUnaryExpression;
+}
+
+export function isJSDocTemplateTag(node: Node): node is JSDocTemplateTag {
+    return node.kind === SyntaxKind.JSDocTemplateTag;
+}
+
+export function isStructDeclaration(node:Node): node is StructDeclaration {
+    return node.kind === SyntaxKind.StructDeclaration;
+}
+
+export function isShorthandPropertyAssignment(node: Node): node is ShorthandPropertyAssignment {
+    return node.kind === SyntaxKind.ShorthandPropertyAssignment;
+}
+
+export function isJSDocDeprecatedTag(node: Node): node is JSDocDeprecatedTag {
+    return node.kind === SyntaxKind.JSDocDeprecatedTag;
+}
+
+export function isBindingElement(node: Node): node is BindingElement {
+    return node.kind === SyntaxKind.BindingElement;
+}
+
+export function isPropertyDeclaration(node: Node): node is PropertyDeclaration {
+    return node.kind === SyntaxKind.PropertyDeclaration;
+}
+
+export function isForStatement(node: Node): node is ForStatement {
+    return node.kind === SyntaxKind.ForStatement;
+}
+
+export function isSpreadAssignment(node: Node) {//: node is SpreadAssignment {
+    // TODO
+    return false;//return node.kind === SyntaxKind.SpreadAssignment;
 }

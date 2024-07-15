@@ -1,5 +1,5 @@
 import * as antlr from "antlr4ng";
-import { Signature, Type, Debug, DiagnosticArguments, DiagnosticMessage, DiagnosticRelatedInformation, DiagnosticWithDetachedLocation, DiagnosticWithLocation, Identifier, MapLike, ModifierFlags, Node, NodeFlags, ReadonlyTextRange, some, SourceFile, Symbol, SymbolFlags, SyntaxKind, TextRange, Token, TransformFlags, TypeChecker, TypeFlags, tracing, SignatureFlags, canHaveModifiers, Modifier, skipTrivia, SymbolTable, CallExpression, Declaration, getCombinedNodeFlags, BinaryExpression, AssignmentDeclarationKind, isCallExpression, isBinaryExpression, isIdentifier, Diagnostic, emptyArray, PropertyNameLiteral, DeclarationName, LiteralLikeNode, AssignmentExpression, LogicalOrCoalescingAssignmentOperator, LogicalOperator, Expression, OuterExpressionKinds, OuterExpression, WrappedExpression, PrefixUnaryExpression, PostfixUnaryExpression, ForEachStatement, ShorthandPropertyAssignment, PropertyAssignment, PropertyAccessExpression, ParenthesizedExpression, BinaryOperatorToken, AssertionLevel, SortedArray, binarySearch, identity, Comparison, DiagnosticMessageChain, compareStringsCaseSensitive, compareValues, insertSorted, flatMapToMutable, DiagnosticCollection } from "./_namespaces/lpc";
+import { Signature, Type, Debug, DiagnosticArguments, DiagnosticMessage, DiagnosticRelatedInformation, DiagnosticWithDetachedLocation, DiagnosticWithLocation, Identifier, MapLike, ModifierFlags, Node, NodeFlags, ReadonlyTextRange, some, SourceFile, Symbol, SymbolFlags, SyntaxKind, TextRange, Token, TransformFlags, TypeChecker, TypeFlags, tracing, SignatureFlags, canHaveModifiers, Modifier, skipTrivia, SymbolTable, CallExpression, Declaration, getCombinedNodeFlags, BinaryExpression, AssignmentDeclarationKind, isCallExpression, isBinaryExpression, isIdentifier, Diagnostic, emptyArray, PropertyNameLiteral, DeclarationName, LiteralLikeNode, AssignmentExpression, LogicalOrCoalescingAssignmentOperator, LogicalOperator, Expression, OuterExpressionKinds, OuterExpression, WrappedExpression, PrefixUnaryExpression, PostfixUnaryExpression, ForEachStatement, ShorthandPropertyAssignment, PropertyAssignment, PropertyAccessExpression, ParenthesizedExpression, BinaryOperatorToken, AssertionLevel, SortedArray, binarySearch, identity, Comparison, DiagnosticMessageChain, compareStringsCaseSensitive, compareValues, insertSorted, flatMapToMutable, DiagnosticCollection, isJSDocTemplateTag, HasJSDoc, lastOrUndefined, JSDoc, isJSDoc, find, ParameterDeclaration, FunctionDeclaration, InlineClosureExpression, FunctionExpression, forEachChild, returnUndefined, returnFalse, CompilerOptions, FunctionLikeDeclaration, canHaveLocals, isFunctionLike, isParameter, PropertyDeclaration, BindingElement, isString, InternalSymbolName, isSourceFile, StructDeclaration, isStructDeclaration, JSDocTemplateTag, TypeNodeSyntaxKind, isTypeNode, isFunctionLikeDeclaration, SignatureDeclaration, AccessExpression, isInlineClosureExpression, PropertyAccessEntityNameExpression, isPropertyAccessExpression, EntityNameExpression, isVariableDeclaration, VariableDeclarationInitializedTo, CanonicalDiagnostic, HasInitializer, ExpressionStatement, ForStatement, isShorthandPropertyAssignment, JSDocTag, EqualsToken, AssignmentOperatorToken, isLeftHandSideExpression, isFunctionLikeKind, AdditiveOperator, AdditiveOperatorOrHigher, AssignmentOperatorOrHigher, BinaryOperator, BitwiseOperator, BitwiseOperatorOrHigher, EqualityOperator, EqualityOperatorOrHigher, ExponentiationOperator, LogicalOperatorOrHigher, MultiplicativeOperator, MultiplicativeOperatorOrHigher, RelationalOperator, RelationalOperatorOrHigher, ShiftOperator, ShiftOperatorOrHigher, HasFlowNode, ObjectFlags, ObjectFlagsType } from "./_namespaces/lpc";
 import { TextSpan } from "../backend/types";
 
 /** @internal */
@@ -1378,3 +1378,1120 @@ function messageTextEqualityComparer(m1: string | DiagnosticMessageChain, m2: st
     return compareStringsCaseSensitive(t1, t2) === Comparison.EqualTo;
 }
 
+/** @internal */
+export function createNameResolver({
+    compilerOptions,
+    requireSymbol,
+    argumentsSymbol,
+    error,
+    getSymbolOfDeclaration,
+    globals,
+    lookup,
+    setRequiresScopeChangeCache = returnUndefined,
+    getRequiresScopeChangeCache = returnUndefined,
+    onPropertyWithInvalidInitializer = returnFalse,
+    onFailedToResolveSymbol = returnUndefined,
+    onSuccessfullyResolvedSymbol = returnUndefined,
+}: {
+    compilerOptions: CompilerOptions;
+    getSymbolOfDeclaration: (node: Declaration) => Symbol;
+    error: (location: Node | undefined, message: DiagnosticMessage, ...args: DiagnosticArguments) => void;
+    globals: SymbolTable;
+    argumentsSymbol: Symbol;
+    requireSymbol: Symbol;
+    lookup: (symbols: SymbolTable, name: string, meaning: SymbolFlags) => Symbol | undefined;
+    setRequiresScopeChangeCache: undefined | ((node: FunctionLikeDeclaration, value: boolean) => void);
+    getRequiresScopeChangeCache: undefined | ((node: FunctionLikeDeclaration) => boolean | undefined);
+    onPropertyWithInvalidInitializer?: (location: Node | undefined, name: string, declaration: PropertyDeclaration, result: Symbol | undefined) => boolean;
+    onFailedToResolveSymbol?: (
+        location: Node | undefined,
+        name: string | Identifier,
+        meaning: SymbolFlags,
+        nameNotFoundMessage: DiagnosticMessage,
+    ) => void;
+    onSuccessfullyResolvedSymbol?: (
+        location: Node | undefined,
+        result: Symbol,
+        meaning: SymbolFlags,
+        lastLocation: Node | undefined,
+        associatedDeclarationForContainingInitializerOrBindingName: ParameterDeclaration | BindingElement | undefined,
+        withinDeferredContext: boolean,
+    ) => void;
+}) {
+    /* eslint-disable no-var */
+    var emptySymbols = createSymbolTable();
+    return resolveNameHelper;
+    function resolveNameHelper(
+        location: Node | undefined,
+        nameArg: string | Identifier,
+        meaning: SymbolFlags,
+        nameNotFoundMessage: DiagnosticMessage | undefined,
+        isUse: boolean,
+        excludeGlobals?: boolean,
+    ): Symbol | undefined {
+        const originalLocation = location; // needed for did-you-mean error reporting, which gathers candidates starting from the original location
+        let result: Symbol | undefined;
+        let lastLocation: Node | undefined;
+        let lastSelfReferenceLocation: Declaration | undefined;
+        let propertyWithInvalidInitializer: PropertyDeclaration | undefined;
+        let associatedDeclarationForContainingInitializerOrBindingName: ParameterDeclaration | BindingElement | undefined;
+        let withinDeferredContext = false;
+        let grandparent: Node;
+        const name = isString(nameArg) ? nameArg : (nameArg as Identifier).text;
+        loop:
+        while (location) {
+            // TODO HANDLE INCLUDE/INHERITS HERE?
+            // if (isModuleOrEnumDeclaration(location) && lastLocation && location.name === lastLocation) {
+            //     // If lastLocation is the name of a namespace or enum, skip the parent since it will have is own locals that could
+            //     // conflict.
+            //     lastLocation = location;
+            //     location = location.parent;
+            // }
+            if (canHaveLocals(location) && location.locals) {
+                if (result = lookup(location.locals, name, meaning)) {
+                    let useResult = true;
+                    if (isFunctionLike(location) && lastLocation && lastLocation !== (location as FunctionLikeDeclaration).body) {
+                        // symbol lookup restrictions for function-like declarations
+                        // - Type parameters of a function are in scope in the entire function declaration, including the parameter
+                        //   list and return type. However, local types are only in scope in the function body.
+                        // - parameters are only in the scope of function body
+                        // This restriction does not apply to JSDoc comment types because they are parented
+                        // at a higher level than type parameters would normally be
+                        if (meaning & result.flags & SymbolFlags.Type && lastLocation.kind !== SyntaxKind.JSDoc) {
+                            useResult = result.flags & SymbolFlags.TypeParameter
+                                // type parameters are visible in parameter list, return type and type parameter list
+                                ? !!(lastLocation.flags & NodeFlags.Synthesized) || // Synthetic fake scopes are added for signatures so type parameters are accessible from them
+                                    lastLocation === (location as FunctionLikeDeclaration).type ||
+                                    lastLocation.kind === SyntaxKind.Parameter ||
+                                    lastLocation.kind === SyntaxKind.JSDocParameterTag ||
+                                    lastLocation.kind === SyntaxKind.JSDocReturnTag ||
+                                    lastLocation.kind === SyntaxKind.TypeParameter
+                                // local types not visible outside the function body
+                                : false;
+                        }
+                        if (meaning & result.flags & SymbolFlags.Variable) {
+                            // expression inside parameter will lookup as normal variable scope when targeting es2015+
+                            if (useOuterVariableScopeInParameter(result, location, lastLocation)) {
+                                useResult = false;
+                            }
+                            else if (result.flags & SymbolFlags.FunctionScopedVariable) {
+                                // parameters are visible only inside function body, parameter list and return type
+                                // technically for parameter list case here we might mix parameters and variables declared in function,
+                                // however it is detected separately when checking initializers of parameters
+                                // to make sure that they reference no variables declared after them.
+                                useResult = lastLocation.kind === SyntaxKind.Parameter ||
+                                    !!(lastLocation.flags & NodeFlags.Synthesized) || // Synthetic fake scopes are added for signatures so parameters are accessible from them
+                                    (
+                                        lastLocation === (location as FunctionLikeDeclaration).type &&
+                                        !!findAncestor(result.valueDeclaration, isParameter)
+                                    );
+                            }
+                        }
+                    }
+                    
+                    if (useResult) {
+                        break loop;
+                    }
+                    else {
+                        result = undefined;
+                    }
+                }
+            }
+            withinDeferredContext = withinDeferredContext || getIsDeferredContext(location, lastLocation);
+            switch (location.kind) {
+                case SyntaxKind.SourceFile:
+                    //if (!isExternalOrCommonJsModule(location as SourceFile)) break;
+                    // falls through
+                //case SyntaxKind.ModuleDeclaration:
+                    const moduleExports = getSymbolOfDeclaration(location as SourceFile /*| ModuleDeclaration*/)?.exports || emptySymbols;
+                    if (location.kind === SyntaxKind.SourceFile) {// || (isModuleDeclaration(location) && location.flags & NodeFlags.Ambient && !isGlobalScopeAugmentation(location))) {
+                        // It's an external module. First see if the module has an export default and if the local
+                        // name of that export default matches.
+                        if (result = moduleExports.get(InternalSymbolName.Default)) {
+                            const localSymbol = getLocalSymbolForExportDefault(result);
+                            if (localSymbol && (result.flags & meaning) && localSymbol.name === name) {
+                                break loop;
+                            }
+                            result = undefined;
+                        }
+
+                        // Because of module/namespace merging, a module's exports are in scope,
+                        // yet we never want to treat an export specifier as putting a member in scope.
+                        // Therefore, if the name we find is purely an export specifier, it is not actually considered in scope.
+                        // Two things to note about this:
+                        //     1. We have to check this without calling getSymbol. The problem with calling getSymbol
+                        //        on an export specifier is that it might find the export specifier itself, and try to
+                        //        resolve it as an alias. This will cause the checker to consider the export specifier
+                        //        a circular alias reference when it might not be.
+                        //     2. We check === SymbolFlags.Alias in order to check that the symbol is *purely*
+                        //        an alias. If we used &, we'd be throwing out symbols that have non alias aspects,
+                        //        which is not the desired behavior.
+                        const moduleExport = moduleExports.get(name);
+                        if (
+                            moduleExport &&
+                            moduleExport.flags === SymbolFlags.Alias 
+                            // TODO && (getDeclarationOfKind(moduleExport, SyntaxKind.ExportSpecifier) || getDeclarationOfKind(moduleExport, SyntaxKind.NamespaceExport))
+                        ) {
+                            break;
+                        }
+                    }
+
+                    // ES6 exports are also visible locally (except for 'default'), but commonjs exports are not (except typedefs)
+                    // if (name !== InternalSymbolName.Default && (result = lookup(moduleExports, name, meaning & SymbolFlags.ModuleMember))) {
+                    //     if (isSourceFile(location) && location.commonJsModuleIndicator && !result.declarations?.some(isJSDocTypeAlias)) {
+                    //         result = undefined;
+                    //     }
+                    //     else {
+                    //         break loop;
+                    //     }
+                    // }
+                    break;                
+                case SyntaxKind.PropertyDeclaration:
+                    // TODO: I don't think this is needed for LPC structs
+                    // TypeScript 1.0 spec (April 2014): 8.4.1
+                    // Initializer expressions for instance member variables are evaluated in the scope
+                    // of the class constructor body but are not permitted to reference parameters or
+                    // local variables of the constructor. This effectively means that entities from outer scopes
+                    // by the same name as a constructor parameter or local variable are inaccessible
+                    // in initializer expressions for instance member variables.                    
+                    // const ctor = findConstructorDeclaration(location.parent as ClassLikeDeclaration);
+                    // if (ctor && ctor.locals) {
+                    //     if (lookup(ctor.locals, name, meaning & SymbolFlags.Value)) {
+                    //         // Remember the property node, it will be used later to report appropriate error
+                    //         Debug.assertNode(location, isPropertyDeclaration);
+                    //         propertyWithInvalidInitializer = location;
+                    //     }
+                    // }
+            
+                    break;
+                case SyntaxKind.StructDeclaration:
+                case SyntaxKind.ClassExpression:
+                //case SyntaxKind.InterfaceDeclaration:
+                    // The below is used to lookup type parameters within a class or interface, as they are added to the class/interface locals
+                    // These can never be latebound, so the symbol's raw members are sufficient. `getMembersOfNode` cannot be used, as it would
+                    // trigger resolving late-bound names, which we may already be in the process of doing while we're here!
+                    if (result = lookup(getSymbolOfDeclaration(location as StructDeclaration).members || emptySymbols, name, meaning & SymbolFlags.Type)) {
+                        if (!isTypeParameterSymbolDeclaredInContainer(result, location)) {
+                            // ignore type parameters not declared in this container
+                            result = undefined;
+                            break;
+                        }                        
+                        break loop;
+                    }
+                    // if (isClassExpression(location) && meaning & SymbolFlags.Class) {
+                    //     const className = location.name;
+                    //     if (className && name === className.text) {
+                    //         result = location.symbol;
+                    //         break loop;
+                    //     }
+                    // }
+                    break;                               
+                case SyntaxKind.InlineClosureExpression:                    
+                //case SyntaxKind.MethodDeclaration:                
+                case SyntaxKind.FunctionDeclaration:
+                    if (meaning & SymbolFlags.Variable && name === "arguments") {
+                        result = argumentsSymbol;
+                        break loop;
+                    }
+                    break;
+                case SyntaxKind.FunctionExpression:
+                    if (meaning & SymbolFlags.Variable && name === "arguments") {
+                        result = argumentsSymbol;
+                        break loop;
+                    }
+
+                    if (meaning & SymbolFlags.Function) {
+                        const functionName = (location as FunctionExpression).name;
+                        if (functionName && name === functionName.text) {
+                            result = (location as FunctionExpression).symbol;
+                            break loop;
+                        }
+                    }
+                    break;                
+                case SyntaxKind.JSDocTypedefTag:
+                case SyntaxKind.JSDocCallbackTag:
+                case SyntaxKind.JSDocEnumTag:
+                case SyntaxKind.JSDocImportTag:
+                    // js type aliases do not resolve names from their host, so skip past it
+                    const root = getJSDocRoot(location);
+                    if (root) {
+                        location = root.parent;
+                    }
+                    break;
+                case SyntaxKind.Parameter:
+                    if (
+                        lastLocation && (
+                            lastLocation === (location as ParameterDeclaration).initializer ||
+                            lastLocation === (location as ParameterDeclaration).name //&& isBindingPattern(lastLocation)
+                        )
+                    ) {
+                        if (!associatedDeclarationForContainingInitializerOrBindingName) {
+                            associatedDeclarationForContainingInitializerOrBindingName = location as ParameterDeclaration;
+                        }
+                    }
+                    break;
+                // case SyntaxKind.BindingElement:
+                //     if (
+                //         lastLocation && (
+                //             lastLocation === (location as BindingElement).initializer ||
+                //             lastLocation === (location as BindingElement).name && isBindingPattern(lastLocation)
+                //         )
+                //     ) {
+                //         if (isPartOfParameterDeclaration(location as BindingElement) && !associatedDeclarationForContainingInitializerOrBindingName) {
+                //             associatedDeclarationForContainingInitializerOrBindingName = location as BindingElement;
+                //         }
+                //     }
+                //     break;                
+                // case SyntaxKind.ExportSpecifier:
+                //     // External module export bindings shouldn't be resolved to local symbols.
+                //     if (
+                //         lastLocation &&
+                //         lastLocation === (location as ExportSpecifier).propertyName &&
+                //         (location as ExportSpecifier).parent.parent.moduleSpecifier
+                //     ) {
+                //         location = location.parent.parent.parent;
+                //     }
+                //     break;
+            }
+            if (isSelfReferenceLocation(location, lastLocation)) {
+                lastSelfReferenceLocation = location;
+            }
+            lastLocation = location;
+            // TODO
+            // location = isJSDocTemplateTag(location) ? getEffectiveContainerForJSDocTemplateTag(location) || location.parent :
+            //     isJSDocParameterTag(location) || isJSDocReturnTag(location) ? getHostSignatureFromJSDoc(location) || location.parent :
+            //     location.parent;
+            location = location.parent;
+        }
+
+        // We just climbed up parents looking for the name, meaning that we started in a descendant node of `lastLocation`.
+        // If `result === lastSelfReferenceLocation.symbol`, that means that we are somewhere inside `lastSelfReferenceLocation` looking up a name, and resolving to `lastLocation` itself.
+        // That means that this is a self-reference of `lastLocation`, and shouldn't count this when considering whether `lastLocation` is used.
+        if (isUse && result && (!lastSelfReferenceLocation || result !== lastSelfReferenceLocation.symbol)) {
+            result.isReferenced! |= meaning;
+        }
+
+        if (!result) {
+            if (lastLocation) {
+                Debug.assertNode(lastLocation, isSourceFile);                
+            }
+
+            if (!excludeGlobals) {
+                result = lookup(globals, name, meaning);
+            }
+        }
+        if (!result) {
+            // TODO handle include/inherit here?
+            // if (originalLocation && isInJSFile(originalLocation) && originalLocation.parent) {
+            //     if (isRequireCall(originalLocation.parent, /*requireStringLiteralLikeArgument*/ false)) {
+            //         return requireSymbol;
+            //     }
+            // }
+        }
+
+        if (nameNotFoundMessage) {
+            if (propertyWithInvalidInitializer && onPropertyWithInvalidInitializer(originalLocation, name, propertyWithInvalidInitializer, result)) {
+                return undefined;
+            }
+            if (!result) {
+                onFailedToResolveSymbol(originalLocation, nameArg, meaning, nameNotFoundMessage);
+            }
+            else {
+                onSuccessfullyResolvedSymbol(originalLocation, result, meaning, lastLocation, associatedDeclarationForContainingInitializerOrBindingName, withinDeferredContext);
+            }
+        }
+
+        return result;
+    }
+
+    function useOuterVariableScopeInParameter(result: Symbol, location: Node, lastLocation: Node) {        
+        const functionLocation = location as FunctionLikeDeclaration;
+        if (
+            isParameter(lastLocation)
+            && functionLocation.body
+            && result.valueDeclaration
+            && result.valueDeclaration.pos >= functionLocation.body.pos
+            && result.valueDeclaration.end <= functionLocation.body.end
+        ) {
+            // check for several cases where we introduce temporaries that require moving the name/initializer of the parameter to the body
+            // - static field in a class expression
+            // - optional chaining pre-es2020
+            // - nullish coalesce pre-es2020
+            // - spread assignment in binding pattern pre-es2017
+            // if (target >= ScriptTarget.ES2015) {
+            //     let declarationRequiresScopeChange = getRequiresScopeChangeCache(functionLocation);
+            //     if (declarationRequiresScopeChange === undefined) {
+            //         declarationRequiresScopeChange = forEach(functionLocation.parameters, requiresScopeChange) || false;
+            //         setRequiresScopeChangeCache(functionLocation, declarationRequiresScopeChange);
+            //     }
+            //     return !declarationRequiresScopeChange;
+            // }
+        }
+        return false;
+
+        function requiresScopeChange(node: ParameterDeclaration): boolean {
+            return requiresScopeChangeWorker(node.name)
+                || !!node.initializer && requiresScopeChangeWorker(node.initializer);
+        }
+
+        function requiresScopeChangeWorker(node: Node): boolean {
+            switch (node.kind) {
+                case SyntaxKind.InlineClosureExpression:
+                case SyntaxKind.FunctionExpression:
+                case SyntaxKind.FunctionDeclaration:                
+                    // do not descend into these
+                    return false;
+                //case SyntaxKind.MethodDeclaration:                
+                case SyntaxKind.PropertyAssignment:
+                    return requiresScopeChangeWorker((node as /*MethodDeclaration | AccessorDeclaration |*/ PropertyAssignment).name);
+                case SyntaxKind.PropertyDeclaration:                    
+                    return requiresScopeChangeWorker((node as PropertyDeclaration).name);
+                default:
+                    // null coalesce and optional chain pre-es2020 produce temporary variables                    
+                    // if (isBindingElement(node) && node.dotDotDotToken && isObjectBindingPattern(node.parent)) {
+                    //     return target < ScriptTarget.ES2017;
+                    // }
+                    if (isTypeNode(node)) return false;
+                    return forEachChild(node, requiresScopeChangeWorker) || false;
+            }
+        }
+    }
+
+    function getIsDeferredContext(location: Node, lastLocation: Node | undefined): boolean {
+        if (location.kind !== SyntaxKind.InlineClosureExpression && location.kind !== SyntaxKind.FunctionExpression) {
+            // initializers in instance property declaration of class like entities are executed in constructor and thus deferred
+            return ((
+                isFunctionLikeDeclaration(location) ||
+                (location.kind === SyntaxKind.PropertyDeclaration)
+            ) && (!lastLocation || lastLocation !== (location as SignatureDeclaration | PropertyDeclaration).name)); // A name is evaluated within the enclosing scope - so it shouldn't count as deferred
+        }
+        if (lastLocation && lastLocation === (location as FunctionExpression | InlineClosureExpression).name) {
+            return false;
+        }
+        // generator functions and async functions are not inlined in control flow when immediately invoked
+        if ((location as FunctionExpression | InlineClosureExpression).asteriskToken){// || hasSyntacticModifier(location, ModifierFlags.Async)) {
+            return true;
+        }
+        return !getImmediatelyInvokedFunctionExpression(location);
+    }
+
+    type SelfReferenceLocation =
+        | ParameterDeclaration
+        | FunctionDeclaration
+        // | ClassDeclaration
+        // | InterfaceDeclaration
+        // | EnumDeclaration
+        // | TypeAliasDeclaration
+        // | ModuleDeclaration;
+        ;
+
+    function isSelfReferenceLocation(node: Node, lastLocation: Node | undefined): node is SelfReferenceLocation {
+        switch (node.kind) {
+            case SyntaxKind.Parameter:
+                return !!lastLocation && lastLocation === (node as ParameterDeclaration).name;
+            case SyntaxKind.FunctionDeclaration:
+            case SyntaxKind.StructDeclaration:
+            // case SyntaxKind.InterfaceDeclaration:
+            // case SyntaxKind.EnumDeclaration:
+            // case SyntaxKind.TypeAliasDeclaration:
+            // case SyntaxKind.ModuleDeclaration: // For `namespace N { N; }`
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    function isTypeParameterSymbolDeclaredInContainer(symbol: Symbol, container: Node) {
+        if (symbol.declarations) {
+            for (const decl of symbol.declarations) {
+                if (decl.kind === SyntaxKind.TypeParameter) {
+                    const parent = isJSDocTemplateTag(decl.parent) ? getJSDocHost(decl.parent) : decl.parent;
+                    if (parent === container) {
+                        return true;// no type alises in LPC? !(isJSDocTemplateTag(decl.parent) && find((decl.parent.parent as JSDoc).tags, isJSDocTypeAlias));
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+}
+
+
+/**
+ * Use getEffectiveJSDocHost if you additionally need to look for jsdoc on parent nodes, like assignments.
+ *
+ * @internal
+ */
+export function getJSDocHost(node: Node): HasJSDoc | undefined {
+    const jsDoc = getJSDocRoot(node);
+    if (!jsDoc) {
+        return undefined;
+    }
+
+    const host = jsDoc.parent;
+    if (host && host.jsDoc && jsDoc === lastOrUndefined(host.jsDoc)) {
+        return host;
+    }
+}
+
+/** @internal */
+export function getJSDocRoot(node: Node): JSDoc | undefined {
+    return findAncestor(node.parent, isJSDoc);
+}
+
+function findAncestor(parent: Node, isJSDoc: any): JSDoc {
+    throw new Error("Function not implemented.");
+}
+
+/** @internal */
+export function getLocalSymbolForExportDefault(symbol: Symbol) {
+    if (!symbol.declarations) return undefined;
+    for (const decl of symbol.declarations) {
+        if (decl.localSymbol) return decl.localSymbol;
+    }
+    return undefined;
+}
+
+/** @internal */
+export function getEffectiveContainerForJSDocTemplateTag(node: JSDocTemplateTag) {
+    // TODO
+    return undefined;
+    // if (isJSDoc(node.parent) && node.parent.tags) {
+    //     // A @template tag belongs to any @typedef, @callback, or @enum tags in the same comment block, if they exist.
+    //     const typeAlias = find(node.parent.tags, isJSDocTypeAlias);
+    //     if (typeAlias) {
+    //         return typeAlias;
+    //     }
+    // }
+    // // otherwise it belongs to the host it annotates
+    // return getHostSignatureFromJSDoc(node);
+}
+
+/** @internal */
+export function isTypeNodeKind(kind: SyntaxKind): kind is TypeNodeSyntaxKind {
+    return (kind >= SyntaxKind.FirstTypeNode && kind <= SyntaxKind.LastTypeNode)
+        //|| kind === SyntaxKind.AnyKeyword
+        || kind === SyntaxKind.UnknownKeyword
+        || kind === SyntaxKind.IntKeyword
+        || kind === SyntaxKind.FloatKeyword
+        || kind === SyntaxKind.ObjectKeyword
+        || kind === SyntaxKind.MixedKeyword
+        || kind === SyntaxKind.StringKeyword
+        || kind === SyntaxKind.MappingKeyword
+        || kind === SyntaxKind.VoidKeyword
+        || kind === SyntaxKind.ClosureKeywoord        
+        || kind === SyntaxKind.JSDocAllType
+        || kind === SyntaxKind.JSDocUnknownType
+        || kind === SyntaxKind.JSDocNullableType
+        || kind === SyntaxKind.JSDocNonNullableType
+        || kind === SyntaxKind.JSDocOptionalType
+        || kind === SyntaxKind.JSDocFunctionType
+        || kind === SyntaxKind.JSDocVariadicType;
+}
+
+/** @internal */
+export function createDiagnosticForNode(node: Node, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithLocation {
+    const sourceFile = getSourceFileOfNode(node);
+    return createDiagnosticForNodeInSourceFile(sourceFile, node, message, ...args);
+}
+
+/** @internal */
+export function createCompilerDiagnostic(message: DiagnosticMessage, ...args: DiagnosticArguments): Diagnostic {
+    let text = getLocaleSpecificMessage(message);
+
+    if (some(args)) {
+        text = formatStringFromArgs(text, args);
+    }
+
+    return {
+        file: undefined,
+        start: undefined,
+        length: undefined,
+
+        messageText: text,
+        category: message.category,
+        code: message.code,
+        reportsUnnecessary: message.reportsUnnecessary,
+        reportsDeprecated: message.reportsDeprecated,
+    };
+}
+
+/** @internal */
+export function isAccessExpression(node: Node): node is AccessExpression {
+    return node.kind === SyntaxKind.PropertyAccessExpression || node.kind === SyntaxKind.ElementAccessExpression;
+}
+
+/** @internal */
+export function isEntityNameExpression(node: Node): node is EntityNameExpression {
+    return node.kind === SyntaxKind.Identifier || isPropertyAccessEntityNameExpression(node);
+}
+
+/** @internal */
+export function isPropertyAccessEntityNameExpression(node: Node): node is PropertyAccessEntityNameExpression {
+    return isPropertyAccessExpression(node) && isIdentifier(node.name) && isEntityNameExpression(node.expression);
+}
+
+
+/** @internal */
+export function isAliasableExpression(e: Expression) {
+    return isEntityNameExpression(e) || isInlineClosureExpression(e);
+}
+
+/**
+ * Like {@link isVariableDeclarationInitializedToRequire} but allows things like `require("...").foo.bar` or `require("...")["baz"]`.
+ *
+ * @internal
+ */
+export function isVariableDeclarationInitializedToBareOrAccessedRequire(node: Node): node is VariableDeclarationInitializedTo</*RequireOrImportCall |*/ AccessExpression> {
+    return isVariableDeclarationInitializedWithRequireHelper(node, /*allowAccessedRequire*/ true);
+}
+
+function isVariableDeclarationInitializedWithRequireHelper(node: Node, allowAccessedRequire: boolean) {
+    return false;
+    // return isVariableDeclaration(node) &&
+    //     !!node.initializer &&
+    //     isRequireCall(allowAccessedRequire ? getLeftmostAccessExpression(node.initializer) : node.initializer, /*requireStringLiteralLikeArgument*/ true);
+}
+
+/** @internal */
+export function getCanonicalDiagnostic(message: DiagnosticMessage, ...args: string[]): CanonicalDiagnostic {
+    return {
+        code: message.code,
+        messageText: formatMessage(message, ...args),
+    };
+}
+
+/** @internal */
+export function formatMessage(message: DiagnosticMessage, ...args: DiagnosticArguments): string {
+    let text = getLocaleSpecificMessage(message);
+
+    if (some(args)) {
+        text = formatStringFromArgs(text, args);
+    }
+
+    return text;
+}
+
+/** @internal */
+// TODO: rename to `isExternalFile`?
+export function isExternalOrCommonJsModule(file: SourceFile): boolean {
+    return (file.externalModuleIndicator) !== undefined;
+}
+
+/** @internal */
+export function isExpressionNode(node: Node): boolean {
+    switch (node.kind) {
+        case SyntaxKind.SuperKeyword:
+        // case SyntaxKind.NullKeyword:
+        // case SyntaxKind.TrueKeyword:
+        // case SyntaxKind.FalseKeyword:
+        // case SyntaxKind.RegularExpressionLiteral:
+        case SyntaxKind.ArrayLiteralExpression:
+        case SyntaxKind.ObjectLiteralExpression:
+        case SyntaxKind.PropertyAccessExpression:
+        case SyntaxKind.ElementAccessExpression:
+        case SyntaxKind.CallExpression:
+        case SyntaxKind.NewExpression:        
+        case SyntaxKind.ParenthesizedExpression:
+        case SyntaxKind.FunctionExpression:
+        case SyntaxKind.ClassExpression:
+        case SyntaxKind.InlineClosureExpression:        
+        case SyntaxKind.PrefixUnaryExpression:
+        case SyntaxKind.PostfixUnaryExpression:
+        case SyntaxKind.BinaryExpression:
+        case SyntaxKind.ConditionalExpression:
+        case SyntaxKind.SpreadElement:        
+            return true;        
+        // case SyntaxKind.QualifiedName:
+        //     while (node.parent.kind === SyntaxKind.QualifiedName) {
+        //         node = node.parent;
+        //     }
+        //     return node.parent.kind === SyntaxKind.TypeQuery || isJSDocLinkLike(node.parent) || isJSDocNameReference(node.parent) || isJSDocMemberName(node.parent) || isJSXTagName(node);
+        case SyntaxKind.JSDocMemberName:
+            // while (isJSDocMemberName(node.parent)) {
+            //     node = node.parent;
+            // }
+            // return node.parent.kind === SyntaxKind.TypeQuery || isJSDocLinkLike(node.parent) || isJSDocNameReference(node.parent) || isJSDocMemberName(node.parent) || isJSXTagName(node);
+        // case SyntaxKind.PrivateIdentifier:
+        //     return isBinaryExpression(node.parent) && node.parent.left === node && node.parent.operatorToken.kind === SyntaxKind.InKeyword;
+        case SyntaxKind.Identifier:
+            // if (isJSDocLinkLike(node.parent) || isJSDocNameReference(node.parent) || isJSDocMemberName(node.parent) || isJSXTagName(node)) {
+            //     return true;
+            // }
+            // falls through
+
+        case SyntaxKind.IntLiteral:
+        case SyntaxKind.FloatLiteral:
+        case SyntaxKind.StringLiteral:        
+            return isInExpressionContext(node);
+        default:
+            return false;
+    }
+}
+
+
+/** @internal */
+export function isInExpressionContext(node: Node): boolean {
+    const { parent } = node;
+    switch (parent.kind) {
+        case SyntaxKind.VariableDeclaration:
+        case SyntaxKind.Parameter:
+        case SyntaxKind.PropertyDeclaration:
+        // case SyntaxKind.PropertySignature:
+        // case SyntaxKind.EnumMember:
+        case SyntaxKind.PropertyAssignment:
+        // case SyntaxKind.BindingElement:
+            return (parent as HasInitializer).initializer === node;
+        case SyntaxKind.ExpressionStatement:
+        case SyntaxKind.IfStatement:
+        case SyntaxKind.DoWhileStatement:
+        case SyntaxKind.WhileStatement:
+        case SyntaxKind.ReturnStatement:        
+        case SyntaxKind.SwitchStatement:
+        case SyntaxKind.CaseClause:        
+            return (parent as ExpressionStatement).expression === node;
+        case SyntaxKind.ForStatement:
+            const forStatement = parent as ForStatement;
+            return (forStatement.initializer === node && forStatement.initializer.kind !== SyntaxKind.VariableDeclarationList) ||
+                forStatement.condition === node ||
+                forStatement.incrementor === node;
+        case SyntaxKind.ForEachStatement:        
+            Debug.fail("TODO Implement me - forEachStatement");
+            // const forInOrOfStatement = parent as ForEachStatement;
+            // return (forInOrOfStatement.initializer === node && forInOrOfStatement.initializer.kind !== SyntaxKind.VariableDeclarationList) ||
+            //     forInOrOfStatement.expression === node;        
+        case SyntaxKind.ShorthandPropertyAssignment:
+            return (parent as ShorthandPropertyAssignment).objectAssignmentInitializer === node;        
+        default:
+            return isExpressionNode(parent);
+    }
+}
+
+/** @internal */
+export function isValidTypeOnlyAliasUseSite(useSite: Node): boolean {
+    return !!(useSite.flags & NodeFlags.Ambient)                        
+        || !(isExpressionNode(useSite) || isShorthandPropertyNameUseSite(useSite));
+}
+
+function isShorthandPropertyNameUseSite(useSite: Node) {
+    return isIdentifier(useSite) && isShorthandPropertyAssignment(useSite.parent) && useSite.parent.name === useSite;
+}
+
+/** @internal */
+export function isWriteOnlyAccess(node: Node) {
+    return accessKind(node) === AccessKind.Write;
+}
+
+/** @internal */
+export function isWriteAccess(node: Node) {
+    return accessKind(node) !== AccessKind.Read;
+}
+
+const enum AccessKind {
+    /** Only reads from a variable. */
+    Read,
+    /** Only writes to a variable without ever reading it. E.g.: `x=1;`. */
+    Write,
+    /** Reads from and writes to a variable. E.g.: `f(x++);`, `x/=1`. */
+    ReadWrite,
+}
+function accessKind(node: Node): AccessKind {
+    const { parent } = node;
+
+    switch (parent?.kind) {
+        case SyntaxKind.ParenthesizedExpression:
+            return accessKind(parent);
+        case SyntaxKind.PostfixUnaryExpression:
+        case SyntaxKind.PrefixUnaryExpression:
+            const { operator } = parent as PrefixUnaryExpression | PostfixUnaryExpression;
+            return operator === SyntaxKind.PlusPlusToken || operator === SyntaxKind.MinusMinusToken ? AccessKind.ReadWrite : AccessKind.Read;
+        case SyntaxKind.BinaryExpression:
+            const { left, operatorToken } = parent as BinaryExpression;
+            return left === node && isAssignmentOperator(operatorToken.kind) ?
+                operatorToken.kind === SyntaxKind.EqualsToken ? AccessKind.Write : AccessKind.ReadWrite
+                : AccessKind.Read;
+        case SyntaxKind.PropertyAccessExpression:
+            return (parent as PropertyAccessExpression).name !== node ? AccessKind.Read : accessKind(parent);
+        case SyntaxKind.PropertyAssignment: {
+            const parentAccess = accessKind(parent.parent);
+            // In `({ x: varname }) = { x: 1 }`, the left `x` is a read, the right `x` is a write.
+            return node === (parent as PropertyAssignment).name ? reverseAccessKind(parentAccess) : parentAccess;
+        }
+        case SyntaxKind.ShorthandPropertyAssignment:
+            // Assume it's the local variable being accessed, since we don't check public properties for --noUnusedLocals.
+            return node === (parent as ShorthandPropertyAssignment).objectAssignmentInitializer ? AccessKind.Read : accessKind(parent.parent);
+        case SyntaxKind.ArrayLiteralExpression:
+            return accessKind(parent);
+        default:
+            return AccessKind.Read;
+    }
+}
+function reverseAccessKind(a: AccessKind): AccessKind {
+    switch (a) {
+        case AccessKind.Read:
+            return AccessKind.Write;
+        case AccessKind.Write:
+            return AccessKind.Read;
+        case AccessKind.ReadWrite:
+            return AccessKind.ReadWrite;
+        default:
+            return Debug.assertNever(a);
+    }
+}
+
+/** @internal */
+export function canHaveJSDoc(node: Node): node is HasJSDoc {
+    switch (node.kind) {
+        case SyntaxKind.InlineClosureExpression:
+        case SyntaxKind.BinaryExpression:
+        case SyntaxKind.Block:
+        case SyntaxKind.BreakStatement:
+        case SyntaxKind.CaseClause:
+        // case SyntaxKind.CallSignature:
+        // case SyntaxKind.ClassDeclaration:
+        case SyntaxKind.ClassExpression:        
+        case SyntaxKind.ContinueStatement:        
+        case SyntaxKind.DoWhileStatement:
+        case SyntaxKind.ElementAccessExpression:
+        case SyntaxKind.EmptyStatement:
+        case SyntaxKind.EndOfFileToken:        
+        case SyntaxKind.ExpressionStatement:
+        case SyntaxKind.ForEachStatement:        
+        case SyntaxKind.ForStatement:
+        case SyntaxKind.FunctionDeclaration:
+        case SyntaxKind.FunctionExpression:
+        // case SyntaxKind.FunctionType:        
+        case SyntaxKind.Identifier:
+        case SyntaxKind.IfStatement:        
+        case SyntaxKind.IndexSignature:        
+        case SyntaxKind.JSDocFunctionType:
+        case SyntaxKind.JSDocSignature:        
+        // case SyntaxKind.MethodDeclaration:
+        // case SyntaxKind.MethodSignature:        
+        case SyntaxKind.ObjectLiteralExpression:
+        case SyntaxKind.Parameter:
+        case SyntaxKind.ParenthesizedExpression:
+        case SyntaxKind.PropertyAccessExpression:
+        case SyntaxKind.PropertyAssignment:
+        case SyntaxKind.PropertyDeclaration:
+        //case SyntaxKind.PropertySignature:
+        case SyntaxKind.ReturnStatement:
+        //case SyntaxKind.SemicolonClassElement:        
+        case SyntaxKind.ShorthandPropertyAssignment:
+        //case SyntaxKind.SpreadAssignment:
+        case SyntaxKind.SwitchStatement:        
+        case SyntaxKind.TypeParameter:
+        case SyntaxKind.VariableDeclaration:
+        case SyntaxKind.VariableStatement:
+        case SyntaxKind.WhileStatement:        
+            return true;
+        default:
+            return false;
+    }
+}
+
+
+/**
+ * This function checks multiple locations for JSDoc comments that apply to a host node.
+ * At each location, the whole comment may apply to the node, or only a specific tag in
+ * the comment. In the first case, location adds the entire {@link JSDoc} object. In the
+ * second case, it adds the applicable {@link JSDocTag}.
+ *
+ * For example, a JSDoc comment before a parameter adds the entire {@link JSDoc}. But a
+ * `@param` tag on the parent function only adds the {@link JSDocTag} for the `@param`.
+ *
+ * ```ts
+ * /** JSDoc will be returned for `a` *\/
+ * const a = 0
+ * /**
+ *  * Entire JSDoc will be returned for `b`
+ *  * @param c JSDocTag will be returned for `c`
+ *  *\/
+ * function b(/** JSDoc will be returned for `c` *\/ c) {}
+ * ```
+ */
+export function getJSDocCommentsAndTags(hostNode: Node): readonly (JSDoc | JSDocTag)[];
+/** @internal separate signature so that stripInternal can remove noCache from the public API */
+// eslint-disable-next-line @typescript-eslint/unified-signatures
+export function getJSDocCommentsAndTags(hostNode: Node, noCache?: boolean): readonly (JSDoc | JSDocTag)[];
+export function getJSDocCommentsAndTags(hostNode: Node, noCache?: boolean): readonly (JSDoc | JSDocTag)[] {
+    console.warn("TODO: Implement me - getJSDocCommentsAndTags");
+    return emptyArray;
+    // let result: (JSDoc | JSDocTag)[] | undefined;
+    // // Pull parameter comments from declaring function as well
+    // if (isVariableLike(hostNode) && hasInitializer(hostNode) && hasJSDocNodes(hostNode.initializer!)) {
+    //     result = addRange(result, filterOwnedJSDocTags(hostNode, hostNode.initializer.jsDoc!));
+    // }
+
+    // let node: Node | undefined = hostNode;
+    // while (node && node.parent) {
+    //     if (hasJSDocNodes(node)) {
+    //         result = addRange(result, filterOwnedJSDocTags(hostNode, node.jsDoc!));
+    //     }
+
+    //     if (node.kind === SyntaxKind.Parameter) {
+    //         result = addRange(result, (noCache ? getJSDocParameterTagsNoCache : getJSDocParameterTags)(node as ParameterDeclaration));
+    //         break;
+    //     }
+    //     if (node.kind === SyntaxKind.TypeParameter) {
+    //         result = addRange(result, (noCache ? getJSDocTypeParameterTagsNoCache : getJSDocTypeParameterTags)(node as TypeParameterDeclaration));
+    //         break;
+    //     }
+    //     node = getNextJSDocCommentLocation(node);
+    // }
+    // return result || emptyArray;
+}
+
+
+/** @internal */
+export function isAssignmentExpression(node: Node, excludeCompoundAssignment: true): node is AssignmentExpression<EqualsToken>;
+/** @internal */
+export function isAssignmentExpression(node: Node, excludeCompoundAssignment?: false): node is AssignmentExpression<AssignmentOperatorToken>;
+/** @internal */
+export function isAssignmentExpression(node: Node, excludeCompoundAssignment?: boolean): node is AssignmentExpression<AssignmentOperatorToken> {
+    return isBinaryExpression(node)
+        && (excludeCompoundAssignment
+            ? node.operatorToken.kind === SyntaxKind.EqualsToken
+            : isAssignmentOperator(node.operatorToken.kind))
+        && isLeftHandSideExpression(node.left);
+}
+
+
+// Gets the nearest enclosing block scope container that has the provided node
+// as a descendant, that is not the provided node.
+/** @internal */
+export function getEnclosingBlockScopeContainer(node: Node): Node {
+    return findAncestor(node.parent, current => isBlockScope(current, current.parent))!;
+}
+
+/** @internal */
+export function isFunctionLikeOrClassStaticBlockDeclaration(node: Node | undefined): node is SignatureDeclaration {
+    return !!node && (isFunctionLikeKind(node.kind));
+}
+
+/** @internal */
+export function isBlockScope(node: Node, parentNode: Node | undefined): boolean {
+    switch (node.kind) {
+        case SyntaxKind.SourceFile:
+        case SyntaxKind.CaseBlock:
+        case SyntaxKind.CatchClause:        
+        case SyntaxKind.ForStatement:
+        case SyntaxKind.ForEachStatement:        
+        //case SyntaxKind.MethodDeclaration:        
+        case SyntaxKind.FunctionDeclaration:
+        case SyntaxKind.FunctionExpression:
+        case SyntaxKind.InlineClosureExpression:
+        case SyntaxKind.PropertyDeclaration:        
+            return true;
+
+        case SyntaxKind.Block:
+            // function block is not considered block-scope container
+            // see comment in binder.ts: bind(...), case for SyntaxKind.Block
+            return !isFunctionLikeOrClassStaticBlockDeclaration(parentNode);
+    }
+
+    return false;
+}
+
+
+/** @internal */
+export function nodeStartsNewLexicalEnvironment(node: Node): boolean {
+    const kind = node.kind;
+    return kind === SyntaxKind.FunctionExpression
+        || kind === SyntaxKind.FunctionDeclaration
+        || kind === SyntaxKind.InlineClosureExpression
+        //|| kind === SyntaxKind.MethodDeclaration        
+        || kind === SyntaxKind.SourceFile;
+}
+
+/** @internal */
+export function getAncestor(node: Node | undefined, kind: SyntaxKind): Node | undefined {
+    while (node) {
+        if (node.kind === kind) {
+            return node;
+        }
+        node = node.parent;
+    }
+    return undefined;
+}
+
+/** @internal */
+export const enum AssignmentKind {
+    None,
+    Definite,
+    Compound,
+}
+
+/** @internal */
+export function getAssignmentTargetKind(node: Node): AssignmentKind {
+    const target = getAssignmentTarget(node);
+    if (!target) {
+        return AssignmentKind.None;
+    }
+    switch (target.kind) {
+        case SyntaxKind.BinaryExpression:
+            const binaryOperator = target.operatorToken.kind;
+            return binaryOperator === SyntaxKind.EqualsToken || isLogicalOrCoalescingAssignmentOperator(binaryOperator) ?
+                AssignmentKind.Definite :
+                AssignmentKind.Compound;
+        case SyntaxKind.PrefixUnaryExpression:
+        case SyntaxKind.PostfixUnaryExpression:
+            return AssignmentKind.Compound;
+        case SyntaxKind.ForEachStatement:        
+            return AssignmentKind.Definite;
+    }
+}
+
+function isCompoundLikeAssignment(assignment: AssignmentExpression<EqualsToken>): boolean {
+    const right = skipParentheses(assignment.right);
+    return right.kind === SyntaxKind.BinaryExpression && isShiftOperatorOrHigher((right as BinaryExpression).operatorToken.kind);
+}
+
+
+function isExponentiationOperator(kind: SyntaxKind): kind is ExponentiationOperator {
+    return kind === SyntaxKind.AsteriskAsteriskToken;
+}
+
+function isMultiplicativeOperator(kind: SyntaxKind): kind is MultiplicativeOperator {
+    return kind === SyntaxKind.AsteriskToken
+        || kind === SyntaxKind.SlashToken
+        || kind === SyntaxKind.PercentToken;
+}
+
+function isMultiplicativeOperatorOrHigher(kind: SyntaxKind): kind is MultiplicativeOperatorOrHigher {
+    return isExponentiationOperator(kind)
+        || isMultiplicativeOperator(kind);
+}
+
+function isAdditiveOperator(kind: SyntaxKind): kind is AdditiveOperator {
+    return kind === SyntaxKind.PlusToken
+        || kind === SyntaxKind.MinusToken;
+}
+
+function isAdditiveOperatorOrHigher(kind: SyntaxKind): kind is AdditiveOperatorOrHigher {
+    return isAdditiveOperator(kind)
+        || isMultiplicativeOperatorOrHigher(kind);
+}
+
+function isShiftOperator(kind: SyntaxKind): kind is ShiftOperator {
+    return kind === SyntaxKind.LessThanLessThanToken
+        || kind === SyntaxKind.GreaterThanGreaterThanToken
+        || kind === SyntaxKind.GreaterThanGreaterThanGreaterThanToken;
+}
+
+/** @internal */
+export function isShiftOperatorOrHigher(kind: SyntaxKind): kind is ShiftOperatorOrHigher {
+    return isShiftOperator(kind)
+        || isAdditiveOperatorOrHigher(kind);
+}
+
+function isRelationalOperator(kind: SyntaxKind): kind is RelationalOperator {
+    return kind === SyntaxKind.LessThanToken
+        || kind === SyntaxKind.LessThanEqualsToken
+        || kind === SyntaxKind.GreaterThanToken
+        || kind === SyntaxKind.GreaterThanEqualsToken        
+        || kind === SyntaxKind.InKeyword;
+}
+
+function isRelationalOperatorOrHigher(kind: SyntaxKind): kind is RelationalOperatorOrHigher {
+    return isRelationalOperator(kind)
+        || isShiftOperatorOrHigher(kind);
+}
+
+function isEqualityOperator(kind: SyntaxKind): kind is EqualityOperator {
+    return kind === SyntaxKind.EqualsEqualsToken
+        || kind === SyntaxKind.EqualsEqualsEqualsToken
+        || kind === SyntaxKind.ExclamationEqualsToken
+        || kind === SyntaxKind.ExclamationEqualsEqualsToken;
+}
+
+function isEqualityOperatorOrHigher(kind: SyntaxKind): kind is EqualityOperatorOrHigher {
+    return isEqualityOperator(kind)
+        || isRelationalOperatorOrHigher(kind);
+}
+
+function isBitwiseOperator(kind: SyntaxKind): kind is BitwiseOperator {
+    return kind === SyntaxKind.AmpersandToken
+        || kind === SyntaxKind.BarToken
+        || kind === SyntaxKind.CaretToken;
+}
+
+function isBitwiseOperatorOrHigher(kind: SyntaxKind): kind is BitwiseOperatorOrHigher {
+    return isBitwiseOperator(kind)
+        || isEqualityOperatorOrHigher(kind);
+}
+
+// NOTE: The version in utilities includes ExclamationToken, which is not a binary operator.
+function isLogicalOperator(kind: SyntaxKind): kind is LogicalOperator {
+    return kind === SyntaxKind.AmpersandAmpersandToken
+        || kind === SyntaxKind.BarBarToken;
+}
+
+function isLogicalOperatorOrHigher(kind: SyntaxKind): kind is LogicalOperatorOrHigher {
+    return isLogicalOperator(kind)
+        || isBitwiseOperatorOrHigher(kind);
+}
+
+function isAssignmentOperatorOrHigher(kind: SyntaxKind): kind is AssignmentOperatorOrHigher {
+    return isLogicalOperatorOrHigher(kind)
+        || isAssignmentOperator(kind);
+}
+
+function isBinaryOperator(kind: SyntaxKind): kind is BinaryOperator {
+    return isAssignmentOperatorOrHigher(kind)
+        || kind === SyntaxKind.CommaToken;
+}
+
+export function isBinaryOperatorToken(node: Node): node is BinaryOperatorToken {
+    return isBinaryOperator(node.kind);
+}
+
+
+/** @internal */
+export function isInCompoundLikeAssignment(node: Node): boolean {
+    const target = getAssignmentTarget(node);
+    return !!target && isAssignmentExpression(target, /*excludeCompoundAssignment*/ true) && isCompoundLikeAssignment(target);
+}
+
+/** @internal */
+export function canHaveFlowNode(node: Node): node is HasFlowNode {
+    if (node.kind >= SyntaxKind.FirstStatement && node.kind <= SyntaxKind.LastStatement) {
+        return true;
+    }
+
+    switch (node.kind) {
+        case SyntaxKind.Identifier:        
+        case SyntaxKind.SuperKeyword:        
+        case SyntaxKind.ElementAccessExpression:
+        case SyntaxKind.PropertyAccessExpression:
+        case SyntaxKind.BindingElement:
+        case SyntaxKind.FunctionExpression:
+        case SyntaxKind.InlineClosureExpression:        
+            return true;
+        default:
+            return false;
+    }
+}
+
+/** @internal */
+export function getObjectFlags(type: Type): ObjectFlags {
+    return type.flags & TypeFlags.ObjectFlagsType ? (type as ObjectFlagsType).objectFlags : 0;
+}
+
+
+/**
+ * Bypasses immutability and directly sets the `flags` property of a `Node`.
+ *
+ * @internal
+ */
+export function setNodeFlags<T extends Node>(node: T, newFlags: NodeFlags): T;
+/** @internal */
+export function setNodeFlags<T extends Node>(node: T | undefined, newFlags: NodeFlags): T | undefined;
+/** @internal */
+export function setNodeFlags<T extends Node>(node: T | undefined, newFlags: NodeFlags): T | undefined {
+    if (node) {
+        (node as Mutable<T>).flags = newFlags;
+    }
+    return node;
+}

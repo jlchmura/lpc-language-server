@@ -661,3 +661,291 @@ export function concatenate<T>(array1: readonly T[] | undefined, array2: readonl
 export function clear(array: unknown[]): void {
     array.length = 0;
 }
+
+
+/**
+ * Works like Array.prototype.find, returning `undefined` if no element satisfying the predicate is found.
+ *
+ * @internal
+ */
+export function find<T, U extends T>(array: readonly T[] | undefined, predicate: (element: T, index: number) => element is U, startIndex?: number): U | undefined;
+/** @internal */
+export function find<T>(array: readonly T[] | undefined, predicate: (element: T, index: number) => boolean, startIndex?: number): T | undefined;
+/** @internal */
+export function find<T>(array: readonly T[] | undefined, predicate: (element: T, index: number) => boolean, startIndex?: number): T | undefined {
+    if (array === undefined) return undefined;
+    for (let i = startIndex ?? 0; i < array.length; i++) {
+        const value = array[i];
+        if (predicate(value, i)) {
+            return value;
+        }
+    }
+    return undefined;
+}
+
+
+/**
+ * Do nothing and return undefined
+ *
+ * @internal
+ */
+export function returnUndefined(): undefined {
+    return undefined;
+}
+
+/**
+ * Do nothing and return false
+ *
+ * @internal
+ */
+export function returnFalse(): false {
+    return false;
+}
+
+/**
+ * Do nothing and return true
+ *
+ * @internal
+ */
+export function returnTrue(): true {
+    return true;
+}
+
+/**
+ * Tests whether a value is string
+ *
+ * @internal
+ */
+export function isString(text: unknown): text is string {
+    return typeof text === "string";
+}
+/** @internal */
+export function isNumber(x: unknown): x is number {
+    return typeof x === "number";
+}
+
+/** @internal */
+export function findLast<T, U extends T>(array: readonly T[] | undefined, predicate: (element: T, index: number) => element is U, startIndex?: number): U | undefined;
+/** @internal */
+export function findLast<T>(array: readonly T[] | undefined, predicate: (element: T, index: number) => boolean, startIndex?: number): T | undefined;
+/** @internal */
+export function findLast<T>(array: readonly T[] | undefined, predicate: (element: T, index: number) => boolean, startIndex?: number): T | undefined {
+    if (array === undefined) return undefined;
+    for (let i = startIndex ?? array.length - 1; i >= 0; i--) {
+        const value = array[i];
+        if (predicate(value, i)) {
+            return value;
+        }
+    }
+    return undefined;
+}
+
+/** @internal */
+export function mapDefined<T, U>(array: readonly T[] | undefined, mapFn: (x: T, i: number) => U | undefined): U[] {
+    const result: U[] = [];
+    if (array !== undefined) {
+        for (let i = 0; i < array.length; i++) {
+            const mapped = mapFn(array[i], i);
+            if (mapped !== undefined) {
+                result.push(mapped);
+            }
+        }
+    }
+    return result;
+}
+
+/**
+ * Shims `Array.from`.
+ *
+ * @internal
+ */
+export function arrayFrom<T, U>(iterator: Iterable<T>, map: (t: T) => U): U[];
+/** @internal */
+export function arrayFrom<T>(iterator: Iterable<T>): T[];
+/** @internal */
+export function arrayFrom<T, U>(iterator: Iterable<T>, map?: (t: T) => U): (T | U)[] {
+    const result: (T | U)[] = [];
+    for (const value of iterator) {
+        result.push(map ? map(value) : value);
+    }
+    return result;
+}
+
+
+/**
+ * Given a name and a list of names that are *not* equal to the name, return a spelling suggestion if there is one that is close enough.
+ * Names less than length 3 only check for case-insensitive equality.
+ *
+ * find the candidate with the smallest Levenshtein distance,
+ *    except for candidates:
+ *      * With no name
+ *      * Whose length differs from the target name by more than 0.34 of the length of the name.
+ *      * Whose levenshtein distance is more than 0.4 of the length of the name
+ *        (0.4 allows 1 substitution/transposition for every 5 characters,
+ *         and 1 insertion/deletion at 3 characters)
+ *
+ * @internal
+ */
+export function getSpellingSuggestion<T>(name: string, candidates: Iterable<T>, getName: (candidate: T) => string | undefined): T | undefined {
+    const maximumLengthDifference = Math.max(2, Math.floor(name.length * 0.34));
+    let bestDistance = Math.floor(name.length * 0.4) + 1; // If the best result is worse than this, don't bother.
+    let bestCandidate: T | undefined;
+    for (const candidate of candidates) {
+        const candidateName = getName(candidate);
+        if (candidateName !== undefined && Math.abs(candidateName.length - name.length) <= maximumLengthDifference) {
+            if (candidateName === name) {
+                continue;
+            }
+            // Only consider candidates less than 3 characters long when they differ by case.
+            // Otherwise, don't bother, since a user would usually notice differences of a 2-character name.
+            if (candidateName.length < 3 && candidateName.toLowerCase() !== name.toLowerCase()) {
+                continue;
+            }
+
+            const distance = levenshteinWithMax(name, candidateName, bestDistance - 0.1);
+            if (distance === undefined) {
+                continue;
+            }
+
+            Debug.assert(distance < bestDistance); // Else `levenshteinWithMax` should return undefined
+            bestDistance = distance;
+            bestCandidate = candidate;
+        }
+    }
+    return bestCandidate;
+}
+
+
+function levenshteinWithMax(s1: string, s2: string, max: number): number | undefined {
+    let previous = new Array(s2.length + 1);
+    let current = new Array(s2.length + 1);
+    /** Represents any value > max. We don't care about the particular value. */
+    const big = max + 0.01;
+
+    for (let i = 0; i <= s2.length; i++) {
+        previous[i] = i;
+    }
+
+    for (let i = 1; i <= s1.length; i++) {
+        const c1 = s1.charCodeAt(i - 1);
+        const minJ = Math.ceil(i > max ? i - max : 1);
+        const maxJ = Math.floor(s2.length > max + i ? max + i : s2.length);
+        current[0] = i;
+        /** Smallest value of the matrix in the ith column. */
+        let colMin = i;
+        for (let j = 1; j < minJ; j++) {
+            current[j] = big;
+        }
+        for (let j = minJ; j <= maxJ; j++) {
+            // case difference should be significantly cheaper than other differences
+            const substitutionDistance = s1[i - 1].toLowerCase() === s2[j - 1].toLowerCase()
+                ? (previous[j - 1] + 0.1)
+                : (previous[j - 1] + 2);
+            const dist = c1 === s2.charCodeAt(j - 1)
+                ? previous[j - 1]
+                : Math.min(/*delete*/ previous[j] + 1, /*insert*/ current[j - 1] + 1, /*substitute*/ substitutionDistance);
+            current[j] = dist;
+            colMin = Math.min(colMin, dist);
+        }
+        for (let j = maxJ + 1; j <= s2.length; j++) {
+            current[j] = big;
+        }
+        if (colMin > max) {
+            // Give up -- everything in this column is > max and it can't get better in future columns.
+            return undefined;
+        }
+
+        const temp = previous;
+        previous = current;
+        current = temp;
+    }
+
+    const res = previous[s2.length];
+    return res > max ? undefined : res;
+}
+
+
+
+/**
+ * Iterates through `array` by index and performs the callback on each element of array until the callback
+ * returns a falsey value, then returns false.
+ * If no such value is found, the callback is applied to each element of array and `true` is returned.
+ *
+ * @internal
+ */
+export function every<T, U extends T>(array: readonly T[], callback: (element: T, index: number) => element is U): array is readonly U[];
+/** @internal */
+export function every<T, U extends T>(array: readonly T[] | undefined, callback: (element: T, index: number) => element is U): array is readonly U[] | undefined;
+/** @internal */
+export function every<T>(array: readonly T[] | undefined, callback: (element: T, index: number) => boolean): boolean;
+export function every<T>(array: readonly T[] | undefined, callback: (element: T, index: number) => boolean): boolean {
+    if (array !== undefined) {
+        for (let i = 0; i < array.length; i++) {
+            if (!callback(array[i], i)) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+
+/**
+ * Maps an array. If the mapped value is an array, it is spread into the result.
+ *
+ * @param array The array to map.
+ * @param mapfn The callback used to map the result into one or more values.
+ *
+ * @internal
+ */
+export function flatMap<T, U>(array: readonly T[] | undefined, mapfn: (x: T, i: number) => U | readonly U[] | undefined): readonly U[] {
+    let result: U[] | undefined;
+    if (array !== undefined) {
+        for (let i = 0; i < array.length; i++) {
+            const v = mapfn(array[i], i);
+            if (v) {
+                if (isArray(v)) {
+                    result = addRange(result, v);
+                }
+                else {
+                    result = append(result, v);
+                }
+            }
+        }
+    }
+    return result ?? emptyArray;
+}
+
+
+/**
+ * Appends a value to an array, returning the array.
+ *
+ * @param to The array to which `value` is to be appended. If `to` is `undefined`, a new array
+ * is created if `value` was appended.
+ * @param value The value to append to the array. If `value` is `undefined`, nothing is
+ * appended.
+ *
+ * @internal
+ */
+export function append<TArray extends any[] | undefined, TValue extends NonNullable<TArray>[number] | undefined>(to: TArray, value: TValue): [undefined, undefined] extends [TArray, TValue] ? TArray : NonNullable<TArray>[number][];
+/** @internal */
+export function append<T>(to: T[], value: T | undefined): T[];
+/** @internal */
+export function append<T>(to: T[] | undefined, value: T): T[];
+/** @internal */
+export function append<T>(to: T[] | undefined, value: T | undefined): T[] | undefined;
+/** @internal */
+export function append<T>(to: T[], value: T | undefined): void;
+/** @internal */
+export function append<T>(to: T[] | undefined, value: T | undefined): T[] | undefined {
+    if (value === undefined) return to as T[];
+    if (to === undefined) return [value];
+    to.push(value);
+    return to;
+}
+
+/** @internal */
+export function tryCast<TOut extends TIn, TIn = any>(value: TIn | undefined, test: (value: TIn) => value is TOut): TOut | undefined {
+    return value !== undefined && test(value) ? value : undefined;
+}
