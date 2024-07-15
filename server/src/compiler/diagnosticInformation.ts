@@ -25,4 +25,10 @@ export const Diagnostics = {
     Unreachable_code_detected: diag(7027, DiagnosticCategory.Error, "Unreachable_code_detected_7027", "Unreachable code detected.", /*reportsUnnecessary*/ true),
     _0_is_declared_but_its_value_is_never_read: diag(6133, DiagnosticCategory.Error, "_0_is_declared_but_its_value_is_never_read_6133", "'{0}' is declared but its value is never read.", /*reportsUnnecessary*/ true),
     All_variables_are_unused: diag(6199, DiagnosticCategory.Error, "All_variables_are_unused_6199", "All variables are unused.", /*reportsUnnecessary*/ true),
+    A_function_returning_never_cannot_have_a_reachable_end_point: diag(2534, DiagnosticCategory.Error, "A_function_returning_never_cannot_have_a_reachable_end_point_2534", "A function returning 'never' cannot have a reachable end point."),
+    A_function_whose_declared_type_is_neither_undefined_void_nor_any_must_return_a_value: diag(2355, DiagnosticCategory.Error, "A_function_whose_declared_type_is_neither_undefined_void_nor_any_must_return_a_value_2355", "A function whose declared type is neither 'undefined', 'void', nor 'any' must return a value."),
+    Function_lacks_ending_return_statement_and_return_type_does_not_include_undefined: diag(2366, DiagnosticCategory.Error, "Function_lacks_ending_return_statement_and_return_type_does_not_include_undefined_2366", "Function lacks ending return statement and return type does not include 'undefined'."),
+    Not_all_code_paths_return_a_value: diag(7030, DiagnosticCategory.Error, "Not_all_code_paths_return_a_value_7030", "Not all code paths return a value."),
+    A_0_parameter_must_be_the_first_parameter: diag(2680, DiagnosticCategory.Error, "A_0_parameter_must_be_the_first_parameter_2680", "A '{0}' parameter must be the first parameter."),
+    A_rest_parameter_must_be_of_an_array_type: diag(2370, DiagnosticCategory.Error, "A_rest_parameter_must_be_of_an_array_type_2370", "A rest parameter must be of an array type."),
 }

@@ -999,6 +999,7 @@ export interface CompilerOptions {
     noCheck?: boolean;
     noUnusedLocals?: boolean;
     noUnusedParameters?: boolean;
+    noImplicitReturns?: boolean;
 }
 
 export const enum OuterExpressionKinds {
@@ -1295,7 +1296,7 @@ export type HasModifiers =
     // | ConstructorDeclaration
     // | GetAccessorDeclaration
     // | SetAccessorDeclaration
-    // | IndexSignatureDeclaration
+    | IndexSignatureDeclaration
     | FunctionExpression
     // | ArrowFunction
     // | ClassExpression
@@ -2789,7 +2790,12 @@ export interface JSDocSignature extends JSDocType, Declaration, JSDocContainer, 
     // TODO
     // readonly typeParameters?: readonly JSDocTemplateTag[];
     // readonly parameters: readonly JSDocParameterTag[];
-    // readonly type: JSDocReturnTag | undefined;
+    readonly type: JSDocReturnTag | undefined;
+}
+
+export interface JSDocReturnTag extends JSDocTag {
+    readonly kind: SyntaxKind.JSDocReturnTag;
+    readonly typeExpression?: JSDocTypeExpression;
 }
 
 

@@ -1,4 +1,4 @@
-import { ArrayBindingElement, AssignmentDeclarationKind, BinaryExpression, BindingPattern, CallExpression, CallLikeExpression, canHaveJSDoc, Debug, Declaration, DeclarationName, emptyArray, Expression, find, flatMap, ForEachStatement, FunctionLikeDeclaration, getAssignmentDeclarationKind, getJSDocCommentsAndTags, HasLocals, HasModifiers, hasProperty, Identifier, isBinaryExpression, isBlock, isFunctionExpression, isIdentifier, isInlineClosureExpression, isJSDoc, isJSDocDeprecatedTag, isSourceFile, isTypeNodeKind, isVariableDeclaration, IterationStatement, JSDocDeprecatedTag, JSDocTag, LeftHandSideExpression, NamedDeclaration, Node, NodeArray, NodeFlags, OuterExpressionKinds, ParameterDeclaration, SignatureDeclaration, skipOuterExpressions, Symbol, SyntaxKind, TypeNode } from "./_namespaces/lpc";
+import { ArrayBindingElement, AssignmentDeclarationKind, BinaryExpression, BindingPattern, Block, CallExpression, CallLikeExpression, canHaveJSDoc, Debug, Declaration, DeclarationName, emptyArray, Expression, find, flatMap, ForEachStatement, FunctionLikeDeclaration, getAssignmentDeclarationKind, getJSDocCommentsAndTags, HasLocals, HasModifiers, hasProperty, Identifier, isBinaryExpression, isBlock, isFunctionBlock, isFunctionExpression, isIdentifier, isInlineClosureExpression, isJSDoc, isJSDocDeprecatedTag, isSourceFile, isTypeNodeKind, isVariableDeclaration, IterationStatement, JSDocDeprecatedTag, JSDocTag, LeftHandSideExpression, NamedDeclaration, Node, NodeArray, NodeFlags, OuterExpressionKinds, ParameterDeclaration, SignatureDeclaration, skipOuterExpressions, Statement, Symbol, SyntaxKind, TypeNode } from "./_namespaces/lpc";
 
 /** @internal */
 export function isNodeArray<T extends Node>(array: readonly T[]): array is NodeArray<T> {
@@ -519,5 +519,56 @@ export function canHaveSymbol(node: Node): node is Declaration {
 /** @internal */
 export function isFunctionOrModuleBlock(node: Node): boolean {
     return isSourceFile(node) /*|| isModuleBlock(node)*/ || isBlock(node) && isFunctionLike(node.parent);
+}
+
+function isDeclarationStatementKind(kind: SyntaxKind) {
+    return kind === SyntaxKind.FunctionDeclaration
+        // || kind === SyntaxKind.MissingDeclaration
+        // || kind === SyntaxKind.ClassDeclaration
+        // || kind === SyntaxKind.InterfaceDeclaration
+        // || kind === SyntaxKind.TypeAliasDeclaration
+        // || kind === SyntaxKind.EnumDeclaration
+        // || kind === SyntaxKind.ModuleDeclaration
+        // || kind === SyntaxKind.ImportDeclaration
+        // || kind === SyntaxKind.ImportEqualsDeclaration
+        // || kind === SyntaxKind.ExportDeclaration
+        // || kind === SyntaxKind.ExportAssignment
+        // || kind === SyntaxKind.NamespaceExportDeclaration;
+        ;
+}
+
+function isBlockStatement(node: Node): node is Block {
+    if (node.kind !== SyntaxKind.Block) return false;
+    if (node.parent !== undefined) {
+        if (/*node.parent.kind === SyntaxKind.TryStatement ||*/ node.parent.kind === SyntaxKind.CatchClause) {
+            return false;
+        }
+    }
+    return !isFunctionBlock(node);
+}
+
+function isStatementKindButNotDeclarationKind(kind: SyntaxKind) {
+    return kind === SyntaxKind.BreakStatement
+        || kind === SyntaxKind.ContinueStatement
+        //|| kind === SyntaxKind.DebuggerStatement
+        || kind === SyntaxKind.DoWhileStatement
+        || kind === SyntaxKind.ExpressionStatement
+        || kind === SyntaxKind.EmptyStatement
+        || kind === SyntaxKind.ForEachStatement        
+        || kind === SyntaxKind.ForStatement
+        || kind === SyntaxKind.IfStatement
+        //|| kind === SyntaxKind.LabeledStatement
+        || kind === SyntaxKind.ReturnStatement
+        || kind === SyntaxKind.SwitchStatement        
+        || kind === SyntaxKind.VariableStatement
+        || kind === SyntaxKind.WhileStatement        
+        || kind === SyntaxKind.NotEmittedStatement;
+}
+
+export function isStatement(node: Node): node is Statement {
+    const kind = node.kind;
+    return isStatementKindButNotDeclarationKind(kind)
+        || isDeclarationStatementKind(kind)
+        || isBlockStatement(node);
 }
 
