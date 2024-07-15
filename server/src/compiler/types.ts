@@ -449,7 +449,7 @@ export const enum SyntaxKind {
     // Parse Tree Nodes
 
     // Signature Elements
-    TypeParameter,
+    TypeParameter,   // First Node
     Parameter,
     IndexSignature,
 
@@ -550,6 +550,13 @@ export const enum SyntaxKind {
     EmptyStatement,
     SwitchStatement, // LastStatement
 
+    LiteralType,
+    IndexedAccessType,
+
+    // Binding Pattern
+    ArrayBindingPattern,
+    BindingElement,
+
     // Expressions
     ConditionalExpression,
     BinaryExpression,
@@ -566,10 +573,7 @@ export const enum SyntaxKind {
     ObjectLiteralExpression,
     SpreadElement,
     PrefixUnaryExpression,
-
-    // Elements
-    BindingElement,
-
+    
     // Clauses
     CatchClause,
     CaseClause,
@@ -584,7 +588,8 @@ export const enum SyntaxKind {
     LastAssignment = CaretEqualsToken,
     SuperKeyword = ColonColonToken,
     FirstTypeNode = UnionType,
-    LastTypeNode = ConditionalType
+    LastTypeNode = ConditionalType,
+    FirstNode = TypeParameter,
 }
 
 // dprint-ignore
@@ -884,7 +889,9 @@ export type KeywordTypeSyntaxKind =
 export type TypeNodeSyntaxKind =
     | KeywordTypeSyntaxKind
     | SyntaxKind.UnionType
+    | SyntaxKind.IndexedAccessType
     | SyntaxKind.ArrayType
+    | SyntaxKind.LiteralType
     | SyntaxKind.TypeLiteral
     | SyntaxKind.JSDocTypeExpression
     | SyntaxKind.JSDocAllType
@@ -988,6 +995,7 @@ export interface NodeFactory {
 export interface CompilerOptions {
     allowUnreachableCode?: boolean;
     noFallthroughCasesInSwitch?: boolean;
+    noCheck?: boolean;
 }
 
 export const enum OuterExpressionKinds {
@@ -2255,6 +2263,13 @@ export interface JSDoc extends Node {
     readonly comment?: string | NodeArray<JSDocComment>;
 }
 
+export interface JSDocMemberName extends Node {
+    readonly kind: SyntaxKind.JSDocMemberName;
+    readonly left: EntityName | JSDocMemberName;
+    readonly right: Identifier;
+}
+
+
 export interface JSDocText extends Node {
     readonly kind: SyntaxKind.JSDocText;
     text: string;
@@ -3391,15 +3406,19 @@ export interface PropertyDeclaration extends ClassElement, JSDocContainer {
     readonly initializer?: Expression;           // Optional initializer
 }
 
-/**
- * @deprecated not used in LPC?
- */
-export interface BindingElement extends Node {
-    readonly kind: SyntaxKind.Unknown;
-    __BindingELementbrand: any;   
-    initializer: Expression | undefined;
+export interface BindingElement extends NamedDeclaration, FlowContainer {
+    readonly kind: SyntaxKind.BindingElement;
+    readonly parent: BindingPattern;
+    readonly propertyName?: PropertyName;        // Binding property name (in object binding pattern)
+    readonly dotDotDotToken?: DotDotDotToken;    // Present on rest element (in object binding pattern)
+    readonly name: BindingName;                  // Declared binding element name
+    readonly initializer?: Expression;           // Optional initializer
 }
 
+export interface LiteralTypeNode extends TypeNode {
+    readonly kind: SyntaxKind.LiteralType;
+    readonly literal: LiteralExpression | PrefixUnaryExpression;
+}
 
 export const enum SymbolFormatFlags {
     None                                    = 0,
@@ -3452,3 +3471,35 @@ export const enum RelationComparisonResult {
     ReportsMask         = ReportsUnmeasurable | ReportsUnreliable,
 }
 
+/** @internal */
+export type LazyNodeCheckFlags =
+    | NodeCheckFlags.SuperInstance
+    | NodeCheckFlags.SuperStatic
+    | NodeCheckFlags.MethodWithSuperPropertyAccessInAsync
+    | NodeCheckFlags.MethodWithSuperPropertyAssignmentInAsync
+    | NodeCheckFlags.ContainsSuperPropertyInStaticInitializer
+    | NodeCheckFlags.CaptureArguments
+    | NodeCheckFlags.ContainsCapturedBlockScopeBinding
+    | NodeCheckFlags.NeedsLoopOutParameter
+    | NodeCheckFlags.ContainsConstructorReference
+    | NodeCheckFlags.ConstructorReference
+    | NodeCheckFlags.CapturedBlockScopedBinding
+    | NodeCheckFlags.BlockScopedBindingInLoop
+    | NodeCheckFlags.LoopWithCapturedBlockScopedBinding;
+
+    
+export interface ArrayBindingPattern extends Node {
+    readonly kind: SyntaxKind.ArrayBindingPattern;
+    readonly parent: VariableDeclaration | ParameterDeclaration | BindingElement;
+    readonly elements: NodeArray<ArrayBindingElement>;
+}
+
+export type BindingPattern = ArrayBindingPattern;// | ObjectBindingPattern;
+
+export type ArrayBindingElement = BindingElement;
+
+export interface IndexedAccessTypeNode extends TypeNode {
+    readonly kind: SyntaxKind.IndexedAccessType;
+    readonly objectType: TypeNode;
+    readonly indexType: TypeNode;
+}

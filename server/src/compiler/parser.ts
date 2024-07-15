@@ -1,6 +1,6 @@
 import * as antlr from "antlr4ng";
 import * as parserCore from "../parser3/parser-core";
-import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock } from "./_namespaces/lpc";
+import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray } from "./_namespaces/lpc";
 import { ILpcConfig } from "../config-types";
 
 
@@ -1299,3 +1299,69 @@ export function forEachChild<T>(node: Node, cbNode: (node: Node) => T | undefine
     const fn = (forEachChildTable as Record<SyntaxKind, ForEachChildFunction<any>>)[node.kind];
     return fn === undefined ? undefined : fn(node, cbNode, cbNodes);
 }
+
+
+/**
+ * Invokes a callback for each child of the given node. The 'cbNode' callback is invoked for all child nodes
+ * stored in properties. If a 'cbNodes' callback is specified, it is invoked for embedded arrays; additionally,
+ * unlike `forEachChild`, embedded arrays are flattened and the 'cbNode' callback is invoked for each element.
+ *  If a callback returns a truthy value, iteration stops and that value is returned. Otherwise, undefined is returned.
+ *
+ * @param node a given node to visit its children
+ * @param cbNode a callback to be invoked for all child nodes
+ * @param cbNodes a callback to be invoked for embedded array
+ *
+ * @remarks Unlike `forEachChild`, `forEachChildRecursively` handles recursively invoking the traversal on each child node found,
+ * and while doing so, handles traversing the structure without relying on the callstack to encode the tree structure.
+ *
+ * @internal
+ */
+export function forEachChildRecursively<T>(rootNode: Node, cbNode: (node: Node, parent: Node) => T | "skip" | undefined, cbNodes?: (nodes: NodeArray<Node>, parent: Node) => T | "skip" | undefined): T | undefined {
+    const queue: (Node | NodeArray<Node>)[] = gatherPossibleChildren(rootNode);
+    const parents: Node[] = []; // tracks parent references for elements in queue
+    while (parents.length < queue.length) {
+        parents.push(rootNode);
+    }
+    while (queue.length !== 0) {
+        const current = queue.pop()!;
+        const parent = parents.pop()!;
+        if (isArray(current)) {
+            if (cbNodes) {
+                const res = cbNodes(current, parent);
+                if (res) {
+                    if (res === "skip") continue;
+                    return res;
+                }
+            }
+            for (let i = current.length - 1; i >= 0; --i) {
+                queue.push(current[i]);
+                parents.push(parent);
+            }
+        }
+        else {
+            const res = cbNode(current, parent);
+            if (res) {
+                if (res === "skip") continue;
+                return res;
+            }
+            if (current.kind >= SyntaxKind.FirstNode) {
+                // add children in reverse order to the queue, so popping gives the first child
+                for (const child of gatherPossibleChildren(current)) {
+                    queue.push(child);
+                    parents.push(current);
+                }
+            }
+        }
+    }
+}
+
+function gatherPossibleChildren(node: Node) {
+    const children: (Node | NodeArray<Node>)[] = [];
+    forEachChild(node, addWorkItem, addWorkItem); // By using a stack above and `unshift` here, we emulate a depth-first preorder traversal
+    return children;
+
+    function addWorkItem(n: Node | NodeArray<Node>) {
+        children.unshift(n);
+    }
+}
+

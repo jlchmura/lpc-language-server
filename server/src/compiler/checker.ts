@@ -1,4 +1,4 @@
-import {Type,Symbol, SymbolLinks, CancellationToken, createSymbolTable, Declaration, EmitTextWriter, ModifierFlags, Node, NodeFlags, objectAllocator, Scanner, Signature, SignatureKind, SymbolFlags, TypeChecker, TypeCheckerHost, TypeFormatFlags, TypeParameter, CheckFlags, TransientSymbol, TransientSymbolLinks, reduceLeft, bindSourceFile, SourceFile, Diagnostic, createDiagnosticCollection, concatenate, forEach, tracing, performance, NodeLinks, NodeCheckFlags, FlowNode, FlowType, clear, SyntaxKind, TracingNode, CallLikeExpression, CallExpression, isCallOrNewExpression, isBinaryExpression, Expression, SignatureDeclaration, SignatureFlags, emptyArray, TypeFlags, IntrinsicType, ObjectFlags, Debug, BinaryExpression, ObjectType, StructuredType, ResolvedType, SymbolTable, IndexInfo, Identifier, nodeIsMissing, createNameResolver, InternalSymbolName, SymbolId, some, DiagnosticMessage, DiagnosticArguments, createDiagnosticForNode, createCompilerDiagnostic, FunctionLikeDeclaration, PropertyDeclaration, isString, isIdentifier, Diagnostics, findLast, SymbolFormatFlags, isAccessExpression, isFunctionExpression, isAliasableExpression, PropertyAssignment, isVariableDeclarationInitializedToBareOrAccessedRequire, mapDefined, arrayFrom, getSpellingSuggestion, symbolName, startsWith, nodeIsSynthesized, declarationNameToString, getCanonicalDiagnostic, DiagnosticCategory, addRelatedInfo, ParameterDeclaration, BindingElement, isSourceFile, isExternalOrCommonJsModule, isBlockOrCatchScoped, length, every, isValidTypeOnlyAliasUseSite, isWriteOnlyAccess, getCombinedNodeFlags, DiagnosticWithLocation, getJSDocDeprecatedTag, findAncestor, isCallLikeExpression, isFunctionLike, ParenthesizedExpression, isAssignmentExpression, isVariableDeclaration, isBindingElement, PropertyAccessExpression, getEnclosingBlockScopeContainer, isPropertyDeclaration, nodeStartsNewLexicalEnvironment, isIterationStatement, isForStatement, getAncestor, ForStatement, pushIfUnique, isAssignmentTarget, PrefixUnaryExpression, PostfixUnaryExpression, isBlock, isExpressionNode, isPropertyAccessExpression, getAssignmentTargetKind, AssignmentKind, isInCompoundLikeAssignment, UnionType, TypeId, UnionReduction, getRootDeclaration, getImmediatelyInvokedFunctionExpression, isSpreadAssignment, isParameter, VariableDeclaration, isFunctionLikeDeclaration, isTypeNode, forEachChild, tryCast, canHaveFlowNode, ElementAccessExpression, RelationComparisonResult, LiteralType, FreshableType, getObjectFlags, DiagnosticMessageChain, setNodeFlags, isCallExpression } from "./_namespaces/lpc";
+import {Type,Symbol, SymbolLinks, CancellationToken, createSymbolTable, Declaration, EmitTextWriter, ModifierFlags, Node, NodeFlags, objectAllocator, Scanner, Signature, SignatureKind, SymbolFlags, TypeChecker, TypeCheckerHost, TypeFormatFlags, TypeParameter, CheckFlags, TransientSymbol, TransientSymbolLinks, reduceLeft, bindSourceFile, SourceFile, Diagnostic, createDiagnosticCollection, concatenate, forEach, tracing, performance, NodeLinks, NodeCheckFlags, FlowNode, FlowType, clear, SyntaxKind, TracingNode, CallLikeExpression, CallExpression, isCallOrNewExpression, isBinaryExpression, Expression, SignatureDeclaration, SignatureFlags, emptyArray, TypeFlags, IntrinsicType, ObjectFlags, Debug, BinaryExpression, ObjectType, StructuredType, ResolvedType, SymbolTable, IndexInfo, Identifier, nodeIsMissing, createNameResolver, InternalSymbolName, SymbolId, some, DiagnosticMessage, DiagnosticArguments, createDiagnosticForNode, createCompilerDiagnostic, FunctionLikeDeclaration, PropertyDeclaration, isString, isIdentifier, Diagnostics, findLast, SymbolFormatFlags, isAccessExpression, isFunctionExpression, isAliasableExpression, PropertyAssignment, isVariableDeclarationInitializedToBareOrAccessedRequire, mapDefined, arrayFrom, getSpellingSuggestion, symbolName, startsWith, nodeIsSynthesized, declarationNameToString, getCanonicalDiagnostic, DiagnosticCategory, addRelatedInfo, ParameterDeclaration, BindingElement, isSourceFile, isExternalOrCommonJsModule, isBlockOrCatchScoped, length, every, isValidTypeOnlyAliasUseSite, isWriteOnlyAccess, getCombinedNodeFlags, DiagnosticWithLocation, getJSDocDeprecatedTag, findAncestor, isCallLikeExpression, isFunctionLike, ParenthesizedExpression, isAssignmentExpression, isVariableDeclaration, isBindingElement, PropertyAccessExpression, getEnclosingBlockScopeContainer, isPropertyDeclaration, nodeStartsNewLexicalEnvironment, isIterationStatement, isForStatement, getAncestor, ForStatement, pushIfUnique, isAssignmentTarget, PrefixUnaryExpression, PostfixUnaryExpression, isBlock, isExpressionNode, isPropertyAccessExpression, getAssignmentTargetKind, AssignmentKind, isInCompoundLikeAssignment, UnionType, TypeId, UnionReduction, getRootDeclaration, getImmediatelyInvokedFunctionExpression, isSpreadAssignment, isParameter, VariableDeclaration, isFunctionLikeDeclaration, isTypeNode, forEachChild, tryCast, canHaveFlowNode, ElementAccessExpression, RelationComparisonResult, LiteralType, FreshableType, getObjectFlags, DiagnosticMessageChain, setNodeFlags, isCallExpression, LazyNodeCheckFlags, getSourceFileOfNode, canIncludeBindAndCheckDiagnostics, forEachChildRecursively, isDeclarationName, EntityName, JSDocMemberName, canHaveSymbol, isLiteralTypeNode, isElementAccessExpression, isIndexedAccessTypeNode, TypeNode } from "./_namespaces/lpc";
 
 let nextSymbolId = 1;
 let nextNodeId = 1;
@@ -435,10 +435,143 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function checkSourceElementWorker(node: Node): void {
+        if (getNodeCheckFlags(node) & NodeCheckFlags.PartiallyTypeChecked) {
+            return;
+        }
+
         // TODO
         console.warn("Implement me - checkSourceElementWorker");
     }
 
+    function getNodeCheckFlags(node: Node): NodeCheckFlags {
+        const nodeId = node.id || 0;
+        if (nodeId < 0 || nodeId >= nodeLinks.length) return 0;
+        return nodeLinks[nodeId]?.flags || 0;
+    }
+
+    function hasNodeCheckFlag(node: Node, flag: LazyNodeCheckFlags) {
+        calculateNodeCheckFlagWorker(node, flag);
+        return !!(getNodeCheckFlags(node) & flag);
+    }
+
+    function calculateNodeCheckFlagWorker(node: Node, flag: LazyNodeCheckFlags) {
+        if (!compilerOptions.noCheck && canIncludeBindAndCheckDiagnostics(getSourceFileOfNode(node), compilerOptions)) {
+            // Unless noCheck is passed, assume calculation of node check flags has been done eagerly.
+            // This saves needing to mark up where in the eager traversal certain results are "done",
+            // just to reconcile the eager and lazy results. This wouldn't be hard if an eager typecheck
+            // was actually an in-order traversal, but it isn't - some nodes are deferred, and so don't
+            // have these node check flags calculated until that deferral is completed. As an example,
+            // in concept, we could consider a class that we've called `checkSourceElement` on as having had
+            // these flags calculated, but since the method bodies are deferred, we actually can't set the
+            // flags as having been calculated until that deferral is completed.
+            // The downside to this either/or approach to eager or lazy calculation is that we can't combine
+            // a partial eager traversal and lazy calculation for the missing bits, and there's a bit of
+            // overlap in functionality. This isn't a huge loss for any usecases today, but would be nice
+            // alongside language service partial file checking and editor-triggered emit.
+            return;
+        }
+        const links = getNodeLinks(node);
+        if (links.calculatedFlags & flag) {
+            return;
+        }
+        // This is only the set of `NodeCheckFlags` our emitter actually looks for, not all of them
+        switch (flag) {
+            case NodeCheckFlags.SuperInstance:
+            case NodeCheckFlags.SuperStatic:
+                return checkSingleSuperExpression(node);
+            case NodeCheckFlags.MethodWithSuperPropertyAccessInAsync:
+            case NodeCheckFlags.MethodWithSuperPropertyAssignmentInAsync:
+            case NodeCheckFlags.ContainsSuperPropertyInStaticInitializer:
+                return checkChildSuperExpressions(node);
+            case NodeCheckFlags.CaptureArguments:
+            case NodeCheckFlags.ContainsCapturedBlockScopeBinding:
+            case NodeCheckFlags.NeedsLoopOutParameter:
+            case NodeCheckFlags.ContainsConstructorReference:
+                return checkChildIdentifiers(node);
+            case NodeCheckFlags.ConstructorReference:
+                return checkSingleIdentifier(node);
+            case NodeCheckFlags.LoopWithCapturedBlockScopedBinding:
+            case NodeCheckFlags.BlockScopedBindingInLoop:
+            case NodeCheckFlags.CapturedBlockScopedBinding:
+                return checkContainingBlockScopeBindingUses(node);
+            default:
+                return Debug.assertNever(flag, `Unhandled node check flag calculation: ${Debug.formatNodeCheckFlags(flag)}`);
+        }
+
+        function forEachNodeRecursively<T>(root: Node, cb: (node: Node, parent: Node) => T | "skip" | undefined): T | undefined {
+            const rootResult = cb(root, root.parent);
+            if (rootResult === "skip") return undefined;
+            if (rootResult) return rootResult;
+            return forEachChildRecursively(root, cb);
+        }
+
+        function checkSuperExpressions(node: Node) {
+            const links = getNodeLinks(node);
+            if (links.calculatedFlags & flag) return "skip";
+            links.calculatedFlags |= NodeCheckFlags.MethodWithSuperPropertyAccessInAsync | NodeCheckFlags.MethodWithSuperPropertyAssignmentInAsync | NodeCheckFlags.ContainsSuperPropertyInStaticInitializer;
+            checkSingleSuperExpression(node);
+            return undefined;
+        }
+
+        function checkChildSuperExpressions(node: Node) {
+            forEachNodeRecursively(node, checkSuperExpressions);
+        }
+
+        function checkSingleSuperExpression(node: Node) {
+            const nodeLinks = getNodeLinks(node); // This is called on sub-nodes of the original input, make sure we set `calculatedFlags` on the correct node
+            nodeLinks.calculatedFlags |= NodeCheckFlags.SuperInstance | NodeCheckFlags.SuperStatic; // Yes, we set this on non-applicable nodes, so we can entirely skip the traversal on future calls
+            if (node.kind === SyntaxKind.SuperKeyword) {
+                checkSuperExpression(node);
+            }
+        }
+
+        function checkIdentifiers(node: Node) {
+            const links = getNodeLinks(node);
+            if (links.calculatedFlags & flag) return "skip";
+            links.calculatedFlags |= NodeCheckFlags.CaptureArguments | NodeCheckFlags.ContainsCapturedBlockScopeBinding | NodeCheckFlags.NeedsLoopOutParameter | NodeCheckFlags.ContainsConstructorReference;
+            checkSingleIdentifier(node);
+            return undefined;
+        }
+
+        function checkChildIdentifiers(node: Node) {
+            forEachNodeRecursively(node, checkIdentifiers);
+        }
+
+        function checkSingleIdentifier(node: Node) {
+            const nodeLinks = getNodeLinks(node);
+            nodeLinks.calculatedFlags |= NodeCheckFlags.ConstructorReference | NodeCheckFlags.CapturedBlockScopedBinding | NodeCheckFlags.BlockScopedBindingInLoop;
+            if (isIdentifier(node) && isExpressionNode(node) && !(isPropertyAccessExpression(node.parent) && node.parent.name === node)) {
+                const s = getSymbolAtLocation(node, /*ignoreErrors*/ true);
+                if (s && s !== unknownSymbol) {
+                    checkIdentifierCalculateNodeCheckFlags(node, s);
+                }
+            }
+        }
+
+        function checkBlockScopeBindings(node: Node) {
+            const links = getNodeLinks(node);
+            if (links.calculatedFlags & flag) return "skip";
+            links.calculatedFlags |= NodeCheckFlags.LoopWithCapturedBlockScopedBinding | NodeCheckFlags.BlockScopedBindingInLoop | NodeCheckFlags.CapturedBlockScopedBinding;
+            checkSingleBlockScopeBinding(node);
+            return undefined;
+        }
+
+        function checkContainingBlockScopeBindingUses(node: Node) {
+            const scope = getEnclosingBlockScopeContainer(isDeclarationName(node) ? node.parent : node);
+            forEachNodeRecursively(scope, checkBlockScopeBindings);
+        }
+
+        function checkSingleBlockScopeBinding(node: Node) {
+            checkSingleIdentifier(node);
+            // if (isComputedPropertyName(node)) {
+            //     checkComputedPropertyName(node);
+            // }
+            // if (isPrivateIdentifier(node) && isClassElement(node.parent)) {
+            //     setNodeLinksForPrivateIdentifierScope(node.parent as PropertyDeclaration | PropertySignature | MethodDeclaration | MethodSignature | AccessorDeclaration);
+            // }
+        }
+    }
+    
     // The invalid initializer error is needed in two situation:
     // 1. When result is undefined, after checking for a missing "this."
     // 2. When result is defined
@@ -555,6 +688,111 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         links.deferredNodes = undefined;
     }
 
+    function getSymbolAtLocation(node: Node, ignoreErrors?: boolean): Symbol | undefined {
+        if (isSourceFile(node)) {
+            return getMergedSymbol(node.symbol);
+        }
+        const { parent } = node;
+        const grandParent = parent.parent;
+
+        if (isDeclarationNameOrImportPropertyName(node)) {
+            // This is a declaration, call getSymbolOfNode
+            const parentSymbol = getSymbolOfDeclaration(parent as Declaration);
+            return parentSymbol; // TODO:
+            // return isImportOrExportSpecifier(node.parent) && node.parent.propertyName === node
+            //     ? getImmediateAliasedSymbol(parentSymbol)
+            //     : parentSymbol;
+        }
+        // else if (isLiteralComputedPropertyDeclarationName(node)) {
+        //     return getSymbolOfDeclaration(parent.parent as Declaration);
+        // }
+
+        if (node.kind === SyntaxKind.Identifier) {
+            // if (isInRightSideOfImportOrExportAssignment(node as Identifier)) {
+            //     return getSymbolOfNameOrPropertyAccessExpression(node as Identifier);
+            // } else if (
+            //     parent.kind === SyntaxKind.BindingElement &&
+            //     grandParent.kind === SyntaxKind.ObjectBindingPattern &&
+            //     node === (parent as BindingElement).propertyName
+            // ) {
+            //     const typeOfPattern = getTypeOfNode(grandParent);
+            //     const propertyDeclaration = getPropertyOfType(typeOfPattern, (node as Identifier).escapedText);
+
+            //     if (propertyDeclaration) {
+            //         return propertyDeclaration;
+            //     }
+            // }
+            // else if (isMetaProperty(parent) && parent.name === node) {
+            //     if (parent.keywordToken === SyntaxKind.NewKeyword && idText(node as Identifier) === "target") {
+            //         // `target` in `new.target`
+            //         return checkNewTargetMetaProperty(parent).symbol;
+            //     }
+            //     // The `meta` in `import.meta` could be given `getTypeOfNode(parent).symbol` (the `ImportMeta` interface symbol), but
+            //     // we have a fake expression type made for other reasons already, whose transient `meta`
+            //     // member should more exactly be the kind of (declarationless) symbol we want.
+            //     // (See #44364 and #45031 for relevant implementation PRs)
+            //     if (parent.keywordToken === SyntaxKind.ImportKeyword && idText(node as Identifier) === "meta") {
+            //         return getGlobalImportMetaExpressionType().members!.get("meta" as __String);
+            //     }
+            //     // no other meta properties are valid syntax, thus no others should have symbols
+            //     return undefined;
+            // }
+        }
+
+        switch (node.kind) {
+            case SyntaxKind.Identifier:
+            //case SyntaxKind.PrivateIdentifier:
+            case SyntaxKind.PropertyAccessExpression:
+            //case SyntaxKind.QualifiedName:              
+                return getSymbolOfNameOrPropertyAccessExpression(node as EntityName | PropertyAccessExpression);              
+                // falls through            
+            case SyntaxKind.SuperKeyword:
+                return checkExpression(node as Expression).symbol;
+
+            case SyntaxKind.StringLiteral:
+            //case SyntaxKind.NoSubstitutionTemplateLiteral:
+                // 1). import x = require("./mo/*gotToDefinitionHere*/d")
+                // 2). External module name in an import declaration
+                // 3). Dynamic import call or require in javascript
+                // 4). type A = import("./f/*gotToDefinitionHere*/oo")
+                // if (
+                //     //(isExternalModuleImportEqualsDeclaration(node.parent.parent) && getExternalModuleImportEqualsDeclarationExpression(node.parent.parent) === node) ||
+                //     //((node.parent.kind === SyntaxKind.ImportDeclaration || node.parent.kind === SyntaxKind.ExportDeclaration) && (node.parent as ImportDeclaration).moduleSpecifier === node) ||
+                //     //(isInJSFile(node) && isJSDocImportTag(node.parent) && node.parent.moduleSpecifier === node) ||
+                //     //((isInJSFile(node) && isRequireCall(node.parent, /*requireStringLiteralLikeArgument*/ false)) || isImportCall(node.parent)) ||
+                //     (isLiteralTypeNode(node.parent) && isLiteralImportTypeNode(node.parent.parent) && node.parent.parent.argument === node.parent)
+                // ) {
+                //     return resolveExternalModuleName(node, node as LiteralExpression, ignoreErrors);
+                // }
+                // if (isCallExpression(parent) && isBindableObjectDefinePropertyCall(parent) && parent.arguments[1] === node) {
+                //     return getSymbolOfDeclaration(parent);
+                // }
+                // falls through
+
+            // case SyntaxKind.IntLiteral:            
+            //     // index access
+            //     const objectType = isElementAccessExpression(parent)
+            //         ? parent.argumentExpression === node ? getTypeOfExpression(parent.expression) : undefined
+            //         : isLiteralTypeNode(parent) && isIndexedAccessTypeNode(grandParent)
+            //         ? getTypeFromTypeNode(grandParent.objectType)
+            //         : undefined;
+            //     return objectType && getPropertyOfType(objectType, escapeLeadingUnderscores((node as StringLiteral | NumericLiteral).text));
+            
+            //case SyntaxKind.FunctionKeyword:
+            case SyntaxKind.EqualsGreaterThanToken:
+            //case SyntaxKind.ClassKeyword:
+                return getSymbolOfNode(node.parent);
+            // case SyntaxKind.ImportType:
+            //     return isLiteralImportTypeNode(node) ? getSymbolAtLocation(node.argument.literal, ignoreErrors) : undefined;
+
+            // case SyntaxKind.ImportKeyword:
+            // case SyntaxKind.NewKeyword:
+            //     return isMetaProperty(node.parent) ? checkMetaPropertyKeyword(node.parent).symbol : undefined;            
+            default:
+                return undefined;
+        }
+    }
+        
     function checkDeferredNode(node: Node) {
         tracing?.push(tracing.Phase.Check, "checkDeferredNode", { kind: node.kind, pos: node.pos, end: node.end, path: (node as TracingNode).tracingPath });
         const saveCurrentNode = currentNode;
@@ -675,6 +913,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             }
         }
         return undefined;
+    }
+
+    function checkSuperExpression(node: Node): Type {
+        console.debug("TODO Implement me    checkSuperExpression");
+        return anyType;
     }
 
     function instantiateTypeWithSingleGenericCallSignature(node: Expression, type: Type, checkMode?: CheckMode) {
@@ -2937,6 +3180,148 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             isVariableDeclaration(declaration) && (/*isCatchClause(declaration.parent) || */isMutableLocalVariableDeclaration(declaration))
         );
     }
+
+    /**
+     * Get the merged symbol for a node. If you know the node is a `Declaration`, it is faster and more type safe to
+     * use use `getSymbolOfDeclaration` instead.
+     */
+    function getSymbolOfNode(node: Node): Symbol | undefined {
+        return canHaveSymbol(node) ? getSymbolOfDeclaration(node) : undefined;
+    }
+
+    function getSymbolOfNameOrPropertyAccessExpression(name: EntityName | PropertyAccessExpression | JSDocMemberName): Symbol | undefined {
+        if (isDeclarationName(name)) {
+            return getSymbolOfNode(name.parent);
+        }
+        
+        console.warn("TODO - Implement me - getSymbolOfNameOrPropertyAccessExpression");
+
+        // if (name.parent.kind === SyntaxKind.ExportAssignment && isEntityNameExpression(name)) {
+        //     // Even an entity name expression that doesn't resolve as an entityname may still typecheck as a property access expression
+        //     const success = resolveEntityName(name, /*all meanings*/ SymbolFlags.Value | SymbolFlags.Type | SymbolFlags.Namespace | SymbolFlags.Alias, /*ignoreErrors*/ true);
+        //     if (success && success !== unknownSymbol) {
+        //         return success;
+        //     }
+        // }
+        // else if (isEntityName(name) && isInRightSideOfImportOrExportAssignment(name)) {
+        //     // Since we already checked for ExportAssignment, this really could only be an Import
+        //     const importEqualsDeclaration = getAncestor(name, SyntaxKind.ImportEqualsDeclaration);
+        //     Debug.assert(importEqualsDeclaration !== undefined);
+        //     return getSymbolOfPartOfRightHandSideOfImportEquals(name, /*dontResolveAlias*/ true);
+        // }
+
+        // if (isEntityName(name)) {
+        //     const possibleImportNode = isImportTypeQualifierPart(name);
+        //     if (possibleImportNode) {
+        //         getTypeFromTypeNode(possibleImportNode);
+        //         const sym = getNodeLinks(name).resolvedSymbol;
+        //         return sym === unknownSymbol ? undefined : sym;
+        //     }
+        // }
+
+        // while (isRightSideOfQualifiedNameOrPropertyAccessOrJSDocMemberName(name)) {
+        //     name = name.parent as QualifiedName | PropertyAccessEntityNameExpression | JSDocMemberName;
+        // }
+
+        // if (isInNameOfExpressionWithTypeArguments(name)) {
+        //     let meaning = SymbolFlags.None;
+        //     if (name.parent.kind === SyntaxKind.ExpressionWithTypeArguments) {
+        //         // An 'ExpressionWithTypeArguments' may appear in type space (interface Foo extends Bar<T>),
+        //         // value space (return foo<T>), or both(class Foo extends Bar<T>); ensure the meaning matches.
+        //         meaning = isPartOfTypeNode(name) ? SymbolFlags.Type : SymbolFlags.Value;
+
+        //         // In a class 'extends' clause we are also looking for a value.
+        //         if (isExpressionWithTypeArgumentsInClassExtendsClause(name.parent)) {
+        //             meaning |= SymbolFlags.Value;
+        //         }
+        //     }
+        //     else {
+        //         meaning = SymbolFlags.Namespace;
+        //     }
+
+        //     meaning |= SymbolFlags.Alias;
+        //     const entityNameSymbol = isEntityNameExpression(name) ? resolveEntityName(name, meaning, /*ignoreErrors*/ true) : undefined;
+        //     if (entityNameSymbol) {
+        //         return entityNameSymbol;
+        //     }
+        // }
+
+        // if (name.parent.kind === SyntaxKind.JSDocParameterTag) {
+        //     return getParameterSymbolFromJSDoc(name.parent as JSDocParameterTag);
+        // }
+
+        // if (name.parent.kind === SyntaxKind.TypeParameter && name.parent.parent.kind === SyntaxKind.JSDocTemplateTag) {
+        //     Debug.assert(!isInJSFile(name)); // Otherwise `isDeclarationName` would have been true.
+        //     const typeParameter = getTypeParameterFromJsDoc(name.parent as TypeParameterDeclaration & { parent: JSDocTemplateTag; });
+        //     return typeParameter && typeParameter.symbol;
+        // }
+
+        // if (isExpressionNode(name)) {
+        //     if (nodeIsMissing(name)) {
+        //         // Missing entity name.
+        //         return undefined;
+        //     }
+
+        //     const isJSDoc = findAncestor(name, or(isJSDocLinkLike, isJSDocNameReference, isJSDocMemberName));
+        //     const meaning = isJSDoc ? SymbolFlags.Type | SymbolFlags.Namespace | SymbolFlags.Value : SymbolFlags.Value;
+        //     if (name.kind === SyntaxKind.Identifier) {
+        //         if (isJSXTagName(name) && isJsxIntrinsicTagName(name)) {
+        //             const symbol = getIntrinsicTagSymbol(name.parent as JsxOpeningLikeElement);
+        //             return symbol === unknownSymbol ? undefined : symbol;
+        //         }
+        //         const result = resolveEntityName(name, meaning, /*ignoreErrors*/ true, /*dontResolveAlias*/ true, getHostSignatureFromJSDoc(name));
+        //         if (!result && isJSDoc) {
+        //             const container = findAncestor(name, or(isClassLike, isInterfaceDeclaration));
+        //             if (container) {
+        //                 return resolveJSDocMemberName(name, /*ignoreErrors*/ true, getSymbolOfDeclaration(container));
+        //             }
+        //         }
+        //         if (result && isJSDoc) {
+        //             const container = getJSDocHost(name);
+        //             if (container && isEnumMember(container) && container === result.valueDeclaration) {
+        //                 return resolveEntityName(name, meaning, /*ignoreErrors*/ true, /*dontResolveAlias*/ true, getSourceFileOfNode(container)) || result;
+        //             }
+        //         }
+        //         return result;
+        //     }
+        //     else if (isPrivateIdentifier(name)) {
+        //         return getSymbolForPrivateIdentifierExpression(name);
+        //     }
+        //     else if (name.kind === SyntaxKind.PropertyAccessExpression || name.kind === SyntaxKind.QualifiedName) {
+        //         const links = getNodeLinks(name);
+        //         if (links.resolvedSymbol) {
+        //             return links.resolvedSymbol;
+        //         }
+
+        //         if (name.kind === SyntaxKind.PropertyAccessExpression) {
+        //             checkPropertyAccessExpression(name, CheckMode.Normal);
+        //             if (!links.resolvedSymbol) {
+        //                 links.resolvedSymbol = getApplicableIndexSymbol(checkExpressionCached(name.expression), getLiteralTypeFromPropertyName(name.name));
+        //             }
+        //         }
+        //         else {
+        //             checkQualifiedName(name, CheckMode.Normal);
+        //         }
+        //         if (!links.resolvedSymbol && isJSDoc && isQualifiedName(name)) {
+        //             return resolveJSDocMemberName(name);
+        //         }
+        //         return links.resolvedSymbol;
+        //     }
+        //     else if (isJSDocMemberName(name)) {
+        //         return resolveJSDocMemberName(name);
+        //     }
+        // }
+        // else if (isTypeReferenceIdentifier(name as EntityName)) {
+        //     const meaning = name.parent.kind === SyntaxKind.TypeReference ? SymbolFlags.Type : SymbolFlags.Namespace;
+        //     const symbol = resolveEntityName(name as EntityName, meaning, /*ignoreErrors*/ false, /*dontResolveAlias*/ true);
+        //     return symbol && symbol !== unknownSymbol ? symbol : getUnresolvedSymbolForEntityName(name as EntityName);
+        // }
+        // if (name.parent.kind === SyntaxKind.TypePredicate) {
+        //     return resolveEntityName(name as Identifier, /*meaning*/ SymbolFlags.FunctionScopedVariable);
+        // }
+
+        // return undefined;
+    }
 }
 
 const SymbolLinks = class implements SymbolLinks {
@@ -2984,4 +3369,15 @@ const enum IntersectionState {
     None = 0,
     Source = 1 << 0, // Source type is a constituent of an outer intersection
     Target = 1 << 1, // Target type is a constituent of an outer intersection
+}
+
+/** Like 'isDeclarationName', but returns true for LHS of `import { x as y }` or `export { x as y }`. */
+function isDeclarationNameOrImportPropertyName(name: Node): boolean {
+    switch (name.parent.kind) {
+        // case SyntaxKind.ImportSpecifier:
+        // case SyntaxKind.ExportSpecifier:
+        //     return isIdentifier(name) || name.kind === SyntaxKind.StringLiteral;
+        default:
+            return isDeclarationName(name);
+    }
 }

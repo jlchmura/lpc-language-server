@@ -1,4 +1,4 @@
-import { AssignmentDeclarationKind, BinaryExpression, CallExpression, CallLikeExpression, canHaveJSDoc, Debug, Declaration, DeclarationName, emptyArray, Expression, find, flatMap, ForEachStatement, FunctionLikeDeclaration, getAssignmentDeclarationKind, getJSDocCommentsAndTags, HasLocals, HasModifiers, hasProperty, Identifier, isBinaryExpression, isFunctionExpression, isIdentifier, isInlineClosureExpression, isJSDoc, isJSDocDeprecatedTag, isTypeNodeKind, isVariableDeclaration, IterationStatement, JSDocDeprecatedTag, JSDocTag, LeftHandSideExpression, NamedDeclaration, Node, NodeArray, NodeFlags, OuterExpressionKinds, ParameterDeclaration, SignatureDeclaration, skipOuterExpressions, Symbol, SyntaxKind, TypeNode } from "./_namespaces/lpc";
+import { ArrayBindingElement, AssignmentDeclarationKind, BinaryExpression, BindingPattern, CallExpression, CallLikeExpression, canHaveJSDoc, Debug, Declaration, DeclarationName, emptyArray, Expression, find, flatMap, ForEachStatement, FunctionLikeDeclaration, getAssignmentDeclarationKind, getJSDocCommentsAndTags, HasLocals, HasModifiers, hasProperty, Identifier, isBinaryExpression, isFunctionExpression, isIdentifier, isInlineClosureExpression, isJSDoc, isJSDocDeprecatedTag, isTypeNodeKind, isVariableDeclaration, IterationStatement, JSDocDeprecatedTag, JSDocTag, LeftHandSideExpression, NamedDeclaration, Node, NodeArray, NodeFlags, OuterExpressionKinds, ParameterDeclaration, SignatureDeclaration, skipOuterExpressions, Symbol, SyntaxKind, TypeNode } from "./_namespaces/lpc";
 
 /** @internal */
 export function isNodeArray<T extends Node>(array: readonly T[]): array is NodeArray<T> {
@@ -416,3 +416,102 @@ export function isIterationStatement(node: Node, lookInLabeledStatements: boolea
     return false;
 }
 
+function isDeclarationKind(kind: SyntaxKind) {
+    return kind === SyntaxKind.InlineClosureExpression
+        || kind === SyntaxKind.BindingElement
+        //|| kind === SyntaxKind.ClassDeclaration
+        || kind === SyntaxKind.ClassExpression        
+        // || kind === SyntaxKind.ExportSpecifier
+        || kind === SyntaxKind.FunctionDeclaration
+        || kind === SyntaxKind.FunctionExpression        
+        // || kind === SyntaxKind.ImportClause        
+        // || kind === SyntaxKind.MethodDeclaration
+        // || kind === SyntaxKind.MethodSignature        
+        || kind === SyntaxKind.Parameter
+        || kind === SyntaxKind.PropertyAssignment
+        || kind === SyntaxKind.PropertyDeclaration
+        // || kind === SyntaxKind.PropertySignature        
+        || kind === SyntaxKind.ShorthandPropertyAssignment        
+        || kind === SyntaxKind.TypeParameter
+        || kind === SyntaxKind.VariableDeclaration
+        || kind === SyntaxKind.JSDocTypedefTag
+        || kind === SyntaxKind.JSDocCallbackTag
+        || kind === SyntaxKind.JSDocPropertyTag;
+}
+
+/** @internal */
+export function isDeclaration(node: Node): node is NamedDeclaration {
+    if (node.kind === SyntaxKind.TypeParameter) {
+        return (node.parent && node.parent.kind !== SyntaxKind.JSDocTemplateTag);
+    }
+
+    return isDeclarationKind(node.kind);
+}
+
+/** @internal */
+export function isBindingPattern(node: Node | undefined): node is BindingPattern {
+    if (node) {
+        const kind = node.kind;
+        return kind === SyntaxKind.ArrayBindingPattern;
+            //|| kind === SyntaxKind.ObjectBindingPattern;
+    }
+
+    return false;
+}
+
+export function isArrayBindingElement(node: Node): node is ArrayBindingElement {
+    const kind = node.kind;
+    return kind === SyntaxKind.BindingElement;
+}
+
+/** @internal */
+export function canHaveSymbol(node: Node): node is Declaration {
+    // NOTE: This should cover all possible declarations except MissingDeclaration and SemicolonClassElement
+    //       since they aren't actually declarations and can't have a symbol.
+    switch (node.kind) {
+        case SyntaxKind.InlineClosureExpression:
+        case SyntaxKind.BinaryExpression:
+        case SyntaxKind.BindingElement:
+        case SyntaxKind.CallExpression:
+        // case SyntaxKind.CallSignature:
+        // case SyntaxKind.ClassDeclaration:
+        case SyntaxKind.ClassExpression:        
+        case SyntaxKind.ElementAccessExpression:                
+        case SyntaxKind.FunctionDeclaration:
+        case SyntaxKind.FunctionExpression:
+        //case SyntaxKind.FunctionType:        
+        case SyntaxKind.Identifier:
+        //case SyntaxKind.ImportClause:        
+        case SyntaxKind.IndexSignature:        
+        case SyntaxKind.JSDocCallbackTag:
+        case SyntaxKind.JSDocEnumTag:
+        case SyntaxKind.JSDocFunctionType:
+        case SyntaxKind.JSDocParameterTag:
+        case SyntaxKind.JSDocPropertyTag:
+        case SyntaxKind.JSDocSignature:
+        case SyntaxKind.JSDocTypedefTag:
+        case SyntaxKind.JSDocTypeLiteral:    
+        //case SyntaxKind.MappedType:
+        // case SyntaxKind.MethodDeclaration:
+        // case SyntaxKind.MethodSignature:        
+        case SyntaxKind.NewExpression:        
+        case SyntaxKind.IntLiteral:
+        case SyntaxKind.FloatLiteral:
+        case SyntaxKind.ObjectLiteralExpression:
+        case SyntaxKind.Parameter:
+        case SyntaxKind.PropertyAccessExpression:
+        case SyntaxKind.PropertyAssignment:
+        case SyntaxKind.PropertyDeclaration:
+        // case SyntaxKind.PropertySignature:        
+        case SyntaxKind.ShorthandPropertyAssignment:
+        case SyntaxKind.SourceFile:
+        // case SyntaxKind.SpreadAssignment:
+        case SyntaxKind.StringLiteral:        
+        case SyntaxKind.TypeLiteral:
+        case SyntaxKind.TypeParameter:
+        case SyntaxKind.VariableDeclaration:
+            return true;
+        default:
+            return false;
+    }
+}
