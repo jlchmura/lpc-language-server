@@ -2717,3 +2717,4 @@ export function isIdentifierName(node: Identifier): boolean {
 export function isKeyword(token: SyntaxKind): token is KeywordSyntaxKind {
     return SyntaxKind.FirstKeyword <= token && token <= SyntaxKind.LastKeyword;
 }
+
