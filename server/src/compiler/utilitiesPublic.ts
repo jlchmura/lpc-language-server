@@ -1,4 +1,4 @@
-import { ArrayBindingElement, AssignmentDeclarationKind, BinaryExpression, BindingPattern, Block, CallExpression, CallLikeExpression, canHaveJSDoc, Debug, Declaration, DeclarationName, emptyArray, Expression, find, flatMap, ForEachStatement, FunctionLikeDeclaration, getAssignmentDeclarationKind, getEffectiveModifierFlags, getJSDocCommentsAndTags, HasLocals, HasModifiers, hasProperty, Identifier, isBinaryExpression, isBlock, isFunctionBlock, isFunctionExpression, isIdentifier, isInlineClosureExpression, isJSDoc, isJSDocDeprecatedTag, isSourceFile, isTypeNodeKind, isVariableDeclaration, IterationStatement, JSDocDeprecatedTag, JSDocTag, LeftHandSideExpression, ModifierFlags, NamedDeclaration, Node, NodeArray, NodeFlags, OuterExpressionKinds, ParameterDeclaration, SignatureDeclaration, skipOuterExpressions, Statement, Symbol, SyntaxKind, TypeNode } from "./_namespaces/lpc";
+import { ArrayBindingElement, AssignmentDeclarationKind, BinaryExpression, BindingPattern, Block, CallExpression, CallLikeExpression, canHaveJSDoc, Debug, Declaration, DeclarationName, emptyArray, Expression, find, flatMap, ForEachStatement, FunctionLikeDeclaration, getAssignmentDeclarationKind, getEffectiveModifierFlags, getJSDocCommentsAndTags, HasLocals, HasModifiers, hasProperty, Identifier, isBinaryExpression, isBlock, isFunctionBlock, isFunctionExpression, isIdentifier, isInlineClosureExpression, isJSDoc, isJSDocDeprecatedTag, isKeyword, isSourceFile, isTypeNodeKind, isVariableDeclaration, IterationStatement, JSDocDeprecatedTag, JSDocTag, KeywordSyntaxKind, LeftHandSideExpression, ModifierFlags, NamedDeclaration, Node, NodeArray, NodeFlags, OuterExpressionKinds, ParameterDeclaration, SignatureDeclaration, skipOuterExpressions, Statement, stringToToken, Symbol, SyntaxKind, tryCast, TypeNode, UnaryExpression } from "./_namespaces/lpc";
 
 /** @internal */
 export function isNodeArray<T extends Node>(array: readonly T[]): array is NodeArray<T> {
@@ -574,4 +574,53 @@ export function isStatement(node: Node): node is Statement {
 
 export function getCombinedModifierFlags(node: Declaration): ModifierFlags {
     return getCombinedFlags(node, getEffectiveModifierFlags);
+}
+
+/**
+ * Determines whether a node is an expression based only on its kind.
+ */
+export function isExpression(node: Node): node is Expression {
+    return isExpressionKind(skipPartiallyEmittedExpressions(node).kind);
+}
+
+
+function isExpressionKind(kind: SyntaxKind): boolean {
+    switch (kind) {
+        case SyntaxKind.ConditionalExpression:
+        //case SyntaxKind.YieldExpression:
+        case SyntaxKind.InlineClosureExpression:
+        case SyntaxKind.BinaryExpression:
+        case SyntaxKind.SpreadElement:        
+        case SyntaxKind.CommaListExpression:
+        case SyntaxKind.PartiallyEmittedExpression:        
+            return true;
+        default:
+            return isUnaryExpressionKind(kind);
+    }
+}
+
+
+/** @internal */
+export function isUnaryExpression(node: Node): node is UnaryExpression {
+    return isUnaryExpressionKind(skipPartiallyEmittedExpressions(node).kind);
+}
+
+function isUnaryExpressionKind(kind: SyntaxKind): boolean {
+    switch (kind) {
+        case SyntaxKind.PrefixUnaryExpression:
+        case SyntaxKind.PostfixUnaryExpression:        
+        //case SyntaxKind.AwaitExpression:    
+            return true;
+        default:
+            return isLeftHandSideExpressionKind(kind);
+    }
+}
+
+/**
+ * If the text of an Identifier matches a keyword (including contextual and TypeScript-specific keywords), returns the
+ * SyntaxKind for the matching keyword.
+ */
+export function identifierToKeywordKind(node: Identifier): KeywordSyntaxKind | undefined {
+    const token = stringToToken(node.text as string);
+    return token ? tryCast(token, isKeyword) : undefined;
 }

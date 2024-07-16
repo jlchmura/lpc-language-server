@@ -1,4 +1,4 @@
-import { CompilerOptions, Debug, FlowFlags, FlowLabel, FlowNode, HasLocals, IsBlockScopedContainer, IsContainer, Node, objectAllocator, SourceFile, SymbolFlags, Symbol, tracing, setParent, TracingNode, SyntaxKind, isFunctionLike, NodeArray, forEach, forEachChild, Mutable, HasContainerFlags, createSymbolTable, ModifierFlags, FunctionExpression, InlineClosureExpression, NodeFlags, FunctionLikeDeclaration, getImmediatelyInvokedFunctionExpression, nodeIsPresent, contains, isIdentifier, HasFlowNode, performance, VariableDeclaration, isBlockOrCatchScoped, Declaration, canHaveLocals, isPartOfParameterDeclaration, SymbolTable, hasSyntacticModifier, Diagnostics, isNamedDeclaration, length, DiagnosticRelatedInformation, getNameOfDeclaration, appendIfUnique, setValueDeclaration, addRelatedInfo, Identifier, StringLiteral, isPropertyNameLiteral, InternalSymbolName, getAssignmentDeclarationKind, BinaryExpression, AssignmentDeclarationKind, declarationNameToString, createDiagnosticForNodeInSourceFile, getSourceFileOfNode, DiagnosticMessage, DiagnosticArguments, DiagnosticWithLocation, ReturnStatement, IfStatement, Expression, isTruthyLiteral, isFalsyLiteral, FlowCondition, PrefixUnaryExpression, isLogicalOrCoalescingAssignmentExpression, isLogicalOrCoalescingBinaryExpression, isForEachStatement, FlowAssignment, FlowArrayMutation, Block, ConditionalExpression, WhileStatement, Statement, DoWhileStatement, ForStatement, ForEachStatement, BreakOrContinueStatement, SwitchStatement, FlowSwitchClause, CaseBlock, CallExpression, isAssignmentOperator, PropertyAccessExpression, ParenthesizedExpression, isLeftHandSideExpression, PostfixUnaryExpression, ArrayLiteralExpression, ObjectLiteralExpression, isBinaryLogicalOperator, isLogicalOrCoalescingAssignmentOperator, isParenthesizedExpression, isPrefixUnaryExpression, BinaryOperatorToken, isAssignmentTarget, ElementAccessExpression, isBinaryExpression, isDottedName, FlowCall, createBinaryExpressionTrampoline, CaseClause, CallChain, LeftHandSideExpression, skipParentheses, ParameterDeclaration, ExpressionStatement, FunctionDeclaration, removeFileExtension, hasEffectiveModifier, getCombinedModifierFlags } from "./_namespaces/lpc";
+import { CompilerOptions, Debug, FlowFlags, FlowLabel, FlowNode, HasLocals, IsBlockScopedContainer, IsContainer, Node, objectAllocator, SourceFile, SymbolFlags, Symbol, tracing, setParent, TracingNode, SyntaxKind, isFunctionLike, NodeArray, forEach, forEachChild, Mutable, HasContainerFlags, createSymbolTable, ModifierFlags, FunctionExpression, InlineClosureExpression, NodeFlags, FunctionLikeDeclaration, getImmediatelyInvokedFunctionExpression, nodeIsPresent, contains, isIdentifier, HasFlowNode, performance, VariableDeclaration, isBlockOrCatchScoped, Declaration, canHaveLocals, isPartOfParameterDeclaration, SymbolTable, hasSyntacticModifier, Diagnostics, isNamedDeclaration, length, DiagnosticRelatedInformation, getNameOfDeclaration, appendIfUnique, setValueDeclaration, addRelatedInfo, Identifier, StringLiteral, isPropertyNameLiteral, InternalSymbolName, getAssignmentDeclarationKind, BinaryExpression, AssignmentDeclarationKind, declarationNameToString, createDiagnosticForNodeInSourceFile, getSourceFileOfNode, DiagnosticMessage, DiagnosticArguments, DiagnosticWithLocation, ReturnStatement, IfStatement, Expression, isTruthyLiteral, isFalsyLiteral, FlowCondition, PrefixUnaryExpression, isLogicalOrCoalescingAssignmentExpression, isLogicalOrCoalescingBinaryExpression, isForEachStatement, FlowAssignment, FlowArrayMutation, Block, ConditionalExpression, WhileStatement, Statement, DoWhileStatement, ForStatement, ForEachStatement, BreakOrContinueStatement, SwitchStatement, FlowSwitchClause, CaseBlock, CallExpression, isAssignmentOperator, PropertyAccessExpression, ParenthesizedExpression, isLeftHandSideExpression, PostfixUnaryExpression, ArrayLiteralExpression, ObjectLiteralExpression, isBinaryLogicalOperator, isLogicalOrCoalescingAssignmentOperator, isParenthesizedExpression, isPrefixUnaryExpression, BinaryOperatorToken, isAssignmentTarget, ElementAccessExpression, isBinaryExpression, isDottedName, FlowCall, createBinaryExpressionTrampoline, CaseClause, CallChain, LeftHandSideExpression, skipParentheses, ParameterDeclaration, ExpressionStatement, FunctionDeclaration, removeFileExtension, hasEffectiveModifier, getCombinedModifierFlags, isExpression, isIdentifierName, identifierToKeywordKind } from "./_namespaces/lpc";
 
 const binder = /* @__PURE__ */ createBinder();
 
@@ -495,8 +495,24 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
     function bindWorker(node: Node) {
         // do speciallized binding work here        
         switch (node.kind) {
-            // TODO: add identifier / contextural identifier check here
-
+             /* Strict mode checks */
+             case SyntaxKind.Identifier:
+                // for typedef type names with namespaces, bind the new jsdoc type symbol here
+                // because it requires all containing namespaces to be in effect, namely the
+                // current "blockScopeContainer" needs to be set to its immediate namespace parent.
+                if (node.flags & NodeFlags.IdentifierIsInJSDocNamespace) {
+                    let parentNode = node.parent;
+                    while (parentNode /*&& !isJSDocTypeAlias(parentNode)*/) {
+                        parentNode = parentNode.parent;
+                    }
+                    bindBlockScopedDeclaration(parentNode as Declaration, SymbolFlags.TypeAlias, SymbolFlags.TypeAliasExcludes);
+                    break;
+                }
+                if (currentFlow && (isExpression(node) || parent.kind === SyntaxKind.ShorthandPropertyAssignment)) {
+                    (node as Identifier).flowNode = currentFlow;
+                }
+                // TODO: a `ThisExpression` is not an Identifier, this cast is unsound
+                return checkContextualIdentifier(node as Identifier);
             case SyntaxKind.SourceFile:
                 //updateStrictModeStatementList((node as SourceFile).statements);
                 return bindSourceFileIfExternalModule();
@@ -514,6 +530,46 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
         }
 
         console.warn("implement me - bindWorker " + Debug.formatSyntaxKind(node.kind));
+    }
+
+    
+    // The binder visits every node in the syntax tree so it is a convenient place to perform a single localized
+    // check for reserved words used as identifiers in strict mode code, as well as `yield` or `await` in
+    // [Yield] or [Await] contexts, respectively.
+    function checkContextualIdentifier(node: Identifier) {
+        // Report error only if there are no parse errors in file
+        if (
+            !file.parseDiagnostics.length &&
+            !(node.flags & NodeFlags.Ambient) &&
+            !(node.flags & NodeFlags.JSDoc) &&
+            !isIdentifierName(node)
+        ) {
+            // strict mode identifiers
+            const originalKeywordKind = identifierToKeywordKind(node);
+            if (originalKeywordKind === undefined) {
+                return;
+            }
+
+            if (
+                inStrictMode &&
+                originalKeywordKind >= SyntaxKind.FirstFutureReservedWord &&
+                originalKeywordKind <= SyntaxKind.LastFutureReservedWord
+            ) {
+                console.warn("implement me - checkContextualIdentifier");
+                //file.bindDiagnostics.push(createDiagnosticForNode(node, getStrictModeIdentifierMessage(node), declarationNameToString(node)));
+            }
+            // else if (originalKeywordKind === SyntaxKind.AwaitKeyword) {
+            //     if (isExternalModule(file) && isInTopLevelContext(node)) {
+            //         file.bindDiagnostics.push(createDiagnosticForNode(node, Diagnostics.Identifier_expected_0_is_a_reserved_word_at_the_top_level_of_a_module, declarationNameToString(node)));
+            //     }
+            //     else if (node.flags & NodeFlags.AwaitContext) {
+            //         file.bindDiagnostics.push(createDiagnosticForNode(node, Diagnostics.Identifier_expected_0_is_a_reserved_word_that_cannot_be_used_here, declarationNameToString(node)));
+            //     }
+            // }
+            // else if (originalKeywordKind === SyntaxKind.YieldKeyword && node.flags & NodeFlags.YieldContext) {
+            //     file.bindDiagnostics.push(createDiagnosticForNode(node, Diagnostics.Identifier_expected_0_is_a_reserved_word_that_cannot_be_used_here, declarationNameToString(node)));
+            // }
+        }
     }
 
     function bindFunctionDeclaration(node: FunctionDeclaration) {

@@ -420,7 +420,7 @@ export const enum SyntaxKind {
     Identifier,
 
     // Keywords
-    IntKeyword,
+    IntKeyword, // FIrst Keyword, FirstReserved Word
     FloatKeyword,
     StringKeyword,
     ClosureKeywoord,
@@ -432,6 +432,17 @@ export const enum SyntaxKind {
     MappingKeyword,
     VoidKeyword,
     BreakKeyword,
+    DoKeyword,
+    ElseKeyword,
+    ForKeyword,
+    FunctionKeyword,
+    IfKeyword,
+    NewKeyword,
+    ReturnKeyword,
+    NullKeyword,
+    SwitchKeyword,
+    WhileKeyword,
+    AsyncKeyword,
     ContinueKeyword,
 
     // Modifier Keywords
@@ -579,6 +590,7 @@ export const enum SyntaxKind {
     CaseClause,
     DefaultClause,    
 
+    FirstKeyword = IntKeyword,
     LastKeyword = DeprecatedKeyword,
     FirstToken = Unknown,
     LastToken = LastKeyword,
@@ -590,6 +602,8 @@ export const enum SyntaxKind {
     FirstTypeNode = UnionType,
     LastTypeNode = ConditionalType,
     FirstNode = TypeParameter,
+    FirstFutureReservedWord = IntKeyword,
+    LastFutureReservedWord = LastKeyword,
 }
 
 // dprint-ignore
@@ -1560,6 +1574,21 @@ export interface Token<TKind extends SyntaxKind> extends Node {
 export type EndOfFileToken = Token<SyntaxKind.EndOfFileToken> & JSDocContainer;
 
 export type KeywordSyntaxKind =
+    | SyntaxKind.BreakKeyword
+    | SyntaxKind.VoidKeyword
+    | SyntaxKind.ContinueKeyword
+    | SyntaxKind.DoKeyword
+    | SyntaxKind.ElseKeyword
+    | SyntaxKind.ForKeyword
+    | SyntaxKind.FunctionKeyword
+    | SyntaxKind.IfKeyword
+    | SyntaxKind.InKeyword
+    | SyntaxKind.NewKeyword
+    | SyntaxKind.NullKeyword
+    | SyntaxKind.ReturnKeyword
+    | SyntaxKind.SwitchKeyword
+    | SyntaxKind.WhileKeyword
+    | SyntaxKind.AsyncKeyword
     | SyntaxKind.PrivateKeyword
     | SyntaxKind.ProtectedKeyword
     | SyntaxKind.PublicKeyword

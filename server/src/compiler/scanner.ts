@@ -1,5 +1,5 @@
 import { CharacterCodes } from "../backend/types";
-import { Debug, DiagnosticMessage, Diagnostics, positionIsSynthesized } from "./_namespaces/lpc";
+import { Debug, DiagnosticMessage, Diagnostics, KeywordSyntaxKind, MapLike, positionIsSynthesized, SyntaxKind } from "./_namespaces/lpc";
 
 export interface Scanner {}
 
@@ -209,3 +209,121 @@ function scanShebangTrivia(text: string, pos: number) {
     pos = pos + shebang.length;
     return pos;
 }
+
+/** @internal */
+export function stringToToken(s: string): SyntaxKind | undefined {
+    return textToToken.get(s);
+}
+
+/** @internal */
+export const textToKeywordObj: MapLike<KeywordSyntaxKind> = {
+    // abstract: SyntaxKind.AbstractKeyword,
+    // accessor: SyntaxKind.AccessorKeyword,
+    // any: SyntaxKind.AnyKeyword,
+    // as: SyntaxKind.AsKeyword,
+    // asserts: SyntaxKind.AssertsKeyword,
+    // assert: SyntaxKind.AssertKeyword,
+    // bigint: SyntaxKind.BigIntKeyword,
+    // boolean: SyntaxKind.BooleanKeyword,
+    break: SyntaxKind.BreakKeyword,
+    // case: SyntaxKind.CaseKeyword,
+    // catch: SyntaxKind.CatchKeyword,
+    // class: SyntaxKind.ClassKeyword,
+    continue: SyntaxKind.ContinueKeyword,            
+    do: SyntaxKind.DoKeyword,
+    else: SyntaxKind.ElseKeyword,    
+    //export: SyntaxKind.ExportKeyword,    
+    //false: SyntaxKind.FalseKeyword,    
+    for: SyntaxKind.ForKeyword,
+    float: SyntaxKind.FloatKeyword,
+    //from: SyntaxKind.FromKeyword,
+    function: SyntaxKind.FunctionKeyword,    
+    if: SyntaxKind.IfKeyword,
+    //implements: SyntaxKind.ImplementsKeyword,
+    //import: SyntaxKind.ImportKeyword,
+    in: SyntaxKind.InKeyword,  
+    int: SyntaxKind.IntKeyword,      
+    //is: SyntaxKind.IsKeyword,    
+    new: SyntaxKind.NewKeyword,
+    null: SyntaxKind.NullKeyword,    
+    object: SyntaxKind.ObjectKeyword,    
+    private: SyntaxKind.PrivateKeyword,
+    protected: SyntaxKind.ProtectedKeyword,
+    public: SyntaxKind.PublicKeyword,            
+    return: SyntaxKind.ReturnKeyword,        
+    static: SyntaxKind.StaticKeyword,
+    string: SyntaxKind.StringKeyword,
+    //super: SyntaxKind.SuperKeyword,
+    switch: SyntaxKind.SwitchKeyword,        
+    //throw: SyntaxKind.ThrowKeyword,    
+    //try: SyntaxKind.TryKeyword,    
+    unknown: SyntaxKind.UnknownKeyword,    
+    void: SyntaxKind.VoidKeyword,
+    while: SyntaxKind.WhileKeyword,    
+    async: SyntaxKind.AsyncKeyword,        
+};
+
+const textToKeyword = new Map(Object.entries(textToKeywordObj));
+
+
+const textToToken = new Map(Object.entries({
+    ...textToKeywordObj,
+    "{": SyntaxKind.OpenBraceToken,
+    "}": SyntaxKind.CloseBraceToken,
+    "(": SyntaxKind.OpenParenToken,
+    ")": SyntaxKind.CloseParenToken,
+    "[": SyntaxKind.OpenBracketToken,
+    "]": SyntaxKind.CloseBracketToken,
+    ".": SyntaxKind.DotToken,
+    "...": SyntaxKind.DotDotDotToken,
+    ";": SyntaxKind.SemicolonToken,
+    ",": SyntaxKind.CommaToken,
+    "<": SyntaxKind.LessThanToken,
+    ">": SyntaxKind.GreaterThanToken,
+    "<=": SyntaxKind.LessThanEqualsToken,
+    ">=": SyntaxKind.GreaterThanEqualsToken,
+    "==": SyntaxKind.EqualsEqualsToken,
+    "!=": SyntaxKind.ExclamationEqualsToken,
+    "===": SyntaxKind.EqualsEqualsEqualsToken,
+    "!==": SyntaxKind.ExclamationEqualsEqualsToken,
+    "=>": SyntaxKind.EqualsGreaterThanToken,
+    "+": SyntaxKind.PlusToken,
+    "-": SyntaxKind.MinusToken,
+    "**": SyntaxKind.AsteriskAsteriskToken,
+    "*": SyntaxKind.AsteriskToken,
+    "/": SyntaxKind.SlashToken,
+    "%": SyntaxKind.PercentToken,
+    "++": SyntaxKind.PlusPlusToken,
+    "--": SyntaxKind.MinusMinusToken,
+    "<<": SyntaxKind.LessThanLessThanToken,
+    "</": SyntaxKind.LessThanSlashToken,
+    ">>": SyntaxKind.GreaterThanGreaterThanToken,
+    ">>>": SyntaxKind.GreaterThanGreaterThanGreaterThanToken,
+    "&": SyntaxKind.AmpersandToken,
+    "|": SyntaxKind.BarToken,
+    "^": SyntaxKind.CaretToken,
+    "!": SyntaxKind.ExclamationToken,
+    "~": SyntaxKind.TildeToken,
+    "&&": SyntaxKind.AmpersandAmpersandToken,
+    "||": SyntaxKind.BarBarToken,
+    "?": SyntaxKind.QuestionToken,    
+    "?.": SyntaxKind.QuestionDotToken,
+    ":": SyntaxKind.ColonToken,
+    "=": SyntaxKind.EqualsToken,
+    "+=": SyntaxKind.PlusEqualsToken,
+    "-=": SyntaxKind.MinusEqualsToken,
+    "*=": SyntaxKind.AsteriskEqualsToken,
+    "**=": SyntaxKind.AsteriskAsteriskEqualsToken,
+    "/=": SyntaxKind.SlashEqualsToken,
+    "%=": SyntaxKind.PercentEqualsToken,
+    "<<=": SyntaxKind.LessThanLessThanEqualsToken,
+    ">>=": SyntaxKind.GreaterThanGreaterThanEqualsToken,
+    ">>>=": SyntaxKind.GreaterThanGreaterThanGreaterThanEqualsToken,
+    "&=": SyntaxKind.AmpersandEqualsToken,
+    "|=": SyntaxKind.BarEqualsToken,
+    "^=": SyntaxKind.CaretEqualsToken,
+    "||=": SyntaxKind.BarBarEqualsToken,    
+    "??=": SyntaxKind.QuestionQuestionEqualsToken,
+    "@": SyntaxKind.AtToken,
+    "#": SyntaxKind.HashToken,    
+}));
