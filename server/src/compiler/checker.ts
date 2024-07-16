@@ -176,14 +176,15 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         lookup: getSuggestionForSymbolNameLookup,
     });
     
-    const checker:TypeChecker = {
+    const checker: TypeChecker = {
         getNodeCount: () => reduceLeft(host.getSourceFiles(), (n, s) => n + s.nodeCount, 0),
         getIdentifierCount: () => reduceLeft(host.getSourceFiles(), (n, s) => n + s.identifierCount, 0),
         getSymbolCount: () => reduceLeft(host.getSourceFiles(), (n, s) => n + s.symbolCount, symbolCount),
         getTypeCount: () => typeCount,
         getInstantiationCount: () => totalInstantiationCount,
         signatureToString,
-        getDiagnostics
+        getDiagnostics,
+        getAliasedSymbol: resolveAlias,
     };
 
     var anyType = createIntrinsicType(TypeFlags.Any, "any");

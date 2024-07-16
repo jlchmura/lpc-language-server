@@ -1,5 +1,5 @@
 import * as antlr from "antlr4ng";
-import { Signature, Type, Debug, DiagnosticArguments, DiagnosticMessage, DiagnosticRelatedInformation, DiagnosticWithDetachedLocation, DiagnosticWithLocation, Identifier, MapLike, ModifierFlags, Node, NodeFlags, ReadonlyTextRange, some, SourceFile, Symbol, SymbolFlags, SyntaxKind, TextRange, Token, TransformFlags, TypeChecker, TypeFlags, tracing, SignatureFlags, canHaveModifiers, Modifier, skipTrivia, SymbolTable, CallExpression, Declaration, getCombinedNodeFlags, BinaryExpression, AssignmentDeclarationKind, isCallExpression, isBinaryExpression, isIdentifier, Diagnostic, emptyArray, PropertyNameLiteral, DeclarationName, LiteralLikeNode, AssignmentExpression, LogicalOrCoalescingAssignmentOperator, LogicalOperator, Expression, OuterExpressionKinds, OuterExpression, WrappedExpression, PrefixUnaryExpression, PostfixUnaryExpression, ForEachStatement, ShorthandPropertyAssignment, PropertyAssignment, PropertyAccessExpression, ParenthesizedExpression, BinaryOperatorToken, AssertionLevel, SortedArray, binarySearch, identity, Comparison, DiagnosticMessageChain, compareStringsCaseSensitive, compareValues, insertSorted, flatMapToMutable, DiagnosticCollection, isJSDocTemplateTag, HasJSDoc, lastOrUndefined, JSDoc, isJSDoc, find, ParameterDeclaration, FunctionDeclaration, InlineClosureExpression, FunctionExpression, forEachChild, returnUndefined, returnFalse, CompilerOptions, FunctionLikeDeclaration, canHaveLocals, isFunctionLike, isParameter, PropertyDeclaration, BindingElement, isString, InternalSymbolName, isSourceFile, StructDeclaration, isStructDeclaration, JSDocTemplateTag, TypeNodeSyntaxKind, isTypeNode, isFunctionLikeDeclaration, SignatureDeclaration, AccessExpression, isInlineClosureExpression, PropertyAccessEntityNameExpression, isPropertyAccessExpression, EntityNameExpression, isVariableDeclaration, VariableDeclarationInitializedTo, CanonicalDiagnostic, HasInitializer, ExpressionStatement, ForStatement, isShorthandPropertyAssignment, JSDocTag, EqualsToken, AssignmentOperatorToken, isLeftHandSideExpression, isFunctionLikeKind, AdditiveOperator, AdditiveOperatorOrHigher, AssignmentOperatorOrHigher, BinaryOperator, BitwiseOperator, BitwiseOperatorOrHigher, EqualityOperator, EqualityOperatorOrHigher, ExponentiationOperator, LogicalOperatorOrHigher, MultiplicativeOperator, MultiplicativeOperatorOrHigher, RelationalOperator, RelationalOperatorOrHigher, ShiftOperator, ShiftOperatorOrHigher, HasFlowNode, ObjectFlags, ObjectFlagsType, isDeclaration, isBindingPattern, isJSDocSignature, JSDocSignature, TypeNode, findAncestor, Extension, fileExtensionIs, NamedDeclaration, KeywordSyntaxKind } from "./_namespaces/lpc";
+import { Signature, Type, Debug, DiagnosticArguments, DiagnosticMessage, DiagnosticRelatedInformation, DiagnosticWithDetachedLocation, DiagnosticWithLocation, Identifier, MapLike, ModifierFlags, Node, NodeFlags, ReadonlyTextRange, some, SourceFile, Symbol, SymbolFlags, SyntaxKind, TextRange, Token, TransformFlags, TypeChecker, TypeFlags, tracing, SignatureFlags, canHaveModifiers, Modifier, skipTrivia, SymbolTable, CallExpression, Declaration, getCombinedNodeFlags, BinaryExpression, AssignmentDeclarationKind, isCallExpression, isBinaryExpression, isIdentifier, Diagnostic, emptyArray, PropertyNameLiteral, DeclarationName, LiteralLikeNode, AssignmentExpression, LogicalOrCoalescingAssignmentOperator, LogicalOperator, Expression, OuterExpressionKinds, OuterExpression, WrappedExpression, PrefixUnaryExpression, PostfixUnaryExpression, ForEachStatement, ShorthandPropertyAssignment, PropertyAssignment, PropertyAccessExpression, ParenthesizedExpression, BinaryOperatorToken, AssertionLevel, SortedArray, binarySearch, identity, Comparison, DiagnosticMessageChain, compareStringsCaseSensitive, compareValues, insertSorted, flatMapToMutable, DiagnosticCollection, isJSDocTemplateTag, HasJSDoc, lastOrUndefined, JSDoc, isJSDoc, find, ParameterDeclaration, FunctionDeclaration, InlineClosureExpression, FunctionExpression, forEachChild, returnUndefined, returnFalse, CompilerOptions, FunctionLikeDeclaration, canHaveLocals, isFunctionLike, isParameter, PropertyDeclaration, BindingElement, isString, InternalSymbolName, isSourceFile, StructDeclaration, isStructDeclaration, JSDocTemplateTag, TypeNodeSyntaxKind, isTypeNode, isFunctionLikeDeclaration, SignatureDeclaration, AccessExpression, isInlineClosureExpression, PropertyAccessEntityNameExpression, isPropertyAccessExpression, EntityNameExpression, isVariableDeclaration, VariableDeclarationInitializedTo, CanonicalDiagnostic, HasInitializer, ExpressionStatement, ForStatement, isShorthandPropertyAssignment, JSDocTag, EqualsToken, AssignmentOperatorToken, isLeftHandSideExpression, isFunctionLikeKind, AdditiveOperator, AdditiveOperatorOrHigher, AssignmentOperatorOrHigher, BinaryOperator, BitwiseOperator, BitwiseOperatorOrHigher, EqualityOperator, EqualityOperatorOrHigher, ExponentiationOperator, LogicalOperatorOrHigher, MultiplicativeOperator, MultiplicativeOperatorOrHigher, RelationalOperator, RelationalOperatorOrHigher, ShiftOperator, ShiftOperatorOrHigher, HasFlowNode, ObjectFlags, ObjectFlagsType, isDeclaration, isBindingPattern, isJSDocSignature, JSDocSignature, TypeNode, findAncestor, Extension, fileExtensionIs, NamedDeclaration, KeywordSyntaxKind, binarySearchKey, SourceFileLike, isToken, EndOfFileToken, isJSDocCommentContainingNode, firstOrUndefined, getNodeChildren, JSDocContainer, PropertyName, idText, isMemberName } from "./_namespaces/lpc";
 import { TextSpan } from "../backend/types";
 
 /** @internal */
@@ -2716,5 +2716,307 @@ export function isIdentifierName(node: Identifier): boolean {
 /** @internal */
 export function isKeyword(token: SyntaxKind): token is KeywordSyntaxKind {
     return SyntaxKind.FirstKeyword <= token && token <= SyntaxKind.LastKeyword;
+}
+
+
+/**
+ * Gets the token whose text has range [start, end) and
+ * position >= start and (position < end or (position === end && token is literal or keyword or identifier))
+ *
+ * @internal
+ */
+export function getTouchingPropertyName(sourceFile: SourceFile, position: number): Node {
+    return getTouchingToken(sourceFile, position, n => isPropertyNameLiteral(n) || isKeyword(n.kind));// || isPrivateIdentifier(n));
+}
+
+/**
+ * Returns the token if position is in [start, end).
+ * If position === end, returns the preceding token if includeItemAtEndPosition(previousToken) === true
+ *
+ * @internal
+ */
+export function getTouchingToken(sourceFile: SourceFile, position: number, includePrecedingTokenAtEndPosition?: (n: Node) => boolean): Node {
+    return getTokenAtPositionWorker(sourceFile, position, /*allowPositionInLeadingTrivia*/ false, includePrecedingTokenAtEndPosition, /*includeEndPosition*/ false);
+}
+
+/** Get the token whose text contains the position */
+function getTokenAtPositionWorker(sourceFile: SourceFile, position: number, allowPositionInLeadingTrivia: boolean, includePrecedingTokenAtEndPosition: ((n: Node) => boolean) | undefined, includeEndPosition: boolean): Node {
+    let current: Node = sourceFile;
+    let foundToken: Node | undefined;
+    outer:
+    while (true) {
+        // find the child that contains 'position'
+
+        const children = current.getChildren(sourceFile);
+        const i = binarySearchKey(children, position, (_, i) => i, (middle, _) => {
+            // This last callback is more of a selector than a comparator -
+            // `EqualTo` causes the `middle` result to be returned
+            // `GreaterThan` causes recursion on the left of the middle
+            // `LessThan` causes recursion on the right of the middle
+
+            // Let's say you have 3 nodes, spanning positons
+            // pos: 1, end: 3
+            // pos: 3, end: 3
+            // pos: 3, end: 5
+            // and you're looking for the token at positon 3 - all 3 of these nodes are overlapping with position 3.
+            // In fact, there's a _good argument_ that node 2 shouldn't even be allowed to exist - depending on if
+            // the start or end of the ranges are considered inclusive, it's either wholly subsumed by the first or the last node.
+            // Unfortunately, such nodes do exist. :( - See fourslash/completionsImport_tsx.tsx - empty jsx attributes create
+            // a zero-length node.
+            // What also you may not expect is that which node we return depends on the includePrecedingTokenAtEndPosition flag.
+            // Specifically, if includePrecedingTokenAtEndPosition is set, we return the 1-3 node, while if it's unset, we
+            // return the 3-5 node. (The zero length node is never correct.) This is because the includePrecedingTokenAtEndPosition
+            // flag causes us to return the first node whose end position matches the position and which produces and acceptable token
+            // kind. Meanwhile, if includePrecedingTokenAtEndPosition is unset, we look for the first node whose start is <= the
+            // position and whose end is greater than the position.
+
+            // There are more sophisticated end tests later, but this one is very fast
+            // and allows us to skip a bunch of work
+            const end = children[middle].getEnd();
+            if (end < position) {
+                return Comparison.LessThan;
+            }
+
+            const start = allowPositionInLeadingTrivia ? children[middle].getFullStart() : children[middle].getStart(sourceFile, /*includeJsDocComment*/ true);
+            if (start > position) {
+                return Comparison.GreaterThan;
+            }
+
+            // first element whose start position is before the input and whose end position is after or equal to the input
+            if (nodeContainsPosition(children[middle], start, end)) {
+                if (children[middle - 1]) {
+                    // we want the _first_ element that contains the position, so left-recur if the prior node also contains the position
+                    if (nodeContainsPosition(children[middle - 1])) {
+                        return Comparison.GreaterThan;
+                    }
+                }
+                return Comparison.EqualTo;
+            }
+
+            // this complex condition makes us left-recur around a zero-length node when includePrecedingTokenAtEndPosition is set, rather than right-recur on it
+            if (includePrecedingTokenAtEndPosition && start === position && children[middle - 1] && children[middle - 1].getEnd() === position && nodeContainsPosition(children[middle - 1])) {
+                return Comparison.GreaterThan;
+            }
+            return Comparison.LessThan;
+        });
+
+        if (foundToken) {
+            return foundToken;
+        }
+        if (i >= 0 && children[i]) {
+            current = children[i];
+            continue outer;
+        }
+
+        return current;
+    }
+
+    function nodeContainsPosition(node: Node, start?: number, end?: number) {
+        end ??= node.getEnd();
+        if (end < position) {
+            return false;
+        }
+        start ??= allowPositionInLeadingTrivia ? node.getFullStart() : node.getStart(sourceFile, /*includeJsDocComment*/ true);
+        if (start > position) {
+            // If this child begins after position, then all subsequent children will as well.
+            return false;
+        }
+        if (position < end || (position === end && (node.kind === SyntaxKind.EndOfFileToken || includeEndPosition))) {
+            return true;
+        }
+        else if (includePrecedingTokenAtEndPosition && end === position) {
+            const previousToken = findPrecedingToken(position, sourceFile, node);
+            if (previousToken && includePrecedingTokenAtEndPosition(previousToken)) {
+                foundToken = previousToken;
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
+function isNonWhitespaceToken(n: Node): boolean {
+    return isToken(n);
+}
+
+function nodeHasTokens(n: Node, sourceFile: SourceFileLike): boolean {
+    // If we have a token or node that has a non-zero width, it must have tokens.
+    // Note: getWidth() does not take trivia into account.
+    return n.kind === SyntaxKind.EndOfFileToken ? !!(n as EndOfFileToken).jsDoc : n.getWidth(sourceFile) !== 0;
+}
+
+/**
+ * Finds the rightmost child to the left of `children[exclusiveStartPosition]` which is a non-all-whitespace token or has constituent tokens.
+ */
+function findRightmostChildNodeWithTokens(children: readonly Node[], exclusiveStartPosition: number, sourceFile: SourceFileLike, parentKind: SyntaxKind): Node | undefined {
+    for (let i = exclusiveStartPosition - 1; i >= 0; i--) {
+        const child = children[i];
+
+        if (nodeHasTokens(children[i], sourceFile)) {
+            return children[i];
+        }
+    }
+}
+
+
+/**
+ * Finds the rightmost token satisfying `token.end <= position`,
+ * excluding `JsxText` tokens containing only whitespace.
+ *
+ * @internal
+ */
+export function findPrecedingToken(position: number, sourceFile: SourceFileLike, startNode: Node, excludeJsdoc?: boolean): Node | undefined;
+/** @internal */
+export function findPrecedingToken(position: number, sourceFile: SourceFile, startNode?: Node, excludeJsdoc?: boolean): Node | undefined;
+/** @internal */
+export function findPrecedingToken(position: number, sourceFile: SourceFileLike, startNode?: Node, excludeJsdoc?: boolean): Node | undefined {
+    const result = find((startNode || sourceFile) as Node);    
+    return result;
+
+    function find(n: Node): Node | undefined {
+        if (isNonWhitespaceToken(n) && n.kind !== SyntaxKind.EndOfFileToken) {
+            return n;
+        }
+
+        const children = n.getChildren(sourceFile);
+        const i = binarySearchKey(children, position, (_, i) => i, (middle, _) => {
+            // This last callback is more of a selector than a comparator -
+            // `EqualTo` causes the `middle` result to be returned
+            // `GreaterThan` causes recursion on the left of the middle
+            // `LessThan` causes recursion on the right of the middle
+            if (position < children[middle].end) {
+                // first element whose end position is greater than the input position
+                if (!children[middle - 1] || position >= children[middle - 1].end) {
+                    return Comparison.EqualTo;
+                }
+                return Comparison.GreaterThan;
+            }
+            return Comparison.LessThan;
+        });
+        if (i >= 0 && children[i]) {
+            const child = children[i];
+            // Note that the span of a node's tokens is [node.getStart(...), node.end).
+            // Given that `position < child.end` and child has constituent tokens, we distinguish these cases:
+            // 1) `position` precedes `child`'s tokens or `child` has no tokens (ie: in a comment or whitespace preceding `child`):
+            // we need to find the last token in a previous child.
+            // 2) `position` is within the same span: we recurse on `child`.
+            if (position < child.end) {
+                const start = child.getStart(sourceFile, /*includeJsDoc*/ !excludeJsdoc);
+                const lookInPreviousChild = (start >= position) || // cursor in the leading trivia
+                    !nodeHasTokens(child, sourceFile);
+
+                if (lookInPreviousChild) {
+                    // actual start of the node is past the position - previous token should be at the end of previous child
+                    const candidate = findRightmostChildNodeWithTokens(children, /*exclusiveStartPosition*/ i, sourceFile, n.kind);
+                    if (candidate) {
+                        // Ensure we recurse into JSDoc nodes with children.
+                        if (!excludeJsdoc && isJSDocCommentContainingNode(candidate) && candidate.getChildren(sourceFile).length) {
+                            return find(candidate);
+                        }
+                        return findRightmostToken(candidate, sourceFile);
+                    }
+                    return undefined;
+                }
+                else {
+                    // candidate should be in this node
+                    return find(child);
+                }
+            }
+        }
+
+        Debug.assert(startNode !== undefined || n.kind === SyntaxKind.SourceFile || n.kind === SyntaxKind.EndOfFileToken || isJSDocCommentContainingNode(n));
+
+        // Here we know that none of child token nodes embrace the position,
+        // the only known case is when position is at the end of the file.
+        // Try to find the rightmost token in the file without filtering.
+        // Namely we are skipping the check: 'position < node.end'
+        const candidate = findRightmostChildNodeWithTokens(children, /*exclusiveStartPosition*/ children.length, sourceFile, n.kind);
+        return candidate && findRightmostToken(candidate, sourceFile);
+    }
+}
+
+function findRightmostToken(n: Node, sourceFile: SourceFileLike): Node | undefined {
+    if (isNonWhitespaceToken(n)) {
+        return n;
+    }
+
+    const children = n.getChildren(sourceFile);
+    if (children.length === 0) {
+        return n;
+    }
+
+    const candidate = findRightmostChildNodeWithTokens(children, /*exclusiveStartPosition*/ children.length, sourceFile, n.kind);
+    return candidate && findRightmostToken(candidate, sourceFile);
+}
+
+/**
+ * True if node is of some JSDoc syntax kind.
+ *
+ * @internal
+ */
+export function isJSDocNode(node: Node): boolean {
+    return node.kind >= SyntaxKind.FirstJSDocNode && node.kind <= SyntaxKind.LastJSDocNode;
+}
+
+/** @internal */
+export function getTokenPosOfNode(node: Node, sourceFile?: SourceFileLike, includeJsDoc?: boolean): number {
+    // With nodes that have no width (i.e. 'Missing' nodes), we actually *don't*
+    // want to skip trivia because this will launch us forward to the next token.
+    if (nodeIsMissing(node)) {
+        return node.pos;
+    }
+
+    if (isJSDocNode(node)) {
+        // JsxText cannot actually contain comments, even though the scanner will think it sees comments
+        return skipTrivia((sourceFile ?? getSourceFileOfNode(node)).text, node.pos, /*stopAfterLineBreak*/ false, /*stopAtComments*/ true);
+    }
+    
+    if (includeJsDoc && hasJSDocNodes(node)) {
+        return getTokenPosOfNode(node.jsDoc![0], sourceFile);
+    }
+
+    // For a syntax list, it is possible that one of its children has JSDocComment nodes, while
+    // the syntax list itself considers them as normal trivia. Therefore if we simply skip
+    // trivia for the list, we may have skipped the JSDocComment as well. So we should process its
+    // first child to determine the actual position of its first token.
+    if (node.kind === SyntaxKind.SyntaxList) {
+        sourceFile ??= getSourceFileOfNode(node);
+        const first = firstOrUndefined(getNodeChildren(node, sourceFile));
+        if (first) {
+            return getTokenPosOfNode(first, sourceFile, includeJsDoc);
+        }
+    }
+
+    return skipTrivia(
+        (sourceFile ?? getSourceFileOfNode(node)).text,
+        node.pos,
+        /*stopAfterLineBreak*/ false,
+        /*stopAtComments*/ false,
+        isInJSDoc(node),
+    );
+}
+
+/** @internal */
+export function isInJSDoc(node: Node | undefined): boolean {
+    return !!node && !!(node.flags & NodeFlags.JSDoc);
+}
+
+/**
+ * True if has jsdoc nodes attached to it.
+ *
+ * @internal
+ */
+// TODO: GH#19856 Would like to return `node is Node & { jsDoc: JSDoc[] }` but it causes long compile times
+export function hasJSDocNodes(node: Node): node is HasJSDoc {
+    if (!canHaveJSDoc(node)) return false;
+
+    const { jsDoc } = node as JSDocContainer;
+    return !!jsDoc && jsDoc.length > 0;
+}
+
+/** @internal */
+export function getTextOfIdentifierOrLiteral(node: PropertyNameLiteral): string {
+    return node.text; // TODO
+    //return isMemberName(node) ? idText(node) : node.text;
 }
 

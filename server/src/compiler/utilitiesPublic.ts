@@ -1,4 +1,4 @@
-import { ArrayBindingElement, AssignmentDeclarationKind, BinaryExpression, BindingPattern, Block, CallExpression, CallLikeExpression, canHaveJSDoc, Debug, Declaration, DeclarationName, emptyArray, Expression, find, flatMap, ForEachStatement, FunctionLikeDeclaration, getAssignmentDeclarationKind, getEffectiveModifierFlags, getJSDocCommentsAndTags, HasLocals, HasModifiers, hasProperty, Identifier, isBinaryExpression, isBlock, isFunctionBlock, isFunctionExpression, isIdentifier, isInlineClosureExpression, isJSDoc, isJSDocDeprecatedTag, isKeyword, isSourceFile, isTypeNodeKind, isVariableDeclaration, IterationStatement, JSDocDeprecatedTag, JSDocTag, KeywordSyntaxKind, LeftHandSideExpression, ModifierFlags, NamedDeclaration, Node, NodeArray, NodeFlags, OuterExpressionKinds, ParameterDeclaration, SignatureDeclaration, skipOuterExpressions, Statement, stringToToken, Symbol, SyntaxKind, tryCast, TypeNode, UnaryExpression } from "./_namespaces/lpc";
+import { ArrayBindingElement, AssignmentDeclarationKind, BinaryExpression, BindingPattern, Block, CallExpression, CallLikeExpression, canHaveJSDoc, Debug, Declaration, DeclarationName, emptyArray, Expression, find, flatMap, ForEachStatement, FunctionLikeDeclaration, getAssignmentDeclarationKind, getEffectiveModifierFlags, getJSDocCommentsAndTags, HasLocals, HasModifiers, hasProperty, Identifier, isBinaryExpression, isBlock, isFunctionBlock, isFunctionExpression, isIdentifier, isInlineClosureExpression, isJSDoc, isJSDocDeprecatedTag, isJSDocSignature, isKeyword, isSourceFile, isTypeNodeKind, isVariableDeclaration, IterationStatement, JSDocDeprecatedTag, JSDocTag, KeywordSyntaxKind, LeftHandSideExpression, MemberName, ModifierFlags, NamedDeclaration, Node, NodeArray, NodeFlags, OuterExpressionKinds, ParameterDeclaration, SignatureDeclaration, skipOuterExpressions, Statement, stringToToken, Symbol, SyntaxKind, tryCast, TypeNode, UnaryExpression } from "./_namespaces/lpc";
 
 /** @internal */
 export function isNodeArray<T extends Node>(array: readonly T[]): array is NodeArray<T> {
@@ -623,4 +623,45 @@ function isUnaryExpressionKind(kind: SyntaxKind): boolean {
 export function identifierToKeywordKind(node: Identifier): KeywordSyntaxKind | undefined {
     const token = stringToToken(node.text as string);
     return token ? tryCast(token, isKeyword) : undefined;
+}
+
+/**
+ * True if node is of some token syntax kind.
+ * For example, this is true for an IfKeyword but not for an IfStatement.
+ * Literals are considered tokens, except TemplateLiteral, but does include TemplateHead/Middle/Tail.
+ */
+export function isToken(n: Node): boolean {
+    return isTokenKind(n.kind);
+}
+
+
+/**
+ * True if kind is of some token syntax kind.
+ * For example, this is true for an IfKeyword but not for an IfStatement.
+ * Literals are considered tokens, except TemplateLiteral, but does include TemplateHead/Middle/Tail.
+ */
+export function isTokenKind(kind: SyntaxKind): boolean {
+    return kind >= SyntaxKind.FirstToken && kind <= SyntaxKind.LastToken;
+}
+
+/** True if node is of a kind that may contain comment text. */
+export function isJSDocCommentContainingNode(node: Node): boolean {
+    return node.kind === SyntaxKind.JSDoc
+        || node.kind === SyntaxKind.JSDocNamepathType
+        || node.kind === SyntaxKind.JSDocText
+        // TODO
+        // || isJSDocLinkLike(node)
+        // || isJSDocTag(node)
+        // || isJSDocTypeLiteral(node)
+        || isJSDocSignature(node);
+}
+
+
+/** @internal */
+export function isNodeKind(kind: SyntaxKind) {
+    return kind >= SyntaxKind.FirstNode;
+}
+
+export function isMemberName(node: Node): node is MemberName {
+    return node.kind === SyntaxKind.Identifier;// || node.kind === SyntaxKind.PrivateIdentifier;
 }

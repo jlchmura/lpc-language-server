@@ -9,6 +9,7 @@ export * from "../utilitiesPublic.js";
 export * from "../parser.js";
 export * from "../factory/baseNodeFactory.js";
 export * from "../factory/nodeFactory.js";
+export * from "../factory/nodeChildren.js";
 export * from "../nodeTests.js";
 export * from "../debug.js";
 export * from "../tracing.js";

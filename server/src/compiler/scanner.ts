@@ -1,7 +1,5 @@
 import { CharacterCodes } from "../backend/types";
-import { Debug, DiagnosticMessage, Diagnostics, KeywordSyntaxKind, MapLike, positionIsSynthesized, SyntaxKind } from "./_namespaces/lpc";
-
-export interface Scanner {}
+import { arrayIsEqualTo, binarySearch, compareValues, Debug, DiagnosticMessage, Diagnostics, identity, JSDocParsingMode, KeywordSyntaxKind, LanguageVariant, LineAndCharacter, MapLike, positionIsSynthesized, SourceFileLike, SyntaxKind, TokenFlags } from "./_namespaces/lpc";
 
 /** @internal */
 export function skipTrivia(text: string, pos: number, stopAfterLineBreak?: boolean, stopAtComments?: boolean, inJSDoc?: boolean): number {
@@ -327,3 +325,247 @@ const textToToken = new Map(Object.entries({
     "@": SyntaxKind.AtToken,
     "#": SyntaxKind.HashToken,    
 }));
+
+export type ErrorCallback = (message: DiagnosticMessage, length: number, arg0?: any) => void;
+
+export interface Scanner {
+    // TODO
+
+    // /** @deprecated use {@link getTokenFullStart} */
+    getStartPos(): number;
+    // getToken(): SyntaxKind;
+    getTokenFullStart(): number;
+    // getTokenStart(): number;
+    getTokenEnd(): number;
+    /** @deprecated use {@link getTokenEnd} */
+    getTextPos(): number;
+    // /** @deprecated use {@link getTokenStart} */
+    // getTokenPos(): number;
+    // getTokenText(): string;
+    // getTokenValue(): string;
+    // hasUnicodeEscape(): boolean;
+    // hasExtendedUnicodeEscape(): boolean;
+    // hasPrecedingLineBreak(): boolean;
+    // /** @internal */
+    // hasPrecedingJSDocComment(): boolean;
+    // isIdentifier(): boolean;
+    // isReservedWord(): boolean;
+    // isUnterminated(): boolean;
+    // /** @internal */
+    // getNumericLiteralFlags(): TokenFlags;
+    // /** @internal */
+    // getCommentDirectives(): CommentDirective[] | undefined;
+    // /** @internal */
+    // getTokenFlags(): TokenFlags;
+    // reScanGreaterToken(): SyntaxKind;
+    // reScanSlashToken(): SyntaxKind;
+    // /** @internal */
+    // reScanSlashToken(reportErrors?: boolean): SyntaxKind; // eslint-disable-line @typescript-eslint/unified-signatures
+    // reScanAsteriskEqualsToken(): SyntaxKind;
+    // reScanTemplateToken(isTaggedTemplate: boolean): SyntaxKind;
+    // /** @deprecated use {@link reScanTemplateToken}(false) */
+    // reScanTemplateHeadOrNoSubstitutionTemplate(): SyntaxKind;
+    // scanJsxIdentifier(): SyntaxKind;
+    // scanJsxAttributeValue(): SyntaxKind;
+    // reScanJsxAttributeValue(): SyntaxKind;
+    // reScanJsxToken(allowMultilineJsxText?: boolean): JsxTokenSyntaxKind;
+    // reScanLessThanToken(): SyntaxKind;
+    // reScanHashToken(): SyntaxKind;
+    // reScanQuestionToken(): SyntaxKind;
+    // reScanInvalidIdentifier(): SyntaxKind;
+    // scanJsxToken(): JsxTokenSyntaxKind;
+    // scanJsDocToken(): JSDocSyntaxKind;
+    // /** @internal */
+    // scanJSDocCommentTextToken(inBackticks: boolean): JSDocSyntaxKind | SyntaxKind.JSDocCommentTextToken;
+    // scan(): SyntaxKind;
+
+    // getText(): string;
+    // /** @internal */
+    // clearCommentDirectives(): void;
+    // // Sets the text for the scanner to scan.  An optional subrange starting point and length
+    // // can be provided to have the scanner only scan a portion of the text.
+    setText(text: string | undefined, start?: number, length?: number): void;
+    // setOnError(onError: ErrorCallback | undefined): void;
+    // setScriptTarget(scriptTarget: ScriptTarget): void;
+    // setLanguageVariant(variant: LanguageVariant): void;
+    // setScriptKind(scriptKind: ScriptKind): void;
+    // setJSDocParsingMode(kind: JSDocParsingMode): void;
+    // /** @deprecated use {@link resetTokenState} */
+    // setTextPos(textPos: number): void;
+    // resetTokenState(pos: number): void;
+    // /** @internal */
+    // setSkipJsDocLeadingAsterisks(skip: boolean): void;
+    // // Invokes the provided callback then unconditionally restores the scanner to the state it
+    // // was in immediately prior to invoking the callback.  The result of invoking the callback
+    // // is returned from this function.
+    // lookAhead<T>(callback: () => T): T;
+
+    // // Invokes the callback with the scanner set to scan the specified range. When the callback
+    // // returns, the scanner is restored to the state it was in before scanRange was called.
+    // scanRange<T>(start: number, length: number, callback: () => T): T;
+
+    // // Invokes the provided callback.  If the callback returns something falsy, then it restores
+    // // the scanner to the state it was in immediately prior to invoking the callback.  If the
+    // // callback returns something truthy, then the scanner state is not rolled back.  The result
+    // // of invoking the callback is returned from this function.
+    // tryScan<T>(callback: () => T): T;
+}
+
+// Creates a scanner over a (possibly unspecified) range of a piece of text.
+export function createScanner(skipTrivia: boolean, languageVariant = LanguageVariant.LDMud, textInitial?: string, onError?: ErrorCallback, start?: number, length?: number): Scanner {
+    // Why var? It avoids TDZ checks in the runtime which can be costly.
+    // See: https://github.com/microsoft/TypeScript/issues/52924
+    /* eslint-disable no-var */
+    var text = textInitial!;
+
+    // Current position (end position of text of current token)
+    var pos: number;
+
+    // end of text
+    var end: number;
+
+    // Start position of whitespace before current token
+    var fullStartPos: number;
+
+    
+    // Start position of text of current token
+    var tokenStart: number;
+
+    var token: SyntaxKind;
+    var tokenValue!: string;
+    var tokenFlags: TokenFlags;
+
+    //var commentDirectives: CommentDirective[] | undefined;
+    var skipJsDocLeadingAsterisks = 0;
+    
+    var jsDocParsingMode = JSDocParsingMode.ParseAll;
+
+    setText(text, start, length);
+    
+    var scanner: Scanner = {
+        getTokenFullStart: () => fullStartPos,
+        getStartPos: () => fullStartPos,
+        getTokenEnd: () => pos,
+        getTextPos: () => pos,
+        setText
+    };
+
+    return scanner;
+
+    function setText(newText: string | undefined, start: number | undefined, length: number | undefined) {
+        text = newText || "";
+        end = length === undefined ? text.length : start! + length;
+        resetTokenState(start || 0);
+    }
+
+    function resetTokenState(position: number) {
+        Debug.assert(position >= 0);
+        pos = position;
+        fullStartPos = position;
+        tokenStart = position;
+        token = SyntaxKind.Unknown;
+        tokenValue = undefined!;
+        tokenFlags = TokenFlags.None;
+    }
+    
+}
+
+
+/**
+ * @internal
+ * We assume the first line starts at position 0 and 'position' is non-negative.
+ */
+export function computeLineOfPosition(lineStarts: readonly number[], position: number, lowerBound?: number) {
+    let lineNumber = binarySearch(lineStarts, position, identity, compareValues, lowerBound);
+    if (lineNumber < 0) {
+        // If the actual position was not found,
+        // the binary search returns the 2's-complement of the next line start
+        // e.g. if the line starts at [5, 10, 23, 80] and the position requested was 20
+        // then the search will return -2.
+        //
+        // We want the index of the previous line start, so we subtract 1.
+        // Review 2's-complement if this is confusing.
+        lineNumber = ~lineNumber - 1;
+        Debug.assert(lineNumber !== -1, "position cannot precede the beginning of the file");
+    }
+    return lineNumber;
+}
+
+/** @internal */
+export function computeLineAndCharacterOfPosition(lineStarts: readonly number[], position: number): LineAndCharacter {
+    const lineNumber = computeLineOfPosition(lineStarts, position);
+    return {
+        line: lineNumber,
+        character: position - lineStarts[lineNumber],
+    };
+}
+
+
+/** @internal */
+export function computeLineStarts(text: string): number[] {
+    const result: number[] = [];
+    let pos = 0;
+    let lineStart = 0;
+    while (pos < text.length) {
+        const ch = text.charCodeAt(pos);
+        pos++;
+        switch (ch) {
+            case CharacterCodes.carriageReturn:
+                if (text.charCodeAt(pos) === CharacterCodes.lineFeed) {
+                    pos++;
+                }
+            // falls through
+            case CharacterCodes.lineFeed:
+                result.push(lineStart);
+                lineStart = pos;
+                break;
+            default:
+                if (ch > CharacterCodes.maxAsciiCharacter && isLineBreak(ch)) {
+                    result.push(lineStart);
+                    lineStart = pos;
+                }
+                break;
+        }
+    }
+    result.push(lineStart);
+    return result;
+}
+
+/** @internal */
+export function getLineStarts(sourceFile: SourceFileLike): readonly number[] {
+    return sourceFile.lineMap || (sourceFile.lineMap = computeLineStarts(sourceFile.text));
+}
+
+export function getLineAndCharacterOfPosition(sourceFile: SourceFileLike, position: number): LineAndCharacter {
+    return computeLineAndCharacterOfPosition(getLineStarts(sourceFile), position);
+}
+
+
+/** @internal */
+export function computePositionOfLineAndCharacter(lineStarts: readonly number[], line: number, character: number, debugText?: string, allowEdits?: true): number {
+    if (line < 0 || line >= lineStarts.length) {
+        if (allowEdits) {
+            // Clamp line to nearest allowable value
+            line = line < 0 ? 0 : line >= lineStarts.length ? lineStarts.length - 1 : line;
+        }
+        else {
+            Debug.fail(`Bad line number. Line: ${line}, lineStarts.length: ${lineStarts.length} , line map is correct? ${debugText !== undefined ? arrayIsEqualTo(lineStarts, computeLineStarts(debugText)) : "unknown"}`);
+        }
+    }
+
+    const res = lineStarts[line] + character;
+    if (allowEdits) {
+        // Clamp to nearest allowable values to allow the underlying to be edited without crashing (accuracy is lost, instead)
+        // TODO: Somehow track edits between file as it was during the creation of sourcemap we have and the current file and
+        // apply them to the computed position to improve accuracy
+        return res > lineStarts[line + 1] ? lineStarts[line + 1] : typeof debugText === "string" && res > debugText.length ? debugText.length : res;
+    }
+    if (line < lineStarts.length - 1) {
+        Debug.assert(res < lineStarts[line + 1]);
+    }
+    else if (debugText !== undefined) {
+        Debug.assert(res <= debugText.length); // Allow single character overflow for trailing newline
+    }
+    return res;
+}
+

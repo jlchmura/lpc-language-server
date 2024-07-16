@@ -32,6 +32,7 @@ import * as p2 from "./compiler/_namespaces/lpc";
 
 import {
     CompilerOptions,
+    getTouchingPropertyName,
     Path,
     TypeCheckerHost,
 } from "./compiler/_namespaces/lpc";
@@ -67,6 +68,9 @@ const host = createHost(filename, sourceText, config);
 const srcFile = host.getSourceFile(filename);
 const checker = p2.createTypeChecker(host); // binder is called by checker
 const diags = checker.getDiagnostics(srcFile);
+
+const node = getTouchingPropertyName(srcFile, 96);
+
 console.debug("node count:", srcFile.nodeCount);
 
 // const facade = new LpcFacade(workDir, undefined);

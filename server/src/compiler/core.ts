@@ -993,3 +993,94 @@ export function sameMap<T, U = T>(array: readonly T[] | undefined, f: (x: T, i: 
     }
     return array as unknown[] as U[];
 }
+
+/**
+ * Returns the first element of an array if non-empty, `undefined` otherwise.
+ *
+ * @internal
+ */
+export function firstOrUndefined<T>(array: readonly T[] | undefined): T | undefined {
+    return array === undefined || array.length === 0 ? undefined : array[0];
+}
+
+
+/** @internal */
+export function arrayIsEqualTo<T>(array1: readonly T[] | undefined, array2: readonly T[] | undefined, equalityComparer: (a: T, b: T, index: number) => boolean = equateValues): boolean {
+    if (array1 === undefined || array2 === undefined) {
+        return array1 === array2;
+    }
+
+    if (array1.length !== array2.length) {
+        return false;
+    }
+
+    for (let i = 0; i < array1.length; i++) {
+        if (!equalityComparer(array1[i], array2[i], i)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+
+/** @internal */
+export function createMultiMap<K, V>(): MultiMap<K, V> {
+    const map = new Map<K, V[]>() as MultiMap<K, V>;
+    map.add = multiMapAdd;
+    map.remove = multiMapRemove;
+    return map;
+}
+function multiMapAdd<K, V>(this: MultiMap<K, V>, key: K, value: V) {
+    let values = this.get(key);
+    if (values !== undefined) {
+        values.push(value);
+    }
+    else {
+        this.set(key, values = [value]);
+    }
+    return values;
+}
+function multiMapRemove<K, V>(this: MultiMap<K, V>, key: K, value: V) {
+    const values = this.get(key);
+    if (values !== undefined) {
+        unorderedRemoveItem(values, value);
+        if (!values.length) {
+            this.delete(key);
+        }
+    }
+}
+
+
+/**
+ * Remove the *first* occurrence of `item` from the array.
+ *
+ * @internal
+ */
+export function unorderedRemoveItem<T>(array: T[], item: T) {
+    return unorderedRemoveFirstItemWhere(array, element => element === item);
+}
+
+/** Remove the *first* element satisfying `predicate`. */
+function unorderedRemoveFirstItemWhere<T>(array: T[], predicate: (element: T) => boolean) {
+    for (let i = 0; i < array.length; i++) {
+        if (predicate(array[i])) {
+            unorderedRemoveItemAt(array, i);
+            return true;
+        }
+    }
+    return false;
+}
+
+
+function unorderedRemoveItemAt<T>(array: T[], index: number): void {
+    // Fill in the "hole" left at `index`.
+    array[index] = array[array.length - 1];
+    array.pop();
+}
+
+
+/** @internal */
+export function singleElementArray<T>(t: T | undefined): T[] | undefined {
+    return t === undefined ? undefined : [t];
+}

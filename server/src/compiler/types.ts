@@ -79,7 +79,9 @@ export interface TypeChecker {
     
     // Should not be called directly.  Should only be accessed through the Program instance.
     /** @internal */ getDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken, nodesToCheck?: Node[]): Diagnostic[];
-    
+    /** Follow all aliases to get the original symbol. */
+    getAliasedSymbol(symbol: Symbol): Symbol;
+
     // TODO
 }
 
@@ -345,7 +347,11 @@ export type TypeId = number;
 export const enum SyntaxKind {
     Unknown, // fIrst token
     EndOfFileToken,
-    
+    SingleLineCommentTrivia,
+    MultiLineCommentTrivia,
+    NewLineTrivia,
+    WhitespaceTrivia,
+
     // Literals
     IntLiteral,
     FloatLiteral,
@@ -484,7 +490,7 @@ export const enum SyntaxKind {
     SourceFile,
     
     // JSDoc nodes
-    JSDocTypeExpression,
+    JSDocTypeExpression, // First JSDoc Node
     JSDocNameReference,
     JSDocMemberName, // C#p
     JSDocAllType, // The * type
@@ -528,7 +534,7 @@ export const enum SyntaxKind {
     JSDocPropertyTag,
     JSDocThrowsTag,
     JSDocSatisfiesTag,
-    JSDocImportTag,
+    JSDocImportTag, // Last JSDoc Node
 
     // Synthesized List
     SyntaxList,
@@ -604,6 +610,8 @@ export const enum SyntaxKind {
     FirstNode = TypeParameter,
     FirstFutureReservedWord = IntKeyword,
     LastFutureReservedWord = LastKeyword,
+    FirstJSDocNode = JSDocTypeExpression,
+    LastJSDocNode = JSDocImportTag,
 }
 
 // dprint-ignore
@@ -758,7 +766,13 @@ export const enum NodeFlags {
     HasImplicitReturn  = 1 << 9,  // If function implicitly returns on one of codepaths (initialized by binding)
     HasExplicitReturn  = 1 << 10,  // If function has explicit reachable return on one of codepaths (initialized by binding)
     HasAsyncFunctions  = 1 << 12, // If the file has async (i.e. LD coroutine) functions (initialized by binding)    
+    DisallowInContext  = 1 << 13, // If node was parsed in a context where 'in-expressions' are not allowed
+    YieldContext       = 1 << 14, // If node was parsed in the 'yield' context created when parsing a generator
+    DecoratorContext   = 1 << 15, // If node was parsed as part of a decorator
+    AwaitContext       = 1 << 16, // If node was parsed in the 'await' context created when parsing an async function
+    DisallowConditionalTypesContext = 1 << 17, // If node was parsed in a context where conditional types are not allowed
     ThisNodeHasError   = 1 << 18, // If the parser encountered an error when parsing the code that created this node
+    JavaScriptFile     = 1 << 19, // If node was parsed in a JavaScript
     ThisNodeOrAnySubNodesHasError = 1 << 20, // If this node or any of its children had an error
     HasAggregatedChildData = 1 << 21, // If we've computed data from children and cached it in this node
 
@@ -769,6 +783,9 @@ export const enum NodeFlags {
 
     ReachabilityCheckFlags = HasImplicitReturn | HasExplicitReturn,
     ReachabilityAndEmitFlags = ReachabilityCheckFlags,
+
+    // Parsing context flags
+    ContextFlags = DisallowInContext | DisallowConditionalTypesContext | YieldContext | DecoratorContext | AwaitContext | JavaScriptFile | Ambient,
 
     // parse set flags
     BlockScoped = Variable,
@@ -1940,6 +1957,26 @@ export interface IncompleteType {
     type: Type;            // The type marked incomplete
 }
 
+export interface LineAndCharacter {
+    /** 0-based. */
+    line: number;
+    /*
+     * 0-based. This value denotes the character position in line and is different from the 'column' because of tab characters.
+     */
+    character: number;
+}
+
+/**
+ * Subset of properties from SourceFile that are used in multiple utility functions
+ */
+export interface SourceFileLike {
+    readonly text: string;
+    /** @internal */
+    lineMap?: readonly number[];
+    /** @internal */
+    getPositionOfLineAndCharacter?(line: number, character: number, allowEdits?: true): number;
+}
+
 // Source files are declarations when they are external modules.
 export interface SourceFile extends Declaration, LocalsContainer {
     readonly kind: SyntaxKind.SourceFile;
@@ -2038,6 +2075,31 @@ export interface SourceFile extends Declaration, LocalsContainer {
 
     ///** @internal */ jsDocParsingMode?: JSDocParsingMode;
 }
+
+/** @internal */
+export interface ReadonlyPragmaContext {
+    //languageVersion: ScriptTarget;
+    //pragmas?: ReadonlyPragmaMap;
+    //checkJsDirective?: CheckJsDirective;
+    referencedFiles: readonly FileReference[];
+    typeReferenceDirectives: readonly FileReference[];
+    libReferenceDirectives: readonly FileReference[];
+    //amdDependencies: readonly AmdDependency[];
+    hasNoDefaultLib?: boolean;
+    moduleName?: string;
+}
+
+
+export type CommentKind = SyntaxKind.SingleLineCommentTrivia | SyntaxKind.MultiLineCommentTrivia;
+
+export interface CommentRange extends TextRange {
+    hasTrailingNewLine?: boolean;
+    kind: CommentKind;
+}
+
+
+/** @internal */
+export interface SourceFile extends ReadonlyPragmaContext {}
 
 export interface FileReference extends TextRange {
     fileName: string;    
@@ -2244,13 +2306,9 @@ export interface ArrayTypeNode extends TypeNode {
 }
 
 export interface JSDocContainer extends Node {
-    _jsDocContainerBrand: any;
-    /** jsdoc that directly precedes this node */
-    jsDoc?: any;
+    _LpcjsDocContainerBrand: any;
+    /** @internal */ jsDoc?: JSDocArray; // JSDoc that directly precedes this node
 }
-
-
-
 
 export interface JSDocType extends TypeNode {
     _jsDocTypeBrand: any;
@@ -2350,11 +2408,7 @@ export interface Declaration extends Node {
     /** @internal */ localSymbol?: Symbol; // Local symbol declared by node (initialized by binding only for exported nodes)
 }
 
-export interface Identifier
-    extends PrimaryExpression,
-        Declaration,
-        JSDocContainer,
-        FlowContainer {
+export interface Identifier extends PrimaryExpression, Declaration, JSDocContainer, FlowContainer {
     readonly kind: SyntaxKind.Identifier;
     readonly text: string;
 }
@@ -3549,3 +3603,82 @@ export const enum Extension {
     Lpc = ".lpc",
     H = ".h"    
 }
+
+// SyntaxKind.SyntaxList
+export interface SyntaxList extends Node {
+    kind: SyntaxKind.SyntaxList;
+
+    // Unlike other nodes which may or may not have their child nodes calculated,
+    // the entire purpose of a SyntaxList is to hold child nodes.
+    // Instead of using the WeakMap machinery in `nodeChildren.ts`,
+    // we just store the children directly on the SyntaxList.
+    /** @internal */ _children: readonly Node[];
+}
+
+export const enum LanguageVariant {
+    LDMud,
+    FluffOS
+}
+
+export const enum JSDocParsingMode {
+    /**
+     * Always parse JSDoc comments and include them in the AST.
+     *
+     * This is the default if no mode is provided.
+     */
+    ParseAll,
+    /**
+     * Never parse JSDoc comments, mo matter the file type.
+     */
+    ParseNone,
+    /**
+     * Parse only JSDoc comments which are needed to provide correct type errors.
+     *
+     * This will always parse JSDoc in non-TS files, but only parse JSDoc comments
+     * containing `@see` and `@link` in TS files.
+     */
+    ParseForTypeErrors,
+    /**
+     * Parse only JSDoc comments which are needed to provide correct type info.
+     *
+     * This will always parse JSDoc in non-TS files, but never in TS files.
+     *
+     * Note: Do not use this mode if you require accurate type errors; use {@link ParseForTypeErrors} instead.
+     */
+    ParseForTypeInfo,
+}
+
+
+export interface TextSpan {
+    start: number;
+    length: number;
+}
+
+export interface TextChangeRange {
+    span: TextSpan;
+    newLength: number;
+}
+
+export const enum IndexKind {
+    String,
+    Number,
+}
+
+export interface StringLiteralType extends LiteralType {
+    value: string;
+}
+
+export interface IntLiteralType extends LiteralType {
+    __intLiteralBrand:any;
+    value: number;
+}
+
+export interface FloatLiteralType extends LiteralType {
+    __floaLiteralBrand:any;
+    value: number;
+}
+
+export type TypeVariable = TypeParameter;
+
+// Object type or intersection of object types
+export type BaseType = ObjectType | TypeVariable; // Also `any` and `object`
