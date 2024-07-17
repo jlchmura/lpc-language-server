@@ -1,4 +1,4 @@
-import { AnyFunction, AssertionLevel, Node, NodeArray, objectAllocator, Type,Symbol, SymbolFlags, symbolName, SortedReadonlyArray, compareValues, stableSort, TypeFlags, hasProperty, LiteralType, ObjectType, ObjectFlags, Signature, SignatureFlags, isIdentifier, idText, isStringLiteral, isIntLiteral, isFloatLiteral, SyntaxKind, NodeFlags, ModifierFlags, isParseTreeNode, getEffectiveModifierFlagsNoCache, nodeIsSynthesized, getParseTreeNode, getSourceFileOfNode, getSourceTextOfNodeFromSourceFile, FlowNode, FlowFlags, FlowSwitchClause, FlowLabel, isDefaultClause, maxBy, TypeMapper, TypeMapKind, zipWith, map, MatchingKeys, noop, NodeCheckFlags } from "./_namespaces/lpc";
+import { getOwnKeys, AnyFunction, AssertionLevel, Node, NodeArray, objectAllocator, Type,Symbol, SymbolFlags, symbolName, SortedReadonlyArray, compareValues, stableSort, TypeFlags, hasProperty, LiteralType, ObjectType, ObjectFlags, Signature, SignatureFlags, isIdentifier, idText, isStringLiteral, isIntLiteral, isFloatLiteral, SyntaxKind, NodeFlags, ModifierFlags, isParseTreeNode, getEffectiveModifierFlagsNoCache, nodeIsSynthesized, getParseTreeNode, getSourceFileOfNode, getSourceTextOfNodeFromSourceFile, FlowNode, FlowFlags, FlowSwitchClause, FlowLabel, isDefaultClause, maxBy, TypeMapper, TypeMapKind, zipWith, map, MatchingKeys, noop, NodeCheckFlags } from "./_namespaces/lpc";
 import * as lpc from "./_namespaces/lpc.js";
 
 /** @internal */
@@ -928,6 +928,22 @@ m2: ${(this.mapper2 as unknown as DebugTypeMapper).__debugToString().split("\n")
                 () => `Node ${formatSyntaxKind(node?.kind)} did not pass test '${getFunctionName(test!)}'.`,
                 stackCrawlMark || assertNode,
             );
+        }
+    }
+
+    export function setAssertionLevel(level: AssertionLevel) {
+        const prevAssertionLevel = currentAssertionLevel;
+        currentAssertionLevel = level;
+
+        if (level > prevAssertionLevel) {
+            // restore assertion functions for the current assertion level (see `shouldAssertFunction`).
+            for (const key of getOwnKeys(assertionCache) as AssertionKeys[]) {
+                const cachedFunc = assertionCache[key];
+                if (cachedFunc !== undefined && Debug[key] !== cachedFunc.assertion && level >= cachedFunc.level) {
+                    (Debug as any)[key] = cachedFunc;
+                    assertionCache[key] = undefined;
+                }
+            }
         }
     }
 }

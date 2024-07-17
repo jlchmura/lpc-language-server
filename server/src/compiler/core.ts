@@ -1,4 +1,5 @@
-import { Comparer, Comparison, Debug, EqualityComparer, MapLike, SortedArray, SortedReadonlyArray } from "./_namespaces/lpc";
+import { CharacterCodes } from "../backend/types";
+import { altDirectorySeparator, Comparer, Comparison, Debug, directorySeparator, EqualityComparer, MapLike, SortedArray, SortedReadonlyArray } from "./_namespaces/lpc";
 
 /** @internal */
 export function memoize<T>(callback: () => T): () => T {
@@ -1083,4 +1084,126 @@ function unorderedRemoveItemAt<T>(array: T[], index: number): void {
 /** @internal */
 export function singleElementArray<T>(t: T | undefined): T[] | undefined {
     return t === undefined ? undefined : [t];
+}
+
+/** @internal */
+export function maybeBind<T, A extends any[], R>(obj: T, fn: ((this: T, ...args: A) => R) | undefined): ((...args: A) => R) | undefined {
+    return fn?.bind(obj);
+}
+
+
+/**
+ * Remove an item from an array, moving everything to its right one space left.
+ *
+ * @internal
+ */
+export function orderedRemoveItem<T>(array: T[], item: T): boolean {
+    for (let i = 0; i < array.length; i++) {
+        if (array[i] === item) {
+            orderedRemoveItemAt(array, i);
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Remove an item by index from an array, moving everything to its right one space left.
+ *
+ * @internal
+ */
+export function orderedRemoveItemAt<T>(array: T[], index: number): void {
+    // This seems to be faster than either `array.splice(i, 1)` or `array.copyWithin(i, i+ 1)`.
+    for (let i = index; i < array.length - 1; i++) {
+        array[i] = array[i + 1];
+    }
+    array.pop();
+}
+
+/** @internal */
+export function enumerateInsertsAndDeletes<T, U>(newItems: readonly T[], oldItems: readonly U[], comparer: (a: T, b: U) => Comparison, inserted: (newItem: T) => void, deleted: (oldItem: U) => void, unchanged?: (oldItem: U, newItem: T) => void) {
+    unchanged ??= noop;
+    let newIndex = 0;
+    let oldIndex = 0;
+    const newLen = newItems.length;
+    const oldLen = oldItems.length;
+    let hasChanges = false;
+    while (newIndex < newLen && oldIndex < oldLen) {
+        const newItem = newItems[newIndex];
+        const oldItem = oldItems[oldIndex];
+        const compareResult = comparer(newItem, oldItem);
+        if (compareResult === Comparison.LessThan) {
+            inserted(newItem);
+            newIndex++;
+            hasChanges = true;
+        }
+        else if (compareResult === Comparison.GreaterThan) {
+            deleted(oldItem);
+            oldIndex++;
+            hasChanges = true;
+        }
+        else {
+            unchanged(oldItem, newItem);
+            newIndex++;
+            oldIndex++;
+        }
+    }
+    while (newIndex < newLen) {
+        inserted(newItems[newIndex++]);
+        hasChanges = true;
+    }
+    while (oldIndex < oldLen) {
+        deleted(oldItems[oldIndex++]);
+        hasChanges = true;
+    }
+    return hasChanges;
+}
+
+
+/**
+ * Gets the owned, enumerable property keys of a map-like.
+ *
+ * @internal
+ */
+export function getOwnKeys<T>(map: MapLike<T>): string[] {
+    const keys: string[] = [];
+    for (const key in map) {
+        if (hasOwnProperty.call(map, key)) {
+            keys.push(key);
+        }
+    }
+
+    return keys;
+}
+
+/** @internal */
+export function removeSuffix(str: string, suffix: string): string {
+    return endsWith(str, suffix) ? str.slice(0, str.length - suffix.length) : str;
+}
+
+/** @internal */
+export function removePrefix(str: string, prefix: string): string {
+    return startsWith(str, prefix) ? str.substr(prefix.length) : str;
+}
+
+/** @internal */
+export function getOrUpdate<K, V>(map: Map<K, V>, key: K, callback: () => V) {
+    if (map.has(key)) {
+        return map.get(key)!;
+    }
+    const value = callback();
+    map.set(key, value);
+    return value;
+}
+
+
+/** @internal */
+export function firstDefinedIterator<T, U>(iter: Iterable<T>, callback: (element: T) => U | undefined): U | undefined {
+    for (const value of iter) {
+        const result = callback(value);
+        if (result !== undefined) {
+            return result;
+        }
+    }
+    return undefined;
 }

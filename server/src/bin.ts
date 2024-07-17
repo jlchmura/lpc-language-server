@@ -29,14 +29,18 @@ import { LpcTypes } from "./types";
 import { getDriverInfo } from "./driver/Driver";
 import { loadLpcConfig, LpcConfig } from "./backend/LpcConfig";
 import * as p2 from "./compiler/_namespaces/lpc";
-
 import {
     CompilerOptions,
     getTouchingPropertyName,
     Path,
     TypeCheckerHost,
+    Symbol,
 } from "./compiler/_namespaces/lpc";
 import { ILpcConfig } from "./config-types";
+import {
+    createLanguageService,
+    ScriptSnapshot,
+} from "./services/_namespaces/lpc";
 
 class MockFileHandler implements IFileHandler {
     constructor() {}
@@ -55,16 +59,24 @@ class MockFileHandler implements IFileHandler {
     }
 }
 
+p2.performance.enable();
 p2.Debug.enableDebugInfo();
 
 //import { LpcFacade } from "./backend/facade";
 const workDir = path.resolve(process.cwd()); //, "../fluff-test");
 const filename = path.join(workDir, process.argv[3]);
+const fileOnly = path.basename(filename);
 const sourceText = fs.readFileSync(filename, "utf-8");
 const configFile = path.join(workDir, "lpc-config.json");
 const config = loadLpcConfig(configFile);
 
+const files: { [index: string]: string } = {
+    [fileOnly]: sourceText,
+};
+
 const host = createHost(filename, sourceText, config);
+const srv = doCreateLanguageService();
+
 const srcFile = host.getSourceFile(filename);
 const checker = p2.createTypeChecker(host); // binder is called by checker
 const diags = checker.getDiagnostics(srcFile);
@@ -179,6 +191,37 @@ console.debug("node count:", srcFile.nodeCount);
 // // console.log("t", finalTValue);
 
 // const i = 0;
+function doCreateLanguageService() {
+    return createLanguageService({
+        getCompilationSettings() {
+            return {};
+        },
+        getScriptFileNames() {
+            return [
+                "foo.ts",
+                "variables.ts",
+                "vue.d.ts",
+                "vue-class-component.d.ts",
+            ];
+        },
+        getScriptVersion(_fileName) {
+            return "";
+        },
+        getScriptSnapshot(fileName) {
+            if (fileName === ".ts") {
+                return ScriptSnapshot.fromString("");
+            }
+            return ScriptSnapshot.fromString(files[fileName] || "");
+        },
+        getCurrentDirectory: () => ".",
+        getDefaultLibFileName(options) {
+            return undefined;
+            //return lpc.getDefaultLibFilePath(options);
+        },
+        fileExists: (name) => !!files[name],
+        readFile: (name) => files[name],
+    });
+}
 
 function createHost(
     filename: string,
@@ -196,17 +239,17 @@ function createHost(
         getCompilerOptions: () => ({} as CompilerOptions),
         getSourceFiles: () => files,
         getSourceFile,
-        getProjectReferenceRedirect: () => undefined,
-        isSourceOfProjectReferenceRedirect: () => false,
-        getRedirectReferenceForResolutionFromSourceOfProject: () => undefined,
-        getResolvedModule: () => undefined,
-        typesPackageExists: () => false,
-        packageBundlesTypes: () => false,
-        redirectTargetsMap,
+        // getProjectReferenceRedirect: () => undefined,
+        // isSourceOfProjectReferenceRedirect: () => false,
+        // getRedirectReferenceForResolutionFromSourceOfProject: () => undefined,
+        // getResolvedModule: () => undefined,
+        // typesPackageExists: () => false,
+        // packageBundlesTypes: () => false,
+        // redirectTargetsMap,
 
-        fileExists: function (path: string): boolean {
-            throw new Error("Function not implemented.");
-        },
+        // fileExists: function (path: string): boolean {
+        //     throw new Error("Function not implemented.");
+        // },
         getCurrentDirectory: function (): string {
             throw new Error("Function not implemented.");
         },
@@ -216,9 +259,9 @@ function createHost(
         > {
             throw new Error("Function not implemented.");
         },
-        getCommonSourceDirectory: function (): string {
-            throw new Error("Function not implemented.");
-        },
+        // getCommonSourceDirectory: function (): string {
+        //     throw new Error("Function not implemented.");
+        // },
     };
 
     return host;

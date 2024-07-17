@@ -75,7 +75,7 @@ import {
     VariableDeclarationList,
     VariableStatement,
     WhileStatement,
-} from "../_namespaces/lpc";
+} from "../_namespaces/lpc.js";
 
 /** @internal */
 export const enum NodeFactoryFlags {

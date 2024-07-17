@@ -1,4 +1,5 @@
-import { BaseNodeFactory, MapLike, MultiMap, NodeFactoryFlags } from "./_namespaces/lpc";
+import { LpcConfig } from "../backend/LpcConfig.js";
+import { BaseNodeFactory, GetCanonicalFileName, MapLike, MultiMap, NodeFactoryFlags } from "./_namespaces/lpc.js";
 
 // Note: 'brands' in our syntax nodes serve to give us a small amount of nominal typing.
 // Consider 'Expression'.  Without the brand, 'Expression' is actually no different
@@ -218,24 +219,24 @@ export interface ModuleSpecifierCache {
 /** @internal */
 export interface ModuleSpecifierResolutionHost {
     useCaseSensitiveFileNames?(): boolean;
-    fileExists(path: string): boolean;
+    // fileExists(path: string): boolean;
     getCurrentDirectory(): string;
     directoryExists?(path: string): boolean;
     readFile?(path: string): string | undefined;
     realpath?(path: string): string;
     //getSymlinkCache?(): SymlinkCache;
-    getModuleSpecifierCache?(): ModuleSpecifierCache;    
-    getGlobalTypingsCacheLocation?(): string | undefined;
-    getNearestAncestorDirectoryWithPackageJson?(fileName: string, rootDir?: string): string | undefined;
+    // getModuleSpecifierCache?(): ModuleSpecifierCache;    
+    // getGlobalTypingsCacheLocation?(): string | undefined;
+    // getNearestAncestorDirectoryWithPackageJson?(fileName: string, rootDir?: string): string | undefined;
 
-    readonly redirectTargetsMap: RedirectTargetsMap;
-    getProjectReferenceRedirect(fileName: string): string | undefined;
-    isSourceOfProjectReferenceRedirect(fileName: string): boolean;
+    // readonly redirectTargetsMap: RedirectTargetsMap;
+    // getProjectReferenceRedirect(fileName: string): string | undefined;
+    // isSourceOfProjectReferenceRedirect(fileName: string): boolean;
     getFileIncludeReasons(): MultiMap<Path, FileIncludeReason>;
-    getCommonSourceDirectory(): string;
+    // getCommonSourceDirectory(): string;
 
-    getModuleResolutionCache?(): any;//TODO ModuleResolutionCache | undefined;
-    trace?(s: string): void;
+    // getModuleResolutionCache?(): any;//TODO ModuleResolutionCache | undefined;
+    // trace?(s: string): void;
 }
 
 /** @internal */
@@ -305,16 +306,16 @@ export interface TypeCheckerHost extends ModuleSpecifierResolutionHost {
 
     getSourceFiles(): readonly SourceFile[];
     getSourceFile(fileName: string): SourceFile | undefined;
-    getProjectReferenceRedirect(fileName: string): string | undefined;
-    isSourceOfProjectReferenceRedirect(fileName: string): boolean;
-    getRedirectReferenceForResolutionFromSourceOfProject(filePath: Path): ResolvedProjectReference | undefined;    
+    // getProjectReferenceRedirect(fileName: string): string | undefined;
+    // isSourceOfProjectReferenceRedirect(fileName: string): boolean;
+    // getRedirectReferenceForResolutionFromSourceOfProject(filePath: Path): ResolvedProjectReference | undefined;    
 
-    getResolvedModule(f: SourceFile, moduleName: string): ResolvedModuleWithFailedLookupLocations | undefined;
+    // getResolvedModule(f: SourceFile, moduleName: string): ResolvedModuleWithFailedLookupLocations | undefined;
 
-    readonly redirectTargetsMap: RedirectTargetsMap;
+    // readonly redirectTargetsMap: RedirectTargetsMap;
 
-    typesPackageExists(packageName: string): boolean;
-    packageBundlesTypes(packageName: string): boolean;
+    // typesPackageExists(packageName: string): boolean;
+    // packageBundlesTypes(packageName: string): boolean;
 }
 
 
@@ -1033,6 +1034,14 @@ export interface CompilerOptions {
     noUnusedLocals?: boolean;
     noUnusedParameters?: boolean;
     noImplicitReturns?: boolean;
+    newLine?: NewLineKind;
+    config?: LpcConfig;
+    forceConsistentCasingInFileNames?: boolean;
+    noResolve?: boolean;
+    noLib?: boolean;
+    maxNodeModuleJsDepth?: number;
+    getCompilationSettings?: any;
+    configFilePath?: string;
 }
 
 export const enum OuterExpressionKinds {
@@ -2012,6 +2021,8 @@ export interface SourceFile extends Declaration, LocalsContainer {
      */
     //redirectInfo?: RedirectInfo;
     
+    /** @internal */ scriptKind: ScriptKind;
+    
     referencedFiles: readonly FileReference[];    
     libReferenceDirectives: readonly FileReference[];
     isDeclarationFile: boolean;
@@ -2035,7 +2046,7 @@ export interface SourceFile extends Declaration, LocalsContainer {
      *
      * @internal
      */
-    //setExternalModuleIndicator?: (file: SourceFile) => void;
+    setExternalModuleIndicator?: (file: SourceFile) => void;
     // The first node that causes this file to be a CommonJS module
     
 
@@ -2073,12 +2084,33 @@ export interface SourceFile extends Declaration, LocalsContainer {
 
     /** @internal */ endFlowNode?: FlowNode;
 
-    ///** @internal */ jsDocParsingMode?: JSDocParsingMode;
+    /** @internal */ jsDocParsingMode?: JSDocParsingMode;
+
+    languageVersion: ScriptTarget;
+
+    /**
+     * When `module` is `Node16` or `NodeNext`, this field controls whether the
+     * source file in question is an ESNext-output-format file, or a CommonJS-output-format
+     * module. This is derived by the module resolver as it looks up the file, since
+     * it is derived from either the file extension of the module, or the containing
+     * `package.json` context, and affects both checking and emit.
+     *
+     * It is _public_ so that (pre)transformers can set this field,
+     * since it switches the builtin `node` module transform. Generally speaking, if unset,
+     * the field is treated as though it is `ModuleKind.CommonJS`.
+     *
+     * Note that this field is only set by the module resolution process when
+     * `moduleResolution` is `Node16` or `NodeNext`, which is implied by the `module` setting
+     * of `Node16` or `NodeNext`, respectively, but may be overriden (eg, by a `moduleResolution`
+     * of `node`). If so, this field will be unset and source files will be considered to be
+     * CommonJS-output-format by the node module transformer and type checker, regardless of extension or context.
+     */
+    impliedNodeFormat?: ResolutionMode;
 }
 
 /** @internal */
 export interface ReadonlyPragmaContext {
-    //languageVersion: ScriptTarget;
+    languageVersion: ScriptTarget;
     //pragmas?: ReadonlyPragmaMap;
     //checkJsDirective?: CheckJsDirective;
     referencedFiles: readonly FileReference[];
@@ -3682,3 +3714,525 @@ export type TypeVariable = TypeParameter;
 
 // Object type or intersection of object types
 export type BaseType = ObjectType | TypeVariable; // Also `any` and `object`
+
+export interface ScriptReferenceHost {
+    getCompilerOptions(): CompilerOptions;
+    getSourceFile(fileName: string): SourceFile | undefined;
+    getSourceFileByPath(path: Path): SourceFile | undefined;
+    getCurrentDirectory(): string;
+}
+
+export interface Program extends ScriptReferenceHost {
+    getCurrentDirectory(): string;
+    /**
+     * Get a list of root file names that were passed to a 'createProgram'
+     */
+    getRootFileNames(): readonly string[];
+
+    /**
+     * Get a list of files in the program
+     */
+    getSourceFiles(): readonly SourceFile[];
+
+    /**
+     * Get a list of file names that were passed to 'createProgram' or referenced in a
+     * program source file but could not be located.
+     *
+     * @internal
+     */
+    getMissingFilePaths(): Map<Path, string>;
+    /** @internal */
+    // getModuleResolutionCache(): ModuleResolutionCache | undefined;
+    // /** @internal */
+    getFilesByNameMap(): Map<Path, SourceFile | false | undefined>;
+
+    // /** @internal */
+    // resolvedModules: Map<Path, ModeAwareCache<ResolvedModuleWithFailedLookupLocations>> | undefined;
+    // /** @internal */
+    // resolvedTypeReferenceDirectiveNames: Map<Path, ModeAwareCache<ResolvedTypeReferenceDirectiveWithFailedLookupLocations>> | undefined;
+    // /** @internal */
+    // getResolvedModule(f: SourceFile, moduleName: string, mode: ResolutionMode): ResolvedModuleWithFailedLookupLocations | undefined;
+    // /** @internal */
+    // getResolvedModuleFromModuleSpecifier(moduleSpecifier: StringLiteralLike, sourceFile?: SourceFile): ResolvedModuleWithFailedLookupLocations | undefined;
+    // /** @internal */
+    // getResolvedTypeReferenceDirective(f: SourceFile, typeDirectiveName: string, mode: ResolutionMode): ResolvedTypeReferenceDirectiveWithFailedLookupLocations | undefined;
+    // /** @internal */
+    // getResolvedTypeReferenceDirectiveFromTypeReferenceDirective(typedRef: FileReference, sourceFile: SourceFile): ResolvedTypeReferenceDirectiveWithFailedLookupLocations | undefined;
+    // /** @internal */
+    // forEachResolvedModule(
+    //     callback: (resolution: ResolvedModuleWithFailedLookupLocations, moduleName: string, mode: ResolutionMode, filePath: Path) => void,
+    //     file?: SourceFile,
+    // ): void;
+    // /** @internal */
+    // forEachResolvedTypeReferenceDirective(
+    //     callback: (resolution: ResolvedTypeReferenceDirectiveWithFailedLookupLocations, moduleName: string, mode: ResolutionMode, filePath: Path) => void,
+    //     file?: SourceFile,
+    // ): void;
+
+    // /**
+    //  * Emits the JavaScript and declaration files.  If targetSourceFile is not specified, then
+    //  * the JavaScript and declaration files will be produced for all the files in this program.
+    //  * If targetSourceFile is specified, then only the JavaScript and declaration for that
+    //  * specific file will be generated.
+    //  *
+    //  * If writeFile is not specified then the writeFile callback from the compiler host will be
+    //  * used for writing the JavaScript and declaration files.  Otherwise, the writeFile parameter
+    //  * will be invoked when writing the JavaScript and declaration files.
+    //  */
+    // emit(targetSourceFile?: SourceFile, writeFile?: WriteFileCallback, cancellationToken?: CancellationToken, emitOnlyDtsFiles?: boolean, customTransformers?: CustomTransformers): EmitResult;
+    // /** @internal */
+    // emit(targetSourceFile?: SourceFile, writeFile?: WriteFileCallback, cancellationToken?: CancellationToken, emitOnly?: boolean | EmitOnly, customTransformers?: CustomTransformers, forceDtsEmit?: boolean, skipBuildInfo?: boolean): EmitResult;
+
+    // getOptionsDiagnostics(cancellationToken?: CancellationToken): readonly Diagnostic[];
+    // getGlobalDiagnostics(cancellationToken?: CancellationToken): readonly Diagnostic[];
+    // getSyntacticDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken): readonly DiagnosticWithLocation[];
+    // /** The first time this is called, it will return global diagnostics (no location). */
+    // getSemanticDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken): readonly Diagnostic[];
+    // /** @internal */
+    // getSemanticDiagnostics(sourceFile: SourceFile | undefined, cancellationToken: CancellationToken | undefined, nodesToCheck: Node[]): readonly Diagnostic[];
+
+    // getDeclarationDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken): readonly DiagnosticWithLocation[];
+    // getConfigFileParsingDiagnostics(): readonly Diagnostic[];
+    // /** @internal */ getSuggestionDiagnostics(sourceFile: SourceFile, cancellationToken?: CancellationToken): readonly DiagnosticWithLocation[];
+
+    // /** @internal */ getBindAndCheckDiagnostics(sourceFile: SourceFile, cancellationToken?: CancellationToken): readonly Diagnostic[];
+    // /** @internal */ getProgramDiagnostics(sourceFile: SourceFile, cancellationToken?: CancellationToken): readonly Diagnostic[];
+
+    /**
+     * Gets a type checker that can be used to semantically analyze source files in the program.
+     */
+    getTypeChecker(): TypeChecker;
+
+    // /** @internal */ getCommonSourceDirectory(): string;
+
+    // /** @internal */ getCachedSemanticDiagnostics(sourceFile: SourceFile): readonly Diagnostic[] | undefined;
+
+    // /** @internal */ getClassifiableNames(): Set<__String>;
+
+    getNodeCount(): number;
+    getIdentifierCount(): number;
+    getSymbolCount(): number;
+    getTypeCount(): number;
+    getInstantiationCount(): number;
+    // getRelationCacheSizes(): { assignable: number; identity: number; subtype: number; strictSubtype: number; };
+
+    /** @internal */ getFileProcessingDiagnostics(): FilePreprocessingDiagnostics[] | undefined;
+    // /** @internal */ getAutomaticTypeDirectiveNames(): string[];
+    // /** @internal */ getAutomaticTypeDirectiveResolutions(): ModeAwareCache<ResolvedTypeReferenceDirectiveWithFailedLookupLocations>;
+    // isSourceFileFromExternalLibrary(file: SourceFile): boolean;
+    // isSourceFileDefaultLibrary(file: SourceFile): boolean;
+    // /**
+    //  * Calculates the final resolution mode for a given module reference node. This is the resolution mode explicitly provided via import
+    //  * attributes, if present, or the syntax the usage would have if emitted to JavaScript. In `--module node16` or `nodenext`, this may
+    //  * depend on the file's `impliedNodeFormat`. In `--module preserve`, it depends only on the input syntax of the reference. In other
+    //  * `module` modes, when overriding import attributes are not provided, this function returns `undefined`, as the result would have no
+    //  * impact on module resolution, emit, or type checking.
+    //  */
+    // getModeForUsageLocation(file: SourceFile, usage: StringLiteralLike): ResolutionMode;
+    // /**
+    //  * Calculates the final resolution mode for an import at some index within a file's `imports` list. This is the resolution mode
+    //  * explicitly provided via import attributes, if present, or the syntax the usage would have if emitted to JavaScript. In
+    //  * `--module node16` or `nodenext`, this may depend on the file's `impliedNodeFormat`. In `--module preserve`, it depends only on the
+    //  * input syntax of the reference. In other `module` modes, when overriding import attributes are not provided, this function returns
+    //  * `undefined`, as the result would have no impact on module resolution, emit, or type checking.
+    //  */
+    // getModeForResolutionAtIndex(file: SourceFile, index: number): ResolutionMode;
+
+    // // For testing purposes only.
+    // // This is set on created program to let us know how the program was created using old program
+    /** @internal */ readonly structureIsReused: StructureIsReused;
+
+    // /** @internal */ getSourceFileFromReference(referencingFile: SourceFile, ref: FileReference): SourceFile | undefined;
+    // /** @internal */ getLibFileFromReference(ref: FileReference): SourceFile | undefined;
+
+    // /**
+    //  * Given a source file, get the name of the package it was imported from.
+    //  *
+    //  * @internal
+    //  */
+    // sourceFileToPackageName: Map<Path, string>;
+    // /**
+    //  * Set of all source files that some other source file redirects to.
+    //  *
+    //  * @internal
+    //  */
+    // redirectTargetsMap: MultiMap<Path, string>;
+    // /**
+    //  * Whether any (non-external, non-declaration) source files use `node:`-prefixed module specifiers.
+    //  *
+    //  * @internal
+    //  */
+    // readonly usesUriStyleNodeCoreModules: boolean;
+    // /**
+    //  * Map from libFileName to actual resolved location of the lib
+    //  * @internal
+    //  */
+    // resolvedLibReferences: Map<string, LibResolution> | undefined;
+    // /** @internal */ getCurrentPackagesMap(): Map<string, boolean> | undefined;
+    // /**
+    //  * Is the file emitted file
+    //  *
+    //  * @internal
+    //  */
+    // isEmittedFile(file: string): boolean;
+    // /** @internal */ getFileIncludeReasons(): MultiMap<Path, FileIncludeReason>;
+    // /** @internal */ useCaseSensitiveFileNames(): boolean;
+    /** @internal */ getCanonicalFileName: GetCanonicalFileName;
+
+    // getProjectReferences(): readonly ProjectReference[] | undefined;
+    // getResolvedProjectReferences(): readonly (ResolvedProjectReference | undefined)[] | undefined;
+    // /** @internal */ getProjectReferenceRedirect(fileName: string): string | undefined;
+    // /**
+    //  * @internal
+    //  * Get the referenced project if the file is input file from that reference project
+    //  */
+    // getResolvedProjectReferenceToRedirect(fileName: string): ResolvedProjectReference | undefined;
+    // /** @internal */ forEachResolvedProjectReference<T>(cb: (resolvedProjectReference: ResolvedProjectReference) => T | undefined): T | undefined;
+    // /** @internal */ getResolvedProjectReferenceByPath(projectReferencePath: Path): ResolvedProjectReference | undefined;
+    // /** @internal */ getRedirectReferenceForResolutionFromSourceOfProject(filePath: Path): ResolvedProjectReference | undefined;
+    // /** @internal */ isSourceOfProjectReferenceRedirect(fileName: string): boolean;
+    // /** @internal */ getBuildInfo?(): BuildInfo;
+    // /** @internal */ emitBuildInfo(writeFile?: WriteFileCallback, cancellationToken?: CancellationToken): EmitResult;
+    // /**
+    //  * This implementation handles file exists to be true if file is source of project reference redirect when program is created using useSourceOfProjectReferenceRedirect
+    //  *
+    //  * @internal
+    //  */
+    // fileExists(fileName: string): boolean;
+    // /**
+    //  * Call compilerHost.writeFile on host program was created with
+    //  *
+    //  * @internal
+    //  */
+    // writeFile: WriteFileCallback;
+}
+
+/** @internal */
+export interface Program extends TypeCheckerHost, ModuleSpecifierResolutionHost {
+}
+
+export interface ModuleResolutionHost {
+    // TODO: GH#18217 Optional methods frequently used as non-optional
+
+    fileExists(fileName: string): boolean;
+    // readFile function is used to read arbitrary text files on disk, i.e. when resolution procedure needs the content of 'package.json'
+    // to determine location of bundled typings for node module
+    readFile(fileName: string): string | undefined;
+    trace?(s: string): void;
+    directoryExists?(directoryName: string): boolean;
+    /**
+     * Resolve a symbolic link.
+     * @see https://nodejs.org/api/fs.html#fs_fs_realpathsync_path_options
+     */
+    realpath?(path: string): string;
+    getCurrentDirectory?(): string;
+    getDirectories?(path: string): string[];
+    useCaseSensitiveFileNames?: boolean | (() => boolean) | undefined;
+}
+
+export interface WriteFileCallbackData {
+    /** @internal */ sourceMapUrlPos?: number;
+    /** @internal */ buildInfo?: BuildInfo;
+    /** @internal */ diagnostics?: readonly DiagnosticWithLocation[];
+    /** @internal */ differsOnlyInMap?: true;
+    /** @internal */ skippedDtsWrite?: true;
+}
+
+export type WriteFileCallback = (
+    fileName: string,
+    text: string,
+    writeByteOrderMark: boolean,
+    onError?: (message: string) => void,
+    sourceFiles?: readonly SourceFile[],
+    data?: WriteFileCallbackData,
+) => void;
+
+export interface CompilerHost extends ModuleResolutionHost {
+    getSourceFile(fileName: string, onError?: (message: string) => void, shouldCreateNewSourceFile?: boolean): SourceFile | undefined;
+    getSourceFileByPath?(fileName: string, path: Path, onError?: (message: string) => void, shouldCreateNewSourceFile?: boolean): SourceFile | undefined;
+    getCancellationToken?(): CancellationToken;
+    //getDefaultLibFileName(options: CompilerOptions): string;
+    //getDefaultLibLocation?(): string;
+    writeFile: WriteFileCallback;
+    getCurrentDirectory(): string;
+    getCanonicalFileName(fileName: string): string;
+    useCaseSensitiveFileNames(): boolean;
+    getNewLine(): string;
+    readDirectory?(rootDir: string, extensions: readonly string[], excludes: readonly string[] | undefined, includes: readonly string[], depth?: number): string[];
+
+    /*
+     * CompilerHost must either implement resolveModuleNames (in case if it wants to be completely in charge of
+     * module name resolution) or provide implementation for methods from ModuleResolutionHost (in this case compiler
+     * will apply built-in module resolution logic and use members of ModuleResolutionHost to ask host specific questions).
+     * If resolveModuleNames is implemented then implementation for members from ModuleResolutionHost can be just
+     * 'throw new Error("NotImplemented")'
+     */
+    /** @deprecated supply resolveModuleNameLiterals instead for resolution that can handle newer resolution modes like nodenext */
+    resolveModuleNames?(moduleNames: string[], containingFile: string, reusedNames: string[] | undefined, redirectedReference: ResolvedProjectReference | undefined, options: CompilerOptions, containingSourceFile?: SourceFile): (ResolvedModule | undefined)[];
+    /**
+     * Returns the module resolution cache used by a provided `resolveModuleNames` implementation so that any non-name module resolution operations (eg, package.json lookup) can reuse it
+     */
+    // getModuleResolutionCache?(): ModuleResolutionCache | undefined;
+    /**
+     * @deprecated supply resolveTypeReferenceDirectiveReferences instead for resolution that can handle newer resolution modes like nodenext
+     *
+     * This method is a companion for 'resolveModuleNames' and is used to resolve 'types' references to actual type declaration files
+     */
+    //resolveTypeReferenceDirectives?(typeReferenceDirectiveNames: string[] | readonly FileReference[], containingFile: string, redirectedReference: ResolvedProjectReference | undefined, options: CompilerOptions, containingFileMode?: ResolutionMode): (ResolvedTypeReferenceDirective | undefined)[];
+    resolveModuleNameLiterals?(
+        moduleLiterals: readonly StringLiteral[],
+        containingFile: string,
+        redirectedReference: ResolvedProjectReference | undefined,
+        options: CompilerOptions,
+        containingSourceFile: SourceFile,
+        reusedNames: readonly StringLiteral[] | undefined,
+    ): readonly ResolvedModuleWithFailedLookupLocations[];
+    // resolveTypeReferenceDirectiveReferences?<T extends FileReference | string>(
+    //     typeDirectiveReferences: readonly T[],
+    //     containingFile: string,
+    //     redirectedReference: ResolvedProjectReference | undefined,
+    //     options: CompilerOptions,
+    //     containingSourceFile: SourceFile | undefined,
+    //     reusedNames: readonly T[] | undefined,
+    // ): readonly ResolvedTypeReferenceDirectiveWithFailedLookupLocations[];
+    /** @internal */
+    resolveLibrary?(
+        libraryName: string,
+        resolveFrom: string,
+        options: CompilerOptions,
+        libFileName: string,
+    ): ResolvedModuleWithFailedLookupLocations;
+    /**
+     * If provided along with custom resolveLibrary, used to determine if we should redo library resolutions
+     * @internal
+     */
+    hasInvalidatedLibResolutions?(libFileName: string): boolean;
+    getEnvironmentVariable?(name: string): string | undefined;
+    /** @internal */ onReleaseOldSourceFile?(oldSourceFile: SourceFile, oldOptions: CompilerOptions, hasSourceFileByPath: boolean, newSourceFileByResolvedPath: SourceFile | undefined): void;
+    /** @internal */ onReleaseParsedCommandLine?(configFileName: string, oldResolvedRef: ResolvedProjectReference | undefined, optionOptions: CompilerOptions): void;
+    /** If provided along with custom resolveModuleNames or resolveTypeReferenceDirectives, used to determine if unchanged file path needs to re-resolve modules/type reference directives */
+    hasInvalidatedResolutions?(filePath: Path): boolean;
+    ///** @internal */ hasChangedAutomaticTypeDirectiveNames?: HasChangedAutomaticTypeDirectiveNames;
+    createHash?(data: string): string;
+    getParsedCommandLine?(fileName: string): ParsedCommandLine | undefined;
+    /** @internal */ useSourceOfProjectReferenceRedirect?(): boolean;
+
+    // TODO: later handle this in better way in builder host instead once the api for tsbuild finalizes and doesn't use compilerHost as base
+    /** @internal */ createDirectory?(directory: string): void;
+    ///** @internal */ getSymlinkCache?(): SymlinkCache;
+
+    // For testing:
+    /** @internal */ storeSignatureInfo?: boolean;
+    /** @internal */ getBuildInfo?(fileName: string, configFilePath: string | undefined): BuildInfo | undefined;
+
+    jsDocParsingMode?: JSDocParsingMode;
+}
+
+/** @internal */
+export interface BuildInfo {
+    version: string;
+}
+
+
+export interface CreateProgramOptions {
+    rootNames: readonly string[];
+    options: CompilerOptions;
+    projectReferences?: readonly ProjectReference[];
+    host?: CompilerHost;
+    oldProgram?: Program;
+    configFileParsingDiagnostics?: readonly Diagnostic[];
+    /** @internal */
+    typeScriptVersion?: string;
+}
+
+export interface GetEffectiveTypeRootsHost {
+    getCurrentDirectory?(): string;
+}
+
+/**
+ * Used by services to specify the minimum host area required to set up source files under any compilation settings
+ */
+export interface MinimalResolutionCacheHost extends ModuleResolutionHost {
+    getCompilationSettings(): CompilerOptions;
+    getCompilerHost?(): CompilerHost | undefined;
+}
+
+export const enum NewLineKind {
+    CarriageReturnLineFeed = 0,
+    LineFeed = 1,
+}
+
+export interface PrinterOptions {
+    removeComments?: boolean;
+    newLine?: NewLineKind;
+    omitTrailingSemicolon?: boolean;
+    noEmitHelpers?: boolean;    
+    /** @internal */ sourceMap?: boolean;
+    /** @internal */ inlineSourceMap?: boolean;
+    /** @internal */ inlineSources?: boolean;
+    /** @internal*/ omitBraceSourceMapPositions?: boolean;
+    /** @internal */ extendedDiagnostics?: boolean;
+    /** @internal */ onlyPrintJsDocStyle?: boolean;
+    /** @internal */ neverAsciiEscape?: boolean;
+    /** @internal */ stripInternal?: boolean;
+    /** @internal */ preserveSourceNewlines?: boolean;
+    /** @internal */ terminateUnterminatedLiterals?: boolean;
+}
+
+/** @internal */
+export interface RawSourceMap {
+    version: 3;
+    file: string;
+    sourceRoot?: string | null; // eslint-disable-line no-restricted-syntax
+    sources: string[];
+    sourcesContent?: (string | null)[] | null; // eslint-disable-line no-restricted-syntax
+    mappings: string;
+    names?: string[] | null; // eslint-disable-line no-restricted-syntax
+}
+
+
+/** @internal */
+export interface SourceMapEmitResult {
+    inputSourceFileNames: readonly string[]; // Input source file (which one can use on program to get the file), 1:1 mapping with the sourceMap.sources list
+    sourceMap: RawSourceMap;
+}
+
+
+export interface EmitResult {
+    emitSkipped: boolean;
+    /** Contains declaration emit diagnostics */
+    diagnostics: readonly Diagnostic[];
+    emittedFiles?: string[]; // Array of files the compiler wrote to disk
+    /** @internal */ sourceMaps?: SourceMapEmitResult[]; // Array of sourceMapData if compiler emitted sourcemaps
+}
+
+export enum WatchFileKind {
+    FixedPollingInterval,
+    PriorityPollingInterval,
+    DynamicPriorityPolling,
+    FixedChunkSizePolling,
+    UseFsEvents,
+    UseFsEventsOnParentDirectory,
+}
+
+export enum WatchDirectoryKind {
+    UseFsEvents,
+    FixedPollingInterval,
+    DynamicPriorityPolling,
+    FixedChunkSizePolling,
+}
+
+export enum PollingWatchKind {
+    FixedInterval,
+    PriorityInterval,
+    DynamicPriority,
+    FixedChunkSize,
+}
+
+export interface WatchOptions {
+    watchFile?: WatchFileKind;
+    watchDirectory?: WatchDirectoryKind;
+    fallbackPolling?: PollingWatchKind;
+    synchronousWatchDirectory?: boolean;
+    excludeDirectories?: string[];
+    excludeFiles?: string[];
+
+    [option: string]: CompilerOptionsValue | undefined;
+}
+
+export const enum WatchDirectoryFlags {
+    None = 0,
+    Recursive = 1 << 0,
+}
+
+
+/** @internal */
+export type ModuleImportResult<T = {}> =
+    | { module: T; modulePath?: string; error: undefined; }
+    | { module: undefined; modulePath?: undefined; error: { stack?: string; message?: string; }; };
+
+/** @internal */
+export const enum StructureIsReused {
+    Not,
+    SafeModules,
+    Completely,
+}
+
+/**
+ * Unique identifier with a package name and version.
+ * If changing this, remember to change `packageIdIsEqual`.
+ */
+export interface PackageId {
+    /**
+     * Name of the package.
+     * Should not include `@types`.
+     * If accessing a non-index file, this should include its name e.g. "foo/bar".
+     */
+    name: string;
+    /**
+     * Name of a submodule within this package.
+     * May be "".
+     */
+    subModuleName: string;
+    /** Version of the package, e.g. "1.2.3" */
+    version: string;
+    /** @internal*/ peerDependencies?: string;
+}
+
+/** @internal */
+export const enum FilePreprocessingDiagnosticsKind {
+    FilePreprocessingLibReferenceDiagnostic,
+    FilePreprocessingFileExplainingDiagnostic,
+    ResolutionDiagnostics,
+}
+
+
+/** @internal */
+export interface FilePreprocessingLibReferenceDiagnostic {
+    kind: FilePreprocessingDiagnosticsKind.FilePreprocessingLibReferenceDiagnostic;
+    reason: ReferencedFile & { kind: FileIncludeKind.LibReferenceDirective; };
+}
+
+/** @internal */
+export interface FilePreprocessingFileExplainingDiagnostic {
+    kind: FilePreprocessingDiagnosticsKind.FilePreprocessingFileExplainingDiagnostic;
+    file: Path | undefined;
+    fileProcessingReason: FileIncludeReason;
+    diagnostic: DiagnosticMessage;
+    args: DiagnosticArguments;
+}
+
+/** @internal */
+export interface ResolutionDiagnostics {
+    kind: FilePreprocessingDiagnosticsKind.ResolutionDiagnostics;
+    diagnostics: readonly Diagnostic[];
+}
+
+
+/** @internal */
+export type FilePreprocessingDiagnostics = FilePreprocessingLibReferenceDiagnostic | FilePreprocessingFileExplainingDiagnostic | ResolutionDiagnostics;
+
+export const enum ScriptKind {
+    Unknown = 0,
+    LPC = 1,
+    External = 5,
+    JSON = 6,
+    /**
+     * Used on extensions that doesn't define the ScriptKind but the content defines it.
+     * Deferred extensions are going to be included in all project contexts.
+     */
+    Deferred = 7,
+}
+
+export const enum ScriptTarget {
+    LPC = 1,
+    Latest = LPC,
+}
+
+export enum ModuleKind {
+    None = 0,
+    LPC = 1,
+}
+
+export type ResolutionMode = ModuleKind.LPC | undefined;
+

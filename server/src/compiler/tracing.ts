@@ -1,4 +1,4 @@
-import { combinePaths, Debug, Path, timestamp,Type } from "./_namespaces/lpc";
+import { combinePaths, Debug, Path, timestamp,Type } from "./_namespaces/lpc.js";
 import * as performance from "./_namespaces/lpc.performance";
 
 /** @internal */
@@ -143,6 +143,9 @@ export namespace tracingEnabled {
         }
     }
 
+    export function instant(phase: Phase, name: string, args?: Args) {
+        writeEvent("I", phase, name, args, `"s":"g"`);
+    }
 }
 
 

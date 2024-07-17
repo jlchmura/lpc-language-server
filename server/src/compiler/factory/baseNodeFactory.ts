@@ -1,4 +1,4 @@
-import { Node, objectAllocator, SyntaxKind } from "../_namespaces/lpc";
+import { Node, objectAllocator, SyntaxKind } from "../_namespaces/lpc.js";
 
 /**
  * A `BaseNodeFactory` is an abstraction over an `ObjectAllocator` that handles caching `Node` constructors

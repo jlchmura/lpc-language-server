@@ -1,4 +1,4 @@
-import { Debug, emptyArray, isNodeKind, Node, SourceFileLike, SyntaxKind, SyntaxList } from "../_namespaces/lpc";
+import { Debug, emptyArray, isNodeKind, Node, SourceFileLike, SyntaxKind, SyntaxList } from "../_namespaces/lpc.js";
 
 const sourceFileToNodeChildren = new WeakMap<SourceFileLike, WeakMap<Node, readonly Node[] | undefined>>();
 

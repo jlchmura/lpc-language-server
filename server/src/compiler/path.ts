@@ -978,3 +978,4 @@ export function forEachAncestorDirectory<T, P extends string>(directory: P, call
 export function isNodeModulesDirectory(dirPath: Path) {
     return endsWith(dirPath, "/node_modules");
 }
+

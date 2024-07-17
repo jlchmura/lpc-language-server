@@ -97,6 +97,6 @@ export function tryGetNativePerformanceHooks() {
  *
  * @internal
  */
-export const timestamp = nativePerformanceTime ? () => nativePerformanceTime.now() : Date.now;
+export const timestamp = !!nativePerformanceTime ? () => nativePerformanceTime.now() ?? Date.now() : Date.now;
 
 

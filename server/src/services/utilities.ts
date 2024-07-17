@@ -1,7 +1,8 @@
 import {
     getTextOfIdentifierOrLiteral,
+    IScriptSnapshot,
     PropertyName,
-} from "../compiler/_namespaces/lpc";
+} from "./_namespaces/lpc.js";
 
 /** @internal */
 export function getNameFromPropertyName(
@@ -12,4 +13,9 @@ export function getNameFromPropertyName(
     //     // treat computed property names where expression is string/numeric literal as just string/numeric literal
     //     ? isStringOrNumericLiteralLike(name.expression) ? name.expression.text : undefined
     //     : isPrivateIdentifier(name) ? idText(name) : getTextOfIdentifierOrLiteral(name);
+}
+
+/** @internal */
+export function getSnapshotText(snap: IScriptSnapshot): string {
+    return snap.getText(0, snap.getLength());
 }

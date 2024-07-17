@@ -1,7 +1,8 @@
 import * as antlr from "antlr4ng";
 import * as parserCore from "../parser3/parser-core";
-import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, ModifierFlags } from "./_namespaces/lpc";
+import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, ModifierFlags, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange } from "./_namespaces/lpc";
 import { ILpcConfig } from "../config-types";
+import { LpcConfig } from "../backend/LpcConfig";
 
 
 
@@ -106,7 +107,10 @@ export namespace LpcParser {
     export function parseSourceFile(
         fileName: string,
         sourceText: string,
-        config: ILpcConfig
+        config: ILpcConfig,
+        setParentNodes = false,
+        setExternalModuleIndicator?: (file: SourceFile) => void,
+        jsDocParsingMode = JSDocParsingMode.ParseAll
     ) {
         initState(fileName, sourceText, config);
         const result = parseSourceFileWorker();
@@ -259,14 +263,15 @@ export namespace LpcParser {
         parseElement: (parseTree: R) => T
     ): NodeArray<T> {
         const list = [];
-        const {pos,end} = getNodePos(parseTrees.at(0));        
+        let {pos,end} = getNodePos(parseTrees.at(0));        
 
         for (const parseTree of parseTrees) {
             const node = parseElement(parseTree);
+            end = node.end;
             list.push(node);
         }
 
-        return createNodeArray(list, pos,end);
+        return createNodeArray(list, pos, end);
     }
 
     function createNodeArray<T extends Node>(
@@ -1365,3 +1370,85 @@ function gatherPossibleChildren(node: Node) {
     }
 }
 
+
+function setExternalModuleIndicator(sourceFile: SourceFile) {
+    sourceFile.externalModuleIndicator = true;
+}
+
+export function createSourceFile(fileName: string, sourceText: string, config: LpcConfig, languageVersionOrOptions: ScriptTarget | CreateSourceFileOptions, setParentNodes = false, scriptKind?: ScriptKind): SourceFile {
+    tracing?.push(tracing.Phase.Parse, "createSourceFile", { path: fileName }, /*separateBeginAndEnd*/ true);
+    performance.mark("beforeParse");
+    let result: SourceFile;
+
+    
+    const setIndicator = (file: SourceFile) => {
+        setExternalModuleIndicator(file);
+    };
+    result = LpcParser.parseSourceFile(fileName, sourceText, config, setParentNodes, setIndicator);
+
+
+    performance.mark("afterParse");
+    performance.measure("Parse", "beforeParse", "afterParse");
+    tracing?.pop();
+    return result;
+}
+
+export interface CreateSourceFileOptions {
+    languageVersion: ScriptTarget;
+    /**
+     * Controls the format the file is detected as - this can be derived from only the path
+     * and files on disk, but needs to be done with a module resolution cache in scope to be performant.
+     * This is usually `undefined` for compilations that do not have `moduleResolution` values of `node16` or `nodenext`.
+     */
+    impliedNodeFormat?: ResolutionMode;
+    /**
+     * Controls how module-y-ness is set for the given file. Usually the result of calling
+     * `getSetExternalModuleIndicator` on a valid `CompilerOptions` object. If not present, the default
+     * check specified by `isFileProbablyExternalModule` will be used to set the field.
+     */
+    setExternalModuleIndicator?: (file: SourceFile) => void;
+    /** @internal */ packageJsonLocations?: readonly string[];
+    ///** @internal */ packageJsonScope?: PackageJsonInfo;
+    jsDocParsingMode?: JSDocParsingMode;
+}
+
+/** @internal */
+export function isDeclarationFileName(fileName: string): boolean {
+    return getDeclarationFileExtension(fileName) !== undefined;
+}
+
+
+/** @internal */
+export function getDeclarationFileExtension(fileName: string): string | undefined {
+    const standardExtension = getAnyExtensionFromPath(fileName, supportedDeclarationExtensions, /*ignoreCase*/ false);
+    if (standardExtension) {
+        return standardExtension;
+    }
+    if (fileExtensionIs(fileName, Extension.C)) {
+        const index = getBaseFileName(fileName).lastIndexOf(".d.");
+        if (index >= 0) {
+            return fileName.substring(index);
+        }
+    }
+    return undefined;
+}
+
+
+// Produces a new SourceFile for the 'newText' provided. The 'textChangeRange' parameter
+// indicates what changed between the 'text' that this SourceFile has and the 'newText'.
+// The SourceFile will be created with the compiler attempting to reuse as many nodes from
+// this file as possible.
+//
+// Note: this function mutates nodes from this SourceFile. That means any existing nodes
+// from this SourceFile that are being held onto may change as a result (including
+// becoming detached from any SourceFile).  It is recommended that this SourceFile not
+// be used once 'update' is called on it.
+export function updateSourceFile(sourceFile: SourceFile, newText: string, config: LpcConfig, textChangeRange: TextChangeRange, aggressiveChecks = false): SourceFile {
+    console.warn("implement me- updateSourceFile");
+    return LpcParser.parseSourceFile(sourceFile.fileName, newText, config, /*setParentNodes*/ false);
+    // const newSourceFile = IncrementalParser.updateSourceFile(sourceFile, newText, textChangeRange, aggressiveChecks);
+    // // Because new source file node is created, it may not have the flag PossiblyContainDynamicImport. This is the case if there is no new edit to add dynamic import.
+    // // We will manually port the flag to the new source file.
+    // (newSourceFile as Mutable<SourceFile>).flags |= sourceFile.flags & NodeFlags.PermanentlySetIncrementalFlags;
+    // return newSourceFile;    
+}

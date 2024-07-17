@@ -1,6 +1,5 @@
 import * as antlr from "antlr4ng";
-import { Signature, Type, Debug, DiagnosticArguments, DiagnosticMessage, DiagnosticRelatedInformation, DiagnosticWithDetachedLocation, DiagnosticWithLocation, Identifier, MapLike, ModifierFlags, Node, NodeFlags, ReadonlyTextRange, some, SourceFile, Symbol, SymbolFlags, SyntaxKind, TextRange, Token, TransformFlags, TypeChecker, TypeFlags, tracing, SignatureFlags, canHaveModifiers, Modifier, skipTrivia, SymbolTable, CallExpression, Declaration, getCombinedNodeFlags, BinaryExpression, AssignmentDeclarationKind, isCallExpression, isBinaryExpression, isIdentifier, Diagnostic, emptyArray, PropertyNameLiteral, DeclarationName, LiteralLikeNode, AssignmentExpression, LogicalOrCoalescingAssignmentOperator, LogicalOperator, Expression, OuterExpressionKinds, OuterExpression, WrappedExpression, PrefixUnaryExpression, PostfixUnaryExpression, ForEachStatement, ShorthandPropertyAssignment, PropertyAssignment, PropertyAccessExpression, ParenthesizedExpression, BinaryOperatorToken, AssertionLevel, SortedArray, binarySearch, identity, Comparison, DiagnosticMessageChain, compareStringsCaseSensitive, compareValues, insertSorted, flatMapToMutable, DiagnosticCollection, isJSDocTemplateTag, HasJSDoc, lastOrUndefined, JSDoc, isJSDoc, find, ParameterDeclaration, FunctionDeclaration, InlineClosureExpression, FunctionExpression, forEachChild, returnUndefined, returnFalse, CompilerOptions, FunctionLikeDeclaration, canHaveLocals, isFunctionLike, isParameter, PropertyDeclaration, BindingElement, isString, InternalSymbolName, isSourceFile, StructDeclaration, isStructDeclaration, JSDocTemplateTag, TypeNodeSyntaxKind, isTypeNode, isFunctionLikeDeclaration, SignatureDeclaration, AccessExpression, isInlineClosureExpression, PropertyAccessEntityNameExpression, isPropertyAccessExpression, EntityNameExpression, isVariableDeclaration, VariableDeclarationInitializedTo, CanonicalDiagnostic, HasInitializer, ExpressionStatement, ForStatement, isShorthandPropertyAssignment, JSDocTag, EqualsToken, AssignmentOperatorToken, isLeftHandSideExpression, isFunctionLikeKind, AdditiveOperator, AdditiveOperatorOrHigher, AssignmentOperatorOrHigher, BinaryOperator, BitwiseOperator, BitwiseOperatorOrHigher, EqualityOperator, EqualityOperatorOrHigher, ExponentiationOperator, LogicalOperatorOrHigher, MultiplicativeOperator, MultiplicativeOperatorOrHigher, RelationalOperator, RelationalOperatorOrHigher, ShiftOperator, ShiftOperatorOrHigher, HasFlowNode, ObjectFlags, ObjectFlagsType, isDeclaration, isBindingPattern, isJSDocSignature, JSDocSignature, TypeNode, findAncestor, Extension, fileExtensionIs, NamedDeclaration, KeywordSyntaxKind, binarySearchKey, SourceFileLike, isToken, EndOfFileToken, isJSDocCommentContainingNode, firstOrUndefined, getNodeChildren, JSDocContainer, PropertyName, idText, isMemberName } from "./_namespaces/lpc";
-import { TextSpan } from "../backend/types";
+import { Signature, Type, Debug, DiagnosticArguments, DiagnosticMessage, DiagnosticRelatedInformation, DiagnosticWithDetachedLocation, DiagnosticWithLocation, Identifier, MapLike, ModifierFlags, Node, NodeFlags, ReadonlyTextRange, some, SourceFile, Symbol, SymbolFlags, SyntaxKind, TextRange, Token, TransformFlags, TypeChecker, TypeFlags, tracing, SignatureFlags, canHaveModifiers, Modifier, skipTrivia, SymbolTable, CallExpression, Declaration, getCombinedNodeFlags, BinaryExpression, AssignmentDeclarationKind, isCallExpression, isBinaryExpression, isIdentifier, Diagnostic, emptyArray, PropertyNameLiteral, DeclarationName, LiteralLikeNode, AssignmentExpression, LogicalOrCoalescingAssignmentOperator, LogicalOperator, Expression, OuterExpressionKinds, OuterExpression, WrappedExpression, PrefixUnaryExpression, PostfixUnaryExpression, ForEachStatement, ShorthandPropertyAssignment, PropertyAssignment, PropertyAccessExpression, ParenthesizedExpression, BinaryOperatorToken, AssertionLevel, SortedArray, binarySearch, identity, Comparison, DiagnosticMessageChain, compareStringsCaseSensitive, compareValues, insertSorted, flatMapToMutable, DiagnosticCollection, isJSDocTemplateTag, HasJSDoc, lastOrUndefined, JSDoc, isJSDoc, find, ParameterDeclaration, FunctionDeclaration, InlineClosureExpression, FunctionExpression, forEachChild, returnUndefined, returnFalse, CompilerOptions, FunctionLikeDeclaration, canHaveLocals, isFunctionLike, isParameter, PropertyDeclaration, BindingElement, isString, InternalSymbolName, isSourceFile, StructDeclaration, isStructDeclaration, JSDocTemplateTag, TypeNodeSyntaxKind, isTypeNode, isFunctionLikeDeclaration, SignatureDeclaration, AccessExpression, isInlineClosureExpression, PropertyAccessEntityNameExpression, isPropertyAccessExpression, EntityNameExpression, isVariableDeclaration, VariableDeclarationInitializedTo, CanonicalDiagnostic, HasInitializer, ExpressionStatement, ForStatement, isShorthandPropertyAssignment, JSDocTag, EqualsToken, AssignmentOperatorToken, isLeftHandSideExpression, isFunctionLikeKind, AdditiveOperator, AdditiveOperatorOrHigher, AssignmentOperatorOrHigher, BinaryOperator, BitwiseOperator, BitwiseOperatorOrHigher, EqualityOperator, EqualityOperatorOrHigher, ExponentiationOperator, LogicalOperatorOrHigher, MultiplicativeOperator, MultiplicativeOperatorOrHigher, RelationalOperator, RelationalOperatorOrHigher, ShiftOperator, ShiftOperatorOrHigher, HasFlowNode, ObjectFlags, ObjectFlagsType, isDeclaration, isBindingPattern, isJSDocSignature, JSDocSignature, TypeNode, findAncestor, Extension, fileExtensionIs, NamedDeclaration, KeywordSyntaxKind, binarySearchKey, SourceFileLike, isToken, EndOfFileToken, isJSDocCommentContainingNode, firstOrUndefined, getNodeChildren, JSDocContainer, PropertyName, idText, isMemberName, forEach, PrinterOptions, NewLineKind, flatMap, getNormalizedPathComponents, removeTrailingDirectorySeparator, directorySeparator, normalizePath, FileWatcher, PackageId, ScriptKind, TextSpan } from "./_namespaces/lpc.js";
 
 /** @internal */
 export interface ObjectAllocator {
@@ -24,6 +23,7 @@ export const objectAllocator: ObjectAllocator = {
     getTypeConstructor: () => Type as any,
     getSignatureConstructor: () => Signature as any,    
 };
+const objectAllocatorPatchers: ((objectAllocator: ObjectAllocator) => void)[] = [];
 
 function Signature(this: Signature, checker: TypeChecker, flags: SignatureFlags) {
     // Note: if modifying this, be sure to update SignatureObject in src/services/services.ts
@@ -3020,3 +3020,105 @@ export function getTextOfIdentifierOrLiteral(node: PropertyNameLiteral): string 
     //return isMemberName(node) ? idText(node) : node.text;
 }
 
+
+/**
+ * Used by `deprecatedCompat` to patch the object allocator to apply deprecations.
+ * @internal
+ * @knipignore
+ */
+export function addObjectAllocatorPatcher(fn: (objectAllocator: ObjectAllocator) => void) {
+    objectAllocatorPatchers.push(fn);
+    fn(objectAllocator);
+}
+
+/** @internal */
+export function setObjectAllocator(alloc: ObjectAllocator) {
+    Object.assign(objectAllocator, alloc);
+    forEach(objectAllocatorPatchers, fn => fn(objectAllocator));
+}
+
+
+const carriageReturnLineFeed = "\r\n";
+const lineFeed = "\n";
+/** @internal */
+export function getNewLineCharacter(options: CompilerOptions | PrinterOptions): string {
+    switch (options.newLine) {
+        case NewLineKind.CarriageReturnLineFeed:
+            return carriageReturnLineFeed;
+        case NewLineKind.LineFeed:
+        case undefined:
+            return lineFeed;
+    }
+}
+
+/** @internal */
+export interface FileSystemEntries {
+    readonly files: readonly string[];
+    readonly directories: readonly string[];
+}
+
+/** @internal */
+export const emptyFileSystemEntries: FileSystemEntries = {
+    files: emptyArray,
+    directories: emptyArray,
+};
+
+/** @internal */
+export function closeFileWatcher(watcher: FileWatcher) {
+    watcher.close();
+}
+
+
+/** @internal */
+export function optionsHaveChanges(oldOptions: CompilerOptions, newOptions: CompilerOptions){//, optionDeclarations: readonly CommandLineOption[]) {
+    return oldOptions !== newOptions;// && optionDeclarations.some(o => !isJsonEqual(getCompilerOptionValue(oldOptions, o), getCompilerOptionValue(newOptions, o)));
+}
+
+/** @internal */
+export function packageIdToPackageName({ name, subModuleName }: PackageId): string {
+    return subModuleName ? `${name}/${subModuleName}` : name;
+}
+
+
+/** @internal */
+export function packageIdToString(packageId: PackageId): string {
+    return `${packageIdToPackageName(packageId)}@${packageId.version}${packageId.peerDependencies ?? ""}`;
+}
+
+/** @internal */
+export function ensureScriptKind(fileName: string, scriptKind: ScriptKind | undefined): ScriptKind {
+    // Using scriptKind as a condition handles both:
+    // - 'scriptKind' is unspecified and thus it is `undefined`
+    // - 'scriptKind' is set and it is `Unknown` (0)
+    // If the 'scriptKind' is 'undefined' or 'Unknown' then we attempt
+    // to get the ScriptKind from the file name. If it cannot be resolved
+    // from the file name then the default 'TS' script kind is returned.
+    return scriptKind || ScriptKind.LPC;
+}
+
+/** @internal */
+export const supportedDeclarationExtensions: readonly Extension[] = [Extension.C, Extension.H, Extension.Lpc];
+
+
+/**
+ * Calls `callback` for each entry in the map, returning the first truthy result.
+ * Use `map.forEach` instead for normal iteration.
+ *
+ * @internal
+ */
+export function forEachEntry<K, V, U>(map: ReadonlyMap<K, V>, callback: (value: V, key: K) => U | undefined): U | undefined {
+    const iterator = map.entries();
+    for (const [key, value] of iterator) {
+        const result = callback(value, key);
+        if (result) {
+            return result;
+        }
+    }
+    return undefined;
+}
+
+/** @internal */
+export function directoryProbablyExists(directoryName: string, host: { directoryExists?: (directoryName: string) => boolean; }): boolean {
+    // if host does not support 'directoryExists' assume that directory will exist
+    return !host.directoryExists || host.directoryExists(directoryName);
+}

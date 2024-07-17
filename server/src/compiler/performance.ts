@@ -3,6 +3,8 @@ import {
     noop,
     Performance,
     PerformanceHooks,    
+    sys,    
+    System,    
     timestamp,
     tryGetNativePerformanceHooks,
 } from "./_namespaces/lpc.js";
@@ -174,7 +176,7 @@ export function isEnabled() {
  *
  * @internal
  */
-export function enable(){//system: System = sys) {
+export function enable(system: System = sys) {
     if (!enabled) {
         enabled = true;
         perfHooks ||= tryGetNativePerformanceHooks();
@@ -185,9 +187,9 @@ export function enable(){//system: System = sys) {
             // or `--prof`, if we're running with our own `--generateCpuProfile` flag, or when
             // running in debug mode (since its possible to generate a cpu profile while debugging).
             
-            // if (perfHooks.shouldWriteNativeEvents || system?.cpuProfilingEnabled?.() || system?.debugMode) {
-            //     performanceImpl = perfHooks.performance;
-            // }
+            if (perfHooks.shouldWriteNativeEvents || system?.cpuProfilingEnabled?.() || system?.debugMode) {
+                performanceImpl = perfHooks.performance;
+            }
         }
     }
     return true;

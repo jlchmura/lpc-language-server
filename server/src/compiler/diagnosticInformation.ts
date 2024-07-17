@@ -31,4 +31,9 @@ export const Diagnostics = {
     Not_all_code_paths_return_a_value: diag(7030, DiagnosticCategory.Error, "Not_all_code_paths_return_a_value_7030", "Not all code paths return a value."),
     A_0_parameter_must_be_the_first_parameter: diag(2680, DiagnosticCategory.Error, "A_0_parameter_must_be_the_first_parameter_2680", "A '{0}' parameter must be the first parameter."),
     A_rest_parameter_must_be_of_an_array_type: diag(2370, DiagnosticCategory.Error, "A_rest_parameter_must_be_of_an_array_type_2370", "A rest parameter must be of an array type."),
+    File_0_not_found: diag(6053, DiagnosticCategory.Error, "File_0_not_found_6053", "File '{0}' not found."),
+    A_file_cannot_have_a_reference_to_itself: diag(1006, DiagnosticCategory.Error, "A_file_cannot_have_a_reference_to_itself_1006", "A file cannot have a reference to itself."),
+    Cannot_read_file_0_Colon_1: diag(5012, DiagnosticCategory.Error, "Cannot_read_file_0_Colon_1_5012", "Cannot read file '{0}': {1}."),
+    Already_included_file_name_0_differs_from_file_name_1_only_in_casing: diag(1261, DiagnosticCategory.Error, "Already_included_file_name_0_differs_from_file_name_1_only_in_casing_1261", "Already included file name '{0}' differs from file name '{1}' only in casing."),
+    File_name_0_differs_from_already_included_file_name_1_only_in_casing: diag(1149, DiagnosticCategory.Error, "File_name_0_differs_from_already_included_file_name_1_only_in_casing_1149", "File name '{0}' differs from already included file name '{1}' only in casing."),
 }

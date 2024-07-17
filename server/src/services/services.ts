@@ -1,3 +1,4 @@
+import { ensureLpcConfig } from "../backend/LpcConfig.js";
 import {
     AssignmentDeclarationKind,
     BaseType,
@@ -86,6 +87,34 @@ import {
     getNameFromPropertyName,
     JSDocTagInfo,
     SymbolDisplayPart,
+    setObjectAllocator,
+    CancellationToken,
+    returnFalse,
+    noop,
+    Program,
+    LanguageService,
+    DefinitionInfo,
+    CreateProgramOptions,
+    LanguageServiceHost,
+    CompilerOptions,
+    CompilerHost,
+    createProgram,
+    getNewLineCharacter,
+    maybeBind,
+    toPath,
+    IScriptSnapshot,
+    ScriptTarget,
+    CreateSourceFileOptions,
+    ScriptKind,
+    createSourceFile,
+    getSnapshotText,
+    DocumentRegistry,
+    createDocumentRegistry,
+    createGetCanonicalFileName,
+    directoryProbablyExists,
+    ModuleKind,
+    textSpanEnd,
+    updateSourceFile,
 } from "./_namespaces/lpc.js";
 
 // These utilities are common to multiple language service features.
@@ -454,7 +483,7 @@ class SourceFileObject
     public resolvedPath!: Path;
     public originalFileName!: string;
     public text!: string;
-    //public scriptSnapshot!: IScriptSnapshot;
+    public scriptSnapshot!: IScriptSnapshot;
     public lineMap!: readonly number[];
 
     public statements!: NodeArray<Statement>;
@@ -480,8 +509,8 @@ class SourceFileObject
     public identifierCount!: number;
     public symbolCount!: number;
     public version!: string;
-    // public scriptKind!: ScriptKind;
-    // public languageVersion!: ScriptTarget;
+    public scriptKind!: ScriptKind;
+    public languageVersion!: ScriptTarget;
     public languageVariant!: LanguageVariant;
     public identifiers!: Map<string, string>;
     public nameTable: Map<string, number> | undefined;
@@ -801,7 +830,7 @@ function createSyntaxList(nodes: NodeArray<Node>, parent: Node): Node {
 
 class SymbolObject implements Symbol {
     flags: SymbolFlags;
-    escapedName: string;
+    name: string;
     declarations?: Declaration[];
     valueDeclaration?: Declaration;
     members?: SymbolTable;
@@ -829,7 +858,7 @@ class SymbolObject implements Symbol {
     constructor(flags: SymbolFlags, name: string) {
         // Note: if modifying this, be sure to update Symbol in src/compiler/types.ts
         this.flags = flags;
-        this.escapedName = name;
+        this.name = name;
         this.declarations = undefined;
         this.valueDeclaration = undefined;
         this.id = 0;
@@ -843,28 +872,13 @@ class SymbolObject implements Symbol {
         this.lastAssignmentPos = undefined;
         this.links = undefined; // used by TransientSymbol
     }
-    toString(): string {
-        throw new Error("Method not implemented.");
-    }
-    valueOf(): symbol {
-        throw new Error("Method not implemented.");
-    }
-    description: string;
-    [Symbol.toPrimitive](hint: string): symbol {
-        throw new Error("Method not implemented.");
-    }
-    [Symbol.toStringTag]: string;
 
     getFlags(): SymbolFlags {
         return this.flags;
     }
 
-    get name(): string {
-        return symbolName(this);
-    }
-
     getEscapedName(): string {
-        return this.escapedName;
+        return this.name;
     }
 
     getName(): string {
@@ -1144,4 +1158,457 @@ class SignatureObject implements Signature {
             ))
         );
     }
+}
+
+const NoopCancellationToken: CancellationToken = {
+    isCancellationRequested: returnFalse,
+    throwIfCancellationRequested: noop,
+};
+
+export function getDefaultCompilerOptions(): CompilerOptions {
+    // Always default to "ScriptTarget.ES5" for the language service
+    return {};
+}
+
+export function createLanguageService(
+    host: LanguageServiceHost,
+    documentRegistry: DocumentRegistry = createDocumentRegistry(
+        host.useCaseSensitiveFileNames && host.useCaseSensitiveFileNames(),
+        host.getCurrentDirectory(),
+        host.jsDocParsingMode
+    )
+    // syntaxOnlyOrLanguageServiceMode?: boolean | LanguageServiceMode,
+): LanguageService {
+    //const syntaxTreeCache: SyntaxTreeCache = new SyntaxTreeCache(host);
+    let program: Program;
+    let lastProjectVersion: string;
+    let lastTypesRootVersion = 0;
+
+    const cancellationToken = NoopCancellationToken;
+
+    const ls: LanguageService = {
+        getDefinitionAtPosition,
+    };
+
+    return ls;
+
+    function synchronizeHostData(): void {
+        // perform fast check if host supports it
+        if (host.getProjectVersion) {
+            const hostProjectVersion = host.getProjectVersion();
+            if (hostProjectVersion) {
+                if (lastProjectVersion === hostProjectVersion) {
+                    // && !host.hasChangedAutomaticTypeDirectiveNames?.()) {
+                    return;
+                }
+
+                lastProjectVersion = hostProjectVersion;
+            }
+        }
+
+        // This array is retained by the program and will be used to determine if the program is up to date,
+        // so we need to make a copy in case the host mutates the underlying array - otherwise it would look
+        // like every program always has the host's current list of root files.
+        const rootFileNames = host.getScriptFileNames().slice();
+
+        // Get a fresh cache of the host information
+        const newSettings =
+            host.getCompilationSettings() || getDefaultCompilerOptions();
+        const projectReferences = host.getProjectReferences?.();
+
+        const useCaseSensitiveFileNames = true;
+        const getCanonicalFileName = createGetCanonicalFileName(
+            useCaseSensitiveFileNames
+        );
+
+        // The call to isProgramUptoDate below may refer back to documentRegistryBucketKey;
+        // calculate this early so it's not undefined if downleveled to a var (or, if emitted
+        // as a const variable without downleveling, doesn't crash).
+        const documentRegistryBucketKey =
+            documentRegistry.getKeyForCompilationSettings(newSettings);
+        let releasedScriptKinds: Set<Path> | undefined = new Set();
+
+        const currentDirectory = host.getCurrentDirectory();
+
+        // Now create a new compiler
+        let compilerHost: CompilerHost | undefined = {
+            getSourceFile: getOrCreateSourceFile,
+            getSourceFileByPath: getOrCreateSourceFileByPath,
+            getCancellationToken: () => cancellationToken,
+            getCanonicalFileName,
+            useCaseSensitiveFileNames: () => true, //useCaseSensitiveFileNames,
+            getNewLine: () => getNewLineCharacter(newSettings),
+            //getDefaultLibFileName: options => host.getDefaultLibFileName(options),
+            writeFile: noop,
+            getCurrentDirectory: () => currentDirectory,
+            fileExists: (fileName) => host.fileExists(fileName),
+            readFile: (fileName) => host.readFile && host.readFile(fileName),
+            //getSymlinkCache: maybeBind(host, host.getSymlinkCache),
+            realpath: maybeBind(host, host.realpath),
+            directoryExists: (directoryName) => {
+                return directoryProbablyExists(directoryName, host);
+            },
+            getDirectories: (path) => {
+                return host.getDirectories ? host.getDirectories(path) : [];
+            },
+            readDirectory: (
+                path: string,
+                extensions?: readonly string[],
+                exclude?: readonly string[],
+                include?: readonly string[],
+                depth?: number
+            ) => {
+                Debug.checkDefined(
+                    host.readDirectory,
+                    "'LanguageServiceHost.readDirectory' must be implemented to correctly process 'projectReferences'"
+                );
+                return host.readDirectory!(
+                    path,
+                    extensions,
+                    exclude,
+                    include,
+                    depth
+                );
+            },
+            onReleaseOldSourceFile,
+            //onReleaseParsedCommandLine,
+            //hasInvalidatedResolutions,
+            //hasInvalidatedLibResolutions,
+            //hasChangedAutomaticTypeDirectiveNames,
+            trace: maybeBind(host, host.trace),
+            resolveModuleNames: maybeBind(host, host.resolveModuleNames),
+            // getModuleResolutionCache: maybeBind(
+            //     host,
+            //     host.getModuleResolutionCache
+            // ),
+            createHash: maybeBind(host, host.createHash),
+            // resolveTypeReferenceDirectives: maybeBind(
+            //     host,
+            //     host.resolveTypeReferenceDirectives
+            // ),
+            resolveModuleNameLiterals: maybeBind(
+                host,
+                host.resolveModuleNameLiterals
+            ),
+            // resolveTypeReferenceDirectiveReferences: maybeBind(
+            //     host,
+            //     host.resolveTypeReferenceDirectiveReferences
+            // ),
+            resolveLibrary: maybeBind(host, host.resolveLibrary),
+            useSourceOfProjectReferenceRedirect: maybeBind(
+                host,
+                host.useSourceOfProjectReferenceRedirect
+            ),
+            // getParsedCommandLine,
+            jsDocParsingMode: host.jsDocParsingMode,
+        };
+
+        // IMPORTANT - It is critical from this moment onward that we do not check
+        // cancellation tokens.  We are about to mutate source files from a previous program
+        // instance.  If we cancel midway through, we may end up in an inconsistent state where
+        // the program points to old source files that have been invalidated because of
+        // incremental parsing.
+
+        const options: CreateProgramOptions = {
+            rootNames: rootFileNames,
+            options: newSettings,
+            host: compilerHost,
+            oldProgram: program,
+            projectReferences,
+        };
+        program = createProgram(options);
+
+        // 'getOrCreateSourceFile' depends on caching but should be used past this point.
+        // After this point, the cache needs to be cleared to allow all collected snapshots to be released
+        compilerHost = undefined;
+        // parsedCommandLines = undefined;
+        // releasedScriptKinds = undefined;
+
+        // We reset this cache on structure invalidation so we don't hold on to outdated files for long; however we can't use the `compilerHost` above,
+        // Because it only functions until `hostCache` is cleared, while we'll potentially need the functionality to lazily read sourcemap files during
+        // the course of whatever called `synchronizeHostData`
+        // sourceMapper.clearCache();
+
+        // Make sure all the nodes in the program are both bound, and have their parent
+        // pointers set property.
+        program.getTypeChecker();
+        return;
+
+        function getOrCreateSourceFile(
+            fileName: string,
+            /*languageVersionOrOptions: ScriptTarget | CreateSourceFileOptions, */ onError?: (
+                message: string
+            ) => void,
+            shouldCreateNewSourceFile?: boolean
+        ): SourceFile | undefined {
+            return getOrCreateSourceFileByPath(
+                fileName,
+                toPath(fileName, currentDirectory, getCanonicalFileName),
+                /*languageVersionOrOptions,*/ onError,
+                shouldCreateNewSourceFile
+            );
+        }
+
+        // Release any files we have acquired in the old program but are
+        // not part of the new program.
+        function releaseOldSourceFile(
+            oldSourceFile: SourceFile,
+            oldOptions: CompilerOptions
+        ) {
+            const oldSettingsKey =
+                documentRegistry.getKeyForCompilationSettings(oldOptions);
+            documentRegistry.releaseDocumentWithKey(
+                oldSourceFile.resolvedPath,
+                oldSettingsKey,
+                oldSourceFile.scriptKind,
+                ModuleKind.LPC
+            );
+        }
+
+        function onReleaseOldSourceFile(
+            oldSourceFile: SourceFile,
+            oldOptions: CompilerOptions,
+            hasSourceFileByPath: boolean,
+            newSourceFileByResolvedPath: SourceFile | undefined
+        ) {
+            releaseOldSourceFile(oldSourceFile, oldOptions);
+            host.onReleaseOldSourceFile?.(
+                oldSourceFile,
+                oldOptions,
+                hasSourceFileByPath,
+                newSourceFileByResolvedPath
+            );
+        }
+
+        function getOrCreateSourceFileByPath(
+            fileName: string,
+            path: Path,
+            /*languageVersionOrOptions: ScriptTarget | CreateSourceFileOptions, */ _onError?: (
+                message: string
+            ) => void,
+            shouldCreateNewSourceFile?: boolean
+        ): SourceFile | undefined {
+            Debug.assert(
+                compilerHost,
+                "getOrCreateSourceFileByPath called after typical CompilerHost lifetime, check the callstack something with a reference to an old host."
+            );
+            // The program is asking for this file, check first if the host can locate it.
+            // If the host can not locate the file, then it does not exist. return undefined
+            // to the program to allow reporting of errors for missing files.
+            const scriptSnapshot = host.getScriptSnapshot(fileName);
+            if (!scriptSnapshot) {
+                return undefined;
+            }
+
+            //const scriptKind = getScriptKind(fileName, host);
+            const scriptVersion = host.getScriptVersion(fileName);
+
+            // Check if the language version has changed since we last created a program; if they are the same,
+            // it is safe to reuse the sourceFiles; if not, then the shape of the AST can change, and the oldSourceFile
+            // can not be reused. we have to dump all syntax trees and create new ones.
+            if (!shouldCreateNewSourceFile) {
+                // Check if the old program had this file already
+                const oldSourceFile =
+                    program && program.getSourceFileByPath(path);
+                if (oldSourceFile) {
+                    // We already had a source file for this file name.  Go to the registry to
+                    // ensure that we get the right up to date version of it.  We need this to
+                    // address the following race-condition.  Specifically, say we have the following:
+                    //
+                    //      LS1
+                    //          \
+                    //           DocumentRegistry
+                    //          /
+                    //      LS2
+                    //
+                    // Each LS has a reference to file 'foo.ts' at version 1.  LS2 then updates
+                    // it's version of 'foo.ts' to version 2.  This will cause LS2 and the
+                    // DocumentRegistry to have version 2 of the document.  However, LS1 will
+                    // have version 1.  And *importantly* this source file will be *corrupt*.
+                    // The act of creating version 2 of the file irrevocably damages the version
+                    // 1 file.
+                    //
+                    // So, later when we call into LS1, we need to make sure that it doesn't use
+                    // it's source file any more, and instead defers to DocumentRegistry to get
+                    // either version 1, version 2 (or some other version) depending on what the
+                    // host says should be used.
+
+                    // We do not support the scenario where a host can modify a registered
+                    // file's script kind, i.e. in one project some file is treated as ".ts"
+                    // and in another as ".js"
+                    if (
+                        /*scriptKind === oldSourceFile.scriptKind || */ releasedScriptKinds!.has(
+                            oldSourceFile.resolvedPath
+                        )
+                    ) {
+                        return documentRegistry.updateDocumentWithKey(
+                            fileName,
+                            path,
+                            host,
+                            documentRegistryBucketKey,
+                            scriptSnapshot,
+                            scriptVersion
+                            // scriptKind,
+                            // languageVersionOrOptions
+                        );
+                    } else {
+                        // Release old source file and fall through to aquire new file with new script kind
+                        documentRegistry.releaseDocumentWithKey(
+                            oldSourceFile.resolvedPath,
+                            documentRegistry.getKeyForCompilationSettings(
+                                program.getCompilerOptions()
+                            ),
+                            oldSourceFile.scriptKind
+                            // oldSourceFile.impliedNodeFormat
+                        );
+                        releasedScriptKinds!.add(oldSourceFile.resolvedPath);
+                    }
+                }
+
+                // We didn't already have the file.  Fall through and acquire it from the registry.
+            }
+
+            // Could not find this file in the old program, create a new SourceFile for it.
+            return documentRegistry.acquireDocumentWithKey(
+                fileName,
+                path,
+                host,
+                documentRegistryBucketKey,
+                scriptSnapshot,
+                scriptVersion
+                // scriptKind,
+                // languageVersionOrOptions
+            );
+        }
+    }
+
+    /// Goto definition
+    function getDefinitionAtPosition(
+        fileName: string,
+        position: number,
+        searchOtherFilesOnly?: boolean,
+        stopAtAlias?: boolean
+    ): readonly DefinitionInfo[] | undefined {
+        synchronizeHostData();
+        return undefined;
+        //return GoToDefinition.getDefinitionAtPosition(program, getValidSourceFile(fileName), position, searchOtherFilesOnly, stopAtAlias);
+    }
+}
+
+setObjectAllocator(getServicesObjectAllocator());
+
+function setSourceFileFields(
+    sourceFile: SourceFile,
+    scriptSnapshot: IScriptSnapshot,
+    version: string
+) {
+    sourceFile.version = version;
+    sourceFile.scriptSnapshot = scriptSnapshot;
+}
+
+export function createLanguageServiceSourceFile(
+    fileName: string,
+    scriptSnapshot: IScriptSnapshot,
+    scriptTargetOrOptions: ScriptTarget | CreateSourceFileOptions,
+    version: string,
+    setNodeParents: boolean,
+    scriptKind?: ScriptKind
+): SourceFile {
+    const config = ensureLpcConfig();
+    const sourceFile = createSourceFile(
+        fileName,
+        getSnapshotText(scriptSnapshot),
+        config,
+        scriptTargetOrOptions,
+        setNodeParents,
+        scriptKind
+    );
+    setSourceFileFields(sourceFile, scriptSnapshot, version);
+    return sourceFile;
+}
+
+export function updateLanguageServiceSourceFile(
+    sourceFile: SourceFile,
+    scriptSnapshot: IScriptSnapshot,
+    version: string,
+    textChangeRange: TextChangeRange | undefined,
+    aggressiveChecks?: boolean
+): SourceFile {
+    // If we were given a text change range, and our version or open-ness changed, then
+    // incrementally parse this file.
+    if (textChangeRange) {
+        if (version !== sourceFile.version) {
+            let newText: string;
+
+            // grab the fragment from the beginning of the original text to the beginning of the span
+            const prefix =
+                textChangeRange.span.start !== 0
+                    ? sourceFile.text.substr(0, textChangeRange.span.start)
+                    : "";
+
+            // grab the fragment from the end of the span till the end of the original text
+            const suffix =
+                textSpanEnd(textChangeRange.span) !== sourceFile.text.length
+                    ? sourceFile.text.substr(textSpanEnd(textChangeRange.span))
+                    : "";
+
+            if (textChangeRange.newLength === 0) {
+                // edit was a deletion - just combine prefix and suffix
+                newText = prefix && suffix ? prefix + suffix : prefix || suffix;
+            } else {
+                // it was actual edit, fetch the fragment of new text that correspond to new span
+                const changedText = scriptSnapshot.getText(
+                    textChangeRange.span.start,
+                    textChangeRange.span.start + textChangeRange.newLength
+                );
+                // combine prefix, changed text and suffix
+                newText =
+                    prefix && suffix
+                        ? prefix + changedText + suffix
+                        : prefix
+                        ? prefix + changedText
+                        : changedText + suffix;
+            }
+
+            const config = ensureLpcConfig();
+            const newSourceFile = updateSourceFile(
+                sourceFile,
+                newText,
+                config,
+                textChangeRange,
+                aggressiveChecks
+            );
+            setSourceFileFields(newSourceFile, scriptSnapshot, version);
+            // after incremental parsing nameTable might not be up-to-date
+            // drop it so it can be lazily recreated later
+            newSourceFile.nameTable = undefined;
+
+            // dispose all resources held by old script snapshot
+            if (sourceFile !== newSourceFile && sourceFile.scriptSnapshot) {
+                if (sourceFile.scriptSnapshot.dispose) {
+                    sourceFile.scriptSnapshot.dispose();
+                }
+
+                sourceFile.scriptSnapshot = undefined;
+            }
+
+            return newSourceFile;
+        }
+    }
+
+    const options: CreateSourceFileOptions = {
+        languageVersion: sourceFile.languageVersion,
+        impliedNodeFormat: sourceFile.impliedNodeFormat,
+        setExternalModuleIndicator: sourceFile.setExternalModuleIndicator,
+        jsDocParsingMode: sourceFile.jsDocParsingMode,
+    };
+    // Otherwise, just create a new source file.
+    return createLanguageServiceSourceFile(
+        sourceFile.fileName,
+        scriptSnapshot,
+        options,
+        version,
+        /*setNodeParents*/ true,
+        sourceFile.scriptKind
+    );
 }
