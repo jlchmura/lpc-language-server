@@ -16,6 +16,17 @@ import {
     BinaryExpression,
     ForEachStatement,
     some,
+    CallExpression,
+    Expression,
+    skipOuterExpressions,
+    tryCast,
+    isPropertyAccessExpression,
+    isElementAccessExpression,
+    isCallOrNewExpression,
+    isIdentifier,
+    isFunctionLike,
+    isNewExpression,
+    NewExpression,
 } from "./_namespaces/lpc.js";
 
 /** @internal */
@@ -88,4 +99,54 @@ export function isArrayLiteralOrObjectLiteralDestructuringPattern(node: Node) {
 /** @internal */
 export interface PossibleProgramFileInfo {
     ProgramFiles?: string[];
+}
+
+
+function isCalleeWorker<T extends CallExpression | NewExpression>(node: Node, pred: (node: Node) => node is T, calleeSelector: (node: T) => Expression, includeElementAccess: boolean, skipPastOuterExpressions: boolean) {
+    let target = includeElementAccess ? climbPastPropertyOrElementAccess(node) : climbPastPropertyAccess(node);
+    if (skipPastOuterExpressions) {
+        target = skipOuterExpressions(target);
+    }
+    return !!target && !!target.parent && pred(target.parent) && calleeSelector(target.parent) === target;
+}
+
+/** @internal */
+export function isRightSideOfPropertyAccess(node: Node) {
+    return tryCast(node.parent, isPropertyAccessExpression)?.name === node;
+}
+
+
+/** @internal */
+export function climbPastPropertyAccess(node: Node) {
+    return isRightSideOfPropertyAccess(node) ? node.parent : node;
+}
+
+/** @internal */
+export function isArgumentExpressionOfElementAccess(node: Node) {
+    return tryCast(node.parent, isElementAccessExpression)?.argumentExpression === node;
+}
+
+function climbPastPropertyOrElementAccess(node: Node) {
+    return isRightSideOfPropertyAccess(node) || isArgumentExpressionOfElementAccess(node) ? node.parent : node;
+}
+
+
+function selectExpressionOfCallOrNewExpressionOrDecorator(node: CallExpression | NewExpression) {
+    return node.expression;
+}
+
+
+/** @internal */
+export function isCallOrNewExpressionTarget(node: Node, includeElementAccess = false, skipPastOuterExpressions = false): boolean {
+    return isCalleeWorker(node, isCallOrNewExpression, selectExpressionOfCallOrNewExpressionOrDecorator, includeElementAccess, skipPastOuterExpressions);
+}
+
+/** @internal */
+export function isNameOfFunctionDeclaration(node: Node): boolean {
+    return isIdentifier(node) && tryCast(node.parent, isFunctionLike)?.name === node;
+}
+
+/** @internal */
+export function isNewExpressionTarget(node: Node, includeElementAccess = false, skipPastOuterExpressions = false): boolean {
+    return isCalleeWorker(node, isNewExpression, selectExpressionOfCallOrNewExpressionOrDecorator, includeElementAccess, skipPastOuterExpressions);
 }

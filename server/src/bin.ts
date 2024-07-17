@@ -256,9 +256,9 @@ function createHost(
         > {
             throw new Error("Function not implemented.");
         },
-        // getCommonSourceDirectory: function (): string {
-        //     throw new Error("Function not implemented.");
-        // },
+        getCommonSourceDirectory: function (): string {
+            throw new Error("Function not implemented.");
+        },
     };
 
     return host;

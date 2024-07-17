@@ -569,3 +569,108 @@ export function computePositionOfLineAndCharacter(lineStarts: readonly number[],
     return res;
 }
 
+function codePointAt(s: string, i: number): number {
+    // TODO(jakebailey): this is wrong and should have ?? 0; but all users are okay with it
+    return s.codePointAt(i)!;
+}
+
+function isASCIILetter(ch: number): boolean {
+    return ch >= CharacterCodes.A && ch <= CharacterCodes.Z || ch >= CharacterCodes.a && ch <= CharacterCodes.z;
+}
+
+function lookupInUnicodeMap(code: number, map: readonly number[]): boolean {
+    // Bail out quickly if it couldn't possibly be in the map.
+    if (code < map[0]) {
+        return false;
+    }
+
+    // Perform binary search in one of the Unicode range maps
+    let lo = 0;
+    let hi: number = map.length;
+    let mid: number;
+
+    while (lo + 1 < hi) {
+        mid = lo + (hi - lo) / 2;
+        // mid has to be even to catch a range's beginning
+        mid -= mid % 2;
+        if (map[mid] <= code && code <= map[mid + 1]) {
+            return true;
+        }
+
+        if (code < map[mid]) {
+            hi = mid;
+        }
+        else {
+            lo = mid + 2;
+        }
+    }
+
+    return false;
+}
+
+
+/** @internal */
+export function isUnicodeIdentifierStart(code: number, languageVersion: ScriptTarget | undefined) {
+    return false;
+    // return languageVersion! >= ScriptTarget.LPC ?
+    //     lookupInUnicodeMap(code, unicodeESNextIdentifierStart) :
+    //     lookupInUnicodeMap(code, unicodeES5IdentifierStart);
+}
+function isUnicodeIdentifierPart(code: number, languageVersion: ScriptTarget | undefined) {
+    return false;
+    // return languageVersion! >= ScriptTarget.ES2015 ?
+    //     lookupInUnicodeMap(code, unicodeESNextIdentifierPart) :
+    //     lookupInUnicodeMap(code, unicodeES5IdentifierPart);
+}
+
+
+
+export function isIdentifierStart(ch: number, languageVersion: ScriptTarget | undefined): boolean {
+    return isASCIILetter(ch) || ch === CharacterCodes.$ || ch === CharacterCodes._ ||
+        ch > CharacterCodes.maxAsciiCharacter && isUnicodeIdentifierStart(ch, languageVersion);
+}
+
+function charSize(ch: number) {
+    if (ch >= 0x10000) {
+        return 2;
+    }
+    if (ch === CharacterCodes.EOF) {
+        return 0;
+    }
+    return 1;
+}
+
+
+function isDigit(ch: number): boolean {
+    return ch >= CharacterCodes._0 && ch <= CharacterCodes._9;
+}
+
+function isHexDigit(ch: number): boolean {
+    return isDigit(ch) || ch >= CharacterCodes.A && ch <= CharacterCodes.F || ch >= CharacterCodes.a && ch <= CharacterCodes.f;
+}
+
+function isWordCharacter(ch: number): boolean {
+    return isASCIILetter(ch) || isDigit(ch) || ch === CharacterCodes._;
+}
+
+export function isIdentifierPart(ch: number, languageVersion: ScriptTarget | undefined, identifierVariant?: LanguageVariant): boolean {
+    return isWordCharacter(ch) || ch === CharacterCodes.$ ||
+        // "-" and ":" are valid in JSX Identifiers
+        (ch > CharacterCodes.maxAsciiCharacter && isUnicodeIdentifierPart(ch, languageVersion));
+}
+
+/** @internal */
+export function isIdentifierText(name: string, languageVersion: ScriptTarget | undefined, identifierVariant?: LanguageVariant): boolean {
+    let ch = codePointAt(name, 0);
+    if (!isIdentifierStart(ch, languageVersion)) {
+        return false;
+    }
+
+    for (let i = charSize(ch); i < name.length; i += charSize(ch)) {
+        if (!isIdentifierPart(ch = codePointAt(name, i), languageVersion, identifierVariant)) {
+            return false;
+        }
+    }
+
+    return true;
+}

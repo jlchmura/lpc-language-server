@@ -1282,3 +1282,28 @@ export function or<T extends unknown[], U>(...fs: ((...args: T) => U)[]): (...ar
 export function not<T extends unknown[]>(fn: (...args: T) => boolean): (...args: T) => boolean {
     return (...args) => !fn(...args);
 }
+
+/** @internal */
+export function last<T>(array: readonly T[]): T {
+    Debug.assert(array.length !== 0);
+    return array[array.length - 1];
+}
+
+/**
+ * Like `forEach`, but suitable for use with numbers and strings (which may be falsy).
+ *
+ * @internal
+ */
+export function firstDefined<T, U>(array: readonly T[] | undefined, callback: (element: T, index: number) => U | undefined): U | undefined {
+    if (array === undefined) {
+        return undefined;
+    }
+
+    for (let i = 0; i < array.length; i++) {
+        const result = callback(array[i], i);
+        if (result !== undefined) {
+            return result;
+        }
+    }
+    return undefined;
+}

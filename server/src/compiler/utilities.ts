@@ -1,5 +1,6 @@
 import * as antlr from "antlr4ng";
-import { Signature, Type, Debug, DiagnosticArguments, DiagnosticMessage, DiagnosticRelatedInformation, DiagnosticWithDetachedLocation, DiagnosticWithLocation, Identifier, MapLike, ModifierFlags, Node, NodeFlags, ReadonlyTextRange, some, SourceFile, Symbol, SymbolFlags, SyntaxKind, TextRange, Token, TransformFlags, TypeChecker, TypeFlags, tracing, SignatureFlags, canHaveModifiers, Modifier, skipTrivia, SymbolTable, CallExpression, Declaration, getCombinedNodeFlags, BinaryExpression, AssignmentDeclarationKind, isCallExpression, isBinaryExpression, isIdentifier, Diagnostic, emptyArray, PropertyNameLiteral, DeclarationName, LiteralLikeNode, AssignmentExpression, LogicalOrCoalescingAssignmentOperator, LogicalOperator, Expression, OuterExpressionKinds, OuterExpression, WrappedExpression, PrefixUnaryExpression, PostfixUnaryExpression, ForEachStatement, ShorthandPropertyAssignment, PropertyAssignment, PropertyAccessExpression, ParenthesizedExpression, BinaryOperatorToken, AssertionLevel, SortedArray, binarySearch, identity, Comparison, DiagnosticMessageChain, compareStringsCaseSensitive, compareValues, insertSorted, flatMapToMutable, DiagnosticCollection, isJSDocTemplateTag, HasJSDoc, lastOrUndefined, JSDoc, isJSDoc, find, ParameterDeclaration, FunctionDeclaration, InlineClosureExpression, FunctionExpression, forEachChild, returnUndefined, returnFalse, CompilerOptions, FunctionLikeDeclaration, canHaveLocals, isFunctionLike, isParameter, PropertyDeclaration, BindingElement, isString, InternalSymbolName, isSourceFile, StructDeclaration, isStructDeclaration, JSDocTemplateTag, TypeNodeSyntaxKind, isTypeNode, isFunctionLikeDeclaration, SignatureDeclaration, AccessExpression, isInlineClosureExpression, PropertyAccessEntityNameExpression, isPropertyAccessExpression, EntityNameExpression, isVariableDeclaration, VariableDeclarationInitializedTo, CanonicalDiagnostic, HasInitializer, ExpressionStatement, ForStatement, isShorthandPropertyAssignment, JSDocTag, EqualsToken, AssignmentOperatorToken, isLeftHandSideExpression, isFunctionLikeKind, AdditiveOperator, AdditiveOperatorOrHigher, AssignmentOperatorOrHigher, BinaryOperator, BitwiseOperator, BitwiseOperatorOrHigher, EqualityOperator, EqualityOperatorOrHigher, ExponentiationOperator, LogicalOperatorOrHigher, MultiplicativeOperator, MultiplicativeOperatorOrHigher, RelationalOperator, RelationalOperatorOrHigher, ShiftOperator, ShiftOperatorOrHigher, HasFlowNode, ObjectFlags, ObjectFlagsType, isDeclaration, isBindingPattern, isJSDocSignature, JSDocSignature, TypeNode, findAncestor, Extension, fileExtensionIs, NamedDeclaration, KeywordSyntaxKind, binarySearchKey, SourceFileLike, isToken, EndOfFileToken, isJSDocCommentContainingNode, firstOrUndefined, getNodeChildren, JSDocContainer, PropertyName, idText, isMemberName, forEach, PrinterOptions, NewLineKind, flatMap, getNormalizedPathComponents, removeTrailingDirectorySeparator, directorySeparator, normalizePath, FileWatcher, PackageId, ScriptKind, TextSpan, CheckFlags, TransientSymbol, getCombinedModifierFlags, isElementAccessExpression, createTextSpan, CaseOrDefaultClause, createTextSpanFromBounds, ReturnStatement, createScanner, isQualifiedName, EntityNameOrEntityNameExpression } from "./_namespaces/lpc.js";
+import { Signature, Type, Debug, DiagnosticArguments, DiagnosticMessage, DiagnosticRelatedInformation, DiagnosticWithDetachedLocation, DiagnosticWithLocation, Identifier, MapLike, ModifierFlags, Node, NodeFlags, ReadonlyTextRange, some, SourceFile, Symbol, SymbolFlags, SyntaxKind, TextRange, Token, TransformFlags, TypeChecker, TypeFlags, tracing, SignatureFlags, canHaveModifiers, Modifier, skipTrivia, SymbolTable, CallExpression, Declaration, getCombinedNodeFlags, BinaryExpression, AssignmentDeclarationKind, isCallExpression, isBinaryExpression, isIdentifier, Diagnostic, emptyArray, PropertyNameLiteral, DeclarationName, LiteralLikeNode, AssignmentExpression, LogicalOrCoalescingAssignmentOperator, LogicalOperator, Expression, OuterExpressionKinds, OuterExpression, WrappedExpression, PrefixUnaryExpression, PostfixUnaryExpression, ForEachStatement, ShorthandPropertyAssignment, PropertyAssignment, PropertyAccessExpression, ParenthesizedExpression, BinaryOperatorToken, AssertionLevel, SortedArray, binarySearch, identity, Comparison, DiagnosticMessageChain, compareStringsCaseSensitive, compareValues, insertSorted, flatMapToMutable, DiagnosticCollection, isJSDocTemplateTag, HasJSDoc, lastOrUndefined, JSDoc, isJSDoc, find, ParameterDeclaration, FunctionDeclaration, InlineClosureExpression, FunctionExpression, forEachChild, returnUndefined, returnFalse, CompilerOptions, FunctionLikeDeclaration, canHaveLocals, isFunctionLike, isParameter, PropertyDeclaration, BindingElement, isString, InternalSymbolName, isSourceFile, StructDeclaration, isStructDeclaration, JSDocTemplateTag, TypeNodeSyntaxKind, isTypeNode, isFunctionLikeDeclaration, SignatureDeclaration, AccessExpression, isInlineClosureExpression, PropertyAccessEntityNameExpression, isPropertyAccessExpression, EntityNameExpression, isVariableDeclaration, VariableDeclarationInitializedTo, CanonicalDiagnostic, HasInitializer, ExpressionStatement, ForStatement, isShorthandPropertyAssignment, JSDocTag, EqualsToken, AssignmentOperatorToken, isLeftHandSideExpression, isFunctionLikeKind, AdditiveOperator, AdditiveOperatorOrHigher, AssignmentOperatorOrHigher, BinaryOperator, BitwiseOperator, BitwiseOperatorOrHigher, EqualityOperator, EqualityOperatorOrHigher, ExponentiationOperator, LogicalOperatorOrHigher, MultiplicativeOperator, MultiplicativeOperatorOrHigher, RelationalOperator, RelationalOperatorOrHigher, ShiftOperator, ShiftOperatorOrHigher, HasFlowNode, ObjectFlags, ObjectFlagsType, isDeclaration, isBindingPattern, isJSDocSignature, JSDocSignature, TypeNode, findAncestor, Extension, fileExtensionIs, NamedDeclaration, KeywordSyntaxKind, binarySearchKey, SourceFileLike, isToken, EndOfFileToken, isJSDocCommentContainingNode, firstOrUndefined, getNodeChildren, JSDocContainer, PropertyName, idText, isMemberName, forEach, PrinterOptions, NewLineKind, flatMap, getNormalizedPathComponents, removeTrailingDirectorySeparator, directorySeparator, normalizePath, FileWatcher, PackageId, ScriptKind, TextSpan, CheckFlags, TransientSymbol, getCombinedModifierFlags, isElementAccessExpression, createTextSpan, CaseOrDefaultClause, createTextSpanFromBounds, ReturnStatement, createScanner, isQualifiedName, EntityNameOrEntityNameExpression, isCallOrNewExpression, CallLikeExpression, EmitTextWriter, computeLineStarts, last, isWhiteSpaceLike, ScriptTarget, isIdentifierStart } from "./_namespaces/lpc.js";
+import { CharacterCodes } from "../backend/types.js";
 
 /** @internal */
 export interface ObjectAllocator {
@@ -3255,4 +3256,263 @@ export function entityNameToString(name: EntityNameOrEntityNameExpression /*| JS
         default:
             return Debug.assertNever(name);
     }
+}
+
+
+/** @internal */
+export function getInvokedExpression(node: CallLikeExpression): Expression {
+    switch (node.kind) {        
+        // case SyntaxKind.BinaryExpression:
+        //     return node.right;
+        default:
+            return node.expression;
+    }
+}
+
+const indentStrings: string[] = ["", "    "];
+/** @internal */
+export function getIndentString(level: number) {
+    // prepopulate cache
+    const singleLevel = indentStrings[1];
+    for (let current = indentStrings.length; current <= level; current++) {
+        indentStrings.push(indentStrings[current - 1] + singleLevel);
+    }
+    return indentStrings[level];
+}
+
+function getIndentSize() {
+    return indentStrings[1].length;
+}
+
+
+/** @internal */
+export function createTextWriter(newLine: string): EmitTextWriter {
+    // Why var? It avoids TDZ checks in the runtime which can be costly.
+    // See: https://github.com/microsoft/TypeScript/issues/52924
+    /* eslint-disable no-var */
+    var output: string;
+    var indent: number;
+    var lineStart: boolean;
+    var lineCount: number;
+    var linePos: number;
+    var hasTrailingComment = false;
+    /* eslint-enable no-var */
+
+    function updateLineCountAndPosFor(s: string) {
+        const lineStartsOfS = computeLineStarts(s);
+        if (lineStartsOfS.length > 1) {
+            lineCount = lineCount + lineStartsOfS.length - 1;
+            linePos = output.length - s.length + last(lineStartsOfS);
+            lineStart = (linePos - output.length) === 0;
+        }
+        else {
+            lineStart = false;
+        }
+    }
+
+    function writeText(s: string) {
+        if (s && s.length) {
+            if (lineStart) {
+                s = getIndentString(indent) + s;
+                lineStart = false;
+            }
+            output += s;
+            updateLineCountAndPosFor(s);
+        }
+    }
+
+    function write(s: string) {
+        if (s) hasTrailingComment = false;
+        writeText(s);
+    }
+
+    function writeComment(s: string) {
+        if (s) hasTrailingComment = true;
+        writeText(s);
+    }
+
+    function reset(): void {
+        output = "";
+        indent = 0;
+        lineStart = true;
+        lineCount = 0;
+        linePos = 0;
+        hasTrailingComment = false;
+    }
+
+    function rawWrite(s: string) {
+        if (s !== undefined) {
+            output += s;
+            updateLineCountAndPosFor(s);
+            hasTrailingComment = false;
+        }
+    }
+
+    function writeLiteral(s: string) {
+        if (s && s.length) {
+            write(s);
+        }
+    }
+
+    function writeLine(force?: boolean) {
+        if (!lineStart || force) {
+            output += newLine;
+            lineCount++;
+            linePos = output.length;
+            lineStart = true;
+            hasTrailingComment = false;
+        }
+    }
+
+    reset();
+
+    return {
+        write,
+        rawWrite,
+        writeLiteral,
+        writeLine,
+        increaseIndent: () => {
+            indent++;
+        },
+        decreaseIndent: () => {
+            indent--;
+        },
+        getIndent: () => indent,
+        getTextPos: () => output.length,
+        getLine: () => lineCount,
+        getColumn: () => lineStart ? indent * getIndentSize() : output.length - linePos,
+        getText: () => output,
+        isAtStartOfLine: () => lineStart,
+        hasTrailingComment: () => hasTrailingComment,
+        hasTrailingWhitespace: () => !!output.length && isWhiteSpaceLike(output.charCodeAt(output.length - 1)),
+        clear: reset,
+        writeKeyword: write,
+        writeOperator: write,
+        writeParameter: write,
+        writeProperty: write,
+        writePunctuation: write,
+        writeSpace: write,
+        writeStringLiteral: write,
+        writeSymbol: (s, _) => write(s),
+        writeTrailingSemicolon: write,
+        writeComment,
+    };
+}
+
+/** @internal */
+export function chainDiagnosticMessages(details: DiagnosticMessageChain | DiagnosticMessageChain[] | undefined, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticMessageChain {
+    let text = getLocaleSpecificMessage(message);
+
+    if (some(args)) {
+        text = formatStringFromArgs(text, args);
+    }
+    return {
+        messageText: text,
+        category: message.category,
+        code: message.code,
+
+        next: details === undefined || Array.isArray(details) ? details as [] : [details],
+    };
+}
+
+export function getEmitScriptTarget(options: CompilerOptions) {
+    return ScriptTarget.Latest;
+}
+
+// This consists of the first 19 unprintable ASCII characters, canonical escapes, lineSeparator,
+// paragraphSeparator, and nextLine. The latter three are just desirable to suppress new lines in
+// the language service. These characters should be escaped when printing, and if any characters are added,
+// the map below must be updated. Note that this regexp *does not* include the 'delete' character.
+// There is no reason for this other than that JSON.stringify does not handle it either.
+const doubleQuoteEscapedCharsRegExp = /[\\"\u0000-\u001f\t\v\f\b\r\n\u2028\u2029\u0085]/g;
+const singleQuoteEscapedCharsRegExp = /[\\'\u0000-\u001f\t\v\f\b\r\n\u2028\u2029\u0085]/g;
+// Template strings preserve simple LF newlines, still encode CRLF (or CR)
+const backtickQuoteEscapedCharsRegExp = /\r\n|[\\`\u0000-\u001f\t\v\f\b\r\u2028\u2029\u0085]/g;
+const escapedCharsMap = new Map(Object.entries({
+    "\t": "\\t",
+    "\v": "\\v",
+    "\f": "\\f",
+    "\b": "\\b",
+    "\r": "\\r",
+    "\n": "\\n",
+    "\\": "\\\\",
+    '"': '\\"',
+    "'": "\\'",
+    "`": "\\`",
+    "\u2028": "\\u2028", // lineSeparator
+    "\u2029": "\\u2029", // paragraphSeparator
+    "\u0085": "\\u0085", // nextLine
+    "\r\n": "\\r\\n", // special case for CRLFs in backticks
+}));
+
+
+function encodeUtf16EscapeSequence(charCode: number): string {
+    const hexCharCode = charCode.toString(16).toUpperCase();
+    const paddedHexCode = ("0000" + hexCharCode).slice(-4);
+    return "\\u" + paddedHexCode;
+}
+
+function getReplacement(c: string, offset: number, input: string) {
+    if (c.charCodeAt(0) === CharacterCodes.nullCharacter) {
+        const lookAhead = input.charCodeAt(offset + c.length);
+        if (lookAhead >= CharacterCodes._0 && lookAhead <= CharacterCodes._9) {
+            // If the null character is followed by digits, print as a hex escape to prevent the result from parsing as an octal (which is forbidden in strict mode)
+            return "\\x00";
+        }
+        // Otherwise, keep printing a literal \0 for the null character
+        return "\\0";
+    }
+    return escapedCharsMap.get(c) || encodeUtf16EscapeSequence(c.charCodeAt(0));
+}
+
+/**
+ * Based heavily on the abstract 'Quote'/'QuoteJSONString' operation from ECMA-262 (24.3.2.2),
+ * but augmented for a few select characters (e.g. lineSeparator, paragraphSeparator, nextLine)
+ * Note that this doesn't actually wrap the input in double quotes.
+ *
+ * @internal
+ */
+export function escapeString(s: string, quoteChar?: CharacterCodes.doubleQuote | CharacterCodes.singleQuote | CharacterCodes.backtick): string {
+    const escapedCharsRegExp = quoteChar === CharacterCodes.backtick ? backtickQuoteEscapedCharsRegExp :
+        quoteChar === CharacterCodes.singleQuote ? singleQuoteEscapedCharsRegExp :
+        doubleQuoteEscapedCharsRegExp;
+    return s.replace(escapedCharsRegExp, getReplacement);
+}
+
+/** @internal */
+export function isSingleOrDoubleQuote(charCode: number) {
+    return charCode === CharacterCodes.singleQuote || charCode === CharacterCodes.doubleQuote;
+}
+
+/** @internal */
+export function canUsePropertyAccess(name: string, languageVersion: ScriptTarget): boolean {
+    if (name.length === 0) {
+        return false;
+    }
+    const firstChar = name.charCodeAt(0);
+    return firstChar === CharacterCodes.hash ?
+        name.length > 1 && isIdentifierStart(name.charCodeAt(1), languageVersion) :
+        isIdentifierStart(firstChar, languageVersion);
+}
+
+/**
+ * Strip off existed surrounding single quotes, double quotes, or backticks from a given string
+ *
+ * @return non-quoted string
+ *
+ * @internal
+ */
+export function stripQuotes(name: string) {
+    const length = name.length;
+    if (length >= 2 && name.charCodeAt(0) === name.charCodeAt(length - 1) && isQuoteOrBacktick(name.charCodeAt(0))) {
+        return name.substring(1, length - 1);
+    }
+    return name;
+}
+
+
+function isQuoteOrBacktick(charCode: number) {
+    return charCode === CharacterCodes.singleQuote ||
+        charCode === CharacterCodes.doubleQuote ||
+        charCode === CharacterCodes.backtick;
 }

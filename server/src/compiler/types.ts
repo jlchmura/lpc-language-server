@@ -48,8 +48,8 @@ export interface Node extends ReadonlyTextRange {
 // dprint-ignore
 export interface EmitNode {
     flags: EmitFlags;                        // Flags that customize emit
-    // internalFlags: InternalEmitFlags;        // Internal flags that customize emit
-    // annotatedNodes?: Node[];                 // Tracks Parse-tree nodes with EmitNodes for eventual cleanup.
+    internalFlags: InternalEmitFlags;        // Internal flags that customize emit
+    annotatedNodes?: Node[];                 // Tracks Parse-tree nodes with EmitNodes for eventual cleanup.
     // leadingComments?: SynthesizedComment[];  // Synthesized leading comments
     // trailingComments?: SynthesizedComment[]; // Synthesized trailing comments
     // commentRange?: TextRange;                // The text range to use when emitting leading or trailing comments
@@ -89,6 +89,18 @@ export interface TypeChecker {
     getRootSymbols(symbol: Symbol): readonly Symbol[];
     
     /** @internal */ isDeclarationVisible(node: Declaration /*| AnyImportSyntax*/): boolean;
+    /**
+     * returns unknownSignature in the case of an error.
+     * returns undefined if the node is not valid.
+     * @param argumentCount Apparent number of arguments, passed in case of a possibly incomplete call. This should come from an ArgumentListInfo. See `signatureHelp.ts`.
+     */
+    getResolvedSignature(node: CallLikeExpression, candidatesOutArray?: Signature[], argumentCount?: number): Signature | undefined;
+    /**
+     * The function returns the value (local variable) symbol of an identifier in the short-hand property assignment.
+     * This is necessary as an identifier in short-hand property assignment can contains two meaning: property name and property value.
+     */
+    getShorthandAssignmentValueSymbol(location: Node | undefined): Symbol | undefined;
+
 
     // TODO
 }
@@ -240,7 +252,7 @@ export interface ModuleSpecifierResolutionHost {
     // getProjectReferenceRedirect(fileName: string): string | undefined;
     // isSourceOfProjectReferenceRedirect(fileName: string): boolean;
     getFileIncludeReasons(): MultiMap<Path, FileIncludeReason>;
-    // getCommonSourceDirectory(): string;
+    getCommonSourceDirectory(): string;
 
     // getModuleResolutionCache?(): any;//TODO ModuleResolutionCache | undefined;
     // trace?(s: string): void;
@@ -583,6 +595,7 @@ export const enum SyntaxKind {
 
     LiteralType,
     IndexedAccessType,
+    MappedType,
 
     // Binding Pattern
     ArrayBindingPattern,
@@ -940,6 +953,7 @@ export type TypeNodeSyntaxKind =
     | SyntaxKind.IndexedAccessType
     | SyntaxKind.ArrayType
     | SyntaxKind.LiteralType
+    | SyntaxKind.MappedType
     | SyntaxKind.TypeLiteral
     | SyntaxKind.JSDocTypeExpression
     | SyntaxKind.JSDocAllType
@@ -1003,7 +1017,10 @@ export interface NodeFactory {
 
     createIdentifier(text: string): Identifier;
     createLiteralLikeNode(kind: LiteralToken["kind"], text: string): LiteralToken;
-    
+
+    // Names
+    createQualifiedName(left: EntityName, right: string | Identifier): QualifiedName;
+    createComputedPropertyName(expression: Expression): ComputedPropertyName;
 
     // types
     createUnionTypeNode(types: readonly TypeNode[]): UnionTypeNode;
@@ -1038,6 +1055,7 @@ export interface NodeFactory {
     createInlineClosure(body: ConciseBody): InlineClosureExpression;
     createPropertyAccessExpression(expression: Expression, name: string | Identifier | Expression): PropertyAccessExpression;
     createPostfixUnaryExpression(operand: Expression, operator: PostfixUnaryOperator): PostfixUnaryExpression;
+    createElementAccessExpression(expression: Expression, index: number | Expression): ElementAccessExpression;
 }
 
 export interface CompilerOptions {
@@ -3260,9 +3278,16 @@ export interface EmitTextWriter extends SymbolWriter {
     nonEscapingWrite?(text: string): void;
 }
 
+export interface NewExpression extends PrimaryExpression, Declaration {
+    readonly kind: SyntaxKind.NewExpression;
+    readonly expression: LeftHandSideExpression;
+    readonly typeArguments?: NodeArray<TypeNode>;
+    readonly arguments?: NodeArray<Expression>;
+}
+
 export type CallLikeExpression =
-    | CallExpression
-    //| NewExpression
+    | CallExpression    
+    | NewExpression
     //| TaggedTemplateExpression
     ;
 
@@ -4329,4 +4354,79 @@ export interface QualifiedName extends Node, FlowContainer {
     readonly kind: SyntaxKind.QualifiedName;
     readonly left: EntityName;
     readonly right: Identifier;
+}
+
+
+// Note: this used to be deprecated in our public API, but is still used internally
+/** @internal */
+export interface SymbolTracker {
+    // Called when the symbol writer encounters a symbol to write.  Currently only used by the
+    // declaration emitter to help determine if it should patch up the final declaration file
+    // with import statements it previously saw (but chose not to emit).
+    trackSymbol?(symbol: Symbol, enclosingDeclaration: Node | undefined, meaning: SymbolFlags): boolean;
+    reportInaccessibleThisError?(): void;
+    reportPrivateInBaseOfClassExpression?(propertyName: string): void;
+    reportInaccessibleUniqueSymbolError?(): void;
+    reportCyclicStructureError?(): void;
+    reportLikelyUnsafeImportRequiredError?(specifier: string): void;
+    reportTruncationError?(): void;
+    moduleResolverHost?: ModuleSpecifierResolutionHost & { getCommonSourceDirectory(): string; };
+    reportNonlocalAugmentation?(containingFile: SourceFile, parentSymbol: Symbol, augmentingSymbol: Symbol): void;
+    reportNonSerializableProperty?(propertyName: string): void;
+    reportInferenceFallback?(node: Node): void;
+}
+
+export interface MappedTypeNode extends TypeNode, Declaration, LocalsContainer {
+    readonly kind: SyntaxKind.MappedType;
+    readonly readonlyToken?: PlusToken | MinusToken;
+    readonly typeParameter: TypeParameterDeclaration;
+    readonly nameType?: TypeNode;
+    //readonly questionToken?: QuestionToken | PlusToken | MinusToken;
+    readonly type?: TypeNode;
+    /** Used only to produce grammar errors */
+    readonly members?: NodeArray<TypeElement>;
+}
+
+/** @internal */
+export interface MappedType extends AnonymousType {
+    declaration: MappedTypeNode;
+    typeParameter?: TypeParameter;
+    constraintType?: Type;
+    nameType?: Type;
+    templateType?: Type;
+    modifiersType?: Type;
+    resolvedApparentType?: Type;
+    containsError?: boolean;
+}
+
+/** @internal */
+export interface ReverseMappedSymbolLinks extends TransientSymbolLinks {
+    propertyType: Type;
+    mappedType: MappedType;
+    constraintType: IndexType;
+}
+
+/** @internal */
+export interface ReverseMappedSymbol extends TransientSymbol {
+    links: ReverseMappedSymbolLinks;
+}
+
+/** @internal */
+// An instantiated anonymous type has a target and a mapper
+export interface AnonymousType extends ObjectType {
+    target?: AnonymousType; // Instantiation target
+    mapper?: TypeMapper; // Instantiation mapper
+    instantiations?: Map<string, Type>; // Instantiations of generic type alias (undefined if non-generic)
+}
+
+
+/** @internal */
+export const enum InternalEmitFlags {
+    None = 0,
+    TypeScriptClassWrapper = 1 << 0, // The node is an IIFE class wrapper created by the ts transform.
+    NeverApplyImportHelper = 1 << 1, // Indicates the node should never be wrapped with an import star helper (because, for example, it imports tslib itself)
+    IgnoreSourceNewlines = 1 << 2,   // Overrides `printerOptions.preserveSourceNewlines` to print this node (and all descendants) with default whitespace.
+    Immutable = 1 << 3,              // Indicates a node is a singleton intended to be reused in multiple locations. Any attempt to make further changes to the node will result in an error.
+    IndirectCall = 1 << 4,           // Emit CallExpression as an indirect call: `(0, f)()`
+    TransformPrivateStaticElements = 1 << 5, // Indicates static private elements in a file or class should be transformed regardless of --target (used by esDecorators transform)
 }

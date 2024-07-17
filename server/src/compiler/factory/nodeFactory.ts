@@ -14,15 +14,18 @@ import {
     CaseClause,
     CaseOrDefaultClause,
     ColonToken,
+    ComputedPropertyName,
     ConciseBody,
     ConditionalExpression,
     ContinueStatement,
+    createBaseNodeFactory,
     Debug,
     Declaration,
     DeclarationName,
     DefaultClause,
     DotDotDotToken,
     DoWhileStatement,
+    ElementAccessExpression,
     EmitNode,
     emptyArray,
     EmptyStatement,
@@ -59,6 +62,7 @@ import {
     PostfixUnaryOperator,
     PropertyAccessExpression,
     PropertyName,
+    QualifiedName,
     QuestionToken,
     ReturnStatement,
     SourceFile,
@@ -141,6 +145,10 @@ export function createNodeFactory(
         createArrayTypeNode,
         createUnionTypeNode,
 
+        // Names
+        createQualifiedName,
+        createComputedPropertyName,
+
         // statements
         createBlock,
         createVariableDeclarationList,
@@ -169,7 +177,8 @@ export function createNodeFactory(
         createCallExpression,
         createInlineClosure,
         createPropertyAccessExpression,
-        createPostfixUnaryExpression
+        createPostfixUnaryExpression,
+        createElementAccessExpression
     };
 
     return factory;
@@ -801,6 +810,64 @@ export function createNodeFactory(
         node.jsDoc = undefined; // initialized by parser (JsDocContainer)
         return node;
     }
+
+    function createBaseElementAccessExpression(expression: LeftHandSideExpression, argumentExpression: Expression) {
+        const node = createBaseDeclaration<ElementAccessExpression>(SyntaxKind.ElementAccessExpression);
+        node.expression = expression;        
+        node.argumentExpression = argumentExpression;
+        // node.transformFlags |= propagateChildFlags(node.expression) |
+        //     propagateChildFlags(node.questionDotToken) |
+        //     propagateChildFlags(node.argumentExpression);
+
+        node.jsDoc = undefined; // initialized by parser (JsDocContainer)
+        node.flowNode = undefined; // initialized by binder (FlowContainer)
+        return node;
+    }
+
+    function asExpression<T extends Expression | undefined>(value: string | number | T): T | StringLiteral | IntLiteral {
+        return typeof value === "string" ? createStringLiteral(value) :
+            typeof value === "number" ? createIntLiteral(value) :
+            //typeof value === "boolean" ? value ? createTrue() : createFalse() :
+            value;
+    }
+
+    // @api
+    function createElementAccessExpression(expression: Expression, index: number | Expression) {
+        const node = createBaseElementAccessExpression(
+            expression as LeftHandSideExpression, // TODO parenthesizerRules().parenthesizeLeftSideOfAccess(expression, /*optionalChain*/ false),            
+            asExpression(index),
+        );
+        // if (isSuperKeyword(expression)) {
+        //     // super method calls require a lexical 'this'
+        //     // super method calls require 'super' hoisting in ES2017 and ES2018 async functions and async generators
+        //     node.transformFlags |= TransformFlags.ContainsES2017 |
+        //         TransformFlags.ContainsES2018;
+        // }
+        return node;
+    }
+
+
+    // @api
+    function createQualifiedName(left: EntityName, right: string | Identifier) {
+        const node = createBaseNode<QualifiedName>(SyntaxKind.QualifiedName);
+        node.left = left;
+        node.right = asName(right);
+        // node.transformFlags |= propagateChildFlags(node.left) |
+        //     propagateIdentifierNameFlags(node.right);
+
+        node.flowNode = undefined; // initialized by binder (FlowContainer)
+        return node;
+    }
+    
+    // @api
+    function createComputedPropertyName(expression: Expression) {
+        const node = createBaseNode<ComputedPropertyName>(SyntaxKind.ComputedPropertyName);
+        node.expression = expression;// TODO  parenthesizerRules().parenthesizeExpressionOfComputedPropertyName(expression);
+        // node.transformFlags |= propagateChildFlags(node.expression) |
+        //     TransformFlags.ContainsES2015 |
+        //     TransformFlags.ContainsComputedPropertyName;
+        return node;
+    }
 }
 
 // Utilities
@@ -922,3 +989,19 @@ function mergeEmitNode(
 
     return destEmitNode;
 }
+
+
+const baseFactory = createBaseNodeFactory();
+
+function makeSynthetic(node: Node) {
+    (node as Mutable<Node>).flags |= NodeFlags.Synthesized;
+    return node;
+}
+
+const syntheticFactory: BaseNodeFactory = {
+    createBaseSourceFileNode: kind => makeSynthetic(baseFactory.createBaseSourceFileNode(kind)),
+    createBaseIdentifierNode: kind => makeSynthetic(baseFactory.createBaseIdentifierNode(kind)),    
+    createBaseTokenNode: kind => makeSynthetic(baseFactory.createBaseTokenNode(kind)),
+    createBaseNode: kind => makeSynthetic(baseFactory.createBaseNode(kind)),
+};
+export const factory = createNodeFactory(NodeFactoryFlags.NoIndentationOnFreshPropertyAccess, syntheticFactory);

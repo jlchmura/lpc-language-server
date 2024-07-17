@@ -1,4 +1,4 @@
-import { ArrayBindingPattern, ArrayTypeNode, BinaryExpression, BindingElement, Block, CallExpression, ComputedPropertyName, DefaultClause, ElementAccessExpression, ExpressionStatement, FloatLiteral, ForStatement, FunctionDeclaration, FunctionExpression, Identifier, IfStatement, IndexedAccessTypeNode, InlineClosureExpression, IntLiteral, JSDoc, JSDocDeprecatedTag, JSDocSignature, JSDocTemplateTag, JSDocTypeExpression, LiteralTypeNode, Node, ParameterDeclaration, ParenthesizedExpression, PrefixUnaryExpression, PropertyAccessExpression, PropertyDeclaration, QualifiedName, ShorthandPropertyAssignment, SourceFile, StringLiteral, StructDeclaration, SwitchStatement, SyntaxKind, TypeParameterDeclaration, UnionTypeNode, VariableDeclaration, VariableDeclarationList, VariableStatement } from "./_namespaces/lpc";
+import { ArrayBindingPattern, ArrayTypeNode, BinaryExpression, BindingElement, Block, CallExpression, ComputedPropertyName, DefaultClause, ElementAccessExpression, ExpressionStatement, FloatLiteral, ForStatement, FunctionDeclaration, FunctionExpression, Identifier, IfStatement, IndexedAccessTypeNode, InlineClosureExpression, IntLiteral, JSDoc, JSDocDeprecatedTag, JSDocSignature, JSDocTemplateTag, JSDocTypeExpression, LiteralTypeNode, NewExpression, Node, ParameterDeclaration, ParenthesizedExpression, PrefixUnaryExpression, PropertyAccessExpression, PropertyDeclaration, QualifiedName, ShorthandPropertyAssignment, SourceFile, StringLiteral, StructDeclaration, SwitchStatement, SyntaxKind, TypeParameterDeclaration, UnionTypeNode, VariableDeclaration, VariableDeclarationList, VariableStatement } from "./_namespaces/lpc";
 
 export function isBinaryExpression(node: Node): node is BinaryExpression {
     return node.kind === SyntaxKind.BinaryExpression;
@@ -192,3 +192,8 @@ export function isComputedPropertyName(node: Node): node is ComputedPropertyName
 export function isQualifiedName(node: Node): node is QualifiedName {
     return node.kind === SyntaxKind.QualifiedName;
 }
+
+export function isNewExpression(node: Node): node is NewExpression {
+    return node.kind === SyntaxKind.NewExpression;
+}
+

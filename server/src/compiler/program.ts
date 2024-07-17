@@ -264,7 +264,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         // getProgramDiagnostics,
         getTypeChecker,
         // getClassifiableNames,
-        // getCommonSourceDirectory,
+        getCommonSourceDirectory: ()=>currentDirectory,
         // emit,
         getCurrentDirectory: () => currentDirectory,
         getNodeCount: () => getTypeChecker().getNodeCount(),

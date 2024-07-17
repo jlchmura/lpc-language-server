@@ -1630,3 +1630,4 @@ export function updateLanguageServiceSourceFile(
         sourceFile.scriptKind
     );
 }
+
