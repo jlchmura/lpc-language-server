@@ -75,14 +75,14 @@ const files: { [index: string]: string } = {
 };
 
 const host = createHost(filename, sourceText, config);
-const srv = doCreateLanguageService();
+const svc = doCreateLanguageService();
 
 const srcFile = host.getSourceFile(filename);
 const checker = p2.createTypeChecker(host); // binder is called by checker
 const diags = checker.getDiagnostics(srcFile);
 
 const node = getTouchingPropertyName(srcFile, 96);
-
+svc.getDefinitionAtPosition(filename, 96, false, false);
 console.debug("node count:", srcFile.nodeCount);
 
 // const facade = new LpcFacade(workDir, undefined);

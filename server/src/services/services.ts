@@ -115,6 +115,8 @@ import {
     ModuleKind,
     textSpanEnd,
     updateSourceFile,
+    TextSpan,
+    createTextSpanFromBounds,
 } from "./_namespaces/lpc.js";
 
 // These utilities are common to multiple language service features.

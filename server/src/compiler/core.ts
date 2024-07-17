@@ -1207,3 +1207,47 @@ export function firstDefinedIterator<T, U>(iter: Iterable<T>, callback: (element
     }
     return undefined;
 }
+
+
+/**
+ * Filters an array by a predicate function. Returns the same array instance if the predicate is
+ * true for all elements, otherwise returns a new array instance containing the filtered subset.
+ *
+ * @internal
+ */
+export function filter<T, U extends T>(array: T[], f: (x: T) => x is U): U[];
+/** @internal */
+export function filter<T>(array: T[], f: (x: T) => boolean): T[];
+/** @internal */
+export function filter<T, U extends T>(array: readonly T[], f: (x: T) => x is U): readonly U[];
+/** @internal */
+export function filter<T>(array: readonly T[], f: (x: T) => boolean): readonly T[];
+/** @internal */
+export function filter<T, U extends T>(array: T[] | undefined, f: (x: T) => x is U): U[] | undefined;
+/** @internal */
+export function filter<T>(array: T[] | undefined, f: (x: T) => boolean): T[] | undefined;
+/** @internal */
+export function filter<T, U extends T>(array: readonly T[] | undefined, f: (x: T) => x is U): readonly U[] | undefined;
+/** @internal */
+export function filter<T>(array: readonly T[] | undefined, f: (x: T) => boolean): readonly T[] | undefined;
+/** @internal */
+export function filter<T>(array: readonly T[] | undefined, f: (x: T) => boolean): readonly T[] | undefined {
+    if (array !== undefined) {
+        const len = array.length;
+        let i = 0;
+        while (i < len && f(array[i])) i++;
+        if (i < len) {
+            const result = array.slice(0, i);
+            i++;
+            while (i < len) {
+                const item = array[i];
+                if (f(item)) {
+                    result.push(item);
+                }
+                i++;
+            }
+            return result;
+        }
+    }
+    return array;
+}

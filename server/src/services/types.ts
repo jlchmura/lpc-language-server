@@ -18,6 +18,39 @@ import {
     TextSpan,
 } from "./_namespaces/lpc.js";
 
+
+declare module "../compiler/types.js" {
+    // Module transform: converted from interface augmentation
+    export interface Type {
+        getFlags(): TypeFlags;
+        getSymbol(): Symbol | undefined;
+        getProperties(): Symbol[];
+        getProperty(propertyName: string): Symbol | undefined;
+        getApparentProperties(): Symbol[];
+        getCallSignatures(): readonly Signature[];
+        getConstructSignatures(): readonly Signature[];
+        getStringIndexType(): Type | undefined;
+        getNumberIndexType(): Type | undefined;
+        getBaseTypes(): BaseType[] | undefined;
+        getNonNullableType(): Type;
+        /** @internal */ getNonOptionalType(): Type;
+        /** @internal */ isNullableType(): boolean;
+        getConstraint(): Type | undefined;
+        getDefault(): Type | undefined;
+
+        isUnion(): this is UnionType;        
+        isUnionOrIntersection(): this is UnionOrIntersectionType;
+        isLiteral(): this is LiteralType;
+        isStringLiteral(): this is StringLiteralType;
+        isIntLiteral(): this is IntLiteralType;
+        isFloatLiteral(): this is FloatLiteralType;        
+        isTypeParameter(): this is TypeParameter;
+        // isClassOrInterface(): this is InterfaceType;
+        // isClass(): this is InterfaceType;
+        isIndexType(): this is IndexType;
+    }
+}
+
 declare module "../compiler/types.js" {
     // Module transform: converted from interface augmentation
     export interface Node {
@@ -549,3 +582,4 @@ export namespace ScriptSnapshot {
         return new StringScriptSnapshot(text);
     }
 }
+

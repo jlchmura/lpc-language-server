@@ -77,11 +77,18 @@ export interface TypeChecker {
     /** @internal */ getInstantiationCount(): number;
     
     signatureToString(signature: Signature, enclosingDeclaration?: Node, flags?: TypeFormatFlags, kind?: SignatureKind): string;
-    
+    symbolToString(symbol: Symbol, enclosingDeclaration?: Node, meaning?: SymbolFlags, flags?: SymbolFormatFlags): string;
+
     // Should not be called directly.  Should only be accessed through the Program instance.
     /** @internal */ getDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken, nodesToCheck?: Node[]): Diagnostic[];
     /** Follow all aliases to get the original symbol. */
     getAliasedSymbol(symbol: Symbol): Symbol;
+    getSymbolAtLocation(node: Node): Symbol | undefined;
+    
+    getTypeOfSymbolAtLocation(symbol: Symbol, node: Node): Type;
+    getRootSymbols(symbol: Symbol): readonly Symbol[];
+    
+    /** @internal */ isDeclarationVisible(node: Declaration /*| AnyImportSyntax*/): boolean;
 
     // TODO
 }
@@ -443,6 +450,8 @@ export const enum SyntaxKind {
     ElseKeyword,
     ForKeyword,
     FunctionKeyword,
+    CaseKeyword,
+    DefaultKeyword,
     IfKeyword,
     NewKeyword,
     ReturnKeyword,
@@ -466,6 +475,9 @@ export const enum SyntaxKind {
 
     // Parse Tree Nodes
 
+    // Names
+    ComputedPropertyName,
+    
     // Signature Elements
     TypeParameter,   // First Node
     Parameter,
@@ -667,7 +679,7 @@ export const enum TypeFlags {
     /** @internal */
     Intrinsic = Any | Unknown | String | Number | BigInt | Boolean | BooleanLiteral | ESSymbol | Void | Undefined | Null | Never | NonPrimitive,
     StringLike = String | StringLiteral | TemplateLiteral | StringMapping,
-    NumberLike = Number | IntLiteral | FloatLiteral | Enum,    
+    NumberLike = Number | IntLiteral | FloatLiteral | Enum,
     BooleanLike = Boolean | BooleanLiteral,
     EnumLike = Enum | EnumLiteral,
     ESSymbolLike = ESSymbol | UniqueESSymbol,
@@ -832,7 +844,7 @@ export const enum ModifierFlags {
     // Syntactic/JSDoc modifiers
     Public =             1 << 0,  // Property/Method
     Private =            1 << 1,  // Property/Method
-    Protected =          1 << 2,  // Property/Method
+    Protected =          1 << 2,  // Property/Method    
 
     // Syntactic-only modifiers
     NoMask =             1 << 5,  // 
@@ -4236,3 +4248,76 @@ export enum ModuleKind {
 
 export type ResolutionMode = ModuleKind.LPC | undefined;
 
+
+// NOTE: If modifying this enum, must modify `TypeFormatFlags` too!
+// dprint-ignore
+export const enum NodeBuilderFlags {
+    None                                    = 0,
+    // Options
+    NoTruncation                            = 1 << 0,   // Don't truncate result
+    WriteArrayAsGenericType                 = 1 << 1,   // Write Array<T> instead T[]
+    GenerateNamesForShadowedTypeParams      = 1 << 2,   // When a type parameter T is shadowing another T, generate a name for it so it can still be referenced
+    UseStructuralFallback                   = 1 << 3,   // When an alias cannot be named by its symbol, rather than report an error, fallback to a structural printout if possible
+    ForbidIndexedAccessSymbolReferences     = 1 << 4,   // Forbid references like `I["a"]["b"]` - print `typeof I.a<x>.b<y>` instead
+    WriteTypeArgumentsOfSignature           = 1 << 5,   // Write the type arguments instead of type parameters of the signature
+    UseFullyQualifiedType                   = 1 << 6,   // Write out the fully qualified type name (eg. Module.Type, instead of Type)
+    UseOnlyExternalAliasing                 = 1 << 7,   // Only use external aliases for a symbol
+    SuppressAnyReturnType                   = 1 << 8,   // If the return type is any-like and can be elided, don't offer a return type.
+    WriteTypeParametersInQualifiedName      = 1 << 9,
+    MultilineObjectLiterals                 = 1 << 10,  // Always write object literals across multiple lines
+    WriteClassExpressionAsTypeLiteral       = 1 << 11,  // Write class {} as { new(): {} } - used for mixin declaration emit
+    UseTypeOfFunction                       = 1 << 12,  // Build using typeof instead of function type literal
+    OmitParameterModifiers                  = 1 << 13,  // Omit modifiers on parameters
+    UseAliasDefinedOutsideCurrentScope      = 1 << 14,  // Allow non-visible aliases
+    UseSingleQuotesForStringLiteralType     = 1 << 28,  // Use single quotes for string literal type
+    NoTypeReduction                         = 1 << 29,  // Don't call getReducedType
+    OmitThisParameter                       = 1 << 25,
+
+    // Error handling
+    AllowThisInObjectLiteral                = 1 << 15,
+    AllowQualifiedNameInPlaceOfIdentifier   = 1 << 16,
+    AllowAnonymousIdentifier                = 1 << 17,
+    AllowEmptyUnionOrIntersection           = 1 << 18,
+    AllowEmptyTuple                         = 1 << 19,
+    AllowUniqueESSymbolType                 = 1 << 20,
+    AllowEmptyIndexInfoType                 = 1 << 21,
+    /** @internal */ WriteComputedProps      = 1 << 30, // { [E.A]: 1 }
+    /** @internal */ NoSyntacticPrinter     = 1 << 31,
+    // Errors (cont.)
+    AllowNodeModulesRelativePaths           = 1 << 26,
+    /** @internal */ DoNotIncludeSymbolChain = 1 << 27,    // Skip looking up and printing an accessible symbol chain
+    /** @internal */ AllowUnresolvedNames = 1 << 32,
+
+    IgnoreErrors = AllowThisInObjectLiteral | AllowQualifiedNameInPlaceOfIdentifier | AllowAnonymousIdentifier | AllowEmptyUnionOrIntersection | AllowEmptyTuple | AllowEmptyIndexInfoType | AllowNodeModulesRelativePaths,
+
+    // State
+    InObjectTypeLiteral                     = 1 << 22,
+    InTypeAlias                             = 1 << 23,    // Writing type in type alias declaration
+    InInitialEntityName                     = 1 << 24,    // Set when writing the LHS of an entity name or entity name expression
+}
+
+
+/**
+ * Ternary values are defined such that
+ * x & y picks the lesser in the order False < Unknown < Maybe < True, and
+ * x | y picks the greater in the order False < Unknown < Maybe < True.
+ * Generally, Ternary.Maybe is used as the result of a relation that depends on itself, and
+ * Ternary.Unknown is used as the result of a variance check that depends on itself. We make
+ * a distinction because we don't want to cache circular variance check results.
+ *
+ * @internal
+ */
+export const enum Ternary {
+    False = 0,
+    Unknown = 1,
+    Maybe = 3,
+    True = -1,
+}
+
+export interface ComputedPropertyName extends Node {
+    readonly kind: SyntaxKind.ComputedPropertyName;
+    readonly parent: Declaration;
+    readonly expression: Expression;
+}
+
+export type ModuleExportName = Identifier | StringLiteral;
