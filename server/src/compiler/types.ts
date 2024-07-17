@@ -4465,3 +4465,12 @@ export const enum InternalEmitFlags {
     IndirectCall = 1 << 4,           // Emit CallExpression as an indirect call: `(0, f)()`
     TransformPrivateStaticElements = 1 << 5, // Indicates static private elements in a file or class should be transformed regardless of --target (used by esDecorators transform)
 }
+
+/** @internal */
+export interface WideningContext {
+    parent?: WideningContext;       // Parent context
+    propertyName?: string;        // Name of property in parent
+    siblings?: Type[];              // Types of siblings
+    resolvedProperties?: Symbol[];  // Properties occurring in sibling object literals
+}
+

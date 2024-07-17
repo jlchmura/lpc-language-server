@@ -200,3 +200,7 @@ export function isNewExpression(node: Node): node is NewExpression {
 export function isJSDocTypedefTag(node: Node): node is JSDocTypedefTag {
     return node.kind === SyntaxKind.JSDocTypedefTag;
 }
+
+export function isPrivateIdentifier(node: Node){//: node is PrivateIdentifier {
+    return false;//return node.kind === SyntaxKind.PrivateIdentifier;
+}
