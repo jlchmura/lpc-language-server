@@ -84,3 +84,8 @@ export function isArrayLiteralOrObjectLiteralDestructuringPattern(node: Node) {
 
     return false;
 }
+
+/** @internal */
+export interface PossibleProgramFileInfo {
+    ProgramFiles?: string[];
+}

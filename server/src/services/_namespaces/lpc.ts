@@ -7,5 +7,7 @@ export * from "../services.js";
 
 import * as FindAllReferences from "./lpc.FindAllReferences.js";
 export { FindAllReferences };
+import * as GoToDefinition from "./lpc.GoToDefinition.js";
+export { GoToDefinition };
 import * as SymbolDisplay from "./lpc.SymbolDisplay.js";
 export { SymbolDisplay };

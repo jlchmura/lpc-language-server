@@ -1,5 +1,5 @@
 import * as antlr from "antlr4ng";
-import { Signature, Type, Debug, DiagnosticArguments, DiagnosticMessage, DiagnosticRelatedInformation, DiagnosticWithDetachedLocation, DiagnosticWithLocation, Identifier, MapLike, ModifierFlags, Node, NodeFlags, ReadonlyTextRange, some, SourceFile, Symbol, SymbolFlags, SyntaxKind, TextRange, Token, TransformFlags, TypeChecker, TypeFlags, tracing, SignatureFlags, canHaveModifiers, Modifier, skipTrivia, SymbolTable, CallExpression, Declaration, getCombinedNodeFlags, BinaryExpression, AssignmentDeclarationKind, isCallExpression, isBinaryExpression, isIdentifier, Diagnostic, emptyArray, PropertyNameLiteral, DeclarationName, LiteralLikeNode, AssignmentExpression, LogicalOrCoalescingAssignmentOperator, LogicalOperator, Expression, OuterExpressionKinds, OuterExpression, WrappedExpression, PrefixUnaryExpression, PostfixUnaryExpression, ForEachStatement, ShorthandPropertyAssignment, PropertyAssignment, PropertyAccessExpression, ParenthesizedExpression, BinaryOperatorToken, AssertionLevel, SortedArray, binarySearch, identity, Comparison, DiagnosticMessageChain, compareStringsCaseSensitive, compareValues, insertSorted, flatMapToMutable, DiagnosticCollection, isJSDocTemplateTag, HasJSDoc, lastOrUndefined, JSDoc, isJSDoc, find, ParameterDeclaration, FunctionDeclaration, InlineClosureExpression, FunctionExpression, forEachChild, returnUndefined, returnFalse, CompilerOptions, FunctionLikeDeclaration, canHaveLocals, isFunctionLike, isParameter, PropertyDeclaration, BindingElement, isString, InternalSymbolName, isSourceFile, StructDeclaration, isStructDeclaration, JSDocTemplateTag, TypeNodeSyntaxKind, isTypeNode, isFunctionLikeDeclaration, SignatureDeclaration, AccessExpression, isInlineClosureExpression, PropertyAccessEntityNameExpression, isPropertyAccessExpression, EntityNameExpression, isVariableDeclaration, VariableDeclarationInitializedTo, CanonicalDiagnostic, HasInitializer, ExpressionStatement, ForStatement, isShorthandPropertyAssignment, JSDocTag, EqualsToken, AssignmentOperatorToken, isLeftHandSideExpression, isFunctionLikeKind, AdditiveOperator, AdditiveOperatorOrHigher, AssignmentOperatorOrHigher, BinaryOperator, BitwiseOperator, BitwiseOperatorOrHigher, EqualityOperator, EqualityOperatorOrHigher, ExponentiationOperator, LogicalOperatorOrHigher, MultiplicativeOperator, MultiplicativeOperatorOrHigher, RelationalOperator, RelationalOperatorOrHigher, ShiftOperator, ShiftOperatorOrHigher, HasFlowNode, ObjectFlags, ObjectFlagsType, isDeclaration, isBindingPattern, isJSDocSignature, JSDocSignature, TypeNode, findAncestor, Extension, fileExtensionIs, NamedDeclaration, KeywordSyntaxKind, binarySearchKey, SourceFileLike, isToken, EndOfFileToken, isJSDocCommentContainingNode, firstOrUndefined, getNodeChildren, JSDocContainer, PropertyName, idText, isMemberName, forEach, PrinterOptions, NewLineKind, flatMap, getNormalizedPathComponents, removeTrailingDirectorySeparator, directorySeparator, normalizePath, FileWatcher, PackageId, ScriptKind, TextSpan, CheckFlags, TransientSymbol, getCombinedModifierFlags, isElementAccessExpression } from "./_namespaces/lpc.js";
+import { Signature, Type, Debug, DiagnosticArguments, DiagnosticMessage, DiagnosticRelatedInformation, DiagnosticWithDetachedLocation, DiagnosticWithLocation, Identifier, MapLike, ModifierFlags, Node, NodeFlags, ReadonlyTextRange, some, SourceFile, Symbol, SymbolFlags, SyntaxKind, TextRange, Token, TransformFlags, TypeChecker, TypeFlags, tracing, SignatureFlags, canHaveModifiers, Modifier, skipTrivia, SymbolTable, CallExpression, Declaration, getCombinedNodeFlags, BinaryExpression, AssignmentDeclarationKind, isCallExpression, isBinaryExpression, isIdentifier, Diagnostic, emptyArray, PropertyNameLiteral, DeclarationName, LiteralLikeNode, AssignmentExpression, LogicalOrCoalescingAssignmentOperator, LogicalOperator, Expression, OuterExpressionKinds, OuterExpression, WrappedExpression, PrefixUnaryExpression, PostfixUnaryExpression, ForEachStatement, ShorthandPropertyAssignment, PropertyAssignment, PropertyAccessExpression, ParenthesizedExpression, BinaryOperatorToken, AssertionLevel, SortedArray, binarySearch, identity, Comparison, DiagnosticMessageChain, compareStringsCaseSensitive, compareValues, insertSorted, flatMapToMutable, DiagnosticCollection, isJSDocTemplateTag, HasJSDoc, lastOrUndefined, JSDoc, isJSDoc, find, ParameterDeclaration, FunctionDeclaration, InlineClosureExpression, FunctionExpression, forEachChild, returnUndefined, returnFalse, CompilerOptions, FunctionLikeDeclaration, canHaveLocals, isFunctionLike, isParameter, PropertyDeclaration, BindingElement, isString, InternalSymbolName, isSourceFile, StructDeclaration, isStructDeclaration, JSDocTemplateTag, TypeNodeSyntaxKind, isTypeNode, isFunctionLikeDeclaration, SignatureDeclaration, AccessExpression, isInlineClosureExpression, PropertyAccessEntityNameExpression, isPropertyAccessExpression, EntityNameExpression, isVariableDeclaration, VariableDeclarationInitializedTo, CanonicalDiagnostic, HasInitializer, ExpressionStatement, ForStatement, isShorthandPropertyAssignment, JSDocTag, EqualsToken, AssignmentOperatorToken, isLeftHandSideExpression, isFunctionLikeKind, AdditiveOperator, AdditiveOperatorOrHigher, AssignmentOperatorOrHigher, BinaryOperator, BitwiseOperator, BitwiseOperatorOrHigher, EqualityOperator, EqualityOperatorOrHigher, ExponentiationOperator, LogicalOperatorOrHigher, MultiplicativeOperator, MultiplicativeOperatorOrHigher, RelationalOperator, RelationalOperatorOrHigher, ShiftOperator, ShiftOperatorOrHigher, HasFlowNode, ObjectFlags, ObjectFlagsType, isDeclaration, isBindingPattern, isJSDocSignature, JSDocSignature, TypeNode, findAncestor, Extension, fileExtensionIs, NamedDeclaration, KeywordSyntaxKind, binarySearchKey, SourceFileLike, isToken, EndOfFileToken, isJSDocCommentContainingNode, firstOrUndefined, getNodeChildren, JSDocContainer, PropertyName, idText, isMemberName, forEach, PrinterOptions, NewLineKind, flatMap, getNormalizedPathComponents, removeTrailingDirectorySeparator, directorySeparator, normalizePath, FileWatcher, PackageId, ScriptKind, TextSpan, CheckFlags, TransientSymbol, getCombinedModifierFlags, isElementAccessExpression, createTextSpan, CaseOrDefaultClause, createTextSpanFromBounds, ReturnStatement, createScanner } from "./_namespaces/lpc.js";
 
 /** @internal */
 export interface ObjectAllocator {
@@ -631,111 +631,80 @@ export function getTextOfNode(node: Node, includeTrivia = false): string {
 
 /** @internal */
 export function getErrorSpanForNode(sourceFile: SourceFile, node: Node): TextSpan {
-    return createTextSpan(node.pos, node.end - node.pos);
-    // let errorNode: Node | undefined = node;
-    // switch (node.kind) {
-    //     case SyntaxKind.SourceFile: {
-    //         const pos = skipTrivia(sourceFile.text, 0, /*stopAfterLineBreak*/ false);
-    //         if (pos === sourceFile.text.length) {
-    //             // file is empty - return span for the beginning of the file
-    //             return createTextSpan(0, 0);
-    //         }
-    //         return getSpanOfTokenAtPosition(sourceFile, pos);
-    //     }
-    //     // This list is a work in progress. Add missing node kinds to improve their error
-    //     // spans.
-    //     case SyntaxKind.VariableDeclaration:
-    //     case SyntaxKind.BindingElement:
-    //     case SyntaxKind.ClassDeclaration:
-    //     case SyntaxKind.ClassExpression:
-    //     case SyntaxKind.InterfaceDeclaration:
-    //     case SyntaxKind.ModuleDeclaration:
-    //     case SyntaxKind.EnumDeclaration:
-    //     case SyntaxKind.EnumMember:
-    //     case SyntaxKind.FunctionDeclaration:
-    //     case SyntaxKind.FunctionExpression:
-    //     case SyntaxKind.MethodDeclaration:
-    //     case SyntaxKind.GetAccessor:
-    //     case SyntaxKind.SetAccessor:
-    //     case SyntaxKind.TypeAliasDeclaration:
-    //     case SyntaxKind.PropertyDeclaration:
-    //     case SyntaxKind.PropertySignature:
-    //     case SyntaxKind.NamespaceImport:
-    //         errorNode = (node as NamedDeclaration).name;
-    //         break;
-    //     case SyntaxKind.ArrowFunction:
-    //         return getErrorSpanForArrowFunction(sourceFile, node as ArrowFunction);
-    //     case SyntaxKind.CaseClause:
-    //     case SyntaxKind.DefaultClause: {
-    //         const start = skipTrivia(sourceFile.text, (node as CaseOrDefaultClause).pos);
-    //         const end = (node as CaseOrDefaultClause).statements.length > 0 ? (node as CaseOrDefaultClause).statements[0].pos : (node as CaseOrDefaultClause).end;
-    //         return createTextSpanFromBounds(start, end);
-    //     }
-    //     case SyntaxKind.ReturnStatement:
-    //     case SyntaxKind.YieldExpression: {
-    //         const pos = skipTrivia(sourceFile.text, (node as ReturnStatement | YieldExpression).pos);
-    //         return getSpanOfTokenAtPosition(sourceFile, pos);
-    //     }
-    //     case SyntaxKind.SatisfiesExpression: {
-    //         const pos = skipTrivia(sourceFile.text, (node as SatisfiesExpression).expression.end);
-    //         return getSpanOfTokenAtPosition(sourceFile, pos);
-    //     }
-    //     case SyntaxKind.JSDocSatisfiesTag: {
-    //         const pos = skipTrivia(sourceFile.text, (node as JSDocSatisfiesTag).tagName.pos);
-    //         return getSpanOfTokenAtPosition(sourceFile, pos);
-    //     }
-    //     case SyntaxKind.Constructor: {
-    //         const constructorDeclaration = node as ConstructorDeclaration;
-    //         const start = skipTrivia(sourceFile.text, constructorDeclaration.pos);
-    //         const scanner = createScanner(sourceFile.languageVersion, /*skipTrivia*/ true, sourceFile.languageVariant, sourceFile.text, /*onError*/ undefined, start);
-    //         let token = scanner.scan();
-    //         while (token !== SyntaxKind.ConstructorKeyword && token !== SyntaxKind.EndOfFileToken) {
-    //             token = scanner.scan();
-    //         }
-    //         const end = scanner.getTokenEnd();
-    //         return createTextSpanFromBounds(start, end);
-    //     }
-    // }
-
-    // if (errorNode === undefined) {
-    //     // If we don't have a better node, then just set the error on the first token of
-    //     // construct.
-    //     return node.end - node.pos;// getSpanOfTokenAtPosition(sourceFile, node.pos);
-    // }
-
-    // //Debug.assert(!isJSDoc(errorNode));
-
-    // const isMissing = nodeIsMissing(errorNode);
-    // const pos = isMissing// || isJsxText(node)
-    //     ? errorNode.pos
-    //     : skipTrivia(sourceFile.text, errorNode.pos);
-
-    // // These asserts should all be satisfied for a properly constructed `errorNode`.
-    // if (isMissing) {
-    //     Debug.assert(pos === errorNode.pos, "This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809");
-    //     Debug.assert(pos === errorNode.end, "This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809");
-    // }
-    // else {
-    //     Debug.assert(pos >= errorNode.pos, "This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809");
-    //     Debug.assert(pos <= errorNode.end, "This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809");
-    // }
-
-    // return createTextSpanFromBounds(pos, errorNode.end);
-}
-
-export function createTextSpan(start: number, length: number): TextSpan {
-    if (start < 0) {
-        throw new Error("start < 0");
-    }
-    if (length < 0) {
-        throw new Error("length < 0");
+    //return createTextSpan(node.pos, node.end - node.pos);
+    let errorNode: Node | undefined = node;
+    switch (node.kind) {
+        case SyntaxKind.SourceFile: {
+            const pos = skipTrivia(sourceFile.text, 0, /*stopAfterLineBreak*/ false);
+            if (pos === sourceFile.text.length) {
+                // file is empty - return span for the beginning of the file
+                return createTextSpan(0, 0);
+            }
+            return getSpanOfTokenAtPosition(sourceFile, pos);
+        }
+        // This list is a work in progress. Add missing node kinds to improve their error
+        // spans.
+        case SyntaxKind.VariableDeclaration:
+        case SyntaxKind.BindingElement:
+        // case SyntaxKind.ClassDeclaration:
+        case SyntaxKind.ClassExpression:
+        // case SyntaxKind.InterfaceDeclaration:
+        // case SyntaxKind.ModuleDeclaration:        
+        case SyntaxKind.FunctionDeclaration:
+        case SyntaxKind.FunctionExpression:
+        // case SyntaxKind.MethodDeclaration:    
+        case SyntaxKind.PropertyDeclaration:
+        // case SyntaxKind.PropertySignature:        
+            errorNode = (node as NamedDeclaration).name;
+            break;
+        // case SyntaxKind.InlineClosureExpression:
+        //     return getErrorSpanForArrowFunction(sourceFile, node as ArrowFunction);
+        case SyntaxKind.CaseClause:
+        case SyntaxKind.DefaultClause: {
+            const start = skipTrivia(sourceFile.text, (node as CaseOrDefaultClause).pos);
+            const end = (node as CaseOrDefaultClause).statements.length > 0 ? (node as CaseOrDefaultClause).statements[0].pos : (node as CaseOrDefaultClause).end;
+            return createTextSpanFromBounds(start, end);
+        }
+        case SyntaxKind.ReturnStatement: {
+            const pos = skipTrivia(sourceFile.text, (node as ReturnStatement/* | YieldExpression*/).pos);
+            return getSpanOfTokenAtPosition(sourceFile, pos);
+        }        
     }
 
-    return { start, length };
+    if (errorNode === undefined) {
+        // If we don't have a better node, then just set the error on the first token of
+        // construct.
+        return getSpanOfTokenAtPosition(sourceFile, node.pos);
+    }
+
+    //Debug.assert(!isJSDoc(errorNode));
+
+    const isMissing = nodeIsMissing(errorNode);
+    const pos = isMissing// || isJsxText(node)
+        ? errorNode.pos
+        : skipTrivia(sourceFile.text, errorNode.pos);
+
+    // These asserts should all be satisfied for a properly constructed `errorNode`.
+    if (isMissing) {
+        Debug.assert(pos === errorNode.pos, "This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809");
+        Debug.assert(pos === errorNode.end, "This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809");
+    }
+    else {
+        Debug.assert(pos >= errorNode.pos, "This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809");
+        Debug.assert(pos <= errorNode.end, "This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809");
+    }
+
+    return createTextSpanFromBounds(pos, errorNode.end);
 }
 
-export function createTextSpanFromBounds(start: number, end: number) {
-    return createTextSpan(start, end - start);
+/** @internal */
+export function getSpanOfTokenAtPosition(sourceFile: SourceFile, pos: number): TextSpan {
+    console.warn("TODO - implement this properly - getSpanOfTokenAtPosition");
+    return createTextSpanFromBounds(pos, pos+1); 
+    //const scanner = createScanner(sourceFile.languageVersion, /*skipTrivia*/ true, sourceFile.languageVariant, sourceFile.text, /*onError*/ undefined, pos);
+    // scanner.scan();
+    // const start = scanner.getTokenStart();
+    // return createTextSpanFromBounds(start, scanner.getTokenEnd());
 }
 
 /** @internal */

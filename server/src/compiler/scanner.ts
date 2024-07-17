@@ -1,5 +1,5 @@
 import { CharacterCodes } from "../backend/types";
-import { arrayIsEqualTo, binarySearch, compareValues, Debug, DiagnosticMessage, Diagnostics, identity, JSDocParsingMode, KeywordSyntaxKind, LanguageVariant, LineAndCharacter, MapLike, positionIsSynthesized, SourceFileLike, SyntaxKind, TokenFlags } from "./_namespaces/lpc";
+import { arrayIsEqualTo, binarySearch, compareValues, Debug, DiagnosticMessage, Diagnostics, identity, JSDocParsingMode, KeywordSyntaxKind, LanguageVariant, LineAndCharacter, MapLike, positionIsSynthesized, ScriptTarget, SourceFileLike, SyntaxKind, TokenFlags } from "./_namespaces/lpc";
 
 /** @internal */
 export function skipTrivia(text: string, pos: number, stopAfterLineBreak?: boolean, stopAtComments?: boolean, inJSDoc?: boolean): number {
@@ -412,7 +412,7 @@ export interface Scanner {
 }
 
 // Creates a scanner over a (possibly unspecified) range of a piece of text.
-export function createScanner(skipTrivia: boolean, languageVariant = LanguageVariant.LDMud, textInitial?: string, onError?: ErrorCallback, start?: number, length?: number): Scanner {
+export function createScanner(languageVersion: ScriptTarget, skipTrivia: boolean, languageVariant = LanguageVariant.LDMud, textInitial?: string, onError?: ErrorCallback, start?: number, length?: number): Scanner {
     // Why var? It avoids TDZ checks in the runtime which can be costly.
     // See: https://github.com/microsoft/TypeScript/issues/52924
     /* eslint-disable no-var */

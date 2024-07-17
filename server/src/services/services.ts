@@ -117,12 +117,14 @@ import {
     updateSourceFile,
     TextSpan,
     createTextSpanFromBounds,
+    GoToDefinition,
+    PossibleProgramFileInfo,
 } from "./_namespaces/lpc.js";
 
 // These utilities are common to multiple language service features.
 // #region
 /** @internal */
-export const scanner: Scanner = createScanner(/*skipTrivia*/ true);
+export const scanner: Scanner = createScanner(ScriptTarget.LPC, /*skipTrivia*/ true);
 
 function getServicesObjectAllocator(): ObjectAllocator {
     return {
@@ -1484,6 +1486,21 @@ export function createLanguageService(
         }
     }
 
+    function getValidSourceFile(fileName: string): SourceFile {
+        const sourceFile = program.getSourceFile(fileName);
+        if (!sourceFile) {
+            const error: Error & PossibleProgramFileInfo = new Error(`Could not find source file: '${fileName}'.`);
+
+            // We've been having trouble debugging this, so attach sidecar data for the tsserver log.
+            // See https://github.com/microsoft/TypeScript/issues/30180.
+            error.ProgramFiles = program.getSourceFiles().map(f => f.fileName);
+
+            throw error;
+        }
+        return sourceFile;
+    }
+
+    
     /// Goto definition
     function getDefinitionAtPosition(
         fileName: string,
@@ -1491,9 +1508,8 @@ export function createLanguageService(
         searchOtherFilesOnly?: boolean,
         stopAtAlias?: boolean
     ): readonly DefinitionInfo[] | undefined {
-        synchronizeHostData();
-        return undefined;
-        //return GoToDefinition.getDefinitionAtPosition(program, getValidSourceFile(fileName), position, searchOtherFilesOnly, stopAtAlias);
+        synchronizeHostData();        
+        return GoToDefinition.getDefinitionAtPosition(program, getValidSourceFile(fileName), position, searchOtherFilesOnly, stopAtAlias);
     }
 }
 

@@ -2099,6 +2099,7 @@ export interface SourceFile extends Declaration, LocalsContainer {
     /** @internal */ jsDocParsingMode?: JSDocParsingMode;
 
     languageVersion: ScriptTarget;
+    languageVariant: LanguageVariant;
 
     /**
      * When `module` is `Node16` or `NodeNext`, this field controls whether the

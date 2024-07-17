@@ -637,7 +637,8 @@ export function createDocumentRegistryInternal(
 function getKeyForCompilationSettings(
     settings: CompilerOptions
 ): DocumentRegistryBucketKey {
-    throw "implemenet me - getKeyForCompilationSettings";
+    // TODO - implement this propertly
+    return "default" as DocumentRegistryBucketKey;
     //return getKeyForCompilerOptions(settings, sourceFileAffectingCompilerOptions) as DocumentRegistryBucketKey;
 }
 
