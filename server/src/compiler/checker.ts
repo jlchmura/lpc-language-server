@@ -6356,6 +6356,61 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return true;
     }
 
+    function markAliasReferenced(symbol: Symbol, location: Node) {
+        // if (!canCollectSymbolAliasAccessabilityData) {
+        //     return;
+        // }
+        if (isNonLocalAlias(symbol, /*excludes*/ SymbolFlags.Value)) {
+            const target = resolveAlias(symbol);
+            if (getSymbolFlags(symbol, /*excludeTypeOnlyMeanings*/ true) & (SymbolFlags.Value | SymbolFlags.ExportValue)) {
+                // An alias resolving to a const enum cannot be elided if (1) 'isolatedModules' is enabled
+                // (because the const enum value will not be inlined), or if (2) the alias is an export
+                // of a const enum declaration that will be preserved.
+                // if (
+                //     getIsolatedModules(compilerOptions) ||
+                //     shouldPreserveConstEnums(compilerOptions) && isExportOrExportExpression(location) ||
+                //     !isConstEnumOrConstEnumOnlyModule(getExportSymbolOfValueSymbolIfExported(target))
+                // ) {
+                    markAliasSymbolAsReferenced(symbol);
+                //}
+            }
+        }
+    }
+
+
+    // When an alias symbol is referenced, we need to mark the entity it references as referenced and in turn repeat that until
+    // we reach a non-alias or an exported entity (which is always considered referenced). We do this by checking the target of
+    // the alias as an expression (which recursively takes us back here if the target references another alias).
+    function markAliasSymbolAsReferenced(symbol: Symbol) {
+        //Debug.assert(canCollectSymbolAliasAccessabilityData);
+        const links = getSymbolLinks(symbol);
+        if (!links.referenced) {
+            links.referenced = true;
+            const node = getDeclarationOfAliasSymbol(symbol);
+            if (!node) return Debug.fail();
+            // We defer checking of the reference of an `import =` until the import itself is referenced,
+            // This way a chain of imports can be elided if ultimately the final input is only used in a type
+            // position.
+
+            //TODO
+            // if (isInternalModuleImportEqualsDeclaration(node)) {
+            //     if (getSymbolFlags(resolveSymbol(symbol)) & SymbolFlags.Value) {
+            //         // import foo = <symbol>
+            //         const left = getFirstIdentifier(node.moduleReference as EntityNameExpression);
+            //         markIdentifierAliasReferenced(left);
+            //     }
+            // }
+        }
+    }
+
+
+    function markIdentifierAliasReferenced(location: Identifier) {
+        const symbol = getResolvedSymbol(location);
+        if (symbol && symbol !== argumentsSymbol && symbol !== unknownSymbol) {
+            markAliasReferenced(symbol, location);
+        }
+    }
+
     /**
      * This function marks all the imports the given location refers to as `.referenced` in `NodeLinks` (transitively through local import aliases).
      * (This corresponds to not getting elided in JS emit.)
@@ -6378,24 +6433,20 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         if (location.flags & NodeFlags.Ambient) {
             return; // References within types and declaration files are never going to contribute to retaining a JS import
         }
-        Debug.fail("Implement me - markLinkedReferences");
-        // switch (hint) {
-        //     case ReferenceHint.Identifier:
-        //         return markIdentifierAliasReferenced(location as Identifier);
+        //Debug.fail("Implement me - markLinkedReferences");
+        switch (hint) {
+            case ReferenceHint.Identifier:
+                return markIdentifierAliasReferenced(location as Identifier);
         //     case ReferenceHint.Property:
         //         return markPropertyAliasReferenced(location as PropertyAccessExpression | QualifiedName, propSymbol, parentType);
         //     case ReferenceHint.ExportAssignment:
-        //         return markExportAssignmentAliasReferenced(location as ExportAssignment);
-        //     case ReferenceHint.Jsx:
-        //         return markJsxAliasReferenced(location as JsxOpeningLikeElement | JsxOpeningFragment);
+        //         return markExportAssignmentAliasReferenced(location as ExportAssignment);        
         //     case ReferenceHint.AsyncFunction:
         //         return markAsyncFunctionAliasReferenced(location as FunctionLikeDeclaration | MethodSignature);
         //     case ReferenceHint.ExportImportEquals:
         //         return markImportEqualsAliasReferenced(location as ImportEqualsDeclaration);
         //     case ReferenceHint.ExportSpecifier:
-        //         return markExportSpecifierAliasReferenced(location as ExportSpecifier);
-        //     case ReferenceHint.Decorator:
-        //         return markDecoratorAliasReferenced(location as HasDecorators);
+        //         return markExportSpecifierAliasReferenced(location as ExportSpecifier);        
         //     case ReferenceHint.Unspecified: {
         //         // Identifiers in expression contexts are emitted, so we need to follow their referenced aliases and mark them as used
         //         // Some non-expression identifiers are also treated as expression identifiers for this purpose, eg, `a` in `b = {a}` or `q` in `import r = q`
@@ -6443,10 +6494,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         //         }
 
         //         return markDecoratorAliasReferenced(location);
-        //     }
-        //     default:
-        //         Debug.assertNever(hint, `Unhandled reference hint: ${hint}`);
-        // }
+            // }
+            default:
+                Debug.assertNever(hint as never, `Unhandled reference hint: ${hint}`);
+        }
     }
     
     function getNarrowedTypeOfSymbol(symbol: Symbol, location: Identifier, checkMode?: CheckMode) {
