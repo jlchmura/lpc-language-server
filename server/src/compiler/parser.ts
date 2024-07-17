@@ -262,6 +262,7 @@ export namespace LpcParser {
         parseTrees: R[],
         parseElement: (parseTree: R) => T
     ): NodeArray<T> {
+        if (!parseTrees || parseTrees.length==0) return undefined;
         const list = [];
         let {pos,end} = getNodePos(parseTrees.at(0));        
 

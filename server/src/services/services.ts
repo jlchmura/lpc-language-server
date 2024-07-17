@@ -827,6 +827,9 @@ function createSyntaxList(nodes: NodeArray<Node>, parent: Node): Node {
         children.push(node);
         pos = node.end;
     }
+    if (isNaN(nodes.end)) {
+        debugger;
+    }
     addSyntheticNodes(children, pos, nodes.end, parent);
     list._children = children;
     return list;
