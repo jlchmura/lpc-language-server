@@ -13,6 +13,7 @@ export * from "../factory/baseNodeFactory.js";
 export * from "../factory/nodeFactory.js";
 export * from "../factory/nodeChildren.js";
 export * from "../factory/emitNode.js";
+export * from "../factory/utilities.js";
 export * from "../parser.js";
 export * from "../commandLineParser.js";
 export * from "../nodeTests.js";

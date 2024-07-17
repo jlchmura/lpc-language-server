@@ -1304,6 +1304,9 @@ export function forEachChild<T>(node: Node, cbNode: (node: Node) => T | undefine
     if (node === undefined || node.kind <= SyntaxKind.LastToken) {
         return;
     }
+    if (node.kind === SyntaxKind.DoWhileStatement) {
+        debugger;
+    }
     const fn = (forEachChildTable as Record<SyntaxKind, ForEachChildFunction<any>>)[node.kind];
     return fn === undefined ? undefined : fn(node, cbNode, cbNodes);
 }

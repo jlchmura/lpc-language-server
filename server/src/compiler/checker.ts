@@ -1,5 +1,5 @@
 import { CharacterCodes } from "../backend/types";
-import {Type,Symbol, SymbolLinks, CancellationToken, createSymbolTable, Declaration, EmitTextWriter, ModifierFlags, Node, NodeFlags, objectAllocator, Scanner, Signature, SignatureKind, SymbolFlags, TypeChecker, TypeCheckerHost, TypeFormatFlags, TypeParameter, CheckFlags, TransientSymbol, TransientSymbolLinks, reduceLeft, bindSourceFile, SourceFile, Diagnostic, createDiagnosticCollection, concatenate, forEach, tracing, performance, NodeLinks, NodeCheckFlags, FlowNode, FlowType, clear, SyntaxKind, TracingNode, CallLikeExpression, CallExpression, isCallOrNewExpression, isBinaryExpression, Expression, SignatureDeclaration, SignatureFlags, emptyArray, TypeFlags, IntrinsicType, ObjectFlags, Debug, BinaryExpression, ObjectType, StructuredType, ResolvedType, SymbolTable, IndexInfo, Identifier, nodeIsMissing, createNameResolver, InternalSymbolName, SymbolId, some, DiagnosticMessage, DiagnosticArguments, createDiagnosticForNode, createCompilerDiagnostic, FunctionLikeDeclaration, PropertyDeclaration, isString, isIdentifier, Diagnostics, findLast, SymbolFormatFlags, isAccessExpression, isFunctionExpression, isAliasableExpression, PropertyAssignment, isVariableDeclarationInitializedToBareOrAccessedRequire, mapDefined, arrayFrom, getSpellingSuggestion, symbolName, startsWith, nodeIsSynthesized, declarationNameToString, getCanonicalDiagnostic, DiagnosticCategory, addRelatedInfo, ParameterDeclaration, BindingElement, isSourceFile, isExternalOrCommonJsModule, isBlockOrCatchScoped, length, every, isValidTypeOnlyAliasUseSite, isWriteOnlyAccess, getCombinedNodeFlags, DiagnosticWithLocation, getJSDocDeprecatedTag, findAncestor, isCallLikeExpression, isFunctionLike, ParenthesizedExpression, isAssignmentExpression, isVariableDeclaration, isBindingElement, PropertyAccessExpression, getEnclosingBlockScopeContainer, isPropertyDeclaration, nodeStartsNewLexicalEnvironment, isIterationStatement, isForStatement, getAncestor, ForStatement, pushIfUnique, isAssignmentTarget, PrefixUnaryExpression, PostfixUnaryExpression, isBlock, isExpressionNode, isPropertyAccessExpression, getAssignmentTargetKind, AssignmentKind, isInCompoundLikeAssignment, UnionType, TypeId, UnionReduction, getRootDeclaration, getImmediatelyInvokedFunctionExpression, isSpreadAssignment, isParameter, VariableDeclaration, isFunctionLikeDeclaration, isTypeNode, forEachChild, tryCast, canHaveFlowNode, ElementAccessExpression, RelationComparisonResult, LiteralType, FreshableType, getObjectFlags, DiagnosticMessageChain, setNodeFlags, isCallExpression, LazyNodeCheckFlags, getSourceFileOfNode, canIncludeBindAndCheckDiagnostics, forEachChildRecursively, isDeclarationName, EntityName, JSDocMemberName, canHaveSymbol, isLiteralTypeNode, isElementAccessExpression, isIndexedAccessTypeNode, TypeNode, canHaveJSDoc, FlowFlags, FlowArrayMutation, FlowAssignment, FlowCall, FlowCondition, FlowLabel, FlowReduceLabel, FlowSwitchClause, SwitchStatement, createFileDiagnostic, createDiagnosticForFileFromMessageChain, createDiagnosticForNodeFromMessageChain, VariableStatement, HasModifiers, VariableDeclarationList, Block, isFunctionOrModuleBlock, CaseBlock, ForEachStatement, IndexSignatureDeclaration, Path, HasLocals, BindingPattern, idText, isForEachStatement, getNameOfDeclaration, isArrayBindingPattern, first, BindingName, cast, containsParseError, FunctionDeclaration, getFunctionFlags, getEffectiveReturnTypeNode, FunctionFlags, nodeIsPresent, JSDocSignature, isJSDocSignature, getJSDocRoot, LiteralTypeNode, TypeNodeSyntaxKind, isStatement, UnionOrIntersectionType, getContainingFunction, hasSyntacticModifier, isBindingPattern, sameMap, flatMap, getCheckFlags, singleElementArray, getDeclarationModifierFlagsFromSymbol, Ternary, append, find, isNumericLiteralName, StringLiteralType, contains, isTransientSymbol, addRange, filter, IndexType, getParseTreeNode, isRightSideOfQualifiedNameOrPropertyAccess, isWriteAccess, isRightSideOfAccessExpression, hasEffectiveModifier, getCombinedModifierFlags, isEntityName, PropertyAccessEntityNameExpression, isRightSideOfQualifiedNameOrPropertyAccessOrJSDocMemberName, QualifiedName, getHostSignatureFromJSDoc, or, EntityNameOrEntityNameExpression, isInJSFile, getFirstIdentifier, isQualifiedName, entityNameToString, isCallChain, isEntityNameExpression, isLineBreak, skipTrivia, DiagnosticRelatedInformation, IntLiteralType, FloatLiteralType, createTextWriter, chainDiagnosticMessages, getErrorSpanForNode, ShorthandPropertyAssignment, NodeBuilderFlags, SymbolTracker, TrackedSymbol, ReverseMappedSymbol, TypeMapper, ModuleSpecifierResolutionHost, Program, maybeBind, setEmitFlags, createNodeFactory, NodeFactoryFlags, BaseNodeFactory, Mutable, createBaseNodeFactory, firstDefined, isComputedPropertyName, isIdentifierText, escapeString, getEmitScriptTarget, factory, EmitFlags, isSingleOrDoubleQuote, canUsePropertyAccess, stripQuotes } from "./_namespaces/lpc";
+import {Type,Symbol, SymbolLinks, CancellationToken, createSymbolTable, Declaration, EmitTextWriter, ModifierFlags, Node, NodeFlags, objectAllocator, Scanner, Signature, SignatureKind, SymbolFlags, TypeChecker, TypeCheckerHost, TypeFormatFlags, TypeParameter, CheckFlags, TransientSymbol, TransientSymbolLinks, reduceLeft, bindSourceFile, SourceFile, Diagnostic, createDiagnosticCollection, concatenate, forEach, tracing, performance, NodeLinks, NodeCheckFlags, FlowNode, FlowType, clear, SyntaxKind, TracingNode, CallLikeExpression, CallExpression, isCallOrNewExpression, isBinaryExpression, Expression, SignatureDeclaration, SignatureFlags, emptyArray, TypeFlags, IntrinsicType, ObjectFlags, Debug, BinaryExpression, ObjectType, StructuredType, ResolvedType, SymbolTable, IndexInfo, Identifier, nodeIsMissing, createNameResolver, InternalSymbolName, SymbolId, some, DiagnosticMessage, DiagnosticArguments, createDiagnosticForNode, createCompilerDiagnostic, FunctionLikeDeclaration, PropertyDeclaration, isString, isIdentifier, Diagnostics, findLast, SymbolFormatFlags, isAccessExpression, isFunctionExpression, isAliasableExpression, PropertyAssignment, isVariableDeclarationInitializedToBareOrAccessedRequire, mapDefined, arrayFrom, getSpellingSuggestion, symbolName, startsWith, nodeIsSynthesized, declarationNameToString, getCanonicalDiagnostic, DiagnosticCategory, addRelatedInfo, ParameterDeclaration, BindingElement, isSourceFile, isExternalOrCommonJsModule, isBlockOrCatchScoped, length, every, isValidTypeOnlyAliasUseSite, isWriteOnlyAccess, getCombinedNodeFlags, DiagnosticWithLocation, getJSDocDeprecatedTag, findAncestor, isCallLikeExpression, isFunctionLike, ParenthesizedExpression, isAssignmentExpression, isVariableDeclaration, isBindingElement, PropertyAccessExpression, getEnclosingBlockScopeContainer, isPropertyDeclaration, nodeStartsNewLexicalEnvironment, isIterationStatement, isForStatement, getAncestor, ForStatement, pushIfUnique, isAssignmentTarget, PrefixUnaryExpression, PostfixUnaryExpression, isBlock, isExpressionNode, isPropertyAccessExpression, getAssignmentTargetKind, AssignmentKind, isInCompoundLikeAssignment, UnionType, TypeId, UnionReduction, getRootDeclaration, getImmediatelyInvokedFunctionExpression, isSpreadAssignment, isParameter, VariableDeclaration, isFunctionLikeDeclaration, isTypeNode, forEachChild, tryCast, canHaveFlowNode, ElementAccessExpression, RelationComparisonResult, LiteralType, FreshableType, getObjectFlags, DiagnosticMessageChain, setNodeFlags, isCallExpression, LazyNodeCheckFlags, getSourceFileOfNode, canIncludeBindAndCheckDiagnostics, forEachChildRecursively, isDeclarationName, EntityName, JSDocMemberName, canHaveSymbol, isLiteralTypeNode, isElementAccessExpression, isIndexedAccessTypeNode, TypeNode, canHaveJSDoc, FlowFlags, FlowArrayMutation, FlowAssignment, FlowCall, FlowCondition, FlowLabel, FlowReduceLabel, FlowSwitchClause, SwitchStatement, createFileDiagnostic, createDiagnosticForFileFromMessageChain, createDiagnosticForNodeFromMessageChain, VariableStatement, HasModifiers, VariableDeclarationList, Block, isFunctionOrModuleBlock, CaseBlock, ForEachStatement, IndexSignatureDeclaration, Path, HasLocals, BindingPattern, idText, isForEachStatement, getNameOfDeclaration, isArrayBindingPattern, first, BindingName, cast, containsParseError, FunctionDeclaration, getFunctionFlags, getEffectiveReturnTypeNode, FunctionFlags, nodeIsPresent, JSDocSignature, isJSDocSignature, getJSDocRoot, LiteralTypeNode, TypeNodeSyntaxKind, isStatement, UnionOrIntersectionType, getContainingFunction, hasSyntacticModifier, isBindingPattern, sameMap, flatMap, getCheckFlags, singleElementArray, getDeclarationModifierFlagsFromSymbol, Ternary, append, find, isNumericLiteralName, StringLiteralType, contains, isTransientSymbol, addRange, filter, IndexType, getParseTreeNode, isRightSideOfQualifiedNameOrPropertyAccess, isWriteAccess, isRightSideOfAccessExpression, hasEffectiveModifier, getCombinedModifierFlags, isEntityName, PropertyAccessEntityNameExpression, isRightSideOfQualifiedNameOrPropertyAccessOrJSDocMemberName, QualifiedName, getHostSignatureFromJSDoc, or, EntityNameOrEntityNameExpression, isInJSFile, getFirstIdentifier, isQualifiedName, entityNameToString, isCallChain, isEntityNameExpression, isLineBreak, skipTrivia, DiagnosticRelatedInformation, IntLiteralType, FloatLiteralType, createTextWriter, chainDiagnosticMessages, getErrorSpanForNode, ShorthandPropertyAssignment, NodeBuilderFlags, SymbolTracker, TrackedSymbol, ReverseMappedSymbol, TypeMapper, ModuleSpecifierResolutionHost, Program, maybeBind, setEmitFlags, createNodeFactory, NodeFactoryFlags, BaseNodeFactory, Mutable, createBaseNodeFactory, firstDefined, isComputedPropertyName, isIdentifierText, escapeString, getEmitScriptTarget, factory, EmitFlags, isSingleOrDoubleQuote, canUsePropertyAccess, stripQuotes, DoWhileStatement, BinaryOperatorToken, isLogicalOrCoalescingBinaryOperator, isLogicalOrCoalescingBinaryExpression, isIfStatement, skipParentheses, Statement, PunctuationSyntaxKind, tokenToString, FreshableIntrinsicType, isLiteralExpressionOfObject, getAssignmentDeclarationKind, AssignmentDeclarationKind, ConditionalExpression, isAssignmentOperator, isJSDocTypedefTag, isIntLiteral, skipOuterExpressions, OuterExpressionKinds, isExpression, ObjectLiteralExpression, ArrayLiteralExpression, FunctionExpression, InlineClosureExpression, ObjectLiteralElementLike, hasContextSensitiveParameters, forEachReturnStatement, compareDiagnostics, Comparison, createBinaryExpressionTrampoline } from "./_namespaces/lpc";
 
 let nextSymbolId = 1;
 let nextNodeId = 1;
@@ -108,6 +108,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     var compilerOptions = host.getCompilerOptions();        
     var languageVersion = getEmitScriptTarget(compilerOptions);
     
+    var checkBinaryExpression = createCheckBinaryExpression();
     var nodeBuilder = createNodeBuilder();
 
     var globals = createSymbolTable();
@@ -237,7 +238,24 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     var voidType = createIntrinsicType(TypeFlags.Void, "void");
     var stringNumberSymbolType = getUnionType([stringType, intType, floatType]); // esSymbolType
     var numberType = getUnionType([intType, floatType]);
+    var numberLiteralTypes = new Map<number, IntLiteralType>();
     var stringLiteralTypes = new Map<string, StringLiteralType>();
+    var falseType = createIntrinsicType(TypeFlags.BooleanLiteral, "false", /*objectFlags*/ undefined, "fresh") as FreshableIntrinsicType;
+    var regularFalseType = createIntrinsicType(TypeFlags.BooleanLiteral, "false") as FreshableIntrinsicType;
+    var trueType = createIntrinsicType(TypeFlags.BooleanLiteral, "true", /*objectFlags*/ undefined, "fresh") as FreshableIntrinsicType;
+    var regularTrueType = createIntrinsicType(TypeFlags.BooleanLiteral, "true") as FreshableIntrinsicType;
+    trueType.regularType = regularTrueType;
+    trueType.freshType = trueType;
+    regularTrueType.regularType = regularTrueType;
+    regularTrueType.freshType = trueType;
+    falseType.regularType = regularFalseType;
+    falseType.freshType = falseType;
+    regularFalseType.regularType = regularFalseType;
+    regularFalseType.freshType = falseType;
+    var booleanType = getUnionType([regularFalseType, regularTrueType]);
+
+    var emptyStringType = getStringLiteralType("");
+    var zeroType = getNumberLiteralType(0);
 
     var uniqueLiteralType = createIntrinsicType(TypeFlags.Never, "never", /*objectFlags*/ undefined, "unique literal"); // `uniqueLiteralType` is a special `never` flagged by union reduction to behave as a literal
     var unionTypes = new Map<string, UnionType>();
@@ -943,6 +961,17 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return type;
     }
 
+    /**
+     * @deprecated is this needed?
+     * @param value 
+     * @returns 
+     */
+    function getNumberLiteralType(value: number): IntLiteralType {
+        let type;
+        return numberLiteralTypes.get(value) ||
+            (numberLiteralTypes.set(value, type = createLiteralType(TypeFlags.IntLiteral, value) as IntLiteralType), type);
+    }
+
     /** @deprecated not needed in LPC? */
     function getStringLiteralType(value: string): StringLiteralType {
         let type;
@@ -1554,8 +1583,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             //     return checkExpressionStatement(node as ExpressionStatement);
             // case SyntaxKind.IfStatement:
             //     return checkIfStatement(node as IfStatement);
-            // case SyntaxKind.DoStatement:
-            //     return checkDoStatement(node as DoStatement);
+            case SyntaxKind.DoWhileStatement:
+                return checkDoWhileStatement(node as DoWhileStatement);
             // case SyntaxKind.WhileStatement:
             //     return checkWhileStatement(node as WhileStatement);
             // case SyntaxKind.ForStatement:
@@ -1611,6 +1640,26 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
         // TODO
         console.warn("Implement me - checkSourceElementWorker");
+    }
+
+    function checkDoWhileStatement(node: DoWhileStatement) {
+        // Grammar checking
+        //checkGrammarStatementInAmbientContext(node);
+
+        checkSourceElement(node.statement);
+        checkTruthinessExpression(node.expression);
+    }
+
+    
+    function checkTruthinessOfType(type: Type, node: Node) {
+        if (type.flags & TypeFlags.Void) {
+            error(node, Diagnostics.An_expression_of_type_void_cannot_be_tested_for_truthiness);
+        }
+        return type;
+    }
+
+    function checkTruthinessExpression(node: Expression, checkMode?: CheckMode) {
+        return checkTruthinessOfType(checkExpression(node, checkMode), node);
     }
 
     function checkVariableDeclarationList(node: VariableDeclarationList) {
@@ -2676,8 +2725,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         console.warn("Implement me - checkGrammarModifiers");
         return false;
     }
-    
-    
+        
     function checkGrammarForDisallowedBlockScopedVariableStatement(node: VariableStatement) {
         return false;
         // if (!allowLetAndConstDeclarations(node.parent)) {
@@ -3453,8 +3501,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             }
         }
         switch (kind) {
-            // case SyntaxKind.Identifier:
-            //     return checkIdentifier(node as Identifier, checkMode);
+            case SyntaxKind.Identifier:
+                return checkIdentifier(node as Identifier, checkMode);
             // case SyntaxKind.PrivateIdentifier:
             //     return checkPrivateIdentifierExpression(node as PrivateIdentifier);
             // case SyntaxKind.ThisKeyword:
@@ -3534,8 +3582,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             //     return checkPrefixUnaryExpression(node as PrefixUnaryExpression);
             // case SyntaxKind.PostfixUnaryExpression:
             //     return checkPostfixUnaryExpression(node as PostfixUnaryExpression);
-            // case SyntaxKind.BinaryExpression:
-            //     return checkBinaryExpression(node as BinaryExpression, checkMode);
+            case SyntaxKind.BinaryExpression:
+                return checkBinaryExpression(node as BinaryExpression, checkMode);
             // case SyntaxKind.ConditionalExpression:
             //     return checkConditionalExpression(node as ConditionalExpression, checkMode);
             // case SyntaxKind.SpreadElement:
@@ -3543,9 +3591,1169 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             // case SyntaxKind.SyntheticExpression:
             //     return checkSyntheticExpression(node as SyntheticExpression);
         }
+        console.warn("Implement me - checkExpressionWorker - " + Debug.formatSyntaxKind(node.kind));
         return errorType;
     }
-        
+    
+    function checkDestructuringAssignment(exprOrAssignment: Expression | ShorthandPropertyAssignment, sourceType: Type, checkMode?: CheckMode, rightIsThis?: boolean): Type {
+        console.debug("TODO - Implement me - checkDestructuringAssignment");
+        return anyType;
+        // let target: Expression;
+        // if (exprOrAssignment.kind === SyntaxKind.ShorthandPropertyAssignment) {
+        //     const prop = exprOrAssignment as ShorthandPropertyAssignment;
+        //     if (prop.objectAssignmentInitializer) {
+        //         // In strict null checking mode, if a default value of a non-undefined type is specified, remove
+        //         // undefined from the final type.
+        //         if (
+        //             strictNullChecks &&
+        //             !(hasTypeFacts(checkExpression(prop.objectAssignmentInitializer), TypeFacts.IsUndefined))
+        //         ) {
+        //             sourceType = getTypeWithFacts(sourceType, TypeFacts.NEUndefined);
+        //         }
+        //         checkBinaryLikeExpression(prop.name, prop.equalsToken!, prop.objectAssignmentInitializer, checkMode);
+        //     }
+        //     target = (exprOrAssignment as ShorthandPropertyAssignment).name;
+        // }
+        // else {
+        //     target = exprOrAssignment;
+        // }
+
+        // if (target.kind === SyntaxKind.BinaryExpression && (target as BinaryExpression).operatorToken.kind === SyntaxKind.EqualsToken) {
+        //     checkBinaryExpression(target as BinaryExpression, checkMode);
+        //     target = (target as BinaryExpression).left;
+        //     // A default value is specified, so remove undefined from the final type.
+        //     if (strictNullChecks) {
+        //         sourceType = getTypeWithFacts(sourceType, TypeFacts.NEUndefined);
+        //     }
+        // }
+        // if (target.kind === SyntaxKind.ObjectLiteralExpression) {
+        //     return checkObjectLiteralAssignment(target as ObjectLiteralExpression, sourceType, rightIsThis);
+        // }
+        // if (target.kind === SyntaxKind.ArrayLiteralExpression) {
+        //     return checkArrayLiteralAssignment(target as ArrayLiteralExpression, sourceType, checkMode);
+        // }
+        // return checkReferenceAssignment(target, sourceType, checkMode);
+    }
+
+    function isTypeEqualityComparableTo(source: Type, target: Type) {
+        return (target.flags & TypeFlags.Nullable) !== 0 || isTypeComparableTo(source, target);
+    }
+
+    function extractDefinitelyFalsyTypes(type: Type): Type {
+        return mapType(type, getDefinitelyFalsyPartOfType);
+    }
+
+    function getDefinitelyFalsyPartOfType(type: Type): Type {
+        return type.flags & TypeFlags.String ? emptyStringType :
+            type.flags & TypeFlags.Number ? zeroType :
+            //type.flags & TypeFlags.BigInt ? zeroBigIntType :
+            type === regularFalseType ||
+                type === falseType ||
+                type.flags & (TypeFlags.Void | TypeFlags.Undefined | TypeFlags.Null | TypeFlags.AnyOrUnknown) ||
+                type.flags & TypeFlags.StringLiteral && (type as StringLiteralType).value === "" ||
+                type.flags & TypeFlags.IntLiteral && (type as IntLiteralType).value === 0 ||
+                type.flags & TypeFlags.FloatLiteral && (type as FloatLiteralType).value===0 ? type :
+            neverType;
+    }
+
+
+    function createCheckBinaryExpression() {
+        interface WorkArea {
+            readonly checkMode: CheckMode | undefined;
+            skip: boolean;
+            stackIndex: number;
+            /**
+             * Holds the types from the left-side of an expression from [0..stackIndex].
+             * Holds the type of the result at stackIndex+1. This allows us to reuse existing stack entries
+             * and avoid storing an extra property on the object (i.e., `lastResult`).
+             */
+            typeStack: (Type | undefined)[];
+        }
+
+        const trampoline = createBinaryExpressionTrampoline(onEnter, onLeft, onOperator, onRight, onExit, foldState);
+
+        return (node: BinaryExpression, checkMode: CheckMode | undefined) => {
+            const result = trampoline(node, checkMode);
+            Debug.assertIsDefined(result);
+            return result;
+        };
+
+        function onEnter(node: BinaryExpression, state: WorkArea | undefined, checkMode: CheckMode | undefined) {
+            if (state) {
+                state.stackIndex++;
+                state.skip = false;
+                setLeftType(state, /*type*/ undefined);
+                setLastResult(state, /*type*/ undefined);
+            }
+            else {
+                state = {
+                    checkMode,
+                    skip: false,
+                    stackIndex: 0,
+                    typeStack: [undefined, undefined],
+                };
+            }
+
+            // if (isInJSFile(node) && getAssignedExpandoInitializer(node)) {
+            //     state.skip = true;
+            //     setLastResult(state, checkExpression(node.right, checkMode));
+            //     return state;
+            // }
+
+            // TODO
+            //checkGrammarNullishCoalesceWithLogicalExpression(node);
+
+            const operator = node.operatorToken.kind;
+            if (operator === SyntaxKind.EqualsToken && (node.left.kind === SyntaxKind.ObjectLiteralExpression || node.left.kind === SyntaxKind.ArrayLiteralExpression)) {
+                state.skip = true;
+                setLastResult(state, checkDestructuringAssignment(node.left, checkExpression(node.right, checkMode), checkMode, /*node.right.kind === SyntaxKind.ThisKeyword*/ false));
+                return state;
+            }
+
+            return state;
+        }
+
+        function onLeft(left: Expression, state: WorkArea, _node: BinaryExpression) {
+            if (!state.skip) {
+                return maybeCheckExpression(state, left);
+            }
+        }
+
+        function onOperator(operatorToken: BinaryOperatorToken, state: WorkArea, node: BinaryExpression) {
+            if (!state.skip) {
+                const leftType = getLastResult(state);
+                Debug.assertIsDefined(leftType);
+                setLeftType(state, leftType);
+                setLastResult(state, /*type*/ undefined);
+                const operator = operatorToken.kind;
+                if (isLogicalOrCoalescingBinaryOperator(operator)) {
+                    let parent = node.parent;
+                    while (parent.kind === SyntaxKind.ParenthesizedExpression || isLogicalOrCoalescingBinaryExpression(parent)) {
+                        parent = parent.parent;
+                    }
+                    if (operator === SyntaxKind.AmpersandAmpersandToken || isIfStatement(parent)) {
+                        checkTestingKnownTruthyCallableOrAwaitableOrEnumMemberType(node.left, leftType, isIfStatement(parent) ? parent.thenStatement : undefined);
+                    }
+                    checkTruthinessOfType(leftType, node.left);
+                }
+            }
+        }
+
+        function onRight(right: Expression, state: WorkArea, _node: BinaryExpression) {
+            if (!state.skip) {
+                return maybeCheckExpression(state, right);
+            }
+        }
+
+        function onExit(node: BinaryExpression, state: WorkArea): Type | undefined {
+            let result: Type | undefined;
+            if (state.skip) {
+                result = getLastResult(state);
+            }
+            else {
+                const leftType = getLeftType(state);
+                Debug.assertIsDefined(leftType);
+
+                const rightType = getLastResult(state);
+                Debug.assertIsDefined(rightType);
+
+                result = checkBinaryLikeExpressionWorker(node.left, node.operatorToken, node.right, leftType, rightType, state.checkMode, node);
+            }
+
+            state.skip = false;
+            setLeftType(state, /*type*/ undefined);
+            setLastResult(state, /*type*/ undefined);
+            state.stackIndex--;
+            return result;
+        }
+
+        function foldState(state: WorkArea, result: Type | undefined, _side: "left" | "right") {
+            setLastResult(state, result);
+            return state;
+        }
+
+        function maybeCheckExpression(state: WorkArea, node: Expression): BinaryExpression | undefined {
+            if (isBinaryExpression(node)) {
+                return node;
+            }
+            setLastResult(state, checkExpression(node, state.checkMode));
+        }
+
+        function getLeftType(state: WorkArea) {
+            return state.typeStack[state.stackIndex];
+        }
+
+        function setLeftType(state: WorkArea, type: Type | undefined) {
+            state.typeStack[state.stackIndex] = type;
+        }
+
+        function getLastResult(state: WorkArea) {
+            return state.typeStack[state.stackIndex + 1];
+        }
+
+        function setLastResult(state: WorkArea, type: Type | undefined) {
+            // To reduce overhead, reuse the next stack entry to store the
+            // last result. This avoids the overhead of an additional property
+            // on `WorkArea` and reuses empty stack entries as we walk back up
+            // the stack.
+            state.typeStack[state.stackIndex + 1] = type;
+        }
+    }
+
+    
+    // This like getBaseTypeOfLiteralType, but instead treats enum literals as strings/numbers instead
+    // of returning their enum base type (which depends on the types of other literals in the enum).
+    function getBaseTypeOfLiteralTypeForComparison(type: Type): Type {
+        return type.flags & (TypeFlags.StringLiteral | TypeFlags.TemplateLiteral | TypeFlags.StringMapping) ? stringType :
+            type.flags & (TypeFlags.IntLiteral) ? intType :
+            type.flags & TypeFlags.FloatLiteral ? floatType :
+            //type.flags & TypeFlags.BooleanLiteral ? booleanType :
+            type.flags & TypeFlags.Union ? mapType(type, getBaseTypeOfLiteralTypeForComparison) :
+            type;
+    }
+
+    function removeDefinitelyFalsyTypes(type: Type): Type {
+        return filterType(type, t => hasTypeFacts(t, TypeFacts.Truthy));
+    }
+
+    /**
+     * This is a *shallow* check: An expression is side-effect-free if the
+     * evaluation of the expression *itself* cannot produce side effects.
+     * For example, x++ / 3 is side-effect free because the / operator
+     * does not have side effects.
+     * The intent is to "smell test" an expression for correctness in positions where
+     * its value is discarded (e.g. the left side of the comma operator).
+     */
+    function isSideEffectFree(node: Node): boolean {
+        node = skipParentheses(node);
+        switch (node.kind) {
+            case SyntaxKind.Identifier:
+            case SyntaxKind.StringLiteral:
+            // case SyntaxKind.RegularExpressionLiteral:
+            // case SyntaxKind.TaggedTemplateExpression:
+            // case SyntaxKind.TemplateExpression:
+            // case SyntaxKind.NoSubstitutionTemplateLiteral:
+            case SyntaxKind.IntLiteral:
+            case SyntaxKind.FloatLiteral:
+            // case SyntaxKind.TrueKeyword:
+            // case SyntaxKind.FalseKeyword:
+            case SyntaxKind.NullKeyword:
+            // case SyntaxKind.UndefinedKeyword:
+            case SyntaxKind.FunctionExpression:
+            case SyntaxKind.ClassExpression:
+            case SyntaxKind.InlineClosureExpression:
+            case SyntaxKind.ArrayLiteralExpression:
+            case SyntaxKind.ObjectLiteralExpression:            
+                return true;
+
+            case SyntaxKind.ConditionalExpression:
+                return isSideEffectFree((node as ConditionalExpression).whenTrue) &&
+                    isSideEffectFree((node as ConditionalExpression).whenFalse);
+
+            case SyntaxKind.BinaryExpression:
+                if (isAssignmentOperator((node as BinaryExpression).operatorToken.kind)) {
+                    return false;
+                }
+                return isSideEffectFree((node as BinaryExpression).left) &&
+                    isSideEffectFree((node as BinaryExpression).right);
+
+            case SyntaxKind.PrefixUnaryExpression:
+            case SyntaxKind.PostfixUnaryExpression:
+                // Unary operators ~, !, +, and - have no side effects.
+                // The rest do.
+                switch ((node as PrefixUnaryExpression).operator) {
+                    case SyntaxKind.ExclamationToken:
+                    case SyntaxKind.PlusToken:
+                    case SyntaxKind.MinusToken:
+                    case SyntaxKind.TildeToken:
+                        return true;
+                }
+                return false;
+
+            // Some forms listed here for clarity
+            // case SyntaxKind.VoidExpression: // Explicit opt-out
+            // case SyntaxKind.TypeAssertionExpression: // Not SEF, but can produce useful type warnings
+            // case SyntaxKind.AsExpression: // Not SEF, but can produce useful type warnings
+            default:
+                return false;
+        }
+    }
+
+    function addDuplicateDeclarationErrorsForSymbols(target: Symbol, message: DiagnosticMessage, symbolName: string, source: Symbol) {
+        forEach(target.declarations, node => {
+            addDuplicateDeclarationError(node, message, symbolName, source.declarations);
+        });
+    }
+
+    function lookupOrIssueError(location: Node | undefined, message: DiagnosticMessage, ...args: DiagnosticArguments): Diagnostic {
+        const diagnostic = location
+            ? createDiagnosticForNode(location, message, ...args)
+            : createCompilerDiagnostic(message, ...args);
+        const existing = diagnostics.lookup(diagnostic);
+        if (existing) {
+            return existing;
+        }
+        else {
+            diagnostics.add(diagnostic);
+            return diagnostic;
+        }
+    }
+
+    /**
+     * Like `checkTypeAssignableTo`, but if it would issue an error, instead performs structural comparisons of the types using the given expression node to
+     * attempt to issue more specific errors on, for example, specific object literal properties or tuple members.
+     */
+    function checkTypeAssignableToAndOptionallyElaborate(source: Type, target: Type, errorNode: Node | undefined, expr: Expression | undefined, headMessage?: DiagnosticMessage, containingMessageChain?: () => DiagnosticMessageChain | undefined): boolean {
+        return checkTypeRelatedToAndOptionallyElaborate(source, target, assignableRelation, errorNode, expr, headMessage, containingMessageChain, /*errorOutputContainer*/ undefined);
+    }
+
+    function checkTypeRelatedToAndOptionallyElaborate(
+        source: Type,
+        target: Type,
+        relation: Map<string, RelationComparisonResult>,
+        errorNode: Node | undefined,
+        expr: Expression | undefined,
+        headMessage: DiagnosticMessage | undefined,
+        containingMessageChain: (() => DiagnosticMessageChain | undefined) | undefined,
+        errorOutputContainer: { errors?: Diagnostic[]; skipLogging?: boolean; } | undefined,
+    ): boolean {
+        if (isTypeRelatedTo(source, target, relation)) return true;
+        if (!errorNode || !elaborateError(expr, source, target, relation, headMessage, containingMessageChain, errorOutputContainer)) {
+            return checkTypeRelatedTo(source, target, relation, errorNode, headMessage, containingMessageChain, errorOutputContainer);
+        }
+        return false;
+    }
+
+    function isOrHasGenericConditional(type: Type): boolean {
+        return false;//return !!(type.flags & TypeFlags.Conditional || (type.flags & TypeFlags.Intersection && some((type as IntersectionType).types, isOrHasGenericConditional)));
+    }
+
+    function checkTypeAssignableTo(source: Type, target: Type, errorNode: Node | undefined, headMessage?: DiagnosticMessage, containingMessageChain?: () => DiagnosticMessageChain | undefined, errorOutputObject?: { errors?: Diagnostic[]; }): boolean {
+        return checkTypeRelatedTo(source, target, assignableRelation, errorNode, headMessage, containingMessageChain, errorOutputObject);
+    }
+
+    function elaborateDidYouMeanToCallOrConstruct(
+        node: Expression,
+        source: Type,
+        target: Type,
+        relation: Map<string, RelationComparisonResult>,
+        headMessage: DiagnosticMessage | undefined,
+        containingMessageChain: (() => DiagnosticMessageChain | undefined) | undefined,
+        errorOutputContainer: { errors?: Diagnostic[]; skipLogging?: boolean; } | undefined,
+    ): boolean {
+        const callSignatures = getSignaturesOfType(source, SignatureKind.Call);
+        const constructSignatures = getSignaturesOfType(source, SignatureKind.Construct);
+        for (const signatures of [constructSignatures, callSignatures]) {
+            if (
+                some(signatures, s => {
+                    const returnType = getReturnTypeOfSignature(s);
+                    return !(returnType.flags & (TypeFlags.Any | TypeFlags.Never)) && checkTypeRelatedTo(returnType, target, relation, /*errorNode*/ undefined);
+                })
+            ) {
+                const resultObj: { errors?: Diagnostic[]; } = errorOutputContainer || {};
+                checkTypeAssignableTo(source, target, node, headMessage, containingMessageChain, resultObj);
+                const diagnostic = resultObj.errors![resultObj.errors!.length - 1];
+                addRelatedInfo(
+                    diagnostic,
+                    createDiagnosticForNode(
+                        node,
+                        signatures === constructSignatures ? Diagnostics.Did_you_mean_to_use_new_with_this_expression : Diagnostics.Did_you_mean_to_call_this_expression,
+                    ),
+                );
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function hasContextSensitiveReturnExpression(node: FunctionLikeDeclaration) {
+        if (/*node.typeParameters ||*/ getEffectiveReturnTypeNode(node) || !node.body) {
+            return false;
+        }
+        if (node.body.kind !== SyntaxKind.Block) {
+            return isContextSensitive(node.body);
+        }
+        return !!forEachReturnStatement(node.body as Block, statement => !!statement.expression && isContextSensitive(statement.expression));
+    }
+
+    function isContextSensitiveFunctionLikeDeclaration(node: FunctionLikeDeclaration): boolean {
+        return hasContextSensitiveParameters(node) || hasContextSensitiveReturnExpression(node);
+    }
+    
+    // Returns true if the given expression contains (at any level of nesting) a function or arrow expression
+    // that is subject to contextual typing.
+    function isContextSensitive(node: Expression/* | MethodDeclaration */| ObjectLiteralElementLike ): boolean {
+        //Debug.assert(node.kind !== SyntaxKind.MethodDeclaration || isObjectLiteralMethod(node));
+        switch (node.kind) {
+            case SyntaxKind.FunctionExpression:
+            case SyntaxKind.InlineClosureExpression:
+            //case SyntaxKind.MethodDeclaration:
+            case SyntaxKind.FunctionDeclaration: // Function declarations can have context when annotated with a jsdoc @type
+                return isContextSensitiveFunctionLikeDeclaration(node as FunctionExpression | InlineClosureExpression /*| MethodDeclaration*/);
+            case SyntaxKind.ObjectLiteralExpression:
+                return some((node as ObjectLiteralExpression).properties, isContextSensitive);
+            case SyntaxKind.ArrayLiteralExpression:
+                return some((node as ArrayLiteralExpression).elements, isContextSensitive);
+            case SyntaxKind.ConditionalExpression:
+                return isContextSensitive((node as ConditionalExpression).whenTrue) ||
+                    isContextSensitive((node as ConditionalExpression).whenFalse);
+            case SyntaxKind.BinaryExpression:
+                return ((node as BinaryExpression).operatorToken.kind === SyntaxKind.BarBarToken) &&
+                    (isContextSensitive((node as BinaryExpression).left) || isContextSensitive((node as BinaryExpression).right));
+            case SyntaxKind.PropertyAssignment:
+                return isContextSensitive((node as PropertyAssignment).initializer);
+            case SyntaxKind.ParenthesizedExpression:
+                return isContextSensitive((node as ParenthesizedExpression).expression);            
+        }
+
+        return false;
+    }
+
+    function symbolValueDeclarationIsContextSensitive(symbol: Symbol): boolean {
+        return symbol && !!symbol.valueDeclaration && isExpression(symbol.valueDeclaration) && !isContextSensitive(symbol.valueDeclaration);
+    }
+
+    function getTypeNameForErrorDisplay(type: Type) {
+        return typeToString(type, /*enclosingDeclaration*/ undefined, TypeFormatFlags.UseFullyQualifiedType);
+    }
+
+    function getTypeNamesForErrorDisplay(left: Type, right: Type): [string, string] {
+        let leftStr = symbolValueDeclarationIsContextSensitive(left.symbol) ? typeToString(left, left.symbol.valueDeclaration) : typeToString(left);
+        let rightStr = symbolValueDeclarationIsContextSensitive(right.symbol) ? typeToString(right, right.symbol.valueDeclaration) : typeToString(right);
+        if (leftStr === rightStr) {
+            leftStr = getTypeNameForErrorDisplay(left);
+            rightStr = getTypeNameForErrorDisplay(right);
+        }
+        return [leftStr, rightStr];
+    }
+
+    function getBaseTypesIfUnrelated(leftType: Type, rightType: Type, isRelated: (left: Type, right: Type) => boolean): [Type, Type] {
+        let effectiveLeft = leftType;
+        let effectiveRight = rightType;
+        const leftBase = getBaseTypeOfLiteralType(leftType);
+        const rightBase = getBaseTypeOfLiteralType(rightType);
+        if (!isRelated(leftBase, rightBase)) {
+            effectiveLeft = leftBase;
+            effectiveRight = rightBase;
+        }
+        return [effectiveLeft, effectiveRight];
+    }
+
+    function elaborateError(
+        node: Expression | undefined,
+        source: Type,
+        target: Type,
+        relation: Map<string, RelationComparisonResult>,
+        headMessage: DiagnosticMessage | undefined,
+        containingMessageChain: (() => DiagnosticMessageChain | undefined) | undefined,
+        errorOutputContainer: { errors?: Diagnostic[]; skipLogging?: boolean; } | undefined,
+    ): boolean {
+        if (!node || isOrHasGenericConditional(target)) return false;
+        if (
+            !checkTypeRelatedTo(source, target, relation, /*errorNode*/ undefined)
+            && elaborateDidYouMeanToCallOrConstruct(node, source, target, relation, headMessage, containingMessageChain, errorOutputContainer)
+        ) {
+            return true;
+        }
+        switch (node.kind) {
+            case SyntaxKind.ParenthesizedExpression:
+                return elaborateError((node as  ParenthesizedExpression ).expression, source, target, relation, headMessage, containingMessageChain, errorOutputContainer);
+            case SyntaxKind.BinaryExpression:
+                switch ((node as BinaryExpression).operatorToken.kind) {
+                    case SyntaxKind.EqualsToken:
+                    case SyntaxKind.CommaToken:
+                        return elaborateError((node as BinaryExpression).right, source, target, relation, headMessage, containingMessageChain, errorOutputContainer);
+                }
+                break;
+            case SyntaxKind.ObjectLiteralExpression:
+                console.warn("todo - elaborateError - ObjectLiteralExpression");
+                //return elaborateObjectLiteral(node as ObjectLiteralExpression, source, target, relation, containingMessageChain, errorOutputContainer);
+            case SyntaxKind.ArrayLiteralExpression:
+                console.warn("todo - elaborateError - ArrayLiteralExpression");
+                //return elaborateArrayLiteral(node as ArrayLiteralExpression, source, target, relation, containingMessageChain, errorOutputContainer);            
+            case SyntaxKind.InlineClosureExpression:
+                console.warn("todo - elaborateError - InlineClosureExpression");
+                //return elaborateArrowFunction(node as ArrowFunction, source, target, relation, containingMessageChain, errorOutputContainer);
+        }
+        return false;
+    }
+
+
+
+    function checkReferenceExpression(expr: Expression, invalidReferenceMessage: DiagnosticMessage, invalidOptionalChainMessage: DiagnosticMessage): boolean {
+        // References are combinations of identifiers, parentheses, and property accesses.
+        const node = skipOuterExpressions(expr, OuterExpressionKinds.Assertions | OuterExpressionKinds.Parentheses);
+        if (node.kind !== SyntaxKind.Identifier && !isAccessExpression(node)) {
+            error(expr, invalidReferenceMessage);
+            return false;
+        }
+        if (node.flags & NodeFlags.OptionalChain) {
+            error(expr, invalidOptionalChainMessage);
+            return false;
+        }
+        return true;
+    }
+    
+    function addDuplicateDeclarationError(node: Declaration, message: DiagnosticMessage, symbolName: string, relatedNodes: readonly Declaration[] | undefined) {
+        const errorNode = getNameOfDeclaration(node) || node;//(getExpandoInitializer(node, /*isPrototypeAssignment*/ false) ? getNameOfExpando(node) : getNameOfDeclaration(node)) || node;
+        const err = lookupOrIssueError(errorNode, message, symbolName);
+        for (const relatedNode of relatedNodes || emptyArray) {
+            const adjustedNode = getNameOfDeclaration(relatedNode) || relatedNode;
+            if (adjustedNode === errorNode) continue;
+            err.relatedInformation = err.relatedInformation || [];
+            const leadingMessage = createDiagnosticForNode(adjustedNode, Diagnostics._0_was_also_declared_here, symbolName);
+            const followOnMessage = createDiagnosticForNode(adjustedNode, Diagnostics.and_here);
+            if (length(err.relatedInformation) >= 5 || some(err.relatedInformation, r => compareDiagnostics(r, followOnMessage) === Comparison.EqualTo || compareDiagnostics(r, leadingMessage) === Comparison.EqualTo)) continue;
+            addRelatedInfo(err, !length(err.relatedInformation) ? leadingMessage : followOnMessage);
+        }
+    }
+
+    /** Return properties of an object type or an empty array for other types */
+    function getPropertiesOfObjectType(type: Type): Symbol[] {
+        if (type.flags & TypeFlags.Object) {
+            return resolveStructuredTypeMembers(type as ObjectType).properties;
+        }
+        return emptyArray;
+    }
+    
+    function reportObjectPossiblyNullOrUndefinedError(node: Node, facts: TypeFacts) {
+        const nodeText = isEntityNameExpression(node) ? entityNameToString(node) : undefined;
+        // TODO
+        // if (node.kind === SyntaxKind.NullKeyword) {
+        //     error(node, Diagnostics.The_value_0_cannot_be_used_here, "null");
+        //     return;
+        // }
+        // if (nodeText !== undefined && nodeText.length < 100) {
+        //     if (isIdentifier(node) && nodeText === "undefined") {
+        //         error(node, Diagnostics.The_value_0_cannot_be_used_here, "undefined");
+        //         return;
+        //     }
+        //     error(
+        //         node,
+        //         facts & TypeFacts.IsUndefined ? facts & TypeFacts.IsNull ?
+        //             Diagnostics._0_is_possibly_null_or_undefined :
+        //             Diagnostics._0_is_possibly_undefined :
+        //             Diagnostics._0_is_possibly_null,
+        //         nodeText,
+        //     );
+        // }
+        // else {
+        //     error(
+        //         node,
+        //         facts & TypeFacts.IsUndefined ? facts & TypeFacts.IsNull ?
+        //             Diagnostics.Object_is_possibly_null_or_undefined :
+        //             Diagnostics.Object_is_possibly_undefined :
+        //             Diagnostics.Object_is_possibly_null,
+        //     );
+        // }
+    }
+
+
+    function checkNonNullType(type: Type, node: Node) {
+        return checkNonNullTypeWithReporter(type, node, reportObjectPossiblyNullOrUndefinedError);
+    }
+
+    function errorAndMaybeSuggestAwait(
+        location: Node,
+        maybeMissingAwait: boolean,
+        message: DiagnosticMessage,
+        ...args: DiagnosticArguments
+    ): Diagnostic {
+        const diagnostic = error(location, message, ...args);
+        // if (maybeMissingAwait) {
+        //     const related = createDiagnosticForNode(location, Diagnostics.Did_you_forget_to_use_await);
+        //     addRelatedInfo(diagnostic, related);
+        // }
+        return diagnostic;
+    }
+
+    /**
+     * This is *not* a bi-directional relationship.
+     * If one needs to check both directions for comparability, use a second call to this function or 'checkTypeComparableTo'.
+     *
+     * A type S is comparable to a type T if some (but not necessarily all) of the possible values of S are also possible values of T.
+     * It is used to check following cases:
+     *   - the types of the left and right sides of equality/inequality operators (`===`, `!==`, `==`, `!=`).
+     *   - the types of `case` clause expressions and their respective `switch` expressions.
+     *   - the type of an expression in a type assertion with the type being asserted.
+     */
+    function isTypeComparableTo(source: Type, target: Type): boolean {
+        return isTypeRelatedTo(source, target, comparableRelation);
+    }
+
+    function areTypesComparable(type1: Type, type2: Type): boolean {
+        return isTypeComparableTo(type1, type2) || isTypeComparableTo(type2, type1);
+    }
+
+    function checkArithmeticOperandType(operand: Node, type: Type, diagnostic: DiagnosticMessage, isAwaitValid = false): boolean {
+        if (!isTypeAssignableTo(type, numberType)) {            
+            errorAndMaybeSuggestAwait(
+                operand,
+                false,
+                diagnostic,
+            );
+            return false;
+        }
+        return true;
+    }
+    
+    function checkBinaryLikeExpressionWorker(
+        left: Expression,
+        operatorToken: BinaryOperatorToken,
+        right: Expression,
+        leftType: Type,
+        rightType: Type,
+        checkMode?: CheckMode,
+        errorNode?: Node,
+    ): Type {
+        const operator = operatorToken.kind;
+        switch (operator) {
+            case SyntaxKind.AsteriskToken:
+            case SyntaxKind.AsteriskAsteriskToken:
+            case SyntaxKind.AsteriskEqualsToken:
+            case SyntaxKind.AsteriskAsteriskEqualsToken:
+            case SyntaxKind.SlashToken:
+            case SyntaxKind.SlashEqualsToken:
+            case SyntaxKind.PercentToken:
+            case SyntaxKind.PercentEqualsToken:
+            case SyntaxKind.MinusToken:
+            case SyntaxKind.MinusEqualsToken:
+            case SyntaxKind.LessThanLessThanToken:
+            case SyntaxKind.LessThanLessThanEqualsToken:
+            case SyntaxKind.GreaterThanGreaterThanToken:
+            case SyntaxKind.GreaterThanGreaterThanEqualsToken:
+            case SyntaxKind.GreaterThanGreaterThanGreaterThanToken:
+            case SyntaxKind.GreaterThanGreaterThanGreaterThanEqualsToken:
+            case SyntaxKind.BarToken:
+            case SyntaxKind.BarEqualsToken:
+            case SyntaxKind.CaretToken:
+            case SyntaxKind.CaretEqualsToken:
+            case SyntaxKind.AmpersandToken:
+            case SyntaxKind.AmpersandEqualsToken:
+                if (leftType === silentNeverType || rightType === silentNeverType) {
+                    return silentNeverType;
+                }
+
+                leftType = checkNonNullType(leftType, left);
+                rightType = checkNonNullType(rightType, right);
+
+                let suggestedOperator: PunctuationSyntaxKind | undefined;
+                // if a user tries to apply a bitwise operator to 2 boolean operands
+                // try and return them a helpful suggestion
+                if (
+                    (leftType.flags & TypeFlags.BooleanLike) &&
+                    (rightType.flags & TypeFlags.BooleanLike) &&
+                    (suggestedOperator = getSuggestedBooleanOperator(operatorToken.kind)) !== undefined
+                ) {
+                    error(errorNode || operatorToken, Diagnostics.The_0_operator_is_not_allowed_for_boolean_types_Consider_using_1_instead, tokenToString(operatorToken.kind), tokenToString(suggestedOperator));
+                    return numberType;
+                }
+                else {
+                    // otherwise just check each operand separately and report errors as normal
+                    const leftOk = checkArithmeticOperandType(left, leftType, Diagnostics.The_left_hand_side_of_an_arithmetic_operation_must_be_of_type_any_number_bigint_or_an_enum_type, /*isAwaitValid*/ true);
+                    const rightOk = checkArithmeticOperandType(right, rightType, Diagnostics.The_right_hand_side_of_an_arithmetic_operation_must_be_of_type_any_number_bigint_or_an_enum_type, /*isAwaitValid*/ true);
+                    let resultType: Type;
+                    // If both are any or unknown, allow operation; assume it will resolve to number
+                    if (
+                        (isTypeAssignableToKind(leftType, TypeFlags.AnyOrUnknown) && isTypeAssignableToKind(rightType, TypeFlags.AnyOrUnknown)) ||
+                        // Or, if neither could be bigint, implicit coercion results in a number result
+                        !(maybeTypeOfKind(leftType, TypeFlags.FloatLiteral) || maybeTypeOfKind(rightType, TypeFlags.FloatLiteral))
+                    ) {
+                        resultType = numberType;
+                    }
+                    // At least one is assignable to bigint, so check that both are
+                    // else if (bothAreBigIntLike(leftType, rightType)) {
+                    //     switch (operator) {
+                    //         case SyntaxKind.GreaterThanGreaterThanGreaterThanToken:
+                    //         case SyntaxKind.GreaterThanGreaterThanGreaterThanEqualsToken:
+                    //             reportOperatorError();
+                    //             break;
+                    //         case SyntaxKind.AsteriskAsteriskToken:
+                    //         case SyntaxKind.AsteriskAsteriskEqualsToken:
+                    //             // if (languageVersion < ScriptTarget.ES2016) {
+                    //             //     error(errorNode, Diagnostics.Exponentiation_cannot_be_performed_on_bigint_values_unless_the_target_option_is_set_to_es2016_or_later);
+                    //             // }
+                    //     }
+                    //     resultType = bigintType;
+                    // }
+                    // Exactly one of leftType/rightType is assignable to bigint
+                    else {
+                        reportOperatorError(bothAreFloat);
+                        resultType = errorType;
+                    }
+                    if (leftOk && rightOk) {
+                        checkAssignmentOperator(resultType);
+                    }
+                    return resultType;
+                }
+            case SyntaxKind.PlusToken:
+            case SyntaxKind.PlusEqualsToken:
+                if (leftType === silentNeverType || rightType === silentNeverType) {
+                    return silentNeverType;
+                }
+
+                if (!isTypeAssignableToKind(leftType, TypeFlags.StringLike) && !isTypeAssignableToKind(rightType, TypeFlags.StringLike)) {
+                    leftType = checkNonNullType(leftType, left);
+                    rightType = checkNonNullType(rightType, right);
+                }
+
+                let resultType: Type | undefined;
+                if (isTypeAssignableToKind(leftType, TypeFlags.NumberLike, /*strict*/ true) && isTypeAssignableToKind(rightType, TypeFlags.NumberLike, /*strict*/ true)) {
+                    // Operands of an enum type are treated as having the primitive type Number.
+                    // If both operands are of the Number primitive type, the result is of the Number primitive type.
+                    resultType = numberType;
+                }
+                // else if (isTypeAssignableToKind(leftType, TypeFlags.BigIntLike, /*strict*/ true) && isTypeAssignableToKind(rightType, TypeFlags.BigIntLike, /*strict*/ true)) {
+                //     // If both operands are of the BigInt primitive type, the result is of the BigInt primitive type.
+                //     resultType = bigintType;
+                // }
+                else if (isTypeAssignableToKind(leftType, TypeFlags.StringLike, /*strict*/ true) || isTypeAssignableToKind(rightType, TypeFlags.StringLike, /*strict*/ true)) {
+                    // If one or both operands are of the String primitive type, the result is of the String primitive type.
+                    resultType = stringType;
+                }
+                else if (isTypeAny(leftType) || isTypeAny(rightType)) {
+                    // Otherwise, the result is of type Any.
+                    // NOTE: unknown type here denotes error type. Old compiler treated this case as any type so do we.
+                    resultType = isErrorType(leftType) || isErrorType(rightType) ? errorType : anyType;
+                }
+
+                // Symbols are not allowed at all in arithmetic expressions
+                if (resultType) {// && !checkForDisallowedESSymbolOperand(operator)) {
+                    return resultType;
+                }
+
+                if (!resultType) {
+                    // Types that have a reasonably good chance of being a valid operand type.
+                    // If both types have an awaited type of one of these, we'll assume the user
+                    // might be missing an await without doing an exhaustive check that inserting
+                    // await(s) will actually be a completely valid binary expression.
+                    const closeEnoughKind = TypeFlags.NumberLike | TypeFlags.StringLike | TypeFlags.AnyOrUnknown;
+                    reportOperatorError((left, right) =>
+                        isTypeAssignableToKind(left, closeEnoughKind) &&
+                        isTypeAssignableToKind(right, closeEnoughKind)
+                    );
+                    return anyType;
+                }
+
+                if (operator === SyntaxKind.PlusEqualsToken) {
+                    checkAssignmentOperator(resultType);
+                }
+                return resultType;
+            case SyntaxKind.LessThanToken:
+            case SyntaxKind.GreaterThanToken:
+            case SyntaxKind.LessThanEqualsToken:
+            case SyntaxKind.GreaterThanEqualsToken:
+                // if (checkForDisallowedESSymbolOperand(operator)) {
+                //     leftType = getBaseTypeOfLiteralTypeForComparison(checkNonNullType(leftType, left));
+                //     rightType = getBaseTypeOfLiteralTypeForComparison(checkNonNullType(rightType, right));
+                //     reportOperatorErrorUnless((left, right) => {
+                //         if (isTypeAny(left) || isTypeAny(right)) {
+                //             return true;
+                //         }
+                //         const leftAssignableToNumber = isTypeAssignableTo(left, numberType);
+                //         const rightAssignableToNumber = isTypeAssignableTo(right, numberType);
+                //         return leftAssignableToNumber && rightAssignableToNumber ||
+                //             !leftAssignableToNumber && !rightAssignableToNumber && areTypesComparable(left, right);
+                //     });
+                // }
+                return booleanType;
+            case SyntaxKind.EqualsEqualsToken:
+            case SyntaxKind.ExclamationEqualsToken:
+            case SyntaxKind.EqualsEqualsEqualsToken:
+            case SyntaxKind.ExclamationEqualsEqualsToken:
+                // We suppress errors in CheckMode.TypeOnly (meaning the invocation came from getTypeOfExpression). During
+                // control flow analysis it is possible for operands to temporarily have narrower types, and those narrower
+                // types may cause the operands to not be comparable. We don't want such errors reported (see #46475).
+                if (!(checkMode && checkMode & CheckMode.TypeOnly)) {
+                    if (
+                        (isLiteralExpressionOfObject(left) || isLiteralExpressionOfObject(right)) &&
+                        // only report for === and !== in JS, not == or !=
+                        (!isInJSFile(left) || (operator === SyntaxKind.EqualsEqualsEqualsToken || operator === SyntaxKind.ExclamationEqualsEqualsToken))
+                    ) {
+                        const eqType = operator === SyntaxKind.EqualsEqualsToken || operator === SyntaxKind.EqualsEqualsEqualsToken;
+                        error(errorNode, Diagnostics.This_condition_will_always_return_0_since_JavaScript_compares_objects_by_reference_not_value, eqType ? "false" : "true");
+                    }
+                    checkNaNEquality(errorNode, operator, left, right);
+                    reportOperatorErrorUnless((left, right) => isTypeEqualityComparableTo(left, right) || isTypeEqualityComparableTo(right, left));
+                }
+                return booleanType;            
+            case SyntaxKind.InKeyword:
+                Debug.fail("TODO - Implement me - checkBinaryLikeExpressionWorker - SyntaxKind.InKeyword");
+                //return checkInExpression(left, right, leftType, rightType);
+            case SyntaxKind.AmpersandAmpersandToken: {
+                const resultType = hasTypeFacts(leftType, TypeFacts.Truthy) ?
+                    getUnionType([extractDefinitelyFalsyTypes(strictNullChecks ? leftType : getBaseTypeOfLiteralType(rightType)), rightType]) :
+                    leftType;
+                // if (operator === SyntaxKind.AmpersandAmpersandEqualsToken) {
+                //     checkAssignmentOperator(rightType);
+                // }
+                return resultType;
+            }
+            case SyntaxKind.BarBarToken:
+            case SyntaxKind.BarBarEqualsToken: {
+                const resultType = hasTypeFacts(leftType, TypeFacts.Falsy) ?
+                    getUnionType([getNonNullableType(removeDefinitelyFalsyTypes(leftType)), rightType], UnionReduction.Subtype) :
+                    leftType;
+                if (operator === SyntaxKind.BarBarEqualsToken) {
+                    checkAssignmentOperator(rightType);
+                }
+                return resultType;
+            }
+            // case SyntaxKind.QuestionQuestionToken:
+            // case SyntaxKind.QuestionQuestionEqualsToken: {
+            //     const resultType = hasTypeFacts(leftType, TypeFacts.EQUndefinedOrNull) ?
+            //         getUnionType([getNonNullableType(leftType), rightType], UnionReduction.Subtype) :
+            //         leftType;
+            //     if (operator === SyntaxKind.QuestionQuestionEqualsToken) {
+            //         checkAssignmentOperator(rightType);
+            //     }
+            //     return resultType;
+            // }
+            case SyntaxKind.EqualsToken:
+                const declKind = isBinaryExpression(left.parent) ? getAssignmentDeclarationKind(left.parent) : AssignmentDeclarationKind.None;
+                checkAssignmentDeclaration(declKind, rightType);
+                if (isAssignmentDeclaration(declKind)) {
+                    if (
+                        !(rightType.flags & TypeFlags.Object) ||
+                        declKind !== AssignmentDeclarationKind.ModuleExports &&
+                            declKind !== AssignmentDeclarationKind.Prototype &&
+                            !isEmptyObjectType(rightType) &&
+                            //!isFunctionObjectType(rightType as ObjectType) &&
+                            !(getObjectFlags(rightType) & ObjectFlags.Class)
+                    ) {
+                        // don't check assignability of module.exports=, C.prototype=, or expando types because they will necessarily be incomplete
+                        checkAssignmentOperator(rightType);
+                    }
+                    return leftType;
+                }
+                else {
+                    checkAssignmentOperator(rightType);
+                    return rightType;
+                }
+            case SyntaxKind.CommaToken:
+                if (!compilerOptions.allowUnreachableCode && isSideEffectFree(left) && !isIndirectCall(left.parent as BinaryExpression)) {
+                    const sf = getSourceFileOfNode(left);
+                    const sourceText = sf.text;
+                    const start = skipTrivia(sourceText, left.pos);
+                    error(left, Diagnostics.Left_side_of_comma_operator_is_unused_and_has_no_side_effects);
+                }
+                return rightType;
+
+            default:
+                return Debug.fail();
+        }
+
+        function bothAreFloat(left: Type, right: Type): boolean {
+            return isTypeAssignableToKind(left, TypeFlags.FloatLiteral) && isTypeAssignableToKind(right, TypeFlags.FloatLiteral);
+        }
+
+        function checkAssignmentDeclaration(kind: AssignmentDeclarationKind, rightType: Type) {
+            if (kind === AssignmentDeclarationKind.ModuleExports) {
+                for (const prop of getPropertiesOfObjectType(rightType)) {
+                    const propType = getTypeOfSymbol(prop);
+                    if (propType.symbol && propType.symbol.flags & SymbolFlags.Class) {
+                        const name = prop.name;
+                        const symbol = resolveName(prop.valueDeclaration, name, SymbolFlags.Type, /*nameNotFoundMessage*/ undefined, /*isUse*/ false);
+                        if (symbol?.declarations && symbol.declarations.some(isJSDocTypedefTag)) {
+                            addDuplicateDeclarationErrorsForSymbols(symbol, Diagnostics.Duplicate_identifier_0, (name), prop);
+                            addDuplicateDeclarationErrorsForSymbols(prop, Diagnostics.Duplicate_identifier_0, (name), symbol);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Return true for "indirect calls", (i.e. `(0, x.f)(...)` or `(0, eval)(...)`), which prevents passing `this`.
+        function isIndirectCall(node: BinaryExpression): boolean {
+            return node.parent.kind === SyntaxKind.ParenthesizedExpression &&
+                isIntLiteral(node.left) &&
+                node.left.text === "0" &&
+                (isCallExpression(node.parent.parent) && node.parent.parent.expression === node.parent ) &&
+                // special-case for "eval" because it's the only non-access case where an indirect call actually affects behavior.
+                (isAccessExpression(node.right) || isIdentifier(node.right) && node.right.text === "eval");
+        }
+
+        function getSuggestedBooleanOperator(operator: SyntaxKind): PunctuationSyntaxKind | undefined {
+            switch (operator) {
+                case SyntaxKind.BarToken:
+                case SyntaxKind.BarEqualsToken:
+                    return SyntaxKind.BarBarToken;
+                case SyntaxKind.CaretToken:
+                case SyntaxKind.CaretEqualsToken:
+                    return SyntaxKind.ExclamationEqualsEqualsToken;
+                case SyntaxKind.AmpersandToken:
+                case SyntaxKind.AmpersandEqualsToken:
+                    return SyntaxKind.AmpersandAmpersandToken;
+                default:
+                    return undefined;
+            }
+        }
+
+        function checkAssignmentOperator(valueType: Type): void {
+            if (isAssignmentOperator(operator)) {
+                addLazyDiagnostic(checkAssignmentOperatorWorker);
+            }
+
+            function checkAssignmentOperatorWorker() {
+                let assigneeType = leftType;
+
+                // getters can be a subtype of setters, so to check for assignability we use the setter's type instead
+                // if (isCompoundAssignment(operatorToken.kind) && left.kind === SyntaxKind.PropertyAccessExpression) {
+                //     assigneeType = checkPropertyAccessExpression(left as PropertyAccessExpression, /*checkMode*/ undefined, /*writeOnly*/ true);
+                // }
+
+                // TypeScript 1.0 spec (April 2014): 4.17
+                // An assignment of the form
+                //    VarExpr = ValueExpr
+                // requires VarExpr to be classified as a reference
+                // A compound assignment furthermore requires VarExpr to be classified as a reference (section 4.1)
+                // and the type of the non-compound operation to be assignable to the type of VarExpr.
+
+                if (checkReferenceExpression(left, Diagnostics.The_left_hand_side_of_an_assignment_expression_must_be_a_variable_or_a_property_access, Diagnostics.The_left_hand_side_of_an_assignment_expression_may_not_be_an_optional_property_access)) {
+                    let headMessage: DiagnosticMessage | undefined;
+                    // if (exactOptionalPropertyTypes && isPropertyAccessExpression(left) && maybeTypeOfKind(valueType, TypeFlags.Undefined)) {
+                    //     const target = getTypeOfPropertyOfType(getTypeOfExpression(left.expression), left.name.text);
+                    //     if (isExactOptionalPropertyMismatch(valueType, target)) {
+                    //         headMessage = Diagnostics.Type_0_is_not_assignable_to_type_1_with_exactOptionalPropertyTypes_Colon_true_Consider_adding_undefined_to_the_type_of_the_target;
+                    //     }
+                    // }
+                    // to avoid cascading errors check assignability only if 'isReference' check succeeded and no errors were reported
+                    checkTypeAssignableToAndOptionallyElaborate(valueType, assigneeType, left, right, headMessage);
+                }
+            }
+        }
+
+        function isAssignmentDeclaration(kind: AssignmentDeclarationKind) {
+            switch (kind) {
+                case AssignmentDeclarationKind.ModuleExports:
+                    return true;
+                case AssignmentDeclarationKind.ExportsProperty:
+                case AssignmentDeclarationKind.Property:
+                case AssignmentDeclarationKind.Prototype:
+                case AssignmentDeclarationKind.PrototypeProperty:
+                case AssignmentDeclarationKind.ThisProperty:
+                    const symbol = getSymbolOfNode(left);
+                    //const init = getAssignedExpandoInitializer(right);
+                    return false;
+                    // return !!init && isObjectLiteralExpression(init) &&
+                    //     !!symbol?.exports?.size;
+                default:
+                    return false;
+            }
+        }
+
+        /**
+         * Returns true if an error is reported
+         */
+        function reportOperatorErrorUnless(typesAreCompatible: (left: Type, right: Type) => boolean): boolean {
+            if (!typesAreCompatible(leftType, rightType)) {
+                reportOperatorError(typesAreCompatible);
+                return true;
+            }
+            return false;
+        }
+
+        function reportOperatorError(isRelated?: (left: Type, right: Type) => boolean) {
+            let wouldWorkWithAwait = false;
+            const errNode = errorNode || operatorToken;
+            if (isRelated) {
+                const awaitedLeftType = getAwaitedTypeNoAlias(leftType);
+                const awaitedRightType = getAwaitedTypeNoAlias(rightType);
+                wouldWorkWithAwait = !(awaitedLeftType === leftType && awaitedRightType === rightType)
+                    && !!(awaitedLeftType && awaitedRightType)
+                    && isRelated(awaitedLeftType, awaitedRightType);
+            }
+
+            let effectiveLeft = leftType;
+            let effectiveRight = rightType;
+            if (!wouldWorkWithAwait && isRelated) {
+                [effectiveLeft, effectiveRight] = getBaseTypesIfUnrelated(leftType, rightType, isRelated);
+            }
+            const [leftStr, rightStr] = getTypeNamesForErrorDisplay(effectiveLeft, effectiveRight);
+            if (!tryGiveBetterPrimaryError(errNode, wouldWorkWithAwait, leftStr, rightStr)) {
+                errorAndMaybeSuggestAwait(
+                    errNode,
+                    wouldWorkWithAwait,
+                    Diagnostics.Operator_0_cannot_be_applied_to_types_1_and_2,
+                    tokenToString(operatorToken.kind),
+                    leftStr,
+                    rightStr,
+                );
+            }
+        }
+
+        function tryGiveBetterPrimaryError(errNode: Node, maybeMissingAwait: boolean, leftStr: string, rightStr: string) {
+            switch (operatorToken.kind) {
+                case SyntaxKind.EqualsEqualsEqualsToken:
+                case SyntaxKind.EqualsEqualsToken:
+                case SyntaxKind.ExclamationEqualsEqualsToken:
+                case SyntaxKind.ExclamationEqualsToken:
+                    return errorAndMaybeSuggestAwait(
+                        errNode,
+                        maybeMissingAwait,
+                        Diagnostics.This_comparison_appears_to_be_unintentional_because_the_types_0_and_1_have_no_overlap,
+                        leftStr,
+                        rightStr,
+                    );
+                default:
+                    return undefined;
+            }
+        }
+
+        function checkNaNEquality(errorNode: Node | undefined, operator: SyntaxKind, left: Expression, right: Expression) {
+            const isLeftNaN = isGlobalNaN(skipParentheses(left));
+            const isRightNaN = isGlobalNaN(skipParentheses(right));
+            if (isLeftNaN || isRightNaN) {
+                const err = error(errorNode, Diagnostics.This_condition_will_always_return_0, tokenToString(operator === SyntaxKind.EqualsEqualsEqualsToken || operator === SyntaxKind.EqualsEqualsToken ? SyntaxKind.FalseKeyword : SyntaxKind.TrueKeyword));
+                if (isLeftNaN && isRightNaN) return;
+                const operatorString = operator === SyntaxKind.ExclamationEqualsEqualsToken || operator === SyntaxKind.ExclamationEqualsToken ? tokenToString(SyntaxKind.ExclamationToken) : "";
+                const location = isLeftNaN ? right : left;
+                const expression = skipParentheses(location);
+                addRelatedInfo(err, createDiagnosticForNode(location, Diagnostics.Did_you_mean_0, `${operatorString}Number.isNaN(${isEntityNameExpression(expression) ? entityNameToString(expression) : "..."})`));
+            }
+        }
+
+        function isGlobalNaN(expr: Expression): boolean {
+            // if (isIdentifier(expr) && expr.text === "NaN") {
+            //     const globalNaNSymbol = getGlobalNaNSymbol();
+            //     return !!globalNaNSymbol && globalNaNSymbol === getResolvedSymbol(expr);
+            // }
+            return false;
+        }
+    }
+
+    function checkTestingKnownTruthyCallableOrAwaitableOrEnumMemberType(condExpr: Expression, condType: Type, body?: Statement | Expression) {
+        if (!strictNullChecks) return;
+        bothHelper(condExpr, body);
+
+        function bothHelper(condExpr: Expression, body: Expression | Statement | undefined) {
+            condExpr = skipParentheses(condExpr);
+
+            helper(condExpr, body);
+
+            while (isBinaryExpression(condExpr) && (condExpr.operatorToken.kind === SyntaxKind.BarBarToken)) {
+                condExpr = skipParentheses(condExpr.left);
+                helper(condExpr, body);
+            }
+        }
+
+        function helper(condExpr: Expression, body: Expression | Statement | undefined) {
+            const location = isLogicalOrCoalescingBinaryExpression(condExpr) ? skipParentheses(condExpr.right) : condExpr;
+            // if (isModuleExportsAccessExpression(location)) {
+            //     return;
+            // }
+            if (isLogicalOrCoalescingBinaryExpression(location)) {
+                bothHelper(location, body);
+                return;
+            }
+            const type = location === condExpr ? condType : checkTruthinessExpression(location);
+            if (type.flags & TypeFlags.EnumLiteral && isPropertyAccessExpression(location) && (getNodeLinks(location.expression).resolvedSymbol ?? unknownSymbol).flags & SymbolFlags.Enum) {
+                // EnumLiteral type at condition with known value is always truthy or always falsy, likely an error
+                error(location, Diagnostics.This_condition_will_always_return_0, !!(type as LiteralType).value ? "true" : "false");
+                return;
+            }
+            //const isPropertyExpressionCast = isPropertyAccessExpression(location) && isTypeAssertion(location.expression);
+            if (!hasTypeFacts(type, TypeFacts.Truthy)) return;
+
+            // While it technically should be invalid for any known-truthy value
+            // to be tested, we de-scope to functions and Promises unreferenced in
+            // the block as a heuristic to identify the most common bugs. There
+            // are too many false positives for values sourced from type
+            // definitions without strictNullChecks otherwise.
+            const callSignatures = getSignaturesOfType(type, SignatureKind.Call);
+            // const isPromise = !!getAwaitedTypeOfPromise(type);
+            // if (callSignatures.length === 0 && !isPromise) {
+            //     return;
+            // }
+
+            const testedNode = isIdentifier(location) ? location
+                : isPropertyAccessExpression(location) ? location.name
+                : undefined;
+            const testedSymbol = testedNode && getSymbolAtLocation(testedNode);
+            if (!testedSymbol) {
+                return;
+            }
+
+            const isUsed = testedSymbol && isBinaryExpression(condExpr.parent) && isSymbolUsedInBinaryExpressionChain(condExpr.parent, testedSymbol)
+                || testedSymbol && body && isSymbolUsedInConditionBody(condExpr, body, testedNode, testedSymbol);
+            if (!isUsed) {
+                // if (isPromise) {
+                //     errorAndMaybeSuggestAwait(
+                //         location,
+                //         /*maybeMissingAwait*/ true,
+                //         Diagnostics.This_condition_will_always_return_true_since_this_0_is_always_defined,
+                //         getTypeNameForErrorDisplay(type),
+                //     );
+                // }
+                // else {
+                    error(location, Diagnostics.This_condition_will_always_return_true_since_this_function_is_always_defined_Did_you_mean_to_call_it_instead);
+                //}
+            }
+        }
+    }
+
+    function isSymbolUsedInConditionBody(expr: Expression, body: Statement | Expression, testedNode: Node, testedSymbol: Symbol): boolean {
+        return !!forEachChild(body, function check(childNode): boolean | undefined {
+            if (isIdentifier(childNode)) {
+                const childSymbol = getSymbolAtLocation(childNode);
+                if (childSymbol && childSymbol === testedSymbol) {
+                    // If the test was a simple identifier, the above check is sufficient
+                    if (isIdentifier(expr) || isIdentifier(testedNode) && isBinaryExpression(testedNode.parent)) {
+                        return true;
+                    }
+                    // Otherwise we need to ensure the symbol is called on the same target
+                    let testedExpression = testedNode.parent;
+                    let childExpression = childNode.parent;
+                    while (testedExpression && childExpression) {
+                        if (
+                            isIdentifier(testedExpression) && isIdentifier(childExpression)
+                        ) {
+                            return getSymbolAtLocation(testedExpression) === getSymbolAtLocation(childExpression);
+                        }
+                        else if (isPropertyAccessExpression(testedExpression) && isPropertyAccessExpression(childExpression)) {
+                            if (getSymbolAtLocation(testedExpression.name) !== getSymbolAtLocation(childExpression.name)) {
+                                return false;
+                            }
+                            childExpression = childExpression.expression;
+                            testedExpression = testedExpression.expression;
+                        }
+                        else if (isCallExpression(testedExpression) && isCallExpression(childExpression)) {
+                            childExpression = childExpression.expression;
+                            testedExpression = testedExpression.expression;
+                        }
+                        else {
+                            return false;
+                        }
+                    }
+                }
+            }
+            return forEachChild(childNode, check);
+        });
+    }
+
+    function isSymbolUsedInBinaryExpressionChain(node: Node, testedSymbol: Symbol): boolean {
+        while (isBinaryExpression(node) && node.operatorToken.kind === SyntaxKind.AmpersandAmpersandToken) {
+            const isUsed = forEachChild(node.right, function visit(child): boolean | undefined {
+                if (isIdentifier(child)) {
+                    const symbol = getSymbolAtLocation(child);
+                    if (symbol && symbol === testedSymbol) {
+                        return true;
+                    }
+                }
+                return forEachChild(child, visit);
+            });
+            if (isUsed) {
+                return true;
+            }
+            node = node.parent;
+        }
+        return false;
+    }
+
+    function hasTypeFacts(type: Type, mask: TypeFacts): boolean {
+        return getTypeFacts(type, mask) !== 0;
+    }
+
     function checkSourceFileWithEagerDiagnostics(sourceFile: SourceFile, nodesToCheck?: Node[]) {
         ensurePendingDiagnosticWorkComplete();
         // then setup diagnostics for immediate invocation (as we are about to collect them, and
@@ -6171,10 +7379,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 // }
             }
             // TODO - Implement me - resolveEntityName
-            // symbol = getMergedSymbol(getSymbol(getExportsOfSymbol(namespace), right.escapedText, meaning));
+            // symbol = getMergedSymbol(getSymbol(getExportsOfSymbol(namespace), right.text, meaning));
             // if (!symbol && (namespace.flags & SymbolFlags.Alias)) {
             //     // `namespace` can be resolved further if there was a symbol merge with a re-export
-            //     symbol = getMergedSymbol(getSymbol(getExportsOfSymbol(resolveAlias(namespace)), right.escapedText, meaning));
+            //     symbol = getMergedSymbol(getSymbol(getExportsOfSymbol(resolveAlias(namespace)), right.text, meaning));
             // }
             if (!symbol) {
                 if (!ignoreErrors) {
@@ -6202,13 +7410,13 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     }
 
                     // if (meaning & SymbolFlags.Namespace && isQualifiedName(name.parent)) {
-                    //     const exportedTypeSymbol = getMergedSymbol(getSymbol(getExportsOfSymbol(namespace), right.escapedText, SymbolFlags.Type));
+                    //     const exportedTypeSymbol = getMergedSymbol(getSymbol(getExportsOfSymbol(namespace), right.text, SymbolFlags.Type));
                     //     if (exportedTypeSymbol) {
                     //         error(
                     //             name.parent.right,
                     //             Diagnostics.Cannot_access_0_1_because_0_is_a_type_but_not_a_namespace_Did_you_mean_to_retrieve_the_type_of_the_property_1_in_0_with_0_1,
                     //             symbolToString(exportedTypeSymbol),
-                    //             unescapeLeadingUnderscores(name.parent.right.escapedText),
+                    //             unescapeLeadingUnderscores(name.parent.right.text),
                     //         );
                     //         return undefined;
                     //     }

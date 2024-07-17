@@ -1,5 +1,5 @@
 import { CharacterCodes } from "../backend/types";
-import { arrayIsEqualTo, binarySearch, compareValues, Debug, DiagnosticMessage, Diagnostics, identity, JSDocParsingMode, KeywordSyntaxKind, LanguageVariant, LineAndCharacter, MapLike, positionIsSynthesized, ScriptTarget, SourceFileLike, SyntaxKind, TokenFlags } from "./_namespaces/lpc";
+import { arrayIsEqualTo, binarySearch, compareValues, Debug, DiagnosticMessage, Diagnostics, identity, JSDocParsingMode, KeywordSyntaxKind, LanguageVariant, LineAndCharacter, MapLike, positionIsSynthesized, PunctuationOrKeywordSyntaxKind, ScriptTarget, SourceFileLike, SyntaxKind, TokenFlags } from "./_namespaces/lpc";
 
 /** @internal */
 export function skipTrivia(text: string, pos: number, stopAfterLineBreak?: boolean, stopAtComments?: boolean, inJSDoc?: boolean): number {
@@ -673,4 +673,22 @@ export function isIdentifierText(name: string, languageVersion: ScriptTarget | u
     }
 
     return true;
+}
+
+function makeReverseMap<T>(source: Map<T, number>): T[] {
+    const result: T[] = [];
+    source.forEach((value, name) => {
+        result[value] = name;
+    });
+    return result;
+}
+
+
+const tokenStrings = makeReverseMap(textToToken);
+
+/** @internal */
+export function tokenToString(t: PunctuationOrKeywordSyntaxKind): string;
+export function tokenToString(t: SyntaxKind): string | undefined;
+export function tokenToString(t: SyntaxKind): string | undefined {
+    return tokenStrings[t];
 }

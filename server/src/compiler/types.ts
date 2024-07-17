@@ -448,6 +448,8 @@ export const enum SyntaxKind {
     // Keywords
     IntKeyword, // FIrst Keyword, FirstReserved Word
     FloatKeyword,
+    FalseKeyword,
+    TrueKeyword,
     StringKeyword,
     ClosureKeywoord,
     StructKeyword,
@@ -802,7 +804,8 @@ export const enum NodeFlags {
     JavaScriptFile     = 1 << 19, // If node was parsed in a JavaScript
     ThisNodeOrAnySubNodesHasError = 1 << 20, // If this node or any of its children had an error
     HasAggregatedChildData = 1 << 21, // If we've computed data from children and cached it in this node
-
+    OptionalChain       = 1 << 22, // not used
+    
     JSDoc                                          = 1 << 24, // If node was parsed inside jsdoc
     /** @internal */ Ambient                       = 1 << 25, // If node was inside an ambient context -- a declaration file, or inside something with the `declare` modifier.
     /** @internal */ TypeCached                    = 1 << 28, // If a type was cached for node at any point
@@ -1301,6 +1304,23 @@ export type HasJSDoc =
     | VariableDeclaration
     | WhileStatement;
 
+export type HasType =
+    | SignatureDeclaration
+    | VariableDeclaration
+    | ParameterDeclaration
+    // | PropertySignature
+    | PropertyDeclaration    
+    // | ParenthesizedTypeNode    
+    | MappedTypeNode
+    // | AssertionExpression
+    // | TypeAliasDeclaration
+    | JSDocTypeExpression
+    // | JSDocNonNullableType
+    // | JSDocNullableType
+    // | JSDocOptionalType
+    // | JSDocVariadicType;
+    ;
+
 export type HasExpressionInitializer =
     | VariableDeclaration
     | ParameterDeclaration
@@ -1764,6 +1784,8 @@ export type PunctuationSyntaxKind =
     | SyntaxKind.ColonToken
     | SyntaxKind.CaretEqualsToken;
 
+/** @internal */
+export type PunctuationOrKeywordSyntaxKind = PunctuationSyntaxKind | KeywordSyntaxKind;
 
 export type ExponentiationOperator = SyntaxKind.AsteriskAsteriskToken;
 
@@ -2420,6 +2442,15 @@ export interface JSDoc extends Node {
     readonly comment?: string | NodeArray<JSDocComment>;
 }
 
+export interface JSDocTypedefTag extends JSDocTag, NamedDeclaration, LocalsContainer {
+    readonly kind: SyntaxKind.JSDocTypedefTag;
+    readonly parent: JSDoc;
+    readonly fullName?: Identifier;
+    readonly name?: Identifier;
+    readonly typeExpression?: JSDocTypeExpression | JSDocTypeLiteral;
+}
+
+
 export interface JSDocMemberName extends Node {
     readonly kind: SyntaxKind.JSDocMemberName;
     readonly left: EntityName | JSDocMemberName;
@@ -2813,6 +2844,10 @@ export interface PostfixUnaryExpression extends UpdateExpression {
 export interface FreshableType extends Type {
     freshType: FreshableType; // Fresh version of type
     regularType: FreshableType; // Regular version of type
+}
+
+/** @internal */
+export interface FreshableIntrinsicType extends FreshableType, IntrinsicType {
 }
 
 // String literal types (TypeFlags.StringLiteral)

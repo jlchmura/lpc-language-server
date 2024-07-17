@@ -81,8 +81,8 @@ const srcFile = host.getSourceFile(filename);
 const checker = p2.createTypeChecker(host); // binder is called by checker
 const diags = checker.getDiagnostics(srcFile);
 
-const node = getTouchingPropertyName(srcFile, 96);
-const def = svc.getDefinitionAtPosition(fileOnly, 96, false, false);
+const node = getTouchingPropertyName(srcFile, 98);
+const def = svc.getDefinitionAtPosition(fileOnly, 98, false, false);
 console.debug("node count:", srcFile.nodeCount);
 
 // const facade = new LpcFacade(workDir, undefined);
