@@ -580,7 +580,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
                 }
         }
 
-        console.warn("implement me - bindWorker " + Debug.formatSyntaxKind(node.kind));
+        //console.warn("implement me - bindWorker " + Debug.formatSyntaxKind(node.kind));
     }
 
     
