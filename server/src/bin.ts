@@ -82,7 +82,7 @@ const checker = p2.createTypeChecker(host); // binder is called by checker
 const diags = checker.getDiagnostics(srcFile);
 
 const node = getTouchingPropertyName(srcFile, 96);
-svc.getDefinitionAtPosition(filename, 96, false, false);
+const def = svc.getDefinitionAtPosition(fileOnly, 96, false, false);
 console.debug("node count:", srcFile.nodeCount);
 
 // const facade = new LpcFacade(workDir, undefined);
@@ -198,17 +198,14 @@ function doCreateLanguageService() {
         },
         getScriptFileNames() {
             return [
-                "foo.ts",
-                "variables.ts",
-                "vue.d.ts",
-                "vue-class-component.d.ts",
+                "test.c"                
             ];
         },
         getScriptVersion(_fileName) {
             return "";
         },
         getScriptSnapshot(fileName) {
-            if (fileName === ".ts") {
+            if (fileName === ".c") {
                 return ScriptSnapshot.fromString("");
             }
             return ScriptSnapshot.fromString(files[fileName] || "");

@@ -595,7 +595,9 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
     }
 
     function getCreateSourceFileOptions(fileName: string, moduleResolutionCache: any | undefined, host: CompilerHost, options: CompilerOptions): CreateSourceFileOptions {
-        throw "implement me - getCreateSourceFileOptions";
+        // TODO implement me
+        return {languageVersion: ScriptTarget.Latest};
+        
         // It's a _little odd_ that we can't set `impliedNodeFormat` until the program step - but it's the first and only time we have a resolution cache
         // and a freshly made source file node on hand at the same time, and we need both to set the field. Persisting the resolution cache all the way
         // to the check and emit steps would be bad - so we much prefer detecting and storing the format information on the source file node upfront.
@@ -624,7 +626,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
     }
 
     function processImportedModules(file: SourceFile) {
-        throw "implement me - processImportedModules";
+        console.debug("implement me - processImportedModules");
         // collectExternalModuleReferences(file);
         // if (file.imports.length || file.moduleAugmentations.length) {
         //     // Because global augmentation doesn't have string literal name, we can check for global augmentation as such.
@@ -694,7 +696,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
 
     
     function processLibReferenceDirectives(file: SourceFile) {
-        throw "implement me - processLibReferenceDirectives";
+        console.debug("implement me - processLibReferenceDirectives");
         // forEach(file.libReferenceDirectives, (libReference, index) => {
         //     const libFileName = getLibFileNameFromLibReference(libReference);
         //     if (libFileName) {

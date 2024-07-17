@@ -1,5 +1,5 @@
 import { CharacterCodes } from "../backend/types";
-import {Type,Symbol, SymbolLinks, CancellationToken, createSymbolTable, Declaration, EmitTextWriter, ModifierFlags, Node, NodeFlags, objectAllocator, Scanner, Signature, SignatureKind, SymbolFlags, TypeChecker, TypeCheckerHost, TypeFormatFlags, TypeParameter, CheckFlags, TransientSymbol, TransientSymbolLinks, reduceLeft, bindSourceFile, SourceFile, Diagnostic, createDiagnosticCollection, concatenate, forEach, tracing, performance, NodeLinks, NodeCheckFlags, FlowNode, FlowType, clear, SyntaxKind, TracingNode, CallLikeExpression, CallExpression, isCallOrNewExpression, isBinaryExpression, Expression, SignatureDeclaration, SignatureFlags, emptyArray, TypeFlags, IntrinsicType, ObjectFlags, Debug, BinaryExpression, ObjectType, StructuredType, ResolvedType, SymbolTable, IndexInfo, Identifier, nodeIsMissing, createNameResolver, InternalSymbolName, SymbolId, some, DiagnosticMessage, DiagnosticArguments, createDiagnosticForNode, createCompilerDiagnostic, FunctionLikeDeclaration, PropertyDeclaration, isString, isIdentifier, Diagnostics, findLast, SymbolFormatFlags, isAccessExpression, isFunctionExpression, isAliasableExpression, PropertyAssignment, isVariableDeclarationInitializedToBareOrAccessedRequire, mapDefined, arrayFrom, getSpellingSuggestion, symbolName, startsWith, nodeIsSynthesized, declarationNameToString, getCanonicalDiagnostic, DiagnosticCategory, addRelatedInfo, ParameterDeclaration, BindingElement, isSourceFile, isExternalOrCommonJsModule, isBlockOrCatchScoped, length, every, isValidTypeOnlyAliasUseSite, isWriteOnlyAccess, getCombinedNodeFlags, DiagnosticWithLocation, getJSDocDeprecatedTag, findAncestor, isCallLikeExpression, isFunctionLike, ParenthesizedExpression, isAssignmentExpression, isVariableDeclaration, isBindingElement, PropertyAccessExpression, getEnclosingBlockScopeContainer, isPropertyDeclaration, nodeStartsNewLexicalEnvironment, isIterationStatement, isForStatement, getAncestor, ForStatement, pushIfUnique, isAssignmentTarget, PrefixUnaryExpression, PostfixUnaryExpression, isBlock, isExpressionNode, isPropertyAccessExpression, getAssignmentTargetKind, AssignmentKind, isInCompoundLikeAssignment, UnionType, TypeId, UnionReduction, getRootDeclaration, getImmediatelyInvokedFunctionExpression, isSpreadAssignment, isParameter, VariableDeclaration, isFunctionLikeDeclaration, isTypeNode, forEachChild, tryCast, canHaveFlowNode, ElementAccessExpression, RelationComparisonResult, LiteralType, FreshableType, getObjectFlags, DiagnosticMessageChain, setNodeFlags, isCallExpression, LazyNodeCheckFlags, getSourceFileOfNode, canIncludeBindAndCheckDiagnostics, forEachChildRecursively, isDeclarationName, EntityName, JSDocMemberName, canHaveSymbol, isLiteralTypeNode, isElementAccessExpression, isIndexedAccessTypeNode, TypeNode, canHaveJSDoc, FlowFlags, FlowArrayMutation, FlowAssignment, FlowCall, FlowCondition, FlowLabel, FlowReduceLabel, FlowSwitchClause, SwitchStatement, createFileDiagnostic, createDiagnosticForFileFromMessageChain, createDiagnosticForNodeFromMessageChain, VariableStatement, HasModifiers, VariableDeclarationList, Block, isFunctionOrModuleBlock, CaseBlock, ForEachStatement, IndexSignatureDeclaration, Path, HasLocals, BindingPattern, idText, isForEachStatement, getNameOfDeclaration, isArrayBindingPattern, first, BindingName, cast, containsParseError, FunctionDeclaration, getFunctionFlags, getEffectiveReturnTypeNode, FunctionFlags, nodeIsPresent, JSDocSignature, isJSDocSignature, getJSDocRoot, LiteralTypeNode, TypeNodeSyntaxKind, isStatement, UnionOrIntersectionType, getContainingFunction, hasSyntacticModifier, isBindingPattern, sameMap, flatMap, getCheckFlags, singleElementArray, getDeclarationModifierFlagsFromSymbol, Ternary, append, find, isNumericLiteralName, StringLiteralType, contains, isTransientSymbol, addRange, filter, IndexType, getParseTreeNode, isRightSideOfQualifiedNameOrPropertyAccess, isWriteAccess, isRightSideOfAccessExpression, hasEffectiveModifier, getCombinedModifierFlags } from "./_namespaces/lpc";
+import {Type,Symbol, SymbolLinks, CancellationToken, createSymbolTable, Declaration, EmitTextWriter, ModifierFlags, Node, NodeFlags, objectAllocator, Scanner, Signature, SignatureKind, SymbolFlags, TypeChecker, TypeCheckerHost, TypeFormatFlags, TypeParameter, CheckFlags, TransientSymbol, TransientSymbolLinks, reduceLeft, bindSourceFile, SourceFile, Diagnostic, createDiagnosticCollection, concatenate, forEach, tracing, performance, NodeLinks, NodeCheckFlags, FlowNode, FlowType, clear, SyntaxKind, TracingNode, CallLikeExpression, CallExpression, isCallOrNewExpression, isBinaryExpression, Expression, SignatureDeclaration, SignatureFlags, emptyArray, TypeFlags, IntrinsicType, ObjectFlags, Debug, BinaryExpression, ObjectType, StructuredType, ResolvedType, SymbolTable, IndexInfo, Identifier, nodeIsMissing, createNameResolver, InternalSymbolName, SymbolId, some, DiagnosticMessage, DiagnosticArguments, createDiagnosticForNode, createCompilerDiagnostic, FunctionLikeDeclaration, PropertyDeclaration, isString, isIdentifier, Diagnostics, findLast, SymbolFormatFlags, isAccessExpression, isFunctionExpression, isAliasableExpression, PropertyAssignment, isVariableDeclarationInitializedToBareOrAccessedRequire, mapDefined, arrayFrom, getSpellingSuggestion, symbolName, startsWith, nodeIsSynthesized, declarationNameToString, getCanonicalDiagnostic, DiagnosticCategory, addRelatedInfo, ParameterDeclaration, BindingElement, isSourceFile, isExternalOrCommonJsModule, isBlockOrCatchScoped, length, every, isValidTypeOnlyAliasUseSite, isWriteOnlyAccess, getCombinedNodeFlags, DiagnosticWithLocation, getJSDocDeprecatedTag, findAncestor, isCallLikeExpression, isFunctionLike, ParenthesizedExpression, isAssignmentExpression, isVariableDeclaration, isBindingElement, PropertyAccessExpression, getEnclosingBlockScopeContainer, isPropertyDeclaration, nodeStartsNewLexicalEnvironment, isIterationStatement, isForStatement, getAncestor, ForStatement, pushIfUnique, isAssignmentTarget, PrefixUnaryExpression, PostfixUnaryExpression, isBlock, isExpressionNode, isPropertyAccessExpression, getAssignmentTargetKind, AssignmentKind, isInCompoundLikeAssignment, UnionType, TypeId, UnionReduction, getRootDeclaration, getImmediatelyInvokedFunctionExpression, isSpreadAssignment, isParameter, VariableDeclaration, isFunctionLikeDeclaration, isTypeNode, forEachChild, tryCast, canHaveFlowNode, ElementAccessExpression, RelationComparisonResult, LiteralType, FreshableType, getObjectFlags, DiagnosticMessageChain, setNodeFlags, isCallExpression, LazyNodeCheckFlags, getSourceFileOfNode, canIncludeBindAndCheckDiagnostics, forEachChildRecursively, isDeclarationName, EntityName, JSDocMemberName, canHaveSymbol, isLiteralTypeNode, isElementAccessExpression, isIndexedAccessTypeNode, TypeNode, canHaveJSDoc, FlowFlags, FlowArrayMutation, FlowAssignment, FlowCall, FlowCondition, FlowLabel, FlowReduceLabel, FlowSwitchClause, SwitchStatement, createFileDiagnostic, createDiagnosticForFileFromMessageChain, createDiagnosticForNodeFromMessageChain, VariableStatement, HasModifiers, VariableDeclarationList, Block, isFunctionOrModuleBlock, CaseBlock, ForEachStatement, IndexSignatureDeclaration, Path, HasLocals, BindingPattern, idText, isForEachStatement, getNameOfDeclaration, isArrayBindingPattern, first, BindingName, cast, containsParseError, FunctionDeclaration, getFunctionFlags, getEffectiveReturnTypeNode, FunctionFlags, nodeIsPresent, JSDocSignature, isJSDocSignature, getJSDocRoot, LiteralTypeNode, TypeNodeSyntaxKind, isStatement, UnionOrIntersectionType, getContainingFunction, hasSyntacticModifier, isBindingPattern, sameMap, flatMap, getCheckFlags, singleElementArray, getDeclarationModifierFlagsFromSymbol, Ternary, append, find, isNumericLiteralName, StringLiteralType, contains, isTransientSymbol, addRange, filter, IndexType, getParseTreeNode, isRightSideOfQualifiedNameOrPropertyAccess, isWriteAccess, isRightSideOfAccessExpression, hasEffectiveModifier, getCombinedModifierFlags, isEntityName, PropertyAccessEntityNameExpression, isRightSideOfQualifiedNameOrPropertyAccessOrJSDocMemberName, QualifiedName, getHostSignatureFromJSDoc, or, EntityNameOrEntityNameExpression, isInJSFile, getFirstIdentifier, isQualifiedName, entityNameToString } from "./_namespaces/lpc";
 
 let nextSymbolId = 1;
 let nextNodeId = 1;
@@ -5639,18 +5639,18 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         //     return getSymbolOfPartOfRightHandSideOfImportEquals(name, /*dontResolveAlias*/ true);
         // }
 
-        // if (isEntityName(name)) {
-        //     const possibleImportNode = isImportTypeQualifierPart(name);
-        //     if (possibleImportNode) {
-        //         getTypeFromTypeNode(possibleImportNode);
-        //         const sym = getNodeLinks(name).resolvedSymbol;
-        //         return sym === unknownSymbol ? undefined : sym;
-        //     }
-        // }
+        if (isEntityName(name)) {
+            // const possibleImportNode = isImportTypeQualifierPart(name);
+            // if (possibleImportNode) {
+            //     getTypeFromTypeNode(possibleImportNode);
+            //     const sym = getNodeLinks(name).resolvedSymbol;
+            //     return sym === unknownSymbol ? undefined : sym;
+            // }
+        }
 
-        // while (isRightSideOfQualifiedNameOrPropertyAccessOrJSDocMemberName(name)) {
-        //     name = name.parent as QualifiedName | PropertyAccessEntityNameExpression | JSDocMemberName;
-        // }
+        while (isRightSideOfQualifiedNameOrPropertyAccessOrJSDocMemberName(name)) {
+            name = name.parent as QualifiedName | PropertyAccessEntityNameExpression | JSDocMemberName;
+        }
 
         // if (isInNameOfExpressionWithTypeArguments(name)) {
         //     let meaning = SymbolFlags.None;
@@ -5685,61 +5685,60 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         //     return typeParameter && typeParameter.symbol;
         // }
 
-        // if (isExpressionNode(name)) {
-        //     if (nodeIsMissing(name)) {
-        //         // Missing entity name.
-        //         return undefined;
-        //     }
+        if (isExpressionNode(name)) {
+            if (nodeIsMissing(name)) {
+                // Missing entity name.
+                return undefined;
+            }
+            
+            const isJSDoc = false;// TODO findAncestor(name, or(isJSDocLinkLike, isJSDocNameReference, isJSDocMemberName));
+            // const meaning = isJSDoc ? SymbolFlags.Type | SymbolFlags.Namespace | SymbolFlags.Value : SymbolFlags.Value;
+            const meaning = SymbolFlags.Value;
+            if (name.kind === SyntaxKind.Identifier) {
+                const result = resolveEntityName(name, meaning, /*ignoreErrors*/ true, /*dontResolveAlias*/ true, getHostSignatureFromJSDoc(name));
+                if (!result && isJSDoc) {
+                    debugger;
+                    // const container = findAncestor(name, or(isClassLike, isInterfaceDeclaration));
+                    // if (container) {
+                    //     return resolveJSDocMemberName(name, /*ignoreErrors*/ true, getSymbolOfDeclaration(container));
+                    // }
+                }
+                // if (result && isJSDoc) {
+                //     const container = getJSDocHost(name);
+                //     if (container && isEnumMember(container) && container === result.valueDeclaration) {
+                //         return resolveEntityName(name, meaning, /*ignoreErrors*/ true, /*dontResolveAlias*/ true, getSourceFileOfNode(container)) || result;
+                //     }
+                // }
+                return result;
+            }
+            // else if (isPrivateIdentifier(name)) {
+            //     return getSymbolForPrivateIdentifierExpression(name);
+            // }
+            // else if (name.kind === SyntaxKind.PropertyAccessExpression || name.kind === SyntaxKind.QualifiedName) {
+            //     const links = getNodeLinks(name);
+            //     if (links.resolvedSymbol) {
+            //         return links.resolvedSymbol;
+            //     }
 
-        //     const isJSDoc = findAncestor(name, or(isJSDocLinkLike, isJSDocNameReference, isJSDocMemberName));
-        //     const meaning = isJSDoc ? SymbolFlags.Type | SymbolFlags.Namespace | SymbolFlags.Value : SymbolFlags.Value;
-        //     if (name.kind === SyntaxKind.Identifier) {
-        //         if (isJSXTagName(name) && isJsxIntrinsicTagName(name)) {
-        //             const symbol = getIntrinsicTagSymbol(name.parent as JsxOpeningLikeElement);
-        //             return symbol === unknownSymbol ? undefined : symbol;
-        //         }
-        //         const result = resolveEntityName(name, meaning, /*ignoreErrors*/ true, /*dontResolveAlias*/ true, getHostSignatureFromJSDoc(name));
-        //         if (!result && isJSDoc) {
-        //             const container = findAncestor(name, or(isClassLike, isInterfaceDeclaration));
-        //             if (container) {
-        //                 return resolveJSDocMemberName(name, /*ignoreErrors*/ true, getSymbolOfDeclaration(container));
-        //             }
-        //         }
-        //         if (result && isJSDoc) {
-        //             const container = getJSDocHost(name);
-        //             if (container && isEnumMember(container) && container === result.valueDeclaration) {
-        //                 return resolveEntityName(name, meaning, /*ignoreErrors*/ true, /*dontResolveAlias*/ true, getSourceFileOfNode(container)) || result;
-        //             }
-        //         }
-        //         return result;
-        //     }
-        //     else if (isPrivateIdentifier(name)) {
-        //         return getSymbolForPrivateIdentifierExpression(name);
-        //     }
-        //     else if (name.kind === SyntaxKind.PropertyAccessExpression || name.kind === SyntaxKind.QualifiedName) {
-        //         const links = getNodeLinks(name);
-        //         if (links.resolvedSymbol) {
-        //             return links.resolvedSymbol;
-        //         }
-
-        //         if (name.kind === SyntaxKind.PropertyAccessExpression) {
-        //             checkPropertyAccessExpression(name, CheckMode.Normal);
-        //             if (!links.resolvedSymbol) {
-        //                 links.resolvedSymbol = getApplicableIndexSymbol(checkExpressionCached(name.expression), getLiteralTypeFromPropertyName(name.name));
-        //             }
-        //         }
-        //         else {
-        //             checkQualifiedName(name, CheckMode.Normal);
-        //         }
-        //         if (!links.resolvedSymbol && isJSDoc && isQualifiedName(name)) {
-        //             return resolveJSDocMemberName(name);
-        //         }
-        //         return links.resolvedSymbol;
-        //     }
-        //     else if (isJSDocMemberName(name)) {
-        //         return resolveJSDocMemberName(name);
-        //     }
-        // }
+            //     if (name.kind === SyntaxKind.PropertyAccessExpression) {
+            //         checkPropertyAccessExpression(name, CheckMode.Normal);
+            //         if (!links.resolvedSymbol) {
+            //             links.resolvedSymbol = getApplicableIndexSymbol(checkExpressionCached(name.expression), getLiteralTypeFromPropertyName(name.name));
+            //         }
+            //     }
+            //     else {
+            //         checkQualifiedName(name, CheckMode.Normal);
+            //     }
+            //     if (!links.resolvedSymbol && isJSDoc && isQualifiedName(name)) {
+            //         return resolveJSDocMemberName(name);
+            //     }
+            //     return links.resolvedSymbol;
+            // }
+            // else if (isJSDocMemberName(name)) {
+            //     return resolveJSDocMemberName(name);
+            // }
+            debugger;
+        }
         // else if (isTypeReferenceIdentifier(name as EntityName)) {
         //     const meaning = name.parent.kind === SyntaxKind.TypeReference ? SymbolFlags.Type : SymbolFlags.Namespace;
         //     const symbol = resolveEntityName(name as EntityName, meaning, /*ignoreErrors*/ false, /*dontResolveAlias*/ true);
@@ -5749,9 +5748,158 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         //     return resolveEntityName(name as Identifier, /*meaning*/ SymbolFlags.FunctionScopedVariable);
         // }
 
-        // return undefined;
+        return undefined;
     }
 
+    /**
+     * 1. For prototype-property methods like `A.prototype.m = function () ...`, try to resolve names in the scope of `A` too.
+     * Note that prototype-property assignment to locations outside the current file (eg globals) doesn't work, so
+     * name resolution won't work either.
+     * 2. For property assignments like `{ x: function f () { } }`, try to resolve names in the scope of `f` too.
+     */
+    function resolveEntityNameFromAssignmentDeclaration(name: Identifier, meaning: SymbolFlags): Symbol | undefined {
+        return undefined;
+        // if (isJSDocTypeReference(name.parent)) {
+        //     const secondaryLocation = getAssignmentDeclarationLocation(name.parent);
+        //     if (secondaryLocation) {
+        //         return resolveName(secondaryLocation, name, meaning, /*nameNotFoundMessage*/ undefined, /*isUse*/ true);
+        //     }
+        // }
+    }
+
+    /**
+     * Resolves a qualified name and any involved aliases.
+     */
+    function resolveEntityName(name: EntityNameOrEntityNameExpression, meaning: SymbolFlags, ignoreErrors?: boolean, dontResolveAlias?: boolean, location?: Node): Symbol | undefined {
+        if (nodeIsMissing(name)) {
+            return undefined;
+        }
+
+        const namespaceMeaning = SymbolFlags.Namespace | (isInJSFile(name) ? meaning & SymbolFlags.Value : 0);
+        let symbol: Symbol | undefined;
+        if (name.kind === SyntaxKind.Identifier) {
+            const message = /*meaning === namespaceMeaning || nodeIsSynthesized(name) ? Diagnostics.Cannot_find_namespace_0 :*/ getCannotFindNameDiagnosticForName(getFirstIdentifier(name));
+            const symbolFromJSPrototype = isInJSFile(name) && !nodeIsSynthesized(name) ? resolveEntityNameFromAssignmentDeclaration(name, meaning) : undefined;
+            symbol = getMergedSymbol(resolveName(location || name, name, meaning, ignoreErrors || symbolFromJSPrototype ? undefined : message, /*isUse*/ true, /*excludeGlobals*/ false));
+            if (!symbol) {
+                return getMergedSymbol(symbolFromJSPrototype);
+            }
+        }
+        else if (name.kind === SyntaxKind.QualifiedName || name.kind === SyntaxKind.PropertyAccessExpression) {
+            const left = name.kind === SyntaxKind.QualifiedName ? name.left : name.expression;
+            const right = name.kind === SyntaxKind.QualifiedName ? name.right : name.name;
+            let namespace = resolveEntityName(left, namespaceMeaning, ignoreErrors, /*dontResolveAlias*/ false, location);
+            if (!namespace || nodeIsMissing(right)) {
+                return undefined;
+            }
+            else if (namespace === unknownSymbol) {
+                return namespace;
+            }
+            if (
+                namespace.valueDeclaration &&
+                isInJSFile(namespace.valueDeclaration) &&
+                //getEmitModuleResolutionKind(compilerOptions) !== ModuleResolutionKind.Bundler &&
+                isVariableDeclaration(namespace.valueDeclaration) &&
+                namespace.valueDeclaration.initializer &&
+                false//isCommonJsRequire(namespace.valueDeclaration.initializer)
+            ) {
+                // const moduleName = (namespace.valueDeclaration.initializer as CallExpression).arguments[0] as StringLiteral;
+                // const moduleSym = resolveExternalModuleName(moduleName, moduleName);
+                // if (moduleSym) {
+                //     const resolvedModuleSymbol = resolveExternalModuleSymbol(moduleSym);
+                //     if (resolvedModuleSymbol) {
+                //         namespace = resolvedModuleSymbol;
+                //     }
+                // }
+            }
+            // TODO - Implement me - resolveEntityName
+            // symbol = getMergedSymbol(getSymbol(getExportsOfSymbol(namespace), right.escapedText, meaning));
+            // if (!symbol && (namespace.flags & SymbolFlags.Alias)) {
+            //     // `namespace` can be resolved further if there was a symbol merge with a re-export
+            //     symbol = getMergedSymbol(getSymbol(getExportsOfSymbol(resolveAlias(namespace)), right.escapedText, meaning));
+            // }
+            if (!symbol) {
+                if (!ignoreErrors) {
+                    const namespaceName = getFullyQualifiedName(namespace);
+                    const declarationName = declarationNameToString(right);
+                    // const suggestionForNonexistentModule = getSuggestedSymbolForNonexistentModule(right, namespace);
+                    // if (suggestionForNonexistentModule) {
+                    //     error(right, Diagnostics._0_has_no_exported_member_named_1_Did_you_mean_2, namespaceName, declarationName, symbolToString(suggestionForNonexistentModule));
+                    //     return undefined;
+                    // }
+
+                    const containingQualifiedName = isQualifiedName(name) && getContainingQualifiedNameNode(name);
+                    const canSuggestTypeof = globalObjectType // <-- can't pull on types if global types aren't initialized yet
+                        && (meaning & SymbolFlags.Type)
+                        && containingQualifiedName
+                        //&& !isTypeOfExpression(containingQualifiedName.parent)
+                        && tryGetQualifiedNameAsValue(containingQualifiedName);
+                    if (canSuggestTypeof) {
+                        error(
+                            containingQualifiedName,
+                            Diagnostics._0_refers_to_a_value_but_is_being_used_as_a_type_here_Did_you_mean_typeof_0,
+                            entityNameToString(containingQualifiedName),
+                        );
+                        return undefined;
+                    }
+
+                    // if (meaning & SymbolFlags.Namespace && isQualifiedName(name.parent)) {
+                    //     const exportedTypeSymbol = getMergedSymbol(getSymbol(getExportsOfSymbol(namespace), right.escapedText, SymbolFlags.Type));
+                    //     if (exportedTypeSymbol) {
+                    //         error(
+                    //             name.parent.right,
+                    //             Diagnostics.Cannot_access_0_1_because_0_is_a_type_but_not_a_namespace_Did_you_mean_to_retrieve_the_type_of_the_property_1_in_0_with_0_1,
+                    //             symbolToString(exportedTypeSymbol),
+                    //             unescapeLeadingUnderscores(name.parent.right.escapedText),
+                    //         );
+                    //         return undefined;
+                    //     }
+                    // }
+
+                    debugger;
+                    //error(right, Diagnostics.Namespace_0_has_no_exported_member_1, namespaceName, declarationName);
+                }
+                return undefined;
+            }
+        }
+        else {
+            Debug.assertNever(name, "Unknown entity name kind.");
+        }
+        // if (!nodeIsSynthesized(name) && isEntityName(name) && (symbol.flags & SymbolFlags.Alias || name.parent.kind === SyntaxKind.ExportAssignment)) {
+        //     markSymbolOfAliasDeclarationIfTypeOnly(getAliasDeclarationFromName(name), symbol, /*finalTarget*/ undefined, /*overwriteEmpty*/ true);
+        // }
+        return (symbol.flags & meaning) || dontResolveAlias ? symbol : resolveAlias(symbol);
+    }
+
+    function getFullyQualifiedName(symbol: Symbol, containingLocation?: Node): string {
+        return symbol.parent ? getFullyQualifiedName(symbol.parent, containingLocation) + "." + symbolToString(symbol) : symbolToString(symbol, containingLocation, /*meaning*/ undefined, SymbolFormatFlags.DoNotIncludeSymbolChain | SymbolFormatFlags.AllowAnyNodeKind);
+    }
+
+    function getContainingQualifiedNameNode(node: QualifiedName) {
+        while (isQualifiedName(node.parent)) {
+            node = node.parent;
+        }
+        return node;
+    }
+
+    function tryGetQualifiedNameAsValue(node: QualifiedName) {
+        let left: Identifier | QualifiedName = getFirstIdentifier(node);
+        let symbol = resolveName(left, left, SymbolFlags.Value, /*nameNotFoundMessage*/ undefined, /*isUse*/ true);
+        if (!symbol) {
+            return undefined;
+        }
+        while (isQualifiedName(left.parent)) {
+            const type = getTypeOfSymbol(symbol);
+            symbol = getPropertyOfType(type, left.parent.right.text);
+            if (!symbol) {
+                return undefined;
+            }
+            left = left.parent;
+        }
+        return symbol;
+    }
+
+    
     function checkUnusedIdentifiers(potentiallyUnusedIdentifiers: readonly PotentiallyUnusedIdentifier[], addDiagnostic: AddUnusedDiagnostic) {
         for (const node of potentiallyUnusedIdentifiers) {
             switch (node.kind) {

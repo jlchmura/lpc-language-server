@@ -477,6 +477,7 @@ export const enum SyntaxKind {
 
     // Names
     ComputedPropertyName,
+    QualifiedName,
     
     // Signature Elements
     TypeParameter,   // First Node
@@ -1511,7 +1512,7 @@ export type HasChildren =
     // | TypeOfExpression
     // | VoidExpression
     // | AwaitExpression
-    // | PrefixUnaryExpression
+    | PrefixUnaryExpression
     | PostfixUnaryExpression
     | BinaryExpression
     | ConditionalExpression
@@ -2364,7 +2365,7 @@ export interface JSDocArray extends Array<JSDoc> {
     jsDocCache?: readonly JSDocTag[]; // Cache for getJSDocTags
 }
 
-export type EntityName = Identifier; // add QualifiedName is needed
+export type EntityName = Identifier | QualifiedName;
 
 export interface JSDocPropertyLikeTag extends JSDocTag, Declaration {
     readonly parent: JSDoc;
@@ -2754,6 +2755,7 @@ export interface PropertyAccessEntityNameExpression extends PropertyAccessExpres
 }
 
 export type EntityNameExpression = Identifier | PropertyAccessEntityNameExpression;
+export type EntityNameOrEntityNameExpression = EntityName | EntityNameExpression;
 
 export interface ForStatement extends IterationStatement, LocalsContainer, FlowContainer {
     readonly kind: SyntaxKind.ForStatement;
@@ -4322,3 +4324,9 @@ export interface ComputedPropertyName extends Node {
 }
 
 export type ModuleExportName = Identifier | StringLiteral;
+
+export interface QualifiedName extends Node, FlowContainer {
+    readonly kind: SyntaxKind.QualifiedName;
+    readonly left: EntityName;
+    readonly right: Identifier;
+}

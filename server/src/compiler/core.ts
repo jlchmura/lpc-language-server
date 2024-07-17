@@ -1251,3 +1251,34 @@ export function filter<T>(array: readonly T[] | undefined, f: (x: T) => boolean)
     }
     return array;
 }
+
+
+/** @internal */
+export function and<T>(f: (arg: T) => boolean, g: (arg: T) => boolean) {
+    return (arg: T) => f(arg) && g(arg);
+}
+
+/** @internal */
+export function or<P, R1 extends P, R2 extends P>(f1: (p1: P) => p1 is R1, f2: (p2: P) => p2 is R2): (p: P) => p is R1 | R2;
+/** @internal */
+export function or<P, R1 extends P, R2 extends P, R3 extends P>(f1: (p1: P) => p1 is R1, f2: (p2: P) => p2 is R2, f3: (p3: P) => p3 is R3): (p: P) => p is R1 | R2 | R3;
+/** @internal */
+export function or<T extends unknown[], U>(...fs: ((...args: T) => U)[]): (...args: T) => U;
+/** @internal */
+export function or<T extends unknown[], U>(...fs: ((...args: T) => U)[]): (...args: T) => U {
+    return (...args) => {
+        let lastResult: U;
+        for (const f of fs) {
+            lastResult = f(...args);
+            if (lastResult) {
+                return lastResult;
+            }
+        }
+        return lastResult!;
+    };
+}
+
+/** @internal */
+export function not<T extends unknown[]>(fn: (...args: T) => boolean): (...args: T) => boolean {
+    return (...args) => !fn(...args);
+}
