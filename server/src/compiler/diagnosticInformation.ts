@@ -70,4 +70,8 @@ export const Diagnostics = {
     and_here: diag(6204, DiagnosticCategory.Message, "and_here_6204", "and here."),
     The_left_hand_side_of_an_assignment_expression_may_not_be_an_optional_property_access: diag(2779, DiagnosticCategory.Error, "The_left_hand_side_of_an_assignment_expression_may_not_be_an_optional_property_access_2779", "The left-hand side of an assignment expression may not be an optional property access."),
     Did_you_mean_0: diag(1369, DiagnosticCategory.Message, "Did_you_mean_0_1369", "Did you mean '{0}'?"),
+    An_arithmetic_operand_must_be_of_type_any_number_bigint_or_an_enum_type: diag(2356, DiagnosticCategory.Error, "An_arithmetic_operand_must_be_of_type_any_number_bigint_or_an_enum_type_2356", "An arithmetic operand must be of type 'any', 'number', 'bigint' or an enum type."),
+    The_operand_of_an_increment_or_decrement_operator_must_be_a_variable_or_a_property_access: diag(2357, DiagnosticCategory.Error, "The_operand_of_an_increment_or_decrement_operator_must_be_a_variable_or_a_property_access_2357", "The operand of an increment or decrement operator must be a variable or a property access."),
+    The_operand_of_an_increment_or_decrement_operator_may_not_be_an_optional_property_access: diag(2777, DiagnosticCategory.Error, "The_operand_of_an_increment_or_decrement_operator_may_not_be_an_optional_property_access_2777", "The operand of an increment or decrement operator may not be an optional property access."),
+    Operator_0_cannot_be_applied_to_type_1: diag(2736, DiagnosticCategory.Error, "Operator_0_cannot_be_applied_to_type_1_2736", "Operator '{0}' cannot be applied to type '{1}'."),
 }
