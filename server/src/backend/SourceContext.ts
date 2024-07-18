@@ -376,16 +376,29 @@ export class SourceContext {
 
         // get just the filename of the simul_efun
         const simulEfunFilename = path.basename(config.files.simul_efun);
-        if (!this.fileName.endsWith(simulEfunFilename)) {
+        const sefunResolvedFilename = this.resolveFilename(
+            config.files.simul_efun
+        )?.fullPath;
+        if (
+            !this.fileName.endsWith(simulEfunFilename) &&
+            !depChain.has(sefunResolvedFilename)
+        ) {
             this.info.imports.push({
                 filename: `"${config.files.simul_efun}"`,
                 symbol: undefined,
             });
-            this.fileHandler.loadReference(
-                config.files.simul_efun,
-                undefined,
-                depChain
-            );
+
+            // add sefuns as a dependency to the symbol table, but don't use
+            // the fileHandler, as we don't want to add a reference to the sefun
+            const sefun = this.backend.loadLpc(sefunResolvedFilename);
+            if (sefun) {
+                this.symbolTable.addDependencies(sefun.symbolTable);
+            }
+            // this.fileHandler.loadReference(
+            //     config.files.simul_efun,
+            //     undefined,
+            //     depChain
+            // );
         }
 
         this.tokenStream.reset();
