@@ -1,4 +1,6 @@
-import { Bundle, createTextWriter, Debug, EmitHint, EmitTextWriter, Expression, factory, getLineStarts, getNewLineCharacter, Identifier, InternalEmitFlags, isExpression, isIdentifier, isSourceFile, isStringLiteral, ListFormat, memoize, ModuleKind, Node, NodeArray, noEmitNotification, noEmitSubstitution, performance, Printer, PrinterOptions, PrintHandlers, SourceFile, SourceMapGenerator, SourceMapSource, SyntaxKind, TypeNode } from "./_namespaces/lpc";
+import { Symbol, Bundle, createTextWriter, Debug, EmitFlags, EmitHint, EmitTextWriter, Expression, factory, getEmitFlags, getInternalEmitFlags, getLineStarts, getNewLineCharacter, getShebang, Identifier, InternalEmitFlags, isExpression, isIdentifier, isSourceFile, isStringLiteral, ListFormat, memoize, ModuleKind, Node, NodeArray, noEmitNotification, noEmitSubstitution, performance, Printer, PrinterOptions, PrintHandlers, rangeIsOnSingleLine, SourceFile, SourceMapGenerator, SourceMapSource, SyntaxKind, TextRange, TypeNode, tokenToString, ParenthesizedExpression, nodeIsSynthesized, getStartsOnNewLine, getLinesBetweenRangeEndAndRangeStart, rangeEndIsOnSameLineAsRangeStart, guessIndentation } from "./_namespaces/lpc";
+
+const brackets = createBracketsMap();
 
 // Flags enum to track count of temp variables and a few dedicated names
 const enum TempFlags {
@@ -325,8 +327,54 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
 
     function shouldEmitSourceMaps(node: Node) {
         return !sourceMapsDisabled &&
-            !isSourceFile(node) &&
-            !isInJsonFile(node);
+            !isSourceFile(node);
+            //!isInJsonFile(node);
+    }
+
+    function pipelineEmitWithSubstitution(hint: EmitHint, node: Node) {
+        const pipelinePhase = getNextPipelinePhase(PipelinePhase.Substitution, hint, node);
+        Debug.assertIsDefined(lastSubstitution);
+        node = lastSubstitution;
+        lastSubstitution = undefined;
+        pipelinePhase(hint, node);
+    }
+
+    function pipelineEmitWithComments(hint: EmitHint, node: Node) {
+        const pipelinePhase = getNextPipelinePhase(PipelinePhase.Comments, hint, node);
+        const savedContainerPos = containerPos;
+        const savedContainerEnd = containerEnd;
+        const savedDeclarationListContainerEnd = declarationListContainerEnd;
+        emitCommentsBeforeNode(node);
+        pipelinePhase(hint, node);
+        emitCommentsAfterNode(node, savedContainerPos, savedContainerEnd, savedDeclarationListContainerEnd);
+    }
+
+    function emitCommentsBeforeNode(node: Node) {
+        console.warn("todo - implment me - emitCommentsBeforeNode");
+        // const emitFlags = getEmitFlags(node);
+        // const commentRange = getCommentRange(node);
+
+        // // Emit leading comments
+        // emitLeadingCommentsOfNode(node, emitFlags, commentRange.pos, commentRange.end);
+        // if (emitFlags & EmitFlags.NoNestedComments) {
+        //     commentsDisabled = true;
+        // }
+    }
+
+    function emitCommentsAfterNode(node: Node, savedContainerPos: number, savedContainerEnd: number, savedDeclarationListContainerEnd: number) {
+        console.warn("todo - implment me - emitCommentsAfterNode");
+        // const emitFlags = getEmitFlags(node);
+        // const commentRange = getCommentRange(node);
+
+        // // Emit trailing comments
+        // if (emitFlags & EmitFlags.NoNestedComments) {
+        //     commentsDisabled = false;
+        // }
+        // emitTrailingCommentsOfNode(node, emitFlags, commentRange.pos, commentRange.end, savedContainerPos, savedContainerEnd, savedDeclarationListContainerEnd);
+        // const typeNode = getTypeNode(node);
+        // if (typeNode) {
+        //     emitTrailingCommentsOfNode(node, emitFlags, typeNode.pos, typeNode.end, savedContainerPos, savedContainerEnd, savedDeclarationListContainerEnd);
+        // }
     }
 
     function getPipelinePhase(phase: PipelinePhase, emitHint: EmitHint, node: Node) {
@@ -361,6 +409,52 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
         }
     }
 
+    // Source Maps
+    function pipelineEmitWithSourceMaps(hint: EmitHint, node: Node) {
+        const pipelinePhase = getNextPipelinePhase(PipelinePhase.SourceMaps, hint, node);
+        emitSourceMapsBeforeNode(node);
+        pipelinePhase(hint, node);
+        emitSourceMapsAfterNode(node);
+    }
+
+    function emitSourceMapsBeforeNode(node: Node) {
+        console.warn("todo - implment me - emitSourceMapsBeforeNode");
+        // const emitFlags = getEmitFlags(node);
+        // const sourceMapRange = getSourceMapRange(node);
+
+        // // Emit leading sourcemap
+        // const source = sourceMapRange.source || sourceMapSource;
+        // if (
+        //     node.kind !== SyntaxKind.NotEmittedStatement
+        //     && (emitFlags & EmitFlags.NoLeadingSourceMap) === 0
+        //     && sourceMapRange.pos >= 0
+        // ) {
+        //     emitSourcePos(sourceMapRange.source || sourceMapSource, skipSourceTrivia(source, sourceMapRange.pos));
+        // }
+        // if (emitFlags & EmitFlags.NoNestedSourceMaps) {
+        //     sourceMapsDisabled = true;
+        // }
+    }
+
+    function emitSourceMapsAfterNode(node: Node) {
+        console.warn
+        // const emitFlags = getEmitFlags(node);
+        // const sourceMapRange = getSourceMapRange(node);
+
+        // // Emit trailing sourcemap
+        // if (emitFlags & EmitFlags.NoNestedSourceMaps) {
+        //     sourceMapsDisabled = false;
+        // }
+        // if (
+        //     node.kind !== SyntaxKind.NotEmittedStatement
+        //     && (emitFlags & EmitFlags.NoTrailingSourceMap) === 0
+        //     && sourceMapRange.end >= 0
+        // ) {
+        //     emitSourcePos(sourceMapRange.source || sourceMapSource, sourceMapRange.end);
+        // }
+    }
+
+    
     function getNextPipelinePhase(currentPhase: PipelinePhase, emitHint: EmitHint, node: Node) {
         return getPipelinePhase(currentPhase + 1, emitHint, node);
     }
@@ -386,10 +480,6 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
         currentParenthesizerRule = undefined;
     }
 
-    function writeBase(s: string) {
-        writer.write(s);
-    }
-
     function emitList<Child extends Node, Children extends NodeArray<Child>>(parentNode: Node | undefined, children: Children | undefined, format: ListFormat, parenthesizerRule?: ParenthesizerRuleOrSelector<Child>, start?: number, count?: number) {
         emitNodeList(
             emit,
@@ -405,6 +495,17 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
     function emitExpressionList<Child extends Node, Children extends NodeArray<Child>>(parentNode: Node | undefined, children: Children | undefined, format: ListFormat, parenthesizerRule?: ParenthesizerRuleOrSelector<Child>, start?: number, count?: number) {
         emitNodeList(emitExpression, parentNode, children, format, parenthesizerRule, start, count);
     }
+
+    function emitTrailingCommentsOfPosition(pos: number, prefixSpace?: boolean, forceNoNewline?: boolean) {
+        if (commentsDisabled) {
+            return;
+        }
+        enterComment();
+        console.warn("todo - implment me - emitTrailingCommentsOfPosition");
+        //forEachTrailingCommentToEmit(pos, prefixSpace ? emitTrailingComment : forceNoNewline ? emitTrailingCommentOfPositionNoNewline : emitTrailingCommentOfPosition);
+        exitComment();
+    }
+
 
     function emitNodeList<Child extends Node, Children extends NodeArray<Child>>(emit: EmitFunction, parentNode: Node | undefined, children: Children | undefined, format: ListFormat, parenthesizerRule: ParenthesizerRuleOrSelector<Child> | undefined, start = 0, count = children ? children.length - start : 0) {
         const isUndefined = children === undefined;
@@ -451,6 +552,19 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
         }
     }
 
+    function emitLeadingCommentsOfPosition(pos: number) {
+        if (commentsDisabled || pos === -1) {
+            return;
+        }
+
+        console.warn("todo - implment me - emitLeadingCommentsOfPosition");
+        //emitLeadingComments(pos, /*isEmittedNode*/ true);
+    }
+
+    function emitNodeListItems<Child extends Node>(emit: EmitFunction, parentNode: Node | undefined, children: readonly Child[], format: ListFormat, parenthesizerRule: ParenthesizerRuleOrSelector<Child> | undefined, start: number, count: number, hasTrailingComma: boolean, childrenTextRange: TextRange | undefined) {
+        console.warn("todo - implment me - emitNodeListItems");
+    }
+
     function emitShebangIfNeeded(sourceFileOrBundle: Bundle | SourceFile) {
         if (isSourceFile(sourceFileOrBundle)) {
             const shebang = getShebang(sourceFileOrBundle.text);
@@ -469,4 +583,246 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
             }
         }
     }
+
+    function pipelineEmitWithHintWorker(hint: EmitHint, node: Node, allowSnippets = true): void {
+        console.warn("todo - implment me - pipelineEmitWithHintWorker");
+    }
+
+    // Writers
+
+    function writeLiteral(s: string) {
+        writer.writeLiteral(s);
+    }
+
+    function writeStringLiteral(s: string) {
+        writer.writeStringLiteral(s);
+    }
+
+    function writeBase(s: string) {
+        writer.write(s);
+    }
+
+    function writeSymbol(s: string, sym: Symbol) {
+        writer.writeSymbol(s, sym);
+    }
+
+    function writePunctuation(s: string) {
+        writer.writePunctuation(s);
+    }
+
+    function writeTrailingSemicolon() {
+        writer.writeTrailingSemicolon(";");
+    }
+
+    function writeKeyword(s: string) {
+        writer.writeKeyword(s);
+    }
+
+    function writeOperator(s: string) {
+        writer.writeOperator(s);
+    }
+
+    function writeParameter(s: string) {
+        writer.writeParameter(s);
+    }
+
+    function writeComment(s: string) {
+        writer.writeComment(s);
+    }
+
+    function writeSpace() {
+        writer.writeSpace(" ");
+    }
+
+    function writeProperty(s: string) {
+        writer.writeProperty(s);
+    }
+
+    function nonEscapingWrite(s: string) {
+        // This should be defined in a snippet-escaping text writer.
+        if (writer.nonEscapingWrite) {
+            writer.nonEscapingWrite(s);
+        }
+        else {
+            writer.write(s);
+        }
+    }
+
+    function writeLine(count = 1) {
+        for (let i = 0; i < count; i++) {
+            writer.writeLine(i > 0);
+        }
+    }
+
+    function increaseIndent() {
+        writer.increaseIndent();
+    }
+
+    function decreaseIndent() {
+        writer.decreaseIndent();
+    }
+
+    function emitTokenWithSourceMap(node: Node | undefined, token: SyntaxKind, writer: (s: string) => void, tokenPos: number, emitCallback: (token: SyntaxKind, writer: (s: string) => void, tokenStartPos: number) => number) {
+        console.warn("todo - implment me - emitTokenWithSourceMap");
+    }
+
+    function writeToken(token: SyntaxKind, pos: number, writer: (s: string) => void, contextNode?: Node) {
+        return !sourceMapsDisabled
+            ? emitTokenWithSourceMap(contextNode, token, writer, pos, writeTokenText)
+            : writeTokenText(token, writer, pos);
+    }
+
+    function writeTokenNode(node: Node, writer: (s: string) => void) {
+        if (onBeforeEmitToken) {
+            onBeforeEmitToken(node);
+        }
+        writer(tokenToString(node.kind)!);
+        if (onAfterEmitToken) {
+            onAfterEmitToken(node);
+        }
+    }
+
+    function writeTokenText(token: SyntaxKind, writer: (s: string) => void): void;
+    function writeTokenText(token: SyntaxKind, writer: (s: string) => void, pos: number): number;
+    function writeTokenText(token: SyntaxKind, writer: (s: string) => void, pos?: number): number {
+        const tokenString = tokenToString(token)!;
+        writer(tokenString);
+        return pos! < 0 ? pos! : pos! + tokenString.length;
+    }
+
+    function skipSynthesizedParentheses(node: Node) {
+        while (node.kind === SyntaxKind.ParenthesizedExpression && nodeIsSynthesized(node)) {
+            node = (node as ParenthesizedExpression).expression;
+        }
+
+        return node;
+    }
+    
+    function getEffectiveLines(getLineDifference: (includeComments: boolean) => number) {
+        // If 'preserveSourceNewlines' is disabled, we should never call this function
+        // because it could be more expensive than alternative approximations.
+        Debug.assert(!!preserveSourceNewlines);
+        // We start by measuring the line difference from a position to its adjacent comments,
+        // so that this is counted as a one-line difference, not two:
+        //
+        //   node1;
+        //   // NODE2 COMMENT
+        //   node2;
+        const lines = getLineDifference(/*includeComments*/ true);
+        if (lines === 0) {
+            // However, if the line difference considering comments was 0, we might have this:
+            //
+            //   node1; // NODE2 COMMENT
+            //   node2;
+            //
+            // in which case we should be ignoring node2's comment, so this too is counted as
+            // a one-line difference, not zero.
+            return getLineDifference(/*includeComments*/ false);
+        }
+        return lines;
+    }
+    
+    function getLinesBetweenNodes(parent: Node, node1: Node, node2: Node): number {
+        if (getEmitFlags(parent) & EmitFlags.NoIndentation) {
+            return 0;
+        }
+
+        parent = skipSynthesizedParentheses(parent);
+        node1 = skipSynthesizedParentheses(node1);
+        node2 = skipSynthesizedParentheses(node2);
+
+        // Always use a newline for synthesized code if the synthesizer desires it.
+        if (getStartsOnNewLine(node2)) {
+            return 1;
+        }
+
+        if (currentSourceFile && !nodeIsSynthesized(parent) && !nodeIsSynthesized(node1) && !nodeIsSynthesized(node2)) {
+            if (preserveSourceNewlines) {
+                return getEffectiveLines(
+                    includeComments =>
+                        getLinesBetweenRangeEndAndRangeStart(
+                            node1,
+                            node2,
+                            currentSourceFile!,
+                            includeComments,
+                        ),
+                );
+            }
+            return rangeEndIsOnSameLineAsRangeStart(node1, node2, currentSourceFile) ? 0 : 1;
+        }
+
+        return 0;
+    }
+
+    function writeLineOrSpace(parentNode: Node, prevChildNode: Node, nextChildNode: Node) {
+        if (getEmitFlags(parentNode) & EmitFlags.SingleLine) {
+            writeSpace();
+        }
+        else if (preserveSourceNewlines) {
+            const lines = getLinesBetweenNodes(parentNode, prevChildNode, nextChildNode);
+            if (lines) {
+                writeLine(lines);
+            }
+            else {
+                writeSpace();
+            }
+        }
+        else {
+            writeLine();
+        }
+    }
+
+    function writeLines(text: string): void {
+        const lines = text.split(/\r\n?|\n/g);
+        const indentation = guessIndentation(lines);
+        for (const lineText of lines) {
+            const line = indentation ? lineText.slice(indentation) : lineText;
+            if (line.length) {
+                writeLine();
+                write(line);
+            }
+        }
+    }
+
+    function writeLinesAndIndent(lineCount: number, writeSpaceIfNotIndenting: boolean) {
+        if (lineCount) {
+            increaseIndent();
+            writeLine(lineCount);
+        }
+        else if (writeSpaceIfNotIndenting) {
+            writeSpace();
+        }
+    }
+
+    // Helper function to decrease the indent if we previously indented.  Allows multiple
+    // previous indent values to be considered at a time.  This also allows caller to just
+    // call this once, passing in all their appropriate indent values, instead of needing
+    // to call this helper function multiple times.
+    function decreaseIndentIf(value1: boolean | number | undefined, value2?: boolean | number) {
+        if (value1) {
+            decreaseIndent();
+        }
+        if (value2) {
+            decreaseIndent();
+        }
+    }
+
+}
+
+
+function createBracketsMap() {
+    const brackets: string[][] = [];
+    brackets[ListFormat.Braces] = ["{", "}"];
+    brackets[ListFormat.Parenthesis] = ["(", ")"];
+    brackets[ListFormat.AngleBrackets] = ["<", ">"];
+    brackets[ListFormat.SquareBrackets] = ["[", "]"];
+    return brackets;
+}
+
+function getOpeningBracket(format: ListFormat) {
+    return brackets[format & ListFormat.BracketsMask][0];
+}
+
+function getClosingBracket(format: ListFormat) {
+    return brackets[format & ListFormat.BracketsMask][1];
 }

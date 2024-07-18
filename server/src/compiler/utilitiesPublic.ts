@@ -1,4 +1,4 @@
-import { ArrayBindingElement, AssignmentDeclarationKind, BinaryExpression, BindingPattern, Block, BreakOrContinueStatement, CallChain, CallExpression, CallLikeExpression, canHaveJSDoc, Debug, Declaration, DeclarationName, emptyArray, EntityName, Expression, find, flatMap, ForEachStatement, FunctionLikeDeclaration, getAssignmentDeclarationKind, getEffectiveModifierFlags, getJSDocCommentsAndTags, HasInitializer, HasLocals, HasModifiers, hasProperty, Identifier, isBinaryExpression, isBlock, isCallExpression, isFunctionBlock, isFunctionExpression, isIdentifier, isInlineClosureExpression, isJSDoc, isJSDocDeprecatedTag, isJSDocSignature, isKeyword, isSourceFile, isTypeNodeKind, isVariableDeclaration, IterationStatement, JSDocDeprecatedTag, JSDocTag, KeywordSyntaxKind, LeftHandSideExpression, LiteralToken, MemberName, ModifierFlags, NamedDeclaration, Node, NodeArray, NodeFlags, OuterExpressionKinds, ParameterDeclaration, PropertyAccessExpression, PropertyName, QualifiedName, SignatureDeclaration, skipOuterExpressions, Statement, stringToToken, Symbol, SyntaxKind, TextRange, TextSpan, tryCast, TypeNode, UnaryExpression } from "./_namespaces/lpc.js";
+import { ArrayBindingElement, AssignmentDeclarationKind, BinaryExpression, BindingPattern, Block, BreakOrContinueStatement, CallChain, CallExpression, CallLikeExpression, canHaveJSDoc, Debug, Declaration, DeclarationName, emptyArray, EntityName, Expression, find, flatMap, ForEachStatement, FunctionLikeDeclaration, getAssignmentDeclarationKind, getEffectiveModifierFlags, getJSDocCommentsAndTags, HasInitializer, HasLocals, HasModifiers, hasProperty, Identifier, isBinaryExpression, isBlock, isCallExpression, isFunctionBlock, isFunctionExpression, isIdentifier, isInlineClosureExpression, isJSDoc, isJSDocDeprecatedTag, isJSDocSignature, isKeyword, isSourceFile, isTypeNodeKind, isVariableDeclaration, isWhiteSpaceLike, IterationStatement, JSDocDeprecatedTag, JSDocTag, KeywordSyntaxKind, LeftHandSideExpression, LiteralToken, MemberName, ModifierFlags, NamedDeclaration, Node, NodeArray, NodeFlags, OuterExpressionKinds, ParameterDeclaration, PropertyAccessExpression, PropertyName, QualifiedName, SignatureDeclaration, skipOuterExpressions, Statement, stringToToken, Symbol, SyntaxKind, TextRange, TextSpan, tryCast, TypeNode, UnaryExpression } from "./_namespaces/lpc.js";
 
 /** @internal */
 export function isNodeArray<T extends Node>(array: readonly T[]): array is NodeArray<T> {
@@ -745,4 +745,28 @@ export function textRangeContainsPositionInclusive(range: TextRange, position: n
 /** @internal */
 export function isLiteralKind(kind: SyntaxKind): kind is LiteralToken["kind"] {
     return SyntaxKind.FirstLiteralToken <= kind && kind <= SyntaxKind.LastLiteralToken;
+}
+
+const MAX_SMI_X86 = 0x3fff_ffff;
+/** @internal */
+export function guessIndentation(lines: string[]) {
+    let indentation = MAX_SMI_X86;
+    for (const line of lines) {
+        if (!line.length) {
+            continue;
+        }
+        let i = 0;
+        for (; i < line.length && i < indentation; i++) {
+            if (!isWhiteSpaceLike(line.charCodeAt(i))) {
+                break;
+            }
+        }
+        if (i < indentation) {
+            indentation = i;
+        }
+        if (indentation === 0) {
+            return 0;
+        }
+    }
+    return indentation === MAX_SMI_X86 ? undefined : indentation;
 }

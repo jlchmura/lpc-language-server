@@ -61,6 +61,7 @@ import {
     nullParenthesizerRules,
     ParameterDeclaration,
     ParenthesizedExpression,
+    ParenthesizedTypeNode,
     PostfixUnaryExpression,
     PostfixUnaryOperator,
     PropertyAccessExpression,
@@ -142,6 +143,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         // types
         createArrayTypeNode,
         createUnionTypeNode,
+        createParenthesizedType,
 
         // Names
         createQualifiedName,
@@ -875,6 +877,14 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         //node.transformFlags = propagateChildFlags(node.expression);
 
         node.jsDoc = undefined; // initialized by parser (JsDocContainer)
+        return node;
+    }
+
+    // @api
+    function createParenthesizedType(type: TypeNode) {
+        const node = createBaseNode<ParenthesizedTypeNode>(SyntaxKind.ParenthesizedType);
+        node.type = type;
+        //node.transformFlags = TransformFlags.ContainsTypeScript;
         return node;
     }
 }

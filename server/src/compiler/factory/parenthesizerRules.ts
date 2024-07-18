@@ -1,4 +1,4 @@
-import { Associativity, BinaryExpression, BinaryOperator, cast, compareValues, Comparison, ConciseBody, Expression, getExpressionAssociativity, getExpressionPrecedence, getOperatorAssociativity, getOperatorPrecedence, identity, isBinaryExpression, isBlock, isCallExpression, isLeftHandSideExpression, isLiteralKind, isNodeArray, isUnaryExpression, isUnionTypeNode, last, LeftHandSideExpression, NewExpression, NodeArray, NodeFactory, OperatorPrecedence, OuterExpressionKinds, ParenthesizerRules, sameMap, skipPartiallyEmittedExpressions, some, SyntaxKind, TypeNode, UnaryExpression } from "../_namespaces/lpc";
+import { Associativity, BinaryExpression, BinaryOperator, cast, compareValues, Comparison, ConciseBody, Expression, getExpressionAssociativity, getExpressionPrecedence, getLeftmostExpression, getOperatorAssociativity, getOperatorPrecedence, identity, isBinaryExpression, isBlock, isCallExpression, isCommaSequence, isLeftHandSideExpression, isLiteralKind, isNodeArray, isUnaryExpression, isUnionTypeNode, last, LeftHandSideExpression, NewExpression, NodeArray, NodeFactory, OperatorPrecedence, OuterExpressionKinds, ParenthesizerRules, sameMap, setTextRange, skipPartiallyEmittedExpressions, some, SyntaxKind, TypeNode, UnaryExpression } from "../_namespaces/lpc";
 
 /** @internal */
 export function createParenthesizerRules(factory: NodeFactory): ParenthesizerRules {
@@ -336,7 +336,7 @@ export function createParenthesizerRules(factory: NodeFactory): ParenthesizerRul
         if (
             isLeftHandSideExpression(emittedExpression)
             && (emittedExpression.kind !== SyntaxKind.NewExpression || (emittedExpression as NewExpression).arguments)
-            && (optionalChain || !isOptionalChain(emittedExpression))
+            //&& (optionalChain || !isOptionalChain(emittedExpression))
         ) {
             // TODO(rbuckton): Verify whether this assertion holds.
             return expression as LeftHandSideExpression;
@@ -374,15 +374,16 @@ export function createParenthesizerRules(factory: NodeFactory): ParenthesizerRul
         if (isCallExpression(emittedExpression)) {
             const callee = emittedExpression.expression;
             const kind = skipPartiallyEmittedExpressions(callee).kind;
-            if (kind === SyntaxKind.FunctionExpression || kind === SyntaxKind.ArrowFunction) {
+            if (kind === SyntaxKind.FunctionExpression || kind === SyntaxKind.InlineClosureExpression) {
                 // TODO(rbuckton): Verifiy whether `setTextRange` is needed.
-                const updated = factory.updateCallExpression(
-                    emittedExpression,
-                    setTextRange(factory.createParenthesizedExpression(callee), callee),
-                    emittedExpression.typeArguments,
-                    emittedExpression.arguments,
-                );
-                return factory.restoreOuterExpressions(expression, updated, OuterExpressionKinds.PartiallyEmittedExpressions);
+                console.warn("implement me - parenthesizeExpressionOfExpressionStatement");
+                // const updated = factory.updateCallExpression(
+                //     emittedExpression,
+                //     setTextRange(factory.createParenthesizedExpression(callee), callee),
+                //     emittedExpression.typeArguments,
+                //     emittedExpression.arguments,
+                // );
+                // return factory.restoreOuterExpressions(expression, updated, OuterExpressionKinds.PartiallyEmittedExpressions);
             }
         }
 
@@ -419,18 +420,18 @@ export function createParenthesizerRules(factory: NodeFactory): ParenthesizerRul
     // - The true and false branch types (the second and third `Type` non-terminals, above) allow any type
     function parenthesizeCheckTypeOfConditionalType(checkType: TypeNode): TypeNode {
         switch (checkType.kind) {
-            case SyntaxKind.FunctionType:
-            case SyntaxKind.ConstructorType:
-            case SyntaxKind.ConditionalType:
-                return factory.createParenthesizedType(checkType);
+            // case SyntaxKind.FunctionType:
+            // case SyntaxKind.ConstructorType:
+            // case SyntaxKind.ConditionalType:
+            //     return factory.createParenthesizedType(checkType);
         }
         return checkType;
     }
 
     function parenthesizeExtendsTypeOfConditionalType(extendsType: TypeNode): TypeNode {
         switch (extendsType.kind) {
-            case SyntaxKind.ConditionalType:
-                return factory.createParenthesizedType(extendsType);
+            // case SyntaxKind.ConditionalType:
+            //     return factory.createParenthesizedType(extendsType);
         }
         return extendsType;
     }
@@ -443,7 +444,7 @@ export function createParenthesizerRules(factory: NodeFactory): ParenthesizerRul
     function parenthesizeConstituentTypeOfUnionType(type: TypeNode) {
         switch (type.kind) {
             case SyntaxKind.UnionType: // Not strictly necessary, but a union containing a union should have been flattened
-            case SyntaxKind.IntersectionType: // Not strictly necessary, but makes generated output more readable and avoids breaks in DT tests
+            // case SyntaxKind.IntersectionType: // Not strictly necessary, but makes generated output more readable and avoids breaks in DT tests
                 return factory.createParenthesizedType(type);
         }
         return parenthesizeCheckTypeOfConditionalType(type);
@@ -461,7 +462,7 @@ export function createParenthesizerRules(factory: NodeFactory): ParenthesizerRul
     function parenthesizeConstituentTypeOfIntersectionType(type: TypeNode) {
         switch (type.kind) {
             case SyntaxKind.UnionType:
-            case SyntaxKind.IntersectionType: // Not strictly necessary, but an intersection containing an intersection should have been flattened
+            //case SyntaxKind.IntersectionType: // Not strictly necessary, but an intersection containing an intersection should have been flattened
                 return factory.createParenthesizedType(type);
         }
         return parenthesizeConstituentTypeOfUnionType(type);
@@ -479,18 +480,18 @@ export function createParenthesizerRules(factory: NodeFactory): ParenthesizerRul
     //     `readonly` TypeOperator[?Extends]
     //
     function parenthesizeOperandOfTypeOperator(type: TypeNode) {
-        switch (type.kind) {
-            case SyntaxKind.IntersectionType:
-                return factory.createParenthesizedType(type);
-        }
+        // switch (type.kind) {
+        //     case SyntaxKind.IntersectionType:
+        //         return factory.createParenthesizedType(type);
+        // }
         return parenthesizeConstituentTypeOfIntersectionType(type);
     }
 
     function parenthesizeOperandOfReadonlyTypeOperator(type: TypeNode) {
-        switch (type.kind) {
-            case SyntaxKind.TypeOperator:
-                return factory.createParenthesizedType(type);
-        }
+        // switch (type.kind) {
+        //     case SyntaxKind.TypeOperator:
+        //         return factory.createParenthesizedType(type);
+        // }
         return parenthesizeOperandOfTypeOperator(type);
     }
 
@@ -508,62 +509,24 @@ export function createParenthesizerRules(factory: NodeFactory): ParenthesizerRul
     //     NonArrayType `[` `]`
     //
     function parenthesizeNonArrayTypeOfPostfixType(type: TypeNode) {
-        switch (type.kind) {
-            case SyntaxKind.InferType:
-            case SyntaxKind.TypeOperator:
-            case SyntaxKind.TypeQuery: // Not strictly necessary, but makes generated output more readable and avoids breaks in DT tests
-                return factory.createParenthesizedType(type);
-        }
+        // switch (type.kind) {
+        //     case SyntaxKind.InferType:
+        //     case SyntaxKind.TypeOperator:
+        //     case SyntaxKind.TypeQuery: // Not strictly necessary, but makes generated output more readable and avoids breaks in DT tests
+        //         return factory.createParenthesizedType(type);
+        // }
         return parenthesizeOperandOfTypeOperator(type);
     }
-
-    // TupleType :
-    //     `[` Elision? `]`
-    //     `[` NamedTupleElementTypes `]`
-    //     `[` NamedTupleElementTypes `,` Elision? `]`
-    //     `[` TupleElementTypes `]`
-    //     `[` TupleElementTypes `,` Elision? `]`
-    //
-    // NamedTupleElementTypes :
-    //     Elision? NamedTupleMember
-    //     NamedTupleElementTypes `,` Elision? NamedTupleMember
-    //
-    // NamedTupleMember :
-    //     Identifier `?`? `:` Type[~Extends]
-    //     `...` Identifier `:` Type[~Extends]
-    //
-    // TupleElementTypes :
-    //     Elision? TupleElementType
-    //     TupleElementTypes `,` Elision? TupleElementType
-    //
-    // TupleElementType :
-    //     Type[~Extends] // NOTE: Needs cover grammar to disallow JSDoc postfix-optional
-    //     OptionalType
-    //     RestType
-    //
-    // OptionalType :
-    //     Type[~Extends] `?` // NOTE: Needs cover grammar to disallow JSDoc postfix-optional
-    //
-    // RestType :
-    //     `...` Type[~Extends]
-    //
-    function parenthesizeElementTypesOfTupleType(types: readonly (TypeNode | NamedTupleMember)[]): NodeArray<TypeNode> {
-        return factory.createNodeArray(sameMap(types, parenthesizeElementTypeOfTupleType));
-    }
-
-    function parenthesizeElementTypeOfTupleType(type: TypeNode | NamedTupleMember): TypeNode {
-        if (hasJSDocPostfixQuestion(type)) return factory.createParenthesizedType(type);
-        return type;
-    }
-
-    function hasJSDocPostfixQuestion(type: TypeNode | NamedTupleMember): boolean {
-        if (isJSDocNullableType(type)) return type.postfix;
-        if (isNamedTupleMember(type)) return hasJSDocPostfixQuestion(type.type);
-        if (isFunctionTypeNode(type) || isConstructorTypeNode(type) || isTypeOperatorNode(type)) return hasJSDocPostfixQuestion(type.type);
-        if (isConditionalTypeNode(type)) return hasJSDocPostfixQuestion(type.falseType);
-        if (isUnionTypeNode(type)) return hasJSDocPostfixQuestion(last(type.types));
-        if (isIntersectionTypeNode(type)) return hasJSDocPostfixQuestion(last(type.types));
-        if (isInferTypeNode(type)) return !!type.typeParameter.constraint && hasJSDocPostfixQuestion(type.typeParameter.constraint);
+   
+    function hasJSDocPostfixQuestion(type: TypeNode): boolean {
+        console.warn("implement me - hasJSDocPostfixQuestion");
+        // if (isJSDocNullableType(type)) return type.postfix;
+        // if (isNamedTupleMember(type)) return hasJSDocPostfixQuestion(type.type);
+        // if (isFunctionTypeNode(type) || isConstructorTypeNode(type) || isTypeOperatorNode(type)) return hasJSDocPostfixQuestion(type.type);
+        // if (isConditionalTypeNode(type)) return hasJSDocPostfixQuestion(type.falseType);
+        // if (isUnionTypeNode(type)) return hasJSDocPostfixQuestion(last(type.types));
+        // if (isIntersectionTypeNode(type)) return hasJSDocPostfixQuestion(last(type.types));
+        // if (isInferTypeNode(type)) return !!type.typeParameter.constraint && hasJSDocPostfixQuestion(type.typeParameter.constraint);
         return false;
     }
 
@@ -594,7 +557,8 @@ export function createParenthesizerRules(factory: NodeFactory): ParenthesizerRul
     // }
 
     function parenthesizeLeadingTypeArgument(node: TypeNode) {
-        return isFunctionOrConstructorTypeNode(node) && node.typeParameters ? factory.createParenthesizedType(node) : node;
+        return node;
+        // return isFunctionOrConstructorTypeNode(node) && node.typeParameters ? factory.createParenthesizedType(node) : node;
     }
 
     function parenthesizeOrdinalTypeArgument(node: TypeNode, i: number) {

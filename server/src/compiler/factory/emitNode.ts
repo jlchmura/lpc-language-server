@@ -35,3 +35,13 @@ export function getOrCreateEmitNode(node: Node): EmitNode {
     }
     return node.emitNode;
 }
+
+
+/**
+ * Gets a custom text range to use when emitting comments.
+ *
+ * @internal
+ */
+export function getStartsOnNewLine(node: Node) {
+    return node.emitNode?.startsOnNewLine;
+}

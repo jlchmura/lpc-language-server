@@ -59,7 +59,7 @@ export interface EmitNode {
     // externalHelpersModuleName?: Identifier;  // The local name for an imported helpers module
     // externalHelpers?: boolean;
     // helpers?: EmitHelper[];                  // Emit helpers for the node
-    // startsOnNewLine?: boolean;               // If the node should begin on a new line
+    startsOnNewLine?: boolean;               // If the node should begin on a new line
     // snippetElement?: SnippetElement;         // Snippet element of the node
     // typeNode?: TypeNode;                     // VariableDeclaration type
     // classThis?: Identifier;                  // Identifier that points to a captured static `this` for a class which may be updated after decorators are applied
@@ -505,6 +505,7 @@ export const enum SyntaxKind {
     UnionType, // First Type Node
     ArrayType,
     TypeLiteral,
+    ParenthesizedType,
     ConditionalType,  // Last TYpe Node
     
     // Elements
@@ -961,6 +962,7 @@ export type TypeNodeSyntaxKind =
     | SyntaxKind.LiteralType
     | SyntaxKind.MappedType
     | SyntaxKind.TypeLiteral
+    | SyntaxKind.ParenthesizedType
     | SyntaxKind.JSDocTypeExpression
     | SyntaxKind.JSDocAllType
     | SyntaxKind.JSDocUnknownType
@@ -1031,6 +1033,7 @@ export interface NodeFactory {
     // types
     createUnionTypeNode(types: readonly TypeNode[]): UnionTypeNode;
     createArrayTypeNode(elementType: TypeNode): ArrayTypeNode;
+    createParenthesizedType(type: TypeNode): ParenthesizedTypeNode;
 
     // Statements
     createBlock(statements: readonly Statement[], multiLine?: boolean): Block;
@@ -4761,4 +4764,17 @@ export interface ParenthesizerRules {
     parenthesizeConstituentTypesOfIntersectionType(constituents: readonly TypeNode[]): NodeArray<TypeNode>;
     parenthesizeLeadingTypeArgument(typeNode: TypeNode): TypeNode;
     parenthesizeTypeArguments(typeParameters: readonly TypeNode[] | undefined): NodeArray<TypeNode> | undefined;
+}
+
+/**
+ * A list of comma-separated expressions. This node is only created by transformations.
+ */
+export interface CommaListExpression extends Expression {
+    readonly kind: SyntaxKind.CommaListExpression;
+    readonly elements: NodeArray<Expression>;
+}
+
+export interface ParenthesizedTypeNode extends TypeNode {
+    readonly kind: SyntaxKind.ParenthesizedType;
+    readonly type: TypeNode;
 }

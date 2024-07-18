@@ -1,5 +1,5 @@
 import * as antlr from "antlr4ng";
-import { Signature, Type, Debug, DiagnosticArguments, DiagnosticMessage, DiagnosticRelatedInformation, DiagnosticWithDetachedLocation, DiagnosticWithLocation, Identifier, MapLike, ModifierFlags, Node, NodeFlags, ReadonlyTextRange, some, SourceFile, Symbol, SymbolFlags, SyntaxKind, TextRange, Token, TransformFlags, TypeChecker, TypeFlags, tracing, SignatureFlags, canHaveModifiers, Modifier, skipTrivia, SymbolTable, CallExpression, Declaration, getCombinedNodeFlags, BinaryExpression, AssignmentDeclarationKind, isCallExpression, isBinaryExpression, isIdentifier, Diagnostic, emptyArray, PropertyNameLiteral, DeclarationName, LiteralLikeNode, AssignmentExpression, LogicalOrCoalescingAssignmentOperator, LogicalOperator, Expression, OuterExpressionKinds, OuterExpression, WrappedExpression, PrefixUnaryExpression, PostfixUnaryExpression, ForEachStatement, ShorthandPropertyAssignment, PropertyAssignment, PropertyAccessExpression, ParenthesizedExpression, BinaryOperatorToken, AssertionLevel, SortedArray, binarySearch, identity, Comparison, DiagnosticMessageChain, compareStringsCaseSensitive, compareValues, insertSorted, flatMapToMutable, DiagnosticCollection, isJSDocTemplateTag, HasJSDoc, lastOrUndefined, JSDoc, isJSDoc, find, ParameterDeclaration, FunctionDeclaration, InlineClosureExpression, FunctionExpression, forEachChild, returnUndefined, returnFalse, CompilerOptions, FunctionLikeDeclaration, canHaveLocals, isFunctionLike, isParameter, PropertyDeclaration, BindingElement, isString, InternalSymbolName, isSourceFile, StructDeclaration, isStructDeclaration, JSDocTemplateTag, TypeNodeSyntaxKind, isTypeNode, isFunctionLikeDeclaration, SignatureDeclaration, AccessExpression, isInlineClosureExpression, PropertyAccessEntityNameExpression, isPropertyAccessExpression, EntityNameExpression, isVariableDeclaration, VariableDeclarationInitializedTo, CanonicalDiagnostic, HasInitializer, ExpressionStatement, ForStatement, isShorthandPropertyAssignment, JSDocTag, EqualsToken, AssignmentOperatorToken, isLeftHandSideExpression, isFunctionLikeKind, AdditiveOperator, AdditiveOperatorOrHigher, AssignmentOperatorOrHigher, BinaryOperator, BitwiseOperator, BitwiseOperatorOrHigher, EqualityOperator, EqualityOperatorOrHigher, ExponentiationOperator, LogicalOperatorOrHigher, MultiplicativeOperator, MultiplicativeOperatorOrHigher, RelationalOperator, RelationalOperatorOrHigher, ShiftOperator, ShiftOperatorOrHigher, HasFlowNode, ObjectFlags, ObjectFlagsType, isDeclaration, isBindingPattern, isJSDocSignature, JSDocSignature, TypeNode, findAncestor, Extension, fileExtensionIs, NamedDeclaration, KeywordSyntaxKind, binarySearchKey, SourceFileLike, isToken, EndOfFileToken, isJSDocCommentContainingNode, firstOrUndefined, getNodeChildren, JSDocContainer, PropertyName, idText, isMemberName, forEach, PrinterOptions, NewLineKind, flatMap, getNormalizedPathComponents, removeTrailingDirectorySeparator, directorySeparator, normalizePath, FileWatcher, PackageId, ScriptKind, TextSpan, CheckFlags, TransientSymbol, getCombinedModifierFlags, isElementAccessExpression, createTextSpan, CaseOrDefaultClause, createTextSpanFromBounds, ReturnStatement, createScanner, isQualifiedName, EntityNameOrEntityNameExpression, isCallOrNewExpression, CallLikeExpression, EmitTextWriter, computeLineStarts, last, isWhiteSpaceLike, ScriptTarget, isIdentifierStart, isFunctionDeclaration, HasType, Block, Statement, NodeArray, ClassElement, TypeElement, ObjectLiteralElement, ObjectTypeDeclaration, ObjectLiteralExpression, noop, NewExpression } from "./_namespaces/lpc.js";
+import { Signature, Type, Debug, DiagnosticArguments, DiagnosticMessage, DiagnosticRelatedInformation, DiagnosticWithDetachedLocation, DiagnosticWithLocation, Identifier, MapLike, ModifierFlags, Node, NodeFlags, ReadonlyTextRange, some, SourceFile, Symbol, SymbolFlags, SyntaxKind, TextRange, Token, TransformFlags, TypeChecker, TypeFlags, tracing, SignatureFlags, canHaveModifiers, Modifier, skipTrivia, SymbolTable, CallExpression, Declaration, getCombinedNodeFlags, BinaryExpression, AssignmentDeclarationKind, isCallExpression, isBinaryExpression, isIdentifier, Diagnostic, emptyArray, PropertyNameLiteral, DeclarationName, LiteralLikeNode, AssignmentExpression, LogicalOrCoalescingAssignmentOperator, LogicalOperator, Expression, OuterExpressionKinds, OuterExpression, WrappedExpression, PrefixUnaryExpression, PostfixUnaryExpression, ForEachStatement, ShorthandPropertyAssignment, PropertyAssignment, PropertyAccessExpression, ParenthesizedExpression, BinaryOperatorToken, AssertionLevel, SortedArray, binarySearch, identity, Comparison, DiagnosticMessageChain, compareStringsCaseSensitive, compareValues, insertSorted, flatMapToMutable, DiagnosticCollection, isJSDocTemplateTag, HasJSDoc, lastOrUndefined, JSDoc, isJSDoc, find, ParameterDeclaration, FunctionDeclaration, InlineClosureExpression, FunctionExpression, forEachChild, returnUndefined, returnFalse, CompilerOptions, FunctionLikeDeclaration, canHaveLocals, isFunctionLike, isParameter, PropertyDeclaration, BindingElement, isString, InternalSymbolName, isSourceFile, StructDeclaration, isStructDeclaration, JSDocTemplateTag, TypeNodeSyntaxKind, isTypeNode, isFunctionLikeDeclaration, SignatureDeclaration, AccessExpression, isInlineClosureExpression, PropertyAccessEntityNameExpression, isPropertyAccessExpression, EntityNameExpression, isVariableDeclaration, VariableDeclarationInitializedTo, CanonicalDiagnostic, HasInitializer, ExpressionStatement, ForStatement, isShorthandPropertyAssignment, JSDocTag, EqualsToken, AssignmentOperatorToken, isLeftHandSideExpression, isFunctionLikeKind, AdditiveOperator, AdditiveOperatorOrHigher, AssignmentOperatorOrHigher, BinaryOperator, BitwiseOperator, BitwiseOperatorOrHigher, EqualityOperator, EqualityOperatorOrHigher, ExponentiationOperator, LogicalOperatorOrHigher, MultiplicativeOperator, MultiplicativeOperatorOrHigher, RelationalOperator, RelationalOperatorOrHigher, ShiftOperator, ShiftOperatorOrHigher, HasFlowNode, ObjectFlags, ObjectFlagsType, isDeclaration, isBindingPattern, isJSDocSignature, JSDocSignature, TypeNode, findAncestor, Extension, fileExtensionIs, NamedDeclaration, KeywordSyntaxKind, binarySearchKey, SourceFileLike, isToken, EndOfFileToken, isJSDocCommentContainingNode, firstOrUndefined, getNodeChildren, JSDocContainer, PropertyName, idText, isMemberName, forEach, PrinterOptions, NewLineKind, flatMap, getNormalizedPathComponents, removeTrailingDirectorySeparator, directorySeparator, normalizePath, FileWatcher, PackageId, ScriptKind, TextSpan, CheckFlags, TransientSymbol, getCombinedModifierFlags, isElementAccessExpression, createTextSpan, CaseOrDefaultClause, createTextSpanFromBounds, ReturnStatement, createScanner, isQualifiedName, EntityNameOrEntityNameExpression, isCallOrNewExpression, CallLikeExpression, EmitTextWriter, computeLineStarts, last, isWhiteSpaceLike, ScriptTarget, isIdentifierStart, isFunctionDeclaration, HasType, Block, Statement, NodeArray, ClassElement, TypeElement, ObjectLiteralElement, ObjectTypeDeclaration, ObjectLiteralExpression, noop, NewExpression, CommaListExpression, ConditionalExpression, ElementAccessExpression, PartiallyEmittedExpression, InternalEmitFlags, EmitFlags, getLineStarts, getLinesBetweenPositions } from "./_namespaces/lpc.js";
 import { CharacterCodes } from "../backend/types.js";
 
 /** @internal */
@@ -3875,4 +3875,138 @@ export function getOperatorAssociativity(kind: SyntaxKind, operator: SyntaxKind,
             }
     }
     return Associativity.Left;
+}
+
+/** @internal */
+export function isCommaExpression(node: Expression): node is BinaryExpression & { operatorToken: Token<SyntaxKind.CommaToken>; } {
+    return node.kind === SyntaxKind.BinaryExpression && (node as BinaryExpression).operatorToken.kind === SyntaxKind.CommaToken;
+}
+
+export function isCommaListExpression(node: Node): node is CommaListExpression {
+    return node.kind === SyntaxKind.CommaListExpression;
+}
+
+/** @internal */
+export function isCommaSequence(node: Expression): node is BinaryExpression & { operatorToken: Token<SyntaxKind.CommaToken>; } | CommaListExpression {
+    return isCommaExpression(node) || isCommaListExpression(node);
+}
+
+/** @internal */
+export function getLeftmostExpression(node: Expression, stopAtCallExpressions: boolean) {
+    while (true) {
+        switch (node.kind) {
+            case SyntaxKind.PostfixUnaryExpression:
+                node = (node as PostfixUnaryExpression).operand;
+                continue;
+
+            case SyntaxKind.BinaryExpression:
+                node = (node as BinaryExpression).left;
+                continue;
+
+            case SyntaxKind.ConditionalExpression:
+                node = (node as ConditionalExpression).condition;
+                continue;
+
+            // case SyntaxKind.TaggedTemplateExpression:
+            //     node = (node as TaggedTemplateExpression).tag;
+            //     continue;
+
+            case SyntaxKind.CallExpression:
+                if (stopAtCallExpressions) {
+                    return node;
+                }
+                // falls through
+            // case SyntaxKind.AsExpression:
+            case SyntaxKind.ElementAccessExpression:
+            case SyntaxKind.PropertyAccessExpression:
+            // case SyntaxKind.NonNullExpression:
+            case SyntaxKind.PartiallyEmittedExpression:
+            // case SyntaxKind.SatisfiesExpression:
+                node = (node as CallExpression | PropertyAccessExpression | ElementAccessExpression /*| AsExpression | NonNullExpression | */| PartiallyEmittedExpression).expression;
+                continue;
+        }
+
+        return node;
+    }
+}
+
+/**
+ * Gets flags that control emit behavior of a node.
+ *
+ * @internal
+ */
+export function getInternalEmitFlags(node: Node): InternalEmitFlags {
+    const emitNode = node.emitNode;
+    return emitNode && emitNode.internalFlags || 0;
+}
+
+/**
+ * Gets flags that control emit behavior of a node.
+ *
+ * @internal
+ */
+export function getEmitFlags(node: Node): EmitFlags {
+    const emitNode = node.emitNode;
+    return emitNode && emitNode.flags || 0;
+}
+
+/** @internal @knipignore */
+export function rangeStartIsOnSameLineAsRangeEnd(range1: TextRange, range2: TextRange, sourceFile: SourceFile) {
+    return positionsAreOnSameLine(getStartPositionOfRange(range1, sourceFile, /*includeComments*/ false), range2.end, sourceFile);
+}
+
+/** @internal */
+export function rangeIsOnSingleLine(range: TextRange, sourceFile: SourceFile) {
+    return rangeStartIsOnSameLineAsRangeEnd(range, range, sourceFile);
+}
+
+/** @internal */
+export function rangeStartPositionsAreOnSameLine(range1: TextRange, range2: TextRange, sourceFile: SourceFile) {
+    return positionsAreOnSameLine(
+        getStartPositionOfRange(range1, sourceFile, /*includeComments*/ false),
+        getStartPositionOfRange(range2, sourceFile, /*includeComments*/ false),
+        sourceFile,
+    );
+}
+
+
+/**
+ * @internal
+ * We assume the first line starts at position 0 and 'position' is non-negative.
+ */
+export function computeLineOfPosition(lineStarts: readonly number[], position: number, lowerBound?: number) {
+    let lineNumber = binarySearch(lineStarts, position, identity, compareValues, lowerBound);
+    if (lineNumber < 0) {
+        // If the actual position was not found,
+        // the binary search returns the 2's-complement of the next line start
+        // e.g. if the line starts at [5, 10, 23, 80] and the position requested was 20
+        // then the search will return -2.
+        //
+        // We want the index of the previous line start, so we subtract 1.
+        // Review 2's-complement if this is confusing.
+        lineNumber = ~lineNumber - 1;
+        Debug.assert(lineNumber !== -1, "position cannot precede the beginning of the file");
+    }
+    return lineNumber;
+}
+
+/** @internal */
+export function positionsAreOnSameLine(pos1: number, pos2: number, sourceFile: SourceFile) {
+    return getLinesBetweenPositions(sourceFile, pos1, pos2) === 0;
+}
+
+/** @internal @knipignore */
+export function getStartPositionOfRange(range: TextRange, sourceFile: SourceFile, includeComments: boolean) {
+    return positionIsSynthesized(range.pos) ? -1 : skipTrivia(sourceFile.text, range.pos, /*stopAfterLineBreak*/ false, includeComments);
+}
+
+/** @internal */
+export function getLinesBetweenRangeEndAndRangeStart(range1: TextRange, range2: TextRange, sourceFile: SourceFile, includeSecondRangeComments: boolean) {
+    const range2Start = getStartPositionOfRange(range2, sourceFile, includeSecondRangeComments);
+    return getLinesBetweenPositions(sourceFile, range1.end, range2Start);
+}
+
+/** @internal */
+export function rangeEndIsOnSameLineAsRangeStart(range1: TextRange, range2: TextRange, sourceFile: SourceFile) {
+    return positionsAreOnSameLine(range1.end, getStartPositionOfRange(range2, sourceFile, /*includeComments*/ false), sourceFile);
 }
