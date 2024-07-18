@@ -604,6 +604,11 @@ export class LpcFacade {
                 return undefined;
             }
 
+            if (contextEntry.dependencies.includes(depPath)) {
+                // already loaded
+                return undefined;
+            }
+
             try {
                 fs.accessSync(depPath, fs.constants.R_OK);
                 contextEntry.dependencies.push(depPath);
@@ -855,7 +860,7 @@ export class LpcFacade {
             const lines = initFileSource.split("\n");
             for (const line of lines) {
                 const l = line.trim();
-                if (l.length == 0) continue;
+                if (l.length == 0 || l.startsWith("#")) continue;
                 const lineFileInfo = this.resolveFilename(l, fileInfo.fullPath);
                 if (
                     lineFileInfo.fullPath &&

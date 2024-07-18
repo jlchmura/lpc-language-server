@@ -8,7 +8,7 @@ Install from the VS Code Marketplace: https://marketplace.visualstudio.com/items
 
 ## Features
 
--   Code Completion / [IntelliSense](#intellisense) - Results appear for symbols as you type, including lfuns.
+-   Code Completion / IntelliSense - Results appear for symbols as you type, including lfuns.
 -   Diagnostics
 -   Hover info
 -   Signature help, with type info
@@ -20,9 +20,9 @@ Install from the VS Code Marketplace: https://marketplace.visualstudio.com/items
 -   Code navigation
 -   [Include / sefun support](#includes--sefuns)
 
-### Intellisense
+### Doc Comments
 
-LPC Language Services uses [JSDoc-style](https://www.typescriptlang.org/docs/handbook/jsdoc-supported-types.html) comments to provide IntelliSense support.
+LPC Language Services uses [JSDoc-style](https://www.typescriptlang.org/docs/handbook/jsdoc-supported-types.html) comments to provide additional context during hover and signature help.
 
 Example:
 
@@ -36,6 +36,10 @@ int doCommand(string cmd) {
     return 1;
 }
 ```
+
+## If you love this extension, you could
+
+[<img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" >](https://www.buymeacoffee.com/jlchmura)
 
 ## Changelog
 
