@@ -3989,3 +3989,41 @@ export function getLinesBetweenRangeEndAndRangeStart(range1: TextRange, range2: 
 export function rangeEndIsOnSameLineAsRangeStart(range1: TextRange, range2: TextRange, sourceFile: SourceFile) {
     return positionsAreOnSameLine(range1.end, getStartPositionOfRange(range2, sourceFile, /*includeComments*/ false), sourceFile);
 }
+
+/** @internal */
+export function getAssignmentDeclarationPropertyAccessKind(lhs: AccessExpression): AssignmentDeclarationKind {
+    // if (isModuleExportsAccessExpression(lhs)) {
+    //     // module.exports = expr
+    //     return AssignmentDeclarationKind.ModuleExports;
+    // }
+    
+
+    return AssignmentDeclarationKind.None;
+}
+
+/** @internal */
+export function getPropertyNameForPropertyNameNode(name: PropertyName): string | undefined {
+    switch (name.kind) {
+        case SyntaxKind.Identifier:
+        //case SyntaxKind.PrivateIdentifier:
+            return name.text;
+        case SyntaxKind.StringLiteral:
+        //case SyntaxKind.NoSubstitutionTemplateLiteral:
+        case SyntaxKind.IntLiteral:        
+            return (name.text);
+        // case SyntaxKind.ComputedPropertyName:
+        //     const nameExpression = name.expression;
+        //     if (isStringOrNumericLiteralLike(nameExpression)) {
+        //         return escapeLeadingUnderscores(nameExpression.text);
+        //     }
+        //     else if (isSignedNumericLiteral(nameExpression)) {
+        //         if (nameExpression.operator === SyntaxKind.MinusToken) {
+        //             return tokenToString(nameExpression.operator) + nameExpression.operand.text as string;
+        //         }
+        //         return nameExpression.operand.text as string;
+        //     }
+        //     return undefined;        
+        default:
+            return Debug.assertNever(name);
+    }
+}

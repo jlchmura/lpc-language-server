@@ -875,6 +875,9 @@ export const enum ModifierFlags {
     VarArgs =            1 << 9,
     Visible =            1 << 10,
     Export =             1 << 11, // Declarations
+    
+    
+    Ambient =            1 << 12,
 
     Deprecated =         1 << 16, // Deprecated tag.
 

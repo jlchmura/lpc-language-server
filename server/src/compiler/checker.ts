@@ -1,5 +1,5 @@
 import { CharacterCodes } from "../backend/types";
-import {Type,Symbol, SymbolLinks, CancellationToken, createSymbolTable, Declaration, EmitTextWriter, ModifierFlags, Node, NodeFlags, objectAllocator, Scanner, Signature, SignatureKind, SymbolFlags, TypeChecker, TypeCheckerHost, TypeFormatFlags, TypeParameter, CheckFlags, TransientSymbol, TransientSymbolLinks, reduceLeft, bindSourceFile, SourceFile, Diagnostic, createDiagnosticCollection, concatenate, forEach, tracing, performance, NodeLinks, NodeCheckFlags, FlowNode, FlowType, clear, SyntaxKind, TracingNode, CallLikeExpression, CallExpression, isCallOrNewExpression, isBinaryExpression, Expression, SignatureDeclaration, SignatureFlags, emptyArray, TypeFlags, IntrinsicType, ObjectFlags, Debug, BinaryExpression, ObjectType, StructuredType, ResolvedType, SymbolTable, IndexInfo, Identifier, nodeIsMissing, createNameResolver, InternalSymbolName, SymbolId, some, DiagnosticMessage, DiagnosticArguments, createDiagnosticForNode, createCompilerDiagnostic, FunctionLikeDeclaration, PropertyDeclaration, isString, isIdentifier, Diagnostics, findLast, SymbolFormatFlags, isAccessExpression, isFunctionExpression, isAliasableExpression, PropertyAssignment, isVariableDeclarationInitializedToBareOrAccessedRequire, mapDefined, arrayFrom, getSpellingSuggestion, symbolName, startsWith, nodeIsSynthesized, declarationNameToString, getCanonicalDiagnostic, DiagnosticCategory, addRelatedInfo, ParameterDeclaration, BindingElement, isSourceFile, isExternalOrCommonJsModule, isBlockOrCatchScoped, length, every, isValidTypeOnlyAliasUseSite, isWriteOnlyAccess, getCombinedNodeFlags, DiagnosticWithLocation, getJSDocDeprecatedTag, findAncestor, isCallLikeExpression, isFunctionLike, ParenthesizedExpression, isAssignmentExpression, isVariableDeclaration, isBindingElement, PropertyAccessExpression, getEnclosingBlockScopeContainer, isPropertyDeclaration, nodeStartsNewLexicalEnvironment, isIterationStatement, isForStatement, getAncestor, ForStatement, pushIfUnique, isAssignmentTarget, PrefixUnaryExpression, PostfixUnaryExpression, isBlock, isExpressionNode, isPropertyAccessExpression, getAssignmentTargetKind, AssignmentKind, isInCompoundLikeAssignment, UnionType, TypeId, UnionReduction, getRootDeclaration, getImmediatelyInvokedFunctionExpression, isSpreadAssignment, isParameter, VariableDeclaration, isFunctionLikeDeclaration, isTypeNode, forEachChild, tryCast, canHaveFlowNode, ElementAccessExpression, RelationComparisonResult, LiteralType, FreshableType, getObjectFlags, DiagnosticMessageChain, setNodeFlags, isCallExpression, LazyNodeCheckFlags, getSourceFileOfNode, canIncludeBindAndCheckDiagnostics, forEachChildRecursively, isDeclarationName, EntityName, JSDocMemberName, canHaveSymbol, isLiteralTypeNode, isElementAccessExpression, isIndexedAccessTypeNode, TypeNode, canHaveJSDoc, FlowFlags, FlowArrayMutation, FlowAssignment, FlowCall, FlowCondition, FlowLabel, FlowReduceLabel, FlowSwitchClause, SwitchStatement, createFileDiagnostic, createDiagnosticForFileFromMessageChain, createDiagnosticForNodeFromMessageChain, VariableStatement, HasModifiers, VariableDeclarationList, Block, isFunctionOrModuleBlock, CaseBlock, ForEachStatement, IndexSignatureDeclaration, Path, HasLocals, BindingPattern, idText, isForEachStatement, getNameOfDeclaration, isArrayBindingPattern, first, BindingName, cast, containsParseError, FunctionDeclaration, getFunctionFlags, getEffectiveReturnTypeNode, FunctionFlags, nodeIsPresent, JSDocSignature, isJSDocSignature, getJSDocRoot, LiteralTypeNode, TypeNodeSyntaxKind, isStatement, UnionOrIntersectionType, getContainingFunction, hasSyntacticModifier, isBindingPattern, sameMap, flatMap, getCheckFlags, singleElementArray, getDeclarationModifierFlagsFromSymbol, Ternary, append, find, isNumericLiteralName, StringLiteralType, contains, isTransientSymbol, addRange, filter, IndexType, getParseTreeNode, isRightSideOfQualifiedNameOrPropertyAccess, isWriteAccess, isRightSideOfAccessExpression, hasEffectiveModifier, getCombinedModifierFlags, isEntityName, PropertyAccessEntityNameExpression, isRightSideOfQualifiedNameOrPropertyAccessOrJSDocMemberName, QualifiedName, getHostSignatureFromJSDoc, or, EntityNameOrEntityNameExpression, isInJSFile, getFirstIdentifier, isQualifiedName, entityNameToString, isCallChain, isEntityNameExpression, isLineBreak, skipTrivia, DiagnosticRelatedInformation, IntLiteralType, FloatLiteralType, createTextWriter, chainDiagnosticMessages, getErrorSpanForNode, ShorthandPropertyAssignment, NodeBuilderFlags, SymbolTracker, TrackedSymbol, ReverseMappedSymbol, TypeMapper, ModuleSpecifierResolutionHost, Program, maybeBind, setEmitFlags, createNodeFactory, NodeFactoryFlags, BaseNodeFactory, Mutable, createBaseNodeFactory, firstDefined, isComputedPropertyName, isIdentifierText, escapeString, getEmitScriptTarget, factory, EmitFlags, isSingleOrDoubleQuote, canUsePropertyAccess, stripQuotes, DoWhileStatement, BinaryOperatorToken, isLogicalOrCoalescingBinaryOperator, isLogicalOrCoalescingBinaryExpression, isIfStatement, skipParentheses, Statement, PunctuationSyntaxKind, tokenToString, FreshableIntrinsicType, isLiteralExpressionOfObject, getAssignmentDeclarationKind, AssignmentDeclarationKind, ConditionalExpression, isAssignmentOperator, isJSDocTypedefTag, isIntLiteral, skipOuterExpressions, OuterExpressionKinds, isExpression, ObjectLiteralExpression, ArrayLiteralExpression, FunctionExpression, InlineClosureExpression, ObjectLiteralElementLike, hasContextSensitiveParameters, forEachReturnStatement, compareDiagnostics, Comparison, createBinaryExpressionTrampoline, IntLiteral, FloatLiteral, isShorthandPropertyAssignment, isPropertyAccessOrQualifiedName, isPrivateIdentifier, WideningContext, StringLiteral, ReturnStatement, ExpressionStatement, IfStatement, NewExpression, getMembersOfDeclaration, AccessExpression, isThisInitializedDeclaration, setValueDeclaration, comparePaths, getOrUpdate, usingSingleLineStringWriter, createPrinterWithRemoveCommentsNeverAsciiEscape, createPrinterWithRemoveComments, EmitHint } from "./_namespaces/lpc";
+import {Type,Symbol, SymbolLinks, CancellationToken, createSymbolTable, Declaration, EmitTextWriter, ModifierFlags, Node, NodeFlags, objectAllocator, Scanner, Signature, SignatureKind, SymbolFlags, TypeChecker, TypeCheckerHost, TypeFormatFlags, TypeParameter, CheckFlags, TransientSymbol, TransientSymbolLinks, reduceLeft, bindSourceFile, SourceFile, Diagnostic, createDiagnosticCollection, concatenate, forEach, tracing, performance, NodeLinks, NodeCheckFlags, FlowNode, FlowType, clear, SyntaxKind, TracingNode, CallLikeExpression, CallExpression, isCallOrNewExpression, isBinaryExpression, Expression, SignatureDeclaration, SignatureFlags, emptyArray, TypeFlags, IntrinsicType, ObjectFlags, Debug, BinaryExpression, ObjectType, StructuredType, ResolvedType, SymbolTable, IndexInfo, Identifier, nodeIsMissing, createNameResolver, InternalSymbolName, SymbolId, some, DiagnosticMessage, DiagnosticArguments, createDiagnosticForNode, createCompilerDiagnostic, FunctionLikeDeclaration, PropertyDeclaration, isString, isIdentifier, Diagnostics, findLast, SymbolFormatFlags, isAccessExpression, isFunctionExpression, isAliasableExpression, PropertyAssignment, isVariableDeclarationInitializedToBareOrAccessedRequire, mapDefined, arrayFrom, getSpellingSuggestion, symbolName, startsWith, nodeIsSynthesized, declarationNameToString, getCanonicalDiagnostic, DiagnosticCategory, addRelatedInfo, ParameterDeclaration, BindingElement, isSourceFile, isExternalOrCommonJsModule, isBlockOrCatchScoped, length, every, isValidTypeOnlyAliasUseSite, isWriteOnlyAccess, getCombinedNodeFlags, DiagnosticWithLocation, getJSDocDeprecatedTag, findAncestor, isCallLikeExpression, isFunctionLike, ParenthesizedExpression, isAssignmentExpression, isVariableDeclaration, isBindingElement, PropertyAccessExpression, getEnclosingBlockScopeContainer, isPropertyDeclaration, nodeStartsNewLexicalEnvironment, isIterationStatement, isForStatement, getAncestor, ForStatement, pushIfUnique, isAssignmentTarget, PrefixUnaryExpression, PostfixUnaryExpression, isBlock, isExpressionNode, isPropertyAccessExpression, getAssignmentTargetKind, AssignmentKind, isInCompoundLikeAssignment, UnionType, TypeId, UnionReduction, getRootDeclaration, getImmediatelyInvokedFunctionExpression, isSpreadAssignment, isParameter, VariableDeclaration, isFunctionLikeDeclaration, isTypeNode, forEachChild, tryCast, canHaveFlowNode, ElementAccessExpression, RelationComparisonResult, LiteralType, FreshableType, getObjectFlags, DiagnosticMessageChain, setNodeFlags, isCallExpression, LazyNodeCheckFlags, getSourceFileOfNode, canIncludeBindAndCheckDiagnostics, forEachChildRecursively, isDeclarationName, EntityName, JSDocMemberName, canHaveSymbol, isLiteralTypeNode, isElementAccessExpression, isIndexedAccessTypeNode, TypeNode, canHaveJSDoc, FlowFlags, FlowArrayMutation, FlowAssignment, FlowCall, FlowCondition, FlowLabel, FlowReduceLabel, FlowSwitchClause, SwitchStatement, createFileDiagnostic, createDiagnosticForFileFromMessageChain, createDiagnosticForNodeFromMessageChain, VariableStatement, HasModifiers, VariableDeclarationList, Block, isFunctionOrModuleBlock, CaseBlock, ForEachStatement, IndexSignatureDeclaration, Path, HasLocals, BindingPattern, idText, isForEachStatement, getNameOfDeclaration, isArrayBindingPattern, first, BindingName, cast, containsParseError, FunctionDeclaration, getFunctionFlags, getEffectiveReturnTypeNode, FunctionFlags, nodeIsPresent, JSDocSignature, isJSDocSignature, getJSDocRoot, LiteralTypeNode, TypeNodeSyntaxKind, isStatement, UnionOrIntersectionType, getContainingFunction, hasSyntacticModifier, isBindingPattern, sameMap, flatMap, getCheckFlags, singleElementArray, getDeclarationModifierFlagsFromSymbol, Ternary, append, find, isNumericLiteralName, StringLiteralType, contains, isTransientSymbol, addRange, filter, IndexType, getParseTreeNode, isRightSideOfQualifiedNameOrPropertyAccess, isWriteAccess, isRightSideOfAccessExpression, hasEffectiveModifier, getCombinedModifierFlags, isEntityName, PropertyAccessEntityNameExpression, isRightSideOfQualifiedNameOrPropertyAccessOrJSDocMemberName, QualifiedName, getHostSignatureFromJSDoc, or, EntityNameOrEntityNameExpression, isInJSFile, getFirstIdentifier, isQualifiedName, entityNameToString, isCallChain, isEntityNameExpression, isLineBreak, skipTrivia, DiagnosticRelatedInformation, IntLiteralType, FloatLiteralType, createTextWriter, chainDiagnosticMessages, getErrorSpanForNode, ShorthandPropertyAssignment, NodeBuilderFlags, SymbolTracker, TrackedSymbol, ReverseMappedSymbol, TypeMapper, ModuleSpecifierResolutionHost, Program, maybeBind, setEmitFlags, createNodeFactory, NodeFactoryFlags, BaseNodeFactory, Mutable, createBaseNodeFactory, firstDefined, isComputedPropertyName, isIdentifierText, escapeString, getEmitScriptTarget, factory, EmitFlags, isSingleOrDoubleQuote, canUsePropertyAccess, stripQuotes, DoWhileStatement, BinaryOperatorToken, isLogicalOrCoalescingBinaryOperator, isLogicalOrCoalescingBinaryExpression, isIfStatement, skipParentheses, Statement, PunctuationSyntaxKind, tokenToString, FreshableIntrinsicType, isLiteralExpressionOfObject, getAssignmentDeclarationKind, AssignmentDeclarationKind, ConditionalExpression, isAssignmentOperator, isJSDocTypedefTag, isIntLiteral, skipOuterExpressions, OuterExpressionKinds, isExpression, ObjectLiteralExpression, ArrayLiteralExpression, FunctionExpression, InlineClosureExpression, ObjectLiteralElementLike, hasContextSensitiveParameters, forEachReturnStatement, compareDiagnostics, Comparison, createBinaryExpressionTrampoline, IntLiteral, FloatLiteral, isShorthandPropertyAssignment, isPropertyAccessOrQualifiedName, isPrivateIdentifier, WideningContext, StringLiteral, ReturnStatement, ExpressionStatement, IfStatement, NewExpression, getMembersOfDeclaration, AccessExpression, isThisInitializedDeclaration, setValueDeclaration, comparePaths, getOrUpdate, usingSingleLineStringWriter, createPrinterWithRemoveCommentsNeverAsciiEscape, createPrinterWithRemoveComments, EmitHint, getEffectiveModifierFlags, getEffectiveTypeAnnotationNode, getAssignmentDeclarationPropertyAccessKind, isNamedDeclaration, map, PropertyName, isFloatLiteral, getPropertyNameForPropertyNameNode } from "./_namespaces/lpc";
 
 let nextSymbolId = 1;
 let nextNodeId = 1;
@@ -96,6 +96,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     var varianceTypeParameter: TypeParameter | undefined;
     var isInferencePartiallyBlocked = false;
     var strictNullChecks = false; 
+    var strictPropertyInitialization  = false;
 
     var emptySymbols = createSymbolTable();
     
@@ -110,6 +111,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     
     var checkBinaryExpression = createCheckBinaryExpression();
     var nodeBuilder = createNodeBuilder();
+    var noImplicitAny = false;
 
     interface DuplicateInfoForSymbol {
         readonly firstFileLocations: Declaration[];
@@ -3280,7 +3282,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 checkSuperExpression(node);
             }
         }
-
+                
         function checkIdentifiers(node: Node) {
             const links = getNodeLinks(node);
             if (links.calculatedFlags & flag) return "skip";
@@ -3327,7 +3329,263 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             // }
         }
     }
+
+    function isAutoTypedProperty(symbol: Symbol) {
+        // A property is auto-typed when its declaration has no type annotation or initializer and we're in
+        // noImplicitAny mode or a .js file.
+        const declaration = symbol.valueDeclaration;
+        return declaration && isPropertyDeclaration(declaration) && !getEffectiveTypeAnnotationNode(declaration) &&
+            !declaration.initializer && (noImplicitAny || isInJSFile(declaration));
+    }
     
+    function getFlowTypeOfProperty(reference: Node, prop: Symbol | undefined) {
+        const initialType = undefinedType;
+        console.warn("todo implement me - getFlowTypeOfProperty");
+        // const initialType = prop?.valueDeclaration
+        //         && (!isAutoTypedProperty(prop) || getEffectiveModifierFlags(prop.valueDeclaration) & ModifierFlags.Ambient)
+        //         && getTypeOfPropertyInBaseClass(prop)
+        //     || undefinedType;
+        return getFlowTypeOfReference(reference, autoType, initialType);
+    }
+
+    function getFlowTypeOfAccessExpression(node: ElementAccessExpression | PropertyAccessExpression | QualifiedName, prop: Symbol | undefined, propType: Type, errorNode: Node, checkMode: CheckMode | undefined) {
+        // Only compute control flow type if this is a property access expression that isn't an
+        // assignment target, and the referenced property was declared as a variable, property,
+        // accessor, or optional method.
+        const assignmentKind = getAssignmentTargetKind(node);
+        if (assignmentKind === AssignmentKind.Definite) {
+            return removeMissingType(propType, !!(prop && prop.flags & SymbolFlags.Optional));
+        }
+        if (
+            prop &&
+            !(prop.flags & (SymbolFlags.Variable | SymbolFlags.Property | SymbolFlags.Accessor))
+            && !(prop.flags & SymbolFlags.Method && propType.flags & TypeFlags.Union)
+            //&& !isDuplicatedCommonJSExport(prop.declarations)
+        ) {
+            return propType;
+        }
+        if (propType === autoType) {
+            return getFlowTypeOfProperty(node, prop);
+        }
+        propType = getNarrowableTypeForReference(propType, node, checkMode);
+        // If strict null checks and strict property initialization checks are enabled, if we have
+        // a this.xxx property access, if the property is an instance property without an initializer,
+        // and if we are in a constructor of the same class as the property declaration, assume that
+        // the property is uninitialized at the top of the control flow.
+        let assumeUninitialized = false;
+        // if (strictNullChecks && strictPropertyInitialization && isAccessExpression(node) && node.expression.kind === SyntaxKind.ThisKeyword) {
+        //     const declaration = prop && prop.valueDeclaration;
+        //     if (declaration && isPropertyWithoutInitializer(declaration)) {
+        //         if (!isStatic(declaration)) {
+        //             const flowContainer = getControlFlowContainer(node);
+        //             if (flowContainer.kind === SyntaxKind.Constructor && flowContainer.parent === declaration.parent && !(declaration.flags & NodeFlags.Ambient)) {
+        //                 assumeUninitialized = true;
+        //             }
+        //         }
+        //     }
+        // } else 
+        if (
+            strictNullChecks && prop && prop.valueDeclaration &&
+            isPropertyAccessExpression(prop.valueDeclaration) &&
+            getAssignmentDeclarationPropertyAccessKind(prop.valueDeclaration) &&
+            getControlFlowContainer(node) === getControlFlowContainer(prop.valueDeclaration)
+        ) {
+            assumeUninitialized = true;
+        }
+        const flowType = getFlowTypeOfReference(node, propType, assumeUninitialized ? getOptionalType(propType) : propType);
+        if (assumeUninitialized && !containsUndefinedType(propType) && containsUndefinedType(flowType)) {
+            error(errorNode, Diagnostics.Property_0_is_used_before_being_assigned, symbolToString(prop!)); // TODO: GH#18217
+            // Return the declared type to reduce follow-on errors
+            return propType;
+        }
+        return assignmentKind ? getBaseTypeOfLiteralType(flowType) : flowType;
+    }
+
+    function getOptionalType(type: Type, isProperty = false): Type {
+        Debug.assert(strictNullChecks);
+        const missingOrUndefined = isProperty ? undefinedOrMissingType : undefinedType;
+        return type === missingOrUndefined || type.flags & TypeFlags.Union && (type as UnionType).types[0] === missingOrUndefined ? type : getUnionType([type, missingOrUndefined]);
+    }
+
+    
+    /**
+     * Check whether the requested property access is valid.
+     * Returns true if node is a valid property access, and false otherwise.
+     * @param node The node to be checked.
+     * @param isSuper True if the access is from `super.`.
+     * @param type The type of the object whose property is being accessed. (Not the type of the property.)
+     * @param prop The symbol for the property being accessed.
+     */
+    function checkPropertyAccessibility(
+        node: PropertyAccessExpression | QualifiedName | PropertyAccessExpression | VariableDeclaration | ParameterDeclaration | /*ImportTypeNode |*/ PropertyAssignment | ShorthandPropertyAssignment | BindingElement,
+        isSuper: boolean,
+        writing: boolean,
+        type: Type,
+        prop: Symbol,
+        reportError = true,
+    ): boolean {
+        const errorNode = !reportError ? undefined :
+            node.kind === SyntaxKind.QualifiedName ? node.right :
+            //node.kind === SyntaxKind.ImportType ? node :
+            node.kind === SyntaxKind.BindingElement && node.propertyName ? node.propertyName : node.name;
+
+        return checkPropertyAccessibilityAtLocation(node, isSuper, writing, type, prop, errorNode);
+    }
+
+    /**
+     * Check whether the requested property can be accessed at the requested location.
+     * Returns true if node is a valid property access, and false otherwise.
+     * @param location The location node where we want to check if the property is accessible.
+     * @param isSuper True if the access is from `super.`.
+     * @param writing True if this is a write property access, false if it is a read property access.
+     * @param containingType The type of the object whose property is being accessed. (Not the type of the property.)
+     * @param prop The symbol for the property being accessed.
+     * @param errorNode The node where we should report an invalid property access error, or undefined if we should not report errors.
+     */
+    function checkPropertyAccessibilityAtLocation(location: Node, isSuper: boolean, writing: boolean, containingType: Type, prop: Symbol, errorNode?: Node): boolean {
+        const flags = getDeclarationModifierFlagsFromSymbol(prop, writing);
+
+        if (isSuper) {
+            // TS 1.0 spec (April 2014): 4.8.2
+            // - In a constructor, instance member function, instance member accessor, or
+            //   instance member variable initializer where this references a derived class instance,
+            //   a super property access is permitted and must specify a public instance member function of the base class.
+            // - In a static member function or static member accessor
+            //   where this references the constructor function object of a derived class,
+            //   a super property access is permitted and must specify a public static member function of the base class.
+            // if (languageVersion < ScriptTarget.ES2015) {
+            //     if (symbolHasNonMethodDeclaration(prop)) {
+            //         if (errorNode) {
+            //             error(errorNode, Diagnostics.Only_public_and_protected_methods_of_the_base_class_are_accessible_via_the_super_keyword);
+            //         }
+            //         return false;
+            //     }
+            // }
+            // if (flags & ModifierFlags.Abstract) {
+            //     // A method cannot be accessed in a super property access if the method is abstract.
+            //     // This error could mask a private property access error. But, a member
+            //     // cannot simultaneously be private and abstract, so this will trigger an
+            //     // additional error elsewhere.
+            //     if (errorNode) {
+            //         error(errorNode, Diagnostics.Abstract_method_0_in_class_1_cannot_be_accessed_via_super_expression, symbolToString(prop), typeToString(getDeclaringClass(prop)!));
+            //     }
+            //     return false;
+            // }
+            // A class field cannot be accessed via super.* from a derived class.
+            // This is true for both [[Set]] (old) and [[Define]] (ES spec) semantics.
+            // if (!(flags & ModifierFlags.Static) && prop.declarations?.some(isClassInstanceProperty)) {
+            //     if (errorNode) {
+            //         error(errorNode, Diagnostics.Class_field_0_defined_by_the_parent_class_is_not_accessible_in_the_child_class_via_super, symbolToString(prop));
+            //     }
+            //     return false;
+            // }
+        }
+
+        // Referencing abstract properties within their own constructors is not allowed
+        // if (
+        //     (flags & ModifierFlags.Abstract) && symbolHasNonMethodDeclaration(prop) &&
+        //     (isThisProperty(location) || isThisInitializedObjectBindingExpression(location) || isObjectBindingPattern(location.parent) && isThisInitializedDeclaration(location.parent.parent))
+        // ) {
+        //     const declaringClassDeclaration = getClassLikeDeclarationOfSymbol(getParentOfSymbol(prop)!);
+        //     if (declaringClassDeclaration && isNodeUsedDuringClassInitialization(location)) {
+        //         if (errorNode) {
+        //             error(errorNode, Diagnostics.Abstract_property_0_in_class_1_cannot_be_accessed_in_the_constructor, symbolToString(prop), getTextOfIdentifierOrLiteral(declaringClassDeclaration.name!));
+        //         }
+        //         return false;
+        //     }
+        // }
+
+        // Public properties are otherwise accessible.
+        if (!(flags & ModifierFlags.NonPublicAccessibilityModifier)) {
+            return true;
+        }
+
+        // Property is known to be private or protected at this point
+
+        // Private property is accessible if the property is within the declaring class
+        // if (flags & ModifierFlags.Private) {
+        //     const declaringClassDeclaration = getClassLikeDeclarationOfSymbol(getParentOfSymbol(prop)!)!;
+        //     if (!isNodeWithinClass(location, declaringClassDeclaration)) {
+        //         if (errorNode) {
+        //             error(errorNode, Diagnostics.Property_0_is_private_and_only_accessible_within_class_1, symbolToString(prop), typeToString(getDeclaringClass(prop)!));
+        //         }
+        //         return false;
+        //     }
+        //     return true;
+        // }
+
+        // Property is known to be protected at this point
+
+        // All protected properties of a supertype are accessible in a super access
+        if (isSuper) {
+            return true;
+        }
+
+        // Find the first enclosing class that has the declaring classes of the protected constituents
+        // of the property as base classes
+        // let enclosingClass = forEachEnclosingClass(location, enclosingDeclaration => {
+        //     const enclosingClass = getDeclaredTypeOfSymbol(getSymbolOfDeclaration(enclosingDeclaration)) as InterfaceType;
+        //     return isClassDerivedFromDeclaringClasses(enclosingClass, prop, writing);
+        // });
+        // // A protected property is accessible if the property is within the declaring class or classes derived from it
+        // if (!enclosingClass) {
+        //     // allow PropertyAccessibility if context is in function with this parameter
+        //     // static member access is disallowed
+        //     enclosingClass = getEnclosingClassFromThisParameter(location);
+        //     enclosingClass = enclosingClass && isClassDerivedFromDeclaringClasses(enclosingClass, prop, writing);
+        //     if (flags & ModifierFlags.Static || !enclosingClass) {
+        //         if (errorNode) {
+        //             error(errorNode, Diagnostics.Property_0_is_protected_and_only_accessible_within_class_1_and_its_subclasses, symbolToString(prop), typeToString(getDeclaringClass(prop) || containingType));
+        //         }
+        //         return false;
+        //     }
+        // }
+        // No further restrictions for static properties
+        // if (flags & ModifierFlags.Static) {
+        //     return true;
+        // }
+        // if (containingType.flags & TypeFlags.TypeParameter) {
+        //     // get the original type -- represented as the type constraint of the 'this' type
+        //     containingType = (containingType as TypeParameter).isThisType ? getConstraintOfTypeParameter(containingType as TypeParameter)! : getBaseConstraintOfType(containingType as TypeParameter)!; // TODO: GH#18217 Use a different variable that's allowed to be undefined
+        // }
+        // if (!containingType || !hasBaseType(containingType, enclosingClass)) {
+        //     if (errorNode) {
+        //         error(errorNode, Diagnostics.Property_0_is_protected_and_only_accessible_through_an_instance_of_class_1_This_is_an_instance_of_class_2, symbolToString(prop), typeToString(enclosingClass), typeToString(containingType));
+        //     }
+        //     return false;
+        // }
+        return true;
+    }
+
+
+    function markPropertyAsReferenced(prop: Symbol, nodeForCheckWriteOnly: Node | undefined, isSelfTypeAccess: boolean) {
+        const valueDeclaration = prop && (prop.flags & SymbolFlags.ClassMember) && prop.valueDeclaration;
+        if (!valueDeclaration) {
+            return;
+        }
+        const hasPrivateModifier = hasEffectiveModifier(valueDeclaration, ModifierFlags.Private);
+        const hasPrivateIdentifier = prop.valueDeclaration && isNamedDeclaration(prop.valueDeclaration) && isPrivateIdentifier(prop.valueDeclaration.name);
+        if (!hasPrivateModifier && !hasPrivateIdentifier) {
+            return;
+        }
+        if (nodeForCheckWriteOnly && isWriteOnlyAccess(nodeForCheckWriteOnly) && !(prop.flags & SymbolFlags.SetAccessor)) {
+            return;
+        }
+        if (isSelfTypeAccess) {
+            // Find any FunctionLikeDeclaration because those create a new 'this' binding. But this should only matter for methods (or getters/setters).
+            const containingMethod = findAncestor(nodeForCheckWriteOnly, isFunctionLikeDeclaration);
+            if (containingMethod && containingMethod.symbol === prop) {
+                return;
+            }
+        }
+
+        (getCheckFlags(prop) & CheckFlags.Instantiated ? getSymbolLinks(prop).target : prop)!.isReferenced = SymbolFlags.All;
+    }
+
+    function isSelfTypeAccess(name: Expression | QualifiedName, parent: Symbol | undefined) {
+        return !!parent && isEntityNameExpression(name) && parent === getResolvedSymbol(getFirstIdentifier(name));
+    }
+       
     // The invalid initializer error is needed in two situation:
     // 1. When result is undefined, after checking for a missing "this."
     // 2. When result is defined
@@ -3780,6 +4038,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             case SyntaxKind.IntLiteral:
                 //checkGrammarNumericLiteral(node as NumericLiteral);
                 return getFreshTypeOfLiteralType(getNumberLiteralType(+(node as IntLiteral).text));
+            case SyntaxKind.FloatLiteral:
+                return getFreshTypeOfLiteralType(getNumberLiteralType(parseFloat((node as FloatLiteral).text)));
             // case SyntaxKind.BigIntLiteral:
             //     checkGrammarBigIntLiteral(node as BigIntLiteral);
             //     return getFreshTypeOfLiteralType(getBigIntLiteralType({
@@ -3800,8 +4060,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             //     return checkObjectLiteral(node as ObjectLiteralExpression, checkMode);
             // case SyntaxKind.PropertyAccessExpression:
             //     return checkPropertyAccessExpression(node as PropertyAccessExpression, checkMode);
-            // case SyntaxKind.QualifiedName:
-            //     return checkQualifiedName(node as QualifiedName, checkMode);
+            case SyntaxKind.QualifiedName:
+                return checkQualifiedName(node as QualifiedName, checkMode);
             // case SyntaxKind.ElementAccessExpression:
             //     return checkIndexedAccess(node as ElementAccessExpression, checkMode);
             case SyntaxKind.CallExpression:
@@ -6780,7 +7040,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
      * @param propSymbol The optional symbol of the property we're looking up - this is used for property accesses when `const enum`s do not count as references (no `isolatedModules`, no `preserveConstEnums` + export). It will be calculated if not provided.
      * @param parentType The optional type of the parent of the LHS of the property access - this will be recalculated if not provided (but is costly).
      */
-    function markLinkedReferences(location: PropertyAccessExpression, hint: ReferenceHint.Property, propSymbol: Symbol | undefined, parentType: Type): void;
+    function markLinkedReferences(location: PropertyAccessExpression | QualifiedName, hint: ReferenceHint.Property, propSymbol: Symbol | undefined, parentType: Type): void;
     function markLinkedReferences(location: Identifier, hint: ReferenceHint.Identifier): void;
     //function markLinkedReferences(location: ExportAssignment, hint: ReferenceHint.ExportAssignment): void;    
     function markLinkedReferences(location: FunctionLikeDeclaration /*| MethodSignature*/, hint: ReferenceHint.AsyncFunction): void;
@@ -6879,7 +7139,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         let prop = propSymbol;
         if (!prop && !parentType) {
             const right = isPropertyAccessExpression(location) ? location.name : location.right;
-            const lexicallyScopedSymbol = false;// isPrivateIdentifier(right) && lookupSymbolForPrivateIdentifierDeclaration(right.escapedText, right);
+            const lexicallyScopedSymbol = false;// isPrivateIdentifier(right) && lookupSymbolForPrivateIdentifierDeclaration(right.text, right);
             const assignmentKind = getAssignmentTargetKind(location);
             const apparentType = getApparentType(assignmentKind !== AssignmentKind.None /*|| isMethodAccessForCall(location)*/ ? getWidenedType(leftType) : leftType);
             prop = /*isPrivateIdentifier(right) ? lexicallyScopedSymbol && getPrivateIdentifierPropertyOfType(apparentType, lexicallyScopedSymbol) || undefined :*/ getPropertyOfType(apparentType, (right as Identifier).text);
@@ -7345,6 +7605,143 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             isFunctionLike(node) && !getImmediatelyInvokedFunctionExpression(node) ||            
             node.kind === SyntaxKind.SourceFile ||
             node.kind === SyntaxKind.PropertyDeclaration)!;
+    }
+
+    function checkNonNullExpression(node: Expression | QualifiedName) {
+        return checkNonNullType(checkExpression(node), node);
+    }
+            
+    function isMethodAccessForCall(node: Node) {
+        while (node.parent.kind === SyntaxKind.ParenthesizedExpression) {
+            node = node.parent;
+        }
+        return isCallOrNewExpression(node.parent) && node.parent.expression === node;
+    }
+
+    function checkQualifiedName(node: QualifiedName, checkMode: CheckMode | undefined) {
+        const leftType = checkNonNullExpression(node.left);
+        return checkPropertyAccessExpressionOrQualifiedName(node, node.left, leftType, node.right, checkMode);
+    }
+    
+    function checkPropertyAccessExpressionOrQualifiedName(node: PropertyAccessExpression | QualifiedName, left: Expression | QualifiedName, leftType: Type, right: Identifier, checkMode: CheckMode | undefined, writeOnly?: boolean) {
+        const parentSymbol = getNodeLinks(left).resolvedSymbol;
+        const assignmentKind = getAssignmentTargetKind(node);
+        const apparentType = getApparentType(assignmentKind !== AssignmentKind.None || isMethodAccessForCall(node) ? getWidenedType(leftType) : leftType);
+        const isAnyLike = isTypeAny(apparentType) || apparentType === silentNeverType;
+        let prop: Symbol | undefined;
+        // if (isPrivateIdentifier(right)) {
+        //     if (
+        //         languageVersion < LanguageFeatureMinimumTarget.PrivateNamesAndClassStaticBlocks ||
+        //         languageVersion < LanguageFeatureMinimumTarget.ClassAndClassElementDecorators ||
+        //         !useDefineForClassFields
+        //     ) {
+        //         if (assignmentKind !== AssignmentKind.None) {
+        //             checkExternalEmitHelpers(node, ExternalEmitHelpers.ClassPrivateFieldSet);
+        //         }
+        //         if (assignmentKind !== AssignmentKind.Definite) {
+        //             checkExternalEmitHelpers(node, ExternalEmitHelpers.ClassPrivateFieldGet);
+        //         }
+        //     }
+
+        //     const lexicallyScopedSymbol = lookupSymbolForPrivateIdentifierDeclaration(right.text, right);
+        //     if (assignmentKind && lexicallyScopedSymbol && lexicallyScopedSymbol.valueDeclaration && isMethodDeclaration(lexicallyScopedSymbol.valueDeclaration)) {
+        //         grammarErrorOnNode(right, Diagnostics.Cannot_assign_to_private_method_0_Private_methods_are_not_writable, idText(right));
+        //     }
+        //     if (isAnyLike) {
+        //         if (lexicallyScopedSymbol) {
+        //             return isErrorType(apparentType) ? errorType : apparentType;
+        //         }
+        //         if (getContainingClassExcludingClassDecorators(right) === undefined) {
+        //             grammarErrorOnNode(right, Diagnostics.Private_identifiers_are_not_allowed_outside_class_bodies);
+        //             return anyType;
+        //         }
+        //     }
+
+        //     prop = lexicallyScopedSymbol && getPrivateIdentifierPropertyOfType(leftType, lexicallyScopedSymbol);
+        //     if (prop === undefined) {
+        //         // Check for private-identifier-specific shadowing and lexical-scoping errors.
+        //         if (checkPrivateIdentifierPropertyAccess(leftType, right, lexicallyScopedSymbol)) {
+        //             return errorType;
+        //         }
+        //         const containingClass = getContainingClassExcludingClassDecorators(right);
+        //         if (containingClass && isPlainJsFile(getSourceFileOfNode(containingClass), compilerOptions.checkJs)) {
+        //             grammarErrorOnNode(right, Diagnostics.Private_field_0_must_be_declared_in_an_enclosing_class, idText(right));
+        //         }
+        //     }
+        //     else {
+        //         const isSetonlyAccessor = prop.flags & SymbolFlags.SetAccessor && !(prop.flags & SymbolFlags.GetAccessor);
+        //         if (isSetonlyAccessor && assignmentKind !== AssignmentKind.Definite) {
+        //             error(node, Diagnostics.Private_accessor_was_defined_without_a_getter);
+        //         }
+        //     }
+        // } else
+        {
+            if (isAnyLike) {
+                if (isIdentifier(left) && parentSymbol) {
+                    markLinkedReferences(node, ReferenceHint.Property, /*propSymbol*/ undefined, leftType);
+                }
+                return isErrorType(apparentType) ? errorType : apparentType;
+            }
+            prop = getPropertyOfType(apparentType, right.text, /*skipObjectFunctionPropertyAugment*/ false, /*includeTypeOnlyMembers*/ node.kind === SyntaxKind.QualifiedName);
+        }
+        markLinkedReferences(node, ReferenceHint.Property, prop, leftType);
+
+        let propType: Type;
+        if (!prop) {
+            const indexInfo = !isPrivateIdentifier(right) && (assignmentKind === AssignmentKind.None) ? getApplicableIndexInfoForName(apparentType, right.text) : undefined;
+            if (!(indexInfo && indexInfo.type)) {
+                const isUncheckedJS = false;// TODO: isUncheckedJSSuggestion(node, leftType.symbol, /*excludeClasses*/ true);
+                // if (!isUncheckedJS && isJSLiteralType(leftType)) {
+                //     return anyType;
+                // }
+                // if (leftType.symbol === globalThisSymbol) {
+                //     if (globalThisSymbol.exports!.has(right.text) && (globalThisSymbol.exports!.get(right.text)!.flags & SymbolFlags.BlockScoped)) {
+                //         error(right, Diagnostics.Property_0_does_not_exist_on_type_1, unescapeLeadingUnderscores(right.text), typeToString(leftType));
+                //     }
+                //     else if (noImplicitAny) {
+                //         error(right, Diagnostics.Element_implicitly_has_an_any_type_because_type_0_has_no_index_signature, typeToString(leftType));
+                //     }
+                //     return anyType;
+                // }
+                // if (right.text && !checkAndReportErrorForExtendingInterface(node)) {
+                //     reportNonexistentProperty(right, isThisTypeParameter(leftType) ? apparentType : leftType, isUncheckedJS);
+                // }
+                return errorType;
+            }
+            if (indexInfo.isReadonly && (isAssignmentTarget(node))) {
+                error(node, Diagnostics.Index_signature_in_type_0_only_permits_reading, typeToString(apparentType));
+            }
+
+            propType = indexInfo.type;
+            // if (compilerOptions.noUncheckedIndexedAccess && getAssignmentTargetKind(node) !== AssignmentKind.Definite) {
+            //     propType = getUnionType([propType, missingType]);
+            // }
+            // if (compilerOptions.noPropertyAccessFromIndexSignature && isPropertyAccessExpression(node)) {
+            //     error(right, Diagnostics.Property_0_comes_from_an_index_signature_so_it_must_be_accessed_with_0, unescapeLeadingUnderscores(right.text));
+            // }
+            if (indexInfo.declaration && isDeprecatedDeclaration(indexInfo.declaration)) {
+                addDeprecatedSuggestion(right, [indexInfo.declaration], right.text as string);
+            }
+        }
+        else {
+            const targetPropSymbol = resolveAliasWithDeprecationCheck(prop, right);
+            if (isDeprecatedSymbol(targetPropSymbol) && isUncalledFunctionReference(node, targetPropSymbol) && targetPropSymbol.declarations) {
+                addDeprecatedSuggestion(right, targetPropSymbol.declarations, right.text as string);
+            }
+            //checkPropertyNotUsedBeforeDeclaration(prop, node, right);
+            markPropertyAsReferenced(prop, node, isSelfTypeAccess(left, parentSymbol));
+            getNodeLinks(node).resolvedSymbol = prop;
+            checkPropertyAccessibility(node, left.kind === SyntaxKind.SuperKeyword, isWriteAccess(node), apparentType, prop);
+            // TODO
+            // if (isAssignmentToReadonlyEntity(node as Expression, prop, assignmentKind)) {
+            //     error(right, Diagnostics.Cannot_assign_to_0_because_it_is_a_read_only_property, idText(right));
+            //     return errorType;
+            // }
+
+            propType = /*isThisPropertyAccessInConstructor(node, prop) ? autoType : */ writeOnly || isWriteOnlyAccess(node) ? getWriteTypeOfSymbol(prop) : getTypeOfSymbol(prop);
+        }
+
+        return getFlowTypeOfAccessExpression(node, prop, propType, right, checkMode);
     }
 
     function checkIdentifier(node: Identifier, checkMode: CheckMode | undefined): Type {
@@ -8055,26 +8452,27 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             // else if (isPrivateIdentifier(name)) {
             //     return getSymbolForPrivateIdentifierExpression(name);
             // }
-            // else if (name.kind === SyntaxKind.PropertyAccessExpression || name.kind === SyntaxKind.QualifiedName) {
-            //     const links = getNodeLinks(name);
-            //     if (links.resolvedSymbol) {
-            //         return links.resolvedSymbol;
-            //     }
+            else if (name.kind === SyntaxKind.PropertyAccessExpression || name.kind === SyntaxKind.QualifiedName) {
+                const links = getNodeLinks(name);
+                if (links.resolvedSymbol) {
+                    return links.resolvedSymbol;
+                }
 
-            //     if (name.kind === SyntaxKind.PropertyAccessExpression) {
-            //         checkPropertyAccessExpression(name, CheckMode.Normal);
-            //         if (!links.resolvedSymbol) {
-            //             links.resolvedSymbol = getApplicableIndexSymbol(checkExpressionCached(name.expression), getLiteralTypeFromPropertyName(name.name));
-            //         }
-            //     }
-            //     else {
-            //         checkQualifiedName(name, CheckMode.Normal);
-            //     }
-            //     if (!links.resolvedSymbol && isJSDoc && isQualifiedName(name)) {
-            //         return resolveJSDocMemberName(name);
-            //     }
-            //     return links.resolvedSymbol;
-            // }
+                if (name.kind === SyntaxKind.PropertyAccessExpression) {
+                    checkPropertyAccessExpression(name, CheckMode.Normal);
+                    if (!links.resolvedSymbol) {
+                        links.resolvedSymbol = getApplicableIndexSymbol(checkExpressionCached(name.expression), getLiteralTypeFromPropertyName(name.name));
+                    }
+                }
+                else {
+                    checkQualifiedName(name, CheckMode.Normal);
+                }
+                if (!links.resolvedSymbol && isJSDoc && isQualifiedName(name)) {
+                    Debug.fail("TODO - Implement me - getSymbolOfNameOrPropertyAccessExpression");
+                    //return resolveJSDocMemberName(name);
+                }
+                return links.resolvedSymbol;
+            }
             // else if (isJSDocMemberName(name)) {
             //     return resolveJSDocMemberName(name);
             // }
@@ -8092,6 +8490,62 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return undefined;
     }
 
+    function getLiteralTypeFromPropertyName(name: PropertyName ) {
+        if (isPrivateIdentifier(name)) {
+            return neverType;
+        }
+        if (isIntLiteral(name)) {
+            return getRegularTypeOfLiteralType(checkExpression(name));
+        }
+        if (isFloatLiteral(name)) {
+            return getRegularTypeOfLiteralType(checkExpression(name));
+        }
+        if (isComputedPropertyName(name)) {            
+            Debug.fail("TODO - Implement me - getLiteralTypeFromPropertyName");
+            //return getRegularTypeOfLiteralType(checkComputedPropertyName(name));
+        }
+        const propertyName = getPropertyNameForPropertyNameNode(name);
+        if (propertyName !== undefined) {
+            return getStringLiteralType((propertyName));
+        }
+        if (isExpression(name)) {
+            return getRegularTypeOfLiteralType(checkExpression(name));
+        }
+        return neverType;
+    }
+    
+    function getApplicableIndexSymbol(type: Type, keyType: Type) {
+        const infos = getApplicableIndexInfos(type, keyType);
+        if (infos.length && (type as ObjectType).members) {
+            const symbol = getIndexSymbolFromSymbolTable(resolveStructuredTypeMembers(type as ObjectType).members);
+            if (infos === getIndexInfosOfType(type)) {
+                return symbol;
+            }
+            else if (symbol) {
+                const symbolLinks = getSymbolLinks(symbol);
+                const declarationList = mapDefined(infos, i => i.declaration);
+                const nodeListId = map(declarationList, getNodeId).join(",");
+                if (!symbolLinks.filteredIndexSymbolCache) {
+                    symbolLinks.filteredIndexSymbolCache = new Map();
+                }
+                if (symbolLinks.filteredIndexSymbolCache.has(nodeListId)) {
+                    return symbolLinks.filteredIndexSymbolCache.get(nodeListId)!;
+                }
+                else {
+                    const copy = createSymbol(SymbolFlags.Signature, InternalSymbolName.Index);
+                    copy.declarations = mapDefined(infos, i => i.declaration);
+                    copy.parent = type.aliasSymbol ? type.aliasSymbol : type.symbol ? type.symbol : getSymbolAtLocation(copy.declarations[0].parent);
+                    symbolLinks.filteredIndexSymbolCache.set(nodeListId, copy);
+                    return copy;
+                }
+            }
+        }
+    }
+    
+    function getIndexSymbolFromSymbolTable(symbolTable: SymbolTable): Symbol | undefined {
+        return symbolTable.get(InternalSymbolName.Index);
+    }
+    
     /**
      * 1. For prototype-property methods like `A.prototype.m = function () ...`, try to resolve names in the scope of `A` too.
      * Note that prototype-property assignment to locations outside the current file (eg globals) doesn't work, so

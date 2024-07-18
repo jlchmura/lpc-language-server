@@ -75,4 +75,6 @@ export const Diagnostics = {
     The_operand_of_an_increment_or_decrement_operator_may_not_be_an_optional_property_access: diag(2777, DiagnosticCategory.Error, "The_operand_of_an_increment_or_decrement_operator_may_not_be_an_optional_property_access_2777", "The operand of an increment or decrement operator may not be an optional property access."),
     Operator_0_cannot_be_applied_to_type_1: diag(2736, DiagnosticCategory.Error, "Operator_0_cannot_be_applied_to_type_1_2736", "Operator '{0}' cannot be applied to type '{1}'."),
     The_body_of_an_if_statement_cannot_be_the_empty_statement: diag(1313, DiagnosticCategory.Error, "The_body_of_an_if_statement_cannot_be_the_empty_statement_1313", "The body of an 'if' statement cannot be the empty statement."),
+    Index_signature_in_type_0_only_permits_reading: diag(2542, DiagnosticCategory.Error, "Index_signature_in_type_0_only_permits_reading_2542", "Index signature in type '{0}' only permits reading."),
+    Property_0_is_used_before_being_assigned: diag(2565, DiagnosticCategory.Error, "Property_0_is_used_before_being_assigned_2565", "Property '{0}' is used before being assigned."),
 }
