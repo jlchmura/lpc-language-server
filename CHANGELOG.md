@@ -4,6 +4,7 @@
 
 -   Fix undefined token exception during diagnostics generation
 -   Fix signature not being displayed when hovering over a function declaration (part 3 of #42)
+-   Fix crash caused by flushing change timer after document has been disposed
 
 ## 1.0.25
 
