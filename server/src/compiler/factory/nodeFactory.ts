@@ -365,7 +365,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     function asNodeArray<T extends Node>(
         array: readonly T[] | undefined
     ): NodeArray<T> | undefined {
-        return array ? createNodeArray(array) : undefined;
+        return array?.length > 0 ? createNodeArray(array) : undefined;
     }
 
     // @api
@@ -800,7 +800,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         initializer?: Expression,
     ): ParameterDeclaration {
         const node = createBaseDeclaration<ParameterDeclaration>(SyntaxKind.Parameter);
-        node.modifiers = asNodeArray(modifiers);        
+        node.modifiers = asNodeArray(modifiers);
         node.dotDotDotToken = dotDotDotToken;
         node.name = asName(name);        
         node.ampToken = ampToken;

@@ -81,7 +81,7 @@ const srcFile = host.getSourceFile(filename);
 const checker = p2.createTypeChecker(host); // binder is called by checker
 const diags = checker.getDiagnostics(srcFile);
 
-const pos = 121;
+const pos = 218;
 const node = getTouchingPropertyName(srcFile, pos);
 const def = svc.getDefinitionAtPosition(fileOnly, pos, false, false);
 console.debug("node count:", srcFile.nodeCount);
