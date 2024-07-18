@@ -74,4 +74,5 @@ export const Diagnostics = {
     The_operand_of_an_increment_or_decrement_operator_must_be_a_variable_or_a_property_access: diag(2357, DiagnosticCategory.Error, "The_operand_of_an_increment_or_decrement_operator_must_be_a_variable_or_a_property_access_2357", "The operand of an increment or decrement operator must be a variable or a property access."),
     The_operand_of_an_increment_or_decrement_operator_may_not_be_an_optional_property_access: diag(2777, DiagnosticCategory.Error, "The_operand_of_an_increment_or_decrement_operator_may_not_be_an_optional_property_access_2777", "The operand of an increment or decrement operator may not be an optional property access."),
     Operator_0_cannot_be_applied_to_type_1: diag(2736, DiagnosticCategory.Error, "Operator_0_cannot_be_applied_to_type_1_2736", "Operator '{0}' cannot be applied to type '{1}'."),
+    The_body_of_an_if_statement_cannot_be_the_empty_statement: diag(1313, DiagnosticCategory.Error, "The_body_of_an_if_statement_cannot_be_the_empty_statement_1313", "The body of an 'if' statement cannot be the empty statement."),
 }

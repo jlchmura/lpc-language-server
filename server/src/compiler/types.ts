@@ -1250,6 +1250,7 @@ export type IsContainer =
     // | ConstructorTypeNode
     // | ClassStaticBlockDeclaration
     | FunctionExpression
+    | InlineClosureExpression
     // | ArrowFunction;
 
 /**
@@ -3917,7 +3918,7 @@ export interface Program extends ScriptReferenceHost {
     // // This is set on created program to let us know how the program was created using old program
     /** @internal */ readonly structureIsReused: StructureIsReused;
 
-    // /** @internal */ getSourceFileFromReference(referencingFile: SourceFile, ref: FileReference): SourceFile | undefined;
+    /** @internal */ getSourceFileFromReference(referencingFile: SourceFile, ref: FileReference): SourceFile | undefined;
     // /** @internal */ getLibFileFromReference(ref: FileReference): SourceFile | undefined;
 
     // /**

@@ -630,11 +630,11 @@ export namespace LpcParser {
         // figure that out here or in the type checker?
 
         const {pos,end} = getNodePos(tree); 
-        
+        const flags = NodeFlags.Variable;
         const type = parseType(tree.unionableTypeSpecifier());           
         const declarationList = parseList(declListTree, (t) => { return parseVariableDeclaration(type, t, inForStatementInitializer); });
         
-        const node = factory.createVariableDeclarationList(declarationList);
+        const node = factory.createVariableDeclarationList(declarationList, flags);
 
         return finishNode(node, pos, end);
     }
@@ -815,6 +815,7 @@ export namespace LpcParser {
 
     function parseCallExpressionRest(tree: parserCore.PrimaryExpressionContext, pos: number, expression: LeftHandSideExpression): LeftHandSideExpression {
         if (tree.methodInvocation()?.length > 0) {
+            const {pos:callPos,end:callEnd} = getNodePos(tree);
             const invocCtx = tree.methodInvocation().at(0);
             const argCtxList = invocCtx.argumentList();
             
@@ -830,8 +831,8 @@ export namespace LpcParser {
             });
 
             const {pos, end} = getNodePos(argCtxList);
-            const argNodes =createNodeArray(args, pos, end);
-            expression = factory.createCallExpression(expression, argNodes);
+            const argNodes = createNodeArray(args, pos, end);
+            expression = finishNode(factory.createCallExpression(expression, argNodes), callPos, callEnd);
         }
 
         return expression;

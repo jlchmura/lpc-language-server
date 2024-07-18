@@ -1,5 +1,5 @@
 import { LpcConfig } from "../backend/LpcConfig.js";
-import { combinePaths, compareValues, CompilerHost, CompilerOptions, containsPath, createDiagnosticCollection, createGetCanonicalFileName, createMultiMap, CreateProgramOptions, createSourceFile, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DiagnosticWithLocation, FileIncludeKind, FileIncludeReason, FilePreprocessingDiagnostics, FilePreprocessingDiagnosticsKind, forEach, getBaseFileName, getDirectoryPath, getNewLineCharacter, getRootLength, hasExtension, isArray, maybeBind, memoize, normalizePath, ObjectLiteralExpression, PackageId, Path, performance, Program, ProgramHost, ProjectReference, PropertyAssignment, ReferencedFile, removePrefix, removeSuffix, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, SourceFile, stableSort, StructureIsReused, sys, System, toPath as lpc_toPath, tracing, TypeChecker, getNormalizedAbsolutePathWithoutRoot, some, isRootedDiskPath, optionsHaveChanges, packageIdToString, toFileNameLowerCase, getNormalizedAbsolutePath, CreateSourceFileOptions, createTypeChecker, ScriptTarget, libs } from "./_namespaces/lpc.js";
+import { combinePaths, compareValues, CompilerHost, CompilerOptions, containsPath, createDiagnosticCollection, createGetCanonicalFileName, createMultiMap, CreateProgramOptions, createSourceFile, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DiagnosticWithLocation, FileIncludeKind, FileIncludeReason, FilePreprocessingDiagnostics, FilePreprocessingDiagnosticsKind, forEach, getBaseFileName, getDirectoryPath, getNewLineCharacter, getRootLength, hasExtension, isArray, maybeBind, memoize, normalizePath, ObjectLiteralExpression, PackageId, Path, performance, Program, ProgramHost, ProjectReference, PropertyAssignment, ReferencedFile, removePrefix, removeSuffix, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, SourceFile, stableSort, StructureIsReused, sys, System, toPath as lpc_toPath, tracing, TypeChecker, getNormalizedAbsolutePathWithoutRoot, some, isRootedDiskPath, optionsHaveChanges, packageIdToString, toFileNameLowerCase, getNormalizedAbsolutePath, CreateSourceFileOptions, createTypeChecker, ScriptTarget, libs, FileReference } from "./_namespaces/lpc.js";
 
 /**
  * Create a new 'Program' instance. A Program is an immutable collection of 'SourceFile's and a 'CompilerOptions'
@@ -280,7 +280,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         // isSourceFileDefaultLibrary,
         // getModeForUsageLocation,
         // getModeForResolutionAtIndex,
-        // getSourceFileFromReference,
+        getSourceFileFromReference,
         // getLibFileFromReference,
         // sourceFileToPackageName,
         // redirectTargetsMap,
@@ -343,6 +343,11 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         }
 
         return projectReferenceRedirects.get(projectReferencePath) || undefined;
+    }
+
+    /** This should have similar behavior to 'processSourceFile' without diagnostics or mutation. */
+    function getSourceFileFromReference(referencingFile: SourceFile, ref: FileReference): SourceFile | undefined {
+        return getSourceFileFromReferenceWorker(resolveTripleslashReference(ref.fileName, referencingFile.fileName), getSourceFile);
     }
 
     function getDefaultLibFilePriority(a: SourceFile) {

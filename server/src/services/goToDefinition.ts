@@ -1,4 +1,4 @@
-import { Symbol, createTextSpanFromBounds, Declaration, DefinitionInfo, emptyArray, FileReference, findAncestor, forEach, FunctionLikeDeclaration, getTouchingPropertyName, isDefaultClause, isFunctionLikeDeclaration, isSwitchStatement, Node, Program, ScriptElementKind, SignatureDeclaration, SourceFile, SwitchStatement, SymbolFlags, SyntaxKind, TypeChecker, SymbolDisplay, getNameOfDeclaration, createTextSpanFromNode, NodeFlags, hasInitializer, HasInitializer, hasEffectiveModifier, ModifierFlags, FindAllReferences, TextSpan, concatenate, every, mapDefined, tryCast, isFunctionLike, isAssignmentExpression, isCallLikeExpression, canHaveSymbol, filter, some, map, find, isCallOrNewExpressionTarget, isNameOfFunctionDeclaration, CallLikeExpression, isRightSideOfPropertyAccess, getInvokedExpression, isPropertyName, isBindingElement, isNewExpressionTarget } from "./_namespaces/lpc";
+import { Symbol, createTextSpanFromBounds, Declaration, DefinitionInfo, emptyArray, FileReference, findAncestor, forEach, FunctionLikeDeclaration, getTouchingPropertyName, isDefaultClause, isFunctionLikeDeclaration, isSwitchStatement, Node, Program, ScriptElementKind, SignatureDeclaration, SourceFile, SwitchStatement, SymbolFlags, SyntaxKind, TypeChecker, SymbolDisplay, getNameOfDeclaration, createTextSpanFromNode, NodeFlags, hasInitializer, HasInitializer, hasEffectiveModifier, ModifierFlags, FindAllReferences, TextSpan, concatenate, every, mapDefined, tryCast, isFunctionLike, isAssignmentExpression, isCallLikeExpression, canHaveSymbol, filter, some, map, find, isCallOrNewExpressionTarget, isNameOfFunctionDeclaration, CallLikeExpression, isRightSideOfPropertyAccess, getInvokedExpression, isPropertyName, isBindingElement, isNewExpressionTarget, textRangeContainsPositionInclusive } from "./_namespaces/lpc";
 import { isContextWithStartAndEndNode } from "./_namespaces/lpc.FindAllReferences";
 
 /** @internal */
@@ -194,15 +194,20 @@ function getDefinitionFromSymbol(typeChecker: TypeChecker, symbol: Symbol, node:
     }
 }
 
+function findReferenceInPosition(refs: readonly FileReference[], pos: number): FileReference | undefined {
+    return find(refs, ref => textRangeContainsPositionInclusive(ref, pos));
+}
+
 /** @internal */
 export function getReferenceAtPosition(sourceFile: SourceFile, position: number, program: Program): { reference: FileReference; fileName: string; unverified: boolean; file?: SourceFile; } | undefined {
+    const referencePath = findReferenceInPosition(sourceFile.referencedFiles, position);
+    if (referencePath) {
+        const file = program.getSourceFileFromReference(sourceFile, referencePath);
+        return file && { reference: referencePath, fileName: file.fileName, file, unverified: false };
+    }
+    
     console.warn("TODO - implement me - getReferenceAtPosition");
-    // const referencePath = findReferenceInPosition(sourceFile.referencedFiles, position);
-    // if (referencePath) {
-    //     const file = program.getSourceFileFromReference(sourceFile, referencePath);
-    //     return file && { reference: referencePath, fileName: file.fileName, file, unverified: false };
-    // }
-
+    
     // const typeReferenceDirective = findReferenceInPosition(sourceFile.typeReferenceDirectives, position);
     // if (typeReferenceDirective) {
     //     const reference = program.getResolvedTypeReferenceDirectiveFromTypeReferenceDirective(typeReferenceDirective, sourceFile)?.resolvedTypeReferenceDirective;
