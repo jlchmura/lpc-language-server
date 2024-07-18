@@ -8,6 +8,7 @@
         "node_modules": true
     },
     "editor.formatOnSave": false,
+    "editor.formatOnPaste": false,
     "[antlr]": {
         "editor.formatOnSave": false
     },

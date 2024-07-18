@@ -1,5 +1,5 @@
 import * as antlr from "antlr4ng";
-import { Signature, Type, Debug, DiagnosticArguments, DiagnosticMessage, DiagnosticRelatedInformation, DiagnosticWithDetachedLocation, DiagnosticWithLocation, Identifier, MapLike, ModifierFlags, Node, NodeFlags, ReadonlyTextRange, some, SourceFile, Symbol, SymbolFlags, SyntaxKind, TextRange, Token, TransformFlags, TypeChecker, TypeFlags, tracing, SignatureFlags, canHaveModifiers, Modifier, skipTrivia, SymbolTable, CallExpression, Declaration, getCombinedNodeFlags, BinaryExpression, AssignmentDeclarationKind, isCallExpression, isBinaryExpression, isIdentifier, Diagnostic, emptyArray, PropertyNameLiteral, DeclarationName, LiteralLikeNode, AssignmentExpression, LogicalOrCoalescingAssignmentOperator, LogicalOperator, Expression, OuterExpressionKinds, OuterExpression, WrappedExpression, PrefixUnaryExpression, PostfixUnaryExpression, ForEachStatement, ShorthandPropertyAssignment, PropertyAssignment, PropertyAccessExpression, ParenthesizedExpression, BinaryOperatorToken, AssertionLevel, SortedArray, binarySearch, identity, Comparison, DiagnosticMessageChain, compareStringsCaseSensitive, compareValues, insertSorted, flatMapToMutable, DiagnosticCollection, isJSDocTemplateTag, HasJSDoc, lastOrUndefined, JSDoc, isJSDoc, find, ParameterDeclaration, FunctionDeclaration, InlineClosureExpression, FunctionExpression, forEachChild, returnUndefined, returnFalse, CompilerOptions, FunctionLikeDeclaration, canHaveLocals, isFunctionLike, isParameter, PropertyDeclaration, BindingElement, isString, InternalSymbolName, isSourceFile, StructDeclaration, isStructDeclaration, JSDocTemplateTag, TypeNodeSyntaxKind, isTypeNode, isFunctionLikeDeclaration, SignatureDeclaration, AccessExpression, isInlineClosureExpression, PropertyAccessEntityNameExpression, isPropertyAccessExpression, EntityNameExpression, isVariableDeclaration, VariableDeclarationInitializedTo, CanonicalDiagnostic, HasInitializer, ExpressionStatement, ForStatement, isShorthandPropertyAssignment, JSDocTag, EqualsToken, AssignmentOperatorToken, isLeftHandSideExpression, isFunctionLikeKind, AdditiveOperator, AdditiveOperatorOrHigher, AssignmentOperatorOrHigher, BinaryOperator, BitwiseOperator, BitwiseOperatorOrHigher, EqualityOperator, EqualityOperatorOrHigher, ExponentiationOperator, LogicalOperatorOrHigher, MultiplicativeOperator, MultiplicativeOperatorOrHigher, RelationalOperator, RelationalOperatorOrHigher, ShiftOperator, ShiftOperatorOrHigher, HasFlowNode, ObjectFlags, ObjectFlagsType, isDeclaration, isBindingPattern, isJSDocSignature, JSDocSignature, TypeNode, findAncestor, Extension, fileExtensionIs, NamedDeclaration, KeywordSyntaxKind, binarySearchKey, SourceFileLike, isToken, EndOfFileToken, isJSDocCommentContainingNode, firstOrUndefined, getNodeChildren, JSDocContainer, PropertyName, idText, isMemberName, forEach, PrinterOptions, NewLineKind, flatMap, getNormalizedPathComponents, removeTrailingDirectorySeparator, directorySeparator, normalizePath, FileWatcher, PackageId, ScriptKind, TextSpan, CheckFlags, TransientSymbol, getCombinedModifierFlags, isElementAccessExpression, createTextSpan, CaseOrDefaultClause, createTextSpanFromBounds, ReturnStatement, createScanner, isQualifiedName, EntityNameOrEntityNameExpression, isCallOrNewExpression, CallLikeExpression, EmitTextWriter, computeLineStarts, last, isWhiteSpaceLike, ScriptTarget, isIdentifierStart, isFunctionDeclaration, HasType, Block, Statement, NodeArray, ClassElement, TypeElement, ObjectLiteralElement, ObjectTypeDeclaration, ObjectLiteralExpression } from "./_namespaces/lpc.js";
+import { Signature, Type, Debug, DiagnosticArguments, DiagnosticMessage, DiagnosticRelatedInformation, DiagnosticWithDetachedLocation, DiagnosticWithLocation, Identifier, MapLike, ModifierFlags, Node, NodeFlags, ReadonlyTextRange, some, SourceFile, Symbol, SymbolFlags, SyntaxKind, TextRange, Token, TransformFlags, TypeChecker, TypeFlags, tracing, SignatureFlags, canHaveModifiers, Modifier, skipTrivia, SymbolTable, CallExpression, Declaration, getCombinedNodeFlags, BinaryExpression, AssignmentDeclarationKind, isCallExpression, isBinaryExpression, isIdentifier, Diagnostic, emptyArray, PropertyNameLiteral, DeclarationName, LiteralLikeNode, AssignmentExpression, LogicalOrCoalescingAssignmentOperator, LogicalOperator, Expression, OuterExpressionKinds, OuterExpression, WrappedExpression, PrefixUnaryExpression, PostfixUnaryExpression, ForEachStatement, ShorthandPropertyAssignment, PropertyAssignment, PropertyAccessExpression, ParenthesizedExpression, BinaryOperatorToken, AssertionLevel, SortedArray, binarySearch, identity, Comparison, DiagnosticMessageChain, compareStringsCaseSensitive, compareValues, insertSorted, flatMapToMutable, DiagnosticCollection, isJSDocTemplateTag, HasJSDoc, lastOrUndefined, JSDoc, isJSDoc, find, ParameterDeclaration, FunctionDeclaration, InlineClosureExpression, FunctionExpression, forEachChild, returnUndefined, returnFalse, CompilerOptions, FunctionLikeDeclaration, canHaveLocals, isFunctionLike, isParameter, PropertyDeclaration, BindingElement, isString, InternalSymbolName, isSourceFile, StructDeclaration, isStructDeclaration, JSDocTemplateTag, TypeNodeSyntaxKind, isTypeNode, isFunctionLikeDeclaration, SignatureDeclaration, AccessExpression, isInlineClosureExpression, PropertyAccessEntityNameExpression, isPropertyAccessExpression, EntityNameExpression, isVariableDeclaration, VariableDeclarationInitializedTo, CanonicalDiagnostic, HasInitializer, ExpressionStatement, ForStatement, isShorthandPropertyAssignment, JSDocTag, EqualsToken, AssignmentOperatorToken, isLeftHandSideExpression, isFunctionLikeKind, AdditiveOperator, AdditiveOperatorOrHigher, AssignmentOperatorOrHigher, BinaryOperator, BitwiseOperator, BitwiseOperatorOrHigher, EqualityOperator, EqualityOperatorOrHigher, ExponentiationOperator, LogicalOperatorOrHigher, MultiplicativeOperator, MultiplicativeOperatorOrHigher, RelationalOperator, RelationalOperatorOrHigher, ShiftOperator, ShiftOperatorOrHigher, HasFlowNode, ObjectFlags, ObjectFlagsType, isDeclaration, isBindingPattern, isJSDocSignature, JSDocSignature, TypeNode, findAncestor, Extension, fileExtensionIs, NamedDeclaration, KeywordSyntaxKind, binarySearchKey, SourceFileLike, isToken, EndOfFileToken, isJSDocCommentContainingNode, firstOrUndefined, getNodeChildren, JSDocContainer, PropertyName, idText, isMemberName, forEach, PrinterOptions, NewLineKind, flatMap, getNormalizedPathComponents, removeTrailingDirectorySeparator, directorySeparator, normalizePath, FileWatcher, PackageId, ScriptKind, TextSpan, CheckFlags, TransientSymbol, getCombinedModifierFlags, isElementAccessExpression, createTextSpan, CaseOrDefaultClause, createTextSpanFromBounds, ReturnStatement, createScanner, isQualifiedName, EntityNameOrEntityNameExpression, isCallOrNewExpression, CallLikeExpression, EmitTextWriter, computeLineStarts, last, isWhiteSpaceLike, ScriptTarget, isIdentifierStart, isFunctionDeclaration, HasType, Block, Statement, NodeArray, ClassElement, TypeElement, ObjectLiteralElement, ObjectTypeDeclaration, ObjectLiteralExpression, noop, NewExpression } from "./_namespaces/lpc.js";
 import { CharacterCodes } from "../backend/types.js";
 
 /** @internal */
@@ -3405,3 +3405,474 @@ export function isThisInitializedDeclaration(node: Node | undefined): boolean {
     return false;//return !!node && isVariableDeclaration(node) && node.initializer?.kind === SyntaxKind.ThisKeyword;
 }
 
+const stringWriter = createSingleLineStringWriter();
+
+function createSingleLineStringWriter(): EmitTextWriter {
+    // Why var? It avoids TDZ checks in the runtime which can be costly.
+    // See: https://github.com/microsoft/TypeScript/issues/52924
+    /* eslint-disable no-var */
+    var str = "";
+    /* eslint-enable no-var */
+    const writeText: (text: string) => void = text => str += text;
+    return {
+        getText: () => str,
+        write: writeText,
+        rawWrite: writeText,
+        writeKeyword: writeText,
+        writeOperator: writeText,
+        writePunctuation: writeText,
+        writeSpace: writeText,
+        writeStringLiteral: writeText,
+        writeLiteral: writeText,
+        writeParameter: writeText,
+        writeProperty: writeText,
+        writeSymbol: (s, _) => writeText(s),
+        writeTrailingSemicolon: writeText,
+        writeComment: writeText,
+        getTextPos: () => str.length,
+        getLine: () => 0,
+        getColumn: () => 0,
+        getIndent: () => 0,
+        isAtStartOfLine: () => false,
+        hasTrailingComment: () => false,
+        hasTrailingWhitespace: () => !!str.length && isWhiteSpaceLike(str.charCodeAt(str.length - 1)),
+
+        // Completely ignore indentation for string writers.  And map newlines to
+        // a single space.
+        writeLine: () => str += " ",
+        increaseIndent: noop,
+        decreaseIndent: noop,
+        clear: () => str = "",
+    };
+}
+
+/** @internal */
+export const enum OperatorPrecedence {
+    // Expression:
+    //     AssignmentExpression
+    //     Expression `,` AssignmentExpression
+    Comma,
+
+    // NOTE: `Spread` is higher than `Comma` due to how it is parsed in |ElementList|
+    // SpreadElement:
+    //     `...` AssignmentExpression
+    Spread,
+
+    // AssignmentExpression:
+    //     ConditionalExpression
+    //     YieldExpression
+    //     ArrowFunction
+    //     AsyncArrowFunction
+    //     LeftHandSideExpression `=` AssignmentExpression
+    //     LeftHandSideExpression AssignmentOperator AssignmentExpression
+    //
+    // NOTE: AssignmentExpression is broken down into several precedences due to the requirements
+    //       of the parenthesizer rules.
+
+    // AssignmentExpression: YieldExpression
+    // YieldExpression:
+    //     `yield`
+    //     `yield` AssignmentExpression
+    //     `yield` `*` AssignmentExpression
+    Yield,
+
+    // AssignmentExpression: LeftHandSideExpression `=` AssignmentExpression
+    // AssignmentExpression: LeftHandSideExpression AssignmentOperator AssignmentExpression
+    // AssignmentOperator: one of
+    //     `*=` `/=` `%=` `+=` `-=` `<<=` `>>=` `>>>=` `&=` `^=` `|=` `**=`
+    Assignment,
+
+    // NOTE: `Conditional` is considered higher than `Assignment` here, but in reality they have
+    //       the same precedence.
+    // AssignmentExpression: ConditionalExpression
+    // ConditionalExpression:
+    //     ShortCircuitExpression
+    //     ShortCircuitExpression `?` AssignmentExpression `:` AssignmentExpression
+    // ShortCircuitExpression:
+    //     LogicalORExpression
+    //     CoalesceExpression
+    Conditional,
+
+    // CoalesceExpression:
+    //     CoalesceExpressionHead `??` BitwiseORExpression
+    // CoalesceExpressionHead:
+    //     CoalesceExpression
+    //     BitwiseORExpression
+    Coalesce = Conditional, // NOTE: This is wrong
+
+    // LogicalORExpression:
+    //     LogicalANDExpression
+    //     LogicalORExpression `||` LogicalANDExpression
+    LogicalOR,
+
+    // LogicalANDExpression:
+    //     BitwiseORExpression
+    //     LogicalANDExprerssion `&&` BitwiseORExpression
+    LogicalAND,
+
+    // BitwiseORExpression:
+    //     BitwiseXORExpression
+    //     BitwiseORExpression `^` BitwiseXORExpression
+    BitwiseOR,
+
+    // BitwiseXORExpression:
+    //     BitwiseANDExpression
+    //     BitwiseXORExpression `^` BitwiseANDExpression
+    BitwiseXOR,
+
+    // BitwiseANDExpression:
+    //     EqualityExpression
+    //     BitwiseANDExpression `^` EqualityExpression
+    BitwiseAND,
+
+    // EqualityExpression:
+    //     RelationalExpression
+    //     EqualityExpression `==` RelationalExpression
+    //     EqualityExpression `!=` RelationalExpression
+    //     EqualityExpression `===` RelationalExpression
+    //     EqualityExpression `!==` RelationalExpression
+    Equality,
+
+    // RelationalExpression:
+    //     ShiftExpression
+    //     RelationalExpression `<` ShiftExpression
+    //     RelationalExpression `>` ShiftExpression
+    //     RelationalExpression `<=` ShiftExpression
+    //     RelationalExpression `>=` ShiftExpression
+    //     RelationalExpression `instanceof` ShiftExpression
+    //     RelationalExpression `in` ShiftExpression
+    //     [+TypeScript] RelationalExpression `as` Type
+    Relational,
+
+    // ShiftExpression:
+    //     AdditiveExpression
+    //     ShiftExpression `<<` AdditiveExpression
+    //     ShiftExpression `>>` AdditiveExpression
+    //     ShiftExpression `>>>` AdditiveExpression
+    Shift,
+
+    // AdditiveExpression:
+    //     MultiplicativeExpression
+    //     AdditiveExpression `+` MultiplicativeExpression
+    //     AdditiveExpression `-` MultiplicativeExpression
+    Additive,
+
+    // MultiplicativeExpression:
+    //     ExponentiationExpression
+    //     MultiplicativeExpression MultiplicativeOperator ExponentiationExpression
+    // MultiplicativeOperator: one of `*`, `/`, `%`
+    Multiplicative,
+
+    // ExponentiationExpression:
+    //     UnaryExpression
+    //     UpdateExpression `**` ExponentiationExpression
+    Exponentiation,
+
+    // UnaryExpression:
+    //     UpdateExpression
+    //     `delete` UnaryExpression
+    //     `void` UnaryExpression
+    //     `typeof` UnaryExpression
+    //     `+` UnaryExpression
+    //     `-` UnaryExpression
+    //     `~` UnaryExpression
+    //     `!` UnaryExpression
+    //     AwaitExpression
+    // UpdateExpression:            // TODO: Do we need to investigate the precedence here?
+    //     `++` UnaryExpression
+    //     `--` UnaryExpression
+    Unary,
+
+    // UpdateExpression:
+    //     LeftHandSideExpression
+    //     LeftHandSideExpression `++`
+    //     LeftHandSideExpression `--`
+    Update,
+
+    // LeftHandSideExpression:
+    //     NewExpression
+    //     CallExpression
+    // NewExpression:
+    //     MemberExpression
+    //     `new` NewExpression
+    LeftHandSide,
+
+    // CallExpression:
+    //     CoverCallExpressionAndAsyncArrowHead
+    //     SuperCall
+    //     ImportCall
+    //     CallExpression Arguments
+    //     CallExpression `[` Expression `]`
+    //     CallExpression `.` IdentifierName
+    //     CallExpression TemplateLiteral
+    // MemberExpression:
+    //     PrimaryExpression
+    //     MemberExpression `[` Expression `]`
+    //     MemberExpression `.` IdentifierName
+    //     MemberExpression TemplateLiteral
+    //     SuperProperty
+    //     MetaProperty
+    //     `new` MemberExpression Arguments
+    Member,
+
+    // TODO: JSXElement?
+    // PrimaryExpression:
+    //     `this`
+    //     IdentifierReference
+    //     Literal
+    //     ArrayLiteral
+    //     ObjectLiteral
+    //     FunctionExpression
+    //     ClassExpression
+    //     GeneratorExpression
+    //     AsyncFunctionExpression
+    //     AsyncGeneratorExpression
+    //     RegularExpressionLiteral
+    //     TemplateLiteral
+    //     CoverParenthesizedExpressionAndArrowParameterList
+    Primary,
+
+    Highest = Primary,
+    Lowest = Comma,
+    // -1 is lower than all other precedences. Returning it will cause binary expression
+    // parsing to stop.
+    Invalid = -1,
+}
+
+
+/** @internal */
+export function usingSingleLineStringWriter(action: (writer: EmitTextWriter) => void): string {
+    const oldString = stringWriter.getText();
+    try {
+        action(stringWriter);
+        return stringWriter.getText();
+    }
+    finally {
+        stringWriter.clear();
+        stringWriter.writeKeyword(oldString);
+    }
+}
+
+/** @internal */
+export function getOperatorPrecedence(nodeKind: SyntaxKind, operatorKind: SyntaxKind, hasArguments?: boolean) {
+    switch (nodeKind) {
+        case SyntaxKind.CommaListExpression:
+            return OperatorPrecedence.Comma;
+
+        case SyntaxKind.SpreadElement:
+            return OperatorPrecedence.Spread;
+
+        // case SyntaxKind.YieldExpression:
+        //     return OperatorPrecedence.Yield;
+
+        case SyntaxKind.ConditionalExpression:
+            return OperatorPrecedence.Conditional;
+
+        case SyntaxKind.BinaryExpression:
+            switch (operatorKind) {
+                case SyntaxKind.CommaToken:
+                    return OperatorPrecedence.Comma;
+
+                case SyntaxKind.EqualsToken:
+                case SyntaxKind.PlusEqualsToken:
+                case SyntaxKind.MinusEqualsToken:
+                case SyntaxKind.AsteriskAsteriskEqualsToken:
+                case SyntaxKind.AsteriskEqualsToken:
+                case SyntaxKind.SlashEqualsToken:
+                case SyntaxKind.PercentEqualsToken:
+                case SyntaxKind.LessThanLessThanEqualsToken:
+                case SyntaxKind.GreaterThanGreaterThanEqualsToken:
+                case SyntaxKind.GreaterThanGreaterThanGreaterThanEqualsToken:
+                case SyntaxKind.AmpersandEqualsToken:
+                case SyntaxKind.CaretEqualsToken:
+                case SyntaxKind.BarEqualsToken:
+                case SyntaxKind.BarBarEqualsToken:
+                // case SyntaxKind.AmpersandAmpersandEqualsToken:
+                case SyntaxKind.QuestionQuestionEqualsToken:
+                    return OperatorPrecedence.Assignment;
+
+                default:
+                    return getBinaryOperatorPrecedence(operatorKind);
+            }
+
+        // TODO: Should prefix `++` and `--` be moved to the `Update` precedence?
+        // case SyntaxKind.TypeAssertionExpression:
+        // case SyntaxKind.NonNullExpression:
+        case SyntaxKind.PrefixUnaryExpression:
+        // case SyntaxKind.TypeOfExpression:
+        // case SyntaxKind.VoidExpression:
+        // case SyntaxKind.DeleteExpression:
+        // case SyntaxKind.AwaitExpression:
+            return OperatorPrecedence.Unary;
+
+        case SyntaxKind.PostfixUnaryExpression:
+            return OperatorPrecedence.Update;
+
+        case SyntaxKind.CallExpression:
+            return OperatorPrecedence.LeftHandSide;
+
+        case SyntaxKind.NewExpression:
+            return hasArguments ? OperatorPrecedence.Member : OperatorPrecedence.LeftHandSide;
+
+        // case SyntaxKind.TaggedTemplateExpression:
+        case SyntaxKind.PropertyAccessExpression:
+        case SyntaxKind.ElementAccessExpression:
+        // case SyntaxKind.MetaProperty:
+            return OperatorPrecedence.Member;
+
+        // case SyntaxKind.AsExpression:
+        // case SyntaxKind.SatisfiesExpression:
+        //     return OperatorPrecedence.Relational;
+
+        // case SyntaxKind.ThisKeyword:
+        case SyntaxKind.SuperKeyword:
+        case SyntaxKind.Identifier:
+        // case SyntaxKind.PrivateIdentifier:
+        case SyntaxKind.NullKeyword:
+        case SyntaxKind.TrueKeyword:
+        case SyntaxKind.FalseKeyword:
+        case SyntaxKind.IntLiteral:
+        case SyntaxKind.FloatLiteral:
+        case SyntaxKind.StringLiteral:
+        case SyntaxKind.ArrayLiteralExpression:
+        case SyntaxKind.ObjectLiteralExpression:
+        case SyntaxKind.FunctionExpression:
+        case SyntaxKind.InlineClosureExpression:
+        case SyntaxKind.ClassExpression:
+        // case SyntaxKind.RegularExpressionLiteral:
+        // case SyntaxKind.NoSubstitutionTemplateLiteral:
+        // case SyntaxKind.TemplateExpression:
+        case SyntaxKind.ParenthesizedExpression:
+        // case SyntaxKind.OmittedExpression:
+        // case SyntaxKind.JsxElement:
+        // case SyntaxKind.JsxSelfClosingElement:
+        // case SyntaxKind.JsxFragment:
+            return OperatorPrecedence.Primary;
+
+        default:
+            return OperatorPrecedence.Invalid;
+    }
+}
+
+/** @internal */
+export function getBinaryOperatorPrecedence(kind: SyntaxKind): OperatorPrecedence {
+    switch (kind) {
+        // case SyntaxKind.QuestionQuestionToken:
+        //     return OperatorPrecedence.Coalesce;
+        case SyntaxKind.BarBarToken:
+            return OperatorPrecedence.LogicalOR;
+        case SyntaxKind.AmpersandAmpersandToken:
+            return OperatorPrecedence.LogicalAND;
+        case SyntaxKind.BarToken:
+            return OperatorPrecedence.BitwiseOR;
+        case SyntaxKind.CaretToken:
+            return OperatorPrecedence.BitwiseXOR;
+        case SyntaxKind.AmpersandToken:
+            return OperatorPrecedence.BitwiseAND;
+        case SyntaxKind.EqualsEqualsToken:
+        case SyntaxKind.ExclamationEqualsToken:
+        case SyntaxKind.EqualsEqualsEqualsToken:
+        case SyntaxKind.ExclamationEqualsEqualsToken:
+            return OperatorPrecedence.Equality;
+        case SyntaxKind.LessThanToken:
+        case SyntaxKind.GreaterThanToken:
+        case SyntaxKind.LessThanEqualsToken:
+        case SyntaxKind.GreaterThanEqualsToken:
+        // case SyntaxKind.InstanceOfKeyword:
+        case SyntaxKind.InKeyword:
+        // case SyntaxKind.AsKeyword:
+        // case SyntaxKind.SatisfiesKeyword:
+            return OperatorPrecedence.Relational;
+        case SyntaxKind.LessThanLessThanToken:
+        case SyntaxKind.GreaterThanGreaterThanToken:
+        case SyntaxKind.GreaterThanGreaterThanGreaterThanToken:
+            return OperatorPrecedence.Shift;
+        case SyntaxKind.PlusToken:
+        case SyntaxKind.MinusToken:
+            return OperatorPrecedence.Additive;
+        case SyntaxKind.AsteriskToken:
+        case SyntaxKind.SlashToken:
+        case SyntaxKind.PercentToken:
+            return OperatorPrecedence.Multiplicative;
+        case SyntaxKind.AsteriskAsteriskToken:
+            return OperatorPrecedence.Exponentiation;
+    }
+
+    // -1 is lower than all other precedences.  Returning it will cause binary expression
+    // parsing to stop.
+    return -1;
+}
+
+/** @internal */
+export function getExpressionPrecedence(expression: Expression) {
+    const operator = getOperator(expression);
+    const hasArguments = expression.kind === SyntaxKind.NewExpression && (expression as NewExpression).arguments !== undefined;
+    return getOperatorPrecedence(expression.kind, operator, hasArguments);
+}
+
+
+function getOperator(expression: Expression): SyntaxKind {
+    if (expression.kind === SyntaxKind.BinaryExpression) {
+        return (expression as BinaryExpression).operatorToken.kind;
+    }
+    else if (expression.kind === SyntaxKind.PrefixUnaryExpression || expression.kind === SyntaxKind.PostfixUnaryExpression) {
+        return (expression as PrefixUnaryExpression | PostfixUnaryExpression).operator;
+    }
+    else {
+        return expression.kind;
+    }
+}
+
+/** @internal */
+export const enum Associativity {
+    Left,
+    Right,
+}
+
+
+/** @internal */
+export function getExpressionAssociativity(expression: Expression) {
+    const operator = getOperator(expression);
+    const hasArguments = expression.kind === SyntaxKind.NewExpression && (expression as NewExpression).arguments !== undefined;
+    return getOperatorAssociativity(expression.kind, operator, hasArguments);
+}
+
+/** @internal */
+export function getOperatorAssociativity(kind: SyntaxKind, operator: SyntaxKind, hasArguments?: boolean) {
+    switch (kind) {
+        case SyntaxKind.NewExpression:
+            return hasArguments ? Associativity.Left : Associativity.Right;
+
+        case SyntaxKind.PrefixUnaryExpression:
+        // case SyntaxKind.TypeOfExpression:
+        // case SyntaxKind.VoidExpression:
+        // case SyntaxKind.DeleteExpression:
+        // case SyntaxKind.AwaitExpression:
+        case SyntaxKind.ConditionalExpression:
+        // case SyntaxKind.YieldExpression:
+            return Associativity.Right;
+
+        case SyntaxKind.BinaryExpression:
+            switch (operator) {
+                case SyntaxKind.AsteriskAsteriskToken:
+                case SyntaxKind.EqualsToken:
+                case SyntaxKind.PlusEqualsToken:
+                case SyntaxKind.MinusEqualsToken:
+                case SyntaxKind.AsteriskAsteriskEqualsToken:
+                case SyntaxKind.AsteriskEqualsToken:
+                case SyntaxKind.SlashEqualsToken:
+                case SyntaxKind.PercentEqualsToken:
+                case SyntaxKind.LessThanLessThanEqualsToken:
+                case SyntaxKind.GreaterThanGreaterThanEqualsToken:
+                case SyntaxKind.GreaterThanGreaterThanGreaterThanEqualsToken:
+                case SyntaxKind.AmpersandEqualsToken:
+                case SyntaxKind.CaretEqualsToken:
+                case SyntaxKind.BarEqualsToken:
+                case SyntaxKind.BarBarEqualsToken:
+                // case SyntaxKind.AmpersandAmpersandEqualsToken:
+                case SyntaxKind.QuestionQuestionEqualsToken:
+                    return Associativity.Right;
+            }
+    }
+    return Associativity.Left;
+}

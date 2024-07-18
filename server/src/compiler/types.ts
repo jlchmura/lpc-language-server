@@ -516,6 +516,7 @@ export const enum SyntaxKind {
 
     // Top Level
     SourceFile,
+    Bundle,
     
     // JSDoc nodes
     JSDocTypeExpression, // First JSDoc Node
@@ -641,6 +642,8 @@ export const enum SyntaxKind {
     LastFutureReservedWord = LastKeyword,
     FirstJSDocNode = JSDocTypeExpression,
     LastJSDocNode = JSDocImportTag,
+    FirstLiteralToken = IntLiteral,
+    LastLiteralToken = StringLiteral,
 }
 
 // dprint-ignore
@@ -1002,7 +1005,7 @@ export interface Symbol {
 }
 
 export interface NodeFactory {
-    ///** @internal */ readonly parenthesizer: ParenthesizerRules;
+    /** @internal */ readonly parenthesizer: ParenthesizerRules;
     ///** @internal */ readonly converters: NodeConverters;
     /** @internal */ readonly baseFactory: BaseNodeFactory;
     /** @internal */ readonly flags: NodeFactoryFlags;
@@ -1013,7 +1016,7 @@ export interface NodeFactory {
     createFloatLiteral(value: string|number, numericLiteralFlags?: TokenFlags): FloatLiteral;
     createStringLiteral(text: string, isSingleQuote?: boolean): StringLiteral;
     /** @internal */ createStringLiteral(text: string, isSingleQuote?: boolean, hasExtendedUnicodeEscape?: boolean): StringLiteral; // eslint-disable-line @typescript-eslint/unified-signatures
-
+    
     createToken(token: SyntaxKind.EndOfFileToken): EndOfFileToken;
     createToken(token: SyntaxKind.Unknown): Token<SyntaxKind.Unknown>;    
     /** @internal */ createToken<TKind extends SyntaxKind>(token: TKind): Token<TKind>;
@@ -1052,6 +1055,7 @@ export interface NodeFactory {
     createParameterDeclaration(modifiers: readonly Modifier[] | undefined, dotDotDotToken: DotDotDotToken | undefined, name: string | BindingName, ampToken?: AmpersandToken, type?: TypeNode, initializer?: Expression): ParameterDeclaration;
 
     // Expressions
+    createParenthesizedExpression(expression: Expression): ParenthesizedExpression;
     createConditionalExpression(condition: Expression, questionToken: QuestionToken | undefined, whenTrue: Expression, colonToken: ColonToken | undefined, whenFalse: Expression): ConditionalExpression;
     createBinaryExpression(left: Expression, operator: BinaryOperator | BinaryOperatorToken, right: Expression): BinaryExpression;
     createCallExpression(expression: Expression, argumentsArray: readonly Expression[] | undefined): CallExpression;
@@ -4475,3 +4479,286 @@ export interface WideningContext {
     resolvedProperties?: Symbol[];  // Properties occurring in sibling object literals
 }
 
+export const enum EmitHint {
+    SourceFile,              // Emitting a SourceFile
+    Expression,              // Emitting an Expression
+    IdentifierName,          // Emitting an IdentifierName
+    MappedTypeParameter,     // Emitting a TypeParameterDeclaration inside of a MappedTypeNode
+    Unspecified,             // Emitting an otherwise unspecified node
+    EmbeddedStatement,       // Emitting an embedded statement
+    JsxAttributeValue,       // Emitting a JSX attribute value
+    ImportTypeNodeAttributes,// Emitting attributes as part of an ImportTypeNode
+}
+
+export const enum ListFormat {
+    None = 0,
+
+    // Line separators
+    SingleLine = 0,                 // Prints the list on a single line (default).
+    MultiLine = 1 << 0,             // Prints the list on multiple lines.
+    PreserveLines = 1 << 1,         // Prints the list using line preservation if possible.
+    LinesMask = SingleLine | MultiLine | PreserveLines,
+
+    // Delimiters
+    NotDelimited = 0,               // There is no delimiter between list items (default).
+    BarDelimited = 1 << 2,          // Each list item is space-and-bar (" |") delimited.
+    AmpersandDelimited = 1 << 3,    // Each list item is space-and-ampersand (" &") delimited.
+    CommaDelimited = 1 << 4,        // Each list item is comma (",") delimited.
+    AsteriskDelimited = 1 << 5,     // Each list item is asterisk ("\n *") delimited, used with JSDoc.
+    DelimitersMask = BarDelimited | AmpersandDelimited | CommaDelimited | AsteriskDelimited,
+
+    AllowTrailingComma = 1 << 6,    // Write a trailing comma (",") if present.
+
+    // Whitespace
+    Indented = 1 << 7,              // The list should be indented.
+    SpaceBetweenBraces = 1 << 8,    // Inserts a space after the opening brace and before the closing brace.
+    SpaceBetweenSiblings = 1 << 9,  // Inserts a space between each sibling node.
+
+    // Brackets/Braces
+    Braces = 1 << 10,                // The list is surrounded by "{" and "}".
+    Parenthesis = 1 << 11,          // The list is surrounded by "(" and ")".
+    AngleBrackets = 1 << 12,        // The list is surrounded by "<" and ">".
+    SquareBrackets = 1 << 13,       // The list is surrounded by "[" and "]".
+    BracketsMask = Braces | Parenthesis | AngleBrackets | SquareBrackets,
+
+    OptionalIfUndefined = 1 << 14,  // Do not emit brackets if the list is undefined.
+    OptionalIfEmpty = 1 << 15,      // Do not emit brackets if the list is empty.
+    Optional = OptionalIfUndefined | OptionalIfEmpty,
+
+    // Other
+    PreferNewLine = 1 << 16,        // Prefer adding a LineTerminator between synthesized nodes.
+    NoTrailingNewLine = 1 << 17,    // Do not emit a trailing NewLine for a MultiLine list.
+    NoInterveningComments = 1 << 18, // Do not emit comments between each node
+    NoSpaceIfEmpty = 1 << 19,       // If the literal is empty, do not add spaces between braces.
+    SingleElement = 1 << 20,
+    SpaceAfterList = 1 << 21,       // Add space after list
+
+    // Precomputed Formats
+    Modifiers = SingleLine | SpaceBetweenSiblings | NoInterveningComments | SpaceAfterList,
+    HeritageClauses = SingleLine | SpaceBetweenSiblings,
+    SingleLineTypeLiteralMembers = SingleLine | SpaceBetweenBraces | SpaceBetweenSiblings,
+    MultiLineTypeLiteralMembers = MultiLine | Indented | OptionalIfEmpty,
+
+    SingleLineTupleTypeElements = CommaDelimited | SpaceBetweenSiblings | SingleLine,
+    MultiLineTupleTypeElements = CommaDelimited | Indented | SpaceBetweenSiblings | MultiLine,
+    UnionTypeConstituents = BarDelimited | SpaceBetweenSiblings | SingleLine,
+    IntersectionTypeConstituents = AmpersandDelimited | SpaceBetweenSiblings | SingleLine,
+    ObjectBindingPatternElements = SingleLine | AllowTrailingComma | SpaceBetweenBraces | CommaDelimited | SpaceBetweenSiblings | NoSpaceIfEmpty,
+    ArrayBindingPatternElements = SingleLine | AllowTrailingComma | CommaDelimited | SpaceBetweenSiblings | NoSpaceIfEmpty,
+    ObjectLiteralExpressionProperties = PreserveLines | CommaDelimited | SpaceBetweenSiblings | SpaceBetweenBraces | Indented | Braces | NoSpaceIfEmpty,
+    ImportAttributes = PreserveLines | CommaDelimited | SpaceBetweenSiblings | SpaceBetweenBraces | Indented | Braces | NoSpaceIfEmpty,
+    /** @deprecated */ ImportClauseEntries = ImportAttributes,
+    ArrayLiteralExpressionElements = PreserveLines | CommaDelimited | SpaceBetweenSiblings | AllowTrailingComma | Indented | SquareBrackets,
+    CommaListElements = CommaDelimited | SpaceBetweenSiblings | SingleLine,
+    CallExpressionArguments = CommaDelimited | SpaceBetweenSiblings | SingleLine | Parenthesis,
+    NewExpressionArguments = CommaDelimited | SpaceBetweenSiblings | SingleLine | Parenthesis | OptionalIfUndefined,
+    TemplateExpressionSpans = SingleLine | NoInterveningComments,
+    SingleLineBlockStatements = SpaceBetweenBraces | SpaceBetweenSiblings | SingleLine,
+    MultiLineBlockStatements = Indented | MultiLine,
+    VariableDeclarationList = CommaDelimited | SpaceBetweenSiblings | SingleLine,
+    SingleLineFunctionBodyStatements = SingleLine | SpaceBetweenSiblings | SpaceBetweenBraces,
+    MultiLineFunctionBodyStatements = MultiLine,
+    ClassHeritageClauses = SingleLine,
+    ClassMembers = Indented | MultiLine,
+    InterfaceMembers = Indented | MultiLine,
+    EnumMembers = CommaDelimited | Indented | MultiLine,
+    CaseBlockClauses = Indented | MultiLine,
+    NamedImportsOrExportsElements = CommaDelimited | SpaceBetweenSiblings | AllowTrailingComma | SingleLine | SpaceBetweenBraces | NoSpaceIfEmpty,
+    JsxElementOrFragmentChildren = SingleLine | NoInterveningComments,
+    JsxElementAttributes = SingleLine | SpaceBetweenSiblings | NoInterveningComments,
+    CaseOrDefaultClauseStatements = Indented | MultiLine | NoTrailingNewLine | OptionalIfEmpty,
+    HeritageClauseTypes = CommaDelimited | SpaceBetweenSiblings | SingleLine,
+    SourceFileStatements = MultiLine | NoTrailingNewLine,
+    Decorators = MultiLine | Optional | SpaceAfterList,
+    TypeArguments = CommaDelimited | SpaceBetweenSiblings | SingleLine | AngleBrackets | Optional,
+    TypeParameters = CommaDelimited | SpaceBetweenSiblings | SingleLine | AngleBrackets | Optional,
+    Parameters = CommaDelimited | SpaceBetweenSiblings | SingleLine | Parenthesis,
+    IndexSignatureParameters = CommaDelimited | SpaceBetweenSiblings | SingleLine | Indented | SquareBrackets,
+    JSDocComment = MultiLine | AsteriskDelimited,
+}
+
+export interface Bundle extends Node {
+    readonly kind: SyntaxKind.Bundle;
+    readonly sourceFiles: readonly SourceFile[];
+    /** @internal */ syntheticFileReferences?: readonly FileReference[];
+    /** @internal */ syntheticTypeReferences?: readonly FileReference[];
+    /** @internal */ syntheticLibReferences?: readonly FileReference[];
+    /** @internal */ hasNoDefaultLib?: boolean;
+}
+
+export interface Printer {
+    /**
+     * Print a node and its subtree as-is, without any emit transformations.
+     * @param hint A value indicating the purpose of a node. This is primarily used to
+     * distinguish between an `Identifier` used in an expression position, versus an
+     * `Identifier` used as an `IdentifierName` as part of a declaration. For most nodes you
+     * should just pass `Unspecified`.
+     * @param node The node to print. The node and its subtree are printed as-is, without any
+     * emit transformations.
+     * @param sourceFile A source file that provides context for the node. The source text of
+     * the file is used to emit the original source content for literals and identifiers, while
+     * the identifiers of the source file are used when generating unique names to avoid
+     * collisions.
+     */
+    printNode(hint: EmitHint, node: Node, sourceFile: SourceFile): string;
+    /**
+     * Prints a list of nodes using the given format flags
+     */
+    printList<T extends Node>(format: ListFormat, list: NodeArray<T>, sourceFile: SourceFile): string;
+    /**
+     * Prints a source file as-is, without any emit transformations.
+     */
+    printFile(sourceFile: SourceFile): string;
+    /**
+     * Prints a bundle of source files as-is, without any emit transformations.
+     */
+    printBundle(bundle: Bundle): string;
+    /** @internal */ writeNode(hint: EmitHint, node: Node, sourceFile: SourceFile | undefined, writer: EmitTextWriter): void;
+    /** @internal */ writeList<T extends Node>(format: ListFormat, list: NodeArray<T> | undefined, sourceFile: SourceFile | undefined, writer: EmitTextWriter): void;
+    /** @internal */ writeFile(sourceFile: SourceFile, writer: EmitTextWriter, sourceMapGenerator: SourceMapGenerator | undefined): void;
+    /** @internal */ writeBundle(bundle: Bundle, writer: EmitTextWriter, sourceMapGenerator: SourceMapGenerator | undefined): void;
+}
+
+
+/**
+ * Generates a source map.
+ *
+ * @internal
+ */
+export interface SourceMapGenerator {
+    getSources(): readonly string[];
+    /**
+     * Adds a source to the source map.
+     */
+    addSource(fileName: string): number;
+    /**
+     * Set the content for a source.
+     */
+    setSourceContent(sourceIndex: number, content: string | null): void; // eslint-disable-line no-restricted-syntax
+    /**
+     * Adds a name.
+     */
+    addName(name: string): number;
+    /**
+     * Adds a mapping without source information.
+     */
+    addMapping(generatedLine: number, generatedCharacter: number): void;
+    /**
+     * Adds a mapping with source information.
+     */
+    addMapping(generatedLine: number, generatedCharacter: number, sourceIndex: number, sourceLine: number, sourceCharacter: number, nameIndex?: number): void;
+    /**
+     * Appends a source map.
+     */
+    appendSourceMap(generatedLine: number, generatedCharacter: number, sourceMap: RawSourceMap, sourceMapPath: string, start?: LineAndCharacter, end?: LineAndCharacter): void;
+    /**
+     * Gets the source map as a `RawSourceMap` object.
+     */
+    toJSON(): RawSourceMap;
+    /**
+     * Gets the string representation of the source map.
+     */
+    toString(): string;
+}
+
+export interface PrintHandlers {
+    /**
+     * A hook used by the Printer when generating unique names to avoid collisions with
+     * globally defined names that exist outside of the current source file.
+     */
+    hasGlobalName?(name: string): boolean;
+    /**
+     * A hook used by the Printer to provide notifications prior to emitting a node. A
+     * compatible implementation **must** invoke `emitCallback` with the provided `hint` and
+     * `node` values.
+     * @param hint A hint indicating the intended purpose of the node.
+     * @param node The node to emit.
+     * @param emitCallback A callback that, when invoked, will emit the node.
+     * @example
+     * ```ts
+     * var printer = createPrinter(printerOptions, {
+     *   onEmitNode(hint, node, emitCallback) {
+     *     // set up or track state prior to emitting the node...
+     *     emitCallback(hint, node);
+     *     // restore state after emitting the node...
+     *   }
+     * });
+     * ```
+     */
+    onEmitNode?(hint: EmitHint, node: Node, emitCallback: (hint: EmitHint, node: Node) => void): void;
+
+    /**
+     * A hook used to check if an emit notification is required for a node.
+     * @param node The node to emit.
+     */
+    isEmitNotificationEnabled?(node: Node): boolean;
+    /**
+     * A hook used by the Printer to perform just-in-time substitution of a node. This is
+     * primarily used by node transformations that need to substitute one node for another,
+     * such as replacing `myExportedVar` with `exports.myExportedVar`.
+     * @param hint A hint indicating the intended purpose of the node.
+     * @param node The node to emit.
+     * @example
+     * ```ts
+     * var printer = createPrinter(printerOptions, {
+     *   substituteNode(hint, node) {
+     *     // perform substitution if necessary...
+     *     return node;
+     *   }
+     * });
+     * ```
+     */
+    substituteNode?(hint: EmitHint, node: Node): Node;
+    /** @internal */ onEmitSourceMapOfNode?: (hint: EmitHint, node: Node, emitCallback: (hint: EmitHint, node: Node) => void) => void;
+    /** @internal */ onEmitSourceMapOfToken?: (node: Node | undefined, token: SyntaxKind, writer: (s: string) => void, pos: number, emitCallback: (token: SyntaxKind, writer: (s: string) => void, pos: number) => number) => number;
+    /** @internal */ onEmitSourceMapOfPosition?: (pos: number) => void;
+    /** @internal */ onSetSourceFile?: (node: SourceFile) => void;
+    /** @internal */ onBeforeEmitNode?: (node: Node | undefined) => void;
+    /** @internal */ onAfterEmitNode?: (node: Node | undefined) => void;
+    /** @internal */ onBeforeEmitNodeArray?: (nodes: NodeArray<any> | undefined) => void;
+    /** @internal */ onAfterEmitNodeArray?: (nodes: NodeArray<any> | undefined) => void;
+    /** @internal */ onBeforeEmitToken?: (node: Node) => void;
+    /** @internal */ onAfterEmitToken?: (node: Node) => void;
+}
+
+export interface SourceMapSource {
+    fileName: string;
+    text: string;
+    /** @internal */ lineMap: readonly number[];
+    skipTrivia?: (pos: number) => number;
+}
+
+/** @internal */
+export interface ParenthesizerRules {
+    getParenthesizeLeftSideOfBinaryForOperator(binaryOperator: SyntaxKind): (leftSide: Expression) => Expression;
+    getParenthesizeRightSideOfBinaryForOperator(binaryOperator: SyntaxKind): (rightSide: Expression) => Expression;
+    parenthesizeLeftSideOfBinary(binaryOperator: SyntaxKind, leftSide: Expression): Expression;
+    parenthesizeRightSideOfBinary(binaryOperator: SyntaxKind, leftSide: Expression | undefined, rightSide: Expression): Expression;
+    parenthesizeExpressionOfComputedPropertyName(expression: Expression): Expression;
+    parenthesizeConditionOfConditionalExpression(condition: Expression): Expression;
+    parenthesizeBranchOfConditionalExpression(branch: Expression): Expression;
+    parenthesizeExpressionOfExportDefault(expression: Expression): Expression;
+    parenthesizeExpressionOfNew(expression: Expression): LeftHandSideExpression;
+    parenthesizeLeftSideOfAccess(expression: Expression, optionalChain?: boolean): LeftHandSideExpression;
+    parenthesizeOperandOfPostfixUnary(operand: Expression): LeftHandSideExpression;
+    parenthesizeOperandOfPrefixUnary(operand: Expression): UnaryExpression;
+    parenthesizeExpressionsOfCommaDelimitedList(elements: readonly Expression[]): NodeArray<Expression>;
+    parenthesizeExpressionForDisallowedComma(expression: Expression): Expression;
+    parenthesizeExpressionOfExpressionStatement(expression: Expression): Expression;
+    parenthesizeConciseBodyOfArrowFunction(body: Expression): Expression;
+    parenthesizeConciseBodyOfArrowFunction(body: ConciseBody): ConciseBody;
+    parenthesizeCheckTypeOfConditionalType(type: TypeNode): TypeNode;
+    parenthesizeExtendsTypeOfConditionalType(type: TypeNode): TypeNode;
+    parenthesizeOperandOfTypeOperator(type: TypeNode): TypeNode;
+    parenthesizeOperandOfReadonlyTypeOperator(type: TypeNode): TypeNode;
+    parenthesizeNonArrayTypeOfPostfixType(type: TypeNode): TypeNode;
+    // parenthesizeElementTypesOfTupleType(types: readonly (TypeNode | NamedTupleMember)[]): NodeArray<TypeNode>;
+    // parenthesizeElementTypeOfTupleType(type: TypeNode | NamedTupleMember): TypeNode | NamedTupleMember;
+    parenthesizeTypeOfOptionalType(type: TypeNode): TypeNode;
+    parenthesizeConstituentTypeOfUnionType(type: TypeNode): TypeNode;
+    parenthesizeConstituentTypesOfUnionType(constituents: readonly TypeNode[]): NodeArray<TypeNode>;
+    parenthesizeConstituentTypeOfIntersectionType(type: TypeNode): TypeNode;
+    parenthesizeConstituentTypesOfIntersectionType(constituents: readonly TypeNode[]): NodeArray<TypeNode>;
+    parenthesizeLeadingTypeArgument(typeNode: TypeNode): TypeNode;
+    parenthesizeTypeArguments(typeParameters: readonly TypeNode[] | undefined): NodeArray<TypeNode> | undefined;
+}

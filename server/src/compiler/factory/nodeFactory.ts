@@ -19,6 +19,7 @@ import {
     ConditionalExpression,
     ContinueStatement,
     createBaseNodeFactory,
+    createParenthesizerRules,
     Debug,
     Declaration,
     DeclarationName,
@@ -57,7 +58,9 @@ import {
     NodeArray,
     NodeFactory,
     NodeFlags,
+    nullParenthesizerRules,
     ParameterDeclaration,
+    ParenthesizedExpression,
     PostfixUnaryExpression,
     PostfixUnaryOperator,
     PropertyAccessExpression,
@@ -108,19 +111,11 @@ export function addNodeFactoryPatcher(fn: (factory: NodeFactory) => void) {
  *
  * @internal
  */
-export function createNodeFactory(
-    flags: NodeFactoryFlags,
-    baseFactory: BaseNodeFactory
-): NodeFactory {
-    const setOriginal =
-        flags & NodeFactoryFlags.NoOriginalNode ? identity : setOriginalNode;
+export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNodeFactory): NodeFactory {
+    const setOriginal = flags & NodeFactoryFlags.NoOriginalNode ? identity : setOriginalNode;
 
     // Lazily load the parenthesizer, node converters, and some factory methods until they are used.
-    // const parenthesizerRules = memoize(() =>
-    //     flags & NodeFactoryFlags.NoParenthesizerRules
-    //         ? nullParenthesizerRules
-    //         : createParenthesizerRules(factory)
-    // );
+    const parenthesizerRules = memoize(() => flags & NodeFactoryFlags.NoParenthesizerRules ? nullParenthesizerRules : createParenthesizerRules(factory));
     // const converters = memoize(() =>
     //     flags & NodeFactoryFlags.NoNodeConverters
     //         ? nullNodeConverters
@@ -128,6 +123,9 @@ export function createNodeFactory(
     // );
 
     const factory: NodeFactory = {
+        get parenthesizer() {
+            return parenthesizerRules();
+        },
         baseFactory,
         flags,
         createToken,
@@ -172,6 +170,7 @@ export function createNodeFactory(
         createParameterDeclaration,
 
         // Expressions
+        createParenthesizedExpression,
         createConditionalExpression,
         createBinaryExpression,
         createCallExpression,
@@ -866,6 +865,16 @@ export function createNodeFactory(
         // node.transformFlags |= propagateChildFlags(node.expression) |
         //     TransformFlags.ContainsES2015 |
         //     TransformFlags.ContainsComputedPropertyName;
+        return node;
+    }
+
+    // @api
+    function createParenthesizedExpression(expression: Expression) {
+        const node = createBaseNode<ParenthesizedExpression>(SyntaxKind.ParenthesizedExpression);
+        node.expression = expression;
+        //node.transformFlags = propagateChildFlags(node.expression);
+
+        node.jsDoc = undefined; // initialized by parser (JsDocContainer)
         return node;
     }
 }
