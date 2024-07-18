@@ -974,11 +974,12 @@ export class SourceContext {
                     );
                 } else if (symbol instanceof MethodSymbol) {
                     // look for the method implementation
-                    symbol = resolveOfTypeSync(
+                    const decl = resolveOfTypeSync(
                         this.symbolTable,
                         name,
                         MethodDeclarationSymbol
                     );
+                    symbol = decl ?? symbol;
                     const si = this.getSymbolInfo(symbol);
                     return [si];
                 } else if (symbol instanceof FunctionIdentifierSymbol) {

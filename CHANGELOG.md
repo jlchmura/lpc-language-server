@@ -1,5 +1,10 @@
 # LPC Language Services Changelog
 
+## 1.0.26
+
+-   Fix undefined token exception during diagnostics generation
+-   Fix signature not being displayed when hovering over a function declaration (part 3 of #42)
+
 ## 1.0.25
 
 -   Fix: [Performance Degradation and Diagnostic Errors in VSCode 1.0.23 #42](https://github.com/jlchmura/lpc-language-server/issues/42)
