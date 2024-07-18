@@ -11,7 +11,7 @@
                 //"${workspaceRoot}/../mg-mudlib",
                 //"${workspaceRoot}/../lima",
                 //"${workspaceRoot}/../StickLib",
-                "${workspaceRoot}/../gplu",
+                "${workspaceRoot}/../glpu",
                 //"${workspaceRoot}/../nightmare-residuum",
                 //"${workspaceRoot}/../infinity-lib",
                 //"${workspaceRoot}/../fluff-test",
