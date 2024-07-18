@@ -696,14 +696,12 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     // @api
-    function createPropertyAccessExpression(expression: Expression, name: string | Identifier | Expression): PropertyAccessExpression {
-        // TODO: parenthesize?
-        
-        if (typeof name === "string") {
-            name = asName(name) as MemberName;
-        }
-        const node = createBasePropertyAccessExpression(expression as LeftHandSideExpression, name);
-        
+    function createPropertyAccessExpression(expression: Expression, name: string | Identifier): PropertyAccessExpression {
+        const node = createBasePropertyAccessExpression(
+            parenthesizerRules().parenthesizeLeftSideOfAccess(expression, /*optionalChain*/ false),            
+            asName(name),
+        );
+               
         // TODO handle super here?
         
         return node;

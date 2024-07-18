@@ -1,4 +1,4 @@
-import { Symbol, Bundle, createTextWriter, Debug, EmitFlags, EmitHint, EmitTextWriter, Expression, factory, getEmitFlags, getInternalEmitFlags, getLineStarts, getNewLineCharacter, getShebang, Identifier, InternalEmitFlags, isExpression, isIdentifier, isSourceFile, isStringLiteral, ListFormat, memoize, ModuleKind, Node, NodeArray, noEmitNotification, noEmitSubstitution, performance, Printer, PrinterOptions, PrintHandlers, rangeIsOnSingleLine, SourceFile, SourceMapGenerator, SourceMapSource, SyntaxKind, TextRange, TypeNode, tokenToString, ParenthesizedExpression, nodeIsSynthesized, getStartsOnNewLine, getLinesBetweenRangeEndAndRangeStart, rangeEndIsOnSameLineAsRangeStart, guessIndentation } from "./_namespaces/lpc";
+import { Symbol, Bundle, createTextWriter, Debug, EmitFlags, EmitHint, EmitTextWriter, Expression, factory, getEmitFlags, getInternalEmitFlags, getLineStarts, getNewLineCharacter, getShebang, Identifier, InternalEmitFlags, isExpression, isIdentifier, isSourceFile, isStringLiteral, ListFormat, memoize, ModuleKind, Node, NodeArray, noEmitNotification, noEmitSubstitution, performance, Printer, PrinterOptions, PrintHandlers, rangeIsOnSingleLine, SourceFile, SourceMapGenerator, SourceMapSource, SyntaxKind, TextRange, TypeNode, tokenToString, ParenthesizedExpression, nodeIsSynthesized, getStartsOnNewLine, getLinesBetweenRangeEndAndRangeStart, rangeEndIsOnSameLineAsRangeStart, guessIndentation, cast, getIdentifierTypeArguments, LiteralExpression, isMemberName, getSourceFileOfNode, idText, getOriginalNode, isLiteralExpression, getSourceTextOfNodeFromSourceFile } from "./_namespaces/lpc";
 
 const brackets = createBracketsMap();
 
@@ -585,6 +585,22 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
     }
 
     function pipelineEmitWithHintWorker(hint: EmitHint, node: Node, allowSnippets = true): void {
+        // if (allowSnippets) {
+        //     const snippet = getSnippetElement(node);
+        //     if (snippet) {
+        //         return emitSnippetNode(hint, node, snippet);
+        //     }
+        // }
+
+        if (hint === EmitHint.IdentifierName) return emitIdentifier(cast(node, isIdentifier));
+        if (hint === EmitHint.Unspecified) {
+            switch (node.kind) {
+                // Identifiers
+                case SyntaxKind.Identifier:
+                    return emitIdentifier(node as Identifier);
+            }
+        }
+
         console.warn("todo - implment me - pipelineEmitWithHintWorker");
     }
 
@@ -807,6 +823,38 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
         }
     }
 
+    function getTextOfNode(node: Identifier | LiteralExpression, includeTrivia?: boolean): string {
+        // if (isGeneratedIdentifier(node)) {
+        //     return generateName(node);
+        // }
+        if (isStringLiteral(node) && node.textSourceNode) {
+            return getTextOfNode(node.textSourceNode, includeTrivia);
+        }
+        const sourceFile = currentSourceFile; // const needed for control flow
+        const canUseSourceFile = !!sourceFile && !!node.parent && !nodeIsSynthesized(node);
+        if (isMemberName(node)) {
+            if (!canUseSourceFile || getSourceFileOfNode(node) !== getOriginalNode(sourceFile)) {
+                return idText(node);
+            }
+        }        
+        else {
+            Debug.assertNode(node, isLiteralExpression); // not strictly necessary
+            if (!canUseSourceFile) {
+                return node.text;
+            }
+        }
+        return getSourceTextOfNodeFromSourceFile(sourceFile, node, includeTrivia);
+    }
+
+    //
+    // Identifiers
+    //
+
+    function emitIdentifier(node: Identifier) {
+        const writeText = node.symbol ? writeSymbol : write;
+        writeText(getTextOfNode(node, /*includeTrivia*/ false), node.symbol);
+        emitList(node, getIdentifierTypeArguments(node), ListFormat.TypeParameters); // Call emitList directly since it could be an array of TypeParameterDeclarations _or_ type arguments
+    }
 }
 
 

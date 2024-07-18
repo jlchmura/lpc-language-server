@@ -976,7 +976,7 @@ export type TypeNodeSyntaxKind =
     | SyntaxKind.JSDocTypeLiteral;
 
 export type PropertyName = Identifier | StringLiteral | IntLiteral;
-export type MemberName = Identifier | Expression;
+export type MemberName = Identifier;// | Expression;
 
 export type DeclarationName =
     | PropertyName

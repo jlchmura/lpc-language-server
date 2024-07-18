@@ -1,4 +1,4 @@
-import { Debug, EmitFlags, EmitNode, getParseTreeNode, getSourceFileOfNode, InternalEmitFlags, isParseTreeNode, Node, SyntaxKind } from "../_namespaces/lpc";
+import { Debug, EmitFlags, EmitNode, getParseTreeNode, getSourceFileOfNode, Identifier, InternalEmitFlags, isParseTreeNode, Node, NodeArray, SyntaxKind, TypeNode, TypeParameterDeclaration } from "../_namespaces/lpc";
 
 /**
  * Sets flags that control emit behavior of a node.
@@ -44,4 +44,9 @@ export function getOrCreateEmitNode(node: Node): EmitNode {
  */
 export function getStartsOnNewLine(node: Node) {
     return node.emitNode?.startsOnNewLine;
+}
+
+/** @internal */
+export function getIdentifierTypeArguments(node: Identifier): NodeArray<TypeNode | TypeParameterDeclaration> | undefined {
+    return undefined;//node.emitNode?.identifierTypeArguments;
 }

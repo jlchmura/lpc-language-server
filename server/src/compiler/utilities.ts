@@ -3969,27 +3969,6 @@ export function rangeStartPositionsAreOnSameLine(range1: TextRange, range2: Text
     );
 }
 
-
-/**
- * @internal
- * We assume the first line starts at position 0 and 'position' is non-negative.
- */
-export function computeLineOfPosition(lineStarts: readonly number[], position: number, lowerBound?: number) {
-    let lineNumber = binarySearch(lineStarts, position, identity, compareValues, lowerBound);
-    if (lineNumber < 0) {
-        // If the actual position was not found,
-        // the binary search returns the 2's-complement of the next line start
-        // e.g. if the line starts at [5, 10, 23, 80] and the position requested was 20
-        // then the search will return -2.
-        //
-        // We want the index of the previous line start, so we subtract 1.
-        // Review 2's-complement if this is confusing.
-        lineNumber = ~lineNumber - 1;
-        Debug.assert(lineNumber !== -1, "position cannot precede the beginning of the file");
-    }
-    return lineNumber;
-}
-
 /** @internal */
 export function positionsAreOnSameLine(pos1: number, pos2: number, sourceFile: SourceFile) {
     return getLinesBetweenPositions(sourceFile, pos1, pos2) === 0;
