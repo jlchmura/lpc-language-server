@@ -1,4 +1,4 @@
-import { Debug, EmitFlags, EmitNode, getParseTreeNode, getSourceFileOfNode, Identifier, InternalEmitFlags, isParseTreeNode, Node, NodeArray, SyntaxKind, TypeNode, TypeParameterDeclaration } from "../_namespaces/lpc";
+import { append, Debug, EmitFlags, EmitNode, getParseTreeNode, getSourceFileOfNode, Identifier, InternalEmitFlags, isParseTreeNode, Node, NodeArray, SyntaxKind, SynthesizedComment, TypeNode, TypeParameterDeclaration } from "../_namespaces/lpc";
 
 /**
  * Sets flags that control emit behavior of a node.
@@ -47,6 +47,25 @@ export function getStartsOnNewLine(node: Node) {
 }
 
 /** @internal */
+export function setIdentifierTypeArguments<T extends Identifier>(node: T, typeArguments: NodeArray<TypeNode | TypeParameterDeclaration> | undefined) {
+    getOrCreateEmitNode(node).identifierTypeArguments = typeArguments;
+    return node;
+}
+
+/** @internal */
 export function getIdentifierTypeArguments(node: Identifier): NodeArray<TypeNode | TypeParameterDeclaration> | undefined {
-    return undefined;//node.emitNode?.identifierTypeArguments;
+    return node.emitNode?.identifierTypeArguments;
+}
+
+export function setSyntheticLeadingComments<T extends Node>(node: T, comments: SynthesizedComment[] | undefined) {
+    getOrCreateEmitNode(node).leadingComments = comments;
+    return node;
+}
+
+export function getSyntheticLeadingComments(node: Node): SynthesizedComment[] | undefined {
+    return node.emitNode?.leadingComments;
+}
+
+export function addSyntheticLeadingComment<T extends Node>(node: T, kind: SyntaxKind.SingleLineCommentTrivia | SyntaxKind.MultiLineCommentTrivia, text: string, hasTrailingNewLine?: boolean) {
+    return setSyntheticLeadingComments(node, append<SynthesizedComment>(getSyntheticLeadingComments(node), { kind, pos: -1, end: -1, hasTrailingNewLine, text }));
 }

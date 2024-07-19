@@ -1,4 +1,6 @@
-import { Symbol, Bundle, createTextWriter, Debug, EmitFlags, EmitHint, EmitTextWriter, Expression, factory, getEmitFlags, getInternalEmitFlags, getLineStarts, getNewLineCharacter, getShebang, Identifier, InternalEmitFlags, isExpression, isIdentifier, isSourceFile, isStringLiteral, ListFormat, memoize, ModuleKind, Node, NodeArray, noEmitNotification, noEmitSubstitution, performance, Printer, PrinterOptions, PrintHandlers, rangeIsOnSingleLine, SourceFile, SourceMapGenerator, SourceMapSource, SyntaxKind, TextRange, TypeNode, tokenToString, ParenthesizedExpression, nodeIsSynthesized, getStartsOnNewLine, getLinesBetweenRangeEndAndRangeStart, rangeEndIsOnSameLineAsRangeStart, guessIndentation, cast, getIdentifierTypeArguments, LiteralExpression, isMemberName, getSourceFileOfNode, idText, getOriginalNode, isLiteralExpression, getSourceTextOfNodeFromSourceFile } from "./_namespaces/lpc";
+import { CharacterCodes } from "../backend/types";
+import * as lpc from "./_namespaces/lpc.js";
+import { Symbol, Bundle, createTextWriter, Debug, EmitFlags, EmitHint, EmitTextWriter, Expression, factory, getEmitFlags, getInternalEmitFlags, getLineStarts, getNewLineCharacter, getShebang, Identifier, InternalEmitFlags, isExpression, isIdentifier, isSourceFile, isStringLiteral, ListFormat, memoize, ModuleKind, Node, NodeArray, noEmitNotification, noEmitSubstitution, performance, Printer, PrinterOptions, PrintHandlers, rangeIsOnSingleLine, SourceFile, SourceMapGenerator, SourceMapSource, SyntaxKind, TextRange, TypeNode, tokenToString, ParenthesizedExpression, nodeIsSynthesized, getStartsOnNewLine, getLinesBetweenRangeEndAndRangeStart, rangeEndIsOnSameLineAsRangeStart, guessIndentation, cast, getIdentifierTypeArguments, LiteralExpression, isMemberName, getSourceFileOfNode, idText, getOriginalNode, isLiteralExpression, getSourceTextOfNodeFromSourceFile, TypeLiteralNode, forEach, NamedDeclaration, DeclarationName, isGeneratedIdentifier, isBindingPattern, GeneratedIdentifier, GeneratedIdentifierFlags, getNodeId, GeneratedNamePart, FunctionDeclaration, isFileLevelUniqueName, BindingPattern, Block, CaseBlock, CaseOrDefaultClause, CatchClause, ForStatement, IfStatement, isPrivateIdentifier, SwitchStatement, VariableDeclarationList, VariableStatement, WhileStatement, ForEachStatement, DoWhileStatement, formatGeneratedNamePart, formatGeneratedName, lastOrUndefined, getNodeForGeneratedName } from "./_namespaces/lpc";
 
 const brackets = createBracketsMap();
 
@@ -598,6 +600,8 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
                 // Identifiers
                 case SyntaxKind.Identifier:
                     return emitIdentifier(node as Identifier);
+                case SyntaxKind.TypeLiteral:
+                    return emitTypeLiteral(node as TypeLiteralNode);
             }
         }
 
@@ -854,6 +858,459 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
         const writeText = node.symbol ? writeSymbol : write;
         writeText(getTextOfNode(node, /*includeTrivia*/ false), node.symbol);
         emitList(node, getIdentifierTypeArguments(node), ListFormat.TypeParameters); // Call emitList directly since it could be an array of TypeParameterDeclarations _or_ type arguments
+    }
+
+    /**
+     * Push a new name generation scope.
+     */
+    function pushNameGenerationScope(node: Node | undefined) {
+        privateNameTempFlagsStack.push(privateNameTempFlags);
+        privateNameTempFlags = TempFlags.Auto;
+        reservedPrivateNamesStack.push(reservedPrivateNames);
+
+        if (node && getEmitFlags(node) & EmitFlags.ReuseTempVariableScope) {
+            return;
+        }
+
+        tempFlagsStack.push(tempFlags);
+        tempFlags = TempFlags.Auto;
+        formattedNameTempFlagsStack.push(formattedNameTempFlags);
+        formattedNameTempFlags = undefined;
+        reservedNamesStack.push(reservedNames);
+    }
+
+    /**
+     * Pop the current name generation scope.
+     */
+    function popNameGenerationScope(node: Node | undefined) {
+        privateNameTempFlags = privateNameTempFlagsStack.pop()!;
+        reservedPrivateNames = reservedPrivateNamesStack.pop();
+
+        if (node && getEmitFlags(node) & EmitFlags.ReuseTempVariableScope) {
+            return;
+        }
+
+        tempFlags = tempFlagsStack.pop()!;
+        formattedNameTempFlags = formattedNameTempFlagsStack.pop();
+        reservedNames = reservedNamesStack.pop();
+    }
+    
+    function generateMemberNames(node: Node | undefined) {
+        if (!node) return;
+        switch (node.kind) {
+            case SyntaxKind.PropertyAssignment:
+            case SyntaxKind.ShorthandPropertyAssignment:
+            case SyntaxKind.PropertyDeclaration:
+            // case SyntaxKind.PropertySignature:
+            // case SyntaxKind.MethodDeclaration:
+            // case SyntaxKind.MethodSignature:
+            // case SyntaxKind.GetAccessor:
+            // case SyntaxKind.SetAccessor:
+                generateNameIfNeeded((node as NamedDeclaration).name);
+                break;
+        }
+    }    
+
+    function generateNameIfNeeded(name: DeclarationName | undefined) {
+        if (name) {
+            if (isGeneratedIdentifier(name) ) {
+                generateName(name);
+            }
+            else if (isBindingPattern(name)) {
+                generateNames(name);
+            }
+        }
+    }
+
+    function generateNames(node: Node | undefined) {
+        if (!node) return;
+        switch (node.kind) {
+            case SyntaxKind.Block:
+                forEach((node as Block).statements, generateNames);
+                break;
+            // case SyntaxKind.LabeledStatement:
+            // case SyntaxKind.WithStatement:
+            case SyntaxKind.DoWhileStatement:
+            case SyntaxKind.WhileStatement:
+                generateNames((node as DoWhileStatement | WhileStatement).statement);
+                break;
+            case SyntaxKind.IfStatement:
+                generateNames((node as IfStatement).thenStatement);
+                generateNames((node as IfStatement).elseStatement);
+                break;
+            case SyntaxKind.ForStatement:
+                generateNames((node as ForStatement).initializer);
+                generateNames((node as ForStatement).statement);
+            case SyntaxKind.ForEachStatement:            
+                generateNames((node as ForEachStatement).expression);
+                generateNames((node as ForEachStatement).statement);
+                break;
+            case SyntaxKind.SwitchStatement:
+                generateNames((node as SwitchStatement).caseBlock);
+                break;
+            case SyntaxKind.CaseBlock:
+                forEach((node as CaseBlock).clauses, generateNames);
+                break;
+            case SyntaxKind.CaseClause:
+            case SyntaxKind.DefaultClause:
+                forEach((node as CaseOrDefaultClause).statements, generateNames);
+                break;
+            // case SyntaxKind.TryStatement:
+            //     generateNames((node as TryStatement).tryBlock);
+            //     generateNames((node as TryStatement).catchClause);
+            //     generateNames((node as TryStatement).finallyBlock);
+                break;
+            case SyntaxKind.CatchClause:
+                generateNames((node as CatchClause).variableDeclaration);
+                generateNames((node as CatchClause).block);
+                break;
+            case SyntaxKind.VariableStatement:
+                generateNames((node as VariableStatement).declarationList);
+                break;
+            case SyntaxKind.VariableDeclarationList:
+                forEach((node as VariableDeclarationList).declarations, generateNames);
+                break;
+            case SyntaxKind.VariableDeclaration:
+            case SyntaxKind.Parameter:
+            case SyntaxKind.BindingElement:
+            // case SyntaxKind.ClassDeclaration:
+                generateNameIfNeeded((node as NamedDeclaration).name);
+                break;
+            case SyntaxKind.FunctionDeclaration:
+                generateNameIfNeeded((node as FunctionDeclaration).name);
+                if (getEmitFlags(node) & EmitFlags.ReuseTempVariableScope) {
+                    forEach((node as FunctionDeclaration).parameters, generateNames);
+                    generateNames((node as FunctionDeclaration).body);
+                }
+                break;
+            // case SyntaxKind.ObjectBindingPattern:
+            case SyntaxKind.ArrayBindingPattern:
+                forEach((node as BindingPattern).elements, generateNames);
+                break;
+            // case SyntaxKind.ImportDeclaration:
+            //     generateNames((node as ImportDeclaration).importClause);
+            //     break;
+            // case SyntaxKind.ImportClause:
+            //     generateNameIfNeeded((node as ImportClause).name);
+            //     generateNames((node as ImportClause).namedBindings);
+            //     break;
+            // case SyntaxKind.NamespaceImport:
+            //     generateNameIfNeeded((node as NamespaceImport).name);
+            //     break;
+            // case SyntaxKind.NamespaceExport:
+            //     generateNameIfNeeded((node as NamespaceExport).name);
+            //     break;
+            // case SyntaxKind.NamedImports:
+            //     forEach((node as NamedImports).elements, generateNames);
+            //     break;
+            // case SyntaxKind.ImportSpecifier:
+            //     generateNameIfNeeded((node as ImportSpecifier).propertyName || (node as ImportSpecifier).name);
+            //     break;
+        }
+    }
+
+    function isReservedName(name: string, privateName: boolean): boolean {
+        let set: Set<string> | undefined;
+        let stack: (Set<string> | undefined)[];
+        if (privateName) {
+            set = reservedPrivateNames;
+            stack = reservedPrivateNamesStack;
+        }
+        else {
+            set = reservedNames;
+            stack = reservedNamesStack;
+        }
+
+        if (set?.has(name)) {
+            return true;
+        }
+        for (let i = stack.length - 1; i >= 0; i--) {
+            if (set === stack[i]) {
+                continue;
+            }
+            set = stack[i];
+            if (set?.has(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    
+    /**
+     * Returns a value indicating whether a name is unique globally, within the current file,
+     * or within the NameGenerator.
+     */
+    function isUniqueName(name: string, privateName: boolean): boolean {
+        return isFileLevelUniqueNameInCurrentFile(name, privateName)
+            && !isReservedName(name, privateName)
+            && !generatedNames.has(name);
+    }
+    
+    /**
+     * Returns a value indicating whether a name is unique globally or within the current file.
+     *
+     * @param _isPrivate (unused) this parameter exists to avoid an unnecessary adaptor frame in v8
+     * when `isfileLevelUniqueName` is passed as a callback to `makeUniqueName`.
+     */
+    function isFileLevelUniqueNameInCurrentFile(name: string, _isPrivate: boolean) {
+        return currentSourceFile ? isFileLevelUniqueName(currentSourceFile, name, hasGlobalName) : true;
+    }
+
+
+    /**
+     * Generate a name that is unique within the current file and doesn't conflict with any names
+     * in global scope. The name is formed by adding an '_n' suffix to the specified base name,
+     * where n is a positive integer. Note that names generated by makeTempVariableName and
+     * makeUniqueName are guaranteed to never conflict.
+     * If `optimistic` is set, the first instance will use 'baseName' verbatim instead of 'baseName_1'
+     */
+    function makeUniqueName(baseName: string, checkFn: (name: string, privateName: boolean) => boolean = isUniqueName, optimistic: boolean, scoped: boolean, privateName: boolean, prefix: string, suffix: string): string {
+        if (baseName.length > 0 && baseName.charCodeAt(0) === CharacterCodes.hash) {
+            baseName = baseName.slice(1);
+        }
+        if (prefix.length > 0 && prefix.charCodeAt(0) === CharacterCodes.hash) {
+            prefix = prefix.slice(1);
+        }
+        if (optimistic) {
+            const fullName = formatGeneratedName(privateName, prefix, baseName, suffix);
+            if (checkFn(fullName, privateName)) {
+                // if (privateName) {
+                //     reservePrivateNameInNestedScopes(fullName);
+                // }
+                if (scoped) {
+                    reserveNameInNestedScopes(fullName);
+                }
+                else {
+                    generatedNames.add(fullName);
+                }
+                return fullName;
+            }
+        }
+        // Find the first unique 'name_n', where n is a positive number
+        if (baseName.charCodeAt(baseName.length - 1) !== CharacterCodes._) {
+            baseName += "_";
+        }
+        let i = 1;
+        while (true) {
+            const fullName = formatGeneratedName(privateName, prefix, baseName + i, suffix);
+            if (checkFn(fullName, privateName)) {
+                // if (privateName) {
+                //     reservePrivateNameInNestedScopes(fullName);
+                // }
+                if (scoped) {
+                    reserveNameInNestedScopes(fullName);
+                }
+                else {
+                    generatedNames.add(fullName);
+                }
+                return fullName;
+            }
+            i++;
+        }
+    }
+
+    
+    /**
+     * Generates a unique name from a node.
+     */
+    function generateNameForNode(node: Node, privateName: boolean, flags: GeneratedIdentifierFlags, prefix: string, suffix: string): string {
+        switch (node.kind) {
+            case SyntaxKind.Identifier:            
+                return makeUniqueName(
+                    getTextOfNode(node as Identifier),
+                    isUniqueName,
+                    !!(flags & GeneratedIdentifierFlags.Optimistic),
+                    !!(flags & GeneratedIdentifierFlags.ReservedInNestedScopes),
+                    privateName,
+                    prefix,
+                    suffix,
+                );
+            // case SyntaxKind.ModuleDeclaration:
+            // case SyntaxKind.EnumDeclaration:
+            //     Debug.assert(!prefix && !suffix && !privateName);
+            //     return generateNameForModuleOrEnum(node as ModuleDeclaration | EnumDeclaration);
+            // case SyntaxKind.ImportDeclaration:
+            // case SyntaxKind.ExportDeclaration:
+            //     Debug.assert(!prefix && !suffix && !privateName);
+            //     return generateNameForImportOrExportDeclaration(node as ImportDeclaration | ExportDeclaration);
+            case SyntaxKind.FunctionDeclaration: {
+            // case SyntaxKind.ClassDeclaration: {
+                Debug.assert(!prefix && !suffix && !privateName);
+                const name = (node as FunctionDeclaration).name;
+                if (name && !isGeneratedIdentifier(name)) {
+                    return generateNameForNode(name, /*privateName*/ false, flags, prefix, suffix);
+                }
+                Debug.fail("shouldn't be here");
+                //return generateNameForExportDefault();
+            }
+            // case SyntaxKind.ExportAssignment:
+            //     Debug.assert(!prefix && !suffix && !privateName);
+            //     return generateNameForExportDefault();
+            case SyntaxKind.ClassExpression:
+                Debug.fail("implement me");
+                // Debug.assert(!prefix && !suffix && !privateName);
+                // return generateNameForClassExpression();
+            // case SyntaxKind.MethodDeclaration:
+            // case SyntaxKind.GetAccessor:
+            // case SyntaxKind.SetAccessor:
+            //     return generateNameForMethodOrAccessor(node as MethodDeclaration | AccessorDeclaration, privateName, prefix, suffix);
+            case SyntaxKind.ComputedPropertyName:
+                return makeTempVariableName(TempFlags.Auto, /*reservedInNestedScopes*/ true, privateName, prefix, suffix);
+            default:
+                return makeTempVariableName(TempFlags.Auto, /*reservedInNestedScopes*/ false, privateName, prefix, suffix);
+        }
+    }
+
+    function generateNameCached(node: Node, privateName: boolean, flags?: GeneratedIdentifierFlags, prefix?: string | GeneratedNamePart, suffix?: string) {
+        const nodeId = getNodeId(node);
+        const cache = privateName ? nodeIdToGeneratedPrivateName : nodeIdToGeneratedName;
+        return cache[nodeId] || (cache[nodeId] = generateNameForNode(node, privateName, flags ?? GeneratedIdentifierFlags.None, formatGeneratedNamePart(prefix, generateName), formatGeneratedNamePart(suffix)));
+    }
+
+    function getTempFlags(formattedNameKey: string) {
+        switch (formattedNameKey) {
+            case "":
+                return tempFlags;
+            case "#":
+                return privateNameTempFlags;
+            default:
+                return formattedNameTempFlags?.get(formattedNameKey) ?? TempFlags.Auto;
+        }
+    }
+
+    function setTempFlags(formattedNameKey: string, flags: TempFlags) {
+        switch (formattedNameKey) {
+            case "":
+                tempFlags = flags;
+                break;
+            case "#":
+                privateNameTempFlags = flags;
+                break;
+            default:
+                formattedNameTempFlags ??= new Map();
+                formattedNameTempFlags.set(formattedNameKey, flags);
+                break;
+        }
+    }
+
+    function reserveNameInNestedScopes(name: string) {
+        if (!reservedNames || reservedNames === lastOrUndefined(reservedNamesStack)) {
+            reservedNames = new Set();
+        }
+        reservedNames.add(name);
+    }
+    
+    /**
+     * Return the next available name in the pattern _a ... _z, _0, _1, ...
+     * TempFlags._i or TempFlags._n may be used to express a preference for that dedicated name.
+     * Note that names generated by makeTempVariableName and makeUniqueName will never conflict.
+     */
+    function makeTempVariableName(flags: TempFlags, reservedInNestedScopes: boolean, privateName: boolean, prefix: string, suffix: string): string {
+        if (prefix.length > 0 && prefix.charCodeAt(0) === CharacterCodes.hash) {
+            prefix = prefix.slice(1);
+        }
+
+        // Generate a key to use to acquire a TempFlags counter based on the fixed portions of the generated name.
+        const key = formatGeneratedName(privateName, prefix, "", suffix);
+        let tempFlags = getTempFlags(key);
+
+        if (flags && !(tempFlags & flags)) {
+            const name = flags === TempFlags._i ? "_i" : "_n";
+            const fullName = formatGeneratedName(privateName, prefix, name, suffix);
+            if (isUniqueName(fullName, privateName)) {
+                tempFlags |= flags;
+                // if (privateName) {
+                //     reservePrivateNameInNestedScopes(fullName);
+                // }
+                if (reservedInNestedScopes) {
+                    reserveNameInNestedScopes(fullName);
+                }
+                setTempFlags(key, tempFlags);
+                return fullName;
+            }
+        }
+
+        while (true) {
+            const count = tempFlags & TempFlags.CountMask;
+            tempFlags++;
+            // Skip over 'i' and 'n'
+            if (count !== 8 && count !== 13) {
+                const name = count < 26
+                    ? "_" + String.fromCharCode(CharacterCodes.a + count)
+                    : "_" + (count - 26);
+                const fullName = formatGeneratedName(privateName, prefix, name, suffix);
+                if (isUniqueName(fullName, privateName)) {
+                    // if (privateName) {
+                    //     reservePrivateNameInNestedScopes(fullName);
+                    // }
+                    if (reservedInNestedScopes) {
+                        reserveNameInNestedScopes(fullName);
+                    }
+                    setTempFlags(key, tempFlags);
+                    return fullName;
+                }
+            }
+        }
+    }
+
+    /**
+     * Generates a unique identifier for a node.
+     */
+    function makeName(name: GeneratedIdentifier ) {
+        const autoGenerate = name.emitNode.autoGenerate;
+        const prefix = formatGeneratedNamePart(autoGenerate.prefix, generateName);
+        const suffix = formatGeneratedNamePart(autoGenerate.suffix);
+        switch (autoGenerate.flags & GeneratedIdentifierFlags.KindMask) {
+            case GeneratedIdentifierFlags.Auto:
+                return makeTempVariableName(TempFlags.Auto, !!(autoGenerate.flags & GeneratedIdentifierFlags.ReservedInNestedScopes), isPrivateIdentifier(name), prefix, suffix);
+            case GeneratedIdentifierFlags.Loop:
+                Debug.assertNode(name, isIdentifier);
+                return makeTempVariableName(TempFlags._i, !!(autoGenerate.flags & GeneratedIdentifierFlags.ReservedInNestedScopes), /*privateName*/ false, prefix, suffix);
+            case GeneratedIdentifierFlags.Unique:
+                return makeUniqueName(
+                    idText(name),
+                    (autoGenerate.flags & GeneratedIdentifierFlags.FileLevel) ? isFileLevelUniqueNameInCurrentFile : isUniqueName,
+                    !!(autoGenerate.flags & GeneratedIdentifierFlags.Optimistic),
+                    !!(autoGenerate.flags & GeneratedIdentifierFlags.ReservedInNestedScopes),
+                    isPrivateIdentifier(name),
+                    prefix,
+                    suffix,
+                );
+        }
+
+        return Debug.fail(`Unsupported GeneratedIdentifierKind: ${Debug.formatEnum(autoGenerate.flags & GeneratedIdentifierFlags.KindMask, (lpc as any).GeneratedIdentifierFlags, /*isFlags*/ true)}.`);
+    }
+
+    
+    /**
+     * Generate the text for a generated identifier.
+     */
+    function generateName(name: GeneratedIdentifier) {
+        const autoGenerate = name.emitNode.autoGenerate;
+        if ((autoGenerate.flags & GeneratedIdentifierFlags.KindMask) === GeneratedIdentifierFlags.Node) {
+            // Node names generate unique names based on their original node
+            // and are cached based on that node's id.
+            return generateNameCached(getNodeForGeneratedName(name), isPrivateIdentifier(name), autoGenerate.flags, autoGenerate.prefix, autoGenerate.suffix);
+        }
+        else {
+            // Auto, Loop, and Unique names are cached based on their unique
+            // autoGenerateId.
+            const autoGenerateId = autoGenerate.id;
+            return autoGeneratedIdToGeneratedName[autoGenerateId] || (autoGeneratedIdToGeneratedName[autoGenerateId] = makeName(name));
+        }
+    }
+    
+    function emitTypeLiteral(node: TypeLiteralNode) {
+        pushNameGenerationScope(node);
+        forEach(node.members, generateMemberNames);
+
+        writePunctuation("{");
+        const flags = getEmitFlags(node) & EmitFlags.SingleLine ? ListFormat.SingleLineTypeLiteralMembers : ListFormat.MultiLineTypeLiteralMembers;
+        emitList(node, node.members, flags | ListFormat.NoSpaceIfEmpty);
+        writePunctuation("}");
+
+        popNameGenerationScope(node);
     }
 }
 

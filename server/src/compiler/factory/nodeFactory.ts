@@ -40,18 +40,32 @@ import {
     ForInitializer,
     ForStatement,
     FunctionDeclaration,
+    getIdentifierTypeArguments,
+    hasProperty,
     Identifier,
     identity,
     IfStatement,
+    IndexSignatureDeclaration,
     InheritDeclaration,
     InlineClosureExpression,
     IntLiteral,
+    isIdentifier,
+    isLocalName,
     isNodeArray,
+    isNodeKind,
+    isSourceFile,
+    KeywordSyntaxKind,
+    KeywordToken,
+    KeywordTypeNode,
+    KeywordTypeSyntaxKind,
     LeftHandSideExpression,
     LiteralToken,
+    LiteralTypeNode,
     MemberName,
     memoize,
     Modifier,
+    ModifierSyntaxKind,
+    ModifierToken,
     Mutable,
     MutableNodeArray,
     Node,
@@ -64,11 +78,16 @@ import {
     ParenthesizedTypeNode,
     PostfixUnaryExpression,
     PostfixUnaryOperator,
+    PrefixUnaryExpression,
+    PrefixUnaryOperator,
     PropertyAccessExpression,
     PropertyName,
+    PunctuationSyntaxKind,
+    PunctuationToken,
     QualifiedName,
     QuestionToken,
     ReturnStatement,
+    setIdentifierTypeArguments,
     SourceFile,
     Statement,
     StringLiteral,
@@ -76,14 +95,18 @@ import {
     SyntaxKind,
     Token,
     TokenFlags,
+    TypeElement,
+    TypeLiteralNode,
     TypeNode,
     TypeParameterDeclaration,
+    TypeReferenceNode,
     UnionTypeNode,
     VariableDeclaration,
     VariableDeclarationList,
     VariableStatement,
     WhileStatement,
 } from "../_namespaces/lpc.js";
+import { nullNodeConverters } from "./nodeConverters.js";
 
 /** @internal */
 export const enum NodeFactoryFlags {
@@ -117,11 +140,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
 
     // Lazily load the parenthesizer, node converters, and some factory methods until they are used.
     const parenthesizerRules = memoize(() => flags & NodeFactoryFlags.NoParenthesizerRules ? nullParenthesizerRules : createParenthesizerRules(factory));
-    // const converters = memoize(() =>
-    //     flags & NodeFactoryFlags.NoNodeConverters
-    //         ? nullNodeConverters
-    //         : createNodeConverters(factory)
-    // );
+    const converters = memoize(() => nullNodeConverters);//flags & NodeFactoryFlags.NoNodeConverters ? nullNodeConverters : createNodeConverters(factory));
 
     const factory: NodeFactory = {
         get parenthesizer() {
@@ -129,6 +148,10 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         },
         baseFactory,
         flags,
+        get converters() {
+            return converters();
+        },
+        
         createToken,
         createSourceFile,
         createNodeArray,
@@ -140,10 +163,17 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createStringLiteral,
         createLiteralLikeNode,
 
+        // type elements,
+        createIndexSignature,
+
         // types
         createArrayTypeNode,
         createUnionTypeNode,
         createParenthesizedType,
+        createKeywordTypeNode,
+        createTypeReferenceNode,
+        createLiteralTypeNode,
+        createTypeLiteralNode,
 
         // Names
         createQualifiedName,
@@ -178,8 +208,12 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createCallExpression,
         createInlineClosure,
         createPropertyAccessExpression,
+        createPrefixUnaryExpression,
         createPostfixUnaryExpression,
-        createElementAccessExpression
+        createElementAccessExpression,
+
+
+        cloneNode,
     };
 
     return factory;
@@ -258,11 +292,11 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     function createToken(token: SyntaxKind.EndOfFileToken): EndOfFileToken;
-    // function createToken<TKind extends PunctuationSyntaxKind>(token: TKind): PunctuationToken<TKind>; // prettier-ignore
-    // function createToken(token: SyntaxKind.Unknown): Token<SyntaxKind.Unknown>;
-    // function createToken<TKind extends KeywordTypeSyntaxKind>(token: TKind): KeywordTypeNode<TKind>; // prettier-ignore
-    // function createToken<TKind extends ModifierSyntaxKind>(token: TKind): ModifierToken<TKind>; // prettier-ignore
-    // function createToken<TKind extends KeywordSyntaxKind>(token: TKind): KeywordToken<TKind>; // prettier-ignore
+    function createToken<TKind extends PunctuationSyntaxKind>(token: TKind): PunctuationToken<TKind>; // prettier-ignore
+    function createToken(token: SyntaxKind.Unknown): Token<SyntaxKind.Unknown>;
+    function createToken<TKind extends KeywordTypeSyntaxKind>(token: TKind): KeywordTypeNode<TKind>; // prettier-ignore
+    function createToken<TKind extends ModifierSyntaxKind>(token: TKind): ModifierToken<TKind>; // prettier-ignore
+    function createToken<TKind extends KeywordSyntaxKind>(token: TKind): KeywordToken<TKind>; // prettier-ignore
     function createToken<TKind extends SyntaxKind>(token: TKind): Token<TKind>;
     function createToken<TKind extends SyntaxKind>(token: TKind) {
         const node = createBaseToken<Token<TKind>>(token);
@@ -293,12 +327,133 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         node.symbol = undefined!; // initialized by checker
         return node;
     }
+
+    function cloneSourceFileWorker(source: SourceFile) {
+        // TODO: This mechanism for cloning results in megamorphic property reads and writes. In future perf-related
+        //       work, we should consider switching explicit property assignments instead of using `for..in`.
+        const node = baseFactory.createBaseSourceFileNode(SyntaxKind.SourceFile) as Mutable<SourceFile>;
+        node.flags |= source.flags & ~NodeFlags.Synthesized;
+        for (const p in source) {
+            if (hasProperty(node, p) || !hasProperty(source, p)) {
+                continue;
+            }
+            if (p === "emitNode") {
+                node.emitNode = undefined;
+                continue;
+            }
+            (node as any)[p] = (source as any)[p];
+        }
+        return node;
+    }
+
+    function cloneSourceFile(source: SourceFile) {
+        const node =  /*source.redirectInfo ? cloneRedirectedSourceFile(source) : */cloneSourceFileWorker(source);
+        setOriginal(node, source);
+        return node;
+    }
+
+    
+    function cloneIdentifier(node: Identifier): Identifier {
+        const clone = createBaseIdentifier(node.text);
+        clone.flags |= node.flags & ~NodeFlags.Synthesized;
+        clone.jsDoc = node.jsDoc;
+        clone.flowNode = node.flowNode;
+        clone.symbol = node.symbol;
+        clone.transformFlags = node.transformFlags;
+        setOriginal(clone, node);
+
+        // clone type arguments for emitter/typeWriter
+        const typeArguments = getIdentifierTypeArguments(node);
+        if (typeArguments) setIdentifierTypeArguments(clone, typeArguments);
+        return clone;
+    }
+
+    // @api
+    function createIndexSignature(
+        modifiers: readonly Modifier[] | undefined,
+        parameters: readonly ParameterDeclaration[],
+        type: TypeNode | undefined,
+    ): IndexSignatureDeclaration {
+        const node = createBaseDeclaration<IndexSignatureDeclaration>(SyntaxKind.IndexSignature);
+        node.modifiers = asNodeArray(modifiers);
+        node.parameters = asNodeArray(parameters);
+        node.type = type!; // TODO(rbuckton): We mark this as required in IndexSignatureDeclaration, but it looks like the parser allows it to be elided.
+        //node.transformFlags = TransformFlags.ContainsTypeScript;
+
+        node.jsDoc = undefined; // initialized by parser (JsDocContainer)
+        node.locals = undefined; // initialized by binder (LocalsContainer)
+        node.nextContainer = undefined; // initialized by binder (LocalsContainer)
+        node.typeArguments = undefined; // used in quick info
+        return node;
+    }
+
+
+    // @api
+    function cloneNode<T extends Node | undefined>(node: T): T;
+    function cloneNode<T extends Node>(node: T) {
+        // We don't use "clone" from core.ts here, as we need to preserve the prototype chain of
+        // the original node. We also need to exclude specific properties and only include own-
+        // properties (to skip members already defined on the shared prototype).
+        if (node === undefined) {
+            return node;
+        }
+        if (isSourceFile(node)) {
+            return cloneSourceFile(node) as T & SourceFile;
+        }
+        // if (isGeneratedIdentifier(node)) {
+        //     return cloneGeneratedIdentifier(node) as T & GeneratedIdentifier;
+        // }
+        if (isIdentifier(node)) {
+            return cloneIdentifier(node) as T & Identifier;
+        }
+        // if (isGeneratedPrivateIdentifier(node)) {
+        //     return cloneGeneratedPrivateIdentifier(node) as T & GeneratedPrivateIdentifier;
+        // }
+        // if (isPrivateIdentifier(node)) {
+        //     return clonePrivateIdentifier(node) as T & PrivateIdentifier;
+        // }
+
+        const clone = !isNodeKind(node.kind) ? baseFactory.createBaseTokenNode(node.kind) as T :
+            baseFactory.createBaseNode(node.kind) as T;
+
+        (clone as Mutable<T>).flags |= node.flags & ~NodeFlags.Synthesized;
+        (clone as Mutable<T>).transformFlags = node.transformFlags;
+        setOriginal(clone, node);
+
+        for (const key in node) {
+            if (hasProperty(clone, key) || !hasProperty(node, key)) {
+                continue;
+            }
+
+            clone[key] = node[key];
+        }
+
+        return clone;
+    }
+
     // @api
     function createIdentifier(text: string): Identifier {
         const node = createBaseIdentifier(text);
         return node;
     }
 
+    // @api
+    function createLiteralTypeNode(literal: LiteralTypeNode["literal"]) {
+        const node = createBaseNode<LiteralTypeNode>(SyntaxKind.LiteralType);
+        node.literal = literal;
+        //node.transformFlags = TransformFlags.ContainsTypeScript;
+        return node;
+    }
+
+    // @api
+    function createTypeReferenceNode(typeName: string | EntityName, typeArguments: readonly TypeNode[] | undefined) {
+        const node = createBaseNode<TypeReferenceNode>(SyntaxKind.TypeReference);
+        node.typeName = asName(typeName);
+        node.typeArguments = typeArguments && parenthesizerRules().parenthesizeTypeArguments(createNodeArray(typeArguments));
+        //node.transformFlags = TransformFlags.ContainsTypeScript;
+        return node;
+    }
+    
     // @api
     function createIntLiteral(
         value: string | number,
@@ -883,6 +1038,38 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         const node = createBaseNode<ParenthesizedTypeNode>(SyntaxKind.ParenthesizedType);
         node.type = type;
         //node.transformFlags = TransformFlags.ContainsTypeScript;
+        return node;
+    }
+
+    // @api
+    function createKeywordTypeNode<TKind extends KeywordTypeSyntaxKind>(kind: TKind) {
+        return createToken(kind);
+    }
+
+    // @api
+    function createPrefixUnaryExpression(operator: PrefixUnaryOperator, operand: Expression) {
+        const node = createBaseNode<PrefixUnaryExpression>(SyntaxKind.PrefixUnaryExpression);
+        node.operator = operator;
+        node.operand = parenthesizerRules().parenthesizeOperandOfPrefixUnary(operand);
+        //node.transformFlags |= propagateChildFlags(node.operand);
+        // Only set this flag for non-generated identifiers and non-"local" names. See the
+        // comment in `visitPreOrPostfixUnaryExpression` in module.ts
+        // if (
+        //     (operator === SyntaxKind.PlusPlusToken || operator === SyntaxKind.MinusMinusToken) &&
+        //     isIdentifier(node.operand) &&
+        //     //!isGeneratedIdentifier(node.operand) &&
+        //     !isLocalName(node.operand)
+        // ) {
+        //     node.transformFlags |= TransformFlags.ContainsUpdateExpressionForIdentifier;
+        // }
+        return node;
+    }
+
+    // @api
+    function createTypeLiteralNode(members: readonly TypeElement[] | undefined) {
+        const node = createBaseDeclaration<TypeLiteralNode>(SyntaxKind.TypeLiteral);
+        node.members = createNodeArray(members);
+        // node.transformFlags = TransformFlags.ContainsTypeScript;
         return node;
     }
 }

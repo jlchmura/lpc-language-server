@@ -1,4 +1,5 @@
-import { AssertionLevel, BinaryExpression, BinaryOperatorToken, Debug, Expression } from "../_namespaces/lpc";
+import { CharacterCodes } from "../../backend/types";
+import { AssertionLevel, BinaryExpression, BinaryOperatorToken, Debug, EmitFlags, Expression, GeneratedIdentifier, GeneratedIdentifierFlags, GeneratedNamePart, getEmitFlags, Identifier, idText, isGeneratedIdentifier, isMemberName, Node } from "../_namespaces/lpc";
 
 
 type BinaryExpressionState = <TOuterState, TState, TResult>(machine: BinaryExpressionStateMachine<TOuterState, TState, TResult>, stackIndex: number, stateStack: BinaryExpressionState[], nodeStack: BinaryExpression[], userStateStack: TState[], resultHolder: { value: TResult; }, outerState: TOuterState) => number;
@@ -218,4 +219,107 @@ export function createBinaryExpressionTrampoline<TOuterState, TState, TResult>(
         Debug.assertEqual(stackIndex, 0);
         return resultHolder.value;
     }
+}
+
+
+/**
+ * Gets whether an identifier should only be referred to by its local name.
+ *
+ * @internal
+ */
+export function isLocalName(node: Identifier) {
+    return (getEmitFlags(node) & EmitFlags.LocalName) !== 0;
+}
+
+
+/**
+ * Formats a generated name.
+ * @param privateName When `true`, inserts a `#` character at the start of the result.
+ * @param prefix The prefix (if any) to include before the base name.
+ * @param baseName The base name for the generated name.
+ * @param suffix The suffix (if any) to include after the base name.
+ *
+ * @internal
+ */
+export function formatGeneratedName(privateName: boolean, prefix: string | undefined, baseName: string, suffix: string | undefined): string;
+/**
+ * Formats a generated name.
+ * @param privateName When `true`, inserts a `#` character at the start of the result.
+ * @param prefix The prefix (if any) to include before the base name.
+ * @param baseName The base name for the generated name.
+ * @param suffix The suffix (if any) to include after the base name.
+ * @param generateName Called to format the source node of {@link prefix} when it is a {@link GeneratedNamePart}.
+ *
+ * @internal
+ */
+export function formatGeneratedName(privateName: boolean, prefix: string | GeneratedNamePart | undefined, baseName: string | Identifier , suffix: string | GeneratedNamePart | undefined, generateName: (name: GeneratedIdentifier) => string): string;
+/** @internal */
+export function formatGeneratedName(privateName: boolean, prefix: string | GeneratedNamePart | undefined, baseName: string | Identifier , suffix: string | GeneratedNamePart | undefined, generateName?: (name: GeneratedIdentifier) => string) {
+    prefix = formatGeneratedNamePart(prefix, generateName!);
+    suffix = formatGeneratedNamePart(suffix, generateName!);
+    baseName = formatIdentifier(baseName, generateName);
+    return `${privateName ? "#" : ""}${prefix}${baseName}${suffix}`;
+}
+
+function formatIdentifier(name: string | Identifier , generateName?: (name: GeneratedIdentifier ) => string) {
+    return typeof name === "string" ? name :
+        formatIdentifierWorker(name, Debug.checkDefined(generateName));
+}
+
+function formatIdentifierWorker(node: Identifier , generateName: (name: GeneratedIdentifier ) => string) {
+    return isGeneratedIdentifier(node) ? generateName(node) :        
+        idText(node);
+}
+
+
+/**
+ * Formats a prefix or suffix of a generated name.
+ *
+ * @internal
+ */
+export function formatGeneratedNamePart(part: string | undefined): string;
+/**
+ * Formats a prefix or suffix of a generated name. If the part is a {@link GeneratedNamePart}, calls {@link generateName} to format the source node.
+ *
+ * @internal
+ */
+export function formatGeneratedNamePart(part: string | GeneratedNamePart | undefined, generateName: (name: GeneratedIdentifier ) => string): string;
+/** @internal */
+export function formatGeneratedNamePart(part: string | GeneratedNamePart | undefined, generateName?: (name: GeneratedIdentifier ) => string): string {
+    return typeof part === "object" ? formatGeneratedName(/*privateName*/ false, part.prefix, part.node, part.suffix, generateName!) :
+        typeof part === "string" ? part.length > 0 && part.charCodeAt(0) === CharacterCodes.hash ? part.slice(1) : part :
+        "";
+}
+
+/**
+ * Gets the node from which a name should be generated.
+ *
+ * @internal
+ */
+export function getNodeForGeneratedName(name: GeneratedIdentifier ) {
+    const autoGenerate = name.emitNode.autoGenerate;
+    if (autoGenerate.flags & GeneratedIdentifierFlags.Node) {
+        const autoGenerateId = autoGenerate.id;
+        let node = name as Node;
+        let original = node.original;
+        while (original) {
+            node = original;
+            const autoGenerate = node.emitNode?.autoGenerate;
+            // if "node" is a different generated name (having a different "autoGenerateId"), use it and stop traversing.
+            if (
+                isMemberName(node) && (
+                    autoGenerate === undefined ||
+                    !!(autoGenerate.flags & GeneratedIdentifierFlags.Node) &&
+                        autoGenerate.id !== autoGenerateId
+                )
+            ) {
+                break;
+            }
+
+            original = node.original;
+        }
+        // otherwise, return the original node for the source
+        return node;
+    }
+    return name;
 }

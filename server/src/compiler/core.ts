@@ -1307,3 +1307,39 @@ export function firstDefined<T, U>(array: readonly T[] | undefined, callback: (e
     }
     return undefined;
 }
+
+
+/**
+ * Returns the only element of an array if it contains only one element, `undefined` otherwise.
+ *
+ * @internal
+ */
+export function singleOrUndefined<T>(array: readonly T[] | undefined): T | undefined {
+    return array !== undefined && array.length === 1
+        ? array[0]
+        : undefined;
+}
+
+/** @internal */
+export function countWhere<T>(array: readonly T[] | undefined, predicate: (x: T, i: number) => boolean): number {
+    let count = 0;
+    if (array !== undefined) {
+        for (let i = 0; i < array.length; i++) {
+            const v = array[i];
+            if (predicate(v, i)) {
+                count++;
+            }
+        }
+    }
+    return count;
+}
+
+
+/**
+ * Throws an error because a function is not implemented.
+ *
+ * @internal
+ */
+export function notImplemented(): never {
+    throw new Error("Not implemented");
+}

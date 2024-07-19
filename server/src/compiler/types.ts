@@ -1,5 +1,5 @@
 import { LpcConfig } from "../backend/LpcConfig.js";
-import { BaseNodeFactory, GetCanonicalFileName, MapLike, MultiMap, NodeFactoryFlags } from "./_namespaces/lpc.js";
+import { BaseNodeFactory, EmitHelperFactory, GetCanonicalFileName, MapLike, MultiMap, NodeFactoryFlags } from "./_namespaces/lpc.js";
 
 // Note: 'brands' in our syntax nodes serve to give us a small amount of nominal typing.
 // Consider 'Expression'.  Without the brand, 'Expression' is actually no different
@@ -50,8 +50,8 @@ export interface EmitNode {
     flags: EmitFlags;                        // Flags that customize emit
     internalFlags: InternalEmitFlags;        // Internal flags that customize emit
     annotatedNodes?: Node[];                 // Tracks Parse-tree nodes with EmitNodes for eventual cleanup.
-    // leadingComments?: SynthesizedComment[];  // Synthesized leading comments
-    // trailingComments?: SynthesizedComment[]; // Synthesized trailing comments
+    leadingComments?: SynthesizedComment[];  // Synthesized leading comments
+    trailingComments?: SynthesizedComment[]; // Synthesized trailing comments
     // commentRange?: TextRange;                // The text range to use when emitting leading or trailing comments
     // sourceMapRange?: SourceMapRange;         // The text range to use when emitting leading or trailing source mappings
     // tokenSourceMapRanges?: (SourceMapRange | undefined)[]; // The text range to use when emitting source mappings for tokens
@@ -64,8 +64,8 @@ export interface EmitNode {
     // typeNode?: TypeNode;                     // VariableDeclaration type
     // classThis?: Identifier;                  // Identifier that points to a captured static `this` for a class which may be updated after decorators are applied
     // assignedName?: Expression;               // Expression used as the assigned name of a class or function
-    // identifierTypeArguments?: NodeArray<TypeNode | TypeParameterDeclaration>; // Only defined on synthesized identifiers. Though not syntactically valid, used in emitting diagnostics, quickinfo, and signature help.
-    // autoGenerate: AutoGenerateInfo | undefined; // Used for auto-generated identifiers and private identifiers.
+    identifierTypeArguments?: NodeArray<TypeNode | TypeParameterDeclaration>; // Only defined on synthesized identifiers. Though not syntactically valid, used in emitting diagnostics, quickinfo, and signature help.
+    autoGenerate: AutoGenerateInfo | undefined; // Used for auto-generated identifiers and private identifiers.
     // generatedImportReference?: ImportSpecifier; // Reference to the generated import specifier this identifier refers to
 }
 
@@ -451,6 +451,8 @@ export const enum SyntaxKind {
     FalseKeyword,
     TrueKeyword,
     StringKeyword,
+    UndefinedKeyword,
+    AnyKeyword,
     ClosureKeywoord,
     StructKeyword,
     ObjectKeyword,
@@ -511,6 +513,7 @@ export const enum SyntaxKind {
     
     // Elements
     FunctionDeclaration,
+    ExportSpecifier,
 
     // Property Assignments
     PropertyAssignment,
@@ -954,9 +957,18 @@ export const enum TransformFlags {
 }
 
 export type KeywordTypeSyntaxKind =
+    | SyntaxKind.AnyKeyword
     | SyntaxKind.IntKeyword
     | SyntaxKind.FloatKeyword
-    | SyntaxKind.StringKeyword;
+    // | SyntaxKind.IntrinsicKeyword
+    // | SyntaxKind.NeverKeyword
+    // | SyntaxKind.NumberKeyword
+    | SyntaxKind.ObjectKeyword
+    | SyntaxKind.StringKeyword
+    // | SyntaxKind.SymbolKeyword
+    | SyntaxKind.UndefinedKeyword
+    | SyntaxKind.UnknownKeyword
+    | SyntaxKind.VoidKeyword;    
 
 export type TypeNodeSyntaxKind =
     | KeywordTypeSyntaxKind
@@ -1011,9 +1023,23 @@ export interface Symbol {
     /** @internal */ assignmentDeclarationMembers?: Map<number, Declaration>; // detected late-bound assignment declarations associated with the symbol
 }
 
+/** @internal */
+export interface NodeConverters {
+    convertToFunctionBlock(node: ConciseBody, multiLine?: boolean): Block;
+    convertToFunctionExpression(node: FunctionDeclaration): FunctionExpression;
+    // convertToClassExpression(node: ClassDeclaration): ClassExpression;
+    // convertToArrayAssignmentElement(element: ArrayBindingOrAssignmentElement): Expression;
+    // convertToObjectAssignmentElement(element: ObjectBindingOrAssignmentElement): ObjectLiteralElementLike;
+    // convertToAssignmentPattern(node: BindingOrAssignmentPattern): AssignmentPattern;
+    // convertToObjectAssignmentPattern(node: ObjectBindingOrAssignmentPattern): ObjectLiteralExpression;
+    // convertToArrayAssignmentPattern(node: ArrayBindingOrAssignmentPattern): ArrayLiteralExpression;
+    // convertToAssignmentElementTarget(node: BindingOrAssignmentElementTarget): Expression;
+}
+
+
 export interface NodeFactory {
     /** @internal */ readonly parenthesizer: ParenthesizerRules;
-    ///** @internal */ readonly converters: NodeConverters;
+    /** @internal */ readonly converters: NodeConverters;
     /** @internal */ readonly baseFactory: BaseNodeFactory;
     /** @internal */ readonly flags: NodeFactoryFlags;
 
@@ -1035,10 +1061,19 @@ export interface NodeFactory {
     createQualifiedName(left: EntityName, right: string | Identifier): QualifiedName;
     createComputedPropertyName(expression: Expression): ComputedPropertyName;
 
+    // type elements
+    createIndexSignature(modifiers: readonly Modifier[] | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode): IndexSignatureDeclaration;
+    /** @internal */ createIndexSignature(modifiers: readonly Modifier[] | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode | undefined): IndexSignatureDeclaration; // eslint-disable-line @typescript-eslint/unified-signatures
+
     // types
+    createKeywordTypeNode<TKind extends KeywordTypeSyntaxKind>(kind: TKind): KeywordTypeNode<TKind>;
+    createTypeReferenceNode(typeName: string | EntityName, typeArguments?: readonly TypeNode[]): TypeReferenceNode;
     createUnionTypeNode(types: readonly TypeNode[]): UnionTypeNode;
     createArrayTypeNode(elementType: TypeNode): ArrayTypeNode;
     createParenthesizedType(type: TypeNode): ParenthesizedTypeNode;
+    createLiteralTypeNode(literal: LiteralTypeNode["literal"]): LiteralTypeNode;
+    createTypeLiteralNode(members: readonly TypeElement[] | undefined): TypeLiteralNode;
+    
 
     // Statements
     createBlock(statements: readonly Statement[], multiLine?: boolean): Block;
@@ -1069,8 +1104,19 @@ export interface NodeFactory {
     createCallExpression(expression: Expression, argumentsArray: readonly Expression[] | undefined): CallExpression;
     createInlineClosure(body: ConciseBody): InlineClosureExpression;
     createPropertyAccessExpression(expression: Expression, name: string | Identifier | Expression): PropertyAccessExpression;
+    createPrefixUnaryExpression(operator: PrefixUnaryOperator, operand: Expression): PrefixUnaryExpression;
     createPostfixUnaryExpression(operand: Expression, operator: PostfixUnaryOperator): PostfixUnaryExpression;
     createElementAccessExpression(expression: Expression, index: number | Expression): ElementAccessExpression;
+
+    /**
+     * Creates a shallow, memberwise clone of a node.
+     * - The result will have its `original` pointer set to `node`.
+     * - The result will have its `pos` and `end` set to `-1`.
+     * - *DO NOT USE THIS* if a more appropriate function is available.
+     *
+     * @internal
+     */
+    cloneNode<T extends Node | undefined>(node: T): T;
 }
 
 export interface CompilerOptions {
@@ -1664,6 +1710,8 @@ export interface Token<TKind extends SyntaxKind> extends Node {
 export type EndOfFileToken = Token<SyntaxKind.EndOfFileToken> & JSDocContainer;
 
 export type KeywordSyntaxKind =
+    | SyntaxKind.AnyKeyword
+    | SyntaxKind.UndefinedKeyword
     | SyntaxKind.BreakKeyword
     | SyntaxKind.VoidKeyword
     | SyntaxKind.ContinueKeyword
@@ -5005,4 +5053,321 @@ export interface SubstitutionType extends InstantiableType {
     objectFlags: ObjectFlags;
     baseType: Type; // Target type
     constraint: Type; // Constraint that target type is known to satisfy
+}
+
+export interface SynthesizedComment extends CommentRange {
+    text: string;
+    pos: -1;
+    end: -1;
+    hasLeadingNewline?: boolean;
+}
+
+/** @internal */
+export const enum SymbolAccessibility {
+    Accessible,
+    NotAccessible,
+    CannotBeNamed,
+    NotResolved,
+}
+
+
+/** @internal */
+export type LateVisibilityPaintedStatement =
+    //| AnyImportOrJsDocImport
+    | VariableStatement
+    //| ClassDeclaration
+    | FunctionDeclaration
+    // | ModuleDeclaration
+    // | TypeAliasDeclaration
+    // | InterfaceDeclaration
+    // | EnumDeclaration;
+    ;
+
+
+/** @internal */
+export interface SymbolVisibilityResult {
+    accessibility: SymbolAccessibility;
+    aliasesToMakeVisible?: LateVisibilityPaintedStatement[]; // aliases that need to have this symbol visible
+    errorSymbolName?: string; // Optional symbol name that results in error
+    errorNode?: Node; // optional node that results in error
+}
+
+
+/** @internal */
+export interface SymbolAccessibilityResult extends SymbolVisibilityResult {
+    errorModuleName?: string; // If the symbol is not visible from module, module's name
+}
+
+export type VisitResult<T extends Node | undefined> = T | readonly Node[];
+
+/**
+ * A function that accepts and possibly transforms a node.
+ */
+export type Visitor<TIn extends Node = Node, TOut extends Node | undefined = TIn | undefined> = (node: TIn) => VisitResult<TOut>;
+
+/** @internal */
+export const enum LexicalEnvironmentFlags {
+    None = 0,
+    InParameters = 1 << 0, // currently visiting a parameter list
+    VariablesHoistedInParameters = 1 << 1, // a temp variable was hoisted while visiting a parameter list
+}
+
+
+export interface CoreTransformationContext {
+    readonly factory: NodeFactory;
+
+    /** Gets the compiler options supplied to the transformer. */
+    getCompilerOptions(): CompilerOptions;
+
+    /** Starts a new lexical environment. */
+    startLexicalEnvironment(): void;
+
+    /** @internal */ setLexicalEnvironmentFlags(flags: LexicalEnvironmentFlags, value: boolean): void;
+    /** @internal */ getLexicalEnvironmentFlags(): LexicalEnvironmentFlags;
+
+    /** Suspends the current lexical environment, usually after visiting a parameter list. */
+    suspendLexicalEnvironment(): void;
+
+    /** Resumes a suspended lexical environment, usually before visiting a function body. */
+    resumeLexicalEnvironment(): void;
+
+    /** Ends a lexical environment, returning any declarations. */
+    endLexicalEnvironment(): Statement[] | undefined;
+
+    /** Hoists a function declaration to the containing scope. */
+    hoistFunctionDeclaration(node: FunctionDeclaration): void;
+
+    /** Hoists a variable declaration to the containing scope. */
+    hoistVariableDeclaration(node: Identifier): void;
+
+    /** @internal */ startBlockScope(): void;
+
+    /** @internal */ endBlockScope(): Statement[] | undefined;
+
+    /** @internal */ addBlockScopedVariable(node: Identifier): void;
+
+    /**
+     * Adds an initialization statement to the top of the lexical environment.
+     *
+     * @internal
+     */
+    addInitializationStatement(node: Statement): void;
+}
+
+/** @internal */
+export interface EmitResolver {
+    hasGlobalName(name: string): boolean;
+    // getReferencedExportContainer(node: Identifier, prefixLocals?: boolean): SourceFile | ModuleDeclaration | EnumDeclaration | undefined;
+    // getReferencedImportDeclaration(node: Identifier): Declaration | undefined;
+    // getReferencedDeclarationWithCollidingName(node: Identifier): Declaration | undefined;
+    // isDeclarationWithCollidingName(node: Declaration): boolean;
+    // isValueAliasDeclaration(node: Node): boolean;
+    // isReferencedAliasDeclaration(node: Node, checkChildren?: boolean): boolean;
+    // isTopLevelValueImportEqualsWithEntityName(node: ImportEqualsDeclaration): boolean;
+    // hasNodeCheckFlag(node: Node, flags: LazyNodeCheckFlags): boolean;
+    // isDeclarationVisible(node: Declaration | AnyImportSyntax): boolean;
+    // isLateBound(node: Declaration): node is LateBoundDeclaration;
+    // collectLinkedAliases(node: ModuleExportName, setVisibility?: boolean): Node[] | undefined;
+    // markLinkedReferences(node: Node): void;
+    // isImplementationOfOverload(node: SignatureDeclaration): boolean | undefined;
+    // requiresAddingImplicitUndefined(node: ParameterDeclaration): boolean;
+    // isExpandoFunctionDeclaration(node: FunctionDeclaration | VariableDeclaration): boolean;
+    // getPropertiesOfContainerFunction(node: Declaration): Symbol[];
+    // createTypeOfDeclaration(declaration: AccessorDeclaration | VariableLikeDeclaration | PropertyAccessExpression | ElementAccessExpression | BinaryExpression, enclosingDeclaration: Node, flags: NodeBuilderFlags, tracker: SymbolTracker): TypeNode | undefined;
+    // createReturnTypeOfSignatureDeclaration(signatureDeclaration: SignatureDeclaration, enclosingDeclaration: Node, flags: NodeBuilderFlags, tracker: SymbolTracker): TypeNode | undefined;
+    // createTypeOfExpression(expr: Expression, enclosingDeclaration: Node, flags: NodeBuilderFlags, tracker: SymbolTracker): TypeNode | undefined;
+    // createLiteralConstValue(node: VariableDeclaration | PropertyDeclaration | PropertySignature | ParameterDeclaration, tracker: SymbolTracker): Expression;
+    // isSymbolAccessible(symbol: Symbol, enclosingDeclaration: Node | undefined, meaning: SymbolFlags | undefined, shouldComputeAliasToMarkVisible: boolean): SymbolAccessibilityResult;
+    // isEntityNameVisible(entityName: EntityNameOrEntityNameExpression, enclosingDeclaration: Node): SymbolVisibilityResult;
+    // // Returns the constant value this property access resolves to, or 'undefined' for a non-constant
+    // getConstantValue(node: EnumMember | PropertyAccessExpression | ElementAccessExpression): string | number | undefined;
+    // getEnumMemberValue(node: EnumMember): EvaluatorResult | undefined;
+    // getReferencedValueDeclaration(reference: Identifier): Declaration | undefined;
+    // getReferencedValueDeclarations(reference: Identifier): Declaration[] | undefined;
+    // getTypeReferenceSerializationKind(typeName: EntityName, location?: Node): TypeReferenceSerializationKind;
+    // isOptionalParameter(node: ParameterDeclaration): boolean;
+    // isArgumentsLocalBinding(node: Identifier): boolean;
+    // getExternalModuleFileFromDeclaration(declaration: ImportEqualsDeclaration | ImportDeclaration | ExportDeclaration | ModuleDeclaration | ImportTypeNode | ImportCall): SourceFile | undefined;
+    // isLiteralConstDeclaration(node: VariableDeclaration | PropertyDeclaration | PropertySignature | ParameterDeclaration): boolean;
+    // getJsxFactoryEntity(location?: Node): EntityName | undefined;
+    // getJsxFragmentFactoryEntity(location?: Node): EntityName | undefined;
+    // isBindingCapturedByNode(node: Node, decl: VariableDeclaration | BindingElement): boolean;
+    // getDeclarationStatementsForSourceFile(node: SourceFile, flags: NodeBuilderFlags, tracker: SymbolTracker): Statement[] | undefined;
+    // isImportRequiredByAugmentation(decl: ImportDeclaration): boolean;
+    // isDefinitelyReferenceToGlobalSymbolObject(node: Node): boolean;
+}
+
+/** @internal */
+export interface SourceFileMayBeEmittedHost {
+    getCompilerOptions(): CompilerOptions;
+    isSourceFileFromExternalLibrary(file: SourceFile): boolean;
+    getResolvedProjectReferenceToRedirect(fileName: string): ResolvedProjectReference | undefined;
+    isSourceOfProjectReferenceRedirect(fileName: string): boolean;
+    getCurrentDirectory(): string;
+    getCanonicalFileName: GetCanonicalFileName;
+    useCaseSensitiveFileNames(): boolean;
+}
+
+/** @internal */
+export interface EmitHost extends ScriptReferenceHost, ModuleSpecifierResolutionHost, SourceFileMayBeEmittedHost {
+    getSourceFiles(): readonly SourceFile[];
+    useCaseSensitiveFileNames(): boolean;
+    getCurrentDirectory(): string;
+
+    getCommonSourceDirectory(): string;
+    getCanonicalFileName(fileName: string): string;
+
+    isEmitBlocked(emitFileName: string): boolean;
+    shouldTransformImportCall(sourceFile: SourceFile): boolean;
+    getEmitModuleFormatOfFile(sourceFile: SourceFile): ModuleKind;
+
+    writeFile: WriteFileCallback;
+    getBuildInfo(): BuildInfo | undefined;
+    getSourceFileFromReference: Program["getSourceFileFromReference"];
+    readonly redirectTargetsMap: RedirectTargetsMap;
+    createHash?(data: string): string;
+}
+
+export type EmitHelperUniqueNameCallback = (name: string) => string;
+
+// dprint-ignore
+export interface EmitHelperBase {
+    readonly name: string;                                          // A unique name for this helper.
+    readonly scoped: boolean;                                       // Indicates whether the helper MUST be emitted in the current scope.
+    readonly text: string | ((node: EmitHelperUniqueNameCallback) => string);  // ES3-compatible raw script text, or a function yielding such a string
+    readonly priority?: number;                                     // Helpers with a higher priority are emitted earlier than other helpers on the node.
+    readonly dependencies?: EmitHelper[]
+}
+export interface ScopedEmitHelper extends EmitHelperBase {
+    readonly scoped: true;
+}
+
+// dprint-ignore
+export interface UnscopedEmitHelper extends EmitHelperBase {
+    readonly scoped: false;                                         // Indicates whether the helper MUST be emitted in the current scope.
+    /** @internal */
+    readonly importName?: string;                                   // The name of the helper to use when importing via `--importHelpers`.
+    readonly text: string;                                          // ES3-compatible raw script text, or a function yielding such a string
+}
+
+
+export type EmitHelper = ScopedEmitHelper | UnscopedEmitHelper;
+
+
+export interface TransformationContext extends CoreTransformationContext {
+    /** @internal */ getEmitResolver(): EmitResolver;
+    /** @internal */ getEmitHost(): EmitHost;
+    /** @internal */ getEmitHelperFactory(): EmitHelperFactory;
+
+    /** Records a request for a non-scoped emit helper in the current context. */
+    requestEmitHelper(helper: EmitHelper): void;
+
+    /** Gets and resets the requested non-scoped emit helpers. */
+    readEmitHelpers(): EmitHelper[] | undefined;
+
+    /** Enables expression substitutions in the pretty printer for the provided SyntaxKind. */
+    enableSubstitution(kind: SyntaxKind): void;
+
+    /** Determines whether expression substitutions are enabled for the provided node. */
+    isSubstitutionEnabled(node: Node): boolean;
+
+    /**
+     * Hook used by transformers to substitute expressions just before they
+     * are emitted by the pretty printer.
+     *
+     * NOTE: Transformation hooks should only be modified during `Transformer` initialization,
+     * before returning the `NodeTransformer` callback.
+     */
+    onSubstituteNode: (hint: EmitHint, node: Node) => Node;
+
+    /**
+     * Enables before/after emit notifications in the pretty printer for the provided
+     * SyntaxKind.
+     */
+    enableEmitNotification(kind: SyntaxKind): void;
+
+    /**
+     * Determines whether before/after emit notifications should be raised in the pretty
+     * printer when it emits a node.
+     */
+    isEmitNotificationEnabled(node: Node): boolean;
+
+    /**
+     * Hook used to allow transformers to capture state before or after
+     * the printer emits a node.
+     *
+     * NOTE: Transformation hooks should only be modified during `Transformer` initialization,
+     * before returning the `NodeTransformer` callback.
+     */
+    onEmitNode: (hint: EmitHint, node: Node, emitCallback: (hint: EmitHint, node: Node) => void) => void;
+
+    /** @internal */ addDiagnostic(diag: DiagnosticWithLocation): void;
+}
+
+
+/**
+ * A function that walks a node array using the given visitor, returning an array whose contents satisfy the test.
+ *
+ * - If the input node array is undefined, the output is undefined.
+ * - If the visitor can return undefined, the node it visits in the array will be reused.
+ * - If the output node array is not undefined, then its contents will satisfy the test.
+ * - In order to obtain a return type that is more specific than `NodeArray<Node>`, a test
+ *   function _must_ be provided, and that function must be a type predicate.
+ *
+ * For the canonical implementation of this type, @see {visitNodes}.
+ */
+export interface NodesVisitor {
+    <TIn extends Node, TInArray extends NodeArray<TIn> | undefined, TOut extends Node>(
+        nodes: TInArray,
+        visitor: Visitor<TIn, Node | undefined>,
+        test: (node: Node) => node is TOut,
+        start?: number,
+        count?: number,
+    ): NodeArray<TOut> | (TInArray & undefined);
+    <TIn extends Node, TInArray extends NodeArray<TIn> | undefined>(
+        nodes: TInArray,
+        visitor: Visitor<TIn, Node | undefined>,
+        test?: (node: Node) => boolean,
+        start?: number,
+        count?: number,
+    ): NodeArray<Node> | (TInArray & undefined);
+}
+
+export const enum GeneratedIdentifierFlags {
+    // Kinds
+    None = 0,                           // Not automatically generated.
+    /** @internal */ Auto = 1,             // Automatically generated identifier.
+    /** @internal */ Loop = 2,             // Automatically generated identifier with a preference for '_i'.
+    /** @internal */ Unique = 3,           // Unique name based on the 'text' property.
+    /** @internal */ Node = 4,             // Unique name based on the node in the 'original' property.
+    /** @internal */ KindMask = 7,         // Mask to extract the kind of identifier from its flags.
+
+    // Flags
+    ReservedInNestedScopes = 1 << 3,    // Reserve the generated name in nested scopes
+    Optimistic = 1 << 4,                // First instance won't use '_#' if there's no conflict
+    FileLevel = 1 << 5,                 // Use only the file identifiers list and not generated names to search for conflicts
+    AllowNameSubstitution = 1 << 6, // Used by `module.ts` to indicate generated nodes which can have substitutions performed upon them (as they were generated by an earlier transform phase)
+}
+
+/** @internal */
+export interface GeneratedNamePart {
+    /** an additional prefix to insert before the text sourced from `node` */
+    prefix?: string;
+    node: Identifier ;
+    /** an additional suffix to insert after the text sourced from `node` */
+    suffix?: string;
+}
+
+
+/** @internal */
+export interface AutoGenerateInfo {
+    flags: GeneratedIdentifierFlags;            // Specifies whether to auto-generate the text for an identifier.
+    readonly id: number;                        // Ensures unique generated identifiers get unique names, but clones get the same name.
+    readonly prefix?: string | GeneratedNamePart;
+    readonly suffix?: string;
+}
+
+/** @internal */
+export interface GeneratedIdentifier extends Identifier {
+    readonly emitNode: EmitNode & { autoGenerate: AutoGenerateInfo; };
 }
