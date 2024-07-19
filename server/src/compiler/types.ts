@@ -656,7 +656,7 @@ export const enum TypeFlags {
     Number          = 1 << 3,
     Boolean         = 1 << 4,
     Enum            = 1 << 5,   // Numeric computed enum member value
-    BigInt          = 1 << 6,
+    Float           = 1 << 6,
     StringLiteral   = 1 << 7,
     IntLiteral      = 1 << 8,
     BooleanLiteral  = 1 << 9,
@@ -696,9 +696,9 @@ export const enum TypeFlags {
     StringOrNumberLiteralOrUnique = StringLiteral | IntLiteral | UniqueESSymbol,
     /** @internal */
     DefinitelyFalsy = StringLiteral | IntLiteral | FloatLiteral | BooleanLiteral | Void | Undefined | Null,
-    PossiblyFalsy = DefinitelyFalsy | String | Number | BigInt | Boolean,
+    PossiblyFalsy = DefinitelyFalsy | String | Number | Float | Boolean,
     /** @internal */
-    Intrinsic = Any | Unknown | String | Number | BigInt | Boolean | BooleanLiteral | ESSymbol | Void | Undefined | Null | Never | NonPrimitive,
+    Intrinsic = Any | Unknown | String | Number | Float | Boolean | BooleanLiteral | ESSymbol | Void | Undefined | Null | Never | NonPrimitive,
     StringLike = String | StringLiteral | TemplateLiteral | StringMapping,
     NumberLike = Number | IntLiteral | FloatLiteral | Enum,
     BooleanLike = Boolean | BooleanLiteral,
@@ -723,7 +723,7 @@ export const enum TypeFlags {
     /** @internal */
     Simplifiable = IndexedAccess | Conditional,
     /** @internal */
-    Singleton = Any | Unknown | String | Number | Boolean | BigInt | ESSymbol | Void | Undefined | Null | Never | NonPrimitive,
+    Singleton = Any | Unknown | String | Number | Boolean | Float | ESSymbol | Void | Undefined | Null | Never | NonPrimitive,
     // 'Narrowable' types are types where narrowing actually narrows.
     // This *should* be every type other than null, undefined, void, and never
     Narrowable = Any | Unknown | StructuredOrInstantiable | StringLike | NumberLike |  BooleanLike | ESSymbol | UniqueESSymbol | NonPrimitive,

@@ -4333,6 +4333,110 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return widened;
     }
 
+    function checkDeclarationInitializer(
+        declaration: HasExpressionInitializer,
+        checkMode: CheckMode,
+        contextualType?: Type | undefined,
+    ) {
+        const initializer = getEffectiveInitializer(declaration)!;
+        // if (isInJSFile(declaration)) {
+        //     const typeNode = tryGetJSDocSatisfiesTypeNode(declaration);
+        //     if (typeNode) {
+        //         return checkSatisfiesExpressionWorker(initializer, typeNode, checkMode);
+        //     }
+        // }
+        const type = getQuickTypeOfExpression(initializer) || (contextualType ?
+            checkExpressionWithContextualType(initializer, contextualType, /*inferenceContext*/ undefined, checkMode || CheckMode.Normal) :
+            checkExpressionCached(initializer, checkMode));
+        // TODO
+        // if (isParameter(isBindingElement(declaration) ? walkUpBindingElementsAndPatterns(declaration) : declaration)) {
+        //     if (declaration.name.kind === SyntaxKind.ObjectBindingPattern && isObjectLiteralType(type)) {
+        //         return padObjectLiteralType(type as ObjectType, declaration.name);
+        //     }
+        //     if (declaration.name.kind === SyntaxKind.ArrayBindingPattern && isTupleType(type)) {
+        //         return padTupleType(type, declaration.name);
+        //     }
+        // }
+        return type;
+    }
+
+    function checkExpressionWithContextualType(node: Expression, contextualType: Type, inferenceContext: InferenceContext | undefined, checkMode: CheckMode): Type {
+        const contextNode = getContextNode(node);
+        pushContextualType(contextNode, contextualType, /*isCache*/ false);
+        pushInferenceContext(contextNode, inferenceContext);
+        const type = checkExpression(node, checkMode | CheckMode.Contextual | (inferenceContext ? CheckMode.Inferential : 0));
+        // In CheckMode.Inferential we collect intra-expression inference sites to process before fixing any type
+        // parameters. This information is no longer needed after the call to checkExpression.
+        if (inferenceContext && inferenceContext.intraExpressionInferenceSites) {
+            inferenceContext.intraExpressionInferenceSites = undefined;
+        }
+        // We strip literal freshness when an appropriate contextual type is present such that contextually typed
+        // literals always preserve their literal types (otherwise they might widen during type inference). An alternative
+        // here would be to not mark contextually typed literals as fresh in the first place.
+        const result = maybeTypeOfKind(type, TypeFlags.Literal) && isLiteralOfContextualType(type, instantiateContextualType(contextualType, node, /*contextFlags*/ undefined)) ?
+            getRegularTypeOfLiteralType(type) : type;
+        popInferenceContext();
+        popContextualType();
+        return result;
+    }
+
+    function isLiteralOfContextualType(candidateType: Type, contextualType: Type | undefined): boolean {
+        if (contextualType) {
+            if (contextualType.flags & TypeFlags.UnionOrIntersection) {
+                const types = (contextualType as UnionType).types;
+                return some(types, t => isLiteralOfContextualType(candidateType, t));
+            }
+            if (contextualType.flags & TypeFlags.InstantiableNonPrimitive) {
+                // If the contextual type is a type variable constrained to a primitive type, consider
+                // this a literal context for literals of that primitive type. For example, given a
+                // type parameter 'T extends string', infer string literal types for T.
+                const constraint = getBaseConstraintOfType(contextualType) || unknownType;
+                return maybeTypeOfKind(constraint, TypeFlags.String) && maybeTypeOfKind(candidateType, TypeFlags.StringLiteral) ||
+                    maybeTypeOfKind(constraint, TypeFlags.Number) && maybeTypeOfKind(candidateType, TypeFlags.IntLiteral) ||
+                    maybeTypeOfKind(constraint, TypeFlags.Float) && maybeTypeOfKind(candidateType, TypeFlags.FloatLiteral) ||
+                    maybeTypeOfKind(constraint, TypeFlags.ESSymbol) && maybeTypeOfKind(candidateType, TypeFlags.UniqueESSymbol) ||
+                    isLiteralOfContextualType(candidateType, constraint);
+            }
+            // If the contextual type is a literal of a particular primitive type, we consider this a
+            // literal context for all literals of that primitive type.
+            return !!(contextualType.flags & (TypeFlags.StringLiteral | TypeFlags.Index | TypeFlags.TemplateLiteral | TypeFlags.StringMapping) && maybeTypeOfKind(candidateType, TypeFlags.StringLiteral) ||
+                contextualType.flags & TypeFlags.IntLiteral && maybeTypeOfKind(candidateType, TypeFlags.IntLiteral) ||
+                contextualType.flags & TypeFlags.FloatLiteral && maybeTypeOfKind(candidateType, TypeFlags.FloatLiteral) ||
+                contextualType.flags & TypeFlags.BooleanLiteral && maybeTypeOfKind(candidateType, TypeFlags.BooleanLiteral) ||
+                contextualType.flags & TypeFlags.UniqueESSymbol && maybeTypeOfKind(candidateType, TypeFlags.UniqueESSymbol));
+        }
+        return false;
+    }
+
+    function pushInferenceContext(node: Node, inferenceContext: InferenceContext | undefined) {
+        inferenceContextNodes[inferenceContextCount] = node;
+        inferenceContexts[inferenceContextCount] = inferenceContext;
+        inferenceContextCount++;
+    }
+
+    function popInferenceContext() {
+        inferenceContextCount--;
+    }
+
+    function pushCachedContextualType(node: Expression) {
+        pushContextualType(node, getContextualType(node, /*contextFlags*/ undefined), /*isCache*/ true);
+    }
+
+    function pushContextualType(node: Expression, type: Type | undefined, isCache: boolean) {
+        contextualTypeNodes[contextualTypeCount] = node;
+        contextualTypes[contextualTypeCount] = type;
+        contextualIsCache[contextualTypeCount] = isCache;
+        contextualTypeCount++;
+    }
+
+    function popContextualType() {
+        contextualTypeCount--;
+    }
+
+    function getContextNode(node: Expression): Expression {
+        return node;
+    }
+
     function isEmptyLiteralType(type: Type): boolean {
         return strictNullChecks ? type === implicitNeverType : type === undefinedWideningType;
     }
@@ -4346,6 +4450,80 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return isArrayType(type) ? getTypeArguments(type)[0] : undefined;
     }
     
+    /**
+     * Pop an entry from the type resolution stack and return its associated result value. The result value will
+     * be true if no circularities were detected, or false if a circularity was found.
+     */
+    function popTypeResolution(): boolean {
+        resolutionTargets.pop();
+        resolutionPropertyNames.pop();
+        return resolutionResults.pop()!;
+    }
+
+    function getDefaultTypeArgumentType(isInJavaScriptFile: boolean): Type {
+        return isInJavaScriptFile ? anyType : unknownType;
+    }
+
+
+    /**
+     * Fill in default types for unsupplied type arguments. If `typeArguments` is undefined
+     * when a default type is supplied, a new array will be created and returned.
+     *
+     * @param typeArguments The supplied type arguments.
+     * @param typeParameters The requested type parameters.
+     * @param minTypeArgumentCount The minimum number of required type arguments.
+     */
+    function fillMissingTypeArguments(typeArguments: readonly Type[], typeParameters: readonly TypeParameter[] | undefined, minTypeArgumentCount: number, isJavaScriptImplicitAny: boolean): Type[];
+    function fillMissingTypeArguments(typeArguments: readonly Type[] | undefined, typeParameters: readonly TypeParameter[] | undefined, minTypeArgumentCount: number, isJavaScriptImplicitAny: boolean): Type[] | undefined;
+    function fillMissingTypeArguments(typeArguments: readonly Type[] | undefined, typeParameters: readonly TypeParameter[] | undefined, minTypeArgumentCount: number, isJavaScriptImplicitAny: boolean) {
+        // const numTypeParameters = length(typeParameters);
+        // if (!numTypeParameters) {
+        //     return [];
+        // }
+        // const numTypeArguments = length(typeArguments);
+        // if (isJavaScriptImplicitAny || (numTypeArguments >= minTypeArgumentCount && numTypeArguments <= numTypeParameters)) {
+        //     const result = typeArguments ? typeArguments.slice() : [];
+        //     // Map invalid forward references in default types to the error type
+        //     for (let i = numTypeArguments; i < numTypeParameters; i++) {
+        //         result[i] = errorType;
+        //     }
+        //     const baseDefaultType = getDefaultTypeArgumentType(isJavaScriptImplicitAny);
+        //     for (let i = numTypeArguments; i < numTypeParameters; i++) {
+        //         let defaultType = getDefaultFromTypeParameter(typeParameters![i]);
+        //         if (isJavaScriptImplicitAny && defaultType && (isTypeIdenticalTo(defaultType, unknownType) || isTypeIdenticalTo(defaultType, emptyObjectType))) {
+        //             defaultType = anyType;
+        //         }
+        //         result[i] = defaultType ? instantiateType(defaultType, createTypeMapper(typeParameters!, result)) : baseDefaultType;
+        //     }
+        //     result.length = typeParameters!.length;
+        //     return result;
+        // }
+        // return typeArguments && typeArguments.slice();
+        return typeArguments;
+    }
+
+    
+    /**
+     * Gets the minimum number of type arguments needed to satisfy all non-optional type
+     * parameters.
+     */
+    function getMinTypeArgumentCount(typeParameters: readonly TypeParameter[] | undefined): number {
+        let minTypeArgumentCount = 0;
+        // TODO
+        // if (typeParameters) {
+        //     for (let i = 0; i < typeParameters.length; i++) {
+        //         if (!hasTypeParameterDefault(typeParameters[i])) {
+        //             minTypeArgumentCount = i + 1;
+        //         }
+        //     }
+        // }
+        return minTypeArgumentCount;
+    }
+
+    function getEffectiveTypeArguments(node: TypeReferenceNode , typeParameters: readonly TypeParameter[]): Type[] {
+        return fillMissingTypeArguments(map(node.typeArguments!, getTypeFromTypeNode), typeParameters, getMinTypeArgumentCount(typeParameters), isInJSFile(node));
+    }
+
     function getTypeArguments(type: TypeReference): readonly Type[] {
         if (!type.resolvedTypeArguments) {
             if (!pushTypeResolution(type, TypeSystemPropertyName.ResolvedTypeArguments)) {
@@ -4355,7 +4533,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             const typeArguments = !node ? emptyArray :
                 node.kind === SyntaxKind.TypeReference ? concatenate(type.target.outerTypeParameters, getEffectiveTypeArguments(node, type.target.localTypeParameters!)) :
                 node.kind === SyntaxKind.ArrayType ? [getTypeFromTypeNode(node.elementType)] :
-                map(node.elements, getTypeFromTypeNode);
+                map((node as any).elements, getTypeFromTypeNode);
             if (popTypeResolution()) {
                 type.resolvedTypeArguments ??= type.mapper ? instantiateTypes(typeArguments, type.mapper) : typeArguments;
             }
@@ -4370,7 +4548,70 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         }
         return type.resolvedTypeArguments;
     }
-    
+
+    function findResolutionCycleStartIndex(target: TypeSystemEntity, propertyName: TypeSystemPropertyName): number {
+        for (let i = resolutionTargets.length - 1; i >= resolutionStart; i--) {
+            if (resolutionTargetHasProperty(resolutionTargets[i], resolutionPropertyNames[i])) {
+                return -1;
+            }
+            if (resolutionTargets[i] === target && resolutionPropertyNames[i] === propertyName) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    function resolutionTargetHasProperty(target: TypeSystemEntity, propertyName: TypeSystemPropertyName): boolean {
+        switch (propertyName) {
+            case TypeSystemPropertyName.Type:
+                return !!getSymbolLinks(target as Symbol).type;
+            case TypeSystemPropertyName.DeclaredType:
+                return !!getSymbolLinks(target as Symbol).declaredType;
+            // case TypeSystemPropertyName.ResolvedBaseConstructorType:
+            //     return !!(target as InterfaceType).resolvedBaseConstructorType;
+            case TypeSystemPropertyName.ResolvedReturnType:
+                return !!(target as Signature).resolvedReturnType;
+            case TypeSystemPropertyName.ImmediateBaseConstraint:
+                return !!(target as Type).immediateBaseConstraint;
+            case TypeSystemPropertyName.ResolvedTypeArguments:
+                return !!(target as TypeReference).resolvedTypeArguments;
+            // case TypeSystemPropertyName.ResolvedBaseTypes:
+            //     return !!(target as InterfaceType).baseTypesResolved;
+            case TypeSystemPropertyName.WriteType:
+                return !!getSymbolLinks(target as Symbol).writeType;
+            case TypeSystemPropertyName.ParameterInitializerContainsUndefined:
+                return getNodeLinks(target as ParameterDeclaration).parameterInitializerContainsUndefined !== undefined;
+        }
+        // @ts-ignore
+        return Debug.assertNever(propertyName);
+    }
+    /**
+     * Push an entry on the type resolution stack. If an entry with the given target and the given property name
+     * is already on the stack, and no entries in between already have a type, then a circularity has occurred.
+     * In this case, the result values of the existing entry and all entries pushed after it are changed to false,
+     * and the value false is returned. Otherwise, the new entry is just pushed onto the stack, and true is returned.
+     * In order to see if the same query has already been done before, the target object and the propertyName both
+     * must match the one passed in.
+     *
+     * @param target The symbol, type, or signature whose type is being queried
+     * @param propertyName The property name that should be used to query the target for its type
+     */
+    function pushTypeResolution(target: TypeSystemEntity, propertyName: TypeSystemPropertyName): boolean {
+        const resolutionCycleStartIndex = findResolutionCycleStartIndex(target, propertyName);
+        if (resolutionCycleStartIndex >= 0) {
+            // A cycle was found
+            const { length } = resolutionTargets;
+            for (let i = resolutionCycleStartIndex; i < length; i++) {
+                resolutionResults[i] = false;
+            }
+            return false;
+        }
+        resolutionTargets.push(target);
+        resolutionResults.push(/*items*/ true);
+        resolutionPropertyNames.push(propertyName);
+        return true;
+    }
+
     function widenTypeForVariableLikeDeclaration(type: Type | undefined, declaration: any, reportErrors?: boolean) {
         if (type) {
             // TODO: If back compat with pre-3.0/4.0 libs isn't required, remove the following SymbolConstructor special case transforming `symbol` into `unique symbol`
@@ -4462,7 +4703,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         // }
     }
 
-    function isContextSensitiveFunctionOrObjectLiteralMethod(func: Node): func is FunctionExpression | ArrowFunction | MethodDeclaration {
+    function isContextSensitiveFunctionOrObjectLiteralMethod(func: Node): func is FunctionExpression | InlineClosureExpression  {
         return (isFunctionExpressionOrInlineClosure(func)) &&// || isObjectLiteralMethod(func)) &&
             isContextSensitiveFunctionLikeDeclaration(func);
     }
@@ -4501,9 +4742,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function getWidenedLiteralType(type: Type): Type {
-        return type.flags & TypeFlags.EnumLike && isFreshLiteralType(type) ? getBaseTypeOfEnumLikeType(type as LiteralType) :
-            type.flags & TypeFlags.StringLiteral && isFreshLiteralType(type) ? stringType :
-            type.flags & TypeFlags.IntLiteral && isFreshLiteralType(type) ? intTYp :
+        return type.flags & TypeFlags.StringLiteral && isFreshLiteralType(type) ? stringType :
+            type.flags & TypeFlags.IntLiteral && isFreshLiteralType(type) ? intType :
             type.flags & TypeFlags.FloatLiteral && isFreshLiteralType(type) ? floatType :
             type.flags & TypeFlags.BooleanLiteral && isFreshLiteralType(type) ? booleanType :
             type.flags & TypeFlags.Union ? mapType(type as UnionType, getWidenedLiteralType) :

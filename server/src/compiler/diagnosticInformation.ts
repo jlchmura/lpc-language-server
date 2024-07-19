@@ -83,4 +83,6 @@ export const Diagnostics = {
     Subsequent_variable_declarations_must_have_the_same_type_Variable_0_must_be_of_type_1_but_here_has_type_2: diag(2403, DiagnosticCategory.Error, "Subsequent_variable_declarations_must_have_the_same_type_Variable_0_must_be_of_type_1_but_here_has_t_2403", "Subsequent variable declarations must have the same type.  Variable '{0}' must be of type '{1}', but here has type '{2}'."),
     Type_instantiation_is_excessively_deep_and_possibly_infinite: diag(2589, DiagnosticCategory.Error, "Type_instantiation_is_excessively_deep_and_possibly_infinite_2589", "Type instantiation is excessively deep and possibly infinite."),
     Object_literal_s_property_0_implicitly_has_an_1_type: diag(7018, DiagnosticCategory.Error, "Object_literal_s_property_0_implicitly_has_an_1_type_7018", "Object literal's property '{0}' implicitly has an '{1}' type."),
+    Type_arguments_for_0_circularly_reference_themselves: diag(4109, DiagnosticCategory.Error, "Type_arguments_for_0_circularly_reference_themselves_4109", "Type arguments for '{0}' circularly reference themselves."),
+    Tuple_type_arguments_circularly_reference_themselves: diag(4110, DiagnosticCategory.Error, "Tuple_type_arguments_circularly_reference_themselves_4110", "Tuple type arguments circularly reference themselves."),
 }
