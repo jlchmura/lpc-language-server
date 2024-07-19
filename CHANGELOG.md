@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.0.27
+
+-   Fix: Find all references broken by a change in v26.
+
 ## 1.0.26
 
 -   Fix: undefined token exception during diagnostics generation

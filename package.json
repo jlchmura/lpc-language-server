@@ -1,7 +1,7 @@
 {
     "name": "lpc",
     "displayName": "LPC",
-    "version": "1.0.26",
+    "version": "1.0.27",
     "galleryBanner": {
         "color": "#000000",
         "theme": "dark"
@@ -86,8 +86,7 @@
                 "path": "./syntaxes/lpc.tmLanguage.json"
             }
         ],
-        "commands": [
-        ],
+        "commands": [],
         "jsonValidation": [
             {
                 "fileMatch": "lpc-config.json",

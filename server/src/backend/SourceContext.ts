@@ -381,7 +381,7 @@ export class SourceContext {
         )?.fullPath;
         if (
             !this.fileName.endsWith(simulEfunFilename) &&
-            !depChain.has(sefunResolvedFilename)
+            !depChain?.has(sefunResolvedFilename)
         ) {
             this.info.imports.push({
                 filename: `"${config.files.simul_efun}"`,
