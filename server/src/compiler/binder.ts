@@ -510,8 +510,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
                 }
                 if (currentFlow && (isExpression(node) || parent.kind === SyntaxKind.ShorthandPropertyAssignment)) {
                     (node as Identifier).flowNode = currentFlow;
-                }
-                // TODO: a `ThisExpression` is not an Identifier, this cast is unsound
+                }                
                 return checkContextualIdentifier(node as Identifier);
             case SyntaxKind.SourceFile:
                 //updateStrictModeStatementList((node as SourceFile).statements);
@@ -556,7 +555,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
                 //if (isInJSFile(node)) {
                 //    bindCallExpression(node as CallExpression);
                 //}
-                break;
+                return;
             case SyntaxKind.BinaryExpression:
                 const specialKind = getAssignmentDeclarationKind(node as BinaryExpression);
                 switch (specialKind) {
@@ -578,6 +577,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
                     default:
                         Debug.fail("Unknown binary expression special property assignment kind");
                 }
+                return;
         }
 
         //console.warn("implement me - bindWorker " + Debug.formatSyntaxKind(node.kind));

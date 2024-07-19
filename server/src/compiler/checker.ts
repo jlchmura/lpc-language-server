@@ -1,5 +1,5 @@
 import { CharacterCodes } from "../backend/types";
-import {Type,Symbol, SymbolLinks, CancellationToken, createSymbolTable, Declaration, EmitTextWriter, ModifierFlags, Node, NodeFlags, objectAllocator, Scanner, Signature, SignatureKind, SymbolFlags, TypeChecker, TypeCheckerHost, TypeFormatFlags, TypeParameter, CheckFlags, TransientSymbol, TransientSymbolLinks, reduceLeft, bindSourceFile, SourceFile, Diagnostic, createDiagnosticCollection, concatenate, forEach, tracing, performance, NodeLinks, NodeCheckFlags, FlowNode, FlowType, clear, SyntaxKind, TracingNode, CallLikeExpression, CallExpression, isCallOrNewExpression, isBinaryExpression, Expression, SignatureDeclaration, SignatureFlags, emptyArray, TypeFlags, IntrinsicType, ObjectFlags, Debug, BinaryExpression, ObjectType, StructuredType, ResolvedType, SymbolTable, IndexInfo, Identifier, nodeIsMissing, createNameResolver, InternalSymbolName, SymbolId, some, DiagnosticMessage, DiagnosticArguments, createDiagnosticForNode, createCompilerDiagnostic, FunctionLikeDeclaration, PropertyDeclaration, isString, isIdentifier, Diagnostics, findLast, SymbolFormatFlags, isAccessExpression, isFunctionExpression, isAliasableExpression, PropertyAssignment, isVariableDeclarationInitializedToBareOrAccessedRequire, mapDefined, arrayFrom, getSpellingSuggestion, symbolName, startsWith, nodeIsSynthesized, declarationNameToString, getCanonicalDiagnostic, DiagnosticCategory, addRelatedInfo, ParameterDeclaration, BindingElement, isSourceFile, isExternalOrCommonJsModule, isBlockOrCatchScoped, length, every, isValidTypeOnlyAliasUseSite, isWriteOnlyAccess, getCombinedNodeFlags, DiagnosticWithLocation, getJSDocDeprecatedTag, findAncestor, isCallLikeExpression, isFunctionLike, ParenthesizedExpression, isAssignmentExpression, isVariableDeclaration, isBindingElement, PropertyAccessExpression, getEnclosingBlockScopeContainer, isPropertyDeclaration, nodeStartsNewLexicalEnvironment, isIterationStatement, isForStatement, getAncestor, ForStatement, pushIfUnique, isAssignmentTarget, PrefixUnaryExpression, PostfixUnaryExpression, isBlock, isExpressionNode, isPropertyAccessExpression, getAssignmentTargetKind, AssignmentKind, isInCompoundLikeAssignment, UnionType, TypeId, UnionReduction, getRootDeclaration, getImmediatelyInvokedFunctionExpression, isSpreadAssignment, isParameter, VariableDeclaration, isFunctionLikeDeclaration, isTypeNode, forEachChild, tryCast, canHaveFlowNode, ElementAccessExpression, RelationComparisonResult, LiteralType, FreshableType, getObjectFlags, DiagnosticMessageChain, setNodeFlags, isCallExpression, LazyNodeCheckFlags, getSourceFileOfNode, canIncludeBindAndCheckDiagnostics, forEachChildRecursively, isDeclarationName, EntityName, JSDocMemberName, canHaveSymbol, isLiteralTypeNode, isElementAccessExpression, isIndexedAccessTypeNode, TypeNode, canHaveJSDoc, FlowFlags, FlowArrayMutation, FlowAssignment, FlowCall, FlowCondition, FlowLabel, FlowReduceLabel, FlowSwitchClause, SwitchStatement, createFileDiagnostic, createDiagnosticForFileFromMessageChain, createDiagnosticForNodeFromMessageChain, VariableStatement, HasModifiers, VariableDeclarationList, Block, isFunctionOrModuleBlock, CaseBlock, ForEachStatement, IndexSignatureDeclaration, Path, HasLocals, BindingPattern, idText, isForEachStatement, getNameOfDeclaration, isArrayBindingPattern, first, BindingName, cast, containsParseError, FunctionDeclaration, getFunctionFlags, getEffectiveReturnTypeNode, FunctionFlags, nodeIsPresent, JSDocSignature, isJSDocSignature, getJSDocRoot, LiteralTypeNode, TypeNodeSyntaxKind, isStatement, UnionOrIntersectionType, getContainingFunction, hasSyntacticModifier, isBindingPattern, sameMap, flatMap, getCheckFlags, singleElementArray, getDeclarationModifierFlagsFromSymbol, Ternary, append, find, isNumericLiteralName, StringLiteralType, contains, isTransientSymbol, addRange, filter, IndexType, getParseTreeNode, isRightSideOfQualifiedNameOrPropertyAccess, isWriteAccess, isRightSideOfAccessExpression, hasEffectiveModifier, getCombinedModifierFlags, isEntityName, PropertyAccessEntityNameExpression, isRightSideOfQualifiedNameOrPropertyAccessOrJSDocMemberName, QualifiedName, getHostSignatureFromJSDoc, or, EntityNameOrEntityNameExpression, isInJSFile, getFirstIdentifier, isQualifiedName, entityNameToString, isCallChain, isEntityNameExpression, isLineBreak, skipTrivia, DiagnosticRelatedInformation, IntLiteralType, FloatLiteralType, createTextWriter, chainDiagnosticMessages, getErrorSpanForNode, ShorthandPropertyAssignment, NodeBuilderFlags, SymbolTracker, TrackedSymbol, ReverseMappedSymbol, TypeMapper, ModuleSpecifierResolutionHost, Program, maybeBind, setEmitFlags, createNodeFactory, NodeFactoryFlags, BaseNodeFactory, Mutable, createBaseNodeFactory, firstDefined, isComputedPropertyName, isIdentifierText, escapeString, getEmitScriptTarget, factory, EmitFlags, isSingleOrDoubleQuote, canUsePropertyAccess, stripQuotes, DoWhileStatement, BinaryOperatorToken, isLogicalOrCoalescingBinaryOperator, isLogicalOrCoalescingBinaryExpression, isIfStatement, skipParentheses, Statement, PunctuationSyntaxKind, tokenToString, FreshableIntrinsicType, isLiteralExpressionOfObject, getAssignmentDeclarationKind, AssignmentDeclarationKind, ConditionalExpression, isAssignmentOperator, isJSDocTypedefTag, isIntLiteral, skipOuterExpressions, OuterExpressionKinds, isExpression, ObjectLiteralExpression, ArrayLiteralExpression, FunctionExpression, InlineClosureExpression, ObjectLiteralElementLike, hasContextSensitiveParameters, forEachReturnStatement, compareDiagnostics, Comparison, createBinaryExpressionTrampoline, IntLiteral, FloatLiteral, isShorthandPropertyAssignment, isPropertyAccessOrQualifiedName, isPrivateIdentifier, WideningContext, StringLiteral, ReturnStatement, ExpressionStatement, IfStatement, NewExpression, getMembersOfDeclaration, AccessExpression, isThisInitializedDeclaration, setValueDeclaration, comparePaths, getOrUpdate, usingSingleLineStringWriter, createPrinterWithRemoveCommentsNeverAsciiEscape, createPrinterWithRemoveComments, EmitHint, getEffectiveModifierFlags, getEffectiveTypeAnnotationNode, getAssignmentDeclarationPropertyAccessKind, isNamedDeclaration, map, PropertyName, isFloatLiteral, getPropertyNameForPropertyNameNode, isPartOfParameterDeclaration, hasOnlyExpressionInitializer, not, getEffectiveInitializer, isObjectLiteralExpression, isVariableLike, getSelectedEffectiveModifierFlags, AliasDeclarationNode, isBindingElementOfBareOrAccessedRequire, TypeReference, isFunctionExpressionOrInlineClosure, ContextFlags, indexOfNode, InferenceContext, isNodeDescendantOf, ObjectFlagsType, GenericType, ReverseMappedType, AnonymousType, DeferredTypeReference, InstantiationExpressionType, SingleSignatureType, MappedTypeNode, TypeParameterDeclaration, appendIfUnique, TypeMapKind, isPartOfTypeNode, TypeReferenceNode, MappedType, ArrayTypeNode, isParenthesizedTypeNode, isTypeAlias, IndexFlags, InferenceInfo, binarySearch, compareValues, hasInitializer, lastOrUndefined, HasExpressionInitializer } from "./_namespaces/lpc";
+import {Type,Symbol, SymbolLinks, CancellationToken, createSymbolTable, Declaration, EmitTextWriter, ModifierFlags, Node, NodeFlags, objectAllocator, Scanner, Signature, SignatureKind, SymbolFlags, TypeChecker, TypeCheckerHost, TypeFormatFlags, TypeParameter, CheckFlags, TransientSymbol, TransientSymbolLinks, reduceLeft, bindSourceFile, SourceFile, Diagnostic, createDiagnosticCollection, concatenate, forEach, tracing, performance, NodeLinks, NodeCheckFlags, FlowNode, FlowType, clear, SyntaxKind, TracingNode, CallLikeExpression, CallExpression, isCallOrNewExpression, isBinaryExpression, Expression, SignatureDeclaration, SignatureFlags, emptyArray, TypeFlags, IntrinsicType, ObjectFlags, Debug, BinaryExpression, ObjectType, StructuredType, ResolvedType, SymbolTable, IndexInfo, Identifier, nodeIsMissing, createNameResolver, InternalSymbolName, SymbolId, some, DiagnosticMessage, DiagnosticArguments, createDiagnosticForNode, createCompilerDiagnostic, FunctionLikeDeclaration, PropertyDeclaration, isString, isIdentifier, Diagnostics, findLast, SymbolFormatFlags, isAccessExpression, isFunctionExpression, isAliasableExpression, PropertyAssignment, isVariableDeclarationInitializedToBareOrAccessedRequire, mapDefined, arrayFrom, getSpellingSuggestion, symbolName, startsWith, nodeIsSynthesized, declarationNameToString, getCanonicalDiagnostic, DiagnosticCategory, addRelatedInfo, ParameterDeclaration, BindingElement, isSourceFile, isExternalOrCommonJsModule, isBlockOrCatchScoped, length, every, isValidTypeOnlyAliasUseSite, isWriteOnlyAccess, getCombinedNodeFlags, DiagnosticWithLocation, getJSDocDeprecatedTag, findAncestor, isCallLikeExpression, isFunctionLike, ParenthesizedExpression, isAssignmentExpression, isVariableDeclaration, isBindingElement, PropertyAccessExpression, getEnclosingBlockScopeContainer, isPropertyDeclaration, nodeStartsNewLexicalEnvironment, isIterationStatement, isForStatement, getAncestor, ForStatement, pushIfUnique, isAssignmentTarget, PrefixUnaryExpression, PostfixUnaryExpression, isBlock, isExpressionNode, isPropertyAccessExpression, getAssignmentTargetKind, AssignmentKind, isInCompoundLikeAssignment, UnionType, TypeId, UnionReduction, getRootDeclaration, getImmediatelyInvokedFunctionExpression, isSpreadAssignment, isParameter, VariableDeclaration, isFunctionLikeDeclaration, isTypeNode, forEachChild, tryCast, canHaveFlowNode, ElementAccessExpression, RelationComparisonResult, LiteralType, FreshableType, getObjectFlags, DiagnosticMessageChain, setNodeFlags, isCallExpression, LazyNodeCheckFlags, getSourceFileOfNode, canIncludeBindAndCheckDiagnostics, forEachChildRecursively, isDeclarationName, EntityName, JSDocMemberName, canHaveSymbol, isLiteralTypeNode, isElementAccessExpression, isIndexedAccessTypeNode, TypeNode, canHaveJSDoc, FlowFlags, FlowArrayMutation, FlowAssignment, FlowCall, FlowCondition, FlowLabel, FlowReduceLabel, FlowSwitchClause, SwitchStatement, createFileDiagnostic, createDiagnosticForFileFromMessageChain, createDiagnosticForNodeFromMessageChain, VariableStatement, HasModifiers, VariableDeclarationList, Block, isFunctionOrModuleBlock, CaseBlock, ForEachStatement, IndexSignatureDeclaration, Path, HasLocals, BindingPattern, idText, isForEachStatement, getNameOfDeclaration, isArrayBindingPattern, first, BindingName, cast, containsParseError, FunctionDeclaration, getFunctionFlags, getEffectiveReturnTypeNode, FunctionFlags, nodeIsPresent, JSDocSignature, isJSDocSignature, getJSDocRoot, LiteralTypeNode, TypeNodeSyntaxKind, isStatement, UnionOrIntersectionType, getContainingFunction, hasSyntacticModifier, isBindingPattern, sameMap, flatMap, getCheckFlags, singleElementArray, getDeclarationModifierFlagsFromSymbol, Ternary, append, find, isNumericLiteralName, StringLiteralType, contains, isTransientSymbol, addRange, filter, IndexType, getParseTreeNode, isRightSideOfQualifiedNameOrPropertyAccess, isWriteAccess, isRightSideOfAccessExpression, hasEffectiveModifier, getCombinedModifierFlags, isEntityName, PropertyAccessEntityNameExpression, isRightSideOfQualifiedNameOrPropertyAccessOrJSDocMemberName, QualifiedName, getHostSignatureFromJSDoc, or, EntityNameOrEntityNameExpression, isInJSFile, getFirstIdentifier, isQualifiedName, entityNameToString, isCallChain, isEntityNameExpression, isLineBreak, skipTrivia, DiagnosticRelatedInformation, IntLiteralType, FloatLiteralType, createTextWriter, chainDiagnosticMessages, getErrorSpanForNode, ShorthandPropertyAssignment, NodeBuilderFlags, SymbolTracker, TrackedSymbol, ReverseMappedSymbol, TypeMapper, ModuleSpecifierResolutionHost, Program, maybeBind, setEmitFlags, createNodeFactory, NodeFactoryFlags, BaseNodeFactory, Mutable, createBaseNodeFactory, firstDefined, isComputedPropertyName, isIdentifierText, escapeString, getEmitScriptTarget, factory, EmitFlags, isSingleOrDoubleQuote, canUsePropertyAccess, stripQuotes, DoWhileStatement, BinaryOperatorToken, isLogicalOrCoalescingBinaryOperator, isLogicalOrCoalescingBinaryExpression, isIfStatement, skipParentheses, Statement, PunctuationSyntaxKind, tokenToString, FreshableIntrinsicType, isLiteralExpressionOfObject, getAssignmentDeclarationKind, AssignmentDeclarationKind, ConditionalExpression, isAssignmentOperator, isJSDocTypedefTag, isIntLiteral, skipOuterExpressions, OuterExpressionKinds, isExpression, ObjectLiteralExpression, ArrayLiteralExpression, FunctionExpression, InlineClosureExpression, ObjectLiteralElementLike, hasContextSensitiveParameters, forEachReturnStatement, compareDiagnostics, Comparison, createBinaryExpressionTrampoline, IntLiteral, FloatLiteral, isShorthandPropertyAssignment, isPropertyAccessOrQualifiedName, isPrivateIdentifier, WideningContext, StringLiteral, ReturnStatement, ExpressionStatement, IfStatement, NewExpression, getMembersOfDeclaration, AccessExpression, isThisInitializedDeclaration, setValueDeclaration, comparePaths, getOrUpdate, usingSingleLineStringWriter, createPrinterWithRemoveCommentsNeverAsciiEscape, createPrinterWithRemoveComments, EmitHint, getEffectiveModifierFlags, getEffectiveTypeAnnotationNode, getAssignmentDeclarationPropertyAccessKind, isNamedDeclaration, map, PropertyName, isFloatLiteral, getPropertyNameForPropertyNameNode, isPartOfParameterDeclaration, hasOnlyExpressionInitializer, not, getEffectiveInitializer, isObjectLiteralExpression, isVariableLike, getSelectedEffectiveModifierFlags, AliasDeclarationNode, isBindingElementOfBareOrAccessedRequire, TypeReference, isFunctionExpressionOrInlineClosure, ContextFlags, indexOfNode, InferenceContext, isNodeDescendantOf, ObjectFlagsType, GenericType, ReverseMappedType, AnonymousType, DeferredTypeReference, InstantiationExpressionType, SingleSignatureType, MappedTypeNode, TypeParameterDeclaration, appendIfUnique, TypeMapKind, isPartOfTypeNode, TypeReferenceNode, MappedType, ArrayTypeNode, isParenthesizedTypeNode, isTypeAlias, IndexFlags, InferenceInfo, binarySearch, compareValues, hasInitializer, lastOrUndefined, HasExpressionInitializer, getContainingFunctionOrClassStaticBlock, getSpanOfTokenAtPosition, isJSDocParameterTag, hasRestParameter } from "./_namespaces/lpc";
 
 let nextSymbolId = 1;
 let nextNodeId = 1;
@@ -1856,6 +1856,16 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         checkSourceElement(node.elseStatement);
     }
 
+    function grammarErrorOnFirstToken(node: Node, message: DiagnosticMessage, ...args: DiagnosticArguments): boolean {
+        const sourceFile = getSourceFileOfNode(node);
+        if (!hasParseDiagnostics(sourceFile)) {
+            const span = getSpanOfTokenAtPosition(sourceFile, node.pos);
+            diagnostics.add(createFileDiagnostic(sourceFile, span.start, span.length, message, ...args));
+            return true;
+        }
+        return false;
+    }
+    
     function checkReturnStatement(node: ReturnStatement) {
         console.warn("Implement me - checkReturnStatement");
         // Grammar checking
@@ -1863,49 +1873,41 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         //     return;
         // }
 
-        // const container = getContainingFunctionOrClassStaticBlock(node);
+        const container = getContainingFunctionOrClassStaticBlock(node);
         // if (container && isClassStaticBlockDeclaration(container)) {
         //     grammarErrorOnFirstToken(node, Diagnostics.A_return_statement_cannot_be_used_inside_a_class_static_block);
         //     return;
         // }
 
-        // if (!container) {
-        //     grammarErrorOnFirstToken(node, Diagnostics.A_return_statement_can_only_be_used_within_a_function_body);
-        //     return;
-        // }
+        if (!container) {
+            grammarErrorOnFirstToken(node, Diagnostics.A_return_statement_can_only_be_used_within_a_function_body);
+            return;
+        }
 
-        // const signature = getSignatureFromDeclaration(container);
-        // const returnType = getReturnTypeOfSignature(signature);
-        // const functionFlags = getFunctionFlags(container);
-        // if (strictNullChecks || node.expression || returnType.flags & TypeFlags.Never) {
-        //     const exprType = node.expression ? checkExpressionCached(node.expression) : undefinedType;
-        //     if (container.kind === SyntaxKind.SetAccessor) {
-        //         if (node.expression) {
-        //             error(node, Diagnostics.Setters_cannot_return_a_value);
-        //         }
-        //     }
-        //     else if (container.kind === SyntaxKind.Constructor) {
-        //         if (node.expression && !checkTypeAssignableToAndOptionallyElaborate(exprType, returnType, node, node.expression)) {
-        //             error(node, Diagnostics.Return_type_of_constructor_signature_must_be_assignable_to_the_instance_type_of_the_class);
-        //         }
-        //     }
-        //     else if (getReturnTypeFromAnnotation(container)) {
-        //         const unwrappedReturnType = unwrapReturnType(returnType, functionFlags) ?? returnType;
-        //         const unwrappedExprType = functionFlags & FunctionFlags.Async
-        //             ? checkAwaitedType(exprType, /*withAlias*/ false, node, Diagnostics.The_return_type_of_an_async_function_must_either_be_a_valid_promise_or_must_not_contain_a_callable_then_member)
-        //             : exprType;
-        //         if (unwrappedReturnType) {
-        //             // If the function has a return type, but promisedType is
-        //             // undefined, an error will be reported in checkAsyncFunctionReturnType
-        //             // so we don't need to report one here.
-        //             checkTypeAssignableToAndOptionallyElaborate(unwrappedExprType, unwrappedReturnType, node, node.expression);
-        //         }
-        //     }
-        // }
-        // else if (container.kind !== SyntaxKind.Constructor && compilerOptions.noImplicitReturns && !isUnwrappedReturnTypeUndefinedVoidOrAny(container, returnType)) {
-        //     // The function has a return type, but the return statement doesn't have an expression.
-        //     error(node, Diagnostics.Not_all_code_paths_return_a_value);
-        // }
+        const signature = getSignatureFromDeclaration(container);
+        Debug.assertIsDefined(signature, "Container should have a signature");
+        const returnType = getReturnTypeOfSignature(signature);
+        const functionFlags = getFunctionFlags(container);
+        if (strictNullChecks || node.expression || returnType.flags & TypeFlags.Never) {
+            const exprType = node.expression ? checkExpressionCached(node.expression) : undefinedType;            
+            if (getReturnTypeFromAnnotation(container)) {
+                const unwrappedReturnType = unwrapReturnType(returnType, functionFlags) ?? returnType;
+                // const unwrappedExprType = functionFlags & FunctionFlags.Async
+                //     ? checkAwaitedType(exprType, /*withAlias*/ false, node, Diagnostics.The_return_type_of_an_async_function_must_either_be_a_valid_promise_or_must_not_contain_a_callable_then_member)
+                //     : exprType;
+                const unwrappedExprType = exprType;
+                if (unwrappedReturnType) {
+                    // If the function has a return type, but promisedType is
+                    // undefined, an error will be reported in checkAsyncFunctionReturnType
+                    // so we don't need to report one here.
+                    checkTypeAssignableToAndOptionallyElaborate(unwrappedExprType, unwrappedReturnType, node, node.expression);
+                }
+            }
+        }
+        else if (compilerOptions.noImplicitReturns && !isUnwrappedReturnTypeUndefinedVoidOrAny(container, returnType)) {
+            // The function has a return type, but the return statement doesn't have an expression.
+            error(node, Diagnostics.Not_all_code_paths_return_a_value);
+        }
     }
     
     function checkVariableDeclaration(node: VariableDeclaration) {
@@ -2040,98 +2042,119 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     function getSignatureFromDeclaration(declaration: SignatureDeclaration | JSDocSignature): Signature {
         const links = getNodeLinks(declaration);
         if (!links.resolvedSignature) {
-            console.warn("Implement me - getSignatureFromDeclaration");
-            // const parameters: Symbol[] = [];
-            // let flags = SignatureFlags.None;
-            // let minArgumentCount = 0;
-            // let thisParameter: Symbol | undefined;
-            // let thisTag: JSDocThisTag | undefined = isInJSFile(declaration) ? getJSDocThisTag(declaration) : undefined;
-            // let hasThisParameter = false;
-            // const iife = getImmediatelyInvokedFunctionExpression(declaration);
-            // const isJSConstructSignature = isJSDocConstructSignature(declaration);
-            // const isUntypedSignatureInJSFile = !iife &&
-            //     isInJSFile(declaration) &&
-            //     isValueSignatureDeclaration(declaration) &&
-            //     !hasJSDocParameterTags(declaration) &&
-            //     !getJSDocType(declaration);
-            // if (isUntypedSignatureInJSFile) {
-            //     flags |= SignatureFlags.IsUntypedSignatureInJSFile;
-            // }
+            //console.warn("Implement me - getSignatureFromDeclaration");
+            const parameters: Symbol[] = [];
+            let flags = SignatureFlags.None;
+            let minArgumentCount = 0;
+            let thisParameter: Symbol | undefined;
+            let thisTag: undefined;//TODO JSDocThisTag | undefined = isInJSFile(declaration) ? getJSDocThisTag(declaration) : undefined;
+            let hasThisParameter = false;
+            const iife = getImmediatelyInvokedFunctionExpression(declaration);
+            const isJSConstructSignature = false;//isJSDocConstructSignature(declaration);
+            const isUntypedSignatureInJSFile = false;//!iife &&
+                // isInJSFile(declaration) &&
+                // isValueSignatureDeclaration(declaration) &&
+                // !hasJSDocParameterTags(declaration) &&
+                // !getJSDocType(declaration);
+            if (isUntypedSignatureInJSFile) {
+                flags |= SignatureFlags.IsUntypedSignatureInJSFile;
+            }
 
-            // // If this is a JSDoc construct signature, then skip the first parameter in the
-            // // parameter list.  The first parameter represents the return type of the construct
-            // // signature.
-            // for (let i = isJSConstructSignature ? 1 : 0; i < declaration.parameters.length; i++) {
-            //     const param = declaration.parameters[i];
-            //     if (isInJSFile(param) && isJSDocThisTag(param)) {
-            //         thisTag = param;
-            //         continue;
-            //     }
+            // If this is a JSDoc construct signature, then skip the first parameter in the
+            // parameter list.  The first parameter represents the return type of the construct
+            // signature.
+            for (let i = isJSConstructSignature ? 1 : 0; i < declaration.parameters.length; i++) {
+                const param = declaration.parameters[i];
+                // if (isInJSFile(param) && isJSDocThisTag(param)) {
+                //     thisTag = param;
+                //     continue;
+                // }
 
-            //     let paramSymbol = param.symbol;
-            //     const type = isJSDocParameterTag(param) ? (param.typeExpression && param.typeExpression.type) : param.type;
-            //     // Include parameter symbol instead of property symbol in the signature
-            //     if (paramSymbol && !!(paramSymbol.flags & SymbolFlags.Property) && !isBindingPattern(param.name)) {
-            //         const resolvedSymbol = resolveName(param, paramSymbol.name, SymbolFlags.Value, /*nameNotFoundMessage*/ undefined, /*isUse*/ false);
-            //         paramSymbol = resolvedSymbol!;
-            //     }
-            //     if (i === 0 && paramSymbol.name === InternalSymbolName.This) {
-            //         hasThisParameter = true;
-            //         thisParameter = param.symbol;
-            //     }
-            //     else {
-            //         parameters.push(paramSymbol);
-            //     }
+                let paramSymbol = param.symbol;
+                const type = isJSDocParameterTag(param) ? (param.typeExpression && param.typeExpression.type) : param.type;
+                // Include parameter symbol instead of property symbol in the signature
+                if (paramSymbol && !!(paramSymbol.flags & SymbolFlags.Property) && !isBindingPattern(param.name)) {
+                    const resolvedSymbol = resolveName(param, paramSymbol.name, SymbolFlags.Value, /*nameNotFoundMessage*/ undefined, /*isUse*/ false);
+                    paramSymbol = resolvedSymbol!;
+                }
+                if (i === 0 && paramSymbol.name === InternalSymbolName.This) {
+                    hasThisParameter = true;
+                    thisParameter = param.symbol;
+                }
+                else {
+                    parameters.push(paramSymbol);
+                }
 
-            //     if (type && type.kind === SyntaxKind.LiteralType) {
-            //         flags |= SignatureFlags.HasLiteralTypes;
-            //     }
+                if (type && type.kind === SyntaxKind.LiteralType) {
+                    flags |= SignatureFlags.HasLiteralTypes;
+                }
 
-            //     // Record a new minimum argument count if this is not an optional parameter
-            //     const isOptionalParameter = hasEffectiveQuestionToken(param) ||
-            //         isParameter(param) && param.initializer || isRestParameter(param) ||
-            //         iife && parameters.length > iife.arguments.length && !type;
-            //     if (!isOptionalParameter) {
-            //         minArgumentCount = parameters.length;
-            //     }
-            // }
-
-            // // If only one accessor includes a this-type annotation, the other behaves as if it had the same type annotation
-            // if (
-            //     (declaration.kind === SyntaxKind.GetAccessor || declaration.kind === SyntaxKind.SetAccessor) &&
-            //     hasBindableName(declaration) &&
-            //     (!hasThisParameter || !thisParameter)
-            // ) {
-            //     const otherKind = declaration.kind === SyntaxKind.GetAccessor ? SyntaxKind.SetAccessor : SyntaxKind.GetAccessor;
-            //     const other = getDeclarationOfKind<AccessorDeclaration>(getSymbolOfDeclaration(declaration), otherKind);
-            //     if (other) {
-            //         thisParameter = getAnnotatedAccessorThisParameter(other);
-            //     }
-            // }
+                // Record a new minimum argument count if this is not an optional parameter                
+                minArgumentCount = parameters.length;                
+            }
 
             // if (thisTag && thisTag.typeExpression) {
             //     thisParameter = createSymbolWithType(createSymbol(SymbolFlags.FunctionScopedVariable, InternalSymbolName.This), getTypeFromTypeNode(thisTag.typeExpression));
             // }
 
-            // const hostDeclaration = isJSDocSignature(declaration) ? getEffectiveJSDocHost(declaration) : declaration;
+            const hostDeclaration = declaration;// isJSDocSignature(declaration) ? getEffectiveJSDocHost(declaration) : declaration;
+            const classType = undefined;
             // const classType = hostDeclaration && isConstructorDeclaration(hostDeclaration) ?
             //     getDeclaredTypeOfClassOrInterface(getMergedSymbol((hostDeclaration.parent as ClassDeclaration).symbol))
             //     : undefined;
-            // const typeParameters = classType ? classType.localTypeParameters : getTypeParametersFromDeclaration(declaration);
-            // if (hasRestParameter(declaration) || isInJSFile(declaration) && maybeAddJsSyntheticRestParameter(declaration, parameters)) {
-            //     flags |= SignatureFlags.HasRestParameter;
-            // }
+            const typeParameters = classType ? classType.localTypeParameters : undefined;//getTypeParametersFromDeclaration(declaration);
+            if (hasRestParameter(declaration) || isInJSFile(declaration) && maybeAddJsSyntheticRestParameter(declaration, parameters)) {
+                flags |= SignatureFlags.HasRestParameter;
+            }
             // if (
             //     isConstructorTypeNode(declaration) && hasSyntacticModifier(declaration, ModifierFlags.Abstract) ||
             //     isConstructorDeclaration(declaration) && hasSyntacticModifier(declaration.parent, ModifierFlags.Abstract)
             // ) {
             //     flags |= SignatureFlags.Abstract;
             // }
-            // links.resolvedSignature = createSignature(declaration, typeParameters, thisParameter, parameters, /*resolvedReturnType*/ undefined, /*resolvedTypePredicate*/ undefined, minArgumentCount, flags);
+            links.resolvedSignature = createSignature(declaration, typeParameters, thisParameter, parameters, /*resolvedReturnType*/ undefined, /*resolvedTypePredicate*/ undefined, minArgumentCount, flags);
         }
         return links.resolvedSignature;
     }
 
+    /**
+     * A JS function gets a synthetic rest parameter if it references `arguments` AND:
+     * 1. It has no parameters but at least one `@param` with a type that starts with `...`
+     * OR
+     * 2. It has at least one parameter, and the last parameter has a matching `@param` with a type that starts with `...`
+     */
+    function maybeAddJsSyntheticRestParameter(declaration: SignatureDeclaration | JSDocSignature, parameters: Symbol[]): boolean {
+        return false;
+        console.warn("Implement me - maybeAddJsSyntheticRestParameter");
+        // if (isJSDocSignature(declaration) || !containsArgumentsReference(declaration)) {
+        //     return false;
+        // }
+        // const lastParam = lastOrUndefined(declaration.parameters);
+        // const lastParamTags = lastParam ? getJSDocParameterTags(lastParam) : getJSDocTags(declaration).filter(isJSDocParameterTag);
+        // const lastParamVariadicType = firstDefined(lastParamTags, p => p.typeExpression && isJSDocVariadicType(p.typeExpression.type) ? p.typeExpression.type : undefined);
+
+        // const syntheticArgsSymbol = createSymbol(SymbolFlags.Variable, "args" as __String, CheckFlags.RestParameter);
+        // if (lastParamVariadicType) {
+        //     // Parameter has effective annotation, lock in type
+        //     syntheticArgsSymbol.links.type = createArrayType(getTypeFromTypeNode(lastParamVariadicType.type));
+        // }
+        // else {
+        //     // Parameter has no annotation
+        //     // By using a `DeferredType` symbol, we allow the type of this rest arg to be overriden by contextual type assignment so long as its type hasn't been
+        //     // cached by `getTypeOfSymbol` yet.
+        //     syntheticArgsSymbol.links.checkFlags |= CheckFlags.DeferredType;
+        //     syntheticArgsSymbol.links.deferralParent = neverType;
+        //     syntheticArgsSymbol.links.deferralConstituents = [anyArrayType];
+        //     syntheticArgsSymbol.links.deferralWriteConstituents = [anyArrayType];
+        // }
+        // if (lastParamVariadicType) {
+        //     // Replace the last parameter with a rest parameter.
+        //     parameters.pop();
+        // }
+        // parameters.push(syntheticArgsSymbol);
+        // return true;
+    }
+    
     function reportImplicitAny(declaration: Declaration, type: Type, wideningKind?: WideningKind) {
         console.warn("Implement me - reportImplicitAny");
     }
@@ -5209,43 +5232,274 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return signature === unknownSignature ? undefined : signature;
     }
 
+    function getUnionOrIntersectionType(types: Type[], kind: TypeFlags | undefined, unionReduction?: UnionReduction) {
+        return getUnionType(types, unionReduction);
+    }
+
+    /** NOTE: Return value of `[]` means a different thing than `undefined`. `[]` means func returns `void`, `undefined` means it returns `never`. */
+    function checkAndAggregateReturnExpressionTypes(func: FunctionLikeDeclaration, checkMode: CheckMode | undefined): Type[] | undefined {
+        const functionFlags = getFunctionFlags(func);
+        const aggregatedTypes: Type[] = [];
+        let hasReturnWithNoExpression = functionHasImplicitReturn(func);
+        let hasReturnOfTypeNever = false;
+        forEachReturnStatement(func.body as Block, returnStatement => {
+            let expr = returnStatement.expression;
+            if (expr) {
+                expr = skipParentheses(expr, /*excludeJSDocTypeAssertions*/ true);
+                // Bare calls to this same function don't contribute to inference
+                // and `return await` is also safe to unwrap here
+                // if (functionFlags & FunctionFlags.Async && expr.kind === SyntaxKind.AwaitExpression) {
+                //     expr = skipParentheses((expr as AwaitExpression).expression, /*excludeJSDocTypeAssertions*/ true);
+                // }
+                if (
+                    expr.kind === SyntaxKind.CallExpression &&
+                    (expr as CallExpression).expression.kind === SyntaxKind.Identifier &&
+                    checkExpressionCached((expr as CallExpression).expression).symbol === getMergedSymbol(func.symbol) &&
+                    (!isFunctionExpressionOrInlineClosure(func.symbol.valueDeclaration!))// || isConstantReference((expr as CallExpression).expression))
+                ) {
+                    hasReturnOfTypeNever = true;
+                    return;
+                }
+
+                let type = checkExpressionCached(expr, checkMode && checkMode & ~CheckMode.SkipGenericFunctions);
+                // if (functionFlags & FunctionFlags.Async) {
+                //     // From within an async function you can return either a non-promise value or a promise. Any
+                //     // Promise/A+ compatible implementation will always assimilate any foreign promise, so the
+                //     // return type of the body should be unwrapped to its awaited type, which should be wrapped in
+                //     // the native Promise<T> type by the caller.
+                //     type = unwrapAwaitedType(checkAwaitedType(type, /*withAlias*/ false, func, Diagnostics.The_return_type_of_an_async_function_must_either_be_a_valid_promise_or_must_not_contain_a_callable_then_member));
+                // }
+                if (type.flags & TypeFlags.Never) {
+                    hasReturnOfTypeNever = true;
+                }
+                pushIfUnique(aggregatedTypes, type);
+            }
+            else {
+                hasReturnWithNoExpression = true;
+            }
+        });
+        if (aggregatedTypes.length === 0 && !hasReturnWithNoExpression && (hasReturnOfTypeNever || mayReturnNever(func))) {
+            return undefined;
+        }
+        if (
+            strictNullChecks && aggregatedTypes.length && hasReturnWithNoExpression &&
+            !(false/*isJSConstructor(func)*/ && aggregatedTypes.some(t => t.symbol === func.symbol))
+        ) {
+            // Javascript "callable constructors", containing eg `if (!(this instanceof A)) return new A()` should not add undefined
+            pushIfUnique(aggregatedTypes, undefinedType);
+        }
+        return aggregatedTypes;
+    }
+
+    function mayReturnNever(func: FunctionLikeDeclaration): boolean {
+        switch (func.kind) {
+            case SyntaxKind.FunctionExpression:
+            case SyntaxKind.InlineClosureExpression:
+                return true;
+            // case SyntaxKind.MethodDeclaration:
+            //     return func.parent.kind === SyntaxKind.ObjectLiteralExpression;
+            default:
+                return false;
+        }
+    }
+
+    function isResolvingReturnTypeOfSignature(signature: Signature): boolean {
+        return signature.compositeSignatures && some(signature.compositeSignatures, isResolvingReturnTypeOfSignature) ||
+            !signature.resolvedReturnType && findResolutionCycleStartIndex(signature, TypeSystemPropertyName.ResolvedReturnType) >= 0;
+    }
+
+    function getContextualReturnType(functionDecl: SignatureDeclaration, contextFlags: ContextFlags | undefined): Type | undefined {
+        // If the containing function has a return type annotation, is a constructor, or is a get accessor whose
+        // corresponding set accessor has a type annotation, return statements in the function are contextually typed
+        const returnType = getReturnTypeFromAnnotation(functionDecl);
+        if (returnType) {
+            return returnType;
+        }
+        // Otherwise, if the containing function is contextually typed by a function type with exactly one call signature
+        // and that call signature is non-generic, return statements are contextually typed by the return type of the signature
+        const signature = getContextualSignatureForFunctionLikeDeclaration(functionDecl as FunctionExpression);
+        if (signature && !isResolvingReturnTypeOfSignature(signature)) {
+            const returnType = getReturnTypeOfSignature(signature);
+            const functionFlags = getFunctionFlags(functionDecl);
+            if (functionFlags & FunctionFlags.Generator) {
+                return filterType(returnType, t => {
+                    return !!(t.flags & (TypeFlags.AnyOrUnknown | TypeFlags.Void | TypeFlags.InstantiableNonPrimitive));// || checkGeneratorInstantiationAssignabilityToReturnType(t, functionFlags, /*errorNode*/ undefined);
+                });
+            }
+            if (functionFlags & FunctionFlags.Async) {
+                return filterType(returnType, t => {
+                    return !!(t.flags & (TypeFlags.AnyOrUnknown | TypeFlags.Void | TypeFlags.InstantiableNonPrimitive));// || !!getAwaitedTypeOfPromise(t);
+                });
+            }
+            return returnType;
+        }
+        const iife = getImmediatelyInvokedFunctionExpression(functionDecl);
+        if (iife) {
+            return getContextualType(iife, contextFlags);
+        }
+        return undefined;
+    }
+
+    function getReturnTypeFromBody(func: FunctionLikeDeclaration, checkMode?: CheckMode): Type {
+        if (!func.body) {
+            return errorType;
+        }
+
+        const functionFlags = getFunctionFlags(func);
+        const isAsync = (functionFlags & FunctionFlags.Async) !== 0;
+        const isGenerator = (functionFlags & FunctionFlags.Generator) !== 0;
+
+        let returnType: Type | undefined;
+        let yieldType: Type | undefined;
+        let nextType: Type | undefined;
+        let fallbackReturnType: Type = voidType;
+        if (func.body.kind !== SyntaxKind.Block) { // Async or normal arrow function
+            returnType = checkExpressionCached(func.body, checkMode && checkMode & ~CheckMode.SkipGenericFunctions);
+            // if (isAsync) {
+            //     // From within an async function you can return either a non-promise value or a promise. Any
+            //     // Promise/A+ compatible implementation will always assimilate any foreign promise, so the
+            //     // return type of the body should be unwrapped to its awaited type, which we will wrap in
+            //     // the native Promise<T> type later in this function.
+            //     returnType = unwrapAwaitedType(checkAwaitedType(returnType, /*withAlias*/ false, /*errorNode*/ func, Diagnostics.The_return_type_of_an_async_function_must_either_be_a_valid_promise_or_must_not_contain_a_callable_then_member));
+            // }
+        }
+        // else if (isGenerator) { // Generator or AsyncGenerator function
+        //     const returnTypes = checkAndAggregateReturnExpressionTypes(func, checkMode);
+        //     if (!returnTypes) {
+        //         fallbackReturnType = neverType;
+        //     }
+        //     else if (returnTypes.length > 0) {
+        //         returnType = getUnionType(returnTypes, UnionReduction.Subtype);
+        //     }
+        //     const { yieldTypes, nextTypes } = checkAndAggregateYieldOperandTypes(func, checkMode);
+        //     yieldType = some(yieldTypes) ? getUnionType(yieldTypes, UnionReduction.Subtype) : undefined;
+        //     nextType = some(nextTypes) ? getIntersectionType(nextTypes) : undefined;
+        // }
+        else { // Async or normal function
+            const types = checkAndAggregateReturnExpressionTypes(func, checkMode);
+            if (!types) {
+                // For an async function, the return type will not be never, but rather a Promise for never.
+                // return functionFlags & FunctionFlags.Async
+                //     ? createPromiseReturnType(func, neverType) // Async function
+                //     : neverType; // Normal function
+                return neverType;
+            }
+            if (types.length === 0) {
+                // For an async function, the return type will not be void/undefined, but rather a Promise for void/undefined.
+                const contextualReturnType = getContextualReturnType(func, /*contextFlags*/ undefined);
+                const returnType = contextualReturnType && (unwrapReturnType(contextualReturnType, functionFlags) || voidType).flags & TypeFlags.Undefined ? undefinedType : voidType;
+                // return functionFlags & FunctionFlags.Async ? createPromiseReturnType(func, returnType) : // Async function
+                //     returnType; // Normal function
+                return returnType;
+            }
+
+            // Return a union of the return expression types.
+            returnType = getUnionType(types, UnionReduction.Subtype);
+        }
+
+        if (returnType || yieldType || nextType) {
+            if (yieldType) reportErrorsFromWidening(func, yieldType, WideningKind.GeneratorYield);
+            if (returnType) reportErrorsFromWidening(func, returnType, WideningKind.FunctionReturn);
+            if (nextType) reportErrorsFromWidening(func, nextType, WideningKind.GeneratorNext);
+            if (
+                returnType && isUnitType(returnType) ||
+                yieldType && isUnitType(yieldType) ||
+                nextType && isUnitType(nextType)
+            ) {
+                const contextualSignature = getContextualSignatureForFunctionLikeDeclaration(func);
+                const contextualType = !contextualSignature ? undefined :
+                    contextualSignature === getSignatureFromDeclaration(func) ? isGenerator ? undefined : returnType :
+                    instantiateContextualType(getReturnTypeOfSignature(contextualSignature), func, /*contextFlags*/ undefined);
+                // if (isGenerator) {
+                //     yieldType = getWidenedLiteralLikeTypeForContextualIterationTypeIfNeeded(yieldType, contextualType, IterationTypeKind.Yield, isAsync);
+                //     returnType = getWidenedLiteralLikeTypeForContextualIterationTypeIfNeeded(returnType, contextualType, IterationTypeKind.Return, isAsync);
+                //     nextType = getWidenedLiteralLikeTypeForContextualIterationTypeIfNeeded(nextType, contextualType, IterationTypeKind.Next, isAsync);
+                // }
+                // else {
+                    returnType = getWidenedLiteralLikeTypeForContextualReturnTypeIfNeeded(returnType, contextualType, isAsync);
+                //}
+            }
+
+            if (yieldType) yieldType = getWidenedType(yieldType);
+            if (returnType) returnType = getWidenedType(returnType);
+            if (nextType) nextType = getWidenedType(nextType);
+        }
+
+        // if (isGenerator) {
+        //     return createGeneratorType(
+        //         yieldType || neverType,
+        //         returnType || fallbackReturnType,
+        //         nextType || getContextualIterationType(IterationTypeKind.Next, func) || unknownType,
+        //         isAsync,
+        //     );
+        // }
+        else {
+            Debug.fail("todo implement me - getReturnTypeFromBody - async");
+            // From within an async function you can return either a non-promise value or a promise. Any
+            // Promise/A+ compatible implementation will always assimilate any foreign promise, so the
+            // return type of the body is awaited type of the body, wrapped in a native Promise<T> type.
+            // return isAsync
+            //     ? createPromiseType(returnType || fallbackReturnType)
+            //     : returnType || fallbackReturnType;
+        }
+    }
+
+    function getWidenedLiteralLikeTypeForContextualType(type: Type, contextualType: Type | undefined) {
+        if (!isLiteralOfContextualType(type, contextualType)) {
+            Debug.fail("not available in LPC");
+            type = errorType;// getWidenedUniqueESSymbolType(getWidenedLiteralType(type));
+        }
+        return getRegularTypeOfLiteralType(type);
+    }
+
+    function getWidenedLiteralLikeTypeForContextualReturnTypeIfNeeded(type: Type | undefined, contextualSignatureReturnType: Type | undefined, isAsync: boolean) {
+        if (type && isUnitType(type)) {
+            // const contextualType = !contextualSignatureReturnType ? undefined :
+            //     isAsync ? getPromisedTypeOfPromise(contextualSignatureReturnType) :
+            //     contextualSignatureReturnType;
+            const contextualType = contextualSignatureReturnType;
+            type = getWidenedLiteralLikeTypeForContextualType(type, contextualType);
+        }
+        return type;
+    }
+
     function getReturnTypeOfSignature(signature: Signature): Type {
         console.warn("todo implement me - getReturnTypeOfSignature");
-        // if (!signature.resolvedReturnType) {
-        //     if (!pushTypeResolution(signature, TypeSystemPropertyName.ResolvedReturnType)) {
-        //         return errorType;
-        //     }
-        //     let type = signature.target ? instantiateType(getReturnTypeOfSignature(signature.target), signature.mapper) :
-        //         signature.compositeSignatures ? instantiateType(getUnionOrIntersectionType(map(signature.compositeSignatures, getReturnTypeOfSignature), signature.compositeKind, UnionReduction.Subtype), signature.mapper) :
-        //         getReturnTypeFromAnnotation(signature.declaration!) ||
-        //         (nodeIsMissing((signature.declaration as FunctionLikeDeclaration).body) ? anyType : getReturnTypeFromBody(signature.declaration as FunctionLikeDeclaration));
-        //     if (signature.flags & SignatureFlags.IsInnerCallChain) {
-        //         type = addOptionalTypeMarker(type);
-        //     }
-        //     else if (signature.flags & SignatureFlags.IsOuterCallChain) {
-        //         type = getOptionalType(type);
-        //     }
-        //     if (!popTypeResolution()) {
-        //         if (signature.declaration) {
-        //             const typeNode = getEffectiveReturnTypeNode(signature.declaration);
-        //             if (typeNode) {
-        //                 error(typeNode, Diagnostics.Return_type_annotation_circularly_references_itself);
-        //             }
-        //             else if (noImplicitAny) {
-        //                 const declaration = signature.declaration as Declaration;
-        //                 const name = getNameOfDeclaration(declaration);
-        //                 if (name) {
-        //                     error(name, Diagnostics._0_implicitly_has_return_type_any_because_it_does_not_have_a_return_type_annotation_and_is_referenced_directly_or_indirectly_in_one_of_its_return_expressions, declarationNameToString(name));
-        //                 }
-        //                 else {
-        //                     error(declaration, Diagnostics.Function_implicitly_has_return_type_any_because_it_does_not_have_a_return_type_annotation_and_is_referenced_directly_or_indirectly_in_one_of_its_return_expressions);
-        //                 }
-        //             }
-        //         }
-        //         type = anyType;
-        //     }
-        //     signature.resolvedReturnType ??= type;
-        // }
+        if (!signature.resolvedReturnType) {
+            if (!pushTypeResolution(signature, TypeSystemPropertyName.ResolvedReturnType)) {
+                return errorType;
+            }
+            let type = signature.target ? instantiateType(getReturnTypeOfSignature(signature.target), signature.mapper) :
+                signature.compositeSignatures ? instantiateType(getUnionOrIntersectionType(map(signature.compositeSignatures, getReturnTypeOfSignature), signature.compositeKind, UnionReduction.Subtype), signature.mapper) :
+                getReturnTypeFromAnnotation(signature.declaration!) ||
+                (nodeIsMissing((signature.declaration as FunctionLikeDeclaration).body) ? anyType : getReturnTypeFromBody(signature.declaration as FunctionLikeDeclaration));
+            // if (signature.flags & SignatureFlags.IsInnerCallChain) {
+            //     type = addOptionalTypeMarker(type);
+            // }
+            if (signature.flags & SignatureFlags.IsOuterCallChain) {
+                type = getOptionalType(type);
+            }
+            if (!popTypeResolution()) {
+                if (signature.declaration) {
+                    const typeNode = getEffectiveReturnTypeNode(signature.declaration);
+                    if (typeNode) {
+                        error(typeNode, Diagnostics.Return_type_annotation_circularly_references_itself);
+                    }
+                    else if (noImplicitAny) {
+                        const declaration = signature.declaration as Declaration;
+                        const name = getNameOfDeclaration(declaration);
+                        if (name) {
+                            error(name, Diagnostics._0_implicitly_has_return_type_any_because_it_does_not_have_a_return_type_annotation_and_is_referenced_directly_or_indirectly_in_one_of_its_return_expressions, declarationNameToString(name));
+                        }
+                        else {
+                            error(declaration, Diagnostics.Function_implicitly_has_return_type_any_because_it_does_not_have_a_return_type_annotation_and_is_referenced_directly_or_indirectly_in_one_of_its_return_expressions);
+                        }
+                    }
+                }
+                type = anyType;
+            }
+            signature.resolvedReturnType ??= type;
+        }
         return signature.resolvedReturnType;
     }
 

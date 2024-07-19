@@ -1,4 +1,4 @@
-import { ArrayBindingPattern, ArrayTypeNode, BinaryExpression, BindingElement, Block, CallExpression, ComputedPropertyName, DefaultClause, ElementAccessExpression, ExpressionStatement, FloatLiteral, ForStatement, FunctionDeclaration, FunctionExpression, Identifier, IfStatement, IndexedAccessTypeNode, InlineClosureExpression, IntLiteral, JSDoc, JSDocDeprecatedTag, JSDocSignature, JSDocTemplateTag, JSDocTypedefTag, JSDocTypeExpression, LiteralTypeNode, NewExpression, Node, ObjectLiteralExpression, ParameterDeclaration, ParenthesizedExpression, ParenthesizedTypeNode, PrefixUnaryExpression, PropertyAccessExpression, PropertyDeclaration, QualifiedName, ShorthandPropertyAssignment, SourceFile, StringLiteral, StructDeclaration, SwitchStatement, SyntaxKind, TypeParameterDeclaration, UnionTypeNode, VariableDeclaration, VariableDeclarationList, VariableStatement } from "./_namespaces/lpc";
+import { ArrayBindingPattern, ArrayTypeNode, BinaryExpression, BindingElement, Block, CallExpression, ComputedPropertyName, DefaultClause, ElementAccessExpression, ExpressionStatement, FloatLiteral, ForStatement, FunctionDeclaration, FunctionExpression, Identifier, IfStatement, IndexedAccessTypeNode, InlineClosureExpression, IntLiteral, JSDoc, JSDocDeprecatedTag, JSDocParameterTag, JSDocSignature, JSDocTemplateTag, JSDocTypedefTag, JSDocTypeExpression, LiteralTypeNode, NewExpression, Node, ObjectLiteralExpression, ParameterDeclaration, ParenthesizedExpression, ParenthesizedTypeNode, PrefixUnaryExpression, PropertyAccessExpression, PropertyDeclaration, QualifiedName, ShorthandPropertyAssignment, SourceFile, StringLiteral, StructDeclaration, SwitchStatement, SyntaxKind, TypeParameterDeclaration, UnionTypeNode, VariableDeclaration, VariableDeclarationList, VariableStatement } from "./_namespaces/lpc";
 
 export function isBinaryExpression(node: Node): node is BinaryExpression {
     return node.kind === SyntaxKind.BinaryExpression;
@@ -211,4 +211,8 @@ export function isObjectLiteralExpression(node: Node): node is ObjectLiteralExpr
 
 export function isParenthesizedTypeNode(node: Node): node is ParenthesizedTypeNode {
     return node.kind === SyntaxKind.ParenthesizedType;
+}
+
+export function isJSDocParameterTag(node: Node): node is JSDocParameterTag {
+    return node.kind === SyntaxKind.JSDocParameterTag;
 }

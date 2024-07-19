@@ -2983,11 +2983,15 @@ export const enum SignatureFlags {
     CallChainFlags = IsInnerCallChain | IsOuterCallChain,
 }
 
+export interface JSDocParameterTag extends JSDocPropertyLikeTag {
+    readonly kind: SyntaxKind.JSDocParameterTag;
+}
+
 export interface JSDocSignature extends JSDocType, Declaration, JSDocContainer, LocalsContainer {
     readonly kind: SyntaxKind.JSDocSignature;
     // TODO
-    // readonly typeParameters?: readonly JSDocTemplateTag[];
-    // readonly parameters: readonly JSDocParameterTag[];
+    //readonly typeParameters?: readonly JSDocTemplateTag[];
+    readonly parameters: readonly JSDocParameterTag[];
     readonly type: JSDocReturnTag | undefined;
 }
 
@@ -4792,8 +4796,8 @@ export type VariableLikeDeclaration =
     | PropertyAssignment    
     | ShorthandPropertyAssignment    
     // | JSDocPropertyTag
-    // | JSDocParameterTag;
-    ;
+    | JSDocParameterTag;
+    
 
 /** @internal */
 export type AliasDeclarationNode =

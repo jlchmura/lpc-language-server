@@ -1,4 +1,4 @@
-import { ArrayBindingElement, AssignmentDeclarationKind, BinaryExpression, BindingPattern, Block, BreakOrContinueStatement, CallChain, CallExpression, CallLikeExpression, canHaveJSDoc, Debug, Declaration, DeclarationName, emptyArray, EntityName, Expression, find, flatMap, ForEachStatement, FunctionLikeDeclaration, getAssignmentDeclarationKind, getEffectiveModifierFlags, getJSDocCommentsAndTags, HasExpressionInitializer, HasInitializer, HasLocals, HasModifiers, hasProperty, Identifier, isBinaryExpression, isBlock, isCallExpression, isFunctionBlock, isFunctionExpression, isIdentifier, isInlineClosureExpression, isJSDoc, isJSDocDeprecatedTag, isJSDocSignature, isKeyword, isSourceFile, isTypeNodeKind, isVariableDeclaration, isWhiteSpaceLike, IterationStatement, JSDocDeprecatedTag, JSDocTag, KeywordSyntaxKind, LeftHandSideExpression, LiteralExpression, LiteralToken, MemberName, ModifierFlags, NamedDeclaration, Node, NodeArray, NodeFlags, OuterExpressionKinds, ParameterDeclaration, PropertyAccessExpression, PropertyName, QualifiedName, SignatureDeclaration, skipOuterExpressions, Statement, stringToToken, Symbol, SyntaxKind, TextRange, TextSpan, tryCast, TypeNode, UnaryExpression } from "./_namespaces/lpc.js";
+import { ArrayBindingElement, AssignmentDeclarationKind, BinaryExpression, BindingPattern, Block, BreakOrContinueStatement, CallChain, CallExpression, CallLikeExpression, canHaveJSDoc, Debug, Declaration, DeclarationName, emptyArray, EntityName, Expression, find, flatMap, ForEachStatement, FunctionLikeDeclaration, getAssignmentDeclarationKind, getEffectiveModifierFlags, getJSDocCommentsAndTags, HasExpressionInitializer, HasInitializer, HasLocals, HasModifiers, hasProperty, Identifier, isBinaryExpression, isBlock, isCallExpression, isFunctionBlock, isFunctionExpression, isIdentifier, isInlineClosureExpression, isJSDoc, isJSDocDeprecatedTag, isJSDocParameterTag, isJSDocSignature, isKeyword, isSourceFile, isTypeNodeKind, isVariableDeclaration, isWhiteSpaceLike, IterationStatement, JSDocDeprecatedTag, JSDocParameterTag, JSDocSignature, JSDocTag, KeywordSyntaxKind, lastOrUndefined, LeftHandSideExpression, LiteralExpression, LiteralToken, MemberName, ModifierFlags, NamedDeclaration, Node, NodeArray, NodeFlags, OuterExpressionKinds, ParameterDeclaration, PropertyAccessExpression, PropertyName, QualifiedName, SignatureDeclaration, skipOuterExpressions, Statement, stringToToken, Symbol, SyntaxKind, TextRange, TextSpan, tryCast, TypeNode, UnaryExpression } from "./_namespaces/lpc.js";
 
 /** @internal */
 export function isNodeArray<T extends Node>(array: readonly T[]): array is NodeArray<T> {
@@ -807,3 +807,14 @@ export function hasOnlyExpressionInitializer(node: Node): node is HasExpressionI
     }
 }
 
+export function hasRestParameter(s: SignatureDeclaration | JSDocSignature): boolean {
+    const last = lastOrUndefined<ParameterDeclaration | JSDocParameterTag>(s.parameters);
+    return !!last && isRestParameter(last);
+}
+
+export function isRestParameter(node: ParameterDeclaration | JSDocParameterTag): boolean {
+    const type = isJSDocParameterTag(node) ? (node.typeExpression && node.typeExpression.type) : node.type;
+    return (node as ParameterDeclaration).dotDotDotToken !== undefined || 
+        (!!type && type.kind === SyntaxKind.JSDocVariadicType) ||
+        !!(getEffectiveModifierFlags((node as ParameterDeclaration)) & ModifierFlags.VarArgs);
+}

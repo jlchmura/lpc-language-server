@@ -4273,3 +4273,8 @@ export function isPartOfTypeNode(node: Node): boolean {
 export function isTypeAlias(node: Node): node is JSDocTypedefTag/* | JSDocCallbackTag | JSDocEnumTag | TypeAliasDeclaration */ {
     return false;// TODO isJSDocTypeAlias(node) || isTypeAliasDeclaration(node);
 }
+
+/** @internal */
+export function getContainingFunctionOrClassStaticBlock(node: Node): SignatureDeclaration | undefined {
+    return findAncestor(node.parent, isFunctionLikeOrClassStaticBlockDeclaration);
+}
