@@ -2,9 +2,10 @@
 
 ## 1.0.26
 
--   Fix undefined token exception during diagnostics generation
--   Fix signature not being displayed when hovering over a function declaration (part 3 of #42)
--   Fix crash caused by flushing change timer after document has been disposed
+-   Fix: undefined token exception during diagnostics generation
+-   Fix: signature not being displayed when hovering over a function declaration (part 3 of #42)
+-   Fix: crash caused by flushing change timer after document has been disposed
+-   Fix: FluffOS global include file was not included in some instances.
 
 ## 1.0.25
 

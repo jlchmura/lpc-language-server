@@ -1018,10 +1018,7 @@ export class LpcFacade {
                 globalInclude,
                 filename
             );
-            if (
-                filename !== globalFilename.fullPath &&
-                !filename.endsWith(".h")
-            ) {
+            if (filename !== globalFilename.fullPath) {
                 configDefines.set("__GLOBAL_INCLUDE__", `"${globalInclude}"`);
             }
         }

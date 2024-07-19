@@ -608,7 +608,7 @@ export class DetailsVisitor
         varDecls.forEach((varDeclExp) => {
             const name = varDeclExp
                 .variableDeclarator()
-                ._variableName.getText();
+                ._variableName?.getText();
 
             // if its not yet determined to be a declaration, then try to resolve the symbol.
             // If it can't be resolved, then its a new declaration
