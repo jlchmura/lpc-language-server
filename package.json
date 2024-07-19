@@ -87,11 +87,6 @@
             }
         ],
         "commands": [
-            {
-                "command": "lpc.processAll",
-                "title": "Process All Files",
-                "category": "LPC"
-            }
         ],
         "jsonValidation": [
             {

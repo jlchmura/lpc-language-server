@@ -196,6 +196,14 @@ export class LpcFacade {
         referenceFilename: string,
         searchDirs?: string[]
     ): ResolvedFilename {
+        if (!filename || typeof filename !== "string") {
+            return {
+                filename: filename,
+                fullPath: undefined,
+                type: undefined,
+            };
+        }
+
         const normedRefFilename = referenceFilename.startsWith("file:")
             ? URI.parse(referenceFilename).fsPath
             : referenceFilename;

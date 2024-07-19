@@ -425,6 +425,8 @@ export class ContextSymbolTable extends SymbolTable {
         const findRecursive = (
             parent: ScopedSymbol
         ): BaseSymbol | undefined => {
+            if (!context) return undefined;
+
             for (const symbol of parent.children) {
                 if (!symbol.context) {
                     continue;

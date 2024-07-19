@@ -6,6 +6,7 @@
 -   Fix: signature not being displayed when hovering over a function declaration (part 3 of #42)
 -   Fix: crash caused by flushing change timer after document has been disposed
 -   Fix: FluffOS global include file was not included in some instances.
+-   Removed "Process All Files" command (it is no longer needed)
 
 ## 1.0.25
 
