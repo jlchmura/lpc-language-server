@@ -1,4 +1,4 @@
-import { ArrayBindingPattern, ArrayTypeNode, BinaryExpression, BindingElement, Block, CallExpression, ComputedPropertyName, DefaultClause, ElementAccessExpression, ExpressionStatement, FloatLiteral, ForStatement, FunctionDeclaration, FunctionExpression, Identifier, IfStatement, IndexedAccessTypeNode, InlineClosureExpression, IntLiteral, JSDoc, JSDocDeprecatedTag, JSDocSignature, JSDocTemplateTag, JSDocTypedefTag, JSDocTypeExpression, LiteralTypeNode, NewExpression, Node, ParameterDeclaration, ParenthesizedExpression, PrefixUnaryExpression, PropertyAccessExpression, PropertyDeclaration, QualifiedName, ShorthandPropertyAssignment, SourceFile, StringLiteral, StructDeclaration, SwitchStatement, SyntaxKind, TypeParameterDeclaration, UnionTypeNode, VariableDeclaration, VariableDeclarationList, VariableStatement } from "./_namespaces/lpc";
+import { ArrayBindingPattern, ArrayTypeNode, BinaryExpression, BindingElement, Block, CallExpression, ComputedPropertyName, DefaultClause, ElementAccessExpression, ExpressionStatement, FloatLiteral, ForStatement, FunctionDeclaration, FunctionExpression, Identifier, IfStatement, IndexedAccessTypeNode, InlineClosureExpression, IntLiteral, JSDoc, JSDocDeprecatedTag, JSDocSignature, JSDocTemplateTag, JSDocTypedefTag, JSDocTypeExpression, LiteralTypeNode, NewExpression, Node, ObjectLiteralExpression, ParameterDeclaration, ParenthesizedExpression, ParenthesizedTypeNode, PrefixUnaryExpression, PropertyAccessExpression, PropertyDeclaration, QualifiedName, ShorthandPropertyAssignment, SourceFile, StringLiteral, StructDeclaration, SwitchStatement, SyntaxKind, TypeParameterDeclaration, UnionTypeNode, VariableDeclaration, VariableDeclarationList, VariableStatement } from "./_namespaces/lpc";
 
 export function isBinaryExpression(node: Node): node is BinaryExpression {
     return node.kind === SyntaxKind.BinaryExpression;
@@ -203,4 +203,12 @@ export function isJSDocTypedefTag(node: Node): node is JSDocTypedefTag {
 
 export function isPrivateIdentifier(node: Node){//: node is PrivateIdentifier {
     return false;//return node.kind === SyntaxKind.PrivateIdentifier;
+}
+
+export function isObjectLiteralExpression(node: Node): node is ObjectLiteralExpression {
+    return node.kind === SyntaxKind.ObjectLiteralExpression;
+}
+
+export function isParenthesizedTypeNode(node: Node): node is ParenthesizedTypeNode {
+    return node.kind === SyntaxKind.ParenthesizedType;
 }

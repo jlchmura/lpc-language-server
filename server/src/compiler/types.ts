@@ -506,6 +506,7 @@ export const enum SyntaxKind {
     ArrayType,
     TypeLiteral,
     ParenthesizedType,
+    TypeReference,
     ConditionalType,  // Last TYpe Node
     
     // Elements
@@ -966,6 +967,7 @@ export type TypeNodeSyntaxKind =
     | SyntaxKind.MappedType
     | SyntaxKind.TypeLiteral
     | SyntaxKind.ParenthesizedType
+    | SyntaxKind.TypeReference
     | SyntaxKind.JSDocTypeExpression
     | SyntaxKind.JSDocAllType
     | SyntaxKind.JSDocUnknownType
@@ -2606,7 +2608,7 @@ export interface ParameterDeclaration extends NamedDeclaration, JSDocContainer {
     readonly name: BindingName;                  // Declared parameter name.
     readonly ampToken?: AmpersandToken;          // Present on "by ref" parameters
     readonly type?: TypeNode;                    // Optional type annotation
-    readonly initializer?: Expression;           // Optional initializer
+    readonly initializer?: Expression;           // Optional initializer    
 }
 
 export interface SignatureDeclarationBase extends NamedDeclaration, JSDocContainer {
@@ -4781,3 +4783,192 @@ export interface ParenthesizedTypeNode extends TypeNode {
     readonly kind: SyntaxKind.ParenthesizedType;
     readonly type: TypeNode;
 }
+
+export type VariableLikeDeclaration =
+    | VariableDeclaration
+    | ParameterDeclaration
+    | BindingElement
+    | PropertyDeclaration
+    | PropertyAssignment    
+    | ShorthandPropertyAssignment    
+    // | JSDocPropertyTag
+    // | JSDocParameterTag;
+    ;
+
+/** @internal */
+export type AliasDeclarationNode =
+    //| ImportEqualsDeclaration
+    | VariableDeclarationInitializedTo<
+        //| RequireOrImportCall
+        | AccessExpression
+    >
+    // | ImportClause
+    // | NamespaceImport
+    // | ImportSpecifier
+    // | ExportSpecifier
+    // | NamespaceExport
+    | BindingElementOfBareOrAccessedRequire;
+    ;
+
+/** @internal */
+export type BindingElementOfBareOrAccessedRequire = BindingElement & { parent: { parent: VariableDeclarationInitializedTo</*RequireOrImportCall | */ AccessExpression>; }; };
+
+/** Class and interface types (ObjectFlags.Class and ObjectFlags.Interface). */
+// dprint-ignore
+export interface InterfaceType extends ObjectType {
+    typeParameters: TypeParameter[] | undefined;      // Type parameters (undefined if non-generic)
+    outerTypeParameters: TypeParameter[] | undefined; // Outer type parameters (undefined if none)
+    localTypeParameters: TypeParameter[] | undefined; // Local type parameters (undefined if none)
+    thisType: TypeParameter | undefined;              // The "this" type (undefined if none)
+    /** @internal */
+    resolvedBaseConstructorType?: Type;               // Resolved base constructor type of class
+    /** @internal */
+    resolvedBaseTypes: BaseType[];                    // Resolved base types
+    /** @internal */
+    baseTypesResolved?: boolean;
+}
+
+
+// Generic class and interface types
+export interface GenericType extends InterfaceType, TypeReference {
+    /** @internal */
+    instantiations: Map<string, TypeReference>; // Generic instantiation cache
+    /** @internal */
+    variances?: VarianceFlags[]; // Variance of each type parameter
+}
+
+
+/**
+ * Type references (ObjectFlags.Reference). When a class or interface has type parameters or
+ * a "this" type, references to the class or interface are made using type references. The
+ * typeArguments property specifies the types to substitute for the type parameters of the
+ * class or interface and optionally includes an extra element that specifies the type to
+ * substitute for "this" in the resulting instantiation. When no extra argument is present,
+ * the type reference itself is substituted for "this". The typeArguments property is undefined
+ * if the class or interface has no type parameters and the reference isn't specifying an
+ * explicit "this" argument.
+ */
+export interface TypeReference extends ObjectType {
+    target: GenericType; // Type reference target
+    node?: TypeReferenceNode | ArrayTypeNode;
+    /** @internal */
+    mapper?: TypeMapper;
+    /** @internal */
+    resolvedTypeArguments?: readonly Type[]; // Resolved type reference type arguments
+    /** @internal */
+    literalType?: TypeReference; // Clone of type with ObjectFlags.ArrayLiteral set
+    /** @internal */
+    cachedEquivalentBaseType?: Type; // Only set on references to class or interfaces with a single base type and no augmentations
+}
+
+export type TypeReferenceType = TypeReferenceNode;
+
+export interface NodeWithTypeArguments extends TypeNode {
+    readonly typeArguments?: NodeArray<TypeNode>;
+}
+
+
+export interface TypeReferenceNode extends NodeWithTypeArguments {
+    readonly kind: SyntaxKind.TypeReference;
+    readonly typeName: EntityName;
+}
+
+// dprint-ignore
+/** @internal */
+export const enum ContextFlags {
+    None           = 0,
+    Signature      = 1 << 0, // Obtaining contextual signature
+    NoConstraints  = 1 << 1, // Don't obtain type variable constraints
+    Completions    = 1 << 2, // Ignore inference to current node and parent nodes out to the containing call for completions
+    SkipBindingPatterns = 1 << 3, // Ignore contextual types applied by binding patterns
+}
+
+export const enum InferencePriority {
+    None                         = 0,
+    NakedTypeVariable            = 1 << 0,  // Naked type variable in union or intersection type
+    SpeculativeTuple             = 1 << 1,  // Speculative tuple inference
+    SubstituteSource             = 1 << 2,  // Source of inference originated within a substitution type's substitute
+    HomomorphicMappedType        = 1 << 3,  // Reverse inference for homomorphic mapped type
+    PartialHomomorphicMappedType = 1 << 4,  // Partial reverse inference for homomorphic mapped type
+    MappedTypeConstraint         = 1 << 5,  // Reverse inference for mapped type
+    ContravariantConditional     = 1 << 6,  // Conditional type in contravariant position
+    ReturnType                   = 1 << 7,  // Inference made from return type of generic function
+    LiteralKeyof                 = 1 << 8,  // Inference made from a string literal to a keyof T
+    NoConstraints                = 1 << 9,  // Don't infer from constraints of instantiable types
+    AlwaysStrict                 = 1 << 10, // Always use strict rules for contravariant inferences
+    MaxValue                     = 1 << 11, // Seed for inference priority tracking
+
+    PriorityImpliesCombination = ReturnType | MappedTypeConstraint | LiteralKeyof, // These priorities imply that the resulting type should be a combination of all candidates
+    Circularity = -1,  // Inference circularity (value less than all other priorities)
+}
+
+
+/** @internal */
+export interface InferenceInfo {
+    typeParameter: TypeParameter;            // Type parameter for which inferences are being made
+    candidates: Type[] | undefined;          // Candidates in covariant positions (or undefined)
+    contraCandidates: Type[] | undefined;    // Candidates in contravariant positions (or undefined)
+    inferredType?: Type;                     // Cache for resolved inferred type
+    priority?: InferencePriority;            // Priority of current inference set
+    topLevel: boolean;                       // True if all inferences are to top level occurrences
+    isFixed: boolean;                        // True if inferences are fixed
+    impliedArity?: number;
+}
+
+/** @internal */
+export type TypeComparer = (s: Type, t: Type, reportErrors?: boolean) => Ternary;
+
+/** @internal */
+export const enum InferenceFlags {
+    None            =      0,  // No special inference behaviors
+    NoDefault       = 1 << 0,  // Infer silentNeverType for no inferences (otherwise anyType or unknownType)
+    AnyDefault      = 1 << 1,  // Infer anyType (in JS files) for no inferences (otherwise unknownType)
+    SkippedGenericFunction = 1 << 2, // A generic function was skipped during inference
+}
+
+/** @internal */
+export interface IntraExpressionInferenceSite {
+    node: Expression /*| MethodDeclaration*/;
+    type: Type;
+}
+
+/** @internal */
+export interface InferenceContext {
+    inferences: InferenceInfo[];                  // Inferences made for each type parameter
+    signature?: Signature;                        // Generic signature for which inferences are made (if any)
+    flags: InferenceFlags;                        // Inference flags
+    compareTypes: TypeComparer;                   // Type comparer function
+    mapper: TypeMapper;                           // Mapper that fixes inferences
+    nonFixingMapper: TypeMapper;                  // Mapper that doesn't fix inferences
+    returnMapper?: TypeMapper;                    // Type mapper for inferences from return types (if any)
+    inferredTypeParameters?: readonly TypeParameter[]; // Inferred type parameters for function result
+    intraExpressionInferenceSites?: IntraExpressionInferenceSite[];
+}
+
+/** @internal */
+export interface ReverseMappedType extends ObjectType {
+    source: Type;
+    mappedType: MappedType;
+    constraintType: IndexType;
+}
+
+export interface DeferredTypeReference extends TypeReference {
+    /** @internal */
+    node: TypeReferenceNode | ArrayTypeNode;
+    /** @internal */
+    mapper?: TypeMapper;
+    /** @internal */
+    instantiations?: Map<string, Type>; // Instantiations of generic type alias (undefined if non-generic)
+}
+
+/** @internal */
+export interface InstantiationExpressionType extends AnonymousType {
+    node: NodeWithTypeArguments;
+}
+
+/** @internal */
+// A SingleSignatureType may have bespoke outer type parameters to handle free type variable inferences
+export interface SingleSignatureType extends AnonymousType {
+    outerTypeParameters?: TypeParameter[];
+}
+
