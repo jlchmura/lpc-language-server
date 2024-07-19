@@ -1,4 +1,4 @@
-import { getOwnKeys, AnyFunction, AssertionLevel, Node, NodeArray, objectAllocator, Type,Symbol, SymbolFlags, symbolName, SortedReadonlyArray, compareValues, stableSort, TypeFlags, hasProperty, LiteralType, ObjectType, ObjectFlags, Signature, SignatureFlags, isIdentifier, idText, isStringLiteral, isIntLiteral, isFloatLiteral, SyntaxKind, NodeFlags, ModifierFlags, isParseTreeNode, getEffectiveModifierFlagsNoCache, nodeIsSynthesized, getParseTreeNode, getSourceFileOfNode, getSourceTextOfNodeFromSourceFile, FlowNode, FlowFlags, FlowSwitchClause, FlowLabel, isDefaultClause, maxBy, TypeMapper, TypeMapKind, zipWith, map, MatchingKeys, noop, NodeCheckFlags } from "./_namespaces/lpc";
+import { getOwnKeys, AnyFunction, AssertionLevel, Node, NodeArray, objectAllocator, Type,Symbol, SymbolFlags, symbolName, SortedReadonlyArray, compareValues, stableSort, TypeFlags, hasProperty, LiteralType, ObjectType, ObjectFlags, Signature, SignatureFlags, isIdentifier, idText, isStringLiteral, isIntLiteral, isFloatLiteral, SyntaxKind, NodeFlags, ModifierFlags, isParseTreeNode, getEffectiveModifierFlagsNoCache, nodeIsSynthesized, getParseTreeNode, getSourceFileOfNode, getSourceTextOfNodeFromSourceFile, FlowNode, FlowFlags, FlowSwitchClause, FlowLabel, isDefaultClause, maxBy, TypeMapper, TypeMapKind, zipWith, map, MatchingKeys, noop, NodeCheckFlags, isParameter, isArrayTypeNode, isUnionTypeNode, isParenthesizedTypeNode, isLiteralTypeNode, isIndexedAccessTypeNode } from "./_namespaces/lpc";
 import * as lpc from "./_namespaces/lpc.js";
 
 /** @internal */
@@ -267,21 +267,21 @@ export namespace Debug {
                                 isIntLiteral(this) ? `NumericLiteral ${this.text}` :                                
                                 isFloatLiteral(this) ? `FloatLiteral ${this.text}` :
                                 // isTypeParameterDeclaration(this) ? "TypeParameterDeclaration" :
-                                // isParameter(this) ? "ParameterDeclaration" :                                
+                                isParameter(this) ? "ParameterDeclaration" :                                
                                 // isCallSignatureDeclaration(this) ? "CallSignatureDeclaration" :                                
                                 // isIndexSignatureDeclaration(this) ? "IndexSignatureDeclaration" :
                                 //isTypePredicateNode(this) ? "TypePredicateNode" :
                                 //isTypeReferenceNode(this) ? "TypeReferenceNode" :
                                 //isFunctionTypeNode(this) ? "FunctionTypeNode" :                                                                
                                 //isTypeLiteralNode(this) ? "TypeLiteralNode" :
-                                // isArrayTypeNode(this) ? "ArrayTypeNode" :                                                                
+                                isArrayTypeNode(this) ? "ArrayTypeNode" :                                                                
                                 //isRestTypeNode(this) ? "RestTypeNode" :
-                                // isUnionTypeNode(this) ? "UnionTypeNode" :                                                                                                
-                                //isParenthesizedTypeNode(this) ? "ParenthesizedTypeNode" :                                
+                                isUnionTypeNode(this) ? "UnionTypeNode" :                                                                                                
+                                isParenthesizedTypeNode(this) ? "ParenthesizedTypeNode" :                                
                                 //isTypeOperatorNode(this) ? "TypeOperatorNode" :
-                                // isIndexedAccessTypeNode(this) ? "IndexedAccessTypeNode" :
+                                isIndexedAccessTypeNode(this) ? "IndexedAccessTypeNode" :
                                 //isMappedTypeNode(this) ? "MappedTypeNode" :
-                                // isLiteralTypeNode(this) ? "LiteralTypeNode" :                                                                
+                                isLiteralTypeNode(this) ? "LiteralTypeNode" :                                                                
                                 formatSyntaxKind(this.kind);
                             return `${nodeHeader}${this.flags ? ` (${formatNodeFlags(this.flags)})` : ""}`;
                         },
@@ -945,5 +945,9 @@ m2: ${(this.mapper2 as unknown as DebugTypeMapper).__debugToString().split("\n")
                 }
             }
         }
+    }
+
+    export function formatSymbol(symbol: Symbol): string {
+        return `{ name: ${(symbol.name)}; flags: ${formatSymbolFlags(symbol.flags)}; declarations: ${map(symbol.declarations, node => formatSyntaxKind(node.kind))} }`;
     }
 }

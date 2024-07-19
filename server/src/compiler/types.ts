@@ -3685,8 +3685,12 @@ export const enum RelationComparisonResult {
     Reported            = 1 << 2,
 
     ReportsUnmeasurable = 1 << 3,
-    ReportsUnreliable   = 1 << 4,
+    ReportsUnreliable   = 1 << 4,    
     ReportsMask         = ReportsUnmeasurable | ReportsUnreliable,
+
+    ComplexityOverflow  = 1 << 5,
+    StackDepthOverflow  = 1 << 6,
+    Overflow            = ComplexityOverflow | StackDepthOverflow,
 }
 
 /** @internal */
@@ -4976,3 +4980,29 @@ export interface SingleSignatureType extends AnonymousType {
     outerTypeParameters?: TypeParameter[];
 }
 
+/** @internal */
+export type BindableObjectDefinePropertyCall = CallExpression & {
+    readonly arguments: readonly [StringLiteral | IntLiteral, ObjectLiteralExpression] & Readonly<TextRange>;
+};
+
+/** @internal */
+// Object literals are initially marked fresh. Freshness disappears following an assignment,
+// before a type assertion, or when an object literal's type is widened. The regular
+// version of a fresh type is identical except for the TypeFlags.FreshObjectLiteral flag.
+export interface FreshObjectLiteralType extends ResolvedType {
+    regularType: ResolvedType; // Regular version of fresh type
+}
+
+
+// Type parameter substitution (TypeFlags.Substitution)
+// Substitution types are created for type parameters or indexed access types that occur in the
+// true branch of a conditional type. For example, in 'T extends string ? Foo<T> : Bar<T>', the
+// reference to T in Foo<T> is resolved as a substitution type that substitutes 'string & T' for T.
+// Thus, if Foo has a 'string' constraint on its type parameter, T will satisfy it.
+// Substitution type are also created for NoInfer<T> types. Those are represented as substitution
+// types where the constraint is type 'unknown' (which is never generated for the case above).
+export interface SubstitutionType extends InstantiableType {
+    objectFlags: ObjectFlags;
+    baseType: Type; // Target type
+    constraint: Type; // Constraint that target type is known to satisfy
+}

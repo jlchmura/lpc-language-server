@@ -4278,3 +4278,15 @@ export function isTypeAlias(node: Node): node is JSDocTypedefTag/* | JSDocCallba
 export function getContainingFunctionOrClassStaticBlock(node: Node): SignatureDeclaration | undefined {
     return findAncestor(node.parent, isFunctionLikeOrClassStaticBlockDeclaration);
 }
+
+/**
+ * Copy entries from `source` to `target`.
+ *
+ * @internal
+ */
+export function copyEntries<K, V>(source: ReadonlyMap<K, V>, target: Map<K, V>): void {
+    source.forEach((value, key) => {
+        target.set(key, value);
+    });
+}
+
