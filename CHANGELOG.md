@@ -3,6 +3,7 @@
 ## 1.0.27
 
 -   Fix: Find all references broken by a change in v26.
+-   Fix: [The visible function reports an error. #46](https://github.com/jlchmura/lpc-language-server/issues/46)
 
 ## 1.0.26
 

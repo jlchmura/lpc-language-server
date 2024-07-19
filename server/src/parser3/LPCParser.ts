@@ -5475,11 +5475,20 @@ export class LPCParser extends LPCParserBase {
             this.state = 1210;
             this.errorHandler.sync(this);
             switch (this.tokenStream.LA(1)) {
+            case LPCParser.BUFFER:
+            case LPCParser.BYTES:
+            case LPCParser.CHAR:
+            case LPCParser.FUNCTIONS:
+            case LPCParser.IN:
+            case LPCParser.STRUCTS:
+            case LPCParser.SYMBOL:
+            case LPCParser.VARIABLES:
+            case LPCParser.VISIBLE:
             case LPCParser.Identifier:
                 this.enterOuterAlt(localContext, 1);
                 {
                 this.state = 1204;
-                this.match(LPCParser.Identifier);
+                this.validIdentifiers();
                 }
                 break;
             case LPCParser.PAREN_OPEN:
@@ -6294,7 +6303,7 @@ export class LPCParser extends LPCParserBase {
         1194,1,0,0,0,1194,1195,1,0,0,0,1195,1196,5,92,0,0,1196,155,1,0,0,
         0,1197,1198,5,1,0,0,1198,1203,5,92,0,0,1199,1200,5,10,0,0,1200,1203,
         5,92,0,0,1201,1203,3,154,77,0,1202,1197,1,0,0,0,1202,1199,1,0,0,
-        0,1202,1201,1,0,0,0,1203,157,1,0,0,0,1204,1211,5,129,0,0,1205,1206,
+        0,1202,1201,1,0,0,0,1203,157,1,0,0,0,1204,1211,3,104,52,0,1205,1206,
         5,112,0,0,1206,1207,3,92,46,0,1207,1208,5,113,0,0,1208,1211,1,0,
         0,0,1209,1211,5,124,0,0,1210,1204,1,0,0,0,1210,1205,1,0,0,0,1210,
         1209,1,0,0,0,1211,159,1,0,0,0,1212,1213,7,28,0,0,1213,161,1,0,0,
@@ -11082,8 +11091,8 @@ export class CallOtherTargetContext extends antlr.ParserRuleContext {
     public constructor(parent: antlr.ParserRuleContext | null, invokingState: number) {
         super(parent, invokingState);
     }
-    public Identifier(): antlr.TerminalNode | null {
-        return this.getToken(LPCParser.Identifier, 0);
+    public validIdentifiers(): ValidIdentifiersContext | null {
+        return this.getRuleContext(0, ValidIdentifiersContext);
     }
     public PAREN_OPEN(): antlr.TerminalNode | null {
         return this.getToken(LPCParser.PAREN_OPEN, 0);

@@ -394,14 +394,14 @@ export class DetailsVisitor
     visitCallOtherTarget = (ctx: CallOtherTargetContext) => {
         // the call other target can be an identifier, a string literal, or an expression
 
-        if (ctx.Identifier()) {
+        if (ctx.validIdentifiers()) {
             const fid = this.addNewSymbol(
                 FunctionIdentifierSymbol,
                 ctx,
-                ctx.Identifier().getText()
+                ctx.validIdentifiers().getText()
             );
-            fid.nameRange = lexRangeFromToken(ctx.Identifier().symbol);
-            this.markToken(ctx.Identifier().symbol, SemanticTokenTypes.Method);
+            fid.nameRange = lexRangeFromContext(ctx.validIdentifiers());
+            this.markContext(ctx.validIdentifiers(), SemanticTokenTypes.Method);
         } else if (ctx.expression()) {
             return this.visitExpression(ctx.expression());
         } else {

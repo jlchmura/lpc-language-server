@@ -623,7 +623,7 @@ jumpStatement
     ;
 
 callOtherTarget
-    : Identifier
+    : validIdentifiers
     | PAREN_OPEN expression PAREN_CLOSE
     | StringLiteral
     ;
