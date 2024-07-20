@@ -1121,6 +1121,7 @@ export interface NodeFactory {
 
 export interface CompilerOptions {
     allowUnreachableCode?: boolean;
+    noUncheckedIndexedAccess?: boolean;
     noFallthroughCasesInSwitch?: boolean;
     noCheck?: boolean;
     noUnusedLocals?: boolean;
@@ -5370,4 +5371,9 @@ export interface AutoGenerateInfo {
 /** @internal */
 export interface GeneratedIdentifier extends Identifier {
     readonly emitNode: EmitNode & { autoGenerate: AutoGenerateInfo; };
+}
+
+export interface EvolvingArrayType extends ObjectType {
+    elementType: Type; // Element expressions of evolving array type
+    finalArrayType?: Type; // Final array type of evolving array type
 }
