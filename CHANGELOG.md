@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.0.28
+
+-   Fix: Strings with just an emoji character get garbled on semantic highlight
+
 ## 1.0.27
 
 -   Fix: Find all references broken by a change in v26.

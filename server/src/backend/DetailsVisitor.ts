@@ -1090,7 +1090,11 @@ export class DetailsVisitor
             concatStr
         );
 
-        this.markToken(ctx.start, SemanticTokenTypes.String);
+        // don't send if string contains only a unicode character (like emoji)
+        // it was breaking vscode when the semantic highlight applies
+        if (concatStr.length > 3 || !containsUnicodeOrHigher(concatStr)) {
+            this.markToken(ctx.start, SemanticTokenTypes.String);
+        }
 
         // if (concatStr.match(/\/|\.c/)) {
         //     console.debug("possible filename: " + concatStr);
@@ -1203,4 +1207,11 @@ function findSpaceOrTabNotInParentheses(s: string): number {
         }
     }
     return -1;
+}
+
+function containsUnicodeOrHigher(str: string): boolean {
+    // This regex matches characters outside the BMP (Basic Multilingual Plane).
+    // These characters are represented by surrogate pairs in JavaScript strings.
+    const unicodeOrHigherRegex = /[\uD800-\uDBFF][\uDC00-\uDFFF]/;
+    return unicodeOrHigherRegex.test(str);
 }
