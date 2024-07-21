@@ -1343,3 +1343,18 @@ export function countWhere<T>(array: readonly T[] | undefined, predicate: (x: T,
 export function notImplemented(): never {
     throw new Error("Not implemented");
 }
+
+/**
+ * Works like Array.prototype.findIndex, returning `-1` if no element satisfying the predicate is found.
+ *
+ * @internal
+ */
+export function findIndex<T>(array: readonly T[] | undefined, predicate: (element: T, index: number) => boolean, startIndex?: number): number {
+    if (array === undefined) return -1;
+    for (let i = startIndex ?? 0; i < array.length; i++) {
+        if (predicate(array[i], i)) {
+            return i;
+        }
+    }
+    return -1;
+}

@@ -1,5 +1,5 @@
 import { CharacterCodes } from "../backend/types";
-import { setTextRange as setTextRangeWorker, Type, Symbol, SymbolLinks, CancellationToken, createSymbolTable, Declaration, EmitTextWriter, ModifierFlags, Node, NodeFlags, objectAllocator, Scanner, Signature, SignatureKind, SymbolFlags, TypeChecker, TypeCheckerHost, TypeFormatFlags, TypeParameter, CheckFlags, TransientSymbol, TransientSymbolLinks, reduceLeft, bindSourceFile, SourceFile, Diagnostic, createDiagnosticCollection, concatenate, forEach, tracing, performance, NodeLinks, NodeCheckFlags, FlowNode, FlowType, clear, SyntaxKind, TracingNode, CallLikeExpression, CallExpression, isCallOrNewExpression, isBinaryExpression, Expression, SignatureDeclaration, SignatureFlags, emptyArray, TypeFlags, IntrinsicType, ObjectFlags, Debug, BinaryExpression, ObjectType, StructuredType, ResolvedType, SymbolTable, IndexInfo, Identifier, nodeIsMissing, createNameResolver, InternalSymbolName, SymbolId, some, DiagnosticMessage, DiagnosticArguments, createDiagnosticForNode, createCompilerDiagnostic, FunctionLikeDeclaration, PropertyDeclaration, isString, isIdentifier, Diagnostics, findLast, SymbolFormatFlags, isAccessExpression, isFunctionExpression, isAliasableExpression, PropertyAssignment, isVariableDeclarationInitializedToBareOrAccessedRequire, mapDefined, arrayFrom, getSpellingSuggestion, symbolName, startsWith, nodeIsSynthesized, declarationNameToString, getCanonicalDiagnostic, DiagnosticCategory, addRelatedInfo, ParameterDeclaration, BindingElement, isSourceFile, isExternalOrCommonJsModule, isBlockOrCatchScoped, length, every, isValidTypeOnlyAliasUseSite, isWriteOnlyAccess, getCombinedNodeFlags, DiagnosticWithLocation, getJSDocDeprecatedTag, findAncestor, isCallLikeExpression, isFunctionLike, ParenthesizedExpression, isAssignmentExpression, isVariableDeclaration, isBindingElement, PropertyAccessExpression, getEnclosingBlockScopeContainer, isPropertyDeclaration, nodeStartsNewLexicalEnvironment, isIterationStatement, isForStatement, getAncestor, ForStatement, pushIfUnique, isAssignmentTarget, PrefixUnaryExpression, PostfixUnaryExpression, isBlock, isExpressionNode, isPropertyAccessExpression, getAssignmentTargetKind, AssignmentKind, isInCompoundLikeAssignment, UnionType, TypeId, UnionReduction, getRootDeclaration, getImmediatelyInvokedFunctionExpression, isSpreadAssignment, isParameter, VariableDeclaration, isFunctionLikeDeclaration, isTypeNode, forEachChild, tryCast, canHaveFlowNode, ElementAccessExpression, RelationComparisonResult, LiteralType, FreshableType, getObjectFlags, DiagnosticMessageChain, setNodeFlags, isCallExpression, LazyNodeCheckFlags, getSourceFileOfNode, canIncludeBindAndCheckDiagnostics, forEachChildRecursively, isDeclarationName, EntityName, JSDocMemberName, canHaveSymbol, isLiteralTypeNode, isElementAccessExpression, isIndexedAccessTypeNode, TypeNode, canHaveJSDoc, FlowFlags, FlowArrayMutation, FlowAssignment, FlowCall, FlowCondition, FlowLabel, FlowReduceLabel, FlowSwitchClause, SwitchStatement, createFileDiagnostic, createDiagnosticForFileFromMessageChain, createDiagnosticForNodeFromMessageChain, VariableStatement, HasModifiers, VariableDeclarationList, Block, isFunctionOrModuleBlock, CaseBlock, ForEachStatement, IndexSignatureDeclaration, Path, HasLocals, BindingPattern, idText, isForEachStatement, getNameOfDeclaration, isArrayBindingPattern, first, BindingName, cast, containsParseError, FunctionDeclaration, getFunctionFlags, getEffectiveReturnTypeNode, FunctionFlags, nodeIsPresent, JSDocSignature, isJSDocSignature, getJSDocRoot, LiteralTypeNode, TypeNodeSyntaxKind, isStatement, UnionOrIntersectionType, getContainingFunction, hasSyntacticModifier, isBindingPattern, sameMap, flatMap, getCheckFlags, singleElementArray, getDeclarationModifierFlagsFromSymbol, Ternary, append, find, isNumericLiteralName, StringLiteralType, contains, isTransientSymbol, addRange, filter, IndexType, getParseTreeNode, isRightSideOfQualifiedNameOrPropertyAccess, isWriteAccess, isRightSideOfAccessExpression, hasEffectiveModifier, getCombinedModifierFlags, isEntityName, PropertyAccessEntityNameExpression, isRightSideOfQualifiedNameOrPropertyAccessOrJSDocMemberName, QualifiedName, getHostSignatureFromJSDoc, or, EntityNameOrEntityNameExpression, isInJSFile, getFirstIdentifier, isQualifiedName, entityNameToString, isCallChain, isEntityNameExpression, isLineBreak, skipTrivia, DiagnosticRelatedInformation, IntLiteralType, FloatLiteralType, createTextWriter, chainDiagnosticMessages, getErrorSpanForNode, ShorthandPropertyAssignment, NodeBuilderFlags, SymbolTracker, TrackedSymbol, ReverseMappedSymbol, TypeMapper, ModuleSpecifierResolutionHost, Program, maybeBind, setEmitFlags, createNodeFactory, NodeFactoryFlags, BaseNodeFactory, Mutable, createBaseNodeFactory, firstDefined, isComputedPropertyName, isIdentifierText, escapeString, getEmitScriptTarget, factory, EmitFlags, isSingleOrDoubleQuote, canUsePropertyAccess, stripQuotes, DoWhileStatement, BinaryOperatorToken, isLogicalOrCoalescingBinaryOperator, isLogicalOrCoalescingBinaryExpression, isIfStatement, skipParentheses, Statement, PunctuationSyntaxKind, tokenToString, FreshableIntrinsicType, isLiteralExpressionOfObject, getAssignmentDeclarationKind, AssignmentDeclarationKind, ConditionalExpression, isAssignmentOperator, isJSDocTypedefTag, isIntLiteral, skipOuterExpressions, OuterExpressionKinds, isExpression, ObjectLiteralExpression, ArrayLiteralExpression, FunctionExpression, InlineClosureExpression, ObjectLiteralElementLike, hasContextSensitiveParameters, forEachReturnStatement, compareDiagnostics, Comparison, createBinaryExpressionTrampoline, IntLiteral, FloatLiteral, isShorthandPropertyAssignment, isPropertyAccessOrQualifiedName, isPrivateIdentifier, WideningContext, StringLiteral, ReturnStatement, ExpressionStatement, IfStatement, NewExpression, getMembersOfDeclaration, AccessExpression, isThisInitializedDeclaration, setValueDeclaration, comparePaths, getOrUpdate, usingSingleLineStringWriter, createPrinterWithRemoveCommentsNeverAsciiEscape, createPrinterWithRemoveComments, EmitHint, getEffectiveModifierFlags, getEffectiveTypeAnnotationNode, getAssignmentDeclarationPropertyAccessKind, isNamedDeclaration, map, PropertyName, isFloatLiteral, getPropertyNameForPropertyNameNode, isPartOfParameterDeclaration, hasOnlyExpressionInitializer, not, getEffectiveInitializer, isObjectLiteralExpression, isVariableLike, getSelectedEffectiveModifierFlags, AliasDeclarationNode, isBindingElementOfBareOrAccessedRequire, TypeReference, isFunctionExpressionOrInlineClosure, ContextFlags, indexOfNode, InferenceContext, isNodeDescendantOf, ObjectFlagsType, GenericType, ReverseMappedType, AnonymousType, DeferredTypeReference, InstantiationExpressionType, SingleSignatureType, MappedTypeNode, TypeParameterDeclaration, appendIfUnique, TypeMapKind, isPartOfTypeNode, TypeReferenceNode, MappedType, ArrayTypeNode, isParenthesizedTypeNode, isTypeAlias, IndexFlags, InferenceInfo, binarySearch, compareValues, hasInitializer, lastOrUndefined, HasExpressionInitializer, getContainingFunctionOrClassStaticBlock, getSpanOfTokenAtPosition, isJSDocParameterTag, hasRestParameter, isStringLiteral, walkUpBindingElementsAndPatterns, BindableObjectDefinePropertyCall, copyEntries, InterfaceType, isPropertyAssignment, DiagnosticAndArguments, FreshObjectLiteralType, BaseType, firstOrUndefined, SubstitutionType, createPrinterWithDefaults, noTruncationMaximumTruncationLength, defaultMaximumTruncationLength, arrayIsHomogeneous, isIdentifierTypeReference, createMultiMap, addSyntheticLeadingComment, NodeArray, getOriginalNode, getIdentifierTypeArguments, setIdentifierTypeArguments, IndexedAccessTypeNode, forEachEntry, ScriptTarget, SymbolAccessibility, canHaveLocals, getDeclarationOfKind, isClassLike, TypeElement, SymbolAccessibilityResult, SymbolVisibilityResult, LateVisibilityPaintedStatement, isVariableStatement, isLateVisibilityPaintedStatement, isTypeLiteralNode, PlusToken, MinusToken, walkUpParenthesizedTypes, setOriginalNode, countWhere, getNameFromIndexInfo, Modifier, notImplemented, isTypeParameterDeclaration, setParent, CallChain, isLiteralExpression, isStringOrNumericLiteralLike, FlowStart, getPropertyNameFromType, EvolvingArrayType } from "./_namespaces/lpc";
+import { setTextRange as setTextRangeWorker, Type, Symbol, SymbolLinks, CancellationToken, createSymbolTable, Declaration, EmitTextWriter, ModifierFlags, Node, NodeFlags, objectAllocator, Scanner, Signature, SignatureKind, SymbolFlags, TypeChecker, TypeCheckerHost, TypeFormatFlags, TypeParameter, CheckFlags, TransientSymbol, TransientSymbolLinks, reduceLeft, bindSourceFile, SourceFile, Diagnostic, createDiagnosticCollection, concatenate, forEach, tracing, performance, NodeLinks, NodeCheckFlags, FlowNode, FlowType, clear, SyntaxKind, TracingNode, CallLikeExpression, CallExpression, isCallOrNewExpression, isBinaryExpression, Expression, SignatureDeclaration, SignatureFlags, emptyArray, TypeFlags, IntrinsicType, ObjectFlags, Debug, BinaryExpression, ObjectType, StructuredType, ResolvedType, SymbolTable, IndexInfo, Identifier, nodeIsMissing, createNameResolver, InternalSymbolName, SymbolId, some, DiagnosticMessage, DiagnosticArguments, createDiagnosticForNode, createCompilerDiagnostic, FunctionLikeDeclaration, PropertyDeclaration, isString, isIdentifier, Diagnostics, findLast, SymbolFormatFlags, isAccessExpression, isFunctionExpression, isAliasableExpression, PropertyAssignment, isVariableDeclarationInitializedToBareOrAccessedRequire, mapDefined, arrayFrom, getSpellingSuggestion, symbolName, startsWith, nodeIsSynthesized, declarationNameToString, getCanonicalDiagnostic, DiagnosticCategory, addRelatedInfo, ParameterDeclaration, BindingElement, isSourceFile, isExternalOrCommonJsModule, isBlockOrCatchScoped, length, every, isValidTypeOnlyAliasUseSite, isWriteOnlyAccess, getCombinedNodeFlags, DiagnosticWithLocation, getJSDocDeprecatedTag, findAncestor, isCallLikeExpression, isFunctionLike, ParenthesizedExpression, isAssignmentExpression, isVariableDeclaration, isBindingElement, PropertyAccessExpression, getEnclosingBlockScopeContainer, isPropertyDeclaration, nodeStartsNewLexicalEnvironment, isIterationStatement, isForStatement, getAncestor, ForStatement, pushIfUnique, isAssignmentTarget, PrefixUnaryExpression, PostfixUnaryExpression, isBlock, isExpressionNode, isPropertyAccessExpression, getAssignmentTargetKind, AssignmentKind, isInCompoundLikeAssignment, UnionType, TypeId, UnionReduction, getRootDeclaration, getImmediatelyInvokedFunctionExpression, isSpreadAssignment, isParameter, VariableDeclaration, isFunctionLikeDeclaration, isTypeNode, forEachChild, tryCast, canHaveFlowNode, ElementAccessExpression, RelationComparisonResult, LiteralType, FreshableType, getObjectFlags, DiagnosticMessageChain, setNodeFlags, isCallExpression, LazyNodeCheckFlags, getSourceFileOfNode, canIncludeBindAndCheckDiagnostics, forEachChildRecursively, isDeclarationName, EntityName, JSDocMemberName, canHaveSymbol, isLiteralTypeNode, isElementAccessExpression, isIndexedAccessTypeNode, TypeNode, canHaveJSDoc, FlowFlags, FlowArrayMutation, FlowAssignment, FlowCall, FlowCondition, FlowLabel, FlowReduceLabel, FlowSwitchClause, SwitchStatement, createFileDiagnostic, createDiagnosticForFileFromMessageChain, createDiagnosticForNodeFromMessageChain, VariableStatement, HasModifiers, VariableDeclarationList, Block, isFunctionOrModuleBlock, CaseBlock, ForEachStatement, IndexSignatureDeclaration, Path, HasLocals, BindingPattern, idText, isForEachStatement, getNameOfDeclaration, isArrayBindingPattern, first, BindingName, cast, containsParseError, FunctionDeclaration, getFunctionFlags, getEffectiveReturnTypeNode, FunctionFlags, nodeIsPresent, JSDocSignature, isJSDocSignature, getJSDocRoot, LiteralTypeNode, TypeNodeSyntaxKind, isStatement, UnionOrIntersectionType, getContainingFunction, hasSyntacticModifier, isBindingPattern, sameMap, flatMap, getCheckFlags, singleElementArray, getDeclarationModifierFlagsFromSymbol, Ternary, append, find, isNumericLiteralName, StringLiteralType, contains, isTransientSymbol, addRange, filter, IndexType, getParseTreeNode, isRightSideOfQualifiedNameOrPropertyAccess, isWriteAccess, isRightSideOfAccessExpression, hasEffectiveModifier, getCombinedModifierFlags, isEntityName, PropertyAccessEntityNameExpression, isRightSideOfQualifiedNameOrPropertyAccessOrJSDocMemberName, QualifiedName, getHostSignatureFromJSDoc, or, EntityNameOrEntityNameExpression, isInJSFile, getFirstIdentifier, isQualifiedName, entityNameToString, isCallChain, isEntityNameExpression, isLineBreak, skipTrivia, DiagnosticRelatedInformation, IntLiteralType, FloatLiteralType, createTextWriter, chainDiagnosticMessages, getErrorSpanForNode, ShorthandPropertyAssignment, NodeBuilderFlags, SymbolTracker, TrackedSymbol, ReverseMappedSymbol, TypeMapper, ModuleSpecifierResolutionHost, Program, maybeBind, setEmitFlags, createNodeFactory, NodeFactoryFlags, BaseNodeFactory, Mutable, createBaseNodeFactory, firstDefined, isComputedPropertyName, isIdentifierText, escapeString, getEmitScriptTarget, factory, EmitFlags, isSingleOrDoubleQuote, canUsePropertyAccess, stripQuotes, DoWhileStatement, BinaryOperatorToken, isLogicalOrCoalescingBinaryOperator, isLogicalOrCoalescingBinaryExpression, isIfStatement, skipParentheses, Statement, PunctuationSyntaxKind, tokenToString, FreshableIntrinsicType, isLiteralExpressionOfObject, getAssignmentDeclarationKind, AssignmentDeclarationKind, ConditionalExpression, isAssignmentOperator, isJSDocTypedefTag, isIntLiteral, skipOuterExpressions, OuterExpressionKinds, isExpression, ObjectLiteralExpression, ArrayLiteralExpression, FunctionExpression, InlineClosureExpression, ObjectLiteralElementLike, hasContextSensitiveParameters, forEachReturnStatement, compareDiagnostics, Comparison, createBinaryExpressionTrampoline, IntLiteral, FloatLiteral, isShorthandPropertyAssignment, isPropertyAccessOrQualifiedName, isPrivateIdentifier, WideningContext, StringLiteral, ReturnStatement, ExpressionStatement, IfStatement, NewExpression, getMembersOfDeclaration, AccessExpression, isThisInitializedDeclaration, setValueDeclaration, comparePaths, getOrUpdate, usingSingleLineStringWriter, createPrinterWithRemoveCommentsNeverAsciiEscape, createPrinterWithRemoveComments, EmitHint, getEffectiveModifierFlags, getEffectiveTypeAnnotationNode, getAssignmentDeclarationPropertyAccessKind, isNamedDeclaration, map, PropertyName, isFloatLiteral, getPropertyNameForPropertyNameNode, isPartOfParameterDeclaration, hasOnlyExpressionInitializer, not, getEffectiveInitializer, isObjectLiteralExpression, isVariableLike, getSelectedEffectiveModifierFlags, AliasDeclarationNode, isBindingElementOfBareOrAccessedRequire, TypeReference, isFunctionExpressionOrInlineClosure, ContextFlags, indexOfNode, InferenceContext, isNodeDescendantOf, ObjectFlagsType, GenericType, ReverseMappedType, AnonymousType, DeferredTypeReference, InstantiationExpressionType, SingleSignatureType, MappedTypeNode, TypeParameterDeclaration, appendIfUnique, TypeMapKind, isPartOfTypeNode, TypeReferenceNode, MappedType, ArrayTypeNode, isParenthesizedTypeNode, isTypeAlias, IndexFlags, InferenceInfo, binarySearch, compareValues, hasInitializer, lastOrUndefined, HasExpressionInitializer, getContainingFunctionOrClassStaticBlock, getSpanOfTokenAtPosition, isJSDocParameterTag, hasRestParameter, isStringLiteral, walkUpBindingElementsAndPatterns, BindableObjectDefinePropertyCall, copyEntries, InterfaceType, isPropertyAssignment, DiagnosticAndArguments, FreshObjectLiteralType, BaseType, firstOrUndefined, SubstitutionType, createPrinterWithDefaults, noTruncationMaximumTruncationLength, defaultMaximumTruncationLength, arrayIsHomogeneous, isIdentifierTypeReference, createMultiMap, addSyntheticLeadingComment, NodeArray, getOriginalNode, getIdentifierTypeArguments, setIdentifierTypeArguments, IndexedAccessTypeNode, forEachEntry, ScriptTarget, SymbolAccessibility, canHaveLocals, getDeclarationOfKind, isClassLike, TypeElement, SymbolAccessibilityResult, SymbolVisibilityResult, LateVisibilityPaintedStatement, isVariableStatement, isLateVisibilityPaintedStatement, isTypeLiteralNode, PlusToken, MinusToken, walkUpParenthesizedTypes, setOriginalNode, countWhere, getNameFromIndexInfo, Modifier, notImplemented, isTypeParameterDeclaration, setParent, CallChain, isLiteralExpression, isStringOrNumericLiteralLike, FlowStart, getPropertyNameFromType, EvolvingArrayType, arrayIsEqualTo, isObjectLiteralMethod, isNonNullAccess, FlowSwitchClauseData, LiteralExpression, CaseClause, DefaultClause, findIndex } from "./_namespaces/lpc";
 
 let nextSymbolId = 1;
 let nextNodeId = 1;
@@ -98,8 +98,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     var strictPropertyInitialization  = false;
     var outofbandVarianceMarkerHandler: ((onlyUnreliable: boolean) => void) | undefined;
 
-    var emptySymbols = createSymbolTable();
-    
+    var emptySymbols = createSymbolTable();    
     
     var resolutionTargets: TypeSystemEntity[] = [];
     var resolutionResults: boolean[] = [];
@@ -269,6 +268,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     var unresolvedType = createIntrinsicType(TypeFlags.Any, "unresolved");
     var undefinedType = createIntrinsicType(TypeFlags.Undefined, "undefined");
     var undefinedWideningType = strictNullChecks ? undefinedType : createIntrinsicType(TypeFlags.Undefined, "undefined", ObjectFlags.ContainsWideningType, "widening");
+    var nullType = createIntrinsicType(TypeFlags.Null, "null");
     var nonPrimitiveType = createIntrinsicType(TypeFlags.NonPrimitive, "object");
     var voidType = createIntrinsicType(TypeFlags.Void, "void");
     var stringNumberSymbolType = getUnionType([stringType, intType, floatType]); // esSymbolType
@@ -277,6 +277,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     var stringLiteralTypes = new Map<string, StringLiteralType>();
     var undefinedOrMissingType = /*exactOptionalPropertyTypes ? missingType :*/ undefinedType;
     var unreachableNeverType = createIntrinsicType(TypeFlags.Never, "never", /*objectFlags*/ undefined, "unreachable");
+    var unknownEmptyObjectType = createAnonymousType(/*symbol*/ undefined, emptySymbols, emptyArray, emptyArray, emptyArray);
+    var unknownUnionType = strictNullChecks ? getUnionType([undefinedType, nullType, unknownEmptyObjectType]) : unknownType;
 
     var falseType = createIntrinsicType(TypeFlags.BooleanLiteral, "false", /*objectFlags*/ undefined, "fresh") as FreshableIntrinsicType;
     var regularFalseType = createIntrinsicType(TypeFlags.BooleanLiteral, "false") as FreshableIntrinsicType;
@@ -310,6 +312,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     var autoArrayType: Type;
     var anyArrayType: Type;
     var anyReadonlyArrayType: Type;
+    var deferredGlobalNonNullableTypeAlias: Symbol;
 
     var emptyObjectType = createAnonymousType(/*symbol*/ undefined, emptySymbols, emptyArray, emptyArray, emptyArray);
 
@@ -15218,6 +15221,245 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return node;
     }
 
+    function isEvolvingArrayTypeList(types: Type[]) {
+        let hasEvolvingArrayType = false;
+        for (const t of types) {
+            if (!(t.flags & TypeFlags.Never)) {
+                if (!(getObjectFlags(t) & ObjectFlags.EvolvingArray)) {
+                    return false;
+                }
+                hasEvolvingArrayType = true;
+            }
+        }
+        return hasEvolvingArrayType;
+    }
+
+    function getElementTypeOfEvolvingArrayType(type: Type) {
+        return getObjectFlags(type) & ObjectFlags.EvolvingArray ? (type as EvolvingArrayType).elementType : neverType;
+    }
+
+    function recombineUnknownType(type: Type) {
+        return type === unknownUnionType ? unknownType : type;
+    }
+
+    function getGlobalNonNullableTypeInstantiation(type: Type) {
+        return type;// TODO 
+        // if (!deferredGlobalNonNullableTypeAlias) {
+        //     deferredGlobalNonNullableTypeAlias = getGlobalSymbol("NonNullable" as string, SymbolFlags.TypeAlias, /*diagnostic*/ undefined) || unknownSymbol;
+        // }
+        // return deferredGlobalNonNullableTypeAlias !== unknownSymbol ?
+        //     getTypeAliasInstantiation(deferredGlobalNonNullableTypeAlias, [type]) :
+        //     getIntersectionType([type, emptyObjectType]);
+    }
+
+    // This function is similar to getTypeWithFacts, except that in strictNullChecks mode it replaces type
+    // unknown with the union {} | null | undefined (and reduces that accordingly), and it intersects remaining
+    // instantiable types with {}, {} | null, or {} | undefined in order to remove null and/or undefined.
+    function getAdjustedTypeWithFacts(type: Type, facts: TypeFacts) {
+        const reduced = recombineUnknownType(getTypeWithFacts(strictNullChecks && type.flags & TypeFlags.Unknown ? unknownUnionType : type, facts));
+        if (strictNullChecks) {
+            switch (facts) {
+                // case TypeFacts.NEUndefined:
+                //     return removeNullableByIntersection(reduced, TypeFacts.EQUndefined, TypeFacts.EQNull, TypeFacts.IsNull, nullType);
+                // case TypeFacts.NENull:
+                //     return removeNullableByIntersection(reduced, TypeFacts.EQNull, TypeFacts.EQUndefined, TypeFacts.IsUndefined, undefinedType);
+                case TypeFacts.NEUndefinedOrNull:
+                case TypeFacts.Truthy:
+                    return mapType(reduced, t => hasTypeFacts(t, TypeFacts.EQUndefinedOrNull) ? getGlobalNonNullableTypeInstantiation(t) : t);
+            }
+        }
+        return reduced;
+    }
+
+    function optionalChainContainsReference(source: Node, target: Node) {
+        // while (isOptionalChain(source)) {
+        //     source = source.expression;
+        //     if (isMatchingReference(source, target)) {
+        //         return true;
+        //     }
+        // }
+        return false;
+    }
+
+    // Return a new type in which occurrences of the string, number and bigint primitives and placeholder template
+    // literal types in typeWithPrimitives have been replaced with occurrences of compatible and more specific types
+    // from typeWithLiterals. This is essentially a limited form of intersection between the two types. We avoid a
+    // true intersection because it is more costly and, when applied to union types, generates a large number of
+    // types we don't actually care about.
+    function replacePrimitivesWithLiterals(typeWithPrimitives: Type, typeWithLiterals: Type) {
+        if (
+            maybeTypeOfKind(typeWithPrimitives, TypeFlags.String | TypeFlags.TemplateLiteral | TypeFlags.Number | TypeFlags.Float) &&
+            maybeTypeOfKind(typeWithLiterals, TypeFlags.StringLiteral | TypeFlags.TemplateLiteral | TypeFlags.StringMapping | TypeFlags.IntLiteral | TypeFlags.FloatLiteral)
+        ) {
+            return mapType(typeWithPrimitives, t =>
+                t.flags & TypeFlags.String ? extractTypesOfKind(typeWithLiterals, TypeFlags.String | TypeFlags.StringLiteral | TypeFlags.TemplateLiteral | TypeFlags.StringMapping) :
+                    //isPatternLiteralType(t) && !maybeTypeOfKind(typeWithLiterals, TypeFlags.String | TypeFlags.TemplateLiteral | TypeFlags.StringMapping) ? extractTypesOfKind(typeWithLiterals, TypeFlags.StringLiteral) :
+                    t.flags & TypeFlags.Number ? extractTypesOfKind(typeWithLiterals, TypeFlags.Number | TypeFlags.IntLiteral) :
+                    t.flags & TypeFlags.Float ? extractTypesOfKind(typeWithLiterals, TypeFlags.Float | TypeFlags.FloatLiteral) : t);
+        }
+        return typeWithPrimitives;
+    }
+
+    function isUnitLikeType(type: Type): boolean {
+        // Intersections that reduce to 'never' (e.g. 'T & null' where 'T extends {}') are not unit types.
+        const t = getBaseConstraintOrType(type);
+        // Scan intersections such that tagged literal types are considered unit types.
+        // TODO return t.flags & TypeFlags.Intersection ? some((t as IntersectionType).types, isUnitType) : isUnitType(t);
+        return isUnitType(t);
+    }
+    
+    function getTypeOfSwitchClause(clause: CaseClause | DefaultClause) {
+        if (clause.kind === SyntaxKind.CaseClause) {
+            return getRegularTypeOfLiteralType(getTypeOfExpression(clause.expression));
+        }
+        return neverType;
+    }
+
+    function getSwitchClauseTypes(switchStatement: SwitchStatement): Type[] {
+        const links = getNodeLinks(switchStatement);
+        if (!links.switchTypes) {
+            links.switchTypes = [];
+            for (const clause of switchStatement.caseBlock.clauses) {
+                links.switchTypes.push(getTypeOfSwitchClause(clause));
+            }
+        }
+        return links.switchTypes;
+    }
+
+    function extractUnitType(type: Type) {
+        // TODO return type.flags & TypeFlags.Intersection ? find((type as IntersectionType).types, isUnitType) || type : type;
+        return type;
+    }
+
+    function isTypeSubtypeOf(source: Type, target: Type): boolean {
+        return isTypeRelatedTo(source, target, subtypeRelation);
+    }
+
+    function isFunctionType(type: Type): boolean {
+        return !!(type.flags & TypeFlags.Object) && getSignaturesOfType(type, SignatureKind.Call).length > 0;
+    }
+    
+    // An object type S is considered to be derived from an object type T if
+    // S is a union type and every constituent of S is derived from T,
+    // T is a union type and S is derived from at least one constituent of T, or
+    // S is an intersection type and some constituent of S is derived from T, or
+    // S is a type variable with a base constraint that is derived from T, or
+    // T is {} and S is an object-like type (ensuring {} is less derived than Object), or
+    // T is one of the global types Object and Function and S is a subtype of T, or
+    // T occurs directly or indirectly in an 'extends' clause of S.
+    // Note that this check ignores type parameters and only considers the
+    // inheritance hierarchy.
+    function isTypeDerivedFrom(source: Type, target: Type): boolean {
+        return source.flags & TypeFlags.Union ? every((source as UnionType).types, t => isTypeDerivedFrom(t, target)) :
+            target.flags & TypeFlags.Union ? some((target as UnionType).types, t => isTypeDerivedFrom(source, t)) :
+            //source.flags & TypeFlags.Intersection ? some((source as IntersectionType).types, t => isTypeDerivedFrom(t, target)) :
+            source.flags & TypeFlags.InstantiableNonPrimitive ? isTypeDerivedFrom(getBaseConstraintOfType(source) || unknownType, target) :
+            isEmptyAnonymousObjectType(target) ? !!(source.flags & (TypeFlags.Object | TypeFlags.NonPrimitive)) :
+            target === globalObjectType ? !!(source.flags & (TypeFlags.Object | TypeFlags.NonPrimitive)) && !isEmptyAnonymousObjectType(source) :
+            target === globalFunctionType ? !!(source.flags & TypeFlags.Object) && isFunctionObjectType(source as ObjectType) :
+            hasBaseType(source, getTargetType(target)) || (isArrayType(target) && !isReadonlyArrayType(target) && isTypeDerivedFrom(source, globalReadonlyArrayType));
+    }
+
+    function isReadonlyArrayType(type: Type): boolean {
+        return !!(getObjectFlags(type) & ObjectFlags.Reference) && (type as TypeReference).target === globalReadonlyArrayType;
+    }
+
+    function getTargetType(type: Type): Type {
+        return getObjectFlags(type) & ObjectFlags.Reference ? (type as TypeReference).target : type;
+    }
+
+    function isFunctionObjectType(type: ObjectType): boolean {
+        // We do a quick check for a "bind" property before performing the more expensive subtype
+        // check. This gives us a quicker out in the common case where an object type is not a function.
+        const resolved = resolveStructuredTypeMembers(type);
+        return !!(resolved.callSignatures.length || resolved.constructSignatures.length ||
+            resolved.members.get("bind" as string) && isTypeSubtypeOf(type, globalFunctionType));
+    }
+
+    // TODO: GH#18217 If `checkBase` is undefined, we should not call this because this will always return false.
+    function hasBaseType(type: Type, checkBase: Type | undefined) {
+        return check(type);
+        function check(type: Type): boolean {
+            if (getObjectFlags(type) & (ObjectFlags.ClassOrInterface | ObjectFlags.Reference)) {
+                const target = getTargetType(type) as InterfaceType;
+                return target === checkBase || some(getBaseTypes(target), check);
+            }
+            // else if (type.flags & TypeFlags.Intersection) {
+            //     return some((type as IntersectionType).types, check);
+            // }
+            return false;
+        }
+    }
+
+    // Return the name of a discriminant property for which it was possible and feasible to construct a map of
+    // constituent types keyed by the literal types of the property by that name in each constituent type.
+    function getKeyPropertyName(unionType: UnionType): string | undefined {
+        const types = unionType.types;
+        // We only construct maps for unions with many non-primitive constituents.
+        if (
+            types.length < 10 || getObjectFlags(unionType) & ObjectFlags.PrimitiveUnion ||
+            countWhere(types, t => !!(t.flags & (TypeFlags.Object | TypeFlags.InstantiableNonPrimitive))) < 10
+        ) {
+            return undefined;
+        }
+        if (unionType.keyPropertyName === undefined) {
+            // The candidate key property name is the name of the first property with a unit type in one of the
+            // constituent types.
+            const keyPropertyName = forEach(types, t =>
+                t.flags & (TypeFlags.Object | TypeFlags.InstantiableNonPrimitive) ?
+                    forEach(getPropertiesOfType(t), p => isUnitType(getTypeOfSymbol(p)) ? p.name : undefined) :
+                    undefined);
+            const mapByKeyProperty = keyPropertyName && mapTypesByKeyProperty(types, keyPropertyName);
+            unionType.keyPropertyName = mapByKeyProperty ? keyPropertyName : "" as string;
+            unionType.constituentMap = mapByKeyProperty;
+        }
+        return (unionType.keyPropertyName as string).length ? unionType.keyPropertyName : undefined;
+    }
+
+    // Given a set of constituent types and a property name, create and return a map keyed by the literal
+    // types of the property by that name in each constituent type. No map is returned if some key property
+    // has a non-literal type or if less than 10 or less than 50% of the constituents have a unique key.
+    // Entries with duplicate keys have unknownType as the value.
+    function mapTypesByKeyProperty(types: Type[], name: string) {
+        const map = new Map<TypeId, Type>();
+        let count = 0;
+        for (const type of types) {
+            if (type.flags & (TypeFlags.Object | TypeFlags.Intersection | TypeFlags.InstantiableNonPrimitive)) {
+                const discriminant = getTypeOfPropertyOfType(type, name);
+                if (discriminant) {
+                    if (!isLiteralType(discriminant)) {
+                        return undefined;
+                    }
+                    let duplicate = false;
+                    forEachType(discriminant, t => {
+                        const id = getTypeId(getRegularTypeOfLiteralType(t));
+                        const existing = map.get(id);
+                        if (!existing) {
+                            map.set(id, type);
+                        }
+                        else if (existing !== unknownType) {
+                            map.set(id, unknownType);
+                            duplicate = true;
+                        }
+                    });
+                    if (!duplicate) count++;
+                }
+            }
+        }
+        return count >= 10 && count * 2 >= types.length ? map : undefined;
+    }
+
+    // Given a union type for which getKeyPropertyName returned a non-undefined result, return the constituent
+    // that corresponds to the given key type for that property name.
+    function getConstituentTypeForKeyType(unionType: UnionType, keyType: Type) {
+        const result = unionType.constituentMap?.get(getTypeId(getRegularTypeOfLiteralType(keyType)));
+        return result !== unknownType ? result : undefined;
+    }
+
+    function isTypeStrictSubtypeOf(source: Type, target: Type): boolean {
+        return isTypeRelatedTo(source, target, strictSubtypeRelation);
+    }
+    
     function getFlowTypeOfReference(reference: Node, declaredType: Type, initialType = declaredType, flowContainer?: Node, flowNode = tryCast(reference, canHaveFlowNode)?.flowNode) {
         let key: string | undefined;
         let isKeySet = false;
@@ -15689,7 +15931,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         }
 
         function getCandidateDiscriminantPropertyAccess(expr: Expression) {
-            if (isBindingPattern(reference) || isFunctionExpressionOrArrowFunction(reference) || isObjectLiteralMethod(reference)) {
+            if (isBindingPattern(reference) || isFunctionExpressionOrInlineClosure(reference) || isObjectLiteralMethod(reference)) {
                 // When the reference is a binding pattern or function or arrow expression, we are narrowing a pesudo-reference in
                 // getNarrowedTypeOfSymbol. An identifier for a destructuring variable declared in the same binding pattern or
                 // parameter declared in the same parameter list is a candidate.
@@ -15709,26 +15951,26 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             }
             else if (isIdentifier(expr)) {
                 const symbol = getResolvedSymbol(expr);
-                if (isConstantVariable(symbol)) {
-                    const declaration = symbol.valueDeclaration!;
-                    // Given 'const x = obj.kind', allow 'x' as an alias for 'obj.kind'
-                    if (
-                        isVariableDeclaration(declaration) && !declaration.type && declaration.initializer && isAccessExpression(declaration.initializer) &&
-                        isMatchingReference(reference, declaration.initializer.expression)
-                    ) {
-                        return declaration.initializer;
-                    }
-                    // Given 'const { kind: x } = obj', allow 'x' as an alias for 'obj.kind'
-                    if (isBindingElement(declaration) && !declaration.initializer) {
-                        const parent = declaration.parent.parent;
-                        if (
-                            isVariableDeclaration(parent) && !parent.type && parent.initializer && (isIdentifier(parent.initializer) || isAccessExpression(parent.initializer)) &&
-                            isMatchingReference(reference, parent.initializer)
-                        ) {
-                            return declaration;
-                        }
-                    }
-                }
+                // if (isConstantVariable(symbol)) {
+                //     const declaration = symbol.valueDeclaration!;
+                //     // Given 'const x = obj.kind', allow 'x' as an alias for 'obj.kind'
+                //     if (
+                //         isVariableDeclaration(declaration) && !declaration.type && declaration.initializer && isAccessExpression(declaration.initializer) &&
+                //         isMatchingReference(reference, declaration.initializer.expression)
+                //     ) {
+                //         return declaration.initializer;
+                //     }
+                //     // Given 'const { kind: x } = obj', allow 'x' as an alias for 'obj.kind'
+                //     if (isBindingElement(declaration) && !declaration.initializer) {
+                //         const parent = declaration.parent.parent;
+                //         if (
+                //             isVariableDeclaration(parent) && !parent.type && parent.initializer && (isIdentifier(parent.initializer) || isAccessExpression(parent.initializer)) &&
+                //             isMatchingReference(reference, parent.initializer)
+                //         ) {
+                //             return declaration;
+                //         }
+                //     }
+                // }
             }
             return undefined;
         }
@@ -15757,7 +15999,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             if (propName === undefined) {
                 return type;
             }
-            const optionalChain = isOptionalChain(access);
+            const optionalChain = false;// isOptionalChain(access);
             const removeNullable = strictNullChecks && (optionalChain || isNonNullAccess(access)) && maybeTypeOfKind(type, TypeFlags.Nullable);
             let propType = getTypeOfPropertyOfType(removeNullable ? getTypeWithFacts(type, TypeFacts.NEUndefinedOrNull) : type, propName);
             if (!propType) {
@@ -15773,27 +16015,29 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
         function narrowTypeByDiscriminantProperty(type: Type, access: AccessExpression | BindingElement | ParameterDeclaration, operator: SyntaxKind, value: Expression, assumeTrue: boolean) {
             if ((operator === SyntaxKind.EqualsEqualsEqualsToken || operator === SyntaxKind.ExclamationEqualsEqualsToken) && type.flags & TypeFlags.Union) {
-                const keyPropertyName = getKeyPropertyName(type as UnionType);
-                if (keyPropertyName && keyPropertyName === getAccessedPropertyName(access)) {
-                    const candidate = getConstituentTypeForKeyType(type as UnionType, getTypeOfExpression(value));
-                    if (candidate) {
-                        return operator === (assumeTrue ? SyntaxKind.EqualsEqualsEqualsToken : SyntaxKind.ExclamationEqualsEqualsToken) ? candidate :
-                            isUnitType(getTypeOfPropertyOfType(candidate, keyPropertyName) || unknownType) ? removeType(type, candidate) :
-                            type;
-                    }
-                }
+                console.warn("TODO - narrowTypeByDiscriminantProperty");
+                // const keyPropertyName = getKeyPropertyName(type as UnionType);
+                // if (keyPropertyName && keyPropertyName === getAccessedPropertyName(access)) {
+                //     const candidate = getConstituentTypeForKeyType(type as UnionType, getTypeOfExpression(value));
+                //     if (candidate) {
+                //         return operator === (assumeTrue ? SyntaxKind.EqualsEqualsEqualsToken : SyntaxKind.ExclamationEqualsEqualsToken) ? candidate :
+                //             isUnitType(getTypeOfPropertyOfType(candidate, keyPropertyName) || unknownType) ? removeType(type, candidate) :
+                //             type;
+                //     }
+                // }
             }
             return narrowTypeByDiscriminant(type, access, t => narrowTypeByEquality(t, operator, value, assumeTrue));
         }
 
         function narrowTypeBySwitchOnDiscriminantProperty(type: Type, access: AccessExpression | BindingElement | ParameterDeclaration, data: FlowSwitchClauseData) {
-            if (data.clauseStart < data.clauseEnd && type.flags & TypeFlags.Union && getKeyPropertyName(type as UnionType) === getAccessedPropertyName(access)) {
-                const clauseTypes = getSwitchClauseTypes(data.switchStatement).slice(data.clauseStart, data.clauseEnd);
-                const candidate = getUnionType(map(clauseTypes, t => getConstituentTypeForKeyType(type as UnionType, t) || unknownType));
-                if (candidate !== unknownType) {
-                    return candidate;
-                }
-            }
+            console.warn("TODO - narrowTypeBySwitchOnDiscriminantProperty");
+            // if (data.clauseStart < data.clauseEnd && type.flags & TypeFlags.Union && getKeyPropertyName(type as UnionType) === getAccessedPropertyName(access)) {
+            //     const clauseTypes = getSwitchClauseTypes(data.switchStatement).slice(data.clauseStart, data.clauseEnd);
+            //     const candidate = getUnionType(map(clauseTypes, t => getConstituentTypeForKeyType(type as UnionType, t) || unknownType));
+            //     if (candidate !== unknownType) {
+            //         return candidate;
+            //     }
+            // }
             return narrowTypeByDiscriminant(type, access, t => narrowTypeBySwitchOnDiscriminant(t, data));
         }
 
@@ -15818,7 +16062,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 !!getApplicableIndexInfoForName(type, propName) || !assumeTrue;
         }
 
-        function narrowTypeByInKeyword(type: Type, nameType: StringLiteralType | NumberLiteralType | UniqueESSymbolType, assumeTrue: boolean) {
+        function narrowTypeByInKeyword(type: Type, nameType: StringLiteralType | IntLiteralType, assumeTrue: boolean) {
             const name = getPropertyNameFromType(nameType);
             const isKnownProperty = someType(type, t => isTypePresencePossible(t, name, /*assumeTrue*/ true));
             if (isKnownProperty) {
@@ -15826,28 +16070,28 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 // the target type), we filter the target type by presence of absence of the property.
                 return filterType(type, t => isTypePresencePossible(t, name, assumeTrue));
             }
-            if (assumeTrue) {
-                // If the check is for an unknown property, we intersect the target type with `Record<X, unknown>`,
-                // where X is the name of the property.
-                const recordSymbol = getGlobalRecordSymbol();
-                if (recordSymbol) {
-                    return getIntersectionType([type, getTypeAliasInstantiation(recordSymbol, [nameType, unknownType])]);
-                }
-            }
+            // if (assumeTrue) {
+            //     // If the check is for an unknown property, we intersect the target type with `Record<X, unknown>`,
+            //     // where X is the name of the property.
+            //     const recordSymbol = getGlobalRecordSymbol();
+            //     if (recordSymbol) {
+            //         return getIntersectionType([type, getTypeAliasInstantiation(recordSymbol, [nameType, unknownType])]);
+            //     }
+            // }
             return type;
         }
 
-        function narrowTypeByBooleanComparison(type: Type, expr: Expression, bool: BooleanLiteral, operator: BinaryOperator, assumeTrue: boolean): Type {
-            assumeTrue = (assumeTrue !== (bool.kind === SyntaxKind.TrueKeyword)) !== (operator !== SyntaxKind.ExclamationEqualsEqualsToken && operator !== SyntaxKind.ExclamationEqualsToken);
-            return narrowType(type, expr, assumeTrue);
-        }
+        // function narrowTypeByBooleanComparison(type: Type, expr: Expression, bool: BooleanLiteral, operator: BinaryOperator, assumeTrue: boolean): Type {
+        //     assumeTrue = (assumeTrue !== (bool.kind === SyntaxKind.TrueKeyword)) !== (operator !== SyntaxKind.ExclamationEqualsEqualsToken && operator !== SyntaxKind.ExclamationEqualsToken);
+        //     return narrowType(type, expr, assumeTrue);
+        // }
 
         function narrowTypeByBinaryExpression(type: Type, expr: BinaryExpression, assumeTrue: boolean): Type {
             switch (expr.operatorToken.kind) {
                 case SyntaxKind.EqualsToken:
                 case SyntaxKind.BarBarEqualsToken:
-                case SyntaxKind.AmpersandAmpersandEqualsToken:
-                case SyntaxKind.QuestionQuestionEqualsToken:
+                // case SyntaxKind.AmpersandAmpersandEqualsToken:
+                // case SyntaxKind.QuestionQuestionEqualsToken:
                     return narrowTypeByTruthiness(narrowType(type, expr.right, assumeTrue), expr.left, assumeTrue);
                 case SyntaxKind.EqualsEqualsToken:
                 case SyntaxKind.ExclamationEqualsToken:
@@ -15856,12 +16100,12 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     const operator = expr.operatorToken.kind;
                     const left = getReferenceCandidate(expr.left);
                     const right = getReferenceCandidate(expr.right);
-                    if (left.kind === SyntaxKind.TypeOfExpression && isStringLiteralLike(right)) {
-                        return narrowTypeByTypeof(type, left as TypeOfExpression, operator, right, assumeTrue);
-                    }
-                    if (right.kind === SyntaxKind.TypeOfExpression && isStringLiteralLike(left)) {
-                        return narrowTypeByTypeof(type, right as TypeOfExpression, operator, left, assumeTrue);
-                    }
+                    // if (left.kind === SyntaxKind.TypeOfExpression && isStringLiteralLike(right)) {
+                    //     return narrowTypeByTypeof(type, left as TypeOfExpression, operator, right, assumeTrue);
+                    // }
+                    // if (right.kind === SyntaxKind.TypeOfExpression && isStringLiteralLike(left)) {
+                    //     return narrowTypeByTypeof(type, right as TypeOfExpression, operator, left, assumeTrue);
+                    // }
                     if (isMatchingReference(reference, left)) {
                         return narrowTypeByEquality(type, operator, right, assumeTrue);
                     }
@@ -15890,33 +16134,33 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     if (isMatchingConstructorReference(right)) {
                         return narrowTypeByConstructor(type, operator, left, assumeTrue);
                     }
-                    if (isBooleanLiteral(right) && !isAccessExpression(left)) {
-                        return narrowTypeByBooleanComparison(type, left, right, operator, assumeTrue);
-                    }
-                    if (isBooleanLiteral(left) && !isAccessExpression(right)) {
-                        return narrowTypeByBooleanComparison(type, right, left, operator, assumeTrue);
-                    }
+                    // if (isBooleanLiteral(right) && !isAccessExpression(left)) {
+                    //     return narrowTypeByBooleanComparison(type, left, right, operator, assumeTrue);
+                    // }
+                    // if (isBooleanLiteral(left) && !isAccessExpression(right)) {
+                    //     return narrowTypeByBooleanComparison(type, right, left, operator, assumeTrue);
+                    // }
                     break;
-                case SyntaxKind.InstanceOfKeyword:
-                    return narrowTypeByInstanceof(type, expr as InstanceofExpression, assumeTrue);
-                case SyntaxKind.InKeyword:
-                    if (isPrivateIdentifier(expr.left)) {
-                        return narrowTypeByPrivateIdentifierInInExpression(type, expr, assumeTrue);
-                    }
-                    const target = getReferenceCandidate(expr.right);
-                    if (containsMissingType(type) && isAccessExpression(reference) && isMatchingReference(reference.expression, target)) {
-                        const leftType = getTypeOfExpression(expr.left);
-                        if (isTypeUsableAsPropertyName(leftType) && getAccessedPropertyName(reference) === getPropertyNameFromType(leftType)) {
-                            return getTypeWithFacts(type, assumeTrue ? TypeFacts.NEUndefined : TypeFacts.EQUndefined);
-                        }
-                    }
-                    if (isMatchingReference(reference, target)) {
-                        const leftType = getTypeOfExpression(expr.left);
-                        if (isTypeUsableAsPropertyName(leftType)) {
-                            return narrowTypeByInKeyword(type, leftType, assumeTrue);
-                        }
-                    }
-                    break;
+                // case SyntaxKind.InstanceOfKeyword:
+                //     return narrowTypeByInstanceof(type, expr as InstanceofExpression, assumeTrue);
+                // case SyntaxKind.InKeyword:
+                //     if (isPrivateIdentifier(expr.left)) {
+                //         return narrowTypeByPrivateIdentifierInInExpression(type, expr, assumeTrue);
+                //     }
+                //     const target = getReferenceCandidate(expr.right);
+                //     if (containsMissingType(type) && isAccessExpression(reference) && isMatchingReference(reference.expression, target)) {
+                //         const leftType = getTypeOfExpression(expr.left);
+                //         if (isTypeUsableAsPropertyName(leftType) && getAccessedPropertyName(reference) === getPropertyNameFromType(leftType)) {
+                //             return getTypeWithFacts(type, assumeTrue ? TypeFacts.NEUndefined : TypeFacts.EQUndefined);
+                //         }
+                //     }
+                //     if (isMatchingReference(reference, target)) {
+                //         const leftType = getTypeOfExpression(expr.left);
+                //         if (isTypeUsableAsPropertyName(leftType)) {
+                //             return narrowTypeByInKeyword(type, leftType, assumeTrue);
+                //         }
+                //     }
+                //     break;
                 case SyntaxKind.CommaToken:
                     return narrowType(type, expr.right, assumeTrue);
                 // Ordinarily we won't see && and || expressions in control flow analysis because the Binder breaks those
@@ -15934,23 +16178,23 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             return type;
         }
 
-        function narrowTypeByPrivateIdentifierInInExpression(type: Type, expr: BinaryExpression, assumeTrue: boolean): Type {
-            const target = getReferenceCandidate(expr.right);
-            if (!isMatchingReference(reference, target)) {
-                return type;
-            }
+        // function narrowTypeByPrivateIdentifierInInExpression(type: Type, expr: BinaryExpression, assumeTrue: boolean): Type {
+        //     const target = getReferenceCandidate(expr.right);
+        //     if (!isMatchingReference(reference, target)) {
+        //         return type;
+        //     }
 
-            Debug.assertNode(expr.left, isPrivateIdentifier);
-            const symbol = getSymbolForPrivateIdentifierExpression(expr.left);
-            if (symbol === undefined) {
-                return type;
-            }
-            const classSymbol = symbol.parent!;
-            const targetType = hasStaticModifier(Debug.checkDefined(symbol.valueDeclaration, "should always have a declaration"))
-                ? getTypeOfSymbol(classSymbol) as InterfaceType
-                : getDeclaredTypeOfSymbol(classSymbol);
-            return getNarrowedType(type, targetType, assumeTrue, /*checkDerived*/ true);
-        }
+        //     Debug.assertNode(expr.left, isPrivateIdentifier);
+        //     const symbol = getSymbolForPrivateIdentifierExpression(expr.left);
+        //     if (symbol === undefined) {
+        //         return type;
+        //     }
+        //     const classSymbol = symbol.parent!;
+        //     const targetType = hasStaticModifier(Debug.checkDefined(symbol.valueDeclaration, "should always have a declaration"))
+        //         ? getTypeOfSymbol(classSymbol) as InterfaceType
+        //         : getDeclaredTypeOfSymbol(classSymbol);
+        //     return getNarrowedType(type, targetType, assumeTrue, /*checkDerived*/ true);
+        // }
 
         function narrowTypeByOptionalChainContainment(type: Type, operator: SyntaxKind, value: Expression, assumeTrue: boolean): Type {
             // We are in a branch of obj?.foo === value (or any one of the other equality operators). We narrow obj as follows:
@@ -16000,7 +16244,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                         return nonPrimitiveType;
                     }
                 }
-                const filteredType = filterType(type, t => areTypesComparable(t, valueType) || doubleEquals && isCoercibleUnderDoubleEquals(t, valueType));
+                const filteredType = filterType(type, t => areTypesComparable(t, valueType));// || doubleEquals && isCoercibleUnderDoubleEquals(t, valueType));
                 return replacePrimitivesWithLiterals(filteredType, valueType);
             }
             if (isUnitType(valueType)) {
@@ -16009,24 +16253,24 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             return type;
         }
 
-        function narrowTypeByTypeof(type: Type, typeOfExpr: TypeOfExpression, operator: SyntaxKind, literal: LiteralExpression, assumeTrue: boolean): Type {
-            // We have '==', '!=', '===', or !==' operator with 'typeof xxx' and string literal operands
-            if (operator === SyntaxKind.ExclamationEqualsToken || operator === SyntaxKind.ExclamationEqualsEqualsToken) {
-                assumeTrue = !assumeTrue;
-            }
-            const target = getReferenceCandidate(typeOfExpr.expression);
-            if (!isMatchingReference(reference, target)) {
-                if (strictNullChecks && optionalChainContainsReference(target, reference) && assumeTrue === (literal.text !== "undefined")) {
-                    type = getAdjustedTypeWithFacts(type, TypeFacts.NEUndefinedOrNull);
-                }
-                const propertyAccess = getDiscriminantPropertyAccess(target, type);
-                if (propertyAccess) {
-                    return narrowTypeByDiscriminant(type, propertyAccess, t => narrowTypeByLiteralExpression(t, literal, assumeTrue));
-                }
-                return type;
-            }
-            return narrowTypeByLiteralExpression(type, literal, assumeTrue);
-        }
+        // function narrowTypeByTypeof(type: Type, typeOfExpr: TypeOfExpression, operator: SyntaxKind, literal: LiteralExpression, assumeTrue: boolean): Type {
+        //     // We have '==', '!=', '===', or !==' operator with 'typeof xxx' and string literal operands
+        //     if (operator === SyntaxKind.ExclamationEqualsToken || operator === SyntaxKind.ExclamationEqualsEqualsToken) {
+        //         assumeTrue = !assumeTrue;
+        //     }
+        //     const target = getReferenceCandidate(typeOfExpr.expression);
+        //     if (!isMatchingReference(reference, target)) {
+        //         if (strictNullChecks && optionalChainContainsReference(target, reference) && assumeTrue === (literal.text !== "undefined")) {
+        //             type = getAdjustedTypeWithFacts(type, TypeFacts.NEUndefinedOrNull);
+        //         }
+        //         const propertyAccess = getDiscriminantPropertyAccess(target, type);
+        //         if (propertyAccess) {
+        //             return narrowTypeByDiscriminant(type, propertyAccess, t => narrowTypeByLiteralExpression(t, literal, assumeTrue));
+        //         }
+        //         return type;
+        //     }
+        //     return narrowTypeByLiteralExpression(type, literal, assumeTrue);
+        // }
 
         function narrowTypeByLiteralExpression(type: Type, literal: LiteralExpression, assumeTrue: boolean) {
             return assumeTrue ?
@@ -16088,11 +16332,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 case "number":
                     return narrowTypeByTypeFacts(type, numberType, TypeFacts.TypeofEQNumber);
                 case "bigint":
-                    return narrowTypeByTypeFacts(type, bigintType, TypeFacts.TypeofEQBigInt);
+                    return narrowTypeByTypeFacts(type, floatType, TypeFacts.TypeofEQFloat);
                 case "boolean":
                     return narrowTypeByTypeFacts(type, booleanType, TypeFacts.TypeofEQBoolean);
-                case "symbol":
-                    return narrowTypeByTypeFacts(type, esSymbolType, TypeFacts.TypeofEQSymbol);
+                // case "symbol":
+                //     return narrowTypeByTypeFacts(type, esSymbolType, TypeFacts.TypeofEQSymbol);
                 case "object":
                     return type.flags & TypeFlags.Any ? type : getUnionType([narrowTypeByTypeFacts(type, nonPrimitiveType, TypeFacts.TypeofEQObject), narrowTypeByTypeFacts(type, nullType, TypeFacts.EQNull)]);
                 case "function":
@@ -16116,27 +16360,27 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     // Neither the constituent nor the implied type is a subtype of the other, however their domains may still
                     // overlap. For example, an unconstrained type parameter and type `string`. If the type facts indicate
                     // possible overlap, we form an intersection. Otherwise, we eliminate the constituent.
-                    hasTypeFacts(t, facts) ? getIntersectionType([t, impliedType]) :
+                    // TODO hasTypeFacts(t, facts) ? getIntersectionType([t, impliedType]) :
                     neverType);
         }
 
-        function narrowTypeBySwitchOnTypeOf(type: Type, { switchStatement, clauseStart, clauseEnd }: FlowSwitchClauseData): Type {
-            const witnesses = getSwitchClauseTypeOfWitnesses(switchStatement);
-            if (!witnesses) {
-                return type;
-            }
-            // Equal start and end denotes implicit fallthrough; undefined marks explicit default clause.
-            const defaultIndex = findIndex(switchStatement.caseBlock.clauses, clause => clause.kind === SyntaxKind.DefaultClause);
-            const hasDefaultClause = clauseStart === clauseEnd || (defaultIndex >= clauseStart && defaultIndex < clauseEnd);
-            if (hasDefaultClause) {
-                // In the default clause we filter constituents down to those that are not-equal to all handled cases.
-                const notEqualFacts = getNotEqualFactsFromTypeofSwitch(clauseStart, clauseEnd, witnesses);
-                return filterType(type, t => getTypeFacts(t, notEqualFacts) === notEqualFacts);
-            }
-            // In the non-default cause we create a union of the type narrowed by each of the listed cases.
-            const clauseWitnesses = witnesses.slice(clauseStart, clauseEnd);
-            return getUnionType(map(clauseWitnesses, text => text ? narrowTypeByTypeName(type, text) : neverType));
-        }
+        // function narrowTypeBySwitchOnTypeOf(type: Type, { switchStatement, clauseStart, clauseEnd }: FlowSwitchClauseData): Type {
+        //     const witnesses = getSwitchClauseTypeOfWitnesses(switchStatement);
+        //     if (!witnesses) {
+        //         return type;
+        //     }
+        //     // Equal start and end denotes implicit fallthrough; undefined marks explicit default clause.
+        //     const defaultIndex = findIndex(switchStatement.caseBlock.clauses, clause => clause.kind === SyntaxKind.DefaultClause);
+        //     const hasDefaultClause = clauseStart === clauseEnd || (defaultIndex >= clauseStart && defaultIndex < clauseEnd);
+        //     if (hasDefaultClause) {
+        //         // In the default clause we filter constituents down to those that are not-equal to all handled cases.
+        //         const notEqualFacts = getNotEqualFactsFromTypeofSwitch(clauseStart, clauseEnd, witnesses);
+        //         return filterType(type, t => getTypeFacts(t, notEqualFacts) === notEqualFacts);
+        //     }
+        //     // In the non-default cause we create a union of the type narrowed by each of the listed cases.
+        //     const clauseWitnesses = witnesses.slice(clauseStart, clauseEnd);
+        //     return getUnionType(map(clauseWitnesses, text => text ? narrowTypeByTypeName(type, text) : neverType));
+        // }
 
         function narrowTypeBySwitchOnTrue(type: Type, { switchStatement, clauseStart, clauseEnd }: FlowSwitchClauseData): Type {
             const defaultIndex = findIndex(switchStatement.caseBlock.clauses, clause => clause.kind === SyntaxKind.DefaultClause);
@@ -16170,7 +16414,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
         function isMatchingConstructorReference(expr: Expression) {
             return (isPropertyAccessExpression(expr) && idText(expr.name) === "constructor" ||
-                isElementAccessExpression(expr) && isStringLiteralLike(expr.argumentExpression) && expr.argumentExpression.text === "constructor") &&
+                isElementAccessExpression(expr) && isStringLiteral(expr.argumentExpression) && expr.argumentExpression.text === "constructor") &&
                 isMatchingReference(reference, expr.expression);
         }
 
@@ -16182,7 +16426,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
             // Get the type of the constructor identifier expression, if it is not a function then do not narrow.
             const identifierType = getTypeOfExpression(identifier);
-            if (!isFunctionType(identifierType) && !isConstructorType(identifierType)) {
+            if (!isFunctionType(identifierType)) {// && !isConstructorType(identifierType)) {
                 return type;
             }
 
@@ -16224,56 +16468,56 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             }
         }
 
-        function narrowTypeByInstanceof(type: Type, expr: InstanceofExpression, assumeTrue: boolean): Type {
-            const left = getReferenceCandidate(expr.left);
-            if (!isMatchingReference(reference, left)) {
-                if (assumeTrue && strictNullChecks && optionalChainContainsReference(left, reference)) {
-                    return getAdjustedTypeWithFacts(type, TypeFacts.NEUndefinedOrNull);
-                }
-                return type;
-            }
-            const right = expr.right;
-            const rightType = getTypeOfExpression(right);
-            if (!isTypeDerivedFrom(rightType, globalObjectType)) {
-                return type;
-            }
+        // function narrowTypeByInstanceof(type: Type, expr: InstanceofExpression, assumeTrue: boolean): Type {
+        //     const left = getReferenceCandidate(expr.left);
+        //     if (!isMatchingReference(reference, left)) {
+        //         if (assumeTrue && strictNullChecks && optionalChainContainsReference(left, reference)) {
+        //             return getAdjustedTypeWithFacts(type, TypeFacts.NEUndefinedOrNull);
+        //         }
+        //         return type;
+        //     }
+        //     const right = expr.right;
+        //     const rightType = getTypeOfExpression(right);
+        //     if (!isTypeDerivedFrom(rightType, globalObjectType)) {
+        //         return type;
+        //     }
 
-            // if the right-hand side has an object type with a custom `[Symbol.hasInstance]` method, and that method
-            // has a type predicate, use the type predicate to perform narrowing. This allows normal `object` types to
-            // participate in `instanceof`, as per Step 2 of https://tc39.es/ecma262/#sec-instanceofoperator.
-            const signature = getEffectsSignature(expr);
-            const predicate = signature && getTypePredicateOfSignature(signature);
-            if (predicate && predicate.kind === TypePredicateKind.Identifier && predicate.parameterIndex === 0) {
-                return getNarrowedType(type, predicate.type, assumeTrue, /*checkDerived*/ true);
-            }
-            if (!isTypeDerivedFrom(rightType, globalFunctionType)) {
-                return type;
-            }
-            const instanceType = mapType(rightType, getInstanceType);
-            // Don't narrow from `any` if the target type is exactly `Object` or `Function`, and narrow
-            // in the false branch only if the target is a non-empty object type.
-            if (
-                isTypeAny(type) && (instanceType === globalObjectType || instanceType === globalFunctionType) ||
-                !assumeTrue && !(instanceType.flags & TypeFlags.Object && !isEmptyAnonymousObjectType(instanceType))
-            ) {
-                return type;
-            }
-            return getNarrowedType(type, instanceType, assumeTrue, /*checkDerived*/ true);
-        }
+        //     // if the right-hand side has an object type with a custom `[Symbol.hasInstance]` method, and that method
+        //     // has a type predicate, use the type predicate to perform narrowing. This allows normal `object` types to
+        //     // participate in `instanceof`, as per Step 2 of https://tc39.es/ecma262/#sec-instanceofoperator.
+        //     const signature = getEffectsSignature(expr);
+        //     const predicate = signature && getTypePredicateOfSignature(signature);
+        //     if (predicate && predicate.kind === TypePredicateKind.Identifier && predicate.parameterIndex === 0) {
+        //         return getNarrowedType(type, predicate.type, assumeTrue, /*checkDerived*/ true);
+        //     }
+        //     if (!isTypeDerivedFrom(rightType, globalFunctionType)) {
+        //         return type;
+        //     }
+        //     const instanceType = mapType(rightType, getInstanceType);
+        //     // Don't narrow from `any` if the target type is exactly `Object` or `Function`, and narrow
+        //     // in the false branch only if the target is a non-empty object type.
+        //     if (
+        //         isTypeAny(type) && (instanceType === globalObjectType || instanceType === globalFunctionType) ||
+        //         !assumeTrue && !(instanceType.flags & TypeFlags.Object && !isEmptyAnonymousObjectType(instanceType))
+        //     ) {
+        //         return type;
+        //     }
+        //     return getNarrowedType(type, instanceType, assumeTrue, /*checkDerived*/ true);
+        // }
 
-        function getInstanceType(constructorType: Type) {
-            const prototypePropertyType = getTypeOfPropertyOfType(constructorType, "prototype" as string);
-            if (prototypePropertyType && !isTypeAny(prototypePropertyType)) {
-                return prototypePropertyType;
-            }
-            const constructSignatures = getSignaturesOfType(constructorType, SignatureKind.Construct);
-            if (constructSignatures.length) {
-                return getUnionType(map(constructSignatures, signature => getReturnTypeOfSignature(getErasedSignature(signature))));
-            }
-            // We use the empty object type to indicate we don't know the type of objects created by
-            // this constructor function.
-            return emptyObjectType;
-        }
+        // function getInstanceType(constructorType: Type) {
+        //     const prototypePropertyType = getTypeOfPropertyOfType(constructorType, "prototype" as string);
+        //     if (prototypePropertyType && !isTypeAny(prototypePropertyType)) {
+        //         return prototypePropertyType;
+        //     }
+        //     const constructSignatures = getSignaturesOfType(constructorType, SignatureKind.Construct);
+        //     if (constructSignatures.length) {
+        //         return getUnionType(map(constructSignatures, signature => getReturnTypeOfSignature(getErasedSignature(signature))));
+        //     }
+        //     // We use the empty object type to indicate we don't know the type of objects created by
+        //     // this constructor function.
+        //     return emptyObjectType;
+        // }
 
         function getNarrowedType(type: Type, candidate: Type, assumeTrue: boolean, checkDerived: boolean): Type {
             const key = type.flags & TypeFlags.Union ? `N${getTypeId(type)},${getTypeId(candidate)},${(assumeTrue ? 1 : 0) | (checkDerived ? 2 : 0)}` : undefined;
@@ -16318,67 +16562,68 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 );
                 // If no constituents are directly related, create intersections for any generic constituents that
                 // are related by constraint.
-                return directlyRelated.flags & TypeFlags.Never ?
-                    mapType(type, t => maybeTypeOfKind(t, TypeFlags.Instantiable) && isRelated(c, getBaseConstraintOfType(t) || unknownType) ? getIntersectionType([t, c]) : neverType) :
-                    directlyRelated;
+                // TODO return directlyRelated.flags & TypeFlags.Never ?
+                //     mapType(type, t => maybeTypeOfKind(t, TypeFlags.Instantiable) && isRelated(c, getBaseConstraintOfType(t) || unknownType) ? getIntersectionType([t, c]) : neverType) :
+                //     directlyRelated;
+                return directlyRelated;
             });
             // If filtering produced a non-empty type, return that. Otherwise, pick the most specific of the two
             // based on assignability, or as a last resort produce an intersection.
             return !(narrowedType.flags & TypeFlags.Never) ? narrowedType :
                 isTypeSubtypeOf(candidate, type) ? candidate :
                 isTypeAssignableTo(type, candidate) ? type :
-                isTypeAssignableTo(candidate, type) ? candidate :
-                getIntersectionType([type, candidate]);
+                isTypeAssignableTo(candidate, type) ? candidate : neverType; //:
+                //getIntersectionType([type, candidate]);
         }
 
         function narrowTypeByCallExpression(type: Type, callExpression: CallExpression, assumeTrue: boolean): Type {
             if (hasMatchingArgument(callExpression, reference)) {
                 const signature = assumeTrue || !isCallChain(callExpression) ? getEffectsSignature(callExpression) : undefined;
-                const predicate = signature && getTypePredicateOfSignature(signature);
-                if (predicate && (predicate.kind === TypePredicateKind.This || predicate.kind === TypePredicateKind.Identifier)) {
-                    return narrowTypeByTypePredicate(type, predicate, callExpression, assumeTrue);
-                }
+                // const predicate = signature && getTypePredicateOfSignature(signature);
+                // if (predicate && (predicate.kind === TypePredicateKind.This || predicate.kind === TypePredicateKind.Identifier)) {
+                //     return narrowTypeByTypePredicate(type, predicate, callExpression, assumeTrue);
+                // }
             }
-            if (containsMissingType(type) && isAccessExpression(reference) && isPropertyAccessExpression(callExpression.expression)) {
-                const callAccess = callExpression.expression;
-                if (
-                    isMatchingReference(reference.expression, getReferenceCandidate(callAccess.expression)) &&
-                    isIdentifier(callAccess.name) && callAccess.name.text === "hasOwnProperty" && callExpression.arguments.length === 1
-                ) {
-                    const argument = callExpression.arguments[0];
-                    if (isStringLiteralLike(argument) && getAccessedPropertyName(reference) === escapeLeadingUnderscores(argument.text)) {
-                        return getTypeWithFacts(type, assumeTrue ? TypeFacts.NEUndefined : TypeFacts.EQUndefined);
-                    }
-                }
-            }
+            // if (containsMissingType(type) && isAccessExpression(reference) && isPropertyAccessExpression(callExpression.expression)) {
+            //     const callAccess = callExpression.expression;
+            //     if (
+            //         isMatchingReference(reference.expression, getReferenceCandidate(callAccess.expression)) &&
+            //         isIdentifier(callAccess.name) && callAccess.name.text === "hasOwnProperty" && callExpression.arguments.length === 1
+            //     ) {
+            //         const argument = callExpression.arguments[0];
+            //         if (isStringLiteralLike(argument) && getAccessedPropertyName(reference) === escapeLeadingUnderscores(argument.text)) {
+            //             return getTypeWithFacts(type, assumeTrue ? TypeFacts.NEUndefined : TypeFacts.EQUndefined);
+            //         }
+            //     }
+            // }
             return type;
         }
 
-        function narrowTypeByTypePredicate(type: Type, predicate: TypePredicate, callExpression: CallExpression, assumeTrue: boolean): Type {
-            // Don't narrow from 'any' if the predicate type is exactly 'Object' or 'Function'
-            if (predicate.type && !(isTypeAny(type) && (predicate.type === globalObjectType || predicate.type === globalFunctionType))) {
-                const predicateArgument = getTypePredicateArgument(predicate, callExpression);
-                if (predicateArgument) {
-                    if (isMatchingReference(reference, predicateArgument)) {
-                        return getNarrowedType(type, predicate.type, assumeTrue, /*checkDerived*/ false);
-                    }
-                    if (
-                        strictNullChecks && optionalChainContainsReference(predicateArgument, reference) &&
-                        (
-                            assumeTrue && !(hasTypeFacts(predicate.type, TypeFacts.EQUndefined)) ||
-                            !assumeTrue && everyType(predicate.type, isNullableType)
-                        )
-                    ) {
-                        type = getAdjustedTypeWithFacts(type, TypeFacts.NEUndefinedOrNull);
-                    }
-                    const access = getDiscriminantPropertyAccess(predicateArgument, type);
-                    if (access) {
-                        return narrowTypeByDiscriminant(type, access, t => getNarrowedType(t, predicate.type!, assumeTrue, /*checkDerived*/ false));
-                    }
-                }
-            }
-            return type;
-        }
+        // function narrowTypeByTypePredicate(type: Type, predicate: TypePredicate, callExpression: CallExpression, assumeTrue: boolean): Type {
+        //     // Don't narrow from 'any' if the predicate type is exactly 'Object' or 'Function'
+        //     if (predicate.type && !(isTypeAny(type) && (predicate.type === globalObjectType || predicate.type === globalFunctionType))) {
+        //         const predicateArgument = getTypePredicateArgument(predicate, callExpression);
+        //         if (predicateArgument) {
+        //             if (isMatchingReference(reference, predicateArgument)) {
+        //                 return getNarrowedType(type, predicate.type, assumeTrue, /*checkDerived*/ false);
+        //             }
+        //             if (
+        //                 strictNullChecks && optionalChainContainsReference(predicateArgument, reference) &&
+        //                 (
+        //                     assumeTrue && !(hasTypeFacts(predicate.type, TypeFacts.EQUndefined)) ||
+        //                     !assumeTrue && everyType(predicate.type, isNullableType)
+        //                 )
+        //             ) {
+        //                 type = getAdjustedTypeWithFacts(type, TypeFacts.NEUndefinedOrNull);
+        //             }
+        //             const access = getDiscriminantPropertyAccess(predicateArgument, type);
+        //             if (access) {
+        //                 return narrowTypeByDiscriminant(type, access, t => getNarrowedType(t, predicate.type!, assumeTrue, /*checkDerived*/ false));
+        //             }
+        //         }
+        //     }
+        //     return type;
+        // }
 
         // Narrow the given type based on the given expression having the assumed boolean value. The returned type
         // will be a subtype or the same type as the argument.
@@ -17986,7 +18231,7 @@ export const enum TypeFacts {
     None = 0,
     TypeofEQString = 1 << 0,      // typeof x === "string"
     TypeofEQNumber = 1 << 1,      // typeof x === "number"
-    TypeofEQBigInt = 1 << 2,      // typeof x === "bigint"
+    TypeofEQFloat  = 1 << 2,      // typeof x === "float"
     TypeofEQBoolean = 1 << 3,     // typeof x === "boolean"
     TypeofEQSymbol = 1 << 4,      // typeof x === "symbol"
     TypeofEQObject = 1 << 5,      // typeof x === "object"
@@ -18031,7 +18276,7 @@ export const enum TypeFacts {
     ZeroNumberFacts = BaseNumberFacts,
     NonZeroNumberStrictFacts = BaseNumberStrictFacts | Truthy,
     NonZeroNumberFacts = BaseNumberFacts | Truthy,
-    BaseBigIntStrictFacts = TypeofEQBigInt | TypeofNEString | TypeofNENumber | TypeofNEBoolean | TypeofNESymbol | TypeofNEObject | TypeofNEFunction | TypeofNEHostObject | NEUndefined | NENull | NEUndefinedOrNull,
+    BaseBigIntStrictFacts = TypeofEQFloat | TypeofNEString | TypeofNENumber | TypeofNEBoolean | TypeofNESymbol | TypeofNEObject | TypeofNEFunction | TypeofNEHostObject | NEUndefined | NENull | NEUndefinedOrNull,
     BaseBigIntFacts = BaseBigIntStrictFacts | EQUndefined | EQNull | EQUndefinedOrNull | Falsy,
     BigIntStrictFacts = BaseBigIntStrictFacts | Truthy | Falsy,
     BigIntFacts = BaseBigIntFacts | Truthy,
@@ -18245,3 +18490,14 @@ const enum RecursionFlags {
     Target = 1 << 1,
     Both = Source | Target,
 }
+
+const typeofNEFacts: ReadonlyMap<string, TypeFacts> = new Map(Object.entries({
+    string: TypeFacts.TypeofNEString,
+    number: TypeFacts.TypeofNENumber,
+    bigint: TypeFacts.TypeofNEBigInt,
+    boolean: TypeFacts.TypeofNEBoolean,
+    symbol: TypeFacts.TypeofNESymbol,
+    undefined: TypeFacts.NEUndefined,
+    object: TypeFacts.TypeofNEObject,
+    function: TypeFacts.TypeofNEFunction,
+}));

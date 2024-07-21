@@ -4371,3 +4371,16 @@ export function getPropertyNameFromType(type: StringLiteralType | IntLiteralType
     }
     return Debug.fail();
 }
+
+/** @internal */
+export function isObjectLiteralMethod(node: Node) {//: node is MethodDeclaration {
+    // TODO handle lpc object with methods here?
+    return false;//return node && node.kind === SyntaxKind.MethodDeclaration && node.parent.kind === SyntaxKind.ObjectLiteralExpression;
+}
+
+/** @internal */
+export function isNonNullAccess(node: Node): node is AccessExpression {
+    const kind = node.kind;
+    return (kind === SyntaxKind.PropertyAccessExpression
+        || kind === SyntaxKind.ElementAccessExpression) && true;//isNonNullExpression((node as AccessExpression).expression);
+}
