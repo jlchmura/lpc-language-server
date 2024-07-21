@@ -715,6 +715,7 @@ export class LpcFacade {
     ): ISymbolInfo[] | undefined {
         const context = this.loadLpc(fileName);
         const ce = this.getContextEntry(fileName);
+        if (ce.disposed) return undefined;
         if (context.needsCompile) this.parseLpc(ce, new Set(), false);
 
         return context?.symbolAtPosition(column, row, limitToChildren);

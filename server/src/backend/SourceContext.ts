@@ -1437,7 +1437,6 @@ export class SourceContext {
     /** releases objects that aren't needed if the file isn't open in the editor */
     public softRelease() {
         this.softReleased = true;
-        this.sourceText = undefined;
         this.allTokens.length = 0;
         this.lexer.inputStream = CharStream.fromString("");
         //this.lexer.reset();
@@ -1454,6 +1453,7 @@ export class SourceContext {
     public cleanup() {
         this.disposed = true;
         this.softRelease();
+        this.sourceText = undefined;
         this.symbolTable?.clear();
         this.symbolTable = undefined;
         this.lexer = undefined;
