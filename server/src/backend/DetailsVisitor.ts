@@ -1092,9 +1092,8 @@ export class DetailsVisitor
 
         // don't send if string contains only a unicode character (like emoji)
         // it was breaking vscode when the semantic highlight applies
-        if (concatStr.length > 3 || !containsUnicodeOrHigher(concatStr)) {
-            this.markToken(ctx.start, SemanticTokenTypes.String);
-        }
+        const strLen = concatStr.length;
+        this.markToken(ctx.start, SemanticTokenTypes.String, [], strLen + 2);
 
         // if (concatStr.match(/\/|\.c/)) {
         //     console.debug("possible filename: " + concatStr);
