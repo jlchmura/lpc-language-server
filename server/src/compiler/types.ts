@@ -1286,14 +1286,14 @@ export type IsContainer =
     // | ClassDeclaration
     // | EnumDeclaration
     // | ObjectLiteralExpression
-    // | TypeLiteralNode
+    | TypeLiteralNode
     | JSDocTypeLiteral
     // | JsxAttributes
     // | InterfaceDeclaration
     // | ModuleDeclaration
     // | TypeAliasDeclaration
     // | MappedTypeNode
-    // | IndexSignatureDeclaration
+    | IndexSignatureDeclaration
     | SourceFile
     // | GetAccessorDeclaration
     // | SetAccessorDeclaration

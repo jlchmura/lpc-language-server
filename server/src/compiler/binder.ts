@@ -756,7 +756,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
 
         // The exported symbol for an export default function/class node is always named "default"
         const name = getDeclarationName(node);
-
+        
         let symbol: Symbol | undefined;
         if (name === undefined) {
             symbol = createSymbol(SymbolFlags.None, InternalSymbolName.Missing);
@@ -1036,8 +1036,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             // case SyntaxKind.SetAccessor:
             case SyntaxKind.FunctionDeclaration:
             case SyntaxKind.FunctionExpression:            
-            case SyntaxKind.InlineClosureExpression:
-            //case SyntaxKind.Block:
+            case SyntaxKind.InlineClosureExpression:            
             // case SyntaxKind.JSDocFunctionType:
             // case SyntaxKind.ClassStaticBlockDeclaration:
             // case SyntaxKind.TypeAliasDeclaration:

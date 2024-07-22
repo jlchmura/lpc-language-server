@@ -240,7 +240,8 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         node.nodeCount = 0;
         node.identifierCount = 0;
         node.symbolCount = 0;
-        //node.parseDiagnostics = undefined!;
+        node.parseDiagnostics = undefined!;
+        node.bindDiagnostics = undefined!;
         //node.pragmas = undefined!;
         node.identifiers = undefined!;
         return node;

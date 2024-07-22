@@ -5625,9 +5625,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function getWidenedLiteralLikeTypeForContextualType(type: Type, contextualType: Type | undefined) {
-        if (!isLiteralOfContextualType(type, contextualType)) {
-            Debug.fail("not available in LPC");
-            type = errorType;// getWidenedUniqueESSymbolType(getWidenedLiteralType(type));
+        if (!isLiteralOfContextualType(type, contextualType)) {            
+            //type = getWidenedUniqueESSymbolType(getWidenedLiteralType(type));
+            type = (getWidenedLiteralType(type));
         }
         return getRegularTypeOfLiteralType(type);
     }
@@ -6529,7 +6529,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function instantiateTypeWithSingleGenericCallSignature(node: Expression|QualifiedName, type: Type, checkMode?: CheckMode) {
-        return anyFunctionType;
+        return type;
         // not needed for LPC?
         // if (checkMode && checkMode & (CheckMode.Inferential | CheckMode.SkipGenericFunctions)) {
         //     const callSignature = getSingleSignature(type, SignatureKind.Call, /*allowMembers*/ true);
@@ -7071,7 +7071,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             if (state.skip) {
                 result = getLastResult(state);
             }
-            else {
+            else {                
                 const leftType = getLeftType(state);
                 Debug.assertIsDefined(leftType);
 
@@ -7639,9 +7639,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 }
 
                 // Symbols are not allowed at all in arithmetic expressions
-                if (resultType) {// && !checkForDisallowedESSymbolOperand(operator)) {
-                    return resultType;
-                }
+                // if (resultType) {// && !checkForDisallowedESSymbolOperand(operator)) {
+                //     return resultType;
+                // }
 
                 if (!resultType) {
                     // Types that have a reasonably good chance of being a valid operand type.
@@ -7652,7 +7652,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     reportOperatorError((left, right) =>
                         isTypeAssignableToKind(left, closeEnoughKind) &&
                         isTypeAssignableToKind(right, closeEnoughKind)
-                    );
+                    );                    
                     return anyType;
                 }
 
@@ -7870,7 +7870,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             if (!typesAreCompatible(leftType, rightType)) {
                 reportOperatorError(typesAreCompatible);
                 return true;
-            }
+            }            
             return false;
         }
 
@@ -13417,10 +13417,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         const assumeInitialized = isParameter || isAlias || isOuterVariable || isModuleExports || isSameScopedBindingElement(node, declaration) ||
             type !== autoType && type !== autoArrayType && (!strictNullChecks || (type.flags & (TypeFlags.AnyOrUnknown | TypeFlags.Void)) !== 0) ||                        
             declaration.flags & NodeFlags.Ambient;
-        const initialType = undefinedType;
+        const initialType = 
             // isAutomaticTypeInNonNull ? undefinedType :
-            // assumeInitialized ? (isParameter ? removeOptionalityFromDeclaredType(type, declaration as VariableLikeDeclaration) : type) :
-            // typeIsAutomatic ? undefinedType : getOptionalType(type);
+            assumeInitialized ? type : //(isParameter ? removeOptionalityFromDeclaredType(type, declaration as VariableLikeDeclaration) : type) :
+            typeIsAutomatic ? undefinedType : getOptionalType(type);
         const flowType = getFlowTypeOfReference(node, type, initialType, flowContainer);
         // A variable is considered uninitialized when it is possible to analyze the entire control flow graph
         // from declaration to use, and when the variable's declared type doesn't include undefined but the
