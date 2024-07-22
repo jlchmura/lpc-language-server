@@ -101,6 +101,22 @@ export interface TypeChecker {
      */
     getShorthandAssignmentValueSymbol(location: Node | undefined): Symbol | undefined;
 
+    isUnknownSymbol(symbol: Symbol): boolean;
+    getTypeAtLocation(node: Node): Type;
+    /**
+     * Depending on the operation performed, it may be appropriate to throw away the checker
+     * if the cancellation token is triggered. Typically, if it is used for error checking
+     * and the operation is cancelled, then it should be discarded, otherwise it is safe to keep.
+     */
+    runWithCancellationToken<T>(token: CancellationToken, cb: (checker: TypeChecker) => T): T;
+    /**@internal */
+    runWithCancellationToken<T>(token: CancellationToken | undefined, cb: (checker: TypeChecker) => T): T; // eslint-disable-line @typescript-eslint/unified-signatures
+    /** Note that the resulting nodes cannot be checked. */
+    symbolToTypeParameterDeclarations(symbol: Symbol, enclosingDeclaration: Node | undefined, flags: NodeBuilderFlags | undefined): NodeArray<TypeParameterDeclaration> | undefined;
+
+    /** @internal */ writeType(type: Type, enclosingDeclaration?: Node, flags?: TypeFormatFlags, writer?: EmitTextWriter): string;
+    /** @internal */ writeSymbol(symbol: Symbol, enclosingDeclaration?: Node, meaning?: SymbolFlags, flags?: SymbolFormatFlags, writer?: EmitTextWriter): string;
+    /** @internal */ writeSignature(signature: Signature, enclosingDeclaration?: Node, flags?: TypeFormatFlags, kind?: SignatureKind, writer?: EmitTextWriter): string;
 
     // TODO
 }
@@ -485,6 +501,7 @@ export const enum SyntaxKind {
     VisibleKeyword,
     NoSaveKeyword,
     NoShadowKeyword,
+    IntrinsicKeyword,
     NoMaskKeyword,
     VarArgsKeyword,
     DeprecatedKeyword,  // LastKeyword and LastToken - everything after this will be processed by the binder
@@ -960,11 +977,11 @@ export type KeywordTypeSyntaxKind =
     | SyntaxKind.AnyKeyword
     | SyntaxKind.IntKeyword
     | SyntaxKind.FloatKeyword
-    // | SyntaxKind.IntrinsicKeyword
+    | SyntaxKind.IntrinsicKeyword
     // | SyntaxKind.NeverKeyword
     // | SyntaxKind.NumberKeyword
     | SyntaxKind.ObjectKeyword
-    | SyntaxKind.StringKeyword
+    | SyntaxKind.StringKeyword    
     // | SyntaxKind.SymbolKeyword
     | SyntaxKind.UndefinedKeyword
     | SyntaxKind.UnknownKeyword
@@ -1729,6 +1746,7 @@ export type KeywordSyntaxKind =
     | SyntaxKind.SwitchKeyword
     | SyntaxKind.WhileKeyword
     | SyntaxKind.AsyncKeyword
+    | SyntaxKind.IntrinsicKeyword
     | SyntaxKind.PrivateKeyword
     | SyntaxKind.ProtectedKeyword
     | SyntaxKind.PublicKeyword

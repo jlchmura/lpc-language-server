@@ -323,7 +323,8 @@ const textToToken = new Map(Object.entries({
     "||=": SyntaxKind.BarBarEqualsToken,    
     "??=": SyntaxKind.QuestionQuestionEqualsToken,
     "@": SyntaxKind.AtToken,
-    "#": SyntaxKind.HashToken,    
+    "#": SyntaxKind.HashToken,   
+    "any": SyntaxKind.AnyKeyword 
 }));
 
 export type ErrorCallback = (message: DiagnosticMessage, length: number, arg0?: any) => void;
@@ -713,5 +714,4 @@ export function getLinesBetweenPositions(sourceFile: SourceFileLike, pos1: numbe
     const upperLine = computeLineOfPosition(lineStarts, upper, lowerLine);
     return isNegative ? lowerLine - upperLine : upperLine - lowerLine;
 }
-
 

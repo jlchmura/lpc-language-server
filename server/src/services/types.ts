@@ -128,15 +128,26 @@ declare module "../compiler/types.js" {
 
 declare module "../compiler/types.js" {
     // Module transform: converted from interface augmentation
+    export interface Signature {
+        getDeclaration(): SignatureDeclaration;
+        getTypeParameters(): TypeParameter[] | undefined;
+        getParameters(): Symbol[];
+        //getTypeParameterAtPosition(pos: number): Type;
+        getReturnType(): Type;
+        getDocumentationComment(typeChecker: TypeChecker | undefined): SymbolDisplayPart[];
+        getJsDocTags(): JSDocTagInfo[];
+    }
+}
+
+declare module "../compiler/types.js" {
+    // Module transform: converted from interface augmentation
     export interface Symbol {
         // readonly name: string;
         getFlags(): SymbolFlags;
         // getEscapedName(): string;
         getName(): string;
         getDeclarations(): Declaration[] | undefined;
-        getDocumentationComment(
-            typeChecker: TypeChecker | undefined
-        ): SymbolDisplayPart[];
+        getDocumentationComment(typeChecker: TypeChecker | undefined): SymbolDisplayPart[];
         /** @internal */
         getContextualDocumentationComment(
             context: Node | undefined,
@@ -347,6 +358,15 @@ export interface LanguageService {
         fileName: string,
         position: number
     ): readonly DefinitionInfo[] | undefined;
+
+    /**
+     * Gets semantic information about the identifier at a particular position in a
+     * file. Quick info is what you typically see when you hover in an editor.
+     *
+     * @param fileName The path to the file
+     * @param position A zero-based index of the character where you want the quick info
+     */
+    getQuickInfoAtPosition(fileName: string, position: number): QuickInfo | undefined;
 }
 
 export interface HostCancellationToken {
@@ -583,3 +603,66 @@ export namespace ScriptSnapshot {
     }
 }
 
+export interface QuickInfo {
+    kind: ScriptElementKind;
+    kindModifiers: string;
+    textSpan: TextSpan;
+    displayParts?: SymbolDisplayPart[];
+    documentation?: SymbolDisplayPart[];
+    tags?: JSDocTagInfo[];
+}
+
+export const enum ScriptElementKindModifier {
+    none = "",
+    publicMemberModifier = "public",
+    privateMemberModifier = "private",
+    protectedMemberModifier = "protected",
+    exportedModifier = "export",
+    ambientModifier = "declare",
+    staticModifier = "static",
+    abstractModifier = "abstract",
+    optionalModifier = "optional",
+
+    deprecatedModifier = "deprecated",
+
+    dtsModifier = ".d.ts",
+    tsModifier = ".ts",
+    tsxModifier = ".tsx",
+    jsModifier = ".js",
+    jsxModifier = ".jsx",
+    jsonModifier = ".json",
+    dmtsModifier = ".d.mts",
+    mtsModifier = ".mts",
+    mjsModifier = ".mjs",
+    dctsModifier = ".d.cts",
+    ctsModifier = ".cts",
+    cjsModifier = ".cjs",
+}
+
+export enum SymbolDisplayPartKind {
+    aliasName,
+    className,
+    enumName,
+    fieldName,
+    interfaceName,
+    keyword,
+    lineBreak,
+    numericLiteral,
+    stringLiteral,
+    localName,
+    methodName,
+    moduleName,
+    operator,
+    parameterName,
+    propertyName,
+    punctuation,
+    space,
+    text,
+    typeParameterName,
+    enumMemberName,
+    functionName,
+    regularExpressionLiteral,
+    link,
+    linkName,
+    linkText,
+}

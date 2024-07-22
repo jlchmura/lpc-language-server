@@ -214,7 +214,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
             }
         }
         if (!host.getParsedCommandLine) {
-            throw "implement me";
+            console.warn("TODO - implement me - oldProgram.getCompilerOptions()");
             // oldProgram.forEachResolvedProjectReference(resolvedProjectReference => {
             //     if (!getResolvedProjectReferenceByPath(resolvedProjectReference.sourceFile.path)) {
             //         host.onReleaseOldSourceFile!(resolvedProjectReference.sourceFile, oldProgram!.getCompilerOptions(), /*hasSourceFileByPath*/ false, /*newSourceFileByResolvedPath*/ undefined);

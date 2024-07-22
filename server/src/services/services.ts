@@ -119,6 +119,17 @@ import {
     createTextSpanFromBounds,
     GoToDefinition,
     PossibleProgramFileInfo,
+    QuickInfo,
+    getTouchingPropertyName,
+    isNewExpression,
+    findAncestor,
+    ScriptElementKind,
+    ScriptElementKindModifier,
+    createTextSpanFromNode,
+    SymbolDisplay,
+    EmitTextWriter,
+    typeToDisplayParts,
+    getContainerNode,
 } from "./_namespaces/lpc.js";
 
 // These utilities are common to multiple language service features.
@@ -1195,6 +1206,7 @@ export function createLanguageService(
 
     const ls: LanguageService = {
         getDefinitionAtPosition,
+        getQuickInfoAtPosition
     };
 
     return ls;
@@ -1514,6 +1526,82 @@ export function createLanguageService(
         synchronizeHostData();        
         return GoToDefinition.getDefinitionAtPosition(program, getValidSourceFile(fileName), position, searchOtherFilesOnly, stopAtAlias);
     }
+
+    function getNodeForQuickInfo(node: Node): Node {
+        if (isNewExpression(node.parent) && node.pos === node.parent.pos) {
+            return node.parent.expression;
+        }
+        // if (isNamedTupleMember(node.parent) && node.pos === node.parent.pos) {
+        //     return node.parent;
+        // }
+        // if (isImportMeta(node.parent) && node.parent.name === node) {
+        //     return node.parent;
+        // }        
+        return node;
+    }
+
+    function shouldGetType(sourceFile: SourceFile, node: Node, position: number): boolean {
+        switch (node.kind) {
+            case SyntaxKind.Identifier:
+                // if (
+                //     node.flags & NodeFlags.JSDoc &&
+                //     ((node.parent.kind === SyntaxKind.PropertySignature && (node.parent as PropertySignature).name === node) ||
+                //         findAncestor(node, n => n.kind === SyntaxKind.Parameter))
+                // ) {
+                //     // if we'd request type at those locations we'd get `errorType` that displays confusingly as `any`
+                //     return false;
+                // }
+                return true;// !isLabelName(node) && !isTagName(node) && !isConstTypeReference(node.parent);
+            case SyntaxKind.PropertyAccessExpression:
+            case SyntaxKind.QualifiedName:
+                // Don't return quickInfo if inside the comment in `a/**/.b`
+                Debug.fail("TODO");
+                //return !isInComment(sourceFile, position);
+            case SyntaxKind.SuperKeyword:
+            // case SyntaxKind.NamedTupleMember:
+                return true;
+            // case SyntaxKind.MetaProperty:
+            //     return isImportMeta(node);
+            default:
+                return false;
+        }
+    }
+    
+    function getQuickInfoAtPosition(fileName: string, position: number): QuickInfo | undefined {
+        synchronizeHostData();
+
+        const sourceFile = getValidSourceFile(fileName);
+        const node = getTouchingPropertyName(sourceFile, position);
+        if (node === sourceFile) {
+            // Avoid giving quickInfo for the sourceFile as a whole.
+            return undefined;
+        }
+
+        const typeChecker = program.getTypeChecker();
+        const nodeForQuickInfo = getNodeForQuickInfo(node);
+        const symbol = getSymbolAtLocationForQuickInfo(nodeForQuickInfo, typeChecker);
+        if (!symbol || typeChecker.isUnknownSymbol(symbol)) {
+            const type = shouldGetType(sourceFile, nodeForQuickInfo, position) ? typeChecker.getTypeAtLocation(nodeForQuickInfo) : undefined;
+            return type && {
+                kind: ScriptElementKind.unknown,
+                kindModifiers: ScriptElementKindModifier.none,
+                textSpan: createTextSpanFromNode(nodeForQuickInfo, sourceFile),
+                displayParts: typeChecker.runWithCancellationToken(cancellationToken, typeChecker => typeToDisplayParts(typeChecker, type, getContainerNode(nodeForQuickInfo))),
+                documentation: type.symbol ? type.symbol.getDocumentationComment(typeChecker) : undefined,
+                tags: type.symbol ? type.symbol.getJsDocTags(typeChecker) : undefined,
+            };
+        }
+
+        const { symbolKind, displayParts, documentation, tags } = typeChecker.runWithCancellationToken(cancellationToken, typeChecker => SymbolDisplay.getSymbolDisplayPartsDocumentationAndSymbolKind(typeChecker, symbol, sourceFile, getContainerNode(nodeForQuickInfo), nodeForQuickInfo));
+        return {
+            kind: symbolKind,
+            kindModifiers: SymbolDisplay.getSymbolModifiers(typeChecker, symbol),
+            textSpan: createTextSpanFromNode(nodeForQuickInfo, sourceFile),
+            displayParts,
+            documentation,
+            tags,
+        };
+    }
 }
 
 setObjectAllocator(getServicesObjectAllocator());
@@ -1634,3 +1722,19 @@ export function updateLanguageServiceSourceFile(
     );
 }
 
+function getSymbolAtLocationForQuickInfo(node: Node, checker: TypeChecker): Symbol | undefined {
+    // const object = getContainingObjectLiteralElement(node);
+    // if (object) {
+    //     const contextualType = checker.getContextualType(object.parent);
+    //     const properties = contextualType && getPropertySymbolsFromContextualType(object, checker, contextualType, /*unionSymbolOk*/ false);
+    //     if (properties && properties.length === 1) {
+    //         return first(properties);
+    //     }
+    // }
+    return checker.getSymbolAtLocation(node);
+}
+
+/** @internal */
+export interface DisplayPartsSymbolWriter extends EmitTextWriter {
+    displayParts(): SymbolDisplayPart[];
+}

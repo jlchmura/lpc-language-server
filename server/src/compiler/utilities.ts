@@ -4395,3 +4395,7 @@ export function concatenateDiagnosticMessageChains(headChain: DiagnosticMessageC
     lastChain.next = [tailChain];
 }
 
+/** @internal */
+export function getEffectiveModifierFlagsAlwaysIncludeJSDoc(node: Node): ModifierFlags {
+    return getModifierFlagsWorker(node, /*includeJSDoc*/ true, /*alwaysIncludeJSDoc*/ true);
+}
