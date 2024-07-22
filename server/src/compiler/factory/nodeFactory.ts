@@ -32,6 +32,7 @@ import {
     EmptyStatement,
     EndOfFileToken,
     EntityName,
+    EqualsToken,
     Expression,
     ExpressionStatement,
     FloatLiteral,
@@ -88,6 +89,7 @@ import {
     QuestionToken,
     ReturnStatement,
     setIdentifierTypeArguments,
+    setTextRange,
     SourceFile,
     Statement,
     StringLiteral,
@@ -211,7 +213,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createPrefixUnaryExpression,
         createPostfixUnaryExpression,
         createElementAccessExpression,
-
+        convertToAssignmentExpression,
 
         cloneNode,
     };
@@ -560,13 +562,15 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     function createVariableDeclaration(
         name: string | BindingName,
         type: TypeNode | undefined,
-        initializer: Expression | undefined
+        eqToken?: EqualsToken,
+        initializer?: Expression | undefined
     ): VariableDeclaration {
         const node = createBaseDeclaration<VariableDeclaration>(
             SyntaxKind.VariableDeclaration
         );
         node.name = asName(name);
         node.type = type;
+        node.equalsToken = eqToken;
         node.initializer = asInitializer(initializer);
         node.jsDoc = undefined; // initialized by parser (JsDocContainer)
         return node;
@@ -617,6 +621,30 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         node.right = right;
         node.jsDoc = undefined; // initialized by parser (JsDocContainer)
         return node;
+    }
+
+    // @api
+    function convertToAssignmentExpression(node: Mutable<VariableDeclaration>): BinaryExpression {
+        Debug.assertNode(node.name, isIdentifier);
+        Debug.assertIsDefined(node.equalsToken);
+        Debug.assertIsDefined(node.initializer);
+                
+        const name = node.name;
+        const initializer = node.initializer;
+        const eq = node.equalsToken;
+
+        // now clear our original properties
+        node.name = undefined!;
+        node.initializer = undefined!;
+        node.equalsToken = undefined!;
+        
+        // convert to binary expression
+        const newNode = node as unknown as Mutable<BinaryExpression>;
+        newNode.kind = SyntaxKind.BinaryExpression;
+        newNode.left = name;    
+        newNode.operatorToken = eq;
+        newNode.right = initializer!;
+        return newNode;        
     }
 
     function asToken<TKind extends SyntaxKind>(value: TKind | Token<TKind>): Token<TKind> {

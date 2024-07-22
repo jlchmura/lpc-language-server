@@ -1,4 +1,4 @@
-import { CompilerOptions, Debug, FlowFlags, FlowLabel, FlowNode, HasLocals, IsBlockScopedContainer, IsContainer, Node, objectAllocator, SourceFile, SymbolFlags, Symbol, tracing, setParent, TracingNode, SyntaxKind, isFunctionLike, NodeArray, forEach, forEachChild, Mutable, HasContainerFlags, createSymbolTable, ModifierFlags, FunctionExpression, InlineClosureExpression, NodeFlags, FunctionLikeDeclaration, getImmediatelyInvokedFunctionExpression, nodeIsPresent, contains, isIdentifier, HasFlowNode, performance, VariableDeclaration, isBlockOrCatchScoped, Declaration, canHaveLocals, isPartOfParameterDeclaration, SymbolTable, hasSyntacticModifier, Diagnostics, isNamedDeclaration, length, DiagnosticRelatedInformation, getNameOfDeclaration, appendIfUnique, setValueDeclaration, addRelatedInfo, Identifier, StringLiteral, isPropertyNameLiteral, InternalSymbolName, getAssignmentDeclarationKind, BinaryExpression, AssignmentDeclarationKind, declarationNameToString, createDiagnosticForNodeInSourceFile, getSourceFileOfNode, DiagnosticMessage, DiagnosticArguments, DiagnosticWithLocation, ReturnStatement, IfStatement, Expression, isTruthyLiteral, isFalsyLiteral, FlowCondition, PrefixUnaryExpression, isLogicalOrCoalescingAssignmentExpression, isLogicalOrCoalescingBinaryExpression, isForEachStatement, FlowAssignment, FlowArrayMutation, Block, ConditionalExpression, WhileStatement, Statement, DoWhileStatement, ForStatement, ForEachStatement, BreakOrContinueStatement, SwitchStatement, FlowSwitchClause, CaseBlock, CallExpression, isAssignmentOperator, PropertyAccessExpression, ParenthesizedExpression, isLeftHandSideExpression, PostfixUnaryExpression, ArrayLiteralExpression, ObjectLiteralExpression, isBinaryLogicalOperator, isLogicalOrCoalescingAssignmentOperator, isParenthesizedExpression, isPrefixUnaryExpression, BinaryOperatorToken, isAssignmentTarget, ElementAccessExpression, isBinaryExpression, isDottedName, FlowCall, createBinaryExpressionTrampoline, CaseClause, CallChain, LeftHandSideExpression, skipParentheses, ParameterDeclaration, ExpressionStatement, FunctionDeclaration, removeFileExtension, hasEffectiveModifier, getCombinedModifierFlags, isExpression, isIdentifierName, identifierToKeywordKind, AccessExpression, BindingElement, TypeLiteralNode, JSDocTypeLiteral, EntityNameExpression } from "./_namespaces/lpc";
+import { CompilerOptions, Debug, FlowFlags, FlowLabel, FlowNode, HasLocals, IsBlockScopedContainer, IsContainer, Node, objectAllocator, SourceFile, SymbolFlags, Symbol, tracing, setParent, TracingNode, SyntaxKind, isFunctionLike, NodeArray, forEach, forEachChild, Mutable, HasContainerFlags, createSymbolTable, ModifierFlags, FunctionExpression, InlineClosureExpression, NodeFlags, FunctionLikeDeclaration, getImmediatelyInvokedFunctionExpression, nodeIsPresent, contains, isIdentifier, HasFlowNode, performance, VariableDeclaration, isBlockOrCatchScoped, Declaration, canHaveLocals, isPartOfParameterDeclaration, SymbolTable, hasSyntacticModifier, Diagnostics, isNamedDeclaration, length, DiagnosticRelatedInformation, getNameOfDeclaration, appendIfUnique, setValueDeclaration, addRelatedInfo, Identifier, StringLiteral, isPropertyNameLiteral, InternalSymbolName, getAssignmentDeclarationKind, BinaryExpression, AssignmentDeclarationKind, declarationNameToString, createDiagnosticForNodeInSourceFile, getSourceFileOfNode, DiagnosticMessage, DiagnosticArguments, DiagnosticWithLocation, ReturnStatement, IfStatement, Expression, isTruthyLiteral, isFalsyLiteral, FlowCondition, PrefixUnaryExpression, isLogicalOrCoalescingAssignmentExpression, isLogicalOrCoalescingBinaryExpression, isForEachStatement, FlowAssignment, FlowArrayMutation, Block, ConditionalExpression, WhileStatement, Statement, DoWhileStatement, ForStatement, ForEachStatement, BreakOrContinueStatement, SwitchStatement, FlowSwitchClause, CaseBlock, CallExpression, isAssignmentOperator, PropertyAccessExpression, ParenthesizedExpression, isLeftHandSideExpression, PostfixUnaryExpression, ArrayLiteralExpression, ObjectLiteralExpression, isBinaryLogicalOperator, isLogicalOrCoalescingAssignmentOperator, isParenthesizedExpression, isPrefixUnaryExpression, BinaryOperatorToken, isAssignmentTarget, ElementAccessExpression, isBinaryExpression, isDottedName, FlowCall, createBinaryExpressionTrampoline, CaseClause, CallChain, LeftHandSideExpression, skipParentheses, ParameterDeclaration, ExpressionStatement, FunctionDeclaration, removeFileExtension, hasEffectiveModifier, getCombinedModifierFlags, isExpression, isIdentifierName, identifierToKeywordKind, AccessExpression, BindingElement, TypeLiteralNode, JSDocTypeLiteral, EntityNameExpression, isVariableDeclaration, factory, isVariableDeclarationList, isVariableStatement, setNodeFlags } from "./_namespaces/lpc";
 
 const binder = /* @__PURE__ */ createBinder();
 
@@ -37,7 +37,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
     //var delayedTypeAliases: (JSDocTypedefTag | JSDocCallbackTag | JSDocEnumTag)[];
     var seenThisKeyword: boolean;
     //var jsDocImports: JSDocImportTag[];
-
+    
     // state used by control flow analysis
     var currentFlow: FlowNode;
     var currentBreakTarget: FlowLabel | undefined;
@@ -520,10 +520,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             case SyntaxKind.Parameter:
                 return bindParameter(node as ParameterDeclaration);
             case SyntaxKind.FunctionDeclaration:
-                return bindFunctionDeclaration(node as FunctionDeclaration);
-            case SyntaxKind.BindingElement:
-                (node as BindingElement).flowNode = currentFlow;
-                return bindVariableDeclarationOrBindingElement(node as BindingElement);
+                return bindFunctionDeclaration(node as FunctionDeclaration);            
                 // case SyntaxKind.FunctionExpression:
             // case SyntaxKind.ArrowFunction:
             //     return bindFunctionExpression(node as FunctionExpression | ArrowFunction);
@@ -556,6 +553,11 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
                 //    bindCallExpression(node as CallExpression);
                 //}
                 return;
+            case SyntaxKind.BindingElement:
+                (node as BindingElement).flowNode = currentFlow;
+                bindVariableDeclarationOrBindingElement(node as BindingElement);
+                // if node type changed to binary expression, then fall through. otherwise return
+                if ((node as Node).kind !== SyntaxKind.BinaryExpression) return;
             case SyntaxKind.BinaryExpression:
                 const specialKind = getAssignmentDeclarationKind(node as BinaryExpression);
                 switch (specialKind) {
@@ -785,7 +787,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             // Otherwise, we'll be merging into a compatible existing symbol (for example when
             // you have multiple 'vars' with the same name in the same container).  In this case
             // just add this node into the declarations list of the symbol.
-            symbol = symbolTable.get(name);
+            symbol = symbolTable.get(name);            
 
             if (includes & SymbolFlags.Classifiable) {
                 classifiableNames.add(name);
@@ -1089,7 +1091,35 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
 
     function bindVariableDeclarationOrBindingElement(node: VariableDeclaration | BindingElement) {    
         const possibleVariableDecl = node.kind === SyntaxKind.VariableDeclaration ? node : node.parent.parent;
+        
         if (isBlockOrCatchScoped(node)) {
+            // it must be a variable decl without a type
+            // it must be in a catch or a var decl list with only 1 declaration
+            if (isVariableDeclaration(node) && !node.type && (
+                !isVariableDeclarationList(node.parent) || 
+                (                        
+                    node.parent.declarations.length == 1 && (!isVariableStatement(node.parent.parent) || (node.parent.parent.modifiers?.length ?? 0) == 0)
+                )
+            )) {
+                // LPC does not require type or modifiers when declaring a variable, therefore we 
+                // need to check whether this is a true variable declaration, or an assignment.
+                // we'll do a symbol lookup in the same way that it is done later, in declarSymbol.
+                const name = getDeclarationName(node);
+                Debug.assertIsDefined(name, "Expected variable declaration to have a name");
+                const symbol = blockScopeContainer && canHaveLocals(blockScopeContainer) ? blockScopeContainer.locals?.get(name) : undefined;
+
+                if (symbol) {
+                    // change to an assignment expression, bind it, and exit.    
+                    const binExp = factory.convertToAssignmentExpression(node);
+                    // (binExp as Mutable<BinaryExpression>).flags |= NodeFlags.Synthesized;
+                    // setParent(binExp, blockScopeContainer);                    
+                    //bindBinaryExpressionFlow(binExp);                    
+                    return;
+                }
+
+                // if a symbol wasn't found, then fall through and declare this is a new variable.
+            }
+
             bindBlockScopedDeclaration(node, SymbolFlags.BlockScopedVariable, SymbolFlags.BlockScopedVariableExcludes);
         }
         else if (isPartOfParameterDeclaration(node)) {
@@ -1105,6 +1135,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             declareSymbolAndAddToSymbolTable(node, SymbolFlags.FunctionScopedVariable, SymbolFlags.ParameterExcludes);
         }
         else {
+            Debug.fail("address this");
             declareSymbolAndAddToSymbolTable(node, SymbolFlags.FunctionScopedVariable, SymbolFlags.FunctionScopedVariableExcludes);
         }
     

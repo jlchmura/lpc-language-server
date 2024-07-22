@@ -1,5 +1,5 @@
 import { LpcConfig } from "../backend/LpcConfig.js";
-import { BaseNodeFactory, EmitHelperFactory, GetCanonicalFileName, MapLike, MultiMap, NodeFactoryFlags } from "./_namespaces/lpc.js";
+import { BaseNodeFactory, EmitHelperFactory, GetCanonicalFileName, MapLike, MultiMap, Mutable, NodeFactoryFlags } from "./_namespaces/lpc.js";
 
 // Note: 'brands' in our syntax nodes serve to give us a small amount of nominal typing.
 // Consider 'Expression'.  Without the brand, 'Expression' is actually no different
@@ -1079,7 +1079,7 @@ export interface NodeFactory {
     createBlock(statements: readonly Statement[], multiLine?: boolean): Block;
     createVariableStatement(modifiers: readonly Modifier[] | undefined, declarationList: VariableDeclarationList | readonly VariableDeclaration[]): VariableStatement;
     createVariableDeclarationList(declarations: readonly VariableDeclaration[], flags?: NodeFlags): VariableDeclarationList;
-    createVariableDeclaration(name: string | BindingName, type: TypeNode | undefined, initializer: Expression | undefined): VariableDeclaration;    
+    createVariableDeclaration(name: string | BindingName, type: TypeNode | undefined, eqToken: EqualsToken, initializer: Expression | undefined): VariableDeclaration;    
     createFunctionDeclaration(modifiers: readonly Modifier[] | undefined, name: string | Identifier | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode | undefined, body: Block | undefined): FunctionDeclaration;
     createExpressionStatement(expression: Expression): ExpressionStatement;
     createReturnStatement(expression?: Expression): ReturnStatement;
@@ -1107,6 +1107,7 @@ export interface NodeFactory {
     createPrefixUnaryExpression(operator: PrefixUnaryOperator, operand: Expression): PrefixUnaryExpression;
     createPostfixUnaryExpression(operand: Expression, operator: PostfixUnaryOperator): PostfixUnaryExpression;
     createElementAccessExpression(expression: Expression, index: number | Expression): ElementAccessExpression;
+    convertToAssignmentExpression(node: Mutable<VariableDeclaration>): BinaryExpression
 
     /**
      * Creates a shallow, memberwise clone of a node.
@@ -2603,6 +2604,7 @@ export interface VariableDeclaration extends NamedDeclaration, JSDocContainer {
     readonly parent: VariableDeclarationList | CatchClause;
     readonly name: BindingName;                    // Declared variable name    
     readonly type?: TypeNode;                      // Optional type annotation
+    readonly equalsToken?: Token<SyntaxKind.EqualsToken>; // Optional initializer token
     readonly initializer?: Expression;             // Optional initializer
 }
 
