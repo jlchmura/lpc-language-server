@@ -4394,3 +4394,4 @@ export function concatenateDiagnosticMessageChains(headChain: DiagnosticMessageC
 
     lastChain.next = [tailChain];
 }
+

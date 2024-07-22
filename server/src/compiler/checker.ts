@@ -1767,7 +1767,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
         if (canHaveJSDoc(node)) {
             // TODO
-            console.warn("Implement me - checkJSDocElement");
+            //console.warn("Implement me - checkJSDocElement");
             // forEach(node.jsDoc, ({ comment, tags }) => {
             //     checkJSDocCommentWorker(comment);
             //     forEach(tags, tag => {
@@ -1949,10 +1949,16 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             //     return;
             // case SyntaxKind.MissingDeclaration:
             //     return checkMissingDeclaration(node);
+            
+            // these types don't need any additional checking here
+            case SyntaxKind.BinaryExpression:
+            case SyntaxKind.IntKeyword:
+            case SyntaxKind.StringKeyword:
+                return;
         }
 
         // TODO
-        console.warn("Implement me - checkSourceElementWorker");
+        console.warn("Implement me - checkSourceElementWorker - " + Debug.formatSyntaxKind(node.kind));
     }
 
     function checkExpressionStatement(node: ExpressionStatement) {
@@ -2161,7 +2167,6 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     function getSignatureFromDeclaration(declaration: SignatureDeclaration | JSDocSignature): Signature {
         const links = getNodeLinks(declaration);
         if (!links.resolvedSignature) {
-            //console.warn("Implement me - getSignatureFromDeclaration");
             const parameters: Symbol[] = [];
             let flags = SignatureFlags.None;
             let minArgumentCount = 0;
