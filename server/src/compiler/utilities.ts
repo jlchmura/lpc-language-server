@@ -4384,3 +4384,13 @@ export function isNonNullAccess(node: Node): node is AccessExpression {
     return (kind === SyntaxKind.PropertyAccessExpression
         || kind === SyntaxKind.ElementAccessExpression) && true;//isNonNullExpression((node as AccessExpression).expression);
 }
+
+/** @internal */
+export function concatenateDiagnosticMessageChains(headChain: DiagnosticMessageChain, tailChain: DiagnosticMessageChain): void {
+    let lastChain = headChain;
+    while (lastChain.next) {
+        lastChain = lastChain.next[0];
+    }
+
+    lastChain.next = [tailChain];
+}

@@ -112,4 +112,6 @@ export const Diagnostics = {
     Cannot_find_global_type_0: diag(2318, DiagnosticCategory.Error, "Cannot_find_global_type_0_2318", "Cannot find global type '{0}'."),
     Global_type_0_must_be_a_class_or_interface_type: diag(2316, DiagnosticCategory.Error, "Global_type_0_must_be_a_class_or_interface_type_2316", "Global type '{0}' must be a class or interface type."),
     Global_type_0_must_have_1_type_parameter_s: diag(2317, DiagnosticCategory.Error, "Global_type_0_must_have_1_type_parameter_s_2317", "Global type '{0}' must have {1} type parameter(s)."),
+    Excessive_complexity_comparing_types_0_and_1: diag(2859, DiagnosticCategory.Error, "Excessive_complexity_comparing_types_0_and_1_2859", "Excessive complexity comparing types '{0}' and '{1}'."),
+    Excessive_stack_depth_comparing_types_0_and_1: diag(2321, DiagnosticCategory.Error, "Excessive_stack_depth_comparing_types_0_and_1_2321", "Excessive stack depth comparing types '{0}' and '{1}'."),
 }

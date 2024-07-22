@@ -80,6 +80,7 @@ const svc = doCreateLanguageService();
 const srcFile = host.getSourceFile(filename);
 const checker = p2.createTypeChecker(host); // binder is called by checker
 const diags = checker.getDiagnostics(srcFile);
+const daigsB = srcFile.bindDiagnostics;
 
 const pos = 163;
 const node = getTouchingPropertyName(srcFile, pos);
