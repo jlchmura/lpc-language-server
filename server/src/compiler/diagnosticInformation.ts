@@ -109,4 +109,7 @@ export const Diagnostics = {
     Object_literal_may_only_specify_known_properties_and_0_does_not_exist_in_type_1: diag(2353, DiagnosticCategory.Error, "Object_literal_may_only_specify_known_properties_and_0_does_not_exist_in_type_1_2353", "Object literal may only specify known properties, and '{0}' does not exist in type '{1}'."),
     The_containing_function_or_module_body_is_too_large_for_control_flow_analysis: diag(2563, DiagnosticCategory.Error, "The_containing_function_or_module_body_is_too_large_for_control_flow_analysis_2563", "The containing function or module body is too large for control flow analysis."),
     Expression_produces_a_union_type_that_is_too_complex_to_represent: diag(2590, DiagnosticCategory.Error, "Expression_produces_a_union_type_that_is_too_complex_to_represent_2590", "Expression produces a union type that is too complex to represent."),
+    Cannot_find_global_type_0: diag(2318, DiagnosticCategory.Error, "Cannot_find_global_type_0_2318", "Cannot find global type '{0}'."),
+    Global_type_0_must_be_a_class_or_interface_type: diag(2316, DiagnosticCategory.Error, "Global_type_0_must_be_a_class_or_interface_type_2316", "Global type '{0}' must be a class or interface type."),
+    Global_type_0_must_have_1_type_parameter_s: diag(2317, DiagnosticCategory.Error, "Global_type_0_must_have_1_type_parameter_s_2317", "Global type '{0}' must have {1} type parameter(s)."),
 }

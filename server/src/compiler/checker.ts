@@ -1,5 +1,5 @@
 import { CharacterCodes } from "../backend/types";
-import { setTextRange as setTextRangeWorker, Type, Symbol, SymbolLinks, CancellationToken, createSymbolTable, Declaration, EmitTextWriter, ModifierFlags, Node, NodeFlags, objectAllocator, Scanner, Signature, SignatureKind, SymbolFlags, TypeChecker, TypeCheckerHost, TypeFormatFlags, TypeParameter, CheckFlags, TransientSymbol, TransientSymbolLinks, reduceLeft, bindSourceFile, SourceFile, Diagnostic, createDiagnosticCollection, concatenate, forEach, tracing, performance, NodeLinks, NodeCheckFlags, FlowNode, FlowType, clear, SyntaxKind, TracingNode, CallLikeExpression, CallExpression, isCallOrNewExpression, isBinaryExpression, Expression, SignatureDeclaration, SignatureFlags, emptyArray, TypeFlags, IntrinsicType, ObjectFlags, Debug, BinaryExpression, ObjectType, StructuredType, ResolvedType, SymbolTable, IndexInfo, Identifier, nodeIsMissing, createNameResolver, InternalSymbolName, SymbolId, some, DiagnosticMessage, DiagnosticArguments, createDiagnosticForNode, createCompilerDiagnostic, FunctionLikeDeclaration, PropertyDeclaration, isString, isIdentifier, Diagnostics, findLast, SymbolFormatFlags, isAccessExpression, isFunctionExpression, isAliasableExpression, PropertyAssignment, isVariableDeclarationInitializedToBareOrAccessedRequire, mapDefined, arrayFrom, getSpellingSuggestion, symbolName, startsWith, nodeIsSynthesized, declarationNameToString, getCanonicalDiagnostic, DiagnosticCategory, addRelatedInfo, ParameterDeclaration, BindingElement, isSourceFile, isExternalOrCommonJsModule, isBlockOrCatchScoped, length, every, isValidTypeOnlyAliasUseSite, isWriteOnlyAccess, getCombinedNodeFlags, DiagnosticWithLocation, getJSDocDeprecatedTag, findAncestor, isCallLikeExpression, isFunctionLike, ParenthesizedExpression, isAssignmentExpression, isVariableDeclaration, isBindingElement, PropertyAccessExpression, getEnclosingBlockScopeContainer, isPropertyDeclaration, nodeStartsNewLexicalEnvironment, isIterationStatement, isForStatement, getAncestor, ForStatement, pushIfUnique, isAssignmentTarget, PrefixUnaryExpression, PostfixUnaryExpression, isBlock, isExpressionNode, isPropertyAccessExpression, getAssignmentTargetKind, AssignmentKind, isInCompoundLikeAssignment, UnionType, TypeId, UnionReduction, getRootDeclaration, getImmediatelyInvokedFunctionExpression, isSpreadAssignment, isParameter, VariableDeclaration, isFunctionLikeDeclaration, isTypeNode, forEachChild, tryCast, canHaveFlowNode, ElementAccessExpression, RelationComparisonResult, LiteralType, FreshableType, getObjectFlags, DiagnosticMessageChain, setNodeFlags, isCallExpression, LazyNodeCheckFlags, getSourceFileOfNode, canIncludeBindAndCheckDiagnostics, forEachChildRecursively, isDeclarationName, EntityName, JSDocMemberName, canHaveSymbol, isLiteralTypeNode, isElementAccessExpression, isIndexedAccessTypeNode, TypeNode, canHaveJSDoc, FlowFlags, FlowArrayMutation, FlowAssignment, FlowCall, FlowCondition, FlowLabel, FlowReduceLabel, FlowSwitchClause, SwitchStatement, createFileDiagnostic, createDiagnosticForFileFromMessageChain, createDiagnosticForNodeFromMessageChain, VariableStatement, HasModifiers, VariableDeclarationList, Block, isFunctionOrModuleBlock, CaseBlock, ForEachStatement, IndexSignatureDeclaration, Path, HasLocals, BindingPattern, idText, isForEachStatement, getNameOfDeclaration, isArrayBindingPattern, first, BindingName, cast, containsParseError, FunctionDeclaration, getFunctionFlags, getEffectiveReturnTypeNode, FunctionFlags, nodeIsPresent, JSDocSignature, isJSDocSignature, getJSDocRoot, LiteralTypeNode, TypeNodeSyntaxKind, isStatement, UnionOrIntersectionType, getContainingFunction, hasSyntacticModifier, isBindingPattern, sameMap, flatMap, getCheckFlags, singleElementArray, getDeclarationModifierFlagsFromSymbol, Ternary, append, find, isNumericLiteralName, StringLiteralType, contains, isTransientSymbol, addRange, filter, IndexType, getParseTreeNode, isRightSideOfQualifiedNameOrPropertyAccess, isWriteAccess, isRightSideOfAccessExpression, hasEffectiveModifier, getCombinedModifierFlags, isEntityName, PropertyAccessEntityNameExpression, isRightSideOfQualifiedNameOrPropertyAccessOrJSDocMemberName, QualifiedName, getHostSignatureFromJSDoc, or, EntityNameOrEntityNameExpression, isInJSFile, getFirstIdentifier, isQualifiedName, entityNameToString, isCallChain, isEntityNameExpression, isLineBreak, skipTrivia, DiagnosticRelatedInformation, IntLiteralType, FloatLiteralType, createTextWriter, chainDiagnosticMessages, getErrorSpanForNode, ShorthandPropertyAssignment, NodeBuilderFlags, SymbolTracker, TrackedSymbol, ReverseMappedSymbol, TypeMapper, ModuleSpecifierResolutionHost, Program, maybeBind, setEmitFlags, createNodeFactory, NodeFactoryFlags, BaseNodeFactory, Mutable, createBaseNodeFactory, firstDefined, isComputedPropertyName, isIdentifierText, escapeString, getEmitScriptTarget, factory, EmitFlags, isSingleOrDoubleQuote, canUsePropertyAccess, stripQuotes, DoWhileStatement, BinaryOperatorToken, isLogicalOrCoalescingBinaryOperator, isLogicalOrCoalescingBinaryExpression, isIfStatement, skipParentheses, Statement, PunctuationSyntaxKind, tokenToString, FreshableIntrinsicType, isLiteralExpressionOfObject, getAssignmentDeclarationKind, AssignmentDeclarationKind, ConditionalExpression, isAssignmentOperator, isJSDocTypedefTag, isIntLiteral, skipOuterExpressions, OuterExpressionKinds, isExpression, ObjectLiteralExpression, ArrayLiteralExpression, FunctionExpression, InlineClosureExpression, ObjectLiteralElementLike, hasContextSensitiveParameters, forEachReturnStatement, compareDiagnostics, Comparison, createBinaryExpressionTrampoline, IntLiteral, FloatLiteral, isShorthandPropertyAssignment, isPropertyAccessOrQualifiedName, isPrivateIdentifier, WideningContext, StringLiteral, ReturnStatement, ExpressionStatement, IfStatement, NewExpression, getMembersOfDeclaration, AccessExpression, isThisInitializedDeclaration, setValueDeclaration, comparePaths, getOrUpdate, usingSingleLineStringWriter, createPrinterWithRemoveCommentsNeverAsciiEscape, createPrinterWithRemoveComments, EmitHint, getEffectiveModifierFlags, getEffectiveTypeAnnotationNode, getAssignmentDeclarationPropertyAccessKind, isNamedDeclaration, map, PropertyName, isFloatLiteral, getPropertyNameForPropertyNameNode, isPartOfParameterDeclaration, hasOnlyExpressionInitializer, not, getEffectiveInitializer, isObjectLiteralExpression, isVariableLike, getSelectedEffectiveModifierFlags, AliasDeclarationNode, isBindingElementOfBareOrAccessedRequire, TypeReference, isFunctionExpressionOrInlineClosure, ContextFlags, indexOfNode, InferenceContext, isNodeDescendantOf, ObjectFlagsType, GenericType, ReverseMappedType, AnonymousType, DeferredTypeReference, InstantiationExpressionType, SingleSignatureType, MappedTypeNode, TypeParameterDeclaration, appendIfUnique, TypeMapKind, isPartOfTypeNode, TypeReferenceNode, MappedType, ArrayTypeNode, isParenthesizedTypeNode, isTypeAlias, IndexFlags, InferenceInfo, binarySearch, compareValues, hasInitializer, lastOrUndefined, HasExpressionInitializer, getContainingFunctionOrClassStaticBlock, getSpanOfTokenAtPosition, isJSDocParameterTag, hasRestParameter, isStringLiteral, walkUpBindingElementsAndPatterns, BindableObjectDefinePropertyCall, copyEntries, InterfaceType, isPropertyAssignment, DiagnosticAndArguments, FreshObjectLiteralType, BaseType, firstOrUndefined, SubstitutionType, createPrinterWithDefaults, noTruncationMaximumTruncationLength, defaultMaximumTruncationLength, arrayIsHomogeneous, isIdentifierTypeReference, createMultiMap, addSyntheticLeadingComment, NodeArray, getOriginalNode, getIdentifierTypeArguments, setIdentifierTypeArguments, IndexedAccessTypeNode, forEachEntry, ScriptTarget, SymbolAccessibility, canHaveLocals, getDeclarationOfKind, isClassLike, TypeElement, SymbolAccessibilityResult, SymbolVisibilityResult, LateVisibilityPaintedStatement, isVariableStatement, isLateVisibilityPaintedStatement, isTypeLiteralNode, PlusToken, MinusToken, walkUpParenthesizedTypes, setOriginalNode, countWhere, getNameFromIndexInfo, Modifier, notImplemented, isTypeParameterDeclaration, setParent, CallChain, isLiteralExpression, isStringOrNumericLiteralLike, FlowStart, getPropertyNameFromType, EvolvingArrayType, arrayIsEqualTo, isObjectLiteralMethod, isNonNullAccess, FlowSwitchClauseData, LiteralExpression, CaseClause, DefaultClause, findIndex, orderedRemoveItemAt } from "./_namespaces/lpc";
+import { setTextRange as setTextRangeWorker, Type, Symbol, SymbolLinks, CancellationToken, createSymbolTable, Declaration, EmitTextWriter, ModifierFlags, Node, NodeFlags, objectAllocator, Scanner, Signature, SignatureKind, SymbolFlags, TypeChecker, TypeCheckerHost, TypeFormatFlags, TypeParameter, CheckFlags, TransientSymbol, TransientSymbolLinks, reduceLeft, bindSourceFile, SourceFile, Diagnostic, createDiagnosticCollection, concatenate, forEach, tracing, performance, NodeLinks, NodeCheckFlags, FlowNode, FlowType, clear, SyntaxKind, TracingNode, CallLikeExpression, CallExpression, isCallOrNewExpression, isBinaryExpression, Expression, SignatureDeclaration, SignatureFlags, emptyArray, TypeFlags, IntrinsicType, ObjectFlags, Debug, BinaryExpression, ObjectType, StructuredType, ResolvedType, SymbolTable, IndexInfo, Identifier, nodeIsMissing, createNameResolver, InternalSymbolName, SymbolId, some, DiagnosticMessage, DiagnosticArguments, createDiagnosticForNode, createCompilerDiagnostic, FunctionLikeDeclaration, PropertyDeclaration, isString, isIdentifier, Diagnostics, findLast, SymbolFormatFlags, isAccessExpression, isFunctionExpression, isAliasableExpression, PropertyAssignment, isVariableDeclarationInitializedToBareOrAccessedRequire, mapDefined, arrayFrom, getSpellingSuggestion, symbolName, startsWith, nodeIsSynthesized, declarationNameToString, getCanonicalDiagnostic, DiagnosticCategory, addRelatedInfo, ParameterDeclaration, BindingElement, isSourceFile, isExternalOrCommonJsModule, isBlockOrCatchScoped, length, every, isValidTypeOnlyAliasUseSite, isWriteOnlyAccess, getCombinedNodeFlags, DiagnosticWithLocation, getJSDocDeprecatedTag, findAncestor, isCallLikeExpression, isFunctionLike, ParenthesizedExpression, isAssignmentExpression, isVariableDeclaration, isBindingElement, PropertyAccessExpression, getEnclosingBlockScopeContainer, isPropertyDeclaration, nodeStartsNewLexicalEnvironment, isIterationStatement, isForStatement, getAncestor, ForStatement, pushIfUnique, isAssignmentTarget, PrefixUnaryExpression, PostfixUnaryExpression, isBlock, isExpressionNode, isPropertyAccessExpression, getAssignmentTargetKind, AssignmentKind, isInCompoundLikeAssignment, UnionType, TypeId, UnionReduction, getRootDeclaration, getImmediatelyInvokedFunctionExpression, isSpreadAssignment, isParameter, VariableDeclaration, isFunctionLikeDeclaration, isTypeNode, forEachChild, tryCast, canHaveFlowNode, ElementAccessExpression, RelationComparisonResult, LiteralType, FreshableType, getObjectFlags, DiagnosticMessageChain, setNodeFlags, isCallExpression, LazyNodeCheckFlags, getSourceFileOfNode, canIncludeBindAndCheckDiagnostics, forEachChildRecursively, isDeclarationName, EntityName, JSDocMemberName, canHaveSymbol, isLiteralTypeNode, isElementAccessExpression, isIndexedAccessTypeNode, TypeNode, canHaveJSDoc, FlowFlags, FlowArrayMutation, FlowAssignment, FlowCall, FlowCondition, FlowLabel, FlowReduceLabel, FlowSwitchClause, SwitchStatement, createFileDiagnostic, createDiagnosticForFileFromMessageChain, createDiagnosticForNodeFromMessageChain, VariableStatement, HasModifiers, VariableDeclarationList, Block, isFunctionOrModuleBlock, CaseBlock, ForEachStatement, IndexSignatureDeclaration, Path, HasLocals, BindingPattern, idText, isForEachStatement, getNameOfDeclaration, isArrayBindingPattern, first, BindingName, cast, containsParseError, FunctionDeclaration, getFunctionFlags, getEffectiveReturnTypeNode, FunctionFlags, nodeIsPresent, JSDocSignature, isJSDocSignature, getJSDocRoot, LiteralTypeNode, TypeNodeSyntaxKind, isStatement, UnionOrIntersectionType, getContainingFunction, hasSyntacticModifier, isBindingPattern, sameMap, flatMap, getCheckFlags, singleElementArray, getDeclarationModifierFlagsFromSymbol, Ternary, append, find, isNumericLiteralName, StringLiteralType, contains, isTransientSymbol, addRange, filter, IndexType, getParseTreeNode, isRightSideOfQualifiedNameOrPropertyAccess, isWriteAccess, isRightSideOfAccessExpression, hasEffectiveModifier, getCombinedModifierFlags, isEntityName, PropertyAccessEntityNameExpression, isRightSideOfQualifiedNameOrPropertyAccessOrJSDocMemberName, QualifiedName, getHostSignatureFromJSDoc, or, EntityNameOrEntityNameExpression, isInJSFile, getFirstIdentifier, isQualifiedName, entityNameToString, isCallChain, isEntityNameExpression, isLineBreak, skipTrivia, DiagnosticRelatedInformation, IntLiteralType, FloatLiteralType, createTextWriter, chainDiagnosticMessages, getErrorSpanForNode, ShorthandPropertyAssignment, NodeBuilderFlags, SymbolTracker, TrackedSymbol, ReverseMappedSymbol, TypeMapper, ModuleSpecifierResolutionHost, Program, maybeBind, setEmitFlags, createNodeFactory, NodeFactoryFlags, BaseNodeFactory, Mutable, createBaseNodeFactory, firstDefined, isComputedPropertyName, isIdentifierText, escapeString, getEmitScriptTarget, factory, EmitFlags, isSingleOrDoubleQuote, canUsePropertyAccess, stripQuotes, DoWhileStatement, BinaryOperatorToken, isLogicalOrCoalescingBinaryOperator, isLogicalOrCoalescingBinaryExpression, isIfStatement, skipParentheses, Statement, PunctuationSyntaxKind, tokenToString, FreshableIntrinsicType, isLiteralExpressionOfObject, getAssignmentDeclarationKind, AssignmentDeclarationKind, ConditionalExpression, isAssignmentOperator, isJSDocTypedefTag, isIntLiteral, skipOuterExpressions, OuterExpressionKinds, isExpression, ObjectLiteralExpression, ArrayLiteralExpression, FunctionExpression, InlineClosureExpression, ObjectLiteralElementLike, hasContextSensitiveParameters, forEachReturnStatement, compareDiagnostics, Comparison, createBinaryExpressionTrampoline, IntLiteral, FloatLiteral, isShorthandPropertyAssignment, isPropertyAccessOrQualifiedName, isPrivateIdentifier, WideningContext, StringLiteral, ReturnStatement, ExpressionStatement, IfStatement, NewExpression, getMembersOfDeclaration, AccessExpression, isThisInitializedDeclaration, setValueDeclaration, comparePaths, getOrUpdate, usingSingleLineStringWriter, createPrinterWithRemoveCommentsNeverAsciiEscape, createPrinterWithRemoveComments, EmitHint, getEffectiveModifierFlags, getEffectiveTypeAnnotationNode, getAssignmentDeclarationPropertyAccessKind, isNamedDeclaration, map, PropertyName, isFloatLiteral, getPropertyNameForPropertyNameNode, isPartOfParameterDeclaration, hasOnlyExpressionInitializer, not, getEffectiveInitializer, isObjectLiteralExpression, isVariableLike, getSelectedEffectiveModifierFlags, AliasDeclarationNode, isBindingElementOfBareOrAccessedRequire, TypeReference, isFunctionExpressionOrInlineClosure, ContextFlags, indexOfNode, InferenceContext, isNodeDescendantOf, ObjectFlagsType, GenericType, ReverseMappedType, AnonymousType, DeferredTypeReference, InstantiationExpressionType, SingleSignatureType, MappedTypeNode, TypeParameterDeclaration, appendIfUnique, TypeMapKind, isPartOfTypeNode, TypeReferenceNode, MappedType, ArrayTypeNode, isParenthesizedTypeNode, isTypeAlias, IndexFlags, InferenceInfo, binarySearch, compareValues, hasInitializer, lastOrUndefined, HasExpressionInitializer, getContainingFunctionOrClassStaticBlock, getSpanOfTokenAtPosition, isJSDocParameterTag, hasRestParameter, isStringLiteral, walkUpBindingElementsAndPatterns, BindableObjectDefinePropertyCall, copyEntries, InterfaceType, isPropertyAssignment, DiagnosticAndArguments, FreshObjectLiteralType, BaseType, firstOrUndefined, SubstitutionType, createPrinterWithDefaults, noTruncationMaximumTruncationLength, defaultMaximumTruncationLength, arrayIsHomogeneous, isIdentifierTypeReference, createMultiMap, addSyntheticLeadingComment, NodeArray, getOriginalNode, getIdentifierTypeArguments, setIdentifierTypeArguments, IndexedAccessTypeNode, forEachEntry, ScriptTarget, SymbolAccessibility, canHaveLocals, getDeclarationOfKind, isClassLike, TypeElement, SymbolAccessibilityResult, SymbolVisibilityResult, LateVisibilityPaintedStatement, isVariableStatement, isLateVisibilityPaintedStatement, isTypeLiteralNode, PlusToken, MinusToken, walkUpParenthesizedTypes, setOriginalNode, countWhere, getNameFromIndexInfo, Modifier, notImplemented, isTypeParameterDeclaration, setParent, CallChain, isLiteralExpression, isStringOrNumericLiteralLike, FlowStart, getPropertyNameFromType, EvolvingArrayType, arrayIsEqualTo, isObjectLiteralMethod, isNonNullAccess, FlowSwitchClauseData, LiteralExpression, CaseClause, DefaultClause, findIndex, orderedRemoveItemAt, UnionTypeNode, ParenthesizedTypeNode } from "./_namespaces/lpc";
 
 let nextSymbolId = 1;
 let nextNodeId = 1;
@@ -111,6 +111,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     var checkBinaryExpression = createCheckBinaryExpression();
     var nodeBuilder = createNodeBuilder();
     var noImplicitAny = false;
+    var strictBindCallApply = false;
 
     interface DuplicateInfoForSymbol {
         readonly firstFileLocations: Declaration[];
@@ -281,8 +282,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     var stringLiteralTypes = new Map<string, StringLiteralType>();
     var undefinedOrMissingType = /*exactOptionalPropertyTypes ? missingType :*/ undefinedType;
     var unreachableNeverType = createIntrinsicType(TypeFlags.Never, "never", /*objectFlags*/ undefined, "unreachable");
+
     var unknownEmptyObjectType = createAnonymousType(/*symbol*/ undefined, emptySymbols, emptyArray, emptyArray, emptyArray);
     var unknownUnionType = strictNullChecks ? getUnionType([undefinedType, nullType, unknownEmptyObjectType]) : unknownType;
+    var emptyGenericType = createAnonymousType(/*symbol*/ undefined, emptySymbols, emptyArray, emptyArray, emptyArray) as ObjectType as GenericType;
+    emptyGenericType.instantiations = new Map<string, TypeReference>();
 
     var falseType = createIntrinsicType(TypeFlags.BooleanLiteral, "false", /*objectFlags*/ undefined, "fresh") as FreshableIntrinsicType;
     var regularFalseType = createIntrinsicType(TypeFlags.BooleanLiteral, "false") as FreshableIntrinsicType;
@@ -357,17 +361,17 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         getSymbolLinks(unknownSymbol).type = errorType;
         getSymbolLinks(globalThisSymbol).type = createObjectType(ObjectFlags.Anonymous, globalThisSymbol);
 
-        // // Initialize special types
-        // globalArrayType = getGlobalType("Array" as string, /*arity*/ 1, /*reportErrors*/ true);
-        // globalObjectType = getGlobalType("Object" as string, /*arity*/ 0, /*reportErrors*/ true);
-        // globalFunctionType = getGlobalType("Function" as string, /*arity*/ 0, /*reportErrors*/ true);
-        // globalCallableFunctionType = strictBindCallApply && getGlobalType("CallableFunction" as string, /*arity*/ 0, /*reportErrors*/ true) || globalFunctionType;
-        // globalNewableFunctionType = strictBindCallApply && getGlobalType("NewableFunction" as string, /*arity*/ 0, /*reportErrors*/ true) || globalFunctionType;
-        // globalStringType = getGlobalType("String" as string, /*arity*/ 0, /*reportErrors*/ true);
-        // globalNumberType = getGlobalType("Number" as string, /*arity*/ 0, /*reportErrors*/ true);
+        // Initialize special types
+        globalArrayType = getGlobalType("Array" as string, /*arity*/ 1, /*reportErrors*/ true);
+        globalObjectType = getGlobalType("Object" as string, /*arity*/ 0, /*reportErrors*/ true);
+        globalFunctionType = getGlobalType("Function" as string, /*arity*/ 0, /*reportErrors*/ true);
+        globalCallableFunctionType = strictBindCallApply && getGlobalType("CallableFunction" as string, /*arity*/ 0, /*reportErrors*/ true) || globalFunctionType;
+        globalNewableFunctionType = strictBindCallApply && getGlobalType("NewableFunction" as string, /*arity*/ 0, /*reportErrors*/ true) || globalFunctionType;
+        globalStringType = getGlobalType("String" as string, /*arity*/ 0, /*reportErrors*/ true);
+        globalIntType = getGlobalType("Int" as string, /*arity*/ 0, /*reportErrors*/ true);
         // globalBooleanType = getGlobalType("Boolean" as string, /*arity*/ 0, /*reportErrors*/ true);
         // globalRegExpType = getGlobalType("RegExp" as string, /*arity*/ 0, /*reportErrors*/ true);
-        // anyArrayType = createArrayType(anyType);
+        anyArrayType = createArrayType(anyType);
 
         // autoArrayType = createArrayType(autoType);
         // if (autoArrayType === emptyObjectType) {
@@ -378,6 +382,67 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         // globalReadonlyArrayType = getGlobalTypeOrUndefined("ReadonlyArray" as string, /*arity*/ 1) as GenericType || globalArrayType;
         // anyReadonlyArrayType = globalReadonlyArrayType ? createTypeFromGenericGlobalType(globalReadonlyArrayType, [anyType]) : anyArrayType;
         // globalThisType = getGlobalTypeOrUndefined("ThisType" as string, /*arity*/ 1) as GenericType;
+    }
+
+    function getGlobalType(name: string, arity: 0, reportErrors: true): ObjectType;
+    function getGlobalType(name: string, arity: 0, reportErrors: boolean): ObjectType | undefined;
+    function getGlobalType(name: string, arity: number, reportErrors: true): GenericType;
+    function getGlobalType(name: string, arity: number, reportErrors: boolean): GenericType | undefined;
+    function getGlobalType(name: string, arity: number, reportErrors: boolean): ObjectType | undefined {
+        const symbol = getGlobalTypeSymbol(name, reportErrors);
+        return symbol || reportErrors ? getTypeOfGlobalSymbol(symbol, arity) : undefined;
+    }
+
+    function createArrayType(elementType: Type, readonly?: boolean): ObjectType {
+        return createTypeFromGenericGlobalType(readonly ? globalReadonlyArrayType : globalArrayType, [elementType]);
+    }
+
+    /**
+     * Instantiates a global type that is generic with some element type, and returns that instantiation.
+     */
+    function createTypeFromGenericGlobalType(genericGlobalType: GenericType, typeArguments: readonly Type[]): ObjectType {
+        return genericGlobalType !== emptyGenericType ? createTypeReference(genericGlobalType, typeArguments) : emptyObjectType;
+    }
+
+    function getGlobalTypeSymbol(name: string, reportErrors: boolean): Symbol | undefined {
+        return getGlobalSymbol(name, SymbolFlags.Type, reportErrors ? Diagnostics.Cannot_find_global_type_0 : undefined);
+    }
+
+    function getGlobalSymbol(name: string, meaning: SymbolFlags, diagnostic: DiagnosticMessage | undefined): Symbol | undefined {
+        // Don't track references for global symbols anyway, so value if `isReference` is arbitrary
+        return resolveName(/*location*/ undefined, name, meaning, diagnostic, /*isUse*/ false, /*excludeGlobals*/ false);
+    }
+
+    function getTypeOfGlobalSymbol(symbol: Symbol | undefined, arity: number): ObjectType {
+        function getTypeDeclaration(symbol: Symbol): Declaration | undefined {
+            const declarations = symbol.declarations;
+            return undefined;
+            // TODO
+            // if (declarations) {
+            //     for (const declaration of declarations) {
+            //         switch (declaration.kind) {                        
+            //             case SyntaxKind.ClassDeclaration:
+            //             case SyntaxKind.InterfaceDeclaration:
+            //             case SyntaxKind.EnumDeclaration:
+            //                 return declaration;
+            //         }
+            //     }
+            // }
+        }
+
+        if (!symbol) {
+            return arity ? emptyGenericType : emptyObjectType;
+        }
+        const type = getDeclaredTypeOfSymbol(symbol);
+        if (!(type.flags & TypeFlags.Object)) {
+            error(getTypeDeclaration(symbol), Diagnostics.Global_type_0_must_be_a_class_or_interface_type, symbolName(symbol));
+            return arity ? emptyGenericType : emptyObjectType;
+        }
+        if (length((type as InterfaceType).typeParameters) !== arity) {
+            error(getTypeDeclaration(symbol), Diagnostics.Global_type_0_must_have_1_type_parameter_s, symbolName(symbol), arity);
+            return arity ? emptyGenericType : emptyObjectType;
+        }
+        return type as ObjectType;
     }
 
     function mergeSymbolTable(target: SymbolTable, source: SymbolTable, unidirectional = false) {
@@ -2233,7 +2298,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     function getSignatureOfTypeTag(node: SignatureDeclaration | JSDocSignature) {
         // should be attached to a function declaration or expression
         if (!isFunctionLikeDeclaration(node)) return undefined;
-        console.warn("Implement me - getSignatureOfTypeTag");
+        //console.warn("Implement me - getSignatureOfTypeTag");
         // const typeTag = getJSDocTypeTag(node);
         // return typeTag?.typeExpression && getSingleCallSignature(getTypeFromTypeNode(typeTag.typeExpression));
     }
@@ -2259,14 +2324,75 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return links.resolvedType;
     }
 
+    function getTypeFromUnionTypeNode(node: UnionTypeNode): Type {
+        const links = getNodeLinks(node);
+        if (!links.resolvedType) {
+            const aliasSymbol = getAliasSymbolForTypeNode(node);
+            links.resolvedType = getUnionType(map(node.types, getTypeFromTypeNode), UnionReduction.Literal, aliasSymbol, getTypeArgumentsForAliasSymbol(aliasSymbol));
+        }
+        return links.resolvedType;
+    }
+
+    function isReadonlyTypeOperator(node: Node) {
+        return false;//return isTypeOperatorNode(node) && node.operator === SyntaxKind.ReadonlyKeyword;
+    }
+
+    function getArrayElementTypeNode(node: TypeNode): TypeNode | undefined {
+        switch (node.kind) {
+            case SyntaxKind.ParenthesizedType:
+                return getArrayElementTypeNode((node as ParenthesizedTypeNode).type);
+            // case SyntaxKind.TupleType:
+            //     if ((node as TupleTypeNode).elements.length === 1) {
+            //         node = (node as TupleTypeNode).elements[0];
+            //         if (node.kind === SyntaxKind.RestType || node.kind === SyntaxKind.NamedTupleMember && (node as NamedTupleMember).dotDotDotToken) {
+            //             return getArrayElementTypeNode((node as RestTypeNode | NamedTupleMember).type);
+            //         }
+            //     }
+            //     break;
+            case SyntaxKind.ArrayType:
+                return (node as ArrayTypeNode).elementType;
+        }
+        return undefined;
+    }
+
+    function getArrayOrTupleTargetType(node: ArrayTypeNode /*| TupleTypeNode*/): GenericType {
+        const readonly = isReadonlyTypeOperator(node.parent);
+        const elementType = getArrayElementTypeNode(node);
+        if (elementType) {
+            return readonly ? globalReadonlyArrayType : globalArrayType;
+        }
+        // const elementFlags = map((node as TupleTypeNode).elements, getTupleElementFlags);
+        // return getTupleTargetType(elementFlags, readonly, map((node as TupleTypeNode).elements, memberIfLabeledElementDeclaration));
+    }
+
+    function getTypeFromArrayOrTupleTypeNode(node: ArrayTypeNode/* | TupleTypeNode*/): Type {
+        const links = getNodeLinks(node);
+        if (!links.resolvedType) {
+            const target = getArrayOrTupleTargetType(node);
+            // if (target === emptyGenericType) {
+            //     links.resolvedType = emptyObjectType;
+            // }
+            // else if (!(node.kind === SyntaxKind.TupleType && some(node.elements, e => !!(getTupleElementFlags(e) & ElementFlags.Variadic))) && isDeferredTypeReferenceNode(node)) {
+            //     links.resolvedType = node.kind === SyntaxKind.TupleType && node.elements.length === 0 ? target :
+            //         createDeferredTypeReference(target, node, /*mapper*/ undefined);
+            // }
+            {
+                const elementTypes = [getTypeFromTypeNode(node.elementType)];
+                //const elementTypes = node.kind === SyntaxKind.ArrayType ? [getTypeFromTypeNode(node.elementType)] : map(node.elements, getTypeFromTypeNode);
+                links.resolvedType = createNormalizedTypeReference(target, elementTypes);
+            }
+        }
+        return links.resolvedType;
+    }
+
     function getTypeFromTypeNodeWorker(node: TypeNode): Type {
         switch (node.kind) {
-            //case SyntaxKind.AnyKeyword:
+            case SyntaxKind.AnyKeyword:
             case SyntaxKind.JSDocAllType:
             case SyntaxKind.JSDocUnknownType:
                 return anyType;
-            // case SyntaxKind.UnknownKeyword:
-            //     return unknownType;
+            case SyntaxKind.UnknownKeyword:
+                return unknownType;
             case SyntaxKind.StringKeyword:
                 return stringType;
             case SyntaxKind.IntKeyword:
@@ -2296,10 +2422,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             //     return getTypeFromThisTypeNode(node as ThisExpression | ThisTypeNode);
             case SyntaxKind.LiteralType:
                 return getTypeFromLiteralTypeNode(node as LiteralTypeNode);
-            // case SyntaxKind.ArrayType:            
-            //     return getTypeFromArrayOrTupleTypeNode(node as ArrayTypeNode | TupleTypeNode);            
-            // case SyntaxKind.UnionType:
-            //     return getTypeFromUnionTypeNode(node as UnionTypeNode);            
+            case SyntaxKind.ArrayType:            
+                return getTypeFromArrayOrTupleTypeNode(node as ArrayTypeNode);// | TupleTypeNode);            
+            case SyntaxKind.UnionType:
+                return getTypeFromUnionTypeNode(node as UnionTypeNode);            
             // case SyntaxKind.JSDocNullableType:
             //     return getTypeFromJSDocNullableTypeNode(node as JSDocNullableType);
             // case SyntaxKind.JSDocOptionalType:
@@ -11209,7 +11335,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
         if (declaration === undefined) return Debug.fail("checkResolvedBlockScopedVariable could not find block-scoped declaration");
 
-        console.warn("Implement me - checkResolvedBlockScopedVariable");
+        // TODO
         // if (!(declaration.flags & NodeFlags.Ambient) && !isBlockScopedNameDeclaredBeforeUse(declaration, errorLocation)) {
         //     let diagnosticMessage;
         //     const declarationName = declarationNameToString(getNameOfDeclaration(declaration));
@@ -12589,91 +12715,91 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     
     function getNarrowedTypeOfSymbol(symbol: Symbol, location: Identifier, checkMode?: CheckMode) {
         const type = getTypeOfSymbol(symbol, checkMode);
-        const declaration = symbol.valueDeclaration;
-        console.warn("TODO - Implement me - getNarrowedTypeOfSymbol");
-        // if (declaration) {
-        //     // If we have a non-rest binding element with no initializer declared as a const variable or a const-like
-        //     // parameter (a parameter for which there are no assignments in the function body), and if the parent type
-        //     // for the destructuring is a union type, one or more of the binding elements may represent discriminant
-        //     // properties, and we want the effects of conditional checks on such discriminants to affect the types of
-        //     // other binding elements from the same destructuring. Consider:
-        //     //
-        //     //   type Action =
-        //     //       | { kind: 'A', payload: number }
-        //     //       | { kind: 'B', payload: string };
-        //     //
-        //     //   function f({ kind, payload }: Action) {
-        //     //       if (kind === 'A') {
-        //     //           payload.toFixed();
-        //     //       }
-        //     //       if (kind === 'B') {
-        //     //           payload.toUpperCase();
-        //     //       }
-        //     //   }
-        //     //
-        //     // Above, we want the conditional checks on 'kind' to affect the type of 'payload'. To facilitate this, we use
-        //     // the binding pattern AST instance for '{ kind, payload }' as a pseudo-reference and narrow this reference
-        //     // as if it occurred in the specified location. We then recompute the narrowed binding element type by
-        //     // destructuring from the narrowed parent type.
-        //     if (isBindingElement(declaration) && !declaration.initializer && !declaration.dotDotDotToken && declaration.parent.elements.length >= 2) {
-        //         const parent = declaration.parent.parent;
-        //         const rootDeclaration = getRootDeclaration(parent);
-        //         if (rootDeclaration.kind === SyntaxKind.VariableDeclaration && getCombinedNodeFlagsCached(rootDeclaration) & NodeFlags.Constant || rootDeclaration.kind === SyntaxKind.Parameter) {
-        //             const links = getNodeLinks(parent);
-        //             if (!(links.flags & NodeCheckFlags.InCheckIdentifier)) {
-        //                 links.flags |= NodeCheckFlags.InCheckIdentifier;
-        //                 const parentType = getTypeForBindingElementParent(parent, CheckMode.Normal);
-        //                 const parentTypeConstraint = parentType && mapType(parentType, getBaseConstraintOrType);
-        //                 links.flags &= ~NodeCheckFlags.InCheckIdentifier;
-        //                 if (parentTypeConstraint && parentTypeConstraint.flags & TypeFlags.Union && !(rootDeclaration.kind === SyntaxKind.Parameter && isSomeSymbolAssigned(rootDeclaration))) {
-        //                     const pattern = declaration.parent;
-        //                     const narrowedType = getFlowTypeOfReference(pattern, parentTypeConstraint, parentTypeConstraint, /*flowContainer*/ undefined, location.flowNode);
-        //                     if (narrowedType.flags & TypeFlags.Never) {
-        //                         return neverType;
-        //                     }
-        //                     // Destructurings are validated against the parent type elsewhere. Here we disable tuple bounds
-        //                     // checks because the narrowed type may have lower arity than the full parent type. For example,
-        //                     // for the declaration [x, y]: [1, 2] | [3], we may have narrowed the parent type to just [3].
-        //                     return getBindingElementTypeFromParentType(declaration, narrowedType, /*noTupleBoundsCheck*/ true);
-        //                 }
-        //             }
-        //         }
-        //     }
-        //     // If we have a const-like parameter with no type annotation or initializer, and if the parameter is contextually
-        //     // typed by a signature with a single rest parameter of a union of tuple types, one or more of the parameters may
-        //     // represent discriminant tuple elements, and we want the effects of conditional checks on such discriminants to
-        //     // affect the types of other parameters in the same parameter list. Consider:
-        //     //
-        //     //   type Action = [kind: 'A', payload: number] | [kind: 'B', payload: string];
-        //     //
-        //     //   const f: (...args: Action) => void = (kind, payload) => {
-        //     //       if (kind === 'A') {
-        //     //           payload.toFixed();
-        //     //       }
-        //     //       if (kind === 'B') {
-        //     //           payload.toUpperCase();
-        //     //       }
-        //     //   }
-        //     //
-        //     // Above, we want the conditional checks on 'kind' to affect the type of 'payload'. To facilitate this, we use
-        //     // the arrow function AST node for '(kind, payload) => ...' as a pseudo-reference and narrow this reference as
-        //     // if it occurred in the specified location. We then recompute the narrowed parameter type by indexing into the
-        //     // narrowed tuple type.
-        //     if (isParameter(declaration) && !declaration.type && !declaration.initializer && !declaration.dotDotDotToken) {
-        //         const func = declaration.parent;
-        //         if (func.parameters.length >= 2 && isContextSensitiveFunctionOrObjectLiteralMethod(func)) {
-        //             const contextualSignature = getContextualSignature(func);
-        //             if (contextualSignature && contextualSignature.parameters.length === 1 && signatureHasRestParameter(contextualSignature)) {
-        //                 const restType = getReducedApparentType(instantiateType(getTypeOfSymbol(contextualSignature.parameters[0]), getInferenceContext(func)?.nonFixingMapper));
-        //                 if (restType.flags & TypeFlags.Union && everyType(restType, isTupleType) && !some(func.parameters, isSomeSymbolAssigned)) {
-        //                     const narrowedType = getFlowTypeOfReference(func, restType, restType, /*flowContainer*/ undefined, location.flowNode);
-        //                     const index = func.parameters.indexOf(declaration) - (getThisParameter(func) ? 1 : 0);
-        //                     return getIndexedAccessType(narrowedType, getNumberLiteralType(index));
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
+        const declaration = symbol.valueDeclaration;        
+        if (declaration) {
+            // If we have a non-rest binding element with no initializer declared as a const variable or a const-like
+            // parameter (a parameter for which there are no assignments in the function body), and if the parent type
+            // for the destructuring is a union type, one or more of the binding elements may represent discriminant
+            // properties, and we want the effects of conditional checks on such discriminants to affect the types of
+            // other binding elements from the same destructuring. Consider:
+            //
+            //   type Action =
+            //       | { kind: 'A', payload: number }
+            //       | { kind: 'B', payload: string };
+            //
+            //   function f({ kind, payload }: Action) {
+            //       if (kind === 'A') {
+            //           payload.toFixed();
+            //       }
+            //       if (kind === 'B') {
+            //           payload.toUpperCase();
+            //       }
+            //   }
+            //
+            // Above, we want the conditional checks on 'kind' to affect the type of 'payload'. To facilitate this, we use
+            // the binding pattern AST instance for '{ kind, payload }' as a pseudo-reference and narrow this reference
+            // as if it occurred in the specified location. We then recompute the narrowed binding element type by
+            // destructuring from the narrowed parent type.
+            if (isBindingElement(declaration) && !declaration.initializer && !declaration.dotDotDotToken && declaration.parent.elements.length >= 2) {
+                const parent = declaration.parent.parent;
+                const rootDeclaration = getRootDeclaration(parent);
+                if (/*rootDeclaration.kind === SyntaxKind.VariableDeclaration && getCombinedNodeFlagsCached(rootDeclaration) & NodeFlags.Constant ||*/ rootDeclaration.kind === SyntaxKind.Parameter) {
+                    console.log("TODO - getNarrowedTypeOfSymbol");
+                    // const links = getNodeLinks(parent);
+                    // if (!(links.flags & NodeCheckFlags.InCheckIdentifier)) {
+                    //     links.flags |= NodeCheckFlags.InCheckIdentifier;
+                    //     const parentType = getTypeForBindingElementParent(parent, CheckMode.Normal);
+                    //     const parentTypeConstraint = parentType && mapType(parentType, getBaseConstraintOrType);
+                    //     links.flags &= ~NodeCheckFlags.InCheckIdentifier;
+                    //     if (parentTypeConstraint && parentTypeConstraint.flags & TypeFlags.Union && !(rootDeclaration.kind === SyntaxKind.Parameter && isSomeSymbolAssigned(rootDeclaration))) {
+                    //         const pattern = declaration.parent;
+                    //         const narrowedType = getFlowTypeOfReference(pattern, parentTypeConstraint, parentTypeConstraint, /*flowContainer*/ undefined, location.flowNode);
+                    //         if (narrowedType.flags & TypeFlags.Never) {
+                    //             return neverType;
+                    //         }
+                    //         // Destructurings are validated against the parent type elsewhere. Here we disable tuple bounds
+                    //         // checks because the narrowed type may have lower arity than the full parent type. For example,
+                    //         // for the declaration [x, y]: [1, 2] | [3], we may have narrowed the parent type to just [3].
+                    //         return getBindingElementTypeFromParentType(declaration, narrowedType, /*noTupleBoundsCheck*/ true);
+                    //     }
+                    // }
+                }
+            }
+            // If we have a const-like parameter with no type annotation or initializer, and if the parameter is contextually
+            // typed by a signature with a single rest parameter of a union of tuple types, one or more of the parameters may
+            // represent discriminant tuple elements, and we want the effects of conditional checks on such discriminants to
+            // affect the types of other parameters in the same parameter list. Consider:
+            //
+            //   type Action = [kind: 'A', payload: number] | [kind: 'B', payload: string];
+            //
+            //   const f: (...args: Action) => void = (kind, payload) => {
+            //       if (kind === 'A') {
+            //           payload.toFixed();
+            //       }
+            //       if (kind === 'B') {
+            //           payload.toUpperCase();
+            //       }
+            //   }
+            //
+            // Above, we want the conditional checks on 'kind' to affect the type of 'payload'. To facilitate this, we use
+            // the arrow function AST node for '(kind, payload) => ...' as a pseudo-reference and narrow this reference as
+            // if it occurred in the specified location. We then recompute the narrowed parameter type by indexing into the
+            // narrowed tuple type.
+            if (isParameter(declaration) && !declaration.type && !declaration.initializer && !declaration.dotDotDotToken) {
+                const func = declaration.parent;
+                if (func.parameters.length >= 2 && isContextSensitiveFunctionOrObjectLiteralMethod(func)) {
+                    const contextualSignature = getContextualSignature(func);
+                    if (contextualSignature && contextualSignature.parameters.length === 1 && signatureHasRestParameter(contextualSignature)) {
+                        const restType = getReducedApparentType(instantiateType(getTypeOfSymbol(contextualSignature.parameters[0]), getInferenceContext(func)?.nonFixingMapper));
+                        // if (restType.flags & TypeFlags.Union && everyType(restType, isTupleType) && !some(func.parameters, isSomeSymbolAssigned)) {
+                        //     const narrowedType = getFlowTypeOfReference(func, restType, restType, /*flowContainer*/ undefined, location.flowNode);
+                        //     const index = func.parameters.indexOf(declaration) - (getThisParameter(func) ? 1 : 0);
+                        //     return getIndexedAccessType(narrowedType, getNumberLiteralType(index));
+                        // }
+                    }
+                }
+            }
+        }
         return type;
     }
 
