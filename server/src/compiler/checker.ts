@@ -1986,8 +1986,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return false;
     }
     
-    function checkReturnStatement(node: ReturnStatement) {
-        console.warn("Implement me - checkReturnStatement");
+    function checkReturnStatement(node: ReturnStatement) {        
         // Grammar checking
         // if (checkGrammarStatementInAmbientContext(node)) {
         //     return;
@@ -14126,9 +14125,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         headMessage?: DiagnosticMessage,
         containingMessageChain?: () => DiagnosticMessageChain | undefined,
         errorOutputContainer?: { errors?: Diagnostic[]; skipLogging?: boolean; },
-    ): boolean {
-        console.warn("TODO - Implement me - checkTypeRelatedTo");
-        
+    ): boolean {        
         let errorInfo: DiagnosticMessageChain | undefined;
         let relatedInfo: [DiagnosticRelatedInformation, ...DiagnosticRelatedInformation[]] | undefined;
         let maybeKeys: string[];
