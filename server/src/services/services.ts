@@ -1047,13 +1047,11 @@ class TypeObject implements Type {
         throw "implement me";
         // return this.checker.getAugmentedPropertiesOfType(this);
     }
-    getCallSignatures(): readonly Signature[] {
-        throw "implement me";
-        // return this.checker.getSignaturesOfType(this, SignatureKind.Call);
+    getCallSignatures(): readonly Signature[] {        
+        return this.checker.getSignaturesOfType(this, SignatureKind.Call);
     }
-    getConstructSignatures(): readonly Signature[] {
-        throw "implement me";
-        // return this.checker.getSignaturesOfType(this, SignatureKind.Construct);
+    getConstructSignatures(): readonly Signature[] {        
+        return this.checker.getSignaturesOfType(this, SignatureKind.Construct);
     }
     getStringIndexType(): Type | undefined {
         throw "implement me";
@@ -1073,9 +1071,8 @@ class TypeObject implements Type {
         throw "implement me";
         // return this.checker.isNullableType(this);
     }
-    getNonNullableType(): Type {
-        throw "implement me";
-        // return this.checker.getNonNullableType(this);
+    getNonNullableType(): Type {        
+        return this.checker.getNonNullableType(this);
     }
     getNonOptionalType(): Type {
         throw "implement me";

@@ -31,5 +31,7 @@ export * from "../sys.js";
 export * from "../program.js";
 export * from "../transformers.js";
 export * from "../emitter.js";
+import * as moduleSpecifiers from "./lpc.moduleSpecifiers.js";
+export { moduleSpecifiers };
 import * as performance from "./lpc.performance.js";
 export { performance };

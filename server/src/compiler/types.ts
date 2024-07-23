@@ -118,6 +118,8 @@ export interface TypeChecker {
     /** @internal */ writeSymbol(symbol: Symbol, enclosingDeclaration?: Node, meaning?: SymbolFlags, flags?: SymbolFormatFlags, writer?: EmitTextWriter): string;
     /** @internal */ writeSignature(signature: Signature, enclosingDeclaration?: Node, flags?: TypeFormatFlags, kind?: SignatureKind, writer?: EmitTextWriter): string;
 
+    getNonNullableType(type: Type): Type;
+    getSignaturesOfType(type: Type, kind: SignatureKind): readonly Signature[];
     // TODO
 }
 
