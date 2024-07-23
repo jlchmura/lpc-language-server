@@ -899,6 +899,7 @@ export const enum ModifierFlags {
     
     
     Ambient =            1 << 12,
+    Readonly =           1 << 13,
 
     Deprecated =         1 << 16, // Deprecated tag.
 
@@ -5396,4 +5397,11 @@ export interface GeneratedIdentifier extends Identifier {
 export interface EvolvingArrayType extends ObjectType {
     elementType: Type; // Element expressions of evolving array type
     finalArrayType?: Type; // Final array type of evolving array type
+}
+
+export interface InterfaceTypeWithDeclaredMembers extends InterfaceType {
+    declaredProperties: Symbol[];                   // Declared members
+    declaredCallSignatures: Signature[];            // Declared call signatures
+    declaredConstructSignatures: Signature[];       // Declared construct signatures
+    declaredIndexInfos: IndexInfo[];                // Declared index signatures
 }

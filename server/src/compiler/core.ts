@@ -1358,3 +1358,14 @@ export function findIndex<T>(array: readonly T[] | undefined, predicate: (elemen
     }
     return -1;
 }
+
+/** @internal */
+export function rangeEquals<T>(array1: readonly T[], array2: readonly T[], pos: number, end: number) {
+    while (pos < end) {
+        if (array1[pos] !== array2[pos]) {
+            return false;
+        }
+        pos++;
+    }
+    return true;
+}
