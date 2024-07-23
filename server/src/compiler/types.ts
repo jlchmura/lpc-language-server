@@ -5405,3 +5405,18 @@ export interface InterfaceTypeWithDeclaredMembers extends InterfaceType {
     declaredConstructSignatures: Signature[];       // Declared construct signatures
     declaredIndexInfos: IndexInfo[];                // Declared index signatures
 }
+
+/** @internal */
+export const enum IntersectionFlags {
+    None = 0,
+    NoSupertypeReduction = 1 << 0,
+    NoConstraintReduction = 1 << 1,
+}
+
+export interface IntersectionType extends UnionOrIntersectionType {
+    /** @internal */
+    resolvedApparentType: Type;
+    /** @internal */
+    uniqueLiteralFilledInstantiation?: Type; // Instantiation with type parameters mapped to never type
+}
+

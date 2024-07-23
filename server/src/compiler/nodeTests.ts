@@ -229,3 +229,6 @@ export function isTypeLiteralNode(node: Node): node is TypeLiteralNode {
     return node.kind === SyntaxKind.TypeLiteral;
 }
 
+export function isConstructorDeclaration(node: Node) {//: node is ConstructorDeclaration {
+    return false;//return node.kind === SyntaxKind.Constructor;
+}

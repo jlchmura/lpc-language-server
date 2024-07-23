@@ -1369,3 +1369,27 @@ export function rangeEquals<T>(array1: readonly T[], array2: readonly T[], pos: 
     }
     return true;
 }
+
+
+/**
+ * Flattens an array containing a mix of array or non-array elements.
+ *
+ * @param array The array to flatten.
+ *
+ * @internal
+ */
+export function flatten<T>(array: T[][] | readonly (T | readonly T[] | undefined)[]): T[] {
+    const result = [];
+    for (let i = 0; i < array.length; i++) {
+        const v = array[i];
+        if (v) {
+            if (isArray(v)) {
+                addRange(result, v);
+            }
+            else {
+                result.push(v);
+            }
+        }
+    }
+    return result;
+}

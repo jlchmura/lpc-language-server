@@ -4399,3 +4399,43 @@ export function concatenateDiagnosticMessageChains(headChain: DiagnosticMessageC
 export function getEffectiveModifierFlagsAlwaysIncludeJSDoc(node: Node): ModifierFlags {
     return getModifierFlagsWorker(node, /*includeJSDoc*/ true, /*alwaysIncludeJSDoc*/ true);
 }
+
+
+/** @internal */
+export function minAndMax<T>(arr: readonly T[], getValue: (value: T) => number): { readonly min: number; readonly max: number; } {
+    Debug.assert(arr.length !== 0);
+    let min = getValue(arr[0]);
+    let max = min;
+    for (let i = 1; i < arr.length; i++) {
+        const value = getValue(arr[i]);
+        if (value < min) {
+            min = value;
+        }
+        else if (value > max) {
+            max = value;
+        }
+    }
+    return { min, max };
+}
+
+/** @internal */
+export function createDiagnosticMessageChainFromDiagnostic(diagnostic: DiagnosticRelatedInformation): DiagnosticMessageChain {
+    return typeof diagnostic.messageText === "string" ? {
+        code: diagnostic.code,
+        category: diagnostic.category,
+        messageText: diagnostic.messageText,
+        next: (diagnostic as DiagnosticMessageChain).next,
+    } : diagnostic.messageText;
+}
+
+/** @internal */
+export function createDiagnosticForNodeArrayFromMessageChain(sourceFile: SourceFile, nodes: NodeArray<Node>, messageChain: DiagnosticMessageChain, relatedInformation?: DiagnosticRelatedInformation[]): DiagnosticWithLocation {
+    const start = skipTrivia(sourceFile.text, nodes.pos);
+    return createFileDiagnosticFromMessageChain(sourceFile, start, nodes.end - start, messageChain, relatedInformation);
+}
+
+/** @internal */
+export function createDiagnosticForNodeArray(sourceFile: SourceFile, nodes: NodeArray<Node>, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithLocation {
+    const start = skipTrivia(sourceFile.text, nodes.pos);
+    return createFileDiagnostic(sourceFile, start, nodes.end - start, message, ...args);
+}
