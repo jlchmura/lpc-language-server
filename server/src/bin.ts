@@ -29,6 +29,7 @@ import { LpcTypes } from "./types";
 import { getDriverInfo } from "./driver/Driver";
 import { loadLpcConfig, LpcConfig } from "./backend/LpcConfig";
 import * as p2 from "./compiler/_namespaces/lpc";
+import * as lpc from "./lpc/_namespaces/lpc.js";
 import {
     CompilerOptions,
     getTouchingPropertyName,
@@ -41,6 +42,8 @@ import {
     createLanguageService,
     ScriptSnapshot,
 } from "./services/_namespaces/lpc";
+import { Session } from "./server/session";
+import { Logger } from "./lpcserver/nodeServer";
 
 class MockFileHandler implements IFileHandler {
     constructor() {}
@@ -75,7 +78,23 @@ const files: { [index: string]: string } = {
 };
 
 const host = createHost(filename, sourceText, config);
+const serverHost = lpc.sys as lpc.server.ServerHost;
+const cancelToken = lpc.server.nullCancellationToken;
+const logger = new Logger(undefined, true, lpc.server.LogLevel.verbose);
+const session = new Session({ 
+    host: serverHost, cancellationToken: cancelToken,
+    byteLength: Buffer.byteLength,
+    useSingleInferredProject: false,
+    useInferredProjectPerProjectRoot: false,
+    logger,
+    canUseEvents: true,
+    hrtime: process.hrtime
+});
+
+
 const svc = doCreateLanguageService();
+
+
 
 const srcFile = host.getSourceFile(filename);
 const checker = p2.createTypeChecker(host); // binder is called by checker

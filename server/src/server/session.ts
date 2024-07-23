@@ -1,5 +1,5 @@
-import { QuickInfo } from "./_namespaces/lpc";
-import { GcTimer, Logger, ServerHost } from "./_namespaces/lpc.server";
+import { LanguageServiceMode, QuickInfo } from "./_namespaces/lpc";
+import { GcTimer, Logger, ProjectService, ProjectServiceEventHandler, ServerHost } from "./_namespaces/lpc.server";
 import * as protocol from "./protocol.js";
 
 export interface HostCancellationToken {
@@ -9,6 +9,40 @@ export interface HostCancellationToken {
 export interface ServerCancellationToken extends HostCancellationToken {
     setRequest(requestId: number): void;
     resetRequest(requestId: number): void;
+}
+
+export const nullCancellationToken: ServerCancellationToken = {
+    isCancellationRequested: () => false,
+    setRequest: () => void 0,
+    resetRequest: () => void 0,
+};
+
+
+export interface SessionOptions {
+    host: ServerHost;
+    cancellationToken: ServerCancellationToken;
+    useSingleInferredProject: boolean;
+    useInferredProjectPerProjectRoot: boolean;
+    byteLength: (buf: string, encoding?: BufferEncoding) => number;
+    hrtime: (start?: [number, number]) => [number, number];
+    logger: Logger;
+    /**
+     * If falsy, all events are suppressed.
+     */
+    canUseEvents: boolean;
+    canUseWatchEvents?: boolean;
+    eventHandler?: ProjectServiceEventHandler;
+    /** Has no effect if eventHandler is also specified. */
+    suppressDiagnosticEvents?: boolean;
+    serverMode?: LanguageServiceMode;
+    throttleWaitMilliseconds?: number;
+    noGetErrOnBackgroundUpdate?: boolean;
+
+    globalPlugins?: readonly string[];
+    pluginProbeLocations?: readonly string[];
+    allowLocalPluginLoads?: boolean;
+    typesMapLocation?: string;
+    ///** @internal */ incrementalVerifier?: (service: ProjectService) => void;
 }
 
 export class Session<T> { 
@@ -37,6 +71,20 @@ export class Session<T> {
     /** @internal */
     protected regionDiagLineCountThreshold = 500;
     
+    constructor(opts: SessionOptions) {
+        this.host = opts.host;
+        this.cancellationToken = opts.cancellationToken;        
+        this.byteLength = opts.byteLength;
+        this.hrtime = opts.hrtime;
+        this.logger = opts.logger;
+        this.canUseEvents = opts.canUseEvents;
+        this.suppressDiagnosticEvents = opts.suppressDiagnosticEvents;
+        this.noGetErrOnBackgroundUpdate = opts.noGetErrOnBackgroundUpdate;
+
+        const { throttleWaitMilliseconds } = opts;
+
+    }
+
     private getQuickInfoWorker(args: protocol.FileLocationRequestArgs, simplifiedResult: boolean): protocol.QuickInfoResponseBody | QuickInfo | undefined {
         return undefined;
         //const { file, project } = this.getFileAndProject(args);
