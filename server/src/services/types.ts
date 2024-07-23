@@ -666,3 +666,9 @@ export enum SymbolDisplayPartKind {
     linkName,
     linkText,
 }
+
+export enum LanguageServiceMode {
+    Semantic,
+    PartialSemantic,
+    Syntactic,
+}

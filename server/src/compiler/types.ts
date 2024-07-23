@@ -1156,6 +1156,7 @@ export interface CompilerOptions {
     maxNodeModuleJsDepth?: number;
     getCompilationSettings?: any;
     configFilePath?: string;
+    driverType?: LanguageVariant;
 }
 
 export const enum OuterExpressionKinds {
@@ -5422,3 +5423,23 @@ export interface IntersectionType extends UnionOrIntersectionType {
     uniqueLiteralFilledInstantiation?: Type; // Instantiation with type parameters mapped to never type
 }
 
+/** @internal */
+export type HasInvalidatedResolutions = (sourceFile: Path) => boolean;
+/** @internal */
+export type HasInvalidatedLibResolutions = (libFileName: string) => boolean;
+
+/**
+ * Maps positions between source and generated files.
+ *
+ * @internal
+ */
+export interface DocumentPositionMapper {
+    getSourcePosition(input: DocumentPosition): DocumentPosition;
+    getGeneratedPosition(input: DocumentPosition): DocumentPosition;
+}
+
+/** @internal */
+export interface DocumentPosition {
+    fileName: string;
+    pos: number;
+}
