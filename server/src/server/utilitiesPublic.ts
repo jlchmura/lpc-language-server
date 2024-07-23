@@ -1,4 +1,5 @@
 import { getNormalizedAbsolutePath, isRootedDiskPath, normalizePath, Path, SortedArray, SortedReadonlyArray } from "./_namespaces/lpc";
+import { Project } from "./_namespaces/lpc.server";
 
 export enum LogLevel {
     terse,
@@ -42,4 +43,16 @@ export function normalizedPathToPath(normalizedPath: NormalizedPath, currentDire
 
 export function toNormalizedPath(fileName: string): NormalizedPath {
     return normalizePath(fileName) as NormalizedPath;
+}
+
+export namespace Errors {
+    export function ThrowNoProject(): never {
+        throw new Error("No Project.");
+    }
+    export function ThrowProjectLanguageServiceDisabled(): never {
+        throw new Error("The project's language service is disabled.");
+    }
+    export function ThrowProjectDoesNotContainDocument(fileName: string, project: Project): never {
+        throw new Error(`Project '${project.getProjectName()}' does not contain document '${fileName}'`);
+    }
 }

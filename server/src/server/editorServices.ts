@@ -1,4 +1,4 @@
-import { arrayFrom, Debug, DirectoryStructureHost, DocumentRegistry, FileWatcherEventKind, getNormalizedAbsolutePath, isRootedDiskPath, LanguageServiceMode, missingFileModifiedTime, MultiMap, Path, PollingInterval, ScriptKind, startsWith, WatchFactory, WatchType } from "./_namespaces/lpc";
+import { arrayFrom, Debug, DirectoryStructureHost, DocumentRegistry, FileWatcherEventKind, getNormalizedAbsolutePath, isRootedDiskPath, LanguageServiceMode, missingFileModifiedTime, MultiMap, Path, PollingInterval, ScriptKind, startsWith, toPath, WatchFactory, WatchType } from "./_namespaces/lpc";
 import { HostCancellationToken, isDynamicFileName, isProjectDeferredClose, Logger, NormalizedPath, normalizedPathToPath, Project, ScriptInfo, ServerHost, Session, ThrottledOperations, toNormalizedPath } from "./_namespaces/lpc.server";
 
 /** @internal */
@@ -226,6 +226,10 @@ export class ProjectService {
         return !info || !info.deferredDelete ? info : undefined;
     }
 
+    toPath(fileName: string) {
+        return toPath(fileName, this.currentDirectory, this.toCanonicalFileName);
+    }
+    
     /** @internal */
     getOrCreateScriptInfoNotOpenedByClient(
         uncheckedFileName: string,

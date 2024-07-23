@@ -1394,3 +1394,22 @@ export function flatten<T>(array: T[][] | readonly (T | readonly T[] | undefined
     return result;
 }
 
+/** @internal */
+export function indexOfAnyCharCode(text: string, charCodes: readonly number[], start?: number): number {
+    for (let i = start ?? 0; i < text.length; i++) {
+        if (contains(charCodes, text.charCodeAt(i))) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+
+/**
+ * Returns a new sorted array.
+ *
+ * @internal
+ */
+export function sort<T>(array: readonly T[], comparer?: Comparer<T>): SortedReadonlyArray<T> {
+    return (array.length === 0 ? array : array.slice().sort(comparer)) as SortedReadonlyArray<T>;
+}

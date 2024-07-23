@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { addRange, CachedDirectoryStructureHost, combinePaths, CompilerOptions, Debug, Diagnostic, DirectoryStructureHost, DocumentRegistry, FileWatcher, getDefaultLibFileName, getDirectoryPath, HasInvalidatedLibResolutions, HasInvalidatedResolutions, IScriptSnapshot, LanguageService, LanguageServiceHost, ModuleResolutionHost, normalizePath, ParsedCommandLine, Path, Program, ProjectReference, ResolutionCache, ResolvedProjectReference, returnFalse, SortedReadonlyArray, ThrottledCancellationToken, toPath, tracing } from "./_namespaces/lpc";
+import { addRange, CachedDirectoryStructureHost, combinePaths, CompilerOptions, Debug, Diagnostic, DirectoryStructureHost, DocumentRegistry, ExportInfoMap, FileWatcher, getDefaultLibFileName, getDirectoryPath, HasInvalidatedLibResolutions, HasInvalidatedResolutions, IScriptSnapshot, LanguageService, LanguageServiceHost, ModuleResolutionHost, normalizePath, ParsedCommandLine, Path, Program, ProjectReference, ResolutionCache, ResolvedProjectReference, returnFalse, SortedReadonlyArray, ThrottledCancellationToken, toPath, tracing } from "./_namespaces/lpc";
 import { emptyArray, HostCancellationToken, NormalizedPath, ProjectService, ScriptInfo } from "./_namespaces/lpc.server";
 
 
@@ -123,6 +123,9 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
     /** @internal */
     readonly currentDirectory: string;
 
+    private exportMapCache: ExportInfoMap | undefined;
+    private changedFilesForExportMapCache: Set<Path> | undefined;
+    
     /** @internal */
     deferredClose?: boolean;
 
@@ -299,6 +302,60 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
         // }
     }
  
+    /** @internal */
+    onFileAddedOrRemoved(isSymlink: boolean | undefined) {
+        this.hasAddedorRemovedFiles = true;
+        if (isSymlink) {
+            this.hasAddedOrRemovedSymlinks = true;
+        }
+    }
+
+    /** @internal */
+    getCachedDirectoryStructureHost(): CachedDirectoryStructureHost {
+        return undefined!; // TODO: GH#18217
+    }
+
+    /** @internal */
+    getRootFilesMap() {
+        return this.rootFilesMap;
+    }
+
+    isRoot(info: ScriptInfo) {
+        return this.rootFilesMap?.get(info.path)?.info === info;
+    }
+
+    // remove a root file from project
+    protected removeRoot(info: ScriptInfo): void {
+        this.rootFilesMap.delete(info.path);
+    }
+
+    removeFile(info: ScriptInfo, fileExists: boolean, detachFromProject: boolean) {
+        if (this.isRoot(info)) {
+            this.removeRoot(info);
+        }
+        if (fileExists) {
+            // If file is present, just remove the resolutions for the file
+            this.resolutionCache.removeResolutionsOfFile(info.path);
+        }
+        else {
+            this.resolutionCache.invalidateResolutionOfFile(info.path);
+        }
+        this.cachedUnresolvedImportsPerFile.delete(info.path);
+
+        if (detachFromProject) {
+            info.detachFromProject(this);
+        }
+
+        this.markAsDirty();
+    }
+
+    // add a root file that doesnt exist on host
+    addMissingFileRoot(fileName: NormalizedPath) {
+        const path = this.projectService.toPath(fileName);
+        this.rootFilesMap.set(path, { fileName });
+        this.markAsDirty();
+    }
+    
     /**
      * Updates set of files that contribute to this project
      * @returns: true if set of files in the project stays the same and false - otherwise.
@@ -353,6 +410,23 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
         // tracing?.pop();
         // return !hasNewProgram;
     }
+
+    registerFileUpdate(fileName: string) {
+        (this.updatedFileNames || (this.updatedFileNames = new Set<string>())).add(fileName);
+    }
+
+    /** @internal */
+    markFileAsDirty(changedFile: Path) {
+        this.markAsDirty();
+        if (this.exportMapCache && !this.exportMapCache.isEmpty()) {
+            (this.changedFilesForExportMapCache ||= new Set()).add(changedFile);
+        }
+    }
+
+    /** @internal */
+    isOrphan() {
+        return false;
+    }    
 }
 
 
@@ -369,8 +443,7 @@ export class ConfiguredProject extends Project {
         super(configFileName, ProjectKind.Configured, projectService, documentRegistry, {}, cachedDirectoryStructureHost, getDirectoryPath(configFileName));
         // this.pendingUpdateLevel = ProgramUpdateLevel.Full;
         // this.pendingUpdateReason = pendingUpdateReason;
-    }
-
+    }    
 }
 
 /** @internal */
@@ -382,4 +455,15 @@ export function isConfiguredProject(project: Project): project is ConfiguredProj
 /** @internal */
 export function isProjectDeferredClose(project: Project): project is ConfiguredProject {
     return isConfiguredProject(project) && !!project.deferredClose;
+}
+
+/** @internal */
+export function isInferredProject(project: Project): project is undefined {//InferredProject {
+    return project.projectKind === ProjectKind.Inferred;
+}
+
+/**@internal */
+export function isBackgroundProject(project: Project): project is Project {//} AutoImportProviderProject | AuxiliaryProject {
+    console.warn("todo - isBackgroundProject");
+    return project.projectKind === ProjectKind.AutoImportProvider || project.projectKind === ProjectKind.Auxiliary;
 }

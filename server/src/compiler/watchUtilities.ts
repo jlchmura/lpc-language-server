@@ -1,4 +1,4 @@
-import { toPath as lpc_toPath, createGetCanonicalFileName, FileWatcher, FileWatcherEventKind, Path, SortedArray, WatchFileKind, WatchOptions, ensureTrailingDirectorySeparator, binarySearch, compareStringsCaseSensitive, Debug, emptyArray, emptyFileSystemEntries, FileSystemEntries, getBaseFileName, getDirectoryPath, identity, insertSorted, map, normalizePath, SortedReadonlyArray, FileWatcherCallback, PollingInterval, DirectoryWatcherCallback, WatchDirectoryFlags } from "./_namespaces/lpc.js";
+import { toPath as lpc_toPath, createGetCanonicalFileName, FileWatcher, FileWatcherEventKind, Path, SortedArray, WatchFileKind, WatchOptions, ensureTrailingDirectorySeparator, binarySearch, compareStringsCaseSensitive, Debug, emptyArray, emptyFileSystemEntries, FileSystemEntries, getBaseFileName, getDirectoryPath, identity, insertSorted, map, normalizePath, SortedReadonlyArray, FileWatcherCallback, PollingInterval, DirectoryWatcherCallback, WatchDirectoryFlags, matchFiles } from "./_namespaces/lpc.js";
 
 /** @internal */
 export function getFallbackOptions(options: WatchOptions | undefined): WatchOptions {

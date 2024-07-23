@@ -1,5 +1,5 @@
 import { clear, closeFileWatcherOf, computeLineAndCharacterOfPosition, computeLineStarts, computePositionOfLineAndCharacter, contains, createTextSpanFromBounds, Debug, directorySeparator, DocumentPositionMapper, DocumentRegistryBucketKeyWithMode, FileWatcher, FileWatcherEventKind, forEach, getBaseFileName, getLineInfo, getSnapshotText, hasLPCFileExtension, IScriptSnapshot, isString, LineInfo, missingFileModifiedTime, orderedRemoveItem, Path, ScriptKind, ScriptSnapshot, some, SourceFile, SourceFileLike, TextSpan } from "./_namespaces/lpc";
-import { AbsolutePositionAndLineText, maxFileSize, NormalizedPath, Project, protocol, ScriptVersionCache, ServerHost } from "./_namespaces/lpc.server";
+import { AbsolutePositionAndLineText, ConfiguredProject, Errors, isBackgroundProject, isConfiguredProject, isInferredProject, isProjectDeferredClose, maxFileSize, NormalizedPath, Project, protocol, ScriptVersionCache, ServerHost } from "./_namespaces/lpc.server";
 
 /** @internal */
 export class TextStorage {
@@ -42,7 +42,7 @@ export class TextStorage {
     /**
      * True when reloading contents of file from the disk is pending
      */
-    pendingReloadFromDisk = false;
+    pendingReloadFromDisk = false;    
 
     constructor(private readonly host: ServerHost, private readonly info: ScriptInfo, initialVersion?: number) {
         this.version = initialVersion || 0;
@@ -337,6 +337,9 @@ export class ScriptInfo {
     /** @internal */
     deferredDelete?: boolean;
 
+    /** @internal */
+    sourceMapFilePath?: Path | false;//SourceMapFileWatcher | false;
+
     constructor(
         private readonly host: ServerHost,
         readonly fileName: NormalizedPath,
@@ -420,20 +423,20 @@ export class ScriptInfo {
         return this.realpath && this.realpath !== this.path;
     }
 
-    getFormatCodeSettings(): FormatCodeSettings | undefined {
-        return this.formatSettings;
-    }
-    getPreferences(): protocol.UserPreferences | undefined {
-        return this.preferences;
-    }
+    // getFormatCodeSettings(): FormatCodeSettings | undefined {
+    //     return this.formatSettings;
+    // }
+    // getPreferences(): protocol.UserPreferences | undefined {
+    //     return this.preferences;
+    // }
 
     attachToProject(project: Project): boolean {
         const isNew = !this.isAttached(project);
         if (isNew) {
             this.containingProjects.push(project);
-            if (!project.getCompilerOptions().preserveSymlinks) {
+            //if (!project.getCompilerOptions().preserveSymlinks) {
                 this.ensureRealPath();
-            }
+            // }
             project.onFileAddedOrRemoved(this.isSymlink());
         }
         return isNew;
@@ -505,50 +508,51 @@ export class ScriptInfo {
         switch (this.containingProjects.length) {
             case 0:
                 return Errors.ThrowNoProject();
-            case 1:
+            //case 1:
+            default:
                 return isProjectDeferredClose(this.containingProjects[0]) || isBackgroundProject(this.containingProjects[0]) ?
                     Errors.ThrowNoProject() :
                     this.containingProjects[0];
-            default:
-                // If this file belongs to multiple projects, below is the order in which default project is used
-                // - first external project
-                // - for open script info, its default configured project during opening is default if info is part of it
-                // - first configured project of which script info is not a source of project reference redirect
-                // - first configured project
-                // - first inferred project
-                let firstConfiguredProject: ConfiguredProject | undefined;
-                let firstInferredProject: InferredProject | undefined;
-                let firstNonSourceOfProjectReferenceRedirect: ConfiguredProject | undefined;
-                let defaultConfiguredProject: ConfiguredProject | false | undefined;
-                for (let index = 0; index < this.containingProjects.length; index++) {
-                    const project = this.containingProjects[index];
-                    if (isConfiguredProject(project)) {
-                        if (project.deferredClose) continue;
-                        if (!project.isSourceOfProjectReferenceRedirect(this.fileName)) {
-                            // If we havent found default configuredProject and
-                            // its not the last one, find it and use that one if there
-                            if (
-                                defaultConfiguredProject === undefined &&
-                                index !== this.containingProjects.length - 1
-                            ) {
-                                defaultConfiguredProject = project.projectService.findDefaultConfiguredProject(this) || false;
-                            }
-                            if (defaultConfiguredProject === project) return project;
-                            if (!firstNonSourceOfProjectReferenceRedirect) firstNonSourceOfProjectReferenceRedirect = project;
-                        }
-                        if (!firstConfiguredProject) firstConfiguredProject = project;
-                    }
-                    else if (isExternalProject(project)) {
-                        return project;
-                    }
-                    else if (!firstInferredProject && isInferredProject(project)) {
-                        firstInferredProject = project;
-                    }
-                }
-                return (defaultConfiguredProject ||
-                    firstNonSourceOfProjectReferenceRedirect ||
-                    firstConfiguredProject ||
-                    firstInferredProject) ?? Errors.ThrowNoProject();
+            // default:
+            //     // If this file belongs to multiple projects, below is the order in which default project is used
+            //     // - first external project
+            //     // - for open script info, its default configured project during opening is default if info is part of it
+            //     // - first configured project of which script info is not a source of project reference redirect
+            //     // - first configured project
+            //     // - first inferred project
+            //     let firstConfiguredProject: ConfiguredProject | undefined;
+            //     let firstInferredProject: InferredProject | undefined;
+            //     let firstNonSourceOfProjectReferenceRedirect: ConfiguredProject | undefined;
+            //     let defaultConfiguredProject: ConfiguredProject | false | undefined;
+            //     for (let index = 0; index < this.containingProjects.length; index++) {
+            //         const project = this.containingProjects[index];
+            //         if (isConfiguredProject(project)) {
+            //             if (project.deferredClose) continue;
+            //             if (!project.isSourceOfProjectReferenceRedirect(this.fileName)) {
+            //                 // If we havent found default configuredProject and
+            //                 // its not the last one, find it and use that one if there
+            //                 if (
+            //                     defaultConfiguredProject === undefined &&
+            //                     index !== this.containingProjects.length - 1
+            //                 ) {
+            //                     defaultConfiguredProject = project.projectService.findDefaultConfiguredProject(this) || false;
+            //                 }
+            //                 if (defaultConfiguredProject === project) return project;
+            //                 if (!firstNonSourceOfProjectReferenceRedirect) firstNonSourceOfProjectReferenceRedirect = project;
+            //             }
+            //             if (!firstConfiguredProject) firstConfiguredProject = project;
+            //         }
+            //         else if (isExternalProject(project)) {
+            //             return project;
+            //         }
+            //         else if (!firstInferredProject && isInferredProject(project)) {
+            //             firstInferredProject = project;
+            //         }
+            //     }
+            //     return (defaultConfiguredProject ||
+            //         firstNonSourceOfProjectReferenceRedirect ||
+            //         firstConfiguredProject ||
+            //         firstInferredProject) ?? Errors.ThrowNoProject();
         }
     }
 
@@ -558,23 +562,23 @@ export class ScriptInfo {
         }
     }
 
-    setOptions(formatSettings: FormatCodeSettings, preferences: protocol.UserPreferences | undefined): void {
-        if (formatSettings) {
-            if (!this.formatSettings) {
-                this.formatSettings = getDefaultFormatCodeSettings(this.host.newLine);
-                assign(this.formatSettings, formatSettings);
-            }
-            else {
-                this.formatSettings = { ...this.formatSettings, ...formatSettings };
-            }
-        }
+    setOptions(): void {//formatSettings: FormatCodeSettings, preferences: protocol.UserPreferences | undefined): void {
+        // if (formatSettings) {
+        //     if (!this.formatSettings) {
+        //         this.formatSettings = getDefaultFormatCodeSettings(this.host.newLine);
+        //         assign(this.formatSettings, formatSettings);
+        //     }
+        //     else {
+        //         this.formatSettings = { ...this.formatSettings, ...formatSettings };
+        //     }
+        // }
 
-        if (preferences) {
-            if (!this.preferences) {
-                this.preferences = emptyOptions;
-            }
-            this.preferences = { ...this.preferences, ...preferences };
-        }
+        // if (preferences) {
+        //     if (!this.preferences) {
+        //         this.preferences = emptyOptions;
+        //     }
+        //     this.preferences = { ...this.preferences, ...preferences };
+        // }
     }
 
     getLatestVersion(): string {
@@ -658,6 +662,20 @@ export class ScriptInfo {
         }
     }
 }
+
+function failIfInvalidPosition(position: number) {
+    Debug.assert(typeof position === "number", `Expected position ${position} to be a number.`);
+    Debug.assert(position >= 0, `Expected position to be non-negative.`);
+}
+
+function failIfInvalidLocation(location: protocol.Location) {
+    Debug.assert(typeof location.line === "number", `Expected line ${location.line} to be a number.`);
+    Debug.assert(typeof location.offset === "number", `Expected offset ${location.offset} to be a number.`);
+
+    Debug.assert(location.line > 0, `Expected line to be non-${location.line === 0 ? "zero" : "negative"}`);
+    Debug.assert(location.offset > 0, `Expected offset to be non-${location.offset === 0 ? "zero" : "negative"}`);
+}
+
 
 /** @internal */
 export interface DocumentRegistrySourceFileCache {
