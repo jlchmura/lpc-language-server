@@ -1,5 +1,5 @@
-import { LanguageServiceMode, QuickInfo } from "./_namespaces/lpc";
-import { GcTimer, Logger, ProjectService, ProjectServiceEventHandler, ServerHost } from "./_namespaces/lpc.server";
+import { LanguageServiceMode, QuickInfo, ScriptKind } from "./_namespaces/lpc";
+import { GcTimer, Logger, NormalizedPath, ProjectService, ProjectServiceEventHandler, ProjectServiceOptions, ServerHost, toNormalizedPath } from "./_namespaces/lpc.server";
 import * as protocol from "./protocol.js";
 
 export interface HostCancellationToken {
@@ -71,6 +71,8 @@ export class Session<T> {
     /** @internal */
     protected regionDiagLineCountThreshold = 500;
     
+    private projectService: ProjectService;
+
     constructor(opts: SessionOptions) {
         this.host = opts.host;
         this.cancellationToken = opts.cancellationToken;        
@@ -82,7 +84,43 @@ export class Session<T> {
         this.noGetErrOnBackgroundUpdate = opts.noGetErrOnBackgroundUpdate;
 
         const { throttleWaitMilliseconds } = opts;
+        const settings: ProjectServiceOptions = {
+            host: this.host,
+            logger: this.logger,
+            cancellationToken: this.cancellationToken,
+            useSingleInferredProject: opts.useSingleInferredProject,
+            useInferredProjectPerProjectRoot: opts.useInferredProjectPerProjectRoot,
+            globalPlugins: opts.globalPlugins,
+            pluginProbeLocations: opts.pluginProbeLocations,
+            allowLocalPluginLoads: opts.allowLocalPluginLoads,
+            typesMapLocation: opts.typesMapLocation,
+            throttleWaitMilliseconds,
+            serverMode: opts.serverMode,     
+            session: this       
+        };
+        this.projectService = new ProjectService(settings);
+        //this.projectService.setPerformanceEventHandler(this.performanceEventHandler.bind(this));
+        this.gcTimer = new GcTimer(this.host, /*delay*/ 7000, this.logger);
+    }
 
+    /**
+     * @param fileName is the name of the file to be opened
+     * @param fileContent is a version of the file content that is known to be more up to date than the one on disk
+     */
+    private openClientFile(fileName: NormalizedPath, fileContent?: string, scriptKind?: ScriptKind, projectRootPath?: NormalizedPath) {
+        this.projectService.openClientFileWithNormalizedPath(fileName, fileContent, scriptKind, /*hasMixedContent*/ false, projectRootPath);
+    }
+
+    public openFile(request: any) {
+        this.openClientFile(
+            toNormalizedPath(request.arguments.file),
+            request.arguments.fileContent,
+            ScriptKind.LPC,
+            //convertScriptKindName(request.arguments.scriptKindName!), // TODO: GH#18217
+            request.arguments.projectRootPath ? toNormalizedPath(request.arguments.projectRootPath) : undefined,
+        );
+        return request;
+        //return this.notRequired(request);
     }
 
     private getQuickInfoWorker(args: protocol.FileLocationRequestArgs, simplifiedResult: boolean): protocol.QuickInfoResponseBody | QuickInfo | undefined {

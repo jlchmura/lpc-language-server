@@ -244,7 +244,7 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
         currentLineMap = undefined;
         detachedCommentsInfo = undefined;
         if (sourceFile) {
-            console.warn("todo - implment me - setSourceFile");
+            console.warn("todo - implment me - setSourceMapSource");
             //setSourceMapSource(sourceFile);
         }
     }

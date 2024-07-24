@@ -1,4 +1,4 @@
-import { arrayFrom, Debug, DirectoryStructureHost, DocumentRegistry, FileWatcherEventKind, getNormalizedAbsolutePath, isRootedDiskPath, LanguageServiceMode, missingFileModifiedTime, MultiMap, Path, PollingInterval, ScriptKind, startsWith, toPath, WatchFactory, WatchType } from "./_namespaces/lpc";
+import { arrayFrom, Debug, Diagnostic, DirectoryStructureHost, DocumentRegistry, FileWatcherEventKind, getNormalizedAbsolutePath, isRootedDiskPath, LanguageServiceMode, missingFileModifiedTime, MultiMap, Path, PollingInterval, ScriptKind, startsWith, toPath, WatchFactory, WatchType } from "./_namespaces/lpc";
 import { HostCancellationToken, isDynamicFileName, isProjectDeferredClose, Logger, NormalizedPath, normalizedPathToPath, Project, ScriptInfo, ServerHost, Session, ThrottledOperations, toNormalizedPath } from "./_namespaces/lpc.server";
 
 /** @internal */
@@ -64,7 +64,7 @@ export class ProjectService {
     constructor(opts: ProjectServiceOptions) {
         this.throttleWaitMilliseconds = opts.throttleWaitMilliseconds;
     }
-
+    
     /** @internal */
     getExecutingFilePath() {
         return this.getNormalizedAbsolutePath(this.host.getExecutingFilePath());
@@ -328,7 +328,19 @@ export class ProjectService {
         console.warn("todo - implement me - handleSourceMapProjects");
     }
     
-
+    openClientFileWithNormalizedPath(fileName: NormalizedPath, fileContent?: string, scriptKind?: ScriptKind, hasMixedContent?: boolean, projectRootPath?: NormalizedPath): OpenConfiguredProjectResult {
+        Debug.fail("implement me");
+        // const info = this.getOrCreateOpenScriptInfo(fileName, fileContent, scriptKind, hasMixedContent, projectRootPath);
+        // const { retainProjects, ...result } = this.assignProjectToOpenedScriptInfo(info);
+        // this.cleanupProjectsAndScriptInfos(
+        //     retainProjects,
+        //     new Set([info.path]),
+        //     /*externalProjectsRetainingConfiguredProjects*/ undefined,
+        // );
+        // this.telemetryOnOpenFile(info);
+        // this.printProjects();
+        // return result;
+    }
 }
 
 export const LargeFileReferencedEvent = "largeFileReferenced";
@@ -369,4 +381,9 @@ export interface ProjectServiceOptions {
 export function updateProjectIfDirty(project: Project) {
     project.invalidateResolutionsOfFailedLookupLocations();
     return project.dirty && !project.updateGraph();
+}
+
+export interface OpenConfiguredProjectResult {
+    configFileName?: NormalizedPath;
+    configFileErrors?: readonly Diagnostic[];
 }
