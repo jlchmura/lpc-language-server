@@ -1,4 +1,5 @@
-import { Logger, LogLevel, ServerHost } from "./_namespaces/lpc.server";
+import { combinePaths, FileSystemEntries, find, forEach } from "./_namespaces/lpc";
+import { Logger, LogLevel, NormalizedPath, ServerHost, toNormalizedPath } from "./_namespaces/lpc.server";
 
 /** @internal */
 export class ThrottledOperations {
@@ -72,6 +73,31 @@ export class GcTimer {
     }
 }
 
+/** 
+ * Searches for a file named "lpc-config.json" in the given directory and its ancestors.
+ * @internal 
+ * @returns undefined if lpc-config is not found
+ */
+export function findLpcConfig(projectRootPath: string, getFileSystemEntries: (path: string) => FileSystemEntries): NormalizedPath | undefined {
+    let config: string|undefined = undefined;
+    
+    function visitDirectory(path: string, depth: number | undefined, ) {
+        const { files, directories } = getFileSystemEntries(path);
+        config ??= find(files, f => f === "lpc-config.json");
+        if (!config) {
+            forEach(directories, (directory) => {
+                visitDirectory(combinePaths(path, directory), depth === undefined ? undefined : depth + 1);
+                return !!config;
+            });
+        } else {
+            config = combinePaths(path, config);
+        }
+    }
+
+    visitDirectory(projectRootPath, 0);
+
+    return config ? toNormalizedPath(config) : undefined;
+}
 
 /** 
  * @internal 

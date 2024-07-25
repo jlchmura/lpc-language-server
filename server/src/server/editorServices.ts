@@ -1,5 +1,5 @@
-import { arrayFrom, createGetCanonicalFileName, createMultiMap, Debug, Diagnostic, DirectoryStructureHost, DocumentRegistry, FileWatcherEventKind, getNormalizedAbsolutePath, isRootedDiskPath, LanguageServiceMode, missingFileModifiedTime, MultiMap, Path, PollingInterval, ScriptKind, startsWith, toPath, WatchFactory, WatchType } from "./_namespaces/lpc";
-import { ConfiguredProject, HostCancellationToken, isDynamicFileName, isProjectDeferredClose, Logger, NormalizedPath, normalizedPathToPath, Project, ScriptInfo, ServerHost, Session, ThrottledOperations, toNormalizedPath } from "./_namespaces/lpc.server";
+import { arrayFrom, createGetCanonicalFileName, createMultiMap, Debug, Diagnostic, DirectoryStructureHost, DocumentRegistry, FileSystemEntries, FileWatcherEventKind, find, getNormalizedAbsolutePath, isRootedDiskPath, LanguageServiceMode, missingFileModifiedTime, MultiMap, normalizePath, Path, PollingInterval, ScriptKind, startsWith, toPath, WatchFactory, WatchType } from "./_namespaces/lpc";
+import { ConfiguredProject, findLpcConfig, HostCancellationToken, isDynamicFileName, isProjectDeferredClose, Logger, NormalizedPath, normalizedPathToPath, Project, ScriptInfo, ServerHost, Session, ThrottledOperations, toNormalizedPath } from "./_namespaces/lpc.server";
 
 /** @internal */
 export const maxFileSize = 4 * 1024 * 1024;
@@ -357,6 +357,11 @@ export class ProjectService {
         console.warn("todo - implement me - handleSourceMapProjects");
     }
     
+    findAndOpenLpcConfig(projectRootPath: string): NormalizedPath | undefined {
+        const configPath = findLpcConfig(projectRootPath, this.host.getAccessibleFileSystemEntries);
+        return configPath;
+    }
+
     openClientFileWithNormalizedPath(fileName: NormalizedPath, fileContent?: string, scriptKind?: ScriptKind, hasMixedContent?: boolean, projectRootPath?: NormalizedPath): OpenConfiguredProjectResult {
         Debug.fail("implement me");
         const info = this.getOrCreateOpenScriptInfo(fileName, fileContent, scriptKind, hasMixedContent, projectRootPath);
