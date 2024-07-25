@@ -42,6 +42,7 @@ export interface SessionOptions {
     pluginProbeLocations?: readonly string[];
     allowLocalPluginLoads?: boolean;
     typesMapLocation?: string;
+    projectRootFolder?: string;    
     ///** @internal */ incrementalVerifier?: (service: ProjectService) => void;
 }
 
@@ -96,7 +97,8 @@ export class Session<T> {
             typesMapLocation: opts.typesMapLocation,
             throttleWaitMilliseconds,
             serverMode: opts.serverMode,     
-            session: this       
+            session: this,
+            projectRootFolder: opts.projectRootFolder
         };
         this.projectService = new ProjectService(settings);
         //this.projectService.setPerformanceEventHandler(this.performanceEventHandler.bind(this));
@@ -111,15 +113,14 @@ export class Session<T> {
         this.projectService.openClientFileWithNormalizedPath(fileName, fileContent, scriptKind, /*hasMixedContent*/ false, projectRootPath);
     }
 
-    public openFile(request: any) {
+    public openFile(args: protocol.OpenRequestArgs) {
         this.openClientFile(
-            toNormalizedPath(request.arguments.file),
-            request.arguments.fileContent,
+            toNormalizedPath(args.file),
+            args.fileContent,
             ScriptKind.LPC,
-            //convertScriptKindName(request.arguments.scriptKindName!), // TODO: GH#18217
-            request.arguments.projectRootPath ? toNormalizedPath(request.arguments.projectRootPath) : undefined,
+            args.projectRootPath ? toNormalizedPath(args.projectRootPath) : undefined,
         );
-        return request;
+        return args;
         //return this.notRequired(request);
     }
 

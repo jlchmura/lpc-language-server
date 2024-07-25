@@ -82,13 +82,15 @@ const serverHost = lpc.sys as lpc.server.ServerHost;
 const cancelToken = lpc.server.nullCancellationToken;
 const logger = new Logger(undefined, true, lpc.server.LogLevel.verbose);
 const session = new Session({ 
-    host: serverHost, cancellationToken: cancelToken,
+    host: serverHost, 
+    cancellationToken: cancelToken,
     byteLength: Buffer.byteLength,
     useSingleInferredProject: false,
     useInferredProjectPerProjectRoot: false,
     logger,
     canUseEvents: true,
-    hrtime: process.hrtime
+    hrtime: process.hrtime,
+    projectRootFolder: workDir,
 });
 
 

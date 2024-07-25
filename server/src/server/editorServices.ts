@@ -1,5 +1,5 @@
-import { arrayFrom, Debug, Diagnostic, DirectoryStructureHost, DocumentRegistry, FileWatcherEventKind, getNormalizedAbsolutePath, isRootedDiskPath, LanguageServiceMode, missingFileModifiedTime, MultiMap, Path, PollingInterval, ScriptKind, startsWith, toPath, WatchFactory, WatchType } from "./_namespaces/lpc";
-import { HostCancellationToken, isDynamicFileName, isProjectDeferredClose, Logger, NormalizedPath, normalizedPathToPath, Project, ScriptInfo, ServerHost, Session, ThrottledOperations, toNormalizedPath } from "./_namespaces/lpc.server";
+import { arrayFrom, createGetCanonicalFileName, createMultiMap, Debug, Diagnostic, DirectoryStructureHost, DocumentRegistry, FileWatcherEventKind, getNormalizedAbsolutePath, isRootedDiskPath, LanguageServiceMode, missingFileModifiedTime, MultiMap, Path, PollingInterval, ScriptKind, startsWith, toPath, WatchFactory, WatchType } from "./_namespaces/lpc";
+import { ConfiguredProject, HostCancellationToken, isDynamicFileName, isProjectDeferredClose, Logger, NormalizedPath, normalizedPathToPath, Project, ScriptInfo, ServerHost, Session, ThrottledOperations, toNormalizedPath } from "./_namespaces/lpc.server";
 
 /** @internal */
 export const maxFileSize = 4 * 1024 * 1024;
@@ -30,6 +30,8 @@ export class ProjectService {
     public readonly serverMode: LanguageServiceMode;
     public readonly throttleWaitMilliseconds?: number;
     private readonly hostConfiguration: any;//todo HostConfiguration;
+    /** @internal */
+    readonly session: Session<unknown> | undefined;
 
     /**
      * Map to the real path of the infos
@@ -62,7 +64,34 @@ export class ProjectService {
     readonly watchFactory: WatchFactory<WatchType, Project | NormalizedPath>;
     
     constructor(opts: ProjectServiceOptions) {
+        this.host = opts.host;
+        this.logger = opts.logger;
+        this.cancellationToken = opts.cancellationToken;
+        // this.useSingleInferredProject = opts.useSingleInferredProject;
+        this.useInferredProjectPerProjectRoot = opts.useInferredProjectPerProjectRoot;
+        // this.typingsInstaller = opts.typingsInstaller || nullTypingsInstaller;
         this.throttleWaitMilliseconds = opts.throttleWaitMilliseconds;
+        this.eventHandler = opts.eventHandler;
+        // this.suppressDiagnosticEvents = opts.suppressDiagnosticEvents;
+        // this.globalPlugins = opts.globalPlugins || emptyArray;
+        // this.pluginProbeLocations = opts.pluginProbeLocations || emptyArray;
+        // this.allowLocalPluginLoads = !!opts.allowLocalPluginLoads;
+        // this.typesMapLocation = (opts.typesMapLocation === undefined) ? combinePaths(getDirectoryPath(this.getExecutingFilePath()), "typesMap.json") : opts.typesMapLocation;
+        this.session = opts.session;
+        // this.jsDocParsingMode = opts.jsDocParsingMode;
+
+        if (opts.serverMode !== undefined) {
+            this.serverMode = opts.serverMode;
+        }
+        else {
+            this.serverMode = LanguageServiceMode.Semantic;
+        }
+
+        if (this.host.realpath) {
+            this.realpathToScriptInfos = createMultiMap();
+        }
+        this.currentDirectory = toNormalizedPath(opts.projectRootFolder || this.host.getCurrentDirectory());
+        this.toCanonicalFileName = createGetCanonicalFileName(this.host.useCaseSensitiveFileNames);
     }
     
     /** @internal */
@@ -330,8 +359,8 @@ export class ProjectService {
     
     openClientFileWithNormalizedPath(fileName: NormalizedPath, fileContent?: string, scriptKind?: ScriptKind, hasMixedContent?: boolean, projectRootPath?: NormalizedPath): OpenConfiguredProjectResult {
         Debug.fail("implement me");
-        // const info = this.getOrCreateOpenScriptInfo(fileName, fileContent, scriptKind, hasMixedContent, projectRootPath);
-        // const { retainProjects, ...result } = this.assignProjectToOpenedScriptInfo(info);
+        const info = this.getOrCreateOpenScriptInfo(fileName, fileContent, scriptKind, hasMixedContent, projectRootPath);
+        //const { retainProjects, ...result } = this.assignProjectToOpenedScriptInfo(info);
         // this.cleanupProjectsAndScriptInfos(
         //     retainProjects,
         //     new Set([info.path]),
@@ -340,6 +369,27 @@ export class ProjectService {
         // this.telemetryOnOpenFile(info);
         // this.printProjects();
         // return result;
+    }
+    
+    private getOrCreateOpenScriptInfo(
+        fileName: NormalizedPath,
+        fileContent: string | undefined,
+        scriptKind: ScriptKind | undefined,
+        hasMixedContent: boolean | undefined,
+        projectRootPath: NormalizedPath | undefined,
+    ) {
+        const info = this.getOrCreateScriptInfoWorker(
+            fileName,
+            projectRootPath ? this.getNormalizedAbsolutePath(projectRootPath) : this.currentDirectory,
+            /*openedByClient*/ true,
+            fileContent,
+            scriptKind,
+            !!hasMixedContent,
+            /*hostToQueryFileExistsOn*/ undefined,
+            /*deferredDeleteOk*/ true,
+        )!;
+        this.openFiles.set(info.path, projectRootPath);
+        return info;
     }
 }
 
@@ -371,6 +421,7 @@ export interface ProjectServiceOptions {
     typesMapLocation?: string;
     serverMode?: LanguageServiceMode;
     session: Session<unknown> | undefined;
+    projectRootFolder?: string;    
     /** @internal */ incrementalVerifier?: (service: ProjectService) => void;    
 }
 
@@ -386,4 +437,23 @@ export function updateProjectIfDirty(project: Project) {
 export interface OpenConfiguredProjectResult {
     configFileName?: NormalizedPath;
     configFileErrors?: readonly Diagnostic[];
+}
+
+interface AssignProjectResult extends OpenConfiguredProjectResult {
+    retainProjects: Set<ConfiguredProject> | undefined;
+}
+
+
+/** @internal */
+export enum ConfiguredProjectLoadKind {
+    Find,
+    Create,
+    Reload,
+}
+
+/** @internal */
+export interface DefaultConfiguredProjectResult {
+    defaultProject: ConfiguredProject | undefined;
+    sentConfigDiag: Set<ConfiguredProject>;
+    seenProjects: Set<ConfiguredProject>;
 }

@@ -86,3 +86,20 @@ export interface QuickInfoResponseBody {
      */
     tags: JSDocTagInfo[];
 }
+
+
+/**
+ *  Information found in an "open" request.
+ */
+export interface OpenRequestArgs extends FileRequestArgs {
+    /**
+     * Used when a version of the file content is known to be more up to date than the one on disk.
+     * Then the known content will be used upon opening instead of the disk copy
+     */
+    fileContent?: string;
+    /**
+     * Used to limit the searching for project config file. If given the searching will stop at this
+     * root path; otherwise it will go all the way up to the dist root path.
+     */
+    projectRootPath?: string;
+}
