@@ -433,6 +433,7 @@ export class ContextSymbolTable extends SymbolTable {
                 }
 
                 if (
+                    context.getSourceInterval() &&
                     symbol.context
                         .getSourceInterval()
                         ?.properlyContains(context.getSourceInterval())

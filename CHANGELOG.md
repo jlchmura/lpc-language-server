@@ -4,6 +4,7 @@
 
 -   Fix: Strings with just an emoji character get garbled on semantic highlight
 -   Fix: [#define statements are not syntax highlighted correctly #50](https://github.com/jlchmura/lpc-language-server/issues/50)
+-   Fix: [Error requesting textdocument failed #47](https://github.com/jlchmura/lpc-language-server/issues/47)
 
 ## 1.0.27
 
