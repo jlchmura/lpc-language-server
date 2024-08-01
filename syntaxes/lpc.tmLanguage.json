@@ -144,7 +144,7 @@
                 }
             },
             "end": "(?=(?://|/\\*))|$|\\n",
-            "name": "entity.name.function.macro.lpc",
+            "name": "meta.preprocessor.lpc",
             "patterns": [
                 {
                     "match": "(?>\\\\\\s*\\n)",

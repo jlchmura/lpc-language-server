@@ -3,6 +3,7 @@
 ## 1.0.28
 
 -   Fix: Strings with just an emoji character get garbled on semantic highlight
+-   Fix: [#define statements are not syntax highlighted correctly #50](https://github.com/jlchmura/lpc-language-server/issues/50)
 
 ## 1.0.27
 
