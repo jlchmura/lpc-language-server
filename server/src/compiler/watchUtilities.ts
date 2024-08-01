@@ -333,3 +333,19 @@ export interface WatchFactory<X, Y = undefined> {
     watchFile: (file: string, callback: FileWatcherCallback, pollingInterval: PollingInterval, options: WatchOptions | undefined, detailInfo1: X, detailInfo2?: Y) => FileWatcher;
     watchDirectory: (directory: string, callback: DirectoryWatcherCallback, flags: WatchDirectoryFlags, options: WatchOptions | undefined, detailInfo1: X, detailInfo2?: Y) => FileWatcher;
 }
+
+
+export enum ProgramUpdateLevel {
+    /** Program is updated with same root file names and options */
+    Update,
+    /** Loads program after updating root file names from the disk */
+    RootNamesAndUpdate,
+    /**
+     * Loads program completely, including:
+     *  - re-reading contents of config file from disk
+     *  - calculating root file names for the program
+     *  - Updating the program
+     */
+
+    Full,
+}

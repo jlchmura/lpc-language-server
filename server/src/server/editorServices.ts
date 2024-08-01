@@ -1,8 +1,10 @@
-import { arrayFrom, createGetCanonicalFileName, createMultiMap, Debug, Diagnostic, DirectoryStructureHost, DocumentRegistry, FileSystemEntries, FileWatcherEventKind, find, getNormalizedAbsolutePath, isRootedDiskPath, LanguageServiceMode, missingFileModifiedTime, MultiMap, normalizePath, Path, PollingInterval, ScriptKind, startsWith, toPath, WatchFactory, WatchType } from "./_namespaces/lpc";
+import { arrayFrom, createCachedDirectoryStructureHost, createGetCanonicalFileName, createMultiMap, Debug, Diagnostic, DirectoryStructureHost, DocumentRegistry, FileSystemEntries, FileWatcher, FileWatcherEventKind, find, getNormalizedAbsolutePath, isRootedDiskPath, LanguageServiceMode, missingFileModifiedTime, MultiMap, noop, normalizePath, Path, PollingInterval, ProgramUpdateLevel, ScriptKind, startsWith, toPath, tracing, WatchFactory, WatchType } from "./_namespaces/lpc";
 import { ConfiguredProject, findLpcConfig, HostCancellationToken, isDynamicFileName, isProjectDeferredClose, Logger, NormalizedPath, normalizedPathToPath, Project, ScriptInfo, ServerHost, Session, ThrottledOperations, toNormalizedPath } from "./_namespaces/lpc.server";
 
 /** @internal */
 export const maxFileSize = 4 * 1024 * 1024;
+
+const noopConfigFileWatcher: FileWatcher = { close: noop };
 
 export class ProjectService {
     /** @internal */
@@ -32,6 +34,20 @@ export class ProjectService {
     private readonly hostConfiguration: any;//todo HostConfiguration;
     /** @internal */
     readonly session: Session<unknown> | undefined;
+    /**
+     * projects specified by a lpc-config.json file
+     */
+    readonly configuredProjects: Map<string, ConfiguredProject> = new Map<string, ConfiguredProject>();
+    /**
+     * This is a map of config file paths existence that doesnt need query to disk
+     * - The entry can be present because there is inferred project that needs to watch addition of config file to directory
+     *   In this case the exists could be true/false based on config file is present or not
+     * - Or it is present if we have configured project open with config file at that location
+     *   In this case the exists property is always true
+     *
+     * @internal
+     */
+    readonly configFileExistenceInfoCache = new Map<NormalizedPath, ConfigFileExistenceInfo>();
 
     /**
      * Map to the real path of the infos
@@ -396,6 +412,72 @@ export class ProjectService {
         this.openFiles.set(info.path, projectRootPath);
         return info;
     }
+
+    /** @internal */
+    findConfiguredProjectByProjectName(configFileName: NormalizedPath, allowDeferredClosed?: boolean): ConfiguredProject | undefined {
+        // make sure that casing of config file name is consistent
+        const canonicalConfigFilePath = this.toCanonicalFileName(configFileName) as NormalizedPath;
+        const result = this.getConfiguredProjectByCanonicalConfigFilePath(canonicalConfigFilePath);
+        return allowDeferredClosed ? result : !result?.deferredClose ? result : undefined;
+    }
+
+    private getConfiguredProjectByCanonicalConfigFilePath(canonicalConfigFilePath: string): ConfiguredProject | undefined {
+        return this.configuredProjects.get(canonicalConfigFilePath);
+    }
+
+    /** @internal */
+    createConfiguredProject(configFileName: NormalizedPath, reason: string) {
+        tracing?.instant(tracing.Phase.Session, "createConfiguredProject", { configFilePath: configFileName });
+        this.logger.info(`Creating configuration project ${configFileName}`);
+        const canonicalConfigFilePath = (this.toCanonicalFileName(configFileName)) as NormalizedPath;
+        let configFileExistenceInfo = this.configFileExistenceInfoCache.get(canonicalConfigFilePath);
+        // We could be in this scenario if project is the configured project tracked by external project
+        // Since that route doesnt check if the config file is present or not
+        if (!configFileExistenceInfo) {
+            this.configFileExistenceInfoCache.set(canonicalConfigFilePath, configFileExistenceInfo = { exists: true });
+        }
+        else {
+            configFileExistenceInfo.exists = true;
+        }
+        if (!configFileExistenceInfo.config) {
+            configFileExistenceInfo.config = {
+                cachedDirectoryStructureHost: createCachedDirectoryStructureHost(this.host, this.host.getCurrentDirectory(), this.host.useCaseSensitiveFileNames)!,
+                projects: new Map(),
+                updateLevel: ProgramUpdateLevel.Full,
+            };
+        }
+
+        const project = new ConfiguredProject(
+            configFileName,
+            canonicalConfigFilePath,
+            this,
+            this.documentRegistry,
+            configFileExistenceInfo.config.cachedDirectoryStructureHost,
+            reason,
+        );
+        Debug.assert(!this.configuredProjects.has(canonicalConfigFilePath));
+        this.configuredProjects.set(canonicalConfigFilePath, project);
+        this.createConfigFileWatcherForParsedConfig(configFileName, canonicalConfigFilePath, project);
+        return project;
+    }
+
+    private createConfigFileWatcherForParsedConfig(configFileName: NormalizedPath, canonicalConfigFilePath: NormalizedPath, forProject: ConfiguredProject) {
+        const configFileExistenceInfo = this.configFileExistenceInfoCache.get(canonicalConfigFilePath)!;
+        // When watching config file for parsed config, remove the noopFileWatcher that can be created for open files impacted by config file and watch for real
+        if (!configFileExistenceInfo.watcher || configFileExistenceInfo.watcher === noopConfigFileWatcher) {
+            configFileExistenceInfo.watcher = this.watchFactory.watchFile(
+                configFileName,
+                (_fileName, eventKind) => this.onConfigFileChanged(configFileName, canonicalConfigFilePath, eventKind),
+                PollingInterval.High,
+                this.getWatchOptionsFromProjectWatchOptions(configFileExistenceInfo?.config?.parsedCommandLine?.watchOptions, getDirectoryPath(configFileName)),
+                WatchType.ConfigFile,
+                forProject,
+            );
+        }
+        // Watching config file for project, update the map
+        const projects = configFileExistenceInfo.config!.projects;
+        projects.set(forProject.canonicalConfigFilePath, projects.get(forProject.canonicalConfigFilePath) || false);
+    }
 }
 
 export const LargeFileReferencedEvent = "largeFileReferenced";
@@ -461,4 +543,39 @@ export interface DefaultConfiguredProjectResult {
     defaultProject: ConfiguredProject | undefined;
     sentConfigDiag: Set<ConfiguredProject>;
     seenProjects: Set<ConfiguredProject>;
+}
+
+
+/** @internal */
+export interface ConfigFileExistenceInfo {
+    /**
+     * Cached value of existence of config file
+     * It is true if there is configured project open for this file.
+     * It can be either true or false if this is the config file that is being watched by inferred project
+     *   to decide when to update the structure so that it knows about updating the project for its files
+     *   (config file may include the inferred project files after the change and hence may be wont need to be in inferred project)
+     */
+    exists: boolean;
+    /**
+     * Tracks how many open files are impacted by this config file that are root of inferred project
+     */
+    inferredProjectRoots?: number;
+    /**
+     * openFilesImpactedByConfigFiles is a map of open files that would be impacted by this config file
+     *   because these are the paths being looked up for their default configured project location
+     */
+    openFilesImpactedByConfigFile?: Set<Path>;
+    /**
+     * The file watcher watching the config file because there is open script info that is root of
+     * inferred project and will be impacted by change in the status of the config file
+     * or
+     * Configured project for this config file is open
+     * or
+     * Configured project references this config file
+     */
+    watcher?: FileWatcher;
+    /**
+     * Cached parsed command line and other related information like watched directories etc
+     */
+    config?: any;
 }

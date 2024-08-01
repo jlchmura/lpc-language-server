@@ -1,5 +1,5 @@
 import { LanguageServiceMode, QuickInfo, ScriptKind } from "./_namespaces/lpc";
-import { GcTimer, Logger, NormalizedPath, ProjectService, ProjectServiceEventHandler, ProjectServiceOptions, ServerHost, toNormalizedPath } from "./_namespaces/lpc.server";
+import { GcTimer, Logger, NormalizedPath, Project, ProjectService, ProjectServiceEventHandler, ProjectServiceOptions, ServerHost, toNormalizedPath } from "./_namespaces/lpc.server";
 import * as protocol from "./protocol.js";
 
 export interface HostCancellationToken {
@@ -105,6 +105,20 @@ export class Session<T> {
         //this.projectService.setPerformanceEventHandler(this.performanceEventHandler.bind(this));
         this.gcTimer = new GcTimer(this.host, /*delay*/ 7000, this.logger);
     }
+    
+    private getFileAndProject(args: protocol.FileRequestArgs): FileAndProject {
+        return this.getFileAndProjectWorker(args.file, args.projectFileName);
+    }
+
+    private getProject(projectFileName: string | undefined): Project | undefined {
+        return projectFileName === undefined ? undefined : this.projectService.findProject(projectFileName);
+    }
+    
+    private getFileAndProjectWorker(uncheckedFileName: string, projectFileName: string | undefined): { file: NormalizedPath; project: Project; } {
+        const file = toNormalizedPath(uncheckedFileName);
+        const project = this.getProject(projectFileName);
+        return { file, project };
+    }
 
     /**
      * @param fileName is the name of the file to be opened
@@ -155,4 +169,9 @@ export class Session<T> {
         // }
     }
 
+}
+
+interface FileAndProject {
+    readonly file: NormalizedPath;
+    readonly project: Project;
 }
