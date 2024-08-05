@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.0.30
+
+-   Because 1.0.29 was incomplete
+
 ## 1.0.29
 
 -   Fix: [Signature hint does not recognize function type #53](https://github.com/jlchmura/lpc-language-server/issues/53)
