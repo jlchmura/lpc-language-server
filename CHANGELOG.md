@@ -2,6 +2,7 @@
 
 ## 1.0.29
 
+-   Fix: [Signature hint does not recognize function type #53](https://github.com/jlchmura/lpc-language-server/issues/53)
 -   Fix: [Exception when typing foreach without variable name #54](https://github.com/jlchmura/lpc-language-server/issues/54)
 
 ## 1.0.28

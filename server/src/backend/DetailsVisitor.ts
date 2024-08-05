@@ -522,6 +522,9 @@ export class DetailsVisitor
                 case "float":
                     varType = FundamentalType.floatType;
                     break;
+                case "function":
+                    varType = LpcTypes.functionType;
+                    break;
                 case "unknown":
                     varType = LpcTypes.unknownType;
                     break;
