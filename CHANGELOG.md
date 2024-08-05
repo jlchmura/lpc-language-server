@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.0.29
+
+-   Fix: [Exception when typing foreach without variable name #54](https://github.com/jlchmura/lpc-language-server/issues/54)
+
 ## 1.0.28
 
 -   Fix: Strings with just an emoji character get garbled on semantic highlight

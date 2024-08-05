@@ -545,6 +545,8 @@ export class DetailsVisitor
         varDecl: VariableDeclaratorContext,
         varType: IType
     ): VariableSymbol {
+        if (!varDecl) return undefined;
+
         const varNameSym = varDecl._variableName;
         const nm = varNameSym?.getText();
         const varSym = this.addNewSymbol(
@@ -1061,6 +1063,7 @@ export class DetailsVisitor
             ctx.variableDeclarator(),
             varType
         );
+
         return undefined;
     };
 
