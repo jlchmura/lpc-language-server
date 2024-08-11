@@ -1,5 +1,5 @@
-import { LanguageServiceMode, QuickInfo, ScriptKind } from "./_namespaces/lpc";
-import { GcTimer, Logger, NormalizedPath, Project, ProjectService, ProjectServiceEventHandler, ProjectServiceOptions, ServerHost, toNormalizedPath } from "./_namespaces/lpc.server";
+import { displayPartsToString, isRootedDiskPath, JSDocTagInfo, LanguageServiceMode, QuickInfo, ScriptKind, SymbolDisplayPart, textSpanEnd } from "./_namespaces/lpc";
+import { GcTimer, Logger, NormalizedPath, Project, ProjectService, ProjectServiceEventHandler, ProjectServiceOptions, ScriptInfo, ServerHost, toNormalizedPath } from "./_namespaces/lpc.server";
 import * as protocol from "./protocol.js";
 
 export interface HostCancellationToken {
@@ -139,36 +139,59 @@ export class Session<T> {
         //return this.notRequired(request);
     }
 
-    private getQuickInfoWorker(args: protocol.FileLocationRequestArgs, simplifiedResult: boolean): protocol.QuickInfoResponseBody | QuickInfo | undefined {
-        return undefined;
-        //const { file, project } = this.getFileAndProject(args);
-        //const scriptInfo = this.projectService.getScriptInfoForNormalizedPath(file)!;
-        // const quickInfo = project.getLanguageService().getQuickInfoAtPosition(file, this.getPosition(args, scriptInfo));
-        // if (!quickInfo) {
-        //     return undefined;
-        // }
+    private getPosition(args: protocol.Location & { position?: number; }, scriptInfo: ScriptInfo): number {
+        return args.position !== undefined ? args.position : scriptInfo.lineOffsetToPosition(args.line, args.offset);
+    }
+    
+    private mapDisplayParts(parts: SymbolDisplayPart[] | undefined, project: Project): SymbolDisplayPart[] {
+        if (!parts) {
+            return [];
+        }
+        return parts.map(part =>
+            part
+            // part.kind !== "linkName" ? part : {
+            //     ...part,
+            //     target: this.toFileSpan((part as JSDocLinkDisplayPart).target.fileName, (part as JSDocLinkDisplayPart).target.textSpan, project),
+            // }
+        );
+    }
+    
+    public getQuickInfoWorker(args: protocol.FileLocationRequestArgs, simplifiedResult: boolean): protocol.QuickInfoResponseBody | QuickInfo | undefined {
+        const { file, project } = this.getFileAndProject(args);
+        const scriptInfo = this.projectService.getScriptInfoForNormalizedPath(file)!;
+        const quickInfo = project.getLanguageService().getQuickInfoAtPosition(file, this.getPosition(args, scriptInfo));
+        if (!quickInfo) {
+            return undefined;
+        }
 
-        // const useDisplayParts = !!this.getPreferences(file).displayPartsForJSDoc;
-        // if (simplifiedResult) {
-        //     const displayString = displayPartsToString(quickInfo.displayParts);
-        //     return {
-        //         kind: quickInfo.kind,
-        //         kindModifiers: quickInfo.kindModifiers,
-        //         start: scriptInfo.positionToLineOffset(quickInfo.textSpan.start),
-        //         end: scriptInfo.positionToLineOffset(textSpanEnd(quickInfo.textSpan)),
-        //         displayString,
-        //         documentation: useDisplayParts ? this.mapDisplayParts(quickInfo.documentation, project) : displayPartsToString(quickInfo.documentation),
-        //         tags: this.mapJSDocTagInfo(quickInfo.tags, project, useDisplayParts),
-        //     };
-        // }
-        // else {
-        //     return useDisplayParts ? quickInfo : {
-        //         ...quickInfo,
-        //         tags: this.mapJSDocTagInfo(quickInfo.tags, project, /*richResponse*/ false) as JSDocTagInfo[],
-        //     };
-        // }
+        const useDisplayParts = false;//!!this.getPreferences(file).displayPartsForJSDoc;
+        if (simplifiedResult) {
+            const displayString = displayPartsToString(quickInfo.displayParts);
+            return {
+                kind: quickInfo.kind,
+                kindModifiers: quickInfo.kindModifiers,
+                start: scriptInfo.positionToLineOffset(quickInfo.textSpan.start),
+                end: scriptInfo.positionToLineOffset(textSpanEnd(quickInfo.textSpan)),
+                displayString,
+                documentation: useDisplayParts ? this.mapDisplayParts(quickInfo.documentation, project) : displayPartsToString(quickInfo.documentation),
+                tags: this.mapJSDocTagInfo(quickInfo.tags, project, useDisplayParts),
+            };
+        }
+        else {
+            return useDisplayParts ? quickInfo : {
+                ...quickInfo,
+                tags: this.mapJSDocTagInfo(quickInfo.tags, project, /*richResponse*/ false) as JSDocTagInfo[],
+            };
+        }
     }
 
+    private mapJSDocTagInfo(tags: JSDocTagInfo[] | undefined, project: Project, richResponse: boolean): protocol.JSDocTagInfo[] {
+        return tags ? tags.map(tag => ({
+            ...tag,
+            text: richResponse ? this.mapDisplayParts(tag.text, project) : tag.text?.map(part => part.text).join(""),
+        })) : [];
+    }
+    
 }
 
 interface FileAndProject {

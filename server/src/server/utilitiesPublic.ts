@@ -56,3 +56,7 @@ export namespace Errors {
         throw new Error(`Project '${project.getProjectName()}' does not contain document '${fileName}'`);
     }
 }
+
+export function asNormalizedPath(fileName: string): NormalizedPath {
+    return fileName as NormalizedPath;
+}

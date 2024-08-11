@@ -44,6 +44,7 @@ import {
 } from "./services/_namespaces/lpc";
 import { Session } from "./server/session";
 import { Logger } from "./lpcserver/nodeServer";
+import { ProjectService } from "./server/editorServices";
 
 class MockFileHandler implements IFileHandler {
     constructor() {}
@@ -96,18 +97,23 @@ const session = new Session({
 
 
 const svc = doCreateLanguageService();
-
-
-
 const srcFile = host.getSourceFile(filename);
 const checker = p2.createTypeChecker(host); // binder is called by checker
 const diags = checker.getDiagnostics(srcFile);
 const daigsB = srcFile.bindDiagnostics;
 
 const pos = 95;
+const args: lpc.server.protocol.FileLocationRequestArgs = {
+    file: fileOnly,
+    line: 0,
+    offset: pos,
+    position: pos, 
+    projectFileName: "default"
+};
 const node = getTouchingPropertyName(srcFile, pos);
 //const def = svc.getDefinitionAtPosition(fileOnly, pos, false, false);
 const inf = svc.getQuickInfoAtPosition(fileOnly, pos);
+const inf2 = session.getQuickInfoWorker(args, false);
 console.debug("node count:", srcFile.nodeCount);
 
 // const facade = new LpcFacade(workDir, undefined);
@@ -216,6 +222,8 @@ console.debug("node count:", srcFile.nodeCount);
 // // console.log("t", finalTValue);
 
 // const i = 0;
+
+
 function doCreateLanguageService() {
     return createLanguageService({
         getCompilationSettings() {
@@ -228,7 +236,7 @@ function doCreateLanguageService() {
         },
         getScriptVersion(_fileName) {
             return "";
-        },
+        },        
         getScriptSnapshot(fileName) {
             if (fileName === ".c") {
                 return ScriptSnapshot.fromString("");
@@ -242,6 +250,7 @@ function doCreateLanguageService() {
         },
         fileExists: (name) => !!files[name],
         readFile: (name) => files[name],
+        readDirectory: () => [],
     });
 }
 

@@ -1,4 +1,4 @@
-import { JSDocTagInfo, ScriptElementKind, SymbolDisplayPart } from "./_namespaces/lpc";
+import {  ScriptElementKind, SymbolDisplayPart } from "./_namespaces/lpc";
 
 /**
  * Arguments for FileRequest messages.
@@ -102,4 +102,14 @@ export interface OpenRequestArgs extends FileRequestArgs {
      * root path; otherwise it will go all the way up to the dist root path.
      */
     projectRootPath?: string;
+}
+
+export interface JSDocTagInfo {
+    /** Name of the JSDoc tag */
+    name: string;
+    /**
+     * Comment text after the JSDoc tag -- the text after the tag name until the next tag or end of comment
+     * Display parts when UserPreferences.displayPartsForJSDoc is true, flattened to string otherwise.
+     */
+    text?: string | SymbolDisplayPart[];
 }

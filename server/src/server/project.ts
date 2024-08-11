@@ -1,6 +1,6 @@
 import * as lpc from "./_namespaces/lpc.js";
 import { addRange, CachedDirectoryStructureHost, combinePaths, CompilerOptions, Debug, Diagnostic, DirectoryStructureHost, DocumentRegistry, ExportInfoMap, FileWatcher, getDefaultLibFileName, getDirectoryPath, HasInvalidatedLibResolutions, HasInvalidatedResolutions, IScriptSnapshot, LanguageService, LanguageServiceHost, ModuleResolutionHost, normalizePath, ParsedCommandLine, Path, Program, ProjectReference, ResolutionCache, ResolvedProjectReference, returnFalse, SortedReadonlyArray, ThrottledCancellationToken, toPath, tracing } from "./_namespaces/lpc";
-import { emptyArray, HostCancellationToken, NormalizedPath, ProjectService, ScriptInfo } from "./_namespaces/lpc.server";
+import { emptyArray, HostCancellationToken, NormalizedPath, ProjectService, ScriptInfo, updateProjectIfDirty } from "./_namespaces/lpc.server";
 
 
 /**
@@ -206,6 +206,13 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
     /** @internal */
     clearSourceMapperCache() {
         //this.languageService.clearSourceMapperCache();
+    }
+
+    getLanguageService(ensureSynchronized = true): LanguageService {
+        if (ensureSynchronized) {
+            updateProjectIfDirty(this);
+        }
+        return this.languageService;
     }
 
     private getOrCreateScriptInfoAndAttachToProject(fileName: string) {

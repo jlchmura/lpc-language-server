@@ -14,3 +14,14 @@ export interface ServerHost extends System {
     /** @internal */
     importPlugin?(root: string, moduleName: string): Promise<ModuleImportResult>;
 }
+
+export interface SymbolDisplayPart {
+    /**
+     * Text of an item describing the symbol.
+     */
+    text: string;
+    /**
+     * The symbol's kind (such as 'className' or 'parameterName' or plain 'text').
+     */
+    kind: string;
+}

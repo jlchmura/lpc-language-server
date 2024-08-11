@@ -672,3 +672,8 @@ export enum LanguageServiceMode {
     PartialSemantic,
     Syntactic,
 }
+
+export interface TextChange {
+    span: TextSpan;
+    newText: string;
+}

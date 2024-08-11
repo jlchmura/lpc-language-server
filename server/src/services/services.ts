@@ -134,6 +134,7 @@ import {
     timestamp,
     tracing,
     OperationCanceledException,
+    map,
 } from "./_namespaces/lpc.js";
 
 // These utilities are common to multiple language service features.
@@ -1772,4 +1773,12 @@ export class ThrottledCancellationToken implements CancellationToken {
             throw new OperationCanceledException();
         }
     }
+}
+
+export function displayPartsToString(displayParts: SymbolDisplayPart[] | undefined) {
+    if (displayParts) {
+        return map(displayParts, displayPart => displayPart.text).join("");
+    }
+
+    return "";
 }
