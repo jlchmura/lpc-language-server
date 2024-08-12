@@ -1,6 +1,6 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { addRange, CachedDirectoryStructureHost, combinePaths, CompilerOptions, Debug, Diagnostic, DirectoryStructureHost, DocumentRegistry, ExportInfoMap, FileWatcher, getDefaultLibFileName, getDirectoryPath, HasInvalidatedLibResolutions, HasInvalidatedResolutions, IScriptSnapshot, LanguageService, LanguageServiceHost, ModuleResolutionHost, normalizePath, ParsedCommandLine, Path, Program, ProjectReference, ResolutionCache, ResolvedProjectReference, returnFalse, SortedReadonlyArray, ThrottledCancellationToken, toPath, tracing } from "./_namespaces/lpc";
-import { emptyArray, HostCancellationToken, NormalizedPath, ProjectService, ScriptInfo, updateProjectIfDirty } from "./_namespaces/lpc.server";
+import { addRange, CachedDirectoryStructureHost, combinePaths, CompilerOptions, Debug, Diagnostic, DirectoryStructureHost, DocumentRegistry, explainFiles, ExportInfoMap, FileWatcher, getDefaultLibFileName, getDirectoryPath, HasInvalidatedLibResolutions, HasInvalidatedResolutions, IScriptSnapshot, LanguageService, LanguageServiceHost, ModuleResolutionHost, normalizePath, ParsedCommandLine, Path, Program, ProgramUpdateLevel, ProjectReference, ResolutionCache, ResolvedProjectReference, returnFalse, returnTrue, SortedReadonlyArray, ThrottledCancellationToken, toPath, tracing } from "./_namespaces/lpc";
+import { asNormalizedPath, emptyArray, HostCancellationToken, LogLevel, NormalizedPath, ProjectService, ScriptInfo, updateProjectIfDirty } from "./_namespaces/lpc.server";
 
 
 /**
@@ -129,6 +129,12 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
     /** @internal */
     deferredClose?: boolean;
 
+    /** @internal */
+    configDiagDiagnosticsReported?: number;
+
+    /** @internal */
+    triggerFileForConfigFileDiag?: NormalizedPath;
+
     constructor(
         projectName: string,
         readonly projectKind: ProjectKind,
@@ -144,6 +150,17 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
 
         this.cancellationToken = new ThrottledCancellationToken(this.projectService.cancellationToken, this.projectService.throttleWaitMilliseconds);
 
+    }
+
+    /**
+     * Get all the project errors
+     */
+    getAllProjectErrors(): readonly Diagnostic[] {
+        return this.projectErrors || emptyArray;
+    }
+
+    getConfigFilePath() {
+        return asNormalizedPath(this.getProjectName());
     }
     
     // Method of LanguageServiceHost
@@ -434,10 +451,100 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
     isOrphan() {
         return false;
     }    
+
+    containsScriptInfo(info: ScriptInfo): boolean {
+        if (this.isRoot(info)) return true;
+        if (!this.program) return false;
+        const file = this.program.getSourceFileByPath(info.path);
+        return !!file && file.resolvedPath === info.path;
+    }
+
+    /** @internal */
+    isSourceOfProjectReferenceRedirect(fileName: string) {
+        return false;// TODO return !!this.program && this.program.isSourceOfProjectReferenceRedirect(fileName);
+    }
+
+    /** @internal */
+    writeLog(s: string) {
+        this.projectService.logger.info(s);
+    }
+
+    /** @internal */
+    private filesToStringWorker(writeProjectFileNames: boolean, writeFileExplaination: boolean, writeFileVersionAndText: boolean) {
+        if (this.isInitialLoadPending()) return "\tFiles (0) InitialLoadPending\n";
+        if (!this.program) return "\tFiles (0) NoProgram\n";
+        const sourceFiles = this.program.getSourceFiles();
+        let strBuilder = `\tFiles (${sourceFiles.length})\n`;
+        if (writeProjectFileNames) {
+            for (const file of sourceFiles) {
+                strBuilder += `\t${file.fileName}${writeFileVersionAndText ? ` ${file.version} ${JSON.stringify(file.text)}` : ""}\n`;
+            }
+            if (writeFileExplaination) {
+                strBuilder += "\n\n";
+                explainFiles(this.program, s => strBuilder += `\t${s}\n`);
+            }
+        }
+        return strBuilder;
+    }
+
+
+    /** @internal */
+    print(writeProjectFileNames: boolean, writeFileExplaination: boolean, writeFileVersionAndText: boolean) {
+        this.writeLog(`Project '${this.projectName}' (${ProjectKind[this.projectKind]})`);
+        this.writeLog(this.filesToStringWorker(
+            writeProjectFileNames && this.projectService.logger.hasLevel(LogLevel.verbose),
+            writeFileExplaination && this.projectService.logger.hasLevel(LogLevel.verbose),
+            writeFileVersionAndText && this.projectService.logger.hasLevel(LogLevel.verbose),
+        ));
+        this.writeLog("-----------------------------------------------");
+        // if (this.autoImportProviderHost) {
+        //     this.autoImportProviderHost.print(/*writeProjectFileNames*/ false, /*writeFileExplaination*/ false, /*writeFileVersionAndText*/ false);
+        // }
+        // this.noDtsResolutionProject?.print(/*writeProjectFileNames*/ false, /*writeFileExplaination*/ false, /*writeFileVersionAndText*/ false);
+    }
+
+    private detachScriptInfoIfNotRoot(uncheckedFilename: string) {
+        const info = this.projectService.getScriptInfo(uncheckedFilename);
+        // We might not find the script info in case its not associated with the project any more
+        // and project graph was not updated (eg delayed update graph in case of files changed/deleted on the disk)
+        if (info && !this.isRoot(info)) {
+            info.detachFromProject(this);
+        }
+    }
+
+    private detachScriptInfoFromProject(uncheckedFileName: string, noRemoveResolution?: boolean, syncDirWatcherRemove?: boolean) {
+        const scriptInfoToDetach = this.projectService.getScriptInfo(uncheckedFileName);
+        if (scriptInfoToDetach) {
+            scriptInfoToDetach.detachFromProject(this);
+            if (!noRemoveResolution) {
+                this.resolutionCache.removeResolutionsOfFile(scriptInfoToDetach.path, syncDirWatcherRemove);
+            }
+        }
+    }
+
+    /** @internal */
+    cleanupProgram() {
+        if (this.program) {
+            // Root files are always attached to the project irrespective of program
+            for (const f of this.program.getSourceFiles()) {
+                this.detachScriptInfoIfNotRoot(f.fileName);
+            }
+            this.program.forEachResolvedProjectReference(ref => this.detachScriptInfoFromProject(ref.sourceFile.fileName));
+            this.program = undefined;
+        }
+    }
 }
 
 
 export class ConfiguredProject extends Project {
+    /** @internal */
+    pendingUpdateLevel: ProgramUpdateLevel;
+    /** @internal */
+    pendingUpdateReason: string | undefined;
+
+    /** @internal */
+    override isInitialLoadPending: () => boolean = returnTrue;
+    
     /** @internal */
     constructor(
         configFileName: NormalizedPath,
@@ -450,7 +557,14 @@ export class ConfiguredProject extends Project {
         super(configFileName, ProjectKind.Configured, projectService, documentRegistry, {}, cachedDirectoryStructureHost, getDirectoryPath(configFileName));
         // this.pendingUpdateLevel = ProgramUpdateLevel.Full;
         // this.pendingUpdateReason = pendingUpdateReason;
-    }    
+    }   
+    
+    /**
+     * Get all the project errors
+     */
+    override getAllProjectErrors(): readonly Diagnostic[] {
+        return this.projectErrors || emptyArray;
+    }
 }
 
 /** @internal */

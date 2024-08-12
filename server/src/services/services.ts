@@ -1208,10 +1208,26 @@ export function createLanguageService(
 
     const ls: LanguageService = {
         getDefinitionAtPosition,
-        getQuickInfoAtPosition
+        getQuickInfoAtPosition,
+        cleanupSemanticCache,
+        getCompilerOptionsDiagnostics
     };
 
     return ls;
+
+    function cleanupSemanticCache(): void {
+        if (program) {
+            // Use paths to ensure we are using correct key and paths as document registry could be created with different current directory than host
+            const key = documentRegistry.getKeyForCompilationSettings(program.getCompilerOptions());
+            forEach(program.getSourceFiles(), f => documentRegistry.releaseDocumentWithKey(f.resolvedPath, key, f.scriptKind, f.impliedNodeFormat));
+            program = undefined!; // TODO: GH#18217
+        }
+    }
+
+    function getCompilerOptionsDiagnostics() {
+        synchronizeHostData();
+        return [...program.getOptionsDiagnostics(cancellationToken), ...program.getGlobalDiagnostics(cancellationToken)];
+    }
 
     function synchronizeHostData(): void {
         // perform fast check if host supports it

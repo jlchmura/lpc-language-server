@@ -278,7 +278,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         symbolToTypeParameterDeclarations: nodeBuilder.symbolToTypeParameterDeclarations,
 
         getNonNullableType,
-        getSignaturesOfType
+        getSignaturesOfType,
+        getGlobalDiagnostics
     };
 
     var uniqueLiteralType = createIntrinsicType(TypeFlags.Never, "never", /*objectFlags*/ undefined, "unique literal"); // `uniqueLiteralType` is a special `never` flagged by union reduction to behave as a literal
@@ -495,6 +496,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         });
     }
 
+    function getGlobalDiagnostics(): Diagnostic[] {
+        ensurePendingDiagnosticWorkComplete();
+        return diagnostics.getGlobalDiagnostics();
+    }
+    
     function getExcludedSymbolFlags(flags: SymbolFlags): SymbolFlags {
         let result: SymbolFlags = 0;
         if (flags & SymbolFlags.BlockScopedVariable) result |= SymbolFlags.BlockScopedVariableExcludes;

@@ -8,5 +8,6 @@ import { Path } from "./_namespaces/lpc";
 export interface ResolutionCache {
     rootDirForResolution: string;
     invalidateResolutionOfFile(filePath: Path): void;
-    removeResolutionsOfFile(filePath: Path): void;
+    removeResolutionsOfFile(filePath: Path, syncDirWatcherRemove?: boolean): void;
+    clear(): void;
 }

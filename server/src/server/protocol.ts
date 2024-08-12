@@ -1,6 +1,39 @@
 import {  ScriptElementKind, SymbolDisplayPart } from "./_namespaces/lpc";
 
 /**
+ * A Server message
+ */
+export interface Message {
+    /**
+     * Sequence number of the message
+     */
+    seq: number;
+
+    /**
+     * One of "request", "response", or "event"
+     */
+    type: "request" | "response" | "event";
+}
+
+
+/**
+ * Server-initiated event message
+ */
+export interface Event extends Message {
+    type: "event";
+
+    /**
+     * Name of event
+     */
+    event: string;
+
+    /**
+     * Event-specific information
+     */
+    body?: any;
+}
+
+/**
  * Arguments for FileRequest messages.
  */
 export interface FileRequestArgs {
@@ -112,4 +145,78 @@ export interface JSDocTagInfo {
      * Display parts when UserPreferences.displayPartsForJSDoc is true, flattened to string otherwise.
      */
     text?: string | SymbolDisplayPart[];
+}
+
+/**
+ * Arguments to UpdateOpenRequest
+ */
+export interface UpdateOpenRequestArgs {
+    /**
+     * List of newly open files
+     */
+    openFiles?: OpenRequestArgs[];
+    /**
+     * List of open files files that were changes
+     */
+    changedFiles?: FileCodeEdits[];
+    /**
+     * List of files that were closed
+     */
+    closedFiles?: string[];
+}
+
+export interface FileCodeEdits {
+    fileName: string;
+    textChanges: CodeEdit[];
+}
+
+
+/**
+ * Object found in response messages defining an editing
+ * instruction for a span of text in source code.  The effect of
+ * this instruction is to replace the text starting at start and
+ * ending one character before end with newText. For an insertion,
+ * the text span is empty.  For a deletion, newText is empty.
+ */
+export interface CodeEdit {
+    /**
+     * First character of the text span to edit.
+     */
+    start: Location;
+
+    /**
+     * One character past last character of the text span to edit.
+     */
+    end: Location;
+
+    /**
+     * Replace the span defined above with this string (may be
+     * the empty string).
+     */
+    newText: string;
+}
+
+export type CreateFileWatcherEventName = "createFileWatcher";
+
+export type CreateDirectoryWatcherEventName = "createDirectoryWatcher";
+export interface CreateDirectoryWatcherEvent extends Event {
+    readonly event: CreateDirectoryWatcherEventName;
+    readonly body: CreateDirectoryWatcherEventBody;
+}
+
+export interface CreateDirectoryWatcherEventBody {
+    readonly id: number;
+    readonly path: string;
+    readonly recursive: boolean;
+    readonly ignoreUpdate?: boolean;
+}
+
+export type CloseFileWatcherEventName = "closeFileWatcher";
+export interface CloseFileWatcherEvent extends Event {
+    readonly event: CloseFileWatcherEventName;
+    readonly body: CloseFileWatcherEventBody;
+}
+
+export interface CloseFileWatcherEventBody {
+    readonly id: number;
 }

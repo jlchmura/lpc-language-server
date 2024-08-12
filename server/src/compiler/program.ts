@@ -1,5 +1,5 @@
 import { LpcConfig } from "../backend/LpcConfig.js";
-import { combinePaths, compareValues, CompilerHost, CompilerOptions, containsPath, createDiagnosticCollection, createGetCanonicalFileName, createMultiMap, CreateProgramOptions, createSourceFile, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DiagnosticWithLocation, FileIncludeKind, FileIncludeReason, FilePreprocessingDiagnostics, FilePreprocessingDiagnosticsKind, forEach, getBaseFileName, getDirectoryPath, getNewLineCharacter, getRootLength, hasExtension, isArray, maybeBind, memoize, normalizePath, ObjectLiteralExpression, PackageId, Path, performance, Program, ProgramHost, ProjectReference, PropertyAssignment, ReferencedFile, removePrefix, removeSuffix, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, SourceFile, stableSort, StructureIsReused, sys, System, toPath as lpc_toPath, tracing, TypeChecker, getNormalizedAbsolutePathWithoutRoot, some, isRootedDiskPath, optionsHaveChanges, packageIdToString, toFileNameLowerCase, getNormalizedAbsolutePath, CreateSourceFileOptions, createTypeChecker, ScriptTarget, libs, FileReference } from "./_namespaces/lpc.js";
+import { forEachResolvedProjectReference as lpc_forEachResolvedProjectReference, combinePaths, compareValues, CompilerHost, CompilerOptions, containsPath, createDiagnosticCollection, createGetCanonicalFileName, createMultiMap, CreateProgramOptions, createSourceFile, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DiagnosticWithLocation, FileIncludeKind, FileIncludeReason, FilePreprocessingDiagnostics, FilePreprocessingDiagnosticsKind, forEach, getBaseFileName, getDirectoryPath, getNewLineCharacter, getRootLength, hasExtension, isArray, maybeBind, memoize, normalizePath, ObjectLiteralExpression, PackageId, Path, performance, Program, ProgramHost, ProjectReference, PropertyAssignment, ReferencedFile, removePrefix, removeSuffix, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, SourceFile, stableSort, StructureIsReused, sys, System, toPath as lpc_toPath, tracing, TypeChecker, getNormalizedAbsolutePathWithoutRoot, some, isRootedDiskPath, optionsHaveChanges, packageIdToString, toFileNameLowerCase, getNormalizedAbsolutePath, CreateSourceFileOptions, createTypeChecker, ScriptTarget, libs, FileReference, SortedReadonlyArray, concatenate, sortAndDeduplicateDiagnostics, emptyArray } from "./_namespaces/lpc.js";
 
 /**
  * Create a new 'Program' instance. A Program is an immutable collection of 'SourceFile's and a 'CompilerOptions'
@@ -214,12 +214,11 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
             }
         }
         if (!host.getParsedCommandLine) {
-            console.warn("TODO - implement me - oldProgram.getCompilerOptions()");
-            // oldProgram.forEachResolvedProjectReference(resolvedProjectReference => {
-            //     if (!getResolvedProjectReferenceByPath(resolvedProjectReference.sourceFile.path)) {
-            //         host.onReleaseOldSourceFile!(resolvedProjectReference.sourceFile, oldProgram!.getCompilerOptions(), /*hasSourceFileByPath*/ false, /*newSourceFileByResolvedPath*/ undefined);
-            //     }
-            // });
+            oldProgram.forEachResolvedProjectReference(resolvedProjectReference => {
+                if (!getResolvedProjectReferenceByPath(resolvedProjectReference.sourceFile.path)) {
+                    host.onReleaseOldSourceFile!(resolvedProjectReference.sourceFile, oldProgram!.getCompilerOptions(), /*hasSourceFileByPath*/ false, /*newSourceFileByResolvedPath*/ undefined);
+                }
+            });
         }
     }
 
@@ -254,8 +253,8 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         getFilesByNameMap: () => filesByName,
         getCompilerOptions: () => options,
         // getSyntacticDiagnostics,
-        // getOptionsDiagnostics,
-        // getGlobalDiagnostics,
+        getOptionsDiagnostics,
+        getGlobalDiagnostics,
         // getSemanticDiagnostics,
         // getCachedSemanticDiagnostics,
         // getSuggestionDiagnostics,
@@ -304,7 +303,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         // getProjectReferenceRedirect,
         // getResolvedProjectReferenceToRedirect,
         // getResolvedProjectReferenceByPath,
-        //forEachResolvedProjectReference,
+        forEachResolvedProjectReference,
         // isSourceOfProjectReferenceRedirect,
         // getRedirectReferenceForResolutionFromSourceOfProject,
         // emitBuildInfo,
@@ -345,6 +344,67 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         return projectReferenceRedirects.get(projectReferencePath) || undefined;
     }
 
+    function forEachResolvedProjectReference<T>(
+        cb: (resolvedProjectReference: ResolvedProjectReference) => T | undefined,
+    ): T | undefined {
+        return lpc_forEachResolvedProjectReference(resolvedProjectReferences, cb);
+    }
+
+    function updateAndGetProgramDiagnostics() {
+        console.debug("todo - implement me - updateAndGetProgramDiagnostics");
+        // if (lazyProgramDiagnosticExplainingFile) {
+        //     // Add file processingDiagnostics
+        //     fileProcessingDiagnostics?.forEach(diagnostic => {
+        //         switch (diagnostic.kind) {
+        //             case FilePreprocessingDiagnosticsKind.FilePreprocessingFileExplainingDiagnostic:
+        //                 return programDiagnostics.add(
+        //                     createDiagnosticExplainingFile(
+        //                         diagnostic.file && getSourceFileByPath(diagnostic.file),
+        //                         diagnostic.fileProcessingReason,
+        //                         diagnostic.diagnostic,
+        //                         diagnostic.args || emptyArray,
+        //                     ),
+        //                 );
+        //             case FilePreprocessingDiagnosticsKind.FilePreprocessingLibReferenceDiagnostic:
+        //                 return programDiagnostics.add(filePreprocessingLibreferenceDiagnostic(diagnostic));
+        //             case FilePreprocessingDiagnosticsKind.ResolutionDiagnostics:
+        //                 return diagnostic.diagnostics.forEach(d => programDiagnostics.add(d));
+        //             default:
+        //                 Debug.assertNever(diagnostic);
+        //         }
+        //     });
+        //     lazyProgramDiagnosticExplainingFile.forEach(({ file, diagnostic, args }) =>
+        //         programDiagnostics.add(
+        //             createDiagnosticExplainingFile(file, /*fileProcessingReason*/ undefined, diagnostic, args),
+        //         )
+        //     );
+        //     lazyProgramDiagnosticExplainingFile = undefined;
+        //     fileReasonsToChain = undefined;
+        //     reasonToRelatedInfo = undefined;
+        // }
+        return programDiagnostics;
+    }
+
+    function getOptionsDiagnosticsOfConfigFile() {
+        if (!options.configFile) return emptyArray;
+        let diagnostics = updateAndGetProgramDiagnostics().getDiagnostics(options.configFile.fileName);
+        forEachResolvedProjectReference(resolvedRef => {
+            diagnostics = concatenate(diagnostics, updateAndGetProgramDiagnostics().getDiagnostics(resolvedRef.sourceFile.fileName));
+        });
+        return diagnostics;
+    }
+    
+    function getOptionsDiagnostics(): SortedReadonlyArray<Diagnostic> {
+        return sortAndDeduplicateDiagnostics(concatenate(
+            updateAndGetProgramDiagnostics().getGlobalDiagnostics(),
+            getOptionsDiagnosticsOfConfigFile(),
+        ));
+    }
+
+    function getGlobalDiagnostics(): SortedReadonlyArray<Diagnostic> {
+        return rootNames.length ? sortAndDeduplicateDiagnostics(getTypeChecker().getGlobalDiagnostics().slice()) : emptyArray as any as SortedReadonlyArray<Diagnostic>;
+    }
+    
     /** This should have similar behavior to 'processSourceFile' without diagnostics or mutation. */
     function getSourceFileFromReference(referencingFile: SourceFile, ref: FileReference): SourceFile | undefined {
         return getSourceFileFromReferenceWorker(resolveTripleslashReference(ref.fileName, referencingFile.fileName), getSourceFile);
@@ -1014,3 +1074,4 @@ function forEachProjectReference<T>(
         });
     }
 }
+

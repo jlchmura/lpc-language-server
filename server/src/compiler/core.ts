@@ -1413,3 +1413,76 @@ export function indexOfAnyCharCode(text: string, charCodes: readonly number[], s
 export function sort<T>(array: readonly T[], comparer?: Comparer<T>): SortedReadonlyArray<T> {
     return (array.length === 0 ? array : array.slice().sort(comparer)) as SortedReadonlyArray<T>;
 }
+
+/** @internal */
+export function* mapIterator<T, U>(iter: Iterable<T>, mapFn: (x: T) => U) {
+    for (const x of iter) {
+        yield mapFn(x);
+    }
+}
+
+/** @internal */
+export function* mapDefinedIterator<T, U>(iter: Iterable<T>, mapFn: (x: T) => U | undefined) {
+    for (const x of iter) {
+        const value = mapFn(x);
+        if (value !== undefined) {
+            yield value;
+        }
+    }
+}
+
+/** @internal */
+export function* arrayReverseIterator<T>(array: readonly T[]) {
+    for (let i = array.length - 1; i >= 0; i--) {
+        yield array[i];
+    }
+}
+
+/** @internal */
+export function tryAddToSet<T>(set: Set<T>, value: T) {
+    if (!set.has(value)) {
+        set.add(value);
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Deduplicates an array that has already been sorted.
+ */
+function deduplicateSorted<T>(array: SortedReadonlyArray<T>, comparer: EqualityComparer<T> | Comparer<T>): SortedReadonlyArray<T> {
+    if (array.length === 0) return emptyArray as any as SortedReadonlyArray<T>;
+
+    let last = array[0];
+    const deduplicated: T[] = [last];
+    for (let i = 1; i < array.length; i++) {
+        const next = array[i];
+        switch (comparer(next, last)) {
+            // equality comparison
+            case true:
+
+            // relational comparison
+            // falls through
+            case Comparison.EqualTo:
+                continue;
+
+            case Comparison.LessThan:
+                // If `array` is sorted, `next` should **never** be less than `last`.
+                return Debug.fail("Array is unsorted.");
+        }
+
+        deduplicated.push(last = next);
+    }
+
+    return deduplicated as any as SortedReadonlyArray<T>;
+}
+
+
+/** @internal */
+export function sortAndDeduplicate(array: readonly string[]): SortedReadonlyArray<string>;
+/** @internal */
+export function sortAndDeduplicate<T>(array: readonly T[], comparer: Comparer<T>, equalityComparer?: EqualityComparer<T>): SortedReadonlyArray<T>;
+/** @internal */
+export function sortAndDeduplicate<T>(array: readonly T[], comparer?: Comparer<T>, equalityComparer?: EqualityComparer<T>): SortedReadonlyArray<T> {
+    return deduplicateSorted(sort(array, comparer), equalityComparer || comparer || compareStringsCaseSensitive as any as Comparer<T>);
+}

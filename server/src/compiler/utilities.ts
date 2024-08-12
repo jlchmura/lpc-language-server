@@ -4799,3 +4799,5 @@ export interface FileMatcherPatterns {
     excludePattern: string | undefined;
     basePaths: readonly string[];
 }
+
+

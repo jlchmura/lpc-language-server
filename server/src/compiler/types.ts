@@ -81,6 +81,8 @@ export interface TypeChecker {
 
     // Should not be called directly.  Should only be accessed through the Program instance.
     /** @internal */ getDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken, nodesToCheck?: Node[]): Diagnostic[];
+    /** @internal */ getGlobalDiagnostics(): Diagnostic[];
+    
     /** Follow all aliases to get the original symbol. */
     getAliasedSymbol(symbol: Symbol): Symbol;
     getSymbolAtLocation(node: Node): Symbol | undefined;
@@ -1150,6 +1152,7 @@ export interface CompilerOptions {
     noImplicitReturns?: boolean;
     newLine?: NewLineKind;
     config?: LpcConfig;
+    configFile?: any; // TODO: type this
     forceConsistentCasingInFileNames?: boolean;
     noResolve?: boolean;
     noLib?: boolean;
@@ -3952,8 +3955,8 @@ export interface Program extends ScriptReferenceHost {
     // /** @internal */
     // emit(targetSourceFile?: SourceFile, writeFile?: WriteFileCallback, cancellationToken?: CancellationToken, emitOnly?: boolean | EmitOnly, customTransformers?: CustomTransformers, forceDtsEmit?: boolean, skipBuildInfo?: boolean): EmitResult;
 
-    // getOptionsDiagnostics(cancellationToken?: CancellationToken): readonly Diagnostic[];
-    // getGlobalDiagnostics(cancellationToken?: CancellationToken): readonly Diagnostic[];
+    getOptionsDiagnostics(cancellationToken?: CancellationToken): readonly Diagnostic[];
+    getGlobalDiagnostics(cancellationToken?: CancellationToken): readonly Diagnostic[];
     // getSyntacticDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken): readonly DiagnosticWithLocation[];
     // /** The first time this is called, it will return global diagnostics (no location). */
     // getSemanticDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken): readonly Diagnostic[];
@@ -4056,7 +4059,7 @@ export interface Program extends ScriptReferenceHost {
     //  * Get the referenced project if the file is input file from that reference project
     //  */
     // getResolvedProjectReferenceToRedirect(fileName: string): ResolvedProjectReference | undefined;
-    // /** @internal */ forEachResolvedProjectReference<T>(cb: (resolvedProjectReference: ResolvedProjectReference) => T | undefined): T | undefined;
+    /** @internal */ forEachResolvedProjectReference<T>(cb: (resolvedProjectReference: ResolvedProjectReference) => T | undefined): T | undefined;
     // /** @internal */ getResolvedProjectReferenceByPath(projectReferencePath: Path): ResolvedProjectReference | undefined;
     // /** @internal */ getRedirectReferenceForResolutionFromSourceOfProject(filePath: Path): ResolvedProjectReference | undefined;
     // /** @internal */ isSourceOfProjectReferenceRedirect(fileName: string): boolean;

@@ -78,6 +78,7 @@ const files: { [index: string]: string } = {
     [fileOnly]: sourceText,
 };
 
+const projectFile = path.normalize(path.join(workDir, "lpc-config.json"));
 const host = createHost(filename, sourceText, config);
 const serverHost = lpc.sys as lpc.server.ServerHost;
 const cancelToken = lpc.server.nullCancellationToken;
@@ -94,7 +95,12 @@ const session = new Session({
     projectRootFolder: workDir,
 });
 
-
+session.openFile({
+    file: filename,
+    fileContent: sourceText,    
+    projectRootPath: workDir,
+    projectFileName: projectFile
+});
 
 const svc = doCreateLanguageService();
 const srcFile = host.getSourceFile(filename);

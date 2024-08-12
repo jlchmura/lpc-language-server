@@ -1,3 +1,5 @@
+import { convertToRelativePath, isString, Program, SourceFile } from "./_namespaces/lpc";
+
 /** @internal */
 export interface WatchTypeRegistry {
     ConfigFile: "Config file";
@@ -51,3 +53,21 @@ export const WatchType: WatchTypeRegistry = {
     TypingInstallerLocationFile: "File location for typing installer",
     TypingInstallerLocationDirectory: "Directory location for typing installer",
 };
+
+function toFileName(file: SourceFile | string, fileNameConvertor?: (fileName: string) => string) {
+    const fileName = isString(file) ? file : file.fileName;
+    return fileNameConvertor ? fileNameConvertor(fileName) : fileName;
+}
+
+
+/** @internal */
+export function explainFiles(program: Program, write: (s: string) => void) {
+    const reasons = program.getFileIncludeReasons();
+    const relativeFileName = (fileName: string) => convertToRelativePath(fileName, program.getCurrentDirectory(), program.getCanonicalFileName);
+    for (const file of program.getSourceFiles()) {
+        write(`${toFileName(file, relativeFileName)}`);
+        // TODO
+        // reasons.get(file.path)?.forEach(reason => write(`  ${fileIncludeReasonToDiagnostics(program, reason, relativeFileName).messageText}`));
+        // explainIfFileIsRedirectAndImpliedFormat(file, relativeFileName)?.forEach(d => write(`  ${d.messageText}`));
+    }
+}

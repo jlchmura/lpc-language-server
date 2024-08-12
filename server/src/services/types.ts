@@ -1,6 +1,7 @@
 import {
     CompilerHost,
     CompilerOptions,
+    Diagnostic,
     GetEffectiveTypeRootsHost,
     JSDocParsingMode,
     MinimalResolutionCacheHost,
@@ -340,6 +341,9 @@ export interface DefinitionInfo extends DocumentSpan {
 // with a language service host instance
 //
 export interface LanguageService {
+    /** This is used as a part of restarting the language service. */
+    cleanupSemanticCache(): void;
+    
     /** @internal */
     getDefinitionAtPosition(
         fileName: string,
@@ -367,6 +371,11 @@ export interface LanguageService {
      * @param position A zero-based index of the character where you want the quick info
      */
     getQuickInfoAtPosition(fileName: string, position: number): QuickInfo | undefined;
+
+    /**
+     * Gets global diagnostics related to the program configuration and compiler options.
+     */
+    getCompilerOptionsDiagnostics(): Diagnostic[];
 }
 
 export interface HostCancellationToken {

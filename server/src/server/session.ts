@@ -1,5 +1,5 @@
-import { displayPartsToString, isRootedDiskPath, JSDocTagInfo, LanguageServiceMode, QuickInfo, ScriptKind, SymbolDisplayPart, textSpanEnd } from "./_namespaces/lpc";
-import { GcTimer, Logger, NormalizedPath, Project, ProjectService, ProjectServiceEventHandler, ProjectServiceOptions, ScriptInfo, ServerHost, toNormalizedPath } from "./_namespaces/lpc.server";
+import { arrayReverseIterator, Debug, displayPartsToString, isRootedDiskPath, JSDocTagInfo, LanguageServiceMode, mapDefinedIterator, mapIterator, QuickInfo, ScriptKind, SymbolDisplayPart, textSpanEnd } from "./_namespaces/lpc";
+import { ChangeFileArguments, GcTimer, Logger, NormalizedPath, OpenFileArguments, Project, ProjectService, ProjectServiceEventHandler, ProjectServiceOptions, ScriptInfo, ServerHost, toNormalizedPath } from "./_namespaces/lpc.server";
 import * as protocol from "./protocol.js";
 
 export interface HostCancellationToken {
@@ -156,6 +156,30 @@ export class Session<T> {
         );
     }
     
+    public updateOpen(args: protocol.UpdateOpenRequestArgs) {
+        this.changeSeq++;
+
+        const openFiles: Iterable<OpenFileArguments> = args.openFiles && mapIterator(args.openFiles, file => ({
+            fileName: file.file,
+            content: file.fileContent,
+            projectRootPath: file.projectRootPath,
+        }));
+
+        const changedFiles: Iterable<ChangeFileArguments> = args.changedFiles && mapIterator(args.changedFiles, file => ({
+            fileName: file.fileName,
+            changes: mapDefinedIterator(arrayReverseIterator(file.textChanges), change => {
+                const scriptInfo = Debug.checkDefined(this.projectService.getScriptInfo(file.fileName));
+                const start = scriptInfo.lineOffsetToPosition(change.start.line, change.start.offset);
+                const end = scriptInfo.lineOffsetToPosition(change.end.line, change.end.offset);
+                return start >= 0 ? { span: { start, length: end - start }, newText: change.newText } : undefined;
+            }),
+        }));     
+        
+        this.projectService.applyChangesInOpenFiles(openFiles, changedFiles, args.closedFiles);
+
+        return true;
+    }
+
     public getQuickInfoWorker(args: protocol.FileLocationRequestArgs, simplifiedResult: boolean): protocol.QuickInfoResponseBody | QuickInfo | undefined {
         const { file, project } = this.getFileAndProject(args);
         const scriptInfo = this.projectService.getScriptInfoForNormalizedPath(file)!;
