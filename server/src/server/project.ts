@@ -895,8 +895,8 @@ export class ConfiguredProject extends Project {
         pendingUpdateReason: string,
     ) {
         super(configFileName, ProjectKind.Configured, projectService, documentRegistry, {}, /* watch options */ undefined, cachedDirectoryStructureHost, getDirectoryPath(configFileName));
-        // this.pendingUpdateLevel = ProgramUpdateLevel.Full;
-        // this.pendingUpdateReason = pendingUpdateReason;
+        this.pendingUpdateLevel = ProgramUpdateLevel.Full;
+        this.pendingUpdateReason = pendingUpdateReason;
     }   
     
     /**
@@ -953,6 +953,11 @@ export class ConfiguredProject extends Project {
         return result;
     }
 
+    /** @internal */
+    override getCachedDirectoryStructureHost() {
+        return this.directoryStructureHost as CachedDirectoryStructureHost;
+    }
+    
     /** @internal */
     updateErrorOnNoInputFiles(fileNames: string[]) {
         console.debug("implement me - updateErrorOnNoInputFiles");
