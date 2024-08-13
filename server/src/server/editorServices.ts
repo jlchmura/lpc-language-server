@@ -1,5 +1,5 @@
-import { arrayFrom, combinePaths, containsPath, createCachedDirectoryStructureHost, createGetCanonicalFileName, createMultiMap, Debug, Diagnostic, DirectoryStructureHost, DocumentRegistry, FileSystemEntries, FileWatcher, FileWatcherEventKind, find, getDirectoryPath, getNormalizedAbsolutePath, isNodeModulesDirectory, isRootedDiskPath, LanguageServiceMode, missingFileModifiedTime, MultiMap, noop, normalizePath, Path, PollingInterval, ProgramUpdateLevel, returnFalse, ScriptKind, startsWith, TextChange, toPath, tracing, tryAddToSet, WatchFactory, WatchType } from "./_namespaces/lpc";
-import { asNormalizedPath, ConfiguredProject, findLpcConfig, HostCancellationToken, isDynamicFileName, isProjectDeferredClose, Logger, LogLevel, NormalizedPath, normalizedPathToPath, Project, ScriptInfo, ServerHost, Session, ThrottledOperations, toNormalizedPath } from "./_namespaces/lpc.server";
+import { arrayFrom, CachedDirectoryStructureHost, combinePaths, containsPath, createCachedDirectoryStructureHost, createGetCanonicalFileName, createMultiMap, Debug, Diagnostic, DirectoryStructureHost, DocumentRegistry, FileExtensionInfo, fileExtensionIs, FileSystemEntries, FileWatcher, FileWatcherEventKind, find, forEach, getAnyExtensionFromPath, getDirectoryPath, getFileNamesFromConfigSpecs, getNormalizedAbsolutePath, isNodeModulesDirectory, isRootedDiskPath, LanguageServiceMode, length, missingFileModifiedTime, MultiMap, noop, normalizePath, orderedRemoveItem, ParsedCommandLine, Path, PerformanceEvent, PollingInterval, ProgramUpdateLevel, returnFalse, ScriptKind, some, startsWith, TextChange, toPath, tracing, tryAddToSet, TypeAcquisition, WatchFactory, WatchOptions, WatchType, WildcardDirectoryWatcher } from "./_namespaces/lpc";
+import { asNormalizedPath, ConfiguredProject, findLpcConfig, HostCancellationToken, InferredProject, isDynamicFileName, isInferredProject, isProjectDeferredClose, Logger, LogLevel, NormalizedPath, normalizedPathToPath, Project, ScriptInfo, ServerHost, Session, ThrottledOperations, toNormalizedPath } from "./_namespaces/lpc.server";
 import * as protocol from "./protocol.js";
 
 export const maxProgramSizeForNonTsFiles = 20 * 1024 * 1024;
@@ -53,13 +53,22 @@ export class ProjectService {
     public readonly throttleWaitMilliseconds?: number;
     private readonly hostConfiguration: any;//todo HostConfiguration;
     private readonly suppressDiagnosticEvents?: boolean;
+    public readonly useSingleInferredProject: boolean;
 
     /** @internal */
     readonly session: Session<unknown> | undefined;
+
+    private performanceEventHandler?: PerformanceEventHandler;
+
     /**
      * projects specified by a lpc-config.json file
      */
     readonly configuredProjects: Map<string, ConfiguredProject> = new Map<string, ConfiguredProject>();
+    /**
+     * projects built from openFileRoots
+     */
+    readonly inferredProjects: InferredProject[] = [];
+    
     /**
      * This is a map of config file paths existence that doesnt need query to disk
      * - The entry can be present because there is inferred project that needs to watch addition of config file to directory
@@ -103,6 +112,9 @@ export class ProjectService {
     
     /** @internal */
     readonly watchFactory: WatchFactory<WatchType, Project | NormalizedPath>;
+
+    /** @internal */ verifyProgram: (project: Project) => void = noop;
+    /** @internal */ verifyDocumentRegistry = noop;
     
     constructor(opts: ProjectServiceOptions) {
         this.host = opts.host;
@@ -292,6 +304,24 @@ export class ProjectService {
         });
     }
    
+    /** @internal */
+    getWatchOptions(project: Project) {
+        return this.getWatchOptionsFromProjectWatchOptions(project.getWatchOptions(), project.getCurrentDirectory());
+    }
+
+    /** @internal */
+    private getWatchOptionsFromProjectWatchOptions(projectOptions: WatchOptions | undefined, basePath: string) {
+        const hostWatchOptions = this.hostConfiguration.watchOptions;/*!this.hostConfiguration.beforeSubstitution ? this.hostConfiguration.watchOptions :
+            handleWatchOptionsConfigDirTemplateSubstitution(
+                this.hostConfiguration.beforeSubstitution,
+                basePath,
+            );*/
+        return projectOptions && hostWatchOptions ?
+            { ...hostWatchOptions, ...projectOptions } :
+            projectOptions || hostWatchOptions;
+    }
+
+    
     getScriptInfoForPath(fileName: Path) {
         const info = this.filenameToScriptInfo.get(fileName);
         return !info || !info.deferredDelete ? info : undefined;
@@ -481,6 +511,13 @@ export class ProjectService {
         this.printProjects();
         return result;
     }
+
+    /** @internal */
+    sendPerformanceEvent(kind: PerformanceEvent["kind"], durationMs: number) {
+        if (this.performanceEventHandler) {
+            this.performanceEventHandler({ kind, durationMs });
+        }
+    }
     
     /**
      * Finds the default configured project for given info
@@ -610,11 +647,12 @@ export class ProjectService {
      */
     private loadConfiguredProject(project: ConfiguredProject, reason: string) {
         tracing?.push(tracing.Phase.Session, "loadConfiguredProject", { configFilePath: project.canonicalConfigFilePath });
+        Debug.fail("todo - implement me - loadConfiguredProject");
         console.debug("TODO - load lpc config project here");
-        // this.sendProjectLoadingStartEvent(project, reason);
+        //this.sendProjectLoadingStartEvent(project, reason);
 
-        // // Read updated contents from disk
-        // const configFilename = asNormalizedPath(normalizePath(project.getConfigFilePath()));
+        // Read updated contents from disk
+        const configFilename = asNormalizedPath(normalizePath(project.getConfigFilePath()));
         // const configFileExistenceInfo = this.ensureParsedConfigUptoDate(
         //     configFilename,
         //     project.canonicalConfigFilePath,
@@ -625,7 +663,7 @@ export class ProjectService {
         // Debug.assert(!!parsedCommandLine.fileNames);
         // const compilerOptions = parsedCommandLine.options;
 
-        // // Update the project
+        // Update the project
         // if (!project.projectOptions) {
         //     project.projectOptions = {
         //         configHasExtendsProperty: parsedCommandLine.raw.extends !== undefined,
@@ -652,6 +690,138 @@ export class ProjectService {
         // const filesToAdd = parsedCommandLine.fileNames.concat(project.getExternalFiles(ProgramUpdateLevel.Full));
         // this.updateRootAndOptionsOfNonInferredProject(project, filesToAdd, fileNamePropertyReader, compilerOptions, parsedCommandLine.typeAcquisition!, parsedCommandLine.compileOnSave, parsedCommandLine.watchOptions);
         tracing?.pop();
+    }
+
+    /**
+     * Reload the file names from config file specs and update the project graph
+     *
+     * @internal
+     */
+    reloadFileNamesOfConfiguredProject(project: ConfiguredProject) {
+        const fileNames = this.reloadFileNamesOfParsedConfig(project.getConfigFilePath(), this.configFileExistenceInfoCache.get(project.canonicalConfigFilePath)!.config!);
+        project.updateErrorOnNoInputFiles(fileNames);
+        //this.updateNonInferredProjectFiles(project, fileNames.concat(project.getExternalFiles(ProgramUpdateLevel.RootNamesAndUpdate)), fileNamePropertyReader);
+        this.updateNonInferredProjectFiles(project, fileNames, fileNamePropertyReader);
+        project.markAsDirty();
+        return project.updateGraph();
+    }
+
+    private updateNonInferredProjectFiles<T>(project: Project, files: readonly T[], propertyReader: FilePropertyReader<T>) {
+        const projectRootFilesMap = project.getRootFilesMap();
+        const newRootScriptInfoMap = new Map<string, true>();
+
+        for (const f of files) {
+            const newRootFile = propertyReader.getFileName(f);
+            const fileName = toNormalizedPath(newRootFile);
+            const isDynamic = isDynamicFileName(fileName);
+            let path: Path;
+            // Use the project's fileExists so that it can use caching instead of reaching to disk for the query
+            if (!isDynamic && !project.fileExists(newRootFile)) {
+                path = normalizedPathToPath(fileName, this.currentDirectory, this.toCanonicalFileName);
+                const existingValue = projectRootFilesMap.get(path);
+                if (existingValue) {
+                    if (existingValue.info?.path === path) {
+                        project.removeFile(existingValue.info, /*fileExists*/ false, /*detachFromProject*/ true);
+                        existingValue.info = undefined;
+                    }
+                    existingValue.fileName = fileName;
+                }
+                else {
+                    projectRootFilesMap.set(path, { fileName });
+                }
+            }
+            else {
+                const scriptKind = propertyReader.getScriptKind(f, this.hostConfiguration.extraFileExtensions);
+                const hasMixedContent = propertyReader.hasMixedContent(f, this.hostConfiguration.extraFileExtensions);
+                const scriptInfo = Debug.checkDefined(this.getOrCreateScriptInfoNotOpenedByClientForNormalizedPath(
+                    fileName,
+                    project.currentDirectory,
+                    scriptKind,
+                    hasMixedContent,
+                    project.directoryStructureHost,
+                    /*deferredDeleteOk*/ false,
+                ));
+                path = scriptInfo.path;
+                const existingValue = projectRootFilesMap.get(path);
+                // If this script info is not already a root add it
+                if (!existingValue || existingValue.info !== scriptInfo) {
+                    project.addRoot(scriptInfo, fileName);
+                    if (scriptInfo.isScriptOpen()) {
+                        // if file is already root in some inferred project
+                        // - remove the file from that project and delete the project if necessary
+                        this.removeRootOfInferredProjectIfNowPartOfOtherProject(scriptInfo);
+                    }
+                }
+                else {
+                    // Already root update the fileName
+                    existingValue.fileName = fileName;
+                }
+            }
+            newRootScriptInfoMap.set(path, true);
+        }
+
+        // project's root file map size is always going to be same or larger than new roots map
+        // as we have already all the new files to the project
+        if (projectRootFilesMap.size > newRootScriptInfoMap.size) {
+            projectRootFilesMap.forEach((value, path) => {
+                if (!newRootScriptInfoMap.has(path)) {
+                    if (value.info) {
+                        project.removeFile(value.info, project.fileExists(value.info.fileName), /*detachFromProject*/ true);
+                    }
+                    else {
+                        projectRootFilesMap.delete(path);
+                    }
+                }
+            });
+        }
+    }
+
+    /**
+     * Remove the root of inferred project if script info is part of another project
+     */
+    private removeRootOfInferredProjectIfNowPartOfOtherProject(info: ScriptInfo) {
+        // If the script info is root of inferred project, it could only be first containing project
+        // since info is added as root to the inferred project only when there are no other projects containing it
+        // So when it is root of the inferred project and after project structure updates its now part
+        // of multiple project it needs to be removed from that inferred project because:
+        // - references in inferred project supersede the root part
+        // - root / reference in non - inferred project beats root in inferred project
+
+        // eg. say this is structure /a/b/a.ts /a/b/c.ts where c.ts references a.ts
+        // When a.ts is opened, since there is no configured project/external project a.ts can be part of
+        // a.ts is added as root to inferred project.
+        // Now at time of opening c.ts, c.ts is also not aprt of any existing project,
+        // so it will be added to inferred project as a root. (for sake of this example assume single inferred project is false)
+        // So at this poing a.ts is part of first inferred project and second inferred project (of which c.ts is root)
+        // And hence it needs to be removed from the first inferred project.
+        Debug.assert(info.containingProjects.length > 0);
+        const firstProject = info.containingProjects[0];
+
+        if (
+            !firstProject.isOrphan() &&
+            isInferredProject(firstProject) &&
+            firstProject.isRoot(info) &&
+            forEach(info.containingProjects, p => p !== firstProject && !p.isOrphan())
+        ) {
+            firstProject.removeFile(info, /*fileExists*/ true, /*detachFromProject*/ true);
+        }
+    }
+
+    
+    /** @internal */
+    private reloadFileNamesOfParsedConfig(configFileName: NormalizedPath, config: ParsedConfig) {
+        if (config.updateLevel === undefined) return config.parsedCommandLine!.fileNames;
+        Debug.assert(config.updateLevel === ProgramUpdateLevel.RootNamesAndUpdate);
+        const configFileSpecs = config.parsedCommandLine!.options.configFile!.configFileSpecs!;
+        const fileNames = getFileNamesFromConfigSpecs(
+            configFileSpecs,
+            getDirectoryPath(configFileName),
+            config.parsedCommandLine!.options,
+            config.cachedDirectoryStructureHost,
+            this.hostConfiguration.extraFileExtensions,
+        );
+        config.parsedCommandLine = { ...config.parsedCommandLine!, fileNames };
+        return fileNames;
     }
 
     /**
@@ -797,14 +967,168 @@ export class ProjectService {
             retainProjects?.forEach(project => {
                 if (!sentConfigDiag!.has(project)) this.sendConfigFileDiagEvent(project, info.fileName, /*force*/ true);
             });
-            Debug.assert(this.openFiles.has(info.path));
-            Debug.fail("implement me");
-            //this.assignOrphanScriptInfoToInferredProject(info, this.openFiles.get(info.path));
+            Debug.assert(this.openFiles.has(info.path));            
+            this.assignOrphanScriptInfoToInferredProject(info, this.openFiles.get(info.path));
         }
         Debug.assert(!info.isOrphan());
         return { configFileName, configFileErrors, retainProjects };
     }
 
+    /** @internal */
+    assignOrphanScriptInfoToInferredProject(info: ScriptInfo, projectRootPath: NormalizedPath | undefined) {
+        Debug.assert(info.isOrphan());
+        const project = this.getOrCreateInferredProjectForProjectRootPathIfEnabled(info, projectRootPath) ||
+            this.getOrCreateSingleInferredProjectIfEnabled() ||
+            this.getOrCreateSingleInferredWithoutProjectRoot(
+                info.isDynamic ?
+                    projectRootPath || this.currentDirectory :
+                    getDirectoryPath(
+                        isRootedDiskPath(info.fileName) ?
+                            info.fileName :
+                            getNormalizedAbsolutePath(
+                                info.fileName,
+                                projectRootPath ?
+                                    this.getNormalizedAbsolutePath(projectRootPath) :
+                                    this.currentDirectory,
+                            ),
+                    ),
+            );
+
+        project.addRoot(info);
+        if (info.containingProjects[0] !== project) {
+            // Ensure this is first project, we could be in this scenario because info could be part of orphan project
+            orderedRemoveItem(info.containingProjects, project);
+            info.containingProjects.unshift(project);
+        }
+        project.updateGraph();
+
+        if (!this.useSingleInferredProject && !project.projectRootPath) {
+            // Note that we need to create a copy of the array since the list of project can change
+            for (const inferredProject of this.inferredProjects) {
+                if (inferredProject === project || inferredProject.isOrphan()) {
+                    continue;
+                }
+
+                // Remove the inferred project if the root of it is now part of newly created inferred project
+                // e.g through references
+                // Which means if any root of inferred project is part of more than 1 project can be removed
+                // This logic is same as iterating over all open files and calling
+                // this.removeRootOfInferredProjectIfNowPartOfOtherProject(f);
+                // Since this is also called from refreshInferredProject and closeOpen file
+                // to update inferred projects of the open file, this iteration might be faster
+                // instead of scanning all open files
+                const roots = inferredProject.getRootScriptInfos();
+                Debug.assert(roots.length === 1 || !!inferredProject.projectRootPath);
+                if (roots.length === 1 && forEach(roots[0].containingProjects, p => p !== roots[0].containingProjects[0] && !p.isOrphan())) {
+                    inferredProject.removeFile(roots[0], /*fileExists*/ true, /*detachFromProject*/ true);
+                }
+            }
+        }
+
+        return project;
+    }
+
+    private getOrCreateInferredProjectForProjectRootPathIfEnabled(info: ScriptInfo, projectRootPath: NormalizedPath | undefined): InferredProject | undefined {
+        if (
+            !this.useInferredProjectPerProjectRoot ||
+            // Its a dynamic info opened without project root
+            (info.isDynamic && projectRootPath === undefined)
+        ) {
+            return undefined;
+        }
+
+        if (projectRootPath) {
+            const canonicalProjectRootPath = this.toCanonicalFileName(projectRootPath);
+            // if we have an explicit project root path, find (or create) the matching inferred project.
+            for (const project of this.inferredProjects) {
+                if (project.projectRootPath === canonicalProjectRootPath) {
+                    return project;
+                }
+            }
+            return this.createInferredProject(projectRootPath, /*isSingleInferredProject*/ false, projectRootPath);
+        }
+
+        // we don't have an explicit root path, so we should try to find an inferred project
+        // that more closely contains the file.
+        let bestMatch: InferredProject | undefined;
+        for (const project of this.inferredProjects) {
+            // ignore single inferred projects (handled elsewhere)
+            if (!project.projectRootPath) continue;
+            // ignore inferred projects that don't contain the root's path
+            if (!containsPath(project.projectRootPath, info.path, this.host.getCurrentDirectory(), !this.host.useCaseSensitiveFileNames)) continue;
+            // ignore inferred projects that are higher up in the project root.
+            // TODO(rbuckton): Should we add the file as a root to these as well?
+            if (bestMatch && bestMatch.projectRootPath!.length > project.projectRootPath.length) continue;
+            bestMatch = project;
+        }
+
+        return bestMatch;
+    }
+
+    private getOrCreateSingleInferredProjectIfEnabled(): InferredProject | undefined {
+        if (!this.useSingleInferredProject) {
+            return undefined;
+        }
+
+        // If `useInferredProjectPerProjectRoot` is not enabled, then there will only be one
+        // inferred project for all files. If `useInferredProjectPerProjectRoot` is enabled
+        // then we want to put all files that are not opened with a `projectRootPath` into
+        // the same inferred project.
+        //
+        // To avoid the cost of searching through the array and to optimize for the case where
+        // `useInferredProjectPerProjectRoot` is not enabled, we will always put the inferred
+        // project for non-rooted files at the front of the array.
+        if (this.inferredProjects.length > 0 && this.inferredProjects[0].projectRootPath === undefined) {
+            return this.inferredProjects[0];
+        }
+
+        // Single inferred project does not have a project root and hence no current directory
+        return this.createInferredProject("", /*isSingleInferredProject*/ true);
+    }
+
+    private getOrCreateSingleInferredWithoutProjectRoot(currentDirectory: string): InferredProject {
+        Debug.assert(!this.useSingleInferredProject);
+        const expectedCurrentDirectory = this.toCanonicalFileName(this.getNormalizedAbsolutePath(currentDirectory));
+        // Reuse the project with same current directory but no roots
+        for (const inferredProject of this.inferredProjects) {
+            if (
+                !inferredProject.projectRootPath &&
+                inferredProject.isOrphan() &&
+                inferredProject.canonicalCurrentDirectory === expectedCurrentDirectory
+            ) {
+                return inferredProject;
+            }
+        }
+
+        return this.createInferredProject(currentDirectory);
+    }
+
+    private createInferredProject(currentDirectory: string, isSingleInferredProject?: boolean, projectRootPath?: NormalizedPath): InferredProject {        
+        const compilerOptions = undefined;// projectRootPath && this.compilerOptionsForInferredProjectsPerProjectRoot.get(projectRootPath) || this.compilerOptionsForInferredProjects!; // TODO: GH#18217
+        let watchOptionsAndErrors = undefined;//: WatchOptionsAndErrors | false | undefined;
+        let typeAcquisition: TypeAcquisition | undefined;
+        // if (projectRootPath) {
+        //     watchOptionsAndErrors = this.watchOptionsForInferredProjectsPerProjectRoot.get(projectRootPath);
+        //     typeAcquisition = this.typeAcquisitionForInferredProjectsPerProjectRoot.get(projectRootPath);
+        // }
+        // if (watchOptionsAndErrors === undefined) {
+        //     watchOptionsAndErrors = this.watchOptionsForInferredProjects;
+        // }
+        // if (typeAcquisition === undefined) {
+        //     typeAcquisition = this.typeAcquisitionForInferredProjects;
+        // }
+        // watchOptionsAndErrors = watchOptionsAndErrors || undefined;
+        const project = new InferredProject(this, this.documentRegistry, compilerOptions, watchOptionsAndErrors?.watchOptions, projectRootPath, currentDirectory, typeAcquisition);
+        project.setProjectErrors(watchOptionsAndErrors?.errors);
+        if (isSingleInferredProject) {
+            this.inferredProjects.unshift(project);
+        }
+        else {
+            this.inferredProjects.push(project);
+        }
+        return project;
+    }
+    
     private getOrCreateOpenScriptInfo(
         fileName: NormalizedPath,
         fileContent: string | undefined,
@@ -957,13 +1281,9 @@ export class ProjectService {
         do {
             if (searchInDirectory) {
                 const canonicalSearchPath = normalizedPathToPath(searchPath, this.currentDirectory, this.toCanonicalFileName);
-                const tsconfigFileName = asNormalizedPath(combinePaths(searchPath, "tsconfig.json"));
-                let result = action(combinePaths(canonicalSearchPath, "tsconfig.json") as NormalizedPath, tsconfigFileName);
+                const tsconfigFileName = asNormalizedPath(combinePaths(searchPath, "lpc-config.json"));
+                let result = action(combinePaths(canonicalSearchPath, "lpc-config.json") as NormalizedPath, tsconfigFileName);
                 if (result) return tsconfigFileName;
-
-                const jsconfigFileName = asNormalizedPath(combinePaths(searchPath, "jsconfig.json"));
-                result = action(combinePaths(canonicalSearchPath, "jsconfig.json") as NormalizedPath, jsconfigFileName);
-                if (result) return jsconfigFileName;
 
                 // If we started within node_modules, don't look outside node_modules.
                 // Otherwise, we might pick up a very large project and pull in the world,
@@ -1077,7 +1397,67 @@ export class ProjectService {
                 (openScriptInfos || (openScriptInfos = [])).push(info);
             }
         }
+
+        if (changedFiles) {
+            for (const file of changedFiles) {
+                const scriptInfo = this.getScriptInfo(file.fileName)!;
+                Debug.assert(!!scriptInfo);
+                // Make edits to script infos and marks containing project as dirty
+                Debug.fail("implement me");
+                // this.applyChangesToFile(scriptInfo, file.changes);
+            }
+        }
+
+        if (closedFiles) {
+            for (const file of closedFiles) {
+                // Close files, but dont assign projects to orphan open script infos, that part comes later
+                Debug.fail("implement me");
+                //assignOrphanScriptInfosToInferredProject = this.closeClientFile(file, /*skipAssignOrphanScriptInfosToInferredProject*/ true) || assignOrphanScriptInfosToInferredProject;
+            }
+        }
+
+        // All the script infos now exist, so ok to go update projects for open files
+        let retainProjects: Set<ConfiguredProject> | undefined;
+        openScriptInfos?.forEach(info => this.assignProjectToOpenedScriptInfo(info).retainProjects?.forEach(p => (retainProjects ??= new Set()).add(p)));
+
+        // While closing files there could be open files that needed assigning new inferred projects, do it now
+        if (assignOrphanScriptInfosToInferredProject) {
+            this.assignOrphanScriptInfosToInferredProject();
+        }
+
+        if (openScriptInfos) {
+            // Cleanup projects
+            this.cleanupProjectsAndScriptInfos(
+                retainProjects,
+                new Set(openScriptInfos.map(info => info.path)),
+                /*externalProjectsRetainingConfiguredProjects*/ undefined,
+            );
+            // Telemetry
+            // openScriptInfos.forEach(info => this.telemetryOnOpenFile(info));
+            this.printProjects();
+        }
+        else if (length(closedFiles)) {
+            this.printProjects();
+        }
     }
+
+    private assignOrphanScriptInfosToInferredProject() {
+        // collect orphaned files and assign them to inferred project just like we treat open of a file
+        this.openFiles.forEach((projectRootPath, path) => {
+            const info = this.getScriptInfoForPath(path)!;
+            // collect all orphaned script infos from open files
+            if (info.isOrphan()) {
+                console.debug("todo - implement me - assignOrphanScriptInfosToInferredProject");
+                // this.assignOrphanScriptInfoToInferredProject(info, projectRootPath);
+            }
+        });
+    }
+
+     /** @internal */
+     delayUpdateProjectGraphAndEnsureProjectStructureForOpenFiles(project: Project) {
+        this.delayUpdateProjectGraph(project);
+        this.delayEnsureProjectForOpenFiles();
+    }   
 }
 
 
@@ -1304,3 +1684,52 @@ function updateConfiguredProject(project: ConfiguredProject, triggerFile: Normal
 function reloadReason(reason: string) {
     return `User requested reload projects: ${reason}`;
 }
+
+/** @internal */
+export interface ParsedConfig {
+    cachedDirectoryStructureHost: CachedDirectoryStructureHost;
+    /**
+     * The map contains
+     *   - true if project is watching config file as well as wild cards
+     *   - false if just config file is watched
+     */
+    projects: Map<NormalizedPath, boolean>;
+    parsedCommandLine?: ParsedCommandLine;
+    watchedDirectories?: Map<string, WildcardDirectoryWatcher>;
+    /**
+     * true if watchedDirectories need to be updated as per parsedCommandLine's updated watched directories
+     */
+    watchedDirectoriesStale?: boolean;
+    updateLevel?: ProgramUpdateLevel.RootNamesAndUpdate | ProgramUpdateLevel.Full;
+}
+
+interface FilePropertyReader<T> {
+    getFileName(f: T): string;
+    getScriptKind(f: T, extraFileExtensions?: FileExtensionInfo[]): ScriptKind;
+    hasMixedContent(f: T, extraFileExtensions: FileExtensionInfo[] | undefined): boolean;
+}
+
+
+const fileNamePropertyReader: FilePropertyReader<string> = {
+    getFileName: x => x,
+    getScriptKind: (fileName, extraFileExtensions) => {
+        let result: ScriptKind | undefined;
+        if (extraFileExtensions) {
+            const fileExtension = getAnyExtensionFromPath(fileName);
+            if (fileExtension) {
+                some(extraFileExtensions, info => {
+                    if (info.extension === fileExtension) {
+                        result = info.scriptKind;
+                        return true;
+                    }
+                    return false;
+                });
+            }
+        }
+        return result!; // TODO: GH#18217
+    },
+    hasMixedContent: (fileName, extraFileExtensions) => some(extraFileExtensions, ext => ext.isMixedContent && fileExtensionIs(fileName, ext.extension)),
+};
+
+/** @internal */
+export type PerformanceEventHandler = (event: PerformanceEvent) => void;

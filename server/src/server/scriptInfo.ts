@@ -498,7 +498,7 @@ export class ScriptInfo {
             // If the info was for the external or configured project's root,
             // add missing file as the root
             if (existingRoot && !isInferredProject(p)) {
-                p.addMissingFileRoot(existingRoot.fileName);
+                (p as Project).addMissingFileRoot(existingRoot.fileName);
             }
         }
         clear(this.containingProjects);

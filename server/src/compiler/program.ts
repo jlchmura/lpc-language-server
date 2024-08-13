@@ -302,7 +302,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         // getResolvedProjectReferences,
         // getProjectReferenceRedirect,
         // getResolvedProjectReferenceToRedirect,
-        // getResolvedProjectReferenceByPath,
+        getResolvedProjectReferenceByPath,
         forEachResolvedProjectReference,
         // isSourceOfProjectReferenceRedirect,
         // getRedirectReferenceForResolutionFromSourceOfProject,

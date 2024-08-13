@@ -95,11 +95,8 @@ const session = new Session({
     projectRootFolder: workDir,
 });
 
-session.openFile({
-    file: filename,
-    fileContent: sourceText,    
-    projectRootPath: workDir,
-    projectFileName: projectFile
+session.updateOpen({
+    openFiles: [{ file: filename, projectFileName: projectFile }],            
 });
 
 const svc = doCreateLanguageService();
@@ -114,7 +111,7 @@ const args: lpc.server.protocol.FileLocationRequestArgs = {
     line: 0,
     offset: pos,
     position: pos, 
-    projectFileName: "default"
+    projectFileName: projectFile
 };
 const node = getTouchingPropertyName(srcFile, pos);
 //const def = svc.getDefinitionAtPosition(fileOnly, pos, false, false);

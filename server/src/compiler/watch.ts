@@ -1,4 +1,4 @@
-import { convertToRelativePath, isString, Program, SourceFile } from "./_namespaces/lpc";
+import { convertToRelativePath, FileWatcher, isString, noop, Program, SourceFile } from "./_namespaces/lpc";
 
 /** @internal */
 export interface WatchTypeRegistry {
@@ -71,3 +71,8 @@ export function explainFiles(program: Program, write: (s: string) => void) {
         // explainIfFileIsRedirectAndImpliedFormat(file, relativeFileName)?.forEach(d => write(`  ${d.messageText}`));
     }
 }
+
+/** @internal */
+export const noopFileWatcher: FileWatcher = { close: noop };
+/** @internal */
+export const returnNoopFileWatcher = () => noopFileWatcher;

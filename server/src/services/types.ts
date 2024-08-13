@@ -376,6 +376,9 @@ export interface LanguageService {
      * Gets global diagnostics related to the program configuration and compiler options.
      */
     getCompilerOptionsDiagnostics(): Diagnostic[];
+
+    getProgram(): Program | undefined;
+    /** @internal */ getCurrentProgram(): Program | undefined;
 }
 
 export interface HostCancellationToken {
@@ -685,4 +688,9 @@ export enum LanguageServiceMode {
 export interface TextChange {
     span: TextSpan;
     newText: string;
+}
+
+export interface PerformanceEvent {
+    kind: "UpdateGraph" | "CreatePackageJsonAutoImportProvider";
+    durationMs: number;
 }

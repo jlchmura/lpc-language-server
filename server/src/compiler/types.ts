@@ -4060,7 +4060,7 @@ export interface Program extends ScriptReferenceHost {
     //  */
     // getResolvedProjectReferenceToRedirect(fileName: string): ResolvedProjectReference | undefined;
     /** @internal */ forEachResolvedProjectReference<T>(cb: (resolvedProjectReference: ResolvedProjectReference) => T | undefined): T | undefined;
-    // /** @internal */ getResolvedProjectReferenceByPath(projectReferencePath: Path): ResolvedProjectReference | undefined;
+    /** @internal */ getResolvedProjectReferenceByPath(projectReferencePath: Path): ResolvedProjectReference | undefined;
     // /** @internal */ getRedirectReferenceForResolutionFromSourceOfProject(filePath: Path): ResolvedProjectReference | undefined;
     // /** @internal */ isSourceOfProjectReferenceRedirect(fileName: string): boolean;
     // /** @internal */ getBuildInfo?(): BuildInfo;
@@ -5461,3 +5461,10 @@ export interface ParseConfigHost extends ModuleResolutionHost {
     readFile(path: string): string | undefined;
     trace?(s: string): void;
 }
+
+export interface FileExtensionInfo {
+    extension: string;
+    isMixedContent: boolean;
+    scriptKind?: ScriptKind;
+}
+

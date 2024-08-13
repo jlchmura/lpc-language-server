@@ -1,6 +1,6 @@
 import { config } from "process";
 import { ILpcConfig } from "../config-types";
-import { arrayFrom, CompilerOptions, createGetCanonicalFileName, Extension, fileExtensionIs, flatten, getNormalizedAbsolutePath, normalizePath, ParseConfigHost } from "./_namespaces/lpc";
+import { arrayFrom, CompilerOptions, createGetCanonicalFileName, emptyArray, Extension, FileExtensionInfo, fileExtensionIs, flatten, getNormalizedAbsolutePath, normalizePath, ParseConfigHost } from "./_namespaces/lpc";
 
 export const libEntries: [string, string][] = [
     ["ldmud", "ldmud.efun.c"],
@@ -32,7 +32,7 @@ export function getFileNamesFromConfigSpecs(
     basePath: string,
     options: CompilerOptions,
     host: ParseConfigHost,
-    //extraFileExtensions: readonly FileExtensionInfo[] = emptyArray,
+    extraFileExtensions: readonly FileExtensionInfo[] = emptyArray,
 ): string[] {
 
     // This is used to load all files for a project!
@@ -131,3 +131,4 @@ export function getFileNamesFromConfigSpecs(
 
     return literalFiles.concat(wildcardFiles, arrayFrom(wildCardJsonFileMap.values()));
 }
+

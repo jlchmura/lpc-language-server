@@ -135,6 +135,7 @@ import {
     tracing,
     OperationCanceledException,
     map,
+    LanguageServiceMode,
 } from "./_namespaces/lpc.js";
 
 // These utilities are common to multiple language service features.
@@ -1196,9 +1197,11 @@ export function createLanguageService(
         host.useCaseSensitiveFileNames && host.useCaseSensitiveFileNames(),
         host.getCurrentDirectory(),
         host.jsDocParsingMode
-    )
-    // syntaxOnlyOrLanguageServiceMode?: boolean | LanguageServiceMode,
+    ),
+    syntaxOnlyOrLanguageServiceMode?: boolean | LanguageServiceMode,
 ): LanguageService {
+    let languageServiceMode: LanguageServiceMode;
+    
     //const syntaxTreeCache: SyntaxTreeCache = new SyntaxTreeCache(host);
     let program: Program;
     let lastProjectVersion: string;
@@ -1210,10 +1213,24 @@ export function createLanguageService(
         getDefinitionAtPosition,
         getQuickInfoAtPosition,
         cleanupSemanticCache,
-        getCompilerOptionsDiagnostics
+        getCompilerOptionsDiagnostics,
+        getProgram,
+        getCurrentProgram: () => program,
     };
 
     return ls;
+
+    // TODO: GH#18217 frequently asserted as defined
+    function getProgram(): Program | undefined {
+        if (languageServiceMode === LanguageServiceMode.Syntactic) {
+            Debug.assert(program === undefined);
+            return undefined;
+        }
+
+        synchronizeHostData();
+
+        return program;
+    }
 
     function cleanupSemanticCache(): void {
         if (program) {

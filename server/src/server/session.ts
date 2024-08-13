@@ -139,6 +139,8 @@ export class Session<T> {
         //return this.notRequired(request);
     }
 
+    
+
     private getPosition(args: protocol.Location & { position?: number; }, scriptInfo: ScriptInfo): number {
         return args.position !== undefined ? args.position : scriptInfo.lineOffsetToPosition(args.line, args.offset);
     }

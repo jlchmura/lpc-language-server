@@ -1,4 +1,4 @@
-import { toPath as lpc_toPath, createGetCanonicalFileName, FileWatcher, FileWatcherEventKind, Path, SortedArray, WatchFileKind, WatchOptions, ensureTrailingDirectorySeparator, binarySearch, compareStringsCaseSensitive, Debug, emptyArray, emptyFileSystemEntries, FileSystemEntries, getBaseFileName, getDirectoryPath, identity, insertSorted, map, normalizePath, SortedReadonlyArray, FileWatcherCallback, PollingInterval, DirectoryWatcherCallback, WatchDirectoryFlags, matchFiles } from "./_namespaces/lpc.js";
+import { toPath as lpc_toPath, createGetCanonicalFileName, FileWatcher, FileWatcherEventKind, Path, SortedArray, WatchFileKind, WatchOptions, ensureTrailingDirectorySeparator, binarySearch, compareStringsCaseSensitive, Debug, emptyArray, emptyFileSystemEntries, FileSystemEntries, getBaseFileName, getDirectoryPath, identity, insertSorted, map, normalizePath, SortedReadonlyArray, FileWatcherCallback, PollingInterval, DirectoryWatcherCallback, WatchDirectoryFlags, matchFiles, Program, mutateMap, closeFileWatcher } from "./_namespaces/lpc.js";
 
 /** @internal */
 export function getFallbackOptions(options: WatchOptions | undefined): WatchOptions {
@@ -348,4 +348,34 @@ export enum ProgramUpdateLevel {
      */
 
     Full,
+}
+
+/** @internal */
+export interface WildcardDirectoryWatcher {
+    watcher: FileWatcher;
+    flags: WatchDirectoryFlags;
+}
+
+/**
+ * Updates the existing missing file watches with the new set of missing files after new program is created
+ *
+ * @internal
+ */
+export function updateMissingFilePathsWatch(
+    program: Program,
+    missingFileWatches: Map<Path, FileWatcher>,
+    createMissingFileWatch: (missingFilePath: Path, missingFileName: string) => FileWatcher,
+) {
+    // Update the missing file paths watcher
+    mutateMap(
+        missingFileWatches,
+        program.getMissingFilePaths(),
+        {
+            // Watch the missing files
+            createNewValue: createMissingFileWatch,
+            // Files that are no longer missing (e.g. because they are no longer required)
+            // should no longer be watched.
+            onDeleteValue: closeFileWatcher,
+        },
+    );
 }
