@@ -1486,3 +1486,40 @@ export function sortAndDeduplicate<T>(array: readonly T[], comparer: Comparer<T>
 export function sortAndDeduplicate<T>(array: readonly T[], comparer?: Comparer<T>, equalityComparer?: EqualityComparer<T>): SortedReadonlyArray<T> {
     return deduplicateSorted(sort(array, comparer), equalityComparer || comparer || compareStringsCaseSensitive as any as Comparer<T>);
 }
+
+/**
+ * Performs a shallow equality comparison of the contents of two map-likes.
+ *
+ * @param left A map-like whose properties should be compared.
+ * @param right A map-like whose properties should be compared.
+ *
+ * @internal
+ */
+export function equalOwnProperties<T>(left: MapLike<T> | undefined, right: MapLike<T> | undefined, equalityComparer: EqualityComparer<T> = equateValues) {
+    if (left === right) return true;
+    if (!left || !right) return false;
+    for (const key in left) {
+        if (hasOwnProperty.call(left, key)) {
+            if (!hasOwnProperty.call(right, key)) return false;
+            if (!equalityComparer(left[key], right[key])) return false;
+        }
+    }
+
+    for (const key in right) {
+        if (hasOwnProperty.call(right, key)) {
+            if (!hasOwnProperty.call(left, key)) return false;
+        }
+    }
+
+    return true;
+}
+
+/**
+ * Represents a "prefix*suffix" pattern.
+ *
+ * @internal
+ */
+export interface Pattern {
+    prefix: string;
+    suffix: string;
+}

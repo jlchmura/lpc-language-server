@@ -1,5 +1,6 @@
 import { LpcConfig } from "../backend/LpcConfig.js";
-import { BaseNodeFactory, EmitHelperFactory, GetCanonicalFileName, MapLike, MultiMap, Mutable, NodeFactoryFlags } from "./_namespaces/lpc.js";
+import { ILpcConfig } from "../config-types.js";
+import { BaseNodeFactory, EmitHelperFactory, GetCanonicalFileName, MapLike, MultiMap, Mutable, NodeFactoryFlags, Pattern } from "./_namespaces/lpc.js";
 
 // Note: 'brands' in our syntax nodes serve to give us a small amount of nominal typing.
 // Consider 'Expression'.  Without the brand, 'Expression' is actually no different
@@ -153,10 +154,10 @@ export interface ParsedCommandLine {
     typeAcquisition?: TypeAcquisition;
     fileNames: string[];
     projectReferences?: readonly ProjectReference[];
-    //watchOptions?: WatchOptions;
+    watchOptions?: WatchOptions;
     raw?: any;
     errors: Diagnostic[];
-    //wildcardDirectories?: MapLike<WatchDirectoryFlags>;
+    wildcardDirectories?: MapLike<WatchDirectoryFlags>;
     compileOnSave?: boolean;
 }
 
@@ -1151,8 +1152,8 @@ export interface CompilerOptions {
     noUnusedParameters?: boolean;
     noImplicitReturns?: boolean;
     newLine?: NewLineKind;
-    config?: LpcConfig;
-    configFile?: any; // TODO: type this
+    config?: ILpcConfig;
+    configFile?: LpcConfigSourceFile; 
     forceConsistentCasingInFileNames?: boolean;
     noResolve?: boolean;
     noLib?: boolean;
@@ -5466,5 +5467,34 @@ export interface FileExtensionInfo {
     extension: string;
     isMixedContent: boolean;
     scriptKind?: ScriptKind;
+}
+
+
+/** @internal */
+export interface ConfigFileSpecs {
+    filesSpecs: readonly string[] | undefined;
+    /**
+     * Present to report errors (user specified specs), validatedIncludeSpecs are used for file name matching
+     */
+    includeSpecs: readonly string[] | undefined;
+    /**
+     * Present to report errors (user specified specs), validatedExcludeSpecs are used for file name matching
+     */
+    excludeSpecs: readonly string[] | undefined;
+    validatedFilesSpec: readonly string[] | undefined;
+    validatedIncludeSpecs: readonly string[] | undefined;
+    validatedExcludeSpecs: readonly string[] | undefined;
+    validatedFilesSpecBeforeSubstitution: readonly string[] | undefined;
+    validatedIncludeSpecsBeforeSubstitution: readonly string[] | undefined;
+    validatedExcludeSpecsBeforeSubstitution: readonly string[] | undefined;
+    pathPatterns: readonly (string | Pattern)[] | undefined;
+    isDefaultIncludeSpec: boolean;
+}
+
+
+export interface LpcConfigSourceFile {
+    fileName: string;
+    raw: ILpcConfig;
+    configFileSpecs?: ConfigFileSpecs;
 }
 

@@ -1815,3 +1815,78 @@ export function displayPartsToString(displayParts: SymbolDisplayPart[] | undefin
 
     return "";
 }
+
+export enum SemicolonPreference {
+    Ignore = "ignore",
+    Insert = "insert",
+    Remove = "remove",
+}
+
+export enum IndentStyle {
+    None = 0,
+    Block = 1,
+    Smart = 2,
+}
+
+
+// TODO: GH#18217 These are frequently asserted as defined
+export interface EditorSettings {
+    baseIndentSize?: number;
+    indentSize?: number;
+    tabSize?: number;
+    newLineCharacter?: string;
+    convertTabsToSpaces?: boolean;
+    indentStyle?: IndentStyle;
+    trimTrailingWhitespace?: boolean;
+}
+
+export interface FormatCodeSettings extends EditorSettings {
+    readonly insertSpaceAfterCommaDelimiter?: boolean;
+    readonly insertSpaceAfterSemicolonInForStatements?: boolean;
+    readonly insertSpaceBeforeAndAfterBinaryOperators?: boolean;
+    readonly insertSpaceAfterConstructor?: boolean;
+    readonly insertSpaceAfterKeywordsInControlFlowStatements?: boolean;
+    readonly insertSpaceAfterFunctionKeywordForAnonymousFunctions?: boolean;
+    readonly insertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis?: boolean;
+    readonly insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets?: boolean;
+    readonly insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces?: boolean;
+    readonly insertSpaceAfterOpeningAndBeforeClosingEmptyBraces?: boolean;
+    readonly insertSpaceAfterOpeningAndBeforeClosingTemplateStringBraces?: boolean;
+    readonly insertSpaceAfterOpeningAndBeforeClosingJsxExpressionBraces?: boolean;
+    readonly insertSpaceAfterTypeAssertion?: boolean;
+    readonly insertSpaceBeforeFunctionParenthesis?: boolean;
+    readonly placeOpenBraceOnNewLineForFunctions?: boolean;
+    readonly placeOpenBraceOnNewLineForControlBlocks?: boolean;
+    readonly insertSpaceBeforeTypeAnnotation?: boolean;
+    readonly indentMultiLineObjectLiteralBeginningOnBlankLine?: boolean;
+    readonly semicolons?: SemicolonPreference;
+    readonly indentSwitchCase?: boolean;
+}
+
+
+export function getDefaultFormatCodeSettings(newLineCharacter?: string): FormatCodeSettings {
+    return {
+        indentSize: 2,
+        tabSize: 2,
+        newLineCharacter: newLineCharacter || "\n",
+        convertTabsToSpaces: true,
+        indentStyle: IndentStyle.Smart,
+        insertSpaceAfterConstructor: false,
+        insertSpaceAfterCommaDelimiter: true,
+        insertSpaceAfterSemicolonInForStatements: true,
+        insertSpaceBeforeAndAfterBinaryOperators: true,
+        insertSpaceAfterKeywordsInControlFlowStatements: true,
+        insertSpaceAfterFunctionKeywordForAnonymousFunctions: false,
+        insertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis: false,
+        insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets: false,
+        insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces: true,
+        insertSpaceAfterOpeningAndBeforeClosingTemplateStringBraces: false,
+        insertSpaceAfterOpeningAndBeforeClosingJsxExpressionBraces: false,
+        insertSpaceBeforeFunctionParenthesis: false,
+        placeOpenBraceOnNewLineForFunctions: false,
+        placeOpenBraceOnNewLineForControlBlocks: false,
+        semicolons: SemicolonPreference.Ignore,
+        trimTrailingWhitespace: true,
+        indentSwitchCase: true,
+    };
+}

@@ -39,7 +39,10 @@ export class LpcConfig implements ILpcConfig {
         ["__BOOT_TIME__", "1"],
     ]);
 
-    public include: string[] = ["/sys", "/obj", "/room"];
+    // TODO
+    // I temporarily added *.* and ./ to these to work with new lanaugage server
+    // this needs to be normalized at some point
+    public include: string[] = ["./sys", "./obj", "./room", "*.*"];
     public exclude: string[] = [];
 
     public driver: DriverInfo = {
@@ -99,11 +102,14 @@ export function setLpcConfig(config: LpcConfig): void {
 }
 
 export function loadLpcConfig(filename: string): LpcConfig {
-    try {
-        fs.accessSync(filename, fs.constants.R_OK);
-        const config = new LpcConfig();
-        const data = fs.readFileSync(filename, "utf8");
+    fs.accessSync(filename, fs.constants.R_OK);    
+    const data = fs.readFileSync(filename, "utf8");
+    return loadLpcConfigFromString(data);
+}
 
+export function loadLpcConfigFromString(data: string): LpcConfig {
+    try {
+        const config = new LpcConfig();
         const rawConfig = parse(data);
 
         rawConfig.defines?.forEach((defObj: any) => {
@@ -140,7 +146,7 @@ export function loadLpcConfig(filename: string): LpcConfig {
         globalConfig = config;
     } catch (e) {
         console.warn(
-            `Failed to load LPC config file ${filename}: ${e.message}`
+            `Failed to load LPC config file: ${e.message}`
         );
     }
 

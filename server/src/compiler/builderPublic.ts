@@ -5,6 +5,8 @@ import { CancellationToken, CompilerOptions, Diagnostic, DiagnosticWithLocation,
  */
 export interface BuilderProgram {
     /** @internal */
+    getState(): any;
+    /** @internal */
     //state: ReusableBuilderProgramState;
     /** @internal */
     hasChangedEmitSignature?(): boolean;

@@ -298,11 +298,27 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
         }
     }
 
+    setTypeAcquisition(newTypeAcquisition: TypeAcquisition | undefined): void {
+        // TODO - implement this
+        // if (newTypeAcquisition) {
+        //     this.typeAcquisition = this.removeLocalTypingsFromTypeAcquisition(newTypeAcquisition);
+        // }
+    }
+
     /** @internal */
     onInvalidatedResolution() {
         this.projectService.delayUpdateProjectGraphAndEnsureProjectStructureForOpenFiles(this);
     }
 
+    enableLanguageService() {
+        if (this.languageServiceEnabled || this.projectService.serverMode === LanguageServiceMode.Syntactic) {
+            return;
+        }
+        this.languageServiceEnabled = true;
+        this.lastFileExceededProgramSize = undefined;
+        this.projectService.onUpdateLanguageServiceStateForProject(this, /*languageServiceEnabled*/ true);
+    }
+    
     // add a root file to project
     addRoot(info: ScriptInfo, fileName?: NormalizedPath) {
         Debug.assert(!this.isRoot(info));
@@ -322,6 +338,30 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
             updateProjectIfDirty(this);
         }
         return this.languageService;
+    }
+
+    setCompilerOptions(compilerOptions: CompilerOptions) {
+        if (compilerOptions) {
+            // compilerOptions.allowNonTsExtensions = true;
+            const oldOptions = this.compilerOptions;
+            this.compilerOptions = compilerOptions;
+            // this.setInternalCompilerOptionsForEmittingJsFiles();
+            // this.noDtsResolutionProject?.setCompilerOptions(this.getCompilerOptionsForNoDtsResolutionProject());
+            // TODO - implement this
+            // if (changesAffectModuleResolution(oldOptions, compilerOptions)) {
+            //     // reset cached unresolved imports if changes in compiler options affected module resolution
+            //     this.cachedUnresolvedImportsPerFile.clear();
+            //     this.lastCachedUnresolvedImportsList = undefined;
+            //     this.resolutionCache.onChangesAffectModuleResolution();
+            //     this.moduleSpecifierCache.clear();
+            // }
+            this.markAsDirty();
+        }
+    }
+
+    /** @internal */
+    setWatchOptions(watchOptions: WatchOptions | undefined) {
+        this.watchOptions = watchOptions;
     }
 
     /** @internal */
@@ -957,7 +997,7 @@ export class ConfiguredProject extends Project {
     override getCachedDirectoryStructureHost() {
         return this.directoryStructureHost as CachedDirectoryStructureHost;
     }
-    
+
     /** @internal */
     updateErrorOnNoInputFiles(fileNames: string[]) {
         console.debug("implement me - updateErrorOnNoInputFiles");

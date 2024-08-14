@@ -197,6 +197,11 @@ export interface CodeEdit {
 }
 
 export type CreateFileWatcherEventName = "createFileWatcher";
+export interface CreateFileWatcherEventBody {
+    readonly id: number;
+    readonly path: string;
+}
+
 
 export type CreateDirectoryWatcherEventName = "createDirectoryWatcher";
 export interface CreateDirectoryWatcherEvent extends Event {
@@ -219,4 +224,11 @@ export interface CloseFileWatcherEvent extends Event {
 
 export interface CloseFileWatcherEventBody {
     readonly id: number;
+}
+
+export interface WatchChangeRequestArgs {
+    id: number;
+    created?: string[];
+    deleted?: string[];
+    updated?: string[];
 }

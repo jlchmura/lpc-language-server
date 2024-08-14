@@ -1,8 +1,8 @@
 import * as antlr from "antlr4ng";
 import * as parserCore from "../parser3/parser-core";
-import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, ModifierFlags, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange, PrefixUnaryExpression, first, LanguageVariant, EqualsToken } from "./_namespaces/lpc";
+import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, ModifierFlags, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange, PrefixUnaryExpression, first, LanguageVariant, EqualsToken, LpcConfigSourceFile, createBaseNodeFactory, PrefixUnaryOperator } from "./_namespaces/lpc";
 import { ILpcConfig } from "../config-types";
-import { LpcConfig } from "../backend/LpcConfig";
+import { loadLpcConfigFromString, LpcConfig } from "../backend/LpcConfig";
 
 
 
@@ -717,8 +717,32 @@ export namespace LpcParser {
             );
         }
 
+        let i=1;
+        if (tree.children[0] instanceof antlr.TerminalNode) {
+            // this means that the first child is a unary operator
+            // and the second child is the expression
+            let opKind: PrefixUnaryOperator;
+            switch (tree.children[0].getSymbol().type) {
+                case parserCore.LPCLexer.INC:
+                    opKind = SyntaxKind.PlusPlusToken;
+                    break;
+                case parserCore.LPCLexer.DEC:
+                    opKind = SyntaxKind.MinusMinusToken;
+                    break;
+                case parserCore.LPCLexer.NOT:
+                    opKind = SyntaxKind.ExclamationToken;
+                    break;
+                default:
+                    Debug.fail("Unknown unary operator");
+                    // TODO log diagnostic
+            }
+            
+            lhs = finishNode(factory.createPrefixUnaryExpression(opKind, lhs), pos, lhs.end);
+            i = 2;
+        }
+
         // everythign else is a binary expression
-        for (let i = 1; i < tree.children.length; i += 2) {
+        for (; i < tree.children.length; i += 2) {
             const childExprTree = tree.children.at(i + 1) as parserCore.ConditionalExpressionContext,
                 opToken = tree.children.at(i);
             const childExpr = childExprTree ? parseAssignmentExpressionOrHigher(childExprTree) : undefined;
@@ -1394,7 +1418,7 @@ function setExternalModuleIndicator(sourceFile: SourceFile) {
     sourceFile.externalModuleIndicator = true;
 }
 
-export function createSourceFile(fileName: string, sourceText: string, config: LpcConfig, languageVersionOrOptions: ScriptTarget | CreateSourceFileOptions, setParentNodes = false, scriptKind?: ScriptKind): SourceFile {
+export function createSourceFile(fileName: string, sourceText: string, config: ILpcConfig, languageVersionOrOptions: ScriptTarget | CreateSourceFileOptions, setParentNodes = false, scriptKind?: ScriptKind): SourceFile {
     tracing?.push(tracing.Phase.Parse, "createSourceFile", { path: fileName }, /*separateBeginAndEnd*/ true);
     performance.mark("beforeParse");
     let result: SourceFile;
@@ -1470,4 +1494,12 @@ export function updateSourceFile(sourceFile: SourceFile, newText: string, config
     // // We will manually port the flag to the new source file.
     // (newSourceFile as Mutable<SourceFile>).flags |= sourceFile.flags & NodeFlags.PermanentlySetIncrementalFlags;
     // return newSourceFile;    
+}
+
+export function parseLpcConfig(fileName: string, sourceText: string): LpcConfigSourceFile {    
+    const raw = loadLpcConfigFromString(sourceText);
+    return {
+        fileName, 
+        raw
+    };
 }
