@@ -792,7 +792,7 @@ export namespace LpcParser {
     }
 
     function parseCallOtherTarget(tree: parserCore.CallOtherTargetContext): Expression {
-        if (tree.Identifier()) return createIdentifier(tree, true);
+        if (tree.validIdentifiers()) return createIdentifier(tree, true);
         else if (tree.StringLiteral()) return parseStringLiteralNode(tree.StringLiteral());
         else return parseExpression(tree.expression());
     }
