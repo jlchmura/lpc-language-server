@@ -376,7 +376,7 @@ export class LpcServer {
 
         // make sure the context hasn't been disposed
         const ce = this.facade.getContextEntry(filename);
-        if (!ce.disposed) {
+        if (ce && !ce.disposed) {
             this.facade.reparse(filename);
 
             await this.processDiagnostic(document.uri, document.version);

@@ -196,6 +196,14 @@ export class LpcFacade {
         referenceFilename: string,
         searchDirs?: string[]
     ): ResolvedFilename {
+        if (!filename || typeof filename !== "string") {
+            return {
+                filename: filename,
+                fullPath: undefined,
+                type: undefined,
+            };
+        }
+
         const normedRefFilename = referenceFilename.startsWith("file:")
             ? URI.parse(referenceFilename).fsPath
             : referenceFilename;
@@ -707,6 +715,7 @@ export class LpcFacade {
     ): ISymbolInfo[] | undefined {
         const context = this.loadLpc(fileName);
         const ce = this.getContextEntry(fileName);
+        if (ce.disposed) return undefined;
         if (context.needsCompile) this.parseLpc(ce, new Set(), false);
 
         return context?.symbolAtPosition(column, row, limitToChildren);
@@ -1018,10 +1027,7 @@ export class LpcFacade {
                 globalInclude,
                 filename
             );
-            if (
-                filename !== globalFilename.fullPath &&
-                !filename.endsWith(".h")
-            ) {
+            if (filename !== globalFilename.fullPath) {
                 configDefines.set("__GLOBAL_INCLUDE__", `"${globalInclude}"`);
             }
         }

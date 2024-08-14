@@ -1,5 +1,33 @@
 # LPC Language Services Changelog
 
+## 1.0.30
+
+-   Because 1.0.29 was incomplete
+
+## 1.0.29
+
+-   Fix: [Signature hint does not recognize function type #53](https://github.com/jlchmura/lpc-language-server/issues/53)
+-   Fix: [Exception when typing foreach without variable name #54](https://github.com/jlchmura/lpc-language-server/issues/54)
+
+## 1.0.28
+
+-   Fix: Strings with just an emoji character get garbled on semantic highlight
+-   Fix: [#define statements are not syntax highlighted correctly #50](https://github.com/jlchmura/lpc-language-server/issues/50)
+-   Fix: [Error requesting textdocument failed #47](https://github.com/jlchmura/lpc-language-server/issues/47)
+
+## 1.0.27
+
+-   Fix: Find all references broken by a change in v26.
+-   Fix: [The visible function reports an error. #46](https://github.com/jlchmura/lpc-language-server/issues/46)
+
+## 1.0.26
+
+-   Fix: undefined token exception during diagnostics generation
+-   Fix: signature not being displayed when hovering over a function declaration (part 3 of #42)
+-   Fix: crash caused by flushing change timer after document has been disposed
+-   Fix: FluffOS global include file was not included in some instances.
+-   Removed "Process All Files" command (it is no longer needed)
+
 ## 1.0.25
 
 -   Fix: [Performance Degradation and Diagnostic Errors in VSCode 1.0.23 #42](https://github.com/jlchmura/lpc-language-server/issues/42)

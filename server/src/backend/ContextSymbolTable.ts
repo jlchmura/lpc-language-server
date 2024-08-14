@@ -425,15 +425,18 @@ export class ContextSymbolTable extends SymbolTable {
         const findRecursive = (
             parent: ScopedSymbol
         ): BaseSymbol | undefined => {
+            if (!context) return undefined;
+
             for (const symbol of parent.children) {
                 if (!symbol.context) {
                     continue;
                 }
 
                 if (
+                    context.getSourceInterval() &&
                     symbol.context
-                        ?.getSourceInterval()
-                        .properlyContains(context.getSourceInterval())
+                        .getSourceInterval()
+                        ?.properlyContains(context.getSourceInterval())
                 ) {
                     let child;
                     if (symbol instanceof ScopedSymbol) {

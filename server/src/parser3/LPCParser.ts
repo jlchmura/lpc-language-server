@@ -5140,6 +5140,15 @@ export class LPCParser extends LPCParserBase {
             this.state = 1118;
             this.errorHandler.sync(this);
             switch (this.tokenStream.LA(1)) {
+            case LPCParser.BUFFER:
+            case LPCParser.BYTES:
+            case LPCParser.CHAR:
+            case LPCParser.FUNCTIONS:
+            case LPCParser.IN:
+            case LPCParser.STRUCTS:
+            case LPCParser.SYMBOL:
+            case LPCParser.VARIABLES:
+            case LPCParser.VISIBLE:
             case LPCParser.Identifier:
                 this.enterOuterAlt(localContext, 1);
                 {
@@ -10498,8 +10507,8 @@ export class CallOtherTargetContext extends antlr.ParserRuleContext {
     public constructor(parent: antlr.ParserRuleContext | null, invokingState: number) {
         super(parent, invokingState);
     }
-    public Identifier(): antlr.TerminalNode | null {
-        return this.getToken(LPCParser.Identifier, 0);
+    public validIdentifiers(): ValidIdentifiersContext | null {
+        return this.getRuleContext(0, ValidIdentifiersContext);
     }
     public PAREN_OPEN(): antlr.TerminalNode | null {
         return this.getToken(LPCParser.PAREN_OPEN, 0);

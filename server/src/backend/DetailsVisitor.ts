@@ -394,14 +394,14 @@ export class DetailsVisitor
     visitCallOtherTarget = (ctx: CallOtherTargetContext) => {
         // the call other target can be an identifier, a string literal, or an expression
 
-        if (ctx.Identifier()) {
+        if (ctx.validIdentifiers()) {
             const fid = this.addNewSymbol(
                 FunctionIdentifierSymbol,
                 ctx,
-                ctx.Identifier().getText()
+                ctx.validIdentifiers().getText()
             );
-            fid.nameRange = lexRangeFromToken(ctx.Identifier().symbol);
-            this.markToken(ctx.Identifier().symbol, SemanticTokenTypes.Method);
+            fid.nameRange = lexRangeFromContext(ctx.validIdentifiers());
+            this.markContext(ctx.validIdentifiers(), SemanticTokenTypes.Method);
         } else if (ctx.expression()) {
             return this.visitExpression(ctx.expression());
         } else {
@@ -522,6 +522,9 @@ export class DetailsVisitor
                 case "float":
                     varType = FundamentalType.floatType;
                     break;
+                case "function":
+                    varType = LpcTypes.functionType;
+                    break;
                 case "unknown":
                     varType = LpcTypes.unknownType;
                     break;
@@ -545,6 +548,8 @@ export class DetailsVisitor
         varDecl: VariableDeclaratorContext,
         varType: IType
     ): VariableSymbol {
+        if (!varDecl) return undefined;
+
         const varNameSym = varDecl._variableName;
         const nm = varNameSym?.getText();
         const varSym = this.addNewSymbol(
@@ -608,7 +613,7 @@ export class DetailsVisitor
         varDecls.forEach((varDeclExp) => {
             const name = varDeclExp
                 .variableDeclarator()
-                ._variableName.getText();
+                ._variableName?.getText();
 
             // if its not yet determined to be a declaration, then try to resolve the symbol.
             // If it can't be resolved, then its a new declaration
@@ -1090,7 +1095,10 @@ export class DetailsVisitor
             concatStr
         );
 
-        this.markToken(ctx.start, SemanticTokenTypes.String);
+        // don't send if string contains only a unicode character (like emoji)
+        // it was breaking vscode when the semantic highlight applies
+        const strLen = concatStr.length;
+        this.markToken(ctx.start, SemanticTokenTypes.String, [], strLen + 2);
 
         // if (concatStr.match(/\/|\.c/)) {
         //     console.debug("possible filename: " + concatStr);
@@ -1203,4 +1211,11 @@ function findSpaceOrTabNotInParentheses(s: string): number {
         }
     }
     return -1;
+}
+
+function containsUnicodeOrHigher(str: string): boolean {
+    // This regex matches characters outside the BMP (Basic Multilingual Plane).
+    // These characters are represented by surrogate pairs in JavaScript strings.
+    const unicodeOrHigherRegex = /[\uD800-\uDBFF][\uDC00-\uDFFF]/;
+    return unicodeOrHigherRegex.test(str);
 }

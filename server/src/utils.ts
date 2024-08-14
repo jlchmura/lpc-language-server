@@ -262,12 +262,12 @@ export function logDiagnosticForTokens(
     source?: string
 ) {
     let start = offendingTokenStart as LPCToken;
-    let end = offendingTokenEnd as LPCToken;
+    let end = (offendingTokenEnd as LPCToken) ?? start;
 
-    if (start.relatedToken) start = start.relatedToken as LPCToken;
-    if (end.relatedToken) end = end.relatedToken as LPCToken;
+    if (start?.relatedToken) start = start.relatedToken as LPCToken;
+    if (end?.relatedToken) end = end.relatedToken as LPCToken;
 
-    end = end ?? start;
+    if (!start || !end) return;
 
     const entry: IDiagnosticEntry = {
         filename: start.filename,
