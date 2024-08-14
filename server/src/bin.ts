@@ -67,8 +67,10 @@ p2.performance.enable();
 p2.Debug.enableDebugInfo();
 
 //import { LpcFacade } from "./backend/facade";
-const workDir = path.resolve(process.cwd()); //, "../fluff-test");
-const filename = path.join(workDir, process.argv[3]);
+//const workDir = path.resolve(process.cwd()); //, "../fluff-test");
+const workDir = path.resolve(process.cwd(), "../lp-245");
+//const filename = path.join(workDir, process.argv[3]);
+const filename = path.join(workDir, "obj/treasure.c");
 const fileOnly = path.basename(filename);
 const sourceText = fs.readFileSync(filename, "utf-8");
 const configFile = path.join(workDir, "lpc-config.json");

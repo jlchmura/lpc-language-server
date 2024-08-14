@@ -12,7 +12,7 @@ export namespace LpcParser {
     const lexer = new parserCore.LPCPreprocessingLexer(
         antlr.CharStream.fromString(""),
         ""
-    );
+    );    
     const tokenStream = new antlr.CommonTokenStream(lexer);
     const parser = new parserCore.LPCParser(tokenStream);
     parser.errorHandler = new antlr.DefaultErrorStrategy();
