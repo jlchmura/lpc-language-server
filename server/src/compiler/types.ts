@@ -1,4 +1,5 @@
 import { LpcConfig } from "../backend/LpcConfig.js";
+import { IFileHandler, LoadImportResult } from "../backend/types.js";
 import { ILpcConfig } from "../config-types.js";
 import { BaseNodeFactory, EmitHelperFactory, GetCanonicalFileName, MapLike, MultiMap, Mutable, NodeFactoryFlags, Pattern } from "./_namespaces/lpc.js";
 
@@ -640,6 +641,8 @@ export const enum SyntaxKind {
     NewExpression,
     ElementAccessExpression,
     InlineClosureExpression,
+    LambdaIdentifierExpression,
+    LambdaOperatorExpression,
     PropertyAccessExpression,
     PostfixUnaryExpression,
     ParenthesizedExpression,
@@ -1130,8 +1133,11 @@ export interface NodeFactory {
     createPrefixUnaryExpression(operator: PrefixUnaryOperator, operand: Expression): PrefixUnaryExpression;
     createPostfixUnaryExpression(operand: Expression, operator: PostfixUnaryOperator): PostfixUnaryExpression;
     createElementAccessExpression(expression: Expression, index: number | Expression): ElementAccessExpression;
-    convertToAssignmentExpression(node: Mutable<VariableDeclaration>): BinaryExpression
-
+    createArrayLiteralExpression(elements?: readonly Expression[], multiLine?: boolean, trailingComma?: boolean);
+    convertToAssignmentExpression(node: Mutable<VariableDeclaration>): BinaryExpression;
+    createLambdaOperatorExpression(op: LambdaOperatorToken): LambdaOperatorExpression;
+    createLambdaIdentifierExpression(name: string | Identifier): LambdaIdentifierExpression;
+    
     /**
      * Creates a shallow, memberwise clone of a node.
      * - The result will have its `original` pointer set to `node`.
@@ -1943,6 +1949,8 @@ export type BinaryOperator = AssignmentOperatorOrHigher | SyntaxKind.CommaToken 
 export type BinaryOperatorToken = Token<BinaryOperator>;
 
 export type LogicalOrCoalescingAssignmentOperator = SyntaxKind.BarBarEqualsToken;
+
+export type LambdaOperatorToken = Token<PunctuationSyntaxKind>;
 
 // Punctuation
 export interface PunctuationToken<TKind extends PunctuationSyntaxKind> extends Token<TKind> {}
@@ -2790,6 +2798,23 @@ export interface InlineClosureExpression extends Expression, FunctionLikeDeclara
     readonly kind: SyntaxKind.InlineClosureExpression;
     readonly body: ConciseBody;
     readonly name: never;
+}
+
+export type LambdaKind = 
+    SyntaxKind.LambdaIdentifierExpression 
+    | SyntaxKind.LambdaOperatorExpression;
+export interface LambdaExpression extends Expression {
+    readonly kind: LambdaKind;
+}
+
+export interface LambdaIdentifierExpression extends LambdaExpression {
+    readonly kind: SyntaxKind.LambdaIdentifierExpression;
+    readonly name: Identifier;
+}
+
+export interface LambdaOperatorExpression extends LambdaExpression {
+    readonly kind: SyntaxKind.LambdaOperatorExpression;
+    readonly operator: LambdaOperatorToken;
 }
 
 export interface ExpressionStatement extends Statement, FlowContainer {
@@ -5498,3 +5523,12 @@ export interface LpcConfigSourceFile {
     configFileSpecs?: ConfigFileSpecs;
 }
 
+export type LpcLoadImportResult = {
+    filename: string;
+    source?: string;
+    error?: string;
+}
+export interface LpcFileHandler extends IFileHandler  {
+    loadIncludeFile(sourceFilename: string, filename: string, localFirst: boolean, additionalSearchDirs?: string[]): LpcLoadImportResult    
+    loadInclude(sourceFilename: string, filename: string): LoadImportResult;
+}

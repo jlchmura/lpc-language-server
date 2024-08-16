@@ -161,7 +161,9 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
             this.currentDirectory,
             /*logChangesWhenResolvingModule*/ true,
         );
-        this.languageService = createLanguageService(this, this.documentRegistry, this.projectService.serverMode);
+        
+        const fileHandler = lpc.createLpcFileHandler(()=>this, ()=>this.getCompilerOptions().config);
+        this.languageService = createLanguageService(this, fileHandler, this.documentRegistry, this.projectService.serverMode);
         // if (lastFileExceededProgramSize) {
         //     this.disableLanguageService(lastFileExceededProgramSize);
         // }
@@ -207,7 +209,7 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
     
     // Method of LanguageServiceHost
     getCompilationSettings() {
-        return {};//this.compilerOptions;
+        return this.compilerOptions;
     }
 
     // Method to support public API
@@ -939,6 +941,11 @@ export class ConfiguredProject extends Project {
         this.pendingUpdateReason = pendingUpdateReason;
     }   
     
+    /** @internal */
+    setCompilerHost(host: CompilerHost) {
+        this.compilerHost = host;
+    }
+
     /**
      * Get all the project errors
      */

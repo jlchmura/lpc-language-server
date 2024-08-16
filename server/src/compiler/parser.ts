@@ -1,14 +1,13 @@
 import * as antlr from "antlr4ng";
 import * as parserCore from "../parser3/parser-core";
-import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, ModifierFlags, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange, PrefixUnaryExpression, first, LanguageVariant, EqualsToken, LpcConfigSourceFile, createBaseNodeFactory, PrefixUnaryOperator } from "./_namespaces/lpc";
+import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, ModifierFlags, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange, PrefixUnaryExpression, first, LanguageVariant, EqualsToken, LpcConfigSourceFile, createBaseNodeFactory, PrefixUnaryOperator, Program, LpcFileHandler, ParenthesizedExpression, ArrayLiteralExpression, LambdaExpression, PunctuationSyntaxKind, PunctuationToken, LambdaOperatorToken } from "./_namespaces/lpc";
 import { ILpcConfig } from "../config-types";
 import { loadLpcConfigFromString, LpcConfig } from "../backend/LpcConfig";
-
-
+import { LPCTokenFactor } from "../parser3/LPCTokenFactory";
 
 
 export namespace LpcParser {
-    // Init some ANTLR stuff
+    // Init some ANTLR stuff    
     const lexer = new parserCore.LPCPreprocessingLexer(
         antlr.CharStream.fromString(""),
         ""
@@ -60,7 +59,8 @@ export namespace LpcParser {
     function initState(
         _fileName: string,
         _sourceText: string,
-        _config: ILpcConfig
+        _config: ILpcConfig,
+        _fileHandler: LpcFileHandler
     ) {
         NodeConstructor = objectAllocator.getNodeConstructor();
         TokenConstructor = objectAllocator.getTokenConstructor();
@@ -76,11 +76,13 @@ export namespace LpcParser {
         topLevel = true;
         identifiers = new Map<string, string>();
         identifierCount = 0;
-        programTree = undefined!;
+        programTree = undefined!;        
 
         // initialize antlr stuff here
         lexer.inputStream = antlr.CharStream.fromString(sourceText);
         lexer.driverType = config.driver.type;
+        lexer.fileHandler = _fileHandler;
+        lexer.tokenFactory = new LPCTokenFactor(fileName);
         lexer.reset();
         // TODO: add macros
 
@@ -108,11 +110,12 @@ export namespace LpcParser {
         fileName: string,
         sourceText: string,
         config: ILpcConfig,
+        fileHandler: LpcFileHandler,
         setParentNodes = false,
         setExternalModuleIndicator?: (file: SourceFile) => void,
         jsDocParsingMode = JSDocParsingMode.ParseAll
     ) {
-        initState(fileName, sourceText, config);
+        initState(fileName, sourceText, config, fileHandler);        
         const result = parseSourceFileWorker();
         clearState();
         return result;
@@ -275,6 +278,10 @@ export namespace LpcParser {
 
         for (const parseTree of parseTrees) {
             const node = parseElement(parseTree);
+            if (!node) {
+                const nn = parseElement(parseTree);
+            }
+            Debug.assertIsDefined(node, "parseElement returned undefined");            
             end = node.end;
             list.push(node);
         }
@@ -337,8 +344,7 @@ export namespace LpcParser {
                 } else if (iterStmt instanceof parserCore.DoWhileStatementContext) {
                     return parseDoWhileStatement(iterStmt);
                 } else if (iterStmt instanceof parserCore.WhileStatementContext) {
-                    return parseWhileStatement(iterStmt);
-                
+                    return parseWhileStatement(iterStmt);                
                 }           
         }
 
@@ -473,8 +479,7 @@ export namespace LpcParser {
         // get the first test expression
         const e = parseExpression(tree.expression());
         
-        // get the "then" statement
-        Debug.assertEqual(tree.statement().children.length, 1, "Expected only 1 statement");
+        // get the "then" statement                        
         const t = parseStatement(tree.statement());
 
         // get the next elseif/else in the sequence (there might not be any)
@@ -557,13 +562,18 @@ export namespace LpcParser {
     function parseDeclaration(tree: parserCore.DeclarationContext) {
         const treeNode = tree.getChild(0) as antlr.ParserRuleContext;
         const {pos} = getNodePos(tree);
+        
+        if  (!treeNode) return undefined; // TODO create error node here
 
         switch (treeNode.ruleIndex) {
+            case parserCore.LPCParser.RULE_functionHeaderDeclaration:
             case parserCore.LPCParser.RULE_functionDeclaration:
                 return parseFunctionDeclaration(treeNode as parserCore.FunctionDeclarationContext, pos, getPrecedingJSDocBlock(tree));
             case parserCore.LPCParser.RULE_variableDeclarationStatement:
                 return parseVariableStatement(treeNode as parserCore.VariableDeclarationStatementContext);
         }
+
+        Debug.fail("Unhandled declaration type");
     }
 
     function parseUnionTypeOrHigher(
@@ -676,7 +686,25 @@ export namespace LpcParser {
     }
 
     function parseInitializer(tree: parserCore.VariableInitializerContext): Expression | undefined {        
-        return tree ? parseAssignmentExpressionOrHigher(tree.expression().conditionalExpression()) : undefined;
+        if (!tree) {
+            return undefined;
+        } else if (tree.arrayExpression()) {
+            return parseArrayLiteralExpression(tree.arrayExpression());
+        } else if (tree.mappingExpression()) {
+            console.debug("todo - parse mapping expression");
+        } else {
+            return parseAssignmentExpressionOrHigher(tree.expression().conditionalExpression());
+        }
+    }
+
+    function parseArrayLiteralExpression(tree: parserCore.ArrayExpressionContext): ArrayLiteralExpression {
+        const {pos,end} = getNodePos(tree);
+        const openBracketLine = tree.CURLY_OPEN().symbol.line;
+        const closeBracketLine = tree.CURLY_CLOSE().symbol.line;
+        const multiLine = openBracketLine !== closeBracketLine;
+        const trailingComma = tree.COMMA().length == tree.expression().length;
+        const elements = parseList(tree.expression(), parseExpression);
+        return finishNode(factory.createArrayLiteralExpression(elements, multiLine, trailingComma), pos, end);
     }
 
     function asToken<T extends Node>(token: antlr.Token): T {
@@ -685,6 +713,21 @@ export namespace LpcParser {
         return finishNode(factory.createToken(kind), pos, end) as T;
     }
     
+    function parseLambdaExpression(tree: parserCore.LambdaExpressionContext): LambdaExpression  {
+        const {pos,end} = getNodePos(tree);
+        if (tree.LAMBDA_IDENTIFIER()) {
+            const lambdaId = asIdentifier(tree.LAMBDA_IDENTIFIER().symbol);            
+            return finishNode(factory.createLambdaIdentifierExpression(lambdaId), pos, end);
+        } else if (tree._op) {
+            const lambdaToken = parseTokenNode<LambdaOperatorToken>(tree._op);            
+            return finishNode(factory.createLambdaOperatorExpression(lambdaToken), pos, end);
+        } else {
+            console.log("TODO - parse lambda expression");            
+        }
+
+        return undefined;
+    }
+
     function parseAssignmentExpressionOrHigher(tree: parserCore.ConditionalExpressionContext): Expression {
         const {pos,end} = getNodePos(tree);
 
@@ -692,14 +735,14 @@ export namespace LpcParser {
         let lhs: Expression;
         if (tree.castExpression()) {
             // TODO : parse this
-        } else if (tree.primaryExpression()) {
-            lhs = parsePrimaryExpression(tree.primaryExpression());
         } else if (tree.lambdaExpression()) {
-            // TODO: parse
+            lhs = parseLambdaExpression(tree.lambdaExpression());
         } else if (tree.inlineClosureExpression()) {
             lhs = parseInlineClosureLikeExpression(
                 tree.inlineClosureExpression()
             );
+        } else if (tree.primaryExpression()) {
+            lhs = parsePrimaryExpression(tree.primaryExpression());
         }
 
         // because of how our grammar is structured, we don't have to worry about precendence
@@ -732,11 +775,22 @@ export namespace LpcParser {
                 case parserCore.LPCLexer.NOT:
                     opKind = SyntaxKind.ExclamationToken;
                     break;
+                case parserCore.LPCLexer.MINUS:
+                    opKind = SyntaxKind.MinusToken;
+                    break;
+                case parserCore.LPCLexer.PLUS:
+                    opKind = SyntaxKind.PlusToken;
+                    break;
+                case parserCore.LPCLexer.BNOT:
+                    opKind = SyntaxKind.TildeToken;
+                    break;
                 default:
-                    Debug.fail("Unknown unary operator");
+                    Debug.fail("Unknown unary operator " + tree?.children[0]?.getText());
                     // TODO log diagnostic
             }
-            
+                      
+            lhs ??= parsePrimaryExpression(tree.children[1] as parserCore.PrimaryExpressionContext);
+            Debug.assertIsDefined(lhs, "left-hand side is undefined");
             lhs = finishNode(factory.createPrefixUnaryExpression(opKind, lhs), pos, lhs.end);
             i = 2;
         }
@@ -797,6 +851,12 @@ export namespace LpcParser {
         else return parseExpression(tree.expression());
     }
 
+    function parseParenthesizedExpression(tree: parserCore.ParenExpressionContext): ParenthesizedExpression {
+        const {pos,end} = getNodePos(tree);
+        const expression = parseCommaExpression(tree.commaableExpression());
+        return finishNode(factory.createParenthesizedExpression(expression), pos, end);        
+    }
+
     function parsePrimaryExpression(
         tree: parserCore.PrimaryExpressionContext
     ): Expression {
@@ -806,6 +866,8 @@ export namespace LpcParser {
         let leftExp: Expression;
         if (startTree instanceof parserCore.StringConcatExpressionContext) {
             leftExp = parseStringLiterals(startTree.StringLiteral());
+        } else if (startTree instanceof parserCore.ParenExpressionContext) {
+            leftExp = parseParenthesizedExpression(startTree);
         } else {
             leftExp = parsePrimaryExpressionStart(startTree);
 
@@ -873,15 +935,38 @@ export namespace LpcParser {
         return expression;
     }
 
-    function parsePrimaryExpressionStart(tree: antlr.ParserRuleContext): MemberExpression {        
+    function parsePrimaryExpressionStart(tree: parserCore.PrimaryExpressionStartContext): MemberExpression | CallExpression {
         const firstChild = tree.children[0] as antlr.ParserRuleContext;
-        if (firstChild instanceof parserCore.ValidIdentifiersContext) {
+        if (!firstChild) { 
+            return undefined;
+        } else if (firstChild instanceof parserCore.ValidIdentifiersContext) {
             return parseValidIdentifier(firstChild);
         } else if (firstChild instanceof parserCore.LiteralContext) {
             return parseLiteralNode(firstChild);
-        } 
+        } else if (firstChild instanceof parserCore.CatchExpressionContext) {
+            return parseCatchExpression(firstChild.catchExpr());
+        } else if (firstChild instanceof parserCore.ArrayExpressionContext) {
+            return parseArrayLiteralExpression(firstChild);
+        } else if (firstChild instanceof parserCore.MappingExpressionContext) {
+            return undefined; // TODO: parse mapping expression
+        } else if (firstChild instanceof parserCore.CatchExprContext) {
+            return parseCatchExpression(firstChild);
+        }
 
+        Debug.fail("Unknown primary expression start type " + firstChild?.ruleIndex);
         return undefined;
+    }
+
+    function parseCatchExpression(tree: parserCore.CatchExprContext): CallExpression {
+        const {pos,end} = getNodePos(tree);        
+        const catchPos = getTerminalPos(tree.CATCH());
+        
+        const target = finishNode(factory.createIdentifier("catch"), catchPos.pos, catchPos.end);
+        const args = tree.expression();
+        const argNodes = parseList(args, parseExpression);        
+        
+        const node = factory.createCallExpression(target, argNodes);
+        return finishNode(node, pos, end);
     }
 
     function parseLiteralNode(tree: parserCore.LiteralContext): LiteralExpression {
@@ -889,13 +974,17 @@ export namespace LpcParser {
         const token = tree.getChild(0) as antlr.TerminalNode;
         let type: LiteralSyntaxKind;
         switch (token.symbol.type) {
+            case parserCore.LPCLexer.HexIntConstant:
             case parserCore.LPCLexer.IntegerConstant:
                 type = SyntaxKind.IntLiteral;
-                break;
+                break;                
             case parserCore.LPCLexer.FloatingConstant:
                 type = SyntaxKind.FloatLiteral;
                 break;
             case parserCore.LPCLexer.StringLiteral:
+                type = SyntaxKind.StringLiteral;
+                break;
+            case parserCore.LPCLexer.CharacterConstant:
                 type = SyntaxKind.StringLiteral;
                 break;
         }
@@ -1049,7 +1138,7 @@ export namespace LpcParser {
     }   
 
     function parseFunctionDeclaration(
-        tree: parserCore.FunctionDeclarationContext,
+        tree: parserCore.FunctionDeclarationContext | parserCore.FunctionHeaderDeclarationContext,
         pos: number,
         jsDocBlock: string
     ) {
@@ -1066,7 +1155,10 @@ export namespace LpcParser {
 
         const parameters = parseList(header._functionArgs?.parameter(), parseFunctionParameter);
 
-        const body = parseFunctionBlock(tree.block()); // parseFunctionBlockOrSemicolon(isGenerator | isAsync, Diagnostics.or_expected);
+        let body:Block | undefined;
+        if (tree.ruleIndex === parserCore.LPCParser.RULE_functionDeclaration) {
+            body = parseFunctionBlock((tree as parserCore.FunctionDeclarationContext).block()); // parseFunctionBlockOrSemicolon(isGenerator | isAsync, Diagnostics.or_expected);
+        }
 
         const node = factory.createFunctionDeclaration(
             modifiers,
@@ -1121,6 +1213,7 @@ export const LexerToSyntaxKind: { [key: number]: SyntaxKind } = {
     [parserCore.LPCLexer.STRUCT]: SyntaxKind.StructKeyword,
     [parserCore.LPCLexer.VOID]: SyntaxKind.VoidKeyword,
     [parserCore.LPCLexer.OBJECT]: SyntaxKind.ObjectKeyword,
+    [parserCore.LPCLexer.STATUS]: SyntaxKind.IntKeyword, // treat this as an int
     // MODIFIERS
     [parserCore.LPCLexer.PRIVATE]: SyntaxKind.PrivateKeyword,
     [parserCore.LPCLexer.PROTECTED]: SyntaxKind.ProtectedKeyword,
@@ -1171,6 +1264,8 @@ export const LexerToSyntaxKind: { [key: number]: SyntaxKind } = {
     [parserCore.LPCLexer.DOT]: SyntaxKind.DotToken,
     [parserCore.LPCLexer.TRIPPLEDOT]: SyntaxKind.DotDotDotToken,    
     [parserCore.LPCLexer.COMMA]: SyntaxKind.CommaToken,
+    [parserCore.LPCLexer.SHL]: SyntaxKind.LessThanLessThanToken,
+    [parserCore.LPCLexer.SHR]: SyntaxKind.GreaterThanGreaterThanToken,
 };
 
 function visitNode<T>(cbNode: (node: Node) => T, node: Node | undefined): T | undefined {
@@ -1418,7 +1513,7 @@ function setExternalModuleIndicator(sourceFile: SourceFile) {
     sourceFile.externalModuleIndicator = true;
 }
 
-export function createSourceFile(fileName: string, sourceText: string, config: ILpcConfig, languageVersionOrOptions: ScriptTarget | CreateSourceFileOptions, setParentNodes = false, scriptKind?: ScriptKind): SourceFile {
+export function createSourceFile(fileName: string, sourceText: string, config: ILpcConfig, fileHandler: LpcFileHandler, languageVersionOrOptions: ScriptTarget | CreateSourceFileOptions, setParentNodes = false, scriptKind?: ScriptKind): SourceFile {
     tracing?.push(tracing.Phase.Parse, "createSourceFile", { path: fileName }, /*separateBeginAndEnd*/ true);
     performance.mark("beforeParse");
     let result: SourceFile;
@@ -1427,7 +1522,7 @@ export function createSourceFile(fileName: string, sourceText: string, config: I
     const setIndicator = (file: SourceFile) => {
         setExternalModuleIndicator(file);
     };
-    result = LpcParser.parseSourceFile(fileName, sourceText, config, setParentNodes, setIndicator);
+    result = LpcParser.parseSourceFile(fileName, sourceText, config, fileHandler, setParentNodes, setIndicator);
 
 
     performance.mark("afterParse");
@@ -1486,9 +1581,9 @@ export function getDeclarationFileExtension(fileName: string): string | undefine
 // from this SourceFile that are being held onto may change as a result (including
 // becoming detached from any SourceFile).  It is recommended that this SourceFile not
 // be used once 'update' is called on it.
-export function updateSourceFile(sourceFile: SourceFile, newText: string, config: LpcConfig, textChangeRange: TextChangeRange, aggressiveChecks = false): SourceFile {
+export function updateSourceFile(sourceFile: SourceFile, newText: string, config: LpcConfig, fileHandler: LpcFileHandler, textChangeRange: TextChangeRange, aggressiveChecks = false): SourceFile {
     console.warn("implement me- updateSourceFile");
-    return LpcParser.parseSourceFile(sourceFile.fileName, newText, config, /*setParentNodes*/ false);
+    return LpcParser.parseSourceFile(sourceFile.fileName, newText, config, fileHandler, /*setParentNodes*/ false);
     // const newSourceFile = IncrementalParser.updateSourceFile(sourceFile, newText, textChangeRange, aggressiveChecks);
     // // Because new source file node is created, it may not have the flag PossiblyContainDynamicImport. This is the case if there is no new edit to add dynamic import.
     // // We will manually port the flag to the new source file.

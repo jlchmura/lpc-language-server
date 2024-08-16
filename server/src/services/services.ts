@@ -136,6 +136,7 @@ import {
     OperationCanceledException,
     map,
     LanguageServiceMode,
+    LpcFileHandler,
 } from "./_namespaces/lpc.js";
 
 // These utilities are common to multiple language service features.
@@ -1193,7 +1194,9 @@ export function getDefaultCompilerOptions(): CompilerOptions {
 
 export function createLanguageService(
     host: LanguageServiceHost,
-    documentRegistry: DocumentRegistry = createDocumentRegistry(
+    fileHandler: LpcFileHandler,
+    documentRegistry: DocumentRegistry = createDocumentRegistry(        
+        fileHandler,
         host.useCaseSensitiveFileNames && host.useCaseSensitiveFileNames(),
         host.getCurrentDirectory(),
         host.jsDocParsingMode
@@ -1356,6 +1359,8 @@ export function createLanguageService(
             // getParsedCommandLine,
             jsDocParsingMode: host.jsDocParsingMode,
         };
+
+        host.setCompilerHost?.(compilerHost);
 
         // IMPORTANT - It is critical from this moment onward that we do not check
         // cancellation tokens.  We are about to mutate source files from a previous program
@@ -1653,6 +1658,7 @@ function setSourceFileFields(
 export function createLanguageServiceSourceFile(
     fileName: string,
     scriptSnapshot: IScriptSnapshot,
+    fileHandler: LpcFileHandler,
     scriptTargetOrOptions: ScriptTarget | CreateSourceFileOptions,
     version: string,
     setNodeParents: boolean,
@@ -1663,6 +1669,7 @@ export function createLanguageServiceSourceFile(
         fileName,
         getSnapshotText(scriptSnapshot),
         config,
+        fileHandler,
         scriptTargetOrOptions,
         setNodeParents,
         scriptKind
@@ -1674,6 +1681,7 @@ export function createLanguageServiceSourceFile(
 export function updateLanguageServiceSourceFile(
     sourceFile: SourceFile,
     scriptSnapshot: IScriptSnapshot,
+    fileHandler: LpcFileHandler,
     version: string,
     textChangeRange: TextChangeRange | undefined,
     aggressiveChecks?: boolean
@@ -1719,6 +1727,7 @@ export function updateLanguageServiceSourceFile(
                 sourceFile,
                 newText,
                 config,
+                fileHandler,
                 textChangeRange,
                 aggressiveChecks
             );
@@ -1750,7 +1759,8 @@ export function updateLanguageServiceSourceFile(
     return createLanguageServiceSourceFile(
         sourceFile.fileName,
         scriptSnapshot,
-        options,
+        fileHandler,
+        options,        
         version,
         /*setNodeParents*/ true,
         sourceFile.scriptKind

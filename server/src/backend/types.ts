@@ -33,7 +33,8 @@ export interface IScriptSnapshot {
 
 export type LoadImportResult = {
     uri: string;
-    source: string;
+    source?: string;
+    error?: string;
 };
 
 export type ResolvedFilename = {
@@ -43,7 +44,7 @@ export type ResolvedFilename = {
 };
 
 export interface IFileHandler {
-    loadInclude(sourceFilename: string, filename: string): LoadImportResult;
+    loadInclude(sourceFilename: string, filename: string): LoadImportResult;    
 }
 
 export interface TextChangeRange {

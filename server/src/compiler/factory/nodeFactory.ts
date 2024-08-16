@@ -1,6 +1,7 @@
 import {
     addRange,
     AmpersandToken,
+    ArrayLiteralExpression,
     ArrayTypeNode,
     BaseNodeFactory,
     BinaryExpression,
@@ -59,6 +60,10 @@ import {
     KeywordToken,
     KeywordTypeNode,
     KeywordTypeSyntaxKind,
+    LambdaIdentifierExpression,
+    LambdaOperatorExpression,
+    LambdaOperatorToken,
+    lastOrUndefined,
     LeftHandSideExpression,
     LiteralToken,
     LiteralTypeNode,
@@ -213,8 +218,11 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createPrefixUnaryExpression,
         createPostfixUnaryExpression,
         createElementAccessExpression,
+        createArrayLiteralExpression,
         convertToAssignmentExpression,
-
+        createLambdaIdentifierExpression,
+        createLambdaOperatorExpression,
+        
         cloneNode,
     };
 
@@ -623,6 +631,8 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         return node;
     }
 
+    
+
     // @api
     function convertToAssignmentExpression(node: Mutable<VariableDeclaration>): BinaryExpression {
         Debug.assertNode(node.name, isIdentifier);
@@ -664,6 +674,20 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     // @api
+    function createLambdaIdentifierExpression(name: string | Identifier): LambdaIdentifierExpression {
+        const node = createBaseNode<LambdaIdentifierExpression>(SyntaxKind.LambdaIdentifierExpression);
+        node.name = asName(name);
+        return node;
+    }
+
+    // @api
+    function createLambdaOperatorExpression(op: LambdaOperatorToken): LambdaOperatorExpression {
+        const node = createBaseNode<LambdaOperatorExpression>(SyntaxKind.LambdaOperatorExpression);
+        node.operator = op;
+        return node;
+    }
+        
+    // @api
     function createFunctionDeclaration(
         modifiers: readonly Modifier[] | undefined,
         name: string | Identifier | undefined,
@@ -701,6 +725,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         }
     }
 
+    
     function createBaseCallExpression(expression: LeftHandSideExpression,  argumentsArray: NodeArray<Expression>) {
         const node = createBaseDeclaration<CallExpression>(SyntaxKind.CallExpression);
         node.expression = expression;                
@@ -1091,6 +1116,20 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         // ) {
         //     node.transformFlags |= TransformFlags.ContainsUpdateExpressionForIdentifier;
         // }
+        return node;
+    }
+
+    // @api
+    function createArrayLiteralExpression(elements?: readonly Expression[], multiLine?: boolean, trailingComma?: boolean) {
+        const node = createBaseNode<ArrayLiteralExpression>(SyntaxKind.ArrayLiteralExpression);
+        // Ensure we add a trailing comma for something like `[NumericLiteral(1), NumericLiteral(2), OmittedExpresion]` so that
+        // we end up with `[1, 2, ,]` instead of `[1, 2, ]` otherwise the `OmittedExpression` will just end up being treated like
+        // a trailing comma.
+        const lastElement = elements && lastOrUndefined(elements);
+        const elementsArray = createNodeArray(elements, trailingComma);
+        node.elements = parenthesizerRules().parenthesizeExpressionsOfCommaDelimitedList(elementsArray);
+        node.multiLine = multiLine;
+        // node.transformFlags |= propagateChildrenFlags(node.elements);
         return node;
     }
 

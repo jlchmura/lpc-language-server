@@ -24,6 +24,8 @@ import {
     createLanguageServiceSourceFile,
     updateLanguageServiceSourceFile,
     firstDefinedIterator,
+    createLpcFileHandler,
+    LpcFileHandler,
 } from "./_namespaces/lpc.js";
 
 /**
@@ -214,11 +216,13 @@ export function isDocumentRegistryEntry(
 }
 
 export function createDocumentRegistry(
+    fileHandler: LpcFileHandler,
     useCaseSensitiveFileNames?: boolean,
     currentDirectory?: string,
     jsDocParsingMode?: JSDocParsingMode
 ): DocumentRegistry {
     return createDocumentRegistryInternal(
+        fileHandler,
         useCaseSensitiveFileNames,
         currentDirectory,
         jsDocParsingMode
@@ -231,6 +235,7 @@ export type DocumentRegistryBucketKeyWithMode = string & {
 };
 /** @internal */
 export function createDocumentRegistryInternal(
+    fileHandler: LpcFileHandler,
     useCaseSensitiveFileNames?: boolean,
     currentDirectory = "",
     jsDocParsingMode?: JSDocParsingMode,
@@ -289,7 +294,7 @@ export function createDocumentRegistryInternal(
             return (
                 settingsOrHost as MinimalResolutionCacheHost
             ).getCompilationSettings();
-        }
+        }        
         return settingsOrHost as CompilerOptions;
     }
 
@@ -510,6 +515,7 @@ export function createDocumentRegistryInternal(
             const sourceFile = createLanguageServiceSourceFile(
                 fileName,
                 scriptSnapshot,
+                fileHandler,
                 sourceFileOptions,
                 version,
                 /*setNodeParents*/ false,
@@ -531,6 +537,7 @@ export function createDocumentRegistryInternal(
                 entry.sourceFile = updateLanguageServiceSourceFile(
                     entry.sourceFile,
                     scriptSnapshot,
+                    fileHandler,
                     version,
                     scriptSnapshot.getChangeRange(
                         entry.sourceFile.scriptSnapshot

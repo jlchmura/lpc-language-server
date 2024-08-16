@@ -81,7 +81,7 @@ const files: { [index: string]: string } = {
 };
 
 const projectFile = path.normalize(path.join(workDir, "lpc-config.json"));
-const host = createHost(filename, sourceText, config);
+//const host = createHost(filename, sourceText, config);
 const serverHost = lpc.sys as lpc.server.ServerHost;
 const cancelToken = lpc.server.nullCancellationToken;
 const logger = new Logger(undefined, true, lpc.server.LogLevel.verbose);
@@ -101,11 +101,11 @@ session.updateOpen({
     openFiles: [{ file: filename, projectFileName: projectFile }],            
 });
 
-const svc = doCreateLanguageService();
-const srcFile = host.getSourceFile(filename);
-const checker = p2.createTypeChecker(host); // binder is called by checker
-const diags = checker.getDiagnostics(srcFile);
-const daigsB = srcFile.bindDiagnostics;
+//const svc = doCreateLanguageService();
+// const srcFile = host.getSourceFile(filename);
+// const checker = p2.createTypeChecker(host); // binder is called by checker
+// const diags = checker.getDiagnostics(srcFile);
+// const daigsB = srcFile.bindDiagnostics;
 
 const pos = 95;
 const args: lpc.server.protocol.FileLocationRequestArgs = {
@@ -115,11 +115,12 @@ const args: lpc.server.protocol.FileLocationRequestArgs = {
     position: pos, 
     projectFileName: projectFile
 };
-const node = getTouchingPropertyName(srcFile, pos);
+// const node = getTouchingPropertyName(srcFile, pos);
 //const def = svc.getDefinitionAtPosition(fileOnly, pos, false, false);
-const inf = svc.getQuickInfoAtPosition(fileOnly, pos);
+//const inf = svc.getQuickInfoAtPosition(fileOnly, pos);
 const inf2 = session.getQuickInfoWorker(args, false);
-console.debug("node count:", srcFile.nodeCount);
+console.debug("done");
+// console.debug("node count:", srcFile.nodeCount);
 
 // const facade = new LpcFacade(workDir, undefined);
 // const ctx = facade.loadLpc(filename);
@@ -229,80 +230,80 @@ console.debug("node count:", srcFile.nodeCount);
 // const i = 0;
 
 
-function doCreateLanguageService() {
-    return createLanguageService({
-        getCompilationSettings() {
-            return {};
-        },
-        getScriptFileNames() {
-            return [
-                "test.c"                
-            ];
-        },
-        getScriptVersion(_fileName) {
-            return "";
-        },        
-        getScriptSnapshot(fileName) {
-            if (fileName === ".c") {
-                return ScriptSnapshot.fromString("");
-            }
-            return ScriptSnapshot.fromString(files[fileName] || "");
-        },
-        getCurrentDirectory: () => ".",
-        getDefaultLibFileName(options) {
-            return undefined;
-            //return lpc.getDefaultLibFilePath(options);
-        },
-        fileExists: (name) => !!files[name],
-        readFile: (name) => files[name],
-        readDirectory: () => [],
-    });
-}
+// function doCreateLanguageService() {
+//     return createLanguageService({
+//         getCompilationSettings() {
+//             return {};
+//         },
+//         getScriptFileNames() {
+//             return [
+//                 "test.c"                
+//             ];
+//         },
+//         getScriptVersion(_fileName) {
+//             return "";
+//         },        
+//         getScriptSnapshot(fileName) {
+//             if (fileName === ".c") {
+//                 return ScriptSnapshot.fromString("");
+//             }
+//             return ScriptSnapshot.fromString(files[fileName] || "");
+//         },
+//         getCurrentDirectory: () => ".",
+//         getDefaultLibFileName(options) {
+//             return undefined;
+//             //return lpc.getDefaultLibFilePath(options);
+//         },
+//         fileExists: (name) => !!files[name],
+//         readFile: (name) => files[name],
+//         readDirectory: () => [],
+//     });
+// }
 
-function createHost(
-    filename: string,
-    sourceText: string,
-    config: ILpcConfig
-): TypeCheckerHost {
-    const srcFile = p2.LpcParser.parseSourceFile(filename, sourceText, config);
-    const files: p2.SourceFile[] = [srcFile];
-    const redirectTargetsMap: ReadonlyMap<Path, string[]> = new Map<
-        Path,
-        string[]
-    >();
+// function createHost(
+//     filename: string,
+//     sourceText: string,
+//     config: ILpcConfig
+// ): TypeCheckerHost {
+//     const srcFile = p2.LpcParser.parseSourceFile(filename, sourceText, config);
+//     const files: p2.SourceFile[] = [srcFile];
+//     const redirectTargetsMap: ReadonlyMap<Path, string[]> = new Map<
+//         Path,
+//         string[]
+//     >();
 
-    const host: TypeCheckerHost = {
-        getCompilerOptions: () => ({} as CompilerOptions),
-        getSourceFiles: () => files,
-        getSourceFile,
-        // getProjectReferenceRedirect: () => undefined,
-        // isSourceOfProjectReferenceRedirect: () => false,
-        // getRedirectReferenceForResolutionFromSourceOfProject: () => undefined,
-        // getResolvedModule: () => undefined,
-        // typesPackageExists: () => false,
-        // packageBundlesTypes: () => false,
-        // redirectTargetsMap,
+//     const host: TypeCheckerHost = {
+//         getCompilerOptions: () => ({} as CompilerOptions),
+//         getSourceFiles: () => files,
+//         getSourceFile,
+//         // getProjectReferenceRedirect: () => undefined,
+//         // isSourceOfProjectReferenceRedirect: () => false,
+//         // getRedirectReferenceForResolutionFromSourceOfProject: () => undefined,
+//         // getResolvedModule: () => undefined,
+//         // typesPackageExists: () => false,
+//         // packageBundlesTypes: () => false,
+//         // redirectTargetsMap,
 
-        // fileExists: function (path: string): boolean {
-        //     throw new Error("Function not implemented.");
-        // },
-        getCurrentDirectory: function (): string {
-            throw new Error("Function not implemented.");
-        },
-        getFileIncludeReasons: function (): p2.MultiMap<
-            Path,
-            p2.FileIncludeReason
-        > {
-            throw new Error("Function not implemented.");
-        },
-        getCommonSourceDirectory: function (): string {
-            throw new Error("Function not implemented.");
-        },
-    };
+//         // fileExists: function (path: string): boolean {
+//         //     throw new Error("Function not implemented.");
+//         // },
+//         getCurrentDirectory: function (): string {
+//             throw new Error("Function not implemented.");
+//         },
+//         getFileIncludeReasons: function (): p2.MultiMap<
+//             Path,
+//             p2.FileIncludeReason
+//         > {
+//             throw new Error("Function not implemented.");
+//         },
+//         getCommonSourceDirectory: function (): string {
+//             throw new Error("Function not implemented.");
+//         },
+//     };
 
-    return host;
+//     return host;
 
-    function getSourceFile(fileName: string) {
-        return files[0];
-    }
-}
+//     function getSourceFile(fileName: string) {
+//         return files[0];
+//     }
+// }
