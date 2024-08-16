@@ -762,7 +762,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
 
     
     function processLibReferenceDirectives(file: SourceFile) {
-        console.debug("implement me - processLibReferenceDirectives");
+        //console.debug("implement me - processLibReferenceDirectives");
         // forEach(file.libReferenceDirectives, (libReference, index) => {
         //     const libFileName = getLibFileNameFromLibReference(libReference);
         //     if (libFileName) {

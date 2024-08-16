@@ -650,6 +650,7 @@ export const enum SyntaxKind {
     ObjectLiteralExpression,
     SpreadElement,
     PrefixUnaryExpression,
+    CastExpression,
     
     // Clauses
     CatchClause,
@@ -1138,6 +1139,7 @@ export interface NodeFactory {
     convertToAssignmentExpression(node: Mutable<VariableDeclaration>): BinaryExpression;
     createLambdaOperatorExpression(op: LambdaOperatorToken): LambdaOperatorExpression;
     createLambdaIdentifierExpression(name: string | Identifier): LambdaIdentifierExpression;
+    createCastExpression(expression: Expression, type: TypeNode): Expression;
     
     /**
      * Creates a shallow, memberwise clone of a node.
@@ -1628,7 +1630,7 @@ export type HasChildren =
     // | ObjectBindingPattern
     // | ArrayBindingPattern
     // | BindingElement
-    // | ArrayLiteralExpression
+    | ArrayLiteralExpression
     // | ObjectLiteralExpression
     | PropertyAccessExpression
     | CallExpression
@@ -1652,7 +1654,7 @@ export type HasChildren =
     // | SpreadElement
     // | ClassExpression
     // | ExpressionWithTypeArguments
-    // | AsExpression
+    | CastExpression
     // | NonNullExpression
     // | SatisfiesExpression
     // | MetaProperty
@@ -2565,6 +2567,12 @@ export type JSDocComment = JSDocText;// | JSDocLink | JSDocLinkCode | JSDocLinkP
 
 export interface Expression extends Node {
     _expressionBrand: any;
+}
+
+export interface CastExpression extends Expression {
+    readonly kind: SyntaxKind.CastExpression;
+    readonly expression: Expression;
+    readonly type: TypeNode;
 }
 
 // Represents an expression that is elided as part of a transformation to emit comments on a

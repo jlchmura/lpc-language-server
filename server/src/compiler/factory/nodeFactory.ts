@@ -14,6 +14,7 @@ import {
     CaseBlock,
     CaseClause,
     CaseOrDefaultClause,
+    CastExpression,
     ColonToken,
     ComputedPropertyName,
     ConciseBody,
@@ -222,7 +223,8 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         convertToAssignmentExpression,
         createLambdaIdentifierExpression,
         createLambdaOperatorExpression,
-        
+        createCastExpression,
+
         cloneNode,
     };
 
@@ -631,7 +633,12 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         return node;
     }
 
-    
+    function createCastExpression(expression: Expression, type: TypeNode): Expression {
+        const node = createBaseNode<CastExpression>(SyntaxKind.CastExpression);
+        node.expression = expression;
+        node.type = type;
+        return node;
+    }
 
     // @api
     function convertToAssignmentExpression(node: Mutable<VariableDeclaration>): BinaryExpression {
