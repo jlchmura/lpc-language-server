@@ -2,6 +2,7 @@ import {
     CompilerHost,
     CompilerOptions,
     Diagnostic,
+    DiagnosticWithLocation,
     GetEffectiveTypeRootsHost,
     JSDocParsingMode,
     MinimalResolutionCacheHost,
@@ -379,6 +380,51 @@ export interface LanguageService {
 
     getProgram(): Program | undefined;
     /** @internal */ getCurrentProgram(): Program | undefined;
+
+    /**
+     * Gets errors indicating invalid syntax in a file.
+     *
+     * In English, "this cdeo have, erorrs" is syntactically invalid because it has typos,
+     * grammatical errors, and misplaced punctuation. Likewise, examples of syntax
+     * errors in TypeScript are missing parentheses in an `if` statement, mismatched
+     * curly braces, and using a reserved keyword as a variable name.
+     *
+     * These diagnostics are inexpensive to compute and don't require knowledge of
+     * other files. Note that a non-empty result increases the likelihood of false positives
+     * from `getSemanticDiagnostics`.
+     *
+     * While these represent the majority of syntax-related diagnostics, there are some
+     * that require the type system, which will be present in `getSemanticDiagnostics`.
+     *
+     * @param fileName A path to the file you want syntactic diagnostics for
+     */
+    getSyntacticDiagnostics(fileName: string): DiagnosticWithLocation[];
+
+    /**
+     * Gets suggestion diagnostics for a specific file. These diagnostics tend to
+     * proactively suggest refactors, as opposed to diagnostics that indicate
+     * potentially incorrect runtime behavior.
+     *
+     * @param fileName A path to the file you want semantic diagnostics for
+     */
+    getSuggestionDiagnostics(fileName: string): DiagnosticWithLocation[];
+
+    /**
+     * Gets warnings or errors indicating type system issues in a given file.
+     * Requesting semantic diagnostics may start up the type system and
+     * run deferred work, so the first call may take longer than subsequent calls.
+     *
+     * Unlike the other get*Diagnostics functions, these diagnostics can potentially not
+     * include a reference to a source file. Specifically, the first time this is called,
+     * it will return global diagnostics with no associated location.
+     *
+     * To contrast the differences between semantic and syntactic diagnostics, consider the
+     * sentence: "The sun is green." is syntactically correct; those are real English words with
+     * correct sentence structure. However, it is semantically invalid, because it is not true.
+     *
+     * @param fileName A path to the file you want semantic diagnostics for
+     */
+    getSemanticDiagnostics(fileName: string): Diagnostic[];
 }
 
 export interface HostCancellationToken {

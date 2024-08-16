@@ -84,6 +84,7 @@ export interface TypeChecker {
     // Should not be called directly.  Should only be accessed through the Program instance.
     /** @internal */ getDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken, nodesToCheck?: Node[]): Diagnostic[];
     /** @internal */ getGlobalDiagnostics(): Diagnostic[];
+    /** @internal */ getEmitResolver(sourceFile?: SourceFile, cancellationToken?: CancellationToken, forceDts?: boolean): EmitResolver;
     
     /** Follow all aliases to get the original symbol. */
     getAliasedSymbol(symbol: Symbol): Symbol;
@@ -260,7 +261,7 @@ export interface ModuleSpecifierCache {
 /** @internal */
 export interface ModuleSpecifierResolutionHost {
     useCaseSensitiveFileNames?(): boolean;
-    // fileExists(path: string): boolean;
+    fileExists(path: string): boolean;
     getCurrentDirectory(): string;
     directoryExists?(path: string): boolean;
     readFile?(path: string): string | undefined;
@@ -276,8 +277,8 @@ export interface ModuleSpecifierResolutionHost {
     getFileIncludeReasons(): MultiMap<Path, FileIncludeReason>;
     getCommonSourceDirectory(): string;
 
-    // getModuleResolutionCache?(): any;//TODO ModuleResolutionCache | undefined;
-    // trace?(s: string): void;
+    getModuleResolutionCache?(): any;//TODO ModuleResolutionCache | undefined;
+    trace?(s: string): void;
 }
 
 /** @internal */
@@ -657,6 +658,10 @@ export const enum SyntaxKind {
     CaseClause,
     DefaultClause,    
 
+    // Enum value count
+    Count,
+    
+    // Markers
     FirstKeyword = IntKeyword,
     LastKeyword = DeprecatedKeyword,
     FirstToken = Unknown,
@@ -1064,6 +1069,13 @@ export interface NodeConverters {
     // convertToAssignmentElementTarget(node: BindingOrAssignmentElementTarget): Expression;
 }
 
+export interface TrueLiteral extends PrimaryExpression {
+    readonly kind: SyntaxKind.TrueKeyword;
+}
+
+export interface FalseLiteral extends PrimaryExpression {
+    readonly kind: SyntaxKind.FalseKeyword;
+}
 
 export interface NodeFactory {
     /** @internal */ readonly parenthesizer: ParenthesizerRules;
@@ -1078,6 +1090,9 @@ export interface NodeFactory {
     createStringLiteral(text: string, isSingleQuote?: boolean): StringLiteral;
     /** @internal */ createStringLiteral(text: string, isSingleQuote?: boolean, hasExtendedUnicodeEscape?: boolean): StringLiteral; // eslint-disable-line @typescript-eslint/unified-signatures
     
+    createTrue(): TrueLiteral;
+    createFalse(): FalseLiteral;
+
     createToken(token: SyntaxKind.EndOfFileToken): EndOfFileToken;
     createToken(token: SyntaxKind.Unknown): Token<SyntaxKind.Unknown>;    
     /** @internal */ createToken<TKind extends SyntaxKind>(token: TKind): Token<TKind>;
@@ -1107,7 +1122,7 @@ export interface NodeFactory {
     createBlock(statements: readonly Statement[], multiLine?: boolean): Block;
     createVariableStatement(modifiers: readonly Modifier[] | undefined, declarationList: VariableDeclarationList | readonly VariableDeclaration[]): VariableStatement;
     createVariableDeclarationList(declarations: readonly VariableDeclaration[], flags?: NodeFlags): VariableDeclarationList;
-    createVariableDeclaration(name: string | BindingName, type: TypeNode | undefined, eqToken: EqualsToken, initializer: Expression | undefined): VariableDeclaration;    
+    createVariableDeclaration(name: string | BindingName, type?: TypeNode | undefined, eqToken?: EqualsToken, initializer?: Expression | undefined): VariableDeclaration;    
     createFunctionDeclaration(modifiers: readonly Modifier[] | undefined, name: string | Identifier | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode | undefined, body: Block | undefined): FunctionDeclaration;
     createExpressionStatement(expression: Expression): ExpressionStatement;
     createReturnStatement(expression?: Expression): ReturnStatement;
@@ -1170,6 +1185,9 @@ export interface CompilerOptions {
     getCompilationSettings?: any;
     configFilePath?: string;
     driverType?: LanguageVariant;
+    rootDir?: string;
+    outDir?: string;
+    outFile?: string;
 }
 
 export const enum OuterExpressionKinds {
@@ -3744,9 +3762,11 @@ export interface BindingElement extends NamedDeclaration, FlowContainer {
     readonly initializer?: Expression;           // Optional initializer
 }
 
+export type BooleanLiteral = TrueLiteral | FalseLiteral;
+
 export interface LiteralTypeNode extends TypeNode {
     readonly kind: SyntaxKind.LiteralType;
-    readonly literal: LiteralExpression | PrefixUnaryExpression;
+    readonly literal: LiteralExpression | PrefixUnaryExpression | BooleanLiteral;
 }
 
 export const enum SymbolFormatFlags {
@@ -3949,7 +3969,7 @@ export interface Program extends ScriptReferenceHost {
      */
     getMissingFilePaths(): Map<Path, string>;
     /** @internal */
-    // getModuleResolutionCache(): ModuleResolutionCache | undefined;
+    getModuleResolutionCache(): /*ModuleResolutionCache | */undefined;
     // /** @internal */
     getFilesByNameMap(): Map<Path, SourceFile | false | undefined>;
 
@@ -3992,13 +4012,11 @@ export interface Program extends ScriptReferenceHost {
 
     getOptionsDiagnostics(cancellationToken?: CancellationToken): readonly Diagnostic[];
     getGlobalDiagnostics(cancellationToken?: CancellationToken): readonly Diagnostic[];
-    // getSyntacticDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken): readonly DiagnosticWithLocation[];
-    // /** The first time this is called, it will return global diagnostics (no location). */
-    // getSemanticDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken): readonly Diagnostic[];
-    // /** @internal */
-    // getSemanticDiagnostics(sourceFile: SourceFile | undefined, cancellationToken: CancellationToken | undefined, nodesToCheck: Node[]): readonly Diagnostic[];
+    getSyntacticDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken): readonly DiagnosticWithLocation[];
+    /** The first time this is called, it will return global diagnostics (no location). */
+    getSemanticDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken): readonly Diagnostic[];    
 
-    // getDeclarationDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken): readonly DiagnosticWithLocation[];
+    getDeclarationDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken): readonly DiagnosticWithLocation[];
     // getConfigFileParsingDiagnostics(): readonly Diagnostic[];
     // /** @internal */ getSuggestionDiagnostics(sourceFile: SourceFile, cancellationToken?: CancellationToken): readonly DiagnosticWithLocation[];
 
@@ -4098,7 +4116,7 @@ export interface Program extends ScriptReferenceHost {
     /** @internal */ getResolvedProjectReferenceByPath(projectReferencePath: Path): ResolvedProjectReference | undefined;
     // /** @internal */ getRedirectReferenceForResolutionFromSourceOfProject(filePath: Path): ResolvedProjectReference | undefined;
     // /** @internal */ isSourceOfProjectReferenceRedirect(fileName: string): boolean;
-    // /** @internal */ getBuildInfo?(): BuildInfo;
+    /** @internal */ getBuildInfo?(): BuildInfo;
     // /** @internal */ emitBuildInfo(writeFile?: WriteFileCallback, cancellationToken?: CancellationToken): EmitResult;
     // /**
     //  * This implementation handles file exists to be true if file is source of project reference redirect when program is created using useSourceOfProjectReferenceRedirect
@@ -5220,7 +5238,7 @@ export interface CoreTransformationContext {
 /** @internal */
 export interface EmitResolver {
     hasGlobalName(name: string): boolean;
-    // getReferencedExportContainer(node: Identifier, prefixLocals?: boolean): SourceFile | ModuleDeclaration | EnumDeclaration | undefined;
+    getReferencedExportContainer(node: Identifier, prefixLocals?: boolean): SourceFile |/* ModuleDeclaration | EnumDeclaration |*/ undefined;
     // getReferencedImportDeclaration(node: Identifier): Declaration | undefined;
     // getReferencedDeclarationWithCollidingName(node: Identifier): Declaration | undefined;
     // isDeclarationWithCollidingName(node: Declaration): boolean;
@@ -5264,8 +5282,8 @@ export interface EmitResolver {
 export interface SourceFileMayBeEmittedHost {
     getCompilerOptions(): CompilerOptions;
     isSourceFileFromExternalLibrary(file: SourceFile): boolean;
-    getResolvedProjectReferenceToRedirect(fileName: string): ResolvedProjectReference | undefined;
-    isSourceOfProjectReferenceRedirect(fileName: string): boolean;
+    //getResolvedProjectReferenceToRedirect(fileName: string): ResolvedProjectReference | undefined;
+    //isSourceOfProjectReferenceRedirect(fileName: string): boolean;
     getCurrentDirectory(): string;
     getCanonicalFileName: GetCanonicalFileName;
     useCaseSensitiveFileNames(): boolean;
@@ -5281,8 +5299,8 @@ export interface EmitHost extends ScriptReferenceHost, ModuleSpecifierResolution
     getCanonicalFileName(fileName: string): string;
 
     isEmitBlocked(emitFileName: string): boolean;
-    shouldTransformImportCall(sourceFile: SourceFile): boolean;
-    getEmitModuleFormatOfFile(sourceFile: SourceFile): ModuleKind;
+    //shouldTransformImportCall(sourceFile: SourceFile): boolean;
+    //getEmitModuleFormatOfFile(sourceFile: SourceFile): ModuleKind;
 
     writeFile: WriteFileCallback;
     getBuildInfo(): BuildInfo | undefined;
@@ -5320,7 +5338,7 @@ export type EmitHelper = ScopedEmitHelper | UnscopedEmitHelper;
 export interface TransformationContext extends CoreTransformationContext {
     /** @internal */ getEmitResolver(): EmitResolver;
     /** @internal */ getEmitHost(): EmitHost;
-    /** @internal */ getEmitHelperFactory(): EmitHelperFactory;
+    ///** @internal */ getEmitHelperFactory(): EmitHelperFactory;
 
     /** Records a request for a non-scoped emit helper in the current context. */
     requestEmitHelper(helper: EmitHelper): void;
@@ -5541,3 +5559,51 @@ export interface LpcFileHandler extends IFileHandler  {
     loadIncludeFile(sourceFilename: string, filename: string, localFirst: boolean, additionalSearchDirs?: string[]): LpcLoadImportResult    
     loadInclude(sourceFilename: string, filename: string): LoadImportResult;
 }
+
+export interface TransformationResult<T extends Node> {
+    /** Gets the transformed source files. */
+    transformed: T[];
+
+    /** Gets diagnostics for the transformation. */
+    diagnostics?: DiagnosticWithLocation[];
+
+    /**
+     * Gets a substitute for a node, if one is available; otherwise, returns the original node.
+     *
+     * @param hint A hint as to the intended usage of the node.
+     * @param node The node to substitute.
+     */
+    substituteNode(hint: EmitHint, node: Node): Node;
+
+    /**
+     * Emits a node with possible notification.
+     *
+     * @param hint A hint as to the intended usage of the node.
+     * @param node The node to emit.
+     * @param emitCallback A callback used to emit the node.
+     */
+    emitNodeWithNotification(hint: EmitHint, node: Node, emitCallback: (hint: EmitHint, node: Node) => void): void;
+
+    /**
+     * Indicates if a given node needs an emit notification
+     *
+     * @param node The node to emit.
+     */
+    isEmitNotificationEnabled?(node: Node): boolean;
+
+    /**
+     * Clean up EmitNode entries on any parse-tree nodes.
+     */
+    dispose(): void;
+}
+
+/**
+ * A function that is used to initialize and return a `Transformer` callback, which in turn
+ * will be used to transform one or more nodes.
+ */
+export type TransformerFactory<T extends Node> = (context: TransformationContext) => Transformer<T>;
+
+/**
+ * A function that transforms a node.
+ */
+export type Transformer<T extends Node> = (node: T) => T;

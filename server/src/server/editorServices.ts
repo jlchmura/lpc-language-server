@@ -1,7 +1,7 @@
 import { log } from "console";
 import { loadLpcConfig, loadLpcConfigFromString } from "../backend/LpcConfig.js";
-import { arrayFrom, CachedDirectoryStructureHost, clearMap, closeFileWatcherOf, combinePaths, CompilerOptions, containsPath, createCachedDirectoryStructureHost, createGetCanonicalFileName, createMultiMap, Debug, Diagnostic, DirectoryStructureHost, DirectoryWatcherCallback, DocumentRegistry, FileExtensionInfo, fileExtensionIs, FileSystemEntries, FileWatcher, FileWatcherCallback, FileWatcherEventKind, find, forEach, getAnyExtensionFromPath, getBaseFileName, getDefaultFormatCodeSettings, getDirectoryPath, getFileNamesFromConfigSpecs, getNormalizedAbsolutePath, getWatchFactory, isArray, isIgnoredFileFromWildCardWatching, isJsonEqual, isNodeModulesDirectory, isRootedDiskPath, isString, LanguageServiceMode, length, LpcConfigSourceFile, missingFileModifiedTime, MultiMap, noop, normalizePath, normalizeSlashes, orderedRemoveItem, ParsedCommandLine, parseLpcConfig, parseLpcSourceFileConfigFileContent, Path, PerformanceEvent, PollingInterval, ProgramUpdateLevel, returnFalse, returnNoopFileWatcher, ScriptKind, some, startsWith, TextChange, toPath, tracing, tryAddToSet, tryReadFile, TypeAcquisition, updateWatchingWildcardDirectories, WatchDirectoryFlags, WatchFactory, WatchFactoryHost, WatchLogLevel, WatchOptions, WatchType, WildcardDirectoryWatcher } from "./_namespaces/lpc.js";
-import { asNormalizedPath, ConfiguredProject, findLpcConfig, HostCancellationToken, InferredProject, isDynamicFileName, isInferredProject, isProjectDeferredClose, Logger, LogLevel, NormalizedPath, normalizedPathToPath, Project, ScriptInfo, ServerHost, Session, ThrottledOperations, toNormalizedPath } from "./_namespaces/lpc.server.js";
+import { arrayFrom, CachedDirectoryStructureHost, clearMap, closeFileWatcherOf, combinePaths, CompilerOptions, containsPath, createCachedDirectoryStructureHost, createGetCanonicalFileName, createMultiMap, Debug, Diagnostic, DirectoryStructureHost, DirectoryWatcherCallback, DocumentRegistry, FileExtensionInfo, fileExtensionIs, FileSystemEntries, FileWatcher, FileWatcherCallback, FileWatcherEventKind, find, forEach, getAnyExtensionFromPath, getBaseFileName, getDefaultFormatCodeSettings, getDirectoryPath, getFileNamesFromConfigSpecs, getNormalizedAbsolutePath, getWatchFactory, isArray, isIgnoredFileFromWildCardWatching, isJsonEqual, isNodeModulesDirectory, isRootedDiskPath, isString, LanguageServiceMode, length, LpcConfigSourceFile, mapDefinedIterator, missingFileModifiedTime, MultiMap, noop, normalizePath, normalizeSlashes, orderedRemoveItem, ParsedCommandLine, parseLpcConfig, parseLpcSourceFileConfigFileContent, Path, PerformanceEvent, PollingInterval, ProgramUpdateLevel, returnFalse, returnNoopFileWatcher, ScriptKind, some, startsWith, TextChange, toPath, tracing, tryAddToSet, tryReadFile, TypeAcquisition, updateWatchingWildcardDirectories, WatchDirectoryFlags, WatchFactory, WatchFactoryHost, WatchLogLevel, WatchOptions, WatchType, WildcardDirectoryWatcher } from "./_namespaces/lpc.js";
+import { asNormalizedPath, ConfiguredProject, Errors, findLpcConfig, HostCancellationToken, InferredProject, isDynamicFileName, isInferredProject, isProjectDeferredClose, Logger, LogLevel, Msg, NormalizedPath, normalizedPathToPath, Project, ScriptInfo, ServerHost, Session, ThrottledOperations, toNormalizedPath } from "./_namespaces/lpc.server.js";
 import * as protocol from "./protocol.js";
 import { parse } from "jsonc-parser";
 
@@ -39,6 +39,8 @@ export class ProjectService {
      * this also caches config file info before config file change was detected to use it in case projects are not updated yet
      */
     private pendingOpenFileProjectUpdates?: Map<Path, ConfigFileName>;
+    /** @internal */
+    pendingEnsureProjectForOpenFiles = false;
 
     readonly currentDirectory: NormalizedPath;
     readonly toCanonicalFileName: (f: string) => string;
@@ -753,6 +755,12 @@ export class ProjectService {
             clearMap(config!.watchedDirectories, closeFileWatcherOf);
             config!.watchedDirectories = undefined;
         }
+    }
+    
+    /** @internal */
+    tryGetDefaultProjectForFile(fileNameOrScriptInfo: NormalizedPath | ScriptInfo): Project | undefined {
+        const scriptInfo = isString(fileNameOrScriptInfo) ? this.getScriptInfoForNormalizedPath(fileNameOrScriptInfo) : fileNameOrScriptInfo;
+        return scriptInfo && !scriptInfo.isOrphan() ? scriptInfo.getDefaultProject() : undefined;
     }
     
     /**
@@ -1514,6 +1522,115 @@ export class ProjectService {
     }
 
     /**
+     * If there is default project calculation pending for this file,
+     * then it completes that calculation so that correct default project is used for the project
+     */
+    private tryGetDefaultProjectForEnsuringConfiguredProjectForFile(fileNameOrScriptInfo: NormalizedPath | ScriptInfo): Project | undefined {
+        const scriptInfo = isString(fileNameOrScriptInfo) ? this.getScriptInfoForNormalizedPath(fileNameOrScriptInfo) : fileNameOrScriptInfo;
+        if (!scriptInfo) return undefined;
+        if (this.pendingOpenFileProjectUpdates?.delete(scriptInfo.path)) {
+            this.tryFindDefaultConfiguredProjectAndLoadAncestorsForOpenScriptInfo(
+                scriptInfo,
+                ConfiguredProjectLoadKind.Create,
+            );
+            if (scriptInfo.isOrphan()) {
+                this.assignOrphanScriptInfoToInferredProject(scriptInfo, this.openFiles.get(scriptInfo.path));
+            }
+        }
+
+        return this.tryGetDefaultProjectForFile(scriptInfo);
+    }
+
+    /**
+     * Ensures the project structures are upto date
+     * This means,
+     * - we go through all the projects and update them if they are dirty
+     * - if updates reflect some change in structure or there was pending request to ensure projects for open files
+     *   ensure that each open script info has project
+     */
+    private ensureProjectStructuresUptoDate() {
+        let hasChanges = this.pendingEnsureProjectForOpenFiles;
+        this.pendingProjectUpdates.clear();
+        const updateGraph = (project: Project) => {
+            hasChanges = updateProjectIfDirty(project) || hasChanges;
+        };
+
+        //this.externalProjects.forEach(updateGraph);
+        this.configuredProjects.forEach(updateGraph);
+        this.inferredProjects.forEach(updateGraph);
+        if (hasChanges) {
+            this.ensureProjectForOpenFiles();
+        }
+    }
+
+    /**
+     * This function is to update the project structure for every inferred project.
+     * It is called on the premise that all the configured projects are
+     * up to date.
+     * This will go through open files and assign them to inferred project if open file is not part of any other project
+     * After that all the inferred project graphs are updated
+     */
+    private ensureProjectForOpenFiles() {
+        this.logger.info("Before ensureProjectForOpenFiles:");
+        this.printProjects();
+
+        // Ensure that default projects for pending openFile updates are created
+        const pendingOpenFileProjectUpdates = this.pendingOpenFileProjectUpdates;
+        this.pendingOpenFileProjectUpdates = undefined;
+        pendingOpenFileProjectUpdates?.forEach((_config, path) =>
+            this.tryFindDefaultConfiguredProjectAndLoadAncestorsForOpenScriptInfo(
+                this.getScriptInfoForPath(path)!,
+                ConfiguredProjectLoadKind.Create,
+            )
+        );
+
+        // Assigned the orphan scriptInfos to inferred project
+        // Remove the infos from inferred project that no longer need to be part of it
+        this.openFiles.forEach((projectRootPath, path) => {
+            const info = this.getScriptInfoForPath(path)!;
+            // collect all orphaned script infos from open files
+            if (info.isOrphan()) {
+                this.assignOrphanScriptInfoToInferredProject(info, projectRootPath);
+            }
+            else {
+                // Or remove the root of inferred project if is referenced in more than one projects
+                this.removeRootOfInferredProjectIfNowPartOfOtherProject(info);
+            }
+        });
+        this.pendingEnsureProjectForOpenFiles = false;
+        this.inferredProjects.forEach(updateProjectIfDirty);
+
+        this.logger.info("After ensureProjectForOpenFiles:");
+        this.printProjects();
+    }
+
+
+    private doEnsureDefaultProjectForFile(fileNameOrScriptInfo: NormalizedPath | ScriptInfo): Project {
+        this.ensureProjectStructuresUptoDate();
+        const scriptInfo = isString(fileNameOrScriptInfo) ? this.getScriptInfoForNormalizedPath(fileNameOrScriptInfo) : fileNameOrScriptInfo;
+        return scriptInfo ?
+            scriptInfo.getDefaultProject() :
+            (this.logErrorForScriptInfoNotFound(isString(fileNameOrScriptInfo) ? fileNameOrScriptInfo : fileNameOrScriptInfo.fileName), Errors.ThrowNoProject());
+    }
+    
+    /** @internal */
+    logErrorForScriptInfoNotFound(fileName: string): void {
+        const names = arrayFrom(
+            mapDefinedIterator(
+                this.filenameToScriptInfo.entries(),
+                entry => entry[1].deferredDelete ? undefined : entry,
+            ),
+            ([path, scriptInfo]) => ({ path, fileName: scriptInfo.fileName }),
+        );
+        this.logger.msg(`Could not find file ${JSON.stringify(fileName)}.\nAll files are: ${JSON.stringify(names)}`, Msg.Err);
+    }
+    
+    /** @internal */
+    ensureDefaultProjectForFile(fileNameOrScriptInfo: NormalizedPath | ScriptInfo): Project {
+        return this.tryGetDefaultProjectForEnsuringConfiguredProjectForFile(fileNameOrScriptInfo) || this.doEnsureDefaultProjectForFile(fileNameOrScriptInfo);
+    }
+
+    /**
      * This function tries to search for a tsconfig.json for the given file.
      * This is different from the method the compiler uses because
      * the compiler can assume it will always start searching in the
@@ -2138,3 +2255,4 @@ export interface CloseFileWatcherEvent {
 function getDetailWatchInfo(watchType: WatchType, project: Project | NormalizedPath | undefined) {
     return `${isString(project) ? `Config: ${project} ` : project ? `Project: ${project.getProjectName()} ` : ""}WatchType: ${watchType}`;
 }
+

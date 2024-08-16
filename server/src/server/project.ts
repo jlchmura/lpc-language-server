@@ -1,6 +1,6 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { addRange, arrayFrom, CachedDirectoryStructureHost, combinePaths, CompilerHost, CompilerOptions, createLanguageService, createResolutionCache, Debug, Diagnostic, DirectoryStructureHost, DirectoryWatcherCallback, DocumentRegistry, explainFiles, ExportInfoMap, FileWatcher, FileWatcherCallback, FileWatcherEventKind, flatMap, forEachKey, GetCanonicalFileName, getDefaultLibFileName, getDirectoryPath, getNormalizedAbsolutePath, getOrUpdate, HasInvalidatedLibResolutions, HasInvalidatedResolutions, IScriptSnapshot, LanguageService, LanguageServiceHost, LanguageServiceMode, maybeBind, ModuleResolutionHost, noopFileWatcher, normalizePath, ParsedCommandLine, Path, PerformanceEvent, PollingInterval, Program, ProgramUpdateLevel, ProjectReference, ResolutionCache, ResolvedProjectReference, returnFalse, returnTrue, sortAndDeduplicate, SortedReadonlyArray, SourceFile, StructureIsReused, ThrottledCancellationToken, timestamp, toPath, tracing, TypeAcquisition, updateMissingFilePathsWatch, WatchDirectoryFlags, WatchOptions, WatchType } from "./_namespaces/lpc.js";
-import { asNormalizedPath, emptyArray, HostCancellationToken, LogLevel, NormalizedPath, ProjectService, ScriptInfo, updateProjectIfDirty } from "./_namespaces/lpc.server.js";
+import { addRange, arrayFrom, CachedDirectoryStructureHost, combinePaths, CompilerHost, CompilerOptions, createLanguageService, createResolutionCache, Debug, Diagnostic, DirectoryStructureHost, DirectoryWatcherCallback, DocumentRegistry, explainFiles, ExportInfoMap, FileWatcher, FileWatcherCallback, FileWatcherEventKind, flatMap, forEachKey, GetCanonicalFileName, getDefaultLibFileName, getDirectoryPath, getNormalizedAbsolutePath, getOrUpdate, HasInvalidatedLibResolutions, HasInvalidatedResolutions, IScriptSnapshot, isString, LanguageService, LanguageServiceHost, LanguageServiceMode, maybeBind, ModuleResolutionHost, noopFileWatcher, normalizePath, ParsedCommandLine, Path, PerformanceEvent, PollingInterval, Program, ProgramUpdateLevel, ProjectReference, ResolutionCache, ResolvedProjectReference, returnFalse, returnTrue, sortAndDeduplicate, SortedReadonlyArray, SourceFile, StructureIsReused, ThrottledCancellationToken, timestamp, toPath, tracing, TypeAcquisition, updateMissingFilePathsWatch, WatchDirectoryFlags, WatchOptions, WatchType } from "./_namespaces/lpc.js";
+import { asNormalizedPath, emptyArray, Errors, HostCancellationToken, LogLevel, NormalizedPath, ProjectService, ScriptInfo, updateProjectIfDirty } from "./_namespaces/lpc.server.js";
 
 
 /**
@@ -381,6 +381,66 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
             WatchType.AffectingFileLocation,
             this,
         );
+    }
+
+    hasConfigFile(configFilePath: NormalizedPath) {
+        if (this.program && this.languageServiceEnabled) {
+            const configFile = this.program.getCompilerOptions().configFile;
+            if (configFile) {
+                if (configFilePath === asNormalizedPath(configFile.fileName)) {
+                    return true;
+                }
+                // if (configFile.extendedSourceFiles) {
+                //     for (const f of configFile.extendedSourceFiles) {
+                //         if (configFilePath === asNormalizedPath(f)) {
+                //             return true;
+                //         }
+                //     }
+                // }
+            }
+        }
+        return false;
+    }
+
+    getRootFiles(): NormalizedPath[] {
+        return this.rootFilesMap && arrayFrom(lpc.mapDefinedIterator(this.rootFilesMap.values(), value => value.info?.fileName));
+    }
+
+    getFileNames(excludeFilesFromExternalLibraries?: boolean, excludeConfigFiles?: boolean) {
+        if (!this.program) {
+            return [];
+        }
+
+        if (!this.languageServiceEnabled) {
+            // if language service is disabled assume that all files in program are root files + default library
+            let rootFiles = this.getRootFiles();
+            if (this.compilerOptions) {
+                // const defaultLibrary = getDefaultLibFilePath(this.compilerOptions);
+                // if (defaultLibrary) {
+                //     (rootFiles || (rootFiles = [])).push(asNormalizedPath(defaultLibrary));
+                // }
+            }
+            return rootFiles;
+        }
+        const result: NormalizedPath[] = [];
+        for (const f of this.program.getSourceFiles()) {
+            // if (excludeFilesFromExternalLibraries && this.program.isSourceFileFromExternalLibrary(f)) {
+            //     continue;
+            // }
+            result.push(asNormalizedPath(f.fileName));
+        }
+        if (!excludeConfigFiles) {
+            const configFile = this.program.getCompilerOptions().configFile;
+            if (configFile) {
+                result.push(asNormalizedPath(configFile.fileName));
+                // if (configFile.extendedSourceFiles) {
+                //     for (const f of configFile.extendedSourceFiles) {
+                //         result.push(asNormalizedPath(f));
+                //     }
+                // }
+            }
+        }
+        return result;
     }
 
     private getOrCreateScriptInfoAndAttachToProject(fileName: string) {
@@ -898,6 +958,22 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
         }
     }
 
+    containsFile(filename: NormalizedPath, requireOpen?: boolean): boolean {
+        const info = this.projectService.getScriptInfoForNormalizedPath(filename);
+        if (info && (info.isScriptOpen() || !requireOpen)) {
+            return this.containsScriptInfo(info);
+        }
+        return false;
+    }
+    
+    getScriptInfoForNormalizedPath(fileName: NormalizedPath): ScriptInfo | undefined {
+        const scriptInfo = this.projectService.getScriptInfoForPath(this.toPath(fileName));
+        if (scriptInfo && !scriptInfo.isAttached(this)) {
+            return Errors.ThrowProjectDoesNotContainDocument(fileName, this);
+        }
+        return scriptInfo;
+    }
+    
     /** @internal */
     cleanupProgram() {
         if (this.program) {

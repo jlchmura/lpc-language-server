@@ -1,6 +1,6 @@
-import { LpcConfig } from "../backend/LpcConfig.js";
+import { writeFile } from "fs";
 import { ILpcConfig } from "../config-types.js";
-import { forEachResolvedProjectReference as lpc_forEachResolvedProjectReference, combinePaths, compareValues, CompilerHost, CompilerOptions, containsPath, createDiagnosticCollection, createGetCanonicalFileName, createMultiMap, CreateProgramOptions, createSourceFile, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DiagnosticWithLocation, FileIncludeKind, FileIncludeReason, FilePreprocessingDiagnostics, FilePreprocessingDiagnosticsKind, forEach, getBaseFileName, getDirectoryPath, getNewLineCharacter, getRootLength, hasExtension, isArray, maybeBind, memoize, normalizePath, ObjectLiteralExpression, PackageId, Path, performance, Program, ProgramHost, ProjectReference, PropertyAssignment, ReferencedFile, removePrefix, removeSuffix, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, SourceFile, stableSort, StructureIsReused, sys, System, toPath as lpc_toPath, tracing, TypeChecker, getNormalizedAbsolutePathWithoutRoot, some, isRootedDiskPath, optionsHaveChanges, packageIdToString, toFileNameLowerCase, getNormalizedAbsolutePath, CreateSourceFileOptions, createTypeChecker, ScriptTarget, libs, FileReference, SortedReadonlyArray, concatenate, sortAndDeduplicateDiagnostics, emptyArray, LpcFileHandler, createLpcFileHandler } from "./_namespaces/lpc.js";
+import { getDeclarationDiagnostics as lpc_getDeclarationDiagnostics, forEachResolvedProjectReference as lpc_forEachResolvedProjectReference, combinePaths, compareValues, CompilerHost, CompilerOptions, containsPath, createDiagnosticCollection, createGetCanonicalFileName, createMultiMap, CreateProgramOptions, createSourceFile, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DiagnosticWithLocation, FileIncludeKind, FileIncludeReason, FilePreprocessingDiagnostics, FilePreprocessingDiagnosticsKind, forEach, getBaseFileName, getDirectoryPath, getNewLineCharacter, getRootLength, hasExtension, isArray, maybeBind, memoize, normalizePath, ObjectLiteralExpression, PackageId, Path, performance, Program, ProgramHost, ProjectReference, PropertyAssignment, ReferencedFile, removePrefix, removeSuffix, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, SourceFile, stableSort, StructureIsReused, sys, System, toPath as lpc_toPath, tracing, TypeChecker, getNormalizedAbsolutePathWithoutRoot, some, isRootedDiskPath, optionsHaveChanges, packageIdToString, toFileNameLowerCase, getNormalizedAbsolutePath, CreateSourceFileOptions, createTypeChecker, ScriptTarget, libs, FileReference, SortedReadonlyArray, concatenate, sortAndDeduplicateDiagnostics, emptyArray, LpcFileHandler, createLpcFileHandler, DiagnosticMessageChain, isString, CancellationToken, flatMap, filter, Debug, ScriptKind, flatten, OperationCanceledException, noop, getNormalizedPathComponents, GetCanonicalFileName, getPathFromPathComponents, WriteFileCallback, EmitHost, WriteFileCallbackData } from "./_namespaces/lpc.js";
 
 /**
  * Create a new 'Program' instance. A Program is an immutable collection of 'SourceFile's and a 'CompilerOptions'
@@ -48,8 +48,8 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
     let filesWithReferencesProcessed: Set<Path> | undefined;
     //let fileReasonsToChain: Map<Path, FileReasonToChainCache> | undefined;
     let reasonToRelatedInfo: Map<FileIncludeReason, DiagnosticWithLocation | false> | undefined;
-    let cachedBindAndCheckDiagnosticsForFile: Map<Path, readonly Diagnostic[]> | undefined;
-    let cachedDeclarationDiagnosticsForFile: Map<Path, readonly DiagnosticWithLocation[]> | undefined;
+    const cachedBindAndCheckDiagnosticsForFile: DiagnosticCache<Diagnostic> = {};
+    const cachedDeclarationDiagnosticsForFile: DiagnosticCache<DiagnosticWithLocation> = {};
 
     let fileProcessingDiagnostics: FilePreprocessingDiagnostics[] | undefined;
     let automaticTypeDirectiveNames: string[] | undefined;
@@ -118,6 +118,8 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
     // stores 'filename -> file association' ignoring case
     // used to track cases when two file names differ only in casing
     const filesByNameIgnoreCase = host.useCaseSensitiveFileNames() ? new Map<string, SourceFile>() : undefined;    
+    // Key is a file name. Value is the (non-empty, or undefined) list of files that redirect to it.
+    let redirectTargetsMap = createMultiMap<Path, string>();
 
     // A parallel array to projectReferences storing the results of reading in the referenced tsconfig files
     let resolvedProjectReferences: readonly (ResolvedProjectReference | undefined)[] | undefined;
@@ -125,6 +127,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
     let mapFromFileToProjectReferenceRedirects: Map<Path, Path> | undefined;
     //let mapFromToProjectReferenceRedirectSource: Map<Path, SourceOfProjectReferenceRedirect> | undefined;
 
+    const { fileExists, directoryExists } = host;
     const readFile = host.readFile.bind(host) as typeof host.readFile;
     const shouldCreateNewSourceFile = shouldProgramCreateNewSourceFiles(oldProgram, options);
     
@@ -250,16 +253,16 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         getSourceFileByPath,
         getSourceFiles: () => files,
         getMissingFilePaths: () => missingFileNames,
-        //getModuleResolutionCache: () => moduleResolutionCache,
+        getModuleResolutionCache: () => undefined,
         getFilesByNameMap: () => filesByName,
         getCompilerOptions: () => options,
-        // getSyntacticDiagnostics,
+        getSyntacticDiagnostics,
         getOptionsDiagnostics,
         getGlobalDiagnostics,
-        // getSemanticDiagnostics,
+        getSemanticDiagnostics,
         // getCachedSemanticDiagnostics,
         // getSuggestionDiagnostics,
-        // getDeclarationDiagnostics,
+        getDeclarationDiagnostics,
         // getBindAndCheckDiagnostics,
         // getProgramDiagnostics,
         getTypeChecker,
@@ -308,9 +311,9 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         // isSourceOfProjectReferenceRedirect,
         // getRedirectReferenceForResolutionFromSourceOfProject,
         // emitBuildInfo,
-        // fileExists,
+        fileExists,
         readFile,
-        // directoryExists,
+        directoryExists,
         // getSymlinkCache,
         realpath: host.realpath?.bind(host),
         useCaseSensitiveFileNames: () => host.useCaseSensitiveFileNames(),
@@ -336,6 +339,151 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
     function getTypeChecker() {
         return typeChecker || (typeChecker = createTypeChecker(program));
     }
+
+    function getSyntacticDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken): readonly DiagnosticWithLocation[] {
+        return getDiagnosticsHelper(sourceFile, getSyntacticDiagnosticsForFile, cancellationToken);
+    }
+
+    function getSemanticDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken): readonly Diagnostic[] {
+        return getDiagnosticsHelper(sourceFile, getSemanticDiagnosticsForFile, cancellationToken);
+    }
+
+    function getSemanticDiagnosticsForFile(sourceFile: SourceFile, cancellationToken: CancellationToken | undefined): readonly Diagnostic[] {
+        return concatenate(
+            filterSemanticDiagnostics(getBindAndCheckDiagnosticsForFile(sourceFile, cancellationToken), options),
+            getProgramDiagnostics(sourceFile),
+        );
+    }
+    
+    function getSyntacticDiagnosticsForFile(sourceFile: SourceFile): readonly DiagnosticWithLocation[] {
+        // For JavaScript files, we report semantic errors for using TypeScript-only
+        // constructs from within a JavaScript file as syntactic errors.
+        // if (isSourceFileJS(sourceFile)) {
+        //     if (!sourceFile.additionalSyntacticDiagnostics) {
+        //         sourceFile.additionalSyntacticDiagnostics = getJSSyntacticDiagnosticsForFile(sourceFile);
+        //     }
+        //     return concatenate(sourceFile.additionalSyntacticDiagnostics, sourceFile.parseDiagnostics);
+        // }
+        return sourceFile.parseDiagnostics;
+    }
+
+    function getBindAndCheckDiagnosticsForFile(sourceFile: SourceFile, cancellationToken: CancellationToken | undefined): readonly Diagnostic[] {
+        return getAndCacheDiagnostics(sourceFile, cancellationToken, cachedBindAndCheckDiagnosticsForFile, getBindAndCheckDiagnosticsForFileNoCache);
+    }
+
+    function getProgramDiagnostics(sourceFile: SourceFile): readonly Diagnostic[] {
+        // if (skipTypeChecking(sourceFile, options, program)) {
+        //     return emptyArray;
+        // }
+
+        const programDiagnosticsInFile = updateAndGetProgramDiagnostics().getDiagnostics(sourceFile.fileName);
+        // if (!sourceFile.commentDirectives?.length) {
+        //     return programDiagnosticsInFile;
+        // }
+
+        // TODO 
+        //return getDiagnosticsWithPrecedingDirectives(sourceFile, sourceFile.commentDirectives, programDiagnosticsInFile).diagnostics;
+        return programDiagnosticsInFile;
+    }
+
+    function getBindAndCheckDiagnosticsForFileNoCache(sourceFile: SourceFile, cancellationToken: CancellationToken | undefined): readonly Diagnostic[] {
+        return runWithCancellationToken(() => {
+            // if (skipTypeChecking(sourceFile, options, program)) {
+            //     return emptyArray;
+            // }
+
+            const typeChecker = getTypeChecker();
+
+            Debug.assert(!!sourceFile.bindDiagnostics);
+
+            const isNotLpc = sourceFile.scriptKind !== ScriptKind.LPC;
+            
+            // By default, only type-check .ts, .tsx, Deferred, plain JS, checked JS and External
+            // - plain JS: .js files with no // ts-check and checkJs: undefined
+            // - check JS: .js files with either // ts-check or checkJs: true
+            // - external: files that are added by plugins
+            let bindDiagnostics = sourceFile.bindDiagnostics;
+            let checkDiagnostics = typeChecker.getDiagnostics(sourceFile, cancellationToken);
+            // if (isPlainJs) {
+            //     bindDiagnostics = filter(bindDiagnostics, d => plainJSErrors.has(d.code));
+            //     checkDiagnostics = filter(checkDiagnostics, d => plainJSErrors.has(d.code));
+            // }
+            // skip ts-expect-error errors in plain JS files, and skip JSDoc errors except in checked JS
+            return getMergedBindAndCheckDiagnostics(sourceFile, !isNotLpc, bindDiagnostics, checkDiagnostics, /*isCheckJs ? sourceFile.jsDocDiagnostics :*/ undefined);
+        });
+    }
+
+    function getMergedBindAndCheckDiagnostics(sourceFile: SourceFile, includeBindAndCheckDiagnostics: boolean, ...allDiagnostics: (readonly Diagnostic[] | undefined)[]) {
+        const flatDiagnostics = flatten(allDiagnostics);
+        if (!includeBindAndCheckDiagnostics /*|| !sourceFile.commentDirectives?.length*/) {
+            return flatDiagnostics;
+        }
+
+        // const { diagnostics, directives } = getDiagnosticsWithPrecedingDirectives(sourceFile, sourceFile.commentDirectives, flatDiagnostics);
+
+        // for (const errorExpectation of directives.getUnusedExpectations()) {
+        //     diagnostics.push(createDiagnosticForRange(sourceFile, errorExpectation.range, Diagnostics.Unused_ts_expect_error_directive));
+        // }
+
+        // return diagnostics;
+        return flatDiagnostics;
+    }
+
+    function getAndCacheDiagnostics<T extends SourceFile | undefined, U extends Diagnostic>(
+        sourceFile: T,
+        cancellationToken: CancellationToken | undefined,
+        cache: DiagnosticCache<U>,
+        getDiagnostics: (sourceFile: T, cancellationToken: CancellationToken | undefined) => readonly U[],
+    ): readonly U[] {
+        const cachedResult = sourceFile
+            ? cache.perFile?.get(sourceFile.path)
+            : cache.allDiagnostics;
+
+        if (cachedResult) {
+            return cachedResult;
+        }
+        const result = getDiagnostics(sourceFile, cancellationToken);
+        if (sourceFile) {
+            (cache.perFile || (cache.perFile = new Map())).set(sourceFile.path, result);
+        }
+        else {
+            cache.allDiagnostics = result;
+        }
+        return result;
+    }
+
+    function runWithCancellationToken<T>(func: () => T): T {
+        try {
+            return func();
+        }
+        catch (e) {
+            if (e instanceof OperationCanceledException) {
+                // We were canceled while performing the operation.  Because our type checker
+                // might be a bad state, we need to throw it away.
+                typeChecker = undefined!;
+            }
+
+            throw e;
+        }
+    }
+
+
+    function getDiagnosticsHelper<T extends Diagnostic>(
+        sourceFile: SourceFile | undefined,
+        getDiagnostics: (sourceFile: SourceFile, cancellationToken: CancellationToken | undefined) => readonly T[],
+        cancellationToken: CancellationToken | undefined,
+    ): readonly T[] {
+        if (sourceFile) {
+            return sortAndDeduplicateDiagnostics(getDiagnostics(sourceFile, cancellationToken));
+        }
+        return sortAndDeduplicateDiagnostics(flatMap(program.getSourceFiles(), sourceFile => {
+            if (cancellationToken) {
+                cancellationToken.throwIfCancellationRequested();
+            }
+            return getDiagnostics(sourceFile, cancellationToken);
+        }));
+    }
+
     
     function getResolvedProjectReferenceByPath(projectReferencePath: Path): ResolvedProjectReference | undefined {
         if (!projectReferenceRedirects) {
@@ -674,6 +822,86 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         //     { ...result, languageVersion, setExternalModuleIndicator, jsDocParsingMode: host.jsDocParsingMode } :
         //     { languageVersion, impliedNodeFormat: result, setExternalModuleIndicator, jsDocParsingMode: host.jsDocParsingMode };
     }
+
+    function getDeclarationDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken): readonly DiagnosticWithLocation[] {
+        const options = program.getCompilerOptions();
+        // collect diagnostics from the program only once if either no source file was specified or out/outFile is set (bundled emit)
+        // if (!sourceFile || options.outFile) {
+        //     return getDeclarationDiagnosticsWorker(sourceFile, cancellationToken);
+        // }
+        // else {
+            return getDiagnosticsHelper(sourceFile, getDeclarationDiagnosticsForFile, cancellationToken);
+        // }
+    }
+
+    function getDeclarationDiagnosticsForFile(sourceFile: SourceFile, cancellationToken: CancellationToken | undefined): readonly DiagnosticWithLocation[] {
+        return sourceFile.isDeclarationFile ? [] : getDeclarationDiagnosticsWorker(sourceFile, cancellationToken);
+    }
+
+    function getDeclarationDiagnosticsWorker(sourceFile: SourceFile | undefined, cancellationToken: CancellationToken | undefined): readonly DiagnosticWithLocation[] {
+        return getAndCacheDiagnostics(sourceFile, cancellationToken, cachedDeclarationDiagnosticsForFile, getDeclarationDiagnosticsForFileNoCache);
+    }
+
+    function getDeclarationDiagnosticsForFileNoCache(sourceFile: SourceFile | undefined, cancellationToken: CancellationToken | undefined): readonly DiagnosticWithLocation[] {
+        return runWithCancellationToken(() => {
+            const resolver = getTypeChecker().getEmitResolver(sourceFile, cancellationToken);
+            // Don't actually write any files since we're just getting diagnostics.
+            return lpc_getDeclarationDiagnostics(getEmitHost(noop), resolver, sourceFile) || emptyArray;
+        });
+    }
+
+    function writeFile(
+        fileName: string,
+        text: string,
+        writeByteOrderMark: boolean,
+        onError?: (message: string) => void,
+        sourceFiles?: readonly SourceFile[],
+        data?: WriteFileCallbackData,
+    ) {
+        host.writeFile(fileName, text, writeByteOrderMark, onError, sourceFiles, data);
+    }
+
+    function isEmitBlocked(emitFileName: string): boolean {
+        return hasEmitBlockingDiagnostics.has(toPath(emitFileName));
+    }
+    
+    function getEmitHost(writeFileCallback?: WriteFileCallback): EmitHost {
+        return {
+            getCanonicalFileName,
+            getCommonSourceDirectory: program.getCommonSourceDirectory,
+            getCompilerOptions: program.getCompilerOptions,
+            getCurrentDirectory: () => currentDirectory,
+            getSourceFile: program.getSourceFile,
+            getSourceFileByPath: program.getSourceFileByPath,
+            getSourceFiles: program.getSourceFiles,
+            isSourceFileFromExternalLibrary: ()=>false, // TODO
+            // getResolvedProjectReferenceToRedirect,
+            // getProjectReferenceRedirect,
+            // isSourceOfProjectReferenceRedirect,
+            // getSymlinkCache,
+            writeFile: writeFileCallback || writeFile,
+            isEmitBlocked,
+            readFile: f => host.readFile(f),
+            fileExists: f => {
+                // Use local caches
+                const path = toPath(f);
+                if (getSourceFileByPath(path)) return true;
+                if (missingFileNames.has(path)) return false;
+                // Before falling back to the host
+                return host.fileExists(f);
+            },
+            realpath: maybeBind(host, host.realpath),
+            useCaseSensitiveFileNames: () => host.useCaseSensitiveFileNames(),
+            getBuildInfo: () => program.getBuildInfo?.(),
+            getSourceFileFromReference: (file, ref) => program.getSourceFileFromReference(file, ref),
+            redirectTargetsMap,
+            getFileIncludeReasons: program.getFileIncludeReasons,
+            createHash: maybeBind(host, host.createHash),
+            getModuleResolutionCache: () => program.getModuleResolutionCache(),
+            trace: maybeBind(host, host.trace),
+        };
+    }
+
 
     function addFileToFilesByName(file: SourceFile | undefined, path: Path, fileName: string, redirectedPath: Path | undefined) {
         if (redirectedPath) {
@@ -1077,3 +1305,84 @@ function forEachProjectReference<T>(
     }
 }
 
+
+export function flattenDiagnosticMessageText(diag: string | DiagnosticMessageChain | undefined, newLine: string, indent = 0): string {
+    if (isString(diag)) {
+        return diag;
+    }
+    else if (diag === undefined) {
+        return "";
+    }
+    let result = "";
+    if (indent) {
+        result += newLine;
+
+        for (let i = 0; i < indent; i++) {
+            result += "  ";
+        }
+    }
+    result += diag.messageText;
+    indent++;
+    if (diag.next) {
+        for (const kid of diag.next) {
+            result += flattenDiagnosticMessageText(kid, newLine, indent);
+        }
+    }
+    return result;
+}
+
+/** @internal */
+export function filterSemanticDiagnostics(diagnostic: readonly Diagnostic[], option: CompilerOptions): readonly Diagnostic[] {
+    return filter(diagnostic, d => !d.skippedOn || !option[d.skippedOn]);
+}
+
+interface DiagnosticCache<T extends Diagnostic> {
+    perFile?: Map<Path, readonly T[]>;
+    allDiagnostics?: readonly T[];
+}
+
+/** @internal */
+export function computeCommonSourceDirectoryOfFilenames(fileNames: readonly string[], currentDirectory: string, getCanonicalFileName: GetCanonicalFileName): string {
+    let commonPathComponents: string[] | undefined;
+    const failed = forEach(fileNames, sourceFile => {
+        // Each file contributes into common source file path
+        const sourcePathComponents = getNormalizedPathComponents(sourceFile, currentDirectory);
+        sourcePathComponents.pop(); // The base file name is not part of the common directory path
+
+        if (!commonPathComponents) {
+            // first file
+            commonPathComponents = sourcePathComponents;
+            return;
+        }
+
+        const n = Math.min(commonPathComponents.length, sourcePathComponents.length);
+        for (let i = 0; i < n; i++) {
+            if (getCanonicalFileName(commonPathComponents[i]) !== getCanonicalFileName(sourcePathComponents[i])) {
+                if (i === 0) {
+                    // Failed to find any common path component
+                    return true;
+                }
+
+                // New common path found that is 0 -> i-1
+                commonPathComponents.length = i;
+                break;
+            }
+        }
+
+        // If the sourcePathComponents was shorter than the commonPathComponents, truncate to the sourcePathComponents
+        if (sourcePathComponents.length < commonPathComponents.length) {
+            commonPathComponents.length = sourcePathComponents.length;
+        }
+    });
+
+    // A common path can not be found when paths span multiple drives on windows, for example
+    if (failed) {
+        return "";
+    }
+
+    if (!commonPathComponents) { // Can happen when all input files are .d.ts files
+        return currentDirectory;
+    }
+
+    return getPathFromPathComponents(commonPathComponents);
+}

@@ -53,6 +53,14 @@ export namespace tracingEnabled {
         eventStack.length--;
     }
 
+    export function popAll() {
+        const endTime = 1000 * timestamp();
+        for (let i = eventStack.length - 1; i >= 0; i--) {
+            writeStackEvent(i, endTime);
+        }
+        eventStack.length = 0;
+    }
+
     // sample every 10ms
     const sampleInterval = 1000 * 10;
     function writeStackEvent(index: number, endTime: number, results?: Args) {

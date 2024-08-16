@@ -137,6 +137,7 @@ import {
     map,
     LanguageServiceMode,
     LpcFileHandler,
+    Diagnostic,
 } from "./_namespaces/lpc.js";
 
 // These utilities are common to multiple language service features.
@@ -1219,6 +1220,9 @@ export function createLanguageService(
         getCompilerOptionsDiagnostics,
         getProgram,
         getCurrentProgram: () => program,
+        getSuggestionDiagnostics,
+        getSyntacticDiagnostics,
+        getSemanticDiagnostics
     };
 
     return ls;
@@ -1242,6 +1246,42 @@ export function createLanguageService(
             forEach(program.getSourceFiles(), f => documentRegistry.releaseDocumentWithKey(f.resolvedPath, key, f.scriptKind, f.impliedNodeFormat));
             program = undefined!; // TODO: GH#18217
         }
+    }
+
+    /// Diagnostics
+    function getSyntacticDiagnostics(fileName: string): DiagnosticWithLocation[] {
+        synchronizeHostData();
+
+        return program.getSyntacticDiagnostics(getValidSourceFile(fileName), cancellationToken).slice();
+    }
+
+    /**
+     * getSemanticDiagnostics return array of Diagnostics. If '-d' is not enabled, only report semantic errors
+     * If '-d' enabled, report both semantic and emitter errors
+     */
+    function getSemanticDiagnostics(fileName: string): Diagnostic[] {
+        synchronizeHostData();
+
+        const targetSourceFile = getValidSourceFile(fileName);
+
+        // Only perform the action per file regardless of '-out' flag as LanguageServiceHost is expected to call this function per file.
+        // Therefore only get diagnostics for given file.
+
+        const semanticDiagnostics = program.getSemanticDiagnostics(targetSourceFile, cancellationToken);
+        // if (!getEmitDeclarations(program.getCompilerOptions())) {
+        //     return semanticDiagnostics.slice();
+        // }
+
+        // If '-d' is enabled, check for emitter error. One example of emitter error is export class implements non-export interface
+        const declarationDiagnostics = program.getDeclarationDiagnostics(targetSourceFile, cancellationToken);
+        return [...semanticDiagnostics, ...declarationDiagnostics];
+    }
+
+    function getSuggestionDiagnostics(fileName: string): DiagnosticWithLocation[] {
+        synchronizeHostData();
+        // TODO
+        //return computeSuggestionDiagnostics(getValidSourceFile(fileName), program, cancellationToken);
+        return emptyArray;
     }
 
     function getCompilerOptionsDiagnostics() {

@@ -49,6 +49,37 @@ export interface FileRequestArgs {
 }
 
 /**
+ * Arguments for GeterrForProject request.
+ */
+export interface DiagnosticForProjectRequestArgs {
+    /**
+     * the file requesting project error list
+     */
+    file: string;
+
+    /**
+     * Delay in milliseconds to wait before starting to compute
+     * errors for the files in the file list
+     */
+    delay: number;
+}
+
+
+export interface DiagnosticRequestArgs {
+    /**
+     * List of file names for which to compute compiler errors.
+     * The files will be checked in list order.
+     */
+    files: string[];
+
+    /**
+     * Delay in milliseconds to wait before starting to compute
+     * errors for the files in the file list
+     */
+    delay: number;
+}
+
+/**
  * Instances of this interface specify a location in a source file:
  * (file, line, character offset), where line and character offset are 1-based.
  */
@@ -231,4 +262,145 @@ export interface WatchChangeRequestArgs {
     created?: string[];
     deleted?: string[];
     updated?: string[];
+}
+
+export interface RequestCompletedEventBody {
+    request_seq: number;
+}
+
+export interface DiagnosticEventBody {
+    /**
+     * The file for which diagnostic information is reported.
+     */
+    file: string;
+
+    /**
+     * An array of diagnostic information items.
+     */
+    diagnostics: Diagnostic[];
+}
+
+/**
+ * Item of diagnostic information found in a DiagnosticEvent message.
+ */
+export interface Diagnostic {
+    /**
+     * Starting file location at which text applies.
+     */
+    start: Location;
+
+    /**
+     * The last file location at which the text applies.
+     */
+    end: Location;
+
+    /**
+     * Text of diagnostic message.
+     */
+    text: string;
+
+    /**
+     * The category of the diagnostic message, e.g. "error", "warning", or "suggestion".
+     */
+    category: string;
+
+    reportsUnnecessary?: {};
+
+    reportsDeprecated?: {};
+
+    /**
+     * Any related spans the diagnostic may have, such as other locations relevant to an error, such as declarartion sites
+     */
+    relatedInformation?: DiagnosticRelatedInformation[];
+
+    /**
+     * The error code of the diagnostic message.
+     */
+    code?: number;
+
+    /**
+     * The name of the plugin reporting the message.
+     */
+    source?: string;
+}
+
+/**
+ * Represents additional spans returned with a diagnostic which are relevant to it
+ */
+export interface DiagnosticRelatedInformation {
+    /**
+     * The category of the related information message, e.g. "error", "warning", or "suggestion".
+     */
+    category: string;
+    /**
+     * The code used ot identify the related information
+     */
+    code: number;
+    /**
+     * Text of related or additional information.
+     */
+    message: string;
+    /**
+     * Associated location
+     */
+    span?: FileSpan;
+}
+
+/**
+ * Object found in response messages defining a span of text in source code.
+ */
+export interface TextSpan {
+    /**
+     * First character of the definition.
+     */
+    start: Location;
+
+    /**
+     * One character past last character of the definition.
+     */
+    end: Location;
+}
+
+
+/**
+ * Object found in response messages defining a span of text in a specific source file.
+ */
+export interface FileSpan extends TextSpan {
+    /**
+     * File containing text span.
+     */
+    file: string;
+}
+
+export type DiagnosticEventKind = "semanticDiag" | "syntaxDiag" | "suggestionDiag";
+
+export interface SemanticDiagnosticsSyncRequestArgs extends FileRequestArgs {
+    includeLinePosition?: boolean;
+}
+
+
+/**
+ * Represents diagnostic info that includes location of diagnostic in two forms
+ * - start position and length of the error span
+ * - startLocation and endLocation - a pair of Location objects that store start/end line and offset of the error span.
+ */
+export interface DiagnosticWithLinePosition {
+    message: string;
+    start: number;
+    length: number;
+    startLocation: Location;
+    endLocation: Location;
+    category: string;
+    code: number;
+    /** May store more in future. For now, this will simply be `true` to indicate when a diagnostic is an unused-identifier diagnostic. */
+    reportsUnnecessary?: {};
+    reportsDeprecated?: {};
+    relatedInformation?: DiagnosticRelatedInformation[];
+}
+
+export interface DiagnosticWithFileName extends Diagnostic {
+    /**
+     * Name of the file the diagnostic is in
+     */
+    fileName: string;
 }

@@ -37,6 +37,7 @@ import {
     EqualsToken,
     Expression,
     ExpressionStatement,
+    FalseLiteral,
     FloatLiteral,
     ForEachInitializer,
     ForEachStatement,
@@ -103,6 +104,7 @@ import {
     SyntaxKind,
     Token,
     TokenFlags,
+    TrueLiteral,
     TypeElement,
     TypeLiteralNode,
     TypeNode,
@@ -170,6 +172,8 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createFloatLiteral,
         createStringLiteral,
         createLiteralLikeNode,
+        createTrue,
+        createFalse,
 
         // type elements,
         createIndexSignature,
@@ -305,12 +309,14 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     function createToken(token: SyntaxKind.EndOfFileToken): EndOfFileToken;
+    function createToken(token: SyntaxKind.TrueKeyword): TrueLiteral;
+    function createToken(token: SyntaxKind.FalseKeyword): FalseLiteral;
     function createToken<TKind extends PunctuationSyntaxKind>(token: TKind): PunctuationToken<TKind>; // prettier-ignore
     function createToken(token: SyntaxKind.Unknown): Token<SyntaxKind.Unknown>;
     function createToken<TKind extends KeywordTypeSyntaxKind>(token: TKind): KeywordTypeNode<TKind>; // prettier-ignore
     function createToken<TKind extends ModifierSyntaxKind>(token: TKind): ModifierToken<TKind>; // prettier-ignore
     function createToken<TKind extends KeywordSyntaxKind>(token: TKind): KeywordToken<TKind>; // prettier-ignore
-    function createToken<TKind extends SyntaxKind>(token: TKind): Token<TKind>;
+    function createToken<TKind extends SyntaxKind>(token: TKind): Token<TKind>;    
     function createToken<TKind extends SyntaxKind>(token: TKind) {
         const node = createBaseToken<Token<TKind>>(token);
         return node;
@@ -357,6 +363,16 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
             (node as any)[p] = (source as any)[p];
         }
         return node;
+    }
+
+    // @api
+    function createTrue() {
+        return createToken(SyntaxKind.TrueKeyword);
+    }
+
+    // @api
+    function createFalse() {
+        return createToken(SyntaxKind.FalseKeyword);
     }
 
     function cloneSourceFile(source: SourceFile) {

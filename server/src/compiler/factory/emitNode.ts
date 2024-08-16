@@ -1,4 +1,4 @@
-import { append, Debug, EmitFlags, EmitNode, getParseTreeNode, getSourceFileOfNode, Identifier, InternalEmitFlags, isParseTreeNode, Node, NodeArray, SyntaxKind, SynthesizedComment, TypeNode, TypeParameterDeclaration } from "../_namespaces/lpc";
+import { append, Debug, EmitFlags, EmitNode, getParseTreeNode, getSourceFileOfNode, Identifier, InternalEmitFlags, isParseTreeNode, Node, NodeArray, SourceFile, SyntaxKind, SynthesizedComment, TypeNode, TypeParameterDeclaration } from "../_namespaces/lpc";
 
 /**
  * Sets flags that control emit behavior of a node.
@@ -68,4 +68,24 @@ export function getSyntheticLeadingComments(node: Node): SynthesizedComment[] | 
 
 export function addSyntheticLeadingComment<T extends Node>(node: T, kind: SyntaxKind.SingleLineCommentTrivia | SyntaxKind.MultiLineCommentTrivia, text: string, hasTrailingNewLine?: boolean) {
     return setSyntheticLeadingComments(node, append<SynthesizedComment>(getSyntheticLeadingComments(node), { kind, pos: -1, end: -1, hasTrailingNewLine, text }));
+}
+
+
+/**
+ * Clears any `EmitNode` entries from parse-tree nodes.
+ * @param sourceFile A source file.
+ */
+export function disposeEmitNodes(sourceFile: SourceFile | undefined) {
+    // During transformation we may need to annotate a parse tree node with transient
+    // transformation properties. As parse tree nodes live longer than transformation
+    // nodes, we need to make sure we reclaim any memory allocated for custom ranges
+    // from these nodes to ensure we do not hold onto entire subtrees just for position
+    // information. We also need to reset these nodes to a pre-transformation state
+    // for incremental parsing scenarios so that we do not impact later emit.
+    const annotatedNodes = getSourceFileOfNode(getParseTreeNode(sourceFile))?.emitNode?.annotatedNodes;
+    if (annotatedNodes) {
+        for (const node of annotatedNodes) {
+            node.emitNode = undefined;
+        }
+    }
 }
