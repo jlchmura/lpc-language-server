@@ -392,9 +392,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             bindSourceFile(file, compilerOptions);
         }
 
-        for (const file of host.getSourceFiles()) {
-            mergeSymbolTable(globals, file.locals!);
-        }
+        // globals is not a thing in LPC - don't merge
+        // for (const file of host.getSourceFiles()) {
+        //     mergeSymbolTable(globals, file.locals!);
+        // }
 
         // TODO
         
@@ -7753,6 +7754,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function lookupOrIssueError(location: Node | undefined, message: DiagnosticMessage, ...args: DiagnosticArguments): Diagnostic {
+        // if (location?.flags & NodeFlags.ExternalFile) {
+        //     // don't issue diagnostics for nodes from an external file
+        //     return undefined;
+        // }
+
         const diagnostic = location
             ? createDiagnosticForNode(location, message, ...args)
             : createCompilerDiagnostic(message, ...args);

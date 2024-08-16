@@ -822,7 +822,8 @@ export const enum TypeFormatFlags {
 
 export const enum NodeFlags {
     None               = 0,
-    Variable           = 1 << 0,  // Variable declaration    
+    Variable           = 1 << 0,  // Variable declaration   
+    ExternalFile       = 1 << 2,  // Included from an external file 
     Synthesized        = 1 << 4,  // Node was synthesized during transformation    
     ExportContext      = 1 << 7,  // Export context (initialized by binding)
     HasImplicitReturn  = 1 << 9,  // If function implicitly returns on one of codepaths (initialized by binding)

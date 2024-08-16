@@ -197,9 +197,22 @@ export namespace LpcParser {
         return (typeof pos==="object") && (typeof pos["pos"]==="number");
     }
 
-    function createMissingNode<T extends Node>(kind: T["kind"], posOrToken: Position, diagnosticMessage?: DiagnosticMessage, ...args: DiagnosticArguments): T;
-    function createMissingNode<T extends Node>(kind: T["kind"], posOrToken: antlr.Token, diagnosticMessage: DiagnosticMessage, ...args: DiagnosticArguments): T;
-    function createMissingNode<T extends Node>(kind: T["kind"], posOrToken: Position|antlr.Token, diagnosticMessage?: DiagnosticMessage, ...args: DiagnosticArguments): T {
+    function getFilename(tree: antlr.Token): string;
+    function getFilename(tree: antlr.TerminalNode): string;
+    function getFilename(tree: antlr.ParserRuleContext): string;
+    function getFilename(tree: antlr.ParserRuleContext | antlr.TerminalNode | antlr.Token): string {
+        if (tree instanceof antlr.TerminalNode) {
+            return (tree.symbol as parserCore.LPCToken).filename;
+        } else if (tree instanceof antlr.ParserRuleContext) {
+            return (tree.start as parserCore.LPCToken).filename;
+        } else {
+            return (tree as parserCore.LPCToken).filename;
+        }
+    }
+
+    function createMissingNode<T extends Node>(kind: T["kind"], nodeFilename: string, posOrToken: Position, diagnosticMessage?: DiagnosticMessage, ...args: DiagnosticArguments): T;
+    function createMissingNode<T extends Node>(kind: T["kind"], nodeFilename: string, posOrToken: antlr.Token, diagnosticMessage: DiagnosticMessage, ...args: DiagnosticArguments): T;
+    function createMissingNode<T extends Node>(kind: T["kind"], nodeFilename: string, posOrToken: Position|antlr.Token, diagnosticMessage?: DiagnosticMessage, ...args: DiagnosticArguments): T {
         let pos: Position;
         if (isPosition(posOrToken)) {
             pos = posOrToken;
@@ -216,20 +229,20 @@ export namespace LpcParser {
             kind === SyntaxKind.StringLiteral ? factory.createStringLiteral("", /*isSingleQuote*/ undefined) :
             //kind === SyntaxKind.MissingDeclaration ? factory.createMissingDeclaration() :
             factory.createToken(kind);
-        return finishNode(result, pos.pos, pos.end) as T;
+        return finishNode(result, nodeFilename, pos.pos, pos.end) as T;
     }
     
     function parseTokenNode<T extends Node>(parserNode: antlr.TerminalNode | antlr.Token): T {
         const kind = getSyntaxKindFromLex(parserNode);
         if (parserNode instanceof antlr.TerminalNode) {
             const {pos, end} = getTerminalPos(parserNode);                    
-            return finishNode(factory.createToken(kind), pos, end) as T;
+            return finishNode(factory.createToken(kind), getFilename(parserNode), pos, end) as T;
         } else {
-            return finishNode(factory.createToken(kind), parserNode.start, parserNode.stop) as T;
+            return finishNode(factory.createToken(kind), getFilename(parserNode), parserNode.start, parserNode.stop) as T;
         }
     }
 
-    function finishNode<T extends Node>(node: T, pos: number, end: number): T {
+    function finishNode<T extends Node>(node: T, nodeFilename: string, pos: number, end: number): T {
         setTextRangePosEnd(node, pos, end);
         if (contextFlags) {
             (node as Mutable<T>).flags |= contextFlags;
@@ -241,6 +254,10 @@ export namespace LpcParser {
         if (parseErrorBeforeNextFinishedNode) {
             parseErrorBeforeNextFinishedNode = false;
             (node as Mutable<T>).flags |= NodeFlags.ThisNodeHasError;
+        }
+
+        if (nodeFilename != fileName) {
+            (node as Mutable<T>).flags |= NodeFlags.ExternalFile;
         }
 
         return node;
@@ -257,7 +274,10 @@ export namespace LpcParser {
     }    
 
     function getNodePos(tree: antlr.ParserRuleContext): Position {
-        return createPosition(tree?.start?.start, tree?.stop.stop+1);
+        const startToken = tree?.start as parserCore.LPCToken;
+        const endToken = tree?.stop;
+        
+        return createPosition(startToken?.start, endToken?.stop+1);        
     }
     
     /** Converts a Lexer terinal node's type to a SyntaxKind */    
@@ -366,7 +386,7 @@ export namespace LpcParser {
         const body = parseStatement(tree.statement());
         const expr = parseExpression(tree.expression());
         const node = factory.createWhileStatement(body, expr);
-        return withJSDoc(finishNode(node, pos, end), jsDoc);
+        return withJSDoc(finishNode(node, getFilename(tree), pos, end), jsDoc);
     }
 
     function parseDoWhileStatement(tree: parserCore.DoWhileStatementContext): Statement {
@@ -375,7 +395,7 @@ export namespace LpcParser {
         const body = parseStatement(tree.statement());
         const expr = parseExpression(tree.expression());
         const node = factory.createDoWhileStatement(body, expr);
-        return withJSDoc(finishNode(node, pos, end), jsDoc);
+        return withJSDoc(finishNode(node, getFilename(tree), pos, end), jsDoc);
     }
 
     function parseForEachStatement(tree: parserCore.ForEachStatementContext): Statement {
@@ -393,15 +413,15 @@ export namespace LpcParser {
         let range = expr1;
         if (forEachTree.DOUBLEDOT()) {
             if (!expr2) {
-                return createMissingNode(SyntaxKind.ExpressionStatement, forEachTree.DOUBLEDOT().symbol, Diagnostics.Expression_expected);                
+                return createMissingNode(SyntaxKind.ExpressionStatement, getFilename(tree), forEachTree.DOUBLEDOT().symbol, Diagnostics.Expression_expected);                
             }
             
             // this is a range expression
-            range = makeBinaryExpression(expr1, factory.createToken(SyntaxKind.DotDotToken), expr2, expr1.pos, expr2.end);            
+            range = makeBinaryExpression(expr1, factory.createToken(SyntaxKind.DotDotToken), expr2, getFilename(tree), expr1.pos, expr2.end);            
         } 
 
         const node = factory.createForEachStatement(init, range, body);        
-        return withJSDoc(finishNode(node, pos, end), jsDoc);
+        return withJSDoc(finishNode(node, getFilename(tree), pos, end), jsDoc);
     }
 
     function parseForStatement(tree: parserCore.ForStatementContext): Statement {
@@ -415,7 +435,7 @@ export namespace LpcParser {
         const body = parseOptional(tree.statement(), parseStatement);
 
         const node = factory.createForStatement(init, condition, increment, body);
-        return withJSDoc(finishNode(node, pos, end), jsDoc);
+        return withJSDoc(finishNode(node, getFilename(tree), pos, end), jsDoc);
     }
 
     function parseCaseStatement(tree: parserCore.CaseStatementContext): CaseClause {
@@ -431,17 +451,17 @@ export namespace LpcParser {
         let nodeExpr = expr1;
         if (caseExpr.DOUBLEDOT()) {
             // this is a range expression
-            nodeExpr = makeBinaryExpression(expr1, factory.createToken(SyntaxKind.DotDotToken), expr2, getNodePos(tree).pos, getNodePos(tree).end);                
+            nodeExpr = makeBinaryExpression(expr1, factory.createToken(SyntaxKind.DotDotToken), expr2, getFilename(tree), getNodePos(tree).pos, getNodePos(tree).end);                
         }
 
         const {pos,end} = getNodePos(tree);
-        return finishNode(factory.createCaseClause(nodeExpr, statements), pos, end);
+        return finishNode(factory.createCaseClause(nodeExpr, statements), getFilename(tree), pos, end);
     }
 
     function parseDefaultStatement(tree: parserCore.DefaultStatementContext): DefaultClause {
         const statements = parseStatementList(tree.statement());
         const {pos,end} = getNodePos(tree);
-        return finishNode(factory.createDefaultClause(statements), pos, end);
+        return finishNode(factory.createDefaultClause(statements), getFilename(tree), pos, end);
     }
 
     function parseSwitchStatement(tree: parserCore.SwitchStatementContext): SwitchStatement {
@@ -470,7 +490,7 @@ export namespace LpcParser {
         
         const caseBlock = factory.createCaseBlock(clauses.filter(c=>!!c));        
         const node = factory.createSwitchStatement(expression, preBlock, caseBlock);
-        return finishNode(node, pos, end);
+        return finishNode(node, getFilename(tree), pos, end);
     }
 
     function parseIfStatementWorker(tree: parserCore.IfExpressionContext | parserCore.ElseIfExpressionContext, rest: (parserCore.IfExpressionContext | parserCore.ElseIfExpressionContext | parserCore.ElseExpressionContext)[]): IfStatement {
@@ -488,12 +508,12 @@ export namespace LpcParser {
 
         if (next instanceof parserCore.ElseExpressionContext) {            
             const elT = parseStatement(next.statement());
-            return finishNode(factory.createIfStatement(e,t,elT), pos, end);
+            return finishNode(factory.createIfStatement(e,t,elT), getFilename(tree), pos, end);
         } else if (next) {            
             const nextNode = parseIfStatementWorker(next, rest);            
-            return finishNode(factory.createIfStatement(e,t,nextNode), pos, end);
+            return finishNode(factory.createIfStatement(e,t,nextNode), getFilename(tree), pos, end);
         } else {
-            return finishNode(factory.createIfStatement(e,t), pos, end);
+            return finishNode(factory.createIfStatement(e,t), getFilename(tree), pos, end);
         }
     }
 
@@ -510,7 +530,7 @@ export namespace LpcParser {
         const node = kind === SyntaxKind.BreakStatement
             ? factory.createBreakStatement()
             : factory.createContinueStatement();
-        return finishNode(node, pos, end);
+        return finishNode(node, getFilename(terminal), pos, end);
     }
 
     function parseReturnStatement(tree: parserCore.ReturnStatementContext): ReturnStatement {
@@ -518,7 +538,7 @@ export namespace LpcParser {
         const jsDoc = getPrecedingJSDocBlock(tree);
 
         const expression = tree.commaableExpression() ? parseCommaExpression(tree.commaableExpression()) : undefined;
-        return withJSDoc(finishNode(factory.createReturnStatement(expression), pos, end), jsDoc);
+        return withJSDoc(finishNode(factory.createReturnStatement(expression), getFilename(tree), pos, end), jsDoc);
     }
 
     function parseExpressionStatement(tree: parserCore.CommaableExpressionContext) {
@@ -526,7 +546,7 @@ export namespace LpcParser {
         //let jsDoc = getPrecedingJSDocBlock(tree);
         const expression = parseCommaExpression(tree);
         const statement = factory.createExpressionStatement(expression);
-        return finishNode(statement, pos,end);
+        return finishNode(statement, getFilename(tree), pos, end);
     }
 
     function parseCommaExpression(tree: parserCore.CommaableExpressionContext): Expression {
@@ -553,7 +573,7 @@ export namespace LpcParser {
             const rightExpr = parseAssignmentExpressionOrHigher(children[i + 1] as parserCore.ConditionalExpressionContext);
             end = getNodePos(children[i + 1] as antlr.ParserRuleContext).end;
             
-            expr = makeBinaryExpression(expr, operator, rightExpr, pos, end);
+            expr = makeBinaryExpression(expr, operator, rightExpr, getFilename(tree), pos, end);
         }
 
         return expr;
@@ -592,6 +612,7 @@ export namespace LpcParser {
 
             return finishNode(
                 createTypeNode(createNodeArray(types, pos, end)),
+                getFilename(tree),
                 pos,
                 end
             );
@@ -623,7 +644,7 @@ export namespace LpcParser {
             typeNode = parsePrimitiveTypeSpecifier(tree.primitiveTypeSpecifier());
         }
         if (tree.STAR()?.length > 0) {
-            typeNode = finishNode(factory.createArrayTypeNode(typeNode), pos, end);
+            typeNode = finishNode(factory.createArrayTypeNode(typeNode), getFilename(tree), pos, end);
         }
 
         return typeNode;
@@ -634,7 +655,7 @@ export namespace LpcParser {
         const terminal = tree.getChild(0) as antlr.TerminalNode;
         const kind = getSyntaxKindFromLex(terminal);
 
-        return finishNode(factory.createToken(kind as Modifier["kind"]), pos, end);
+        return finishNode(factory.createToken(kind as Modifier["kind"]), getFilename(tree), pos, end);
     }        
 
     function parseModifiers(tree: parserCore.VariableModifierContext[] | parserCore.FunctionModifierContext[]): NodeArray<Modifier> {
@@ -655,7 +676,7 @@ export namespace LpcParser {
         
         const node = factory.createVariableDeclarationList(declarationList, flags);
 
-        return finishNode(node, pos, end);
+        return finishNode(node, getFilename(tree), pos, end);
     }
     
     /** A Var Decl Statement has Modifiers and a Decl (Type & Declaration List) */
@@ -668,7 +689,7 @@ export namespace LpcParser {
         const decl = parseVariableDeclarationList(declListTree);
 
         const node = factory.createVariableStatement(modifiers, decl);
-        return withJSDoc(finishNode(node, pos, end), jsDoc);
+        return withJSDoc(finishNode(node, getFilename(tree), pos, end), jsDoc);
     }
 
     function parseVariableDeclaration(type: TypeNode, declExp: parserCore.VariableDeclaratorExpressionContext, inForStatementInitializer: boolean): VariableDeclaration {
@@ -682,7 +703,7 @@ export namespace LpcParser {
         const node = factory.createVariableDeclaration(name, type, eqToken, initializer);    
 
 
-        return withJSDoc(finishNode(node, pos, end), jsDoc);                
+        return withJSDoc(finishNode(node, getFilename(declExp), pos, end), jsDoc);                
     }
 
     function parseInitializer(tree: parserCore.VariableInitializerContext): Expression | undefined {        
@@ -704,28 +725,44 @@ export namespace LpcParser {
         const multiLine = openBracketLine !== closeBracketLine;
         const trailingComma = tree.COMMA().length == tree.expression().length;
         const elements = parseList(tree.expression(), parseExpression);
-        return finishNode(factory.createArrayLiteralExpression(elements, multiLine, trailingComma), pos, end);
+        return finishNode(factory.createArrayLiteralExpression(elements, multiLine, trailingComma), getFilename(tree), pos, end);
     }
 
     function asToken<T extends Node>(token: antlr.Token): T {
         const pos = token.start, end = token.stop;
         const kind = getSyntaxKindFromLex(token);        
-        return finishNode(factory.createToken(kind), pos, end) as T;
+        return finishNode(factory.createToken(kind), getFilename(token), pos, end) as T;
     }
     
     function parseLambdaExpression(tree: parserCore.LambdaExpressionContext): LambdaExpression  {
         const {pos,end} = getNodePos(tree);
         if (tree.LAMBDA_IDENTIFIER()) {
             const lambdaId = asIdentifier(tree.LAMBDA_IDENTIFIER().symbol);            
-            return finishNode(factory.createLambdaIdentifierExpression(lambdaId), pos, end);
+            return finishNode(factory.createLambdaIdentifierExpression(lambdaId), getFilename(tree), pos, end);
         } else if (tree._op) {
             const lambdaToken = parseTokenNode<LambdaOperatorToken>(tree._op);            
-            return finishNode(factory.createLambdaOperatorExpression(lambdaToken), pos, end);
+            return finishNode(factory.createLambdaOperatorExpression(lambdaToken), getFilename(tree), pos, end);
         } else {
             console.log("TODO - parse lambda expression");            
         }
 
         return undefined;
+    }
+
+    function parseCastExpression(tree: parserCore.CastExpressionContext): Expression {
+        const {pos,end} = getNodePos(tree);
+        
+        if (tree instanceof parserCore.PrimitiveTypeCastExpressionContext || tree instanceof parserCore.DeclarativeTypeCastExpressionContext) {            
+            const type = parseType(tree.typeSpecifier().unionableTypeSpecifier());            
+            const expr = parseAssignmentExpressionOrHigher(tree.conditionalExpression());
+            //return finishNode(factory.createCastExpression(type, expr), pos, end);
+            return finishNode(expr, getFilename(tree), pos, end);
+        } else if (tree instanceof parserCore.StructCastExpressionContext) {
+            // struct type
+            Debug.fail("Implement this - struct cast expression");
+        }
+
+        Debug.fail("unsupported cast expression type " + tree.ruleIndex);        
     }
 
     function parseAssignmentExpressionOrHigher(tree: parserCore.ConditionalExpressionContext): Expression {
@@ -734,7 +771,7 @@ export namespace LpcParser {
         // parse lhs
         let lhs: Expression;
         if (tree.castExpression()) {
-            // TODO : parse this
+            lhs = parseCastExpression(tree.castExpression());
         } else if (tree.lambdaExpression()) {
             lhs = parseLambdaExpression(tree.lambdaExpression());
         } else if (tree.inlineClosureExpression()) {
@@ -756,6 +793,7 @@ export namespace LpcParser {
 
             return finishNode(
                 factory.createConditionalExpression(lastExp, asToken(tree._ternOp), trueExpr, asToken(tree._ternOp2), falseExpr),
+                getFilename(tree), 
                 pos, end
             );
         }
@@ -791,7 +829,7 @@ export namespace LpcParser {
                       
             lhs ??= parsePrimaryExpression(tree.children[1] as parserCore.PrimaryExpressionContext);
             Debug.assertIsDefined(lhs, "left-hand side is undefined");
-            lhs = finishNode(factory.createPrefixUnaryExpression(opKind, lhs), pos, lhs.end);
+            lhs = finishNode(factory.createPrefixUnaryExpression(opKind, lhs), getFilename(tree), pos, lhs.end);
             i = 2;
         }
 
@@ -812,6 +850,7 @@ export namespace LpcParser {
                     lastExp,
                     operator,
                     childExpr,
+                    getFilename(tree), 
                     pos,
                     getNodePos(childExprTree).end
                 );
@@ -841,7 +880,7 @@ export namespace LpcParser {
             }
 
             const node = factory.createInlineClosure(body);
-            return finishNode(node, pos, end);
+            return finishNode(node, getFilename(tree), pos, end);
         }
     }
 
@@ -854,7 +893,7 @@ export namespace LpcParser {
     function parseParenthesizedExpression(tree: parserCore.ParenExpressionContext): ParenthesizedExpression {
         const {pos,end} = getNodePos(tree);
         const expression = parseCommaExpression(tree.commaableExpression());
-        return finishNode(factory.createParenthesizedExpression(expression), pos, end);        
+        return finishNode(factory.createParenthesizedExpression(expression), getFilename(tree), pos, end);        
     }
 
     function parsePrimaryExpression(
@@ -895,7 +934,7 @@ export namespace LpcParser {
                         // TODO log diagnostic                        
                 }
                 end = tree._op.stop + 1;
-                return finishNode(factory.createPostfixUnaryExpression(leftExp, opKind), pos, end);
+                return finishNode(factory.createPostfixUnaryExpression(leftExp, opKind), getFilename(tree), pos, end);
             }
 
             if (tree.methodInvocation()) {            
@@ -929,7 +968,7 @@ export namespace LpcParser {
 
             const {pos, end} = getNodePos(argCtxList);
             const argNodes = createNodeArray(args, pos, end);
-            expression = finishNode(factory.createCallExpression(expression, argNodes), callPos, callEnd);
+            expression = finishNode(factory.createCallExpression(expression, argNodes), getFilename(tree), callPos, callEnd);
         }
 
         return expression;
@@ -961,12 +1000,12 @@ export namespace LpcParser {
         const {pos,end} = getNodePos(tree);        
         const catchPos = getTerminalPos(tree.CATCH());
         
-        const target = finishNode(factory.createIdentifier("catch"), catchPos.pos, catchPos.end);
+        const target = finishNode(factory.createIdentifier("catch"), getFilename(tree), catchPos.pos, catchPos.end);
         const args = tree.expression();
         const argNodes = parseList(args, parseExpression);        
         
         const node = factory.createCallExpression(target, argNodes);
-        return finishNode(node, pos, end);
+        return finishNode(node, getFilename(tree), pos, end);
     }
 
     function parseLiteralNode(tree: parserCore.LiteralContext): LiteralExpression {
@@ -989,7 +1028,7 @@ export namespace LpcParser {
                 break;
         }
         const node = factory.createLiteralLikeNode(type, token.getText());
-        return finishNode(node, pos, end);
+        return finishNode(node, getFilename(tree), pos, end);
     }
 
     function parseStringLiteralNode(tree: antlr.TerminalNode): StringLiteral {
@@ -998,7 +1037,7 @@ export namespace LpcParser {
         Debug.assertEqual(parserCore.LPCLexer.StringLiteral, tree.symbol.type, "Expected StringLiteral token type");
         const node = factory.createLiteralLikeNode(SyntaxKind.StringLiteral, tree.getText()) as StringLiteral;
         
-        return finishNode(node, pos, end);
+        return finishNode(node, getFilename(tree), pos, end);
     }
     
     function parseStringLiterals(tree: antlr.TerminalNode[]) {
@@ -1017,8 +1056,8 @@ export namespace LpcParser {
         }        
     }
 
-    function makeBinaryExpression(left: Expression, operatorToken: BinaryOperatorToken, right: Expression, pos: number, end: number): BinaryExpression {
-        return finishNode(factory.createBinaryExpression(left, operatorToken, right), pos, end);
+    function makeBinaryExpression(left: Expression, operatorToken: BinaryOperatorToken, right: Expression, nodeFilename: string, pos: number, end: number): BinaryExpression {
+        return finishNode(factory.createBinaryExpression(left, operatorToken, right), nodeFilename, pos, end);
     }
 
     /** gets a potential jsdoc comment block */
@@ -1058,10 +1097,10 @@ export namespace LpcParser {
     function asIdentifier(terminal: antlr.TerminalNode|antlr.Token): Identifier {
         if (terminal instanceof antlr.TerminalNode) {
             const { pos,end} = getTerminalPos(terminal);
-            return finishNode(factory.createIdentifier(internIdentifier(terminal.getText())),pos,end);
+            return finishNode(factory.createIdentifier(internIdentifier(terminal.getText())), getFilename(terminal), pos,end);
         } else {
             const pos = terminal.start, end = terminal.stop;
-            return finishNode(factory.createIdentifier(internIdentifier(terminal.text)),pos,end);
+            return finishNode(factory.createIdentifier(internIdentifier(terminal.text)), getFilename(terminal), pos,end);
         }
     }
 
@@ -1078,7 +1117,7 @@ export namespace LpcParser {
             // Store original token kind if it is not just an Identifier so we can report appropriate error later in type checker
             const text = internIdentifier(tree.getText());
 
-            return finishNode(factory.createIdentifier(text), pos, end);
+            return finishNode(factory.createIdentifier(text), getFilename(tree), pos, end);
         }
 
         // TODO: handle error nodes here
@@ -1095,7 +1134,7 @@ export namespace LpcParser {
         const multiLine =
             tree.CURLY_OPEN().symbol.line !== tree.CURLY_CLOSE().symbol.line;
         const statements = parseStatementList(tree.statement());
-        const result = withJSDoc(finishNode(factory.createBlock(statements, multiLine), pos, end), hasJSDoc);
+        const result = withJSDoc(finishNode(factory.createBlock(statements, multiLine), getFilename(tree), pos, end), hasJSDoc);
 
         return result;
     }
@@ -1124,7 +1163,7 @@ export namespace LpcParser {
         if (varArgs) {            
             const {pos,end} = getTerminalPos(varArgs);
             const kind = getSyntaxKindFromLex(varArgs);
-            modifiers = [finishNode(factory.createToken(kind as Modifier["kind"]), pos, end)];
+            modifiers = [finishNode(factory.createToken(kind as Modifier["kind"]), getFilename(tree), pos, end)];
         }
 
         let initializer:Expression;        
@@ -1134,7 +1173,7 @@ export namespace LpcParser {
             initializer = parseOptional(tree.inlineClosureExpression(), parseInlineClosureLikeExpression);
 
         const node = factory.createParameterDeclaration(modifiers, trippleDot, name, amp, type, initializer);
-        return withJSDoc(finishNode(node, getNodePos(tree).pos, getNodePos(tree).end), jsDoc);
+        return withJSDoc(finishNode(node, getFilename(tree), getNodePos(tree).pos, getNodePos(tree).end), jsDoc);
     }   
 
     function parseFunctionDeclaration(
@@ -1168,7 +1207,7 @@ export namespace LpcParser {
             body
         );
 
-        return withJSDoc(finishNode(node, pos, end), jsDocBlock);
+        return withJSDoc(finishNode(node, getFilename(tree), pos, end), jsDocBlock);
     }
 
     let hasDeprecatedTag = false;
@@ -1196,7 +1235,7 @@ export namespace LpcParser {
         const stringNode = parseStringLiterals(stringLiterals);       
 
         const node = factory.createInheritDeclaration(stringNode, undefined);
-        return finishNode(node, pos,end);
+        return finishNode(node, getFilename(tree), pos,end);
     }
 }
 
