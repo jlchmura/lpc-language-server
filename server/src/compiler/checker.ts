@@ -10718,7 +10718,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             }
             if (type.flags & TypeFlags.BooleanLiteral) {
                 context.approximateLength += (type as IntrinsicType).intrinsicName.length;
-                return factory.createLiteralTypeNode((type as IntrinsicType).intrinsicName === "true" ? factory.createTrue() : factory.createFalse());
+                //return factory.createLiteralTypeNode((type as IntrinsicType).intrinsicName === "true" ? factory.createTrue() : factory.createFalse());
+                return factory.createLiteralTypeNode((type as IntrinsicType).intrinsicName === "true" ? factory.createIntLiteral(1) : factory.createIntLiteral(0));
             }
             // if (type.flags & TypeFlags.UniqueESSymbol) {
             //     if (!(context.flags & NodeBuilderFlags.AllowUniqueESSymbolType)) {
@@ -14598,6 +14599,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         // ) return true;
         if (s & TypeFlags.NumberLike && t & TypeFlags.Number) return true;                
         if (s & TypeFlags.BooleanLike && t & TypeFlags.Boolean) return true;
+        if (s & TypeFlags.BooleanLike && t & TypeFlags.Number) return true;
         if (s & TypeFlags.ESSymbolLike && t & TypeFlags.ESSymbol) return true;                
         // In non-strictNullChecks mode, `undefined` and `null` are assignable to anything except `never`.
         // Since unions and intersections may reduce to `never`, we exclude them here.
