@@ -975,18 +975,6 @@ export function collapseTextChangeRangesAcrossMultipleVersions(changes: readonly
     return createTextChangeRange(createTextSpanFromBounds(oldStartN, oldEndN), /*newLength*/ newEndN - oldStartN);
 }
 
-
-export function getDefaultLibFileName(options: CompilerOptions): string {
-    switch (getDriverType(options)) {
-        case LanguageVariant.LDMud:
-            return "efuns.ldmud.h";
-        case LanguageVariant.FluffOS:
-            return "efuns.fluffos.h";
-        default:
-            throw "Unsupported driver type";            
-    }
-}
-
 /** @internal */
 export function getCombinedNodeFlagsAlwaysIncludeJSDoc(node: Declaration): ModifierFlags {
     return getCombinedFlags(node, getEffectiveModifierFlagsAlwaysIncludeJSDoc);
@@ -994,4 +982,15 @@ export function getCombinedNodeFlagsAlwaysIncludeJSDoc(node: Declaration): Modif
 
 export function sortAndDeduplicateDiagnostics<T extends Diagnostic>(diagnostics: readonly T[]): SortedReadonlyArray<T> {
     return sortAndDeduplicate<T>(diagnostics, compareDiagnostics, diagnosticsEqualityComparer);
+}
+
+export function getDefaultLibFileName(options: CompilerOptions): string {
+    switch (options.driverType) {
+        case LanguageVariant.LDMud:
+            return "efuns.ldmud.h";
+        case LanguageVariant.FluffOS:
+            return "efuns.fluffos.h";
+        default:
+            throw "Unsupported driver type";            
+    }
 }

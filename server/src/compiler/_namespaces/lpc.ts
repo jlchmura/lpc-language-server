@@ -20,6 +20,7 @@ export * from "../factory/utilities.js";
 export * from "../lpcFileHandler.js";
 export * from "../parser.js";
 export * from "../commandLineParser.js";
+export * from "../moduleNameResolver.js";
 export * from "../nodeTests.js";
 export * from "../binder.js";
 export * from "../checker.js";

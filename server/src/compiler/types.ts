@@ -323,7 +323,7 @@ export interface ResolvedModuleFull extends ResolvedModule {
      * This is optional for backwards-compatibility, but will be added if not provided.
      */
     extension: string;
-    packageId?: string;
+    packageId?: PackageId;
 }
 
 export interface ResolvedModuleWithFailedLookupLocations {
@@ -1168,6 +1168,7 @@ export interface NodeFactory {
 }
 
 export interface CompilerOptions {
+    traceResolution?: boolean;
     allowUnreachableCode?: boolean;
     noUncheckedIndexedAccess?: boolean;
     noFallthroughCasesInSwitch?: boolean;
@@ -1188,6 +1189,7 @@ export interface CompilerOptions {
     rootDir?: string;
     outDir?: string;
     outFile?: string;
+    lib?: string[];
 }
 
 export const enum OuterExpressionKinds {
@@ -3949,6 +3951,12 @@ export interface ScriptReferenceHost {
     getCurrentDirectory(): string;
 }
 
+/** @internal */
+export interface LibResolution<T extends ResolvedModuleWithFailedLookupLocations = ResolvedModuleWithFailedLookupLocations> {
+    resolution: T;
+    actual: string;
+}
+
 export interface Program extends ScriptReferenceHost {
     getCurrentDirectory(): string;
     /**
@@ -4088,11 +4096,11 @@ export interface Program extends ScriptReferenceHost {
     //  * @internal
     //  */
     // readonly usesUriStyleNodeCoreModules: boolean;
-    // /**
-    //  * Map from libFileName to actual resolved location of the lib
-    //  * @internal
-    //  */
-    // resolvedLibReferences: Map<string, LibResolution> | undefined;
+    /**
+     * Map from libFileName to actual resolved location of the lib
+     * @internal
+     */
+    resolvedLibReferences: Map<string, LibResolution> | undefined;
     // /** @internal */ getCurrentPackagesMap(): Map<string, boolean> | undefined;
     // /**
     //  * Is the file emitted file
@@ -4176,8 +4184,8 @@ export interface CompilerHost extends ModuleResolutionHost {
     getSourceFile(fileName: string, onError?: (message: string) => void, shouldCreateNewSourceFile?: boolean): SourceFile | undefined;
     getSourceFileByPath?(fileName: string, path: Path, onError?: (message: string) => void, shouldCreateNewSourceFile?: boolean): SourceFile | undefined;
     getCancellationToken?(): CancellationToken;
-    //getDefaultLibFileName(options: CompilerOptions): string;
-    //getDefaultLibLocation?(): string;
+    getDefaultLibFileName(options: CompilerOptions): string;
+    getDefaultLibLocation?(): string;
     writeFile: WriteFileCallback;
     getCurrentDirectory(): string;
     getCanonicalFileName(fileName: string): string;

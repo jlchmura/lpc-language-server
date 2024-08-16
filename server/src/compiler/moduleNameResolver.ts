@@ -1,4 +1,4 @@
-import { CompilerOptions, ResolutionMode } from "./_namespaces/lpc.js";
+import { CompilerOptions, DiagnosticMessage, formatMessage, ModuleResolutionHost, ResolutionMode } from "./_namespaces/lpc.js";
 
 export interface ModeAwareCache<T> {
     get(key: string, mode: ResolutionMode): T | undefined;
@@ -7,5 +7,15 @@ export interface ModeAwareCache<T> {
     has(key: string, mode: ResolutionMode): boolean;
     forEach(cb: (elem: T, key: string, mode: ResolutionMode) => void): void;
     size(): number;
+}
+
+/** @internal */
+export function isTraceEnabled(compilerOptions: CompilerOptions, host: ModuleResolutionHost): boolean {
+    return !!compilerOptions.traceResolution && host.trace !== undefined;
+}
+
+/** @internal */
+export function trace(host: ModuleResolutionHost, message: DiagnosticMessage, ...args: any[]): void {
+    host.trace!(formatMessage(message, ...args));
 }
 
