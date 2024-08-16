@@ -68,7 +68,7 @@ p2.Debug.enableDebugInfo();
 
 //import { LpcFacade } from "./backend/facade";
 //const workDir = path.resolve(process.cwd()); //, "../fluff-test");
-const workDir = path.resolve(process.cwd(), "../lp-245");
+const workDir = path.resolve(process.cwd());
 //const filename = path.join(workDir, process.argv[3]);
 const filename = path.join(workDir, "obj/treasure.c");
 const fileOnly = path.basename(filename);
@@ -80,6 +80,7 @@ const files: { [index: string]: string } = {
     [fileOnly]: sourceText,
 };
 
+const fileRelativePath = p2.convertToRelativePath(filename, workDir, f=>f);
 const projectFile = path.normalize(path.join(workDir, "lpc-config.json"));
 //const host = createHost(filename, sourceText, config);
 const serverHost = lpc.sys as lpc.server.ServerHost;
@@ -107,9 +108,9 @@ session.updateOpen({
 // const diags = checker.getDiagnostics(srcFile);
 // const daigsB = srcFile.bindDiagnostics;
 
-const pos = 95;
+const pos = 2292;
 const args: lpc.server.protocol.FileLocationRequestArgs = {
-    file: fileOnly,
+    file: fileRelativePath,
     line: 0,
     offset: pos,
     position: pos, 

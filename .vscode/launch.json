@@ -39,7 +39,8 @@
             "args": ["", "test.c"],
             "preLaunchTask": "compile:bin",
             "sourceMaps": true,
-            "outFiles": ["${workspaceFolder}/out/**/*.js"]
+            "outFiles": ["${workspaceFolder}/out/**/*.js"],
+            "cwd": "${workspaceFolder}/../lp-245"
         },
         {
             "type": "node",
@@ -50,7 +51,7 @@
             "args": ["test.c"],
             "preLaunchTask": "compile:parseld",
             "sourceMaps": true,
-            "outFiles": ["${workspaceFolder}/out/**/*.js"]
+            "outFiles": ["${workspaceFolder}/out/**/*.js"],            
         },
         {
             "name": "Language Server E2E Test",
