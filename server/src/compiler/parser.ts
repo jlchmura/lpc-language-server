@@ -1,6 +1,6 @@
 import * as antlr from "antlr4ng";
 import * as parserCore from "../parser3/parser-core";
-import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, ModifierFlags, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange, PrefixUnaryExpression, first, LanguageVariant, EqualsToken, LpcConfigSourceFile, createBaseNodeFactory, PrefixUnaryOperator, Program, LpcFileHandler, ParenthesizedExpression, ArrayLiteralExpression, LambdaExpression, PunctuationSyntaxKind, PunctuationToken, LambdaOperatorToken, CastExpression } from "./_namespaces/lpc";
+import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, ModifierFlags, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange, PrefixUnaryExpression, first, LanguageVariant, EqualsToken, LpcConfigSourceFile, createBaseNodeFactory, PrefixUnaryOperator, Program, LpcFileHandler, ParenthesizedExpression, ArrayLiteralExpression, LambdaExpression, PunctuationSyntaxKind, PunctuationToken, LambdaOperatorToken, CastExpression, PropertyAccessExpression } from "./_namespaces/lpc";
 import { ILpcConfig } from "../config-types";
 import { loadLpcConfigFromString, LpcConfig } from "../backend/LpcConfig";
 import { LPCTokenFactor } from "../parser3/LPCTokenFactory";
@@ -39,6 +39,8 @@ export namespace LpcParser {
 
     var nodeCount: number;
     var identifiers: Map<string, string>;
+    /** stores interned versions of include filenames */    
+    var includeFiles: Map<string, string>;
     var identifierCount: number;
 
     function countNode(node: Node) {
@@ -76,6 +78,7 @@ export namespace LpcParser {
         nodeCount = 0;
         topLevel = true;
         identifiers = new Map<string, string>();
+        includeFiles = new Map<string, string>();
         identifierCount = 0;
         programTree = undefined!;        
 
@@ -243,7 +246,7 @@ export namespace LpcParser {
         }
     }
 
-    function finishNode<T extends Node>(node: T, nodeFilename: string, pos: number, end: number): T {
+    function finishNode<T extends Node>(node: T, originFilename: string, pos: number, end: number, originPos?: number, originEnd?: number): T {
         setTextRangePosEnd(node, pos, end);
         if (contextFlags) {
             (node as Mutable<T>).flags |= contextFlags;
@@ -257,11 +260,19 @@ export namespace LpcParser {
             (node as Mutable<T>).flags |= NodeFlags.ThisNodeHasError;
         }
 
-        if (nodeFilename != fileName) {
-            (node as Mutable<T>).flags |= NodeFlags.ExternalFile;
+        if (originFilename != fileName) {            
+            setOriginFilePos(node, originFilename, originPos, originEnd);
         }
 
         return node;
+    }
+
+    function setOriginFilePos(node: Node, includeFilename: string, pos: number, end: number) {
+        const n = (node as Mutable<Node>);
+        n.flags |= NodeFlags.ExternalFile;
+        n.originFilename = internInclude(includeFilename);
+        n.posInOrigin = pos;
+        n.endInOrigin = end;        
     }
     
     interface Position { pos: number; end: number; __positionBrand:any; };
@@ -1082,6 +1093,14 @@ export namespace LpcParser {
         return createIdentifier(tree, true);
     }
 
+    function internInclude(filename: string): string {
+        let fn = includeFiles.get(filename);
+        if (fn === undefined) {
+            includeFiles.set(filename, (fn = filename));
+        }
+        return fn;
+    }
+
     function internIdentifier(text: string): string {
         let identifier = identifiers.get(text);
         if (identifier === undefined) {
@@ -1372,11 +1391,15 @@ const forEachChildTable: ForEachChildTable = {
         return visitNodes(cbNode, cbNodes, node.types);
     },
     [SyntaxKind.CallExpression]: forEachChildInCallOrNewExpression,
+    [SyntaxKind.PropertyAccessExpression]: function forEachChildInPropertyAccessExpression<T>(node: PropertyAccessExpression, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNode(cbNode, node.expression) ||            
+            visitNode(cbNode, node.name);
+    },
     [SyntaxKind.PostfixUnaryExpression]: function forEachChildInPostfixUnaryExpression<T>(node: PostfixUnaryExpression, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
         return visitNode(cbNode, node.operand);
     },
     [SyntaxKind.PrefixUnaryExpression]: function forEachChildInPrefixUnaryExpression<T>(node: PrefixUnaryExpression, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
-        return visitNode(cbNode, node.operand);
+        return visitNode(cbNode, node.operand);        
     },
     [SyntaxKind.BinaryExpression]: function forEachChildInBinaryExpression<T>(node: BinaryExpression, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
         return visitNode(cbNode, node.left) ||

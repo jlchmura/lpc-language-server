@@ -171,6 +171,9 @@ class TokenOrIdentifierObject<TKind extends SyntaxKind> implements Node {
     public jsDocComments?: JSDoc[];
     public id?: number;
     public emitNode?: EmitNode | undefined;
+    public originFilename?: string;
+    public posInOrigin?: number;
+    public endInOrigin?: number;
 
     constructor(kind: TKind, pos: number, end: number) {
         // Note: if modifying this, be sure to update Token and Identifier in src/compiler/utilities.ts

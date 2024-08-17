@@ -1843,7 +1843,7 @@ string strftime(string fmt, int clock, int localized);
  * @since LDMud 3.3.713/3.2.13 introduced the '+' specifier.
  *
  */
-int sscanf(string str, string fmt, mixed var1,varargs mixed var2 );
+int sscanf(string str, string fmt, mixed var1, varargs mixed var2);
 
 /**
  * sqrt

@@ -30,8 +30,20 @@ export interface ReadonlyTextRange {
     readonly end: number;
 }
 
+export interface IncludedFileRange {
+    posInOrigin?: number;
+    endInOrigin?: number;
+    originFilename?: string;
+}
+
+export interface ReadonlyIncludedFileRange {
+    readonly posInOrigin?: number;
+    readonly endInOrigin?: number;
+    readonly originFilename?: string;
+}
+
 /** Base Node */
-export interface Node extends ReadonlyTextRange {
+export interface Node extends ReadonlyTextRange, ReadonlyIncludedFileRange {
     readonly kind: SyntaxKind;
     readonly flags: NodeFlags;
     /** @internal */ modifierFlagsCache: ModifierFlags;
@@ -39,7 +51,7 @@ export interface Node extends ReadonlyTextRange {
     /** @internal */ id?: NodeId; // Unique id (used to look up NodeLinks)
     readonly parent: Node; // Parent node (initialized by binding)
     /** @internal */ original?: Node; // The original node if this is an updated node.
-    /** @internal */ emitNode?: EmitNode; // Associated EmitNode (initialized by transforms)
+    /** @internal */ emitNode?: EmitNode; // Associated EmitNode (initialized by transforms)    
     // NOTE: `symbol` and `localSymbol` have been moved to `Declaration`
     //       `locals` and `nextContainer` have been moved to `LocalsContainer`
     //       `flowNode` has been moved to `FlowContainer`

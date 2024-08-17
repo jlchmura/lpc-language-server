@@ -12489,7 +12489,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             //     }
             //     // falls through
             default:
-                if (node.parent.kind === SyntaxKind.ShorthandPropertyAssignment) {
+                if (node.parent?.kind === SyntaxKind.ShorthandPropertyAssignment) {
                     return Diagnostics.No_value_exists_in_scope_for_the_shorthand_property_0_Either_declare_one_or_provide_an_initializer;
                 }
                 else {
@@ -19854,7 +19854,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 diagnostic = getDiagnosticForCallNode(node, error, parameterRange, args.length);
             }
             const parameter = closestSignature?.declaration?.parameters[closestSignature.thisParameter ? args.length + 1 : args.length];
-            if (parameter) {
+            if (parameter && !(parameter.flags & NodeFlags.ExternalFile)) {
                 const messageAndArgs: DiagnosticAndArguments = isBindingPattern(parameter.name) ? [Diagnostics.An_argument_matching_this_binding_pattern_was_not_provided]
                     //: isRestParameter(parameter) ? [Diagnostics.Arguments_for_the_rest_parameter_0_were_not_provided, idText(getFirstIdentifier(parameter.name))]
                     : [Diagnostics.An_argument_for_0_was_not_provided, !parameter.name ? args.length : idText(getFirstIdentifier(parameter.name))];

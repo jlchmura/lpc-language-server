@@ -471,7 +471,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
     }
 
     function getBindAndCheckDiagnosticsForFileNoCache(sourceFile: SourceFile, cancellationToken: CancellationToken | undefined): readonly Diagnostic[] {
-        return runWithCancellationToken(() => {
+        //return runWithCancellationToken(() => {
             // if (skipTypeChecking(sourceFile, options, program)) {
             //     return emptyArray;
             // }
@@ -494,7 +494,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
             // }
             // skip ts-expect-error errors in plain JS files, and skip JSDoc errors except in checked JS
             return getMergedBindAndCheckDiagnostics(sourceFile, !isNotLpc, bindDiagnostics, checkDiagnostics, /*isCheckJs ? sourceFile.jsDocDiagnostics :*/ undefined);
-        });
+        //});
     }
 
     function getMergedBindAndCheckDiagnostics(sourceFile: SourceFile, includeBindAndCheckDiagnostics: boolean, ...allDiagnostics: (readonly Diagnostic[] | undefined)[]) {

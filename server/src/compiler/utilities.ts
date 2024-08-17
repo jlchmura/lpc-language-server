@@ -1645,8 +1645,8 @@ export function isTypeNodeKind(kind: SyntaxKind): kind is TypeNodeSyntaxKind {
 }
 
 /** @internal */
-export function createDiagnosticForNode(node: Node, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithLocation {
-    const sourceFile = getSourceFileOfNode(node);
+export function createDiagnosticForNode(node: Node, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithLocation {    
+    const sourceFile = getSourceFileOfNode(node);    
     return createDiagnosticForNodeInSourceFile(sourceFile, node, message, ...args);
 }
 

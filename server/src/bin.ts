@@ -70,7 +70,7 @@ p2.Debug.enableDebugInfo();
 //const workDir = path.resolve(process.cwd()); //, "../fluff-test");
 const workDir = path.resolve(process.cwd());
 //const filename = path.join(workDir, process.argv[3]);
-const filename = path.join(workDir, "obj/treasure.c");
+const filename = path.join(workDir, "room/vill_road2.c");
 const fileOnly = path.basename(filename);
 const sourceText = fs.readFileSync(filename, "utf-8");
 const configFile = path.join(workDir, "lpc-config.json");
@@ -108,7 +108,7 @@ session.updateOpen({
 // const diags = checker.getDiagnostics(srcFile);
 // const daigsB = srcFile.bindDiagnostics;
 
-const pos = 2292;
+const pos = 218;
 const args: lpc.server.protocol.FileLocationRequestArgs = {
     file: fileRelativePath,
     line: 0,
