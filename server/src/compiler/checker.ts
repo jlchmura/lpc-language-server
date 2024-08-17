@@ -394,11 +394,13 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         for (const file of host.getSourceFiles()) {
             bindSourceFile(file, compilerOptions);
         }
-
-        // globals is not a thing in LPC - don't merge
-        // for (const file of host.getSourceFiles()) {
-        //     mergeSymbolTable(globals, file.locals!);
-        // }
+        
+        // we'll use the globals concept to store driver efuns
+        for (const file of host.getSourceFiles()) {            
+            if (file.isDefaultLib) {
+                mergeSymbolTable(globals, file.locals!);
+            }
+        }
 
         // TODO
         

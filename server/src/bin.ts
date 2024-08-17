@@ -119,7 +119,7 @@ const args: lpc.server.protocol.FileLocationRequestArgs = {
 // const node = getTouchingPropertyName(srcFile, pos);
 //const def = svc.getDefinitionAtPosition(fileOnly, pos, false, false);
 const inf2 = session.getQuickInfoWorker(args, false);
-const diags = session.getDiagnosticsForFiles({delay:0, files: [fileRelativePath]});
+//const diags = session.getDiagnosticsForFiles({delay:0, files: [fileRelativePath]});
 const diags2 = session.getSemanticDiagnosticsSync({file: fileRelativePath, projectFileName: projectFile});
 console.debug("done");
 // console.debug("node count:", srcFile.nodeCount);

@@ -828,8 +828,8 @@ export const enum TypeFormatFlags {
 
 export const enum NodeFlags {
     None               = 0,
-    Variable           = 1 << 0,  // Variable declaration   
-    ExternalFile       = 1 << 2,  // Included from an external file 
+    Variable           = 1 << 0,  // Variable declaration       
+    ExternalFile       = 1 << 2,  // Included from an external file     
     Synthesized        = 1 << 4,  // Node was synthesized during transformation    
     ExportContext      = 1 << 7,  // Export context (initialized by binding)
     HasImplicitReturn  = 1 << 9,  // If function implicitly returns on one of codepaths (initialized by binding)
@@ -2199,6 +2199,7 @@ export interface SourceFile extends Declaration, LocalsContainer {
     referencedFiles: readonly FileReference[];    
     libReferenceDirectives: readonly FileReference[];
     isDeclarationFile: boolean;
+    isDefaultLib: boolean;
 
     // this map is used by transpiler to supply alternative names for dependencies (i.e. in case of bundling)
     /** @internal */
@@ -4053,7 +4054,7 @@ export interface Program extends ScriptReferenceHost {
     // /** @internal */ getAutomaticTypeDirectiveNames(): string[];
     // /** @internal */ getAutomaticTypeDirectiveResolutions(): ModeAwareCache<ResolvedTypeReferenceDirectiveWithFailedLookupLocations>;
     // isSourceFileFromExternalLibrary(file: SourceFile): boolean;
-    // isSourceFileDefaultLibrary(file: SourceFile): boolean;
+    isSourceFileDefaultLibrary(file: SourceFile): boolean;
     // /**
     //  * Calculates the final resolution mode for a given module reference node. This is the resolution mode explicitly provided via import
     //  * attributes, if present, or the syntax the usage would have if emitted to JavaScript. In `--module node16` or `nodenext`, this may

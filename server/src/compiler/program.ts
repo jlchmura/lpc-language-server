@@ -1,6 +1,6 @@
 import { writeFile } from "fs";
 import { ILpcConfig } from "../config-types.js";
-import { getDeclarationDiagnostics as lpc_getDeclarationDiagnostics, forEachResolvedProjectReference as lpc_forEachResolvedProjectReference, combinePaths, compareValues, CompilerHost, CompilerOptions, containsPath, createDiagnosticCollection, createGetCanonicalFileName, createMultiMap, CreateProgramOptions, createSourceFile, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DiagnosticWithLocation, FileIncludeKind, FileIncludeReason, FilePreprocessingDiagnostics, FilePreprocessingDiagnosticsKind, forEach, getBaseFileName, getDirectoryPath, getNewLineCharacter, getRootLength, hasExtension, isArray, maybeBind, memoize, normalizePath, ObjectLiteralExpression, PackageId, Path, performance, Program, ProgramHost, ProjectReference, PropertyAssignment, ReferencedFile, removePrefix, removeSuffix, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, SourceFile, stableSort, StructureIsReused, sys, System, toPath as lpc_toPath, tracing, TypeChecker, getNormalizedAbsolutePathWithoutRoot, some, isRootedDiskPath, optionsHaveChanges, packageIdToString, toFileNameLowerCase, getNormalizedAbsolutePath, CreateSourceFileOptions, createTypeChecker, ScriptTarget, libs, FileReference, SortedReadonlyArray, concatenate, sortAndDeduplicateDiagnostics, emptyArray, LpcFileHandler, createLpcFileHandler, DiagnosticMessageChain, isString, CancellationToken, flatMap, filter, Debug, ScriptKind, flatten, OperationCanceledException, noop, getNormalizedPathComponents, GetCanonicalFileName, getPathFromPathComponents, WriteFileCallback, EmitHost, WriteFileCallbackData, getDefaultLibFileName, LibResolution, returnFalse, isTraceEnabled, trace } from "./_namespaces/lpc.js";
+import { getDeclarationDiagnostics as lpc_getDeclarationDiagnostics, forEachResolvedProjectReference as lpc_forEachResolvedProjectReference, combinePaths, compareValues, CompilerHost, CompilerOptions, containsPath, createDiagnosticCollection, createGetCanonicalFileName, createMultiMap, CreateProgramOptions, createSourceFile, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DiagnosticWithLocation, FileIncludeKind, FileIncludeReason, FilePreprocessingDiagnostics, FilePreprocessingDiagnosticsKind, forEach, getBaseFileName, getDirectoryPath, getNewLineCharacter, getRootLength, hasExtension, isArray, maybeBind, memoize, normalizePath, ObjectLiteralExpression, PackageId, Path, performance, Program, ProgramHost, ProjectReference, PropertyAssignment, ReferencedFile, removePrefix, removeSuffix, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, SourceFile, stableSort, StructureIsReused, sys, System, toPath as lpc_toPath, tracing, TypeChecker, getNormalizedAbsolutePathWithoutRoot, some, isRootedDiskPath, optionsHaveChanges, packageIdToString, toFileNameLowerCase, getNormalizedAbsolutePath, CreateSourceFileOptions, createTypeChecker, ScriptTarget, libs, FileReference, SortedReadonlyArray, concatenate, sortAndDeduplicateDiagnostics, emptyArray, LpcFileHandler, createLpcFileHandler, DiagnosticMessageChain, isString, CancellationToken, flatMap, filter, Debug, ScriptKind, flatten, OperationCanceledException, noop, getNormalizedPathComponents, GetCanonicalFileName, getPathFromPathComponents, WriteFileCallback, EmitHost, WriteFileCallbackData, getDefaultLibFileName, LibResolution, returnFalse, isTraceEnabled, trace, equateStringsCaseSensitive, equateStringsCaseInsensitive, NodeFlags } from "./_namespaces/lpc.js";
 
 /**
  * Create a new 'Program' instance. A Program is an immutable collection of 'SourceFile's and a 'CompilerOptions'
@@ -202,7 +202,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                 });
             }
         }
-
+        
         files = stableSort(processingDefaultLibFiles, compareDefaultLibFiles).concat(processingOtherFiles);
         processingDefaultLibFiles = undefined;
         processingOtherFiles = undefined;
@@ -286,7 +286,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         // getAutomaticTypeDirectiveNames: () => automaticTypeDirectiveNames!,
         // getAutomaticTypeDirectiveResolutions: () => automaticTypeDirectiveResolutions,
         // isSourceFileFromExternalLibrary,
-        // isSourceFileDefaultLibrary,
+        isSourceFileDefaultLibrary,
         // getModeForUsageLocation,
         // getModeForResolutionAtIndex,
         getSourceFileFromReference,
@@ -342,6 +342,30 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         return getSourceFileByPath(toPath(fileName));
     }
 
+    function isSourceFileDefaultLibrary(file: SourceFile): boolean {
+        if (!file.isDeclarationFile) {
+            return false;
+        }
+
+        if (file.hasNoDefaultLib) {
+            return true;
+        }
+
+        if (!options.noLib) {
+            return false;
+        }
+
+        // If '--lib' is not specified, include default library file according to '--target'
+        // otherwise, using options specified in '--lib' instead of '--target' default library file
+        const equalityComparer = host.useCaseSensitiveFileNames() ? equateStringsCaseSensitive : equateStringsCaseInsensitive;
+        if (!options.lib) {
+            return equalityComparer(file.fileName, getDefaultLibraryFileName());
+        }
+        else {
+            return some(options.lib, libFileName => equalityComparer(file.fileName, resolvedLibReferences!.get(libFileName)!.actual));
+        }
+    }
+    
     function getTypeChecker() {
         return typeChecker || (typeChecker = createTypeChecker(program));
     }
@@ -844,6 +868,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
             processImportedModules(file);
 
             if (isDefaultLib) {
+                file.isDefaultLib = true;
                 processingDefaultLibFiles!.push(file);
             }
             else {

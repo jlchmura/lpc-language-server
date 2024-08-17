@@ -1335,7 +1335,7 @@ export function createLanguageService(
             getCanonicalFileName,
             useCaseSensitiveFileNames: () => true, //useCaseSensitiveFileNames,
             getNewLine: () => getNewLineCharacter(newSettings),
-            //getDefaultLibFileName: options => host.getDefaultLibFileName(options),
+            getDefaultLibFileName: options => host.getDefaultLibFileName(options),
             writeFile: noop,
             getCurrentDirectory: () => currentDirectory,
             fileExists: (fileName) => host.fileExists(fileName),

@@ -1,6 +1,6 @@
 import { config } from "process";
 import { ILpcConfig } from "../config-types";
-import { arrayFrom, combinePaths, CompilerOptions, CompilerOptionsValue, ConfigFileSpecs, containsPath, createCompilerDiagnostic, createGetCanonicalFileName, Debug, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, directorySeparator, emptyArray, endsWith, ensureTrailingDirectorySeparator, every, Extension, FileExtensionInfo, fileExtensionIs, filter, flatten, getBaseFileName, getDirectoryPath, getNormalizedAbsolutePath, getRegexFromPattern, getRegularExpressionForWildcard, hasExtension, hasProperty, isArray, isImplicitGlob, isString, length, LpcConfigSourceFile, MapLike, normalizePath, normalizeSlashes, ParseConfigHost, ParsedCommandLine, Path, ProjectReference, removeTrailingDirectorySeparator, startsWith, toFileNameLowerCase, tracing, TypeAcquisition, WatchDirectoryFlags, WatchOptions } from "./_namespaces/lpc";
+import { arrayFrom, combinePaths, CompilerOptions, CompilerOptionsValue, ConfigFileSpecs, containsPath, createCompilerDiagnostic, createGetCanonicalFileName, Debug, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, directorySeparator, emptyArray, endsWith, ensureTrailingDirectorySeparator, every, Extension, FileExtensionInfo, fileExtensionIs, filter, flatten, getBaseFileName, getDirectoryPath, getNormalizedAbsolutePath, getRegexFromPattern, getRegularExpressionForWildcard, hasExtension, hasProperty, isArray, isImplicitGlob, isString, LanguageVariant, length, LpcConfigSourceFile, MapLike, normalizePath, normalizeSlashes, ParseConfigHost, ParsedCommandLine, Path, ProjectReference, removeTrailingDirectorySeparator, startsWith, toFileNameLowerCase, tracing, TypeAcquisition, WatchDirectoryFlags, WatchOptions } from "./_namespaces/lpc";
 
 export const libEntries: [string, string][] = [
     ["ldmud", "ldmud.efun.c"],
@@ -213,6 +213,15 @@ function parseLpcConfigFileContentWorker(
     //setConfigFileInOptions(options, sourceFile);
     options.config = raw;
     options.configFile = parsedConfig;
+    switch (raw?.driver?.type) {
+        case "fluffos":
+            options.driverType = LanguageVariant.FluffOS;
+            break;
+        case "ldmud":
+        default:
+            options.driverType = LanguageVariant.LDMud;
+            break
+    }    
     return {
         options,
         watchOptions,
