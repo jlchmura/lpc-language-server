@@ -20491,15 +20491,14 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             // else if (candidateForTypeArgumentError) {
             //     checkTypeArguments(candidateForTypeArgumentError, (node as CallExpression | TaggedTemplateExpression | JsxOpeningLikeElement).typeArguments!, /*reportErrors*/ true, headMessage);
             // }
-            else {
-                Debug.fail("shouldn't be possible");
-                // const signaturesWithCorrectTypeArgumentArity = filter(signatures, s => hasCorrectTypeArgumentArity(s, typeArguments));
-                // if (signaturesWithCorrectTypeArgumentArity.length === 0) {
-                //     diagnostics.add(getTypeArgumentArityError(node, signatures, typeArguments!, headMessage));
-                // }
-                // else {
-                    // diagnostics.add(getArgumentArityError(node, signaturesWithCorrectTypeArgumentArity, args, headMessage));
-                // }
+            else {                
+                const signaturesWithCorrectTypeArgumentArity = filter(signatures, s => hasCorrectTypeArgumentArity(s, typeArguments));
+                if (signaturesWithCorrectTypeArgumentArity.length === 0) {
+                    diagnostics.add(getTypeArgumentArityError(node, signatures, typeArguments!, headMessage));
+                }
+                else {
+                    diagnostics.add(getArgumentArityError(node, signaturesWithCorrectTypeArgumentArity, args, headMessage));
+                }
             }
         }
 
@@ -20621,6 +20620,49 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         }
     }
 
+    function getTypeArgumentArityError(node: Node, signatures: readonly Signature[], typeArguments: NodeArray<TypeNode>, headMessage?: DiagnosticMessage) {
+        const argCount = typeArguments.length;
+        // No overloads exist
+        if (signatures.length === 1) {
+            const sig = signatures[0];
+            const min = getMinTypeArgumentCount(sig.typeParameters);
+            const max = length(sig.typeParameters);
+            if (headMessage) {
+                let chain = chainDiagnosticMessages(/*details*/ undefined, Diagnostics.Expected_0_type_arguments_but_got_1, min < max ? min + "-" + max : min, argCount);
+                chain = chainDiagnosticMessages(chain, headMessage);
+                return createDiagnosticForNodeArrayFromMessageChain(getSourceFileOfNode(node), typeArguments, chain);
+            }
+            return createDiagnosticForNodeArray(getSourceFileOfNode(node), typeArguments, Diagnostics.Expected_0_type_arguments_but_got_1, min < max ? min + "-" + max : min, argCount);
+        }
+        // Overloads exist
+        let belowArgCount = -Infinity;
+        let aboveArgCount = Infinity;
+        for (const sig of signatures) {
+            const min = getMinTypeArgumentCount(sig.typeParameters);
+            const max = length(sig.typeParameters);
+            if (min > argCount) {
+                aboveArgCount = Math.min(aboveArgCount, min);
+            }
+            else if (max < argCount) {
+                belowArgCount = Math.max(belowArgCount, max);
+            }
+        }
+        if (belowArgCount !== -Infinity && aboveArgCount !== Infinity) {
+            if (headMessage) {
+                let chain = chainDiagnosticMessages(/*details*/ undefined, Diagnostics.No_overload_expects_0_type_arguments_but_overloads_do_exist_that_expect_either_1_or_2_type_arguments, argCount, belowArgCount, aboveArgCount);
+                chain = chainDiagnosticMessages(chain, headMessage);
+                return createDiagnosticForNodeArrayFromMessageChain(getSourceFileOfNode(node), typeArguments, chain);
+            }
+            return createDiagnosticForNodeArray(getSourceFileOfNode(node), typeArguments, Diagnostics.No_overload_expects_0_type_arguments_but_overloads_do_exist_that_expect_either_1_or_2_type_arguments, argCount, belowArgCount, aboveArgCount);
+        }
+        if (headMessage) {
+            let chain = chainDiagnosticMessages(/*details*/ undefined, Diagnostics.Expected_0_type_arguments_but_got_1, belowArgCount === -Infinity ? aboveArgCount : belowArgCount, argCount);
+            chain = chainDiagnosticMessages(chain, headMessage);
+            return createDiagnosticForNodeArrayFromMessageChain(getSourceFileOfNode(node), typeArguments, chain);
+        }
+        return createDiagnosticForNodeArray(getSourceFileOfNode(node), typeArguments, Diagnostics.Expected_0_type_arguments_but_got_1, belowArgCount === -Infinity ? aboveArgCount : belowArgCount, argCount);
+    }
+    
     function invocationErrorDetails(errorTarget: Node, apparentType: Type, kind: SignatureKind): { messageChain: DiagnosticMessageChain; relatedMessage: DiagnosticMessage | undefined; } {
         let errorInfo: DiagnosticMessageChain | undefined;
         const isCall = kind === SignatureKind.Call;                
