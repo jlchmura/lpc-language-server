@@ -1,6 +1,7 @@
 import { config } from "process";
 import { ILpcConfig } from "../config-types";
-import { arrayFrom, combinePaths, CompilerOptions, CompilerOptionsValue, ConfigFileSpecs, containsPath, createCompilerDiagnostic, createGetCanonicalFileName, Debug, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, directorySeparator, emptyArray, endsWith, ensureTrailingDirectorySeparator, every, Extension, FileExtensionInfo, fileExtensionIs, filter, flatten, getBaseFileName, getDirectoryPath, getNormalizedAbsolutePath, getRegexFromPattern, getRegularExpressionForWildcard, hasExtension, hasProperty, isArray, isImplicitGlob, isString, LanguageVariant, length, LpcConfigSourceFile, MapLike, normalizePath, normalizeSlashes, ParseConfigHost, ParsedCommandLine, Path, ProjectReference, removeTrailingDirectorySeparator, startsWith, toFileNameLowerCase, tracing, TypeAcquisition, WatchDirectoryFlags, WatchOptions } from "./_namespaces/lpc";
+import { arrayFrom, combinePaths, CompilerOptions, CompilerOptionsValue, ConfigFileSpecs, containsPath, createCompilerDiagnostic, createGetCanonicalFileName, Debug, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, directorySeparator, emptyArray, endsWith, ensureTrailingDirectorySeparator, every, Extension, FileExtensionInfo, fileExtensionIs, filter, flatten, getBaseFileName, getDirectoryPath, getNormalizedAbsolutePath, getRegexFromPattern, getRegularExpressionForWildcard, hasExtension, hasProperty, isArray, isImplicitGlob, isRootedDiskPath, isString, LanguageVariant, length, LpcConfigSourceFile, MapLike, normalizePath, normalizeSlashes, ParseConfigHost, ParsedCommandLine, Path, ProjectReference, removeTrailingDirectorySeparator, startsWith, toFileNameLowerCase, tracing, TypeAcquisition, WatchDirectoryFlags, WatchOptions } from "./_namespaces/lpc";
+import { trimStart } from "../utils";
 
 export const libEntries: [string, string][] = [
     ["ldmud", "ldmud.efun.c"],
@@ -221,7 +222,11 @@ function parseLpcConfigFileContentWorker(
         default:
             options.driverType = LanguageVariant.LDMud;
             break
-    }    
+    }
+    
+    const sefunFilePath = trimStart(options.sefunFile ?? raw?.files?.simul_efun ?? "/obj/sefun.c", "/");
+    options.sefunFile = normalizePath(combinePaths(basePathForFileNames, sefunFilePath));
+    
     return {
         options,
         watchOptions,
@@ -229,7 +234,7 @@ function parseLpcConfigFileContentWorker(
         projectReferences: getProjectReferences(basePathForFileNames),
         typeAcquisition: /*parsedConfig.typeAcquisition ||*/ getDefaultTypeAcquisition(),
         raw: parsedConfig,
-        errors,
+        errors,        
         // Wildcard directories (provided as part of a wildcard path) are stored in a
         // file map that marks whether it was a regular wildcard match (with a `*` or `?` token),
         // or a recursive directory. This information is used by filesystem watchers to monitor for

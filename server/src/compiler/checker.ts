@@ -397,13 +397,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         
         // we'll use the globals concept to store driver efuns
         for (const file of host.getSourceFiles()) {            
-            if (file.isDefaultLib) {
+            if (file.isDefaultLib || file.fileName === compilerOptions.sefunFile) {
                 mergeSymbolTable(globals, file.locals!);
-            }
+            }             
         }
 
-        // TODO
-        
         // addUndefinedToGlobalsOrErrorOnRedeclaration();
 
         // getSymbolLinks(undefinedSymbol).type = undefinedWideningType;
@@ -20662,7 +20660,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         }
         return createDiagnosticForNodeArray(getSourceFileOfNode(node), typeArguments, Diagnostics.Expected_0_type_arguments_but_got_1, belowArgCount === -Infinity ? aboveArgCount : belowArgCount, argCount);
     }
-    
+
     function invocationErrorDetails(errorTarget: Node, apparentType: Type, kind: SignatureKind): { messageChain: DiagnosticMessageChain; relatedMessage: DiagnosticMessage | undefined; } {
         let errorInfo: DiagnosticMessageChain | undefined;
         const isCall = kind === SignatureKind.Call;                

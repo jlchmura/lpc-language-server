@@ -1179,6 +1179,7 @@ export interface CompilerOptions {
     newLine?: NewLineKind;
     config?: ILpcConfig;
     configFile?: LpcConfigSourceFile; 
+    sefunFile?: string;
     forceConsistentCasingInFileNames?: boolean;
     noResolve?: boolean;
     noLib?: boolean;
