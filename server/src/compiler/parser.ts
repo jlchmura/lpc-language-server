@@ -1253,7 +1253,13 @@ export const LexerToSyntaxKind: { [key: number]: SyntaxKind } = {
     [parserCore.LPCLexer.STRUCT]: SyntaxKind.StructKeyword,
     [parserCore.LPCLexer.VOID]: SyntaxKind.VoidKeyword,
     [parserCore.LPCLexer.OBJECT]: SyntaxKind.ObjectKeyword,
+    [parserCore.LPCLexer.BYTES]: SyntaxKind.ObjectKeyword, // LPC bytes, treat as object for now
+    [parserCore.LPCLexer.LWOBJECT]: SyntaxKind.ObjectKeyword, // LPC lwobject is an object
+    [parserCore.LPCLexer.SYMBOL]: SyntaxKind.StringKeyword, // TODO: create syntax kind
     [parserCore.LPCLexer.STATUS]: SyntaxKind.IntKeyword, // treat this as an int
+    [parserCore.LPCLexer.LPCTYPE]: SyntaxKind.TypeLiteral,
+    [parserCore.LPCLexer.QUOTEDARRAY]: SyntaxKind.ObjectKeyword, // TODO: create syntax kind
+    [parserCore.LPCLexer.COROUTINE]: SyntaxKind.FunctionKeyword, // TODO: create syntax kind
     // MODIFIERS
     [parserCore.LPCLexer.PRIVATE]: SyntaxKind.PrivateKeyword,
     [parserCore.LPCLexer.PROTECTED]: SyntaxKind.ProtectedKeyword,

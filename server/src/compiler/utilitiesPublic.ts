@@ -987,9 +987,9 @@ export function sortAndDeduplicateDiagnostics<T extends Diagnostic>(diagnostics:
 export function getDefaultLibFileName(options: CompilerOptions): string {
     switch (options.driverType) {
         case LanguageVariant.LDMud:
-            return "efuns.ldmud.h";
+            return "efuns/ldmud/efuns.ldmud.h";
         case LanguageVariant.FluffOS:
-            return "efuns.fluffos.h";
+            return "efuns/fluffos/efuns.fluffos.h";
         default:
             throw "Unsupported driver type";            
     }

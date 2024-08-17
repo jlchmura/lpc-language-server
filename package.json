@@ -14,7 +14,7 @@
         "start": "npm run compile:bin && NODE_OPTIONS='--enable-source-maps' node out/server/src/bin.js test.c",
         "vscode:prepublish": "npm run compile",
         "compile": "tsc -b && node ./build.mjs",
-        "compile:bin": "tsc -b && node ./build.bin.mjs",
+        "compile:bin": "tsc -b && npm run copy && node ./build.bin.mjs",
         "parsefluff": "npm run compile:parsefluff && NODE_OPTIONS='--enable-source-maps' node out/server/src/parse-fluff-docs.js",
         "parseld": "npm run compile:parseld && NODE_OPTIONS='--enable-source-maps' node out/server/src/parse-ld-docs.js",
         "compile:parsefluff": "tsc -b && esbuild server/src/parse-fluff-docs.ts --bundle --outdir=out/server/src --external:vscode --platform=node --format=cjs --sourcemap=external --sourcemap",
@@ -28,7 +28,8 @@
         "vsce:package": "vsce package",
         "vsce:publish": "vsce publish",
         "gen:lpc": "npx antlr4ng -Dlanguage=TypeScript grammar/LPCLexer.g4 grammar/LPCParser.g4 -o server/src/parser3 -Xexact-output-dir -visitor -listener",
-        "gen:pre": "npx antlr4ng -Dlanguage=TypeScript grammar/LPCPreprocessorLexer.g4 grammar/LPCPreprocessorParser.g4 -o server/src/preprocessor -Xexact-output-dir -visitor -listener"
+        "gen:pre": "npx antlr4ng -Dlanguage=TypeScript grammar/LPCPreprocessorLexer.g4 grammar/LPCPreprocessorParser.g4 -o server/src/preprocessor -Xexact-output-dir -visitor -listener",
+        "copy": "ncp ./efuns ./out/server/src/efuns"
     },
     "engines": {
         "vscode": "^1.75.0"
@@ -177,6 +178,7 @@
         "esbuild": "^0.23.0",
         "glob": "^10.3.15",
         "jsonc-parser": "^3.3.1",
+        "ncp": "^2.0.0",
         "vsce": "^2.15.0",
         "vscode-uri": "^3.0.8"
     }
