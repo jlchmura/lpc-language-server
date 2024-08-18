@@ -364,7 +364,7 @@ export interface TypeCheckerHost extends ModuleSpecifierResolutionHost {
     // isSourceOfProjectReferenceRedirect(fileName: string): boolean;
     // getRedirectReferenceForResolutionFromSourceOfProject(filePath: Path): ResolvedProjectReference | undefined;    
 
-    // getResolvedModule(f: SourceFile, moduleName: string): ResolvedModuleWithFailedLookupLocations | undefined;
+    getResolvedModule(f: SourceFile, moduleName: string, mode: ResolutionMode): ResolvedModuleWithFailedLookupLocations | undefined;
 
     // readonly redirectTargetsMap: RedirectTargetsMap;
 
@@ -1192,6 +1192,7 @@ export interface NodeFactory {
 }
 
 export interface CompilerOptions {
+    allowArbitraryExtensions?: boolean;
     traceResolution?: boolean;
     allowUnreachableCode?: boolean;
     noUncheckedIndexedAccess?: boolean;
@@ -4021,8 +4022,8 @@ export interface Program extends ScriptReferenceHost {
     // resolvedModules: Map<Path, ModeAwareCache<ResolvedModuleWithFailedLookupLocations>> | undefined;
     // /** @internal */
     // resolvedTypeReferenceDirectiveNames: Map<Path, ModeAwareCache<ResolvedTypeReferenceDirectiveWithFailedLookupLocations>> | undefined;
-    // /** @internal */
-    // getResolvedModule(f: SourceFile, moduleName: string, mode: ResolutionMode): ResolvedModuleWithFailedLookupLocations | undefined;
+    /** @internal */
+    getResolvedModule(f: SourceFile, moduleName: string, mode: ResolutionMode): ResolvedModuleWithFailedLookupLocations | undefined;
     // /** @internal */
     // getResolvedModuleFromModuleSpecifier(moduleSpecifier: StringLiteralLike, sourceFile?: SourceFile): ResolvedModuleWithFailedLookupLocations | undefined;
     // /** @internal */
@@ -4501,6 +4502,10 @@ export const enum ScriptTarget {
 export enum ModuleKind {
     None = 0,
     LPC = 1,
+}
+
+export enum ModuleResolutionKind {
+    Classic = 1,
 }
 
 export type ResolutionMode = ModuleKind.LPC | undefined;

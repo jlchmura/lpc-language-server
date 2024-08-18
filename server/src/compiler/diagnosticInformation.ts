@@ -136,4 +136,7 @@ export const Diagnostics = {
     Reusing_resolution_of_module_0_from_1_of_old_program_it_was_not_resolved: diag(6389, DiagnosticCategory.Message, "Reusing_resolution_of_module_0_from_1_of_old_program_it_was_not_resolved_6389", "Reusing resolution of module '{0}' from '{1}' of old program, it was not resolved."),
     Expected_0_type_arguments_but_got_1: diag(2558, DiagnosticCategory.Error, "Expected_0_type_arguments_but_got_1_2558", "Expected {0} type arguments, but got {1}."),
     No_overload_expects_0_type_arguments_but_overloads_do_exist_that_expect_either_1_or_2_type_arguments: diag(2743, DiagnosticCategory.Error, "No_overload_expects_0_type_arguments_but_overloads_do_exist_that_expect_either_1_or_2_type_arguments_2743", "No overload expects {0} type arguments, but overloads do exist that expect either {1} or {2} type arguments."),
+    Cannot_find_module_0_or_its_corresponding_type_declarations: diag(2307, DiagnosticCategory.Error, "Cannot_find_module_0_or_its_corresponding_type_declarations_2307", "Cannot find module '{0}' or its corresponding type declarations."),
+    Module_0_was_resolved_to_1_but_allowArbitraryExtensions_is_not_set: diag(6263, DiagnosticCategory.Error, "Module_0_was_resolved_to_1_but_allowArbitraryExtensions_is_not_set_6263", "Module '{0}' was resolved to '{1}', but '--allowArbitraryExtensions' is not set."),
+    File_0_is_not_a_module: diag(2306, DiagnosticCategory.Error, "File_0_is_not_a_module_2306", "File '{0}' is not a module."),
 }
