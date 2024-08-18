@@ -842,7 +842,7 @@ export const enum NodeFlags {
     None               = 0,
     Variable           = 1 << 0,  // Variable declaration       
     ExternalFile       = 1 << 2,  // Included from an external file     
-    Synthesized        = 1 << 4,  // Node was synthesized during transformation    
+    Synthesized        = 1 << 4,  // Node was synthesized during transformation        
     ExportContext      = 1 << 7,  // Export context (initialized by binding)
     HasImplicitReturn  = 1 << 9,  // If function implicitly returns on one of codepaths (initialized by binding)
     HasExplicitReturn  = 1 << 10,  // If function has explicit reachable return on one of codepaths (initialized by binding)
@@ -953,6 +953,18 @@ export const enum ModifierFlags {
     NonPublicAccessibilityModifier = Private | Protected,
 
     All = Public | Private | Protected | NoMask | NoShadow | NoSave | Static | VarArgs | Visible | Deprecated,    
+}
+
+// dprint-ignore
+export const enum ElementFlags {
+    Required    = 1 << 0,  // T
+    Optional    = 1 << 1,  // T?
+    Rest        = 1 << 2,  // ...T[]
+    Variadic    = 1 << 3,  // ...T
+    Fixed       = Required | Optional,
+    Variable    = Rest | Variadic,
+    NonRequired = Optional | Rest | Variadic,
+    NonRest     = Required | Optional | Variadic,
 }
 
 /** @internal */
@@ -3112,18 +3124,20 @@ export const enum SignatureFlags {
     HasRestParameter = 1 << 0,          // Indicates last parameter is rest parameter
     HasLiteralTypes = 1 << 1,           // Indicates signature is specialized
     Abstract = 1 << 2,                  // Indicates signature comes from an abstract class, abstract construct signature, or abstract constructor type
+    IsVarArgs = 1 << 3,                 // Indicates signature is a varargs signature
 
     // Non-propagating flags
-    IsInnerCallChain = 1 << 3,          // Indicates signature comes from a CallChain nested in an outer OptionalChain
-    IsOuterCallChain = 1 << 4,          // Indicates signature comes from a CallChain that is the outermost chain of an optional expression
-    IsUntypedSignatureInJSFile = 1 << 5, // Indicates signature is from a js file and has no types
-    IsNonInferrable = 1 << 6,           // Indicates signature comes from a non-inferrable type
-    IsSignatureCandidateForOverloadFailure = 1 << 7,
+    IsInnerCallChain = 1 << 6,          // Indicates signature comes from a CallChain nested in an outer OptionalChain
+    IsOuterCallChain = 1 << 7,          // Indicates signature comes from a CallChain that is the outermost chain of an optional expression
+    IsUntypedSignatureInJSFile = 1 << 8, // Indicates signature is from a js file and has no types
+    IsNonInferrable = 1 << 9,           // Indicates signature comes from a non-inferrable type
+    IsSignatureCandidateForOverloadFailure = 1 << 10,
+
 
     // We do not propagate `IsInnerCallChain` or `IsOuterCallChain` to instantiated signatures, as that would result in us
     // attempting to add `| undefined` on each recursive call to `getReturnTypeOfSignature` when
     // instantiating the return type.
-    PropagatingFlags = HasRestParameter | HasLiteralTypes | Abstract | IsUntypedSignatureInJSFile | IsSignatureCandidateForOverloadFailure,
+    PropagatingFlags = HasRestParameter | HasLiteralTypes | Abstract | IsVarArgs | IsUntypedSignatureInJSFile | IsSignatureCandidateForOverloadFailure,
 
     CallChainFlags = IsInnerCallChain | IsOuterCallChain,
 }
@@ -3362,6 +3376,14 @@ export interface ArrayLiteralExpression extends PrimaryExpression {
     /** @internal */
     multiLine?: boolean;
 }
+
+
+export interface SpreadElement extends Expression {
+    readonly kind: SyntaxKind.SpreadElement;
+    readonly parent: ArrayLiteralExpression | CallExpression | NewExpression;
+    readonly expression: Expression;
+}
+
 
 export interface ObjectLiteralElement extends NamedDeclaration {
     _objectLiteralBrand: any;

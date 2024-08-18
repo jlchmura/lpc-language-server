@@ -1,6 +1,6 @@
 import * as antlr from "antlr4ng";
 import * as parserCore from "../parser3/parser-core";
-import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, ModifierFlags, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange, PrefixUnaryExpression, first, LanguageVariant, EqualsToken, LpcConfigSourceFile, createBaseNodeFactory, PrefixUnaryOperator, Program, LpcFileHandler, ParenthesizedExpression, ArrayLiteralExpression, LambdaExpression, PunctuationSyntaxKind, PunctuationToken, LambdaOperatorToken, CastExpression, PropertyAccessExpression } from "./_namespaces/lpc";
+import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange, PrefixUnaryExpression, first, LanguageVariant, EqualsToken, LpcConfigSourceFile, createBaseNodeFactory, PrefixUnaryOperator, Program, LpcFileHandler, ParenthesizedExpression, ArrayLiteralExpression, LambdaExpression, PunctuationSyntaxKind, PunctuationToken, LambdaOperatorToken, CastExpression, PropertyAccessExpression, some, flatten, setNodeFlags } from "./_namespaces/lpc";
 import { ILpcConfig } from "../config-types";
 import { loadLpcConfigFromString, LpcConfig } from "../backend/LpcConfig";
 import { LPCTokenFactor } from "../parser3/LPCTokenFactory";
@@ -968,9 +968,8 @@ export namespace LpcParser {
             const argCtxList = invocCtx.argumentList();
             
             const args = argCtxList?.argument().map(a => {            
-                const argExp = parseExpression(a.expression());
-
-                if (a.TRIPPLEDOT) {
+                const argExp = parseExpression(a.expression());                
+                if (a.TRIPPLEDOT ) {
                     // TODO: parse spread element
                     // return finishNode(factory.createSpreadElement(argExp), getNodePos(a), getNodeEnd(a));
                 }
@@ -1172,7 +1171,7 @@ export namespace LpcParser {
     function parseFunctionParameter(tree: parserCore.ParameterContext): ParameterDeclaration {
         const name = parseValidIdentifier(tree._paramName);
         const type = parseOptional(tree.unionableTypeSpecifier(), parseType);        
-        const trippleDot = tree.TRIPPLEDOT() ? parseTokenNode<DotDotDotToken>(tree.TRIPPLEDOT()) : undefined;
+        let trippleDot = tree.TRIPPLEDOT() ? parseTokenNode<DotDotDotToken>(tree.TRIPPLEDOT()) : undefined;
         const amp = tree.AND() ? parseTokenNode<AmpersandToken>(tree.AND()) : undefined;
         const varArgs = tree.VARARGS();
 
@@ -1184,6 +1183,11 @@ export namespace LpcParser {
             const {pos,end} = getTerminalPos(varArgs);
             const kind = getSyntaxKindFromLex(varArgs);
             modifiers = [finishNode(factory.createToken(kind as Modifier["kind"]), getFilename(tree), pos, end)];
+
+            // if (!trippleDot) {
+            //     // assign trippledot if there is not one, so that the type checker can catch it                
+            //     trippleDot = parseTokenNode<DotDotDotToken>(varArgs);
+            // }
         }
 
         let initializer:Expression;        
@@ -1226,7 +1230,7 @@ export namespace LpcParser {
             returnType,
             body
         );
-
+        
         return withJSDoc(finishNode(node, getFilename(tree), pos, end), jsDocBlock);
     }
 

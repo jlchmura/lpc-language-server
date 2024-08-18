@@ -332,6 +332,8 @@ export function modifierToFlag(token: SyntaxKind): ModifierFlags {
             return ModifierFlags.NoSave;
         case SyntaxKind.VisibleKeyword:
             return ModifierFlags.Visible;
+        case SyntaxKind.VarArgsKeyword:
+            return ModifierFlags.VarArgs;
         // case SyntaxKind.AsyncKeyword:
         //     return ModifierFlags.Async;        
         // case SyntaxKind.InKeyword:

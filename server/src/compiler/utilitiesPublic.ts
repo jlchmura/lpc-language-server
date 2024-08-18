@@ -118,10 +118,10 @@ export function isFunctionLikeKind(kind: SyntaxKind): boolean {
     }
 }
 
-function getCombinedFlags(node: Node, getFlags: (n: Node) => number): number {
-    // if (isBindingElement(node)) {
-    //     node = walkUpBindingElementsAndPatterns(node);
-    // }
+function getCombinedFlags(node: Node, getFlags: (n: Node) => number): number {    
+    if (isBindingElement(node)) {
+         node = walkUpBindingElementsAndPatterns(node);
+    }
     let flags = getFlags(node);
     if (node.kind === SyntaxKind.VariableDeclaration) {
         node = node.parent;
