@@ -12293,10 +12293,15 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         }
     }
 
-    function getTargetOfAliasDeclaration(node: Declaration, dontRecursivelyResolve = false): Symbol | undefined {
-        // TODO
-        Debug.fail("Implement me - getTargetOfAliasDeclaration");
-        // switch (node.kind) {
+    function getTargetOfAliasDeclaration(node: Declaration, dontRecursivelyResolve = false): Symbol | undefined {        
+        // TODO        
+        switch (node.kind) {
+            case SyntaxKind.CloneObjectExpression:
+            case SyntaxKind.NewExpression:
+                return undefined;//Debug.fail("not implemented yet");
+            default:
+                Debug.fail();
+        }
         //     //case SyntaxKind.ImportEqualsDeclaration:
         //     case SyntaxKind.VariableDeclaration:
         //         return getTargetOfImportEqualsDeclaration(node as ImportEqualsDeclaration | VariableDeclaration, dontRecursivelyResolve);

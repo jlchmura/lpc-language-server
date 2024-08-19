@@ -394,6 +394,7 @@ export function isCallLikeExpression(node: Node): node is CallLikeExpression {
     switch (node.kind) {        
         case SyntaxKind.CallExpression:
         case SyntaxKind.NewExpression:        
+        case SyntaxKind.CloneObjectExpression:
             return true;
         default:
             return false;

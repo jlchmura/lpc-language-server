@@ -650,6 +650,7 @@ export const enum SyntaxKind {
     BinaryExpression,
     FunctionExpression,
     CallExpression,
+    CloneObjectExpression,
     ClassExpression,
     NewExpression,
     ElementAccessExpression,
@@ -1680,8 +1681,9 @@ export type HasChildren =
     // | ObjectLiteralExpression
     | PropertyAccessExpression
     | CallExpression
-    // | ElementAccessExpression
-    // | NewExpression
+    | NewExpression
+    | CloneObjectExpression
+    // | ElementAccessExpression    
     // | TaggedTemplateExpression
     // | TypeAssertion
     // | ParenthesizedExpression
@@ -2850,6 +2852,12 @@ export interface CallExpression extends LeftHandSideExpression, Declaration {
     readonly arguments: NodeArray<Expression>;
 }
 
+export interface CloneObjectExpression extends PrimaryExpression, Declaration {
+    readonly kind: SyntaxKind.CloneObjectExpression;
+    readonly expression: Expression;
+    readonly arguments?: NodeArray<Expression>;
+}
+
 export interface InlineClosureExpression extends Expression, FunctionLikeDeclarationBase, JSDocContainer, LocalsContainer, FlowContainer {
     readonly kind: SyntaxKind.InlineClosureExpression;
     readonly body: ConciseBody;
@@ -3508,6 +3516,7 @@ export interface NewExpression extends PrimaryExpression, Declaration {
 export type CallLikeExpression =
     | CallExpression    
     | NewExpression
+    | CloneObjectExpression
     //| TaggedTemplateExpression
     ;
 

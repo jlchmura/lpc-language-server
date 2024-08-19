@@ -1,6 +1,6 @@
 import * as antlr from "antlr4ng";
 import * as parserCore from "../parser3/parser-core";
-import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange, PrefixUnaryExpression, first, LanguageVariant, EqualsToken, LpcConfigSourceFile, createBaseNodeFactory, PrefixUnaryOperator, Program, LpcFileHandler, ParenthesizedExpression, ArrayLiteralExpression, LambdaExpression, PunctuationSyntaxKind, PunctuationToken, LambdaOperatorToken, CastExpression, PropertyAccessExpression, some, flatten, setNodeFlags } from "./_namespaces/lpc";
+import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange, PrefixUnaryExpression, first, LanguageVariant, EqualsToken, LpcConfigSourceFile, createBaseNodeFactory, PrefixUnaryOperator, Program, LpcFileHandler, ParenthesizedExpression, ArrayLiteralExpression, LambdaExpression, PunctuationSyntaxKind, PunctuationToken, LambdaOperatorToken, CastExpression, PropertyAccessExpression, some, flatten, setNodeFlags, isIdentifier, CloneObjectExpression, NewExpression } from "./_namespaces/lpc";
 import { ILpcConfig } from "../config-types";
 import { loadLpcConfigFromString, LpcConfig } from "../backend/LpcConfig";
 import { LPCTokenFactor } from "../parser3/LPCTokenFactory";
@@ -919,7 +919,7 @@ export namespace LpcParser {
             leftExp = parseStringLiterals(startTree.StringLiteral());
         } else if (startTree instanceof parserCore.ParenExpressionContext) {
             leftExp = parseParenthesizedExpression(startTree);
-        } else {
+        } else {            
             leftExp = parsePrimaryExpressionStart(startTree);
 
             if (tree.ARROW().length > 0) {
@@ -950,6 +950,14 @@ export namespace LpcParser {
             }
 
             if (tree.methodInvocation()) {            
+                if (leftExp && isIdentifier(leftExp)) {
+                    switch (leftExp.text) {
+                        case "clone_object":
+                        case "load_object":
+                            //parseCloneObjectExpression(tree, leftExp);                        
+                            console.debug("TODO _ parse clone object");
+                    }
+                }
                 return parseCallExpressionRest(tree, pos, leftExp as MemberExpression);
             }
         }
@@ -961,21 +969,34 @@ export namespace LpcParser {
         return parseAssignmentExpressionOrHigher(tree.conditionalExpression());
     }
 
+    function parseCallArguments(argCtxList: parserCore.ArgumentListContext): Expression[] {
+        const args = argCtxList?.argument().map(a => {            
+            const argExp = parseExpression(a.expression());                
+            if (a.TRIPPLEDOT) {
+                // TODO: parse spread element
+                // return finishNode(factory.createSpreadElement(argExp), getNodePos(a), getNodeEnd(a));
+            }
+
+            return argExp;
+        });
+
+        return args;
+    }
+
+    function parseCloneObjectExpression(tree: parserCore.PrimaryExpressionContext, leftExp: Identifier) {
+        const {pos,end} = getNodePos(tree);
+        const invocCtx = tree.methodInvocation().at(0);
+        const argCtxList = invocCtx.argumentList(); 
+        const args = argCtxList ? parseCallArguments(argCtxList) : undefined;
+    }
+
     function parseCallExpressionRest(tree: parserCore.PrimaryExpressionContext, pos: number, expression: LeftHandSideExpression): LeftHandSideExpression {
         if (tree.methodInvocation()?.length > 0) {
             const {pos:callPos,end:callEnd} = getNodePos(tree);
             const invocCtx = tree.methodInvocation().at(0);
             const argCtxList = invocCtx.argumentList();
             
-            const args = argCtxList?.argument().map(a => {            
-                const argExp = parseExpression(a.expression());                
-                if (a.TRIPPLEDOT ) {
-                    // TODO: parse spread element
-                    // return finishNode(factory.createSpreadElement(argExp), getNodePos(a), getNodeEnd(a));
-                }
-
-                return argExp;
-            });
+            const args = argCtxList ? parseCallArguments(argCtxList) : undefined;
 
             const {pos, end} = getNodePos(argCtxList);
             const argNodes = createNodeArray(args, pos, end);
@@ -1493,8 +1514,8 @@ function forEachChildInBlock<T>(node: Block, cbNode: (node: Node) => T | undefin
     return visitNodes(cbNode, cbNodes, node.statements);
 }
 
-function forEachChildInCallOrNewExpression<T>(node: CallExpression /*| NewExpression*/, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
-    return visitNode(cbNode, node.expression) ||        
+function forEachChildInCallOrNewExpression<T>(node: CallExpression | NewExpression | CloneObjectExpression, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+    return visitNode(cbNode, node.expression) ||
         visitNodes(cbNode, cbNodes, node.arguments);
 }
 
