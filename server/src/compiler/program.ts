@@ -1,6 +1,6 @@
 import { writeFile } from "fs";
 import { ILpcConfig } from "../config-types.js";
-import { getDeclarationDiagnostics as lpc_getDeclarationDiagnostics, forEachResolvedProjectReference as lpc_forEachResolvedProjectReference, combinePaths, compareValues, CompilerHost, CompilerOptions, containsPath, createDiagnosticCollection, createGetCanonicalFileName, createMultiMap, CreateProgramOptions, createSourceFile, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DiagnosticWithLocation, FileIncludeKind, FileIncludeReason, FilePreprocessingDiagnostics, FilePreprocessingDiagnosticsKind, forEach, getBaseFileName, getDirectoryPath, getNewLineCharacter, getRootLength, hasExtension, isArray, maybeBind, memoize, normalizePath, ObjectLiteralExpression, PackageId, Path, performance, Program, ProgramHost, ProjectReference, PropertyAssignment, ReferencedFile, removePrefix, removeSuffix, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, SourceFile, stableSort, StructureIsReused, sys, System, toPath as lpc_toPath, tracing, TypeChecker, getNormalizedAbsolutePathWithoutRoot, some, isRootedDiskPath, optionsHaveChanges, packageIdToString, toFileNameLowerCase, getNormalizedAbsolutePath, CreateSourceFileOptions, createTypeChecker, ScriptTarget, libs, FileReference, SortedReadonlyArray, concatenate, sortAndDeduplicateDiagnostics, emptyArray, LpcFileHandler, createLpcFileHandler, DiagnosticMessageChain, isString, CancellationToken, flatMap, filter, Debug, ScriptKind, flatten, OperationCanceledException, noop, getNormalizedPathComponents, GetCanonicalFileName, getPathFromPathComponents, WriteFileCallback, EmitHost, WriteFileCallbackData, getDefaultLibFileName, LibResolution, returnFalse, isTraceEnabled, trace, equateStringsCaseSensitive, equateStringsCaseInsensitive, NodeFlags, ResolvedModuleFull, Extension, ResolutionMode, ModeAwareCache } from "./_namespaces/lpc.js";
+import { getDeclarationDiagnostics as lpc_getDeclarationDiagnostics, forEachResolvedProjectReference as lpc_forEachResolvedProjectReference, combinePaths, compareValues, CompilerHost, CompilerOptions, containsPath, createDiagnosticCollection, createGetCanonicalFileName, createMultiMap, CreateProgramOptions, createSourceFile, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DiagnosticWithLocation, FileIncludeKind, FileIncludeReason, FilePreprocessingDiagnostics, FilePreprocessingDiagnosticsKind, forEach, getBaseFileName, getDirectoryPath, getNewLineCharacter, getRootLength, hasExtension, isArray, maybeBind, memoize, normalizePath, ObjectLiteralExpression, PackageId, Path, performance, Program, ProgramHost, ProjectReference, PropertyAssignment, ReferencedFile, removePrefix, removeSuffix, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, SourceFile, stableSort, StructureIsReused, sys, System, toPath as lpc_toPath, tracing, TypeChecker, getNormalizedAbsolutePathWithoutRoot, some, isRootedDiskPath, optionsHaveChanges, packageIdToString, toFileNameLowerCase, getNormalizedAbsolutePath, CreateSourceFileOptions, createTypeChecker, ScriptTarget, libs, FileReference, SortedReadonlyArray, concatenate, sortAndDeduplicateDiagnostics, emptyArray, LpcFileHandler, createLpcFileHandler, DiagnosticMessageChain, isString, CancellationToken, flatMap, filter, Debug, ScriptKind, flatten, OperationCanceledException, noop, getNormalizedPathComponents, GetCanonicalFileName, getPathFromPathComponents, WriteFileCallback, EmitHost, WriteFileCallbackData, getDefaultLibFileName, LibResolution, returnFalse, isTraceEnabled, trace, equateStringsCaseSensitive, equateStringsCaseInsensitive, NodeFlags, ResolvedModuleFull, Extension, ResolutionMode, ModeAwareCache, isExternalModule, StringLiteral, Identifier, isCloneObjectExpression, isStringLiteral, setParentRecursive, append, Node, SyntaxKind, forEachChild } from "./_namespaces/lpc.js";
 
 /**
  * Create a new 'Program' instance. A Program is an immutable collection of 'SourceFile's and a 'CompilerOptions'
@@ -1010,7 +1010,10 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
 
     function processImportedModules(file: SourceFile) {
         console.debug("implement me - processImportedModules");
-        // collectExternalModuleReferences(file);
+        collectExternalModuleReferences(file);
+        if (file.imports.length > 0) {
+            const iii=0;
+        }
         // if (file.imports.length || file.moduleAugmentations.length) {
         //     // Because global augmentation doesn't have string literal name, we can check for global augmentation as such.
         //     const moduleNames = getModuleNames(file);
@@ -1077,7 +1080,140 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         // }
     }
 
-    
+    function collectExternalModuleReferences(file: SourceFile): void {
+        if (file.imports) {
+            return;
+        }
+
+        const isExternalModuleFile = isExternalModule(file);
+
+        // file.imports may not be undefined if there exists dynamic import
+        let imports: StringLiteral[] | undefined;
+        let moduleAugmentations: (StringLiteral | Identifier)[] | undefined;
+        let ambientModules: string[] | undefined;
+
+        // // If we are importing helpers, we need to add a synthetic reference to resolve the
+        // // helpers library. (A JavaScript file without `externalModuleIndicator` set might be
+        // // a CommonJS module; `commonJsModuleIndicator` doesn't get set until the binder has
+        // // run. We synthesize a helpers import for it just in case; it will never be used if
+        // // the binder doesn't find and set a `commonJsModuleIndicator`.)
+        // if ((!file.isDeclarationFile && (getIsolatedModules(options) || isExternalModule(file)))) {
+        //     if (options.importHelpers) {
+        //         // synthesize 'import "tslib"' declaration
+        //         imports = [createSyntheticImport(externalHelpersModuleNameText, file)];
+        //     }
+        //     const jsxImport = getJSXRuntimeImport(getJSXImplicitImportBase(options, file), options);
+        //     if (jsxImport) {
+        //         // synthesize `import "base/jsx-runtime"` declaration
+        //         (imports ||= []).push(createSyntheticImport(jsxImport, file));
+        //     }
+        // }
+
+        // for (const node of file.statements) {
+        //     collectModuleReferences(node, /*inAmbientModule*/ false);
+        // }
+
+        //if ((file.flags & NodeFlags.PossiblyContainsDynamicImport) || isJavaScriptFile) {
+            collectDynamicImportOrRequireOrJsDocImportCalls(file);
+        //}
+
+        file.imports = imports || emptyArray;
+        //file.moduleAugmentations = moduleAugmentations || emptyArray;
+        file.ambientModuleNames = ambientModules || emptyArray;
+
+        return;
+
+        // function collectModuleReferences(node: Statement, inAmbientModule: boolean): void {
+        //     if (isAnyImportOrReExport(node)) {
+        //         const moduleNameExpr = getExternalModuleName(node);
+        //         // TypeScript 1.0 spec (April 2014): 12.1.6
+        //         // An ExternalImportDeclaration in an AmbientExternalModuleDeclaration may reference other external modules
+        //         // only through top - level external module names. Relative external module names are not permitted.
+        //         if (moduleNameExpr && isStringLiteral(moduleNameExpr) && moduleNameExpr.text && (!inAmbientModule || !isExternalModuleNameRelative(moduleNameExpr.text))) {
+        //             setParentRecursive(node, /*incremental*/ false); // we need parent data on imports before the program is fully bound, so we ensure it's set here
+        //             imports = append(imports, moduleNameExpr);
+        //             if (!usesUriStyleNodeCoreModules && currentNodeModulesDepth === 0 && !file.isDeclarationFile) {
+        //                 usesUriStyleNodeCoreModules = startsWith(moduleNameExpr.text, "node:");
+        //             }
+        //         }
+        //     }
+        //     else if (isModuleDeclaration(node)) {
+        //         if (isAmbientModule(node) && (inAmbientModule || hasSyntacticModifier(node, ModifierFlags.Ambient) || file.isDeclarationFile)) {
+        //             (node.name as Mutable<Node>).parent = node;
+        //             const nameText = getTextOfIdentifierOrLiteral(node.name);
+        //             // Ambient module declarations can be interpreted as augmentations for some existing external modules.
+        //             // This will happen in two cases:
+        //             // - if current file is external module then module augmentation is a ambient module declaration defined in the top level scope
+        //             // - if current file is not external module then module augmentation is an ambient module declaration with non-relative module name
+        //             //   immediately nested in top level ambient module declaration .
+        //             if (isExternalModuleFile || (inAmbientModule && !isExternalModuleNameRelative(nameText))) {
+        //                 (moduleAugmentations || (moduleAugmentations = [])).push(node.name);
+        //             }
+        //             else if (!inAmbientModule) {
+        //                 if (file.isDeclarationFile) {
+        //                     // for global .d.ts files record name of ambient module
+        //                     (ambientModules || (ambientModules = [])).push(nameText);
+        //                 }
+        //                 // An AmbientExternalModuleDeclaration declares an external module.
+        //                 // This type of declaration is permitted only in the global module.
+        //                 // The StringLiteral must specify a top - level external module name.
+        //                 // Relative external module names are not permitted
+
+        //                 // NOTE: body of ambient module is always a module block, if it exists
+        //                 const body = (node as ModuleDeclaration).body as ModuleBlock;
+        //                 if (body) {
+        //                     for (const statement of body.statements) {
+        //                         collectModuleReferences(statement, /*inAmbientModule*/ true);
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
+
+        function collectDynamicImportOrRequireOrJsDocImportCalls(file: SourceFile) {
+            //const r = /import|require/g;
+            const r = /clone_object/g;
+            while (r.exec(file.text) !== null) { // eslint-disable-line no-restricted-syntax
+                const node = getNodeAtPosition(file, r.lastIndex);
+                // we have to check the argument list has length of at least 1. We will still have to process these even though we have parsing error.
+                if (isCloneObjectExpression(node) && node.arguments.length >= 1 && isStringLiteral(node.arguments[0])) {
+                    setParentRecursive(node, /*incremental*/ false); // we need parent data on imports before the program is fully bound, so we ensure it's set here
+                    imports = append(imports, node.arguments[0]);
+                }
+                // else if (isLiteralImportTypeNode(node)) {
+                //     setParentRecursive(node, /*incremental*/ false); // we need parent data on imports before the program is fully bound, so we ensure it's set here
+                //     imports = append(imports, node.argument.literal);
+                // }
+                // else if (isJavaScriptFile && isJSDocImportTag(node)) {
+                //     const moduleNameExpr = getExternalModuleName(node);
+                //     if (moduleNameExpr && isStringLiteral(moduleNameExpr) && moduleNameExpr.text) {
+                //         setParentRecursive(node, /*incremental*/ false);
+                //         imports = append(imports, moduleNameExpr);
+                //     }
+                // }
+            }
+        }
+
+        /** Returns a token if position is in [start-of-leading-trivia, end), includes JSDoc only in JS files */
+        function getNodeAtPosition(sourceFile: SourceFile, position: number): Node {
+            let current: Node = sourceFile;
+            const getContainingChild = (child: Node) => {
+                if (child.pos <= position && (position < child.end || (position === child.end && (child.kind === SyntaxKind.EndOfFileToken)))) {
+                    return child;
+                }
+            };
+            while (true) {
+                const child = forEachChild(current, getContainingChild);
+                //const child = isJavaScriptFile && hasJSDocNodes(current) && forEach(current.jsDoc, getContainingChild) || forEachChild(current, getContainingChild);
+                if (!child) {
+                    return current;
+                }
+                current = child;
+            }
+        }
+    }
+
     function processLibReferenceDirectives(file: SourceFile) {
         //console.debug("implement me - processLibReferenceDirectives");
         // forEach(file.libReferenceDirectives, (libReference, index) => {

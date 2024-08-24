@@ -1702,3 +1702,8 @@ export function parseLpcConfig(fileName: string, sourceText: string): LpcConfigS
         raw
     };
 }
+
+// See also `isExternalOrCommonJsModule` in utilities.ts
+export function isExternalModule(file: SourceFile): boolean {
+    return file.externalModuleIndicator !== undefined;
+}
