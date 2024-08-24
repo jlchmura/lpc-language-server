@@ -1,4 +1,4 @@
-import { ArrayBindingPattern, ArrayTypeNode, BinaryExpression, BindingElement, Block, CallExpression, ComputedPropertyName, DefaultClause, ElementAccessExpression, ExpressionStatement, FloatLiteral, ForStatement, FunctionDeclaration, FunctionExpression, Identifier, IfStatement, IndexedAccessTypeNode, InlineClosureExpression, IntLiteral, JSDoc, JSDocDeprecatedTag, JSDocParameterTag, JSDocSignature, JSDocTemplateTag, JSDocTypedefTag, JSDocTypeExpression, LiteralTypeNode, NewExpression, Node, NodeFlags, ObjectLiteralExpression, ParameterDeclaration, ParenthesizedExpression, ParenthesizedTypeNode, PrefixUnaryExpression, PropertyAccessExpression, PropertyAssignment, PropertyDeclaration, QualifiedName, ShorthandPropertyAssignment, SourceFile, StringLiteral, StructDeclaration, SwitchStatement, SyntaxKind, TypeLiteralNode, TypeParameterDeclaration, TypeReferenceNode, UnionTypeNode, VariableDeclaration, VariableDeclarationList, VariableStatement } from "./_namespaces/lpc";
+import { ArrayBindingPattern, ArrayTypeNode, BinaryExpression, BindingElement, Block, CallExpression, CloneObjectExpression, ComputedPropertyName, DefaultClause, ElementAccessExpression, ExpressionStatement, FloatLiteral, ForStatement, FunctionDeclaration, FunctionExpression, Identifier, IfStatement, IndexedAccessTypeNode, InlineClosureExpression, IntLiteral, JSDoc, JSDocDeprecatedTag, JSDocParameterTag, JSDocSignature, JSDocTemplateTag, JSDocTypedefTag, JSDocTypeExpression, LiteralTypeNode, NewExpression, Node, NodeFlags, ObjectLiteralExpression, ParameterDeclaration, ParenthesizedExpression, ParenthesizedTypeNode, PrefixUnaryExpression, PropertyAccessExpression, PropertyAssignment, PropertyDeclaration, QualifiedName, ShorthandPropertyAssignment, SourceFile, StringLiteral, StructDeclaration, SwitchStatement, SyntaxKind, TypeLiteralNode, TypeParameterDeclaration, TypeReferenceNode, UnionTypeNode, VariableDeclaration, VariableDeclarationList, VariableStatement } from "./_namespaces/lpc";
 
 export function isBinaryExpression(node: Node): node is BinaryExpression {
     return node.kind === SyntaxKind.BinaryExpression;
@@ -40,6 +40,10 @@ export function isBlock(node: Node): node is Block {
 
 export function isCallExpression(node: Node): node is CallExpression {
     return node.kind === SyntaxKind.CallExpression;
+}
+
+export function isCloneObjectExpression(node: Node): node is CloneObjectExpression {
+    return node.kind === SyntaxKind.CloneObjectExpression;
 }
 
 export function isVariableDeclaration(node: Node): node is VariableDeclaration {

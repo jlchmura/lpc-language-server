@@ -15,6 +15,7 @@ import {
     CaseClause,
     CaseOrDefaultClause,
     CastExpression,
+    CloneObjectExpression,
     ColonToken,
     ComputedPropertyName,
     ConciseBody,
@@ -228,6 +229,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createLambdaIdentifierExpression,
         createLambdaOperatorExpression,
         createCastExpression,
+        createCloneObjectExpression,
 
         cloneNode,
     };
@@ -748,6 +750,14 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         }
     }
 
+    // @api
+    function createCloneObjectExpression(expression: Expression, argumentsArray: readonly Expression[] | undefined): CloneObjectExpression {
+        const node = createBaseDeclaration<CloneObjectExpression>(SyntaxKind.CloneObjectExpression);
+        node.expression = expression;                
+        node.arguments = asNodeArray(argumentsArray);
+
+        return node;
+    }
     
     function createBaseCallExpression(expression: LeftHandSideExpression,  argumentsArray: NodeArray<Expression>) {
         const node = createBaseDeclaration<CallExpression>(SyntaxKind.CallExpression);
@@ -766,6 +776,8 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         // }
         return node;
     }
+
+    
 
     // @api
     function createCallExpression(expression: Expression, argumentsArray: readonly Expression[] | undefined): CallExpression {

@@ -1180,6 +1180,7 @@ export interface NodeFactory {
     createLambdaOperatorExpression(op: LambdaOperatorToken): LambdaOperatorExpression;
     createLambdaIdentifierExpression(name: string | Identifier): LambdaIdentifierExpression;
     createCastExpression(expression: Expression, type: TypeNode): Expression;
+    createCloneObjectExpression(expression: Expression, argumentsArray: readonly Expression[] | undefined): CloneObjectExpression;
     
     /**
      * Creates a shallow, memberwise clone of a node.

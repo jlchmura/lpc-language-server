@@ -954,8 +954,7 @@ export namespace LpcParser {
                     switch (leftExp.text) {
                         case "clone_object":
                         case "load_object":
-                            //parseCloneObjectExpression(tree, leftExp);                        
-                            console.debug("TODO _ parse clone object");
+                            return parseCloneObjectExpression(tree, leftExp);                            
                     }
                 }
                 return parseCallExpressionRest(tree, pos, leftExp as MemberExpression);
@@ -988,6 +987,9 @@ export namespace LpcParser {
         const invocCtx = tree.methodInvocation().at(0);
         const argCtxList = invocCtx.argumentList(); 
         const args = argCtxList ? parseCallArguments(argCtxList) : undefined;
+
+        const node = factory.createCloneObjectExpression(leftExp, args);
+        return finishNode(node, getFilename(tree), pos, end);
     }
 
     function parseCallExpressionRest(tree: parserCore.PrimaryExpressionContext, pos: number, expression: LeftHandSideExpression): LeftHandSideExpression {
@@ -1415,6 +1417,7 @@ const forEachChildTable: ForEachChildTable = {
     [SyntaxKind.UnionType]: function forEachChildInUnionOrIntersectionType<T>(node: UnionTypeNode, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
         return visitNodes(cbNode, cbNodes, node.types);
     },
+    [SyntaxKind.CloneObjectExpression]: forEachChildInCallOrNewExpression,
     [SyntaxKind.CallExpression]: forEachChildInCallOrNewExpression,
     [SyntaxKind.PropertyAccessExpression]: function forEachChildInPropertyAccessExpression<T>(node: PropertyAccessExpression, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
         return visitNode(cbNode, node.expression) ||            

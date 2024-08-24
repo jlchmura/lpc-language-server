@@ -40,7 +40,7 @@
             "preLaunchTask": "compile:bin",
             "sourceMaps": true,
             "outFiles": ["${workspaceFolder}/out/**/*.js"],
-            "cwd": "${workspaceFolder}/../lp-245"
+            "cwd": "${workspaceFolder}/../lpc-test2"
         },
         {
             "type": "node",
