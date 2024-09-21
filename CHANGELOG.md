@@ -1,5 +1,10 @@
 # LPC Language Services Changelog
 
+## 1.0.31
+
+-   Fix: [Signature hint not recognizing mapping type #56](https://github.com/jlchmura/lpc-language-server/issues/56)
+-   Intern identifiers when parsing to lower memory utilization.
+
 ## 1.0.30
 
 -   Because 1.0.29 was incomplete

@@ -119,10 +119,20 @@ type GenericConstructorParameters<T> = ConstructorParameters<
     new (...args: any[]) => T
 >;
 
+const IDENTIFIER_EQUALS = "=";
+const IDENT_RETURN = "#return#";
+const IDENT_CONDITIONAL = "#conditional-expression#";
+const IDENT_ITERATION = "#iteration#";
+const IDENT_FOR = "for";
+const IDENT_INT = "int";
+const IDENT_FLOAT = "float";
+const IDENT_STRING = "string";
+
 export class DetailsVisitor
     extends AbstractParseTreeVisitor<ScopedSymbol>
     implements LPCParserVisitor<ScopedSymbol>
 {
+    private identifiers: Map<string, string> = new Map();
     protected scope = this.symbolTable as ScopedSymbol;
 
     constructor(
@@ -285,7 +295,7 @@ export class DetailsVisitor
                         target = this.addNewSymbol(
                             StructMemberIdentifierSymbol,
                             ctx,
-                            structMemberCtx.text
+                            this.internIdentifier(structMemberCtx.text)
                         );
 
                         symbol.ArrowType = ArrowType.StructMember; // definitely a struct
@@ -302,7 +312,7 @@ export class DetailsVisitor
                     symbol.target = target;
                     symbol.methodInvocation = methodInvoc;
                     symbol.functionName = !!methodInvoc
-                        ? target?.name
+                        ? this.internIdentifier(target?.name)
                         : undefined;
 
                     return symbol;
@@ -317,7 +327,11 @@ export class DetailsVisitor
             return this.withScope(
                 ctx,
                 InheritSuperAccessorSymbol,
-                ["#inherit-super#" + filename, filename, this.fileHandler],
+                [
+                    this.internIdentifier("#inherit-super#" + filename),
+                    this.internIdentifier(filename),
+                    this.fileHandler,
+                ],
                 (s) => {
                     return this.visitChildren(ctx);
                 }
@@ -398,7 +412,7 @@ export class DetailsVisitor
             const fid = this.addNewSymbol(
                 FunctionIdentifierSymbol,
                 ctx,
-                ctx.validIdentifiers().getText()
+                this.internIdentifier(ctx.validIdentifiers().getText())
             );
             fid.nameRange = lexRangeFromContext(ctx.validIdentifiers());
             this.markContext(ctx.validIdentifiers(), SemanticTokenTypes.Method);
@@ -425,7 +439,7 @@ export class DetailsVisitor
         const priExp = ctx.parent as unknown as PrimaryExpressionContext;
         const isVar = priExp.methodInvocation().length === 0; // if its not a method invocation, then its a variable reference
         const parentSymbol = this.scope;
-        const name = ctx.validIdentifiers().getText();
+        const name = this.internIdentifier(ctx.validIdentifiers().getText());
 
         let symbolType: SymbolConstructor<BaseSymbol, unknown[]>;
 
@@ -466,8 +480,10 @@ export class DetailsVisitor
     };
 
     visitStructDeclaration = (ctx: StructDeclarationContext) => {
-        const name = ctx._structName.text;
-        const inheritsFromName = ctx._structInherits?.text;
+        const name = this.internIdentifier(ctx._structName.text);
+        const inheritsFromName = this.internIdentifier(
+            ctx._structInherits?.text
+        );
 
         return this.withScope(
             ctx,
@@ -483,7 +499,9 @@ export class DetailsVisitor
         const u = ctx;
         if (u?.structTypeSpecifier()) {
             const spec = u.structTypeSpecifier();
-            return new StructType(spec.Identifier().getText());
+            return new StructType(
+                this.internIdentifier(spec.Identifier().getText())
+            );
         } else {
             return this.parsePrimitiveType(
                 u?.primitiveTypeSpecifier(),
@@ -525,6 +543,9 @@ export class DetailsVisitor
                 case "function":
                     varType = LpcTypes.functionType;
                     break;
+                case "mapping":
+                    varType = LpcTypes.mappingType;
+                    break;
                 case "unknown":
                     varType = LpcTypes.unknownType;
                     break;
@@ -532,7 +553,7 @@ export class DetailsVisitor
 
             if (isArray) {
                 varType = new ArrayType(
-                    tt + "*",
+                    this.internIdentifier(tt + "*"),
                     ReferenceKind.Pointer,
                     varType
                 );
@@ -551,7 +572,7 @@ export class DetailsVisitor
         if (!varDecl) return undefined;
 
         const varNameSym = varDecl._variableName;
-        const nm = varNameSym?.getText();
+        const nm = this.internIdentifier(varNameSym?.getText());
         const varSym = this.addNewSymbol(
             VariableSymbol,
             varDecl.validIdentifiers(),
@@ -578,7 +599,13 @@ export class DetailsVisitor
         const ids = ctx.Identifier();
         for (const id of ids) {
             const varName = id.getText();
-            this.addNewSymbol(VariableSymbol, ctx, varName, varType, id);
+            this.addNewSymbol(
+                VariableSymbol,
+                ctx,
+                this.internIdentifier(varName),
+                varType,
+                id
+            );
         }
 
         return undefined;
@@ -627,13 +654,16 @@ export class DetailsVisitor
                     this.withScope(
                         varDeclExp,
                         AssignmentSymbol,
-                        ["#assignment#" + name, "="],
+                        [
+                            this.internIdentifier("#assignment#" + name),
+                            IDENTIFIER_EQUALS,
+                        ],
                         (s) => {
                             // not a new declaration, parse as an identifier
                             this.addNewSymbol(
                                 VariableIdentifierSymbol,
                                 varDeclExp.variableDeclarator(),
-                                name
+                                this.internIdentifier(name)
                             );
                             this.visit(varDeclExp.variableInitializer());
                             return s;
@@ -643,7 +673,7 @@ export class DetailsVisitor
                     this.addNewSymbol(
                         VariableIdentifierSymbol,
                         varDeclExp.variableDeclarator(),
-                        name
+                        this.internIdentifier(name)
                     );
                 }
                 return;
@@ -659,7 +689,10 @@ export class DetailsVisitor
                 return this.withScope(
                     initCtx,
                     VariableInitializerSymbol,
-                    ["#initializer#" + varSym.name, varSym],
+                    [
+                        this.internIdentifier("#initializer#" + varSym.name),
+                        varSym,
+                    ],
                     (s) => {
                         return this.visitChildren(initCtx);
                     }
@@ -681,7 +714,11 @@ export class DetailsVisitor
             filename = stringLits.map((s) => trimQuotes(s.getText())).join("");
         }
 
-        const symbol = this.addNewSymbol(IncludeSymbol, ctx, filename);
+        const symbol = this.addNewSymbol(
+            IncludeSymbol,
+            ctx,
+            this.internIdentifier(filename)
+        );
         symbol.isLoaded = this.fileHandler.doesIncludeFile(filename);
 
         return undefined;
@@ -704,9 +741,9 @@ export class DetailsVisitor
             }
         }
         stringLits.sort((a, b) => a.symbol.tokenIndex - b.symbol.tokenIndex);
-        const filename = stringLits
-            .map((s) => trimQuotes(s.getText()))
-            .join("");
+        const filename = this.internIdentifier(
+            stringLits.map((s) => trimQuotes(s.getText())).join("")
+        );
 
         const symbol = this.addNewSymbol(
             InheritSymbol,
@@ -754,7 +791,7 @@ export class DetailsVisitor
 
     visitIfStatement = (ctx: IfStatementContext) => {
         const tokenIdx = ctx.start.tokenIndex;
-        const name = "if_" + tokenIdx;
+        const name = this.internIdentifier("if_" + tokenIdx);
 
         const ifSymTbl = this.withScope(ctx, IfSymbol, [name], () => {
             const ifSym = this.scope as IfSymbol;
@@ -821,7 +858,7 @@ export class DetailsVisitor
         ctx: FunctionHeaderDeclarationContext
     ) => {
         const header = ctx.functionHeader();
-        const nm = header._functionName?.getText();
+        const nm = this.internIdentifier(header._functionName?.getText());
         const retType = typeNameToIType.get(header.typeSpecifier()?.getText());
         const mods = new Set(
             header.functionModifier()?.map((m) => m.getText()) ?? []
@@ -852,7 +889,7 @@ export class DetailsVisitor
 
     visitFunctionDeclaration = (ctx: FunctionDeclarationContext) => {
         const header = ctx.functionHeader();
-        const nm = header._functionName.getText();
+        const nm = this.internIdentifier(header._functionName.getText());
         const retType = typeNameToIType.get(header.typeSpecifier()?.getText());
         const mods = new Set(
             header.functionModifier()?.map((m) => m.getText()) ?? []
@@ -878,7 +915,7 @@ export class DetailsVisitor
     };
 
     visitReturnStatement = (ctx: ReturnStatementContext) => {
-        return this.withScope(ctx, ReturnSymbol, ["#return#"], (s) => {
+        return this.withScope(ctx, ReturnSymbol, [IDENT_RETURN], (s) => {
             return this.visitChildren(ctx);
         });
     };
@@ -900,7 +937,7 @@ export class DetailsVisitor
 
             const id = this.getValidIdentifier(p._paramName);
             const nameToken = id?.symbol;
-            const name = p._paramName?.getText();
+            const name = this.internIdentifier(p._paramName?.getText());
 
             if (!!id) {
                 this.markToken(id.symbol, SemanticTokenTypes.Parameter, [
@@ -928,7 +965,10 @@ export class DetailsVisitor
             return this.withScope(
                 ctx,
                 AssignmentSymbol,
-                ["#conditional-expression#", ctx._assignOp.getText()],
+                [
+                    IDENT_CONDITIONAL,
+                    this.internIdentifier(ctx._assignOp.getText()),
+                ],
                 (s) => {
                     return this.visitChildren(ctx);
                 }
@@ -943,7 +983,7 @@ export class DetailsVisitor
             return this.withScope(
                 ctx,
                 ConditionalSymbol,
-                [ctx._ternOp.text],
+                [this.internIdentifier(ctx._ternOp.text)],
                 (s) => {
                     return this.visitChildren(ctx);
                 }
@@ -971,7 +1011,9 @@ export class DetailsVisitor
             } else {
                 for (let i = ctx.children.length - 2; i > 0; i -= 2) {
                     const child = ctx.children[i - 1];
-                    const operator = ctx.children[i].getText();
+                    const operator = this.internIdentifier(
+                        ctx.children[i].getText()
+                    );
                     let opSym = (this.scope = this.addNewSymbol(
                         OperatorSymbol,
                         ctx,
@@ -1020,9 +1062,9 @@ export class DetailsVisitor
         symbolType: typeof IterationSymbol
     ) {
         const tokenIdx = ctx.start.tokenIndex;
-        const name = "#iteration_" + tokenIdx;
+        const name = IDENT_ITERATION;
 
-        return this.withScope(ctx, symbolType, [name, "for"], (s) => {
+        return this.withScope(ctx, symbolType, [name, IDENT_FOR], (s) => {
             // s.foldingRange = FoldingRange.create(
             //     ctx.start.line - 1,
             //     ctx.stop.line - 2,
@@ -1073,10 +1115,10 @@ export class DetailsVisitor
     // prettier-ignore
     visitLiteral = (ctx: LiteralContext) => {        
         if (!!ctx.IntegerConstant()) {
-            this.addNewSymbol(LiteralSymbol, ctx, "int", FundamentalType.integerType, +ctx.IntegerConstant().getText().replace("_",""));
+            this.addNewSymbol(LiteralSymbol, ctx, IDENT_INT, FundamentalType.integerType, +ctx.IntegerConstant().getText().replace("_",""));
             this.markToken(ctx.IntegerConstant()?.symbol, SemanticTokenTypes.Number);
         } else if (!!ctx.FloatingConstant()) {
-            this.addNewSymbol(LiteralSymbol, ctx, "float", FundamentalType.floatType, +ctx.FloatingConstant().getText());
+            this.addNewSymbol(LiteralSymbol, ctx, IDENT_FLOAT, FundamentalType.floatType, +ctx.FloatingConstant().getText());
             this.markToken(ctx.FloatingConstant()?.symbol, SemanticTokenTypes.Number);
         }       
         
@@ -1091,9 +1133,9 @@ export class DetailsVisitor
         this.addNewSymbol(
             LiteralSymbol,
             ctx,
-            "string",
+            IDENT_STRING,
             FundamentalType.stringType,
-            concatStr
+            this.internIdentifier(concatStr)
         );
 
         // don't send if string contains only a unicode character (like emoji)
@@ -1196,6 +1238,15 @@ export class DetailsVisitor
         }
 
         return undefined;
+    }
+
+    private internIdentifier(text: string): string {
+        if (text === undefined || text === null) return text;
+        let identifier = this.identifiers.get(text);
+        if (identifier === undefined) {
+            this.identifiers.set(text, (identifier = text));
+        }
+        return identifier;
     }
 }
 
