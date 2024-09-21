@@ -141,4 +141,6 @@ export const Diagnostics = {
     File_0_is_not_a_module: diag(2306, DiagnosticCategory.Error, "File_0_is_not_a_module_2306", "File '{0}' is not a module."),
     Clone_object_can_only_accept_an_object_name_and_an_optional_set_of_attributes_as_arguments_1450: diag(1450, DiagnosticCategory.Message, "Clone_object_can_only_accept_an_object_name_and_an_optional_set_of_attributes_as_arguments_1450", "Clone object can only accept an object name and an optional set of attributes as arguments"),
     Clone_object_s_specifier_must_be_of_type_string_but_here_has_type_0: diag(7036, DiagnosticCategory.Error, "Clone_object_s_specifier_must_be_of_type_string_but_here_has_type_0_7036", "Clone object's specifier must be of type 'string', but here has type '{0}'."),
+    Module_0_was_resolved_as_ambient_module_declared_in_1_since_this_file_was_not_modified: diag(6145, DiagnosticCategory.Message, "Module_0_was_resolved_as_ambient_module_declared_in_1_since_this_file_was_not_modified_6145", "Module '{0}' was resolved as ambient module declared in '{1}' since this file was not modified."),
+    Module_0_was_resolved_as_locally_declared_ambient_module_in_file_1: diag(6144, DiagnosticCategory.Message, "Module_0_was_resolved_as_locally_declared_ambient_module_in_file_1_6144", "Module '{0}' was resolved as locally declared ambient module in file '{1}'."),
 }

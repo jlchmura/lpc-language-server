@@ -1,6 +1,6 @@
 import { writeFile } from "fs";
 import { ILpcConfig } from "../config-types.js";
-import { getDeclarationDiagnostics as lpc_getDeclarationDiagnostics, forEachResolvedProjectReference as lpc_forEachResolvedProjectReference, combinePaths, compareValues, CompilerHost, CompilerOptions, containsPath, createDiagnosticCollection, createGetCanonicalFileName, createMultiMap, CreateProgramOptions, createSourceFile, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DiagnosticWithLocation, FileIncludeKind, FileIncludeReason, FilePreprocessingDiagnostics, FilePreprocessingDiagnosticsKind, forEach, getBaseFileName, getDirectoryPath, getNewLineCharacter, getRootLength, hasExtension, isArray, maybeBind, memoize, normalizePath, ObjectLiteralExpression, PackageId, Path, performance, Program, ProgramHost, ProjectReference, PropertyAssignment, ReferencedFile, removePrefix, removeSuffix, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, SourceFile, stableSort, StructureIsReused, sys, System, toPath as lpc_toPath, tracing, TypeChecker, getNormalizedAbsolutePathWithoutRoot, some, isRootedDiskPath, optionsHaveChanges, packageIdToString, toFileNameLowerCase, getNormalizedAbsolutePath, CreateSourceFileOptions, createTypeChecker, ScriptTarget, libs, FileReference, SortedReadonlyArray, concatenate, sortAndDeduplicateDiagnostics, emptyArray, LpcFileHandler, createLpcFileHandler, DiagnosticMessageChain, isString, CancellationToken, flatMap, filter, Debug, ScriptKind, flatten, OperationCanceledException, noop, getNormalizedPathComponents, GetCanonicalFileName, getPathFromPathComponents, WriteFileCallback, EmitHost, WriteFileCallbackData, getDefaultLibFileName, LibResolution, returnFalse, isTraceEnabled, trace, equateStringsCaseSensitive, equateStringsCaseInsensitive, NodeFlags, ResolvedModuleFull, Extension, ResolutionMode, ModeAwareCache, isExternalModule, StringLiteral, Identifier, isCloneObjectExpression, isStringLiteral, setParentRecursive, append, Node, SyntaxKind, forEachChild } from "./_namespaces/lpc.js";
+import { getDeclarationDiagnostics as lpc_getDeclarationDiagnostics, forEachResolvedProjectReference as lpc_forEachResolvedProjectReference, combinePaths, compareValues, CompilerHost, CompilerOptions, containsPath, createDiagnosticCollection, createGetCanonicalFileName, createMultiMap, CreateProgramOptions, createSourceFile, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DiagnosticWithLocation, FileIncludeKind, FileIncludeReason, FilePreprocessingDiagnostics, FilePreprocessingDiagnosticsKind, forEach, getBaseFileName, getDirectoryPath, getNewLineCharacter, getRootLength, hasExtension, isArray, maybeBind, memoize, normalizePath, ObjectLiteralExpression, PackageId, Path, performance, Program, ProgramHost, ProjectReference, PropertyAssignment, ReferencedFile, removePrefix, removeSuffix, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, SourceFile, stableSort, StructureIsReused, sys, System, toPath as lpc_toPath, tracing, TypeChecker, getNormalizedAbsolutePathWithoutRoot, some, isRootedDiskPath, optionsHaveChanges, packageIdToString, toFileNameLowerCase, getNormalizedAbsolutePath, CreateSourceFileOptions, createTypeChecker, ScriptTarget, libs, FileReference, SortedReadonlyArray, concatenate, sortAndDeduplicateDiagnostics, emptyArray, LpcFileHandler, createLpcFileHandler, DiagnosticMessageChain, isString, CancellationToken, flatMap, filter, Debug, ScriptKind, flatten, OperationCanceledException, noop, getNormalizedPathComponents, GetCanonicalFileName, getPathFromPathComponents, WriteFileCallback, EmitHost, WriteFileCallbackData, getDefaultLibFileName, LibResolution, returnFalse, isTraceEnabled, trace, equateStringsCaseSensitive, equateStringsCaseInsensitive, NodeFlags, ResolvedModuleFull, Extension, ResolutionMode, ModeAwareCache, isExternalModule, StringLiteral, Identifier, isCloneObjectExpression, isStringLiteral, setParentRecursive, append, Node, SyntaxKind, forEachChild, ResolutionWithFailedLookupLocations, createModeAwareCache, ModuleKind, ResolvedTypeReferenceDirectiveWithFailedLookupLocations, ModuleResolutionCache, contains } from "./_namespaces/lpc.js";
 
 /**
  * Create a new 'Program' instance. A Program is an immutable collection of 'SourceFile's and a 'CompilerOptions'
@@ -124,6 +124,30 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
     // Key is a file name. Value is the (non-empty, or undefined) list of files that redirect to it.
     let redirectTargetsMap = createMultiMap<Path, string>();
 
+    let moduleResolutionCache: ModuleResolutionCache | undefined;
+    let actualResolveModuleNamesWorker: (
+        moduleNames: readonly StringLiteral[],
+        containingFile: string,
+        redirectedReference: ResolvedProjectReference | undefined,
+        options: CompilerOptions,
+        containingSourceFile: SourceFile,
+        reusedNames: readonly StringLiteral[] | undefined,
+    ) => readonly ResolvedModuleWithFailedLookupLocations[];
+    const hasInvalidatedResolutions = host.hasInvalidatedResolutions || returnFalse;
+    
+    moduleResolutionCache = createModuleResolutionCache(currentDirectory, getCanonicalFileName, options);
+        actualResolveModuleNamesWorker = (moduleNames, containingFile, redirectedReference, options, containingSourceFile) =>
+            loadWithModeAwareCache(
+                moduleNames,
+                containingFile,
+                redirectedReference,
+                options,
+                containingSourceFile,
+                host,
+                moduleResolutionCache,
+                createModuleResolutionLoader,
+            );
+            
     // A parallel array to projectReferences storing the results of reading in the referenced tsconfig files
     let resolvedProjectReferences: readonly (ResolvedProjectReference | undefined)[] | undefined;
     let projectReferenceRedirects: Map<Path, ResolvedProjectReference | false> | undefined;
@@ -1008,76 +1032,240 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         else missingFileNames.set(path, fileName);
     }
 
+    function addResolutionDiagnostics(resolution: ResolvedModuleWithFailedLookupLocations | ResolvedTypeReferenceDirectiveWithFailedLookupLocations) {
+        if (!resolution.resolutionDiagnostics?.length) return;
+        (fileProcessingDiagnostics ??= []).push({
+            kind: FilePreprocessingDiagnosticsKind.ResolutionDiagnostics,
+            diagnostics: resolution.resolutionDiagnostics,
+        });
+    }
+    
+    function addResolutionDiagnosticsFromResolutionOrCache(containingFile: SourceFile, name: string, resolution: ResolvedModuleWithFailedLookupLocations, mode: ResolutionMode) {
+        // diagnostics directly from the resolution
+        if (host.resolveModuleNameLiterals || !host.resolveModuleNames) return addResolutionDiagnostics(resolution);
+        if (!moduleResolutionCache /*|| isExternalModuleNameRelative(name)*/) return;
+        const containingFileName = getNormalizedAbsolutePath(containingFile.originalFileName, currentDirectory);
+        const containingDir = getDirectoryPath(containingFileName);
+        const redirectedReference = undefined;// getRedirectReferenceForResolution(containingFile);
+        // only nonrelative names hit the cache, and, at least as of right now, only nonrelative names can issue diagnostics
+        // (Since diagnostics are only issued via import or export map lookup)
+        // This may totally change if/when the issue of output paths not mapping to input files is fixed in a broader context
+        // When it is, how we extract diagnostics from the module name resolver will have the be refined - the current cache
+        // APIs wrapping the underlying resolver make it almost impossible to smuggle the diagnostics out in a generalized way
+        const fromCache = moduleResolutionCache.getFromNonRelativeNameCache(name, mode, containingDir, redirectedReference);
+        if (fromCache) addResolutionDiagnostics(fromCache);
+    }
+
     function processImportedModules(file: SourceFile) {
         console.debug("implement me - processImportedModules");
         collectExternalModuleReferences(file);
-        if (file.imports.length > 0) {
-            const iii=0;
+        if (file.imports.length > 0) {            
+            // Because global augmentation doesn't have string literal name, we can check for global augmentation as such.
+            const moduleNames = getModuleNames(file);
+            const resolutions = resolvedModulesProcessing?.get(file.path) || resolveModuleNamesReusingOldState(moduleNames, file);
+            Debug.assert(resolutions.length === moduleNames.length);
+            const optionsForFile = /*getRedirectReferenceForResolution(file)?.commandLine.options ||*/ options;
+            const resolutionsInFile = createModeAwareCache<ResolutionWithFailedLookupLocations>();
+            (resolvedModules ??= new Map()).set(file.path, resolutionsInFile);
+            for (let index = 0; index < moduleNames.length; index++) {
+                const resolution = resolutions[index].resolvedModule;
+                const moduleName = moduleNames[index].text;
+                const mode: ResolutionMode = ModuleKind.LPC;// getModeForUsageLocationWorker(file, moduleNames[index], optionsForFile);
+                resolutionsInFile.set(moduleName, mode, resolutions[index]);
+                addResolutionDiagnosticsFromResolutionOrCache(file, moduleName, resolutions[index], mode);
+
+                if (!resolution) {
+                    continue;
+                }
+
+                const isFromNodeModulesSearch = resolution.isExternalLibraryImport;
+                // If this is js file source of project reference, dont treat it as js file but as d.ts
+                const isJsFile = false;// !resolutionExtensionIsTSOrJson(resolution.extension) && !getProjectReferenceRedirectProject(resolution.resolvedFileName);
+                const isJsFileFromNodeModules = false;// isFromNodeModulesSearch && isJsFile && (!resolution.originalPath || pathContainsNodeModules(resolution.resolvedFileName));
+                const resolvedFileName = resolution.resolvedFileName;
+
+                if (isFromNodeModulesSearch) {
+                    currentNodeModulesDepth++;
+                }
+
+                // add file to program only if:
+                // - resolution was successful
+                // - noResolve is falsy
+                // - module name comes from the list of imports
+                // - it's not a top level JavaScript module that exceeded the search max
+                const elideImport = isJsFileFromNodeModules && currentNodeModulesDepth > maxNodeModuleJsDepth;
+                // Don't add the file if it has a bad extension (e.g. 'tsx' if we don't have '--allowJs')
+                // This may still end up being an untyped module -- the file won't be included but imports will be allowed.
+                const shouldAddFile = resolvedFileName
+                    && !getResolutionDiagnostic(optionsForFile, resolution, file)
+                    && !optionsForFile.noResolve
+                    && index < file.imports.length
+                    && !elideImport;
+                    //&& !(isJsFile && !getAllowJSCompilerOption(optionsForFile))
+                    //&& (isInJSFile(file.imports[index]) || !(file.imports[index].flags & NodeFlags.JSDoc));
+
+                if (elideImport) {
+                    modulesWithElidedImports.set(file.path, true);
+                }
+                else if (shouldAddFile) {
+                    findSourceFile(
+                        resolvedFileName,
+                        /*isDefaultLib*/ false,
+                        /*ignoreNoDefaultLib*/ false,
+                        { kind: FileIncludeKind.Import, file: file.path, index },
+                        resolution.packageId,
+                    );
+                }
+
+                if (isFromNodeModulesSearch) {
+                    currentNodeModulesDepth--;
+                }
+            }
         }
-        // if (file.imports.length || file.moduleAugmentations.length) {
-        //     // Because global augmentation doesn't have string literal name, we can check for global augmentation as such.
-        //     const moduleNames = getModuleNames(file);
-        //     const resolutions = resolvedModulesProcessing?.get(file.path) ||
-        //         resolveModuleNamesReusingOldState(moduleNames, file);
-        //     Debug.assert(resolutions.length === moduleNames.length);
-        //     const optionsForFile = getRedirectReferenceForResolution(file)?.commandLine.options || options;
-        //     const resolutionsInFile = createModeAwareCache<ResolutionWithFailedLookupLocations>();
-        //     (resolvedModules ??= new Map()).set(file.path, resolutionsInFile);
-        //     for (let index = 0; index < moduleNames.length; index++) {
-        //         const resolution = resolutions[index].resolvedModule;
-        //         const moduleName = moduleNames[index].text;
-        //         const mode = getModeForUsageLocationWorker(file, moduleNames[index], optionsForFile);
-        //         resolutionsInFile.set(moduleName, mode, resolutions[index]);
-        //         addResolutionDiagnosticsFromResolutionOrCache(file, moduleName, resolutions[index], mode);
+    }
 
-        //         if (!resolution) {
-        //             continue;
-        //         }
+    function resolveModuleNamesReusingOldState(moduleNames: readonly StringLiteral[], file: SourceFile): readonly ResolvedModuleWithFailedLookupLocations[] {
+        if (structureIsReused === StructureIsReused.Not && !file.ambientModuleNames.length) {
+            // If the old program state does not permit reusing resolutions and `file` does not contain locally defined ambient modules,
+            // the best we can do is fallback to the default logic.
+            return resolveModuleNamesWorker(moduleNames, file, /*reusedNames*/ undefined);
+        }
 
-        //         const isFromNodeModulesSearch = resolution.isExternalLibraryImport;
-        //         // If this is js file source of project reference, dont treat it as js file but as d.ts
-        //         const isJsFile = !resolutionExtensionIsTSOrJson(resolution.extension) && !getProjectReferenceRedirectProject(resolution.resolvedFileName);
-        //         const isJsFileFromNodeModules = isFromNodeModulesSearch && isJsFile && (!resolution.originalPath || pathContainsNodeModules(resolution.resolvedFileName));
-        //         const resolvedFileName = resolution.resolvedFileName;
+        // At this point, we know at least one of the following hold:
+        // - file has local declarations for ambient modules
+        // - old program state is available
+        // With this information, we can infer some module resolutions without performing resolution.
 
-        //         if (isFromNodeModulesSearch) {
-        //             currentNodeModulesDepth++;
-        //         }
+        /** An ordered list of module names for which we cannot recover the resolution. */
+        let unknownModuleNames: StringLiteral[] | undefined;
+        /**
+         * The indexing of elements in this list matches that of `moduleNames`.
+         *
+         * Before combining results, result[i] is in one of the following states:
+         * * undefined: needs to be recomputed,
+         * * predictedToResolveToAmbientModuleMarker: known to be an ambient module.
+         * Needs to be reset to undefined before returning,
+         * * ResolvedModuleFull instance: can be reused.
+         */
+        let result: ResolvedModuleWithFailedLookupLocations[] | undefined;
+        let reusedNames: StringLiteral[] | undefined;
+        /** A transient placeholder used to mark predicted resolution in the result list. */
+        const predictedToResolveToAmbientModuleMarker: ResolvedModuleWithFailedLookupLocations = emptyResolution;
+        const oldSourceFile = oldProgram && oldProgram.getSourceFile(file.fileName);
 
-        //         // add file to program only if:
-        //         // - resolution was successful
-        //         // - noResolve is falsy
-        //         // - module name comes from the list of imports
-        //         // - it's not a top level JavaScript module that exceeded the search max
-        //         const elideImport = isJsFileFromNodeModules && currentNodeModulesDepth > maxNodeModuleJsDepth;
-        //         // Don't add the file if it has a bad extension (e.g. 'tsx' if we don't have '--allowJs')
-        //         // This may still end up being an untyped module -- the file won't be included but imports will be allowed.
-        //         const shouldAddFile = resolvedFileName
-        //             && !getResolutionDiagnostic(optionsForFile, resolution, file)
-        //             && !optionsForFile.noResolve
-        //             && index < file.imports.length
-        //             && !elideImport
-        //             && !(isJsFile && !getAllowJSCompilerOption(optionsForFile))
-        //             && (isInJSFile(file.imports[index]) || !(file.imports[index].flags & NodeFlags.JSDoc));
+        for (let i = 0; i < moduleNames.length; i++) {
+            const moduleName = moduleNames[i];
+            // If the source file is unchanged and doesnt have invalidated resolution, reuse the module resolutions
+            if (file === oldSourceFile && !hasInvalidatedResolutions(file.path)) {
+                const oldResolution = oldProgram?.getResolvedModule(file, moduleName.text, getModeForUsageLocation(file, moduleName));
+                if (oldResolution?.resolvedModule) {
+                    if (isTraceEnabled(options, host)) {
+                        trace(
+                            host,
+                            oldResolution.resolvedModule.packageId ?
+                                Diagnostics.Reusing_resolution_of_module_0_from_1_of_old_program_it_was_successfully_resolved_to_2_with_Package_ID_3 :
+                                Diagnostics.Reusing_resolution_of_module_0_from_1_of_old_program_it_was_successfully_resolved_to_2,
+                            moduleName.text,
+                            getNormalizedAbsolutePath(file.originalFileName, currentDirectory),
+                            oldResolution.resolvedModule.resolvedFileName,
+                            oldResolution.resolvedModule.packageId && packageIdToString(oldResolution.resolvedModule.packageId),
+                        );
+                    }
+                    (result ??= new Array(moduleNames.length))[i] = oldResolution;
+                    (reusedNames ??= []).push(moduleName);
+                    continue;
+                }
+            }
+            // We know moduleName resolves to an ambient module provided that moduleName:
+            // - is in the list of ambient modules locally declared in the current source file.
+            // - resolved to an ambient module in the old program whose declaration is in an unmodified file
+            //   (so the same module declaration will land in the new program)
+            let resolvesToAmbientModuleInNonModifiedFile = false;
+            if (contains(file.ambientModuleNames, moduleName.text)) {
+                resolvesToAmbientModuleInNonModifiedFile = true;
+                if (isTraceEnabled(options, host)) {
+                    trace(host, Diagnostics.Module_0_was_resolved_as_locally_declared_ambient_module_in_file_1, moduleName.text, getNormalizedAbsolutePath(file.originalFileName, currentDirectory));
+                }
+            }
+            else {
+                resolvesToAmbientModuleInNonModifiedFile = moduleNameResolvesToAmbientModuleInNonModifiedFile(moduleName);
+            }
 
-        //         if (elideImport) {
-        //             modulesWithElidedImports.set(file.path, true);
-        //         }
-        //         else if (shouldAddFile) {
-        //             findSourceFile(
-        //                 resolvedFileName,
-        //                 /*isDefaultLib*/ false,
-        //                 /*ignoreNoDefaultLib*/ false,
-        //                 { kind: FileIncludeKind.Import, file: file.path, index },
-        //                 resolution.packageId,
-        //             );
-        //         }
+            if (resolvesToAmbientModuleInNonModifiedFile) {
+                (result || (result = new Array(moduleNames.length)))[i] = predictedToResolveToAmbientModuleMarker;
+            }
+            else {
+                // Resolution failed in the old program, or resolved to an ambient module for which we can't reuse the result.
+                (unknownModuleNames ??= []).push(moduleName);
+            }
+        }
 
-        //         if (isFromNodeModulesSearch) {
-        //             currentNodeModulesDepth--;
-        //         }
-        //     }
-        // }
+        const resolutions = unknownModuleNames && unknownModuleNames.length
+            ? resolveModuleNamesWorker(unknownModuleNames, file, reusedNames)
+            : emptyArray;
+
+        // Combine results of resolutions and predicted results
+        if (!result) {
+            // There were no unresolved/ambient resolutions.
+            Debug.assert(resolutions.length === moduleNames.length);
+            return resolutions;
+        }
+
+        let j = 0;
+        for (let i = 0; i < result.length; i++) {
+            if (!result[i]) {
+                result[i] = resolutions[j];
+                j++;
+            }
+        }
+        Debug.assert(j === resolutions.length);
+
+        return result;
+
+        // If we change our policy of rechecking failed lookups on each program create,
+        // we should adjust the value returned here.
+        function moduleNameResolvesToAmbientModuleInNonModifiedFile(moduleName: StringLiteral): boolean {
+            const resolutionToFile = oldProgram?.getResolvedModule(file, moduleName.text, getModeForUsageLocation(file, moduleName))?.resolvedModule;
+            const resolvedFile = resolutionToFile && oldProgram!.getSourceFile(resolutionToFile.resolvedFileName);
+            if (resolutionToFile && resolvedFile) {
+                // In the old program, we resolved to an ambient module that was in the same
+                //   place as we expected to find an actual module file.
+                // We actually need to return 'false' here even though this seems like a 'true' case
+                //   because the normal module resolution algorithm will find this anyway.
+                return false;
+            }
+
+            // at least one of declarations should come from non-modified source file
+            const unmodifiedFile = ambientModuleNameToUnmodifiedFileName.get(moduleName.text);
+
+            if (!unmodifiedFile) {
+                return false;
+            }
+
+            if (isTraceEnabled(options, host)) {
+                trace(host, Diagnostics.Module_0_was_resolved_as_ambient_module_declared_in_1_since_this_file_was_not_modified, moduleName.text, unmodifiedFile);
+            }
+            return true;
+        }
+    }
+
+    function resolveModuleNamesWorker(moduleNames: readonly StringLiteral[], containingFile: SourceFile, reusedNames: readonly StringLiteralLike[] | undefined): readonly ResolvedModuleWithFailedLookupLocations[] {
+        if (!moduleNames.length) return emptyArray;
+        const containingFileName = getNormalizedAbsolutePath(containingFile.originalFileName, currentDirectory);
+        const redirectedReference = undefined;//getRedirectReferenceForResolution(containingFile);
+        tracing?.push(tracing.Phase.Program, "resolveModuleNamesWorker", { containingFileName });
+        performance.mark("beforeResolveModule");
+        const result = actualResolveModuleNamesWorker(moduleNames, containingFileName, redirectedReference, options, containingFile, reusedNames);
+        performance.mark("afterResolveModule");
+        performance.measure("ResolveModule", "beforeResolveModule", "afterResolveModule");
+        tracing?.pop();
+        return result;
+    }
+
+    function getModeForUsageLocation(file: SourceFile, usage: StringLiteral): ResolutionMode {
+        // const optionsForFile = getRedirectReferenceForResolution(file)?.commandLine.options || options;
+        // return getModeForUsageLocationWorker(file, usage, optionsForFile);
+        return ModuleKind.LPC;
     }
 
     function collectExternalModuleReferences(file: SourceFile): void {
@@ -1677,3 +1865,19 @@ export function getResolutionDiagnostic(options: CompilerOptions, { extension }:
         return isDeclarationFile || options.allowArbitraryExtensions ? undefined : Diagnostics.Module_0_was_resolved_to_1_but_allowArbitraryExtensions_is_not_set;
     }
 }
+
+function getModuleNames({ imports }: SourceFile): StringLiteral[] {
+    const res = imports.map(i => i);
+    // for (const aug of moduleAugmentations) {
+    //     if (aug.kind === SyntaxKind.StringLiteral) {
+    //         res.push(aug);
+    //     }
+    //     // Do nothing if it's an Identifier; we don't need to do module resolution for `declare global`.
+    // }
+    return res;
+}
+
+const emptyResolution: ResolvedModuleWithFailedLookupLocations & ResolvedTypeReferenceDirectiveWithFailedLookupLocations = {
+    resolvedModule: undefined,
+    resolvedTypeReferenceDirective: undefined,
+};

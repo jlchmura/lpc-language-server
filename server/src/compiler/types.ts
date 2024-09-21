@@ -338,6 +338,29 @@ export interface ResolvedModuleFull extends ResolvedModule {
     packageId?: PackageId;
 }
 
+export interface ResolvedTypeReferenceDirective {
+    // True if the type declaration file was found in a primary lookup location
+    primary: boolean;
+    // The location of the .d.ts file we located, or undefined if resolution failed
+    resolvedFileName: string | undefined;
+    /**
+     * @internal
+     * The location of the symlink to the .d.ts file we found, if `resolvedFileName` was the realpath.
+     * This is a file name with preserved original casing, not a normalized `Path`.
+     */
+    originalPath?: string;
+    packageId?: PackageId;
+    /** True if `resolvedFileName` comes from `node_modules`. */
+    isExternalLibraryImport?: boolean;
+}
+
+export interface ResolvedTypeReferenceDirectiveWithFailedLookupLocations {
+    readonly resolvedTypeReferenceDirective: ResolvedTypeReferenceDirective | undefined;
+    /** @internal */ failedLookupLocations?: string[];
+    /** @internal */ affectingLocations?: string[];
+    /** @internal */ resolutionDiagnostics?: Diagnostic[];
+}
+
 export interface ResolvedModuleWithFailedLookupLocations {
     readonly resolvedModule: ResolvedModuleFull | undefined;
     /** @internal */
