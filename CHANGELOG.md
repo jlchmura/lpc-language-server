@@ -1,5 +1,11 @@
 # LPC Language Services Changelog
 
+## 1.0.32
+
+-   Diagnostics are now off by default
+-   Disable server's folding and use syntax folding instead
+-   Add more identifier string internment
+
 ## 1.0.31
 
 -   Fix: [Signature hint not recognizing mapping type #56](https://github.com/jlchmura/lpc-language-server/issues/56)

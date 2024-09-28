@@ -178,7 +178,7 @@ export function loadLpcConfig(filename: string): LpcConfig {
             ...config.diagnostics,
             ...rawConfig.diagnostics,
         };
-        if (rawConfig.diagnostics === "off") {
+        if (rawConfig.diagnostics === "off" || !rawConfig.diagnostics) {
             config.allDiagnosticsOff = true;
         }
 
