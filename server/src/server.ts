@@ -2,6 +2,9 @@ import { createConnection, ProposedFeatures } from "vscode-languageserver/node";
 import { LpcServer } from "./backend/LpcServer";
 
 console.info("Starting LPC Language Server");
+if (process?.title) {
+    process.title = "lpc-language-server";
+}
 
 // Create a connection for the server, using Node's IPC as a transport.
 const connection = createConnection(ProposedFeatures.all);

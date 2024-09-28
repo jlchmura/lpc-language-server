@@ -108,6 +108,7 @@ import { EfunSymbol } from "../symbols/efunSymbol";
 import { MasterFileContext } from "../driver/MasterFile";
 import { MethodInvocationSymbol } from "../symbols/methodInvocationSymbol";
 import { Interface } from "readline";
+import { IdentifierMap } from "./IdentifierMap";
 
 /**
  * Source context for a single LPC file.
@@ -180,6 +181,7 @@ export class SourceContext {
     private semanticTokens: SemanticTokenCollection;
 
     private allTokens: LPCToken[] = [];
+    private identifiers: IdentifierMap = new IdentifierMap();
     private symbolNameCache: Map<string, LPCToken[]> = new Map();
 
     /** flag that indicates if this file has been soft released */
@@ -202,9 +204,13 @@ export class SourceContext {
 
         this.lexer = new LPCPreprocessingLexer(
             CharStream.fromString(""),
-            this.fileName
+            this.fileName,
+            this.identifiers
         );
-        this.lexer.tokenFactory = new LPCTokenFactor(this.fileName);
+        this.lexer.tokenFactory = new LPCTokenFactor(
+            this.fileName,
+            this.identifiers
+        );
         this.lexer.fileHandler = this.fileHandler;
 
         // There won't be lexer errors actually. They are silently bubbled up and will cause parser errors.
@@ -326,6 +332,8 @@ export class SourceContext {
             return;
         }
 
+        this.identifiers.clear();
+
         this.fileHandler = new LpcFileHandler(
             this.backend,
             this,
@@ -444,6 +452,7 @@ export class SourceContext {
         const visitor = new DetailsVisitor(
             this.symbolTable,
             this.info.imports,
+            this.identifiers,
             this.semanticTokens,
             this.fileHandler,
             this.fileName,

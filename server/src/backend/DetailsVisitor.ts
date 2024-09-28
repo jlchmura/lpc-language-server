@@ -114,6 +114,7 @@ import {
 import { ArraySymbol } from "../symbols/arraySymbol";
 import { InlineClosureSymbol } from "../symbols/closureSymbol";
 import { MethodInvocationSymbol } from "../symbols/methodInvocationSymbol";
+import { IdentifierMap } from "./IdentifierMap";
 
 type GenericConstructorParameters<T> = ConstructorParameters<
     new (...args: any[]) => T
@@ -132,12 +133,12 @@ export class DetailsVisitor
     extends AbstractParseTreeVisitor<ScopedSymbol>
     implements LPCParserVisitor<ScopedSymbol>
 {
-    private identifiers: Map<string, string> = new Map();
     protected scope = this.symbolTable as ScopedSymbol;
 
     constructor(
         private symbolTable: ContextSymbolTable,
         private imports: ContextImportInfo[],
+        private identifiers: IdentifierMap,
         private tokenBuilder: SemanticTokenCollection,
         private fileHandler: LpcFileHandler,
         private filename: string,
@@ -1241,12 +1242,7 @@ export class DetailsVisitor
     }
 
     private internIdentifier(text: string): string {
-        if (text === undefined || text === null) return text;
-        let identifier = this.identifiers.get(text);
-        if (identifier === undefined) {
-            this.identifiers.set(text, (identifier = text));
-        }
-        return identifier;
+        return this.identifiers.intern(text);
     }
 }
 

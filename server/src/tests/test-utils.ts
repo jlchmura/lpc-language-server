@@ -13,6 +13,7 @@ import { IDiagnosticEntry } from "../types";
 import { LPCParser } from "../parser3/LPCParser";
 import { DriverType } from "../backend/LpcConfig";
 import { LPCLexer } from "../parser3/LPCLexer";
+import { IdentifierMap } from "../backend/IdentifierMap";
 
 const baseDir = path.join(process.cwd(), "server/src/tests/test-assets/");
 
@@ -34,8 +35,9 @@ export function getLexer(
     diags: IDiagnosticEntry[] = []
 ): LPCPreprocessingLexer {
     const stream = getStream(filename);
-    const lexer = new LPCPreprocessingLexer(stream, filename);
-    lexer.tokenFactory = new LPCTokenFactor(filename);
+    const identifiers = new IdentifierMap();
+    const lexer = new LPCPreprocessingLexer(stream, filename, identifiers);
+    lexer.tokenFactory = new LPCTokenFactor(filename, identifiers);
     lexer.fileHandler = new TestFileHandler();
     return lexer;
 }
@@ -45,8 +47,9 @@ export function getLexerFromString(
     diags: IDiagnosticEntry[] = []
 ): LPCPreprocessingLexer {
     const stream = CharStream.fromString(s);
-    const lexer = new LPCPreprocessingLexer(stream, "test.c");
-    lexer.tokenFactory = new LPCTokenFactor("test.c");
+    const identifiers = new IdentifierMap();
+    const lexer = new LPCPreprocessingLexer(stream, "test.c", identifiers);
+    lexer.tokenFactory = new LPCTokenFactor("test.c", identifiers);
     lexer.fileHandler = new TestFileHandler();
     return lexer;
 }

@@ -7,8 +7,10 @@ import { LPCTokenFactor } from "../parser3/LPCTokenFactory";
 import { EfunFileHandler } from "./EfunFileHandler";
 import { LPCParser } from "../parser3/LPCParser";
 import { EfunVisitor } from "./EfunVisitor";
+import { IdentifierMap } from "../backend/IdentifierMap";
 
 export function parseEfuns(driverType: string, efuns: ContextSymbolTable) {
+    const identifiers = new IdentifierMap();
     const rootDir =
         process.argv[2]?.length > 0
             ? process.argv[2]
@@ -23,8 +25,8 @@ export function parseEfuns(driverType: string, efuns: ContextSymbolTable) {
     const code = fs.readFileSync(efunFile, "utf-8");
     const stream = CharStream.fromString(code);
     // get a lexer
-    const lexer = new LPCPreprocessingLexer(stream, efunFile);
-    lexer.tokenFactory = new LPCTokenFactor(efunFile);
+    const lexer = new LPCPreprocessingLexer(stream, efunFile, identifiers);
+    lexer.tokenFactory = new LPCTokenFactor(efunFile, identifiers);
     lexer.fileHandler = new EfunFileHandler();
     lexer.driverType = driverType;
     // get tokens

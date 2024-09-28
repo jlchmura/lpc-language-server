@@ -6,12 +6,16 @@ import {
     TokenSource,
 } from "antlr4ng";
 import { LPCToken } from "./LPCToken";
+import { IdentifierMap } from "../backend/IdentifierMap";
 
 export class LPCTokenFactor implements TokenFactory<LPCToken> {
     public filenameStack: string[] = [];
 
-    constructor(protected filename: string) {
-        this.filenameStack.push(filename);
+    constructor(
+        protected filename: string,
+        protected identifiers: IdentifierMap
+    ) {
+        this.filenameStack.push(identifiers.intern(filename));
     }
 
     create(
@@ -36,7 +40,9 @@ export class LPCTokenFactor implements TokenFactory<LPCToken> {
         t.line = line;
         t.column = column;
         const input = source[1];
-        t.text = input.getTextFromInterval(Interval.of(start, stop));
+        t.text = this.identifiers.intern(
+            input.getTextFromInterval(Interval.of(start, stop))
+        );
         t.filename = this.filenameStack[this.filenameStack.length - 1];
 
         return t;

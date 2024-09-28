@@ -11,6 +11,7 @@ import {
     lastEntry,
     parseMacroNameFromDefineString,
 } from "../utils";
+import { IdentifierMap } from "../backend/IdentifierMap";
 
 const DISABLED_CHANNEL_NAME = "DISABLED_CHANNEL";
 const DIRECTIVE_CHANNEL_NAME = "DIRECTIVE_CHANNEL";
@@ -87,12 +88,19 @@ export class LPCPreprocessingLexer extends LPCLexer {
     /** lexer used for processing macro bodies */
     private readonly macroLexer: LPCLexer;
 
-    constructor(input: CharStream, filename: string) {
+    constructor(
+        input: CharStream,
+        filename: string,
+        private identifiers: IdentifierMap
+    ) {
         super(input);
 
         this.macroLexer = new LPCLexer(input);
-        this.macroLexer.tokenFactory = new LPCTokenFactor(filename);
-        this.tokenFactory = new LPCTokenFactor(filename);
+        this.macroLexer.tokenFactory = new LPCTokenFactor(
+            filename,
+            identifiers
+        );
+        this.tokenFactory = new LPCTokenFactor(filename, identifiers);
     }
 
     override nextToken(): Token {
@@ -245,7 +253,7 @@ export class LPCPreprocessingLexer extends LPCLexer {
             this.macroStack.push({
                 tokens: [],
                 def,
-                name: token.text,
+                name: this.identifiers.intern(token.text),
                 fnParams,
                 parenCount: 0,
                 paramIndex: 0,

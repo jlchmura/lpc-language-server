@@ -10,12 +10,17 @@ import { IDiagnosticEntry } from "../types";
 import { LPCLexer } from "../parser3/LPCLexer";
 import { trimQuotes } from "../parser3/parser-utils";
 import { getLexer, getLexerFromString } from "./test-utils";
+import { IdentifierMap } from "../backend/IdentifierMap";
 
 describe("Test", () => {
     beforeAll(() => {});
 
     it("Should exist", () => {
-        const lexer = new LPCPreprocessingLexer(CharStream.fromString(""), "");
+        const lexer = new LPCPreprocessingLexer(
+            CharStream.fromString(""),
+            "",
+            new IdentifierMap()
+        );
         expect(lexer).toBeDefined();
 
         expect(lexer).toHaveProperty("driverType");

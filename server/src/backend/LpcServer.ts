@@ -424,7 +424,7 @@ export class LpcServer {
                 hoverProvider: true,
                 definitionProvider: true,
                 implementationProvider: true,
-                foldingRangeProvider: true, // change to true to enable server-based folding
+                foldingRangeProvider: false, // change to true to enable server-based folding
                 signatureHelpProvider: {
                     triggerCharacters: ["(", ","],
                 },
