@@ -1,6 +1,6 @@
 import { config } from "process";
 import { ILpcConfig } from "../config-types";
-import { arrayFrom, combinePaths, CompilerOptions, CompilerOptionsValue, ConfigFileSpecs, containsPath, createCompilerDiagnostic, createGetCanonicalFileName, Debug, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, directorySeparator, emptyArray, endsWith, ensureTrailingDirectorySeparator, every, Extension, FileExtensionInfo, fileExtensionIs, filter, flatten, getBaseFileName, getDirectoryPath, getNormalizedAbsolutePath, getRegexFromPattern, getRegularExpressionForWildcard, hasExtension, hasProperty, isArray, isImplicitGlob, isRootedDiskPath, isString, LanguageVariant, length, LpcConfigSourceFile, MapLike, normalizePath, normalizeSlashes, ParseConfigHost, ParsedCommandLine, Path, ProjectReference, removeTrailingDirectorySeparator, startsWith, toFileNameLowerCase, tracing, TypeAcquisition, WatchDirectoryFlags, WatchOptions } from "./_namespaces/lpc";
+import { arrayFrom, combinePaths, CommandLineOption, CompilerOptions, CompilerOptionsValue, ConfigFileSpecs, containsPath, createCompilerDiagnostic, createGetCanonicalFileName, Debug, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, directorySeparator, emptyArray, endsWith, ensureTrailingDirectorySeparator, every, Extension, FileExtensionInfo, fileExtensionIs, filter, flatten, getBaseFileName, getDirectoryPath, getNormalizedAbsolutePath, getRegexFromPattern, getRegularExpressionForWildcard, hasExtension, hasProperty, isArray, isImplicitGlob, isRootedDiskPath, isString, LanguageVariant, length, LpcConfigSourceFile, MapLike, normalizePath, normalizeSlashes, ParseConfigHost, ParsedCommandLine, Path, ProjectReference, removeTrailingDirectorySeparator, startsWith, toFileNameLowerCase, tracing, TypeAcquisition, WatchDirectoryFlags, WatchOptions } from "./_namespaces/lpc";
 import { trimStart } from "../utils";
 
 export const libEntries: [string, string][] = [
@@ -16,6 +16,8 @@ export const libEntries: [string, string][] = [
  */
 export const libs = libEntries.map(entry => entry[0]);
 
+/** @internal */
+export const moduleResolutionOptionDeclarations: readonly CommandLineOption[] = ["false"];//optionDeclarations.filter(option => !!option.affectsModuleResolution);
 
 /**
  * Gets the file names from the provided config file specs that contain, files, include, exclude and
@@ -628,3 +630,5 @@ export function matchesExclude(
         currentDirectory,
     );
 }
+
+export type DiagnosticReporter = (diagnostic: Diagnostic) => void;

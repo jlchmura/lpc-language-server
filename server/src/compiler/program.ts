@@ -1,6 +1,6 @@
 import { writeFile } from "fs";
 import { ILpcConfig } from "../config-types.js";
-import { getDeclarationDiagnostics as lpc_getDeclarationDiagnostics, forEachResolvedProjectReference as lpc_forEachResolvedProjectReference, combinePaths, compareValues, CompilerHost, CompilerOptions, containsPath, createDiagnosticCollection, createGetCanonicalFileName, createMultiMap, CreateProgramOptions, createSourceFile, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DiagnosticWithLocation, FileIncludeKind, FileIncludeReason, FilePreprocessingDiagnostics, FilePreprocessingDiagnosticsKind, forEach, getBaseFileName, getDirectoryPath, getNewLineCharacter, getRootLength, hasExtension, isArray, maybeBind, memoize, normalizePath, ObjectLiteralExpression, PackageId, Path, performance, Program, ProgramHost, ProjectReference, PropertyAssignment, ReferencedFile, removePrefix, removeSuffix, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, SourceFile, stableSort, StructureIsReused, sys, System, toPath as lpc_toPath, tracing, TypeChecker, getNormalizedAbsolutePathWithoutRoot, some, isRootedDiskPath, optionsHaveChanges, packageIdToString, toFileNameLowerCase, getNormalizedAbsolutePath, CreateSourceFileOptions, createTypeChecker, ScriptTarget, libs, FileReference, SortedReadonlyArray, concatenate, sortAndDeduplicateDiagnostics, emptyArray, LpcFileHandler, createLpcFileHandler, DiagnosticMessageChain, isString, CancellationToken, flatMap, filter, Debug, ScriptKind, flatten, OperationCanceledException, noop, getNormalizedPathComponents, GetCanonicalFileName, getPathFromPathComponents, WriteFileCallback, EmitHost, WriteFileCallbackData, getDefaultLibFileName, LibResolution, returnFalse, isTraceEnabled, trace, equateStringsCaseSensitive, equateStringsCaseInsensitive, NodeFlags, ResolvedModuleFull, Extension, ResolutionMode, ModeAwareCache, isExternalModule, StringLiteral, Identifier, isCloneObjectExpression, isStringLiteral, setParentRecursive, append, Node, SyntaxKind, forEachChild, ResolutionWithFailedLookupLocations, createModeAwareCache, ModuleKind, ResolvedTypeReferenceDirectiveWithFailedLookupLocations, ModuleResolutionCache, contains } from "./_namespaces/lpc.js";
+import { getDeclarationDiagnostics as lpc_getDeclarationDiagnostics, forEachResolvedProjectReference as lpc_forEachResolvedProjectReference, combinePaths, compareValues, CompilerHost, CompilerOptions, containsPath, createDiagnosticCollection, createGetCanonicalFileName, createMultiMap, CreateProgramOptions, createSourceFile, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DiagnosticWithLocation, FileIncludeKind, FileIncludeReason, FilePreprocessingDiagnostics, FilePreprocessingDiagnosticsKind, forEach, getBaseFileName, getDirectoryPath, getNewLineCharacter, getRootLength, hasExtension, isArray, maybeBind, memoize, normalizePath, ObjectLiteralExpression, PackageId, Path, performance, Program, ProgramHost, ProjectReference, PropertyAssignment, ReferencedFile, removePrefix, removeSuffix, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, SourceFile, stableSort, StructureIsReused, sys, System, toPath as lpc_toPath, tracing, TypeChecker, getNormalizedAbsolutePathWithoutRoot, some, isRootedDiskPath, optionsHaveChanges, packageIdToString, toFileNameLowerCase, getNormalizedAbsolutePath, CreateSourceFileOptions, createTypeChecker, ScriptTarget, libs, FileReference, SortedReadonlyArray, concatenate, sortAndDeduplicateDiagnostics, emptyArray, LpcFileHandler, createLpcFileHandler, DiagnosticMessageChain, isString, CancellationToken, flatMap, filter, Debug, ScriptKind, flatten, OperationCanceledException, noop, getNormalizedPathComponents, GetCanonicalFileName, getPathFromPathComponents, WriteFileCallback, EmitHost, WriteFileCallbackData, getDefaultLibFileName, LibResolution, returnFalse, isTraceEnabled, trace, equateStringsCaseSensitive, equateStringsCaseInsensitive, NodeFlags, ResolvedModuleFull, Extension, ResolutionMode, ModeAwareCache, isExternalModule, StringLiteral, Identifier, isCloneObjectExpression, isStringLiteral, setParentRecursive, append, Node, SyntaxKind, forEachChild, ResolutionWithFailedLookupLocations, createModeAwareCache, ModuleKind, ResolvedTypeReferenceDirectiveWithFailedLookupLocations, ModuleResolutionCache, contains, createModuleResolutionCache, ModuleResolutionHost, ModeAwareCacheKey, createModeAwareCacheKey, resolveModuleName } from "./_namespaces/lpc.js";
 
 /**
  * Create a new 'Program' instance. A Program is an immutable collection of 'SourceFile's and a 'CompilerOptions'
@@ -1249,7 +1249,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         }
     }
 
-    function resolveModuleNamesWorker(moduleNames: readonly StringLiteral[], containingFile: SourceFile, reusedNames: readonly StringLiteralLike[] | undefined): readonly ResolvedModuleWithFailedLookupLocations[] {
+    function resolveModuleNamesWorker(moduleNames: readonly StringLiteral[], containingFile: SourceFile, reusedNames: readonly StringLiteral[] | undefined): readonly ResolvedModuleWithFailedLookupLocations[] {
         if (!moduleNames.length) return emptyArray;
         const containingFileName = getNormalizedAbsolutePath(containingFile.originalFileName, currentDirectory);
         const redirectedReference = undefined;//getRedirectReferenceForResolution(containingFile);
@@ -1881,3 +1881,135 @@ const emptyResolution: ResolvedModuleWithFailedLookupLocations & ResolvedTypeRef
     resolvedModule: undefined,
     resolvedTypeReferenceDirective: undefined,
 };
+
+/** @internal */
+export interface ResolutionNameAndModeGetter<Entry, SourceFile> {
+    getName(entry: Entry): string;
+    getMode(entry: Entry, file: SourceFile, compilerOptions: CompilerOptions): ResolutionMode;
+}
+
+
+/** @internal */
+export interface ResolutionLoader<Entry, Resolution, SourceFile> {
+    nameAndMode: ResolutionNameAndModeGetter<Entry, SourceFile>;
+    resolve(name: string, mode: ResolutionMode): Resolution;
+}
+
+
+/** @internal */
+export function loadWithModeAwareCache<Entry, SourceFile, ResolutionCache, Resolution>(
+    entries: readonly Entry[],
+    containingFile: string,
+    redirectedReference: ResolvedProjectReference | undefined,
+    options: CompilerOptions,
+    containingSourceFile: SourceFile,
+    host: ModuleResolutionHost,
+    resolutionCache: ResolutionCache | undefined,
+    createLoader: (
+        containingFile: string,
+        redirectedReference: ResolvedProjectReference | undefined,
+        options: CompilerOptions,
+        host: ModuleResolutionHost,
+        resolutionCache: ResolutionCache | undefined,
+    ) => ResolutionLoader<Entry, Resolution, SourceFile>,
+): readonly Resolution[] {
+    if (entries.length === 0) return emptyArray;
+    const resolutions: Resolution[] = [];
+    const cache = new Map<ModeAwareCacheKey, Resolution>();
+    const loader = createLoader(containingFile, redirectedReference, options, host, resolutionCache);
+    for (const entry of entries) {
+        const name = loader.nameAndMode.getName(entry);
+        const mode = loader.nameAndMode.getMode(entry, containingSourceFile, redirectedReference?.commandLine.options || options);
+        const key = createModeAwareCacheKey(name, mode);
+        let result = cache.get(key);
+        if (!result) {
+            cache.set(key, result = loader.resolve(name, mode));
+        }
+        resolutions.push(result);
+    }
+    return resolutions;
+}
+
+/**
+ * Use `program.getModeForUsageLocation`, which retrieves the correct `compilerOptions`, instead of this function whenever possible.
+ * Calculates the final resolution mode for a given module reference node. This is the resolution mode explicitly provided via import
+ * attributes, if present, or the syntax the usage would have if emitted to JavaScript. In `--module node16` or `nodenext`, this may
+ * depend on the file's `impliedNodeFormat`. In `--module preserve`, it depends only on the input syntax of the reference. In other
+ * `module` modes, when overriding import attributes are not provided, this function returns `undefined`, as the result would have no
+ * impact on module resolution, emit, or type checking.
+ * @param file The file the import or import-like reference is contained within
+ * @param usage The module reference string
+ * @param compilerOptions The compiler options for the program that owns the file. If the file belongs to a referenced project, the compiler options
+ * should be the options of the referenced project, not the referencing project.
+ * @returns The final resolution mode of the import
+ */
+export function getModeForUsageLocation(file: { impliedNodeFormat?: ResolutionMode; }, usage: StringLiteral, compilerOptions: CompilerOptions) {
+    //return getModeForUsageLocationWorker(file, usage, compilerOptions);
+    return ModuleKind.LPC;
+}
+
+// function getModeForUsageLocationWorker(file: { impliedNodeFormat?: ResolutionMode; }, usage: StringLiteral, compilerOptions?: CompilerOptions) {
+    // if (isImportDeclaration(usage.parent) || isExportDeclaration(usage.parent) || isJSDocImportTag(usage.parent)) {
+    //     const isTypeOnly = isExclusivelyTypeOnlyImportOrExport(usage.parent);
+    //     if (isTypeOnly) {
+    //         const override = getResolutionModeOverride(usage.parent.attributes);
+    //         if (override) {
+    //             return override;
+    //         }
+    //     }
+    // }
+    // if (usage.parent.parent && isImportTypeNode(usage.parent.parent)) {
+    //     const override = getResolutionModeOverride(usage.parent.parent.attributes);
+    //     if (override) {
+    //         return override;
+    //     }
+    // }
+    // if (compilerOptions && getEmitModuleKind(compilerOptions) === ModuleKind.Preserve) {
+    //     return (usage.parent.parent && isImportEqualsDeclaration(usage.parent.parent) || isRequireCall(usage.parent, /*requireStringLiteralArgument*/ false))
+    //         ? ModuleKind.CommonJS
+    //         : ModuleKind.ESNext;
+    // }
+    // if (file.impliedNodeFormat === undefined) return undefined;
+    // if (file.impliedNodeFormat !== ModuleKind.ESNext) {
+    //     // in cjs files, import call expressions are esm format, otherwise everything is cjs
+    //     return isImportCall(walkUpParenthesizedExpressions(usage.parent)) ? ModuleKind.ESNext : ModuleKind.CommonJS;
+    // }
+    // in esm files, import=require statements are cjs format, otherwise everything is esm
+    // imports are only parent'd up to their containing declaration/expression, so access farther parents with care
+    // const exprParentParent = walkUpParenthesizedExpressions(usage.parent)?.parent;
+    // return exprParentParent && isImportEqualsDeclaration(exprParentParent) ? ModuleKind.CommonJS : ModuleKind.ESNext;
+// }
+
+function getModuleResolutionName(literal: StringLiteral) {
+    return literal.text;
+}
+
+/** @internal */
+export const moduleResolutionNameAndModeGetter: ResolutionNameAndModeGetter<StringLiteral, SourceFile> = {
+    getName: getModuleResolutionName,
+    getMode: (entry, file, compilerOptions) => getModeForUsageLocation(file, entry, compilerOptions) as ModuleKind.LPC,
+};
+
+
+/** @internal */
+export function createModuleResolutionLoader(
+    containingFile: string,
+    redirectedReference: ResolvedProjectReference | undefined,
+    options: CompilerOptions,
+    host: ModuleResolutionHost,
+    cache: ModuleResolutionCache | undefined,
+): ResolutionLoader<StringLiteral, ResolvedModuleWithFailedLookupLocations, SourceFile> {
+    return {
+        nameAndMode: moduleResolutionNameAndModeGetter,
+        resolve: (moduleName, resolutionMode) =>
+            resolveModuleName(
+                moduleName,
+                containingFile,
+                options,
+                host,
+                cache,
+                redirectedReference,
+                resolutionMode,
+            ),
+    };
+}

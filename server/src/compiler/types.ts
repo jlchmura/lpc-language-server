@@ -162,6 +162,9 @@ export interface ProjectReference {
     circular?: boolean;
 }
 
+/** @internal */
+export type CommandLineOption = any;// CommandLineOptionOfCustomType | CommandLineOptionOfStringType | CommandLineOptionOfNumberType | CommandLineOptionOfBooleanType | TsConfigOnlyOption | CommandLineOptionOfListType;
+
 /** Either a parsed command line or a parsed tsconfig.json */
 export interface ParsedCommandLine {
     options: CompilerOptions;
@@ -1241,6 +1244,7 @@ export interface CompilerOptions {
     outDir?: string;
     outFile?: string;
     lib?: string[];
+    preserveSymlinks?: boolean;   
 }
 
 export const enum OuterExpressionKinds {
@@ -3933,7 +3937,9 @@ export interface IndexedAccessTypeNode extends TypeNode {
 export const enum Extension {
     C = ".c",
     Lpc = ".lpc",
-    H = ".h"    
+    H = ".h"    ,
+    Json = ".json"
+
 }
 
 // SyntaxKind.SyntaxList

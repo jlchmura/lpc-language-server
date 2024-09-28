@@ -1,7 +1,7 @@
 export * from "../corePublic.js";
 export * from "../core.js";
 export * from "../performanceCore.js";
-
+export * from "../perfLoger.js";
 export * from "../debug.js";
 export * from "../tracing.js";
 export * from "../types.js";
