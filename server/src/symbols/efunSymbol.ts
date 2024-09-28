@@ -181,11 +181,14 @@ function cloneObjectImpl(
     symbol: EfunSymbol
 ) {
     const ownerProgram = (stack.root.symbol as ContextSymbolTable)?.owner;
-    if (!ownerProgram) {
+    if (!ownerProgram || ownerProgram.disposed) {
         return asStackValue(undefined, LpcTypes.objectType, symbol);
     }
 
     const { fileHandler } = ownerProgram;
+    if (!fileHandler) {
+        return asStackValue(undefined, LpcTypes.objectType, symbol);
+    }
 
     // what type is the first arg?
     const firstArg = argVals.at(0);

@@ -62,8 +62,13 @@ export class ContextSymbolTable extends SymbolTable {
         // }
 
         this.symbolCache?.clear();
-
         super.clear();
+    }
+
+    public destroy(): void {
+        this.clear();
+        this.owner = undefined;
+        this.symbolCache = undefined;
     }
 
     public getDependencies() {

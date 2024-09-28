@@ -1454,18 +1454,23 @@ export class SourceContext {
         this.cachedSemanticTokens = undefined;
         this.highlights.length = 0;
         this.symbolNameCache?.clear();
+        this.fileHandler = undefined;
     }
 
     /**
      * Releases all resources associated with this context.
      */
     public cleanup() {
+        console.debug("cleaning up context", this.fileName);
         this.disposed = true;
         this.softRelease();
         this.sourceText = undefined;
-        this.symbolTable?.clear();
+        this.symbolTable?.destroy();
         this.symbolTable = undefined;
         this.lexer = undefined;
+        //this.parser.interpreter.decisionToDFA.length = 0;
+        this.errorListener = undefined;
+        this.lexerErrorListener = undefined;
         this.parser = undefined;
         this.tokenStream = undefined;
         this.tree = undefined;
