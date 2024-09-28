@@ -1,3 +1,4 @@
+import * as path from "path";
 import * as fs from "fs";
 import { parse } from "jsonc-parser";
 import { DiagnosticSeverity } from "vscode-languageserver";
@@ -102,6 +103,8 @@ export class LpcConfig implements ILpcConfig {
         global_include: "",
         player: "/obj/player.c",
     };
+
+    public mudlibDir?: string;
 }
 
 export function getDiagnosticLevelFromConfig(
@@ -171,6 +174,7 @@ export function loadLpcConfig(filename: string): LpcConfig {
                 config.files?.init_files,
         };
 
+        config.mudlibDir = rawConfig.mudlibDir ?? "." + path.sep;
         config.exclude = (rawConfig.exclude as string[]) ?? config.exclude;
         config.include = (rawConfig.include as string[]) ?? config.include;
         config.driver = { ...config.driver, ...rawConfig.driver };

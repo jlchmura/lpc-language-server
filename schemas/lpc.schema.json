@@ -11,6 +11,9 @@
                 },
                 {
                     "$ref": "#/definitions/includeDefinition"
+                },
+                {
+                    "$ref": "#/definitions/mudlibDir"
                 }
             ]
         },
@@ -88,6 +91,10 @@
                     "anyOf": [{ "$ref": "#/definitions/diagnosticLevelEnum" }]
                 }
             }
+        },
+        "mudlibDir": {
+            "description": "Specifies the location directory that will be mapped to the root path of your mudlib. This directory path should be relative to the location of the lpc-config file.",
+            "type": ["string", "null"]
         },
         "diagnosticsDefinition": {
             "properties": {

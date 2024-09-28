@@ -72,6 +72,27 @@ Language services can be customized by creating an `lpc-config.json` file in the
 | `type`    | Driver type. Valid options are `ldmud` or `fluffos`. |
 | `version` | The driver version string, i.e. `"3.6.7"`            |
 
+#### Mudlib Root - `mudlibDir`
+
+This optional setting specifies which local folder the root of your mudlib will map to. The path is relative to the location of your lpc-config file.
+If a value is not provided, the mudlib root will be assumed to be the same as the folder containing your lpc-config file.
+
+For example, let's say your project is structured thus:
+
+```
+MyProj
+|- settings
+|  |- lpc-config.json
+|- lib
+|  |- std
+|  |  |- simul_efun.c
+|  |- rooms
+|  |  |- entrance.c
+|  |- admin
+```
+
+Then your `mudlibDir` setting should be set to `../lib`
+
 #### File Locations - `files`
 
 | Setting          | Description                                                             |
