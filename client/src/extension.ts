@@ -177,7 +177,19 @@ export function activate(context: ExtensionContext) {
                         return e;
                     });
             }
-        )
+        ),
+        // register the lpc/clear-contexts command
+        commands.registerCommand("lpc.clearContexts", async () => {
+            // close all docs that are open in vscode
+            await commands.executeCommand("workbench.action.closeAllEditors");
+
+            return await client
+                .sendRequest("lpc/clear-contexts", {})
+                .catch((e) => {
+                    console.error("Error sending clear contexts request", e);
+                    return e;
+                });
+        })
     );
 
     client.onNotification("lpc/processing-start", (params) => {

@@ -106,12 +106,6 @@ export class LpcFacade {
      */
     public fileRefs = createMultiMap<string, string>();
 
-    /**
-     * Stores a mapping of *possible* identifiers to the files that contain them.
-     * This map is built during facade startup
-     */
-    public identifierCache: MultiMap<string, string>;
-
     /** the lib's compiled master.c file */
     private masterFile: MasterFileContext;
 
@@ -161,6 +155,14 @@ export class LpcFacade {
             this.workspaceDir,
             this.loadLpc(masterFileInfo.fullPath)
         );
+    }
+
+    public clearContexts() {
+        this.sourceContexts.forEach((ce) => {
+            if (ce?.context) ce.context.cleanup();
+            ce.disposed = true;
+        });
+        this.sourceContexts.clear();
     }
 
     public filenameToAbsolutePath(filename: string): string {

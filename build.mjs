@@ -4,11 +4,11 @@ await esbuild.build({
   entryPoints: ['client/src/extension.ts','server/src/server.ts'],
   bundle: true,
   treeShaking: true,
-  minify: true,  
+  minify: false,  
   outdir: 'out',
   external: ['vscode'],
   platform: 'node',
   format: 'cjs',
-  sourcemap: 'external',
+  sourcemap: 'both',
   mainFields: ['module', 'main'],  //  needed for jsonc-parse until they fix https://github.com/microsoft/node-jsonc-parser/issues/57
 });

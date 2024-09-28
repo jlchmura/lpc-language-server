@@ -80,7 +80,7 @@ export class EfunSymbol
             case "this_interactive":
             case "this_user":
             case "this_player":
-                const playerCtx = fileHandler.loadReference(
+                const playerCtx = fileHandler?.loadReference(
                     config.files.player,
                     this
                 );
@@ -98,7 +98,7 @@ export class EfunSymbol
                 // just return the first argument to maintain array reference
                 return argEval[0];
             case "users":
-                const playerUsersCtx = fileHandler.loadReference(
+                const playerUsersCtx = fileHandler?.loadReference(
                     config.files.player,
                     this
                 );

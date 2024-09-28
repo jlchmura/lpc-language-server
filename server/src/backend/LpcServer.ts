@@ -333,6 +333,15 @@ export class LpcServer {
             }
         );
 
+        this.connection.onRequest("lpc/clear-contexts", () => {
+            this.facade.clearContexts();
+
+            this.connection.sendNotification(
+                "lpc/processing-complete",
+                "Source contexts cleared."
+            );
+        });
+
         this.connection.onRequest("textDocument/processAll", async (params) => {
             this.connection.sendNotification(
                 "lpc/processing",

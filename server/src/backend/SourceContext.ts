@@ -1439,8 +1439,13 @@ export class SourceContext {
         }) as DocumentHighlight[];
     }
 
-    public getSemanticTokens() {
-        return this.cachedSemanticTokens;
+    public getSemanticTokens(): SemanticTokens {
+        if (!this.cachedSemanticTokens) {
+            return undefined;
+        }
+        return {
+            data: [...this.cachedSemanticTokens.data],
+        };
     }
 
     /** releases objects that aren't needed if the file isn't open in the editor */

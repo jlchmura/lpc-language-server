@@ -86,7 +86,12 @@
                 "path": "./syntaxes/lpc.tmLanguage.json"
             }
         ],
-        "commands": [],
+        "commands": [
+            {
+                "command": "lpc.clearContexts",
+                "title": "Debug: Clear Source Contexts"
+            }
+        ],
         "jsonValidation": [
             {
                 "fileMatch": "lpc-config.json",
