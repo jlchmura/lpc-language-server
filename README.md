@@ -49,12 +49,6 @@ See [CHANGELOG.md](CHANGELOG.md).
 
 The VS Code LPC Language Services extension does not use your MUD driver to compile code. As such, several configuration options are available to help the language server understand the structure of your mudlib.
 
-### Workspace Root vs Lib Root
-
-LPC Language Services will use the location of your `lpc-config.json` file to determine the root folder of your mudlib. If no config file is found, the VS Code workspace root is used.
-
-For example, see the [LIMA mudlib](https://github.com/fluffos/lima) in which the config file should be placed in the `lib` folder.
-
 **Please note**: After creating (or moving) your `lpc-config` file, you will need to restart VS Code.
 
 ### Example
@@ -74,8 +68,13 @@ Language services can be customized by creating an `lpc-config.json` file in the
 
 #### Mudlib Root - `mudlibDir`
 
+Most file locations and path settings in the lpc-config file are set relative to the mudlib root regardless of where your lpc-config file is located. The one exception to this is the `mudlibDir` setting, which is always relative to the workspace root.
+
+By default, LPC Language Services will use the location of your `lpc-config.json` file to determine the root folder of your mudlib. If no config file is found, the VS Code workspace root is used.
+
+If you want to place the lpc-config.json file in a different location, then you must set the `mudlibDir` setting.
+
 This optional setting specifies which local folder the root of your mudlib will map to. The path is relative to the location of your lpc-config file.
-If a value is not provided, the mudlib root will be assumed to be the same as the folder containing your lpc-config file.
 
 For example, let's say your project is structured thus:
 
