@@ -639,6 +639,8 @@ export function classicNameResolver(moduleName: string, containingFile: string, 
             return { value: resolvedUsingSettings };
         }
 
+        // TODO: if path is rooted, need to re-map it to lib root here
+
         if (!isExternalModuleNameRelative(moduleName)) {
             // Climb up parent directories looking for a module.
             const resolved = forEachAncestorDirectory(containingDirectory, directory => {

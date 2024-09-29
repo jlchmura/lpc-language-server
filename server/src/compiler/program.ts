@@ -1300,7 +1300,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         // for (const node of file.statements) {
         //     collectModuleReferences(node, /*inAmbientModule*/ false);
         // }
-
+``
         //if ((file.flags & NodeFlags.PossiblyContainsDynamicImport) || isJavaScriptFile) {
             collectDynamicImportOrRequireOrJsDocImportCalls(file);
         //}
