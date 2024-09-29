@@ -7578,21 +7578,32 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         // resolveExternalModuleName will return undefined if the moduleReferenceExpression is not a string literal
         const moduleSymbol = resolveExternalModuleName(node, specifier);
         if (moduleSymbol) {
-            Debug.fail("Implement me - checkCloneObjectExpression");
-            // const esModuleSymbol = resolveESModuleSymbol(moduleSymbol, specifier, /*dontResolveAlias*/ true, /*suppressInteropError*/ false);
-            // if (esModuleSymbol) {
-            //     return createPromiseReturnType(
-            //         node,
-            //         getTypeWithSyntheticDefaultOnly(getTypeOfSymbol(esModuleSymbol), esModuleSymbol, moduleSymbol, specifier) ||
-            //             getTypeWithSyntheticDefaultImportType(getTypeOfSymbol(esModuleSymbol), esModuleSymbol, moduleSymbol, specifier),
-            //     );
-            // }
+            const objectSymbol = resolveExternalObjectSymbol(moduleSymbol, specifier, /*dontResolveAlias*/ true);
+            if (objectSymbol) {
+                const objT = getTypeOfSymbol(objectSymbol);
+                return objT;
+                // const memberTable = createSymbolTable();
+                // mergeSymbolTable(memberTable, objectSymbol.members);
+
+                // const objectType = createAnonymousType(undefined, memberTable, emptyArray, emptyArray, emptyArray);
+                // return getTypeOfSymbol(objectSymbol);
+            }           
         }
 
         // grammar is valid but could not find the module.
         // return anyType to keep things flowing.
         return anyType;
     }
+
+    function resolveExternalObjectSymbol(moduleSymbol: Symbol|undefined, referencingLocation: Node, dontResolveAlias: boolean): Symbol | undefined {
+        const symbol = resolveExternalModuleSymbol(moduleSymbol);
+
+        if (!dontResolveAlias && symbol) {            
+            Debug.fail("TODO - implement me - resolveExternalObjectSymbol");
+        }
+
+        return symbol;
+    }    
 
     function checkGrammarImportCallExpression(node: CloneObjectExpression): boolean {
         const nodeArguments = node.arguments;
@@ -12343,6 +12354,21 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         }
     }
 
+    function resolveExternalModuleSymbol(moduleSymbol: Symbol, dontResolveAlias?: boolean): Symbol;
+    function resolveExternalModuleSymbol(moduleSymbol: Symbol | undefined, dontResolveAlias?: boolean): Symbol | undefined;
+    function resolveExternalModuleSymbol(moduleSymbol: Symbol | undefined, dontResolveAlias?: boolean): Symbol | undefined {
+        if (moduleSymbol) {
+            return getMergedSymbol(moduleSymbol);
+        }
+        return undefined;
+        // if (moduleSymbol?.exports) {
+        //     const exportEquals = resolveSymbol(moduleSymbol.exports.get(InternalSymbolName.ExportEquals), dontResolveAlias);
+        //     const exported = getCommonJsExportEquals(getMergedSymbol(exportEquals), getMergedSymbol(moduleSymbol));
+        //     return getMergedSymbol(exported) || moduleSymbol;
+        // }
+        // return undefined;
+    }
+
     function getTargetOfAliasDeclaration(node: Declaration, dontRecursivelyResolve = false): Symbol | undefined {        
         // TODO        
         switch (node.kind) {
@@ -13627,7 +13653,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         }
         if (symbol.flags & (SymbolFlags.Function | SymbolFlags.Method | SymbolFlags.Class | SymbolFlags.Enum | SymbolFlags.ValueModule)) {
             return getTypeOfFuncClassEnumModule(symbol);
-        }
+        }        
         // if (symbol.flags & SymbolFlags.EnumMember) {
         //     return getTypeOfEnumMember(symbol);
         // }
