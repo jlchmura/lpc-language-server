@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.0.33
+
+-   Fix bad build in release 1.0.32
+
 ## 1.0.32
 
 -   Diagnostics are now off by default
