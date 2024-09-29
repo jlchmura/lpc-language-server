@@ -1,4 +1,5 @@
-import { combinePaths, CommandLineOption, comparePaths, Comparison, CompilerOptions, Debug, Diagnostic, DiagnosticMessage, DiagnosticReporter, Diagnostics, directoryProbablyExists, directorySeparator, endsWith, Extension, forEachAncestorDirectory, formatMessage, getBaseFileName, GetCanonicalFileName, getCompilerOptionValue, getDirectoryPath, getRootLength, hasProperty, isArray, isDeclarationFileName, isExternalModuleNameRelative, MapLike, ModuleResolutionHost, ModuleResolutionKind, moduleResolutionOptionDeclarations, normalizePath, normalizeSlashes, PackageId, packageIdToString, Path, pathIsRelative, perfLogger, removeFileExtension, ResolutionMode, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, startsWith, toPath } from "./_namespaces/lpc.js";
+import path from "path";
+import { combinePaths, CommandLineOption, comparePaths, Comparison, CompilerOptions, Debug, Diagnostic, DiagnosticMessage, DiagnosticReporter, Diagnostics, directoryProbablyExists, directorySeparator, endsWith, Extension, forEachAncestorDirectory, formatMessage, getBaseFileName, GetCanonicalFileName, getCompilerOptionValue, getDirectoryPath, getPathComponents, getPathFromPathComponents, getRootLength, hasProperty, isArray, isDeclarationFileName, isExternalModuleNameRelative, isRootedDiskPath, MapLike, ModuleResolutionHost, ModuleResolutionKind, moduleResolutionOptionDeclarations, normalizePath, normalizeSlashes, PackageId, packageIdToString, Path, pathIsRelative, perfLogger, removeFileExtension, ResolutionMode, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, startsWith, toPath } from "./_namespaces/lpc.js";
 
 export interface ModeAwareCache<T> {
     get(key: string, mode: ResolutionMode): T | undefined;
@@ -640,6 +641,12 @@ export function classicNameResolver(moduleName: string, containingFile: string, 
         }
 
         // TODO: if path is rooted, need to re-map it to lib root here
+        if (isRootedDiskPath(moduleName)) {
+            const pathComps = getPathComponents(state.compilerOptions.configFilePath);
+            const libPath = getPathFromPathComponents(pathComps.slice(0, pathComps.length - 1));
+            const searchName = normalizePath(combinePaths(libPath, "." + moduleName));
+            return toSearchResult(loadModuleFromFileNoPackageId(extensions, searchName, /*onlyRecordFailures*/ false, state));
+        }
 
         if (!isExternalModuleNameRelative(moduleName)) {
             // Climb up parent directories looking for a module.
