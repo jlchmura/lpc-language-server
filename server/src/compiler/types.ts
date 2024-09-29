@@ -1047,6 +1047,7 @@ export type KeywordTypeSyntaxKind =
     | SyntaxKind.IntrinsicKeyword
     // | SyntaxKind.NeverKeyword
     // | SyntaxKind.NumberKeyword
+    | SyntaxKind.MixedKeyword
     | SyntaxKind.ObjectKeyword
     | SyntaxKind.StringKeyword    
     // | SyntaxKind.SymbolKeyword
@@ -5696,3 +5697,17 @@ export type TransformerFactory<T extends Node> = (context: TransformationContext
  * A function that transforms a node.
  */
 export type Transformer<T extends Node> = (node: T) => T;
+
+export interface PropertyAccessChain extends PropertyAccessExpression {
+    _optionalChainBrand: any;
+    readonly name: MemberName;
+}
+
+export type OptionalChain =
+    | PropertyAccessChain
+    //| ElementAccessChain
+    | CallChain;
+    //| NonNullChain;
+
+
+    

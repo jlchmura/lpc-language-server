@@ -1,5 +1,5 @@
 import { CharacterCodes } from "../backend/types";
-import { setTextRange as setTextRangeWorker, Type, Symbol, SymbolLinks, CancellationToken, createSymbolTable, Declaration, EmitTextWriter, ModifierFlags, Node, NodeFlags, objectAllocator, Scanner, Signature, SignatureKind, SymbolFlags, TypeChecker, TypeCheckerHost, TypeFormatFlags, TypeParameter, CheckFlags, TransientSymbol, TransientSymbolLinks, reduceLeft, bindSourceFile, SourceFile, Diagnostic, createDiagnosticCollection, concatenate, forEach, tracing, performance, NodeLinks, NodeCheckFlags, FlowNode, FlowType, clear, SyntaxKind, TracingNode, CallLikeExpression, CallExpression, isCallOrNewExpression, isBinaryExpression, Expression, SignatureDeclaration, SignatureFlags, emptyArray, TypeFlags, IntrinsicType, ObjectFlags, Debug, BinaryExpression, ObjectType, StructuredType, ResolvedType, SymbolTable, IndexInfo, Identifier, nodeIsMissing, createNameResolver, InternalSymbolName, SymbolId, some, DiagnosticMessage, DiagnosticArguments, createDiagnosticForNode, createCompilerDiagnostic, FunctionLikeDeclaration, PropertyDeclaration, isString, isIdentifier, Diagnostics, findLast, SymbolFormatFlags, isAccessExpression, isFunctionExpression, isAliasableExpression, PropertyAssignment, isVariableDeclarationInitializedToBareOrAccessedRequire, mapDefined, arrayFrom, getSpellingSuggestion, symbolName, startsWith, nodeIsSynthesized, declarationNameToString, getCanonicalDiagnostic, DiagnosticCategory, addRelatedInfo, ParameterDeclaration, BindingElement, isSourceFile, isExternalOrCommonJsModule, isBlockOrCatchScoped, length, every, isValidTypeOnlyAliasUseSite, isWriteOnlyAccess, getCombinedNodeFlags, DiagnosticWithLocation, getJSDocDeprecatedTag, findAncestor, isCallLikeExpression, isFunctionLike, ParenthesizedExpression, isAssignmentExpression, isVariableDeclaration, isBindingElement, PropertyAccessExpression, getEnclosingBlockScopeContainer, isPropertyDeclaration, nodeStartsNewLexicalEnvironment, isIterationStatement, isForStatement, getAncestor, ForStatement, pushIfUnique, isAssignmentTarget, PrefixUnaryExpression, PostfixUnaryExpression, isBlock, isExpressionNode, isPropertyAccessExpression, getAssignmentTargetKind, AssignmentKind, isInCompoundLikeAssignment, UnionType, TypeId, UnionReduction, getRootDeclaration, getImmediatelyInvokedFunctionExpression, isSpreadAssignment, isParameter, VariableDeclaration, isFunctionLikeDeclaration, isTypeNode, forEachChild, tryCast, canHaveFlowNode, ElementAccessExpression, RelationComparisonResult, LiteralType, FreshableType, getObjectFlags, DiagnosticMessageChain, setNodeFlags, isCallExpression, LazyNodeCheckFlags, getSourceFileOfNode, canIncludeBindAndCheckDiagnostics, forEachChildRecursively, isDeclarationName, EntityName, JSDocMemberName, canHaveSymbol, isLiteralTypeNode, isElementAccessExpression, isIndexedAccessTypeNode, TypeNode, canHaveJSDoc, FlowFlags, FlowArrayMutation, FlowAssignment, FlowCall, FlowCondition, FlowLabel, FlowReduceLabel, FlowSwitchClause, SwitchStatement, createFileDiagnostic, createDiagnosticForFileFromMessageChain, createDiagnosticForNodeFromMessageChain, VariableStatement, HasModifiers, VariableDeclarationList, Block, isFunctionOrModuleBlock, CaseBlock, ForEachStatement, IndexSignatureDeclaration, Path, HasLocals, BindingPattern, idText, isForEachStatement, getNameOfDeclaration, isArrayBindingPattern, first, BindingName, cast, containsParseError, FunctionDeclaration, getFunctionFlags, getEffectiveReturnTypeNode, FunctionFlags, nodeIsPresent, JSDocSignature, isJSDocSignature, getJSDocRoot, LiteralTypeNode, TypeNodeSyntaxKind, isStatement, UnionOrIntersectionType, getContainingFunction, hasSyntacticModifier, isBindingPattern, sameMap, flatMap, getCheckFlags, singleElementArray, getDeclarationModifierFlagsFromSymbol, Ternary, append, find, isNumericLiteralName, StringLiteralType, contains, isTransientSymbol, addRange, filter, IndexType, getParseTreeNode, isRightSideOfQualifiedNameOrPropertyAccess, isWriteAccess, isRightSideOfAccessExpression, hasEffectiveModifier, getCombinedModifierFlags, isEntityName, PropertyAccessEntityNameExpression, isRightSideOfQualifiedNameOrPropertyAccessOrJSDocMemberName, QualifiedName, getHostSignatureFromJSDoc, or, EntityNameOrEntityNameExpression, isInJSFile, getFirstIdentifier, isQualifiedName, entityNameToString, isCallChain, isEntityNameExpression, isLineBreak, skipTrivia, DiagnosticRelatedInformation, IntLiteralType, FloatLiteralType, createTextWriter, chainDiagnosticMessages, getErrorSpanForNode, ShorthandPropertyAssignment, NodeBuilderFlags, SymbolTracker, TrackedSymbol, ReverseMappedSymbol, TypeMapper, ModuleSpecifierResolutionHost, Program, maybeBind, setEmitFlags, createNodeFactory, NodeFactoryFlags, BaseNodeFactory, Mutable, firstDefined, isComputedPropertyName, isIdentifierText, escapeString, getEmitScriptTarget, factory, EmitFlags, isSingleOrDoubleQuote, canUsePropertyAccess, stripQuotes, DoWhileStatement, BinaryOperatorToken, isLogicalOrCoalescingBinaryOperator, isLogicalOrCoalescingBinaryExpression, isIfStatement, skipParentheses, Statement, PunctuationSyntaxKind, tokenToString, FreshableIntrinsicType, isLiteralExpressionOfObject, getAssignmentDeclarationKind, AssignmentDeclarationKind, ConditionalExpression, isAssignmentOperator, isJSDocTypedefTag, isIntLiteral, skipOuterExpressions, OuterExpressionKinds, isExpression, ObjectLiteralExpression, ArrayLiteralExpression, FunctionExpression, InlineClosureExpression, ObjectLiteralElementLike, hasContextSensitiveParameters, forEachReturnStatement, compareDiagnostics, Comparison, createBinaryExpressionTrampoline, IntLiteral, FloatLiteral, isShorthandPropertyAssignment, isPropertyAccessOrQualifiedName, isPrivateIdentifier, WideningContext, StringLiteral, ReturnStatement, ExpressionStatement, IfStatement, NewExpression, getMembersOfDeclaration, AccessExpression, isThisInitializedDeclaration, setValueDeclaration, comparePaths, getOrUpdate, usingSingleLineStringWriter, createPrinterWithRemoveCommentsNeverAsciiEscape, createPrinterWithRemoveComments, EmitHint, getEffectiveModifierFlags, getEffectiveTypeAnnotationNode, getAssignmentDeclarationPropertyAccessKind, isNamedDeclaration, map, PropertyName, isFloatLiteral, getPropertyNameForPropertyNameNode, isPartOfParameterDeclaration, hasOnlyExpressionInitializer, not, getEffectiveInitializer, isObjectLiteralExpression, isVariableLike, getSelectedEffectiveModifierFlags, AliasDeclarationNode, isBindingElementOfBareOrAccessedRequire, TypeReference, isFunctionExpressionOrInlineClosure, ContextFlags, indexOfNode, InferenceContext, isNodeDescendantOf, ObjectFlagsType, GenericType, ReverseMappedType, AnonymousType, DeferredTypeReference, InstantiationExpressionType, SingleSignatureType, MappedTypeNode, TypeParameterDeclaration, appendIfUnique, TypeMapKind, isPartOfTypeNode, TypeReferenceNode, MappedType, ArrayTypeNode, isParenthesizedTypeNode, isTypeAlias, IndexFlags, InferenceInfo, binarySearch, compareValues, hasInitializer, lastOrUndefined, HasExpressionInitializer, getContainingFunctionOrClassStaticBlock, getSpanOfTokenAtPosition, isJSDocParameterTag, hasRestParameter, isStringLiteral, walkUpBindingElementsAndPatterns, BindableObjectDefinePropertyCall, copyEntries, InterfaceType, isPropertyAssignment, DiagnosticAndArguments, FreshObjectLiteralType, BaseType, firstOrUndefined, SubstitutionType, createPrinterWithDefaults, noTruncationMaximumTruncationLength, defaultMaximumTruncationLength, arrayIsHomogeneous, isIdentifierTypeReference, createMultiMap, addSyntheticLeadingComment, NodeArray, getOriginalNode, getIdentifierTypeArguments, setIdentifierTypeArguments, IndexedAccessTypeNode, forEachEntry, ScriptTarget, SymbolAccessibility, canHaveLocals, getDeclarationOfKind, isClassLike, TypeElement, SymbolAccessibilityResult, SymbolVisibilityResult, LateVisibilityPaintedStatement, isVariableStatement, isLateVisibilityPaintedStatement, isTypeLiteralNode, PlusToken, MinusToken, walkUpParenthesizedTypes, setOriginalNode, countWhere, getNameFromIndexInfo, Modifier, notImplemented, isTypeParameterDeclaration, setParent, CallChain, isLiteralExpression, isStringOrNumericLiteralLike, FlowStart, getPropertyNameFromType, EvolvingArrayType, arrayIsEqualTo, isObjectLiteralMethod, isNonNullAccess, FlowSwitchClauseData, LiteralExpression, CaseClause, DefaultClause, findIndex, orderedRemoveItemAt, UnionTypeNode, ParenthesizedTypeNode, concatenateDiagnosticMessageChains, isDeclaration, InterfaceTypeWithDeclaredMembers, rangeEquals, InferenceFlags, minAndMax, last, IntersectionFlags, IntersectionType, flatten, createDiagnosticMessageChainFromDiagnostic, setTextRangePosEnd, createDiagnosticForNodeArrayFromMessageChain, createDiagnosticForNodeArray, isConstructorDeclaration, TypeComparer, InferencePriority, pathIsRelative, moduleSpecifiers, EmitResolver, isRestParameter, SpreadElement, ElementFlags, ModuleKind, ResolutionMode, ModuleResolutionKind, getResolutionDiagnostic, isDeclarationFileName, hasExtension, removeExtension, CloneObjectExpression, isCloneObjectExpression } from "./_namespaces/lpc";
+import { setTextRange as setTextRangeWorker, Type, Symbol, SymbolLinks, CancellationToken, createSymbolTable, Declaration, EmitTextWriter, ModifierFlags, Node, NodeFlags, objectAllocator, Scanner, Signature, SignatureKind, SymbolFlags, TypeChecker, TypeCheckerHost, TypeFormatFlags, TypeParameter, CheckFlags, TransientSymbol, TransientSymbolLinks, reduceLeft, bindSourceFile, SourceFile, Diagnostic, createDiagnosticCollection, concatenate, forEach, tracing, performance, NodeLinks, NodeCheckFlags, FlowNode, FlowType, clear, SyntaxKind, TracingNode, CallLikeExpression, CallExpression, isCallOrNewExpression, isBinaryExpression, Expression, SignatureDeclaration, SignatureFlags, emptyArray, TypeFlags, IntrinsicType, ObjectFlags, Debug, BinaryExpression, ObjectType, StructuredType, ResolvedType, SymbolTable, IndexInfo, Identifier, nodeIsMissing, createNameResolver, InternalSymbolName, SymbolId, some, DiagnosticMessage, DiagnosticArguments, createDiagnosticForNode, createCompilerDiagnostic, FunctionLikeDeclaration, PropertyDeclaration, isString, isIdentifier, Diagnostics, findLast, SymbolFormatFlags, isAccessExpression, isFunctionExpression, isAliasableExpression, PropertyAssignment, isVariableDeclarationInitializedToBareOrAccessedRequire, mapDefined, arrayFrom, getSpellingSuggestion, symbolName, startsWith, nodeIsSynthesized, declarationNameToString, getCanonicalDiagnostic, DiagnosticCategory, addRelatedInfo, ParameterDeclaration, BindingElement, isSourceFile, isExternalOrCommonJsModule, isBlockOrCatchScoped, length, every, isValidTypeOnlyAliasUseSite, isWriteOnlyAccess, getCombinedNodeFlags, DiagnosticWithLocation, getJSDocDeprecatedTag, findAncestor, isCallLikeExpression, isFunctionLike, ParenthesizedExpression, isAssignmentExpression, isVariableDeclaration, isBindingElement, PropertyAccessExpression, getEnclosingBlockScopeContainer, isPropertyDeclaration, nodeStartsNewLexicalEnvironment, isIterationStatement, isForStatement, getAncestor, ForStatement, pushIfUnique, isAssignmentTarget, PrefixUnaryExpression, PostfixUnaryExpression, isBlock, isExpressionNode, isPropertyAccessExpression, getAssignmentTargetKind, AssignmentKind, isInCompoundLikeAssignment, UnionType, TypeId, UnionReduction, getRootDeclaration, getImmediatelyInvokedFunctionExpression, isSpreadAssignment, isParameter, VariableDeclaration, isFunctionLikeDeclaration, isTypeNode, forEachChild, tryCast, canHaveFlowNode, ElementAccessExpression, RelationComparisonResult, LiteralType, FreshableType, getObjectFlags, DiagnosticMessageChain, setNodeFlags, isCallExpression, LazyNodeCheckFlags, getSourceFileOfNode, canIncludeBindAndCheckDiagnostics, forEachChildRecursively, isDeclarationName, EntityName, JSDocMemberName, canHaveSymbol, isLiteralTypeNode, isElementAccessExpression, isIndexedAccessTypeNode, TypeNode, canHaveJSDoc, FlowFlags, FlowArrayMutation, FlowAssignment, FlowCall, FlowCondition, FlowLabel, FlowReduceLabel, FlowSwitchClause, SwitchStatement, createFileDiagnostic, createDiagnosticForFileFromMessageChain, createDiagnosticForNodeFromMessageChain, VariableStatement, HasModifiers, VariableDeclarationList, Block, isFunctionOrModuleBlock, CaseBlock, ForEachStatement, IndexSignatureDeclaration, Path, HasLocals, BindingPattern, idText, isForEachStatement, getNameOfDeclaration, isArrayBindingPattern, first, BindingName, cast, containsParseError, FunctionDeclaration, getFunctionFlags, getEffectiveReturnTypeNode, FunctionFlags, nodeIsPresent, JSDocSignature, isJSDocSignature, getJSDocRoot, LiteralTypeNode, TypeNodeSyntaxKind, isStatement, UnionOrIntersectionType, getContainingFunction, hasSyntacticModifier, isBindingPattern, sameMap, flatMap, getCheckFlags, singleElementArray, getDeclarationModifierFlagsFromSymbol, Ternary, append, find, isNumericLiteralName, StringLiteralType, contains, isTransientSymbol, addRange, filter, IndexType, getParseTreeNode, isRightSideOfQualifiedNameOrPropertyAccess, isWriteAccess, isRightSideOfAccessExpression, hasEffectiveModifier, getCombinedModifierFlags, isEntityName, PropertyAccessEntityNameExpression, isRightSideOfQualifiedNameOrPropertyAccessOrJSDocMemberName, QualifiedName, getHostSignatureFromJSDoc, or, EntityNameOrEntityNameExpression, isInJSFile, getFirstIdentifier, isQualifiedName, entityNameToString, isCallChain, isEntityNameExpression, isLineBreak, skipTrivia, DiagnosticRelatedInformation, IntLiteralType, FloatLiteralType, createTextWriter, chainDiagnosticMessages, getErrorSpanForNode, ShorthandPropertyAssignment, NodeBuilderFlags, SymbolTracker, TrackedSymbol, ReverseMappedSymbol, TypeMapper, ModuleSpecifierResolutionHost, Program, maybeBind, setEmitFlags, createNodeFactory, NodeFactoryFlags, BaseNodeFactory, Mutable, firstDefined, isComputedPropertyName, isIdentifierText, escapeString, getEmitScriptTarget, factory, EmitFlags, isSingleOrDoubleQuote, canUsePropertyAccess, stripQuotes, DoWhileStatement, BinaryOperatorToken, isLogicalOrCoalescingBinaryOperator, isLogicalOrCoalescingBinaryExpression, isIfStatement, skipParentheses, Statement, PunctuationSyntaxKind, tokenToString, FreshableIntrinsicType, isLiteralExpressionOfObject, getAssignmentDeclarationKind, AssignmentDeclarationKind, ConditionalExpression, isAssignmentOperator, isJSDocTypedefTag, isIntLiteral, skipOuterExpressions, OuterExpressionKinds, isExpression, ObjectLiteralExpression, ArrayLiteralExpression, FunctionExpression, InlineClosureExpression, ObjectLiteralElementLike, hasContextSensitiveParameters, forEachReturnStatement, compareDiagnostics, Comparison, createBinaryExpressionTrampoline, IntLiteral, FloatLiteral, isShorthandPropertyAssignment, isPropertyAccessOrQualifiedName, isPrivateIdentifier, WideningContext, StringLiteral, ReturnStatement, ExpressionStatement, IfStatement, NewExpression, getMembersOfDeclaration, AccessExpression, isThisInitializedDeclaration, setValueDeclaration, comparePaths, getOrUpdate, usingSingleLineStringWriter, createPrinterWithRemoveCommentsNeverAsciiEscape, createPrinterWithRemoveComments, EmitHint, getEffectiveModifierFlags, getEffectiveTypeAnnotationNode, getAssignmentDeclarationPropertyAccessKind, isNamedDeclaration, map, PropertyName, isFloatLiteral, getPropertyNameForPropertyNameNode, isPartOfParameterDeclaration, hasOnlyExpressionInitializer, not, getEffectiveInitializer, isObjectLiteralExpression, isVariableLike, getSelectedEffectiveModifierFlags, AliasDeclarationNode, isBindingElementOfBareOrAccessedRequire, TypeReference, isFunctionExpressionOrInlineClosure, ContextFlags, indexOfNode, InferenceContext, isNodeDescendantOf, ObjectFlagsType, GenericType, ReverseMappedType, AnonymousType, DeferredTypeReference, InstantiationExpressionType, SingleSignatureType, MappedTypeNode, TypeParameterDeclaration, appendIfUnique, TypeMapKind, isPartOfTypeNode, TypeReferenceNode, MappedType, ArrayTypeNode, isParenthesizedTypeNode, isTypeAlias, IndexFlags, InferenceInfo, binarySearch, compareValues, hasInitializer, lastOrUndefined, HasExpressionInitializer, getContainingFunctionOrClassStaticBlock, getSpanOfTokenAtPosition, isJSDocParameterTag, hasRestParameter, isStringLiteral, walkUpBindingElementsAndPatterns, BindableObjectDefinePropertyCall, copyEntries, InterfaceType, isPropertyAssignment, DiagnosticAndArguments, FreshObjectLiteralType, BaseType, firstOrUndefined, SubstitutionType, createPrinterWithDefaults, noTruncationMaximumTruncationLength, defaultMaximumTruncationLength, arrayIsHomogeneous, isIdentifierTypeReference, createMultiMap, addSyntheticLeadingComment, NodeArray, getOriginalNode, getIdentifierTypeArguments, setIdentifierTypeArguments, IndexedAccessTypeNode, forEachEntry, ScriptTarget, SymbolAccessibility, canHaveLocals, getDeclarationOfKind, isClassLike, TypeElement, SymbolAccessibilityResult, SymbolVisibilityResult, LateVisibilityPaintedStatement, isVariableStatement, isLateVisibilityPaintedStatement, isTypeLiteralNode, PlusToken, MinusToken, walkUpParenthesizedTypes, setOriginalNode, countWhere, getNameFromIndexInfo, Modifier, notImplemented, isTypeParameterDeclaration, setParent, CallChain, isLiteralExpression, isStringOrNumericLiteralLike, FlowStart, getPropertyNameFromType, EvolvingArrayType, arrayIsEqualTo, isObjectLiteralMethod, isNonNullAccess, FlowSwitchClauseData, LiteralExpression, CaseClause, DefaultClause, findIndex, orderedRemoveItemAt, UnionTypeNode, ParenthesizedTypeNode, concatenateDiagnosticMessageChains, isDeclaration, InterfaceTypeWithDeclaredMembers, rangeEquals, InferenceFlags, minAndMax, last, IntersectionFlags, IntersectionType, flatten, createDiagnosticMessageChainFromDiagnostic, setTextRangePosEnd, createDiagnosticForNodeArrayFromMessageChain, createDiagnosticForNodeArray, isConstructorDeclaration, TypeComparer, InferencePriority, pathIsRelative, moduleSpecifiers, EmitResolver, isRestParameter, SpreadElement, ElementFlags, ModuleKind, ResolutionMode, ModuleResolutionKind, getResolutionDiagnostic, isDeclarationFileName, hasExtension, removeExtension, CloneObjectExpression, isCloneObjectExpression, PropertyAccessChain, OptionalChain } from "./_namespaces/lpc";
 
 let nextSymbolId = 1;
 let nextNodeId = 1;
@@ -1652,9 +1652,28 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function checkPropertyAccessExpression(node: PropertyAccessExpression, checkMode: CheckMode | undefined, writeOnly?: boolean) {
-        console.warn("implement me - checkPropertyAccessExpression");        
-        //return checkPropertyAccessExpressionOrQualifiedName(node, node.expression, checkNonNullExpression(node.expression), node.name, checkMode, writeOnly);
+        return node.flags & NodeFlags.OptionalChain ? checkPropertyAccessChain(node as PropertyAccessChain, checkMode) :
+            checkPropertyAccessExpressionOrQualifiedName(node, node.expression, checkNonNullExpression(node.expression), node.name, checkMode, writeOnly);
     }
+
+    function checkPropertyAccessChain(node: PropertyAccessChain, checkMode: CheckMode | undefined) {
+        const leftType = checkExpression(node.expression);
+        const nonOptionalType = getOptionalExpressionType(leftType, node.expression);
+        return propagateOptionalTypeMarker(checkPropertyAccessExpressionOrQualifiedName(node, node.expression, checkNonNullType(nonOptionalType, node.expression), node.name, checkMode), node, nonOptionalType !== leftType);
+    }
+
+    function getOptionalExpressionType(exprType: Type, expression: Expression) {
+        return exprType;
+        // TODO: 
+        // return isExpressionOfOptionalChainRoot(expression) ? getNonNullableType(exprType) :
+        //     isOptionalChain(expression) ? removeOptionalTypeMarker(exprType) :
+        //     exprType;
+    }
+
+    function propagateOptionalTypeMarker(type: Type, node: OptionalChain, wasOptional: boolean) {
+        return type;// TODO return wasOptional ? isOutermostOptionalChain(node) ? getOptionalType(type) : addOptionalTypeMarker(type) : type;
+    }
+
 
     /** @deprecated no null in LPC */
     function getNonNullableType(type: Type): Type {
@@ -2560,8 +2579,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             //     return booleanType;
             // case SyntaxKind.SymbolKeyword:
             //     return esSymbolType;
-            // case SyntaxKind.VoidKeyword:
-            //     return voidType;
+            case SyntaxKind.VoidKeyword:
+                return voidType;
             // case SyntaxKind.UndefinedKeyword:
             //     return undefinedType;
             // case SyntaxKind.NullKeyword as TypeNodeSyntaxKind:
@@ -2569,8 +2588,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             //     return nullType;
             // case SyntaxKind.NeverKeyword:
             //     return neverType;
-            // case SyntaxKind.ObjectKeyword:
-            //     return node.flags & NodeFlags.JavaScriptFile && !noImplicitAny ? anyType : nonPrimitiveType;
+            case SyntaxKind.MixedKeyword:
+            case SyntaxKind.ObjectKeyword:
+                // in LPC, return undefined (not error or any) so that the type checker can continue
+                // to determine the type from the flow node
+                return undefined;  // !noImplicitAny ? anyType : nonPrimitiveType;            
             // case SyntaxKind.IntrinsicKeyword:
             //     return intrinsicMarkerType;
             // case SyntaxKind.ThisType:
@@ -3263,6 +3285,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             //     }
             // }
 
+            // TODO - implement this for clone_object, etc
             // if (isImportSpecifier(node)) {
             //     const targetSymbol = resolveAliasWithDeprecationCheck(symbol, node);
             //     if (isDeprecatedSymbol(targetSymbol) && targetSymbol.declarations) {
@@ -6404,11 +6427,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 // }
             });
 
-            // TODO: do we need this?
-            // if (isExternalOrCommonJsModule(node)) {
-            //     checkExternalModuleExports(node);
-            // }
-            
+            // every source file is a "module"
+            checkExternalModuleExports(node);            
+
+            // TODO
+
             // if (potentialNewTargetCollisions.length) {
             //     forEach(potentialNewTargetCollisions, checkIfNewTargetIsCapturedInEnclosingScope);
             //     clear(potentialNewTargetCollisions);
@@ -7476,8 +7499,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             //     return checkArrayLiteral(node as ArrayLiteralExpression, checkMode, forceTuple);
             // case SyntaxKind.ObjectLiteralExpression:
             //     return checkObjectLiteral(node as ObjectLiteralExpression, checkMode);
-            // case SyntaxKind.PropertyAccessExpression:
-            //     return checkPropertyAccessExpression(node as PropertyAccessExpression, checkMode);
+            case SyntaxKind.PropertyAccessExpression:
+                return checkPropertyAccessExpression(node as PropertyAccessExpression, checkMode);
             case SyntaxKind.QualifiedName:
                 return checkQualifiedName(node as QualifiedName, checkMode);
             // case SyntaxKind.ElementAccessExpression:
@@ -7577,16 +7600,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
         // resolveExternalModuleName will return undefined if the moduleReferenceExpression is not a string literal
         const moduleSymbol = resolveExternalModuleName(node, specifier);
-        if (moduleSymbol) {
+        if (moduleSymbol) {            
             const objectSymbol = resolveExternalObjectSymbol(moduleSymbol, specifier, /*dontResolveAlias*/ true);
-            if (objectSymbol) {
-                const objT = getTypeOfSymbol(objectSymbol);
-                return objT;
-                // const memberTable = createSymbolTable();
-                // mergeSymbolTable(memberTable, objectSymbol.members);
-
-                // const objectType = createAnonymousType(undefined, memberTable, emptyArray, emptyArray, emptyArray);
-                // return getTypeOfSymbol(objectSymbol);
+            if (objectSymbol && isSourceFile(objectSymbol.valueDeclaration)) {                
+                const objectType = getTypeOfSymbol(objectSymbol);
+                return objectType;                
             }           
         }
 
@@ -9485,6 +9503,38 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             //symbol.flags & SymbolFlags.Module ? getExportsOfModule(symbol) :
             symbol.exports || emptySymbols;
     }
+
+    function getExportOfModule(symbol: Symbol, name: Identifier, specifier: Declaration, dontResolveAlias: boolean): Symbol | undefined {
+        if (symbol.flags & SymbolFlags.Module) {
+            const exportSymbol = getExportsOfSymbol(symbol).get(name.text);
+            const resolved = resolveSymbol(exportSymbol, dontResolveAlias);
+            const exportStarDeclaration = undefined;// getSymbolLinks(symbol).typeOnlyExportStarMap?.get(name.text);
+            // TODO: do we need this? //markSymbolOfAliasDeclarationIfTypeOnly(specifier, exportSymbol, resolved, /*overwriteEmpty*/ false, exportStarDeclaration, name.text);
+            return resolved;
+        }
+    }
+
+    function getExportsOfModule(moduleSymbol: Symbol): SymbolTable {
+        const links = getSymbolLinks(moduleSymbol);
+        if (!links.resolvedExports) {
+            const { exports } = getExportsOfModuleWorker(moduleSymbol);
+            links.resolvedExports = exports;            
+        }
+        return links.resolvedExports;
+    }
+
+    function checkExternalModuleExports(node: SourceFile) {
+        const moduleSymbol = getSymbolOfDeclaration(node);
+        const links = getSymbolLinks(moduleSymbol);
+        if (!links.exportsChecked) {
+            const exports = getExportsOfModule(moduleSymbol);
+            // TODO do more checks here
+            
+            links.exportsChecked = true;
+        }
+    }
+
+   
 
     /**
      * Checks if two symbols, through aliasing and/or merging, refer to the same thing
@@ -12357,10 +12407,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     function resolveExternalModuleSymbol(moduleSymbol: Symbol, dontResolveAlias?: boolean): Symbol;
     function resolveExternalModuleSymbol(moduleSymbol: Symbol | undefined, dontResolveAlias?: boolean): Symbol | undefined;
     function resolveExternalModuleSymbol(moduleSymbol: Symbol | undefined, dontResolveAlias?: boolean): Symbol | undefined {
-        if (moduleSymbol) {
-            return getMergedSymbol(moduleSymbol);
-        }
-        return undefined;
+        return moduleSymbol;
         // if (moduleSymbol?.exports) {
         //     const exportEquals = resolveSymbol(moduleSymbol.exports.get(InternalSymbolName.ExportEquals), dontResolveAlias);
         //     const exported = getCommonJsExportEquals(getMergedSymbol(exportEquals), getMergedSymbol(moduleSymbol));
@@ -13887,8 +13934,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         switch (hint) {
             case ReferenceHint.Identifier:
                 return markIdentifierAliasReferenced(location as Identifier);
-        //     case ReferenceHint.Property:
-        //         return markPropertyAliasReferenced(location as PropertyAccessExpression | QualifiedName, propSymbol, parentType);
+            case ReferenceHint.Property:
+                return markPropertyAliasReferenced(location as PropertyAccessExpression | QualifiedName, propSymbol, parentType);
         //     case ReferenceHint.ExportAssignment:
         //         return markExportAssignmentAliasReferenced(location as ExportAssignment);        
         //     case ReferenceHint.AsyncFunction:
