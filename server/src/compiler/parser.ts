@@ -547,10 +547,11 @@ export namespace LpcParser {
 
     function parseReturnStatement(tree: parserCore.ReturnStatementContext): ReturnStatement {
         const {pos,end} = getNodePos(tree);
+        const filename = getFilename(tree);
         const jsDoc = getPrecedingJSDocBlock(tree);
 
         const expression = tree.commaableExpression() ? parseCommaExpression(tree.commaableExpression()) : undefined;
-        return withJSDoc(finishNode(factory.createReturnStatement(expression), getFilename(tree), pos, end), jsDoc);
+        return withJSDoc(finishNode(factory.createReturnStatement(expression), filename, pos, end), jsDoc);
     }
 
     function parseExpressionStatement(tree: parserCore.CommaableExpressionContext) {
@@ -912,6 +913,7 @@ export namespace LpcParser {
         tree: parserCore.PrimaryExpressionContext
     ): Expression {
         let {pos,end} = getNodePos(tree);
+        const filename = getFilename(tree);
 
         const startTree = tree.primaryExpressionStart();
         let leftExp: Expression;
@@ -922,15 +924,26 @@ export namespace LpcParser {
         } else {            
             leftExp = parsePrimaryExpressionStart(startTree);
 
+            // check for special methods that have their own node types
+            const callExprTrees = tree.methodInvocation() ?? [];            
+            if (callExprTrees.length > 0 && leftExp && isIdentifier(leftExp)) {                
+                switch (leftExp.text) {
+                    case "clone_object":
+                    case "load_object":
+                        const invoc = callExprTrees.shift();
+                        leftExp = finishNode(parseCloneObjectExpression(tree, invoc, leftExp), filename, pos, invoc.stop.stop+1);
+                }                
+            }
+
             if (tree.ARROW().length > 0) {
                 // we have a property access expression
                 const target = tree.callOtherTarget().at(0);
                 if (target) {                
                     const targetExpr = parseCallOtherTarget(target);
-                    leftExp = factory.createPropertyAccessExpression(leftExp, targetExpr);
+                    leftExp = finishNode(factory.createPropertyAccessExpression(leftExp, targetExpr), filename, pos, targetExpr.end + 1);
                 } else if (tree._structMember) {
                     const member = tree._structMember;                    
-                    leftExp = factory.createPropertyAccessExpression(leftExp, asIdentifier(member));
+                    leftExp = finishNode(factory.createPropertyAccessExpression(leftExp, asIdentifier(member)), filename, pos, tree._structMember.stop+1);
                 }
             } else if (tree._op) {
                 let opKind:PostfixUnaryOperator;
@@ -946,19 +959,12 @@ export namespace LpcParser {
                         // TODO log diagnostic                        
                 }
                 end = tree._op.stop + 1;
-                return finishNode(factory.createPostfixUnaryExpression(leftExp, opKind), getFilename(tree), pos, end);
+                return finishNode(factory.createPostfixUnaryExpression(leftExp, opKind), filename, pos, end);
             }
 
-            if (tree.methodInvocation()) {            
-                if (leftExp && isIdentifier(leftExp)) {
-                    switch (leftExp.text) {
-                        case "clone_object":
-                        case "load_object":
-                            return parseCloneObjectExpression(tree, leftExp);                            
-                    }
-                }
-                return parseCallExpressionRest(tree, pos, leftExp as MemberExpression);
-            }
+            while (callExprTrees.length > 0) {
+                leftExp = parseCallExpressionRest(tree, callExprTrees.shift(), pos, leftExp as MemberExpression);
+            }            
         }
 
         return leftExp;
@@ -982,21 +988,19 @@ export namespace LpcParser {
         return args;
     }
 
-    function parseCloneObjectExpression(tree: parserCore.PrimaryExpressionContext, leftExp: Identifier) {
-        const {pos,end} = getNodePos(tree);
-        const invocCtx = tree.methodInvocation().at(0);
-        const argCtxList = invocCtx.argumentList(); 
+    function parseCloneObjectExpression(tree: parserCore.PrimaryExpressionContext, invocation: parserCore.MethodInvocationContext, leftExp: Identifier) {
+        const {pos,end} = getNodePos(tree);        
+        const argCtxList = invocation.argumentList(); 
         const args = argCtxList ? parseCallArguments(argCtxList) : undefined;
 
         const node = factory.createCloneObjectExpression(leftExp, args);
         return finishNode(node, getFilename(tree), pos, end);
     }
 
-    function parseCallExpressionRest(tree: parserCore.PrimaryExpressionContext, pos: number, expression: LeftHandSideExpression): LeftHandSideExpression {
+    function parseCallExpressionRest(tree: parserCore.PrimaryExpressionContext, invocationContext: parserCore.MethodInvocationContext, pos: number, expression: LeftHandSideExpression): LeftHandSideExpression {
         if (tree.methodInvocation()?.length > 0) {
-            const {pos:callPos,end:callEnd} = getNodePos(tree);
-            const invocCtx = tree.methodInvocation().at(0);
-            const argCtxList = invocCtx.argumentList();
+            const {pos:callPos,end:callEnd} = getNodePos(tree);    
+            const argCtxList = invocationContext.argumentList();
             
             const args = argCtxList ? parseCallArguments(argCtxList) : undefined;
 

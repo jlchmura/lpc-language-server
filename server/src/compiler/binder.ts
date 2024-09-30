@@ -1,4 +1,4 @@
-import { CompilerOptions, Debug, FlowFlags, FlowLabel, FlowNode, HasLocals, IsBlockScopedContainer, IsContainer, Node, objectAllocator, SourceFile, SymbolFlags, Symbol, tracing, setParent, TracingNode, SyntaxKind, isFunctionLike, NodeArray, forEach, forEachChild, Mutable, HasContainerFlags, createSymbolTable, ModifierFlags, FunctionExpression, InlineClosureExpression, NodeFlags, FunctionLikeDeclaration, getImmediatelyInvokedFunctionExpression, nodeIsPresent, contains, isIdentifier, HasFlowNode, performance, VariableDeclaration, isBlockOrCatchScoped, Declaration, canHaveLocals, isPartOfParameterDeclaration, SymbolTable, hasSyntacticModifier, Diagnostics, isNamedDeclaration, length, DiagnosticRelatedInformation, getNameOfDeclaration, appendIfUnique, setValueDeclaration, addRelatedInfo, Identifier, StringLiteral, isPropertyNameLiteral, InternalSymbolName, getAssignmentDeclarationKind, BinaryExpression, AssignmentDeclarationKind, declarationNameToString, createDiagnosticForNodeInSourceFile, getSourceFileOfNode, DiagnosticMessage, DiagnosticArguments, DiagnosticWithLocation, ReturnStatement, IfStatement, Expression, isTruthyLiteral, isFalsyLiteral, FlowCondition, PrefixUnaryExpression, isLogicalOrCoalescingAssignmentExpression, isLogicalOrCoalescingBinaryExpression, isForEachStatement, FlowAssignment, FlowArrayMutation, Block, ConditionalExpression, WhileStatement, Statement, DoWhileStatement, ForStatement, ForEachStatement, BreakOrContinueStatement, SwitchStatement, FlowSwitchClause, CaseBlock, CallExpression, isAssignmentOperator, PropertyAccessExpression, ParenthesizedExpression, isLeftHandSideExpression, PostfixUnaryExpression, ArrayLiteralExpression, ObjectLiteralExpression, isBinaryLogicalOperator, isLogicalOrCoalescingAssignmentOperator, isParenthesizedExpression, isPrefixUnaryExpression, BinaryOperatorToken, isAssignmentTarget, ElementAccessExpression, isBinaryExpression, isDottedName, FlowCall, createBinaryExpressionTrampoline, CaseClause, CallChain, LeftHandSideExpression, skipParentheses, ParameterDeclaration, ExpressionStatement, FunctionDeclaration, removeFileExtension, hasEffectiveModifier, getCombinedModifierFlags, isExpression, isIdentifierName, identifierToKeywordKind, AccessExpression, BindingElement, TypeLiteralNode, JSDocTypeLiteral, EntityNameExpression, isVariableDeclaration, factory, isVariableDeclarationList, isVariableStatement, setNodeFlags } from "./_namespaces/lpc";
+import { CompilerOptions, Debug, FlowFlags, FlowLabel, FlowNode, HasLocals, IsBlockScopedContainer, IsContainer, Node, objectAllocator, SourceFile, SymbolFlags, Symbol, tracing, setParent, TracingNode, SyntaxKind, isFunctionLike, NodeArray, forEach, forEachChild, Mutable, HasContainerFlags, createSymbolTable, ModifierFlags, FunctionExpression, InlineClosureExpression, NodeFlags, FunctionLikeDeclaration, getImmediatelyInvokedFunctionExpression, nodeIsPresent, contains, isIdentifier, HasFlowNode, performance, VariableDeclaration, isBlockOrCatchScoped, Declaration, canHaveLocals, isPartOfParameterDeclaration, SymbolTable, hasSyntacticModifier, Diagnostics, isNamedDeclaration, length, DiagnosticRelatedInformation, getNameOfDeclaration, appendIfUnique, setValueDeclaration, addRelatedInfo, Identifier, StringLiteral, isPropertyNameLiteral, InternalSymbolName, getAssignmentDeclarationKind, BinaryExpression, AssignmentDeclarationKind, declarationNameToString, createDiagnosticForNodeInSourceFile, getSourceFileOfNode, DiagnosticMessage, DiagnosticArguments, DiagnosticWithLocation, ReturnStatement, IfStatement, Expression, isTruthyLiteral, isFalsyLiteral, FlowCondition, PrefixUnaryExpression, isLogicalOrCoalescingAssignmentExpression, isLogicalOrCoalescingBinaryExpression, isForEachStatement, FlowAssignment, FlowArrayMutation, Block, ConditionalExpression, WhileStatement, Statement, DoWhileStatement, ForStatement, ForEachStatement, BreakOrContinueStatement, SwitchStatement, FlowSwitchClause, CaseBlock, CallExpression, isAssignmentOperator, PropertyAccessExpression, ParenthesizedExpression, isLeftHandSideExpression, PostfixUnaryExpression, ArrayLiteralExpression, ObjectLiteralExpression, isBinaryLogicalOperator, isLogicalOrCoalescingAssignmentOperator, isParenthesizedExpression, isPrefixUnaryExpression, BinaryOperatorToken, isAssignmentTarget, ElementAccessExpression, isBinaryExpression, isDottedName, FlowCall, createBinaryExpressionTrampoline, CaseClause, CallChain, LeftHandSideExpression, skipParentheses, ParameterDeclaration, ExpressionStatement, FunctionDeclaration, removeFileExtension, hasEffectiveModifier, getCombinedModifierFlags, isExpression, isIdentifierName, identifierToKeywordKind, AccessExpression, BindingElement, TypeLiteralNode, JSDocTypeLiteral, EntityNameExpression, isVariableDeclaration, factory, isVariableDeclarationList, isVariableStatement, setNodeFlags, isBindingPattern, ArrayBindingElement } from "./_namespaces/lpc";
 
 const binder = /* @__PURE__ */ createBinder();
 
@@ -379,7 +379,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             }
             // We create a return control flow graph for IIFEs and constructors. For constructors
             // we use the return control flow graph in strict property initialization checks.
-            currentReturnTarget = isImmediatelyInvoked ? createBranchLabel() : undefined;
+            currentReturnTarget = isImmediatelyInvoked || (node.kind === SyntaxKind.FunctionDeclaration || node.kind === SyntaxKind.FunctionExpression) ? createBranchLabel() : undefined;
             currentExceptionTarget = undefined;
             currentBreakTarget = undefined;
             currentContinueTarget = undefined;
@@ -401,6 +401,9 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             if (currentReturnTarget) {
                 addAntecedent(currentReturnTarget, currentFlow);
                 currentFlow = finishFlowLabel(currentReturnTarget);                
+                if (node.kind === SyntaxKind.FunctionDeclaration || node.kind === SyntaxKind.FunctionExpression) {
+                    (node as FunctionLikeDeclaration).returnFlowNode = currentFlow;
+                }
             }
             if (!isImmediatelyInvoked) {
                 currentFlow = saveCurrentFlow;
@@ -552,7 +555,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
                 //if (isInJSFile(node)) {
                 //    bindCallExpression(node as CallExpression);
                 //}
-                return;
+                return;            
             case SyntaxKind.BindingElement:
                 (node as BindingElement).flowNode = currentFlow;
                 bindVariableDeclarationOrBindingElement(node as BindingElement);
@@ -588,7 +591,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
     
     function bindAnonymousTypeWorker(node: TypeLiteralNode | /*MappedTypeNode |*/ JSDocTypeLiteral) {
         return bindAnonymousDeclaration(node as Declaration, SymbolFlags.TypeLiteral, InternalSymbolName.Type);
-    }
+    }    
     
     function bindPropertyOrMethodOrAccessor(node: Declaration, symbolFlags: SymbolFlags, symbolExcludes: SymbolFlags) {
         // if (!file.isDeclarationFile && !(node.flags & NodeFlags.Ambient) && isAsyncFunction(node)) {
@@ -1014,7 +1017,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             // case SyntaxKind.EnumDeclaration:
             //     return declareSymbol(container.symbol.exports!, container.symbol, node, symbolFlags, symbolExcludes);
 
-            // case SyntaxKind.TypeLiteral:
+            case SyntaxKind.TypeLiteral:
             case SyntaxKind.JSDocTypeLiteral:
             // case SyntaxKind.ObjectLiteralExpression:
             // case SyntaxKind.InterfaceDeclaration:
@@ -1250,16 +1253,16 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
         }
     }
 
-    function bindInitializedVariableFlow(node: VariableDeclaration) {//| ArrayBindingElement) {
+    function bindInitializedVariableFlow(node: VariableDeclaration | ArrayBindingElement) {
         const name = node.name;// !isOmittedExpression(node) ? node.name : undefined;
-        // if (isBindingPattern(name)) {
-        //     for (const child of name.elements) {
-        //         bindInitializedVariableFlow(child);
-        //     }
-        // }
-        // else {
+        if (isBindingPattern(name)) {
+            for (const child of name.elements) {
+                bindInitializedVariableFlow(child);
+            }
+        }
+        else {
             currentFlow = createFlowMutation(FlowFlags.Assignment, currentFlow, node);
-        //}
+        }
     }
 
     function createFlowCall(antecedent: FlowNode, node: CallExpression) {
@@ -1268,7 +1271,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
         return createFlowNode(FlowFlags.Call, node, antecedent) as FlowCall;
     }
     
-    function createFlowMutation(flags: FlowFlags.Assignment | FlowFlags.ArrayMutation, antecedent: FlowNode, node: Expression | VariableDeclaration){//} | ArrayBindingElement) {
+    function createFlowMutation(flags: FlowFlags.Assignment | FlowFlags.ArrayMutation, antecedent: FlowNode, node: Expression | VariableDeclaration | ArrayBindingElement) {
         setFlowNodeReferenced(antecedent);
         hasFlowEffects = true;
         const result = createFlowNode(flags, node, antecedent) as FlowAssignment | FlowArrayMutation;

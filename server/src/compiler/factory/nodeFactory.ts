@@ -751,7 +751,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     // @api
-    function createCloneObjectExpression(expression: Expression, argumentsArray: readonly Expression[] | undefined): CloneObjectExpression {
+    function createCloneObjectExpression(expression: LeftHandSideExpression, argumentsArray: readonly Expression[] | undefined): CloneObjectExpression {
         const node = createBaseDeclaration<CloneObjectExpression>(SyntaxKind.CloneObjectExpression);
         node.expression = expression;                
         node.arguments = asNodeArray(argumentsArray);

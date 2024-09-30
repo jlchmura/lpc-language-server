@@ -576,6 +576,7 @@ export const enum SyntaxKind {
     // Elements
     FunctionDeclaration,
     ExportSpecifier,
+    ExportDeclaration,
 
     // Property Assignments
     PropertyAssignment,
@@ -2094,7 +2095,7 @@ export interface FlowCall extends FlowNodeBase {
 // i.e. an identifier or a dotted name that starts with an identifier or 'this'.
 /** @internal */
 export interface FlowAssignment extends FlowNodeBase {
-    node: Expression | VariableDeclaration;// | BindingElement;
+    node: Expression | VariableDeclaration | BindingElement;
     antecedent: FlowNode;
 }
 
@@ -2882,9 +2883,9 @@ export interface CallExpression extends LeftHandSideExpression, Declaration {
     readonly arguments: NodeArray<Expression>;
 }
 
-export interface CloneObjectExpression extends PrimaryExpression, Declaration {
+export interface CloneObjectExpression extends PrimaryExpression, Declaration, LeftHandSideExpression {
     readonly kind: SyntaxKind.CloneObjectExpression;
-    readonly expression: Expression;
+    readonly expression: LeftHandSideExpression;
     readonly arguments?: NodeArray<Expression>;
 }
 
@@ -5710,4 +5711,16 @@ export type OptionalChain =
     //| NonNullChain;
 
 
+export interface ExportDeclaration extends DeclarationStatement, JSDocContainer {
+    readonly kind: SyntaxKind.ExportDeclaration;
+    readonly parent: SourceFile ;
+    readonly modifiers?: NodeArray<Modifier>;
+    readonly isTypeOnly: boolean;
+    // /** Will not be assigned in the case of `export * from "foo";` */
+    // readonly exportClause?: NamedExportBindings;
+    /** If this is not a StringLiteral it will be a grammar error. */
+    readonly moduleSpecifier?: Expression;
+    // /** @deprecated */ readonly assertClause?: AssertClause;
+    readonly attributes?: ImportAttributes;
+}
     

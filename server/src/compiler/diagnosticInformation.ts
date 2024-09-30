@@ -164,4 +164,5 @@ export const Diagnostics = {
     Searching_all_ancestor_node_modules_directories_for_fallback_extensions_Colon_0: diag(6418, DiagnosticCategory.Message, "Searching_all_ancestor_node_modules_directories_for_fallback_extensions_Colon_0_6418", "Searching all ancestor node_modules directories for fallback extensions: {0}."),
     Directory_0_does_not_exist_skipping_all_lookups_in_it: diag(6148, DiagnosticCategory.Message, "Directory_0_does_not_exist_skipping_all_lookups_in_it_6148", "Directory '{0}' does not exist, skipping all lookups in it."),
     File_name_0_has_a_1_extension_stripping_it: diag(6132, DiagnosticCategory.Message, "File_name_0_has_a_1_extension_stripping_it_6132", "File name '{0}' has a '{1}' extension - stripping it."),
+    Module_0_has_already_exported_a_member_named_1_Consider_explicitly_re_exporting_to_resolve_the_ambiguity: diag(2308, DiagnosticCategory.Error, "Module_0_has_already_exported_a_member_named_1_Consider_explicitly_re_exporting_to_resolve_the_ambig_2308", "Module {0} has already exported a member named '{1}'. Consider explicitly re-exporting to resolve the ambiguity."),
 }
