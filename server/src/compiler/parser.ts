@@ -1388,6 +1388,7 @@ type ForEachChildTable = Partial<{ [TNode in ForEachChildNodes as TNode["kind"]]
 const forEachChildTable: ForEachChildTable = {
     [SyntaxKind.SourceFile]: function forEachChildInSourceFile<T>(node: SourceFile, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
         return visitNodes(cbNode, cbNodes, node.statements) 
+            || visitNodes(cbNode, cbNodes, node.inherits)
             || visitNode(cbNode, node.endOfFileToken);
     },
     [SyntaxKind.Parameter]: function forEachChildInParameter<T>(node: ParameterDeclaration, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {

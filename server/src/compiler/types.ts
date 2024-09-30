@@ -1097,6 +1097,7 @@ export interface Symbol {
     valueDeclaration?: Declaration;         // First value declaration of the symbol
     members?: SymbolTable;                  // Class, interface or object literal instance members
     exports?: SymbolTable;                  // Module exports
+    inherits?: Map<string,Type>;            // Inherited members 
     globalExports?: SymbolTable;            // Conditional global UMD exports
     /** @internal */ id: SymbolId;          // Unique id (used to look up SymbolLinks)
     /** @internal */ mergeId: number;       // Merge id (used to look up merged symbol)
