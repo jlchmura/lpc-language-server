@@ -1200,7 +1200,7 @@ export function createNameResolver({
         let withinDeferredContext = false;
         let grandparent: Node;
         const name = isString(nameArg) ? nameArg : (nameArg as Identifier).text;
-        let extraParents: Node[] = [];
+        
         loop:
         while (location) {
             // TODO HANDLE INCLUDE/INHERITS HERE?
@@ -1262,55 +1262,48 @@ export function createNameResolver({
             }
             withinDeferredContext = withinDeferredContext || getIsDeferredContext(location, lastLocation);
             switch (location.kind) {
-                case SyntaxKind.SourceFile:
-                    //if (!isExternalOrCommonJsModule(location as SourceFile)) break;
-                    // falls through
-                //case SyntaxKind.ModuleDeclaration:
-                    const moduleExports = getSymbolOfDeclaration(location as SourceFile /*| ModuleDeclaration*/)?.exports || emptySymbols;
-                    if (location.kind === SyntaxKind.SourceFile) {// || (isModuleDeclaration(location) && location.flags & NodeFlags.Ambient && !isGlobalScopeAugmentation(location))) {                                                                        
-                        const objectImports = getSymbolOfDeclaration(location as SourceFile).inherits || emptyMap;
-                        forEachEntry(objectImports, (imports, importName) => {
-                            // TODO: filter by import prefix here                            
-                            const importSymbolTable = imports?.symbol?.exports ?? emptySymbols;
-                            if (result = lookup(importSymbolTable, name, meaning)) {
-                                return result;
-                            }
-                        });
-                        if (result) {
-                            break loop;
-                        }
-                        //extraParents.push(...getObjectInheritNodes(location as SourceFile));
-
-                        // It's an external module. First see if the module has an export default and if the local
-                        // name of that export default matches.
-                        // if (result = moduleExports.get(InternalSymbolName.Default)) {
-                        //     const localSymbol = getLocalSymbolForExportDefault(result);
-                        //     if (localSymbol && (result.flags & meaning) && localSymbol.name === name) {
-                        //         break loop;
-                        //     }
-                        //     result = undefined;
-                        // }
-
-                        // Because of module/namespace merging, a module's exports are in scope,
-                        // yet we never want to treat an export specifier as putting a member in scope.
-                        // Therefore, if the name we find is purely an export specifier, it is not actually considered in scope.
-                        // Two things to note about this:
-                        //     1. We have to check this without calling getSymbol. The problem with calling getSymbol
-                        //        on an export specifier is that it might find the export specifier itself, and try to
-                        //        resolve it as an alias. This will cause the checker to consider the export specifier
-                        //        a circular alias reference when it might not be.
-                        //     2. We check === SymbolFlags.Alias in order to check that the symbol is *purely*
-                        //        an alias. If we used &, we'd be throwing out symbols that have non alias aspects,
-                        //        which is not the desired behavior.
-                        const moduleExport = moduleExports.get(name);
-                        if (
-                            moduleExport &&
-                            moduleExport.flags === SymbolFlags.Alias 
-                            // TODO && (getDeclarationOfKind(moduleExport, SyntaxKind.ExportSpecifier) || getDeclarationOfKind(moduleExport, SyntaxKind.NamespaceExport))
-                        ) {
-                            break;
-                        }
+                case SyntaxKind.SourceFile:                                    
+                    const importTypes = getSymbolOfDeclaration(location as SourceFile).inherits || emptyMap;
+                    result = forEachEntry(importTypes, (importType, importName) => {
+                        // TODO: filter by import prefix here                            
+                        const importSymbolTable = importType?.symbol?.exports ?? emptySymbols;
+                        return lookup(importSymbolTable, name, meaning);
+                    });
+                    if (result) {
+                        break loop;
                     }
+                    
+                    //const moduleExports = getSymbolOfDeclaration(location as SourceFile /*| ModuleDeclaration*/)?.exports || emptySymbols;                    
+                    
+                    // It's an external module. First see if the module has an export default and if the local
+                    // name of that export default matches.
+                    // if (result = moduleExports.get(InternalSymbolName.Default)) {
+                    //     const localSymbol = getLocalSymbolForExportDefault(result);
+                    //     if (localSymbol && (result.flags & meaning) && localSymbol.name === name) {
+                    //         break loop;
+                    //     }
+                    //     result = undefined;
+                    // }
+
+                    // Because of module/namespace merging, a module's exports are in scope,
+                    // yet we never want to treat an export specifier as putting a member in scope.
+                    // Therefore, if the name we find is purely an export specifier, it is not actually considered in scope.
+                    // Two things to note about this:
+                    //     1. We have to check this without calling getSymbol. The problem with calling getSymbol
+                    //        on an export specifier is that it might find the export specifier itself, and try to
+                    //        resolve it as an alias. This will cause the checker to consider the export specifier
+                    //        a circular alias reference when it might not be.
+                    //     2. We check === SymbolFlags.Alias in order to check that the symbol is *purely*
+                    //        an alias. If we used &, we'd be throwing out symbols that have non alias aspects,
+                    //        which is not the desired behavior.
+                    // const moduleExport = moduleExports.get(name);
+                    // if (
+                    //     moduleExport &&
+                    //     moduleExport.flags === SymbolFlags.Alias 
+                    //     // TODO && (getDeclarationOfKind(moduleExport, SyntaxKind.ExportSpecifier) || getDeclarationOfKind(moduleExport, SyntaxKind.NamespaceExport))
+                    // ) {
+                    //     break;
+                    // }                    
 
                     // ES6 exports are also visible locally (except for 'default'), but commonjs exports are not (except typedefs)
                     // if (name !== InternalSymbolName.Default && (result = lookup(moduleExports, name, meaning & SymbolFlags.ModuleMember))) {
@@ -1437,7 +1430,7 @@ export function createNameResolver({
             // location = isJSDocTemplateTag(location) ? getEffectiveContainerForJSDocTemplateTag(location) || location.parent :
             //     isJSDocParameterTag(location) || isJSDocReturnTag(location) ? getHostSignatureFromJSDoc(location) || location.parent :
             //     location.parent;
-            location = location.parent ?? extraParents.pop();
+            location = location.parent;
         }
 
         // We just climbed up parents looking for the name, meaning that we started in a descendant node of `lastLocation`.
