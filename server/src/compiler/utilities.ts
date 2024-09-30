@@ -1189,8 +1189,6 @@ export function createNameResolver({
         isUse: boolean,
         excludeGlobals?: boolean,
     ): Symbol | undefined {
-        if (nameArg === "id") debugger;
-
         const originalLocation = location; // needed for did-you-mean error reporting, which gathers candidates starting from the original location
         let result: Symbol | undefined;
         let lastLocation: Node | undefined;
@@ -5116,9 +5114,4 @@ export function trimQuotes(str: string) {
         return str.slice(1, -1);
     }
     return str;
-}
-
-
-export function getObjectInheritNodes(node: SourceFile): undefined | readonly InheritDeclaration[] {
-    return node.inherits;
 }

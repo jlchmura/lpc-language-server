@@ -108,11 +108,11 @@ session.updateOpen({
 // const diags = checker.getDiagnostics(srcFile);
 // const daigsB = srcFile.bindDiagnostics;
 
-const pos = 218;
+const pos = 64;
 const args: lpc.server.protocol.FileLocationRequestArgs = {
     file: fileRelativePath,
-    line: 0,
-    offset: pos,
+    line: 5,
+    offset: 13,
     position: pos, 
     projectFileName: projectFile
 };

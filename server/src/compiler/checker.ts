@@ -6431,8 +6431,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 potentialReflectCollisions = links.potentialReflectCollisions!;
                 //potentialUnusedRenamedBindingElementsInTypes = links.potentialUnusedRenamedBindingElementsInTypes!;
             }
-
-            forEach(node.inherits, checkSourceElement);
+            
             forEach(node.statements, checkSourceElement);
             checkSourceElement(node.endOfFileToken);
 

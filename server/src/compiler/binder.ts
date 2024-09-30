@@ -281,8 +281,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             //     bindJSDocImportTag(node as JSDocImportTag);
             //     break;
             case SyntaxKind.SourceFile: {
-                bindEachFunctionsFirst((node as SourceFile).statements);
-                bindEachFunctionsFirst((node as SourceFile).inherits);
+                bindEachFunctionsFirst((node as SourceFile).statements);                
                 bind((node as SourceFile).endOfFileToken);
                 break;
             }

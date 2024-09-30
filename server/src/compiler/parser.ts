@@ -1,11 +1,9 @@
 import * as antlr from "antlr4ng";
 import * as parserCore from "../parser3/parser-core";
-import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange, PrefixUnaryExpression, first, LanguageVariant, EqualsToken, LpcConfigSourceFile, createBaseNodeFactory, PrefixUnaryOperator, Program, LpcFileHandler, ParenthesizedExpression, ArrayLiteralExpression, LambdaExpression, PunctuationSyntaxKind, PunctuationToken, LambdaOperatorToken, CastExpression, PropertyAccessExpression, some, flatten, setNodeFlags, isIdentifier, CloneObjectExpression, NewExpression, trimQuotes } from "./_namespaces/lpc";
+import { BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange, PrefixUnaryExpression, first, LanguageVariant, EqualsToken, LpcConfigSourceFile, createBaseNodeFactory, PrefixUnaryOperator, Program, LpcFileHandler, ParenthesizedExpression, ArrayLiteralExpression, LambdaExpression, PunctuationSyntaxKind, PunctuationToken, LambdaOperatorToken, CastExpression, PropertyAccessExpression, isIdentifier, CloneObjectExpression, NewExpression, trimQuotes } from "./_namespaces/lpc";
 import { ILpcConfig } from "../config-types";
 import { loadLpcConfigFromString, LpcConfig } from "../backend/LpcConfig";
 import { LPCTokenFactor } from "../parser3/LPCTokenFactory";
-import { get } from "http";
-
 
 export namespace LpcParser {
     // Init some ANTLR stuff    
@@ -129,14 +127,32 @@ export namespace LpcParser {
         // execute the antlr parser
         const tree = programTree = parser.program();
         const eofToken = parseTokenNode<EndOfFileToken>(tree.EOF());
-        const statements = parseList(tree.declaration(), parseStatementWorker);
-        const inherits = parseList(tree.inheritStatement(), parseInheritStatement);
-        const sourceFile = createSourceFile(fileName, statements, eofToken);
+        const statements: (Statement|InheritDeclaration)[] = [];
+        
+        let listStart=0, listEnd = 0;
+        forEach(tree.children, child => {        
+            let node: Statement | InheritDeclaration;
+            if (child instanceof parserCore.InheritStatementContext) {                
+                node = parseInheritStatement(child);
+            } else if (child instanceof parserCore.DeclarationContext) {
+                node = parseDeclaration(child);
+            } else {
+                return undefined; // skip to next one
+            }
+
+            listEnd = node.end;
+            statements.push(node);
+        });
+        
+        listStart = statements.at(0)?.pos ?? 0;
+        const statementList = createNodeArray(statements, listStart, listEnd);        
+
+        const sourceFile = createSourceFile(fileName, statementList, eofToken);
 
         sourceFile.nodeCount = nodeCount;
         sourceFile.identifierCount = identifierCount;
         sourceFile.identifiers = identifiers;
-        sourceFile.inherits = inherits;        
+        //sourceFile.inherits = inherits;        
         sourceFile.parseDiagnostics = attachFileToDiagnostics(parseDiagnostics, sourceFile);        
 
         return sourceFile;
@@ -302,22 +318,26 @@ export namespace LpcParser {
 
     function parseList<T extends Node, R extends antlr.ParserRuleContext>(
         parseTrees: R[],
-        parseElement: (parseTree: R) => T
+        parseElement: (parseTree: R) => T,
+        listPos: number = -1,
+        listEnd: number = -1
     ): NodeArray<T> {
-        if (!parseTrees || parseTrees.length==0) return undefined;
+        if (!parseTrees) return undefined;
         const list = [];
-        let {pos,end} = getNodePos(parseTrees.at(0));        
+        let pos = listPos, end = listEnd;
+        if (parseTrees.length >= 1) {
+            pos = getNodePos(parseTrees.at(0)).pos;
 
-        for (const parseTree of parseTrees) {
-            const node = parseElement(parseTree);
-            if (!node) {
-                const nn = parseElement(parseTree);
+            for (const parseTree of parseTrees) {
+                const node = parseElement(parseTree);
+                if (!node) {
+                    const nn = parseElement(parseTree);
+                }
+                Debug.assertIsDefined(node, "parseElement returned undefined");            
+                end = node.end;
+                list.push(node);
             }
-            Debug.assertIsDefined(node, "parseElement returned undefined");            
-            end = node.end;
-            list.push(node);
         }
-
         return createNodeArray(list, pos, end);
     }
 
@@ -1004,7 +1024,10 @@ export namespace LpcParser {
             
             const args = argCtxList ? parseCallArguments(argCtxList) : undefined;
 
-            const {pos, end} = getNodePos(argCtxList);
+            let {pos, end} = argCtxList 
+                ? getNodePos(argCtxList) 
+                : { pos: invocationContext.PAREN_OPEN()?.symbol.start, end: invocationContext.PAREN_CLOSE()?.symbol.stop };
+            
             const argNodes = createNodeArray(args, pos, end);
             expression = finishNode(factory.createCallExpression(expression, argNodes), getFilename(tree), callPos, callEnd);
         }
@@ -1235,15 +1258,17 @@ export namespace LpcParser {
         const header = tree.functionHeader();
         const {end} = getNodePos(tree);
 
-        const name = header._functionName;        
+        const name = header._functionName;                
         const modifiers = parseModifiers(header.functionModifier());
         const identifier = parseValidIdentifier(name);
 
         const returnType = parseType(
             header.typeSpecifier()?.unionableTypeSpecifier()
         );
-
-        const parameters = parseList(header._functionArgs?.parameter(), parseFunctionParameter);
+        
+        const argPos = header.PAREN_OPEN()?.symbol.start;
+        const argEnd = header.PAREN_CLOSE()?.symbol.stop;
+        const parameters = parseList(header._functionArgs?.parameter() ?? [], parseFunctionParameter, argPos, argEnd);
 
         let body:Block | undefined;
         if (tree.ruleIndex === parserCore.LPCParser.RULE_functionDeclaration) {
@@ -1386,9 +1411,8 @@ type ForEachChildFunction<TNode> = <T>(node: TNode, cbNode: (node: Node) => T | 
 type ForEachChildTable = Partial<{ [TNode in ForEachChildNodes as TNode["kind"]]: ForEachChildFunction<TNode>; }>;
 // ^ that type really shouldn't be partial, but I've set it that way until this is filled out.
 const forEachChildTable: ForEachChildTable = {
-    [SyntaxKind.SourceFile]: function forEachChildInSourceFile<T>(node: SourceFile, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
-        return visitNodes(cbNode, cbNodes, node.statements) 
-            || visitNodes(cbNode, cbNodes, node.inherits)
+    [SyntaxKind.SourceFile]: function forEachChildInSourceFile<T>(node: SourceFile, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {        
+        return visitNodes(cbNode, cbNodes, node.statements)
             || visitNode(cbNode, node.endOfFileToken);
     },
     [SyntaxKind.Parameter]: function forEachChildInParameter<T>(node: ParameterDeclaration, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
@@ -1401,10 +1425,10 @@ const forEachChildTable: ForEachChildTable = {
     },    
     [SyntaxKind.FunctionDeclaration]: function forEachChildInFunctionDeclaration<T>(node: FunctionDeclaration, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
         return visitNodes(cbNode, cbNodes, node.modifiers) ||
+            visitNode(cbNode, node.type) ||
             visitNode(cbNode, node.asteriskToken) ||
             visitNode(cbNode, node.name) ||            
-            visitNodes(cbNode, cbNodes, node.parameters) ||
-            visitNode(cbNode, node.type) ||
+            visitNodes(cbNode, cbNodes, node.parameters) ||            
             visitNode(cbNode, node.body);
     },
     [SyntaxKind.FunctionExpression]: function forEachChildInFunctionExpression<T>(node: FunctionExpression, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {

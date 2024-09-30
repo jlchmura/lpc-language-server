@@ -2308,8 +2308,7 @@ export interface SourceFile extends Declaration, LocalsContainer {
     /** @internal */ classifiableNames?: ReadonlySet<string>;
     // // Comments containing @ts-* directives, in order.
     // /** @internal */ commentDirectives?: CommentDirective[];
-    /** @internal */ imports: readonly StringLiteral[];
-    /** @internal */ inherits: NodeArray<InheritDeclaration>;
+    /** @internal */ imports: readonly StringLiteral[];    
     // Identifier only if `declare global`
     ///** @internal */ moduleAugmentations: readonly (StringLiteral | Identifier)[];    
     /** @internal */ ambientModuleNames: readonly string[];    

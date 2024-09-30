@@ -1,5 +1,4 @@
 import {
-    addRange,
     AmpersandToken,
     ArrayLiteralExpression,
     ArrayTypeNode,
@@ -54,10 +53,11 @@ import {
     InheritDeclaration,
     InlineClosureExpression,
     IntLiteral,
-    isIdentifier,
-    isLocalName,
+    isIdentifier,    
+    isNamedDeclaration,
     isNodeArray,
     isNodeKind,
+    isPropertyName,
     isSourceFile,
     KeywordSyntaxKind,
     KeywordToken,
@@ -96,8 +96,7 @@ import {
     QualifiedName,
     QuestionToken,
     ReturnStatement,
-    setIdentifierTypeArguments,
-    setTextRange,
+    setIdentifierTypeArguments,    
     SourceFile,
     Statement,
     StringLiteral,
@@ -105,6 +104,7 @@ import {
     SyntaxKind,
     Token,
     TokenFlags,
+    TransformFlags,
     TrueLiteral,
     TypeElement,
     TypeLiteralNode,
@@ -296,12 +296,11 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         // repeatedly calling push(), the list may not have the optimal memory layout. We invoke slice() for
         // small arrays (1 to 4 elements) to give the VM a chance to allocate an optimal representation.
         const length = elements.length;
-        const array = (
-            length >= 1 && length <= 4 ? elements.slice() : elements
-        ) as MutableNodeArray<T>;
+        const array = (length >= 1 && length <= 4 ? elements.slice() : elements) as MutableNodeArray<T>;
         array.pos = -1;
         array.end = -1;
         array.hasTrailingComma = !!hasTrailingComma;
+        aggregateChildrenFlags(array);
         Debug.attachNodeArrayDebugInfo(array);
         return array;
     }
@@ -1312,3 +1311,21 @@ const syntheticFactory: BaseNodeFactory = {
     createBaseNode: kind => makeSynthetic(baseFactory.createBaseNode(kind)),
 };
 export const factory = createNodeFactory(NodeFactoryFlags.NoIndentationOnFreshPropertyAccess, syntheticFactory);
+
+function propagatePropertyNameFlagsOfChild(node: PropertyName, transformFlags: TransformFlags) {
+    return transformFlags;// | (node.transformFlags & TransformFlags.PropertyNamePropagatingFlags);
+}
+
+function propagateChildFlags(child: Node | undefined): TransformFlags {
+    if (!child) return TransformFlags.None;
+    const childFlags = child.transformFlags;// & ~getTransformFlagsSubtreeExclusions(child.kind);
+    return isNamedDeclaration(child) && isPropertyName(child.name) ? propagatePropertyNameFlagsOfChild(child.name, childFlags) : childFlags;
+}
+
+function aggregateChildrenFlags(children: MutableNodeArray<Node>) {
+    let subtreeFlags = TransformFlags.None;
+    for (const child of children) {
+        subtreeFlags |= propagateChildFlags(child);
+    }
+    children.transformFlags = subtreeFlags;
+}
