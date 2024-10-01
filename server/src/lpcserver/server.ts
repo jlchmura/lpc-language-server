@@ -47,6 +47,8 @@ export function start(connection: Connection, platform: string) {
 
         const config = loadLpcConfig(projectFileName);
 
+        const host = lpc.sys as lpc.server.ServerHost;
+        host.setImmediate = setImmediate;
         const session = new lpc.server.Session({
             host: lpc.sys as lpc.server.ServerHost,
             cancellationToken: lpc.server.nullCancellationToken,
@@ -107,13 +109,23 @@ export function start(connection: Connection, platform: string) {
             };
         }
 
-        documents.onDidOpen(e => {
-            const filename = lpc.normalizePath(fromUri(e.document.uri));
+        function docOpenChange(e: TextDocument) {
+            const filename = lpc.normalizePath(fromUri(e.uri));
             session.updateOpen({
                 openFiles: [{file: filename, projectFileName }],
             });
+            
+            session.getDiagnosticsForFiles({files: [filename], delay: 0});
+        }
+
+        documents.onDidOpen(e => {            
+            docOpenChange(e.document);
         });
-        
+
+        documents.onDidChangeContent(e => {
+            docOpenChange(e.document);
+        });
+
         connection.onHover(requestParams => {
             logger.info("Hover request");
                                     

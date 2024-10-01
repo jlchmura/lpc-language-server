@@ -1561,6 +1561,7 @@ export let sys: System = (() => {
             clearScreen: () => {
                 process.stdout.write("\x1Bc");
             },
+            
             setBlocking: () => {
                 const handle = (process.stdout as any)?._handle as { setBlocking?: (value: boolean) => void; };
                 if (handle && handle.setBlocking) {

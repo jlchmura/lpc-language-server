@@ -378,7 +378,7 @@ export class Session<T> {
         // const diags = isDeclarationFileInJSOnlyNonConfiguredProject(project, file)
         //     ? emptyArray
         //     : project.getLanguageService().getSemanticDiagnostics(file).filter(d => !!d.file);
-        const diags = emptyArray;
+        const diags = project.getLanguageService().getSemanticDiagnostics(file).filter(d => !!d.file);        
         this.sendDiagnosticsEvent(file, project, diags, "semanticDiag");
         tracing?.pop();
     }
@@ -488,7 +488,7 @@ export class Session<T> {
         }
     }
     
-    public getDiagnosticsForFiles(args: protocol.DiagnosticRequestArgs) {
+    public getDiagnosticsForFiles(args: protocol.DiagnosticRequestArgs) {        
         this.errorCheck.startNew(next => this.getDiagnostics(next, args.delay, args.files));
     }
 

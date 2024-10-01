@@ -1171,7 +1171,8 @@ class SignatureObject implements Signature {
     }
 
     getDocumentationComment(): SymbolDisplayPart[] {
-        throw "implement me";
+        console.log("implement me - getDocumentationComment");
+        return [];
         //return this.documentationComment || (this.documentationComment = getDocumentationComment(singleElementArray(this.declaration), this.checker));
     }
 

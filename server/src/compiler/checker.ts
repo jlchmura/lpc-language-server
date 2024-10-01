@@ -240,7 +240,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         signatureToString,
         getDiagnostics,
         getAliasedSymbol: resolveAlias,
-        getSymbolAtLocation,
+        getSymbolAtLocation: nodeIn => {
+            const node = getParseTreeNode(nodeIn);
+            // set ignoreErrors: true because any lookups invoked by the API shouldn't cause any new errors
+            return node ? getSymbolAtLocation(node, /*ignoreErrors*/ true) : undefined;
+        },
         symbolToString,
         getRootSymbols,
         getEmitResolver,
