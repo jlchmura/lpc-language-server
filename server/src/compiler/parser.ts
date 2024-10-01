@@ -140,7 +140,7 @@ export namespace LpcParser {
                 return undefined; // skip to next one
             }
 
-            listEnd = node.end;
+            listEnd = node?.end ?? listEnd;
             statements.push(node);
         });
         
@@ -624,6 +624,10 @@ export namespace LpcParser {
                 return parseFunctionDeclaration(treeNode as parserCore.FunctionDeclarationContext, pos, getPrecedingJSDocBlock(tree));
             case parserCore.LPCParser.RULE_variableDeclarationStatement:
                 return parseVariableStatement(treeNode as parserCore.VariableDeclarationStatementContext);
+            case parserCore.LPCParser.RULE_structDeclaration:
+                parseErrorAt(pos, pos, Diagnostics.Structs_not_supported);
+                console.warn("TODO - parser - struct declaration");
+                return undefined; //return parseStructDeclaration(treeNode as parserCore.StructDeclarationContext);
         }
 
         Debug.fail("Unhandled declaration type");
@@ -854,6 +858,9 @@ export namespace LpcParser {
                     break;
                 case parserCore.LPCLexer.BNOT:
                     opKind = SyntaxKind.TildeToken;
+                    break;
+                case parserCore.LPCLexer.DOUBLEBANG:
+                    opKind = SyntaxKind.DoubleExclamationToken;
                     break;
                 default:
                     Debug.fail("Unknown unary operator " + tree?.children[0]?.getText());
@@ -1179,7 +1186,7 @@ export namespace LpcParser {
         tree: antlr.ParserRuleContext, isIdentifier: boolean
         //diagnosticMessage?: DiagnosticMessage, privateIdentifierDiagnosticMessage?: DiagnosticMessage
     ): Identifier {
-        if (isIdentifier) {
+        if (isIdentifier && tree) {
             identifierCount++;
             const {pos,end} = getNodePos(tree);
             
@@ -1189,7 +1196,7 @@ export namespace LpcParser {
             return finishNode(factory.createIdentifier(text), getFilename(tree), pos, end);
         }
 
-        // TODO: handle error nodes here
+        // TODO: handle error nodes here        
     }
 
     function parseStatementList(tree: parserCore.StatementContext[]): NodeArray<Statement> {
@@ -1327,6 +1334,7 @@ export const LexerToSyntaxKind: { [key: number]: SyntaxKind } = {
     [parserCore.LPCLexer.UNKNOWN]: SyntaxKind.UnknownKeyword,
     [parserCore.LPCLexer.STRUCT]: SyntaxKind.StructKeyword,
     [parserCore.LPCLexer.VOID]: SyntaxKind.VoidKeyword,
+    [parserCore.LPCLexer.BUFFER]: SyntaxKind.ObjectKeyword, // TODO: create syntax kind
     [parserCore.LPCLexer.OBJECT]: SyntaxKind.ObjectKeyword,
     [parserCore.LPCLexer.BYTES]: SyntaxKind.ObjectKeyword, // LPC bytes, treat as object for now
     [parserCore.LPCLexer.LWOBJECT]: SyntaxKind.ObjectKeyword, // LPC lwobject is an object
@@ -1335,6 +1343,7 @@ export const LexerToSyntaxKind: { [key: number]: SyntaxKind } = {
     [parserCore.LPCLexer.LPCTYPE]: SyntaxKind.TypeLiteral,
     [parserCore.LPCLexer.QUOTEDARRAY]: SyntaxKind.ObjectKeyword, // TODO: create syntax kind
     [parserCore.LPCLexer.COROUTINE]: SyntaxKind.FunctionKeyword, // TODO: create syntax kind
+    [parserCore.LPCLexer.FUNCTION]: SyntaxKind.FunctionKeyword,
     // MODIFIERS
     [parserCore.LPCLexer.PRIVATE]: SyntaxKind.PrivateKeyword,
     [parserCore.LPCLexer.PROTECTED]: SyntaxKind.ProtectedKeyword,
