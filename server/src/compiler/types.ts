@@ -1,7 +1,7 @@
 import { LpcConfig } from "../backend/LpcConfig.js";
 import { IFileHandler, LoadImportResult } from "../backend/types.js";
 import { ILpcConfig } from "../config-types.js";
-import { BaseNodeFactory, EmitHelperFactory, GetCanonicalFileName, MapLike, MultiMap, Mutable, NodeFactoryFlags, Pattern } from "./_namespaces/lpc.js";
+import { BaseNodeFactory, CreateSourceFileOptions, EmitHelperFactory, GetCanonicalFileName, MapLike, MultiMap, Mutable, NodeFactoryFlags, Pattern } from "./_namespaces/lpc.js";
 
 // Note: 'brands' in our syntax nodes serve to give us a small amount of nominal typing.
 // Consider 'Expression'.  Without the brand, 'Expression' is actually no different
@@ -4270,8 +4270,8 @@ export type WriteFileCallback = (
 ) => void;
 
 export interface CompilerHost extends ModuleResolutionHost {
-    getSourceFile(fileName: string, onError?: (message: string) => void, shouldCreateNewSourceFile?: boolean): SourceFile | undefined;
-    getSourceFileByPath?(fileName: string, path: Path, onError?: (message: string) => void, shouldCreateNewSourceFile?: boolean): SourceFile | undefined;
+    getSourceFile(fileName: string, languageVersionOrOptions: ScriptTarget | CreateSourceFileOptions, onError?: (message: string) => void, shouldCreateNewSourceFile?: boolean): SourceFile | undefined;
+    getSourceFileByPath?(fileName: string, path: Path, languageVersionOrOptions: ScriptTarget | CreateSourceFileOptions, onError?: (message: string) => void, shouldCreateNewSourceFile?: boolean): SourceFile | undefined;
     getCancellationToken?(): CancellationToken;
     getDefaultLibFileName(options: CompilerOptions): string;
     getDefaultLibLocation?(): string;

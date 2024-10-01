@@ -138,6 +138,7 @@ import {
     LanguageServiceMode,
     LpcFileHandler,
     Diagnostic,
+    getScriptKind,
 } from "./_namespaces/lpc.js";
 
 // These utilities are common to multiple language service features.
@@ -1439,7 +1440,8 @@ export function createLanguageService(
 
         function getOrCreateSourceFile(
             fileName: string,
-            /*languageVersionOrOptions: ScriptTarget | CreateSourceFileOptions, */ onError?: (
+            languageVersionOrOptions: ScriptTarget | CreateSourceFileOptions,  
+            onError?: (
                 message: string
             ) => void,
             shouldCreateNewSourceFile?: boolean
@@ -1447,7 +1449,8 @@ export function createLanguageService(
             return getOrCreateSourceFileByPath(
                 fileName,
                 toPath(fileName, currentDirectory, getCanonicalFileName),
-                /*languageVersionOrOptions,*/ onError,
+                languageVersionOrOptions, 
+                onError,
                 shouldCreateNewSourceFile
             );
         }
@@ -1486,7 +1489,8 @@ export function createLanguageService(
         function getOrCreateSourceFileByPath(
             fileName: string,
             path: Path,
-            /*languageVersionOrOptions: ScriptTarget | CreateSourceFileOptions, */ _onError?: (
+            languageVersionOrOptions: ScriptTarget | CreateSourceFileOptions, 
+            _onError?: (
                 message: string
             ) => void,
             shouldCreateNewSourceFile?: boolean
@@ -1503,7 +1507,7 @@ export function createLanguageService(
                 return undefined;
             }
 
-            //const scriptKind = getScriptKind(fileName, host);
+            const scriptKind = getScriptKind(fileName, host);
             const scriptVersion = host.getScriptVersion(fileName);
 
             // Check if the language version has changed since we last created a program; if they are the same,
@@ -1539,31 +1543,12 @@ export function createLanguageService(
                     // We do not support the scenario where a host can modify a registered
                     // file's script kind, i.e. in one project some file is treated as ".ts"
                     // and in another as ".js"
-                    if (
-                        /*scriptKind === oldSourceFile.scriptKind || */ releasedScriptKinds!.has(
-                            oldSourceFile.resolvedPath
-                        )
-                    ) {
-                        return documentRegistry.updateDocumentWithKey(
-                            fileName,
-                            path,
-                            host,
-                            documentRegistryBucketKey,
-                            scriptSnapshot,
-                            scriptVersion
-                            // scriptKind,
-                            // languageVersionOrOptions
-                        );
-                    } else {
+                    if (scriptKind === oldSourceFile.scriptKind || releasedScriptKinds!.has(oldSourceFile.resolvedPath)) {
+                        return documentRegistry.updateDocumentWithKey(fileName, path, host, documentRegistryBucketKey, scriptSnapshot, scriptVersion, scriptKind, languageVersionOrOptions);
+                    }
+                    else {
                         // Release old source file and fall through to aquire new file with new script kind
-                        documentRegistry.releaseDocumentWithKey(
-                            oldSourceFile.resolvedPath,
-                            documentRegistry.getKeyForCompilationSettings(
-                                program.getCompilerOptions()
-                            ),
-                            oldSourceFile.scriptKind
-                            // oldSourceFile.impliedNodeFormat
-                        );
+                        documentRegistry.releaseDocumentWithKey(oldSourceFile.resolvedPath, documentRegistry.getKeyForCompilationSettings(program.getCompilerOptions()), oldSourceFile.scriptKind, oldSourceFile.impliedNodeFormat);
                         releasedScriptKinds!.add(oldSourceFile.resolvedPath);
                     }
                 }

@@ -12,6 +12,7 @@ import {
     ResolvedModule,
     ResolvedModuleWithFailedLookupLocations,
     ResolvedProjectReference,
+    ScriptKind,
     SourceFile,
     SourceFileLike,
     StringLiteral,
@@ -470,7 +471,7 @@ export interface LanguageServiceHost
 
     getProjectVersion?(): string;
     getScriptFileNames(): string[];
-    //getScriptKind?(fileName: string): ScriptKind;
+    getScriptKind?(fileName: string): ScriptKind;
     getScriptVersion(fileName: string): string;
     getScriptSnapshot(fileName: string): IScriptSnapshot | undefined;
     getProjectReferences?(): readonly ProjectReference[] | undefined;

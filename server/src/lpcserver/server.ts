@@ -131,7 +131,7 @@ export function start(connection: Connection, platform: string) {
 
         const result: InitializeResult = {
             capabilities: {
-                textDocumentSync: TextDocumentSyncKind.Incremental,
+                textDocumentSync: TextDocumentSyncKind.Incremental,                
                 // Tell the client that this server supports code completion.
                 // completionProvider: {
                 //     resolveProvider: true,
@@ -163,21 +163,41 @@ export function start(connection: Connection, platform: string) {
             };
         }
 
-        function docOpenChange(e: TextDocument) {
-            const filename = lpc.normalizePath(fromUri(e.uri));
+        documents.onDidOpen(e => {            
+            const filename = lpc.normalizePath(fromUri(e.document.uri));
             session.updateOpen({
                 openFiles: [{file: filename, projectFileName }],
             });
             
             session.getDiagnosticsForFiles({files: [filename], delay: 0});
-        }
-
-        documents.onDidOpen(e => {            
-            docOpenChange(e.document);
         });
+               
+        documents.onDidClose(e => {
+            const filename = lpc.normalizePath(fromUri(e.document.uri));                        
+            session.updateOpen({
+                closedFiles: [filename],
+            });
+        })
 
-        documents.onDidChangeContent(e => {
-            docOpenChange(e.document);
+        connection.onDidChangeTextDocument((e: ls.DidChangeTextDocumentParams) => {
+            const filename = lpc.normalizePath(fromUri(e.textDocument.uri));
+            const lspChanges = e.contentChanges;
+            
+            // convert LSP text change to LPC CodeEdits
+            const changes: protocol.CodeEdit[] = [];
+            for (const lspChange of lspChanges) {
+                if (ls.TextDocumentContentChangeEvent.isIncremental(lspChange)) {
+                    changes.push({start: lspPosToLpcPos(lspChange.range.start), end: lspPosToLpcPos(lspChange.range.end), newText: lspChange.text});
+                } else {
+                    changes.push({start: {line: 1, offset: 1}, end: {line: 1, offset: 1}, newText: lspChange.text});
+                }
+            }
+
+            session.updateOpen({
+                changedFiles: [{fileName: filename, textChanges: changes }],
+            });
+
+            session.getDiagnosticsForFiles({files: [filename], delay: 100});
         });
 
         connection.onHover(requestParams => {
@@ -186,7 +206,7 @@ export function start(connection: Connection, platform: string) {
             const args: lpc.server.protocol.FileLocationRequestArgs = {
                 file: lpc.convertToRelativePath(fromUri(requestParams.textDocument.uri), rootFolder, f=>canonicalFilename(f)),                
                 projectFileName,
-                ...lspPosToLpcPos(requestParams),
+                ...posParamToLpcPos(requestParams),
             };
 
             const result = session.getQuickInfoWorker(args, false) as lpc.QuickInfo;
@@ -232,10 +252,15 @@ export function start(connection: Connection, platform: string) {
 //lpc.setStackTraceLimit();
 //start(require("os").platform());
 
-function lspPosToLpcPos(args: Pick<TextDocumentPositionParams, "position">): Pick<protocol.FileLocationRequestArgs, "line" | "offset"> {
+function posParamToLpcPos(args: Pick<TextDocumentPositionParams, "position">): protocol.Location {
     const {position} = args;    
     return { line: position.line + 1, offset: position.character + 1};
 }
+
+function lspPosToLpcPos(position: ls.Position): protocol.Location {        
+    return { line: position.line + 1, offset: position.character + 1};
+}
+
 
 function locationToLspPosition(loc: protocol.Location): Position {
     return {        

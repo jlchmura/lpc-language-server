@@ -354,7 +354,8 @@ export namespace LpcParser {
 
     function parseStatement(tree: parserCore.StatementContext): Statement {
         if (tree.children.length > 1 && tree.children[1].getText() != ";") {
-            Debug.assertEqual(tree.children.length, 1, "Expected only 1 child statement");
+            const intv = tree.children[1].getSourceInterval();
+            parseErrorAtPosition(intv.start, intv.start + intv.length, Diagnostics.Semicolon_expected);            
         }
         return parseStatementWorker(tree.children[0] as antlr.ParserRuleContext);
     }
@@ -616,7 +617,7 @@ export namespace LpcParser {
         const treeNode = tree.getChild(0) as antlr.ParserRuleContext;
         const {pos} = getNodePos(tree);
         
-        if  (!treeNode) return undefined; // TODO create error node here
+        if  (!treeNode || !treeNode.ruleIndex) return undefined; // TODO create error node here
 
         switch (treeNode.ruleIndex) {
             case parserCore.LPCParser.RULE_functionHeaderDeclaration:

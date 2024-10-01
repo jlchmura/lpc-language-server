@@ -7,6 +7,7 @@ function diag(code: number, category: DiagnosticCategory, key: string, message: 
 export const Diagnostics = {
     // LPC-specific
     Structs_not_supported: diag(9001, DiagnosticCategory.Error, "Structs_not_supported_2352", "Structs not supported."),
+    Semicolon_expected: diag(9002, DiagnosticCategory.Error, "Semicolon_expected_1005", "Semicolon expected."),
 
     // Scanner
     Asterisk_Slash_expected: diag(1010, DiagnosticCategory.Error, "Asterisk_Slash_expected_1010", "'*/' expected."),

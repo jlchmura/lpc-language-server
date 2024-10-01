@@ -1779,9 +1779,8 @@ export class ProjectService {
             for (const file of changedFiles) {
                 const scriptInfo = this.getScriptInfo(file.fileName)!;
                 Debug.assert(!!scriptInfo);
-                // Make edits to script infos and marks containing project as dirty
-                Debug.fail("implement me");
-                // this.applyChangesToFile(scriptInfo, file.changes);
+                // Make edits to script infos and marks containing project as dirty                
+                this.applyChangesToFile(scriptInfo, file.changes);
             }
         }
 
@@ -1815,6 +1814,13 @@ export class ProjectService {
         }
         else if (length(closedFiles)) {
             this.printProjects();
+        }
+    }
+
+    /** @internal */
+    applyChangesToFile(scriptInfo: ScriptInfo, changes: Iterable<TextChange>) {
+        for (const change of changes) {            
+            scriptInfo.editContent(change.span.start, change.span.start + change.span.length, change.newText);
         }
     }
 

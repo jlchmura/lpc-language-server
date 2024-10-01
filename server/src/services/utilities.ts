@@ -57,6 +57,9 @@ import {
     isTypeParameterDeclaration,
     or,
     JSDocTypedefTag,
+    LanguageServiceHost,
+    ScriptKind,
+    ensureScriptKind,
 } from "./_namespaces/lpc.js";
 
 /** @internal */
@@ -764,4 +767,11 @@ export function getMeaningFromLocation(node: Node): SemanticMeaning {
     else {
         return SemanticMeaning.Value;
     }
+}
+
+/** @internal */
+export function getScriptKind(fileName: string, host: LanguageServiceHost): ScriptKind {
+    // First check to see if the script kind was specified by the host. Chances are the host
+    // may override the default script kind for the file extension.
+    return ensureScriptKind(fileName, host.getScriptKind && host.getScriptKind(fileName));
 }

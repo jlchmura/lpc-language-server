@@ -833,7 +833,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         const sourceFileOptions = getCreateSourceFileOptions(fileName, /*moduleResolutionCache*/ undefined, host, options);
         const file = host.getSourceFile(
             fileName,
-            //sourceFileOptions,
+            sourceFileOptions,
             hostErrorMessage => addFilePreprocessingFileExplainingDiagnostic(/*file*/ undefined, reason, Diagnostics.Cannot_read_file_0_Colon_1, [fileName, hostErrorMessage]),
             shouldCreateNewSourceFile,
         );
@@ -1558,7 +1558,7 @@ export function createGetSourceFile(
     setParentNodes: boolean | undefined,
     fileHandler: LpcFileHandler
 ): CompilerHost["getSourceFile"] {
-    return (fileName, onError) => {
+    return (fileName, languageVersionOrOptions, onError) => {
         let text: string | undefined;
         try {
             performance.mark("beforeIORead");
@@ -1572,7 +1572,7 @@ export function createGetSourceFile(
             }
             text = "";
         }
-        return text !== undefined ? createSourceFile(fileName, text, config, fileHandler, ScriptTarget.LPC, setParentNodes) : undefined;
+        return text !== undefined ? createSourceFile(fileName, text, config, fileHandler, ScriptTarget.LPC, setParentNodes, ScriptKind.LPC) : undefined;
     };
 }
 
