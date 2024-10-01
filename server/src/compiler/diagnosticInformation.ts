@@ -8,6 +8,33 @@ export const Diagnostics = {
     // LPC-specific
     Structs_not_supported: diag(9001, DiagnosticCategory.Error, "Structs_not_supported_2352", "Structs not supported."),
 
+    // Scanner
+    Asterisk_Slash_expected: diag(1010, DiagnosticCategory.Error, "Asterisk_Slash_expected_1010", "'*/' expected."),
+    Hexadecimal_digit_expected: diag(1125, DiagnosticCategory.Error, "Hexadecimal_digit_expected_1125", "Hexadecimal digit expected."),
+    Invalid_character: diag(1127, DiagnosticCategory.Error, "Invalid_character_1127", "Invalid character."),
+    can_only_be_used_at_the_start_of_a_file: diag(18026, DiagnosticCategory.Error, "can_only_be_used_at_the_start_of_a_file_18026", "'#!' can only be used at the start of a file."),
+    File_appears_to_be_binary: diag(1490, DiagnosticCategory.Error, "File_appears_to_be_binary_1490", "File appears to be binary."),
+    Multiple_consecutive_numeric_separators_are_not_permitted: diag(6189, DiagnosticCategory.Error, "Multiple_consecutive_numeric_separators_are_not_permitted_6189", "Multiple consecutive numeric separators are not permitted."),
+    Numeric_separators_are_not_allowed_here: diag(6188, DiagnosticCategory.Error, "Numeric_separators_are_not_allowed_here_6188", "Numeric separators are not allowed here."),
+    Unterminated_string_literal: diag(1002, DiagnosticCategory.Error, "Unterminated_string_literal_1002", "Unterminated string literal."),
+    An_extended_Unicode_escape_value_must_be_between_0x0_and_0x10FFFF_inclusive: diag(1198, DiagnosticCategory.Error, "An_extended_Unicode_escape_value_must_be_between_0x0_and_0x10FFFF_inclusive_1198", "An extended Unicode escape value must be between 0x0 and 0x10FFFF inclusive."),
+    Unexpected_end_of_text: diag(1126, DiagnosticCategory.Error, "Unexpected_end_of_text_1126", "Unexpected end of text."),
+    Unterminated_Unicode_escape_sequence: diag(1199, DiagnosticCategory.Error, "Unterminated_Unicode_escape_sequence_1199", "Unterminated Unicode escape sequence."),
+    Octal_escape_sequences_and_backreferences_are_not_allowed_in_a_character_class_If_this_was_intended_as_an_escape_sequence_use_the_syntax_0_instead: diag(1536, DiagnosticCategory.Error, "Octal_escape_sequences_and_backreferences_are_not_allowed_in_a_character_class_If_this_was_intended__1536", "Octal escape sequences and backreferences are not allowed in a character class. If this was intended as an escape sequence, use the syntax '{0}' instead."),
+    Octal_escape_sequences_are_not_allowed_Use_the_syntax_0: diag(1487, DiagnosticCategory.Error, "Octal_escape_sequences_are_not_allowed_Use_the_syntax_0_1487", "Octal escape sequences are not allowed. Use the syntax '{0}'."),
+    Decimal_escape_sequences_and_backreferences_are_not_allowed_in_a_character_class: diag(1537, DiagnosticCategory.Error, "Decimal_escape_sequences_and_backreferences_are_not_allowed_in_a_character_class_1537", "Decimal escape sequences and backreferences are not allowed in a character class."),
+    Escape_sequence_0_is_not_allowed: diag(1488, DiagnosticCategory.Error, "Escape_sequence_0_is_not_allowed_1488", "Escape sequence '{0}' is not allowed."),
+    This_character_cannot_be_escaped_in_a_regular_expression: diag(1535, DiagnosticCategory.Error, "This_character_cannot_be_escaped_in_a_regular_expression_1535", "This character cannot be escaped in a regular expression."),
+    Octal_literals_are_not_allowed_Use_the_syntax_0: diag(1121, DiagnosticCategory.Error, "Octal_literals_are_not_allowed_Use_the_syntax_0_1121", "Octal literals are not allowed. Use the syntax '{0}'."),
+    Binary_digit_expected: diag(1177, DiagnosticCategory.Error, "Binary_digit_expected_1177", "Binary digit expected."),
+    Octal_digit_expected: diag(1178, DiagnosticCategory.Error, "Octal_digit_expected_1178", "Octal digit expected."),
+    Digit_expected: diag(1124, DiagnosticCategory.Error, "Digit_expected_1124", "Digit expected."),
+    Decimals_with_leading_zeros_are_not_allowed: diag(1489, DiagnosticCategory.Error, "Decimals_with_leading_zeros_are_not_allowed_1489", "Decimals with leading zeros are not allowed."),
+    A_bigint_literal_cannot_use_exponential_notation: diag(1352, DiagnosticCategory.Error, "A_bigint_literal_cannot_use_exponential_notation_1352", "A bigint literal cannot use exponential notation."),
+    A_bigint_literal_must_be_an_integer: diag(1353, DiagnosticCategory.Error, "A_bigint_literal_must_be_an_integer_1353", "A bigint literal must be an integer."),
+    An_identifier_or_keyword_cannot_immediately_follow_a_numeric_literal: diag(1351, DiagnosticCategory.Error, "An_identifier_or_keyword_cannot_immediately_follow_a_numeric_literal_1351", "An identifier or keyword cannot immediately follow a numeric literal."),
+
+
     // from TS
     Merge_conflict_marker_encountered: diag(1000, DiagnosticCategory.Error, "Merge_conflict_marker_encountered_1000", "Merge conflict marker encountered."),
     Expression_expected: diag(1001, DiagnosticCategory.Error, "Expression_expected_1001", "Expression expected."),

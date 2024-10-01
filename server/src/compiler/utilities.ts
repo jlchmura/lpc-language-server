@@ -707,12 +707,10 @@ export function getErrorSpanForNode(sourceFile: SourceFile, node: Node): TextSpa
 
 /** @internal */
 export function getSpanOfTokenAtPosition(sourceFile: SourceFile, pos: number): TextSpan {
-    console.warn("TODO - implement this properly - getSpanOfTokenAtPosition");
-    return createTextSpanFromBounds(pos, pos+1); 
-    //const scanner = createScanner(sourceFile.languageVersion, /*skipTrivia*/ true, sourceFile.languageVariant, sourceFile.text, /*onError*/ undefined, pos);
-    // scanner.scan();
-    // const start = scanner.getTokenStart();
-    // return createTextSpanFromBounds(start, scanner.getTokenEnd());
+    const scanner = createScanner(sourceFile.languageVersion, /*skipTrivia*/ true, sourceFile.languageVariant, sourceFile.text, /*onError*/ undefined, pos);
+    scanner.scan();
+    const start = scanner.getTokenStart();
+    return createTextSpanFromBounds(start, scanner.getTokenEnd());
 }
 
 /** @internal */

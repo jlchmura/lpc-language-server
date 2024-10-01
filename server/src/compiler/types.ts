@@ -432,8 +432,13 @@ export const enum SyntaxKind {
     MultiLineCommentTrivia,
     NewLineTrivia,
     WhitespaceTrivia,
+    ConflictMarkerTrivia,
+    NonTextFileMarkerTrivia,
+    // We detect and preserve #! on the first line
+    ShebangTrivia,
 
     // Literals
+    NumericLiteral,
     IntLiteral,
     FloatLiteral,
     StringLiteral,            
@@ -482,6 +487,7 @@ export const enum SyntaxKind {
     QuestionToken,
     ColonToken,
     AtToken,
+    QuestionQuestionToken,
     HashToken,
     ColonColonToken,
     DotDotToken,
@@ -5728,3 +5734,13 @@ export interface ExportDeclaration extends DeclarationStatement, JSDocContainer 
     readonly attributes?: ImportAttributes;
 }
     
+export interface CommentDirective {
+    range: TextRange;
+    type: CommentDirectiveType;
+}
+
+/** @internal */
+export const enum CommentDirectiveType {
+    ExpectError,
+    Ignore,
+}

@@ -2249,7 +2249,6 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
     function checkInheritDeclaration(node: InheritDeclaration) {
         // TODO: should this use node links? 
-        
         const sourceFile = getSourceFileOfNode(node);
         const sourceSymbol = getSymbolOfNode(sourceFile);
         // init the inherits/symboltable map
