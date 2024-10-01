@@ -46,7 +46,13 @@ export interface SessionOptions {
     ///** @internal */ incrementalVerifier?: (service: ProjectService) => void;
 }
 
-export class Session<T> { 
+export type Event = <T extends object>(body: T, eventName: string) => void;
+
+export interface EventSender {
+    event: Event;
+}
+
+export class Session<TMessage = string> implements EventSender { 
     private readonly gcTimer: GcTimer;
     // protected projectService: ProjectService;
     private changeSeq = 0;

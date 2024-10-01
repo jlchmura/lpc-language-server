@@ -1,12 +1,31 @@
-import { Connection, Hover, InitializeResult, MarkedString, MarkupContent, MarkupKind, TextDocumentPositionParams, TextDocuments, TextDocumentSyncKind } from "vscode-languageserver";
+import { Connection, Diagnostic, DiagnosticSeverity, Hover, InitializeResult, Location, MarkedString, MarkupContent, MarkupKind, TextDocumentPositionParams, TextDocuments, TextDocumentSyncKind } from "vscode-languageserver";
+import * as ls from "vscode-languageserver";
 import * as lpc from "../lpc/lpc.js";
 import * as protocol from "../server/_namespaces/lpc.server.protocol.js";
 import { Logger } from "./nodeServer";
-import { TextDocument } from "vscode-languageserver-textdocument";
+import { Position, TextDocument } from "vscode-languageserver-textdocument";
 import { URI } from "vscode-uri";
 import { loadLpcConfig } from "../backend/LpcConfig.js";
+import EventEmitter from "events";
 
 const logger = new Logger("server.log", true, lpc.server.LogLevel.verbose);
+
+
+class LspSession extends lpc.server.Session {
+
+    public onMessage = new EventEmitter();
+
+    protected override writeMessage(msg: lpc.server.protocol.Message): void {
+        const verboseLogging = logger.hasLevel(lpc.server.LogLevel.verbose);
+        if (verboseLogging) {
+            const json = JSON.stringify(msg);
+            logger.info(`${msg.type}:${lpc.server.indent(json)}`);
+        }
+
+        this.onMessage.emit("message", msg);
+        //process.send!(msg);
+    }
+}
 
 export function start(connection: Connection, platform: string) {
     logger.info(`Starting TS Server`);
@@ -49,7 +68,7 @@ export function start(connection: Connection, platform: string) {
 
         const host = lpc.sys as lpc.server.ServerHost;
         host.setImmediate = setImmediate;
-        const session = new lpc.server.Session({
+        const session = new LspSession({
             host: lpc.sys as lpc.server.ServerHost,
             cancellationToken: lpc.server.nullCancellationToken,
             byteLength: Buffer.byteLength,
@@ -60,6 +79,41 @@ export function start(connection: Connection, platform: string) {
             hrtime: process.hrtime,
             projectRootFolder: (rootFolder),            
         });                              
+
+        session.onMessage.on("message", (msg: lpc.server.protocol.Message) => {
+            if (msg.type === "event") {
+                const e = msg as lpc.server.protocol.Event;
+                switch (e.event) {
+                    case "semanticDiag":
+                        if (e.body) {
+                            const { file, diagnostics } = e.body as lpc.server.protocol.DiagnosticEventBody;
+                            const uri = URI.file(file).toString();
+                            const doc = documents.get(uri);
+                            
+                            // convert typescript server diagnostics to language server diagnostics
+                            const lsDiags = diagnostics.map(d => {                                
+                                const start = locationToLspPosition(d.start);
+                                const end = locationToLspPosition(d.end);
+                                return {
+                                    range: {
+                                        start,
+                                        end,
+                                    },
+                                    message: d.text,
+                                    severity: ls.DiagnosticSeverity.Error,
+                                    code: d.code,
+                                } satisfies ls.Diagnostic;
+                            });
+
+                            if (doc) {
+                                connection.sendDiagnostics({ uri, diagnostics: lsDiags });
+                            }
+                        }
+                        break;
+                }
+            }            
+        });
+        
 
         // Does the client support the `workspace/configuration` request?
         // If not, we fall back using global settings.
@@ -181,4 +235,11 @@ export function start(connection: Connection, platform: string) {
 function lspPosToLpcPos(args: Pick<TextDocumentPositionParams, "position">): Pick<protocol.FileLocationRequestArgs, "line" | "offset"> {
     const {position} = args;    
     return { line: position.line + 1, offset: position.character + 1};
+}
+
+function locationToLspPosition(loc: protocol.Location): Position {
+    return {        
+        line: loc.line - 1,
+        character: loc.offset - 1,
+    };    
 }

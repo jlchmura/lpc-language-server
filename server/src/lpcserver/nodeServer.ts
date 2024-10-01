@@ -81,5 +81,5 @@ export class Logger implements Logger {
         if (this.traceToConsole) {
             console.warn(s);
         }
-    }
+    }    
 }
