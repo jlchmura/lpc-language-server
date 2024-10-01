@@ -78,7 +78,7 @@ export class Session<TMessage = string> implements EventSender {
     /** @internal */
     protected regionDiagLineCountThreshold = 500;
     
-    private projectService: ProjectService;
+    protected projectService: ProjectService;
 
     constructor(opts: SessionOptions) {
         this.host = opts.host;
@@ -125,6 +125,8 @@ export class Session<TMessage = string> implements EventSender {
         this.gcTimer = new GcTimer(this.host, /*delay*/ 7000, this.logger);
     }
 
+    exit() {/*overridden*/}
+    
     public send(msg: protocol.Message) {
         if (msg.type === "event" && !this.canUseEvents) {
             if (this.logger.hasLevel(LogLevel.verbose)) {

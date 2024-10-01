@@ -353,9 +353,8 @@ export namespace LpcParser {
     }
 
     function parseStatement(tree: parserCore.StatementContext): Statement {
-        if (tree.children.length > 1 && tree.children[1].getText() != ";") {
-            const intv = tree.children[1].getSourceInterval();
-            parseErrorAtPosition(intv.start, intv.start + intv.length, Diagnostics.Semicolon_expected);            
+        if (tree.children.length > 1 && tree.children[1].getText() != ";") {            
+            // TODO log parser error
         }
         return parseStatementWorker(tree.children[0] as antlr.ParserRuleContext);
     }

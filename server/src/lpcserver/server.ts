@@ -25,6 +25,13 @@ class LspSession extends lpc.server.Session {
         this.onMessage.emit("message", msg);
         //process.send!(msg);
     }
+
+    override exit() {
+        this.logger.info("Exiting...");
+        this.getDiagnosticsForProject
+        // tracing?.stopTracing();
+        process.exit(0);
+    }
 }
 
 export function start(connection: Connection, platform: string) {
@@ -200,9 +207,11 @@ export function start(connection: Connection, platform: string) {
             session.getDiagnosticsForFiles({files: [filename], delay: 100});
         });
 
+        connection.onShutdown(e=>{
+            session.exit();
+        });
+
         connection.onHover(requestParams => {
-            logger.info("Hover request");
-                                    
             const args: lpc.server.protocol.FileLocationRequestArgs = {
                 file: lpc.convertToRelativePath(fromUri(requestParams.textDocument.uri), rootFolder, f=>canonicalFilename(f)),                
                 projectFileName,
@@ -211,7 +220,7 @@ export function start(connection: Connection, platform: string) {
 
             const result = session.getQuickInfoWorker(args, false) as lpc.QuickInfo;
             
-            const displayParts: string[] = result.displayParts?.map(pt=>pt.text);
+            const displayParts: string[] = result?.displayParts?.map(pt=>pt.text) ?? [];
             // // if document is a string then just add that, otherwise loop through the display parts
             // if (typeof result.documentation === "string") {
             //     displayParts.push(result.documentation);
@@ -224,7 +233,7 @@ export function start(connection: Connection, platform: string) {
             return {
                 contents: {
                     kind: MarkupKind.Markdown,
-                    value: displayParts.join("\n"),
+                    value: displayParts.join(" "),
                 }
             } satisfies Hover;
         });
