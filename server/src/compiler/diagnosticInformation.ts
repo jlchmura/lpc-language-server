@@ -5,6 +5,10 @@ function diag(code: number, category: DiagnosticCategory, key: string, message: 
 }
 
 export const Diagnostics = {
+    // LPC-specific
+    Structs_not_supported: diag(9001, DiagnosticCategory.Error, "Structs_not_supported_2352", "Structs not supported."),
+
+    // from TS
     Merge_conflict_marker_encountered: diag(1000, DiagnosticCategory.Error, "Merge_conflict_marker_encountered_1000", "Merge conflict marker encountered."),
     Expression_expected: diag(1001, DiagnosticCategory.Error, "Expression_expected_1001", "Expression expected."),
     A_default_clause_cannot_appear_more_than_once_in_a_switch_statement: diag(1100, DiagnosticCategory.Error, "A_default_clause_cannot_appear_more_than_once_in_a_switch_statement_1113", "A 'default' clause cannot appear more than once in a 'switch' statement."),
@@ -165,4 +169,5 @@ export const Diagnostics = {
     Directory_0_does_not_exist_skipping_all_lookups_in_it: diag(6148, DiagnosticCategory.Message, "Directory_0_does_not_exist_skipping_all_lookups_in_it_6148", "Directory '{0}' does not exist, skipping all lookups in it."),
     File_name_0_has_a_1_extension_stripping_it: diag(6132, DiagnosticCategory.Message, "File_name_0_has_a_1_extension_stripping_it_6132", "File name '{0}' has a '{1}' extension - stripping it."),
     Module_0_has_already_exported_a_member_named_1_Consider_explicitly_re_exporting_to_resolve_the_ambiguity: diag(2308, DiagnosticCategory.Error, "Module_0_has_already_exported_a_member_named_1_Consider_explicitly_re_exporting_to_resolve_the_ambig_2308", "Module {0} has already exported a member named '{1}'. Consider explicitly re-exporting to resolve the ambiguity."),
+    
 }

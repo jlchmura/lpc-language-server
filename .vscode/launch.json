@@ -14,7 +14,8 @@
                 //"${workspaceRoot}/../glpu",
                 //"${workspaceRoot}/../nightmare-residuum",
                 //"${workspaceRoot}/../infinity-lib",
-                "${workspaceRoot}/../fluff-test",
+                "${workspaceRoot}/../lpc-test2",
+                // "${workspaceRoot}/../fluff-test",
                 //"${workspaceRoot}/efuns/ldmud",
                 "--extensionDevelopmentPath=${workspaceRoot}"
             ],

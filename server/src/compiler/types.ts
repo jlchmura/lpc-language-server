@@ -475,6 +475,7 @@ export const enum SyntaxKind {
     BarToken,
     CaretToken,
     ExclamationToken,
+    DoubleExclamationToken,
     TildeToken,
     AmpersandAmpersandToken,
     BarBarToken,
@@ -1939,6 +1940,7 @@ export type PunctuationSyntaxKind =
     | SyntaxKind.BarToken
     | SyntaxKind.CaretToken
     | SyntaxKind.ExclamationToken
+    | SyntaxKind.DoubleExclamationToken
     | SyntaxKind.TildeToken
     | SyntaxKind.AmpersandAmpersandToken    
     | SyntaxKind.BarBarToken
@@ -2041,6 +2043,7 @@ export type AmpersandToken = PunctuationToken<SyntaxKind.AmpersandToken>;
 export type DotDotDotToken = PunctuationToken<SyntaxKind.DotDotDotToken>;
 export type QuestionToken = PunctuationToken<SyntaxKind.QuestionToken>;
 export type ExclamationToken = PunctuationToken<SyntaxKind.ExclamationToken>;
+export type DoubleExclamationToken = PunctuationToken<SyntaxKind.DoubleExclamationToken>;
 export type ColonToken = PunctuationToken<SyntaxKind.ColonToken>;
 export type EqualsToken = PunctuationToken<SyntaxKind.EqualsToken>;
 export type BarBarEqualsToken = PunctuationToken<SyntaxKind.BarBarEqualsToken>;
@@ -3390,7 +3393,8 @@ export type PrefixUnaryOperator =
     | SyntaxKind.PlusToken
     | SyntaxKind.MinusToken
     | SyntaxKind.TildeToken
-    | SyntaxKind.ExclamationToken;
+    | SyntaxKind.ExclamationToken
+    | SyntaxKind.DoubleExclamationToken;
 
 export interface PrefixUnaryExpression extends UpdateExpression {
     readonly kind: SyntaxKind.PrefixUnaryExpression;

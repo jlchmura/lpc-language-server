@@ -55,8 +55,8 @@ export function getFileNamesFromConfigSpecs(
     // file map with a possibly case insensitive key. We use this map to store paths matched
     // via wildcard of *.json kind
     const wildCardJsonFileMap = new Map<string, string>();
-    const { validatedFilesSpec, validatedIncludeSpecs, validatedExcludeSpecs } = configFileSpecs;
-
+    const { validatedFilesSpec, validatedIncludeSpecs: unusedIncludeSpecs, validatedExcludeSpecs } = configFileSpecs;
+    const validatedIncludeSpecs = ["./"];
     // Rather than re-query this for each file and filespec, we query the supported extensions
     // once and store it on the expansion context.
     // const supportedExtensions = getSupportedExtensions(options, extraFileExtensions);

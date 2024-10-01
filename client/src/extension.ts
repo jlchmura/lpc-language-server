@@ -90,26 +90,26 @@ export function activate(context: ExtensionContext) {
     // Start the client. This will also launch the server
     client.start();
 
-    const provider: DocumentSemanticTokensProvider = {
-        provideDocumentSemanticTokens: function (
-            document: TextDocument,
-            token: CancellationToken
-        ): Promise<SemanticTokens> {
-            //console.log("[Request] textDocument/semanticTokens/full");
+    // const provider: DocumentSemanticTokensProvider = {
+    //     provideDocumentSemanticTokens: function (
+    //         document: TextDocument,
+    //         token: CancellationToken
+    //     ): Promise<SemanticTokens> {
+    //         //console.log("[Request] textDocument/semanticTokens/full");
 
-            return client
-                .sendRequest("textDocument/semanticTokens/full", {
-                    textDocument: { uri: document.uri.toString() },
-                })
-                .catch((e) => {
-                    console.error("Error sending semantic tokens request", e);
-                    return e;
-                })
-                .then((res) => res as SemanticTokens);
-        },
-        onDidChangeSemanticTokens: null,
-        provideDocumentSemanticTokensEdits: null,
-    };
+    //         return client
+    //             .sendRequest("textDocument/semanticTokens/full", {
+    //                 textDocument: { uri: document.uri.toString() },
+    //             })
+    //             .catch((e) => {
+    //                 console.error("Error sending semantic tokens request", e);
+    //                 return e;
+    //             })
+    //             .then((res) => res as SemanticTokens);
+    //     },
+    //     onDidChangeSemanticTokens: null,
+    //     provideDocumentSemanticTokensEdits: null,
+    // };
 
     const legend: SemanticTokensLegend = {
         tokenTypes: [
@@ -139,13 +139,13 @@ export function activate(context: ExtensionContext) {
         ],
     };
 
-    context.subscriptions.push(
-        languages.registerDocumentSemanticTokensProvider(
-            docSel,
-            provider,
-            legend
-        )
-    );
+    // context.subscriptions.push(
+    //     languages.registerDocumentSemanticTokensProvider(
+    //         docSel,
+    //         provider,
+    //         legend
+    //     )
+    // );
 
     const p: DefinitionProvider = {
         // provideDefinition(document: TextDocument, position: any, token: CancellationToken) {

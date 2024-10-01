@@ -110,9 +110,11 @@ export class Session<T> {
             serverMode: opts.serverMode,     
             session: this,
             projectRootFolder: opts.projectRootFolder
-        };
+        };        
         this.projectService = new ProjectService(settings);
+        
         const configFile = this.projectService.findAndOpenLpcConfig(opts.projectRootFolder);
+        this.getProject(configFile);
         //this.projectService.setPerformanceEventHandler(this.performanceEventHandler.bind(this));
         this.gcTimer = new GcTimer(this.host, /*delay*/ 7000, this.logger);
     }
