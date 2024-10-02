@@ -1,4 +1,4 @@
-import { combinePaths, FileSystemEntries, find, forEach } from "./_namespaces/lpc";
+import { combinePaths, CompilerOptions, EmitHost, FileSystemEntries, find, forEach, getSourceFilePathInNewDirWorker, removeFileExtension } from "./_namespaces/lpc";
 import { Logger, LogLevel, NormalizedPath, ServerHost, toNormalizedPath } from "./_namespaces/lpc.server";
 
 /** @internal */
@@ -124,3 +124,4 @@ export function indent(str: string): string {
 export function stringifyIndented(json: {}): string {
     return indent(JSON.stringify(json, undefined, 2));
 }
+

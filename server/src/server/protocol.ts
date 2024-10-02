@@ -404,3 +404,18 @@ export interface DiagnosticWithFileName extends Diagnostic {
      */
     fileName: string;
 }
+
+export interface TextSpanWithContext extends TextSpan {
+    contextStart?: Location;
+    contextEnd?: Location;
+}
+
+export interface FileSpanWithContext extends FileSpan, TextSpanWithContext {
+}
+
+export interface DefinitionInfo extends FileSpanWithContext {
+    /**
+     * When true, the file may or may not exist.
+     */
+    unverified?: boolean;
+}

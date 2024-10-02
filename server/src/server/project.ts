@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { addRange, arrayFrom, CachedDirectoryStructureHost, combinePaths, CompilerHost, CompilerOptions, createLanguageService, createResolutionCache, Debug, Diagnostic, DirectoryStructureHost, DirectoryWatcherCallback, DocumentRegistry, explainFiles, ExportInfoMap, FileWatcher, FileWatcherCallback, FileWatcherEventKind, flatMap, forEachKey, GetCanonicalFileName, getDefaultLibFileName, getDirectoryPath, getNormalizedAbsolutePath, getOrUpdate, HasInvalidatedLibResolutions, HasInvalidatedResolutions, IScriptSnapshot, isString, LanguageService, LanguageServiceHost, LanguageServiceMode, maybeBind, ModuleResolutionHost, noopFileWatcher, normalizePath, ParsedCommandLine, Path, PerformanceEvent, PollingInterval, Program, ProgramUpdateLevel, ProjectReference, ResolutionCache, ResolvedProjectReference, returnFalse, returnTrue, sortAndDeduplicate, SortedReadonlyArray, SourceFile, StructureIsReused, ThrottledCancellationToken, timestamp, toPath, tracing, TypeAcquisition, updateMissingFilePathsWatch, WatchDirectoryFlags, WatchOptions, WatchType } from "./_namespaces/lpc.js";
+import { addRange, arrayFrom, CachedDirectoryStructureHost, combinePaths, CompilerHost, CompilerOptions, createLanguageService, createResolutionCache, Debug, Diagnostic, DirectoryStructureHost, DirectoryWatcherCallback, DocumentRegistry, explainFiles, ExportInfoMap, FileWatcher, FileWatcherCallback, FileWatcherEventKind, flatMap, forEachKey, GetCanonicalFileName, getDefaultLibFileName, getDirectoryPath, getNormalizedAbsolutePath, getOrUpdate, HasInvalidatedLibResolutions, HasInvalidatedResolutions, IScriptSnapshot, isString, LanguageService, LanguageServiceHost, LanguageServiceMode, maybeBind, ModuleResolutionHost, noopFileWatcher, normalizePath, ParsedCommandLine, Path, PerformanceEvent, PollingInterval, Program, ProgramUpdateLevel, ProjectReference, ResolutionCache, ResolvedProjectReference, returnFalse, returnTrue, sortAndDeduplicate, SortedReadonlyArray, SourceFile, SourceMapper, StructureIsReused, ThrottledCancellationToken, timestamp, toPath, tracing, TypeAcquisition, updateMissingFilePathsWatch, WatchDirectoryFlags, WatchOptions, WatchType } from "./_namespaces/lpc.js";
 import { asNormalizedPath, emptyArray, Errors, HostCancellationToken, LogLevel, NormalizedPath, ProjectService, ScriptInfo, updateProjectIfDirty } from "./_namespaces/lpc.server.js";
 
 
@@ -340,6 +340,11 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
             updateProjectIfDirty(this);
         }
         return this.languageService;
+    }
+
+    /** @internal */
+    getSourceMapper(): SourceMapper {
+        return this.getLanguageService().getSourceMapper();
     }
 
     setCompilerOptions(compilerOptions: CompilerOptions) {

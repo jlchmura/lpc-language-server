@@ -161,6 +161,9 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
     const hasInvalidatedLibResolutions = host.hasInvalidatedLibResolutions || returnFalse;
     let actualResolveLibrary: (libraryName: string, resolveFrom: string, options: CompilerOptions, libFileName: string) => ResolvedModuleWithFailedLookupLocations;
     
+    const useSourceOfProjectReferenceRedirect = !!host.useSourceOfProjectReferenceRedirect?.() &&
+        !options.disableSourceOfProjectReferenceRedirect;
+
     // We set `structuralIsReused` to `undefined` because `tryReuseStructureFromOldProgram` calls `tryReuseStructureFromOldProgram` which checks
     // `structuralIsReused`, which would be a TDZ violation if it was not set in advance to `undefined`.
     let structureIsReused: StructureIsReused;
@@ -338,7 +341,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         // getResolvedProjectReferenceToRedirect,
         getResolvedProjectReferenceByPath,
         forEachResolvedProjectReference,
-        // isSourceOfProjectReferenceRedirect,
+        isSourceOfProjectReferenceRedirect,
         // getRedirectReferenceForResolutionFromSourceOfProject,
         // emitBuildInfo,
         fileExists,
@@ -419,6 +422,28 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         //     return concatenate(sourceFile.additionalSyntacticDiagnostics, sourceFile.parseDiagnostics);
         // }
         return sourceFile.parseDiagnostics;
+    }
+
+    /**
+     * Get the referenced project if the file is input file from that reference project
+     */
+    function getResolvedProjectReferenceToRedirect(fileName: string) {
+        if (mapFromFileToProjectReferenceRedirects === undefined) {
+            mapFromFileToProjectReferenceRedirects = new Map();
+            forEachResolvedProjectReference(referencedProject => {
+                // not input file from the referenced project, ignore
+                if (toPath(options.configFilePath!) !== referencedProject.sourceFile.path) {
+                    referencedProject.commandLine.fileNames.forEach(f => mapFromFileToProjectReferenceRedirects!.set(toPath(f), referencedProject.sourceFile.path));
+                }
+            });
+        }
+
+        const referencedProjectPath = mapFromFileToProjectReferenceRedirects.get(toPath(fileName));
+        return referencedProjectPath && getResolvedProjectReferenceByPath(referencedProjectPath);
+    }
+    
+    function isSourceOfProjectReferenceRedirect(fileName: string) {
+        return useSourceOfProjectReferenceRedirect && !!getResolvedProjectReferenceToRedirect(fileName);
     }
 
     function getBindAndCheckDiagnosticsForFile(sourceFile: SourceFile, cancellationToken: CancellationToken | undefined): readonly Diagnostic[] {

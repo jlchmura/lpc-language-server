@@ -231,6 +231,11 @@ export class ProjectService {
         return undefined;
     }
 
+    /** @internal */
+    fileExists(fileName: NormalizedPath): boolean {
+        return !!this.getScriptInfoForNormalizedPath(fileName) || this.host.fileExists(fileName);
+    }
+    
     private getOrCreateScriptInfoWorker(
         fileName: NormalizedPath,
         currentDirectory: string,

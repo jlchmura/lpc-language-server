@@ -531,7 +531,7 @@ export function createScanner(languageVersion: ScriptTarget, skipTrivia: boolean
         }
         return value;
     }
-    
+
     function scan(): SyntaxKind {
         fullStartPos = pos;
         tokenFlags = TokenFlags.None;
@@ -2002,4 +2002,13 @@ export function utf16EncodeAsString(codePoint: number) {
 /** @internal */
 export function isOctalDigit(ch: number): boolean {
     return ch >= CharacterCodes._0 && ch <= CharacterCodes._7;
+}
+
+export function getPositionOfLineAndCharacter(sourceFile: SourceFileLike, line: number, character: number): number;
+/** @internal */
+export function getPositionOfLineAndCharacter(sourceFile: SourceFileLike, line: number, character: number, allowEdits?: true): number; // eslint-disable-line @typescript-eslint/unified-signatures
+export function getPositionOfLineAndCharacter(sourceFile: SourceFileLike, line: number, character: number, allowEdits?: true): number {
+    return sourceFile.getPositionOfLineAndCharacter ?
+        sourceFile.getPositionOfLineAndCharacter(line, character, allowEdits) :
+        computePositionOfLineAndCharacter(getLineStarts(sourceFile), line, character, sourceFile.text, allowEdits);
 }

@@ -1,5 +1,5 @@
-import { arrayReverseIterator, concatenate, Debug, Diagnostic, diagnosticCategoryName, DiagnosticRelatedInformation, displayPartsToString, emptyArray, filter, flattenDiagnosticMessageText, getLineAndCharacterOfPosition, isDeclarationFileName, isString, JSDocTagInfo, LanguageServiceMode, LineAndCharacter, map, mapDefinedIterator, mapIterator, normalizePath, OperationCanceledException, PossibleProgramFileInfo, QuickInfo, ScriptKind, SymbolDisplayPart, textSpanEnd, toFileNameLowerCase, tracing } from "./_namespaces/lpc";
-import { ChangeFileArguments, ConfiguredProject, GcTimer, Logger, LogLevel, NormalizedPath, OpenFileArguments, Project, ProjectService, ProjectServiceEventHandler, ProjectServiceOptions, ScriptInfo, ServerHost, stringifyIndented, toNormalizedPath, updateProjectIfDirty } from "./_namespaces/lpc.server";
+import { arrayReverseIterator, concatenate, Debug, DefinitionInfo, Diagnostic, diagnosticCategoryName, DiagnosticRelatedInformation, displayPartsToString, DocumentPosition, DocumentSpan, emptyArray, filter, flattenDiagnosticMessageText, getLineAndCharacterOfPosition, getMappedContextSpan, getMappedDocumentSpan, getMappedLocation, isDeclarationFileName, isString, JSDocTagInfo, LanguageServiceMode, LineAndCharacter, map, mapDefinedIterator, mapIterator, normalizePath, OperationCanceledException, PossibleProgramFileInfo, QuickInfo, ScriptKind, SymbolDisplayPart, TextSpan, textSpanEnd, toFileNameLowerCase, tracing } from "./_namespaces/lpc";
+import { ChangeFileArguments, ConfiguredProject, GcTimer, isConfiguredProject, Logger, LogLevel, NormalizedPath, OpenFileArguments, Project, ProjectService, ProjectServiceEventHandler, ProjectServiceOptions, ScriptInfo, ServerHost, stringifyIndented, toNormalizedPath, updateProjectIfDirty } from "./_namespaces/lpc.server";
 import * as protocol from "./protocol.js";
 
 export interface HostCancellationToken {
@@ -605,8 +605,81 @@ export class Session<TMessage = string> implements EventSender {
             ...tag,
             text: richResponse ? this.mapDisplayParts(tag.text, project) : tag.text?.map(part => part.text).join(""),
         })) : [];
+    }                
+
+    private getPositionInFile(args: protocol.Location & { position?: number; }, file: NormalizedPath): number {
+        const scriptInfo = this.projectService.getScriptInfoForNormalizedPath(file)!;
+        return this.getPosition(args, scriptInfo);
+    }
+
+    private mapDefinitionInfoLocations(definitions: readonly DefinitionInfo[], project: Project): readonly DefinitionInfo[] {
+        return definitions.map((info): DefinitionInfo => {
+            const newDocumentSpan = getMappedDocumentSpanForProject(info, project);
+            return !newDocumentSpan ? info : {
+                ...newDocumentSpan,
+                containerKind: info.containerKind,
+                containerName: info.containerName,
+                kind: info.kind,
+                name: info.name,
+                failedAliasResolution: info.failedAliasResolution,
+                ...info.unverified && { unverified: info.unverified },
+            };
+        });
+    }
+
+    private toFileSpan(fileName: string, textSpan: TextSpan, project: Project): protocol.FileSpan {
+        const ls = project.getLanguageService();
+        const start = ls.toLineColumnOffset!(fileName, textSpan.start); // TODO: GH#18217
+        const end = ls.toLineColumnOffset!(fileName, textSpanEnd(textSpan));
+
+        return {
+            file: fileName,
+            start: { line: start.line + 1, offset: start.character + 1 },
+            end: { line: end.line + 1, offset: end.character + 1 },
+        };
+    }
+
+    private toFileSpanWithContext(fileName: string, textSpan: TextSpan, contextSpan: TextSpan | undefined, project: Project): protocol.FileSpanWithContext {
+        const fileSpan = this.toFileSpan(fileName, textSpan, project);
+        const context = contextSpan && this.toFileSpan(fileName, contextSpan, project);
+        return context ?
+            { ...fileSpan, contextStart: context.start, contextEnd: context.end } :
+            fileSpan;
     }
     
+    private mapDefinitionInfo(definitions: readonly DefinitionInfo[], project: Project): readonly protocol.DefinitionInfo[] {
+        return definitions.map(def => ({ ...this.toFileSpanWithContext(def.fileName, def.textSpan, def.contextSpan, project), ...def.unverified && { unverified: def.unverified } }));
+    }
+
+    private getDefinition(args: protocol.FileLocationRequestArgs, simplifiedResult: boolean): readonly protocol.FileSpanWithContext[] | readonly DefinitionInfo[] {
+        const { file, project } = this.getFileAndProject(args);
+        const position = this.getPositionInFile(args, file);
+        const definitions = this.mapDefinitionInfoLocations(project.getLanguageService().getDefinitionAtPosition(file, position) || emptyArray, project);
+        return simplifiedResult ? this.mapDefinitionInfo(definitions, project) : definitions.map(Session.mapToOriginalLocation);
+    }
+
+    /*
+     * When we map a .d.ts location to .ts, Visual Studio gets confused because there's no associated Roslyn Document in
+     * the same project which corresponds to the file. VS Code has no problem with this, and luckily we have two protocols.
+     * This retains the existing behavior for the "simplified" (VS Code) protocol but stores the .d.ts location in a
+     * set of additional fields, and does the reverse for VS (store the .d.ts location where
+     * it used to be and stores the .ts location in the additional fields).
+     */
+    private static mapToOriginalLocation<T extends DocumentSpan>(def: T): T {
+        if (def.originalFileName) {
+            Debug.assert(def.originalTextSpan !== undefined, "originalTextSpan should be present if originalFileName is");
+            return {
+                ...def as any,
+                fileName: def.originalFileName,
+                textSpan: def.originalTextSpan,
+                targetFileName: def.fileName,
+                targetTextSpan: def.textSpan,
+                contextSpan: def.originalContextSpan,
+                targetContextSpan: def.contextSpan,
+            };
+        }
+        return def;
+    }
 }
 
 interface FileAndProject {
@@ -830,4 +903,25 @@ export function formatDiagnosticToProtocol(diag: Diagnostic, includeFileName: bo
     return includeFileName
         ? { ...common, fileName: diag.file && diag.file.fileName }
         : common;
+}
+
+function getProjectKey(project: Project) {
+    return isConfiguredProject(project) ? project.canonicalConfigFilePath : project.getProjectName();
+}
+
+function documentSpanLocation({ fileName, textSpan }: DocumentSpan): DocumentPosition {
+    return { fileName, pos: textSpan.start };
+}
+
+
+function getMappedLocationForProject(location: DocumentPosition, project: Project): DocumentPosition | undefined {
+    return getMappedLocation(location, project.getSourceMapper(), p => project.projectService.fileExists(p as NormalizedPath));
+}
+
+function getMappedDocumentSpanForProject(documentSpan: DocumentSpan, project: Project): DocumentSpan | undefined {
+    return getMappedDocumentSpan(documentSpan, project.getSourceMapper(), p => project.projectService.fileExists(p as NormalizedPath));
+}
+
+function getMappedContextSpanForProject(documentSpan: DocumentSpan, project: Project): TextSpan | undefined {
+    return getMappedContextSpan(documentSpan, project.getSourceMapper(), p => project.projectService.fileExists(p as NormalizedPath));
 }

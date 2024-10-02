@@ -139,6 +139,8 @@ import {
     LpcFileHandler,
     Diagnostic,
     getScriptKind,
+    getSourceMapper,
+    hostUsesCaseSensitiveFileNames,
 } from "./_namespaces/lpc.js";
 
 // These utilities are common to multiple language service features.
@@ -1218,6 +1220,27 @@ export function createLanguageService(
 
     const cancellationToken = NoopCancellationToken;
 
+    function log(message: string) {
+        if (host.log) {
+            host.log(message);
+        }
+    }
+    
+    const currentDirectory = host.getCurrentDirectory();
+    const useCaseSensitiveFileNames = hostUsesCaseSensitiveFileNames(host);
+    const getCanonicalFileName = createGetCanonicalFileName(useCaseSensitiveFileNames);
+    
+    const sourceMapper = getSourceMapper({
+        useCaseSensitiveFileNames: () => useCaseSensitiveFileNames,
+        getCurrentDirectory: () => currentDirectory,
+        getProgram,
+        fileExists: maybeBind(host, host.fileExists),
+        readFile: maybeBind(host, host.readFile),
+        getDocumentPositionMapper: maybeBind(host, host.getDocumentPositionMapper),
+        getSourceFileLike: maybeBind(host, host.getSourceFileLike),
+        log,
+    });
+    
     const ls: LanguageService = {
         getDefinitionAtPosition,
         getQuickInfoAtPosition,
@@ -1227,7 +1250,8 @@ export function createLanguageService(
         getCurrentProgram: () => program,
         getSuggestionDiagnostics,
         getSyntacticDiagnostics,
-        getSemanticDiagnostics
+        getSemanticDiagnostics,
+        getSourceMapper: () => sourceMapper,
     };
 
     return ls;

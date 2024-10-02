@@ -4,6 +4,7 @@ export * from "../types.js";
 export * from "../utilities.js";
 export * from "../exportInfoMap.js";
 export * from "../documentRegistry.js";
+export * from "../sourcemaps.js";
 export * from "../services.js";
 
 import * as FindAllReferences from "./lpc.FindAllReferences.js";

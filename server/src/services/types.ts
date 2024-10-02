@@ -3,8 +3,10 @@ import {
     CompilerOptions,
     Diagnostic,
     DiagnosticWithLocation,
+    DocumentPositionMapper,
     GetEffectiveTypeRootsHost,
     JSDocParsingMode,
+    LineAndCharacter,
     MinimalResolutionCacheHost,
     Node,
     Program,
@@ -15,6 +17,7 @@ import {
     ScriptKind,
     SourceFile,
     SourceFileLike,
+    SourceMapper,
     StringLiteral,
     Symbol,
     TextChangeRange,
@@ -426,6 +429,11 @@ export interface LanguageService {
      * @param fileName A path to the file you want semantic diagnostics for
      */
     getSemanticDiagnostics(fileName: string): Diagnostic[];
+
+    /** @internal */
+    getSourceMapper(): SourceMapper;
+
+    toLineColumnOffset?(fileName: string, position: number): LineAndCharacter;
 }
 
 export interface HostCancellationToken {
@@ -582,7 +590,7 @@ export interface LanguageServiceHost
     //installPackage?(options: InstallPackageOptions): Promise<ApplyCodeActionCommandResult>;
     writeFile?(fileName: string, content: string): void;
 
-    ///** @internal */ getDocumentPositionMapper?(generatedFileName: string, sourceFileName?: string): DocumentPositionMapper | undefined;
+    /** @internal */ getDocumentPositionMapper?(generatedFileName: string, sourceFileName?: string): DocumentPositionMapper | undefined;
     /** @internal */ getSourceFileLike?(
         fileName: string
     ): SourceFileLike | undefined;

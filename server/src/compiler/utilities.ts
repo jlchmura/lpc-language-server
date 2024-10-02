@@ -5113,3 +5113,100 @@ export function trimQuotes(str: string) {
     }
     return str;
 }
+
+const base64Digits = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+
+/** @internal */
+export function base64decode(host: { base64decode?(input: string): string; } | undefined, input: string): string {
+    if (host && host.base64decode) {
+        return host.base64decode(input);
+    }
+    const length = input.length;
+    const expandedCharCodes: number[] = [];
+    let i = 0;
+    while (i < length) {
+        // Stop decoding once padding characters are present
+        if (input.charCodeAt(i) === base64Digits.charCodeAt(64)) {
+            break;
+        }
+        // convert 4 input digits into three characters, ignoring padding characters at the end
+        const ch1 = base64Digits.indexOf(input[i]);
+        const ch2 = base64Digits.indexOf(input[i + 1]);
+        const ch3 = base64Digits.indexOf(input[i + 2]);
+        const ch4 = base64Digits.indexOf(input[i + 3]);
+
+        const code1 = ((ch1 & 0B00111111) << 2) | ((ch2 >> 4) & 0B00000011);
+        const code2 = ((ch2 & 0B00001111) << 4) | ((ch3 >> 2) & 0B00001111);
+        const code3 = ((ch3 & 0B00000011) << 6) | (ch4 & 0B00111111);
+
+        if (code2 === 0 && ch3 !== 0) { // code2 decoded to zero, but ch3 was padding - elide code2 and code3
+            expandedCharCodes.push(code1);
+        }
+        else if (code3 === 0 && ch4 !== 0) { // code3 decoded to zero, but ch4 was padding, elide code3
+            expandedCharCodes.push(code1, code2);
+        }
+        else {
+            expandedCharCodes.push(code1, code2, code3);
+        }
+        i += 4;
+    }
+    return getStringFromExpandedCharCodes(expandedCharCodes);
+}
+
+function getStringFromExpandedCharCodes(codes: number[]): string {
+    let output = "";
+    let i = 0;
+    const length = codes.length;
+    while (i < length) {
+        const charCode = codes[i];
+
+        if (charCode < 0x80) {
+            output += String.fromCharCode(charCode);
+            i++;
+        }
+        else if ((charCode & 0B11000000) === 0B11000000) {
+            let value = charCode & 0B00111111;
+            i++;
+            let nextCode: number = codes[i];
+            while ((nextCode & 0B11000000) === 0B10000000) {
+                value = (value << 6) | (nextCode & 0B00111111);
+                i++;
+                nextCode = codes[i];
+            }
+            // `value` may be greater than 10FFFF (the maximum unicode codepoint) - JS will just make this into an invalid character for us
+            output += String.fromCharCode(value);
+        }
+        else {
+            // We don't want to kill the process when decoding fails (due to a following char byte not
+            // following a leading char), so we just print the (bad) value
+            output += String.fromCharCode(charCode);
+            i++;
+        }
+    }
+    return output;
+}
+
+/** @internal */
+export function getDeclarationEmitOutputFilePathWorker(fileName: string, options: CompilerOptions, host: Pick<EmitHost, "getCommonSourceDirectory" | "getCurrentDirectory" | "getCanonicalFileName">): string {
+    // const outputDir = options.declarationDir || options.outDir; // Prefer declaration folder if specified
+    const outputDir = options.outDir; 
+
+    const path = outputDir
+        ? getSourceFilePathInNewDirWorker(fileName, outputDir, host.getCurrentDirectory(), host.getCommonSourceDirectory(), f => host.getCanonicalFileName(f))
+        : fileName;
+    const declarationExtension = getDeclarationEmitExtensionForPath(path);
+    return removeFileExtension(path) + declarationExtension;
+}
+
+/** @internal */
+export function getDeclarationEmitExtensionForPath(path: string) {
+    // return fileExtensionIsOneOf(path, [Extension.Mjs, Extension.Mts]) ? Extension.Dmts :
+    //     fileExtensionIsOneOf(path, [Extension.Cjs, Extension.Cts]) ? Extension.Dcts :
+    return    fileExtensionIsOneOf(path, [Extension.Json]) ? `.d.json.ts` : // Drive-by redefinition of json declaration file output name so if it's ever enabled, it behaves well
+        Extension.H;
+}
+
+/** @internal */
+export function hostUsesCaseSensitiveFileNames(host: { useCaseSensitiveFileNames?(): boolean; }): boolean {
+    return host.useCaseSensitiveFileNames ? host.useCaseSensitiveFileNames() : false;
+}
