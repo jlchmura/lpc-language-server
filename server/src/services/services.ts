@@ -1252,6 +1252,7 @@ export function createLanguageService(
         getSyntacticDiagnostics,
         getSemanticDiagnostics,
         getSourceMapper: () => sourceMapper,
+        toLineColumnOffset
     };
 
     return ls;
@@ -1316,6 +1317,17 @@ export function createLanguageService(
     function getCompilerOptionsDiagnostics() {
         synchronizeHostData();
         return [...program.getOptionsDiagnostics(cancellationToken), ...program.getGlobalDiagnostics(cancellationToken)];
+    }
+
+    function toLineColumnOffset(fileName: string, position: number): LineAndCharacter {
+        // Go to Definition supports returning a zero-length span at position 0 for
+        // non-existent files. We need to special-case the conversion of position 0
+        // to avoid a crash trying to get the text for that file, since this function
+        // otherwise assumes that 'fileName' is the name of a file that exists.
+        if (position === 0) {
+            return { line: 0, character: 0 };
+        }
+        return sourceMapper.toLineColumnOffset(fileName, position);
     }
 
     function synchronizeHostData(): void {

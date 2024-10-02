@@ -151,7 +151,7 @@ export function start(connection: Connection, platform: string) {
                 //     workDoneProgress: false,
                 // },
                 hoverProvider: true,
-                // definitionProvider: true,
+                definitionProvider: true,
                 // implementationProvider: true,
                 // foldingRangeProvider: true, // change to true to enable server-based folding
                 // signatureHelpProvider: {
@@ -236,6 +236,31 @@ export function start(connection: Connection, platform: string) {
                     value: displayParts.join(" "),
                 }
             } satisfies Hover;
+        });
+
+        connection.onDefinition(requestParams => {
+            const results = session.getDefinition({
+                file: lpc.convertToRelativePath(fromUri(requestParams.textDocument.uri), rootFolder, f=>canonicalFilename(f)),
+                projectFileName,
+                ...posParamToLpcPos(requestParams),            
+            }, true);
+            
+            const result = results.at(0) as any;             
+            if (!result) {
+                return [];
+            }
+            const def = ls.LocationLink.create(
+                result.file,
+                {
+                    start: locationToLspPosition(result.start),
+                    end: locationToLspPosition(result.end),
+                },
+                {
+                    start: locationToLspPosition(result.start),
+                    end: locationToLspPosition(result.end),
+                },
+            )    
+            return [def];
         });
 
         // find the lpc-config.json file

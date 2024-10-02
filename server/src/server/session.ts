@@ -651,7 +651,7 @@ export class Session<TMessage = string> implements EventSender {
         return definitions.map(def => ({ ...this.toFileSpanWithContext(def.fileName, def.textSpan, def.contextSpan, project), ...def.unverified && { unverified: def.unverified } }));
     }
 
-    private getDefinition(args: protocol.FileLocationRequestArgs, simplifiedResult: boolean): readonly protocol.FileSpanWithContext[] | readonly DefinitionInfo[] {
+    public getDefinition(args: protocol.FileLocationRequestArgs, simplifiedResult: boolean): readonly protocol.FileSpanWithContext[] | readonly DefinitionInfo[] {
         const { file, project } = this.getFileAndProject(args);
         const position = this.getPositionInFile(args, file);
         const definitions = this.mapDefinitionInfoLocations(project.getLanguageService().getDefinitionAtPosition(file, position) || emptyArray, project);
