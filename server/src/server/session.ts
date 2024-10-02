@@ -1,4 +1,4 @@
-import { arrayReverseIterator, concatenate, Debug, DefinitionInfo, Diagnostic, diagnosticCategoryName, DiagnosticRelatedInformation, displayPartsToString, DocumentPosition, DocumentSpan, emptyArray, filter, flattenDiagnosticMessageText, getLineAndCharacterOfPosition, getMappedContextSpan, getMappedDocumentSpan, getMappedLocation, isDeclarationFileName, isString, JSDocTagInfo, LanguageServiceMode, LineAndCharacter, map, mapDefinedIterator, mapIterator, normalizePath, OperationCanceledException, PossibleProgramFileInfo, QuickInfo, ScriptKind, SymbolDisplayPart, TextSpan, textSpanEnd, toFileNameLowerCase, tracing } from "./_namespaces/lpc";
+import { arrayReverseIterator, concatenate, Debug, DefinitionInfo, Diagnostic, diagnosticCategoryName, DiagnosticRelatedInformation, displayPartsToString, DocumentPosition, DocumentSpan, emptyArray, filter, flattenDiagnosticMessageText, getLineAndCharacterOfPosition, getMappedContextSpan, getMappedDocumentSpan, getMappedLocation, isDeclarationFileName, isString, JSDocTagInfo, LanguageServiceMode, LineAndCharacter, map, mapDefinedIterator, mapIterator, NavigationTree, normalizePath, OperationCanceledException, PossibleProgramFileInfo, QuickInfo, ScriptKind, SymbolDisplayPart, TextSpan, textSpanEnd, toFileNameLowerCase, tracing } from "./_namespaces/lpc";
 import { ChangeFileArguments, ConfiguredProject, GcTimer, isConfiguredProject, Logger, LogLevel, NormalizedPath, OpenFileArguments, Project, ProjectService, ProjectServiceEventHandler, ProjectServiceOptions, ScriptInfo, ServerHost, stringifyIndented, toNormalizedPath, updateProjectIfDirty } from "./_namespaces/lpc.server";
 import * as protocol from "./protocol.js";
 
@@ -221,6 +221,14 @@ export class Session<TMessage = string> implements EventSender {
 
     private getFileAndProject(args: protocol.FileRequestArgs): FileAndProject {
         return this.getFileAndProjectWorker(args.file, args.projectFileName);
+    }
+
+    private getFileAndLanguageServiceForSyntacticOperation(args: protocol.FileRequestArgs) {
+        const { file, project } = this.getFileAndProject(args);
+        return {
+            file,
+            languageService: project.getLanguageService(/*ensureSynchronized*/ false),
+        };
     }
 
     private getProject(projectFileName: string | undefined): Project | undefined {
@@ -658,6 +666,27 @@ export class Session<TMessage = string> implements EventSender {
         return simplifiedResult ? this.mapDefinitionInfo(definitions, project) : definitions.map(Session.mapToOriginalLocation);
     }
 
+    private toLocationNavigationTree(tree: NavigationTree, scriptInfo: ScriptInfo): protocol.NavigationTree {
+        return {
+            text: tree.text,
+            kind: tree.kind,
+            kindModifiers: tree.kindModifiers,
+            spans: tree.spans.map(span => toProtocolTextSpan(span, scriptInfo)),
+            nameSpan: tree.nameSpan && toProtocolTextSpan(tree.nameSpan, scriptInfo),
+            childItems: map(tree.childItems, item => this.toLocationNavigationTree(item, scriptInfo)),
+        };
+    }
+    
+    public getNavigationTree(args: protocol.FileRequestArgs, simplifiedResult: boolean): protocol.NavigationTree | NavigationTree | undefined {
+        const { file, languageService } = this.getFileAndLanguageServiceForSyntacticOperation(args);
+        const tree = languageService.getNavigationTree(file);
+        return !tree
+            ? undefined
+            : simplifiedResult
+            ? this.toLocationNavigationTree(tree, this.projectService.getScriptInfoForNormalizedPath(file)!)
+            : tree;
+    }
+
     /*
      * When we map a .d.ts location to .ts, Visual Studio gets confused because there's no associated Roslyn Document in
      * the same project which corresponds to the file. VS Code has no problem with this, and luckily we have two protocols.
@@ -924,4 +953,11 @@ function getMappedDocumentSpanForProject(documentSpan: DocumentSpan, project: Pr
 
 function getMappedContextSpanForProject(documentSpan: DocumentSpan, project: Project): TextSpan | undefined {
     return getMappedContextSpan(documentSpan, project.getSourceMapper(), p => project.projectService.fileExists(p as NormalizedPath));
+}
+
+function toProtocolTextSpan(textSpan: TextSpan, scriptInfo: ScriptInfo): protocol.TextSpan {
+    return {
+        start: scriptInfo.positionToLineOffset(textSpan.start),
+        end: scriptInfo.positionToLineOffset(textSpanEnd(textSpan)),
+    };
 }

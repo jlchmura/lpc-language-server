@@ -1,4 +1,4 @@
-import { ensureLpcConfig } from "../backend/LpcConfig.js";
+import { ensureLpcConfig, LpcConfig } from "../backend/LpcConfig.js";
 import {
     AssignmentDeclarationKind,
     BaseType,
@@ -141,7 +141,13 @@ import {
     getScriptKind,
     getSourceMapper,
     hostUsesCaseSensitiveFileNames,
+    NavigationTree,
+    getImpliedNodeFormatForFile,
+    hostGetCanonicalFileName,
+    getSetExternalModuleIndicator,
+    JSDocParsingMode,
 } from "./_namespaces/lpc.js";
+import * as NavigationBar from "./_namespaces/lpc.NavigationBar.js";
 
 // These utilities are common to multiple language service features.
 // #region
@@ -1213,7 +1219,7 @@ export function createLanguageService(
 ): LanguageService {
     let languageServiceMode: LanguageServiceMode;
     
-    //const syntaxTreeCache: SyntaxTreeCache = new SyntaxTreeCache(host);
+    const syntaxTreeCache: SyntaxTreeCache = new SyntaxTreeCache(host);
     let program: Program;
     let lastProjectVersion: string;
     let lastTypesRootVersion = 0;
@@ -1252,7 +1258,8 @@ export function createLanguageService(
         getSyntacticDiagnostics,
         getSemanticDiagnostics,
         getSourceMapper: () => sourceMapper,
-        toLineColumnOffset
+        toLineColumnOffset,
+        getNavigationTree
     };
 
     return ls;
@@ -1269,6 +1276,10 @@ export function createLanguageService(
         return program;
     }
 
+    function getNavigationTree(fileName: string): NavigationTree {        
+        return NavigationBar.getNavigationTree(syntaxTreeCache.getCurrentSourceFile(fileName), cancellationToken);
+    }
+    
     function cleanupSemanticCache(): void {
         if (program) {
             // Use paths to ensure we are using correct key and paths as document registry could be created with different current directory than host
@@ -1965,3 +1976,61 @@ export function getDefaultFormatCodeSettings(newLineCharacter?: string): FormatC
         indentSwitchCase: true,
     };
 }
+
+class SyntaxTreeCache {
+    // For our syntactic only features, we also keep a cache of the syntax tree for the
+    // currently edited file.
+    private currentFileName: string | undefined;
+    private currentFileVersion: string | undefined;
+    private currentFileScriptSnapshot: IScriptSnapshot | undefined;
+    private currentSourceFile: SourceFile | undefined;
+
+    constructor(private host: LanguageServiceHost) {
+    }
+
+    public getCurrentSourceFile(fileName: string): SourceFile {
+        const scriptSnapshot = this.host.getScriptSnapshot(fileName);
+        if (!scriptSnapshot) {
+            // The host does not know about this file.
+            throw new Error("Could not find file: '" + fileName + "'.");
+        }
+
+        const scriptKind = getScriptKind(fileName, this.host);
+        const version = this.host.getScriptVersion(fileName);
+        let sourceFile: SourceFile | undefined;
+
+        if (this.currentFileName !== fileName) {
+            // This is a new file, just parse it
+            const options: CreateSourceFileOptions = {
+                languageVersion: ScriptTarget.Latest,
+                impliedNodeFormat: getImpliedNodeFormatForFile(
+                    toPath(fileName, this.host.getCurrentDirectory(), this.host.getCompilerHost?.()?.getCanonicalFileName || hostGetCanonicalFileName(this.host)),
+                    this.host.getCompilerHost?.()?.getModuleResolutionCache?.()?.getPackageJsonInfoCache(),
+                    this.host,
+                    this.host.getCompilationSettings(),
+                ),
+                setExternalModuleIndicator: getSetExternalModuleIndicator(this.host.getCompilationSettings()),
+                // These files are used to produce syntax-based highlighting, which reads JSDoc, so we must use ParseAll.
+                jsDocParsingMode: JSDocParsingMode.ParseAll,
+            };            
+            sourceFile = createLanguageServiceSourceFile(fileName, scriptSnapshot, this.host.fileHandler, options, version, /*setNodeParents*/ true, scriptKind);
+        }
+        else if (this.currentFileVersion !== version) {            
+            // This is the same file, just a newer version. Incrementally parse the file.
+            const editRange = scriptSnapshot.getChangeRange(this.currentFileScriptSnapshot!);
+                        
+            sourceFile = updateLanguageServiceSourceFile(this.currentSourceFile!, scriptSnapshot, this.host.fileHandler, version, editRange);
+        }
+
+        if (sourceFile) {
+            // All done, ensure state is up to date
+            this.currentFileVersion = version;
+            this.currentFileName = fileName;
+            this.currentFileScriptSnapshot = scriptSnapshot;
+            this.currentSourceFile = sourceFile;
+        }
+
+        return this.currentSourceFile!;
+    }
+}
+

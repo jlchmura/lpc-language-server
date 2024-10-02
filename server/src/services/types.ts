@@ -7,6 +7,7 @@ import {
     GetEffectiveTypeRootsHost,
     JSDocParsingMode,
     LineAndCharacter,
+    LpcFileHandler,
     MinimalResolutionCacheHost,
     Node,
     Program,
@@ -385,6 +386,8 @@ export interface LanguageService {
     getProgram(): Program | undefined;
     /** @internal */ getCurrentProgram(): Program | undefined;
 
+    getNavigationTree(fileName: string): NavigationTree;
+
     /**
      * Gets errors indicating invalid syntax in a file.
      *
@@ -412,7 +415,7 @@ export interface LanguageService {
      * @param fileName A path to the file you want semantic diagnostics for
      */
     getSuggestionDiagnostics(fileName: string): DiagnosticWithLocation[];
-
+    
     /**
      * Gets warnings or errors indicating type system issues in a given file.
      * Requesting semantic diagnostics may start up the type system and
@@ -434,6 +437,8 @@ export interface LanguageService {
     getSourceMapper(): SourceMapper;
 
     toLineColumnOffset?(fileName: string, position: number): LineAndCharacter;
+
+
 }
 
 export interface HostCancellationToken {
@@ -491,7 +496,8 @@ export interface LanguageServiceHost
     trace?(s: string): void;
     error?(s: string): void;
     useCaseSensitiveFileNames?(): boolean;
-
+    fileHandler: LpcFileHandler;
+            
     /*
      * LS host can optionally implement these methods to support completions for module specifiers.
      * Without these methods, only completions for ambient modules will be provided.
@@ -749,3 +755,43 @@ export interface PerformanceEvent {
     kind: "UpdateGraph" | "CreatePackageJsonAutoImportProvider";
     durationMs: number;
 }
+
+
+/**
+ * Navigation bar interface designed for visual studio's dual-column layout.
+ * This does not form a proper tree.
+ * The navbar is returned as a list of top-level items, each of which has a list of child items.
+ * Child items always have an empty array for their `childItems`.
+ */
+export interface NavigationBarItem {
+    text: string;
+    kind: ScriptElementKind;
+    kindModifiers: string;
+    spans: TextSpan[];
+    childItems: NavigationBarItem[];
+    indent: number;
+    bolded: boolean;
+    grayed: boolean;
+}
+
+
+/**
+ * Node in a tree of nested declarations in a file.
+ * The top node is always a script or module node.
+ */
+export interface NavigationTree {
+    /** Name of the declaration, or a short description, e.g. "<class>". */
+    text: string;
+    kind: ScriptElementKind;
+    /** ScriptElementKindModifier separated by commas, e.g. "public,abstract" */
+    kindModifiers: string;
+    /**
+     * Spans of the nodes that generated this declaration.
+     * There will be more than one if this is the result of merging.
+     */
+    spans: TextSpan[];
+    nameSpan: TextSpan | undefined;
+    /** Present if non-empty */
+    childItems?: NavigationTree[];
+}
+

@@ -64,6 +64,18 @@ import {
     SourceMapper,
     DocumentPosition,
     normalizePath,
+    ScriptElementKind,
+    VariableDeclaration,
+    getRootDeclaration,
+    PropertyAssignment,
+    hasSyntacticModifier,
+    getAssignmentDeclarationKind,
+    AssignmentDeclarationKind,
+    isFunctionExpression,
+    assertType,
+    isVarConst,
+    isLet,
+    TextRange,
 } from "./_namespaces/lpc.js";
 
 /** @internal */
@@ -823,4 +835,117 @@ export function getMappedContextSpan(documentSpan: DocumentSpan, sourceMapper: S
     return contextSpanStart && contextSpanEnd ?
         { start: contextSpanStart.pos, length: contextSpanEnd.pos - contextSpanStart.pos } :
         undefined;
+}
+
+/** @internal */
+export function getNodeKind(node: Node): ScriptElementKind {
+    switch (node.kind) {
+        case SyntaxKind.SourceFile:
+            return ScriptElementKind.scriptElement;//isExternalModule(node as SourceFile) ? ScriptElementKind.moduleElement : ScriptElementKind.scriptElement;
+        // case SyntaxKind.ModuleDeclaration:
+        //     return ScriptElementKind.moduleElement;
+        // case SyntaxKind.ClassDeclaration:
+        case SyntaxKind.ClassExpression:
+            return ScriptElementKind.classElement;
+        // case SyntaxKind.InterfaceDeclaration:
+        //     return ScriptElementKind.interfaceElement;
+        // case SyntaxKind.TypeAliasDeclaration:
+        case SyntaxKind.JSDocCallbackTag:
+        case SyntaxKind.JSDocTypedefTag:
+            return ScriptElementKind.typeElement;
+        // case SyntaxKind.EnumDeclaration:
+        //     return ScriptElementKind.enumElement;
+        case SyntaxKind.VariableDeclaration:
+            return getKindOfVariableDeclaration(node as VariableDeclaration);
+        case SyntaxKind.BindingElement:
+            return getKindOfVariableDeclaration(getRootDeclaration(node) as VariableDeclaration);
+        // case SyntaxKind.ArrowFunction:
+        case SyntaxKind.FunctionDeclaration:
+        case SyntaxKind.FunctionExpression:
+            return ScriptElementKind.functionElement;
+        // case SyntaxKind.GetAccessor:
+        //     return ScriptElementKind.memberGetAccessorElement;
+        // case SyntaxKind.SetAccessor:
+        //     return ScriptElementKind.memberSetAccessorElement;
+        // case SyntaxKind.MethodDeclaration:
+        // case SyntaxKind.MethodSignature:
+        //     return ScriptElementKind.memberFunctionElement;
+        case SyntaxKind.PropertyAssignment:
+            const { initializer } = node as PropertyAssignment;
+            return isFunctionLike(initializer) ? ScriptElementKind.memberFunctionElement : ScriptElementKind.memberVariableElement;
+        case SyntaxKind.PropertyDeclaration:
+        // case SyntaxKind.PropertySignature:
+        case SyntaxKind.ShorthandPropertyAssignment:
+        // case SyntaxKind.SpreadAssignment:
+            return ScriptElementKind.memberVariableElement;
+        case SyntaxKind.IndexSignature:
+            return ScriptElementKind.indexSignatureElement;
+        // case SyntaxKind.ConstructSignature:
+        //     return ScriptElementKind.constructSignatureElement;
+        // case SyntaxKind.CallSignature:
+        //     return ScriptElementKind.callSignatureElement;
+        // case SyntaxKind.Constructor:
+        // case SyntaxKind.ClassStaticBlockDeclaration:
+        //     return ScriptElementKind.constructorImplementationElement;
+        case SyntaxKind.TypeParameter:
+            return ScriptElementKind.typeParameterElement;
+        // case SyntaxKind.EnumMember:
+        //     return ScriptElementKind.enumMemberElement;
+        case SyntaxKind.Parameter:
+            return hasSyntacticModifier(node, ModifierFlags.ParameterPropertyModifier) ? ScriptElementKind.memberVariableElement : ScriptElementKind.parameterElement;
+        case SyntaxKind.ExportSpecifier:
+        // case SyntaxKind.ImportEqualsDeclaration:
+        // case SyntaxKind.ImportSpecifier:
+        // case SyntaxKind.NamespaceImport:
+        // case SyntaxKind.NamespaceExport:
+            return ScriptElementKind.alias;
+        case SyntaxKind.BinaryExpression:
+            const kind = getAssignmentDeclarationKind(node as BinaryExpression);
+            const { right } = node as BinaryExpression;
+            switch (kind) {
+                case AssignmentDeclarationKind.ObjectDefinePropertyValue:
+                case AssignmentDeclarationKind.ObjectDefinePropertyExports:
+                case AssignmentDeclarationKind.ObjectDefinePrototypeProperty:
+                case AssignmentDeclarationKind.None:
+                    return ScriptElementKind.unknown;
+                case AssignmentDeclarationKind.ExportsProperty:
+                case AssignmentDeclarationKind.ModuleExports:
+                    const rightKind = getNodeKind(right);
+                    return rightKind === ScriptElementKind.unknown ? ScriptElementKind.constElement : rightKind;
+                case AssignmentDeclarationKind.PrototypeProperty:
+                    return isFunctionExpression(right) ? ScriptElementKind.memberFunctionElement : ScriptElementKind.memberVariableElement;
+                case AssignmentDeclarationKind.ThisProperty:
+                    return ScriptElementKind.memberVariableElement; // property
+                case AssignmentDeclarationKind.Property:
+                    // static method / property
+                    return isFunctionExpression(right) ? ScriptElementKind.memberFunctionElement : ScriptElementKind.memberVariableElement;
+                case AssignmentDeclarationKind.Prototype:
+                    return ScriptElementKind.localClassElement;
+                default: {
+                    assertType<never>(kind);
+                    return ScriptElementKind.unknown;
+                }
+            }
+        case SyntaxKind.Identifier:
+            return ScriptElementKind.unknown;//isImportClause(node.parent) ? ScriptElementKind.alias : ScriptElementKind.unknown;
+        // case SyntaxKind.ExportAssignment:
+        //     const scriptKind = getNodeKind((node as ExportAssignment).expression);
+        //     // If the expression didn't come back with something (like it does for an identifiers)
+        //     return scriptKind === ScriptElementKind.unknown ? ScriptElementKind.constElement : scriptKind;
+        default:
+            return ScriptElementKind.unknown;
+    }
+
+    function getKindOfVariableDeclaration(v: VariableDeclaration): ScriptElementKind {
+        return isVarConst(v)
+            ? ScriptElementKind.constElement
+            : isLet(v)
+            ? ScriptElementKind.letElement
+            : ScriptElementKind.variableElement;
+    }
+}
+
+/** @internal */
+export function createTextSpanFromRange(range: TextRange): TextSpan {
+    return createTextSpanFromBounds(range.pos, range.end);
 }

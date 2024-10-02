@@ -145,7 +145,7 @@ export function start(connection: Connection, platform: string) {
                 //     triggerCharacters: [">", "*"],
                 // },
                 // renameProvider: false,
-                // documentSymbolProvider: true,
+                documentSymbolProvider: true,
                 // codeLensProvider: {
                 //     resolveProvider: true,
                 //     workDoneProgress: false,
@@ -209,6 +209,16 @@ export function start(connection: Connection, platform: string) {
 
         connection.onShutdown(e=>{
             session.exit();
+        });
+
+        connection.onDocumentSymbol(requestParams => {
+            const args: lpc.server.protocol.FileRequestArgs = {
+                file: fromUri(requestParams.textDocument.uri),
+                projectFileName,
+            };
+            const result = session.getNavigationTree(args, true);            
+            const ii=0;
+            return [];          
         });
 
         connection.onHover(requestParams => {

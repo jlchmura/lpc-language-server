@@ -1,7 +1,7 @@
 import { LpcConfig } from "../backend/LpcConfig.js";
 import { IFileHandler, LoadImportResult } from "../backend/types.js";
 import { ILpcConfig } from "../config-types.js";
-import { BaseNodeFactory, CreateSourceFileOptions, EmitHelperFactory, GetCanonicalFileName, MapLike, MultiMap, Mutable, NodeFactoryFlags, Pattern } from "./_namespaces/lpc.js";
+import { BaseNodeFactory, CreateSourceFileOptions, EmitHelperFactory, GetCanonicalFileName, MapLike, ModuleResolutionCache, MultiMap, Mutable, NodeFactoryFlags, Pattern } from "./_namespaces/lpc.js";
 
 // Note: 'brands' in our syntax nodes serve to give us a small amount of nominal typing.
 // Consider 'Expression'.  Without the brand, 'Expression' is actually no different
@@ -3159,6 +3159,12 @@ export interface PropertyAccessExpression extends MemberExpression, NamedDeclara
     readonly name: MemberName;
 }
 
+/** @internal */
+export type LiteralLikeElementAccessExpression = ElementAccessExpression & Declaration & {
+    readonly argumentExpression: StringLiteral | IntLiteral;
+};
+
+
 /** Brand for a PropertyAccessExpression which, like a QualifiedName, consists of a sequence of identifiers separated by dots. */
 export interface PropertyAccessEntityNameExpression extends PropertyAccessExpression {
     _propertyAccessExpressionLikeQualifiedNameBrand?: any;
@@ -4438,7 +4444,7 @@ export interface CompilerHost extends ModuleResolutionHost {
     /**
      * Returns the module resolution cache used by a provided `resolveModuleNames` implementation so that any non-name module resolution operations (eg, package.json lookup) can reuse it
      */
-    // getModuleResolutionCache?(): ModuleResolutionCache | undefined;
+    getModuleResolutionCache?(): ModuleResolutionCache | undefined;
     /**
      * @deprecated supply resolveTypeReferenceDirectiveReferences instead for resolution that can handle newer resolution modes like nodenext
      *
@@ -5358,6 +5364,17 @@ export interface SingleSignatureType extends AnonymousType {
 export type BindableObjectDefinePropertyCall = CallExpression & {
     readonly arguments: readonly [StringLiteral | IntLiteral, ObjectLiteralExpression] & Readonly<TextRange>;
 };
+
+/** @internal */
+export type BindableStaticNameExpression =
+    | EntityNameExpression;
+    //| BindableStaticElementAccessExpression;
+
+/** @internal */
+export type BindableElementAccessExpression = ElementAccessExpression & {
+    readonly expression: BindableStaticNameExpression;
+};
+
 
 /** @internal */
 // Object literals are initially marked fresh. Freshness disappears following an assignment,

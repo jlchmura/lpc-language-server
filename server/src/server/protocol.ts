@@ -419,3 +419,13 @@ export interface DefinitionInfo extends FileSpanWithContext {
      */
     unverified?: boolean;
 }
+
+/** protocol.NavigationTree is identical to ts.NavigationTree, except using protocol.TextSpan instead of ts.TextSpan */
+export interface NavigationTree {
+    text: string;
+    kind: ScriptElementKind;
+    kindModifiers: string;
+    spans: TextSpan[];
+    nameSpan: TextSpan | undefined;
+    childItems?: NavigationTree[];
+}

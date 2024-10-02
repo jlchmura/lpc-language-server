@@ -241,3 +241,15 @@ export function isConstructorDeclaration(node: Node) {//: node is ConstructorDec
     return false;//return node.kind === SyntaxKind.Constructor;
 }
 
+export function isClassDeclaration(node: Node): node is Node {
+    return false;//return node.kind === SyntaxKind.ClassDeclaration;
+}
+
+export function isArrowFunction(node: Node): node is Node {//ArrowFunction {
+    return false;//return node.kind === SyntaxKind.ArrowFunction;
+}
+
+/** @internal */
+export function isJSDocTypeAlias(node: Node): node is JSDocTypedefTag/* | JSDocCallbackTag | JSDocEnumTag*/ {
+    return node.kind === SyntaxKind.JSDocTypedefTag || node.kind === SyntaxKind.JSDocCallbackTag || node.kind === SyntaxKind.JSDocEnumTag;
+}

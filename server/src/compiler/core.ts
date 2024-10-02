@@ -1523,3 +1523,66 @@ export interface Pattern {
     prefix: string;
     suffix: string;
 }
+
+
+/**
+ * Creates a string comparer for use with string collation in the UI.
+ */
+const createUIStringComparer = (() => {
+    return createIntlCollatorStringComparer;
+
+    function compareWithCallback(a: string | undefined, b: string | undefined, comparer: (a: string, b: string) => number) {
+        if (a === b) return Comparison.EqualTo;
+        if (a === undefined) return Comparison.LessThan;
+        if (b === undefined) return Comparison.GreaterThan;
+        const value = comparer(a, b);
+        return value < 0 ? Comparison.LessThan : value > 0 ? Comparison.GreaterThan : Comparison.EqualTo;
+    }
+
+    function createIntlCollatorStringComparer(locale: string | undefined): Comparer<string> {
+        // Intl.Collator.prototype.compare is bound to the collator. See NOTE in
+        // http://www.ecma-international.org/ecma-402/2.0/#sec-Intl.Collator.prototype.compare
+        const comparer = new Intl.Collator(locale, { usage: "sort", sensitivity: "variant", numeric: true }).compare;
+        return (a, b) => compareWithCallback(a, b, comparer);
+    }
+})();
+
+let uiComparerCaseSensitive: Comparer<string> | undefined;
+let uiLocale: string | undefined;
+
+/** @internal */
+export function getUILocale() {
+    return uiLocale;
+}
+
+/**
+ * Compare two strings in a using the case-sensitive sort behavior of the UI locale.
+ *
+ * Ordering is not predictable between different host locales, but is best for displaying
+ * ordered data for UI presentation. Characters with multiple unicode representations may
+ * be considered equal.
+ *
+ * Case-sensitive comparisons compare strings that differ in base characters, or
+ * accents/diacritic marks, or case as unequal.
+ *
+ * @internal
+ */
+export function compareStringsCaseSensitiveUI(a: string, b: string) {
+    const comparer = uiComparerCaseSensitive || (uiComparerCaseSensitive = createUIStringComparer(uiLocale));
+    return comparer(a, b);
+}
+
+/** @internal */
+export function assertType<T>(_: T): void {}
+
+/** @internal */
+export function filterMutate<T>(array: T[], f: (x: T, i: number, array: T[]) => boolean): void {
+    let outIndex = 0;
+    for (let i = 0; i < array.length; i++) {
+        if (f(array[i], i, array)) {
+            array[outIndex] = array[i];
+            outIndex++;
+        }
+    }
+    array.length = outIndex;
+}

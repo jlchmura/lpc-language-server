@@ -1745,3 +1745,4 @@ export function parseLpcConfig(fileName: string, sourceText: string): LpcConfigS
 export function isExternalModule(file: SourceFile): boolean {
     return file.externalModuleIndicator !== undefined;
 }
+

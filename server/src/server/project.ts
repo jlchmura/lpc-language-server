@@ -138,6 +138,8 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
     /** @internal */
     triggerFileForConfigFileDiag?: NormalizedPath;
 
+    fileHandler: lpc.LpcFileHandler;
+
     constructor(
         projectName: string,
         readonly projectKind: ProjectKind,
@@ -162,7 +164,7 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
             /*logChangesWhenResolvingModule*/ true,
         );
         
-        const fileHandler = lpc.createLpcFileHandler(()=>this, ()=>this.getCompilerOptions().config);
+        const fileHandler = this.fileHandler = lpc.createLpcFileHandler(()=>this, ()=>this.getCompilerOptions().config);
         this.languageService = createLanguageService(this, fileHandler, this.documentRegistry, this.projectService.serverMode);
         // if (lastFileExceededProgramSize) {
         //     this.disableLanguageService(lastFileExceededProgramSize);
