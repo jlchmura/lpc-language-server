@@ -7,6 +7,7 @@ import { Position, TextDocument } from "vscode-languageserver-textdocument";
 import { URI } from "vscode-uri";
 import { loadLpcConfig } from "../backend/LpcConfig.js";
 import EventEmitter from "events";
+import { convertNavTree } from "./utils.js";
 
 const logger = new Logger("server.log", true, lpc.server.LogLevel.verbose);
 
@@ -212,13 +213,19 @@ export function start(connection: Connection, platform: string) {
         });
 
         connection.onDocumentSymbol(requestParams => {
+            const uri = URI.parse(requestParams.textDocument.uri);
             const args: lpc.server.protocol.FileRequestArgs = {
                 file: fromUri(requestParams.textDocument.uri),
                 projectFileName,
             };
-            const result = session.getNavigationTree(args, true);            
-            const ii=0;
-            return [];          
+            const result = session.getNavigationTree(args, true) as protocol.NavigationTree;
+            
+            const navResults: ls.DocumentSymbol[] = [];
+            for (const item of result.childItems) {
+                convertNavTree(uri, navResults, item);
+            }
+
+            return navResults;
         });
 
         connection.onHover(requestParams => {

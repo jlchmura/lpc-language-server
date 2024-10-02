@@ -1,4 +1,9 @@
 import {  ScriptElementKind, SymbolDisplayPart } from "./_namespaces/lpc";
+import * as lpc from "./_namespaces/lpc";
+
+type ChangePropertyTypes<T, Substitutions extends { [K in keyof T]?: any; }> = {
+    [K in keyof T]: K extends keyof Substitutions ? Substitutions[K] : T[K];
+};
 
 /**
  * A Server message
@@ -428,4 +433,74 @@ export interface NavigationTree {
     spans: TextSpan[];
     nameSpan: TextSpan | undefined;
     childItems?: NavigationTree[];
+}
+
+export interface FileRangeRequestArgs extends FileRequestArgs {
+    /**
+     * The line number for the request (1-based).
+     */
+    startLine: number;
+
+    /**
+     * The character offset (on the line) for the request (1-based).
+     */
+    startOffset: number;
+
+    /**
+     * Position (can be specified instead of line/offset pair)
+     *
+     * @internal
+     */
+    startPosition?: number;
+
+    /**
+     * The line number for the request (1-based).
+     */
+    endLine: number;
+
+    /**
+     * The character offset (on the line) for the request (1-based).
+     */
+    endOffset: number;
+
+    /**
+     * Position (can be specified instead of line/offset pair)
+     *
+     * @internal
+     */
+    endPosition?: number;
+}
+
+export const enum IndentStyle {
+    None = "None",
+    Block = "Block",
+    Smart = "Smart",
+}
+
+export type FormatCodeSettings = ChangePropertyTypes<lpc.FormatCodeSettings, { indentStyle: IndentStyle | lpc.IndentStyle; }>;
+
+/**
+ * Arguments for format messages.
+ */
+export interface FormatRequestArgs extends FileLocationRequestArgs {
+    /**
+     * Last line of range for which to format text in file.
+     */
+    endLine: number;
+
+    /**
+     * Character offset on last line of range for which to format text in file.
+     */
+    endOffset: number;
+
+    /**
+     * End position of the range for which to format text in file.
+     *
+     * @internal
+     */
+    endPosition?: number;
+    /**
+     * Format options to be used.
+     */
+    options?: FormatCodeSettings;
 }

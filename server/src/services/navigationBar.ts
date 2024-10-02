@@ -1089,3 +1089,4 @@ function cleanText(text: string): string {
     // \u2029 - Paragraph separator
     return text.replace(/\\?(\r?\n|\r|\u2028|\u2029)/g, "");
 }
+
