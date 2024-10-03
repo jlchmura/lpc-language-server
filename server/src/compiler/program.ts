@@ -1,6 +1,6 @@
 import { writeFile } from "fs";
 import { ILpcConfig } from "../config-types.js";
-import { getDeclarationDiagnostics as lpc_getDeclarationDiagnostics, forEachResolvedProjectReference as lpc_forEachResolvedProjectReference, combinePaths, compareValues, CompilerHost, CompilerOptions, containsPath, createDiagnosticCollection, createGetCanonicalFileName, createMultiMap, CreateProgramOptions, createSourceFile, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DiagnosticWithLocation, FileIncludeKind, FileIncludeReason, FilePreprocessingDiagnostics, FilePreprocessingDiagnosticsKind, forEach, getBaseFileName, getDirectoryPath, getNewLineCharacter, getRootLength, hasExtension, isArray, maybeBind, memoize, normalizePath, ObjectLiteralExpression, PackageId, Path, performance, Program, ProgramHost, ProjectReference, PropertyAssignment, ReferencedFile, removePrefix, removeSuffix, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, SourceFile, stableSort, StructureIsReused, sys, System, toPath as lpc_toPath, tracing, TypeChecker, getNormalizedAbsolutePathWithoutRoot, some, isRootedDiskPath, optionsHaveChanges, packageIdToString, toFileNameLowerCase, getNormalizedAbsolutePath, CreateSourceFileOptions, createTypeChecker, ScriptTarget, libs, FileReference, SortedReadonlyArray, concatenate, sortAndDeduplicateDiagnostics, emptyArray, LpcFileHandler, createLpcFileHandler, DiagnosticMessageChain, isString, CancellationToken, flatMap, filter, Debug, ScriptKind, flatten, OperationCanceledException, noop, getNormalizedPathComponents, GetCanonicalFileName, getPathFromPathComponents, WriteFileCallback, EmitHost, WriteFileCallbackData, getDefaultLibFileName, LibResolution, returnFalse, isTraceEnabled, trace, equateStringsCaseSensitive, equateStringsCaseInsensitive, NodeFlags, ResolvedModuleFull, Extension, ResolutionMode, ModeAwareCache, isExternalModule, StringLiteral, Identifier, isCloneObjectExpression, isStringLiteral, setParentRecursive, append, Node, SyntaxKind, forEachChild, ResolutionWithFailedLookupLocations, createModeAwareCache, ModuleKind, ResolvedTypeReferenceDirectiveWithFailedLookupLocations, ModuleResolutionCache, contains, createModuleResolutionCache, ModuleResolutionHost, ModeAwareCacheKey, createModeAwareCacheKey, resolveModuleName, isInheritDeclaration, LogLevel, PackageJsonInfoCache } from "./_namespaces/lpc.js";
+import { getDeclarationDiagnostics as lpc_getDeclarationDiagnostics, forEachResolvedProjectReference as lpc_forEachResolvedProjectReference, combinePaths, compareValues, CompilerHost, CompilerOptions, containsPath, createDiagnosticCollection, createGetCanonicalFileName, createMultiMap, CreateProgramOptions, createSourceFile, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DiagnosticWithLocation, FileIncludeKind, FileIncludeReason, FilePreprocessingDiagnostics, FilePreprocessingDiagnosticsKind, forEach, getBaseFileName, getDirectoryPath, getNewLineCharacter, getRootLength, hasExtension, isArray, maybeBind, memoize, normalizePath, ObjectLiteralExpression, PackageId, Path, performance, Program, ProgramHost, ProjectReference, PropertyAssignment, ReferencedFile, removePrefix, removeSuffix, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, SourceFile, stableSort, StructureIsReused, sys, System, toPath as lpc_toPath, tracing, TypeChecker, getNormalizedAbsolutePathWithoutRoot, some, isRootedDiskPath, optionsHaveChanges, packageIdToString, toFileNameLowerCase, getNormalizedAbsolutePath, CreateSourceFileOptions, createTypeChecker, ScriptTarget, libs, FileReference, SortedReadonlyArray, concatenate, sortAndDeduplicateDiagnostics, emptyArray, LpcFileHandler, createLpcFileHandler, DiagnosticMessageChain, isString, CancellationToken, flatMap, filter, Debug, ScriptKind, flatten, OperationCanceledException, noop, getNormalizedPathComponents, GetCanonicalFileName, getPathFromPathComponents, WriteFileCallback, EmitHost, WriteFileCallbackData, getDefaultLibFileName, LibResolution, returnFalse, isTraceEnabled, trace, equateStringsCaseSensitive, equateStringsCaseInsensitive, NodeFlags, ResolvedModuleFull, Extension, ResolutionMode, ModeAwareCache, isExternalModule, StringLiteral, Identifier, isCloneObjectExpression, isStringLiteral, setParentRecursive, append, Node, SyntaxKind, forEachChild, ResolutionWithFailedLookupLocations, createModeAwareCache, ModuleKind, ResolvedTypeReferenceDirectiveWithFailedLookupLocations, ModuleResolutionCache, contains, createModuleResolutionCache, ModuleResolutionHost, ModeAwareCacheKey, createModeAwareCacheKey, resolveModuleName, isInheritDeclaration, LogLevel, PackageJsonInfoCache, StringLiteralLike, skipTrivia, getSourceFileOfNode } from "./_namespaces/lpc.js";
 
 /**
  * Create a new 'Program' instance. A Program is an immutable collection of 'SourceFile's and a 'CompilerOptions'
@@ -60,8 +60,8 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
 
     let resolvedModules: Map<Path, ModeAwareCache<ResolvedModuleWithFailedLookupLocations>> | undefined;
     let resolvedModulesProcessing: Map<Path, readonly ResolvedModuleWithFailedLookupLocations[]> | undefined;
-    // let resolvedTypeReferenceDirectiveNames: Map<Path, ModeAwareCache<ResolvedTypeReferenceDirectiveWithFailedLookupLocations>> | undefined;
-    // let resolvedTypeReferenceDirectiveNamesProcessing: Map<Path, readonly ResolvedTypeReferenceDirectiveWithFailedLookupLocations[]> | undefined;
+    let resolvedTypeReferenceDirectiveNames: Map<Path, ModeAwareCache<ResolvedTypeReferenceDirectiveWithFailedLookupLocations>> | undefined;
+    let resolvedTypeReferenceDirectiveNamesProcessing: Map<Path, readonly ResolvedTypeReferenceDirectiveWithFailedLookupLocations[]> | undefined;
 
     let packageMap: Map<string, boolean> | undefined;
 
@@ -325,9 +325,9 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         // resolvedTypeReferenceDirectiveNames,
         resolvedLibReferences,
         getResolvedModule,
-        // getResolvedModuleFromModuleSpecifier,
+        getResolvedModuleFromModuleSpecifier,
         // getResolvedTypeReferenceDirective,
-        // getResolvedTypeReferenceDirectiveFromTypeReferenceDirective,
+        getResolvedTypeReferenceDirectiveFromTypeReferenceDirective,
         // forEachResolvedModule,
         // forEachResolvedTypeReferenceDirective,
         // getCurrentPackagesMap: () => packageMap,
@@ -335,8 +335,8 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         // packageBundlesTypes,
         // isEmittedFile,
         // getConfigFileParsingDiagnostics,
-        // getProjectReferences,
-        // getResolvedProjectReferences,
+        getProjectReferences,
+        getResolvedProjectReferences,
         // getProjectReferenceRedirect,
         // getResolvedProjectReferenceToRedirect,
         getResolvedProjectReferenceByPath,
@@ -448,6 +448,28 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
 
     function getBindAndCheckDiagnosticsForFile(sourceFile: SourceFile, cancellationToken: CancellationToken | undefined): readonly Diagnostic[] {
         return getAndCacheDiagnostics(sourceFile, cancellationToken, cachedBindAndCheckDiagnosticsForFile, getBindAndCheckDiagnosticsForFileNoCache);
+    }
+
+    function getResolvedModuleFromModuleSpecifier(moduleSpecifier: StringLiteralLike, sourceFile?: SourceFile): ResolvedModuleWithFailedLookupLocations | undefined {
+        sourceFile ??= getSourceFileOfNode(moduleSpecifier);
+        Debug.assertIsDefined(sourceFile, "`moduleSpecifier` must have a `SourceFile` ancestor. Use `program.getResolvedModule` instead to provide the containing file and resolution mode.");
+        return getResolvedModule(sourceFile, moduleSpecifier.text, getModeForUsageLocation(sourceFile, moduleSpecifier));
+    }
+
+    function getResolvedTypeReferenceDirective(file: SourceFile, typeDirectiveName: string, mode: ResolutionMode) {
+        return resolvedTypeReferenceDirectiveNames?.get(file.path)?.get(typeDirectiveName, mode);
+    }
+
+    function getResolvedTypeReferenceDirectiveFromTypeReferenceDirective(typeRef: FileReference, sourceFile: SourceFile) {
+        return getResolvedTypeReferenceDirective(sourceFile, typeRef.fileName, sourceFile.impliedNodeFormat);
+    }
+    
+    function getResolvedProjectReferences() {
+        return resolvedProjectReferences;
+    }
+
+    function getProjectReferences() {
+        return projectReferences;
     }
 
     function getResolvedModule(file: SourceFile, moduleName: string, mode: ResolutionMode) {
@@ -2058,4 +2080,73 @@ export function getImpliedNodeFormatForFile(fileName: string, packageJsonInfoCac
     return ModuleKind.LPC;
     // const result = getImpliedNodeFormatForFileWorker(fileName, packageJsonInfoCache, host, options);
     // return typeof result === "object" ? result.impliedNodeFormat : result;
+}
+
+/** @internal */
+export interface ReferenceFileLocation {
+    file: SourceFile;
+    pos: number;
+    end: number;
+    packageId: PackageId | undefined;
+}
+
+/** @internal */
+export interface SyntheticReferenceFileLocation {
+    file: SourceFile;
+    packageId: PackageId | undefined;
+    text: string;
+}
+
+/** @internal */
+export function getReferencedFileLocation(program: Program, ref: ReferencedFile): ReferenceFileLocation | SyntheticReferenceFileLocation {
+    const file = Debug.checkDefined(program.getSourceFileByPath(ref.file));
+    const { kind, index } = ref;
+    let pos: number | undefined, end: number | undefined, packageId: PackageId | undefined;
+    switch (kind) {
+        case FileIncludeKind.Import:
+            const importLiteral = getModuleNameStringLiteralAt(file, index);
+            packageId = program.getResolvedModuleFromModuleSpecifier(importLiteral, file)?.resolvedModule?.packageId;
+            if (importLiteral.pos === -1) return { file, packageId, text: importLiteral.text };
+            pos = skipTrivia(file.text, importLiteral.pos);
+            end = importLiteral.end;
+            break;
+        case FileIncludeKind.ReferenceFile:
+            ({ pos, end } = file.referencedFiles[index]);
+            break;
+        case FileIncludeKind.TypeReferenceDirective:
+            ({ pos, end } = file.typeReferenceDirectives[index]);
+            packageId = program.getResolvedTypeReferenceDirectiveFromTypeReferenceDirective(file.typeReferenceDirectives[index], file)?.resolvedTypeReferenceDirective?.packageId;
+            break;
+        case FileIncludeKind.LibReferenceDirective:
+            ({ pos, end } = file.libReferenceDirectives[index]);
+            break;
+        default:
+            return Debug.assertNever(kind);
+    }
+    return { file, pos, end, packageId };
+}
+
+/**
+ * Subset of a SourceFile used to calculate index-based resolutions
+ * This includes some internal fields, so unless you have very good reason,
+ * (and are willing to use some less stable internals) you should probably just pass a SourceFile.
+ *
+ * @internal
+ */
+export interface SourceFileImportsList {
+    /** @internal */ imports: SourceFile["imports"];    
+    impliedNodeFormat?: ResolutionMode;
+}
+
+
+/** @internal */
+export function getModuleNameStringLiteralAt({ imports }: SourceFileImportsList, index: number): StringLiteralLike {
+    if (index < imports.length) return imports[index];
+    let augIndex = imports.length;   
+    Debug.fail("should never ask for module name at index higher than possible module name");
+}
+
+/** @internal */
+export function isReferenceFileLocation(location: ReferenceFileLocation | SyntheticReferenceFileLocation): location is ReferenceFileLocation {
+    return (location as ReferenceFileLocation).pos !== undefined;
 }

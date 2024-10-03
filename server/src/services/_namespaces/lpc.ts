@@ -13,3 +13,5 @@ import * as GoToDefinition from "./lpc.GoToDefinition.js";
 export { GoToDefinition };
 import * as SymbolDisplay from "./lpc.SymbolDisplay.js";
 export { SymbolDisplay };
+import * as formatting from "./lpc.formatting.js";
+export { formatting };

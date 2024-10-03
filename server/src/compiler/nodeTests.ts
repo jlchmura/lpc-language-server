@@ -1,4 +1,4 @@
-import { ArrayBindingPattern, ArrayTypeNode, BinaryExpression, BindingElement, Block, CallExpression, CloneObjectExpression, ComputedPropertyName, DefaultClause, ElementAccessExpression, ExpressionStatement, FloatLiteral, ForStatement, FunctionDeclaration, FunctionExpression, Identifier, IfStatement, IndexedAccessTypeNode, InheritDeclaration, InlineClosureExpression, IntLiteral, JSDoc, JSDocDeprecatedTag, JSDocParameterTag, JSDocSignature, JSDocTemplateTag, JSDocTypedefTag, JSDocTypeExpression, LiteralTypeNode, NewExpression, Node, NodeFlags, ObjectLiteralExpression, ParameterDeclaration, ParenthesizedExpression, ParenthesizedTypeNode, PrefixUnaryExpression, PropertyAccessExpression, PropertyAssignment, PropertyDeclaration, QualifiedName, ShorthandPropertyAssignment, SourceFile, StringLiteral, StructDeclaration, SwitchStatement, SyntaxKind, TypeLiteralNode, TypeParameterDeclaration, TypeReferenceNode, UnionTypeNode, VariableDeclaration, VariableDeclarationList, VariableStatement } from "./_namespaces/lpc";
+import { ArrayBindingPattern, ArrayTypeNode, BinaryExpression, BindingElement, Block, CallExpression, CloneObjectExpression, ComputedPropertyName, DefaultClause, ElementAccessExpression, ExpressionStatement, FloatLiteral, ForStatement, FunctionDeclaration, FunctionExpression, Identifier, IfStatement, IndexedAccessTypeNode, InheritDeclaration, InlineClosureExpression, IntLiteral, JSDoc, JSDocDeprecatedTag, JSDocParameterTag, JSDocSignature, JSDocTemplateTag, JSDocTypedefTag, JSDocTypeExpression, LabeledStatement, LiteralTypeNode, NewExpression, Node, NodeFlags, ObjectLiteralExpression, ParameterDeclaration, ParenthesizedExpression, ParenthesizedTypeNode, PrefixUnaryExpression, PropertyAccessExpression, PropertyAssignment, PropertyDeclaration, PropertySignature, QualifiedName, ShorthandPropertyAssignment, SourceFile, StringLiteral, StructDeclaration, SwitchStatement, SyntaxKind, TypeLiteralNode, TypeParameterDeclaration, TypeReferenceNode, UnionTypeNode, VariableDeclaration, VariableDeclarationList, VariableStatement } from "./_namespaces/lpc";
 
 export function isBinaryExpression(node: Node): node is BinaryExpression {
     return node.kind === SyntaxKind.BinaryExpression;
@@ -252,4 +252,20 @@ export function isArrowFunction(node: Node): node is Node {//ArrowFunction {
 /** @internal */
 export function isJSDocTypeAlias(node: Node): node is JSDocTypedefTag/* | JSDocCallbackTag | JSDocEnumTag*/ {
     return node.kind === SyntaxKind.JSDocTypedefTag || node.kind === SyntaxKind.JSDocCallbackTag || node.kind === SyntaxKind.JSDocEnumTag;
+}
+
+export function isVoidExpression(node: Node): node is Node { //VoidExpression {
+    return false;//return node.kind === SyntaxKind.VoidExpression;
+}
+
+export function isLabeledStatement(node: Node): node is LabeledStatement {
+    return node.kind === SyntaxKind.LabeledStatement;
+}
+
+export function isNoSubstitutionTemplateLiteral(node: Node){//}: node is NoSubstitutionTemplateLiteral {
+    return false;// return node.kind === SyntaxKind.NoSubstitutionTemplateLiteral;
+}
+
+export function isPropertySignature(node: Node): node is PropertySignature {
+    return node.kind === SyntaxKind.PropertySignature;
 }

@@ -1,5 +1,5 @@
-import { arrayReverseIterator, concatenate, Debug, DefinitionInfo, Diagnostic, diagnosticCategoryName, DiagnosticRelatedInformation, displayPartsToString, DocumentPosition, DocumentSpan, emptyArray, filter, flattenDiagnosticMessageText, getLineAndCharacterOfPosition, getMappedContextSpan, getMappedDocumentSpan, getMappedLocation, isDeclarationFileName, isString, JSDocTagInfo, LanguageServiceMode, LineAndCharacter, map, mapDefinedIterator, mapIterator, NavigationTree, normalizePath, OperationCanceledException, PossibleProgramFileInfo, QuickInfo, ScriptKind, SymbolDisplayPart, TextSpan, textSpanEnd, toFileNameLowerCase, tracing } from "./_namespaces/lpc";
-import { ChangeFileArguments, ConfiguredProject, GcTimer, isConfiguredProject, Logger, LogLevel, NormalizedPath, OpenFileArguments, Project, ProjectService, ProjectServiceEventHandler, ProjectServiceOptions, ScriptInfo, ServerHost, stringifyIndented, toNormalizedPath, updateProjectIfDirty } from "./_namespaces/lpc.server";
+import { arrayReverseIterator, concatenate, createQueue, createSet, createTextSpan, Debug, DefinitionInfo, Diagnostic, diagnosticCategoryName, DiagnosticRelatedInformation, displayPartsToString, DocumentPosition, DocumentSpan, documentSpansEqual, emptyArray, filter, find, firstIterator, firstOrUndefined, flatMap, flattenDiagnosticMessageText, getDocumentSpansEqualityComparer, getLineAndCharacterOfPosition, getMappedContextSpan, getMappedDocumentSpan, getMappedLocation, isArray, isDeclarationFileName, isString, JSDocTagInfo, LanguageServiceMode, LineAndCharacter, map, mapDefinedIterator, mapIterator, memoize, MultiMap, NavigationTree, normalizePath, OperationCanceledException, Path, PossibleProgramFileInfo, QuickInfo, ReferencedSymbol, ReferencedSymbolDefinitionInfo, ReferencedSymbolEntry, ScriptKind, SymbolDisplayPart, TextSpan, textSpanEnd, toFileNameLowerCase, tracing } from "./_namespaces/lpc";
+import { ChangeFileArguments, ConfiguredProject, Errors, GcTimer, isConfiguredProject, Logger, LogLevel, NormalizedPath, OpenFileArguments, Project, ProjectService, ProjectServiceEventHandler, ProjectServiceOptions, ScriptInfo, ServerHost, stringifyIndented, toNormalizedPath, updateProjectIfDirty } from "./_namespaces/lpc.server";
 import * as protocol from "./protocol.js";
 
 export interface HostCancellationToken {
@@ -51,6 +51,11 @@ export type Event = <T extends object>(body: T, eventName: string) => void;
 export interface EventSender {
     event: Event;
 }
+
+type Projects = readonly Project[] | {
+    readonly projects: readonly Project[];
+    readonly symLinkedProjects: MultiMap<Path, Project>;
+};
 
 export class Session<TMessage = string> implements EventSender { 
     private readonly gcTimer: GcTimer;
@@ -709,6 +714,86 @@ export class Session<TMessage = string> implements EventSender {
         }
         return def;
     }
+
+    private getProjects(args: protocol.FileRequestArgs, getScriptInfoEnsuringProjectsUptoDate?: boolean, ignoreNoProjectError?: boolean): Projects {
+        let projects: readonly Project[] | undefined;
+        let symLinkedProjects: MultiMap<Path, Project> | undefined;
+        if (args.projectFileName) {
+            const project = this.getProject(args.projectFileName);
+            if (project) {
+                projects = [project];
+            }
+        }
+        else {
+            const scriptInfo = getScriptInfoEnsuringProjectsUptoDate ?
+                this.projectService.getScriptInfoEnsuringProjectsUptoDate(args.file) :
+                this.projectService.getScriptInfo(args.file);
+            if (!scriptInfo) {
+                if (ignoreNoProjectError) return emptyArray;
+                this.projectService.logErrorForScriptInfoNotFound(args.file);
+                return Errors.ThrowNoProject();
+            }
+            else if (!getScriptInfoEnsuringProjectsUptoDate) {
+                // Ensure there are containing projects are present
+                this.projectService.ensureDefaultProjectForFile(scriptInfo);
+            }
+            projects = scriptInfo.containingProjects;
+            symLinkedProjects = this.projectService.getSymlinkedProjects(scriptInfo);
+        }
+        // filter handles case when 'projects' is undefined
+        projects = filter(projects, p => p.languageServiceEnabled && !p.isOrphan());
+        if (!ignoreNoProjectError && (!projects || !projects.length) && !symLinkedProjects) {
+            this.projectService.logErrorForScriptInfoNotFound(args.file ?? args.projectFileName);
+            return Errors.ThrowNoProject();
+        }
+        return symLinkedProjects ? { projects: projects!, symLinkedProjects } : projects!; // TODO: GH#18217
+    }
+    
+    private getDefaultProject(args: protocol.FileRequestArgs) {
+        if (args.projectFileName) {
+            const project = this.getProject(args.projectFileName);
+            if (project) {
+                return project;
+            }
+            if (!args.file) {
+                return Errors.ThrowNoProject();
+            }
+        }
+        const info = this.projectService.getScriptInfo(args.file)!;
+        return info.getDefaultProject();
+    }
+
+    public getReferences(args: protocol.FileLocationRequestArgs, simplifiedResult: boolean): protocol.ReferencesResponseBody | readonly ReferencedSymbol[] {
+        const file = toNormalizedPath(args.file);
+        const projects = this.getProjects(args);
+        const position = this.getPositionInFile(args, file);
+        const references = getReferencesWorker(
+            projects,
+            this.getDefaultProject(args),
+            { fileName: args.file, pos: position },
+            this.host.useCaseSensitiveFileNames,
+            this.logger,
+        );
+
+        if (!simplifiedResult) return references;
+
+        const preferences = this.getPreferences(file);
+        const defaultProject = this.getDefaultProject(args);
+        const scriptInfo = defaultProject.getScriptInfoForNormalizedPath(file)!;
+        const nameInfo = defaultProject.getLanguageService().getQuickInfoAtPosition(file, position);
+        const symbolDisplayString = nameInfo ? displayPartsToString(nameInfo.displayParts) : "";
+        const nameSpan = nameInfo && nameInfo.textSpan;
+        const symbolStartOffset = nameSpan ? scriptInfo.positionToLineOffset(nameSpan.start).offset : 0;
+        const symbolName = nameSpan ? scriptInfo.getSnapshot().getText(nameSpan.start, textSpanEnd(nameSpan)) : "";
+        const refs: readonly protocol.ReferencesResponseItem[] = flatMap(references, referencedSymbol => {
+            return referencedSymbol.references.map(entry => referenceEntryToReferencesResponseItem(this.projectService, entry, preferences));
+        });
+        return { refs, symbolName, symbolStartOffset, symbolDisplayString };
+    }
+
+    private getPreferences(file: NormalizedPath): protocol.UserPreferences {
+        return this.projectService.getPreferences(file);
+    }
 }
 
 interface FileAndProject {
@@ -960,4 +1045,352 @@ function toProtocolTextSpan(textSpan: TextSpan, scriptInfo: ScriptInfo): protoco
         start: scriptInfo.positionToLineOffset(textSpan.start),
         end: scriptInfo.positionToLineOffset(textSpanEnd(textSpan)),
     };
+}
+
+interface ProjectAndLocation {
+    readonly project: Project;
+    readonly location: DocumentPosition;
+}
+
+function forEachProjectInProjects(projects: Projects, path: string | undefined, cb: (project: Project, path: string | undefined) => void): void {
+    for (const project of isArray(projects) ? projects : projects.projects) {
+        cb(project, path);
+    }
+    if (!isArray(projects) && projects.symLinkedProjects) {
+        projects.symLinkedProjects.forEach((symlinkedProjects, symlinkedPath) => {
+            for (const project of symlinkedProjects) {
+                cb(project, symlinkedPath);
+            }
+        });
+    }
+}
+
+function getDefinitionLocation(defaultProject: Project, initialLocation: DocumentPosition, isForRename: boolean): DocumentPosition | undefined {
+    const infos = defaultProject.getLanguageService().getDefinitionAtPosition(initialLocation.fileName, initialLocation.pos, /*searchOtherFilesOnly*/ false, /*stopAtAlias*/ isForRename);
+    const info = infos && firstOrUndefined(infos);
+    // Note that the value of `isLocal` may depend on whether or not the checker has run on the containing file
+    // (implying that FAR cascading behavior may depend on request order)
+    return info && !info.isLocal ? { fileName: info.fileName, pos: info.textSpan.start } : undefined;
+}
+
+function isLocationProjectReferenceRedirect(project: Project, location: DocumentPosition | undefined) {
+    if (!location) return false;
+    const program = project.getLanguageService().getProgram();
+    if (!program) return false;
+    const sourceFile = program.getSourceFile(location.fileName);
+
+    // It is possible that location is attached to project but
+    // the program actually includes its redirect instead.
+    // This happens when rootFile in project is one of the file from referenced project
+    // Thus root is attached but program doesnt have the actual .ts file but .d.ts
+    // If this is not the file we were actually looking, return rest of the toDo
+    return !!sourceFile &&
+        sourceFile.resolvedPath !== sourceFile.path &&
+        sourceFile.resolvedPath !== project.toPath(location.fileName);
+}
+
+/**
+ * @param projects Projects initially known to contain {@link initialLocation}
+ * @param defaultProject The default project containing {@link initialLocation}
+ * @param initialLocation Where the search operation was triggered
+ * @param getResultsForPosition This is where you plug in `findReferences`, `renameLocation`, etc
+ * @param forPositionInResult Given an item returned by {@link getResultsForPosition} enumerate the positions referred to by that result
+ * @returns In the common case where there's only one project, returns an array of results from {@link getResultsForPosition}.
+ * If multiple projects were searched - even if they didn't return results - the result will be a map from project to per-project results.
+ */
+function getPerProjectReferences<TResult>(
+    projects: Projects,
+    defaultProject: Project,
+    initialLocation: DocumentPosition,
+    isForRename: boolean,
+    getResultsForPosition: (project: Project, location: DocumentPosition) => readonly TResult[] | undefined,
+    forPositionInResult: (result: TResult, cb: (location: DocumentPosition) => void) => void,
+): readonly TResult[] | Map<Project, readonly TResult[]> {
+    // If `getResultsForPosition` returns results for a project, they go in here
+    const resultsMap = new Map<Project, readonly TResult[]>();
+
+    const queue = createQueue<ProjectAndLocation>();
+
+    // In order to get accurate isDefinition values for `defaultProject`,
+    // we need to ensure that it is searched from `initialLocation`.
+    // The easiest way to do this is to search it first.
+    queue.enqueue({ project: defaultProject, location: initialLocation });
+
+    // This will queue `defaultProject` a second time, but it will be dropped
+    // as a dup when it is dequeued.
+    forEachProjectInProjects(projects, initialLocation.fileName, (project, path) => {
+        const location = { fileName: path!, pos: initialLocation.pos };
+        queue.enqueue({ project, location });
+    });
+
+    const projectService = defaultProject.projectService;
+    const cancellationToken = defaultProject.getCancellationToken();
+
+    const defaultDefinition = getDefinitionLocation(defaultProject, initialLocation, isForRename);
+
+    // Don't call these unless !!defaultDefinition
+    const getGeneratedDefinition = memoize(() =>
+        defaultProject.isSourceOfProjectReferenceRedirect(defaultDefinition!.fileName) ?
+            defaultDefinition :
+            defaultProject.getLanguageService().getSourceMapper().tryGetGeneratedPosition(defaultDefinition!)
+    );
+    const getSourceDefinition = memoize(() =>
+        defaultProject.isSourceOfProjectReferenceRedirect(defaultDefinition!.fileName) ?
+            defaultDefinition :
+            defaultProject.getLanguageService().getSourceMapper().tryGetSourcePosition(defaultDefinition!)
+    );
+
+    // The keys of resultsMap allow us to check which projects have already been searched, but we also
+    // maintain a set of strings because that's what `loadAncestorProjectTree` wants.
+    const searchedProjectKeys = new Set<string>();
+
+    onCancellation:
+    while (!queue.isEmpty()) {
+        while (!queue.isEmpty()) {
+            if (cancellationToken.isCancellationRequested()) break onCancellation;
+
+            const { project, location } = queue.dequeue();
+
+            if (resultsMap.has(project)) continue;
+            if (isLocationProjectReferenceRedirect(project, location)) continue;
+
+            // The project could be dirty and could no longer contain the location's file after it's updated,
+            // so we need to update the project and check if it still contains the file.
+            updateProjectIfDirty(project);
+            if (!project.containsFile(toNormalizedPath(location.fileName))) {
+                continue;
+            }
+            const projectResults = searchPosition(project, location);
+            resultsMap.set(project, projectResults ?? emptyArray);
+            searchedProjectKeys.add(getProjectKey(project));
+        }
+
+        // At this point, we know about all projects passed in as arguments and any projects in which
+        // `getResultsForPosition` has returned results.  We expand that set to include any projects
+        // downstream from any of these and then queue new initial-position searches for any new project
+        // containing `initialLocation`.
+        if (defaultDefinition) {
+            // This seems to mean "load all projects downstream from any member of `seenProjects`".
+            projectService.loadAncestorProjectTree(searchedProjectKeys);
+            projectService.forEachEnabledProject(project => {
+                if (cancellationToken.isCancellationRequested()) return; // There's no mechanism for skipping the remaining projects
+                if (resultsMap.has(project)) return; // Can loop forever without this (enqueue here, dequeue above, repeat)
+                const location = mapDefinitionInProject(defaultDefinition, project, getGeneratedDefinition, getSourceDefinition);
+                if (location) {
+                    queue.enqueue({ project, location });
+                }
+            });
+        }
+    }
+
+    // In the common case where there's only one project, return a simpler result to make
+    // it easier for the caller to skip post-processing.
+    if (resultsMap.size === 1) {
+        return firstIterator(resultsMap.values());
+    }
+
+    return resultsMap;
+
+    function searchPosition(project: Project, location: DocumentPosition): readonly TResult[] | undefined {
+        const projectResults =  getResultsForPosition(project, location);
+        if (!projectResults) return undefined;
+
+        for (const result of projectResults) {
+            forPositionInResult(result, position => {
+                // This may trigger a search for a tsconfig, but there are several layers of caching that make it inexpensive
+                const originalLocation = projectService.getOriginalLocationEnsuringConfiguredProject(project, position);
+                if (!originalLocation) return;
+
+                const originalScriptInfo = projectService.getScriptInfo(originalLocation.fileName)!;
+
+                for (const project of originalScriptInfo.containingProjects) {
+                    if (!project.isOrphan() && !resultsMap.has(project)) { // Optimization: don't enqueue if will be discarded
+                        queue.enqueue({ project, location: originalLocation });
+                    }
+                }
+
+                const symlinkedProjectsMap = projectService.getSymlinkedProjects(originalScriptInfo);
+                if (symlinkedProjectsMap) {
+                    symlinkedProjectsMap.forEach((symlinkedProjects, symlinkedPath) => {
+                        for (const symlinkedProject of symlinkedProjects) {
+                            if (!symlinkedProject.isOrphan() && !resultsMap.has(symlinkedProject)) { // Optimization: don't enqueue if will be discarded
+                                queue.enqueue({ project: symlinkedProject, location: { fileName: symlinkedPath as string, pos: originalLocation.pos } });
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        return projectResults;
+    }
+}
+
+function getReferencesWorker(
+    projects: Projects,
+    defaultProject: Project,
+    initialLocation: DocumentPosition,
+    useCaseSensitiveFileNames: boolean,
+    logger: Logger,
+): readonly ReferencedSymbol[] {
+    const perProjectResults = getPerProjectReferences(
+        projects,
+        defaultProject,
+        initialLocation,
+        /*isForRename*/ false,
+        (project, position) => {
+            logger.info(`Finding references to ${position.fileName} position ${position.pos} in project ${project.getProjectName()}`);
+            return project.getLanguageService().findReferences(position.fileName, position.pos);
+        },
+        (referencedSymbol, cb) => {
+            cb(documentSpanLocation(referencedSymbol.definition));
+            for (const ref of referencedSymbol.references) {
+                cb(documentSpanLocation(ref));
+            }
+        },
+    );
+
+    // No re-mapping or isDefinition updatses are required if there's exactly one project
+    if (isArray(perProjectResults)) {
+        return perProjectResults;
+    }
+
+    // `isDefinition` is only (definitely) correct in `defaultProject` because we might
+    // have started the other project searches from related symbols.  Propagate the
+    // correct results to all other projects.
+
+    const defaultProjectResults = perProjectResults.get(defaultProject);
+    if (defaultProjectResults?.[0]?.references[0]?.isDefinition === undefined) {
+        // Clear all isDefinition properties
+        perProjectResults.forEach(projectResults => {
+            for (const referencedSymbol of projectResults) {
+                for (const ref of referencedSymbol.references) {
+                    delete ref.isDefinition;
+                }
+            }
+        });
+    }
+    else {
+        // Correct isDefinition properties from projects other than defaultProject
+        const knownSymbolSpans = createDocumentSpanSet(useCaseSensitiveFileNames);
+        for (const referencedSymbol of defaultProjectResults) {
+            for (const ref of referencedSymbol.references) {
+                if (ref.isDefinition) {
+                    knownSymbolSpans.add(ref);
+                    // One is enough - updateIsDefinitionOfReferencedSymbols will fill out the set based on symbols
+                    break;
+                }
+            }
+        }
+
+        const updatedProjects = new Set<Project>();
+        while (true) {
+            let progress = false;
+            perProjectResults.forEach((referencedSymbols, project) => {
+                if (updatedProjects.has(project)) return;
+                const updated = project.getLanguageService().updateIsDefinitionOfReferencedSymbols(referencedSymbols, knownSymbolSpans);
+                if (updated) {
+                    updatedProjects.add(project);
+                    progress = true;
+                }
+            });
+            if (!progress) break;
+        }
+
+        perProjectResults.forEach((referencedSymbols, project) => {
+            if (updatedProjects.has(project)) return;
+            for (const referencedSymbol of referencedSymbols) {
+                for (const ref of referencedSymbol.references) {
+                    ref.isDefinition = false;
+                }
+            }
+        });
+    }
+
+    // We need to de-duplicate and aggregate the results by choosing an authoritative version
+    // of each definition and merging references from all the projects where they appear.
+
+    const results: ReferencedSymbol[] = [];
+    const seenRefs = createDocumentSpanSet(useCaseSensitiveFileNames); // It doesn't make sense to have a reference in two definition lists, so we de-dup globally
+
+    // TODO: We might end up with a more logical allocation of refs to defs if we pre-sorted the defs by descending ref-count.
+    // Otherwise, it just ends up attached to the first corresponding def we happen to process.  The others may or may not be
+    // dropped later when we check for defs with ref-count 0.
+    perProjectResults.forEach((projectResults, project) => {
+        for (const referencedSymbol of projectResults) {
+            const mappedDefinitionFile = getMappedLocationForProject(documentSpanLocation(referencedSymbol.definition), project);
+            const definition: ReferencedSymbolDefinitionInfo = mappedDefinitionFile === undefined ?
+                referencedSymbol.definition :
+                {
+                    ...referencedSymbol.definition,
+                    textSpan: createTextSpan(mappedDefinitionFile.pos, referencedSymbol.definition.textSpan.length), // Why would the length be the same in the original?
+                    fileName: mappedDefinitionFile.fileName,
+                    contextSpan: getMappedContextSpanForProject(referencedSymbol.definition, project),
+                };
+
+            let symbolToAddTo = find(results, o => documentSpansEqual(o.definition, definition, useCaseSensitiveFileNames));
+            if (!symbolToAddTo) {
+                symbolToAddTo = { definition, references: [] };
+                results.push(symbolToAddTo);
+            }
+
+            for (const ref of referencedSymbol.references) {
+                if (!seenRefs.has(ref) && !getMappedLocationForProject(documentSpanLocation(ref), project)) {
+                    seenRefs.add(ref);
+                    symbolToAddTo.references.push(ref);
+                }
+            }
+        }
+    });
+
+    return results.filter(o => o.references.length !== 0);
+}
+
+function toProtocolTextSpanWithContext(span: TextSpan, contextSpan: TextSpan | undefined, scriptInfo: ScriptInfo): protocol.TextSpanWithContext {
+    const textSpan = toProtocolTextSpan(span, scriptInfo);
+    const contextTextSpan = contextSpan && toProtocolTextSpan(contextSpan, scriptInfo);
+    return contextTextSpan ?
+        { ...textSpan, contextStart: contextTextSpan.start, contextEnd: contextTextSpan.end } :
+        textSpan;
+}
+
+function getLineText(scriptInfo: ScriptInfo, span: protocol.TextSpanWithContext) {
+    const lineSpan = scriptInfo.lineToTextSpan(span.start.line - 1);
+    return scriptInfo.getSnapshot().getText(lineSpan.start, textSpanEnd(lineSpan)).replace(/\r|\n/g, "");
+}
+
+function referenceEntryToReferencesResponseItem(projectService: ProjectService, { fileName, textSpan, contextSpan, isWriteAccess, isDefinition }: ReferencedSymbolEntry, { disableLineTextInReferences }: protocol.UserPreferences): protocol.ReferencesResponseItem {
+    const scriptInfo = Debug.checkDefined(projectService.getScriptInfo(fileName));
+    const span = toProtocolTextSpanWithContext(textSpan, contextSpan, scriptInfo);
+    const lineText = disableLineTextInReferences ? undefined : getLineText(scriptInfo, span);
+    return {
+        file: fileName,
+        ...span,
+        lineText,
+        isWriteAccess,
+        isDefinition,
+    };
+}
+
+function mapDefinitionInProject(
+    definition: DocumentPosition,
+    project: Project,
+    getGeneratedDefinition: () => DocumentPosition | undefined,
+    getSourceDefinition: () => DocumentPosition | undefined,
+): DocumentPosition | undefined {
+    // If the definition is actually from the project, definition is correct as is
+    if (
+        project.containsFile(toNormalizedPath(definition.fileName)) &&
+        !isLocationProjectReferenceRedirect(project, definition)
+    ) {
+        return definition;
+    }
+    const generatedDefinition = getGeneratedDefinition();
+    if (generatedDefinition && project.containsFile(toNormalizedPath(generatedDefinition.fileName))) return generatedDefinition;
+    const sourceDefinition = getSourceDefinition();
+    return sourceDefinition && project.containsFile(toNormalizedPath(sourceDefinition.fileName)) ? sourceDefinition : undefined;
+}
+
+function createDocumentSpanSet(useCaseSensitiveFileNames: boolean): Set<DocumentSpan> {
+    return createSet(({ textSpan }) => textSpan.start + 100003 * textSpan.length, getDocumentSpansEqualityComparer(useCaseSensitiveFileNames));
 }

@@ -1,5 +1,5 @@
 import { CharacterCodes } from "../backend/types";
-import { altDirectorySeparator, Comparer, Comparison, Debug, directorySeparator, EqualityComparer, MapLike, SortedArray, SortedReadonlyArray } from "./_namespaces/lpc";
+import { altDirectorySeparator, Comparer, Comparison, Debug, directorySeparator, EqualityComparer, MapLike, Queue, SortedArray, SortedReadonlyArray } from "./_namespaces/lpc";
 
 /** @internal */
 export function memoize<T>(callback: () => T): () => T {
@@ -1585,4 +1585,217 @@ export function filterMutate<T>(array: T[], f: (x: T, i: number, array: T[]) => 
         }
     }
     array.length = outIndex;
+}
+
+/** @internal */
+export function createQueue<T>(items?: readonly T[]): Queue<T> {
+    const elements: (T | undefined)[] = items?.slice() || [];
+    let headIndex = 0;
+
+    function isEmpty() {
+        return headIndex === elements.length;
+    }
+
+    function enqueue(...items: T[]) {
+        elements.push(...items);
+    }
+
+    function dequeue(): T {
+        if (isEmpty()) {
+            throw new Error("Queue is empty");
+        }
+
+        const result = elements[headIndex] as T;
+        elements[headIndex] = undefined; // Don't keep referencing dequeued item
+        headIndex++;
+
+        // If more than half of the queue is empty, copy the remaining elements to the
+        // front and shrink the array (unless we'd be saving fewer than 100 slots)
+        if (headIndex > 100 && headIndex > (elements.length >> 1)) {
+            const newLength = elements.length - headIndex;
+            elements.copyWithin(/*target*/ 0, /*start*/ headIndex);
+
+            elements.length = newLength;
+            headIndex = 0;
+        }
+
+        return result;
+    }
+
+    return {
+        enqueue,
+        dequeue,
+        isEmpty,
+    };
+}
+
+/** @internal */
+export function mapDefinedEntries<K1, V1, K2, V2>(map: ReadonlyMap<K1, V1>, f: (key: K1, value: V1) => readonly [K2, V2] | undefined): Map<K2, V2>;
+/** @internal */
+export function mapDefinedEntries<K1, V1, K2, V2>(map: ReadonlyMap<K1, V1> | undefined, f: (key: K1, value: V1) => readonly [K2 | undefined, V2 | undefined] | undefined): Map<K2, V2> | undefined;
+/** @internal */
+export function mapDefinedEntries<K1, V1, K2, V2>(map: ReadonlyMap<K1, V1> | undefined, f: (key: K1, value: V1) => readonly [K2 | undefined, V2 | undefined] | undefined): Map<K2, V2> | undefined {
+    if (!map) {
+        return undefined;
+    }
+
+    const result = new Map<K2, V2>();
+    map.forEach((value, key) => {
+        const entry = f(key, value);
+        if (entry !== undefined) {
+            const [newKey, newValue] = entry;
+            if (newKey !== undefined && newValue !== undefined) {
+                result.set(newKey, newValue);
+            }
+        }
+    });
+
+    return result;
+}
+
+/** @internal */
+export function firstIterator<T>(iter: Iterable<T>): T {
+    for (const value of iter) {
+        return value;
+    }
+    Debug.fail("iterator is empty");
+}
+
+
+/**
+ * Creates a Set with custom equality and hash code functionality.  This is useful when you
+ * want to use something looser than object identity - e.g. "has the same span".
+ *
+ * If `equals(a, b)`, it must be the case that `getHashCode(a) === getHashCode(b)`.
+ * The converse is not required.
+ *
+ * To facilitate a perf optimization (lazy allocation of bucket arrays), `TElement` is
+ * assumed not to be an array type.
+ *
+ * @internal
+ */
+export function createSet<TElement, THash = number>(getHashCode: (element: TElement) => THash, equals: EqualityComparer<TElement>): Set<TElement> {
+    const multiMap = new Map<THash, TElement | TElement[]>();
+    let size = 0;
+
+    function* getElementIterator(): IterableIterator<TElement> {
+        for (const value of multiMap.values()) {
+            if (isArray(value)) {
+                yield* value;
+            }
+            else {
+                yield value;
+            }
+        }
+    }
+
+    const set: Set<TElement> = {
+        has(element: TElement): boolean {
+            const hash = getHashCode(element);
+            if (!multiMap.has(hash)) return false;
+            const candidates = multiMap.get(hash)!;
+            if (!isArray(candidates)) return equals(candidates, element);
+
+            for (const candidate of candidates) {
+                if (equals(candidate, element)) {
+                    return true;
+                }
+            }
+            return false;
+        },
+        add(element: TElement): Set<TElement> {
+            const hash = getHashCode(element);
+            if (multiMap.has(hash)) {
+                const values = multiMap.get(hash)!;
+                if (isArray(values)) {
+                    if (!contains(values, element, equals)) {
+                        values.push(element);
+                        size++;
+                    }
+                }
+                else {
+                    const value = values;
+                    if (!equals(value, element)) {
+                        multiMap.set(hash, [value, element]);
+                        size++;
+                    }
+                }
+            }
+            else {
+                multiMap.set(hash, element);
+                size++;
+            }
+
+            return this;
+        },
+        delete(element: TElement): boolean {
+            const hash = getHashCode(element);
+            if (!multiMap.has(hash)) return false;
+            const candidates = multiMap.get(hash)!;
+            if (isArray(candidates)) {
+                for (let i = 0; i < candidates.length; i++) {
+                    if (equals(candidates[i], element)) {
+                        if (candidates.length === 1) {
+                            multiMap.delete(hash);
+                        }
+                        else if (candidates.length === 2) {
+                            multiMap.set(hash, candidates[1 - i]);
+                        }
+                        else {
+                            unorderedRemoveItemAt(candidates, i);
+                        }
+                        size--;
+                        return true;
+                    }
+                }
+            }
+            else {
+                const candidate = candidates;
+                if (equals(candidate, element)) {
+                    multiMap.delete(hash);
+                    size--;
+                    return true;
+                }
+            }
+
+            return false;
+        },
+        clear(): void {
+            multiMap.clear();
+            size = 0;
+        },
+        get size() {
+            return size;
+        },
+        forEach(action: (value: TElement, key: TElement, set: Set<TElement>) => void): void {
+            for (const elements of arrayFrom(multiMap.values())) {
+                if (isArray(elements)) {
+                    for (const element of elements) {
+                        action(element, element, set);
+                    }
+                }
+                else {
+                    const element = elements;
+                    action(element, element, set);
+                }
+            }
+        },
+        keys(): IterableIterator<TElement> {
+            return getElementIterator();
+        },
+        values(): IterableIterator<TElement> {
+            return getElementIterator();
+        },
+        *entries(): IterableIterator<[TElement, TElement]> {
+            for (const value of getElementIterator()) {
+                yield [value, value];
+            }
+        },
+        [Symbol.iterator]: () => {
+            return getElementIterator();
+        },
+        [Symbol.toStringTag]: multiMap[Symbol.toStringTag],
+    };
+
+    return set;
 }

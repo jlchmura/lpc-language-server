@@ -31,8 +31,7 @@ import { loadLpcConfig, LpcConfig } from "./backend/LpcConfig";
 import * as p2 from "./compiler/_namespaces/lpc";
 import * as lpc from "./lpc/_namespaces/lpc.js";
 import {
-    CompilerOptions,
-    getTouchingPropertyName,
+    CompilerOptions,    
     Path,
     TypeCheckerHost,
     Symbol,
@@ -70,7 +69,7 @@ p2.Debug.enableDebugInfo();
 //const workDir = path.resolve(process.cwd()); //, "../fluff-test");
 const workDir = path.resolve(process.cwd());
 //const filename = path.join(workDir, process.argv[3]);
-const filename = path.join(workDir, "obj/weapon.c");
+const filename = path.join(workDir, "room/test.c");
 const fileOnly = path.basename(filename);
 const sourceText = fs.readFileSync(filename, "utf-8");
 const configFile = path.join(workDir, "lpc-config.json");
@@ -111,16 +110,18 @@ session.updateOpen({
 const pos = 64;
 const args: lpc.server.protocol.FileLocationRequestArgs = {
     file: fileRelativePath,
-    line: 5,
+    line: 4,
     offset: 13,
-    position: pos, 
+    //position: pos, 
     projectFileName: projectFile
 };
 // const node = getTouchingPropertyName(srcFile, pos);
 //const def = svc.getDefinitionAtPosition(fileOnly, pos, false, false);
 const diags2 = session.getSemanticDiagnosticsSync({file: fileRelativePath, projectFileName: projectFile});
-const inf2 = session.getQuickInfoWorker(args, false);
+//const inf2 = session.getQuickInfoWorker(args, false);
 //const diags = session.getDiagnosticsForFiles({delay:0, files: [fileRelativePath]});
+const refs = session.getReferences(args, true);
+
 
 console.debug("done");
 // console.debug("node count:", srcFile.nodeCount);

@@ -1,4 +1,4 @@
-import { ArrayBindingElement, AssignmentDeclarationKind, BinaryExpression, BindingElement, BindingPattern, Block, BreakOrContinueStatement, CallChain, CallExpression, CallLikeExpression, canHaveJSDoc, compareDiagnostics, CompilerOptions, ConciseBody, Debug, Declaration, DeclarationName, Diagnostic, diagnosticsEqualityComparer, emptyArray, EntityName, Expression, find, flatMap, ForEachStatement, FunctionLikeDeclaration, GeneratedIdentifier, getAssignmentDeclarationKind, getDriverType, getEffectiveModifierFlags, getEffectiveModifierFlagsAlwaysIncludeJSDoc, getJSDocCommentsAndTags, HasExpressionInitializer, HasInitializer, HasLocals, HasModifiers, hasProperty, Identifier, isBinaryExpression, isBindingElement, isBlock, isCallExpression, isFunctionBlock, isFunctionExpression, isIdentifier, isInlineClosureExpression, isJSDoc, isJSDocDeprecatedTag, isJSDocParameterTag, isJSDocSignature, isKeyword, isRootedDiskPath, isSourceFile, isTypeNodeKind, isVariableDeclaration, isWhiteSpaceLike, IterationStatement, JSDocDeprecatedTag, JSDocParameterTag, JSDocSignature, JSDocTag, KeywordSyntaxKind, LanguageVariant, lastOrUndefined, LeftHandSideExpression, LiteralExpression, LiteralToken, MemberName, ModifierFlags, NamedDeclaration, Node, NodeArray, NodeFlags, OuterExpressionKinds, ParameterDeclaration, pathIsRelative, PropertyAccessExpression, PropertyName, QualifiedName, SignatureDeclaration, skipOuterExpressions, sortAndDeduplicate, SortedReadonlyArray, Statement, stringToToken, Symbol, SyntaxKind, TextChangeRange, TextRange, TextSpan, tryCast, TypeNode, UnaryExpression, VariableDeclaration } from "./_namespaces/lpc.js";
+import { ArrayBindingElement, AssignmentDeclarationKind, BinaryExpression, BindingElement, BindingPattern, Block, BreakOrContinueStatement, CallChain, CallExpression, CallLikeExpression, canHaveJSDoc, compareDiagnostics, CompilerOptions, ConciseBody, Debug, Declaration, DeclarationName, Diagnostic, diagnosticsEqualityComparer, emptyArray, EntityName, Expression, find, flatMap, ForEachStatement, FunctionExpression, FunctionLikeDeclaration, GeneratedIdentifier, getAssignmentDeclarationKind, getDriverType, getEffectiveModifierFlags, getEffectiveModifierFlagsAlwaysIncludeJSDoc, getJSDocCommentsAndTags, HasExpressionInitializer, HasInitializer, HasLocals, HasModifiers, hasProperty, HasType, Identifier, isBinaryExpression, isBindingElement, isBlock, isCallExpression, isFunctionBlock, isFunctionExpression, isFunctionExpressionOrArrowFunction, isIdentifier, isInlineClosureExpression, isJSDoc, isJSDocDeprecatedTag, isJSDocParameterTag, isJSDocSignature, isKeyword, isRootedDiskPath, isSourceFile, isTypeNodeKind, isVariableDeclaration, isWhiteSpaceLike, IterationStatement, JSDocDeprecatedTag, JSDocParameterTag, JSDocSignature, JSDocTag, KeywordSyntaxKind, LanguageVariant, lastOrUndefined, LeftHandSideExpression, LiteralExpression, LiteralToken, MemberName, ModifierFlags, NamedDeclaration, Node, NodeArray, NodeFlags, OuterExpressionKinds, ParameterDeclaration, pathIsRelative, PropertyAccessExpression, PropertyName, QualifiedName, SignatureDeclaration, skipOuterExpressions, sortAndDeduplicate, SortedReadonlyArray, Statement, StringLiteral, stringToToken, Symbol, SyntaxKind, TextChangeRange, TextRange, TextSpan, tryCast, TypeElement, TypeNode, UnaryExpression, VariableDeclaration } from "./_namespaces/lpc.js";
 
 /** @internal */
 export function isNodeArray<T extends Node>(array: readonly T[]): array is NodeArray<T> {
@@ -435,7 +435,7 @@ function isDeclarationKind(kind: SyntaxKind) {
         // || kind === SyntaxKind.PropertySignature        
         || kind === SyntaxKind.ShorthandPropertyAssignment        
         || kind === SyntaxKind.TypeParameter
-        || kind === SyntaxKind.VariableDeclaration
+        || kind === SyntaxKind.VariableDeclaration        
         || kind === SyntaxKind.JSDocTypedefTag
         || kind === SyntaxKind.JSDocCallbackTag
         || kind === SyntaxKind.JSDocPropertyTag;
@@ -1002,4 +1002,39 @@ export function isExternalModuleNameRelative(moduleName: string): boolean {
     // An external module name is "relative" if the first term is "." or "..".
     // Update: We also consider a path like `C:\foo.ts` "relative" because we do not search for it in `node_modules` or treat it as an ambient module.
     return pathIsRelative(moduleName) || isRootedDiskPath(moduleName);
+}
+
+export function isStringTextContainingNode(node: Node): node is StringLiteral {
+    return node.kind === SyntaxKind.StringLiteral;// || isTemplateLiteralKind(node.kind);
+}
+
+/** @internal */
+export function isJSDocTag(node: Node): node is JSDocTag {
+    return node.kind >= SyntaxKind.FirstJSDocTagNode && node.kind <= SyntaxKind.LastJSDocTagNode;
+}
+
+export function isTypeElement(node: Node): node is TypeElement {
+    const kind = node.kind;
+    return kind === SyntaxKind.IndexSignature;
+    // return kind === SyntaxKind.ConstructSignature
+    //     || kind === SyntaxKind.CallSignature
+    //     || kind === SyntaxKind.PropertySignature
+    //     || kind === SyntaxKind.MethodSignature
+    //     || kind === SyntaxKind.IndexSignature
+    //     || kind === SyntaxKind.GetAccessor
+    //     || kind === SyntaxKind.SetAccessor;
+}
+
+/** @internal */
+export function isCallLikeOrFunctionLikeExpression(node: Node): node is CallLikeExpression | FunctionExpression { //| ArrowFunction {
+    return isCallLikeExpression(node) || isFunctionExpressionOrArrowFunction(node);
+}
+
+/**
+ * True if has type node attached to it.
+ *
+ * @internal
+ */
+export function hasType(node: Node): node is HasType {
+    return !!(node as HasType).type;
 }

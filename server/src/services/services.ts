@@ -146,8 +146,21 @@ import {
     hostGetCanonicalFileName,
     getSetExternalModuleIndicator,
     JSDocParsingMode,
+    ReferencedSymbol,
+    getMappedDocumentSpan,
+    DocumentSpan,
+    hasJSDocNodes,
+    isIdentifier,
+    isPrivateIdentifier,
+    isStringOrNumericLiteralLike,
+    isTagName,
+    IntLiteral,
+    FloatLiteral,
+    isDeclarationName,
+    isLiteralComputedPropertyDeclarationName,
 } from "./_namespaces/lpc.js";
 import * as NavigationBar from "./_namespaces/lpc.NavigationBar.js";
+import * as FindAllReferences from "./_namespaces/lpc.FindAllReferences.js";
 
 // These utilities are common to multiple language service features.
 // #region
@@ -1259,7 +1272,9 @@ export function createLanguageService(
         getSemanticDiagnostics,
         getSourceMapper: () => sourceMapper,
         toLineColumnOffset,
-        getNavigationTree
+        getNavigationTree,
+        findReferences,
+        updateIsDefinitionOfReferencedSymbols
     };
 
     return ls;
@@ -1279,6 +1294,63 @@ export function createLanguageService(
     function getNavigationTree(fileName: string): NavigationTree {        
         return NavigationBar.getNavigationTree(syntaxTreeCache.getCurrentSourceFile(fileName), cancellationToken);
     }
+    
+    function updateIsDefinitionOfReferencedSymbols(referencedSymbols: readonly ReferencedSymbol[], knownSymbolSpans: Set<DocumentSpan>): boolean {
+        const checker = program.getTypeChecker();
+        const symbol = getSymbolForProgram();
+
+        if (!symbol) return false;
+
+        for (const referencedSymbol of referencedSymbols) {
+            for (const ref of referencedSymbol.references) {
+                const refNode = getNodeForSpan(ref);
+                Debug.assertIsDefined(refNode);
+                if (knownSymbolSpans.has(ref) || FindAllReferences.isDeclarationOfSymbol(refNode, symbol)) {
+                    knownSymbolSpans.add(ref);
+                    ref.isDefinition = true;
+                    const mappedSpan = getMappedDocumentSpan(ref, sourceMapper, maybeBind(host, host.fileExists));
+                    if (mappedSpan) {
+                        knownSymbolSpans.add(mappedSpan);
+                    }
+                }
+                else {
+                    ref.isDefinition = false;
+                }
+            }
+        }
+
+        return true;
+
+        function getSymbolForProgram(): Symbol | undefined {
+            for (const referencedSymbol of referencedSymbols) {
+                for (const ref of referencedSymbol.references) {
+                    if (knownSymbolSpans.has(ref)) {
+                        const refNode = getNodeForSpan(ref);
+                        Debug.assertIsDefined(refNode);
+                        return checker.getSymbolAtLocation(refNode);
+                    }
+                    const mappedSpan = getMappedDocumentSpan(ref, sourceMapper, maybeBind(host, host.fileExists));
+                    if (mappedSpan && knownSymbolSpans.has(mappedSpan)) {
+                        const refNode = getNodeForSpan(mappedSpan);
+                        if (refNode) {
+                            return checker.getSymbolAtLocation(refNode);
+                        }
+                    }
+                }
+            }
+
+            return undefined;
+        }
+
+        function getNodeForSpan(docSpan: DocumentSpan): Node | undefined {
+            const sourceFile = program.getSourceFile(docSpan.fileName);
+            if (!sourceFile) return undefined;
+            const rawNode = getTouchingPropertyName(sourceFile, docSpan.textSpan.start);
+            const adjustedNode = FindAllReferences.Core.getAdjustedNode(rawNode, { use: FindAllReferences.FindReferencesUse.References });
+            return adjustedNode;
+        }
+    }
+
     
     function cleanupSemanticCache(): void {
         if (program) {
@@ -1330,6 +1402,11 @@ export function createLanguageService(
         return [...program.getOptionsDiagnostics(cancellationToken), ...program.getGlobalDiagnostics(cancellationToken)];
     }
 
+    function findReferences(fileName: string, position: number): ReferencedSymbol[] | undefined {
+        synchronizeHostData();
+        return FindAllReferences.findReferencedSymbols(program, cancellationToken, program.getSourceFiles(), getValidSourceFile(fileName), position);
+    }
+    
     function toLineColumnOffset(fileName: string, position: number): LineAndCharacter {
         // Go to Definition supports returning a zero-length span at position 0 for
         // non-existent files. We need to special-case the conversion of position 0
@@ -2034,3 +2111,61 @@ class SyntaxTreeCache {
     }
 }
 
+/**
+ * Names in the name table are escaped, so an identifier `__foo` will have a name table entry `___foo`.
+ *
+ * @internal
+ */
+export function getNameTable(sourceFile: SourceFile): Map<string, number> {
+    if (!sourceFile.nameTable) {
+        initializeNameTable(sourceFile);
+    }
+
+    return sourceFile.nameTable!; // TODO: GH#18217
+}
+
+
+function initializeNameTable(sourceFile: SourceFile): void {
+    const nameTable = sourceFile.nameTable = new Map();
+    sourceFile.forEachChild(function walk(node) {
+        if (isIdentifier(node) && !isTagName(node) && node.text || isStringOrNumericLiteralLike(node) && literalIsName(node)) {
+            const text = (node);
+            nameTable.set(text, nameTable.get(text) === undefined ? node.pos : -1);
+        }
+        // else if (isPrivateIdentifier(node)) {
+        //     const text = node.text;
+        //     nameTable.set(text, nameTable.get(text) === undefined ? node.pos : -1);
+        // }
+
+        forEachChild(node, walk);
+        if (hasJSDocNodes(node)) {
+            for (const jsDoc of node.jsDoc!) {
+                forEachChild(jsDoc, walk);
+            }
+        }
+    });
+}
+
+/**
+ * We want to store any numbers/strings if they were a name that could be
+ * related to a declaration.  So, if we have 'import x = require("something")'
+ * then we want 'something' to be in the name table.  Similarly, if we have
+ * "a['propname']" then we want to store "propname" in the name table.
+ */
+function literalIsName(node: StringLiteral | IntLiteral | FloatLiteral): boolean {
+    return isDeclarationName(node) ||
+        // node.parent.kind === SyntaxKind.ExternalModuleReference ||
+        // isArgumentOfElementAccessExpression(node) ||
+        isLiteralComputedPropertyDeclarationName(node);
+}
+
+/**
+ * Returns the containing object literal property declaration given a possible name node, e.g. "a" in x = { "a": 1 }
+ *
+ * @internal
+ */
+export function getContainingObjectLiteralElement(node: Node): undefined {//ObjectLiteralElementWithName | undefined {
+    return undefined;
+    // const element = getContainingObjectLiteralElementWorker(node);
+    // return element && (isObjectLiteralExpression(element.parent) || isJsxAttributes(element.parent)) ? element as ObjectLiteralElementWithName : undefined;
+}

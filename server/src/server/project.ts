@@ -991,7 +991,7 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
             this.program.forEachResolvedProjectReference(ref => this.detachScriptInfoFromProject(ref.sourceFile.fileName));
             this.program = undefined;
         }
-    }
+    }     
 }
 
 
@@ -1005,10 +1005,22 @@ export class ConfiguredProject extends Project {
     openFileWatchTriggered = new Map<string, ProgramUpdateLevel>();
 
     /** @internal */
+    canConfigFileJsonReportNoInputFiles = false;
+
+    /** @internal */
     override isInitialLoadPending: () => boolean = returnTrue;
 
     /** @internal */
     private compilerHost?: CompilerHost;
+
+    private projectReferences: readonly ProjectReference[] | undefined;
+    
+    /**
+     * Potential project references before the project is actually loaded (read config file)
+     *
+     * @internal
+     */
+    potentialProjectReferences: Set<NormalizedPath> | undefined;
     
     /** @internal */
     constructor(
@@ -1093,6 +1105,23 @@ export class ConfiguredProject extends Project {
         console.debug("implement me - updateErrorOnNoInputFiles");
         //updateErrorForNoInputFiles(fileNames, this.getConfigFilePath(), this.getCompilerOptions().configFile!.configFileSpecs!, this.projectErrors!, this.canConfigFileJsonReportNoInputFiles);
     }
+
+    updateReferences(refs: readonly ProjectReference[] | undefined) {
+        this.projectReferences = refs;
+        this.potentialProjectReferences = undefined;
+    }
+
+    /** @internal */
+    setPotentialProjectReference(canonicalConfigPath: NormalizedPath) {
+        Debug.assert(this.isInitialLoadPending());
+        (this.potentialProjectReferences || (this.potentialProjectReferences = new Set())).add(canonicalConfigPath);
+    }
+
+    /** @internal */
+    isSolution() {
+        return this.getRootFilesMap().size === 0 &&
+            !this.canConfigFileJsonReportNoInputFiles;
+    }
 }
 
 /** @internal */
@@ -1160,6 +1189,14 @@ export class InferredProject extends Project {
      * @internal
      */
     readonly canonicalCurrentDirectory: string | undefined;    
+
+    isProjectWithSingleRoot() {
+        // - when useSingleInferredProject is not set and projectRootPath is not set,
+        //   we can guarantee that this will be the only root
+        // - other wise it has single root if it has single root script info
+        return (!this.projectRootPath && !this.projectService.useSingleInferredProject) ||
+            this.getRootScriptInfos().length === 1;
+    }
 }
 
 function getUnresolvedImports(program: Program, cachedUnresolvedImportsPerFile: Map<Path, readonly string[]>): SortedReadonlyArray<string> {
@@ -1178,6 +1215,7 @@ function getUnresolvedImports(program: Program, cachedUnresolvedImportsPerFile: 
     tracing?.pop();
     return result;
 }
+
 // function extractUnresolvedImportsFromSourceFile(
 //     program: Program,
 //     file: SourceFile,

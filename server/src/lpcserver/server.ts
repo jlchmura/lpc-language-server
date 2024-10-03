@@ -1,5 +1,5 @@
 import { Connection, Diagnostic, DiagnosticSeverity, Hover, InitializeResult, Location, MarkedString, MarkupContent, MarkupKind, TextDocumentPositionParams, TextDocuments, TextDocumentSyncKind } from "vscode-languageserver";
-import * as ls from "vscode-languageserver";
+import * as vscode from "vscode-languageserver";
 import * as lpc from "../lpc/lpc.js";
 import * as protocol from "../server/_namespaces/lpc.server.protocol.js";
 import { Logger } from "./nodeServer";
@@ -8,9 +8,33 @@ import { URI } from "vscode-uri";
 import { loadLpcConfig } from "../backend/LpcConfig.js";
 import EventEmitter from "events";
 import { convertNavTree } from "./utils.js";
+import * as typeConverters from './typeConverters';
 
 const logger = new Logger("server.log", true, lpc.server.LogLevel.verbose);
 
+const serverCapabilities: vscode.ServerCapabilities = {
+    textDocumentSync: TextDocumentSyncKind.Incremental,                
+    // Tell the client that this server supports code completion.
+    // completionProvider: {
+    //     resolveProvider: true,
+    //     triggerCharacters: [">", "*"],
+    // },
+    // renameProvider: false,
+    documentSymbolProvider: true,
+    // codeLensProvider: {
+    //     resolveProvider: true,
+    //     workDoneProgress: false,
+    // },
+    hoverProvider: true,
+    definitionProvider: true,
+    // implementationProvider: true,
+    // foldingRangeProvider: true, // change to true to enable server-based folding
+    // signatureHelpProvider: {
+    //     triggerCharacters: ["(", ","],
+    // },
+    referencesProvider: true,
+    //documentHighlightProvider: true,
+};
 
 class LspSession extends lpc.server.Session {
 
@@ -108,9 +132,9 @@ export function start(connection: Connection, platform: string) {
                                         end,
                                     },
                                     message: d.text,
-                                    severity: ls.DiagnosticSeverity.Error,
+                                    severity: vscode.DiagnosticSeverity.Error,
                                     code: d.code,
-                                } satisfies ls.Diagnostic;
+                                } satisfies vscode.Diagnostic;
                             });
 
                             if (doc) {
@@ -137,34 +161,12 @@ export function start(connection: Connection, platform: string) {
             capabilities.textDocument.publishDiagnostics.relatedInformation
         );
 
-        const result: InitializeResult = {
-            capabilities: {
-                textDocumentSync: TextDocumentSyncKind.Incremental,                
-                // Tell the client that this server supports code completion.
-                // completionProvider: {
-                //     resolveProvider: true,
-                //     triggerCharacters: [">", "*"],
-                // },
-                // renameProvider: false,
-                documentSymbolProvider: true,
-                // codeLensProvider: {
-                //     resolveProvider: true,
-                //     workDoneProgress: false,
-                // },
-                hoverProvider: true,
-                definitionProvider: true,
-                // implementationProvider: true,
-                // foldingRangeProvider: true, // change to true to enable server-based folding
-                // signatureHelpProvider: {
-                //     triggerCharacters: ["(", ","],
-                // },
-                // referencesProvider: true,
-                //documentHighlightProvider: true,
-            },
+        const initResult: InitializeResult = {
+            capabilities: serverCapabilities,
         };
 
         if (this.hasWorkspaceFolderCapability) {
-            result.capabilities.workspace = {
+            initResult.capabilities.workspace = {
                 workspaceFolders: {
                     supported: true,
                 },
@@ -187,14 +189,14 @@ export function start(connection: Connection, platform: string) {
             });
         })
 
-        connection.onDidChangeTextDocument((e: ls.DidChangeTextDocumentParams) => {
+        connection.onDidChangeTextDocument((e: vscode.DidChangeTextDocumentParams) => {
             const filename = lpc.normalizePath(fromUri(e.textDocument.uri));
             const lspChanges = e.contentChanges;
             
             // convert LSP text change to LPC CodeEdits
             const changes: protocol.CodeEdit[] = [];
             for (const lspChange of lspChanges) {
-                if (ls.TextDocumentContentChangeEvent.isIncremental(lspChange)) {
+                if (vscode.TextDocumentContentChangeEvent.isIncremental(lspChange)) {
                     changes.push({start: lspPosToLpcPos(lspChange.range.start), end: lspPosToLpcPos(lspChange.range.end), newText: lspChange.text});
                 } else {
                     changes.push({start: {line: 1, offset: 1}, end: {line: 1, offset: 1}, newText: lspChange.text});
@@ -220,12 +222,34 @@ export function start(connection: Connection, platform: string) {
             };
             const result = session.getNavigationTree(args, true) as protocol.NavigationTree;
             
-            const navResults: ls.DocumentSymbol[] = [];
+            const navResults: vscode.DocumentSymbol[] = [];
             for (const item of result.childItems) {
                 convertNavTree(uri, navResults, item);
             }
 
             return navResults;
+        });
+
+        connection.onReferences(requestParams => {
+            const args: lpc.server.protocol.FileLocationRequestArgs = {
+                file: lpc.convertToRelativePath(fromUri(requestParams.textDocument.uri), rootFolder, f=>canonicalFilename(f)),
+                projectFileName,
+                ...posParamToLpcPos(requestParams),
+            };
+
+            const body = session.getReferences(args, true) as protocol.ReferencesResponseBody;    
+            const result: vscode.Location[] = [];
+            const uri = URI.parse(requestParams.textDocument.uri);
+
+            for (const ref of body.refs) {
+                // if (!options.includeDeclaration && ref.isDefinition) {
+                //     continue;
+                // }                
+                const location = typeConverters.Location.fromTextSpan(uri, ref);
+                result.push(location);
+            }
+
+            return result;
         });
 
         connection.onHover(requestParams => {
@@ -266,7 +290,7 @@ export function start(connection: Connection, platform: string) {
             if (!result) {
                 return [];
             }
-            const def = ls.LocationLink.create(
+            const def = vscode.LocationLink.create(
                 result.file,
                 {
                     start: locationToLspPosition(result.start),
@@ -286,8 +310,7 @@ export function start(connection: Connection, platform: string) {
         // // load the config
         // loadLpcConfig(path.join(rootFolderPath, "lpc-config.json"));        
         
-
-        return result;        
+        return initResult;
     });
     
     connection.onInitialized(() => {
@@ -308,7 +331,7 @@ function posParamToLpcPos(args: Pick<TextDocumentPositionParams, "position">): p
     return { line: position.line + 1, offset: position.character + 1};
 }
 
-function lspPosToLpcPos(position: ls.Position): protocol.Location {        
+function lspPosToLpcPos(position: vscode.Position): protocol.Location {        
     return { line: position.line + 1, offset: position.character + 1};
 }
 

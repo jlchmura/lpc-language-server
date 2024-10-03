@@ -83,6 +83,13 @@ export namespace Debug {
         }
     }
 
+    export function failBadSyntaxKind(node: Node, message?: string, stackCrawlMark?: AnyFunction): never {
+        return fail(
+            `${message || "Unexpected node."}\r\nNode ${formatSyntaxKind(node.kind)} was unexpected.`,
+            stackCrawlMark || failBadSyntaxKind,
+        );
+    }
+
     /**
      * Formats an enum value as a string for debugging and debug assertions.
      */

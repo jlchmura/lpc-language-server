@@ -438,7 +438,9 @@ export interface LanguageService {
 
     toLineColumnOffset?(fileName: string, position: number): LineAndCharacter;
 
+    findReferences(fileName: string, position: number): ReferencedSymbol[] | undefined;
 
+    /** @internal */ updateIsDefinitionOfReferencedSymbols(referencedSymbols: readonly ReferencedSymbol[], knownSymbolSpans: Set<DocumentSpan>): boolean;
 }
 
 export interface HostCancellationToken {
@@ -795,3 +797,20 @@ export interface NavigationTree {
     childItems?: NavigationTree[];
 }
 
+export interface ReferenceEntry extends DocumentSpan {
+    isWriteAccess: boolean;
+    isInString?: true;
+}
+
+export interface ReferencedSymbolDefinitionInfo extends DefinitionInfo {
+    displayParts: SymbolDisplayPart[];
+}
+
+export interface ReferencedSymbol {
+    definition: ReferencedSymbolDefinitionInfo;
+    references: ReferencedSymbolEntry[];
+}
+
+export interface ReferencedSymbolEntry extends ReferenceEntry {
+    isDefinition?: boolean;
+}

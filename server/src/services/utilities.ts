@@ -76,7 +76,41 @@ import {
     isVarConst,
     isLet,
     TextRange,
+    contains,
+    Identifier,
+    BreakOrContinueStatement,
+    isBreakOrContinueStatement,
+    isLabeledStatement,
+    LabeledStatement,
+    getNodeId,    
+    isStringTextContainingNode,
+    LiteralExpression,
+    EqualityComparer,
+    equateStringsCaseSensitive,
+    equateStringsCaseInsensitive,
+    isJSDocTag,
+    TypeNode,
+    isTypeNode,
+    isQualifiedName,
+    isTypeElement,
+    ContextFlags,
+    walkUpParenthesizedExpressions,
+    EqualityOperator,
+    CaseClause,
+    CommentRange,
+    formatting,
+    binarySearchKey,
+    Comparison,
+    SourceFileLike,
+    EndOfFileToken,
+    isJSDocCommentContainingNode,
+    isKeyword,
+    isPropertyNameLiteral,
+    isToken,
 } from "./_namespaces/lpc.js";
+
+// Matches the beginning of a triple slash directive
+const tripleSlashDirectivePrefixRegex = /^\/\/\/\s*</;
 
 /** @internal */
 export function getNameFromPropertyName(
@@ -948,4 +982,458 @@ export function getNodeKind(node: Node): ScriptElementKind {
 /** @internal */
 export function createTextSpanFromRange(range: TextRange): TextSpan {
     return createTextSpanFromBounds(range.pos, range.end);
+}
+
+/** @internal */
+export const typeKeywords: readonly SyntaxKind[] = [
+    SyntaxKind.AnyKeyword,
+    // SyntaxKind.AssertsKeyword,
+    // SyntaxKind.BigIntKeyword,
+    // SyntaxKind.BooleanKeyword,
+    SyntaxKind.FalseKeyword,
+    // SyntaxKind.InferKeyword,
+    // SyntaxKind.KeyOfKeyword,
+    // SyntaxKind.NeverKeyword,
+    SyntaxKind.NullKeyword,
+    // SyntaxKind.NumberKeyword,
+    SyntaxKind.IntKeyword,
+    SyntaxKind.FloatKeyword,
+    SyntaxKind.MappingKeyword,
+    SyntaxKind.StructKeyword,
+    SyntaxKind.MixedKeyword,
+    SyntaxKind.ObjectKeyword,
+    // SyntaxKind.ReadonlyKeyword,
+    SyntaxKind.StringKeyword,
+    // SyntaxKind.SymbolKeyword,
+    // SyntaxKind.TypeOfKeyword,
+    SyntaxKind.TrueKeyword,
+    SyntaxKind.VoidKeyword,
+    SyntaxKind.UndefinedKeyword,
+    // SyntaxKind.UniqueKeyword,
+    SyntaxKind.UnknownKeyword,
+];
+
+/** @internal */
+export function isTypeKeyword(kind: SyntaxKind): boolean {
+    return contains(typeKeywords, kind);
+}
+
+/** @internal */
+export function isJumpStatementTarget(node: Node): node is Identifier & { parent: BreakOrContinueStatement; } {
+    return isIdentifier(node) && tryCast(node.parent, isBreakOrContinueStatement)?.label === node;
+}
+
+/** @internal */
+export function getTargetLabel(referenceNode: Node, labelName: string): Identifier | undefined {
+    while (referenceNode) {
+        console.log("TODO - getTargetLabel");
+        if (referenceNode.kind === SyntaxKind.LabeledStatement && (referenceNode as LabeledStatement).label.text === labelName) {
+            return (referenceNode as LabeledStatement).label;
+        }
+        referenceNode = referenceNode.parent;
+    }
+    return undefined;
+}
+
+/** @internal */
+export function isLabelOfLabeledStatement(node: Node): node is Identifier {
+    return isIdentifier(node) && tryCast(node.parent, isLabeledStatement)?.label === node;
+}
+
+
+/**
+ * Returns `true` the first time it encounters a node and `false` afterwards.
+ *
+ * @internal
+ */
+export type NodeSeenTracker<T = Node> = (node: T) => boolean;
+/** @internal */
+export function nodeSeenTracker<T extends Node>(): NodeSeenTracker<T> {
+    const seen: true[] = [];
+    return node => {
+        const id = getNodeId(node);
+        return !seen[id] && (seen[id] = true);
+    };
+}
+
+/** @internal */
+export function isInString(sourceFile: SourceFile, position: number, previousToken = findPrecedingToken(position, sourceFile)): boolean {
+    if (previousToken && isStringTextContainingNode(previousToken)) {
+        const start = previousToken.getStart(sourceFile);
+        const end = previousToken.getEnd();
+
+        // To be "in" one of these literals, the position has to be:
+        //   1. entirely within the token text.
+        //   2. at the end position of an unterminated token.
+        //   3. at the end of a regular expression (due to trailing flags like '/foo/g').
+        if (start < position && position < end) {
+            return true;
+        }
+
+        if (position === end) {
+            return !!(previousToken as LiteralExpression).isUnterminated;
+        }
+    }
+
+    return false;
+}
+
+
+/** @internal */
+export function textSpansEqual(a: TextSpan | undefined, b: TextSpan | undefined): boolean {
+    return !!a && !!b && a.start === b.start && a.length === b.length;
+}
+/** @internal */
+export function documentSpansEqual(a: DocumentSpan, b: DocumentSpan, useCaseSensitiveFileNames: boolean): boolean {
+    return (useCaseSensitiveFileNames ? equateStringsCaseSensitive : equateStringsCaseInsensitive)(a.fileName, b.fileName) &&
+        textSpansEqual(a.textSpan, b.textSpan);
+}
+
+
+/** @internal */
+export function getDocumentSpansEqualityComparer(useCaseSensitiveFileNames: boolean): EqualityComparer<DocumentSpan> {
+    return (a, b) => documentSpansEqual(a, b, useCaseSensitiveFileNames);
+}
+
+/** @internal */
+export function isTagName(node: Node): boolean {
+    return tryCast(node.parent, isJSDocTag)?.tagName === node;
+}
+
+/** @internal */
+export function getContextualTypeFromParentOrAncestorTypeNode(node: Expression, checker: TypeChecker): Type | undefined {
+    if (node.flags & (NodeFlags.JSDoc & ~NodeFlags.JavaScriptFile)) return undefined;
+
+    const contextualType = getContextualTypeFromParent(node, checker);
+    if (contextualType) return contextualType;
+
+    const ancestorTypeNode = getAncestorTypeNode(node);
+    return ancestorTypeNode && checker.getTypeAtLocation(ancestorTypeNode);
+}
+
+function getAncestorTypeNode(node: Node) {
+    let lastTypeNode: TypeNode | undefined;
+    findAncestor(node, a => {
+        if (isTypeNode(a)) {
+            lastTypeNode = a;
+        }
+        return !isQualifiedName(a.parent) && !isTypeNode(a.parent) && !isTypeElement(a.parent);
+    });
+    return lastTypeNode;
+}
+
+/** @internal */
+export function getContextualTypeFromParent(node: Expression, checker: TypeChecker, contextFlags?: ContextFlags): Type | undefined {
+    const parent = walkUpParenthesizedExpressions(node.parent);
+    switch (parent.kind) {
+        case SyntaxKind.NewExpression:
+            return checker.getContextualType(parent as NewExpression, contextFlags);
+        case SyntaxKind.BinaryExpression: {
+            const { left, operatorToken, right } = parent as BinaryExpression;
+            return isEqualityOperatorKind(operatorToken.kind)
+                ? checker.getTypeAtLocation(node === right ? left : right)
+                : checker.getContextualType(node, contextFlags);
+        }
+        case SyntaxKind.CaseClause:
+            return getSwitchedType(parent as CaseClause, checker);
+        default:
+            return checker.getContextualType(node, contextFlags);
+    }
+}
+
+/** @internal */
+export function isEqualityOperatorKind(kind: SyntaxKind): kind is EqualityOperator {
+    switch (kind) {
+        case SyntaxKind.EqualsEqualsEqualsToken:
+        case SyntaxKind.EqualsEqualsToken:
+        case SyntaxKind.ExclamationEqualsEqualsToken:
+        case SyntaxKind.ExclamationEqualsToken:
+            return true;
+        default:
+            return false;
+    }
+}
+
+/** @internal */
+export function getSwitchedType(caseClause: CaseClause, checker: TypeChecker): Type | undefined {
+    return checker.getTypeAtLocation(caseClause.parent.parent.expression);
+}
+
+/** @internal */
+export function isInNonReferenceComment(sourceFile: SourceFile, position: number): boolean {
+    return isInReferenceCommentWorker(sourceFile, position, /*shouldBeReference*/ false);
+}
+
+
+function isInReferenceCommentWorker(sourceFile: SourceFile, position: number, shouldBeReference: boolean): boolean {
+    const range = isInComment(sourceFile, position, /*tokenAtPosition*/ undefined);
+    return !!range && shouldBeReference === tripleSlashDirectivePrefixRegex.test(sourceFile.text.substring(range.pos, range.end));
+}
+
+
+/**
+ * Returns true if the cursor at position in sourceFile is within a comment.
+ *
+ * @param tokenAtPosition Must equal `getTokenAtPosition(sourceFile, position)`
+ * @param predicate Additional predicate to test on the comment range.
+ *
+ * @internal
+ */
+export function isInComment(sourceFile: SourceFile, position: number, tokenAtPosition?: Node): CommentRange | undefined {
+    return formatting.getRangeOfEnclosingComment(sourceFile, position, /*precedingToken*/ undefined, tokenAtPosition);
+}
+
+/** @internal */
+export function rangeContainsPositionExclusive(r: TextRange, pos: number) {
+    return r.pos < pos && pos < r.end;
+}
+
+/**
+ * Returns a token if position is in [start-of-leading-trivia, end)
+ *
+ * @internal
+ */
+export function getTokenAtPosition(sourceFile: SourceFile, position: number): Node {
+    return getTokenAtPositionWorker(sourceFile, position, /*allowPositionInLeadingTrivia*/ true, /*includePrecedingTokenAtEndPosition*/ undefined, /*includeEndPosition*/ false);
+}
+
+
+/** Get the token whose text contains the position */
+function getTokenAtPositionWorker(sourceFile: SourceFile, position: number, allowPositionInLeadingTrivia: boolean, includePrecedingTokenAtEndPosition: ((n: Node) => boolean) | undefined, includeEndPosition: boolean): Node {
+    let current: Node = sourceFile;
+    let foundToken: Node | undefined;
+    outer:
+    while (true) {
+        // find the child that contains 'position'
+
+        const children = current.getChildren(sourceFile);
+        const i = binarySearchKey(children, position, (_, i) => i, (middle, _) => {
+            // This last callback is more of a selector than a comparator -
+            // `EqualTo` causes the `middle` result to be returned
+            // `GreaterThan` causes recursion on the left of the middle
+            // `LessThan` causes recursion on the right of the middle
+
+            // Let's say you have 3 nodes, spanning positons
+            // pos: 1, end: 3
+            // pos: 3, end: 3
+            // pos: 3, end: 5
+            // and you're looking for the token at positon 3 - all 3 of these nodes are overlapping with position 3.
+            // In fact, there's a _good argument_ that node 2 shouldn't even be allowed to exist - depending on if
+            // the start or end of the ranges are considered inclusive, it's either wholly subsumed by the first or the last node.
+            // Unfortunately, such nodes do exist. :( - See fourslash/completionsImport_tsx.tsx - empty jsx attributes create
+            // a zero-length node.
+            // What also you may not expect is that which node we return depends on the includePrecedingTokenAtEndPosition flag.
+            // Specifically, if includePrecedingTokenAtEndPosition is set, we return the 1-3 node, while if it's unset, we
+            // return the 3-5 node. (The zero length node is never correct.) This is because the includePrecedingTokenAtEndPosition
+            // flag causes us to return the first node whose end position matches the position and which produces and acceptable token
+            // kind. Meanwhile, if includePrecedingTokenAtEndPosition is unset, we look for the first node whose start is <= the
+            // position and whose end is greater than the position.
+
+            // There are more sophisticated end tests later, but this one is very fast
+            // and allows us to skip a bunch of work
+            const end = children[middle].getEnd();
+            if (end < position) {
+                return Comparison.LessThan;
+            }
+
+            const start = allowPositionInLeadingTrivia ? children[middle].getFullStart() : children[middle].getStart(sourceFile, /*includeJsDocComment*/ true);
+            if (start > position) {
+                return Comparison.GreaterThan;
+            }
+
+            // first element whose start position is before the input and whose end position is after or equal to the input
+            if (nodeContainsPosition(children[middle], start, end)) {
+                if (children[middle - 1]) {
+                    // we want the _first_ element that contains the position, so left-recur if the prior node also contains the position
+                    if (nodeContainsPosition(children[middle - 1])) {
+                        return Comparison.GreaterThan;
+                    }
+                }
+                return Comparison.EqualTo;
+            }
+
+            // this complex condition makes us left-recur around a zero-length node when includePrecedingTokenAtEndPosition is set, rather than right-recur on it
+            if (includePrecedingTokenAtEndPosition && start === position && children[middle - 1] && children[middle - 1].getEnd() === position && nodeContainsPosition(children[middle - 1])) {
+                return Comparison.GreaterThan;
+            }
+            return Comparison.LessThan;
+        });
+
+        if (foundToken) {
+            return foundToken;
+        }
+        if (i >= 0 && children[i]) {
+            current = children[i];
+            continue outer;
+        }
+
+        return current;
+    }
+
+    function nodeContainsPosition(node: Node, start?: number, end?: number) {
+        end ??= node.getEnd();
+        if (end < position) {
+            return false;
+        }
+        start ??= allowPositionInLeadingTrivia ? node.getFullStart() : node.getStart(sourceFile, /*includeJsDocComment*/ true);
+        if (start > position) {
+            // If this child begins after position, then all subsequent children will as well.
+            return false;
+        }
+        if (position < end || (position === end && (node.kind === SyntaxKind.EndOfFileToken || includeEndPosition))) {
+            return true;
+        }
+        else if (includePrecedingTokenAtEndPosition && end === position) {
+            const previousToken = findPrecedingToken(position, sourceFile, node);
+            if (previousToken && includePrecedingTokenAtEndPosition(previousToken)) {
+                foundToken = previousToken;
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
+/**
+ * Adjusts the location used for "rename" when the cursor was not on a property name.
+ *
+ * @internal
+ */
+export function getAdjustedRenameLocation(node: Node): Node {
+    return getAdjustedLocation(node, /*forRename*/ true);
+}
+
+
+/**
+ * Gets the token whose text has range [start, end) and
+ * position >= start and (position < end or (position === end && token is literal or keyword or identifier))
+ *
+ * @internal
+ */
+export function getTouchingPropertyName(sourceFile: SourceFile, position: number): Node {
+    return getTouchingToken(sourceFile, position, n => isPropertyNameLiteral(n) || isKeyword(n.kind));// || isPrivateIdentifier(n));
+}
+
+/**
+ * Returns the token if position is in [start, end).
+ * If position === end, returns the preceding token if includeItemAtEndPosition(previousToken) === true
+ *
+ * @internal
+ */
+export function getTouchingToken(sourceFile: SourceFile, position: number, includePrecedingTokenAtEndPosition?: (n: Node) => boolean): Node {
+    return getTokenAtPositionWorker(sourceFile, position, /*allowPositionInLeadingTrivia*/ false, includePrecedingTokenAtEndPosition, /*includeEndPosition*/ false);
+}
+
+function isNonWhitespaceToken(n: Node): boolean {
+    return isToken(n);
+}
+
+function nodeHasTokens(n: Node, sourceFile: SourceFileLike): boolean {
+    // If we have a token or node that has a non-zero width, it must have tokens.
+    // Note: getWidth() does not take trivia into account.
+    return n.kind === SyntaxKind.EndOfFileToken ? !!(n as EndOfFileToken).jsDoc : n.getWidth(sourceFile) !== 0;
+}
+
+/**
+ * Finds the rightmost child to the left of `children[exclusiveStartPosition]` which is a non-all-whitespace token or has constituent tokens.
+ */
+function findRightmostChildNodeWithTokens(children: readonly Node[], exclusiveStartPosition: number, sourceFile: SourceFileLike, parentKind: SyntaxKind): Node | undefined {
+    for (let i = exclusiveStartPosition - 1; i >= 0; i--) {
+        const child = children[i];
+
+        if (nodeHasTokens(children[i], sourceFile)) {
+            return children[i];
+        }
+    }
+}
+
+
+/**
+ * Finds the rightmost token satisfying `token.end <= position`,
+ * excluding `JsxText` tokens containing only whitespace.
+ *
+ * @internal
+ */
+export function findPrecedingToken(position: number, sourceFile: SourceFileLike, startNode: Node, excludeJsdoc?: boolean): Node | undefined;
+/** @internal */
+export function findPrecedingToken(position: number, sourceFile: SourceFile, startNode?: Node, excludeJsdoc?: boolean): Node | undefined;
+/** @internal */
+export function findPrecedingToken(position: number, sourceFile: SourceFileLike, startNode?: Node, excludeJsdoc?: boolean): Node | undefined {
+    const result = find((startNode || sourceFile) as Node);    
+    return result;
+
+    function find(n: Node): Node | undefined {
+        if (isNonWhitespaceToken(n) && n.kind !== SyntaxKind.EndOfFileToken) {
+            return n;
+        }
+
+        const children = n.getChildren(sourceFile);
+        const i = binarySearchKey(children, position, (_, i) => i, (middle, _) => {
+            // This last callback is more of a selector than a comparator -
+            // `EqualTo` causes the `middle` result to be returned
+            // `GreaterThan` causes recursion on the left of the middle
+            // `LessThan` causes recursion on the right of the middle
+            if (position < children[middle].end) {
+                // first element whose end position is greater than the input position
+                if (!children[middle - 1] || position >= children[middle - 1].end) {
+                    return Comparison.EqualTo;
+                }
+                return Comparison.GreaterThan;
+            }
+            return Comparison.LessThan;
+        });
+        if (i >= 0 && children[i]) {
+            const child = children[i];
+            // Note that the span of a node's tokens is [node.getStart(...), node.end).
+            // Given that `position < child.end` and child has constituent tokens, we distinguish these cases:
+            // 1) `position` precedes `child`'s tokens or `child` has no tokens (ie: in a comment or whitespace preceding `child`):
+            // we need to find the last token in a previous child.
+            // 2) `position` is within the same span: we recurse on `child`.
+            if (position < child.end) {
+                const start = child.getStart(sourceFile, /*includeJsDoc*/ !excludeJsdoc);
+                const lookInPreviousChild = (start >= position) || // cursor in the leading trivia
+                    !nodeHasTokens(child, sourceFile);
+
+                if (lookInPreviousChild) {
+                    // actual start of the node is past the position - previous token should be at the end of previous child
+                    const candidate = findRightmostChildNodeWithTokens(children, /*exclusiveStartPosition*/ i, sourceFile, n.kind);
+                    if (candidate) {
+                        // Ensure we recurse into JSDoc nodes with children.
+                        if (!excludeJsdoc && isJSDocCommentContainingNode(candidate) && candidate.getChildren(sourceFile).length) {
+                            return find(candidate);
+                        }
+                        return findRightmostToken(candidate, sourceFile);
+                    }
+                    return undefined;
+                }
+                else {
+                    // candidate should be in this node
+                    return find(child);
+                }
+            }
+        }
+
+        Debug.assert(startNode !== undefined || n.kind === SyntaxKind.SourceFile || n.kind === SyntaxKind.EndOfFileToken || isJSDocCommentContainingNode(n));
+
+        // Here we know that none of child token nodes embrace the position,
+        // the only known case is when position is at the end of the file.
+        // Try to find the rightmost token in the file without filtering.
+        // Namely we are skipping the check: 'position < node.end'
+        const candidate = findRightmostChildNodeWithTokens(children, /*exclusiveStartPosition*/ children.length, sourceFile, n.kind);
+        return candidate && findRightmostToken(candidate, sourceFile);
+    }
+}
+
+function findRightmostToken(n: Node, sourceFile: SourceFileLike): Node | undefined {
+    if (isNonWhitespaceToken(n)) {
+        return n;
+    }
+
+    const children = n.getChildren(sourceFile);
+    if (children.length === 0) {
+        return n;
+    }
+
+    const candidate = findRightmostChildNodeWithTokens(children, /*exclusiveStartPosition*/ children.length, sourceFile, n.kind);
+    return candidate && findRightmostToken(candidate, sourceFile);
 }

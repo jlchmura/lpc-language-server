@@ -90,6 +90,8 @@ export interface TypeChecker {
     /** @internal */ getTypeCount(): number;
     /** @internal */ getInstantiationCount(): number;
     
+    getStringType(): Type;
+
     signatureToString(signature: Signature, enclosingDeclaration?: Node, flags?: TypeFormatFlags, kind?: SignatureKind): string;
     symbolToString(symbol: Symbol, enclosingDeclaration?: Node, meaning?: SymbolFlags, flags?: SymbolFormatFlags): string;
 
@@ -119,7 +121,10 @@ export interface TypeChecker {
     getShorthandAssignmentValueSymbol(location: Node | undefined): Symbol | undefined;
 
     isUnknownSymbol(symbol: Symbol): boolean;
+    getMergedSymbol(symbol: Symbol): Symbol;
     getTypeAtLocation(node: Node): Type;
+    /** @internal */ getContextualType(node: Expression, contextFlags?: ContextFlags): Type | undefined; // eslint-disable-line @typescript-eslint/unified-signatures
+
     /**
      * Depending on the operation performed, it may be appropriate to throw away the checker
      * if the cancellation token is triggered. Typically, if it is used for error checking
@@ -137,7 +142,9 @@ export interface TypeChecker {
 
     getNonNullableType(type: Type): Type;
     getSignaturesOfType(type: Type, kind: SignatureKind): readonly Signature[];
-    // TODO
+    
+    getPropertyOfType(type: Type, propertyName: string): Symbol | undefined;
+    getTypeFromTypeNode(node: TypeNode): Type;
 }
 
 export type CompilerOptionsValue = string | number | boolean | (string | number)[] | string[] | MapLike<string[]> | ProjectReference[] | null | undefined; // eslint-disable-line no-restricted-syntax
@@ -571,6 +578,7 @@ export const enum SyntaxKind {
 
     // TypeMember
     PropertyDeclaration,
+    PropertySignature,
 
     // Types
     UnionType, // First Type Node
@@ -664,6 +672,7 @@ export const enum SyntaxKind {
     //ForInStatement,
     ExpressionStatement,
     ReturnStatement,
+    LabeledStatement,
     BreakStatement,
     ContinueStatement,
     InheritDeclaration,
@@ -727,6 +736,8 @@ export const enum SyntaxKind {
     LastJSDocNode = JSDocImportTag,
     FirstLiteralToken = IntLiteral,
     LastLiteralToken = StringLiteral,
+    FirstJSDocTagNode = JSDocTypeExpression,
+    LastJSDocTagNode = JSDocImportTag,
 }
 
 // dprint-ignore
@@ -1256,6 +1267,7 @@ export interface CompilerOptions {
     lib?: string[];
     preserveSymlinks?: boolean;   
     disableSourceOfProjectReferenceRedirect?: boolean;
+    disableReferencedProjectLoad?: boolean;
 }
 
 export const enum OuterExpressionKinds {
@@ -2369,6 +2381,8 @@ export interface SourceFileLike {
     lineMap?: readonly number[];
     /** @internal */
     getPositionOfLineAndCharacter?(line: number, character: number, allowEdits?: true): number;
+    
+    
 }
 
 // Source files are declarations when they are external modules.
@@ -2697,6 +2711,8 @@ export interface StringLiteral extends LiteralExpression, Declaration {
      */
     readonly singleQuote?: boolean;
 }
+
+export type StringLiteralLike = StringLiteral;
 
 export type LiteralToken = IntLiteral | FloatLiteral | StringLiteral;
 export type LiteralSyntaxKind =
@@ -3039,7 +3055,7 @@ export interface CallExpression extends LeftHandSideExpression, Declaration {
 export interface CloneObjectExpression extends PrimaryExpression, Declaration, LeftHandSideExpression {
     readonly kind: SyntaxKind.CloneObjectExpression;
     readonly expression: LeftHandSideExpression;
-    readonly arguments?: NodeArray<Expression>;
+    readonly arguments?: NodeArray<Expression>;    
 }
 
 export interface InlineClosureExpression extends Expression, FunctionLikeDeclarationBase, JSDocContainer, LocalsContainer, FlowContainer {
@@ -4226,12 +4242,12 @@ export interface Program extends ScriptReferenceHost {
     // resolvedTypeReferenceDirectiveNames: Map<Path, ModeAwareCache<ResolvedTypeReferenceDirectiveWithFailedLookupLocations>> | undefined;
     /** @internal */
     getResolvedModule(f: SourceFile, moduleName: string, mode: ResolutionMode): ResolvedModuleWithFailedLookupLocations | undefined;
-    // /** @internal */
-    // getResolvedModuleFromModuleSpecifier(moduleSpecifier: StringLiteralLike, sourceFile?: SourceFile): ResolvedModuleWithFailedLookupLocations | undefined;
+    /** @internal */
+    getResolvedModuleFromModuleSpecifier(moduleSpecifier: StringLiteralLike, sourceFile?: SourceFile): ResolvedModuleWithFailedLookupLocations | undefined;
     // /** @internal */
     // getResolvedTypeReferenceDirective(f: SourceFile, typeDirectiveName: string, mode: ResolutionMode): ResolvedTypeReferenceDirectiveWithFailedLookupLocations | undefined;
-    // /** @internal */
-    // getResolvedTypeReferenceDirectiveFromTypeReferenceDirective(typedRef: FileReference, sourceFile: SourceFile): ResolvedTypeReferenceDirectiveWithFailedLookupLocations | undefined;
+    /** @internal */
+    getResolvedTypeReferenceDirectiveFromTypeReferenceDirective(typedRef: FileReference, sourceFile: SourceFile): ResolvedTypeReferenceDirectiveWithFailedLookupLocations | undefined;
     // /** @internal */
     // forEachResolvedModule(
     //     callback: (resolution: ResolvedModuleWithFailedLookupLocations, moduleName: string, mode: ResolutionMode, filePath: Path) => void,
@@ -4351,8 +4367,8 @@ export interface Program extends ScriptReferenceHost {
     // /** @internal */ useCaseSensitiveFileNames(): boolean;
     /** @internal */ getCanonicalFileName: GetCanonicalFileName;
 
-    // getProjectReferences(): readonly ProjectReference[] | undefined;
-    // getResolvedProjectReferences(): readonly (ResolvedProjectReference | undefined)[] | undefined;
+    getProjectReferences(): readonly ProjectReference[] | undefined;
+    getResolvedProjectReferences(): readonly (ResolvedProjectReference | undefined)[] | undefined;
     // /** @internal */ getProjectReferenceRedirect(fileName: string): string | undefined;
     // /**
     //  * @internal
@@ -5375,7 +5391,6 @@ export type BindableElementAccessExpression = ElementAccessExpression & {
     readonly expression: BindableStaticNameExpression;
 };
 
-
 /** @internal */
 // Object literals are initially marked fresh. Freshness disappears following an assignment,
 // before a type assertion, or when an object literal's type is widened. The regular
@@ -5912,3 +5927,48 @@ export interface DocumentPositionMapperHost {
     getCanonicalFileName(path: string): string;
     log(text: string): void;
 }
+
+/** @internal */
+export interface Queue<T> {
+    enqueue(...items: T[]): void;
+    dequeue(): T;
+    isEmpty(): boolean;
+}
+
+export interface LabeledStatement extends Statement, FlowContainer {
+    readonly kind: SyntaxKind.LabeledStatement;
+    readonly label: Identifier;
+    readonly statement: Statement;
+}
+
+// dprint-ignore
+export interface PropertySignature extends TypeElement, JSDocContainer {
+    readonly kind: SyntaxKind.PropertySignature;
+    readonly parent: TypeLiteralNode;// | InterfaceDeclaration;
+    readonly modifiers?: NodeArray<Modifier>;
+    readonly name: PropertyName;                 // Declared property name
+    //readonly questionToken?: QuestionToken;      // Present on optional property
+    //readonly type?: TypeNode;                    // Optional type annotation
+
+    // The following properties are used only to report grammar errors (see `isGrammarError` in utilities.ts)
+    /** @internal */ readonly initializer?: Expression | undefined; // A property signature cannot have an initializer
+}
+
+/** @internal */
+export type SuperContainer =
+    | PropertyDeclaration
+    | PropertySignature;
+    // | MethodDeclaration
+    // | MethodSignature
+    // | ConstructorDeclaration
+    // | GetAccessorDeclaration
+    // | SetAccessorDeclaration
+    // | ClassStaticBlockDeclaration;
+
+
+/** @internal */
+export type SuperContainerOrFunctions =
+    | SuperContainer
+    | FunctionDeclaration
+    | FunctionExpression;
+    // | ArrowFunction;

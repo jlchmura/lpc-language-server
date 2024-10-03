@@ -1,5 +1,6 @@
 import * as vscode from "vscode-languageserver";
 import * as Proto from "../server/_namespaces/lpc.server.protocol.js";
+import { URI } from "vscode-uri";
 
 export namespace Range {
 	export const fromTextSpan = (span: Proto.TextSpan): vscode.Range =>
@@ -46,4 +47,9 @@ export namespace Position {
 		line: position.line + 1,
 		offset: position.character + 1,
 	});
+}
+
+export namespace Location {
+	export const fromTextSpan = (resource: URI, tsTextSpan: Proto.TextSpan): vscode.Location =>
+		vscode.Location.create(resource.toString(), Range.fromTextSpan(tsTextSpan));
 }
