@@ -1,4 +1,4 @@
-import { Symbol, Type, AssignmentDeclarationKind, findAncestor, getAssignmentDeclarationKind, hasSyntacticModifier, Identifier, isAccessExpression, isBinaryExpression, isBindingElement, isDeclaration, isStatement, ModifierFlags, NamedDeclaration, Node, StringLiteral, SyntaxKind, TextSpan, BinaryExpression, find, isExpressionStatement, isVariableDeclarationList, isVariableStatement, SwitchStatement, isForEachStatement, ForEachStatement, isArrayLiteralOrObjectLiteralDestructuringPattern, first, isBreakOrContinueStatement, isStringLiteral, isComputedPropertyName, SourceFile, Debug, createTextSpanFromBounds, CancellationToken, getTouchingPropertyName, mapDefined, Program, ReferencedSymbol, getDeclarationFromName, isLiteralComputedPropertyDeclarationName, append, BindingElement, Block, CallExpression, canHaveSymbol, cast, CheckFlags, climbPastPropertyAccess, compareValues, contains, createTextSpan, createTextSpanFromRange, emptyArray, Expression, FileIncludeReason, filter, findIndex, firstDefined, flatMap, forEach, forEachChild, forEachChildRecursively, forEachReturnStatement, FunctionDeclaration, FunctionExpression, FunctionLikeDeclaration, getAdjustedReferenceLocation, getAncestor, getCheckFlags, getContainerNode, getDeclarationOfKind, getEffectiveModifierFlags, getLocalSymbolForExportDefault, getMeaningFromDeclaration, getMeaningFromLocation, getNameOfDeclaration, getNodeId, getSymbolId, getSyntacticModifierFlags, GoToDefinition, hasEffectiveModifier, hasInitializer, InternalSymbolName, isCallExpression, isClassLike, isConstructorDeclaration, isDeclarationName, isExternalModule, isExternalOrCommonJsModule, isFunctionExpression, isFunctionLike, isFunctionLikeDeclaration, isIdentifier, isIdentifierPart, isInJSFile, isLiteralTypeNode, isNewExpressionTarget, isObjectLiteralMethod, isParameter, isPropertyAccessExpression, isQualifiedName, isReferencedFile, isRightSideOfPropertyAccess, isSourceFile, isTypeLiteralNode, isTypeNode, isUnionTypeNode, isVariableDeclarationInitializedToBareOrAccessedRequire, isVariableLike, JSDocPropertyLikeTag, length, MultiMap, NodeFlags, ObjectLiteralExpression, or, ParameterDeclaration, ParenthesizedExpression, Path, PropertyAccessExpression, rangeIsOnSingleLine, ReferencedSymbolEntry, ScriptTarget, SemanticMeaning, SignatureDeclaration, some, stripQuotes, SymbolFlags, SymbolId, symbolName, tokenToString, TransformFlags, tryAddToSet, tryCast, TypeChecker, TypeLiteralNode, ReferenceEntry, DocumentSpan, Declaration, isWriteAccess, PropertyAssignment, PropertyDeclaration, VariableDeclaration, ScriptElementKind, ReferencedSymbolDefinitionInfo, SymbolDisplayPart, firstOrUndefined, SymbolDisplay, displayPart, SymbolDisplayPartKind, textPart, getTextOfNode, skipAlias, isTypeKeyword, isVoidExpression, isJumpStatementTarget, getTargetLabel, isLabelOfLabeledStatement, nodeSeenTracker, isInString, getNameTable, getContextualTypeFromParentOrAncestorTypeNode, isNoSubstitutionTemplateLiteral, isPropertySignature, ModuleExportName, getNextJSDocCommentLocation, isInNonReferenceComment, isTypeElement, hasType, getAllSuperTypeNodes, SuperContainer, StructDeclaration, getSuperContainer, isStatic, getContainingObjectLiteralElement, addToSeen, getAdjustedRenameLocation, getReferencedFileLocation, isReferenceFileLocation } from "./_namespaces/lpc";
+import { Symbol, Type, AssignmentDeclarationKind, findAncestor, getAssignmentDeclarationKind, hasSyntacticModifier, Identifier, isAccessExpression, isBinaryExpression, isBindingElement, isDeclaration, isStatement, ModifierFlags, NamedDeclaration, Node, StringLiteral, SyntaxKind, TextSpan, BinaryExpression, find, isExpressionStatement, isVariableDeclarationList, isVariableStatement, SwitchStatement, isForEachStatement, ForEachStatement, isArrayLiteralOrObjectLiteralDestructuringPattern, first, isBreakOrContinueStatement, isStringLiteral, isComputedPropertyName, SourceFile, Debug, createTextSpanFromBounds, CancellationToken, getTouchingPropertyName, mapDefined, Program, ReferencedSymbol, getDeclarationFromName, isLiteralComputedPropertyDeclarationName, append, BindingElement, Block, CallExpression, canHaveSymbol, cast, CheckFlags, climbPastPropertyAccess, compareValues, contains, createTextSpan, createTextSpanFromRange, emptyArray, Expression, FileIncludeReason, filter, findIndex, firstDefined, flatMap, forEach, forEachChild, forEachChildRecursively, forEachReturnStatement, FunctionDeclaration, FunctionExpression, FunctionLikeDeclaration, getAdjustedReferenceLocation, getAncestor, getCheckFlags, getContainerNode, getDeclarationOfKind, getEffectiveModifierFlags, getLocalSymbolForExportDefault, getMeaningFromDeclaration, getMeaningFromLocation, getNameOfDeclaration, getNodeId, getSymbolId, getSyntacticModifierFlags, GoToDefinition, hasEffectiveModifier, hasInitializer, InternalSymbolName, isCallExpression, isClassLike, isConstructorDeclaration, isDeclarationName, isExternalModule, isExternalOrCommonJsModule, isFunctionExpression, isFunctionLike, isFunctionLikeDeclaration, isIdentifier, isIdentifierPart, isInJSFile, isLiteralTypeNode, isNewExpressionTarget, isObjectLiteralMethod, isParameter, isPropertyAccessExpression, isQualifiedName, isReferencedFile, isRightSideOfPropertyAccess, isSourceFile, isTypeLiteralNode, isTypeNode, isUnionTypeNode, isVariableDeclarationInitializedToBareOrAccessedRequire, isVariableLike, JSDocPropertyLikeTag, length, MultiMap, NodeFlags, ObjectLiteralExpression, or, ParameterDeclaration, ParenthesizedExpression, Path, PropertyAccessExpression, rangeIsOnSingleLine, ReferencedSymbolEntry, ScriptTarget, SemanticMeaning, SignatureDeclaration, some, stripQuotes, SymbolFlags, SymbolId, symbolName, tokenToString, TransformFlags, tryAddToSet, tryCast, TypeChecker, TypeLiteralNode, ReferenceEntry, DocumentSpan, Declaration, isWriteAccess, PropertyAssignment, PropertyDeclaration, VariableDeclaration, ScriptElementKind, ReferencedSymbolDefinitionInfo, SymbolDisplayPart, firstOrUndefined, SymbolDisplay, displayPart, SymbolDisplayPartKind, textPart, getTextOfNode, skipAlias, isTypeKeyword, isVoidExpression, isJumpStatementTarget, getTargetLabel, isLabelOfLabeledStatement, nodeSeenTracker, isInString, getNameTable, getContextualTypeFromParentOrAncestorTypeNode, isNoSubstitutionTemplateLiteral, isPropertySignature, ModuleExportName, getNextJSDocCommentLocation, isInNonReferenceComment, isTypeElement, hasType, getAllSuperTypeNodes, SuperContainer, StructDeclaration, getSuperContainer, isStatic, getContainingObjectLiteralElement, addToSeen, getAdjustedRenameLocation, getReferencedFileLocation, isReferenceFileLocation, map, QuotePreference, RenameLocation, isStringLiteralLike, isShorthandPropertyAssignment, isObjectLiteralExpression, isNumericLiteral, getQuoteFromPreference, emptyOptions } from "./_namespaces/lpc";
 import { ExportKind, ImportExport, ImportTracker, ExportInfo, ImportsResult, ModuleReference, findModuleReferences, createImportTracker, getImportOrExportSymbol } from "./importTracker";
 
 
@@ -2327,4 +2327,88 @@ export namespace Core {
     function isForRenameWithPrefixAndSuffixText(options: Options) {
         return options.use === FindReferencesUse.Rename && options.providePrefixAndSuffixTextForRename;
     }
+}
+
+/** @internal */
+export type ToReferenceOrRenameEntry<T> = (entry: Entry, originalNode: Node, checker: TypeChecker) => T;
+
+function flattenEntries(referenceSymbols: readonly SymbolAndEntries[] | undefined): readonly Entry[] | undefined {
+    return referenceSymbols && flatMap(referenceSymbols, r => r.references);
+}
+
+/** @internal */
+export function findReferenceOrRenameEntries<T>(
+    program: Program,
+    cancellationToken: CancellationToken,
+    sourceFiles: readonly SourceFile[],
+    node: Node,
+    position: number,
+    options: Options | undefined,
+    convertEntry: ToReferenceOrRenameEntry<T>,
+): T[] | undefined {
+    return map(flattenEntries(Core.getReferencedSymbolsForNode(position, node, program, sourceFiles, cancellationToken, options)), entry => convertEntry(entry, node, program.getTypeChecker()));
+}
+
+/** @internal */
+export function toRenameLocation(entry: Entry, originalNode: Node, checker: TypeChecker, providePrefixAndSuffixText: boolean, quotePreference: QuotePreference): RenameLocation {
+    return { ...entryToDocumentSpan(entry), ...(providePrefixAndSuffixText && getPrefixAndSuffixText(entry, originalNode, checker, quotePreference)) };
+}
+
+interface PrefixAndSuffix {
+    readonly prefixText?: string;
+    readonly suffixText?: string;
+}
+function getPrefixAndSuffixText(entry: Entry, originalNode: Node, checker: TypeChecker, quotePreference: QuotePreference): PrefixAndSuffix {
+    if (entry.kind !== EntryKind.Span && (isIdentifier(originalNode) || isStringLiteralLike(originalNode))) {
+        const { node, kind } = entry;
+        const parent = node.parent;
+        const name = originalNode.text;
+        const isShorthandAssignment = isShorthandPropertyAssignment(parent);
+        if (isShorthandAssignment) { // || (isObjectBindingElementWithoutPropertyName(parent) && parent.name === node && parent.dotDotDotToken === undefined)) {
+            const prefixColon: PrefixAndSuffix = { prefixText: name + ": " };
+            const suffixColon: PrefixAndSuffix = { suffixText: ": " + name };
+            if (kind === EntryKind.SearchedLocalFoundProperty) {
+                return prefixColon;
+            }
+            if (kind === EntryKind.SearchedPropertyFoundLocal) {
+                return suffixColon;
+            }
+
+            // In `const o = { x }; o.x`, symbolAtLocation at `x` in `{ x }` is the property symbol.
+            // For a binding element `const { x } = o;`, symbolAtLocation at `x` is the property symbol.
+            if (isShorthandAssignment) {
+                const grandParent = parent.parent;
+                // if (
+                //     isObjectLiteralExpression(grandParent) &&
+                //     isBinaryExpression(grandParent.parent) &&
+                //     isModuleExportsAccessExpression(grandParent.parent.left)
+                // ) {
+                //     return prefixColon;
+                // }
+                return suffixColon;
+            }
+            else {
+                return prefixColon;
+            }
+        }
+        // else if (isImportSpecifier(parent) && !parent.propertyName) {
+        //     // If the original symbol was using this alias, just rename the alias.
+        //     const originalSymbol = isExportSpecifier(originalNode.parent) ? checker.getExportSpecifierLocalTargetSymbol(originalNode.parent) : checker.getSymbolAtLocation(originalNode);
+        //     return contains(originalSymbol!.declarations, parent) ? { prefixText: name + " as " } : emptyOptions;
+        // }
+        // else if (isExportSpecifier(parent) && !parent.propertyName) {
+        //     // If the symbol for the node is same as declared node symbol use prefix text
+        //     return originalNode === entry.node || checker.getSymbolAtLocation(originalNode) === checker.getSymbolAtLocation(entry.node) ?
+        //         { prefixText: name + " as " } :
+        //         { suffixText: " as " + name };
+        // }
+    }
+
+    // If the node is a numerical indexing literal, then add quotes around the property access.
+    if (entry.kind !== EntryKind.Span && isNumericLiteral(entry.node) && isAccessExpression(entry.node.parent)) {
+        const quote = getQuoteFromPreference(quotePreference);
+        return { prefixText: quote, suffixText: quote };
+    }
+
+    return emptyOptions;
 }

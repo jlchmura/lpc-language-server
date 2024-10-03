@@ -11,6 +11,8 @@ import * as FindAllReferences from "./lpc.FindAllReferences.js";
 export { FindAllReferences };
 import * as GoToDefinition from "./lpc.GoToDefinition.js";
 export { GoToDefinition };
+import * as Rename from "./lpc.Rename.js";
+export { Rename }
 import * as SymbolDisplay from "./lpc.SymbolDisplay.js";
 export { SymbolDisplay };
 import * as formatting from "./lpc.formatting.js";

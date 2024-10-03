@@ -53,3 +53,24 @@ export namespace Location {
 	export const fromTextSpan = (resource: URI, tsTextSpan: Proto.TextSpan): vscode.Location =>
 		vscode.Location.create(resource.toString(), Range.fromTextSpan(tsTextSpan));
 }
+
+
+export namespace WorkspaceEdit {
+	export function fromRenames(
+		locations: ReadonlyArray<Proto.SpanGroup>,
+		newName: string
+	) {
+		const edit: vscode.WorkspaceEdit = { changes: {} };
+		for (const spanGroup of locations) {
+			const resource = spanGroup.file;
+			for (const textSpan of spanGroup.locs) {
+				edit.changes[resource] = edit.changes[resource] || [];
+				edit.changes[resource].push(vscode.TextEdit.replace(
+					Range.fromTextSpan(textSpan),
+					newName
+				));				
+			}
+		}
+		return edit;
+	}
+}

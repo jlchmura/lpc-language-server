@@ -1,4 +1,4 @@
-import { arrayReverseIterator, concatenate, createQueue, createSet, createTextSpan, Debug, DefinitionInfo, Diagnostic, diagnosticCategoryName, DiagnosticRelatedInformation, displayPartsToString, DocumentPosition, DocumentSpan, documentSpansEqual, emptyArray, filter, find, firstIterator, firstOrUndefined, flatMap, flattenDiagnosticMessageText, getDocumentSpansEqualityComparer, getLineAndCharacterOfPosition, getMappedContextSpan, getMappedDocumentSpan, getMappedLocation, isArray, isDeclarationFileName, isString, JSDocTagInfo, LanguageServiceMode, LineAndCharacter, map, mapDefinedIterator, mapIterator, memoize, MultiMap, NavigationTree, normalizePath, OperationCanceledException, Path, PossibleProgramFileInfo, QuickInfo, ReferencedSymbol, ReferencedSymbolDefinitionInfo, ReferencedSymbolEntry, ScriptKind, SymbolDisplayPart, TextSpan, textSpanEnd, toFileNameLowerCase, tracing } from "./_namespaces/lpc";
+import { arrayFrom, arrayReverseIterator, concatenate, createQueue, createSet, createTextSpan, Debug, DefinitionInfo, Diagnostic, diagnosticCategoryName, DiagnosticRelatedInformation, displayPartsToString, DocumentPosition, DocumentSpan, documentSpansEqual, emptyArray, filter, find, firstIterator, firstOrUndefined, flatMap, flattenDiagnosticMessageText, getDocumentSpansEqualityComparer, getLineAndCharacterOfPosition, getMappedContextSpan, getMappedDocumentSpan, getMappedLocation, identity, isArray, isDeclarationFileName, isString, JSDocTagInfo, LanguageServiceMode, LineAndCharacter, map, mapDefinedIterator, mapIterator, memoize, MultiMap, NavigationTree, normalizePath, OperationCanceledException, Path, PossibleProgramFileInfo, QuickInfo, ReferencedSymbol, ReferencedSymbolDefinitionInfo, ReferencedSymbolEntry, RenameInfo, RenameInfoFailure, RenameLocation, ScriptKind, SymbolDisplayPart, TextSpan, textSpanEnd, toFileNameLowerCase, tracing, UserPreferences } from "./_namespaces/lpc";
 import { ChangeFileArguments, ConfiguredProject, Errors, GcTimer, isConfiguredProject, Logger, LogLevel, NormalizedPath, OpenFileArguments, Project, ProjectService, ProjectServiceEventHandler, ProjectServiceOptions, ScriptInfo, ServerHost, stringifyIndented, toNormalizedPath, updateProjectIfDirty } from "./_namespaces/lpc.server";
 import * as protocol from "./protocol.js";
 
@@ -670,7 +670,7 @@ export class Session<TMessage = string> implements EventSender {
         const definitions = this.mapDefinitionInfoLocations(project.getLanguageService().getDefinitionAtPosition(file, position) || emptyArray, project);
         return simplifiedResult ? this.mapDefinitionInfo(definitions, project) : definitions.map(Session.mapToOriginalLocation);
     }
-
+    
     private toLocationNavigationTree(tree: NavigationTree, scriptInfo: ScriptInfo): protocol.NavigationTree {
         return {
             text: tree.text,
@@ -713,6 +713,56 @@ export class Session<TMessage = string> implements EventSender {
             };
         }
         return def;
+    }
+
+    public getRenameLocations(args: protocol.RenameRequestArgs, simplifiedResult: boolean): protocol.RenameResponseBody | readonly RenameLocation[] {
+        const file = toNormalizedPath(args.file);
+        const position = this.getPositionInFile(args, file);
+        const projects = this.getProjects(args);
+        const defaultProject = this.getDefaultProject(args);
+        const preferences = this.getPreferences(file);
+        const renameInfo: protocol.RenameInfo = this.mapRenameInfo(
+            defaultProject.getLanguageService().getRenameInfo(file, position, preferences),
+            Debug.checkDefined(this.projectService.getScriptInfo(file)),
+        );
+
+        if (!renameInfo.canRename) return simplifiedResult ? { info: renameInfo, locs: [] } : [];
+
+        const locations = getRenameLocationsWorker(
+            projects,
+            defaultProject,
+            { fileName: args.file, pos: position },
+            !!args.findInStrings,
+            !!args.findInComments,
+            preferences,
+            this.host.useCaseSensitiveFileNames,
+        );
+        if (!simplifiedResult) return locations;
+        return { info: renameInfo, locs: this.toSpanGroups(locations) };
+    }
+
+    
+    private mapRenameInfo(info: RenameInfo, scriptInfo: ScriptInfo): protocol.RenameInfo {
+        if (info.canRename) {
+            const { canRename, fileToRename, displayName, fullDisplayName, kind, kindModifiers, triggerSpan } = info;
+            return identity<protocol.RenameInfoSuccess>(
+                { canRename, fileToRename, displayName, fullDisplayName, kind, kindModifiers, triggerSpan: toProtocolTextSpan(triggerSpan, scriptInfo) },
+            );
+        }
+        else {
+            return info as RenameInfoFailure;
+        }
+    }
+
+    private toSpanGroups(locations: readonly RenameLocation[]): readonly protocol.SpanGroup[] {
+        const map = new Map<string, protocol.SpanGroup>();
+        for (const { fileName, textSpan, contextSpan, originalContextSpan: _2, originalTextSpan: _, originalFileName: _1, ...prefixSuffixText } of locations) {
+            let group = map.get(fileName);
+            if (!group) map.set(fileName, group = { file: fileName, locs: [] });
+            const scriptInfo = Debug.checkDefined(this.projectService.getScriptInfo(fileName));
+            group.locs.push({ ...toProtocolTextSpanWithContext(textSpan, contextSpan, scriptInfo), ...prefixSuffixText });
+        }
+        return arrayFrom(map.values());
     }
 
     private getProjects(args: protocol.FileRequestArgs, getScriptInfoEnsuringProjectsUptoDate?: boolean, ignoreNoProjectError?: boolean): Projects {
@@ -791,7 +841,7 @@ export class Session<TMessage = string> implements EventSender {
         return { refs, symbolName, symbolStartOffset, symbolDisplayString };
     }
 
-    private getPreferences(file: NormalizedPath): protocol.UserPreferences {
+    private getPreferences(file: NormalizedPath): UserPreferences {
         return this.projectService.getPreferences(file);
     }
 }
@@ -1359,7 +1409,7 @@ function getLineText(scriptInfo: ScriptInfo, span: protocol.TextSpanWithContext)
     return scriptInfo.getSnapshot().getText(lineSpan.start, textSpanEnd(lineSpan)).replace(/\r|\n/g, "");
 }
 
-function referenceEntryToReferencesResponseItem(projectService: ProjectService, { fileName, textSpan, contextSpan, isWriteAccess, isDefinition }: ReferencedSymbolEntry, { disableLineTextInReferences }: protocol.UserPreferences): protocol.ReferencesResponseItem {
+function referenceEntryToReferencesResponseItem(projectService: ProjectService, { fileName, textSpan, contextSpan, isWriteAccess, isDefinition }: ReferencedSymbolEntry, { disableLineTextInReferences }: UserPreferences): protocol.ReferencesResponseItem {
     const scriptInfo = Debug.checkDefined(projectService.getScriptInfo(fileName));
     const span = toProtocolTextSpanWithContext(textSpan, contextSpan, scriptInfo);
     const lineText = disableLineTextInReferences ? undefined : getLineText(scriptInfo, span);
@@ -1393,4 +1443,43 @@ function mapDefinitionInProject(
 
 function createDocumentSpanSet(useCaseSensitiveFileNames: boolean): Set<DocumentSpan> {
     return createSet(({ textSpan }) => textSpan.start + 100003 * textSpan.length, getDocumentSpansEqualityComparer(useCaseSensitiveFileNames));
+}
+
+function getRenameLocationsWorker(
+    projects: Projects,
+    defaultProject: Project,
+    initialLocation: DocumentPosition,
+    findInStrings: boolean,
+    findInComments: boolean,
+    preferences: UserPreferences,
+    useCaseSensitiveFileNames: boolean,
+): readonly RenameLocation[] {
+    const perProjectResults = getPerProjectReferences(
+        projects,
+        defaultProject,
+        initialLocation,
+        /*isForRename*/ true,
+        (project, position) => project.getLanguageService().findRenameLocations(position.fileName, position.pos, findInStrings, findInComments, preferences),
+        (renameLocation, cb) => cb(documentSpanLocation(renameLocation)),
+    );
+
+    // No filtering or dedup'ing is required if there's exactly one project
+    if (isArray(perProjectResults)) {
+        return perProjectResults;
+    }
+
+    const results: RenameLocation[] = [];
+    const seen = createDocumentSpanSet(useCaseSensitiveFileNames);
+
+    perProjectResults.forEach((projectResults, project) => {
+        for (const result of projectResults) {
+            // If there's a mapped location, it'll appear in the results for another project
+            if (!seen.has(result) && !getMappedLocationForProject(documentSpanLocation(result), project)) {
+                results.push(result);
+                seen.add(result);
+            }
+        }
+    });
+
+    return results;
 }

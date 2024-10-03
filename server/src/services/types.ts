@@ -23,6 +23,7 @@ import {
     Symbol,
     TextChangeRange,
     TextSpan,
+    UserPreferences
 } from "./_namespaces/lpc.js";
 
 
@@ -179,6 +180,9 @@ export interface SymbolDisplayPart {
      */
     kind: string;
 }
+
+/** @internal */
+export const emptyOptions = {};
 
 export interface JSDocTagInfo {
     name: string;
@@ -441,6 +445,12 @@ export interface LanguageService {
     findReferences(fileName: string, position: number): ReferencedSymbol[] | undefined;
 
     /** @internal */ updateIsDefinitionOfReferencedSymbols(referencedSymbols: readonly ReferencedSymbol[], knownSymbolSpans: Set<DocumentSpan>): boolean;
+
+    findRenameLocations(fileName: string, position: number, findInStrings: boolean, findInComments: boolean, preferences: UserPreferences): readonly RenameLocation[] | undefined;
+    /** @deprecated Pass `providePrefixAndSuffixTextForRename` as part of a `UserPreferences` parameter. */
+    findRenameLocations(fileName: string, position: number, findInStrings: boolean, findInComments: boolean, providePrefixAndSuffixTextForRename?: boolean): readonly RenameLocation[] | undefined;
+
+    getRenameInfo(fileName: string, position: number, preferences: UserPreferences): RenameInfo;    
 }
 
 export interface HostCancellationToken {
@@ -813,4 +823,33 @@ export interface ReferencedSymbol {
 
 export interface ReferencedSymbolEntry extends ReferenceEntry {
     isDefinition?: boolean;
+}
+
+export interface RenameInfoSuccess {
+    canRename: true;
+    /**
+     * File or directory to rename.
+     * If set, `getEditsForFileRename` should be called instead of `findRenameLocations`.
+     */
+    fileToRename?: string;
+    displayName: string;
+    /**
+     * Full display name of item to be renamed.
+     * If item to be renamed is a file, then this is the original text of the module specifer
+     */
+    fullDisplayName: string;
+    kind: ScriptElementKind;
+    kindModifiers: string;
+    triggerSpan: TextSpan;
+}
+
+export type RenameInfo = RenameInfoSuccess | RenameInfoFailure;
+
+export interface RenameLocation extends DocumentSpan {
+    readonly prefixText?: string;
+    readonly suffixText?: string;
+}
+export interface RenameInfoFailure {
+    canRename: false;
+    localizedErrorMessage: string;
 }

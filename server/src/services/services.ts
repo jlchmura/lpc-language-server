@@ -159,6 +159,13 @@ import {
     isDeclarationName,
     isLiteralComputedPropertyDeclarationName,
     getEscapedTextOfIdentifierOrLiteral,
+    UserPreferences,
+    RenameInfo,
+    Rename,
+    getAdjustedRenameLocation,
+    getQuotePreference,
+    emptyOptions,
+    RenameLocation,
 } from "./_namespaces/lpc.js";
 import * as NavigationBar from "./_namespaces/lpc.NavigationBar.js";
 import * as FindAllReferences from "./_namespaces/lpc.FindAllReferences.js";
@@ -1275,7 +1282,9 @@ export function createLanguageService(
         toLineColumnOffset,
         getNavigationTree,
         findReferences,
-        updateIsDefinitionOfReferencedSymbols
+        updateIsDefinitionOfReferencedSymbols,
+        findRenameLocations,
+        getRenameInfo
     };
 
     return ls;
@@ -1795,6 +1804,33 @@ export function createLanguageService(
             documentation,
             tags,
         };
+    }
+
+    function findRenameLocations(fileName: string, position: number, findInStrings: boolean, findInComments: boolean, preferences?: UserPreferences | boolean): RenameLocation[] | undefined {
+        synchronizeHostData();
+        const sourceFile = getValidSourceFile(fileName);
+        const node = getAdjustedRenameLocation(getTouchingPropertyName(sourceFile, position));
+        if (!Rename.nodeIsEligibleForRename(node)) return undefined;
+        
+        const quotePreference = getQuotePreference(sourceFile, preferences ?? emptyOptions);
+        const providePrefixAndSuffixTextForRename = typeof preferences === "boolean" ? preferences : preferences?.providePrefixAndSuffixTextForRename;
+        return getReferencesWorker(node, position, { findInStrings, findInComments, providePrefixAndSuffixTextForRename, use: FindAllReferences.FindReferencesUse.Rename }, (entry, originalNode, checker) => FindAllReferences.toRenameLocation(entry, originalNode, checker, providePrefixAndSuffixTextForRename || false, quotePreference));        
+    }
+    
+    function getRenameInfo(fileName: string, position: number, preferences: UserPreferences | undefined): RenameInfo {
+        synchronizeHostData();
+        return Rename.getRenameInfo(program, getValidSourceFile(fileName), position, preferences || {});
+    }
+
+    function getReferencesWorker<T>(node: Node, position: number, options: FindAllReferences.Options, cb: FindAllReferences.ToReferenceOrRenameEntry<T>): T[] | undefined {
+        synchronizeHostData();
+
+        // Exclude default library when renaming as commonly user don't want to change that file.
+        const sourceFiles = options && options.use === FindAllReferences.FindReferencesUse.Rename
+            ? program.getSourceFiles().filter(sourceFile => !program.isSourceFileDefaultLibrary(sourceFile))
+            : program.getSourceFiles();
+
+        return FindAllReferences.findReferenceOrRenameEntries(program, cancellationToken, sourceFiles, node, position, options, cb);
     }
 }
 

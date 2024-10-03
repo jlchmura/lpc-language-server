@@ -1,4 +1,4 @@
-import { clear, closeFileWatcherOf, computeLineAndCharacterOfPosition, computeLineStarts, computePositionOfLineAndCharacter, contains, createTextSpanFromBounds, Debug, directorySeparator, DocumentPositionMapper, DocumentRegistryBucketKeyWithMode, FileWatcher, FileWatcherEventKind, forEach, FormatCodeSettings, getBaseFileName, getLineInfo, getSnapshotText, hasLPCFileExtension, IScriptSnapshot, isString, LineInfo, missingFileModifiedTime, orderedRemoveItem, Path, ScriptKind, ScriptSnapshot, some, SourceFile, SourceFileLike, TextSpan } from "./_namespaces/lpc";
+import { clear, closeFileWatcherOf, computeLineAndCharacterOfPosition, computeLineStarts, computePositionOfLineAndCharacter, contains, createTextSpanFromBounds, Debug, directorySeparator, DocumentPositionMapper, DocumentRegistryBucketKeyWithMode, FileWatcher, FileWatcherEventKind, forEach, FormatCodeSettings, getBaseFileName, getLineInfo, getSnapshotText, hasLPCFileExtension, IScriptSnapshot, isString, LineInfo, missingFileModifiedTime, orderedRemoveItem, Path, ScriptKind, ScriptSnapshot, some, SourceFile, SourceFileLike, TextSpan, UserPreferences } from "./_namespaces/lpc";
 import { AbsolutePositionAndLineText, ConfiguredProject, Errors, isBackgroundProject, isConfiguredProject, isInferredProject, isProjectDeferredClose, maxFileSize, NormalizedPath, Project, protocol, ScriptVersionCache, ServerHost } from "./_namespaces/lpc.server";
 
 /** @internal */
@@ -299,7 +299,7 @@ export class ScriptInfo {
      */
     readonly containingProjects: Project[] = [];
     private formatSettings: FormatCodeSettings | undefined;
-    private preferences: protocol.UserPreferences | undefined;
+    private preferences: UserPreferences | undefined;
 
     /** @internal */
     fileWatcher: FileWatcher | undefined;
@@ -611,7 +611,7 @@ export class ScriptInfo {
         this.markContainingProjectsAsDirty();
     }
 
-    getPreferences(): protocol.UserPreferences | undefined {
+    getPreferences(): UserPreferences | undefined {
         return this.preferences;
     }
 

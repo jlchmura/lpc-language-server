@@ -197,5 +197,7 @@ export const Diagnostics = {
     Directory_0_does_not_exist_skipping_all_lookups_in_it: diag(6148, DiagnosticCategory.Message, "Directory_0_does_not_exist_skipping_all_lookups_in_it_6148", "Directory '{0}' does not exist, skipping all lookups in it."),
     File_name_0_has_a_1_extension_stripping_it: diag(6132, DiagnosticCategory.Message, "File_name_0_has_a_1_extension_stripping_it_6132", "File name '{0}' has a '{1}' extension - stripping it."),
     Module_0_has_already_exported_a_member_named_1_Consider_explicitly_re_exporting_to_resolve_the_ambiguity: diag(2308, DiagnosticCategory.Error, "Module_0_has_already_exported_a_member_named_1_Consider_explicitly_re_exporting_to_resolve_the_ambig_2308", "Module {0} has already exported a member named '{1}'. Consider explicitly re-exporting to resolve the ambiguity."),
-    
+    You_cannot_rename_this_element: diag(8000, DiagnosticCategory.Error, "You_cannot_rename_this_element_8000", "You cannot rename this element."),   
+    You_cannot_rename_elements_that_are_defined_in_the_standard_TypeScript_library: diag(8001, DiagnosticCategory.Error, "You_cannot_rename_elements_that_are_defined_in_the_standard_TypeScript_library_8001", "You cannot rename elements that are defined in the standard TypeScript library."),
+    You_cannot_rename_a_module_via_a_global_import: diag(8031, DiagnosticCategory.Error, "You_cannot_rename_a_module_via_a_global_import_8031", "You cannot rename a module via a global import."),
 }

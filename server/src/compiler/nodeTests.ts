@@ -269,3 +269,7 @@ export function isNoSubstitutionTemplateLiteral(node: Node){//}: node is NoSubst
 export function isPropertySignature(node: Node): node is PropertySignature {
     return node.kind === SyntaxKind.PropertySignature;
 }
+
+export function isNumericLiteral(node: Node): node is IntLiteral | FloatLiteral {
+    return node.kind === SyntaxKind.IntKeyword || node.kind === SyntaxKind.FloatKeyword;
+}

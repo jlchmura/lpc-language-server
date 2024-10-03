@@ -298,7 +298,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
         getNonNullableType,
         getSignaturesOfType,
-        getGlobalDiagnostics
+        getGlobalDiagnostics,
+        getFullyQualifiedName
     };
 
     var uniqueLiteralType = createIntrinsicType(TypeFlags.Never, "never", /*objectFlags*/ undefined, "unique literal"); // `uniqueLiteralType` is a special `never` flagged by union reduction to behave as a literal

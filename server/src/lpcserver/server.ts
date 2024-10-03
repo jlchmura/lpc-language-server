@@ -1,6 +1,7 @@
 import { Connection, Diagnostic, DiagnosticSeverity, Hover, InitializeResult, Location, MarkedString, MarkupContent, MarkupKind, TextDocumentPositionParams, TextDocuments, TextDocumentSyncKind } from "vscode-languageserver";
 import * as vscode from "vscode-languageserver";
 import * as lpc from "../lpc/lpc.js";
+import { Debug } from "../lpc/lpc.js";
 import * as protocol from "../server/_namespaces/lpc.server.protocol.js";
 import { Logger } from "./nodeServer";
 import { Position, TextDocument } from "vscode-languageserver-textdocument";
@@ -19,7 +20,7 @@ const serverCapabilities: vscode.ServerCapabilities = {
     //     resolveProvider: true,
     //     triggerCharacters: [">", "*"],
     // },
-    // renameProvider: false,
+    renameProvider: true,
     documentSymbolProvider: true,
     // codeLensProvider: {
     //     resolveProvider: true,
@@ -250,6 +251,51 @@ export function start(connection: Connection, platform: string) {
             }
 
             return result;
+        });
+
+        connection.onPrepareRename(requestParams => {
+            const args: lpc.server.protocol.FileLocationRequestArgs = {
+                file: lpc.convertToRelativePath(fromUri(requestParams.textDocument.uri), rootFolder, f=>canonicalFilename(f)),
+                projectFileName,
+                ...posParamToLpcPos(requestParams),
+            };
+
+            const result = session.getRenameLocations(args, true) as protocol.RenameResponseBody;            
+            if (!result) {
+                return undefined;
+            }
+
+            const renameInfo = result.info;
+            if (!renameInfo.canRename) {
+                return undefined;
+            } 
+            return typeConverters.Range.fromTextSpan(renameInfo.triggerSpan);             
+        });
+
+        connection.onRenameRequest(requestParams => {
+            const args: lpc.server.protocol.RenameRequestArgs = {
+                file: lpc.convertToRelativePath(fromUri(requestParams.textDocument.uri), rootFolder, f=>canonicalFilename(f)),
+                projectFileName,
+                ...posParamToLpcPos(requestParams),
+                findInStrings: false,
+                findInComments: false,
+            };
+
+            const result = session.getRenameLocations(args, true) as protocol.RenameResponseBody;
+            if (!result) {
+                return undefined;
+            }
+            
+            const renameInfo = result.info;
+            if (!renameInfo.canRename) {
+                return undefined;
+            }
+
+            if (renameInfo.fileToRename) {
+                Debug.fail("todo - file rename");
+            }
+
+            return typeConverters.WorkspaceEdit.fromRenames(result.locs, requestParams.newName);
         });
 
         connection.onHover(requestParams => {

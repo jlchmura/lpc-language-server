@@ -1799,3 +1799,8 @@ export function createSet<TElement, THash = number>(getHashCode: (element: TElem
 
     return set;
 }
+
+/** @internal */
+export function tryRemoveSuffix(str: string, suffix: string): string | undefined {
+    return endsWith(str, suffix) ? str.slice(0, str.length - suffix.length) : undefined;
+}

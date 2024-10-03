@@ -107,6 +107,14 @@ import {
     isKeyword,
     isPropertyNameLiteral,
     isToken,
+    FutureSourceFile,
+    UserPreferences,
+    StringLiteral,
+    isFullSourceFile,
+    isStringLiteral,
+    nodeIsSynthesized,
+    find,
+    isStringDoubleQuoted,
 } from "./_namespaces/lpc.js";
 
 // Matches the beginning of a triple slash directive
@@ -1436,4 +1444,45 @@ function findRightmostToken(n: Node, sourceFile: SourceFileLike): Node | undefin
 
     const candidate = findRightmostChildNodeWithTokens(children, /*exclusiveStartPosition*/ children.length, sourceFile, n.kind);
     return candidate && findRightmostToken(candidate, sourceFile);
+}
+
+/** @internal */
+export const enum QuotePreference {
+    Single,
+    Double,
+}
+
+/** @internal */
+export function quotePreferenceFromString(str: StringLiteral, sourceFile: SourceFile): QuotePreference {
+    return isStringDoubleQuoted(str, sourceFile) ? QuotePreference.Double : QuotePreference.Single;
+}
+
+/** @internal */
+export function getQuotePreference(sourceFile: SourceFile | FutureSourceFile, preferences: UserPreferences): QuotePreference {
+    if (preferences.quotePreference && preferences.quotePreference !== "auto") {
+        return preferences.quotePreference === "single" ? QuotePreference.Single : QuotePreference.Double;
+    }
+    else {
+        // ignore synthetic import added when importHelpers: true
+        const firstModuleSpecifier = isFullSourceFile(sourceFile) && sourceFile.imports &&
+            find(sourceFile.imports, n => isStringLiteral(n) && !nodeIsSynthesized(n.parent)) as StringLiteral;
+        return firstModuleSpecifier ? quotePreferenceFromString(firstModuleSpecifier, sourceFile) : QuotePreference.Double;
+    }
+}
+
+/** @internal */
+export function getQuoteFromPreference(qp: QuotePreference): string {
+    switch (qp) {
+        case QuotePreference.Single:
+            return "'";
+        case QuotePreference.Double:
+            return '"';
+        default:
+            return Debug.assertNever(qp);
+    }
+}
+
+/** @internal */
+export function isImportOrExportSpecifierName(location: Node): location is Identifier {
+    return false;// TODO: return !!location.parent && isImportOrExportSpecifier(location.parent) && location.parent.propertyName === location;
 }
