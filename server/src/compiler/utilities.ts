@@ -5255,3 +5255,8 @@ export function addToSeen<K, T>(seen: Map<K, T>, key: K, value: T = true as any)
     seen.set(key, value);
     return true;
 }
+
+/** @internal */
+export function getEscapedTextOfIdentifierOrLiteral(node: PropertyNameLiteral): string {
+    return node.text;
+}

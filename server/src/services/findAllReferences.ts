@@ -1136,6 +1136,8 @@ export namespace Core {
 
     /** Search for all occurrences of an identifier in a source file (and filter out the ones that match). */
     function searchForName(sourceFile: SourceFile, search: Search, state: State): void {
+        const nameTable = getNameTable(sourceFile);
+        const result = nameTable.get(search.text);
         if (getNameTable(sourceFile).get(search.text) !== undefined) {
             getReferencesInSourceFile(sourceFile, search, state);
         }

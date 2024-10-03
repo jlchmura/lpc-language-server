@@ -158,6 +158,7 @@ import {
     FloatLiteral,
     isDeclarationName,
     isLiteralComputedPropertyDeclarationName,
+    getEscapedTextOfIdentifierOrLiteral,
 } from "./_namespaces/lpc.js";
 import * as NavigationBar from "./_namespaces/lpc.NavigationBar.js";
 import * as FindAllReferences from "./_namespaces/lpc.FindAllReferences.js";
@@ -2129,7 +2130,7 @@ function initializeNameTable(sourceFile: SourceFile): void {
     const nameTable = sourceFile.nameTable = new Map();
     sourceFile.forEachChild(function walk(node) {
         if (isIdentifier(node) && !isTagName(node) && node.text || isStringOrNumericLiteralLike(node) && literalIsName(node)) {
-            const text = (node);
+            const text = getEscapedTextOfIdentifierOrLiteral(node);
             nameTable.set(text, nameTable.get(text) === undefined ? node.pos : -1);
         }
         // else if (isPrivateIdentifier(node)) {

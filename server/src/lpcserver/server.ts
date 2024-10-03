@@ -245,7 +245,7 @@ export function start(connection: Connection, platform: string) {
                 // if (!options.includeDeclaration && ref.isDefinition) {
                 //     continue;
                 // }                
-                const location = typeConverters.Location.fromTextSpan(uri, ref);
+                const location = typeConverters.Location.fromTextSpan(URI.parse(ref.file), ref);
                 result.push(location);
             }
 
