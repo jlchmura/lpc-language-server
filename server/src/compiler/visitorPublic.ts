@@ -1,4 +1,4 @@
-import { ConciseBody, Debug, EmitFlags, Expression, factory, FunctionBody, getEmitFlags, getEmitScriptTarget, HasChildren, Identifier, isArray, isArrayBindingElement, isBinaryOperatorToken, isBindingElement, isBindingPattern, isBlock, isCallChain, isConciseBody, isEntityName, isExpression, isIdentifier, isMemberName, isParameter, isPropertyName, isStatement, isTypeNode, isTypeParameterDeclaration, isVariableDeclaration, isVariableDeclarationList, LexicalEnvironmentFlags, Node, NodeArray, NodesVisitor, ParameterDeclaration, ScriptTarget, setEmitFlags, setTextRange, setTextRangePosEnd, singleOrUndefined, some, Statement, SyntaxKind, TransformationContext, Visitor } from "./_namespaces/lpc";
+import { ConciseBody, Debug, EmitFlags, Expression, factory, FunctionBody, getEmitFlags, getEmitScriptTarget, HasChildren, Identifier, isArray, isArrayBindingElement, isBinaryOperatorToken, isBindingElement, isBindingPattern, isBlock, isCallChain, isConciseBody, isEntityName, isExpression, isIdentifier, isMemberName, isParameter, isPropertyName, isStatement, isTypeNode, isTypeParameterDeclaration, isVariableDeclaration, isVariableDeclarationList, LexicalEnvironmentFlags, Node, NodeArray, NodesVisitor, NodeVisitor, nullTransformationContext, ParameterDeclaration, ScriptTarget, setEmitFlags, setTextRange, setTextRangePosEnd, singleOrUndefined, some, Statement, SyntaxKind, TransformationContext, Visitor } from "./_namespaces/lpc";
 
 
 /**
@@ -1703,3 +1703,38 @@ function extractSingleNode(nodes: readonly Node[]): Node | undefined {
     Debug.assert(nodes.length <= 1, "Too many nodes written to output.");
     return singleOrUndefined(nodes);
 }
+
+/**
+ * Visits each child of a Node using the supplied visitor, possibly returning a new Node of the same kind in its place.
+ *
+ * @param node The Node whose children will be visited.
+ * @param visitor The callback used to visit each child.
+ * @param context A lexical environment context for the visitor.
+ */
+export function visitEachChild<T extends Node>(node: T | undefined, visitor: Visitor, context: TransformationContext | undefined, nodesVisitor?: typeof visitNodes, tokenVisitor?: Visitor): T | undefined;
+/** @internal */
+export function visitEachChild<T extends Node>(node: T | undefined, visitor: Visitor, context: TransformationContext | undefined, nodesVisitor?: NodesVisitor, tokenVisitor?: Visitor, nodeVisitor?: NodeVisitor): T | undefined;
+export function visitEachChild<T extends Node>(node: T | undefined, visitor: Visitor, context = nullTransformationContext, nodesVisitor = visitNodes, tokenVisitor?: Visitor, nodeVisitor: NodeVisitor = visitNode): T | undefined {
+    if (node === undefined) {
+        return undefined;
+    }
+
+    // TODO - implement visiteach child table
+    const fn = undefined;// (visitEachChildTable as Record<SyntaxKind, VisitEachChildFunction<any> | undefined>)[node.kind];
+    return fn === undefined ? node : fn(node, visitor, context, nodesVisitor, nodeVisitor, tokenVisitor);
+}
+
+type VisitEachChildFunction<T extends Node> = (node: T, visitor: Visitor, context: TransformationContext, nodesVisitor: NodesVisitor, nodeVisitor: NodeVisitor, tokenVisitor: Visitor | undefined) => T;
+
+// A type that correlates a `SyntaxKind` to a `VisitEachChildFunction<T>`, for nodes in the `HasChildren` union.
+// This looks something like:
+//
+//  {
+//      [SyntaxKind.QualifiedName]: VisitEachChildFunction<QualifiedName>;
+//      [SyntaxKind.ComputedPropertyName]: VisitEachChildFunction<ComputedPropertyName>;
+//      ...
+//  }
+//
+// This is then used as the expected type for `visitEachChildTable`.
+type VisitEachChildTable = { [TNode in HasChildren as TNode["kind"]]: VisitEachChildFunction<TNode>; };
+

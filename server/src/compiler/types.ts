@@ -5972,3 +5972,31 @@ export type SuperContainerOrFunctions =
     | FunctionDeclaration
     | FunctionExpression;
     // | ArrowFunction;
+
+
+/**
+ * A function that walks a node using the given visitor, lifting node arrays into single nodes,
+ * returning an node which satisfies the test.
+ *
+ * - If the input node is undefined, then the output is undefined.
+ * - If the visitor returns undefined, then the output is undefined.
+ * - If the output node is not undefined, then it will satisfy the test function.
+ * - In order to obtain a return type that is more specific than `Node`, a test
+ *   function _must_ be provided, and that function must be a type predicate.
+ *
+ * For the canonical implementation of this type, @see {visitNode}.
+ */
+export interface NodeVisitor {
+    <TIn extends Node | undefined, TVisited extends Node | undefined, TOut extends Node>(
+        node: TIn,
+        visitor: Visitor<NonNullable<TIn>, TVisited>,
+        test: (node: Node) => node is TOut,
+        lift?: (node: readonly Node[]) => Node,
+    ): TOut | (TIn & undefined) | (TVisited & undefined);
+    <TIn extends Node | undefined, TVisited extends Node | undefined>(
+        node: TIn,
+        visitor: Visitor<NonNullable<TIn>, TVisited>,
+        test?: (node: Node) => boolean,
+        lift?: (node: readonly Node[]) => Node,
+    ): Node | (TIn & undefined) | (TVisited & undefined);
+}
