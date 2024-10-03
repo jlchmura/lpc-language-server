@@ -38,6 +38,7 @@ import {
     Expression,
     ExpressionStatement,
     FalseLiteral,
+    firstOrUndefined,
     FloatLiteral,
     ForEachInitializer,
     ForEachStatement,
@@ -297,8 +298,8 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         // small arrays (1 to 4 elements) to give the VM a chance to allocate an optimal representation.
         const length = elements.length;
         const array = (length >= 1 && length <= 4 ? elements.slice() : elements) as MutableNodeArray<T>;
-        array.pos = -1;
-        array.end = -1;
+        array.pos = firstOrUndefined(array)?.pos || -1;
+        array.end = lastOrUndefined(array)?.end || -1;
         array.hasTrailingComma = !!hasTrailingComma;
         aggregateChildrenFlags(array);
         Debug.attachNodeArrayDebugInfo(array);
