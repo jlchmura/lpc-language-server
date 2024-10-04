@@ -1,8 +1,8 @@
 import * as esbuild from 'esbuild'
 
 await esbuild.build({
-  entryPoints: ['server/src/bin.ts'],
-  bundle: true,
+  entryPoints: ['server/src/bin.ts'],  
+  bundle: true,  
   banner: { js: "// Copyright 2024 John L Chmura\n" },
   outdir: 'out/server/src',
   target: ["es2020", "node14.17"],
@@ -10,6 +10,6 @@ await esbuild.build({
   platform: 'node',
   format: 'cjs',
   sourcemap: 'both',
-  mainFields: ['module', 'main'], 
+  mainFields: ['module','main'], 
   logLevel: 'warning',  
 })

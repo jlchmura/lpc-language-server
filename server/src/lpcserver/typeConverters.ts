@@ -1,6 +1,12 @@
 import * as vscode from "vscode-languageserver";
 import * as Proto from "../server/_namespaces/lpc.server.protocol.js";
+import { protocol } from "../server/_namespaces/lpc.server.js";
+import { ScriptElementKind } from "../server/_namespaces/lpc.js";
 import { URI } from "vscode-uri";
+import { KindModifiers } from "./protocol.const.js";
+
+
+
 
 export namespace Range {
 	export const fromTextSpan = (span: Proto.TextSpan): vscode.Range =>
@@ -73,4 +79,91 @@ export namespace WorkspaceEdit {
 		}
 		return edit;
 	}
+}
+
+export namespace CompletionKind {
+	export function fromKind(kind: string): vscode.CompletionItemKind {
+		switch (kind) {			
+			case ScriptElementKind.primitiveType:
+			case ScriptElementKind.keyword:
+				return vscode.CompletionItemKind.Keyword;
+
+			// case ScriptElementKind.const:
+			// case ScriptElementKind.let:
+			// case ScriptElementKind.variable:
+			// case ScriptElementKind.localVariable:
+			case ScriptElementKind.alias:
+			case ScriptElementKind.parameterElement:
+				return vscode.CompletionItemKind.Variable;
+
+			case ScriptElementKind.memberVariableElement:			
+				return vscode.CompletionItemKind.Field;
+
+			case ScriptElementKind.functionElement:
+			case ScriptElementKind.localFunctionElement:
+				return vscode.CompletionItemKind.Function;
+
+			// case ScriptElementKind.method:
+			// case ScriptElementKind.constructSignature:
+			case ScriptElementKind.callSignatureElement:
+			case ScriptElementKind.indexSignatureElement:
+				return vscode.CompletionItemKind.Method;
+
+			// case ScriptElementKind.enum:
+			// 	return vscode.CompletionItemKind.Enum;
+
+			// case ScriptElementKind.enumMember:
+			// 	return vscode.CompletionItemKind.EnumMember;
+
+			// case ScriptElementKind.module:
+			// case ScriptElementKind.externalModuleName:
+			// 	return vscode.CompletionItemKind.Module;
+
+			case ScriptElementKind.classElement:
+			case ScriptElementKind.typeElement:
+				return vscode.CompletionItemKind.Class;
+
+			case ScriptElementKind.interfaceElement:
+				return vscode.CompletionItemKind.Interface;
+
+			case ScriptElementKind.warning:
+				return vscode.CompletionItemKind.Text;
+
+			case ScriptElementKind.scriptElement:
+				return vscode.CompletionItemKind.File;
+
+			case ScriptElementKind.directory:
+				return vscode.CompletionItemKind.Folder;
+
+			case ScriptElementKind.string:
+				return vscode.CompletionItemKind.Constant;
+
+			default:
+				return vscode.CompletionItemKind.Property;
+		}
+	}
+
+	export function getDetails(tsEntry: protocol.CompletionEntry) : string | undefined {
+		if (!tsEntry.kindModifiers || tsEntry.kind !== ScriptElementKind.scriptElement) {
+			return;
+		}
+	
+		const kindModifiers = parseKindModifier(tsEntry.kindModifiers);
+		
+		for (const extModifier of KindModifiers.fileExtensionKindModifiers) {
+			if (kindModifiers.has(extModifier)) {
+				if (tsEntry.name.toLowerCase().endsWith(extModifier)) {
+					return tsEntry.name;
+				} else {
+					return tsEntry.name + extModifier;
+				}
+			}
+		}
+		return undefined;		
+	}
+
+	export function parseKindModifier(kindModifiers: string): Set<string> {
+		return new Set(kindModifiers.split(/,|\s+/g));
+	}
+	
 }

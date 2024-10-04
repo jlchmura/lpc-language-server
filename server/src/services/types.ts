@@ -1038,6 +1038,7 @@ export interface CompletionInfo {
 }
 
 export type CompletionsTriggerCharacter = "." | '"' | "'" | "`" | "/" | "@" | "<" | " ";
+export const CompletionTriggerCharacterArray: CompletionsTriggerCharacter[] = ['.', '"', '\'', '`', '/', '@', '<', ' '];
 export const enum CompletionTriggerKind {
     /** Completion was triggered by typing an identifier, manual invocation (e.g Ctrl+Space) or via API. */
     Invoked = 1,

@@ -27,3 +27,5 @@ import * as codefix from "./lpc.codefix.js";
 export { codefix };
 import * as SignatureHelp from "./lpc.SignatureHelp.js";
 export { SignatureHelp };
+import * as NavigationBar from "./lpc.NavigationBar.js";
+export { NavigationBar };

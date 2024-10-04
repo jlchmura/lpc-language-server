@@ -178,9 +178,11 @@ import {
     isModuleBlock,
     CompletionInfo,
     InterfaceType,
+    NavigationBar,
+    FindAllReferences,
 } from "./_namespaces/lpc.js";
-import * as NavigationBar from "./_namespaces/lpc.NavigationBar.js";
-import * as FindAllReferences from "./_namespaces/lpc.FindAllReferences.js";
+
+
 
 // These utilities are common to multiple language service features.
 // #region

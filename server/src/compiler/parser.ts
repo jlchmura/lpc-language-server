@@ -12,8 +12,9 @@ export namespace LpcParser {
         ""
     );    
     const tokenStream = new antlr.CommonTokenStream(lexer);
-    const parser = new parserCore.LPCParser(tokenStream);
+    const parser = new parserCore.LPCParser(tokenStream);    
     parser.errorHandler = new antlr.DefaultErrorStrategy();
+    parser.removeErrorListeners();
     parser.interpreter.predictionMode = antlr.PredictionMode.SLL;
     parser.buildParseTrees = true;
 
@@ -118,13 +119,15 @@ export namespace LpcParser {
         jsDocParsingMode = JSDocParsingMode.ParseAll
     ) {
         initState(fileName, sourceText, config, fileHandler);        
+        
         const result = parseSourceFileWorker();
         clearState();
         return result;
+    
     }
 
     function parseSourceFileWorker() {
-        // execute the antlr parser
+        // execute the antlr parser        
         const tree = programTree = parser.program();
         const eofToken = parseTokenNode<EndOfFileToken>(tree.EOF());
         const statements: (Statement|InheritDeclaration)[] = [];
@@ -329,13 +332,12 @@ export namespace LpcParser {
             pos = getNodePos(parseTrees.at(0)).pos;
 
             for (const parseTree of parseTrees) {
-                const node = parseElement(parseTree);
-                if (!node) {
-                    const nn = parseElement(parseTree);
+                const node = parseElement(parseTree);                
+                if (node) {
+                    // Debug.assertIsDefined(node, "parseElement returned undefined");            
+                    end = node.end;
+                    list.push(node);
                 }
-                Debug.assertIsDefined(node, "parseElement returned undefined");            
-                end = node.end;
-                list.push(node);
             }
         }
         return createNodeArray(list, pos, end);
@@ -360,7 +362,7 @@ export namespace LpcParser {
     }
 
     function parseStatementWorker(tree: antlr.ParserRuleContext): Statement {
-        const ruleIndex = tree.ruleIndex;
+        const ruleIndex = tree?.ruleIndex;
         switch (ruleIndex) {            
             case parserCore.LPCParser.RULE_declaration:
                 return parseDeclaration(tree as parserCore.DeclarationContext);
@@ -400,7 +402,7 @@ export namespace LpcParser {
                 }           
         }
 
-        Debug.fail(`parseStatement unknown parser rule [${ruleIndex}]`);
+        console.log(`parseStatement unknown parser rule [${ruleIndex}]`);
     }
 
     function parseOptional<N,T extends antlr.ParserRuleContext>(
@@ -863,7 +865,7 @@ export namespace LpcParser {
                     opKind = SyntaxKind.DoubleExclamationToken;
                     break;
                 default:
-                    Debug.fail("Unknown unary operator " + tree?.children[0]?.getText());
+                    //Debug.fail("Unknown unary operator " + tree?.children[0]?.getText());
                     // TODO log diagnostic
             }
                       

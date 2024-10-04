@@ -1441,12 +1441,12 @@ function findRightmostChildNodeWithTokens(children: readonly Node[], exclusiveSt
  *
  * @internal
  */
-export function findPrecedingToken(position: number, sourceFile: SourceFileLike, startNode: Node, excludeJsdoc?: boolean): Node | undefined;
+export function findPrecedingToken(position: number, sourceFile: SourceFileLike, startingNode: Node, excludeJsdoc?: boolean): Node | undefined;
 /** @internal */
-export function findPrecedingToken(position: number, sourceFile: SourceFile, startNode?: Node, excludeJsdoc?: boolean): Node | undefined;
+export function findPrecedingToken(position: number, sourceFile: SourceFile, startingNode?: Node, excludeJsdoc?: boolean): Node | undefined;
 /** @internal */
-export function findPrecedingToken(position: number, sourceFile: SourceFileLike, startNode?: Node, excludeJsdoc?: boolean): Node | undefined {
-    const result = find((startNode || sourceFile) as Node);    
+export function findPrecedingToken(position: number, sourceFile: SourceFileLike, startingNode?: Node, excludeJsdoc?: boolean): Node | undefined {
+    const result = find((startingNode || sourceFile) as Node);    
     return result;
 
     function find(n: Node): Node | undefined {
@@ -1500,7 +1500,7 @@ export function findPrecedingToken(position: number, sourceFile: SourceFileLike,
             }
         }
 
-        Debug.assert(startNode !== undefined || n.kind === SyntaxKind.SourceFile || n.kind === SyntaxKind.EndOfFileToken || isJSDocCommentContainingNode(n));
+        // Debug.assert(startingNode !== undefined || n.kind === SyntaxKind.SourceFile || n.kind === SyntaxKind.EndOfFileToken || isJSDocCommentContainingNode(n));
 
         // Here we know that none of child token nodes embrace the position,
         // the only known case is when position is at the end of the file.

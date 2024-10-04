@@ -10,16 +10,17 @@ import { loadLpcConfig } from "../backend/LpcConfig.js";
 import EventEmitter from "events";
 import { convertNavTree } from "./utils.js";
 import * as typeConverters from './typeConverters';
+import { KindModifiers } from "./protocol.const.js";
 
 const logger = new Logger("server.log", true, lpc.server.LogLevel.verbose);
 
 const serverCapabilities: vscode.ServerCapabilities = {
     textDocumentSync: TextDocumentSyncKind.Incremental,                
     // Tell the client that this server supports code completion.
-    // completionProvider: {
-    //     resolveProvider: true,
-    //     triggerCharacters: [">", "*"],
-    // },
+    completionProvider: {
+        resolveProvider: false,
+        triggerCharacters: lpc.CompletionTriggerCharacterArray,
+    },
     renameProvider: true,
     documentSymbolProvider: true,
     // codeLensProvider: {
@@ -348,6 +349,42 @@ export function start(connection: Connection, platform: string) {
                 },
             )    
             return [def];
+        });
+
+        connection.onCompletion(requestParams => {
+            const args: lpc.server.protocol.CompletionsRequestArgs = {
+                file: lpc.convertToRelativePath(fromUri(requestParams.textDocument.uri), rootFolder, f=>canonicalFilename(f)),
+                projectFileName,
+                ...posParamToLpcPos(requestParams),
+                prefix: requestParams.context.triggerCharacter,
+            };
+
+            const result = session.getCompletions(args, protocol.CommandTypes.CompletionInfo) as protocol.CompletionInfo;
+            if (!result) {
+                return [];
+            }
+
+            const items: vscode.CompletionItem[] = [];  
+            for (const entry of result.entries) {                
+                const kindModifiers = typeConverters.CompletionKind.parseKindModifier(entry.kindModifiers);
+
+                const item: vscode.CompletionItem = {
+                    label: entry.name || (entry.insertText ?? ''),
+                    kind: typeConverters.CompletionKind.fromKind(entry.kind),                    
+                    detail: typeConverters.CompletionKind.getDetails(entry),                                        
+                    sortText: entry.sortText,
+                    insertText: entry.insertText,
+                    insertTextFormat: entry.isSnippet ? vscode.InsertTextFormat.Snippet : vscode.InsertTextFormat.PlainText,
+                };
+                
+                if (kindModifiers.has(KindModifiers.deprecated)) {
+                    item.tags = [vscode.CompletionItemTag.Deprecated];
+                }
+
+                items.push(item);
+            }
+
+            return items;
         });
 
         // find the lpc-config.json file
