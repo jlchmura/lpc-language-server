@@ -46,6 +46,7 @@ import {
     ForStatement,
     FunctionDeclaration,
     getIdentifierTypeArguments,
+    getTextOfIdentifierOrLiteral,
     hasProperty,
     Identifier,
     identity,
@@ -60,6 +61,14 @@ import {
     isNodeKind,
     isPropertyName,
     isSourceFile,
+    JSDoc,
+    JSDocComment,
+    JSDocParameterTag,
+    JSDocReturnTag,
+    JSDocTag,
+    JSDocText,
+    JSDocTypeExpression,
+    JSDocTypeTag,
     KeywordSyntaxKind,
     KeywordToken,
     KeywordTypeNode,
@@ -73,6 +82,7 @@ import {
     LiteralTypeNode,
     MemberName,
     memoize,
+    memoizeOne,
     Modifier,
     ModifierSyntaxKind,
     ModifierToken,
@@ -92,6 +102,7 @@ import {
     PrefixUnaryOperator,
     PropertyAccessExpression,
     PropertyName,
+    PropertyNameLiteral,
     PunctuationSyntaxKind,
     PunctuationToken,
     QualifiedName,
@@ -153,6 +164,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     // Lazily load the parenthesizer, node converters, and some factory methods until they are used.
     const parenthesizerRules = memoize(() => flags & NodeFactoryFlags.NoParenthesizerRules ? nullParenthesizerRules : createParenthesizerRules(factory));
     const converters = memoize(() => nullNodeConverters);//flags & NodeFactoryFlags.NoNodeConverters ? nullNodeConverters : createNodeConverters(factory));
+    const getJSDocTypeLikeTagCreateFunction = memoizeOne(<T extends JSDocTag & { typeExpression?: JSDocTypeExpression; }>(kind: T["kind"]) => (tagName: Identifier | undefined, typeExpression?: JSDocTypeExpression, comment?: NodeArray<JSDocComment>) => createJSDocTypeLikeTagWorker(kind, tagName, typeExpression, comment));
 
     const factory: NodeFactory = {
         get parenthesizer() {
@@ -176,6 +188,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createLiteralLikeNode,
         createTrue,
         createFalse,
+        createStringLiteralFromNode,
 
         // type elements,
         createIndexSignature,
@@ -194,6 +207,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createComputedPropertyName,
 
         // statements
+        createEmptyStatement,
         createBlock,
         createVariableDeclarationList,
         createVariableStatement,
@@ -233,6 +247,19 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createCloneObjectExpression,
 
         cloneNode,
+
+        // JSDoc
+
+        createJSDocText,
+        createJSDocComment,
+        createJSDocParameterTag,
+        // lazily load factory members for JSDoc tags with similar structure
+        get createJSDocTypeTag() {
+            return getJSDocTypeLikeTagCreateFunction<JSDocTypeTag>(SyntaxKind.JSDocTypeTag);
+        },
+        get createJSDocReturnTag() {
+            return getJSDocTypeLikeTagCreateFunction<JSDocReturnTag>(SyntaxKind.JSDocReturnTag);
+        },
     };
 
     return factory;
@@ -331,6 +358,26 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     function createBaseDeclaration<T extends Declaration>(kind: T["kind"]) {
         const node = createBaseNode(kind);
         node.symbol = undefined!; // initialized by binder
+        return node;
+    }
+
+    // @api
+    function createBaseJSDocTag<T extends JSDocTag>(kind: T["kind"], tagName: Identifier, comment: string | NodeArray<JSDocComment> | undefined) {
+        const node = createBaseNode<T>(kind);
+        node.tagName = tagName;
+        node.comment = comment;
+        return node;
+    }
+
+    // @api
+    // createJSDocTypeTag
+    // createJSDocReturnTag
+    // createJSDocThisTag
+    // createJSDocEnumTag
+    // createJSDocSatisfiesTag
+    function createJSDocTypeLikeTagWorker<T extends JSDocTag & { typeExpression?: JSDocTypeExpression; }>(kind: T["kind"], tagName: Identifier | undefined, typeExpression?: JSDocTypeExpression, comment?: string | NodeArray<JSDocComment>) {
+        const node = createBaseJSDocTag<T>(kind, tagName ?? createIdentifier(getDefaultTagNameForKind(kind)), comment);
+        node.typeExpression = typeExpression;
         return node;
     }
 
@@ -532,6 +579,13 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     // @api
+    function createStringLiteralFromNode(sourceNode: PropertyNameLiteral): StringLiteral {
+        const node = createBaseStringLiteral(getTextOfIdentifierOrLiteral(sourceNode));
+        node.textSourceNode = sourceNode;
+        return node;
+    }
+
+    // @api
     function createArrayTypeNode(elementType: TypeNode): ArrayTypeNode {
         const node = createBaseNode<ArrayTypeNode>(SyntaxKind.ArrayType);
         node.elementType = elementType; // parenthesizerRules().parenthesizeNonArrayTypeOfPostfixType(elementType);
@@ -684,6 +738,13 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
 
     function asToken<TKind extends SyntaxKind>(value: TKind | Token<TKind>): Token<TKind> {
         return typeof value === "number" ? createToken(value) : value;
+    }
+
+    // @api
+    function createEmptyStatement() {
+        const node = createBaseNode<EmptyStatement>(SyntaxKind.EmptyStatement);
+        node.jsDoc = undefined; // initialized by parser (JsDocContainer)
+        return node;
     }
 
     // @api
@@ -1175,6 +1236,38 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         // node.transformFlags = TransformFlags.ContainsTypeScript;
         return node;
     }
+
+    // @api
+    function createJSDocText(text: string): JSDocText {
+        const node = createBaseNode<JSDocText>(SyntaxKind.JSDocText);
+        node.text = text;
+        return node;
+    }
+
+    // @api
+    function createJSDocComment(comment?: string | NodeArray<JSDocComment> | undefined, tags?: readonly JSDocTag[] | undefined) {
+        const node = createBaseNode<JSDoc>(SyntaxKind.JSDoc);
+        node.comment = comment;
+        node.tags = asNodeArray(tags);
+        return node;
+    }
+
+    function createBaseJSDocTagDeclaration<T extends JSDocTag & Declaration>(kind: T["kind"], tagName: Identifier, comment: string | NodeArray<JSDocComment> | undefined) {
+        const node = createBaseDeclaration<T>(kind);
+        node.tagName = tagName;
+        node.comment = comment;
+        return node;
+    }
+
+    // @api
+    function createJSDocParameterTag(tagName: Identifier | undefined, name: EntityName, isBracketed: boolean, typeExpression?: JSDocTypeExpression, isNameFirst?: boolean, comment?: string | NodeArray<JSDocComment>): JSDocParameterTag {
+        const node = createBaseJSDocTagDeclaration<JSDocParameterTag>(SyntaxKind.JSDocParameterTag, tagName ?? createIdentifier("param"), comment);
+        node.typeExpression = typeExpression;
+        node.name = name;
+        node.isNameFirst = !!isNameFirst;
+        node.isBracketed = isBracketed;
+        return node;
+    }
 }
 
 // Utilities
@@ -1329,4 +1422,51 @@ function aggregateChildrenFlags(children: MutableNodeArray<Node>) {
         subtreeFlags |= propagateChildFlags(child);
     }
     children.transformFlags = subtreeFlags;
+}
+
+function getDefaultTagNameForKind(kind: JSDocTag["kind"]): string {
+    switch (kind) {
+        case SyntaxKind.JSDocTypeTag:
+            return "type";
+        case SyntaxKind.JSDocReturnTag:
+            return "returns";
+        case SyntaxKind.JSDocThisTag:
+            return "this";
+        case SyntaxKind.JSDocEnumTag:
+            return "enum";
+        case SyntaxKind.JSDocAuthorTag:
+            return "author";
+        case SyntaxKind.JSDocClassTag:
+            return "class";
+        case SyntaxKind.JSDocPublicTag:
+            return "public";
+        case SyntaxKind.JSDocPrivateTag:
+            return "private";
+        case SyntaxKind.JSDocProtectedTag:
+            return "protected";
+        case SyntaxKind.JSDocReadonlyTag:
+            return "readonly";
+        case SyntaxKind.JSDocOverrideTag:
+            return "override";
+        case SyntaxKind.JSDocTemplateTag:
+            return "template";
+        case SyntaxKind.JSDocTypedefTag:
+            return "typedef";
+        case SyntaxKind.JSDocParameterTag:
+            return "param";
+        case SyntaxKind.JSDocPropertyTag:
+            return "prop";
+        case SyntaxKind.JSDocCallbackTag:
+            return "callback";
+        case SyntaxKind.JSDocOverloadTag:
+            return "overload";
+        case SyntaxKind.JSDocAugmentsTag:
+            return "augments";
+        case SyntaxKind.JSDocImplementsTag:
+            return "implements";
+        case SyntaxKind.JSDocImportTag:
+            return "import";
+        default:
+            return Debug.fail(`Unsupported kind: ${Debug.formatSyntaxKind(kind)}`);
+    }
 }

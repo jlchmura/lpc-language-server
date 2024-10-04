@@ -1,5 +1,5 @@
-import { arrayFrom, arrayReverseIterator, concatenate, createQueue, createSet, createTextSpan, Debug, DefinitionInfo, Diagnostic, diagnosticCategoryName, DiagnosticRelatedInformation, displayPartsToString, DocumentPosition, DocumentSpan, documentSpansEqual, emptyArray, filter, find, firstIterator, firstOrUndefined, flatMap, flattenDiagnosticMessageText, getDocumentSpansEqualityComparer, getLineAndCharacterOfPosition, getMappedContextSpan, getMappedDocumentSpan, getMappedLocation, identity, isArray, isDeclarationFileName, isString, JSDocTagInfo, LanguageServiceMode, LineAndCharacter, map, mapDefinedIterator, mapIterator, memoize, MultiMap, NavigationTree, normalizePath, OperationCanceledException, Path, PossibleProgramFileInfo, QuickInfo, ReferencedSymbol, ReferencedSymbolDefinitionInfo, ReferencedSymbolEntry, RenameInfo, RenameInfoFailure, RenameLocation, ScriptKind, SymbolDisplayPart, TextSpan, textSpanEnd, toFileNameLowerCase, tracing, UserPreferences } from "./_namespaces/lpc";
-import { ChangeFileArguments, ConfiguredProject, Errors, GcTimer, isConfiguredProject, Logger, LogLevel, NormalizedPath, OpenFileArguments, Project, ProjectService, ProjectServiceEventHandler, ProjectServiceOptions, ScriptInfo, ServerHost, stringifyIndented, toNormalizedPath, updateProjectIfDirty } from "./_namespaces/lpc.server";
+import { arrayFrom, arrayReverseIterator, CompletionEntry, CompletionInfo, concatenate, createQueue, createSet, createTextSpan, Debug, DefinitionInfo, Diagnostic, diagnosticCategoryName, DiagnosticRelatedInformation, displayPartsToString, DocumentPosition, DocumentSpan, documentSpansEqual, emptyArray, filter, find, firstIterator, firstOrUndefined, flatMap, flattenDiagnosticMessageText, getDocumentSpansEqualityComparer, getLineAndCharacterOfPosition, getMappedContextSpan, getMappedDocumentSpan, getMappedLocation, identity, isArray, isDeclarationFileName, isString, JSDocTagInfo, LanguageServiceMode, LineAndCharacter, map, mapDefined, mapDefinedIterator, mapIterator, memoize, MultiMap, NavigationTree, normalizePath, OperationCanceledException, Path, PossibleProgramFileInfo, QuickInfo, ReferencedSymbol, ReferencedSymbolDefinitionInfo, ReferencedSymbolEntry, RenameInfo, RenameInfoFailure, RenameLocation, ScriptKind, startsWith, SymbolDisplayPart, TextSpan, textSpanEnd, toFileNameLowerCase, tracing, UserPreferences, WithMetadata } from "./_namespaces/lpc";
+import { ChangeFileArguments, ConfiguredProject, convertUserPreferences, Errors, GcTimer, isConfiguredProject, Logger, LogLevel, NormalizedPath, OpenFileArguments, Project, ProjectService, ProjectServiceEventHandler, ProjectServiceOptions, ScriptInfo, ServerHost, stringifyIndented, toNormalizedPath, updateProjectIfDirty } from "./_namespaces/lpc.server";
 import * as protocol from "./protocol.js";
 
 export interface HostCancellationToken {
@@ -740,7 +740,6 @@ export class Session<TMessage = string> implements EventSender {
         if (!simplifiedResult) return locations;
         return { info: renameInfo, locs: this.toSpanGroups(locations) };
     }
-
     
     private mapRenameInfo(info: RenameInfo, scriptInfo: ScriptInfo): protocol.RenameInfo {
         if (info.canRename) {
@@ -843,6 +842,84 @@ export class Session<TMessage = string> implements EventSender {
 
     private getPreferences(file: NormalizedPath): UserPreferences {
         return this.projectService.getPreferences(file);
+    }
+
+    private getCompletions(args: protocol.CompletionsRequestArgs, kind: protocol.CommandTypes.CompletionInfo | protocol.CommandTypes.Completions | protocol.CommandTypes.CompletionsFull): WithMetadata<readonly protocol.CompletionEntry[]> | protocol.CompletionInfo | CompletionInfo | undefined {
+        const { file, project } = this.getFileAndProject(args);
+        const scriptInfo = this.projectService.getScriptInfoForNormalizedPath(file)!;
+        const position = this.getPosition(args, scriptInfo);
+
+        const completions = project.getLanguageService().getCompletionsAtPosition(
+            file,
+            position,
+            {
+                ...convertUserPreferences(this.getPreferences(file)),
+                triggerCharacter: args.triggerCharacter,
+                triggerKind: args.triggerKind,
+                includeExternalModuleExports: args.includeExternalModuleExports,
+                includeInsertTextCompletions: args.includeInsertTextCompletions,
+            },
+            project.projectService.getFormatCodeOptions(file),
+        );
+        if (completions === undefined) return undefined;
+
+        if (kind === protocol.CommandTypes.CompletionsFull) return completions;
+
+        const prefix = args.prefix || "";
+        const entries = mapDefined<CompletionEntry, protocol.CompletionEntry>(completions.entries, entry => {
+            if (completions.isMemberCompletion || startsWith(entry.name.toLowerCase(), prefix.toLowerCase())) {
+                const {
+                    name,
+                    kind,
+                    kindModifiers,
+                    sortText,
+                    insertText,
+                    filterText,
+                    replacementSpan,
+                    hasAction,
+                    source,
+                    sourceDisplay,
+                    labelDetails,
+                    isSnippet,
+                    isRecommended,
+                    isPackageJsonImport,
+                    isImportStatementCompletion,
+                    data,
+                } = entry;
+                const convertedSpan = replacementSpan ? toProtocolTextSpan(replacementSpan, scriptInfo) : undefined;
+                // Use `hasAction || undefined` to avoid serializing `false`.
+                return {
+                    name,
+                    kind,
+                    kindModifiers,
+                    sortText,
+                    insertText,
+                    filterText,
+                    replacementSpan: convertedSpan,
+                    isSnippet,
+                    hasAction: hasAction || undefined,
+                    source,
+                    sourceDisplay,
+                    labelDetails,
+                    isRecommended,
+                    isPackageJsonImport,
+                    isImportStatementCompletion,
+                    data,
+                };
+            }
+        });
+
+        if (kind === protocol.CommandTypes.Completions) {
+            if (completions.metadata) (entries as WithMetadata<readonly protocol.CompletionEntry[]>).metadata = completions.metadata;
+            return entries;
+        }
+
+        const res: protocol.CompletionInfo = {
+            ...completions,
+            optionalReplacementSpan: completions.optionalReplacementSpan && toProtocolTextSpan(completions.optionalReplacementSpan, scriptInfo),
+            entries,
+        };
+        return res;
     }
 }
 

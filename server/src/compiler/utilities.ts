@@ -1,5 +1,5 @@
 import * as antlr from "antlr4ng";
-import { Signature, Type, Debug, DiagnosticArguments, DiagnosticMessage, DiagnosticRelatedInformation, DiagnosticWithDetachedLocation, DiagnosticWithLocation, Identifier, MapLike, ModifierFlags, Node, NodeFlags, ReadonlyTextRange, some, SourceFile, Symbol, SymbolFlags, SyntaxKind, TextRange, Token, TransformFlags, TypeChecker, TypeFlags, tracing, SignatureFlags, canHaveModifiers, Modifier, skipTrivia, SymbolTable, CallExpression, Declaration, getCombinedNodeFlags, BinaryExpression, AssignmentDeclarationKind, isCallExpression, isBinaryExpression, isIdentifier, Diagnostic, emptyArray, PropertyNameLiteral, DeclarationName, LiteralLikeNode, AssignmentExpression, LogicalOrCoalescingAssignmentOperator, LogicalOperator, Expression, OuterExpressionKinds, OuterExpression, WrappedExpression, PrefixUnaryExpression, PostfixUnaryExpression, ForEachStatement, ShorthandPropertyAssignment, PropertyAssignment, PropertyAccessExpression, ParenthesizedExpression, BinaryOperatorToken, AssertionLevel, SortedArray, binarySearch, identity, Comparison, DiagnosticMessageChain, compareStringsCaseSensitive, compareValues, insertSorted, flatMapToMutable, DiagnosticCollection, isJSDocTemplateTag, HasJSDoc, lastOrUndefined, JSDoc, isJSDoc, find, ParameterDeclaration, FunctionDeclaration, InlineClosureExpression, FunctionExpression, forEachChild, returnUndefined, returnFalse, CompilerOptions, FunctionLikeDeclaration, canHaveLocals, isFunctionLike, isParameter, PropertyDeclaration, BindingElement, isString, InternalSymbolName, isSourceFile, StructDeclaration, isStructDeclaration, JSDocTemplateTag, TypeNodeSyntaxKind, isTypeNode, isFunctionLikeDeclaration, SignatureDeclaration, AccessExpression, isInlineClosureExpression, PropertyAccessEntityNameExpression, isPropertyAccessExpression, EntityNameExpression, isVariableDeclaration, VariableDeclarationInitializedTo, CanonicalDiagnostic, HasInitializer, ExpressionStatement, ForStatement, isShorthandPropertyAssignment, JSDocTag, EqualsToken, AssignmentOperatorToken, isLeftHandSideExpression, isFunctionLikeKind, AdditiveOperator, AdditiveOperatorOrHigher, AssignmentOperatorOrHigher, BinaryOperator, BitwiseOperator, BitwiseOperatorOrHigher, EqualityOperator, EqualityOperatorOrHigher, ExponentiationOperator, LogicalOperatorOrHigher, MultiplicativeOperator, MultiplicativeOperatorOrHigher, RelationalOperator, RelationalOperatorOrHigher, ShiftOperator, ShiftOperatorOrHigher, HasFlowNode, ObjectFlags, ObjectFlagsType, isDeclaration, isBindingPattern, isJSDocSignature, JSDocSignature, TypeNode, findAncestor, Extension, fileExtensionIs, NamedDeclaration, KeywordSyntaxKind, binarySearchKey, SourceFileLike, isToken, EndOfFileToken, isJSDocCommentContainingNode, firstOrUndefined, getNodeChildren, JSDocContainer, PropertyName, idText, isMemberName, forEach, PrinterOptions, NewLineKind, flatMap, getNormalizedPathComponents, removeTrailingDirectorySeparator, directorySeparator, normalizePath, FileWatcher, PackageId, ScriptKind, TextSpan, CheckFlags, TransientSymbol, getCombinedModifierFlags, isElementAccessExpression, createTextSpan, CaseOrDefaultClause, createTextSpanFromBounds, ReturnStatement, createScanner, isQualifiedName, EntityNameOrEntityNameExpression, isCallOrNewExpression, CallLikeExpression, EmitTextWriter, computeLineStarts, last, isWhiteSpaceLike, ScriptTarget, isIdentifierStart, isFunctionDeclaration, HasType, Block, Statement, NodeArray, ClassElement, TypeElement, ObjectLiteralElement, ObjectTypeDeclaration, ObjectLiteralExpression, noop, NewExpression, CommaListExpression, ConditionalExpression, ElementAccessExpression, PartiallyEmittedExpression, InternalEmitFlags, EmitFlags, getLineStarts, getLinesBetweenPositions, HasExpressionInitializer, isStringLiteral, isIntLiteral, StringLiteral, IntLiteral, VariableLikeDeclaration, isBindingElement, BindingElementOfBareOrAccessedRequire, QualifiedName, TypeParameterDeclaration, contains, JSDocTypedefTag, EqualityComparer, equateValues, TypeReferenceNode, isTypeReferenceNode, LateVisibilityPaintedStatement, IndexInfo, PrintHandlers, StringLiteralType, IntLiteralType, flatten, LanguageVariant, combinePaths, map, isRootedDiskPath, getStringComparer, containsPath, every, indexOfAnyCharCode, hasExtension, getDirectoryPath, createGetCanonicalFileName, sort, fileExtensionIsOneOf, findIndex, ReadonlyCollection, equalOwnProperties, FileExtensionInfo, mapDefined, EmitHost, ModuleKind, filter, getNormalizedAbsolutePath, getCommonSourceDirectory, comparePaths, GetCanonicalFileName, SourceFileMayBeEmittedHost, Diagnostics, TypeCheckerHost, ModuleResolutionKind, ResolutionMode, forEachChildRecursively, CommandLineOption, InheritDeclaration, emptyMap, LiteralLikeElementAccessExpression, VariableDeclaration, VariableDeclarationList, isComputedPropertyName, isJSDocParameterTag, BindableStaticNameExpression, getNameOfDeclaration, isVariableStatement, isExpressionStatement, getLeadingCommentRanges, SuperContainer, SuperContainerOrFunctions, CharacterCodes, StringLiteralLike, AnyValidImportOrReExport, tryCast, CloneObjectExpression } from "./_namespaces/lpc.js";
+import { Signature, Type, Debug, DiagnosticArguments, DiagnosticMessage, DiagnosticRelatedInformation, DiagnosticWithDetachedLocation, DiagnosticWithLocation, Identifier, MapLike, ModifierFlags, Node, NodeFlags, ReadonlyTextRange, some, SourceFile, Symbol, SymbolFlags, SyntaxKind, TextRange, Token, TransformFlags, TypeChecker, TypeFlags, tracing, SignatureFlags, canHaveModifiers, Modifier, skipTrivia, SymbolTable, CallExpression, Declaration, getCombinedNodeFlags, BinaryExpression, AssignmentDeclarationKind, isCallExpression, isBinaryExpression, isIdentifier, Diagnostic, emptyArray, PropertyNameLiteral, DeclarationName, LiteralLikeNode, AssignmentExpression, LogicalOrCoalescingAssignmentOperator, LogicalOperator, Expression, OuterExpressionKinds, OuterExpression, WrappedExpression, PrefixUnaryExpression, PostfixUnaryExpression, ForEachStatement, ShorthandPropertyAssignment, PropertyAssignment, PropertyAccessExpression, ParenthesizedExpression, BinaryOperatorToken, AssertionLevel, SortedArray, binarySearch, identity, Comparison, DiagnosticMessageChain, compareStringsCaseSensitive, compareValues, insertSorted, flatMapToMutable, DiagnosticCollection, isJSDocTemplateTag, HasJSDoc, lastOrUndefined, JSDoc, isJSDoc, find, ParameterDeclaration, FunctionDeclaration, InlineClosureExpression, FunctionExpression, forEachChild, returnUndefined, returnFalse, CompilerOptions, FunctionLikeDeclaration, canHaveLocals, isFunctionLike, isParameter, PropertyDeclaration, BindingElement, isString, InternalSymbolName, isSourceFile, StructDeclaration, isStructDeclaration, JSDocTemplateTag, TypeNodeSyntaxKind, isTypeNode, isFunctionLikeDeclaration, SignatureDeclaration, AccessExpression, isInlineClosureExpression, PropertyAccessEntityNameExpression, isPropertyAccessExpression, EntityNameExpression, isVariableDeclaration, VariableDeclarationInitializedTo, CanonicalDiagnostic, HasInitializer, ExpressionStatement, ForStatement, isShorthandPropertyAssignment, JSDocTag, EqualsToken, AssignmentOperatorToken, isLeftHandSideExpression, isFunctionLikeKind, AdditiveOperator, AdditiveOperatorOrHigher, AssignmentOperatorOrHigher, BinaryOperator, BitwiseOperator, BitwiseOperatorOrHigher, EqualityOperator, EqualityOperatorOrHigher, ExponentiationOperator, LogicalOperatorOrHigher, MultiplicativeOperator, MultiplicativeOperatorOrHigher, RelationalOperator, RelationalOperatorOrHigher, ShiftOperator, ShiftOperatorOrHigher, HasFlowNode, ObjectFlags, ObjectFlagsType, isDeclaration, isBindingPattern, isJSDocSignature, JSDocSignature, TypeNode, findAncestor, Extension, fileExtensionIs, NamedDeclaration, KeywordSyntaxKind, binarySearchKey, SourceFileLike, isToken, EndOfFileToken, isJSDocCommentContainingNode, firstOrUndefined, getNodeChildren, JSDocContainer, PropertyName, idText, isMemberName, forEach, PrinterOptions, NewLineKind, flatMap, getNormalizedPathComponents, removeTrailingDirectorySeparator, directorySeparator, normalizePath, FileWatcher, PackageId, ScriptKind, TextSpan, CheckFlags, TransientSymbol, getCombinedModifierFlags, isElementAccessExpression, createTextSpan, CaseOrDefaultClause, createTextSpanFromBounds, ReturnStatement, createScanner, isQualifiedName, EntityNameOrEntityNameExpression, isCallOrNewExpression, CallLikeExpression, EmitTextWriter, computeLineStarts, last, isWhiteSpaceLike, ScriptTarget, isIdentifierStart, isFunctionDeclaration, HasType, Block, Statement, NodeArray, ClassElement, TypeElement, ObjectLiteralElement, ObjectTypeDeclaration, ObjectLiteralExpression, noop, NewExpression, CommaListExpression, ConditionalExpression, ElementAccessExpression, PartiallyEmittedExpression, InternalEmitFlags, EmitFlags, getLineStarts, getLinesBetweenPositions, HasExpressionInitializer, isStringLiteral, isIntLiteral, StringLiteral, IntLiteral, VariableLikeDeclaration, isBindingElement, BindingElementOfBareOrAccessedRequire, QualifiedName, TypeParameterDeclaration, contains, JSDocTypedefTag, EqualityComparer, equateValues, TypeReferenceNode, isTypeReferenceNode, LateVisibilityPaintedStatement, IndexInfo, PrintHandlers, StringLiteralType, IntLiteralType, flatten, LanguageVariant, combinePaths, map, isRootedDiskPath, getStringComparer, containsPath, every, indexOfAnyCharCode, hasExtension, getDirectoryPath, createGetCanonicalFileName, sort, fileExtensionIsOneOf, findIndex, ReadonlyCollection, equalOwnProperties, FileExtensionInfo, mapDefined, EmitHost, ModuleKind, filter, getNormalizedAbsolutePath, getCommonSourceDirectory, comparePaths, GetCanonicalFileName, SourceFileMayBeEmittedHost, Diagnostics, TypeCheckerHost, ModuleResolutionKind, ResolutionMode, forEachChildRecursively, CommandLineOption, InheritDeclaration, emptyMap, LiteralLikeElementAccessExpression, VariableDeclaration, VariableDeclarationList, isComputedPropertyName, isJSDocParameterTag, BindableStaticNameExpression, getNameOfDeclaration, isVariableStatement, isExpressionStatement, getLeadingCommentRanges, SuperContainer, SuperContainerOrFunctions, CharacterCodes, StringLiteralLike, AnyValidImportOrReExport, tryCast, CloneObjectExpression, TriviaSyntaxKind, concatenate, getTrailingCommentRanges, computeLineOfPosition, AnyImportSyntax, PrologueDirective, startsWith, stringToToken } from "./_namespaces/lpc.js";
 
 /** @internal */
 export const defaultMaximumTruncationLength = 160;
@@ -3073,13 +3073,11 @@ export function stripQuotes(name: string) {
     return name;
 }
 
-
 function isQuoteOrBacktick(charCode: number) {
     return charCode === CharacterCodes.singleQuote ||
         charCode === CharacterCodes.doubleQuote ||
         charCode === CharacterCodes.backtick;
 }
-
 
 /**
  * Gets the effective type annotation of a variable, parameter, or property. If the node was
@@ -5294,3 +5292,268 @@ export function tryGetImportFromModuleSpecifier(node: StringLiteralLike): AnyVal
             return undefined;
     }
 }
+
+/** @internal */
+export function hasDecorators(node: Node): boolean {
+    return false;//return hasSyntacticModifier(node, ModifierFlags.Decorator);
+}
+
+/** @internal */
+export function isTrivia(token: SyntaxKind): token is TriviaSyntaxKind {
+    return SyntaxKind.FirstTriviaToken <= token && token <= SyntaxKind.LastTriviaToken;
+}
+
+/** @internal */
+export function importFromModuleSpecifier(node: StringLiteralLike): AnyValidImportOrReExport {
+    return tryGetImportFromModuleSpecifier(node) || Debug.failBadSyntaxKind(node.parent);
+}
+
+/**
+ * Returns true if the node is a VariableDeclaration initialized to a require call (see `isRequireCall`).
+ * This function does not test if the node is in a JavaScript file or not.
+ *
+ * @internal
+ */
+export function isVariableDeclarationInitializedToRequire(node: Node): node is VariableDeclarationInitializedTo<CloneObjectExpression> {
+    return isVariableDeclarationInitializedWithRequireHelper(node, /*allowAccessedRequire*/ false);
+}
+
+/** @internal */
+export function isGlobalSourceFile(node: Node) {
+    // TODO: check sefun file here?
+    return node.kind === SyntaxKind.SourceFile;// && !isExternalOrCommonJsModule(node as SourceFile);
+}
+
+/** @internal */
+export function introducesArgumentsExoticObject(node: Node) {
+    switch (node.kind) {
+        // case SyntaxKind.MethodDeclaration:
+        // case SyntaxKind.MethodSignature:
+        // case SyntaxKind.Constructor:
+        // case SyntaxKind.GetAccessor:
+        // case SyntaxKind.SetAccessor:
+        case SyntaxKind.FunctionDeclaration:
+        case SyntaxKind.FunctionExpression:
+            return true;
+    }
+    return false;
+}
+
+/** @internal */
+export function forEachAncestor<T>(node: Node, callback: (n: Node) => T | undefined | "quit"): T | undefined {
+    while (true) {
+        const res = callback(node);
+        if (res === "quit") return undefined;
+        if (res !== undefined) return res;
+        if (isSourceFile(node)) return undefined;
+        node = node.parent;
+    }
+}
+
+/** @internal */
+export function tryGetTextOfPropertyName(name: PropertyName /*| NoSubstitutionTemplateLiteral*/): string | undefined {
+    switch (name.kind) {
+        case SyntaxKind.Identifier:
+        // case SyntaxKind.PrivateIdentifier:
+            return name.emitNode?.autoGenerate ? undefined : name.text;
+        case SyntaxKind.StringLiteral:
+        case SyntaxKind.IntLiteral:        
+        // case SyntaxKind.NoSubstitutionTemplateLiteral:
+            return (name.text);
+        // case SyntaxKind.ComputedPropertyName:
+        //     if (isStringOrNumericLiteralLike(name.expression)) return escapeLeadingUnderscores(name.expression.text);
+        //     return undefined;        
+        default:
+            return Debug.assertNever(name);
+    }
+}
+
+/** @internal */
+export function escapeSnippetText(text: string): string {
+    return text.replace(/\$/gm, () => "\\$");
+}
+
+/**
+ * Creates a new TextRange from the provided pos and end.
+ *
+ * @param pos The start position.
+ * @param end The end position.
+ *
+ * @internal
+ */
+export function createRange(pos: number, end: number = pos): TextRange {
+    Debug.assert(end >= pos || end === -1);
+    return { pos, end };
+}
+
+/** @internal */
+export function getJSDocCommentRanges(node: Node, text: string) {
+    const commentRanges = (node.kind === SyntaxKind.Parameter ||
+            node.kind === SyntaxKind.TypeParameter ||
+            node.kind === SyntaxKind.FunctionExpression ||
+            node.kind === SyntaxKind.ArrowFunction ||
+            node.kind === SyntaxKind.ParenthesizedExpression ||
+            node.kind === SyntaxKind.VariableDeclaration ||
+            node.kind === SyntaxKind.ExportSpecifier) ?
+        concatenate(getTrailingCommentRanges(text, node.pos), getLeadingCommentRanges(text, node.pos)) :
+        getLeadingCommentRanges(text, node.pos);
+    // True if the comment starts with '/**' but not if it is '/**/'
+    return filter(commentRanges, comment =>
+        comment.end <= node.end && // Due to parse errors sometime empty parameter may get comments assigned to it that end up not in parameter range
+        text.charCodeAt(comment.pos + 1) === CharacterCodes.asterisk &&
+        text.charCodeAt(comment.pos + 2) === CharacterCodes.asterisk &&
+        text.charCodeAt(comment.pos + 3) !== CharacterCodes.slash);
+}
+
+/** @internal */
+export function getLineOfLocalPosition(sourceFile: SourceFile, pos: number) {
+    const lineStarts = getLineStarts(sourceFile);
+    return computeLineOfPosition(lineStarts, pos);
+}
+
+/** @internal */
+export function getScriptKindFromFileName(fileName: string): ScriptKind {
+    const ext = fileName.substr(fileName.lastIndexOf("."));
+    switch (ext.toLowerCase()) {
+        // case Extension.Js:
+        // case Extension.Cjs:
+        // case Extension.Mjs:
+        //     return ScriptKind.JS;
+        // case Extension.Jsx:
+        //     return ScriptKind.JSX;
+        // case Extension.Ts:
+        // case Extension.Cts:
+        // case Extension.Mts:
+        //     return ScriptKind.TS;
+        // case Extension.Tsx:
+        //     return ScriptKind.TSX;
+        case Extension.C:
+        case Extension.H:
+        case Extension.Lpc:
+            return ScriptKind.LPC;
+        case Extension.Json:
+            return ScriptKind.JSON;
+        default:
+            return ScriptKind.Unknown;
+    }
+}
+
+/** @internal */
+export function getStartPositionOfLine(line: number, sourceFile: SourceFileLike): number {
+    Debug.assert(line >= 0);
+    return getLineStarts(sourceFile)[line];
+}
+
+/** @internal */
+export function isAnyImportSyntax(node: Node): node is AnyImportSyntax {
+    switch (node.kind) {
+        case SyntaxKind.InheritDeclaration:
+        case SyntaxKind.CloneObjectExpression:
+            return true;
+        default:
+            return false;
+    }
+}
+
+/** @internal */
+export function isPinnedComment(text: string, start: number) {
+    return text.charCodeAt(start + 1) === CharacterCodes.asterisk &&
+        text.charCodeAt(start + 2) === CharacterCodes.exclamation;
+}
+
+/** @internal */
+export function isPrologueDirective(node: Node): node is PrologueDirective {
+    return node.kind === SyntaxKind.ExpressionStatement
+        && (node as ExpressionStatement).expression.kind === SyntaxKind.StringLiteral;
+}
+
+/** @internal */
+export function rangeOfNode(node: Node): TextRange {
+    return { pos: getTokenPosOfNode(node), end: node.end };
+}
+
+/** @internal */
+export function rangeOfTypeParameters(sourceFile: SourceFile, typeParameters: NodeArray<TypeParameterDeclaration>): TextRange {
+    // Include the `<>`
+    const pos = typeParameters.pos - 1;
+    const end = Math.min(sourceFile.text.length, skipTrivia(sourceFile.text, typeParameters.end) + 1);
+    return { pos, end };
+}
+
+/** @internal */
+export function getLeftmostAccessExpression(expr: Expression): Expression {
+    while (isAccessExpression(expr)) {
+        expr = expr.expression;
+    }
+    return expr;
+}
+
+/** @internal */
+export function isNamedImportsOrExports(node: Node) {//: node is NamedImportsOrExports {
+    return false;//return node.kind === SyntaxKind.NamedImports || node.kind === SyntaxKind.NamedExports;
+}
+
+/** @internal */
+export function getLastChild(node: Node): Node | undefined {
+    let lastChild: Node | undefined;
+    forEachChild(node, child => {
+        if (nodeIsPresent(child)) lastChild = child;
+    }, children => {
+        // As an optimization, jump straight to the end of the list.
+        for (let i = children.length - 1; i >= 0; i--) {
+            if (nodeIsPresent(children[i])) {
+                lastChild = children[i];
+                break;
+            }
+        }
+    });
+    return lastChild;
+}
+
+/** @internal */
+export function isKnownSymbol(symbol: Symbol): boolean {
+    return startsWith(symbol.name as string, "__@");
+}
+
+/**
+ * Gets a value indicating whether a class element is either a static or an instance property declaration with an initializer.
+ *
+ * @param member The class element node.
+ * @param isStatic A value indicating whether the member should be a static or instance member.
+ *
+ * @internal
+ */
+export function isInitializedProperty(member: ClassElement): member is PropertyDeclaration & { initializer: Expression; } {
+    return member.kind === SyntaxKind.PropertyDeclaration
+        && (member as PropertyDeclaration).initializer !== undefined;
+}
+
+/** @internal */
+export function isContextualKeyword(token: SyntaxKind): boolean {
+    return SyntaxKind.FirstContextualKeyword <= token && token <= SyntaxKind.LastContextualKeyword;
+}
+
+function numberOfDirectorySeparators(str: string) {
+    const match = str.match(/\//g);
+    return match ? match.length : 0;
+}
+
+/** @internal */
+export function compareNumberOfDirectorySeparators(path1: string, path2: string) {
+    return compareValues(
+        numberOfDirectorySeparators(path1),
+        numberOfDirectorySeparators(path2),
+    );
+}
+
+/** @internal */
+export function isNonContextualKeyword(token: SyntaxKind): boolean {
+    return isKeyword(token) && !isContextualKeyword(token);
+}
+
+/** @internal */
+export function isStringANonContextualKeyword(name: string) {
+    const token = stringToToken(name);
+    return token !== undefined && isNonContextualKeyword(token);
+}
+

@@ -166,6 +166,18 @@ import {
     getQuotePreference,
     emptyOptions,
     RenameLocation,
+    GetCompletionsAtPositionOptions,
+    identity,
+    Completions,
+    formatting,
+    isToken,
+    firstDefined,
+    or,
+    last,
+    isFunctionBlock,
+    isModuleBlock,
+    CompletionInfo,
+    InterfaceType,
 } from "./_namespaces/lpc.js";
 import * as NavigationBar from "./_namespaces/lpc.NavigationBar.js";
 import * as FindAllReferences from "./_namespaces/lpc.FindAllReferences.js";
@@ -1070,6 +1082,12 @@ class TypeObject implements Type {
         this.flags = flags;
         this.checker = checker;
     }
+    isClassOrInterface(): this is InterfaceType {
+        return !!(getObjectFlags(this) & ObjectFlags.ClassOrInterface);
+    }
+    isClass(): this is InterfaceType {
+        return !!(getObjectFlags(this) & ObjectFlags.Class);
+    }
     getFlags(): TypeFlags {
         return this.flags;
     }
@@ -1284,7 +1302,8 @@ export function createLanguageService(
         findReferences,
         updateIsDefinitionOfReferencedSymbols,
         findRenameLocations,
-        getRenameInfo
+        getRenameInfo,
+        getCompletionsAtPosition
     };
 
     return ls;
@@ -1832,6 +1851,30 @@ export function createLanguageService(
 
         return FindAllReferences.findReferenceOrRenameEntries(program, cancellationToken, sourceFiles, node, position, options, cb);
     }
+
+    function getCompletionsAtPosition(fileName: string, position: number, options: GetCompletionsAtPositionOptions = emptyOptions, formattingSettings?: FormatCodeSettings): CompletionInfo | undefined {
+        // Convert from deprecated options names to new names
+        const fullPreferences: UserPreferences = {
+            ...identity<UserPreferences>(options), // avoid excess property check
+            includeCompletionsForModuleExports: options.includeCompletionsForModuleExports || options.includeExternalModuleExports,
+            includeCompletionsWithInsertText: options.includeCompletionsWithInsertText || options.includeInsertTextCompletions,
+        };
+        synchronizeHostData();
+        return Completions.getCompletionsAtPosition(
+            host,
+            program,
+            log,
+            getValidSourceFile(fileName),
+            position,
+            fullPreferences,
+            options.triggerCharacter,
+            options.triggerKind,
+            cancellationToken,
+            formattingSettings && formatting.getFormatContext(formattingSettings, host),
+            options.includeSymbol,
+        );
+    }
+
 }
 
 setObjectAllocator(getServicesObjectAllocator());
@@ -2205,4 +2248,36 @@ export function getContainingObjectLiteralElement(node: Node): undefined {//Obje
     return undefined;
     // const element = getContainingObjectLiteralElementWorker(node);
     // return element && (isObjectLiteralExpression(element.parent) || isJsxAttributes(element.parent)) ? element as ObjectLiteralElementWithName : undefined;
+}
+
+/** @internal */
+export function findChildOfKind<T extends Node>(n: Node, kind: T["kind"], sourceFile: SourceFileLike): T | undefined {
+    return find(n.getChildren(sourceFile), (c): c is T => c.kind === kind);
+}
+
+function nodeHasTokens(n: Node, sourceFile: SourceFileLike): boolean {
+    // If we have a token or node that has a non-zero width, it must have tokens.
+    // Note: getWidth() does not take trivia into account.
+    return n.kind === SyntaxKind.EndOfFileToken ? !!(n as EndOfFileToken).jsDoc : n.getWidth(sourceFile) !== 0;
+}
+
+
+/** @internal */
+export function findNextToken(previousToken: Node, parent: Node, sourceFile: SourceFileLike): Node | undefined {
+    return find(parent);
+
+    function find(n: Node): Node | undefined {
+        if (isToken(n) && n.pos === previousToken.end) {
+            // this is token that starts at the end of previous token - return it
+            return n;
+        }
+        return firstDefined(n.getChildren(sourceFile), child => {
+            const shouldDiveInChildNode =
+                // previous token is enclosed somewhere in the child
+                (child.pos <= previousToken.pos && child.end > previousToken.end) ||
+                // previous token ends exactly at the beginning of child
+                (child.pos === previousToken.end);
+            return shouldDiveInChildNode && nodeHasTokens(child, sourceFile) ? find(child) : undefined;
+        });
+    }
 }

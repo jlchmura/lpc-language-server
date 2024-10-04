@@ -1,9 +1,167 @@
-import {  RenameInfoFailure, ScriptElementKind, SymbolDisplayPart } from "./_namespaces/lpc";
+import {  CompletionsTriggerCharacter, CompletionTriggerKind, RenameInfoFailure, ScriptElementKind, SymbolDisplayPart } from "./_namespaces/lpc";
 import * as lpc from "./_namespaces/lpc";
 
 type ChangePropertyTypes<T, Substitutions extends { [K in keyof T]?: any; }> = {
     [K in keyof T]: K extends keyof Substitutions ? Substitutions[K] : T[K];
 };
+
+
+// Declaration module describing the TypeScript Server protocol
+
+export const enum CommandTypes {
+    LinkedEditingRange = "linkedEditingRange",
+    Brace = "brace",
+    /** @internal */
+    BraceFull = "brace-full",
+    BraceCompletion = "braceCompletion",
+    GetSpanOfEnclosingComment = "getSpanOfEnclosingComment",
+    Change = "change",
+    Close = "close",
+    /** @deprecated Prefer CompletionInfo -- see comment on CompletionsResponse */
+    Completions = "completions",
+    CompletionInfo = "completionInfo",
+    /** @internal */
+    CompletionsFull = "completions-full",
+    CompletionDetails = "completionEntryDetails",
+    /** @internal */
+    CompletionDetailsFull = "completionEntryDetails-full",
+    CompileOnSaveAffectedFileList = "compileOnSaveAffectedFileList",
+    CompileOnSaveEmitFile = "compileOnSaveEmitFile",
+    Configure = "configure",
+    Definition = "definition",
+    /** @internal */
+    DefinitionFull = "definition-full",
+    DefinitionAndBoundSpan = "definitionAndBoundSpan",
+    /** @internal */
+    DefinitionAndBoundSpanFull = "definitionAndBoundSpan-full",
+    Implementation = "implementation",
+    /** @internal */
+    ImplementationFull = "implementation-full",
+    /** @internal */
+    EmitOutput = "emit-output",
+    Exit = "exit",
+    FileReferences = "fileReferences",
+    /** @internal */
+    FileReferencesFull = "fileReferences-full",
+    Format = "format",
+    Formatonkey = "formatonkey",
+    /** @internal */
+    FormatFull = "format-full",
+    /** @internal */
+    FormatonkeyFull = "formatonkey-full",
+    /** @internal */
+    FormatRangeFull = "formatRange-full",
+    Geterr = "geterr",
+    GeterrForProject = "geterrForProject",
+    SemanticDiagnosticsSync = "semanticDiagnosticsSync",
+    SyntacticDiagnosticsSync = "syntacticDiagnosticsSync",
+    SuggestionDiagnosticsSync = "suggestionDiagnosticsSync",
+    NavBar = "navbar",
+    /** @internal */
+    NavBarFull = "navbar-full",
+    Navto = "navto",
+    /** @internal */
+    NavtoFull = "navto-full",
+    NavTree = "navtree",
+    NavTreeFull = "navtree-full",
+    DocumentHighlights = "documentHighlights",
+    /** @internal */
+    DocumentHighlightsFull = "documentHighlights-full",
+    Open = "open",
+    Quickinfo = "quickinfo",
+    /** @internal */
+    QuickinfoFull = "quickinfo-full",
+    References = "references",
+    /** @internal */
+    ReferencesFull = "references-full",
+    Reload = "reload",
+    Rename = "rename",
+    /** @internal */
+    RenameInfoFull = "rename-full",
+    /** @internal */
+    RenameLocationsFull = "renameLocations-full",
+    Saveto = "saveto",
+    SignatureHelp = "signatureHelp",
+    /** @internal */
+    SignatureHelpFull = "signatureHelp-full",
+    FindSourceDefinition = "findSourceDefinition",
+    Status = "status",
+    TypeDefinition = "typeDefinition",
+    ProjectInfo = "projectInfo",
+    ReloadProjects = "reloadProjects",
+    Unknown = "unknown",
+    OpenExternalProject = "openExternalProject",
+    OpenExternalProjects = "openExternalProjects",
+    CloseExternalProject = "closeExternalProject",
+    /** @internal */
+    SynchronizeProjectList = "synchronizeProjectList",
+    /** @internal */
+    ApplyChangedToOpenFiles = "applyChangedToOpenFiles",
+    UpdateOpen = "updateOpen",
+    /** @internal */
+    EncodedSyntacticClassificationsFull = "encodedSyntacticClassifications-full",
+    /** @internal */
+    EncodedSemanticClassificationsFull = "encodedSemanticClassifications-full",
+    /** @internal */
+    Cleanup = "cleanup",
+    GetOutliningSpans = "getOutliningSpans",
+    /** @internal */
+    GetOutliningSpansFull = "outliningSpans", // Full command name is different for backward compatibility purposes
+    TodoComments = "todoComments",
+    Indentation = "indentation",
+    DocCommentTemplate = "docCommentTemplate",
+    /** @internal */
+    CompilerOptionsDiagnosticsFull = "compilerOptionsDiagnostics-full",
+    /** @internal */
+    NameOrDottedNameSpan = "nameOrDottedNameSpan",
+    /** @internal */
+    BreakpointStatement = "breakpointStatement",
+    CompilerOptionsForInferredProjects = "compilerOptionsForInferredProjects",
+    GetCodeFixes = "getCodeFixes",
+    /** @internal */
+    GetCodeFixesFull = "getCodeFixes-full",
+    GetCombinedCodeFix = "getCombinedCodeFix",
+    /** @internal */
+    GetCombinedCodeFixFull = "getCombinedCodeFix-full",
+    ApplyCodeActionCommand = "applyCodeActionCommand",
+    GetSupportedCodeFixes = "getSupportedCodeFixes",
+
+    GetApplicableRefactors = "getApplicableRefactors",
+    GetEditsForRefactor = "getEditsForRefactor",
+    GetMoveToRefactoringFileSuggestions = "getMoveToRefactoringFileSuggestions",
+    GetPasteEdits = "getPasteEdits",
+    /** @internal */
+    GetEditsForRefactorFull = "getEditsForRefactor-full",
+
+    OrganizeImports = "organizeImports",
+    /** @internal */
+    OrganizeImportsFull = "organizeImports-full",
+    GetEditsForFileRename = "getEditsForFileRename",
+    /** @internal */
+    GetEditsForFileRenameFull = "getEditsForFileRename-full",
+    ConfigurePlugin = "configurePlugin",
+    SelectionRange = "selectionRange",
+    /** @internal */
+    SelectionRangeFull = "selectionRange-full",
+    ToggleLineComment = "toggleLineComment",
+    /** @internal */
+    ToggleLineCommentFull = "toggleLineComment-full",
+    ToggleMultilineComment = "toggleMultilineComment",
+    /** @internal */
+    ToggleMultilineCommentFull = "toggleMultilineComment-full",
+    CommentSelection = "commentSelection",
+    /** @internal */
+    CommentSelectionFull = "commentSelection-full",
+    UncommentSelection = "uncommentSelection",
+    /** @internal */
+    UncommentSelectionFull = "uncommentSelection-full",
+    PrepareCallHierarchy = "prepareCallHierarchy",
+    ProvideCallHierarchyIncomingCalls = "provideCallHierarchyIncomingCalls",
+    ProvideCallHierarchyOutgoingCalls = "provideCallHierarchyOutgoingCalls",
+    ProvideInlayHints = "provideInlayHints",
+    WatchChange = "watchChange",
+    MapCode = "mapCode",
+}
 
 /**
  * A Server message
@@ -666,3 +824,37 @@ export interface RenameTextSpan extends TextSpanWithContext {
     readonly prefixText?: string;
     readonly suffixText?: string;
 }
+
+/**
+ * Arguments for completions messages.
+ */
+export interface CompletionsRequestArgs extends FileLocationRequestArgs {
+    /**
+     * Optional prefix to apply to possible completions.
+     */
+    prefix?: string;
+    /**
+     * Character that was responsible for triggering completion.
+     * Should be `undefined` if a user manually requested completion.
+     */
+    triggerCharacter?: CompletionsTriggerCharacter;
+    triggerKind?: CompletionTriggerKind;
+    /**
+     * @deprecated Use UserPreferences.includeCompletionsForModuleExports
+     */
+    includeExternalModuleExports?: boolean;
+    /**
+     * @deprecated Use UserPreferences.includeCompletionsWithInsertText
+     */
+    includeInsertTextCompletions?: boolean;
+}
+
+export type CompletionEntry = ChangePropertyTypes<Omit<lpc.CompletionEntry, "symbol">, {
+    replacementSpan: TextSpan;
+    data: unknown;
+}>;
+
+export type CompletionInfo = ChangePropertyTypes<lpc.CompletionInfo, {
+    entries: readonly CompletionEntry[];
+    optionalReplacementSpan: TextSpan;
+}>;

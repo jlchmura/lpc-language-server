@@ -1,4 +1,5 @@
-import { append, Debug, EmitFlags, EmitNode, getParseTreeNode, getSourceFileOfNode, Identifier, InternalEmitFlags, isParseTreeNode, Node, NodeArray, SourceFile, SyntaxKind, SynthesizedComment, TypeNode, TypeParameterDeclaration } from "../_namespaces/lpc";
+import { append, Debug, EmitFlags, EmitNode, getParseTreeNode, getSourceFileOfNode, Identifier, InternalEmitFlags, isParseTreeNode, Node, NodeArray, SnippetElement, SourceFile, SyntaxKind, SynthesizedComment, TypeNode, TypeParameterDeclaration } from "../_namespaces/lpc";
+
 
 /**
  * Sets flags that control emit behavior of a node.
@@ -88,4 +89,28 @@ export function disposeEmitNodes(sourceFile: SourceFile | undefined) {
             node.emitNode = undefined;
         }
     }
+}
+
+
+/**
+ * Sets the SnippetElement of a node.
+ *
+ * @internal
+ */
+export function setSnippetElement<T extends Node>(node: T, snippet: SnippetElement): T {
+    const emitNode = getOrCreateEmitNode(node);
+    emitNode.snippetElement = snippet;
+    return node;
+}
+
+
+/**
+ * Sets flags that control emit behavior of a node.
+ *
+ * @internal
+ */
+export function addEmitFlags<T extends Node>(node: T, emitFlags: EmitFlags) {
+    const emitNode = getOrCreateEmitNode(node);
+    emitNode.flags = emitNode.flags | emitFlags;
+    return node;
 }

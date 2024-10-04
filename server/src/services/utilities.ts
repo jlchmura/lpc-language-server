@@ -115,6 +115,85 @@ import {
     nodeIsSynthesized,
     find,
     isStringDoubleQuoted,
+    DiagnosticMessage,
+    DiagnosticAndArguments,
+    isArray,
+    formatStringFromArgs,
+    getLocaleSpecificMessage,
+    DiagnosticArguments,
+    JSDocLink,
+    JSDocLinkCode,
+    JSDocLinkPlain,
+    CharacterCodes,
+    getTextOfNode,
+    isJSDocLink,
+    isJSDocLinkCode,
+    getSourceFileOfNode,
+    isTransientSymbol,
+    skipAlias,
+    JSDocLinkDisplayPart,
+    getLineStarts,
+    TextChange,
+    createRange,
+    SemicolonPreference,
+    FormatCodeSettings,
+    NewLineKind,
+    FormattingHost,
+    forEachChild,    
+    getLineAndCharacterOfPosition,
+    getSpanOfTokenAtPosition,
+    findNextToken,
+    isFunctionBlock,
+    isModuleBlock,
+    last,
+    isWhiteSpaceSingleLine,
+    stripQuotes,
+    isJSDoc,
+    maybeBind,
+    ModuleSpecifierResolutionHost,
+    Program,
+    DefaultClause,
+    isDefaultClause,
+    endsWith,
+    isLiteralExpression,
+    skipParentheses,
+    factory,
+    isNumericLiteral,
+    Mutable,
+    NodeArray,
+    setOriginalNode,
+    setParentRecursive,
+    setTextRange,
+    visitEachChild,
+    EmitFlags,
+    addEmitFlags,
+    getLastChild,
+    isIntLiteral,
+    isFloatLiteral,
+    SymbolTracker,
+    StringLiteralLike,
+    nodeIsMissing,
+    CatchClause,
+    FunctionLikeDeclaration,
+    IterationStatement,
+    DoWhileStatement,
+    PrefixUnaryExpression,
+    ConditionalExpression,
+    findChildOfKind,
+    SpreadElement,
+    IndexSignatureDeclaration,
+    ExpressionStatement,
+    IfStatement,
+    ScriptTarget,
+    InternalSymbolName,
+    firstDefined,
+    getBaseFileName,
+    getNameOfDeclaration,
+    isIdentifierPart,
+    isIdentifierStart,
+    removeFileExtension,
+    removeSuffix,
+    isStringANonContextualKeyword,
 } from "./_namespaces/lpc.js";
 
 // Matches the beginning of a triple slash directive
@@ -1485,4 +1564,1125 @@ export function getQuoteFromPreference(qp: QuotePreference): string {
 /** @internal */
 export function isImportOrExportSpecifierName(location: Node): location is Identifier {
     return false;// TODO: return !!location.parent && isImportOrExportSpecifier(location.parent) && location.parent.propertyName === location;
+}
+
+/** @internal */
+export type DiagnosticOrDiagnosticAndArguments = DiagnosticMessage | DiagnosticAndArguments;
+/** @internal */
+export function diagnosticToString(diag: DiagnosticOrDiagnosticAndArguments): string {
+    return isArray(diag)
+        ? formatStringFromArgs(getLocaleSpecificMessage(diag[0]), diag.slice(1) as DiagnosticArguments)
+        : getLocaleSpecificMessage(diag);
+}
+
+/** @internal */
+export function isInTypeQuery(node: Node): boolean {
+    return false;
+}
+
+/** @internal */
+export function rangeContainsPosition(r: TextRange, pos: number): boolean {
+    return r.pos <= pos && pos <= r.end;
+}
+
+/** @internal */
+export function linkPart(text: string) {
+    return displayPart(text, SymbolDisplayPartKind.link);
+}
+
+/** @internal */
+export function linkTextPart(text: string) {
+    return displayPart(text, SymbolDisplayPartKind.linkText);
+}
+
+/** @internal */
+export function linkNamePart(text: string, target: Declaration): JSDocLinkDisplayPart {
+    return {
+        text,
+        kind: SymbolDisplayPartKind[SymbolDisplayPartKind.linkName],
+        target: {
+            fileName: getSourceFileOfNode(target).fileName,
+            textSpan: createTextSpanFromNode(target),
+        },
+    };
+}
+
+/** @internal */
+export function getSymbolTarget(symbol: Symbol, checker: TypeChecker): Symbol {
+    let next: Symbol = symbol;
+    while (isAliasSymbol(next) || (isTransientSymbol(next) && next.links.target)) {
+        if (isTransientSymbol(next) && next.links.target) {
+            next = next.links.target;
+        }
+        else {
+            next = skipAlias(next, checker);
+        }
+    }
+    return next;
+}
+
+function isAliasSymbol(symbol: Symbol): boolean {
+    return (symbol.flags & SymbolFlags.Alias) !== 0;
+}
+
+
+
+/** @internal */
+export function buildLinkParts(link: JSDocLink | JSDocLinkCode | JSDocLinkPlain, checker?: TypeChecker): SymbolDisplayPart[] {
+    const prefix = isJSDocLink(link) ? "link"
+        : isJSDocLinkCode(link) ? "linkcode"
+        : "linkplain";
+    const parts = [linkPart(`{@${prefix} `)];
+    if (!link.name) {
+        if (link.text) {
+            parts.push(linkTextPart(link.text));
+        }
+    }
+    else {
+        const symbol = checker?.getSymbolAtLocation(link.name);
+        const targetSymbol = symbol && checker ? getSymbolTarget(symbol, checker) : undefined;
+        const suffix = findLinkNameEnd(link.text);
+        const name = getTextOfNode(link.name) + link.text.slice(0, suffix);
+        const text = skipSeparatorFromLinkText(link.text.slice(suffix));
+        const decl = targetSymbol?.valueDeclaration || targetSymbol?.declarations?.[0];
+        if (decl) {
+            parts.push(linkNamePart(name, decl));
+            if (text) parts.push(linkTextPart(text));
+        }
+        else {
+            const separator = suffix === 0 || (link.text.charCodeAt(suffix) === CharacterCodes.bar && name.charCodeAt(name.length - 1) !== CharacterCodes.space) ? " " : "";
+            parts.push(linkTextPart(name + separator + text));
+        }
+    }
+    parts.push(linkPart("}"));
+    return parts;
+}
+
+function skipSeparatorFromLinkText(text: string) {
+    let pos = 0;
+    if (text.charCodeAt(pos++) === CharacterCodes.bar) {
+        while (pos < text.length && text.charCodeAt(pos) === CharacterCodes.space) pos++;
+        return text.slice(pos);
+    }
+    return text;
+}
+
+function findLinkNameEnd(text: string) {
+    let pos = text.indexOf("://");
+    if (pos === 0) {
+        while (pos < text.length && text.charCodeAt(pos) !== CharacterCodes.bar) pos++;
+        return pos;
+    }
+    if (text.indexOf("()") === 0) return 2;
+    if (text.charAt(0) === "<") {
+        let brackets = 0;
+        let i = 0;
+        while (i < text.length) {
+            if (text[i] === "<") brackets++;
+            if (text[i] === ">") brackets--;
+            i++;
+            if (!brackets) return i;
+        }
+    }
+    return 0;
+}
+
+
+/**
+ * Iterates through 'array' by index and performs the callback on each element of array until the callback
+ * returns a truthy value, then returns that value.
+ * If no such value is found, the callback is applied to each element of array and undefined is returned.
+ *
+ * @internal
+ */
+export function forEachUnique<T, U>(array: readonly T[] | undefined, callback: (element: T, index: number) => U): U | undefined {
+    if (array) {
+        for (let i = 0; i < array.length; i++) {
+            if (array.indexOf(array[i]) === i) {
+                const result = callback(array[i], i);
+                if (result) {
+                    return result;
+                }
+            }
+        }
+    }
+    return undefined;
+}
+
+/** @internal */
+export function getLineStartPositionForPosition(position: number, sourceFile: SourceFileLike): number {
+    const lineStarts = getLineStarts(sourceFile);
+    const line = sourceFile.getLineAndCharacterOfPosition(position).line;
+    return lineStarts[line];
+}
+
+/** @internal */
+export function typeAliasNamePart(text: string) {
+    return displayPart(text, SymbolDisplayPartKind.aliasName);
+}
+
+/** @internal */
+export function typeParameterNamePart(text: string) {
+    return displayPart(text, SymbolDisplayPartKind.typeParameterName);
+}
+
+/** @internal */
+export function createTextChange(span: TextSpan, newText: string): TextChange {
+    return { span, newText };
+}
+
+/** @internal */
+export function createTextRangeFromSpan(span: TextSpan): TextRange {
+    return createRange(span.start, span.start + span.length);
+}
+
+/** @internal */
+export function getFirstNonSpaceCharacterPosition(text: string, position: number) {
+    while (isWhiteSpaceLike(text.charCodeAt(position))) {
+        position += 1;
+    }
+    return position;
+}
+
+
+/**
+ * Get format code settings for a code writing context (e.g. when formatting text changes or completions code).
+ *
+ * @internal
+ */
+export function getFormatCodeSettingsForWriting({ options }: formatting.FormatContext, sourceFile: SourceFile): FormatCodeSettings {
+    const shouldAutoDetectSemicolonPreference = !options.semicolons || options.semicolons === SemicolonPreference.Ignore;
+    const shouldRemoveSemicolons = options.semicolons === SemicolonPreference.Remove || shouldAutoDetectSemicolonPreference && !probablyUsesSemicolons(sourceFile);
+    return {
+        ...options,
+        semicolons: shouldRemoveSemicolons ? SemicolonPreference.Remove : SemicolonPreference.Ignore,
+    };
+}
+
+/** @internal */
+export function getNewLineKind(newLineCharacter: string): NewLineKind {
+    return newLineCharacter === "\n" ? NewLineKind.LineFeed : NewLineKind.CarriageReturnLineFeed;
+}
+
+const lineFeed = "\n";
+/**
+ * The default is LF.
+ *
+ * @internal
+ */
+export function getNewLineOrDefaultFromHost(host: FormattingHost, formatSettings: FormatCodeSettings | undefined) {
+    return formatSettings?.newLineCharacter ||
+        host.getNewLine?.() ||
+        lineFeed;
+}
+
+/** @internal */
+export function probablyUsesSemicolons(sourceFile: SourceFile): boolean {
+    let withSemicolon = 0;
+    let withoutSemicolon = 0;
+    const nStatementsToObserve = 5;
+    forEachChild(sourceFile, function visit(node): boolean | undefined {
+        if (syntaxRequiresTrailingSemicolonOrASI(node.kind)) {
+            const lastToken = node.getLastToken(sourceFile);
+            if (lastToken?.kind === SyntaxKind.SemicolonToken) {
+                withSemicolon++;
+            }
+            else {
+                withoutSemicolon++;
+            }
+        }
+        else if (syntaxRequiresTrailingCommaOrSemicolonOrASI(node.kind)) {
+            const lastToken = node.getLastToken(sourceFile);
+            if (lastToken?.kind === SyntaxKind.SemicolonToken) {
+                withSemicolon++;
+            }
+            else if (lastToken && lastToken.kind !== SyntaxKind.CommaToken) {
+                const lastTokenLine = getLineAndCharacterOfPosition(sourceFile, lastToken.getStart(sourceFile)).line;
+                const nextTokenLine = getLineAndCharacterOfPosition(sourceFile, getSpanOfTokenAtPosition(sourceFile, lastToken.end).start).line;
+                // Avoid counting missing semicolon in single-line objects:
+                // `function f(p: { x: string /*no semicolon here is insignificant*/ }) {`
+                if (lastTokenLine !== nextTokenLine) {
+                    withoutSemicolon++;
+                }
+            }
+        }
+
+        if (withSemicolon + withoutSemicolon >= nStatementsToObserve) {
+            return true;
+        }
+
+        return forEachChild(node, visit);
+    });
+
+    // One statement missing a semicolon isn't sufficient evidence to say the user
+    // doesn't want semicolons, because they may not even be done writing that statement.
+    if (withSemicolon === 0 && withoutSemicolon <= 1) {
+        return true;
+    }
+
+    // If even 2/5 places have a semicolon, the user probably wants semicolons
+    return withSemicolon / withoutSemicolon > 1 / nStatementsToObserve;
+}
+
+
+/** @internal */
+export function positionIsASICandidate(pos: number, context: Node, sourceFile: SourceFileLike): boolean {
+    const contextAncestor = findAncestor(context, ancestor => {
+        if (ancestor.end !== pos) {
+            return "quit";
+        }
+        return syntaxMayBeASICandidate(ancestor.kind);
+    });
+
+    return !!contextAncestor && nodeIsASICandidate(contextAncestor, sourceFile);
+}
+
+function syntaxRequiresTrailingCommaOrSemicolonOrASI(kind: SyntaxKind) {
+    return kind === SyntaxKind.IndexSignature
+        || kind === SyntaxKind.PropertySignature;
+        // || kind === SyntaxKind.CallSignature
+        // || kind === SyntaxKind.ConstructSignature        
+        // || kind === SyntaxKind.MethodSignature;
+}
+
+function syntaxRequiresTrailingFunctionBlockOrSemicolonOrASI(kind: SyntaxKind) {
+    return kind === SyntaxKind.FunctionDeclaration;
+        // || kind === SyntaxKind.Constructor
+        // || kind === SyntaxKind.MethodDeclaration
+        // || kind === SyntaxKind.GetAccessor
+        // || kind === SyntaxKind.SetAccessor;
+}
+
+function syntaxRequiresTrailingModuleBlockOrSemicolonOrASI(kind: SyntaxKind) {
+    return false;//return kind === SyntaxKind.ModuleDeclaration;
+}
+
+/** @internal */
+export function syntaxRequiresTrailingSemicolonOrASI(kind: SyntaxKind) {
+    return kind === SyntaxKind.VariableStatement
+        || kind === SyntaxKind.ExpressionStatement
+        // || kind === SyntaxKind.DoStatement
+        || kind === SyntaxKind.ContinueStatement
+        || kind === SyntaxKind.BreakStatement
+        || kind === SyntaxKind.ReturnStatement
+        // || kind === SyntaxKind.ThrowStatement
+        // || kind === SyntaxKind.DebuggerStatement
+        || kind === SyntaxKind.PropertyDeclaration
+        // || kind === SyntaxKind.TypeAliasDeclaration
+        // || kind === SyntaxKind.ImportDeclaration
+        // || kind === SyntaxKind.ImportEqualsDeclaration
+        || kind === SyntaxKind.ExportDeclaration;
+        // || kind === SyntaxKind.NamespaceExportDeclaration
+        // || kind === SyntaxKind.ExportAssignment;
+}
+
+/** @internal */
+export const syntaxMayBeASICandidate = or(
+    syntaxRequiresTrailingCommaOrSemicolonOrASI,
+    syntaxRequiresTrailingFunctionBlockOrSemicolonOrASI,
+    syntaxRequiresTrailingModuleBlockOrSemicolonOrASI,
+    syntaxRequiresTrailingSemicolonOrASI,
+);
+
+function nodeIsASICandidate(node: Node, sourceFile: SourceFileLike): boolean {
+    const lastToken = node.getLastToken(sourceFile);
+    if (lastToken && lastToken.kind === SyntaxKind.SemicolonToken) {
+        return false;
+    }
+
+    if (syntaxRequiresTrailingCommaOrSemicolonOrASI(node.kind)) {
+        if (lastToken && lastToken.kind === SyntaxKind.CommaToken) {
+            return false;
+        }
+    }
+    else if (syntaxRequiresTrailingModuleBlockOrSemicolonOrASI(node.kind)) {
+        const lastChild = last(node.getChildren(sourceFile));
+        if (lastChild && isModuleBlock(lastChild)) {
+            return false;
+        }
+    }
+    else if (syntaxRequiresTrailingFunctionBlockOrSemicolonOrASI(node.kind)) {
+        const lastChild = last(node.getChildren(sourceFile));
+        if (lastChild && isFunctionBlock(lastChild)) {
+            return false;
+        }
+    }
+    else if (!syntaxRequiresTrailingSemicolonOrASI(node.kind)) {
+        return false;
+    }
+
+    // See comment in parser's `parseDoStatement`
+    if (node.kind === SyntaxKind.DoWhileStatement) {
+        return true;
+    }
+
+    const topNode = findAncestor(node, ancestor => !ancestor.parent)!;
+    const nextToken = findNextToken(node, topNode, sourceFile);
+    if (!nextToken || nextToken.kind === SyntaxKind.CloseBraceToken) {
+        return true;
+    }
+
+    const startLine = sourceFile.getLineAndCharacterOfPosition(node.getEnd()).line;
+    const endLine = sourceFile.getLineAndCharacterOfPosition(nextToken.getStart(sourceFile)).line;
+    return startLine !== endLine;
+}
+
+/** @internal */
+export function getPrecedingNonSpaceCharacterPosition(text: string, position: number) {
+    while (position > -1 && isWhiteSpaceSingleLine(text.charCodeAt(position))) {
+        position -= 1;
+    }
+    return position + 1;
+}
+
+/** @internal */
+export function rangeContainsRangeExclusive(r1: TextRange, r2: TextRange): boolean {
+    return rangeContainsPositionExclusive(r1, r2.pos) && rangeContainsPositionExclusive(r1, r2.end);
+}
+
+
+/**
+ * Useful to check whether a string contains another string at a specific index
+ * without allocating another string or traversing the entire contents of the outer string.
+ *
+ * This function is useful in place of either of the following:
+ *
+ * ```ts
+ * // Allocates
+ * haystack.substr(startIndex, needle.length) === needle
+ *
+ * // Full traversal
+ * haystack.indexOf(needle, startIndex) === startIndex
+ * ```
+ *
+ * @param haystack The string that potentially contains `needle`.
+ * @param needle The string whose content might sit within `haystack`.
+ * @param startIndex The index within `haystack` to start searching for `needle`.
+ *
+ * @internal
+ */
+export function stringContainsAt(haystack: string, needle: string, startIndex: number) {
+    const needleLength = needle.length;
+    if (needleLength + startIndex > haystack.length) {
+        return false;
+    }
+    for (let i = 0; i < needleLength; i++) {
+        if (needle.charCodeAt(i) !== haystack.charCodeAt(i + startIndex)) return false;
+    }
+    return true;
+}
+
+/** @internal */
+export function rangeContainsStartEnd(range: TextRange, start: number, end: number): boolean {
+    return range.pos <= start && range.end >= end;
+}
+
+/** @internal */
+export function isInTemplateString(sourceFile: SourceFile, position: number) {
+    const token = getTokenAtPosition(sourceFile, position);
+    return false;//return isTemplateLiteralKind(token.kind) && position > token.getStart(sourceFile);
+}
+
+/** @internal */
+export function quote(sourceFile: SourceFile, preferences: UserPreferences, text: string): string {
+    // Editors can pass in undefined or empty string - we want to infer the preference in those cases.
+    const quotePreference = getQuotePreference(sourceFile, preferences);
+    const quoted = JSON.stringify(text);
+    return quotePreference === QuotePreference.Single ? `'${stripQuotes(quoted).replace(/'/g, () => "\\'").replace(/\\"/g, '"')}'` : quoted;
+}
+
+/** @internal */
+export function hasDocComment(sourceFile: SourceFile, position: number): boolean {
+    const token = getTokenAtPosition(sourceFile, position);
+    return !!findAncestor(token, isJSDoc);
+}
+
+/** @internal */
+export function createModuleSpecifierResolutionHost(program: Program, host: LanguageServiceHost): ModuleSpecifierResolutionHost {
+    // Mix in `getSymlinkCache` from Program when host doesn't have it
+    // in order for non-Project hosts to have a symlinks cache.
+    return {
+        fileExists: fileName => program.fileExists(fileName),
+        getCurrentDirectory: () => host.getCurrentDirectory(),
+        readFile: maybeBind(host, host.readFile),
+        useCaseSensitiveFileNames: maybeBind(host, host.useCaseSensitiveFileNames),
+        // getSymlinkCache: maybeBind(host, host.getSymlinkCache) || program.getSymlinkCache,
+        // getModuleSpecifierCache: maybeBind(host, host.getModuleSpecifierCache),
+        // getPackageJsonInfoCache: () => program.getModuleResolutionCache()?.getPackageJsonInfoCache(),
+        // getGlobalTypingsCacheLocation: maybeBind(host, host.getGlobalTypingsCacheLocation),
+        // redirectTargetsMap: program.redirectTargetsMap,
+        // getProjectReferenceRedirect: fileName => program.getProjectReferenceRedirect(fileName),
+        // isSourceOfProjectReferenceRedirect: fileName => program.isSourceOfProjectReferenceRedirect(fileName),
+        // getNearestAncestorDirectoryWithPackageJson: maybeBind(host, host.getNearestAncestorDirectoryWithPackageJson),
+        getFileIncludeReasons: () => program.getFileIncludeReasons(),
+        getCommonSourceDirectory: () => program.getCommonSourceDirectory(),
+    };
+}
+
+/** @internal */
+export interface CaseClauseTracker {
+    addValue(value: string | number): void;
+    hasValue(value: string | number): boolean;
+}
+
+/** @internal */
+export function newCaseClauseTracker(checker: TypeChecker, clauses: readonly (CaseClause | DefaultClause)[]): CaseClauseTracker {
+    const existingStrings = new Set<string>();
+    const existingNumbers = new Set<number>();
+    const existingBigInts = new Set<string>();
+
+    for (const clause of clauses) {
+        if (!isDefaultClause(clause)) {
+            const expression = skipParentheses(clause.expression);
+            if (isLiteralExpression(expression)) {
+                switch (expression.kind) {
+                    // case SyntaxKind.NoSubstitutionTemplateLiteral:
+                    case SyntaxKind.StringLiteral:
+                        existingStrings.add(expression.text);
+                        break;
+                    case SyntaxKind.NumericLiteral:
+                        existingNumbers.add(parseInt(expression.text));
+                        break;
+                    // case SyntaxKind.BigIntLiteral:
+                    //     const parsedBigInt = parseBigInt(endsWith(expression.text, "n") ? expression.text.slice(0, -1) : expression.text);
+                    //     if (parsedBigInt) {
+                    //         existingBigInts.add(pseudoBigIntToString(parsedBigInt));
+                    //     }
+                    //     break;
+                }
+            }
+            else {
+                const symbol = checker.getSymbolAtLocation(clause.expression);
+                // if (symbol && symbol.valueDeclaration && isEnumMember(symbol.valueDeclaration)) {
+                //     const enumValue = checker.getConstantValue(symbol.valueDeclaration);
+                //     if (enumValue !== undefined) {
+                //         addValue(enumValue);
+                //     }
+                // }
+            }
+        }
+    }
+
+    return {
+        addValue,
+        hasValue,
+    };
+
+    function addValue(value: string | number) {
+        switch (typeof value) {
+            case "string":
+                existingStrings.add(value);
+                break;
+            case "number":
+                existingNumbers.add(value);
+        }
+    }
+
+    function hasValue(value: string | number): boolean {
+        switch (typeof value) {
+            case "string":
+                return existingStrings.has(value);
+            case "number":
+                return existingNumbers.has(value);
+            // case "object":
+            //     return existingBigInts.has(pseudoBigIntToString(value));
+        }
+    }
+}
+
+/** @internal */
+export function isStringAndEmptyAnonymousObjectIntersection(type: Type) {
+    return false;
+    // if (!type.isIntersection()) {
+    //     return false;
+    // }
+
+    // const { types, checker } = type;
+    // return types.length === 2 &&
+    //     (areIntersectedTypesAvoidingStringReduction(checker, types[0], types[1]) || areIntersectedTypesAvoidingStringReduction(checker, types[1], types[0]));
+}
+
+/**
+ * Sets EmitFlags to suppress leading and trailing trivia on the node.
+ *
+ * @internal
+ */
+export function suppressLeadingAndTrailingTrivia(node: Node) {
+    suppressLeadingTrivia(node);
+    suppressTrailingTrivia(node);
+}
+
+
+/**
+ * Sets EmitFlags to suppress leading trivia on the node.
+ *
+ * @internal
+ */
+export function suppressLeadingTrivia(node: Node) {
+    addEmitFlagsRecursively(node, EmitFlags.NoLeadingComments, getFirstChild);
+}
+
+/**
+ * Sets EmitFlags to suppress trailing trivia on the node.
+ *
+ * @internal
+ */
+export function suppressTrailingTrivia(node: Node) {
+    addEmitFlagsRecursively(node, EmitFlags.NoTrailingComments, getLastChild);
+}
+
+
+function addEmitFlagsRecursively(node: Node, flag: EmitFlags, getChild: (n: Node) => Node | undefined) {
+    addEmitFlags(node, flag);
+    const child = getChild(node);
+    if (child) addEmitFlagsRecursively(child, flag, getChild);
+}
+
+function getFirstChild(node: Node): Node | undefined {
+    return node.forEachChild(child => child);
+}
+
+
+
+/**
+ * Creates a deep, memberwise clone of a node with no source map location.
+ *
+ * WARNING: This is an expensive operation and is only intended to be used in refactorings
+ * and code fixes (because those are triggered by explicit user actions).
+ *
+ * @internal
+ */
+export function getSynthesizedDeepClone<T extends Node | undefined>(node: T, includeTrivia = true): T {
+    const clone = node && getSynthesizedDeepCloneWorker(node);
+    if (clone && !includeTrivia) suppressLeadingAndTrailingTrivia(clone);
+    return setParentRecursive(clone, /*incremental*/ false);
+}
+
+function getSynthesizedDeepCloneWorker<T extends Node>(node: T, replaceNode?: (node: Node) => Node | undefined): T {
+    const nodeClone: <T extends Node>(n: T) => T = replaceNode
+        ? n => getSynthesizedDeepCloneWithReplacements(n, /*includeTrivia*/ true, replaceNode)
+        : getSynthesizedDeepClone;
+    const nodesClone: <T extends Node>(ns: NodeArray<T> | undefined) => NodeArray<T> | undefined = replaceNode
+        ? ns => ns && getSynthesizedDeepClonesWithReplacements(ns, /*includeTrivia*/ true, replaceNode)
+        : ns => ns && getSynthesizedDeepClones(ns);
+    const visited = visitEachChild(node, nodeClone, /*context*/ undefined, nodesClone, nodeClone);
+
+    if (visited === node) {
+        // This only happens for leaf nodes - internal nodes always see their children change.
+        const clone = isStringLiteral(node) ? setOriginalNode(factory.createStringLiteralFromNode(node), node) as Node as T :
+            isIntLiteral(node) ? setOriginalNode(factory.createIntLiteral(node.text, node.numericLiteralFlags), node) as Node as T :
+            isFloatLiteral(node) ? setOriginalNode(factory.createFloatLiteral(node.text, node.numericLiteralFlags), node) as Node as T :
+            factory.cloneNode(node);
+        return setTextRange(clone, node);
+    }
+
+    // PERF: As an optimization, rather than calling factory.cloneNode, we'll update
+    // the new node created by visitEachChild with the extra changes factory.cloneNode
+    // would have made.
+    (visited as Mutable<T>).parent = undefined!;
+    return visited;
+}
+
+/** @internal */
+export function getSynthesizedDeepCloneWithReplacements<T extends Node>(
+    node: T,
+    includeTrivia: boolean,
+    replaceNode: (node: Node) => Node | undefined,
+): T {
+    let clone = replaceNode(node);
+    if (clone) {
+        setOriginalNode(clone, node);
+    }
+    else {
+        clone = getSynthesizedDeepCloneWorker(node as NonNullable<T>, replaceNode);
+    }
+
+    if (clone && !includeTrivia) suppressLeadingAndTrailingTrivia(clone);
+    return clone as T;
+}
+
+/** @internal */
+export function getSynthesizedDeepClonesWithReplacements<T extends Node>(
+    nodes: NodeArray<T>,
+    includeTrivia: boolean,
+    replaceNode: (node: Node) => Node | undefined,
+): NodeArray<T> {
+    return factory.createNodeArray(nodes.map(n => getSynthesizedDeepCloneWithReplacements(n, includeTrivia, replaceNode)), nodes.hasTrailingComma);
+}
+
+/** @internal */
+export function getSynthesizedDeepClones<T extends Node>(nodes: NodeArray<T>, includeTrivia?: boolean): NodeArray<T>;
+/** @internal */
+export function getSynthesizedDeepClones<T extends Node>(nodes: NodeArray<T> | undefined, includeTrivia?: boolean): NodeArray<T> | undefined;
+/** @internal */
+export function getSynthesizedDeepClones<T extends Node>(nodes: NodeArray<T> | undefined, includeTrivia = true): NodeArray<T> | undefined {
+    if (nodes) {
+        const cloned = factory.createNodeArray(nodes.map(n => getSynthesizedDeepClone(n, includeTrivia)), nodes.hasTrailingComma);
+        setTextRange(cloned, nodes);
+        return cloned;
+    }
+    return nodes;
+}
+
+/** @internal */
+export function getModuleSpecifierResolverHost(program: Program, host: LanguageServiceHost): SymbolTracker["moduleResolverHost"] {
+    return {
+        ...createModuleSpecifierResolutionHost(program, host),
+        getCommonSourceDirectory: () => program.getCommonSourceDirectory(),
+    };
+}
+
+
+/** @internal */
+export function isStringLiteralOrTemplate(node: Node): node is StringLiteralLike {//| TemplateExpression | TaggedTemplateExpression {
+    switch (node.kind) {
+        case SyntaxKind.StringLiteral:
+        // case SyntaxKind.NoSubstitutionTemplateLiteral:
+        // case SyntaxKind.TemplateExpression:
+        // case SyntaxKind.TaggedTemplateExpression:
+            return true;
+        default:
+            return false;
+    }
+}
+
+/**
+ * Assumes `candidate.start <= position` holds.
+ *
+ * @internal
+ */
+export function positionBelongsToNode(candidate: Node, position: number, sourceFile: SourceFile): boolean {
+    Debug.assert(candidate.pos <= position);
+    return position < candidate.end || !isCompletedNode(candidate, sourceFile);
+}
+
+/*
+ * Checks if node ends with 'expectedLastToken'.
+ * If child at position 'length - 1' is 'SemicolonToken' it is skipped and 'expectedLastToken' is compared with child at position 'length - 2'.
+ */
+function nodeEndsWith(n: Node, expectedLastToken: SyntaxKind, sourceFile: SourceFile): boolean {
+    const children = n.getChildren(sourceFile);
+    if (children.length) {
+        const lastChild = last(children);
+        if (lastChild.kind === expectedLastToken) {
+            return true;
+        }
+        else if (lastChild.kind === SyntaxKind.SemicolonToken && children.length !== 1) {
+            return children[children.length - 2].kind === expectedLastToken;
+        }
+    }
+    return false;
+}
+
+
+
+function isCompletedNode(n: Node | undefined, sourceFile: SourceFile): boolean {
+    if (n === undefined || nodeIsMissing(n)) {
+        return false;
+    }
+
+    switch (n.kind) {
+        case SyntaxKind.ClassDeclaration:
+        // case SyntaxKind.InterfaceDeclaration:
+        // case SyntaxKind.EnumDeclaration:
+        case SyntaxKind.ObjectLiteralExpression:
+        // case SyntaxKind.ObjectBindingPattern:
+        case SyntaxKind.TypeLiteral:
+        case SyntaxKind.Block:
+        // case SyntaxKind.ModuleBlock:
+        case SyntaxKind.CaseBlock:
+        // case SyntaxKind.NamedImports:
+        // case SyntaxKind.NamedExports:
+            return nodeEndsWith(n, SyntaxKind.CloseBraceToken, sourceFile);
+        case SyntaxKind.CatchClause:
+            return isCompletedNode((n as CatchClause).block, sourceFile);
+        case SyntaxKind.NewExpression:
+            if (!(n as NewExpression).arguments) {
+                return true;
+            }
+        // falls through
+
+        case SyntaxKind.CallExpression:
+        case SyntaxKind.ParenthesizedExpression:
+        case SyntaxKind.ParenthesizedType:
+            return nodeEndsWith(n, SyntaxKind.CloseParenToken, sourceFile);
+
+        // case SyntaxKind.FunctionType:
+        // case SyntaxKind.ConstructorType:
+        //     return isCompletedNode((n as SignatureDeclaration).type, sourceFile);
+        
+        case SyntaxKind.FunctionDeclaration:
+        case SyntaxKind.FunctionExpression:
+        case SyntaxKind.MethodDeclaration:
+        case SyntaxKind.MethodSignature:
+        // case SyntaxKind.ConstructSignature:
+        // case SyntaxKind.CallSignature:
+        case SyntaxKind.ArrowFunction:
+            if ((n as FunctionLikeDeclaration).body) {
+                return isCompletedNode((n as FunctionLikeDeclaration).body, sourceFile);
+            }
+
+            if ((n as FunctionLikeDeclaration).type) {
+                return isCompletedNode((n as FunctionLikeDeclaration).type, sourceFile);
+            }
+
+            // Even though type parameters can be unclosed, we can get away with
+            // having at least a closing paren.
+            return hasChildOfKind(n, SyntaxKind.CloseParenToken, sourceFile);
+
+        // case SyntaxKind.ModuleDeclaration:
+        //     return !!(n as ModuleDeclaration).body && isCompletedNode((n as ModuleDeclaration).body, sourceFile);
+
+        case SyntaxKind.IfStatement:
+            if ((n as IfStatement).elseStatement) {
+                return isCompletedNode((n as IfStatement).elseStatement, sourceFile);
+            }
+            return isCompletedNode((n as IfStatement).thenStatement, sourceFile);
+
+        case SyntaxKind.ExpressionStatement:
+            return isCompletedNode((n as ExpressionStatement).expression, sourceFile) ||
+                hasChildOfKind(n, SyntaxKind.SemicolonToken, sourceFile);
+
+        case SyntaxKind.ArrayLiteralExpression:
+        case SyntaxKind.ArrayBindingPattern:
+        case SyntaxKind.ElementAccessExpression:
+        case SyntaxKind.ComputedPropertyName:
+        // case SyntaxKind.TupleType:
+            return nodeEndsWith(n, SyntaxKind.CloseBracketToken, sourceFile);
+
+        case SyntaxKind.IndexSignature:
+            if ((n as IndexSignatureDeclaration).type) {
+                return isCompletedNode((n as IndexSignatureDeclaration).type, sourceFile);
+            }
+
+            return hasChildOfKind(n, SyntaxKind.CloseBracketToken, sourceFile);
+
+        case SyntaxKind.CaseClause:
+        case SyntaxKind.DefaultClause:
+            // there is no such thing as terminator token for CaseClause/DefaultClause so for simplicity always consider them non-completed
+            return false;
+
+        case SyntaxKind.ForStatement:
+        case SyntaxKind.ForEachStatement:        
+        case SyntaxKind.WhileStatement:
+            return isCompletedNode((n as IterationStatement).statement, sourceFile);
+        case SyntaxKind.DoWhileStatement:
+            // rough approximation: if DoStatement has While keyword - then if node is completed is checking the presence of ')';
+            return hasChildOfKind(n, SyntaxKind.WhileKeyword, sourceFile)
+                ? nodeEndsWith(n, SyntaxKind.CloseParenToken, sourceFile)
+                : isCompletedNode((n as DoWhileStatement).statement, sourceFile);
+
+        // case SyntaxKind.TypeQuery:
+        //     return isCompletedNode((n as TypeQueryNode).exprName, sourceFile);
+
+        // case SyntaxKind.TypeOfExpression:
+        // case SyntaxKind.DeleteExpression:
+        // case SyntaxKind.VoidExpression:
+        // case SyntaxKind.YieldExpression:
+        case SyntaxKind.SpreadElement:
+            const unaryWordExpression = n as (/*TypeOfExpression | DeleteExpression | VoidExpression | YieldExpression | */SpreadElement);
+            return isCompletedNode(unaryWordExpression.expression, sourceFile);
+
+        // case SyntaxKind.TaggedTemplateExpression:
+        //     return isCompletedNode((n as TaggedTemplateExpression).template, sourceFile);
+        // case SyntaxKind.TemplateExpression:
+        //     const lastSpan = lastOrUndefined((n as TemplateExpression).templateSpans);
+        //     return isCompletedNode(lastSpan, sourceFile);
+        // case SyntaxKind.TemplateSpan:
+        //     return nodeIsPresent((n as TemplateSpan).literal);
+
+        // case SyntaxKind.ExportDeclaration:
+        // case SyntaxKind.ImportDeclaration:
+        //     return nodeIsPresent((n as ExportDeclaration | ImportDeclaration).moduleSpecifier);
+
+        case SyntaxKind.PrefixUnaryExpression:
+            return isCompletedNode((n as PrefixUnaryExpression).operand, sourceFile);
+        case SyntaxKind.BinaryExpression:
+            return isCompletedNode((n as BinaryExpression).right, sourceFile);
+        case SyntaxKind.ConditionalExpression:
+            return isCompletedNode((n as ConditionalExpression).whenFalse, sourceFile);
+
+        default:
+            return true;
+    }
+}
+
+/** @internal */
+export function hasChildOfKind(n: Node, kind: SyntaxKind, sourceFile: SourceFile): boolean {
+    return !!findChildOfKind(n, kind, sourceFile);
+}
+
+/** @internal */
+export function getReplacementSpanForContextToken(contextToken: Node | undefined, position: number) {
+    if (!contextToken) return undefined;
+
+    switch (contextToken.kind) {
+        case SyntaxKind.StringLiteral:
+        // case SyntaxKind.NoSubstitutionTemplateLiteral:
+            return createTextSpanFromStringLiteralLikeContent(contextToken as StringLiteralLike, position);
+        default:
+            return createTextSpanFromNode(contextToken);
+    }
+}
+
+/** @internal */
+export function createTextSpanFromStringLiteralLikeContent(node: StringLiteralLike, position: number) {
+    let replacementEnd = node.getEnd() - 1;
+    if (node.isUnterminated) {
+        // we return no replacement range only if unterminated string is empty
+        if (node.getStart() === replacementEnd) return undefined;
+        replacementEnd = Math.min(position, node.getEnd());
+    }
+    return createTextSpanFromBounds(node.getStart() + 1, replacementEnd);
+}
+
+/** @internal */
+export function getNamesForExportedSymbol(symbol: Symbol, scriptTarget: ScriptTarget | undefined): string | [lowercase: string, capitalized: string] {
+    if (needsNameFromDeclaration(symbol)) {
+        const fromDeclaration = getDefaultLikeExportNameFromDeclaration(symbol);
+        if (fromDeclaration) return fromDeclaration;
+        const fileNameCase = moduleSymbolToValidIdentifier(getSymbolParentOrFail(symbol), scriptTarget, /*forceCapitalize*/ false);
+        const capitalized = moduleSymbolToValidIdentifier(getSymbolParentOrFail(symbol), scriptTarget, /*forceCapitalize*/ true);
+        if (fileNameCase === capitalized) return fileNameCase;
+        return [fileNameCase, capitalized];
+    }
+    return symbol.name;
+}
+
+function needsNameFromDeclaration(symbol: Symbol) {
+    return !(symbol.flags & SymbolFlags.Transient) && (symbol.name === InternalSymbolName.ExportEquals || symbol.name === InternalSymbolName.Default);
+}
+
+/** @internal */
+export function getDefaultLikeExportNameFromDeclaration(symbol: Symbol): string | undefined {
+    return firstDefined(symbol.declarations, d => {
+        // "export default" in this case. See `ExportAssignment`for more details.
+        // if (isExportAssignment(d)) {
+        //     return tryCast(skipOuterExpressions(d.expression), isIdentifier)?.text;
+        // }
+        // // "export { ~ as default }"
+        // if (isExportSpecifier(d) && d.symbol.flags === SymbolFlags.Alias) {
+        //     return tryCast(d.propertyName, isIdentifier)?.text;
+        // }
+        // GH#52694
+        return tryCast(getNameOfDeclaration(d), isIdentifier)?.text;
+    });
+}
+
+/** @internal */
+export function getSymbolParentOrFail(symbol: Symbol) {
+    return Debug.checkDefined(
+        symbol.parent,
+        `Symbol parent was undefined. Flags: ${Debug.formatSymbolFlags(symbol.flags)}. ` +
+            `Declarations: ${
+                symbol.declarations?.map(d => {
+                    const kind = Debug.formatSyntaxKind(d.kind);
+                    const inJS = false;//isInJSFile(d);
+                    const { expression } = d as any;
+                    return (inJS ? "[JS]" : "") + kind + (expression ? ` (expression: ${Debug.formatSyntaxKind(expression.kind)})` : "");
+                }).join(", ")
+            }.`,
+    );
+}
+
+/** @internal */
+export function moduleSymbolToValidIdentifier(moduleSymbol: Symbol, target: ScriptTarget | undefined, forceCapitalize: boolean): string {
+    return moduleSpecifierToValidIdentifier(removeFileExtension(stripQuotes(moduleSymbol.name)), target, forceCapitalize);
+}
+
+/** @internal */
+export function moduleSpecifierToValidIdentifier(moduleSpecifier: string, target: ScriptTarget | undefined, forceCapitalize?: boolean): string {
+    const baseName = getBaseFileName(removeSuffix(moduleSpecifier, "/index"));
+    let res = "";
+    let lastCharWasValid = true;
+    const firstCharCode = baseName.charCodeAt(0);
+    if (isIdentifierStart(firstCharCode, target)) {
+        res += String.fromCharCode(firstCharCode);
+        if (forceCapitalize) {
+            res = res.toUpperCase();
+        }
+    }
+    else {
+        lastCharWasValid = false;
+    }
+    for (let i = 1; i < baseName.length; i++) {
+        const ch = baseName.charCodeAt(i);
+        const isValid = isIdentifierPart(ch, target);
+        if (isValid) {
+            let char = String.fromCharCode(ch);
+            if (!lastCharWasValid) {
+                char = char.toUpperCase();
+            }
+            res += char;
+        }
+        lastCharWasValid = isValid;
+    }
+    // Need `|| "_"` to ensure result isn't empty.
+    return !isStringANonContextualKeyword(res) ? res || "_" : `_${res}`;
+}
+
+/** @internal */
+export function isInReferenceComment(sourceFile: SourceFile, position: number): boolean {
+    return isInReferenceCommentWorker(sourceFile, position, /*shouldBeReference*/ true);
+}
+
+/** @internal */
+export interface PossibleTypeArgumentInfo {
+    readonly called: Identifier;
+    readonly nTypeArguments: number;
+}
+
+// Get info for an expression like `f <` that may be the start of type arguments.
+/** @internal */
+export function getPossibleTypeArgumentsInfo(tokenIn: Node | undefined, sourceFile: SourceFile): PossibleTypeArgumentInfo | undefined {
+    // This is a rare case, but one that saves on a _lot_ of work if true - if the source file has _no_ `<` character,
+    // then there obviously can't be any type arguments - no expensive brace-matching backwards scanning required
+
+    if (sourceFile.text.lastIndexOf("<", tokenIn ? tokenIn.pos : sourceFile.text.length) === -1) {
+        return undefined;
+    }
+
+    let token: Node | undefined = tokenIn;
+    // This function determines if the node could be type argument position
+    // Since during editing, when type argument list is not complete,
+    // the tree could be of any shape depending on the tokens parsed before current node,
+    // scanning of the previous identifier followed by "<" before current node would give us better result
+    // Note that we also balance out the already provided type arguments, arrays, object literals while doing so
+    let remainingLessThanTokens = 0;
+    let nTypeArguments = 0;
+    while (token) {
+        switch (token.kind) {
+            case SyntaxKind.LessThanToken:
+                // Found the beginning of the generic argument expression
+                token = findPrecedingToken(token.getFullStart(), sourceFile);
+                if (token && token.kind === SyntaxKind.QuestionDotToken) {
+                    token = findPrecedingToken(token.getFullStart(), sourceFile);
+                }
+                if (!token || !isIdentifier(token)) return undefined;
+                if (!remainingLessThanTokens) {
+                    return isDeclarationName(token) ? undefined : { called: token, nTypeArguments };
+                }
+                remainingLessThanTokens--;
+                break;
+
+            case SyntaxKind.GreaterThanGreaterThanGreaterThanToken:
+                remainingLessThanTokens = +3;
+                break;
+
+            case SyntaxKind.GreaterThanGreaterThanToken:
+                remainingLessThanTokens = +2;
+                break;
+
+            case SyntaxKind.GreaterThanToken:
+                remainingLessThanTokens++;
+                break;
+
+            case SyntaxKind.CloseBraceToken:
+                // This can be object type, skip until we find the matching open brace token
+                // Skip until the matching open brace token
+                token = findPrecedingMatchingToken(token, SyntaxKind.OpenBraceToken, sourceFile);
+                if (!token) return undefined;
+                break;
+
+            case SyntaxKind.CloseParenToken:
+                // This can be object type, skip until we find the matching open brace token
+                // Skip until the matching open brace token
+                token = findPrecedingMatchingToken(token, SyntaxKind.OpenParenToken, sourceFile);
+                if (!token) return undefined;
+                break;
+
+            case SyntaxKind.CloseBracketToken:
+                // This can be object type, skip until we find the matching open brace token
+                // Skip until the matching open brace token
+                token = findPrecedingMatchingToken(token, SyntaxKind.OpenBracketToken, sourceFile);
+                if (!token) return undefined;
+                break;
+
+            // Valid tokens in a type name. Skip.
+            case SyntaxKind.CommaToken:
+                nTypeArguments++;
+                break;
+
+            case SyntaxKind.EqualsGreaterThanToken:
+            // falls through
+            case SyntaxKind.Identifier:
+            case SyntaxKind.StringLiteral:
+            case SyntaxKind.NumericLiteral:
+            case SyntaxKind.IntLiteral:
+            case SyntaxKind.FloatLiteral:
+            case SyntaxKind.TrueKeyword:
+            case SyntaxKind.FalseKeyword:
+            // falls through
+            // case SyntaxKind.TypeOfKeyword:
+            // case SyntaxKind.ExtendsKeyword:
+            // case SyntaxKind.KeyOfKeyword:
+            case SyntaxKind.DotToken:
+            case SyntaxKind.BarToken:
+            case SyntaxKind.QuestionToken:
+            case SyntaxKind.ColonToken:
+                break;
+
+            default:
+                if (isTypeNode(token)) {
+                    break;
+                }
+
+                // Invalid token in type
+                return undefined;
+        }
+
+        token = findPrecedingToken(token.getFullStart(), sourceFile);
+    }
+
+    return undefined;
+}
+
+/** @internal */
+export function findPrecedingMatchingToken(token: Node, matchingTokenKind: SyntaxKind.OpenBraceToken | SyntaxKind.OpenParenToken | SyntaxKind.OpenBracketToken, sourceFile: SourceFile) {
+    const closeTokenText = tokenToString(token.kind)!;
+    const matchingTokenText = tokenToString(matchingTokenKind);
+    const tokenFullStart = token.getFullStart();
+    // Text-scan based fast path - can be bamboozled by comments and other trivia, but often provides
+    // a good, fast approximation without too much extra work in the cases where it fails.
+    const bestGuessIndex = sourceFile.text.lastIndexOf(matchingTokenText, tokenFullStart);
+    if (bestGuessIndex === -1) {
+        return undefined; // if the token text doesn't appear in the file, there can't be a match - super fast bail
+    }
+    // we can only use the textual result directly if we didn't have to count any close tokens within the range
+    if (sourceFile.text.lastIndexOf(closeTokenText, tokenFullStart - 1) < bestGuessIndex) {
+        const nodeAtGuess = findPrecedingToken(bestGuessIndex + 1, sourceFile);
+        if (nodeAtGuess && nodeAtGuess.kind === matchingTokenKind) {
+            return nodeAtGuess;
+        }
+    }
+    const tokenKind = token.kind;
+    let remainingMatchingTokens = 0;
+    while (true) {
+        const preceding = findPrecedingToken(token.getFullStart(), sourceFile);
+        if (!preceding) {
+            return undefined;
+        }
+        token = preceding;
+
+        if (token.kind === matchingTokenKind) {
+            if (remainingMatchingTokens === 0) {
+                return token;
+            }
+
+            remainingMatchingTokens--;
+        }
+        else if (token.kind === tokenKind) {
+            remainingMatchingTokens++;
+        }
+    }
+}
+
+/** @internal */
+export function hasIndexSignature(type: Type): boolean {
+    return !!type.getStringIndexType() || !!type.getNumberIndexType();
+}
+
+/** @internal */
+export function skipConstraint(type: Type): Type {
+    return type.isTypeParameter() ? type.getConstraint() || type : type;
 }

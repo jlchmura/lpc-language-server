@@ -1,4 +1,4 @@
-import { getNormalizedAbsolutePath, isRootedDiskPath, normalizePath, Path, SortedArray, SortedReadonlyArray } from "./_namespaces/lpc";
+import { createSortedArray, getNormalizedAbsolutePath, isRootedDiskPath, normalizePath, Path, SortedArray, SortedReadonlyArray } from "./_namespaces/lpc";
 import { Project } from "./_namespaces/lpc.server";
 
 export enum LogLevel {
@@ -29,10 +29,6 @@ export enum Msg {
 }
 
 export type NormalizedPath = string & { __normalizedPathTag: any; };
-
-export function createSortedArray<T>(): SortedArray<T> {
-    return [] as any as SortedArray<T>; // TODO: GH#19873
-}
 
 export const emptyArray: SortedReadonlyArray<never> = createSortedArray<never>();
 

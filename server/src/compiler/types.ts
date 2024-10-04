@@ -20,6 +20,7 @@ export type Path = string & { __pathBrand: any; };
 /** SymbolTable based on ES6 Map interface. */
 export type SymbolTable = Map<string, Symbol>;
 
+
 export interface TextRange {
     pos: number;
     end: number;
@@ -66,18 +67,18 @@ export interface EmitNode {
     annotatedNodes?: Node[];                 // Tracks Parse-tree nodes with EmitNodes for eventual cleanup.
     leadingComments?: SynthesizedComment[];  // Synthesized leading comments
     trailingComments?: SynthesizedComment[]; // Synthesized trailing comments
-    // commentRange?: TextRange;                // The text range to use when emitting leading or trailing comments
+    commentRange?: TextRange;                // The text range to use when emitting leading or trailing comments
     // sourceMapRange?: SourceMapRange;         // The text range to use when emitting leading or trailing source mappings
     // tokenSourceMapRanges?: (SourceMapRange | undefined)[]; // The text range to use when emitting source mappings for tokens
-    // constantValue?: string | number;         // The constant value of an expression
-    // externalHelpersModuleName?: Identifier;  // The local name for an imported helpers module
-    // externalHelpers?: boolean;
-    // helpers?: EmitHelper[];                  // Emit helpers for the node
+    constantValue?: string | number;         // The constant value of an expression
+    externalHelpersModuleName?: Identifier;  // The local name for an imported helpers module
+    externalHelpers?: boolean;
+    helpers?: EmitHelper[];                  // Emit helpers for the node
     startsOnNewLine?: boolean;               // If the node should begin on a new line
-    // snippetElement?: SnippetElement;         // Snippet element of the node
-    // typeNode?: TypeNode;                     // VariableDeclaration type
-    // classThis?: Identifier;                  // Identifier that points to a captured static `this` for a class which may be updated after decorators are applied
-    // assignedName?: Expression;               // Expression used as the assigned name of a class or function
+    snippetElement?: SnippetElement;         // Snippet element of the node
+    typeNode?: TypeNode;                     // VariableDeclaration type
+    classThis?: Identifier;                  // Identifier that points to a captured static `this` for a class which may be updated after decorators are applied
+    assignedName?: Expression;               // Expression used as the assigned name of a class or function
     identifierTypeArguments?: NodeArray<TypeNode | TypeParameterDeclaration>; // Only defined on synthesized identifiers. Though not syntactically valid, used in emitting diagnostics, quickinfo, and signature help.
     autoGenerate: AutoGenerateInfo | undefined; // Used for auto-generated identifiers and private identifiers.
     // generatedImportReference?: ImportSpecifier; // Reference to the generated import specifier this identifier refers to
@@ -107,6 +108,43 @@ export interface TypeChecker {
     getTypeOfSymbolAtLocation(symbol: Symbol, node: Node): Type;
     getRootSymbols(symbol: Symbol): readonly Symbol[];
     
+    /**
+     * True if this type is assignable to `ReadonlyArray<any>`.
+     */
+    isArrayLikeType(type: Type): boolean;
+    /**
+     * True if `contextualType` should not be considered for completions because
+     * e.g. it specifies `kind: "a"` and obj has `kind: "b"`.
+     *
+     * @internal
+     */
+    isTypeInvalidDueToUnionDiscriminant(contextualType: Type, obj: ObjectLiteralExpression): boolean;
+    /** @internal */ typeHasCallOrConstructSignatures(type: Type): boolean;
+
+    /** Note that the resulting nodes cannot be checked. */
+    typeToTypeNode(type: Type, enclosingDeclaration: Node | undefined, flags: NodeBuilderFlags | undefined): TypeNode | undefined;
+    /** @internal */ typeToTypeNode(type: Type, enclosingDeclaration: Node | undefined, flags: NodeBuilderFlags | undefined, tracker?: SymbolTracker): TypeNode | undefined; // eslint-disable-line @typescript-eslint/unified-signatures
+    
+    /**
+     * For a union, will include a property if it's defined in *any* of the member types.
+     * So for `{ a } | { b }`, this will include both `a` and `b`.
+     * Does not include properties of primitive types.
+     *
+     * @internal
+     */
+    getAllPossiblePropertiesOfTypes(type: readonly Type[]): Symbol[];
+
+    /**
+     * An external module with an 'export =' declaration resolves to the target of the 'export =' declaration,
+     * and an external module with no 'export =' declaration resolves to the module itself.
+     *
+     * @internal
+     */
+    resolveExternalModuleSymbol(symbol: Symbol): Symbol;
+    resolveName(name: string, location: Node | undefined, meaning: SymbolFlags, excludeGlobals: boolean): Symbol | undefined;
+    isArgumentsSymbol(symbol: Symbol): boolean;
+    
+
     /** @internal */ isDeclarationVisible(node: Declaration /*| AnyImportSyntax*/): boolean;
     /**
      * returns unknownSignature in the case of an error.
@@ -120,11 +158,16 @@ export interface TypeChecker {
      */
     getShorthandAssignmentValueSymbol(location: Node | undefined): Symbol | undefined;
 
+    /** @internal */ getCandidateSignaturesForStringLiteralCompletions(call: CallLikeExpression, editingArgument: Node): Signature[];
+    
     isUnknownSymbol(symbol: Symbol): boolean;
+    isUndefinedSymbol(symbol: Symbol): boolean;
     getMergedSymbol(symbol: Symbol): Symbol;
     getTypeAtLocation(node: Node): Type;
     /** @internal */ getContextualType(node: Expression, contextFlags?: ContextFlags): Type | undefined; // eslint-disable-line @typescript-eslint/unified-signatures
-
+    /** @internal */ resolveExternalModuleName(moduleSpecifier: Expression): Symbol | undefined;    
+    getSymbolsInScope(location: Node, meaning: SymbolFlags): Symbol[];
+    
     /**
      * Depending on the operation performed, it may be appropriate to throw away the checker
      * if the cancellation token is triggered. Typically, if it is used for error checking
@@ -146,6 +189,29 @@ export interface TypeChecker {
     getPropertyOfType(type: Type, propertyName: string): Symbol | undefined;
     getTypeFromTypeNode(node: TypeNode): Type;
     getFullyQualifiedName(symbol: Symbol): string;
+
+    getWidenedType(type: Type): Type;
+    /** @internal */ getUnionType(types: Type[], subtypeReduction?: UnionReduction): Type;
+    
+    /**
+     * Note that this will return undefined in the following case:
+     *     // a.ts
+     *     export namespace N { export class C { } }
+     *     // b.ts
+     *     <<enclosingDeclaration>>
+     * Where `C` is the symbol we're looking for.
+     * This should be called in a loop climbing parents of the symbol, so we'll get `N`.
+     *
+     * @internal
+     */
+    getAccessibleSymbolChain(symbol: Symbol, enclosingDeclaration: Node | undefined, meaning: SymbolFlags, useOnlyExternalAliasing: boolean): Symbol[] | undefined;
+    /**
+     * Exclude accesses to private properties.
+     *
+     * @internal
+     */
+    isValidPropertyAccessForCompletions(node: PropertyAccessExpression | /*ImportTypeNode |*/ QualifiedName, type: Type, property: Symbol): boolean;
+    getExportsOfModule(moduleSymbol: Symbol): Symbol[];
 }
 
 export type CompilerOptionsValue = string | number | boolean | (string | number)[] | string[] | MapLike<string[]> | ProjectReference[] | null | undefined; // eslint-disable-line no-restricted-syntax
@@ -440,9 +506,9 @@ export const enum SyntaxKind {
     NewLineTrivia,
     WhitespaceTrivia,
     ConflictMarkerTrivia,
-    NonTextFileMarkerTrivia,
     // We detect and preserve #! on the first line
     ShebangTrivia,
+    NonTextFileMarkerTrivia,
 
     // Literals
     NumericLiteral,
@@ -541,6 +607,7 @@ export const enum SyntaxKind {
     ElseKeyword,
     ForKeyword,
     FunctionKeyword,
+    ClassKeyword,
     CaseKeyword,
     DefaultKeyword,
     IfKeyword,
@@ -579,6 +646,9 @@ export const enum SyntaxKind {
     // TypeMember
     PropertyDeclaration,
     PropertySignature,
+    MethodDeclaration,
+    MethodSignature,
+
 
     // Types
     UnionType, // First Type Node
@@ -590,9 +660,10 @@ export const enum SyntaxKind {
     
     // Elements
     FunctionDeclaration,
+    ClassDeclaration,
     ExportSpecifier,
     ExportDeclaration,
-
+    
     // Property Assignments
     PropertyAssignment,
     ShorthandPropertyAssignment,
@@ -692,9 +763,10 @@ export const enum SyntaxKind {
     ConditionalExpression,
     BinaryExpression,
     FunctionExpression,
+    ArrowFunction,
     CallExpression,
     CloneObjectExpression,
-    ClassExpression,
+    ClassExpression,    
     NewExpression,
     ElementAccessExpression,
     InlineClosureExpression,
@@ -738,6 +810,12 @@ export const enum SyntaxKind {
     LastLiteralToken = StringLiteral,
     FirstJSDocTagNode = JSDocTypeExpression,
     LastJSDocTagNode = JSDocImportTag,
+    FirstTriviaToken = SingleLineCommentTrivia,
+    LastTriviaToken = ShebangTrivia,
+    FirstBinaryOperator = LessThanToken,
+    LastBinaryOperator = CaretEqualsToken,
+    /** @internal */ FirstContextualKeyword = IntKeyword,
+    /** @internal */ LastContextualKeyword = ContinueKeyword,
 }
 
 // dprint-ignore
@@ -999,6 +1077,7 @@ export const enum ModifierFlags {
     NonPublicAccessibilityModifier = Private | Protected,
 
     All = Public | Private | Protected | NoMask | NoShadow | NoSave | Static | VarArgs | Visible | Deprecated,    
+    Modifier = All// & ~Decorator,
 }
 
 // dprint-ignore
@@ -1073,6 +1152,16 @@ export type KeywordTypeSyntaxKind =
     | SyntaxKind.UndefinedKeyword
     | SyntaxKind.UnknownKeyword
     | SyntaxKind.VoidKeyword;    
+
+export type TokenSyntaxKind =
+    | SyntaxKind.Unknown
+    | SyntaxKind.EndOfFileToken
+    | TriviaSyntaxKind
+    | LiteralSyntaxKind
+    // | PseudoLiteralSyntaxKind
+    | PunctuationSyntaxKind
+    | SyntaxKind.Identifier
+    | KeywordSyntaxKind;
 
 export type TypeNodeSyntaxKind =
     | KeywordTypeSyntaxKind
@@ -1161,6 +1250,7 @@ export interface NodeFactory {
     createFloatLiteral(value: string|number, numericLiteralFlags?: TokenFlags): FloatLiteral;
     createStringLiteral(text: string, isSingleQuote?: boolean): StringLiteral;
     /** @internal */ createStringLiteral(text: string, isSingleQuote?: boolean, hasExtendedUnicodeEscape?: boolean): StringLiteral; // eslint-disable-line @typescript-eslint/unified-signatures
+    createStringLiteralFromNode(sourceNode: PropertyNameLiteral, isSingleQuote?: boolean): StringLiteral;
     
     createTrue(): TrueLiteral;
     createFalse(): FalseLiteral;
@@ -1171,6 +1261,9 @@ export interface NodeFactory {
 
     createIdentifier(text: string): Identifier;
     createLiteralLikeNode(kind: LiteralToken["kind"], text: string): LiteralToken;
+    
+    // element
+    createEmptyStatement(): EmptyStatement;
 
     // Names
     createQualifiedName(left: EntityName, right: string | Identifier): QualifiedName;
@@ -1229,6 +1322,13 @@ export interface NodeFactory {
     createCastExpression(expression: Expression, type: TypeNode): Expression;
     createCloneObjectExpression(expression: Expression, argumentsArray: readonly Expression[] | undefined): CloneObjectExpression;
     
+    // JSDoc
+    createJSDocText(text: string): JSDocText;
+    createJSDocComment(comment?: string | NodeArray<JSDocComment> | undefined, tags?: readonly JSDocTag[] | undefined): JSDoc;
+    createJSDocParameterTag(tagName: Identifier | undefined, name: EntityName, isBracketed: boolean, typeExpression?: JSDocTypeExpression, isNameFirst?: boolean, comment?: string | NodeArray<JSDocComment>): JSDocParameterTag;
+    createJSDocReturnTag(tagName: Identifier | undefined, typeExpression?: JSDocTypeExpression, comment?: string | NodeArray<JSDocComment>): JSDocReturnTag;
+    createJSDocTypeTag(tagName: Identifier | undefined, typeExpression: JSDocTypeExpression, comment?: string | NodeArray<JSDocComment>): JSDocTypeTag;
+
     /**
      * Creates a shallow, memberwise clone of a node.
      * - The result will have its `original` pointer set to `node`.
@@ -1268,6 +1368,8 @@ export interface CompilerOptions {
     preserveSymlinks?: boolean;   
     disableSourceOfProjectReferenceRedirect?: boolean;
     disableReferencedProjectLoad?: boolean;
+    module?: ModuleKind;
+    target?: ScriptTarget;
 }
 
 export const enum OuterExpressionKinds {
@@ -1491,6 +1593,7 @@ export type HasJSDoc =
     | ForStatement
     | ForEachStatement
     | FunctionDeclaration
+    | ArrowFunction
     | ReturnStatement
     | ParameterDeclaration
     | VariableStatement     
@@ -1560,7 +1663,7 @@ export type HasLocals =
     | JSDocSignature
     // | JSDocTypedefTag
     // | MappedTypeNode
-    // | MethodDeclaration
+    | MethodDeclaration
     // | MethodSignature
     // | ModuleDeclaration
     // | SetAccessorDeclaration
@@ -1846,6 +1949,7 @@ export type EndOfFileToken = Token<SyntaxKind.EndOfFileToken> & JSDocContainer;
 
 export type KeywordSyntaxKind =
     | SyntaxKind.AnyKeyword
+    | SyntaxKind.CaseKeyword
     | SyntaxKind.UndefinedKeyword
     | SyntaxKind.BreakKeyword
     | SyntaxKind.VoidKeyword
@@ -1897,6 +2001,8 @@ export interface KeywordToken<TKind extends KeywordSyntaxKind> extends Token<TKi
 export interface KeywordTypeNode<TKind extends KeywordTypeSyntaxKind = KeywordTypeSyntaxKind> extends KeywordToken<TKind>, TypeNode {
     readonly kind: TKind;
 }
+
+export type CaseKeyword = KeywordToken<SyntaxKind.CaseKeyword>;
 
 export interface ModifierToken<TKind extends ModifierSyntaxKind> extends KeywordToken<TKind> {}
 export type PrivateKeyword = ModifierToken<SyntaxKind.PrivateKeyword>;
@@ -2712,6 +2818,14 @@ export interface StringLiteral extends LiteralExpression, Declaration {
     readonly singleQuote?: boolean;
 }
 
+export type TriviaSyntaxKind =
+    | SyntaxKind.SingleLineCommentTrivia
+    | SyntaxKind.MultiLineCommentTrivia
+    | SyntaxKind.NewLineTrivia
+    | SyntaxKind.WhitespaceTrivia
+    | SyntaxKind.ShebangTrivia
+    | SyntaxKind.ConflictMarkerTrivia;
+
 export type StringLiteralLike = StringLiteral;
 
 export type LiteralToken = IntLiteral | FloatLiteral | StringLiteral;
@@ -2997,13 +3111,14 @@ export interface FunctionExpression
 export type SignatureDeclaration =
     // | CallSignatureDeclaration
     // | ConstructSignatureDeclaration
-    // | MethodSignature
+    | MethodSignature
     | IndexSignatureDeclaration
     // | FunctionTypeNode
     // | ConstructorTypeNode
     // | JSDocFunctionType
+    | ArrowFunction
     | FunctionDeclaration
-    // | MethodDeclaration
+    | MethodDeclaration
     // | ConstructorDeclaration
     // | AccessorDeclaration
     | InlineClosureExpression
@@ -4133,7 +4248,8 @@ export interface SyntaxList extends Node {
 
 export const enum LanguageVariant {
     LDMud,
-    FluffOS
+    FluffOS,
+    Standard
 }
 
 export const enum JSDocParsingMode {
@@ -4555,6 +4671,8 @@ export interface PrinterOptions {
     newLine?: NewLineKind;
     omitTrailingSemicolon?: boolean;
     noEmitHelpers?: boolean;    
+    /** @internal */ module?: CompilerOptions["module"];
+    /** @internal */ target?: CompilerOptions["target"];
     /** @internal */ sourceMap?: boolean;
     /** @internal */ inlineSourceMap?: boolean;
     /** @internal */ inlineSources?: boolean;
@@ -6162,3 +6280,179 @@ export type AnyValidImportOrReExport = InheritDeclaration | CloneObjectExpressio
     // | ImportEqualsDeclaration & { moduleReference: ExternalModuleReference & { expression: StringLiteral; }; }
     // | RequireOrImportCall
     // | ValidImportTypeNode;
+
+/** @internal */
+export type AnyImportSyntax = InheritDeclaration;
+
+/** @internal */
+export type AnyImportOrJsDocImport = AnyImportSyntax ;//| JSDocImportTag;
+
+/** @internal */
+export type AnyImportOrRequire = AnyImportOrJsDocImport | VariableDeclarationInitializedTo<CloneObjectExpression>;
+
+export interface JSDocLink extends Node {
+    readonly kind: SyntaxKind.JSDocLink;
+    readonly name?: EntityName | JSDocMemberName;
+    text: string;
+}
+
+export interface JSDocLinkCode extends Node {
+    readonly kind: SyntaxKind.JSDocLinkCode;
+    readonly name?: EntityName | JSDocMemberName;
+    text: string;
+}
+
+export interface JSDocLinkPlain extends Node {
+    readonly kind: SyntaxKind.JSDocLinkPlain;
+    readonly name?: EntityName | JSDocMemberName;
+    text: string;
+}
+
+export interface JSDocOverloadTag extends JSDocTag {
+    readonly kind: SyntaxKind.JSDocOverloadTag;
+    readonly parent: JSDoc;
+    readonly typeExpression: JSDocSignature;
+}
+
+/**
+ * Note that `@extends` is a synonym of `@augments`.
+ * Both tags are represented by this interface.
+ */
+export interface JSDocAugmentsTag extends JSDocTag {
+    readonly kind: SyntaxKind.JSDocAugmentsTag;
+    readonly class: Expression & { readonly expression: Identifier | PropertyAccessEntityNameExpression; };
+}
+
+export interface JSDocImplementsTag extends JSDocTag {
+    readonly kind: SyntaxKind.JSDocImplementsTag;
+    readonly class: Expression & { readonly expression: Identifier | PropertyAccessEntityNameExpression; };
+}
+
+
+export interface JSDocCallbackTag extends JSDocTag, NamedDeclaration, LocalsContainer {
+    readonly kind: SyntaxKind.JSDocCallbackTag;
+    readonly parent: JSDoc;
+    readonly fullName?: Identifier;
+    readonly name?: Identifier;
+    readonly typeExpression: JSDocSignature;
+}
+
+export interface JSDocPropertyTag extends JSDocPropertyLikeTag {
+    readonly kind: SyntaxKind.JSDocPropertyTag;
+}
+
+export interface JSDocSatisfiesTag extends JSDocTag {
+    readonly kind: SyntaxKind.JSDocSatisfiesTag;
+    readonly typeExpression: JSDocTypeExpression;
+}
+
+export interface JSDocNameReference extends Node {
+    readonly kind: SyntaxKind.JSDocNameReference;
+    readonly name: EntityName | JSDocMemberName;
+}
+
+export interface JSDocSeeTag extends JSDocTag {
+    readonly kind: SyntaxKind.JSDocSeeTag;
+    readonly name?: JSDocNameReference;
+}
+
+export interface JSDocThrowsTag extends JSDocTag {
+    readonly kind: SyntaxKind.JSDocThrowsTag;
+    readonly typeExpression?: JSDocTypeExpression;
+}
+
+export interface JSDocTypeTag extends JSDocTag {
+    readonly kind: SyntaxKind.JSDocTypeTag;
+    readonly typeExpression: JSDocTypeExpression;
+}
+
+// Note that a MethodDeclaration is considered both a ClassElement and an ObjectLiteralElement.
+// Both the grammars for ClassDeclaration and ObjectLiteralExpression allow for MethodDeclarations
+// as child elements, and so a MethodDeclaration satisfies both interfaces.  This avoids the
+// alternative where we would need separate kinds/types for ClassMethodDeclaration and
+// ObjectLiteralMethodDeclaration, which would look identical.
+//
+// Because of this, it may be necessary to determine what sort of MethodDeclaration you have
+// at later stages of the compiler pipeline.  In that case, you can either check the parent kind
+// of the method, or use helpers like isObjectLiteralMethodDeclaration
+export interface MethodDeclaration extends FunctionLikeDeclarationBase, ClassElement, ObjectLiteralElement, JSDocContainer, LocalsContainer, FlowContainer {
+    readonly kind: SyntaxKind.MethodDeclaration;
+    readonly parent: /*ClassLikeDeclaration |*/ ObjectLiteralExpression;
+    readonly modifiers?: NodeArray<Modifier> | undefined;
+    readonly name: PropertyName;
+    readonly body?: FunctionBody | undefined;
+
+    // The following properties are used only to report grammar errors (see `isGrammarError` in utilities.ts)
+    /** @internal */ readonly exclamationToken?: ExclamationToken | undefined; // A method cannot have an exclamation token
+}
+
+export interface MethodSignature extends SignatureDeclarationBase, TypeElement, LocalsContainer {
+    readonly kind: SyntaxKind.MethodSignature;
+    readonly parent: TypeLiteralNode;// | InterfaceDeclaration;
+    readonly modifiers?: NodeArray<Modifier>;
+    readonly name: PropertyName;
+}
+
+export interface ArrowFunction extends Expression, FunctionLikeDeclarationBase, JSDocContainer, LocalsContainer, FlowContainer {
+    readonly kind: SyntaxKind.ArrowFunction;
+    readonly modifiers?: NodeArray<Modifier>;
+    readonly equalsGreaterThanToken: EqualsGreaterThanToken;
+    readonly body: ConciseBody;
+    readonly name: never;
+}
+
+export interface ClassExpression extends ClassLikeDeclarationBase, PrimaryExpression {
+    readonly kind: SyntaxKind.ClassExpression;
+    readonly modifiers?: NodeArray<Modifier>;
+}
+
+/** @internal */
+export interface PrologueDirective extends ExpressionStatement {
+    readonly expression: StringLiteral;
+}
+
+
+export interface ClassLikeDeclarationBase extends NamedDeclaration, JSDocContainer {
+    readonly kind: SyntaxKind.ClassDeclaration | SyntaxKind.ClassExpression;
+    readonly name?: Identifier;
+    readonly typeParameters?: NodeArray<TypeParameterDeclaration>;
+    //readonly heritageClauses?: NodeArray<HeritageClause>;
+    readonly members: NodeArray<ClassElement>;
+}
+
+export interface ClassDeclaration extends ClassLikeDeclarationBase, DeclarationStatement {
+    readonly kind: SyntaxKind.ClassDeclaration;
+    readonly modifiers?: NodeArray<Modifier>;
+    /** May be undefined in `export default class { ... }`. */
+    readonly name?: Identifier;
+}
+
+export type ClassLikeDeclaration =
+    | ClassDeclaration
+    | ClassExpression;
+
+/** @internal */
+export type SnippetElement = TabStop | Placeholder;
+
+
+/** @internal */
+export interface TabStop {
+    kind: SnippetKind.TabStop;
+    order: number;
+}
+
+/** @internal */
+export interface Placeholder {
+    kind: SnippetKind.Placeholder;
+    order: number;
+}
+
+// Reference: https://code.visualstudio.com/docs/editor/userdefinedsnippets#_snippet-syntax
+// dprint-ignore
+/** @internal */
+export const enum SnippetKind {
+    TabStop,                                // `$1`, `$2`
+    Placeholder,                            // `${1:foo}`
+    Choice,                                 // `${1|one,two,three|}`
+    Variable,                               // `$name`, `${name:default}`
+}

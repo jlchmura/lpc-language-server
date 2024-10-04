@@ -1,4 +1,4 @@
-import { ArrayBindingElement, AssignmentDeclarationKind, BinaryExpression, BindingElement, BindingPattern, Block, BreakOrContinueStatement, CallChain, CallExpression, CallLikeExpression, canHaveJSDoc, compareDiagnostics, CompilerOptions, ConciseBody, Debug, Declaration, DeclarationName, Diagnostic, diagnosticsEqualityComparer, emptyArray, EntityName, Expression, FileReference, find, flatMap, ForEachStatement, FunctionExpression, FunctionLikeDeclaration, GeneratedIdentifier, getAssignmentDeclarationKind, getDriverType, getEffectiveModifierFlags, getEffectiveModifierFlagsAlwaysIncludeJSDoc, getJSDocCommentsAndTags, HasExpressionInitializer, HasInitializer, HasLocals, HasModifiers, hasProperty, HasType, Identifier, isBinaryExpression, isBindingElement, isBlock, isCallExpression, isFunctionBlock, isFunctionExpression, isFunctionExpressionOrArrowFunction, isIdentifier, isInlineClosureExpression, isJSDoc, isJSDocDeprecatedTag, isJSDocParameterTag, isJSDocSignature, isKeyword, isRootedDiskPath, isSourceFile, isTypeNodeKind, isVariableDeclaration, isWhiteSpaceLike, IterationStatement, JSDocDeprecatedTag, JSDocParameterTag, JSDocSignature, JSDocTag, KeywordSyntaxKind, LanguageVariant, lastOrUndefined, LeftHandSideExpression, LiteralExpression, LiteralToken, MemberName, ModifierFlags, NamedDeclaration, Node, NodeArray, NodeFlags, OuterExpressionKinds, ParameterDeclaration, pathIsRelative, PropertyAccessExpression, PropertyName, QualifiedName, SignatureDeclaration, skipOuterExpressions, sortAndDeduplicate, SortedReadonlyArray, Statement, StringLiteral, StringLiteralLike, stringToToken, Symbol, SyntaxKind, TextChangeRange, TextRange, TextSpan, tryCast, TypeElement, TypeNode, UnaryExpression, VariableDeclaration } from "./_namespaces/lpc.js";
+import { ArrayBindingElement, AssignmentDeclarationKind, BinaryExpression, BindingElement, BindingPattern, Block, BreakOrContinueStatement, CallChain, CallExpression, CallLikeExpression, canHaveJSDoc, ClassElement, compareDiagnostics, CompilerOptions, ConciseBody, Debug, Declaration, DeclarationName, Diagnostic, diagnosticsEqualityComparer, emptyArray, EntityName, Expression, FileReference, find, flatMap, ForEachStatement, FunctionExpression, FunctionLikeDeclaration, GeneratedIdentifier, getAssignmentDeclarationKind, getDriverType, getEffectiveModifierFlags, getEffectiveModifierFlagsAlwaysIncludeJSDoc, getJSDocCommentsAndTags, HasExpressionInitializer, HasInitializer, HasLocals, HasModifiers, hasProperty, HasType, Identifier, isBinaryExpression, isBindingElement, isBlock, isCallExpression, isFunctionBlock, isFunctionExpression, isFunctionExpressionOrArrowFunction, isIdentifier, isInlineClosureExpression, isJSDoc, isJSDocDeprecatedTag, isJSDocParameterTag, isJSDocSignature, isJSDocTemplateTag, isKeyword, isRootedDiskPath, isSourceFile, isTypeNodeKind, isVariableDeclaration, isWhiteSpaceLike, IterationStatement, JSDocDeprecatedTag, JSDocParameterTag, JSDocPropertyLikeTag, JSDocSignature, JSDocTag, JSDocTemplateTag, KeywordSyntaxKind, LanguageVariant, lastOrUndefined, LeftHandSideExpression, LiteralExpression, LiteralToken, MemberName, Modifier, ModifierFlags, modifierToFlag, NamedDeclaration, Node, NodeArray, NodeFlags, OuterExpressionKinds, ParameterDeclaration, pathIsRelative, PropertyAccessExpression, PropertyName, QualifiedName, SignatureDeclaration, skipOuterExpressions, sortAndDeduplicate, SortedReadonlyArray, Statement, StringLiteral, StringLiteralLike, stringToToken, Symbol, SyntaxKind, TextChangeRange, TextRange, TextSpan, tryCast, TypeElement, TypeNode, TypeParameterDeclaration, UnaryExpression, VariableDeclaration } from "./_namespaces/lpc.js";
 
 /** @internal */
 export function isNodeArray<T extends Node>(array: readonly T[]): array is NodeArray<T> {
@@ -1041,4 +1041,124 @@ export function hasType(node: Node): node is HasType {
 
 export function isStringLiteralLike(node: Node | FileReference): node is StringLiteralLike {
     return (node as Node).kind === SyntaxKind.StringLiteral ;//|| (node as Node).kind === SyntaxKind.NoSubstitutionTemplateLiteral;
+}
+
+
+/** @internal */
+export function isParameterPropertyModifier(kind: SyntaxKind): boolean {
+    return !!(modifierToFlag(kind) & ModifierFlags.ParameterPropertyModifier);
+}
+
+
+/** @internal */
+export function isClassMemberModifier(idToken: SyntaxKind): boolean {
+    return isParameterPropertyModifier(idToken) ||
+        idToken === SyntaxKind.StaticKeyword;
+        // idToken === SyntaxKind.OverrideKeyword ||
+        // idToken === SyntaxKind.AccessorKeyword;        
+}
+
+export function isModifier(node: Node): node is Modifier {
+    return isModifierKind(node.kind);
+}
+
+/** @internal */
+export function isModifierKind(token: SyntaxKind): token is Modifier["kind"] {
+    switch (token) {
+        // case SyntaxKind.AbstractKeyword:
+        // case SyntaxKind.AccessorKeyword:
+        case SyntaxKind.AsyncKeyword:
+        // case SyntaxKind.ConstKeyword:
+        // case SyntaxKind.DeclareKeyword:
+        case SyntaxKind.DefaultKeyword:
+        // case SyntaxKind.ExportKeyword:
+        case SyntaxKind.InKeyword:
+        case SyntaxKind.PublicKeyword:
+        case SyntaxKind.PrivateKeyword:
+        case SyntaxKind.ProtectedKeyword:
+        // case SyntaxKind.ReadonlyKeyword:
+        case SyntaxKind.StaticKeyword:
+        // case SyntaxKind.OutKeyword:
+        // case SyntaxKind.OverrideKeyword:
+            return true;
+    }
+    return false;
+}
+
+/** Get all JSDoc tags related to a node, including those on parent nodes. */
+export function getJSDocTags(node: Node): readonly JSDocTag[] {
+    return getJSDocTagsWorker(node, /*noCache*/ false);
+}
+
+export function isJSDocPropertyLikeTag(node: Node): node is JSDocPropertyLikeTag {
+    return node.kind === SyntaxKind.JSDocPropertyTag || node.kind === SyntaxKind.JSDocParameterTag;
+}
+
+/**
+ * Determines whether the node is a statement that is not also a declaration
+ *
+ * @internal
+ */
+export function isStatementButNotDeclaration(node: Node): node is Statement {
+    return isStatementKindButNotDeclarationKind(node.kind);
+}
+
+// Classes
+export function isClassElement(node: Node): node is ClassElement {
+    const kind = node.kind;
+    return kind === SyntaxKind.PropertyDeclaration    
+        || kind === SyntaxKind.MethodDeclaration        
+        || kind === SyntaxKind.IndexSignature
+        // || kind === SyntaxKind.ClassStaticBlockDeclaration
+        // || kind === SyntaxKind.SemicolonClassElement;
+        ;
+}
+
+export function isClassOrTypeElement(node: Node): node is ClassElement | TypeElement {
+    return isTypeElement(node) || isClassElement(node);
+}
+
+function getJSDocParameterTagsWorker(param: ParameterDeclaration, noCache?: boolean): readonly JSDocParameterTag[] {
+    if (param.name) {
+        if (isIdentifier(param.name)) {
+            const name = param.name.text;
+            return getJSDocTagsWorker(param.parent, noCache).filter((tag): tag is JSDocParameterTag => isJSDocParameterTag(tag) && isIdentifier(tag.name) && tag.name.text === name);
+        }
+        else {
+            const i = param.parent.parameters.indexOf(param);
+            Debug.assert(i > -1, "Parameters should always be in their parents' parameter list");
+            const paramTags = getJSDocTagsWorker(param.parent, noCache).filter(isJSDocParameterTag);
+            if (i < paramTags.length) {
+                return [paramTags[i]];
+            }
+        }
+    }
+    // return empty array for: out-of-order binding patterns and JSDoc function syntax, which has un-named parameters
+    return emptyArray;
+}
+
+/**
+ * Gets the JSDoc parameter tags for the node if present.
+ *
+ * @remarks Returns any JSDoc param tag whose name matches the provided
+ * parameter, whether a param tag on a containing function
+ * expression, or a param tag on a variable declaration whose
+ * initializer is the containing function. The tags closest to the
+ * node are returned first, so in the previous example, the param
+ * tag on the containing function expression would be first.
+ *
+ * For binding patterns, parameter tags are matched by position.
+ */
+export function getJSDocParameterTags(param: ParameterDeclaration): readonly JSDocParameterTag[] {
+    return getJSDocParameterTagsWorker(param, /*noCache*/ false);
+}
+
+/** @internal */
+export function getJSDocParameterTagsNoCache(param: ParameterDeclaration): readonly JSDocParameterTag[] {
+    return getJSDocParameterTagsWorker(param, /*noCache*/ true);
+}
+
+function getJSDocTypeParameterTagsWorker(param: TypeParameterDeclaration, noCache?: boolean): readonly JSDocTemplateTag[] {
+    const name = param.name.text;
+    return getJSDocTagsWorker(param.parent, noCache).filter((tag): tag is JSDocTemplateTag => isJSDocTemplateTag(tag) && tag.typeParameters.some(tp => tp.name.text === name));
 }

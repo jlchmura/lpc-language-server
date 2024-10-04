@@ -1,5 +1,4 @@
-import { CharacterCodes } from "../backend/types";
-import { altDirectorySeparator, Comparer, Comparison, Debug, directorySeparator, EqualityComparer, MapLike, Queue, SortedArray, SortedReadonlyArray } from "./_namespaces/lpc";
+import { Comparer, Comparison, Debug, EqualityComparer, MapLike, Queue, SortedArray, SortedReadonlyArray, TextSpan } from "./_namespaces/lpc";
 
 /** @internal */
 export function memoize<T>(callback: () => T): () => T {
@@ -12,6 +11,25 @@ export function memoize<T>(callback: () => T): () => T {
         return value;
     };
 }
+
+/**
+ * A version of `memoize` that supports a single primitive argument
+ *
+ * @internal
+ */
+export function memoizeOne<A extends string | number | boolean | undefined, T>(callback: (arg: A) => T): (arg: A) => T {
+    const map = new Map<string, T>();
+    return (arg: A) => {
+        const key = `${typeof arg}:${arg}`;
+        let value = map.get(key);
+        if (value === undefined && !map.has(key)) {
+            value = callback(arg);
+            map.set(key, value);
+        }
+        return value!;
+    };
+}
+
 
 /**
  * Returns its argument.
@@ -1803,4 +1821,79 @@ export function createSet<TElement, THash = number>(getHashCode: (element: TElem
 /** @internal */
 export function tryRemoveSuffix(str: string, suffix: string): string | undefined {
     return endsWith(str, suffix) ? str.slice(0, str.length - suffix.length) : undefined;
+}
+
+/** @internal */
+export function arraysEqual<T>(a: readonly T[], b: readonly T[], equalityComparer: EqualityComparer<T> = equateValues): boolean {
+    return a.length === b.length && a.every((x, i) => equalityComparer(x, b[i]));
+}
+
+
+/**
+ * Creates a new array with `element` interspersed in between each element of `input`
+ * if there is more than 1 value in `input`. Otherwise, returns the existing array.
+ *
+ * @internal
+ */
+export function intersperse<T>(input: T[], element: T): T[] {
+    if (input.length <= 1) {
+        return input;
+    }
+    const result: T[] = [];
+    for (let i = 0, n = input.length; i < n; i++) {
+        if (i) result.push(element);
+        result.push(input[i]);
+    }
+    return result;
+}
+
+/** @internal */
+export function findLastIndex<T>(array: readonly T[] | undefined, predicate: (element: T, index: number) => boolean, startIndex?: number): number {
+    if (array === undefined) return -1;
+    for (let i = startIndex ?? array.length - 1; i >= 0; i--) {
+        if (predicate(array[i], i)) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+/** @internal */
+export function arrayToMultiMap<K, V>(values: readonly V[], makeKey: (value: V) => K): MultiMap<K, V>;
+/** @internal */
+export function arrayToMultiMap<K, V, U>(values: readonly V[], makeKey: (value: V) => K, makeValue: (value: V) => U): MultiMap<K, U>;
+/** @internal */
+export function arrayToMultiMap<K, V, U>(values: readonly V[], makeKey: (value: V) => K, makeValue: (value: V) => V | U = identity): MultiMap<K, V | U> {
+    const result = createMultiMap<K, V | U>();
+    for (const value of values) {
+        result.add(makeKey(value), makeValue(value));
+    }
+    return result;
+}
+
+/** @internal */
+export function group<T, K>(values: readonly T[], getGroupId: (value: T) => K): readonly (readonly T[])[];
+/** @internal */
+export function group<T, K, R>(values: readonly T[], getGroupId: (value: T) => K, resultSelector: (values: readonly T[]) => R): R[];
+/** @internal */
+export function group<T>(values: readonly T[], getGroupId: (value: T) => string): readonly (readonly T[])[];
+/** @internal */
+export function group<T, R>(values: readonly T[], getGroupId: (value: T) => string, resultSelector: (values: readonly T[]) => R): R[];
+/** @internal */
+export function group<T, K>(values: readonly T[], getGroupId: (value: T) => K, resultSelector: (values: readonly T[]) => readonly T[] = identity): readonly (readonly T[])[] {
+    return arrayFrom(arrayToMultiMap(values, getGroupId).values(), resultSelector);
+}
+
+
+/**
+ * Compare two TextSpans, first by `start`, then by `length`.
+ *
+ * @internal
+ */
+export function compareTextSpans(a: Partial<TextSpan> | undefined, b: Partial<TextSpan> | undefined): Comparison {
+    return compareValues(a?.start, b?.start) || compareValues(a?.length, b?.length);
+}
+
+export function createSortedArray<T>(): SortedArray<T> {
+    return [] as any as SortedArray<T>; // TODO: GH#19873
 }

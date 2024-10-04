@@ -1,4 +1,4 @@
-import { ArrayBindingPattern, ArrayTypeNode, BinaryExpression, BindingElement, Block, CallExpression, CloneObjectExpression, ComputedPropertyName, DefaultClause, ElementAccessExpression, ExpressionStatement, FloatLiteral, ForStatement, FunctionDeclaration, FunctionExpression, Identifier, IfStatement, IndexedAccessTypeNode, InheritDeclaration, InlineClosureExpression, IntLiteral, JSDoc, JSDocDeprecatedTag, JSDocParameterTag, JSDocSignature, JSDocTemplateTag, JSDocTypedefTag, JSDocTypeExpression, LabeledStatement, LiteralTypeNode, NewExpression, Node, NodeFlags, ObjectLiteralExpression, ParameterDeclaration, ParenthesizedExpression, ParenthesizedTypeNode, PrefixUnaryExpression, PropertyAccessExpression, PropertyAssignment, PropertyDeclaration, PropertySignature, QualifiedName, ShorthandPropertyAssignment, SourceFile, StringLiteral, StructDeclaration, SwitchStatement, SyntaxKind, TypeLiteralNode, TypeParameterDeclaration, TypeReferenceNode, UnionTypeNode, VariableDeclaration, VariableDeclarationList, VariableStatement } from "./_namespaces/lpc";
+import { ArrayBindingPattern, ArrayTypeNode, ArrowFunction, BinaryExpression, BindingElement, Block, CallExpression, CaseBlock, CaseClause, CaseKeyword, CloneObjectExpression, ComputedPropertyName, DefaultClause, ElementAccessExpression, ExpressionStatement, FloatLiteral, ForStatement, FunctionDeclaration, FunctionExpression, Identifier, IfStatement, IndexedAccessTypeNode, InheritDeclaration, InlineClosureExpression, IntLiteral, JSDoc, JSDocDeprecatedTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, JSDocOverloadTag, JSDocParameterTag, JSDocSignature, JSDocTemplateTag, JSDocText, JSDocTypedefTag, JSDocTypeExpression, JSDocTypeLiteral, LabeledStatement, LiteralTypeNode, NewExpression, Node, NodeFlags, ObjectLiteralExpression, ParameterDeclaration, ParenthesizedExpression, ParenthesizedTypeNode, PrefixUnaryExpression, PropertyAccessExpression, PropertyAssignment, PropertyDeclaration, PropertySignature, QualifiedName, ShorthandPropertyAssignment, SourceFile, SpreadElement, StringLiteral, StructDeclaration, SwitchStatement, SyntaxKind, SyntaxList, TypeLiteralNode, TypeParameterDeclaration, TypeReferenceNode, UnionTypeNode, VariableDeclaration, VariableDeclarationList, VariableStatement } from "./_namespaces/lpc";
 
 export function isBinaryExpression(node: Node): node is BinaryExpression {
     return node.kind === SyntaxKind.BinaryExpression;
@@ -245,7 +245,7 @@ export function isClassDeclaration(node: Node): node is Node {
     return false;//return node.kind === SyntaxKind.ClassDeclaration;
 }
 
-export function isArrowFunction(node: Node): node is Node {//ArrowFunction {
+export function isArrowFunction(node: Node): node is ArrowFunction {
     return false;//return node.kind === SyntaxKind.ArrowFunction;
 }
 
@@ -272,4 +272,66 @@ export function isPropertySignature(node: Node): node is PropertySignature {
 
 export function isNumericLiteral(node: Node): node is IntLiteral | FloatLiteral {
     return node.kind === SyntaxKind.IntKeyword || node.kind === SyntaxKind.FloatKeyword;
+}
+
+export function isModuleBlock(node: Node) {//: node is ModuleBlock {
+    return false;//return node.kind === SyntaxKind.ModuleBlock;
+}
+
+export function isMethodDeclaration(node: Node) {//: node is MethodDeclaration {
+    return false;//return node.kind === SyntaxKind.MethodDeclaration;
+}
+
+export function isJSDocLink(node: Node): node is JSDocLink {
+    return node.kind === SyntaxKind.JSDocLink;
+}
+
+export function isJSDocLinkCode(node: Node): node is JSDocLinkCode {
+    return node.kind === SyntaxKind.JSDocLinkCode;
+}
+
+export function isJSDocLinkPlain(node: Node): node is JSDocLinkPlain {
+    return node.kind === SyntaxKind.JSDocLinkPlain;
+}
+
+export function isFunctionTypeNode(node: Node){//: node is FunctionTypeNode {
+    return false;//return node.kind === SyntaxKind.FunctionType;
+}
+
+export function isJSDocOverloadTag(node: Node): node is JSDocOverloadTag {
+    return node.kind === SyntaxKind.JSDocOverloadTag;
+}
+
+export function isJSDocTypeLiteral(node: Node): node is JSDocTypeLiteral {
+    return node.kind === SyntaxKind.JSDocTypeLiteral;
+}
+
+export function isJSDocText(node: Node) : node is JSDocText {
+    return node.kind === SyntaxKind.JSDocText;
+}
+
+export function isCaseClause(node: Node): node is CaseClause {
+    return node.kind === SyntaxKind.CaseClause;
+}
+
+export function isJSDocImportTag(node: Node) {//}: node is JSDocImportTag {
+    return false;//return node.kind === SyntaxKind.JSDocImportTag;
+}
+
+export function isCaseBlock(node: Node): node is CaseBlock {
+    return node.kind === SyntaxKind.CaseBlock;
+}
+
+/** @internal */
+export function isSyntaxList(n: Node): n is SyntaxList {
+    return n.kind === SyntaxKind.SyntaxList;
+}
+
+/** @internal */
+export function isCaseKeyword(node: Node): node is CaseKeyword {
+    return node.kind === SyntaxKind.CaseKeyword;
+}
+
+export function isSpreadElement(node: Node): node is SpreadElement {
+    return node.kind === SyntaxKind.SpreadElement;
 }

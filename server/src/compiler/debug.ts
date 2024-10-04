@@ -76,6 +76,12 @@ export namespace Debug {
         throw e;
     }
     
+    export function assertLessThan(a: number, b: number, msg?: string, stackCrawlMark?: AnyFunction): void {
+        if (a >= b) {
+            fail(`Expected ${a} < ${b}. ${msg || ""}`, stackCrawlMark || assertLessThan);
+        }
+    }
+    
     export function assertIsDefined<T>(value: T, message?: string, stackCrawlMark?: AnyFunction): asserts value is NonNullable<T> {
         // eslint-disable-next-line no-restricted-syntax
         if (value === undefined || value === null) {
@@ -162,6 +168,19 @@ export namespace Debug {
 
     export function formatTypeFlags(flags: TypeFlags | undefined): string {
         return formatEnum(flags, (lpc as any).TypeFlags, /*isFlags*/ true);
+    }
+
+    export function assertEachIsDefined<T extends Node>(value: NodeArray<T>, message?: string, stackCrawlMark?: AnyFunction): asserts value is NodeArray<T>;
+    export function assertEachIsDefined<T>(value: readonly T[], message?: string, stackCrawlMark?: AnyFunction): asserts value is readonly NonNullable<T>[];
+    export function assertEachIsDefined<T>(value: readonly T[], message?: string, stackCrawlMark?: AnyFunction) {
+        for (const v of value) {
+            assertIsDefined(v, message, stackCrawlMark || assertEachIsDefined);
+        }
+    }
+    
+    export function checkEachDefined<T, A extends readonly T[]>(value: A, message?: string, stackCrawlMark?: AnyFunction): A {
+        assertEachIsDefined(value, message, stackCrawlMark || checkEachDefined);
+        return value;
     }
 
     /**

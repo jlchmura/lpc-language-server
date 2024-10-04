@@ -2160,3 +2160,4 @@ export function getLeadingCommentRanges(text: string, pos: number): CommentRange
 export function getTrailingCommentRanges(text: string, pos: number): CommentRange[] | undefined {
     return reduceEachTrailingCommentRange(text, pos, appendCommentRange, /*state*/ undefined, /*initial*/ undefined);
 }
+

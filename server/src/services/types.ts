@@ -1,9 +1,13 @@
+import { ILpcConfig } from "../config-types.js";
 import {
     CompilerHost,
     CompilerOptions,
     Diagnostic,
     DiagnosticWithLocation,
     DocumentPositionMapper,
+    ExportInfoMap,
+    ExportMapInfoKey,
+    FormatCodeSettings,
     GetEffectiveTypeRootsHost,
     JSDocParsingMode,
     LineAndCharacter,
@@ -53,8 +57,8 @@ declare module "../compiler/types.js" {
         isIntLiteral(): this is IntLiteralType;
         isFloatLiteral(): this is FloatLiteralType;        
         isTypeParameter(): this is TypeParameter;
-        // isClassOrInterface(): this is InterfaceType;
-        // isClass(): this is InterfaceType;
+        isClassOrInterface(): this is InterfaceType;
+        isClass(): this is InterfaceType;
         isIndexType(): this is IndexType;
     }
 }
@@ -346,6 +350,8 @@ export interface DefinitionInfo extends DocumentSpan {
     /** @internal */ failedAliasResolution?: boolean;
 }
 
+export type WithMetadata<T> = T & { metadata?: unknown; };
+
 //
 // Public services of a language service instance associated
 // with a language service host instance
@@ -451,6 +457,17 @@ export interface LanguageService {
     findRenameLocations(fileName: string, position: number, findInStrings: boolean, findInComments: boolean, providePrefixAndSuffixTextForRename?: boolean): readonly RenameLocation[] | undefined;
 
     getRenameInfo(fileName: string, position: number, preferences: UserPreferences): RenameInfo;    
+
+    /**
+     * Gets completion entries at a particular position in a file.
+     *
+     * @param fileName The path to the file
+     * @param position A zero-based index of the character where you want the entries
+     * @param options An object describing how the request was triggered and what kinds
+     * of code actions can be returned with the completions.
+     * @param formattingSettings settings needed for calling formatting functions.
+     */
+    getCompletionsAtPosition(fileName: string, position: number, options: GetCompletionsAtPositionOptions | undefined, formattingSettings?: FormatCodeSettings): WithMetadata<CompletionInfo> | undefined;
 }
 
 export interface HostCancellationToken {
@@ -509,6 +526,7 @@ export interface LanguageServiceHost
     error?(s: string): void;
     useCaseSensitiveFileNames?(): boolean;
     fileHandler: LpcFileHandler;
+    lpcConfig: ILpcConfig;
             
     /*
      * LS host can optionally implement these methods to support completions for module specifiers.
@@ -617,7 +635,7 @@ export interface LanguageServiceHost
         fileName: string
     ): string | undefined;
     // /** @internal */ getPackageJsonsForAutoImport?(rootDir?: string): readonly ProjectPackageJsonInfo[];
-    // /** @internal */ getCachedExportInfoMap?(): ExportInfoMap;
+    /** @internal */ getCachedExportInfoMap?(): ExportInfoMap;
     // /** @internal */ getModuleSpecifierCache?(): ModuleSpecifierCache;
     /** @internal */ setCompilerHost?(host: CompilerHost): void;
     /** @internal */ useSourceOfProjectReferenceRedirect?(): boolean;
@@ -631,7 +649,7 @@ export interface LanguageServiceHost
         hasSourceFileByPath: boolean,
         newSourceFileByResolvedPath: SourceFile | undefined
     ): void;
-    ///** @internal */ getIncompleteCompletionsCache?(): IncompleteCompletionsCache;
+    /** @internal */ getIncompleteCompletionsCache?(): IncompleteCompletionsCache;
     //** @internal */ runWithTemporaryFileUpdate?(rootFile: string, updatedText: string, cb: (updatedProgram: Program, originalProgram: Program | undefined, updatedPastedText: SourceFile) => void): void;
     jsDocParsingMode?: JSDocParsingMode | undefined;
 }
@@ -710,18 +728,22 @@ export const enum ScriptElementKindModifier {
 
     deprecatedModifier = "deprecated",
 
-    dtsModifier = ".d.ts",
-    tsModifier = ".ts",
-    tsxModifier = ".tsx",
-    jsModifier = ".js",
-    jsxModifier = ".jsx",
+    // dtsModifier = ".d.ts",
+    // tsModifier = ".ts",
+    // tsxModifier = ".tsx",
+    // jsModifier = ".js",
+    // jsxModifier = ".jsx",
     jsonModifier = ".json",
-    dmtsModifier = ".d.mts",
-    mtsModifier = ".mts",
-    mjsModifier = ".mjs",
-    dctsModifier = ".d.cts",
-    ctsModifier = ".cts",
-    cjsModifier = ".cjs",
+    // dmtsModifier = ".d.mts",
+    // mtsModifier = ".mts",
+    // mjsModifier = ".mjs",
+    // dctsModifier = ".d.cts",
+    // ctsModifier = ".cts",
+    // cjsModifier = ".cjs",
+
+    cModifier = ".c",
+    hModifier = ".h",
+    lpcModifier = ".lpc"
 }
 
 export enum SymbolDisplayPartKind {
@@ -852,4 +874,270 @@ export interface RenameLocation extends DocumentSpan {
 export interface RenameInfoFailure {
     canRename: false;
     localizedErrorMessage: string;
+}
+
+export interface CompletionEntryLabelDetails {
+    /**
+     * An optional string which is rendered less prominently directly after
+     * {@link CompletionEntry.name name}, without any spacing. Should be
+     * used for function signatures or type annotations.
+     */
+    detail?: string;
+    /**
+     * An optional string which is rendered less prominently after
+     * {@link CompletionEntryLabelDetails.detail}. Should be used for fully qualified
+     * names or file path.
+     */
+    description?: string;
+}
+
+export interface CompletionEntryDataAutoImport {
+    /**
+     * The name of the property or export in the module's symbol table. Differs from the completion name
+     * in the case of InternalSymbolName.ExportEquals and InternalSymbolName.Default.
+     */
+    exportName: string;
+    exportMapKey?: ExportMapInfoKey;
+    moduleSpecifier?: string;
+    /** The file name declaring the export's module symbol, if it was an external module */
+    fileName?: string;
+    /** The module name (with quotes stripped) of the export's module symbol, if it was an ambient module */
+    ambientModuleName?: string;
+    /** True if the export was found in the package.json AutoImportProvider */
+    isPackageJsonImport?: true;
+}
+
+export interface CompletionEntryDataResolved extends CompletionEntryDataAutoImport {
+    moduleSpecifier: string;
+}
+
+export interface CompletionEntryDataUnresolved extends CompletionEntryDataAutoImport {
+    exportMapKey: ExportMapInfoKey;
+}
+
+export type CompletionEntryData = CompletionEntryDataUnresolved | CompletionEntryDataResolved;
+
+// see comments in protocol.ts
+export interface CompletionEntry {
+    name: string;
+    kind: ScriptElementKind;
+    kindModifiers?: string; // see ScriptElementKindModifier, comma separated
+    /**
+     * A string that is used for comparing completion items so that they can be ordered. This
+     * is often the same as the name but may be different in certain circumstances.
+     */
+    sortText: string;
+    /**
+     * Text to insert instead of `name`.
+     * This is used to support bracketed completions; If `name` might be "a-b" but `insertText` would be `["a-b"]`,
+     * coupled with `replacementSpan` to replace a dotted access with a bracket access.
+     */
+    insertText?: string;
+    /**
+     * A string that should be used when filtering a set of
+     * completion items.
+     */
+    filterText?: string;
+    /**
+     * `insertText` should be interpreted as a snippet if true.
+     */
+    isSnippet?: true;
+    /**
+     * An optional span that indicates the text to be replaced by this completion item.
+     * If present, this span should be used instead of the default one.
+     * It will be set if the required span differs from the one generated by the default replacement behavior.
+     */
+    replacementSpan?: TextSpan;
+    /**
+     * Indicates whether commiting this completion entry will require additional code actions to be
+     * made to avoid errors. The CompletionEntryDetails will have these actions.
+     */
+    hasAction?: true;
+    /**
+     * Identifier (not necessarily human-readable) identifying where this completion came from.
+     */
+    source?: string;
+    /**
+     * Human-readable description of the `source`.
+     */
+    sourceDisplay?: SymbolDisplayPart[];
+    /**
+     * Additional details for the label.
+     */
+    labelDetails?: CompletionEntryLabelDetails;
+    /**
+     * If true, this completion should be highlighted as recommended. There will only be one of these.
+     * This will be set when we know the user should write an expression with a certain type and that type is an enum or constructable class.
+     * Then either that enum/class or a namespace containing it will be the recommended symbol.
+     */
+    isRecommended?: true;
+    /**
+     * If true, this completion was generated from traversing the name table of an unchecked JS file,
+     * and therefore may not be accurate.
+     */
+    isFromUncheckedFile?: true;
+    /**
+     * If true, this completion was for an auto-import of a module not yet in the program, but listed
+     * in the project package.json. Used for telemetry reporting.
+     */
+    isPackageJsonImport?: true;
+    /**
+     * If true, this completion was an auto-import-style completion of an import statement (i.e., the
+     * module specifier was inserted along with the imported identifier). Used for telemetry reporting.
+     */
+    isImportStatementCompletion?: true;
+    /**
+     * For API purposes.
+     * Included for non-string completions only when `includeSymbol: true` option is passed to `getCompletionsAtPosition`.
+     * @example Get declaration of completion: `symbol.valueDeclaration`
+     */
+    symbol?: Symbol;
+    /**
+     * A property to be sent back to TS Server in the CompletionDetailsRequest, along with `name`,
+     * that allows TS Server to look up the symbol represented by the completion item, disambiguating
+     * items with the same name. Currently only defined for auto-import completions, but the type is
+     * `unknown` in the protocol, so it can be changed as needed to support other kinds of completions.
+     * The presence of this property should generally not be used to assume that this completion entry
+     * is an auto-import.
+     */
+    data?: CompletionEntryData;
+}
+
+// Do not change existing values, as they exist in telemetry.
+export const enum CompletionInfoFlags {
+    None = 0,
+    MayIncludeAutoImports = 1 << 0,
+    IsImportStatementCompletion = 1 << 1,
+    IsContinuation = 1 << 2,
+    ResolvedModuleSpecifiers = 1 << 3,
+    ResolvedModuleSpecifiersBeyondLimit = 1 << 4,
+    MayIncludeMethodSnippets = 1 << 5,
+}
+
+export interface CompletionInfo {
+    /** For performance telemetry. */
+    flags?: CompletionInfoFlags;
+    /** Not true for all global completions. This will be true if the enclosing scope matches a few syntax kinds. See `isSnippetScope`. */
+    isGlobalCompletion: boolean;
+    isMemberCompletion: boolean;
+    /**
+     * In the absence of `CompletionEntry["replacementSpan"]`, the editor may choose whether to use
+     * this span or its default one. If `CompletionEntry["replacementSpan"]` is defined, that span
+     * must be used to commit that completion entry.
+     */
+    optionalReplacementSpan?: TextSpan;
+    /**
+     * true when the current location also allows for a new identifier
+     */
+    isNewIdentifierLocation: boolean;
+    /**
+     * Indicates to client to continue requesting completions on subsequent keystrokes.
+     */
+    isIncomplete?: true;
+    entries: CompletionEntry[];
+}
+
+export type CompletionsTriggerCharacter = "." | '"' | "'" | "`" | "/" | "@" | "<" | " ";
+export const enum CompletionTriggerKind {
+    /** Completion was triggered by typing an identifier, manual invocation (e.g Ctrl+Space) or via API. */
+    Invoked = 1,
+
+    /** Completion was triggered by a trigger character. */
+    TriggerCharacter = 2,
+
+    /** Completion was re-triggered as the current completion list is incomplete. */
+    TriggerForIncompleteCompletions = 3,
+}
+
+export interface GetCompletionsAtPositionOptions extends UserPreferences {
+    /**
+     * If the editor is asking for completions because a certain character was typed
+     * (as opposed to when the user explicitly requested them) this should be set.
+     */
+    triggerCharacter?: CompletionsTriggerCharacter;
+    triggerKind?: CompletionTriggerKind;
+    /**
+     * Include a `symbol` property on each completion entry object.
+     * Symbols reference cyclic data structures and sometimes an entire TypeChecker instance,
+     * so use caution when serializing or retaining completion entries retrieved with this option.
+     * @default false
+     */
+    includeSymbol?: boolean;
+    /** @deprecated Use includeCompletionsForModuleExports */
+    includeExternalModuleExports?: boolean;
+    /** @deprecated Use includeCompletionsWithInsertText */
+    includeInsertTextCompletions?: boolean;
+}
+
+/** @internal */
+export interface FormattingHost {
+    getNewLine?(): string;
+}
+
+
+export interface TextChange {
+    span: TextSpan;
+    newText: string;
+}
+
+export interface FileTextChanges {
+    fileName: string;
+    textChanges: readonly TextChange[];
+    isNewFile?: boolean;
+}
+
+// Publicly, this type is just `{}`. Internally it is a union of all the actions we use.
+// See `commands?: {}[]` in protocol.ts
+export type CodeActionCommand = InstallPackageAction;
+
+export interface InstallPackageAction {
+    /** @internal */ readonly type: "install package";
+    /** @internal */ readonly file: string;
+    /** @internal */ readonly packageName: string;
+}
+
+
+export interface CodeAction {
+    /** Description of the code action to display in the UI of the editor */
+    description: string;
+    /** Text changes to apply to each file as part of the code action */
+    changes: FileTextChanges[];
+    /**
+     * If the user accepts the code fix, the editor should send the action back in a `applyAction` request.
+     * This allows the language service to have side effects (e.g. installing dependencies) upon a code fix.
+     */
+    commands?: CodeActionCommand[];
+}
+
+export interface CompletionEntryDetails {
+    name: string;
+    kind: ScriptElementKind;
+    kindModifiers: string; // see ScriptElementKindModifier, comma separated
+    displayParts: SymbolDisplayPart[];
+    documentation?: SymbolDisplayPart[];
+    tags?: JSDocTagInfo[];
+    codeActions?: CodeAction[];
+    /** @deprecated Use `sourceDisplay` instead. */
+    source?: SymbolDisplayPart[];
+    sourceDisplay?: SymbolDisplayPart[];
+}
+
+export interface DocCommentTemplateOptions {
+    readonly generateReturnInDocTemplate?: boolean;
+}
+
+export interface TextInsertion {
+    newText: string;
+    /** The position in newText the caret should point to after the insertion. */
+    caretOffset: number;
+}
+
+export interface JSDocLinkDisplayPart extends SymbolDisplayPart {
+    target: DocumentSpan;
+}
+
+export interface IncompleteCompletionsCache {
+    get(): CompletionInfo | undefined;
+    set(response: CompletionInfo): void;
+    clear(): void;
 }

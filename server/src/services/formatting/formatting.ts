@@ -1,4 +1,13 @@
-import { CommentRange, concatenate, find, findAncestor, findPrecedingToken, getLeadingCommentRangesOfNode, getTokenAtPosition, getTrailingCommentRanges, isJSDoc, Node, rangeContainsPositionExclusive, SourceFile, SyntaxKind } from "./_namespaces/lpc";
+import {
+    FormattingContext,
+    FormattingRequestKind,
+    Rule,
+    RuleAction,
+    RuleFlags,
+    RulesMap,
+    
+} from "../_namespaces/lpc.formatting.js";
+import { CommentRange, concatenate, find, findAncestor, findPrecedingToken, FormatCodeSettings, FormattingHost, getLeadingCommentRangesOfNode, getTokenAtPosition, getTrailingCommentRanges, isJSDoc, LanguageVariant, Node, rangeContainsPositionExclusive, SourceFile, SourceFileLike, SyntaxKind, TextChange, TextRange } from "../_namespaces/lpc";
 
 /**
  * @internal
@@ -40,4 +49,32 @@ export function getRangeOfEnclosingComment(
         // Internally, we represent the end of the comment at the newline and closing '/', respectively.
         //
         position === range.end && (range.kind === SyntaxKind.SingleLineCommentTrivia || position === sourceFile.getFullWidth()));
+}
+
+/** @internal */
+export interface TextRangeWithKind<T extends SyntaxKind = SyntaxKind> extends TextRange {
+    kind: T;
+}
+
+/** @internal */
+export interface FormatContext {
+    readonly options: FormatCodeSettings;
+    readonly getRules: RulesMap;
+    readonly host: FormattingHost;
+}
+
+/** @internal */
+export function formatDocument(sourceFile: SourceFile, formatContext: FormatContext): TextChange[] {
+    const span = {
+        pos: 0,
+        end: sourceFile.text.length,
+    };
+    
+    return [{span: {start: 0, length: sourceFile.text.length}, newText: sourceFile.text}];
+}
+
+/** @internal */
+export function formatNodeGivenIndentation(node: Node, sourceFileLike: SourceFileLike, languageVariant: LanguageVariant, initialIndentation: number, delta: number, formatContext: FormatContext): TextChange[] {
+    const range = { pos: node.pos, end: node.end };
+    return [{span: {start: range.pos, length: range.end - range.pos}, newText: sourceFileLike.text.slice(range.pos, range.end)}];
 }

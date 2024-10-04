@@ -423,13 +423,10 @@ export class ScriptInfo {
         return this.realpath && this.realpath !== this.path;
     }
 
-    // getFormatCodeSettings(): FormatCodeSettings | undefined {
-    //     return this.formatSettings;
-    // }
-    // getPreferences(): protocol.UserPreferences | undefined {
-    //     return this.preferences;
-    // }
-
+    getFormatCodeSettings(): FormatCodeSettings | undefined {
+        return this.formatSettings;
+    }
+    
     attachToProject(project: Project): boolean {
         const isNew = !this.isAttached(project);
         if (isNew) {

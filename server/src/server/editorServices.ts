@@ -1899,6 +1899,11 @@ export class ProjectService {
         return getConfigFileNameFromCache(info, this.configFileForOpenFiles);
     }
 
+    getFormatCodeOptions(file: NormalizedPath) {
+        const info = this.getScriptInfoForNormalizedPath(file);
+        return info && info.getFormatCodeSettings() || this.hostConfiguration.formatCodeOptions;
+    }
+    
     /** @internal */
     createConfiguredProject(configFileName: NormalizedPath, reason: string) {
         tracing?.instant(tracing.Phase.Session, "createConfiguredProject", { configFilePath: configFileName });
@@ -2737,4 +2742,10 @@ function forEachResolvedProjectReferenceProjectWorker<T>(
         (seenResolvedRefs || (seenResolvedRefs = new Map())).set(canonicalPath, loadKind);
         return ref.references && forEachResolvedProjectReferenceProjectWorker(ref.references, ref.commandLine.options, cb, loadKind, projectService, seenResolvedRefs);
     });
+}
+
+/** @internal */
+export function convertUserPreferences(preferences: UserPreferences): UserPreferences {
+    const { lazyConfiguredProjectsFromExternalProject: _, ...userPreferences } = preferences;
+    return userPreferences;
 }
