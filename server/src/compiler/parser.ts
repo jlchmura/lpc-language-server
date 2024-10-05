@@ -1,6 +1,6 @@
 import * as antlr from "antlr4ng";
 import * as parserCore from "../parser3/parser-core";
-import { isIdentifier as isIdentifierNode, BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange, PrefixUnaryExpression, first, LanguageVariant, EqualsToken, LpcConfigSourceFile, createBaseNodeFactory, PrefixUnaryOperator, Program, LpcFileHandler, ParenthesizedExpression, ArrayLiteralExpression, LambdaExpression, PunctuationSyntaxKind, PunctuationToken, LambdaOperatorToken, CastExpression, PropertyAccessExpression, isIdentifier, CloneObjectExpression, NewExpression, trimQuotes, createScanner, isKeyword, PunctuationOrKeywordSyntaxKind, getLanguageVariant, mapDefined, getJSDocCommentRanges, LabeledStatement, PropertyName, Token, tokenToString, addRelatedInfo, tokenIsIdentifierOrKeyword, getBinaryOperatorPrecedence, addRange, append, ArrayTypeNode, canHaveJSDoc, concatenate, containsParseError, Diagnostic, EntityName, getSpellingSuggestion, identity, idText, isIdentifierText, isTypeReferenceNode, JSDoc, JSDocAugmentsTag, JSDocCallbackTag, JSDocComment, JSDocImplementsTag, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocParameterTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThrowsTag, JSDocTypedefTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, nodeIsMissing, noop, PropertyAccessEntityNameExpression, setParent, skipTrivia, some, CharacterCodes, MapLike, KeywordSyntaxKind, startsWith, textToKeywordObj, ModifierLike, isModifierKind, MissingDeclaration, setTextRangePos, BindingPattern, KeywordTypeSyntaxKind, LiteralTypeNode, IntLiteral, FloatLiteral, LiteralLikeNode, isLiteralKind, TypeReferenceNode } from "./_namespaces/lpc";
+import { isIdentifier as isIdentifierNode, BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange, PrefixUnaryExpression, first, LanguageVariant, EqualsToken, LpcConfigSourceFile, createBaseNodeFactory, PrefixUnaryOperator, Program, LpcFileHandler, ParenthesizedExpression, ArrayLiteralExpression, LambdaExpression, PunctuationSyntaxKind, PunctuationToken, LambdaOperatorToken, CastExpression, PropertyAccessExpression, isIdentifier, CloneObjectExpression, NewExpression, trimQuotes, createScanner, isKeyword, PunctuationOrKeywordSyntaxKind, getLanguageVariant, mapDefined, getJSDocCommentRanges, LabeledStatement, PropertyName, Token, tokenToString, addRelatedInfo, tokenIsIdentifierOrKeyword, getBinaryOperatorPrecedence, addRange, append, ArrayTypeNode, canHaveJSDoc, concatenate, containsParseError, Diagnostic, EntityName, getSpellingSuggestion, identity, idText, isIdentifierText, isTypeReferenceNode, JSDoc, JSDocAugmentsTag, JSDocCallbackTag, JSDocComment, JSDocImplementsTag, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocParameterTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThrowsTag, JSDocTypedefTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, nodeIsMissing, noop, PropertyAccessEntityNameExpression, setParent, skipTrivia, some, CharacterCodes, MapLike, KeywordSyntaxKind, startsWith, textToKeywordObj, ModifierLike, isModifierKind, MissingDeclaration, setTextRangePos, BindingPattern, KeywordTypeSyntaxKind, LiteralTypeNode, IntLiteral, FloatLiteral, LiteralLikeNode, isLiteralKind, TypeReferenceNode, getFullWidth } from "./_namespaces/lpc";
 import { ILpcConfig } from "../config-types";
 import { loadLpcConfigFromString, LpcConfig } from "../backend/LpcConfig";
 
@@ -8,6 +8,15 @@ const enum SpeculationKind {
     TryParse,
     Lookahead,
     Reparse,
+}
+
+const enum SignatureFlags {
+    None = 0,
+    Yield = 1 << 0,
+    Await = 1 << 1,
+    Type = 1 << 2,
+    IgnoreMissingOpenBrace = 1 << 4,
+    JSDoc = 1 << 5,
 }
 
 export namespace LpcParser {
@@ -545,8 +554,8 @@ export namespace LpcParser {
             //         // element during recovery.
             //         return isIdentifier() && !isHeritageClauseExtendsOrImplementsKeyword();
             //     }
-            // case ParsingContext.VariableDeclarations:
-            //     return isBindingIdentifierOrPrivateIdentifierOrPattern();
+            case ParsingContext.VariableDeclarations:
+                return isBindingIdentifier();
             // case ParsingContext.ArrayBindingElements:
             //     return token() === SyntaxKind.CommaToken || token() === SyntaxKind.DotDotDotToken || isBindingIdentifierOrPrivateIdentifierOrPattern();
             // case ParsingContext.TypeParameters:
@@ -560,10 +569,10 @@ export namespace LpcParser {
             //     // falls through
             // case ParsingContext.ArgumentExpressions:
             //     return token() === SyntaxKind.DotDotDotToken || isStartOfExpression();
-            // case ParsingContext.Parameters:
-            //     return isStartOfParameter(/*isJSDocParameter*/ false);
-            // case ParsingContext.JSDocParameters:
-            //     return isStartOfParameter(/*isJSDocParameter*/ true);
+            case ParsingContext.Parameters:
+                return isStartOfParameter(/*isJSDocParameter*/ false);
+            case ParsingContext.JSDocParameters:
+                return isStartOfParameter(/*isJSDocParameter*/ true);
             // case ParsingContext.TypeArguments:
             // case ParsingContext.TupleElementTypes:
             //     return token() === SyntaxKind.CommaToken || isStartOfType();
@@ -587,6 +596,15 @@ export namespace LpcParser {
             // default:
             //     Debug.assertNever(parsingContext, "Non-exhaustive case in 'isListElement'.");
         }
+    }
+
+    function isStartOfParameter(isJSDocParameter: boolean): boolean {
+        return token() === SyntaxKind.DotDotDotToken ||
+            isBindingIdentifier() ||
+            isModifierKind(token()) ||
+            token() === SyntaxKind.AtToken ||
+            token() === SyntaxKind.AmpersandToken ||
+            isStartOfType(/*inStartOfParameter*/ !isJSDocParameter);
     }
 
     function isStartOfStatement(): boolean {
@@ -1046,6 +1064,7 @@ export namespace LpcParser {
             //         return parseDeclaration();
             //     }
             //     break;
+            case SyntaxKind.VoidKeyword:
             case SyntaxKind.IntKeyword:
             case SyntaxKind.FloatKeyword:
             case SyntaxKind.StringKeyword:
@@ -1861,10 +1880,12 @@ export namespace LpcParser {
     
     function parseDeclarationWorker(pos: number, hasJSDoc: boolean, modifiersIn: NodeArray<ModifierLike> | undefined, typeIn: TypeNode | undefined): Statement {
         
+        // if there is a comma, equals, or semi after the first token, it must be a variable declaration
+
         if (token() >= SyntaxKind.Identifier) {
             if (lookAhead(nextTokenIsOpenParen)) {
                 // function
-                console.info("todo - parseFunctionDeclaration");
+                return parseFunctionDeclaration(pos, hasJSDoc, modifiersIn, typeIn);
             } else {
                 return parseVariableStatement(pos, hasJSDoc, modifiersIn, typeIn);                
             }
@@ -1909,11 +1930,159 @@ export namespace LpcParser {
         }
     }
 
+    function parseFunctionDeclaration(pos: number, hasJSDoc: boolean, modifiers: NodeArray<ModifierLike> | undefined, type: TypeNode | undefined): FunctionDeclaration {                
+        const name = parseBindingIdentifier();
+        const parameters = parseParameters();
+        const body = parseFunctionBlockOrSemicolon(SignatureFlags.None);
+
+        const node = factory.createFunctionDeclaration(modifiers, name, parameters, type, body);
+        return withJSDoc(finishNode(node, pos), hasJSDoc);
+    }
+
+    function parseFunctionBlockOrSemicolon(flags: SignatureFlags, diagnosticMessage?: DiagnosticMessage): Block | undefined {
+        if (token() !== SyntaxKind.OpenBraceToken) {            
+            if (canParseSemicolon()) {
+                parseSemicolon();
+                return;
+            }
+        }
+        return parseFunctionBlock(flags, diagnosticMessage);
+    }
+
+    function parseFunctionBlock(flags: SignatureFlags, diagnosticMessage?: DiagnosticMessage): Block {
+        const savedTopLevel = topLevel;
+        topLevel = false;
+
+        const block = parseBlock(!!(flags & SignatureFlags.IgnoreMissingOpenBrace), diagnosticMessage);
+
+        topLevel = savedTopLevel;
+        
+        return block;
+    }
+
     function parseVariableStatement(pos: number, hasJSDoc: boolean, modifiers: NodeArray<ModifierLike> | undefined, type: TypeNode | undefined): VariableStatement {
         const declarationList = parseVariableDeclarationList(/*inForStatementInitializer*/ false, type);
         parseSemicolon();
         const node = factoryCreateVariableStatement(modifiers, declarationList);
         return withJSDoc(finishNode(node, pos), hasJSDoc);
+    }
+
+    function parseParameters(): NodeArray<ParameterDeclaration> {        
+        if (!parseExpected(SyntaxKind.OpenParenToken)) {
+            return createMissingList<ParameterDeclaration>();
+        }
+
+        const parameters = parseParametersWorker(SignatureFlags.None, /*allowAmbiguity*/ true);
+        parseExpected(SyntaxKind.CloseParenToken);
+        return parameters;
+    }
+
+    function parseParametersWorker(flags: SignatureFlags, allowAmbiguity: true): NodeArray<ParameterDeclaration>;
+    function parseParametersWorker(flags: SignatureFlags, allowAmbiguity: false): NodeArray<ParameterDeclaration> | undefined;
+    function parseParametersWorker(flags: SignatureFlags, allowAmbiguity: boolean): NodeArray<ParameterDeclaration> | undefined {
+        const parameters = flags & SignatureFlags.JSDoc ?
+            parseDelimitedList(ParsingContext.JSDocParameters, parseJSDocParameter) :
+            parseDelimitedList(ParsingContext.Parameters, () => allowAmbiguity ? parseParameter() : parseParameterForSpeculation());
+
+        return parameters;
+    }
+
+    function parseParameter(): ParameterDeclaration {
+        return parseParameterWorker();
+    }
+
+    function parseParameterForSpeculation(): ParameterDeclaration | undefined {
+        return parseParameterWorker(/*allowAmbiguity*/ false);
+    }
+
+    function parseParameterWorker(): ParameterDeclaration;
+    function parseParameterWorker(allowAmbiguity: false): ParameterDeclaration | undefined;
+    function parseParameterWorker(allowAmbiguity = true): ParameterDeclaration | undefined {
+        const pos = getNodePos();
+        const hasJSDoc = hasPrecedingJSDocComment();
+
+        const modifiers = parseModifiers(/*allowDecorators*/ false, /*permitConstAsModifier*/ false, /*stopOnStartOfClassStaticBlock*/ false);
+
+        // FormalParameter [Yield,Await]:
+        //      BindingElement[?Yield,?Await]
+
+        const savedTopLevel = topLevel;
+        topLevel = false;
+
+        const dotDotDotToken = parseOptionalToken(SyntaxKind.DotDotDotToken);
+
+        if (!allowAmbiguity && !isParameterNameStart()) {
+            return undefined;
+        }
+
+        const paramType = parseType();
+        const ampToken = parseOptionalToken(SyntaxKind.AmpersandToken) ;
+        const name = parseNameOfParameter(modifiers);
+        const init = parseInitializer();
+
+        const node = withJSDoc(
+            finishNode(
+                factory.createParameterDeclaration(
+                    modifiers,
+                    dotDotDotToken,
+                    name,
+                    ampToken,
+                    paramType,
+                    init,
+                ),
+                pos,
+            ),
+            hasJSDoc,
+        );
+        topLevel = savedTopLevel;
+        return node;
+    }
+
+    function parseNameOfParameter(modifiers: NodeArray<ModifierLike> | undefined) {
+        // FormalParameter [Yield,Await]:
+        //      BindingElement[?Yield,?Await]
+        const name = parseIdentifierOrPattern();
+        if (getFullWidth(name) === 0 && !some(modifiers) && isModifierKind(token())) {
+            // in cases like
+            // 'use strict'
+            // function foo(static)
+            // isParameter('static') === true, because of isModifier('static')
+            // however 'static' is not a legal identifier in a strict mode.
+            // so result of this function will be ParameterDeclaration (flags = 0, name = missing, type = undefined, initializer = undefined)
+            // and current token will not change => parsing of the enclosing parameter list will last till the end of time (or OOM)
+            // to avoid this we'll advance cursor to the next token.
+            nextToken();
+        }
+        return name;
+    }
+
+
+    function isParameterNameStart() {
+        // Be permissive about await and yield by calling isBindingIdentifier instead of isIdentifier; disallowing
+        // them during a speculative parse leads to many more follow-on errors than allowing the function to parse then later
+        // complaining about the use of the keywords.
+        return isBindingIdentifier() || token() === SyntaxKind.OpenBracketToken || token() === SyntaxKind.OpenBraceToken;
+    }
+
+    function parseJSDocParameter(): ParameterDeclaration {
+        const pos = getNodePos();
+        let name: Identifier | undefined;
+        // if (token() === SyntaxKind.ThisKeyword || token() === SyntaxKind.NewKeyword) {
+        //     name = parseIdentifierName();
+        //     parseExpected(SyntaxKind.ColonToken);
+        // }
+        return finishNode(
+            factory.createParameterDeclaration(
+                /*modifiers*/ undefined,
+                /*dotDotDotToken*/ undefined,
+                // TODO(rbuckton): JSDoc parameters don't have names (except `this`/`new`), should we manufacture an empty identifier?
+                name!,
+                /*ampToken*/ undefined,
+                undefined, //parseJSDocType(), // TODO
+                /*initializer*/ undefined,
+            ),
+            pos,
+        );
     }
 
     function parseVariableDeclarationList(inForStatementInitializer: boolean, type: TypeNode | undefined): VariableDeclarationList {
