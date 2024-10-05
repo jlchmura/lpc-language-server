@@ -83,6 +83,7 @@ import {
     MemberName,
     memoize,
     memoizeOne,
+    MissingDeclaration,
     Modifier,
     ModifierSyntaxKind,
     ModifierToken,
@@ -112,6 +113,7 @@ import {
     SourceFile,
     Statement,
     StringLiteral,
+    stringToToken,
     SwitchStatement,
     SyntaxKind,
     Token,
@@ -228,6 +230,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createDoWhileStatement,
         createWhileStatement,
         createParameterDeclaration,
+        createMissingDeclaration,
 
         // Expressions
         createParenthesizedExpression,
@@ -510,11 +513,35 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     // @api
-    function createIdentifier(text: string): Identifier {
-        const node = createBaseIdentifier(text);
+    function createMissingDeclaration(): MissingDeclaration {
+        const node = createBaseDeclaration<MissingDeclaration>(SyntaxKind.MissingDeclaration);
+
+        node.jsDoc = undefined; // initialized by parser (JsDocContainer)
         return node;
     }
+    
+    // @api
+    function createIdentifier(text: string, originalKeywordKind?: SyntaxKind, hasExtendedUnicodeEscape?: boolean): Identifier {
+        if (originalKeywordKind === undefined && text) {
+            originalKeywordKind = stringToToken(text);
+        }
+        if (originalKeywordKind === SyntaxKind.Identifier) {
+            originalKeywordKind = undefined;
+        }
 
+        const node = createBaseIdentifier((text));
+        if (hasExtendedUnicodeEscape) node.flags |= NodeFlags.IdentifierHasExtendedUnicodeEscape;
+
+        // NOTE: we do not include transform flags of typeArguments in an identifier as they do not contribute to transformations
+        // if (node.escapedText === "await") {
+        //     node.transformFlags |= TransformFlags.ContainsPossibleTopLevelAwait;
+        // }
+        if (node.flags & NodeFlags.IdentifierHasExtendedUnicodeEscape) {
+            // node.transformFlags |= TransformFlags.ContainsES2015;
+        }
+
+        return node;
+    }
     // @api
     function createLiteralTypeNode(literal: LiteralTypeNode["literal"]) {
         const node = createBaseNode<LiteralTypeNode>(SyntaxKind.LiteralType);
@@ -643,16 +670,14 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     // @api
     function createVariableDeclaration(
         name: string | BindingName,
-        type: TypeNode | undefined,
-        eqToken?: EqualsToken,
+        type: TypeNode | undefined,        
         initializer?: Expression | undefined
     ): VariableDeclaration {
         const node = createBaseDeclaration<VariableDeclaration>(
             SyntaxKind.VariableDeclaration
         );
         node.name = asName(name);
-        node.type = type;
-        node.equalsToken = eqToken;
+        node.type = type;        
         node.initializer = asInitializer(initializer);
         node.jsDoc = undefined; // initialized by parser (JsDocContainer)
         return node;

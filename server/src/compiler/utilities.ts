@@ -5557,3 +5557,9 @@ export function isStringANonContextualKeyword(name: string) {
     return token !== undefined && isNonContextualKeyword(token);
 }
 
+/** @internal */
+export function getLanguageVariant(scriptKind: ScriptKind) {
+    return LanguageVariant.Standard;
+    // .tsx and .jsx files are treated as jsx language variant.    
+    //return scriptKind === ScriptKind.TSX || scriptKind === ScriptKind.JSX || scriptKind === ScriptKind.JS || scriptKind === ScriptKind.JSON ? LanguageVariant.JSX : LanguageVariant.Standard;
+}

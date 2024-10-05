@@ -32,7 +32,7 @@ function main() {
     //const workDir = path.resolve(process.cwd()); //, "../fluff-test");
     const workDir = path.resolve(process.cwd());
     //const filename = path.join(workDir, process.argv[3]);
-    const filename = path.join(workDir, "room/test.c");
+    const filename = path.join(workDir, "a/test.c");
     const fileOnly = path.basename(filename);
     const sourceText = fs.readFileSync(filename, "utf-8");
     const configFile = path.join(workDir, "lpc-config.json");

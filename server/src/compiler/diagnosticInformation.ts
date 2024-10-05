@@ -10,6 +10,13 @@ export const Diagnostics = {
     Semicolon_expected: diag(9002, DiagnosticCategory.Error, "Semicolon_expected_1005", "Semicolon expected."),
 
     // Scanner
+    _0_expected: diag(1005, DiagnosticCategory.Error, "_0_expected_1005", "'{0}' expected."),    
+    c_must_be_followed_by_an_ASCII_letter: diag(1512, DiagnosticCategory.Error, "c_must_be_followed_by_an_ASCII_letter_1512", "'\\c' must be followed by an ASCII letter."),
+    Undetermined_character_escape: diag(1513, DiagnosticCategory.Error, "Undetermined_character_escape_1513", "Undetermined character escape."),
+    Incomplete_quantifier_Digit_expected: diag(1505, DiagnosticCategory.Error, "Incomplete_quantifier_Digit_expected_1505", "Incomplete quantifier. Digit expected."),
+    q_is_only_available_inside_character_class: diag(1511, DiagnosticCategory.Error, "q_is_only_available_inside_character_class_1511", "'\\q' is only available inside character class."),
+    Unexpected_0_Did_you_mean_to_escape_it_with_backslash: diag(1508, DiagnosticCategory.Error, "Unexpected_0_Did_you_mean_to_escape_it_with_backslash_1508", "Unexpected '{0}'. Did you mean to escape it with backslash?"),
+    Numbers_out_of_order_in_quantifier: diag(1506, DiagnosticCategory.Error, "Numbers_out_of_order_in_quantifier_1506", "Numbers out of order in quantifier."),
     Asterisk_Slash_expected: diag(1010, DiagnosticCategory.Error, "Asterisk_Slash_expected_1010", "'*/' expected."),
     Hexadecimal_digit_expected: diag(1125, DiagnosticCategory.Error, "Hexadecimal_digit_expected_1125", "Hexadecimal digit expected."),
     Invalid_character: diag(1127, DiagnosticCategory.Error, "Invalid_character_1127", "Invalid character."),
@@ -35,6 +42,17 @@ export const Diagnostics = {
     A_bigint_literal_must_be_an_integer: diag(1353, DiagnosticCategory.Error, "A_bigint_literal_must_be_an_integer_1353", "A bigint literal must be an integer."),
     An_identifier_or_keyword_cannot_immediately_follow_a_numeric_literal: diag(1351, DiagnosticCategory.Error, "An_identifier_or_keyword_cannot_immediately_follow_a_numeric_literal_1351", "An identifier or keyword cannot immediately follow a numeric literal."),
 
+    // Parser 
+    Variable_declaration_not_allowed_at_this_location: diag(1440, DiagnosticCategory.Error, "Variable_declaration_not_allowed_at_this_location_1440", "Variable declaration not allowed at this location."),
+    Unknown_keyword_or_identifier_Did_you_mean_0: diag(1435, DiagnosticCategory.Error, "Unknown_keyword_or_identifier_Did_you_mean_0_1435", "Unknown keyword or identifier. Did you mean '{0}'?"),
+    Unexpected_keyword_or_identifier: diag(1434, DiagnosticCategory.Error, "Unexpected_keyword_or_identifier_1434", "Unexpected keyword or identifier."),
+    Variable_declaration_expected: diag(1134, DiagnosticCategory.Error, "Variable_declaration_expected_1134", "Variable declaration expected."),
+    Declaration_expected: diag(1146, DiagnosticCategory.Error, "Declaration_expected_1146", "Declaration expected."),
+    Identifier_expected_0_is_a_reserved_word_that_cannot_be_used_here: diag(1359, DiagnosticCategory.Error, "Identifier_expected_0_is_a_reserved_word_that_cannot_be_used_here_1359", "Identifier expected. '{0}' is a reserved word that cannot be used here."),
+    Identifier_expected: diag(1003, DiagnosticCategory.Error, "Identifier_expected_1003", "Identifier expected."),
+    The_parser_expected_to_find_a_1_to_match_the_0_token_here: diag(1007, DiagnosticCategory.Error, "The_parser_expected_to_find_a_1_to_match_the_0_token_here_1007", "The parser expected to find a '{1}' to match the '{0}' token here."),
+    Keywords_cannot_contain_escape_characters: diag(1260, DiagnosticCategory.Error, "Keywords_cannot_contain_escape_characters_1260", "Keywords cannot contain escape characters."),
+    Declaration_or_statement_expected_This_follows_a_block_of_statements_so_if_you_intended_to_write_a_destructuring_assignment_you_might_need_to_wrap_the_whole_assignment_in_parentheses: diag(2809, DiagnosticCategory.Error, "Declaration_or_statement_expected_This_follows_a_block_of_statements_so_if_you_intended_to_write_a_d_2809", "Declaration or statement expected. This '=' follows a block of statements, so if you intended to write a destructuring assignment, you might need to wrap the whole assignment in parentheses."),
 
     // from TS
     Merge_conflict_marker_encountered: diag(1000, DiagnosticCategory.Error, "Merge_conflict_marker_encountered_1000", "Merge conflict marker encountered."),

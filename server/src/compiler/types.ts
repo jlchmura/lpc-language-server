@@ -585,7 +585,11 @@ export const enum SyntaxKind {
 
     // Identifiers
     Identifier,
-
+    /**
+     * Only the special JSDoc comment text scanner produces JSDocCommentTextTokes. One of these tokens spans all text after a tag comment's start and before the next @
+     * @internal
+     */
+    JSDocCommentTextToken,
     // Keywords
     IntKeyword, // FIrst Keyword, FirstReserved Word
     FloatKeyword,
@@ -617,6 +621,7 @@ export const enum SyntaxKind {
     SwitchKeyword,
     WhileKeyword,
     AsyncKeyword,
+    InheritKeyword,
     ContinueKeyword,
 
     // Modifier Keywords
@@ -663,6 +668,7 @@ export const enum SyntaxKind {
     ClassDeclaration,
     ExportSpecifier,
     ExportDeclaration,
+    MissingDeclaration,
     
     // Property Assignments
     PropertyAssignment,
@@ -682,7 +688,7 @@ export const enum SyntaxKind {
     JSDocNonNullableType,
     JSDocOptionalType,
     JSDocFunctionType,
-    JSDocVariadicType,
+    JSDocVariadicType,    
     JSDocNamepathType, // https://jsdoc.app/about-namepaths.html
     JSDoc,
     /** @deprecated Use SyntaxKind.JSDoc */
@@ -790,6 +796,8 @@ export const enum SyntaxKind {
     Count,
     
     // Markers
+    FirstReservedWord = IntKeyword,
+    LastReservedWord = DeprecatedKeyword,
     FirstKeyword = IntKeyword,
     LastKeyword = DeprecatedKeyword,
     FirstToken = Unknown,
@@ -996,6 +1004,8 @@ export const enum NodeFlags {
     // parse set flags
     BlockScoped = Variable,
 
+    // The following flags repurpose other NodeFlags as different meanings for Identifier nodes
+    /** @internal */ IdentifierHasExtendedUnicodeEscape = 1 << 8, // Indicates whether the identifier contains an extended unicode escape sequence
     /** @internal */ IdentifierIsInJSDocNamespace = HasAsyncFunctions, // Indicates whether the identifier is part of a JSDoc namespace
 }
 
@@ -1260,6 +1270,7 @@ export interface NodeFactory {
     /** @internal */ createToken<TKind extends SyntaxKind>(token: TKind): Token<TKind>;
 
     createIdentifier(text: string): Identifier;
+    /** @internal */ createIdentifier(text: string, originalKeywordKind?: SyntaxKind, hasExtendedUnicodeEscape?: boolean): Identifier; // eslint-disable-line @typescript-eslint/unified-signatures
     createLiteralLikeNode(kind: LiteralToken["kind"], text: string): LiteralToken;
     
     // element
@@ -1287,7 +1298,7 @@ export interface NodeFactory {
     createBlock(statements: readonly Statement[], multiLine?: boolean): Block;
     createVariableStatement(modifiers: readonly Modifier[] | undefined, declarationList: VariableDeclarationList | readonly VariableDeclaration[]): VariableStatement;
     createVariableDeclarationList(declarations: readonly VariableDeclaration[], flags?: NodeFlags): VariableDeclarationList;
-    createVariableDeclaration(name: string | BindingName, type?: TypeNode | undefined, eqToken?: EqualsToken, initializer?: Expression | undefined): VariableDeclaration;    
+    createVariableDeclaration(name: string | BindingName, type?: TypeNode | undefined, initializer?: Expression | undefined): VariableDeclaration;    
     createFunctionDeclaration(modifiers: readonly Modifier[] | undefined, name: string | Identifier | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode | undefined, body: Block | undefined): FunctionDeclaration;
     createExpressionStatement(expression: Expression): ExpressionStatement;
     createReturnStatement(expression?: Expression): ReturnStatement;
@@ -1304,6 +1315,7 @@ export interface NodeFactory {
     createDoWhileStatement(statement: Statement, expression: Expression): DoWhileStatement;
     createWhileStatement(statement: Statement, expression: Expression): WhileStatement;
     createParameterDeclaration(modifiers: readonly Modifier[] | undefined, dotDotDotToken: DotDotDotToken | undefined, name: string | BindingName, ampToken?: AmpersandToken, type?: TypeNode, initializer?: Expression): ParameterDeclaration;
+    /** @internal */ createMissingDeclaration(): MissingDeclaration;
 
     // Expressions
     createParenthesizedExpression(expression: Expression): ParenthesizedExpression;
@@ -1589,6 +1601,9 @@ export type HasContainerFlags =
 /** NODES */
 export type HasJSDoc = 
     | Block 
+    | ExpressionStatement
+    | EmptyStatement
+    | EndOfFileToken
     | DoWhileStatement
     | ForStatement
     | ForEachStatement
@@ -1949,6 +1964,7 @@ export type EndOfFileToken = Token<SyntaxKind.EndOfFileToken> & JSDocContainer;
 
 export type KeywordSyntaxKind =
     | SyntaxKind.AnyKeyword
+    | SyntaxKind.ClassKeyword   
     | SyntaxKind.CaseKeyword
     | SyntaxKind.UndefinedKeyword
     | SyntaxKind.BreakKeyword
@@ -1960,6 +1976,7 @@ export type KeywordSyntaxKind =
     | SyntaxKind.FunctionKeyword
     | SyntaxKind.IfKeyword
     | SyntaxKind.InKeyword
+    | SyntaxKind.InheritKeyword
     | SyntaxKind.NewKeyword
     | SyntaxKind.NullKeyword
     | SyntaxKind.ReturnKeyword
@@ -2027,6 +2044,11 @@ export type Modifier =
     | NoMaskKeyword
     | VarArgsKeyword
     | DeprecatedKeyword;
+
+/** 
+ * @deprecated for easy portion of typescript code - use Modifier
+ */
+export type ModifierLike = Modifier;// | Decorator;
 
 export type PunctuationSyntaxKind =
     | SyntaxKind.OpenBraceToken
@@ -2176,6 +2198,28 @@ export type AsteriskToken = PunctuationToken<SyntaxKind.AsteriskToken>;
 export type EqualsGreaterThanToken = PunctuationToken<SyntaxKind.EqualsGreaterThanToken>;
 export type PlusToken = PunctuationToken<SyntaxKind.PlusToken>;
 export type MinusToken = PunctuationToken<SyntaxKind.MinusToken>;
+
+export type JSDocSyntaxKind =
+    | SyntaxKind.EndOfFileToken
+    | SyntaxKind.WhitespaceTrivia
+    | SyntaxKind.AtToken
+    | SyntaxKind.NewLineTrivia
+    | SyntaxKind.AsteriskToken
+    | SyntaxKind.OpenBraceToken
+    | SyntaxKind.CloseBraceToken
+    | SyntaxKind.LessThanToken
+    | SyntaxKind.GreaterThanToken
+    | SyntaxKind.OpenBracketToken
+    | SyntaxKind.CloseBracketToken
+    | SyntaxKind.OpenParenToken
+    | SyntaxKind.CloseParenToken
+    | SyntaxKind.EqualsToken
+    | SyntaxKind.CommaToken
+    | SyntaxKind.DotToken
+    | SyntaxKind.Identifier    
+    | SyntaxKind.HashToken
+    | SyntaxKind.Unknown
+    | KeywordSyntaxKind;
 
 export interface ConditionalExpression extends Expression {
     readonly kind: SyntaxKind.ConditionalExpression;
@@ -2563,14 +2607,14 @@ export interface SourceFile extends Declaration, LocalsContainer {
 
     // File-level diagnostics reported by the parser (includes diagnostics about /// references
     // as well as code diagnostics).
-    /** @internal */ parseDiagnostics: DiagnosticWithLocation[];
+    /** @internal */ parseDiagnostics: DiagnosticWithLocation[];    
 
     // // File-level diagnostics reported by the binder.
     /** @internal */ bindDiagnostics: DiagnosticWithLocation[];
     /** @internal */ bindSuggestionDiagnostics?: DiagnosticWithLocation[];
 
-    // // File-level JSDoc diagnostics reported by the JSDoc parser
-    // /** @internal */ jsDocDiagnostics?: DiagnosticWithLocation[];
+    // File-level JSDoc diagnostics reported by the JSDoc parser
+    /** @internal */ jsDocDiagnostics?: DiagnosticWithLocation[];
 
     // // Stores additional file-level diagnostics reported by the program
     // /** @internal */ additionalSyntacticDiagnostics?: readonly DiagnosticWithLocation[];
@@ -6455,4 +6499,12 @@ export const enum SnippetKind {
     Placeholder,                            // `${1:foo}`
     Choice,                                 // `${1|one,two,three|}`
     Variable,                               // `$name`, `${name:default}`
+}
+
+export interface MissingDeclaration extends DeclarationStatement, PrimaryExpression {
+    readonly kind: SyntaxKind.MissingDeclaration;
+    readonly name?: Identifier;
+
+    // The following properties are used only to report grammar errors
+    /** @internal */ readonly modifiers?: NodeArray<Modifier> | undefined;
 }

@@ -335,3 +335,4 @@ export function isCaseKeyword(node: Node): node is CaseKeyword {
 export function isSpreadElement(node: Node): node is SpreadElement {
     return node.kind === SyntaxKind.SpreadElement;
 }
+
