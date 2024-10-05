@@ -538,6 +538,7 @@ export const enum SyntaxKind {
     EqualsEqualsEqualsToken,
     ExclamationEqualsEqualsToken,
     EqualsGreaterThanToken,
+    MinusGreaterThanToken,
     PlusToken,
     MinusToken,
     AsteriskToken,
@@ -822,6 +823,8 @@ export const enum SyntaxKind {
     LastTriviaToken = ShebangTrivia,
     FirstBinaryOperator = LessThanToken,
     LastBinaryOperator = CaretEqualsToken,
+    FirstPunctuation = OpenBraceToken,
+    LastPunctuation = DotDotToken,
     /** @internal */ FirstContextualKeyword = IntKeyword,
     /** @internal */ LastContextualKeyword = ContinueKeyword,
 }
@@ -1601,6 +1604,7 @@ export type HasContainerFlags =
 /** NODES */
 export type HasJSDoc = 
     | Block 
+    | ParenthesizedExpression
     | ExpressionStatement
     | EmptyStatement
     | EndOfFileToken
@@ -2072,6 +2076,7 @@ export type PunctuationSyntaxKind =
     | SyntaxKind.EqualsEqualsEqualsToken
     | SyntaxKind.ExclamationEqualsEqualsToken
     | SyntaxKind.EqualsGreaterThanToken
+    | SyntaxKind.MinusGreaterThanToken
     | SyntaxKind.PlusToken
     | SyntaxKind.MinusToken
     | SyntaxKind.AsteriskToken
@@ -2196,6 +2201,7 @@ export type EqualsToken = PunctuationToken<SyntaxKind.EqualsToken>;
 export type BarBarEqualsToken = PunctuationToken<SyntaxKind.BarBarEqualsToken>;
 export type AsteriskToken = PunctuationToken<SyntaxKind.AsteriskToken>;
 export type EqualsGreaterThanToken = PunctuationToken<SyntaxKind.EqualsGreaterThanToken>;
+export type MinusGreaterThanToken = PunctuationToken<SyntaxKind.MinusGreaterThanToken>;
 export type PlusToken = PunctuationToken<SyntaxKind.PlusToken>;
 export type MinusToken = PunctuationToken<SyntaxKind.MinusToken>;
 

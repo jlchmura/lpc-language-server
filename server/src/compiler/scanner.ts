@@ -178,6 +178,7 @@ const textToToken = new Map(Object.entries({
     "===": SyntaxKind.EqualsEqualsEqualsToken,
     "!==": SyntaxKind.ExclamationEqualsEqualsToken,
     "=>": SyntaxKind.EqualsGreaterThanToken,
+    "->": SyntaxKind.MinusGreaterThanToken,
     "+": SyntaxKind.PlusToken,
     "-": SyntaxKind.MinusToken,
     "**": SyntaxKind.AsteriskAsteriskToken,
@@ -1152,7 +1153,7 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
                 const literal = (withMinus ? "-" : "") + "0o" + (+tokenValue).toString(8);
                 if (withMinus) start--;
                 error(Diagnostics.Octal_literals_are_not_allowed_Use_the_syntax_0, start, pos - start, literal);
-                return SyntaxKind.NumericLiteral;
+                return SyntaxKind.IntLiteral;
             }
         }
         else {
@@ -1197,14 +1198,14 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
             error(Diagnostics.Decimals_with_leading_zeros_are_not_allowed, start, end - start);
             // if a literal has a leading zero, it must not be bigint
             tokenValue = "" + +result;
-            return SyntaxKind.NumericLiteral;
+            return SyntaxKind.FloatLiteral;
         }
 
         if (decimalFragment !== undefined || tokenFlags & TokenFlags.Scientific) {
             checkForIdentifierStartAfterNumericLiteral(start, decimalFragment === undefined && !!(tokenFlags & TokenFlags.Scientific));
             // if value is not an integer, it can be safely coerced to a number
             tokenValue = "" + +result;
-            return SyntaxKind.NumericLiteral;
+            return SyntaxKind.IntLiteral;
         }
         else {
             tokenValue = result;

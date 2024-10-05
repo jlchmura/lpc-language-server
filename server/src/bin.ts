@@ -85,10 +85,10 @@ function main() {
     //const diags = session.getDiagnosticsForFiles({delay:0, files: [fileRelativePath]});
     // const refs = session.getReferences(args, true);
 
-    const comps = session.getCompletions(
-        {file: 'room/test.c', projectFileName: '/Users/johnchmura/code/lpc-test2/lpc-config.json', line: 9, offset: 7, prefix: undefined},
-        protocol.CommandTypes.CompletionInfo
-    );
+    // const comps = session.getCompletions(
+    //     {file: 'room/test.c', projectFileName: '/Users/johnchmura/code/lpc-test2/lpc-config.json', line: 9, offset: 7, prefix: undefined},
+    //     protocol.CommandTypes.CompletionInfo
+    // );
 
     console.debug("done");
 }

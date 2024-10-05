@@ -1,6 +1,6 @@
 import * as antlr from "antlr4ng";
 import * as parserCore from "../parser3/parser-core";
-import { isIdentifier as isIdentifierNode, BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange, PrefixUnaryExpression, first, LanguageVariant, EqualsToken, LpcConfigSourceFile, createBaseNodeFactory, PrefixUnaryOperator, Program, LpcFileHandler, ParenthesizedExpression, ArrayLiteralExpression, LambdaExpression, PunctuationSyntaxKind, PunctuationToken, LambdaOperatorToken, CastExpression, PropertyAccessExpression, isIdentifier, CloneObjectExpression, NewExpression, trimQuotes, createScanner, isKeyword, PunctuationOrKeywordSyntaxKind, getLanguageVariant, mapDefined, getJSDocCommentRanges, LabeledStatement, PropertyName, Token, tokenToString, addRelatedInfo, tokenIsIdentifierOrKeyword, getBinaryOperatorPrecedence, addRange, append, ArrayTypeNode, canHaveJSDoc, concatenate, containsParseError, Diagnostic, EntityName, getSpellingSuggestion, identity, idText, isIdentifierText, isTypeReferenceNode, JSDoc, JSDocAugmentsTag, JSDocCallbackTag, JSDocComment, JSDocImplementsTag, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocParameterTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThrowsTag, JSDocTypedefTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, nodeIsMissing, noop, PropertyAccessEntityNameExpression, setParent, skipTrivia, some, CharacterCodes, MapLike, KeywordSyntaxKind, startsWith, textToKeywordObj, ModifierLike, isModifierKind, MissingDeclaration, setTextRangePos, BindingPattern, KeywordTypeSyntaxKind, LiteralTypeNode, IntLiteral, FloatLiteral, LiteralLikeNode, isLiteralKind, TypeReferenceNode, getFullWidth } from "./_namespaces/lpc";
+import { isIdentifier as isIdentifierNode, BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange, PrefixUnaryExpression, first, LanguageVariant, EqualsToken, LpcConfigSourceFile, createBaseNodeFactory, PrefixUnaryOperator, Program, LpcFileHandler, ParenthesizedExpression, ArrayLiteralExpression, LambdaExpression, PunctuationSyntaxKind, PunctuationToken, LambdaOperatorToken, CastExpression, PropertyAccessExpression, isIdentifier, CloneObjectExpression, NewExpression, trimQuotes, createScanner, isKeyword, PunctuationOrKeywordSyntaxKind, getLanguageVariant, mapDefined, getJSDocCommentRanges, LabeledStatement, PropertyName, Token, tokenToString, addRelatedInfo, tokenIsIdentifierOrKeyword, getBinaryOperatorPrecedence, addRange, append, ArrayTypeNode, canHaveJSDoc, concatenate, containsParseError, Diagnostic, EntityName, getSpellingSuggestion, identity, idText, isIdentifierText, isTypeReferenceNode, JSDoc, JSDocAugmentsTag, JSDocCallbackTag, JSDocComment, JSDocImplementsTag, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocParameterTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThrowsTag, JSDocTypedefTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, nodeIsMissing, noop, PropertyAccessEntityNameExpression, setParent, skipTrivia, some, CharacterCodes, MapLike, KeywordSyntaxKind, startsWith, textToKeywordObj, ModifierLike, isModifierKind, MissingDeclaration, setTextRangePos, BindingPattern, KeywordTypeSyntaxKind, LiteralTypeNode, IntLiteral, FloatLiteral, LiteralLikeNode, isLiteralKind, TypeReferenceNode, getFullWidth, OperatorPrecedence, UnaryExpression, isLeftHandSideExpression, isAssignmentOperator, isKeywordOrPunctuation, UpdateExpression, PrimaryExpression, nodeIsPresent } from "./_namespaces/lpc";
 import { ILpcConfig } from "../config-types";
 import { loadLpcConfigFromString, LpcConfig } from "../backend/LpcConfig";
 
@@ -23,6 +23,7 @@ export namespace LpcParser {
     // Share a single scanner across all calls to parse a source file.  This helps speed things
     // up by avoiding the cost of creating/compiling scanners over and over again.
     var scanner = createScanner(ScriptTarget.Latest, /*skipTrivia*/ true);
+    var disallowInAndDecoratorContext = NodeFlags.DisallowInContext | NodeFlags.DecoratorContext;
     
     // Init some ANTLR stuff    
     const lexer = new parserCore.LPCPreprocessingLexer(
@@ -81,6 +82,10 @@ export namespace LpcParser {
     var factory = createNodeFactory(NodeFactoryFlags.NoParenthesizerRules | NodeFactoryFlags.NoNodeConverters | NodeFactoryFlags.NoOriginalNode, baseNodeFactory);
 
     var {
+        createCallExpression: factoryCreateCallExpression,
+        createArrayLiteralExpression: factoryCreateArrayLiteralExpression,
+        createParenthesizedExpression: factoryCreateParenthesizedExpression,
+        createPropertyAccessExpression: factoryCreatePropertyAccessExpression,
         createVariableDeclaration: factoryCreateVariableDeclaration,
         createVariableDeclarationList: factoryCreateVariableDeclarationList,
         createVariableStatement: factoryCreateVariableStatement,
@@ -187,6 +192,11 @@ export namespace LpcParser {
         return currentToken = scanner.scan();
     }
 
+    function nextTokenAnd<T>(func: () => T): T {
+        nextToken();
+        return func();
+    }
+
     function nextTokenIsIdentifierOrKeywordOnSameLine() {
         nextToken();
         return tokenIsIdentifierOrKeyword(token()) && !scanner.hasPrecedingLineBreak();
@@ -216,6 +226,11 @@ export namespace LpcParser {
     function nextTokenIsNumericOrBigIntLiteral() {
         nextToken();
         return token() === SyntaxKind.IntLiteral || token() === SyntaxKind.FloatLiteral;
+    }
+
+
+    function reScanGreaterToken(): SyntaxKind {
+        return currentToken = scanner.reScanGreaterToken();
     }
 
     export function parseSourceFile(
@@ -532,8 +547,8 @@ export namespace LpcParser {
             //         default:
             //             return isLiteralPropertyName();
             //     }
-            // case ParsingContext.RestProperties:
-            //     return isLiteralPropertyName();
+            case ParsingContext.RestProperties:
+                return isLiteralPropertyName();
             // case ParsingContext.ObjectBindingElements:
             //     return token() === SyntaxKind.OpenBracketToken || token() === SyntaxKind.DotDotDotToken || isLiteralPropertyName();
             // case ParsingContext.ImportAttributes:
@@ -556,19 +571,19 @@ export namespace LpcParser {
             //     }
             case ParsingContext.VariableDeclarations:
                 return isBindingIdentifier();
-            // case ParsingContext.ArrayBindingElements:
-            //     return token() === SyntaxKind.CommaToken || token() === SyntaxKind.DotDotDotToken || isBindingIdentifierOrPrivateIdentifierOrPattern();
+            case ParsingContext.ArrayBindingElements:
+                return token() === SyntaxKind.CommaToken || token() === SyntaxKind.DotDotDotToken || isBindingIdentifier();
             // case ParsingContext.TypeParameters:
             //     return token() === SyntaxKind.InKeyword || token() === SyntaxKind.ConstKeyword || isIdentifier();
-            // case ParsingContext.ArrayLiteralMembers:
-            //     switch (token()) {
-            //         case SyntaxKind.CommaToken:
-            //         case SyntaxKind.DotToken: // Not an array literal member, but don't want to close the array (see `tests/cases/fourslash/completionsDotInArrayLiteralInObjectLiteral.ts`)
-            //             return true;
-            //     }
-            //     // falls through
-            // case ParsingContext.ArgumentExpressions:
-            //     return token() === SyntaxKind.DotDotDotToken || isStartOfExpression();
+            case ParsingContext.ArrayLiteralMembers:
+                switch (token()) {
+                    case SyntaxKind.CommaToken:
+                    case SyntaxKind.DotToken: // Not an array literal member, but don't want to close the array (see `tests/cases/fourslash/completionsDotInArrayLiteralInObjectLiteral.ts`)
+                        return true;
+                }
+                // falls through
+            case ParsingContext.ArgumentExpressions:
+                return token() === SyntaxKind.DotDotDotToken || isStartOfExpression();
             case ParsingContext.Parameters:
                 return isStartOfParameter(/*isJSDocParameter*/ false);
             case ParsingContext.JSDocParameters:
@@ -591,8 +606,8 @@ export namespace LpcParser {
             //     return true;
             // case ParsingContext.JSDocComment:
             //     return true;
-            // case ParsingContext.Count:
-            //     return Debug.fail("ParsingContext.Count used as a context"); // Not a real context, only a marker.
+            case ParsingContext.Count:
+                return Debug.fail("ParsingContext.Count used as a context"); // Not a real context, only a marker.
             // default:
             //     Debug.assertNever(parsingContext, "Non-exhaustive case in 'isListElement'.");
         }
@@ -810,9 +825,8 @@ export namespace LpcParser {
                 return token() === SyntaxKind.CloseBraceToken || token() === SyntaxKind.CaseKeyword || token() === SyntaxKind.DefaultKeyword;
             // case ParsingContext.HeritageClauseElement:
             //     return token() === SyntaxKind.OpenBraceToken || token() === SyntaxKind.ExtendsKeyword || token() === SyntaxKind.ImplementsKeyword;
-            case ParsingContext.VariableDeclarations:
-                console.log("todo - isListTerminator - VariableDeclarations");
-                // return isVariableDeclaratorListTerminator();
+            case ParsingContext.VariableDeclarations:                
+                return isVariableDeclaratorListTerminator();
             // case ParsingContext.TypeParameters:
             //     // Tokens other than '>' are here for better error recovery
             //     return token() === SyntaxKind.GreaterThanToken || token() === SyntaxKind.OpenParenToken || token() === SyntaxKind.OpenBraceToken || token() === SyntaxKind.ExtendsKeyword || token() === SyntaxKind.ImplementsKeyword;
@@ -841,6 +855,32 @@ export namespace LpcParser {
                 return false;
         }
     }
+
+    function isVariableDeclaratorListTerminator(): boolean {
+        // If we can consume a semicolon (either explicitly, or with ASI), then consider us done
+        // with parsing the list of variable declarators.
+        if (canParseSemicolon()) {
+            return true;
+        }
+
+        // in the case where we're parsing the variable declarator of a 'for-in' statement, we
+        // are done if we see an 'in' keyword in front of us. Same with for-of
+        if (isInOrOfKeyword(token())) {
+            return true;
+        }
+
+        // ERROR RECOVERY TWEAK:
+        // For better error recovery, if we see an '=>' then we just stop immediately.  We've got an
+        // arrow function here and it's going to be very unlikely that we'll resynchronize and get
+        // another variable declaration.
+        if (token() === SyntaxKind.EqualsGreaterThanToken) {
+            return true;
+        }
+
+        // Keep trying to parse out variable declarators.
+        return false;
+    }
+
 
     function parseListElement<T extends Node | undefined>(parsingContext: ParsingContext, parseElement: () => T): T {
         const node = currentNode(parsingContext);
@@ -1039,8 +1079,8 @@ export namespace LpcParser {
             //     return parseBreakOrContinueStatement(SyntaxKind.ContinueStatement);
             // case SyntaxKind.BreakKeyword:
             //     return parseBreakOrContinueStatement(SyntaxKind.BreakStatement);
-            // case SyntaxKind.ReturnKeyword:
-            //     return parseReturnStatement();            
+            case SyntaxKind.ReturnKeyword:
+                return parseReturnStatement();            
             // case SyntaxKind.SwitchKeyword:
             //     return parseSwitchStatement();
             // case SyntaxKind.ThrowKeyword:
@@ -1056,14 +1096,14 @@ export namespace LpcParser {
             // case SyntaxKind.AtToken:
             //     return parseDeclaration();
             // case SyntaxKind.AsyncKeyword:            
-            // case SyntaxKind.PrivateKeyword:
-            // case SyntaxKind.ProtectedKeyword:
-            // case SyntaxKind.PublicKeyword:            
-            // case SyntaxKind.StaticKeyword:            
-            //     if (isStartOfDeclaration()) {
-            //         return parseDeclaration();
-            //     }
-            //     break;
+            case SyntaxKind.PrivateKeyword:
+            case SyntaxKind.ProtectedKeyword:
+            case SyntaxKind.PublicKeyword:            
+            case SyntaxKind.StaticKeyword:            
+                if (isStartOfDeclaration()) {
+                    return parseDeclaration();
+                }
+                break;
             case SyntaxKind.VoidKeyword:
             case SyntaxKind.IntKeyword:
             case SyntaxKind.FloatKeyword:
@@ -1168,6 +1208,12 @@ export namespace LpcParser {
                 createDetachedDiagnostic(fileName, sourceText, openPosition, 1, Diagnostics.The_parser_expected_to_find_a_1_to_match_the_0_token_here, tokenToString(openKind), tokenToString(closeKind)),
             );
         }
+    }
+    
+    function parseExpectedToken<TKind extends SyntaxKind>(t: TKind, diagnosticMessage?: DiagnosticMessage, arg0?: string): Token<TKind>;
+    function parseExpectedToken(t: SyntaxKind, diagnosticMessage?: DiagnosticMessage, arg0?: string): Node {
+        return parseOptionalToken(t) ||
+            createMissingNode(t, /*reportAtCurrentPosition*/ false, diagnosticMessage || Diagnostics._0_expected, arg0 || tokenToString(t)!);
     }
     
     function parseOptional(t: SyntaxKind): boolean {
@@ -1722,6 +1768,15 @@ export namespace LpcParser {
         return finishNode(factory.createLiteralTypeNode(expression), pos);
     }
 
+    function parseReturnStatement(): ReturnStatement {
+        const pos = getNodePos();
+        const hasJSDoc = hasPrecedingJSDocComment();
+        parseExpected(SyntaxKind.ReturnKeyword);
+        const expression = canParseSemicolon() ? undefined : allowInAnd(parseExpression);
+        parseSemicolon();
+        return withJSDoc(finishNode(factory.createReturnStatement(expression), pos), hasJSDoc);
+    }
+
     function parseLiteralLikeNode(kind: SyntaxKind): LiteralLikeNode {
         const pos = getNodePos();
         const node =
@@ -1730,7 +1785,7 @@ export namespace LpcParser {
             // never get a token like this. Instead, we would get 00 and 9 as two separate tokens.
             // We also do not need to check for negatives because any prefix operator would be part of a
             // parent unary expression.
-            kind === SyntaxKind.IntLiteral ? factoryCreateIntLiteral(scanner.getTokenValue(), scanner.getNumericLiteralFlags()) :
+            (kind === SyntaxKind.IntLiteral || kind === SyntaxKind.NumericLiteral) ? factoryCreateIntLiteral(scanner.getTokenValue(), scanner.getNumericLiteralFlags()) :
             kind === SyntaxKind.FloatLiteral ? factoryCreateFloatLiteral(scanner.getTokenValue(), scanner.getNumericLiteralFlags()) :
             kind === SyntaxKind.StringLiteral ? factoryCreateStringLiteral(scanner.getTokenValue(), /*isSingleQuote*/ undefined, scanner.hasExtendedUnicodeEscape()) :
             isLiteralKind(kind) ? factoryCreateLiteralLikeNode(kind, scanner.getTokenValue()) :
@@ -2132,8 +2187,7 @@ export namespace LpcParser {
     }
 
     function parseInitializer(): Expression | undefined {
-        console.log("TODO - parse initializer");
-        return undefined;//return parseOptional(SyntaxKind.EqualsToken) ? parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ true) : undefined;
+        return parseOptional(SyntaxKind.EqualsToken) ? parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ true) : undefined;
     }
 
     function parseIdentifierOrPattern(): Identifier | BindingPattern {
@@ -2274,15 +2328,16 @@ export namespace LpcParser {
         //      AssignmentExpression[in]
         //      Expression[in] , AssignmentExpression[in]
 
-        const pos = getNodePos();
-        return undefined;
-        // let expr = parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ true);
-        // let operatorToken: BinaryOperatorToken;
-        // while ((operatorToken = parseOptionalToken(SyntaxKind.CommaToken))) {
-        //     expr = makeBinaryExpression(expr, operatorToken, parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ true), pos);
-        // }
+        // clear the decorator context when parsing Expression, as it should be unambiguous when parsing a decorator
         
-        // return expr;
+        const pos = getNodePos();
+        let expr = parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ true);
+        let operatorToken: BinaryOperatorToken;
+        while ((operatorToken = parseOptionalToken(SyntaxKind.CommaToken))) {
+            expr = makeBinaryExpression(expr, operatorToken, parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ true), pos);
+        }
+       
+        return expr;
     }
 
     // STATEMENTS
@@ -2317,6 +2372,617 @@ export namespace LpcParser {
         return getBinaryOperatorPrecedence(token()) > 0;
     }
 
+    function parseAssignmentExpressionOrHigher(allowReturnTypeInArrowFunction: boolean): Expression {
+        //  AssignmentExpression[in,yield]:
+        //      1) ConditionalExpression[?in,?yield]
+        //      2) LeftHandSideExpression = AssignmentExpression[?in,?yield]
+        //      3) LeftHandSideExpression AssignmentOperator AssignmentExpression[?in,?yield]
+        //      4) ArrowFunctionExpression[?in,?yield]
+        //      5) AsyncArrowFunctionExpression[in,yield,await]
+        //      6) [+Yield] YieldExpression[?In]
+        //
+        // Note: for ease of implementation we treat productions '2' and '3' as the same thing.
+        // (i.e. they're both BinaryExpressions with an assignment operator in it).        
+
+        // // Then, check if we have an arrow function (production '4' and '5') that starts with a parenthesized
+        // // parameter list or is an async arrow function.
+        // // AsyncArrowFunctionExpression:
+        // //      1) async[no LineTerminator here]AsyncArrowBindingIdentifier[?Yield][no LineTerminator here]=>AsyncConciseBody[?In]
+        // //      2) CoverCallExpressionAndAsyncArrowHead[?Yield, ?Await][no LineTerminator here]=>AsyncConciseBody[?In]
+        // // Production (1) of AsyncArrowFunctionExpression is parsed in "tryParseAsyncSimpleArrowFunctionExpression".
+        // // And production (2) is parsed in "tryParseParenthesizedArrowFunctionExpression".
+        // //
+        // // If we do successfully parse arrow-function, we must *not* recurse for productions 1, 2 or 3. An ArrowFunction is
+        // // not a LeftHandSideExpression, nor does it start a ConditionalExpression.  So we are done
+        // // with AssignmentExpression if we see one.
+        // const arrowExpression = tryParseParenthesizedArrowFunctionExpression(allowReturnTypeInArrowFunction) || tryParseAsyncSimpleArrowFunctionExpression(allowReturnTypeInArrowFunction);
+        // if (arrowExpression) {
+        //     return arrowExpression;
+        // }
+
+        // Now try to see if we're in production '1', '2' or '3'.  A conditional expression can
+        // start with a LogicalOrExpression, while the assignment productions can only start with
+        // LeftHandSideExpressions.
+        //
+        // So, first, we try to just parse out a BinaryExpression.  If we get something that is a
+        // LeftHandSide or higher, then we can try to parse out the assignment expression part.
+        // Otherwise, we try to parse out the conditional expression bit.  We want to allow any
+        // binary expression here, so we pass in the 'lowest' precedence here so that it matches
+        // and consumes anything.
+        const pos = getNodePos();
+        const hasJSDoc = hasPrecedingJSDocComment();
+        const expr = parseBinaryExpressionOrHigher(OperatorPrecedence.Lowest);
+
+        // To avoid a look-ahead, we did not handle the case of an arrow function with a single un-parenthesized
+        // parameter ('x => ...') above. We handle it here by checking if the parsed expression was a single
+        // identifier and the current token is an arrow.
+        // if (expr.kind === SyntaxKind.Identifier && token() === SyntaxKind.EqualsGreaterThanToken) {
+        //     return parseSimpleArrowFunctionExpression(pos, expr as Identifier, allowReturnTypeInArrowFunction, hasJSDoc, /*asyncModifier*/ undefined);
+        // }
+
+        // Now see if we might be in cases '2' or '3'.
+        // If the expression was a LHS expression, and we have an assignment operator, then
+        // we're in '2' or '3'. Consume the assignment and return.
+        //
+        // Note: we call reScanGreaterToken so that we get an appropriately merged token
+        // for cases like `> > =` becoming `>>=`
+        if (isLeftHandSideExpression(expr) && isAssignmentOperator(reScanGreaterToken())) {
+            return makeBinaryExpression(expr, parseTokenNode(), parseAssignmentExpressionOrHigher(allowReturnTypeInArrowFunction), pos);
+        }
+
+        // It wasn't an assignment or a lambda.  This is a conditional expression:
+        return parseConditionalExpressionRest(expr, pos, allowReturnTypeInArrowFunction);
+    }
+
+    function makeBinaryExpression(left: Expression, operatorToken: BinaryOperatorToken, right: Expression, pos: number): BinaryExpression {
+        return finishNode(factory.createBinaryExpression(left, operatorToken, right), pos);
+    }
+
+    function parseBinaryExpressionOrHigher(precedence: OperatorPrecedence): Expression {
+        const pos = getNodePos();
+        const leftOperand = parseUnaryExpressionOrHigher();
+        return parseBinaryExpressionRest(precedence, leftOperand, pos);
+    }
+
+    function parseConditionalExpressionRest(leftOperand: Expression, pos: number, allowReturnTypeInArrowFunction: boolean): Expression {
+        // Note: we are passed in an expression which was produced from parseBinaryExpressionOrHigher.
+        const questionToken = parseOptionalToken(SyntaxKind.QuestionToken);
+        if (!questionToken) {
+            return leftOperand;
+        }
+
+        // Note: we explicitly 'allowIn' in the whenTrue part of the condition expression, and
+        // we do not that for the 'whenFalse' part.
+        let colonToken;
+        return finishNode(
+            factory.createConditionalExpression(
+                leftOperand,
+                questionToken,
+                doOutsideOfContext(disallowInAndDecoratorContext, () => parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ false)),
+                colonToken = parseExpectedToken(SyntaxKind.ColonToken),
+                nodeIsPresent(colonToken)
+                    ? parseAssignmentExpressionOrHigher(allowReturnTypeInArrowFunction)
+                    : createMissingNode(SyntaxKind.Identifier, /*reportAtCurrentPosition*/ false, Diagnostics._0_expected, tokenToString(SyntaxKind.ColonToken)),
+            ),
+            pos,
+        );
+    }
+
+    function parseBinaryExpressionRest(precedence: OperatorPrecedence, leftOperand: Expression, pos: number): Expression {
+        while (true) {
+            // We either have a binary operator here, or we're finished.  We call
+            // reScanGreaterToken so that we merge token sequences like > and = into >=
+
+            reScanGreaterToken();
+            const newPrecedence = getBinaryOperatorPrecedence(token());
+
+            // Check the precedence to see if we should "take" this operator
+            // - For left associative operator (all operator but **), consume the operator,
+            //   recursively call the function below, and parse binaryExpression as a rightOperand
+            //   of the caller if the new precedence of the operator is greater then or equal to the current precedence.
+            //   For example:
+            //      a - b - c;
+            //            ^token; leftOperand = b. Return b to the caller as a rightOperand
+            //      a * b - c
+            //            ^token; leftOperand = b. Return b to the caller as a rightOperand
+            //      a - b * c;
+            //            ^token; leftOperand = b. Return b * c to the caller as a rightOperand
+            // - For right associative operator (**), consume the operator, recursively call the function
+            //   and parse binaryExpression as a rightOperand of the caller if the new precedence of
+            //   the operator is strictly grater than the current precedence
+            //   For example:
+            //      a ** b ** c;
+            //             ^^token; leftOperand = b. Return b ** c to the caller as a rightOperand
+            //      a - b ** c;
+            //            ^^token; leftOperand = b. Return b ** c to the caller as a rightOperand
+            //      a ** b - c
+            //             ^token; leftOperand = b. Return b to the caller as a rightOperand
+            const consumeCurrentOperator = token() === SyntaxKind.AsteriskAsteriskToken ?
+                newPrecedence >= precedence :
+                newPrecedence > precedence;
+
+            if (!consumeCurrentOperator) {
+                break;
+            }
+
+            if (token() === SyntaxKind.InKeyword && inDisallowInContext()) {
+                break;
+            }
+            
+            leftOperand = makeBinaryExpression(leftOperand, parseTokenNode(), parseBinaryExpressionOrHigher(newPrecedence), pos);            
+        }
+
+        return leftOperand;
+    }
+
+    /**
+     * Parse ES7 exponential expression and await expression
+     *
+     * ES7 ExponentiationExpression:
+     *      1) UnaryExpression[?Yield]
+     *      2) UpdateExpression[?Yield] ** ExponentiationExpression[?Yield]
+     */
+    function parseUnaryExpressionOrHigher(): UnaryExpression | BinaryExpression {
+        /**
+         * ES7 UpdateExpression:
+         *      1) LeftHandSideExpression[?Yield]
+         *      2) LeftHandSideExpression[?Yield][no LineTerminator here]++
+         *      3) LeftHandSideExpression[?Yield][no LineTerminator here]--
+         *      4) ++UnaryExpression[?Yield]
+         *      5) --UnaryExpression[?Yield]
+         */
+        if (isUpdateExpression()) {
+            const pos = getNodePos();
+            const updateExpression = parseUpdateExpression();
+            return token() === SyntaxKind.AsteriskAsteriskToken ?
+                parseBinaryExpressionRest(getBinaryOperatorPrecedence(token()), updateExpression, pos) as BinaryExpression :
+                updateExpression;
+        }
+
+        /**
+         * ES7 UnaryExpression:
+         *      1) UpdateExpression[?yield]
+         *      2) delete UpdateExpression[?yield]
+         *      3) void UpdateExpression[?yield]
+         *      4) typeof UpdateExpression[?yield]
+         *      5) + UpdateExpression[?yield]
+         *      6) - UpdateExpression[?yield]
+         *      7) ~ UpdateExpression[?yield]
+         *      8) ! UpdateExpression[?yield]
+         */
+        const unaryOperator = token();
+        const simpleUnaryExpression = parseSimpleUnaryExpression();
+        if (token() === SyntaxKind.AsteriskAsteriskToken) {
+            const pos = skipTrivia(sourceText, simpleUnaryExpression.pos);
+            const { end } = simpleUnaryExpression;
+            
+            Debug.assert(isKeywordOrPunctuation(unaryOperator));
+            parseErrorAt(pos, end, Diagnostics.An_unary_expression_with_the_0_operator_is_not_allowed_in_the_left_hand_side_of_an_exponentiation_expression_Consider_enclosing_the_expression_in_parentheses, tokenToString(unaryOperator));            
+        }
+        return simpleUnaryExpression;
+    }
+
+    /**
+     * Parse ES7 simple-unary expression or higher:
+     *
+     * ES7 UnaryExpression:
+     *      1) UpdateExpression[?yield]
+     *      2) delete UnaryExpression[?yield]
+     *      3) void UnaryExpression[?yield]
+     *      4) typeof UnaryExpression[?yield]
+     *      5) + UnaryExpression[?yield]
+     *      6) - UnaryExpression[?yield]
+     *      7) ~ UnaryExpression[?yield]
+     *      8) ! UnaryExpression[?yield]
+     *      9) [+Await] await UnaryExpression[?yield]
+     */
+    function parseSimpleUnaryExpression(): UnaryExpression {
+        switch (token()) {
+            case SyntaxKind.PlusToken:
+            case SyntaxKind.MinusToken:
+            case SyntaxKind.TildeToken:
+            case SyntaxKind.ExclamationToken:
+                return parsePrefixUnaryExpression();            
+            // case SyntaxKind.VoidKeyword:
+            //     return parseVoidExpression();            
+            // case SyntaxKind.AwaitKeyword:
+            //     if (isAwaitExpression()) {
+            //         return parseAwaitExpression();
+            //     }
+            //     // falls through
+            default:
+                return parseUpdateExpression();
+        }
+    }
+
+    function parsePrefixUnaryExpression() {
+        const pos = getNodePos();
+        return finishNode(factory.createPrefixUnaryExpression(token() as PrefixUnaryOperator, nextTokenAnd(parseSimpleUnaryExpression)), pos);
+    }
+
+    
+
+    /**
+     * Check if the current token can possibly be an ES7 increment expression.
+     *
+     * ES7 UpdateExpression:
+     *      LeftHandSideExpression[?Yield]
+     *      LeftHandSideExpression[?Yield][no LineTerminator here]++
+     *      LeftHandSideExpression[?Yield][no LineTerminator here]--
+     *      ++LeftHandSideExpression[?Yield]
+     *      --LeftHandSideExpression[?Yield]
+     */
+    function isUpdateExpression(): boolean {
+        // This function is called inside parseUnaryExpression to decide
+        // whether to call parseSimpleUnaryExpression or call parseUpdateExpression directly
+        switch (token()) {
+            case SyntaxKind.PlusToken:
+            case SyntaxKind.MinusToken:
+            case SyntaxKind.TildeToken:
+            case SyntaxKind.ExclamationToken:            
+            case SyntaxKind.VoidKeyword:
+            // case SyntaxKind.AwaitKeyword:
+            case SyntaxKind.LessThanToken:
+                return false;                
+            default:
+                return true;
+        }
+    }
+
+    /**
+     * Parse ES7 UpdateExpression. UpdateExpression is used instead of ES6's PostFixExpression.
+     *
+     * ES7 UpdateExpression[yield]:
+     *      1) LeftHandSideExpression[?yield]
+     *      2) LeftHandSideExpression[?yield] [[no LineTerminator here]]++
+     *      3) LeftHandSideExpression[?yield] [[no LineTerminator here]]--
+     *      4) ++LeftHandSideExpression[?yield]
+     *      5) --LeftHandSideExpression[?yield]
+     * In TypeScript (2), (3) are parsed as PostfixUnaryExpression. (4), (5) are parsed as PrefixUnaryExpression
+     */
+    function parseUpdateExpression(): UpdateExpression {
+        if (token() === SyntaxKind.PlusPlusToken || token() === SyntaxKind.MinusMinusToken) {
+            const pos = getNodePos();
+            return finishNode(factory.createPrefixUnaryExpression(token() as PrefixUnaryOperator, nextTokenAnd(parseLeftHandSideExpressionOrHigher)), pos);
+        }        
+
+        const expression = parseLeftHandSideExpressionOrHigher();
+
+        Debug.assert(isLeftHandSideExpression(expression));
+        if ((token() === SyntaxKind.PlusPlusToken || token() === SyntaxKind.MinusMinusToken) && !scanner.hasPrecedingLineBreak()) {
+            const operator = token() as PostfixUnaryOperator;
+            nextToken();
+            return finishNode(factory.createPostfixUnaryExpression(expression, operator), expression.pos);
+        }
+
+        return expression;
+    }
+
+    function parseLeftHandSideExpressionOrHigher(): LeftHandSideExpression {
+        // Original Ecma:
+        // LeftHandSideExpression: See 11.2
+        //      NewExpression
+        //      CallExpression
+        //
+        // Our simplification:
+        //
+        // LeftHandSideExpression: See 11.2
+        //      MemberExpression
+        //      CallExpression
+        //
+        // See comment in parseMemberExpressionOrHigher on how we replaced NewExpression with
+        // MemberExpression to make our lives easier.
+        //
+        // to best understand the below code, it's important to see how CallExpression expands
+        // out into its own productions:
+        //
+        // CallExpression:
+        //      MemberExpression Arguments
+        //      CallExpression Arguments
+        //      CallExpression[Expression]
+        //      CallExpression.IdentifierName
+        //      import (AssignmentExpression)
+        //      super Arguments
+        //      super.IdentifierName
+        //
+        // Because of the recursion in these calls, we need to bottom out first. There are three
+        // bottom out states we can run into: 1) We see 'super' which must start either of
+        // the last two CallExpression productions. 2) We see 'import' which must start import call.
+        // 3)we have a MemberExpression which either completes the LeftHandSideExpression,
+        // or starts the beginning of the first four CallExpression productions.
+        const pos = getNodePos();
+        let expression: MemberExpression;
+        // if (token() === SyntaxKind.ImportKeyword) {
+            // if (lookAhead(nextTokenIsOpenParenOrLessThan)) {
+            //     // We don't want to eagerly consume all import keyword as import call expression so we look ahead to find "("
+            //     // For example:
+            //     //      var foo3 = require("subfolder
+            //     //      import * as foo1 from "module-from-node
+            //     // We want this import to be a statement rather than import call expression
+            //     sourceFlags |= NodeFlags.PossiblyContainsDynamicImport;
+            //     expression = parseTokenNode<PrimaryExpression>();
+            // }
+            // else if (lookAhead(nextTokenIsDot)) {
+            //     // This is an 'import.*' metaproperty (i.e. 'import.meta')
+            //     nextToken(); // advance past the 'import'
+            //     nextToken(); // advance past the dot
+            //     expression = finishNode(factory.createMetaProperty(SyntaxKind.ImportKeyword, parseIdentifierName()), pos);
+            //     sourceFlags |= NodeFlags.PossiblyContainsImportMeta;
+            // }
+            // else {
+                // expression = parseMemberExpressionOrHigher();
+            // }
+        // }
+        // else {
+            expression = token() === SyntaxKind.SuperKeyword ? parseSuperExpression() : parseMemberExpressionOrHigher();
+        // }
+
+        // Now, we *may* be complete.  However, we might have consumed the start of a
+        // CallExpression or OptionalExpression.  As such, we need to consume the rest
+        // of it here to be complete.
+        return parseCallExpressionRest(pos, expression);
+    }
+
+    function parseCallExpressionRest(pos: number, expression: LeftHandSideExpression): LeftHandSideExpression {
+        while (true) {
+            expression = parseMemberExpressionRest(pos, expression, /*allowOptionalChain*/ true);                        
+            if (token() === SyntaxKind.OpenParenToken) {
+                // Absorb type arguments into CallExpression when preceding expression is ExpressionWithTypeArguments                
+                const argumentList = parseArgumentList();
+                const callExpr = factoryCreateCallExpression(expression, argumentList);
+                expression = finishNode(callExpr, pos);
+                continue;
+            }
+            break;
+        }
+        return expression;
+    }
+
+    function parseArgumentList() {
+        parseExpected(SyntaxKind.OpenParenToken);
+        const result = parseDelimitedList(ParsingContext.ArgumentExpressions, parseArgumentExpression);
+        parseExpected(SyntaxKind.CloseParenToken);
+        return result;
+    }
+
+    function parseArgumentExpression(): Expression {
+        return doOutsideOfContext(disallowInAndDecoratorContext, parseArgumentOrArrayLiteralElement);
+    }
+
+    function parseSuperExpression(): MemberExpression {
+        const pos = getNodePos();
+        let expression = parseTokenNode<MemberExpression>();
+        
+        if (token() === SyntaxKind.OpenParenToken || token() === SyntaxKind.ColonColonToken) {
+            return expression;
+        }
+
+        Debug.fail("parse super - is this needed?");
+        // // If we have seen "super" it must be followed by '(' or '.'.
+        // // If it wasn't then just try to parse out a '.' and report an error.
+        // parseExpectedToken(SyntaxKind.DotToken, Diagnostics.super_must_be_followed_by_an_argument_list_or_member_access);
+        // // private names will never work with `super` (`super.#foo`), but that's a semantic error, not syntactic
+        // return finishNode(factoryCreatePropertyAccessExpression(expression, parseRightSideOfDot(/*allowIdentifierNames*/ true, /*allowPrivateIdentifiers*/ true, /*allowUnicodeEscapeSequenceInIdentifierName*/ true)), pos);
+    }
+
+    function parseMemberExpressionOrHigher(): MemberExpression {
+        // Note: to make our lives simpler, we decompose the NewExpression productions and
+        // place ObjectCreationExpression and FunctionExpression into PrimaryExpression.
+        // like so:
+        //
+        //   PrimaryExpression : See 11.1
+        //      this
+        //      Identifier
+        //      Literal
+        //      ArrayLiteral
+        //      ObjectLiteral
+        //      (Expression)
+        //      FunctionExpression
+        //      new MemberExpression Arguments?
+        //
+        //   MemberExpression : See 11.2
+        //      PrimaryExpression
+        //      MemberExpression[Expression]
+        //      MemberExpression.IdentifierName
+        //
+        //   CallExpression : See 11.2
+        //      MemberExpression
+        //      CallExpression Arguments
+        //      CallExpression[Expression]
+        //      CallExpression.IdentifierName
+        //
+        // Technically this is ambiguous.  i.e. CallExpression defines:
+        //
+        //   CallExpression:
+        //      CallExpression Arguments
+        //
+        // If you see: "new Foo()"
+        //
+        // Then that could be treated as a single ObjectCreationExpression, or it could be
+        // treated as the invocation of "new Foo".  We disambiguate that in code (to match
+        // the original grammar) by making sure that if we see an ObjectCreationExpression
+        // we always consume arguments if they are there. So we treat "new Foo()" as an
+        // object creation only, and not at all as an invocation.  Another way to think
+        // about this is that for every "new" that we see, we will consume an argument list if
+        // it is there as part of the *associated* object creation node.  Any additional
+        // argument lists we see, will become invocation expressions.
+        //
+        // Because there are no other places in the grammar now that refer to FunctionExpression
+        // or ObjectCreationExpression, it is safe to push down into the PrimaryExpression
+        // production.
+        //
+        // Because CallExpression and MemberExpression are left recursive, we need to bottom out
+        // of the recursion immediately.  So we parse out a primary expression to start with.
+        const pos = getNodePos();
+        const expression = parsePrimaryExpression();
+        return parseMemberExpressionRest(pos, expression, /*allowOptionalChain*/ true);
+    }
+
+    function isArrowPropertyAccess() {
+        return token() === SyntaxKind.MinusGreaterThanToken;
+    }
+
+    function parseMemberExpressionRest(pos: number, expression: LeftHandSideExpression, allowOptionalChain: boolean): MemberExpression {
+        while (true) {            
+            let isPropertyAccess = false;
+            let propertyAccessToken: Token<SyntaxKind.DotToken | SyntaxKind.MinusGreaterThanToken> | undefined;
+
+            if (token() == SyntaxKind.DotToken || token() == SyntaxKind.MinusGreaterThanToken) {
+                isPropertyAccess = true;
+                propertyAccessToken = parseTokenNode();
+            }
+
+            if (isPropertyAccess) {
+                expression = parsePropertyAccessExpressionRest(pos, expression, undefined);
+                continue;
+            }
+            
+            return expression as MemberExpression;
+        }
+    }
+
+    function parsePropertyAccessExpressionRest(pos: number, expression: LeftHandSideExpression, questionDotToken: undefined) {
+        const name = parseRightSideOfDot(/*allowIdentifierNames*/ true, /*allowPrivateIdentifiers*/ true, /*allowUnicodeEscapeSequenceInIdentifierName*/ true);
+        const isOptionalChain = false;
+        const propertyAccess = factoryCreatePropertyAccessExpression(expression, name);                
+        return finishNode(propertyAccess, pos);
+    }
+
+    function parseRightSideOfDot(allowIdentifierNames: boolean, allowPrivateIdentifiers: boolean, allowUnicodeEscapeSequenceInIdentifierName: boolean): Identifier  {
+        // Technically a keyword is valid here as all identifiers and keywords are identifier names.
+        // However, often we'll encounter this in error situations when the identifier or keyword
+        // is actually starting another valid construct.
+        //
+        // So, we check for the following specific case:
+        //
+        //      name.
+        //      identifierOrKeyword identifierNameOrKeyword
+        //
+        // Note: the newlines are important here.  For example, if that above code
+        // were rewritten into:
+        //
+        //      name.identifierOrKeyword
+        //      identifierNameOrKeyword
+        //
+        // Then we would consider it valid.  That's because ASI would take effect and
+        // the code would be implicitly: "name.identifierOrKeyword; identifierNameOrKeyword".
+        // In the first case though, ASI will not take effect because there is not a
+        // line terminator after the identifier or keyword.
+        if (scanner.hasPrecedingLineBreak() && tokenIsIdentifierOrKeyword(token())) {
+            const matchesPattern = lookAhead(nextTokenIsIdentifierOrKeywordOnSameLine);
+
+            if (matchesPattern) {
+                // Report that we need an identifier.  However, report it right after the dot,
+                // and not on the next token.  This is because the next token might actually
+                // be an identifier and the error would be quite confusing.
+                return createMissingNode<Identifier>(SyntaxKind.Identifier, /*reportAtCurrentPosition*/ true, Diagnostics.Identifier_expected);
+            }
+        }
+        
+        if (allowIdentifierNames) {
+            return allowUnicodeEscapeSequenceInIdentifierName ? parseIdentifierName() : parseIdentifierNameErrorOnUnicodeEscapeSequence();
+        }
+
+        return parseIdentifier();
+    }
+
+    function parseIdentifier(diagnosticMessage?: DiagnosticMessage, privateIdentifierDiagnosticMessage?: DiagnosticMessage): Identifier {
+        return createIdentifier(isIdentifier(), diagnosticMessage, privateIdentifierDiagnosticMessage);
+    }
+
+    function parseIdentifierName(diagnosticMessage?: DiagnosticMessage): Identifier {
+        return createIdentifier(tokenIsIdentifierOrKeyword(token()), diagnosticMessage);
+    }
+
+    function parseIdentifierNameErrorOnUnicodeEscapeSequence(): Identifier {
+        if (scanner.hasUnicodeEscape() || scanner.hasExtendedUnicodeEscape()) {
+            parseErrorAtCurrentToken(Diagnostics.Unicode_escape_sequence_cannot_appear_here);
+        }
+        return createIdentifier(tokenIsIdentifierOrKeyword(token()));
+    }
+
+    function parseParenthesizedExpression(): ParenthesizedExpression {
+        const pos = getNodePos();
+        const hasJSDoc = hasPrecedingJSDocComment();
+        parseExpected(SyntaxKind.OpenParenToken);
+        const expression = allowInAnd(parseExpression);
+        parseExpected(SyntaxKind.CloseParenToken);
+        return withJSDoc(finishNode(factoryCreateParenthesizedExpression(expression), pos), hasJSDoc);
+    }
+
+    function parseArrayLiteralExpression(): ArrayLiteralExpression {
+        const pos = getNodePos();
+        const openBracketPosition = scanner.getTokenStart();
+        const openBracketParsed = parseExpected(SyntaxKind.OpenBracketToken);
+        const multiLine = scanner.hasPrecedingLineBreak();
+        const elements = parseDelimitedList(ParsingContext.ArrayLiteralMembers, parseArgumentOrArrayLiteralElement);
+        parseExpectedMatchingBrackets(SyntaxKind.OpenBracketToken, SyntaxKind.CloseBracketToken, openBracketParsed, openBracketPosition);
+        return finishNode(factoryCreateArrayLiteralExpression(elements, multiLine), pos);
+    }
+
+    function parseSpreadElement(): Expression {
+        const pos = getNodePos();
+        parseExpected(SyntaxKind.DotDotDotToken);
+        const expression = parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ true);
+        Debug.fail("parseSpreadElement");
+        //return finishNode(factory.createSpreadElement(expression), pos);
+    }
+
+    function parseArgumentOrArrayLiteralElement(): Expression {
+        return token() === SyntaxKind.DotDotDotToken ? parseSpreadElement() :
+            token() === SyntaxKind.CommaToken ? Debug.fail("omitted expression") : // finishNode(factory.createOmittedExpression(), getNodePos()) :
+            parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ true);
+    }
+
+
+    function parsePrimaryExpression(): PrimaryExpression {
+        switch (token()) {
+            // case SyntaxKind.NoSubstitutionTemplateLiteral:
+            //     if (scanner.getTokenFlags() & TokenFlags.IsInvalid) {
+            //         reScanTemplateToken(/*isTaggedTemplate*/ false);
+            //     }
+            // falls through
+            case SyntaxKind.NumericLiteral:
+            case SyntaxKind.IntLiteral:
+            case SyntaxKind.FloatLiteral:
+            case SyntaxKind.StringLiteral:
+                return parseLiteralNode();            
+            case SyntaxKind.SuperKeyword:
+            case SyntaxKind.NullKeyword:
+            case SyntaxKind.TrueKeyword:
+            case SyntaxKind.FalseKeyword:
+                return parseTokenNode<PrimaryExpression>();
+            case SyntaxKind.OpenParenToken:
+                return parseParenthesizedExpression();
+            case SyntaxKind.OpenBracketToken:
+                return parseArrayLiteralExpression();
+            // case SyntaxKind.OpenBraceToken:
+            //     return parseObjectLiteralExpression();
+            // case SyntaxKind.AsyncKeyword:
+            //     // Async arrow functions are parsed earlier in parseAssignmentExpressionOrHigher.
+            //     // If we encounter `async [no LineTerminator here] function` then this is an async
+            //     // function; otherwise, its an identifier.
+            //     if (!lookAhead(nextTokenIsFunctionKeywordOnSameLine)) {
+            //         break;
+            //     }
+
+            //     return parseFunctionExpression();            
+            // case SyntaxKind.ClassKeyword:
+            //     return parseClassExpression();
+            // case SyntaxKind.FunctionKeyword:
+            //     return parseFunctionExpression();
+            // case SyntaxKind.NewKeyword:
+            //     return parseNewExpressionOrNewDotTarget();            
+            // case SyntaxKind.TemplateHead:
+            //     return parseTemplateExpression(/*isTaggedTemplate*/ false);            
+        }
+
+        return parseIdentifier(Diagnostics.Expression_expected);
+    }
+
+    function parseLiteralNode(): LiteralExpression {
+        return parseLiteralLikeNode(token()) as LiteralExpression;
+    }
 
     // dprint-ignore
     const enum ParsingContext {

@@ -1144,8 +1144,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             //                             // which correctly set excluded symbols
             declareSymbolAndAddToSymbolTable(node, SymbolFlags.FunctionScopedVariable, SymbolFlags.ParameterExcludes);
         }
-        else {
-            Debug.fail("address this");
+        else {            
             declareSymbolAndAddToSymbolTable(node, SymbolFlags.FunctionScopedVariable, SymbolFlags.FunctionScopedVariableExcludes);
         }
     
