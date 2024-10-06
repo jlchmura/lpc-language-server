@@ -126,18 +126,16 @@ export const textToKeywordObj: MapLike<KeywordSyntaxKind> = {
     else: SyntaxKind.ElseKeyword,            
     float: SyntaxKind.FloatKeyword,
     for: SyntaxKind.ForKeyword,    
-    function: SyntaxKind.FunctionKeyword,
-    
-    if: SyntaxKind.IfKeyword,
-    
+    function: SyntaxKind.FunctionKeyword,    
+    if: SyntaxKind.IfKeyword,    
     in: SyntaxKind.InKeyword,        
     int: SyntaxKind.IntKeyword,
+    inherit: SyntaxKind.InheritKeyword,
     intrinsic: SyntaxKind.IntrinsicKeyword,    
     mapping: SyntaxKind.MappingKeyword,
     mixed: SyntaxKind.MixedKeyword,
     new: SyntaxKind.NewKeyword,
-    null: SyntaxKind.NullKeyword,
-    
+    null: SyntaxKind.NullKeyword,    
     object: SyntaxKind.ObjectKeyword,    
     private: SyntaxKind.PrivateKeyword,
     protected: SyntaxKind.ProtectedKeyword,

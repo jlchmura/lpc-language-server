@@ -1307,7 +1307,7 @@ export interface NodeFactory {
     createReturnStatement(expression?: Expression): ReturnStatement;
     createBreakStatement(label?: string | Identifier): BreakStatement;
     createContinueStatement(label?: string | Identifier): ContinueStatement;
-    createInheritDeclaration(importClause: StringLiteral | BinaryExpression, modifiers: readonly Modifier[] | undefined): InheritDeclaration;
+    createInheritDeclaration(importClause: InheritClauseType, modifiers: readonly Modifier[] | undefined): InheritDeclaration;
     createIfStatement(expression: Expression, thenStatement: Statement, elseStatement?: Statement): IfStatement;
     createSwitchStatement(expression: Expression, preBlock: NodeArray<Statement>, caseBlock: CaseBlock): SwitchStatement;
     createCaseBlock(clauses: readonly CaseOrDefaultClause[]): CaseBlock;
@@ -1604,6 +1604,7 @@ export type HasContainerFlags =
 /** NODES */
 export type HasJSDoc = 
     | Block 
+    | InheritDeclaration
     | SwitchStatement
     | CaseClause
     | BreakStatement
@@ -3286,7 +3287,7 @@ export interface InheritDeclaration extends Statement {
     readonly inheritClause: InheritClauseType;
 }
 
-export type InheritClauseType = StringLiteral | BinaryExpression;
+export type InheritClauseType = StringLiteral | Expression;
 
 /**
  * This is a special type of binary expression where both sides are definitely string literals
