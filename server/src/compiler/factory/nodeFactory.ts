@@ -47,6 +47,7 @@ import {
     getIdentifierTypeArguments,
     getTextOfIdentifierOrLiteral,
     hasProperty,
+    HeritageClause,
     Identifier,
     identity,
     IfStatement,
@@ -105,6 +106,7 @@ import {
     PropertyAccessToken,
     PropertyName,
     PropertyNameLiteral,
+    PropertySignature,
     PunctuationSyntaxKind,
     PunctuationToken,
     QualifiedName,
@@ -115,6 +117,8 @@ import {
     Statement,
     StringLiteral,
     stringToToken,
+    StructDeclaration,
+    StructTypeNode,
     SwitchStatement,
     SyntaxKind,
     Token,
@@ -204,6 +208,9 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createTypeReferenceNode,
         createLiteralTypeNode,
         createTypeLiteralNode,
+        createStructTypeNode,
+        createPropertySignature,
+        
 
         // Names
         createQualifiedName,
@@ -232,6 +239,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createWhileStatement,
         createParameterDeclaration,
         createMissingDeclaration,
+        createStructDeclarationNode,
 
         // Expressions
         createParenthesizedExpression,
@@ -543,6 +551,27 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
 
         return node;
     }
+
+    // @api 
+    function createStructTypeNode(name: Identifier): StructTypeNode {
+        const node = createBaseNode<StructTypeNode>(SyntaxKind.StructType);
+        node.name = name;
+        return node;
+    }  
+
+    // @api 
+    function createStructDeclarationNode(
+        modifiers: readonly Modifier[] | undefined,
+        name: Identifier, 
+        heritageClauses: readonly HeritageClause[] | undefined,
+        members: readonly TypeElement[]): StructDeclaration {
+        const node = createBaseNode<StructDeclaration>(SyntaxKind.StructDeclaration);
+        node.name = name;
+        node.modifiers = asNodeArray(modifiers);        
+        node.members = createNodeArray(members);
+        return node;
+    }  
+
     // @api
     function createLiteralTypeNode(literal: LiteralTypeNode["literal"]) {
         const node = createBaseNode<LiteralTypeNode>(SyntaxKind.LiteralType);
@@ -1257,6 +1286,23 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         return node;
     }
 
+    // @api
+    function createPropertySignature(
+        modifiers: readonly Modifier[] | undefined,
+        name: PropertyName | string,        
+        type: TypeNode | undefined,
+    ): PropertySignature {
+        const node = createBaseDeclaration<PropertySignature>(SyntaxKind.PropertySignature);
+        node.modifiers = asNodeArray(modifiers);
+        node.name = asName(name);
+        node.type = type;        
+        // node.transformFlags = TransformFlags.ContainsTypeScript;
+
+        node.initializer = undefined; // initialized by parser to report grammar errors
+        node.jsDoc = undefined; // initialized by parser (JsDocContainer)
+        return node;
+    }
+    
     // @api
     function createTypeLiteralNode(members: readonly TypeElement[] | undefined) {
         const node = createBaseDeclaration<TypeLiteralNode>(SyntaxKind.TypeLiteral);

@@ -761,6 +761,7 @@ export const enum SyntaxKind {
     SwitchStatement, // LastStatement
 
     LiteralType,
+    StructType,
     IndexedAccessType,
     MappedType,
 
@@ -793,6 +794,7 @@ export const enum SyntaxKind {
     // Clauses
     CatchClause,
     CaseClause,
+    HeritageClause,
     DefaultClause,    
 
     // Enum value count
@@ -1182,6 +1184,7 @@ export type TypeNodeSyntaxKind =
     | KeywordTypeSyntaxKind
     | SyntaxKind.UnionType
     | SyntaxKind.IndexedAccessType
+    | SyntaxKind.StructType
     | SyntaxKind.ArrayType
     | SyntaxKind.LiteralType
     | SyntaxKind.MappedType
@@ -1297,7 +1300,13 @@ export interface NodeFactory {
     createParenthesizedType(type: TypeNode): ParenthesizedTypeNode;
     createLiteralTypeNode(literal: LiteralTypeNode["literal"]): LiteralTypeNode;
     createTypeLiteralNode(members: readonly TypeElement[] | undefined): TypeLiteralNode;
-    
+    createStructTypeNode(name: Identifier): StructTypeNode;
+    createPropertySignature(modifiers: readonly Modifier[] | undefined, name: PropertyName | string, type: TypeNode | undefined): PropertySignature;
+    createStructDeclarationNode(
+        modifiers: readonly Modifier[] | undefined,
+        name: Identifier, 
+        heritageClauses: readonly HeritageClause[] | undefined,
+        members: readonly TypeElement[]): StructDeclaration;
 
     // Statements
     createBlock(statements: readonly Statement[], multiLine?: boolean): Block;
@@ -1606,6 +1615,9 @@ export type HasContainerFlags =
 /** NODES */
 export type HasJSDoc = 
     | Block 
+    | StructDeclaration
+    | PropertySignature
+    | MethodSignature
     | InlineClosureExpression
     | InheritDeclaration
     | SwitchStatement
@@ -2014,6 +2026,7 @@ export type KeywordSyntaxKind =
     | SyntaxKind.FloatKeyword
     | SyntaxKind.MixedKeyword
     | SyntaxKind.MappingKeyword
+    | SyntaxKind.StructKeyword
     | SyntaxKind.UnknownKeyword
     ;
 
@@ -3715,6 +3728,13 @@ export interface ObjectType extends Type {
     /** @internal */ objectTypeWithoutAbstractConstructSignatures?: ObjectType;
 }
 
+export interface StructDeclaration extends DeclarationStatement, JSDocContainer, LocalsContainer {
+    readonly kind: SyntaxKind.StructDeclaration;
+    readonly name: Identifier;
+    readonly modifiers?: NodeArray<Modifier>;
+    readonly members: NodeArray<TypeElement>;
+}
+
 /** @internal */
 export type MatchingKeys<TRecord, TMatch, K extends keyof TRecord = keyof TRecord> = K extends (TRecord[K] extends TMatch ? K : never) ? K : never;
 
@@ -4172,13 +4192,6 @@ export interface JSDocDeprecatedTag extends JSDocTag {
     kind: SyntaxKind.JSDocDeprecatedTag;
 }
 
-
-export interface StructDeclaration extends DeclarationStatement {
-    readonly kind: SyntaxKind.StructDeclaration;
-    readonly name: Identifier;
-    readonly members: NodeArray<ClassElement>;
-}
-
 export interface PropertyDeclaration extends ClassElement, JSDocContainer {
     readonly kind: SyntaxKind.PropertyDeclaration;
     readonly parent: StructDeclaration;
@@ -4202,6 +4215,11 @@ export type BooleanLiteral = TrueLiteral | FalseLiteral;
 export interface LiteralTypeNode extends TypeNode {
     readonly kind: SyntaxKind.LiteralType;
     readonly literal: LiteralExpression | PrefixUnaryExpression | BooleanLiteral;
+}
+
+export interface StructTypeNode extends TypeNode {
+    readonly kind: SyntaxKind.StructType;
+    readonly name: Identifier;    
 }
 
 export const enum SymbolFormatFlags {
@@ -4914,6 +4932,8 @@ export type ResolutionMode = ModuleKind.LPC | undefined;
 
 // NOTE: If modifying this enum, must modify `TypeFormatFlags` too!
 // dprint-ignore
+// @ts-ignore
+
 export const enum NodeBuilderFlags {
     None                                    = 0,
     // Options
@@ -4944,13 +4964,13 @@ export const enum NodeBuilderFlags {
     AllowEmptyTuple                         = 1 << 19,
     AllowUniqueESSymbolType                 = 1 << 20,
     AllowEmptyIndexInfoType                 = 1 << 21,
-    /** @internal */ WriteComputedProps      = 1 << 30, // { [E.A]: 1 }
+    /** @internal */ WriteComputedProps     = 1 << 30, // { [E.A]: 1 }
     /** @internal */ NoSyntacticPrinter     = 1 << 31,
     // Errors (cont.)
     AllowNodeModulesRelativePaths           = 1 << 26,
-    /** @internal */ DoNotIncludeSymbolChain = 1 << 27,    // Skip looking up and printing an accessible symbol chain
-    /** @internal */ AllowUnresolvedNames = 1 << 32,
-
+    /** @internal */ DoNotIncludeSymbolChain = 1 << 27,    // Skip looking up and printing an accessible symbol chain            
+    /** @internal */ AllowUnresolvedNames   = 1 << 32, 
+    
     IgnoreErrors = AllowThisInObjectLiteral | AllowQualifiedNameInPlaceOfIdentifier | AllowAnonymousIdentifier | AllowEmptyUnionOrIntersection | AllowEmptyTuple | AllowEmptyIndexInfoType | AllowNodeModulesRelativePaths,
 
     // State
@@ -4958,7 +4978,6 @@ export const enum NodeBuilderFlags {
     InTypeAlias                             = 1 << 23,    // Writing type in type alias declaration
     InInitialEntityName                     = 1 << 24,    // Set when writing the LHS of an entity name or entity name expression
 }
-
 
 /**
  * Ternary values are defined such that
@@ -5415,6 +5434,12 @@ export interface InterfaceType extends ObjectType {
     baseTypesResolved?: boolean;
 }
 
+export interface HeritageClause extends Node {
+    readonly kind: SyntaxKind.HeritageClause;
+    readonly parent: StructDeclaration | ClassLikeDeclaration;
+    // readonly token?: SyntaxKind.ExtendsKeyword | SyntaxKind.ImplementsKeyword;
+    readonly types: NodeArray<Expression>;
+}
 
 // Generic class and interface types
 export interface GenericType extends InterfaceType, TypeReference {
@@ -6131,7 +6156,7 @@ export interface PropertySignature extends TypeElement, JSDocContainer {
     readonly modifiers?: NodeArray<Modifier>;
     readonly name: PropertyName;                 // Declared property name
     //readonly questionToken?: QuestionToken;      // Present on optional property
-    //readonly type?: TypeNode;                    // Optional type annotation
+    readonly type?: TypeNode;                    // Optional type annotation
 
     // The following properties are used only to report grammar errors (see `isGrammarError` in utilities.ts)
     /** @internal */ readonly initializer?: Expression | undefined; // A property signature cannot have an initializer

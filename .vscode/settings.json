@@ -16,5 +16,9 @@
         "editor.formatOnSave": false
     },
 
-    "typescript.preferences.autoImportFileExcludePatterns": ["/**/compiler2/"],    
+    "typescript.preferences.autoImportFileExcludePatterns": [
+        "/**/compiler2/"
+    ],
+    "typescript.tsdk": "node_modules/typescript/lib",
+    
 }
