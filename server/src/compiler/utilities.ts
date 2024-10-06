@@ -856,7 +856,7 @@ function getAssignmentTarget(node: Node): AssignmentTarget | undefined {
                 return unaryOperator === SyntaxKind.PlusPlusToken || unaryOperator === SyntaxKind.MinusMinusToken ? unaryExpression : undefined;
             case SyntaxKind.ForEachStatement:            
                 const forInOrOfStatement = parent as ForEachStatement;
-                return some(forInOrOfStatement.initializer, (i)=> i === node) ? forInOrOfStatement : undefined;
+                return forInOrOfStatement.initializer === node ? forInOrOfStatement : undefined;
             case SyntaxKind.ParenthesizedExpression:
             case SyntaxKind.ArrayLiteralExpression:
             case SyntaxKind.SpreadElement:

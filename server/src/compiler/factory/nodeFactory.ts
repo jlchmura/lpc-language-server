@@ -39,8 +39,7 @@ import {
     ExpressionStatement,
     FalseLiteral,
     firstOrUndefined,
-    FloatLiteral,
-    ForEachInitializer,
+    FloatLiteral,    
     ForEachStatement,
     ForInitializer,
     ForStatement,
@@ -1028,10 +1027,11 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     // @api
-    function createPropertyAccessExpression(expression: Expression, name: string | Identifier, propertyAccessToken: PropertyAccessToken): PropertyAccessExpression {
+    function createPropertyAccessExpression(expression: Expression, name: string | Identifier, propertyAccessToken?: PropertyAccessToken): PropertyAccessExpression {
         const node = createBasePropertyAccessExpression(
-            parenthesizerRules().parenthesizeLeftSideOfAccess(expression, /*optionalChain*/ false),            
+            parenthesizerRules().parenthesizeLeftSideOfAccess(expression, /*optionalChain*/ false),
             asName(name),
+            propertyAccessToken
         );
                
         // TODO handle super here?
@@ -1059,7 +1059,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     // @api
-    function createForEachStatement(initializer: ForEachInitializer | undefined, range: Expression | undefined, statement: Statement): ForEachStatement {
+    function createForEachStatement(initializer: ForInitializer | undefined, range: Expression | undefined, statement: Statement): ForEachStatement {
         const node = createBaseNode<ForEachStatement>(SyntaxKind.ForEachStatement);
         node.initializer = initializer;
         node.expression = range;        

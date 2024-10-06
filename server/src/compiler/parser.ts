@@ -1,6 +1,6 @@
 import * as antlr from "antlr4ng";
 import * as parserCore from "../parser3/parser-core";
-import { isIdentifier as isIdentifierNode, BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange, PrefixUnaryExpression, first, LanguageVariant, EqualsToken, LpcConfigSourceFile, createBaseNodeFactory, PrefixUnaryOperator, Program, LpcFileHandler, ParenthesizedExpression, ArrayLiteralExpression, LambdaExpression, PunctuationSyntaxKind, PunctuationToken, LambdaOperatorToken, CastExpression, PropertyAccessExpression, isIdentifier, CloneObjectExpression, NewExpression, trimQuotes, createScanner, isKeyword, PunctuationOrKeywordSyntaxKind, getLanguageVariant, mapDefined, getJSDocCommentRanges, LabeledStatement, PropertyName, Token, tokenToString, addRelatedInfo, tokenIsIdentifierOrKeyword, getBinaryOperatorPrecedence, addRange, append, ArrayTypeNode, canHaveJSDoc, concatenate, containsParseError, Diagnostic, EntityName, getSpellingSuggestion, identity, idText, isIdentifierText, isTypeReferenceNode, JSDoc, JSDocAugmentsTag, JSDocCallbackTag, JSDocComment, JSDocImplementsTag, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocParameterTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThrowsTag, JSDocTypedefTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, nodeIsMissing, noop, PropertyAccessEntityNameExpression, setParent, skipTrivia, some, CharacterCodes, MapLike, KeywordSyntaxKind, startsWith, textToKeywordObj, ModifierLike, isModifierKind, MissingDeclaration, setTextRangePos, BindingPattern, KeywordTypeSyntaxKind, LiteralTypeNode, IntLiteral, FloatLiteral, LiteralLikeNode, isLiteralKind, TypeReferenceNode, getFullWidth, OperatorPrecedence, UnaryExpression, isLeftHandSideExpression, isAssignmentOperator, isKeywordOrPunctuation, UpdateExpression, PrimaryExpression, nodeIsPresent, PropertyAccessToken } from "./_namespaces/lpc";
+import { isIdentifier as isIdentifierNode, BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange, PrefixUnaryExpression, first, LanguageVariant, EqualsToken, LpcConfigSourceFile, createBaseNodeFactory, PrefixUnaryOperator, Program, LpcFileHandler, ParenthesizedExpression, ArrayLiteralExpression, LambdaExpression, PunctuationSyntaxKind, PunctuationToken, LambdaOperatorToken, CastExpression, PropertyAccessExpression, isIdentifier, CloneObjectExpression, NewExpression, trimQuotes, createScanner, isKeyword, PunctuationOrKeywordSyntaxKind, getLanguageVariant, mapDefined, getJSDocCommentRanges, LabeledStatement, PropertyName, Token, tokenToString, addRelatedInfo, tokenIsIdentifierOrKeyword, getBinaryOperatorPrecedence, addRange, append, ArrayTypeNode, canHaveJSDoc, concatenate, containsParseError, Diagnostic, EntityName, getSpellingSuggestion, identity, idText, isIdentifierText, isTypeReferenceNode, JSDoc, JSDocAugmentsTag, JSDocCallbackTag, JSDocComment, JSDocImplementsTag, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocParameterTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThrowsTag, JSDocTypedefTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, nodeIsMissing, noop, PropertyAccessEntityNameExpression, setParent, skipTrivia, some, CharacterCodes, MapLike, KeywordSyntaxKind, startsWith, textToKeywordObj, ModifierLike, isModifierKind, MissingDeclaration, setTextRangePos, BindingPattern, KeywordTypeSyntaxKind, LiteralTypeNode, IntLiteral, FloatLiteral, LiteralLikeNode, isLiteralKind, TypeReferenceNode, getFullWidth, OperatorPrecedence, UnaryExpression, isLeftHandSideExpression, isAssignmentOperator, isKeywordOrPunctuation, UpdateExpression, PrimaryExpression, nodeIsPresent, PropertyAccessToken, IterationStatement } from "./_namespaces/lpc";
 import { ILpcConfig } from "../config-types";
 import { loadLpcConfigFromString, LpcConfig } from "../backend/LpcConfig";
 
@@ -82,6 +82,8 @@ export namespace LpcParser {
     var factory = createNodeFactory(NodeFactoryFlags.NoParenthesizerRules | NodeFactoryFlags.NoNodeConverters | NodeFactoryFlags.NoOriginalNode, baseNodeFactory);
 
     var {
+        createForStatement: factoryCreateForStatement,
+        createIfStatement: factoryCreateIfStatement,
         createCallExpression: factoryCreateCallExpression,
         createArrayLiteralExpression: factoryCreateArrayLiteralExpression,
         createParenthesizedExpression: factoryCreateParenthesizedExpression,
@@ -195,6 +197,11 @@ export namespace LpcParser {
     function nextTokenAnd<T>(func: () => T): T {
         nextToken();
         return func();
+    }
+
+    function nextTokenIsIdentifierOrKeyword() {
+        nextToken();
+        return tokenIsIdentifierOrKeyword(token());
     }
 
     function nextTokenIsIdentifierOrKeywordOnSameLine() {
@@ -1067,22 +1074,22 @@ export namespace LpcParser {
                 console.info("todo - class keyword");
                 // return parseClassDeclaration(getNodePos(), hasPrecedingJSDocComment(), /*modifiers*/ undefined);
             
-            // case SyntaxKind.IfKeyword:
-            //     return parseIfStatement();
-            // case SyntaxKind.DoKeyword:
-            //     return parseDoStatement();
-            // case SyntaxKind.WhileKeyword:
-            //     return parseWhileStatement();
-            // case SyntaxKind.ForKeyword:
-            //     return parseForOrForInOrForOfStatement();
-            // case SyntaxKind.ContinueKeyword:
-            //     return parseBreakOrContinueStatement(SyntaxKind.ContinueStatement);
-            // case SyntaxKind.BreakKeyword:
-            //     return parseBreakOrContinueStatement(SyntaxKind.BreakStatement);
+            case SyntaxKind.IfKeyword:
+                return parseIfStatement();
+            case SyntaxKind.DoKeyword:
+                return parseDoStatement();
+            case SyntaxKind.WhileKeyword:
+                return parseWhileStatement();
+            case SyntaxKind.ForKeyword:
+                return parseForOrForInOrForOfStatement();
+            case SyntaxKind.ContinueKeyword:
+                return parseBreakOrContinueStatement(SyntaxKind.ContinueStatement);
+            case SyntaxKind.BreakKeyword:
+                return parseBreakOrContinueStatement(SyntaxKind.BreakStatement);
             case SyntaxKind.ReturnKeyword:
                 return parseReturnStatement();            
-            // case SyntaxKind.SwitchKeyword:
-            //     return parseSwitchStatement();
+            case SyntaxKind.SwitchKeyword:
+                return parseSwitchStatement();
             // case SyntaxKind.ThrowKeyword:
             //     return parseThrowStatement();
             // case SyntaxKind.TryKeyword:
@@ -1092,9 +1099,7 @@ export namespace LpcParser {
             // case SyntaxKind.FinallyKeyword:
             //     return parseTryStatement();
             // case SyntaxKind.DebuggerKeyword:
-            //     return parseDebuggerStatement();
-            // case SyntaxKind.AtToken:
-            //     return parseDeclaration();
+            //     return parseDebuggerStatement();            
             // case SyntaxKind.AsyncKeyword:            
             case SyntaxKind.PrivateKeyword:
             case SyntaxKind.ProtectedKeyword:
@@ -1127,6 +1132,147 @@ export namespace LpcParser {
         const hasJSDoc = hasPrecedingJSDocComment();
         parseExpected(SyntaxKind.SemicolonToken);
         return withJSDoc(finishNode(factory.createEmptyStatement(), pos), hasJSDoc);
+    }
+
+    function parseIfStatement(): IfStatement {
+        const pos = getNodePos();
+        const hasJSDoc = hasPrecedingJSDocComment();
+        parseExpected(SyntaxKind.IfKeyword);
+        const openParenPosition = scanner.getTokenStart();
+        const openParenParsed = parseExpected(SyntaxKind.OpenParenToken);
+        const expression = allowInAnd(parseExpression);
+        parseExpectedMatchingBrackets(SyntaxKind.OpenParenToken, SyntaxKind.CloseParenToken, openParenParsed, openParenPosition);
+        const thenStatement = parseStatement();
+        const elseStatement = parseOptional(SyntaxKind.ElseKeyword) ? parseStatement() : undefined;
+        return withJSDoc(finishNode(factoryCreateIfStatement(expression, thenStatement, elseStatement), pos), hasJSDoc);
+    }
+    
+    function parseForOrForInOrForOfStatement(): Statement {
+        const pos = getNodePos();
+        const hasJSDoc = hasPrecedingJSDocComment();
+        parseExpected(SyntaxKind.ForKeyword);        
+        parseExpected(SyntaxKind.OpenParenToken);
+
+        let initializer!: VariableDeclarationList | Expression;
+        if (token() !== SyntaxKind.SemicolonToken) {
+            if (
+                isTypeName() && lookAhead(nextTokenIsIdentifierOrKeyword)
+            ) {
+                const type = parseType();
+                initializer = parseVariableDeclarationList(/*inForStatementInitializer*/ true, type);
+            }
+            else {
+                initializer = disallowInAnd(parseExpression);
+            }
+        }
+
+        let node: IterationStatement;
+        if (parseOptional(SyntaxKind.InKeyword)) {
+            const expression = allowInAnd(parseExpression);
+            parseExpected(SyntaxKind.CloseParenToken);
+            node = factory.createForEachStatement(initializer, expression, parseStatement());
+        }
+        else {
+            parseExpected(SyntaxKind.SemicolonToken);
+            const condition = token() !== SyntaxKind.SemicolonToken && token() !== SyntaxKind.CloseParenToken
+                ? allowInAnd(parseExpression)
+                : undefined;
+            parseExpected(SyntaxKind.SemicolonToken);
+            const incrementor = token() !== SyntaxKind.CloseParenToken
+                ? allowInAnd(parseExpression)
+                : undefined;
+            parseExpected(SyntaxKind.CloseParenToken);
+            node = factoryCreateForStatement(initializer, condition, incrementor, parseStatement());
+        }
+
+        return withJSDoc(finishNode(node, pos) as ForStatement | ForEachStatement, hasJSDoc);
+    }
+
+    function parseBreakOrContinueStatement(kind: SyntaxKind): BreakOrContinueStatement {
+        const pos = getNodePos();
+        const hasJSDoc = hasPrecedingJSDocComment();
+
+        parseExpected(kind === SyntaxKind.BreakStatement ? SyntaxKind.BreakKeyword : SyntaxKind.ContinueKeyword);
+        const label = canParseSemicolon() ? undefined : parseIdentifier();
+
+        parseSemicolon();
+        const node = kind === SyntaxKind.BreakStatement
+            ? factory.createBreakStatement(label)
+            : factory.createContinueStatement(label);
+        return withJSDoc(finishNode(node, pos), hasJSDoc);
+    }
+    
+    function parseCaseClause(): CaseClause {
+        const pos = getNodePos();
+        const hasJSDoc = hasPrecedingJSDocComment();
+        parseExpected(SyntaxKind.CaseKeyword);
+        const expression = allowInAnd(parseExpression);
+        parseExpected(SyntaxKind.ColonToken);
+        const statements = parseList(ParsingContext.SwitchClauseStatements, parseStatement);
+        return withJSDoc(finishNode(factory.createCaseClause(expression, statements), pos), hasJSDoc);
+    }
+
+    function parseDefaultClause(): DefaultClause {
+        const pos = getNodePos();
+        parseExpected(SyntaxKind.DefaultKeyword);
+        parseExpected(SyntaxKind.ColonToken);
+        const statements = parseList(ParsingContext.SwitchClauseStatements, parseStatement);
+        return finishNode(factory.createDefaultClause(statements), pos);
+    }
+
+    function parseCaseOrDefaultClause(): CaseOrDefaultClause {
+        return token() === SyntaxKind.CaseKeyword ? parseCaseClause() : parseDefaultClause();
+    }
+
+    function parseCaseBlock(): CaseBlock {
+        const pos = getNodePos();
+        parseExpected(SyntaxKind.OpenBraceToken);
+        const clauses = parseList(ParsingContext.SwitchClauses, parseCaseOrDefaultClause);
+        parseExpected(SyntaxKind.CloseBraceToken);
+        return finishNode(factory.createCaseBlock(clauses), pos);
+    }
+
+    function parseSwitchStatement(): SwitchStatement {
+        const pos = getNodePos();
+        const hasJSDoc = hasPrecedingJSDocComment();        
+        parseExpected(SyntaxKind.SwitchKeyword);
+        parseExpected(SyntaxKind.OpenParenToken);
+        const expression = allowInAnd(parseExpression);
+        parseExpected(SyntaxKind.CloseParenToken);
+        const preBlock = parseList(ParsingContext.BlockStatements, parseStatement);
+        const caseBlock = parseCaseBlock();
+        return withJSDoc(finishNode(factory.createSwitchStatement(expression, preBlock, caseBlock), pos), hasJSDoc);
+    }
+
+    function parseDoStatement(): DoWhileStatement {
+        const pos = getNodePos();
+        const hasJSDoc = hasPrecedingJSDocComment();
+        parseExpected(SyntaxKind.DoKeyword);
+        const statement = parseStatement();
+        parseExpected(SyntaxKind.WhileKeyword);
+        const openParenPosition = scanner.getTokenStart();
+        const openParenParsed = parseExpected(SyntaxKind.OpenParenToken);
+        const expression = allowInAnd(parseExpression);
+        parseExpectedMatchingBrackets(SyntaxKind.OpenParenToken, SyntaxKind.CloseParenToken, openParenParsed, openParenPosition);
+
+        // From: https://mail.mozilla.org/pipermail/es-discuss/2011-August/016188.html
+        // 157 min --- All allen at wirfs-brock.com CONF --- "do{;}while(false)false" prohibited in
+        // spec but allowed in consensus reality. Approved -- this is the de-facto standard whereby
+        //  do;while(0)x will have a semicolon inserted before x.
+        parseOptional(SyntaxKind.SemicolonToken);
+        return withJSDoc(finishNode(factory.createDoWhileStatement(statement, expression), pos), hasJSDoc);
+    }
+
+    function parseWhileStatement(): WhileStatement {
+        const pos = getNodePos();
+        const hasJSDoc = hasPrecedingJSDocComment();
+        parseExpected(SyntaxKind.WhileKeyword);
+        const openParenPosition = scanner.getTokenStart();
+        const openParenParsed = parseExpected(SyntaxKind.OpenParenToken);
+        const expression = allowInAnd(parseExpression);
+        parseExpectedMatchingBrackets(SyntaxKind.OpenParenToken, SyntaxKind.CloseParenToken, openParenParsed, openParenPosition);
+        const statement = parseStatement();
+        return withJSDoc(finishNode(factory.createWhileStatement(statement, expression), pos), hasJSDoc);
     }
 
     function finishNode<T extends Node>(node: T, pos: number, end?: number): T {
@@ -4356,8 +4502,8 @@ const forEachChildTable: ForEachChildTable = {
             visitNode(cbNode, node.incrementor) ||
             visitNode(cbNode, node.statement);
     },
-    [SyntaxKind.ForEachStatement]: function forEachChildInForInStatement<T>(node: ForEachStatement, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
-        return visitNodes(cbNode, cbNodes, node.initializer) ||
+    [SyntaxKind.ForEachStatement]: function forEachChildInForInStatement<T>(node: ForEachStatement, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNode(cbNode, node.initializer) ||
             visitNode(cbNode, node.expression) ||
             visitNode(cbNode, node.statement);
     },    
@@ -4366,8 +4512,9 @@ const forEachChildTable: ForEachChildTable = {
     [SyntaxKind.ReturnStatement]: function forEachChildInReturnStatement<T>(node: ReturnStatement, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
         return visitNode(cbNode, node.expression);
     },    
-    [SyntaxKind.SwitchStatement]: function forEachChildInSwitchStatement<T>(node: SwitchStatement, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+    [SyntaxKind.SwitchStatement]: function forEachChildInSwitchStatement<T>(node: SwitchStatement, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
         return visitNode(cbNode, node.expression) ||
+            visitNodes(cbNode, cbNodes, node.preBlock) ||
             visitNode(cbNode, node.caseBlock);
     },
     [SyntaxKind.CaseBlock]: function forEachChildInCaseBlock<T>(node: CaseBlock, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {

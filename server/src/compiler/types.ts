@@ -1314,7 +1314,7 @@ export interface NodeFactory {
     createDefaultClause(statements: readonly Statement[]): DefaultClause;
     createCaseClause(expression: Expression, statements: readonly Statement[]): CaseClause;
     createForStatement(initializer: ForInitializer | undefined, condition: Expression | undefined, incrementor: Expression | undefined, statement: Statement): ForStatement
-    createForEachStatement(initializer: ForEachInitializer | undefined, range: Expression | undefined, statement: Statement): ForEachStatement;
+    createForEachStatement(initializer: ForInitializer | undefined, range: Expression | undefined, statement: Statement): ForEachStatement;
     createDoWhileStatement(statement: Statement, expression: Expression): DoWhileStatement;
     createWhileStatement(statement: Statement, expression: Expression): WhileStatement;
     createParameterDeclaration(modifiers: readonly Modifier[] | undefined, dotDotDotToken: DotDotDotToken | undefined, name: string | BindingName, ampToken?: AmpersandToken, type?: TypeNode, initializer?: Expression): ParameterDeclaration;
@@ -1326,7 +1326,7 @@ export interface NodeFactory {
     createBinaryExpression(left: Expression, operator: BinaryOperator | BinaryOperatorToken, right: Expression): BinaryExpression;
     createCallExpression(expression: Expression, argumentsArray: readonly Expression[] | undefined): CallExpression;
     createInlineClosure(body: ConciseBody): InlineClosureExpression;
-    createPropertyAccessExpression(expression: Expression, name: string | Identifier | Expression, propertyAccessToken: PropertyAccessToken): PropertyAccessExpression;
+    createPropertyAccessExpression(expression: Expression, name: string | Identifier | Expression, propertyAccessToken?: PropertyAccessToken): PropertyAccessExpression;
     createPrefixUnaryExpression(operator: PrefixUnaryOperator, operand: Expression): PrefixUnaryExpression;
     createPostfixUnaryExpression(operand: Expression, operator: PostfixUnaryOperator): PostfixUnaryExpression;
     createElementAccessExpression(expression: Expression, index: number | Expression): ElementAccessExpression;
@@ -1604,6 +1604,11 @@ export type HasContainerFlags =
 /** NODES */
 export type HasJSDoc = 
     | Block 
+    | SwitchStatement
+    | CaseClause
+    | BreakStatement
+    | ContinueStatement
+    | IfStatement
     | ParenthesizedExpression
     | ExpressionStatement
     | EmptyStatement
@@ -1967,9 +1972,10 @@ export interface Token<TKind extends SyntaxKind> extends Node {
 export type EndOfFileToken = Token<SyntaxKind.EndOfFileToken> & JSDocContainer;
 
 export type KeywordSyntaxKind =
-    | SyntaxKind.AnyKeyword
+    | SyntaxKind.AnyKeyword    
     | SyntaxKind.ClassKeyword   
     | SyntaxKind.CaseKeyword
+    | SyntaxKind.DefaultKeyword
     | SyntaxKind.UndefinedKeyword
     | SyntaxKind.BreakKeyword
     | SyntaxKind.VoidKeyword
@@ -3078,7 +3084,6 @@ export interface IterationStatement extends Statement {
 }
 
 export type ForInitializer = VariableDeclarationList | Expression;
-export type ForEachInitializer = NodeArray<ForInitializer>;
 
 // export interface ForInStatement extends IterationStatement, LocalsContainer, FlowContainer {
 //     readonly kind: SyntaxKind.ForInStatement;
@@ -3369,7 +3374,7 @@ export interface ForStatement extends IterationStatement, LocalsContainer, FlowC
 
 export interface ForEachStatement extends IterationStatement, LocalsContainer, FlowContainer {
     readonly kind: SyntaxKind.ForEachStatement;
-    readonly initializer: ForEachInitializer;
+    readonly initializer: ForInitializer;
     readonly expression: Expression;    
 }
 

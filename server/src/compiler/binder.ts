@@ -1381,7 +1381,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
         currentFlow = preLoopLabel;
         
         addAntecedent(postLoopLabel, currentFlow);
-        bindEach(node.initializer);
+        bind(node.initializer);
         // if (node.initializer.kind !== SyntaxKind.VariableDeclarationList) {
         //     bindAssignmentTargetFlow(node.initializer);
         // }
