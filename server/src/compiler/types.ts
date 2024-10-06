@@ -563,7 +563,9 @@ export const enum SyntaxKind {
     AtToken,
     QuestionQuestionToken,
     HashToken,
-    ColonColonToken,
+    OpenParenColonToken,
+    ColonCloseParenToken,
+    ColonColonToken,    
     DotDotToken,
 
     // Assignments
@@ -1604,6 +1606,7 @@ export type HasContainerFlags =
 /** NODES */
 export type HasJSDoc = 
     | Block 
+    | InlineClosureExpression
     | InheritDeclaration
     | SwitchStatement
     | CaseClause
@@ -2063,10 +2066,12 @@ export type Modifier =
 export type ModifierLike = Modifier;// | Decorator;
 
 export type PunctuationSyntaxKind =
-    | SyntaxKind.OpenBraceToken
+    | SyntaxKind.OpenBraceToken    
     | SyntaxKind.CloseBraceToken
     | SyntaxKind.OpenParenToken
     | SyntaxKind.CloseParenToken
+    | SyntaxKind.OpenParenColonToken
+    | SyntaxKind.ColonCloseParenToken
     | SyntaxKind.OpenBracketToken
     | SyntaxKind.CloseBracketToken
     | SyntaxKind.DotToken
@@ -3232,7 +3237,7 @@ export interface CloneObjectExpression extends PrimaryExpression, Declaration, L
     readonly arguments?: NodeArray<Expression>;    
 }
 
-export interface InlineClosureExpression extends Expression, FunctionLikeDeclarationBase, JSDocContainer, LocalsContainer, FlowContainer {
+export interface InlineClosureExpression extends PrimaryExpression, FunctionLikeDeclarationBase, JSDocContainer, LocalsContainer, FlowContainer {
     readonly kind: SyntaxKind.InlineClosureExpression;
     readonly body: ConciseBody;
     readonly name: never;

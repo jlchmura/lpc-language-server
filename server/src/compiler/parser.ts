@@ -590,7 +590,7 @@ export namespace LpcParser {
                 }
                 // falls through
             case ParsingContext.ArgumentExpressions:
-                return token() === SyntaxKind.DotDotDotToken || isStartOfExpression();
+                return token() === SyntaxKind.DotDotDotToken || isStartOfExpression() || token() === SyntaxKind.OpenParenColonToken;
             case ParsingContext.Parameters:
                 return isStartOfParameter(/*isJSDocParameter*/ false);
             case ParsingContext.JSDocParameters:
@@ -3071,6 +3071,22 @@ export namespace LpcParser {
         return withJSDoc(finishNode(factoryCreateParenthesizedExpression(expression), pos), hasJSDoc);
     }
 
+    function parseInlineClosureExpression(): InlineClosureExpression {
+        const pos = getNodePos();
+        const hasJSDoc = hasPrecedingJSDocComment();                
+
+        const savedContext = parsingContext;
+        parsingContext |= ParsingContext.InlineClosure;        
+
+        parseExpected(SyntaxKind.OpenParenColonToken);
+        const expression = disallowInAnd(parseExpression);
+        parseExpected(SyntaxKind.ColonCloseParenToken);
+
+        parsingContext = savedContext;
+
+        return withJSDoc(finishNode(factory.createInlineClosure(expression), pos), hasJSDoc);
+    }
+
     function parseArrayLiteralExpression(): ArrayLiteralExpression {
         const pos = getNodePos();
         const openBracketPosition = scanner.getTokenStart();
@@ -3117,6 +3133,8 @@ export namespace LpcParser {
                 return parseParenthesizedExpression();
             case SyntaxKind.OpenBracketToken:
                 return parseArrayLiteralExpression();
+            case SyntaxKind.OpenParenColonToken:
+                return parseInlineClosureExpression();
             // case SyntaxKind.OpenBraceToken:
             //     return parseObjectLiteralExpression();
             // case SyntaxKind.AsyncKeyword:
@@ -3174,6 +3192,7 @@ export namespace LpcParser {
         ImportAttributes,          // Import attributes
         JSDocComment,              // Parsing via JSDocParser
         Count,                     // Number of parsing contexts
+        InlineClosure,             // Closure expression
     }
 
     function internIdentifier(text: string): string {

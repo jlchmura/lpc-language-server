@@ -145,14 +145,10 @@ export const textToKeywordObj: MapLike<KeywordSyntaxKind> = {
     string: SyntaxKind.StringKeyword,    
     switch: SyntaxKind.SwitchKeyword,
     undefined: SyntaxKind.UndefinedKeyword,
-
     unknown: SyntaxKind.UnknownKeyword,
-
     void: SyntaxKind.VoidKeyword,
     while: SyntaxKind.WhileKeyword,
-
     async: SyntaxKind.AsyncKeyword,
-
 };
 
 const textToKeyword = new Map(Object.entries(textToKeywordObj));
@@ -219,6 +215,8 @@ const textToToken = new Map(Object.entries({
     "??=": SyntaxKind.QuestionQuestionEqualsToken,
     "@": SyntaxKind.AtToken,
     "#": SyntaxKind.HashToken,    
+    "(:": SyntaxKind.OpenParenColonToken,
+    ":)": SyntaxKind.ColonCloseParenToken,
 }));
 
 /*
@@ -1884,6 +1882,9 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
                     pos++;
                     return token = SyntaxKind.AmpersandToken;
                 case CharacterCodes.openParen:
+                    if (charCodeUnchecked(pos + 1) === CharacterCodes.colon) {
+                        return pos += 2, token = SyntaxKind.OpenParenColonToken;
+                    }
                     pos++;
                     return token = SyntaxKind.OpenParenToken;
                 case CharacterCodes.closeParen:
@@ -2064,6 +2065,9 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
                 case CharacterCodes._9:
                     return token = scanNumber();
                 case CharacterCodes.colon:
+                    if (charCodeUnchecked(pos + 1) === CharacterCodes.closeParen) {
+                        return pos += 2, token = SyntaxKind.ColonCloseParenToken;
+                    }
                     pos++;
                     return token = SyntaxKind.ColonToken;
                 case CharacterCodes.semicolon:

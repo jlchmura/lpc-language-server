@@ -180,6 +180,7 @@ import {
     InterfaceType,
     NavigationBar,
     FindAllReferences,
+    isInComment,
 } from "./_namespaces/lpc.js";
 
 
@@ -1778,9 +1779,8 @@ export function createLanguageService(
                 return true;// !isLabelName(node) && !isTagName(node) && !isConstTypeReference(node.parent);
             case SyntaxKind.PropertyAccessExpression:
             case SyntaxKind.QualifiedName:
-                // Don't return quickInfo if inside the comment in `a/**/.b`
-                Debug.fail("TODO");
-                //return !isInComment(sourceFile, position);
+                // Don't return quickInfo if inside the comment in `a/**/.b`                
+                return !isInComment(sourceFile, position);
             case SyntaxKind.SuperKeyword:
             // case SyntaxKind.NamedTupleMember:
                 return true;
