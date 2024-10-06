@@ -133,6 +133,8 @@ export const textToKeywordObj: MapLike<KeywordSyntaxKind> = {
     in: SyntaxKind.InKeyword,        
     int: SyntaxKind.IntKeyword,
     intrinsic: SyntaxKind.IntrinsicKeyword,    
+    mapping: SyntaxKind.MappingKeyword,
+    mixed: SyntaxKind.MixedKeyword,
     new: SyntaxKind.NewKeyword,
     null: SyntaxKind.NullKeyword,
     
@@ -1919,12 +1921,15 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
                     pos++;
                     return token = SyntaxKind.CommaToken;
                 case CharacterCodes.minus:
+                    if (charCodeUnchecked(pos + 1) === CharacterCodes.greaterThan) {
+                        return pos += 2, token = SyntaxKind.MinusGreaterThanToken;
+                    }
                     if (charCodeUnchecked(pos + 1) === CharacterCodes.minus) {
                         return pos += 2, token = SyntaxKind.MinusMinusToken;
                     }
                     if (charCodeUnchecked(pos + 1) === CharacterCodes.equals) {
                         return pos += 2, token = SyntaxKind.MinusEqualsToken;
-                    }
+                    }                    
                     pos++;
                     return token = SyntaxKind.MinusToken;
                 case CharacterCodes.dot:

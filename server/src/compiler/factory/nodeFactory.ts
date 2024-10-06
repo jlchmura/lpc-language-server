@@ -102,6 +102,7 @@ import {
     PrefixUnaryExpression,
     PrefixUnaryOperator,
     PropertyAccessExpression,
+    PropertyAccessToken,
     PropertyName,
     PropertyNameLiteral,
     PunctuationSyntaxKind,
@@ -1010,10 +1011,11 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         return node;
     }
 
-    function createBasePropertyAccessExpression(expression: LeftHandSideExpression, name: MemberName) {
+    function createBasePropertyAccessExpression(expression: LeftHandSideExpression, name: MemberName, propertyAccessToken?: PropertyAccessToken) {
         const node = createBaseDeclaration<PropertyAccessExpression>(SyntaxKind.PropertyAccessExpression);
         node.expression = expression;        
         node.name = name;
+        node.propertyAccessToken = propertyAccessToken;
         // node.transformFlags = propagateChildFlags(node.expression) |
         //     propagateChildFlags(node.questionDotToken) |
         //     (isIdentifier(node.name) ?
@@ -1026,7 +1028,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     // @api
-    function createPropertyAccessExpression(expression: Expression, name: string | Identifier): PropertyAccessExpression {
+    function createPropertyAccessExpression(expression: Expression, name: string | Identifier, propertyAccessToken: PropertyAccessToken): PropertyAccessExpression {
         const node = createBasePropertyAccessExpression(
             parenthesizerRules().parenthesizeLeftSideOfAccess(expression, /*optionalChain*/ false),            
             asName(name),

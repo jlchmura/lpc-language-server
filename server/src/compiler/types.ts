@@ -1326,7 +1326,7 @@ export interface NodeFactory {
     createBinaryExpression(left: Expression, operator: BinaryOperator | BinaryOperatorToken, right: Expression): BinaryExpression;
     createCallExpression(expression: Expression, argumentsArray: readonly Expression[] | undefined): CallExpression;
     createInlineClosure(body: ConciseBody): InlineClosureExpression;
-    createPropertyAccessExpression(expression: Expression, name: string | Identifier | Expression): PropertyAccessExpression;
+    createPropertyAccessExpression(expression: Expression, name: string | Identifier | Expression, propertyAccessToken: PropertyAccessToken): PropertyAccessExpression;
     createPrefixUnaryExpression(operator: PrefixUnaryOperator, operand: Expression): PrefixUnaryExpression;
     createPostfixUnaryExpression(operand: Expression, operator: PostfixUnaryOperator): PostfixUnaryExpression;
     createElementAccessExpression(expression: Expression, index: number | Expression): ElementAccessExpression;
@@ -2003,6 +2003,7 @@ export type KeywordSyntaxKind =
     | SyntaxKind.StringKeyword
     | SyntaxKind.FloatKeyword
     | SyntaxKind.MixedKeyword
+    | SyntaxKind.MappingKeyword
     | SyntaxKind.UnknownKeyword
     ;
 
@@ -2204,6 +2205,8 @@ export type EqualsGreaterThanToken = PunctuationToken<SyntaxKind.EqualsGreaterTh
 export type MinusGreaterThanToken = PunctuationToken<SyntaxKind.MinusGreaterThanToken>;
 export type PlusToken = PunctuationToken<SyntaxKind.PlusToken>;
 export type MinusToken = PunctuationToken<SyntaxKind.MinusToken>;
+
+export type PropertyAccessToken = DotToken | MinusGreaterThanToken;
 
 export type JSDocSyntaxKind =
     | SyntaxKind.EndOfFileToken
@@ -3338,6 +3341,7 @@ export interface PropertyAccessExpression extends MemberExpression, NamedDeclara
     readonly kind: SyntaxKind.PropertyAccessExpression;
     readonly expression: LeftHandSideExpression;        
     readonly name: MemberName;
+    readonly propertyAccessToken: PropertyAccessToken
 }
 
 /** @internal */
