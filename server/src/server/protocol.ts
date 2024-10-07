@@ -606,7 +606,7 @@ export interface FileSpan extends TextSpan {
     file: string;
 }
 
-export type DiagnosticEventKind = "semanticDiag" | "syntaxDiag" | "suggestionDiag";
+export type DiagnosticEventKind = "semanticDiag" | "syntaxDiag" | "suggestionDiag" | "allDiag";
 
 export interface SemanticDiagnosticsSyncRequestArgs extends FileRequestArgs {
     includeLinePosition?: boolean;

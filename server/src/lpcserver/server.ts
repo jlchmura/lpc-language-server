@@ -118,9 +118,10 @@ export function start(connection: Connection, platform: string) {
             if (msg.type === "event") {
                 const e = msg as lpc.server.protocol.Event;
                 switch (e.event) {
-                    case "suggestionDiag":
-                    case "syntaxDiag":
-                    case "semanticDiag":
+                    case "allDiag":
+                    // case "suggestionDiag":                
+                    // case "syntaxDiag":
+                    // case "semanticDiag":
                         if (e.body) {
                             const { file, diagnostics } = e.body as lpc.server.protocol.DiagnosticEventBody;
                             const uri = URI.file(file).toString();

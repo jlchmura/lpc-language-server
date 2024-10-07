@@ -355,6 +355,7 @@ export class Session<TMessage = string> implements EventSender {
             }
 
             const { fileName, project } = item;
+            const diagnostics = [];
 
             // Ensure the project is up to date before checking if this file is present in the project.
             updateProjectIfDirty(project);
@@ -362,29 +363,38 @@ export class Session<TMessage = string> implements EventSender {
                 return;
             }
 
-            this.syntacticCheck(fileName, project);
+            const syntaxDiag = this.syntacticCheck(fileName, project);
+            diagnostics.push(...syntaxDiag);
+
             if (this.changeSeq !== seq) {
+                this.sendAllDiagnostics(diagnostics, fileName, project);
                 return;
             }
 
             // Don't provide semantic diagnostics unless we're in full semantic mode.
             if (project.projectService.serverMode !== LanguageServiceMode.Semantic) {
+                this.sendAllDiagnostics(diagnostics, fileName, project);
                 goNext();
                 return;
             }
             next.immediate("semanticCheck", () => {
-                this.semanticCheck(fileName, project);
+                diagnostics.push(...this.semanticCheck(fileName, project));
                 if (this.changeSeq !== seq) {
+                    this.sendAllDiagnostics(diagnostics, fileName, project);
                     return;
                 }
 
-                // if (this.getPreferences(fileName).disableSuggestions) {
-                //     goNext();
-                //     return;
-                // }
-                next.immediate("suggestionCheck", () => {
-                    this.suggestionCheck(fileName, project);
+                if (this.getPreferences(fileName).disableSuggestions) {
+                    this.sendAllDiagnostics(diagnostics, fileName, project);
                     goNext();
+                    return;
+                }
+                next.immediate("suggestionCheck", () => {
+                    diagnostics.push(...this.suggestionCheck(fileName, project));
+                    next.immediate("sendAllDiags", ()=> {
+                        this.sendAllDiagnostics(diagnostics, fileName, project);
+                        goNext();
+                    });                    
                 });
             });
         };
@@ -394,26 +404,35 @@ export class Session<TMessage = string> implements EventSender {
         }
     }
 
+    private sendAllDiagnostics(diagnostics: readonly Diagnostic[], fileName: NormalizedPath, project: Project): void {
+        this.sendDiagnosticsEvent(fileName, project, diagnostics, "allDiag");
+    }
+
     private semanticCheck(file: NormalizedPath, project: Project) {
         tracing?.push(tracing.Phase.Session, "semanticCheck", { file, configFilePath: (project as ConfiguredProject).canonicalConfigFilePath }); // undefined is fine if the cast fails
         // const diags = isDeclarationFileInJSOnlyNonConfiguredProject(project, file)
         //     ? emptyArray
-        //     : project.getLanguageService().getSemanticDiagnostics(file).filter(d => !!d.file);
+        //     : project.getLanguageService().getSemanticDiagnostics(file).filter(d => !!d.file);        
         const diags = project.getLanguageService().getSemanticDiagnostics(file).filter(d => !!d.file);        
         this.sendDiagnosticsEvent(file, project, diags, "semanticDiag");
         tracing?.pop();
+        return diags;
     }
 
     private syntacticCheck(file: NormalizedPath, project: Project) {
         tracing?.push(tracing.Phase.Session, "syntacticCheck", { file, configFilePath: (project as ConfiguredProject).canonicalConfigFilePath }); // undefined is fine if the cast fails
-        this.sendDiagnosticsEvent(file, project, project.getLanguageService().getSyntacticDiagnostics(file), "syntaxDiag");
+        const diagnostics = project.getLanguageService().getSyntacticDiagnostics(file);
+        this.sendDiagnosticsEvent(file, project, diagnostics, "syntaxDiag");
         tracing?.pop();
+        return diagnostics
     }
 
     private suggestionCheck(file: NormalizedPath, project: Project) {
         tracing?.push(tracing.Phase.Session, "suggestionCheck", { file, configFilePath: (project as ConfiguredProject).canonicalConfigFilePath }); // undefined is fine if the cast fails
-        this.sendDiagnosticsEvent(file, project, project.getLanguageService().getSuggestionDiagnostics(file), "suggestionDiag");
+        const diagnostics = project.getLanguageService().getSuggestionDiagnostics(file);
+        this.sendDiagnosticsEvent(file, project, diagnostics, "suggestionDiag");
         tracing?.pop();
+        return diagnostics;
     }
 
     private getConfigFileAndProject(args: protocol.FileRequestArgs): { configFile: NormalizedPath | undefined; project: Project | undefined; } {
