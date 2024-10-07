@@ -3832,7 +3832,7 @@ export function getElementOrPropertyAccessArgumentExpressionOrName(node: AccessE
 }
 
 /** @internal */
-export function getElementOrPropertyAccessName(node: /*LiteralLikeElementAccessExpression |*/ PropertyAccessExpression): string;
+export function getElementOrPropertyAccessName(node: LiteralLikeElementAccessExpression | PropertyAccessExpression): string;
 /** @internal */
 export function getElementOrPropertyAccessName(node: AccessExpression): string | undefined;
 /** @internal */
@@ -5616,4 +5616,3 @@ export function isTypeDeclaration(node: Node): node is TypeParameterDeclaration 
             return false;
     }
 }
-

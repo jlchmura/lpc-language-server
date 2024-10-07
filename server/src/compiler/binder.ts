@@ -1,4 +1,4 @@
-import { CompilerOptions, Debug, FlowFlags, FlowLabel, FlowNode, HasLocals, IsBlockScopedContainer, IsContainer, Node, objectAllocator, SourceFile, SymbolFlags, Symbol, tracing, setParent, TracingNode, SyntaxKind, isFunctionLike, NodeArray, forEach, forEachChild, Mutable, HasContainerFlags, createSymbolTable, ModifierFlags, FunctionExpression, InlineClosureExpression, NodeFlags, FunctionLikeDeclaration, getImmediatelyInvokedFunctionExpression, nodeIsPresent, contains, isIdentifier, HasFlowNode, performance, VariableDeclaration, isBlockOrCatchScoped, Declaration, canHaveLocals, isPartOfParameterDeclaration, SymbolTable, hasSyntacticModifier, Diagnostics, isNamedDeclaration, length, DiagnosticRelatedInformation, getNameOfDeclaration, appendIfUnique, setValueDeclaration, addRelatedInfo, Identifier, StringLiteral, isPropertyNameLiteral, InternalSymbolName, getAssignmentDeclarationKind, BinaryExpression, AssignmentDeclarationKind, declarationNameToString, createDiagnosticForNodeInSourceFile, getSourceFileOfNode, DiagnosticMessage, DiagnosticArguments, DiagnosticWithLocation, ReturnStatement, IfStatement, Expression, isTruthyLiteral, isFalsyLiteral, FlowCondition, PrefixUnaryExpression, isLogicalOrCoalescingAssignmentExpression, isLogicalOrCoalescingBinaryExpression, isForEachStatement, FlowAssignment, FlowArrayMutation, Block, ConditionalExpression, WhileStatement, Statement, DoWhileStatement, ForStatement, ForEachStatement, BreakOrContinueStatement, SwitchStatement, FlowSwitchClause, CaseBlock, CallExpression, isAssignmentOperator, PropertyAccessExpression, ParenthesizedExpression, isLeftHandSideExpression, PostfixUnaryExpression, ArrayLiteralExpression, ObjectLiteralExpression, isBinaryLogicalOperator, isLogicalOrCoalescingAssignmentOperator, isParenthesizedExpression, isPrefixUnaryExpression, BinaryOperatorToken, isAssignmentTarget, ElementAccessExpression, isBinaryExpression, isDottedName, FlowCall, createBinaryExpressionTrampoline, CaseClause, CallChain, LeftHandSideExpression, skipParentheses, ParameterDeclaration, ExpressionStatement, FunctionDeclaration, removeFileExtension, hasEffectiveModifier, getCombinedModifierFlags, isExpression, isIdentifierName, identifierToKeywordKind, AccessExpression, BindingElement, TypeLiteralNode, JSDocTypeLiteral, EntityNameExpression, isVariableDeclaration, factory, isVariableDeclarationList, isVariableStatement, setNodeFlags, isBindingPattern, ArrayBindingElement, InheritDeclaration, ClassLikeDeclaration, symbolName, StructDeclaration } from "./_namespaces/lpc";
+import { CompilerOptions, Debug, FlowFlags, FlowLabel, FlowNode, HasLocals, IsBlockScopedContainer, IsContainer, Node, objectAllocator, SourceFile, SymbolFlags, Symbol, tracing, setParent, TracingNode, SyntaxKind, isFunctionLike, NodeArray, forEach, forEachChild, Mutable, HasContainerFlags, createSymbolTable, ModifierFlags, FunctionExpression, InlineClosureExpression, NodeFlags, FunctionLikeDeclaration, getImmediatelyInvokedFunctionExpression, nodeIsPresent, contains, isIdentifier, HasFlowNode, performance, VariableDeclaration, isBlockOrCatchScoped, Declaration, canHaveLocals, isPartOfParameterDeclaration, SymbolTable, hasSyntacticModifier, Diagnostics, isNamedDeclaration, length, DiagnosticRelatedInformation, getNameOfDeclaration, appendIfUnique, setValueDeclaration, addRelatedInfo, Identifier, StringLiteral, isPropertyNameLiteral, InternalSymbolName, getAssignmentDeclarationKind, BinaryExpression, AssignmentDeclarationKind, declarationNameToString, createDiagnosticForNodeInSourceFile, getSourceFileOfNode, DiagnosticMessage, DiagnosticArguments, DiagnosticWithLocation, ReturnStatement, IfStatement, Expression, isTruthyLiteral, isFalsyLiteral, FlowCondition, PrefixUnaryExpression, isLogicalOrCoalescingAssignmentExpression, isLogicalOrCoalescingBinaryExpression, isForEachStatement, FlowAssignment, FlowArrayMutation, Block, ConditionalExpression, WhileStatement, Statement, DoWhileStatement, ForStatement, ForEachStatement, BreakOrContinueStatement, SwitchStatement, FlowSwitchClause, CaseBlock, CallExpression, isAssignmentOperator, PropertyAccessExpression, ParenthesizedExpression, isLeftHandSideExpression, PostfixUnaryExpression, ArrayLiteralExpression, ObjectLiteralExpression, isBinaryLogicalOperator, isLogicalOrCoalescingAssignmentOperator, isParenthesizedExpression, isPrefixUnaryExpression, BinaryOperatorToken, isAssignmentTarget, ElementAccessExpression, isBinaryExpression, isDottedName, FlowCall, createBinaryExpressionTrampoline, CaseClause, CallChain, LeftHandSideExpression, skipParentheses, ParameterDeclaration, ExpressionStatement, FunctionDeclaration, removeFileExtension, hasEffectiveModifier, getCombinedModifierFlags, isExpression, isIdentifierName, identifierToKeywordKind, AccessExpression, BindingElement, TypeLiteralNode, JSDocTypeLiteral, EntityNameExpression, isVariableDeclaration, factory, isVariableDeclarationList, isVariableStatement, setNodeFlags, isBindingPattern, ArrayBindingElement, InheritDeclaration, ClassLikeDeclaration, symbolName, StructDeclaration, BindableStaticNameExpression, BindableStaticAccessExpression, tryCast, isSourceFile, canHaveSymbol, getElementOrPropertyAccessName } from "./_namespaces/lpc";
 
 const binder = /* @__PURE__ */ createBinder();
 
@@ -597,6 +597,71 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
     function bindAnonymousTypeWorker(node: TypeLiteralNode | /*MappedTypeNode |*/ JSDocTypeLiteral) {
         return bindAnonymousDeclaration(node as Declaration, SymbolFlags.TypeLiteral, InternalSymbolName.Type);
     }    
+
+    function lookupSymbolForPropertyAccess(node: BindableStaticNameExpression, lookupContainer: IsContainer | IsBlockScopedContainer | EntityNameExpression = container): Symbol | undefined {
+        if (isIdentifier(node)) {
+            return lookupSymbolForName(lookupContainer, node.text);
+        }
+        else {
+            const symbol = lookupSymbolForPropertyAccess(node.expression);
+            return symbol && symbol.exports && symbol.exports.get(getElementOrPropertyAccessName(node));
+        }
+    }
+    
+    function bindPropertyAssignment(name: BindableStaticNameExpression, propertyAccess: BindableStaticAccessExpression, isPrototypeProperty: boolean, containerIsClass: boolean) {                
+        bindPotentiallyNewExpandoMemberToNamespace(propertyAccess, undefined, isPrototypeProperty);
+    }
+
+    function bindPotentiallyNewExpandoMemberToNamespace(declaration: BindableStaticAccessExpression | CallExpression, namespaceSymbol: Symbol | undefined, isPrototypeProperty: boolean) {
+        return false;
+        // if (!namespaceSymbol || !isExpandoSymbol(namespaceSymbol)) {
+        //     return;
+        // }
+
+        // // Set up the members collection if it doesn't exist already
+        // const symbolTable = isPrototypeProperty ?
+        //     (namespaceSymbol.members || (namespaceSymbol.members = createSymbolTable())) :
+        //     (namespaceSymbol.exports || (namespaceSymbol.exports = createSymbolTable()));
+
+        // let includes = SymbolFlags.None;
+        // let excludes = SymbolFlags.None;
+        // // Method-like
+        // if (isFunctionLikeDeclaration(getAssignedExpandoInitializer(declaration)!)) {
+        //     includes = SymbolFlags.Method;
+        //     excludes = SymbolFlags.MethodExcludes;
+        // }
+        // // Maybe accessor-like
+        // else if (isCallExpression(declaration) && isBindableObjectDefinePropertyCall(declaration)) {
+        //     if (
+        //         some(declaration.arguments[2].properties, p => {
+        //             const id = getNameOfDeclaration(p);
+        //             return !!id && isIdentifier(id) && idText(id) === "set";
+        //         })
+        //     ) {
+        //         // We mix in `SymbolFLags.Property` so in the checker `getTypeOfVariableParameterOrProperty` is used for this
+        //         // symbol, instead of `getTypeOfAccessor` (which will assert as there is no real accessor declaration)
+        //         includes |= SymbolFlags.SetAccessor | SymbolFlags.Property;
+        //         excludes |= SymbolFlags.SetAccessorExcludes;
+        //     }
+        //     if (
+        //         some(declaration.arguments[2].properties, p => {
+        //             const id = getNameOfDeclaration(p);
+        //             return !!id && isIdentifier(id) && idText(id) === "get";
+        //         })
+        //     ) {
+        //         includes |= SymbolFlags.GetAccessor | SymbolFlags.Property;
+        //         excludes |= SymbolFlags.GetAccessorExcludes;
+        //     }
+        // }
+
+        // if (includes === SymbolFlags.None) {
+        //     includes = SymbolFlags.Property;
+        //     excludes = SymbolFlags.PropertyExcludes;
+        // }
+
+        // declareSymbol(symbolTable, namespaceSymbol, declaration, includes | SymbolFlags.Assignment, excludes & ~SymbolFlags.Assignment);
+    }
+
     
     function bindPropertyOrMethodOrAccessor(node: Declaration, symbolFlags: SymbolFlags, symbolExcludes: SymbolFlags) {
         // if (!file.isDeclarationFile && !(node.flags & NodeFlags.Ambient) && isAsyncFunction(node)) {
@@ -2000,3 +2065,15 @@ export function getContainerFlags(node: Node): ContainerFlags {
     return ContainerFlags.None;
 }
 
+function lookupSymbolForName(container: Node, name: string): Symbol | undefined {
+    const local = tryCast(container, canHaveLocals)?.locals?.get(name);
+    if (local) {
+        return local.exportSymbol ?? local;
+    }
+    // if (isSourceFile(container) && container.jsGlobalAugmentations && container.jsGlobalAugmentations.has(name)) {
+    //     return container.jsGlobalAugmentations.get(name);
+    // }
+    if (canHaveSymbol(container)) {
+        return container.symbol?.exports?.get(name);
+    }
+}

@@ -1352,7 +1352,7 @@ export interface NodeFactory {
     createCastExpression(expression: Expression, type: TypeNode): Expression;
     createCloneObjectExpression(expression: Expression, argumentsArray: readonly Expression[] | undefined): CloneObjectExpression;
     createTypeAssertion(type: TypeNode, expression: Expression): TypeAssertion;
-    createNewStructExpression(type: StructTypeNode, argumentsArray: readonly Expression[] | undefined): NewStructExpression
+    createNewStructExpression(type: StructTypeNode, argumentsArray: readonly (Expression|ObjectLiteralElementLike)[] | undefined): NewStructExpression
     
     // JSDoc
     createJSDocText(text: string): JSDocText;
@@ -1360,6 +1360,9 @@ export interface NodeFactory {
     createJSDocParameterTag(tagName: Identifier | undefined, name: EntityName, isBracketed: boolean, typeExpression?: JSDocTypeExpression, isNameFirst?: boolean, comment?: string | NodeArray<JSDocComment>): JSDocParameterTag;
     createJSDocReturnTag(tagName: Identifier | undefined, typeExpression?: JSDocTypeExpression, comment?: string | NodeArray<JSDocComment>): JSDocReturnTag;
     createJSDocTypeTag(tagName: Identifier | undefined, typeExpression: JSDocTypeExpression, comment?: string | NodeArray<JSDocComment>): JSDocTypeTag;
+
+    // Properties Assignment
+    createPropertyAssignment(name: string | PropertyName, initializer: Expression): PropertyAssignment;
 
     /**
      * Creates a shallow, memberwise clone of a node.
@@ -1644,7 +1647,9 @@ export type HasJSDoc =
     | ParameterDeclaration
     | VariableStatement     
     | VariableDeclaration
-    | WhileStatement;
+    | WhileStatement
+    | PropertyAssignment
+    | ShorthandPropertyAssignment;
 
 export type HasType =
     | SignatureDeclaration
@@ -1836,6 +1841,7 @@ export type ForEachChildNodes =
 /** @internal */
 export type HasChildren =
     | ParameterDeclaration
+    | PropertyAssignment
     | QualifiedName
     | ComputedPropertyName
     | NewStructExpression
@@ -3945,7 +3951,7 @@ export interface EmitTextWriter extends SymbolWriter {
 export interface NewStructExpression extends PrimaryExpression, Declaration {
     readonly kind: SyntaxKind.NewStructExpression
     readonly type: StructTypeNode;
-    readonly arguments: NodeArray<Expression>;
+    readonly arguments: NodeArray<Expression | ObjectLiteralElementLike>;
 }
 
 export interface NewExpression extends PrimaryExpression, Declaration {
@@ -5633,6 +5639,17 @@ export type BindableStaticNameExpression =
 export type BindableElementAccessExpression = ElementAccessExpression & {
     readonly expression: BindableStaticNameExpression;
 };
+
+/** @internal */
+export type BindableStaticElementAccessExpression = LiteralLikeElementAccessExpression & {
+    readonly expression: BindableStaticNameExpression;
+};
+
+/** @internal */
+export type BindableStaticAccessExpression =
+    | PropertyAccessEntityNameExpression
+    | BindableStaticElementAccessExpression;
+
 
 /** @internal */
 // Object literals are initially marked fresh. Freshness disappears following an assignment,

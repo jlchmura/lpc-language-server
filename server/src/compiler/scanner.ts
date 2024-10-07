@@ -1232,7 +1232,7 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
                 ? parseInt(tokenValue.slice(2), 8) // skip "0o"
                 : +tokenValue;
             tokenValue = "" + numericValue;
-            return SyntaxKind.NumericLiteral;
+            return SyntaxKind.IntLiteral;
         // }
     }
 
@@ -1935,7 +1935,7 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
                 case CharacterCodes.dot:
                     if (isDigit(charCodeUnchecked(pos + 1))) {
                         scanNumber();
-                        return token = SyntaxKind.NumericLiteral;
+                        return token = SyntaxKind.FloatLiteral;
                     }
                     if (charCodeUnchecked(pos + 1) === CharacterCodes.dot && charCodeUnchecked(pos + 2) === CharacterCodes.dot) {
                         return pos += 3, token = SyntaxKind.DotDotDotToken;

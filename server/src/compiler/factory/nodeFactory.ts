@@ -96,6 +96,8 @@ import {
     NodeFactory,
     NodeFlags,
     nullParenthesizerRules,
+    ObjectLiteralElement,
+    ObjectLiteralElementLike,
     ParameterDeclaration,
     ParenthesizedExpression,
     ParenthesizedTypeNode,
@@ -105,6 +107,7 @@ import {
     PrefixUnaryOperator,
     PropertyAccessExpression,
     PropertyAccessToken,
+    PropertyAssignment,
     PropertyName,
     PropertyNameLiteral,
     PropertySignature,
@@ -263,6 +266,8 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createNewStructExpression,
 
         cloneNode,
+
+        createPropertyAssignment,
 
         // JSDoc
 
@@ -557,6 +562,19 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     // @api
+    function createPropertyAssignment(name: string | PropertyName, initializer: Expression) {
+        const node = createBaseDeclaration<PropertyAssignment>(SyntaxKind.PropertyAssignment);
+        node.name = asName(name);
+        node.initializer = parenthesizerRules().parenthesizeExpressionForDisallowedComma(initializer);
+        // node.transformFlags |= propagateNameFlags(node.name) |
+        //     propagateChildFlags(node.initializer);
+
+        node.modifiers = undefined; // initialized by parser to report grammar errors        
+        node.jsDoc = undefined; // initialized by parser (JsDocContainer)
+        return node;
+    }
+
+    // @api
     function createTypeAssertion(type: TypeNode, expression: Expression) {
         const node = createBaseNode<TypeAssertion>(SyntaxKind.TypeAssertionExpression);
         node.expression = parenthesizerRules().parenthesizeOperandOfPrefixUnary(expression);
@@ -574,10 +592,10 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }  
 
     // @api
-    function createNewStructExpression(type: StructTypeNode, argumentsArray: readonly Expression[] | undefined): NewStructExpression {
+    function createNewStructExpression(type: StructTypeNode, argumentsArray: readonly Expression[] | ObjectLiteralElementLike[] | undefined): NewStructExpression {
         const node = createBaseDeclaration<NewStructExpression>(SyntaxKind.NewStructExpression);
         node.type = type;
-        node.arguments = argumentsArray ? parenthesizerRules().parenthesizeExpressionsOfCommaDelimitedList(argumentsArray) : undefined;        
+        node.arguments = argumentsArray ? asNodeArray<Expression|ObjectLiteralElementLike>(argumentsArray) : undefined;
         return node;
     }
 
