@@ -223,4 +223,5 @@ export const Diagnostics = {
     Add_missing_comma_for_object_member_completion_0: diag(95187, DiagnosticCategory.Message, "Add_missing_comma_for_object_member_completion_0_95187", "Add missing comma for object member completion '{0}'."),
     Duplicate_index_signature_for_type_0: diag(2374, DiagnosticCategory.Error, "Duplicate_index_signature_for_type_0_2374", "Duplicate index signature for type '{0}'."),
     Type_0_is_not_generic: diag(2315, DiagnosticCategory.Error, "Type_0_is_not_generic_2315", "Type '{0}' is not generic."),
+    Conversion_of_type_0_to_type_1_may_be_a_mistake_because_neither_type_sufficiently_overlaps_with_the_other_If_this_was_intentional_convert_the_expression_to_unknown_first: diag(2352, DiagnosticCategory.Error, "Conversion_of_type_0_to_type_1_may_be_a_mistake_because_neither_type_sufficiently_overlaps_with_the__2352", "Conversion of type '{0}' to type '{1}' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first."),
 }

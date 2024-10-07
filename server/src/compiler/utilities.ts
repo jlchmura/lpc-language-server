@@ -5616,3 +5616,4 @@ export function isTypeDeclaration(node: Node): node is TypeParameterDeclaration 
             return false;
     }
 }
+

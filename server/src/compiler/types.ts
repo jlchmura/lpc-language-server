@@ -3803,6 +3803,17 @@ export interface ParenthesizedExpression extends PrimaryExpression, JSDocContain
     readonly expression: Expression;
 }
 
+/** @internal */
+export interface JSDocTypeAssertion extends ParenthesizedExpression {
+    readonly _jsDocTypeAssertionBrand: never;
+}
+
+export type AssertionExpression =
+    | TypeAssertion
+    | CastExpression;
+    
+
+
 export interface ArrayLiteralExpression extends PrimaryExpression {
     readonly kind: SyntaxKind.ArrayLiteralExpression;
     readonly elements: NodeArray<Expression>;
@@ -6576,4 +6587,19 @@ export interface MissingDeclaration extends DeclarationStatement, PrimaryExpress
 
     // The following properties are used only to report grammar errors
     /** @internal */ readonly modifiers?: NodeArray<Modifier> | undefined;
+}
+
+/** @internal */
+export const enum AccessFlags {
+    None = 0,
+    IncludeUndefined = 1 << 0,
+    NoIndexSignatures = 1 << 1,
+    Writing = 1 << 2,
+    CacheSymbol = 1 << 3,
+    NoTupleBoundsCheck = 1 << 4,
+    ExpressionPosition = 1 << 5,
+    ReportDeprecated = 1 << 6,
+    SuppressNoImplicitAnyError = 1 << 7,
+    Contextual = 1 << 8,
+    Persistent = IncludeUndefined,
 }
