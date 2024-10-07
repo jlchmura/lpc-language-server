@@ -509,7 +509,7 @@ export class Session<TMessage = string> implements EventSender {
         }
     }
     
-    public getDiagnosticsForFiles(args: protocol.DiagnosticRequestArgs) {        
+    public getDiagnosticsForFiles(args: protocol.DiagnosticRequestArgs) {                
         this.errorCheck.startNew(next => this.getDiagnostics(next, args.delay, args.files));
     }
 

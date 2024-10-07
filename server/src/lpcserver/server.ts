@@ -118,6 +118,8 @@ export function start(connection: Connection, platform: string) {
             if (msg.type === "event") {
                 const e = msg as lpc.server.protocol.Event;
                 switch (e.event) {
+                    case "suggestionDiag":
+                    case "syntaxDiag":
                     case "semanticDiag":
                         if (e.body) {
                             const { file, diagnostics } = e.body as lpc.server.protocol.DiagnosticEventBody;
@@ -139,7 +141,7 @@ export function start(connection: Connection, platform: string) {
                                 } satisfies vscode.Diagnostic;
                             });
 
-                            if (doc) {
+                            if (doc && lsDiags.length > 0) {
                                 connection.sendDiagnostics({ uri, diagnostics: lsDiags });
                             }
                         }

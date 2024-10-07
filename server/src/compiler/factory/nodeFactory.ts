@@ -90,6 +90,7 @@ import {
     ModifierToken,
     Mutable,
     MutableNodeArray,
+    NewStructExpression,
     Node,
     NodeArray,
     NodeFactory,
@@ -125,6 +126,7 @@ import {
     TokenFlags,
     TransformFlags,
     TrueLiteral,
+    TypeAssertion,
     TypeElement,
     TypeLiteralNode,
     TypeNode,
@@ -257,6 +259,8 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createLambdaOperatorExpression,
         createCastExpression,
         createCloneObjectExpression,
+        createTypeAssertion,
+        createNewStructExpression,
 
         cloneNode,
 
@@ -552,12 +556,30 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         return node;
     }
 
+    // @api
+    function createTypeAssertion(type: TypeNode, expression: Expression) {
+        const node = createBaseNode<TypeAssertion>(SyntaxKind.TypeAssertionExpression);
+        node.expression = parenthesizerRules().parenthesizeOperandOfPrefixUnary(expression);
+        node.type = type;
+        node.transformFlags |= propagateChildFlags(node.expression) |
+            propagateChildFlags(node.type);
+        return node;
+    }
+
     // @api 
     function createStructTypeNode(name: Identifier): StructTypeNode {
         const node = createBaseNode<StructTypeNode>(SyntaxKind.StructType);
         node.typeName = name;
         return node;
     }  
+
+    // @api
+    function createNewStructExpression(type: StructTypeNode, argumentsArray: readonly Expression[] | undefined): NewStructExpression {
+        const node = createBaseDeclaration<NewStructExpression>(SyntaxKind.NewStructExpression);
+        node.type = type;
+        node.arguments = argumentsArray ? parenthesizerRules().parenthesizeExpressionsOfCommaDelimitedList(argumentsArray) : undefined;        
+        return node;
+    }
 
     // @api 
     function createStructDeclarationNode(

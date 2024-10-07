@@ -778,6 +778,8 @@ export const enum SyntaxKind {
     CloneObjectExpression,
     ClassExpression,    
     NewExpression,
+    NewStructExpression,
+    TypeAssertionExpression,
     ElementAccessExpression,
     InlineClosureExpression,
     LambdaIdentifierExpression,
@@ -1348,6 +1350,8 @@ export interface NodeFactory {
     createLambdaIdentifierExpression(name: string | Identifier): LambdaIdentifierExpression;
     createCastExpression(expression: Expression, type: TypeNode): Expression;
     createCloneObjectExpression(expression: Expression, argumentsArray: readonly Expression[] | undefined): CloneObjectExpression;
+    createTypeAssertion(type: TypeNode, expression: Expression): TypeAssertion;
+    createNewStructExpression(type: StructTypeNode, argumentsArray: readonly Expression[] | undefined): NewStructExpression
     
     // JSDoc
     createJSDocText(text: string): JSDocText;
@@ -1831,8 +1835,9 @@ export type ForEachChildNodes =
 /** @internal */
 export type HasChildren =
     | ParameterDeclaration
-    // | QualifiedName
-    // | ComputedPropertyName
+    | QualifiedName
+    | ComputedPropertyName
+    | NewStructExpression
     | StructTypeNode
     | TypeLiteralNode
     | TypeParameterDeclaration
@@ -1860,6 +1865,7 @@ export type HasChildren =
     // | RestTypeNode
     | ArrayTypeNode
     | UnionTypeNode
+    | TypeAssertion
     // | IntersectionTypeNode
     // | ConditionalTypeNode
     // | InferTypeNode
@@ -3028,6 +3034,12 @@ export interface PartiallyEmittedExpression extends LeftHandSideExpression {
     readonly expression: Expression;
 }
 
+export interface TypeAssertion extends UnaryExpression {
+    readonly kind: SyntaxKind.TypeAssertionExpression;
+    readonly type: TypeNode;
+    readonly expression: UnaryExpression;
+}
+
 
 export interface UnaryExpression extends Expression {
     _unaryExpressionBrand: any;
@@ -3916,6 +3928,12 @@ export interface EmitTextWriter extends SymbolWriter {
     hasTrailingComment(): boolean;
     hasTrailingWhitespace(): boolean;
     nonEscapingWrite?(text: string): void;
+}
+
+export interface NewStructExpression extends PrimaryExpression, Declaration {
+    readonly kind: SyntaxKind.NewStructExpression
+    readonly type: StructTypeNode;
+    readonly arguments: NodeArray<Expression>;
 }
 
 export interface NewExpression extends PrimaryExpression, Declaration {

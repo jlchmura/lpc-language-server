@@ -297,8 +297,9 @@ function isLeftHandSideExpressionKind(kind: SyntaxKind): boolean {
         case SyntaxKind.ArrayLiteralExpression:
         case SyntaxKind.ParenthesizedExpression:
         case SyntaxKind.InlineClosureExpression:
-        // case SyntaxKind.ObjectLiteralExpression:
-        // case SyntaxKind.ClassExpression:
+        case SyntaxKind.ObjectLiteralExpression:
+        case SyntaxKind.NewStructExpression:
+        case SyntaxKind.ClassExpression:
         case SyntaxKind.FunctionExpression:
         case SyntaxKind.Identifier:
         //case SyntaxKind.PrivateIdentifier: // technically this is only an Expression if it's in a `#field in expr` BinaryExpression
@@ -317,7 +318,7 @@ function isLeftHandSideExpressionKind(kind: SyntaxKind): boolean {
         // case SyntaxKind.ExpressionWithTypeArguments:
         // case SyntaxKind.MetaProperty:
         // case SyntaxKind.ImportKeyword: // technically this is only an Expression if it's in a CallExpression
-        // case SyntaxKind.MissingDeclaration:
+        case SyntaxKind.MissingDeclaration:
             return true;
         default:
             return false;
