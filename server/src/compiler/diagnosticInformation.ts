@@ -221,4 +221,6 @@ export const Diagnostics = {
     You_cannot_rename_elements_that_are_defined_in_the_standard_TypeScript_library: diag(8001, DiagnosticCategory.Error, "You_cannot_rename_elements_that_are_defined_in_the_standard_TypeScript_library_8001", "You cannot rename elements that are defined in the standard TypeScript library."),
     You_cannot_rename_a_module_via_a_global_import: diag(8031, DiagnosticCategory.Error, "You_cannot_rename_a_module_via_a_global_import_8031", "You cannot rename a module via a global import."),
     Add_missing_comma_for_object_member_completion_0: diag(95187, DiagnosticCategory.Message, "Add_missing_comma_for_object_member_completion_0_95187", "Add missing comma for object member completion '{0}'."),
+    Duplicate_index_signature_for_type_0: diag(2374, DiagnosticCategory.Error, "Duplicate_index_signature_for_type_0_2374", "Duplicate index signature for type '{0}'."),
+    Type_0_is_not_generic: diag(2315, DiagnosticCategory.Error, "Type_0_is_not_generic_2315", "Type '{0}' is not generic."),
 }

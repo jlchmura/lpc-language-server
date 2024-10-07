@@ -555,7 +555,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     // @api 
     function createStructTypeNode(name: Identifier): StructTypeNode {
         const node = createBaseNode<StructTypeNode>(SyntaxKind.StructType);
-        node.name = name;
+        node.typeName = name;
         return node;
     }  
 
@@ -564,11 +564,14 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         modifiers: readonly Modifier[] | undefined,
         name: Identifier, 
         heritageClauses: readonly HeritageClause[] | undefined,
-        members: readonly TypeElement[]): StructDeclaration {
+        // members: readonly TypeElement[]
+        type: TypeNode
+    ): StructDeclaration {
         const node = createBaseNode<StructDeclaration>(SyntaxKind.StructDeclaration);
         node.name = name;
-        node.modifiers = asNodeArray(modifiers);        
-        node.members = createNodeArray(members);
+        node.modifiers = asNodeArray(modifiers);                
+        // node.members = createNodeArray(members);
+        node.type = type;
         return node;
     }  
 

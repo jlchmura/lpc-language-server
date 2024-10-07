@@ -51,7 +51,7 @@
             "name": "keyword.control.lpc"
         },
         {
-            "match": "\\b(float|int|void|object|class|mapping|string|mixed|function|ref)\\b",
+            "match": "\\b(float|int|void|object|class|struct|mapping|string|mixed|function|ref)\\b",
             "name": "support.type.primitive.lpc"
         },
         {

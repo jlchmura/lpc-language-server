@@ -1306,7 +1306,8 @@ export interface NodeFactory {
         modifiers: readonly Modifier[] | undefined,
         name: Identifier, 
         heritageClauses: readonly HeritageClause[] | undefined,
-        members: readonly TypeElement[]): StructDeclaration;
+        type: TypeNode
+    ): StructDeclaration;
 
     // Statements
     createBlock(statements: readonly Statement[], multiLine?: boolean): Block;
@@ -1684,7 +1685,7 @@ export type HasLocals =
     | Block
     //| CallSignatureDeclaration
     | CaseBlock
-    | CatchClause
+    | CatchClause    
     // | ClassStaticBlockDeclaration
     // | ConditionalTypeNode
     // | ConstructorDeclaration
@@ -1717,6 +1718,7 @@ export type HasLocals =
 export type HasModifiers =
     | TypeParameterDeclaration
     | ParameterDeclaration
+    | StructDeclaration
     // | ConstructorTypeNode
     // | PropertySignature
     // | PropertyDeclaration
@@ -1831,7 +1833,10 @@ export type HasChildren =
     | ParameterDeclaration
     // | QualifiedName
     // | ComputedPropertyName
+    | StructTypeNode
+    | TypeLiteralNode
     | TypeParameterDeclaration
+    | StructDeclaration
     // | Decorator
     // | PropertySignature
     // | PropertyDeclaration
@@ -3732,7 +3737,7 @@ export interface StructDeclaration extends DeclarationStatement, JSDocContainer,
     readonly kind: SyntaxKind.StructDeclaration;
     readonly name: Identifier;
     readonly modifiers?: NodeArray<Modifier>;
-    readonly members: NodeArray<TypeElement>;
+    readonly type: TypeNode;    
 }
 
 /** @internal */
@@ -4219,7 +4224,7 @@ export interface LiteralTypeNode extends TypeNode {
 
 export interface StructTypeNode extends TypeNode {
     readonly kind: SyntaxKind.StructType;
-    readonly name: Identifier;    
+    readonly typeName: EntityName;
 }
 
 export const enum SymbolFormatFlags {
@@ -5473,7 +5478,7 @@ export interface TypeReference extends ObjectType {
     cachedEquivalentBaseType?: Type; // Only set on references to class or interfaces with a single base type and no augmentations
 }
 
-export type TypeReferenceType = TypeReferenceNode;
+export type TypeReferenceType = TypeReferenceNode | StructTypeNode;
 
 export interface NodeWithTypeArguments extends TypeNode {
     readonly typeArguments?: NodeArray<TypeNode>;
@@ -6518,7 +6523,7 @@ export interface ClassDeclaration extends ClassLikeDeclarationBase, DeclarationS
 }
 
 export type ClassLikeDeclaration =
-    | ClassDeclaration
+    | ClassDeclaration    
     | ClassExpression;
 
 /** @internal */
