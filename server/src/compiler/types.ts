@@ -740,6 +740,7 @@ export const enum SyntaxKind {
     Block,
     VariableDeclaration,
     VariableDeclarationList,
+    TypeAliasDeclaration,
     CaseBlock,
     StructDeclaration,// WAS: ClassDeclaration,
 
@@ -6602,4 +6603,11 @@ export const enum AccessFlags {
     SuppressNoImplicitAnyError = 1 << 7,
     Contextual = 1 << 8,
     Persistent = IncludeUndefined,
+}
+
+export interface TypeAliasDeclaration extends DeclarationStatement, JSDocContainer, LocalsContainer {
+    readonly kind: SyntaxKind.TypeAliasDeclaration;
+    readonly modifiers?: NodeArray<ModifierLike>;
+    readonly name: Identifier;    
+    readonly type: TypeNode;
 }
