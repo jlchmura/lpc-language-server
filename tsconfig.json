@@ -13,8 +13,8 @@
         "newLine": "lf",
         "preserveConstEnums": true,
         "pretty": true,
-        "noImplicitOverride": false
-    },
+        "noImplicitOverride": false,        
+    },    
     "include": ["src"],
     "exclude": ["node_modules", ".vscode-test"],
     "references": [{ "path": "./client" }, { "path": "./server" }]

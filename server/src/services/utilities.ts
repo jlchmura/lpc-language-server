@@ -249,7 +249,7 @@ export function isArrayLiteralOrObjectLiteralDestructuringPattern(node: Node) {
         // for([a, b, c] of expression)
         if (
             node.parent.kind === SyntaxKind.ForEachStatement &&
-            some((node.parent as ForEachStatement).initializer, n => n === node)
+            (node.parent as ForEachStatement).initializer === node
         ) {
             return true;
         }

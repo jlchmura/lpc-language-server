@@ -39,8 +39,7 @@ import {
     ExpressionStatement,
     FalseLiteral,
     firstOrUndefined,
-    FloatLiteral,
-    ForEachInitializer,
+    FloatLiteral,    
     ForEachStatement,
     ForInitializer,
     ForStatement,
@@ -48,10 +47,12 @@ import {
     getIdentifierTypeArguments,
     getTextOfIdentifierOrLiteral,
     hasProperty,
+    HeritageClause,
     Identifier,
     identity,
     IfStatement,
     IndexSignatureDeclaration,
+    InheritClauseType,
     InheritDeclaration,
     InlineClosureExpression,
     IntLiteral,
@@ -83,6 +84,7 @@ import {
     MemberName,
     memoize,
     memoizeOne,
+    MissingDeclaration,
     Modifier,
     ModifierSyntaxKind,
     ModifierToken,
@@ -101,8 +103,10 @@ import {
     PrefixUnaryExpression,
     PrefixUnaryOperator,
     PropertyAccessExpression,
+    PropertyAccessToken,
     PropertyName,
     PropertyNameLiteral,
+    PropertySignature,
     PunctuationSyntaxKind,
     PunctuationToken,
     QualifiedName,
@@ -112,6 +116,9 @@ import {
     SourceFile,
     Statement,
     StringLiteral,
+    stringToToken,
+    StructDeclaration,
+    StructTypeNode,
     SwitchStatement,
     SyntaxKind,
     Token,
@@ -201,6 +208,9 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createTypeReferenceNode,
         createLiteralTypeNode,
         createTypeLiteralNode,
+        createStructTypeNode,
+        createPropertySignature,
+        
 
         // Names
         createQualifiedName,
@@ -228,6 +238,8 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createDoWhileStatement,
         createWhileStatement,
         createParameterDeclaration,
+        createMissingDeclaration,
+        createStructDeclarationNode,
 
         // Expressions
         createParenthesizedExpression,
@@ -510,10 +522,58 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     // @api
-    function createIdentifier(text: string): Identifier {
-        const node = createBaseIdentifier(text);
+    function createMissingDeclaration(): MissingDeclaration {
+        const node = createBaseDeclaration<MissingDeclaration>(SyntaxKind.MissingDeclaration);
+
+        node.jsDoc = undefined; // initialized by parser (JsDocContainer)
         return node;
     }
+    
+    // @api
+    function createIdentifier(text: string, originalKeywordKind?: SyntaxKind, hasExtendedUnicodeEscape?: boolean): Identifier {
+        if (originalKeywordKind === undefined && text) {
+            originalKeywordKind = stringToToken(text);
+        }
+        if (originalKeywordKind === SyntaxKind.Identifier) {
+            originalKeywordKind = undefined;
+        }
+
+        const node = createBaseIdentifier((text));
+        if (hasExtendedUnicodeEscape) node.flags |= NodeFlags.IdentifierHasExtendedUnicodeEscape;
+
+        // NOTE: we do not include transform flags of typeArguments in an identifier as they do not contribute to transformations
+        // if (node.escapedText === "await") {
+        //     node.transformFlags |= TransformFlags.ContainsPossibleTopLevelAwait;
+        // }
+        if (node.flags & NodeFlags.IdentifierHasExtendedUnicodeEscape) {
+            // node.transformFlags |= TransformFlags.ContainsES2015;
+        }
+
+        return node;
+    }
+
+    // @api 
+    function createStructTypeNode(name: Identifier): StructTypeNode {
+        const node = createBaseNode<StructTypeNode>(SyntaxKind.StructType);
+        node.typeName = name;
+        return node;
+    }  
+
+    // @api 
+    function createStructDeclarationNode(
+        modifiers: readonly Modifier[] | undefined,
+        name: Identifier, 
+        heritageClauses: readonly HeritageClause[] | undefined,
+        // members: readonly TypeElement[]
+        type: TypeNode
+    ): StructDeclaration {
+        const node = createBaseNode<StructDeclaration>(SyntaxKind.StructDeclaration);
+        node.name = name;
+        node.modifiers = asNodeArray(modifiers);                
+        // node.members = createNodeArray(members);
+        node.type = type;
+        return node;
+    }  
 
     // @api
     function createLiteralTypeNode(literal: LiteralTypeNode["literal"]) {
@@ -643,16 +703,14 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     // @api
     function createVariableDeclaration(
         name: string | BindingName,
-        type: TypeNode | undefined,
-        eqToken?: EqualsToken,
+        type: TypeNode | undefined,        
         initializer?: Expression | undefined
     ): VariableDeclaration {
         const node = createBaseDeclaration<VariableDeclaration>(
             SyntaxKind.VariableDeclaration
         );
         node.name = asName(name);
-        node.type = type;
-        node.equalsToken = eqToken;
+        node.type = type;        
         node.initializer = asInitializer(initializer);
         node.jsDoc = undefined; // initialized by parser (JsDocContainer)
         return node;
@@ -912,7 +970,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     // @api 
-    function createInheritDeclaration(inheritClause: StringLiteral | BinaryExpression, modifiers: readonly Modifier[] | undefined): InheritDeclaration {
+    function createInheritDeclaration(inheritClause: InheritClauseType, modifiers: readonly Modifier[] | undefined): InheritDeclaration {
         const node = createBaseNode<InheritDeclaration>(SyntaxKind.InheritDeclaration);
         node.modifiers = asNodeArray(modifiers);
         node.inheritClause = inheritClause;
@@ -985,10 +1043,11 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         return node;
     }
 
-    function createBasePropertyAccessExpression(expression: LeftHandSideExpression, name: MemberName) {
+    function createBasePropertyAccessExpression(expression: LeftHandSideExpression, name: MemberName, propertyAccessToken?: PropertyAccessToken) {
         const node = createBaseDeclaration<PropertyAccessExpression>(SyntaxKind.PropertyAccessExpression);
         node.expression = expression;        
         node.name = name;
+        node.propertyAccessToken = propertyAccessToken;
         // node.transformFlags = propagateChildFlags(node.expression) |
         //     propagateChildFlags(node.questionDotToken) |
         //     (isIdentifier(node.name) ?
@@ -1001,10 +1060,11 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     // @api
-    function createPropertyAccessExpression(expression: Expression, name: string | Identifier): PropertyAccessExpression {
+    function createPropertyAccessExpression(expression: Expression, name: string | Identifier, propertyAccessToken?: PropertyAccessToken): PropertyAccessExpression {
         const node = createBasePropertyAccessExpression(
-            parenthesizerRules().parenthesizeLeftSideOfAccess(expression, /*optionalChain*/ false),            
+            parenthesizerRules().parenthesizeLeftSideOfAccess(expression, /*optionalChain*/ false),
             asName(name),
+            propertyAccessToken
         );
                
         // TODO handle super here?
@@ -1032,7 +1092,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     // @api
-    function createForEachStatement(initializer: ForEachInitializer | undefined, range: Expression | undefined, statement: Statement): ForEachStatement {
+    function createForEachStatement(initializer: ForInitializer | undefined, range: Expression | undefined, statement: Statement): ForEachStatement {
         const node = createBaseNode<ForEachStatement>(SyntaxKind.ForEachStatement);
         node.initializer = initializer;
         node.expression = range;        
@@ -1229,6 +1289,23 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         return node;
     }
 
+    // @api
+    function createPropertySignature(
+        modifiers: readonly Modifier[] | undefined,
+        name: PropertyName | string,        
+        type: TypeNode | undefined,
+    ): PropertySignature {
+        const node = createBaseDeclaration<PropertySignature>(SyntaxKind.PropertySignature);
+        node.modifiers = asNodeArray(modifiers);
+        node.name = asName(name);
+        node.type = type;        
+        // node.transformFlags = TransformFlags.ContainsTypeScript;
+
+        node.initializer = undefined; // initialized by parser to report grammar errors
+        node.jsDoc = undefined; // initialized by parser (JsDocContainer)
+        return node;
+    }
+    
     // @api
     function createTypeLiteralNode(members: readonly TypeElement[] | undefined) {
         const node = createBaseDeclaration<TypeLiteralNode>(SyntaxKind.TypeLiteral);

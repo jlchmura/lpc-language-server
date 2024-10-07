@@ -32,7 +32,7 @@ function main() {
     //const workDir = path.resolve(process.cwd()); //, "../fluff-test");
     const workDir = path.resolve(process.cwd());
     //const filename = path.join(workDir, process.argv[3]);
-    const filename = path.join(workDir, "room/test.c");
+    const filename = path.join(workDir, "a/test.c");
     const fileOnly = path.basename(filename);
     const sourceText = fs.readFileSync(filename, "utf-8");
     const configFile = path.join(workDir, "lpc-config.json");
@@ -85,10 +85,10 @@ function main() {
     //const diags = session.getDiagnosticsForFiles({delay:0, files: [fileRelativePath]});
     // const refs = session.getReferences(args, true);
 
-    const comps = session.getCompletions(
-        {file: 'room/test.c', projectFileName: '/Users/johnchmura/code/lpc-test2/lpc-config.json', line: 9, offset: 7, prefix: undefined},
-        protocol.CommandTypes.CompletionInfo
-    );
+    // const comps = session.getCompletions(
+    //     {file: 'room/test.c', projectFileName: '/Users/johnchmura/code/lpc-test2/lpc-config.json', line: 9, offset: 7, prefix: undefined},
+    //     protocol.CommandTypes.CompletionInfo
+    // );
 
     console.debug("done");
 }

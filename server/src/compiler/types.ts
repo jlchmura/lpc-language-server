@@ -538,6 +538,7 @@ export const enum SyntaxKind {
     EqualsEqualsEqualsToken,
     ExclamationEqualsEqualsToken,
     EqualsGreaterThanToken,
+    MinusGreaterThanToken,
     PlusToken,
     MinusToken,
     AsteriskToken,
@@ -562,7 +563,9 @@ export const enum SyntaxKind {
     AtToken,
     QuestionQuestionToken,
     HashToken,
-    ColonColonToken,
+    OpenParenColonToken,
+    ColonCloseParenToken,
+    ColonColonToken,    
     DotDotToken,
 
     // Assignments
@@ -585,7 +588,11 @@ export const enum SyntaxKind {
 
     // Identifiers
     Identifier,
-
+    /**
+     * Only the special JSDoc comment text scanner produces JSDocCommentTextTokes. One of these tokens spans all text after a tag comment's start and before the next @
+     * @internal
+     */
+    JSDocCommentTextToken,
     // Keywords
     IntKeyword, // FIrst Keyword, FirstReserved Word
     FloatKeyword,
@@ -617,6 +624,7 @@ export const enum SyntaxKind {
     SwitchKeyword,
     WhileKeyword,
     AsyncKeyword,
+    InheritKeyword,
     ContinueKeyword,
 
     // Modifier Keywords
@@ -663,6 +671,7 @@ export const enum SyntaxKind {
     ClassDeclaration,
     ExportSpecifier,
     ExportDeclaration,
+    MissingDeclaration,
     
     // Property Assignments
     PropertyAssignment,
@@ -682,7 +691,7 @@ export const enum SyntaxKind {
     JSDocNonNullableType,
     JSDocOptionalType,
     JSDocFunctionType,
-    JSDocVariadicType,
+    JSDocVariadicType,    
     JSDocNamepathType, // https://jsdoc.app/about-namepaths.html
     JSDoc,
     /** @deprecated Use SyntaxKind.JSDoc */
@@ -752,6 +761,7 @@ export const enum SyntaxKind {
     SwitchStatement, // LastStatement
 
     LiteralType,
+    StructType,
     IndexedAccessType,
     MappedType,
 
@@ -784,12 +794,15 @@ export const enum SyntaxKind {
     // Clauses
     CatchClause,
     CaseClause,
+    HeritageClause,
     DefaultClause,    
 
     // Enum value count
     Count,
     
     // Markers
+    FirstReservedWord = IntKeyword,
+    LastReservedWord = DeprecatedKeyword,
     FirstKeyword = IntKeyword,
     LastKeyword = DeprecatedKeyword,
     FirstToken = Unknown,
@@ -814,6 +827,8 @@ export const enum SyntaxKind {
     LastTriviaToken = ShebangTrivia,
     FirstBinaryOperator = LessThanToken,
     LastBinaryOperator = CaretEqualsToken,
+    FirstPunctuation = OpenBraceToken,
+    LastPunctuation = DotDotToken,
     /** @internal */ FirstContextualKeyword = IntKeyword,
     /** @internal */ LastContextualKeyword = ContinueKeyword,
 }
@@ -996,6 +1011,8 @@ export const enum NodeFlags {
     // parse set flags
     BlockScoped = Variable,
 
+    // The following flags repurpose other NodeFlags as different meanings for Identifier nodes
+    /** @internal */ IdentifierHasExtendedUnicodeEscape = 1 << 8, // Indicates whether the identifier contains an extended unicode escape sequence
     /** @internal */ IdentifierIsInJSDocNamespace = HasAsyncFunctions, // Indicates whether the identifier is part of a JSDoc namespace
 }
 
@@ -1167,6 +1184,7 @@ export type TypeNodeSyntaxKind =
     | KeywordTypeSyntaxKind
     | SyntaxKind.UnionType
     | SyntaxKind.IndexedAccessType
+    | SyntaxKind.StructType
     | SyntaxKind.ArrayType
     | SyntaxKind.LiteralType
     | SyntaxKind.MappedType
@@ -1260,6 +1278,7 @@ export interface NodeFactory {
     /** @internal */ createToken<TKind extends SyntaxKind>(token: TKind): Token<TKind>;
 
     createIdentifier(text: string): Identifier;
+    /** @internal */ createIdentifier(text: string, originalKeywordKind?: SyntaxKind, hasExtendedUnicodeEscape?: boolean): Identifier; // eslint-disable-line @typescript-eslint/unified-signatures
     createLiteralLikeNode(kind: LiteralToken["kind"], text: string): LiteralToken;
     
     // element
@@ -1281,29 +1300,37 @@ export interface NodeFactory {
     createParenthesizedType(type: TypeNode): ParenthesizedTypeNode;
     createLiteralTypeNode(literal: LiteralTypeNode["literal"]): LiteralTypeNode;
     createTypeLiteralNode(members: readonly TypeElement[] | undefined): TypeLiteralNode;
-    
+    createStructTypeNode(name: Identifier): StructTypeNode;
+    createPropertySignature(modifiers: readonly Modifier[] | undefined, name: PropertyName | string, type: TypeNode | undefined): PropertySignature;
+    createStructDeclarationNode(
+        modifiers: readonly Modifier[] | undefined,
+        name: Identifier, 
+        heritageClauses: readonly HeritageClause[] | undefined,
+        type: TypeNode
+    ): StructDeclaration;
 
     // Statements
     createBlock(statements: readonly Statement[], multiLine?: boolean): Block;
     createVariableStatement(modifiers: readonly Modifier[] | undefined, declarationList: VariableDeclarationList | readonly VariableDeclaration[]): VariableStatement;
     createVariableDeclarationList(declarations: readonly VariableDeclaration[], flags?: NodeFlags): VariableDeclarationList;
-    createVariableDeclaration(name: string | BindingName, type?: TypeNode | undefined, eqToken?: EqualsToken, initializer?: Expression | undefined): VariableDeclaration;    
+    createVariableDeclaration(name: string | BindingName, type?: TypeNode | undefined, initializer?: Expression | undefined): VariableDeclaration;    
     createFunctionDeclaration(modifiers: readonly Modifier[] | undefined, name: string | Identifier | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode | undefined, body: Block | undefined): FunctionDeclaration;
     createExpressionStatement(expression: Expression): ExpressionStatement;
     createReturnStatement(expression?: Expression): ReturnStatement;
     createBreakStatement(label?: string | Identifier): BreakStatement;
     createContinueStatement(label?: string | Identifier): ContinueStatement;
-    createInheritDeclaration(importClause: StringLiteral | BinaryExpression, modifiers: readonly Modifier[] | undefined): InheritDeclaration;
+    createInheritDeclaration(importClause: InheritClauseType, modifiers: readonly Modifier[] | undefined): InheritDeclaration;
     createIfStatement(expression: Expression, thenStatement: Statement, elseStatement?: Statement): IfStatement;
     createSwitchStatement(expression: Expression, preBlock: NodeArray<Statement>, caseBlock: CaseBlock): SwitchStatement;
     createCaseBlock(clauses: readonly CaseOrDefaultClause[]): CaseBlock;
     createDefaultClause(statements: readonly Statement[]): DefaultClause;
     createCaseClause(expression: Expression, statements: readonly Statement[]): CaseClause;
     createForStatement(initializer: ForInitializer | undefined, condition: Expression | undefined, incrementor: Expression | undefined, statement: Statement): ForStatement
-    createForEachStatement(initializer: ForEachInitializer | undefined, range: Expression | undefined, statement: Statement): ForEachStatement;
+    createForEachStatement(initializer: ForInitializer | undefined, range: Expression | undefined, statement: Statement): ForEachStatement;
     createDoWhileStatement(statement: Statement, expression: Expression): DoWhileStatement;
     createWhileStatement(statement: Statement, expression: Expression): WhileStatement;
     createParameterDeclaration(modifiers: readonly Modifier[] | undefined, dotDotDotToken: DotDotDotToken | undefined, name: string | BindingName, ampToken?: AmpersandToken, type?: TypeNode, initializer?: Expression): ParameterDeclaration;
+    /** @internal */ createMissingDeclaration(): MissingDeclaration;
 
     // Expressions
     createParenthesizedExpression(expression: Expression): ParenthesizedExpression;
@@ -1311,7 +1338,7 @@ export interface NodeFactory {
     createBinaryExpression(left: Expression, operator: BinaryOperator | BinaryOperatorToken, right: Expression): BinaryExpression;
     createCallExpression(expression: Expression, argumentsArray: readonly Expression[] | undefined): CallExpression;
     createInlineClosure(body: ConciseBody): InlineClosureExpression;
-    createPropertyAccessExpression(expression: Expression, name: string | Identifier | Expression): PropertyAccessExpression;
+    createPropertyAccessExpression(expression: Expression, name: string | Identifier | Expression, propertyAccessToken?: PropertyAccessToken): PropertyAccessExpression;
     createPrefixUnaryExpression(operator: PrefixUnaryOperator, operand: Expression): PrefixUnaryExpression;
     createPostfixUnaryExpression(operand: Expression, operator: PostfixUnaryOperator): PostfixUnaryExpression;
     createElementAccessExpression(expression: Expression, index: number | Expression): ElementAccessExpression;
@@ -1589,6 +1616,20 @@ export type HasContainerFlags =
 /** NODES */
 export type HasJSDoc = 
     | Block 
+    | StructDeclaration
+    | PropertySignature
+    | MethodSignature
+    | InlineClosureExpression
+    | InheritDeclaration
+    | SwitchStatement
+    | CaseClause
+    | BreakStatement
+    | ContinueStatement
+    | IfStatement
+    | ParenthesizedExpression
+    | ExpressionStatement
+    | EmptyStatement
+    | EndOfFileToken
     | DoWhileStatement
     | ForStatement
     | ForEachStatement
@@ -1644,7 +1685,7 @@ export type HasLocals =
     | Block
     //| CallSignatureDeclaration
     | CaseBlock
-    | CatchClause
+    | CatchClause    
     // | ClassStaticBlockDeclaration
     // | ConditionalTypeNode
     // | ConstructorDeclaration
@@ -1677,6 +1718,7 @@ export type HasLocals =
 export type HasModifiers =
     | TypeParameterDeclaration
     | ParameterDeclaration
+    | StructDeclaration
     // | ConstructorTypeNode
     // | PropertySignature
     // | PropertyDeclaration
@@ -1791,7 +1833,10 @@ export type HasChildren =
     | ParameterDeclaration
     // | QualifiedName
     // | ComputedPropertyName
+    | StructTypeNode
+    | TypeLiteralNode
     | TypeParameterDeclaration
+    | StructDeclaration
     // | Decorator
     // | PropertySignature
     // | PropertyDeclaration
@@ -1948,8 +1993,10 @@ export interface Token<TKind extends SyntaxKind> extends Node {
 export type EndOfFileToken = Token<SyntaxKind.EndOfFileToken> & JSDocContainer;
 
 export type KeywordSyntaxKind =
-    | SyntaxKind.AnyKeyword
+    | SyntaxKind.AnyKeyword    
+    | SyntaxKind.ClassKeyword   
     | SyntaxKind.CaseKeyword
+    | SyntaxKind.DefaultKeyword
     | SyntaxKind.UndefinedKeyword
     | SyntaxKind.BreakKeyword
     | SyntaxKind.VoidKeyword
@@ -1960,6 +2007,7 @@ export type KeywordSyntaxKind =
     | SyntaxKind.FunctionKeyword
     | SyntaxKind.IfKeyword
     | SyntaxKind.InKeyword
+    | SyntaxKind.InheritKeyword
     | SyntaxKind.NewKeyword
     | SyntaxKind.NullKeyword
     | SyntaxKind.ReturnKeyword
@@ -1982,6 +2030,8 @@ export type KeywordSyntaxKind =
     | SyntaxKind.StringKeyword
     | SyntaxKind.FloatKeyword
     | SyntaxKind.MixedKeyword
+    | SyntaxKind.MappingKeyword
+    | SyntaxKind.StructKeyword
     | SyntaxKind.UnknownKeyword
     ;
 
@@ -2028,11 +2078,18 @@ export type Modifier =
     | VarArgsKeyword
     | DeprecatedKeyword;
 
+/** 
+ * @deprecated for easy portion of typescript code - use Modifier
+ */
+export type ModifierLike = Modifier;// | Decorator;
+
 export type PunctuationSyntaxKind =
-    | SyntaxKind.OpenBraceToken
+    | SyntaxKind.OpenBraceToken    
     | SyntaxKind.CloseBraceToken
     | SyntaxKind.OpenParenToken
     | SyntaxKind.CloseParenToken
+    | SyntaxKind.OpenParenColonToken
+    | SyntaxKind.ColonCloseParenToken
     | SyntaxKind.OpenBracketToken
     | SyntaxKind.CloseBracketToken
     | SyntaxKind.DotToken
@@ -2050,6 +2107,7 @@ export type PunctuationSyntaxKind =
     | SyntaxKind.EqualsEqualsEqualsToken
     | SyntaxKind.ExclamationEqualsEqualsToken
     | SyntaxKind.EqualsGreaterThanToken
+    | SyntaxKind.MinusGreaterThanToken
     | SyntaxKind.PlusToken
     | SyntaxKind.MinusToken
     | SyntaxKind.AsteriskToken
@@ -2174,8 +2232,33 @@ export type EqualsToken = PunctuationToken<SyntaxKind.EqualsToken>;
 export type BarBarEqualsToken = PunctuationToken<SyntaxKind.BarBarEqualsToken>;
 export type AsteriskToken = PunctuationToken<SyntaxKind.AsteriskToken>;
 export type EqualsGreaterThanToken = PunctuationToken<SyntaxKind.EqualsGreaterThanToken>;
+export type MinusGreaterThanToken = PunctuationToken<SyntaxKind.MinusGreaterThanToken>;
 export type PlusToken = PunctuationToken<SyntaxKind.PlusToken>;
 export type MinusToken = PunctuationToken<SyntaxKind.MinusToken>;
+
+export type PropertyAccessToken = DotToken | MinusGreaterThanToken;
+
+export type JSDocSyntaxKind =
+    | SyntaxKind.EndOfFileToken
+    | SyntaxKind.WhitespaceTrivia
+    | SyntaxKind.AtToken
+    | SyntaxKind.NewLineTrivia
+    | SyntaxKind.AsteriskToken
+    | SyntaxKind.OpenBraceToken
+    | SyntaxKind.CloseBraceToken
+    | SyntaxKind.LessThanToken
+    | SyntaxKind.GreaterThanToken
+    | SyntaxKind.OpenBracketToken
+    | SyntaxKind.CloseBracketToken
+    | SyntaxKind.OpenParenToken
+    | SyntaxKind.CloseParenToken
+    | SyntaxKind.EqualsToken
+    | SyntaxKind.CommaToken
+    | SyntaxKind.DotToken
+    | SyntaxKind.Identifier    
+    | SyntaxKind.HashToken
+    | SyntaxKind.Unknown
+    | KeywordSyntaxKind;
 
 export interface ConditionalExpression extends Expression {
     readonly kind: SyntaxKind.ConditionalExpression;
@@ -2563,14 +2646,14 @@ export interface SourceFile extends Declaration, LocalsContainer {
 
     // File-level diagnostics reported by the parser (includes diagnostics about /// references
     // as well as code diagnostics).
-    /** @internal */ parseDiagnostics: DiagnosticWithLocation[];
+    /** @internal */ parseDiagnostics: DiagnosticWithLocation[];    
 
     // // File-level diagnostics reported by the binder.
     /** @internal */ bindDiagnostics: DiagnosticWithLocation[];
     /** @internal */ bindSuggestionDiagnostics?: DiagnosticWithLocation[];
 
-    // // File-level JSDoc diagnostics reported by the JSDoc parser
-    // /** @internal */ jsDocDiagnostics?: DiagnosticWithLocation[];
+    // File-level JSDoc diagnostics reported by the JSDoc parser
+    /** @internal */ jsDocDiagnostics?: DiagnosticWithLocation[];
 
     // // Stores additional file-level diagnostics reported by the program
     // /** @internal */ additionalSyntacticDiagnostics?: readonly DiagnosticWithLocation[];
@@ -3025,7 +3108,6 @@ export interface IterationStatement extends Statement {
 }
 
 export type ForInitializer = VariableDeclarationList | Expression;
-export type ForEachInitializer = NodeArray<ForInitializer>;
 
 // export interface ForInStatement extends IterationStatement, LocalsContainer, FlowContainer {
 //     readonly kind: SyntaxKind.ForInStatement;
@@ -3173,7 +3255,7 @@ export interface CloneObjectExpression extends PrimaryExpression, Declaration, L
     readonly arguments?: NodeArray<Expression>;    
 }
 
-export interface InlineClosureExpression extends Expression, FunctionLikeDeclarationBase, JSDocContainer, LocalsContainer, FlowContainer {
+export interface InlineClosureExpression extends PrimaryExpression, FunctionLikeDeclarationBase, JSDocContainer, LocalsContainer, FlowContainer {
     readonly kind: SyntaxKind.InlineClosureExpression;
     readonly body: ConciseBody;
     readonly name: never;
@@ -3228,7 +3310,7 @@ export interface InheritDeclaration extends Statement {
     readonly inheritClause: InheritClauseType;
 }
 
-export type InheritClauseType = StringLiteral | BinaryExpression;
+export type InheritClauseType = StringLiteral | Expression;
 
 /**
  * This is a special type of binary expression where both sides are definitely string literals
@@ -3288,6 +3370,7 @@ export interface PropertyAccessExpression extends MemberExpression, NamedDeclara
     readonly kind: SyntaxKind.PropertyAccessExpression;
     readonly expression: LeftHandSideExpression;        
     readonly name: MemberName;
+    readonly propertyAccessToken: PropertyAccessToken
 }
 
 /** @internal */
@@ -3315,7 +3398,7 @@ export interface ForStatement extends IterationStatement, LocalsContainer, FlowC
 
 export interface ForEachStatement extends IterationStatement, LocalsContainer, FlowContainer {
     readonly kind: SyntaxKind.ForEachStatement;
-    readonly initializer: ForEachInitializer;
+    readonly initializer: ForInitializer;
     readonly expression: Expression;    
 }
 
@@ -3648,6 +3731,13 @@ export interface ObjectType extends Type {
      */ 
     indexInfos?: readonly IndexInfo[];  // Index signatures - 
     /** @internal */ objectTypeWithoutAbstractConstructSignatures?: ObjectType;
+}
+
+export interface StructDeclaration extends DeclarationStatement, JSDocContainer, LocalsContainer {
+    readonly kind: SyntaxKind.StructDeclaration;
+    readonly name: Identifier;
+    readonly modifiers?: NodeArray<Modifier>;
+    readonly type: TypeNode;    
 }
 
 /** @internal */
@@ -4107,13 +4197,6 @@ export interface JSDocDeprecatedTag extends JSDocTag {
     kind: SyntaxKind.JSDocDeprecatedTag;
 }
 
-
-export interface StructDeclaration extends DeclarationStatement {
-    readonly kind: SyntaxKind.StructDeclaration;
-    readonly name: Identifier;
-    readonly members: NodeArray<ClassElement>;
-}
-
 export interface PropertyDeclaration extends ClassElement, JSDocContainer {
     readonly kind: SyntaxKind.PropertyDeclaration;
     readonly parent: StructDeclaration;
@@ -4137,6 +4220,11 @@ export type BooleanLiteral = TrueLiteral | FalseLiteral;
 export interface LiteralTypeNode extends TypeNode {
     readonly kind: SyntaxKind.LiteralType;
     readonly literal: LiteralExpression | PrefixUnaryExpression | BooleanLiteral;
+}
+
+export interface StructTypeNode extends TypeNode {
+    readonly kind: SyntaxKind.StructType;
+    readonly typeName: EntityName;
 }
 
 export const enum SymbolFormatFlags {
@@ -4849,6 +4937,8 @@ export type ResolutionMode = ModuleKind.LPC | undefined;
 
 // NOTE: If modifying this enum, must modify `TypeFormatFlags` too!
 // dprint-ignore
+// @ts-ignore
+
 export const enum NodeBuilderFlags {
     None                                    = 0,
     // Options
@@ -4879,13 +4969,13 @@ export const enum NodeBuilderFlags {
     AllowEmptyTuple                         = 1 << 19,
     AllowUniqueESSymbolType                 = 1 << 20,
     AllowEmptyIndexInfoType                 = 1 << 21,
-    /** @internal */ WriteComputedProps      = 1 << 30, // { [E.A]: 1 }
+    /** @internal */ WriteComputedProps     = 1 << 30, // { [E.A]: 1 }
     /** @internal */ NoSyntacticPrinter     = 1 << 31,
     // Errors (cont.)
     AllowNodeModulesRelativePaths           = 1 << 26,
-    /** @internal */ DoNotIncludeSymbolChain = 1 << 27,    // Skip looking up and printing an accessible symbol chain
-    /** @internal */ AllowUnresolvedNames = 1 << 32,
-
+    /** @internal */ DoNotIncludeSymbolChain = 1 << 27,    // Skip looking up and printing an accessible symbol chain            
+    /** @internal */ AllowUnresolvedNames   = 1 << 32, 
+    
     IgnoreErrors = AllowThisInObjectLiteral | AllowQualifiedNameInPlaceOfIdentifier | AllowAnonymousIdentifier | AllowEmptyUnionOrIntersection | AllowEmptyTuple | AllowEmptyIndexInfoType | AllowNodeModulesRelativePaths,
 
     // State
@@ -4893,7 +4983,6 @@ export const enum NodeBuilderFlags {
     InTypeAlias                             = 1 << 23,    // Writing type in type alias declaration
     InInitialEntityName                     = 1 << 24,    // Set when writing the LHS of an entity name or entity name expression
 }
-
 
 /**
  * Ternary values are defined such that
@@ -5350,6 +5439,12 @@ export interface InterfaceType extends ObjectType {
     baseTypesResolved?: boolean;
 }
 
+export interface HeritageClause extends Node {
+    readonly kind: SyntaxKind.HeritageClause;
+    readonly parent: StructDeclaration | ClassLikeDeclaration;
+    // readonly token?: SyntaxKind.ExtendsKeyword | SyntaxKind.ImplementsKeyword;
+    readonly types: NodeArray<Expression>;
+}
 
 // Generic class and interface types
 export interface GenericType extends InterfaceType, TypeReference {
@@ -5383,7 +5478,7 @@ export interface TypeReference extends ObjectType {
     cachedEquivalentBaseType?: Type; // Only set on references to class or interfaces with a single base type and no augmentations
 }
 
-export type TypeReferenceType = TypeReferenceNode;
+export type TypeReferenceType = TypeReferenceNode | StructTypeNode;
 
 export interface NodeWithTypeArguments extends TypeNode {
     readonly typeArguments?: NodeArray<TypeNode>;
@@ -6066,7 +6161,7 @@ export interface PropertySignature extends TypeElement, JSDocContainer {
     readonly modifiers?: NodeArray<Modifier>;
     readonly name: PropertyName;                 // Declared property name
     //readonly questionToken?: QuestionToken;      // Present on optional property
-    //readonly type?: TypeNode;                    // Optional type annotation
+    readonly type?: TypeNode;                    // Optional type annotation
 
     // The following properties are used only to report grammar errors (see `isGrammarError` in utilities.ts)
     /** @internal */ readonly initializer?: Expression | undefined; // A property signature cannot have an initializer
@@ -6428,7 +6523,7 @@ export interface ClassDeclaration extends ClassLikeDeclarationBase, DeclarationS
 }
 
 export type ClassLikeDeclaration =
-    | ClassDeclaration
+    | ClassDeclaration    
     | ClassExpression;
 
 /** @internal */
@@ -6455,4 +6550,12 @@ export const enum SnippetKind {
     Placeholder,                            // `${1:foo}`
     Choice,                                 // `${1|one,two,three|}`
     Variable,                               // `$name`, `${name:default}`
+}
+
+export interface MissingDeclaration extends DeclarationStatement, PrimaryExpression {
+    readonly kind: SyntaxKind.MissingDeclaration;
+    readonly name?: Identifier;
+
+    // The following properties are used only to report grammar errors
+    /** @internal */ readonly modifiers?: NodeArray<Modifier> | undefined;
 }

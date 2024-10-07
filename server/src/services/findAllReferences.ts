@@ -129,7 +129,7 @@ export function getContextNode(node: NamedDeclaration | BinaryExpression | ForEa
 
         case SyntaxKind.ForEachStatement:        
             return {
-                start: first((node as ForEachStatement).initializer),
+                start: (node as ForEachStatement).initializer,
                 end: (node as ForEachStatement).expression,
             };
 
