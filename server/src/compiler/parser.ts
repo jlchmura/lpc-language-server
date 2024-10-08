@@ -1,6 +1,4 @@
-import * as antlr from "antlr4ng";
-import * as parserCore from "../parser3/parser-core";
-import { isIdentifier as isIdentifierNode, BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange, PrefixUnaryExpression, first, LanguageVariant, EqualsToken, LpcConfigSourceFile, createBaseNodeFactory, PrefixUnaryOperator, Program, LpcFileHandler, ParenthesizedExpression, ArrayLiteralExpression, LambdaExpression, PunctuationSyntaxKind, PunctuationToken, LambdaOperatorToken, CastExpression, PropertyAccessExpression, isIdentifier, CloneObjectExpression, NewExpression, trimQuotes, createScanner, isKeyword, PunctuationOrKeywordSyntaxKind, getLanguageVariant, mapDefined, getJSDocCommentRanges, LabeledStatement, PropertyName, Token, tokenToString, addRelatedInfo, tokenIsIdentifierOrKeyword, getBinaryOperatorPrecedence, addRange, append, ArrayTypeNode, canHaveJSDoc, concatenate, containsParseError, Diagnostic, EntityName, getSpellingSuggestion, identity, idText, isIdentifierText, isTypeReferenceNode, JSDoc, JSDocAugmentsTag, JSDocCallbackTag, JSDocComment, JSDocImplementsTag, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocParameterTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThrowsTag, JSDocTypedefTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, nodeIsMissing, noop, PropertyAccessEntityNameExpression, setParent, skipTrivia, some, CharacterCodes, MapLike, KeywordSyntaxKind, startsWith, textToKeywordObj, ModifierLike, isModifierKind, MissingDeclaration, setTextRangePos, BindingPattern, KeywordTypeSyntaxKind, LiteralTypeNode, IntLiteral, FloatLiteral, LiteralLikeNode, isLiteralKind, TypeReferenceNode, getFullWidth, OperatorPrecedence, UnaryExpression, isLeftHandSideExpression, isAssignmentOperator, isKeywordOrPunctuation, UpdateExpression, PrimaryExpression, nodeIsPresent, PropertyAccessToken, IterationStatement, InheritClauseType, ObjectType, StructTypeNode, NamedDeclaration, TypeElement, PropertySignature, MethodSignature, StructDeclaration, TypeLiteralNode, TypeAssertion, NewStructExpression, ObjectLiteralElementLike, PropertyAssignment } from "./_namespaces/lpc";
+import { isIdentifier as isIdentifierNode, BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, getNestedTerminals, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange, PrefixUnaryExpression, first, LanguageVariant, EqualsToken, LpcConfigSourceFile, createBaseNodeFactory, PrefixUnaryOperator, Program, LpcFileHandler, ParenthesizedExpression, ArrayLiteralExpression, LambdaExpression, PunctuationSyntaxKind, PunctuationToken, LambdaOperatorToken, CastExpression, PropertyAccessExpression, isIdentifier, CloneObjectExpression, NewExpression, trimQuotes, createScanner, isKeyword, PunctuationOrKeywordSyntaxKind, getLanguageVariant, mapDefined, getJSDocCommentRanges, LabeledStatement, PropertyName, Token, tokenToString, addRelatedInfo, tokenIsIdentifierOrKeyword, getBinaryOperatorPrecedence, addRange, append, ArrayTypeNode, canHaveJSDoc, concatenate, containsParseError, Diagnostic, EntityName, getSpellingSuggestion, identity, idText, isIdentifierText, isTypeReferenceNode, JSDoc, JSDocAugmentsTag, JSDocCallbackTag, JSDocComment, JSDocImplementsTag, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocParameterTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThrowsTag, JSDocTypedefTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, nodeIsMissing, noop, PropertyAccessEntityNameExpression, setParent, skipTrivia, some, CharacterCodes, MapLike, KeywordSyntaxKind, startsWith, textToKeywordObj, ModifierLike, isModifierKind, MissingDeclaration, setTextRangePos, BindingPattern, KeywordTypeSyntaxKind, LiteralTypeNode, IntLiteral, FloatLiteral, LiteralLikeNode, isLiteralKind, TypeReferenceNode, getFullWidth, OperatorPrecedence, UnaryExpression, isLeftHandSideExpression, isAssignmentOperator, isKeywordOrPunctuation, UpdateExpression, PrimaryExpression, nodeIsPresent, PropertyAccessToken, IterationStatement, InheritClauseType, ObjectType, StructTypeNode, NamedDeclaration, TypeElement, PropertySignature, MethodSignature, StructDeclaration, TypeLiteralNode, TypeAssertion, NewStructExpression, ObjectLiteralElementLike, PropertyAssignment, getStartPositionOfLine } from "./_namespaces/lpc";
 import { ILpcConfig } from "../config-types";
 import { loadLpcConfigFromString, LpcConfig } from "../backend/LpcConfig";
 
@@ -24,14 +22,7 @@ export namespace LpcParser {
     // up by avoiding the cost of creating/compiling scanners over and over again.
     var scanner = createScanner(ScriptTarget.Latest, /*skipTrivia*/ true);
     var disallowInAndDecoratorContext = NodeFlags.DisallowInContext | NodeFlags.DecoratorContext;
-    
-    // Init some ANTLR stuff    
-    const lexer = new parserCore.LPCPreprocessingLexer(
-        antlr.CharStream.fromString(""),
-        ""
-    );    
-    const tokenStream = new antlr.CommonTokenStream(lexer);
-    
+            
     // capture constructors in 'initializeState' to avoid null checks
     var NodeConstructor: new (kind: SyntaxKind, pos: number, end: number) => Node; // prettier-ignore
     var TokenConstructor: new (kind: SyntaxKind, pos: number, end: number) => Node; // prettier-ignore
@@ -142,10 +133,6 @@ export namespace LpcParser {
     }
 
     function clearState() {
-        // reset antlr stuff
-        lexer.inputStream = antlr.CharStream.fromString("");
-        tokenStream.setTokenSource(undefined); // this will clear the buffered tokens
-
         // Clear out the text the scanner is pointing at, so it doesn't keep anything alive unnecessarily.
         scanner.clearCommentDirectives();
         scanner.setText("");
@@ -1064,7 +1051,7 @@ export namespace LpcParser {
     }
 
     function parseStatement(): Statement {
-        switch (token()) {
+        switch (token()) {            
             case SyntaxKind.InheritKeyword:                
                 return parseInheritStatement();
             case SyntaxKind.SemicolonToken:
@@ -1959,6 +1946,14 @@ export namespace LpcParser {
         return withJSDoc(finishNode(factory.createReturnStatement(expression), pos), hasJSDoc);
     }
     
+    function parseDirective(): Statement {
+        const name = parseIdentifier();
+
+
+        const ii=0;
+        return undefined;
+    }
+
     function parseInheritStatement(): InheritDeclaration {
         const pos = getNodePos();
         const hasJSDoc = hasPrecedingJSDocComment();
@@ -4602,82 +4597,6 @@ export namespace LpcParser {
         // }
     }
 }
-
-export const LexerToSyntaxKind: { [key: number]: SyntaxKind } = {
-    [parserCore.LPCLexer.EOF]: SyntaxKind.EndOfFileToken,
-    // TYPES
-    [parserCore.LPCLexer.INT]: SyntaxKind.IntKeyword,
-    [parserCore.LPCLexer.FLOAT]: SyntaxKind.FloatKeyword,
-    [parserCore.LPCLexer.STRING]: SyntaxKind.StringKeyword,
-    [parserCore.LPCLexer.CLOSURE]: SyntaxKind.ClosureKeywoord,
-    [parserCore.LPCLexer.MIXED]: SyntaxKind.MixedKeyword,
-    [parserCore.LPCLexer.MAPPING]: SyntaxKind.MappingKeyword,
-    [parserCore.LPCLexer.UNKNOWN]: SyntaxKind.UnknownKeyword,
-    [parserCore.LPCLexer.STRUCT]: SyntaxKind.StructKeyword,
-    [parserCore.LPCLexer.VOID]: SyntaxKind.VoidKeyword,
-    [parserCore.LPCLexer.BUFFER]: SyntaxKind.ObjectKeyword, // TODO: create syntax kind
-    [parserCore.LPCLexer.OBJECT]: SyntaxKind.ObjectKeyword,
-    [parserCore.LPCLexer.BYTES]: SyntaxKind.ObjectKeyword, // LPC bytes, treat as object for now
-    [parserCore.LPCLexer.LWOBJECT]: SyntaxKind.ObjectKeyword, // LPC lwobject is an object
-    [parserCore.LPCLexer.SYMBOL]: SyntaxKind.StringKeyword, // TODO: create syntax kind
-    [parserCore.LPCLexer.STATUS]: SyntaxKind.IntKeyword, // treat this as an int
-    [parserCore.LPCLexer.LPCTYPE]: SyntaxKind.TypeLiteral,
-    [parserCore.LPCLexer.QUOTEDARRAY]: SyntaxKind.ObjectKeyword, // TODO: create syntax kind
-    [parserCore.LPCLexer.COROUTINE]: SyntaxKind.FunctionKeyword, // TODO: create syntax kind
-    [parserCore.LPCLexer.FUNCTION]: SyntaxKind.FunctionKeyword,
-    // MODIFIERS
-    [parserCore.LPCLexer.PRIVATE]: SyntaxKind.PrivateKeyword,
-    [parserCore.LPCLexer.PROTECTED]: SyntaxKind.ProtectedKeyword,
-    [parserCore.LPCLexer.PUBLIC]: SyntaxKind.PublicKeyword,
-    [parserCore.LPCLexer.STATIC]: SyntaxKind.StaticKeyword,
-    [parserCore.LPCLexer.VISIBLE]: SyntaxKind.VisibleKeyword,
-    [parserCore.LPCLexer.NOSAVE]: SyntaxKind.NoSaveKeyword,
-    [parserCore.LPCLexer.NOSHADOW]: SyntaxKind.NoShadowKeyword,
-    [parserCore.LPCLexer.NOMASK]: SyntaxKind.NoMaskKeyword,
-    [parserCore.LPCLexer.VARARGS]: SyntaxKind.VarArgsKeyword,
-    [parserCore.LPCLexer.DEPRECATED]: SyntaxKind.DeprecatedKeyword,
-    // OPERATORS
-    [parserCore.LPCLexer.ASSIGN]: SyntaxKind.EqualsToken,
-    [parserCore.LPCLexer.ADD_ASSIGN]: SyntaxKind.PlusEqualsToken,
-    [parserCore.LPCLexer.SUB_ASSIGN]: SyntaxKind.MinusEqualsToken,
-    [parserCore.LPCLexer.MUL_ASSIGN]: SyntaxKind.AsteriskEqualsToken,
-    [parserCore.LPCLexer.XOR_ASSIGN]: SyntaxKind.AsteriskAsteriskEqualsToken,
-    [parserCore.LPCLexer.DIV_ASSIGN]: SyntaxKind.SlashEqualsToken,
-    [parserCore.LPCLexer.MOD_ASSIGN]: SyntaxKind.PercentEqualsToken,
-    [parserCore.LPCLexer.SHL_ASSIGN]: SyntaxKind.LessThanLessThanEqualsToken,
-    [parserCore.LPCLexer.RSH_ASSIGN]: SyntaxKind.GreaterThanGreaterThanEqualsToken,
-    [parserCore.LPCLexer.BITOR_ASSIGN]: SyntaxKind.BarEqualsToken,
-    [parserCore.LPCLexer.BITAND_ASSIGN]: SyntaxKind.AmpersandEqualsToken,
-    [parserCore.LPCLexer.OR_ASSIGN]: SyntaxKind.BarBarEqualsToken,
-    [parserCore.LPCLexer.AND_ASSIGN]: SyntaxKind.AmpersandEqualsToken,
-    [parserCore.LPCLexer.PLUS]: SyntaxKind.PlusToken,
-    [parserCore.LPCLexer.MINUS]: SyntaxKind.MinusToken,
-    [parserCore.LPCLexer.STAR]: SyntaxKind.AsteriskToken,
-    [parserCore.LPCLexer.DIV]: SyntaxKind.SlashToken,
-    [parserCore.LPCLexer.MOD]: SyntaxKind.PercentToken,
-    [parserCore.LPCLexer.INC]: SyntaxKind.PlusPlusToken,
-    [parserCore.LPCLexer.DEC]: SyntaxKind.MinusMinusToken,
-    [parserCore.LPCLexer.LT]: SyntaxKind.LessThanToken,
-    [parserCore.LPCLexer.GT]: SyntaxKind.GreaterThanToken,
-    [parserCore.LPCLexer.LE]: SyntaxKind.LessThanEqualsToken,
-    [parserCore.LPCLexer.GE]: SyntaxKind.GreaterThanEqualsToken,
-    [parserCore.LPCLexer.EQ]: SyntaxKind.EqualsEqualsToken,
-    [parserCore.LPCLexer.NE]: SyntaxKind.ExclamationEqualsToken,
-    [parserCore.LPCLexer.AND]: SyntaxKind.AmpersandToken,
-    [parserCore.LPCLexer.OR]: SyntaxKind.BarToken,
-    [parserCore.LPCLexer.XOR]: SyntaxKind.CaretToken,
-    [parserCore.LPCLexer.NOT]: SyntaxKind.ExclamationToken,
-    [parserCore.LPCLexer.AND_AND]: SyntaxKind.AmpersandAmpersandToken,
-    [parserCore.LPCLexer.OR_OR]: SyntaxKind.BarBarToken,
-    [parserCore.LPCLexer.QUESTION]: SyntaxKind.QuestionToken,
-    [parserCore.LPCLexer.COLON]: SyntaxKind.ColonToken,
-    [parserCore.LPCLexer.HASH]: SyntaxKind.HashToken,
-    [parserCore.LPCLexer.DOT]: SyntaxKind.DotToken,
-    [parserCore.LPCLexer.TRIPPLEDOT]: SyntaxKind.DotDotDotToken,    
-    [parserCore.LPCLexer.COMMA]: SyntaxKind.CommaToken,
-    [parserCore.LPCLexer.SHL]: SyntaxKind.LessThanLessThanToken,
-    [parserCore.LPCLexer.SHR]: SyntaxKind.GreaterThanGreaterThanToken,
-};
 
 function visitNode<T>(cbNode: (node: Node) => T, node: Node | undefined): T | undefined {
     return node && cbNode(node);
