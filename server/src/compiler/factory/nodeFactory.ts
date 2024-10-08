@@ -81,6 +81,8 @@ import {
     LeftHandSideExpression,
     LiteralToken,
     LiteralTypeNode,
+    MappingEntryExpression,
+    MappingLiteralExpression,
     MemberName,
     memoize,
     memoizeOne,
@@ -98,6 +100,7 @@ import {
     nullParenthesizerRules,
     ObjectLiteralElement,
     ObjectLiteralElementLike,
+    OmittedExpression,
     ParameterDeclaration,
     ParenthesizedExpression,
     ParenthesizedTypeNode,
@@ -247,6 +250,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createStructDeclarationNode,
 
         // Expressions
+        createOmittedExpression,
         createParenthesizedExpression,
         createConditionalExpression,
         createBinaryExpression,
@@ -257,6 +261,8 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createPostfixUnaryExpression,
         createElementAccessExpression,
         createArrayLiteralExpression,
+        createMappingLiteralExpression,
+        createMappingEntryExpression,
         convertToAssignmentExpression,
         createLambdaIdentifierExpression,
         createLambdaOperatorExpression,
@@ -1274,6 +1280,11 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     // @api
+    function createOmittedExpression(): OmittedExpression {
+        return createBaseNode<OmittedExpression>(SyntaxKind.OmittedExpression);
+    }
+
+    // @api
     function createParenthesizedExpression(expression: Expression) {
         const node = createBaseNode<ParenthesizedExpression>(SyntaxKind.ParenthesizedExpression);
         node.expression = expression;
@@ -1322,10 +1333,34 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         // we end up with `[1, 2, ,]` instead of `[1, 2, ]` otherwise the `OmittedExpression` will just end up being treated like
         // a trailing comma.
         const lastElement = elements && lastOrUndefined(elements);
-        const elementsArray = createNodeArray(elements, trailingComma);
+        const elementsArray = elements ? createNodeArray(elements, trailingComma) : undefined;
         node.elements = parenthesizerRules().parenthesizeExpressionsOfCommaDelimitedList(elementsArray);
         node.multiLine = multiLine;
         // node.transformFlags |= propagateChildrenFlags(node.elements);
+        return node;
+    }
+
+    // @api
+    function createMappingLiteralExpression(initializer?: Expression, elements?: readonly MappingEntryExpression[], multiLine?: boolean, trailingComma?: boolean): MappingLiteralExpression {
+        const node = createBaseNode<MappingLiteralExpression>(SyntaxKind.MappingLiteralExpression);
+        // Ensure we add a trailing comma for something like `[NumericLiteral(1), NumericLiteral(2), OmittedExpresion]` so that
+        // we end up with `[1, 2, ,]` instead of `[1, 2, ]` otherwise the `OmittedExpression` will just end up being treated like
+        // a trailing comma.
+        const lastElement = elements && lastOrUndefined(elements);
+        const elementsArray = elements ? createNodeArray(elements, trailingComma) : undefined;
+        node.initializer = initializer;
+        node.elements = elementsArray;// parenthesizerRules().parenthesizeExpressionsOfCommaDelimitedList(elementsArray);
+        node.multiLine = multiLine;
+        // node.transformFlags |= propagateChildrenFlags(node.elements);
+        return node;
+    }
+
+    function createMappingEntryExpression(name: Expression, elements: readonly Expression[]): MappingEntryExpression {
+        const node = createBaseNode<MappingEntryExpression>(SyntaxKind.MappingEntryExpression);
+        node.name = name;
+        node.elements = asNodeArray(elements);
+        // node.transformFlags |= propagateChildFlags(node.key) |
+        //     propagateChildrenFlags(node.elements);
         return node;
     }
 

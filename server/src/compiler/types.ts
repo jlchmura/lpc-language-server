@@ -563,8 +563,10 @@ export const enum SyntaxKind {
     AtToken,
     QuestionQuestionToken,
     HashToken,
-    OpenParenColonToken,
+    OpenParenColonToken,    // for inline closures
     ColonCloseParenToken,
+    OpenParenBracketToken,  // for mapping literal
+    OpenParenBraceToken,    // for array literal
     ColonColonToken,    
     DotDotToken,
 
@@ -789,10 +791,13 @@ export const enum SyntaxKind {
     PostfixUnaryExpression,
     ParenthesizedExpression,
     ArrayLiteralExpression,
+    MappingLiteralExpression,
+    MappingEntryExpression,
     ObjectLiteralExpression,
     SpreadElement,
-    PrefixUnaryExpression,
     CastExpression,
+    OmittedExpression,
+    PrefixUnaryExpression,
     
     // Clauses
     CatchClause,
@@ -1336,6 +1341,7 @@ export interface NodeFactory {
     /** @internal */ createMissingDeclaration(): MissingDeclaration;
 
     // Expressions
+    createOmittedExpression(): OmittedExpression;
     createParenthesizedExpression(expression: Expression): ParenthesizedExpression;
     createConditionalExpression(condition: Expression, questionToken: QuestionToken | undefined, whenTrue: Expression, colonToken: ColonToken | undefined, whenFalse: Expression): ConditionalExpression;
     createBinaryExpression(left: Expression, operator: BinaryOperator | BinaryOperatorToken, right: Expression): BinaryExpression;
@@ -1346,6 +1352,8 @@ export interface NodeFactory {
     createPostfixUnaryExpression(operand: Expression, operator: PostfixUnaryOperator): PostfixUnaryExpression;
     createElementAccessExpression(expression: Expression, index: number | Expression): ElementAccessExpression;
     createArrayLiteralExpression(elements?: readonly Expression[], multiLine?: boolean, trailingComma?: boolean);
+    createMappingLiteralExpression(initializer?: Expression, elements?: readonly Expression[], multiLine?: boolean, trailingComma?: boolean): MappingLiteralExpression;
+    createMappingEntryExpression(name: Expression, elements: readonly Expression[]): MappingEntryExpression
     convertToAssignmentExpression(node: Mutable<VariableDeclaration>): BinaryExpression;
     createLambdaOperatorExpression(op: LambdaOperatorToken): LambdaOperatorExpression;
     createLambdaIdentifierExpression(name: string | Identifier): LambdaIdentifierExpression;
@@ -1890,6 +1898,8 @@ export type HasChildren =
     // | ArrayBindingPattern
     // | BindingElement
     | ArrayLiteralExpression
+    | MappingLiteralExpression
+    | MappingEntryExpression
     // | ObjectLiteralExpression
     | PropertyAccessExpression
     | CallExpression
@@ -2097,6 +2107,7 @@ export type Modifier =
 export type ModifierLike = Modifier;// | Decorator;
 
 export type PunctuationSyntaxKind =
+    | SyntaxKind.OpenParenBracketToken
     | SyntaxKind.OpenBraceToken    
     | SyntaxKind.CloseBraceToken
     | SyntaxKind.OpenParenToken
@@ -3028,6 +3039,10 @@ export interface Expression extends Node {
     _expressionBrand: any;
 }
 
+export interface OmittedExpression extends Expression {
+    readonly kind: SyntaxKind.OmittedExpression;
+}
+
 export interface CastExpression extends Expression {
     readonly kind: SyntaxKind.CastExpression;
     readonly expression: Expression;
@@ -3272,6 +3287,20 @@ export interface CloneObjectExpression extends PrimaryExpression, Declaration, L
     readonly kind: SyntaxKind.CloneObjectExpression;
     readonly expression: LeftHandSideExpression;
     readonly arguments?: NodeArray<Expression>;    
+}
+
+export interface MappingLiteralExpression extends PrimaryExpression {
+    readonly kind: SyntaxKind.MappingLiteralExpression;
+    readonly elements: NodeArray<MappingEntryExpression>;
+    readonly initializer?: Expression;
+    /** @internal */
+    multiLine?: boolean;
+}
+
+export interface MappingEntryExpression extends PrimaryExpression {
+    readonly kind: SyntaxKind.MappingEntryExpression;
+    readonly name: Expression;
+    readonly elements: NodeArray<Expression>;
 }
 
 export interface InlineClosureExpression extends PrimaryExpression, FunctionLikeDeclarationBase, JSDocContainer, LocalsContainer, FlowContainer {
