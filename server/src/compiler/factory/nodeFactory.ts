@@ -1244,7 +1244,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     // @api
     function createElementAccessExpression(expression: Expression, index: number | Expression) {
         const node = createBaseElementAccessExpression(
-            expression as LeftHandSideExpression, // TODO parenthesizerRules().parenthesizeLeftSideOfAccess(expression, /*optionalChain*/ false),            
+            parenthesizerRules().parenthesizeLeftSideOfAccess(expression, /*optionalChain*/ false),            
             asExpression(index),
         );
         // if (isSuperKeyword(expression)) {
