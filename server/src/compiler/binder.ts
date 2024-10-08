@@ -1,4 +1,4 @@
-import { CompilerOptions, Debug, FlowFlags, FlowLabel, FlowNode, HasLocals, IsBlockScopedContainer, IsContainer, Node, objectAllocator, SourceFile, SymbolFlags, Symbol, tracing, setParent, TracingNode, SyntaxKind, isFunctionLike, NodeArray, forEach, forEachChild, Mutable, HasContainerFlags, createSymbolTable, ModifierFlags, FunctionExpression, InlineClosureExpression, NodeFlags, FunctionLikeDeclaration, getImmediatelyInvokedFunctionExpression, nodeIsPresent, contains, isIdentifier, HasFlowNode, performance, VariableDeclaration, isBlockOrCatchScoped, Declaration, canHaveLocals, isPartOfParameterDeclaration, SymbolTable, hasSyntacticModifier, Diagnostics, isNamedDeclaration, length, DiagnosticRelatedInformation, getNameOfDeclaration, appendIfUnique, setValueDeclaration, addRelatedInfo, Identifier, StringLiteral, isPropertyNameLiteral, InternalSymbolName, getAssignmentDeclarationKind, BinaryExpression, AssignmentDeclarationKind, declarationNameToString, createDiagnosticForNodeInSourceFile, getSourceFileOfNode, DiagnosticMessage, DiagnosticArguments, DiagnosticWithLocation, ReturnStatement, IfStatement, Expression, isTruthyLiteral, isFalsyLiteral, FlowCondition, PrefixUnaryExpression, isLogicalOrCoalescingAssignmentExpression, isLogicalOrCoalescingBinaryExpression, isForEachStatement, FlowAssignment, FlowArrayMutation, Block, ConditionalExpression, WhileStatement, Statement, DoWhileStatement, ForStatement, ForEachStatement, BreakOrContinueStatement, SwitchStatement, FlowSwitchClause, CaseBlock, CallExpression, isAssignmentOperator, PropertyAccessExpression, ParenthesizedExpression, isLeftHandSideExpression, PostfixUnaryExpression, ArrayLiteralExpression, ObjectLiteralExpression, isBinaryLogicalOperator, isLogicalOrCoalescingAssignmentOperator, isParenthesizedExpression, isPrefixUnaryExpression, BinaryOperatorToken, isAssignmentTarget, ElementAccessExpression, isBinaryExpression, isDottedName, FlowCall, createBinaryExpressionTrampoline, CaseClause, CallChain, LeftHandSideExpression, skipParentheses, ParameterDeclaration, ExpressionStatement, FunctionDeclaration, removeFileExtension, hasEffectiveModifier, getCombinedModifierFlags, isExpression, isIdentifierName, identifierToKeywordKind, AccessExpression, BindingElement, TypeLiteralNode, JSDocTypeLiteral, EntityNameExpression, isVariableDeclaration, factory, isVariableDeclarationList, isVariableStatement, setNodeFlags, isBindingPattern, ArrayBindingElement, InheritDeclaration, ClassLikeDeclaration, symbolName, StructDeclaration, BindableStaticNameExpression, BindableStaticAccessExpression, tryCast, isSourceFile, canHaveSymbol, getElementOrPropertyAccessName, MappingLiteralExpression } from "./_namespaces/lpc";
+import { CompilerOptions, Debug, FlowFlags, FlowLabel, FlowNode, HasLocals, IsBlockScopedContainer, IsContainer, Node, objectAllocator, SourceFile, SymbolFlags, Symbol, tracing, setParent, TracingNode, SyntaxKind, isFunctionLike, NodeArray, forEach, forEachChild, Mutable, HasContainerFlags, createSymbolTable, ModifierFlags, FunctionExpression, InlineClosureExpression, NodeFlags, FunctionLikeDeclaration, getImmediatelyInvokedFunctionExpression, nodeIsPresent, contains, isIdentifier, HasFlowNode, performance, VariableDeclaration, isBlockOrCatchScoped, Declaration, canHaveLocals, isPartOfParameterDeclaration, SymbolTable, hasSyntacticModifier, Diagnostics, isNamedDeclaration, length, DiagnosticRelatedInformation, getNameOfDeclaration, appendIfUnique, setValueDeclaration, addRelatedInfo, Identifier, StringLiteral, isPropertyNameLiteral, InternalSymbolName, getAssignmentDeclarationKind, BinaryExpression, AssignmentDeclarationKind, declarationNameToString, createDiagnosticForNodeInSourceFile, getSourceFileOfNode, DiagnosticMessage, DiagnosticArguments, DiagnosticWithLocation, ReturnStatement, IfStatement, Expression, isTruthyLiteral, isFalsyLiteral, FlowCondition, PrefixUnaryExpression, isLogicalOrCoalescingAssignmentExpression, isLogicalOrCoalescingBinaryExpression, isForEachStatement, FlowAssignment, FlowArrayMutation, Block, ConditionalExpression, WhileStatement, Statement, DoWhileStatement, ForStatement, ForEachStatement, BreakOrContinueStatement, SwitchStatement, FlowSwitchClause, CaseBlock, CallExpression, isAssignmentOperator, PropertyAccessExpression, ParenthesizedExpression, isLeftHandSideExpression, PostfixUnaryExpression, ArrayLiteralExpression, ObjectLiteralExpression, isBinaryLogicalOperator, isLogicalOrCoalescingAssignmentOperator, isParenthesizedExpression, isPrefixUnaryExpression, BinaryOperatorToken, isAssignmentTarget, ElementAccessExpression, isBinaryExpression, isDottedName, FlowCall, createBinaryExpressionTrampoline, CaseClause, CallChain, LeftHandSideExpression, skipParentheses, ParameterDeclaration, ExpressionStatement, FunctionDeclaration, removeFileExtension, hasEffectiveModifier, getCombinedModifierFlags, isExpression, isIdentifierName, identifierToKeywordKind, AccessExpression, BindingElement, TypeLiteralNode, JSDocTypeLiteral, EntityNameExpression, isVariableDeclaration, factory, isVariableDeclarationList, isVariableStatement, setNodeFlags, isBindingPattern, ArrayBindingElement, InheritDeclaration, ClassLikeDeclaration, symbolName, StructDeclaration, BindableStaticNameExpression, BindableStaticAccessExpression, tryCast, isSourceFile, canHaveSymbol, getElementOrPropertyAccessName, MappingLiteralExpression, isStringOrNumericLiteralLike, isEntityNameExpression } from "./_namespaces/lpc";
 
 const binder = /* @__PURE__ */ createBinder();
 
@@ -531,7 +531,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
                 return bindParameter(node as ParameterDeclaration);            
             case SyntaxKind.FunctionDeclaration:
                 return bindFunctionDeclaration(node as FunctionDeclaration);            
-                // case SyntaxKind.FunctionExpression:
+            // case SyntaxKind.FunctionExpression:
             // case SyntaxKind.ArrowFunction:
             //     return bindFunctionExpression(node as FunctionExpression | ArrowFunction);
             case SyntaxKind.PropertyAssignment:
@@ -543,7 +543,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
                 return declareSymbolAndAddToSymbolTable(node as Declaration, SymbolFlags.Signature, SymbolFlags.None);
             case SyntaxKind.TypeLiteral:
             case SyntaxKind.JSDocTypeLiteral:
-//            case SyntaxKind.MappedType:
+            // case SyntaxKind.MappedType:
                 return bindAnonymousTypeWorker(node as TypeLiteralNode/* | MappedTypeNode*/ | JSDocTypeLiteral);
             case SyntaxKind.CallExpression:
                 const assignmentKind = getAssignmentDeclarationKind(node as CallExpression);
@@ -568,6 +568,13 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
                 bindVariableDeclarationOrBindingElement(node as BindingElement);
                 // if node type changed to binary expression, then fall through. otherwise return
                 if ((node as Node).kind !== SyntaxKind.BinaryExpression) return;            
+            case SyntaxKind.PropertyAccessExpression:
+            case SyntaxKind.ElementAccessExpression:
+                const expr = node as PropertyAccessExpression | ElementAccessExpression;
+                if (currentFlow && isNarrowableReference(expr)) {
+                    expr.flowNode = currentFlow;
+                }                                
+                break;
             case SyntaxKind.BinaryExpression:
                 const specialKind = getAssignmentDeclarationKind(node as BinaryExpression);
                 switch (specialKind) {
@@ -1563,9 +1570,9 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             case SyntaxKind.ParenthesizedExpression:
             // case SyntaxKind.NonNullExpression:
                 return isNarrowableReference((expr as PropertyAccessExpression | ParenthesizedExpression /*| NonNullExpression*/).expression);
-            // case SyntaxKind.ElementAccessExpression:
-            //     return (isStringOrNumericLiteralLike((expr as ElementAccessExpression).argumentExpression) || isEntityNameExpression((expr as ElementAccessExpression).argumentExpression)) &&
-            //         isNarrowableReference((expr as ElementAccessExpression).expression);
+            case SyntaxKind.ElementAccessExpression:
+                return (isStringOrNumericLiteralLike((expr as ElementAccessExpression).argumentExpression) || isEntityNameExpression((expr as ElementAccessExpression).argumentExpression)) &&
+                    isNarrowableReference((expr as ElementAccessExpression).expression);
             case SyntaxKind.BinaryExpression:
                 return (expr as BinaryExpression).operatorToken.kind === SyntaxKind.CommaToken && isNarrowableReference((expr as BinaryExpression).right) ||
                     isAssignmentOperator((expr as BinaryExpression).operatorToken.kind) && isLeftHandSideExpression((expr as BinaryExpression).left);
@@ -1599,10 +1606,10 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             case SyntaxKind.Identifier:
                 return true;
             case SyntaxKind.PropertyAccessExpression:
-            //case SyntaxKind.ElementAccessExpression:
+            case SyntaxKind.ElementAccessExpression:
                 return containsNarrowableReference(expr);
             case SyntaxKind.CallExpression:
-                return hasNarrowableArgument(expr as CallExpression);
+                return hasNarrowableArgument(expr as CallExpression);            
             case SyntaxKind.ParenthesizedExpression:
                 // if (isJSDocTypeAssertion(expr)) {
                 //     return false;
