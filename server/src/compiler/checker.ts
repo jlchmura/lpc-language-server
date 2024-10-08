@@ -1,4 +1,4 @@
-import { visitEachChild as visitEachChildWorker, setTextRange as setTextRangeWorker, Type, Symbol, SymbolLinks, CancellationToken, createSymbolTable, Declaration, EmitTextWriter, ModifierFlags, Node, NodeFlags, objectAllocator, Scanner, Signature, SignatureKind, SymbolFlags, TypeChecker, TypeCheckerHost, TypeFormatFlags, TypeParameter, CheckFlags, TransientSymbol, TransientSymbolLinks, reduceLeft, bindSourceFile, SourceFile, Diagnostic, createDiagnosticCollection, concatenate, forEach, tracing, performance, NodeLinks, NodeCheckFlags, FlowNode, FlowType, clear, SyntaxKind, TracingNode, CallLikeExpression, CallExpression, isCallOrNewExpression, isBinaryExpression, Expression, SignatureDeclaration, SignatureFlags, emptyArray, TypeFlags, IntrinsicType, ObjectFlags, Debug, BinaryExpression, ObjectType, StructuredType, ResolvedType, SymbolTable, IndexInfo, Identifier, nodeIsMissing, createNameResolver, InternalSymbolName, SymbolId, some, DiagnosticMessage, DiagnosticArguments, createDiagnosticForNode, createCompilerDiagnostic, FunctionLikeDeclaration, PropertyDeclaration, isString, isIdentifier, Diagnostics, findLast, SymbolFormatFlags, isAccessExpression, isFunctionExpression, isAliasableExpression, PropertyAssignment, isVariableDeclarationInitializedToBareOrAccessedRequire, mapDefined, arrayFrom, getSpellingSuggestion, symbolName, startsWith, nodeIsSynthesized, declarationNameToString, getCanonicalDiagnostic, DiagnosticCategory, addRelatedInfo, ParameterDeclaration, BindingElement, isSourceFile, isExternalOrCommonJsModule, isBlockOrCatchScoped, length, every, isValidTypeOnlyAliasUseSite, isWriteOnlyAccess, getCombinedNodeFlags, DiagnosticWithLocation, getJSDocDeprecatedTag, findAncestor, isCallLikeExpression, isFunctionLike, ParenthesizedExpression, isAssignmentExpression, isVariableDeclaration, isBindingElement, PropertyAccessExpression, getEnclosingBlockScopeContainer, isPropertyDeclaration, nodeStartsNewLexicalEnvironment, isIterationStatement, isForStatement, getAncestor, ForStatement, pushIfUnique, isAssignmentTarget, PrefixUnaryExpression, PostfixUnaryExpression, isBlock, isExpressionNode, isPropertyAccessExpression, getAssignmentTargetKind, AssignmentKind, isInCompoundLikeAssignment, UnionType, TypeId, UnionReduction, getRootDeclaration, getImmediatelyInvokedFunctionExpression, isSpreadAssignment, isParameter, VariableDeclaration, isFunctionLikeDeclaration, isTypeNode, forEachChild, tryCast, canHaveFlowNode, ElementAccessExpression, RelationComparisonResult, LiteralType, FreshableType, getObjectFlags, DiagnosticMessageChain, setNodeFlags, isCallExpression, LazyNodeCheckFlags, getSourceFileOfNode, canIncludeBindAndCheckDiagnostics, forEachChildRecursively, isDeclarationName, EntityName, JSDocMemberName, canHaveSymbol, isLiteralTypeNode, isElementAccessExpression, isIndexedAccessTypeNode, TypeNode, canHaveJSDoc, FlowFlags, FlowArrayMutation, FlowAssignment, FlowCall, FlowCondition, FlowLabel, FlowReduceLabel, FlowSwitchClause, SwitchStatement, createFileDiagnostic, createDiagnosticForFileFromMessageChain, createDiagnosticForNodeFromMessageChain, VariableStatement, HasModifiers, VariableDeclarationList, Block, isFunctionOrModuleBlock, CaseBlock, ForEachStatement, IndexSignatureDeclaration, Path, HasLocals, BindingPattern, idText, isForEachStatement, getNameOfDeclaration, isArrayBindingPattern, first, BindingName, cast, containsParseError, FunctionDeclaration, getFunctionFlags, getEffectiveReturnTypeNode, FunctionFlags, nodeIsPresent, JSDocSignature, isJSDocSignature, getJSDocRoot, LiteralTypeNode, TypeNodeSyntaxKind, isStatement, UnionOrIntersectionType, getContainingFunction, hasSyntacticModifier, isBindingPattern, sameMap, flatMap, getCheckFlags, singleElementArray, getDeclarationModifierFlagsFromSymbol, Ternary, append, find, isNumericLiteralName, StringLiteralType, contains, isTransientSymbol, addRange, filter, IndexType, getParseTreeNode, isRightSideOfQualifiedNameOrPropertyAccess, isWriteAccess, isRightSideOfAccessExpression, hasEffectiveModifier, getCombinedModifierFlags, isEntityName, PropertyAccessEntityNameExpression, isRightSideOfQualifiedNameOrPropertyAccessOrJSDocMemberName, QualifiedName, getHostSignatureFromJSDoc, or, EntityNameOrEntityNameExpression, isInJSFile, getFirstIdentifier, isQualifiedName, entityNameToString, isCallChain, isEntityNameExpression, isLineBreak, skipTrivia, DiagnosticRelatedInformation, IntLiteralType, FloatLiteralType, createTextWriter, chainDiagnosticMessages, getErrorSpanForNode, ShorthandPropertyAssignment, NodeBuilderFlags, SymbolTracker, TrackedSymbol, ReverseMappedSymbol, TypeMapper, ModuleSpecifierResolutionHost, Program, maybeBind, setEmitFlags, createNodeFactory, NodeFactoryFlags, BaseNodeFactory, Mutable, firstDefined, isComputedPropertyName, isIdentifierText, escapeString, getEmitScriptTarget, factory, EmitFlags, isSingleOrDoubleQuote, canUsePropertyAccess, stripQuotes, DoWhileStatement, BinaryOperatorToken, isLogicalOrCoalescingBinaryOperator, isLogicalOrCoalescingBinaryExpression, isIfStatement, skipParentheses, Statement, PunctuationSyntaxKind, tokenToString, FreshableIntrinsicType, isLiteralExpressionOfObject, getAssignmentDeclarationKind, AssignmentDeclarationKind, ConditionalExpression, isAssignmentOperator, isJSDocTypedefTag, isIntLiteral, skipOuterExpressions, OuterExpressionKinds, isExpression, ObjectLiteralExpression, ArrayLiteralExpression, FunctionExpression, InlineClosureExpression, ObjectLiteralElementLike, hasContextSensitiveParameters, forEachReturnStatement, compareDiagnostics, Comparison, createBinaryExpressionTrampoline, IntLiteral, FloatLiteral, isShorthandPropertyAssignment, isPropertyAccessOrQualifiedName, isPrivateIdentifier, WideningContext, StringLiteral, ReturnStatement, ExpressionStatement, IfStatement, NewExpression, getMembersOfDeclaration, AccessExpression, isThisInitializedDeclaration, setValueDeclaration, comparePaths, getOrUpdate, usingSingleLineStringWriter, createPrinterWithRemoveCommentsNeverAsciiEscape, createPrinterWithRemoveComments, EmitHint, getEffectiveModifierFlags, getEffectiveTypeAnnotationNode, getAssignmentDeclarationPropertyAccessKind, isNamedDeclaration, map, PropertyName, isFloatLiteral, getPropertyNameForPropertyNameNode, isPartOfParameterDeclaration, hasOnlyExpressionInitializer, not, getEffectiveInitializer, isObjectLiteralExpression, isVariableLike, getSelectedEffectiveModifierFlags, AliasDeclarationNode, isBindingElementOfBareOrAccessedRequire, TypeReference, isFunctionExpressionOrInlineClosure, ContextFlags, indexOfNode, InferenceContext, isNodeDescendantOf, ObjectFlagsType, GenericType, ReverseMappedType, AnonymousType, DeferredTypeReference, InstantiationExpressionType, SingleSignatureType, MappedTypeNode, TypeParameterDeclaration, appendIfUnique, TypeMapKind, isPartOfTypeNode, TypeReferenceNode, MappedType, ArrayTypeNode, isParenthesizedTypeNode, isTypeAlias, IndexFlags, InferenceInfo, binarySearch, compareValues, hasInitializer, lastOrUndefined, HasExpressionInitializer, getContainingFunctionOrClassStaticBlock, getSpanOfTokenAtPosition, isJSDocParameterTag, hasRestParameter, isStringLiteral, walkUpBindingElementsAndPatterns, BindableObjectDefinePropertyCall, copyEntries, InterfaceType, isPropertyAssignment, DiagnosticAndArguments, FreshObjectLiteralType, BaseType, firstOrUndefined, SubstitutionType, createPrinterWithDefaults, noTruncationMaximumTruncationLength, defaultMaximumTruncationLength, arrayIsHomogeneous, isIdentifierTypeReference, createMultiMap, addSyntheticLeadingComment, NodeArray, getOriginalNode, getIdentifierTypeArguments, setIdentifierTypeArguments, IndexedAccessTypeNode, forEachEntry, ScriptTarget, SymbolAccessibility, canHaveLocals, getDeclarationOfKind, isClassLike, TypeElement, SymbolAccessibilityResult, SymbolVisibilityResult, LateVisibilityPaintedStatement, isVariableStatement, isLateVisibilityPaintedStatement, isTypeLiteralNode, PlusToken, MinusToken, walkUpParenthesizedTypes, setOriginalNode, countWhere, getNameFromIndexInfo, Modifier, notImplemented, isTypeParameterDeclaration, setParent, CallChain, isLiteralExpression, isStringOrNumericLiteralLike, FlowStart, getPropertyNameFromType, EvolvingArrayType, arrayIsEqualTo, isObjectLiteralMethod, isNonNullAccess, FlowSwitchClauseData, LiteralExpression, CaseClause, DefaultClause, findIndex, orderedRemoveItemAt, UnionTypeNode, ParenthesizedTypeNode, concatenateDiagnosticMessageChains, isDeclaration, InterfaceTypeWithDeclaredMembers, rangeEquals, InferenceFlags, minAndMax, last, IntersectionFlags, IntersectionType, flatten, createDiagnosticMessageChainFromDiagnostic, setTextRangePosEnd, createDiagnosticForNodeArrayFromMessageChain, createDiagnosticForNodeArray, isConstructorDeclaration, TypeComparer, InferencePriority, pathIsRelative, moduleSpecifiers, EmitResolver, isRestParameter, SpreadElement, ElementFlags, ModuleKind, ResolutionMode, ModuleResolutionKind, getResolutionDiagnostic, isDeclarationFileName, hasExtension, removeExtension, CloneObjectExpression, isCloneObjectExpression, PropertyAccessChain, OptionalChain, ExportDeclaration, getTextOfNode, InheritDeclaration, isCallLikeOrFunctionLikeExpression, isFunctionExpressionOrArrowFunction, CharacterCodes, Visitor, visitNodes, isGlobalSourceFile, isExternalModule, introducesArgumentsExoticObject, getCombinedLocalAndExportSymbolFlags, StructTypeNode, StructDeclaration, ClassLikeDeclaration, getEffectiveBaseTypeNode, ComputedPropertyName, TypeReferenceType, NodeWithTypeArguments, ClassDeclaration, ClassExpression, TypeLiteralNode, JSDocTypeLiteral, isJSDocTypeLiteral, isInJSDoc, isTypeDeclaration, JSDocTypeAssertion, AssertionExpression, isParenthesizedExpression, getJSDocTypeAssertionType, AccessFlags, NewStructExpression, isJSDocTypeAlias, isAssertionExpression, TypeAssertion, DeclarationName, isKnownSymbol } from "./_namespaces/lpc";
+import { visitEachChild as visitEachChildWorker, setTextRange as setTextRangeWorker, Type, Symbol, SymbolLinks, CancellationToken, createSymbolTable, Declaration, EmitTextWriter, ModifierFlags, Node, NodeFlags, objectAllocator, Scanner, Signature, SignatureKind, SymbolFlags, TypeChecker, TypeCheckerHost, TypeFormatFlags, TypeParameter, CheckFlags, TransientSymbol, TransientSymbolLinks, reduceLeft, bindSourceFile, SourceFile, Diagnostic, createDiagnosticCollection, concatenate, forEach, tracing, performance, NodeLinks, NodeCheckFlags, FlowNode, FlowType, clear, SyntaxKind, TracingNode, CallLikeExpression, CallExpression, isCallOrNewExpression, isBinaryExpression, Expression, SignatureDeclaration, SignatureFlags, emptyArray, TypeFlags, IntrinsicType, ObjectFlags, Debug, BinaryExpression, ObjectType, StructuredType, ResolvedType, SymbolTable, IndexInfo, Identifier, nodeIsMissing, createNameResolver, InternalSymbolName, SymbolId, some, DiagnosticMessage, DiagnosticArguments, createDiagnosticForNode, createCompilerDiagnostic, FunctionLikeDeclaration, PropertyDeclaration, isString, isIdentifier, Diagnostics, findLast, SymbolFormatFlags, isAccessExpression, isFunctionExpression, isAliasableExpression, PropertyAssignment, isVariableDeclarationInitializedToBareOrAccessedRequire, mapDefined, arrayFrom, getSpellingSuggestion, symbolName, startsWith, nodeIsSynthesized, declarationNameToString, getCanonicalDiagnostic, DiagnosticCategory, addRelatedInfo, ParameterDeclaration, BindingElement, isSourceFile, isExternalOrCommonJsModule, isBlockOrCatchScoped, length, every, isValidTypeOnlyAliasUseSite, isWriteOnlyAccess, getCombinedNodeFlags, DiagnosticWithLocation, getJSDocDeprecatedTag, findAncestor, isCallLikeExpression, isFunctionLike, ParenthesizedExpression, isAssignmentExpression, isVariableDeclaration, isBindingElement, PropertyAccessExpression, getEnclosingBlockScopeContainer, isPropertyDeclaration, nodeStartsNewLexicalEnvironment, isIterationStatement, isForStatement, getAncestor, ForStatement, pushIfUnique, isAssignmentTarget, PrefixUnaryExpression, PostfixUnaryExpression, isBlock, isExpressionNode, isPropertyAccessExpression, getAssignmentTargetKind, AssignmentKind, isInCompoundLikeAssignment, UnionType, TypeId, UnionReduction, getRootDeclaration, getImmediatelyInvokedFunctionExpression, isSpreadAssignment, isParameter, VariableDeclaration, isFunctionLikeDeclaration, isTypeNode, forEachChild, tryCast, canHaveFlowNode, ElementAccessExpression, RelationComparisonResult, LiteralType, FreshableType, getObjectFlags, DiagnosticMessageChain, setNodeFlags, isCallExpression, LazyNodeCheckFlags, getSourceFileOfNode, canIncludeBindAndCheckDiagnostics, forEachChildRecursively, isDeclarationName, EntityName, JSDocMemberName, canHaveSymbol, isLiteralTypeNode, isElementAccessExpression, isIndexedAccessTypeNode, TypeNode, canHaveJSDoc, FlowFlags, FlowArrayMutation, FlowAssignment, FlowCall, FlowCondition, FlowLabel, FlowReduceLabel, FlowSwitchClause, SwitchStatement, createFileDiagnostic, createDiagnosticForFileFromMessageChain, createDiagnosticForNodeFromMessageChain, VariableStatement, HasModifiers, VariableDeclarationList, Block, isFunctionOrModuleBlock, CaseBlock, ForEachStatement, IndexSignatureDeclaration, Path, HasLocals, BindingPattern, idText, isForEachStatement, getNameOfDeclaration, isArrayBindingPattern, first, BindingName, cast, containsParseError, FunctionDeclaration, getFunctionFlags, getEffectiveReturnTypeNode, FunctionFlags, nodeIsPresent, JSDocSignature, isJSDocSignature, getJSDocRoot, LiteralTypeNode, TypeNodeSyntaxKind, isStatement, UnionOrIntersectionType, getContainingFunction, hasSyntacticModifier, isBindingPattern, sameMap, flatMap, getCheckFlags, singleElementArray, getDeclarationModifierFlagsFromSymbol, Ternary, append, find, isNumericLiteralName, StringLiteralType, contains, isTransientSymbol, addRange, filter, IndexType, getParseTreeNode, isRightSideOfQualifiedNameOrPropertyAccess, isWriteAccess, isRightSideOfAccessExpression, hasEffectiveModifier, getCombinedModifierFlags, isEntityName, PropertyAccessEntityNameExpression, isRightSideOfQualifiedNameOrPropertyAccessOrJSDocMemberName, QualifiedName, getHostSignatureFromJSDoc, or, EntityNameOrEntityNameExpression, isInJSFile, getFirstIdentifier, isQualifiedName, entityNameToString, isCallChain, isEntityNameExpression, isLineBreak, skipTrivia, DiagnosticRelatedInformation, IntLiteralType, FloatLiteralType, createTextWriter, chainDiagnosticMessages, getErrorSpanForNode, ShorthandPropertyAssignment, NodeBuilderFlags, SymbolTracker, TrackedSymbol, ReverseMappedSymbol, TypeMapper, ModuleSpecifierResolutionHost, Program, maybeBind, setEmitFlags, createNodeFactory, NodeFactoryFlags, BaseNodeFactory, Mutable, firstDefined, isComputedPropertyName, isIdentifierText, escapeString, getEmitScriptTarget, factory, EmitFlags, isSingleOrDoubleQuote, canUsePropertyAccess, stripQuotes, DoWhileStatement, BinaryOperatorToken, isLogicalOrCoalescingBinaryOperator, isLogicalOrCoalescingBinaryExpression, isIfStatement, skipParentheses, Statement, PunctuationSyntaxKind, tokenToString, FreshableIntrinsicType, isLiteralExpressionOfObject, getAssignmentDeclarationKind, AssignmentDeclarationKind, ConditionalExpression, isAssignmentOperator, isJSDocTypedefTag, isIntLiteral, skipOuterExpressions, OuterExpressionKinds, isExpression, ObjectLiteralExpression, ArrayLiteralExpression, FunctionExpression, InlineClosureExpression, ObjectLiteralElementLike, hasContextSensitiveParameters, forEachReturnStatement, compareDiagnostics, Comparison, createBinaryExpressionTrampoline, IntLiteral, FloatLiteral, isShorthandPropertyAssignment, isPropertyAccessOrQualifiedName, isPrivateIdentifier, WideningContext, StringLiteral, ReturnStatement, ExpressionStatement, IfStatement, NewExpression, getMembersOfDeclaration, AccessExpression, isThisInitializedDeclaration, setValueDeclaration, comparePaths, getOrUpdate, usingSingleLineStringWriter, createPrinterWithRemoveCommentsNeverAsciiEscape, createPrinterWithRemoveComments, EmitHint, getEffectiveModifierFlags, getEffectiveTypeAnnotationNode, getAssignmentDeclarationPropertyAccessKind, isNamedDeclaration, map, PropertyName, isFloatLiteral, getPropertyNameForPropertyNameNode, isPartOfParameterDeclaration, hasOnlyExpressionInitializer, not, getEffectiveInitializer, isObjectLiteralExpression, isVariableLike, getSelectedEffectiveModifierFlags, AliasDeclarationNode, isBindingElementOfBareOrAccessedRequire, TypeReference, isFunctionExpressionOrInlineClosure, ContextFlags, indexOfNode, InferenceContext, isNodeDescendantOf, ObjectFlagsType, GenericType, ReverseMappedType, AnonymousType, DeferredTypeReference, InstantiationExpressionType, SingleSignatureType, MappedTypeNode, TypeParameterDeclaration, appendIfUnique, TypeMapKind, isPartOfTypeNode, TypeReferenceNode, MappedType, ArrayTypeNode, isParenthesizedTypeNode, isTypeAlias, IndexFlags, InferenceInfo, binarySearch, compareValues, hasInitializer, lastOrUndefined, HasExpressionInitializer, getContainingFunctionOrClassStaticBlock, getSpanOfTokenAtPosition, isJSDocParameterTag, hasRestParameter, isStringLiteral, walkUpBindingElementsAndPatterns, BindableObjectDefinePropertyCall, copyEntries, InterfaceType, isPropertyAssignment, DiagnosticAndArguments, FreshObjectLiteralType, BaseType, firstOrUndefined, SubstitutionType, createPrinterWithDefaults, noTruncationMaximumTruncationLength, defaultMaximumTruncationLength, arrayIsHomogeneous, isIdentifierTypeReference, createMultiMap, addSyntheticLeadingComment, NodeArray, getOriginalNode, getIdentifierTypeArguments, setIdentifierTypeArguments, IndexedAccessTypeNode, forEachEntry, ScriptTarget, SymbolAccessibility, canHaveLocals, getDeclarationOfKind, isClassLike, TypeElement, SymbolAccessibilityResult, SymbolVisibilityResult, LateVisibilityPaintedStatement, isVariableStatement, isLateVisibilityPaintedStatement, isTypeLiteralNode, PlusToken, MinusToken, walkUpParenthesizedTypes, setOriginalNode, countWhere, getNameFromIndexInfo, Modifier, notImplemented, isTypeParameterDeclaration, setParent, CallChain, isLiteralExpression, isStringOrNumericLiteralLike, FlowStart, getPropertyNameFromType, EvolvingArrayType, arrayIsEqualTo, isObjectLiteralMethod, isNonNullAccess, FlowSwitchClauseData, LiteralExpression, CaseClause, DefaultClause, findIndex, orderedRemoveItemAt, UnionTypeNode, ParenthesizedTypeNode, concatenateDiagnosticMessageChains, isDeclaration, InterfaceTypeWithDeclaredMembers, rangeEquals, InferenceFlags, minAndMax, last, IntersectionFlags, IntersectionType, flatten, createDiagnosticMessageChainFromDiagnostic, setTextRangePosEnd, createDiagnosticForNodeArrayFromMessageChain, createDiagnosticForNodeArray, isConstructorDeclaration, TypeComparer, InferencePriority, pathIsRelative, moduleSpecifiers, EmitResolver, isRestParameter, SpreadElement, ElementFlags, ModuleKind, ResolutionMode, ModuleResolutionKind, getResolutionDiagnostic, isDeclarationFileName, hasExtension, removeExtension, CloneObjectExpression, isCloneObjectExpression, PropertyAccessChain, OptionalChain, ExportDeclaration, getTextOfNode, InheritDeclaration, isCallLikeOrFunctionLikeExpression, isFunctionExpressionOrArrowFunction, CharacterCodes, Visitor, visitNodes, isGlobalSourceFile, isExternalModule, introducesArgumentsExoticObject, getCombinedLocalAndExportSymbolFlags, StructTypeNode, StructDeclaration, ClassLikeDeclaration, getEffectiveBaseTypeNode, ComputedPropertyName, TypeReferenceType, NodeWithTypeArguments, ClassDeclaration, ClassExpression, TypeLiteralNode, JSDocTypeLiteral, isJSDocTypeLiteral, isInJSDoc, isTypeDeclaration, JSDocTypeAssertion, AssertionExpression, isParenthesizedExpression, getJSDocTypeAssertionType, AccessFlags, NewStructExpression, isJSDocTypeAlias, isAssertionExpression, TypeAssertion, DeclarationName, isKnownSymbol, createEvaluator, EntityNameExpression, evaluatorResult, isStringLiteralLike, SyntheticExpression, ArrayBindingPattern, isTypeUsableAsPropertyName, isPropertyName, tryGetPropertyAccessOrIdentifierToString, IndexedAccessType, MappingLiteralExpression, isOmittedExpression } from "./_namespaces/lpc";
 
 let nextSymbolId = 1;
 let nextNodeId = 1;
@@ -17,6 +17,13 @@ const enum ReferenceHint {
     ExportImportEquals,
     ExportSpecifier,
     Decorator,
+}
+
+const enum MappedTypeModifiers {
+    IncludeReadonly = 1 << 0,
+    ExcludeReadonly = 1 << 1,
+    IncludeOptional = 1 << 2,
+    ExcludeOptional = 1 << 3,
 }
 
 type TypeSystemEntity = Node | Symbol | Type | Signature;
@@ -118,6 +125,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
     var compilerOptions = host.getCompilerOptions();        
     var languageVersion = getEmitScriptTarget(compilerOptions);
+    var exactOptionalPropertyTypes = compilerOptions.exactOptionalPropertyTypes;
     
     var checkBinaryExpression = createCheckBinaryExpression();
     var emitResolver = createResolver();
@@ -140,6 +148,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     var amalgamatedDuplicates: Map<string, DuplicateInfoForFiles> | undefined;
     var reverseMappedCache = new Map<string, Type | undefined>();
     var ambientModulesCache: Symbol[] | undefined;
+    
+    var evaluate = createEvaluator({
+        evaluateElementAccessExpression,
+        evaluateEntityNameExpression,
+    });
     
     var globals = createSymbolTable();
     var undefinedSymbol = createSymbol(SymbolFlags.Property, "undefined" as string);
@@ -401,7 +414,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     var globalObjectType: ObjectType;
     var globalFunctionType: ObjectType;
     var globalArrayType: GenericType;
-    var globalReadonlyArrayType: GenericType;
+    var globalMappingType: GenericType;
+    var globalReadonlyArrayType: GenericType;    
     var globalCallableFunctionType: ObjectType;
     var globalNewableFunctionType: ObjectType;
     var globalStringType: ObjectType;
@@ -473,6 +487,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
         // Initialize special types
         globalArrayType = getGlobalType("Array" as string, /*arity*/ 1, /*reportErrors*/ true);
+        globalMappingType = getGlobalType("Mapping" as string, /*arity*/ 1, /*reportErrors*/ true);
         globalObjectType = getGlobalType("Object" as string, /*arity*/ 0, /*reportErrors*/ true);
         globalFunctionType = getGlobalType("Function" as string, /*arity*/ 0, /*reportErrors*/ true);
         globalCallableFunctionType = strictBindCallApply && getGlobalType("CallableFunction" as string, /*arity*/ 0, /*reportErrors*/ true) || globalFunctionType;
@@ -505,6 +520,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
     function createArrayType(elementType: Type, readonly?: boolean): ObjectType {
         return createTypeFromGenericGlobalType(readonly ? globalReadonlyArrayType : globalArrayType, [elementType]);
+    }
+
+    function createMappingType(elementType: Type, readonly?: boolean): ObjectType {
+        Debug.assert(readonly !== true, "readonly not supported");
+        return createTypeFromGenericGlobalType(globalArrayType, [elementType]);
     }
 
     /**
@@ -1834,6 +1854,277 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return type;//return strictNullChecks ? removeType(type, optionalType) : type;
     }
 
+    function checkMappingLiteral(node: MappingLiteralExpression, checkMode: CheckMode | undefined, forceTuple: boolean | undefined): Type {
+        const elements = node.elements ?? [];
+        const elementCount = elements.length;
+        const elementTypes: Type[] = [];
+        const elementFlags: ElementFlags[] = [];
+        pushCachedContextualType(node);
+        
+        let hasOmittedExpression = false;
+        for (let i = 0; i < elementCount; i++) {
+            const e = elements[i];            
+            if (exactOptionalPropertyTypes && e.kind === SyntaxKind.OmittedExpression) {
+                hasOmittedExpression = true;
+                elementTypes.push(undefinedOrMissingType);
+                elementFlags.push(ElementFlags.Optional);
+            }
+            else if (!isOmittedExpression(e)) {
+                const type = checkExpressionForMutableLocation(e.name, checkMode, forceTuple);
+                elementTypes.push(addOptionality(type, /*isProperty*/ true, hasOmittedExpression));
+                elementFlags.push(hasOmittedExpression ? ElementFlags.Optional : ElementFlags.Required);                
+
+                e.elements.forEach(me => {
+                    const type = checkExpressionForMutableLocation(me, checkMode, forceTuple);
+                    elementTypes.push(addOptionality(type, /*isProperty*/ true, hasOmittedExpression));
+                    elementFlags.push(hasOmittedExpression ? ElementFlags.Optional : ElementFlags.Required);                
+                });
+            }
+        }
+        popContextualType();        
+        return createMappingLiteralType(createMappingType(
+            elementTypes.length ?
+                getUnionType(sameMap(elementTypes, (t, i) => elementFlags[i] & ElementFlags.Variadic ? getIndexedAccessTypeOrUndefined(t, numberType) || anyType : t), UnionReduction.Subtype) :
+                strictNullChecks ? implicitNeverType : undefinedWideningType,
+            false,
+        ));
+    }
+
+    function checkArrayLiteral(node: ArrayLiteralExpression, checkMode: CheckMode | undefined, forceTuple: boolean | undefined): Type {
+        const elements = node.elements;
+        const elementCount = elements.length;
+        const elementTypes: Type[] = [];
+        const elementFlags: ElementFlags[] = [];
+        pushCachedContextualType(node);
+        const inDestructuringPattern = isAssignmentTarget(node);
+        const inConstContext = false;//isConstContext(node);
+        const contextualType = getApparentTypeOfContextualType(node, /*contextFlags*/ undefined);
+        const inTupleContext = false;//isSpreadIntoCallOrNew(node) || !!contextualType && someType(contextualType, t => isTupleLikeType(t) || isGenericMappedType(t) && !t.nameType && !!getHomomorphicTypeVariable(t.target as MappedType || t));
+
+        let hasOmittedExpression = false;
+        for (let i = 0; i < elementCount; i++) {
+            const e = elements[i];
+            if (e.kind === SyntaxKind.SpreadElement) {
+                // if (languageVersion < LanguageFeatureMinimumTarget.SpreadElements) {
+                //     checkExternalEmitHelpers(e, compilerOptions.downlevelIteration ? ExternalEmitHelpers.SpreadIncludes : ExternalEmitHelpers.SpreadArray);
+                // }
+                const spreadType = checkExpression((e as SpreadElement).expression, checkMode, forceTuple);
+                if (isArrayLikeType(spreadType)) {
+                    elementTypes.push(spreadType);
+                    elementFlags.push(ElementFlags.Variadic);
+                }
+                else if (inDestructuringPattern) {
+                    // Given the following situation:
+                    //    var c: {};
+                    //    [...c] = ["", 0];
+                    //
+                    // c is represented in the tree as a spread element in an array literal.
+                    // But c really functions as a rest element, and its purpose is to provide
+                    // a contextual type for the right hand side of the assignment. Therefore,
+                    // instead of calling checkExpression on "...c", which will give an error
+                    // if c is not iterable/array-like, we need to act as if we are trying to
+                    // get the contextual element type from it. So we do something similar to
+                    // getContextualTypeForElementExpression, which will crucially not error
+                    // if there is no index type / iterated type.
+                    const restElementType = getIndexTypeOfType(spreadType, numberType) ||
+                        getIteratedTypeOrElementType(IterationUse.Destructuring, spreadType, undefinedType, /*errorNode*/ undefined, /*checkAssignability*/ false) ||
+                        unknownType;
+                    elementTypes.push(restElementType);
+                    elementFlags.push(ElementFlags.Rest);
+                }
+                else {
+                    elementTypes.push(checkIteratedTypeOrElementType(IterationUse.Spread, spreadType, undefinedType, (e as SpreadElement).expression));
+                    elementFlags.push(ElementFlags.Rest);
+                }
+            }
+            else if (exactOptionalPropertyTypes && e.kind === SyntaxKind.OmittedExpression) {
+                hasOmittedExpression = true;
+                elementTypes.push(undefinedOrMissingType);
+                elementFlags.push(ElementFlags.Optional);
+            }
+            else {
+                const type = checkExpressionForMutableLocation(e, checkMode, forceTuple);
+                elementTypes.push(addOptionality(type, /*isProperty*/ true, hasOmittedExpression));
+                elementFlags.push(hasOmittedExpression ? ElementFlags.Optional : ElementFlags.Required);
+                if (inTupleContext && checkMode && checkMode & CheckMode.Inferential && !(checkMode & CheckMode.SkipContextSensitive) && isContextSensitive(e)) {
+                    const inferenceContext = getInferenceContext(node);
+                    Debug.assert(inferenceContext); // In CheckMode.Inferential we should always have an inference context
+                    addIntraExpressionInferenceSite(inferenceContext, e, type);
+                }
+            }
+        }
+        popContextualType();
+        // if (inDestructuringPattern) {
+        //     return createTupleType(elementTypes, elementFlags);
+        // }
+        // if (forceTuple || inConstContext || inTupleContext) {
+        //     return createArrayLiteralType(createTupleType(elementTypes, elementFlags, /*readonly*/ inConstContext && !(contextualType && someType(contextualType, isMutableArrayLikeType))));
+        // }
+        return createArrayLiteralType(createArrayType(
+            elementTypes.length ?
+                getUnionType(sameMap(elementTypes, (t, i) => elementFlags[i] & ElementFlags.Variadic ? getIndexedAccessTypeOrUndefined(t, numberType) || anyType : t), UnionReduction.Subtype) :
+                strictNullChecks ? implicitNeverType : undefinedWideningType,
+            inConstContext,
+        ));
+    }
+
+    function createArrayLiteralType(type: Type) {
+        if (!(getObjectFlags(type) & ObjectFlags.Reference)) {
+            return type;
+        }
+        let literalType = (type as TypeReference).literalType;
+        if (!literalType) {
+            literalType = (type as TypeReference).literalType = cloneTypeReference(type as TypeReference);
+            literalType.objectFlags |= ObjectFlags.ArrayLiteral | ObjectFlags.ContainsObjectOrArrayLiteral;
+        }
+        return literalType;
+    }
+
+    function createMappingLiteralType(type: Type) {
+        if (!(getObjectFlags(type) & ObjectFlags.Reference)) {
+            return type;
+        }
+        let literalType = (type as TypeReference).literalType;
+        if (!literalType) {
+            literalType = (type as TypeReference).literalType = cloneTypeReference(type as TypeReference);
+            literalType.objectFlags |= ObjectFlags.MappingLiteral | ObjectFlags.ContainsObjectOrArrayLiteral;
+        }
+        return literalType;
+    }
+
+    function cloneTypeReference(source: TypeReference): TypeReference {
+        const type = createTypeWithSymbol(source.flags, source.symbol) as TypeReference;
+        type.objectFlags = source.objectFlags;
+        type.target = source.target;
+        type.resolvedTypeArguments = source.resolvedTypeArguments;
+        return type;
+    }
+
+    function reportTypeNotIterableError(errorNode: Node, type: Type, allowAsyncIterables: boolean): Diagnostic {
+        const message = undefined;
+        return errorAndMaybeSuggestAwait(errorNode, false, message, typeToString(type));
+    }
+
+
+    /**
+     * When consuming an iterable type in a for..of, spread, or iterator destructuring assignment
+     * we want to get the iterated type of an iterable for ES2015 or later, or the iterated type
+     * of a iterable (if defined globally) or element type of an array like for ES2015 or earlier.
+     */
+    function getIteratedTypeOrElementType(use: IterationUse, inputType: Type, sentType: Type, errorNode: Node | undefined, checkAssignability: boolean): Type | undefined {
+        const allowAsyncIterables = (use & IterationUse.AllowsAsyncIterablesFlag) !== 0;
+        if (inputType === neverType) {
+            if (errorNode) {
+                reportTypeNotIterableError(errorNode, inputType, allowAsyncIterables);
+            }
+            return undefined;
+        }
+
+        const uplevelIteration = true;//languageVersion >= ScriptTarget.ES2015;
+        const downlevelIteration = !uplevelIteration;// && compilerOptions.downlevelIteration;
+        const possibleOutOfBounds = compilerOptions.noUncheckedIndexedAccess && !!(use & IterationUse.PossiblyOutOfBounds);
+
+        // Get the iterated type of an `Iterable<T>` or `IterableIterator<T>` only in ES2015
+        // or higher, when inside of an async generator or for-await-if, or when
+        // downlevelIteration is requested.
+        // if (uplevelIteration || downlevelIteration || allowAsyncIterables) {
+        //     // We only report errors for an invalid iterable type in ES2015 or higher.
+        //     const iterationTypes = getIterationTypesOfIterable(inputType, use, uplevelIteration ? errorNode : undefined);
+        //     if (checkAssignability) {
+        //         if (iterationTypes) {
+        //             const diagnostic = use & IterationUse.ForOfFlag ? Diagnostics.Cannot_iterate_value_because_the_next_method_of_its_iterator_expects_type_1_but_for_of_will_always_send_0 :
+        //                 use & IterationUse.SpreadFlag ? Diagnostics.Cannot_iterate_value_because_the_next_method_of_its_iterator_expects_type_1_but_array_spread_will_always_send_0 :
+        //                 use & IterationUse.DestructuringFlag ? Diagnostics.Cannot_iterate_value_because_the_next_method_of_its_iterator_expects_type_1_but_array_destructuring_will_always_send_0 :
+        //                 use & IterationUse.YieldStarFlag ? Diagnostics.Cannot_delegate_iteration_to_value_because_the_next_method_of_its_iterator_expects_type_1_but_the_containing_generator_will_always_send_0 :
+        //                 undefined;
+        //             if (diagnostic) {
+        //                 checkTypeAssignableTo(sentType, iterationTypes.nextType, errorNode, diagnostic);
+        //             }
+        //         }
+        //     }
+        //     if (iterationTypes || uplevelIteration) {
+        //         return possibleOutOfBounds ? includeUndefinedInIndexSignature(iterationTypes && iterationTypes.yieldType) : (iterationTypes && iterationTypes.yieldType);
+        //     }
+        // }
+
+        let arrayType = inputType;
+        let hasStringConstituent = false;
+
+        // If strings are permitted, remove any string-like constituents from the array type.
+        // This allows us to find other non-string element types from an array unioned with
+        // a string.
+        if (use & IterationUse.AllowsStringInputFlag) {
+            if (arrayType.flags & TypeFlags.Union) {
+                // After we remove all types that are StringLike, we will know if there was a string constituent
+                // based on whether the result of filter is a new array.
+                const arrayTypes = (inputType as UnionType).types;
+                const filteredTypes = filter(arrayTypes, t => !(t.flags & TypeFlags.StringLike));
+                if (filteredTypes !== arrayTypes) {
+                    arrayType = getUnionType(filteredTypes, UnionReduction.Subtype);
+                }
+            }
+            else if (arrayType.flags & TypeFlags.StringLike) {
+                arrayType = neverType;
+            }
+
+            hasStringConstituent = arrayType !== inputType;
+            if (hasStringConstituent) {
+                // Now that we've removed all the StringLike types, if no constituents remain, then the entire
+                // arrayOrStringType was a string.
+                if (arrayType.flags & TypeFlags.Never) {
+                    return possibleOutOfBounds ? includeUndefinedInIndexSignature(stringType) : stringType;
+                }
+            }
+        }
+
+        if (!isArrayLikeType(arrayType)) {
+            if (errorNode) {
+                // Which error we report depends on whether we allow strings or if there was a
+                // string constituent. For example, if the input type is number | string, we
+                // want to say that number is not an array type. But if the input was just
+                // number and string input is allowed, we want to say that number is not an
+                // array type or a string type.
+                const allowsStrings = !!(use & IterationUse.AllowsStringInputFlag) && !hasStringConstituent;
+                const [defaultDiagnostic, maybeMissingAwait] = getIterationDiagnosticDetails(allowsStrings, downlevelIteration);
+                errorAndMaybeSuggestAwait(
+                    errorNode,
+                    false,//maybeMissingAwait && !!getAwaitedTypeOfPromise(arrayType),
+                    defaultDiagnostic,
+                    typeToString(arrayType),
+                );
+            }
+            return hasStringConstituent ? possibleOutOfBounds ? includeUndefinedInIndexSignature(stringType) : stringType : undefined;
+        }
+
+        const arrayElementType = getIndexTypeOfType(arrayType, numberType);
+        if (hasStringConstituent && arrayElementType) {
+            // This is just an optimization for the case where arrayOrStringType is string | string[]
+            if (arrayElementType.flags & TypeFlags.StringLike && !compilerOptions.noUncheckedIndexedAccess) {
+                return stringType;
+            }
+
+            return getUnionType(possibleOutOfBounds ? [arrayElementType, stringType, undefinedType] : [arrayElementType, stringType], UnionReduction.Subtype);
+        }
+
+        return (use & IterationUse.PossiblyOutOfBounds) ? includeUndefinedInIndexSignature(arrayElementType) : arrayElementType;
+
+        function getIterationDiagnosticDetails(allowsStrings: boolean, downlevelIteration: boolean | undefined): [error: DiagnosticMessage, maybeMissingAwait: boolean] {
+            if (downlevelIteration) {
+                return allowsStrings
+                    ? [Diagnostics.Type_0_is_not_an_array_type_or_a_string_type_or_does_not_have_a_Symbol_iterator_method_that_returns_an_iterator, true]
+                    : [Diagnostics.Type_0_is_not_an_array_type_or_does_not_have_a_Symbol_iterator_method_that_returns_an_iterator, true];
+            }
+
+            // if (isES2015OrLaterIterable(inputType.symbol?.escapedName)) {
+            //     return [Diagnostics.Type_0_can_only_be_iterated_through_when_using_the_downlevelIteration_flag_or_with_a_target_of_es2015_or_higher, true];
+            // }
+
+            return allowsStrings
+                ? [Diagnostics.Type_0_is_not_an_array_type_or_a_string_type, true]
+                : [Diagnostics.Type_0_is_not_an_array_type, true];
+        }
+    }
+    
     function checkPropertyAccessExpression(node: PropertyAccessExpression, checkMode: CheckMode | undefined, writeOnly?: boolean) {
         return node.flags & NodeFlags.OptionalChain ? checkPropertyAccessChain(node as PropertyAccessChain, checkMode) :
             checkPropertyAccessExpressionOrQualifiedName(node, node.expression, checkNonNullExpression(node.expression), node.name, checkMode, writeOnly);
@@ -2165,8 +2456,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             // case SyntaxKind.FunctionType:
             // case SyntaxKind.CallSignature:
             // case SyntaxKind.ConstructSignature:
-            // case SyntaxKind.IndexSignature:
-            //     return checkSignatureDeclaration(node as SignatureDeclaration);
+            case SyntaxKind.IndexSignature:
+                return checkSignatureDeclaration(node as SignatureDeclaration);
             // case SyntaxKind.MethodDeclaration:
             // case SyntaxKind.MethodSignature:
             //     return checkMethodDeclaration(node as MethodDeclaration | MethodSignature);
@@ -2178,18 +2469,16 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 return checkArrayType(node as ArrayTypeNode);            
             // case SyntaxKind.UnionType:            
             //     return checkUnionOrIntersectionType(node as UnionOrIntersectionTypeNode);
-            // case SyntaxKind.ParenthesizedType:
+            case SyntaxKind.ParenthesizedType:
             // case SyntaxKind.OptionalType:
             // case SyntaxKind.RestType:
-            //     return checkSourceElement((node as ParenthesizedTypeNode | OptionalTypeNode | RestTypeNode).type);
+                return checkSourceElement((node as ParenthesizedTypeNode).type);
             // case SyntaxKind.ThisType:
             //     return checkThisType(node as ThisTypeNode);
             // case SyntaxKind.TypeOperator:
             //     return checkTypeOperator(node as TypeOperatorNode);            
             // case SyntaxKind.ImportType:
-            //     return checkImportType(node as ImportTypeNode);
-            // case SyntaxKind.NamedTupleMember:
-            //     return checkNamedTupleMember(node as NamedTupleMember);
+            //     return checkImportType(node as ImportTypeNode);            
             // case SyntaxKind.JSDocAugmentsTag:
             //     return checkJSDocAugmentsTag(node as JSDocAugmentsTag);
             // case SyntaxKind.JSDocImplementsTag:
@@ -2236,8 +2525,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             //     return checkJSDocThisTag(node as JSDocThisTag);
             // case SyntaxKind.JSDocImportTag:
             //     return checkJSDocImportTag(node as JSDocImportTag);
-            // case SyntaxKind.IndexedAccessType:
-            //     return checkIndexedAccessType(node as IndexedAccessTypeNode);
+            case SyntaxKind.IndexedAccessType:
+                return checkIndexedAccessType(node as IndexedAccessTypeNode);
             // case SyntaxKind.MappedType:
             //     return checkMappedType(node as MappedTypeNode);
             case SyntaxKind.FunctionDeclaration:
@@ -2284,8 +2573,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             //     return checkClassDeclaration(node as ClassDeclaration);
             // case SyntaxKind.InterfaceDeclaration:
             //     return checkInterfaceDeclaration(node as InterfaceDeclaration);
-            // case SyntaxKind.TypeAliasDeclaration:
-            //     return checkTypeAliasDeclaration(node as TypeAliasDeclaration);
+            case SyntaxKind.TypeAliasDeclaration:
+                Debug.fail("type alias");
+                // return checkTypeAliasDeclaration(node as TypeAliasDeclaration);
             // case SyntaxKind.EnumDeclaration:
             //     return checkEnumDeclaration(node as EnumDeclaration);
             // case SyntaxKind.ModuleDeclaration:
@@ -2302,8 +2592,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             // case SyntaxKind.DebuggerStatement:
             //     checkGrammarStatementInAmbientContext(node);
             //     return;
-            // case SyntaxKind.MissingDeclaration:
-            //     return checkMissingDeclaration(node);
+            case SyntaxKind.MissingDeclaration:
+                return checkMissingDeclaration(node);
             
             // these types don't need any additional checking here
             case SyntaxKind.BinaryExpression:
@@ -2316,6 +2606,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
         // TODO
         console.warn("Implement me - checkSourceElementWorker - " + Debug.formatSyntaxKind(node.kind));
+    }
+
+    function checkMissingDeclaration(node: Node) {
+        // checkDecorators(node);
     }
 
     function checkExpressionStatement(node: ExpressionStatement) {
@@ -2846,6 +3140,63 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         }
     }
 
+    function checkIndexedAccessType(node: IndexedAccessTypeNode) {
+        checkSourceElement(node.objectType);
+        checkSourceElement(node.indexType);
+        checkIndexedAccessIndexType(getTypeFromIndexedAccessTypeNode(node), node);
+    }
+
+    function getTypeFromIndexedAccessTypeNode(node: IndexedAccessTypeNode) {
+        const links = getNodeLinks(node);
+        if (!links.resolvedType) {
+            const objectType = getTypeFromTypeNode(node.objectType);
+            const indexType = getTypeFromTypeNode(node.indexType);
+            const potentialAlias = getAliasSymbolForTypeNode(node);
+            links.resolvedType = getIndexedAccessType(objectType, indexType, AccessFlags.None, node, potentialAlias, getTypeArgumentsForAliasSymbol(potentialAlias));
+        }
+        return links.resolvedType;
+    }
+
+    function checkIndexedAccessIndexType(type: Type, accessNode: IndexedAccessTypeNode | ElementAccessExpression) {
+        if (!(type.flags & TypeFlags.IndexedAccess)) {
+            return type;
+        }
+        // Check if the index type is assignable to 'keyof T' for the object type.
+        const objectType = (type as IndexedAccessType).objectType;
+        const indexType = (type as IndexedAccessType).indexType;
+        // skip index type deferral on remapping mapped types
+        const objectIndexType = /*isGenericMappedType(objectType) && getMappedTypeNameTypeKind(objectType) === MappedTypeNameTypeKind.Remapping
+            ? getIndexTypeForMappedType(objectType, IndexFlags.None)
+            :*/ getIndexType(objectType, IndexFlags.None);
+        const hasNumberIndexInfo = !!getIndexInfoOfType(objectType, numberType);
+        if (everyType(indexType, t => isTypeAssignableTo(t, objectIndexType) || hasNumberIndexInfo && isApplicableIndexType(t, numberType))) {
+            if (
+                accessNode.kind === SyntaxKind.ElementAccessExpression && isAssignmentTarget(accessNode) &&
+                getObjectFlags(objectType) & ObjectFlags.Mapped && getMappedTypeModifiers(objectType as MappedType) & MappedTypeModifiers.IncludeReadonly
+            ) {
+                error(accessNode, Diagnostics.Index_signature_in_type_0_only_permits_reading, typeToString(objectType));
+            }
+            return type;
+        }
+        // if (isGenericObjectType(objectType)) {
+        //     const propertyName = getPropertyNameFromIndex(indexType, accessNode);
+        //     if (propertyName) {
+        //         const propertySymbol = forEachType(getApparentType(objectType), t => getPropertyOfType(t, propertyName));
+        //         if (propertySymbol && getDeclarationModifierFlagsFromSymbol(propertySymbol) & ModifierFlags.NonPublicAccessibilityModifier) {
+        //             error(accessNode, Diagnostics.Private_or_protected_member_0_cannot_be_accessed_on_a_type_parameter, unescapeLeadingUnderscores(propertyName));
+        //             return errorType;
+        //         }
+        //     }
+        // }
+        error(accessNode, Diagnostics.Type_0_cannot_be_used_to_index_type_1, typeToString(indexType), typeToString(objectType));
+        return errorType;
+    }
+
+    function getMappedTypeModifiers(type: MappedType): MappedTypeModifiers {
+        const declaration = type.declaration;
+        return (declaration.readonlyToken ? declaration.readonlyToken.kind === SyntaxKind.MinusToken ? MappedTypeModifiers.ExcludeReadonly : MappedTypeModifiers.IncludeReadonly : 0) | 0;
+    }
+    
     function checkFunctionDeclaration(node: FunctionDeclaration): void {
         addLazyDiagnostic(checkFunctionDeclarationDiagnostics);
 
@@ -4693,11 +5044,325 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             getTypeAtPosition(signature, argIndex);
     }
 
-    function getIndexedAccessType(objectType: Type, indexType: Type, accessFlags = AccessFlags.None, accessNode?: ElementAccessExpression | IndexedAccessTypeNode | PropertyName | BindingName, aliasSymbol?: Symbol, aliasTypeArguments?: readonly Type[]): Type {
-        console.log("todo - getIndexedAccessType");
-        return undefined;//return getIndexedAccessTypeOrUndefined(objectType, indexType, accessFlags, accessNode, aliasSymbol, aliasTypeArguments) || (accessNode ? errorType : unknownType);
+    function getIndexedAccessType(objectType: Type, indexType: Type, accessFlags = AccessFlags.None, accessNode?: ElementAccessExpression | IndexedAccessTypeNode | PropertyName | BindingName, aliasSymbol?: Symbol, aliasTypeArguments?: readonly Type[]): Type {        
+        return getIndexedAccessTypeOrUndefined(objectType, indexType, accessFlags, accessNode, aliasSymbol, aliasTypeArguments) || (accessNode ? errorType : unknownType);
+    }
+
+    function isStringIndexSignatureOnlyType(type: Type): boolean {
+        return type.flags & TypeFlags.Object && !isGenericMappedType(type) && getPropertiesOfType(type).length === 0 && getIndexInfosOfType(type).length === 1 && !!getIndexInfoOfType(type, stringType) ||
+            type.flags & TypeFlags.UnionOrIntersection && every((type as UnionOrIntersectionType).types, isStringIndexSignatureOnlyType) ||
+            false;
+    }
+
+    function getIndexedAccessTypeOrUndefined(objectType: Type, indexType: Type, accessFlags = AccessFlags.None, accessNode?: ElementAccessExpression | IndexedAccessTypeNode | PropertyName | BindingName, aliasSymbol?: Symbol, aliasTypeArguments?: readonly Type[]): Type | undefined {
+        if (objectType === wildcardType || indexType === wildcardType) {
+            return wildcardType;
+        }
+        objectType = getReducedType(objectType);
+        // If the object type has a string index signature and no other members we know that the result will
+        // always be the type of that index signature and we can simplify accordingly.
+        if (isStringIndexSignatureOnlyType(objectType) && !(indexType.flags & TypeFlags.Nullable) && isTypeAssignableToKind(indexType, TypeFlags.String | TypeFlags.Number)) {
+            indexType = stringType;
+        }
+        // In noUncheckedIndexedAccess mode, indexed access operations that occur in an expression in a read position and resolve to
+        // an index signature have 'undefined' included in their type.
+        if (compilerOptions.noUncheckedIndexedAccess && accessFlags & AccessFlags.ExpressionPosition) accessFlags |= AccessFlags.IncludeUndefined;
+        
+        // In the following we resolve T[K] to the type of the property in T selected by K.
+        // We treat boolean as different from other unions to improve errors;
+        // skipping straight to getPropertyTypeForIndexType gives errors with 'boolean' instead of 'true'.
+        const apparentObjectType = getReducedApparentType(objectType);
+        if (indexType.flags & TypeFlags.Union && !(indexType.flags & TypeFlags.Boolean)) {
+            const propTypes: Type[] = [];
+            let wasMissingProp = false;
+            for (const t of (indexType as UnionType).types) {
+                const propType = getPropertyTypeForIndexType(objectType, apparentObjectType, t, indexType, accessNode, accessFlags | (wasMissingProp ? AccessFlags.SuppressNoImplicitAnyError : 0));
+                if (propType) {
+                    propTypes.push(propType);
+                }
+                else if (!accessNode) {
+                    // If there's no error node, we can immeditely stop, since error reporting is off
+                    return undefined;
+                }
+                else {
+                    // Otherwise we set a flag and return at the end of the loop so we still mark all errors
+                    wasMissingProp = true;
+                }
+            }
+            if (wasMissingProp) {
+                return undefined;
+            }
+            return accessFlags & AccessFlags.Writing
+                ? getIntersectionType(propTypes, IntersectionFlags.None, aliasSymbol, aliasTypeArguments)
+                : getUnionType(propTypes, UnionReduction.Literal, aliasSymbol, aliasTypeArguments);
+        }
+        return getPropertyTypeForIndexType(objectType, apparentObjectType, indexType, indexType, accessNode, accessFlags | AccessFlags.CacheSymbol | AccessFlags.ReportDeprecated);
+    }
+
+    function getPropertyNameFromIndex(indexType: Type, accessNode: PropertyName | /*ObjectBindingPattern |*/ ArrayBindingPattern | IndexedAccessTypeNode | ElementAccessExpression | SyntheticExpression | undefined) {
+        return isTypeUsableAsPropertyName(indexType) ?
+            getPropertyNameFromType(indexType) :
+            accessNode && isPropertyName(accessNode) ?
+            // late bound names are handled in the first branch, so here we only need to handle normal names
+            getPropertyNameForPropertyNameNode(accessNode) :
+            undefined;
+    }
+
+    function getIndexNodeForAccessExpression(accessNode: ElementAccessExpression | IndexedAccessTypeNode | PropertyName | BindingName | SyntheticExpression) {
+        return accessNode.kind === SyntaxKind.ElementAccessExpression ? accessNode.argumentExpression :
+            accessNode.kind === SyntaxKind.IndexedAccessType ? accessNode.indexType :
+            // accessNode.kind === SyntaxKind.ComputedPropertyName ? accessNode.expression :
+            accessNode;
+    }
+
+    /**
+     * Returns if a type is or consists of a JSLiteral object type
+     * In addition to objects which are directly literals,
+     * * unions where every element is a jsliteral
+     * * intersections where at least one element is a jsliteral
+     * * and instantiable types constrained to a jsliteral
+     * Should all count as literals and not print errors on access or assignment of possibly existing properties.
+     * This mirrors the behavior of the index signature propagation, to which this behaves similarly (but doesn't affect assignability or inference).
+     */
+    function isJSLiteralType(type: Type): boolean {
+        if (noImplicitAny) {
+            return false; // Flag is meaningless under `noImplicitAny` mode
+        }
+        if (getObjectFlags(type) & ObjectFlags.JSLiteral) {
+            return true;
+        }
+        if (type.flags & TypeFlags.Union) {
+            return every((type as UnionType).types, isJSLiteralType);
+        }
+        if (type.flags & TypeFlags.Intersection) {
+            return some((type as IntersectionType).types, isJSLiteralType);
+        }
+        // if (type.flags & TypeFlags.Instantiable) {
+        //     const constraint = getResolvedBaseConstraint(type);
+        //     return constraint !== type && isJSLiteralType(constraint);
+        // }
+        return false;
+    }
+
+    function getPropertyTypeForIndexType(originalObjectType: Type, objectType: Type, indexType: Type, fullIndexType: Type, accessNode: ElementAccessExpression | IndexedAccessTypeNode | PropertyName | BindingName | SyntheticExpression | undefined, accessFlags: AccessFlags) {
+        const accessExpression = accessNode && accessNode.kind === SyntaxKind.ElementAccessExpression ? accessNode : undefined;
+        const propName = accessNode && isPrivateIdentifier(accessNode) ? undefined : getPropertyNameFromIndex(indexType, accessNode);
+
+        if (propName !== undefined) {
+            if (accessFlags & AccessFlags.Contextual) {
+                Debug.fail("todo");
+                // return getTypeOfPropertyOfContextualType(objectType, propName) || anyType;
+            }
+            const prop = getPropertyOfType(objectType, propName);
+            if (prop) {
+                if (accessFlags & AccessFlags.ReportDeprecated && accessNode && prop.declarations && isDeprecatedSymbol(prop) && isUncalledFunctionReference(accessNode, prop)) {
+                    const deprecatedNode = accessExpression?.argumentExpression ?? (isIndexedAccessTypeNode(accessNode) ? accessNode.indexType : accessNode);
+                    addDeprecatedSuggestion(deprecatedNode, prop.declarations, propName as string);
+                }
+                if (accessExpression) {
+                    markPropertyAsReferenced(prop, accessExpression, isSelfTypeAccess(accessExpression.expression, objectType.symbol));
+                    // if (isAssignmentToReadonlyEntity(accessExpression, prop, getAssignmentTargetKind(accessExpression))) {
+                    //     error(accessExpression.argumentExpression, Diagnostics.Cannot_assign_to_0_because_it_is_a_read_only_property, symbolToString(prop));
+                    //     return undefined;
+                    // }
+                    if (accessFlags & AccessFlags.CacheSymbol) {
+                        getNodeLinks(accessNode!).resolvedSymbol = prop;
+                    }
+                    // if (isThisPropertyAccessInConstructor(accessExpression, prop)) {
+                    //     return autoType;
+                    // }
+                }
+                const propType = accessFlags & AccessFlags.Writing ? getWriteTypeOfSymbol(prop) : getTypeOfSymbol(prop);
+                return accessExpression && getAssignmentTargetKind(accessExpression) !== AssignmentKind.Definite ? getFlowTypeOfReference(accessExpression, propType) :
+                    accessNode && isIndexedAccessTypeNode(accessNode) && containsMissingType(propType) ? getUnionType([propType, undefinedType]) :
+                    propType;
+            }
+            // if (everyType(objectType, isTupleType) && isNumericLiteralName(propName)) {
+            //     const index = +propName;
+            //     if (accessNode && everyType(objectType, t => !(t as TupleTypeReference).target.hasRestElement) && !(accessFlags & AccessFlags.NoTupleBoundsCheck)) {
+            //         const indexNode = getIndexNodeForAccessExpression(accessNode);
+            //         if (isTupleType(objectType)) {
+            //             if (index < 0) {
+            //                 error(indexNode, Diagnostics.A_tuple_type_cannot_be_indexed_with_a_negative_value);
+            //                 return undefinedType;
+            //             }
+            //             error(indexNode, Diagnostics.Tuple_type_0_of_length_1_has_no_element_at_index_2, typeToString(objectType), getTypeReferenceArity(objectType), unescapeLeadingUnderscores(propName));
+            //         }
+            //         else {
+            //             error(indexNode, Diagnostics.Property_0_does_not_exist_on_type_1, unescapeLeadingUnderscores(propName), typeToString(objectType));
+            //         }
+            //     }
+            //     if (index >= 0) {
+            //         errorIfWritingToReadonlyIndex(getIndexInfoOfType(objectType, numberType));
+            //         return getTupleElementTypeOutOfStartCount(objectType, index, accessFlags & AccessFlags.IncludeUndefined ? missingType : undefined);
+            //     }
+            // }
+        }
+        if (!(indexType.flags & TypeFlags.Nullable) && isTypeAssignableToKind(indexType, TypeFlags.StringLike | TypeFlags.NumberLike | TypeFlags.ESSymbolLike)) {
+            if (objectType.flags & (TypeFlags.Any | TypeFlags.Never)) {
+                return objectType;
+            }
+            // If no index signature is applicable, we default to the string index signature. In effect, this means the string
+            // index signature applies even when accessing with a symbol-like type.
+            const indexInfo = getApplicableIndexInfo(objectType, indexType) || getIndexInfoOfType(objectType, stringType);
+            if (indexInfo) {
+                if (accessFlags & AccessFlags.NoIndexSignatures && indexInfo.keyType !== numberType) {
+                    if (accessExpression) {
+                        if (accessFlags & AccessFlags.Writing) {
+                            error(accessExpression, Diagnostics.Type_0_is_generic_and_can_only_be_indexed_for_reading, typeToString(originalObjectType));
+                        }
+                        else {
+                            error(accessExpression, Diagnostics.Type_0_cannot_be_used_to_index_type_1, typeToString(indexType), typeToString(originalObjectType));
+                        }
+                    }
+                    return undefined;
+                }
+                if (accessNode && indexInfo.keyType === stringType && !isTypeAssignableToKind(indexType, TypeFlags.String | TypeFlags.Number)) {
+                    const indexNode = getIndexNodeForAccessExpression(accessNode);
+                    error(indexNode, Diagnostics.Type_0_cannot_be_used_as_an_index_type, typeToString(indexType));
+                    return accessFlags & AccessFlags.IncludeUndefined ? getUnionType([indexInfo.type, missingType]) : indexInfo.type;
+                }
+                errorIfWritingToReadonlyIndex(indexInfo);
+                // When accessing an enum object with its own type,
+                // e.g. E[E.A] for enum E { A }, undefined shouldn't
+                // be included in the result type
+                if (
+                    (accessFlags & AccessFlags.IncludeUndefined) &&
+                    !(objectType.symbol &&
+                        objectType.symbol.flags & (SymbolFlags.RegularEnum | SymbolFlags.ConstEnum) &&
+                        (indexType.symbol &&
+                            indexType.flags & TypeFlags.EnumLiteral &&
+                            getParentOfSymbol(indexType.symbol) === objectType.symbol))
+                ) {
+                    return getUnionType([indexInfo.type, missingType]);
+                }
+                return indexInfo.type;
+            }
+            if (indexType.flags & TypeFlags.Never) {
+                return neverType;
+            }
+            if (isJSLiteralType(objectType)) {
+                return anyType;
+            }
+            if (accessExpression) {
+                if (isObjectLiteralType(objectType)) {
+                    if (noImplicitAny && indexType.flags & (TypeFlags.StringLiteral | TypeFlags.IntLiteral)) {
+                        diagnostics.add(createDiagnosticForNode(accessExpression, Diagnostics.Property_0_does_not_exist_on_type_1, (indexType as StringLiteralType).value, typeToString(objectType)));
+                        return undefinedType;
+                    }
+                    else if (indexType.flags & (TypeFlags.Number | TypeFlags.String)) {
+                        const types = map((objectType as ResolvedType).properties, property => {
+                            return getTypeOfSymbol(property);
+                        });
+                        return getUnionType(append(types, undefinedType));
+                    }
+                }
+
+                if (objectType.symbol === globalThisSymbol && propName !== undefined && globalThisSymbol.exports!.has(propName) && (globalThisSymbol.exports!.get(propName)!.flags & SymbolFlags.BlockScoped)) {
+                    error(accessExpression, Diagnostics.Property_0_does_not_exist_on_type_1, (propName), typeToString(objectType));
+                }
+                else if (noImplicitAny && !(accessFlags & AccessFlags.SuppressNoImplicitAnyError)) {
+                    // if (propName !== undefined && typeHasStaticProperty(propName, objectType)) {
+                    //     const typeName = typeToString(objectType);
+                    //     error(accessExpression, Diagnostics.Property_0_does_not_exist_on_type_1_Did_you_mean_to_access_the_static_member_2_instead, propName as string, typeName, typeName + "[" + getTextOfNode(accessExpression.argumentExpression) + "]");
+                    // }
+                    if (getIndexTypeOfType(objectType, numberType)) {
+                        error(accessExpression.argumentExpression, Diagnostics.Element_implicitly_has_an_any_type_because_index_expression_is_not_of_type_number);
+                    }
+                    else {
+                        let suggestion: string | undefined;
+                        if (propName !== undefined && (suggestion = getSuggestionForNonexistentProperty(propName as string, objectType))) {
+                            if (suggestion !== undefined) {
+                                error(accessExpression.argumentExpression, Diagnostics.Property_0_does_not_exist_on_type_1_Did_you_mean_2, propName as string, typeToString(objectType), suggestion);
+                            }
+                        }
+                        else {
+                            const suggestion = getSuggestionForNonexistentIndexSignature(objectType, accessExpression, indexType);
+                            if (suggestion !== undefined) {
+                                error(accessExpression, Diagnostics.Element_implicitly_has_an_any_type_because_type_0_has_no_index_signature_Did_you_mean_to_call_1, typeToString(objectType), suggestion);
+                            }
+                            else {
+                                let errorInfo: DiagnosticMessageChain | undefined;
+                                if (indexType.flags & TypeFlags.EnumLiteral) {
+                                    errorInfo = chainDiagnosticMessages(/*details*/ undefined, Diagnostics.Property_0_does_not_exist_on_type_1, "[" + typeToString(indexType) + "]", typeToString(objectType));
+                                }                                
+                                else if (indexType.flags & TypeFlags.StringLiteral) {
+                                    errorInfo = chainDiagnosticMessages(/*details*/ undefined, Diagnostics.Property_0_does_not_exist_on_type_1, (indexType as StringLiteralType).value, typeToString(objectType));
+                                }
+                                else if (indexType.flags & TypeFlags.IntLiteral) {
+                                    errorInfo = chainDiagnosticMessages(/*details*/ undefined, Diagnostics.Property_0_does_not_exist_on_type_1, (indexType as IntLiteralType).value, typeToString(objectType));
+                                }
+                                else if (indexType.flags & (TypeFlags.Number | TypeFlags.String)) {
+                                    errorInfo = chainDiagnosticMessages(/*details*/ undefined, Diagnostics.No_index_signature_with_a_parameter_of_type_0_was_found_on_type_1, typeToString(indexType), typeToString(objectType));
+                                }
+
+                                errorInfo = chainDiagnosticMessages(
+                                    errorInfo,
+                                    Diagnostics.Element_implicitly_has_an_any_type_because_expression_of_type_0_can_t_be_used_to_index_type_1,
+                                    typeToString(fullIndexType),
+                                    typeToString(objectType),
+                                );
+                                diagnostics.add(createDiagnosticForNodeFromMessageChain(getSourceFileOfNode(accessExpression), accessExpression, errorInfo));
+                            }
+                        }
+                    }
+                }
+                return undefined;
+            }
+        }
+        if (isJSLiteralType(objectType)) {
+            return anyType;
+        }
+        if (accessNode) {
+            const indexNode = getIndexNodeForAccessExpression(accessNode);
+            if (indexType.flags & (TypeFlags.StringLiteral | TypeFlags.IntLiteral)) {
+                error(indexNode, Diagnostics.Property_0_does_not_exist_on_type_1, "" + (indexType as StringLiteralType | IntLiteralType).value, typeToString(objectType));
+            }
+            else if (indexType.flags & (TypeFlags.String | TypeFlags.Number)) {
+                error(indexNode, Diagnostics.Type_0_has_no_matching_index_signature_for_type_1, typeToString(objectType), typeToString(indexType));
+            }
+            else {
+                error(indexNode, Diagnostics.Type_0_cannot_be_used_as_an_index_type, typeToString(indexType));
+            }
+        }
+        if (isTypeAny(indexType)) {
+            return indexType;
+        }
+        return undefined;
+
+        function errorIfWritingToReadonlyIndex(indexInfo: IndexInfo | undefined): void {
+            if (indexInfo && indexInfo.isReadonly && accessExpression && (isAssignmentTarget(accessExpression))) {
+                error(accessExpression, Diagnostics.Index_signature_in_type_0_only_permits_reading, typeToString(objectType));
+            }
+        }
     }
     
+    function getSuggestionForNonexistentIndexSignature(objectType: Type, expr: ElementAccessExpression, keyedType: Type): string | undefined {
+        // check if object type has setter or getter
+        function hasProp(name: "set" | "get") {
+            const prop = getPropertyOfObjectType(objectType, name as string);
+            if (prop) {
+                const s = getSingleCallSignature(getTypeOfSymbol(prop));
+                return !!s && getMinArgumentCount(s) >= 1 && isTypeAssignableTo(keyedType, getTypeAtPosition(s, 0));
+            }
+            return false;
+        }
+
+        const suggestedMethod = isAssignmentTarget(expr) ? "set" : "get";
+        if (!hasProp(suggestedMethod)) {
+            return undefined;
+        }
+
+        let suggestion = tryGetPropertyAccessOrIdentifierToString(expr.expression);
+        if (suggestion === undefined) {
+            suggestion = suggestedMethod;
+        }
+        else {
+            suggestion += "." + suggestedMethod;
+        }
+
+        return suggestion;
+    }
 
     function instantiateType(type: Type, mapper: TypeMapper | undefined): Type;
     function instantiateType(type: Type | undefined, mapper: TypeMapper | undefined): Type | undefined;
@@ -8664,8 +9329,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             //     return falseType;
             // case SyntaxKind.TemplateExpression:
             //     return checkTemplateExpression(node as TemplateExpression);            
-            // case SyntaxKind.ArrayLiteralExpression:
-            //     return checkArrayLiteral(node as ArrayLiteralExpression, checkMode, forceTuple);
+            case SyntaxKind.ArrayLiteralExpression:
+                return checkArrayLiteral(node as ArrayLiteralExpression, checkMode, forceTuple);            
+            case SyntaxKind.MappingLiteralExpression:
+                return checkMappingLiteral(node as MappingLiteralExpression, checkMode, false);
             // case SyntaxKind.ObjectLiteralExpression:
             //     return checkObjectLiteral(node as ObjectLiteralExpression, checkMode);
             case SyntaxKind.PropertyAccessExpression:
@@ -12742,7 +13409,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
         function addPropertyToElementList(propertySymbol: Symbol, context: NodeBuilderContext, typeElements: TypeElement[]) {
             console.warn("implement me");
-            // const propertyIsReverseMapped = !!(getCheckFlags(propertySymbol) & CheckFlags.ReverseMapped);
+            const propertyIsReverseMapped = !!(getCheckFlags(propertySymbol) & CheckFlags.ReverseMapped);
             // const propertyType = shouldUsePlaceholderForProperty(propertySymbol, context) ?
             //     anyType : getNonMissingTypeOfSymbol(propertySymbol);
             // const saveEnclosingDeclaration = context.enclosingDeclaration;
@@ -13598,10 +14265,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         switch (node.kind) {
             case SyntaxKind.CloneObjectExpression:
             case SyntaxKind.NewExpression:
-                Debug.fail("not implemented yet");
-            default:
-                Debug.fail();
-        }
+                Debug.fail("not implemented yet");           
         //     //case SyntaxKind.ImportEqualsDeclaration:
         //     case SyntaxKind.VariableDeclaration:
         //         return getTargetOfImportEqualsDeclaration(node as ImportEqualsDeclaration | VariableDeclaration, dontRecursivelyResolve);
@@ -13621,16 +14285,39 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         //         return getTargetOfExportAssignment(node as ExportAssignment | BinaryExpression, dontRecursivelyResolve);
         //     case SyntaxKind.NamespaceExportDeclaration:
         //         return getTargetOfNamespaceExportDeclaration(node as NamespaceExportDeclaration, dontRecursivelyResolve);
-        //     case SyntaxKind.ShorthandPropertyAssignment:
-        //         return resolveEntityName((node as ShorthandPropertyAssignment).name, SymbolFlags.Value | SymbolFlags.Type | SymbolFlags.Namespace, /*ignoreErrors*/ true, dontRecursivelyResolve);
-        //     case SyntaxKind.PropertyAssignment:
-        //         return getTargetOfAliasLikeExpression((node as PropertyAssignment).initializer, dontRecursivelyResolve);
-        //     case SyntaxKind.ElementAccessExpression:
-        //     case SyntaxKind.PropertyAccessExpression:
-        //         return getTargetOfAccessExpression(node as AccessExpression, dontRecursivelyResolve);
-        //     default:
-        //         return Debug.fail();
+            case SyntaxKind.ShorthandPropertyAssignment:
+                return resolveEntityName((node as ShorthandPropertyAssignment).name, SymbolFlags.Value | SymbolFlags.Type | SymbolFlags.Namespace, /*ignoreErrors*/ true, dontRecursivelyResolve);
+            case SyntaxKind.PropertyAssignment:
+                return getTargetOfAliasLikeExpression((node as PropertyAssignment).initializer, dontRecursivelyResolve);
+            case SyntaxKind.ElementAccessExpression:
+            case SyntaxKind.PropertyAccessExpression:
+                return getTargetOfAccessExpression(node as AccessExpression, dontRecursivelyResolve);
+            default:
+                return Debug.fail();
+        }
+    }
+
+    function getTargetOfAliasLikeExpression(expression: Expression, dontResolveAlias: boolean) {
+        // if (isClassExpression(expression)) {
+        //     return checkExpressionCached(expression).symbol;
         // }
+        if (!isEntityName(expression) && !isEntityNameExpression(expression)) {
+            return undefined;
+        }
+        const aliasLike = resolveEntityName(expression, SymbolFlags.Value | SymbolFlags.Type | SymbolFlags.Namespace, /*ignoreErrors*/ true, dontResolveAlias);
+        if (aliasLike) {
+            return aliasLike;
+        }
+        checkExpressionCached(expression);
+        return getNodeLinks(expression).resolvedSymbol;
+    }
+
+    function getTargetOfAccessExpression(node: AccessExpression, dontRecursivelyResolve: boolean): Symbol | undefined {
+        if (!(isBinaryExpression(node.parent) && node.parent.left === node && node.parent.operatorToken.kind === SyntaxKind.EqualsToken)) {
+            return undefined;
+        }
+
+        return getTargetOfAliasLikeExpression(node.parent.right, dontRecursivelyResolve);
     }
 
     function getDeclarationOfAliasSymbol(symbol: Symbol): Declaration | undefined {
@@ -13716,6 +14403,39 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return false;
     }
 
+    function evaluateEntityNameExpression(expr: EntityNameExpression, location?: Declaration) {
+        const symbol = resolveEntityName(expr, SymbolFlags.Value, /*ignoreErrors*/ true);
+        if (!symbol) return evaluatorResult(/*value*/ undefined);
+
+        if (expr.kind === SyntaxKind.Identifier) {
+            const identifier = expr;
+            // if (isInfinityOrNaNString(identifier.escapedText) && (symbol === getGlobalSymbol(identifier.escapedText, SymbolFlags.Value, /*diagnostic*/ undefined))) {
+            //     // Technically we resolved a global lib file here, but the decision to treat this as numeric
+            //     // is more predicated on the fact that the single-file resolution *didn't* resolve to a
+            //     // different meaning of `Infinity` or `NaN`. Transpilers handle this no problem.
+            //     return evaluatorResult(+(identifier.escapedText), /*isSyntacticallyString*/ false);
+            // }
+        }
+                
+        return evaluatorResult(/*value*/ undefined);
+    }
+
+    function evaluateElementAccessExpression(expr: ElementAccessExpression, location?: Declaration) {
+        const root = expr.expression;
+        // if (isEntityNameExpression(root) && isStringLiteralLike(expr.argumentExpression)) {
+        //     const rootSymbol = resolveEntityName(root, SymbolFlags.Value, /*ignoreErrors*/ true);
+        //     if (rootSymbol && rootSymbol.flags & SymbolFlags.Enum) {
+        //         const name = (expr.argumentExpression.text);
+        //         const member = rootSymbol.exports!.get(name);
+        //         if (member) {
+        //             Debug.assert(getSourceFileOfNode(member.valueDeclaration) === getSourceFileOfNode(rootSymbol.valueDeclaration));
+        //             return location ? evaluateEnumMember(expr, member, location) : getEnumMemberValue(member.valueDeclaration as EnumMember);
+        //         }
+        //     }
+        // }
+        return evaluatorResult(/*value*/ undefined);
+    }
+    
     function checkAndReportErrorForUsingValueAsType(errorLocation: Node, name: string, meaning: SymbolFlags): boolean {
         if (meaning & (SymbolFlags.Type & ~SymbolFlags.Namespace)) {
             const symbol = resolveSymbol(resolveName(errorLocation, name, ~SymbolFlags.Type & SymbolFlags.Value, /*nameNotFoundMessage*/ undefined, /*isUse*/ false));
@@ -17440,9 +18160,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     !(intersectionState & IntersectionState.Target) &&
                     source.flags & (TypeFlags.Primitive | TypeFlags.Object | TypeFlags.Intersection) && source !== globalObjectType &&
                     target.flags & (TypeFlags.Object | TypeFlags.Intersection) && isWeakType(target) &&
-                    (getPropertiesOfType(source).length > 0 || typeHasCallOrConstructSignatures(source));
-                const isComparingJsxAttributes = !!(getObjectFlags(source) & ObjectFlags.JsxAttributes);
-                if (isPerformingCommonPropertyChecks && !hasCommonProperties(source, target, isComparingJsxAttributes)) {
+                    (getPropertiesOfType(source).length > 0 || typeHasCallOrConstructSignatures(source));                
+                if (isPerformingCommonPropertyChecks && !hasCommonProperties(source, target, false)) {
                     if (reportErrors) {
                         const sourceString = typeToString(originalSource.aliasSymbol ? originalSource : source);
                         const targetString = typeToString(originalTarget.aliasSymbol ? originalTarget : target);
@@ -17651,11 +18370,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         function hasExcessProperties(source: FreshObjectLiteralType, target: Type, reportErrors: boolean): boolean {
             if (!isExcessPropertyCheckTarget(target) || !noImplicitAny && getObjectFlags(target) & ObjectFlags.JSLiteral) {
                 return false; // Disable excess property checks on JS literals to simulate having an implicit "index signature" - but only outside of noImplicitAny
-            }
-            const isComparingJsxAttributes = !!(getObjectFlags(source) & ObjectFlags.JsxAttributes);
+            }            
             if (
                 (relation === assignableRelation || relation === comparableRelation) &&
-                (isTypeSubsetOf(globalObjectType, target) || (!isComparingJsxAttributes && isEmptyObjectType(target)))
+                (isTypeSubsetOf(globalObjectType, target) || (isEmptyObjectType(target)))
             ) {
                 return false;
             }
@@ -17667,7 +18385,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             }
             for (const prop of getPropertiesOfType(source)) {
                 if (shouldCheckAsExcessProperty(prop, source.symbol)) {
-                    if (!isKnownProperty(reducedTarget, prop.name, isComparingJsxAttributes)) {
+                    if (!isKnownProperty(reducedTarget, prop.name, false)) {
                         if (reportErrors) {
                             // Report error in terms of object types in the target as those are the only ones
                             // we check in isKnownProperty.

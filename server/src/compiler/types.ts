@@ -780,6 +780,7 @@ export const enum SyntaxKind {
     CallExpression,
     CloneObjectExpression,
     ClassExpression,    
+    SyntheticExpression,
     NewExpression,
     NewStructExpression,
     TypeAssertionExpression,
@@ -1413,6 +1414,7 @@ export interface CompilerOptions {
     disableReferencedProjectLoad?: boolean;
     module?: ModuleKind;
     target?: ScriptTarget;
+    exactOptionalPropertyTypes?: boolean;
 }
 
 export const enum OuterExpressionKinds {
@@ -3292,7 +3294,7 @@ export interface CloneObjectExpression extends PrimaryExpression, Declaration, L
 
 export interface MappingLiteralExpression extends PrimaryExpression {
     readonly kind: SyntaxKind.MappingLiteralExpression;
-    readonly elements: NodeArray<MappingEntryExpression>;
+    readonly elements: NodeArray<MappingEntryExpression | OmittedExpression>;
     readonly initializer?: Expression;
     /** @internal */
     multiLine?: boolean;
@@ -3507,7 +3509,7 @@ export const enum ObjectFlags {
     EvolvingArray    = 1 << 8,  // Evolving array type
     ObjectLiteralPatternWithComputedProperties = 1 << 9,  // Object literal pattern with computed properties
     ReverseMapped    = 1 << 10, // Object contains a property from a reverse-mapped type
-    JsxAttributes    = 1 << 11, // Jsx attributes type
+    MappingLiteral   = 1 << 11, // Originates in a mapping literal
     JSLiteral        = 1 << 12, // Object type declared in JS - disables errors on read/write of nonexisting members
     FreshLiteral     = 1 << 13, // Fresh object literal
     ArrayLiteral     = 1 << 14, // Originates in an array literal
@@ -4373,7 +4375,7 @@ export interface ArrayBindingPattern extends Node {
 
 export type BindingPattern = ArrayBindingPattern;// | ObjectBindingPattern;
 
-export type ArrayBindingElement = BindingElement;
+export type ArrayBindingElement = BindingElement | OmittedExpression;
 
 export interface IndexedAccessTypeNode extends TypeNode {
     readonly kind: SyntaxKind.IndexedAccessType;
@@ -6657,4 +6659,29 @@ export interface TypeAliasDeclaration extends DeclarationStatement, JSDocContain
     readonly modifiers?: NodeArray<ModifierLike>;
     readonly name: Identifier;    
     readonly type: TypeNode;
+}
+
+/** @internal */
+export interface EvaluationResolver {
+    evaluateEntityNameExpression(expr: EntityNameExpression, location: Declaration | undefined): EvaluatorResult;
+    evaluateElementAccessExpression(expr: ElementAccessExpression, location: Declaration | undefined): EvaluatorResult;
+}
+
+export interface SyntheticExpression extends Expression {
+    readonly kind: SyntaxKind.SyntheticExpression;
+    readonly isSpread: boolean;
+    readonly type: Type;
+    readonly tupleNameSource?: ParameterDeclaration;
+}
+
+// Indexed access types (TypeFlags.IndexedAccess)
+// Possible forms are T[xxx], xxx[T], or xxx[keyof T], where T is a type variable
+export interface IndexedAccessType extends InstantiableType {
+    objectType: Type;
+    indexType: Type;
+    /** @internal */
+    accessFlags: AccessFlags; // Only includes AccessFlags.Persistent
+    constraint?: Type;
+    simplifiedForReading?: Type;
+    simplifiedForWriting?: Type;
 }
