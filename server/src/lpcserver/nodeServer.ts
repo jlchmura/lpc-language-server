@@ -79,7 +79,7 @@ export class Logger implements Logger {
             fs.writeSync(this.fd, buf, 0, buf.length, /*position*/ null);
         }
         if (this.traceToConsole) {
-            console.warn(s);
+            console.debug(s);
         }
     }    
 }

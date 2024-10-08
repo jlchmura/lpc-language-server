@@ -12541,8 +12541,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     }
                     const elementType = typeToTypeNodeHelper(typeArguments[0], context);
                     const arrayType = factory.createArrayTypeNode(elementType);
-                    Debug.fail("not supported");
+                    // Debug.fail("not supported");
                     // return type.target === globalArrayType ? arrayType : factory.createTypeOperatorNode(SyntaxKind.ReadonlyKeyword, arrayType);
+                    return arrayType;
                 }
                 // else if (type.target.objectFlags & ObjectFlags.Tuple) {
                 //     typeArguments = sameMap(typeArguments, (t, i) => removeMissingType(t, !!((type.target as TupleType).elementFlags[i] & ElementFlags.Optional)));

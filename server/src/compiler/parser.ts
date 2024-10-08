@@ -1693,6 +1693,8 @@ export namespace LpcParser {
             case SyntaxKind.OpenBracketToken:
             case SyntaxKind.OpenParenColonToken:
             case SyntaxKind.OpenBraceToken:
+            case SyntaxKind.OpenParenBraceToken:
+            case SyntaxKind.OpenParenBracketToken:                
             case SyntaxKind.FunctionKeyword:
             case SyntaxKind.ClassKeyword:
             case SyntaxKind.NewKeyword:
@@ -1795,37 +1797,12 @@ export namespace LpcParser {
     function parsePostfixTypeOrHigher(): TypeNode {
         const pos = getNodePos();
         let type = parseNonArrayType();
-        while (!scanner.hasPrecedingLineBreak()) {
-            switch (token()) {
-                // case SyntaxKind.ExclamationToken:
-                //     nextToken();
-                //     type = finishNode(factory.createJSDocNonNullableType(type, /*postfix*/ true), pos);
-                //     break;
-                // case SyntaxKind.QuestionToken:
-                //     // If next token is start of a type we have a conditional type
-                //     if (lookAhead(nextTokenIsStartOfType)) {
-                //         return type;
-                //     }
-                //     nextToken();
-                //     type = finishNode(factory.createJSDocNullableType(type, /*postfix*/ true), pos);
-                //     break;
-                // case SyntaxKind.OpenBracketToken:
-                //     parseExpected(SyntaxKind.OpenBracketToken);
-                //     if (isStartOfType()) {
-                //         const indexType = parseType();
-                //         parseExpected(SyntaxKind.CloseBracketToken);
-                //         type = finishNode(factory.createIndexedAccessTypeNode(type, indexType), pos);
-                //     }
-                //     else {
-                //         parseExpected(SyntaxKind.CloseBracketToken);
-                //         type = finishNode(factory.createArrayTypeNode(type), pos);
-                //     }
-                //     break;
-                default:
-                    return type;
-            }
-        }
-        return type;
+        
+        if (parseOptional(SyntaxKind.AsteriskToken)) {
+            return finishNode(factory.createArrayTypeNode(type), pos);
+        } else {
+            return type;
+        }                        
     }
 
     function isStartOfType(inStartOfParameter?: boolean): boolean {
@@ -2983,13 +2960,7 @@ export namespace LpcParser {
             parseErrorAt(pos, end, Diagnostics.An_unary_expression_with_the_0_operator_is_not_allowed_in_the_left_hand_side_of_an_exponentiation_expression_Consider_enclosing_the_expression_in_parentheses, tokenToString(unaryOperator));            
         }
         return simpleUnaryExpression;
-    }
-
-    const enum TypeCastOrStruct {
-        TypeCast = 1,
-        Struct   = 2,
-        Unknown  = 3
-    }
+    }    
 
     /**
      * Parse ES7 simple-unary expression or higher:
@@ -3014,38 +2985,13 @@ export namespace LpcParser {
                 return parsePrefixUnaryExpression();   
             // case SyntaxKind.VoidKeyword:
             //     return parseVoidExpression();                                 
-            case SyntaxKind.OpenParenToken:                                
-                // this could be a type assertion, a strict type assertion
-                // or a struct creation
-                // it could also be a parenthesized expression but I'm not sure if we'd see that one here.                
-                //     struct:      (<foo>)bar
-                //     type cast:   (int)bar
-                //     type assert: ({int})bar
-                const isCastOrStruct = lookAhead(() => {
-                    nextToken();
-                    if (token() == SyntaxKind.LessThanToken) {
-                        return (nextToken() == SyntaxKind.Identifier) ? TypeCastOrStruct.Struct : TypeCastOrStruct.Unknown;
-                    } 
-                     
-                    if (token() == SyntaxKind.OpenBraceToken) {
-                        // probably a strict type assertion
-                        // ({ int })foo  or   ({ struct bar })foo                        
-                        nextToken();
-                    }
-                    
-                    // if the next token is not a type name.. its probably a parentthesized expression
-                    return isTypeName() ? TypeCastOrStruct.TypeCast : TypeCastOrStruct.Unknown;
-                })
-                
-                switch (isCastOrStruct) {
-                    // case TypeCastOrStruct.Struct:
-                    //     // should this be done in primary expression?
-                    //     return parseNewStructExpression();
-                    case TypeCastOrStruct.TypeCast:
-                        return parseTypeAssertion();                            
+            case SyntaxKind.OpenParenToken:
+            case SyntaxKind.OpenParenBraceToken:
+                // make sure this isn't an array literal
+                if (lookAhead(()=>{ nextToken(); return isTypeName(); })) {
+                    return parseTypeAssertion();
                 }
-
-                // fall through                            
+                // fall through
             default:
                 return parseUpdateExpression();
         }
@@ -3080,13 +3026,14 @@ export namespace LpcParser {
 
     function parseTypeAssertion(): TypeAssertion {
         const pos = getNodePos();
-        parseExpected(SyntaxKind.OpenParenToken);
-        const hasBrace = parseOptional(SyntaxKind.OpenBraceToken);
+        const hasBrace = parseOptional(SyntaxKind.OpenParenBraceToken);
+        if (!hasBrace) parseExpected(SyntaxKind.OpenParenToken);
+        
         const isStruct = parseOptional(SyntaxKind.LessThanToken);
 
         const type = parseType();
                 
-        if (isStruct) {
+        if (isStruct) {            
             parseExpected(SyntaxKind.GreaterThanToken);
         }
         if (hasBrace) {
@@ -3124,6 +3071,7 @@ export namespace LpcParser {
             case SyntaxKind.ExclamationToken:            
             case SyntaxKind.VoidKeyword:            
             case SyntaxKind.LessThanToken:
+            case SyntaxKind.OpenParenBraceToken: // ambiguous, so let simple unary try first
             // case SyntaxKind.AwaitKeyword:
                 return false;           
             case SyntaxKind.OpenParenToken:
@@ -3460,7 +3408,7 @@ export namespace LpcParser {
                 createMissingNode(SyntaxKind.ExpressionStatement, true, Diagnostics.Expression_expected);
             }
         }
-        
+
         return finishNode(factory.createMappingEntryExpression(key, elements), pos);
     }
 
@@ -3488,10 +3436,10 @@ export namespace LpcParser {
     function parseArrayLiteralExpression(): ArrayLiteralExpression {
         const pos = getNodePos();
         const openBracketPosition = scanner.getTokenStart();
-        const openBracketParsed = parseExpected(SyntaxKind.OpenBracketToken);
+        const openBracketParsed = parseExpected(SyntaxKind.OpenParenBraceToken);
         const multiLine = scanner.hasPrecedingLineBreak();
         const elements = parseDelimitedList(ParsingContext.ArrayLiteralMembers, parseArgumentOrArrayLiteralElement);
-        parseExpectedMatchingBrackets(SyntaxKind.OpenBracketToken, SyntaxKind.CloseBracketToken, openBracketParsed, openBracketPosition);
+        parseExpectedMatchingBracketTokens(SyntaxKind.OpenParenBraceToken, [SyntaxKind.CloseBraceToken, SyntaxKind.CloseParenToken], openBracketParsed, openBracketPosition);
         return finishNode(factoryCreateArrayLiteralExpression(elements, multiLine), pos);
     }
 
@@ -3531,8 +3479,8 @@ export namespace LpcParser {
                     return parseNewStructExpression();
                 }                
                 return parseParenthesizedExpression();
-            // case SyntaxKind.OpenBracketToken:
-            //     return parseArrayLiteralExpression();
+            case SyntaxKind.OpenParenBraceToken:
+                return parseArrayLiteralExpression();
             case SyntaxKind.OpenParenColonToken:                              
                 return parseInlineClosureExpression();
             case SyntaxKind.OpenParenBracketToken:

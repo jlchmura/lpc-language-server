@@ -154,6 +154,8 @@ export class ProjectService {
         this.currentDirectory = toNormalizedPath(opts.projectRootFolder || this.host.getCurrentDirectory());
         this.toCanonicalFileName = createGetCanonicalFileName(this.host.useCaseSensitiveFileNames);
 
+        this.throttledOperations = new ThrottledOperations(this.host, this.logger);
+        
         this.hostConfiguration = {
             formatCodeOptions: getDefaultFormatCodeSettings(this.host.newLine),
             preferences: emptyOptions,

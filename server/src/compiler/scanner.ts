@@ -1890,7 +1890,10 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
                     }
                     if (charCodeUnchecked(pos + 1) === CharacterCodes.openBracket) {
                         return pos += 2, token = SyntaxKind.OpenParenBracketToken;
-                    }                    
+                    }     
+                    if (charCodeUnchecked(pos + 1) === CharacterCodes.openBrace) {
+                        return pos += 2, token = SyntaxKind.OpenParenBraceToken;
+                    }               
                     pos++;
                     return token = SyntaxKind.OpenParenToken;
                 case CharacterCodes.closeParen:

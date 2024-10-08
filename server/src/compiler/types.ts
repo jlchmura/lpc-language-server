@@ -2108,6 +2108,7 @@ export type ModifierLike = Modifier;// | Decorator;
 
 export type PunctuationSyntaxKind =
     | SyntaxKind.OpenParenBracketToken
+    | SyntaxKind.OpenParenBraceToken
     | SyntaxKind.OpenBraceToken    
     | SyntaxKind.CloseBraceToken
     | SyntaxKind.OpenParenToken

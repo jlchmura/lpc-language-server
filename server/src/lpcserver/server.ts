@@ -142,7 +142,7 @@ export function start(connection: Connection, platform: string) {
                                 } satisfies vscode.Diagnostic;
                             });
 
-                            if (doc && lsDiags.length > 0) {
+                            if (doc && lsDiags) {
                                 connection.sendDiagnostics({ uri, diagnostics: lsDiags });
                             }
                         }
@@ -225,14 +225,21 @@ export function start(connection: Connection, platform: string) {
                 file: fromUri(requestParams.textDocument.uri),
                 projectFileName,
             };
+
+            try {
             const result = session.getNavigationTree(args, true) as protocol.NavigationTree;
             
             const navResults: vscode.DocumentSymbol[] = [];
-            for (const item of result.childItems) {
-                convertNavTree(uri, navResults, item);
+            if (result?.childItems) {
+                for (const item of result.childItems) {
+                    convertNavTree(uri, navResults, item);
+                }
             }
 
             return navResults;
+            } catch(e) {                
+                console.error(e);
+            }
         });
 
         connection.onReferences(requestParams => {
@@ -246,7 +253,7 @@ export function start(connection: Connection, platform: string) {
             const result: vscode.Location[] = [];
             const uri = URI.parse(requestParams.textDocument.uri);
 
-            for (const ref of body.refs) {
+            for (const ref of body?.refs) {
                 // if (!options.includeDeclaration && ref.isDefinition) {
                 //     continue;
                 // }                

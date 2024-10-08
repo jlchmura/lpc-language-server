@@ -541,14 +541,18 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
 
     /** @internal */
     invalidateResolutionsOfFailedLookupLocations() {
-        console.debug("implement me - invalidateResolutionsOfFailedLookupLocations");
-        // if (
-        //     this.clearInvalidateResolutionOfFailedLookupTimer() &&
-        //     this.resolutionCache.invalidateResolutionsOfFailedLookupLocations()
-        // ) {
-        //     this.markAsDirty();
-        //     this.projectService.delayEnsureProjectForOpenFiles();
-        // }
+        if (
+            this.clearInvalidateResolutionOfFailedLookupTimer() &&
+            this.resolutionCache.invalidateResolutionsOfFailedLookupLocations()
+        ) {
+            this.markAsDirty();
+            this.projectService.delayEnsureProjectForOpenFiles();
+        }
+    }
+
+    /** @internal */
+    clearInvalidateResolutionOfFailedLookupTimer() {
+        return this.projectService.throttledOperations.cancel(`${this.getProjectName()}FailedLookupInvalidation`);
     }
  
     /** @internal */
