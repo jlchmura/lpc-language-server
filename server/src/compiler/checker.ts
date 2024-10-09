@@ -488,9 +488,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
         // Initialize special types             
            
-        globalArrayType = createGenericType(ObjectFlags.ArrayLiteral, createSymbol(SymbolFlags.Type, "Array" as string));        
-        globalMappingType = getGlobalType("Mapping" as string, /*arity*/ 1, /*reportErrors*/ true);
-        globalObjectType = getGlobalType("Object" as string, /*arity*/ 0, /*reportErrors*/ true);
+        globalArrayType = createGenericType(ObjectFlags.ArrayLiteral, "Array");        
+        globalMappingType = createGenericType(ObjectFlags.MappingLiteral, "Mapping");
+        globalObjectType = createGenericType(ObjectFlags.ObjectLiteral, "Object");
         globalFunctionType = getGlobalType("Function" as string, /*arity*/ 0, /*reportErrors*/ true);
         globalCallableFunctionType = strictBindCallApply && getGlobalType("CallableFunction" as string, /*arity*/ 0, /*reportErrors*/ true) || globalFunctionType;
         globalNewableFunctionType = strictBindCallApply && getGlobalType("NewableFunction" as string, /*arity*/ 0, /*reportErrors*/ true) || globalFunctionType;
@@ -11446,11 +11446,13 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return resolved;
     }
 
-    function createGenericType(objectFlags: ObjectFlags, symbol?: Symbol): GenericType {
-        const type = createTypeWithSymbol(TypeFlags.Object, symbol!) as GenericType;
+    function createGenericType(objectFlags: ObjectFlags, name: string): GenericType {
+        const symbol = createSymbol(SymbolFlags.Type, name)
+        const type = createTypeWithSymbol(TypeFlags.Object, symbol) as GenericType;
         type.objectFlags = objectFlags;
         type.instantiations = new Map<string, TypeReference>();
         type.resolvedBaseTypes = [];
+        type.members = createSymbolTable();
         return type;
     }
 
