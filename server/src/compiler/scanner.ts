@@ -128,6 +128,7 @@ export const textToKeywordObj: MapLike<KeywordSyntaxKind> = {
     do: SyntaxKind.DoKeyword,
     else: SyntaxKind.ElseKeyword,            
     float: SyntaxKind.FloatKeyword,
+    foreach: SyntaxKind.ForEachKeyword,
     for: SyntaxKind.ForKeyword,    
     function: SyntaxKind.FunctionKeyword,    
     if: SyntaxKind.IfKeyword,    

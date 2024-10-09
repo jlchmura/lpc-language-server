@@ -617,6 +617,7 @@ export const enum SyntaxKind {
     DoKeyword,
     ElseKeyword,
     ForKeyword,
+    ForEachKeyword,
     FunctionKeyword,
     ClassKeyword,
     CaseKeyword,
@@ -2042,6 +2043,7 @@ export type KeywordSyntaxKind =
     | SyntaxKind.DoKeyword
     | SyntaxKind.ElseKeyword
     | SyntaxKind.ForKeyword
+    | SyntaxKind.ForEachKeyword
     | SyntaxKind.FunctionKeyword
     | SyntaxKind.IfKeyword
     | SyntaxKind.InKeyword

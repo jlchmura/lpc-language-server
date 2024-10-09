@@ -573,6 +573,8 @@ export namespace LpcParser {
             //     }
             case ParsingContext.VariableDeclarations:
                 return isBindingIdentifier();
+            case ParsingContext.ForEachInitialers:
+                return isBindingIdentifier() || isTypeMemberStart();
             case ParsingContext.ArrayBindingElements:
                 return token() === SyntaxKind.CommaToken || token() === SyntaxKind.DotDotDotToken || isBindingIdentifier();
             // case ParsingContext.TypeParameters:
@@ -644,6 +646,7 @@ export namespace LpcParser {
             case SyntaxKind.DoKeyword:
             case SyntaxKind.WhileKeyword:
             case SyntaxKind.ForKeyword:
+            case SyntaxKind.ForEachKeyword:
             case SyntaxKind.ContinueKeyword:
             case SyntaxKind.BreakKeyword:
             case SyntaxKind.ReturnKeyword:
@@ -841,6 +844,7 @@ export namespace LpcParser {
                 return token() === SyntaxKind.CloseBraceToken || token() === SyntaxKind.CaseKeyword || token() === SyntaxKind.DefaultKeyword;
             // case ParsingContext.HeritageClauseElement:
             //     return token() === SyntaxKind.OpenBraceToken || token() === SyntaxKind.ExtendsKeyword || token() === SyntaxKind.ImplementsKeyword;
+            case ParsingContext.ForEachInitialers:
             case ParsingContext.VariableDeclarations:                
                 return isVariableDeclaratorListTerminator();
             // case ParsingContext.TypeParameters:
@@ -1094,7 +1098,9 @@ export namespace LpcParser {
             case SyntaxKind.WhileKeyword:
                 return parseWhileStatement();
             case SyntaxKind.ForKeyword:
-                return parseForOrForInOrForOfStatement();
+                return parseForStatement();
+            case SyntaxKind.ForEachKeyword:
+                return parseForEachStatement();
             case SyntaxKind.ContinueKeyword:
                 return parseBreakOrContinueStatement(SyntaxKind.ContinueStatement);
             case SyntaxKind.BreakKeyword:
@@ -1165,7 +1171,40 @@ export namespace LpcParser {
         return withJSDoc(finishNode(factoryCreateIfStatement(expression, thenStatement, elseStatement), pos), hasJSDoc);
     }
     
-    function parseForOrForInOrForOfStatement(): Statement {
+    function parseForEachStatement(): Statement {
+        const pos = getNodePos();
+        const hasJSDoc = hasPrecedingJSDocComment();
+        parseExpected(SyntaxKind.ForEachKeyword);        
+        parseExpected(SyntaxKind.OpenParenToken);
+        
+        let initializer!: VariableDeclarationList | Expression;
+        if (
+            isTypeName() && lookAhead(nextTokenIsIdentifierOrKeyword)
+        ) {
+            const type = parseType();
+            initializer = parseVariableDeclarationList(/*inForStatementInitializer*/ true, type, ParsingContext.ForEachInitialers);
+        }
+        else {
+            initializer = disallowInAnd(parseExpression);
+        }
+
+        // there must be a colon or an in keyword
+        let isColon = false;
+        if (!parseOptional(SyntaxKind.InKeyword)) {
+            isColon=true;
+            parseExpected(SyntaxKind.ColonToken);
+        }
+
+        const expression = parseMaybeRangeExpression(SyntaxKind.CloseParenToken);
+        parseExpected(SyntaxKind.CloseParenToken);
+        const body = parseStatement();
+
+        const node = factory.createForEachStatement(initializer, expression, body);
+        
+        return withJSDoc(finishNode(node, pos), hasJSDoc);
+    }
+
+    function parseForStatement(): Statement {
         const pos = getNodePos();
         const hasJSDoc = hasPrecedingJSDocComment();
         parseExpected(SyntaxKind.ForKeyword);        
@@ -1185,23 +1224,17 @@ export namespace LpcParser {
         }
 
         let node: IterationStatement;
-        if (parseOptional(SyntaxKind.InKeyword)) {
-            const expression = allowInAnd(parseExpression);
-            parseExpected(SyntaxKind.CloseParenToken);
-            node = factory.createForEachStatement(initializer, expression, parseStatement());
-        }
-        else {
-            parseExpected(SyntaxKind.SemicolonToken);
-            const condition = token() !== SyntaxKind.SemicolonToken && token() !== SyntaxKind.CloseParenToken
-                ? allowInAnd(parseExpression)
-                : undefined;
-            parseExpected(SyntaxKind.SemicolonToken);
-            const incrementor = token() !== SyntaxKind.CloseParenToken
-                ? allowInAnd(parseExpression)
-                : undefined;
-            parseExpected(SyntaxKind.CloseParenToken);
-            node = factoryCreateForStatement(initializer, condition, incrementor, parseStatement());
-        }
+      
+        parseExpected(SyntaxKind.SemicolonToken);
+        const condition = token() !== SyntaxKind.SemicolonToken && token() !== SyntaxKind.CloseParenToken
+            ? allowInAnd(parseExpression)
+            : undefined;
+        parseExpected(SyntaxKind.SemicolonToken);
+        const incrementor = token() !== SyntaxKind.CloseParenToken
+            ? allowInAnd(parseExpression)
+            : undefined;
+        parseExpected(SyntaxKind.CloseParenToken);
+        node = factoryCreateForStatement(initializer, condition, incrementor, parseStatement());
 
         return withJSDoc(finishNode(node, pos) as ForStatement | ForEachStatement, hasJSDoc);
     }
@@ -2516,7 +2549,7 @@ export namespace LpcParser {
         );
     }
 
-    function parseVariableDeclarationList(inForStatementInitializer: boolean, type: TypeNode | undefined): VariableDeclarationList {
+    function parseVariableDeclarationList(inForStatementInitializer: boolean, type: TypeNode | undefined, parsingContext: ParsingContext = 0): VariableDeclarationList {
         const pos = getNodePos();
 
         let flags: NodeFlags = 0;
@@ -2539,7 +2572,7 @@ export namespace LpcParser {
             setDisallowInContext(inForStatementInitializer);
 
             declarations = parseDelimitedList(
-                ParsingContext.VariableDeclarations,
+                parsingContext || ParsingContext.VariableDeclarations,
                 () => parseVariableDeclaration(type),
             );
 
@@ -2550,15 +2583,18 @@ export namespace LpcParser {
     }
     
     function isInOrOfKeyword(t: SyntaxKind) {
-        return t === SyntaxKind.InKeyword;// || t === SyntaxKind.OfKeyword;
+        return t === SyntaxKind.InKeyword || t === SyntaxKind.ColonToken;
     }
     
     function parseVariableDeclaration(type: TypeNode | undefined): VariableDeclaration {
         const pos = getNodePos();
-        const hasJSDoc = hasPrecedingJSDocComment();
+        const hasJSDoc = hasPrecedingJSDocComment();        
+        // type shouldn't be here, but needs to be for foreach() statement.
+        // we'll parse it out and reporto an error in the checker    
+        const tempType = parseType();        
         const name = parseIdentifierOrPattern();                
         const initializer = isInOrOfKeyword(token()) ? undefined : parseInitializer();
-        const node = factoryCreateVariableDeclaration(name, type, initializer);
+        const node = factoryCreateVariableDeclaration(name, tempType || type, initializer);
         return withJSDoc(finishNode(node, pos), hasJSDoc);
     }
 
@@ -3701,6 +3737,7 @@ export namespace LpcParser {
         Count,                     // Number of parsing contexts
         InlineClosure,             // Closure expression
         StructMembers,             // Members in struct declaration
+        ForEachInitialers          // Variable declarations in for statement
     }
 
     function internIdentifier(text: string): string {

@@ -1800,11 +1800,10 @@ export function isInExpressionContext(node: Node): boolean {
             return (forStatement.initializer === node && forStatement.initializer.kind !== SyntaxKind.VariableDeclarationList) ||
                 forStatement.condition === node ||
                 forStatement.incrementor === node;
-        case SyntaxKind.ForEachStatement:        
-            Debug.fail("TODO Implement me - forEachStatement");
-            // const forInOrOfStatement = parent as ForEachStatement;
-            // return (forInOrOfStatement.initializer === node && forInOrOfStatement.initializer.kind !== SyntaxKind.VariableDeclarationList) ||
-            //     forInOrOfStatement.expression === node;        
+        case SyntaxKind.ForEachStatement:                    
+            const forInOrOfStatement = parent as ForEachStatement;
+            return (forInOrOfStatement.initializer === node && forInOrOfStatement.initializer.kind !== SyntaxKind.VariableDeclarationList) ||
+                forInOrOfStatement.expression === node;        
         case SyntaxKind.ShorthandPropertyAssignment:
             return (parent as ShorthandPropertyAssignment).objectAssignmentInitializer === node;        
         default:
