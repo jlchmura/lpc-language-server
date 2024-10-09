@@ -123,6 +123,7 @@ export const textToKeywordObj: MapLike<KeywordSyntaxKind> = {
     case: SyntaxKind.CaseKeyword,    
     class: SyntaxKind.ClassKeyword,
     continue: SyntaxKind.ContinueKeyword,                
+    default: SyntaxKind.DefaultKeyword,
     do: SyntaxKind.DoKeyword,
     else: SyntaxKind.ElseKeyword,            
     float: SyntaxKind.FloatKeyword,
@@ -164,6 +165,7 @@ const textToToken = new Map(Object.entries({
     "[": SyntaxKind.OpenBracketToken,
     "]": SyntaxKind.CloseBracketToken,
     ".": SyntaxKind.DotToken,
+    "..": SyntaxKind.DotDotToken,
     "...": SyntaxKind.DotDotDotToken,
     ";": SyntaxKind.SemicolonToken,
     ",": SyntaxKind.CommaToken,
@@ -1163,7 +1165,8 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
         }
         let decimalFragment: string | undefined;
         let scientificFragment: string | undefined;
-        if (charCodeUnchecked(pos) === CharacterCodes.dot) {
+        // double dot means this is a range expression, not a floating point literal
+        if (charCodeUnchecked(pos) === CharacterCodes.dot && charCodeUnchecked(pos + 1) !== CharacterCodes.dot) {
             pos++;
             decimalFragment = scanNumberFragment();
         }
@@ -1952,8 +1955,11 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
                         scanNumber();
                         return token = SyntaxKind.FloatLiteral;
                     }
-                    if (charCodeUnchecked(pos + 1) === CharacterCodes.dot && charCodeUnchecked(pos + 2) === CharacterCodes.dot) {
-                        return pos += 3, token = SyntaxKind.DotDotDotToken;
+                    if (charCodeUnchecked(pos + 1) === CharacterCodes.dot) {
+                        if (charCodeUnchecked(pos + 2) === CharacterCodes.dot) {
+                            return pos += 3, token = SyntaxKind.DotDotDotToken;
+                        }
+                        return pos += 2, token = SyntaxKind.DotDotToken;
                     }
                     pos++;
                     return token = SyntaxKind.DotToken;

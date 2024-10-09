@@ -299,6 +299,7 @@ function isLeftHandSideExpressionKind(kind: SyntaxKind): boolean {
         case SyntaxKind.ParenthesizedExpression:
         case SyntaxKind.InlineClosureExpression:
         case SyntaxKind.ObjectLiteralExpression:
+        case SyntaxKind.RangeExpression:
         case SyntaxKind.NewStructExpression:
         case SyntaxKind.ClassExpression:
         case SyntaxKind.FunctionExpression:

@@ -119,6 +119,7 @@ import {
     PunctuationToken,
     QualifiedName,
     QuestionToken,
+    RangeExpression,
     ReturnStatement,
     setIdentifierTypeArguments,    
     SourceFile,
@@ -262,6 +263,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createPrefixUnaryExpression,
         createPostfixUnaryExpression,
         createElementAccessExpression,
+        createRangeExpression,
         createArrayLiteralExpression,
         createMappingLiteralExpression,
         createMappingEntryExpression,
@@ -1249,6 +1251,14 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
             typeof value === "number" ? createIntLiteral(value) :
             //typeof value === "boolean" ? value ? createTrue() : createFalse() :
             value;
+    }
+
+    // @api 
+    function createRangeExpression(left: Expression, right: Expression): RangeExpression {
+        const node = createBaseDeclaration<RangeExpression>(SyntaxKind.RangeExpression);
+        node.left = left;
+        node.right = right;
+        return node;
     }
 
     // @api

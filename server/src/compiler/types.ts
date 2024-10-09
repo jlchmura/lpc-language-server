@@ -787,6 +787,7 @@ export const enum SyntaxKind {
     NewStructExpression,
     TypeAssertionExpression,
     ElementAccessExpression,
+    RangeExpression,
     InlineClosureExpression,
     LambdaIdentifierExpression,
     LambdaOperatorExpression,
@@ -1365,7 +1366,8 @@ export interface NodeFactory {
     createCastExpression(expression: Expression, type: TypeNode): Expression;
     createCloneObjectExpression(expression: Expression, argumentsArray: readonly Expression[] | undefined): CloneObjectExpression;
     createTypeAssertion(type: TypeNode, expression: Expression): TypeAssertion;
-    createNewStructExpression(type: StructTypeNode, argumentsArray: readonly (Expression|ObjectLiteralElementLike)[] | undefined): NewStructExpression
+    createNewStructExpression(type: StructTypeNode, argumentsArray: readonly (Expression|ObjectLiteralElementLike)[] | undefined): NewStructExpression;
+    createRangeExpression(left: Expression, right: Expression): RangeExpression;
     
     // JSDoc
     createJSDocText(text: string): JSDocText;
@@ -1859,6 +1861,7 @@ export type HasChildren =
     | ParameterDeclaration
     | ParenthesizedExpression
     | ElementAccessExpression
+    | RangeExpression
     | PropertyAssignment
     | QualifiedName
     | ComputedPropertyName
@@ -2248,7 +2251,7 @@ export type CompoundAssignmentOperator =
 export type AssignmentOperator = | SyntaxKind.EqualsToken | CompoundAssignmentOperator;
 
 export type AssignmentOperatorOrHigher = | LogicalOperatorOrHigher | AssignmentOperator;
-export type BinaryOperator = AssignmentOperatorOrHigher | SyntaxKind.CommaToken | SyntaxKind.DotDotToken;
+export type BinaryOperator = AssignmentOperatorOrHigher | SyntaxKind.CommaToken;
 export type BinaryOperatorToken = Token<BinaryOperator>;
 
 export type LogicalOrCoalescingAssignmentOperator = SyntaxKind.BarBarEqualsToken;
@@ -3949,6 +3952,12 @@ export interface ElementAccessExpression extends MemberExpression, Declaration, 
     readonly kind: SyntaxKind.ElementAccessExpression;
     readonly expression: LeftHandSideExpression;    
     readonly argumentExpression: Expression;
+}
+
+export interface RangeExpression extends MemberExpression, Declaration, JSDocContainer, FlowContainer {
+    readonly kind: SyntaxKind.RangeExpression;
+    readonly left: Expression;
+    readonly right: Expression    
 }
 
 export interface CallChain extends CallExpression {
