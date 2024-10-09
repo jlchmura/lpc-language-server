@@ -150,7 +150,8 @@ export const textToKeywordObj: MapLike<KeywordSyntaxKind> = {
     switch: SyntaxKind.SwitchKeyword,    
     undefined: SyntaxKind.UndefinedKeyword,
     unknown: SyntaxKind.UnknownKeyword,
-    void: SyntaxKind.VoidKeyword,
+    varargs: SyntaxKind.VarArgsKeyword,
+    void: SyntaxKind.VoidKeyword,    
     while: SyntaxKind.WhileKeyword,
     async: SyntaxKind.AsyncKeyword,
 };

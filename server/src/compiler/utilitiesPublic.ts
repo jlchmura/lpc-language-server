@@ -1070,21 +1070,17 @@ export function isModifier(node: Node): node is Modifier {
 /** @internal */
 export function isModifierKind(token: SyntaxKind): token is Modifier["kind"] {
     switch (token) {
-        // case SyntaxKind.AbstractKeyword:
-        // case SyntaxKind.AccessorKeyword:
+        // case SyntaxKind.AbstractKeyword:        
+        // case SyntaxKind.ConstKeyword:        
+        // case SyntaxKind.ReadonlyKeyword:        
         case SyntaxKind.AsyncKeyword:
-        // case SyntaxKind.ConstKeyword:
-        // case SyntaxKind.DeclareKeyword:
         case SyntaxKind.DefaultKeyword:
-        // case SyntaxKind.ExportKeyword:
         case SyntaxKind.InKeyword:
         case SyntaxKind.PublicKeyword:
         case SyntaxKind.PrivateKeyword:
         case SyntaxKind.ProtectedKeyword:
-        // case SyntaxKind.ReadonlyKeyword:
         case SyntaxKind.StaticKeyword:
-        // case SyntaxKind.OutKeyword:
-        // case SyntaxKind.OverrideKeyword:
+        case SyntaxKind.VarArgsKeyword:        
             return true;
     }
     return false;
