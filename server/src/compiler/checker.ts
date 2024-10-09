@@ -509,8 +509,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             autoArrayType = createAnonymousType(/*symbol*/ undefined, emptySymbols, emptyArray, emptyArray, emptyArray);
         }
 
-        // globalReadonlyArrayType = getGlobalTypeOrUndefined("ReadonlyArray" as string, /*arity*/ 1) as GenericType || globalArrayType;
-        // anyReadonlyArrayType = globalReadonlyArrayType ? createTypeFromGenericGlobalType(globalReadonlyArrayType, [anyType]) : anyArrayType;
+        globalReadonlyArrayType = getGlobalTypeOrUndefined("ReadonlyArray" as string, /*arity*/ 1) as GenericType || globalArrayType;
+        anyReadonlyArrayType = globalReadonlyArrayType ? createTypeFromGenericGlobalType(globalReadonlyArrayType, [anyType]) : anyArrayType;
         // globalThisType = getGlobalTypeOrUndefined("ThisType" as string, /*arity*/ 1) as GenericType;
     }
 
@@ -552,6 +552,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         else {
             globals.set(name, undefinedSymbol);
         }
+    }
+
+    function getGlobalTypeOrUndefined(name: string, arity = 0): ObjectType | undefined {
+        const symbol = getGlobalSymbol(name, SymbolFlags.Type, /*diagnostic*/ undefined);
+        return symbol && getTypeOfGlobalSymbol(symbol, arity) as GenericType;
     }
 
     /**
@@ -5237,6 +5242,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 return getTypeFromTypeNode((parent as AssertionExpression).type);
             case SyntaxKind.BinaryExpression:                
                 return getContextualTypeForBinaryOperand(node, contextFlags);
+            case SyntaxKind.LambdaIdentifierExpression:
+            case SyntaxKind.LambdaOperatorExpression:
+                return anyType;
             case SyntaxKind.PropertyAssignment:
             case SyntaxKind.ShorthandPropertyAssignment:
                 console.warn("todo getContextualType - getContextualTypeForObjectLiteralElement");

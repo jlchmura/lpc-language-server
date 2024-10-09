@@ -1573,6 +1573,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
     function isNarrowableReference(expr: Expression): boolean {
         switch (expr.kind) {
             case SyntaxKind.Identifier:
+            case SyntaxKind.LambdaIdentifierExpression:
             //case SyntaxKind.SuperKeyword:
                 return true;
             case SyntaxKind.PropertyAccessExpression:

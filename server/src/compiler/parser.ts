@@ -3498,11 +3498,12 @@ export namespace LpcParser {
         const pos = getNodePos();
         parseExpected(SyntaxKind.LambdaToken);
         
-        let node: LambdaExpression;
-        const name = parseIdentifier();
-        if (name) {
+        let node: LambdaExpression;        
+        if (token()==SyntaxKind.Identifier) {
+            const name = parseIdentifier();
             node = factory.createLambdaIdentifierExpression(name);
         } else {            
+            reScanGreaterToken(); // to get the proper >= token
             const token = parseTokenNode<LambdaOperatorToken>();
             node = factory.createLambdaOperatorExpression(token);
         }
