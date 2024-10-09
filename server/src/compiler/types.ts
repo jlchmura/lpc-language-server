@@ -1170,6 +1170,7 @@ export type KeywordTypeSyntaxKind =
     | SyntaxKind.IntKeyword
     | SyntaxKind.FloatKeyword
     | SyntaxKind.IntrinsicKeyword
+    | SyntaxKind.BytesKeyword
     // | SyntaxKind.NeverKeyword
     // | SyntaxKind.NumberKeyword
     | SyntaxKind.MixedKeyword
@@ -4470,6 +4471,10 @@ export const enum IndexKind {
 }
 
 export interface StringLiteralType extends LiteralType {
+    value: string;
+}
+
+export interface BytesLiteralType extends LiteralType {
     value: string;
 }
 
