@@ -2188,7 +2188,7 @@ export namespace LpcParser {
         
         // if there is a comma, equals, or semi after the first token, it must be a variable declaration
 
-        if (token() >= SyntaxKind.Identifier) {
+        if (token() == SyntaxKind.Identifier) {
             if (lookAhead(nextTokenIsOpenParen)) {
                 // function
                 return parseFunctionDeclaration(pos, hasJSDoc, modifiersIn, typeIn);
@@ -2224,12 +2224,13 @@ export namespace LpcParser {
             //             return parseExportDeclaration(pos, hasJSDoc, modifiersIn);
             //     }
             default:
-                if (modifiersIn) {
+                if (modifiersIn || typeIn) {
                     // We reached this point because we encountered decorators and/or modifiers and assumed a declaration
                     // would follow. For recovery and error reporting purposes, return an incomplete declaration.
                     const missing = createMissingNode<MissingDeclaration>(SyntaxKind.MissingDeclaration, /*reportAtCurrentPosition*/ true, Diagnostics.Declaration_expected);
                     setTextRangePos(missing, pos);
                     (missing as Mutable<MissingDeclaration>).modifiers = modifiersIn;
+                    (missing as Mutable<MissingDeclaration>).type = typeIn;
                     return missing;
                 }
                 return undefined!; // TODO: GH#18217
@@ -3001,6 +3002,7 @@ export namespace LpcParser {
      */
     function parseSimpleUnaryExpression(): UnaryExpression {
         switch (token()) {
+            case SyntaxKind.LessThanToken:
             case SyntaxKind.PlusToken:
             case SyntaxKind.MinusToken:
             case SyntaxKind.TildeToken:
@@ -3355,12 +3357,29 @@ export namespace LpcParser {
         let argumentExpression: Expression;
         if (token() === SyntaxKind.CloseBracketToken) {
             argumentExpression = createMissingNode(SyntaxKind.Identifier, /*reportAtCurrentPosition*/ true, Diagnostics.An_element_access_expression_should_take_an_argument);
-        }
-        else {
-            const argument = allowInAnd(parseExpression);
+        } else {
+
+            // element access ranges allow < tokens, i.e.
+            //  foo[<bar] or foo[<1..<2] or foo[..<2]
+            let left: Expression, right: Expression;        
+            // let leftOp: Token<SyntaxKind.LessThanToken> | undefined, rightOp: Token<SyntaxKind.LessThanToken> | undefined;                        
+            if (parseOptional(SyntaxKind.DotDotToken)) {
+                // rightOp = parseOptionalToken(SyntaxKind.LessThanToken);
+                right = allowInAnd(parseExpression);
+            } else {
+                // leftOp = parseOptionalToken(SyntaxKind.LessThanToken);
+                left = allowInAnd(parseExpression);
+                if (parseOptional(SyntaxKind.DotDotToken) && token() !== SyntaxKind.CloseBracketToken) {
+                    // leftOp = parseOptionalToken(SyntaxKind.LessThanToken);
+                    right = allowInAnd(parseExpression);
+                }
+            }
+            
+            const argument = right ? finishNode(factory.createRangeExpression(left, right), pos) : left;            
             if (isStringOrNumericLiteralLike(argument)) {
                 argument.text = internIdentifier(argument.text);
             }
+
             argumentExpression = argument;
         }
 

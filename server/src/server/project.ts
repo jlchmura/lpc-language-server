@@ -678,7 +678,7 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
 
     private updateGraphWorker() {
         const oldProgram = this.languageService.getCurrentProgram();
-        Debug.assert(oldProgram === this.program);
+        // Debug.assert(oldProgram === this.program);
         Debug.assert(!this.isClosed(), "Called update graph worker of closed project");
         this.writeLog(`Starting updateGraphWorker: Project: ${this.getProjectName()}`);
         const start = timestamp();

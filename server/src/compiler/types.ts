@@ -6669,6 +6669,7 @@ export interface MissingDeclaration extends DeclarationStatement, PrimaryExpress
 
     // The following properties are used only to report grammar errors
     /** @internal */ readonly modifiers?: NodeArray<Modifier> | undefined;
+    /** @internal */ readonly type?: TypeNode | undefined;
 }
 
 /** @internal */
