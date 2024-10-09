@@ -1212,7 +1212,7 @@ export type TypeNodeSyntaxKind =
     | SyntaxKind.JSDocSignature
     | SyntaxKind.JSDocTypeLiteral;
 
-export type PropertyName = Identifier | StringLiteral | IntLiteral;
+export type PropertyName = Identifier | StringLiteral | IntLiteral | ComputedPropertyName;
 export type MemberName = Identifier;// | Expression;
 
 export type DeclarationName =
@@ -1562,6 +1562,7 @@ export interface CanonicalDiagnostic {
  */
 export type IsContainer =
     InlineClosureExpression
+    | StructDeclaration
     // | ClassExpression
     // | ClassDeclaration
     // | EnumDeclaration
@@ -1659,6 +1660,7 @@ export type HasJSDoc =
     | VariableDeclaration
     | WhileStatement
     | PropertyAssignment
+    | ElementAccessExpression
     | ShorthandPropertyAssignment;
 
 export type HasType =
@@ -1740,8 +1742,8 @@ export type HasModifiers =
     | ParameterDeclaration
     | StructDeclaration
     // | ConstructorTypeNode
-    // | PropertySignature
-    // | PropertyDeclaration
+    | PropertySignature
+    | PropertyDeclaration
     // | MethodSignature
     // | MethodDeclaration
     // | ConstructorDeclaration
@@ -1767,11 +1769,11 @@ export type HasModifiers =
 /** @internal */
 export type HasFlowNode =
     | Identifier
+    | ElementAccessExpression
     // | ThisExpression
     // | SuperExpression
     // | QualifiedName
-    // | MetaProperty
-    // | ElementAccessExpression
+    // | MetaProperty    
     // | BindingElement
     // | ArrowFunction
     // | MethodDeclaration
@@ -1851,6 +1853,7 @@ export type ForEachChildNodes =
 /** @internal */
 export type HasChildren =
     | ParameterDeclaration
+    | ElementAccessExpression
     | PropertyAssignment
     | QualifiedName
     | ComputedPropertyName
@@ -3925,6 +3928,10 @@ export interface ObjectLiteralExpression extends ObjectLiteralExpressionBase<Obj
 }
 
 export type AccessExpression = PropertyAccessExpression | ElementAccessExpression;
+
+export interface ElementAccessChain extends ElementAccessExpression {
+    _optionalChainBrand: any;
+}
 
 export interface ElementAccessExpression extends MemberExpression, Declaration, JSDocContainer, FlowContainer {
     readonly kind: SyntaxKind.ElementAccessExpression;
@@ -6184,7 +6191,7 @@ export interface PropertyAccessChain extends PropertyAccessExpression {
 
 export type OptionalChain =
     | PropertyAccessChain
-    //| ElementAccessChain
+    | ElementAccessChain
     | CallChain;
     //| NonNullChain;
 
@@ -6684,4 +6691,50 @@ export interface IndexedAccessType extends InstantiableType {
     constraint?: Type;
     simplifiedForReading?: Type;
     simplifiedForWriting?: Type;
+}
+
+export type UnionOrIntersectionTypeNode = UnionTypeNode;// | IntersectionTypeNode;
+
+/** @internal */
+// A name that supports late-binding (used in checker)
+export interface LateBoundName extends ComputedPropertyName {
+    readonly expression: EntityNameExpression;
+}
+
+/** @internal */
+export interface DynamicNamedDeclaration extends NamedDeclaration {
+    readonly name: ComputedPropertyName;
+}
+
+/** @internal */
+export interface DynamicNamedBinaryExpression extends BinaryExpression {
+    readonly left: ElementAccessExpression;
+}
+
+
+/** @internal */
+// A declaration that supports late-binding (used in checker)
+export interface LateBoundDeclaration extends DynamicNamedDeclaration {
+    readonly name: LateBoundName;
+}
+
+/** @internal */
+export interface LateBoundElementAccessExpression extends ElementAccessExpression {
+    readonly argumentExpression: EntityNameExpression;
+}
+
+/** @internal */
+export interface LateBoundBinaryExpressionDeclaration extends DynamicNamedBinaryExpression {
+    readonly left: LateBoundElementAccessExpression;
+}
+
+/** @internal */
+export interface MappedSymbolLinks extends TransientSymbolLinks {
+    mappedType: MappedType;
+    keyType: Type;
+}
+
+/** @internal */
+export interface MappedSymbol extends TransientSymbol {
+    links: MappedSymbolLinks;
 }

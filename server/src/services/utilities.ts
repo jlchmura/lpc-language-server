@@ -194,6 +194,9 @@ import {
     removeFileExtension,
     removeSuffix,
     isStringANonContextualKeyword,
+    isStringOrNumericLiteralLike,
+    isPrivateIdentifier,
+    idText,
 } from "./_namespaces/lpc.js";
 
 // Matches the beginning of a triple slash directive
@@ -203,11 +206,10 @@ const tripleSlashDirectivePrefixRegex = /^\/\/\/\s*</;
 export function getNameFromPropertyName(
     name: PropertyName
 ): string | undefined {
-    return getTextOfIdentifierOrLiteral(name);
-    // return name.kind === SyntaxKind.ComputedPropertyName
-    //     // treat computed property names where expression is string/numeric literal as just string/numeric literal
-    //     ? isStringOrNumericLiteralLike(name.expression) ? name.expression.text : undefined
-    //     : isPrivateIdentifier(name) ? idText(name) : getTextOfIdentifierOrLiteral(name);
+    return name.kind === SyntaxKind.ComputedPropertyName
+        // treat computed property names where expression is string/numeric literal as just string/numeric literal
+        ? isStringOrNumericLiteralLike(name.expression) ? name.expression.text : undefined
+        : getTextOfIdentifierOrLiteral(name);
 }
 
 /** @internal */

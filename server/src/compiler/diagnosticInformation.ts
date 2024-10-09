@@ -240,4 +240,11 @@ export const Diagnostics = {
     Type_0_is_not_an_array_type_or_does_not_have_a_Symbol_iterator_method_that_returns_an_iterator: diag(2548, DiagnosticCategory.Error, "Type_0_is_not_an_array_type_or_does_not_have_a_Symbol_iterator_method_that_returns_an_iterator_2548", "Type '{0}' is not an array type or does not have a '[Symbol.iterator]()' method that returns an iterator."),
     Type_0_is_not_an_array_type_or_a_string_type: diag(2495, DiagnosticCategory.Error, "Type_0_is_not_an_array_type_or_a_string_type_2495", "Type '{0}' is not an array type or a string type."),
     Type_0_is_not_an_array_type: diag(2461, DiagnosticCategory.Error, "Type_0_is_not_an_array_type_2461", "Type '{0}' is not an array type."),
+    A_type_literal_property_cannot_have_an_initializer: diag(1247, DiagnosticCategory.Error, "A_type_literal_property_cannot_have_an_initializer_1247", "A type literal property cannot have an initializer."),
+    A_mapped_type_may_not_declare_properties_or_methods: diag(7061, DiagnosticCategory.Error, "A_mapped_type_may_not_declare_properties_or_methods_7061", "A mapped type may not declare properties or methods."),
+    Property_0_may_not_exist_on_type_1_Did_you_mean_2: diag(2568, DiagnosticCategory.Error, "Property_0_may_not_exist_on_type_1_Did_you_mean_2_2568", "Property '{0}' may not exist on type '{1}'. Did you mean '{2}'?"),
+    A_computed_property_name_must_be_of_type_string_number_symbol_or_any: diag(2464, DiagnosticCategory.Error, "A_computed_property_name_must_be_of_type_string_number_symbol_or_any_2464", "A computed property name must be of type 'string', 'number', 'symbol', or 'any'."),
+    Property_0_was_also_declared_here: diag(2733, DiagnosticCategory.Error, "Property_0_was_also_declared_here_2733", "Property '{0}' was also declared here."),
+    Duplicate_property_0: diag(2718, DiagnosticCategory.Error, "Duplicate_property_0_2718", "Duplicate property '{0}'."),
+    Type_0_may_represent_a_primitive_value_which_is_not_permitted_as_the_right_operand_of_the_in_operator: diag(2638, DiagnosticCategory.Error, "Type_0_may_represent_a_primitive_value_which_is_not_permitted_as_the_right_operand_of_the_in_operato_2638", "Type '{0}' may represent a primitive value, which is not permitted as the right operand of the 'in' operator."),
 }

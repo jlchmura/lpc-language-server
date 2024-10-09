@@ -1192,3 +1192,4 @@ export function isAssertionExpression(node: Node): node is AssertionExpression {
     return kind === SyntaxKind.TypeAssertionExpression
         || kind === SyntaxKind.CastExpression;
 }
+
