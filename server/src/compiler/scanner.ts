@@ -1347,8 +1347,36 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
         return scanString();
     }
 
+    function lookForPossibleLambdaOperator(): number {
+        const quoteChar = charCodeUnchecked(pos);
+        if (quoteChar !== CharacterCodes.singleQuote) return 0;
+        pos++; 
+        if (charCodeUnchecked(pos) == CharacterCodes.hash) {      
+            pos++;
+        }
+        const lambdaStart = pos;
+        while (true) {
+            if (pos >= end) {
+                return 0;
+            }
+            const ch = charCodeUnchecked(pos);
+            if (ch === quoteChar) {
+                // result += text.substring(start, pos);
+                return 0; // not a lambda
+            }
+                        
+            if (pos >= 1 && ch === CharacterCodes.comma || ch === CharacterCodes.lineFeed || ch === CharacterCodes.carriageReturn || ch === CharacterCodes.space || !isIdentifierPart(ch, languageVersion, languageVariant)) {
+                // result += text.substring(start, pos);
+                // pos++;                
+                return lambdaStart;
+            }
+
+            pos++;
+        }
+    }
+
     function scanString(jsxAttributeString = false): string {
-        const quote = charCodeUnchecked(pos);
+        const quoteChar = charCodeUnchecked(pos);
         pos++;
         let result = "";
         let start = pos;
@@ -1360,7 +1388,7 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
                 break;
             }
             const ch = charCodeUnchecked(pos);
-            if (ch === quote) {
+            if (ch === quoteChar) {
                 result += text.substring(start, pos);
                 pos++;
                 break;
@@ -1873,8 +1901,14 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
                     }
                     pos++;
                     return token = SyntaxKind.ExclamationToken;
-                case CharacterCodes.doubleQuote:
-                case CharacterCodes.singleQuote:
+                case CharacterCodes.singleQuote:      
+                    const lambdaEnd = lookAhead(lookForPossibleLambdaOperator);
+                    if (lambdaEnd) {
+                        pos = lambdaEnd;
+                        return token = SyntaxKind.LambdaToken;
+                    }                    
+                    // fall through to string parsing
+                case CharacterCodes.doubleQuote:                
                     tokenValue = scanString();
                     return token = SyntaxKind.StringLiteral;
                 // case CharacterCodes.backtick:
@@ -2279,7 +2313,7 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
                         tokenValue = "#";
                         error(Diagnostics.Invalid_character, pos++, charSize(ch));
                     }
-                    // return token = SyntaxKind.PrivateIdentifier;
+                    return token = SyntaxKind.Unknown;
                 case CharacterCodes.replacementCharacter:
                     error(Diagnostics.File_appears_to_be_binary, 0, 0);
                     pos = end;

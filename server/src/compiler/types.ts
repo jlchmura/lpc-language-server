@@ -568,7 +568,8 @@ export const enum SyntaxKind {
     ColonCloseParenToken,
     OpenParenBracketToken,  // for mapping literal
     OpenParenBraceToken,    // for array literal
-    ColonColonToken,    
+    ColonColonToken,
+    LambdaToken,    
     DotDotToken,
 
     // Assignments
@@ -590,7 +591,8 @@ export const enum SyntaxKind {
 
 
     // Identifiers
-    Identifier,
+    Identifier,    
+
     /**
      * Only the special JSDoc comment text scanner produces JSDocCommentTextTokes. One of these tokens spans all text after a tag comment's start and before the next @
      * @internal
@@ -1871,6 +1873,8 @@ export type HasChildren =
     | TypeLiteralNode
     | TypeParameterDeclaration
     | StructDeclaration
+    | LambdaIdentifierExpression
+    | LambdaOperatorExpression
     // | Decorator
     // | PropertySignature
     // | PropertyDeclaration
@@ -2125,6 +2129,7 @@ export type ModifierLike = Modifier;// | Decorator;
 
 export type PunctuationSyntaxKind =
     | SyntaxKind.OpenParenBracketToken
+    | SyntaxKind.LambdaToken
     | SyntaxKind.OpenParenBraceToken
     | SyntaxKind.OpenBraceToken    
     | SyntaxKind.CloseBraceToken
@@ -3336,7 +3341,7 @@ export interface InlineClosureExpression extends PrimaryExpression, FunctionLike
 export type LambdaKind = 
     SyntaxKind.LambdaIdentifierExpression 
     | SyntaxKind.LambdaOperatorExpression;
-export interface LambdaExpression extends Expression {
+export interface LambdaExpression extends PrimaryExpression {
     readonly kind: LambdaKind;
 }
 
