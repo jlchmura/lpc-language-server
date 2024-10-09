@@ -1857,6 +1857,7 @@ export type ForEachChildNodes =
 /** @internal */
 export type HasChildren =
     | ParameterDeclaration
+    | ParenthesizedExpression
     | ElementAccessExpression
     | PropertyAssignment
     | QualifiedName
