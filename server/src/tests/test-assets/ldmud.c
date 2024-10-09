@@ -367,7 +367,7 @@ void testCatch() {
 
 // inline closures 
 void testInlineClosures() {
-    string *s = filter(explode(read_file(f), "\n"), (: return $[0..7]=="#define"; :));
+    string *s = filter(explode(read_file(f), "\n"), (: return $1[0..7]=="#define"; :));
     filter(({}), (: $1==1 :));
 }
 

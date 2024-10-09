@@ -835,7 +835,7 @@ export namespace LpcParser {
             case ParsingContext.ObjectBindingElements:
             case ParsingContext.ImportOrExportSpecifiers:
             case ParsingContext.ImportAttributes:
-                return token() === SyntaxKind.CloseBraceToken;
+                return token() === SyntaxKind.CloseBraceToken || token() === SyntaxKind.ColonCloseParenToken;
             case ParsingContext.SwitchPreBlock:                
             case ParsingContext.SwitchClauseStatements:
                 return token() === SyntaxKind.CloseBraceToken || token() === SyntaxKind.CaseKeyword || token() === SyntaxKind.DefaultKeyword;
@@ -2791,11 +2791,11 @@ export namespace LpcParser {
         const pos = getNodePos();
         const hasJSDoc = hasPrecedingJSDocComment();
         const openBracePosition = scanner.getTokenStart();
-        const openBraceParsed = parseExpected(SyntaxKind.OpenBraceToken, diagnosticMessage);
+        const openBraceParsed = (!ignoreMissingOpenBrace && parseExpected(SyntaxKind.OpenBraceToken, diagnosticMessage) || parseOptional(SyntaxKind.OpenBraceToken));
         if (openBraceParsed || ignoreMissingOpenBrace) {
             const multiLine = scanner.hasPrecedingLineBreak();
             const statements = parseList(ParsingContext.BlockStatements, parseStatement);
-            parseExpectedMatchingBrackets(SyntaxKind.OpenBraceToken, SyntaxKind.CloseBraceToken, openBraceParsed, openBracePosition);
+            if (openBraceParsed) parseExpectedMatchingBrackets(SyntaxKind.OpenBraceToken, SyntaxKind.CloseBraceToken, openBraceParsed, openBracePosition);
             const result = withJSDoc(finishNode(factoryCreateBlock(statements, multiLine), pos), hasJSDoc);
             if (token() === SyntaxKind.EqualsToken) {
                 parseErrorAtCurrentToken(Diagnostics.Declaration_or_statement_expected_This_follows_a_block_of_statements_so_if_you_intended_to_write_a_destructuring_assignment_you_might_need_to_wrap_the_whole_assignment_in_parentheses);
@@ -3521,7 +3521,7 @@ export namespace LpcParser {
             parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ true);
     }
 
-    function parseInlineClosureExpression(): InlineClosureExpression {
+    function parseInlineClosureExpression(allowReturnTypeInArrowFunction: boolean): InlineClosureExpression {
         const pos = getNodePos();
         const hasJSDoc = hasPrecedingJSDocComment();                
 
@@ -3529,12 +3529,60 @@ export namespace LpcParser {
         parsingContext |= ParsingContext.InlineClosure;        
 
         parseExpected(SyntaxKind.OpenParenColonToken);
-        const expression = disallowInAnd(parseExpression);
+        const expression = parseInlineClosureExpressionBody(allowReturnTypeInArrowFunction);
         parseExpected(SyntaxKind.ColonCloseParenToken);
 
         parsingContext = savedContext;
 
         return withJSDoc(finishNode(factory.createInlineClosure(expression), pos), hasJSDoc);
+    }
+
+    function isStartOfExpressionStatement(): boolean {
+        // As per the grammar, none of '{' or 'function' or 'class' can start an expression statement.
+        return token() !== SyntaxKind.OpenBraceToken &&
+            token() !== SyntaxKind.FunctionKeyword &&
+            token() !== SyntaxKind.ClassKeyword &&
+            token() !== SyntaxKind.AtToken &&
+            isStartOfExpression();
+    }
+
+    function parseInlineClosureExpressionBody(allowReturnTypeInArrowFunction: boolean): Block | Expression {
+        if (token() === SyntaxKind.OpenBraceToken) {
+            return parseFunctionBlock(SignatureFlags.None);
+        }
+
+        if (
+            token() !== SyntaxKind.SemicolonToken &&
+            token() !== SyntaxKind.FunctionKeyword &&
+            token() !== SyntaxKind.ClassKeyword &&
+            isStartOfStatement() &&
+            !isStartOfExpressionStatement()
+        ) {
+            // Check if we got a plain statement (i.e. no expression-statements, no function/class expressions/declarations)
+            //
+            // Here we try to recover from a potential error situation in the case where the
+            // user meant to supply a block. For example, if the user wrote:
+            //
+            //  a =>
+            //      let v = 0;
+            //  }
+            //
+            // they may be missing an open brace.  Check to see if that's the case so we can
+            // try to recover better.  If we don't do this, then the next close curly we see may end
+            // up preemptively closing the containing construct.
+            //
+            // Note: even when 'IgnoreMissingOpenBrace' is passed, parseBody will still error.
+            return parseFunctionBlock(SignatureFlags.IgnoreMissingOpenBrace | SignatureFlags.None);
+        }
+
+        const savedTopLevel = topLevel;
+        topLevel = false;
+        // const node = isAsync
+        //     ? doInAwaitContext(() => parseAssignmentExpressionOrHigher(allowReturnTypeInArrowFunction))
+        //     : doOutsideOfAwaitContext(() => parseAssignmentExpressionOrHigher(allowReturnTypeInArrowFunction));
+        const node = parseAssignmentExpressionOrHigher(allowReturnTypeInArrowFunction);
+        topLevel = savedTopLevel;
+        return node;
     }
 
     function parseArrayLiteralExpression(): ArrayLiteralExpression {
@@ -3587,7 +3635,7 @@ export namespace LpcParser {
             case SyntaxKind.OpenParenBraceToken:
                 return parseArrayLiteralExpression();
             case SyntaxKind.OpenParenColonToken:                              
-                return parseInlineClosureExpression();
+                return parseInlineClosureExpression(true);
             case SyntaxKind.OpenParenBracketToken:
                 return parseMappingLiteralExpression();
             // case SyntaxKind.OpenBraceToken:
