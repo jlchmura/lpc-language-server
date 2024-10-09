@@ -762,7 +762,8 @@ export namespace LpcParser {
                 case SyntaxKind.MixedKeyword:
                 case SyntaxKind.VoidKeyword:
                 case SyntaxKind.ObjectKeyword:
-                case SyntaxKind.MappingKeyword:                    
+                case SyntaxKind.MappingKeyword:     
+                case SyntaxKind.LessThanToken: // start of array union type               
                 // case SyntaxKind.ReadonlyKeyword:
                     return true;        
                     // const previousToken = token();
@@ -1132,6 +1133,7 @@ export namespace LpcParser {
             case SyntaxKind.ObjectKeyword:
             case SyntaxKind.ClosureKeywoord:
             case SyntaxKind.Identifier:
+            case SyntaxKind.LessThanToken: // start of union type
                 if (isStartOfDeclaration()) {
                     return parseDeclaration();
                 }            
@@ -1795,11 +1797,20 @@ export namespace LpcParser {
         createTypeNode: (types: NodeArray<TypeNode>) => UnionTypeNode,
     ): TypeNode {
         const pos = getNodePos();
-        const isUnionType = operator === SyntaxKind.BarToken;
+
+        if (parseOptional(SyntaxKind.LessThanToken)) {
+            const type = parseUnionOrIntersectionType(operator, parseConstituentType, createTypeNode);
+            parseExpected(SyntaxKind.GreaterThanToken);
+            
+            if (parseOptional(SyntaxKind.AsteriskToken)) {
+                return finishNode(factory.createArrayTypeNode(type), pos);
+            }
+
+            return type;
+        }
+        
         const hasLeadingOperator = parseOptional(operator);
-        let type = parseConstituentType();
-        // let type = hasLeadingOperator && parseFunctionOrConstructorTypeToError(isUnionType)
-        //     || parseConstituentType();
+        let type = parseConstituentType();        
         if (token() === operator || hasLeadingOperator) {
             const types = [type];
             while (parseOptional(operator)) {
@@ -1810,7 +1821,7 @@ export namespace LpcParser {
         }
         
         return type;
-    }        
+    }
 
     function parseUnionTypeOrHigher(): TypeNode {
         return parseUnionOrIntersectionType(SyntaxKind.BarToken, parsePostfixTypeOrHigher, factory.createUnionTypeNode);
@@ -2130,6 +2141,7 @@ export namespace LpcParser {
             || token() === SyntaxKind.OpenBraceToken
             || token() === SyntaxKind.AsteriskToken
             || token() === SyntaxKind.DotDotDotToken            
+            || token() === SyntaxKind.LessThanToken // union type
             || isTypeName()
             || isLiteralPropertyName();
     }
@@ -2149,7 +2161,13 @@ export namespace LpcParser {
             case SyntaxKind.StructKeyword:
             case SyntaxKind.ClosureKeywoord:
                 return true;
-        }
+            // handle unionable types
+            // case SyntaxKind.LessThanToken:
+            //     return lookAhead(()=>{
+            //         while(nextToken()==SyntaxKind.LessThanToken) {}
+            //         return isTypeName();
+            //     });
+        }        
 
         return false;
     }

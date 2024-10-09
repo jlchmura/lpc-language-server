@@ -5137,7 +5137,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 const type = getApparentTypeOfContextualType(arrayLiteral, contextFlags);
                 const elementIndex = indexOfNode(arrayLiteral.elements, node);
                 const spreadIndices = getNodeLinks(arrayLiteral).spreadIndices ??= getSpreadIndices(arrayLiteral.elements);                
-                return getContextualTypeForElementExpression(type, elementIndex, arrayLiteral.elements.length, spreadIndices.first, spreadIndices.last);
+                return getContextualTypeForElementExpression(type, elementIndex, arrayLiteral.elements?.length || 0, spreadIndices.first, spreadIndices.last);
             }
             case SyntaxKind.ConditionalExpression:                
                 return getContextualTypeForConditionalOperand(node, contextFlags);            
