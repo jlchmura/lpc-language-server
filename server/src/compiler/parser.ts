@@ -797,7 +797,8 @@ export namespace LpcParser {
                 //     continue;
                 case SyntaxKind.Identifier:
                     // probably a function without modifier or type
-                    return lookAhead(()=>nextToken() === SyntaxKind.OpenParenToken);
+                    // but that can only happen if we're parsing in the source context
+                    return (parsingContext === 1 << ParsingContext.SourceElements) && lookAhead(()=>nextToken() === SyntaxKind.OpenParenToken);
                 default:
                     return false;
             }
