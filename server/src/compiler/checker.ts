@@ -359,8 +359,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     var unionTypes = new Map<string, UnionType>();
     var intersectionTypes = new Map<string, Type>();
 
-    var anyType = createIntrinsicType(TypeFlags.Any, "any");
-    var autoType = createIntrinsicType(TypeFlags.Any, "any", ObjectFlags.NonInferrableType, "auto");
+    var anyType = createIntrinsicType(TypeFlags.Any, "mixed", );
+    var mixedType = anyType;// createIntrinsicType(TypeFlags.Any, "mixed");
+    var autoType = createIntrinsicType(TypeFlags.Any, "mixed", ObjectFlags.NonInferrableType, "auto");
     var wildcardType = createIntrinsicType(TypeFlags.Any, "any", /*objectFlags*/ undefined, "wildcard");
     var errorType = createIntrinsicType(TypeFlags.Any, "error");
     var silentNeverType = createIntrinsicType(TypeFlags.Never, "never", ObjectFlags.NonInferrableType, "silent");
@@ -415,7 +416,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     var globalObjectType: ObjectType;
     var globalFunctionType: ObjectType;
     var globalArrayType: GenericType;
-    var globalMappingType: GenericType;
+    var globalMappingType: GenericType;    
     var globalReadonlyArrayType: GenericType;    
     var globalCallableFunctionType: ObjectType;
     var globalNewableFunctionType: ObjectType;
@@ -479,10 +480,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             }             
         }
 
-        // addUndefinedToGlobalsOrErrorOnRedeclaration();
+        addUndefinedToGlobalsOrErrorOnRedeclaration();
 
-        // getSymbolLinks(undefinedSymbol).type = undefinedWideningType;
-        // getSymbolLinks(argumentsSymbol).type = getGlobalType("IArguments" as string, /*arity*/ 0, /*reportErrors*/ true);
+        getSymbolLinks(undefinedSymbol).type = undefinedWideningType;
+        getSymbolLinks(argumentsSymbol).type = getGlobalType("IArguments" as string, /*arity*/ 0, /*reportErrors*/ true);
         getSymbolLinks(unknownSymbol).type = errorType;
         getSymbolLinks(globalThisSymbol).type = createObjectType(ObjectFlags.Anonymous, globalThisSymbol);
 
@@ -500,11 +501,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         // globalRegExpType = getGlobalType("RegExp" as string, /*arity*/ 0, /*reportErrors*/ true);
         anyArrayType = createArrayType(anyType);
 
-        // autoArrayType = createArrayType(autoType);
-        // if (autoArrayType === emptyObjectType) {
-        //     // autoArrayType is used as a marker, so even if global Array type is not defined, it needs to be a unique type
-        //     autoArrayType = createAnonymousType(/*symbol*/ undefined, emptySymbols, emptyArray, emptyArray, emptyArray);
-        // }
+        autoArrayType = createArrayType(autoType);
+        if (autoArrayType === emptyObjectType) {
+            // autoArrayType is used as a marker, so even if global Array type is not defined, it needs to be a unique type
+            autoArrayType = createAnonymousType(/*symbol*/ undefined, emptySymbols, emptyArray, emptyArray, emptyArray);
+        }
 
         // globalReadonlyArrayType = getGlobalTypeOrUndefined("ReadonlyArray" as string, /*arity*/ 1) as GenericType || globalArrayType;
         // anyReadonlyArrayType = globalReadonlyArrayType ? createTypeFromGenericGlobalType(globalReadonlyArrayType, [anyType]) : anyArrayType;
@@ -533,6 +534,22 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     function createMappingType(elementType: Type, readonly?: boolean): ObjectType {
         Debug.assert(readonly !== true, "readonly not supported");
         return createTypeFromGenericGlobalType(globalArrayType, [elementType]);
+    }
+
+    function addUndefinedToGlobalsOrErrorOnRedeclaration() {
+        const name = undefinedSymbol.name;
+        const targetSymbol = globals.get(name);
+        if (targetSymbol) {
+            forEach(targetSymbol.declarations, declaration => {
+                // checkTypeNameIsReserved will have added better diagnostics for type declarations.
+                if (!isTypeDeclaration(declaration)) {
+                    diagnostics.add(createDiagnosticForNode(declaration, Diagnostics.Declaration_name_conflicts_with_built_in_global_identifier_0, (name)));
+                }
+            });
+        }
+        else {
+            globals.set(name, undefinedSymbol);
+        }
     }
 
     /**
@@ -2607,6 +2624,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             case SyntaxKind.StringKeyword:
             case SyntaxKind.ObjectKeyword:
             case SyntaxKind.VoidKeyword:
+            case SyntaxKind.MixedKeyword:
                 return;
         }
 
@@ -3793,7 +3811,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
     function getTypeFromTypeNodeWorker(node: TypeNode): Type {
         switch (node.kind) {
-            case SyntaxKind.AnyKeyword:
+            case SyntaxKind.AnyKeyword:                
             case SyntaxKind.JSDocAllType:
             case SyntaxKind.JSDocUnknownType:
                 return anyType;
@@ -3819,10 +3837,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             // case SyntaxKind.NeverKeyword:
             //     return neverType;
             case SyntaxKind.MixedKeyword:
+                return mixedType;
             case SyntaxKind.ObjectKeyword:
                 // in LPC, return undefined (not error or any) so that the type checker can continue
                 // to determine the type from the flow node
-                return undefined;  // !noImplicitAny ? anyType : nonPrimitiveType;            
+                return autoType;  // !noImplicitAny ? anyType : nonPrimitiveType;            
             // case SyntaxKind.IntrinsicKeyword:
             //     return intrinsicMarkerType;
             // case SyntaxKind.ThisType:
@@ -6884,9 +6903,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             // If --noImplicitAny is on or the declaration is in a Javascript file,
             // use control flow tracked 'any' type for non-ambient, non-exported var or let variables with no
             // initializer or a 'null' or 'undefined' initializer.
-            // if (!(getCombinedNodeFlagsCached(declaration) & NodeFlags.Constant) && (!declaration.initializer || isNullOrUndefined(declaration.initializer))) {
-            //     return autoType;
-            // }
+            if ((!declaration.initializer || isNullOrUndefined(declaration.initializer))) {
+                return autoType;
+            }
             // Use control flow tracked 'any[]' type for non-ambient, non-exported variables with an empty array
             // literal initializer.
             if (declaration.initializer && isEmptyArrayLiteral(declaration.initializer)) {
@@ -6969,6 +6988,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
         // No type specified and nothing can be inferred
         return undefined;
+    }
+
+    function isNullOrUndefined(node: Expression) {
+        const expr = skipParentheses(node, /*excludeJSDocTypeAssertions*/ true);
+        return expr.kind === SyntaxKind.NullKeyword || expr.kind === SyntaxKind.Identifier && getResolvedSymbol(expr as Identifier) === undefinedSymbol;
     }
 
     function widenTypeInferredFromInitializer(declaration: HasExpressionInitializer, type: Type) {
@@ -16801,6 +16825,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             const length = types.length;
             let i = 0;
             while (i < length) {
+                Debug.assertIsDefined(types[i]);
                 const startId = types[i].id;
                 let count = 1;
                 while (i + count < length && types[i + count].id === startId + count) {

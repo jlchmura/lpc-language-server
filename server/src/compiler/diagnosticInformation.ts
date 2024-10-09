@@ -247,4 +247,5 @@ export const Diagnostics = {
     Property_0_was_also_declared_here: diag(2733, DiagnosticCategory.Error, "Property_0_was_also_declared_here_2733", "Property '{0}' was also declared here."),
     Duplicate_property_0: diag(2718, DiagnosticCategory.Error, "Duplicate_property_0_2718", "Duplicate property '{0}'."),
     Type_0_may_represent_a_primitive_value_which_is_not_permitted_as_the_right_operand_of_the_in_operator: diag(2638, DiagnosticCategory.Error, "Type_0_may_represent_a_primitive_value_which_is_not_permitted_as_the_right_operand_of_the_in_operato_2638", "Type '{0}' may represent a primitive value, which is not permitted as the right operand of the 'in' operator."),
+    Declaration_name_conflicts_with_built_in_global_identifier_0: diag(2397, DiagnosticCategory.Error, "Declaration_name_conflicts_with_built_in_global_identifier_0_2397", "Declaration name conflicts with built-in global identifier '{0}'."),
 }
