@@ -2033,6 +2033,7 @@ export type KeywordSyntaxKind =
     | SyntaxKind.BytesKeyword
     | SyntaxKind.ClassKeyword   
     | SyntaxKind.CaseKeyword
+    | SyntaxKind.ClosureKeywoord
     | SyntaxKind.DefaultKeyword
     | SyntaxKind.UndefinedKeyword
     | SyntaxKind.BreakKeyword

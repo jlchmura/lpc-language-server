@@ -2654,9 +2654,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         checkTestingKnownTruthyCallableOrAwaitableOrEnumMemberType(node.expression, type, node.thenStatement);
         checkSourceElement(node.thenStatement);
 
-        if (node.thenStatement.kind === SyntaxKind.EmptyStatement) {
-            error(node.thenStatement, Diagnostics.The_body_of_an_if_statement_cannot_be_the_empty_statement);
-        }
+        // this is allowed in LPC
+        // if (node.thenStatement.kind === SyntaxKind.EmptyStatement) {
+        //     error(node.thenStatement, Diagnostics.The_body_of_an_if_statement_cannot_be_the_empty_statement);
+        // }
 
         checkSourceElement(node.elseStatement);
     }

@@ -122,6 +122,7 @@ export const textToKeywordObj: MapLike<KeywordSyntaxKind> = {
     bytes: SyntaxKind.BytesKeyword,
     case: SyntaxKind.CaseKeyword,    
     class: SyntaxKind.ClassKeyword,
+    closure: SyntaxKind.ClosureKeywoord,
     continue: SyntaxKind.ContinueKeyword,                
     default: SyntaxKind.DefaultKeyword,
     do: SyntaxKind.DoKeyword,

@@ -634,6 +634,7 @@ export namespace LpcParser {
             case SyntaxKind.OpenBraceToken:
             case SyntaxKind.InheritKeyword:
             case SyntaxKind.StructKeyword:
+            case SyntaxKind.ClosureKeywoord:
             // case SyntaxKind.VarKeyword:
             // case SyntaxKind.LetKeyword:
             // case SyntaxKind.UsingKeyword:
@@ -708,6 +709,7 @@ export namespace LpcParser {
                 case SyntaxKind.FunctionKeyword:
                 case SyntaxKind.ClassKeyword:
                 case SyntaxKind.StructKeyword:
+                case SyntaxKind.ClosureKeywoord:
                 // case SyntaxKind.EnumKeyword:
                     return true;
                 // case SyntaxKind.UsingKeyword:
@@ -1128,6 +1130,7 @@ export namespace LpcParser {
             case SyntaxKind.MixedKeyword:
             case SyntaxKind.MappingKeyword:
             case SyntaxKind.ObjectKeyword:
+            case SyntaxKind.ClosureKeywoord:
             case SyntaxKind.Identifier:
                 if (isStartOfDeclaration()) {
                     return parseDeclaration();
@@ -1887,6 +1890,7 @@ export namespace LpcParser {
             case SyntaxKind.ObjectKeyword:
             case SyntaxKind.UndefinedKeyword:            
             case SyntaxKind.ObjectKeyword:
+            case SyntaxKind.ClosureKeywoord:
                 // If these are followed by a dot, then parse these out as a dotted type reference instead.
                 return parseKeywordAndNoDot();
             case SyntaxKind.AsteriskEqualsToken:
@@ -2143,6 +2147,7 @@ export namespace LpcParser {
             case SyntaxKind.MappingKeyword:
             case SyntaxKind.ObjectKeyword:
             case SyntaxKind.StructKeyword:
+            case SyntaxKind.ClosureKeywoord:
                 return true;
         }
 
@@ -5008,10 +5013,7 @@ function forEachChildInCallOrNewExpression<T>(node: CallExpression | NewExpressi
 export function forEachChild<T>(node: Node, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
     if (node === undefined || node.kind <= SyntaxKind.LastToken) {
         return;
-    }
-    if (node.kind === SyntaxKind.DoWhileStatement) {
-        debugger;
-    }
+    }   
     const fn = (forEachChildTable as Record<SyntaxKind, ForEachChildFunction<any>>)[node.kind];
     return fn === undefined ? undefined : fn(node, cbNode, cbNodes);
 }
