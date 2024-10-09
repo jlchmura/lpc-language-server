@@ -88,6 +88,7 @@ export namespace LpcParser {
         createIntLiteral: factoryCreateIntLiteral,
         createFloatLiteral: factoryCreateFloatLiteral,
         createStringLiteral: factoryCreateStringLiteral,
+        createBytesLiteral: factoryCreateBytesLiteral,
         createLiteralLikeNode: factoryCreateLiteralLikeNode,
         createIdentifier: factoryCreateIdentifier,
         createToken: factoryCreateToken,
@@ -674,7 +675,7 @@ export namespace LpcParser {
             case SyntaxKind.StaticKeyword:
             case SyntaxKind.NoMaskKeyword:
             case SyntaxKind.NoSaveKeyword:
-            case SyntaxKind.NoShadowKeyword:
+            case SyntaxKind.NoShadowKeyword:   
             case SyntaxKind.IntKeyword:
             case SyntaxKind.FloatKeyword:
             case SyntaxKind.StringKeyword:
@@ -682,11 +683,11 @@ export namespace LpcParser {
             case SyntaxKind.VoidKeyword:
             case SyntaxKind.ObjectKeyword:
             case SyntaxKind.MappingKeyword:                
+            case SyntaxKind.BytesKeyword:                           
             // case SyntaxKind.ReadonlyKeyword:
                 // When these don't start a declaration, they may be the start of a class member if an identifier
                 // immediately follows. Otherwise they're an identifier in an expression statement.
                 return isStartOfDeclaration() || !lookAhead(nextTokenIsIdentifierOrKeywordOnSameLine);
-
             default:
                 return isStartOfExpression();
         }
@@ -746,6 +747,7 @@ export namespace LpcParser {
                 case SyntaxKind.NoMaskKeyword:
                 case SyntaxKind.NoSaveKeyword:
                 case SyntaxKind.NoShadowKeyword:
+                case SyntaxKind.BytesKeyword:
                 case SyntaxKind.IntKeyword:
                 case SyntaxKind.FloatKeyword:
                 case SyntaxKind.StringKeyword:
@@ -1107,10 +1109,8 @@ export namespace LpcParser {
             case SyntaxKind.ProtectedKeyword:
             case SyntaxKind.PublicKeyword:            
             case SyntaxKind.StaticKeyword:             
-                if (isStartOfDeclaration()) {
-                    return parseDeclaration();
-                }
-                break;
+            // primitive types                
+            case SyntaxKind.BytesKeyword:
             case SyntaxKind.VoidKeyword:
             case SyntaxKind.IntKeyword:
             case SyntaxKind.FloatKeyword:
@@ -1811,6 +1811,7 @@ export namespace LpcParser {
             case SyntaxKind.AnyKeyword:
             case SyntaxKind.UnknownKeyword:
             case SyntaxKind.StringKeyword:
+            case SyntaxKind.BytesKeyword:
             case SyntaxKind.IntKeyword:
             case SyntaxKind.FloatKeyword:
             case SyntaxKind.MixedKeyword:
@@ -1860,6 +1861,7 @@ export namespace LpcParser {
             case SyntaxKind.AnyKeyword:
             case SyntaxKind.UnknownKeyword:
             case SyntaxKind.StringKeyword:
+            case SyntaxKind.BytesKeyword:
             case SyntaxKind.IntKeyword:
             case SyntaxKind.FloatKeyword:
             case SyntaxKind.MixedKeyword:
@@ -1999,6 +2001,7 @@ export namespace LpcParser {
             (kind === SyntaxKind.IntLiteral || kind === SyntaxKind.NumericLiteral) ? factoryCreateIntLiteral(scanner.getTokenValue(), scanner.getNumericLiteralFlags()) :
             kind === SyntaxKind.FloatLiteral ? factoryCreateFloatLiteral(scanner.getTokenValue(), scanner.getNumericLiteralFlags()) :
             kind === SyntaxKind.StringLiteral ? factoryCreateStringLiteral(scanner.getTokenValue(), /*isSingleQuote*/ undefined, scanner.hasExtendedUnicodeEscape()) :
+            kind === SyntaxKind.BytesLiteral ? factoryCreateBytesLiteral(scanner.getTokenValue(), scanner.hasExtendedUnicodeEscape()) :
             isLiteralKind(kind) ? factoryCreateLiteralLikeNode(kind, scanner.getTokenValue()) :
             Debug.fail();
 
@@ -2111,6 +2114,7 @@ export namespace LpcParser {
 
     function isTypeName(): boolean {
         switch (token()) {
+            case SyntaxKind.BytesKeyword:
             case SyntaxKind.NullKeyword:
             case SyntaxKind.TrueKeyword:
             case SyntaxKind.FalseKeyword:
@@ -3493,6 +3497,7 @@ export namespace LpcParser {
             case SyntaxKind.IntLiteral:
             case SyntaxKind.FloatLiteral:
             case SyntaxKind.StringLiteral:
+            case SyntaxKind.BytesLiteral:            
                 return parseLiteralNode();            
             case SyntaxKind.SuperKeyword:
             case SyntaxKind.NullKeyword:

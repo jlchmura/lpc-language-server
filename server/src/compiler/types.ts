@@ -514,7 +514,8 @@ export const enum SyntaxKind {
     NumericLiteral,
     IntLiteral,
     FloatLiteral,
-    StringLiteral,            
+    BytesLiteral,
+    StringLiteral,                
 
     // Punctuation
     OpenBraceToken, 
@@ -612,6 +613,7 @@ export const enum SyntaxKind {
     MappingKeyword,
     VoidKeyword,
     BreakKeyword,
+    BytesKeyword,
     DoKeyword,
     ElseKeyword,
     ForKeyword,
@@ -856,8 +858,8 @@ export const enum TypeFlags {
     BooleanLiteral  = 1 << 9,
     EnumLiteral     = 1 << 10,  // Always combined with StringLiteral, NumberLiteral, or Union
     FloatLiteral    = 1 << 11,
-    ESSymbol        = 1 << 12,  // Type of symbol primitive introduced in ES6
-    UniqueESSymbol  = 1 << 13,  // unique symbol
+    Bytes           = 1 << 12,  
+    BytesLiteral    = 1 << 13,  // unique symbol
     Void            = 1 << 14,
     Undefined       = 1 << 15,
     Null            = 1 << 16,
@@ -883,28 +885,27 @@ export const enum TypeFlags {
     /** @internal */
     Nullable = Undefined | Null,
     Literal = StringLiteral | IntLiteral | FloatLiteral | BooleanLiteral,
-    Unit = Enum | Literal | UniqueESSymbol | Nullable,
+    Unit = Enum | Literal | Nullable,
     Freshable = Enum | Literal,
     StringOrNumberLiteral = StringLiteral | IntLiteral,
     /** @internal */
-    StringOrNumberLiteralOrUnique = StringLiteral | IntLiteral | UniqueESSymbol,
+    StringOrNumberLiteralOrUnique = StringLiteral | IntLiteral,
     /** @internal */
     DefinitelyFalsy = StringLiteral | IntLiteral | FloatLiteral | BooleanLiteral | Void | Undefined | Null,
     PossiblyFalsy = DefinitelyFalsy | String | Number | Float | Boolean,
     /** @internal */
-    Intrinsic = Any | Unknown | String | Number | Float | Boolean | BooleanLiteral | ESSymbol | Void | Undefined | Null | Never | NonPrimitive,
+    Intrinsic = Any | Unknown | String | Number | Float | Boolean | Bytes | BooleanLiteral | BytesLiteral | Void | Undefined | Null | Never | NonPrimitive,
     StringLike = String | StringLiteral | TemplateLiteral | StringMapping,
     NumberLike = Number | IntLiteral | FloatLiteral | Enum,
     BooleanLike = Boolean | BooleanLiteral,
     EnumLike = Enum | EnumLiteral,
-    ESSymbolLike = ESSymbol | UniqueESSymbol,
     VoidLike = Void | Undefined,
     /** @internal */
-    Primitive = StringLike | NumberLike |  BooleanLike | EnumLike | ESSymbolLike | VoidLike | Null,
+    Primitive = StringLike | NumberLike |  BooleanLike | EnumLike | VoidLike | Null,
     /** @internal */
-    DefinitelyNonNullable = StringLike | NumberLike |  BooleanLike | EnumLike | ESSymbolLike | Object | NonPrimitive,
+    DefinitelyNonNullable = StringLike | NumberLike |  BooleanLike | EnumLike | Object | NonPrimitive,
     /** @internal */
-    DisjointDomains = NonPrimitive | StringLike | NumberLike |  BooleanLike | ESSymbolLike | VoidLike | Null,
+    DisjointDomains = NonPrimitive | StringLike | NumberLike |  BooleanLike | VoidLike | Null,
     UnionOrIntersection = Union | Intersection,
     StructuredType = Object | Union | Intersection,
     TypeVariable = TypeParameter | IndexedAccess,
@@ -917,10 +918,10 @@ export const enum TypeFlags {
     /** @internal */
     Simplifiable = IndexedAccess | Conditional,
     /** @internal */
-    Singleton = Any | Unknown | String | Number | Boolean | Float | ESSymbol | Void | Undefined | Null | Never | NonPrimitive,
+    Singleton = Any | Unknown | String | Number | Boolean | Float | Bytes | Void | Undefined | Null | Never | NonPrimitive,
     // 'Narrowable' types are types where narrowing actually narrows.
     // This *should* be every type other than null, undefined, void, and never
-    Narrowable = Any | Unknown | StructuredOrInstantiable | StringLike | NumberLike |  BooleanLike | ESSymbol | UniqueESSymbol | NonPrimitive,
+    Narrowable = Any | Unknown | StructuredOrInstantiable | StringLike | NumberLike |  BooleanLike | Bytes | NonPrimitive,
     // The following flags are aggregated during union and intersection type construction
     /** @internal */
     IncludesMask = Any | Unknown | Primitive | Never | Object | Union | Intersection | NonPrimitive | TemplateLiteral | StringMapping,
@@ -1275,8 +1276,10 @@ export interface NodeFactory {
     createNodeArray<T extends Node>(elements?: readonly T[], hasTrailingComma?: boolean): NodeArray<T>;
     createIntLiteral(value: string|number, numericLiteralFlags?: TokenFlags): IntLiteral;
     createFloatLiteral(value: string|number, numericLiteralFlags?: TokenFlags): FloatLiteral;
-    createStringLiteral(text: string, isSingleQuote?: boolean): StringLiteral;
+    createStringLiteral(text: string): StringLiteral;
     /** @internal */ createStringLiteral(text: string, isSingleQuote?: boolean, hasExtendedUnicodeEscape?: boolean): StringLiteral; // eslint-disable-line @typescript-eslint/unified-signatures
+    createBytesLiteral(text: string): BytesLiteral    
+    /** @internal */ createBytesLiteral(text: string, hasExtendedUnicodeEscape?: boolean): BytesLiteral    
     createStringLiteralFromNode(sourceNode: PropertyNameLiteral, isSingleQuote?: boolean): StringLiteral;
     
     createTrue(): TrueLiteral;
@@ -2022,6 +2025,7 @@ export type EndOfFileToken = Token<SyntaxKind.EndOfFileToken> & JSDocContainer;
 
 export type KeywordSyntaxKind =
     | SyntaxKind.AnyKeyword    
+    | SyntaxKind.BytesKeyword
     | SyntaxKind.ClassKeyword   
     | SyntaxKind.CaseKeyword
     | SyntaxKind.DefaultKeyword
@@ -2931,6 +2935,11 @@ export interface StringLiteral extends LiteralExpression, Declaration {
     readonly singleQuote?: boolean;
 }
 
+export interface BytesLiteral extends LiteralExpression, Declaration {
+    readonly kind: SyntaxKind.BytesLiteral;
+    /** @internal */ readonly textSourceNode?: Identifier | StringLiteral | IntLiteral | FloatLiteral;// | JsxNamespacedName; // Allows a StringLiteral to get its text from another node (used by transforms).
+}
+
 export type TriviaSyntaxKind =
     | SyntaxKind.SingleLineCommentTrivia
     | SyntaxKind.MultiLineCommentTrivia
@@ -2941,10 +2950,11 @@ export type TriviaSyntaxKind =
 
 export type StringLiteralLike = StringLiteral;
 
-export type LiteralToken = IntLiteral | FloatLiteral | StringLiteral;
+export type LiteralToken = IntLiteral | FloatLiteral | StringLiteral | BytesLiteral;
 export type LiteralSyntaxKind =
     | SyntaxKind.IntLiteral
     | SyntaxKind.FloatLiteral
+    | SyntaxKind.BytesLiteral
     | SyntaxKind.StringLiteral;
 
     

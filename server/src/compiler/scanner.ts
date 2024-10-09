@@ -119,6 +119,7 @@ export interface Scanner {
 export const textToKeywordObj: MapLike<KeywordSyntaxKind> = {    
     any: SyntaxKind.AnyKeyword,        
     break: SyntaxKind.BreakKeyword,
+    bytes: SyntaxKind.BytesKeyword,
     case: SyntaxKind.CaseKeyword,    
     class: SyntaxKind.ClassKeyword,
     continue: SyntaxKind.ContinueKeyword,                
@@ -1334,6 +1335,12 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
         return String.fromCharCode(...valueChars);
     }
 
+    function scanBytesString(): string {
+        const b = charCodeUnchecked(pos);
+        pos++;
+        return scanString();
+    }
+
     function scanString(jsxAttributeString = false): string {
         const quote = charCodeUnchecked(pos);
         pos++;
@@ -2268,6 +2275,12 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
                     error(Diagnostics.File_appears_to_be_binary, 0, 0);
                     pos = end;
                     return token = SyntaxKind.NonTextFileMarkerTrivia;
+                case CharacterCodes.b:
+                    if (charCodeUnchecked(pos + 1) === CharacterCodes.doubleQuote) {
+                        tokenValue = scanBytesString();
+                        return token = SyntaxKind.BytesLiteral;
+                    }
+                    // falls through
                 default:
                     const identifierKind = scanIdentifier(ch, languageVersion);
                     if (identifierKind) {

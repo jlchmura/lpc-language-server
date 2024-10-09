@@ -366,6 +366,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     var errorType = createIntrinsicType(TypeFlags.Any, "error");
     var silentNeverType = createIntrinsicType(TypeFlags.Never, "never", ObjectFlags.NonInferrableType, "silent");
     var stringType = createIntrinsicType(TypeFlags.String, "string");
+    var bytesType = createIntrinsicType(TypeFlags.Bytes, "bytes");
     var nullWideningType = strictNullChecks ? nullType : createIntrinsicType(TypeFlags.Null, "null", ObjectFlags.ContainsWideningType, "widening");
     var intType = createIntrinsicType(TypeFlags.Number, "int");
     var floatType = createIntrinsicType(TypeFlags.Number, "float");
@@ -5223,7 +5224,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         switch (kind) {
             case AssignmentDeclarationKind.None:
             case AssignmentDeclarationKind.ThisProperty:
-                Debug.fail("no this property");
+                return unknownType;
+                // Debug.fail("no this property");
                 // const lhsSymbol = getSymbolForExpression(binaryExpression.left);
                 // const decl = lhsSymbol && lhsSymbol.valueDeclaration;
                 // // Unannotated, uninitialized property declarations have a type implied by their usage in the constructor.
@@ -5692,7 +5694,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             //     }
             // }
         }
-        if (!(indexType.flags & TypeFlags.Nullable) && isTypeAssignableToKind(indexType, TypeFlags.StringLike | TypeFlags.NumberLike | TypeFlags.ESSymbolLike)) {
+        if (!(indexType.flags & TypeFlags.Nullable) && isTypeAssignableToKind(indexType, TypeFlags.StringLike | TypeFlags.NumberLike)) {
             if (objectType.flags & (TypeFlags.Any | TypeFlags.Never)) {
                 return objectType;
             }
@@ -7071,7 +7073,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 return maybeTypeOfKind(constraint, TypeFlags.String) && maybeTypeOfKind(candidateType, TypeFlags.StringLiteral) ||
                     maybeTypeOfKind(constraint, TypeFlags.Number) && maybeTypeOfKind(candidateType, TypeFlags.IntLiteral) ||
                     maybeTypeOfKind(constraint, TypeFlags.Float) && maybeTypeOfKind(candidateType, TypeFlags.FloatLiteral) ||
-                    maybeTypeOfKind(constraint, TypeFlags.ESSymbol) && maybeTypeOfKind(candidateType, TypeFlags.UniqueESSymbol) ||
+                    maybeTypeOfKind(constraint, TypeFlags.Bytes) && maybeTypeOfKind(candidateType, TypeFlags.BytesLiteral) ||
                     isLiteralOfContextualType(candidateType, constraint);
             }
             // If the contextual type is a literal of a particular primitive type, we consider this a
@@ -7080,7 +7082,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 contextualType.flags & TypeFlags.IntLiteral && maybeTypeOfKind(candidateType, TypeFlags.IntLiteral) ||
                 contextualType.flags & TypeFlags.FloatLiteral && maybeTypeOfKind(candidateType, TypeFlags.FloatLiteral) ||
                 contextualType.flags & TypeFlags.BooleanLiteral && maybeTypeOfKind(candidateType, TypeFlags.BooleanLiteral) ||
-                contextualType.flags & TypeFlags.UniqueESSymbol && maybeTypeOfKind(candidateType, TypeFlags.UniqueESSymbol));
+                contextualType.flags & TypeFlags.Bytes && maybeTypeOfKind(candidateType, TypeFlags.BytesLiteral));
         }
         return false;
     }
@@ -9053,7 +9055,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function isValidIndexKeyType(type: Type): boolean {
-        return !!(type.flags & (TypeFlags.String | TypeFlags.Number | TypeFlags.ESSymbol));
+        return !!(type.flags & (TypeFlags.String | TypeFlags.Number));
     }
 
     function resolveDeclaredMembers(type: InterfaceType): InterfaceTypeWithDeclaredMembers {
@@ -14497,10 +14499,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     if (name && isComputedPropertyName(name)) return name;
                 }
                 const nameType = getSymbolLinks(symbol).nameType;
-                if (nameType && nameType.flags & (TypeFlags.EnumLiteral | TypeFlags.UniqueESSymbol)) {
-                    context.enclosingDeclaration = nameType.symbol.valueDeclaration;
-                    return factory.createComputedPropertyName(symbolToExpression(nameType.symbol, context, meaning));
-                }
+                // if (nameType && nameType.flags & (TypeFlags.EnumLiteral | TypeFlags.UniqueESSymbol)) {
+                //     context.enclosingDeclaration = nameType.symbol.valueDeclaration;
+                //     return factory.createComputedPropertyName(symbolToExpression(nameType.symbol, context, meaning));
+                // }
             }
             return symbolToExpression(symbol, context, meaning);
         }
@@ -16931,7 +16933,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             const remove = flags & (TypeFlags.StringLiteral | TypeFlags.TemplateLiteral | TypeFlags.StringMapping) && includes & TypeFlags.String ||
                 flags & TypeFlags.IntLiteral && includes & TypeFlags.Number ||
                 flags & TypeFlags.FloatLiteral && includes & TypeFlags.Float ||
-                flags & TypeFlags.UniqueESSymbol && includes & TypeFlags.ESSymbol ||
+                flags & TypeFlags.BytesLiteral && includes & TypeFlags.Bytes ||
                 reduceVoidUndefined && flags & TypeFlags.Undefined && includes & TypeFlags.Void ||
                 isFreshLiteralType(t) && containsType(types, (t as LiteralType).regularType);
             if (remove) {
@@ -17067,7 +17069,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     orderedRemoveItemAt(typeSet, 1);
                 }
             }
-            if (includes & (TypeFlags.Enum | TypeFlags.Literal | TypeFlags.UniqueESSymbol | TypeFlags.TemplateLiteral | TypeFlags.StringMapping) || includes & TypeFlags.Void && includes & TypeFlags.Undefined) {
+            if (includes & (TypeFlags.Enum | TypeFlags.Literal | TypeFlags.TemplateLiteral | TypeFlags.StringMapping) || includes & TypeFlags.Void && includes & TypeFlags.Undefined) {
                 removeRedundantLiteralTypes(typeSet, includes, !!(unionReduction & UnionReduction.Subtype));
             }
             // if (includes & TypeFlags.StringLiteral && includes & (TypeFlags.TemplateLiteral | TypeFlags.StringMapping)) {
@@ -17517,7 +17519,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         if (s & TypeFlags.NumberLike && t & TypeFlags.Number) return true;                
         if (s & TypeFlags.BooleanLike && t & TypeFlags.Boolean) return true;
         if (s & TypeFlags.BooleanLike && t & TypeFlags.Number) return true;
-        if (s & TypeFlags.ESSymbolLike && t & TypeFlags.ESSymbol) return true;                
+        // if (s & TypeFlags.ESSymbolLike && t & TypeFlags.ESSymbol) return true;                
         // In non-strictNullChecks mode, `undefined` and `null` are assignable to anything except `never`.
         // Since unions and intersections may reduce to `never`, we exclude them here.
         if (s & TypeFlags.Undefined && (!strictNullChecks && !(t & TypeFlags.UnionOrIntersection) || t & (TypeFlags.Undefined | TypeFlags.Void))) return true;
@@ -17803,7 +17805,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     // If we have an existing early-bound member, combine its declarations so that we can
                     // report an error at each declaration.
                     const declarations = earlySymbol ? concatenate(earlySymbol.declarations, lateSymbol.declarations) : lateSymbol.declarations;
-                    const name = !(type.flags & TypeFlags.UniqueESSymbol) && (memberName) || declarationNameToString(declName);
+                    const name = (memberName) || declarationNameToString(declName);
                     forEach(declarations, declaration => error(getNameOfDeclaration(declaration) || declaration, Diagnostics.Property_0_was_also_declared_here, name));
                     error(declName || decl, Diagnostics.Duplicate_property_0, name);
                     lateSymbol = createSymbol(SymbolFlags.None, memberName, CheckFlags.Late);
@@ -17890,7 +17892,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             // type, and any union of these types (like string | number).
             if (
                 links.resolvedType.flags & TypeFlags.Nullable ||
-                !isTypeAssignableToKind(links.resolvedType, TypeFlags.StringLike | TypeFlags.NumberLike | TypeFlags.ESSymbolLike) &&
+                !isTypeAssignableToKind(links.resolvedType, TypeFlags.StringLike | TypeFlags.NumberLike) &&
                     !isTypeAssignableTo(links.resolvedType, stringNumberSymbolType)
             ) {
                 error(node, Diagnostics.A_computed_property_name_must_be_of_type_string_number_symbol_or_any);
@@ -22143,6 +22145,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 isEmpty ? TypeFacts.EmptyStringStrictFacts : TypeFacts.NonEmptyStringStrictFacts :
                 isEmpty ? TypeFacts.EmptyStringFacts : TypeFacts.NonEmptyStringFacts;
         }
+        if (flags & TypeFlags.Bytes) {
+            return strictNullChecks ? TypeFacts.BytesStrictFacts : TypeFacts.BytesFacts;
+        }
         if (flags & (TypeFlags.Number | TypeFlags.Enum)) {
             return strictNullChecks ? TypeFacts.NumberStrictFacts : TypeFacts.NumberFacts;
         }
@@ -22193,10 +22198,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         }
         if (flags & TypeFlags.Null) {
             return TypeFacts.NullFacts;
-        }
-        if (flags & TypeFlags.ESSymbolLike) {
-            return strictNullChecks ? TypeFacts.SymbolStrictFacts : TypeFacts.SymbolFacts;
-        }
+        }        
         if (flags & TypeFlags.NonPrimitive) {
             return strictNullChecks ? TypeFacts.ObjectStrictFacts : TypeFacts.ObjectFacts;
         }
@@ -22631,7 +22633,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             const remove = t.flags & TypeFlags.String && includes & (TypeFlags.StringLiteral | TypeFlags.TemplateLiteral | TypeFlags.StringMapping) ||
                 t.flags & TypeFlags.Number && includes & TypeFlags.IntLiteral ||
                 t.flags & TypeFlags.Float && includes & TypeFlags.FloatLiteral ||
-                t.flags & TypeFlags.ESSymbol && includes & TypeFlags.UniqueESSymbol ||
+                t.flags & TypeFlags.Bytes && includes & TypeFlags.BytesLiteral ||
                 t.flags & TypeFlags.Void && includes & TypeFlags.Undefined ||
                 isEmptyAnonymousObjectType(t) && includes & TypeFlags.DefinitelyNonNullable;
             if (remove) {
@@ -22814,8 +22816,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             includes & TypeFlags.NonPrimitive && includes & (TypeFlags.DisjointDomains & ~TypeFlags.NonPrimitive) ||
             includes & TypeFlags.StringLike && includes & (TypeFlags.DisjointDomains & ~TypeFlags.StringLike) ||
             includes & TypeFlags.NumberLike && includes & (TypeFlags.DisjointDomains & ~TypeFlags.NumberLike) ||
-            //includes & TypeFlags.Float && includes & (TypeFlags.DisjointDomains & ~TypeFlags.BigIntLike) ||
-            includes & TypeFlags.ESSymbolLike && includes & (TypeFlags.DisjointDomains & ~TypeFlags.ESSymbolLike) ||
+            includes & TypeFlags.Float && includes & (TypeFlags.DisjointDomains & ~TypeFlags.NumberLike) ||
+            // includes & TypeFlags.ESSymbolLike && includes & (TypeFlags.DisjointDomains & ~TypeFlags.ESSymbolLike) ||
             includes & TypeFlags.VoidLike && includes & (TypeFlags.DisjointDomains & ~TypeFlags.VoidLike)
         ) {
             return neverType;
@@ -22833,7 +22835,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             includes & TypeFlags.String && includes & (TypeFlags.StringLiteral | TypeFlags.TemplateLiteral | TypeFlags.StringMapping) ||
             includes & TypeFlags.Number && includes & TypeFlags.IntLiteral ||
             includes & TypeFlags.Float && includes & TypeFlags.FloatLiteral ||
-            includes & TypeFlags.ESSymbol && includes & TypeFlags.UniqueESSymbol ||
+            includes & TypeFlags.Bytes && includes & TypeFlags.BytesLiteral ||
             includes & TypeFlags.Void && includes & TypeFlags.Undefined ||
             includes & TypeFlags.IncludesEmptyObject && includes & TypeFlags.DefinitelyNonNullable
         ) {
@@ -24382,6 +24384,8 @@ export const enum TypeFacts {
     BaseStringFacts = BaseStringStrictFacts | EQUndefined | EQNull | EQUndefinedOrNull | Falsy,
     StringStrictFacts = BaseStringStrictFacts | Truthy | Falsy,
     StringFacts = BaseStringFacts | Truthy,
+    BytesStrictFacts = BaseStringStrictFacts | Truthy | Falsy,
+    BytesFacts = BaseStringFacts | Truthy,
     EmptyStringStrictFacts = BaseStringStrictFacts | Falsy,
     EmptyStringFacts = BaseStringFacts,
     NonEmptyStringStrictFacts = BaseStringStrictFacts | Truthy,

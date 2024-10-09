@@ -308,6 +308,7 @@ function isLeftHandSideExpressionKind(kind: SyntaxKind): boolean {
         case SyntaxKind.IntLiteral:
         case SyntaxKind.FloatLiteral:
         case SyntaxKind.StringLiteral:
+        case SyntaxKind.BytesLiteral:
         // case SyntaxKind.NoSubstitutionTemplateLiteral:
         // case SyntaxKind.TemplateExpression:
         // case SyntaxKind.FalseKeyword:

@@ -9,6 +9,7 @@ import {
     BindingName,
     Block,
     BreakStatement,
+    BytesLiteral,
     CallExpression,
     CaseBlock,
     CaseClause,
@@ -200,6 +201,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createIntLiteral,
         createFloatLiteral,
         createStringLiteral,
+        createBytesLiteral,
         createLiteralLikeNode,
         createTrue,
         createFalse,
@@ -680,6 +682,14 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         hasExtendedUnicodeEscape?: boolean
     ): StringLiteral {
         const node = createBaseStringLiteral(text);
+        node.hasExtendedUnicodeEscape = hasExtendedUnicodeEscape;
+        return node;
+    }
+
+    // @api
+    function createBytesLiteral(text: string, hasExtendedUnicodeEscape?: boolean): BytesLiteral {
+        const node = createBaseDeclaration<BytesLiteral>(SyntaxKind.BytesLiteral);
+        node.text = text;
         node.hasExtendedUnicodeEscape = hasExtendedUnicodeEscape;
         return node;
     }
