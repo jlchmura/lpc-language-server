@@ -1878,8 +1878,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function checkMappingLiteral(node: MappingLiteralExpression, checkMode: CheckMode | undefined, forceTuple: boolean | undefined): Type {
-        const elements = node.elements ?? [];
-        const elementCount = elements.length;
+        const elements = node.elements;
+        const elementCount = elements?.length || 0;
         const elementTypes: Type[] = [];
         const elementFlags: ElementFlags[] = [];
         pushCachedContextualType(node);
@@ -1896,8 +1896,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 const type = checkExpressionForMutableLocation(e.name, checkMode, forceTuple);
                 elementTypes.push(addOptionality(type, /*isProperty*/ true, hasOmittedExpression));
                 elementFlags.push(hasOmittedExpression ? ElementFlags.Optional : ElementFlags.Required);                
-
-                e.elements.forEach(me => {
+                
+                forEach(elements, me => {
                     const type = checkExpressionForMutableLocation(me, checkMode, forceTuple);
                     elementTypes.push(addOptionality(type, /*isProperty*/ true, hasOmittedExpression));
                     elementFlags.push(hasOmittedExpression ? ElementFlags.Optional : ElementFlags.Required);                
