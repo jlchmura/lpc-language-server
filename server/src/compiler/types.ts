@@ -515,6 +515,7 @@ export const enum SyntaxKind {
     IntLiteral,
     FloatLiteral,
     BytesLiteral,
+    StringArrayLiteral,
     StringLiteral,                
 
     // Punctuation
@@ -562,6 +563,7 @@ export const enum SyntaxKind {
     QuestionToken,
     ColonToken,
     AtToken,
+    AtAtToken,
     QuestionQuestionToken,
     HashToken,
     OpenParenColonToken,    // for inline closures
@@ -2180,6 +2182,7 @@ export type PunctuationSyntaxKind =
     | SyntaxKind.QuestionToken
     | SyntaxKind.ColonToken
     | SyntaxKind.AtToken
+    | SyntaxKind.AtAtToken
     | SyntaxKind.EqualsToken
     | SyntaxKind.PlusEqualsToken
     | SyntaxKind.MinusEqualsToken

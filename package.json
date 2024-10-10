@@ -12,8 +12,8 @@
     "icon": "lpc-icon.png",
     "scripts": {
         "start": "npm run compile:bin && NODE_OPTIONS='--enable-source-maps' node out/server/src/bin.js test.c",
-        "vscode:prepublish": "npm run compile",
-        "compile": "tsc -b && node ./build.mjs",
+        "vscode:prepublish": "npm run compile",        
+        "compile": "tsc -b && node ./build.mjs && npm run copy",
         "compile:bin": "tsc -b && npm run copy && node ./build.bin.mjs",
         "parsefluff": "npm run compile:parsefluff && NODE_OPTIONS='--enable-source-maps' node out/server/src/parse-fluff-docs.js",
         "parseld": "npm run compile:parseld && NODE_OPTIONS='--enable-source-maps' node out/server/src/parse-ld-docs.js",

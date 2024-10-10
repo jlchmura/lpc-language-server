@@ -454,6 +454,15 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     var unresolvedSymbols = new Map<string, TransientSymbol>();
     var errorTypes = new Map<string, Type>();
 
+    var markerSuperType = createTypeParameter();
+    var markerSubType = createTypeParameter();
+    markerSubType.constraint = markerSuperType;
+    var markerOtherType = createTypeParameter();
+
+    var markerSuperTypeForCheck = createTypeParameter();
+    var markerSubTypeForCheck = createTypeParameter();
+    markerSubTypeForCheck.constraint = markerSuperTypeForCheck;
+
     var resolvingSymbol = createSymbol(0, InternalSymbolName.Resolving);
     var anyFunctionType = createAnonymousType(/*symbol*/ undefined, emptySymbols, emptyArray, emptyArray, emptyArray);
 
@@ -483,6 +492,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     function initializeTypeChecker() {
         // Bind all source files and propagate errors
         for (const file of host.getSourceFiles()) {
+            if (file.isDefaultLib) {
+                const ii=0;
+            }
             bindSourceFile(file, compilerOptions);
         }
         
@@ -500,11 +512,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         getSymbolLinks(unknownSymbol).type = errorType;
         getSymbolLinks(globalThisSymbol).type = createObjectType(ObjectFlags.Anonymous, globalThisSymbol);
 
-        // Initialize special types             
-           
-        globalArrayType = createGenericType(ObjectFlags.ArrayLiteral, "Array");        
-        globalMappingType = createGenericType(ObjectFlags.MappingLiteral, "Mapping");
-        globalObjectType = createGenericType(ObjectFlags.ObjectLiteral, "Object");
+        // Initialize special types                        
+        globalArrayType = getGlobalType("__LS__Array" as string, /*arity*/ 0, /*reportErrors*/ true) as GenericType;        
+        globalMappingType = getGlobalType("__LS__Mapping", 0, true) as GenericType;
+        globalObjectType = getGlobalType("__LS__Object", 0, true) as GenericType;
         globalFunctionType = getGlobalType("Function" as string, /*arity*/ 0, /*reportErrors*/ true);
         globalCallableFunctionType = strictBindCallApply && getGlobalType("CallableFunction" as string, /*arity*/ 0, /*reportErrors*/ true) || globalFunctionType;
         globalNewableFunctionType = strictBindCallApply && getGlobalType("NewableFunction" as string, /*arity*/ 0, /*reportErrors*/ true) || globalFunctionType;
@@ -578,7 +589,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function getGlobalTypeSymbol(name: string, reportErrors: boolean): Symbol | undefined {
-        return getGlobalSymbol(name, SymbolFlags.Type, reportErrors ? Diagnostics.Cannot_find_global_type_0 : undefined);
+        return getGlobalSymbol(name, SymbolFlags.Variable, reportErrors ? Diagnostics.Cannot_find_global_type_0 : undefined);
     }
 
     function getGlobalSymbol(name: string, meaning: SymbolFlags, diagnostic: DiagnosticMessage | undefined): Symbol | undefined {
@@ -604,8 +615,12 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         if (!symbol) {
             return arity ? emptyGenericType : emptyObjectType;
         }
+        if (symbol.flags & SymbolFlags.Variable) {
+            const tt = getFakeGlobalInterfaceType(symbol);
+            return tt;
+        }
         const type = getDeclaredTypeOfSymbol(symbol);
-        if (!(type.flags & TypeFlags.Object)) {
+        if (!(type.flags & TypeFlags.Object)) {            
             error(getTypeDeclaration(symbol), Diagnostics.Global_type_0_must_be_a_class_or_interface_type, symbolName(symbol));
             return arity ? emptyGenericType : emptyObjectType;
         }
@@ -1228,6 +1243,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     function getBaseTypes(type: InterfaceType): BaseType[] {
         if (!type.baseTypesResolved) {
             if (pushTypeResolution(type, TypeSystemPropertyName.ResolvedBaseTypes)) {
+                type.resolvedBaseTypes = [];
                 // if (type.objectFlags & ObjectFlags.Tuple) {
                 //     type.resolvedBaseTypes = [getTupleBaseType(type as TupleType)];
                 // } else
@@ -6121,7 +6137,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
     function createNormalizedTypeReference(target: GenericType, typeArguments: readonly Type[] | undefined) {
         //return /*target.objectFlags & ObjectFlags.Tuple ? createNormalizedTupleType(target as TupleType, typeArguments!) : */ 
-        return createTypeReference(target, typeArguments);
+        return createTypeReference(target, typeArguments);                
     }
 
     function createTypeReference(target: GenericType, typeArguments: readonly Type[] | undefined): TypeReference {
@@ -11368,12 +11384,34 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             case SyntaxKind.ObjectLiteralExpression:
                 console.warn("todo - elaborateError - ObjectLiteralExpression");
                 //return elaborateObjectLiteral(node as ObjectLiteralExpression, source, target, relation, containingMessageChain, errorOutputContainer);
-            case SyntaxKind.ArrayLiteralExpression:
-                console.warn("todo - elaborateError - ArrayLiteralExpression");
-                //return elaborateArrayLiteral(node as ArrayLiteralExpression, source, target, relation, containingMessageChain, errorOutputContainer);            
+            case SyntaxKind.ArrayLiteralExpression:                
+                return elaborateArrayLiteral(node as ArrayLiteralExpression, source, target, relation, containingMessageChain, errorOutputContainer);            
             case SyntaxKind.InlineClosureExpression:                
                 return elaborateInlineClosure(node as InlineClosureExpression, source, target, relation, containingMessageChain, errorOutputContainer);
         }
+        return false;
+    }
+
+    function elaborateArrayLiteral(
+        node: ArrayLiteralExpression,
+        source: Type,
+        target: Type,
+        relation: Map<string, RelationComparisonResult>,
+        containingMessageChain: (() => DiagnosticMessageChain | undefined) | undefined,
+        errorOutputContainer: { errors?: Diagnostic[]; skipLogging?: boolean; } | undefined,
+    ) {
+        if (target.flags & (TypeFlags.Primitive | TypeFlags.Never)) return false;
+        // if (isTupleLikeType(source)) {
+        //     return elaborateElementwise(generateLimitedTupleElements(node, target), source, target, relation, containingMessageChain, errorOutputContainer);
+        // }
+        // recreate a tuple from the elements, if possible
+        // Since we're re-doing the expression type, we need to reapply the contextual type
+        pushContextualType(node, target, /*isCache*/ false);
+        const tupleizedType = checkArrayLiteral(node, CheckMode.Contextual, /*forceTuple*/ true);
+        popContextualType();
+        // if (isTupleLikeType(tupleizedType)) {
+        //     return elaborateElementwise(generateLimitedTupleElements(node, target), tupleizedType, target, relation, containingMessageChain, errorOutputContainer);
+        // }
         return false;
     }
 
@@ -14061,40 +14099,41 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 Debug.assert(!!(type.flags & TypeFlags.Object));
                 return (type as TypeReference).node ? visitAndTransformType(type as TypeReference, typeReferenceToTypeNode) : typeReferenceToTypeNode(type as TypeReference);
             }
-            // if (type.flags & TypeFlags.TypeParameter || objectFlags & ObjectFlags.ClassOrInterface) {
-            //     if (type.flags & TypeFlags.TypeParameter && contains(context.inferTypeParameters, type)) {
-            //         context.approximateLength += symbolName(type.symbol).length + 6;
-            //         let constraintNode: TypeNode | undefined;
-            //         const constraint = getConstraintOfTypeParameter(type as TypeParameter);
-            //         if (constraint) {
-            //             // If the infer type has a constraint that is not the same as the constraint
-            //             // we would have normally inferred based on context, we emit the constraint
-            //             // using `infer T extends ?`. We omit inferred constraints from type references
-            //             // as they may be elided.
-            //             const inferredConstraint = getInferredTypeParameterConstraint(type as TypeParameter, /*omitTypeReferences*/ true);
-            //             if (!(inferredConstraint && isTypeIdenticalTo(constraint, inferredConstraint))) {
-            //                 context.approximateLength += 9;
-            //                 constraintNode = constraint && typeToTypeNodeHelper(constraint, context);
-            //             }
-            //         }
-            //         return factory.createInferTypeNode(typeParameterToDeclarationWithConstraint(type as TypeParameter, context, constraintNode));
-            //     }
-            //     if (
-            //         context.flags & NodeBuilderFlags.GenerateNamesForShadowedTypeParams &&
-            //         type.flags & TypeFlags.TypeParameter
-            //     ) {
-            //         const name = typeParameterToName(type, context);
-            //         context.approximateLength += idText(name).length;
-            //         return factory.createTypeReferenceNode(factory.createIdentifier(idText(name)), /*typeArguments*/ undefined);
-            //     }
-            //     // Ignore constraint/default when creating a usage (as opposed to declaration) of a type parameter.
-            //     if (type.symbol) {
-            //         return symbolToTypeNode(type.symbol, context, SymbolFlags.Type);
-            //     }
-            //     const name = (type === markerSuperTypeForCheck || type === markerSubTypeForCheck) && varianceTypeParameter && varianceTypeParameter.symbol ?
-            //         (type === markerSubTypeForCheck ? "sub-" : "super-") + symbolName(varianceTypeParameter.symbol) : "?";
-            //     return factory.createTypeReferenceNode(factory.createIdentifier(name), /*typeArguments*/ undefined);
-            // }
+            if (type.flags & TypeFlags.TypeParameter || objectFlags & ObjectFlags.ClassOrInterface) {
+                if (type.flags & TypeFlags.TypeParameter && contains(context.inferTypeParameters, type)) {
+                    // context.approximateLength += symbolName(type.symbol).length + 6;
+                    // let constraintNode: TypeNode | undefined;
+                    // const constraint = getConstraintOfTypeParameter(type as TypeParameter);
+                    // if (constraint) {
+                    //     // If the infer type has a constraint that is not the same as the constraint
+                    //     // we would have normally inferred based on context, we emit the constraint
+                    //     // using `infer T extends ?`. We omit inferred constraints from type references
+                    //     // as they may be elided.
+                    //     const inferredConstraint = getInferredTypeParameterConstraint(type as TypeParameter, /*omitTypeReferences*/ true);
+                    //     if (!(inferredConstraint && isTypeIdenticalTo(constraint, inferredConstraint))) {
+                    //         context.approximateLength += 9;
+                    //         constraintNode = constraint && typeToTypeNodeHelper(constraint, context);
+                    //     }
+                    // }
+                    // return factory.createInferTypeNode(typeParameterToDeclarationWithConstraint(type as TypeParameter, context, constraintNode));
+                    return Debug.fail("implement");
+                }
+                if (
+                    context.flags & NodeBuilderFlags.GenerateNamesForShadowedTypeParams &&
+                    type.flags & TypeFlags.TypeParameter
+                ) {
+                    const name = typeParameterToName(type, context);
+                    context.approximateLength += idText(name).length;
+                    return factory.createTypeReferenceNode(factory.createIdentifier(idText(name)), /*typeArguments*/ undefined);
+                }
+                // Ignore constraint/default when creating a usage (as opposed to declaration) of a type parameter.
+                if (type.symbol) {
+                    return symbolToTypeNode(type.symbol, context, SymbolFlags.Type);
+                }
+                const name = (type === markerSuperTypeForCheck || type === markerSubTypeForCheck) && varianceTypeParameter && varianceTypeParameter.symbol ?
+                    (type === markerSubTypeForCheck ? "sub-" : "super-") + symbolName(varianceTypeParameter.symbol) : "?";
+                return factory.createTypeReferenceNode(factory.createIdentifier(name), /*typeArguments*/ undefined);
+            }
             if (type.flags & TypeFlags.Union && (type as UnionType).origin) {
                 type = (type as UnionType).origin!;
             }
@@ -14126,38 +14165,43 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 // const indexTypeNode = typeToTypeNodeHelper(indexedType, context);
                 // return factory.createTypeOperatorNode(SyntaxKind.KeyOfKeyword, indexTypeNode);
             }
-            // if (type.flags & TypeFlags.TemplateLiteral) {
-            //     const texts = (type as TemplateLiteralType).texts;
-            //     const types = (type as TemplateLiteralType).types;
-            //     const templateHead = factory.createTemplateHead(texts[0]);
-            //     const templateSpans = factory.createNodeArray(
-            //         map(types, (t, i) =>
-            //             factory.createTemplateLiteralTypeSpan(
-            //                 typeToTypeNodeHelper(t, context),
-            //                 (i < types.length - 1 ? factory.createTemplateMiddle : factory.createTemplateTail)(texts[i + 1]),
-            //             )),
-            //     );
-            //     context.approximateLength += 2;
-            //     return factory.createTemplateLiteralType(templateHead, templateSpans);
-            // }
-            // if (type.flags & TypeFlags.StringMapping) {
-            //     const typeNode = typeToTypeNodeHelper((type as StringMappingType).type, context);
-            //     return symbolToTypeNode((type as StringMappingType).symbol, context, SymbolFlags.Type, [typeNode]);
-            // }
-            // if (type.flags & TypeFlags.IndexedAccess) {
-            //     const objectTypeNode = typeToTypeNodeHelper((type as IndexedAccessType).objectType, context);
-            //     const indexTypeNode = typeToTypeNodeHelper((type as IndexedAccessType).indexType, context);
-            //     context.approximateLength += 2;
-            //     return factory.createIndexedAccessTypeNode(objectTypeNode, indexTypeNode);
-            // }
-            // if (type.flags & TypeFlags.Conditional) {
-            //     return visitAndTransformType(type, type => conditionalTypeToTypeNode(type as ConditionalType));
-            // }
-            // if (type.flags & TypeFlags.Substitution) {
-            //     const typeNode = typeToTypeNodeHelper((type as SubstitutionType).baseType, context);
-            //     const noInferSymbol = isNoInferType(type) && getGlobalTypeSymbol("NoInfer" as string, /*reportErrors*/ false);
-            //     return noInferSymbol ? symbolToTypeNode(noInferSymbol, context, SymbolFlags.Type, [typeNode]) : typeNode;
-            // }
+            if (type.flags & TypeFlags.TemplateLiteral) {
+                // const texts = (type as TemplateLiteralType).texts;
+                // const types = (type as TemplateLiteralType).types;
+                // const templateHead = factory.createTemplateHead(texts[0]);
+                // const templateSpans = factory.createNodeArray(
+                //     map(types, (t, i) =>
+                //         factory.createTemplateLiteralTypeSpan(
+                //             typeToTypeNodeHelper(t, context),
+                //             (i < types.length - 1 ? factory.createTemplateMiddle : factory.createTemplateTail)(texts[i + 1]),
+                //         )),
+                // );
+                // context.approximateLength += 2;
+                // return factory.createTemplateLiteralType(templateHead, templateSpans);
+                return Debug.fail("Should be unreachable.");
+            }
+            if (type.flags & TypeFlags.StringMapping) {
+                // const typeNode = typeToTypeNodeHelper((type as StringMappingType).type, context);
+                // return symbolToTypeNode((type as StringMappingType).symbol, context, SymbolFlags.Type, [typeNode]);
+                return Debug.fail("Should be unreachable.");
+            }
+            if (type.flags & TypeFlags.IndexedAccess) {
+                // const objectTypeNode = typeToTypeNodeHelper((type as IndexedAccessType).objectType, context);
+                // const indexTypeNode = typeToTypeNodeHelper((type as IndexedAccessType).indexType, context);
+                // context.approximateLength += 2;
+                // return factory.createIndexedAccessTypeNode(objectTypeNode, indexTypeNode);
+                return Debug.fail("Should be unreachable.");
+            }
+            if (type.flags & TypeFlags.Conditional) {
+                // return visitAndTransformType(type, type => conditionalTypeToTypeNode(type as ConditionalType));
+                return Debug.fail("Should be unreachable.");
+            }
+            if (type.flags & TypeFlags.Substitution) {
+                // const typeNode = typeToTypeNodeHelper((type as SubstitutionType).baseType, context);
+                // const noInferSymbol = isNoInferType(type) && getGlobalTypeSymbol("NoInfer" as string, /*reportErrors*/ false);
+                // return noInferSymbol ? symbolToTypeNode(noInferSymbol, context, SymbolFlags.Type, [typeNode]) : typeNode;
+                return Debug.fail("Should be unreachable.");
+            }
 
             return Debug.fail("Should be unreachable.");
 
@@ -16717,6 +16761,43 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         // const prototype = assignmentSymbol?.exports?.get("prototype" as string);
         // const init = prototype?.valueDeclaration && getAssignedJSPrototype(prototype.valueDeclaration);
         // return init ? getSymbolOfDeclaration(init) : undefined;
+    }
+
+    function getFakeGlobalInterfaceType(symbol: Symbol): InterfaceType {
+        let links = getSymbolLinks(symbol);
+        const originalLinks = links;
+        if (!links.declaredType) {            
+            const kind = symbol.flags & SymbolFlags.Class ? ObjectFlags.Class : ObjectFlags.Interface;
+            const merged = mergeJSSymbols(symbol, symbol.valueDeclaration && getAssignedClassSymbol(symbol.valueDeclaration));
+            if (merged) {
+                // note:we overwrite links because we just cloned the symbol
+                symbol = merged;
+                links = merged.links;
+            }
+
+            const type = originalLinks.declaredType = links.declaredType = createObjectType(kind, symbol) as InterfaceType;
+            // const outerTypeParameters = getOuterTypeParametersOfClassOrInterface(symbol);
+            // const localTypeParameters = getLocalTypeParametersOfClassOrInterfaceOrTypeAlias(symbol);
+            // A class or interface is generic if it has type parameters or a "this" type. We always give classes a "this" type
+            // because it is not feasible to analyze all members to determine if the "this" type escapes the class (in particular,
+            // property types inferred from initializers and method return types inferred from return statements are very hard
+            // to exhaustively analyze). We give interfaces a "this" type if we can't definitely determine that they are free of
+            // "this" references.
+            // if (outerTypeParameters || localTypeParameters || kind === ObjectFlags.Class) {
+                type.objectFlags |= ObjectFlags.Reference;
+                type.typeParameters = [];//concatenate(outerTypeParameters, localTypeParameters);
+                // type.outerTypeParameters = outerTypeParameters;
+                // type.localTypeParameters = localTypeParameters;
+                (type as GenericType).instantiations = new Map<string, TypeReference>();
+                (type as GenericType).instantiations.set(getTypeListId(type.typeParameters), type as GenericType);
+                (type as GenericType).target = type as GenericType;
+                (type as GenericType).resolvedTypeArguments = type.typeParameters;
+                type.thisType = createTypeParameter(symbol);
+                type.thisType.isThisType = true;
+                type.thisType.constraint = type;
+            // }
+        }
+        return links.declaredType as InterfaceType;
     }
 
     function getDeclaredTypeOfClassOrInterface(symbol: Symbol): InterfaceType {

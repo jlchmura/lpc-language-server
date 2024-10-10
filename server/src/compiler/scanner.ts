@@ -29,6 +29,8 @@ import {
     SyntaxKind,
     TextRange,
     TokenFlags,
+    trimQuotes,
+    trimStart,
 } from "./_namespaces/lpc.js";
 
 export type ErrorCallback = (message: DiagnosticMessage, length: number, arg0?: any) => void;
@@ -223,6 +225,7 @@ const textToToken = new Map(Object.entries({
     "||=": SyntaxKind.BarBarEqualsToken,    
     "??=": SyntaxKind.QuestionQuestionEqualsToken,
     "@": SyntaxKind.AtToken,
+    "@@": SyntaxKind.AtAtToken,
     "#": SyntaxKind.HashToken,    
     "(:": SyntaxKind.OpenParenColonToken,
     ":)": SyntaxKind.ColonCloseParenToken,
@@ -1375,6 +1378,41 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
         }
     }
 
+    function scanTextFormattingString(languageVersion: ScriptTarget): string {        
+        scanIdentifier(charCodeUnchecked(pos), languageVersion);
+        const marker = trimStart(trimStart(tokenValue, "@"), "@");
+        let result = "";
+        let start = pos;
+        let lastWsPos = pos;
+        
+
+        while (true) {
+            if (pos >= end) {
+                result += text.substring(start, pos);
+                tokenFlags |= TokenFlags.Unterminated;
+                error(Diagnostics.Unterminated_string_literal);
+                break;
+            }
+
+            const ch = charCodeUnchecked(pos);
+            if (isWhiteSpaceLike(ch)) {
+                if (lastWsPos < pos - 1) {                    
+                    // check if the last word is the marker                
+                    const lastWord = text.substring(lastWsPos+1, pos);
+                    if (lastWord == marker) {
+                        result += text.substring(start, pos - marker.length);
+                        break;
+                    }
+                }
+                lastWsPos = pos;
+            }
+
+            pos++;
+        }
+
+        return result;
+    }
+
     function scanString(jsxAttributeString = false): string {
         const quoteChar = charCodeUnchecked(pos);
         pos++;
@@ -2250,9 +2288,19 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
                 case CharacterCodes.tilde:
                     pos++;
                     return token = SyntaxKind.TildeToken;
-                case CharacterCodes.at:
-                    pos++;
-                    return token = SyntaxKind.AtToken;
+                case CharacterCodes.at:          
+                    pos++;                              
+                    const isDoubleAt = (charCodeUnchecked(pos) === CharacterCodes.at);
+                    if (isDoubleAt) {
+                        pos++;
+                    }
+                    if (isIdentifierStart(charCodeUnchecked(pos), languageVersion)) {
+                        // FluffOS string template
+                        tokenValue = scanTextFormattingString(languageVersion);
+                        return token = isDoubleAt ? SyntaxKind.StringArrayLiteral : SyntaxKind.StringLiteral;
+                    }
+                                        
+                    return token = isDoubleAt ? SyntaxKind.AtAtToken : SyntaxKind.AtToken;
                 case CharacterCodes.backslash:
                     const extendedCookedChar = peekExtendedUnicodeEscape();
                     if (extendedCookedChar >= 0 && isIdentifierStart(extendedCookedChar, languageVersion)) {

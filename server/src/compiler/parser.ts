@@ -1750,6 +1750,7 @@ export namespace LpcParser {
             case SyntaxKind.IntLiteral:
             case SyntaxKind.FloatLiteral:
             case SyntaxKind.StringLiteral:
+            case SyntaxKind.StringArrayLiteral:
             // case SyntaxKind.NoSubstitutionTemplateLiteral:
             // case SyntaxKind.TemplateHead:
             case SyntaxKind.OpenParenToken:
@@ -1900,6 +1901,7 @@ export namespace LpcParser {
             case SyntaxKind.AmpersandToken:
             case SyntaxKind.NewKeyword:
             case SyntaxKind.StringLiteral:
+            case SyntaxKind.StringArrayLiteral:
             case SyntaxKind.NumericLiteral:
             case SyntaxKind.IntLiteral:
             case SyntaxKind.FloatLiteral:
@@ -1966,6 +1968,7 @@ export namespace LpcParser {
             // case SyntaxKind.ExclamationToken:
             //     return parseJSDocNonNullableType();            
             case SyntaxKind.StringLiteral:
+            case SyntaxKind.StringArrayLiteral:
             case SyntaxKind.IntLiteral:
             case SyntaxKind.FloatLiteral:
             case SyntaxKind.TrueKeyword:
@@ -2067,8 +2070,20 @@ export namespace LpcParser {
         return withJSDoc(finishNode(factory.createInheritDeclaration(expression, mods), pos), hasJSDoc);
     }
 
-    function parseLiteralLikeNode(kind: SyntaxKind): LiteralLikeNode {
+    function parseLiteralLikeNode(kind: SyntaxKind): LiteralLikeNode {        
         const pos = getNodePos();
+
+        if (kind === SyntaxKind.StringArrayLiteral) {
+            // special handling for fluffos @@ string literals, which get translated into arrays
+            const stringLit = factoryCreateStringLiteral(scanner.getTokenValue(), /*isSingleQuote*/ undefined, scanner.hasExtendedUnicodeEscape());
+            if (scanner.isUnterminated()) {
+                stringLit.isUnterminated = true;                
+            }
+            const arrNode = factory.createArrayLiteralExpression([stringLit], scanner.hasPrecedingLineBreak(), false);
+            nextToken();
+            return finishNode(arrNode, pos);
+        }
+
         const node =
             // Note that theoretically the following condition would hold true literals like 009,
             // which is not octal. But because of how the scanner separates the tokens, we would
@@ -2077,7 +2092,7 @@ export namespace LpcParser {
             // parent unary expression.
             (kind === SyntaxKind.IntLiteral || kind === SyntaxKind.NumericLiteral) ? factoryCreateIntLiteral(scanner.getTokenValue(), scanner.getNumericLiteralFlags()) :
             kind === SyntaxKind.FloatLiteral ? factoryCreateFloatLiteral(scanner.getTokenValue(), scanner.getNumericLiteralFlags()) :
-            kind === SyntaxKind.StringLiteral ? factoryCreateStringLiteral(scanner.getTokenValue(), /*isSingleQuote*/ undefined, scanner.hasExtendedUnicodeEscape()) :
+            kind === SyntaxKind.StringLiteral ? factoryCreateStringLiteral(scanner.getTokenValue(), /*isSingleQuote*/ undefined, scanner.hasExtendedUnicodeEscape()) :            
             kind === SyntaxKind.BytesLiteral ? factoryCreateBytesLiteral(scanner.getTokenValue(), scanner.hasExtendedUnicodeEscape()) :
             isLiteralKind(kind) ? factoryCreateLiteralLikeNode(kind, scanner.getTokenValue()) :
             Debug.fail();
@@ -3691,6 +3706,7 @@ export namespace LpcParser {
             case SyntaxKind.IntLiteral:
             case SyntaxKind.FloatLiteral:
             case SyntaxKind.StringLiteral:
+            case SyntaxKind.StringArrayLiteral:
             case SyntaxKind.BytesLiteral:            
                 return parseLiteralNode();            
             case SyntaxKind.SuperKeyword:

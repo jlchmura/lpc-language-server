@@ -1288,8 +1288,9 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
     }
 
     function declareSourceFileMember(node: Declaration, symbolFlags: SymbolFlags, symbolExcludes: SymbolFlags) {        
-        if (getCombinedModifierFlags(node) & (ModifierFlags.Private | ModifierFlags.Protected)) {        
+        if (file.isDefaultLib || getCombinedModifierFlags(node) & (ModifierFlags.Private | ModifierFlags.Protected)) {        
             // private sourcefile members do not get exported
+            // lib/sefun symbols also get declared as non-exports (Because they go on global)
             return declareSymbol(file.locals!, /*parent*/ undefined, node, symbolFlags, symbolExcludes)
         } 
         

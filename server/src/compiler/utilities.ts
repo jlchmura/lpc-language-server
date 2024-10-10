@@ -4868,6 +4868,14 @@ export function trimQuotes(str: string) {
     return str;
 }
 
+export function trimStart(original: string, toRemove: string): string {
+    if (original?.startsWith(toRemove)) {
+        return original.slice(toRemove.length);
+    }
+    return original;
+}
+
+
 const base64Digits = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 
 /** @internal */
