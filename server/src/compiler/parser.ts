@@ -639,8 +639,7 @@ export namespace LpcParser {
             case SyntaxKind.ClosureKeywoord:
             // case SyntaxKind.VarKeyword:
             // case SyntaxKind.LetKeyword:
-            // case SyntaxKind.UsingKeyword:
-            case SyntaxKind.FunctionKeyword:
+            // case SyntaxKind.UsingKeyword:            
             case SyntaxKind.ClassKeyword:            
             case SyntaxKind.IfKeyword:
             case SyntaxKind.DoKeyword:
@@ -686,6 +685,7 @@ export namespace LpcParser {
             case SyntaxKind.NoMaskKeyword:
             case SyntaxKind.NoSaveKeyword:
             case SyntaxKind.NoShadowKeyword:   
+            case SyntaxKind.FunctionKeyword:
             case SyntaxKind.IntKeyword:
             case SyntaxKind.FloatKeyword:
             case SyntaxKind.StringKeyword:
@@ -1132,7 +1132,8 @@ export namespace LpcParser {
             case SyntaxKind.NoMaskKeyword:
             case SyntaxKind.NoSaveKeyword:
             case SyntaxKind.NoShadowKeyword:                         
-            // primitive types                
+            // primitive types               
+            case SyntaxKind.FunctionKeyword: 
             case SyntaxKind.BytesKeyword:
             case SyntaxKind.BufferKeyword:
             case SyntaxKind.VoidKeyword:
@@ -1909,9 +1910,10 @@ export namespace LpcParser {
             case SyntaxKind.QuestionToken:
             case SyntaxKind.ExclamationToken:
             case SyntaxKind.DotDotDotToken:            
+            case SyntaxKind.FunctionKeyword:    
                 return true;
-            case SyntaxKind.FunctionKeyword:
-                return !inStartOfParameter;
+            // case SyntaxKind.FunctionKeyword:
+            //     return !inStartOfParameter;
             case SyntaxKind.MinusToken:
                 return !inStartOfParameter && lookAhead(nextTokenIsNumericOrBigIntLiteral);
             // case SyntaxKind.OpenParenToken:
@@ -1935,6 +1937,7 @@ export namespace LpcParser {
             case SyntaxKind.StringKeyword:
             case SyntaxKind.BytesKeyword:
             case SyntaxKind.BufferKeyword:
+            case SyntaxKind.FunctionKeyword:
             case SyntaxKind.IntKeyword:
             case SyntaxKind.FloatKeyword:
             case SyntaxKind.MixedKeyword:
@@ -2202,6 +2205,7 @@ export namespace LpcParser {
             case SyntaxKind.ObjectKeyword:
             case SyntaxKind.StructKeyword:
             case SyntaxKind.ClosureKeywoord:
+            case SyntaxKind.FunctionKeyword:
                 return true;
             // handle unionable types
             // case SyntaxKind.LessThanToken:
@@ -3607,7 +3611,7 @@ export namespace LpcParser {
     function isStartOfExpressionStatement(): boolean {
         // As per the grammar, none of '{' or 'function' or 'class' can start an expression statement.
         return token() !== SyntaxKind.OpenBraceToken &&
-            token() !== SyntaxKind.FunctionKeyword &&
+            // token() !== SyntaxKind.FunctionKeyword &&
             token() !== SyntaxKind.ClassKeyword &&
             token() !== SyntaxKind.AtToken &&
             isStartOfExpression();

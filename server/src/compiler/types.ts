@@ -1176,6 +1176,7 @@ export type KeywordTypeSyntaxKind =
     | SyntaxKind.FloatKeyword
     | SyntaxKind.IntrinsicKeyword
     | SyntaxKind.BytesKeyword
+    | SyntaxKind.FunctionKeyword
     | SyntaxKind.BufferKeyword    
     | SyntaxKind.MixedKeyword
     | SyntaxKind.ObjectKeyword
