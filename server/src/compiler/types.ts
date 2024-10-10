@@ -600,6 +600,16 @@ export const enum SyntaxKind {
      * @internal
      */
     JSDocCommentTextToken,
+
+    // Directives
+    IncludeDirective,
+    DefineDirective,
+    IfDirective,
+    ElseDirective,
+    ElseIfDirective,
+    EndIfDirective,
+    PragmaDirective,    
+
     // Keywords
     IntKeyword, // FIrst Keyword, FirstReserved Word
     FloatKeyword,
@@ -1312,6 +1322,9 @@ export interface NodeFactory {
     createIndexSignature(modifiers: readonly Modifier[] | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode): IndexSignatureDeclaration;
     /** @internal */ createIndexSignature(modifiers: readonly Modifier[] | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode | undefined): IndexSignatureDeclaration; // eslint-disable-line @typescript-eslint/unified-signatures
 
+    // directives
+    createIncludeDirective(content: StringLiteral[]): IncludeDirective;
+
     // types
     createKeywordTypeNode<TKind extends KeywordTypeSyntaxKind>(kind: TKind): KeywordTypeNode<TKind>;
     createTypeReferenceNode(typeName: string | EntityName, typeArguments?: readonly TypeNode[]): TypeReferenceNode;
@@ -1646,6 +1659,7 @@ export type HasContainerFlags =
 
 /** NODES */
 export type HasJSDoc = 
+    | IncludeDirective
     | Block 
     | StructDeclaration
     | PropertySignature
@@ -2036,6 +2050,16 @@ export interface Token<TKind extends SyntaxKind> extends Node {
 
 export type EndOfFileToken = Token<SyntaxKind.EndOfFileToken> & JSDocContainer;
 
+export type DirectiveSyntaxKind =     
+    | SyntaxKind.IncludeDirective
+    | SyntaxKind.DefineDirective
+    | SyntaxKind.IfDirective
+    | SyntaxKind.ElseDirective
+    | SyntaxKind.ElseIfDirective
+    | SyntaxKind.EndIfDirective
+    | SyntaxKind.PragmaDirective;
+    
+
 export type KeywordSyntaxKind =
     | SyntaxKind.AnyKeyword    
     | SyntaxKind.BytesKeyword
@@ -2199,7 +2223,7 @@ export type PunctuationSyntaxKind =
     | SyntaxKind.CaretEqualsToken;
 
 /** @internal */
-export type PunctuationOrKeywordSyntaxKind = PunctuationSyntaxKind | KeywordSyntaxKind;
+export type PunctuationOrKeywordSyntaxKind = PunctuationSyntaxKind | KeywordSyntaxKind | DirectiveSyntaxKind;
 
 export type ExponentiationOperator = SyntaxKind.AsteriskAsteriskToken;
 
@@ -6628,6 +6652,16 @@ export interface ClassExpression extends ClassLikeDeclarationBase, PrimaryExpres
 /** @internal */
 export interface PrologueDirective extends ExpressionStatement {
     readonly expression: StringLiteral;
+}
+
+export interface PreprocessorDirective extends Statement {
+    kind: DirectiveSyntaxKind;
+    readonly expression: StringLiteral;
+}
+
+export interface IncludeDirective extends PreprocessorDirective {
+    kind: SyntaxKind.IncludeDirective;
+    content: NodeArray<StringLiteral>;
 }
 
 

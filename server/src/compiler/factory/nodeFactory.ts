@@ -52,6 +52,7 @@ import {
     Identifier,
     identity,
     IfStatement,
+    IncludeDirective,
     IndexSignatureDeclaration,
     InheritClauseType,
     InheritDeclaration,
@@ -109,6 +110,7 @@ import {
     PostfixUnaryOperator,
     PrefixUnaryExpression,
     PrefixUnaryOperator,
+    PreprocessorDirective,
     PropertyAccessExpression,
     PropertyAccessToken,
     PropertyAssignment,
@@ -207,6 +209,9 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createTrue,
         createFalse,
         createStringLiteralFromNode,
+
+        // directives
+        createIncludeDirective,
 
         // type elements,
         createIndexSignature,
@@ -1251,6 +1256,13 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
             typeof value === "number" ? createIntLiteral(value) :
             //typeof value === "boolean" ? value ? createTrue() : createFalse() :
             value;
+    }
+
+    // @api 
+    function createIncludeDirective(content: StringLiteral[]): IncludeDirective {
+        const node = createBaseNode<IncludeDirective>(SyntaxKind.IncludeDirective);
+        node.content = createNodeArray(content);
+        return node;
     }
 
     // @api 

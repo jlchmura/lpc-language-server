@@ -11,6 +11,7 @@ import {
     Debug,
     DiagnosticMessage,
     Diagnostics,    
+    DirectiveSyntaxKind,    
     identity,
     JSDocParsingMode,
     JSDocSyntaxKind,
@@ -93,6 +94,7 @@ export interface Scanner {
     setScriptTarget(scriptTarget: ScriptTarget): void;
     setLanguageVariant(variant: LanguageVariant): void;
     setScriptKind(scriptKind: ScriptKind): void;
+    setReportLineBreak(flag: boolean): void;
     setJSDocParsingMode(kind: JSDocParsingMode): void;
     /** @deprecated use {@link resetTokenState} */
     setTextPos(textPos: number): void;
@@ -116,6 +118,19 @@ export interface Scanner {
     // of invoking the callback is returned from this function.
     tryScan<T>(callback: () => T): T;
 }
+
+/** @internal */
+export const textToDirectiveObj: MapLike<DirectiveSyntaxKind> = {
+    '#include': SyntaxKind.IncludeDirective,
+    '#define': SyntaxKind.DefineDirective,
+    '#if': SyntaxKind.IfDirective,
+    '#else': SyntaxKind.ElseDirective,
+    '#elseif': SyntaxKind.ElseIfDirective,
+    '#endif': SyntaxKind.EndIfDirective,
+    '#pragma': SyntaxKind.PragmaDirective,
+}
+
+const textToDirective = new Map(Object.entries(textToDirectiveObj));
 
 /** @internal */
 export const textToKeywordObj: MapLike<KeywordSyntaxKind> = {    
@@ -963,6 +978,7 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
     var commentDirectives: CommentDirective[] | undefined;
     var skipJsDocLeadingAsterisks = 0;
     var asteriskSeen = false;
+    var reportLineBreak = false;
 
     var scriptKind = ScriptKind.Unknown;
     var jsDocParsingMode = JSDocParsingMode.ParseAll;
@@ -1001,6 +1017,7 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
         getText,
         clearCommentDirectives,
         setText,
+        setReportLineBreak,
         setScriptTarget,
         setLanguageVariant,
         setScriptKind,
@@ -1817,6 +1834,21 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
         return token = SyntaxKind.Identifier;
     }
 
+    function getDirectiveToken(): DirectiveSyntaxKind | SyntaxKind.Identifier {
+        // Reserved words are between 2 and 12 characters long and start with a lowercase letter
+        const len = tokenValue.length;
+        if (len >= 3 && len <= 12) {
+            const ch = tokenValue.charCodeAt(1); // 0 is the hash
+            if (ch >= CharacterCodes.a && ch <= CharacterCodes.z) {
+                const keyword = textToDirective.get(tokenValue);
+                if (keyword !== undefined) {
+                    return token = keyword;
+                }
+            }
+        }
+        return token = SyntaxKind.Identifier;
+    }
+
     function scanBinaryOrOctalDigits(base: 2 | 8): string {
         let value = "";
         // For counting number of digits; Valid binaryIntegerLiteral must have at least one binary digit following B or b.
@@ -1856,6 +1888,40 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
         return value;
     }
 
+    // function scanDirectiveContent(): SyntaxKind {
+    //     fullStartPos = pos;
+    //     tokenFlags = TokenFlags.None;        
+    //     while (true) {
+    //         if (pos >= end) {                
+    //             tokenFlags |= TokenFlags.Unterminated;
+    //             error(Diagnostics.Unterminated_directive);
+    //             return token = SyntaxKind.EndOfFileToken;
+    //         }
+            
+    //         const ch = charCodeUnchecked(pos);
+    //         switch (ch) {
+    //             case CharacterCodes.backslash:
+    //                 pos++;
+    //                 if (isLineBreak(ch)) {
+    //                     tokenFlags |= TokenFlags.PrecedingLineBreak;
+    //                     pos++;                        
+    //                 }
+    //                 continue;
+    //             case CharacterCodes.lineFeed:
+    //             case CharacterCodes.carriageReturn:
+    //                 tokenValue = text.substring(fullStartPos, pos);
+    //                 return token = SyntaxKind.StringLiteral;
+    //         }
+    //         if (ch === CharacterCodes.carriageReturn || ch === CharacterCodes.lineFeed) {
+    //             result += text.substring(start, pos);
+    //             break;
+    //         }
+    //         pos++;
+    //     }
+    //     tokenValue = result;
+    //     return SyntaxKind.StringLiteral;
+    // }
+
     function scan(): SyntaxKind {
         fullStartPos = pos;
         tokenFlags = TokenFlags.None;
@@ -1880,15 +1946,15 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
                 }
             }
 
-            switch (ch) {
+            switch (ch) {                
                 case CharacterCodes.lineFeed:
                 case CharacterCodes.carriageReturn:
                     tokenFlags |= TokenFlags.PrecedingLineBreak;
-                    if (shouldSkipTrivia) {
+                    if (shouldSkipTrivia && !reportLineBreak) {
                         pos++;
                         continue;
                     }
-                    else {
+                    else {                        
                         if (ch === CharacterCodes.carriageReturn && pos + 1 < end && charCodeUnchecked(pos + 1) === CharacterCodes.lineFeed) {
                             // consume both CR and LF
                             pos += 2;
@@ -2316,6 +2382,21 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
                         return token = getIdentifierToken();
                     }
 
+                    // if reportLineBreaks is on (for a directive), then skip past escaped returns
+                    if (reportLineBreak) {
+                        switch (charCodeUnchecked(pos + 1)) {
+                            case CharacterCodes.carriageReturn:
+                                if (pos + 2 < end && charCodeUnchecked(pos + 2) === CharacterCodes.lineFeed) {
+                                    pos += 1;
+                                }
+                                // falls through
+                            case CharacterCodes.lineFeed:
+                                pos += 2; // 1 extra for the backslash
+                                tokenFlags |= TokenFlags.PrecedingLineBreak;
+                                continue;                                
+                        }
+                    }                    
+                    
                     error(Diagnostics.Invalid_character);
                     pos++;
                     return token = SyntaxKind.Unknown;
@@ -2328,6 +2409,12 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
                     if (charCodeUnchecked(pos + 1) === CharacterCodes.singleQuote) {
                         pos += 2;
                         return token = SyntaxKind.LambdaToken;
+                    }
+
+                    if (pos === 0 || isLineBreak(charCodeUnchecked(pos - 1))) {
+                        pos++;
+                        // could be a directive
+                        return token = scanDirective(charCodeUnchecked(pos), languageVersion);
                     }
 
                     console.warn("todo - scan #include here");
@@ -2443,6 +2530,19 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
                 tokenValue += scanIdentifierParts();
             }
             return getIdentifierToken();
+        }
+    }
+
+    function scanDirective(startCharacter: number, languageVersion: ScriptTarget) {
+        let ch = startCharacter;
+        if (isIdentifierStart(ch, languageVersion)) {
+            pos += charSize(ch);
+            while (pos < end && isIdentifierPart(ch = codePointUnchecked(pos), languageVersion)) pos += charSize(ch);
+            tokenValue = text.substring(tokenStart, pos);
+            if (ch === CharacterCodes.backslash) {
+                tokenValue += scanIdentifierParts();
+            }
+            return getDirectiveToken();
         }
     }
 
@@ -2734,6 +2834,10 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
 
     function setScriptKind(kind: ScriptKind) {
         scriptKind = kind;
+    }
+
+    function setReportLineBreak(flag: boolean) {
+        reportLineBreak = flag;
     }
 
     function setJSDocParsingMode(kind: JSDocParsingMode) {

@@ -25,6 +25,8 @@ export const Diagnostics = {
     Multiple_consecutive_numeric_separators_are_not_permitted: diag(6189, DiagnosticCategory.Error, "Multiple_consecutive_numeric_separators_are_not_permitted_6189", "Multiple consecutive numeric separators are not permitted."),
     Numeric_separators_are_not_allowed_here: diag(6188, DiagnosticCategory.Error, "Numeric_separators_are_not_allowed_here_6188", "Numeric separators are not allowed here."),
     Unterminated_string_literal: diag(1002, DiagnosticCategory.Error, "Unterminated_string_literal_1002", "Unterminated string literal."),
+    Unterminated_directive: diag(1004, DiagnosticCategory.Error, "Unterminated_directive_1004", "Unterminated directive."),
+    Expected_newline_after_include_directive: diag(1008, DiagnosticCategory.Error, "Expected_newline_after_include_directive_1008", "Expected newline after include directive."),
     An_extended_Unicode_escape_value_must_be_between_0x0_and_0x10FFFF_inclusive: diag(1198, DiagnosticCategory.Error, "An_extended_Unicode_escape_value_must_be_between_0x0_and_0x10FFFF_inclusive_1198", "An extended Unicode escape value must be between 0x0 and 0x10FFFF inclusive."),
     Unexpected_end_of_text: diag(1126, DiagnosticCategory.Error, "Unexpected_end_of_text_1126", "Unexpected end of text."),
     Unterminated_Unicode_escape_sequence: diag(1199, DiagnosticCategory.Error, "Unterminated_Unicode_escape_sequence_1199", "Unterminated Unicode escape sequence."),
