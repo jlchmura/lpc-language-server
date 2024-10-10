@@ -1347,28 +1347,26 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
         return scanString();
     }
 
-    function lookForPossibleLambdaOperator(): number {
+    function lookForPossibleLambdaOperator(): boolean {        
         const quoteChar = charCodeUnchecked(pos);
-        if (quoteChar !== CharacterCodes.singleQuote) return 0;
+        if (quoteChar !== CharacterCodes.singleQuote) return false;
         pos++; 
-        if (charCodeUnchecked(pos) == CharacterCodes.hash) {      
-            pos++;
-        }
+        
         const lambdaStart = pos;
         while (true) {
             if (pos >= end) {
-                return 0;
+                return false;
             }
             const ch = charCodeUnchecked(pos);
             if (ch === quoteChar) {
                 // result += text.substring(start, pos);
-                return 0; // not a lambda
+                return false; // not a lambda
             }
                         
             if (pos >= 1 && ch === CharacterCodes.comma || ch === CharacterCodes.lineFeed || ch === CharacterCodes.carriageReturn || ch === CharacterCodes.space || !isIdentifierPart(ch, languageVersion, languageVariant)) {
                 // result += text.substring(start, pos);
                 // pos++;                
-                return lambdaStart;
+                return true;
             }
 
             pos++;
@@ -1902,9 +1900,8 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
                     pos++;
                     return token = SyntaxKind.ExclamationToken;
                 case CharacterCodes.singleQuote:      
-                    const lambdaEnd = lookAhead(lookForPossibleLambdaOperator);
-                    if (lambdaEnd) {
-                        pos = lambdaEnd;
+                    if (lookAhead(lookForPossibleLambdaOperator)) {
+                        pos++
                         return token = SyntaxKind.LambdaToken;
                     }                    
                     // fall through to string parsing
@@ -2277,6 +2274,10 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
                         error(Diagnostics.can_only_be_used_at_the_start_of_a_file, pos, 2);
                         pos++;
                         return token = SyntaxKind.Unknown;
+                    }
+                    if (charCodeUnchecked(pos + 1) === CharacterCodes.singleQuote) {
+                        pos += 2;
+                        return token = SyntaxKind.LambdaToken;
                     }
 
                     console.warn("todo - scan #include here");
