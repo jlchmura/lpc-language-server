@@ -616,6 +616,7 @@ export const enum SyntaxKind {
     VoidKeyword,
     BreakKeyword,
     BytesKeyword,
+    BufferKeyword,
     DoKeyword,
     ElseKeyword,
     ForKeyword,
@@ -1175,8 +1176,7 @@ export type KeywordTypeSyntaxKind =
     | SyntaxKind.FloatKeyword
     | SyntaxKind.IntrinsicKeyword
     | SyntaxKind.BytesKeyword
-    // | SyntaxKind.NeverKeyword
-    // | SyntaxKind.NumberKeyword
+    | SyntaxKind.BufferKeyword    
     | SyntaxKind.MixedKeyword
     | SyntaxKind.ObjectKeyword
     | SyntaxKind.StringKeyword    
@@ -2036,6 +2036,7 @@ export type EndOfFileToken = Token<SyntaxKind.EndOfFileToken> & JSDocContainer;
 export type KeywordSyntaxKind =
     | SyntaxKind.AnyKeyword    
     | SyntaxKind.BytesKeyword
+    | SyntaxKind.BufferKeyword
     | SyntaxKind.ClassKeyword   
     | SyntaxKind.CaseKeyword
     | SyntaxKind.ClosureKeywoord

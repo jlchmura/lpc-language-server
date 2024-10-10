@@ -119,6 +119,7 @@ export interface Scanner {
 export const textToKeywordObj: MapLike<KeywordSyntaxKind> = {    
     any: SyntaxKind.AnyKeyword,        
     break: SyntaxKind.BreakKeyword,
+    buffer: SyntaxKind.BufferKeyword,
     bytes: SyntaxKind.BytesKeyword,
     case: SyntaxKind.CaseKeyword,    
     class: SyntaxKind.ClassKeyword,
@@ -139,6 +140,7 @@ export const textToKeywordObj: MapLike<KeywordSyntaxKind> = {
     mapping: SyntaxKind.MappingKeyword,
     mixed: SyntaxKind.MixedKeyword,
     new: SyntaxKind.NewKeyword,
+    nomask: SyntaxKind.NoMaskKeyword,
     null: SyntaxKind.NullKeyword,    
     object: SyntaxKind.ObjectKeyword,    
     private: SyntaxKind.PrivateKeyword,

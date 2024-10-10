@@ -694,7 +694,7 @@ export namespace LpcParser {
             case SyntaxKind.ObjectKeyword:
             case SyntaxKind.MappingKeyword:                
             case SyntaxKind.BytesKeyword:                           
-            // case SyntaxKind.ReadonlyKeyword:
+            case SyntaxKind.BufferKeyword:            
                 // When these don't start a declaration, they may be the start of a class member if an identifier
                 // immediately follows. Otherwise they're an identifier in an expression statement.
                 return isStartOfDeclaration() || !lookAhead(nextTokenIsIdentifierOrKeywordOnSameLine);
@@ -759,6 +759,7 @@ export namespace LpcParser {
                 case SyntaxKind.NoSaveKeyword:
                 case SyntaxKind.NoShadowKeyword:
                 case SyntaxKind.BytesKeyword:
+                case SyntaxKind.BufferKeyword:
                 case SyntaxKind.IntKeyword:
                 case SyntaxKind.FloatKeyword:
                 case SyntaxKind.StringKeyword:
@@ -1127,9 +1128,13 @@ export namespace LpcParser {
             case SyntaxKind.PrivateKeyword:
             case SyntaxKind.ProtectedKeyword:
             case SyntaxKind.PublicKeyword:            
-            case SyntaxKind.StaticKeyword:             
+            case SyntaxKind.StaticKeyword:    
+            case SyntaxKind.NoMaskKeyword:
+            case SyntaxKind.NoSaveKeyword:
+            case SyntaxKind.NoShadowKeyword:                         
             // primitive types                
             case SyntaxKind.BytesKeyword:
+            case SyntaxKind.BufferKeyword:
             case SyntaxKind.VoidKeyword:
             case SyntaxKind.IntKeyword:
             case SyntaxKind.FloatKeyword:
@@ -1878,6 +1883,7 @@ export namespace LpcParser {
             case SyntaxKind.UnknownKeyword:
             case SyntaxKind.StringKeyword:
             case SyntaxKind.BytesKeyword:
+            case SyntaxKind.BufferKeyword:
             case SyntaxKind.IntKeyword:
             case SyntaxKind.FloatKeyword:
             case SyntaxKind.MixedKeyword:
@@ -1928,6 +1934,7 @@ export namespace LpcParser {
             case SyntaxKind.UnknownKeyword:
             case SyntaxKind.StringKeyword:
             case SyntaxKind.BytesKeyword:
+            case SyntaxKind.BufferKeyword:
             case SyntaxKind.IntKeyword:
             case SyntaxKind.FloatKeyword:
             case SyntaxKind.MixedKeyword:
@@ -2183,6 +2190,7 @@ export namespace LpcParser {
     function isTypeName(): boolean {
         switch (token()) {
             case SyntaxKind.BytesKeyword:
+            case SyntaxKind.BufferKeyword:
             case SyntaxKind.NullKeyword:
             case SyntaxKind.TrueKeyword:
             case SyntaxKind.FalseKeyword:
