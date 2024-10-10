@@ -3651,7 +3651,7 @@ export namespace LpcParser {
         // const node = isAsync
         //     ? doInAwaitContext(() => parseAssignmentExpressionOrHigher(allowReturnTypeInArrowFunction))
         //     : doOutsideOfAwaitContext(() => parseAssignmentExpressionOrHigher(allowReturnTypeInArrowFunction));
-        const node = parseAssignmentExpressionOrHigher(allowReturnTypeInArrowFunction);
+        const node = parseExpression();
         topLevel = savedTopLevel;
         return node;
     }
