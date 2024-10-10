@@ -2483,7 +2483,7 @@ export namespace LpcParser {
         const paramType = parseType();
         const ampToken = parseOptionalToken(SyntaxKind.AmpersandToken) ;
         const name = parseNameOfParameter(modifiers);
-        const init = parseInitializer();
+        const init = parseInitializer(SyntaxKind.ColonToken);
 
         const node = withJSDoc(
             finishNode(
@@ -2599,8 +2599,8 @@ export namespace LpcParser {
         return withJSDoc(finishNode(node, pos), hasJSDoc);
     }
 
-    function parseInitializer(): Expression | undefined {
-        return parseOptional(SyntaxKind.EqualsToken) ? parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ true) : undefined;
+    function parseInitializer(initToken: SyntaxKind.EqualsToken | SyntaxKind.ColonToken = SyntaxKind.EqualsToken): Expression | undefined {
+        return parseOptional(initToken) ? parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ true) : undefined;
     }
 
     function parseIdentifierOrPattern(): Identifier | BindingPattern {
@@ -4949,9 +4949,9 @@ const forEachChildTable: ForEachChildTable = {
     [SyntaxKind.Parameter]: function forEachChildInParameter<T>(node: ParameterDeclaration, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
         return visitNodes(cbNode, cbNodes, node.modifiers) ||
             visitNode(cbNode, node.dotDotDotToken) ||
+            visitNode(cbNode, node.type) ||
             visitNode(cbNode, node.name) ||
             visitNode(cbNode, node.ampToken) ||
-            visitNode(cbNode, node.type) ||
             visitNode(cbNode, node.initializer);
     },
     [SyntaxKind.PropertyAssignment]: function forEachChildInPropertyAssignment<T>(node: PropertyAssignment, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {

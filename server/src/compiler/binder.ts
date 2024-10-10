@@ -304,6 +304,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             case SyntaxKind.SpreadElement:
             case SyntaxKind.MappingLiteralExpression:
             case SyntaxKind.NewStructExpression:
+            case SyntaxKind.InlineClosureExpression:
                 // Carry over whether we are in an assignment pattern of Object and Array literals
                 // as well as their children that are valid assignment targets.
                 inAssignmentPattern = saveInAssignmentPattern;
@@ -548,6 +549,8 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             case SyntaxKind.JSDocTypeLiteral:
             // case SyntaxKind.MappedType:
                 return bindAnonymousTypeWorker(node as TypeLiteralNode/* | MappedTypeNode*/ | JSDocTypeLiteral);
+            case SyntaxKind.InlineClosureExpression:
+                return bindFunctionExpression(node as InlineClosureExpression);
             case SyntaxKind.CallExpression:
                 const assignmentKind = getAssignmentDeclarationKind(node as CallExpression);
                 switch (assignmentKind) {
@@ -605,6 +608,19 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
         //console.warn("implement me - bindWorker " + Debug.formatSyntaxKind(node.kind));
     }
 
+    function bindFunctionExpression(node: FunctionExpression | InlineClosureExpression) {
+        // if (!file.isDeclarationFile && !(node.flags & NodeFlags.Ambient)) {
+        //     if (isAsyncFunction(node)) {
+        //         emitFlags |= NodeFlags.HasAsyncFunctions;
+        //     }
+        // }
+        if (currentFlow) {
+            node.flowNode = currentFlow;
+        }
+        // checkStrictModeFunctionName(node);
+        const bindingName = node.name ? node.name.text : InternalSymbolName.Function;
+        return bindAnonymousDeclaration(node, SymbolFlags.Function, bindingName);
+    }
     
     function bindAnonymousTypeWorker(node: TypeLiteralNode | /*MappedTypeNode |*/ JSDocTypeLiteral) {
         return bindAnonymousDeclaration(node as Declaration, SymbolFlags.TypeLiteral, InternalSymbolName.Type);
