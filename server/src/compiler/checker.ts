@@ -2598,9 +2598,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             // case SyntaxKind.TryStatement:
             //     return checkTryStatement(node as TryStatement);
             case SyntaxKind.VariableDeclaration:
-                return checkVariableDeclaration(node as VariableDeclaration);
+                checkVariableDeclaration(node as VariableDeclaration);
+                return;
             case SyntaxKind.BindingElement:
-                return checkBindingElement(node as BindingElement);
+                checkBindingElement(node as BindingElement);
+                return;
             // case SyntaxKind.ClassDeclaration:
             //     return checkClassDeclaration(node as ClassDeclaration);
             // case SyntaxKind.InterfaceDeclaration:
@@ -2956,8 +2958,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     function checkVariableDeclaration(node: VariableDeclaration) {
         tracing?.push(tracing.Phase.Check, "checkVariableDeclaration", { kind: node.kind, pos: node.pos, end: node.end, path: (node as TracingNode).tracingPath });
         //checkGrammarVariableDeclaration(node);        
-        checkVariableLikeDeclaration(node);
+        const type = checkVariableLikeDeclaration(node);
         tracing?.pop();
+        return type;
     }
 
     function checkBindingElement(node: BindingElement) {
@@ -4446,7 +4449,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
         // JSDoc `function(string, string): string` syntax results in parameters with no name
         if (!node.name) {
-            return;
+            return errorType;
         }
 
         // For a computed property, just check the initializer and exit
@@ -4517,7 +4520,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         // For a binding pattern, validate the initializer and exit
         if (isBindingPattern(node.name)) {
             if (isInAmbientOrTypeNode(node)) {
-                return;
+                return anyType;
             }
             const needCheckInitializer = hasOnlyExpressionInitializer(node) && node.initializer && node.parent.parent.kind !== SyntaxKind.ForEachStatement;
             // const needCheckWidenedType = false;//!some(node.name.elements, not(isOmittedExpression));
@@ -4543,13 +4546,13 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             //         }
             //     }
             // }
-            return;
+            return getTypeOfNode(node);
         }
         // For a commonjs `const x = require`, validate the alias and exit
         const symbol = getSymbolOfDeclaration(node);
         if (symbol.flags & SymbolFlags.Alias && (isVariableDeclarationInitializedToBareOrAccessedRequire(node) || isBindingElementOfBareOrAccessedRequire(node))) {
             checkAliasSymbol(node);
-            return;
+            return getTypeOfNode(node);
         }
 
         const type = convertAutoToAny(getTypeOfSymbol(symbol));
@@ -4609,6 +4612,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             }
             checkCollisionsForDeclarationName(node, node.name);
         }
+
+        return getTypeOfNode(node);
     }
     
     function areDeclarationFlagsIdentical(left: Declaration, right: Declaration) {
@@ -10053,7 +10058,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             case SyntaxKind.SyntheticExpression:
                 Debug.fail("TODO - implement me - checkExpressionWorker - SyntheticExpression");
             //     return checkSyntheticExpression(node as SyntheticExpression);
-        }
+            case SyntaxKind.VariableDeclaration:
+                return checkVariableDeclaration(node as VariableDeclaration);
+        }   
         console.warn("Implement me - checkExpressionWorker - " + Debug.formatSyntaxKind(node.kind));
         return errorType;
     }

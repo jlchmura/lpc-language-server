@@ -292,7 +292,8 @@ function isLeftHandSideExpressionKind(kind: SyntaxKind): boolean {
         case SyntaxKind.ElementAccessExpression:
         case SyntaxKind.NewExpression:
         case SyntaxKind.CallExpression:   
-        case SyntaxKind.CloneObjectExpression:             
+        case SyntaxKind.CloneObjectExpression:  
+        case SyntaxKind.VariableDeclaration:           
         // case SyntaxKind.TaggedTemplateExpression:
         case SyntaxKind.ArrayLiteralExpression:
         case SyntaxKind.MappingLiteralExpression:

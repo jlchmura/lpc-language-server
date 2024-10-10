@@ -3073,7 +3073,12 @@ export namespace LpcParser {
             case SyntaxKind.OpenParenToken:
             case SyntaxKind.OpenParenBraceToken:
                 // make sure this isn't an array literal
-                if (lookAhead(()=>{ nextToken(); return isTypeName(); })) {
+                if (lookAhead(()=>{ 
+                    nextToken(); 
+                    return isTypeName() && (
+                        nextToken() == SyntaxKind.CloseParenToken ||
+                        nextToken() == SyntaxKind.CloseBraceToken
+                    ); })) {
                     return parseTypeAssertion();
                 }
                 // fall through
@@ -3185,7 +3190,7 @@ export namespace LpcParser {
 
         const expression = parseLeftHandSideExpressionOrHigher();
 
-        Debug.assert(isLeftHandSideExpression(expression));
+        Debug.assert(isLeftHandSideExpression(expression), "expression is not left hand type");
         if ((token() === SyntaxKind.PlusPlusToken || token() === SyntaxKind.MinusMinusToken) && !scanner.hasPrecedingLineBreak()) {
             const operator = token() as PostfixUnaryOperator;
             nextToken();
@@ -3713,6 +3718,12 @@ export namespace LpcParser {
             //     return parseTemplateExpression(/*isTaggedTemplate*/ false);            
             case SyntaxKind.LambdaToken:
                 return parseLambdaExpression();
+        }
+
+        // parse a variable declaration as an exression
+        if (isTypeName()) {
+            const varType = parseType();
+            return parseVariableDeclaration(varType);
         }
 
         return parseIdentifier(Diagnostics.Expression_expected);

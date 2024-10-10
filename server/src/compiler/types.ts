@@ -3151,7 +3151,7 @@ export interface NamedDeclaration extends Declaration {
 }
 
 export type BindingName = Identifier | BindingPattern;
-export interface VariableDeclaration extends NamedDeclaration, JSDocContainer {
+export interface VariableDeclaration extends NamedDeclaration, JSDocContainer, PrimaryExpression {
     readonly kind: SyntaxKind.VariableDeclaration;
     readonly parent: VariableDeclarationList | CatchClause;
     readonly name: BindingName;                    // Declared variable name    
