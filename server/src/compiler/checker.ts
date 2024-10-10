@@ -1,4 +1,4 @@
-import { visitEachChild as visitEachChildWorker, setTextRange as setTextRangeWorker, Type, Symbol, SymbolLinks, CancellationToken, createSymbolTable, Declaration, EmitTextWriter, ModifierFlags, Node, NodeFlags, objectAllocator, Scanner, Signature, SignatureKind, SymbolFlags, TypeChecker, TypeCheckerHost, TypeFormatFlags, TypeParameter, CheckFlags, TransientSymbol, TransientSymbolLinks, reduceLeft, bindSourceFile, SourceFile, Diagnostic, createDiagnosticCollection, concatenate, forEach, tracing, performance, NodeLinks, NodeCheckFlags, FlowNode, FlowType, clear, SyntaxKind, TracingNode, CallLikeExpression, CallExpression, isCallOrNewExpression, isBinaryExpression, Expression, SignatureDeclaration, SignatureFlags, emptyArray, TypeFlags, IntrinsicType, ObjectFlags, Debug, BinaryExpression, ObjectType, StructuredType, ResolvedType, SymbolTable, IndexInfo, Identifier, nodeIsMissing, createNameResolver, InternalSymbolName, SymbolId, some, DiagnosticMessage, DiagnosticArguments, createDiagnosticForNode, createCompilerDiagnostic, FunctionLikeDeclaration, PropertyDeclaration, isString, isIdentifier, Diagnostics, findLast, SymbolFormatFlags, isAccessExpression, isFunctionExpression, isAliasableExpression, PropertyAssignment, isVariableDeclarationInitializedToBareOrAccessedRequire, mapDefined, arrayFrom, getSpellingSuggestion, symbolName, startsWith, nodeIsSynthesized, declarationNameToString, getCanonicalDiagnostic, DiagnosticCategory, addRelatedInfo, ParameterDeclaration, BindingElement, isSourceFile, isExternalOrCommonJsModule, isBlockOrCatchScoped, length, every, isValidTypeOnlyAliasUseSite, isWriteOnlyAccess, getCombinedNodeFlags, DiagnosticWithLocation, getJSDocDeprecatedTag, findAncestor, isCallLikeExpression, isFunctionLike, ParenthesizedExpression, isAssignmentExpression, isVariableDeclaration, isBindingElement, PropertyAccessExpression, getEnclosingBlockScopeContainer, isPropertyDeclaration, nodeStartsNewLexicalEnvironment, isIterationStatement, isForStatement, getAncestor, ForStatement, pushIfUnique, isAssignmentTarget, PrefixUnaryExpression, PostfixUnaryExpression, isBlock, isExpressionNode, isPropertyAccessExpression, getAssignmentTargetKind, AssignmentKind, isInCompoundLikeAssignment, UnionType, TypeId, UnionReduction, getRootDeclaration, getImmediatelyInvokedFunctionExpression, isSpreadAssignment, isParameter, VariableDeclaration, isFunctionLikeDeclaration, isTypeNode, forEachChild, tryCast, canHaveFlowNode, ElementAccessExpression, RelationComparisonResult, LiteralType, FreshableType, getObjectFlags, DiagnosticMessageChain, setNodeFlags, isCallExpression, LazyNodeCheckFlags, getSourceFileOfNode, canIncludeBindAndCheckDiagnostics, forEachChildRecursively, isDeclarationName, EntityName, JSDocMemberName, canHaveSymbol, isLiteralTypeNode, isElementAccessExpression, isIndexedAccessTypeNode, TypeNode, canHaveJSDoc, FlowFlags, FlowArrayMutation, FlowAssignment, FlowCall, FlowCondition, FlowLabel, FlowReduceLabel, FlowSwitchClause, SwitchStatement, createFileDiagnostic, createDiagnosticForFileFromMessageChain, createDiagnosticForNodeFromMessageChain, VariableStatement, HasModifiers, VariableDeclarationList, Block, isFunctionOrModuleBlock, CaseBlock, ForEachStatement, IndexSignatureDeclaration, Path, HasLocals, BindingPattern, idText, isForEachStatement, getNameOfDeclaration, isArrayBindingPattern, first, BindingName, cast, containsParseError, FunctionDeclaration, getFunctionFlags, getEffectiveReturnTypeNode, FunctionFlags, nodeIsPresent, JSDocSignature, isJSDocSignature, getJSDocRoot, LiteralTypeNode, TypeNodeSyntaxKind, isStatement, UnionOrIntersectionType, getContainingFunction, hasSyntacticModifier, isBindingPattern, sameMap, flatMap, getCheckFlags, singleElementArray, getDeclarationModifierFlagsFromSymbol, Ternary, append, find, isNumericLiteralName, StringLiteralType, contains, isTransientSymbol, addRange, filter, IndexType, getParseTreeNode, isRightSideOfQualifiedNameOrPropertyAccess, isWriteAccess, isRightSideOfAccessExpression, hasEffectiveModifier, getCombinedModifierFlags, isEntityName, PropertyAccessEntityNameExpression, isRightSideOfQualifiedNameOrPropertyAccessOrJSDocMemberName, QualifiedName, getHostSignatureFromJSDoc, or, EntityNameOrEntityNameExpression, isInJSFile, getFirstIdentifier, isQualifiedName, entityNameToString, isCallChain, isEntityNameExpression, isLineBreak, skipTrivia, DiagnosticRelatedInformation, IntLiteralType, FloatLiteralType, createTextWriter, chainDiagnosticMessages, getErrorSpanForNode, ShorthandPropertyAssignment, NodeBuilderFlags, SymbolTracker, TrackedSymbol, ReverseMappedSymbol, TypeMapper, ModuleSpecifierResolutionHost, Program, maybeBind, setEmitFlags, createNodeFactory, NodeFactoryFlags, BaseNodeFactory, Mutable, firstDefined, isComputedPropertyName, isIdentifierText, escapeString, getEmitScriptTarget, factory, EmitFlags, isSingleOrDoubleQuote, canUsePropertyAccess, stripQuotes, DoWhileStatement, BinaryOperatorToken, isLogicalOrCoalescingBinaryOperator, isLogicalOrCoalescingBinaryExpression, isIfStatement, skipParentheses, Statement, PunctuationSyntaxKind, tokenToString, FreshableIntrinsicType, isLiteralExpressionOfObject, getAssignmentDeclarationKind, AssignmentDeclarationKind, ConditionalExpression, isAssignmentOperator, isJSDocTypedefTag, isIntLiteral, skipOuterExpressions, OuterExpressionKinds, isExpression, ObjectLiteralExpression, ArrayLiteralExpression, FunctionExpression, InlineClosureExpression, ObjectLiteralElementLike, hasContextSensitiveParameters, forEachReturnStatement, compareDiagnostics, Comparison, createBinaryExpressionTrampoline, IntLiteral, FloatLiteral, isShorthandPropertyAssignment, isPropertyAccessOrQualifiedName, isPrivateIdentifier, WideningContext, StringLiteral, ReturnStatement, ExpressionStatement, IfStatement, NewExpression, getMembersOfDeclaration, AccessExpression, isThisInitializedDeclaration, setValueDeclaration, comparePaths, getOrUpdate, usingSingleLineStringWriter, createPrinterWithRemoveCommentsNeverAsciiEscape, createPrinterWithRemoveComments, EmitHint, getEffectiveModifierFlags, getEffectiveTypeAnnotationNode, getAssignmentDeclarationPropertyAccessKind, isNamedDeclaration, map, PropertyName, isFloatLiteral, getPropertyNameForPropertyNameNode, isPartOfParameterDeclaration, hasOnlyExpressionInitializer, not, getEffectiveInitializer, isObjectLiteralExpression, isVariableLike, getSelectedEffectiveModifierFlags, AliasDeclarationNode, isBindingElementOfBareOrAccessedRequire, TypeReference, isFunctionExpressionOrInlineClosure, ContextFlags, indexOfNode, InferenceContext, isNodeDescendantOf, ObjectFlagsType, GenericType, ReverseMappedType, AnonymousType, DeferredTypeReference, InstantiationExpressionType, SingleSignatureType, MappedTypeNode, TypeParameterDeclaration, appendIfUnique, TypeMapKind, isPartOfTypeNode, TypeReferenceNode, MappedType, ArrayTypeNode, isParenthesizedTypeNode, isTypeAlias, IndexFlags, InferenceInfo, binarySearch, compareValues, hasInitializer, lastOrUndefined, HasExpressionInitializer, getContainingFunctionOrClassStaticBlock, getSpanOfTokenAtPosition, isJSDocParameterTag, hasRestParameter, isStringLiteral, walkUpBindingElementsAndPatterns, BindableObjectDefinePropertyCall, copyEntries, InterfaceType, isPropertyAssignment, DiagnosticAndArguments, FreshObjectLiteralType, BaseType, firstOrUndefined, SubstitutionType, createPrinterWithDefaults, noTruncationMaximumTruncationLength, defaultMaximumTruncationLength, arrayIsHomogeneous, isIdentifierTypeReference, createMultiMap, addSyntheticLeadingComment, NodeArray, getOriginalNode, getIdentifierTypeArguments, setIdentifierTypeArguments, IndexedAccessTypeNode, forEachEntry, ScriptTarget, SymbolAccessibility, canHaveLocals, getDeclarationOfKind, isClassLike, TypeElement, SymbolAccessibilityResult, SymbolVisibilityResult, LateVisibilityPaintedStatement, isVariableStatement, isLateVisibilityPaintedStatement, isTypeLiteralNode, PlusToken, MinusToken, walkUpParenthesizedTypes, setOriginalNode, countWhere, getNameFromIndexInfo, Modifier, notImplemented, isTypeParameterDeclaration, setParent, CallChain, isLiteralExpression, isStringOrNumericLiteralLike, FlowStart, getPropertyNameFromType, EvolvingArrayType, arrayIsEqualTo, isObjectLiteralMethod, isNonNullAccess, FlowSwitchClauseData, LiteralExpression, CaseClause, DefaultClause, findIndex, orderedRemoveItemAt, UnionTypeNode, ParenthesizedTypeNode, concatenateDiagnosticMessageChains, isDeclaration, InterfaceTypeWithDeclaredMembers, rangeEquals, InferenceFlags, minAndMax, last, IntersectionFlags, IntersectionType, flatten, createDiagnosticMessageChainFromDiagnostic, setTextRangePosEnd, createDiagnosticForNodeArrayFromMessageChain, createDiagnosticForNodeArray, isConstructorDeclaration, TypeComparer, InferencePriority, pathIsRelative, moduleSpecifiers, EmitResolver, isRestParameter, SpreadElement, ElementFlags, ModuleKind, ResolutionMode, ModuleResolutionKind, getResolutionDiagnostic, isDeclarationFileName, hasExtension, removeExtension, CloneObjectExpression, isCloneObjectExpression, PropertyAccessChain, OptionalChain, ExportDeclaration, getTextOfNode, InheritDeclaration, isCallLikeOrFunctionLikeExpression, isFunctionExpressionOrArrowFunction, CharacterCodes, Visitor, visitNodes, isGlobalSourceFile, isExternalModule, introducesArgumentsExoticObject, getCombinedLocalAndExportSymbolFlags, StructTypeNode, StructDeclaration, ClassLikeDeclaration, getEffectiveBaseTypeNode, ComputedPropertyName, TypeReferenceType, NodeWithTypeArguments, ClassDeclaration, ClassExpression, TypeLiteralNode, JSDocTypeLiteral, isJSDocTypeLiteral, isInJSDoc, isTypeDeclaration, JSDocTypeAssertion, AssertionExpression, isParenthesizedExpression, getJSDocTypeAssertionType, AccessFlags, NewStructExpression, isJSDocTypeAlias, isAssertionExpression, TypeAssertion, DeclarationName, isKnownSymbol, createEvaluator, EntityNameExpression, evaluatorResult, isStringLiteralLike, SyntheticExpression, ArrayBindingPattern, isTypeUsableAsPropertyName, isPropertyName, tryGetPropertyAccessOrIdentifierToString, IndexedAccessType, MappingLiteralExpression, isOmittedExpression, UnionOrIntersectionTypeNode, PropertySignature, isPropertySignature, LateBoundName, isClassExpression, LateBoundDeclaration, LateBoundBinaryExpressionDeclaration, ElementAccessChain, MappedSymbol, VariableLikeDeclaration, isComputedNonLiteralName, getElementOrPropertyAccessName, findLastIndex, hasAccessorModifier, emptyMap, BytesLiteral, BytesLiteralType, WhileStatement, hasType } from "./_namespaces/lpc";
+import { visitEachChild as visitEachChildWorker, setTextRange as setTextRangeWorker, Type, Symbol, SymbolLinks, CancellationToken, createSymbolTable, Declaration, EmitTextWriter, ModifierFlags, Node, NodeFlags, objectAllocator, Scanner, Signature, SignatureKind, SymbolFlags, TypeChecker, TypeCheckerHost, TypeFormatFlags, TypeParameter, CheckFlags, TransientSymbol, TransientSymbolLinks, reduceLeft, bindSourceFile, SourceFile, Diagnostic, createDiagnosticCollection, concatenate, forEach, tracing, performance, NodeLinks, NodeCheckFlags, FlowNode, FlowType, clear, SyntaxKind, TracingNode, CallLikeExpression, CallExpression, isCallOrNewExpression, isBinaryExpression, Expression, SignatureDeclaration, SignatureFlags, emptyArray, TypeFlags, IntrinsicType, ObjectFlags, Debug, BinaryExpression, ObjectType, StructuredType, ResolvedType, SymbolTable, IndexInfo, Identifier, nodeIsMissing, createNameResolver, InternalSymbolName, SymbolId, some, DiagnosticMessage, DiagnosticArguments, createDiagnosticForNode, createCompilerDiagnostic, FunctionLikeDeclaration, PropertyDeclaration, isString, isIdentifier, Diagnostics, findLast, SymbolFormatFlags, isAccessExpression, isFunctionExpression, isAliasableExpression, PropertyAssignment, isVariableDeclarationInitializedToBareOrAccessedRequire, mapDefined, arrayFrom, getSpellingSuggestion, symbolName, startsWith, nodeIsSynthesized, declarationNameToString, getCanonicalDiagnostic, DiagnosticCategory, addRelatedInfo, ParameterDeclaration, BindingElement, isSourceFile, isExternalOrCommonJsModule, isBlockOrCatchScoped, length, every, isValidTypeOnlyAliasUseSite, isWriteOnlyAccess, getCombinedNodeFlags, DiagnosticWithLocation, getJSDocDeprecatedTag, findAncestor, isCallLikeExpression, isFunctionLike, ParenthesizedExpression, isAssignmentExpression, isVariableDeclaration, isBindingElement, PropertyAccessExpression, getEnclosingBlockScopeContainer, isPropertyDeclaration, nodeStartsNewLexicalEnvironment, isIterationStatement, isForStatement, getAncestor, ForStatement, pushIfUnique, isAssignmentTarget, PrefixUnaryExpression, PostfixUnaryExpression, isBlock, isExpressionNode, isPropertyAccessExpression, getAssignmentTargetKind, AssignmentKind, isInCompoundLikeAssignment, UnionType, TypeId, UnionReduction, getRootDeclaration, getImmediatelyInvokedFunctionExpression, isSpreadAssignment, isParameter, VariableDeclaration, isFunctionLikeDeclaration, isTypeNode, forEachChild, tryCast, canHaveFlowNode, ElementAccessExpression, RelationComparisonResult, LiteralType, FreshableType, getObjectFlags, DiagnosticMessageChain, setNodeFlags, isCallExpression, LazyNodeCheckFlags, getSourceFileOfNode, canIncludeBindAndCheckDiagnostics, forEachChildRecursively, isDeclarationName, EntityName, JSDocMemberName, canHaveSymbol, isLiteralTypeNode, isElementAccessExpression, isIndexedAccessTypeNode, TypeNode, canHaveJSDoc, FlowFlags, FlowArrayMutation, FlowAssignment, FlowCall, FlowCondition, FlowLabel, FlowReduceLabel, FlowSwitchClause, SwitchStatement, createFileDiagnostic, createDiagnosticForFileFromMessageChain, createDiagnosticForNodeFromMessageChain, VariableStatement, HasModifiers, VariableDeclarationList, Block, isFunctionOrModuleBlock, CaseBlock, ForEachStatement, IndexSignatureDeclaration, Path, HasLocals, BindingPattern, idText, isForEachStatement, getNameOfDeclaration, isArrayBindingPattern, first, BindingName, cast, containsParseError, FunctionDeclaration, getFunctionFlags, getEffectiveReturnTypeNode, FunctionFlags, nodeIsPresent, JSDocSignature, isJSDocSignature, getJSDocRoot, LiteralTypeNode, TypeNodeSyntaxKind, isStatement, UnionOrIntersectionType, getContainingFunction, hasSyntacticModifier, isBindingPattern, sameMap, flatMap, getCheckFlags, singleElementArray, getDeclarationModifierFlagsFromSymbol, Ternary, append, find, isNumericLiteralName, StringLiteralType, contains, isTransientSymbol, addRange, filter, IndexType, getParseTreeNode, isRightSideOfQualifiedNameOrPropertyAccess, isWriteAccess, isRightSideOfAccessExpression, hasEffectiveModifier, getCombinedModifierFlags, isEntityName, PropertyAccessEntityNameExpression, isRightSideOfQualifiedNameOrPropertyAccessOrJSDocMemberName, QualifiedName, getHostSignatureFromJSDoc, or, EntityNameOrEntityNameExpression, isInJSFile, getFirstIdentifier, isQualifiedName, entityNameToString, isCallChain, isEntityNameExpression, isLineBreak, skipTrivia, DiagnosticRelatedInformation, IntLiteralType, FloatLiteralType, createTextWriter, chainDiagnosticMessages, getErrorSpanForNode, ShorthandPropertyAssignment, NodeBuilderFlags, SymbolTracker, TrackedSymbol, ReverseMappedSymbol, TypeMapper, ModuleSpecifierResolutionHost, Program, maybeBind, setEmitFlags, createNodeFactory, NodeFactoryFlags, BaseNodeFactory, Mutable, firstDefined, isComputedPropertyName, isIdentifierText, escapeString, getEmitScriptTarget, factory, EmitFlags, isSingleOrDoubleQuote, canUsePropertyAccess, stripQuotes, DoWhileStatement, BinaryOperatorToken, isLogicalOrCoalescingBinaryOperator, isLogicalOrCoalescingBinaryExpression, isIfStatement, skipParentheses, Statement, PunctuationSyntaxKind, tokenToString, FreshableIntrinsicType, isLiteralExpressionOfObject, getAssignmentDeclarationKind, AssignmentDeclarationKind, ConditionalExpression, isAssignmentOperator, isJSDocTypedefTag, isIntLiteral, skipOuterExpressions, OuterExpressionKinds, isExpression, ObjectLiteralExpression, ArrayLiteralExpression, FunctionExpression, InlineClosureExpression, ObjectLiteralElementLike, hasContextSensitiveParameters, forEachReturnStatement, compareDiagnostics, Comparison, createBinaryExpressionTrampoline, IntLiteral, FloatLiteral, isShorthandPropertyAssignment, isPropertyAccessOrQualifiedName, isPrivateIdentifier, WideningContext, StringLiteral, ReturnStatement, ExpressionStatement, IfStatement, NewExpression, getMembersOfDeclaration, AccessExpression, isThisInitializedDeclaration, setValueDeclaration, comparePaths, getOrUpdate, usingSingleLineStringWriter, createPrinterWithRemoveCommentsNeverAsciiEscape, createPrinterWithRemoveComments, EmitHint, getEffectiveModifierFlags, getEffectiveTypeAnnotationNode, getAssignmentDeclarationPropertyAccessKind, isNamedDeclaration, map, PropertyName, isFloatLiteral, getPropertyNameForPropertyNameNode, isPartOfParameterDeclaration, hasOnlyExpressionInitializer, not, getEffectiveInitializer, isObjectLiteralExpression, isVariableLike, getSelectedEffectiveModifierFlags, AliasDeclarationNode, isBindingElementOfBareOrAccessedRequire, TypeReference, isFunctionExpressionOrInlineClosure, ContextFlags, indexOfNode, InferenceContext, isNodeDescendantOf, ObjectFlagsType, GenericType, ReverseMappedType, AnonymousType, DeferredTypeReference, InstantiationExpressionType, SingleSignatureType, MappedTypeNode, TypeParameterDeclaration, appendIfUnique, TypeMapKind, isPartOfTypeNode, TypeReferenceNode, MappedType, ArrayTypeNode, isParenthesizedTypeNode, isTypeAlias, IndexFlags, InferenceInfo, binarySearch, compareValues, hasInitializer, lastOrUndefined, HasExpressionInitializer, getContainingFunctionOrClassStaticBlock, getSpanOfTokenAtPosition, isJSDocParameterTag, hasRestParameter, isStringLiteral, walkUpBindingElementsAndPatterns, BindableObjectDefinePropertyCall, copyEntries, InterfaceType, isPropertyAssignment, DiagnosticAndArguments, FreshObjectLiteralType, BaseType, firstOrUndefined, SubstitutionType, createPrinterWithDefaults, noTruncationMaximumTruncationLength, defaultMaximumTruncationLength, arrayIsHomogeneous, isIdentifierTypeReference, createMultiMap, addSyntheticLeadingComment, NodeArray, getOriginalNode, getIdentifierTypeArguments, setIdentifierTypeArguments, IndexedAccessTypeNode, forEachEntry, ScriptTarget, SymbolAccessibility, canHaveLocals, getDeclarationOfKind, isClassLike, TypeElement, SymbolAccessibilityResult, SymbolVisibilityResult, LateVisibilityPaintedStatement, isVariableStatement, isLateVisibilityPaintedStatement, isTypeLiteralNode, PlusToken, MinusToken, walkUpParenthesizedTypes, setOriginalNode, countWhere, getNameFromIndexInfo, Modifier, notImplemented, isTypeParameterDeclaration, setParent, CallChain, isLiteralExpression, isStringOrNumericLiteralLike, FlowStart, getPropertyNameFromType, EvolvingArrayType, arrayIsEqualTo, isObjectLiteralMethod, isNonNullAccess, FlowSwitchClauseData, LiteralExpression, CaseClause, DefaultClause, findIndex, orderedRemoveItemAt, UnionTypeNode, ParenthesizedTypeNode, concatenateDiagnosticMessageChains, isDeclaration, InterfaceTypeWithDeclaredMembers, rangeEquals, InferenceFlags, minAndMax, last, IntersectionFlags, IntersectionType, flatten, createDiagnosticMessageChainFromDiagnostic, setTextRangePosEnd, createDiagnosticForNodeArrayFromMessageChain, createDiagnosticForNodeArray, isConstructorDeclaration, TypeComparer, InferencePriority, pathIsRelative, moduleSpecifiers, EmitResolver, isRestParameter, SpreadElement, ElementFlags, ModuleKind, ResolutionMode, ModuleResolutionKind, getResolutionDiagnostic, isDeclarationFileName, hasExtension, removeExtension, CloneObjectExpression, isCloneObjectExpression, PropertyAccessChain, OptionalChain, ExportDeclaration, getTextOfNode, InheritDeclaration, isCallLikeOrFunctionLikeExpression, isFunctionExpressionOrArrowFunction, CharacterCodes, Visitor, visitNodes, isGlobalSourceFile, isExternalModule, introducesArgumentsExoticObject, getCombinedLocalAndExportSymbolFlags, StructTypeNode, StructDeclaration, ClassLikeDeclaration, getEffectiveBaseTypeNode, ComputedPropertyName, TypeReferenceType, NodeWithTypeArguments, ClassDeclaration, ClassExpression, TypeLiteralNode, JSDocTypeLiteral, isJSDocTypeLiteral, isInJSDoc, isTypeDeclaration, JSDocTypeAssertion, AssertionExpression, isParenthesizedExpression, getJSDocTypeAssertionType, AccessFlags, NewStructExpression, isJSDocTypeAlias, isAssertionExpression, TypeAssertion, DeclarationName, isKnownSymbol, createEvaluator, EntityNameExpression, evaluatorResult, isStringLiteralLike, SyntheticExpression, ArrayBindingPattern, isTypeUsableAsPropertyName, isPropertyName, tryGetPropertyAccessOrIdentifierToString, IndexedAccessType, MappingLiteralExpression, isOmittedExpression, UnionOrIntersectionTypeNode, PropertySignature, isPropertySignature, LateBoundName, isClassExpression, LateBoundDeclaration, LateBoundBinaryExpressionDeclaration, ElementAccessChain, MappedSymbol, VariableLikeDeclaration, isComputedNonLiteralName, getElementOrPropertyAccessName, findLastIndex, hasAccessorModifier, emptyMap, BytesLiteral, BytesLiteralType, WhileStatement, hasType, getEnclosingContainer, isPropertyNameLiteral, getTextOfIdentifierOrLiteral, JSDocOverloadTag, JSDocCallbackTag, TypePredicate, isIdentifierTypePredicate } from "./_namespaces/lpc";
 
 let nextSymbolId = 1;
 let nextNodeId = 1;
@@ -17,6 +17,17 @@ const enum ReferenceHint {
     ExportImportEquals,
     ExportSpecifier,
     Decorator,
+}
+
+/** @internal */
+export const enum SignatureCheckMode {
+    None = 0,
+    BivariantCallback = 1 << 0,
+    StrictCallback = 1 << 1,
+    IgnoreReturnTypes = 1 << 2,
+    StrictArity = 1 << 3,
+    StrictTopSignature = 1 << 4,
+    Callback = BivariantCallback | StrictCallback,
 }
 
 const enum MappedTypeModifiers {
@@ -7639,198 +7650,217 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         }
     }
 
+    function getEffectiveDeclarationFlags(n: Declaration, flagsToCheck: ModifierFlags): ModifierFlags {
+        let flags = getCombinedModifierFlagsCached(n);
 
-    function checkFunctionOrConstructorSymbolWorker(symbol: Symbol): void {
-        console.warn("Implement me - checkFunctionOrConstructorSymbolWorker");
-        // function getCanonicalOverload(overloads: Declaration[], implementation: FunctionLikeDeclaration | undefined): Declaration {
-        //     // Consider the canonical set of flags to be the flags of the bodyDeclaration or the first declaration
-        //     // Error on all deviations from this canonical set of flags
-        //     // The caveat is that if some overloads are defined in lib.d.ts, we don't want to
-        //     // report the errors on those. To achieve this, we will say that the implementation is
-        //     // the canonical signature only if it is in the same container as the first overload
-        //     const implementationSharesContainerWithFirstOverload = implementation !== undefined && implementation.parent === overloads[0].parent;
-        //     return implementationSharesContainerWithFirstOverload ? implementation : overloads[0];
-        // }
+        // children of classes (even ambient classes) should not be marked as ambient or export
+        // because those flags have no useful semantics there.
+        if (
+            // n.parent.kind !== SyntaxKind.InterfaceDeclaration &&
+            n.parent.kind !== SyntaxKind.ClassDeclaration &&
+            n.parent.kind !== SyntaxKind.ClassExpression &&
+            n.flags & NodeFlags.Ambient
+        ) {
+            const container = getEnclosingContainer(n);
+            if ((container && container.flags & NodeFlags.ExportContext) && !(flags & ModifierFlags.Ambient)) {
+                // It is nested in an ambient export context, which means it is automatically exported
+                flags |= ModifierFlags.Export;
+            }
+            flags |= ModifierFlags.Ambient;
+        }
 
-        // function checkFlagAgreementBetweenOverloads(overloads: Declaration[], implementation: FunctionLikeDeclaration | undefined, flagsToCheck: ModifierFlags, someOverloadFlags: ModifierFlags, allOverloadFlags: ModifierFlags): void {
-        //     // Error if some overloads have a flag that is not shared by all overloads. To find the
-        //     // deviations, we XOR someOverloadFlags with allOverloadFlags
-        //     const someButNotAllOverloadFlags = someOverloadFlags ^ allOverloadFlags;
-        //     if (someButNotAllOverloadFlags !== 0) {
-        //         const canonicalFlags = getEffectiveDeclarationFlags(getCanonicalOverload(overloads, implementation), flagsToCheck);
-        //         forEach(overloads, o => {
-        //             const deviation = getEffectiveDeclarationFlags(o, flagsToCheck) ^ canonicalFlags;
-        //             if (deviation & ModifierFlags.Export) {
-        //                 error(getNameOfDeclaration(o), Diagnostics.Overload_signatures_must_all_be_exported_or_non_exported);
-        //             }
-        //             else if (deviation & ModifierFlags.Ambient) {
-        //                 error(getNameOfDeclaration(o), Diagnostics.Overload_signatures_must_all_be_ambient_or_non_ambient);
-        //             }
-        //             else if (deviation & (ModifierFlags.Private | ModifierFlags.Protected)) {
-        //                 error(getNameOfDeclaration(o) || o, Diagnostics.Overload_signatures_must_all_be_public_private_or_protected);
-        //             }
-        //             else if (deviation & ModifierFlags.Abstract) {
-        //                 error(getNameOfDeclaration(o), Diagnostics.Overload_signatures_must_all_be_abstract_or_non_abstract);
-        //             }
-        //         });
-        //     }
-        // }
+        return flags & flagsToCheck;
+    }
 
-        // function checkQuestionTokenAgreementBetweenOverloads(overloads: Declaration[], implementation: FunctionLikeDeclaration | undefined, someHaveQuestionToken: boolean, allHaveQuestionToken: boolean): void {
-        //     if (someHaveQuestionToken !== allHaveQuestionToken) {
-        //         const canonicalHasQuestionToken = hasQuestionToken(getCanonicalOverload(overloads, implementation));
-        //         forEach(overloads, o => {
-        //             const deviation = hasQuestionToken(o) !== canonicalHasQuestionToken;
-        //             if (deviation) {
-        //                 error(getNameOfDeclaration(o), Diagnostics.Overload_signatures_must_all_be_optional_or_required);
-        //             }
-        //         });
-        //     }
-        // }
+    function checkFunctionOrConstructorSymbolWorker(symbol: Symbol): void {       
+        function getCanonicalOverload(overloads: Declaration[], implementation: FunctionLikeDeclaration | undefined): Declaration {
+            // Consider the canonical set of flags to be the flags of the bodyDeclaration or the first declaration
+            // Error on all deviations from this canonical set of flags
+            // The caveat is that if some overloads are defined in lib.d.ts, we don't want to
+            // report the errors on those. To achieve this, we will say that the implementation is
+            // the canonical signature only if it is in the same container as the first overload
+            const implementationSharesContainerWithFirstOverload = implementation !== undefined && implementation.parent === overloads[0].parent;
+            return implementationSharesContainerWithFirstOverload ? implementation : overloads[0];
+        }
 
-        // const flagsToCheck: ModifierFlags = ModifierFlags.Export | ModifierFlags.Ambient | ModifierFlags.Private | ModifierFlags.Protected | ModifierFlags.Abstract;
-        // let someNodeFlags: ModifierFlags = ModifierFlags.None;
-        // let allNodeFlags = flagsToCheck;
-        // let someHaveQuestionToken = false;
-        // let allHaveQuestionToken = true;
-        // let hasOverloads = false;
-        // let bodyDeclaration: FunctionLikeDeclaration | undefined;
-        // let lastSeenNonAmbientDeclaration: FunctionLikeDeclaration | undefined;
-        // let previousDeclaration: SignatureDeclaration | undefined;
+        function checkFlagAgreementBetweenOverloads(overloads: Declaration[], implementation: FunctionLikeDeclaration | undefined, flagsToCheck: ModifierFlags, someOverloadFlags: ModifierFlags, allOverloadFlags: ModifierFlags): void {
+            // Error if some overloads have a flag that is not shared by all overloads. To find the
+            // deviations, we XOR someOverloadFlags with allOverloadFlags
+            const someButNotAllOverloadFlags = someOverloadFlags ^ allOverloadFlags;
+            if (someButNotAllOverloadFlags !== 0) {
+                const canonicalFlags = getEffectiveDeclarationFlags(getCanonicalOverload(overloads, implementation), flagsToCheck);
+                forEach(overloads, o => {
+                    const deviation = getEffectiveDeclarationFlags(o, flagsToCheck) ^ canonicalFlags;
+                    // if (deviation & ModifierFlags.Export) {
+                    //     error(getNameOfDeclaration(o), Diagnostics.Overload_signatures_must_all_be_exported_or_non_exported);
+                    // }
+                    // else if (deviation & ModifierFlags.Ambient) {
+                    //     error(getNameOfDeclaration(o), Diagnostics.Overload_signatures_must_all_be_ambient_or_non_ambient);
+                    // }
+                    if (deviation & (ModifierFlags.Private | ModifierFlags.Protected)) {
+                        error(getNameOfDeclaration(o) || o, Diagnostics.Overload_signatures_must_all_be_public_private_or_protected);
+                    }
+                    // else if (deviation & ModifierFlags.Abstract) {
+                    //     error(getNameOfDeclaration(o), Diagnostics.Overload_signatures_must_all_be_abstract_or_non_abstract);
+                    // }
+                });
+            }
+        }
 
-        // const declarations = symbol.declarations;
-        // const isConstructor = (symbol.flags & SymbolFlags.Constructor) !== 0;
+        function checkQuestionTokenAgreementBetweenOverloads(overloads: Declaration[], implementation: FunctionLikeDeclaration | undefined, someHaveQuestionToken: boolean, allHaveQuestionToken: boolean): void {
+            // if (someHaveQuestionToken !== allHaveQuestionToken) {
+            //     const canonicalHasQuestionToken = hasQuestionToken(getCanonicalOverload(overloads, implementation));
+            //     forEach(overloads, o => {
+            //         const deviation = hasQuestionToken(o) !== canonicalHasQuestionToken;
+            //         if (deviation) {
+            //             error(getNameOfDeclaration(o), Diagnostics.Overload_signatures_must_all_be_optional_or_required);
+            //         }
+            //     });
+            // }
+        }
 
-        // function reportImplementationExpectedError(node: SignatureDeclaration): void {
-        //     if (node.name && nodeIsMissing(node.name)) {
-        //         return;
-        //     }
+        const flagsToCheck: ModifierFlags = ModifierFlags.Export | ModifierFlags.Ambient | ModifierFlags.Private | ModifierFlags.Protected ;
+        let someNodeFlags: ModifierFlags = ModifierFlags.None;
+        let allNodeFlags = flagsToCheck;
+        let someHaveQuestionToken = false;
+        let allHaveQuestionToken = true;
+        let hasOverloads = false;
+        let bodyDeclaration: FunctionLikeDeclaration | undefined;
+        let lastSeenNonAmbientDeclaration: FunctionLikeDeclaration | undefined;
+        let previousDeclaration: SignatureDeclaration | undefined;
 
-        //     let seen = false;
-        //     const subsequentNode = forEachChild(node.parent, c => {
-        //         if (seen) {
-        //             return c;
-        //         }
-        //         else {
-        //             seen = c === node;
-        //         }
-        //     });
-        //     // We may be here because of some extra nodes between overloads that could not be parsed into a valid node.
-        //     // In this case the subsequent node is not really consecutive (.pos !== node.end), and we must ignore it here.
-        //     if (subsequentNode && subsequentNode.pos === node.end) {
-        //         if (subsequentNode.kind === node.kind) {
-        //             const errorNode: Node = (subsequentNode as FunctionLikeDeclaration).name || subsequentNode;
-        //             const subsequentName = (subsequentNode as FunctionLikeDeclaration).name;
-        //             if (
-        //                 node.name && subsequentName && (
-        //                     // both are private identifiers
-        //                     isPrivateIdentifier(node.name) && isPrivateIdentifier(subsequentName) && node.name.text === subsequentName.text ||
-        //                     // Both are computed property names
-        //                     isComputedPropertyName(node.name) && isComputedPropertyName(subsequentName) && isTypeIdenticalTo(checkComputedPropertyName(node.name), checkComputedPropertyName(subsequentName)) ||
-        //                     // Both are literal property names that are the same.
-        //                     isPropertyNameLiteral(node.name) && isPropertyNameLiteral(subsequentName) &&
-        //                         gettextOfIdentifierOrLiteral(node.name) === gettextOfIdentifierOrLiteral(subsequentName)
-        //                 )
-        //             ) {
-        //                 const reportError = (node.kind === SyntaxKind.MethodDeclaration || node.kind === SyntaxKind.MethodSignature) &&
-        //                     isStatic(node) !== isStatic(subsequentNode);
-        //                 // we can get here in two cases
-        //                 // 1. mixed static and instance class members
-        //                 // 2. something with the same name was defined before the set of overloads that prevents them from merging
-        //                 // here we'll report error only for the first case since for second we should already report error in binder
-        //                 if (reportError) {
-        //                     const diagnostic = isStatic(node) ? Diagnostics.Function_overload_must_be_static : Diagnostics.Function_overload_must_not_be_static;
-        //                     error(errorNode, diagnostic);
-        //                 }
-        //                 return;
-        //             }
-        //             if (nodeIsPresent((subsequentNode as FunctionLikeDeclaration).body)) {
-        //                 error(errorNode, Diagnostics.Function_implementation_name_must_be_0, declarationNameToString(node.name));
-        //                 return;
-        //             }
-        //         }
-        //     }
-        //     const errorNode: Node = node.name || node;
-        //     if (isConstructor) {
-        //         error(errorNode, Diagnostics.Constructor_implementation_is_missing);
-        //     }
-        //     else {
-        //         // Report different errors regarding non-consecutive blocks of declarations depending on whether
-        //         // the node in question is abstract.
-        //         if (hasSyntacticModifier(node, ModifierFlags.Abstract)) {
-        //             error(errorNode, Diagnostics.All_declarations_of_an_abstract_method_must_be_consecutive);
-        //         }
-        //         else {
-        //             error(errorNode, Diagnostics.Function_implementation_is_missing_or_not_immediately_following_the_declaration);
-        //         }
-        //     }
-        // }
+        const declarations = symbol.declarations;
+        const isConstructor = (symbol.flags & SymbolFlags.Constructor) !== 0;
 
-        // let duplicateFunctionDeclaration = false;
-        // let multipleConstructorImplementation = false;
-        // let hasNonAmbientClass = false;
-        // const functionDeclarations = [] as Declaration[];
-        // if (declarations) {
-        //     for (const current of declarations) {
-        //         const node = current as SignatureDeclaration | ClassDeclaration | ClassExpression;
-        //         const inAmbientContext = node.flags & NodeFlags.Ambient;
-        //         const inAmbientContextOrInterface = node.parent && (node.parent.kind === SyntaxKind.InterfaceDeclaration || node.parent.kind === SyntaxKind.TypeLiteral) || inAmbientContext;
-        //         if (inAmbientContextOrInterface) {
-        //             // check if declarations are consecutive only if they are non-ambient
-        //             // 1. ambient declarations can be interleaved
-        //             // i.e. this is legal
-        //             //     declare function foo();
-        //             //     declare function bar();
-        //             //     declare function foo();
-        //             // 2. mixing ambient and non-ambient declarations is a separate error that will be reported - do not want to report an extra one
-        //             previousDeclaration = undefined;
-        //         }
+        function reportImplementationExpectedError(node: SignatureDeclaration): void {
+            if (node.name && nodeIsMissing(node.name)) {
+                return;
+            }
 
-        //         if ((node.kind === SyntaxKind.ClassDeclaration || node.kind === SyntaxKind.ClassExpression) && !inAmbientContext) {
-        //             hasNonAmbientClass = true;
-        //         }
+            let seen = false;
+            const subsequentNode = forEachChild(node.parent, c => {
+                if (seen) {
+                    return c;
+                }
+                else {
+                    seen = c === node;
+                }
+            });
+            // We may be here because of some extra nodes between overloads that could not be parsed into a valid node.
+            // In this case the subsequent node is not really consecutive (.pos !== node.end), and we must ignore it here.
+            if (subsequentNode && subsequentNode.pos === node.end) {
+                if (subsequentNode.kind === node.kind) {
+                    const errorNode: Node = (subsequentNode as FunctionLikeDeclaration).name || subsequentNode;
+                    const subsequentName = (subsequentNode as FunctionLikeDeclaration).name;
+                    if (
+                        node.name && subsequentName && (
+                            // both are private identifiers
+                            // isPrivateIdentifier(node.name) && isPrivateIdentifier(subsequentName) && node.name.text === subsequentName.text ||
+                            // Both are computed property names
+                            isComputedPropertyName(node.name) && isComputedPropertyName(subsequentName) && isTypeIdenticalTo(checkComputedPropertyName(node.name), checkComputedPropertyName(subsequentName)) ||
+                            // Both are literal property names that are the same.
+                            isPropertyNameLiteral(node.name) && isPropertyNameLiteral(subsequentName) &&
+                                getTextOfIdentifierOrLiteral(node.name) === getTextOfIdentifierOrLiteral(subsequentName)
+                        )
+                    ) {
+                        const reportError = (node.kind === SyntaxKind.MethodDeclaration || node.kind === SyntaxKind.MethodSignature);
+                        // we can get here in two cases
+                        // 1. mixed static and instance class members
+                        // 2. something with the same name was defined before the set of overloads that prevents them from merging
+                        // here we'll report error only for the first case since for second we should already report error in binder
+                        if (reportError) {
+                            const diagnostic = Diagnostics.Function_overload_must_not_be_static;
+                            error(errorNode, diagnostic);
+                        }
+                        return;
+                    }
+                    if (nodeIsPresent((subsequentNode as FunctionLikeDeclaration).body)) {
+                        error(errorNode, Diagnostics.Function_implementation_name_must_be_0, declarationNameToString(node.name));
+                        return;
+                    }
+                }
+            }
+            const errorNode: Node = node.name || node;
+            // if (isConstructor) {
+            //     error(errorNode, Diagnostics.Constructor_implementation_is_missing);
+            // }
+            // else {
+                // Report different errors regarding non-consecutive blocks of declarations depending on whether
+                // the node in question is abstract.
+                // if (hasSyntacticModifier(node, ModifierFlags.Abstract)) {
+                //     error(errorNode, Diagnostics.All_declarations_of_an_abstract_method_must_be_consecutive);
+                // }
+                // else {
+                    error(errorNode, Diagnostics.Function_implementation_is_missing_or_not_immediately_following_the_declaration);
+                // }
+            // }
+        }
 
-        //         if (node.kind === SyntaxKind.FunctionDeclaration || node.kind === SyntaxKind.MethodDeclaration || node.kind === SyntaxKind.MethodSignature || node.kind === SyntaxKind.Constructor) {
-        //             functionDeclarations.push(node);
-        //             const currentNodeFlags = getEffectiveDeclarationFlags(node, flagsToCheck);
-        //             someNodeFlags |= currentNodeFlags;
-        //             allNodeFlags &= currentNodeFlags;
-        //             someHaveQuestionToken = someHaveQuestionToken || hasQuestionToken(node);
-        //             allHaveQuestionToken = allHaveQuestionToken && hasQuestionToken(node);
-        //             const bodyIsPresent = nodeIsPresent((node as FunctionLikeDeclaration).body);
+        let duplicateFunctionDeclaration = false;
+        let multipleConstructorImplementation = false;
+        let hasNonAmbientClass = false;
+        const functionDeclarations = [] as Declaration[];
+        if (declarations) {
+            for (const current of declarations) {
+                const node = current as SignatureDeclaration | ClassDeclaration | ClassExpression;
+                const inAmbientContext = node.flags & NodeFlags.Ambient;
+                const inAmbientContextOrInterface = node.parent && (node.parent.kind === SyntaxKind.TypeLiteral) || inAmbientContext;
+                if (inAmbientContextOrInterface) {
+                    // check if declarations are consecutive only if they are non-ambient
+                    // 1. ambient declarations can be interleaved
+                    // i.e. this is legal
+                    //     declare function foo();
+                    //     declare function bar();
+                    //     declare function foo();
+                    // 2. mixing ambient and non-ambient declarations is a separate error that will be reported - do not want to report an extra one
+                    previousDeclaration = undefined;
+                }
 
-        //             if (bodyIsPresent && bodyDeclaration) {
-        //                 if (isConstructor) {
-        //                     multipleConstructorImplementation = true;
-        //                 }
-        //                 else {
-        //                     duplicateFunctionDeclaration = true;
-        //                 }
-        //             }
-        //             else if (previousDeclaration?.parent === node.parent && previousDeclaration.end !== node.pos) {
-        //                 reportImplementationExpectedError(previousDeclaration);
-        //             }
+                if ((node.kind === SyntaxKind.ClassDeclaration || node.kind === SyntaxKind.ClassExpression) && !inAmbientContext) {
+                    hasNonAmbientClass = true;
+                }
 
-        //             if (bodyIsPresent) {
-        //                 if (!bodyDeclaration) {
-        //                     bodyDeclaration = node as FunctionLikeDeclaration;
-        //                 }
-        //             }
-        //             else {
-        //                 hasOverloads = true;
-        //             }
+                if (node.kind === SyntaxKind.FunctionDeclaration || node.kind === SyntaxKind.MethodDeclaration || node.kind === SyntaxKind.MethodSignature) {
+                    functionDeclarations.push(node);
+                    const currentNodeFlags = getEffectiveDeclarationFlags(node, flagsToCheck);
+                    someNodeFlags |= currentNodeFlags;
+                    allNodeFlags &= currentNodeFlags;
+                    // someHaveQuestionToken = someHaveQuestionToken || hasQuestionToken(node);
+                    // allHaveQuestionToken = allHaveQuestionToken && hasQuestionToken(node);
+                    const bodyIsPresent = nodeIsPresent((node as FunctionLikeDeclaration).body);
 
-        //             previousDeclaration = node;
+                    if (bodyIsPresent && bodyDeclaration) {
+                        if (isConstructor) {
+                            multipleConstructorImplementation = true;
+                        }
+                        else {
+                            duplicateFunctionDeclaration = true;
+                        }
+                    }
+                    else if (previousDeclaration?.parent === node.parent && previousDeclaration.end !== node.pos) {
+                        reportImplementationExpectedError(previousDeclaration);
+                    }
 
-        //             if (!inAmbientContextOrInterface) {
-        //                 lastSeenNonAmbientDeclaration = node as FunctionLikeDeclaration;
-        //             }
-        //         }
-        //         if (isInJSFile(current) && isFunctionLike(current) && current.jsDoc) {
-        //             hasOverloads = length(getJSDocOverloadTags(current)) > 0;
-        //         }
-        //     }
-        // }
+                    if (bodyIsPresent) {
+                        if (!bodyDeclaration) {
+                            bodyDeclaration = node as FunctionLikeDeclaration;
+                        }
+                    }
+                    else {
+                        hasOverloads = true;
+                    }
+
+                    previousDeclaration = node;
+
+                    if (!inAmbientContextOrInterface) {
+                        lastSeenNonAmbientDeclaration = node as FunctionLikeDeclaration;
+                    }
+                }
+                // if (isInJSFile(current) && isFunctionLike(current) && current.jsDoc) {
+                //     hasOverloads = length(getJSDocOverloadTags(current)) > 0;
+                // }
+            }
+        }
 
         // if (multipleConstructorImplementation) {
         //     forEach(functionDeclarations, declaration => {
@@ -7838,32 +7868,32 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         //     });
         // }
 
-        // if (duplicateFunctionDeclaration) {
-        //     forEach(functionDeclarations, declaration => {
-        //         error(getNameOfDeclaration(declaration) || declaration, Diagnostics.Duplicate_function_implementation);
-        //     });
-        // }
+        if (duplicateFunctionDeclaration) {
+            forEach(functionDeclarations, declaration => {
+                error(getNameOfDeclaration(declaration) || declaration, Diagnostics.Duplicate_function_implementation);
+            });
+        }
 
-        // if (hasNonAmbientClass && !isConstructor && symbol.flags & SymbolFlags.Function && declarations) {
-        //     const relatedDiagnostics = filter(declarations, d => d.kind === SyntaxKind.ClassDeclaration)
-        //         .map(d => createDiagnosticForNode(d, Diagnostics.Consider_adding_a_declare_modifier_to_this_class));
+        if (hasNonAmbientClass && !isConstructor && symbol.flags & SymbolFlags.Function && declarations) {
+            // const relatedDiagnostics = filter(declarations, d => d.kind === SyntaxKind.ClassDeclaration)
+            //     .map(d => createDiagnosticForNode(d, Diagnostics.Consider_adding_a_declare_modifier_to_this_class));
 
-        //     forEach(declarations, declaration => {
-        //         const diagnostic = declaration.kind === SyntaxKind.ClassDeclaration
-        //             ? Diagnostics.Class_declaration_cannot_implement_overload_list_for_0
-        //             : declaration.kind === SyntaxKind.FunctionDeclaration
-        //             ? Diagnostics.Function_with_bodies_can_only_merge_with_classes_that_are_ambient
-        //             : undefined;
-        //         if (diagnostic) {
-        //             addRelatedInfo(
-        //                 error(getNameOfDeclaration(declaration) || declaration, diagnostic, symbolName(symbol)),
-        //                 ...relatedDiagnostics,
-        //             );
-        //         }
-        //     });
-        // }
+            forEach(declarations, declaration => {
+                const diagnostic = declaration.kind === SyntaxKind.ClassDeclaration
+                    ? Diagnostics.Class_declaration_cannot_implement_overload_list_for_0
+                    : declaration.kind === SyntaxKind.FunctionDeclaration
+                    ? Diagnostics.Function_with_bodies_can_only_merge_with_classes_that_are_ambient
+                    : undefined;
+                if (diagnostic) {
+                    addRelatedInfo(
+                        error(getNameOfDeclaration(declaration) || declaration, diagnostic, symbolName(symbol)),
+                        // ...relatedDiagnostics,
+                    );
+                }
+            });
+        }
 
-        // // Abstract methods can't have an implementation -- in particular, they don't need one.
+        // Abstract methods can't have an implementation -- in particular, they don't need one.
         // if (
         //     lastSeenNonAmbientDeclaration && !lastSeenNonAmbientDeclaration.body &&
         //     !hasSyntacticModifier(lastSeenNonAmbientDeclaration, ModifierFlags.Abstract) && !lastSeenNonAmbientDeclaration.questionToken
@@ -7871,31 +7901,429 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         //     reportImplementationExpectedError(lastSeenNonAmbientDeclaration);
         // }
 
-        // if (hasOverloads) {
-        //     if (declarations) {
-        //         checkFlagAgreementBetweenOverloads(declarations, bodyDeclaration, flagsToCheck, someNodeFlags, allNodeFlags);
-        //         checkQuestionTokenAgreementBetweenOverloads(declarations, bodyDeclaration, someHaveQuestionToken, allHaveQuestionToken);
-        //     }
+        if (hasOverloads) {
+            if (declarations) {
+                checkFlagAgreementBetweenOverloads(declarations, bodyDeclaration, flagsToCheck, someNodeFlags, allNodeFlags);
+                checkQuestionTokenAgreementBetweenOverloads(declarations, bodyDeclaration, someHaveQuestionToken, allHaveQuestionToken);
+            }
 
-        //     if (bodyDeclaration) {
-        //         const signatures = getSignaturesOfSymbol(symbol);
-        //         const bodySignature = getSignatureFromDeclaration(bodyDeclaration);
-        //         for (const signature of signatures) {
-        //             if (!isImplementationCompatibleWithOverload(bodySignature, signature)) {
-        //                 const errorNode = signature.declaration && isJSDocSignature(signature.declaration)
-        //                     ? (signature.declaration.parent as JSDocOverloadTag | JSDocCallbackTag).tagName
-        //                     : signature.declaration;
-        //                 addRelatedInfo(
-        //                     error(errorNode, Diagnostics.This_overload_signature_is_not_compatible_with_its_implementation_signature),
-        //                     createDiagnosticForNode(bodyDeclaration, Diagnostics.The_implementation_signature_is_declared_here),
-        //                 );
-        //                 break;
-        //             }
-        //         }
-        //     }
-        // }
+            if (bodyDeclaration) {
+                const signatures = getSignaturesOfSymbol(symbol);
+                const bodySignature = getSignatureFromDeclaration(bodyDeclaration);
+                for (const signature of signatures) {
+                    if (!isImplementationCompatibleWithOverload(bodySignature, signature)) {
+                        const errorNode = signature.declaration && isJSDocSignature(signature.declaration)
+                            ? (signature.declaration.parent as JSDocOverloadTag | JSDocCallbackTag).tagName
+                            : signature.declaration;
+                        addRelatedInfo(
+                            error(errorNode, Diagnostics.This_overload_signature_is_not_compatible_with_its_implementation_signature),
+                            createDiagnosticForNode(bodyDeclaration, Diagnostics.The_implementation_signature_is_declared_here),
+                        );
+                        break;
+                    }
+                }
+            }
+        }
     }
 
+    function createTypeEraser(sources: readonly TypeParameter[]): TypeMapper {
+        return createTypeMapper(sources, /*targets*/ undefined);
+    }
+
+    function createErasedSignature(signature: Signature) {
+        // Create an instantiation of the signature where all type arguments are the any type.
+        return instantiateSignature(signature, createTypeEraser(signature.typeParameters!), /*eraseTypeParameters*/ true);
+    }
+
+    function getErasedSignature(signature: Signature): Signature {
+        return signature.typeParameters ?
+            signature.erasedSignatureCache || (signature.erasedSignatureCache = createErasedSignature(signature)) :
+            signature;
+    }
+
+    function isImplementationCompatibleWithOverload(implementation: Signature, overload: Signature): boolean {
+        const erasedSource = getErasedSignature(implementation);
+        const erasedTarget = getErasedSignature(overload);
+
+        // First see if the return types are compatible in either direction.
+        const sourceReturnType = getReturnTypeOfSignature(erasedSource);
+        const targetReturnType = getReturnTypeOfSignature(erasedTarget);
+        if (
+            targetReturnType === voidType
+            || isTypeRelatedTo(targetReturnType, sourceReturnType, assignableRelation)
+            || isTypeRelatedTo(sourceReturnType, targetReturnType, assignableRelation)
+        ) {
+            return isSignatureAssignableTo(erasedSource, erasedTarget, /*ignoreReturnTypes*/ true);
+        }
+
+        return false;
+    }
+
+    function isSignatureAssignableTo(source: Signature, target: Signature, ignoreReturnTypes: boolean): boolean {
+        return compareSignaturesRelated(source, target, ignoreReturnTypes ? SignatureCheckMode.IgnoreReturnTypes : SignatureCheckMode.None, /*reportErrors*/ false, /*errorReporter*/ undefined, /*incompatibleErrorReporter*/ undefined, compareTypesAssignable, /*reportUnreliableMarkers*/ undefined) !== Ternary.False;
+    }
+
+    /**
+     * Returns true if `s` is `(...args: A) => R` where `A` is `any`, `any[]`, `never`, or `never[]`, and `R` is `any` or `unknown`.
+     */
+    function isTopSignature(s: Signature) {
+        if (!s.typeParameters && (!s.thisParameter || isTypeAny(getTypeOfParameter(s.thisParameter))) && s.parameters.length === 1 && signatureHasRestParameter(s)) {
+            const paramType = getTypeOfParameter(s.parameters[0]);
+            const restType = isArrayType(paramType) ? getTypeArguments(paramType)[0] : paramType;
+            return !!(restType.flags & (TypeFlags.Any | TypeFlags.Never) && getReturnTypeOfSignature(s).flags & TypeFlags.AnyOrUnknown);
+        }
+        return false;
+    }
+
+    function createCanonicalSignature(signature: Signature) {
+        // Create an instantiation of the signature where each unconstrained type parameter is replaced with
+        // its original. When a generic class or interface is instantiated, each generic method in the class or
+        // interface is instantiated with a fresh set of cloned type parameters (which we need to handle scenarios
+        // where different generations of the same type parameter are in scope). This leads to a lot of new type
+        // identities, and potentially a lot of work comparing those identities, so here we create an instantiation
+        // that uses the original type identities for all unconstrained type parameters.
+        return getSignatureInstantiation(
+            signature,
+            map(signature.typeParameters, tp => tp.target && !getConstraintOfTypeParameter(tp.target) ? tp.target : tp),
+            isInJSFile(signature.declaration),
+        );
+    }
+
+
+    function getCanonicalSignature(signature: Signature): Signature {
+        return signature.typeParameters ?
+            signature.canonicalSignatureCache || (signature.canonicalSignatureCache = createCanonicalSignature(signature)) :
+            signature;
+    }
+
+    function applyToParameterTypes(source: Signature, target: Signature, callback: (s: Type, t: Type) => void) {
+        const sourceCount = getParameterCount(source);
+        const targetCount = getParameterCount(target);
+        const sourceRestType = getEffectiveRestType(source);
+        const targetRestType = getEffectiveRestType(target);
+        const targetNonRestCount = targetRestType ? targetCount - 1 : targetCount;
+        const paramCount = sourceRestType ? targetNonRestCount : Math.min(sourceCount, targetNonRestCount);
+        // const sourceThisType = getThisTypeOfSignature(source);
+        // if (sourceThisType) {
+        //     const targetThisType = getThisTypeOfSignature(target);
+        //     if (targetThisType) {
+        //         callback(sourceThisType, targetThisType);
+        //     }
+        // }
+        for (let i = 0; i < paramCount; i++) {
+            callback(getTypeAtPosition(source, i), getTypeAtPosition(target, i));
+        }
+        if (targetRestType) {
+            callback(getRestTypeAtPosition(source, paramCount, /*readonly*/ false), targetRestType);
+        }
+    }
+
+    // Instantiate a generic signature in the context of a non-generic signature (section 3.8.5 in TypeScript spec)
+    function instantiateSignatureInContextOf(signature: Signature, contextualSignature: Signature, inferenceContext?: InferenceContext, compareTypes?: TypeComparer): Signature {
+        const context = createInferenceContext(signature.typeParameters!, signature, InferenceFlags.None, compareTypes);
+        // We clone the inferenceContext to avoid fixing. For example, when the source signature is <T>(x: T) => T[] and
+        // the contextual signature is (...args: A) => B, we want to infer the element type of A's constraint (say 'any')
+        // for T but leave it possible to later infer '[any]' back to A.
+        const restType = getEffectiveRestType(contextualSignature);
+        const mapper = inferenceContext && (restType && restType.flags & TypeFlags.TypeParameter ? inferenceContext.nonFixingMapper : inferenceContext.mapper);
+        const sourceSignature = mapper ? instantiateSignature(contextualSignature, mapper) : contextualSignature;
+        applyToParameterTypes(sourceSignature, signature, (source, target) => {
+            // Type parameters from outer context referenced by source type are fixed by instantiation of the source type
+            inferTypes(context.inferences, source, target);
+        });
+        if (!inferenceContext) {
+            applyToReturnTypes(contextualSignature, signature, (source, target) => {
+                inferTypes(context.inferences, source, target, InferencePriority.ReturnType);
+            });
+        }
+        return getSignatureInstantiation(signature, getInferredTypes(context), isInJSFile(contextualSignature.declaration));
+    }
+
+    function typePredicateKindsMatch(a: TypePredicate, b: TypePredicate): boolean {
+        return a.kind === b.kind && a.parameterIndex === b.parameterIndex;
+    }
+    
+    function applyToReturnTypes(source: Signature, target: Signature, callback: (s: Type, t: Type) => void) {
+        const targetTypePredicate = getTypePredicateOfSignature(target);
+        if (targetTypePredicate) {
+            const sourceTypePredicate = getTypePredicateOfSignature(source);
+            if (sourceTypePredicate && typePredicateKindsMatch(sourceTypePredicate, targetTypePredicate) && sourceTypePredicate.type && targetTypePredicate.type) {
+                callback(sourceTypePredicate.type, targetTypePredicate.type);
+                return;
+            }
+        }
+        const targetReturnType = getReturnTypeOfSignature(target);
+        if (couldContainTypeVariables(targetReturnType)) {
+            callback(getReturnTypeOfSignature(source), targetReturnType);
+        }
+    }
+
+    function getTypePredicateOfSignature(signature: Signature): TypePredicate | undefined {
+        console.warn("TODO - getTypePredicateOfSignature");
+        return undefined;
+        // if (!signature.resolvedTypePredicate) {
+        //     if (signature.target) {
+        //         const targetTypePredicate = getTypePredicateOfSignature(signature.target);
+        //         signature.resolvedTypePredicate = targetTypePredicate ? instantiateTypePredicate(targetTypePredicate, signature.mapper!) : noTypePredicate;
+        //     }
+        //     else if (signature.compositeSignatures) {
+        //         signature.resolvedTypePredicate = getUnionOrIntersectionTypePredicate(signature.compositeSignatures, signature.compositeKind) || noTypePredicate;
+        //     }
+        //     else {
+        //         const type = signature.declaration && getEffectiveReturnTypeNode(signature.declaration);
+        //         let jsdocPredicate: TypePredicate | undefined;
+        //         if (!type) {
+        //             const jsdocSignature = getSignatureOfTypeTag(signature.declaration!);
+        //             if (jsdocSignature && signature !== jsdocSignature) {
+        //                 jsdocPredicate = getTypePredicateOfSignature(jsdocSignature);
+        //             }
+        //         }
+        //         if (type || jsdocPredicate) {
+        //             signature.resolvedTypePredicate = type && isTypePredicateNode(type) ?
+        //                 createTypePredicateFromTypePredicateNode(type, signature) :
+        //                 jsdocPredicate || noTypePredicate;
+        //         }
+        //         else if (signature.declaration && isFunctionLikeDeclaration(signature.declaration) && (!signature.resolvedReturnType || signature.resolvedReturnType.flags & TypeFlags.Boolean) && getParameterCount(signature) > 0) {
+        //             const { declaration } = signature;
+        //             signature.resolvedTypePredicate = noTypePredicate; // avoid infinite loop
+        //             signature.resolvedTypePredicate = getTypePredicateFromBody(declaration) || noTypePredicate;
+        //         }
+        //         else {
+        //             signature.resolvedTypePredicate = noTypePredicate;
+        //         }
+        //     }
+        //     Debug.assert(!!signature.resolvedTypePredicate);
+        // }
+        // return signature.resolvedTypePredicate === noTypePredicate ? undefined : signature.resolvedTypePredicate;
+    }
+
+    function getInferredTypes(context: InferenceContext): Type[] {
+        const result: Type[] = [];
+        for (let i = 0; i < context.inferences.length; i++) {
+            result.push(getInferredType(context, i));
+        }
+        return result;
+    }
+
+    function inferTypes(inferences: InferenceInfo[], originalSource: Type, originalTarget: Type, priority = InferencePriority.None, contravariant = false) {
+        console.warn("TODO - inferTypes");        
+    }
+
+    /**
+     * See signatureRelatedTo, compareSignaturesIdentical
+     */
+    function compareSignaturesRelated(source: Signature, target: Signature, checkMode: SignatureCheckMode, reportErrors: boolean, errorReporter: ErrorReporter | undefined, incompatibleErrorReporter: ((source: Type, target: Type) => void) | undefined, compareTypes: TypeComparer, reportUnreliableMarkers: TypeMapper | undefined): Ternary {
+        // TODO (drosen): De-duplicate code between related functions.
+        if (source === target) {
+            return Ternary.True;
+        }
+
+        if (!(checkMode & SignatureCheckMode.StrictTopSignature && isTopSignature(source)) && isTopSignature(target)) {
+            return Ternary.True;
+        }
+        if (checkMode & SignatureCheckMode.StrictTopSignature && isTopSignature(source) && !isTopSignature(target)) {
+            return Ternary.False;
+        }
+
+        const targetCount = getParameterCount(target);
+        const sourceHasMoreParameters = !hasEffectiveRestParameter(target) &&
+            (checkMode & SignatureCheckMode.StrictArity ? hasEffectiveRestParameter(source) || getParameterCount(source) > targetCount : getMinArgumentCount(source) > targetCount);
+        if (sourceHasMoreParameters) {
+            if (reportErrors && !(checkMode & SignatureCheckMode.StrictArity)) {
+                // the second condition should be redundant, because there is no error reporting when comparing signatures by strict arity
+                // since it is only done for subtype reduction
+                errorReporter!(Diagnostics.Target_signature_provides_too_few_arguments_Expected_0_or_more_but_got_1, getMinArgumentCount(source), targetCount);
+            }
+            return Ternary.False;
+        }
+
+        if (source.typeParameters && source.typeParameters !== target.typeParameters) {
+            target = getCanonicalSignature(target);
+            source = instantiateSignatureInContextOf(source, target, /*inferenceContext*/ undefined, compareTypes);
+        }
+
+        const sourceCount = getParameterCount(source);
+        const sourceRestType = getNonArrayRestType(source);
+        const targetRestType = getNonArrayRestType(target);
+        if (sourceRestType || targetRestType) {
+            void instantiateType(sourceRestType || targetRestType, reportUnreliableMarkers);
+        }
+
+        const kind = target.declaration ? target.declaration.kind : SyntaxKind.Unknown;
+        const strictVariance = false;
+        // const strictVariance = !(checkMode & SignatureCheckMode.Callback) && strictFunctionTypes && kind !== SyntaxKind.MethodDeclaration &&
+        //     kind !== SyntaxKind.MethodSignature;
+        let result = Ternary.True;
+
+        // const sourceThisType = getThisTypeOfSignature(source);
+        // if (sourceThisType && sourceThisType !== voidType) {
+        //     const targetThisType = getThisTypeOfSignature(target);
+        //     if (targetThisType) {
+        //         // void sources are assignable to anything.
+        //         const related = !strictVariance && compareTypes(sourceThisType, targetThisType, /*reportErrors*/ false)
+        //             || compareTypes(targetThisType, sourceThisType, reportErrors);
+        //         if (!related) {
+        //             if (reportErrors) {
+        //                 errorReporter!(Diagnostics.The_this_types_of_each_signature_are_incompatible);
+        //             }
+        //             return Ternary.False;
+        //         }
+        //         result &= related;
+        //     }
+        // }
+
+        const paramCount = sourceRestType || targetRestType ? Math.min(sourceCount, targetCount) : Math.max(sourceCount, targetCount);
+        const restIndex = sourceRestType || targetRestType ? paramCount - 1 : -1;
+
+        for (let i = 0; i < paramCount; i++) {
+            const sourceType = i === restIndex ? getRestOrAnyTypeAtPosition(source, i) : tryGetTypeAtPosition(source, i);
+            const targetType = i === restIndex ? getRestOrAnyTypeAtPosition(target, i) : tryGetTypeAtPosition(target, i);
+            if (sourceType && targetType && (sourceType !== targetType || checkMode & SignatureCheckMode.StrictArity)) {
+                // In order to ensure that any generic type Foo<T> is at least co-variant with respect to T no matter
+                // how Foo uses T, we need to relate parameters bi-variantly (given that parameters are input positions,
+                // they naturally relate only contra-variantly). However, if the source and target parameters both have
+                // function types with a single call signature, we know we are relating two callback parameters. In
+                // that case it is sufficient to only relate the parameters of the signatures co-variantly because,
+                // similar to return values, callback parameters are output positions. This means that a Promise<T>,
+                // where T is used only in callback parameter positions, will be co-variant (as opposed to bi-variant)
+                // with respect to T.
+                const sourceSig = checkMode & SignatureCheckMode.Callback || isInstantiatedGenericParameter(source, i) ? undefined : getSingleCallSignature(getNonNullableType(sourceType));
+                const targetSig = checkMode & SignatureCheckMode.Callback || isInstantiatedGenericParameter(target, i) ? undefined : getSingleCallSignature(getNonNullableType(targetType));
+                const callbacks = sourceSig && targetSig && !getTypePredicateOfSignature(sourceSig) && !getTypePredicateOfSignature(targetSig) &&
+                    getTypeFacts(sourceType, TypeFacts.IsUndefinedOrNull) === getTypeFacts(targetType, TypeFacts.IsUndefinedOrNull);
+                let related = callbacks ?
+                    compareSignaturesRelated(targetSig, sourceSig, (checkMode & SignatureCheckMode.StrictArity) | (strictVariance ? SignatureCheckMode.StrictCallback : SignatureCheckMode.BivariantCallback), reportErrors, errorReporter, incompatibleErrorReporter, compareTypes, reportUnreliableMarkers) :
+                    !(checkMode & SignatureCheckMode.Callback) && !strictVariance && compareTypes(sourceType, targetType, /*reportErrors*/ false) || compareTypes(targetType, sourceType, reportErrors);
+                // With strict arity, (x: number | undefined) => void is a subtype of (x?: number | undefined) => void
+                if (related && checkMode & SignatureCheckMode.StrictArity && i >= getMinArgumentCount(source) && i < getMinArgumentCount(target) && compareTypes(sourceType, targetType, /*reportErrors*/ false)) {
+                    related = Ternary.False;
+                }
+                if (!related) {
+                    if (reportErrors) {
+                        errorReporter!(Diagnostics.Types_of_parameters_0_and_1_are_incompatible, (getParameterNameAtPosition(source, i)), (getParameterNameAtPosition(target, i)));
+                    }
+                    return Ternary.False;
+                }
+                result &= related;
+            }
+        }
+
+        if (!(checkMode & SignatureCheckMode.IgnoreReturnTypes)) {
+            // If a signature resolution is already in-flight, skip issuing a circularity error
+            // here and just use the `any` type directly
+            const targetReturnType = isResolvingReturnTypeOfSignature(target) ? anyType
+                // : target.declaration && isJSConstructor(target.declaration) ? getDeclaredTypeOfClassOrInterface(getMergedSymbol(target.declaration.symbol))
+                : getReturnTypeOfSignature(target);
+            if (targetReturnType === voidType || targetReturnType === anyType) {
+                return result;
+            }
+            const sourceReturnType = isResolvingReturnTypeOfSignature(source) ? anyType
+                // : source.declaration && isJSConstructor(source.declaration) ? getDeclaredTypeOfClassOrInterface(getMergedSymbol(source.declaration.symbol))
+                : getReturnTypeOfSignature(source);
+
+            // The following block preserves behavior forbidding boolean returning functions from being assignable to type guard returning functions
+            const targetTypePredicate = getTypePredicateOfSignature(target);
+            if (targetTypePredicate) {
+                const sourceTypePredicate = getTypePredicateOfSignature(source);
+                if (sourceTypePredicate) {
+                    result &= compareTypePredicateRelatedTo(sourceTypePredicate, targetTypePredicate, reportErrors, errorReporter, compareTypes);
+                }
+                else if (isIdentifierTypePredicate(targetTypePredicate)) {// || isThisTypePredicate(targetTypePredicate)) {
+                    if (reportErrors) {
+                        errorReporter!(Diagnostics.Signature_0_must_be_a_type_predicate, signatureToString(source));
+                    }
+                    return Ternary.False;
+                }
+            }
+            else {
+                // When relating callback signatures, we still need to relate return types bi-variantly as otherwise
+                // the containing type wouldn't be co-variant. For example, interface Foo<T> { add(cb: () => T): void }
+                // wouldn't be co-variant for T without this rule.
+                result &= checkMode & SignatureCheckMode.BivariantCallback && compareTypes(targetReturnType, sourceReturnType, /*reportErrors*/ false) ||
+                    compareTypes(sourceReturnType, targetReturnType, reportErrors);
+                if (!result && reportErrors && incompatibleErrorReporter) {
+                    incompatibleErrorReporter(sourceReturnType, targetReturnType);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    function compareTypePredicateRelatedTo(
+        source: TypePredicate,
+        target: TypePredicate,
+        reportErrors: boolean,
+        errorReporter: ErrorReporter | undefined,
+        compareTypes: (s: Type, t: Type, reportErrors?: boolean) => Ternary,
+    ): Ternary {
+        console.info("todo - compareTypePredicateRelatedTo");
+        return Ternary.True;
+        // if (source.kind !== target.kind) {
+        //     if (reportErrors) {
+        //         errorReporter!(Diagnostics.A_this_based_type_guard_is_not_compatible_with_a_parameter_based_type_guard);
+        //         errorReporter!(Diagnostics.Type_predicate_0_is_not_assignable_to_1, typePredicateToString(source), typePredicateToString(target));
+        //     }
+        //     return Ternary.False;
+        // }
+
+        // if (source.kind === TypePredicateKind.Identifier || source.kind === TypePredicateKind.AssertsIdentifier) {
+        //     if (source.parameterIndex !== (target as IdentifierTypePredicate).parameterIndex) {
+        //         if (reportErrors) {
+        //             errorReporter!(Diagnostics.Parameter_0_is_not_in_the_same_position_as_parameter_1, source.parameterName, (target as IdentifierTypePredicate).parameterName);
+        //             errorReporter!(Diagnostics.Type_predicate_0_is_not_assignable_to_1, typePredicateToString(source), typePredicateToString(target));
+        //         }
+        //         return Ternary.False;
+        //     }
+        // }
+
+        // const related = source.type === target.type ? Ternary.True :
+        //     source.type && target.type ? compareTypes(source.type, target.type, reportErrors) :
+        //     Ternary.False;
+        // if (related === Ternary.False && reportErrors) {
+        //     errorReporter!(Diagnostics.Type_predicate_0_is_not_assignable_to_1, typePredicateToString(source), typePredicateToString(target));
+        // }
+        // return related;
+    }
+    
+    function isGenericType(type: Type): boolean {
+        return !!getGenericObjectFlags(type);
+    }
+
+    function getGenericObjectFlags(type: Type): ObjectFlags {
+        if (type.flags & (TypeFlags.UnionOrIntersection)) {
+            if (!((type as UnionOrIntersectionType).objectFlags & ObjectFlags.IsGenericTypeComputed)) {
+                (type as UnionOrIntersectionType).objectFlags |= ObjectFlags.IsGenericTypeComputed |
+                    reduceLeft((type as UnionOrIntersectionType).types, (flags, t) => flags | getGenericObjectFlags(t), 0);
+            }
+            return (type as UnionOrIntersectionType).objectFlags & ObjectFlags.IsGenericType;
+        }
+        if (type.flags & TypeFlags.Substitution) {
+            if (!((type as SubstitutionType).objectFlags & ObjectFlags.IsGenericTypeComputed)) {
+                (type as SubstitutionType).objectFlags |= ObjectFlags.IsGenericTypeComputed |
+                    getGenericObjectFlags((type as SubstitutionType).baseType) | getGenericObjectFlags((type as SubstitutionType).constraint);
+            }
+            return (type as SubstitutionType).objectFlags & ObjectFlags.IsGenericType;
+        }
+        console.info("TODO - getGenericObjectFlags");
+        return ObjectFlags.None;
+        // return (type.flags & TypeFlags.InstantiableNonPrimitive || isGenericMappedType(type) || isGenericTupleType(type) ? ObjectFlags.IsGenericObjectType : 0) |
+        //     (type.flags & (TypeFlags.InstantiableNonPrimitive | TypeFlags.Index) || isGenericStringLikeType(type) ? ObjectFlags.IsGenericIndexType : 0);
+    }
+
+    function isInstantiatedGenericParameter(signature: Signature, pos: number) {
+        let type;
+        return !!(signature.target && (type = tryGetTypeAtPosition(signature.target, pos)) && isGenericType(type));
+    }
+
+    // Return the rest type at the given position, transforming `any[]` into just `any`. We do this because
+    // in signatures we want `any[]` in a rest position to be compatible with anything, but `any[]` isn't
+    // assignable to tuple types with required elements.
+    function getRestOrAnyTypeAtPosition(source: Signature, pos: number): Type {
+        const restType = getRestTypeAtPosition(source, pos);
+        const elementType = restType && getElementTypeOfArrayType(restType);
+        return elementType && isTypeAny(elementType) ? anyType : restType;
+    }
 
     function checkCollisionsForDeclarationName(node: Node, name: Identifier | undefined) {
         if (!name) return;
@@ -14253,11 +14681,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 if (checkTruncationLength(context)) {
                     return [factory.createPropertySignature(/*modifiers*/ undefined, "...", /*type*/ undefined)];
                 }
-                const typeElements: TypeElement[] = [];
-                console.debug("todo - createTypeNodesFromResolvedType");
-                // for (const signature of resolvedType.callSignatures) {
-                //     typeElements.push(signatureToSignatureDeclarationHelper(signature, SyntaxKind.CallSignature, context) as CallSignatureDeclaration);
-                // }
+                const typeElements: TypeElement[] = [];                
+                for (const signature of resolvedType.callSignatures) {
+                    console.debug("todo - callsig");
+                    // typeElements.push(signatureToSignatureDeclarationHelper(signature, SyntaxKind.CallSignature, context) as CallSignatureDeclaration);
+                }
                 // for (const signature of resolvedType.constructSignatures) {
                 //     if (signature.flags & SignatureFlags.Abstract) continue;
                 //     typeElements.push(signatureToSignatureDeclarationHelper(signature, SyntaxKind.ConstructSignature, context) as ConstructSignatureDeclaration);

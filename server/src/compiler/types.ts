@@ -6772,3 +6772,24 @@ export interface MappedSymbolLinks extends TransientSymbolLinks {
 export interface MappedSymbol extends TransientSymbol {
     links: MappedSymbolLinks;
 }
+
+export const enum TypePredicateKind {
+    This,
+    Identifier,
+    AssertsThis,
+    AssertsIdentifier,
+}
+
+export interface TypePredicateBase {
+    kind: TypePredicateKind;
+    type: Type | undefined;
+}
+
+export interface IdentifierTypePredicate extends TypePredicateBase {
+    kind: TypePredicateKind.Identifier;
+    parameterName: string;
+    parameterIndex: number;
+    type: Type;
+}
+
+export type TypePredicate = IdentifierTypePredicate;//ThisTypePredicate | IdentifierTypePredicate | AssertsThisTypePredicate | AssertsIdentifierTypePredicate;
