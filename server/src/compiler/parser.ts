@@ -275,7 +275,7 @@ export namespace LpcParser {
                 }
 
                 // scan again using the new scanner
-                return currentToken = scanner.scan();
+                return nextTokenWithoutCheck();// currentToken = scanner.scan();
             } else if (currentMacro && currentMacro.argsIn?.[tokenValue]) {
                 // this is a macro parameter
                 const arg = currentMacro.argsIn[tokenValue];                
