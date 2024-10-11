@@ -8,6 +8,7 @@ export const Diagnostics = {
     // LPC-specific
     Structs_not_supported: diag(9001, DiagnosticCategory.Error, "Structs_not_supported_2352", "Structs not supported."),
     Semicolon_expected: diag(9002, DiagnosticCategory.Error, "Semicolon_expected_1005", "Semicolon expected."),
+    Macro_already_defined_0: diag(9003, DiagnosticCategory.Error, "Macro_already_defined_0_2300", "Macro already defined '{0}'."),
 
     // Scanner
     _0_expected: diag(1005, DiagnosticCategory.Error, "_0_expected_1005", "'{0}' expected."),    

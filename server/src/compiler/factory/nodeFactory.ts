@@ -27,6 +27,7 @@ import {
     Declaration,
     DeclarationName,
     DefaultClause,
+    DefineDirective,
     DotDotDotToken,
     DoWhileStatement,
     ElementAccessExpression,
@@ -132,6 +133,7 @@ import {
     StructTypeNode,
     SwitchStatement,
     SyntaxKind,
+    TextRange,
     Token,
     TokenFlags,
     TransformFlags,
@@ -142,6 +144,7 @@ import {
     TypeNode,
     TypeParameterDeclaration,
     TypeReferenceNode,
+    UndefDirective,
     UnionTypeNode,
     VariableDeclaration,
     VariableDeclarationList,
@@ -212,6 +215,8 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
 
         // directives
         createIncludeDirective,
+        createDefineDirective,
+        createUndefDirective,
 
         // type elements,
         createIndexSignature,
@@ -243,7 +248,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createReturnStatement,
         createBreakStatement,
         createContinueStatement,
-        createInheritDeclaration,
+        createInheritDeclaration,        
         createIfStatement,
         createCaseBlock,
         createSwitchStatement,
@@ -1029,6 +1034,26 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
 
         node.jsDoc = undefined; // initialized by parser (JsDocContainer)
         node.flowNode = undefined; // initialized by binder (FlowContainer)
+        return node;
+    }
+
+    // @api
+    function createDefineDirective(name: string | Identifier, args: NodeArray<Expression>, range: TextRange): DefineDirective {
+        const node = createBaseNode<DefineDirective>(SyntaxKind.DefineDirective);
+        node.name = asName(name);
+        node.arguments = asNodeArray(args);
+        node.range = range;
+        // node.transformFlags |= propagateChildFlags(node.name) |
+        //     propagateChildFlags(node.initializer);
+
+        node.jsDoc = undefined; // initialized by parser (JsDocContainer)
+        return node;
+    }
+
+    // @api 
+    function createUndefDirective(name: string | Identifier): UndefDirective {
+        const node = createBaseNode<UndefDirective>(SyntaxKind.UndefDirective);
+        node.name = asName(name);
         return node;
     }
 

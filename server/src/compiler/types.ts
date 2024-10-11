@@ -604,6 +604,7 @@ export const enum SyntaxKind {
     // Directives
     IncludeDirective,
     DefineDirective,
+    UndefDirective,
     IfDirective,
     ElseDirective,
     ElseIfDirective,
@@ -1324,6 +1325,8 @@ export interface NodeFactory {
 
     // directives
     createIncludeDirective(content: StringLiteral[]): IncludeDirective;
+    createDefineDirective(name: string | Identifier, args: NodeArray<Expression>, range: TextRange): DefineDirective;
+    createUndefDirective(name: string | Identifier): UndefDirective;
 
     // types
     createKeywordTypeNode<TKind extends KeywordTypeSyntaxKind>(kind: TKind): KeywordTypeNode<TKind>;
@@ -1352,7 +1355,7 @@ export interface NodeFactory {
     createReturnStatement(expression?: Expression): ReturnStatement;
     createBreakStatement(label?: string | Identifier): BreakStatement;
     createContinueStatement(label?: string | Identifier): ContinueStatement;
-    createInheritDeclaration(importClause: InheritClauseType, modifiers: readonly Modifier[] | undefined): InheritDeclaration;
+    createInheritDeclaration(importClause: InheritClauseType, modifiers: readonly Modifier[] | undefined): InheritDeclaration;    
     createIfStatement(expression: Expression, thenStatement: Statement, elseStatement?: Statement): IfStatement;
     createSwitchStatement(expression: Expression, preBlock: NodeArray<Statement>, caseBlock: CaseBlock): SwitchStatement;
     createCaseBlock(clauses: readonly CaseOrDefaultClause[]): CaseBlock;
@@ -1660,6 +1663,8 @@ export type HasContainerFlags =
 /** NODES */
 export type HasJSDoc = 
     | IncludeDirective
+    | DefineDirective
+    | UndefDirective
     | Block 
     | StructDeclaration
     | PropertySignature
@@ -2053,6 +2058,7 @@ export type EndOfFileToken = Token<SyntaxKind.EndOfFileToken> & JSDocContainer;
 export type DirectiveSyntaxKind =     
     | SyntaxKind.IncludeDirective
     | SyntaxKind.DefineDirective
+    | SyntaxKind.UndefDirective
     | SyntaxKind.IfDirective
     | SyntaxKind.ElseDirective
     | SyntaxKind.ElseIfDirective
@@ -3417,6 +3423,7 @@ export interface InheritDeclaration extends Statement {
 }
 
 export type InheritClauseType = StringLiteral | Expression;
+
 
 /**
  * This is a special type of binary expression where both sides are definitely string literals
@@ -6662,6 +6669,21 @@ export interface PreprocessorDirective extends Statement {
 export interface IncludeDirective extends PreprocessorDirective {
     kind: SyntaxKind.IncludeDirective;
     content: NodeArray<StringLiteral>;
+}
+
+
+export interface DefineDirective extends PreprocessorDirective {
+    kind: SyntaxKind.DefineDirective;
+    
+    name: Identifier;
+    fileName: string;
+    arguments?: NodeArray<Expression>;
+    range: TextRange;
+}
+
+export interface UndefDirective extends PreprocessorDirective {
+    kind: SyntaxKind.UndefDirective;
+    name: Identifier;    
 }
 
 

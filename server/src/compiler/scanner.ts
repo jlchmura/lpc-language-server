@@ -9,6 +9,7 @@ import {
     CommentRange,
     compareValues,
     Debug,
+    DefineDirective,
     DiagnosticMessage,
     Diagnostics,    
     DirectiveSyntaxKind,    
@@ -18,7 +19,7 @@ import {
     KeywordSyntaxKind,
     
     LanguageVariant,
-    LineAndCharacter,
+    LineAndCharacter,    
     MapLike,
     
     positionIsSynthesized,
@@ -96,6 +97,7 @@ export interface Scanner {
     setScriptKind(scriptKind: ScriptKind): void;
     setReportLineBreak(flag: boolean): void;
     setJSDocParsingMode(kind: JSDocParsingMode): void;
+    setMacroTable(tbl: MapLike<DefineDirective>): void;
     /** @deprecated use {@link resetTokenState} */
     setTextPos(textPos: number): void;
     resetTokenState(pos: number): void;
@@ -116,13 +118,14 @@ export interface Scanner {
     // the scanner to the state it was in immediately prior to invoking the callback.  If the
     // callback returns something truthy, then the scanner state is not rolled back.  The result
     // of invoking the callback is returned from this function.
-    tryScan<T>(callback: () => T): T;
+    tryScan<T>(callback: () => T): T;        
 }
 
 /** @internal */
 export const textToDirectiveObj: MapLike<DirectiveSyntaxKind> = {
     '#include': SyntaxKind.IncludeDirective,
     '#define': SyntaxKind.DefineDirective,
+    '#undef': SyntaxKind.UndefDirective,
     '#if': SyntaxKind.IfDirective,
     '#else': SyntaxKind.ElseDirective,
     '#elseif': SyntaxKind.ElseIfDirective,
@@ -975,6 +978,7 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
     var tokenValue!: string;
     var tokenFlags: TokenFlags;
 
+    var macroTable: MapLike<DefineDirective> | undefined;
     var commentDirectives: CommentDirective[] | undefined;
     var skipJsDocLeadingAsterisks = 0;
     var asteriskSeen = false;
@@ -1023,13 +1027,14 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
         setScriptKind,
         setJSDocParsingMode,
         setOnError,
+        setMacroTable,
         resetTokenState,
         setTextPos: resetTokenState,
         setSkipJsDocLeadingAsterisks,
         hasLeadingAsterisks,
         tryScan,
         lookAhead,
-        scanRange,
+        scanRange        
     };
     /* eslint-enable no-var */
 
@@ -2529,6 +2534,12 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
             if (ch === CharacterCodes.backslash) {
                 tokenValue += scanIdentifierParts();
             }
+
+            // can a macro have the same name as a reserved word? 
+            if (macroTable && macroTable[tokenValue]) {
+                console.debug("macro found", tokenValue);  
+            }
+
             return getIdentifierToken();
         }
     }
@@ -2842,6 +2853,10 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
 
     function setJSDocParsingMode(kind: JSDocParsingMode) {
         jsDocParsingMode = kind;
+    }
+
+    function setMacroTable(tbl: MapLike<DefineDirective>): void {
+        macroTable = tbl;
     }
 
     function resetTokenState(position: number) {
