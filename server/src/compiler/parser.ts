@@ -1429,7 +1429,7 @@ export namespace LpcParser {
     function createMacro(directive: DefineDirective): Macro {        
         function getMacroText(): string {            
             Debug.assertIsDefined(directive.range, "Cannot expand macro for a define without content");
-            return includeFileCache[directive.originFilename] ?? "";
+            return (directive.originFilename == fileName) ? sourceText : includeFileCache[directive.originFilename] ?? "";            
         }   
 
         return { directive, getText: getMacroText };                                
