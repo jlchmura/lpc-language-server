@@ -22,6 +22,7 @@ export namespace LpcParser {
     // Share a single scanner across all calls to parse a source file.  This helps speed things
     // up by avoiding the cost of creating/compiling scanners over and over again.
     var scanner = createScanner(ScriptTarget.Latest, /*skipTrivia*/ true);    
+    var originScanner = scanner;
     var nextScanner: () => number;
     /** the filename currently being scanned */
     var scannerFilename: string;
@@ -489,7 +490,7 @@ export namespace LpcParser {
     }
 
     function getNodePos(): number {
-        return scanner.getTokenFullStart();
+        return originScanner.getTokenFullStart();
     }
     
     function parseErrorAtCurrentToken(message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithDetachedLocation | undefined {
@@ -1338,7 +1339,7 @@ export namespace LpcParser {
 
         if (includeFile?.source?.length > 0) {
             // cache source text
-            const sourceText = includeFileCache[resolvedFilename] = includeFile.source;
+            const includeSourceText = includeFileCache[resolvedFilename] = includeFile.source;
 
             // create scanner for include
             const saveScanner = scanner;
@@ -1347,7 +1348,7 @@ export namespace LpcParser {
             const saveToken = currentToken;
 
             scannerFilename = resolvedFilename;
-            scanner = createScanner(languageVersion, /*skipTrivia*/ true, undefined, sourceText);
+            scanner = createScanner(languageVersion, /*skipTrivia*/ true, undefined, includeSourceText);
             
             nextScanner = () => {
                 // restore the previous scanner
@@ -1415,7 +1416,7 @@ export namespace LpcParser {
         // Add to macro table here
         const macroNode = withJSDoc(finishNode(factory.createDefineDirective(identifier, args, range), pos), hasJSDoc);
 
-        if (!nodeIsMissing(identifier)) {                        
+        if (isIdentifierNode(identifier) && identifier.text?.length > 0) {
             if (macroTable[identifier.text]) {                
                 parseErrorAt(identifier.end - identifier.text.length, identifier.end, Diagnostics.Macro_already_defined_0, identifier.text);
             } else {
@@ -1626,7 +1627,7 @@ export namespace LpcParser {
         // we're inside an include or macro, set pos/end to zero so that they're not reporting errors
         if (lastScanner) {                        
             // pos = poppedScanner.getTokenFullStart();
-            end = lastScanner.getTokenEnd();            
+            // end = lastScanner.getTokenEnd();            
             (node as Mutable<T>).originFilename = lastFilename;
 
             lastScanner = undefined;
@@ -1635,7 +1636,7 @@ export namespace LpcParser {
             (node as Mutable<T>).originFilename = scannerFilename;
         }
                 
-        setTextRangePosEnd(node, pos, end ?? scanner.getTokenFullStart());
+        setTextRangePosEnd(node, pos, end ?? originScanner.getTokenFullStart());
         if (contextFlags) {
             (node as Mutable<T>).flags |= contextFlags;
         }
