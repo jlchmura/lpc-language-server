@@ -617,7 +617,7 @@ export function declarationNameToString(name: DeclarationName | QualifiedName | 
 
 /** @internal */
 export function getTextOfNode(node: Node, includeTrivia = false): string {
-    return getSourceTextOfNodeFromSourceFile(getSourceFileOfNode(node), node, includeTrivia);
+    return (isIdentifier(node) ? node.text : undefined) ?? getSourceTextOfNodeFromSourceFile(getSourceFileOfNode(node), node, includeTrivia);
 }
 
 /** @internal */
