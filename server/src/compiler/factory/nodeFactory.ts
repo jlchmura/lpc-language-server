@@ -1284,9 +1284,10 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     // @api 
-    function createIncludeDirective(content: StringLiteral[]): IncludeDirective {
+    function createIncludeDirective(content: StringLiteral[], localFirst: boolean): IncludeDirective {
         const node = createBaseNode<IncludeDirective>(SyntaxKind.IncludeDirective);
         node.content = createNodeArray(content);
+        node.localFirst = localFirst;
         return node;
     }
 

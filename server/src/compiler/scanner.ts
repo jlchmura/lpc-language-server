@@ -19,7 +19,7 @@ import {
     KeywordSyntaxKind,
     
     LanguageVariant,
-    LineAndCharacter,    
+    LineAndCharacter,        
     MapLike,
     
     positionIsSynthesized,
@@ -96,8 +96,7 @@ export interface Scanner {
     setLanguageVariant(variant: LanguageVariant): void;
     setScriptKind(scriptKind: ScriptKind): void;
     setReportLineBreak(flag: boolean): void;
-    setJSDocParsingMode(kind: JSDocParsingMode): void;
-    setMacroTable(tbl: MapLike<DefineDirective>): void;
+    setJSDocParsingMode(kind: JSDocParsingMode): void;    
     /** @deprecated use {@link resetTokenState} */
     setTextPos(textPos: number): void;
     resetTokenState(pos: number): void;
@@ -119,6 +118,8 @@ export interface Scanner {
     // callback returns something truthy, then the scanner state is not rolled back.  The result
     // of invoking the callback is returned from this function.
     tryScan<T>(callback: () => T): T;        
+
+    getEnd(): number;
 }
 
 /** @internal */
@@ -956,7 +957,14 @@ const enum ClassSetExpressionType {
 }
 
 // Creates a scanner over a (possibly unspecified) range of a piece of text.
-export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: boolean, languageVariant = LanguageVariant.Standard, textInitial?: string, onError?: ErrorCallback, start?: number, length?: number): Scanner {
+export function createScanner(
+    languageVersion: ScriptTarget, 
+    shouldSkipTrivia: boolean, 
+    languageVariant = LanguageVariant.Standard, 
+    textInitial?: string,     
+    onError?: ErrorCallback, 
+    start?: number, length?: number
+): Scanner {
     // Why var? It avoids TDZ checks in the runtime which can be costly.
     // See: https://github.com/microsoft/TypeScript/issues/52924
     /* eslint-disable no-var */
@@ -977,8 +985,7 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
     var token: SyntaxKind;
     var tokenValue!: string;
     var tokenFlags: TokenFlags;
-
-    var macroTable: MapLike<DefineDirective> | undefined;
+    
     var commentDirectives: CommentDirective[] | undefined;
     var skipJsDocLeadingAsterisks = 0;
     var asteriskSeen = false;
@@ -1026,15 +1033,15 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
         setLanguageVariant,
         setScriptKind,
         setJSDocParsingMode,
-        setOnError,
-        setMacroTable,
+        setOnError,        
         resetTokenState,
         setTextPos: resetTokenState,
         setSkipJsDocLeadingAsterisks,
         hasLeadingAsterisks,
         tryScan,
         lookAhead,
-        scanRange        
+        scanRange,
+        getEnd    
     };
     /* eslint-enable no-var */
 
@@ -2386,21 +2393,19 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
                         tokenValue = String.fromCharCode(cookedChar) + scanIdentifierParts();
                         return token = getIdentifierToken();
                     }
-
-                    // if reportLineBreaks is on (for a directive), then skip past escaped returns
-                    if (reportLineBreak) {
-                        switch (charCodeUnchecked(pos + 1)) {
-                            case CharacterCodes.carriageReturn:
-                                if (pos + 2 < end && charCodeUnchecked(pos + 2) === CharacterCodes.lineFeed) {
-                                    pos += 1;
-                                }
-                                // falls through
-                            case CharacterCodes.lineFeed:
-                                pos += 2; // 1 extra for the backslash
-                                tokenFlags |= TokenFlags.PrecedingLineBreak;
-                                continue;                                
-                        }
-                    }                    
+                                        
+                    switch (charCodeUnchecked(pos + 1)) {
+                        case CharacterCodes.carriageReturn:
+                            if (pos + 2 < end && charCodeUnchecked(pos + 2) === CharacterCodes.lineFeed) {
+                                pos += 1;
+                            }
+                            // falls through
+                        case CharacterCodes.lineFeed:
+                            pos += 2; // 1 extra for the backslash
+                            tokenFlags |= TokenFlags.PrecedingLineBreak;
+                            
+                            continue;                                     
+                    }                                    
                     
                     error(Diagnostics.Invalid_character);
                     pos++;
@@ -2534,12 +2539,7 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
             if (ch === CharacterCodes.backslash) {
                 tokenValue += scanIdentifierParts();
             }
-
-            // can a macro have the same name as a reserved word? 
-            if (macroTable && macroTable[tokenValue]) {
-                console.debug("macro found", tokenValue);  
-            }
-
+            
             return getIdentifierToken();
         }
     }
@@ -2817,6 +2817,8 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
         return speculationHelper(callback, /*isLookahead*/ false);
     }
 
+    function getEnd() { return end; }
+
     function getText(): string {
         return text;
     }
@@ -2854,11 +2856,7 @@ export function createScanner(languageVersion: ScriptTarget, shouldSkipTrivia: b
     function setJSDocParsingMode(kind: JSDocParsingMode) {
         jsDocParsingMode = kind;
     }
-
-    function setMacroTable(tbl: MapLike<DefineDirective>): void {
-        macroTable = tbl;
-    }
-
+    
     function resetTokenState(position: number) {
         Debug.assert(position >= 0);
         pos = position;

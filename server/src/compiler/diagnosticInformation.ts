@@ -6,9 +6,10 @@ function diag(code: number, category: DiagnosticCategory, key: string, message: 
 
 export const Diagnostics = {
     // LPC-specific
-    Structs_not_supported: diag(9001, DiagnosticCategory.Error, "Structs_not_supported_2352", "Structs not supported."),
-    Semicolon_expected: diag(9002, DiagnosticCategory.Error, "Semicolon_expected_1005", "Semicolon expected."),
-    Macro_already_defined_0: diag(9003, DiagnosticCategory.Error, "Macro_already_defined_0_2300", "Macro already defined '{0}'."),
+    Structs_not_supported: diag(9001, DiagnosticCategory.Error, "Structs_not_supported_9001", "Structs not supported."),
+    Semicolon_expected: diag(9002, DiagnosticCategory.Error, "Semicolon_expected_9002", "Semicolon expected."),
+    Macro_already_defined_0: diag(9003, DiagnosticCategory.Error, "Macro_already_defined_0_9003", "Macro already defined '{0}'."),
+    Missing_argument_for_macro_0: diag(9004, DiagnosticCategory.Error, "Missing_argument_for_macro_0_9004", "Missing argument for macro '{0}'."),
 
     // Scanner
     _0_expected: diag(1005, DiagnosticCategory.Error, "_0_expected_1005", "'{0}' expected."),    
@@ -58,6 +59,7 @@ export const Diagnostics = {
     The_parser_expected_to_find_a_1_to_match_the_0_token_here: diag(1007, DiagnosticCategory.Error, "The_parser_expected_to_find_a_1_to_match_the_0_token_here_1007", "The parser expected to find a '{1}' to match the '{0}' token here."),
     Keywords_cannot_contain_escape_characters: diag(1260, DiagnosticCategory.Error, "Keywords_cannot_contain_escape_characters_1260", "Keywords cannot contain escape characters."),
     Declaration_or_statement_expected_This_follows_a_block_of_statements_so_if_you_intended_to_write_a_destructuring_assignment_you_might_need_to_wrap_the_whole_assignment_in_parentheses: diag(2809, DiagnosticCategory.Error, "Declaration_or_statement_expected_This_follows_a_block_of_statements_so_if_you_intended_to_write_a_d_2809", "Declaration or statement expected. This '=' follows a block of statements, so if you intended to write a destructuring assignment, you might need to wrap the whole assignment in parentheses."),
+    
 
     // from TS
     Merge_conflict_marker_encountered: diag(1000, DiagnosticCategory.Error, "Merge_conflict_marker_encountered_1000", "Merge conflict marker encountered."),

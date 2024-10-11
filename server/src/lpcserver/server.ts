@@ -17,10 +17,10 @@ const logger = new Logger("server.log", true, lpc.server.LogLevel.verbose);
 const serverCapabilities: vscode.ServerCapabilities = {
     textDocumentSync: TextDocumentSyncKind.Incremental,                
     // Tell the client that this server supports code completion.
-    completionProvider: {
-        resolveProvider: false,
-        triggerCharacters: lpc.CompletionTriggerCharacterArray,
-    },
+    // completionProvider: {
+    //     resolveProvider: false,
+    //     triggerCharacters: lpc.CompletionTriggerCharacterArray,
+    // },
     renameProvider: true,
     documentSymbolProvider: true,
     // codeLensProvider: {

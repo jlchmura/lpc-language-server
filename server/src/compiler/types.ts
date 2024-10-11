@@ -506,6 +506,7 @@ export const enum SyntaxKind {
     NewLineTrivia,
     WhitespaceTrivia,
     ConflictMarkerTrivia,
+    MacroIdentifierTrivia,
     // We detect and preserve #! on the first line
     ShebangTrivia,
     NonTextFileMarkerTrivia,
@@ -1324,7 +1325,7 @@ export interface NodeFactory {
     /** @internal */ createIndexSignature(modifiers: readonly Modifier[] | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode | undefined): IndexSignatureDeclaration; // eslint-disable-line @typescript-eslint/unified-signatures
 
     // directives
-    createIncludeDirective(content: StringLiteral[]): IncludeDirective;
+    createIncludeDirective(content: StringLiteral[], localFirst: boolean): IncludeDirective;
     createDefineDirective(name: string | Identifier, args: NodeArray<Expression>, range: TextRange): DefineDirective;
     createUndefDirective(name: string | Identifier): UndefDirective;
 
@@ -6669,16 +6670,27 @@ export interface PreprocessorDirective extends Statement {
 export interface IncludeDirective extends PreprocessorDirective {
     kind: SyntaxKind.IncludeDirective;
     content: NodeArray<StringLiteral>;
+    localFirst: boolean;
 }
 
 
 export interface DefineDirective extends PreprocessorDirective {
     kind: SyntaxKind.DefineDirective;
     
-    name: Identifier;
-    fileName: string;
+    name: Identifier;    
     arguments?: NodeArray<Expression>;
-    range: TextRange;
+    range: TextRange;    
+}
+
+export interface MacroParameter extends TextRange {
+    
+}
+export interface Macro {
+    directive: DefineDirective;
+    disabled?: boolean;
+    getText(): string;
+    
+    argsIn?: MapLike<MacroParameter>;
 }
 
 export interface UndefDirective extends PreprocessorDirective {
