@@ -608,9 +608,11 @@ export const enum SyntaxKind {
     FalseKeyword,
     TrueKeyword,
     StringKeyword,
+    LwObjectKeyword,    
+    SymbolKeyword,
     UndefinedKeyword,
     AnyKeyword,
-    ClosureKeywoord,
+    ClosureKeyword,
     StructKeyword,
     ObjectKeyword,
     MixedKeyword,
@@ -1192,6 +1194,9 @@ export type KeywordTypeSyntaxKind =
     | SyntaxKind.FloatKeyword
     | SyntaxKind.IntrinsicKeyword
     | SyntaxKind.BytesKeyword
+    | SyntaxKind.LwObjectKeyword
+    | SyntaxKind.ClosureKeyword
+    | SyntaxKind.SymbolKeyword
     | SyntaxKind.FunctionKeyword
     | SyntaxKind.BufferKeyword    
     | SyntaxKind.MixedKeyword
@@ -2074,10 +2079,13 @@ export type DirectiveSyntaxKind =
 export type KeywordSyntaxKind =
     | SyntaxKind.AnyKeyword    
     | SyntaxKind.BytesKeyword
+    | SyntaxKind.LwObjectKeyword
+    | SyntaxKind.ClosureKeyword
+    | SyntaxKind.SymbolKeyword
     | SyntaxKind.BufferKeyword
     | SyntaxKind.ClassKeyword   
     | SyntaxKind.CaseKeyword
-    | SyntaxKind.ClosureKeywoord
+    | SyntaxKind.ClosureKeyword
     | SyntaxKind.DefaultKeyword
     | SyntaxKind.UndefinedKeyword
     | SyntaxKind.BreakKeyword

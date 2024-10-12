@@ -417,7 +417,7 @@ int * utime();
  *
  *
  */
-object * users(void);
+object * users();
 
 /**
  * upper_case
@@ -440,7 +440,7 @@ string upper_case(string str);
  *
  *
  */
-void unshadow(void);
+void unshadow();
 
 /**
  * unquote
@@ -1222,7 +1222,7 @@ void throw(mixed arg);
  *
  *
  */
-object this_player(void);
+object this_player();
 
 /**
  * this_object
@@ -1233,7 +1233,7 @@ object this_player(void);
  *
  *
  */
-object|lwobject this_object(void);
+object|lwobject this_object();
 
 /**
  * this_interactive
@@ -1243,7 +1243,7 @@ object|lwobject this_object(void);
  *
  *
  */
-object this_interactive(void);
+object this_interactive();
 
 /**
  * this_coroutine
@@ -2947,7 +2947,7 @@ varargs string save_object(int format);
  *
  *
  */
-int * rusage(void);
+int * rusage();
 
 /**
  * rmember
@@ -3602,7 +3602,7 @@ mixed quote(mixed a);
  * @since LDMud 3.2.9 added the optional flag argument.
  *
  */
-string query_verb(void);
+string query_verb();
 
 string query_verb(int flag);
 
@@ -3653,7 +3653,7 @@ mixed query_notify_fail(int flag);
  *
  *
  */
-string query_command(void);
+string query_command();
 
 /**
  * query_actions
@@ -7281,7 +7281,7 @@ int exec(object new, object old);
  *
  *
  */
-object environment(void);
+object environment();
 
 object environment(object obj);
 
@@ -8238,7 +8238,7 @@ void destruct(object ob);
  * @since LDMud 3.3.554 added the <depth> parameter.
  *
  */
-object * deep_inventory(void);
+object * deep_inventory();
 
 object * deep_inventory(object ob);
 
@@ -9177,7 +9177,7 @@ closure compile_string(symbol* args, string &str, struct compile_string_options 
  * @since Introduced in LDMud 3.2.7.
  *
  */
-int command_stack_depth(void);
+int command_stack_depth();
 
 /**
  * command_stack
@@ -9205,7 +9205,7 @@ int command_stack_depth(void);
         LDMud 3.2.8 added the CMD_FAILOBJ result.
  *
  */
-mixed * command_stack(void);
+mixed * command_stack();
 
 /**
  * command
@@ -9550,7 +9550,7 @@ string capitalize(string str);
  *
  *
  */
-int caller_stack_depth(void);
+int caller_stack_depth();
 
 /**
  * caller_stack
@@ -9681,7 +9681,7 @@ int* call_resolved(mixed* result, object* ob, varargs string func );
  *
  *
  */
-mixed * call_out_info(void);
+mixed * call_out_info();
 
 /**
  * call_out

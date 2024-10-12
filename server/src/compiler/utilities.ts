@@ -210,7 +210,10 @@ export function createDetachedDiagnostic(fileName: string, sourceText: string, s
 export function attachFileToDiagnostics(diagnostics: DiagnosticWithDetachedLocation[], file: SourceFile): DiagnosticWithLocation[] {
     const diagnosticsWithLocation: DiagnosticWithLocation[] = [];
     for (const diagnostic of diagnostics) {
-        diagnosticsWithLocation.push(attachFileToDiagnostic(diagnostic, file));
+        // filter out diagnostics from includes
+        if (diagnostic.fileName === file.fileName) {            
+            diagnosticsWithLocation.push(attachFileToDiagnostic(diagnostic, file));
+        }
     }
     return diagnosticsWithLocation;
 }
@@ -1624,7 +1627,7 @@ export function isTypeNodeKind(kind: SyntaxKind): kind is TypeNodeSyntaxKind {
         || kind === SyntaxKind.StringKeyword
         || kind === SyntaxKind.MappingKeyword
         || kind === SyntaxKind.VoidKeyword
-        || kind === SyntaxKind.ClosureKeywoord        
+        || kind === SyntaxKind.ClosureKeyword        
         || kind === SyntaxKind.JSDocAllType
         || kind === SyntaxKind.JSDocUnknownType
         || kind === SyntaxKind.JSDocNullableType

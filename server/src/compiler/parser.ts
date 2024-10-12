@@ -881,7 +881,7 @@ export namespace LpcParser {
             case SyntaxKind.OpenBraceToken:
             case SyntaxKind.InheritKeyword:
             case SyntaxKind.StructKeyword:
-            case SyntaxKind.ClosureKeywoord:
+            case SyntaxKind.ClosureKeyword:
             // case SyntaxKind.VarKeyword:
             // case SyntaxKind.LetKeyword:
             // case SyntaxKind.UsingKeyword:            
@@ -938,8 +938,11 @@ export namespace LpcParser {
             case SyntaxKind.VoidKeyword:
             case SyntaxKind.ObjectKeyword:
             case SyntaxKind.MappingKeyword:                
-            case SyntaxKind.BytesKeyword:                           
+            case SyntaxKind.BytesKeyword:  
+            case SyntaxKind.LwObjectKeyword:   
+            case SyntaxKind.SymbolKeyword:
             case SyntaxKind.BufferKeyword:            
+            case SyntaxKind.ClosureKeyword:
                 // When these don't start a declaration, they may be the start of a class member if an identifier
                 // immediately follows. Otherwise they're an identifier in an expression statement.
                 return isStartOfDeclaration() || !lookAhead(nextTokenIsIdentifierOrKeywordOnSameLine);
@@ -971,7 +974,7 @@ export namespace LpcParser {
                 case SyntaxKind.FunctionKeyword:
                 case SyntaxKind.ClassKeyword:
                 case SyntaxKind.StructKeyword:
-                case SyntaxKind.ClosureKeywoord:
+                case SyntaxKind.ClosureKeyword:
                 // case SyntaxKind.EnumKeyword:
                     return true;
                 // case SyntaxKind.UsingKeyword:
@@ -1018,6 +1021,9 @@ export namespace LpcParser {
                 case SyntaxKind.NoSaveKeyword:
                 case SyntaxKind.NoShadowKeyword:
                 case SyntaxKind.BytesKeyword:
+                case SyntaxKind.LwObjectKeyword:
+                case SyntaxKind.ClosureKeyword:
+                case SyntaxKind.SymbolKeyword:
                 case SyntaxKind.BufferKeyword:
                 case SyntaxKind.IntKeyword:
                 case SyntaxKind.FloatKeyword:
@@ -1394,6 +1400,9 @@ export namespace LpcParser {
             // primitive types               
             case SyntaxKind.FunctionKeyword: 
             case SyntaxKind.BytesKeyword:
+            case SyntaxKind.LwObjectKeyword:
+            case SyntaxKind.ClosureKeyword:
+            case SyntaxKind.SymbolKeyword:
             case SyntaxKind.BufferKeyword:
             case SyntaxKind.VoidKeyword:
             case SyntaxKind.IntKeyword:
@@ -1402,7 +1411,7 @@ export namespace LpcParser {
             case SyntaxKind.MixedKeyword:
             case SyntaxKind.MappingKeyword:
             case SyntaxKind.ObjectKeyword:
-            case SyntaxKind.ClosureKeywoord:
+            case SyntaxKind.ClosureKeyword:
             case SyntaxKind.Identifier:
             case SyntaxKind.LessThanToken: // start of union type
                 if (isStartOfDeclaration()) {
@@ -2329,6 +2338,9 @@ export namespace LpcParser {
             case SyntaxKind.UnknownKeyword:
             case SyntaxKind.StringKeyword:
             case SyntaxKind.BytesKeyword:
+            case SyntaxKind.LwObjectKeyword:
+            case SyntaxKind.ClosureKeyword:
+            case SyntaxKind.SymbolKeyword:
             case SyntaxKind.BufferKeyword:
             case SyntaxKind.IntKeyword:
             case SyntaxKind.FloatKeyword:
@@ -2382,6 +2394,9 @@ export namespace LpcParser {
             case SyntaxKind.UnknownKeyword:
             case SyntaxKind.StringKeyword:
             case SyntaxKind.BytesKeyword:
+            case SyntaxKind.LwObjectKeyword:
+            case SyntaxKind.ClosureKeyword:
+            case SyntaxKind.SymbolKeyword:
             case SyntaxKind.BufferKeyword:
             case SyntaxKind.FunctionKeyword:
             case SyntaxKind.IntKeyword:
@@ -2391,7 +2406,7 @@ export namespace LpcParser {
             case SyntaxKind.ObjectKeyword:
             case SyntaxKind.UndefinedKeyword:            
             case SyntaxKind.ObjectKeyword:
-            case SyntaxKind.ClosureKeywoord:
+            case SyntaxKind.ClosureKeyword:
                 // If these are followed by a dot, then parse these out as a dotted type reference instead.
                 return parseKeywordAndNoDot();
             case SyntaxKind.AsteriskEqualsToken:
@@ -2646,6 +2661,9 @@ export namespace LpcParser {
     function isTypeName(): boolean {
         switch (token()) {
             case SyntaxKind.BytesKeyword:
+            case SyntaxKind.LwObjectKeyword:
+            case SyntaxKind.ClosureKeyword:
+            case SyntaxKind.SymbolKeyword:
             case SyntaxKind.BufferKeyword:
             case SyntaxKind.NullKeyword:
             case SyntaxKind.TrueKeyword:
@@ -2657,7 +2675,7 @@ export namespace LpcParser {
             case SyntaxKind.MappingKeyword:
             case SyntaxKind.ObjectKeyword:
             case SyntaxKind.StructKeyword:
-            case SyntaxKind.ClosureKeywoord:
+            case SyntaxKind.ClosureKeyword:
             case SyntaxKind.FunctionKeyword:
                 return true;
             // handle unionable types
