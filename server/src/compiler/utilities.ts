@@ -181,12 +181,12 @@ export function formatStringFromArgs(text: string, args: DiagnosticArguments): s
 }
 
 /** @internal */
-export function createDetachedDiagnostic(fileName: string, sourceText: string, start: number, length: number, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithDetachedLocation {
-    if ((start + length) > sourceText.length) {
-        length = sourceText.length - start;
+export function createDetachedDiagnostic(fileName: string, sourceText: string, start: number, errLength: number, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithDetachedLocation {
+    if ((start + errLength) > sourceText.length) {
+        errLength = sourceText.length - start;
     }
 
-    assertDiagnosticLocation(sourceText, start, length);
+    assertDiagnosticLocation(sourceText, start, errLength);
     let text = getLocaleSpecificMessage(message);
 
     if (some(args)) {
@@ -196,7 +196,7 @@ export function createDetachedDiagnostic(fileName: string, sourceText: string, s
     return {
         file: undefined,
         start,
-        length,
+        length: errLength,
 
         messageText: text,
         category: message.category,

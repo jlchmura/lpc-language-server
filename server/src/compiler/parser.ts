@@ -557,7 +557,7 @@ export namespace LpcParser {
         const lastError = lastOrUndefined(parseDiagnostics);
         let result: DiagnosticWithDetachedLocation | undefined;
         if (!lastError || start !== lastError.start) {
-            result = createDetachedDiagnostic(fileName, sourceText, start, errLength, message, ...args);
+            result = createDetachedDiagnostic(scannerFilename, scanner.getText(), start, errLength, message, ...args);
             parseDiagnostics.push(result);
         }
 
