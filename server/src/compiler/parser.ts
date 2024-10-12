@@ -28,7 +28,7 @@ export namespace LpcParser {
     var scannerFilename: string;
 
     /** the scanner that just finished - from an include or macro */
-    var lastScanner: Scanner | undefined;    
+    var lastTokenEnd: number | undefined;
     var lastFilename: string | undefined;
 
     var disallowInAndDecoratorContext = NodeFlags.DisallowInContext | NodeFlags.DecoratorContext;
@@ -174,6 +174,8 @@ export namespace LpcParser {
         identifiers = undefined!;        
         topLevel = true;   
         includeFileCache = undefined!;
+        lastTokenEnd = undefined!;
+        lastFilename = undefined!;
 
         // clear macro data
         Object.values(macroTable).forEach(macro => { macro.argsIn = undefined; });
@@ -204,6 +206,9 @@ export namespace LpcParser {
     }
 
     function nextTokenWithoutCheck() {
+        lastFilename = undefined!;
+        lastTokenEnd = undefined!;
+
         let incomingToken = scanner.scan();
 
         // if we see an eof, restore the previous scanner (if there is one)
@@ -266,7 +271,7 @@ export namespace LpcParser {
                     currentMacro = macroStack.pop();                                        
 
                     // restore the previous scanner
-                    lastScanner = scanner;                    
+                    lastTokenEnd = scanner.getTokenEnd();                    
                     scanner = saveScanner;                    
                     nextScanner = saveNextScanner;  
                     
@@ -285,7 +290,7 @@ export namespace LpcParser {
                 scanner = createScanner(ScriptTarget.Latest, /*skipTrivia*/ true, undefined, currentMacro.getText(), undefined, arg.pos, arg.end - arg.pos);                    
 
                 nextScanner = () => {
-                    lastScanner = scanner;
+                    lastTokenEnd = scanner.getTokenEnd();
                     scanner = saveScanner;//scannerStack.pop()!;                                
 
                     nextScanner = saveNextScanner;
@@ -1352,7 +1357,7 @@ export namespace LpcParser {
             
             nextScanner = () => {
                 // restore the previous scanner
-                lastScanner = scanner;
+                lastTokenEnd = scanner.getTokenEnd();
                 lastFilename = resolvedFilename;
 
                 scanner = saveScanner;                    
@@ -1623,20 +1628,24 @@ export namespace LpcParser {
         return withJSDoc(finishNode(factory.createWhileStatement(statement, expression), pos), hasJSDoc);
     }
 
-    function finishNode<T extends Node>(node: T, pos: number, end?: number): T {        
-        // we're inside an include or macro, set pos/end to zero so that they're not reporting errors
-        if (lastScanner) {                        
-            // pos = poppedScanner.getTokenFullStart();
-            // end = lastScanner.getTokenEnd();            
-            (node as Mutable<T>).originFilename = lastFilename;
+    function finishNode<T extends Node>(node: T, pos: number, end?: number): T {                
+        if (lastTokenEnd < pos) {
+            // this is a situation where a macro/include scanner exited before the node finished parsing 
+            // in this case, reset the last token end -- we don't need it anymore.
+            lastTokenEnd = undefined!;
+            lastFilename = undefined!;
+        }
 
-            lastScanner = undefined;
-            lastFilename = undefined
+        end ||= lastTokenEnd;
+
+        if (lastFilename !== undefined) {                        
+            (node as Mutable<T>).originFilename = lastFilename;            
         } else {
             (node as Mutable<T>).originFilename = scannerFilename;
         }
                 
         setTextRangePosEnd(node, pos, end ?? originScanner.getTokenFullStart());
+
         if (contextFlags) {
             (node as Mutable<T>).flags |= contextFlags;
         }
