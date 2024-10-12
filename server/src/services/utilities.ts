@@ -1016,6 +1016,8 @@ export function getNodeKind(node: Node): ScriptElementKind {
         //     return ScriptElementKind.enumMemberElement;
         case SyntaxKind.Parameter:
             return hasSyntacticModifier(node, ModifierFlags.ParameterPropertyModifier) ? ScriptElementKind.memberVariableElement : ScriptElementKind.parameterElement;
+        case SyntaxKind.DefineDirective:
+            return ScriptElementKind.enumElement;
         case SyntaxKind.ExportSpecifier:
         // case SyntaxKind.ImportEqualsDeclaration:
         // case SyntaxKind.ImportSpecifier:

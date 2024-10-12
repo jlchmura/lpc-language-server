@@ -26,6 +26,7 @@ import {
     Declaration,
     DeclarationName,
     declarationNameToString,
+    DefineDirective,
     EntityNameExpression,
     // EnumDeclaration,
     // EnumMember,
@@ -464,7 +465,9 @@ function addChildrenRecursively(node: Node | undefined): void {
         // case SyntaxKind.TypeAliasDeclaration:
             addLeafNode(node);
             break;
-
+        case SyntaxKind.DefineDirective:
+            addLeafNode(node);
+            break;
         case SyntaxKind.CallExpression:
         case SyntaxKind.BinaryExpression: {
             const special = getAssignmentDeclarationKind(node as BinaryExpression);
@@ -833,6 +836,8 @@ function getItemName(node: Node, name: Node | undefined): string {
         // case SyntaxKind.ExportAssignment:
         //     return isExportAssignment(node) && node.isExportEquals ? InternalSymbolName.ExportEquals : InternalSymbolName.Default;
 
+        case SyntaxKind.DefineDirective:
+            return (node as DefineDirective).name.text
         // case SyntaxKind.ArrowFunction:
         case SyntaxKind.FunctionDeclaration:
         case SyntaxKind.FunctionExpression:
@@ -896,8 +901,8 @@ function primaryNavBarMenuItems(root: NavigationBarNode): NavigationBarNode[] {
             // case SyntaxKind.TypeAliasDeclaration:
             case SyntaxKind.JSDocTypedefTag:
             case SyntaxKind.JSDocCallbackTag:
+            case SyntaxKind.DefineDirective:
                 return true;
-
             // case SyntaxKind.ArrowFunction:
             case SyntaxKind.FunctionDeclaration:
             case SyntaxKind.FunctionExpression:
@@ -934,6 +939,7 @@ function convertToTree(n: NavigationBarNode): NavigationTree {
         spans: getSpans(n),
         nameSpan: n.name && getNodeSpan(n.name),        
         childItems: map(filter(n.children, x=>x.node.originFilename==rootFilename), convertToTree),
+        // childItems: map(n.children, convertToTree),
     };
 }
 

@@ -601,17 +601,7 @@ export const enum SyntaxKind {
      * @internal
      */
     JSDocCommentTextToken,
-
-    // Directives
-    IncludeDirective,
-    DefineDirective,
-    UndefDirective,
-    IfDirective,
-    ElseDirective,
-    ElseIfDirective,
-    EndIfDirective,
-    PragmaDirective,    
-
+    
     // Keywords
     IntKeyword, // FIrst Keyword, FirstReserved Word
     FloatKeyword,
@@ -702,6 +692,16 @@ export const enum SyntaxKind {
     // Top Level
     SourceFile,
     Bundle,
+    
+    // Directives
+    IncludeDirective,
+    DefineDirective,
+    UndefDirective,
+    IfDirective,
+    ElseDirective,
+    ElseIfDirective,
+    EndIfDirective,
+    PragmaDirective,    
     
     // JSDoc nodes
     JSDocTypeExpression, // First JSDoc Node
