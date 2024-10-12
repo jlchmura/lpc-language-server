@@ -10,6 +10,11 @@ export const Diagnostics = {
     Semicolon_expected: diag(9002, DiagnosticCategory.Error, "Semicolon_expected_9002", "Semicolon expected."),
     Macro_already_defined_0: diag(9003, DiagnosticCategory.Error, "Macro_already_defined_0_9003", "Macro already defined '{0}'."),
     Missing_argument_for_macro_0: diag(9004, DiagnosticCategory.Error, "Missing_argument_for_macro_0_9004", "Missing argument for macro '{0}'."),
+    Else_directive_without_if: diag(9005, DiagnosticCategory.Error, "Else_directive_without_if_9005", "#else directive without #if."),
+    Elseif_directive_without_if: diag(9007, DiagnosticCategory.Error, "Elseif_directive_without_if_9007", "#elseif directive without #if."),
+    Unterminated_directive: diag(9006, DiagnosticCategory.Error, "Unterminated_directive_9006", "Unterminated directive."),
+    Expected_newline_after_directive: diag(9008, DiagnosticCategory.Error, "Expected_newline_after_directive_9008", "Expected newline after directive."),
+
 
     // Scanner
     _0_expected: diag(1005, DiagnosticCategory.Error, "_0_expected_1005", "'{0}' expected."),    
@@ -26,9 +31,7 @@ export const Diagnostics = {
     File_appears_to_be_binary: diag(1490, DiagnosticCategory.Error, "File_appears_to_be_binary_1490", "File appears to be binary."),
     Multiple_consecutive_numeric_separators_are_not_permitted: diag(6189, DiagnosticCategory.Error, "Multiple_consecutive_numeric_separators_are_not_permitted_6189", "Multiple consecutive numeric separators are not permitted."),
     Numeric_separators_are_not_allowed_here: diag(6188, DiagnosticCategory.Error, "Numeric_separators_are_not_allowed_here_6188", "Numeric separators are not allowed here."),
-    Unterminated_string_literal: diag(1002, DiagnosticCategory.Error, "Unterminated_string_literal_1002", "Unterminated string literal."),
-    Unterminated_directive: diag(1004, DiagnosticCategory.Error, "Unterminated_directive_1004", "Unterminated directive."),
-    Expected_newline_after_include_directive: diag(1008, DiagnosticCategory.Error, "Expected_newline_after_include_directive_1008", "Expected newline after include directive."),
+    Unterminated_string_literal: diag(1002, DiagnosticCategory.Error, "Unterminated_string_literal_1002", "Unterminated string literal."),        
     An_extended_Unicode_escape_value_must_be_between_0x0_and_0x10FFFF_inclusive: diag(1198, DiagnosticCategory.Error, "An_extended_Unicode_escape_value_must_be_between_0x0_and_0x10FFFF_inclusive_1198", "An extended Unicode escape value must be between 0x0 and 0x10FFFF inclusive."),
     Unexpected_end_of_text: diag(1126, DiagnosticCategory.Error, "Unexpected_end_of_text_1126", "Unexpected end of text."),
     Unterminated_Unicode_escape_sequence: diag(1199, DiagnosticCategory.Error, "Unterminated_Unicode_escape_sequence_1199", "Unterminated Unicode escape sequence."),

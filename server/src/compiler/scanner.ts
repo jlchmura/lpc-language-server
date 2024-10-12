@@ -128,6 +128,8 @@ export const textToDirectiveObj: MapLike<DirectiveSyntaxKind> = {
     '#define': SyntaxKind.DefineDirective,
     '#undef': SyntaxKind.UndefDirective,
     '#if': SyntaxKind.IfDirective,
+    '#ifdef': SyntaxKind.IfDefDirective,
+    '#ifndef': SyntaxKind.IfNDefDirective,
     '#else': SyntaxKind.ElseDirective,
     '#elseif': SyntaxKind.ElseIfDirective,
     '#endif': SyntaxKind.EndIfDirective,

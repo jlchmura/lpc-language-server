@@ -698,11 +698,13 @@ export const enum SyntaxKind {
     DefineDirective,
     UndefDirective,
     IfDirective,
+    IfDefDirective,    
+    IfNDefDirective,
     ElseDirective,
     ElseIfDirective,
     EndIfDirective,
     PragmaDirective,    
-    
+
     // JSDoc nodes
     JSDocTypeExpression, // First JSDoc Node
     JSDocNameReference,
@@ -2061,6 +2063,8 @@ export type DirectiveSyntaxKind =
     | SyntaxKind.DefineDirective
     | SyntaxKind.UndefDirective
     | SyntaxKind.IfDirective
+    | SyntaxKind.IfDefDirective
+    | SyntaxKind.IfNDefDirective
     | SyntaxKind.ElseDirective
     | SyntaxKind.ElseIfDirective
     | SyntaxKind.EndIfDirective
