@@ -1517,7 +1517,8 @@ export namespace LpcParser {
 
         let localFirst = false;
         if (token() === SyntaxKind.LessThanToken) {
-            Debug.fail("parse <> style include");
+            currentToken = scanner.reScanLessThanTokenAsStringLiteral();
+            directiveContent.push(parseLiteralNode() as StringLiteral);
         } else {
             while (token() === SyntaxKind.StringLiteral) {
                 directiveContent.push(parseLiteralNode() as StringLiteral);

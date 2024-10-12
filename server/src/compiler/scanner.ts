@@ -78,6 +78,7 @@ export interface Scanner {
     reScanAsteriskEqualsToken(): SyntaxKind;    
     reScanLessThanToken(): SyntaxKind;
     reScanHashToken(): SyntaxKind;
+    reScanLessThanTokenAsStringLiteral(): SyntaxKind;
     reScanQuestionToken(): SyntaxKind;
     reScanInvalidIdentifier(): SyntaxKind;    
     scanJsDocToken(): JSDocSyntaxKind;
@@ -99,6 +100,7 @@ export interface Scanner {
     setJSDocParsingMode(kind: JSDocParsingMode): void;    
     /** @deprecated use {@link resetTokenState} */
     setTextPos(textPos: number): void;
+    setParseBracketAsStringLiteral(option: boolean): void;
     resetTokenState(pos: number): void;
     /** @internal */
     setSkipJsDocLeadingAsterisks(skip: boolean): void;
@@ -994,6 +996,7 @@ export function createScanner(
     var skipJsDocLeadingAsterisks = 0;
     var asteriskSeen = false;
     var reportLineBreak = false;
+    var parseBracketAsStringLiteral = false;
 
     var scriptKind = ScriptKind.Unknown;
     var jsDocParsingMode = JSDocParsingMode.ParseAll;
@@ -1023,6 +1026,7 @@ export function createScanner(
         reScanGreaterToken,
         reScanAsteriskEqualsToken,                
         reScanLessThanToken,
+        reScanLessThanTokenAsStringLiteral,
         reScanHashToken,
         reScanQuestionToken,
         reScanInvalidIdentifier,        
@@ -1038,6 +1042,7 @@ export function createScanner(
         setScriptKind,
         setJSDocParsingMode,
         setOnError,        
+        setParseBracketAsStringLiteral,
         resetTokenState,
         setTextPos: resetTokenState,
         setSkipJsDocLeadingAsterisks,
@@ -1459,7 +1464,7 @@ export function createScanner(
                 break;
             }
             const ch = charCodeUnchecked(pos);
-            if (ch === quoteChar) {
+            if (ch === quoteChar || (quoteChar === CharacterCodes.lessThan && ch === CharacterCodes.greaterThan)) {
                 result += text.substring(start, pos);
                 pos++;
                 break;
@@ -2271,6 +2276,11 @@ export function createScanner(
                     if (charCodeUnchecked(pos + 1) === CharacterCodes.equals) {
                         return pos += 2, token = SyntaxKind.LessThanEqualsToken;
                     }
+                    
+                    if (parseBracketAsStringLiteral) {
+                        tokenValue = scanString();
+                        return token = SyntaxKind.StringLiteral;
+                    }
                     // if (
                     //     languageVariant === LanguageVariant.JSX &&
                     //     charCodeUnchecked(pos + 1) === CharacterCodes.slash &&
@@ -2627,8 +2637,16 @@ export function createScanner(
         return undefined;
     }
 
+    function reScanLessThanTokenAsStringLiteral(): SyntaxKind {
+        if (token === SyntaxKind.LessThanToken) {
+            pos--; // so that it can grab the < char
+            tokenValue = scanString();
+            return token = SyntaxKind.StringLiteral;
+        }
+    }
+
     function reScanLessThanToken(): SyntaxKind {
-        if (token === SyntaxKind.LessThanLessThanToken) {
+        if (token === SyntaxKind.LessThanLessThanToken) {                        
             pos = tokenStart + 1;
             return token = SyntaxKind.LessThanToken;
         }
@@ -2835,6 +2853,10 @@ export function createScanner(
         text = newText || "";
         end = length === undefined ? text.length : start! + length;
         resetTokenState(start || 0);
+    }
+
+    function setParseBracketAsStringLiteral(option: boolean) {
+        parseBracketAsStringLiteral = option;
     }
 
     function setOnError(errorCallback: ErrorCallback | undefined) {
