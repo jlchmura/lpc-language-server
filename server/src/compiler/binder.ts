@@ -1019,7 +1019,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
      * If so, the node _must_ be in the current file (as that's the only way anything could have traversed to it to yield it as the error node)
      * This version of `createDiagnosticForNode` uses the binder's context to account for this, and always yields correct diagnostics even in these situations.
      */
-    function createDiagnosticForNode(node: Node, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithLocation {
+    function createDiagnosticForNode(node: Node, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithLocation {        
         return createDiagnosticForNodeInSourceFile(getSourceFileOfNode(node) || file, node, message, ...args);
     }
 

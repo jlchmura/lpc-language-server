@@ -349,7 +349,7 @@ export function getSourceFileOfNode(node: Node | undefined): SourceFile | undefi
 export function getSourceFileOfNode(node: Node | undefined): SourceFile | undefined {
     while (node && node.kind !== SyntaxKind.SourceFile) {
         node = node.parent;
-    }
+    }    
     return node as SourceFile;
 }
 
@@ -700,9 +700,10 @@ export function getSpanOfTokenAtPosition(sourceFile: SourceFile, pos: number): T
 }
 
 /** @internal */
-export function createDiagnosticForNodeInSourceFile(sourceFile: SourceFile, node: Node, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithLocation {
+export function createDiagnosticForNodeInSourceFile(sourceFile: SourceFile, node: Node, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithLocation {    
     const span = getErrorSpanForNode(sourceFile, node);
-    return createFileDiagnostic(sourceFile, span.start, span.length, message, ...args);
+    const d = createFileDiagnostic(sourceFile, span.start, span.length, message, ...args);    
+    return d;
 }
 
 /** @internal */

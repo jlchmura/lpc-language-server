@@ -1131,7 +1131,7 @@ export class ProjectService {
         this.logger.info(`Config: ${configFilename} : ${
             JSON.stringify(
                 {
-                    rootNames: parsedCommandLine.fileNames,
+                    rootNames: parsedCommandLine.fileNames?.length,
                     options: parsedCommandLine.options,
                     watchOptions: parsedCommandLine.watchOptions,
                     projectReferences: parsedCommandLine.projectReferences,

@@ -343,7 +343,8 @@ export namespace LpcParser {
 
         if (allowMacroProcessing && incomingToken === SyntaxKind.Identifier) {
             const tokenValue = scanner.getTokenValue();
-            let macro = macroTable[tokenValue];
+            let macro = macroTable[tokenValue];            
+
             if (macro && macro.disabled !== true && macro.directive.range) {                
                 // we are in a macro substitution
                 if (currentMacro) macroStack.push(currentMacro);
@@ -358,7 +359,10 @@ export namespace LpcParser {
                     // scan the next token, which should be an open paren.. parseArg wil check it.
                     currentToken = scanner.scan();
 
+                    allowMacroProcessing = false;
                     const values = parseArgumentList();                    
+                    allowMacroProcessing = true;
+
                     let lastArg: ReadonlyTextRange = values;
 
                     forEach(macroArgsDef, (arg, i) => {
@@ -383,8 +387,8 @@ export namespace LpcParser {
                 
                 // create a scanner for this macro                              
                 const saveScanner = scanner;
-                scanner = createScanner(ScriptTarget.Latest, /*skipTrivia*/ true, undefined, macro.getText(), undefined, range.pos, range.end - range.pos);
-                
+                scanner = createScanner(ScriptTarget.Latest, /*skipTrivia*/ true, undefined, macro.getText(), undefined, range.pos, range.end - range.pos);                                
+
                 const saveNextScanner = nextScanner;
                 // parse args will have consumed the next token, so we need to store that and return it
                 // when the previous scanner gets restored
@@ -406,15 +410,17 @@ export namespace LpcParser {
 
                 // scan again using the new scanner
                 return nextTokenWithoutCheck();// currentToken = scanner.scan();
-            } else if (currentMacro && currentMacro.argsIn?.[tokenValue]) {
+            } else if (currentMacro && currentMacro.argsIn?.[tokenValue] && currentMacro.argsIn?.[tokenValue].disabled !== true) {
                 // this is a macro parameter
                 const arg = currentMacro.argsIn[tokenValue];                
+                arg.disabled = true;
                 const saveScanner = scanner;// scannerStack.push(scanner);
                 const saveNextScanner = nextScanner;                
                 
                 scanner = createScanner(ScriptTarget.Latest, /*skipTrivia*/ true, undefined, currentMacro.getText(), undefined, arg.pos, arg.end - arg.pos);                    
 
                 nextScanner = () => {
+                    arg.disabled = false;
                     lastTokenEnd = scanner.getTokenEnd();
                     scanner = saveScanner;//scannerStack.pop()!;                                
 
@@ -488,10 +494,14 @@ export namespace LpcParser {
         jsDocParsingMode = JSDocParsingMode.ParseAll
     ) {
         initState(fileName, sourceText, languageVersion, syntaxCursor, scriptKind, config, fileHandler, jsDocParsingMode);
-        
+        try {
         const result = parseSourceFileWorker(languageVersion, setParentNodes, scriptKind || ScriptKind.LPC, jsDocParsingMode);
         clearState();
         return result;
+        }catch (e) {
+            const ii=0;
+            throw e;
+        }
     
     }
 
@@ -620,7 +630,7 @@ export namespace LpcParser {
     }
 
     function getNodePos(): number {
-        return originScanner.getTokenFullStart();
+        return scanner.getTokenFullStart();
     }
     
     function parseErrorAtCurrentToken(message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithDetachedLocation | undefined {
@@ -1464,14 +1474,18 @@ export namespace LpcParser {
         scanner.setReportLineBreak(false);
         // nextToken(); // advance past the newline
 
-        if (directive.kind === SyntaxKind.IncludeDirective) {
+        if (directive?.kind === SyntaxKind.IncludeDirective) {
             processIncludeDirective(directive as IncludeDirective);
+        }
+
+        if (!directive) {
+            directive = createMissingNode(SyntaxKind.IncludeDirective, /*reportAtCurrentPosition*/ true, Diagnostics.Unexpected_keyword_or_identifier);
         }
 
         return directive;
     }
 
-    function processIncludeDirective(includeDirective: IncludeDirective) {        
+    function processIncludeDirective(includeDirective: IncludeDirective) {                
         const localFilename = includeDirective.content.map((literal) => literal.text).join("");            
         const includeFile = fileHandler.loadIncludeFile(scannerFilename, localFilename, includeDirective.localFirst);
         const resolvedFilename = includeFile.filename;
@@ -1546,7 +1560,7 @@ export namespace LpcParser {
         let tokenCount = 0;
         const contentStart = scanner.getTokenStart();
         let endPos = contentStart;
-        while (token() !== SyntaxKind.NewLineTrivia) {            
+        while (token() !== SyntaxKind.NewLineTrivia && token() !== SyntaxKind.EndOfFileToken) {            
             tokenCount++;
             endPos = scanner.getTokenEnd();
             nextToken();                      
@@ -1779,7 +1793,7 @@ export namespace LpcParser {
             (node as Mutable<T>).originFilename = scannerFilename;
         }
                 
-        setTextRangePosEnd(node, pos, end ?? originScanner.getTokenFullStart());
+        setTextRangePosEnd(node, pos, end ?? scanner.getTokenFullStart());
 
         if (contextFlags) {
             (node as Mutable<T>).flags |= contextFlags;
@@ -2009,6 +2023,8 @@ export namespace LpcParser {
         const saveToken = currentToken;
         const saveParseDiagnosticsLength = parseDiagnostics.length;
         const saveParseErrorBeforeNextFinishedNode = parseErrorBeforeNextFinishedNode;
+        const saveNextScanner = nextScanner;
+        const saveScanner = scanner;
 
         // Note: it is not actually necessary to save/restore the context flags here.  That's
         // because the saving/restoring of these flags happens naturally through the recursive
@@ -2035,6 +2051,8 @@ export namespace LpcParser {
                 parseDiagnostics.length = saveParseDiagnosticsLength;
             }
             parseErrorBeforeNextFinishedNode = saveParseErrorBeforeNextFinishedNode;
+            nextScanner = saveNextScanner;
+            scanner = saveScanner;
         }
 
         isSpeculating = saveIsSpeculating;
@@ -2414,13 +2432,13 @@ export namespace LpcParser {
                 // If there is '*=', treat it as * followed by postfix =
                 scanner.reScanAsteriskEqualsToken();
                 // falls through
-            case SyntaxKind.AsteriskToken:
-                console.warn("todo - parse asterisk type");
-                // return parseJSDocAllType();
-            case SyntaxKind.QuestionQuestionToken:
-                // If there is '??', treat it as prefix-'?' in JSDoc type.
-                scanner.reScanQuestionToken();
-                // falls through
+            // case SyntaxKind.AsteriskToken:
+            //     console.warn("todo - parse asterisk type");
+            //     // return parseJSDocAllType();
+            // case SyntaxKind.QuestionQuestionToken:
+            //     // If there is '??', treat it as prefix-'?' in JSDoc type.
+            //     scanner.reScanQuestionToken();
+            //     // falls through
             // case SyntaxKind.QuestionToken:
             //     return parseJSDocUnknownOrNullableType();
             // case SyntaxKind.FunctionKeyword:
@@ -2774,7 +2792,11 @@ export namespace LpcParser {
                     (missing as Mutable<MissingDeclaration>).type = typeIn;
                     return missing;
                 }
-                return undefined!; // TODO: GH#18217
+
+                // this shouldn't happen -- something went wrong w/ parse modifier or type
+                nextToken();
+                return createMissingNode(SyntaxKind.MissingDeclaration, /*reportAtCurrentPosition*/ true, Diagnostics.Declaration_expected);
+                // return undefined!; // TODO: GH#18217
         }
     }    
 
@@ -3078,6 +3100,7 @@ export namespace LpcParser {
         // we'll parse it out and reporto an error in the checker    
         const tempType = parseType();        
         const name = parseIdentifierOrPattern();                
+        
         const initializer = isInOrOfKeyword(token()) ? undefined : parseInitializer();
         const node = factoryCreateVariableDeclaration(name, tempType || type, initializer);
         return withJSDoc(finishNode(node, pos), hasJSDoc);
@@ -3992,9 +4015,18 @@ export namespace LpcParser {
             const name = parseIdentifier();
             node = factory.createLambdaIdentifierExpression(name);
         } else {            
-            reScanGreaterToken(); // to get the proper >= token
-            const token = parseTokenNode<LambdaOperatorToken>();
-            node = factory.createLambdaOperatorExpression(token);
+            if (token() == SyntaxKind.GreaterThanToken) reScanGreaterToken(); // to get the proper >= token                        
+            const opToken = parseTokenNode<LambdaOperatorToken>();
+            node = factory.createLambdaOperatorExpression(opToken);
+
+            if (opToken.kind == SyntaxKind.OpenBracketToken) {
+                while (token() != SyntaxKind.CommaToken) {
+                    // TODO : validate these, don't just eat them
+                    // https://github.com/ldmud/ldmud/blob/74503aaa72f874e311040097968d2c4efe6df0fb/doc/LPC/closures#L246
+                    const t = nextToken();
+                    const ii=0;
+                }
+            }
         }
 
         return finishNode(node, pos);
@@ -4142,7 +4174,9 @@ export namespace LpcParser {
         const pos = getNodePos();
         parseExpected(SyntaxKind.DotDotDotToken);
         const expression = parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ true);
-        Debug.fail("parseSpreadElement");
+        console.warn("TODO - parseSpreadElement");
+
+        return createMissingNode(SyntaxKind.DotDotDotToken, false);
         //return finishNode(factory.createSpreadElement(expression), pos);
     }
 

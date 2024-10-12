@@ -938,7 +938,7 @@ function convertToTree(n: NavigationBarNode): NavigationTree {
         kindModifiers: getModifiers(n.node),
         spans: getSpans(n),
         nameSpan: n.name && getNodeSpan(n.name),        
-        childItems: map(filter(n.children, x=>x.node.originFilename==rootFilename), convertToTree),
+        childItems: map(filter(n.children, x=>x.node.originFilename==rootFilename && x.node.pos < x.node.end), convertToTree),
         // childItems: map(n.children, convertToTree),
     };
 }

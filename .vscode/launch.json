@@ -18,7 +18,7 @@
                 // "${workspaceRoot}/../fluff-test",
                 //"${workspaceRoot}/efuns/ldmud",
                 "--extensionDevelopmentPath=${workspaceRoot}"
-            ],
+            ],            
             "autoAttachChildProcesses": true,
             "sourceMaps": true,
             "outFiles": ["${workspaceFolder}/out/**/*.js"],

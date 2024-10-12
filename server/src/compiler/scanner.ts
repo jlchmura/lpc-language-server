@@ -203,6 +203,7 @@ const textToToken = new Map(Object.entries({
     ",": SyntaxKind.CommaToken,
     "<": SyntaxKind.LessThanToken,
     ">": SyntaxKind.GreaterThanToken,
+    "<..": SyntaxKind.LessThanDotDotToken,
     "<=": SyntaxKind.LessThanEqualsToken,
     ">=": SyntaxKind.GreaterThanEqualsToken,
     "==": SyntaxKind.EqualsEqualsToken,
@@ -1400,7 +1401,9 @@ export function createScanner(
             if (pos >= end) {
                 return false;
             }
+
             const ch = charCodeUnchecked(pos);
+                                    
             if (ch === quoteChar) {
                 // result += text.substring(start, pos);
                 return false; // not a lambda
@@ -2027,7 +2030,7 @@ export function createScanner(
                     pos++;
                     return token = SyntaxKind.ExclamationToken;
                 case CharacterCodes.singleQuote:      
-                    if (lookAhead(lookForPossibleLambdaOperator)) {
+                    if (isIdentifierStart(charCodeUnchecked(pos+1), languageVersion) && lookAhead(lookForPossibleLambdaOperator) ) {
                         pos++
                         return token = SyntaxKind.LambdaToken;
                     }                    
@@ -2275,6 +2278,9 @@ export function createScanner(
                     }
                     if (charCodeUnchecked(pos + 1) === CharacterCodes.equals) {
                         return pos += 2, token = SyntaxKind.LessThanEqualsToken;
+                    }
+                    if (charCodeUnchecked(pos + 1) === CharacterCodes.dot && charCodeUnchecked(pos + 2) === CharacterCodes.dot) {
+                        return pos += 3, token = SyntaxKind.LessThanDotDotToken;
                     }
                     
                     if (parseBracketAsStringLiteral) {
@@ -2790,7 +2796,7 @@ export function createScanner(
         const saveTokenPos = tokenStart;
         const saveToken = token;
         const saveTokenValue = tokenValue;
-        const saveTokenFlags = tokenFlags;
+        const saveTokenFlags = tokenFlags;        
         const result = callback();
 
         // If our callback returned something 'falsy' or we're just looking ahead,

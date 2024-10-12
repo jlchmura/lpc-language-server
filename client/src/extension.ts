@@ -46,7 +46,7 @@ export function activate(context: ExtensionContext) {
     const efunDir = context.asAbsolutePath("efuns");
 
     let debugOptions = {
-        execArgv: ["--nolazy", "--enable-source-maps", "--inspect"],
+        execArgv: ["--nolazy", "--enable-source-maps", "--inspect", "--max-old-space-size=4028"]        
     };
 
     // If the extension is launched in debug mode then the debug server options are used

@@ -207,7 +207,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                 // });
             }
         }
-
+        
         tracing?.push(tracing.Phase.Program, "processRootFiles", { count: rootNames.length });
         forEach(rootNames, (name, index) => processRootFile(name, /*isDefaultLib*/ false, /*ignoreNoDefaultLib*/ false, { kind: FileIncludeKind.RootFile, index }));
         tracing?.pop();
@@ -1421,7 +1421,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                         imports = append(imports, node.inheritClause);
                     } else {
                         // TODO: implement support for inherits w/ binary expression
-                        Debug.loggingHost.log(LogLevel.Warning, "Non-string inherit clause not supported " + node);
+                        // Debug.loggingHost.log(LogLevel.Warning, "Non-string inherit clause not supported " + node);
                     }
                 }                
                 // else if (isJavaScriptFile && isJSDocImportTag(node)) {

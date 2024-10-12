@@ -533,6 +533,7 @@ export const enum SyntaxKind {
     QuestionDotToken,
     LessThanToken,
     LessThanSlashToken,
+    LessThanDotDotToken,
     GreaterThanToken,
     LessThanEqualsToken,
     GreaterThanEqualsToken,
@@ -627,12 +628,11 @@ export const enum SyntaxKind {
     ElseKeyword,
     ForKeyword,
     ForEachKeyword,
-    FunctionKeyword,
-    ClassKeyword,
+    FunctionKeyword,    
     CaseKeyword,
     DefaultKeyword,
     IfKeyword,
-    NewKeyword,
+    
     ReturnKeyword,
     NullKeyword,
     SwitchKeyword,
@@ -653,6 +653,10 @@ export const enum SyntaxKind {
     NoMaskKeyword,
     VarArgsKeyword,
     DeprecatedKeyword,  // LastKeyword and LastToken - everything after this will be processed by the binder
+
+    // non-reserved keywords go below this line
+    ClassKeyword,
+    NewKeyword,
 
     // Parse Tree Nodes
 
@@ -838,7 +842,7 @@ export const enum SyntaxKind {
     FirstReservedWord = IntKeyword,
     LastReservedWord = DeprecatedKeyword,
     FirstKeyword = IntKeyword,
-    LastKeyword = DeprecatedKeyword,
+    LastKeyword = NewKeyword,
     FirstToken = Unknown,
     LastToken = LastKeyword,
     FirstStatement = VariableStatement,
@@ -6695,7 +6699,7 @@ export interface DefineDirective extends PreprocessorDirective {
 }
 
 export interface MacroParameter extends TextRange {
-    
+    disabled?: boolean;
 }
 export interface Macro {
     directive: DefineDirective;
