@@ -181,12 +181,12 @@ export function formatStringFromArgs(text: string, args: DiagnosticArguments): s
 }
 
 /** @internal */
-export function createDetachedDiagnostic(fileName: string, sourceText: string, start: number, errLength: number, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithDetachedLocation {
-    if ((start + errLength) > sourceText.length) {
-        errLength = sourceText.length - start;
+export function createDetachedDiagnostic(fileName: string, diagSourceText: string, start: number, errLength: number, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithDetachedLocation {
+    if ((start + errLength) > diagSourceText.length) {
+        errLength = diagSourceText.length - start;
     }
 
-    assertDiagnosticLocation(sourceText, start, errLength);
+    assertDiagnosticLocation(diagSourceText, start, errLength);
     let text = getLocaleSpecificMessage(message);
 
     if (some(args)) {
@@ -625,6 +625,11 @@ export function getTextOfNode(node: Node, includeTrivia = false): string {
 
 /** @internal */
 export function getErrorSpanForNode(sourceFile: SourceFile, node: Node): TextSpan {
+    // if this node was from an include file, switch to the position of the include directive
+    if (node.includeDirEnd !== undefined) {
+        return getSpanOfTokenAtPosition(sourceFile, node.includeDirPos);
+    }
+
     //return createTextSpan(node.pos, node.end - node.pos);
     let errorNode: Node | undefined = node;
     switch (node.kind) {
@@ -676,7 +681,8 @@ export function getErrorSpanForNode(sourceFile: SourceFile, node: Node): TextSpa
     const isMissing = nodeIsMissing(errorNode);
     const pos = isMissing// || isJsxText(node)
         ? errorNode.pos
-        : skipTrivia(sourceFile.text, errorNode.pos);
+        : skipTrivia(sourceFile.text, errorNode.pos);    
+
 
     // These asserts should all be satisfied for a properly constructed `errorNode`.
     if (isMissing) {

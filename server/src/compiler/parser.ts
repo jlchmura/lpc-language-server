@@ -27,9 +27,13 @@ export namespace LpcParser {
     /** the filename currently being scanned */
     var scannerFilename: string;
 
+    var currentIncludeDirective: IncludeDirective | undefined;
+    var includeStack: IncludeDirective[] = [];
+
     /** the scanner that just finished - from an include or macro */
     var lastTokenEnd: number | undefined;
     var lastFilename: string | undefined;
+    var lastIncludeDirective: IncludeDirective | undefined;
 
     var disallowInAndDecoratorContext = NodeFlags.DisallowInContext | NodeFlags.DecoratorContext;
             
@@ -50,11 +54,13 @@ export namespace LpcParser {
     var languageVariant: LanguageVariant;
     
     var macroTable: MapLike<Macro> | undefined;    
+    var macroStack: Macro[];
     var currentMacro: Macro;
-    var macroStack: Macro[] = [];
-    var conditionalStack: Ternary[] = [];
-    var isCodeExecutable: Ternary = Ternary.Unknown;
     var allowMacroProcessing: boolean = true;
+
+    var conditionalStack: Ternary[];
+    var isCodeExecutable: Ternary = Ternary.Unknown;
+
     var topLevel: boolean = true;
     var contextFlags: NodeFlags;
     var parseErrorBeforeNextFinishedNode = false;
@@ -137,9 +143,16 @@ export namespace LpcParser {
         syntaxCursor = _syntaxCursor;
         scriptKind = _scriptKind;
         languageVariant = getLanguageVariant(_scriptKind);
+        
         macroTable = {};
-        includeFileCache = {};
+        macroStack = [];
         conditionalStack = [];
+                
+        includeFileCache = {};
+        currentIncludeDirective = undefined!;
+        includeStack = [];
+
+        originScanner = scanner;        
 
         parseDiagnostics = [];
         nodeCount = 0;
@@ -165,6 +178,7 @@ export namespace LpcParser {
         scanner.setJSDocParsingMode(JSDocParsingMode.ParseAll);        
 
         // Clear any data.  We don't want to accidentally hold onto it for too long.
+        scannerFilename = undefined!;
         sourceText = undefined!;
         languageVersion = undefined!;
         syntaxCursor = undefined;
@@ -179,11 +193,19 @@ export namespace LpcParser {
         includeFileCache = undefined!;
         lastTokenEnd = undefined!;
         lastFilename = undefined!;
+        lastIncludeDirective = undefined!;
         conditionalStack = undefined!;
+        
+        originScanner = undefined!;        
+        currentIncludeDirective = undefined!;
+        includeStack = undefined!;
 
         // clear macro data
         Object.values(macroTable).forEach(macro => { macro.argsIn = undefined; });
         macroTable = undefined!;    
+        macroStack = undefined!;
+        currentMacro = undefined!;
+        allowMacroProcessing = true;
     }
 
     function scanError(message: DiagnosticMessage, length: number, arg0?: any): void {
@@ -269,6 +291,7 @@ export namespace LpcParser {
     function nextTokenWithoutCheck() {
         lastFilename = undefined!;
         lastTokenEnd = undefined!;
+        lastIncludeDirective = undefined!;        
 
         let incomingToken = scanner.scan();
 
@@ -349,7 +372,7 @@ export namespace LpcParser {
                 // we are in a macro substitution
                 if (currentMacro) macroStack.push(currentMacro);
                 currentMacro = macro;
-                macro.disabled = true;
+                macro.disabled = true;                
 
                 const { range, arguments: macroArgsDef } = macro.directive;  
 
@@ -395,9 +418,12 @@ export namespace LpcParser {
                 const saveToken = macroArgsDef?.length > 0 ? currentToken : undefined;
                 nextScanner = () => {
                     // re-enable the macro
+                    Debug.assertIsDefined(currentMacro);
                     currentMacro.disabled = false;
                     currentMacro.argsIn = undefined;
                     currentMacro = macroStack.pop();                                        
+                    
+                    Debug.assert(currentMacro || !saveNextScanner, "Current macro should be set or there should be no next scanner");
 
                     // restore the previous scanner
                     lastTokenEnd = scanner.getTokenEnd();                    
@@ -494,6 +520,9 @@ export namespace LpcParser {
         jsDocParsingMode = JSDocParsingMode.ParseAll
     ) {
         initState(fileName, sourceText, languageVersion, syntaxCursor, scriptKind, config, fileHandler, jsDocParsingMode);
+        if (fileName.endsWith("mycastle/floor4/room.c")) {
+            const ii=0;
+        }
         try {
         const result = parseSourceFileWorker(languageVersion, setParentNodes, scriptKind || ScriptKind.LPC, jsDocParsingMode);
         clearState();
@@ -567,7 +596,8 @@ export namespace LpcParser {
         const lastError = lastOrUndefined(parseDiagnostics);
         let result: DiagnosticWithDetachedLocation | undefined;
         if (!lastError || start !== lastError.start) {
-            result = createDetachedDiagnostic(scannerFilename, scanner.getText(), start, errLength, message, ...args);
+            const diagSrcText = scanner.getText().length > start ? scanner.getText() : sourceText;
+            result = createDetachedDiagnostic(scannerFilename, diagSrcText, start, errLength, message, ...args);
             parseDiagnostics.push(result);
         }
 
@@ -949,6 +979,7 @@ export namespace LpcParser {
             case SyntaxKind.ObjectKeyword:
             case SyntaxKind.MappingKeyword:                
             case SyntaxKind.BytesKeyword:  
+            case SyntaxKind.StatusKeyword:
             case SyntaxKind.LwObjectKeyword:   
             case SyntaxKind.SymbolKeyword:
             case SyntaxKind.BufferKeyword:            
@@ -1031,6 +1062,7 @@ export namespace LpcParser {
                 case SyntaxKind.NoSaveKeyword:
                 case SyntaxKind.NoShadowKeyword:
                 case SyntaxKind.BytesKeyword:
+                case SyntaxKind.StatusKeyword:
                 case SyntaxKind.LwObjectKeyword:
                 case SyntaxKind.ClosureKeyword:
                 case SyntaxKind.SymbolKeyword:
@@ -1410,6 +1442,7 @@ export namespace LpcParser {
             // primitive types               
             case SyntaxKind.FunctionKeyword: 
             case SyntaxKind.BytesKeyword:
+            case SyntaxKind.StatusKeyword:
             case SyntaxKind.LwObjectKeyword:
             case SyntaxKind.ClosureKeyword:
             case SyntaxKind.SymbolKeyword:
@@ -1502,11 +1535,20 @@ export namespace LpcParser {
 
             scannerFilename = resolvedFilename;
             scanner = createScanner(languageVersion, /*skipTrivia*/ true, undefined, includeSourceText);
+
+            includeStack.push(includeDirective);
+            currentIncludeDirective ??= includeDirective;
             
             nextScanner = () => {
+                Debug.assert(!isSpeculating, "Should not be speculating");
+
                 // restore the previous scanner
                 lastTokenEnd = scanner.getTokenEnd();
                 lastFilename = resolvedFilename;
+                
+                lastIncludeDirective = currentIncludeDirective;                
+                includeStack.pop();
+                if (includeStack.length == 0) currentIncludeDirective = undefined!;
 
                 scanner = saveScanner;                    
                 scannerFilename = saveFilename;
@@ -1783,15 +1825,14 @@ export namespace LpcParser {
             // in this case, reset the last token end -- we don't need it anymore.
             lastTokenEnd = undefined!;
             lastFilename = undefined!;
+            lastIncludeDirective = undefined!;
         }
 
         end ||= lastTokenEnd;
-
-        if (lastFilename !== undefined) {                        
-            (node as Mutable<T>).originFilename = lastFilename;            
-        } else {
-            (node as Mutable<T>).originFilename = scannerFilename;
-        }
+        
+        (node as Mutable<T>).includeDirEnd = (lastIncludeDirective || currentIncludeDirective)?.end;
+        (node as Mutable<T>).includeDirPos = (lastIncludeDirective || currentIncludeDirective)?.pos;        
+        (node as Mutable<T>).originFilename = lastFilename ?? scannerFilename;
                 
         setTextRangePosEnd(node, pos, end ?? scanner.getTokenFullStart());
 
@@ -2025,6 +2066,8 @@ export namespace LpcParser {
         const saveParseErrorBeforeNextFinishedNode = parseErrorBeforeNextFinishedNode;
         const saveNextScanner = nextScanner;
         const saveScanner = scanner;
+        const saveMacroStack = macroStack;
+        const saveCurrentMaco = currentMacro;
 
         // Note: it is not actually necessary to save/restore the context flags here.  That's
         // because the saving/restoring of these flags happens naturally through the recursive
@@ -2053,6 +2096,8 @@ export namespace LpcParser {
             parseErrorBeforeNextFinishedNode = saveParseErrorBeforeNextFinishedNode;
             nextScanner = saveNextScanner;
             scanner = saveScanner;
+            macroStack = saveMacroStack;
+            currentMacro = saveCurrentMaco;
         }
 
         isSpeculating = saveIsSpeculating;
@@ -2140,6 +2185,7 @@ export namespace LpcParser {
         // Otherwise, if this isn't a well-known keyword-like identifier, give the generic fallback message.
         const expressionText = isIdentifierNode(node) ? idText(node) : undefined;
         if (!expressionText || !isIdentifierText(expressionText, languageVersion)) {
+            if (fileName.endsWith("sing.c")) debugger;
             parseErrorAtCurrentToken(Diagnostics._0_expected, tokenToString(SyntaxKind.SemicolonToken));
             return;
         }
@@ -2357,6 +2403,7 @@ export namespace LpcParser {
             case SyntaxKind.UnknownKeyword:
             case SyntaxKind.StringKeyword:
             case SyntaxKind.BytesKeyword:
+            case SyntaxKind.StatusKeyword:
             case SyntaxKind.LwObjectKeyword:
             case SyntaxKind.ClosureKeyword:
             case SyntaxKind.SymbolKeyword:
@@ -2413,6 +2460,7 @@ export namespace LpcParser {
             case SyntaxKind.UnknownKeyword:
             case SyntaxKind.StringKeyword:
             case SyntaxKind.BytesKeyword:
+            case SyntaxKind.StatusKeyword:
             case SyntaxKind.LwObjectKeyword:
             case SyntaxKind.ClosureKeyword:
             case SyntaxKind.SymbolKeyword:
@@ -2680,6 +2728,7 @@ export namespace LpcParser {
     function isTypeName(): boolean {
         switch (token()) {
             case SyntaxKind.BytesKeyword:
+            case SyntaxKind.StatusKeyword:
             case SyntaxKind.LwObjectKeyword:
             case SyntaxKind.ClosureKeyword:
             case SyntaxKind.SymbolKeyword:
@@ -3142,7 +3191,7 @@ export namespace LpcParser {
             const pos = scanner.hasLeadingAsterisks() ? scanner.getTokenStart() : getNodePos();
             // Store original token kind if it is not just an Identifier so we can report appropriate error later in type checker
             const originalKeywordKind = token();
-            const text = internIdentifier(scanner.getTokenValue());
+            const text = internIdentifier(scanner.getTokenValue());            
             const hasExtendedUnicodeEscape = scanner.hasExtendedUnicodeEscape();
             nextTokenWithoutCheck();
             return finishNode(factoryCreateIdentifier(text, originalKeywordKind, hasExtendedUnicodeEscape), pos);

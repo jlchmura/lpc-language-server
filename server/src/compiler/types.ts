@@ -38,8 +38,8 @@ export interface IncludedFileRange {
 }
 
 export interface ReadonlyIncludedFileRange {
-    readonly posInOrigin?: number;
-    readonly endInOrigin?: number;
+    readonly includeDirPos?: number;
+    readonly includeDirEnd?: number;
     readonly originFilename?: string;
 }
 
@@ -623,7 +623,7 @@ export const enum SyntaxKind {
     VoidKeyword,
     BreakKeyword,
     BytesKeyword,
-    BufferKeyword,
+    BufferKeyword,    
     DoKeyword,
     ElseKeyword,
     ForKeyword,
@@ -656,6 +656,7 @@ export const enum SyntaxKind {
 
     // non-reserved keywords go below this line
     ClassKeyword,
+    StatusKeyword,
     NewKeyword,
 
     // Parse Tree Nodes
@@ -1198,6 +1199,7 @@ export type KeywordTypeSyntaxKind =
     | SyntaxKind.FloatKeyword
     | SyntaxKind.IntrinsicKeyword
     | SyntaxKind.BytesKeyword
+    | SyntaxKind.StatusKeyword
     | SyntaxKind.LwObjectKeyword
     | SyntaxKind.ClosureKeyword
     | SyntaxKind.SymbolKeyword
@@ -2082,6 +2084,7 @@ export type DirectiveSyntaxKind =
 
 export type KeywordSyntaxKind =
     | SyntaxKind.AnyKeyword    
+    | SyntaxKind.StatusKeyword
     | SyntaxKind.BytesKeyword
     | SyntaxKind.LwObjectKeyword
     | SyntaxKind.ClosureKeyword
