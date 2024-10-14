@@ -279,4 +279,5 @@ export const Diagnostics = {
     Target_signature_provides_too_few_arguments_Expected_0_or_more_but_got_1: diag(2849, DiagnosticCategory.Error, "Target_signature_provides_too_few_arguments_Expected_0_or_more_but_got_1_2849", "Target signature provides too few arguments. Expected {0} or more, but got {1}."),
     Types_of_parameters_0_and_1_are_incompatible: diag(2328, DiagnosticCategory.Error, "Types_of_parameters_0_and_1_are_incompatible_2328", "Types of parameters '{0}' and '{1}' are incompatible."),
     Signature_0_must_be_a_type_predicate: diag(1224, DiagnosticCategory.Error, "Signature_0_must_be_a_type_predicate_1224", "Signature '{0}' must be a type predicate."),
+    _0_implicitly_has_type_any_because_it_does_not_have_a_type_annotation_and_is_referenced_directly_or_indirectly_in_its_own_initializer: diag(7022, DiagnosticCategory.Error, "_0_implicitly_has_type_any_because_it_does_not_have_a_type_annotation_and_is_referenced_directly_or__7022", "'{0}' implicitly has type 'any' because it does not have a type annotation and is referenced directly or indirectly in its own initializer."),
 }

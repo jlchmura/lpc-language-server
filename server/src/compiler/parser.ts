@@ -869,7 +869,7 @@ export namespace LpcParser {
             //         return isIdentifier() && !isHeritageClauseExtendsOrImplementsKeyword();
             //     }
             case ParsingContext.VariableDeclarations:
-                return isBindingIdentifier();
+                return isBindingIdentifier() || token() === SyntaxKind.AsteriskToken;
             case ParsingContext.ForEachInitialers:
                 return isBindingIdentifier() || isTypeMemberStart();
             case ParsingContext.ArrayBindingElements:
