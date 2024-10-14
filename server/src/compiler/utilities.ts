@@ -5806,3 +5806,7 @@ export function isObjectLiteralOrClassExpressionMethodOrAccessor(node: Node): no
 export function isIdentifierTypePredicate(predicate: TypePredicate): predicate is IdentifierTypePredicate {
     return predicate && predicate.kind === TypePredicateKind.Identifier;
 }
+
+export function getNormalizedModuleName(moduleName: string): string {
+    return hasLPCFileExtension(moduleName) ? moduleName : moduleName + Extension.C;
+}
