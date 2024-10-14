@@ -618,7 +618,9 @@ export function isUnaryExpression(node: Node): node is UnaryExpression {
 function isUnaryExpressionKind(kind: SyntaxKind): boolean {
     switch (kind) {
         case SyntaxKind.PrefixUnaryExpression:
-        case SyntaxKind.PostfixUnaryExpression:        
+        case SyntaxKind.PostfixUnaryExpression:     
+        case SyntaxKind.CastExpression:   
+        case SyntaxKind.TypeAssertionExpression:
         //case SyntaxKind.AwaitExpression:    
             return true;
         default:

@@ -148,6 +148,7 @@ export namespace LpcParser {
         currentMacro = undefined!;
                 
         includeFileCache = {};
+        includeFileCache[fileName] = sourceText;
         currentIncludeDirective = undefined!;        
 
         originScanner = scanner;        
@@ -670,6 +671,10 @@ export namespace LpcParser {
 
     function getNodePos(): number {
         return scanner.getTokenFullStart();
+    }
+
+    function getNodePosAndFileName(): { pos: number, fileName: string } {
+        return { pos: scanner.getTokenFullStart(), fileName: scannerFilename };
     }
     
     function parseErrorAtCurrentToken(message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithDetachedLocation | undefined {
@@ -1666,9 +1671,10 @@ export namespace LpcParser {
         const hasJSDoc = hasPrecedingJSDocComment();
         parseExpected(SyntaxKind.IfKeyword);
         const openParenPosition = scanner.getTokenStart();
+        const openParenFilename = scannerFilename;
         const openParenParsed = parseExpected(SyntaxKind.OpenParenToken);
         const expression = allowInAnd(parseExpression);
-        parseExpectedMatchingBrackets(SyntaxKind.OpenParenToken, SyntaxKind.CloseParenToken, openParenParsed, openParenPosition);
+        parseExpectedMatchingBrackets(SyntaxKind.OpenParenToken, SyntaxKind.CloseParenToken, openParenParsed, openParenPosition, openParenFilename);
         const thenStatement = parseStatement();
         const elseStatement = parseOptional(SyntaxKind.ElseKeyword) ? parseStatement() : undefined;
         return withJSDoc(finishNode(factoryCreateIfStatement(expression, thenStatement, elseStatement), pos), hasJSDoc);
@@ -1812,9 +1818,10 @@ export namespace LpcParser {
         const statement = parseStatement();
         parseExpected(SyntaxKind.WhileKeyword);
         const openParenPosition = scanner.getTokenStart();
+        const openParenFilename = scannerFilename;
         const openParenParsed = parseExpected(SyntaxKind.OpenParenToken);
         const expression = allowInAnd(parseExpression);
-        parseExpectedMatchingBrackets(SyntaxKind.OpenParenToken, SyntaxKind.CloseParenToken, openParenParsed, openParenPosition);
+        parseExpectedMatchingBrackets(SyntaxKind.OpenParenToken, SyntaxKind.CloseParenToken, openParenParsed, openParenPosition, openParenFilename);
 
         // From: https://mail.mozilla.org/pipermail/es-discuss/2011-August/016188.html
         // 157 min --- All allen at wirfs-brock.com CONF --- "do{;}while(false)false" prohibited in
@@ -1829,9 +1836,10 @@ export namespace LpcParser {
         const hasJSDoc = hasPrecedingJSDocComment();
         parseExpected(SyntaxKind.WhileKeyword);
         const openParenPosition = scanner.getTokenStart();
+        const openParenFilename = scannerFilename;
         const openParenParsed = parseExpected(SyntaxKind.OpenParenToken);
         const expression = allowInAnd(parseExpression);
-        parseExpectedMatchingBrackets(SyntaxKind.OpenParenToken, SyntaxKind.CloseParenToken, openParenParsed, openParenPosition);
+        parseExpectedMatchingBrackets(SyntaxKind.OpenParenToken, SyntaxKind.CloseParenToken, openParenParsed, openParenPosition, openParenFilename);
         const statement = parseStatement();
         return withJSDoc(finishNode(factory.createWhileStatement(statement, expression), pos), hasJSDoc);
     }
@@ -1924,7 +1932,7 @@ export namespace LpcParser {
         return finishNode(factoryCreateToken(kind), pos) as T;
     }
 
-    function parseExpectedMatchingBrackets(openKind: PunctuationSyntaxKind, closeKind: PunctuationSyntaxKind, openParsed: boolean, openPosition: number) {
+    function parseExpectedMatchingBrackets(openKind: PunctuationSyntaxKind, closeKind: PunctuationSyntaxKind, openParsed: boolean, openPosition: number, openParenFilename: string) {
         if (token() === closeKind) {
             nextToken();
             return;
@@ -1934,14 +1942,17 @@ export namespace LpcParser {
             return;
         }
         if (lastError) {
+            const fn = openParenFilename || scannerFilename || fileName;
+            const sourceForFn = includeFileCache[fn];
+
             addRelatedInfo(
                 lastError,
-                createDetachedDiagnostic(scannerFilename || fileName, scanner.getText() || sourceText, openPosition, 1, Diagnostics.The_parser_expected_to_find_a_1_to_match_the_0_token_here, tokenToString(openKind), tokenToString(closeKind)),
+                createDetachedDiagnostic(fn, sourceForFn, openPosition, 1, Diagnostics.The_parser_expected_to_find_a_1_to_match_the_0_token_here, tokenToString(openKind), tokenToString(closeKind)),
             );
         }
     }
 
-    function parseExpectedMatchingBracketTokens(openKind: PunctuationSyntaxKind, closeKind: PunctuationSyntaxKind[], openParsed: boolean, openPosition: number) {
+    function parseExpectedMatchingBracketTokens(openKind: PunctuationSyntaxKind, closeKind: PunctuationSyntaxKind[], openParsed: boolean, openPosition: number, openFilename: string) {
         Debug.assert(closeKind.length > 0, "closeKind should have at least one element");
 
         let closePos = 0;
@@ -1965,7 +1976,7 @@ export namespace LpcParser {
         if (lastError) {
             addRelatedInfo(
                 lastError,
-                createDetachedDiagnostic(fileName, sourceText, openPosition, 1, Diagnostics.The_parser_expected_to_find_a_1_to_match_the_0_token_here, tokenToString(openKind), errorText),
+                createDetachedDiagnostic(openFilename, includeFileCache[openFilename], openPosition, 1, Diagnostics.The_parser_expected_to_find_a_1_to_match_the_0_token_here, tokenToString(openKind), errorText),
             );
         }
     }
@@ -3419,11 +3430,12 @@ export namespace LpcParser {
         const pos = getNodePos();
         const hasJSDoc = hasPrecedingJSDocComment();
         const openBracePosition = scanner.getTokenStart();
+        const openBraceFilename = scannerFilename;
         const openBraceParsed = (!ignoreMissingOpenBrace && parseExpected(SyntaxKind.OpenBraceToken, diagnosticMessage) || parseOptional(SyntaxKind.OpenBraceToken));
         if (openBraceParsed || ignoreMissingOpenBrace) {
             const multiLine = scanner.hasPrecedingLineBreak();
             const statements = parseList(ParsingContext.BlockStatements, parseStatement);
-            if (openBraceParsed) parseExpectedMatchingBrackets(SyntaxKind.OpenBraceToken, SyntaxKind.CloseBraceToken, openBraceParsed, openBracePosition);
+            if (openBraceParsed) parseExpectedMatchingBrackets(SyntaxKind.OpenBraceToken, SyntaxKind.CloseBraceToken, openBraceParsed, openBracePosition, openBraceFilename);
             const result = withJSDoc(finishNode(factoryCreateBlock(statements, multiLine), pos), hasJSDoc);
             if (token() === SyntaxKind.EqualsToken) {
                 parseErrorAtCurrentToken(Diagnostics.Declaration_or_statement_expected_This_follows_a_block_of_statements_so_if_you_intended_to_write_a_destructuring_assignment_you_might_need_to_wrap_the_whole_assignment_in_parentheses);
@@ -4154,6 +4166,7 @@ export namespace LpcParser {
     function parseMappingLiteralExpression(): MappingLiteralExpression {
         const pos = getNodePos();
         const openBracketPosition = scanner.getTokenStart();
+        const openBracketFilename = scannerFilename;
         const openBracketParsed = parseExpected(SyntaxKind.OpenParenBracketToken);
         const multiLine = scanner.hasPrecedingLineBreak();
         let initializer: Expression | undefined;
@@ -4166,7 +4179,7 @@ export namespace LpcParser {
             elements = parseDelimitedList(ParsingContext.MappingLiteralMembers, parseMappingLiteralElement);
         }
 
-        parseExpectedMatchingBracketTokens(SyntaxKind.OpenParenBracketToken, [SyntaxKind.CloseBracketToken,SyntaxKind.CloseParenToken], openBracketParsed, openBracketPosition);
+        parseExpectedMatchingBracketTokens(SyntaxKind.OpenParenBracketToken, [SyntaxKind.CloseBracketToken,SyntaxKind.CloseParenToken], openBracketParsed, openBracketPosition, openBracketFilename);
         return finishNode(factory.createMappingLiteralExpression(initializer, elements, multiLine), pos);
     }
 
@@ -4258,10 +4271,11 @@ export namespace LpcParser {
     function parseArrayLiteralExpression(): ArrayLiteralExpression {
         const pos = getNodePos();
         const openBracketPosition = scanner.getTokenStart();
+        const openBraceFilename = scannerFilename;
         const openBracketParsed = parseExpected(SyntaxKind.OpenParenBraceToken);
         const multiLine = scanner.hasPrecedingLineBreak();
         const elements = parseDelimitedList(ParsingContext.ArrayLiteralMembers, parseArgumentOrArrayLiteralElement);
-        parseExpectedMatchingBracketTokens(SyntaxKind.OpenParenBraceToken, [SyntaxKind.CloseBraceToken, SyntaxKind.CloseParenToken], openBracketParsed, openBracketPosition);
+        parseExpectedMatchingBracketTokens(SyntaxKind.OpenParenBraceToken, [SyntaxKind.CloseBraceToken, SyntaxKind.CloseParenToken], openBracketParsed, openBracketPosition, openBraceFilename);
         return finishNode(factoryCreateArrayLiteralExpression(elements, multiLine), pos);
     }
 
