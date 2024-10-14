@@ -4102,7 +4102,12 @@ export namespace LpcParser {
         
         let node: LambdaExpression;        
         if (token()==SyntaxKind.Identifier) {
-            const name = parseIdentifier();
+            let name: Expression = parseIdentifier();
+            
+            if (token() == SyntaxKind.ColonColonToken) {
+                name = parseSuperExpression(name);
+            }
+
             node = factory.createLambdaIdentifierExpression(name);
         } else {            
             if (token() == SyntaxKind.GreaterThanToken) reScanGreaterToken(); // to get the proper >= token                        

@@ -1400,7 +1400,7 @@ export interface NodeFactory {
     createMappingEntryExpression(name: Expression, elements: readonly Expression[]): MappingEntryExpression
     convertToAssignmentExpression(node: Mutable<VariableDeclaration>): BinaryExpression;
     createLambdaOperatorExpression(op: LambdaOperatorToken): LambdaOperatorExpression;
-    createLambdaIdentifierExpression(name: string | Identifier): LambdaIdentifierExpression;
+    createLambdaIdentifierExpression(name: Expression): LambdaIdentifierExpression;
     createCastExpression(expression: Expression, type: TypeNode): Expression;
     createCloneObjectExpression(expression: Expression, argumentsArray: readonly Expression[] | undefined): CloneObjectExpression;
     createTypeAssertion(type: TypeNode, expression: Expression): TypeAssertion;
@@ -3406,7 +3406,7 @@ export interface LambdaExpression extends PrimaryExpression {
 
 export interface LambdaIdentifierExpression extends LambdaExpression {
     readonly kind: SyntaxKind.LambdaIdentifierExpression;
-    readonly name: Identifier;
+    readonly name: Expression;
 }
 
 export interface LambdaOperatorExpression extends LambdaExpression {

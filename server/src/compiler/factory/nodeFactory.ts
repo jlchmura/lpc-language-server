@@ -890,9 +890,9 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     // @api
-    function createLambdaIdentifierExpression(name: string | Identifier): LambdaIdentifierExpression {
+    function createLambdaIdentifierExpression(name: Expression): LambdaIdentifierExpression {
         const node = createBaseNode<LambdaIdentifierExpression>(SyntaxKind.LambdaIdentifierExpression);
-        node.name = asName(name);
+        node.name = (name);
         return node;
     }
 
