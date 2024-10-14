@@ -1105,7 +1105,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
     }
 
     function processImportedModules(file: SourceFile) {
-        console.debug("implement me - processImportedModules");
+        if (file.fileName.endsWith("level_list.c")) debugger;
         collectExternalModuleReferences(file);
         if (file.imports.length > 0) {            
             // Because global augmentation doesn't have string literal name, we can check for global augmentation as such.
@@ -1439,7 +1439,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         function getNodeAtPosition(sourceFile: SourceFile, position: number): Node {
             let current: Node = sourceFile;
             const getContainingChild = (child: Node) => {
-                if (child.pos <= position && (position < child.end || (position === child.end && (child.kind === SyntaxKind.EndOfFileToken)))) {
+                if (child.originFilename == sourceFile.fileName && child.pos <= position && (position < child.end || (position === child.end && (child.kind === SyntaxKind.EndOfFileToken)))) {
                     return child;
                 }
             };

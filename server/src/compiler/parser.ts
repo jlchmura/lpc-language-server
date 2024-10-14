@@ -1542,8 +1542,6 @@ export namespace LpcParser {
         const includeFile = fileHandler.loadIncludeFile(scannerFilename, localFilename, includeDirective.localFirst);
         const resolvedFilename = includeFile.filename;
 
-        console.debug("Processing include directive " + resolvedFilename +  " (" + includeFile?.source?.length + ")");
-
         if (includeFile?.source?.length > 0) {
             // cache source text
             const includeSourceText = includeFileCache[resolvedFilename] = includeFile.source;
@@ -1562,8 +1560,6 @@ export namespace LpcParser {
             
             nextScanner = () => {
                 Debug.assert(!isSpeculating, "Should not be speculating");
-
-                console.debug("Releasing include scanner " + resolvedFilename);
 
                 // restore the previous scanner
                 lastTokenEnd = scanner.getTokenEnd();
