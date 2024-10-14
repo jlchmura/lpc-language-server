@@ -2699,7 +2699,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     function grammarErrorOnFirstToken(node: Node, message: DiagnosticMessage, ...args: DiagnosticArguments): boolean {
         const sourceFile = getSourceFileOfNode(node);
         if (!hasParseDiagnostics(sourceFile)) {
-            const span = getSpanOfTokenAtPosition(sourceFile, node.pos);
+            const span = getSpanOfTokenAtPosition(sourceFile, node.includeDirPos ?? node.pos);
             diagnostics.add(createFileDiagnostic(sourceFile, span.start, span.length, message, ...args));
             return true;
         }
