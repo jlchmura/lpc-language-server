@@ -236,6 +236,7 @@ const textToToken = new Map(Object.entries({
     "??": SyntaxKind.QuestionQuestionToken,
     "?.": SyntaxKind.QuestionDotToken,
     ":": SyntaxKind.ColonToken,
+    "::": SyntaxKind.ColonColonToken,
     "=": SyntaxKind.EqualsToken,
     "+=": SyntaxKind.PlusEqualsToken,
     "-=": SyntaxKind.MinusEqualsToken,
@@ -2060,7 +2061,7 @@ export function createScanner(
                     pos++;
                     return token = SyntaxKind.AmpersandToken;
                 case CharacterCodes.openParen:
-                    if (charCodeUnchecked(pos + 1) === CharacterCodes.colon) {
+                    if (charCodeUnchecked(pos + 1) === CharacterCodes.colon && charCodeUnchecked(pos + 2) !== CharacterCodes.colon) {
                         return pos += 2, token = SyntaxKind.OpenParenColonToken;
                     }
                     if (charCodeUnchecked(pos + 1) === CharacterCodes.openBracket) {
@@ -2254,6 +2255,9 @@ export function createScanner(
                 case CharacterCodes.colon:
                     if (charCodeUnchecked(pos + 1) === CharacterCodes.closeParen) {
                         return pos += 2, token = SyntaxKind.ColonCloseParenToken;
+                    }
+                    if (charCodeUnchecked(pos + 1) === CharacterCodes.colon) { 
+                        return pos += 2, token = SyntaxKind.ColonColonToken;
                     }
                     pos++;
                     return token = SyntaxKind.ColonToken;

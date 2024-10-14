@@ -819,6 +819,7 @@ export const enum SyntaxKind {
     LambdaIdentifierExpression,
     LambdaOperatorExpression,
     PropertyAccessExpression,
+    SuperAccessExpression,
     PostfixUnaryExpression,
     ParenthesizedExpression,
     ArrayLiteralExpression,
@@ -1389,6 +1390,7 @@ export interface NodeFactory {
     createBinaryExpression(left: Expression, operator: BinaryOperator | BinaryOperatorToken, right: Expression): BinaryExpression;
     createCallExpression(expression: Expression, argumentsArray: readonly Expression[] | undefined): CallExpression;
     createInlineClosure(body: ConciseBody): InlineClosureExpression;
+    createSuperAccessExpression(name: MemberName, namespace?: string | StringLiteral | Identifier): SuperAccessExpression;
     createPropertyAccessExpression(expression: Expression, name: string | Identifier | Expression, propertyAccessToken?: PropertyAccessToken): PropertyAccessExpression;
     createPrefixUnaryExpression(operator: PrefixUnaryOperator, operand: Expression): PrefixUnaryExpression;
     createPostfixUnaryExpression(operand: Expression, operator: PostfixUnaryOperator): PostfixUnaryExpression;
@@ -1677,6 +1679,7 @@ export type HasContainerFlags =
 /** NODES */
 export type HasJSDoc = 
     | IncludeDirective
+    | SuperAccessExpression
     | DefineDirective
     | UndefDirective
     | Block 
@@ -1898,6 +1901,7 @@ export type ForEachChildNodes =
 /** @internal */
 export type HasChildren =
     | ParameterDeclaration
+    | SuperAccessExpression
     | ParenthesizedExpression
     | ElementAccessExpression
     | RangeExpression
@@ -3504,6 +3508,13 @@ export interface PropertyAccessExpression extends MemberExpression, NamedDeclara
     readonly expression: LeftHandSideExpression;        
     readonly name: MemberName;
     readonly propertyAccessToken: PropertyAccessToken
+}
+
+export interface SuperAccessExpression extends MemberExpression, NamedDeclaration, JSDocContainer, FlowContainer {
+    readonly kind: SyntaxKind.SuperAccessExpression;
+    readonly namespace: Identifier | StringLiteral;
+    readonly name: MemberName;
+    // readonly propertyAccessToken: PropertyAccessToken
 }
 
 /** @internal */

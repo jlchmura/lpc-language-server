@@ -131,6 +131,7 @@ import {
     stringToToken,
     StructDeclaration,
     StructTypeNode,
+    SuperAccessExpression,
     SwitchStatement,
     SyntaxKind,
     TextRange,
@@ -269,6 +270,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createBinaryExpression,
         createCallExpression,
         createInlineClosure,
+        createSuperAccessExpression,
         createPropertyAccessExpression,
         createPrefixUnaryExpression,
         createPostfixUnaryExpression,
@@ -713,6 +715,8 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         return node;
     }
 
+    
+
     // @api
     function createArrayTypeNode(elementType: TypeNode): ArrayTypeNode {
         const node = createBaseNode<ArrayTypeNode>(SyntaxKind.ArrayType);
@@ -1131,6 +1135,17 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         return node;
     }
 
+    function createSuperAccessExpression(name: MemberName, namespace?: string | StringLiteral | Identifier): SuperAccessExpression {
+        const node = createBaseNode<SuperAccessExpression>(
+            SyntaxKind.SuperAccessExpression
+        );
+        
+        node.namespace = asName(namespace)
+        node.name = name;
+
+        return node;
+    }
+
     function createBasePropertyAccessExpression(expression: LeftHandSideExpression, name: MemberName, propertyAccessToken?: PropertyAccessToken) {
         const node = createBaseDeclaration<PropertyAccessExpression>(SyntaxKind.PropertyAccessExpression);
         node.expression = expression;        
@@ -1153,9 +1168,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
             parenthesizerRules().parenthesizeLeftSideOfAccess(expression, /*optionalChain*/ false),
             asName(name),
             propertyAccessToken
-        );
-               
-        // TODO handle super here?
+        );                       
         
         return node;
     }
