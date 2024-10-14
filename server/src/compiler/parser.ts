@@ -1,7 +1,7 @@
 import { isIdentifier as isIdentifierNode, BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange, PrefixUnaryExpression, first, LanguageVariant, EqualsToken, LpcConfigSourceFile, createBaseNodeFactory, PrefixUnaryOperator, Program, LpcFileHandler, ParenthesizedExpression, ArrayLiteralExpression, LambdaExpression, PunctuationSyntaxKind, PunctuationToken, LambdaOperatorToken, CastExpression, PropertyAccessExpression, isIdentifier, CloneObjectExpression, NewExpression, trimQuotes, createScanner, isKeyword, PunctuationOrKeywordSyntaxKind, getLanguageVariant, mapDefined, getJSDocCommentRanges, LabeledStatement, PropertyName, Token, tokenToString, addRelatedInfo, tokenIsIdentifierOrKeyword, getBinaryOperatorPrecedence, addRange, append, ArrayTypeNode, canHaveJSDoc, concatenate, containsParseError, Diagnostic, EntityName, getSpellingSuggestion, identity, idText, isIdentifierText, isTypeReferenceNode, JSDoc, JSDocAugmentsTag, JSDocCallbackTag, JSDocComment, JSDocImplementsTag, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocParameterTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThrowsTag, JSDocTypedefTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, nodeIsMissing, noop, PropertyAccessEntityNameExpression, setParent, skipTrivia, some, CharacterCodes, MapLike, KeywordSyntaxKind, startsWith, textToKeywordObj, ModifierLike, isModifierKind, MissingDeclaration, setTextRangePos, BindingPattern, KeywordTypeSyntaxKind, LiteralTypeNode, IntLiteral, FloatLiteral, LiteralLikeNode, isLiteralKind, TypeReferenceNode, getFullWidth, OperatorPrecedence, UnaryExpression, isLeftHandSideExpression, isAssignmentOperator, isKeywordOrPunctuation, UpdateExpression, PrimaryExpression, nodeIsPresent, PropertyAccessToken, IterationStatement, InheritClauseType, ObjectType, StructTypeNode, NamedDeclaration, TypeElement, PropertySignature, MethodSignature, StructDeclaration, TypeLiteralNode, TypeAssertion, NewStructExpression, ObjectLiteralElementLike, PropertyAssignment, getStartPositionOfLine, MappingLiteralExpression, MappingEntryExpression, isStringOrNumericLiteralLike, ElementAccessExpression, isFunctionDeclaration, RangeExpression, isPunctuation, LambdaIdentifierExpression, LambdaOperatorExpression, PreprocessorDirective, IncludeDirective, DefineDirective, UndefDirective, Macro, Scanner, last, ReadonlyTextRange, MacroParameter, forEachEntry, Ternary, isIntLiteral } from "./_namespaces/lpc";
 import { ILpcConfig } from "../config-types";
 import { loadLpcConfigFromString, LpcConfig } from "../backend/LpcConfig";
-import { parse } from "path";
+
 
 const enum SpeculationKind {
     TryParse,
@@ -53,8 +53,7 @@ export namespace LpcParser {
     var scriptKind: ScriptKind;
     var languageVariant: LanguageVariant;
     
-    var macroTable: MapLike<Macro> | undefined;    
-    var macroStack: Macro[];
+    var macroTable: MapLike<Macro> | undefined;        
     var currentMacro: Macro;
     var allowMacroProcessing: boolean = true;
 
@@ -145,8 +144,8 @@ export namespace LpcParser {
         languageVariant = getLanguageVariant(_scriptKind);
         
         macroTable = {};
-        macroStack = [];
         conditionalStack = [];
+        currentMacro = undefined!;
                 
         includeFileCache = {};
         currentIncludeDirective = undefined!;
@@ -158,7 +157,7 @@ export namespace LpcParser {
         nodeCount = 0;
         topLevel = true;
         identifiers = new Map<string, string>();        
-        identifierCount = 0;        
+        identifierCount = 0;                
 
         // Initialize and prime the scanner before parsing the source elements.
         scanner.setText(sourceText);
@@ -195,15 +194,17 @@ export namespace LpcParser {
         lastFilename = undefined!;
         lastIncludeDirective = undefined!;
         conditionalStack = undefined!;
-        
+        isCodeExecutable = Ternary.Unknown;
+
+        nextScanner = undefined!;
         originScanner = undefined!;        
         currentIncludeDirective = undefined!;
         includeStack = undefined!;
 
+
         // clear macro data
         Object.values(macroTable).forEach(macro => { macro.argsIn = undefined; });
         macroTable = undefined!;    
-        macroStack = undefined!;
         currentMacro = undefined!;
         allowMacroProcessing = true;
     }
@@ -368,10 +369,8 @@ export namespace LpcParser {
             const tokenValue = scanner.getTokenValue();
             let macro = macroTable[tokenValue];            
 
-            if (macro && macro.disabled !== true && macro.directive.range) {                
-                // we are in a macro substitution
-                if (currentMacro) macroStack.push(currentMacro);
-                currentMacro = macro;
+            if (macro && macro.disabled !== true && macro.directive.range) {                                
+                // we are in a macro substitution                
                 macro.disabled = true;                
 
                 const { range, arguments: macroArgsDef } = macro.directive;  
@@ -380,7 +379,7 @@ export namespace LpcParser {
                 const argValsByName: MapLike<MacroParameter> = {};
                 if (macroArgsDef?.length > 0) {
                     // scan the next token, which should be an open paren.. parseArg wil check it.
-                    currentToken = scanner.scan();
+                    currentToken = nextTokenWithoutCheck();
 
                     allowMacroProcessing = false;
                     const values = parseArgumentList();                    
@@ -394,13 +393,15 @@ export namespace LpcParser {
                             const argVal = values[i];                            
                             argValsByName[argName] = {
                                 pos: argVal.pos,
-                                end: argVal.end,                                
+                                end: argVal.end, 
+                                getText: scanner.getText                               
                             };                            
                         } else {
                             parseErrorAt(lastArg.end, values.end, Diagnostics.Missing_argument_for_macro_0, argName);
                             argValsByName[argName] = {
                                 pos: lastArg.end,
-                                end: lastArg.end,                                
+                                end: lastArg.end,
+                                getText: scanner.getText
                             }
                         }
                     });
@@ -410,28 +411,35 @@ export namespace LpcParser {
                 
                 // create a scanner for this macro                              
                 const saveScanner = scanner;
-                scanner = createScanner(ScriptTarget.Latest, /*skipTrivia*/ true, undefined, macro.getText(), undefined, range.pos, range.end - range.pos);                                
-
+                const saveCurrentMacro = currentMacro;                
                 const saveNextScanner = nextScanner;
+                const saveFilename = scannerFilename;
+
+                scanner = createScanner(ScriptTarget.Latest, /*skipTrivia*/ true, undefined, macro.getText(), undefined, range.pos, range.end - range.pos);                                                
+                scannerFilename = macro.directive.originFilename;
+                currentMacro = macro;
+
                 // parse args will have consumed the next token, so we need to store that and return it
                 // when the previous scanner gets restored
                 const saveToken = macroArgsDef?.length > 0 ? currentToken : undefined;
+                                                
                 nextScanner = () => {
-                    // re-enable the macro
-                    Debug.assertIsDefined(currentMacro);
-                    currentMacro.disabled = false;
-                    currentMacro.argsIn = undefined;
-                    currentMacro = macroStack.pop();                                        
-                    
-                    Debug.assert(currentMacro || !saveNextScanner, "Current macro should be set or there should be no next scanner");
+                    const t = saveToken ?? saveScanner.scan();                    
 
+                    // re-enable the macro
+                    Debug.assertIsDefined(macro);
+                    macro.disabled = false;
+                    macro.argsIn = undefined;                    
+                    currentMacro = saveCurrentMacro!;
+                    
                     // restore the previous scanner
                     lastTokenEnd = scanner.getTokenEnd();                    
                     scanner = saveScanner;                    
                     nextScanner = saveNextScanner;  
+                    scannerFilename = saveFilename;                    
                     
-                    // return token
-                    return saveToken ?? scanner.scan();
+                    // return token                    
+                    return t;// saveToken ?? scanner.scan();
                 }
 
                 // scan again using the new scanner
@@ -443,18 +451,18 @@ export namespace LpcParser {
                 const saveScanner = scanner;// scannerStack.push(scanner);
                 const saveNextScanner = nextScanner;                
                 
-                scanner = createScanner(ScriptTarget.Latest, /*skipTrivia*/ true, undefined, currentMacro.getText(), undefined, arg.pos, arg.end - arg.pos);                    
+                scanner = createScanner(ScriptTarget.Latest, /*skipTrivia*/ true, undefined, arg.getText(), undefined, arg.pos, arg.end - arg.pos);
 
                 nextScanner = () => {
                     arg.disabled = false;
                     lastTokenEnd = scanner.getTokenEnd();
-                    scanner = saveScanner;//scannerStack.pop()!;                                
+                    scanner = saveScanner;//scannerStack.pop()!;
 
                     nextScanner = saveNextScanner;
                     return scanner.scan();
                 }                
 
-                return currentToken = scanner.scan();
+                return nextTokenWithoutCheck();// currentToken = scanner.scan();
             }
         }
 
@@ -520,15 +528,14 @@ export namespace LpcParser {
         jsDocParsingMode = JSDocParsingMode.ParseAll
     ) {
         initState(fileName, sourceText, languageVersion, syntaxCursor, scriptKind, config, fileHandler, jsDocParsingMode);
-        if (fileName.endsWith("mycastle/floor4/room.c")) {
-            const ii=0;
-        }
+        console.debug("Parsing source file: " + fileName);        
         try {
-        const result = parseSourceFileWorker(languageVersion, setParentNodes, scriptKind || ScriptKind.LPC, jsDocParsingMode);
-        clearState();
-        return result;
+            const result = parseSourceFileWorker(languageVersion, setParentNodes, scriptKind || ScriptKind.LPC, jsDocParsingMode);
+            clearState();
+            console.warn(`Successfully parsed: ${fileName}`);
+            return result;
         }catch (e) {
-            const ii=0;
+            debugger;
             throw e;
         }
     
@@ -541,7 +548,12 @@ export namespace LpcParser {
         nextToken();        
 
         const statements = parseList(ParsingContext.SourceElements, parseStatement);
+        
         Debug.assert(token() === SyntaxKind.EndOfFileToken);
+        Debug.assert(!currentMacro);
+        Debug.assert(!nextScanner);
+        Debug.assert(!currentIncludeDirective);
+
         const endHasJSDoc = hasPrecedingJSDocComment();
         const endOfFileToken = withJSDoc(parseTokenNode<EndOfFileToken>(), endHasJSDoc);
         
@@ -1131,6 +1143,11 @@ export namespace LpcParser {
 
     // True if positioned at a list terminator
     function isListTerminator(kind: ParsingContext): boolean {
+        
+        while (token() === SyntaxKind.EndOfFileToken && nextScanner) {
+            nextToken();            
+        }
+
         if (token() === SyntaxKind.EndOfFileToken) {
             // Being at the end of the file ends all lists.
             return true;
@@ -1523,6 +1540,8 @@ export namespace LpcParser {
         const includeFile = fileHandler.loadIncludeFile(scannerFilename, localFilename, includeDirective.localFirst);
         const resolvedFilename = includeFile.filename;
 
+        console.debug("Processing include directive " + resolvedFilename +  " (" + includeFile?.source?.length + ")");
+
         if (includeFile?.source?.length > 0) {
             // cache source text
             const includeSourceText = includeFileCache[resolvedFilename] = includeFile.source;
@@ -1541,6 +1560,8 @@ export namespace LpcParser {
             
             nextScanner = () => {
                 Debug.assert(!isSpeculating, "Should not be speculating");
+
+                console.debug("Releasing include scanner " + resolvedFilename);
 
                 // restore the previous scanner
                 lastTokenEnd = scanner.getTokenEnd();
@@ -1602,7 +1623,7 @@ export namespace LpcParser {
         let tokenCount = 0;
         const contentStart = scanner.getTokenStart();
         let endPos = contentStart;
-        while (token() !== SyntaxKind.NewLineTrivia && token() !== SyntaxKind.EndOfFileToken) {            
+        while (token() !== SyntaxKind.NewLineTrivia && token() !== SyntaxKind.EndOfFileToken) {
             tokenCount++;
             endPos = scanner.getTokenEnd();
             nextToken();                      
@@ -1910,7 +1931,7 @@ export namespace LpcParser {
         if (lastError) {
             addRelatedInfo(
                 lastError,
-                createDetachedDiagnostic(fileName, sourceText, openPosition, 1, Diagnostics.The_parser_expected_to_find_a_1_to_match_the_0_token_here, tokenToString(openKind), tokenToString(closeKind)),
+                createDetachedDiagnostic(scannerFilename || fileName, scanner.getText() || sourceText, openPosition, 1, Diagnostics.The_parser_expected_to_find_a_1_to_match_the_0_token_here, tokenToString(openKind), tokenToString(closeKind)),
             );
         }
     }
@@ -2065,9 +2086,10 @@ export namespace LpcParser {
         const saveParseDiagnosticsLength = parseDiagnostics.length;
         const saveParseErrorBeforeNextFinishedNode = parseErrorBeforeNextFinishedNode;
         const saveNextScanner = nextScanner;
-        const saveScanner = scanner;
-        const saveMacroStack = macroStack;
+        const saveScanner = scanner;        
         const saveCurrentMaco = currentMacro;
+        const saveInclude = currentIncludeDirective;
+        const saveScannerFilename = scannerFilename;
 
         // Note: it is not actually necessary to save/restore the context flags here.  That's
         // because the saving/restoring of these flags happens naturally through the recursive
@@ -2095,9 +2117,10 @@ export namespace LpcParser {
             }
             parseErrorBeforeNextFinishedNode = saveParseErrorBeforeNextFinishedNode;
             nextScanner = saveNextScanner;
-            scanner = saveScanner;
-            macroStack = saveMacroStack;
+            scanner = saveScanner;            
             currentMacro = saveCurrentMaco;
+            currentIncludeDirective = saveInclude;
+            scannerFilename = saveScannerFilename;
         }
 
         isSpeculating = saveIsSpeculating;
@@ -2578,13 +2601,13 @@ export namespace LpcParser {
         
         const mods = parseModifiers(false, false, false);
         parseExpected(SyntaxKind.InheritKeyword);
-
-        let expression: InheritClauseType;
-        if (token() == SyntaxKind.StringLiteral && lookAhead(() => nextToken() === SyntaxKind.SemicolonToken)) {
-            expression = parseLiteralLikeNode(SyntaxKind.StringLiteral) as StringLiteral;
-        } else {
-            expression = allowInAnd(parseExpression);
-        }
+        
+        let expression: InheritClauseType = allowInAnd(parseExpression);
+        // if (token() == SyntaxKind.StringLiteral && lookAhead(() => nextToken() === SyntaxKind.SemicolonToken)) {
+        //     expression = parseLiteralLikeNode(SyntaxKind.StringLiteral) as StringLiteral;
+        // } else {
+        //     expression = allowInAnd(parseExpression);
+        // }
         parseSemicolon();
 
         return withJSDoc(finishNode(factory.createInheritDeclaration(expression, mods), pos), hasJSDoc);
@@ -3631,10 +3654,8 @@ export namespace LpcParser {
                 // make sure this isn't an array literal
                 if (lookAhead(()=>{ 
                     nextToken(); 
-                    return isTypeName() && (
-                        nextToken() == SyntaxKind.CloseParenToken ||
-                        nextToken() == SyntaxKind.CloseBraceToken
-                    ); })) {
+                    return isTypeName() && (nextToken() == SyntaxKind.CloseParenToken || token() == SyntaxKind.CloseBraceToken); 
+                })) {
                     return parseTypeAssertion();
                 }
                 // fall through

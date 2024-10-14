@@ -6703,10 +6703,13 @@ export interface DefineDirective extends PreprocessorDirective {
 
 export interface MacroParameter extends TextRange {
     disabled?: boolean;
+    /** get the sourcetext that contains the arg value range */
+    getText(): string;
 }
 export interface Macro {
     directive: DefineDirective;
     disabled?: boolean;
+    /** get the sourcetext that contains the macro definition range */
     getText(): string;
     
     argsIn?: MapLike<MacroParameter>;

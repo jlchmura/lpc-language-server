@@ -193,6 +193,8 @@ export function createDetachedDiagnostic(fileName: string, diagSourceText: strin
         text = formatStringFromArgs(text, args);
     }
 
+    if (start == 2512 && fileName.endsWith("hall02.c")) debugger;
+
     return {
         file: undefined,
         start,

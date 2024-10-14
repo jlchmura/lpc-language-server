@@ -23678,7 +23678,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             const typeVarIndex = typeSet[0].flags & TypeFlags.TypeVariable ? 0 : 1;
             const typeVariable = typeSet[typeVarIndex];
             const primitiveType = typeSet[1 - typeVarIndex];
-            Debug.fail("Not supported in LPC?");
+            console.warn("TODO - getIntersectionType");
             // if (
             //     typeVariable.flags & TypeFlags.TypeVariable &&
             //     (primitiveType.flags & (TypeFlags.Primitive | TypeFlags.NonPrimitive) && !isGenericStringLikeType(primitiveType) || includes & TypeFlags.IncludesEmptyObject)
