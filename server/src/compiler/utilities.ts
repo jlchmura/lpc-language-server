@@ -2488,6 +2488,12 @@ export function isJSDocNode(node: Node): boolean {
 
 /** @internal */
 export function getTokenPosOfNode(node: Node, sourceFile?: SourceFileLike, includeJsDoc?: boolean): number {
+    
+    // if this node was part of an include, then just use the include's position
+    if (node.includeDirPos !== undefined) {
+        return node.includeDirPos;
+    }
+
     // With nodes that have no width (i.e. 'Missing' nodes), we actually *don't*
     // want to skip trivia because this will launch us forward to the next token.
     if (nodeIsMissing(node)) {

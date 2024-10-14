@@ -28,14 +28,18 @@ export function createLpcFileHandler(getHost: () => ModuleResolutionHost, getCon
             searchPath = resolvePath(host.getCurrentDirectory(), "." + includePath);
         } else {
             // everythign else has to be searched in include dirs
-            const searchDirs = getIncludeDirs().concat(additionalSearchDirs || []);
+            const searchDirs = [                
+                ...getIncludeDirs(),
+                ...(additionalSearchDirs || []),
+                "./"
+            ];
             pushIfUnique(searchDirs, sourceDir);
             
             if (localFirst) searchDirs.reverse();
             
-            forEach(searchDirs, (dir) => {
+            searchPath = forEach(searchDirs, (dir) => {
                 searchPath = resolvePath(dir, includePath);
-                return host.fileExists(searchPath);
+                return host.fileExists(searchPath) ? searchPath : undefined;
             });
         }
         
@@ -51,7 +55,7 @@ export function createLpcFileHandler(getHost: () => ModuleResolutionHost, getCon
         const config = getConfig();
         const basePath = getHost().getCurrentDirectory();
         const fullImportDirs = config.include.map((dir) => {            
-            return pathIsAbsolute(dir) ? dir : resolvePath(basePath, dir);            
+            return resolvePath(basePath, "./" + dir);//pathIsAbsolute(dir) ? dir : resolvePath(basePath, dir);            
         });
         return fullImportDirs;
     }

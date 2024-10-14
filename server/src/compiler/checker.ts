@@ -3981,15 +3981,15 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         const links = getNodeLinks(node);
         if (!links.resolvedType) {
             const target = getArrayOrTupleTargetType(node);
-            // if (target === emptyGenericType) {
-            //     links.resolvedType = emptyObjectType;
-            // }
+            if (target === emptyGenericType) {
+                links.resolvedType = emptyObjectType;
+            }
             // else if (!(node.kind === SyntaxKind.TupleType && some(node.elements, e => !!(getTupleElementFlags(e) & ElementFlags.Variadic))) && isDeferredTypeReferenceNode(node)) {
             //     links.resolvedType = node.kind === SyntaxKind.TupleType && node.elements.length === 0 ? target :
             //         createDeferredTypeReference(target, node, /*mapper*/ undefined);
             // }
-            {
-                const elementTypes = [getTypeFromTypeNode(node.elementType)];
+            else {                
+                const elementTypes = node.elementType ? [getTypeFromTypeNode(node.elementType)] : [anyType];
                 //const elementTypes = node.kind === SyntaxKind.ArrayType ? [getTypeFromTypeNode(node.elementType)] : map(node.elements, getTypeFromTypeNode);
                 links.resolvedType = createNormalizedTypeReference(target, elementTypes);
             }
@@ -6142,6 +6142,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
     function createTypeReference(target: GenericType, typeArguments: readonly Type[] | undefined): TypeReference {
         const id = getTypeListId(typeArguments);
+        Debug.assertIsDefined(target);
         let type = target.instantiations.get(id);
         if (!type) {
             type = createObjectType(ObjectFlags.Reference, target.symbol) as TypeReference;
