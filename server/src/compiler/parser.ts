@@ -3596,8 +3596,9 @@ export namespace LpcParser {
         if (isUpdateExpression()) {
             const pos = getNodePos();
             const updateExpression = parseUpdateExpression();
-            return token() === SyntaxKind.AsteriskAsteriskToken ?
+            return token() === SyntaxKind.AsteriskAsteriskToken || token() === SyntaxKind.EqualsToken ?
                 parseBinaryExpressionRest(getBinaryOperatorPrecedence(token()), updateExpression, pos) as BinaryExpression :
+                // token() === SyntaxKind.EqualsToken ? parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ true) :
                 updateExpression;
         }
 
