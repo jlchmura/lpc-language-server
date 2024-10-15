@@ -109,6 +109,7 @@ import {
     ParenthesizedTypeNode,
     PostfixUnaryExpression,
     PostfixUnaryOperator,
+    PragmaDirective,
     PrefixUnaryExpression,
     PrefixUnaryOperator,
     PreprocessorDirective,
@@ -216,6 +217,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
 
         // directives
         createIncludeDirective,
+        createPragmaDirective,
         createDefineDirective,
         createUndefDirective,
 
@@ -1294,6 +1296,13 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
             typeof value === "number" ? createIntLiteral(value) :
             //typeof value === "boolean" ? value ? createTrue() : createFalse() :
             value;
+    }
+
+    // @api 
+    function createPragmaDirective(expression: NodeArray<Identifier>): PragmaDirective {
+        const node = createBaseNode<PragmaDirective>(SyntaxKind.PragmaDirective);
+        node.expression = asNodeArray(expression);
+        return node;
     }
 
     // @api 

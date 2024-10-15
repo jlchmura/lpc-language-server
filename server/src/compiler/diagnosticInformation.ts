@@ -14,7 +14,7 @@ export const Diagnostics = {
     Elseif_directive_without_if: diag(9007, DiagnosticCategory.Error, "Elseif_directive_without_if_9007", "#elseif directive without #if."),
     Unterminated_directive: diag(9006, DiagnosticCategory.Error, "Unterminated_directive_9006", "Unterminated directive."),
     Expected_newline_after_directive: diag(9008, DiagnosticCategory.Error, "Expected_newline_after_directive_9008", "Expected newline after directive."),
-
+    Pragma_directive_requires_at_least_one_argument: diag(9009, DiagnosticCategory.Error, "Pragma_directive_requires_at_least_one_argument_9009", "#pragma directive requires at least one argument."),
 
     // Scanner
     _0_expected: diag(1005, DiagnosticCategory.Error, "_0_expected_1005", "'{0}' expected."),    

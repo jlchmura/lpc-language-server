@@ -249,19 +249,23 @@ export function start(connection: Connection, platform: string) {
                 ...posParamToLpcPos(requestParams),
             };
 
-            const body = session.getReferences(args, true) as protocol.ReferencesResponseBody;    
-            const result: vscode.Location[] = [];
-            const uri = URI.parse(requestParams.textDocument.uri);
+            try {
+                const body = session.getReferences(args, true) as protocol.ReferencesResponseBody;    
+                const result: vscode.Location[] = [];
+                const uri = URI.parse(requestParams.textDocument.uri);
 
-            for (const ref of body?.refs) {
-                // if (!options.includeDeclaration && ref.isDefinition) {
-                //     continue;
-                // }                
-                const location = typeConverters.Location.fromTextSpan(URI.parse(ref.file), ref);
-                result.push(location);
+                for (const ref of body?.refs) {
+                    // if (!options.includeDeclaration && ref.isDefinition) {
+                    //     continue;
+                    // }                
+                    const location = typeConverters.Location.fromTextSpan(URI.parse(ref.file), ref);
+                    result.push(location);
+                }
+
+                return result;
+            } catch(e) {
+                console.error(e);
             }
-
-            return result;
         });
 
         connection.onPrepareRename(requestParams => {

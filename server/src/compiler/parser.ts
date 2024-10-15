@@ -1,4 +1,4 @@
-import { isIdentifier as isIdentifierNode, BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange, PrefixUnaryExpression, first, LanguageVariant, EqualsToken, LpcConfigSourceFile, createBaseNodeFactory, PrefixUnaryOperator, Program, LpcFileHandler, ParenthesizedExpression, ArrayLiteralExpression, LambdaExpression, PunctuationSyntaxKind, PunctuationToken, LambdaOperatorToken, CastExpression, PropertyAccessExpression, isIdentifier, CloneObjectExpression, NewExpression, trimQuotes, createScanner, isKeyword, PunctuationOrKeywordSyntaxKind, getLanguageVariant, mapDefined, getJSDocCommentRanges, LabeledStatement, PropertyName, Token, tokenToString, addRelatedInfo, tokenIsIdentifierOrKeyword, getBinaryOperatorPrecedence, addRange, append, ArrayTypeNode, canHaveJSDoc, concatenate, containsParseError, Diagnostic, EntityName, getSpellingSuggestion, identity, idText, isIdentifierText, isTypeReferenceNode, JSDoc, JSDocAugmentsTag, JSDocCallbackTag, JSDocComment, JSDocImplementsTag, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocParameterTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThrowsTag, JSDocTypedefTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, nodeIsMissing, noop, PropertyAccessEntityNameExpression, setParent, skipTrivia, some, CharacterCodes, MapLike, KeywordSyntaxKind, startsWith, textToKeywordObj, ModifierLike, isModifierKind, MissingDeclaration, setTextRangePos, BindingPattern, KeywordTypeSyntaxKind, LiteralTypeNode, IntLiteral, FloatLiteral, LiteralLikeNode, isLiteralKind, TypeReferenceNode, getFullWidth, OperatorPrecedence, UnaryExpression, isLeftHandSideExpression, isAssignmentOperator, isKeywordOrPunctuation, UpdateExpression, PrimaryExpression, nodeIsPresent, PropertyAccessToken, IterationStatement, InheritClauseType, ObjectType, StructTypeNode, NamedDeclaration, TypeElement, PropertySignature, MethodSignature, StructDeclaration, TypeLiteralNode, TypeAssertion, NewStructExpression, ObjectLiteralElementLike, PropertyAssignment, getStartPositionOfLine, MappingLiteralExpression, MappingEntryExpression, isStringOrNumericLiteralLike, ElementAccessExpression, isFunctionDeclaration, RangeExpression, isPunctuation, LambdaIdentifierExpression, LambdaOperatorExpression, PreprocessorDirective, IncludeDirective, DefineDirective, UndefDirective, Macro, Scanner, last, ReadonlyTextRange, MacroParameter, forEachEntry, Ternary, isIntLiteral, isArrayTypeNode, SuperAccessExpression, isIndexedAccessTypeNode, isStringLiteral, isBinaryExpression } from "./_namespaces/lpc";
+import { isIdentifier as isIdentifierNode, BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange, PrefixUnaryExpression, first, LanguageVariant, EqualsToken, LpcConfigSourceFile, createBaseNodeFactory, PrefixUnaryOperator, Program, LpcFileHandler, ParenthesizedExpression, ArrayLiteralExpression, LambdaExpression, PunctuationSyntaxKind, PunctuationToken, LambdaOperatorToken, CastExpression, PropertyAccessExpression, isIdentifier, CloneObjectExpression, NewExpression, trimQuotes, createScanner, isKeyword, PunctuationOrKeywordSyntaxKind, getLanguageVariant, mapDefined, getJSDocCommentRanges, LabeledStatement, PropertyName, Token, tokenToString, addRelatedInfo, tokenIsIdentifierOrKeyword, getBinaryOperatorPrecedence, addRange, append, ArrayTypeNode, canHaveJSDoc, concatenate, containsParseError, Diagnostic, EntityName, getSpellingSuggestion, identity, idText, isIdentifierText, isTypeReferenceNode, JSDoc, JSDocAugmentsTag, JSDocCallbackTag, JSDocComment, JSDocImplementsTag, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocParameterTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThrowsTag, JSDocTypedefTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, nodeIsMissing, noop, PropertyAccessEntityNameExpression, setParent, skipTrivia, some, CharacterCodes, MapLike, KeywordSyntaxKind, startsWith, textToKeywordObj, ModifierLike, isModifierKind, MissingDeclaration, setTextRangePos, BindingPattern, KeywordTypeSyntaxKind, LiteralTypeNode, IntLiteral, FloatLiteral, LiteralLikeNode, isLiteralKind, TypeReferenceNode, getFullWidth, OperatorPrecedence, UnaryExpression, isLeftHandSideExpression, isAssignmentOperator, isKeywordOrPunctuation, UpdateExpression, PrimaryExpression, nodeIsPresent, PropertyAccessToken, IterationStatement, InheritClauseType, ObjectType, StructTypeNode, NamedDeclaration, TypeElement, PropertySignature, MethodSignature, StructDeclaration, TypeLiteralNode, TypeAssertion, NewStructExpression, ObjectLiteralElementLike, PropertyAssignment, getStartPositionOfLine, MappingLiteralExpression, MappingEntryExpression, isStringOrNumericLiteralLike, ElementAccessExpression, isFunctionDeclaration, RangeExpression, isPunctuation, LambdaIdentifierExpression, LambdaOperatorExpression, PreprocessorDirective, IncludeDirective, DefineDirective, UndefDirective, Macro, Scanner, last, ReadonlyTextRange, MacroParameter, forEachEntry, Ternary, isIntLiteral, isArrayTypeNode, SuperAccessExpression, isIndexedAccessTypeNode, isStringLiteral, isBinaryExpression, PragmaDirective } from "./_namespaces/lpc";
 import { ILpcConfig } from "../config-types";
 import { loadLpcConfigFromString, LpcConfig } from "../backend/LpcConfig";
 import { parse, resolve } from "path";
@@ -1518,6 +1518,9 @@ export namespace LpcParser {
             case SyntaxKind.UndefDirective:
                 directive = disallowMacroProcessing(parseUndefDirective);
                 break;
+            case SyntaxKind.PragmaDirective:
+                directive = parsePragmaDirective();
+                break;
             default:
                 nextToken();
                 const directiveContent = [];
@@ -1586,6 +1589,20 @@ export namespace LpcParser {
 
             nextToken();
         }
+    }
+
+    function parsePragmaDirective(): PragmaDirective {
+        const pos = getNodePos();
+
+        parseExpected(SyntaxKind.PragmaDirective);
+        let pragmaArgs = parseList(ParsingContext.PramgaArguments, parseIdentifier);
+
+        if (pragmaArgs.length === 0) {
+            pragmaArgs = createMissingList<Identifier>();
+            parseErrorAtCurrentToken(Diagnostics.Pragma_directive_requires_at_least_one_argument);
+        }
+
+        return finishNode(factory.createPragmaDirective(pragmaArgs), pos);
     }
 
     function parseIncludeDirective(): IncludeDirective {
@@ -4404,7 +4421,8 @@ export namespace LpcParser {
         Count,                     // Number of parsing contexts
         InlineClosure,             // Closure expression
         StructMembers,             // Members in struct declaration
-        ForEachInitialers          // Variable declarations in for statement
+        ForEachInitialers,         // Variable declarations in for statement
+        PramgaArguments            // Arguments in #pragma
     }
 
     function internIdentifier(text: string): string {
@@ -5623,6 +5641,10 @@ const forEachChildTable: ForEachChildTable = {
             visitNodes(cbNode, cbNodes, node.parameters) ||
             visitNode(cbNode, node.type) ||
             visitNode(cbNode, node.body);
+    },
+    [SyntaxKind.DefineDirective]: function forEachChildInDefineDirective<T>(node: DefineDirective, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNode(cbNode, node.name) ||
+            visitNodes(cbNode, cbNodes, node.arguments);
     },
     [SyntaxKind.InlineClosureExpression]: function forEachChildInInlineClosureExpression<T>(node: InlineClosureExpression, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
         return visitNodes(cbNode, cbNodes, node.parameters) ||

@@ -1568,6 +1568,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
         const savePreSwitchCaseFlow = preSwitchCaseFlow;
         currentBreakTarget = postSwitchLabel;
         preSwitchCaseFlow = currentFlow;
+        bindEach(node.preBlock);
         bind(node.caseBlock);
         addAntecedent(postSwitchLabel, currentFlow);
         const hasDefault = forEach(node.caseBlock.clauses, c => c.kind === SyntaxKind.DefaultClause);

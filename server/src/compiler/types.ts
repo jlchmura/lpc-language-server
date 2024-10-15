@@ -1342,6 +1342,7 @@ export interface NodeFactory {
 
     // directives
     createIncludeDirective(content: StringLiteral[], localFirst: boolean): IncludeDirective;
+    createPragmaDirective(expression: NodeArray<Identifier>): PragmaDirective;
     createDefineDirective(name: string | Identifier, args: NodeArray<Expression>, range: TextRange): DefineDirective;
     createUndefDirective(name: string | Identifier): UndefDirective;
 
@@ -1903,6 +1904,7 @@ export type ForEachChildNodes =
 /** @internal */
 export type HasChildren =
     | ParameterDeclaration
+    | DefineDirective
     | SuperAccessExpression
     | ParenthesizedExpression
     | ElementAccessExpression
@@ -6699,7 +6701,12 @@ export interface PrologueDirective extends ExpressionStatement {
 
 export interface PreprocessorDirective extends Statement {
     kind: DirectiveSyntaxKind;
-    readonly expression: StringLiteral;
+    // readonly expression: StringLiteral;
+}
+
+export interface PragmaDirective extends PreprocessorDirective {
+    kind: SyntaxKind.PragmaDirective;
+    expression: NodeArray<Identifier>;
 }
 
 export interface IncludeDirective extends PreprocessorDirective {

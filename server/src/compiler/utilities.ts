@@ -2285,6 +2285,7 @@ export function canIncludeBindAndCheckDiagnostics(sourceFile: SourceFile, option
 // True if `name` is the name of a declaration node
 /** @internal */
 export function isDeclarationName(name: Node): boolean {
+    Debug.assertIsDefined(name.parent);
     return !isSourceFile(name) && !isBindingPattern(name) && isDeclaration(name.parent) && name.parent.name === name;
 }
 

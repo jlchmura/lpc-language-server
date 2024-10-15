@@ -14305,7 +14305,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 return Debug.fail("Should be unreachable.");
             }
 
-            return Debug.fail("Should be unreachable.");
+            return undefined;
 
             // function conditionalTypeToTypeNode(type: ConditionalType) {
             //     const checkTypeNode = typeToTypeNodeHelper(type.checkType, context);
@@ -23317,7 +23317,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     function typeToString(type: Type, enclosingDeclaration?: Node, flags: TypeFormatFlags = TypeFormatFlags.AllowUniqueESSymbolType | TypeFormatFlags.UseAliasDefinedOutsideCurrentScope, writer: EmitTextWriter = createTextWriter("")): string {       
         const noTruncation = false;//compilerOptions.noErrorTruncation || flags & TypeFormatFlags.NoTruncation;
         const typeNode = nodeBuilder.typeToTypeNode(type, enclosingDeclaration, toNodeBuilderFlags(flags) | NodeBuilderFlags.IgnoreErrors | (noTruncation ? NodeBuilderFlags.NoTruncation : 0));
-        if (typeNode === undefined) return Debug.fail("should always get typenode");
+        if (typeNode === undefined) {
+            console.warn("expected a type node but didn't get one");
+            return "";
+        }
         // The unresolved type gets a synthesized comment on `any` to hint to users that it's not a plain `any`.
         // Otherwise, we always strip comments out.
         const printer = type !== unresolvedType ? createPrinterWithRemoveComments() : createPrinterWithDefaults();
