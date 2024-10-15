@@ -1297,7 +1297,7 @@ function getTokenAtPositionWorker(sourceFile: SourceFile, position: number, allo
     while (true) {
         // find the child that contains 'position'
 
-        const children = current.getChildren(sourceFile);
+        const children = current.getChildren(sourceFile).filter(c => !c.originFilename || c.originFilename === sourceFile.fileName);
         const i = binarySearchKey(children, position, (_, i) => i, (middle, _) => {
             // This last callback is more of a selector than a comparator -
             // `EqualTo` causes the `middle` result to be returned
