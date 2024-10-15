@@ -549,6 +549,7 @@ class SourceFileObject
 {
     declare _declarationBrand: any;
     declare _localsContainerBrand: any;
+    declare _hasHeritageBrand: any;
     public fileName!: string;
     public path!: Path;
     public resolvedPath!: Path;
@@ -586,6 +587,7 @@ class SourceFileObject
     public identifiers!: Map<string, string>;
     public nameTable: Map<string, number> | undefined;
     public imports!: readonly StringLiteral[];
+    public heritageClauses!: NodeArray<InheritDeclaration>;
     public moduleAugmentations!: StringLiteral[];
     private namedDeclarations: Map<string, Declaration[]> | undefined;
     public ambientModuleNames!: string[];

@@ -74,6 +74,7 @@ export namespace LpcParser {
     var identifiers: Map<string, string>;    
     var identifierCount: number;
     var includeFileCache: MapLike<string>;
+    var inherits: InheritDeclaration[];
 
     // TODO(jakebailey): This type is a lie; this value actually contains the result
     // of ORing a bunch of `1 << ParsingContext.XYZ`.
@@ -158,6 +159,7 @@ export namespace LpcParser {
         topLevel = true;
         identifiers = new Map<string, string>();        
         identifierCount = 0;                
+        inherits = [];
 
         // Initialize and prime the scanner before parsing the source elements.
         scanner.setText(sourceText);
@@ -188,6 +190,7 @@ export namespace LpcParser {
         jsDocDiagnostics = undefined!;
         parsingContext = 0;
         identifiers = undefined!;        
+        inherits = undefined!;
         topLevel = true;   
         includeFileCache = undefined!;
         lastTokenEnd = undefined!;
@@ -561,6 +564,7 @@ export namespace LpcParser {
         sourceFile.nodeCount = nodeCount;
         sourceFile.identifierCount = identifierCount;
         sourceFile.identifiers = identifiers;
+        sourceFile.heritageClauses = factory.createNodeArray(inherits);
         sourceFile.parseDiagnostics = attachFileToDiagnostics(parseDiagnostics, sourceFile);
         sourceFile.jsDocParsingMode = jsDocParsingMode;
         if (jsDocDiagnostics) {
@@ -2622,7 +2626,9 @@ export namespace LpcParser {
         // }
         parseSemicolon();
 
-        return withJSDoc(finishNode(factory.createInheritDeclaration(expression, mods), pos), hasJSDoc);
+        const inheritNode = withJSDoc(finishNode(factory.createInheritDeclaration(expression, mods), pos), hasJSDoc);
+        inherits.push(inheritNode);
+        return inheritNode;
     }
 
     function parseLiteralLikeNode(kind: SyntaxKind): LiteralLikeNode {        

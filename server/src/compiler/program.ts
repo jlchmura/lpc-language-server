@@ -1104,8 +1104,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         if (fromCache) addResolutionDiagnostics(fromCache);
     }
 
-    function processImportedModules(file: SourceFile) {
-        if (file.fileName.endsWith("level_list.c")) debugger;
+    function processImportedModules(file: SourceFile) {        
         collectExternalModuleReferences(file);
         if (file.imports.length > 0) {            
             // Because global augmentation doesn't have string literal name, we can check for global augmentation as such.

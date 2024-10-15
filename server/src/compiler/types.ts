@@ -813,6 +813,7 @@ export const enum SyntaxKind {
     NewExpression,
     NewStructExpression,
     TypeAssertionExpression,
+    ExpressionWithTypeArguments,
     ElementAccessExpression,
     RangeExpression,
     InlineClosureExpression,
@@ -1235,6 +1236,7 @@ export type TypeNodeSyntaxKind =
     | SyntaxKind.TypeLiteral
     | SyntaxKind.ParenthesizedType
     | SyntaxKind.TypeReference
+    | SyntaxKind.ExpressionWithTypeArguments
     | SyntaxKind.JSDocTypeExpression
     | SyntaxKind.JSDocAllType
     | SyntaxKind.JSDocUnknownType
@@ -2675,13 +2677,16 @@ export interface SourceFileLike {
     /** @internal */
     lineMap?: readonly number[];
     /** @internal */
-    getPositionOfLineAndCharacter?(line: number, character: number, allowEdits?: true): number;
-    
-    
+    getPositionOfLineAndCharacter?(line: number, character: number, allowEdits?: true): number;        
+}
+
+export interface HasHeritageContainer {
+    _hasHeritageBrand: any;
+    heritageClauses?: NodeArray<InheritDeclaration>;
 }
 
 // Source files are declarations when they are external modules.
-export interface SourceFile extends Declaration, LocalsContainer {
+export interface SourceFile extends Declaration, LocalsContainer, HasHeritageContainer {
     readonly kind: SyntaxKind.SourceFile;
     readonly statements: NodeArray<Statement>;
     readonly endOfFileToken: Token<SyntaxKind.EndOfFileToken>;
@@ -6748,7 +6753,7 @@ export interface ClassDeclaration extends ClassLikeDeclarationBase, DeclarationS
 }
 
 export type ClassLikeDeclaration =
-    | ClassDeclaration    
+    | ClassDeclaration        
     | ClassExpression;
 
 /** @internal */
@@ -6899,3 +6904,8 @@ export interface IdentifierTypePredicate extends TypePredicateBase {
 }
 
 export type TypePredicate = IdentifierTypePredicate;//ThisTypePredicate | IdentifierTypePredicate | AssertsThisTypePredicate | AssertsIdentifierTypePredicate;
+
+export interface ExpressionWithTypeArguments extends MemberExpression, NodeWithTypeArguments {
+    readonly kind: SyntaxKind.ExpressionWithTypeArguments;
+    readonly expression: LeftHandSideExpression;
+}

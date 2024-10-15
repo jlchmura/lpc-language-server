@@ -1188,7 +1188,8 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
     }
 
     function bindSourceFileAsExternalModule() {
-        bindAnonymousDeclaration(file, SymbolFlags.ValueModule, `"${removeFileExtension(file.fileName)}"` as string);
+        // in LPC, each source file is an object, which we'll represent as a class
+        bindAnonymousDeclaration(file, SymbolFlags.ValueModule | SymbolFlags.Class, `"${removeFileExtension(file.fileName)}"` as string);
     }
 
     function bindAnonymousDeclaration(node: Declaration, symbolFlags: SymbolFlags, name: string) {

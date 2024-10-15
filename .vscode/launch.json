@@ -10,11 +10,11 @@
             "args": [
                 // "${workspaceRoot}/../mg-mudlib",
                 //"${workspaceRoot}/../lima",
-                "${workspaceRoot}/../StickLib",
+                // "${workspaceRoot}/../StickLib",
                 //"${workspaceRoot}/../glpu",
                 //"${workspaceRoot}/../nightmare-residuum",
                 // "${workspaceRoot}/../infinity-lib",
-                // "${workspaceRoot}/../lpc-test2",
+                "${workspaceRoot}/../lpc-test2",
                 // "${workspaceRoot}/../fluff-test",
                 //"${workspaceRoot}/efuns/ldmud",
                 "--extensionDevelopmentPath=${workspaceRoot}"
