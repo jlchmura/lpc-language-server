@@ -6705,6 +6705,7 @@ export interface PreprocessorDirective extends Statement {
 export interface IncludeDirective extends PreprocessorDirective {
     kind: SyntaxKind.IncludeDirective;
     content: NodeArray<StringLiteral>;
+    resolvedFilename: string;
     localFirst: boolean;
 }
 
