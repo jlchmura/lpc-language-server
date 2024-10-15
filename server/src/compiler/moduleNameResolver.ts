@@ -467,7 +467,7 @@ function createPerDirectoryResolutionCache<T>(
     }
 }
 
-export function resolveModuleName(moduleName: string, containingFile: string, compilerOptions: CompilerOptions, host: ModuleResolutionHost, cache?: ModuleResolutionCache, redirectedReference?: ResolvedProjectReference, resolutionMode?: ResolutionMode): ResolvedModuleWithFailedLookupLocations {
+export function resolveModuleName(moduleName: string, containingFile: string, compilerOptions: CompilerOptions, host: ModuleResolutionHost, cache?: ModuleResolutionCache, redirectedReference?: ResolvedProjectReference, resolutionMode?: ResolutionMode): ResolvedModuleWithFailedLookupLocations {    
     const traceEnabled = isTraceEnabled(compilerOptions, host);
     if (redirectedReference) {
         compilerOptions = redirectedReference.commandLine.options;
@@ -644,7 +644,8 @@ export function classicNameResolver(moduleName: string, containingFile: string, 
         if (isRootedDiskPath(moduleName)) {
             const pathComps = getPathComponents(state.compilerOptions.configFilePath);
             const libPath = getPathFromPathComponents(pathComps.slice(0, pathComps.length - 1));
-            const searchName = normalizePath(combinePaths(libPath, "." + moduleName));
+            let searchName = normalizePath(combinePaths(libPath, "." + moduleName));            
+            if (moduleName.indexOf(".") === -1) searchName += Extension.C;
             return toSearchResult(loadModuleFromFileNoPackageId(extensions, searchName, /*onlyRecordFailures*/ false, state));
         }
 
@@ -1145,8 +1146,9 @@ function loadModuleFromFile(extensions: Extensions, candidate: string, onlyRecor
 }
 
 function loadModuleFromFileNoImplicitExtensions(extensions: Extensions, candidate: string, onlyRecordFailures: boolean, state: ModuleResolutionState): PathAndExtension | undefined {
-    const filename = getBaseFileName(candidate);
+    let filename = getBaseFileName(candidate);
     if (!filename.includes(".")) {
+        // filename = filename + Extension.C;
         return undefined; // extensionless import, no lookups performed, since we don't support extensionless files
     }
     let extensionless = removeFileExtension(candidate);

@@ -1172,7 +1172,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
     }
 
     function resolveModuleNamesReusingOldState(moduleNames: readonly StringLiteral[], file: SourceFile): readonly ResolvedModuleWithFailedLookupLocations[] {
-        if (structureIsReused === StructureIsReused.Not && !file.ambientModuleNames.length) {
+        if (structureIsReused === StructureIsReused.Not && !file.ambientModuleNames?.length) {
             // If the old program state does not permit reusing resolutions and `file` does not contain locally defined ambient modules,
             // the best we can do is fallback to the default logic.
             return resolveModuleNamesWorker(moduleNames, file, /*reusedNames*/ undefined);
@@ -1352,7 +1352,12 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
             collectDynamicImportOrRequireOrJsDocImportCalls(file);
         //}
 
-        file.imports = imports || emptyArray;
+        if (file.imports?.length > 0) {
+            file.imports = [...file.imports, ...(imports || emptyArray)];
+        } else {
+            file.imports = imports || emptyArray;
+        }
+        
         //file.moduleAugmentations = moduleAugmentations || emptyArray;
         file.ambientModuleNames = ambientModules || emptyArray;
 

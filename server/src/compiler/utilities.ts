@@ -1257,8 +1257,8 @@ export function createNameResolver({
             withinDeferredContext = withinDeferredContext || getIsDeferredContext(location, lastLocation);
             switch (location.kind) {
                 case SyntaxKind.SourceFile:                                                        
-                    const importTypes = getSymbolOfDeclaration(location as SourceFile).inherits || {} as Map<string,Type>;
-                    result = forEachEntry(importTypes, (importType, importName) => {
+                    const importTypes = getSymbolOfDeclaration(location as SourceFile).inherits;
+                    result = importTypes && forEachEntry(importTypes, (importType, importName) => {
                         // TODO: filter by import prefix here                            
                         const inheritFile = first(importType.symbol.declarations);
                         const inheritFileSymbol = getSymbolOfDeclaration(inheritFile);
