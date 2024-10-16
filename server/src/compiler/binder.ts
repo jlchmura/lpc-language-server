@@ -1102,6 +1102,9 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
                     blockScopeContainer.locals = createSymbolTable();
                     addToContainerChain(blockScopeContainer);
                 }
+                if (isIdentifier(node) && node.text === "query_id") {
+                    const ii=0;
+                }
                 declareSymbol(blockScopeContainer.locals, /*parent*/ undefined, node, symbolFlags, symbolExcludes);
         }
     }

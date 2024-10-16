@@ -17,7 +17,7 @@ export type ImportTracker = (exportSymbol: Symbol, exportInfo: ExportInfo, isFor
 // }
 type SourceFileLike = SourceFile;// | AmbientModuleDeclaration;
 // Identifier for the case of `const x = require("y")`.
-type Importer = Identifier;// AnyImportOrReExport | ValidImportTypeNode | Identifier | JSDocImportTag;
+type Importer = Identifier | InheritDeclaration;// AnyImportOrReExport | ValidImportTypeNode | Identifier | JSDocImportTag;
 type ImporterOrCallExpression = Importer | CallExpression | CloneObjectExpression | InheritDeclaration;
 
 /**
@@ -224,6 +224,7 @@ function getImportersForExport(
                 switch (direct.kind) {
                     case SyntaxKind.CloneObjectExpression:
                         handleCloneObject(direct);
+                        break;
                     case SyntaxKind.CallExpression:
                         // if (isImportCall(direct)) {
                         //     handleImportCall(direct);
@@ -243,7 +244,9 @@ function getImportersForExport(
 
                     case SyntaxKind.Identifier: // for 'const x = require("y");
                         break; // TODO: GH#23879
-
+                    case SyntaxKind.InheritDeclaration:
+                        handleInheritDeclaration(direct);
+                        break;
                     // case SyntaxKind.ImportEqualsDeclaration:
                     //     handleNamespaceImport(direct, direct.name, hasSyntacticModifier(direct, ModifierFlags.Export), /*alreadyAddedDirect*/ false);
                     //     break;
@@ -290,10 +293,11 @@ function getImportersForExport(
         }
     }
 
-    // function handleImportCall(importCall: ImportCall) {
-    //     const top = findAncestor(importCall, isAmbientModuleDeclaration) || importCall.getSourceFile();
-    //     addIndirectUser(top, /** addTransitiveDependencies */ !!isExported(importCall, /*stopAtAmbientModule*/ true));
-    // }
+    function handleInheritDeclaration(inherit: InheritDeclaration) {        
+        // directImports.push(inherit);
+        const top = inherit.getSourceFile();        
+        addIndirectUser(top, /** addTransitiveDependencies */ !!isExported(inherit, /*stopAtAmbientModule*/ true));
+    }
 
     function isExported(node: Node, stopAtAmbientModule = false) {
         console.log("todo - should everything be exported?");
@@ -368,6 +372,9 @@ function getSearchesFromDirectImports(directImports: Importer[], exportSymbol: S
     return { importSearches, singleReferences };
 
     function handleImport(decl: Importer): void {
+        if (decl.kind === SyntaxKind.InheritDeclaration) {
+
+        }
         // if (decl.kind === SyntaxKind.ImportEqualsDeclaration) {
         //     if (isExternalModuleImportEquals(decl)) {
         //         handleNamespaceImportLike(decl.name);
@@ -406,6 +413,10 @@ function getSearchesFromDirectImports(directImports: Importer[], exportSymbol: S
         // }
 
         const { name, namedBindings } = /* decl.importClause ||*/ { name: undefined, namedBindings: undefined };
+        
+        
+        // TODO - get exported members from inherit symbol - find exportSymbol.name
+        // and add the name of each to the search
 
         // if (namedBindings) {
         //     switch (namedBindings.kind) {

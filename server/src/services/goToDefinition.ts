@@ -1,4 +1,4 @@
-import { Symbol, createTextSpanFromBounds, Declaration, DefinitionInfo, emptyArray, FileReference, findAncestor, forEach, FunctionLikeDeclaration, getTouchingPropertyName, isDefaultClause, isFunctionLikeDeclaration, isSwitchStatement, Node, Program, ScriptElementKind, SignatureDeclaration, SourceFile, SwitchStatement, SymbolFlags, SyntaxKind, TypeChecker, SymbolDisplay, getNameOfDeclaration, createTextSpanFromNode, NodeFlags, hasInitializer, HasInitializer, hasEffectiveModifier, ModifierFlags, FindAllReferences, TextSpan, concatenate, every, mapDefined, tryCast, isFunctionLike, isAssignmentExpression, isCallLikeExpression, canHaveSymbol, filter, some, map, find, isCallOrNewExpressionTarget, isNameOfFunctionDeclaration, CallLikeExpression, isRightSideOfPropertyAccess, getInvokedExpression, isPropertyName, isBindingElement, isNewExpressionTarget, textRangeContainsPositionInclusive, IncludeDirective } from "./_namespaces/lpc";
+import { Symbol, createTextSpanFromBounds, Declaration, DefinitionInfo, emptyArray, FileReference, findAncestor, forEach, FunctionLikeDeclaration, getTouchingPropertyName, isDefaultClause, isFunctionLikeDeclaration, isSwitchStatement, Node, Program, ScriptElementKind, SignatureDeclaration, SourceFile, SwitchStatement, SymbolFlags, SyntaxKind, TypeChecker, SymbolDisplay, getNameOfDeclaration, createTextSpanFromNode, NodeFlags, hasInitializer, HasInitializer, hasEffectiveModifier, ModifierFlags, FindAllReferences, TextSpan, concatenate, every, mapDefined, tryCast, isFunctionLike, isAssignmentExpression, isCallLikeExpression, canHaveSymbol, filter, some, map, find, isCallOrNewExpressionTarget, isNameOfFunctionDeclaration, CallLikeExpression, isRightSideOfPropertyAccess, getInvokedExpression, isPropertyName, isBindingElement, isNewExpressionTarget, textRangeContainsPositionInclusive, IncludeDirective, getTouchingToken, ResolvedModuleWithFailedLookupLocations, getDirectoryPath, resolvePath, isStringLiteral } from "./_namespaces/lpc";
 import { isContextWithStartAndEndNode } from "./_namespaces/lpc.FindAllReferences";
 
 /** @internal */
@@ -212,12 +212,12 @@ export function getReferenceAtPosition(sourceFile: SourceFile, position: number,
     
     console.warn("TODO - implement me - getReferenceAtPosition");
     
-    // const typeReferenceDirective = findReferenceInPosition(sourceFile.typeReferenceDirectives, position);
-    // if (typeReferenceDirective) {
-    //     const reference = program.getResolvedTypeReferenceDirectiveFromTypeReferenceDirective(typeReferenceDirective, sourceFile)?.resolvedTypeReferenceDirective;
-    //     const file = reference && program.getSourceFile(reference.resolvedFileName!); // TODO:GH#18217
-    //     return file && { reference: typeReferenceDirective, fileName: file.fileName, file, unverified: false };
-    // }
+    const typeReferenceDirective = findReferenceInPosition(sourceFile.typeReferenceDirectives, position);
+    if (typeReferenceDirective) {
+        const reference = program.getResolvedTypeReferenceDirectiveFromTypeReferenceDirective(typeReferenceDirective, sourceFile)?.resolvedTypeReferenceDirective;
+        const file = reference && program.getSourceFile(reference.resolvedFileName!); // TODO:GH#18217
+        return file && { reference: typeReferenceDirective, fileName: file.fileName, file, unverified: false };
+    }
 
     // const libReferenceDirective = findReferenceInPosition(sourceFile.libReferenceDirectives, position);
     // if (libReferenceDirective) {
@@ -225,24 +225,24 @@ export function getReferenceAtPosition(sourceFile: SourceFile, position: number,
     //     return file && { reference: libReferenceDirective, fileName: file.fileName, file, unverified: false };
     // }
 
-    // if (sourceFile.imports.length || sourceFile.moduleAugmentations.length) {
-    //     const node = getTouchingToken(sourceFile, position);
-    //     let resolution: ResolvedModuleWithFailedLookupLocations | undefined;
-    //     if (isModuleSpecifierLike(node) && isExternalModuleNameRelative(node.text) && (resolution = program.getResolvedModuleFromModuleSpecifier(node, sourceFile))) {
-    //         const verifiedFileName = resolution.resolvedModule?.resolvedFileName;
-    //         const fileName = verifiedFileName || resolvePath(getDirectoryPath(sourceFile.fileName), node.text);
-    //         return {
-    //             file: program.getSourceFile(fileName),
-    //             fileName,
-    //             reference: {
-    //                 pos: node.getStart(),
-    //                 end: node.getEnd(),
-    //                 fileName: node.text,
-    //             },
-    //             unverified: !verifiedFileName,
-    //         };
-    //     }
-    // }
+    if (sourceFile.imports.length) {
+        const node = getTouchingToken(sourceFile, position);
+        let resolution: ResolvedModuleWithFailedLookupLocations | undefined;
+        if (isStringLiteral(node) && (resolution = program.getResolvedModuleFromModuleSpecifier(node, sourceFile))) {
+            const verifiedFileName = resolution.resolvedModule?.resolvedFileName;
+            const fileName = verifiedFileName || resolvePath(getDirectoryPath(sourceFile.fileName), node.text);
+            return {
+                file: program.getSourceFile(fileName),
+                fileName,
+                reference: {
+                    pos: node.getStart(),
+                    end: node.getEnd(),
+                    fileName: node.text,
+                },
+                unverified: !verifiedFileName,
+            };
+        }
+    }
 
     return undefined;
 }

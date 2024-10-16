@@ -2629,7 +2629,7 @@ export namespace LpcParser {
         return withJSDoc(finishNode(factory.createReturnStatement(expression), pos), hasJSDoc);
     }
 
-    function parseInheritStatement(): InheritDeclaration {
+    function parseInheritStatement(): InheritDeclaration {        
         Debug.assert(!isSpeculating, "Inherit statements should not be speculatively parsed.");
 
         const pos = getNodePos();

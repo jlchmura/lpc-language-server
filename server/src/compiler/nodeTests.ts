@@ -1,4 +1,4 @@
-import { ArrayBindingPattern, ArrayTypeNode, ArrowFunction, BinaryExpression, BindingElement, Block, CallExpression, CaseBlock, CaseClause, CaseKeyword, ClassExpression, CloneObjectExpression, ComputedPropertyName, DefaultClause, ElementAccessExpression, ExpressionStatement, FloatLiteral, ForStatement, FunctionDeclaration, FunctionExpression, Identifier, IfStatement, IndexedAccessTypeNode, InheritDeclaration, InlineClosureExpression, IntLiteral, JSDoc, JSDocCallbackTag, JSDocDeprecatedTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, JSDocOverloadTag, JSDocParameterTag, JSDocSignature, JSDocTemplateTag, JSDocText, JSDocTypedefTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, LabeledStatement, LiteralTypeNode, NewExpression, Node, NodeFlags, ObjectLiteralExpression, OmittedExpression, ParameterDeclaration, ParenthesizedExpression, ParenthesizedTypeNode, PrefixUnaryExpression, PropertyAccessExpression, PropertyAssignment, PropertyDeclaration, PropertySignature, QualifiedName, ShorthandPropertyAssignment, SourceFile, SpreadElement, StringLiteral, StructDeclaration, SwitchStatement, SyntaxKind, SyntaxList, TypeAliasDeclaration, TypeLiteralNode, TypeParameterDeclaration, TypeReferenceNode, UnionTypeNode, VariableDeclaration, VariableDeclarationList, VariableStatement } from "./_namespaces/lpc";
+import { ArrayBindingPattern, ArrayTypeNode, ArrowFunction, BinaryExpression, BindingElement, Block, CallExpression, CaseBlock, CaseClause, CaseKeyword, ClassExpression, CloneObjectExpression, ComputedPropertyName, DefaultClause, ElementAccessExpression, ExpressionStatement, FloatLiteral, ForStatement, FunctionDeclaration, FunctionExpression, Identifier, IfStatement, IncludeDirective, IndexedAccessTypeNode, InheritDeclaration, InlineClosureExpression, IntLiteral, JSDoc, JSDocCallbackTag, JSDocDeprecatedTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, JSDocOverloadTag, JSDocParameterTag, JSDocSignature, JSDocTemplateTag, JSDocText, JSDocTypedefTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, LabeledStatement, LiteralTypeNode, NewExpression, Node, NodeFlags, ObjectLiteralExpression, OmittedExpression, ParameterDeclaration, ParenthesizedExpression, ParenthesizedTypeNode, PrefixUnaryExpression, PropertyAccessExpression, PropertyAssignment, PropertyDeclaration, PropertySignature, QualifiedName, ShorthandPropertyAssignment, SourceFile, SpreadElement, StringLiteral, StructDeclaration, SwitchStatement, SyntaxKind, SyntaxList, TypeAliasDeclaration, TypeLiteralNode, TypeParameterDeclaration, TypeReferenceNode, UnionTypeNode, VariableDeclaration, VariableDeclarationList, VariableStatement } from "./_namespaces/lpc";
 
 export function isBinaryExpression(node: Node): node is BinaryExpression {
     return node.kind === SyntaxKind.BinaryExpression;
@@ -48,6 +48,10 @@ export function isInheritDeclaration(node: Node): node is InheritDeclaration {
 
 export function isCloneObjectExpression(node: Node): node is CloneObjectExpression {
     return node.kind === SyntaxKind.CloneObjectExpression;
+}
+
+export function isIncludeDirective(node: Node): node is IncludeDirective {
+    return node.kind === SyntaxKind.IncludeDirective;
 }
 
 export function isVariableDeclaration(node: Node): node is VariableDeclaration {

@@ -1068,7 +1068,7 @@ export namespace Core {
                     break;
                 case ExportKind.Default:
                     // Search for a property access to '.default'. This can't be renamed.
-                    indirectSearch = state.options.use === FindReferencesUse.Rename ? undefined : state.createSearch(exportLocation, exportSymbol, ImportExport.Export, { text: "default" });
+                    indirectSearch = state.options.use === FindReferencesUse.Rename ? undefined : state.createSearch(exportLocation, exportSymbol, ImportExport.Export, { text: exportSymbol.name });
                     break;
                 case ExportKind.ExportEquals:
                     break;
@@ -1203,7 +1203,7 @@ export namespace Core {
                 return undefined;
             }
 
-            if (!container || container.kind === SyntaxKind.SourceFile && !isExternalOrCommonJsModule(container as SourceFile)) {
+            if (!container || container.kind === SyntaxKind.SourceFile) {//} || container.kind === SyntaxKind.SourceFile && !isExternalOrCommonJsModule(container as SourceFile)) {
                 // This is a global variable and not an external module, any declaration defined
                 // within this scope is visible outside the file
                 return undefined;
@@ -1450,9 +1450,15 @@ export namespace Core {
             }
 
             return;
-        }
+        } 
 
         if (!hasMatchingMeaning(referenceLocation, state)) return;
+        
+        // there may be a better way to do this, but LPC inherits aren't resovled yet
+        // unless the type checker has run, and we need to that to find symbols for the
+        // referenced location.  so force type check the refernced source file first
+        const top = referenceLocation.getSourceFile();
+        state.checker.getDiagnostics(top);
 
         let referenceSymbol = state.checker.getSymbolAtLocation(referenceLocation);
         if (!referenceSymbol) {
@@ -1609,19 +1615,26 @@ export namespace Core {
     // }
 
     function getImportOrExportReferences(referenceLocation: Node, referenceSymbol: Symbol, search: Search, state: State): void {
-        const importOrExport = getImportOrExportSymbol(referenceLocation, referenceSymbol, state.checker, search.comingFrom === ImportExport.Export);
-        if (!importOrExport) return;
+        const isExportable = referenceSymbol.parent.exports && referenceSymbol.parent.exports.has(referenceSymbol.name);
+        const isImportable = false;
+        // const importOrExport = getImportOrExportSymbol(referenceLocation, referenceSymbol, state.checker, search.comingFrom === ImportExport.Export);
+        // if (!importOrExport) return;
 
         // TODO 
         // const { symbol } = importOrExport;
-
+        const symbol = referenceSymbol;
+        if (isImportable && !(isForRenameWithPrefixAndSuffixText(state.options))) {
+            searchForImportedSymbol(symbol, state);
+        } else if (isExportable) {            
+            searchForImportsOfExport(referenceLocation, symbol, {exportKind: ExportKind.Default, exportingModuleSymbol: symbol.parent }, state);
+        }
         // if (importOrExport.kind === ImportExport.Import) {
         //     if (!(isForRenameWithPrefixAndSuffixText(state.options))) {
-        //         searchForImportedSymbol(symbol, state);
+                
         //     }
         // }
         // else {
-        //     searchForImportsOfExport(referenceLocation, symbol, importOrExport.exportInfo, state);
+            // searchForImportsOfExport(referenceLocation, symbol, importOrExport.exportInfo, state);
         // }
     }
 

@@ -1260,8 +1260,8 @@ export function createNameResolver({
                     const importTypes = getSymbolOfDeclaration(location as SourceFile).inherits;
                     result = importTypes && forEachEntry(importTypes, (importType, importName) => {
                         // TODO: filter by import prefix here                            
-                        const inheritFile = first(importType.symbol.declarations);
-                        const inheritFileSymbol = getSymbolOfDeclaration(inheritFile);
+                        const inheritFile = first(importType.symbol.declarations);                                                                                                                        
+                        const inheritFileSymbol = getSymbolOfDeclaration(inheritFile);                        
                         const nestedInherits = inheritFileSymbol.inherits;
                         if (nestedInherits) {
                             forEachEntry(nestedInherits, (importSymbol, importSymbolName) => { importTypes.set(importSymbolName, importSymbol); });                     

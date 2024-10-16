@@ -1616,6 +1616,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         const afterMark = nodesToCheck ? "afterCheckNodes" : "afterCheck";
         performance.mark(beforeMark);
         nodesToCheck ? checkSourceFileNodesWorker(node, nodesToCheck) : checkSourceFileWorker(node);
+        console.debug(`Checked ${node.fileName}`);
         performance.mark(afterMark);
         performance.measure("Check", beforeMark, afterMark);
         tracing?.pop();
@@ -9645,8 +9646,12 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 // 2). External module name in an import declaration
                 // 3). Dynamic import call or require in javascript
                 // 4). type A = import("./f/*gotToDefinitionHere*/oo")
-                // if (
-                //     //(isExternalModuleImportEqualsDeclaration(node.parent.parent) && getExternalModuleImportEqualsDeclarationExpression(node.parent.parent) === node) ||
+                if (
+                    ((node.parent.kind === SyntaxKind.InheritDeclaration) && (node.parent as InheritDeclaration).inheritClause === node)
+                ) {
+                    return resolveExternalModuleName(node, node as LiteralExpression, ignoreErrors);
+                }
+                    // (isExternalModuleImportEqualsDeclaration(node.parent.parent) && getExternalModuleImportEqualsDeclarationExpression(node.parent.parent) === node) ||
                 //     //((node.parent.kind === SyntaxKind.ImportDeclaration || node.parent.kind === SyntaxKind.ExportDeclaration) && (node.parent as ImportDeclaration).moduleSpecifier === node) ||
                 //     //(isInJSFile(node) && isJSDocImportTag(node.parent) && node.parent.moduleSpecifier === node) ||
                 //     //((isInJSFile(node) && isRequireCall(node.parent, /*requireStringLiteralLikeArgument*/ false)) || isImportCall(node.parent)) ||
@@ -12850,19 +12855,19 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             }
             switch (location.kind) {
                 case SyntaxKind.SourceFile:
-                    if (!isExternalOrCommonJsModule(location as SourceFile)) {
-                        break;
-                    }
+                    // if (!isExternalOrCommonJsModule(location as SourceFile)) {
+                    //     break;
+                    // }
                     // falls through
                 // case SyntaxKind.ModuleDeclaration:
-                //     const sym = getSymbolOfDeclaration(location as ModuleDeclaration);
-                //     // `sym` may not have exports if this module declaration is backed by the symbol for a `const` that's being rewritten
-                //     // into a namespace - in such cases, it's best to just let the namespace appear empty (the const members couldn't have referred
-                //     // to one another anyway)
-                //     if (result = callback(sym?.exports || emptySymbols, /*ignoreQualification*/ undefined, /*isLocalNameLookup*/ true, location)) {
-                //         return result;
-                //     }
-                //     break;
+                    const sym = getSymbolOfDeclaration(location as Declaration);
+                    // `sym` may not have exports if this module declaration is backed by the symbol for a `const` that's being rewritten
+                    // into a namespace - in such cases, it's best to just let the namespace appear empty (the const members couldn't have referred
+                    // to one another anyway)
+                    if (result = callback(sym?.exports || emptySymbols, /*ignoreQualification*/ undefined, /*isLocalNameLookup*/ true, location)) {
+                        return result;
+                    }
+                    break;
                 // case SyntaxKind.ClassDeclaration:
                 case SyntaxKind.ClassExpression:
                 // case SyntaxKind.InterfaceDeclaration:
@@ -12875,11 +12880,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     // trigger resolving late-bound names, which we may already be in the process of doing while we're here!
                     let table: Map<string, Symbol> | undefined;
                     // TODO: Should this filtered table be cached in some way?
-                    // (getSymbolOfDeclaration(location as ClassLikeDeclaration | InterfaceDeclaration).members || emptySymbols).forEach((memberSymbol, key) => {
-                    //     if (memberSymbol.flags & (SymbolFlags.Type & ~SymbolFlags.Assignment)) {
-                    //         (table || (table = createSymbolTable())).set(key, memberSymbol);
-                    //     }
-                    // });
+                    (getSymbolOfDeclaration(location as ClassLikeDeclaration | SourceFile).members || emptySymbols).forEach((memberSymbol, key) => {
+                        if (memberSymbol.flags & (SymbolFlags.Type & ~SymbolFlags.Assignment)) {
+                            (table || (table = createSymbolTable())).set(key, memberSymbol);
+                        }
+                    });
                     if (table && (result = callback(table, /*ignoreQualification*/ undefined, /*isLocalNameLookup*/ false, location))) {
                         return result;
                     }

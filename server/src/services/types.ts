@@ -112,7 +112,7 @@ declare module "../compiler/types.js" {
         /** @internal */ getNamedDeclarations(): Map<
             string,
             readonly Declaration[]
-        >;
+        >;        
 
         getLineAndCharacterOfPosition(pos: number): LineAndCharacter;
         getLineEndOfPosition(pos: number): number;

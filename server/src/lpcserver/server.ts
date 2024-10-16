@@ -1,7 +1,7 @@
 import { Connection, Diagnostic, DiagnosticSeverity, Hover, InitializeResult, Location, MarkedString, MarkupContent, MarkupKind, TextDocumentPositionParams, TextDocuments, TextDocumentSyncKind } from "vscode-languageserver";
 import * as vscode from "vscode-languageserver";
 import * as lpc from "../lpc/lpc.js";
-import { Debug } from "../lpc/lpc.js";
+import { Debug, tracing } from "../lpc/lpc.js";
 import * as protocol from "../server/_namespaces/lpc.server.protocol.js";
 import { Logger } from "./nodeServer";
 import { Position, TextDocument } from "vscode-languageserver-textdocument";
@@ -68,7 +68,7 @@ export function start(connection: Connection, platform: string) {
     logger.info(`Platform: ${platform} NodeVersion: ${process.version} CaseSensitive: ${lpc.sys.useCaseSensitiveFileNames}`);
     //logger.info(`ServerMode: ${serverMode} hasUnknownServerMode: ${unknownServerMode}`);
 
-    lpc.setStackTraceLimit();
+    lpc.setStackTraceLimit();    
 
     if (lpc.Debug.isDebugging) {        
         lpc.Debug.enableDebugInfo();
