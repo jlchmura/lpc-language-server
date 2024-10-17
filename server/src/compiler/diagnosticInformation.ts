@@ -15,6 +15,7 @@ export const Diagnostics = {
     Unterminated_directive: diag(9006, DiagnosticCategory.Error, "Unterminated_directive_9006", "Unterminated directive."),
     Expected_newline_after_directive: diag(9008, DiagnosticCategory.Error, "Expected_newline_after_directive_9008", "Expected newline after directive."),
     Pragma_directive_requires_at_least_one_argument: diag(9009, DiagnosticCategory.Error, "Pragma_directive_requires_at_least_one_argument_9009", "#pragma directive requires at least one argument."),
+    Unexpected_endIf_directive: diag(9010, DiagnosticCategory.Error, "Unexpected_endIf_directive_9010", "Unexpected #endIf directive."),
 
     // Scanner
     _0_expected: diag(1005, DiagnosticCategory.Error, "_0_expected_1005", "'{0}' expected."),    

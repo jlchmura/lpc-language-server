@@ -6729,14 +6729,15 @@ export interface MacroParameter extends TextRange {
     disabled?: boolean;
     /** get the sourcetext that contains the arg value range */
     getText(): string;
+    fileName: string;
 }
-export interface Macro {
+export interface Macro extends IncludedFileRange {
     directive: DefineDirective;
     disabled?: boolean;
     /** get the sourcetext that contains the macro definition range */
     getText(): string;
     
-    argsIn?: MapLike<MacroParameter>;
+    argsIn?: MapLike<MacroParameter>;    
 }
 
 export interface UndefDirective extends PreprocessorDirective {

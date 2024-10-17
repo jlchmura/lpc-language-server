@@ -92,6 +92,7 @@ export interface Scanner {
     // Sets the text for the scanner to scan.  An optional subrange starting point and length
     // can be provided to have the scanner only scan a portion of the text.
     setText(text: string | undefined, start?: number, length?: number): void;
+    setFileName(fileName: string): void;
     setOnError(onError: ErrorCallback | undefined): void;
     setScriptTarget(scriptTarget: ScriptTarget): void;
     setLanguageVariant(variant: LanguageVariant): void;
@@ -122,6 +123,9 @@ export interface Scanner {
     tryScan<T>(callback: () => T): T;        
 
     getEnd(): number;
+
+    getFileName(): string;
+    setTempPos(pos: number, fullStart: number, fileName: string): void;
 }
 
 /** @internal */
@@ -981,6 +985,10 @@ export function createScanner(
 
     // Current position (end position of text of current token)
     var pos: number;
+    var fileName: string;
+    var tempPos: number;
+    var tempFullStart: number;
+    var tempFileName: string;
 
     // end of text
     var end: number;
@@ -1007,9 +1015,10 @@ export function createScanner(
     setText(text, start, length);
 
     var scanner: Scanner = {
-        getTokenFullStart: () => fullStartPos,
+        getTokenFullStart: () => tempFullStart ?? fullStartPos,
         getStartPos: () => fullStartPos,
-        getTokenEnd: () => pos,
+        getTokenEnd: () => tempPos ?? pos,        
+        getFileName: () => tempFileName ?? fileName,
         getTextPos: () => pos,
         getToken: () => token,
         getTokenStart: () => tokenStart,
@@ -1053,7 +1062,13 @@ export function createScanner(
         tryScan,
         lookAhead,
         scanRange,
-        getEnd    
+        getEnd,
+        setFileName: (name) => fileName = name,
+        setTempPos: (pos, fullStart, fileName) => {
+            // tempPos = pos;
+            // tempFullStart = fullStart;
+            // tempFileName = fileName;
+        },  
     };
     /* eslint-enable no-var */
 
@@ -1949,6 +1964,11 @@ export function createScanner(
     // }
 
     function scan(): SyntaxKind {
+        // clear temporary position info
+        tempFileName = undefined!;
+        tempPos = undefined!;
+        tempFullStart = undefined!;
+
         fullStartPos = pos;
         tokenFlags = TokenFlags.None;
         asteriskSeen = false;
@@ -2796,6 +2816,9 @@ export function createScanner(
     }
 
     function speculationHelper<T>(callback: () => T, isLookahead: boolean): T {
+        const saveTempPos = tempPos;
+        const saveTempFilename = tempFileName;
+        const saveTempFullStart = tempFullStart;
         const savePos = pos;
         const saveStartPos = fullStartPos;
         const saveTokenPos = tokenStart;
@@ -2813,11 +2836,17 @@ export function createScanner(
             token = saveToken;
             tokenValue = saveTokenValue;
             tokenFlags = saveTokenFlags;
+            tempPos = saveTempPos;
+            tempFileName = saveTempFilename;
+            tempFullStart = saveTempFullStart;
         }
         return result;
     }
 
     function scanRange<T>(start: number, length: number, callback: () => T): T {
+        const saveTempPos = tempPos;
+        const saveTempFilename = tempFileName;
+        const saveTempFullStart = tempFullStart;
         const saveEnd = end;
         const savePos = pos;
         const saveStartPos = fullStartPos;
@@ -2838,6 +2867,9 @@ export function createScanner(
         tokenValue = saveTokenValue;
         tokenFlags = saveTokenFlags;
         commentDirectives = saveErrorExpectations;
+        tempPos = saveTempPos;
+        tempFileName = saveTempFilename
+        tempFullStart = saveTempFullStart;
 
         return result;
     }

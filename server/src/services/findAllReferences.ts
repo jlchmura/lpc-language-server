@@ -1456,7 +1456,7 @@ export namespace Core {
         
         // there may be a better way to do this, but LPC inherits aren't resovled yet
         // unless the type checker has run, and we need to that to find symbols for the
-        // referenced location.  so force type check the refernced source file first
+        // referenced location.  so force type check the refernced source file first        
         const top = referenceLocation.getSourceFile();
         state.checker.getDiagnostics(top);
 

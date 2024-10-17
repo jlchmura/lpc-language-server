@@ -19,20 +19,23 @@ const enum SignatureFlags {
     JSDoc = 1 << 5,
 }
 
+interface PositionState {
+    pos: number;
+    scanner: Scanner;
+    macro: Macro;
+    include: IncludeDirective;
+}
+
 export namespace LpcParser {
     // Share a single scanner across all calls to parse a source file.  This helps speed things
     // up by avoiding the cost of creating/compiling scanners over and over again.
     var scanner = createScanner(ScriptTarget.Latest, /*skipTrivia*/ true);    
     var originScanner = scanner;
-    var nextScanner: () => number;
-    /** the filename currently being scanned */
-    var scannerFilename: string;
+    var nextScanner: () => number;    
 
     var currentIncludeDirective: IncludeDirective | undefined;    
 
     /** the scanner that just finished - from an include or macro */
-    var lastTokenEnd: number | undefined;
-    var lastFilename: string | undefined;
     var lastIncludeDirective: IncludeDirective | undefined;
 
     var disallowInAndDecoratorContext = NodeFlags.DisallowInContext | NodeFlags.DecoratorContext;
@@ -133,7 +136,7 @@ export namespace LpcParser {
         IdentifierConstructor = objectAllocator.getIdentifierConstructor();        
         SourceFileConstructor = objectAllocator.getSourceFileConstructor();
         
-        fileName = scannerFilename = _fileName;
+        fileName = _fileName;
         fileHandler = _fileHandler;
         sourceText = _sourceText;
         config = _config;
@@ -161,8 +164,9 @@ export namespace LpcParser {
         identifierCount = 0;                
         inherits = [];
 
-        // Initialize and prime the scanner before parsing the source elements.
+        // Initialize and prime the scanner before parsing the source elements.        
         scanner.setText(sourceText);
+        scanner.setFileName(fileName);
         scanner.setOnError(scanError);
         scanner.setScriptTarget(languageVersion);
         scanner.setLanguageVariant(languageVariant);
@@ -177,9 +181,9 @@ export namespace LpcParser {
         scanner.setOnError(undefined);
         scanner.setScriptKind(ScriptKind.Unknown);
         scanner.setJSDocParsingMode(JSDocParsingMode.ParseAll);        
+        scanner.setFileName(undefined);
 
         // Clear any data.  We don't want to accidentally hold onto it for too long.
-        scannerFilename = undefined!;
         sourceText = undefined!;
         languageVersion = undefined!;
         syntaxCursor = undefined;
@@ -192,9 +196,7 @@ export namespace LpcParser {
         identifiers = undefined!;        
         inherits = undefined!;
         topLevel = true;   
-        includeFileCache = undefined!;
-        lastTokenEnd = undefined!;
-        lastFilename = undefined!;
+        includeFileCache = undefined!;        
         lastIncludeDirective = undefined!;
         conditionalStack = undefined!;
         isCodeExecutable = Ternary.Unknown;
@@ -291,12 +293,10 @@ export namespace LpcParser {
     }
 
     function nextTokenWithoutCheck() {
-        lastFilename = undefined!;
-        lastTokenEnd = undefined!;
         lastIncludeDirective = undefined!;        
 
         let incomingToken = scanner.scan();
-
+1
         // if we see an eof, restore the previous scanner (if there is one)
         while (incomingToken === SyntaxKind.EndOfFileToken && nextScanner) {            
             incomingToken = nextScanner();                            
@@ -373,6 +373,9 @@ export namespace LpcParser {
             if (macro && macro.disabled !== true && macro.directive.range) {                                
                 // we are in a macro substitution                
                 macro.disabled = true;                
+                macro.originFilename = scanner.getFileName();
+                macro.posInOrigin = scanner.getTokenFullStart();
+                macro.endInOrigin = scanner.getTokenFullStart() + tokenValue.length;
 
                 const { range, arguments: macroArgsDef } = macro.directive;  
 
@@ -395,14 +398,16 @@ export namespace LpcParser {
                             argValsByName[argName] = {
                                 pos: argVal.pos,
                                 end: argVal.end, 
-                                getText: scanner.getText                               
+                                getText: scanner.getText,
+                                fileName: scanner.getFileName()
                             };                            
                         } else {
                             parseErrorAt(lastArg.end, values.end, Diagnostics.Missing_argument_for_macro_0, argName);
                             argValsByName[argName] = {
                                 pos: lastArg.end,
                                 end: lastArg.end,
-                                getText: scanner.getText
+                                getText: scanner.getText,
+                                fileName: scanner.getFileName()
                             }
                         }
                     });
@@ -414,10 +419,9 @@ export namespace LpcParser {
                 const saveScanner = scanner;
                 const saveCurrentMacro = currentMacro;                
                 const saveNextScanner = nextScanner;
-                const saveFilename = scannerFilename;
-
+                
                 scanner = createScanner(ScriptTarget.Latest, /*skipTrivia*/ true, undefined, macro.getText(), undefined, range.pos, range.end - range.pos);                                                
-                scannerFilename = macro.directive.originFilename;
+                scanner.setFileName(macro.directive.originFilename);
                 currentMacro = macro;
 
                 // parse args will have consumed the next token, so we need to store that and return it
@@ -425,19 +429,22 @@ export namespace LpcParser {
                 const saveToken = macroArgsDef?.length > 0 ? currentToken : undefined;
                                                 
                 nextScanner = () => {
+                    saveScanner.setTempPos(scanner.getTokenEnd(), scanner.getTokenFullStart(), scanner.getFileName())
+
                     const t = saveToken ?? saveScanner.scan();                    
 
                     // re-enable the macro
                     Debug.assertIsDefined(macro);
                     macro.disabled = false;
                     macro.argsIn = undefined;                    
+                    macro.originFilename = undefined!;
+                    macro.posInOrigin = undefined!;
+                    macro.endInOrigin = undefined!;
                     currentMacro = saveCurrentMacro!;
                     
-                    // restore the previous scanner
-                    lastTokenEnd = scanner.getTokenEnd();                    
+                    // restore the previous scanner                    
                     scanner = saveScanner;                    
                     nextScanner = saveNextScanner;  
-                    scannerFilename = saveFilename;                    
                     
                     // return token                    
                     return t;// saveToken ?? scanner.scan();
@@ -453,10 +460,12 @@ export namespace LpcParser {
                 const saveNextScanner = nextScanner;                
                 
                 scanner = createScanner(ScriptTarget.Latest, /*skipTrivia*/ true, undefined, arg.getText(), undefined, arg.pos, arg.end - arg.pos);
+                scanner.setFileName(arg.fileName);
 
                 nextScanner = () => {
                     arg.disabled = false;
-                    lastTokenEnd = scanner.getTokenEnd();
+
+                    saveScanner.setTempPos(scanner.getTokenEnd(), scanner.getTokenFullStart(), scanner.getFileName());
                     scanner = saveScanner;//scannerStack.pop()!;
 
                     nextScanner = saveNextScanner;
@@ -612,7 +621,7 @@ export namespace LpcParser {
         let result: DiagnosticWithDetachedLocation | undefined;
         if (!lastError || start !== lastError.start) {
             const diagSrcText = scanner.getText().length > start ? scanner.getText() : sourceText;
-            result = createDetachedDiagnostic(scannerFilename, diagSrcText, start, errLength, message, ...args);
+            result = createDetachedDiagnostic(scanner.getFileName(), diagSrcText, start, errLength, message, ...args);
             parseDiagnostics.push(result);
         }
 
@@ -644,7 +653,7 @@ export namespace LpcParser {
             parseErrorAtCurrentToken(diagnosticMessage, ...args);
         }
 
-        const pos = getNodePos();
+        const pos = getPositionState();
         const result = kind === SyntaxKind.Identifier ? factoryCreateIdentifier("", /*originalKeywordKind*/ undefined) :            
             kind === SyntaxKind.IntLiteral ? factoryCreateIntLiteral("", /*numericLiteralFlags*/ undefined) :
             kind === SyntaxKind.FloatLiteral ? factoryCreateFloatLiteral("", /*numericLiteralFlags*/ undefined) :
@@ -659,7 +668,7 @@ export namespace LpcParser {
     }
 
     function createMissingList<T extends Node>(): MissingList<T> {
-        const list = createNodeArray<T>([], getNodePos()) as MissingList<T>;
+        const list = createNodeArray<T>([], getPositionState()) as MissingList<T>;
         list.isMissingList = true;
         return list;
     }
@@ -669,18 +678,20 @@ export namespace LpcParser {
     }
                     
     interface Position { pos: number; end: number; __positionBrand:any; };
-
-    function createPosition(pos: number, end: number): Position {
-        return { pos, end } as Position;
+    
+    function getPositionState(): PositionState {
+        // Debug.assert(!isSpeculating, "Shouldn't be getting position when speculating");
+        return {
+            pos: getNodePos(),
+            scanner: scanner,
+            include: currentIncludeDirective,
+            macro: currentMacro
+        }
     }
 
     function getNodePos(): number {
         return scanner.getTokenFullStart();
-    }
-
-    function getNodePosAndFileName(): { pos: number, fileName: string } {
-        return { pos: scanner.getTokenFullStart(), fileName: scannerFilename };
-    }
+    }    
     
     function parseErrorAtCurrentToken(message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithDetachedLocation | undefined {
         return parseErrorAt(scanner.getTokenStart(), scanner.getTokenEnd(), message, ...args);
@@ -692,8 +703,8 @@ export namespace LpcParser {
         parsingContext |= 1 << kind;
         currentParsingContext = kind;
 
-        const list = [];
-        const listPos = getNodePos();
+        const list = [];        
+        const listPos = getPositionState();
 
         while (!isListTerminator(kind)) {
             if (isListElement(kind, /*inErrorRecovery*/ false)) {
@@ -1404,9 +1415,9 @@ export namespace LpcParser {
         return node;
     }
 
-    function createNodeArray<T extends Node>(elements: T[], pos: number, end?: number, hasTrailingComma?: boolean): NodeArray<T> {
+    function createNodeArray<T extends Node>(elements: T[], pos: PositionState, end?: number, hasTrailingComma?: boolean): NodeArray<T> {
         const array = factoryCreateNodeArray(elements, hasTrailingComma);
-        setTextRangePosEnd(array, pos, end ?? scanner.getTokenFullStart());
+        setTextRangePosEnd(array, pos.pos, end ?? pos.scanner.getTokenFullStart());
         return array;
     }
 
@@ -1498,7 +1509,7 @@ export namespace LpcParser {
     }
 
     function parseEmptyStatement(): Statement {
-        const pos = getNodePos();
+        const pos = getPositionState();
         const hasJSDoc = hasPrecedingJSDocComment();
         parseExpected(SyntaxKind.SemicolonToken);
         return withJSDoc(finishNode(factory.createEmptyStatement(), pos), hasJSDoc);
@@ -1521,7 +1532,10 @@ export namespace LpcParser {
             case SyntaxKind.PragmaDirective:
                 directive = parsePragmaDirective();
                 break;
-            default:
+            case SyntaxKind.EndIfDirective:                
+                directive = createMissingNode(SyntaxKind.EndIfDirective, /*reportAtCurrentPosition*/ true, Diagnostics.Unexpected_endIf_directive);
+                // falls through
+            default:                
                 nextToken();
                 const directiveContent = [];
                 while (token() !== SyntaxKind.NewLineTrivia) {
@@ -1547,7 +1561,7 @@ export namespace LpcParser {
 
     function processIncludeDirective(includeDirective: IncludeDirective) {                
         const localFilename = includeDirective.content.map((literal) => literal.text).join("");            
-        const includeFile = fileHandler.loadIncludeFile(scannerFilename, localFilename, includeDirective.localFirst);
+        const includeFile = fileHandler.loadIncludeFile(scanner.getFileName(), localFilename, includeDirective.localFirst);
         const resolvedFilename = internIdentifier(includeFile.filename);
 
         (includeDirective as Mutable<IncludeDirective>).resolvedFilename = resolvedFilename;
@@ -1559,12 +1573,11 @@ export namespace LpcParser {
             // create scanner for include
             const saveScanner = scanner;
             const saveNextScanner = nextScanner;
-            const saveFilename = scannerFilename;
             const saveToken = currentToken;
             const saveDirective = currentIncludeDirective;
 
-            scannerFilename = resolvedFilename;
             scanner = createScanner(languageVersion, /*skipTrivia*/ true, undefined, includeSourceText);
+            scanner.setFileName(resolvedFilename);
             
             currentIncludeDirective ??= includeDirective;
             
@@ -1572,14 +1585,14 @@ export namespace LpcParser {
                 Debug.assert(!isSpeculating, "Should not be speculating");
 
                 // restore the previous scanner
-                lastTokenEnd = scanner.getTokenEnd();
-                lastFilename = resolvedFilename;
+                // do not set a scanner temp pos/filename here - the include file has completely finished
+                // and no nodes will cross the boundary of the eof, like they can with macros
+                // saveScanner.setTempPos(scanner.getTokenEnd(), scanner.getTokenFullStart(), resolvedFilename);                
                 
                 lastIncludeDirective = currentIncludeDirective;
                 currentIncludeDirective = saveDirective!;                
 
                 scanner = saveScanner;                    
-                scannerFilename = saveFilename;
                 nextScanner = saveNextScanner;  
                 
                 // const nt = scanner.scan();
@@ -1587,12 +1600,12 @@ export namespace LpcParser {
                 return saveToken ?? scanner.scan();
             }
 
-            nextToken();
+            nextToken();            
         }
     }
 
     function parsePragmaDirective(): PragmaDirective {
-        const pos = getNodePos();
+        const pos = getPositionState();
 
         parseExpected(SyntaxKind.PragmaDirective);
         let pragmaArgs = parseList(ParsingContext.PramgaArguments, parseIdentifier);
@@ -1606,7 +1619,7 @@ export namespace LpcParser {
     }
 
     function parseIncludeDirective(): IncludeDirective {
-        const pos = getNodePos();
+        const pos = getPositionState();
         const hasJSDoc = hasPrecedingJSDocComment();
         
         const directiveContent: StringLiteral[] = [];
@@ -1628,7 +1641,7 @@ export namespace LpcParser {
     }
 
     function parseDefineDirective(): PreprocessorDirective {
-        const pos = getNodePos();
+        const pos = getPositionState();
         const hasJSDoc = hasPrecedingJSDocComment();
 
         parseExpected(SyntaxKind.DefineDirective);
@@ -1675,7 +1688,7 @@ export namespace LpcParser {
     }    
 
     function parseUndefDirective(): UndefDirective {
-        const pos = getNodePos();
+        const pos = getPositionState();
         const hasJSDoc = hasPrecedingJSDocComment();
 
         parseExpected(SyntaxKind.UndefDirective);
@@ -1687,11 +1700,11 @@ export namespace LpcParser {
     }
 
     function parseIfStatement(): IfStatement {
-        const pos = getNodePos();
+        const pos = getPositionState();
         const hasJSDoc = hasPrecedingJSDocComment();
         parseExpected(SyntaxKind.IfKeyword);
         const openParenPosition = scanner.getTokenStart();
-        const openParenFilename = scannerFilename;
+        const openParenFilename = scanner.getFileName();
         const openParenParsed = parseExpected(SyntaxKind.OpenParenToken);
         const expression = allowInAnd(parseExpression);
         parseExpectedMatchingBrackets(SyntaxKind.OpenParenToken, SyntaxKind.CloseParenToken, openParenParsed, openParenPosition, openParenFilename);
@@ -1701,7 +1714,7 @@ export namespace LpcParser {
     }
     
     function parseForEachStatement(): Statement {
-        const pos = getNodePos();
+        const pos = getPositionState();
         const hasJSDoc = hasPrecedingJSDocComment();
         parseExpected(SyntaxKind.ForEachKeyword);        
         parseExpected(SyntaxKind.OpenParenToken);
@@ -1734,7 +1747,7 @@ export namespace LpcParser {
     }
 
     function parseForStatement(): Statement {
-        const pos = getNodePos();
+        const pos = getPositionState();
         const hasJSDoc = hasPrecedingJSDocComment();
         parseExpected(SyntaxKind.ForKeyword);        
         parseExpected(SyntaxKind.OpenParenToken);
@@ -1769,7 +1782,7 @@ export namespace LpcParser {
     }
 
     function parseBreakOrContinueStatement(kind: SyntaxKind): BreakOrContinueStatement {
-        const pos = getNodePos();
+        const pos = getPositionState();
         const hasJSDoc = hasPrecedingJSDocComment();
 
         parseExpected(kind === SyntaxKind.BreakStatement ? SyntaxKind.BreakKeyword : SyntaxKind.ContinueKeyword);
@@ -1783,7 +1796,7 @@ export namespace LpcParser {
     }
     
     function parseCaseClause(): CaseClause {
-        const pos = getNodePos();
+        const pos = getPositionState();
         const hasJSDoc = hasPrecedingJSDocComment();
         parseExpected(SyntaxKind.CaseKeyword);
         
@@ -1795,7 +1808,7 @@ export namespace LpcParser {
     }
 
     function parseDefaultClause(): DefaultClause {
-        const pos = getNodePos();
+        const pos = getPositionState();
         parseExpected(SyntaxKind.DefaultKeyword);
         parseExpected(SyntaxKind.ColonToken);
         const statements = parseList(ParsingContext.SwitchClauseStatements, parseStatement);
@@ -1807,7 +1820,7 @@ export namespace LpcParser {
     }
 
     function parseCaseBlock(): CaseBlock {
-        const pos = getNodePos();
+        const pos = getPositionState();
         
         const clauses = parseList(ParsingContext.SwitchClauses, parseCaseOrDefaultClause);
         
@@ -1815,7 +1828,7 @@ export namespace LpcParser {
     }
 
     function parseSwitchStatement(): SwitchStatement {
-        const pos = getNodePos();
+        const pos = getPositionState();
         const hasJSDoc = hasPrecedingJSDocComment();        
         
         parseExpected(SyntaxKind.SwitchKeyword);
@@ -1832,13 +1845,13 @@ export namespace LpcParser {
     }
 
     function parseDoStatement(): DoWhileStatement {
-        const pos = getNodePos();
+        const pos = getPositionState();
         const hasJSDoc = hasPrecedingJSDocComment();
         parseExpected(SyntaxKind.DoKeyword);
         const statement = parseStatement();
         parseExpected(SyntaxKind.WhileKeyword);
         const openParenPosition = scanner.getTokenStart();
-        const openParenFilename = scannerFilename;
+        const openParenFilename = scanner.getFileName();
         const openParenParsed = parseExpected(SyntaxKind.OpenParenToken);
         const expression = allowInAnd(parseExpression);
         parseExpectedMatchingBrackets(SyntaxKind.OpenParenToken, SyntaxKind.CloseParenToken, openParenParsed, openParenPosition, openParenFilename);
@@ -1852,11 +1865,11 @@ export namespace LpcParser {
     }
 
     function parseWhileStatement(): WhileStatement {
-        const pos = getNodePos();
+        const pos = getPositionState();
         const hasJSDoc = hasPrecedingJSDocComment();
         parseExpected(SyntaxKind.WhileKeyword);
         const openParenPosition = scanner.getTokenStart();
-        const openParenFilename = scannerFilename;
+        const openParenFilename = scanner.getFileName();
         const openParenParsed = parseExpected(SyntaxKind.OpenParenToken);
         const expression = allowInAnd(parseExpression);
         parseExpectedMatchingBrackets(SyntaxKind.OpenParenToken, SyntaxKind.CloseParenToken, openParenParsed, openParenPosition, openParenFilename);
@@ -1864,27 +1877,18 @@ export namespace LpcParser {
         return withJSDoc(finishNode(factory.createWhileStatement(statement, expression), pos), hasJSDoc);
     }
 
-    function finishNode<T extends Node>(node: T, pos: number, end?: number): T {                
-        if (lastTokenEnd < pos) {
-            // this is a situation where a macro/include scanner exited before the node finished parsing 
-            // in this case, reset the last token end -- we don't need it anymore.
-            lastTokenEnd = undefined!;
-            lastFilename = undefined!;
-            lastIncludeDirective = undefined!;
-        }
-
-        end ||= lastTokenEnd;
+    function finishNode<T extends Node>(node: T, pos: PositionState): T {    
+        if (typeof pos !== "number") {
+            (node as Mutable<T>).includeDirEnd = pos.include?.end ?? pos.macro?.directive.includeDirEnd;
+            (node as Mutable<T>).includeDirPos = pos.include?.pos ?? pos.macro?.directive.includeDirPos;
+            (node as Mutable<T>).originFilename = pos.scanner.getFileName();
+            setTextRangePosEnd(node, pos.pos, pos.scanner.getTokenFullStart());
+        } 
         
-        (node as Mutable<T>).includeDirEnd = (lastIncludeDirective || currentIncludeDirective || currentMacro?.directive)?.end;
-        (node as Mutable<T>).includeDirPos = (lastIncludeDirective || currentIncludeDirective || currentMacro?.directive)?.pos;        
-        (node as Mutable<T>).originFilename = lastFilename ?? scannerFilename;
-                        
-        // if (node.originFilename != fileName && node.includeDirPos === undefined && currentMacro) {
-        //     // could be a macaro
-            
-        // }
+        const incPos = node.includeDirPos;
+        !!incPos && Debug.assert(incPos < sourceText.length, "Include directive position is out of range");
 
-        setTextRangePosEnd(node, pos, end ?? scanner.getTokenFullStart());
+        Debug.assert(node.end >= node.pos, "Node end is out of range");
 
         if (contextFlags) {
             (node as Mutable<T>).flags |= contextFlags;
@@ -1898,9 +1902,9 @@ export namespace LpcParser {
             (node as Mutable<T>).flags |= NodeFlags.ThisNodeHasError;
         }
 
-        if (node.originFilename != fileName) {
-            Debug.assertIsDefined(node.includeDirPos, "Node is from external file but has no include directive position");
-        }        
+        // if (node.originFilename != fileName) {
+        //     Debug.assertIsDefined(node.includeDirPos, "Node is from external file but has no include directive position");
+        // }        
 
         return node;
     }
@@ -1946,9 +1950,9 @@ export namespace LpcParser {
     }
     
     function parseTokenNode<T extends Node>(): T {
-        const pos = getNodePos();
-        const kind = token();
-        nextToken();
+        const pos = getPositionState();
+        const kind = token();        
+        nextToken();        
         return finishNode(factoryCreateToken(kind), pos) as T;
     }
 
@@ -1962,7 +1966,7 @@ export namespace LpcParser {
             return;
         }
         if (lastError) {
-            const fn = openParenFilename || scannerFilename || fileName;
+            const fn = openParenFilename || scanner.getFileName() || fileName;
             const sourceForFn = includeFileCache[fn];
 
             addRelatedInfo(
@@ -2124,8 +2128,7 @@ export namespace LpcParser {
         const saveNextScanner = nextScanner;
         const saveScanner = scanner;        
         const saveCurrentMaco = currentMacro;
-        const saveInclude = currentIncludeDirective;
-        const saveScannerFilename = scannerFilename;
+        const saveInclude = currentIncludeDirective;        
 
         // Note: it is not actually necessary to save/restore the context flags here.  That's
         // because the saving/restoring of these flags happens naturally through the recursive
@@ -2155,8 +2158,7 @@ export namespace LpcParser {
             nextScanner = saveNextScanner;
             scanner = saveScanner;            
             currentMacro = saveCurrentMaco;
-            currentIncludeDirective = saveInclude;
-            scannerFilename = saveScannerFilename;
+            currentIncludeDirective = saveInclude;            
         }
 
         isSpeculating = saveIsSpeculating;
@@ -2201,7 +2203,7 @@ export namespace LpcParser {
         // Avoiding having to do the lookahead for a labeled statement by just trying to parse
         // out an expression, seeing if it is identifier and then seeing if it is followed by
         // a colon.
-        const pos = getNodePos();
+        const pos = getPositionState();
         let hasJSDoc = hasPrecedingJSDocComment();
         let node: ExpressionStatement | LabeledStatement;
         const hasParen = token() === SyntaxKind.OpenParenToken;
@@ -2395,7 +2397,7 @@ export namespace LpcParser {
         // if (isStartOfFunctionTypeOrConstructorType()) {
         //     return parseFunctionOrConstructorType();
         // }
-        const pos = getNodePos();
+        const pos = getPositionState();
         const type = parseUnionTypeOrHigher();
         // if (!inDisallowConditionalTypesContext() && !scanner.hasPrecedingLineBreak() && parseOptional(SyntaxKind.ExtendsKeyword)) {
         //     // The type following 'extends' is not permitted to be another conditional type
@@ -2414,7 +2416,7 @@ export namespace LpcParser {
         parseConstituentType: () => TypeNode,
         createTypeNode: (types: NodeArray<TypeNode>) => UnionTypeNode,
     ): TypeNode {
-        const pos = getNodePos();
+        const pos = getPositionState();
 
         if (parseOptional(SyntaxKind.LessThanToken)) {
             const type = parseUnionOrIntersectionType(operator, parseConstituentType, createTypeNode);
@@ -2446,7 +2448,7 @@ export namespace LpcParser {
     }
 
     function parsePostfixTypeOrHigher(): TypeNode {
-        const pos = getNodePos();
+        const pos = getPositionState();
         let type = parseNonArrayType();
         
         if (parseOptional(SyntaxKind.AsteriskToken)) {
@@ -2581,7 +2583,7 @@ export namespace LpcParser {
     }
 
     function parseTypeLiteral(): TypeLiteralNode {
-        const pos = getNodePos();
+        const pos = getPositionState();
         return finishNode(factory.createTypeLiteralNode(parseObjectTypeMembers()), pos);
     }
 
@@ -2599,7 +2601,7 @@ export namespace LpcParser {
     }
     
     function parseStructTypeNode(isStructKeywordExpected=true): StructTypeNode {
-        const pos = getNodePos();
+        const pos = getPositionState();
         if (isStructKeywordExpected && !parseExpected(SyntaxKind.StructKeyword)) {
             createMissingNode(SyntaxKind.StructKeyword, /*reportAtCurrentPosition*/ true, Diagnostics._0_expected, "struct");
         }
@@ -2609,7 +2611,7 @@ export namespace LpcParser {
     }
 
     function parseLiteralTypeNode(negative?: boolean): LiteralTypeNode {
-        const pos = getNodePos();
+        const pos = getPositionState();
         if (negative) {
             nextToken();
         }
@@ -2621,7 +2623,7 @@ export namespace LpcParser {
     }
 
     function parseReturnStatement(): ReturnStatement {
-        const pos = getNodePos();
+        const pos = getPositionState();
         const hasJSDoc = hasPrecedingJSDocComment();
         parseExpected(SyntaxKind.ReturnKeyword);
         const expression = canParseSemicolon() ? undefined : allowInAnd(parseExpression);
@@ -2632,7 +2634,7 @@ export namespace LpcParser {
     function parseInheritStatement(): InheritDeclaration {        
         Debug.assert(!isSpeculating, "Inherit statements should not be speculatively parsed.");
 
-        const pos = getNodePos();
+        const pos = getPositionState();
         const hasJSDoc = hasPrecedingJSDocComment();
         
         const mods = parseModifiers(false, false, false);
@@ -2653,7 +2655,7 @@ export namespace LpcParser {
     }
 
     function parseLiteralLikeNode(kind: SyntaxKind): LiteralLikeNode {        
-        const pos = getNodePos();
+        const pos = getPositionState();
 
         if (kind === SyntaxKind.StringArrayLiteral) {
             // special handling for fluffos @@ string literals, which get translated into arrays
@@ -2701,7 +2703,7 @@ export namespace LpcParser {
     function parseModifiers(allowDecorators: false, permitConstAsModifier?: boolean, stopOnStartOfClassStaticBlock?: boolean): NodeArray<Modifier> | undefined;
     function parseModifiers(allowDecorators: true, permitConstAsModifier?: boolean, stopOnStartOfClassStaticBlock?: boolean): NodeArray<ModifierLike> | undefined;
     function parseModifiers(allowDecorators: boolean, permitConstAsModifier?: boolean, stopOnStartOfClassStaticBlock?: boolean): NodeArray<ModifierLike> | undefined {
-        const pos = getNodePos();
+        const pos = getPositionState();
         let list: ModifierLike[] | undefined;
         let decorator, modifier, hasSeenStaticModifier = false, hasLeadingModifier = false, hasTrailingDecorator = false;
 
@@ -2730,7 +2732,7 @@ export namespace LpcParser {
     
 
     function tryParseModifier(hasSeenStaticModifier: boolean, permitConstAsModifier?: boolean, stopOnStartOfClassStaticBlock?: boolean): Modifier | undefined {
-        const pos = getNodePos();
+        const pos = getPositionState();
         const kind = token();
 
         // if (token() === SyntaxKind.ConstKeyword && permitConstAsModifier) {
@@ -2841,7 +2843,7 @@ export namespace LpcParser {
         // `parseListElement` attempted to get the reused node at this position,
         // but the ambient context flag was not yet set, so the node appeared
         // not reusable in that context.
-        const pos = getNodePos();
+        const pos = getPositionState();
         const hasJSDoc = hasPrecedingJSDocComment();
         const modifiers = parseModifiers(/*allowDecorators*/ true);
         
@@ -2854,7 +2856,7 @@ export namespace LpcParser {
         return parseDeclarationWorker(pos, hasJSDoc, modifiers, type);                
     }
     
-    function parseDeclarationWorker(pos: number, hasJSDoc: boolean, modifiersIn: NodeArray<ModifierLike> | undefined, typeIn: TypeNode | undefined): Statement {
+    function parseDeclarationWorker(pos: PositionState, hasJSDoc: boolean, modifiersIn: NodeArray<ModifierLike> | undefined, typeIn: TypeNode | undefined): Statement {
         
         // if there is a comma, equals, or semi after the first token, it must be a variable declaration
 
@@ -2898,7 +2900,7 @@ export namespace LpcParser {
                     // We reached this point because we encountered decorators and/or modifiers and assumed a declaration
                     // would follow. For recovery and error reporting purposes, return an incomplete declaration.
                     const missing = createMissingNode<MissingDeclaration>(SyntaxKind.MissingDeclaration, /*reportAtCurrentPosition*/ true, Diagnostics.Declaration_expected);
-                    setTextRangePos(missing, pos);
+                    setTextRangePos(missing, pos.pos);
                     (missing as Mutable<MissingDeclaration>).modifiers = modifiersIn;
                     (missing as Mutable<MissingDeclaration>).type = typeIn;
                     return missing;
@@ -2911,7 +2913,7 @@ export namespace LpcParser {
         }
     }    
 
-    function parseStructDeclaration(pos: number, hasJSDoc: boolean, modifiers: NodeArray<ModifierLike> | undefined): StructDeclaration {        
+    function parseStructDeclaration(pos: PositionState, hasJSDoc: boolean, modifiers: NodeArray<ModifierLike> | undefined): StructDeclaration {        
         parseExpected(SyntaxKind.StructKeyword);        
         const name = parseIdentifier();                
         // the struct members are parsed as a type
@@ -2958,7 +2960,7 @@ export namespace LpcParser {
     }
 
     function parseTypeMember(): TypeElement {        
-        const pos = getNodePos();
+        const pos = getPositionState();
         const hasJSDoc = hasPrecedingJSDocComment();
         const modifiers = parseModifiers(/*allowDecorators*/ false);
         // if (isIndexSignature()) {
@@ -2967,7 +2969,7 @@ export namespace LpcParser {
         return parsePropertyOrMethodSignature(pos, hasJSDoc, modifiers);
     }
 
-    function parsePropertyOrMethodSignature(pos: number, hasJSDoc: boolean, modifiers: NodeArray<Modifier> | undefined): PropertySignature | MethodSignature {
+    function parsePropertyOrMethodSignature(pos: PositionState, hasJSDoc: boolean, modifiers: NodeArray<Modifier> | undefined): PropertySignature | MethodSignature {
         const type = parseType();
         const name = parsePropertyName();        
         let node: PropertySignature | MethodSignature;
@@ -3012,7 +3014,7 @@ export namespace LpcParser {
         return parseIdentifierName();
     }
 
-    function parseFunctionDeclaration(pos: number, hasJSDoc: boolean, modifiers: NodeArray<ModifierLike> | undefined, type: TypeNode | undefined): FunctionDeclaration {                
+    function parseFunctionDeclaration(pos: PositionState, hasJSDoc: boolean, modifiers: NodeArray<ModifierLike> | undefined, type: TypeNode | undefined): FunctionDeclaration {                
         const name = parseBindingIdentifier();
         const parameters = parseParameters();
         const body = parseFunctionBlockOrSemicolon(SignatureFlags.None);
@@ -3042,7 +3044,7 @@ export namespace LpcParser {
         return block;
     }
 
-    function parseVariableStatement(pos: number, hasJSDoc: boolean, modifiers: NodeArray<ModifierLike> | undefined, type: TypeNode | undefined): VariableStatement {
+    function parseVariableStatement(pos: PositionState, hasJSDoc: boolean, modifiers: NodeArray<ModifierLike> | undefined, type: TypeNode | undefined): VariableStatement {
         const declarationList = parseVariableDeclarationList(/*inForStatementInitializer*/ false, type);
         parseSemicolon();
         const node = factoryCreateVariableStatement(modifiers, declarationList);
@@ -3080,7 +3082,7 @@ export namespace LpcParser {
     function parseParameterWorker(): ParameterDeclaration;
     function parseParameterWorker(allowAmbiguity: false): ParameterDeclaration | undefined;
     function parseParameterWorker(allowAmbiguity = true): ParameterDeclaration | undefined {
-        const pos = getNodePos();
+        const pos = getPositionState();
         const hasJSDoc = hasPrecedingJSDocComment();
 
         const modifiers = parseModifiers(/*allowDecorators*/ false, /*permitConstAsModifier*/ false, /*stopOnStartOfClassStaticBlock*/ false);
@@ -3147,7 +3149,7 @@ export namespace LpcParser {
     }
 
     function parseJSDocParameter(): ParameterDeclaration {
-        const pos = getNodePos();
+        const pos = getPositionState();
         let name: Identifier | undefined;
         // if (token() === SyntaxKind.ThisKeyword || token() === SyntaxKind.NewKeyword) {
         //     name = parseIdentifierName();
@@ -3168,7 +3170,7 @@ export namespace LpcParser {
     }
 
     function parseVariableDeclarationList(inForStatementInitializer: boolean, type: TypeNode | undefined, parsingContext: ParsingContext = 0): VariableDeclarationList {
-        const pos = getNodePos();
+        const pos = getPositionState();
 
         let flags: NodeFlags = 0;
                 
@@ -3205,7 +3207,7 @@ export namespace LpcParser {
     }
     
     function parseVariableDeclaration(type: TypeNode | undefined): VariableDeclaration {
-        const pos = getNodePos();
+        const pos = getPositionState();
         const hasJSDoc = hasPrecedingJSDocComment();        
         // type shouldn't be here, but needs to be for foreach() statement.
         // we'll parse it out and report an error in the checker    
@@ -3257,7 +3259,8 @@ export namespace LpcParser {
     function createIdentifier(isIdentifier: boolean, diagnosticMessage?: DiagnosticMessage, privateIdentifierDiagnosticMessage?: DiagnosticMessage): Identifier {
         if (isIdentifier) {
             identifierCount++;
-            const pos = scanner.hasLeadingAsterisks() ? scanner.getTokenStart() : getNodePos();
+            const pos = getPositionState();
+            pos.pos = scanner.hasLeadingAsterisks() ? scanner.getTokenStart() : getNodePos();
             // Store original token kind if it is not just an Identifier so we can report appropriate error later in type checker
             const originalKeywordKind = token();
             const text = internIdentifier(scanner.getTokenValue());            
@@ -3296,7 +3299,7 @@ export namespace LpcParser {
         const saveParsingContext = parsingContext;
         parsingContext |= 1 << kind;
         const list: NonNullable<T>[] = [];
-        const listPos = getNodePos();
+        const listPos = getPositionState();
 
         let commaStart = -1; // Meaning the previous token was not a comma
         while (true) {
@@ -3374,7 +3377,7 @@ export namespace LpcParser {
         const saveParsingContext = parsingContext;
         parsingContext |= 1 << kind;
         const list: NonNullable<T>[] = [];
-        const listPos = getNodePos();
+        const listPos = getPositionState();
 
         let delimStart = -1; // Meaning the previous token was not a comma
         while (true) {
@@ -3438,7 +3441,7 @@ export namespace LpcParser {
 
         // clear the decorator context when parsing Expression, as it should be unambiguous when parsing a decorator
         
-        const pos = getNodePos();
+        const pos = getPositionState();
         let expr = parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ true);
         let operatorToken: BinaryOperatorToken;
         while ((operatorToken = parseOptionalToken(SyntaxKind.CommaToken))) {
@@ -3450,10 +3453,10 @@ export namespace LpcParser {
 
     // STATEMENTS
     function parseBlock(ignoreMissingOpenBrace: boolean, diagnosticMessage?: DiagnosticMessage): Block {
-        const pos = getNodePos();
+        const pos = getPositionState();
         const hasJSDoc = hasPrecedingJSDocComment();
         const openBracePosition = scanner.getTokenStart();
-        const openBraceFilename = scannerFilename;
+        const openBraceFilename = scanner.getFileName();
         const openBraceParsed = (!ignoreMissingOpenBrace && parseExpected(SyntaxKind.OpenBraceToken, diagnosticMessage) || parseOptional(SyntaxKind.OpenBraceToken));
         if (openBraceParsed || ignoreMissingOpenBrace) {
             const multiLine = scanner.hasPrecedingLineBreak();
@@ -3518,7 +3521,7 @@ export namespace LpcParser {
         // Otherwise, we try to parse out the conditional expression bit.  We want to allow any
         // binary expression here, so we pass in the 'lowest' precedence here so that it matches
         // and consumes anything.
-        const pos = getNodePos();
+        const pos = getPositionState();
         const hasJSDoc = hasPrecedingJSDocComment();
         const expr = parseBinaryExpressionOrHigher(OperatorPrecedence.Lowest);
 
@@ -3543,17 +3546,17 @@ export namespace LpcParser {
         return parseConditionalExpressionRest(expr, pos, allowReturnTypeInArrowFunction);
     }
 
-    function makeBinaryExpression(left: Expression, operatorToken: BinaryOperatorToken, right: Expression, pos: number): BinaryExpression {
+    function makeBinaryExpression(left: Expression, operatorToken: BinaryOperatorToken, right: Expression, pos: PositionState): BinaryExpression {
         return finishNode(factory.createBinaryExpression(left, operatorToken, right), pos);
     }
 
     function parseBinaryExpressionOrHigher(precedence: OperatorPrecedence): Expression {
-        const pos = getNodePos();
+        const pos = getPositionState();
         const leftOperand = parseUnaryExpressionOrHigher();
         return parseBinaryExpressionRest(precedence, leftOperand, pos);
     }
 
-    function parseConditionalExpressionRest(leftOperand: Expression, pos: number, allowReturnTypeInArrowFunction: boolean): Expression {
+    function parseConditionalExpressionRest(leftOperand: Expression, pos: PositionState, allowReturnTypeInArrowFunction: boolean): Expression {
         // Note: we are passed in an expression which was produced from parseBinaryExpressionOrHigher.
         const questionToken = parseOptionalToken(SyntaxKind.QuestionToken);
         if (!questionToken) {
@@ -3577,7 +3580,7 @@ export namespace LpcParser {
         );
     }
 
-    function parseBinaryExpressionRest(precedence: OperatorPrecedence, leftOperand: Expression, pos: number): Expression {
+    function parseBinaryExpressionRest(precedence: OperatorPrecedence, leftOperand: Expression, pos: PositionState): Expression {
         while (true) {
             // We either have a binary operator here, or we're finished.  We call
             // reScanGreaterToken so that we merge token sequences like > and = into >=
@@ -3619,7 +3622,7 @@ export namespace LpcParser {
                 break;
             }
             
-            const tokenNode = impliedStringConcat ? finishNode(factoryCreateToken(SyntaxKind.PlusToken), getNodePos()) : parseTokenNode<BinaryOperatorToken>();
+            const tokenNode = impliedStringConcat ? finishNode(factoryCreateToken(SyntaxKind.PlusToken), getPositionState()) : parseTokenNode<BinaryOperatorToken>();
             leftOperand = makeBinaryExpression(leftOperand, tokenNode, parseBinaryExpressionOrHigher(newPrecedence), pos);
         }
 
@@ -3643,7 +3646,7 @@ export namespace LpcParser {
          *      5) --UnaryExpression[?Yield]
          */
         if (isUpdateExpression()) {
-            const pos = getNodePos();
+            const pos = getPositionState();;
             const updateExpression = parseUpdateExpression();
             return token() === SyntaxKind.AsteriskAsteriskToken || token() === SyntaxKind.EqualsToken ?
                 parseBinaryExpressionRest(getBinaryOperatorPrecedence(token()), updateExpression, pos) as BinaryExpression :
@@ -3715,7 +3718,7 @@ export namespace LpcParser {
     }
 
     function parseNewStructExpression(): NewStructExpression {
-        const pos = getNodePos();
+        const pos = getPositionState();
         parseExpected(SyntaxKind.OpenParenToken);
         parseExpected(SyntaxKind.LessThanToken);
         
@@ -3742,7 +3745,7 @@ export namespace LpcParser {
     }
 
     function parseTypeAssertion(): TypeAssertion {
-        const pos = getNodePos();
+        const pos = getPositionState();
         const hasBrace = parseOptional(SyntaxKind.OpenParenBraceToken);
         if (!hasBrace) parseExpected(SyntaxKind.OpenParenToken);
         
@@ -3764,7 +3767,7 @@ export namespace LpcParser {
     }
     
     function parsePrefixUnaryExpression() {
-        const pos = getNodePos();
+        const pos = getPositionState();
         return finishNode(factory.createPrefixUnaryExpression(token() as PrefixUnaryOperator, nextTokenAnd(parseSimpleUnaryExpression)), pos);
     }
     
@@ -3811,17 +3814,19 @@ export namespace LpcParser {
      */
     function parseUpdateExpression(): UpdateExpression {
         if (token() === SyntaxKind.PlusPlusToken || token() === SyntaxKind.MinusMinusToken) {
-            const pos = getNodePos();
+            const pos = getPositionState();;
             return finishNode(factory.createPrefixUnaryExpression(token() as PrefixUnaryOperator, nextTokenAnd(parseLeftHandSideExpressionOrHigher)), pos);
         }        
 
+        const exprPos = getPositionState();
         const expression = parseLeftHandSideExpressionOrHigher();
 
         Debug.assert(isLeftHandSideExpression(expression), "expression is not left hand type");
         if ((token() === SyntaxKind.PlusPlusToken || token() === SyntaxKind.MinusMinusToken) && !scanner.hasPrecedingLineBreak()) {
             const operator = token() as PostfixUnaryOperator;
             nextToken();
-            return finishNode(factory.createPostfixUnaryExpression(expression, operator), expression.pos);
+            Debug.assert(exprPos.pos == expression.pos, "expression and expression position should be the same");
+            return finishNode(factory.createPostfixUnaryExpression(expression, operator), exprPos);
         }
 
         return expression;
@@ -3858,8 +3863,8 @@ export namespace LpcParser {
         // bottom out states we can run into: 1) We see 'super' which must start either of
         // the last two CallExpression productions. 2) We see 'import' which must start import call.
         // 3)we have a MemberExpression which either completes the LeftHandSideExpression,
-        // or starts the beginning of the first four CallExpression productions.
-        const pos = getNodePos();
+        // or starts the beginning of the first four CallExpression productions.        
+        const pos = getPositionState();
         let expression: MemberExpression;
         // if (token() === SyntaxKind.ImportKeyword) {
             // if (lookAhead(nextTokenIsOpenParenOrLessThan)) {
@@ -3894,7 +3899,7 @@ export namespace LpcParser {
         return parseCallExpressionRest(pos, expression);
     }
 
-    function parseCallExpressionRest(pos: number, expression: LeftHandSideExpression): LeftHandSideExpression {
+    function parseCallExpressionRest(pos: PositionState, expression: LeftHandSideExpression): LeftHandSideExpression {
         while (true) {
             expression = parseMemberExpressionRest(pos, expression, /*allowOptionalChain*/ true);                        
             if (token() === SyntaxKind.OpenParenToken) {
@@ -3925,7 +3930,7 @@ export namespace LpcParser {
     }
 
     function parseNamedArgumentElement(): ObjectLiteralElementLike {
-        const pos = getNodePos();
+        const pos = getPositionState();
         const hasJSDoc = hasPrecedingJSDocComment();
 
         const name = parsePropertyName();
@@ -3936,7 +3941,7 @@ export namespace LpcParser {
     }
 
     function parseSuperExpression(left?: Expression): MemberExpression {
-        const pos = getNodePos();
+        const pos = getPositionState();
         const hasJSDoc = hasPrecedingJSDocComment();
 
         parseExpectedToken(SyntaxKind.ColonColonToken);
@@ -4000,7 +4005,7 @@ export namespace LpcParser {
         //
         // Because CallExpression and MemberExpression are left recursive, we need to bottom out
         // of the recursion immediately.  So we parse out a primary expression to start with.
-        const pos = getNodePos();
+        const pos = getPositionState();
         const expression = parsePrimaryExpression();
         return parseMemberExpressionRest(pos, expression, /*allowOptionalChain*/ true);
     }
@@ -4009,7 +4014,7 @@ export namespace LpcParser {
         return token() === SyntaxKind.MinusGreaterThanToken;
     }
 
-    function parseMemberExpressionRest(pos: number, expression: LeftHandSideExpression, allowOptionalChain: boolean): MemberExpression {
+    function parseMemberExpressionRest(pos: PositionState, expression: LeftHandSideExpression, allowOptionalChain: boolean): MemberExpression {
         while (true) {            
             let isPropertyAccess = false;
             let propertyAccessToken: Token<SyntaxKind.DotToken | SyntaxKind.MinusGreaterThanToken> | undefined;            
@@ -4038,7 +4043,7 @@ export namespace LpcParser {
     }
 
     function parseMaybeRangeExpression(rangeTerminatorToken:PunctuationSyntaxKind): RangeExpression | Expression {        
-        const pos = getNodePos();
+        const pos = getPositionState();
         let left: Expression, right: Expression;        
         if (parseOptional(SyntaxKind.DotDotToken)) {
             right = allowInAnd(parseExpression);
@@ -4052,7 +4057,7 @@ export namespace LpcParser {
         return expression;
     }
 
-    function parseElementAccessExpressionRest(pos: number, expression: LeftHandSideExpression) {
+    function parseElementAccessExpressionRest(pos: PositionState, expression: LeftHandSideExpression) {
         let argumentExpression: Expression;
         if (token() === SyntaxKind.CloseBracketToken) {
             argumentExpression = createMissingNode(SyntaxKind.Identifier, /*reportAtCurrentPosition*/ true, Diagnostics.An_element_access_expression_should_take_an_argument);
@@ -4088,7 +4093,7 @@ export namespace LpcParser {
         return finishNode(indexedAccess, pos);
     }
 
-    function parsePropertyAccessExpressionRest(pos: number, expression: LeftHandSideExpression, propertyAccessToken: PropertyAccessToken) {
+    function parsePropertyAccessExpressionRest(pos: PositionState, expression: LeftHandSideExpression, propertyAccessToken: PropertyAccessToken) {
         const name = parseRightSideOfDot(/*allowIdentifierNames*/ true, /*allowPrivateIdentifiers*/ true, /*allowUnicodeEscapeSequenceInIdentifierName*/ true);
         const isOptionalChain = false;
         const propertyAccess = factoryCreatePropertyAccessExpression(expression, name, propertyAccessToken);
@@ -4134,7 +4139,7 @@ export namespace LpcParser {
     }
 
     function parseLambdaExpression(): LambdaExpression {
-        const pos = getNodePos();
+        const pos = getPositionState();
         parseExpected(SyntaxKind.LambdaToken);
         
         let node: LambdaExpression;        
@@ -4180,7 +4185,7 @@ export namespace LpcParser {
     }
 
     function parseParenthesizedExpression(): ParenthesizedExpression {
-        const pos = getNodePos();
+        const pos = getPositionState();
         const hasJSDoc = hasPrecedingJSDocComment();
         parseExpected(SyntaxKind.OpenParenToken);
         const expression = allowInAnd(parseExpression);
@@ -4189,9 +4194,9 @@ export namespace LpcParser {
     }
 
     function parseMappingLiteralExpression(): MappingLiteralExpression {
-        const pos = getNodePos();
+        const pos = getPositionState();
         const openBracketPosition = scanner.getTokenStart();
-        const openBracketFilename = scannerFilename;
+        const openBracketFilename = scanner.getFileName();
         const openBracketParsed = parseExpected(SyntaxKind.OpenParenBracketToken);
         const multiLine = scanner.hasPrecedingLineBreak();
         let initializer: Expression | undefined;
@@ -4209,7 +4214,7 @@ export namespace LpcParser {
     }
 
     function parseMappingLiteralElement(): MappingEntryExpression {
-        const pos = getNodePos();
+        const pos = getPositionState();
         const key = parseAssignmentExpressionOrHigher(false);
         let elements: NodeArray<Expression> | undefined;
 
@@ -4225,12 +4230,12 @@ export namespace LpcParser {
     }
 
     function parseMappingEntryElement(): Expression {
-        return token() === SyntaxKind.SemicolonToken ? finishNode(factory.createOmittedExpression(), getNodePos()) :
+        return token() === SyntaxKind.SemicolonToken ? finishNode(factory.createOmittedExpression(), getPositionState()) :
             parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ true);
     }
 
     function parseInlineClosureExpression(allowReturnTypeInArrowFunction: boolean): InlineClosureExpression {
-        const pos = getNodePos();
+        const pos = getPositionState();
         const hasJSDoc = hasPrecedingJSDocComment();                
 
         const savedContext = parsingContext;
@@ -4294,9 +4299,9 @@ export namespace LpcParser {
     }
 
     function parseArrayLiteralExpression(): ArrayLiteralExpression {
-        const pos = getNodePos();
+        const pos = getPositionState();
         const openBracketPosition = scanner.getTokenStart();
-        const openBraceFilename = scannerFilename;
+        const openBraceFilename = scanner.getFileName();
         const openBracketParsed = parseExpected(SyntaxKind.OpenParenBraceToken);
         const multiLine = scanner.hasPrecedingLineBreak();
         const elements = parseDelimitedList(ParsingContext.ArrayLiteralMembers, parseArgumentOrArrayLiteralElement);
@@ -4305,7 +4310,7 @@ export namespace LpcParser {
     }
 
     function parseSpreadElement(): Expression {
-        const pos = getNodePos();
+        const pos = getPositionState();
         parseExpected(SyntaxKind.DotDotDotToken);
         const expression = parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ true);
         console.warn("TODO - parseSpreadElement");
@@ -4316,7 +4321,7 @@ export namespace LpcParser {
 
     function parseArgumentOrArrayLiteralElement(): Expression {
         return token() === SyntaxKind.DotDotDotToken ? parseSpreadElement() :
-            token() === SyntaxKind.CommaToken ? finishNode(factory.createOmittedExpression(), getNodePos()) :
+            token() === SyntaxKind.CommaToken ? finishNode(factory.createOmittedExpression(), getPositionState()) :
             parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ true);
     }
     
@@ -4481,7 +4486,7 @@ export namespace LpcParser {
 
         // // Parses out a JSDoc type expression.
         // export function parseJSDocTypeExpression(mayOmitBraces?: boolean): JSDocTypeExpression {
-        //     const pos = getNodePos();
+        //     const pos = getPositionState();;
         //     const hasBrace = (mayOmitBraces ? parseOptional : parseExpected)(SyntaxKind.OpenBraceToken);
         //     const type = doInsideOfContext(NodeFlags.JSDoc, parseJSDocType);
         //     if (!mayOmitBraces || hasBrace) {
@@ -4494,7 +4499,7 @@ export namespace LpcParser {
         // }
 
         // export function parseJSDocNameReference(): JSDocNameReference {
-        //     const pos = getNodePos();
+        //     const pos = getPositionState();;
         //     const hasBrace = parseOptional(SyntaxKind.OpenBraceToken);
         //     const p2 = getNodePos();
         //     let entityName: EntityName | JSDocMemberName = parseEntityName(/*allowReservedWords*/ false);
@@ -4835,7 +4840,7 @@ export namespace LpcParser {
         //         return tag;
         //     }
 
-        //     function parseTrailingTagComments(pos: number, end: number, margin: number, indentText: string) {
+        //     function parseTrailingTagComments(pos: PositionState, end: number, margin: number, indentText: string) {
         //         // some tags, like typedef and callback, have already parsed their comments earlier
         //         if (!indentText) {
         //             margin += end - pos;
@@ -4978,7 +4983,7 @@ export namespace LpcParser {
 
         //     function parseJSDocLinkName() {
         //         if (tokenIsIdentifierOrKeyword(token())) {
-        //             const pos = getNodePos();
+        //             const pos = getPositionState();;
 
         //             let name: EntityName | JSDocMemberName = parseIdentifierName();
         //             while (parseOptional(SyntaxKind.DotToken)) {
@@ -5096,7 +5101,7 @@ export namespace LpcParser {
 
         //     function parseNestedTypeLiteral(typeExpression: JSDocTypeExpression | undefined, name: EntityName, target: PropertyLikeParse, indent: number) {
         //         if (typeExpression && isObjectOrObjectArrayTypeReference(typeExpression.type)) {
-        //             const pos = getNodePos();
+        //             const pos = getPositionState();;
         //             let child: JSDocPropertyLikeTag | JSDocTypeTag | JSDocTemplateTag | JSDocThisTag | false;
         //             let children: JSDocPropertyLikeTag[] | undefined;
         //             while (child = tryParse(() => parseChildParameterOrPropertyTag(target, indent, name))) {
@@ -5218,7 +5223,7 @@ export namespace LpcParser {
 
         //     function parseExpressionWithTypeArgumentsForAugments(): ExpressionWithTypeArguments & { expression: Identifier | PropertyAccessEntityNameExpression; } {
         //         const usedBrace = parseOptional(SyntaxKind.OpenBraceToken);
-        //         const pos = getNodePos();
+        //         const pos = getPositionState();;
         //         const expression = parsePropertyAccessEntityNameExpression();
         //         scanner.setSkipJsDocLeadingAsterisks(true);
         //         const typeArguments = tryParseTypeArguments();
@@ -5232,7 +5237,7 @@ export namespace LpcParser {
         //     }
 
         //     function parsePropertyAccessEntityNameExpression() {
-        //         const pos = getNodePos();
+        //         const pos = getPositionState();;
         //         let node: Identifier | PropertyAccessEntityNameExpression = parseJSDocIdentifierName();
         //         while (parseOptional(SyntaxKind.DotToken)) {
         //             const name = parseJSDocIdentifierName();
@@ -5339,7 +5344,7 @@ export namespace LpcParser {
         //     }
 
         //     function parseCallbackTagParameters(indent: number) {
-        //         const pos = getNodePos();
+        //         const pos = getPositionState();;
         //         let child: JSDocParameterTag | JSDocTemplateTag | false;
         //         let parameters;
         //         while (child = tryParse(() => parseChildParameterOrPropertyTag(PropertyLikeParse.CallbackParameter, indent) as JSDocParameterTag | JSDocTemplateTag)) {
@@ -5499,7 +5504,7 @@ export namespace LpcParser {
         //     }
 
         //     function parseTemplateTagTypeParameters() {
-        //         const pos = getNodePos();
+        //         const pos = getPositionState();;
         //         const typeParameters = [];
         //         do {
         //             skipWhitespace();
