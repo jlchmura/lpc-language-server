@@ -13,6 +13,7 @@ import {
     DiagnosticMessage,
     Diagnostics,    
     DirectiveSyntaxKind,    
+    forEach,    
     identity,
     JSDocParsingMode,
     JSDocSyntaxKind,
@@ -51,7 +52,7 @@ export interface Scanner {
     /** @deprecated use {@link getTokenFullStart} */
     getStartPos(): number;
     getToken(): SyntaxKind;
-    getTokenFullStart(): number;
+    getTokenFullStart(): number;    
     getTokenStart(): number;
     getTokenEnd(): number;
     /** @deprecated use {@link getTokenEnd} */
@@ -60,6 +61,10 @@ export interface Scanner {
     getTokenPos(): number;
     getTokenText(): string;
     getTokenValue(): string;
+    getStateId(): number;
+    getState(id: number): SavedStatePos | undefined;
+    releaseState(): void;
+    resetSavedStates(): void;
     hasUnicodeEscape(): boolean;
     hasExtendedUnicodeEscape(): boolean;
     hasPrecedingLineBreak(): boolean;
@@ -85,6 +90,8 @@ export interface Scanner {
     /** @internal */
     scanJSDocCommentTextToken(inBackticks: boolean): JSDocSyntaxKind | SyntaxKind.JSDocCommentTextToken;
     scan(): SyntaxKind;
+
+    switchStream(newFileName: string, newText: string, start: number, length: number, onRelease?: ()=>void): void;
 
     getText(): string;
     /** @internal */
@@ -124,8 +131,12 @@ export interface Scanner {
 
     getEnd(): number;
 
-    getFileName(): string;
-    setTempPos(pos: number, fullStart: number, fileName: string): void;
+    getFileName(): string;    
+}
+
+interface SavedStatePos {
+    fileName: string;
+    end: number;
 }
 
 /** @internal */
@@ -983,12 +994,14 @@ export function createScanner(
     /* eslint-disable no-var */
     var text = textInitial!;
 
+    var nextState: ()=>void | undefined;
+    var stateId = 1;
+    var nextStateId = 2;
+    var stateEndings: MapLike<SavedStatePos> = {};
+
     // Current position (end position of text of current token)
     var pos: number;
-    var fileName: string;
-    var tempPos: number;
-    var tempFullStart: number;
-    var tempFileName: string;
+    var fileName: string;    
 
     // end of text
     var end: number;
@@ -1015,16 +1028,20 @@ export function createScanner(
     setText(text, start, length);
 
     var scanner: Scanner = {
-        getTokenFullStart: () => tempFullStart ?? fullStartPos,
+        getTokenFullStart: () => fullStartPos,
         getStartPos: () => fullStartPos,
-        getTokenEnd: () => tempPos ?? pos,        
-        getFileName: () => tempFileName ?? fileName,
+        getTokenEnd: () => pos,        
+        getFileName: () => fileName,
         getTextPos: () => pos,
         getToken: () => token,
         getTokenStart: () => tokenStart,
         getTokenPos: () => tokenStart,
         getTokenText: () => text.substring(tokenStart, pos),
         getTokenValue: () => tokenValue,
+        getStateId: () => stateId,
+        getState,
+        releaseState: ()=> { Debug.assertIsDefined(nextState); nextState?.(); },
+        resetSavedStates: () => { nextState = undefined; stateId = 1; stateEndings = {} },
         hasUnicodeEscape: () => (tokenFlags & TokenFlags.UnicodeEscape) !== 0,
         hasExtendedUnicodeEscape: () => (tokenFlags & TokenFlags.ExtendedUnicodeEscape) !== 0,
         hasPrecedingLineBreak: () => (tokenFlags & TokenFlags.PrecedingLineBreak) !== 0,
@@ -1045,6 +1062,9 @@ export function createScanner(
         scanJsDocToken,
         scanJSDocCommentTextToken,
         scan,
+
+        switchStream,
+
         getText,
         clearCommentDirectives,
         setText,
@@ -1063,12 +1083,7 @@ export function createScanner(
         lookAhead,
         scanRange,
         getEnd,
-        setFileName: (name) => fileName = name,
-        setTempPos: (pos, fullStart, fileName) => {
-            // tempPos = pos;
-            // tempFullStart = fullStart;
-            // tempFileName = fileName;
-        },  
+        setFileName: (name) => fileName = name,        
     };
     /* eslint-enable no-var */
 
@@ -1964,16 +1979,26 @@ export function createScanner(
     // }
 
     function scan(): SyntaxKind {
-        // clear temporary position info
-        tempFileName = undefined!;
-        tempPos = undefined!;
-        tempFullStart = undefined!;
-
         fullStartPos = pos;
         tokenFlags = TokenFlags.None;
         asteriskSeen = false;
+
+        stateEndings[stateId] = {
+            end: pos,
+            fileName
+        };
+
         while (true) {
             tokenStart = pos;
+            // if we've reached the end of a stream, try reverting to the next scanner state            
+            let streamSwitched = false;
+            while (pos >= end && nextState) {
+                nextState();           
+                streamSwitched = true;                     
+            }
+            // stream switched, so we need to rescan
+            if (streamSwitched) return scan();
+
             if (pos >= end) {
                 return token = SyntaxKind.EndOfFileToken;
             }
@@ -2815,61 +2840,102 @@ export function createScanner(
         }
     }
 
-    function speculationHelper<T>(callback: () => T, isLookahead: boolean): T {
-        const saveTempPos = tempPos;
-        const saveTempFilename = tempFileName;
-        const saveTempFullStart = tempFullStart;
+    function captureCachedState() {
+        const release = captureState();
+        let stateDisposed=false;
+        
+        stateId = nextStateId++;
+        // delete stateEndings[stateId];
+
+        return () => {
+            if (stateDisposed) return;
+            stateDisposed = true;
+            release();
+        }
+    }
+
+    function captureState() {        
         const savePos = pos;
+        const saveEnd = end;
         const saveStartPos = fullStartPos;
         const saveTokenPos = tokenStart;
         const saveToken = token;
         const saveTokenValue = tokenValue;
-        const saveTokenFlags = tokenFlags;        
-        const result = callback();
-
-        // If our callback returned something 'falsy' or we're just looking ahead,
-        // then unconditionally restore us to where we were.
-        if (!result || isLookahead) {
+        const saveTokenFlags = tokenFlags;  
+        const saveFileName = fileName;
+        const saveNextState = nextState;
+        const saveStateId = stateId;
+        const saveText = text;
+        let stateDisposed = false;
+        
+        return () => {
+            if (stateDisposed) return;
+            stateDisposed = true;            
+            fileName = saveFileName;            
             pos = savePos;
+            end = saveEnd;
             fullStartPos = saveStartPos;
             tokenStart = saveTokenPos;
             token = saveToken;
             tokenValue = saveTokenValue;
             tokenFlags = saveTokenFlags;
-            tempPos = saveTempPos;
-            tempFileName = saveTempFilename;
-            tempFullStart = saveTempFullStart;
-        }
+            stateId = saveStateId;
+            text = saveText;
+            nextState = saveNextState;
+        };
+    }    
+
+    function switchStream(newFileName: string, newText: string, start: number, length: number, onRelease?: ()=>void): void {
+        const restoreState = captureCachedState();
+        nextState = function() {
+            restoreState();
+            onRelease?.();
+        } ;
+
+        setText(newText, start, length);
+        fileName = newFileName;
+    }
+
+    function speculationHelper<T>(callback: () => T, isLookahead: boolean): T {        
+        const saveStateId = stateId;
+        const saveStateCache = {...stateEndings};
+        const releaseState = captureState();
+        const result = callback();
+
+        // If our callback returned something 'falsy' or we're just looking ahead,
+        // then unconditionally restore us to where we were.
+        if (!result || isLookahead) {
+            // release all states that were captured while speculating
+            while (stateId > saveStateId) {
+                nextState();
+            }
+
+            stateEndings = saveStateCache;
+            releaseState();            
+        }       
+        
         return result;
     }
 
+    function getState(id: number): SavedStatePos {
+        return stateEndings[id];        
+    };
+
     function scanRange<T>(start: number, length: number, callback: () => T): T {
-        const saveTempPos = tempPos;
-        const saveTempFilename = tempFileName;
-        const saveTempFullStart = tempFullStart;
-        const saveEnd = end;
-        const savePos = pos;
-        const saveStartPos = fullStartPos;
-        const saveTokenPos = tokenStart;
-        const saveToken = token;
-        const saveTokenValue = tokenValue;
-        const saveTokenFlags = tokenFlags;
-        const saveErrorExpectations = commentDirectives;
+        const saveStateId = stateId;
+        const saveStateCache = {...stateEndings};
+        const restoreState = captureState();        
 
         setText(text, start, length);
         const result = callback();
 
-        end = saveEnd;
-        pos = savePos;
-        fullStartPos = saveStartPos;
-        tokenStart = saveTokenPos;
-        token = saveToken;
-        tokenValue = saveTokenValue;
-        tokenFlags = saveTokenFlags;
-        commentDirectives = saveErrorExpectations;
-        tempPos = saveTempPos;
-        tempFileName = saveTempFilename
-        tempFullStart = saveTempFullStart;
+        // release all states that were captured while speculating
+        while (stateId > saveStateId) {
+            nextState();
+        }
+
+        stateEndings = saveStateCache;        
+        restoreState();
 
         return result;
     }

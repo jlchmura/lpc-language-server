@@ -21,22 +21,19 @@ const enum SignatureFlags {
 
 interface PositionState {
     pos: number;
-    scanner: Scanner;
+    fileName: string;
     macro: Macro;
     include: IncludeDirective;
+    stateId: number;
+
 }
 
 export namespace LpcParser {
     // Share a single scanner across all calls to parse a source file.  This helps speed things
     // up by avoiding the cost of creating/compiling scanners over and over again.
-    var scanner = createScanner(ScriptTarget.Latest, /*skipTrivia*/ true);    
-    var originScanner = scanner;
-    var nextScanner: () => number;    
+    var scanner = createScanner(ScriptTarget.Latest, /*skipTrivia*/ true);        
 
     var currentIncludeDirective: IncludeDirective | undefined;    
-
-    /** the scanner that just finished - from an include or macro */
-    var lastIncludeDirective: IncludeDirective | undefined;
 
     var disallowInAndDecoratorContext = NodeFlags.DisallowInContext | NodeFlags.DecoratorContext;
             
@@ -155,8 +152,6 @@ export namespace LpcParser {
         includeFileCache[fileName] = sourceText;
         currentIncludeDirective = undefined!;        
 
-        originScanner = scanner;        
-
         parseDiagnostics = [];
         nodeCount = 0;
         topLevel = true;
@@ -182,6 +177,7 @@ export namespace LpcParser {
         scanner.setScriptKind(ScriptKind.Unknown);
         scanner.setJSDocParsingMode(JSDocParsingMode.ParseAll);        
         scanner.setFileName(undefined);
+        scanner.resetSavedStates();        
 
         // Clear any data.  We don't want to accidentally hold onto it for too long.
         sourceText = undefined!;
@@ -196,13 +192,10 @@ export namespace LpcParser {
         identifiers = undefined!;        
         inherits = undefined!;
         topLevel = true;   
-        includeFileCache = undefined!;        
-        lastIncludeDirective = undefined!;
+        includeFileCache = undefined!;                
         conditionalStack = undefined!;
         isCodeExecutable = Ternary.Unknown;
-
-        nextScanner = undefined!;
-        originScanner = undefined!;        
+        
         currentIncludeDirective = undefined!;
         
         // clear macro data
@@ -293,15 +286,8 @@ export namespace LpcParser {
     }
 
     function nextTokenWithoutCheck() {
-        lastIncludeDirective = undefined!;        
-
         let incomingToken = scanner.scan();
 1
-        // if we see an eof, restore the previous scanner (if there is one)
-        while (incomingToken === SyntaxKind.EndOfFileToken && nextScanner) {            
-            incomingToken = nextScanner();                            
-        }
-
         while (isCodeExecutable === Ternary.False && incomingToken !== SyntaxKind.EndOfFileToken) {
             // we are in a disabled code block. there are only a few directives that apply here
             // check them and skip the rest
@@ -346,8 +332,7 @@ export namespace LpcParser {
                 }
 
                 scanner.setReportLineBreak(false);  
-                incomingToken = scanner.scan();
-                break;
+                return nextTokenWithoutCheck();
             case SyntaxKind.IfDefDirective:
             case SyntaxKind.IfNDefDirective:            
             case SyntaxKind.IfDirective:
@@ -415,62 +400,79 @@ export namespace LpcParser {
                     macro.argsIn = argValsByName;
                 }
                 
-                // create a scanner for this macro                              
-                const saveScanner = scanner;
-                const saveCurrentMacro = currentMacro;                
-                const saveNextScanner = nextScanner;
-                
-                scanner = createScanner(ScriptTarget.Latest, /*skipTrivia*/ true, undefined, macro.getText(), undefined, range.pos, range.end - range.pos);                                                
-                scanner.setFileName(macro.directive.originFilename);
+                // create a scanner for this macro                                              
+                const saveCurrentMacro = currentMacro;                                
+
+                scanner.switchStream(
+                    macro.directive.originFilename, macro.getText(), range.pos, range.end - range.pos,
+                    () => {
+                        // re-enable the macro
+                        Debug.assertIsDefined(macro);
+                        macro.disabled = false;
+                        macro.argsIn = undefined;                    
+                        macro.originFilename = undefined!;
+                        macro.posInOrigin = undefined!;
+                        macro.endInOrigin = undefined!;
+                        currentMacro = saveCurrentMacro!;
+                    }
+                );
+
+                // scanner = createScanner(ScriptTarget.Latest, /*skipTrivia*/ true, undefined, macro.getText(), undefined, range.pos, range.end - range.pos);
+                // scanner.setFileName(macro.directive.originFilename);
                 currentMacro = macro;
 
                 // parse args will have consumed the next token, so we need to store that and return it
                 // when the previous scanner gets restored
                 const saveToken = macroArgsDef?.length > 0 ? currentToken : undefined;
                                                 
-                nextScanner = () => {
-                    saveScanner.setTempPos(scanner.getTokenEnd(), scanner.getTokenFullStart(), scanner.getFileName())
+                // nextScanner = () => {
+                //     saveScanner.setTempPos(scanner.getTokenEnd(), scanner.getTokenFullStart(), scanner.getFileName())
 
-                    const t = saveToken ?? saveScanner.scan();                    
+                //     const t = saveToken ?? saveScanner.scan();                    
 
-                    // re-enable the macro
-                    Debug.assertIsDefined(macro);
-                    macro.disabled = false;
-                    macro.argsIn = undefined;                    
-                    macro.originFilename = undefined!;
-                    macro.posInOrigin = undefined!;
-                    macro.endInOrigin = undefined!;
-                    currentMacro = saveCurrentMacro!;
+                //     // re-enable the macro
+                //     Debug.assertIsDefined(macro);
+                //     macro.disabled = false;
+                //     macro.argsIn = undefined;                    
+                //     macro.originFilename = undefined!;
+                //     macro.posInOrigin = undefined!;
+                //     macro.endInOrigin = undefined!;
+                //     currentMacro = saveCurrentMacro!;
                     
-                    // restore the previous scanner                    
-                    scanner = saveScanner;                    
-                    nextScanner = saveNextScanner;  
+                //     // restore the previous scanner                    
+                //     scanner = saveScanner;                    
+                //     nextScanner = saveNextScanner;  
                     
-                    // return token                    
-                    return t;// saveToken ?? scanner.scan();
-                }
+                //     // return token                    
+                //     return t;// saveToken ?? scanner.scan();
+                // }
 
                 // scan again using the new scanner
                 return nextTokenWithoutCheck();// currentToken = scanner.scan();
             } else if (currentMacro && currentMacro.argsIn?.[tokenValue] && currentMacro.argsIn?.[tokenValue].disabled !== true) {
                 // this is a macro parameter
                 const arg = currentMacro.argsIn[tokenValue];                
-                arg.disabled = true;
-                const saveScanner = scanner;// scannerStack.push(scanner);
-                const saveNextScanner = nextScanner;                
-                
-                scanner = createScanner(ScriptTarget.Latest, /*skipTrivia*/ true, undefined, arg.getText(), undefined, arg.pos, arg.end - arg.pos);
-                scanner.setFileName(arg.fileName);
+                arg.disabled = true;                
 
-                nextScanner = () => {
-                    arg.disabled = false;
+                scanner.switchStream(
+                    arg.fileName, arg.getText(), arg.pos, arg.end - arg.pos, 
+                    () => {
+                        arg.disabled = false;
+                    }
+                );
 
-                    saveScanner.setTempPos(scanner.getTokenEnd(), scanner.getTokenFullStart(), scanner.getFileName());
-                    scanner = saveScanner;//scannerStack.pop()!;
+                // scanner = createScanner(ScriptTarget.Latest, /*skipTrivia*/ true, undefined, arg.getText(), undefined, arg.pos, arg.end - arg.pos);
+                // scanner.setFileName(arg.fileName);                            
 
-                    nextScanner = saveNextScanner;
-                    return scanner.scan();
-                }                
+                // nextScanner = () => {
+                //     arg.disabled = false;
+
+                //     saveScanner.setTempPos(scanner.getTokenEnd(), scanner.getTokenFullStart(), scanner.getFileName());
+                //     scanner = saveScanner;//scannerStack.pop()!;
+
+                //     nextScanner = saveNextScanner;
+                //     return scanner.scan();
+                // }                
 
                 return nextTokenWithoutCheck();// currentToken = scanner.scan();
             }
@@ -544,11 +546,11 @@ export namespace LpcParser {
             clearState();
             console.warn(`Successfully parsed: ${fileName}`);
             return result;
-        }catch (e) {
+        } catch (e) {
             debugger;
+            clearState();
             throw e;
-        }
-    
+        }     
     }
 
     function parseSourceFileWorker(languageVersion: ScriptTarget, setParentNodes: boolean, scriptKind: ScriptKind, jsDocParsingMode: JSDocParsingMode): SourceFile {
@@ -560,8 +562,7 @@ export namespace LpcParser {
         const statements = parseList(ParsingContext.SourceElements, parseStatement);
         
         Debug.assert(token() === SyntaxKind.EndOfFileToken);
-        Debug.assert(!currentMacro);
-        Debug.assert(!nextScanner);
+        Debug.assert(!currentMacro);        
         Debug.assert(!currentIncludeDirective);
 
         const endHasJSDoc = hasPrecedingJSDocComment();
@@ -683,9 +684,10 @@ export namespace LpcParser {
         // Debug.assert(!isSpeculating, "Shouldn't be getting position when speculating");
         return {
             pos: getNodePos(),
-            scanner: scanner,
+            fileName: scanner.getFileName(),
             include: currentIncludeDirective,
-            macro: currentMacro
+            macro: currentMacro,
+            stateId: scanner.getStateId()
         }
     }
 
@@ -1162,10 +1164,6 @@ export namespace LpcParser {
     // True if positioned at a list terminator
     function isListTerminator(kind: ParsingContext): boolean {
         
-        while (token() === SyntaxKind.EndOfFileToken && nextScanner) {
-            nextToken();            
-        }
-
         if (token() === SyntaxKind.EndOfFileToken) {
             // Being at the end of the file ends all lists.
             return true;
@@ -1417,7 +1415,8 @@ export namespace LpcParser {
 
     function createNodeArray<T extends Node>(elements: T[], pos: PositionState, end?: number, hasTrailingComma?: boolean): NodeArray<T> {
         const array = factoryCreateNodeArray(elements, hasTrailingComma);
-        setTextRangePosEnd(array, pos.pos, end ?? pos.scanner.getTokenFullStart());
+        end ??= scanner.getState(pos.stateId).end;                
+        setTextRangePosEnd(array, pos.pos, end);
         return array;
     }
 
@@ -1570,37 +1569,39 @@ export namespace LpcParser {
             // cache source text
             const includeSourceText = includeFileCache[resolvedFilename] = includeFile.source;
 
-            // create scanner for include
-            const saveScanner = scanner;
-            const saveNextScanner = nextScanner;
-            const saveToken = currentToken;
+            // create scanner for include            
             const saveDirective = currentIncludeDirective;
 
-            scanner = createScanner(languageVersion, /*skipTrivia*/ true, undefined, includeSourceText);
-            scanner.setFileName(resolvedFilename);
+            scanner.switchStream(
+                resolvedFilename, includeSourceText, 0, includeSourceText.length, 
+                ()=>{
+                    currentIncludeDirective = saveDirective!;
+                }
+            );
+            // scanner = createScanner(languageVersion, /*skipTrivia*/ true, undefined, includeSourceText);
+            // scanner.setFileName(resolvedFilename);
             
             currentIncludeDirective ??= includeDirective;
             
-            nextScanner = () => {
-                Debug.assert(!isSpeculating, "Should not be speculating");
+            // nextScanner = () => {
+            //     Debug.assert(!isSpeculating, "Should not be speculating");
 
-                // restore the previous scanner
-                // do not set a scanner temp pos/filename here - the include file has completely finished
-                // and no nodes will cross the boundary of the eof, like they can with macros
-                // saveScanner.setTempPos(scanner.getTokenEnd(), scanner.getTokenFullStart(), resolvedFilename);                
+            //     // restore the previous scanner
+            //     // do not set a scanner temp pos/filename here - the include file has completely finished
+            //     // and no nodes will cross the boundary of the eof, like they can with macros
+            //     // saveScanner.setTempPos(scanner.getTokenEnd(), scanner.getTokenFullStart(), resolvedFilename);                
                 
-                lastIncludeDirective = currentIncludeDirective;
-                currentIncludeDirective = saveDirective!;                
+            //     currentIncludeDirective = saveDirective!;                
 
-                scanner = saveScanner;                    
-                nextScanner = saveNextScanner;  
+            //     scanner = saveScanner;                    
+            //     nextScanner = saveNextScanner;  
                 
-                // const nt = scanner.scan();
-                // return nt;
-                return saveToken ?? scanner.scan();
-            }
+            //     // const nt = scanner.scan();
+            //     // return nt;
+            //     return saveToken ?? scanner.scan();
+            // }
 
-            nextToken();            
+            // nextToken();            
         }
     }
 
@@ -1877,17 +1878,20 @@ export namespace LpcParser {
         return withJSDoc(finishNode(factory.createWhileStatement(statement, expression), pos), hasJSDoc);
     }
 
-    function finishNode<T extends Node>(node: T, pos: PositionState): T {    
-        if (typeof pos !== "number") {
-            (node as Mutable<T>).includeDirEnd = pos.include?.end ?? pos.macro?.directive.includeDirEnd;
-            (node as Mutable<T>).includeDirPos = pos.include?.pos ?? pos.macro?.directive.includeDirPos;
-            (node as Mutable<T>).originFilename = pos.scanner.getFileName();
-            setTextRangePosEnd(node, pos.pos, pos.scanner.getTokenFullStart());
-        } 
-        
+    function finishNode<T extends Node>(node: T, pos: PositionState): T {            
+        const scannerState = scanner.getState(pos.stateId);
+        Debug.assertIsDefined(scannerState, "Scanner state must be defined");
+        Debug.assert(scannerState.fileName == pos.fileName, "Scanner state filename does not match position state filename");
+
+        (node as Mutable<T>).includeDirEnd = pos.include?.end ?? pos.macro?.directive.includeDirEnd;
+        (node as Mutable<T>).includeDirPos = pos.include?.pos ?? pos.macro?.directive.includeDirPos;
+        (node as Mutable<T>).originFilename = scannerState.fileName;
+    
+        setTextRangePosEnd(node, pos.pos, scannerState.end);
+    
+        // TODO: remove this once we're confident in the parser positioning
         const incPos = node.includeDirPos;
         !!incPos && Debug.assert(incPos < sourceText.length, "Include directive position is out of range");
-
         Debug.assert(node.end >= node.pos, "Node end is out of range");
 
         if (contextFlags) {
@@ -1901,10 +1905,6 @@ export namespace LpcParser {
             parseErrorBeforeNextFinishedNode = false;
             (node as Mutable<T>).flags |= NodeFlags.ThisNodeHasError;
         }
-
-        // if (node.originFilename != fileName) {
-        //     Debug.assertIsDefined(node.includeDirPos, "Node is from external file but has no include directive position");
-        // }        
 
         return node;
     }
@@ -2124,9 +2124,7 @@ export namespace LpcParser {
         const saveIsSpeculating = isSpeculating;
         const saveToken = currentToken;
         const saveParseDiagnosticsLength = parseDiagnostics.length;
-        const saveParseErrorBeforeNextFinishedNode = parseErrorBeforeNextFinishedNode;
-        const saveNextScanner = nextScanner;
-        const saveScanner = scanner;        
+        const saveParseErrorBeforeNextFinishedNode = parseErrorBeforeNextFinishedNode;        
         const saveCurrentMaco = currentMacro;
         const saveInclude = currentIncludeDirective;        
 
@@ -2136,8 +2134,8 @@ export namespace LpcParser {
         // assert that invariant holds.
         const saveContextFlags = contextFlags;
 
-        isSpeculating = true;
-
+        isSpeculating = true;               
+        
         // If we're only looking ahead, then tell the scanner to only lookahead as well.
         // Otherwise, if we're actually speculatively parsing, then tell the scanner to do the
         // same.
@@ -2154,9 +2152,7 @@ export namespace LpcParser {
             if (speculationKind !== SpeculationKind.Reparse) {
                 parseDiagnostics.length = saveParseDiagnosticsLength;
             }
-            parseErrorBeforeNextFinishedNode = saveParseErrorBeforeNextFinishedNode;
-            nextScanner = saveNextScanner;
-            scanner = saveScanner;            
+            parseErrorBeforeNextFinishedNode = saveParseErrorBeforeNextFinishedNode;            
             currentMacro = saveCurrentMaco;
             currentIncludeDirective = saveInclude;            
         }

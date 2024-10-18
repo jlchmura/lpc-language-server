@@ -38,8 +38,11 @@ export interface IncludedFileRange {
 }
 
 export interface ReadonlyIncludedFileRange {
+    /** position of the original include directive that resulted in this node */
     readonly includeDirPos?: number;
+    /** end position of the original include directive that resulted in this nod */
     readonly includeDirEnd?: number;
+    /** filename containing this node (i.e. the include filename, not the original sourcefile filename) */
     readonly originFilename?: string;
 }
 

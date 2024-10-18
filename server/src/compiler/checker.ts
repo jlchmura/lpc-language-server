@@ -2757,6 +2757,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             case SyntaxKind.VoidKeyword:
             case SyntaxKind.MixedKeyword:
                 return;
+            // don't typecheck define directives
+            case SyntaxKind.DefineDirective:
+                return;
         }
 
         // TODO
