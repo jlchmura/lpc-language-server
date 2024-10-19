@@ -1144,6 +1144,7 @@ export namespace LpcParser {
     }
 
     function isStartOfDeclaration(): boolean {
+        // TODO: this lookahead is very expensive... find a better solution
         return lookAhead(isDeclaration);
     }
 
@@ -1476,7 +1477,7 @@ export namespace LpcParser {
             case SyntaxKind.ObjectKeyword:
             case SyntaxKind.ClosureKeyword:
             case SyntaxKind.Identifier:
-            case SyntaxKind.LessThanToken: // start of union type
+            case SyntaxKind.LessThanToken: // start of union type                
                 if (isStartOfDeclaration()) {
                     return parseDeclaration();
                 }            

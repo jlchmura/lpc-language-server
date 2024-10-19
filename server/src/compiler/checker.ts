@@ -7849,69 +7849,69 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         const declarations = symbol.declarations;
         const isConstructor = (symbol.flags & SymbolFlags.Constructor) !== 0;
 
-        function reportImplementationExpectedError(node: SignatureDeclaration): void {
-            if (node.name && nodeIsMissing(node.name)) {
-                return;
-            }
+        // function reportImplementationExpectedError(node: SignatureDeclaration): void {
+        //     if (node.name && nodeIsMissing(node.name)) {
+        //         return;
+        //     }
 
-            let seen = false;
-            const subsequentNode = forEachChild(node.parent, c => {
-                if (seen) {
-                    return c;
-                }
-                else {
-                    seen = c === node;
-                }
-            });
-            // We may be here because of some extra nodes between overloads that could not be parsed into a valid node.
-            // In this case the subsequent node is not really consecutive (.pos !== node.end), and we must ignore it here.
-            if (subsequentNode && subsequentNode.pos === node.end) {
-                if (subsequentNode.kind === node.kind) {
-                    const errorNode: Node = (subsequentNode as FunctionLikeDeclaration).name || subsequentNode;
-                    const subsequentName = (subsequentNode as FunctionLikeDeclaration).name;
-                    if (
-                        node.name && subsequentName && (
-                            // both are private identifiers
-                            // isPrivateIdentifier(node.name) && isPrivateIdentifier(subsequentName) && node.name.text === subsequentName.text ||
-                            // Both are computed property names
-                            isComputedPropertyName(node.name) && isComputedPropertyName(subsequentName) && isTypeIdenticalTo(checkComputedPropertyName(node.name), checkComputedPropertyName(subsequentName)) ||
-                            // Both are literal property names that are the same.
-                            isPropertyNameLiteral(node.name) && isPropertyNameLiteral(subsequentName) &&
-                                getTextOfIdentifierOrLiteral(node.name) === getTextOfIdentifierOrLiteral(subsequentName)
-                        )
-                    ) {
-                        const reportError = (node.kind === SyntaxKind.MethodDeclaration || node.kind === SyntaxKind.MethodSignature);
-                        // we can get here in two cases
-                        // 1. mixed static and instance class members
-                        // 2. something with the same name was defined before the set of overloads that prevents them from merging
-                        // here we'll report error only for the first case since for second we should already report error in binder
-                        if (reportError) {
-                            const diagnostic = Diagnostics.Function_overload_must_not_be_static;
-                            error(errorNode, diagnostic);
-                        }
-                        return;
-                    }
-                    if (nodeIsPresent((subsequentNode as FunctionLikeDeclaration).body)) {
-                        error(errorNode, Diagnostics.Function_implementation_name_must_be_0, declarationNameToString(node.name));
-                        return;
-                    }
-                }
-            }
-            const errorNode: Node = node.name || node;
-            // if (isConstructor) {
-            //     error(errorNode, Diagnostics.Constructor_implementation_is_missing);
-            // }
-            // else {
-                // Report different errors regarding non-consecutive blocks of declarations depending on whether
-                // the node in question is abstract.
-                // if (hasSyntacticModifier(node, ModifierFlags.Abstract)) {
-                //     error(errorNode, Diagnostics.All_declarations_of_an_abstract_method_must_be_consecutive);
-                // }
-                // else {
-                    error(errorNode, Diagnostics.Function_implementation_is_missing_or_not_immediately_following_the_declaration);
-                // }
-            // }
-        }
+        //     let seen = false;
+        //     const subsequentNode = forEachChild(node.parent, c => {
+        //         if (seen) {
+        //             return c;
+        //         }
+        //         else {
+        //             seen = c === node;
+        //         }
+        //     });
+        //     // We may be here because of some extra nodes between overloads that could not be parsed into a valid node.
+        //     // In this case the subsequent node is not really consecutive (.pos !== node.end), and we must ignore it here.
+        //     if (subsequentNode && subsequentNode.pos === node.end) {
+        //         if (subsequentNode.kind === node.kind) {
+        //             const errorNode: Node = (subsequentNode as FunctionLikeDeclaration).name || subsequentNode;
+        //             const subsequentName = (subsequentNode as FunctionLikeDeclaration).name;
+        //             if (
+        //                 node.name && subsequentName && (
+        //                     // both are private identifiers
+        //                     // isPrivateIdentifier(node.name) && isPrivateIdentifier(subsequentName) && node.name.text === subsequentName.text ||
+        //                     // Both are computed property names
+        //                     isComputedPropertyName(node.name) && isComputedPropertyName(subsequentName) && isTypeIdenticalTo(checkComputedPropertyName(node.name), checkComputedPropertyName(subsequentName)) ||
+        //                     // Both are literal property names that are the same.
+        //                     isPropertyNameLiteral(node.name) && isPropertyNameLiteral(subsequentName) &&
+        //                         getTextOfIdentifierOrLiteral(node.name) === getTextOfIdentifierOrLiteral(subsequentName)
+        //                 )
+        //             ) {
+        //                 const reportError = (node.kind === SyntaxKind.MethodDeclaration || node.kind === SyntaxKind.MethodSignature);
+        //                 // we can get here in two cases
+        //                 // 1. mixed static and instance class members
+        //                 // 2. something with the same name was defined before the set of overloads that prevents them from merging
+        //                 // here we'll report error only for the first case since for second we should already report error in binder
+        //                 if (reportError) {
+        //                     const diagnostic = Diagnostics.Function_overload_must_not_be_static;
+        //                     error(errorNode, diagnostic);
+        //                 }
+        //                 return;
+        //             }
+        //             if (nodeIsPresent((subsequentNode as FunctionLikeDeclaration).body)) {
+        //                 error(errorNode, Diagnostics.Function_implementation_name_must_be_0, declarationNameToString(node.name));
+        //                 return;
+        //             }
+        //         }
+        //     }
+        //     const errorNode: Node = node.name || node;
+        //     // if (isConstructor) {
+        //     //     error(errorNode, Diagnostics.Constructor_implementation_is_missing);
+        //     // }
+        //     // else {
+        //         // Report different errors regarding non-consecutive blocks of declarations depending on whether
+        //         // the node in question is abstract.
+        //         // if (hasSyntacticModifier(node, ModifierFlags.Abstract)) {
+        //         //     error(errorNode, Diagnostics.All_declarations_of_an_abstract_method_must_be_consecutive);
+        //         // }
+        //         // else {
+        //             error(errorNode, Diagnostics.Function_implementation_is_missing_or_not_immediately_following_the_declaration);
+        //         // }
+        //     // }
+        // }
 
         let duplicateFunctionDeclaration = false;
         let multipleConstructorImplementation = false;
@@ -7954,9 +7954,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                             duplicateFunctionDeclaration = true;
                         }
                     }
-                    else if (previousDeclaration?.parent === node.parent && previousDeclaration.end !== node.pos) {
-                        reportImplementationExpectedError(previousDeclaration);
-                    }
+                    // else if (previousDeclaration?.parent === node.parent && previousDeclaration.end !== node.pos) {
+                    //     reportImplementationExpectedError(previousDeclaration);
+                    // }
 
                     if (bodyIsPresent) {
                         if (!bodyDeclaration) {
