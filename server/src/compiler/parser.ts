@@ -2739,9 +2739,10 @@ export namespace LpcParser {
 
     function nextTokenIsOnSameLineAndCanFollowModifier() {
         nextToken();
-        if (scanner.hasPrecedingLineBreak()) {
-            return false;
-        }
+        // LPC allows modifiers to be on separate lines
+        // if (scanner.hasPrecedingLineBreak()) {
+        //     return false;
+        // }
         return canFollowModifier();
     }
 
