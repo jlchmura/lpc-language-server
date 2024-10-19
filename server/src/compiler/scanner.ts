@@ -182,6 +182,7 @@ export const textToKeywordObj: MapLike<KeywordSyntaxKind> = {
     new: SyntaxKind.NewKeyword,
     nomask: SyntaxKind.NoMaskKeyword,
     null: SyntaxKind.NullKeyword,    
+    nosave: SyntaxKind.NoSaveKeyword,
     object: SyntaxKind.ObjectKeyword,    
     private: SyntaxKind.PrivateKeyword,
     protected: SyntaxKind.ProtectedKeyword,
