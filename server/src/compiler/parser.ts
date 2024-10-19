@@ -24,8 +24,7 @@ interface PositionState {
     fileName: string;
     macro: Macro;
     include: IncludeDirective;
-    stateId: number;
-
+    stateId: number;    
 }
 
 export namespace LpcParser {
@@ -414,6 +413,7 @@ export namespace LpcParser {
                         macro.posInOrigin = undefined!;
                         macro.endInOrigin = undefined!;
                         currentMacro = saveCurrentMacro!;
+                        return false;
                     }
                 );
 
@@ -458,21 +458,9 @@ export namespace LpcParser {
                     arg.fileName, arg.getText(), arg.pos, arg.end - arg.pos, 
                     () => {
                         arg.disabled = false;
+                        return false;
                     }
-                );
-
-                // scanner = createScanner(ScriptTarget.Latest, /*skipTrivia*/ true, undefined, arg.getText(), undefined, arg.pos, arg.end - arg.pos);
-                // scanner.setFileName(arg.fileName);                            
-
-                // nextScanner = () => {
-                //     arg.disabled = false;
-
-                //     saveScanner.setTempPos(scanner.getTokenEnd(), scanner.getTokenFullStart(), scanner.getFileName());
-                //     scanner = saveScanner;//scannerStack.pop()!;
-
-                //     nextScanner = saveNextScanner;
-                //     return scanner.scan();
-                // }                
+                );                               
 
                 return nextTokenWithoutCheck();// currentToken = scanner.scan();
             }
@@ -558,12 +546,12 @@ export namespace LpcParser {
 
         // prime the scanner
         nextToken();        
-
+        
         const statements = parseList(ParsingContext.SourceElements, parseStatement);
         
         Debug.assert(token() === SyntaxKind.EndOfFileToken);
         Debug.assert(!currentMacro);        
-        Debug.assert(!currentIncludeDirective);
+        // Debug.assert(!currentIncludeDirective);
 
         const endHasJSDoc = hasPrecedingJSDocComment();
         const endOfFileToken = withJSDoc(parseTokenNode<EndOfFileToken>(), endHasJSDoc);
@@ -620,9 +608,8 @@ export namespace LpcParser {
         // Don't report another error if it would just be at the same position as the last error.
         const lastError = lastOrUndefined(parseDiagnostics);
         let result: DiagnosticWithDetachedLocation | undefined;
-        if (!lastError || start !== lastError.start) {
-            const diagSrcText = scanner.getText().length > start ? scanner.getText() : sourceText;
-            result = createDetachedDiagnostic(scanner.getFileName(), diagSrcText, start, errLength, message, ...args);
+        if (!lastError || start !== lastError.start) {            
+            result = createDetachedDiagnostic(scanner.getFileName(), includeFileCache[scanner.getFileName()], start, errLength, message, ...args);
             parseDiagnostics.push(result);
         }
 
@@ -680,14 +667,13 @@ export namespace LpcParser {
                     
     interface Position { pos: number; end: number; __positionBrand:any; };
     
-    function getPositionState(): PositionState {
-        // Debug.assert(!isSpeculating, "Shouldn't be getting position when speculating");
+    function getPositionState(): PositionState {        
         return {
             pos: getNodePos(),
             fileName: scanner.getFileName(),
             include: currentIncludeDirective,
             macro: currentMacro,
-            stateId: scanner.getStateId()
+            stateId: scanner.getStateId()            
         }
     }
 
@@ -1561,7 +1547,7 @@ export namespace LpcParser {
     function processIncludeDirective(includeDirective: IncludeDirective) {                
         const localFilename = includeDirective.content.map((literal) => literal.text).join("");            
         const includeFile = fileHandler.loadIncludeFile(scanner.getFileName(), localFilename, includeDirective.localFirst);
-        const resolvedFilename = internIdentifier(includeFile.filename);
+        const resolvedFilename = internIdentifier(includeFile.filename);        
 
         (includeDirective as Mutable<IncludeDirective>).resolvedFilename = resolvedFilename;
 
@@ -1575,33 +1561,15 @@ export namespace LpcParser {
             scanner.switchStream(
                 resolvedFilename, includeSourceText, 0, includeSourceText.length, 
                 ()=>{
-                    currentIncludeDirective = saveDirective!;
+                    currentIncludeDirective = saveDirective!;                    
+                    currentToken = scanner.getToken();
+                    return true;
                 }
-            );
-            // scanner = createScanner(languageVersion, /*skipTrivia*/ true, undefined, includeSourceText);
-            // scanner.setFileName(resolvedFilename);
+            );            
             
-            currentIncludeDirective ??= includeDirective;
-            
-            // nextScanner = () => {
-            //     Debug.assert(!isSpeculating, "Should not be speculating");
-
-            //     // restore the previous scanner
-            //     // do not set a scanner temp pos/filename here - the include file has completely finished
-            //     // and no nodes will cross the boundary of the eof, like they can with macros
-            //     // saveScanner.setTempPos(scanner.getTokenEnd(), scanner.getTokenFullStart(), resolvedFilename);                
-                
-            //     currentIncludeDirective = saveDirective!;                
-
-            //     scanner = saveScanner;                    
-            //     nextScanner = saveNextScanner;  
-                
-            //     // const nt = scanner.scan();
-            //     // return nt;
-            //     return saveToken ?? scanner.scan();
-            // }
-
-            // nextToken();            
+            currentIncludeDirective ??= includeDirective;                        
+            // prime the scanner
+            nextToken(); 
         }
     }
 
@@ -1630,7 +1598,7 @@ export namespace LpcParser {
         let localFirst = false;
         if (token() === SyntaxKind.LessThanToken) {
             currentToken = scanner.reScanLessThanTokenAsStringLiteral();
-            directiveContent.push(parseLiteralNode() as StringLiteral);
+            directiveContent.push(parseLiteralNode() as StringLiteral);            
         } else {
             while (token() === SyntaxKind.StringLiteral) {
                 directiveContent.push(parseLiteralNode() as StringLiteral);
@@ -1882,6 +1850,7 @@ export namespace LpcParser {
         const scannerState = scanner.getState(pos.stateId);
         Debug.assertIsDefined(scannerState, "Scanner state must be defined");
         Debug.assert(scannerState.fileName == pos.fileName, "Scanner state filename does not match position state filename");
+        // Debug.assert(!pos.speculating, "Cannot finish node while speculating");
 
         (node as Mutable<T>).includeDirEnd = pos.include?.end ?? pos.macro?.directive.includeDirEnd;
         (node as Mutable<T>).includeDirPos = pos.include?.pos ?? pos.macro?.directive.includeDirPos;
@@ -2118,7 +2087,7 @@ export namespace LpcParser {
         return token() === SyntaxKind.CloseBraceToken || token() === SyntaxKind.EndOfFileToken || scanner.hasPrecedingLineBreak();
     }
 
-    function speculationHelper<T>(callback: () => T, speculationKind: SpeculationKind): T {
+    function speculationHelper<T>(callback: () => T, speculationKind: SpeculationKind): T {        
         // Keep track of the state we'll need to rollback to if lookahead fails (or if the
         // caller asked us to always reset our state).
         const saveIsSpeculating = isSpeculating;
@@ -2241,13 +2210,13 @@ export namespace LpcParser {
     function parseErrorForMissingSemicolonAfter(node: Expression | PropertyName): void {        
         // Otherwise, if this isn't a well-known keyword-like identifier, give the generic fallback message.
         const expressionText = isIdentifierNode(node) ? idText(node) : undefined;
-        if (!expressionText || !isIdentifierText(expressionText, languageVersion)) {
-            if (fileName.endsWith("sing.c")) debugger;
+        if (!expressionText || !isIdentifierText(expressionText, languageVersion)) {            
             parseErrorAtCurrentToken(Diagnostics._0_expected, tokenToString(SyntaxKind.SemicolonToken));
             return;
         }
 
-        const pos = skipTrivia(sourceText, node.pos);
+        const nodeSourceText = includeFileCache[scanner.getFileName()];
+        const pos = skipTrivia(nodeSourceText, node.pos);
 
         // Some known keywords are likely signs of syntax being used improperly.
         switch (expressionText) {
@@ -3449,6 +3418,7 @@ export namespace LpcParser {
 
     // STATEMENTS
     function parseBlock(ignoreMissingOpenBrace: boolean, diagnosticMessage?: DiagnosticMessage): Block {
+
         const pos = getPositionState();
         const hasJSDoc = hasPrecedingJSDocComment();
         const openBracePosition = scanner.getTokenStart();

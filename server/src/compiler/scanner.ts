@@ -9,31 +9,27 @@ import {
     CommentRange,
     compareValues,
     Debug,
-    DefineDirective,
     DiagnosticMessage,
-    Diagnostics,    
-    DirectiveSyntaxKind,    
-    forEach,    
+    Diagnostics,
+    DirectiveSyntaxKind,
     identity,
     JSDocParsingMode,
     JSDocSyntaxKind,
     KeywordSyntaxKind,
-    
+
     LanguageVariant,
-    LineAndCharacter,        
+    LineAndCharacter,
     MapLike,
-    
+
     positionIsSynthesized,
     PunctuationOrKeywordSyntaxKind,
-    
+
     ScriptKind,
     ScriptTarget,
     SourceFileLike,
     SyntaxKind,
-    TextRange,
     TokenFlags,
-    trimQuotes,
-    trimStart,
+    trimStart
 } from "./_namespaces/lpc.js";
 
 export type ErrorCallback = (message: DiagnosticMessage, length: number, arg0?: any) => void;
@@ -63,6 +59,7 @@ export interface Scanner {
     getTokenValue(): string;
     getStateId(): number;
     getState(id: number): SavedStatePos | undefined;
+    getStateEndings(): MapLike<SavedStatePos>;
     releaseState(): void;
     resetSavedStates(): void;
     hasUnicodeEscape(): boolean;
@@ -86,12 +83,13 @@ export interface Scanner {
     reScanLessThanTokenAsStringLiteral(): SyntaxKind;
     reScanQuestionToken(): SyntaxKind;
     reScanInvalidIdentifier(): SyntaxKind;    
+    reScanInclude(pos: number): SyntaxKind;
     scanJsDocToken(): JSDocSyntaxKind;
     /** @internal */
     scanJSDocCommentTextToken(inBackticks: boolean): JSDocSyntaxKind | SyntaxKind.JSDocCommentTextToken;
     scan(): SyntaxKind;
 
-    switchStream(newFileName: string, newText: string, start: number, length: number, onRelease?: ()=>void): void;
+    switchStream(newFileName: string, newText: string, start: number, length: number, onRelease?: ()=>boolean): void;
 
     getText(): string;
     /** @internal */
@@ -137,6 +135,7 @@ export interface Scanner {
 interface SavedStatePos {
     fileName: string;
     end: number;
+    isSpeculative?: boolean;
 }
 
 /** @internal */
@@ -994,7 +993,7 @@ export function createScanner(
     /* eslint-disable no-var */
     var text = textInitial!;
 
-    var nextState: ()=>void | undefined;
+    var nextState: () => boolean | undefined;
     var stateId = 1;
     var nextStateId = 2;
     var stateEndings: MapLike<SavedStatePos> = {};
@@ -1041,7 +1040,7 @@ export function createScanner(
         getStateId: () => stateId,
         getState,
         releaseState: ()=> { Debug.assertIsDefined(nextState); nextState?.(); },
-        resetSavedStates: () => { nextState = undefined; stateId = 1; stateEndings = {} },
+        resetSavedStates: () => { nextState = undefined; nextStateId = 2; stateId = 1; stateEndings = {} },
         hasUnicodeEscape: () => (tokenFlags & TokenFlags.UnicodeEscape) !== 0,
         hasExtendedUnicodeEscape: () => (tokenFlags & TokenFlags.ExtendedUnicodeEscape) !== 0,
         hasPrecedingLineBreak: () => (tokenFlags & TokenFlags.PrecedingLineBreak) !== 0,
@@ -1058,7 +1057,8 @@ export function createScanner(
         reScanLessThanTokenAsStringLiteral,
         reScanHashToken,
         reScanQuestionToken,
-        reScanInvalidIdentifier,        
+        reScanInvalidIdentifier,
+        reScanInclude,
         scanJsDocToken,
         scanJSDocCommentTextToken,
         scan,
@@ -1083,7 +1083,8 @@ export function createScanner(
         lookAhead,
         scanRange,
         getEnd,
-        setFileName: (name) => fileName = name,        
+        setFileName: (name) => fileName = name,    
+        getStateEndings: ()=>stateEndings
     };
     /* eslint-enable no-var */
 
@@ -1093,6 +1094,9 @@ export function createScanner(
                 const text = scanner.getText();
                 return text.slice(0, scanner.getTokenFullStart()) + "║" + text.slice(scanner.getTokenFullStart());
             },
+        });
+        Object.defineProperty(scanner, "__debugEndStates", {
+            get: () => JSON.stringify(scanner.getStateEndings(),undefined,2),
         });
     }
 
@@ -1983,6 +1987,7 @@ export function createScanner(
         tokenFlags = TokenFlags.None;
         asteriskSeen = false;
 
+        Debug.assert(!stateEndings[stateId] || stateEndings[stateId].end <= pos, "State ending cannot be after the current position");
         stateEndings[stateId] = {
             end: pos,
             fileName
@@ -1992,10 +1997,18 @@ export function createScanner(
             tokenStart = pos;
             // if we've reached the end of a stream, try reverting to the next scanner state            
             let streamSwitched = false;
+            let dontRescan = false;
             while (pos >= end && nextState) {
-                nextState();           
-                streamSwitched = true;                     
+                const saveStateId = stateId;
+                dontRescan ||= nextState();       
+                                
+                stateEndings[stateId] ??= { end: pos, fileName };
+                stateEndings[stateId].end = pos;
+                Debug.assert(stateId !== saveStateId, "Scanner state must change");
+                streamSwitched = true;                                     
             }
+            // if we're in a state that doesn't need to rescan, just return the token
+            if (dontRescan) return token;
             // stream switched, so we need to rescan
             if (streamSwitched) return scan();
 
@@ -2587,6 +2600,14 @@ export function createScanner(
         // return jsDocSeeOrLink.test(text.slice(fullStartPos, pos));
     }
 
+    function reScanInclude(pos: number): SyntaxKind {
+        tokenStart = fullStartPos = pos;
+        const t = scan();
+
+        Debug.assert(t === SyntaxKind.IncludeDirective, "Expected to rescan an include directive");
+        return t;
+    }
+
     function reScanInvalidIdentifier(): SyntaxKind {
         Debug.assert(token === SyntaxKind.Unknown, "'reScanInvalidIdentifier' should only be called when the current token is 'SyntaxKind.Unknown'.");
         pos = tokenStart = fullStartPos;
@@ -2840,21 +2861,26 @@ export function createScanner(
         }
     }
 
-    function captureCachedState() {
-        const release = captureState();
-        let stateDisposed=false;
+    function captureCachedState(isSpeculating: boolean = false) {
+        const release = captureState(isSpeculating);
         
-        stateId = nextStateId++;
+        const capturedStateId = stateId = nextStateId++;
         // delete stateEndings[stateId];
 
-        return () => {
-            if (stateDisposed) return;
-            stateDisposed = true;
-            release();
+        // return release;
+        return () => {            
+            // Debug.assertEqual(stateId, capturedStateId, "State id mismatch");            
+            // Debug.assert(stateId >= capturedStateId, "State id mismatch");
+            if (stateId >= capturedStateId) {
+                release();
+            }
+
+            if (stateEndings[capturedStateId]) stateEndings[capturedStateId].isSpeculative = isSpeculating;
+            return false;
         }
     }
 
-    function captureState() {        
+    function captureState(isSpeculating: boolean) {        
         const savePos = pos;
         const saveEnd = end;
         const saveStartPos = fullStartPos;
@@ -2869,8 +2895,10 @@ export function createScanner(
         let stateDisposed = false;
         
         return () => {
-            if (stateDisposed) return;
-            stateDisposed = true;            
+            Debug.assert(!stateDisposed, "State has already been released");
+            // if (stateDisposed) return;
+            stateDisposed = true;        
+
             fileName = saveFileName;            
             pos = savePos;
             end = saveEnd;
@@ -2880,39 +2908,66 @@ export function createScanner(
             tokenValue = saveTokenValue;
             tokenFlags = saveTokenFlags;
             stateId = saveStateId;
-            text = saveText;
+            text = saveText;            
             nextState = saveNextState;
         };
     }    
 
-    function switchStream(newFileName: string, newText: string, start: number, length: number, onRelease?: ()=>void): void {
+    function switchStream(newFileName: string, newText: string, start: number, length: number, onRelease?: ()=>boolean): void {
         const restoreState = captureCachedState();
         nextState = function() {
+            const saveStateId = stateId;
             restoreState();
-            onRelease?.();
+            return onRelease?.();
+            // console.debug(`Released ${newFileName} (${saveStateId}->${stateId})`);
         } ;
+
+        // console.debug(`Switching stream to ${newFileName} (${stateId}) at ${start} for ${length} characters`);
 
         setText(newText, start, length);
         fileName = newFileName;
+
+        stateEndings[stateId] = {
+            end: pos, 
+            fileName
+        };
     }
 
-    function speculationHelper<T>(callback: () => T, isLookahead: boolean): T {        
-        const saveStateId = stateId;
+    function speculationHelper<T>(callback: () => T, isLookahead: boolean): T {                
         const saveStateCache = {...stateEndings};
-        const releaseState = captureState();
+        const saveStateId = stateId;
+        const saveNextId = nextStateId;
+        const saveNextState = nextState;
+        const releaseState = nextState = captureCachedState(true);
+        const speculationStateId = stateId;
         const result = callback();
-
+        
         // If our callback returned something 'falsy' or we're just looking ahead,
         // then unconditionally restore us to where we were.
         if (!result || isLookahead) {
             // release all states that were captured while speculating
-            while (stateId > saveStateId) {
+            // this must be done to trigger switchStream callbacks
+            while (stateId > speculationStateId) {
                 nextState();
             }
 
+            releaseState();                        
+            
             stateEndings = saveStateCache;
-            releaseState();            
-        }       
+            nextStateId = saveNextId;
+
+            Debug.assert(stateId <= saveStateId, "State id mismatch");            
+        } else {
+            // in this case we don't want to release any states created
+            // but we do need to set the state back to the original
+            const state = stateEndings[speculationStateId];                        
+
+            stateId = saveStateId;
+            nextState = saveNextState;
+                        
+            Debug.assertEqual(stateEndings[stateId].fileName, state.fileName, "File name mismatch");
+            stateEndings[stateId].end = state.end;
+        }      
         
         return result;
     }
@@ -2924,8 +2979,8 @@ export function createScanner(
     function scanRange<T>(start: number, length: number, callback: () => T): T {
         const saveStateId = stateId;
         const saveStateCache = {...stateEndings};
-        const restoreState = captureState();        
-
+        const restoreState = captureCachedState();        
+        
         setText(text, start, length);
         const result = callback();
 
@@ -2934,9 +2989,11 @@ export function createScanner(
             nextState();
         }
 
-        stateEndings = saveStateCache;        
         restoreState();
+        stateEndings = saveStateCache;                
 
+        Debug.fail("todo - this needs thorough testing");
+        
         return result;
     }
 
