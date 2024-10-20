@@ -3649,7 +3649,7 @@ export namespace LpcParser {
                 // make sure this isn't an array literal
                 if (lookAhead(()=>{ 
                     nextToken(); 
-                    return isTypeName() && (nextToken() == SyntaxKind.CloseParenToken || token() == SyntaxKind.CloseBraceToken); 
+                    return isTypeName();// && (nextToken() == SyntaxKind.CloseParenToken || token() == SyntaxKind.CloseBraceToken); 
                 })) {
                     return parseTypeAssertion();
                 }
