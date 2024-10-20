@@ -413,20 +413,16 @@ export namespace LpcParser {
                         macro.posInOrigin = undefined!;
                         macro.endInOrigin = undefined!;
                         currentMacro = saveCurrentMacro!;
-                        return false;
+                        // parse args will have consumed the next token, so we need to store that and return it
+                        // when the previous scanner gets restored
+                        return macroArgsDef?.length > 0;
                     }
                 );
 
-                // scanner = createScanner(ScriptTarget.Latest, /*skipTrivia*/ true, undefined, macro.getText(), undefined, range.pos, range.end - range.pos);
-                // scanner.setFileName(macro.directive.originFilename);
                 currentMacro = macro;
-
-                // parse args will have consumed the next token, so we need to store that and return it
-                // when the previous scanner gets restored
-                const saveToken = macroArgsDef?.length > 0 ? currentToken : undefined;
-                                                                
+                                              
                 // scan again using the new scanner
-                return nextTokenWithoutCheck();// currentToken = scanner.scan();
+                return nextTokenWithoutCheck();
             } else if (currentMacro && currentMacro.argsIn?.[tokenValue] && currentMacro.argsIn?.[tokenValue].disabled !== true) {
                 // this is a macro parameter
                 const arg = currentMacro.argsIn[tokenValue];                
@@ -4143,8 +4139,7 @@ export namespace LpcParser {
         const pos = getPositionState();
         const openBracketPosition = scanner.getTokenStart();
         const openBracketFilename = scanner.getFileName();
-        const openBracketParsed = parseExpected(SyntaxKind.OpenParenBracketToken);
-        const multiLine = scanner.hasPrecedingLineBreak();
+        const openBracketParsed = parseExpected(SyntaxKind.OpenParenBracketToken);        
         let initializer: Expression | undefined;
         let elements: NodeArray<Expression> | undefined;
 
@@ -4156,6 +4151,7 @@ export namespace LpcParser {
         }
 
         parseExpectedMatchingBracketTokens(SyntaxKind.OpenParenBracketToken, [SyntaxKind.CloseBracketToken,SyntaxKind.CloseParenToken], openBracketParsed, openBracketPosition, openBracketFilename);
+        const multiLine = scanner.hasPrecedingLineBreak();
         return finishNode(factory.createMappingLiteralExpression(initializer, elements, multiLine), pos);
     }
 

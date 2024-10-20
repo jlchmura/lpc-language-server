@@ -2001,7 +2001,7 @@ export function createScanner(
             let dontRescan = false;
             while (pos >= end && nextState) {
                 const saveStateId = stateId;
-                dontRescan ||= nextState();       
+                dontRescan = nextState();
                                 
                 stateEndings[stateId] ??= { end: pos, fileName };
                 stateEndings[stateId].end = pos;
