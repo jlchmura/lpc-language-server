@@ -852,6 +852,8 @@ export namespace LpcParser {
                 return isBindingIdentifier() || token() === SyntaxKind.AsteriskToken;
             case ParsingContext.ForEachInitialers:
                 return isBindingIdentifier() || isTypeMemberStart();
+            case ParsingContext.PramgaArguments:
+                return isBindingIdentifier();
             case ParsingContext.ArrayBindingElements:
                 return token() === SyntaxKind.CommaToken || token() === SyntaxKind.DotDotDotToken || isBindingIdentifier();
             // case ParsingContext.TypeParameters:
@@ -1141,6 +1143,8 @@ export namespace LpcParser {
             case ParsingContext.ImportOrExportSpecifiers:
             case ParsingContext.ImportAttributes:
                 return token() === SyntaxKind.CloseBraceToken || token() === SyntaxKind.ColonCloseParenToken;
+            case ParsingContext.PramgaArguments:
+                return token() === SyntaxKind.NewLineTrivia;
             case ParsingContext.SwitchPreBlock:                
             case ParsingContext.SwitchClauseStatements:
                 return token() === SyntaxKind.CloseBraceToken || token() === SyntaxKind.CaseKeyword || token() === SyntaxKind.DefaultKeyword;
@@ -1558,6 +1562,8 @@ export namespace LpcParser {
             pragmaArgs = createMissingList<Identifier>();
             parseErrorAtCurrentToken(Diagnostics.Pragma_directive_requires_at_least_one_argument);
         }
+
+        // TODO: validate pragma arguments here, similar to modifiers
 
         return finishNode(factory.createPragmaDirective(pragmaArgs), pos);
     }
