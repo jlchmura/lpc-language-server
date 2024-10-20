@@ -374,7 +374,7 @@ export namespace LpcParser {
                     allowMacroProcessing = true;
 
                     let lastArg: ReadonlyTextRange = values;
-
+                    const argText = scanner.getText();
                     forEach(macroArgsDef, (arg, i) => {
                         const argName = (arg as Identifier).text;
                         if (values.length > i) {
@@ -382,7 +382,7 @@ export namespace LpcParser {
                             argValsByName[argName] = {
                                 pos: argVal.pos,
                                 end: argVal.end, 
-                                getText: scanner.getText,
+                                getText: ()=>argText,
                                 fileName: scanner.getFileName()
                             };                            
                         } else {
@@ -390,7 +390,7 @@ export namespace LpcParser {
                             argValsByName[argName] = {
                                 pos: lastArg.end,
                                 end: lastArg.end,
-                                getText: scanner.getText,
+                                getText: ()=>argText,
                                 fileName: scanner.getFileName()
                             }
                         }
@@ -424,29 +424,7 @@ export namespace LpcParser {
                 // parse args will have consumed the next token, so we need to store that and return it
                 // when the previous scanner gets restored
                 const saveToken = macroArgsDef?.length > 0 ? currentToken : undefined;
-                                                
-                // nextScanner = () => {
-                //     saveScanner.setTempPos(scanner.getTokenEnd(), scanner.getTokenFullStart(), scanner.getFileName())
-
-                //     const t = saveToken ?? saveScanner.scan();                    
-
-                //     // re-enable the macro
-                //     Debug.assertIsDefined(macro);
-                //     macro.disabled = false;
-                //     macro.argsIn = undefined;                    
-                //     macro.originFilename = undefined!;
-                //     macro.posInOrigin = undefined!;
-                //     macro.endInOrigin = undefined!;
-                //     currentMacro = saveCurrentMacro!;
-                    
-                //     // restore the previous scanner                    
-                //     scanner = saveScanner;                    
-                //     nextScanner = saveNextScanner;  
-                    
-                //     // return token                    
-                //     return t;// saveToken ?? scanner.scan();
-                // }
-
+                                                                
                 // scan again using the new scanner
                 return nextTokenWithoutCheck();// currentToken = scanner.scan();
             } else if (currentMacro && currentMacro.argsIn?.[tokenValue] && currentMacro.argsIn?.[tokenValue].disabled !== true) {
