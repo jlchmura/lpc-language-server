@@ -33,4 +33,5 @@ export interface ILpcConfig {
     driver: DriverInfo;
     diagnostics: DiagnosticsInfo;
     files: FilesInfo;
+    allDiagnosticsOff: boolean;
 }

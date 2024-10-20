@@ -83,7 +83,7 @@ export class Session<TMessage = string> implements EventSender {
     /** @internal */
     protected regionDiagLineCountThreshold = 500;
     
-    protected projectService: ProjectService;
+    protected projectService: ProjectService;    
 
     constructor(opts: SessionOptions) {
         this.host = opts.host;
@@ -128,6 +128,7 @@ export class Session<TMessage = string> implements EventSender {
         this.getProject(configFile);
         //this.projectService.setPerformanceEventHandler(this.performanceEventHandler.bind(this));
         this.gcTimer = new GcTimer(this.host, /*delay*/ 7000, this.logger);
+        
     }
 
     exit() {/*overridden*/}
@@ -371,8 +372,11 @@ export class Session<TMessage = string> implements EventSender {
                 return;
             }
 
+            
+
             // Don't provide semantic diagnostics unless we're in full semantic mode.
-            if (project.projectService.serverMode !== LanguageServiceMode.Semantic) {
+            // or if the project has diags turned off
+            if (project.projectService.serverMode !== LanguageServiceMode.Semantic || project.getCompilerOptions().config.allDiagnosticsOff) {
                 this.sendAllDiagnostics(diagnostics, fileName, project);
                 goNext();
                 return;

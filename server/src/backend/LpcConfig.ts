@@ -139,7 +139,7 @@ export function loadLpcConfigFromString(data: string): LpcConfig {
             ...config.diagnostics,
             ...rawConfig.diagnostics,
         };
-        if (rawConfig.diagnostics === "off") {
+        if (rawConfig.diagnostics === "off" || rawConfig.diagnostics === undefined || Object.keys(rawConfig.diagnostics).length === 0) {
             config.allDiagnosticsOff = true;
         }
 
