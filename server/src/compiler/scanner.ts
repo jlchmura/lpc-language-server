@@ -181,7 +181,7 @@ export const textToKeywordObj: MapLike<KeywordSyntaxKind> = {
     mixed: SyntaxKind.MixedKeyword,
     new: SyntaxKind.NewKeyword,
     nomask: SyntaxKind.NoMaskKeyword,
-    null: SyntaxKind.NullKeyword,    
+    // null: SyntaxKind.NullKeyword,    
     nosave: SyntaxKind.NoSaveKeyword,
     object: SyntaxKind.ObjectKeyword,    
     private: SyntaxKind.PrivateKeyword,

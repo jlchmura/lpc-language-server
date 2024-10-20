@@ -10,9 +10,9 @@
             "args": [
                 // "${workspaceRoot}/../mg-mudlib",
                 //"${workspaceRoot}/../lima",
-                "${workspaceRoot}/../StickLib",
+                // "${workspaceRoot}/../StickLib",
                 // "${workspaceRoot}/../lpc-test2",
-                //"${workspaceRoot}/../glpu",
+                "${workspaceRoot}/../glpu",
                 //"${workspaceRoot}/../nightmare-residuum",
                 // "${workspaceRoot}/../infinity-lib",
                 // "${workspaceRoot}/../fluff-test",
