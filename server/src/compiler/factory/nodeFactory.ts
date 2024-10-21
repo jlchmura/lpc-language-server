@@ -96,6 +96,7 @@ import {
     ModifierToken,
     Mutable,
     MutableNodeArray,
+    NewExpression,
     NewStructExpression,
     Node,
     NodeArray,
@@ -268,6 +269,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createStructDeclarationNode,
 
         // Expressions
+        createNewExpression,
         createSpreadElement,
         createFunctionExpression,
         createOmittedExpression,
@@ -589,6 +591,25 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         return node;
     }
 
+    // @api
+    function createNewExpression(expression: Expression, typeArguments: readonly TypeNode[] | undefined, argumentsArray: readonly Expression[] | undefined): NewExpression {
+        Debug.assert(expression===undefined, "Expression not supported");
+        
+        const node = createBaseDeclaration<NewExpression>(SyntaxKind.NewExpression);
+        // node.expression = parenthesizerRules().parenthesizeExpressionOfNew(expression);
+        node.typeArguments = asNodeArray(typeArguments);
+        node.arguments = argumentsArray ? parenthesizerRules().parenthesizeExpressionsOfCommaDelimitedList(argumentsArray) : undefined;
+        node.transformFlags |= propagateChildFlags(node.expression) |
+            // propagateChildrenFlags(node.typeArguments) |
+            propagateChildrenFlags(node.arguments) |
+            TransformFlags.ContainsFluffOS;
+
+        // if (node.typeArguments) {
+        //     node.transformFlags |= TransformFlags.ContainsTypeScript;
+        // }
+        return node;
+    }
+    
     // @api
     function createSpreadElement(expression: Expression): SpreadElement {
         const node = createBaseNode<SpreadElement>(SyntaxKind.SpreadElement);
@@ -1739,4 +1760,8 @@ function getDefaultTagNameForKind(kind: JSDocTag["kind"]): string {
         default:
             return Debug.fail(`Unsupported kind: ${Debug.formatSyntaxKind(kind)}`);
     }
+}
+
+function propagateChildrenFlags(children: NodeArray<Node> | undefined): TransformFlags {
+    return children ? children.transformFlags : TransformFlags.None;
 }

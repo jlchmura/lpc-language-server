@@ -1196,7 +1196,8 @@ export type WrappedExpression<T extends Expression> =
 /** @internal */
 export const enum TransformFlags {
     None = 0,
-    ContainsRestOrSpread
+    ContainsRestOrSpread,
+    ContainsFluffOS
 }
 
 export type KeywordTypeSyntaxKind =
@@ -1391,6 +1392,7 @@ export interface NodeFactory {
     /** @internal */ createMissingDeclaration(): MissingDeclaration;
 
     // Expressions
+    createNewExpression(expression: Expression|undefined, typeArguments: readonly TypeNode[] | undefined, argumentsArray: readonly Expression[] | undefined): NewExpression;
     createSpreadElement(expression: Expression): SpreadElement;
     createFunctionExpression(modifiers: readonly Modifier[] | undefined, name: string | Identifier | undefined, parameters: readonly ParameterDeclaration[] | undefined, type: TypeNode | undefined, body: Block): FunctionExpression;
     createOmittedExpression(): OmittedExpression;

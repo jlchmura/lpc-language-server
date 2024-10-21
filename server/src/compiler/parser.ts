@@ -117,6 +117,7 @@ export namespace LpcParser {
         createIdentifier: factoryCreateIdentifier,
         createToken: factoryCreateToken,
         createExpressionStatement: factoryCreateExpressionStatement,
+        createNewExpression: factoryCreateNewExpression,
     } = factory;
 
     function initState(
@@ -4336,8 +4337,8 @@ export namespace LpcParser {
             //     return parseClassExpression();
             case SyntaxKind.FunctionKeyword:
                 return parseFunctionExpression();
-            // case SyntaxKind.NewKeyword:
-            //     return parseNewExpressionOrNewDotTarget();            
+            case SyntaxKind.NewKeyword:
+                return parseNewExpression();            
             // case SyntaxKind.TemplateHead:
             //     return parseTemplateExpression(/*isTaggedTemplate*/ false);            
             case SyntaxKind.LambdaToken:
@@ -4351,6 +4352,22 @@ export namespace LpcParser {
         }
 
         return parseIdentifier(Diagnostics.Expression_expected);
+    }
+
+    function parseNewExpression(): NewExpression {
+        const pos = getPositionState();
+        parseExpected(SyntaxKind.NewKeyword);
+        
+        // const expressionPos = getPositionState();
+        // let expression: LeftHandSideExpression = parseMemberExpressionRest(expressionPos, parsePrimaryExpression(), /*allowOptionalChain*/ false);
+        // // let typeArguments: NodeArray<TypeNode> | undefined;
+        // // // Absorb type arguments into NewExpression when preceding expression is ExpressionWithTypeArguments
+        // // if (expression.kind === SyntaxKind.ExpressionWithTypeArguments) {
+        // //     typeArguments = (expression as ExpressionWithTypeArguments).typeArguments;
+        // //     expression = (expression as ExpressionWithTypeArguments).expression;
+        // // }        
+        const argumentList = token() === SyntaxKind.OpenParenToken ? parseArgumentList() : undefined;
+        return finishNode(factoryCreateNewExpression(undefined, undefined, argumentList), pos);
     }
 
     function parseFunctionExpression(): FunctionExpression {
@@ -5606,6 +5623,7 @@ const forEachChildTable: ForEachChildTable = {
             visitNode(cbNode, node.name) ||            
             visitNode(cbNode, node.initializer);
     },    
+    [SyntaxKind.NewExpression]: forEachChildInCallOrNewExpression,
     [SyntaxKind.NewStructExpression]: function forEachChildInNewStructExpression<T>(node: NewStructExpression, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
         return visitNode(cbNode, node.type) ||
             visitNodes(cbNode, cbNodes, node.arguments);
