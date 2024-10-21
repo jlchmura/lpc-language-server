@@ -275,6 +275,7 @@ const textToToken = new Map(Object.entries({
     ":)": SyntaxKind.ColonCloseParenToken,
     "([": SyntaxKind.OpenParenBracketToken,
     "({": SyntaxKind.OpenParenBraceToken,
+    "(*": SyntaxKind.OpenParenAsteriskToken,
 }));
 
 /*
@@ -2135,7 +2136,10 @@ export function createScanner(
                     }     
                     if (charCodeUnchecked(pos + 1) === CharacterCodes.openBrace) {
                         return pos += 2, token = SyntaxKind.OpenParenBraceToken;
-                    }               
+                    }  
+                    if (charCodeUnchecked(pos + 1) === CharacterCodes.asterisk) {
+                        return pos += 2, token = SyntaxKind.OpenParenAsteriskToken;
+                    }             
                     pos++;
                     return token = SyntaxKind.OpenParenToken;
                 case CharacterCodes.closeParen:

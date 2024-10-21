@@ -39,6 +39,7 @@ import {
     EndOfFileToken,
     EntityName,
     EqualsToken,
+    EvaluateExpression,
     Expression,
     ExpressionStatement,
     FalseLiteral,
@@ -274,6 +275,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
 
         // Expressions
         createCatchExpression,
+        createEvaluateExpression,
         createNewExpression,
         createSpreadElement,
         createFunctionExpression,
@@ -611,6 +613,14 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         const node = createBaseNode<CatchStatement>(SyntaxKind.CatchStatement);
         node.expression = expression;
         node.block = block;
+        return node;
+    }
+
+    // @api 
+    function createEvaluateExpression(expression: Expression, argumentsArray: readonly Expression[] | undefined): EvaluateExpression {
+        const node = createBaseNode<EvaluateExpression>(SyntaxKind.EvaluateExpression);
+        node.expression = expression;
+        node.arguments = argumentsArray ? parenthesizerRules().parenthesizeExpressionsOfCommaDelimitedList(argumentsArray) : undefined;
         return node;
     }
 

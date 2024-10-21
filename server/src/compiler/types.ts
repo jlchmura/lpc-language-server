@@ -575,6 +575,7 @@ export const enum SyntaxKind {
     ColonCloseParenToken,
     OpenParenBracketToken,  // for mapping literal
     OpenParenBraceToken,    // for array literal
+    OpenParenAsteriskToken, // (*fn) shortcut for evaluate()
     ColonColonToken,
     LambdaToken,    
     DotDotToken,
@@ -818,6 +819,7 @@ export const enum SyntaxKind {
     SyntheticExpression,
     NewExpression,
     NewStructExpression,
+    EvaluateExpression,
     TypeAssertionExpression,
     ExpressionWithTypeArguments,
     ElementAccessExpression,
@@ -1396,6 +1398,7 @@ export interface NodeFactory {
 
     // Expressions
     createCatchExpression(expression: Expression, modifier?: Identifier, modifierExpression?: Expression, block?: Block): CatchExpression;
+    createEvaluateExpression(expression: Expression, argumentsArray: readonly Expression[] | undefined): EvaluateExpression;
     createNewExpression(expression: Expression|TypeNode|undefined, typeArguments: readonly TypeNode[] | undefined, argumentsArray: readonly Expression[] | undefined): NewExpression;
     createSpreadElement(expression: Expression): SpreadElement;
     createFunctionExpression(modifiers: readonly Modifier[] | undefined, name: string | Identifier | undefined, parameters: readonly ParameterDeclaration[] | undefined, type: TypeNode | undefined, body: Block): FunctionExpression;
@@ -1918,6 +1921,7 @@ export type ForEachChildNodes =
 /** @internal */
 export type HasChildren =
     | ParameterDeclaration    
+    | EvaluateExpression
     | CatchExpression
     | SpreadElement
     | DefineDirective
@@ -2208,6 +2212,7 @@ export type ModifierLike = Modifier;// | Decorator;
 
 export type PunctuationSyntaxKind =
     | SyntaxKind.OpenParenBracketToken
+    | SyntaxKind.OpenParenAsteriskToken
     | SyntaxKind.LambdaToken
     | SyntaxKind.OpenParenBraceToken
     | SyntaxKind.OpenBraceToken    
@@ -4119,6 +4124,12 @@ export interface NewStructExpression extends PrimaryExpression, Declaration {
     readonly kind: SyntaxKind.NewStructExpression
     readonly type: StructTypeNode;
     readonly arguments: NodeArray<Expression | ObjectLiteralElementLike>;
+}
+
+export interface EvaluateExpression extends PrimaryExpression {
+    readonly kind: SyntaxKind.EvaluateExpression;
+    readonly expression: Expression;
+    readonly arguments: NodeArray<Expression>;
 }
 
 export interface NewExpression extends PrimaryExpression, Declaration {
