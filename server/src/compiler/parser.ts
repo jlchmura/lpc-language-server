@@ -4414,7 +4414,9 @@ export namespace LpcParser {
     function parseNewExpression(): NewExpression {
         const pos = getPositionState();
         parseExpected(SyntaxKind.NewKeyword);
-        
+                
+        let expression: Expression | TypeNode | undefined;
+        let argumentList: NodeArray<Expression> | undefined;
         // const expressionPos = getPositionState();
         // let expression: LeftHandSideExpression = parseMemberExpressionRest(expressionPos, parsePrimaryExpression(), /*allowOptionalChain*/ false);
         // // let typeArguments: NodeArray<TypeNode> | undefined;
@@ -4423,8 +4425,25 @@ export namespace LpcParser {
         // //     typeArguments = (expression as ExpressionWithTypeArguments).typeArguments;
         // //     expression = (expression as ExpressionWithTypeArguments).expression;
         // // }        
-        const argumentList = token() === SyntaxKind.OpenParenToken ? parseArgumentList() : undefined;
-        return finishNode(factoryCreateNewExpression(undefined, undefined, argumentList), pos);
+
+        parseExpected(SyntaxKind.OpenParenToken);
+        
+        if (token() == SyntaxKind.ClassKeyword) {
+            // fluff-style new class constructor
+            // class Foo = new(class Foo);
+            // class Foo = new(class Foo, name: "Bob", age: 42);
+            expression = parseType();
+
+            if (parseOptional(SyntaxKind.CommaToken)) {
+                argumentList = parseDelimitedList(ParsingContext.ArgumentExpressions, parseArgumentExpression);
+            }
+        } else {
+            argumentList = parseDelimitedList(ParsingContext.ArgumentExpressions, parseArgumentExpression);
+        }
+
+        parseExpected(SyntaxKind.CloseParenToken);
+
+        return finishNode(factoryCreateNewExpression(expression, undefined, argumentList), pos);
     }
 
     function parseFunctionExpression(): FunctionExpression {

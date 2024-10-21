@@ -1396,7 +1396,7 @@ export interface NodeFactory {
 
     // Expressions
     createCatchExpression(expression: Expression, modifier?: Identifier, modifierExpression?: Expression, block?: Block): CatchExpression;
-    createNewExpression(expression: Expression|undefined, typeArguments: readonly TypeNode[] | undefined, argumentsArray: readonly Expression[] | undefined): NewExpression;
+    createNewExpression(expression: Expression|TypeNode|undefined, typeArguments: readonly TypeNode[] | undefined, argumentsArray: readonly Expression[] | undefined): NewExpression;
     createSpreadElement(expression: Expression): SpreadElement;
     createFunctionExpression(modifiers: readonly Modifier[] | undefined, name: string | Identifier | undefined, parameters: readonly ParameterDeclaration[] | undefined, type: TypeNode | undefined, body: Block): FunctionExpression;
     createOmittedExpression(): OmittedExpression;
@@ -4123,7 +4123,7 @@ export interface NewStructExpression extends PrimaryExpression, Declaration {
 
 export interface NewExpression extends PrimaryExpression, Declaration {
     readonly kind: SyntaxKind.NewExpression;
-    readonly expression: LeftHandSideExpression;
+    readonly expression?: LeftHandSideExpression | TypeNode | undefined;
     readonly typeArguments?: NodeArray<TypeNode>;
     readonly arguments?: NodeArray<Expression>;
 }

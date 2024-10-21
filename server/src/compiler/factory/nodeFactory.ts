@@ -68,6 +68,7 @@ import {
     isNodeKind,
     isPropertyName,
     isSourceFile,
+    isTypeNode,
     JSDoc,
     JSDocComment,
     JSDocParameterTag,
@@ -614,11 +615,9 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     // @api
-    function createNewExpression(expression: Expression, typeArguments: readonly TypeNode[] | undefined, argumentsArray: readonly Expression[] | undefined): NewExpression {
-        Debug.assert(expression===undefined, "Expression not supported");
-
+    function createNewExpression(expression: Expression|TypeNode|undefined, typeArguments: readonly TypeNode[] | undefined, argumentsArray: readonly Expression[] | undefined): NewExpression {
         const node = createBaseDeclaration<NewExpression>(SyntaxKind.NewExpression);
-        // node.expression = parenthesizerRules().parenthesizeExpressionOfNew(expression);
+        node.expression = expression && (isTypeNode(expression) ? expression : parenthesizerRules().parenthesizeExpressionOfNew(expression));
         node.typeArguments = asNodeArray(typeArguments);
         node.arguments = argumentsArray ? parenthesizerRules().parenthesizeExpressionsOfCommaDelimitedList(argumentsArray) : undefined;
         node.transformFlags |= propagateChildFlags(node.expression) |

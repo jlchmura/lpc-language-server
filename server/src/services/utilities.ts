@@ -304,7 +304,7 @@ function climbPastPropertyOrElementAccess(node: Node) {
 
 
 function selectExpressionOfCallOrNewExpressionOrDecorator(node: CallExpression | NewExpression) {
-    return node.expression;
+    return isTypeNode(node.expression) ? undefined : node.expression;
 }
 
 

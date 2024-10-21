@@ -1647,6 +1647,9 @@ export function isTypeNodeKind(kind: SyntaxKind): kind is TypeNodeSyntaxKind {
         || kind === SyntaxKind.MappingKeyword
         || kind === SyntaxKind.VoidKeyword
         || kind === SyntaxKind.ClosureKeyword        
+        || kind === SyntaxKind.StructKeyword
+        || kind === SyntaxKind.StructType
+        || kind === SyntaxKind.ClassKeyword        
         || kind === SyntaxKind.JSDocAllType
         || kind === SyntaxKind.JSDocUnknownType
         || kind === SyntaxKind.JSDocNullableType
@@ -2835,12 +2838,12 @@ export function entityNameToString(name: EntityNameOrEntityNameExpression /*| JS
 
 
 /** @internal */
-export function getInvokedExpression(node: CallLikeExpression): Expression {
+export function getInvokedExpression(node: CallLikeExpression): Expression | undefined {
     switch (node.kind) {        
         // case SyntaxKind.BinaryExpression:
         //     return node.right;
         default:
-            return node.expression;
+            return isTypeNode(node.expression) ? undefined : node.expression;
     }
 }
 
