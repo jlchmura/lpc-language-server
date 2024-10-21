@@ -1,5 +1,5 @@
 import { isIdentifier as isIdentifierNode, BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange, PrefixUnaryExpression, first, LanguageVariant, EqualsToken, LpcConfigSourceFile, createBaseNodeFactory, PrefixUnaryOperator, Program, LpcFileHandler, ParenthesizedExpression, ArrayLiteralExpression, LambdaExpression, PunctuationSyntaxKind, PunctuationToken, LambdaOperatorToken, CastExpression, PropertyAccessExpression, isIdentifier, CloneObjectExpression, NewExpression, trimQuotes, createScanner, isKeyword, PunctuationOrKeywordSyntaxKind, getLanguageVariant, mapDefined, getJSDocCommentRanges, LabeledStatement, PropertyName, Token, tokenToString, addRelatedInfo, tokenIsIdentifierOrKeyword, getBinaryOperatorPrecedence, addRange, append, ArrayTypeNode, canHaveJSDoc, concatenate, containsParseError, Diagnostic, EntityName, getSpellingSuggestion, identity, idText, isIdentifierText, isTypeReferenceNode, JSDoc, JSDocAugmentsTag, JSDocCallbackTag, JSDocComment, JSDocImplementsTag, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocParameterTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThrowsTag, JSDocTypedefTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, nodeIsMissing, noop, PropertyAccessEntityNameExpression, setParent, skipTrivia, some, CharacterCodes, MapLike, KeywordSyntaxKind, startsWith, textToKeywordObj, ModifierLike, isModifierKind, MissingDeclaration, setTextRangePos, BindingPattern, KeywordTypeSyntaxKind, LiteralTypeNode, IntLiteral, FloatLiteral, LiteralLikeNode, isLiteralKind, TypeReferenceNode, getFullWidth, OperatorPrecedence, UnaryExpression, isLeftHandSideExpression, isAssignmentOperator, isKeywordOrPunctuation, UpdateExpression, PrimaryExpression, nodeIsPresent, PropertyAccessToken, IterationStatement, InheritClauseType, ObjectType, StructTypeNode, NamedDeclaration, TypeElement, PropertySignature, MethodSignature, StructDeclaration, TypeLiteralNode, TypeAssertion, NewStructExpression, ObjectLiteralElementLike, PropertyAssignment, getStartPositionOfLine, MappingLiteralExpression, MappingEntryExpression, isStringOrNumericLiteralLike, ElementAccessExpression, isFunctionDeclaration, RangeExpression, isPunctuation, LambdaIdentifierExpression, LambdaOperatorExpression, PreprocessorDirective, IncludeDirective, DefineDirective, UndefDirective, Macro, Scanner, last, ReadonlyTextRange, MacroParameter, forEachEntry, Ternary, isIntLiteral, isArrayTypeNode, SuperAccessExpression, isIndexedAccessTypeNode, isStringLiteral, isBinaryExpression, PragmaDirective, SpreadElement, CatchStatement, CatchExpression, getDirectoryPath, EvaluateExpression } from "./_namespaces/lpc";
-import { ILpcConfig } from "../config-types";
+import { DriverType, ILpcConfig } from "../config-types";
 import { loadLpcConfigFromString, LpcConfig } from "../backend/LpcConfig";
 import { parse, resolve } from "path";
 
@@ -1009,52 +1009,17 @@ export namespace LpcParser {
 
     function isDeclaration(): boolean {
         while (true) {
-            switch (token()) {
-                // case SyntaxKind.VarKeyword:
-                // case SyntaxKind.LetKeyword:
-                // case SyntaxKind.ConstKeyword:
+            switch (token()) {                
                 case SyntaxKind.FunctionKeyword:
                 case SyntaxKind.ClassKeyword:
                 case SyntaxKind.StructKeyword:
-                case SyntaxKind.ClosureKeyword:
-                // case SyntaxKind.EnumKeyword:
+                case SyntaxKind.ClosureKeyword:                
                     return true;
                 // case SyntaxKind.UsingKeyword:
                 //     return isUsingDeclaration();
                 // case SyntaxKind.AwaitKeyword:
-                //     return isAwaitUsingDeclaration();
-
-                // 'declare', 'module', 'namespace', 'interface'* and 'type' are all legal JavaScript identifiers;
-                // however, an identifier cannot be followed by another identifier on the same line. This is what we
-                // count on to parse out the respective declarations. For instance, we exploit this to say that
-                //
-                //    namespace n
-                //
-                // can be none other than the beginning of a namespace declaration, but need to respect that JavaScript sees
-                //
-                //    namespace
-                //    n
-                //
-                // as the identifier 'namespace' on one line followed by the identifier 'n' on another.
-                // We need to look one token ahead to see if it permissible to try parsing a declaration.
-                //
-                // *Note*: 'interface' is actually a strict mode reserved word. So while
-                //
-                //   "use strict"
-                //   interface
-                //   I {}
-                //
-                // could be legal, it would add complexity for very little gain.
-                // case SyntaxKind.InterfaceKeyword:
-                // case SyntaxKind.TypeKeyword:
-                //     return nextTokenIsIdentifierOnSameLine();
-                // case SyntaxKind.ModuleKeyword:
-                // case SyntaxKind.NamespaceKeyword:
-                //     return nextTokenIsIdentifierOrStringLiteralOnSameLine();
-                // case SyntaxKind.AbstractKeyword:
-                // case SyntaxKind.AccessorKeyword:
-                case SyntaxKind.AsyncKeyword:
-                // case SyntaxKind.DeclareKeyword:
+                //     return isAwaitUsingDeclaration();                                
+                case SyntaxKind.AsyncKeyword:                
                 case SyntaxKind.PrivateKeyword:
                 case SyntaxKind.ProtectedKeyword:
                 case SyntaxKind.PublicKeyword:
@@ -1062,8 +1027,7 @@ export namespace LpcParser {
                 case SyntaxKind.NoMaskKeyword:
                 case SyntaxKind.NoSaveKeyword:
                 case SyntaxKind.NoShadowKeyword:
-                case SyntaxKind.BytesKeyword:
-                case SyntaxKind.StatusKeyword:
+                case SyntaxKind.BytesKeyword:                
                 case SyntaxKind.LwObjectKeyword:
                 case SyntaxKind.ClosureKeyword:
                 case SyntaxKind.SymbolKeyword:
@@ -1075,8 +1039,7 @@ export namespace LpcParser {
                 case SyntaxKind.VoidKeyword:
                 case SyntaxKind.ObjectKeyword:
                 case SyntaxKind.MappingKeyword:     
-                case SyntaxKind.LessThanToken: // start of array union type               
-                // case SyntaxKind.ReadonlyKeyword:
+                case SyntaxKind.LessThanToken: // start of array union type                               
                     return true;        
                     // const previousToken = token();
                     // nextToken();
@@ -1089,33 +1052,9 @@ export namespace LpcParser {
                     // //     // report Line_break_not_permitted_here if needed.
                     // //     return true;
                     // // }
-                    // continue;
-
-                // case SyntaxKind.GlobalKeyword:
-                //     nextToken();
-                //     return token() === SyntaxKind.OpenBraceToken || token() === SyntaxKind.Identifier || token() === SyntaxKind.ExportKeyword;
-
-                // case SyntaxKind.ImportKeyword:
-                //     nextToken();
-                //     return token() === SyntaxKind.StringLiteral || token() === SyntaxKind.AsteriskToken ||
-                //         token() === SyntaxKind.OpenBraceToken || tokenIsIdentifierOrKeyword(token());
-                // case SyntaxKind.ExportKeyword:
-                //     let currentToken = nextToken();
-                //     if (currentToken === SyntaxKind.TypeKeyword) {
-                //         currentToken = lookAhead(nextToken);
-                //     }
-                //     if (
-                //         currentToken === SyntaxKind.EqualsToken || currentToken === SyntaxKind.AsteriskToken ||
-                //         currentToken === SyntaxKind.OpenBraceToken || currentToken === SyntaxKind.DefaultKeyword ||
-                //         currentToken === SyntaxKind.AsKeyword || currentToken === SyntaxKind.AtToken
-                //     ) {
-                //         return true;
-                //     }
-                //     continue;
-
-                // case SyntaxKind.StaticKeyword:
-                //     nextToken();
-                //     continue;
+                    // continue;                
+                case SyntaxKind.StatusKeyword:
+                    return config.driver.type === DriverType.LDMud;
                 case SyntaxKind.Identifier:
                     // probably a function without modifier or type
                     // but that can only happen if we're parsing in the source context
@@ -2796,8 +2735,7 @@ export namespace LpcParser {
 
     function isTypeName(): boolean {
         switch (token()) {
-            case SyntaxKind.BytesKeyword:
-            case SyntaxKind.StatusKeyword:
+            case SyntaxKind.BytesKeyword:            
             case SyntaxKind.LwObjectKeyword:
             case SyntaxKind.ClosureKeyword:
             case SyntaxKind.SymbolKeyword:
@@ -2822,6 +2760,8 @@ export namespace LpcParser {
             //         while(nextToken()==SyntaxKind.LessThanToken) {}
             //         return isTypeName();
             //     });
+            case SyntaxKind.StatusKeyword:
+                return config.driver.type === DriverType.LDMud;
         }        
 
         return false;
@@ -2869,8 +2809,7 @@ export namespace LpcParser {
     function parseDeclarationWorker(pos: PositionState, hasJSDoc: boolean, modifiersIn: NodeArray<ModifierLike> | undefined, typeIn: TypeNode | undefined): Statement {
         
         // if there is a comma, equals, or semi after the first token, it must be a variable declaration
-
-        if (token() == SyntaxKind.Identifier) {
+        if (isIdentifier()) {
             if (lookAhead(nextTokenIsOpenParen)) {
                 // function
                 return parseFunctionDeclaration(pos, hasJSDoc, modifiersIn, typeIn);
@@ -3224,7 +3163,7 @@ export namespace LpcParser {
         const hasJSDoc = hasPrecedingJSDocComment();        
         // type shouldn't be here, but needs to be for foreach() statement.
         // we'll parse it out and report an error in the checker    
-        const tempType = parseType();
+        const tempType = !type ? parseType() : undefined;
 
         // we may be in a var decl list where the array indicator is not part of the incoming type
         // e.g.  string foo, *bar;
@@ -3269,8 +3208,8 @@ export namespace LpcParser {
     // An identifier that starts with two underscores has an extra underscore character prepended to it to avoid issues
     // with magic property names like '__proto__'. The 'identifiers' object is used to share a single string instance for
     // each identifier in order to reduce memory consumption.
-    function createIdentifier(isIdentifier: boolean, diagnosticMessage?: DiagnosticMessage, privateIdentifierDiagnosticMessage?: DiagnosticMessage): Identifier {
-        if (isIdentifier) {
+    function createIdentifier(isTokenIdentifier: boolean, diagnosticMessage?: DiagnosticMessage, privateIdentifierDiagnosticMessage?: DiagnosticMessage): Identifier {
+        if (isTokenIdentifier) {
             identifierCount++;
             const pos = getPositionState();
             pos.pos = scanner.hasLeadingAsterisks() ? scanner.getTokenStart() : getNodePos();
