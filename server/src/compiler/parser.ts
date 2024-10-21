@@ -2462,8 +2462,7 @@ export namespace LpcParser {
             case SyntaxKind.AnyKeyword:
             case SyntaxKind.UnknownKeyword:
             case SyntaxKind.StringKeyword:
-            case SyntaxKind.BytesKeyword:
-            case SyntaxKind.StatusKeyword:
+            case SyntaxKind.BytesKeyword:            
             case SyntaxKind.LwObjectKeyword:
             case SyntaxKind.ClosureKeyword:
             case SyntaxKind.SymbolKeyword:
@@ -2504,6 +2503,8 @@ export namespace LpcParser {
             case SyntaxKind.FalseKeyword:
             case SyntaxKind.NullKeyword:
                 return parseLiteralTypeNode();
+            case SyntaxKind.StatusKeyword:                
+                return config.driver.type === DriverType.LDMud ? parseLiteralTypeNode() : undefined;
             // case SyntaxKind.MinusToken:
             //     return lookAhead(nextTokenIsNumericOrBigIntLiteral) ? parseLiteralTypeNode(/*negative*/ true) : parseTypeReference();
             case SyntaxKind.VoidKeyword:
@@ -3160,21 +3161,25 @@ export namespace LpcParser {
     
     function parseVariableDeclaration(type: TypeNode | undefined): VariableDeclaration {
         const pos = getPositionState();
-        const hasJSDoc = hasPrecedingJSDocComment();        
+        const hasJSDoc = hasPrecedingJSDocComment();      
+
         // type shouldn't be here, but needs to be for foreach() statement.
         // we'll parse it out and report an error in the checker    
-        const tempType = !type ? parseType() : undefined;
-
-        // we may be in a var decl list where the array indicator is not part of the incoming type
-        // e.g.  string foo, *bar;
-        // so we need to check tempType for the array indicator
+        // this will also grab array indicators inside a decl list, i.e.
+        //    string *foo, *bar, *baz;
+        const tempType = parseType();
+                
+        // check tempType for the array indicator
         if (tempType && isArrayTypeNode(tempType) && !tempType.elementType) {
             (tempType as Mutable<ArrayTypeNode>).elementType = type;
+            type = tempType;
+        } else if (!type) {
+            type = tempType;
         }
 
         const name = parseIdentifierOrPattern();                
         const initializer = isInOrOfKeyword(token()) ? undefined : parseInitializer();
-        const node = factoryCreateVariableDeclaration(name, tempType || type, initializer);
+        const node = factoryCreateVariableDeclaration(name, type, initializer);
         return withJSDoc(finishNode(node, pos), hasJSDoc);
     }
 
