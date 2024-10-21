@@ -58,6 +58,7 @@ import {
     getTextOfNode,
     hasJSDocNodes,
     Identifier,
+    InlineClosureExpression,
     // ImportClause,
     // InterfaceDeclaration,
     InternalSymbolName,
@@ -82,6 +83,7 @@ import {
     isFunctionDeclaration,
     isFunctionExpression,
     isIdentifier,
+    isInlineClosureExpression,
     isIntLiteral,
     isJSDocTypeAlias,
     // isJSDocTypeAlias,
@@ -431,6 +433,7 @@ function addChildrenRecursively(node: Node | undefined): void {
             addNodeWithRecursiveChild(node, (node as FunctionLikeDeclaration).body);
             break;
         // case SyntaxKind.ArrowFunction:
+        case SyntaxKind.InlineClosureExpression:
         case SyntaxKind.FunctionExpression:
             addNodeWithRecursiveChild(node, (node as FunctionLikeDeclaration).body);
             break;
@@ -810,7 +813,8 @@ function tryGetName(node: Node): string | undefined {
         case SyntaxKind.FunctionExpression:
         // case SyntaxKind.ArrowFunction:
         case SyntaxKind.ClassExpression:
-            return getFunctionOrClassName(node as FunctionExpression);// | ArrowFunction | ClassExpression);
+        case SyntaxKind.InlineClosureExpression:
+            return getFunctionOrClassName(node as FunctionExpression | InlineClosureExpression);// | ArrowFunction | ClassExpression);
         default:
             return undefined;
     }
@@ -840,7 +844,7 @@ function getItemName(node: Node, name: Node | undefined): string {
         // case SyntaxKind.ArrowFunction:
         case SyntaxKind.FunctionDeclaration:
         case SyntaxKind.FunctionExpression:
-        // case SyntaxKind.ClassDeclaration:
+        case SyntaxKind.InlineClosureExpression:        
         case SyntaxKind.ClassExpression:
             // if (getSyntacticModifierFlags(node) & ModifierFlags.Default) {
             //     return "default";
@@ -1020,7 +1024,7 @@ function getModifiers(node: Node): string {
     return getNodeModifiers(node);
 }
 
-function getFunctionOrClassName(node: FunctionExpression | FunctionDeclaration/* | ArrowFunction | ClassLikeDeclaration*/): string {
+function getFunctionOrClassName(node: FunctionExpression | FunctionDeclaration | InlineClosureExpression/* | ArrowFunction | ClassLikeDeclaration*/): string {
     const { parent } = node;
     // TODO: why is parent undfeined here?
     if (node.name && getFullWidth(node.name) > 0) {
@@ -1042,6 +1046,9 @@ function getFunctionOrClassName(node: FunctionExpression | FunctionDeclaration/*
     // else if (getSyntacticModifierFlags(node) & ModifierFlags.Default) {
     //     return "default";
     // }
+    else if (isInlineClosureExpression(node)) {
+        return "(: :)";
+    }
     else if (isClassLike(node)) {
         return "<class>";
     }
@@ -1082,6 +1089,7 @@ function isFunctionOrClassExpression(node: Node): node is FunctionExpression {
         // case SyntaxKind.ArrowFunction:
         case SyntaxKind.FunctionExpression:
         case SyntaxKind.ClassExpression:
+        case SyntaxKind.InlineClosureExpression:
             return true;
         default:
             return false;
