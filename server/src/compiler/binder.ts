@@ -2100,7 +2100,7 @@ export function getContainerFlags(node: Node): ContainerFlags {
         case SyntaxKind.PropertyDeclaration:
             return (node as PropertyDeclaration).initializer ? ContainerFlags.IsControlFlowContainer : 0;
 
-        case SyntaxKind.CatchClause:
+        case SyntaxKind.CatchStatement:
         case SyntaxKind.ForStatement:
         case SyntaxKind.ForEachStatement:        
         case SyntaxKind.CaseBlock:

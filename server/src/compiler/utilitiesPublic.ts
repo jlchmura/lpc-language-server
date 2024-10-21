@@ -159,7 +159,7 @@ export function canHaveLocals(node: Node): node is HasLocals {
         case SyntaxKind.InlineClosureExpression: 
         // case SyntaxKind.CallSignature:
         case SyntaxKind.CaseBlock:
-        case SyntaxKind.CatchClause:
+        case SyntaxKind.CatchStatement:
         // case SyntaxKind.ClassStaticBlockDeclaration:
         // case SyntaxKind.ConditionalType:
         // case SyntaxKind.Constructor:
@@ -550,7 +550,7 @@ function isDeclarationStatementKind(kind: SyntaxKind) {
 function isBlockStatement(node: Node): node is Block {
     if (node.kind !== SyntaxKind.Block) return false;
     if (node.parent !== undefined) {
-        if (/*node.parent.kind === SyntaxKind.TryStatement ||*/ node.parent.kind === SyntaxKind.CatchClause) {
+        if (/*node.parent.kind === SyntaxKind.TryStatement ||*/ node.parent.kind === SyntaxKind.CatchStatement) {
             return false;
         }
     }

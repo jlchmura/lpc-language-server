@@ -16529,7 +16529,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             (symbol.flags & (SymbolFlags.BlockScopedVariable | SymbolFlags.Class)) === 0 ||
             !symbol.valueDeclaration ||
             isSourceFile(symbol.valueDeclaration) ||
-            symbol.valueDeclaration.parent.kind === SyntaxKind.CatchClause
+            symbol.valueDeclaration.parent.kind === SyntaxKind.CatchStatement
         ) {
             return;
         }

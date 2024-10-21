@@ -618,6 +618,7 @@ export const enum SyntaxKind {
     AnyKeyword,
     ClosureKeyword,
     StructKeyword,
+    CatchKeyword,
     ObjectKeyword,
     MixedKeyword,
     UnknownKeyword,    
@@ -793,6 +794,7 @@ export const enum SyntaxKind {
     InheritDeclaration,
     IfStatement,
     EmptyStatement,
+    CatchStatement,
     SwitchStatement, // LastStatement
 
     LiteralType,
@@ -806,6 +808,7 @@ export const enum SyntaxKind {
 
     // Expressions
     ConditionalExpression,
+    CatchExpression,
     BinaryExpression,
     FunctionExpression,
     ArrowFunction,
@@ -835,8 +838,7 @@ export const enum SyntaxKind {
     OmittedExpression,
     PrefixUnaryExpression,
     
-    // Clauses
-    CatchClause,
+    // Clauses    
     CaseClause,
     HeritageClause,
     DefaultClause,    
@@ -1390,6 +1392,7 @@ export interface NodeFactory {
     createWhileStatement(statement: Statement, expression: Expression): WhileStatement;
     createParameterDeclaration(modifiers: readonly Modifier[] | undefined, dotDotDotToken: DotDotDotToken | undefined, name: string | BindingName, ampToken?: AmpersandToken, type?: TypeNode, initializer?: Expression): ParameterDeclaration;
     /** @internal */ createMissingDeclaration(): MissingDeclaration;
+    createCatchStatement(block: Block): CatchStatement;
 
     // Expressions
     createNewExpression(expression: Expression|undefined, typeArguments: readonly TypeNode[] | undefined, argumentsArray: readonly Expression[] | undefined): NewExpression;
@@ -1655,7 +1658,7 @@ export type IsContainer =
  */
 export type IsBlockScopedContainer =
     | IsContainer
-    | CatchClause
+    | CatchStatement
     | ForStatement
     //| ForInStatement
     | ForEachStatement
@@ -1690,6 +1693,7 @@ export type HasContainerFlags =
 /** NODES */
 export type HasJSDoc = 
     | IncludeDirective
+    | CatchStatement
     | FunctionExpression
     | SuperAccessExpression
     | DefineDirective
@@ -1767,7 +1771,7 @@ export type HasLocals =
     | Block
     //| CallSignatureDeclaration
     | CaseBlock
-    | CatchClause    
+    | CatchStatement    
     // | ClassStaticBlockDeclaration
     // | ConditionalTypeNode
     // | ConstructorDeclaration
@@ -2059,7 +2063,7 @@ export type HasChildren =
     | CaseClause
     | DefaultClause
     // | HeritageClause
-    | CatchClause
+    | CatchStatement
     // | PropertyAssignment
     // | ShorthandPropertyAssignment
     // | SpreadAssignment
@@ -2105,6 +2109,7 @@ export type KeywordSyntaxKind =
     | SyntaxKind.StatusKeyword
     | SyntaxKind.BytesKeyword
     | SyntaxKind.LwObjectKeyword
+    | SyntaxKind.CatchKeyword
     | SyntaxKind.ClosureKeyword
     | SyntaxKind.SymbolKeyword
     | SyntaxKind.BufferKeyword
@@ -3215,11 +3220,16 @@ export interface Block extends Statement, LocalsContainer {
     /** @internal */ multiLine?: boolean;
 }
 
-export interface CatchClause extends Node, LocalsContainer {
-    readonly kind: SyntaxKind.CatchClause;
-    readonly parent: Expression;
-    readonly variableDeclaration?: VariableDeclaration;
+export interface CatchStatement extends Statement, LocalsContainer {
+    readonly kind: SyntaxKind.CatchStatement;
+    readonly parent: Block;
     readonly block: Block;
+}
+
+export interface CatchExpression extends Expression {
+    readonly kind: SyntaxKind.CatchExpression;
+    readonly expression?: Expression;
+    readonly modifiers?: NodeArray<Modifier>;
 }
 
 export interface NamedDeclaration extends Declaration {
@@ -3229,7 +3239,7 @@ export interface NamedDeclaration extends Declaration {
 export type BindingName = Identifier | BindingPattern;
 export interface VariableDeclaration extends NamedDeclaration, JSDocContainer, PrimaryExpression {
     readonly kind: SyntaxKind.VariableDeclaration;
-    readonly parent: VariableDeclarationList | CatchClause;
+    readonly parent: VariableDeclarationList;
     readonly name: BindingName;                    // Declared variable name    
     readonly type?: TypeNode;                      // Optional type annotation
     readonly equalsToken?: Token<SyntaxKind.EqualsToken>; // Optional initializer token

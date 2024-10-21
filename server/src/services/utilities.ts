@@ -173,7 +173,7 @@ import {
     SymbolTracker,
     StringLiteralLike,
     nodeIsMissing,
-    CatchClause,
+    CatchStatement,
     FunctionLikeDeclaration,
     IterationStatement,
     DoWhileStatement,
@@ -820,7 +820,7 @@ export function getMeaningFromDeclaration(node: Node): SemanticMeaning {
         case SyntaxKind.FunctionDeclaration:
         case SyntaxKind.FunctionExpression:
         case SyntaxKind.InlineClosureExpression:
-        case SyntaxKind.CatchClause:        
+        case SyntaxKind.CatchStatement:        
             return SemanticMeaning.Value;
 
         case SyntaxKind.TypeParameter:        
@@ -2298,8 +2298,8 @@ function isCompletedNode(n: Node | undefined, sourceFile: SourceFile): boolean {
         // case SyntaxKind.NamedImports:
         // case SyntaxKind.NamedExports:
             return nodeEndsWith(n, SyntaxKind.CloseBraceToken, sourceFile);
-        case SyntaxKind.CatchClause:
-            return isCompletedNode((n as CatchClause).block, sourceFile);
+        case SyntaxKind.CatchStatement:
+            return isCompletedNode((n as CatchStatement).block, sourceFile);
         case SyntaxKind.NewExpression:
             if (!(n as NewExpression).arguments) {
                 return true;

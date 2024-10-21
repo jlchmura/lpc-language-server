@@ -457,7 +457,7 @@ export function isBlockOrCatchScoped(declaration: Declaration) {
 /** @internal */
 export function isCatchClauseVariableDeclarationOrBindingElement(declaration: Declaration) {
     const node = getRootDeclaration(declaration);
-    return node.kind === SyntaxKind.VariableDeclaration && node.parent.kind === SyntaxKind.CatchClause;
+    return node.kind === SyntaxKind.VariableDeclaration && node.parent.kind === SyntaxKind.CatchStatement;
 }
 
 /** @internal */
@@ -2040,7 +2040,7 @@ export function isBlockScope(node: Node, parentNode: Node | undefined): boolean 
     switch (node.kind) {
         case SyntaxKind.SourceFile:
         case SyntaxKind.CaseBlock:
-        case SyntaxKind.CatchClause:        
+        case SyntaxKind.CatchStatement:        
         case SyntaxKind.ForStatement:
         case SyntaxKind.ForEachStatement:        
         //case SyntaxKind.MethodDeclaration:        
@@ -3149,7 +3149,7 @@ export function forEachReturnStatement<T>(body: Block | Statement, visitor: (stm
             case SyntaxKind.DefaultClause:
             // case SyntaxKind.LabeledStatement:
             // case SyntaxKind.TryStatement:
-            case SyntaxKind.CatchClause:
+            case SyntaxKind.CatchStatement:
                 return forEachChild(node, traverse);
         }
     }

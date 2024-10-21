@@ -4551,7 +4551,7 @@ function getCompletionData(
                 return containingNodeKind === SyntaxKind.ArrayBindingPattern;                   // var [x|
 
             case SyntaxKind.OpenParenToken:
-                return containingNodeKind === SyntaxKind.CatchClause;// ||
+                return containingNodeKind === SyntaxKind.CatchStatement;// ||
                     // isFunctionLikeButNotConstructor(containingNodeKind);
 
             case SyntaxKind.OpenBraceToken:

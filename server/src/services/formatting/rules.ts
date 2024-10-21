@@ -668,7 +668,7 @@ function isAfterCodeBlockContext(context: FormattingContext): boolean {
         // case SyntaxKind.ClassDeclaration:
         // case SyntaxKind.ModuleDeclaration:
         // case SyntaxKind.EnumDeclaration:
-        case SyntaxKind.CatchClause:
+        case SyntaxKind.CatchStatement:
         // case SyntaxKind.ModuleBlock:
         case SyntaxKind.SwitchStatement:
             return true;
@@ -697,7 +697,7 @@ function isControlDeclContext(context: FormattingContext): boolean {
         // TODO
         // case SyntaxKind.ElseClause:
         // falls through
-        case SyntaxKind.CatchClause:
+        case SyntaxKind.CatchStatement:
             return true;
 
         default:

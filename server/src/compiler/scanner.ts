@@ -161,6 +161,7 @@ export const textToKeywordObj: MapLike<KeywordSyntaxKind> = {
     buffer: SyntaxKind.BufferKeyword,
     bytes: SyntaxKind.BytesKeyword,
     case: SyntaxKind.CaseKeyword,    
+    catch: SyntaxKind.CatchKeyword,
     class: SyntaxKind.ClassKeyword,
     closure: SyntaxKind.ClosureKeyword,
     continue: SyntaxKind.ContinueKeyword,                

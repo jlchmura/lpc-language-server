@@ -15,6 +15,7 @@ import {
     CaseClause,
     CaseOrDefaultClause,
     CastExpression,
+    CatchStatement,
     CloneObjectExpression,
     ColonToken,
     ComputedPropertyName,
@@ -267,6 +268,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createParameterDeclaration,
         createMissingDeclaration,
         createStructDeclarationNode,
+        createCatchStatement,
 
         // Expressions
         createNewExpression,
@@ -592,9 +594,16 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     // @api
+    function createCatchStatement(block: Block): CatchStatement {
+        const node = createBaseNode<CatchStatement>(SyntaxKind.CatchStatement);
+        node.block = block;
+        return node;
+    }
+
+    // @api
     function createNewExpression(expression: Expression, typeArguments: readonly TypeNode[] | undefined, argumentsArray: readonly Expression[] | undefined): NewExpression {
         Debug.assert(expression===undefined, "Expression not supported");
-        
+
         const node = createBaseDeclaration<NewExpression>(SyntaxKind.NewExpression);
         // node.expression = parenthesizerRules().parenthesizeExpressionOfNew(expression);
         node.typeArguments = asNodeArray(typeArguments);

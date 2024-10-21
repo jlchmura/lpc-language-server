@@ -1790,11 +1790,11 @@ namespace deleteDeclaration {
     function deleteVariableDeclaration(changes: ChangeTracker, deletedNodesInLists: Set<Node>, sourceFile: SourceFile, node: VariableDeclaration): void {
         const { parent } = node;
 
-        if (parent.kind === SyntaxKind.CatchClause) {
-            // TODO: There's currently no unused diagnostic for this, could be a suggestion
-            changes.deleteNodeRange(sourceFile, findChildOfKind(parent, SyntaxKind.OpenParenToken, sourceFile)!, findChildOfKind(parent, SyntaxKind.CloseParenToken, sourceFile)!);
-            return;
-        }
+        // if (parent.kind === SyntaxKind.CatchStatement) {
+        //     // TODO: There's currently no unused diagnostic for this, could be a suggestion
+        //     changes.deleteNodeRange(sourceFile, findChildOfKind(parent, SyntaxKind.OpenParenToken, sourceFile)!, findChildOfKind(parent, SyntaxKind.CloseParenToken, sourceFile)!);
+        //     return;
+        // }
 
         if (parent.declarations.length !== 1) {
             deleteNodeInList(changes, deletedNodesInLists, sourceFile, node);
