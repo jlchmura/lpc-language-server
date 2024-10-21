@@ -15,6 +15,7 @@ import {
     CaseClause,
     CaseOrDefaultClause,
     CastExpression,
+    CatchExpression,
     CatchStatement,
     CloneObjectExpression,
     ColonToken,
@@ -271,6 +272,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createCatchStatement,
 
         // Expressions
+        createCatchExpression,
         createNewExpression,
         createSpreadElement,
         createFunctionExpression,
@@ -590,6 +592,15 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
             // node.transformFlags |= TransformFlags.ContainsES2015;
         }
 
+        return node;
+    }
+
+    // @api 
+    function createCatchExpression(expression: Expression, modifier?: Identifier, modifierExpression?: Expression): CatchExpression {
+        const node = createBaseNode<CatchExpression>(SyntaxKind.CatchExpression);
+        node.expression = expression;
+        node.modifier = modifier;
+        node.modifierExpression = modifierExpression;
         return node;
     }
 

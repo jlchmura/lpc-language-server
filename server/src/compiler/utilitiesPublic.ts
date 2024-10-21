@@ -288,6 +288,7 @@ export function isLeftHandSideExpression(node: Node): node is LeftHandSideExpres
 
 function isLeftHandSideExpressionKind(kind: SyntaxKind): boolean {
     switch (kind) {
+        case SyntaxKind.CatchExpression:
         case SyntaxKind.PropertyAccessExpression:
         case SyntaxKind.ElementAccessExpression:
         case SyntaxKind.NewExpression:

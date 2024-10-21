@@ -1395,6 +1395,7 @@ export interface NodeFactory {
     createCatchStatement(block: Block): CatchStatement;
 
     // Expressions
+    createCatchExpression(expression: Expression, modifier?: Identifier, modifierExpression?: Expression): CatchExpression;
     createNewExpression(expression: Expression|undefined, typeArguments: readonly TypeNode[] | undefined, argumentsArray: readonly Expression[] | undefined): NewExpression;
     createSpreadElement(expression: Expression): SpreadElement;
     createFunctionExpression(modifiers: readonly Modifier[] | undefined, name: string | Identifier | undefined, parameters: readonly ParameterDeclaration[] | undefined, type: TypeNode | undefined, body: Block): FunctionExpression;
@@ -1917,6 +1918,7 @@ export type ForEachChildNodes =
 /** @internal */
 export type HasChildren =
     | ParameterDeclaration    
+    | CatchExpression
     | SpreadElement
     | DefineDirective
     | SuperAccessExpression
@@ -3226,10 +3228,11 @@ export interface CatchStatement extends Statement, LocalsContainer {
     readonly block: Block;
 }
 
-export interface CatchExpression extends Expression {
+export interface CatchExpression extends PrimaryExpression {
     readonly kind: SyntaxKind.CatchExpression;
     readonly expression?: Expression;
-    readonly modifiers?: NodeArray<Modifier>;
+    readonly modifier?: Identifier;
+    readonly modifierExpression?: Expression;
 }
 
 export interface NamedDeclaration extends Declaration {
