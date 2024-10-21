@@ -417,8 +417,7 @@ function addChildrenRecursively(node: Node | undefined): void {
             const child = node as VariableDeclaration | PropertyAssignment | BindingElement;
             if (isBindingPattern(child.name)) {
                 addChildrenRecursively(child.name);
-            }
-            else {
+            } else {
                 addNodeWithRecursiveInitializer(child);
             }
             break;
@@ -450,7 +449,7 @@ function addChildrenRecursively(node: Node | undefined): void {
         // case SyntaxKind.ClassDeclaration:
         // case SyntaxKind.InterfaceDeclaration:
             startNode(node);
-            console.warn("TOdo - class expr inherits")
+            console.warn("TOdo - class expr inherits")            
             // for (const member of (node as InterfaceDeclaration).members) {
             //     addChildrenRecursively(member);
             // }
@@ -462,7 +461,7 @@ function addChildrenRecursively(node: Node | undefined): void {
         // case SyntaxKind.ImportEqualsDeclaration:
         // case SyntaxKind.CallSignature:
         // case SyntaxKind.ConstructSignature:
-        // case SyntaxKind.TypeAliasDeclaration:
+        case SyntaxKind.TypeAliasDeclaration:
             addLeafNode(node);
             break;
         case SyntaxKind.DefineDirective:
@@ -470,97 +469,97 @@ function addChildrenRecursively(node: Node | undefined): void {
             break;
         case SyntaxKind.CallExpression:
         case SyntaxKind.BinaryExpression: {
-            const special = getAssignmentDeclarationKind(node as BinaryExpression);
-            switch (special) {
-                case AssignmentDeclarationKind.ExportsProperty:
-                case AssignmentDeclarationKind.ModuleExports:
-                    addNodeWithRecursiveChild(node, (node as BinaryExpression).right);
-                    return;
-                case AssignmentDeclarationKind.Prototype:
-                case AssignmentDeclarationKind.PrototypeProperty: {
-                    const binaryExpression = node as BinaryExpression;
-                    const assignmentTarget = binaryExpression.left as PropertyAccessExpression;
+            // const special = getAssignmentDeclarationKind(node as BinaryExpression);
+            // switch (special) {
+            //     case AssignmentDeclarationKind.ExportsProperty:
+            //     case AssignmentDeclarationKind.ModuleExports:
+            //         addNodeWithRecursiveChild(node, (node as BinaryExpression).right);
+            //         return;
+            //     case AssignmentDeclarationKind.Prototype:
+            //     case AssignmentDeclarationKind.PrototypeProperty: {
+            //         const binaryExpression = node as BinaryExpression;
+            //         const assignmentTarget = binaryExpression.left as PropertyAccessExpression;
 
-                    const prototypeAccess = special === AssignmentDeclarationKind.PrototypeProperty ?
-                        assignmentTarget.expression as PropertyAccessExpression :
-                        assignmentTarget;
+            //         const prototypeAccess = special === AssignmentDeclarationKind.PrototypeProperty ?
+            //             assignmentTarget.expression as PropertyAccessExpression :
+            //             assignmentTarget;
 
-                    let depth = 0;
-                    let className: PropertyNameLiteral;
-                    // If we see a prototype assignment, start tracking the target as a class
-                    // This is only done for simple classes not nested assignments.
-                    if (isIdentifier(prototypeAccess.expression)) {
-                        addTrackedEs5Class(prototypeAccess.expression.text);
-                        className = prototypeAccess.expression;
-                    }
-                    else {
-                        [depth, className] = startNestedNodes(binaryExpression, prototypeAccess.expression as EntityNameExpression);
-                    }
-                    if (special === AssignmentDeclarationKind.Prototype) {
-                        if (isObjectLiteralExpression(binaryExpression.right)) {
-                            if (binaryExpression.right.properties.length > 0) {
-                                startNode(binaryExpression, className);
-                                forEachChild(binaryExpression.right, addChildrenRecursively);
-                                endNode();
-                            }
-                        }
-                    }
-                    // else if (isFunctionExpression(binaryExpression.right) || isArrowFunction(binaryExpression.right)) {
-                    //     addNodeWithRecursiveChild(node, binaryExpression.right, className);
-                    // }
-                    else {
-                        startNode(binaryExpression, className);
-                        addNodeWithRecursiveChild(node, binaryExpression.right, assignmentTarget.name);
-                        endNode();
-                    }
-                    endNestedNodes(depth);
-                    return;
-                }
-                case AssignmentDeclarationKind.ObjectDefinePropertyValue:
-                case AssignmentDeclarationKind.ObjectDefinePrototypeProperty: {
-                    const defineCall = node as BindableObjectDefinePropertyCall;
-                    const className = special === AssignmentDeclarationKind.ObjectDefinePropertyValue ?
-                        defineCall.arguments[0] :
-                        (defineCall.arguments[0] as unknown as PropertyAccessExpression).expression as EntityNameExpression;
+            //         let depth = 0;
+            //         let className: PropertyNameLiteral;
+            //         // If we see a prototype assignment, start tracking the target as a class
+            //         // This is only done for simple classes not nested assignments.
+            //         if (isIdentifier(prototypeAccess.expression)) {
+            //             addTrackedEs5Class(prototypeAccess.expression.text);
+            //             className = prototypeAccess.expression;
+            //         }
+            //         else {
+            //             [depth, className] = startNestedNodes(binaryExpression, prototypeAccess.expression as EntityNameExpression);
+            //         }
+            //         if (special === AssignmentDeclarationKind.Prototype) {
+            //             if (isObjectLiteralExpression(binaryExpression.right)) {
+            //                 if (binaryExpression.right.properties.length > 0) {
+            //                     startNode(binaryExpression, className);
+            //                     forEachChild(binaryExpression.right, addChildrenRecursively);
+            //                     endNode();
+            //                 }
+            //             }
+            //         }
+            //         else if (isFunctionExpression(binaryExpression.right) || isArrowFunction(binaryExpression.right)) {
+            //             addNodeWithRecursiveChild(node, binaryExpression.right, className);
+            //         }
+            //         else {
+            //             startNode(binaryExpression, className);
+            //             addNodeWithRecursiveChild(node, binaryExpression.right, assignmentTarget.name);
+            //             endNode();
+            //         }
+            //         endNestedNodes(depth);
+            //         return;
+            //     }
+            //     case AssignmentDeclarationKind.ObjectDefinePropertyValue:
+            //     case AssignmentDeclarationKind.ObjectDefinePrototypeProperty: {
+            //         const defineCall = node as BindableObjectDefinePropertyCall;
+            //         const className = special === AssignmentDeclarationKind.ObjectDefinePropertyValue ?
+            //             defineCall.arguments[0] :
+            //             (defineCall.arguments[0] as unknown as PropertyAccessExpression).expression as EntityNameExpression;
 
-                    const memberName = defineCall.arguments[1] as unknown as Identifier;
-                    const [depth, classNameIdentifier] = startNestedNodes(node, className as EntityNameExpression);
-                    startNode(node, classNameIdentifier);
-                    startNode(node, setTextRange(factory.createIdentifier(memberName.text), memberName));
-                    addChildrenRecursively((node as CallExpression).arguments[2]);
-                    endNode();
-                    endNode();
-                    endNestedNodes(depth);
-                    return;
-                }
-                case AssignmentDeclarationKind.Property: {
-                    const binaryExpression = node as BinaryExpression;
-                    const assignmentTarget = binaryExpression.left as PropertyAccessExpression | BindableElementAccessExpression;
-                    const targetFunction = assignmentTarget.expression;
-                    if (
-                        isIdentifier(targetFunction) && getElementOrPropertyAccessName(assignmentTarget) !== "prototype" &&
-                        trackedEs5Classes && trackedEs5Classes.has(targetFunction.text)
-                    ) {
-                        Debug.fail("todo assign decl property");
-                        // if (isFunctionExpression(binaryExpression.right) || isArrowFunction(binaryExpression.right)) {
-                        //     addNodeWithRecursiveChild(node, binaryExpression.right, targetFunction);
-                        // }
-                        // else if (isBindableStaticAccessExpression(assignmentTarget)) {
-                        //     startNode(binaryExpression, targetFunction);
-                        //     addNodeWithRecursiveChild(binaryExpression.left, binaryExpression.right, getNameOrArgument(assignmentTarget));
-                        //     endNode();
-                        // }
-                        return;
-                    }
-                    break;
-                }
-                case AssignmentDeclarationKind.ThisProperty:
-                case AssignmentDeclarationKind.None:
-                case AssignmentDeclarationKind.ObjectDefinePropertyExports:
-                    break;
-                default:
-                    Debug.assertNever(special);
-            }
+            //         const memberName = defineCall.arguments[1] as unknown as Identifier;
+            //         const [depth, classNameIdentifier] = startNestedNodes(node, className as EntityNameExpression);
+            //         startNode(node, classNameIdentifier);
+            //         startNode(node, setTextRange(factory.createIdentifier(memberName.text), memberName));
+            //         addChildrenRecursively((node as CallExpression).arguments[2]);
+            //         endNode();
+            //         endNode();
+            //         endNestedNodes(depth);
+            //         return;
+            //     }
+            //     case AssignmentDeclarationKind.Property: {
+            //         const binaryExpression = node as BinaryExpression;
+            //         const assignmentTarget = binaryExpression.left as PropertyAccessExpression | BindableElementAccessExpression;
+            //         const targetFunction = assignmentTarget.expression;
+            //         if (
+            //             isIdentifier(targetFunction) && getElementOrPropertyAccessName(assignmentTarget) !== "prototype" &&
+            //             trackedEs5Classes && trackedEs5Classes.has(targetFunction.text)
+            //         ) {
+            //             // Debug.fail("todo assign decl property");
+            //             if (isFunctionExpression(binaryExpression.right) || isArrowFunction(binaryExpression.right)) {
+            //                 addNodeWithRecursiveChild(node, binaryExpression.right, targetFunction);
+            //             }
+            //             // else if (isBindableStaticAccessExpression(assignmentTarget)) {
+            //             //     startNode(binaryExpression, targetFunction);
+            //             //     addNodeWithRecursiveChild(binaryExpression.left, binaryExpression.right, getNameOrArgument(assignmentTarget));
+            //             //     endNode();
+            //             // }
+            //             return;
+            //         }
+            //         break;
+            //     }
+            //     case AssignmentDeclarationKind.ThisProperty:
+            //     case AssignmentDeclarationKind.None:
+            //     case AssignmentDeclarationKind.ObjectDefinePropertyExports:
+            //         break;
+            //     default:
+            //         Debug.assertNever(special);
+            // }
         }
         // falls through
 
@@ -1023,19 +1022,20 @@ function getModifiers(node: Node): string {
 
 function getFunctionOrClassName(node: FunctionExpression | FunctionDeclaration/* | ArrowFunction | ClassLikeDeclaration*/): string {
     const { parent } = node;
+    // TODO: why is parent undfeined here?
     if (node.name && getFullWidth(node.name) > 0) {
         return cleanText(declarationNameToString(node.name));
     }
     // See if it is a var initializer. If so, use the var name.
-    else if (isVariableDeclaration(parent)) {
+    else if (parent && isVariableDeclaration(parent)) {
         return cleanText(declarationNameToString(parent.name));
     }
     // See if it is of the form "<expr> = function(){...}". If so, use the text from the left-hand side.
-    else if (isBinaryExpression(parent) && parent.operatorToken.kind === SyntaxKind.EqualsToken) {
+    else if (parent && isBinaryExpression(parent) && parent.operatorToken.kind === SyntaxKind.EqualsToken) {
         return nodeText(parent.left).replace(whiteSpaceRegex, "");
     }
     // See if it is a property assignment, and if so use the property name
-    else if (isPropertyAssignment(parent)) {
+    else if (parent && isPropertyAssignment(parent)) {
         return nodeText(parent.name);
     }
     // Default exports are named "default"
@@ -1045,7 +1045,7 @@ function getFunctionOrClassName(node: FunctionExpression | FunctionDeclaration/*
     else if (isClassLike(node)) {
         return "<class>";
     }
-    else if (isCallExpression(parent)) {
+    else if (parent && isCallExpression(parent)) {
         let name = getCalledExpressionName(parent.expression);
         if (name !== undefined) {
             name = cleanText(name);

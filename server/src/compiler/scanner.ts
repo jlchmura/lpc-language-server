@@ -1240,7 +1240,7 @@ export function createScanner(
                 const withMinus = token === SyntaxKind.MinusToken;
                 const literal = (withMinus ? "-" : "") + "0o" + (+tokenValue).toString(8);
                 if (withMinus) start--;
-                error(Diagnostics.Octal_literals_are_not_allowed_Use_the_syntax_0, start, pos - start, literal);
+                // error(Diagnostics.Octal_literals_are_not_allowed_Use_the_syntax_0, start, pos - start, literal);
                 return SyntaxKind.IntLiteral;
             }
         }
@@ -1283,12 +1283,12 @@ export function createScanner(
             result = text.substring(start, end); // No need to use all the fragments; no _ removal needed
         }
 
-        if (tokenFlags & TokenFlags.ContainsLeadingZero) {
-            error(Diagnostics.Decimals_with_leading_zeros_are_not_allowed, start, end - start);
-            // if a literal has a leading zero, it must not be bigint
-            tokenValue = "" + +result;
-            return SyntaxKind.FloatLiteral;
-        }
+        // if (tokenFlags & TokenFlags.ContainsLeadingZero) {
+        //     error(Diagnostics.Decimals_with_leading_zeros_are_not_allowed, start, end - start);
+        //     // if a literal has a leading zero, it must not be bigint
+        //     tokenValue = "" + +result;
+        //     return SyntaxKind.FloatLiteral;
+        // }
 
         if (decimalFragment !== undefined || tokenFlags & TokenFlags.Scientific) {
             checkForIdentifierStartAfterNumericLiteral(start, decimalFragment === undefined && !!(tokenFlags & TokenFlags.Scientific));

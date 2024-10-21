@@ -1196,6 +1196,7 @@ export type WrappedExpression<T extends Expression> =
 /** @internal */
 export const enum TransformFlags {
     None = 0,
+    ContainsRestOrSpread
 }
 
 export type KeywordTypeSyntaxKind =
@@ -1212,7 +1213,7 @@ export type KeywordTypeSyntaxKind =
     | SyntaxKind.BufferKeyword    
     | SyntaxKind.MixedKeyword
     | SyntaxKind.ObjectKeyword
-    | SyntaxKind.StringKeyword    
+    | SyntaxKind.StringKeyword       
     // | SyntaxKind.SymbolKeyword
     | SyntaxKind.UndefinedKeyword
     | SyntaxKind.UnknownKeyword
@@ -1390,6 +1391,8 @@ export interface NodeFactory {
     /** @internal */ createMissingDeclaration(): MissingDeclaration;
 
     // Expressions
+    createSpreadElement(expression: Expression): SpreadElement;
+    createFunctionExpression(modifiers: readonly Modifier[] | undefined, name: string | Identifier | undefined, parameters: readonly ParameterDeclaration[] | undefined, type: TypeNode | undefined, body: Block): FunctionExpression;
     createOmittedExpression(): OmittedExpression;
     createParenthesizedExpression(expression: Expression): ParenthesizedExpression;
     createConditionalExpression(condition: Expression, questionToken: QuestionToken | undefined, whenTrue: Expression, colonToken: ColonToken | undefined, whenFalse: Expression): ConditionalExpression;
@@ -1685,6 +1688,7 @@ export type HasContainerFlags =
 /** NODES */
 export type HasJSDoc = 
     | IncludeDirective
+    | FunctionExpression
     | SuperAccessExpression
     | DefineDirective
     | UndefDirective
@@ -1906,7 +1910,8 @@ export type ForEachChildNodes =
 
 /** @internal */
 export type HasChildren =
-    | ParameterDeclaration
+    | ParameterDeclaration    
+    | SpreadElement
     | DefineDirective
     | SuperAccessExpression
     | ParenthesizedExpression

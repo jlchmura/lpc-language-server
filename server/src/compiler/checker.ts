@@ -531,7 +531,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             autoArrayType = createAnonymousType(/*symbol*/ undefined, emptySymbols, emptyArray, emptyArray, emptyArray);
         }
 
-        globalReadonlyArrayType = getGlobalTypeOrUndefined("ReadonlyArray" as string, /*arity*/ 1) as GenericType || globalArrayType;
+        globalReadonlyArrayType = getGlobalTypeOrUndefined("__LS__ReadonlyArray" as string, /*arity*/ 1) as GenericType || globalArrayType;
         anyReadonlyArrayType = globalReadonlyArrayType ? createTypeFromGenericGlobalType(globalReadonlyArrayType, [anyType]) : anyArrayType;
         // globalThisType = getGlobalTypeOrUndefined("ThisType" as string, /*arity*/ 1) as GenericType;
     }
@@ -5179,6 +5179,45 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return arrayFrom(props.values());
     }
 
+    function checkFunctionExpressionOrObjectLiteralMethod(node: FunctionExpression, checkMode?: CheckMode): Type {
+        // Debug.assert(isObjectLiteralMethod(node));
+        checkNodeDeferred(node);
+
+        if (isFunctionExpression(node)) {
+            checkCollisionsForDeclarationName(node, node.name);
+        }
+
+        // The identityMapper object is used to indicate that function expressions are wildcards
+        if (checkMode && checkMode & CheckMode.SkipContextSensitive && isContextSensitive(node)) {
+            // Skip parameters, return signature with return type that retains noncontextual parts so inferences can still be drawn in an early stage
+            if (!getEffectiveReturnTypeNode(node) && !hasContextSensitiveParameters(node)) {
+                // Return plain anyFunctionType if there is no possibility we'll make inferences from the return type
+                const contextualSignature = getContextualSignature(node);
+                if (contextualSignature && couldContainTypeVariables(getReturnTypeOfSignature(contextualSignature))) {
+                    const links = getNodeLinks(node);
+                    if (links.contextFreeType) {
+                        return links.contextFreeType;
+                    }
+                    const returnType = getReturnTypeFromBody(node, checkMode);
+                    const returnOnlySignature = createSignature(/*declaration*/ undefined, /*typeParameters*/ undefined, /*thisParameter*/ undefined, emptyArray, returnType, /*resolvedTypePredicate*/ undefined, 0, SignatureFlags.IsNonInferrable);
+                    const returnOnlyType = createAnonymousType(node.symbol, emptySymbols, [returnOnlySignature], emptyArray, emptyArray);
+                    returnOnlyType.objectFlags |= ObjectFlags.NonInferrableType;
+                    return links.contextFreeType = returnOnlyType;
+                }
+            }
+            return anyFunctionType;
+        }
+
+        // Grammar checking
+        const hasGrammarError = checkGrammarFunctionLikeDeclaration(node);
+        
+        // TODO?
+        // contextuallyCheckFunctionExpressionOrObjectLiteralMethod(node, checkMode);
+
+        return getTypeOfSymbol(getSymbolOfDeclaration(node));
+    }
+
+
     function checkAssertion(node: AssertionExpression, checkMode: CheckMode | undefined) {        
         return checkAssertionWorker(node, checkMode);
     }
@@ -6242,6 +6281,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
     function createTypeReference(target: GenericType, typeArguments: readonly Type[] | undefined): TypeReference {
         const id = getTypeListId(typeArguments);        
+        Debug.assertIsDefined(target?.instantiations)
         let type = target?.instantiations.get(id);
         if (!type) {
             type = createObjectType(ObjectFlags.Reference, target.symbol) as TypeReference;
@@ -10703,7 +10743,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             // case SyntaxKind.ClassExpression:
             //     return checkClassExpression(node as ClassExpression);
             case SyntaxKind.FunctionExpression:
-                Debug.fail("TODO - implement me - checkExpressionWorker - FunctionExpression");
+                return checkFunctionExpressionOrObjectLiteralMethod(node as FunctionExpression, checkMode);
             // case SyntaxKind.ArrowFunction:
             //     return checkFunctionExpressionOrObjectLiteralMethod(node as FunctionExpression | ArrowFunction, checkMode);
             // case SyntaxKind.TypeOfExpression:

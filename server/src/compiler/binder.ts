@@ -531,10 +531,10 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             case SyntaxKind.Parameter:
                 return bindParameter(node as ParameterDeclaration);            
             case SyntaxKind.FunctionDeclaration:
-                return bindFunctionDeclaration(node as FunctionDeclaration);            
-            // case SyntaxKind.FunctionExpression:
-            // case SyntaxKind.ArrowFunction:
-            //     return bindFunctionExpression(node as FunctionExpression | ArrowFunction);
+                return bindFunctionDeclaration(node as FunctionDeclaration);                        
+            case SyntaxKind.FunctionExpression:
+            case SyntaxKind.InlineClosureExpression:
+                        return bindFunctionExpression(node as InlineClosureExpression | FunctionExpression);
             case SyntaxKind.PropertyDeclaration:
             case SyntaxKind.PropertySignature:
                 return bindPropertyWorker(node as PropertyDeclaration | PropertySignature);
@@ -548,9 +548,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             case SyntaxKind.TypeLiteral:
             case SyntaxKind.JSDocTypeLiteral:
             // case SyntaxKind.MappedType:
-                return bindAnonymousTypeWorker(node as TypeLiteralNode/* | MappedTypeNode*/ | JSDocTypeLiteral);
-            case SyntaxKind.InlineClosureExpression:
-                return bindFunctionExpression(node as InlineClosureExpression);
+                return bindAnonymousTypeWorker(node as TypeLiteralNode/* | MappedTypeNode*/ | JSDocTypeLiteral);            
             case SyntaxKind.CallExpression:
                 const assignmentKind = getAssignmentDeclarationKind(node as CallExpression);
                 switch (assignmentKind) {
