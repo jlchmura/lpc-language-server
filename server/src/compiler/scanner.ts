@@ -1462,8 +1462,12 @@ export function createScanner(
         const marker = trimStart(trimStart(tokenValue, "@"), "@");
         let result = "";
         let start = pos;
+        let lastNonWsPos = pos;
+        let lastLineBreakPos = pos;
         let lastWsPos = pos;
-        
+        let lastLineTextOnly = "";
+
+
 
         while (true) {
             if (pos >= end) {
@@ -1473,17 +1477,19 @@ export function createScanner(
                 break;
             }
 
-            const ch = charCodeUnchecked(pos);
-            if (isWhiteSpaceLike(ch)) {
-                if (lastWsPos < pos - 1) {                    
-                    // check if the last word is the marker                
-                    const lastWord = text.substring(lastWsPos+1, pos);
-                    if (lastWord == marker) {
-                        result += text.substring(start, pos - marker.length);
-                        break;
-                    }
-                }
+            const ch = charCodeUnchecked(pos);                                    
+            if (isWhiteSpaceLike(ch)) {                                
+                // check if the last word is the marker                
+                const lastWord = text.substring(lastLineBreakPos+1, pos).trim();
+                if (lastWord == marker) {
+                    result += text.substring(start, pos - marker.length);
+                    break;
+                }                
+                if (isLineBreak(ch)) 
+                    lastLineBreakPos = pos;
                 lastWsPos = pos;
+            } else {
+                lastNonWsPos = pos;                
             }
 
             pos++;

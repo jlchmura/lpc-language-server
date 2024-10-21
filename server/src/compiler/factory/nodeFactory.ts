@@ -605,8 +605,9 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     // @api
-    function createCatchStatement(block: Block): CatchStatement {
+    function createCatchStatement(expression: Expression | undefined, block: Block): CatchStatement {
         const node = createBaseNode<CatchStatement>(SyntaxKind.CatchStatement);
+        node.expression = expression;
         node.block = block;
         return node;
     }

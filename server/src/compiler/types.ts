@@ -1392,7 +1392,7 @@ export interface NodeFactory {
     createWhileStatement(statement: Statement, expression: Expression): WhileStatement;
     createParameterDeclaration(modifiers: readonly Modifier[] | undefined, dotDotDotToken: DotDotDotToken | undefined, name: string | BindingName, ampToken?: AmpersandToken, type?: TypeNode, initializer?: Expression): ParameterDeclaration;
     /** @internal */ createMissingDeclaration(): MissingDeclaration;
-    createCatchStatement(block: Block): CatchStatement;
+    createCatchStatement(expression: Expression | undefined, block: Block): CatchStatement;
 
     // Expressions
     createCatchExpression(expression: Expression, modifier?: Identifier, modifierExpression?: Expression): CatchExpression;
@@ -3225,6 +3225,7 @@ export interface Block extends Statement, LocalsContainer {
 export interface CatchStatement extends Statement, LocalsContainer {
     readonly kind: SyntaxKind.CatchStatement;
     readonly parent: Block;
+    readonly expression?: Expression;
     readonly block: Block;
 }
 

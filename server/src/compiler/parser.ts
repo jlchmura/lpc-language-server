@@ -1770,13 +1770,25 @@ export namespace LpcParser {
     }
 
     function parseCatchStatement(): CatchStatement {
+        // fluff-style catch statements can look like an ld expression:
+        //      catch(expr);
+        // or have a blkock
+        //      catch { ... }
+
         const pos = getPositionState();
         const hasJSDoc = hasPrecedingJSDocComment();
         
         parseExpected(SyntaxKind.CatchKeyword);
-        const block = parseBlock(/*ignoreMissingOpenBrace*/ false);
 
-        return withJSDoc(finishNode(factory.createCatchStatement(block), pos), hasJSDoc);
+        let expression: Expression;
+        if (parseOptional(SyntaxKind.OpenParenToken)) {
+            expression = parseExpression();
+            parseExpected(SyntaxKind.CloseParenToken);
+        }        
+
+        const block = parseFunctionBlockOrSemicolon(SignatureFlags.None);
+
+        return withJSDoc(finishNode(factory.createCatchStatement(expression, block), pos), hasJSDoc);
     }
     
     function parseCaseClause(): CaseClause {
@@ -5645,8 +5657,9 @@ const forEachChildTable: ForEachChildTable = {
         return visitNodes(cbNode, cbNodes, node.statements)
             || visitNode(cbNode, node.endOfFileToken);
     },
-    [SyntaxKind.CatchStatement]: function forEachChildInCatchStatement<T>(node: CatchStatement, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
-        return visitNode(cbNode, node.block);
+    [SyntaxKind.CatchStatement]: function forEachChildInCatchStatement<T>(node: CatchStatement, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {        
+        return visitNode(cbNode, node.expression) ||
+            visitNode(cbNode, node.block);
     },
     [SyntaxKind.Parameter]: function forEachChildInParameter<T>(node: ParameterDeclaration, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
         return visitNodes(cbNode, cbNodes, node.modifiers) ||
