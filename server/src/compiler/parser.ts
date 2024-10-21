@@ -3049,9 +3049,7 @@ export namespace LpcParser {
 
         const savedTopLevel = topLevel;
         topLevel = false;
-
-        const dotDotDotToken = parseOptionalToken(SyntaxKind.DotDotDotToken);
-
+        
         if (!allowAmbiguity && !isParameterNameStart()) {
             return undefined;
         }
@@ -3059,6 +3057,7 @@ export namespace LpcParser {
         const paramType = parseType();
         const ampToken = parseOptionalToken(SyntaxKind.AmpersandToken) ;
         const name = parseNameOfParameter(modifiers);
+        const dotDotDotToken = parseOptionalToken(SyntaxKind.DotDotDotToken);
         const init = parseInitializer(SyntaxKind.ColonToken);
 
         const node = withJSDoc(
@@ -5612,10 +5611,10 @@ const forEachChildTable: ForEachChildTable = {
     },
     [SyntaxKind.Parameter]: function forEachChildInParameter<T>(node: ParameterDeclaration, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
         return visitNodes(cbNode, cbNodes, node.modifiers) ||
-            visitNode(cbNode, node.dotDotDotToken) ||
             visitNode(cbNode, node.type) ||
             visitNode(cbNode, node.name) ||
             visitNode(cbNode, node.ampToken) ||
+            visitNode(cbNode, node.dotDotDotToken) ||
             visitNode(cbNode, node.initializer);
     },
     [SyntaxKind.PropertyAssignment]: function forEachChildInPropertyAssignment<T>(node: PropertyAssignment, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
