@@ -6756,11 +6756,14 @@ export interface MacroParameter extends TextRange {
     fileName: string;
 }
 export interface Macro extends IncludedFileRange {
-    directive: DefineDirective;
+    // directive: DefineDirective;
+    includeDirPos?: number;
+    includeDirEnd?: number;
     disabled?: boolean;
     /** get the sourcetext that contains the macro definition range */
     getText(): string;
-    
+    range: TextRange;
+    arguments?: NodeArray<Expression>;
     argsIn?: MapLike<MacroParameter>;    
 }
 
