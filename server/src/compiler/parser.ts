@@ -1753,24 +1753,29 @@ export namespace LpcParser {
     function parseCatchExpression(): CatchExpression {
         const post = getPositionState();
 
-        parseExpected(SyntaxKind.CatchKeyword);
-        parseExpected(SyntaxKind.OpenParenToken);
-
-        const expression = parseExpression();
-
+        let expression: Expression | undefined;
         let modifier: Identifier | undefined;
         let modifierExpression: Expression | undefined;
+        let block: Block | undefined;
 
-        if (parseOptional(SyntaxKind.SemicolonToken)) {
-            modifier = parseIdentifier(Diagnostics.Catch_expression_modifier_expected);
-            if (!nodeIsMissing(modifier) && token() !== SyntaxKind.CloseParenToken) {
-                modifierExpression = parseExpression();
+        parseExpected(SyntaxKind.CatchKeyword);
+
+        if (parseOptional(SyntaxKind.OpenParenToken)) {        
+            expression = parseExpression();
+            
+            if (parseOptional(SyntaxKind.SemicolonToken)) {
+                modifier = parseIdentifier(Diagnostics.Catch_expression_modifier_expected);
+                if (!nodeIsMissing(modifier) && token() !== SyntaxKind.CloseParenToken) {
+                    modifierExpression = parseExpression();
+                }
             }
+
+            parseExpected(SyntaxKind.CloseParenToken);
+        } else {
+            block = parseFunctionBlockOrSemicolon(SignatureFlags.None);
         }
 
-        parseExpected(SyntaxKind.CloseParenToken);
-
-        return finishNode(factory.createCatchExpression(expression, modifier, modifierExpression), post);
+        return finishNode(factory.createCatchExpression(expression, modifier, modifierExpression, block), post);
     }
 
     function parseCatchStatement(): CatchStatement {
@@ -5762,7 +5767,8 @@ const forEachChildTable: ForEachChildTable = {
     [SyntaxKind.CatchExpression]: function forEachChildInCatchExpression<T>(node: CatchExpression, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
         return visitNode(cbNode, node.expression) ||
             visitNode(cbNode, node.modifier) ||
-            visitNode(cbNode, node.modifierExpression);
+            visitNode(cbNode, node.modifierExpression) ||
+            visitNode(cbNode, node.block);
     },
     [SyntaxKind.SpreadElement]: function forEachChildInSpreadElement<T>(node: SpreadElement, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
         return visitNode(cbNode, node.expression);

@@ -1395,7 +1395,7 @@ export interface NodeFactory {
     createCatchStatement(expression: Expression | undefined, block: Block): CatchStatement;
 
     // Expressions
-    createCatchExpression(expression: Expression, modifier?: Identifier, modifierExpression?: Expression): CatchExpression;
+    createCatchExpression(expression: Expression, modifier?: Identifier, modifierExpression?: Expression, block?: Block): CatchExpression;
     createNewExpression(expression: Expression|undefined, typeArguments: readonly TypeNode[] | undefined, argumentsArray: readonly Expression[] | undefined): NewExpression;
     createSpreadElement(expression: Expression): SpreadElement;
     createFunctionExpression(modifiers: readonly Modifier[] | undefined, name: string | Identifier | undefined, parameters: readonly ParameterDeclaration[] | undefined, type: TypeNode | undefined, body: Block): FunctionExpression;
@@ -3234,6 +3234,7 @@ export interface CatchExpression extends PrimaryExpression {
     readonly expression?: Expression;
     readonly modifier?: Identifier;
     readonly modifierExpression?: Expression;
+    readonly block?: Block;    
 }
 
 export interface NamedDeclaration extends Declaration {

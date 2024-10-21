@@ -596,11 +596,12 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     // @api 
-    function createCatchExpression(expression: Expression, modifier?: Identifier, modifierExpression?: Expression): CatchExpression {
+    function createCatchExpression(expression: Expression, modifier?: Identifier, modifierExpression?: Expression, block?: Block): CatchExpression {
         const node = createBaseNode<CatchExpression>(SyntaxKind.CatchExpression);
         node.expression = expression;
         node.modifier = modifier;
         node.modifierExpression = modifierExpression;
+        node.block = block;
         return node;
     }
 
