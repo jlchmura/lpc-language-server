@@ -1,14 +1,3 @@
-import {
-    ArrayType,
-    BaseSymbol,
-    FundamentalType,
-    IType,
-    ReferenceKind,
-    TypeKind,
-} from "antlr4-c3";
-import { Token } from "antlr4ng";
-import { DiagnosticSeverity } from "vscode-languageserver";
-
 export const SemanticTokenTypes = {
     Comment: 0,
     Macro: 1,

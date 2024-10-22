@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { Symbol, Bundle, createTextWriter, Debug, EmitFlags, EmitHint, EmitTextWriter, Expression, factory, getEmitFlags, getInternalEmitFlags, getLineStarts, getNewLineCharacter, getShebang, Identifier, InternalEmitFlags, isExpression, isIdentifier, isSourceFile, isStringLiteral, ListFormat, memoize, ModuleKind, Node, NodeArray, noEmitNotification, noEmitSubstitution, performance, Printer, PrinterOptions, PrintHandlers, rangeIsOnSingleLine, SourceFile, SourceMapGenerator, SourceMapSource, SyntaxKind, TextRange, TypeNode, tokenToString, ParenthesizedExpression, nodeIsSynthesized, getStartsOnNewLine, getLinesBetweenRangeEndAndRangeStart, rangeEndIsOnSameLineAsRangeStart, guessIndentation, cast, getIdentifierTypeArguments, LiteralExpression, isMemberName, getSourceFileOfNode, idText, getOriginalNode, isLiteralExpression, getSourceTextOfNodeFromSourceFile, TypeLiteralNode, forEach, NamedDeclaration, DeclarationName, isGeneratedIdentifier, isBindingPattern, GeneratedIdentifier, GeneratedIdentifierFlags, getNodeId, GeneratedNamePart, FunctionDeclaration, isFileLevelUniqueName, BindingPattern, Block, CaseBlock, CaseOrDefaultClause, CatchStatement, ForStatement, IfStatement, isPrivateIdentifier, SwitchStatement, VariableDeclarationList, VariableStatement, WhileStatement, ForEachStatement, DoWhileStatement, formatGeneratedNamePart, formatGeneratedName, lastOrUndefined, getNodeForGeneratedName, isKeyword, isTokenKind, getNormalizedAbsolutePath, GetCanonicalFileName, CompilerOptions, getDirectoryPath, directorySeparator, computeCommonSourceDirectoryOfFilenames, CharacterCodes } from "./_namespaces/lpc.js";
+import { Symbol, Bundle, createTextWriter, Debug, EmitFlags, EmitHint, EmitTextWriter, Expression, factory, getEmitFlags, getInternalEmitFlags, getLineStarts, getNewLineCharacter, getShebang, Identifier, InternalEmitFlags, isExpression, isIdentifier, isSourceFile, isStringLiteral, ListFormat, memoize, ModuleKind, Node, NodeArray, noEmitNotification, noEmitSubstitution, performance, Printer, PrinterOptions, PrintHandlers, rangeIsOnSingleLine, SourceFile, SourceMapGenerator, SourceMapSource, SyntaxKind, TextRange, TypeNode, tokenToString, ParenthesizedExpression, nodeIsSynthesized, getStartsOnNewLine, getLinesBetweenRangeEndAndRangeStart, rangeEndIsOnSameLineAsRangeStart, guessIndentation, cast, getIdentifierTypeArguments, LiteralExpression, isMemberName, getSourceFileOfNode, idText, getOriginalNode, isLiteralExpression, getSourceTextOfNodeFromSourceFile, TypeLiteralNode, forEach, NamedDeclaration, DeclarationName, isGeneratedIdentifier, isBindingPattern, GeneratedIdentifier, GeneratedIdentifierFlags, getNodeId, GeneratedNamePart, FunctionDeclaration, isFileLevelUniqueName, BindingPattern, Block, CaseBlock, CaseOrDefaultClause, CatchStatement, ForStatement, IfStatement, isPrivateIdentifier, SwitchStatement, VariableDeclarationList, VariableStatement, WhileStatement, ForEachStatement, DoWhileStatement, formatGeneratedNamePart, formatGeneratedName, lastOrUndefined, getNodeForGeneratedName, isKeyword, isTokenKind, getNormalizedAbsolutePath, GetCanonicalFileName, CompilerOptions, getDirectoryPath, directorySeparator, computeCommonSourceDirectoryOfFilenames, CharacterCodes, ArrayTypeNode, every, ModifierLike, isModifier, Modifier, positionIsSynthesized, VariableDeclaration, getParseTreeNode, skipTrivia, positionsAreOnSameLine } from "./_namespaces/lpc.js";
 
 const brackets = createBracketsMap();
 
@@ -593,6 +593,7 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
         //     }
         // }
 
+        
         if (hint === EmitHint.IdentifierName) return emitIdentifier(cast(node, isIdentifier));
         if (hint === EmitHint.Unspecified) {
             switch (node.kind) {
@@ -601,12 +602,22 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
                     return emitIdentifier(node as Identifier);
                 case SyntaxKind.TypeLiteral:
                     return emitTypeLiteral(node as TypeLiteralNode);
+                case SyntaxKind.ArrayType:
+                    return emitArrayType(node as ArrayTypeNode);
+                case SyntaxKind.VariableStatement:
+                    return emitVariableStatement(node as VariableStatement);
+
+                // Declarations
+                case SyntaxKind.VariableDeclaration:
+                    return emitVariableDeclaration(node as VariableDeclaration);
+                case SyntaxKind.VariableDeclarationList:
+                    return emitVariableDeclarationList(node as VariableDeclarationList);
             }
         }
         if (isKeyword(node.kind)) return writeTokenNode(node, writeKeyword);
         if (isTokenKind(node.kind)) return writeTokenNode(node, writePunctuation);
 
-        console.warn("todo - implment me - pipelineEmitWithHintWorker");
+        console.warn("todo - implment me - pipelineEmitWithHintWorker " + Debug.formatSyntaxKind(node.kind));
     }
 
     // Writers
@@ -683,11 +694,20 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
         writer.decreaseIndent();
     }
 
+    /**
+     * Emits a token of a node with possible leading and trailing source maps.
+     *
+     * @param node The node containing the token.
+     * @param token The token to emit.
+     * @param tokenStartPos The start pos of the token.
+     * @param emitCallback The callback used to emit the token.
+     */
     function emitTokenWithSourceMap(node: Node | undefined, token: SyntaxKind, writer: (s: string) => void, tokenPos: number, emitCallback: (token: SyntaxKind, writer: (s: string) => void, tokenStartPos: number) => number) {
-        console.warn("todo - implment me - emitTokenWithSourceMap");
+        return emitCallback(token, writer, tokenPos);
+        // TODO
     }
 
-    function writeToken(token: SyntaxKind, pos: number, writer: (s: string) => void, contextNode?: Node) {
+    function writeToken(token: SyntaxKind, pos: number, writer: (s: string) => void, contextNode?: Node): number {
         return !sourceMapsDisabled
             ? emitTokenWithSourceMap(contextNode, token, writer, pos, writeTokenText)
             : writeTokenText(token, writer, pos);
@@ -1312,6 +1332,100 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
         writePunctuation("}");
 
         popNameGenerationScope(node);
+    }
+
+    function emitModifierList(node: Node, modifiers: NodeArray<Modifier> | undefined): number {
+        emitList(node, modifiers, ListFormat.Modifiers);
+        const lastModifier = lastOrUndefined(modifiers);
+        return lastModifier && !positionIsSynthesized(lastModifier.end) ? lastModifier.end : node.pos;
+    }
+    
+    function emitDecoratorsAndModifiers(node: Node, modifiers: NodeArray<Modifier> | undefined, allowDecorators: boolean) {
+        if (modifiers?.length) {
+            return emitModifierList(node, modifiers as NodeArray<Modifier>);            
+        }
+
+        return node.pos;
+    }
+    
+    function emitVariableStatement(node: VariableStatement) {
+        emitDecoratorsAndModifiers(node, node.modifiers, /*allowDecorators*/ false);
+        emit(node.declarationList);
+        writeTrailingSemicolon();
+    }
+
+
+    function emitArrayType(node: ArrayTypeNode) {
+        emit(node.elementType, parenthesizer.parenthesizeNonArrayTypeOfPostfixType);
+        writePunctuation("({");
+        writePunctuation("})");
+    }
+
+    //
+    // Declarations
+    //
+
+    function emitVariableDeclaration(node: VariableDeclaration) {
+        emitTypeAnnotation(node.type);
+        emit(node.name);        
+        emitInitializer(node.initializer, node.type?.end ?? node.name.emitNode?.typeNode?.end ?? node.name.end, node, parenthesizer.parenthesizeExpressionForDisallowedComma);
+    }
+
+    function emitVariableDeclarationList(node: VariableDeclarationList) {                    
+        writeKeyword("");        
+        writeSpace();
+        emitList(node, node.declarations, ListFormat.VariableDeclarationList);
+    }
+
+    function emitTypeAnnotation(node: TypeNode | undefined) {
+        if (node) {            
+            emit(node);
+            writeSpace();
+        }
+    }
+
+    function emitInitializer(node: Expression | undefined, equalCommentStartPos: number, container: Node, parenthesizerRule?: (node: Expression) => Expression) {
+        if (node) {
+            writeSpace();
+            emitTokenWithComment(SyntaxKind.EqualsToken, equalCommentStartPos, writeOperator, container);
+            writeSpace();
+            emitExpression(node, parenthesizerRule);
+        }
+    }
+
+    function emitTokenWithComment(token: SyntaxKind, pos: number, writer: (s: string) => void, contextNode: Node, indentLeading?: boolean) {
+        const node = getParseTreeNode(contextNode);
+        const isSimilarNode = node && node.kind === contextNode.kind;
+        const startPos = pos;
+        if (isSimilarNode && currentSourceFile) {
+            pos = skipTrivia(currentSourceFile.text, pos);
+        }
+        if (isSimilarNode && contextNode.pos !== startPos) {
+            const needsIndent = indentLeading && currentSourceFile && !positionsAreOnSameLine(startPos, pos, currentSourceFile);
+            if (needsIndent) {
+                increaseIndent();
+            }
+            emitLeadingCommentsOfPosition(startPos);
+            if (needsIndent) {
+                decreaseIndent();
+            }
+        }
+
+        // We don't emit source positions for most tokens as it tends to be quite noisy, however
+        // we need to emit source positions for open and close braces so that tools like istanbul
+        // can map branches for code coverage. However, we still omit brace source positions when
+        // the output is a declaration file.
+        if (!omitBraceSourcePositions && (token === SyntaxKind.OpenBraceToken || token === SyntaxKind.CloseBraceToken)) {
+            pos = writeToken(token, pos, writer, contextNode);
+        }
+        else {
+            pos = writeTokenText(token, writer, pos);
+        }
+
+        if (isSimilarNode && contextNode.end !== pos) {
+            emitTrailingCommentsOfPosition(pos, /*prefixSpace*/ false, /*forceNoNewline*/ false);
+        }
+        return pos;
     }
 }
 

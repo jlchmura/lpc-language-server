@@ -1246,51 +1246,14 @@ function getSymbolDisplayPartsDocumentationAndSymbolKindWorker(typeChecker: Type
             }
         }
 
-        if (symbol.declarations) {
-            switch (symbol.declarations[0].kind) {
-                // case SyntaxKind.NamespaceExportDeclaration:
-                //     displayParts.push(keywordPart(SyntaxKind.ExportKeyword));
-                //     displayParts.push(spacePart());
-                //     displayParts.push(keywordPart(SyntaxKind.NamespaceKeyword));
-                //     break;
-                // case SyntaxKind.ExportAssignment:
-                //     displayParts.push(keywordPart(SyntaxKind.ExportKeyword));
-                //     displayParts.push(spacePart());
-                //     displayParts.push(keywordPart((symbol.declarations[0] as ExportAssignment).isExportEquals ? SyntaxKind.EqualsToken : SyntaxKind.DefaultKeyword));
-                //     break;
-                // case SyntaxKind.ExportSpecifier:
-                //     displayParts.push(keywordPart(SyntaxKind.ExportKeyword));
-                //     break;
-                // default:
-                //     displayParts.push(keywordPart(SyntaxKind.ImportKeyword));
-            }
-        }
+        // if (symbol.declarations) {
+        //     switch (symbol.declarations[0].kind) {                
+        //         default:
+        //             displayParts.push(keywordPart(SyntaxKind.ImportKeyword));
+        //     }
+        // }
         displayParts.push(spacePart());
-        addFullSymbolName(symbol);
-        forEach(symbol.declarations, declaration => {
-            // if (declaration.kind === SyntaxKind.ImportEqualsDeclaration) {
-            //     const importEqualsDeclaration = declaration as ImportEqualsDeclaration;
-            //     if (isExternalModuleImportEqualsDeclaration(importEqualsDeclaration)) {
-            //         displayParts.push(spacePart());
-            //         displayParts.push(operatorPart(SyntaxKind.EqualsToken));
-            //         displayParts.push(spacePart());
-            //         displayParts.push(keywordPart(SyntaxKind.RequireKeyword));
-            //         displayParts.push(punctuationPart(SyntaxKind.OpenParenToken));
-            //         displayParts.push(displayPart(getTextOfNode(getExternalModuleImportEqualsDeclarationExpression(importEqualsDeclaration)), SymbolDisplayPartKind.stringLiteral));
-            //         displayParts.push(punctuationPart(SyntaxKind.CloseParenToken));
-            //     }
-            //     else {
-            //         const internalAliasSymbol = typeChecker.getSymbolAtLocation(importEqualsDeclaration.moduleReference);
-            //         if (internalAliasSymbol) {
-            //             displayParts.push(spacePart());
-            //             displayParts.push(operatorPart(SyntaxKind.EqualsToken));
-            //             displayParts.push(spacePart());
-            //             addFullSymbolName(internalAliasSymbol, enclosingDeclaration);
-            //         }
-            //     }
-            //     return true;
-            // }
-        });
+        addFullSymbolName(symbol);        
     }
     if (!hasAddedSymbolInfo) {
         if (symbolKind !== ScriptElementKind.unknown) {

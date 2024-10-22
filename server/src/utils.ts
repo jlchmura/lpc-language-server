@@ -1,19 +1,5 @@
 import * as path from "path";
-import { ParserRuleContext, Token } from "antlr4ng";
-import { DiagnosticSeverity, Position, Range } from "vscode-languageserver";
-import { BaseSymbol, TypedSymbol, SymbolConstructor } from "antlr4-c3";
 import { URI } from "vscode-uri";
-
-export function getSelectionRange(ctx: ParserRuleContext): Range {
-    const start = ctx.start;
-    const stop = ctx.stop;
-    const rng = Range.create(
-        Position.create(start.line - 1, start.column),
-        Position.create(stop.line - 1, stop.column)
-    );
-    return rng;
-}
-
 
 /**
  * Add a file extension to a filename if it doesn't have one
