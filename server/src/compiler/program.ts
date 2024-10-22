@@ -1431,10 +1431,8 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                             if (isStringLiteral(n)) {
                                 parts.push(n.text);
                             }
-                        });
-                        const text = parts.join("");
-                        const ii=0;
-                        const lit = factory.createStringLiteral(text);
+                        });                        
+                        const lit = factory.createStringLiteral(parts.join(""));
                         imports = append(imports, lit);
                     }
                 } else if (isIncludeDirective(node)) {
