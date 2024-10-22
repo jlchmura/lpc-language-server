@@ -9,6 +9,7 @@ import {
     BindingName,
     Block,
     BreakStatement,
+    ByRefElement,
     BytesLiteral,
     CallExpression,
     CaseBlock,
@@ -278,6 +279,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createEvaluateExpression,
         createNewExpression,
         createSpreadElement,
+        createByRefElement,
         createFunctionExpression,
         createOmittedExpression,
         createParenthesizedExpression,
@@ -1132,6 +1134,14 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
 
         node.jsDoc = undefined; // initialized by parser (JsDocContainer)
         node.flowNode = undefined; // initialized by binder (FlowContainer)
+        return node;
+    }
+
+
+    // @api 
+    function createByRefElement(expr: Expression): ByRefElement {
+        const node = createBaseNode<ByRefElement>(SyntaxKind.ByRefElement);
+        node.expression = expr;
         return node;
     }
 

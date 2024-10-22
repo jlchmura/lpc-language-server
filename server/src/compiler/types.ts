@@ -838,6 +838,7 @@ export const enum SyntaxKind {
     MappingEntryExpression,
     ObjectLiteralExpression,
     SpreadElement,
+    ByRefElement,
     CastExpression,
     OmittedExpression,
     PrefixUnaryExpression,
@@ -1404,6 +1405,7 @@ export interface NodeFactory {
     createEvaluateExpression(expression: Expression, argumentsArray: readonly Expression[] | undefined): EvaluateExpression;
     createNewExpression(expression: Expression|TypeNode|undefined, typeArguments: readonly TypeNode[] | undefined, argumentsArray: readonly Expression[] | undefined): NewExpression;
     createSpreadElement(expression: Expression): SpreadElement;
+    createByRefElement(expr: Expression): ByRefElement;
     createFunctionExpression(modifiers: readonly Modifier[] | undefined, name: string | Identifier | undefined, parameters: readonly ParameterDeclaration[] | undefined, type: TypeNode | undefined, body: Block): FunctionExpression;
     createOmittedExpression(): OmittedExpression;
     createParenthesizedExpression(expression: Expression): ParenthesizedExpression;
@@ -1924,6 +1926,7 @@ export type ForEachChildNodes =
 /** @internal */
 export type HasChildren =
     | ParameterDeclaration    
+    | ByRefElement
     | EvaluateExpression
     | CatchExpression
     | SpreadElement
@@ -3998,6 +4001,12 @@ export interface ArrayLiteralExpression extends PrimaryExpression {
 export interface SpreadElement extends Expression {
     readonly kind: SyntaxKind.SpreadElement;
     readonly parent: ArrayLiteralExpression | CallExpression | NewExpression;
+    readonly expression: Expression;
+}
+
+export interface ByRefElement extends Expression {
+    readonly kind: SyntaxKind.ByRefElement;
+    readonly parent: CallExpression | NewExpression;
     readonly expression: Expression;
 }
 

@@ -4348,16 +4348,23 @@ export namespace LpcParser {
         const pos = getPositionState();
         parseExpected(SyntaxKind.DotDotDotToken);
         const expression = parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ true);
-        console.warn("TODO - parseSpreadElement");
+        
+        return finishNode(factory.createSpreadElement(expression), pos);
+    }
 
-        return createMissingNode(SyntaxKind.DotDotDotToken, false);
-        //return finishNode(factory.createSpreadElement(expression), pos);
+    function parseByRefElement(): Expression {
+        const pos = getPositionState();
+        parseExpected(SyntaxKind.AmpersandToken);
+        const expression = parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ true);
+
+        return finishNode(factory.createByRefElement(expression), pos);
     }
 
     function parseArgumentOrArrayLiteralElement(): Expression {
         const pos = getPositionState();
         
         let expression = token() === SyntaxKind.DotDotDotToken ? parseSpreadElement() :
+            token() === SyntaxKind.AmpersandToken ? parseByRefElement() :
             token() === SyntaxKind.CommaToken ? finishNode(factory.createOmittedExpression(), getPositionState()) :
             parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ true);
         
