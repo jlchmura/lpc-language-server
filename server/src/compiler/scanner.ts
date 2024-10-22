@@ -1,4 +1,3 @@
-import { SourceContext } from "../backend/SourceContext.js";
 import {
     append,
     arraysEqual,

@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
-import { IFileHandler, LoadImportResult } from "../backend/types";
+import { IFileHandler, LoadImportResult } from "../lpc/lpc.js";
 
 export class TestFileHandler implements IFileHandler {
     public includes: string[] = [];

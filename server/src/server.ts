@@ -1,6 +1,4 @@
 import { createConnection, ProposedFeatures } from "vscode-languageserver/node";
-import { LpcServer } from "./backend/LpcServer";
-import * as lpc from "./lpc/lpc.js";
 import {start} from "./lpcserver/server.js";
 
 console.info("Starting LPC Language Server");

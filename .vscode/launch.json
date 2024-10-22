@@ -8,9 +8,9 @@
             "name": "Launch Client",
             "runtimeExecutable": "${execPath}",
             "args": [
-                //"${workspaceRoot}/../lima",
-                // "${workspaceRoot}/../StickLib",
-                "${workspaceRoot}/../mg-mudlib",
+                // "${workspaceRoot}/../lima",
+                "${workspaceRoot}/../StickLib",
+                // "${workspaceRoot}/../mg-mudlib",
                 // "${workspaceRoot}/../lpc-test2",
                 // "${workspaceRoot}/../glpu",
                 // "${workspaceRoot}/../nightmare-residuum",

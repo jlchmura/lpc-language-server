@@ -1,5 +1,4 @@
-import { LpcConfig } from "../backend/LpcConfig.js";
-import { IFileHandler, LoadImportResult } from "../backend/types.js";
+import { LpcConfig } from "./LpcConfig.js";
 import { ILpcConfig } from "../config-types.js";
 import { BaseNodeFactory, CreateSourceFileOptions, EmitHelperFactory, GetCanonicalFileName, MapLike, ModuleResolutionCache, MultiMap, Mutable, NodeFactoryFlags, PackageJsonInfo, Pattern } from "./_namespaces/lpc.js";
 
@@ -6970,3 +6969,13 @@ export interface ExpressionWithTypeArguments extends MemberExpression, NodeWithT
     readonly kind: SyntaxKind.ExpressionWithTypeArguments;
     readonly expression: LeftHandSideExpression;
 }
+
+export interface IFileHandler {
+    loadInclude(sourceFilename: string, filename: string): LoadImportResult;    
+}
+
+export interface LoadImportResult {
+    uri: string;
+    source: string;
+    error?: string;
+};

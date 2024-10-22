@@ -1,6 +1,5 @@
-import { LoadImportResult } from "../backend/types.js";
 import { ILpcConfig } from "../config-types.js";
-import { CompilerHost, convertToRelativePath, forEach, getDirectoryPath, isRootedDiskPath, LpcFileHandler, LpcLoadImportResult, ModuleResolutionHost, normalizePath, pathIsAbsolute, pathIsRelative, pushIfUnique, resolvePath } from "./_namespaces/lpc.js";
+import { CompilerHost, convertToRelativePath, forEach, getDirectoryPath, isRootedDiskPath, LoadImportResult, LpcFileHandler, LpcLoadImportResult, ModuleResolutionHost, normalizePath, pathIsAbsolute, pathIsRelative, pushIfUnique, resolvePath } from "./_namespaces/lpc.js";
 
 export function createLpcFileHandler(getHost: () => ModuleResolutionHost, getConfig: ()=>ILpcConfig): LpcFileHandler {
     return {

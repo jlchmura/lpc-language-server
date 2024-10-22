@@ -1,4 +1,4 @@
-import { ensureLpcConfig, LpcConfig } from "../backend/LpcConfig.js";
+import { ensureLpcConfig, LpcConfig } from "../compiler/LpcConfig.js";
 import {
     AssignmentDeclarationKind,
     BaseType,

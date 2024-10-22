@@ -1,5 +1,3 @@
-import { ensureLpcConfig } from "../backend/LpcConfig.js";
-import { IFileHandler } from "../backend/types.js";
 import { ILpcConfig } from "../config-types.js";
 import {
     addToSeen,

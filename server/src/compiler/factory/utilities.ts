@@ -1,5 +1,4 @@
-import { CharacterCodes } from "../../backend/types";
-import { AssertionLevel, BinaryExpression, BinaryOperatorToken, Debug, EmitFlags, Expression, GeneratedIdentifier, GeneratedIdentifierFlags, GeneratedNamePart, getEmitFlags, getJSDocType, Identifier, idText, isGeneratedIdentifier, isMemberName, JSDocTypeAssertion, Node, TypeNode } from "../_namespaces/lpc";
+import { AssertionLevel, BinaryExpression, BinaryOperatorToken, CharacterCodes, Debug, EmitFlags, Expression, GeneratedIdentifier, GeneratedIdentifierFlags, GeneratedNamePart, getEmitFlags, getJSDocType, Identifier, idText, isGeneratedIdentifier, isMemberName, JSDocTypeAssertion, Node, TypeNode } from "../_namespaces/lpc";
 
 
 type BinaryExpressionState = <TOuterState, TState, TResult>(machine: BinaryExpressionStateMachine<TOuterState, TState, TResult>, stackIndex: number, stateStack: BinaryExpressionState[], nodeStack: BinaryExpression[], userStateStack: TState[], resultHolder: { value: TResult; }, outerState: TOuterState) => number;

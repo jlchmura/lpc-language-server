@@ -1,5 +1,4 @@
-import { CharacterCodes } from "../backend/types";
-import { compareStringsCaseInsensitive, compareStringsCaseSensitive, compareValues, Comparison, Debug, endsWith, equateStringsCaseInsensitive, equateStringsCaseSensitive, GetCanonicalFileName, getStringComparer, identity, lastOrUndefined, Path, some, startsWith } from "./_namespaces/lpc";
+import { CharacterCodes, compareStringsCaseInsensitive, compareStringsCaseSensitive, compareValues, Comparison, Debug, endsWith, equateStringsCaseInsensitive, equateStringsCaseSensitive, GetCanonicalFileName, getStringComparer, identity, lastOrUndefined, Path, some, startsWith } from "./_namespaces/lpc";
 
 /**
  * Internally, we represent paths as strings with '/' as the directory separator.

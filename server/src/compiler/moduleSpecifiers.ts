@@ -1,5 +1,4 @@
-import { CharacterCodes } from "../backend/types";
-import { startsWith } from "./_namespaces/lpc";
+import { CharacterCodes, startsWith } from "./_namespaces/lpc";
 
 /** @internal */
 export function countPathComponents(path: string): number {

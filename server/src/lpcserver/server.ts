@@ -6,7 +6,7 @@ import * as protocol from "../server/_namespaces/lpc.server.protocol.js";
 import { Logger } from "./nodeServer";
 import { Position, TextDocument } from "vscode-languageserver-textdocument";
 import { URI } from "vscode-uri";
-import { loadLpcConfig } from "../backend/LpcConfig.js";
+import { loadLpcConfig } from "../compiler/LpcConfig.js";
 import EventEmitter from "events";
 import { convertNavTree } from "./utils.js";
 import * as typeConverters from './typeConverters';

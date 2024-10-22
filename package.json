@@ -12,7 +12,7 @@
     "icon": "lpc-icon.png",
     "scripts": {
         "start": "npm run compile:bin && NODE_OPTIONS='--enable-source-maps' node out/server/src/bin.js test.c",
-        "vscode:prepublish": "npm run compile",        
+        "vscode:prepublish": "npm run compile",
         "compile": "tsc -b && node ./build.mjs && npm run copy",
         "compile:bin": "tsc -b && npm run copy && node ./build.bin.mjs",
         "parsefluff": "npm run compile:parsefluff && NODE_OPTIONS='--enable-source-maps' node out/server/src/parse-fluff-docs.js",
@@ -23,12 +23,9 @@
         "lint": "eslint ./client/src ./server/src --ext .ts,.tsx",
         "postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
         "local-test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
-        "test": "node --no-warnings --experimental-vm-modules node_modules/jest/bin/jest.js --no-coverage",
-        "generate": "npm run gen:lpc",
+        "test": "node --no-warnings --experimental-vm-modules node_modules/jest/bin/jest.js --no-coverage",        
         "vsce:package": "vsce package",
-        "vsce:publish": "vsce publish",
-        "gen:lpc": "npx antlr4ng -Dlanguage=TypeScript grammar/LPCLexer.g4 grammar/LPCParser.g4 -o server/src/parser3 -Xexact-output-dir -visitor -listener",
-        "gen:pre": "npx antlr4ng -Dlanguage=TypeScript grammar/LPCPreprocessorLexer.g4 grammar/LPCPreprocessorParser.g4 -o server/src/preprocessor -Xexact-output-dir -visitor -listener",
+        "vsce:publish": "vsce publish",        
         "copy": "ncp ./efuns ./out/server/src/efuns"
     },
     "engines": {
@@ -163,7 +160,6 @@
         "@types/vscode": "^1.75.0",
         "@typescript-eslint/eslint-plugin": "^5.54.0",
         "@typescript-eslint/parser": "^5.54.0",
-        "antlr4ng-cli": "^2.0.0",
         "eslint": "^8.35.0",
         "jest": "^29.7.0",
         "markdown-it": "^14.1.0",
@@ -173,8 +169,6 @@
         "typescript": "^5.4.5"
     },
     "dependencies": {
-        "antlr4-c3": "^3.4.1",
-        "antlr4ng": "^3.0.3",
         "comment-parser": "^1.4.1",
         "esbuild": "^0.23.0",
         "glob": "^10.3.15",

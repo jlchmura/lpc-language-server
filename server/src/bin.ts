@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 import * as fs from "fs";
 import * as path from "path";
-import { IFileHandler } from "./backend/types";
-import { loadLpcConfig } from "./backend/LpcConfig";
+import { loadLpcConfig } from "./compiler/LpcConfig";
 import * as lpc from "./lpc/_namespaces/lpc.js";
 import { Session, protocol } from "./lpc/_namespaces/lpc.server.js";
 import { Logger } from "./lpcserver/nodeServer";
+import { IFileHandler } from "./lpc/_namespaces/lpc.js";
 
 function main() {
     class MockFileHandler implements IFileHandler {
