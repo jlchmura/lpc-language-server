@@ -2439,9 +2439,11 @@ export namespace LpcParser {
         let type = parseConstituentType();        
         if (token() === operator || hasLeadingOperator) {
             const types = [type];
-            while (parseOptional(operator)) {
-                //types.push(parseFunctionOrConstructorTypeToError(isUnionType) || parseConstituentType());
-                types.push(parseConstituentType());
+            while (parseOptional(operator)) {                
+                if (token() === SyntaxKind.LessThanToken)
+                    types.push(parseUnionOrIntersectionType(operator, parseConstituentType, createTypeNode));
+                else
+                    types.push(parseConstituentType());
             }
             type = finishNode(createTypeNode(createNodeArray(types, pos)), pos);
         }
@@ -3128,8 +3130,9 @@ export namespace LpcParser {
         const paramType = parseType();
         const ampToken = parseOptionalToken(SyntaxKind.AmpersandToken) ;
         const name = parseNameOfParameter(modifiers);
-        const dotDotDotToken = parseOptionalToken(SyntaxKind.DotDotDotToken);
-        const init = parseInitializer(SyntaxKind.ColonToken);
+        const dotDotDotToken = parseOptionalToken(SyntaxKind.DotDotDotToken);                
+        // LD uses '=' for default values, Fluff uses ':'
+        const init = parseInitializer(token() === SyntaxKind.EqualsToken ? SyntaxKind.EqualsToken : SyntaxKind.ColonToken);
 
         const node = withJSDoc(
             finishNode(
