@@ -17782,7 +17782,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             // narrowed tuple type.
             if (isParameter(declaration) && !declaration.type && !declaration.initializer && !declaration.dotDotDotToken) {
                 const func = declaration.parent;
-                if (func.parameters.length >= 2 && isContextSensitiveFunctionOrObjectLiteralMethod(func)) {
+                if (func.parameters?.length >= 2 && isContextSensitiveFunctionOrObjectLiteralMethod(func)) {
                     const contextualSignature = getContextualSignature(func);
                     if (contextualSignature && contextualSignature.parameters.length === 1 && signatureHasRestParameter(contextualSignature)) {
                         const restType = getReducedApparentType(instantiateType(getTypeOfSymbol(contextualSignature.parameters[0]), getInferenceContext(func)?.nonFixingMapper));

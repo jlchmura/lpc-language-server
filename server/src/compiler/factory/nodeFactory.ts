@@ -717,15 +717,17 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     function createStructDeclarationNode(
         modifiers: readonly Modifier[] | undefined,
         name: Identifier, 
-        heritageClauses: readonly HeritageClause[] | undefined,
-        // members: readonly TypeElement[]
+        heritageName: Identifier | undefined,        
         type: TypeNode
     ): StructDeclaration {
         const node = createBaseNode<StructDeclaration>(SyntaxKind.StructDeclaration);
         node.name = name;
-        node.modifiers = asNodeArray(modifiers);                
-        // node.members = createNodeArray(members);
+        node.modifiers = asNodeArray(modifiers);
+        node.heritageName = heritageName;
         node.type = type;
+
+        if (node.heritageName) node.transformFlags |= TransformFlags.ContainsLDMud;
+
         return node;
     }  
 
@@ -1134,7 +1136,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     // @api
-    function createDefineDirective(name: string | Identifier, args: NodeArray<Expression>, range: TextRange): DefineDirective {
+    function createDefineDirective(name: string | Identifier, args: NodeArray<ParameterDeclaration>, range: TextRange): DefineDirective {
         const node = createBaseNode<DefineDirective>(SyntaxKind.DefineDirective);
         node.name = asName(name);
         node.arguments = asNodeArray(args);

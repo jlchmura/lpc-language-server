@@ -198,6 +198,9 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             (node as HasFlowNode).flowNode = currentFlow;
         }
         switch (node.kind) {
+            case SyntaxKind.DefineDirective:
+                // do not bind arguments of a define directive
+                break;
             case SyntaxKind.WhileStatement:
                 bindWhileStatement(node as WhileStatement);
                 break;
@@ -600,7 +603,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
                     default:
                         Debug.fail("Unknown binary expression special property assignment kind");
                 }
-                return;
+                return;            
         }
 
         //console.warn("implement me - bindWorker " + Debug.formatSyntaxKind(node.kind));

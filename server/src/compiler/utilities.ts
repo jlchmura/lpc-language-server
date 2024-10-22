@@ -185,6 +185,8 @@ export function formatStringFromArgs(text: string, args: DiagnosticArguments): s
 
 /** @internal */
 export function createDetachedDiagnostic(fileName: string, diagSourceText: string, start: number, errLength: number, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithDetachedLocation {
+    Debug.assertIsDefined(diagSourceText);
+    
     if ((start + errLength) > diagSourceText.length) {
         errLength = diagSourceText.length - start;
     }

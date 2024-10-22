@@ -1201,7 +1201,8 @@ export type WrappedExpression<T extends Expression> =
 export const enum TransformFlags {
     None = 0,
     ContainsRestOrSpread,
-    ContainsFluffOS
+    ContainsFluffOS,
+    ContainsLDMud
 }
 
 export type KeywordTypeSyntaxKind =
@@ -1352,7 +1353,7 @@ export interface NodeFactory {
     // directives
     createIncludeDirective(content: StringLiteral[], localFirst: boolean): IncludeDirective;
     createPragmaDirective(expression: NodeArray<Identifier>): PragmaDirective;
-    createDefineDirective(name: string | Identifier, args: NodeArray<Expression>, range: TextRange): DefineDirective;
+    createDefineDirective(name: string | Identifier, args: NodeArray<ParameterDeclaration>, range: TextRange): DefineDirective;
     createUndefDirective(name: string | Identifier): UndefDirective;
 
     // types
@@ -1368,7 +1369,7 @@ export interface NodeFactory {
     createStructDeclarationNode(
         modifiers: readonly Modifier[] | undefined,
         name: Identifier, 
-        heritageClauses: readonly HeritageClause[] | undefined,
+        heritageName: Identifier | undefined,
         type: TypeNode
     ): StructDeclaration;
 
@@ -3918,6 +3919,7 @@ export interface StructDeclaration extends DeclarationStatement, JSDocContainer,
     readonly kind: SyntaxKind.StructDeclaration;
     readonly name: Identifier;
     readonly modifiers?: NodeArray<Modifier>;
+    readonly heritageName?: Identifier;
     readonly type: TypeNode;    
 }
 
@@ -6757,25 +6759,25 @@ export interface DefineDirective extends PreprocessorDirective {
     kind: SyntaxKind.DefineDirective;
     
     name: Identifier;    
-    arguments?: NodeArray<Expression>;
+    arguments?: NodeArray<ParameterDeclaration>;
     range: TextRange;    
 }
 
-export interface MacroParameter extends TextRange {
+export interface MacroParameter extends ReadonlyTextRange, IncludedFileRange {
     disabled?: boolean;
     /** get the sourcetext that contains the arg value range */
-    getText(): string;
-    fileName: string;
+    text: string;
 }
 export interface Macro extends IncludedFileRange {
     // directive: DefineDirective;
     includeDirPos?: number;
     includeDirEnd?: number;
+    includeFilename?: string;    
     disabled?: boolean;
     /** get the sourcetext that contains the macro definition range */
     getText(): string;
     range: TextRange;
-    arguments?: NodeArray<Expression>;
+    arguments?: NodeArray<ParameterDeclaration>;
     argsIn?: MapLike<MacroParameter>;    
 }
 

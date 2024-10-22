@@ -1,3 +1,4 @@
+import { SourceContext } from "../backend/SourceContext.js";
 import {
     append,
     arraysEqual,
@@ -996,10 +997,10 @@ export function createScanner(
     /* eslint-disable no-var */
     var text = textInitial!;
 
-    var nextState: () => boolean | undefined;
+    var nextState: (...args: any) => boolean | undefined;
     var stateId = 1;
     var nextStateId = 2;
-    var stateEndings: MapLike<SavedStatePos> = {};
+    var stateEndings: MapLike<SavedStatePos> = {};    
 
     // Current position (end position of text of current token)
     var pos: number;
@@ -2013,8 +2014,8 @@ export function createScanner(
                                 
                 stateEndings[stateId] ??= { end: pos, fileName };
                 stateEndings[stateId].end = pos;
-                Debug.assert(stateId !== saveStateId, "Scanner state must change");
-                streamSwitched = true;                                     
+                // Debug.assert(stateId !== saveStateId, "Scanner state must change");
+                streamSwitched = true;
             }
             // if we're in a state that doesn't need to rescan, just return the token
             if (dontRescan) return token;
@@ -2943,14 +2944,50 @@ export function createScanner(
             end: pos, 
             fileName
         };
-    }
+    }    
 
     function speculationHelper<T>(callback: () => T, isLookahead: boolean): T {                
         const saveStateCache = {...stateEndings};
         const saveStateId = stateId;
         const saveNextId = nextStateId;
         const saveNextState = nextState;
-        const releaseState = nextState = captureCachedState(true);
+
+        const speculationState = captureCachedState(true);
+        let doFullRelease = true;     // indicates if the full speculation state will be release   
+        let speculationStateReleased = false; // indicates if the spec state has already been released
+
+        Debug.assert(stateId != saveStateId);
+
+        // put a wrapper around the nextState call here
+        // in a non-lookahead scenario that results in a truthy value
+        // we need to release the speculation state without reverting any values
+        const releaseSpeculationState = nextState = function(skipFullRelease?: boolean) {                                    
+            if (skipFullRelease) {
+                doFullRelease = false;
+                return false;
+            }
+            if (speculationStateReleased) {
+                return false;
+            }
+
+            if (doFullRelease) {
+                speculationStateReleased = true;
+                return speculationState();
+            } else {
+                speculationStateReleased = true;
+                // we still need to revert the stateId                
+                Debug.assert(stateId != saveStateId);
+                stateId = saveStateId;
+                nextState = saveNextState;
+                
+                // if (sourceEnding.fileName == targetEnding.fileName) {
+                //     targetEnding.end = sourceEnding.end;
+                // }   
+                
+                return false;
+            }
+        } 
+        
         const speculationStateId = stateId;
         const result = callback();
         
@@ -2963,7 +3000,7 @@ export function createScanner(
                 nextState();
             }
 
-            releaseState();                        
+            releaseSpeculationState();                        
             
             stateEndings = saveStateCache;
             nextStateId = saveNextId;
@@ -2972,13 +3009,7 @@ export function createScanner(
         } else {
             // in this case we don't want to release any states created
             // but we do need to set the state back to the original
-            const state = stateEndings[speculationStateId];                        
-
-            stateId = saveStateId;
-            nextState = saveNextState;
-                        
-            Debug.assertEqual(stateEndings[stateId].fileName, state.fileName, "File name mismatch");
-            stateEndings[stateId].end = state.end;
+            releaseSpeculationState(true);            
         }      
         
         return result;

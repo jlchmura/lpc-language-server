@@ -290,9 +290,78 @@ export namespace LpcParser {
         return nextTokenWithoutCheck();
     }
 
+    /**
+     * scans the token stream for macro arguments. this doesn't create any nodes, but stores
+     * the ranges of the arguments in the macro object
+     * @returns 
+     */
+    function parseMacroArguments() {
+        const args: MacroParameter[] = [];        
+        let parenCount = parseExpected(SyntaxKind.OpenParenToken, undefined, false) ? 1 : 0;
+        let paramText = "";
+        let pos: number = scanner.getTokenFullStart();
+
+        if (parenCount === 0) {
+            // missing open paren.  advance scanner (because open paren didnt) and return
+            nextToken();
+            return args;
+        }
+
+        while (parenCount > 0) {
+            const kind = nextToken();
+            switch (kind) {
+                case SyntaxKind.OpenParenToken:
+                    parenCount++;
+                    paramText += scanner.getTokenText();
+                    break;
+                case SyntaxKind.CloseParenToken:
+                    parenCount--;
+                    if (parenCount > 0) {
+                        paramText += scanner.getTokenText();
+                    }
+                    break;
+                case SyntaxKind.CommaToken:
+                    if (parenCount === 1) {
+                        args.push({
+                            text: paramText,
+                            disabled: false,
+                            posInOrigin: pos,
+                            endInOrigin: scanner.getTokenFullStart(),
+                            originFilename: scanner.getFileName(),
+                            pos: 0,
+                            end: paramText.length
+                        });
+                        paramText = "";
+                        pos = scanner.getTokenEnd()
+                        break;
+                    }
+                    // fall through            
+                default:
+                    paramText += scanner.getTokenText();
+                    break;                    
+            }           
+        }
+        
+        if (paramText.length > 0) {
+            args.push({
+                text: paramText,
+                disabled: false,
+                posInOrigin: pos,
+                endInOrigin: scanner.getTokenFullStart(),
+                originFilename: scanner.getFileName(),
+                pos: 0,
+                end: paramText.length
+            });
+        }
+
+        parseExpected(SyntaxKind.CloseParenToken);
+
+        return args;
+    }
+
     function nextTokenWithoutCheck() {
         let incomingToken = scanner.scan();
-1
+
         while (isCodeExecutable === Ternary.False && incomingToken !== SyntaxKind.EndOfFileToken) {
             // we are in a disabled code block. there are only a few directives that apply here
             // check them and skip the rest
@@ -371,33 +440,29 @@ export namespace LpcParser {
 
                 // check if this macro has argumnets                
                 const argValsByName: MapLike<MacroParameter> = {};
-                if (macroArgsDef?.length > 0) {
+                if (macroArgsDef?.length > 0) {                                        
                     // scan the next token, which should be an open paren.. parseArg wil check it.
                     currentToken = nextTokenWithoutCheck();
+                    
+                    const values = parseMacroArguments();
+                    const valuesEndPos = scanner.getTokenFullStart();                    
 
-                    allowMacroProcessing = false;
-                    const values = parseArgumentList();                    
-                    allowMacroProcessing = true;
-
-                    let lastArg: ReadonlyTextRange = values;
-                    const argText = scanner.getText();
+                    // now organize macro params by name
+                    let lastArg = lastOrUndefined(values);                    
                     forEach(macroArgsDef, (arg, i) => {
-                        const argName = (arg as Identifier).text;
+                        const argName = (arg.name as Identifier).text;                        
                         if (values.length > i) {
                             const argVal = values[i];                            
-                            argValsByName[argName] = {
-                                pos: argVal.pos,
-                                end: argVal.end, 
-                                getText: ()=>argText,
-                                fileName: scanner.getFileName()
-                            };                            
+                            argValsByName[argName] = argVal;            
                         } else {
-                            parseErrorAt(lastArg.end, values.end, Diagnostics.Missing_argument_for_macro_0, argName);
+                            parseErrorAt(lastArg?.end ?? valuesEndPos, valuesEndPos, Diagnostics.Missing_argument_for_macro_0, argName);
                             argValsByName[argName] = {
-                                pos: lastArg.end,
-                                end: lastArg.end,
-                                getText: ()=>argText,
-                                fileName: scanner.getFileName()
+                                posInOrigin: lastArg?.end ?? valuesEndPos,
+                                endInOrigin: lastArg?.end ?? valuesEndPos,
+                                pos: 0,
+                                end: 0,
+                                text: "",
+                                disabled: false,
                             }
                         }
                     });
@@ -409,7 +474,7 @@ export namespace LpcParser {
                 const saveCurrentMacro = currentMacro;                                
 
                 scanner.switchStream(
-                    macro.originFilename, macro.getText(), range.pos, range.end - range.pos,
+                    macro.includeFilename ?? macro.originFilename, macro.getText(), range.pos, range.end - range.pos,
                     () => {
                         // re-enable the macro
                         Debug.assertIsDefined(macro);
@@ -435,7 +500,7 @@ export namespace LpcParser {
                 arg.disabled = true;                
 
                 scanner.switchStream(
-                    arg.fileName, arg.getText(), arg.pos, arg.end - arg.pos, 
+                    "", arg.text, arg.pos, arg.end, 
                     () => {
                         arg.disabled = false;
                         return false;
@@ -589,7 +654,7 @@ export namespace LpcParser {
         const lastError = lastOrUndefined(parseDiagnostics);
         let result: DiagnosticWithDetachedLocation | undefined;
         if (!lastError || start !== lastError.start) {            
-            result = createDetachedDiagnostic(scanner.getFileName(), includeFileCache[scanner.getFileName()], start, errLength, message, ...args);
+            result = createDetachedDiagnostic(scanner.getFileName(), includeFileCache[scanner.getFileName()] ?? scanner.getText(), start, errLength, message, ...args);
             parseDiagnostics.push(result);
         }
 
@@ -1531,11 +1596,10 @@ export namespace LpcParser {
         parseExpected(SyntaxKind.DefineDirective);
         
         const identifier = parseIdentifier();
-        let args: NodeArray<Expression> | undefined;
+        let args: NodeArray<ParameterDeclaration> | undefined;
         
-
         if (token() === SyntaxKind.OpenParenToken && scanner.getTokenStart() == identifier?.end) {
-            args = parseArgumentList();            
+            args = parseParameters();
         }
         
         let tokenCount = 0;
@@ -1563,7 +1627,7 @@ export namespace LpcParser {
     }
 
     function createBuiltInMacro(text: string): Macro {
-        return { originFilename: "global", posInOrigin: 0, endInOrigin: 0, getText: () => text, range: {pos: 0, end: text.length} };
+        return { includeFilename: "global", posInOrigin: 0, endInOrigin: 0, getText: () => text, range: {pos: 0, end: text.length} };
     }
 
     function createMacro(directive: DefineDirective): Macro {        
@@ -1573,7 +1637,7 @@ export namespace LpcParser {
         }   
 
         return { 
-            originFilename: directive.originFilename, 
+            includeFilename: directive.originFilename, 
             includeDirPos: directive.includeDirPos, 
             includeDirEnd: directive.includeDirEnd,
             range: directive.range,
@@ -1945,7 +2009,7 @@ export namespace LpcParser {
         if (lastError) {
             addRelatedInfo(
                 lastError,
-                createDetachedDiagnostic(openFilename, includeFileCache[openFilename], openPosition, 1, Diagnostics.The_parser_expected_to_find_a_1_to_match_the_0_token_here, tokenToString(openKind), errorText),
+                createDetachedDiagnostic(openFilename, includeFileCache[openFilename] ?? scanner.getText(), openPosition, 1, Diagnostics.The_parser_expected_to_find_a_1_to_match_the_0_token_here, tokenToString(openKind), errorText),
             );
         }
     }
@@ -2478,6 +2542,9 @@ export namespace LpcParser {
             case SyntaxKind.ClosureKeyword:
                 // If these are followed by a dot, then parse these out as a dotted type reference instead.
                 return parseKeywordAndNoDot();
+            case SyntaxKind.StatusKeyword:     
+                // status is only available in LD           
+                return config.driver.type === DriverType.LDMud ? parseKeywordAndNoDot() : undefined;
             case SyntaxKind.AsteriskEqualsToken:
                 // If there is '*=', treat it as * followed by postfix =
                 scanner.reScanAsteriskEqualsToken();
@@ -2502,9 +2569,7 @@ export namespace LpcParser {
             case SyntaxKind.TrueKeyword:
             case SyntaxKind.FalseKeyword:
             case SyntaxKind.NullKeyword:
-                return parseLiteralTypeNode();
-            case SyntaxKind.StatusKeyword:                
-                return config.driver.type === DriverType.LDMud ? parseLiteralTypeNode() : undefined;
+                return parseLiteralTypeNode();            
             // case SyntaxKind.MinusToken:
             //     return lookAhead(nextTokenIsNumericOrBigIntLiteral) ? parseLiteralTypeNode(/*negative*/ true) : parseTypeReference();
             case SyntaxKind.VoidKeyword:
@@ -2869,13 +2934,22 @@ export namespace LpcParser {
         else 
             parseExpected(SyntaxKind.ClassKeyword);
 
-        const name = parseIdentifier();                
+        const name = parseIdentifier();
+        
+        // struct inheritance:
+        //     struct Foo (Bar) { ... }
+        let heritageName: Identifier | undefined = undefined;
+        if (parseOptional(SyntaxKind.OpenParenToken)) {
+            heritageName = parseIdentifier();
+            parseExpected(SyntaxKind.CloseParenToken);
+        }
+
         // the struct members are parsed as a type
         const type = parseType();        
                     
         parseSemicolon();
 
-        const node = factory.createStructDeclarationNode(modifiers, name, emptyArray, type)
+        const node = factory.createStructDeclarationNode(modifiers, name, heritageName, type)
         return withJSDoc(finishNode(node, pos), hasJSDoc);
     }
 
@@ -5674,6 +5748,7 @@ const forEachChildTable: ForEachChildTable = {
     [SyntaxKind.StructDeclaration]: function forEachChildInStructDeclaration<T>(node: StructDeclaration, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
         return visitNodes(cbNode, cbNodes, node.modifiers) ||
             visitNode(cbNode, node.name) ||
+            visitNode(cbNode, node.heritageName) ||
             visitNode(cbNode, node.type);
             //visitNodes(cbNode, cbNodes, node.members);
     },
