@@ -1,6 +1,6 @@
 import { writeFile } from "fs";
 import { ILpcConfig } from "../config-types.js";
-import { getDeclarationDiagnostics as lpc_getDeclarationDiagnostics, forEachResolvedProjectReference as lpc_forEachResolvedProjectReference, combinePaths, compareValues, CompilerHost, CompilerOptions, containsPath, createDiagnosticCollection, createGetCanonicalFileName, createMultiMap, CreateProgramOptions, createSourceFile, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DiagnosticWithLocation, FileIncludeKind, FileIncludeReason, FilePreprocessingDiagnostics, FilePreprocessingDiagnosticsKind, forEach, getBaseFileName, getDirectoryPath, getNewLineCharacter, getRootLength, hasExtension, isArray, maybeBind, memoize, normalizePath, ObjectLiteralExpression, PackageId, Path, performance, Program, ProgramHost, ProjectReference, PropertyAssignment, ReferencedFile, removePrefix, removeSuffix, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, SourceFile, stableSort, StructureIsReused, sys, System, toPath as lpc_toPath, tracing, TypeChecker, getNormalizedAbsolutePathWithoutRoot, some, isRootedDiskPath, optionsHaveChanges, packageIdToString, toFileNameLowerCase, getNormalizedAbsolutePath, CreateSourceFileOptions, createTypeChecker, ScriptTarget, libs, FileReference, SortedReadonlyArray, concatenate, sortAndDeduplicateDiagnostics, emptyArray, LpcFileHandler, createLpcFileHandler, DiagnosticMessageChain, isString, CancellationToken, flatMap, filter, Debug, ScriptKind, flatten, OperationCanceledException, noop, getNormalizedPathComponents, GetCanonicalFileName, getPathFromPathComponents, WriteFileCallback, EmitHost, WriteFileCallbackData, getDefaultLibFileName, LibResolution, returnFalse, isTraceEnabled, trace, equateStringsCaseSensitive, equateStringsCaseInsensitive, NodeFlags, ResolvedModuleFull, Extension, ResolutionMode, ModeAwareCache, isExternalModule, StringLiteral, Identifier, isCloneObjectExpression, isStringLiteral, setParentRecursive, append, Node, SyntaxKind, forEachChild, ResolutionWithFailedLookupLocations, createModeAwareCache, ModuleKind, ResolvedTypeReferenceDirectiveWithFailedLookupLocations, ModuleResolutionCache, contains, createModuleResolutionCache, ModuleResolutionHost, ModeAwareCacheKey, createModeAwareCacheKey, resolveModuleName, isInheritDeclaration, LogLevel, PackageJsonInfoCache, StringLiteralLike, skipTrivia, getSourceFileOfNode, hasLPCFileExtension, getNormalizedModuleName, isIncludeDirective, first } from "./_namespaces/lpc.js";
+import { getDeclarationDiagnostics as lpc_getDeclarationDiagnostics, forEachResolvedProjectReference as lpc_forEachResolvedProjectReference, combinePaths, compareValues, CompilerHost, CompilerOptions, containsPath, createDiagnosticCollection, createGetCanonicalFileName, createMultiMap, CreateProgramOptions, createSourceFile, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DiagnosticWithLocation, FileIncludeKind, FileIncludeReason, FilePreprocessingDiagnostics, FilePreprocessingDiagnosticsKind, forEach, getBaseFileName, getDirectoryPath, getNewLineCharacter, getRootLength, hasExtension, isArray, maybeBind, memoize, normalizePath, ObjectLiteralExpression, PackageId, Path, performance, Program, ProgramHost, ProjectReference, PropertyAssignment, ReferencedFile, removePrefix, removeSuffix, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, SourceFile, stableSort, StructureIsReused, sys, System, toPath as lpc_toPath, tracing, TypeChecker, getNormalizedAbsolutePathWithoutRoot, some, isRootedDiskPath, optionsHaveChanges, packageIdToString, toFileNameLowerCase, getNormalizedAbsolutePath, CreateSourceFileOptions, createTypeChecker, ScriptTarget, libs, FileReference, SortedReadonlyArray, concatenate, sortAndDeduplicateDiagnostics, emptyArray, LpcFileHandler, createLpcFileHandler, DiagnosticMessageChain, isString, CancellationToken, flatMap, filter, Debug, ScriptKind, flatten, OperationCanceledException, noop, getNormalizedPathComponents, GetCanonicalFileName, getPathFromPathComponents, WriteFileCallback, EmitHost, WriteFileCallbackData, getDefaultLibFileName, LibResolution, returnFalse, isTraceEnabled, trace, equateStringsCaseSensitive, equateStringsCaseInsensitive, NodeFlags, ResolvedModuleFull, Extension, ResolutionMode, ModeAwareCache, isExternalModule, StringLiteral, Identifier, isCloneObjectExpression, isStringLiteral, setParentRecursive, append, Node, SyntaxKind, forEachChild, ResolutionWithFailedLookupLocations, createModeAwareCache, ModuleKind, ResolvedTypeReferenceDirectiveWithFailedLookupLocations, ModuleResolutionCache, contains, createModuleResolutionCache, ModuleResolutionHost, ModeAwareCacheKey, createModeAwareCacheKey, resolveModuleName, isInheritDeclaration, LogLevel, PackageJsonInfoCache, StringLiteralLike, skipTrivia, getSourceFileOfNode, hasLPCFileExtension, getNormalizedModuleName, isIncludeDirective, first, createEvaluator, forEachChildRecursively, factory } from "./_namespaces/lpc.js";
 
 /**
  * Create a new 'Program' instance. A Program is an immutable collection of 'SourceFile's and a 'CompilerOptions'
@@ -1410,7 +1410,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         //         }
         //     }
         // }
-
+        
         function collectDynamicImportOrRequireOrJsDocImportCalls(file: SourceFile) {
             //const r = /import|require/g;
             const r = /inherit|clone_object|include/g;
@@ -1425,8 +1425,17 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                         setParentRecursive(node, /*incremental*/ false); // we need parent data on imports before the program is fully bound, so we ensure it's set here
                         imports = append(imports, node.inheritClause);
                     } else {
-                        // TODO: implement support for inherits w/ binary expression
-                        // Debug.loggingHost.log(LogLevel.Warning, "Non-string inherit clause not supported " + node);
+                        // do a quick traversal to join strings together
+                        const parts: string[] = [];
+                        forEachChildRecursively(node.inheritClause, n => {
+                            if (isStringLiteral(n)) {
+                                parts.push(n.text);
+                            }
+                        });
+                        const text = parts.join("");
+                        const ii=0;
+                        const lit = factory.createStringLiteral(text);
+                        imports = append(imports, lit);
                     }
                 } else if (isIncludeDirective(node)) {
                     const firstEl = node.content && first(node.content);

@@ -111,6 +111,8 @@ export interface TypeChecker {
     getTypeOfSymbolAtLocation(symbol: Symbol, node: Node): Type;
     getRootSymbols(symbol: Symbol): readonly Symbol[];
     
+    evaluate(expr: Expression, location?: Declaration): EvaluatorResult<string | number>;
+
     /**
      * True if this type is assignable to `ReadonlyArray<any>`.
      */
@@ -457,7 +459,7 @@ export interface ResolvedModuleWithFailedLookupLocations {
 }
 
 /** @internal */
-export interface TypeCheckerHost extends ModuleSpecifierResolutionHost {
+export interface    TypeCheckerHost extends ModuleSpecifierResolutionHost {
     getCompilerOptions(): CompilerOptions;
 
     getSourceFiles(): readonly SourceFile[];

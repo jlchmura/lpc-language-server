@@ -186,7 +186,7 @@ export function formatStringFromArgs(text: string, args: DiagnosticArguments): s
 /** @internal */
 export function createDetachedDiagnostic(fileName: string, diagSourceText: string, start: number, errLength: number, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithDetachedLocation {
     Debug.assertIsDefined(diagSourceText);
-    
+
     if ((start + errLength) > diagSourceText.length) {
         errLength = diagSourceText.length - start;
     }
@@ -5842,4 +5842,9 @@ export function getClassLikeDeclarationOfSymbol(symbol: Symbol): ClassLikeDeclar
 export function getIncludeDirectiveFilename(node: IncludeDirective): string {
     const localFilename = node.content.map((literal) => literal.text).join("");            
     return localFilename;
+}
+
+/** @internal */
+export function isInfinityOrNaNString(name: string): boolean {
+    return name === "Infinity" || name === "-Infinity" || name === "NaN";
 }
