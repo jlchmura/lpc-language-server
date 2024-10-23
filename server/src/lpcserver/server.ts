@@ -334,8 +334,8 @@ export function start(connection: Connection, platform: string) {
             
             return {
                 contents: {
-                    kind: MarkupKind.Markdown,
-                    value: displayParts.join(" "),
+                    kind: MarkupKind.Markdown,                    
+                    value: "```lpc\n" + displayParts.join("") + "\n```",
                 }
             } satisfies Hover;
         });

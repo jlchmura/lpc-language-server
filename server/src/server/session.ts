@@ -546,8 +546,7 @@ export class Session<TMessage = string> implements EventSender {
         const quickInfo = project.getLanguageService().getQuickInfoAtPosition(file, this.getPosition(args, scriptInfo));
         if (!quickInfo) {
             return undefined;
-        }
-
+        }        
         const useDisplayParts = false;//!!this.getPreferences(file).displayPartsForJSDoc;
         if (simplifiedResult) {
             const displayString = displayPartsToString(quickInfo.displayParts);

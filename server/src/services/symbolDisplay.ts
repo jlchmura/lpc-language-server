@@ -142,16 +142,7 @@ function getSymbolKindOfConstructorPropertyMethodAccessorFunctionOrVar(
     ) {
         return ScriptElementKind.memberFunctionElement;
     }
-
-    // if (typeChecker.isUndefinedSymbol(symbol)) {
-    //     return ScriptElementKind.variableElement;
-    // }
-    // if (typeChecker.isArgumentsSymbol(symbol)) {
-    //     return ScriptElementKind.localVariableElement;
-    // }
-    // if (location.kind === SyntaxKind.ThisKeyword && isExpression(location) || isThisInTypeQuery(location)) {
-    //     return ScriptElementKind.parameterElement;
-    // }
+    
     const flags = getCombinedLocalAndExportSymbolFlags(symbol);
     if (flags & SymbolFlags.Variable) {
         if (isFirstDeclarationOfSymbolParameter(symbol)) {
@@ -173,6 +164,7 @@ function getSymbolKindOfConstructorPropertyMethodAccessorFunctionOrVar(
             ? ScriptElementKind.localVariableElement
             : ScriptElementKind.variableElement;
     }
+
     if (flags & SymbolFlags.Function)
         return isLocalVariableOrFunction(symbol)
             ? ScriptElementKind.localFunctionElement
@@ -1116,14 +1108,7 @@ function getSymbolDisplayPartsDocumentationAndSymbolKindWorker(typeChecker: Type
         displayParts.push(spacePart());
         addFullSymbolName(symbol);
         writeTypeParametersOfSymbol(symbol, sourceFile);
-    }
-    // if ((symbolFlags & SymbolFlags.Interface) && (semanticMeaning & SemanticMeaning.Type)) {
-    //     prefixNextMeaning();
-    //     displayParts.push(keywordPart(SyntaxKind.InterfaceKeyword));
-    //     displayParts.push(spacePart());
-    //     addFullSymbolName(symbol);
-    //     writeTypeParametersOfSymbol(symbol, sourceFile);
-    // }
+    }    
     // if ((symbolFlags & SymbolFlags.TypeAlias) && (semanticMeaning & SemanticMeaning.Type)) {
     //     prefixNextMeaning();
     //     displayParts.push(keywordPart(SyntaxKind.TypeKeyword));
@@ -1134,84 +1119,7 @@ function getSymbolDisplayPartsDocumentationAndSymbolKindWorker(typeChecker: Type
     //     displayParts.push(operatorPart(SyntaxKind.EqualsToken));
     //     displayParts.push(spacePart());
     //     addRange(displayParts, typeToDisplayParts(typeChecker, location.parent && isConstTypeReference(location.parent) ? typeChecker.getTypeAtLocation(location.parent) : typeChecker.getDeclaredTypeOfSymbol(symbol), enclosingDeclaration, TypeFormatFlags.InTypeAlias));
-    // }
-    // if (symbolFlags & SymbolFlags.Enum) {
-    //     prefixNextMeaning();
-    //     if (some(symbol.declarations, d => isEnumDeclaration(d) && isEnumConst(d))) {
-    //         displayParts.push(keywordPart(SyntaxKind.ConstKeyword));
-    //         displayParts.push(spacePart());
-    //     }
-    //     displayParts.push(keywordPart(SyntaxKind.EnumKeyword));
-    //     displayParts.push(spacePart());
-    //     addFullSymbolName(symbol);
-    // }
-    // if (symbolFlags & SymbolFlags.Module && !isThisExpression) {
-    //     prefixNextMeaning();
-    //     const declaration = getDeclarationOfKind<ModuleDeclaration>(symbol, SyntaxKind.ModuleDeclaration);
-    //     const isNamespace = declaration && declaration.name && declaration.name.kind === SyntaxKind.Identifier;
-    //     displayParts.push(keywordPart(isNamespace ? SyntaxKind.NamespaceKeyword : SyntaxKind.ModuleKeyword));
-    //     displayParts.push(spacePart());
-    //     addFullSymbolName(symbol);
-    // }
-    // if ((symbolFlags & SymbolFlags.TypeParameter) && (semanticMeaning & SemanticMeaning.Type)) {
-    //     prefixNextMeaning();
-    //     displayParts.push(punctuationPart(SyntaxKind.OpenParenToken));
-    //     displayParts.push(textPart("type parameter"));
-    //     displayParts.push(punctuationPart(SyntaxKind.CloseParenToken));
-    //     displayParts.push(spacePart());
-    //     addFullSymbolName(symbol);
-    //     if (symbol.parent) {
-    //         // Class/Interface type parameter
-    //         addInPrefix();
-    //         addFullSymbolName(symbol.parent, enclosingDeclaration);
-    //         writeTypeParametersOfSymbol(symbol.parent, enclosingDeclaration);
-    //     }
-    //     else {
-    //         // Method/function type parameter
-    //         const decl = getDeclarationOfKind(symbol, SyntaxKind.TypeParameter);
-    //         if (decl === undefined) return Debug.fail();
-    //         const declaration = decl.parent;
-
-    //         if (declaration) {
-    //             if (isFunctionLike(declaration)) {
-    //                 addInPrefix();
-    //                 const signature = typeChecker.getSignatureFromDeclaration(declaration)!; // TODO: GH#18217
-    //                 if (declaration.kind === SyntaxKind.ConstructSignature) {
-    //                     displayParts.push(keywordPart(SyntaxKind.NewKeyword));
-    //                     displayParts.push(spacePart());
-    //                 }
-    //                 else if (declaration.kind !== SyntaxKind.CallSignature && declaration.name) {
-    //                     addFullSymbolName(declaration.symbol);
-    //                 }
-    //                 addRange(displayParts, signatureToDisplayParts(typeChecker, signature, sourceFile, TypeFormatFlags.WriteTypeArgumentsOfSignature));
-    //             }
-    //             else if (isTypeAliasDeclaration(declaration)) {
-    //                 // Type alias type parameter
-    //                 // For example
-    //                 //      type list<T> = T[]; // Both T will go through same code path
-    //                 addInPrefix();
-    //                 displayParts.push(keywordPart(SyntaxKind.TypeKeyword));
-    //                 displayParts.push(spacePart());
-    //                 addFullSymbolName(declaration.symbol);
-    //                 writeTypeParametersOfSymbol(declaration.symbol, sourceFile);
-    //             }
-    //         }
-    //     }
-    // }
-    // if (symbolFlags & SymbolFlags.EnumMember) {
-    //     symbolKind = ScriptElementKind.enumMemberElement;
-    //     addPrefixForAnyFunctionOrVar(symbol, "enum member");
-    //     const declaration = symbol.declarations?.[0];
-    //     if (declaration?.kind === SyntaxKind.EnumMember) {
-    //         const constantValue = typeChecker.getConstantValue(declaration as EnumMember);
-    //         if (constantValue !== undefined) {
-    //             displayParts.push(spacePart());
-    //             displayParts.push(operatorPart(SyntaxKind.EqualsToken));
-    //             displayParts.push(spacePart());
-    //             displayParts.push(displayPart(getTextOfConstantValue(constantValue), typeof constantValue === "number" ? SymbolDisplayPartKind.numericLiteral : SymbolDisplayPartKind.stringLiteral));
-    //         }
-    //     }
-    // }
+    // }       
     // don't use symbolFlags since getAliasedSymbol requires the flag on the symbol itself
     if (symbol.flags & SymbolFlags.Alias) {
         prefixNextMeaning();
@@ -1258,13 +1166,8 @@ function getSymbolDisplayPartsDocumentationAndSymbolKindWorker(typeChecker: Type
     if (!hasAddedSymbolInfo) {
         if (symbolKind !== ScriptElementKind.unknown) {
             if (type) {
-                // if (isThisExpression) {
-                //     prefixNextMeaning();
-                //     displayParts.push(keywordPart(SyntaxKind.ThisKeyword));
-                // }
-                // else {
-                    addPrefixForAnyFunctionOrVar(symbol, symbolKind);
-                // }
+                addPrefixForAnyFunctionOrVar(symbol, symbolKind);
+
                 // For properties, variables and local vars: show the type
                 if (
                     symbolKind === ScriptElementKind.memberVariableElement ||
@@ -1279,8 +1182,7 @@ function getSymbolDisplayPartsDocumentationAndSymbolKindWorker(typeChecker: Type
                     symbolKind === ScriptElementKind.variableAwaitUsingElement ||
                     isThisExpression
                 ) {
-                    displayParts.push(punctuationPart(SyntaxKind.ColonToken));
-                    displayParts.push(spacePart());
+                    // displayParts.push(punctuationPart(SyntaxKind.ColonToken));                    
                     // If the type is type parameter, format it specially
                     // if (type.symbol && type.symbol.flags & SymbolFlags.TypeParameter && symbolKind !== ScriptElementKind.indexSignatureElement) {
                     //     const typeParameterParts = mapToDisplayParts(writer => {
@@ -1290,18 +1192,14 @@ function getSymbolDisplayPartsDocumentationAndSymbolKindWorker(typeChecker: Type
                     //     addRange(displayParts, typeParameterParts);
                     // }
                     // else {
-                        addRange(displayParts, typeToDisplayParts(typeChecker, type, enclosingDeclaration));
-                    // }
-                    // if (isTransientSymbol(symbol) && symbol.links.target && isTransientSymbol(symbol.links.target) && symbol.links.target.links.tupleLabelDeclaration) {
-                    //     const labelDecl = symbol.links.target.links.tupleLabelDeclaration;
-                    //     Debug.assertNode(labelDecl.name, isIdentifier);
-                    //     displayParts.push(spacePart());
-                    //     displayParts.push(punctuationPart(SyntaxKind.OpenParenToken));
-                    //     displayParts.push(textPart(idText(labelDecl.name)));
-                    //     displayParts.push(punctuationPart(SyntaxKind.CloseParenToken));
-                    // }
+                    addRange(displayParts, typeToDisplayParts(typeChecker, type, enclosingDeclaration));
+                    displayParts.push(spacePart());
+                    // }                    
                 }
-                else if (
+
+                addFullSymbolName(symbol);
+                                                                
+                if (
                     symbolFlags & SymbolFlags.Function ||
                     symbolFlags & SymbolFlags.Method ||
                     symbolFlags & SymbolFlags.Constructor ||
@@ -1383,9 +1281,9 @@ function getSymbolDisplayPartsDocumentationAndSymbolKindWorker(typeChecker: Type
     }
 
     function prefixNextMeaning() {
-        if (displayParts.length) {
-            displayParts.push(lineBreakPart());
-        }
+        // if (displayParts.length) {
+        //     displayParts.push(lineBreakPart());
+        // }
         addAliasPrefixIfNecessary();
     }
 
@@ -1445,10 +1343,10 @@ function getSymbolDisplayPartsDocumentationAndSymbolKindWorker(typeChecker: Type
             pushSymbolKind(symbolKind);
             if (symbol && !some(symbol.declarations, d => isInlineClosureExpression(d) || (isFunctionExpression(d) /*|| isClassExpression(d)*/) && !d.name)) {
                 displayParts.push(spacePart());
-                addFullSymbolName(symbol);
+                // addFullSymbolName(symbol);
             }
         }
-    }
+    }    
 
     function pushSymbolKind(symbolKind: string) {
         switch (symbolKind) {

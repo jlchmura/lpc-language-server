@@ -2056,7 +2056,7 @@ export class ThrottledCancellationToken implements CancellationToken {
 }
 
 export function displayPartsToString(displayParts: SymbolDisplayPart[] | undefined) {
-    if (displayParts) {
+    if (displayParts) {        
         return map(displayParts, displayPart => displayPart.text).join("");
     }
 
