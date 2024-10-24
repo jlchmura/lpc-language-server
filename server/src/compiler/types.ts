@@ -525,6 +525,7 @@ export const enum SyntaxKind {
 
     // Punctuation
     OpenBraceToken, 
+    BacktickToken,
     CloseBraceToken,
     OpenParenToken,
     CloseParenToken,
@@ -618,6 +619,7 @@ export const enum SyntaxKind {
     SymbolKeyword,
     UndefinedKeyword,
     AnyKeyword,
+    IsKeyword,
     ClosureKeyword,
     StructKeyword,
     CatchKeyword,
@@ -1351,6 +1353,7 @@ export interface NodeFactory {
     // type elements
     createIndexSignature(modifiers: readonly Modifier[] | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode): IndexSignatureDeclaration;
     /** @internal */ createIndexSignature(modifiers: readonly Modifier[] | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode | undefined): IndexSignatureDeclaration; // eslint-disable-line @typescript-eslint/unified-signatures
+    createTypeParameterDeclaration(modifiers: readonly Modifier[] | undefined, name: string | Identifier, constraint?: TypeNode, defaultType?: TypeNode): TypeParameterDeclaration;
 
     // directives
     createIncludeDirective(content: StringLiteral[], localFirst: boolean): IncludeDirective;
@@ -1400,6 +1403,7 @@ export interface NodeFactory {
     createCatchStatement(expression: Expression | undefined, block: Block): CatchStatement;
 
     // Expressions
+    createExpressionWithTypeArguments(expression: Expression, typeArguments: readonly TypeNode[] | undefined): ExpressionWithTypeArguments;
     createCatchExpression(expression: Expression, modifier?: Identifier, modifierExpression?: Expression, block?: Block): CatchExpression;
     createEvaluateExpression(expression: Expression, argumentsArray: readonly Expression[] | undefined): EvaluateExpression;
     createNewExpression(expression: Expression|TypeNode|undefined, typeArguments: readonly TypeNode[] | undefined, argumentsArray: readonly Expression[] | undefined): NewExpression;
@@ -1435,6 +1439,34 @@ export interface NodeFactory {
     createJSDocParameterTag(tagName: Identifier | undefined, name: EntityName, isBracketed: boolean, typeExpression?: JSDocTypeExpression, isNameFirst?: boolean, comment?: string | NodeArray<JSDocComment>): JSDocParameterTag;
     createJSDocReturnTag(tagName: Identifier | undefined, typeExpression?: JSDocTypeExpression, comment?: string | NodeArray<JSDocComment>): JSDocReturnTag;
     createJSDocTypeTag(tagName: Identifier | undefined, typeExpression: JSDocTypeExpression, comment?: string | NodeArray<JSDocComment>): JSDocTypeTag;
+    createJSDocTypeExpression(type: TypeNode): JSDocTypeExpression;
+    createJSDocNameReference(name: EntityName | JSDocMemberName): JSDocNameReference;
+    createJSDocLink(name: EntityName | JSDocMemberName | undefined, text: string): JSDocLink;
+    createJSDocLinkCode(name: EntityName | JSDocMemberName | undefined, text: string): JSDocLinkCode;
+    createJSDocLinkPlain(name: EntityName | JSDocMemberName | undefined, text: string): JSDocLinkPlain;
+
+    createJSDocClassTag(tagName: Identifier | undefined, comment?: string | NodeArray<JSDocComment>): JSDocClassTag;
+    createJSDocPublicTag(tagName: Identifier | undefined, comment?: string | NodeArray<JSDocComment>): JSDocPublicTag;
+    createJSDocPrivateTag(tagName: Identifier | undefined, comment?: string | NodeArray<JSDocComment>): JSDocPrivateTag;
+    createJSDocProtectedTag(tagName: Identifier | undefined, comment?: string | NodeArray<JSDocComment>): JSDocProtectedTag;
+    createJSDocDeprecatedTag(tagName: Identifier | undefined, comment?: string | NodeArray<JSDocComment>): JSDocDeprecatedTag;
+    createJSDocOverrideTag(tagName: Identifier | undefined, comment?: string | NodeArray<JSDocComment>): JSDocOverrideTag;
+    createJSDocUnknownTag(tagName: Identifier, comment?: string | NodeArray<JSDocComment>): JSDocUnknownTag;
+    createJSDocPropertyTag(tagName: Identifier | undefined, name: EntityName, isBracketed: boolean, typeExpression?: JSDocTypeExpression, isNameFirst?: boolean, comment?: string | NodeArray<JSDocComment>): JSDocPropertyTag;
+    createJSDocTypeLiteral(propertyTags?: readonly JSDocPropertyLikeTag[], isArrayType?: boolean): JSDocTypeLiteral;
+    createJSDocSeeTag(tagName: Identifier | undefined, name: JSDocNameReference | undefined, comment?: string | NodeArray<JSDocComment>): JSDocSeeTag;
+    createJSDocAuthorTag(tagName: Identifier | undefined, comment?: string | NodeArray<JSDocComment>): JSDocAuthorTag;
+    createJSDocThrowsTag(tagName: Identifier, typeExpression: JSDocTypeExpression | undefined, comment?: string | NodeArray<JSDocComment>): JSDocThrowsTag;
+    createJSDocImplementsTag(tagName: Identifier | undefined, className: JSDocImplementsTag["class"], comment?: string | NodeArray<JSDocComment>): JSDocImplementsTag;
+    createJSDocTypedefTag(tagName: Identifier | undefined, typeExpression?: JSDocTypeExpression | JSDocTypeLiteral, fullName?: Identifier, comment?: string | NodeArray<JSDocComment>): JSDocTypedefTag;
+    createJSDocAugmentsTag(tagName: Identifier | undefined, className: JSDocAugmentsTag["class"], comment?: string | NodeArray<JSDocComment>): JSDocAugmentsTag;
+    createJSDocSatisfiesTag(tagName: Identifier | undefined, typeExpression: JSDocTypeExpression, comment?: string | NodeArray<JSDocComment>): JSDocSatisfiesTag;
+    createJSDocThisTag(tagName: Identifier | undefined, typeExpression: JSDocTypeExpression, comment?: string | NodeArray<JSDocComment>): JSDocThisTag;
+    createJSDocSignature(typeParameters: readonly JSDocTemplateTag[] | undefined, parameters: readonly JSDocParameterTag[], type?: JSDocReturnTag): JSDocSignature;
+    createJSDocCallbackTag(tagName: Identifier | undefined, typeExpression: JSDocSignature, fullName?: Identifier, comment?: string | NodeArray<JSDocComment>): JSDocCallbackTag;
+    createJSDocOverloadTag(tagName: Identifier | undefined, typeExpression: JSDocSignature, comment?: string | NodeArray<JSDocComment>): JSDocOverloadTag
+    createJSDocTemplateTag(tagName: Identifier | undefined, constraint: JSDocTypeExpression | undefined, typeParameters: readonly TypeParameterDeclaration[], comment?: string | NodeArray<JSDocComment>): JSDocTemplateTag;
+
 
     // Properties Assignment
     createPropertyAssignment(name: string | PropertyName, initializer: Expression): PropertyAssignment;
@@ -2393,6 +2425,7 @@ export type JSDocSyntaxKind =
     | SyntaxKind.CommaToken
     | SyntaxKind.DotToken
     | SyntaxKind.Identifier    
+    | SyntaxKind.BacktickToken
     | SyntaxKind.HashToken
     | SyntaxKind.Unknown
     | KeywordSyntaxKind;
@@ -3155,7 +3188,7 @@ export interface JSDocText extends Node {
     text: string;
 }
 
-export type JSDocComment = JSDocText;// | JSDocLink | JSDocLinkCode | JSDocLinkPlain;
+export type JSDocComment = JSDocText | JSDocLink | JSDocLinkCode | JSDocLinkPlain;
 
 export interface Expression extends Node {
     _expressionBrand: any;
@@ -4418,6 +4451,12 @@ export interface JSDocTemplateTag extends JSDocTag {
     readonly constraint: JSDocTypeExpression | undefined;
     readonly typeParameters: NodeArray<TypeParameterDeclaration>;
 }
+
+export interface JSDocThisTag extends JSDocTag {
+    readonly kind: SyntaxKind.JSDocThisTag;
+    readonly typeExpression: JSDocTypeExpression;
+}
+
 
 export interface JSDocDeprecatedTag extends JSDocTag {
     kind: SyntaxKind.JSDocDeprecatedTag;
@@ -6692,6 +6731,10 @@ export interface JSDocSeeTag extends JSDocTag {
     readonly name?: JSDocNameReference;
 }
 
+export interface JSDocAuthorTag extends JSDocTag {
+    readonly kind: SyntaxKind.JSDocAuthorTag;
+}
+
 export interface JSDocThrowsTag extends JSDocTag {
     readonly kind: SyntaxKind.JSDocThrowsTag;
     readonly typeExpression?: JSDocTypeExpression;
@@ -6979,3 +7022,31 @@ export interface LoadImportResult {
     source: string;
     error?: string;
 };
+
+export interface JSDocClassTag extends JSDocTag {
+    readonly kind: SyntaxKind.JSDocClassTag;
+}
+
+export interface JSDocPublicTag extends JSDocTag {
+    readonly kind: SyntaxKind.JSDocPublicTag;
+}
+
+export interface JSDocPrivateTag extends JSDocTag {
+    readonly kind: SyntaxKind.JSDocPrivateTag;
+}
+
+export interface JSDocProtectedTag extends JSDocTag {
+    readonly kind: SyntaxKind.JSDocProtectedTag;
+}
+
+export interface JSDocOverrideTag extends JSDocTag {
+    readonly kind: SyntaxKind.JSDocOverrideTag;
+}
+
+export interface JSDocUnknownTag extends JSDocTag {
+    readonly kind: SyntaxKind.JSDocTag;
+}
+
+export type JSDocNamespaceBody =
+    | Identifier;
+    // | JSDocNamespaceDeclaration;

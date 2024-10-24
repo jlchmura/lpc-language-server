@@ -276,6 +276,7 @@ const textToToken = new Map(Object.entries({
     "([": SyntaxKind.OpenParenBracketToken,
     "({": SyntaxKind.OpenParenBraceToken,
     "(*": SyntaxKind.OpenParenAsteriskToken,
+    "`": SyntaxKind.BacktickToken,
 }));
 
 /*
@@ -2759,6 +2760,13 @@ export function createScanner(
     function scanJSDocCommentTextToken(inBackticks: boolean): JSDocSyntaxKind | SyntaxKind.JSDocCommentTextToken {
         fullStartPos = tokenStart = pos;
         tokenFlags = TokenFlags.None;
+
+        Debug.assert(!stateEndings[stateId] || stateEndings[stateId].end <= pos, "State ending cannot be after the current position");
+        stateEndings[stateId] = {
+            end: pos,
+            fileName
+        };
+        
         if (pos >= end) {
             return token = SyntaxKind.EndOfFileToken;
         }
@@ -2787,6 +2795,13 @@ export function createScanner(
     function scanJsDocToken(): JSDocSyntaxKind {
         fullStartPos = tokenStart = pos;
         tokenFlags = TokenFlags.None;
+
+        Debug.assert(!stateEndings[stateId] || stateEndings[stateId].end <= pos, "State ending cannot be after the current position");
+        stateEndings[stateId] = {
+            end: pos,
+            fileName
+        };
+
         if (pos >= end) {
             return token = SyntaxKind.EndOfFileToken;
         }
@@ -2836,8 +2851,8 @@ export function createScanner(
                 return token = SyntaxKind.CommaToken;
             case CharacterCodes.dot:
                 return token = SyntaxKind.DotToken;
-            // case CharacterCodes.backtick:
-            //     return token = SyntaxKind.BacktickToken;
+            case CharacterCodes.backtick:
+                return token = SyntaxKind.BacktickToken;
             case CharacterCodes.hash:
                 return token = SyntaxKind.HashToken;
             case CharacterCodes.backslash:
@@ -3019,22 +3034,33 @@ export function createScanner(
     };
 
     function scanRange<T>(start: number, length: number, callback: () => T): T {
+        // save state, do a scan, then restore state
         const saveStateId = stateId;
+        const saveNextId = nextStateId;
         const saveStateCache = {...stateEndings};
-        const restoreState = captureCachedState();        
+        const restoreState = captureCachedState();
+        const scanStateId = stateId;     
+
+        fileName = "";
+
+        // initialize the state ending
+        stateEndings[stateId] = { end: start, fileName };
         
         setText(text, start, length);
         const result = callback();
 
         // release all states that were captured while speculating
-        while (stateId > saveStateId) {
+        // this must be done to trigger switchStream callbacks
+        while (stateId > scanStateId) {
             nextState();
         }
 
         restoreState();
-        stateEndings = saveStateCache;                
+        
+        stateEndings = saveStateCache;
+        nextStateId = saveNextId;
 
-        Debug.fail("todo - this needs thorough testing");
+        Debug.assert(stateId <= saveStateId, "State id mismatch");    
         
         return result;
     }

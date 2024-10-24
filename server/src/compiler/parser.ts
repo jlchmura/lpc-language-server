@@ -1,6 +1,6 @@
-import { isIdentifier as isIdentifierNode, BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange, PrefixUnaryExpression, first, LanguageVariant, EqualsToken, LpcConfigSourceFile, createBaseNodeFactory, PrefixUnaryOperator, Program, LpcFileHandler, ParenthesizedExpression, ArrayLiteralExpression, LambdaExpression, PunctuationSyntaxKind, PunctuationToken, LambdaOperatorToken, CastExpression, PropertyAccessExpression, isIdentifier, CloneObjectExpression, NewExpression, trimQuotes, createScanner, isKeyword, PunctuationOrKeywordSyntaxKind, getLanguageVariant, mapDefined, getJSDocCommentRanges, LabeledStatement, PropertyName, Token, tokenToString, addRelatedInfo, tokenIsIdentifierOrKeyword, getBinaryOperatorPrecedence, addRange, append, ArrayTypeNode, canHaveJSDoc, concatenate, containsParseError, Diagnostic, EntityName, getSpellingSuggestion, identity, idText, isIdentifierText, isTypeReferenceNode, JSDoc, JSDocAugmentsTag, JSDocCallbackTag, JSDocComment, JSDocImplementsTag, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocParameterTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThrowsTag, JSDocTypedefTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, nodeIsMissing, noop, PropertyAccessEntityNameExpression, setParent, skipTrivia, some, CharacterCodes, MapLike, KeywordSyntaxKind, startsWith, textToKeywordObj, ModifierLike, isModifierKind, MissingDeclaration, setTextRangePos, BindingPattern, KeywordTypeSyntaxKind, LiteralTypeNode, IntLiteral, FloatLiteral, LiteralLikeNode, isLiteralKind, TypeReferenceNode, getFullWidth, OperatorPrecedence, UnaryExpression, isLeftHandSideExpression, isAssignmentOperator, isKeywordOrPunctuation, UpdateExpression, PrimaryExpression, nodeIsPresent, PropertyAccessToken, IterationStatement, InheritClauseType, ObjectType, StructTypeNode, NamedDeclaration, TypeElement, PropertySignature, MethodSignature, StructDeclaration, TypeLiteralNode, TypeAssertion, NewStructExpression, ObjectLiteralElementLike, PropertyAssignment, getStartPositionOfLine, MappingLiteralExpression, MappingEntryExpression, isStringOrNumericLiteralLike, ElementAccessExpression, isFunctionDeclaration, RangeExpression, isPunctuation, LambdaIdentifierExpression, LambdaOperatorExpression, PreprocessorDirective, IncludeDirective, DefineDirective, UndefDirective, Macro, Scanner, last, ReadonlyTextRange, MacroParameter, forEachEntry, Ternary, isIntLiteral, isArrayTypeNode, SuperAccessExpression, isIndexedAccessTypeNode, isStringLiteral, isBinaryExpression, PragmaDirective, SpreadElement, CatchStatement, CatchExpression, getDirectoryPath, EvaluateExpression } from "./_namespaces/lpc";
+import { isIdentifier as isIdentifierNode, BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange, PrefixUnaryExpression, first, LanguageVariant, EqualsToken, LpcConfigSourceFile, createBaseNodeFactory, PrefixUnaryOperator, Program, LpcFileHandler, ParenthesizedExpression, ArrayLiteralExpression, LambdaExpression, PunctuationSyntaxKind, PunctuationToken, LambdaOperatorToken, CastExpression, PropertyAccessExpression, isIdentifier, CloneObjectExpression, NewExpression, trimQuotes, createScanner, isKeyword, PunctuationOrKeywordSyntaxKind, getLanguageVariant, mapDefined, getJSDocCommentRanges, LabeledStatement, PropertyName, Token, tokenToString, addRelatedInfo, tokenIsIdentifierOrKeyword, getBinaryOperatorPrecedence, addRange, append, ArrayTypeNode, canHaveJSDoc, concatenate, containsParseError, Diagnostic, EntityName, getSpellingSuggestion, identity, idText, isIdentifierText, isTypeReferenceNode, JSDoc, JSDocAugmentsTag, JSDocCallbackTag, JSDocComment, JSDocImplementsTag, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocParameterTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThrowsTag, JSDocTypedefTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, nodeIsMissing, noop, PropertyAccessEntityNameExpression, setParent, skipTrivia, some, CharacterCodes, MapLike, KeywordSyntaxKind, startsWith, textToKeywordObj, ModifierLike, isModifierKind, MissingDeclaration, setTextRangePos, BindingPattern, KeywordTypeSyntaxKind, LiteralTypeNode, IntLiteral, FloatLiteral, LiteralLikeNode, isLiteralKind, TypeReferenceNode, getFullWidth, OperatorPrecedence, UnaryExpression, isLeftHandSideExpression, isAssignmentOperator, isKeywordOrPunctuation, UpdateExpression, PrimaryExpression, nodeIsPresent, PropertyAccessToken, IterationStatement, InheritClauseType, ObjectType, StructTypeNode, NamedDeclaration, TypeElement, PropertySignature, MethodSignature, StructDeclaration, TypeLiteralNode, TypeAssertion, NewStructExpression, ObjectLiteralElementLike, PropertyAssignment, getStartPositionOfLine, MappingLiteralExpression, MappingEntryExpression, isStringOrNumericLiteralLike, ElementAccessExpression, isFunctionDeclaration, RangeExpression, isPunctuation, LambdaIdentifierExpression, LambdaOperatorExpression, PreprocessorDirective, IncludeDirective, DefineDirective, UndefDirective, Macro, Scanner, last, ReadonlyTextRange, MacroParameter, forEachEntry, Ternary, isIntLiteral, isArrayTypeNode, SuperAccessExpression, isIndexedAccessTypeNode, isStringLiteral, isBinaryExpression, PragmaDirective, SpreadElement, CatchStatement, CatchExpression, getDirectoryPath, EvaluateExpression, setParentRecursive, ExpressionWithTypeArguments, JSDocThisTag, isJSDocTypeTag, isJSDocReturnTag, JSDocAuthorTag, QualifiedName } from "./_namespaces/lpc";
 import { DriverType, ILpcConfig } from "../config-types";
-import { loadLpcConfigFromString, LpcConfig } from "./LpcConfig";
+import { ensureLpcConfig, loadLpcConfigFromString, LpcConfig } from "./LpcConfig";
 import { parse, resolve } from "path";
 
 
@@ -679,14 +679,14 @@ export namespace LpcParser {
     function createMissingNode<T extends Node>(kind: T["kind"], reportAtCurrentPosition: false, diagnosticMessage?: DiagnosticMessage, ...args: DiagnosticArguments): T;
     function createMissingNode<T extends Node>(kind: T["kind"], reportAtCurrentPosition: boolean, diagnosticMessage: DiagnosticMessage, ...args: DiagnosticArguments): T;
     function createMissingNode<T extends Node>(kind: T["kind"], reportAtCurrentPosition: boolean, diagnosticMessage?: DiagnosticMessage, ...args: DiagnosticArguments): T {
+        const pos = getPositionState();
         if (reportAtCurrentPosition) {
             parseErrorAtPosition(scanner.getTokenFullStart(), 0, diagnosticMessage!, ...args);
         }
         else if (diagnosticMessage) {
             parseErrorAtCurrentToken(diagnosticMessage, ...args);
         }
-
-        const pos = getPositionState();
+        
         const result = kind === SyntaxKind.Identifier ? factoryCreateIdentifier("", /*originalKeywordKind*/ undefined) :            
             kind === SyntaxKind.IntLiteral ? factoryCreateIntLiteral("", /*numericLiteralFlags*/ undefined) :
             kind === SyntaxKind.FloatLiteral ? factoryCreateFloatLiteral("", /*numericLiteralFlags*/ undefined) :
@@ -1388,11 +1388,20 @@ export namespace LpcParser {
         nextToken();
         return node;
     }
-
-    function createNodeArray<T extends Node>(elements: T[], pos: PositionState, end?: number, hasTrailingComma?: boolean): NodeArray<T> {
+    
+    function createNodeArray<T extends Node>(elements: T[], pos: number, end: number, hasTrailingComma?: boolean): NodeArray<T> 
+    function createNodeArray<T extends Node>(elements: T[], pos: PositionState, end?: number, hasTrailingComma?: boolean): NodeArray<T> 
+    function createNodeArray<T extends Node>(elements: T[], pos: PositionState | number, end?: number, hasTrailingComma?: boolean): NodeArray<T> {
         const array = factoryCreateNodeArray(elements, hasTrailingComma);
-        end ??= scanner.getState(pos.stateId).end;                
-        setTextRangePosEnd(array, pos.pos, end);
+        let arrayPos: number;
+        if (typeof pos == "number") {
+            arrayPos = pos;
+            end ??= scanner.getTokenFullStart();
+        } else {
+            arrayPos = pos.pos;
+            end ??= scanner.getState(pos.stateId).end;                            
+        }
+        setTextRangePosEnd(array, arrayPos, end);
         return array;
     }
 
@@ -1885,19 +1894,24 @@ export namespace LpcParser {
         const statement = parseStatement();
         return withJSDoc(finishNode(factory.createWhileStatement(statement, expression), pos), hasJSDoc);
     }
-
-    function finishNode<T extends Node>(node: T, pos: PositionState): T {            
-        const scannerState = scanner.getState(pos.stateId);
-        Debug.assertIsDefined(scannerState, "Scanner state must be defined");
-        Debug.assert(scannerState.fileName == pos.fileName, "Scanner state filename does not match position state filename");
-        // Debug.assert(!pos.speculating, "Cannot finish node while speculating");
-
-        (node as Mutable<T>).includeDirPos = pos.include?.pos ?? pos.macro?.includeDirPos;
-        (node as Mutable<T>).includeDirEnd = pos.include?.end ?? pos.macro?.includeDirEnd;
-        (node as Mutable<T>).originFilename = scannerState.fileName;
     
-        setTextRangePosEnd(node, pos.pos, scannerState.end);
-    
+    function finishNode<T extends Node>(node: T, pos: number, end: number): T
+    function finishNode<T extends Node>(node: T, pos: PositionState): T 
+    function finishNode<T extends Node>(node: T, pos: number | PositionState, end?: number): T {
+        if (typeof pos !== "number") {
+            const scannerState = scanner.getState(pos.stateId);
+            Debug.assertIsDefined(scannerState, "Scanner state must be defined");
+            Debug.assert(scannerState.fileName == pos.fileName, "Scanner state filename does not match position state filename");
+            // Debug.assert(!pos.speculating, "Cannot finish node while speculating");
+
+            (node as Mutable<T>).includeDirPos = pos.include?.pos ?? pos.macro?.includeDirPos;
+            (node as Mutable<T>).includeDirEnd = pos.include?.end ?? pos.macro?.includeDirEnd;
+            (node as Mutable<T>).originFilename = scannerState.fileName;
+            setTextRangePosEnd(node, pos.pos, scannerState.end);
+        } else {
+            setTextRangePosEnd(node, pos, end!);
+        }
+
         // TODO: remove this once we're confident in the parser positioning
         const incPos = node.includeDirPos;
         !!incPos && Debug.assert(incPos < sourceText.length, "Include directive position is out of range");
@@ -2019,7 +2033,30 @@ export namespace LpcParser {
         return parseOptionalToken(t) ||
             createMissingNode(t, /*reportAtCurrentPosition*/ false, diagnosticMessage || Diagnostics._0_expected, arg0 || tokenToString(t)!);
     }
+
+    function parseExpectedTokenJSDoc<TKind extends JSDocSyntaxKind>(t: TKind): Token<TKind>;
+    function parseExpectedTokenJSDoc(t: JSDocSyntaxKind): Node {
+        const optional = parseOptionalTokenJSDoc(t);
+        if (optional) return optional;
+        Debug.assert(isKeywordOrPunctuation(t));
+        return createMissingNode(t, /*reportAtCurrentPosition*/ false, Diagnostics._0_expected, tokenToString(t));
+    }
     
+    function parseOptionalTokenJSDoc<TKind extends JSDocSyntaxKind>(t: TKind): Token<TKind>;
+    function parseOptionalTokenJSDoc(t: JSDocSyntaxKind): Node | undefined {
+        if (token() === t) {
+            return parseTokenNodeJSDoc();
+        }
+        return undefined;
+    }
+
+    function parseTokenNodeJSDoc<T extends Node>(): T {
+        const pos = getPositionState();
+        const kind = token();
+        nextTokenJSDoc();
+        return finishNode(factoryCreateToken(kind), pos) as T;
+    }
+
     function parseOptional(t: SyntaxKind): boolean {
         if (token() === t) {
             nextToken();
@@ -4562,26 +4599,114 @@ export namespace LpcParser {
         return identifier;
     }
 
+    function parseExpectedJSDoc(kind: JSDocSyntaxKind) {
+        if (token() === kind) {
+            nextTokenJSDoc();
+            return true;
+        }
+        Debug.assert(isKeywordOrPunctuation(kind));
+        parseErrorAtCurrentToken(Diagnostics._0_expected, tokenToString(kind));
+        return false;
+    }
+
+    function nextTokenJSDoc(): JSDocSyntaxKind {
+        return currentToken = scanner.scanJsDocToken();
+    }
+
+    function nextJSDocCommentTextToken(inBackticks: boolean): JSDocSyntaxKind | SyntaxKind.JSDocCommentTextToken {
+        return currentToken = scanner.scanJSDocCommentTextToken(inBackticks);
+    }
+
+    function parseTypePredicatePrefix() {
+        const id = parseIdentifier();
+        if (token() === SyntaxKind.IsKeyword && !scanner.hasPrecedingLineBreak()) {
+            nextToken();
+            return id;
+        }
+    }
+
+    function parseTypeOrTypePredicate(): TypeNode {
+        const pos = getNodePos();
+        const typePredicateVariable = isIdentifier() && tryParse(parseTypePredicatePrefix);
+        const type = parseType();
+        // if (typePredicateVariable) {
+        //     return finishNode(factory.createTypePredicateNode(/*assertsModifier*/ undefined, typePredicateVariable, type), pos);
+        // }
+        // else {
+            return type;
+        // }
+    }
+
+    function parseJSDocType(): TypeNode {
+        scanner.setSkipJsDocLeadingAsterisks(true);
+        const pos = getNodePos();
+        
+        const hasDotDotDot = parseOptional(SyntaxKind.DotDotDotToken);
+        let type = parseTypeOrTypePredicate();
+        scanner.setSkipJsDocLeadingAsterisks(false);
+        if (hasDotDotDot) {
+            Debug.fail("TODO: implement rest type");
+            // type = finishNode(factory.createJSDocVariadicType(type), pos);
+        }
+        if (token() === SyntaxKind.EqualsToken) {
+            Debug.fail("TODO: implement optional type");
+            // nextToken();
+            // return finishNode(factory.createJSDocOptionalType(type), pos);
+        }
+        return type;
+    }
+
+    export function fixupParentReferences(rootNode: Node) {
+        // normally parent references are set during binding. However, for clients that only need
+        // a syntax tree, and no semantic features, then the binding process is an unnecessary
+        // overhead.  This functions allows us to set all the parents, without all the expense of
+        // binding.
+        setParentRecursive(rootNode, /*incremental*/ true);
+    }
+
+    function parseEntityName(allowReservedWords: boolean, diagnosticMessage?: DiagnosticMessage): EntityName {
+        const pos = getPositionState();
+        let entity: EntityName = allowReservedWords ? parseIdentifierName(diagnosticMessage) : parseIdentifier(diagnosticMessage);
+        while (parseOptional(SyntaxKind.DotToken)) {
+            if (token() === SyntaxKind.LessThanToken) {
+                // The entity is part of a JSDoc-style generic. We will use the gap between `typeName` and
+                // `typeArguments` to report it as a grammar error in the checker.
+                break;
+            }
+            entity = finishNode(
+                factory.createQualifiedName(
+                    entity,
+                    parseRightSideOfDot(allowReservedWords, /*allowPrivateIdentifiers*/ false, /*allowUnicodeEscapeSequenceInIdentifierName*/ true) as Identifier,
+                ),
+                pos,
+            );
+        }
+        return entity;
+    }
+
+    function createQualifiedName(entity: EntityName, name: Identifier, entityPos: PositionState): QualifiedName {
+        return finishNode(factory.createQualifiedName(entity, name), entityPos);
+    }
+    
     export namespace JSDocParser {
         export function parseJSDocComment(parent: HasJSDoc, start: number, length: number): JSDoc | undefined {
-            return undefined;
-            // const saveToken = currentToken;
-            // const saveParseDiagnosticsLength = parseDiagnostics.length;
-            // const saveParseErrorBeforeNextFinishedNode = parseErrorBeforeNextFinishedNode;
+            const saveToken = currentToken;
+            const saveParseDiagnosticsLength = parseDiagnostics.length;
+            const saveParseErrorBeforeNextFinishedNode = parseErrorBeforeNextFinishedNode;
 
-            // const comment = doInsideOfContext(NodeFlags.JSDoc, () => parseJSDocCommentWorker(start, length));
-            // setParent(comment, parent);
+            const comment = doInsideOfContext(NodeFlags.JSDoc, () => parseJSDocCommentWorker(start, length));
+            setParent(comment, parent);
 
-            // if (contextFlags & NodeFlags.JavaScriptFile) {
-            //     if (!jsDocDiagnostics) {
-            //         jsDocDiagnostics = [];
-            //     }
-            //     addRange(jsDocDiagnostics, parseDiagnostics, saveParseDiagnosticsLength);
-            // }
-            // currentToken = saveToken;
-            // parseDiagnostics.length = saveParseDiagnosticsLength;
-            // parseErrorBeforeNextFinishedNode = saveParseErrorBeforeNextFinishedNode;
-            // return comment;
+            if (contextFlags & NodeFlags.JavaScriptFile) {
+                if (!jsDocDiagnostics) {
+                    jsDocDiagnostics = [];
+                }
+                addRange(jsDocDiagnostics, parseDiagnostics, saveParseDiagnosticsLength);
+            }
+            currentToken = saveToken;
+            parseDiagnostics.length = saveParseDiagnosticsLength;
+            parseErrorBeforeNextFinishedNode = saveParseErrorBeforeNextFinishedNode;
+            return comment;
         }
 
         const enum JSDocState {
@@ -4608,1098 +4733,1068 @@ export namespace LpcParser {
         //     return jsDocTypeExpression ? { jsDocTypeExpression, diagnostics } : undefined;
         // }
 
-        // // Parses out a JSDoc type expression.
-        // export function parseJSDocTypeExpression(mayOmitBraces?: boolean): JSDocTypeExpression {
-        //     const pos = getPositionState();;
-        //     const hasBrace = (mayOmitBraces ? parseOptional : parseExpected)(SyntaxKind.OpenBraceToken);
-        //     const type = doInsideOfContext(NodeFlags.JSDoc, parseJSDocType);
-        //     if (!mayOmitBraces || hasBrace) {
-        //         parseExpectedJSDoc(SyntaxKind.CloseBraceToken);
-        //     }
+        // Parses out a JSDoc type expression.
+        export function parseJSDocTypeExpression(mayOmitBraces?: boolean): JSDocTypeExpression {
+            const pos = getPositionState();;
+            const hasBrace = (mayOmitBraces ? parseOptional : parseExpected)(SyntaxKind.OpenBraceToken);
+            const type = doInsideOfContext(NodeFlags.JSDoc, parseJSDocType);
+            if (!mayOmitBraces || hasBrace) {
+                parseExpectedJSDoc(SyntaxKind.CloseBraceToken);
+            }
 
-        //     const result = factory.createJSDocTypeExpression(type);
-        //     fixupParentReferences(result);
-        //     return finishNode(result, pos);
-        // }
+            const result = factory.createJSDocTypeExpression(type);
+            fixupParentReferences(result);
+            return finishNode(result, pos);
+        }
 
-        // export function parseJSDocNameReference(): JSDocNameReference {
-        //     const pos = getPositionState();;
-        //     const hasBrace = parseOptional(SyntaxKind.OpenBraceToken);
-        //     const p2 = getNodePos();
-        //     let entityName: EntityName | JSDocMemberName = parseEntityName(/*allowReservedWords*/ false);
-        //     while (token() === SyntaxKind.PrivateIdentifier) {
-        //         reScanHashToken(); // rescan #id as # id
-        //         nextTokenJSDoc(); // then skip the #
-        //         entityName = finishNode(factory.createJSDocMemberName(entityName, parseIdentifier()), p2);
-        //     }
-        //     if (hasBrace) {
-        //         parseExpectedJSDoc(SyntaxKind.CloseBraceToken);
-        //     }
+        
+        export function parseJSDocNameReference(): JSDocNameReference {
+            const pos = getPositionState();;
+            const hasBrace = parseOptional(SyntaxKind.OpenBraceToken);
+            const p2 = getNodePos();
+            let entityName: EntityName | JSDocMemberName = parseEntityName(/*allowReservedWords*/ false);
+            // while (token() === SyntaxKind.PrivateIdentifier) {
+            //     reScanHashToken(); // rescan #id as # id
+            //     nextTokenJSDoc(); // then skip the #
+            //     entityName = finishNode(factory.createJSDocMemberName(entityName, parseIdentifier()), p2);
+            // }
+            if (hasBrace) {
+                parseExpectedJSDoc(SyntaxKind.CloseBraceToken);
+            }
 
-        //     const result = factory.createJSDocNameReference(entityName);
-        //     fixupParentReferences(result);
-        //     return finishNode(result, pos);
-        // }
+            const result = factory.createJSDocNameReference(entityName);
+            fixupParentReferences(result);
+            return finishNode(result, pos);
+        }
 
-        // export function parseIsolatedJSDocComment(content: string, start: number | undefined, length: number | undefined): { jsDoc: JSDoc; diagnostics: Diagnostic[]; } | undefined {
-        //     initializeState("", content, ScriptTarget.Latest, /*syntaxCursor*/ undefined, ScriptKind.JS, JSDocParsingMode.ParseAll);
-        //     const jsDoc = doInsideOfContext(NodeFlags.JSDoc, () => parseJSDocCommentWorker(start, length));
+        export function parseIsolatedJSDocComment(content: string, start: number | undefined, length: number | undefined): { jsDoc: JSDoc; diagnostics: Diagnostic[]; } | undefined {
+            initState("", content, ScriptTarget.Latest, /*syntaxCursor*/ undefined, ScriptKind.LPC, ensureLpcConfig(), undefined, JSDocParsingMode.ParseAll);
+            const jsDoc = doInsideOfContext(NodeFlags.JSDoc, () => parseJSDocCommentWorker(start, length));
 
-        //     const sourceFile = { languageVariant: LanguageVariant.Standard, text: content } as SourceFile;
-        //     const diagnostics = attachFileToDiagnostics(parseDiagnostics, sourceFile);
-        //     clearState();
+            const sourceFile = { languageVariant: LanguageVariant.Standard, text: content } as SourceFile;
+            const diagnostics = attachFileToDiagnostics(parseDiagnostics, sourceFile);
+            clearState();
 
-        //     return jsDoc ? { jsDoc, diagnostics } : undefined;
-        // }
+            return jsDoc ? { jsDoc, diagnostics } : undefined;
+        }
 
         
 
-        // const enum PropertyLikeParse {
-        //     Property = 1 << 0,
-        //     Parameter = 1 << 1,
-        //     CallbackParameter = 1 << 2,
-        // }
+        const enum PropertyLikeParse {
+            Property = 1 << 0,
+            Parameter = 1 << 1,
+            CallbackParameter = 1 << 2,
+        }
 
         
         
-        // function parseJSDocCommentWorker(start = 0, length: number | undefined): JSDoc | undefined {
-        //     const content = sourceText;
-        //     const end = length === undefined ? content.length : start + length;
-        //     length = end - start;
-
-        //     Debug.assert(start >= 0);
-        //     Debug.assert(start <= end);
-        //     Debug.assert(end <= content.length);
-
-        //     // Check for /** (JSDoc opening part)
-        //     if (!isJSDocLikeText(content, start)) {
-        //         return undefined;
-        //     }
-
-        //     let tags: JSDocTag[];
-        //     let tagsPos: number;
-        //     let tagsEnd: number;
-        //     let linkEnd: number;
-        //     let commentsPos: number | undefined;
-        //     let comments: string[] = [];
-        //     const parts: JSDocComment[] = [];
-
-        //     const saveParsingContext = parsingContext;
-        //     parsingContext |= 1 << ParsingContext.JSDocComment;
-
-        //     // + 3 for leading /**, - 5 in total for /** */
-        //     const result = scanner.scanRange(start + 3, length - 5, doJSDocScan);
-        //     parsingContext = saveParsingContext;
-        //     return result;
-
-        //     function doJSDocScan() {
-        //         // Initially we can parse out a tag.  We also have seen a starting asterisk.
-        //         // This is so that /** * @type */ doesn't parse.
-        //         let state = JSDocState.SawAsterisk;
-        //         let margin: number | undefined;
-        //         // + 4 for leading '/** '
-        //         // + 1 because the last index of \n is always one index before the first character in the line and coincidentally, if there is no \n before start, it is -1, which is also one index before the first character
-        //         let indent = start - (content.lastIndexOf("\n", start) + 1) + 4;
-        //         function pushComment(text: string) {
-        //             if (!margin) {
-        //                 margin = indent;
-        //             }
-        //             comments.push(text);
-        //             indent += text.length;
-        //         }
-
-        //         nextTokenJSDoc();
-        //         while (parseOptionalJsdoc(SyntaxKind.WhitespaceTrivia));
-        //         if (parseOptionalJsdoc(SyntaxKind.NewLineTrivia)) {
-        //             state = JSDocState.BeginningOfLine;
-        //             indent = 0;
-        //         }
-        //         loop:
-        //         while (true) {
-        //             switch (token()) {
-        //                 case SyntaxKind.AtToken:
-        //                     removeTrailingWhitespace(comments);
-        //                     if (!commentsPos) commentsPos = getNodePos();
-        //                     addTag(parseTag(indent));
-        //                     // NOTE: According to usejsdoc.org, a tag goes to end of line, except the last tag.
-        //                     // Real-world comments may break this rule, so "BeginningOfLine" will not be a real line beginning
-        //                     // for malformed examples like `/** @param {string} x @returns {number} the length */`
-        //                     state = JSDocState.BeginningOfLine;
-        //                     margin = undefined;
-        //                     break;
-        //                 case SyntaxKind.NewLineTrivia:
-        //                     comments.push(scanner.getTokenText());
-        //                     state = JSDocState.BeginningOfLine;
-        //                     indent = 0;
-        //                     break;
-        //                 case SyntaxKind.AsteriskToken:
-        //                     const asterisk = scanner.getTokenText();
-        //                     if (state === JSDocState.SawAsterisk) {
-        //                         // If we've already seen an asterisk, then we can no longer parse a tag on this line
-        //                         state = JSDocState.SavingComments;
-        //                         pushComment(asterisk);
-        //                     }
-        //                     else {
-        //                         Debug.assert(state === JSDocState.BeginningOfLine);
-        //                         // Ignore the first asterisk on a line
-        //                         state = JSDocState.SawAsterisk;
-        //                         indent += asterisk.length;
-        //                     }
-        //                     break;
-        //                 case SyntaxKind.WhitespaceTrivia:
-        //                     Debug.assert(state !== JSDocState.SavingComments, "whitespace shouldn't come from the scanner while saving top-level comment text");
-        //                     // only collect whitespace if we're already saving comments or have just crossed the comment indent margin
-        //                     const whitespace = scanner.getTokenText();
-        //                     if (margin !== undefined && indent + whitespace.length > margin) {
-        //                         comments.push(whitespace.slice(margin - indent));
-        //                     }
-        //                     indent += whitespace.length;
-        //                     break;
-        //                 case SyntaxKind.EndOfFileToken:
-        //                     break loop;
-        //                 case SyntaxKind.JSDocCommentTextToken:
-        //                     state = JSDocState.SavingComments;
-        //                     pushComment(scanner.getTokenValue());
-        //                     break;
-        //                 case SyntaxKind.OpenBraceToken:
-        //                     state = JSDocState.SavingComments;
-        //                     const commentEnd = scanner.getTokenFullStart();
-        //                     const linkStart = scanner.getTokenEnd() - 1;
-        //                     const link = parseJSDocLink(linkStart);
-        //                     if (link) {
-        //                         if (!linkEnd) {
-        //                             removeLeadingNewlines(comments);
-        //                         }
-        //                         parts.push(finishNode(factory.createJSDocText(comments.join("")), linkEnd ?? start, commentEnd));
-        //                         parts.push(link);
-        //                         comments = [];
-        //                         linkEnd = scanner.getTokenEnd();
-        //                         break;
-        //                     }
-        //                     // fallthrough if it's not a {@link sequence
-        //                 default:
-        //                     // Anything else is doc comment text. We just save it. Because it
-        //                     // wasn't a tag, we can no longer parse a tag on this line until we hit the next
-        //                     // line break.
-        //                     state = JSDocState.SavingComments;
-        //                     pushComment(scanner.getTokenText());
-        //                     break;
-        //             }
-        //             if (state === JSDocState.SavingComments) {
-        //                 nextJSDocCommentTextToken(/*inBackticks*/ false);
-        //             }
-        //             else {
-        //                 nextTokenJSDoc();
-        //             }
-        //         }
-        //         const trimmedComments = comments.join("").trimEnd();
-        //         if (parts.length && trimmedComments.length) {
-        //             parts.push(finishNode(factory.createJSDocText(trimmedComments), linkEnd ?? start, commentsPos));
-        //         }
-        //         if (parts.length && tags) Debug.assertIsDefined(commentsPos, "having parsed tags implies that the end of the comment span should be set");
-        //         const tagsArray = tags && createNodeArray(tags, tagsPos, tagsEnd);
-        //         return finishNode(factory.createJSDocComment(parts.length ? createNodeArray(parts, start, commentsPos) : trimmedComments.length ? trimmedComments : undefined, tagsArray), start, end);
-        //     }
-
-        //     function removeLeadingNewlines(comments: string[]) {
-        //         while (comments.length && (comments[0] === "\n" || comments[0] === "\r")) {
-        //             comments.shift();
-        //         }
-        //     }
-
-        //     function removeTrailingWhitespace(comments: string[]) {
-        //         while (comments.length) {
-        //             const trimmed = comments[comments.length - 1].trimEnd();
-        //             if (trimmed === "") {
-        //                 comments.pop();
-        //             }
-        //             else if (trimmed.length < comments[comments.length - 1].length) {
-        //                 comments[comments.length - 1] = trimmed;
-        //                 break;
-        //             }
-        //             else {
-        //                 break;
-        //             }
-        //         }
-        //     }
-
-        //     function isNextNonwhitespaceTokenEndOfFile(): boolean {
-        //         // We must use infinite lookahead, as there could be any number of newlines :(
-        //         while (true) {
-        //             nextTokenJSDoc();
-        //             if (token() === SyntaxKind.EndOfFileToken) {
-        //                 return true;
-        //             }
-        //             if (!(token() === SyntaxKind.WhitespaceTrivia || token() === SyntaxKind.NewLineTrivia)) {
-        //                 return false;
-        //             }
-        //         }
-        //     }
-
-        //     function skipWhitespace(): void {
-        //         if (token() === SyntaxKind.WhitespaceTrivia || token() === SyntaxKind.NewLineTrivia) {
-        //             if (lookAhead(isNextNonwhitespaceTokenEndOfFile)) {
-        //                 return; // Don't skip whitespace prior to EoF (or end of comment) - that shouldn't be included in any node's range
-        //             }
-        //         }
-        //         while (token() === SyntaxKind.WhitespaceTrivia || token() === SyntaxKind.NewLineTrivia) {
-        //             nextTokenJSDoc();
-        //         }
-        //     }
-
-        //     function skipWhitespaceOrAsterisk(): string {
-        //         if (token() === SyntaxKind.WhitespaceTrivia || token() === SyntaxKind.NewLineTrivia) {
-        //             if (lookAhead(isNextNonwhitespaceTokenEndOfFile)) {
-        //                 return ""; // Don't skip whitespace prior to EoF (or end of comment) - that shouldn't be included in any node's range
-        //             }
-        //         }
-
-        //         let precedingLineBreak = scanner.hasPrecedingLineBreak();
-        //         let seenLineBreak = false;
-        //         let indentText = "";
-        //         while ((precedingLineBreak && token() === SyntaxKind.AsteriskToken) || token() === SyntaxKind.WhitespaceTrivia || token() === SyntaxKind.NewLineTrivia) {
-        //             indentText += scanner.getTokenText();
-        //             if (token() === SyntaxKind.NewLineTrivia) {
-        //                 precedingLineBreak = true;
-        //                 seenLineBreak = true;
-        //                 indentText = "";
-        //             }
-        //             else if (token() === SyntaxKind.AsteriskToken) {
-        //                 precedingLineBreak = false;
-        //             }
-        //             nextTokenJSDoc();
-        //         }
-        //         return seenLineBreak ? indentText : "";
-        //     }
-
-        //     function parseTag(margin: number) {
-        //         Debug.assert(token() === SyntaxKind.AtToken);
-        //         const start = scanner.getTokenStart();
-        //         nextTokenJSDoc();
-
-        //         const tagName = parseJSDocIdentifierName(/*message*/ undefined);
-        //         const indentText = skipWhitespaceOrAsterisk();
-
-        //         let tag: JSDocTag | undefined;
-        //         switch (tagName.escapedText) {
-        //             case "author":
-        //                 tag = parseAuthorTag(start, tagName, margin, indentText);
-        //                 break;
-        //             case "implements":
-        //                 tag = parseImplementsTag(start, tagName, margin, indentText);
-        //                 break;
-        //             case "augments":
-        //             case "extends":
-        //                 tag = parseAugmentsTag(start, tagName, margin, indentText);
-        //                 break;
-        //             case "class":
-        //             case "constructor":
-        //                 tag = parseSimpleTag(start, factory.createJSDocClassTag, tagName, margin, indentText);
-        //                 break;
-        //             case "public":
-        //                 tag = parseSimpleTag(start, factory.createJSDocPublicTag, tagName, margin, indentText);
-        //                 break;
-        //             case "private":
-        //                 tag = parseSimpleTag(start, factory.createJSDocPrivateTag, tagName, margin, indentText);
-        //                 break;
-        //             case "protected":
-        //                 tag = parseSimpleTag(start, factory.createJSDocProtectedTag, tagName, margin, indentText);
-        //                 break;
-        //             case "readonly":
-        //                 tag = parseSimpleTag(start, factory.createJSDocReadonlyTag, tagName, margin, indentText);
-        //                 break;
-        //             case "override":
-        //                 tag = parseSimpleTag(start, factory.createJSDocOverrideTag, tagName, margin, indentText);
-        //                 break;
-        //             case "deprecated":
-        //                 hasDeprecatedTag = true;
-        //                 tag = parseSimpleTag(start, factory.createJSDocDeprecatedTag, tagName, margin, indentText);
-        //                 break;
-        //             case "this":
-        //                 tag = parseThisTag(start, tagName, margin, indentText);
-        //                 break;
-        //             case "enum":
-        //                 tag = parseEnumTag(start, tagName, margin, indentText);
-        //                 break;
-        //             case "arg":
-        //             case "argument":
-        //             case "param":
-        //                 return parseParameterOrPropertyTag(start, tagName, PropertyLikeParse.Parameter, margin);
-        //             case "return":
-        //             case "returns":
-        //                 tag = parseReturnTag(start, tagName, margin, indentText);
-        //                 break;
-        //             case "template":
-        //                 tag = parseTemplateTag(start, tagName, margin, indentText);
-        //                 break;
-        //             case "type":
-        //                 tag = parseTypeTag(start, tagName, margin, indentText);
-        //                 break;
-        //             case "typedef":
-        //                 tag = parseTypedefTag(start, tagName, margin, indentText);
-        //                 break;
-        //             case "callback":
-        //                 tag = parseCallbackTag(start, tagName, margin, indentText);
-        //                 break;
-        //             case "overload":
-        //                 tag = parseOverloadTag(start, tagName, margin, indentText);
-        //                 break;
-        //             case "satisfies":
-        //                 tag = parseSatisfiesTag(start, tagName, margin, indentText);
-        //                 break;
-        //             case "see":
-        //                 tag = parseSeeTag(start, tagName, margin, indentText);
-        //                 break;
-        //             case "exception":
-        //             case "throws":
-        //                 tag = parseThrowsTag(start, tagName, margin, indentText);
-        //                 break;
-        //             case "import":
-        //                 tag = parseImportTag(start, tagName, margin, indentText);
-        //                 break;
-        //             default:
-        //                 tag = parseUnknownTag(start, tagName, margin, indentText);
-        //                 break;
-        //         }
-        //         return tag;
-        //     }
-
-        //     function parseTrailingTagComments(pos: PositionState, end: number, margin: number, indentText: string) {
-        //         // some tags, like typedef and callback, have already parsed their comments earlier
-        //         if (!indentText) {
-        //             margin += end - pos;
-        //         }
-        //         return parseTagComments(margin, indentText.slice(margin));
-        //     }
-
-        //     function parseTagComments(indent: number, initialMargin?: string): string | NodeArray<JSDocComment> | undefined {
-        //         const commentsPos = getNodePos();
-        //         let comments: string[] = [];
-        //         const parts: JSDocComment[] = [];
-        //         let linkEnd;
-        //         let state = JSDocState.BeginningOfLine;
-        //         let margin: number | undefined;
-        //         function pushComment(text: string) {
-        //             if (!margin) {
-        //                 margin = indent;
-        //             }
-        //             comments.push(text);
-        //             indent += text.length;
-        //         }
-        //         if (initialMargin !== undefined) {
-        //             // jump straight to saving comments if there is some initial indentation
-        //             if (initialMargin !== "") {
-        //                 pushComment(initialMargin);
-        //             }
-        //             state = JSDocState.SawAsterisk;
-        //         }
-        //         let tok = token() as JSDocSyntaxKind | SyntaxKind.JSDocCommentTextToken;
-        //         loop:
-        //         while (true) {
-        //             switch (tok) {
-        //                 case SyntaxKind.NewLineTrivia:
-        //                     state = JSDocState.BeginningOfLine;
-        //                     // don't use pushComment here because we want to keep the margin unchanged
-        //                     comments.push(scanner.getTokenText());
-        //                     indent = 0;
-        //                     break;
-        //                 case SyntaxKind.AtToken:
-        //                     scanner.resetTokenState(scanner.getTokenEnd() - 1);
-        //                     break loop;
-        //                 case SyntaxKind.EndOfFileToken:
-        //                     // Done
-        //                     break loop;
-        //                 case SyntaxKind.WhitespaceTrivia:
-        //                     Debug.assert(state !== JSDocState.SavingComments && state !== JSDocState.SavingBackticks, "whitespace shouldn't come from the scanner while saving comment text");
-        //                     const whitespace = scanner.getTokenText();
-        //                     // if the whitespace crosses the margin, take only the whitespace that passes the margin
-        //                     if (margin !== undefined && indent + whitespace.length > margin) {
-        //                         comments.push(whitespace.slice(margin - indent));
-        //                         state = JSDocState.SavingComments;
-        //                     }
-        //                     indent += whitespace.length;
-        //                     break;
-        //                 case SyntaxKind.OpenBraceToken:
-        //                     state = JSDocState.SavingComments;
-        //                     const commentEnd = scanner.getTokenFullStart();
-        //                     const linkStart = scanner.getTokenEnd() - 1;
-        //                     const link = parseJSDocLink(linkStart);
-        //                     if (link) {
-        //                         parts.push(finishNode(factory.createJSDocText(comments.join("")), linkEnd ?? commentsPos, commentEnd));
-        //                         parts.push(link);
-        //                         comments = [];
-        //                         linkEnd = scanner.getTokenEnd();
-        //                     }
-        //                     else {
-        //                         pushComment(scanner.getTokenText());
-        //                     }
-        //                     break;
-        //                 case SyntaxKind.BacktickToken:
-        //                     if (state === JSDocState.SavingBackticks) {
-        //                         state = JSDocState.SavingComments;
-        //                     }
-        //                     else {
-        //                         state = JSDocState.SavingBackticks;
-        //                     }
-        //                     pushComment(scanner.getTokenText());
-        //                     break;
-        //                 case SyntaxKind.JSDocCommentTextToken:
-        //                     if (state !== JSDocState.SavingBackticks) {
-        //                         state = JSDocState.SavingComments; // leading identifiers start recording as well
-        //                     }
-        //                     pushComment(scanner.getTokenValue());
-        //                     break;
-        //                 case SyntaxKind.AsteriskToken:
-        //                     if (state === JSDocState.BeginningOfLine) {
-        //                         // leading asterisks start recording on the *next* (non-whitespace) token
-        //                         state = JSDocState.SawAsterisk;
-        //                         indent += 1;
-        //                         break;
-        //                     }
-        //                     // record the * as a comment
-        //                     // falls through
-        //                 default:
-        //                     if (state !== JSDocState.SavingBackticks) {
-        //                         state = JSDocState.SavingComments; // leading identifiers start recording as well
-        //                     }
-        //                     pushComment(scanner.getTokenText());
-        //                     break;
-        //             }
-        //             if (state === JSDocState.SavingComments || state === JSDocState.SavingBackticks) {
-        //                 tok = nextJSDocCommentTextToken(state === JSDocState.SavingBackticks);
-        //             }
-        //             else {
-        //                 tok = nextTokenJSDoc();
-        //             }
-        //         }
-
-        //         removeLeadingNewlines(comments);
-        //         const trimmedComments = comments.join("").trimEnd();
-        //         if (parts.length) {
-        //             if (trimmedComments.length) {
-        //                 parts.push(finishNode(factory.createJSDocText(trimmedComments), linkEnd ?? commentsPos));
-        //             }
-        //             return createNodeArray(parts, commentsPos, scanner.getTokenEnd());
-        //         }
-        //         else if (trimmedComments.length) {
-        //             return trimmedComments;
-        //         }
-        //     }
-
-        //     function parseJSDocLink(start: number) {
-        //         const linkType = tryParse(parseJSDocLinkPrefix);
-        //         if (!linkType) {
-        //             return undefined;
-        //         }
-        //         nextTokenJSDoc(); // start at token after link, then skip any whitespace
-        //         skipWhitespace();
-        //         const name = parseJSDocLinkName();
-        //         const text = [];
-        //         while (token() !== SyntaxKind.CloseBraceToken && token() !== SyntaxKind.NewLineTrivia && token() !== SyntaxKind.EndOfFileToken) {
-        //             text.push(scanner.getTokenText());
-        //             nextTokenJSDoc();
-        //         }
-        //         const create = linkType === "link" ? factory.createJSDocLink
-        //             : linkType === "linkcode" ? factory.createJSDocLinkCode
-        //             : factory.createJSDocLinkPlain;
-        //         return finishNode(create(name, text.join("")), start, scanner.getTokenEnd());
-        //     }
-
-        //     function parseJSDocLinkName() {
-        //         if (tokenIsIdentifierOrKeyword(token())) {
-        //             const pos = getPositionState();;
-
-        //             let name: EntityName | JSDocMemberName = parseIdentifierName();
-        //             while (parseOptional(SyntaxKind.DotToken)) {
-        //                 name = finishNode(factory.createQualifiedName(name, token() === SyntaxKind.PrivateIdentifier ? createMissingNode<Identifier>(SyntaxKind.Identifier, /*reportAtCurrentPosition*/ false) : parseIdentifierName()), pos);
-        //             }
-        //             while (token() === SyntaxKind.PrivateIdentifier) {
-        //                 reScanHashToken();
-        //                 nextTokenJSDoc();
-        //                 name = finishNode(factory.createJSDocMemberName(name, parseIdentifier()), pos);
-        //             }
-        //             return name;
-        //         }
-        //         return undefined;
-        //     }
-
-        //     function parseJSDocLinkPrefix() {
-        //         skipWhitespaceOrAsterisk();
-        //         if (
-        //             token() === SyntaxKind.OpenBraceToken
-        //             && nextTokenJSDoc() === SyntaxKind.AtToken
-        //             && tokenIsIdentifierOrKeyword(nextTokenJSDoc())
-        //         ) {
-        //             const kind = scanner.getTokenValue();
-        //             if (isJSDocLinkTag(kind)) return kind;
-        //         }
-        //     }
-
-        //     function isJSDocLinkTag(kind: string) {
-        //         return kind === "link" || kind === "linkcode" || kind === "linkplain";
-        //     }
-
-        //     function parseUnknownTag(start: number, tagName: Identifier, indent: number, indentText: string) {
-        //         return finishNode(factory.createJSDocUnknownTag(tagName, parseTrailingTagComments(start, getNodePos(), indent, indentText)), start);
-        //     }
-
-        //     function addTag(tag: JSDocTag | undefined): void {
-        //         if (!tag) {
-        //             return;
-        //         }
-        //         if (!tags) {
-        //             tags = [tag];
-        //             tagsPos = tag.pos;
-        //         }
-        //         else {
-        //             tags.push(tag);
-        //         }
-        //         tagsEnd = tag.end;
-        //     }
-
-        //     function tryParseTypeExpression(): JSDocTypeExpression | undefined {
-        //         skipWhitespaceOrAsterisk();
-        //         return token() === SyntaxKind.OpenBraceToken ? parseJSDocTypeExpression() : undefined;
-        //     }
-
-        //     function parseBracketNameInPropertyAndParamTag(): { name: EntityName; isBracketed: boolean; } {
-        //         // Looking for something like '[foo]', 'foo', '[foo.bar]' or 'foo.bar'
-        //         const isBracketed = parseOptionalJsdoc(SyntaxKind.OpenBracketToken);
-        //         if (isBracketed) {
-        //             skipWhitespace();
-        //         }
-        //         // a markdown-quoted name: `arg` is not legal jsdoc, but occurs in the wild
-        //         const isBackquoted = parseOptionalJsdoc(SyntaxKind.BacktickToken);
-        //         const name = parseJSDocEntityName();
-        //         if (isBackquoted) {
-        //             parseExpectedTokenJSDoc(SyntaxKind.BacktickToken);
-        //         }
-        //         if (isBracketed) {
-        //             skipWhitespace();
-        //             // May have an optional default, e.g. '[foo = 42]'
-        //             if (parseOptionalToken(SyntaxKind.EqualsToken)) {
-        //                 parseExpression();
-        //             }
-
-        //             parseExpected(SyntaxKind.CloseBracketToken);
-        //         }
-
-        //         return { name, isBracketed };
-        //     }
-
-        //     function isObjectOrObjectArrayTypeReference(node: TypeNode): boolean {
-        //         switch (node.kind) {
-        //             case SyntaxKind.ObjectKeyword:
-        //                 return true;
-        //             case SyntaxKind.ArrayType:
-        //                 return isObjectOrObjectArrayTypeReference((node as ArrayTypeNode).elementType);
-        //             default:
-        //                 return isTypeReferenceNode(node) && isIdentifierNode(node.typeName) && node.typeName.escapedText === "Object" && !node.typeArguments;
-        //         }
-        //     }
-
-        //     function parseParameterOrPropertyTag(start: number, tagName: Identifier, target: PropertyLikeParse, indent: number): JSDocParameterTag | JSDocPropertyTag {
-        //         let typeExpression = tryParseTypeExpression();
-        //         let isNameFirst = !typeExpression;
-        //         skipWhitespaceOrAsterisk();
-
-        //         const { name, isBracketed } = parseBracketNameInPropertyAndParamTag();
-        //         const indentText = skipWhitespaceOrAsterisk();
-
-        //         if (isNameFirst && !lookAhead(parseJSDocLinkPrefix)) {
-        //             typeExpression = tryParseTypeExpression();
-        //         }
-
-        //         const comment = parseTrailingTagComments(start, getNodePos(), indent, indentText);
-
-        //         const nestedTypeLiteral = parseNestedTypeLiteral(typeExpression, name, target, indent);
-        //         if (nestedTypeLiteral) {
-        //             typeExpression = nestedTypeLiteral;
-        //             isNameFirst = true;
-        //         }
-        //         const result = target === PropertyLikeParse.Property
-        //             ? factory.createJSDocPropertyTag(tagName, name, isBracketed, typeExpression, isNameFirst, comment)
-        //             : factory.createJSDocParameterTag(tagName, name, isBracketed, typeExpression, isNameFirst, comment);
-        //         return finishNode(result, start);
-        //     }
-
-        //     function parseNestedTypeLiteral(typeExpression: JSDocTypeExpression | undefined, name: EntityName, target: PropertyLikeParse, indent: number) {
-        //         if (typeExpression && isObjectOrObjectArrayTypeReference(typeExpression.type)) {
-        //             const pos = getPositionState();;
-        //             let child: JSDocPropertyLikeTag | JSDocTypeTag | JSDocTemplateTag | JSDocThisTag | false;
-        //             let children: JSDocPropertyLikeTag[] | undefined;
-        //             while (child = tryParse(() => parseChildParameterOrPropertyTag(target, indent, name))) {
-        //                 if (child.kind === SyntaxKind.JSDocParameterTag || child.kind === SyntaxKind.JSDocPropertyTag) {
-        //                     children = append(children, child);
-        //                 }
-        //                 else if (child.kind === SyntaxKind.JSDocTemplateTag) {
-        //                     parseErrorAtRange(child.tagName, Diagnostics.A_JSDoc_template_tag_may_not_follow_a_typedef_callback_or_overload_tag);
-        //                 }
-        //             }
-        //             if (children) {
-        //                 const literal = finishNode(factory.createJSDocTypeLiteral(children, typeExpression.type.kind === SyntaxKind.ArrayType), pos);
-        //                 return finishNode(factory.createJSDocTypeExpression(literal), pos);
-        //             }
-        //         }
-        //     }
-
-        //     function parseReturnTag(start: number, tagName: Identifier, indent: number, indentText: string): JSDocReturnTag {
-        //         if (some(tags, isJSDocReturnTag)) {
-        //             parseErrorAt(tagName.pos, scanner.getTokenStart(), Diagnostics._0_tag_already_specified, unescapeLeadingUnderscores(tagName.escapedText));
-        //         }
-
-        //         const typeExpression = tryParseTypeExpression();
-        //         return finishNode(factory.createJSDocReturnTag(tagName, typeExpression, parseTrailingTagComments(start, getNodePos(), indent, indentText)), start);
-        //     }
-
-        //     function parseTypeTag(start: number, tagName: Identifier, indent?: number, indentText?: string): JSDocTypeTag {
-        //         if (some(tags, isJSDocTypeTag)) {
-        //             parseErrorAt(tagName.pos, scanner.getTokenStart(), Diagnostics._0_tag_already_specified, unescapeLeadingUnderscores(tagName.escapedText));
-        //         }
-
-        //         const typeExpression = parseJSDocTypeExpression(/*mayOmitBraces*/ true);
-        //         const comments = indent !== undefined && indentText !== undefined ? parseTrailingTagComments(start, getNodePos(), indent, indentText) : undefined;
-        //         return finishNode(factory.createJSDocTypeTag(tagName, typeExpression, comments), start);
-        //     }
-
-        //     function parseSeeTag(start: number, tagName: Identifier, indent?: number, indentText?: string): JSDocSeeTag {
-        //         const isMarkdownOrJSDocLink = token() === SyntaxKind.OpenBracketToken
-        //             || lookAhead(() => nextTokenJSDoc() === SyntaxKind.AtToken && tokenIsIdentifierOrKeyword(nextTokenJSDoc()) && isJSDocLinkTag(scanner.getTokenValue()));
-        //         const nameExpression = isMarkdownOrJSDocLink ? undefined : parseJSDocNameReference();
-        //         const comments = indent !== undefined && indentText !== undefined ? parseTrailingTagComments(start, getNodePos(), indent, indentText) : undefined;
-        //         return finishNode(factory.createJSDocSeeTag(tagName, nameExpression, comments), start);
-        //     }
-
-        //     function parseThrowsTag(start: number, tagName: Identifier, indent: number, indentText: string): JSDocThrowsTag {
-        //         const typeExpression = tryParseTypeExpression();
-        //         const comment = parseTrailingTagComments(start, getNodePos(), indent, indentText);
-        //         return finishNode(factory.createJSDocThrowsTag(tagName, typeExpression, comment), start);
-        //     }
-
-        //     function parseAuthorTag(start: number, tagName: Identifier, indent: number, indentText: string): JSDocAuthorTag {
-        //         const commentStart = getNodePos();
-        //         const textOnly = parseAuthorNameAndEmail();
-        //         let commentEnd = scanner.getTokenFullStart();
-        //         const comments = parseTrailingTagComments(start, commentEnd, indent, indentText);
-        //         if (!comments) {
-        //             commentEnd = scanner.getTokenFullStart();
-        //         }
-        //         const allParts = typeof comments !== "string"
-        //             ? createNodeArray(concatenate([finishNode(textOnly, commentStart, commentEnd)], comments) as JSDocComment[], commentStart) // cast away readonly
-        //             : textOnly.text + comments;
-        //         return finishNode(factory.createJSDocAuthorTag(tagName, allParts), start);
-        //     }
-
-        //     function parseAuthorNameAndEmail(): JSDocText {
-        //         const comments: string[] = [];
-        //         let inEmail = false;
-        //         let token = scanner.getToken();
-        //         while (token !== SyntaxKind.EndOfFileToken && token !== SyntaxKind.NewLineTrivia) {
-        //             if (token === SyntaxKind.LessThanToken) {
-        //                 inEmail = true;
-        //             }
-        //             else if (token === SyntaxKind.AtToken && !inEmail) {
-        //                 break;
-        //             }
-        //             else if (token === SyntaxKind.GreaterThanToken && inEmail) {
-        //                 comments.push(scanner.getTokenText());
-        //                 scanner.resetTokenState(scanner.getTokenEnd());
-        //                 break;
-        //             }
-        //             comments.push(scanner.getTokenText());
-        //             token = nextTokenJSDoc();
-        //         }
-
-        //         return factory.createJSDocText(comments.join(""));
-        //     }
-
-        //     function parseImplementsTag(start: number, tagName: Identifier, margin: number, indentText: string): JSDocImplementsTag {
-        //         const className = parseExpressionWithTypeArgumentsForAugments();
-        //         return finishNode(factory.createJSDocImplementsTag(tagName, className, parseTrailingTagComments(start, getNodePos(), margin, indentText)), start);
-        //     }
-
-        //     function parseAugmentsTag(start: number, tagName: Identifier, margin: number, indentText: string): JSDocAugmentsTag {
-        //         const className = parseExpressionWithTypeArgumentsForAugments();
-        //         return finishNode(factory.createJSDocAugmentsTag(tagName, className, parseTrailingTagComments(start, getNodePos(), margin, indentText)), start);
-        //     }
-
-        //     function parseSatisfiesTag(start: number, tagName: Identifier, margin: number, indentText: string): JSDocSatisfiesTag {
-        //         const typeExpression = parseJSDocTypeExpression(/*mayOmitBraces*/ false);
-        //         const comments = margin !== undefined && indentText !== undefined ? parseTrailingTagComments(start, getNodePos(), margin, indentText) : undefined;
-        //         return finishNode(factory.createJSDocSatisfiesTag(tagName, typeExpression, comments), start);
-        //     }
-
-        //     function parseImportTag(start: number, tagName: Identifier, margin: number, indentText: string): JSDocImportTag {
-        //         const afterImportTagPos = scanner.getTokenFullStart();
-
-        //         let identifier: Identifier | undefined;
-        //         if (isIdentifier()) {
-        //             identifier = parseIdentifier();
-        //         }
-
-        //         const importClause = tryParseImportClause(identifier, afterImportTagPos, /*isTypeOnly*/ true, /*skipJsDocLeadingAsterisks*/ true);
-        //         const moduleSpecifier = parseModuleSpecifier();
-        //         const attributes = tryParseImportAttributes();
-
-        //         const comments = margin !== undefined && indentText !== undefined ? parseTrailingTagComments(start, getNodePos(), margin, indentText) : undefined;
-        //         return finishNode(factory.createJSDocImportTag(tagName, importClause, moduleSpecifier, attributes, comments), start);
-        //     }
-
-        //     function parseExpressionWithTypeArgumentsForAugments(): ExpressionWithTypeArguments & { expression: Identifier | PropertyAccessEntityNameExpression; } {
-        //         const usedBrace = parseOptional(SyntaxKind.OpenBraceToken);
-        //         const pos = getPositionState();;
-        //         const expression = parsePropertyAccessEntityNameExpression();
-        //         scanner.setSkipJsDocLeadingAsterisks(true);
-        //         const typeArguments = tryParseTypeArguments();
-        //         scanner.setSkipJsDocLeadingAsterisks(false);
-        //         const node = factory.createExpressionWithTypeArguments(expression, typeArguments) as ExpressionWithTypeArguments & { expression: Identifier | PropertyAccessEntityNameExpression; };
-        //         const res = finishNode(node, pos);
-        //         if (usedBrace) {
-        //             parseExpected(SyntaxKind.CloseBraceToken);
-        //         }
-        //         return res;
-        //     }
-
-        //     function parsePropertyAccessEntityNameExpression() {
-        //         const pos = getPositionState();;
-        //         let node: Identifier | PropertyAccessEntityNameExpression = parseJSDocIdentifierName();
-        //         while (parseOptional(SyntaxKind.DotToken)) {
-        //             const name = parseJSDocIdentifierName();
-        //             node = finishNode(factoryCreatePropertyAccessExpression(node, name), pos) as PropertyAccessEntityNameExpression;
-        //         }
-        //         return node;
-        //     }
-
-        //     function parseSimpleTag(start: number, createTag: (tagName: Identifier | undefined, comment?: string | NodeArray<JSDocComment>) => JSDocTag, tagName: Identifier, margin: number, indentText: string): JSDocTag {
-        //         return finishNode(createTag(tagName, parseTrailingTagComments(start, getNodePos(), margin, indentText)), start);
-        //     }
-
-        //     function parseThisTag(start: number, tagName: Identifier, margin: number, indentText: string): JSDocThisTag {
-        //         const typeExpression = parseJSDocTypeExpression(/*mayOmitBraces*/ true);
-        //         skipWhitespace();
-        //         return finishNode(factory.createJSDocThisTag(tagName, typeExpression, parseTrailingTagComments(start, getNodePos(), margin, indentText)), start);
-        //     }
-
-        //     function parseEnumTag(start: number, tagName: Identifier, margin: number, indentText: string): JSDocEnumTag {
-        //         const typeExpression = parseJSDocTypeExpression(/*mayOmitBraces*/ true);
-        //         skipWhitespace();
-        //         return finishNode(factory.createJSDocEnumTag(tagName, typeExpression, parseTrailingTagComments(start, getNodePos(), margin, indentText)), start);
-        //     }
-
-        //     function parseTypedefTag(start: number, tagName: Identifier, indent: number, indentText: string): JSDocTypedefTag {
-        //         let typeExpression: JSDocTypeExpression | JSDocTypeLiteral | undefined = tryParseTypeExpression();
-        //         skipWhitespaceOrAsterisk();
-
-        //         const fullName = parseJSDocTypeNameWithNamespace();
-        //         skipWhitespace();
-        //         let comment = parseTagComments(indent);
-
-        //         let end: number | undefined;
-        //         if (!typeExpression || isObjectOrObjectArrayTypeReference(typeExpression.type)) {
-        //             let child: JSDocTypeTag | JSDocPropertyTag | JSDocTemplateTag | false;
-        //             let childTypeTag: JSDocTypeTag | undefined;
-        //             let jsDocPropertyTags: JSDocPropertyTag[] | undefined;
-        //             let hasChildren = false;
-        //             while (child = tryParse(() => parseChildPropertyTag(indent))) {
-        //                 if (child.kind === SyntaxKind.JSDocTemplateTag) {
-        //                     break;
-        //                 }
-        //                 hasChildren = true;
-        //                 if (child.kind === SyntaxKind.JSDocTypeTag) {
-        //                     if (childTypeTag) {
-        //                         const lastError = parseErrorAtCurrentToken(Diagnostics.A_JSDoc_typedef_comment_may_not_contain_multiple_type_tags);
-        //                         if (lastError) {
-        //                             addRelatedInfo(lastError, createDetachedDiagnostic(fileName, sourceText, 0, 0, Diagnostics.The_tag_was_first_specified_here));
-        //                         }
-        //                         break;
-        //                     }
-        //                     else {
-        //                         childTypeTag = child;
-        //                     }
-        //                 }
-        //                 else {
-        //                     jsDocPropertyTags = append(jsDocPropertyTags, child);
-        //                 }
-        //             }
-        //             if (hasChildren) {
-        //                 const isArrayType = typeExpression && typeExpression.type.kind === SyntaxKind.ArrayType;
-        //                 const jsdocTypeLiteral = factory.createJSDocTypeLiteral(jsDocPropertyTags, isArrayType);
-        //                 typeExpression = childTypeTag && childTypeTag.typeExpression && !isObjectOrObjectArrayTypeReference(childTypeTag.typeExpression.type) ?
-        //                     childTypeTag.typeExpression :
-        //                     finishNode(jsdocTypeLiteral, start);
-        //                 end = typeExpression.end;
-        //             }
-        //         }
-
-        //         // Only include the characters between the name end and the next token if a comment was actually parsed out - otherwise it's just whitespace
-        //         end = end || comment !== undefined ?
-        //             getNodePos() :
-        //             (fullName ?? typeExpression ?? tagName).end;
-
-        //         if (!comment) {
-        //             comment = parseTrailingTagComments(start, end, indent, indentText);
-        //         }
-
-        //         const typedefTag = factory.createJSDocTypedefTag(tagName, typeExpression, fullName, comment);
-        //         return finishNode(typedefTag, start, end);
-        //     }
-
-        //     function parseJSDocTypeNameWithNamespace(nested?: boolean) {
-        //         const start = scanner.getTokenStart();
-        //         if (!tokenIsIdentifierOrKeyword(token())) {
-        //             return undefined;
-        //         }
-        //         const typeNameOrNamespaceName = parseJSDocIdentifierName();
-        //         if (parseOptional(SyntaxKind.DotToken)) {
-        //             const body = parseJSDocTypeNameWithNamespace(/*nested*/ true);
-        //             const jsDocNamespaceNode = factory.createModuleDeclaration(
-        //                 /*modifiers*/ undefined,
-        //                 typeNameOrNamespaceName,
-        //                 body,
-        //                 nested ? NodeFlags.NestedNamespace : undefined,
-        //             ) as JSDocNamespaceDeclaration;
-        //             return finishNode(jsDocNamespaceNode, start);
-        //         }
-
-        //         if (nested) {
-        //             (typeNameOrNamespaceName as Mutable<Identifier>).flags |= NodeFlags.IdentifierIsInJSDocNamespace;
-        //         }
-        //         return typeNameOrNamespaceName;
-        //     }
-
-        //     function parseCallbackTagParameters(indent: number) {
-        //         const pos = getPositionState();;
-        //         let child: JSDocParameterTag | JSDocTemplateTag | false;
-        //         let parameters;
-        //         while (child = tryParse(() => parseChildParameterOrPropertyTag(PropertyLikeParse.CallbackParameter, indent) as JSDocParameterTag | JSDocTemplateTag)) {
-        //             if (child.kind === SyntaxKind.JSDocTemplateTag) {
-        //                 parseErrorAtRange(child.tagName, Diagnostics.A_JSDoc_template_tag_may_not_follow_a_typedef_callback_or_overload_tag);
-        //                 break;
-        //             }
-        //             parameters = append(parameters, child);
-        //         }
-        //         return createNodeArray(parameters || [], pos);
-        //     }
-
-        //     function parseJSDocSignature(start: number, indent: number): JSDocSignature {
-        //         const parameters = parseCallbackTagParameters(indent);
-        //         const returnTag = tryParse(() => {
-        //             if (parseOptionalJsdoc(SyntaxKind.AtToken)) {
-        //                 const tag = parseTag(indent);
-        //                 if (tag && tag.kind === SyntaxKind.JSDocReturnTag) {
-        //                     return tag as JSDocReturnTag;
-        //                 }
-        //             }
-        //         });
-        //         return finishNode(factory.createJSDocSignature(/*typeParameters*/ undefined, parameters, returnTag), start);
-        //     }
-
-        //     function parseCallbackTag(start: number, tagName: Identifier, indent: number, indentText: string): JSDocCallbackTag {
-        //         const fullName = parseJSDocTypeNameWithNamespace();
-        //         skipWhitespace();
-        //         let comment = parseTagComments(indent);
-        //         const typeExpression = parseJSDocSignature(start, indent);
-        //         if (!comment) {
-        //             comment = parseTrailingTagComments(start, getNodePos(), indent, indentText);
-        //         }
-        //         const end = comment !== undefined ? getNodePos() : typeExpression.end;
-        //         return finishNode(factory.createJSDocCallbackTag(tagName, typeExpression, fullName, comment), start, end);
-        //     }
-
-        //     function parseOverloadTag(start: number, tagName: Identifier, indent: number, indentText: string): JSDocOverloadTag {
-        //         skipWhitespace();
-        //         let comment = parseTagComments(indent);
-        //         const typeExpression = parseJSDocSignature(start, indent);
-        //         if (!comment) {
-        //             comment = parseTrailingTagComments(start, getNodePos(), indent, indentText);
-        //         }
-        //         const end = comment !== undefined ? getNodePos() : typeExpression.end;
-        //         return finishNode(factory.createJSDocOverloadTag(tagName, typeExpression, comment), start, end);
-        //     }
-
-        //     function escapedTextsEqual(a: EntityName, b: EntityName): boolean {
-        //         while (!isIdentifierNode(a) || !isIdentifierNode(b)) {
-        //             if (!isIdentifierNode(a) && !isIdentifierNode(b) && a.right.escapedText === b.right.escapedText) {
-        //                 a = a.left;
-        //                 b = b.left;
-        //             }
-        //             else {
-        //                 return false;
-        //             }
-        //         }
-        //         return a.escapedText === b.escapedText;
-        //     }
-
-        //     function parseChildPropertyTag(indent: number) {
-        //         return parseChildParameterOrPropertyTag(PropertyLikeParse.Property, indent) as JSDocTypeTag | JSDocPropertyTag | JSDocTemplateTag | false;
-        //     }
-
-        //     function parseChildParameterOrPropertyTag(target: PropertyLikeParse, indent: number, name?: EntityName): JSDocTypeTag | JSDocPropertyTag | JSDocParameterTag | JSDocTemplateTag | JSDocThisTag | false {
-        //         let canParseTag = true;
-        //         let seenAsterisk = false;
-        //         while (true) {
-        //             switch (nextTokenJSDoc()) {
-        //                 case SyntaxKind.AtToken:
-        //                     if (canParseTag) {
-        //                         const child = tryParseChildTag(target, indent);
-        //                         if (
-        //                             child && (child.kind === SyntaxKind.JSDocParameterTag || child.kind === SyntaxKind.JSDocPropertyTag) &&
-        //                             name && (isIdentifierNode(child.name) || !escapedTextsEqual(name, child.name.left))
-        //                         ) {
-        //                             return false;
-        //                         }
-        //                         return child;
-        //                     }
-        //                     seenAsterisk = false;
-        //                     break;
-        //                 case SyntaxKind.NewLineTrivia:
-        //                     canParseTag = true;
-        //                     seenAsterisk = false;
-        //                     break;
-        //                 case SyntaxKind.AsteriskToken:
-        //                     if (seenAsterisk) {
-        //                         canParseTag = false;
-        //                     }
-        //                     seenAsterisk = true;
-        //                     break;
-        //                 case SyntaxKind.Identifier:
-        //                     canParseTag = false;
-        //                     break;
-        //                 case SyntaxKind.EndOfFileToken:
-        //                     return false;
-        //             }
-        //         }
-        //     }
-
-        //     function tryParseChildTag(target: PropertyLikeParse, indent: number): JSDocTypeTag | JSDocPropertyTag | JSDocParameterTag | JSDocTemplateTag | JSDocThisTag | false {
-        //         Debug.assert(token() === SyntaxKind.AtToken);
-        //         const start = scanner.getTokenFullStart();
-        //         nextTokenJSDoc();
-
-        //         const tagName = parseJSDocIdentifierName();
-        //         const indentText = skipWhitespaceOrAsterisk();
-        //         let t: PropertyLikeParse;
-        //         switch (tagName.escapedText) {
-        //             case "type":
-        //                 return target === PropertyLikeParse.Property && parseTypeTag(start, tagName);
-        //             case "prop":
-        //             case "property":
-        //                 t = PropertyLikeParse.Property;
-        //                 break;
-        //             case "arg":
-        //             case "argument":
-        //             case "param":
-        //                 t = PropertyLikeParse.Parameter | PropertyLikeParse.CallbackParameter;
-        //                 break;
-        //             case "template":
-        //                 return parseTemplateTag(start, tagName, indent, indentText);
-        //             case "this":
-        //                 return parseThisTag(start, tagName, indent, indentText);
-        //             default:
-        //                 return false;
-        //         }
-        //         if (!(target & t)) {
-        //             return false;
-        //         }
-        //         return parseParameterOrPropertyTag(start, tagName, target, indent);
-        //     }
-
-        //     function parseTemplateTagTypeParameter() {
-        //         const typeParameterPos = getNodePos();
-        //         const isBracketed = parseOptionalJsdoc(SyntaxKind.OpenBracketToken);
-        //         if (isBracketed) {
-        //             skipWhitespace();
-        //         }
-
-        //         const modifiers = parseModifiers(/*allowDecorators*/ false, /*permitConstAsModifier*/ true);
-        //         const name = parseJSDocIdentifierName(Diagnostics.Unexpected_token_A_type_parameter_name_was_expected_without_curly_braces);
-        //         let defaultType: TypeNode | undefined;
-        //         if (isBracketed) {
-        //             skipWhitespace();
-        //             parseExpected(SyntaxKind.EqualsToken);
-        //             defaultType = doInsideOfContext(NodeFlags.JSDoc, parseJSDocType);
-        //             parseExpected(SyntaxKind.CloseBracketToken);
-        //         }
-
-        //         if (nodeIsMissing(name)) {
-        //             return undefined;
-        //         }
-        //         return finishNode(factory.createTypeParameterDeclaration(modifiers, name, /*constraint*/ undefined, defaultType), typeParameterPos);
-        //     }
-
-        //     function parseTemplateTagTypeParameters() {
-        //         const pos = getPositionState();;
-        //         const typeParameters = [];
-        //         do {
-        //             skipWhitespace();
-        //             const node = parseTemplateTagTypeParameter();
-        //             if (node !== undefined) {
-        //                 typeParameters.push(node);
-        //             }
-        //             skipWhitespaceOrAsterisk();
-        //         }
-        //         while (parseOptionalJsdoc(SyntaxKind.CommaToken));
-        //         return createNodeArray(typeParameters, pos);
-        //     }
-
-        //     function parseTemplateTag(start: number, tagName: Identifier, indent: number, indentText: string): JSDocTemplateTag {
-        //         // The template tag looks like one of the following:
-        //         //   @template T,U,V
-        //         //   @template {Constraint} T
-        //         //
-        //         // According to the [closure docs](https://github.com/google/closure-compiler/wiki/Generic-Types#multiple-bounded-template-types):
-        //         //   > Multiple bounded generics cannot be declared on the same line. For the sake of clarity, if multiple templates share the same
-        //         //   > type bound they must be declared on separate lines.
-        //         //
-        //         // TODO: Determine whether we should enforce this in the checker.
-        //         // TODO: Consider moving the `constraint` to the first type parameter as we could then remove `getEffectiveConstraintOfTypeParameter`.
-        //         // TODO: Consider only parsing a single type parameter if there is a constraint.
-        //         const constraint = token() === SyntaxKind.OpenBraceToken ? parseJSDocTypeExpression() : undefined;
-        //         const typeParameters = parseTemplateTagTypeParameters();
-        //         return finishNode(factory.createJSDocTemplateTag(tagName, constraint, typeParameters, parseTrailingTagComments(start, getNodePos(), indent, indentText)), start);
-        //     }
-
-        //     function parseOptionalJsdoc(t: JSDocSyntaxKind): boolean {
-        //         if (token() === t) {
-        //             nextTokenJSDoc();
-        //             return true;
-        //         }
-        //         return false;
-        //     }
-
-        //     function parseJSDocEntityName(): EntityName {
-        //         let entity: EntityName = parseJSDocIdentifierName();
-        //         if (parseOptional(SyntaxKind.OpenBracketToken)) {
-        //             parseExpected(SyntaxKind.CloseBracketToken);
-        //             // Note that y[] is accepted as an entity name, but the postfix brackets are not saved for checking.
-        //             // Technically usejsdoc.org requires them for specifying a property of a type equivalent to Array<{ x: ...}>
-        //             // but it's not worth it to enforce that restriction.
-        //         }
-        //         while (parseOptional(SyntaxKind.DotToken)) {
-        //             const name = parseJSDocIdentifierName();
-        //             if (parseOptional(SyntaxKind.OpenBracketToken)) {
-        //                 parseExpected(SyntaxKind.CloseBracketToken);
-        //             }
-        //             entity = createQualifiedName(entity, name);
-        //         }
-        //         return entity;
-        //     }
-
-        //     function parseJSDocIdentifierName(message?: DiagnosticMessage): Identifier {
-        //         if (!tokenIsIdentifierOrKeyword(token())) {
-        //             return createMissingNode<Identifier>(SyntaxKind.Identifier, /*reportAtCurrentPosition*/ !message, message || Diagnostics.Identifier_expected);
-        //         }
-
-        //         identifierCount++;
-        //         const start = scanner.getTokenStart();
-        //         const end = scanner.getTokenEnd();
-        //         const originalKeywordKind = token();
-        //         const text = internIdentifier(scanner.getTokenValue());
-        //         const result = finishNode(factoryCreateIdentifier(text, originalKeywordKind), start, end);
-        //         nextTokenJSDoc();
-        //         return result;
-        //     }
-        // }
+        function parseJSDocCommentWorker(start = 0, length: number | undefined): JSDoc | undefined {
+            const content = sourceText;
+            const end = length === undefined ? content.length : start + length;
+            length = end - start;
+
+            Debug.assert(start >= 0);
+            Debug.assert(start <= end);
+            Debug.assert(end <= content.length);
+
+            // Check for /** (JSDoc opening part)
+            if (!isJSDocLikeText(content, start)) {
+                return undefined;
+            }
+
+            let tags: JSDocTag[];
+            let tagsPos: number;
+            let tagsEnd: number;
+            let linkEnd: number;
+            let commentsPos: number | undefined;
+            let comments: string[] = [];
+            const parts: JSDocComment[] = [];
+
+            const saveParsingContext = parsingContext;
+            parsingContext |= 1 << ParsingContext.JSDocComment;
+
+            // + 3 for leading /**, - 5 in total for /** */
+            const result = scanner.scanRange(start + 3, length - 5, doJSDocScan);
+            parsingContext = saveParsingContext;
+            return result;
+
+            function doJSDocScan() {
+                // Initially we can parse out a tag.  We also have seen a starting asterisk.
+                // This is so that /** * @type */ doesn't parse.
+                let state = JSDocState.SawAsterisk;
+                let margin: number | undefined;
+                // + 4 for leading '/** '
+                // + 1 because the last index of \n is always one index before the first character in the line and coincidentally, if there is no \n before start, it is -1, which is also one index before the first character
+                let indent = start - (content.lastIndexOf("\n", start) + 1) + 4;
+                function pushComment(text: string) {
+                    if (!margin) {
+                        margin = indent;
+                    }
+                    comments.push(text);
+                    indent += text.length;
+                }
+
+                nextTokenJSDoc();
+                while (parseOptionalJsdoc(SyntaxKind.WhitespaceTrivia));
+                if (parseOptionalJsdoc(SyntaxKind.NewLineTrivia)) {
+                    state = JSDocState.BeginningOfLine;
+                    indent = 0;
+                }
+                loop:
+                while (true) {
+                    switch (token()) {
+                        case SyntaxKind.AtToken:
+                            removeTrailingWhitespace(comments);
+                            if (!commentsPos) commentsPos = getNodePos();
+                            addTag(parseTag(indent));
+                            // NOTE: According to usejsdoc.org, a tag goes to end of line, except the last tag.
+                            // Real-world comments may break this rule, so "BeginningOfLine" will not be a real line beginning
+                            // for malformed examples like `/** @param {string} x @returns {number} the length */`
+                            state = JSDocState.BeginningOfLine;
+                            margin = undefined;
+                            break;
+                        case SyntaxKind.NewLineTrivia:
+                            comments.push(scanner.getTokenText());
+                            state = JSDocState.BeginningOfLine;
+                            indent = 0;
+                            break;
+                        case SyntaxKind.AsteriskToken:
+                            const asterisk = scanner.getTokenText();
+                            if (state === JSDocState.SawAsterisk) {
+                                // If we've already seen an asterisk, then we can no longer parse a tag on this line
+                                state = JSDocState.SavingComments;
+                                pushComment(asterisk);
+                            }
+                            else {
+                                Debug.assert(state === JSDocState.BeginningOfLine);
+                                // Ignore the first asterisk on a line
+                                state = JSDocState.SawAsterisk;
+                                indent += asterisk.length;
+                            }
+                            break;
+                        case SyntaxKind.WhitespaceTrivia:
+                            Debug.assert(state !== JSDocState.SavingComments, "whitespace shouldn't come from the scanner while saving top-level comment text");
+                            // only collect whitespace if we're already saving comments or have just crossed the comment indent margin
+                            const whitespace = scanner.getTokenText();
+                            if (margin !== undefined && indent + whitespace.length > margin) {
+                                comments.push(whitespace.slice(margin - indent));
+                            }
+                            indent += whitespace.length;
+                            break;
+                        case SyntaxKind.EndOfFileToken:
+                            break loop;
+                        case SyntaxKind.JSDocCommentTextToken:
+                            state = JSDocState.SavingComments;
+                            pushComment(scanner.getTokenValue());
+                            break;
+                        case SyntaxKind.OpenBraceToken:
+                            state = JSDocState.SavingComments;
+                            const commentEnd = scanner.getTokenFullStart();
+                            const linkStart = scanner.getTokenEnd() - 1;
+                            const link = parseJSDocLink(linkStart);
+                            if (link) {
+                                if (!linkEnd) {
+                                    removeLeadingNewlines(comments);
+                                }
+                                parts.push(finishNode(factory.createJSDocText(comments.join("")), linkEnd ?? start, commentEnd));
+                                parts.push(link);
+                                comments = [];
+                                linkEnd = scanner.getTokenEnd();
+                                break;
+                            }
+                            // fallthrough if it's not a {@link sequence
+                        default:
+                            // Anything else is doc comment text. We just save it. Because it
+                            // wasn't a tag, we can no longer parse a tag on this line until we hit the next
+                            // line break.
+                            state = JSDocState.SavingComments;
+                            pushComment(scanner.getTokenText());
+                            break;
+                    }
+                    if (state === JSDocState.SavingComments) {
+                        nextJSDocCommentTextToken(/*inBackticks*/ false);
+                    }
+                    else {
+                        nextTokenJSDoc();
+                    }
+                }
+                const trimmedComments = comments.join("").trimEnd();
+                if (parts.length && trimmedComments.length) {
+                    parts.push(finishNode(factory.createJSDocText(trimmedComments), linkEnd ?? start, commentsPos));
+                }
+                if (parts.length && tags) Debug.assertIsDefined(commentsPos, "having parsed tags implies that the end of the comment span should be set");
+                const tagsArray = tags && createNodeArray(tags, tagsPos, tagsEnd);
+                return finishNode(factory.createJSDocComment(parts.length ? createNodeArray(parts, start, commentsPos) : trimmedComments.length ? trimmedComments : undefined, tagsArray), start, end);
+            }
+
+            function removeLeadingNewlines(comments: string[]) {
+                while (comments.length && (comments[0] === "\n" || comments[0] === "\r")) {
+                    comments.shift();
+                }
+            }
+
+            function removeTrailingWhitespace(comments: string[]) {
+                while (comments.length) {
+                    const trimmed = comments[comments.length - 1].trimEnd();
+                    if (trimmed === "") {
+                        comments.pop();
+                    }
+                    else if (trimmed.length < comments[comments.length - 1].length) {
+                        comments[comments.length - 1] = trimmed;
+                        break;
+                    }
+                    else {
+                        break;
+                    }
+                }
+            }
+
+            function isNextNonwhitespaceTokenEndOfFile(): boolean {
+                // We must use infinite lookahead, as there could be any number of newlines :(
+                while (true) {
+                    nextTokenJSDoc();
+                    if (token() === SyntaxKind.EndOfFileToken) {
+                        return true;
+                    }
+                    if (!(token() === SyntaxKind.WhitespaceTrivia || token() === SyntaxKind.NewLineTrivia)) {
+                        return false;
+                    }
+                }
+            }
+
+            function skipWhitespace(): void {
+                if (token() === SyntaxKind.WhitespaceTrivia || token() === SyntaxKind.NewLineTrivia) {
+                    if (lookAhead(isNextNonwhitespaceTokenEndOfFile)) {
+                        return; // Don't skip whitespace prior to EoF (or end of comment) - that shouldn't be included in any node's range
+                    }
+                }
+                while (token() === SyntaxKind.WhitespaceTrivia || token() === SyntaxKind.NewLineTrivia) {
+                    nextTokenJSDoc();
+                }
+            }
+
+            function skipWhitespaceOrAsterisk(): string {
+                if (token() === SyntaxKind.WhitespaceTrivia || token() === SyntaxKind.NewLineTrivia) {
+                    if (lookAhead(isNextNonwhitespaceTokenEndOfFile)) {
+                        return ""; // Don't skip whitespace prior to EoF (or end of comment) - that shouldn't be included in any node's range
+                    }
+                }
+
+                let precedingLineBreak = scanner.hasPrecedingLineBreak();
+                let seenLineBreak = false;
+                let indentText = "";
+                while ((precedingLineBreak && token() === SyntaxKind.AsteriskToken) || token() === SyntaxKind.WhitespaceTrivia || token() === SyntaxKind.NewLineTrivia) {
+                    indentText += scanner.getTokenText();
+                    if (token() === SyntaxKind.NewLineTrivia) {
+                        precedingLineBreak = true;
+                        seenLineBreak = true;
+                        indentText = "";
+                    }
+                    else if (token() === SyntaxKind.AsteriskToken) {
+                        precedingLineBreak = false;
+                    }
+                    nextTokenJSDoc();
+                }
+                return seenLineBreak ? indentText : "";
+            }
+
+            function parseTag(margin: number) {
+                Debug.assert(token() === SyntaxKind.AtToken);
+                const start = scanner.getTokenStart();
+                const startState = getPositionState();
+                nextTokenJSDoc();
+
+                const tagName = parseJSDocIdentifierName(/*message*/ undefined);
+                const indentText = skipWhitespaceOrAsterisk();
+
+                let tag: JSDocTag | undefined;
+                switch (tagName.text) {
+                    case "author":
+                        tag = parseAuthorTag(startState, tagName, margin, indentText);
+                        break;
+                    case "implements":
+                        tag = parseImplementsTag(startState, tagName, margin, indentText);
+                        break;
+                    case "augments":
+                    case "extends":
+                        tag = parseAugmentsTag(startState, tagName, margin, indentText);
+                        break;
+                    case "class":
+                    case "constructor":
+                        tag = parseSimpleTag(startState, factory.createJSDocClassTag, tagName, margin, indentText);
+                        break;
+                    case "public":
+                        tag = parseSimpleTag(startState, factory.createJSDocPublicTag, tagName, margin, indentText);
+                        break;
+                    case "private":
+                        tag = parseSimpleTag(startState, factory.createJSDocPrivateTag, tagName, margin, indentText);
+                        break;
+                    case "protected":
+                        tag = parseSimpleTag(startState, factory.createJSDocProtectedTag, tagName, margin, indentText);
+                        break;
+                    // case "readonly":
+                    //     tag = parseSimpleTag(startState, factory.createJSDocReadonlyTag, tagName, margin, indentText);
+                    //     break;
+                    case "override":
+                        tag = parseSimpleTag(startState, factory.createJSDocOverrideTag, tagName, margin, indentText);
+                        break;
+                    case "deprecated":
+                        hasDeprecatedTag = true;
+                        tag = parseSimpleTag(startState, factory.createJSDocDeprecatedTag, tagName, margin, indentText);
+                        break;
+                    case "this":
+                        tag = parseThisTag(startState, tagName, margin, indentText);
+                        break;
+                    case "arg":
+                    case "argument":
+                    case "param":
+                        return parseParameterOrPropertyTag(startState, tagName, PropertyLikeParse.Parameter, margin);
+                    case "return":
+                    case "returns":
+                        tag = parseReturnTag(startState, tagName, margin, indentText);
+                        break;
+                    case "template":
+                        tag = parseTemplateTag(startState, tagName, margin, indentText);
+                        break;
+                    case "type":
+                        tag = parseTypeTag(startState, tagName, margin, indentText);
+                        break;
+                    case "typedef":
+                        tag = parseTypedefTag(startState, tagName, margin, indentText);
+                        break;
+                    case "callback":
+                        tag = parseCallbackTag(startState, tagName, margin, indentText);
+                        break;
+                    case "overload":
+                        tag = parseOverloadTag(startState, tagName, margin, indentText);
+                        break;
+                    case "satisfies":
+                        tag = parseSatisfiesTag(startState, tagName, margin, indentText);
+                        break;
+                    case "see":
+                        tag = parseSeeTag(startState, tagName, margin, indentText);
+                        break;
+                    case "exception":
+                    case "throws":
+                        tag = parseThrowsTag(startState, tagName, margin, indentText);
+                        break;                    
+                    default:
+                        tag = parseUnknownTag(startState, tagName, margin, indentText);
+                        break;
+                }
+                return tag;
+            }
+
+            function parseTrailingTagComments(pos: PositionState, end: number, margin: number, indentText: string) {
+                // some tags, like typedef and callback, have already parsed their comments earlier
+                if (!indentText) {
+                    margin += end - pos.pos;
+                }
+                return parseTagComments(margin, indentText.slice(margin));
+            }
+
+            function parseTagComments(indent: number, initialMargin?: string): string | NodeArray<JSDocComment> | undefined {
+                const commentsPos = getNodePos();
+                let comments: string[] = [];
+                const parts: JSDocComment[] = [];
+                let linkEnd;
+                let state = JSDocState.BeginningOfLine;
+                let margin: number | undefined;
+                function pushComment(text: string) {
+                    if (!margin) {
+                        margin = indent;
+                    }
+                    comments.push(text);
+                    indent += text.length;
+                }
+                if (initialMargin !== undefined) {
+                    // jump straight to saving comments if there is some initial indentation
+                    if (initialMargin !== "") {
+                        pushComment(initialMargin);
+                    }
+                    state = JSDocState.SawAsterisk;
+                }
+                let tok = token() as JSDocSyntaxKind | SyntaxKind.JSDocCommentTextToken;
+                loop:
+                while (true) {
+                    switch (tok) {
+                        case SyntaxKind.NewLineTrivia:
+                            state = JSDocState.BeginningOfLine;
+                            // don't use pushComment here because we want to keep the margin unchanged
+                            comments.push(scanner.getTokenText());
+                            indent = 0;
+                            break;
+                        case SyntaxKind.AtToken:
+                            scanner.resetTokenState(scanner.getTokenEnd() - 1);
+                            break loop;
+                        case SyntaxKind.EndOfFileToken:
+                            // Done
+                            break loop;
+                        case SyntaxKind.WhitespaceTrivia:
+                            Debug.assert(state !== JSDocState.SavingComments && state !== JSDocState.SavingBackticks, "whitespace shouldn't come from the scanner while saving comment text");
+                            const whitespace = scanner.getTokenText();
+                            // if the whitespace crosses the margin, take only the whitespace that passes the margin
+                            if (margin !== undefined && indent + whitespace.length > margin) {
+                                comments.push(whitespace.slice(margin - indent));
+                                state = JSDocState.SavingComments;
+                            }
+                            indent += whitespace.length;
+                            break;
+                        case SyntaxKind.OpenBraceToken:
+                            state = JSDocState.SavingComments;
+                            const commentEnd = scanner.getTokenFullStart();
+                            const linkStart = scanner.getTokenEnd() - 1;
+                            const link = parseJSDocLink(linkStart);
+                            if (link) {
+                                parts.push(finishNode(factory.createJSDocText(comments.join("")), linkEnd ?? commentsPos, commentEnd));
+                                parts.push(link);
+                                comments = [];
+                                linkEnd = scanner.getTokenEnd();
+                            }
+                            else {
+                                pushComment(scanner.getTokenText());
+                            }
+                            break;
+                        case SyntaxKind.BacktickToken:
+                            if (state === JSDocState.SavingBackticks) {
+                                state = JSDocState.SavingComments;
+                            }
+                            else {
+                                state = JSDocState.SavingBackticks;
+                            }
+                            pushComment(scanner.getTokenText());
+                            break;
+                        case SyntaxKind.JSDocCommentTextToken:
+                            if (state !== JSDocState.SavingBackticks) {
+                                state = JSDocState.SavingComments; // leading identifiers start recording as well
+                            }
+                            pushComment(scanner.getTokenValue());
+                            break;
+                        case SyntaxKind.AsteriskToken:
+                            if (state === JSDocState.BeginningOfLine) {
+                                // leading asterisks start recording on the *next* (non-whitespace) token
+                                state = JSDocState.SawAsterisk;
+                                indent += 1;
+                                break;
+                            }
+                            // record the * as a comment
+                            // falls through
+                        default:
+                            if (state !== JSDocState.SavingBackticks) {
+                                state = JSDocState.SavingComments; // leading identifiers start recording as well
+                            }
+                            pushComment(scanner.getTokenText());
+                            break;
+                    }
+                    if (state === JSDocState.SavingComments || state === JSDocState.SavingBackticks) {
+                        tok = nextJSDocCommentTextToken(state === JSDocState.SavingBackticks);
+                    }
+                    else {
+                        tok = nextTokenJSDoc();
+                    }
+                }
+
+                removeLeadingNewlines(comments);
+                const trimmedComments = comments.join("").trimEnd();
+                if (parts.length) {
+                    if (trimmedComments.length) {
+                        parts.push(finishNode(factory.createJSDocText(trimmedComments), linkEnd ?? commentsPos));
+                    }
+                    return createNodeArray(parts, commentsPos, scanner.getTokenEnd());
+                }
+                else if (trimmedComments.length) {
+                    return trimmedComments;
+                }
+            }
+
+            function parseJSDocLink(start: number) {
+                const linkType = tryParse(parseJSDocLinkPrefix);
+                if (!linkType) {
+                    return undefined;
+                }
+                nextTokenJSDoc(); // start at token after link, then skip any whitespace
+                skipWhitespace();
+                const name = parseJSDocLinkName();
+                const text = [];
+                while (token() !== SyntaxKind.CloseBraceToken && token() !== SyntaxKind.NewLineTrivia && token() !== SyntaxKind.EndOfFileToken) {
+                    text.push(scanner.getTokenText());
+                    nextTokenJSDoc();
+                }
+                const create = linkType === "link" ? factory.createJSDocLink
+                    : linkType === "linkcode" ? factory.createJSDocLinkCode
+                    : factory.createJSDocLinkPlain;
+                return finishNode(create(name, text.join("")), start, scanner.getTokenEnd());
+            }
+
+            function parseJSDocLinkName() {
+                if (tokenIsIdentifierOrKeyword(token())) {
+                    const pos = getPositionState();;
+
+                    let name: EntityName | JSDocMemberName = parseIdentifierName();
+                    while (parseOptional(SyntaxKind.DotToken)) {
+                        name = finishNode(factory.createQualifiedName(name, parseIdentifierName()), pos);
+                    }                    
+                    return name;
+                }
+                return undefined;
+            }
+
+            function parseJSDocLinkPrefix() {
+                skipWhitespaceOrAsterisk();
+                if (
+                    token() === SyntaxKind.OpenBraceToken
+                    && nextTokenJSDoc() === SyntaxKind.AtToken
+                    && tokenIsIdentifierOrKeyword(nextTokenJSDoc())
+                ) {
+                    const kind = scanner.getTokenValue();
+                    if (isJSDocLinkTag(kind)) return kind;
+                }
+            }
+
+            function isJSDocLinkTag(kind: string) {
+                return kind === "link" || kind === "linkcode" || kind === "linkplain";
+            }
+
+            function parseUnknownTag(start: PositionState, tagName: Identifier, indent: number, indentText: string) {
+                return finishNode(factory.createJSDocUnknownTag(tagName, parseTrailingTagComments(start, getNodePos(), indent, indentText)), start);
+            }
+
+            function addTag(tag: JSDocTag | undefined): void {
+                if (!tag) {
+                    return;
+                }
+                if (!tags) {
+                    tags = [tag];
+                    tagsPos = tag.pos;
+                }
+                else {
+                    tags.push(tag);
+                }
+                tagsEnd = tag.end;
+            }
+
+            function tryParseTypeExpression(): JSDocTypeExpression | undefined {
+                skipWhitespaceOrAsterisk();
+                return token() === SyntaxKind.OpenBraceToken ? parseJSDocTypeExpression() : undefined;
+            }
+
+            function parseBracketNameInPropertyAndParamTag(): { name: EntityName; isBracketed: boolean; } {
+                // Looking for something like '[foo]', 'foo', '[foo.bar]' or 'foo.bar'
+                const isBracketed = parseOptionalJsdoc(SyntaxKind.OpenBracketToken);
+                if (isBracketed) {
+                    skipWhitespace();
+                }
+                // a markdown-quoted name: `arg` is not legal jsdoc, but occurs in the wild
+                const isBackquoted = parseOptionalJsdoc(SyntaxKind.BacktickToken);
+                const name = parseJSDocEntityName();
+                if (isBackquoted) {
+                    parseExpectedTokenJSDoc(SyntaxKind.BacktickToken);
+                }
+                if (isBracketed) {
+                    skipWhitespace();
+                    // May have an optional default, e.g. '[foo = 42]'
+                    if (parseOptionalToken(SyntaxKind.EqualsToken)) {
+                        parseExpression();
+                    }
+
+                    parseExpected(SyntaxKind.CloseBracketToken);
+                }
+
+                return { name, isBracketed };
+            }
+
+            function isObjectOrObjectArrayTypeReference(node: TypeNode): boolean {
+                switch (node.kind) {
+                    case SyntaxKind.ObjectKeyword:
+                        return true;
+                    case SyntaxKind.ArrayType:
+                        return isObjectOrObjectArrayTypeReference((node as ArrayTypeNode).elementType);
+                    default:
+                        return isTypeReferenceNode(node) && isIdentifierNode(node.typeName) && node.typeName.text === "Object" && !node.typeArguments;
+                }
+            }
+
+            function parseParameterOrPropertyTag(start: PositionState, tagName: Identifier, target: PropertyLikeParse, indent: number): JSDocParameterTag | JSDocPropertyTag {
+                let typeExpression = tryParseTypeExpression();
+                let isNameFirst = !typeExpression;
+                skipWhitespaceOrAsterisk();
+
+                const { name, isBracketed } = parseBracketNameInPropertyAndParamTag();
+                const indentText = skipWhitespaceOrAsterisk();
+
+                if (isNameFirst && !lookAhead(parseJSDocLinkPrefix)) {
+                    typeExpression = tryParseTypeExpression();
+                }
+
+                const comment = parseTrailingTagComments(start, getNodePos(), indent, indentText);
+
+                const nestedTypeLiteral = parseNestedTypeLiteral(typeExpression, name, target, indent);
+                if (nestedTypeLiteral) {
+                    typeExpression = nestedTypeLiteral;
+                    isNameFirst = true;
+                }
+                const result = target === PropertyLikeParse.Property
+                    ? factory.createJSDocPropertyTag(tagName, name, isBracketed, typeExpression, isNameFirst, comment)
+                    : factory.createJSDocParameterTag(tagName, name, isBracketed, typeExpression, isNameFirst, comment);
+                return finishNode(result, start);
+            }
+
+            function parseNestedTypeLiteral(typeExpression: JSDocTypeExpression | undefined, name: EntityName, target: PropertyLikeParse, indent: number) {
+                if (typeExpression && isObjectOrObjectArrayTypeReference(typeExpression.type)) {
+                    const pos = getPositionState();;
+                    let child: JSDocPropertyLikeTag | JSDocTypeTag | JSDocTemplateTag | JSDocThisTag | false;
+                    let children: JSDocPropertyLikeTag[] | undefined;
+                    while (child = tryParse(() => parseChildParameterOrPropertyTag(target, indent, name))) {
+                        if (child.kind === SyntaxKind.JSDocParameterTag || child.kind === SyntaxKind.JSDocPropertyTag) {
+                            children = append(children, child);
+                        }
+                        else if (child.kind === SyntaxKind.JSDocTemplateTag) {
+                            parseErrorAtRange(child.tagName, Diagnostics.A_JSDoc_template_tag_may_not_follow_a_typedef_callback_or_overload_tag);
+                        }
+                    }
+                    if (children) {
+                        const literal = finishNode(factory.createJSDocTypeLiteral(children, typeExpression.type.kind === SyntaxKind.ArrayType), pos);
+                        return finishNode(factory.createJSDocTypeExpression(literal), pos);
+                    }
+                }
+            }
+
+            function parseReturnTag(start: PositionState, tagName: Identifier, indent: number, indentText: string): JSDocReturnTag {
+                if (some(tags, isJSDocReturnTag)) {
+                    parseErrorAt(tagName.pos, scanner.getTokenStart(), Diagnostics._0_tag_already_specified, (tagName.text));
+                }
+
+                const typeExpression = tryParseTypeExpression();
+                return finishNode(factory.createJSDocReturnTag(tagName, typeExpression, parseTrailingTagComments(start, getNodePos(), indent, indentText)), start);
+            }
+
+            function parseTypeTag(start: PositionState, tagName: Identifier, indent?: number, indentText?: string): JSDocTypeTag {
+                if (some(tags, isJSDocTypeTag)) {
+                    parseErrorAt(tagName.pos, scanner.getTokenStart(), Diagnostics._0_tag_already_specified, (tagName.text));
+                }
+
+                const typeExpression = parseJSDocTypeExpression(/*mayOmitBraces*/ true);
+                const comments = indent !== undefined && indentText !== undefined ? parseTrailingTagComments(start, getNodePos(), indent, indentText) : undefined;
+                return finishNode(factory.createJSDocTypeTag(tagName, typeExpression, comments), start);
+            }
+
+            function parseSeeTag(start: PositionState, tagName: Identifier, indent?: number, indentText?: string): JSDocSeeTag {
+                const isMarkdownOrJSDocLink = token() === SyntaxKind.OpenBracketToken
+                    || lookAhead(() => nextTokenJSDoc() === SyntaxKind.AtToken && tokenIsIdentifierOrKeyword(nextTokenJSDoc()) && isJSDocLinkTag(scanner.getTokenValue()));
+                const nameExpression = isMarkdownOrJSDocLink ? undefined : parseJSDocNameReference();
+                const comments = indent !== undefined && indentText !== undefined ? parseTrailingTagComments(start, getNodePos(), indent, indentText) : undefined;
+                return finishNode(factory.createJSDocSeeTag(tagName, nameExpression, comments), start);
+            }
+
+            function parseThrowsTag(start: PositionState, tagName: Identifier, indent: number, indentText: string): JSDocThrowsTag {
+                const typeExpression = tryParseTypeExpression();
+                const comment = parseTrailingTagComments(start, getNodePos(), indent, indentText);
+                return finishNode(factory.createJSDocThrowsTag(tagName, typeExpression, comment), start);
+            }
+
+            function parseAuthorTag(start: PositionState, tagName: Identifier, indent: number, indentText: string): JSDocAuthorTag {
+                const commentStart = getPositionState();
+                const textOnly = parseAuthorNameAndEmail();
+                let commentEnd = scanner.getTokenFullStart();
+                const comments = parseTrailingTagComments(start, commentEnd, indent, indentText);
+                if (!comments) {
+                    commentEnd = scanner.getTokenFullStart();
+                }
+                const allParts = typeof comments !== "string"
+                    ? createNodeArray(concatenate([finishNode(textOnly, commentStart.pos, commentEnd)], comments) as JSDocComment[], commentStart) // cast away readonly
+                    : textOnly.text + comments;
+                return finishNode(factory.createJSDocAuthorTag(tagName, allParts), start);
+            }
+
+            function parseAuthorNameAndEmail(): JSDocText {
+                const comments: string[] = [];
+                let inEmail = false;
+                let token = scanner.getToken();
+                while (token !== SyntaxKind.EndOfFileToken && token !== SyntaxKind.NewLineTrivia) {
+                    if (token === SyntaxKind.LessThanToken) {
+                        inEmail = true;
+                    }
+                    else if (token === SyntaxKind.AtToken && !inEmail) {
+                        break;
+                    }
+                    else if (token === SyntaxKind.GreaterThanToken && inEmail) {
+                        comments.push(scanner.getTokenText());
+                        scanner.resetTokenState(scanner.getTokenEnd());
+                        break;
+                    }
+                    comments.push(scanner.getTokenText());
+                    token = nextTokenJSDoc();
+                }
+
+                return factory.createJSDocText(comments.join(""));
+            }
+
+            function parseImplementsTag(start: PositionState, tagName: Identifier, margin: number, indentText: string): JSDocImplementsTag {
+                const className = parseExpressionWithTypeArgumentsForAugments();
+                return finishNode(factory.createJSDocImplementsTag(tagName, className, parseTrailingTagComments(start, getNodePos(), margin, indentText)), start);
+            }
+
+            function parseAugmentsTag(start: PositionState, tagName: Identifier, margin: number, indentText: string): JSDocAugmentsTag {
+                const className = parseExpressionWithTypeArgumentsForAugments();
+                return finishNode(factory.createJSDocAugmentsTag(tagName, className, parseTrailingTagComments(start, getNodePos(), margin, indentText)), start);
+            }
+
+            function parseSatisfiesTag(start: PositionState, tagName: Identifier, margin: number, indentText: string): JSDocSatisfiesTag {
+                const typeExpression = parseJSDocTypeExpression(/*mayOmitBraces*/ false);
+                const comments = margin !== undefined && indentText !== undefined ? parseTrailingTagComments(start, getNodePos(), margin, indentText) : undefined;
+                return finishNode(factory.createJSDocSatisfiesTag(tagName, typeExpression, comments), start);
+            }            
+
+            function parseExpressionWithTypeArgumentsForAugments(): ExpressionWithTypeArguments & { expression: Identifier | PropertyAccessEntityNameExpression; } {
+                const usedBrace = parseOptional(SyntaxKind.OpenBraceToken);
+                const pos = getPositionState();;
+                const expression = parsePropertyAccessEntityNameExpression();
+                scanner.setSkipJsDocLeadingAsterisks(true);
+                const typeArguments = undefined;// tryParseTypeArguments();
+                scanner.setSkipJsDocLeadingAsterisks(false);
+                const node = factory.createExpressionWithTypeArguments(expression, typeArguments) as ExpressionWithTypeArguments & { expression: Identifier | PropertyAccessEntityNameExpression; };
+                const res = finishNode(node, pos);
+                if (usedBrace) {
+                    parseExpected(SyntaxKind.CloseBraceToken);
+                }
+                return res;
+            }
+
+            function parsePropertyAccessEntityNameExpression() {
+                const pos = getPositionState();;
+                let node: Identifier | PropertyAccessEntityNameExpression = parseJSDocIdentifierName();
+                while (parseOptional(SyntaxKind.DotToken)) {
+                    const name = parseJSDocIdentifierName();
+                    node = finishNode(factoryCreatePropertyAccessExpression(node, name), pos) as PropertyAccessEntityNameExpression;
+                }
+                return node;
+            }
+
+            function parseSimpleTag(start: PositionState, createTag: (tagName: Identifier | undefined, comment?: string | NodeArray<JSDocComment>) => JSDocTag, tagName: Identifier, margin: number, indentText: string): JSDocTag {
+                return finishNode(createTag(tagName, parseTrailingTagComments(start, getNodePos(), margin, indentText)), start);
+            }
+
+            function parseThisTag(start: PositionState, tagName: Identifier, margin: number, indentText: string): JSDocThisTag {
+                const typeExpression = parseJSDocTypeExpression(/*mayOmitBraces*/ true);
+                skipWhitespace();
+                return finishNode(factory.createJSDocThisTag(tagName, typeExpression, parseTrailingTagComments(start, getNodePos(), margin, indentText)), start);
+            }
+           
+            function parseTypedefTag(start: PositionState, tagName: Identifier, indent: number, indentText: string): JSDocTypedefTag {
+                let typeExpression: JSDocTypeExpression | JSDocTypeLiteral | undefined = tryParseTypeExpression();
+                skipWhitespaceOrAsterisk();
+
+                const fullName = parseJSDocTypeNameWithNamespace();
+                skipWhitespace();
+                let comment = parseTagComments(indent);
+
+                let end: number | undefined;
+                if (!typeExpression || isObjectOrObjectArrayTypeReference(typeExpression.type)) {
+                    let child: JSDocTypeTag | JSDocPropertyTag | JSDocTemplateTag | false;
+                    let childTypeTag: JSDocTypeTag | undefined;
+                    let jsDocPropertyTags: JSDocPropertyTag[] | undefined;
+                    let hasChildren = false;
+                    while (child = tryParse(() => parseChildPropertyTag(indent))) {
+                        if (child.kind === SyntaxKind.JSDocTemplateTag) {
+                            break;
+                        }
+                        hasChildren = true;
+                        if (child.kind === SyntaxKind.JSDocTypeTag) {
+                            if (childTypeTag) {
+                                const lastError = parseErrorAtCurrentToken(Diagnostics.A_JSDoc_typedef_comment_may_not_contain_multiple_type_tags);
+                                if (lastError) {
+                                    addRelatedInfo(lastError, createDetachedDiagnostic(fileName, sourceText, 0, 0, Diagnostics.The_tag_was_first_specified_here));
+                                }
+                                break;
+                            }
+                            else {
+                                childTypeTag = child;
+                            }
+                        }
+                        else {
+                            jsDocPropertyTags = append(jsDocPropertyTags, child);
+                        }
+                    }
+                    if (hasChildren) {
+                        const isArrayType = typeExpression && typeExpression.type.kind === SyntaxKind.ArrayType;
+                        const jsdocTypeLiteral = factory.createJSDocTypeLiteral(jsDocPropertyTags, isArrayType);
+                        typeExpression = childTypeTag && childTypeTag.typeExpression && !isObjectOrObjectArrayTypeReference(childTypeTag.typeExpression.type) ?
+                            childTypeTag.typeExpression :
+                            finishNode(jsdocTypeLiteral, start);
+                        end = typeExpression.end;
+                    }
+                }
+
+                // Only include the characters between the name end and the next token if a comment was actually parsed out - otherwise it's just whitespace
+                end = end || comment !== undefined ?
+                    getNodePos() :
+                    (fullName ?? typeExpression ?? tagName).end;
+
+                if (!comment) {
+                    comment = parseTrailingTagComments(start, end, indent, indentText);
+                }
+
+                const typedefTag = factory.createJSDocTypedefTag(tagName, typeExpression, fullName, comment);
+                return finishNode(typedefTag, start.pos, end);
+            }           
+
+            function parseCallbackTagParameters(indent: number) {
+                const pos = getPositionState();;
+                let child: JSDocParameterTag | JSDocTemplateTag | false;
+                let parameters: JSDocParameterTag[] | undefined;
+                while (child = tryParse(() => parseChildParameterOrPropertyTag(PropertyLikeParse.CallbackParameter, indent) as JSDocParameterTag | JSDocTemplateTag)) {
+                    if (child.kind === SyntaxKind.JSDocTemplateTag) {
+                        parseErrorAtRange(child.tagName, Diagnostics.A_JSDoc_template_tag_may_not_follow_a_typedef_callback_or_overload_tag);
+                        break;
+                    }
+                    parameters = append(parameters, child);
+                }
+                return createNodeArray(parameters || [], pos);
+            }
+
+            function parseJSDocSignature(start: PositionState, indent: number): JSDocSignature {
+                const parameters = parseCallbackTagParameters(indent);
+                const returnTag = tryParse(() => {
+                    if (parseOptionalJsdoc(SyntaxKind.AtToken)) {
+                        const tag = parseTag(indent);
+                        if (tag && tag.kind === SyntaxKind.JSDocReturnTag) {
+                            return tag as JSDocReturnTag;
+                        }
+                    }
+                });
+                return finishNode(factory.createJSDocSignature(/*typeParameters*/ undefined, parameters, returnTag), start);
+            }
+
+            function parseJSDocTypeNameWithNamespace(nested?: boolean) {
+                const start = scanner.getTokenStart();
+                if (!tokenIsIdentifierOrKeyword(token())) {
+                    return undefined;
+                }
+                const typeNameOrNamespaceName = parseJSDocIdentifierName();
+                // if (parseOptional(SyntaxKind.DotToken)) {
+                //     const body = parseJSDocTypeNameWithNamespace(/*nested*/ true);
+                //     const jsDocNamespaceNode = factory.createModuleDeclaration(
+                //         /*modifiers*/ undefined,
+                //         typeNameOrNamespaceName,
+                //         body,
+                //         nested ? NodeFlags.NestedNamespace : undefined,
+                //     ) as JSDocNamespaceDeclaration;
+                //     return finishNode(jsDocNamespaceNode, start);
+                // }
+
+                if (nested) {
+                    (typeNameOrNamespaceName as Mutable<Identifier>).flags |= NodeFlags.IdentifierIsInJSDocNamespace;
+                }
+                return typeNameOrNamespaceName;
+            }
+
+            function parseCallbackTag(start: PositionState, tagName: Identifier, indent: number, indentText: string): JSDocCallbackTag {
+                const fullName = parseJSDocTypeNameWithNamespace();
+                skipWhitespace();
+                let comment = parseTagComments(indent);
+                const typeExpression = parseJSDocSignature(start, indent);
+                if (!comment) {
+                    comment = parseTrailingTagComments(start, getNodePos(), indent, indentText);
+                }
+                const end = comment !== undefined ? getNodePos() : typeExpression.end;
+                return finishNode(factory.createJSDocCallbackTag(tagName, typeExpression, fullName, comment), start.pos, end);
+            }
+
+            function parseOverloadTag(start: PositionState, tagName: Identifier, indent: number, indentText: string): JSDocOverloadTag {
+                skipWhitespace();
+                let comment = parseTagComments(indent);
+                const typeExpression = parseJSDocSignature(start, indent);
+                if (!comment) {
+                    comment = parseTrailingTagComments(start, getNodePos(), indent, indentText);
+                }
+                const end = comment !== undefined ? getNodePos() : typeExpression.end;
+                return finishNode(factory.createJSDocOverloadTag(tagName, typeExpression, comment), start.pos, end);
+            }
+
+            function escapedTextsEqual(a: EntityName, b: EntityName): boolean {
+                while (!isIdentifierNode(a) || !isIdentifierNode(b)) {
+                    if (!isIdentifierNode(a) && !isIdentifierNode(b) && a.right.text === b.right.text) {
+                        a = a.left;
+                        b = b.left;
+                    }
+                    else {
+                        return false;
+                    }
+                }
+                return a.text === b.text;
+            }
+
+            function parseChildPropertyTag(indent: number) {
+                return parseChildParameterOrPropertyTag(PropertyLikeParse.Property, indent) as JSDocTypeTag | JSDocPropertyTag | JSDocTemplateTag | false;
+            }
+
+            function parseChildParameterOrPropertyTag(target: PropertyLikeParse, indent: number, name?: EntityName): JSDocTypeTag | JSDocPropertyTag | JSDocParameterTag | JSDocTemplateTag | JSDocThisTag | false {
+                let canParseTag = true;
+                let seenAsterisk = false;
+                while (true) {
+                    switch (nextTokenJSDoc()) {
+                        case SyntaxKind.AtToken:
+                            if (canParseTag) {
+                                const child = tryParseChildTag(target, indent);
+                                if (
+                                    child && (child.kind === SyntaxKind.JSDocParameterTag || child.kind === SyntaxKind.JSDocPropertyTag) &&
+                                    name && (isIdentifierNode(child.name) || !escapedTextsEqual(name, child.name.left))
+                                ) {
+                                    return false;
+                                }
+                                return child;
+                            }
+                            seenAsterisk = false;
+                            break;
+                        case SyntaxKind.NewLineTrivia:
+                            canParseTag = true;
+                            seenAsterisk = false;
+                            break;
+                        case SyntaxKind.AsteriskToken:
+                            if (seenAsterisk) {
+                                canParseTag = false;
+                            }
+                            seenAsterisk = true;
+                            break;
+                        case SyntaxKind.Identifier:
+                            canParseTag = false;
+                            break;
+                        case SyntaxKind.EndOfFileToken:
+                            return false;
+                    }
+                }
+            }
+
+            function tryParseChildTag(target: PropertyLikeParse, indent: number): JSDocTypeTag | JSDocPropertyTag | JSDocParameterTag | JSDocTemplateTag | JSDocThisTag | false {
+                Debug.assert(token() === SyntaxKind.AtToken);
+                const start = getPositionState();
+                nextTokenJSDoc();
+
+                const tagName = parseJSDocIdentifierName();
+                const indentText = skipWhitespaceOrAsterisk();
+                let t: PropertyLikeParse;
+                switch (tagName.text) {
+                    case "type":
+                        return target === PropertyLikeParse.Property && parseTypeTag(start, tagName);
+                    case "prop":
+                    case "property":
+                        t = PropertyLikeParse.Property;
+                        break;
+                    case "arg":
+                    case "argument":
+                    case "param":
+                        t = PropertyLikeParse.Parameter | PropertyLikeParse.CallbackParameter;
+                        break;
+                    case "template":
+                        return parseTemplateTag(start, tagName, indent, indentText);
+                    case "this":
+                        return parseThisTag(start, tagName, indent, indentText);
+                    default:
+                        return false;
+                }
+                if (!(target & t)) {
+                    return false;
+                }
+                return parseParameterOrPropertyTag(start, tagName, target, indent);
+            }
+
+            function parseTemplateTagTypeParameter() {
+                const typeParameterPos = getPositionState();
+                const isBracketed = parseOptionalJsdoc(SyntaxKind.OpenBracketToken);
+                if (isBracketed) {
+                    skipWhitespace();
+                }
+
+                const modifiers = parseModifiers(/*allowDecorators*/ false, /*permitConstAsModifier*/ true);
+                const name = parseJSDocIdentifierName(Diagnostics.Unexpected_token_A_type_parameter_name_was_expected_without_curly_braces);
+                let defaultType: TypeNode | undefined;
+                if (isBracketed) {
+                    skipWhitespace();
+                    parseExpected(SyntaxKind.EqualsToken);
+                    defaultType = doInsideOfContext(NodeFlags.JSDoc, parseJSDocType);
+                    parseExpected(SyntaxKind.CloseBracketToken);
+                }
+
+                if (nodeIsMissing(name)) {
+                    return undefined;
+                }
+                return finishNode(factory.createTypeParameterDeclaration(modifiers, name, /*constraint*/ undefined, defaultType), typeParameterPos);
+            }
+
+            function parseTemplateTagTypeParameters() {
+                const pos = getPositionState();;
+                const typeParameters = [];
+                do {
+                    skipWhitespace();
+                    const node = parseTemplateTagTypeParameter();
+                    if (node !== undefined) {
+                        typeParameters.push(node);
+                    }
+                    skipWhitespaceOrAsterisk();
+                }
+                while (parseOptionalJsdoc(SyntaxKind.CommaToken));
+                return createNodeArray(typeParameters, pos);
+            }
+
+            function parseTemplateTag(start: PositionState, tagName: Identifier, indent: number, indentText: string): JSDocTemplateTag {
+                // The template tag looks like one of the following:
+                //   @template T,U,V
+                //   @template {Constraint} T
+                //
+                // According to the [closure docs](https://github.com/google/closure-compiler/wiki/Generic-Types#multiple-bounded-template-types):
+                //   > Multiple bounded generics cannot be declared on the same line. For the sake of clarity, if multiple templates share the same
+                //   > type bound they must be declared on separate lines.
+                //
+                // TODO: Determine whether we should enforce this in the checker.
+                // TODO: Consider moving the `constraint` to the first type parameter as we could then remove `getEffectiveConstraintOfTypeParameter`.
+                // TODO: Consider only parsing a single type parameter if there is a constraint.
+                const constraint = token() === SyntaxKind.OpenBraceToken ? parseJSDocTypeExpression() : undefined;
+                const typeParameters = parseTemplateTagTypeParameters();
+                return finishNode(factory.createJSDocTemplateTag(tagName, constraint, typeParameters, parseTrailingTagComments(start, getNodePos(), indent, indentText)), start);
+            }
+
+            function parseOptionalJsdoc(t: JSDocSyntaxKind): boolean {
+                if (token() === t) {
+                    nextTokenJSDoc();
+                    return true;
+                }
+                return false;
+            }
+
+            function parseJSDocEntityName(): EntityName {
+                const entityPos = getPositionState();
+                let entity: EntityName = parseJSDocIdentifierName();
+                if (parseOptional(SyntaxKind.OpenBracketToken)) {
+                    parseExpected(SyntaxKind.CloseBracketToken);
+                    // Note that y[] is accepted as an entity name, but the postfix brackets are not saved for checking.
+                    // Technically usejsdoc.org requires them for specifying a property of a type equivalent to Array<{ x: ...}>
+                    // but it's not worth it to enforce that restriction.
+                }
+                while (parseOptional(SyntaxKind.DotToken)) {
+                    const name = parseJSDocIdentifierName();
+                    if (parseOptional(SyntaxKind.OpenBracketToken)) {
+                        parseExpected(SyntaxKind.CloseBracketToken);
+                    }
+                    entity = createQualifiedName(entity, name, entityPos);
+                }
+                return entity;
+            }
+
+            function parseJSDocIdentifierName(message?: DiagnosticMessage): Identifier {
+                if (!tokenIsIdentifierOrKeyword(token())) {
+                    return createMissingNode<Identifier>(SyntaxKind.Identifier, /*reportAtCurrentPosition*/ !message, message || Diagnostics.Identifier_expected);
+                }
+
+                identifierCount++;
+                const start = scanner.getTokenStart();
+                const end = scanner.getTokenEnd();
+                const originalKeywordKind = token();
+                const text = internIdentifier(scanner.getTokenValue());
+                const result = finishNode(factoryCreateIdentifier(text, originalKeywordKind), start, end);
+                nextTokenJSDoc();
+                return result;
+            }
+        }
     }
 }
 

@@ -286,4 +286,9 @@ export const Diagnostics = {
     Type_0_recursively_references_itself_as_a_base_type: diag(2310, DiagnosticCategory.Error, "Type_0_recursively_references_itself_as_a_base_type_2310", "Type '{0}' recursively references itself as a base type."),
     _0_is_referenced_directly_or_indirectly_in_its_own_base_expression: diag(2506, DiagnosticCategory.Error, "_0_is_referenced_directly_or_indirectly_in_its_own_base_expression_2506", "'{0}' is referenced directly or indirectly in its own base expression."),
     Type_0_is_not_a_constructor_function_type: diag(2507, DiagnosticCategory.Error, "Type_0_is_not_a_constructor_function_type_2507", "Type '{0}' is not a constructor function type."),
+    A_JSDoc_template_tag_may_not_follow_a_typedef_callback_or_overload_tag: diag(8039, DiagnosticCategory.Error, "A_JSDoc_template_tag_may_not_follow_a_typedef_callback_or_overload_tag_8039", "A JSDoc '@template' tag may not follow a '@typedef', '@callback', or '@overload' tag"),
+    _0_tag_already_specified: diag(1223, DiagnosticCategory.Error, "_0_tag_already_specified_1223", "'{0}' tag already specified."),
+    Unexpected_token_A_type_parameter_name_was_expected_without_curly_braces: diag(1069, DiagnosticCategory.Error, "Unexpected_token_A_type_parameter_name_was_expected_without_curly_braces_1069", "Unexpected token. A type parameter name was expected without curly braces."),
+    A_JSDoc_typedef_comment_may_not_contain_multiple_type_tags: diag(8033, DiagnosticCategory.Error, "A_JSDoc_typedef_comment_may_not_contain_multiple_type_tags_8033", "A JSDoc '@typedef' comment may not contain multiple '@type' tags."),
+    The_tag_was_first_specified_here: diag(8034, DiagnosticCategory.Error, "The_tag_was_first_specified_here_8034", "The tag was first specified here."),
 }
