@@ -542,7 +542,7 @@ export class Session<TMessage = string> implements EventSender {
 
     public getQuickInfoWorker(args: protocol.FileLocationRequestArgs, simplifiedResult: boolean): protocol.QuickInfoResponseBody | QuickInfo | undefined {
         const { file, project } = this.getFileAndProject(args);
-        const scriptInfo = this.projectService.getScriptInfoForNormalizedPath(file)!;
+        const scriptInfo = this.projectService.getScriptInfoForNormalizedPath(file)!;        
         const quickInfo = project.getLanguageService().getQuickInfoAtPosition(file, this.getPosition(args, scriptInfo));
         if (!quickInfo) {
             return undefined;

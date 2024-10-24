@@ -1,4 +1,4 @@
-import { isIdentifier as isIdentifierNode, BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange, PrefixUnaryExpression, first, LanguageVariant, EqualsToken, LpcConfigSourceFile, createBaseNodeFactory, PrefixUnaryOperator, Program, LpcFileHandler, ParenthesizedExpression, ArrayLiteralExpression, LambdaExpression, PunctuationSyntaxKind, PunctuationToken, LambdaOperatorToken, CastExpression, PropertyAccessExpression, isIdentifier, CloneObjectExpression, NewExpression, trimQuotes, createScanner, isKeyword, PunctuationOrKeywordSyntaxKind, getLanguageVariant, mapDefined, getJSDocCommentRanges, LabeledStatement, PropertyName, Token, tokenToString, addRelatedInfo, tokenIsIdentifierOrKeyword, getBinaryOperatorPrecedence, addRange, append, ArrayTypeNode, canHaveJSDoc, concatenate, containsParseError, Diagnostic, EntityName, getSpellingSuggestion, identity, idText, isIdentifierText, isTypeReferenceNode, JSDoc, JSDocAugmentsTag, JSDocCallbackTag, JSDocComment, JSDocImplementsTag, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocParameterTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThrowsTag, JSDocTypedefTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, nodeIsMissing, noop, PropertyAccessEntityNameExpression, setParent, skipTrivia, some, CharacterCodes, MapLike, KeywordSyntaxKind, startsWith, textToKeywordObj, ModifierLike, isModifierKind, MissingDeclaration, setTextRangePos, BindingPattern, KeywordTypeSyntaxKind, LiteralTypeNode, IntLiteral, FloatLiteral, LiteralLikeNode, isLiteralKind, TypeReferenceNode, getFullWidth, OperatorPrecedence, UnaryExpression, isLeftHandSideExpression, isAssignmentOperator, isKeywordOrPunctuation, UpdateExpression, PrimaryExpression, nodeIsPresent, PropertyAccessToken, IterationStatement, InheritClauseType, ObjectType, StructTypeNode, NamedDeclaration, TypeElement, PropertySignature, MethodSignature, StructDeclaration, TypeLiteralNode, TypeAssertion, NewStructExpression, ObjectLiteralElementLike, PropertyAssignment, getStartPositionOfLine, MappingLiteralExpression, MappingEntryExpression, isStringOrNumericLiteralLike, ElementAccessExpression, isFunctionDeclaration, RangeExpression, isPunctuation, LambdaIdentifierExpression, LambdaOperatorExpression, PreprocessorDirective, IncludeDirective, DefineDirective, UndefDirective, Macro, Scanner, last, ReadonlyTextRange, MacroParameter, forEachEntry, Ternary, isIntLiteral, isArrayTypeNode, SuperAccessExpression, isIndexedAccessTypeNode, isStringLiteral, isBinaryExpression, PragmaDirective, SpreadElement, CatchStatement, CatchExpression, getDirectoryPath, EvaluateExpression, setParentRecursive, ExpressionWithTypeArguments, JSDocThisTag, isJSDocTypeTag, isJSDocReturnTag, JSDocAuthorTag, QualifiedName } from "./_namespaces/lpc";
+import { isIdentifier as isIdentifierNode, BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange, PrefixUnaryExpression, first, LanguageVariant, EqualsToken, LpcConfigSourceFile, createBaseNodeFactory, PrefixUnaryOperator, Program, LpcFileHandler, ParenthesizedExpression, ArrayLiteralExpression, LambdaExpression, PunctuationSyntaxKind, PunctuationToken, LambdaOperatorToken, CastExpression, PropertyAccessExpression, isIdentifier, CloneObjectExpression, NewExpression, trimQuotes, createScanner, isKeyword, PunctuationOrKeywordSyntaxKind, getLanguageVariant, mapDefined, getJSDocCommentRanges, LabeledStatement, PropertyName, Token, tokenToString, addRelatedInfo, tokenIsIdentifierOrKeyword, getBinaryOperatorPrecedence, addRange, append, ArrayTypeNode, canHaveJSDoc, concatenate, containsParseError, Diagnostic, EntityName, getSpellingSuggestion, identity, idText, isIdentifierText, isTypeReferenceNode, JSDoc, JSDocAugmentsTag, JSDocCallbackTag, JSDocComment, JSDocImplementsTag, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocParameterTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThrowsTag, JSDocTypedefTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, nodeIsMissing, noop, PropertyAccessEntityNameExpression, setParent, skipTrivia, some, CharacterCodes, MapLike, KeywordSyntaxKind, startsWith, textToKeywordObj, ModifierLike, isModifierKind, MissingDeclaration, setTextRangePos, BindingPattern, KeywordTypeSyntaxKind, LiteralTypeNode, IntLiteral, FloatLiteral, LiteralLikeNode, isLiteralKind, TypeReferenceNode, getFullWidth, OperatorPrecedence, UnaryExpression, isLeftHandSideExpression, isAssignmentOperator, isKeywordOrPunctuation, UpdateExpression, PrimaryExpression, nodeIsPresent, PropertyAccessToken, IterationStatement, InheritClauseType, ObjectType, StructTypeNode, NamedDeclaration, TypeElement, PropertySignature, MethodSignature, StructDeclaration, TypeLiteralNode, TypeAssertion, NewStructExpression, ObjectLiteralElementLike, PropertyAssignment, getStartPositionOfLine, MappingLiteralExpression, MappingEntryExpression, isStringOrNumericLiteralLike, ElementAccessExpression, isFunctionDeclaration, RangeExpression, isPunctuation, LambdaIdentifierExpression, LambdaOperatorExpression, PreprocessorDirective, IncludeDirective, DefineDirective, UndefDirective, Macro, Scanner, last, ReadonlyTextRange, MacroParameter, forEachEntry, Ternary, isIntLiteral, isArrayTypeNode, SuperAccessExpression, isIndexedAccessTypeNode, isStringLiteral, isBinaryExpression, PragmaDirective, SpreadElement, CatchStatement, CatchExpression, getDirectoryPath, EvaluateExpression, setParentRecursive, ExpressionWithTypeArguments, JSDocThisTag, isJSDocTypeTag, isJSDocReturnTag, JSDocAuthorTag, QualifiedName, JSDocClassTag, JSDocDeprecatedTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, JSDocOverrideTag, JSDocPrivateTag, JSDocProtectedTag, JSDocPublicTag, JSDocUnknownTag } from "./_namespaces/lpc";
 import { DriverType, ILpcConfig } from "../config-types";
 import { ensureLpcConfig, loadLpcConfigFromString, LpcConfig } from "./LpcConfig";
 import { parse, resolve } from "path";
@@ -6025,7 +6025,87 @@ const forEachChildTable: ForEachChildTable = {
     [SyntaxKind.MappingEntryExpression]: function forEachChildInMappingEntryExpression<T>(node: MappingEntryExpression, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
         return visitNode(cbNode, node.name) ||
             visitNodes(cbNode, cbNodes, node.elements);
-    }
+    },
+    [SyntaxKind.JSDocTypeExpression]: forEachChildInOptionalRestOrJSDocParameterModifier,                
+    [SyntaxKind.JSDoc]: function forEachChildInJSDoc<T>(node: JSDoc, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return (typeof node.comment === "string" ? undefined : visitNodes(cbNode, cbNodes, node.comment))
+            || visitNodes(cbNode, cbNodes, node.tags);
+    },
+    [SyntaxKind.JSDocSeeTag]: function forEachChildInJSDocSeeTag<T>(node: JSDocSeeTag, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNode(cbNode, node.tagName) ||
+            visitNode(cbNode, node.name) ||
+            (typeof node.comment === "string" ? undefined : visitNodes(cbNode, cbNodes, node.comment));
+    },
+    [SyntaxKind.JSDocNameReference]: function forEachChildInJSDocNameReference<T>(node: JSDocNameReference, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNode(cbNode, node.name);
+    },
+    [SyntaxKind.JSDocMemberName]: function forEachChildInJSDocMemberName<T>(node: JSDocMemberName, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNode(cbNode, node.left) ||
+            visitNode(cbNode, node.right);
+    },
+    [SyntaxKind.JSDocParameterTag]: forEachChildInJSDocParameterOrPropertyTag,
+    [SyntaxKind.JSDocPropertyTag]: forEachChildInJSDocParameterOrPropertyTag,
+    [SyntaxKind.JSDocAuthorTag]: function forEachChildInJSDocAuthorTag<T>(node: JSDocAuthorTag, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNode(cbNode, node.tagName) ||
+            (typeof node.comment === "string" ? undefined : visitNodes(cbNode, cbNodes, node.comment));
+    },
+    [SyntaxKind.JSDocImplementsTag]: function forEachChildInJSDocImplementsTag<T>(node: JSDocImplementsTag, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNode(cbNode, node.tagName) ||
+            visitNode(cbNode, node.class) ||
+            (typeof node.comment === "string" ? undefined : visitNodes(cbNode, cbNodes, node.comment));
+    },
+    [SyntaxKind.JSDocAugmentsTag]: function forEachChildInJSDocAugmentsTag<T>(node: JSDocAugmentsTag, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNode(cbNode, node.tagName) ||
+            visitNode(cbNode, node.class) ||
+            (typeof node.comment === "string" ? undefined : visitNodes(cbNode, cbNodes, node.comment));
+    },
+    [SyntaxKind.JSDocTemplateTag]: function forEachChildInJSDocTemplateTag<T>(node: JSDocTemplateTag, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNode(cbNode, node.tagName) ||
+            visitNode(cbNode, node.constraint) ||
+            visitNodes(cbNode, cbNodes, node.typeParameters) ||
+            (typeof node.comment === "string" ? undefined : visitNodes(cbNode, cbNodes, node.comment));
+    },
+    [SyntaxKind.JSDocTypedefTag]: function forEachChildInJSDocTypedefTag<T>(node: JSDocTypedefTag, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNode(cbNode, node.tagName) ||
+            (node.typeExpression &&
+                    node.typeExpression.kind === SyntaxKind.JSDocTypeExpression
+                ? visitNode(cbNode, node.typeExpression) ||
+                    visitNode(cbNode, node.fullName) ||
+                    (typeof node.comment === "string" ? undefined : visitNodes(cbNode, cbNodes, node.comment))
+                : visitNode(cbNode, node.fullName) ||
+                    visitNode(cbNode, node.typeExpression) ||
+                    (typeof node.comment === "string" ? undefined : visitNodes(cbNode, cbNodes, node.comment)));
+    },
+    [SyntaxKind.JSDocCallbackTag]: function forEachChildInJSDocCallbackTag<T>(node: JSDocCallbackTag, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNode(cbNode, node.tagName) ||
+            visitNode(cbNode, node.fullName) ||
+            visitNode(cbNode, node.typeExpression) ||
+            (typeof node.comment === "string" ? undefined : visitNodes(cbNode, cbNodes, node.comment));
+    },
+    [SyntaxKind.JSDocReturnTag]: forEachChildInJSDocTypeLikeTag,
+    [SyntaxKind.JSDocTypeTag]: forEachChildInJSDocTypeLikeTag,
+    [SyntaxKind.JSDocThisTag]: forEachChildInJSDocTypeLikeTag,    
+    [SyntaxKind.JSDocSatisfiesTag]: forEachChildInJSDocTypeLikeTag,
+    [SyntaxKind.JSDocThrowsTag]: forEachChildInJSDocTypeLikeTag,
+    [SyntaxKind.JSDocOverloadTag]: forEachChildInJSDocTypeLikeTag,
+    [SyntaxKind.JSDocSignature]: function forEachChildInJSDocSignature<T>(node: JSDocSignature, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        // return forEach(node.typeParameters, cbNode) ||
+        return forEach(node.parameters, cbNode) ||
+            visitNode(cbNode, node.type);
+    },
+    [SyntaxKind.JSDocLink]: forEachChildInJSDocLinkCodeOrPlain,
+    [SyntaxKind.JSDocLinkCode]: forEachChildInJSDocLinkCodeOrPlain,
+    [SyntaxKind.JSDocLinkPlain]: forEachChildInJSDocLinkCodeOrPlain,
+    [SyntaxKind.JSDocTypeLiteral]: function forEachChildInJSDocTypeLiteral<T>(node: JSDocTypeLiteral, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return forEach(node.jsDocPropertyTags, cbNode);
+    },
+    [SyntaxKind.JSDocTag]: forEachChildInJSDocTag,
+    [SyntaxKind.JSDocClassTag]: forEachChildInJSDocTag,
+    [SyntaxKind.JSDocPublicTag]: forEachChildInJSDocTag,
+    [SyntaxKind.JSDocPrivateTag]: forEachChildInJSDocTag,
+    [SyntaxKind.JSDocProtectedTag]: forEachChildInJSDocTag,    
+    [SyntaxKind.JSDocDeprecatedTag]: forEachChildInJSDocTag,
+    [SyntaxKind.JSDocOverrideTag]: forEachChildInJSDocTag,    
 };
 
 function forEachChildInContinueOrBreakStatement<T>(node: ContinueStatement | BreakStatement, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
@@ -6245,3 +6325,32 @@ const intersectingChangeSet = new WeakSet<Node | NodeArray<Node>>();
 function intersectsIncrementalChange(node: Node | NodeArray<Node>): boolean {
     return intersectingChangeSet.has(node);
 }
+
+
+function forEachChildInOptionalRestOrJSDocParameterModifier<T>(node: JSDocTypeExpression, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+    return visitNode(cbNode, node.type);
+}
+
+function forEachChildInJSDocParameterOrPropertyTag<T>(node: JSDocParameterTag | JSDocPropertyTag, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+    return visitNode(cbNode, node.tagName) ||
+        (node.isNameFirst
+            ? visitNode(cbNode, node.name) || visitNode(cbNode, node.typeExpression)
+            : visitNode(cbNode, node.typeExpression) || visitNode(cbNode, node.name)) ||
+        (typeof node.comment === "string" ? undefined : visitNodes(cbNode, cbNodes, node.comment));
+}
+
+function forEachChildInJSDocTypeLikeTag<T>(node: JSDocReturnTag | JSDocTypeTag | JSDocThisTag |  JSDocThrowsTag | JSDocOverloadTag | JSDocSatisfiesTag, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+    return visitNode(cbNode, node.tagName) ||
+        visitNode(cbNode, node.typeExpression) ||
+        (typeof node.comment === "string" ? undefined : visitNodes(cbNode, cbNodes, node.comment));
+}
+
+function forEachChildInJSDocLinkCodeOrPlain<T>(node: JSDocLink | JSDocLinkCode | JSDocLinkPlain, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+    return visitNode(cbNode, node.name);
+}
+
+function forEachChildInJSDocTag<T>(node: JSDocUnknownTag | JSDocClassTag | JSDocPublicTag | JSDocPrivateTag | JSDocProtectedTag |  JSDocDeprecatedTag | JSDocOverrideTag, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+    return visitNode(cbNode, node.tagName)
+        || (typeof node.comment === "string" ? undefined : visitNodes(cbNode, cbNodes, node.comment));
+}
+

@@ -267,6 +267,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     });
     
     const checker: TypeChecker = {
+        getTypeOfSymbol,
         getNodeCount: () => reduceLeft(host.getSourceFiles(), (n, s) => n + s.nodeCount, 0),
         getIdentifierCount: () => reduceLeft(host.getSourceFiles(), (n, s) => n + s.identifierCount, 0),
         getSymbolCount: () => reduceLeft(host.getSourceFiles(), (n, s) => n + s.symbolCount, symbolCount),

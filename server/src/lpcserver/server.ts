@@ -320,24 +320,30 @@ export function start(connection: Connection, platform: string) {
                 ...posParamToLpcPos(requestParams),
             };
 
-            const result = session.getQuickInfoWorker(args, false) as lpc.QuickInfo;
-            
-            const displayParts: string[] = result?.displayParts?.map(pt=>pt.text) ?? [];
-            // // if document is a string then just add that, otherwise loop through the display parts
-            // if (typeof result.documentation === "string") {
-            //     displayParts.push(result.documentation);
-            // } else {
-            //     result.documentation.forEach(part => {                    
-            //         displayParts.push(part.text);
-            //     });
-            // }
-            
-            return {
-                contents: {
-                    kind: MarkupKind.Markdown,                    
-                    value: "```lpc\n" + displayParts.join("") + "\n```",
-                }
-            } satisfies Hover;
+            try {
+                const result = session.getQuickInfoWorker(args, false) as lpc.QuickInfo;
+                
+                const displayParts: string[] = result?.displayParts?.map(pt=>pt.text) ?? [];
+                // // if document is a string then just add that, otherwise loop through the display parts
+                // if (typeof result.documentation === "string") {
+                //     displayParts.push(result.documentation);
+                // } else {
+                //     result.documentation.forEach(part => {                    
+                //         displayParts.push(part.text);
+                //     });
+                // }
+                
+                return {
+                    contents: {
+                        kind: MarkupKind.Markdown,                    
+                        value: "```lpc\n" + displayParts.join("") + "\n```",
+                    }
+                } satisfies Hover;
+            }
+            catch(e) {
+                console.error(e);
+                debugger;                 
+            }
         });
 
         connection.onDefinition(requestParams => {

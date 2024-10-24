@@ -181,6 +181,9 @@ import {
     NavigationBar,
     FindAllReferences,
     isInComment,
+    JsDoc,
+    getJSDocTags,
+    getAllSuperTypeNodes,
 } from "./_namespaces/lpc.js";
 
 
@@ -273,6 +276,7 @@ class TokenOrIdentifierObject<TKind extends SyntaxKind> implements Node {
     public getText(sourceFile?: SourceFile): string {
         if (!sourceFile) {
             sourceFile = this.getSourceFile();
+            Debug.assertIsDefined(sourceFile);
         }
         return sourceFile.text.substring(
             this.getStart(sourceFile),
@@ -1048,32 +1052,47 @@ class SymbolObject implements Symbol {
     }
 }
 
-function getJsDocTagsOfDeclarations(
-    declarations: Declaration[] | undefined,
-    checker: TypeChecker | undefined
-): JSDocTagInfo[] {
+function findBaseOfDeclaration<T>(checker: TypeChecker, declaration: Declaration, cb: (symbol: Symbol) => T[] | undefined): T[] | undefined {
+    const classOrInterfaceDeclaration = declaration.parent;// declaration.parent?.kind === SyntaxKind.Constructor ? declaration.parent.parent : declaration.parent;
+    if (!classOrInterfaceDeclaration) return;
+
+    const isStaticMember = false;// hasStaticModifier(declaration);
+    return firstDefined(getAllSuperTypeNodes(classOrInterfaceDeclaration), superTypeNode => {
+        const baseType = checker.getTypeAtLocation(superTypeNode);
+        const type = isStaticMember && baseType.symbol ? checker.getTypeOfSymbol(baseType.symbol) : baseType;
+        const symbol = checker.getPropertyOfType(type, declaration.symbol.name);
+        return symbol ? cb(symbol) : undefined;
+    });
+}
+
+/**
+ * Returns whether or not the given node has a JSDoc "inheritDoc" tag on it.
+ * @param node the Node in question.
+ * @returns `true` if `node` has a JSDoc "inheritDoc" tag on it, otherwise `false`.
+ */
+function hasJSDocInheritDocTag(node: Node) {
+    return getJSDocTags(node).some(tag => tag.tagName.text === "inheritDoc" || tag.tagName.text === "inheritdoc");
+}
+
+function getJsDocTagsOfDeclarations(declarations: Declaration[] | undefined, checker: TypeChecker | undefined): JSDocTagInfo[] {
     if (!declarations) return emptyArray;
-    console.warn("todo implement me - getJsDocTagsOfDeclarations");
-    return [];
-    // let tags = JsDoc.getJsDocTagsFromDeclarations(declarations, checker);
-    // if (checker && (tags.length === 0 || declarations.some(hasJSDocInheritDocTag))) {
-    //     const seenSymbols = new Set<Symbol>();
-    //     for (const declaration of declarations) {
-    //         const inheritedTags = findBaseOfDeclaration(checker, declaration, symbol => {
-    //             if (!seenSymbols.has(symbol)) {
-    //                 seenSymbols.add(symbol);
-    //                 if (declaration.kind === SyntaxKind.GetAccessor || declaration.kind === SyntaxKind.SetAccessor) {
-    //                     return symbol.getContextualJsDocTags(declaration, checker);
-    //                 }
-    //                 return symbol.declarations?.length === 1 ? symbol.getJsDocTags(checker) : undefined;
-    //             }
-    //         });
-    //         if (inheritedTags) {
-    //             tags = [...inheritedTags, ...tags];
-    //         }
-    //     }
-    // }
-    // return tags;
+
+    let tags = JsDoc.getJsDocTagsFromDeclarations(declarations, checker);
+    if (checker && (tags.length === 0 || declarations.some(hasJSDocInheritDocTag))) {
+        const seenSymbols = new Set<Symbol>();
+        for (const declaration of declarations) {
+            const inheritedTags = findBaseOfDeclaration(checker, declaration, symbol => {
+                if (!seenSymbols.has(symbol)) {
+                    seenSymbols.add(symbol);                    
+                    return symbol.declarations?.length === 1 ? symbol.getJsDocTags(checker) : undefined;
+                }
+            });
+            if (inheritedTags) {
+                tags = [...inheritedTags, ...tags];
+            }
+        }
+    }
+    return tags;
 }
 
 class TypeObject implements Type {
@@ -1453,6 +1472,15 @@ export function createLanguageService(
     }
 
     function synchronizeHostData(): void {
+        if (host.updateFromProject && !host.updateFromProjectInProgress) {
+            host.updateFromProject();
+        }
+        else {
+            synchronizeHostDataWorker();
+        }
+    }
+
+    function synchronizeHostDataWorker(): void {
         // perform fast check if host supports it
         if (host.getProjectVersion) {
             const hostProjectVersion = host.getProjectVersion();
@@ -1584,12 +1612,12 @@ export function createLanguageService(
         // After this point, the cache needs to be cleared to allow all collected snapshots to be released
         compilerHost = undefined;
         // parsedCommandLines = undefined;
-        // releasedScriptKinds = undefined;
+        releasedScriptKinds = undefined;
 
         // We reset this cache on structure invalidation so we don't hold on to outdated files for long; however we can't use the `compilerHost` above,
         // Because it only functions until `hostCache` is cleared, while we'll potentially need the functionality to lazily read sourcemap files during
         // the course of whatever called `synchronizeHostData`
-        // sourceMapper.clearCache();
+        sourceMapper.clearCache();
 
         // Make sure all the nodes in the program are both bound, and have their parent
         // pointers set property.

@@ -87,6 +87,8 @@ export interface EmitNode {
 }
 
 export interface TypeChecker {
+    getTypeOfSymbol(symbol: Symbol): Type;
+    
     /** @internal */ getNodeCount(): number;
     /** @internal */ getIdentifierCount(): number;
     /** @internal */ getSymbolCount(): number;
@@ -1912,47 +1914,39 @@ export type HasFlowNode =
 /** @internal */
 export type ForEachChildNodes =
     | HasChildren
-    // | MissingDeclaration
-    | JSDocTypeExpression
-    // | JSDocNonNullableType
-    // | JSDocNullableType
-    // | JSDocOptionalType
-    // | JSDocVariadicType
-    // | JSDocFunctionType
+    | MissingDeclaration
+    | JSDocTypeExpression    
     | JSDoc
-    // | JSDocSeeTag
-    // | JSDocNameReference
-    // | JSDocMemberName
-    // | JSDocParameterTag
-    // | JSDocPropertyTag
-    // | JSDocAuthorTag
-    // | JSDocImplementsTag
-    // | JSDocAugmentsTag
-    // | JSDocTemplateTag
-    // | JSDocTypedefTag
-    // | JSDocCallbackTag
-    // | JSDocReturnTag
-    // | JSDocTypeTag
-    // | JSDocThisTag
-    // | JSDocEnumTag
+    | JSDocSeeTag
+    | JSDocNameReference
+    | JSDocMemberName
+    | JSDocParameterTag
+    | JSDocPropertyTag
+    | JSDocAuthorTag
+    | JSDocImplementsTag
+    | JSDocAugmentsTag
+    | JSDocTemplateTag
+    | JSDocTypedefTag
+    | JSDocCallbackTag
+    | JSDocReturnTag
+    | JSDocTypeTag
+    | JSDocThisTag    
     | JSDocSignature
     | JSDocTypeLiteral
-    // | JSDocLink
-    // | JSDocLinkCode
-    // | JSDocLinkPlain
-    // | JSDocUnknownTag
-    // | JSDocClassTag
-    // | JSDocPublicTag
-    // | JSDocPrivateTag
-    // | JSDocProtectedTag
+    | JSDocLink
+    | JSDocLinkCode
+    | JSDocLinkPlain
+    | JSDocUnknownTag
+    | JSDocClassTag
+    | JSDocPublicTag
+    | JSDocPrivateTag
+    | JSDocProtectedTag
     // | JSDocReadonlyTag
-    // | JSDocDeprecatedTag
-    // | JSDocThrowsTag
-    // | JSDocOverrideTag
-    // | JSDocSatisfiesTag
-    // | JSDocOverloadTag
-    // | JSDocImportTag;
-    ;
+    | JSDocDeprecatedTag
+    | JSDocThrowsTag
+    | JSDocOverrideTag
+    | JSDocSatisfiesTag
+    | JSDocOverloadTag;    
 
 /** @internal */
 export type HasChildren =
