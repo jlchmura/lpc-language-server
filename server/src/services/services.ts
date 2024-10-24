@@ -184,6 +184,8 @@ import {
     JsDoc,
     getJSDocTags,
     getAllSuperTypeNodes,
+    isTransientSymbol,
+    lineBreakPart,
 } from "./_namespaces/lpc.js";
 
 
@@ -980,7 +982,7 @@ class SymbolObject implements Symbol {
             //     this.documentationComment = getDocumentationComment([labelDecl], checker);
             // }
             // else {
-            //     this.documentationComment = getDocumentationComment(this.declarations, checker);
+                this.documentationComment = getDocumentationComment(this.declarations, checker);
             // }
         }
         return this.documentationComment;
@@ -1242,10 +1244,8 @@ class SignatureObject implements Signature {
         //return this.checker.getReturnTypeOfSignature(this);
     }
 
-    getDocumentationComment(): SymbolDisplayPart[] {
-        console.log("implement me - getDocumentationComment");
-        return [];
-        //return this.documentationComment || (this.documentationComment = getDocumentationComment(singleElementArray(this.declaration), this.checker));
+    getDocumentationComment(): SymbolDisplayPart[] {        
+        return this.documentationComment || (this.documentationComment = getDocumentationComment(singleElementArray(this.declaration), this.checker));
     }
 
     getJsDocTags(): JSDocTagInfo[] {
@@ -2312,4 +2312,24 @@ export function findNextToken(previousToken: Node, parent: Node, sourceFile: Sou
             return shouldDiveInChildNode && nodeHasTokens(child, sourceFile) ? find(child) : undefined;
         });
     }
+}
+
+function getDocumentationComment(declarations: readonly Declaration[] | undefined, checker: TypeChecker | undefined): SymbolDisplayPart[] {
+    if (!declarations) return emptyArray;
+
+    let doc = JsDoc.getJsDocCommentsFromDeclarations(declarations, checker);
+    if (checker && (doc.length === 0 || declarations.some(hasJSDocInheritDocTag))) {
+        const seenSymbols = new Set<Symbol>();
+        for (const declaration of declarations) {
+            const inheritedDocs = findBaseOfDeclaration(checker, declaration, symbol => {
+                if (!seenSymbols.has(symbol)) {
+                    seenSymbols.add(symbol);                    
+                    return symbol.getDocumentationComment(checker);
+                }
+            });
+            // TODO: GH#16312 Return a ReadonlyArray, avoid copying inheritedDocs
+            if (inheritedDocs) doc = doc.length === 0 ? inheritedDocs.slice() : inheritedDocs.concat(lineBreakPart(), doc);
+        }
+    }
+    return doc;
 }

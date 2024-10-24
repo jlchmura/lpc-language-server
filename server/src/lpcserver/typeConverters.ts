@@ -1,9 +1,10 @@
 import * as vscode from "vscode-languageserver";
 import * as Proto from "../server/_namespaces/lpc.server.protocol.js";
 import { protocol } from "../server/_namespaces/lpc.server.js";
-import { ScriptElementKind } from "../server/_namespaces/lpc.js";
+import { ScriptElementKind, SymbolDisplayPart } from "../server/_namespaces/lpc.js";
 import { URI } from "vscode-uri";
 import { KindModifiers } from "./protocol.const.js";
+import { IFilePathToResourceConverter, tagsToMarkdown } from "./textRendering.js";
 
 
 
@@ -166,4 +167,24 @@ export namespace CompletionKind {
 		return new Set(kindModifiers.split(/,|\s+/g));
 	}
 	
+}
+
+export namespace DisplayPart {	
+	export function documentationToMarkdown(
+		documentation: readonly SymbolDisplayPart[],
+		tags: readonly Proto.JSDocTagInfo[],
+		baseUri: URI | undefined		
+	) {
+		let markdown = '';
+		if (documentation) {
+			markdown += documentation.map(part => part.text).join('');
+		}
+		if (tags) {
+			const converter: IFilePathToResourceConverter = { toResource: (file: string) => URI.file(file) };
+			const tagsMarkdown = tagsToMarkdown(tags, converter );
+			markdown += ('\n\n' + tagsMarkdown);
+		}
+
+		return markdown;
+	}	
 }

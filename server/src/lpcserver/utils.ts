@@ -4,6 +4,7 @@ import * as protocol from "../server/_namespaces/lpc.server.protocol.js";
 import * as typeConverters from './typeConverters.js';
 import * as PConst from "./protocol.const.js";
 import { URI } from "vscode-uri";
+import { createTextRangeFromSpan } from "../lpc/lpc.js";
 
 const getSymbolKind = (kind: string): ls.SymbolKind => {
 	switch (kind) {
@@ -149,3 +150,4 @@ export function convertNavTree(
 
     return shouldInclude;
 }
+

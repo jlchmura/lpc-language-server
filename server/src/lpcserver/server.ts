@@ -322,21 +322,18 @@ export function start(connection: Connection, platform: string) {
 
             try {
                 const result = session.getQuickInfoWorker(args, false) as lpc.QuickInfo;
-                
                 const displayParts: string[] = result?.displayParts?.map(pt=>pt.text) ?? [];
-                // // if document is a string then just add that, otherwise loop through the display parts
-                // if (typeof result.documentation === "string") {
-                //     displayParts.push(result.documentation);
-                // } else {
-                //     result.documentation.forEach(part => {                    
-                //         displayParts.push(part.text);
-                //     });
-                // }
-                
+                let md = "```lpc\n" + displayParts.join("") + "\n```";
+
+                if (result) {                
+                    const docMd = typeConverters.DisplayPart.documentationToMarkdown(result.documentation, result.tags, undefined);
+                    md += "\n" + docMd;
+                }
+
                 return {
                     contents: {
                         kind: MarkupKind.Markdown,                    
-                        value: "```lpc\n" + displayParts.join("") + "\n```",
+                        value: md,
                     }
                 } satisfies Hover;
             }
