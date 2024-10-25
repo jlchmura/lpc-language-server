@@ -14,6 +14,7 @@ import {
     ByRefElement,
     BytesLiteral,
     CallExpression,
+    CallSignatureDeclaration,
     CaseBlock,
     CaseClause,
     CaseOrDefaultClause,
@@ -270,6 +271,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createIndexSignature,
         createTypeParameterDeclaration,
         createFunctionTypeNode,
+        createCallSignature,
 
         // modifiers
         createModifier,
@@ -599,6 +601,25 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         const typeArguments = getIdentifierTypeArguments(node);
         if (typeArguments) setIdentifierTypeArguments(clone, typeArguments);
         return clone;
+    }
+
+    // @api
+    function createCallSignature(
+        typeParameters: readonly TypeParameterDeclaration[] | undefined,
+        parameters: readonly ParameterDeclaration[],
+        type: TypeNode | undefined,
+    ): CallSignatureDeclaration {
+        const node = createBaseDeclaration<CallSignatureDeclaration>(SyntaxKind.CallSignature);
+        // node.typeParameters = asNodeArray(typeParameters);
+        node.parameters = asNodeArray(parameters);
+        node.type = type;
+        // node.transformFlags = TransformFlags.ContainsTypeScript;
+
+        node.jsDoc = undefined; // initialized by parser (JsDocContainer)
+        node.locals = undefined; // initialized by binder (LocalsContainer)
+        node.nextContainer = undefined; // initialized by binder (LocalsContainer)
+        node.typeArguments = undefined; // used in quick info
+        return node;
     }
 
     // @api

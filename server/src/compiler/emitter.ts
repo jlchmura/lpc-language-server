@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { Symbol, Bundle, createTextWriter, Debug, EmitFlags, EmitHint, EmitTextWriter, Expression, factory, getEmitFlags, getInternalEmitFlags, getLineStarts, getNewLineCharacter, getShebang, Identifier, InternalEmitFlags, isExpression, isIdentifier, isSourceFile, isStringLiteral, ListFormat, memoize, ModuleKind, Node, NodeArray, noEmitNotification, noEmitSubstitution, performance, Printer, PrinterOptions, PrintHandlers, rangeIsOnSingleLine, SourceFile, SourceMapGenerator, SourceMapSource, SyntaxKind, TextRange, TypeNode, tokenToString, ParenthesizedExpression, nodeIsSynthesized, getStartsOnNewLine, getLinesBetweenRangeEndAndRangeStart, rangeEndIsOnSameLineAsRangeStart, guessIndentation, cast, getIdentifierTypeArguments, LiteralExpression, isMemberName, getSourceFileOfNode, idText, getOriginalNode, isLiteralExpression, getSourceTextOfNodeFromSourceFile, TypeLiteralNode, forEach, NamedDeclaration, DeclarationName, isGeneratedIdentifier, isBindingPattern, GeneratedIdentifier, GeneratedIdentifierFlags, getNodeId, GeneratedNamePart, FunctionDeclaration, isFileLevelUniqueName, BindingPattern, Block, CaseBlock, CaseOrDefaultClause, CatchStatement, ForStatement, IfStatement, isPrivateIdentifier, SwitchStatement, VariableDeclarationList, VariableStatement, WhileStatement, ForEachStatement, DoWhileStatement, formatGeneratedNamePart, formatGeneratedName, lastOrUndefined, getNodeForGeneratedName, isKeyword, isTokenKind, getNormalizedAbsolutePath, GetCanonicalFileName, CompilerOptions, getDirectoryPath, directorySeparator, computeCommonSourceDirectoryOfFilenames, CharacterCodes, ArrayTypeNode, every, ModifierLike, isModifier, Modifier, positionIsSynthesized, VariableDeclaration, getParseTreeNode, skipTrivia, positionsAreOnSameLine, FunctionTypeNode, SignatureDeclaration, ArrowFunction, ParameterDeclaration, singleOrUndefined, isArrowFunction, some, getCommentRange, rangeStartPositionsAreOnSameLine, getContainingNodeArray, rangeEndPositionsAreOnSameLine, getLinesBetweenPositionAndNextNonWhitespaceCharacter } from "./_namespaces/lpc.js";
+import { Symbol, Bundle, createTextWriter, Debug, EmitFlags, EmitHint, EmitTextWriter, Expression, factory, getEmitFlags, getInternalEmitFlags, getLineStarts, getNewLineCharacter, getShebang, Identifier, InternalEmitFlags, isExpression, isIdentifier, isSourceFile, isStringLiteral, ListFormat, memoize, ModuleKind, Node, NodeArray, noEmitNotification, noEmitSubstitution, performance, Printer, PrinterOptions, PrintHandlers, rangeIsOnSingleLine, SourceFile, SourceMapGenerator, SourceMapSource, SyntaxKind, TextRange, TypeNode, tokenToString, ParenthesizedExpression, nodeIsSynthesized, getStartsOnNewLine, getLinesBetweenRangeEndAndRangeStart, rangeEndIsOnSameLineAsRangeStart, guessIndentation, cast, getIdentifierTypeArguments, LiteralExpression, isMemberName, getSourceFileOfNode, idText, getOriginalNode, isLiteralExpression, getSourceTextOfNodeFromSourceFile, TypeLiteralNode, forEach, NamedDeclaration, DeclarationName, isGeneratedIdentifier, isBindingPattern, GeneratedIdentifier, GeneratedIdentifierFlags, getNodeId, GeneratedNamePart, FunctionDeclaration, isFileLevelUniqueName, BindingPattern, Block, CaseBlock, CaseOrDefaultClause, CatchStatement, ForStatement, IfStatement, isPrivateIdentifier, SwitchStatement, VariableDeclarationList, VariableStatement, WhileStatement, ForEachStatement, DoWhileStatement, formatGeneratedNamePart, formatGeneratedName, lastOrUndefined, getNodeForGeneratedName, isKeyword, isTokenKind, getNormalizedAbsolutePath, GetCanonicalFileName, CompilerOptions, getDirectoryPath, directorySeparator, computeCommonSourceDirectoryOfFilenames, CharacterCodes, ArrayTypeNode, every, ModifierLike, isModifier, Modifier, positionIsSynthesized, VariableDeclaration, getParseTreeNode, skipTrivia, positionsAreOnSameLine, FunctionTypeNode, SignatureDeclaration, ArrowFunction, ParameterDeclaration, singleOrUndefined, isArrowFunction, some, getCommentRange, rangeStartPositionsAreOnSameLine, getContainingNodeArray, rangeEndPositionsAreOnSameLine, getLinesBetweenPositionAndNextNonWhitespaceCharacter, CallSignatureDeclaration } from "./_namespaces/lpc.js";
 
 const brackets = createBracketsMap();
 
@@ -933,6 +933,8 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
                     return emitVariableDeclaration(node as VariableDeclaration);
                 case SyntaxKind.VariableDeclarationList:
                     return emitVariableDeclarationList(node as VariableDeclarationList);
+                case SyntaxKind.CallSignature:
+                    return emitCallSignature(node as CallSignatureDeclaration);
                 
             }
         }
@@ -1776,6 +1778,20 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
         emitTypeAnnotation(node.type);
         emit(node.name);        
         emitInitializer(node.initializer, node.type?.end ?? node.name.emitNode?.typeNode?.end ?? node.name.end, node, parenthesizer.parenthesizeExpressionForDisallowedComma);
+    }
+
+    function emitCallSignature(node: CallSignatureDeclaration) {
+        emitSignatureAndBody(node, emitSignatureHead, emitEmptyFunctionBody);
+    }
+
+    function emitSignatureHead(node: SignatureDeclaration) {
+        // emitTypeParameters(node, node.typeParameters);
+        emitTypeAnnotation(node.type);
+        emitParameters(node, node.parameters);
+    }
+
+    function emitEmptyFunctionBody(_node: SignatureDeclaration) {
+        writeTrailingSemicolon();
     }
 
     function emitVariableDeclarationList(node: VariableDeclarationList) {                    

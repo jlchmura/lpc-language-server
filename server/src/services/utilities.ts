@@ -197,6 +197,7 @@ import {
     isStringOrNumericLiteralLike,
     isPrivateIdentifier,
     idText,
+    isCallExpression,
 } from "./_namespaces/lpc.js";
 
 // Matches the beginning of a triple slash directive
@@ -2690,3 +2691,9 @@ export function hasIndexSignature(type: Type): boolean {
 export function skipConstraint(type: Type): Type {
     return type.isTypeParameter() ? type.getConstraint() || type : type;
 }
+
+/** @internal */
+export function isCallExpressionTarget(node: Node, includeElementAccess = false, skipPastOuterExpressions = false): boolean {
+    return isCalleeWorker(node, isCallExpression, selectExpressionOfCallOrNewExpressionOrDecorator, includeElementAccess, skipPastOuterExpressions);
+}
+

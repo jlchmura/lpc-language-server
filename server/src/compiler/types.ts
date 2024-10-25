@@ -99,6 +99,7 @@ export interface TypeChecker {
 
     signatureToString(signature: Signature, enclosingDeclaration?: Node, flags?: TypeFormatFlags, kind?: SignatureKind): string;
     symbolToString(symbol: Symbol, enclosingDeclaration?: Node, meaning?: SymbolFlags, flags?: SymbolFormatFlags): string;
+    getSignatureFromDeclaration(declaration: SignatureDeclaration): Signature | undefined;
 
     // Should not be called directly.  Should only be accessed through the Program instance.
     /** @internal */ getDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken, nodesToCheck?: Node[]): Diagnostic[];
@@ -679,6 +680,7 @@ export const enum SyntaxKind {
     TypeParameter,   // First Node
     Parameter,
     IndexSignature,
+    CallSignature,
 
     // TypeMember
     PropertyDeclaration,
@@ -1366,6 +1368,7 @@ export interface NodeFactory {
     /** @internal */ createIndexSignature(modifiers: readonly Modifier[] | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode | undefined): IndexSignatureDeclaration; // eslint-disable-line @typescript-eslint/unified-signatures
     createTypeParameterDeclaration(modifiers: readonly Modifier[] | undefined, name: string | Identifier, constraint?: TypeNode, defaultType?: TypeNode): TypeParameterDeclaration;
     createMethodSignature(modifiers: readonly Modifier[] | undefined, name: string | PropertyName, questionToken: QuestionToken | undefined, typeParameters: readonly TypeParameterDeclaration[] | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode | undefined): MethodSignature;
+    createCallSignature(typeParameters: readonly TypeParameterDeclaration[] | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode | undefined): CallSignatureDeclaration;
     createFunctionTypeNode(typeParameters: readonly TypeParameterDeclaration[] | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode): FunctionTypeNode;
 
     // binding patterns
@@ -3398,7 +3401,7 @@ export interface FunctionExpression
 }
 
 export type SignatureDeclaration =
-    // | CallSignatureDeclaration
+    | CallSignatureDeclaration
     // | ConstructSignatureDeclaration
     | MethodSignature
     | IndexSignatureDeclaration
@@ -3414,6 +3417,10 @@ export type SignatureDeclaration =
     | FunctionExpression
     ;
 
+export interface CallSignatureDeclaration extends SignatureDeclarationBase, TypeElement, LocalsContainer {
+        readonly kind: SyntaxKind.CallSignature;
+    }
+    
 export type DeclarationWithTypeParameterChildren =
     | SignatureDeclaration
     // | ClassLikeDeclaration

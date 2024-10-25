@@ -28,6 +28,7 @@ import {
     idText,
     isBindingElement,
     isCallExpression,
+    isCallExpressionTarget,
     isCallOrNewExpression,
     isDeprecatedDeclaration,
     isExpression,
@@ -39,6 +40,7 @@ import {
     isInExpressionContext,
     isInlineClosureExpression,
     isNameOfFunctionDeclaration,
+    isNewExpressionTarget,
     isTransientSymbol,
     JSDocTagInfo,
     keywordPart,
@@ -942,13 +944,7 @@ function getSymbolDisplayPartsDocumentationAndSymbolKindWorker(typeChecker: Type
         if (symbolKind === ScriptElementKind.memberGetAccessorElement || symbolKind === ScriptElementKind.memberSetAccessorElement) {
             const declaration = find(symbol.declarations as ((/*GetAccessorDeclaration | SetAccessorDeclaration |*/ PropertyDeclaration)[]), declaration => declaration.name === location);
             if (declaration) {
-                switch (declaration.kind) {
-                    // case SyntaxKind.GetAccessor:
-                    //     symbolKind = ScriptElementKind.memberGetAccessorElement;
-                    //     break;
-                    // case SyntaxKind.SetAccessor:
-                    //     symbolKind = ScriptElementKind.memberSetAccessorElement;
-                    //     break;
+                switch (declaration.kind) {                    
                     case SyntaxKind.PropertyDeclaration:
                         symbolKind = ScriptElementKind.memberAccessorVariableElement;
                         break;
@@ -977,9 +973,9 @@ function getSymbolDisplayPartsDocumentationAndSymbolKindWorker(typeChecker: Type
         if (isCallOrNewExpression(location)) {
             callExpressionLike = location;
         }
-        // else if (isCallExpressionTarget(location) || isNewExpressionTarget(location)) {
-        //     callExpressionLike = location.parent as CallExpression | NewExpression;
-        // }        
+        else if (isCallExpressionTarget(location) || isNewExpressionTarget(location)) {
+            callExpressionLike = location.parent as CallExpression | NewExpression;
+        }        
 
         if (callExpressionLike) {
             signature = typeChecker.getResolvedSignature(callExpressionLike); // TODO: GH#18217
@@ -1065,7 +1061,7 @@ function getSymbolDisplayPartsDocumentationAndSymbolKindWorker(typeChecker: Type
                 const allSignatures = type.getNonNullableType().getCallSignatures()// functionDeclaration.kind === SyntaxKind.Constructor ? type.getNonNullableType().getConstructSignatures() : type.getNonNullableType().getCallSignatures();
                 //if (!typeChecker.isImplementationOfOverload(functionDeclaration)) {
                 // TODO - handle function forward defines here
-                    // signature = typeChecker.getSignatureFromDeclaration(functionDeclaration); // TODO: GH#18217
+                    signature = typeChecker.getSignatureFromDeclaration(functionDeclaration); // TODO: GH#18217
                 // }
                 // else {
                 //     signature = allSignatures[0];
@@ -1153,13 +1149,7 @@ function getSymbolDisplayPartsDocumentationAndSymbolKindWorker(typeChecker: Type
                 }
             }
         }
-
-        // if (symbol.declarations) {
-        //     switch (symbol.declarations[0].kind) {                
-        //         default:
-        //             displayParts.push(keywordPart(SyntaxKind.ImportKeyword));
-        //     }
-        // }
+        
         displayParts.push(spacePart());
         addFullSymbolName(symbol);        
     }
