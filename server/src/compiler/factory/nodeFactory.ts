@@ -6,7 +6,9 @@ import {
     BinaryExpression,
     BinaryOperator,
     BinaryOperatorToken,
+    BindingElement,
     BindingName,
+    BindingPattern,
     Block,
     BreakStatement,
     ByRefElement,
@@ -52,6 +54,7 @@ import {
     ForStatement,
     FunctionDeclaration,
     FunctionExpression,
+    FunctionTypeNode,
     getIdentifierTypeArguments,
     getJSDocTypeAliasName,
     getTextOfIdentifierOrLiteral,
@@ -125,8 +128,10 @@ import {
     MemberName,
     memoize,
     memoizeOne,
+    MethodSignature,
     MissingDeclaration,
     Modifier,
+    ModifierFlags,
     ModifierSyntaxKind,
     ModifierToken,
     Mutable,
@@ -163,6 +168,7 @@ import {
     RangeExpression,
     ReturnStatement,
     setIdentifierTypeArguments,    
+    setTextRange,    
     SourceFile,
     SpreadElement,
     Statement,
@@ -263,6 +269,11 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         // type elements,
         createIndexSignature,
         createTypeParameterDeclaration,
+        createFunctionTypeNode,
+
+        // modifiers
+        createModifier,
+        createModifiersFromModifierFlags,
 
         // types
         createArrayTypeNode,
@@ -274,11 +285,15 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createTypeLiteralNode,
         createStructTypeNode,
         createPropertySignature,
-        
+        createMethodSignature,
 
         // Names
         createQualifiedName,
         createComputedPropertyName,
+
+        // binding patterns
+        createBindingElement,
+        updateBindingElement,
 
         // statements
         createEmptyStatement,
@@ -733,6 +748,26 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
     
     // @api
+    function createFunctionTypeNode(
+        typeParameters: readonly TypeParameterDeclaration[] | undefined,
+        parameters: readonly ParameterDeclaration[],
+        type: TypeNode,
+    ): FunctionTypeNode {
+        const node = createBaseDeclaration<FunctionTypeNode>(SyntaxKind.FunctionType);
+        // node.typeParameters = asNodeArray(typeParameters);
+        node.parameters = asNodeArray(parameters);
+        node.type = type;
+        // node.transformFlags = TransformFlags.ContainsTypeScript;
+
+        node.modifiers = undefined; // initialized by parser for grammar errors
+        node.jsDoc = undefined; // initialized by parser (JsDocContainer)
+        node.locals = undefined; // initialized by binder (LocalsContainer)
+        node.nextContainer = undefined; // initialized by binder (LocalsContainer)
+        node.typeArguments = undefined; // used in quick info
+        return node;
+    }
+    
+    // @api
     function createFunctionExpression(
         modifiers: readonly Modifier[] | undefined,
         name: string | Identifier | undefined,
@@ -1079,6 +1114,66 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         return node;
     }
         
+    // @api
+    function createMethodSignature(
+        modifiers: readonly Modifier[] | undefined,
+        name: string | PropertyName,
+        questionToken: QuestionToken | undefined,
+        typeParameters: readonly TypeParameterDeclaration[] | undefined,
+        parameters: readonly ParameterDeclaration[],
+        type: TypeNode | undefined,
+    ) {
+        const node = createBaseDeclaration<MethodSignature>(SyntaxKind.MethodSignature);
+        node.modifiers = asNodeArray(modifiers);
+        node.name = asName(name);
+        // node.questionToken = questionToken;
+        // node.typeParameters = asNodeArray(typeParameters);
+        node.parameters = asNodeArray(parameters);
+        node.type = type;
+        // node.transformFlags = TransformFlags.ContainsTypeScript;
+
+        node.jsDoc = undefined; // initialized by parser (JsDocContainer)
+        node.locals = undefined; // initialized by binder (LocalsContainer)
+        node.nextContainer = undefined; // initialized by binder (LocalsContainer)
+        node.typeArguments = undefined; // used in quick info
+        return node;
+    }
+    
+    // @api
+    function createBindingElement(dotDotDotToken: DotDotDotToken | undefined, propertyName: string | PropertyName | undefined, name: string | BindingName, initializer?: Expression) {
+        const node = createBaseDeclaration<BindingElement>(SyntaxKind.BindingElement);
+        node.dotDotDotToken = dotDotDotToken;
+        node.propertyName = asName(propertyName);
+        node.name = asName(name);
+        node.initializer = asInitializer(initializer);
+        node.transformFlags |= propagateChildFlags(node.dotDotDotToken) |
+            propagateNameFlags(node.propertyName) |
+            propagateNameFlags(node.name) |
+            propagateChildFlags(node.initializer) |
+            (node.dotDotDotToken ? TransformFlags.ContainsRestOrSpread : TransformFlags.None);/* | TransformFlags.ContainsES2015;*/
+
+        node.flowNode = undefined; // initialized by binder (FlowContainer)
+        return node;
+    }
+
+    // @api
+    function updateBindingElement(node: BindingElement, dotDotDotToken: DotDotDotToken | undefined, propertyName: PropertyName | undefined, name: BindingName, initializer: Expression | undefined) {
+        return node.propertyName !== propertyName
+                || node.dotDotDotToken !== dotDotDotToken
+                || node.name !== name
+                || node.initializer !== initializer
+            ? update(createBindingElement(dotDotDotToken, propertyName, name, initializer), node)
+            : node;
+    }
+    
+    function update<T extends Node>(updated: Mutable<T>, original: T): T {
+        if (updated !== original) {
+            setOriginal(updated, original);
+            setTextRange(updated, original);
+        }
+        return updated;
+    }
+    
     // @api
     function createFunctionDeclaration(
         modifiers: readonly Modifier[] | undefined,
@@ -1877,6 +1972,35 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         return node;
     }
 
+    // @api
+    function createModifier<T extends ModifierSyntaxKind>(kind: T) {
+        return createToken(kind);
+    }
+
+    // @api
+    function createModifiersFromModifierFlags(flags: ModifierFlags) {
+        const result: Modifier[] = [];
+        // if (flags & ModifierFlags.Export) result.push(createModifier(SyntaxKind.ExportKeyword));
+        // if (flags & ModifierFlags.Ambient) result.push(createModifier(SyntaxKind.DeclareKeyword));
+        // if (flags & ModifierFlags.Default) result.push(createModifier(SyntaxKind.DefaultKeyword));
+        // if (flags & ModifierFlags.Const) result.push(createModifier(SyntaxKind.ConstKeyword));
+        if (flags & ModifierFlags.Public) result.push(createModifier(SyntaxKind.PublicKeyword));
+        if (flags & ModifierFlags.Private) result.push(createModifier(SyntaxKind.PrivateKeyword));
+        if (flags & ModifierFlags.Protected) result.push(createModifier(SyntaxKind.ProtectedKeyword));
+        // if (flags & ModifierFlags.Abstract) result.push(createModifier(SyntaxKind.AbstractKeyword));
+        if (flags & ModifierFlags.Static) result.push(createModifier(SyntaxKind.StaticKeyword));
+        if (flags & ModifierFlags.NoMask) result.push(createModifier(SyntaxKind.NoMaskKeyword));
+        if (flags & ModifierFlags.NoSave) result.push(createModifier(SyntaxKind.NoSaveKeyword));
+        if (flags & ModifierFlags.NoShadow) result.push(createModifier(SyntaxKind.NoShadowKeyword));
+        if (flags & ModifierFlags.VarArgs) result.push(createModifier(SyntaxKind.VarArgsKeyword));
+        // if (flags & ModifierFlags.Override) result.push(createModifier(SyntaxKind.OverrideKeyword));
+        // if (flags & ModifierFlags.Readonly) result.push(createModifier(SyntaxKind.ReadonlyKeyword));
+        // if (flags & ModifierFlags.Accessor) result.push(createModifier(SyntaxKind.AccessorKeyword));
+        // if (flags & ModifierFlags.Async) result.push(createModifier(SyntaxKind.AsyncKeyword));
+        // if (flags & ModifierFlags.In) result.push(createModifier(SyntaxKind.InKeyword));
+        // if (flags & ModifierFlags.Out) result.push(createModifier(SyntaxKind.OutKeyword));
+        return result.length ? result : undefined;
+    }
 }
 
 // Utilities
@@ -2082,4 +2206,13 @@ function getDefaultTagNameForKind(kind: JSDocTag["kind"]): string {
 
 function propagateChildrenFlags(children: NodeArray<Node> | undefined): TransformFlags {
     return children ? children.transformFlags : TransformFlags.None;
+}
+
+function propagateNameFlags(node: PropertyName | BindingPattern | undefined) {
+    return node && isIdentifier(node) ? propagateIdentifierNameFlags(node) : propagateChildFlags(node);
+}
+
+function propagateIdentifierNameFlags(node: Identifier) {
+    // An IdentifierName is allowed to be `await`
+    return propagateChildFlags(node);// & ~TransformFlags.ContainsPossibleTopLevelAwait;
 }

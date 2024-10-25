@@ -37,6 +37,7 @@ export * from "../transformers.js";
 export * from "../transformers/declarations.js";
 export * from "../emitter.js";
 export * from "../resolutionCache.js";
+export * from "../expressionToTypeNode.js";
 import * as moduleSpecifiers from "./lpc.moduleSpecifiers.js";
 export { moduleSpecifiers };
 import * as performance from "./lpc.performance.js";

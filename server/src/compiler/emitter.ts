@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { Symbol, Bundle, createTextWriter, Debug, EmitFlags, EmitHint, EmitTextWriter, Expression, factory, getEmitFlags, getInternalEmitFlags, getLineStarts, getNewLineCharacter, getShebang, Identifier, InternalEmitFlags, isExpression, isIdentifier, isSourceFile, isStringLiteral, ListFormat, memoize, ModuleKind, Node, NodeArray, noEmitNotification, noEmitSubstitution, performance, Printer, PrinterOptions, PrintHandlers, rangeIsOnSingleLine, SourceFile, SourceMapGenerator, SourceMapSource, SyntaxKind, TextRange, TypeNode, tokenToString, ParenthesizedExpression, nodeIsSynthesized, getStartsOnNewLine, getLinesBetweenRangeEndAndRangeStart, rangeEndIsOnSameLineAsRangeStart, guessIndentation, cast, getIdentifierTypeArguments, LiteralExpression, isMemberName, getSourceFileOfNode, idText, getOriginalNode, isLiteralExpression, getSourceTextOfNodeFromSourceFile, TypeLiteralNode, forEach, NamedDeclaration, DeclarationName, isGeneratedIdentifier, isBindingPattern, GeneratedIdentifier, GeneratedIdentifierFlags, getNodeId, GeneratedNamePart, FunctionDeclaration, isFileLevelUniqueName, BindingPattern, Block, CaseBlock, CaseOrDefaultClause, CatchStatement, ForStatement, IfStatement, isPrivateIdentifier, SwitchStatement, VariableDeclarationList, VariableStatement, WhileStatement, ForEachStatement, DoWhileStatement, formatGeneratedNamePart, formatGeneratedName, lastOrUndefined, getNodeForGeneratedName, isKeyword, isTokenKind, getNormalizedAbsolutePath, GetCanonicalFileName, CompilerOptions, getDirectoryPath, directorySeparator, computeCommonSourceDirectoryOfFilenames, CharacterCodes, ArrayTypeNode, every, ModifierLike, isModifier, Modifier, positionIsSynthesized, VariableDeclaration, getParseTreeNode, skipTrivia, positionsAreOnSameLine } from "./_namespaces/lpc.js";
+import { Symbol, Bundle, createTextWriter, Debug, EmitFlags, EmitHint, EmitTextWriter, Expression, factory, getEmitFlags, getInternalEmitFlags, getLineStarts, getNewLineCharacter, getShebang, Identifier, InternalEmitFlags, isExpression, isIdentifier, isSourceFile, isStringLiteral, ListFormat, memoize, ModuleKind, Node, NodeArray, noEmitNotification, noEmitSubstitution, performance, Printer, PrinterOptions, PrintHandlers, rangeIsOnSingleLine, SourceFile, SourceMapGenerator, SourceMapSource, SyntaxKind, TextRange, TypeNode, tokenToString, ParenthesizedExpression, nodeIsSynthesized, getStartsOnNewLine, getLinesBetweenRangeEndAndRangeStart, rangeEndIsOnSameLineAsRangeStart, guessIndentation, cast, getIdentifierTypeArguments, LiteralExpression, isMemberName, getSourceFileOfNode, idText, getOriginalNode, isLiteralExpression, getSourceTextOfNodeFromSourceFile, TypeLiteralNode, forEach, NamedDeclaration, DeclarationName, isGeneratedIdentifier, isBindingPattern, GeneratedIdentifier, GeneratedIdentifierFlags, getNodeId, GeneratedNamePart, FunctionDeclaration, isFileLevelUniqueName, BindingPattern, Block, CaseBlock, CaseOrDefaultClause, CatchStatement, ForStatement, IfStatement, isPrivateIdentifier, SwitchStatement, VariableDeclarationList, VariableStatement, WhileStatement, ForEachStatement, DoWhileStatement, formatGeneratedNamePart, formatGeneratedName, lastOrUndefined, getNodeForGeneratedName, isKeyword, isTokenKind, getNormalizedAbsolutePath, GetCanonicalFileName, CompilerOptions, getDirectoryPath, directorySeparator, computeCommonSourceDirectoryOfFilenames, CharacterCodes, ArrayTypeNode, every, ModifierLike, isModifier, Modifier, positionIsSynthesized, VariableDeclaration, getParseTreeNode, skipTrivia, positionsAreOnSameLine, FunctionTypeNode, SignatureDeclaration, ArrowFunction, ParameterDeclaration, singleOrUndefined, isArrowFunction, some, getCommentRange, rangeStartPositionsAreOnSameLine, getContainingNodeArray, rangeEndPositionsAreOnSameLine, getLinesBetweenPositionAndNextNonWhitespaceCharacter } from "./_namespaces/lpc.js";
 
 const brackets = createBracketsMap();
 
@@ -562,8 +562,326 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
         //emitLeadingComments(pos, /*isEmittedNode*/ true);
     }
 
+    function getLeadingLineTerminatorCount(parentNode: Node | undefined, firstChild: Node | undefined, format: ListFormat): number {
+        if (format & ListFormat.PreserveLines || preserveSourceNewlines) {
+            if (format & ListFormat.PreferNewLine) {
+                return 1;
+            }
+
+            if (firstChild === undefined) {
+                return !parentNode || currentSourceFile && rangeIsOnSingleLine(parentNode, currentSourceFile) ? 0 : 1;
+            }
+            if (firstChild.pos === nextListElementPos) {
+                // If this child starts at the beginning of a list item in a parent list, its leading
+                // line terminators have already been written as the separating line terminators of the
+                // parent list. Example:
+                //
+                // class Foo {
+                //   constructor() {}
+                //   public foo() {}
+                // }
+                //
+                // The outer list is the list of class members, with one line terminator between the
+                // constructor and the method. The constructor is written, the separating line terminator
+                // is written, and then we start emitting the method. Its modifiers ([public]) constitute an inner
+                // list, so we look for its leading line terminators. If we didn't know that we had already
+                // written a newline as part of the parent list, it would appear that we need to write a
+                // leading newline to start the modifiers.
+                return 0;
+            }            
+            if (
+                currentSourceFile && parentNode &&
+                !positionIsSynthesized(parentNode.pos) &&
+                !nodeIsSynthesized(firstChild) &&
+                (!firstChild.parent || getOriginalNode(firstChild.parent) === getOriginalNode(parentNode))
+            ) {
+                if (preserveSourceNewlines) {
+                    return getEffectiveLines(
+                        includeComments =>
+                            lpc.getLinesBetweenPositionAndPrecedingNonWhitespaceCharacter(
+                                firstChild.pos,
+                                parentNode.pos,
+                                currentSourceFile!,
+                                includeComments,
+                            ),
+                    );
+                }
+                return rangeStartPositionsAreOnSameLine(parentNode, firstChild, currentSourceFile) ? 0 : 1;
+            }
+            if (synthesizedNodeStartsOnNewLine(firstChild, format)) {
+                return 1;
+            }
+        }
+        return format & ListFormat.MultiLine ? 1 : 0;
+    }
+
+    function synthesizedNodeStartsOnNewLine(node: Node, format: ListFormat) {
+        if (nodeIsSynthesized(node)) {
+            const startsOnNewLine = getStartsOnNewLine(node);
+            if (startsOnNewLine === undefined) {
+                return (format & ListFormat.PreferNewLine) !== 0;
+            }
+
+            return startsOnNewLine;
+        }
+
+        return (format & ListFormat.PreferNewLine) !== 0;
+    }
+    
+    /**
+     * Emits a list without brackets or raising events.
+     *
+     * NOTE: You probably don't want to call this directly and should be using `emitList` or `emitExpressionList` instead.
+     */
     function emitNodeListItems<Child extends Node>(emit: EmitFunction, parentNode: Node | undefined, children: readonly Child[], format: ListFormat, parenthesizerRule: ParenthesizerRuleOrSelector<Child> | undefined, start: number, count: number, hasTrailingComma: boolean, childrenTextRange: TextRange | undefined) {
-        console.warn("todo - implment me - emitNodeListItems");
+        // Write the opening line terminator or leading whitespace.
+        const mayEmitInterveningComments = (format & ListFormat.NoInterveningComments) === 0;
+        let shouldEmitInterveningComments = mayEmitInterveningComments;
+
+        const leadingLineTerminatorCount = getLeadingLineTerminatorCount(parentNode, children[start], format);
+        if (leadingLineTerminatorCount) {
+            writeLine(leadingLineTerminatorCount);
+            shouldEmitInterveningComments = false;
+        }
+        else if (format & ListFormat.SpaceBetweenBraces) {
+            writeSpace();
+        }
+
+        // Increase the indent, if requested.
+        if (format & ListFormat.Indented) {
+            increaseIndent();
+        }
+
+        const emitListItem = getEmitListItem(emit, parenthesizerRule);
+
+        // Emit each child.
+        let previousSibling: Node | undefined;
+        let shouldDecreaseIndentAfterEmit = false;
+        for (let i = 0; i < count; i++) {
+            const child = children[start + i];
+
+            // Write the delimiter if this is not the first node.
+            if (format & ListFormat.AsteriskDelimited) {
+                // always write JSDoc in the format "\n *"
+                writeLine();
+                writeDelimiter(format);
+            }
+            else if (previousSibling) {
+                // i.e
+                //      function commentedParameters(
+                //          /* Parameter a */
+                //          a
+                //          /* End of parameter a */ -> this comment isn't considered to be trailing comment of parameter "a" due to newline
+                //          ,
+                if (format & ListFormat.DelimitersMask && previousSibling.end !== (parentNode ? parentNode.end : -1)) {
+                    const previousSiblingEmitFlags = getEmitFlags(previousSibling);
+                    if (!(previousSiblingEmitFlags & EmitFlags.NoTrailingComments)) {
+                        emitLeadingCommentsOfPosition(previousSibling.end);
+                    }
+                }
+
+                writeDelimiter(format);
+
+                // Write either a line terminator or whitespace to separate the elements.
+                const separatingLineTerminatorCount = getSeparatingLineTerminatorCount(previousSibling, child, format);
+                if (separatingLineTerminatorCount > 0) {
+                    // If a synthesized node in a single-line list starts on a new
+                    // line, we should increase the indent.
+                    if ((format & (ListFormat.LinesMask | ListFormat.Indented)) === ListFormat.SingleLine) {
+                        increaseIndent();
+                        shouldDecreaseIndentAfterEmit = true;
+                    }
+
+                    if (shouldEmitInterveningComments && format & ListFormat.DelimitersMask && !positionIsSynthesized(child.pos)) {
+                        const commentRange = getCommentRange(child);
+                        emitTrailingCommentsOfPosition(commentRange.pos, /*prefixSpace*/ !!(format & ListFormat.SpaceBetweenSiblings), /*forceNoNewline*/ true);
+                    }
+
+                    writeLine(separatingLineTerminatorCount);
+                    shouldEmitInterveningComments = false;
+                }
+                else if (previousSibling && format & ListFormat.SpaceBetweenSiblings) {
+                    writeSpace();
+                }
+            }
+
+            // Emit this child.
+            if (shouldEmitInterveningComments) {
+                const commentRange = getCommentRange(child);
+                emitTrailingCommentsOfPosition(commentRange.pos);
+            }
+            else {
+                shouldEmitInterveningComments = mayEmitInterveningComments;
+            }
+
+            nextListElementPos = child.pos;
+            emitListItem(child, emit, parenthesizerRule, i);
+
+            if (shouldDecreaseIndentAfterEmit) {
+                decreaseIndent();
+                shouldDecreaseIndentAfterEmit = false;
+            }
+
+            previousSibling = child;
+        }
+
+        // Write a trailing comma, if requested.
+        const emitFlags = previousSibling ? getEmitFlags(previousSibling) : 0;
+        const skipTrailingComments = commentsDisabled || !!(emitFlags & EmitFlags.NoTrailingComments);
+        const emitTrailingComma = hasTrailingComma && (format & ListFormat.AllowTrailingComma) && (format & ListFormat.CommaDelimited);
+        if (emitTrailingComma) {
+            if (previousSibling && !skipTrailingComments) {
+                emitTokenWithComment(SyntaxKind.CommaToken, previousSibling.end, writePunctuation, previousSibling);
+            }
+            else {
+                writePunctuation(",");
+            }
+        }
+
+        // Emit any trailing comment of the last element in the list
+        // i.e
+        //       var array = [...
+        //          2
+        //          /* end of element 2 */
+        //       ];
+        if (previousSibling && (parentNode ? parentNode.end : -1) !== previousSibling.end && (format & ListFormat.DelimitersMask) && !skipTrailingComments) {
+            emitLeadingCommentsOfPosition(emitTrailingComma && childrenTextRange?.end ? childrenTextRange.end : previousSibling.end);
+        }
+
+        // Decrease the indent, if requested.
+        if (format & ListFormat.Indented) {
+            decreaseIndent();
+        }
+
+        // Write the closing line terminator or closing whitespace.
+        const closingLineTerminatorCount = getClosingLineTerminatorCount(parentNode, children[start + count - 1], format, childrenTextRange);
+        if (closingLineTerminatorCount) {
+            writeLine(closingLineTerminatorCount);
+        }
+        else if (format & (ListFormat.SpaceAfterList | ListFormat.SpaceBetweenBraces)) {
+            writeSpace();
+        }
+    }
+
+    function siblingNodePositionsAreComparable(previousNode: Node, nextNode: Node) {
+        if (nextNode.pos < previousNode.end) {
+            return false;
+        }
+
+        previousNode = getOriginalNode(previousNode);
+        nextNode = getOriginalNode(nextNode);
+        const parent = previousNode.parent;
+        if (!parent || parent !== nextNode.parent) {
+            return false;
+        }
+
+        const parentNodeArray = getContainingNodeArray(previousNode);
+        const prevNodeIndex = parentNodeArray?.indexOf(previousNode);
+        return prevNodeIndex !== undefined && prevNodeIndex > -1 && parentNodeArray!.indexOf(nextNode) === prevNodeIndex + 1;
+    }
+
+    
+    function getSeparatingLineTerminatorCount(previousNode: Node | undefined, nextNode: Node, format: ListFormat): number {
+        if (format & ListFormat.PreserveLines || preserveSourceNewlines) {
+            if (previousNode === undefined || nextNode === undefined) {
+                return 0;
+            }           
+            else if (currentSourceFile && !nodeIsSynthesized(previousNode) && !nodeIsSynthesized(nextNode)) {
+                if (preserveSourceNewlines && siblingNodePositionsAreComparable(previousNode, nextNode)) {
+                    return getEffectiveLines(
+                        includeComments =>
+                            getLinesBetweenRangeEndAndRangeStart(
+                                previousNode,
+                                nextNode,
+                                currentSourceFile!,
+                                includeComments,
+                            ),
+                    );
+                }
+                // If `preserveSourceNewlines` is `false` we do not intend to preserve the effective lines between the
+                // previous and next node. Instead we naively check whether nodes are on separate lines within the
+                // same node parent. If so, we intend to preserve a single line terminator. This is less precise and
+                // expensive than checking with `preserveSourceNewlines` as above, but the goal is not to preserve the
+                // effective source lines between two sibling nodes.
+                else if (!preserveSourceNewlines && originalNodesHaveSameParent(previousNode, nextNode)) {
+                    return rangeEndIsOnSameLineAsRangeStart(previousNode, nextNode, currentSourceFile) ? 0 : 1;
+                }
+                // If the two nodes are not comparable, add a line terminator based on the format that can indicate
+                // whether new lines are preferred or not.
+                return format & ListFormat.PreferNewLine ? 1 : 0;
+            }
+            else if (synthesizedNodeStartsOnNewLine(previousNode, format) || synthesizedNodeStartsOnNewLine(nextNode, format)) {
+                return 1;
+            }
+        }
+        else if (getStartsOnNewLine(nextNode)) {
+            return 1;
+        }
+        return format & ListFormat.MultiLine ? 1 : 0;
+    }
+
+    function originalNodesHaveSameParent(nodeA: Node, nodeB: Node) {
+        nodeA = getOriginalNode(nodeA);
+        // For performance, do not call `getOriginalNode` for `nodeB` if `nodeA` doesn't even
+        // have a parent node.
+        return nodeA.parent && nodeA.parent === getOriginalNode(nodeB).parent;
+    }
+
+    function getClosingLineTerminatorCount(parentNode: Node | undefined, lastChild: Node | undefined, format: ListFormat, childrenTextRange: TextRange | undefined): number {
+        if (format & ListFormat.PreserveLines || preserveSourceNewlines) {
+            if (format & ListFormat.PreferNewLine) {
+                return 1;
+            }
+
+            if (lastChild === undefined) {
+                return !parentNode || currentSourceFile && rangeIsOnSingleLine(parentNode, currentSourceFile) ? 0 : 1;
+            }
+            if (currentSourceFile && parentNode && !positionIsSynthesized(parentNode.pos) && !nodeIsSynthesized(lastChild) && (!lastChild.parent || lastChild.parent === parentNode)) {
+                if (preserveSourceNewlines) {
+                    const end = childrenTextRange && !positionIsSynthesized(childrenTextRange.end) ? childrenTextRange.end : lastChild.end;
+                    return getEffectiveLines(
+                        includeComments =>
+                            getLinesBetweenPositionAndNextNonWhitespaceCharacter(
+                                end,
+                                parentNode.end,
+                                currentSourceFile!,
+                                includeComments,
+                            ),
+                    );
+                }
+                return rangeEndPositionsAreOnSameLine(parentNode, lastChild, currentSourceFile) ? 0 : 1;
+            }
+            if (synthesizedNodeStartsOnNewLine(lastChild, format)) {
+                return 1;
+            }
+        }
+        if (format & ListFormat.MultiLine && !(format & ListFormat.NoTrailingNewLine)) {
+            return 1;
+        }
+        return 0;
+    }
+    
+    function writeDelimiter(format: ListFormat) {
+        switch (format & ListFormat.DelimitersMask) {
+            case ListFormat.None:
+                break;
+            case ListFormat.CommaDelimited:
+                writePunctuation(",");
+                break;
+            case ListFormat.BarDelimited:
+                writeSpace();
+                writePunctuation("|");
+                break;
+            case ListFormat.AsteriskDelimited:
+                writeSpace();
+                writePunctuation("*");
+                writeSpace();
+                break;
+            case ListFormat.AmpersandDelimited:
+                writeSpace();
+                writePunctuation("&");
+                break;
+        }
     }
 
     function emitShebangIfNeeded(sourceFileOrBundle: Bundle | SourceFile) {
@@ -606,12 +924,16 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
                     return emitArrayType(node as ArrayTypeNode);
                 case SyntaxKind.VariableStatement:
                     return emitVariableStatement(node as VariableStatement);
-
+                case SyntaxKind.Parameter:
+                    return emitParameter(node as ParameterDeclaration);
+                case SyntaxKind.FunctionType:
+                    return emitFunctionType(node as lpc.FunctionTypeNode);
                 // Declarations
                 case SyntaxKind.VariableDeclaration:
                     return emitVariableDeclaration(node as VariableDeclaration);
                 case SyntaxKind.VariableDeclarationList:
                     return emitVariableDeclarationList(node as VariableDeclarationList);
+                
             }
         }
         if (isKeyword(node.kind)) return writeTokenNode(node, writeKeyword);
@@ -1348,6 +1670,91 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
         return node.pos;
     }
     
+    function emitSignatureAndBody<T extends SignatureDeclaration>(node: T, emitSignatureHead: (node: T) => void, emitBody: (node: T) => void) {
+        const indentedFlag = getEmitFlags(node) & EmitFlags.Indented;
+        if (indentedFlag) {
+            increaseIndent();
+        }
+
+        pushNameGenerationScope(node);
+        forEach(node.parameters, generateNames);
+        emitSignatureHead(node);
+        emitBody(node);
+        popNameGenerationScope(node);
+
+        if (indentedFlag) {
+            decreaseIndent();
+        }
+    }
+    
+    function canEmitSimpleArrowHead(parentNode: FunctionTypeNode |  ArrowFunction, parameters: NodeArray<ParameterDeclaration>) {
+        const parameter = singleOrUndefined(parameters);
+        return parameter
+            && parameter.pos === parentNode.pos // may not have parsed tokens between parent and parameter
+            && isArrowFunction(parentNode) // only arrow functions may have simple arrow head
+            && !parentNode.type // arrow function may not have return type annotation
+            && !some(parentNode.modifiers) // parent may not have decorators or modifiers
+            // && !some(parentNode.typeParameters) // parent may not have type parameters
+            && !some(parameter.modifiers) // parameter may not have decorators or modifiers
+            && !parameter.dotDotDotToken // parameter may not be rest
+            // && !parameter.questionToken // parameter may not be optional
+            && !parameter.type // parameter may not have a type annotation
+            && !parameter.initializer // parameter may not have an initializer
+            && isIdentifier(parameter.name); // parameter name must be identifier
+    }
+
+    function emitParameters(parentNode: Node, parameters: NodeArray<ParameterDeclaration>) {
+        emitList(parentNode, parameters, ListFormat.Parameters);
+    }
+
+    function emitParametersForArrow(parentNode: FunctionTypeNode | ArrowFunction, parameters: NodeArray<ParameterDeclaration>) {
+        if (canEmitSimpleArrowHead(parentNode, parameters)) {
+            emitList(parentNode, parameters, ListFormat.Parameters & ~ListFormat.Parenthesis);
+        }
+        else {
+            emitParameters(parentNode, parameters);
+        }
+    }
+
+    function emitFunctionTypeHead(node: FunctionTypeNode) {
+        // emitTypeParameters(node, node.typeParameters);
+        emitParametersForArrow(node, node.parameters);
+        writeSpace();
+        writePunctuation("=>");
+    }
+
+    function emitFunctionTypeBody(node: FunctionTypeNode) {
+        writeSpace();
+        emit(node.type);
+    }
+
+    function emitNodeWithWriter(node: Node | undefined, writer: typeof write) {
+        if (!node) return;
+        const savedWrite = write;
+        write = writer;
+        emit(node);
+        write = savedWrite;
+    }
+
+    function emitParameter(node: ParameterDeclaration) {
+        emitDecoratorsAndModifiers(node, node.modifiers, /*allowDecorators*/ true);
+        emitTypeAnnotation(node.type);
+        emitNodeWithWriter(node.name, writeParameter);
+        emit(node.dotDotDotToken);
+        
+        // The comment position has to fallback to any present node within the parameterdeclaration because as it turns out, the parser can make parameter declarations with _just_ an initializer.
+        emitInitializer(
+            node.initializer, 
+            node.type ? node.type.end : node.name ? node.name.end : node.modifiers ? node.modifiers.end : node.pos, 
+            node, 
+            parenthesizer.parenthesizeExpressionForDisallowedComma
+        );
+    }
+
+    function emitFunctionType(node: FunctionTypeNode) {
+        emitSignatureAndBody(node, emitFunctionTypeHead, emitFunctionTypeBody);
+    }
+    
     function emitVariableStatement(node: VariableStatement) {
         emitDecoratorsAndModifiers(node, node.modifiers, /*allowDecorators*/ false);
         emit(node.declarationList);
@@ -1477,4 +1884,22 @@ export function getCommonSourceDirectory(
         commonSourceDirectory += directorySeparator;
     }
     return commonSourceDirectory;
+}
+
+function emitListItemNoParenthesizer(node: Node, emit: EmitFunction, _parenthesizerRule: ParenthesizerRuleOrSelector<Node> | undefined, _index: number) {
+    emit(node);
+}
+
+function emitListItemWithParenthesizerRuleSelector(node: Node, emit: EmitFunction, parenthesizerRuleSelector: OrdinalParentheizerRuleSelector<Node> | undefined, index: number) {
+    emit(node, parenthesizerRuleSelector!.select(index));
+}
+
+function emitListItemWithParenthesizerRule(node: Node, emit: EmitFunction, parenthesizerRule: ParenthesizerRule<Node> | undefined, _index: number) {
+    emit(node, parenthesizerRule);
+}
+
+function getEmitListItem<T extends Node>(emit: EmitFunction, parenthesizerRule: ParenthesizerRuleOrSelector<T> | undefined): EmitListItemFunction<T> {
+    return emit.length === 1 ? emitListItemNoParenthesizer as EmitListItemFunction<T> :
+        typeof parenthesizerRule === "object" ? emitListItemWithParenthesizerRuleSelector as EmitListItemFunction<T> :
+        emitListItemWithParenthesizerRule as EmitListItemFunction<T>;
 }

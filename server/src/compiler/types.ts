@@ -689,6 +689,7 @@ export const enum SyntaxKind {
 
     // Types
     UnionType, // First Type Node
+    FunctionType,
     ArrayType,
     TypeLiteral,
     ParenthesizedType,
@@ -1253,6 +1254,7 @@ export type TypeNodeSyntaxKind =
     | SyntaxKind.ParenthesizedType
     | SyntaxKind.TypeReference
     | SyntaxKind.ExpressionWithTypeArguments
+    | SyntaxKind.FunctionType
     | SyntaxKind.JSDocTypeExpression
     | SyntaxKind.JSDocAllType
     | SyntaxKind.JSDocUnknownType
@@ -1348,6 +1350,13 @@ export interface NodeFactory {
     // element
     createEmptyStatement(): EmptyStatement;
 
+    //
+    // Modifiers
+    //
+
+    createModifier<T extends ModifierSyntaxKind>(kind: T): ModifierToken<T>;
+    createModifiersFromModifierFlags(flags: ModifierFlags): Modifier[] | undefined;
+
     // Names
     createQualifiedName(left: EntityName, right: string | Identifier): QualifiedName;
     createComputedPropertyName(expression: Expression): ComputedPropertyName;
@@ -1356,6 +1365,12 @@ export interface NodeFactory {
     createIndexSignature(modifiers: readonly Modifier[] | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode): IndexSignatureDeclaration;
     /** @internal */ createIndexSignature(modifiers: readonly Modifier[] | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode | undefined): IndexSignatureDeclaration; // eslint-disable-line @typescript-eslint/unified-signatures
     createTypeParameterDeclaration(modifiers: readonly Modifier[] | undefined, name: string | Identifier, constraint?: TypeNode, defaultType?: TypeNode): TypeParameterDeclaration;
+    createMethodSignature(modifiers: readonly Modifier[] | undefined, name: string | PropertyName, questionToken: QuestionToken | undefined, typeParameters: readonly TypeParameterDeclaration[] | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode | undefined): MethodSignature;
+    createFunctionTypeNode(typeParameters: readonly TypeParameterDeclaration[] | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode): FunctionTypeNode;
+
+    // binding patterns
+    createBindingElement(dotDotDotToken: DotDotDotToken | undefined, propertyName: string | PropertyName | undefined, name: string | BindingName, initializer?: Expression): BindingElement;
+    updateBindingElement(node: BindingElement, dotDotDotToken: DotDotDotToken | undefined, propertyName: PropertyName | undefined, name: BindingName, initializer: Expression | undefined): BindingElement;
 
     // directives
     createIncludeDirective(content: StringLiteral[], localFirst: boolean): IncludeDirective;
@@ -1712,8 +1727,9 @@ export type IsBlockScopedContainer =
 export type FunctionLikeDeclaration =
     | FunctionDeclaration
     | InlineClosureExpression
-    //| MethodDeclaration    
+    | MethodDeclaration    
     | FunctionExpression
+    | ArrowFunction
     ;
 
 /**
@@ -2979,7 +2995,7 @@ export const enum SymbolFlags {
 
     Enum = RegularEnum | ConstEnum,
     Variable = FunctionScopedVariable | BlockScopedVariable,
-    Value = Variable | Property | EnumMember | ObjectLiteral | Function | Class | Enum | ValueModule | Method | GetAccessor | SetAccessor,
+    Value = Variable | Property | EnumMember | ObjectLiteral | Function | Class | Enum | ValueModule | Method | GetAccessor | SetAccessor | ExportValue,
     Type = Class | Interface | Enum | EnumMember | TypeLiteral | TypeParameter | TypeAlias,
     Namespace = ValueModule | NamespaceModule | Enum,
     Module = ValueModule | NamespaceModule,
@@ -3386,7 +3402,7 @@ export type SignatureDeclaration =
     // | ConstructSignatureDeclaration
     | MethodSignature
     | IndexSignatureDeclaration
-    // | FunctionTypeNode
+    | FunctionTypeNode
     // | ConstructorTypeNode
     // | JSDocFunctionType
     | ArrowFunction
@@ -5743,6 +5759,19 @@ export interface TypeReference extends ObjectType {
 
 export type TypeReferenceType = TypeReferenceNode | StructTypeNode;
 
+export interface FunctionOrConstructorTypeNodeBase extends TypeNode, SignatureDeclarationBase {
+    readonly kind: SyntaxKind.FunctionType;
+    readonly type: TypeNode;
+}
+
+
+export interface FunctionTypeNode extends FunctionOrConstructorTypeNodeBase, LocalsContainer {
+    readonly kind: SyntaxKind.FunctionType;
+
+    // A function type cannot have modifiers
+    /** @internal */ readonly modifiers?: undefined;
+}
+
 export interface NodeWithTypeArguments extends TypeNode {
     readonly typeArguments?: NodeArray<TypeNode>;
 }
@@ -7044,3 +7073,40 @@ export interface JSDocUnknownTag extends JSDocTag {
 export type JSDocNamespaceBody =
     | Identifier;
     // | JSDocNamespaceDeclaration;
+
+/** @internal */
+export type HasInferredType =
+    | PropertyAssignment
+    | PropertyAccessExpression
+    | BinaryExpression
+    | ElementAccessExpression
+    | VariableDeclaration
+    | ParameterDeclaration
+    | BindingElement
+    | PropertyDeclaration
+    | PropertySignature;
+
+export interface SyntacticTypeNodeBuilderContext {
+    tracker: Required<Pick<SymbolTracker, "reportInferenceFallback">>;
+    enclosingDeclaration: Node | undefined;
+}
+
+/** @internal */
+export interface SyntacticTypeNodeBuilderResolver {
+    isUndefinedIdentifierExpression(name: Identifier): boolean;
+    isExpandoFunctionDeclaration(name: FunctionDeclaration | VariableDeclaration): boolean;
+    // getAllAccessorDeclarations(declaration: AccessorDeclaration): AllAccessorDeclarations;
+    isEntityNameVisible(entityName: EntityNameOrEntityNameExpression, enclosingDeclaration: Node, shouldComputeAliasToMakeVisible?: boolean): SymbolVisibilityResult;
+    requiresAddingImplicitUndefined(parameter: ParameterDeclaration | JSDocParameterTag): boolean;
+    isDefinitelyReferenceToGlobalSymbolObject(node: Node): boolean;
+}
+    
+
+/** @internal */
+export type PrimitiveLiteral =
+    | BooleanLiteral
+    | IntLiteral
+    | FloatLiteral
+    | StringLiteral    
+    | PrefixUnaryExpression & { operator: SyntaxKind.PlusToken; operand: IntLiteral; }
+    | PrefixUnaryExpression & { operator: SyntaxKind.MinusToken; operand: IntLiteral | FloatLiteral; };

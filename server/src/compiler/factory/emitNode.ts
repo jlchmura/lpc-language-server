@@ -1,4 +1,4 @@
-import { append, Debug, EmitFlags, EmitNode, getParseTreeNode, getSourceFileOfNode, Identifier, InternalEmitFlags, isParseTreeNode, Node, NodeArray, SnippetElement, SourceFile, SyntaxKind, SynthesizedComment, TypeNode, TypeParameterDeclaration } from "../_namespaces/lpc";
+import { append, Debug, EmitFlags, EmitNode, getParseTreeNode, getSourceFileOfNode, Identifier, InternalEmitFlags, isParseTreeNode, Node, NodeArray, SnippetElement, SourceFile, SyntaxKind, SynthesizedComment, TextRange, TypeNode, TypeParameterDeclaration } from "../_namespaces/lpc";
 
 
 /**
@@ -113,4 +113,11 @@ export function addEmitFlags<T extends Node>(node: T, emitFlags: EmitFlags) {
     const emitNode = getOrCreateEmitNode(node);
     emitNode.flags = emitNode.flags | emitFlags;
     return node;
+}
+
+/**
+ * Gets a custom text range to use when emitting comments.
+ */
+export function getCommentRange(node: Node): TextRange {
+    return node.emitNode?.commentRange ?? node;
 }

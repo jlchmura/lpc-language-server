@@ -1,4 +1,4 @@
-import { ArrayBindingElement, AssertionExpression, AssignmentDeclarationKind, BinaryExpression, BindingElement, BindingPattern, Block, BreakOrContinueStatement, CallChain, CallExpression, CallLikeExpression, canHaveJSDoc, ClassElement, ClassLikeDeclaration, compareDiagnostics, CompilerOptions, ConciseBody, Debug, Declaration, DeclarationName, Diagnostic, diagnosticsEqualityComparer, emptyArray, EntityName, Expression, FileReference, find, flatMap, ForEachStatement, FunctionExpression, FunctionLikeDeclaration, GeneratedIdentifier, getAssignmentDeclarationKind, getDriverType, getEffectiveModifierFlags, getEffectiveModifierFlagsAlwaysIncludeJSDoc, getJSDocCommentsAndTags, HasExpressionInitializer, HasInitializer, HasLocals, HasModifiers, hasProperty, HasType, Identifier, isBinaryExpression, isBindingElement, isBlock, isCallExpression, isFunctionBlock, isFunctionExpression, isFunctionExpressionOrArrowFunction, isIdentifier, isInlineClosureExpression, isJSDoc, isJSDocDeprecatedTag, isJSDocParameterTag, isJSDocSignature, isJSDocTemplateTag, isJSDocTypeTag, isKeyword, isParameter, isRootedDiskPath, isSourceFile, isTypeNodeKind, isVariableDeclaration, isWhiteSpaceLike, IterationStatement, JSDocDeprecatedTag, JSDocParameterTag, JSDocPropertyLikeTag, JSDocSignature, JSDocTag, JSDocTemplateTag, JSDocTypeTag, KeywordSyntaxKind, LanguageVariant, lastOrUndefined, LeftHandSideExpression, LiteralExpression, LiteralToken, MemberName, Modifier, ModifierFlags, modifierToFlag, NamedDeclaration, Node, NodeArray, NodeFlags, OuterExpressionKinds, ParameterDeclaration, pathIsRelative, PropertyAccessExpression, PropertyName, QualifiedName, SignatureDeclaration, skipOuterExpressions, sortAndDeduplicate, SortedReadonlyArray, Statement, StringLiteral, StringLiteralLike, stringToToken, Symbol, SyntaxKind, TextChangeRange, TextRange, TextSpan, tryCast, TypeElement, TypeNode, TypeParameterDeclaration, UnaryExpression, VariableDeclaration } from "./_namespaces/lpc.js";
+import { ArrayBindingElement, AssertionExpression, AssignmentDeclarationKind, BinaryExpression, BindingElement, BindingPattern, Block, BreakOrContinueStatement, CallChain, CallExpression, CallLikeExpression, canHaveJSDoc, ClassElement, ClassLikeDeclaration, compareDiagnostics, CompilerOptions, ConciseBody, Debug, Declaration, DeclarationName, Diagnostic, diagnosticsEqualityComparer, emptyArray, EntityName, Expression, FileReference, filter, find, flatMap, ForEachStatement, FunctionExpression, FunctionLikeDeclaration, GeneratedIdentifier, getAssignmentDeclarationKind, getDriverType, getEffectiveModifierFlags, getEffectiveModifierFlagsAlwaysIncludeJSDoc, getJSDocCommentsAndTags, HasExpressionInitializer, HasInitializer, HasLocals, HasModifiers, hasProperty, hasSyntacticModifier, HasType, Identifier, isBinaryExpression, isBindingElement, isBlock, isCallExpression, isFunctionBlock, isFunctionExpression, isFunctionExpressionOrArrowFunction, isIdentifier, isInlineClosureExpression, isJSDoc, isJSDocDeprecatedTag, isJSDocParameterTag, isJSDocSignature, isJSDocTemplateTag, isJSDocThisTag, isJSDocTypeTag, isKeyword, isParameter, isRootedDiskPath, isSourceFile, isTypeNodeKind, isVariableDeclaration, isWhiteSpaceLike, IterationStatement, JSDocDeprecatedTag, JSDocParameterTag, JSDocPropertyLikeTag, JSDocSignature, JSDocTag, JSDocTemplateTag, JSDocThisTag, JSDocTypeTag, KeywordSyntaxKind, LanguageVariant, lastOrUndefined, LeftHandSideExpression, LiteralExpression, LiteralToken, MemberName, Modifier, ModifierFlags, modifierToFlag, NamedDeclaration, Node, NodeArray, NodeFlags, OuterExpressionKinds, ParameterDeclaration, pathIsRelative, PropertyAccessExpression, PropertyName, QualifiedName, SignatureDeclaration, skipOuterExpressions, sortAndDeduplicate, SortedReadonlyArray, Statement, StringLiteral, StringLiteralLike, stringToToken, Symbol, SyntaxKind, TextChangeRange, TextRange, TextSpan, tryCast, TypeElement, TypeNode, TypeParameterDeclaration, UnaryExpression, VariableDeclaration } from "./_namespaces/lpc.js";
 
 /** @internal */
 export function isNodeArray<T extends Node>(array: readonly T[]): array is NodeArray<T> {
@@ -714,7 +714,8 @@ export function isBreakOrContinueStatement(node: Node): node is BreakOrContinueS
 
 export function isEntityName(node: Node): node is EntityName {
     const kind = node.kind;
-    return kind === SyntaxKind.Identifier;
+    return kind === SyntaxKind.QualifiedName
+        || kind === SyntaxKind.Identifier;
 }
 
 export function isCallChain(node: Node): node is CallChain {
@@ -1216,4 +1217,32 @@ export function getJSDocTypeParameterTagsNoCache(param: TypeParameterDeclaration
  */
 export function getJSDocTypeParameterTags(param: TypeParameterDeclaration): readonly JSDocTemplateTag[] {
     return getJSDocTypeParameterTagsWorker(param, /*noCache*/ false);
+}
+
+export function getEffectiveConstraintOfTypeParameter(node: TypeParameterDeclaration): TypeNode | undefined {
+    return undefined;
+    // return node.constraint ? node.constraint :
+    //     isJSDocTemplateTag(node.parent) && node === node.parent.typeParameters[0] ? node.parent.constraint :
+    //     undefined;
+}
+
+export function getModifiers(node: HasModifiers): readonly Modifier[] | undefined {
+    if (hasSyntacticModifier(node, ModifierFlags.Modifier)) {
+        return filter(node.modifiers, isModifier);
+    }
+}
+
+/** Gets the JSDoc type tag for the node if present and valid */
+export function getJSDocTypeTag(node: Node): JSDocTypeTag | undefined {
+    // We should have already issued an error if there were multiple type jsdocs, so just use the first one.
+    const tag = getFirstJSDocTag(node, isJSDocTypeTag);
+    if (tag && tag.typeExpression && tag.typeExpression.type) {
+        return tag;
+    }
+    return undefined;
+}
+
+/** Gets the JSDoc this tag for the node if present */
+export function getJSDocThisTag(node: Node): JSDocThisTag | undefined {
+    return getFirstJSDocTag(node, isJSDocThisTag);
 }
