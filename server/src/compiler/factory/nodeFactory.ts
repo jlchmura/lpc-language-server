@@ -146,6 +146,7 @@ import {
     nullParenthesizerRules,
     ObjectLiteralElement,
     ObjectLiteralElementLike,
+    ObjectLiteralExpression,
     OmittedExpression,
     ParameterDeclaration,
     ParenthesizedExpression,
@@ -343,6 +344,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createElementAccessExpression,
         createRangeExpression,
         createArrayLiteralExpression,
+        createObjectLiteralExpression,
         createMappingLiteralExpression,
         createMappingEntryExpression,
         convertToAssignmentExpression,
@@ -1704,6 +1706,17 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         return node;
     }
 
+    // @api
+    function createObjectLiteralExpression(properties?: readonly ObjectLiteralElementLike[], multiLine?: boolean) {
+        const node = createBaseDeclaration<ObjectLiteralExpression>(SyntaxKind.ObjectLiteralExpression);
+        node.properties = createNodeArray(properties);
+        node.multiLine = multiLine;
+        node.transformFlags |= propagateChildrenFlags(node.properties);
+
+        node.jsDoc = undefined; // initialized by parser (JsDocContainer)
+        return node;
+    }
+    
     // @api
     function createArrayLiteralExpression(elements?: readonly Expression[], multiLine?: boolean, trailingComma?: boolean) {
         const node = createBaseNode<ArrayLiteralExpression>(SyntaxKind.ArrayLiteralExpression);

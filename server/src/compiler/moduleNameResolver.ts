@@ -1348,3 +1348,4 @@ function resolveFromTypeRoot(moduleName: string, state: ModuleResolutionState) {
     //     if (resolved) return toSearchResult(resolved);
     // }
 }
+

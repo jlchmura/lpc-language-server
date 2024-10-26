@@ -1,11 +1,22 @@
 import { config } from "process";
 import { ILpcConfig } from "../config-types";
-import { arrayFrom, combinePaths, CommandLineOption, CompilerOptions, CompilerOptionsValue, ConfigFileSpecs, containsPath, createCompilerDiagnostic, createGetCanonicalFileName, Debug, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, directorySeparator, emptyArray, endsWith, ensureTrailingDirectorySeparator, every, Extension, FileExtensionInfo, fileExtensionIs, filter, flatten, getBaseFileName, getDirectoryPath, getNormalizedAbsolutePath, getRegexFromPattern, getRegularExpressionForWildcard, hasExtension, hasProperty, isArray, isImplicitGlob, isRootedDiskPath, isString, LanguageVariant, length, LpcConfigSourceFile, MapLike, normalizePath, normalizeSlashes, ParseConfigHost, ParsedCommandLine, Path, ProjectReference, removeTrailingDirectorySeparator, startsWith, toFileNameLowerCase, tracing, TypeAcquisition, WatchDirectoryFlags, WatchOptions } from "./_namespaces/lpc";
+import { AlternateModeDiagnostics, append, arrayFrom, ArrayLiteralExpression, arrayToMap, assign, combinePaths, CommandLineOption, CommandLineOptionOfCustomType, CommandLineOptionOfListType, CompilerOptions, CompilerOptionsValue, ConfigFileSpecs, containsPath, createCompilerDiagnostic, createDiagnosticForNodeInSourceFile, createGetCanonicalFileName, Debug, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DidYouMeanOptionsDiagnostics, directorySeparator, emptyArray, endsWith, ensureTrailingDirectorySeparator, every, Expression, Extension, FileExtensionInfo, fileExtensionIs, filter, find, flatten, forEach, getBaseFileName, getDirectoryPath, getNormalizedAbsolutePath, getRegexFromPattern, getRegularExpressionForWildcard, getSpellingSuggestion, getTextOfPropertyName, hasExtension, hasProperty, isArray, isArrayLiteralExpression, isComputedNonLiteralName, isImplicitGlob, isObjectLiteralExpression, isRootedDiskPath, isString, isStringDoubleQuoted, isStringLiteral, JsonSourceFile, LanguageVariant, length, LpcConfigOnlyOption, LpcConfigSourceFile, map, MapLike, Node, NodeArray, normalizePath, normalizeSlashes, NumericLiteral, ObjectLiteralExpression, OptionsNameMap, ParseConfigHost, ParsedCommandLine, ParsedLpcConfig, Path, PrefixUnaryExpression, ProjectReference, PropertyAssignment, PropertyName, removeTrailingDirectorySeparator, startsWith, StringLiteral, SyntaxKind, toFileNameLowerCase, tracing, TypeAcquisition, WatchDirectoryFlags, WatchOptions } from "./_namespaces/lpc";
 import { trimStart } from "../utils";
 
 export const libEntries: [string, string][] = [
     ["ldmud", "ldmud.efun.c"],
 ];
+
+interface ExtendsResult {
+    options: CompilerOptions;
+    watchOptions?: WatchOptions;
+    include?: string[];
+    exclude?: string[];
+    files?: string[];
+    compileOnSave?: boolean;
+    extendedSourceFiles?: Set<string>;
+}
+
 
 /**
  * An array of supported "lib" reference file names used to determine the order for inclusion
@@ -17,7 +28,21 @@ export const libEntries: [string, string][] = [
 export const libs = libEntries.map(entry => entry[0]);
 
 /** @internal */
-export const moduleResolutionOptionDeclarations: readonly CommandLineOption[] = ["false"];//optionDeclarations.filter(option => !!option.affectsModuleResolution);
+export const compileOnSaveCommandLineOption: CommandLineOption = {
+    name: "compileOnSave",
+    type: "boolean",
+    defaultValueDescription: false,
+};
+const extendsOptionDeclaration: CommandLineOptionOfListType = {
+    name: "extends",
+    type: "listOrElement",
+    element: {
+        name: "extends",
+        type: "string",
+    },
+    category: Diagnostics.File_Management,
+    disallowNullOrUndefined: true,
+};
 
 /**
  * Gets the file names from the provided config file specs that contain, files, include, exclude and
@@ -188,13 +213,12 @@ function parseLpcConfigFileContentWorker(
     configFileName?: string,
     resolutionStack: Path[] = [],
     extraFileExtensions: readonly FileExtensionInfo[] = [],
-    //extendedConfigCache?: Map<string, ExtendedConfigCacheEntry>,
+    extendedConfigCache?: Map<string, ExtendedConfigCacheEntry>,
 ): ParsedCommandLine {
     Debug.assert((json === undefined && sourceFile !== undefined) || (json !== undefined && sourceFile === undefined));
     const errors: Diagnostic[] = [];
-
-    const parsedConfig = sourceFile;
-    //const parsedConfig = parseConfig(json, sourceFile, host, basePath, configFileName, resolutionStack, errors, extendedConfigCache);
+    
+    const parsedConfig = parseConfig(json, sourceFile, host, basePath, configFileName, resolutionStack, errors, extendedConfigCache);
     const { raw } = parsedConfig;
     // const options = handleOptionConfigDirTemplateSubstitution(
     //     extend(existingOptions, parsedConfig.options || {}),
@@ -213,9 +237,10 @@ function parseLpcConfigFileContentWorker(
     const basePathForFileNames = normalizePath(configFileName ? directoryOfCombinedPath(configFileName, basePath) : basePath);
     const configFileSpecs = getConfigFileSpecs();
     if (sourceFile) sourceFile.configFileSpecs = configFileSpecs;
-    //setConfigFileInOptions(options, sourceFile);
-    options.config = raw;
-    options.configFile = parsedConfig;
+    setConfigFileInOptions(options, sourceFile);
+    // options.config = raw;
+    // options.configFile = parsedConfig;
+
     switch (raw?.driver?.type) {
         case "fluffos":
             options.driverType = LanguageVariant.FluffOS;
@@ -324,7 +349,7 @@ function parseLpcConfigFileContentWorker(
             validatedIncludeSpecsBeforeSubstitution,
             validatedExcludeSpecsBeforeSubstitution,
             pathPatterns: undefined, // Initialized on first use
-            isDefaultIncludeSpec,
+            isDefaultIncludeSpec            
         };
     }
 
@@ -362,11 +387,11 @@ function parseLpcConfigFileContentWorker(
         return isArray(specResult) ? specResult : undefined;
     }
 
-    function getSpecsFromRaw(prop: "files" | "include" | "exclude"): PropOfRaw<string> {
+    function getSpecsFromRaw(prop: "files" | "include" | "exclude" | "diagnostics"): PropOfRaw<string> {
         return getPropFromRaw(prop, isString, "string");
     }
 
-    function getPropFromRaw<T>(prop: "files" | "include" | "exclude" | "references", validateElement: (value: unknown) => boolean, elementTypeName: string): PropOfRaw<T> {
+    function getPropFromRaw<T>(prop: "files" | "include" | "exclude" | "references" | "diagnostics", validateElement: (value: unknown) => boolean, elementTypeName: string): PropOfRaw<T> {
         if (hasProperty(raw, prop) && !isNullOrUndefined(raw[prop])) {
             if (isArray(raw[prop])) {
                 const result = raw[prop] as T[];
@@ -632,3 +657,1004 @@ export function matchesExclude(
 }
 
 export type DiagnosticReporter = (diagnostic: Diagnostic) => void;
+
+export interface ExtendedConfigCacheEntry {
+    extendedResult: LpcConfigSourceFile;
+    extendedConfig: ParsedLpcConfig | undefined;
+}
+
+/**
+ * Convert the json syntax tree into the json value
+ */
+export function convertToObject(sourceFile: JsonSourceFile, errors: Diagnostic[]): any {
+    return convertToJson(sourceFile, sourceFile.statements[0]?.expression, errors, /*returnValue*/ true, /*jsonConversionNotifier*/ undefined);
+}
+
+/** @internal */
+export interface JsonConversionNotifier {
+    rootOptions: LpcConfigOnlyOption;
+    onPropertySet(
+        keyText: string,
+        value: any,
+        propertyAssignment: PropertyAssignment,
+        parentOption: LpcConfigOnlyOption | undefined,
+        option: CommandLineOption | undefined,
+    ): void;
+}
+
+/**
+ * Convert the json syntax tree into the json value and report errors
+ * This returns the json value (apart from checking errors) only if returnValue provided is true.
+ * Otherwise it just checks the errors and returns undefined
+ *
+ * @internal
+ */
+export function convertToJson(
+    sourceFile: JsonSourceFile,
+    rootExpression: Expression | undefined,
+    errors: Diagnostic[],
+    returnValue: boolean,
+    jsonConversionNotifier: JsonConversionNotifier | undefined,
+): any {
+    if (!rootExpression) {
+        return returnValue ? {} : undefined;
+    }
+
+    return convertPropertyValueToJson(rootExpression, jsonConversionNotifier?.rootOptions);
+
+    function convertObjectLiteralExpressionToJson(
+        node: ObjectLiteralExpression,
+        objectOption: LpcConfigOnlyOption | undefined,
+    ): any {
+        const result: any = returnValue ? {} : undefined;
+        for (const element of node.properties) {
+            if (element.kind !== SyntaxKind.PropertyAssignment) {
+                errors.push(createDiagnosticForNodeInSourceFile(sourceFile, element, Diagnostics.Property_assignment_expected));
+                continue;
+            }
+
+            // if (element.questionToken) {
+            //     errors.push(createDiagnosticForNodeInSourceFile(sourceFile, element.questionToken, Diagnostics.The_0_modifier_can_only_be_used_in_TypeScript_files, "?"));
+            // }
+            if (!isDoubleQuotedString(element.name)) {
+                errors.push(createDiagnosticForNodeInSourceFile(sourceFile, element.name, Diagnostics.String_literal_with_double_quotes_expected));
+            }
+
+            const textOfKey = isComputedNonLiteralName(element.name) ? undefined : getTextOfPropertyName(element.name);
+            const keyText = textOfKey && (textOfKey);
+            const option = keyText ? objectOption?.elementOptions?.get(keyText) : undefined;
+            const value = convertPropertyValueToJson(element.initializer, option);
+            if (typeof keyText !== "undefined") {
+                if (returnValue) {
+                    result[keyText] = value;
+                }
+
+                // Notify key value set, if user asked for it
+                jsonConversionNotifier?.onPropertySet(keyText, value, element, objectOption, option);
+            }
+        }
+        return result;
+    }
+
+    function convertArrayLiteralExpressionToJson(
+        elements: NodeArray<Expression>,
+        elementOption: CommandLineOption | undefined,
+    ) {
+        if (!returnValue) {
+            elements.forEach(element => convertPropertyValueToJson(element, elementOption));
+            return undefined;
+        }
+
+        // Filter out invalid values
+        return filter(elements.map(element => convertPropertyValueToJson(element, elementOption)), v => v !== undefined);
+    }
+
+    function convertPropertyValueToJson(valueExpression: Expression, option: CommandLineOption | undefined): any {
+        switch (valueExpression.kind) {
+            case SyntaxKind.TrueKeyword:
+                return true;
+
+            case SyntaxKind.FalseKeyword:
+                return false;
+
+            case SyntaxKind.NullKeyword:
+                return null; // eslint-disable-line no-restricted-syntax
+
+            case SyntaxKind.StringLiteral:
+                if (!isDoubleQuotedString(valueExpression)) {
+                    errors.push(createDiagnosticForNodeInSourceFile(sourceFile, valueExpression, Diagnostics.String_literal_with_double_quotes_expected));
+                }
+                return (valueExpression as StringLiteral).text;
+
+            case SyntaxKind.NumericLiteral:
+                return Number((valueExpression as NumericLiteral).text);
+
+            case SyntaxKind.PrefixUnaryExpression:
+                if ((valueExpression as PrefixUnaryExpression).operator !== SyntaxKind.MinusToken || (valueExpression as PrefixUnaryExpression).operand.kind !== SyntaxKind.NumericLiteral) {
+                    break; // not valid JSON syntax
+                }
+                return -Number(((valueExpression as PrefixUnaryExpression).operand as NumericLiteral).text);
+
+            case SyntaxKind.ObjectLiteralExpression:
+                const objectLiteralExpression = valueExpression as ObjectLiteralExpression;
+
+                // Currently having element option declaration in the tsconfig with type "object"
+                // determines if it needs onSetValidOptionKeyValueInParent callback or not
+                // At moment there are only "compilerOptions", "typeAcquisition" and "typingOptions"
+                // that satisfies it and need it to modify options set in them (for normalizing file paths)
+                // vs what we set in the json
+                // If need arises, we can modify this interface and callbacks as needed
+                return convertObjectLiteralExpressionToJson(objectLiteralExpression, option as LpcConfigOnlyOption);
+
+            case SyntaxKind.ArrayLiteralExpression:                
+                return convertArrayLiteralExpressionToJson(
+                    (valueExpression as ArrayLiteralExpression).elements,
+                    option && (option as CommandLineOptionOfListType).element,
+                );
+        }
+
+        // Not in expected format
+        if (option) {
+            errors.push(createDiagnosticForNodeInSourceFile(sourceFile, valueExpression, Diagnostics.Compiler_option_0_requires_a_value_of_type_1, option.name, getCompilerOptionValueTypeString(option)));
+        }
+        else {
+            errors.push(createDiagnosticForNodeInSourceFile(sourceFile, valueExpression, Diagnostics.Property_value_can_only_be_string_literal_numeric_literal_true_false_null_object_literal_or_array_literal));
+        }
+
+        return undefined;
+    }
+
+    function isDoubleQuotedString(node: Node): boolean {
+        return isStringLiteral(node) && isStringDoubleQuoted(node, sourceFile);
+    }
+}
+
+function getCompilerOptionValueTypeString(option: CommandLineOption): string {
+    return (option.type === "listOrElement") ?
+        `${getCompilerOptionValueTypeString(option.element)} or Array` :
+        option.type === "list" ?
+        "Array" :
+        isString(option.type) ? option.type : "string";
+}
+
+let buildOptionsNameMapCache: OptionsNameMap;
+function getBuildOptionsNameMap(): OptionsNameMap {
+    console.debug("todo - getBuildOptionsNameMap");
+    return undefined;//return buildOptionsNameMapCache || (buildOptionsNameMapCache = createOptionNameMap(buildOpts));
+}
+
+
+/** @internal */
+export interface ParseCommandLineWorkerDiagnostics extends DidYouMeanOptionsDiagnostics {
+    getOptionsNameMap: () => OptionsNameMap;
+    optionTypeMismatchDiagnostic: DiagnosticMessage;
+}
+
+const compilerOptionsAlternateMode: AlternateModeDiagnostics = {
+    diagnostic: Diagnostics.Compiler_option_0_may_only_be_used_with_build,
+    getOptionsNameMap: getBuildOptionsNameMap,
+};
+
+/** @internal */
+export function createOptionNameMap(optionDeclarations: readonly CommandLineOption[]): OptionsNameMap {
+    const optionsNameMap = new Map<string, CommandLineOption>();
+    const shortOptionNames = new Map<string, string>();
+    forEach(optionDeclarations, option => {
+        optionsNameMap.set(option.name.toLowerCase(), option);
+        if (option.shortName) {
+            shortOptionNames.set(option.shortName, option.name);
+        }
+    });
+
+    return { optionsNameMap, shortOptionNames };
+}
+
+
+
+function getDefaultCompilerOptions(configFileName?: string) {
+    const options: CompilerOptions = configFileName && getBaseFileName(configFileName) === "jsconfig.json"
+        ? { maxNodeModuleJsDepth: 2 }
+        : {};
+    return options;
+}
+
+function commandLineOptionsToMap(options: readonly CommandLineOption[]) {
+    return arrayToMap(options, getOptionName);
+}
+
+function getOptionName(option: CommandLineOption) {
+    return option.name;
+}
+
+/** @internal */
+export const commonOptionsWithBuild: CommandLineOption[] = [
+    {
+        name: "help",
+        shortName: "h",
+        type: "boolean",
+        showInSimplifiedHelpView: true,
+        isCommandLineOnly: true,
+        category: Diagnostics.Command_line_Options,
+        description: Diagnostics.Print_this_message,
+        defaultValueDescription: false,
+    },
+    {
+        name: "help",
+        shortName: "?",
+        type: "boolean",
+        isCommandLineOnly: true,
+        category: Diagnostics.Command_line_Options,
+        defaultValueDescription: false,
+    },
+    {
+        name: "watch",
+        shortName: "w",
+        type: "boolean",
+        showInSimplifiedHelpView: true,
+        isCommandLineOnly: true,
+        category: Diagnostics.Command_line_Options,
+        description: Diagnostics.Watch_input_files,
+        defaultValueDescription: false,
+    },
+    {
+        name: "preserveWatchOutput",
+        type: "boolean",
+        showInSimplifiedHelpView: false,
+        category: Diagnostics.Output_Formatting,
+        description: Diagnostics.Disable_wiping_the_console_in_watch_mode,
+        defaultValueDescription: false,
+    },
+    {
+        name: "listFiles",
+        type: "boolean",
+        category: Diagnostics.Compiler_Diagnostics,
+        description: Diagnostics.Print_all_of_the_files_read_during_the_compilation,
+        defaultValueDescription: false,
+    },
+    {
+        name: "explainFiles",
+        type: "boolean",
+        category: Diagnostics.Compiler_Diagnostics,
+        description: Diagnostics.Print_files_read_during_the_compilation_including_why_it_was_included,
+        defaultValueDescription: false,
+    },
+    {
+        name: "listEmittedFiles",
+        type: "boolean",
+        category: Diagnostics.Compiler_Diagnostics,
+        description: Diagnostics.Print_the_names_of_emitted_files_after_a_compilation,
+        defaultValueDescription: false,
+    },
+    {
+        name: "pretty",
+        type: "boolean",
+        showInSimplifiedHelpView: true,
+        category: Diagnostics.Output_Formatting,
+        description: Diagnostics.Enable_color_and_formatting_in_TypeScript_s_output_to_make_compiler_errors_easier_to_read,
+        defaultValueDescription: true,
+    },
+    {
+        name: "traceResolution",
+        type: "boolean",
+        category: Diagnostics.Compiler_Diagnostics,
+        description: Diagnostics.Log_paths_used_during_the_moduleResolution_process,
+        defaultValueDescription: false,
+    },
+    {
+        name: "diagnostics",
+        type: "boolean",
+        category: Diagnostics.Compiler_Diagnostics,
+        description: Diagnostics.Output_compiler_performance_information_after_building,
+        defaultValueDescription: false,
+    },
+    {
+        name: "extendedDiagnostics",
+        type: "boolean",
+        category: Diagnostics.Compiler_Diagnostics,
+        description: Diagnostics.Output_more_detailed_compiler_performance_information_after_building,
+        defaultValueDescription: false,
+    },
+    {
+        name: "generateCpuProfile",
+        type: "string",
+        isFilePath: true,
+        paramType: Diagnostics.FILE_OR_DIRECTORY,
+        category: Diagnostics.Compiler_Diagnostics,
+        description: Diagnostics.Emit_a_v8_CPU_profile_of_the_compiler_run_for_debugging,
+        defaultValueDescription: "profile.cpuprofile",
+    },
+    {
+        name: "generateTrace",
+        type: "string",
+        isFilePath: true,
+        isCommandLineOnly: true,
+        paramType: Diagnostics.DIRECTORY,
+        category: Diagnostics.Compiler_Diagnostics,
+        description: Diagnostics.Generates_an_event_trace_and_a_list_of_types,
+    },
+    {
+        name: "incremental",
+        shortName: "i",
+        type: "boolean",
+        category: Diagnostics.Projects,
+        description: Diagnostics.Save_tsbuildinfo_files_to_allow_for_incremental_compilation_of_projects,
+        transpileOptionValue: undefined,
+        defaultValueDescription: Diagnostics.false_unless_composite_is_set,
+    },
+    // {
+    //     name: "declaration",
+    //     shortName: "d",
+    //     type: "boolean",
+    //     // Not setting affectsEmit because we calculate this flag might not affect full emit
+    //     affectsBuildInfo: true,
+    //     showInSimplifiedHelpView: true,
+    //     category: Diagnostics.Emit,
+    //     transpileOptionValue: undefined,
+    //     description: Diagnostics.Generate_d_ts_files_from_TypeScript_and_JavaScript_files_in_your_project,
+    //     defaultValueDescription: Diagnostics.false_unless_composite_is_set,
+    // },
+    // {
+    //     name: "declarationMap",
+    //     type: "boolean",
+    //     // Not setting affectsEmit because we calculate this flag might not affect full emit
+    //     affectsBuildInfo: true,
+    //     showInSimplifiedHelpView: true,
+    //     category: Diagnostics.Emit,
+    //     defaultValueDescription: false,
+    //     description: Diagnostics.Create_sourcemaps_for_d_ts_files,
+    // },
+    // {
+    //     name: "emitDeclarationOnly",
+    //     type: "boolean",
+    //     // Not setting affectsEmit because we calculate this flag might not affect full emit
+    //     affectsBuildInfo: true,
+    //     showInSimplifiedHelpView: true,
+    //     category: Diagnostics.Emit,
+    //     description: Diagnostics.Only_output_d_ts_files_and_not_JavaScript_files,
+    //     transpileOptionValue: undefined,
+    //     defaultValueDescription: false,
+    // },
+    {
+        name: "sourceMap",
+        type: "boolean",
+        // Not setting affectsEmit because we calculate this flag might not affect full emit
+        affectsBuildInfo: true,
+        showInSimplifiedHelpView: true,
+        category: Diagnostics.Emit,
+        defaultValueDescription: false,
+        description: Diagnostics.Create_source_map_files_for_emitted_JavaScript_files,
+    },
+    // {
+    //     name: "inlineSourceMap",
+    //     type: "boolean",
+    //     // Not setting affectsEmit because we calculate this flag might not affect full emit
+    //     affectsBuildInfo: true,
+    //     category: Diagnostics.Emit,
+    //     description: Diagnostics.Include_sourcemap_files_inside_the_emitted_JavaScript,
+    //     defaultValueDescription: false,
+    // },
+    {
+        name: "assumeChangesOnlyAffectDirectDependencies",
+        type: "boolean",
+        affectsSemanticDiagnostics: true,
+        affectsEmit: true,
+        affectsBuildInfo: true,
+        category: Diagnostics.Watch_and_Build_Modes,
+        description: Diagnostics.Have_recompiles_in_projects_that_use_incremental_and_watch_mode_assume_that_changes_within_a_file_will_only_affect_files_directly_depending_on_it,
+        defaultValueDescription: false,
+    },
+    {
+        name: "locale",
+        type: "string",
+        category: Diagnostics.Command_line_Options,
+        isCommandLineOnly: true,
+        description: Diagnostics.Set_the_language_of_the_messaging_from_TypeScript_This_does_not_affect_emit,
+        defaultValueDescription: Diagnostics.Platform_specific,
+    },
+];
+
+/** @internal */
+export const optionDeclarations: CommandLineOption[] = [
+    ...commonOptionsWithBuild,
+    // TODO: 
+    // ...commandOptionsWithoutBuild,
+];
+
+/** @internal */
+export const moduleResolutionOptionDeclarations: readonly CommandLineOption[] = optionDeclarations.filter(option => !!option.affectsModuleResolution);
+
+let commandLineCompilerOptionsMapCache: Map<string, CommandLineOption>;
+function getCommandLineCompilerOptionsMap() {
+    return commandLineCompilerOptionsMapCache || (commandLineCompilerOptionsMapCache = commandLineOptionsToMap(optionDeclarations));
+}
+let commandLineWatchOptionsMapCache: Map<string, CommandLineOption>;
+function getCommandLineWatchOptionsMap() {
+    console.debug("todo - getCommandLineWatchOptionsMap");
+    // return commandLineWatchOptionsMapCache || (commandLineWatchOptionsMapCache = commandLineOptionsToMap(optionsForWatch));
+}
+let commandLineTypeAcquisitionMapCache: Map<string, CommandLineOption>;
+function getCommandLineTypeAcquisitionMap() {
+    console.debug("todo - getCommandLineTypeAcquisitionMap");
+    // return commandLineTypeAcquisitionMapCache || (commandLineTypeAcquisitionMapCache = commandLineOptionsToMap(typeAcquisitionDeclarations));
+}
+
+function convertOptionsFromJson(optionsNameMap: Map<string, CommandLineOption>, jsonOptions: any, basePath: string, defaultOptions: undefined, diagnostics: DidYouMeanOptionsDiagnostics, errors: Diagnostic[]): WatchOptions | undefined;
+function convertOptionsFromJson(optionsNameMap: Map<string, CommandLineOption>, jsonOptions: any, basePath: string, defaultOptions: CompilerOptions | TypeAcquisition, diagnostics: DidYouMeanOptionsDiagnostics, errors: Diagnostic[]): CompilerOptions | TypeAcquisition;
+function convertOptionsFromJson(optionsNameMap: Map<string, CommandLineOption>, jsonOptions: any, basePath: string, defaultOptions: CompilerOptions | TypeAcquisition | WatchOptions | undefined, diagnostics: DidYouMeanOptionsDiagnostics, errors: Diagnostic[]) {
+    if (!jsonOptions) {
+        return;
+    }
+
+    for (const id in jsonOptions) {
+        const opt = optionsNameMap.get(id);
+        if (opt) {
+            (defaultOptions || (defaultOptions = {}))[opt.name] = convertJsonOption(opt, jsonOptions[id], basePath, errors);
+        }
+        else {
+            errors.push(createUnknownOptionError(id, diagnostics));
+        }
+    }
+    return defaultOptions;
+}
+
+function parseOwnConfigOfJson(
+    json: any,
+    host: ParseConfigHost,
+    basePath: string,
+    configFileName: string | undefined,
+    errors: Diagnostic[],
+): ParsedLpcConfig {
+    if (hasProperty(json, "excludes")) {
+        errors.push(createCompilerDiagnostic(Diagnostics.Unknown_option_excludes_Did_you_mean_exclude));
+    }
+
+    const options = convertCompilerOptionsFromJsonWorker(json.compilerOptions, basePath, errors, configFileName);
+    const typeAcquisition = convertTypeAcquisitionFromJsonWorker(json.typeAcquisition, basePath, errors, configFileName);
+    const watchOptions = convertWatchOptionsFromJsonWorker(json.watchOptions, basePath, errors);
+    json.compileOnSave = convertCompileOnSaveOptionFromJson(json, basePath, errors);
+    const extendedConfigPath = json.extends || json.extends === "" ?
+        getExtendsConfigPathOrArray(json.extends, host, basePath, configFileName, errors) :
+        undefined;
+    return { raw: json, options, watchOptions, typeAcquisition, extendedConfigPath };
+}
+
+function getExtendsConfigPath(
+    extendedConfig: string,
+    host: ParseConfigHost,
+    basePath: string,
+    errors: Diagnostic[],
+    valueExpression: Expression | undefined,
+    sourceFile: LpcConfigSourceFile | undefined,
+) {
+    extendedConfig = normalizeSlashes(extendedConfig);
+    if (isRootedDiskPath(extendedConfig) || startsWith(extendedConfig, "./") || startsWith(extendedConfig, "../")) {
+        let extendedConfigPath = getNormalizedAbsolutePath(extendedConfig, basePath);
+        if (!host.fileExists(extendedConfigPath) && !endsWith(extendedConfigPath, Extension.Json)) {
+            extendedConfigPath = `${extendedConfigPath}.json`;
+            if (!host.fileExists(extendedConfigPath)) {
+                errors.push(createDiagnosticForNodeInSourceFileOrCompilerDiagnostic(sourceFile, valueExpression, Diagnostics.File_0_not_found, extendedConfig));
+                return undefined;
+            }
+        }
+        return extendedConfigPath;
+    }
+    // TODO
+    // If the path isn't a rooted or relative path, resolve like a module
+    // const resolved = nodeNextJsonConfigResolver(extendedConfig, combinePaths(basePath, "tsconfig.json"), host);
+    // if (resolved.resolvedModule) {
+    //     return resolved.resolvedModule.resolvedFileName;
+    // }
+    if (extendedConfig === "") {
+        errors.push(createDiagnosticForNodeInSourceFileOrCompilerDiagnostic(sourceFile, valueExpression, Diagnostics.Compiler_option_0_cannot_be_given_an_empty_string, "extends"));
+    }
+    else {
+        errors.push(createDiagnosticForNodeInSourceFileOrCompilerDiagnostic(sourceFile, valueExpression, Diagnostics.File_0_not_found, extendedConfig));
+    }
+    return undefined;
+}
+
+function getExtendsConfigPathOrArray(
+    value: CompilerOptionsValue,
+    host: ParseConfigHost,
+    basePath: string,
+    configFileName: string | undefined,
+    errors: Diagnostic[],
+    propertyAssignment?: PropertyAssignment,
+    valueExpression?: Expression,
+    sourceFile?: JsonSourceFile,
+) {
+    let extendedConfigPath: string | string[] | undefined;
+    const newBase = configFileName ? directoryOfCombinedPath(configFileName, basePath) : basePath;
+    if (isString(value)) {
+        extendedConfigPath = getExtendsConfigPath(
+            value,
+            host,
+            newBase,
+            errors,
+            valueExpression,
+            sourceFile,
+        );
+    }
+    else if (isArray(value)) {
+        extendedConfigPath = [];
+        for (let index = 0; index < (value as unknown[]).length; index++) {
+            const fileName = (value as unknown[])[index];
+            if (isString(fileName)) {
+                extendedConfigPath = append(
+                    extendedConfigPath,
+                    getExtendsConfigPath(
+                        fileName,
+                        host,
+                        newBase,
+                        errors,
+                        (valueExpression as ArrayLiteralExpression | undefined)?.elements[index],
+                        sourceFile,
+                    ),
+                );
+            }
+            else {
+                convertJsonOption(extendsOptionDeclaration.element, value, basePath, errors, propertyAssignment, (valueExpression as ArrayLiteralExpression | undefined)?.elements[index], sourceFile);
+            }
+        }
+    }
+    else {
+        convertJsonOption(extendsOptionDeclaration, value, basePath, errors, propertyAssignment, valueExpression, sourceFile);
+    }
+    return extendedConfigPath;
+}
+
+function convertCompileOnSaveOptionFromJson(jsonOption: any, basePath: string, errors: Diagnostic[]): boolean {
+    if (!hasProperty(jsonOption, compileOnSaveCommandLineOption.name)) {
+        return false;
+    }
+    const result = convertJsonOption(compileOnSaveCommandLineOption, jsonOption.compileOnSave, basePath, errors);
+    return typeof result === "boolean" && result;
+}
+
+function convertTypeAcquisitionFromJsonWorker(jsonOptions: any, basePath: string, errors: Diagnostic[], configFileName?: string): TypeAcquisition {
+    console.debug("todo - convertTypeAcquisitionFromJsonWorker");
+    return undefined;
+    // const options = getDefaultTypeAcquisition(configFileName);
+    // convertOptionsFromJson(getCommandLineTypeAcquisitionMap(), jsonOptions, basePath, options, typeAcquisitionDidYouMeanDiagnostics, errors);
+    // return options;
+}
+
+function convertWatchOptionsFromJsonWorker(jsonOptions: any, basePath: string, errors: Diagnostic[]): WatchOptions | undefined {
+    console.debug("todo - convertWatchOptionsFromJsonWorker");
+    return undefined;
+    // return convertOptionsFromJson(getCommandLineWatchOptionsMap(), jsonOptions, basePath, /*defaultOptions*/ undefined, watchOptionsDidYouMeanDiagnostics, errors);
+}
+
+/**
+ * This *just* extracts options/include/exclude/files out of a config file.
+ * It does *not* resolve the included files.
+ */
+function parseConfig(
+    json: any,
+    sourceFile: LpcConfigSourceFile | undefined,
+    host: ParseConfigHost,
+    basePath: string,
+    configFileName: string | undefined,
+    resolutionStack: string[],
+    errors: Diagnostic[],
+    extendedConfigCache?: Map<string, ExtendedConfigCacheEntry>,
+): ParsedLpcConfig {
+    basePath = normalizeSlashes(basePath);
+    const resolvedPath = getNormalizedAbsolutePath(configFileName || "", basePath);
+
+    if (resolutionStack.includes(resolvedPath)) {
+        errors.push(createCompilerDiagnostic(Diagnostics.Circularity_detected_while_resolving_configuration_Colon_0, [...resolutionStack, resolvedPath].join(" -> ")));
+        return { raw: json || convertToObject(sourceFile!, errors) };
+    }
+
+    const ownConfig = json ?
+        parseOwnConfigOfJson(json, host, basePath, configFileName, errors) :
+        parseOwnConfigOfJsonSourceFile(sourceFile!, host, basePath, configFileName, errors);
+
+    if (ownConfig.options?.paths) {
+        // If we end up needing to resolve relative paths from 'paths' relative to
+        // the config file location, we'll need to know where that config file was.
+        // Since 'paths' can be inherited from an extended config in another directory,
+        // we wouldn't know which directory to use unless we store it here.
+        ownConfig.options.pathsBasePath = basePath;
+    }
+    if (ownConfig.extendedConfigPath) {
+        // copy the resolution stack so it is never reused between branches in potential diamond-problem scenarios.
+        resolutionStack = resolutionStack.concat([resolvedPath]);
+        const result: ExtendsResult = { options: {} };
+        if (isString(ownConfig.extendedConfigPath)) {
+            applyExtendedConfig(result, ownConfig.extendedConfigPath);
+        }
+        else {
+            ownConfig.extendedConfigPath.forEach(extendedConfigPath => applyExtendedConfig(result, extendedConfigPath));
+        }
+        if (result.include) ownConfig.raw.include = result.include;
+        if (result.exclude) ownConfig.raw.exclude = result.exclude;
+        if (result.files) ownConfig.raw.files = result.files;
+
+        if (ownConfig.raw.compileOnSave === undefined && result.compileOnSave) ownConfig.raw.compileOnSave = result.compileOnSave;
+        if (sourceFile && result.extendedSourceFiles) sourceFile.extendedSourceFiles = arrayFrom(result.extendedSourceFiles.keys());
+
+        ownConfig.options = assign(result.options, ownConfig.options);
+        ownConfig.watchOptions = ownConfig.watchOptions && result.watchOptions ?
+            assign(result.watchOptions, ownConfig.watchOptions) :
+            ownConfig.watchOptions || result.watchOptions;
+    }
+    return ownConfig;
+
+    function applyExtendedConfig(result: ExtendsResult, extendedConfigPath: string) {
+        console.debug("todo - applyExtendedConfig");
+        // const extendedConfig = getExtendedConfig(sourceFile, extendedConfigPath, host, resolutionStack, errors, extendedConfigCache, result);
+        // if (extendedConfig && isSuccessfulParsedTsconfig(extendedConfig)) {
+        //     const extendsRaw = extendedConfig.raw;
+        //     let relativeDifference: string | undefined;
+        //     const setPropertyInResultIfNotUndefined = (propertyName: "include" | "exclude" | "files") => {
+        //         if (ownConfig.raw[propertyName]) return; // No need to calculate if already set in own config
+        //         if (extendsRaw[propertyName]) {
+        //             result[propertyName] = map(extendsRaw[propertyName], (path: string) =>
+        //                 startsWithConfigDirTemplate(path) || isRootedDiskPath(path) ?
+        //                     path :
+        //                     combinePaths(
+        //                         relativeDifference ||= convertToRelativePath(getDirectoryPath(extendedConfigPath), basePath, createGetCanonicalFileName(host.useCaseSensitiveFileNames)),
+        //                         path,
+        //                     ));
+        //         }
+        //     };
+        //     setPropertyInResultIfNotUndefined("include");
+        //     setPropertyInResultIfNotUndefined("exclude");
+        //     setPropertyInResultIfNotUndefined("files");
+        //     if (extendsRaw.compileOnSave !== undefined) {
+        //         result.compileOnSave = extendsRaw.compileOnSave;
+        //     }
+        //     assign(result.options, extendedConfig.options);
+        //     result.watchOptions = result.watchOptions && extendedConfig.watchOptions ?
+        //         assign({}, result.watchOptions, extendedConfig.watchOptions) :
+        //         result.watchOptions || extendedConfig.watchOptions;
+        //     // TODO extend type typeAcquisition
+        // }
+    }
+}
+
+
+let optionsNameMapCache: OptionsNameMap;
+
+/** @internal */
+export function getOptionsNameMap(): OptionsNameMap {
+    return optionsNameMapCache ||= createOptionNameMap(optionDeclarations);
+}
+
+
+/** @internal */
+export const compilerOptionsDidYouMeanDiagnostics: ParseCommandLineWorkerDiagnostics = {
+    alternateMode: compilerOptionsAlternateMode,
+    getOptionsNameMap,
+    optionDeclarations,
+    unknownOptionDiagnostic: Diagnostics.Unknown_compiler_option_0,
+    unknownDidYouMeanDiagnostic: Diagnostics.Unknown_compiler_option_0_Did_you_mean_1,
+    optionTypeMismatchDiagnostic: Diagnostics.Compiler_option_0_expects_an_argument,
+};
+
+function convertCompilerOptionsFromJsonWorker(jsonOptions: any, basePath: string, errors: Diagnostic[], configFileName?: string): CompilerOptions {
+    const options = getDefaultCompilerOptions(configFileName);
+    convertOptionsFromJson(getCommandLineCompilerOptionsMap(), jsonOptions, basePath, options, compilerOptionsDidYouMeanDiagnostics, errors);
+    if (configFileName) {
+        options.configFilePath = normalizeSlashes(configFileName);
+    }
+    return options;
+}
+
+function createDiagnosticForNodeInSourceFileOrCompilerDiagnostic(sourceFile: LpcConfigSourceFile | undefined, node: Node | undefined, message: DiagnosticMessage, ...args: DiagnosticArguments) {
+    return sourceFile && node ?
+        createDiagnosticForNodeInSourceFile(sourceFile, node, message, ...args) :
+        createCompilerDiagnostic(message, ...args);
+}
+
+function isCompilerOptionsValue(option: CommandLineOption | undefined, value: any): value is CompilerOptionsValue {
+    if (option) {
+        if (isNullOrUndefined(value)) return !option.disallowNullOrUndefined; // All options are undefinable/nullable
+        if (option.type === "list") {
+            return isArray(value);
+        }
+        if (option.type === "listOrElement") {
+            return isArray(value) || isCompilerOptionsValue(option.element, value);
+        }
+        const expectedType = isString(option.type) ? option.type : "string";
+        return typeof value === expectedType;
+    }
+    return false;
+}
+
+function convertJsonOptionOfListType(
+    option: CommandLineOptionOfListType,
+    values: readonly any[],
+    basePath: string,
+    errors: Diagnostic[],
+    propertyAssignment: PropertyAssignment | undefined,
+    valueExpression: ArrayLiteralExpression | undefined,
+    sourceFile: LpcConfigSourceFile | undefined,
+): any[] {
+    return filter(map(values, (v, index) => convertJsonOption(option.element, v, basePath, errors, propertyAssignment, valueExpression?.elements[index], sourceFile)), v => option.listPreserveFalsyValues ? true : !!v);
+}
+
+function convertJsonOptionOfCustomType(
+    opt: CommandLineOptionOfCustomType,
+    value: string,
+    errors: Diagnostic[],
+    valueExpression?: Expression,
+    sourceFile?: LpcConfigSourceFile,
+) {
+    if (isNullOrUndefined(value)) return undefined;
+    const key = value.toLowerCase();
+    const val = opt.type.get(key);
+    if (val !== undefined) {
+        return validateJsonOptionValue(opt, val, errors, valueExpression, sourceFile);
+    }
+    else {
+        errors.push(createDiagnosticForInvalidCustomType(opt, (message, ...args) => createDiagnosticForNodeInSourceFileOrCompilerDiagnostic(sourceFile, valueExpression, message, ...args)));
+    }
+}
+
+function createDiagnosticForInvalidCustomType(opt: CommandLineOptionOfCustomType, createDiagnostic: (message: DiagnosticMessage, ...args: DiagnosticArguments) => Diagnostic): Diagnostic {
+    const namesOfType = arrayFrom(opt.type.keys());
+    const stringNames = (opt.deprecatedKeys ? namesOfType.filter(k => !opt.deprecatedKeys!.has(k)) : namesOfType).map(key => `'${key}'`).join(", ");
+    return createDiagnostic(Diagnostics.Argument_for_0_option_must_be_Colon_1, `--${opt.name}`, stringNames);
+}
+
+
+/** @internal */
+export function convertJsonOption(
+    opt: CommandLineOption,
+    value: any,
+    basePath: string,
+    errors: Diagnostic[],
+    propertyAssignment?: PropertyAssignment,
+    valueExpression?: Expression,
+    sourceFile?: LpcConfigSourceFile,
+): CompilerOptionsValue {
+    if (opt.isCommandLineOnly) {
+        errors.push(createDiagnosticForNodeInSourceFileOrCompilerDiagnostic(sourceFile, propertyAssignment?.name, Diagnostics.Option_0_can_only_be_specified_on_command_line, opt.name));
+        return undefined;
+    }
+    if (isCompilerOptionsValue(opt, value)) {
+        const optType = opt.type;
+        if ((optType === "list") && isArray(value)) {
+            return convertJsonOptionOfListType(opt, value, basePath, errors, propertyAssignment, valueExpression as ArrayLiteralExpression | undefined, sourceFile);
+        }
+        else if (optType === "listOrElement") {
+            return isArray(value) ?
+                convertJsonOptionOfListType(opt, value, basePath, errors, propertyAssignment, valueExpression as ArrayLiteralExpression | undefined, sourceFile) :
+                convertJsonOption(opt.element, value, basePath, errors, propertyAssignment, valueExpression, sourceFile);
+        }
+        else if (!isString(opt.type)) {
+            return convertJsonOptionOfCustomType(opt as CommandLineOptionOfCustomType, value as string, errors, valueExpression, sourceFile);
+        }
+        const validatedValue = validateJsonOptionValue(opt, value, errors, valueExpression, sourceFile);
+        return isNullOrUndefined(validatedValue) ? validatedValue : normalizeNonListOptionValue(opt, basePath, validatedValue);
+    }
+    else {
+        errors.push(createDiagnosticForNodeInSourceFileOrCompilerDiagnostic(sourceFile, valueExpression, Diagnostics.Compiler_option_0_requires_a_value_of_type_1, opt.name, getCompilerOptionValueTypeString(opt)));
+    }
+}
+
+
+function normalizeNonListOptionValue(option: CommandLineOption, basePath: string, value: any): CompilerOptionsValue {
+    if (option.isFilePath) {
+        value = normalizeSlashes(value);
+        value = !startsWithConfigDirTemplate(value) ? getNormalizedAbsolutePath(value, basePath) : value;
+        if (value === "") {
+            value = ".";
+        }
+    }
+    return value;
+}
+
+
+function validateJsonOptionValue<T extends CompilerOptionsValue>(
+    opt: CommandLineOption,
+    value: T,
+    errors: Diagnostic[],
+    valueExpression?: Expression,
+    sourceFile?: LpcConfigSourceFile,
+): T | undefined {
+    if (isNullOrUndefined(value)) return undefined;
+    const d = opt.extraValidation?.(value);
+    if (!d) return value;
+    errors.push(createDiagnosticForNodeInSourceFileOrCompilerDiagnostic(sourceFile, valueExpression, ...d));
+    return undefined;
+}
+
+/** @internal */
+export function setConfigFileInOptions(options: CompilerOptions, configFile: LpcConfigSourceFile | undefined) {
+    if (configFile) {
+        Object.defineProperty(options, "configFile", { enumerable: false, writable: false, value: configFile });
+    }
+}
+
+function createUnknownOptionError(
+    unknownOption: string,
+    diagnostics: DidYouMeanOptionsDiagnostics,
+    unknownOptionErrorText?: string,
+    node?: PropertyName,
+    sourceFile?: LpcConfigSourceFile,
+) {
+    if (diagnostics.alternateMode?.getOptionsNameMap().optionsNameMap.has(unknownOption.toLowerCase())) {
+        return createDiagnosticForNodeInSourceFileOrCompilerDiagnostic(sourceFile, node, diagnostics.alternateMode.diagnostic, unknownOption);
+    }
+
+    const possibleOption = getSpellingSuggestion(unknownOption, diagnostics.optionDeclarations, getOptionName);
+    return possibleOption ?
+        createDiagnosticForNodeInSourceFileOrCompilerDiagnostic(sourceFile, node, diagnostics.unknownDidYouMeanDiagnostic, unknownOptionErrorText || unknownOption, possibleOption.name) :
+        createDiagnosticForNodeInSourceFileOrCompilerDiagnostic(sourceFile, node, diagnostics.unknownOptionDiagnostic, unknownOptionErrorText || unknownOption);
+}
+
+const compilerOptionsDeclaration: LpcConfigOnlyOption = {
+    name: "compilerOptions",
+    type: "object",
+    elementOptions: getCommandLineCompilerOptionsMap(),
+    extraKeyDiagnostics: compilerOptionsDidYouMeanDiagnostics,
+};
+
+let _lpcconfigRootOptions: LpcConfigOnlyOption;
+function getLpcConfigRootOptionsMap() {
+    if (_lpcconfigRootOptions === undefined) {
+        _lpcconfigRootOptions = {
+            name: undefined!, // should never be needed since this is root
+            type: "object",
+            elementOptions: commandLineOptionsToMap([
+                compilerOptionsDeclaration,
+                // TODO 
+                // watchOptionsDeclaration,
+                // typeAcquisitionDeclaration,
+                extendsOptionDeclaration,
+                {
+                    name: "references",
+                    type: "list",
+                    element: {
+                        name: "references",
+                        type: "object",
+                    },
+                    category: Diagnostics.Projects,
+                },
+                {
+                    name: "files",
+                    type: "list",
+                    element: {
+                        name: "files",
+                        type: "string",
+                    },
+                    category: Diagnostics.File_Management,
+                },
+                {
+                    name: "include",
+                    type: "list",
+                    element: {
+                        name: "include",
+                        type: "string",
+                    },
+                    category: Diagnostics.File_Management,
+                    defaultValueDescription: Diagnostics.if_files_is_specified_otherwise_Asterisk_Asterisk_Slash_Asterisk,
+                },
+                {
+                    name: "exclude",
+                    type: "list",
+                    element: {
+                        name: "exclude",
+                        type: "string",
+                    },
+                    category: Diagnostics.File_Management,
+                    defaultValueDescription: Diagnostics.node_modules_bower_components_jspm_packages_plus_the_value_of_outDir_if_one_is_specified,
+                },
+                compileOnSaveCommandLineOption,
+            ]),
+        };
+    }
+    return _lpcconfigRootOptions;
+}
+
+function parseOwnConfigOfJsonSourceFile(
+    sourceFile: LpcConfigSourceFile,
+    host: ParseConfigHost,
+    basePath: string,
+    configFileName: string | undefined,
+    errors: Diagnostic[],
+): ParsedLpcConfig {
+    const options = getDefaultCompilerOptions(configFileName);
+    let typeAcquisition: TypeAcquisition | undefined;
+    let watchOptions: WatchOptions | undefined;
+    let extendedConfigPath: string | string[] | undefined;
+    let rootCompilerOptions: PropertyName[] | undefined;
+
+    const rootOptions = getLpcConfigRootOptionsMap();
+    const json = convertConfigFileToObject(
+        sourceFile,
+        errors,
+        { rootOptions, onPropertySet },
+    );
+
+    if (!typeAcquisition) {
+        typeAcquisition = getDefaultTypeAcquisition(configFileName);
+    }
+
+    if (rootCompilerOptions && json && json.compilerOptions === undefined) {
+        errors.push(createDiagnosticForNodeInSourceFile(sourceFile, rootCompilerOptions[0], Diagnostics._0_should_be_set_inside_the_compilerOptions_object_of_the_config_json_file, getTextOfPropertyName(rootCompilerOptions[0]) as string));
+    }
+
+    return { raw: json, options, watchOptions, typeAcquisition, extendedConfigPath };
+
+    function onPropertySet(
+        keyText: string,
+        value: any,
+        propertyAssignment: PropertyAssignment,
+        parentOption: LpcConfigOnlyOption | undefined,
+        option: CommandLineOption | undefined,
+    ) {
+        // Ensure value is verified except for extends which is handled in its own way for error reporting
+        if (option && option !== extendsOptionDeclaration) value = convertJsonOption(option, value, basePath, errors, propertyAssignment, propertyAssignment.initializer, sourceFile);
+        if (parentOption?.name) {
+            if (option) {
+                let currentOption;
+                if (parentOption === compilerOptionsDeclaration) currentOption = options;
+                // TODO
+                // else if (parentOption === watchOptionsDeclaration) currentOption = watchOptions ??= {};
+                // else if (parentOption === typeAcquisitionDeclaration) currentOption = typeAcquisition ??= getDefaultTypeAcquisition(configFileName);
+                else Debug.fail("Unknown option");
+                currentOption[option.name] = value;
+            }
+            else if (keyText && parentOption?.extraKeyDiagnostics) {
+                if (parentOption.elementOptions) {
+                    errors.push(createUnknownOptionError(
+                        keyText,
+                        parentOption.extraKeyDiagnostics,
+                        /*unknownOptionErrorText*/ undefined,
+                        propertyAssignment.name,
+                        sourceFile,
+                    ));
+                }
+                else {
+                    errors.push(createDiagnosticForNodeInSourceFile(sourceFile, propertyAssignment.name, parentOption.extraKeyDiagnostics.unknownOptionDiagnostic, keyText));
+                }
+            }
+        }
+        else if (parentOption === rootOptions) {
+            if (option === extendsOptionDeclaration) {
+                extendedConfigPath = getExtendsConfigPathOrArray(value, host, basePath, configFileName, errors, propertyAssignment, propertyAssignment.initializer, sourceFile);
+            }
+            else if (!option) {
+                if (keyText === "excludes") {
+                    errors.push(createDiagnosticForNodeInSourceFile(sourceFile, propertyAssignment.name, Diagnostics.Unknown_option_excludes_Did_you_mean_exclude));
+                }
+                console.debug("todo - find command options without build");
+                // if (find(commandOptionsWithoutBuild, opt => opt.name === keyText)) {
+                //     rootCompilerOptions = append(rootCompilerOptions, propertyAssignment.name);
+                // }
+            }
+        }
+    }
+}
+
+function convertConfigFileToObject(
+    sourceFile: JsonSourceFile,
+    errors: Diagnostic[],
+    jsonConversionNotifier: JsonConversionNotifier | undefined,
+): any {
+    const rootExpression: Expression | undefined = sourceFile.statements[0]?.expression;
+    if (rootExpression && rootExpression.kind !== SyntaxKind.ObjectLiteralExpression) {
+        errors.push(createDiagnosticForNodeInSourceFile(
+            sourceFile,
+            rootExpression,
+            Diagnostics.The_root_value_of_a_0_file_must_be_an_object,
+            getBaseFileName(sourceFile.fileName) === "jsconfig.json" ? "jsconfig.json" : "tsconfig.json",
+        ));
+        // Last-ditch error recovery. Somewhat useful because the JSON parser will recover from some parse errors by
+        // synthesizing a top-level array literal expression. There's a reasonable chance the first element of that
+        // array is a well-formed configuration object, made into an array element by stray characters.
+        if (isArrayLiteralExpression(rootExpression)) {
+            const firstObject = find(rootExpression.elements, isObjectLiteralExpression);
+            if (firstObject) {
+                return convertToJson(sourceFile, firstObject, errors, /*returnValue*/ true, jsonConversionNotifier);
+            }
+        }
+        return {};
+    }
+    return convertToJson(sourceFile, rootExpression, errors, /*returnValue*/ true, jsonConversionNotifier);
+}

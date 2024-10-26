@@ -1897,3 +1897,46 @@ export function compareTextSpans(a: Partial<TextSpan> | undefined, b: Partial<Te
 export function createSortedArray<T>(): SortedArray<T> {
     return [] as any as SortedArray<T>; // TODO: GH#19873
 }
+
+
+/**
+ * Creates a map from the elements of an array.
+ *
+ * @param array the array of input elements.
+ * @param makeKey a function that produces a key for a given element.
+ *
+ * This function makes no effort to avoid collisions; if any two elements produce
+ * the same key with the given 'makeKey' function, then the element with the higher
+ * index in the array will be the one associated with the produced key.
+ *
+ * @internal
+ */
+export function arrayToMap<K, V>(array: readonly V[], makeKey: (value: V) => K | undefined): Map<K, V>;
+/** @internal */
+export function arrayToMap<K, V1, V2>(array: readonly V1[], makeKey: (value: V1) => K | undefined, makeValue: (value: V1) => V2): Map<K, V2>;
+/** @internal */
+export function arrayToMap<T>(array: readonly T[], makeKey: (value: T) => string | undefined): Map<string, T>;
+/** @internal */
+export function arrayToMap<T, U>(array: readonly T[], makeKey: (value: T) => string | undefined, makeValue: (value: T) => U): Map<string, U>;
+/** @internal */
+export function arrayToMap<K, V1, V2>(array: readonly V1[], makeKey: (value: V1) => K | undefined, makeValue: (value: V1) => V1 | V2 = identity): Map<K, V1 | V2> {
+    const result = new Map<K, V1 | V2>();
+    for (const value of array) {
+        const key = makeKey(value);
+        if (key !== undefined) result.set(key, makeValue(value));
+    }
+    return result;
+}
+
+/** @internal */
+export function assign<T extends object>(t: T, ...args: (T | undefined)[]) {
+    for (const arg of args) {
+        if (arg === undefined) continue;
+        for (const p in arg) {
+            if (hasProperty(arg, p)) {
+                t[p] = arg[p];
+            }
+        }
+    }
+    return t;
+}

@@ -1,7 +1,15 @@
-import { ILpcConfig } from "../config-types.js";
 import { CompilerHost, convertToRelativePath, forEach, getDirectoryPath, isRootedDiskPath, LoadImportResult, LpcFileHandler, LpcLoadImportResult, ModuleResolutionHost, normalizePath, pathIsAbsolute, pathIsRelative, pushIfUnique, resolvePath } from "./_namespaces/lpc.js";
 
-export function createLpcFileHandler(getHost: () => ModuleResolutionHost, getConfig: ()=>ILpcConfig): LpcFileHandler {
+export interface LpcFileHandlerHost {
+    getCurrentDirectory?(): string;
+    fileExists(fileName: string): boolean;
+    // readFile function is used to read arbitrary text files on disk, i.e. when resolution procedure needs the content of 'package.json'
+    // to determine location of bundled typings for node module
+    readFile(fileName: string): string | undefined;
+    getIncludeDirs(): string[];
+}
+
+export function createLpcFileHandler(host: LpcFileHandlerHost): LpcFileHandler {
     return {
         loadInclude,
         loadIncludeFile
@@ -13,7 +21,6 @@ export function createLpcFileHandler(getHost: () => ModuleResolutionHost, getCon
     }
 
     function loadIncludeFile(sourceFilename: string, includeFilename: string, localFirst: boolean, additionalSearchDirs?: string[]): LpcLoadImportResult {
-        const host = getHost();
         const sourcePath = normalizePath(sourceFilename);
         const sourceDir = getDirectoryPath(sourcePath);
         const includePath = normalizePath(includeFilename);
@@ -50,11 +57,10 @@ export function createLpcFileHandler(getHost: () => ModuleResolutionHost, getCon
         return { filename: searchPath, source: result };
     }
 
-    function getIncludeDirs() {
-        const config = getConfig();
-        const basePath = getHost().getCurrentDirectory();
-        const fullImportDirs = config.include.map((dir) => {            
-            return resolvePath(basePath, "./" + dir);//pathIsAbsolute(dir) ? dir : resolvePath(basePath, dir);            
+    function getIncludeDirs() {        
+        const basePath = host.getCurrentDirectory();
+        const fullImportDirs = host.getIncludeDirs().map((dir) => {
+            return resolvePath(basePath, "./" + dir);//pathIsAbsolute(dir) ? dir : resolvePath(basePath, dir);
         });
         return fullImportDirs;
     }

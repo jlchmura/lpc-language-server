@@ -1991,7 +1991,6 @@ export function updateLanguageServiceSourceFile(
             const newSourceFile = updateSourceFile(
                 sourceFile,
                 newText,
-                config,
                 fileHandler,
                 textChangeRange,
                 aggressiveChecks

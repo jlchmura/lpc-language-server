@@ -1584,11 +1584,17 @@ export function createCompilerHostWorker(
     function getDefaultLibLocation(): string {
         return getDirectoryPath(normalizePath(system.getExecutingFilePath()));
     }
-    
+        
+    const fileHandler = createLpcFileHandler({
+        fileExists: fileName => system.fileExists(fileName),
+        readFile: fileName => system.readFile(fileName),
+        getCurrentDirectory: () => system.getCurrentDirectory(),
+        getIncludeDirs: () => options.config.include,
+    });
     const newLine = getNewLineCharacter(options);
     const realpath = system.realpath && ((path: string) => system.realpath!(path));
     const compilerHost: CompilerHost = {
-        getSourceFile: createGetSourceFile(fileName => compilerHost.readFile(fileName), options.config, setParentNodes, createLpcFileHandler(()=>compilerHost, ()=>options.config)),
+        getSourceFile: createGetSourceFile(fileName => compilerHost.readFile(fileName), options.config, setParentNodes, fileHandler),
         getDefaultLibLocation,
         getDefaultLibFileName: options => combinePaths(getDefaultLibLocation(), getDefaultLibFileName(options)),
         writeFile: createWriteFileMeasuringIO(

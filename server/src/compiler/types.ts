@@ -243,8 +243,99 @@ export interface ProjectReference {
     circular?: boolean;
 }
 
+// dprint-ignore
 /** @internal */
-export type CommandLineOption = any;// CommandLineOptionOfCustomType | CommandLineOptionOfStringType | CommandLineOptionOfNumberType | CommandLineOptionOfBooleanType | TsConfigOnlyOption | CommandLineOptionOfListType;
+export interface CommandLineOptionBase {
+    name: string;
+    type: "string" | "number" | "boolean" | "object" | "list" | "listOrElement" | Map<string, number | string>;    // a value of a primitive type, or an object literal mapping named values to actual values
+    isFilePath?: boolean;                                   // True if option value is a path or fileName
+    shortName?: string;                                     // A short mnemonic for convenience - for instance, 'h' can be used in place of 'help'
+    description?: DiagnosticMessage;                        // The message describing what the command line switch does.
+    defaultValueDescription?: string | number | boolean | DiagnosticMessage | undefined;   // The message describing what the dafault value is. string type is prepared for fixed chosen like "false" which do not need I18n.
+    paramType?: DiagnosticMessage;                          // The name to be used for a non-boolean option's parameter
+    isTSConfigOnly?: boolean;                               // True if option can only be specified via tsconfig.json file
+    isCommandLineOnly?: boolean;
+    showInSimplifiedHelpView?: boolean;
+    category?: DiagnosticMessage;
+    strictFlag?: true;                                      // true if the option is one of the flag under strict
+    allowJsFlag?: true;
+    affectsSourceFile?: true;                               // true if we should recreate SourceFiles after this option changes
+    affectsModuleResolution?: true;                         // currently same effect as `affectsSourceFile`
+    affectsBindDiagnostics?: true;                          // true if this affects binding (currently same effect as `affectsSourceFile`)
+    affectsSemanticDiagnostics?: true;                      // true if option affects semantic diagnostics
+    affectsEmit?: true;                                     // true if the options affects emit
+    affectsProgramStructure?: true;                         // true if program should be reconstructed from root files if option changes and does not affect module resolution as affectsModuleResolution indirectly means program needs to reconstructed
+    affectsDeclarationPath?: true;                          // true if the options affects declaration file path computed
+    affectsBuildInfo?: true;                                // true if this options should be emitted in buildInfo
+    transpileOptionValue?: boolean | undefined;             // If set this means that the option should be set to this value when transpiling
+    extraValidation?: (value: CompilerOptionsValue) => [DiagnosticMessage, ...string[]] | undefined; // Additional validation to be performed for the value to be valid
+    disallowNullOrUndefined?: true;                         // If set option does not allow setting null
+    allowConfigDirTemplateSubstitution?: true;              // If set option allows substitution of `${configDir}` in the value
+}
+
+/** @internal */
+export interface OptionsNameMap {
+    optionsNameMap: Map<string, CommandLineOption>;
+    shortOptionNames: Map<string, string>;
+}
+
+/** @internal */
+export interface AlternateModeDiagnostics {
+    diagnostic: DiagnosticMessage;
+    getOptionsNameMap: () => OptionsNameMap;
+}
+
+/** @internal */
+export interface DidYouMeanOptionsDiagnostics {
+    alternateMode?: AlternateModeDiagnostics;
+    optionDeclarations: CommandLineOption[];
+    unknownOptionDiagnostic: DiagnosticMessage;
+    unknownDidYouMeanDiagnostic: DiagnosticMessage;
+}
+
+/** @internal */
+export interface LpcConfigOnlyOption extends CommandLineOptionBase {
+    type: "object";
+    elementOptions?: Map<string, CommandLineOption>;
+    extraKeyDiagnostics?: DidYouMeanOptionsDiagnostics;
+}
+
+
+/** @internal */
+export interface CommandLineOptionOfStringType extends CommandLineOptionBase {
+    type: "string";
+    defaultValueDescription?: string | undefined | DiagnosticMessage;
+}
+
+/** @internal */
+export interface CommandLineOptionOfNumberType extends CommandLineOptionBase {
+    type: "number";
+    defaultValueDescription: number | undefined | DiagnosticMessage;
+}
+
+/** @internal */
+export interface CommandLineOptionOfBooleanType extends CommandLineOptionBase {
+    type: "boolean";
+    defaultValueDescription: boolean | undefined | DiagnosticMessage;
+}
+
+/** @internal */
+export interface CommandLineOptionOfCustomType extends CommandLineOptionBase {
+    type: Map<string, number | string>; // an object literal mapping named values to actual values
+    defaultValueDescription: number | string | undefined | DiagnosticMessage;
+    deprecatedKeys?: Set<string>;
+}
+
+/** @internal */
+export interface CommandLineOptionOfListType extends CommandLineOptionBase {
+    type: "list" | "listOrElement";
+    element: CommandLineOptionOfCustomType | CommandLineOptionOfStringType | CommandLineOptionOfNumberType | CommandLineOptionOfBooleanType | LpcConfigOnlyOption;
+    listPreserveFalsyValues?: boolean;
+}
+
+
+/** @internal */
+export type CommandLineOption = CommandLineOptionOfCustomType | CommandLineOptionOfStringType | CommandLineOptionOfNumberType | CommandLineOptionOfBooleanType | LpcConfigOnlyOption | CommandLineOptionOfListType;
 
 /** Either a parsed command line or a parsed tsconfig.json */
 export interface ParsedCommandLine {
@@ -1442,6 +1533,7 @@ export interface NodeFactory {
     createPostfixUnaryExpression(operand: Expression, operator: PostfixUnaryOperator): PostfixUnaryExpression;
     createElementAccessExpression(expression: Expression, index: number | Expression): ElementAccessExpression;
     createArrayLiteralExpression(elements?: readonly Expression[], multiLine?: boolean, trailingComma?: boolean);
+    createObjectLiteralExpression(properties?: readonly ObjectLiteralElementLike[], multiLine?: boolean): ObjectLiteralExpression;
     createMappingLiteralExpression(initializer?: Expression, elements?: readonly Expression[], multiLine?: boolean, trailingComma?: boolean): MappingLiteralExpression;
     createMappingEntryExpression(name: Expression, elements: readonly Expression[]): MappingEntryExpression
     convertToAssignmentExpression(node: Mutable<VariableDeclaration>): BinaryExpression;
@@ -1526,6 +1618,13 @@ export interface CompilerOptions {
     rootDir?: string;
     outDir?: string;
     outFile?: string;
+    paths?: MapLike<string[]>;
+    /**
+     * The directory of the config file that specified 'paths'. Used to resolve relative paths when 'baseUrl' is absent.
+     *
+     * @internal
+     */
+    pathsBasePath?: string;
     lib?: string[];
     preserveSymlinks?: boolean;   
     disableSourceOfProjectReferenceRedirect?: boolean;
@@ -1533,6 +1632,7 @@ export interface CompilerOptions {
     module?: ModuleKind;
     target?: ScriptTarget;
     exactOptionalPropertyTypes?: boolean;
+    diagnostics?: boolean;
 }
 
 export const enum OuterExpressionKinds {
@@ -2883,6 +2983,49 @@ export interface SourceFile extends Declaration, LocalsContainer, HasHeritageCon
      */
     impliedNodeFormat?: ResolutionMode;
 }
+
+export interface JsonSourceFile extends SourceFile {
+    readonly statements: NodeArray<JsonObjectExpressionStatement>;
+}
+
+
+export type JsonObjectExpression =
+    | ObjectLiteralExpression
+    | ArrayLiteralExpression
+    | JsonMinusNumericLiteral
+    | NumericLiteral
+    | StringLiteral
+    | BooleanLiteral
+    | NullLiteral;
+
+export interface JsonMinusNumericLiteral extends PrefixUnaryExpression {
+    readonly kind: SyntaxKind.PrefixUnaryExpression;
+    readonly operator: SyntaxKind.MinusToken;
+    readonly operand: NumericLiteral;
+}
+
+/**
+ * JSON-only
+ */
+export interface NumericLiteral extends LiteralExpression, Declaration {
+    readonly kind: SyntaxKind.NumericLiteral;
+    /** @internal */
+    readonly numericLiteralFlags: TokenFlags;
+}
+
+/**
+ * JSON only
+ */
+export interface NullLiteral extends PrimaryExpression {
+    readonly kind: SyntaxKind.NullKeyword;
+}
+
+
+    
+export interface JsonObjectExpressionStatement extends ExpressionStatement {
+    readonly expression: JsonObjectExpression;
+}
+
 
 /** @internal */
 export interface ReadonlyPragmaContext {
@@ -5195,6 +5338,8 @@ export type FilePreprocessingDiagnostics = FilePreprocessingLibReferenceDiagnost
 export const enum ScriptKind {
     Unknown = 0,
     LPC = 1,
+    LDMud = 2,
+    FluffOS = 3,
     External = 5,
     JSON = 6,
     /**
@@ -5205,7 +5350,7 @@ export const enum ScriptKind {
 }
 
 export const enum ScriptTarget {
-    LPC = 1,
+    LPC = 1,    
     Latest = LPC,
 }
 
@@ -6340,14 +6485,7 @@ export interface ConfigFileSpecs {
     validatedIncludeSpecsBeforeSubstitution: readonly string[] | undefined;
     validatedExcludeSpecsBeforeSubstitution: readonly string[] | undefined;
     pathPatterns: readonly (string | Pattern)[] | undefined;
-    isDefaultIncludeSpec: boolean;
-}
-
-
-export interface LpcConfigSourceFile {
-    fileName: string;
-    raw: ILpcConfig;
-    configFileSpecs?: ConfigFileSpecs;
+    isDefaultIncludeSpec: boolean;    
 }
 
 export type LpcLoadImportResult = {
@@ -7117,3 +7255,20 @@ export type PrimitiveLiteral =
     | StringLiteral    
     | PrefixUnaryExpression & { operator: SyntaxKind.PlusToken; operand: IntLiteral; }
     | PrefixUnaryExpression & { operator: SyntaxKind.MinusToken; operand: IntLiteral | FloatLiteral; };
+
+export interface LpcConfigSourceFile extends JsonSourceFile {
+    extendedSourceFiles?: string[];
+    /** @internal */ configFileSpecs?: ConfigFileSpecs;
+}
+
+export interface ParsedLpcConfig {
+    raw: any;
+    options?: CompilerOptions;
+    watchOptions?: WatchOptions;
+    typeAcquisition?: TypeAcquisition;
+    /**
+     * Note that the case of the config path has not yet been normalized, as no files have been imported into the project yet
+     */
+    extendedConfigPath?: string | string[];    
+}
+    

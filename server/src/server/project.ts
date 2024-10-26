@@ -1,6 +1,6 @@
 import { ILpcConfig } from "../config-types.js";
 import * as lpc from "./_namespaces/lpc.js";
-import { addRange, arrayFrom, CachedDirectoryStructureHost, combinePaths, CompilerHost, CompilerOptions, createLanguageService, createResolutionCache, Debug, Diagnostic, DirectoryStructureHost, DirectoryWatcherCallback, DocumentRegistry, explainFiles, ExportInfoMap, FileWatcher, FileWatcherCallback, FileWatcherEventKind, flatMap, forEachKey, GetCanonicalFileName, getDefaultLibFileName, getDirectoryPath, getNormalizedAbsolutePath, getOrUpdate, HasInvalidatedLibResolutions, HasInvalidatedResolutions, IScriptSnapshot, isString, LanguageService, LanguageServiceHost, LanguageServiceMode, maybeBind, ModuleResolutionHost, noopFileWatcher, normalizePath, ParsedCommandLine, Path, PerformanceEvent, PollingInterval, Program, ProgramUpdateLevel, ProjectReference, ResolutionCache, ResolvedProjectReference, returnFalse, returnTrue, sortAndDeduplicate, SortedReadonlyArray, SourceFile, SourceMapper, StructureIsReused, ThrottledCancellationToken, timestamp, toPath, tracing, TypeAcquisition, updateMissingFilePathsWatch, WatchDirectoryFlags, WatchOptions, WatchType } from "./_namespaces/lpc.js";
+import { addRange, arrayFrom, CachedDirectoryStructureHost, combinePaths, CompilerHost, CompilerOptions, createLanguageService, createLpcFileHandler, createResolutionCache, Debug, Diagnostic, DirectoryStructureHost, DirectoryWatcherCallback, DocumentRegistry, explainFiles, ExportInfoMap, FileWatcher, FileWatcherCallback, FileWatcherEventKind, flatMap, forEachKey, GetCanonicalFileName, getDefaultLibFileName, getDirectoryPath, getNormalizedAbsolutePath, getOrUpdate, HasInvalidatedLibResolutions, HasInvalidatedResolutions, IScriptSnapshot, isString, LanguageService, LanguageServiceHost, LanguageServiceMode, maybeBind, ModuleResolutionHost, noopFileWatcher, normalizePath, ParsedCommandLine, Path, PerformanceEvent, PollingInterval, Program, ProgramUpdateLevel, ProjectReference, ResolutionCache, ResolvedProjectReference, returnFalse, returnTrue, sortAndDeduplicate, SortedReadonlyArray, SourceFile, SourceMapper, StructureIsReused, ThrottledCancellationToken, timestamp, toPath, tracing, TypeAcquisition, updateMissingFilePathsWatch, WatchDirectoryFlags, WatchOptions, WatchType } from "./_namespaces/lpc.js";
 import { asNormalizedPath, emptyArray, Errors, HostCancellationToken, LogLevel, NormalizedPath, ProjectService, ScriptInfo, updateProjectIfDirty } from "./_namespaces/lpc.server.js";
 
 
@@ -23,7 +23,7 @@ export enum ProjectKind {
     Auxiliary,
 }
 
-export abstract class Project implements LanguageServiceHost, ModuleResolutionHost {
+export abstract class Project implements LanguageServiceHost, ModuleResolutionHost, lpc.LpcFileHandlerHost {
     private rootFilesMap = new Map<Path, ProjectRootFile>();
     private program: Program | undefined;
     private externalFiles: SortedReadonlyArray<string> | undefined;
@@ -166,8 +166,8 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
             /*logChangesWhenResolvingModule*/ true,
         );
         
-        this.lpcConfig = this.getCompilerOptions().config;
-        const fileHandler = this.fileHandler = lpc.createLpcFileHandler(()=>this, ()=>this.getCompilerOptions().config);
+        const fileHandler = this.fileHandler = createLpcFileHandler(this);        
+        this.lpcConfig = this.getCompilerOptions().config;        
         this.languageService = createLanguageService(this, fileHandler, this.documentRegistry, this.projectService.serverMode);
         // if (lastFileExceededProgramSize) {
         //     this.disableLanguageService(lastFileExceededProgramSize);
@@ -191,6 +191,10 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
                 this.projectService.delayUpdateProjectGraphAndEnsureProjectStructureForOpenFiles(this);
             }
         });
+    }
+
+    getIncludeDirs(): string[] {
+        return this.lpcConfig?.include || [];        
     }
 
     /** @internal */

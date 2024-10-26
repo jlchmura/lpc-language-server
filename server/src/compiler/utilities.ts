@@ -5617,9 +5617,12 @@ export function isStringANonContextualKeyword(name: string) {
 
 /** @internal */
 export function getLanguageVariant(scriptKind: ScriptKind) {
-    return LanguageVariant.Standard;
-    // .tsx and .jsx files are treated as jsx language variant.    
-    //return scriptKind === ScriptKind.TSX || scriptKind === ScriptKind.JSX || scriptKind === ScriptKind.JS || scriptKind === ScriptKind.JSON ? LanguageVariant.JSX : LanguageVariant.Standard;
+    switch (scriptKind) {        
+        case ScriptKind.FluffOS:
+            return LanguageVariant.FluffOS;
+        default:
+            return LanguageVariant.LDMud;
+    }    
 }
 
 /** @internal */
@@ -6124,4 +6127,9 @@ export function getTrailingSemicolonDeferringWriter(writer: EmitTextWriter): Emi
             writer.decreaseIndent();
         },
     };
+}
+
+/** @internal */
+export function getTextOfPropertyName(name: PropertyName): string {
+    return Debug.checkDefined(tryGetTextOfPropertyName(name));
 }
