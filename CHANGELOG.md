@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.0.34
+
+-   Handle undefined symbols while parsing incomplete syntax
+
 ## 1.0.33
 
 -   Fix bad build in release 1.0.32
