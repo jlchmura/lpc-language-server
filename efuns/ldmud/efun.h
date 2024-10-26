@@ -223,7 +223,7 @@ int write_bytes(string file, int start, bytes str);
  * the message as argument.
  *
  * @example 
- * write("Hello world!\n");
+ * write("Hello world!\n"); 
  * 
  * Just print out a string.
  * 
@@ -235,7 +235,7 @@ int write_bytes(string file, int start, bytes str);
  * 
  * Will print out "<ARRAY>".
  *
- *
+ * @param msg The message to write.
  */
 void write(mixed msg);
 

@@ -2484,12 +2484,15 @@ export namespace LpcParser {
         }
 
         Debug.assert(!node.jsDoc); // Should only be called once per node
+        const saveSourceText = sourceText;
+        sourceText = includeFileCache[node.originFilename] ?? sourceText;
         const jsDoc = mapDefined(getJSDocCommentRanges(node, sourceText), comment => JSDocParser.parseJSDocComment(node, comment.pos, comment.end - comment.pos));
         if (jsDoc.length) node.jsDoc = jsDoc;
         if (hasDeprecatedTag) {
             hasDeprecatedTag = false;
             (node as Mutable<T>).flags |= NodeFlags.Deprecated;
         }
+        sourceText = saveSourceText;
         return node;
     }
 
@@ -3217,7 +3220,7 @@ export namespace LpcParser {
     }
 
     function parseFunctionDeclaration(pos: PositionState, hasJSDoc: boolean, modifiers: NodeArray<ModifierLike> | undefined, type: TypeNode | undefined): FunctionDeclaration {                
-        const name = parseBindingIdentifier();
+        const name = parseBindingIdentifier();        
         const parameters = parseParameters();
         const body = parseFunctionBlockOrSemicolon(SignatureFlags.None);
 
