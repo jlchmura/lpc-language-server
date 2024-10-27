@@ -509,6 +509,9 @@ import {
     isCaseKeyword,
     getReplacementSpanForContextToken,
     createSortedArray,
+    JSDocTypeTag,
+    JSDocThrowsTag,
+    JSDocSatisfiesTag,
 } from "./_namespaces/lpc.js";
 
 function unescapeLeadingUnderscores(s: string) { return s; }
@@ -2653,7 +2656,7 @@ export function getCompletionEntriesFromSymbols(
     };
 
     function shouldIncludeSymbol(symbol: Symbol, symbolToSortTextMap: SymbolSortTextMap): boolean {
-        let allFlags = symbol.flags;
+        let allFlags = symbol.flags;        
         if (!isSourceFile(location)) {
             // export = /**/ here we want to get all meanings, so any symbol is ok
             // if (isExportAssignment(location.parent)) {
@@ -3333,8 +3336,8 @@ function getCompletionData(
         // }
 
         let parent = contextToken.parent;
-        if (contextToken.kind === SyntaxKind.DotToken || contextToken.kind === SyntaxKind.QuestionDotToken) {
-            isRightOfDot = contextToken.kind === SyntaxKind.DotToken;
+        if (contextToken.kind === SyntaxKind.DotToken || contextToken.kind === SyntaxKind.QuestionDotToken || contextToken.kind === SyntaxKind.MinusGreaterThanToken) {
+            isRightOfDot = contextToken.kind === SyntaxKind.DotToken || contextToken.kind === SyntaxKind.MinusGreaterThanToken;
             isRightOfQuestionDot = contextToken.kind === SyntaxKind.QuestionDotToken;
             switch (parent.kind) {
                 case SyntaxKind.PropertyAccessExpression:
@@ -3450,13 +3453,13 @@ function getCompletionData(
 
     type JSDocTagWithTypeExpression =
         | JSDocParameterTag
-        // | JSDocPropertyTag
+        | JSDocPropertyTag
         | JSDocReturnTag
-        // | JSDocTypeTag
+        | JSDocTypeTag
         | JSDocTypedefTag
         | JSDocTemplateTag
-        // | JSDocThrowsTag
-        // | JSDocSatisfiesTag;
+        | JSDocThrowsTag
+        | JSDocSatisfiesTag;
 
     function isTagWithTypeExpression(tag: JSDocTag): tag is JSDocTagWithTypeExpression {
         switch (tag.kind) {
@@ -3480,6 +3483,7 @@ function getCompletionData(
             const typeExpression = isJSDocTemplateTag(tag) ? tag.constraint : tag.typeExpression;
             return typeExpression && typeExpression.kind === SyntaxKind.JSDocTypeExpression ? typeExpression : undefined;
         }
+        // TODO
         // if (isJSDocAugmentsTag(tag) || isJSDocImplementsTag(tag)) {
         //     return tag.class;
         // }
@@ -3492,35 +3496,15 @@ function getCompletionData(
 
         // Since this is qualified name check it's a type node location
         const isImportType = false;//isLiteralImportTypeNode(node);
-        const isTypeLocation = false;// (isImportType && !(node as ImportTypeNode).isTypeOf)
-        //     || isPartOfTypeNode(node.parent)
-        //     || isPossiblyTypeArgumentPosition(contextToken, sourceFile, typeChecker);
+        const isTypeLocation = isPartOfTypeNode(node.parent);
+            // || isPossiblyTypeArgumentPosition(contextToken, sourceFile, typeChecker);
         // const isRhsOfImportDeclaration = isInRightSideOfInternalImportEqualsDeclaration(node);
         if (isEntityName(node) || isImportType || isPropertyAccessExpression(node)) {
             const isNamespaceName = false;// isModuleDeclaration(node.parent);
             if (isNamespaceName) isNewIdentifierLocation = true;
             let symbol = typeChecker.getSymbolAtLocation(node);
             if (symbol) {
-                symbol = skipAlias(symbol, typeChecker);
-                // if (symbol.flags & (SymbolFlags.Module | SymbolFlags.Enum)) {
-                //     // Extract module or enum members
-                //     const exportedSymbols = typeChecker.getExportsOfModule(symbol);
-                //     Debug.assertEachIsDefined(exportedSymbols, "getExportsOfModule() should all be defined");
-                //     const isValidValueAccess = (symbol: Symbol) => typeChecker.isValidPropertyAccess(isImportType ? node as ImportTypeNode : (node.parent as PropertyAccessExpression), symbol.name);
-                //     const isValidTypeAccess = (symbol: Symbol) => symbolCanBeReferencedAtTypeLocation(symbol, typeChecker);
-                //     const isValidAccess: (symbol: Symbol) => boolean = isNamespaceName
-                //         // At `namespace N.M/**/`, if this is the only declaration of `M`, don't include `M` as a completion.
-                //         ? symbol => !!(symbol.flags & SymbolFlags.Namespace) && !symbol.declarations?.every(d => d.parent === node.parent)
-                //         : isRhsOfImportDeclaration ?
-                //         // Any kind is allowed when dotting off namespace in internal import equals declaration
-                //         symbol => isValidTypeAccess(symbol) || isValidValueAccess(symbol) :
-                //         isTypeLocation || insideJsDocTagTypeExpression ? isValidTypeAccess : isValidValueAccess;
-                //     for (const exportedSymbol of exportedSymbols) {
-                //         if (isValidAccess(exportedSymbol)) {
-                //             symbols.push(exportedSymbol);
-                //         }
-                //     }
-
+                symbol = skipAlias(symbol, typeChecker);                
                 //     // If the module is merged with a value, we must get the type of the class and add its propertes (for inherited static methods).
                 //     if (
                 //         !isTypeLocation &&
@@ -3550,157 +3534,163 @@ function getCompletionData(
             }
         }
 
-        // if (!isTypeLocation || isInTypeQuery(node)) {
-        //     // GH#39946. Pulling on the type of a node inside of a function with a contextual `this` parameter can result in a circularity
-        //     // if the `node` is part of the exprssion of a `yield` or `return`. This circularity doesn't exist at compile time because
-        //     // we will check (and cache) the type of `this` *before* checking the type of the node.
-        //     typeChecker.tryGetThisTypeAt(node, /*includeGlobalThis*/ false);
-        //     let type = typeChecker.getTypeAtLocation(node).getNonOptionalType();
+        if (!isTypeLocation || isInTypeQuery(node)) {
+            // GH#39946. Pulling on the type of a node inside of a function with a contextual `this` parameter can result in a circularity
+            // if the `node` is part of the exprssion of a `yield` or `return`. This circularity doesn't exist at compile time because
+            // we will check (and cache) the type of `this` *before* checking the type of the node.
+            typeChecker.tryGetThisTypeAt(node, /*includeGlobalThis*/ false);
+            let type = typeChecker.getTypeAtLocation(node).getNonOptionalType();
 
-        //     if (!isTypeLocation) {
-        //         let insertQuestionDot = false;
-        //         if (type.isNullableType()) {
-        //             const canCorrectToQuestionDot = isRightOfDot &&
-        //                 !isRightOfQuestionDot &&
-        //                 preferences.includeAutomaticOptionalChainCompletions !== false;
+            if (!isTypeLocation) {
+                let insertQuestionDot = false;
+                if (type.isNullableType()) {
+                    const canCorrectToQuestionDot = isRightOfDot &&
+                        !isRightOfQuestionDot &&
+                        preferences.includeAutomaticOptionalChainCompletions !== false;
 
-        //             if (canCorrectToQuestionDot || isRightOfQuestionDot) {
-        //                 type = type.getNonNullableType();
-        //                 if (canCorrectToQuestionDot) {
-        //                     insertQuestionDot = true;
-        //                 }
+                    if (canCorrectToQuestionDot || isRightOfQuestionDot) {
+                        type = type.getNonNullableType();
+                        if (canCorrectToQuestionDot) {
+                            insertQuestionDot = true;
+                        }
+                    }
+                }
+                addTypeProperties(type, !!(node.flags & NodeFlags.AwaitContext), insertQuestionDot);
+            }
+            else {
+                addTypeProperties(type.getNonNullableType(), /*insertAwait*/ false, /*insertQuestionDot*/ false);
+            }
+        }
+    }
+
+    function addTypeProperties(type: Type, insertAwait: boolean, insertQuestionDot: boolean): void {
+        isNewIdentifierLocation = !!type.getStringIndexType();
+        if (isRightOfQuestionDot && some(type.getCallSignatures())) {
+            isNewIdentifierLocation = true;
+        }
+
+        const propertyAccess = /*node.kind === SyntaxKind.ImportType ? node as ImportTypeNode :*/ node.parent as PropertyAccessExpression | QualifiedName;
+        if (inCheckedFile) {
+            for (const symbol of type.getApparentProperties()) {
+                if (typeChecker.isValidPropertyAccessForCompletions(propertyAccess, type, symbol)) {
+                    addPropertySymbol(symbol, /*insertAwait*/ false, insertQuestionDot);
+                }
+            }
+        }
+        else {
+            // In javascript files, for union types, we don't just get the members that
+            // the individual types have in common, we also include all the members that
+            // each individual type has. This is because we're going to add all identifiers
+            // anyways. So we might as well elevate the members that were at least part
+            // of the individual types to a higher status since we know what they are.
+            symbols.push(...filter(getPropertiesForCompletion(type, typeChecker), s => typeChecker.isValidPropertyAccessForCompletions(propertyAccess, type, s)));
+        }
+
+        // if (insertAwait && preferences.includeCompletionsWithInsertText) {
+        //     const promiseType = typeChecker.getPromisedTypeOfPromise(type);
+        //     if (promiseType) {
+        //         for (const symbol of promiseType.getApparentProperties()) {
+        //             if (typeChecker.isValidPropertyAccessForCompletions(propertyAccess, promiseType, symbol)) {
+        //                 addPropertySymbol(symbol, /*insertAwait*/ true, insertQuestionDot);
         //             }
         //         }
-        //         addTypeProperties(type, !!(node.flags & NodeFlags.AwaitContext), insertQuestionDot);
-        //     }
-        //     else {
-        //         addTypeProperties(type.getNonNullableType(), /*insertAwait*/ false, /*insertQuestionDot*/ false);
         //     }
         // }
     }
 
-    // function addTypeProperties(type: Type, insertAwait: boolean, insertQuestionDot: boolean): void {
-    //     isNewIdentifierLocation = !!type.getStringIndexType();
-    //     if (isRightOfQuestionDot && some(type.getCallSignatures())) {
-    //         isNewIdentifierLocation = true;
-    //     }
+    /** Given 'a.b.c', returns 'a'. */
+    function getLeftMostName(e: Expression): Identifier | undefined {
+        return isIdentifier(e) ? e : isPropertyAccessExpression(e) ? getLeftMostName(e.expression) : undefined;
+    }
 
-    //     const propertyAccess = /*node.kind === SyntaxKind.ImportType ? node as ImportTypeNode :*/ node.parent as PropertyAccessExpression | QualifiedName;
-    //     if (inCheckedFile) {
-    //         for (const symbol of type.getApparentProperties()) {
-    //             if (typeChecker.isValidPropertyAccessForCompletions(propertyAccess, type, symbol)) {
-    //                 addPropertySymbol(symbol, /*insertAwait*/ false, insertQuestionDot);
-    //             }
-    //         }
-    //     }
-    //     else {
-    //         // In javascript files, for union types, we don't just get the members that
-    //         // the individual types have in common, we also include all the members that
-    //         // each individual type has. This is because we're going to add all identifiers
-    //         // anyways. So we might as well elevate the members that were at least part
-    //         // of the individual types to a higher status since we know what they are.
-    //         symbols.push(...filter(getPropertiesForCompletion(type, typeChecker), s => typeChecker.isValidPropertyAccessForCompletions(propertyAccess, type, s)));
-    //     }
+    function addPropertySymbol(symbol: Symbol, insertAwait: boolean, insertQuestionDot: boolean) {
+        // For a computed property with an accessible name like `Symbol.iterator`,
+        // we'll add a completion for the *name* `Symbol` instead of for the property.
+        // If this is e.g. [Symbol.iterator], add a completion for `Symbol`.
+        const computedPropertyName = firstDefined(symbol.declarations, decl => tryCast(getNameOfDeclaration(decl), isComputedPropertyName));
+        if (computedPropertyName) {
+            const leftMostName = getLeftMostName(computedPropertyName.expression); // The completion is for `Symbol`, not `iterator`.
+            const nameSymbol = leftMostName && typeChecker.getSymbolAtLocation(leftMostName);
+            // If this is nested like for `namespace N { export const sym = Symbol(); }`, we'll add the completion for `N`.
+            const firstAccessibleSymbol = nameSymbol && getFirstSymbolInChain(nameSymbol, contextToken, typeChecker);
+            const firstAccessibleSymbolId = firstAccessibleSymbol && getSymbolId(firstAccessibleSymbol);
+            if (firstAccessibleSymbolId && addToSeen(seenPropertySymbols, firstAccessibleSymbolId)) {
+                const index = symbols.length;
+                symbols.push(firstAccessibleSymbol);
+                const moduleSymbol = firstAccessibleSymbol.parent;
+                // if (
+                //     !moduleSymbol ||
+                //     !isExternalModuleSymbol(moduleSymbol) ||
+                //     typeChecker.tryGetMemberInModuleExportsAndProperties(firstAccessibleSymbol.name, moduleSymbol) !== firstAccessibleSymbol
+                // ) {
+                //     symbolToOriginInfoMap[index] = { kind: getNullableSymbolOriginInfoKind(SymbolOriginInfoKind.SymbolMemberNoExport) };
+                // }
+                // else {
+                    console.debug("todo - completions - property from module");
+                    const fileName = undefined;// isExternalModuleNameRelative(stripQuotes(moduleSymbol.name)) ? getSourceFileOfModule(moduleSymbol)?.fileName : undefined;
+                    const { moduleSpecifier } = (importSpecifierResolver ||= codefix.createImportSpecifierResolver(sourceFile, program, host, preferences)).getModuleSpecifierForBestExportInfo(
+                        [{
+                            exportKind: ExportKind.Named,
+                            moduleFileName: fileName,
+                            isFromPackageJson: false,
+                            moduleSymbol,
+                            symbol: firstAccessibleSymbol,
+                            targetFlags: skipAlias(firstAccessibleSymbol, typeChecker).flags,
+                        }],
+                        position,
+                        isValidTypeOnlyAliasUseSite(location),
+                    ) || {};
 
-    //     // if (insertAwait && preferences.includeCompletionsWithInsertText) {
-    //     //     const promiseType = typeChecker.getPromisedTypeOfPromise(type);
-    //     //     if (promiseType) {
-    //     //         for (const symbol of promiseType.getApparentProperties()) {
-    //     //             if (typeChecker.isValidPropertyAccessForCompletions(propertyAccess, promiseType, symbol)) {
-    //     //                 addPropertySymbol(symbol, /*insertAwait*/ true, insertQuestionDot);
-    //     //             }
-    //     //         }
-    //     //     }
-    //     // }
-    // }
+                    if (moduleSpecifier) {
+                        const origin: SymbolOriginInfoResolvedExport = {
+                            kind: getNullableSymbolOriginInfoKind(SymbolOriginInfoKind.SymbolMemberExport),
+                            moduleSymbol,
+                            isDefaultExport: false,
+                            symbolName: firstAccessibleSymbol.name,
+                            exportName: firstAccessibleSymbol.name,
+                            fileName,
+                            moduleSpecifier,
+                        };
+                        symbolToOriginInfoMap[index] = origin;
+                    }
+                // }
+            }
+            else if (preferences.includeCompletionsWithInsertText) {
+                if (firstAccessibleSymbolId && seenPropertySymbols.has(firstAccessibleSymbolId)) {
+                    return;
+                }
+                addSymbolOriginInfo(symbol);
+                addSymbolSortInfo(symbol);
+                symbols.push(symbol);
+            }
+        }
+        else {
+            addSymbolOriginInfo(symbol);
+            addSymbolSortInfo(symbol);
+            symbols.push(symbol);
+        }
 
-    // function addPropertySymbol(symbol: Symbol, insertAwait: boolean, insertQuestionDot: boolean) {
-    //     // For a computed property with an accessible name like `Symbol.iterator`,
-    //     // we'll add a completion for the *name* `Symbol` instead of for the property.
-    //     // If this is e.g. [Symbol.iterator], add a completion for `Symbol`.
-    //     const computedPropertyName = firstDefined(symbol.declarations, decl => tryCast(getNameOfDeclaration(decl), isComputedPropertyName));
-    //     if (computedPropertyName) {
-    //         const leftMostName = getLeftMostName(computedPropertyName.expression); // The completion is for `Symbol`, not `iterator`.
-    //         const nameSymbol = leftMostName && typeChecker.getSymbolAtLocation(leftMostName);
-    //         // If this is nested like for `namespace N { export const sym = Symbol(); }`, we'll add the completion for `N`.
-    //         const firstAccessibleSymbol = nameSymbol && getFirstSymbolInChain(nameSymbol, contextToken, typeChecker);
-    //         const firstAccessibleSymbolId = firstAccessibleSymbol && getSymbolId(firstAccessibleSymbol);
-    //         if (firstAccessibleSymbolId && addToSeen(seenPropertySymbols, firstAccessibleSymbolId)) {
-    //             const index = symbols.length;
-    //             symbols.push(firstAccessibleSymbol);
-    //             const moduleSymbol = firstAccessibleSymbol.parent;
-    //             if (
-    //                 !moduleSymbol ||
-    //                 !isExternalModuleSymbol(moduleSymbol) ||
-    //                 typeChecker.tryGetMemberInModuleExportsAndProperties(firstAccessibleSymbol.name, moduleSymbol) !== firstAccessibleSymbol
-    //             ) {
-    //                 symbolToOriginInfoMap[index] = { kind: getNullableSymbolOriginInfoKind(SymbolOriginInfoKind.SymbolMemberNoExport) };
-    //             }
-    //             else {
-    //                 const fileName = isExternalModuleNameRelative(stripQuotes(moduleSymbol.name)) ? getSourceFileOfModule(moduleSymbol)?.fileName : undefined;
-    //                 const { moduleSpecifier } = (importSpecifierResolver ||= codefix.createImportSpecifierResolver(sourceFile, program, host, preferences)).getModuleSpecifierForBestExportInfo(
-    //                     [{
-    //                         exportKind: ExportKind.Named,
-    //                         moduleFileName: fileName,
-    //                         isFromPackageJson: false,
-    //                         moduleSymbol,
-    //                         symbol: firstAccessibleSymbol,
-    //                         targetFlags: skipAlias(firstAccessibleSymbol, typeChecker).flags,
-    //                     }],
-    //                     position,
-    //                     isValidTypeOnlyAliasUseSite(location),
-    //                 ) || {};
+        function addSymbolSortInfo(symbol: Symbol) {
+            if (isStaticProperty(symbol)) {
+                symbolToSortTextMap[getSymbolId(symbol)] = SortText.LocalDeclarationPriority;
+            }
+        }
 
-    //                 if (moduleSpecifier) {
-    //                     const origin: SymbolOriginInfoResolvedExport = {
-    //                         kind: getNullableSymbolOriginInfoKind(SymbolOriginInfoKind.SymbolMemberExport),
-    //                         moduleSymbol,
-    //                         isDefaultExport: false,
-    //                         symbolName: firstAccessibleSymbol.name,
-    //                         exportName: firstAccessibleSymbol.name,
-    //                         fileName,
-    //                         moduleSpecifier,
-    //                     };
-    //                     symbolToOriginInfoMap[index] = origin;
-    //                 }
-    //             }
-    //         }
-    //         else if (preferences.includeCompletionsWithInsertText) {
-    //             if (firstAccessibleSymbolId && seenPropertySymbols.has(firstAccessibleSymbolId)) {
-    //                 return;
-    //             }
-    //             addSymbolOriginInfo(symbol);
-    //             addSymbolSortInfo(symbol);
-    //             symbols.push(symbol);
-    //         }
-    //     }
-    //     else {
-    //         addSymbolOriginInfo(symbol);
-    //         addSymbolSortInfo(symbol);
-    //         symbols.push(symbol);
-    //     }
+        function addSymbolOriginInfo(symbol: Symbol) {
+            if (preferences.includeCompletionsWithInsertText) {
+                if (insertAwait && addToSeen(seenPropertySymbols, getSymbolId(symbol))) {
+                    symbolToOriginInfoMap[symbols.length] = { kind: getNullableSymbolOriginInfoKind(SymbolOriginInfoKind.Promise) };
+                }
+                else if (insertQuestionDot) {
+                    symbolToOriginInfoMap[symbols.length] = { kind: SymbolOriginInfoKind.Nullable };
+                }
+            }
+        }
 
-    //     function addSymbolSortInfo(symbol: Symbol) {
-    //         if (isStaticProperty(symbol)) {
-    //             symbolToSortTextMap[getSymbolId(symbol)] = SortText.LocalDeclarationPriority;
-    //         }
-    //     }
-
-    //     function addSymbolOriginInfo(symbol: Symbol) {
-    //         if (preferences.includeCompletionsWithInsertText) {
-    //             if (insertAwait && addToSeen(seenPropertySymbols, getSymbolId(symbol))) {
-    //                 symbolToOriginInfoMap[symbols.length] = { kind: getNullableSymbolOriginInfoKind(SymbolOriginInfoKind.Promise) };
-    //             }
-    //             else if (insertQuestionDot) {
-    //                 symbolToOriginInfoMap[symbols.length] = { kind: SymbolOriginInfoKind.Nullable };
-    //             }
-    //         }
-    //     }
-
-    //     function getNullableSymbolOriginInfoKind(kind: SymbolOriginInfoKind) {
-    //         return insertQuestionDot ? kind | SymbolOriginInfoKind.Nullable : kind;
-    //     }
-    // }
+        function getNullableSymbolOriginInfoKind(kind: SymbolOriginInfoKind) {
+            return insertQuestionDot ? kind | SymbolOriginInfoKind.Nullable : kind;
+        }
+    }
 
     /** Given 'a.b.c', returns 'a'. */
     // function getLeftMostName(e: Expression): Identifier | undefined {
@@ -4054,24 +4044,23 @@ function getCompletionData(
                 return;
             }
             const { name } = displayName;
-            return;
-            // const entryProps = getEntryForObjectLiteralMethodCompletion(
-            //     member,
-            //     name,
-            //     enclosingDeclaration,
-            //     program,
-            //     host,
-            //     compilerOptions,
-            //     preferences,
-            //     formatContext,
-            // );
-            // if (!entryProps) {
-            //     return;
-            // }
-            // const origin: SymbolOriginInfoObjectLiteralMethod = { kind: SymbolOriginInfoKind.ObjectLiteralMethod, ...entryProps };
-            // flags |= CompletionInfoFlags.MayIncludeMethodSnippets;
-            // symbolToOriginInfoMap[symbols.length] = origin;
-            // symbols.push(member);
+            const entryProps = getEntryForObjectLiteralMethodCompletion(
+                member,
+                name,
+                enclosingDeclaration,
+                program,
+                host,
+                compilerOptions,
+                preferences,
+                formatContext,
+            );
+            if (!entryProps) {
+                return;
+            }
+            const origin: SymbolOriginInfoObjectLiteralMethod = { kind: SymbolOriginInfoKind.ObjectLiteralMethod, ...entryProps };
+            flags |= CompletionInfoFlags.MayIncludeMethodSnippets;
+            symbolToOriginInfoMap[symbols.length] = origin;
+            symbols.push(member);
         });
     }
 
@@ -4158,6 +4147,9 @@ function getCompletionData(
                     return containingNodeKind === SyntaxKind.VariableDeclaration          // const x = a|
                         || containingNodeKind === SyntaxKind.BinaryExpression;            // x = a|
 
+                case SyntaxKind.MinusGreaterThanToken:
+                    return containingNodeKind === SyntaxKind.PropertyAccessExpression    // x = foo->a
+                        || containingNodeKind === SyntaxKind.CallExpression;             // x = foo->a(
                 // case SyntaxKind.TemplateHead:
                 //     return containingNodeKind === SyntaxKind.TemplateExpression;          // `aa ${|
 
@@ -5722,4 +5714,59 @@ interface SymbolOriginInfoTypeOnlyImport extends SymbolOriginInfo {
 
 function originIsTypeOnlyAlias(origin: SymbolOriginInfo | undefined): origin is SymbolOriginInfoTypeOnlyImport {
     return !!(origin && origin.kind & SymbolOriginInfoKind.TypeOnlyAlias);
+}
+
+function getEntryForObjectLiteralMethodCompletion(
+    symbol: Symbol,
+    name: string,
+    enclosingDeclaration: ObjectLiteralExpression,
+    program: Program,
+    host: LanguageServiceHost,
+    options: CompilerOptions,
+    preferences: UserPreferences,
+    formatContext: formatting.FormatContext | undefined,
+): { insertText: string; isSnippet?: true; labelDetails: CompletionEntryLabelDetails; } | undefined {
+    const isSnippet = preferences.includeCompletionsWithSnippetText || undefined;
+    let insertText: string = name;
+
+    const sourceFile = enclosingDeclaration.getSourceFile();
+
+    const method = createObjectLiteralMethod(symbol, enclosingDeclaration, sourceFile, program, host, preferences);
+    if (!method) {
+        return undefined;
+    }
+
+    const printer = createSnippetPrinter({
+        removeComments: true,
+        module: options.module,
+        target: options.target,
+        omitTrailingSemicolon: false,
+        newLine: getNewLineKind(getNewLineOrDefaultFromHost(host, formatContext?.options)),
+    });
+    if (formatContext) {
+        insertText = printer.printAndFormatSnippetList(ListFormat.CommaDelimited | ListFormat.AllowTrailingComma, factory.createNodeArray([method], /*hasTrailingComma*/ true), sourceFile, formatContext);
+    }
+    else {
+        insertText = printer.printSnippetList(ListFormat.CommaDelimited | ListFormat.AllowTrailingComma, factory.createNodeArray([method], /*hasTrailingComma*/ true), sourceFile);
+    }
+
+    const signaturePrinter = createPrinter({
+        removeComments: true,
+        module: options.module,
+        target: options.target,
+        omitTrailingSemicolon: true,
+    });
+    // The `labelDetails.detail` will be displayed right beside the method name,
+    // so we drop the name (and modifiers) from the signature.
+    const methodSignature = factory.createMethodSignature(
+        /*modifiers*/ undefined,
+        /*name*/ "",
+        method.questionToken,
+        undefined,//method.typeParameters,
+        method.parameters,
+        method.type,
+    );
+    const labelDetails = { detail: signaturePrinter.printNode(EmitHint.Unspecified, methodSignature, sourceFile) };
+
+    return { isSnippet, insertText, labelDetails };
 }

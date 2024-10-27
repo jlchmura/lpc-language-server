@@ -1289,7 +1289,7 @@ export function createLanguageService(
 
     const cancellationToken = NoopCancellationToken;
 
-    function log(message: string) {
+    function log(message: string) {        
         if (host.log) {
             host.log(message);
         }

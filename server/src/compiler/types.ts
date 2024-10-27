@@ -1,6 +1,6 @@
 import { LpcConfig } from "./LpcConfig.js";
 import { ILpcConfig } from "../config-types.js";
-import { BaseNodeFactory, CreateSourceFileOptions, EmitHelperFactory, GetCanonicalFileName, MapLike, ModuleResolutionCache, MultiMap, Mutable, NodeFactoryFlags, PackageJsonInfo, Pattern } from "./_namespaces/lpc.js";
+import { BaseNodeFactory, CreateSourceFileOptions, EmitHelperFactory, GetCanonicalFileName, MapLike, ModuleResolutionCache, MultiMap, Mutable, NodeFactoryFlags, PackageJsonInfo, Pattern, ThisContainer } from "./_namespaces/lpc.js";
 
 // Note: 'brands' in our syntax nodes serve to give us a small amount of nominal typing.
 // Consider 'Expression'.  Without the brand, 'Expression' is actually no different
@@ -86,6 +86,9 @@ export interface EmitNode {
     // generatedImportReference?: ImportSpecifier; // Reference to the generated import specifier this identifier refers to
 }
 
+
+
+
 export interface TypeChecker {
     getTypeOfSymbol(symbol: Symbol): Type;
     
@@ -165,6 +168,13 @@ export interface TypeChecker {
      * This is necessary as an identifier in short-hand property assignment can contains two meaning: property name and property value.
      */
     getShorthandAssignmentValueSymbol(location: Node | undefined): Symbol | undefined;
+
+    /**
+     * @param node A location where we might consider accessing `this`. Not necessarily a ThisExpression.
+     *
+     * @internal
+     */
+    tryGetThisTypeAt(node: Node, includeGlobalThis?: boolean, container?: ThisContainer): Type | undefined;
 
     /** @internal */ getCandidateSignaturesForStringLiteralCompletions(call: CallLikeExpression, editingArgument: Node): Signature[];
     
