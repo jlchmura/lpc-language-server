@@ -1670,7 +1670,7 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
 
         return node.pos;
     }
-    
+        
     function emitSignatureAndBody<T extends SignatureDeclaration>(node: T, emitSignatureHead: (node: T) => void, emitBody: (node: T) => void) {
         const indentedFlag = getEmitFlags(node) & EmitFlags.Indented;
         if (indentedFlag) {
@@ -1785,7 +1785,8 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
 
     function emitSignatureHead(node: SignatureDeclaration) {
         // emitTypeParameters(node, node.typeParameters);
-        emitTypeAnnotation(node.type);
+        // return type was moved and handled separately in symboldisplay.ts
+        // emitTypeAnnotation(node.type);
         emitParameters(node, node.parameters);
     }
 

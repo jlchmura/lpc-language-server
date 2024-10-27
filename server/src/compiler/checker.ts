@@ -311,6 +311,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         isArrayLikeType,
         isTypeInvalidDueToUnionDiscriminant: (contextualType: Type, obj: ObjectLiteralExpression)=>false, // TODO
         typeHasCallOrConstructSignatures,
+        getReturnTypeOfSignature,
         getContextualType: (nodeIn: Expression, contextFlags?: ContextFlags) => {
             const node = getParseTreeNode(nodeIn, isExpression);
             if (!node) {

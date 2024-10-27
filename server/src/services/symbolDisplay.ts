@@ -64,6 +64,7 @@ import {
     SignatureDeclaration,
     SignatureFlags,
     signatureToDisplayParts,
+    signatureTypeToDisplayParts,
     some,
     SourceFile,
     spacePart,
@@ -990,7 +991,7 @@ function getSymbolDisplayPartsDocumentationAndSymbolKindWorker(typeChecker: Type
                 signature = allSignatures.length ? allSignatures[0] : undefined;
             }
 
-            if (signature) {
+            if (signature) {                          
                 if (useConstructSignatures && (symbolFlags & SymbolFlags.Class)) {
                     // Constructor
                     symbolKind = ScriptElementKind.constructorImplementationElement;
@@ -1010,8 +1011,8 @@ function getSymbolDisplayPartsDocumentationAndSymbolKindWorker(typeChecker: Type
                     }
                     addFullSymbolName(symbol);
                 }
-                else {
-                    addPrefixForAnyFunctionOrVar(symbol, symbolKind);
+                else {                    
+                    addPrefixForAnyFunctionOrVar(symbol, symbolKind, signature);
                 }
 
                 switch (symbolKind) {
@@ -1156,7 +1157,7 @@ function getSymbolDisplayPartsDocumentationAndSymbolKindWorker(typeChecker: Type
     if (!hasAddedSymbolInfo) {
         if (symbolKind !== ScriptElementKind.unknown) {
             if (type) {
-                addPrefixForAnyFunctionOrVar(symbol, symbolKind);
+                addPrefixForAnyFunctionOrVar(symbol, symbolKind, undefined, /* skipName */true);
 
                 // For properties, variables and local vars: show the type
                 if (
@@ -1182,6 +1183,7 @@ function getSymbolDisplayPartsDocumentationAndSymbolKindWorker(typeChecker: Type
                     //     addRange(displayParts, typeParameterParts);
                     // }
                     // else {
+                    displayParts.push(spacePart());
                     addRange(displayParts, typeToDisplayParts(typeChecker, type, enclosingDeclaration));
                     displayParts.push(spacePart());
                     // }                    
@@ -1327,13 +1329,17 @@ function getSymbolDisplayPartsDocumentationAndSymbolKindWorker(typeChecker: Type
         }
     }
 
-    function addPrefixForAnyFunctionOrVar(symbol: Symbol, symbolKind: string) {
+    function addPrefixForAnyFunctionOrVar(symbol: Symbol, symbolKind: string, signature?: Signature, skipName?: boolean) {
         prefixNextMeaning();
         if (symbolKind) {
             pushSymbolKind(symbolKind);
-            if (symbol && !some(symbol.declarations, d => isInlineClosureExpression(d) || (isFunctionExpression(d) /*|| isClassExpression(d)*/) && !d.name)) {
+            if (signature) {
                 displayParts.push(spacePart());
-                // addFullSymbolName(symbol);
+                addSignatureType(signature);
+            }
+            if (symbol && !skipName && !some(symbol.declarations, d => isInlineClosureExpression(d) || (isFunctionExpression(d) /*|| isClassExpression(d)*/) && !d.name)) {
+                displayParts.push(spacePart());
+                addFullSymbolName(symbol);
             }
         }
     }    
@@ -1357,8 +1363,16 @@ function getSymbolDisplayPartsDocumentationAndSymbolKindWorker(typeChecker: Type
         }
     }
 
+    function addSignatureType(signature: Signature, flags = TypeFormatFlags.None) { 
+        addRange(displayParts, signatureTypeToDisplayParts(typeChecker, signature, enclosingDeclaration, flags | TypeFormatFlags.WriteTypeArgumentsOfSignature));        
+    }
+
     function addSignatureDisplayParts(signature: Signature, allSignatures: readonly Signature[], flags = TypeFormatFlags.None) {
         addRange(displayParts, signatureToDisplayParts(typeChecker, signature, enclosingDeclaration, flags | TypeFormatFlags.WriteTypeArgumentsOfSignature));
+        addSignatureDisplayPartsHelper(signature, allSignatures, flags);
+    }
+
+    function addSignatureDisplayPartsHelper(signature: Signature, allSignatures: readonly Signature[], flags = TypeFormatFlags.None) {
         if (allSignatures.length > 1) {
             displayParts.push(spacePart());
             displayParts.push(punctuationPart(SyntaxKind.OpenParenToken));

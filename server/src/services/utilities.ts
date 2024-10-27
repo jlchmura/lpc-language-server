@@ -593,6 +593,16 @@ export function signatureToDisplayParts(typechecker: TypeChecker, signature: Sig
     });
 }
 
+/** @internal */
+export function signatureTypeToDisplayParts(typechecker: TypeChecker, signature: Signature, enclosingDeclaration?: Node, flags: TypeFormatFlags = TypeFormatFlags.None): SymbolDisplayPart[] {
+    flags |= TypeFormatFlags.UseAliasDefinedOutsideCurrentScope | TypeFormatFlags.MultilineObjectLiterals | TypeFormatFlags.WriteTypeArgumentsOfSignature | TypeFormatFlags.OmitParameterModifiers;
+    const sigType = typechecker.getReturnTypeOfSignature(signature);
+    return mapToDisplayParts(writer => {
+        typechecker.writeType(sigType, enclosingDeclaration, flags, writer);
+    });
+}
+
+
 /**
  * Adjusts the location used for "find references" and "go to definition" when the cursor was not
  * on a property name.

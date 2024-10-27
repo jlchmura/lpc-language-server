@@ -131,6 +131,7 @@ export interface TypeChecker {
     /** Note that the resulting nodes cannot be checked. */
     typeToTypeNode(type: Type, enclosingDeclaration: Node | undefined, flags: NodeBuilderFlags | undefined): TypeNode | undefined;
     /** @internal */ typeToTypeNode(type: Type, enclosingDeclaration: Node | undefined, flags: NodeBuilderFlags | undefined, tracker?: SymbolTracker): TypeNode | undefined; // eslint-disable-line @typescript-eslint/unified-signatures
+    getReturnTypeOfSignature(signature: Signature): Type;
     
     /**
      * For a union, will include a property if it's defined in *any* of the member types.
