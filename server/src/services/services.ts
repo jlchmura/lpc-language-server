@@ -186,6 +186,7 @@ import {
     getAllSuperTypeNodes,
     isTransientSymbol,
     lineBreakPart,
+    hasTabstop,
 } from "./_namespaces/lpc.js";
 
 
@@ -866,26 +867,25 @@ function addSyntheticNodes(
     pos: number,
     end: number,
     parent: Node
-): void {
-    // TODO
-    // scanner.resetTokenState(pos);
-    // while (pos < end) {
-    //     const token = scanner.scan();
-    //     const textPos = scanner.getTokenEnd();
-    //     if (textPos <= end) {
-    //         if (token === SyntaxKind.Identifier) {
-    //             if (hasTabstop(parent)) {
-    //                 continue;
-    //             }
-    //             Debug.fail(`Did not expect ${Debug.formatSyntaxKind(parent.kind)} to have an Identifier in its trivia`);
-    //         }
-    //         nodes.push(createNode(token, pos, textPos, parent));
-    //     }
-    //     pos = textPos;
-    //     if (token === SyntaxKind.EndOfFileToken) {
-    //         break;
-    //     }
-    // }
+): void {    
+    scanner.resetTokenState(pos);
+    while (pos < end) {
+        const token = scanner.scan();
+        const textPos = scanner.getTokenEnd();
+        if (textPos <= end) {
+            if (token === SyntaxKind.Identifier) {
+                if (hasTabstop(parent)) {
+                    continue;
+                }
+                Debug.fail(`Did not expect ${Debug.formatSyntaxKind(parent.kind)} to have an Identifier in its trivia`);
+            }
+            nodes.push(createNode(token, pos, textPos, parent));
+        }
+        pos = textPos;
+        if (token === SyntaxKind.EndOfFileToken) {
+            break;
+        }
+    }
 }
 
 function createSyntaxList(nodes: NodeArray<Node>, parent: Node): Node {

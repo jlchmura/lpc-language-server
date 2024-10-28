@@ -121,3 +121,13 @@ export function addEmitFlags<T extends Node>(node: T, emitFlags: EmitFlags) {
 export function getCommentRange(node: Node): TextRange {
     return node.emitNode?.commentRange ?? node;
 }
+
+
+/**
+ * Gets the SnippetElement of a node.
+ *
+ * @internal
+ */
+export function getSnippetElement(node: Node): SnippetElement | undefined {
+    return node.emitNode?.snippetElement;
+}

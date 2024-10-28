@@ -376,32 +376,37 @@ export function start(connection: Connection, platform: string) {
                 prefix: requestParams.context.triggerCharacter,
             };
 
-            const result = session.getCompletions(args, protocol.CommandTypes.CompletionInfo) as protocol.CompletionInfo;
-            if (!result) {
-                return [];
-            }
-
-            const items: vscode.CompletionItem[] = [];  
-            for (const entry of result.entries) {                
-                const kindModifiers = typeConverters.CompletionKind.parseKindModifier(entry.kindModifiers);
-
-                const item: vscode.CompletionItem = {
-                    label: entry.name || (entry.insertText ?? ''),
-                    kind: typeConverters.CompletionKind.fromKind(entry.kind),                    
-                    detail: typeConverters.CompletionKind.getDetails(entry),                                        
-                    sortText: entry.sortText,
-                    insertText: entry.insertText,
-                    insertTextFormat: entry.isSnippet ? vscode.InsertTextFormat.Snippet : vscode.InsertTextFormat.PlainText,
-                };
-                
-                if (kindModifiers.has(KindModifiers.deprecated)) {
-                    item.tags = [vscode.CompletionItemTag.Deprecated];
+            try {
+                const result = session.getCompletions(args, protocol.CommandTypes.CompletionInfo) as protocol.CompletionInfo;
+                if (!result) {
+                    return [];
                 }
 
-                items.push(item);
-            }
+                const items: vscode.CompletionItem[] = [];  
+                for (const entry of result.entries) {                
+                    const kindModifiers = typeConverters.CompletionKind.parseKindModifier(entry.kindModifiers);
 
-            return items;
+                    const item: vscode.CompletionItem = {
+                        label: entry.name || (entry.insertText ?? ''),
+                        kind: typeConverters.CompletionKind.fromKind(entry.kind),                    
+                        detail: typeConverters.CompletionKind.getDetails(entry),                                        
+                        sortText: entry.sortText,
+                        insertText: entry.insertText,
+                        insertTextFormat: entry.isSnippet ? vscode.InsertTextFormat.Snippet : vscode.InsertTextFormat.PlainText,
+                    };
+                    
+                    if (kindModifiers.has(KindModifiers.deprecated)) {
+                        item.tags = [vscode.CompletionItemTag.Deprecated];
+                    }
+
+                    items.push(item);
+                }
+
+                return items;
+            } catch(e) {
+                console.error(e);
+                debugger;
+            }
         });
 
         // find the lpc-config.json file

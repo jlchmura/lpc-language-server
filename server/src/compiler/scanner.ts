@@ -3124,7 +3124,8 @@ export function createScanner(
         tokenStart = position;
         token = SyntaxKind.Unknown;
         tokenValue = undefined!;
-        tokenFlags = TokenFlags.None;
+        tokenFlags = TokenFlags.None;        
+        stateEndings[stateId] = { end: position, fileName };        
     }
 
     function setSkipJsDocLeadingAsterisks(skip: boolean) {
