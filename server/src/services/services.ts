@@ -187,6 +187,9 @@ import {
     isTransientSymbol,
     lineBreakPart,
     hasTabstop,
+    isComputedPropertyName,
+    isPropertyAccessExpression,
+    isPropertyName,
 } from "./_namespaces/lpc.js";
 
 
@@ -698,19 +701,8 @@ class SourceFileObject
 
         function getDeclarationName(declaration: Declaration) {
             const name = getNonAssignedNameOfDeclaration(declaration);
-            return isPropertyNameLiteral(name)
-                ? getNameFromPropertyName(name)
-                : undefined;
-            // TODO
-            // return (
-            //     name &&
-            //     (isComputedPropertyName(name) &&
-            //     isPropertyAccessExpression(name.expression)
-            //         ? name.expression.name.text
-            //         : isPropertyName(name)
-            //         ? getNameFromPropertyName(name)
-            //         : undefined)
-            // );
+            return name && (isComputedPropertyName(name) && isPropertyAccessExpression(name.expression) ? name.expression.name.text
+                : isPropertyName(name) ? getNameFromPropertyName(name) : undefined);            
         }
 
         function visit(node: Node): void {
@@ -1445,7 +1437,7 @@ export function createLanguageService(
 
     function getSuggestionDiagnostics(fileName: string): DiagnosticWithLocation[] {
         synchronizeHostData();
-        // TODO
+        console.debug("todo - getSuggestionDiagnostics");
         //return computeSuggestionDiagnostics(getValidSourceFile(fileName), program, cancellationToken);
         return emptyArray;
     }

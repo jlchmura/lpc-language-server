@@ -198,6 +198,22 @@ import {
     isPrivateIdentifier,
     idText,
     isCallExpression,
+    isModifier,
+    canHaveModifiers,
+    isArrayTypeNode,
+    isBinaryExpression,
+    isClassDeclaration,
+    isClassExpression,
+    isFunctionDeclaration,
+    isTypeAliasDeclaration,
+    isTypeReferenceNode,
+    isVariableDeclarationList,
+    isVoidExpression,
+    ClassDeclaration,
+    ClassExpression,
+    FunctionDeclaration,
+    FunctionExpression,
+    isNamedDeclaration,
 } from "./_namespaces/lpc.js";
 
 // Matches the beginning of a triple slash directive
@@ -614,33 +630,33 @@ export function getAdjustedReferenceLocation(node: Node): Node {
 }
 
 function getAdjustedLocation(node: Node, forRename: boolean): Node {
-    const { parent } = node;
-    console.warn("TODO - getAdjustedLocation");
+    const { parent } = node;    
     // /**/<modifier> [|name|] ...
     // /**/<modifier> <class|interface|type|enum|module|namespace|function|get|set> [|name|] ...
     // /**/<class|interface|type|enum|module|namespace|function|get|set> [|name|] ...
     // /**/import [|name|] = ...
-    //
+    
     // NOTE: If the node is a modifier, we don't adjust its location if it is the `default` modifier as that is handled
     // specially by `getSymbolAtLocation`.
-    // if (
-    //     isModifier(node) && (forRename || node.kind !== SyntaxKind.DefaultKeyword) ? canHaveModifiers(parent) && contains(parent.modifiers, node) :
-    //         node.kind === SyntaxKind.ClassKeyword ? isClassDeclaration(parent) || isClassExpression(node) :
-    //         node.kind === SyntaxKind.FunctionKeyword ? isFunctionDeclaration(parent) || isFunctionExpression(node) :
-    //         node.kind === SyntaxKind.InterfaceKeyword ? isInterfaceDeclaration(parent) :
-    //         node.kind === SyntaxKind.EnumKeyword ? isEnumDeclaration(parent) :
-    //         node.kind === SyntaxKind.TypeKeyword ? isTypeAliasDeclaration(parent) :
-    //         node.kind === SyntaxKind.NamespaceKeyword || node.kind === SyntaxKind.ModuleKeyword ? isModuleDeclaration(parent) :
-    //         node.kind === SyntaxKind.ImportKeyword ? isImportEqualsDeclaration(parent) :
-    //         node.kind === SyntaxKind.GetKeyword ? isGetAccessorDeclaration(parent) :
-    //         node.kind === SyntaxKind.SetKeyword && isSetAccessorDeclaration(parent)
-    // ) {
-    //     const location = getAdjustedLocationForDeclaration(parent, forRename);
-    //     if (location) {
-    //         return location;
-    //     }
-    // }
-    // // /**/<var|let|const> [|name|] ...
+    if (
+        isModifier(node) && (forRename) ? canHaveModifiers(parent) && contains(parent.modifiers, node) :
+            node.kind === SyntaxKind.ClassKeyword ? isClassDeclaration(parent) || isClassExpression(node) :
+            node.kind === SyntaxKind.FunctionKeyword ? isFunctionDeclaration(parent) || isFunctionExpression(node) : 
+            undefined
+            // node.kind === SyntaxKind.InterfaceKeyword ? isInterfaceDeclaration(parent) :
+            // node.kind === SyntaxKind.EnumKeyword ? isEnumDeclaration(parent) :
+            // node.kind === SyntaxKind.TypeKeyword ? isTypeAliasDeclaration(parent) :
+            // node.kind === SyntaxKind.NamespaceKeyword || node.kind === SyntaxKind.ModuleKeyword ? isModuleDeclaration(parent) :
+            // node.kind === SyntaxKind.ImportKeyword ? isImportEqualsDeclaration(parent) :
+            // node.kind === SyntaxKind.GetKeyword ? isGetAccessorDeclaration(parent) :
+            // node.kind === SyntaxKind.SetKeyword && isSetAccessorDeclaration(parent)
+    ) {
+        const location = getAdjustedLocationForDeclaration(parent, forRename);
+        if (location) {
+            return location;
+        }
+    }
+    // /**/<var|let|const> [|name|] ...
     // if (
     //     (node.kind === SyntaxKind.VarKeyword || node.kind === SyntaxKind.ConstKeyword || node.kind === SyntaxKind.LetKeyword) &&
     //     isVariableDeclarationList(parent) && parent.declarations.length === 1
@@ -752,11 +768,11 @@ function getAdjustedLocation(node: Node, forRename: boolean): Node {
     // if (node.kind === SyntaxKind.InferKeyword && isInferTypeNode(parent)) {
     //     return parent.typeParameter.name;
     // }
-    // // { [ [|K|] /**/in keyof T]: ... }
+    // { [ [|K|] /**/in keyof T]: ... }
     // if (node.kind === SyntaxKind.InKeyword && isTypeParameterDeclaration(parent) && isMappedTypeNode(parent.parent)) {
     //     return parent.name;
     // }
-    // // /**/keyof [|T|]
+    // /**/keyof [|T|]
     // if (
     //     node.kind === SyntaxKind.KeyOfKeyword && isTypeOperatorNode(parent) && parent.operator === SyntaxKind.KeyOfKeyword &&
     //     isTypeReferenceNode(parent.type)
@@ -770,47 +786,47 @@ function getAdjustedLocation(node: Node, forRename: boolean): Node {
     // ) {
     //     return parent.type.elementType.typeName;
     // }
-    // if (!forRename) {
-    //     // /**/new [|name|]
-    //     // /**/void [|name|]
-    //     // /**/void obj.[|name|]
-    //     // /**/typeof [|name|]
-    //     // /**/typeof obj.[|name|]
-    //     // /**/await [|name|]
-    //     // /**/await obj.[|name|]
-    //     // /**/yield [|name|]
-    //     // /**/yield obj.[|name|]
-    //     // /**/delete obj.[|name|]
-    //     if (
-    //         node.kind === SyntaxKind.NewKeyword && isNewExpression(parent) ||
-    //         node.kind === SyntaxKind.VoidKeyword && isVoidExpression(parent) ||
-    //         node.kind === SyntaxKind.TypeOfKeyword && isTypeOfExpression(parent) ||
-    //         node.kind === SyntaxKind.AwaitKeyword && isAwaitExpression(parent) ||
-    //         node.kind === SyntaxKind.YieldKeyword && isYieldExpression(parent) ||
-    //         node.kind === SyntaxKind.DeleteKeyword && isDeleteExpression(parent)
-    //     ) {
-    //         if (parent.expression) {
-    //             return skipOuterExpressions(parent.expression);
-    //         }
-    //     }
-    //     // left /**/in [|name|]
-    //     // left /**/instanceof [|name|]
-    //     if ((node.kind === SyntaxKind.InKeyword || node.kind === SyntaxKind.InstanceOfKeyword) && isBinaryExpression(parent) && parent.operatorToken === node) {
-    //         return skipOuterExpressions(parent.right);
-    //     }
-    //     // left /**/as [|name|]
-    //     if (node.kind === SyntaxKind.AsKeyword && isAsExpression(parent) && isTypeReferenceNode(parent.type)) {
-    //         return parent.type.typeName;
-    //     }
-    //     // for (... /**/in [|name|])
-    //     // for (... /**/of [|name|])
-    //     if (
-    //         node.kind === SyntaxKind.InKeyword && isForInStatement(parent) ||
-    //         node.kind === SyntaxKind.OfKeyword && isForOfStatement(parent)
-    //     ) {
-    //         return skipOuterExpressions(parent.expression);
-    //     }
-    // }
+    if (!forRename) {
+        // /**/new [|name|]
+        // /**/void [|name|]
+        // /**/void obj.[|name|]
+        // /**/typeof [|name|]
+        // /**/typeof obj.[|name|]
+        // /**/await [|name|]
+        // /**/await obj.[|name|]
+        // /**/yield [|name|]
+        // /**/yield obj.[|name|]
+        // /**/delete obj.[|name|]
+        if (
+            node.kind === SyntaxKind.NewKeyword && isNewExpression(parent) 
+            // node.kind === SyntaxKind.VoidKeyword && isVoidExpression(parent)
+            // node.kind === SyntaxKind.TypeOfKeyword && isTypeOfExpression(parent) ||
+            // node.kind === SyntaxKind.AwaitKeyword && isAwaitExpression(parent) ||
+            // node.kind === SyntaxKind.YieldKeyword && isYieldExpression(parent) ||
+            // node.kind === SyntaxKind.DeleteKeyword && isDeleteExpression(parent)
+        ) {
+            if (parent.expression) {
+                return skipOuterExpressions(parent.expression);
+            }
+        }
+        // left /**/in [|name|]
+        // left /**/instanceof [|name|]
+        if ((node.kind === SyntaxKind.InKeyword) && isBinaryExpression(parent) && parent.operatorToken === node) {
+            return skipOuterExpressions(parent.right);
+        }
+        // left /**/as [|name|]
+        // if (node.kind === SyntaxKind.AsKeyword && isAsExpression(parent) && isTypeReferenceNode(parent.type)) {
+        //     return parent.type.typeName;
+        // }
+        // for (... /**/in [|name|])
+        // for (... /**/of [|name|])
+        // if (
+        //     node.kind === SyntaxKind.InKeyword && isForInStatement(parent) ||
+        //     node.kind === SyntaxKind.OfKeyword && isForOfStatement(parent)
+        // ) {
+        //     return skipOuterExpressions(parent.expression);
+        // }
+    }
     return node;
 }
 
@@ -2707,3 +2723,62 @@ export function isCallExpressionTarget(node: Node, includeElementAccess = false,
     return isCalleeWorker(node, isCallExpression, selectExpressionOfCallOrNewExpressionOrDecorator, includeElementAccess, skipPastOuterExpressions);
 }
 
+function getAdjustedLocationForDeclaration(node: Node, forRename: boolean) {
+    if (!forRename) {
+        switch (node.kind) {
+            case SyntaxKind.ClassDeclaration:
+            case SyntaxKind.ClassExpression:
+                return getAdjustedLocationForClass(node as ClassDeclaration | ClassExpression);
+            case SyntaxKind.FunctionDeclaration:
+            case SyntaxKind.FunctionExpression:
+                return getAdjustedLocationForFunction(node as FunctionDeclaration | FunctionExpression);
+            // case SyntaxKind.Constructor:
+            //     return node;
+        }
+    }
+    if (isNamedDeclaration(node)) {
+        return node.name;
+    }
+}
+
+function getAdjustedLocationForClass(node: ClassDeclaration | ClassExpression) {
+    if (isNamedDeclaration(node)) {
+        return node.name;
+    }
+    if (isClassDeclaration(node)) {
+        // for class and function declarations, use the `default` modifier
+        // when the declaration is unnamed.
+        // const defaultModifier = node.modifiers && find(node.modifiers, isDefaultModifier);
+        // if (defaultModifier) return defaultModifier;
+    }
+    if (isClassExpression(node)) {
+        // for class expressions, use the `class` keyword when the class is unnamed
+        const classKeyword = find(node.getChildren(), isClassKeyword);
+        if (classKeyword) return classKeyword;
+    }
+}
+
+function getAdjustedLocationForFunction(node: FunctionDeclaration | FunctionExpression) {
+    if (isNamedDeclaration(node)) {
+        return node.name;
+    }
+    if (isFunctionDeclaration(node)) {
+        // for class and function declarations, use the `default` modifier
+        // when the declaration is unnamed.
+        // const defaultModifier = find(node.modifiers, isDefaultModifier);
+        // if (defaultModifier) return defaultModifier;
+    }
+    if (isFunctionExpression(node)) {
+        // for function expressions, use the `function` keyword when the function is unnamed
+        const functionKeyword = find(node.getChildren(), isFunctionKeyword);
+        if (functionKeyword) return functionKeyword;
+    }
+}
+
+function isFunctionKeyword(node: Node) {
+    return node.kind === SyntaxKind.FunctionKeyword;
+}
+
+function isClassKeyword(node: Node) {
+    return node.kind === SyntaxKind.ClassKeyword;
+}

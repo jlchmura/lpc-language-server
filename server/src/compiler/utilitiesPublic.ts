@@ -1246,3 +1246,4 @@ export function getJSDocTypeTag(node: Node): JSDocTypeTag | undefined {
 export function getJSDocThisTag(node: Node): JSDocThisTag | undefined {
     return getFirstJSDocTag(node, isJSDocThisTag);
 }
+
