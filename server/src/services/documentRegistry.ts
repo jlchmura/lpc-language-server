@@ -603,7 +603,7 @@ export function createDocumentRegistryInternal(
         path: Path,
         key: DocumentRegistryBucketKey,
         scriptKind?: ScriptKind,
-        impliedNodeFormat?: ResolutionMode
+        impliedNodeFormat: ResolutionMode = ModuleKind.LPC
     ): void {
         const bucket = Debug.checkDefined(
             buckets.get(
