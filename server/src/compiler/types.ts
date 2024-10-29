@@ -1616,8 +1616,7 @@ export interface CompilerOptions {
     noUnusedLocals?: boolean;
     noUnusedParameters?: boolean;
     noImplicitReturns?: boolean;
-    newLine?: NewLineKind;
-    config?: ILpcConfig;
+    newLine?: NewLineKind;    
     configFile?: LpcConfigSourceFile; 
     sefunFile?: string;
     forceConsistentCasingInFileNames?: boolean;
@@ -1646,6 +1645,7 @@ export interface CompilerOptions {
     target?: ScriptTarget;
     exactOptionalPropertyTypes?: boolean;
     diagnostics?: boolean;
+    libIncludeDirs?: string[];
 }
 
 export const enum OuterExpressionKinds {

@@ -1589,7 +1589,7 @@ export function createCompilerHostWorker(
         fileExists: fileName => system.fileExists(fileName),
         readFile: fileName => system.readFile(fileName),
         getCurrentDirectory: () => system.getCurrentDirectory(),
-        getIncludeDirs: () => options.config.include,
+        getIncludeDirs: () => options.libIncludeDirs || [],
     });
     const newLine = getNewLineCharacter(options);
     const realpath = system.realpath && ((path: string) => system.realpath!(path));    

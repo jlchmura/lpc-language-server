@@ -1258,7 +1258,9 @@ const NoopCancellationToken: CancellationToken = {
 
 export function getDefaultCompilerOptions(): CompilerOptions {
     // Always default to "ScriptTarget.ES5" for the language service
-    return {config:ensureLpcConfig()};
+    return {
+        libIncludeDirs: ["/sys", "/include"],
+    };
 }
 
 export function createLanguageService(

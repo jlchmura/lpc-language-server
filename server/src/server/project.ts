@@ -139,8 +139,7 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
     /** @internal */
     triggerFileForConfigFileDiag?: NormalizedPath;
 
-    fileHandler: lpc.LpcFileHandler;
-    lpcConfig: ILpcConfig;
+    fileHandler: lpc.LpcFileHandler;    
 
     constructor(
         projectName: string,
@@ -169,8 +168,7 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
             /*logChangesWhenResolvingModule*/ true,
         );
         
-        const fileHandler = this.fileHandler = createLpcFileHandler(this);        
-        this.lpcConfig = this.getCompilerOptions().config;        
+        const fileHandler = this.fileHandler = createLpcFileHandler(this);                
         this.languageService = createLanguageService(this, fileHandler, this.documentRegistry, this.projectService.serverMode);
         // if (lastFileExceededProgramSize) {
         //     this.disableLanguageService(lastFileExceededProgramSize);
@@ -197,7 +195,7 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
     }
 
     getIncludeDirs(): string[] {
-        return this.lpcConfig?.include || [];        
+        return this.compilerOptions.libIncludeDirs || [];
     }
 
     /** @internal */

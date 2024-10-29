@@ -248,6 +248,7 @@ function parseLpcConfigFileContentWorker(
             options.driverType = LanguageVariant.LDMud;
             break
     }
+    options.diagnostics = raw?.diagnostics === "on" || raw?.diagnostics === true;
     
     const sefunFilePath = trimStart(options.sefunFile ?? raw?.files?.simul_efun ?? "/obj/sefun.c", "/");
     options.sefunFile = normalizePath(combinePaths(basePathForFileNames, sefunFilePath));

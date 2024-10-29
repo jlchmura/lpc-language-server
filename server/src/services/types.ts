@@ -525,8 +525,7 @@ export interface LanguageServiceHost
     trace?(s: string): void;
     error?(s: string): void;
     useCaseSensitiveFileNames?(): boolean;
-    fileHandler: LpcFileHandler;
-    lpcConfig: ILpcConfig;
+    fileHandler: LpcFileHandler;    
             
     /*
      * LS host can optionally implement these methods to support completions for module specifiers.
