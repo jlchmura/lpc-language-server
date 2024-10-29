@@ -261,8 +261,9 @@ export function start(connection: Connection, platform: string) {
                 }
 
                 return result;
-            } catch(e) {
+            } catch(e) {                
                 console.error(e);
+                debugger;
             }
         });
 

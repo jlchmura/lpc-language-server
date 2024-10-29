@@ -10988,7 +10988,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
         checkDeprecatedSignature(signature, node);
 
-        if (node.expression.kind === SyntaxKind.SuperKeyword) {
+        if (isCallExpression(node) && node.expression.kind === SyntaxKind.SuperKeyword) {
             return voidType;
         }
 
@@ -21641,11 +21641,15 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         if (node.initializer) {
             return getTypeOfInitializer(node.initializer);
         }        
-        if (node.parent.parent.kind === SyntaxKind.ForEachStatement) {
-            Debug.fail("implement me");
-            //return checkRightHandSideOfForOf(node.parent.parent) || errorType;
+        if (node.parent.parent.kind === SyntaxKind.ForEachStatement) {            
+            return checkRightHandSideOfForEach(node.parent.parent) || errorType;
         }
         return errorType;
+    }
+
+    function checkRightHandSideOfForEach(statement: ForEachStatement): Type {
+        const use = /*statement.awaitModifier ? IterationUse.ForAwaitOf : */IterationUse.ForOf;
+        return checkIteratedTypeOrElementType(use, checkNonNullExpression(statement.expression), undefinedType, statement.expression);
     }
 
     function includeUndefinedInIndexSignature(type: Type | undefined): Type | undefined {
@@ -26162,9 +26166,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         switch (node.kind as SyntaxKind) {
             case SyntaxKind.CallExpression:
                 return resolveCallExpression(node as CallExpression, candidatesOutArray, checkMode);
-            case SyntaxKind.NewExpression:
-                throw "not implemented";
-                //return resolveNewExpression(node, candidatesOutArray, checkMode);            
+            case SyntaxKind.NewExpression:                
+                return resolveNewExpression(node as NewExpression, candidatesOutArray, checkMode);            
             case SyntaxKind.BinaryExpression:
                 Debug.fail("implement me");
                 //return resolveInstanceofExpression(node, candidatesOutArray, checkMode);
@@ -26172,6 +26175,83 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         Debug.assertNever(node as never, "Branch in 'resolveSignature' should be unreachable.");
     }
 
+    function resolveNewExpression(node: NewExpression, candidatesOutArray: Signature[] | undefined, checkMode: CheckMode): Signature {
+        let expressionType = node.expression && isExpression(node.expression) ? checkNonNullExpression(node.expression) : anyType;
+        if (expressionType === silentNeverType) {
+            return silentNeverSignature;
+        }
+
+        // If expressionType's apparent type(section 3.8.1) is an object type with one or
+        // more construct signatures, the expression is processed in the same manner as a
+        // function call, but using the construct signatures as the initial set of candidate
+        // signatures for overload resolution. The result type of the function call becomes
+        // the result type of the operation.
+        expressionType = getApparentType(expressionType);
+        if (isErrorType(expressionType)) {
+            // Another error has already been reported
+            return resolveErrorCall(node);
+        }
+
+        // TS 1.0 spec: 4.11
+        // If expressionType is of type Any, Args can be any argument
+        // list and the result of the operation is of type Any.
+        if (isTypeAny(expressionType)) {
+            if (node.typeArguments) {
+                error(node, Diagnostics.Untyped_function_calls_may_not_accept_type_arguments);
+            }
+            return resolveUntypedCall(node);
+        }
+
+        console.debug("TODO - implement me - resolveNewExpression");
+
+        // // Technically, this signatures list may be incomplete. We are taking the apparent type,
+        // // but we are not including construct signatures that may have been added to the Object or
+        // // Function interface, since they have none by default. This is a bit of a leap of faith
+        // // that the user will not add any.
+        // const constructSignatures = getSignaturesOfType(expressionType, SignatureKind.Construct);
+        // if (constructSignatures.length) {
+        //     if (!isConstructorAccessible(node, constructSignatures[0])) {
+        //         return resolveErrorCall(node);
+        //     }
+        //     // If the expression is a class of abstract type, or an abstract construct signature,
+        //     // then it cannot be instantiated.
+        //     // In the case of a merged class-module or class-interface declaration,
+        //     // only the class declaration node will have the Abstract flag set.
+        //     if (someSignature(constructSignatures, signature => !!(signature.flags & SignatureFlags.Abstract))) {
+        //         error(node, Diagnostics.Cannot_create_an_instance_of_an_abstract_class);
+        //         return resolveErrorCall(node);
+        //     }
+        //     const valueDecl = expressionType.symbol && getClassLikeDeclarationOfSymbol(expressionType.symbol);
+        //     if (valueDecl && hasSyntacticModifier(valueDecl, ModifierFlags.Abstract)) {
+        //         error(node, Diagnostics.Cannot_create_an_instance_of_an_abstract_class);
+        //         return resolveErrorCall(node);
+        //     }
+
+        //     return resolveCall(node, constructSignatures, candidatesOutArray, checkMode, SignatureFlags.None);
+        // }
+
+        // // If expressionType's apparent type is an object type with no construct signatures but
+        // // one or more call signatures, the expression is processed as a function call. A compile-time
+        // // error occurs if the result of the function call is not Void. The type of the result of the
+        // // operation is Any. It is an error to have a Void this type.
+        // const callSignatures = getSignaturesOfType(expressionType, SignatureKind.Call);
+        // if (callSignatures.length) {
+        //     const signature = resolveCall(node, callSignatures, candidatesOutArray, checkMode, SignatureFlags.None);
+        //     if (!noImplicitAny) {
+        //         if (signature.declaration && !isJSConstructor(signature.declaration) && getReturnTypeOfSignature(signature) !== voidType) {
+        //             error(node, Diagnostics.Only_a_void_function_can_be_called_with_the_new_keyword);
+        //         }
+        //         if (getThisTypeOfSignature(signature) === voidType) {
+        //             error(node, Diagnostics.A_function_that_is_called_with_the_new_keyword_cannot_have_a_this_type_that_is_void);
+        //         }
+        //     }
+        //     return signature;
+        // }
+
+        // invocationError(node.expression, expressionType, SignatureKind.Construct);
+        // return resolveErrorCall(node);
+    }
+    
     function getShorthandAssignmentValueSymbol(location: Node | undefined): Symbol | undefined {
         if (location && location.kind === SyntaxKind.ShorthandPropertyAssignment) {
             return resolveEntityName((location as ShorthandPropertyAssignment).name, SymbolFlags.Value | SymbolFlags.Alias);

@@ -1255,7 +1255,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         const node = createBaseDeclaration<CallExpression>(SyntaxKind.CallExpression);
         node.expression = expression;                
         node.arguments = argumentsArray;
-        
+
         // node.transformFlags |= propagateChildFlags(node.expression) |
         //     propagateChildFlags(node.questionDotToken) |
         //     propagateChildrenFlags(node.typeArguments) |

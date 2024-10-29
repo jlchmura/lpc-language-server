@@ -623,7 +623,7 @@ class SourceFileObject
         newText: string,
         textChangeRange: TextChangeRange
     ): SourceFile {
-        throw "Not implemneted";
+        Debug.fail("not implemented");
         //return updateSourceFile(this, newText, textChangeRange);
     }
 

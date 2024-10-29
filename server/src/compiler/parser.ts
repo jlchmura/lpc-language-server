@@ -4036,7 +4036,7 @@ export namespace LpcParser {
         if ((token() === SyntaxKind.PlusPlusToken || token() === SyntaxKind.MinusMinusToken) && !scanner.hasPrecedingLineBreak()) {
             const operator = token() as PostfixUnaryOperator;
             nextToken();
-            Debug.assert(exprPos.pos == expression.pos, "expression and expression position should be the same");
+            // Debug.assert(exprPos.pos == expression.pos, "expression and expression position should be the same");
             return finishNode(factory.createPostfixUnaryExpression(expression, operator), exprPos);
         }
 
@@ -4102,7 +4102,7 @@ export namespace LpcParser {
             // }
         
         // potentially parse super w/o a prefix (i.e. ::fn() )
-        expression = (token() == SyntaxKind.ColonColonToken)  ? parseSuperExpression() : parseMemberExpressionOrHigher();//token() === SyntaxKind.SuperKeyword ? parseSuperExpression() : parseMemberExpressionOrHigher();
+        expression = (token() == SyntaxKind.ColonColonToken)  ? parseSuperExpression(pos) : parseMemberExpressionOrHigher();//token() === SyntaxKind.SuperKeyword ? parseSuperExpression() : parseMemberExpressionOrHigher();
         
         // Now, we *may* be complete.  However, we might have consumed the start of a
         // CallExpression or OptionalExpression.  As such, we need to consume the rest
@@ -4112,7 +4112,7 @@ export namespace LpcParser {
 
     function parseCallExpressionRest(pos: PositionState, expression: LeftHandSideExpression): LeftHandSideExpression {
         while (true) {
-            expression = parseMemberExpressionRest(pos, expression, /*allowOptionalChain*/ true);                        
+            expression = parseMemberExpressionRest(pos, expression, /*allowOptionalChain*/ true);                                    
             if (token() === SyntaxKind.OpenParenToken) {
                 // Absorb type arguments into CallExpression when preceding expression is ExpressionWithTypeArguments                
                 const argumentList = parseArgumentList();
@@ -4151,8 +4151,7 @@ export namespace LpcParser {
         return withJSDoc(finishNode(node, pos), hasJSDoc);
     }
 
-    function parseSuperExpression(left?: Expression): MemberExpression {
-        const pos = getPositionState();
+    function parseSuperExpression(pos: PositionState, left?: Expression): MemberExpression {
         const hasJSDoc = hasPrecedingJSDocComment();
 
         parseExpectedToken(SyntaxKind.ColonColonToken);
@@ -4226,12 +4225,12 @@ export namespace LpcParser {
     }
 
     function parseMemberExpressionRest(pos: PositionState, expression: LeftHandSideExpression, allowOptionalChain: boolean): MemberExpression {
-        while (true) {            
+        while (true) {   
             let isPropertyAccess = false;
             let propertyAccessToken: Token<SyntaxKind.DotToken | SyntaxKind.MinusGreaterThanToken> | undefined;            
 
             if (token() == SyntaxKind.ColonColonToken) {
-                expression = parseSuperExpression(expression)
+                expression = parseSuperExpression(pos, expression)
             }
 
             if (token() == SyntaxKind.DotToken || token() == SyntaxKind.MinusGreaterThanToken) {
@@ -4355,10 +4354,11 @@ export namespace LpcParser {
         
         let node: LambdaExpression;        
         if (token()==SyntaxKind.Identifier) {
+            const idPos = getPositionState();
             let name: Expression = parseIdentifier();
             
             if (token() == SyntaxKind.ColonColonToken) {
-                name = parseSuperExpression(name);
+                name = parseSuperExpression(idPos, name);
             }
 
             node = factory.createLambdaIdentifierExpression(name);
