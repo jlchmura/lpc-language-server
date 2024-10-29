@@ -2523,8 +2523,6 @@ export function createScanner(
                         return token = scanDirective(charCodeUnchecked(pos), languageVersion);
                     }
 
-                    console.warn("todo - scan #include here");
-
                     const charAfterHash = codePointUnchecked(pos + 1);
                     if (charAfterHash === CharacterCodes.backslash) {
                         pos++;

@@ -726,8 +726,7 @@ export const enum SyntaxKind {
     IsKeyword,
     ClosureKeyword,
     StructKeyword,
-    CatchKeyword,
-    ObjectKeyword,
+    CatchKeyword,    
     MixedKeyword,
     UnknownKeyword,    
     InKeyword,
@@ -770,6 +769,7 @@ export const enum SyntaxKind {
     ClassKeyword,
     StatusKeyword,
     SymbolKeyword, // not reserved in fluffos
+    ObjectKeyword, // can occur in a upser expr i.e.  object::fn()
     NewKeyword,
 
     // Parse Tree Nodes

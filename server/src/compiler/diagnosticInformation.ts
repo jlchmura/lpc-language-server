@@ -17,6 +17,7 @@ export const Diagnostics = {
     Pragma_directive_requires_at_least_one_argument: diag(9009, DiagnosticCategory.Error, "Pragma_directive_requires_at_least_one_argument_9009", "#pragma directive requires at least one argument."),
     Unexpected_endIf_directive: diag(9010, DiagnosticCategory.Error, "Unexpected_endIf_directive_9010", "Unexpected #endIf directive."),
     Catch_expression_modifier_expected: diag(9011, DiagnosticCategory.Error, "Catch_expression_modifier_expected_9011", "Catch expression modifier expected."),
+    Unterminated_macro_arguments_list: diag(9012, DiagnosticCategory.Error, "Unterminated_macro_arguments_list_9012", "Unterminated macro arguments list."),
 
     // Scanner
     _0_expected: diag(1005, DiagnosticCategory.Error, "_0_expected_1005", "'{0}' expected."),    

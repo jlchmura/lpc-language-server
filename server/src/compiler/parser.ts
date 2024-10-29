@@ -446,6 +446,12 @@ export namespace LpcParser {
         while (parenCount > 0) {
             const kind = nextToken();
             switch (kind) {
+                case SyntaxKind.EndOfFileToken:
+                    if (parenCount > 0) {
+                        parseErrorAtPosition(pos, scanner.getTokenEnd() - pos, Diagnostics.Unterminated_macro_arguments_list);
+                    }
+                    parenCount=0;
+                    break;
                 case SyntaxKind.OpenParenToken:
                     parenCount++;
                     paramText += scanner.getTokenText();
@@ -951,6 +957,9 @@ export namespace LpcParser {
                 return parseErrorAtCurrentToken(Diagnostics.Property_assignment_expected);
             case ParsingContext.ArrayLiteralMembers:
                 return parseErrorAtCurrentToken(Diagnostics.Expression_or_comma_expected);
+            case ParsingContext.MappingLiteralMembers:
+            case ParsingContext.MappingEntryMembers:
+                return parseErrorAtCurrentToken(Diagnostics.Expression_or_comma_expected);
             case ParsingContext.JSDocParameters:
                 return parseErrorAtCurrentToken(Diagnostics.Parameter_declaration_expected);
             case ParsingContext.Parameters:
@@ -1230,8 +1239,7 @@ export namespace LpcParser {
                 case SyntaxKind.FloatKeyword:
                 case SyntaxKind.StringKeyword:
                 case SyntaxKind.MixedKeyword:
-                case SyntaxKind.VoidKeyword:
-                case SyntaxKind.ObjectKeyword:
+                case SyntaxKind.VoidKeyword:                
                 case SyntaxKind.MappingKeyword:     
                 case SyntaxKind.LessThanToken: // start of array union type                               
                     return true;        
@@ -1246,7 +1254,9 @@ export namespace LpcParser {
                     // //     // report Line_break_not_permitted_here if needed.
                     // //     return true;
                     // // }
-                    // continue;                
+                    // continue;        
+                case SyntaxKind.ObjectKeyword:
+                    return lookAhead(()=>nextToken() !== SyntaxKind.ColonColonToken);        
                 case SyntaxKind.StatusKeyword:
                 case SyntaxKind.SymbolKeyword:
                     return languageVariant === LanguageVariant.LDMud;
@@ -4614,7 +4624,7 @@ export namespace LpcParser {
         }
 
         // parse a variable declaration as an exression
-        if (isTypeName()) {
+        if (isTypeName() && lookAhead(() => nextToken() !== SyntaxKind.ColonColonToken)) {
             const varType = parseType();
             return parseVariableDeclaration(varType);
         }
