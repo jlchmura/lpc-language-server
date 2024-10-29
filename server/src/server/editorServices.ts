@@ -850,9 +850,9 @@ export class ProjectService {
 
         this.logger.startGroup();
 
-        //this.externalProjects.forEach(printProjectWithoutFileNames);
+        // this.externalProjects.forEach(printProjectWithoutFileNames);
         this.configuredProjects.forEach(printProjectWithoutFileNames);
-        //this.inferredProjects.forEach(printProjectWithoutFileNames);
+        this.inferredProjects.forEach(printProjectWithoutFileNames);
 
         this.logger.info("Open files: ");
         this.openFiles.forEach((projectRootPath, path) => {
@@ -2080,23 +2080,129 @@ export class ProjectService {
         return project;
     }
 
-    private createConfigFileWatcherForParsedConfig(configFileName: NormalizedPath, canonicalConfigFilePath: NormalizedPath, forProject: ConfiguredProject) {
-        console.debug("todo - implement me - createConfigFileWatcherForParsedConfig");
-        // const configFileExistenceInfo = this.configFileExistenceInfoCache.get(canonicalConfigFilePath)!;
-        // // When watching config file for parsed config, remove the noopFileWatcher that can be created for open files impacted by config file and watch for real
-        // if (!configFileExistenceInfo.watcher || configFileExistenceInfo.watcher === noopConfigFileWatcher) {
-        //     configFileExistenceInfo.watcher = this.watchFactory.watchFile(
-        //         configFileName,
-        //         (_fileName, eventKind) => this.onConfigFileChanged(configFileName, canonicalConfigFilePath, eventKind),
-        //         PollingInterval.High,
-        //         this.getWatchOptionsFromProjectWatchOptions(configFileExistenceInfo?.config?.parsedCommandLine?.watchOptions, getDirectoryPath(configFileName)),
-        //         WatchType.ConfigFile,
-        //         forProject,
-        //     );
-        // }
-        // // Watching config file for project, update the map
-        // const projects = configFileExistenceInfo.config!.projects;
-        // projects.set(forProject.canonicalConfigFilePath, projects.get(forProject.canonicalConfigFilePath) || false);
+    private createConfigFileWatcherForParsedConfig(configFileName: NormalizedPath, canonicalConfigFilePath: NormalizedPath, forProject: ConfiguredProject) {        
+        const configFileExistenceInfo = this.configFileExistenceInfoCache.get(canonicalConfigFilePath)!;
+        // When watching config file for parsed config, remove the noopFileWatcher that can be created for open files impacted by config file and watch for real
+        if (!configFileExistenceInfo.watcher || configFileExistenceInfo.watcher === noopConfigFileWatcher) {
+            configFileExistenceInfo.watcher = this.watchFactory.watchFile(
+                configFileName,
+                (_fileName, eventKind) => this.onConfigFileChanged(configFileName, canonicalConfigFilePath, eventKind),
+                PollingInterval.High,
+                this.getWatchOptionsFromProjectWatchOptions(configFileExistenceInfo?.config?.parsedCommandLine?.watchOptions, getDirectoryPath(configFileName)),
+                WatchType.ConfigFile,
+                forProject,
+            );
+        }
+        // Watching config file for project, update the map
+        const projects = configFileExistenceInfo.config!.projects;
+        projects.set(forProject.canonicalConfigFilePath, projects.get(forProject.canonicalConfigFilePath) || false);
+    }
+
+    /** @internal */
+    private onConfigFileChanged(configFileName: NormalizedPath, canonicalConfigFilePath: NormalizedPath, eventKind: FileWatcherEventKind) {
+        const configFileExistenceInfo = this.configFileExistenceInfoCache.get(canonicalConfigFilePath)!;
+        const project = this.getConfiguredProjectByCanonicalConfigFilePath(canonicalConfigFilePath);
+        const wasDefferedClose = project?.deferredClose;
+        if (eventKind === FileWatcherEventKind.Deleted) {
+            // Update the cached status
+            // We arent updating or removing the cached config file presence info as that will be taken care of by
+            // releaseParsedConfig when the project is closed or doesnt need this config any more (depending on tracking open files)
+            configFileExistenceInfo.exists = false;
+
+            // Deferred remove the configured project for this config file
+            if (project) project.deferredClose = true;
+        }
+        else {
+            // Update the cached status
+            configFileExistenceInfo.exists = true;
+            if (wasDefferedClose) {
+                project.deferredClose = undefined;
+                project.markAsDirty();
+            }
+        }
+
+        // Update projects watching config
+        this.delayUpdateProjectsFromParsedConfigOnConfigFileChange(
+            canonicalConfigFilePath,
+            "Change in config file detected",
+        );
+
+        const updatedProjects = new Set<ConfiguredProject>(project ? [project] : undefined);
+        this.openFiles.forEach((_projectRootPath, path) => {
+            const configFileForOpenFile = this.configFileForOpenFiles.get(path);
+
+            // If this open script info does not depend on this config file, skip
+            if (!configFileExistenceInfo.openFilesImpactedByConfigFile?.has(path)) return;
+            // Invalidate default config file name for open file
+            this.configFileForOpenFiles.delete(path);
+            const info = this.getScriptInfoForPath(path)!;
+
+            // Find new default config file name for this open file
+            const newConfigFileNameForInfo = this.getConfigFileNameForFile(info, /*findFromCacheOnly*/ false);
+            if (!newConfigFileNameForInfo) return;
+
+            // Create new project for this open file with delay load
+            const projectForInfo = this.findConfiguredProjectByProjectName(newConfigFileNameForInfo) ??
+                this.createConfiguredProject(
+                    newConfigFileNameForInfo,
+                    `Change in config file ${configFileName} detected, ${fileOpenReason(info)}`,
+                );
+
+            // Cache the existing config file info for this open file if not already done so
+            if (!this.pendingOpenFileProjectUpdates?.has(path)) {
+                (this.pendingOpenFileProjectUpdates ??= new Map()).set(path, configFileForOpenFile);
+            }
+
+            // If this was not already updated, and its new project, schedule for update
+            // Existing projects dont need to update if they were not using the changed config in any way
+            if (tryAddToSet(updatedProjects, projectForInfo) && projectForInfo.isInitialLoadPending()) {
+                this.delayUpdateProjectGraph(projectForInfo);
+            }
+        });
+
+        // Ensure that all the open files have project
+        this.delayEnsureProjectForOpenFiles();
+    }
+
+    /** @internal */
+    private delayUpdateProjectsFromParsedConfigOnConfigFileChange(canonicalConfigFilePath: NormalizedPath, loadReason: string) {
+        const configFileExistenceInfo = this.configFileExistenceInfoCache.get(canonicalConfigFilePath);
+        if (!configFileExistenceInfo?.config) return false;
+        let scheduledAnyProjectUpdate = false;
+        // Update projects watching cached config
+        configFileExistenceInfo.config.updateLevel = ProgramUpdateLevel.Full;
+
+        configFileExistenceInfo.config.projects.forEach((_watchWildcardDirectories, projectCanonicalPath) => {
+            const project = this.getConfiguredProjectByCanonicalConfigFilePath(projectCanonicalPath);
+            if (!project) return;
+
+            scheduledAnyProjectUpdate = true;
+            if (projectCanonicalPath === canonicalConfigFilePath) {
+                // Skip refresh if project is not yet loaded
+                if (project.isInitialLoadPending()) return;
+                project.pendingUpdateLevel = ProgramUpdateLevel.Full;
+                project.pendingUpdateReason = loadReason;
+                this.delayUpdateProjectGraph(project);
+                project.markAutoImportProviderAsDirty();
+            }
+            else {
+                // Change in referenced project config file
+                const path = this.toPath(canonicalConfigFilePath);
+                project.resolutionCache.removeResolutionsFromProjectReferenceRedirects(path);
+                this.delayUpdateProjectGraph(project);
+                if (
+                    this.getHostPreferences().includeCompletionsForModuleExports &&
+                    find(project.getCurrentProgram()?.getResolvedProjectReferences(), ref => ref?.sourceFile.path === path)
+                ) {
+                    project.markAutoImportProviderAsDirty();
+                }
+            }
+        });
+        return scheduledAnyProjectUpdate;
+    }
+
+    getHostPreferences(): UserPreferences {
+        return this.hostConfiguration.preferences;
     }
 
     /**

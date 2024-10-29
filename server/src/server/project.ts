@@ -249,6 +249,13 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
     }
     
     /** @internal */
+    markAutoImportProviderAsDirty() {
+        console.debug("todo - markAutoImportProviderAsDirty");
+        // if (!this.autoImportProviderHost) this.autoImportProviderHost = undefined;
+        // this.autoImportProviderHost?.markAsDirty();
+    }
+
+    /** @internal */
     watchTypeRootsDirectory(directory: string, cb: DirectoryWatcherCallback, flags: WatchDirectoryFlags) {
         return this.projectService.watchFactory.watchDirectory(
             directory,

@@ -20,6 +20,7 @@ export interface ResolutionCache {
     finishCachingPerDirectoryResolution(newProgram: Program | undefined, oldProgram: Program | undefined): void;
     finishRecordingFilesWithChangedResolutions(): Path[] | undefined;
     invalidateResolutionsOfFailedLookupLocations(): boolean;
+    removeResolutionsFromProjectReferenceRedirects(filePath: Path): void;
 }
 
 /** @internal */
@@ -152,7 +153,7 @@ export function createResolutionCache(resolutionHost: ResolutionCacheHost, rootD
         // resolveTypeReferenceDirectiveReferences,
         // resolveLibrary,
         // resolveSingleModuleNameWithoutWatching,
-        // removeResolutionsFromProjectReferenceRedirects,
+        removeResolutionsFromProjectReferenceRedirects,
         removeResolutionsOfFile,
         // hasChangedAutomaticTypeDirectiveNames: () => hasChangedAutomaticTypeDirectiveNames,
         invalidateResolutionOfFile,
@@ -964,19 +965,19 @@ export function createResolutionCache(resolutionHost: ResolutionCacheHost, rootD
         }
     }
 
-    // function removeResolutionsFromProjectReferenceRedirects(filePath: Path) {
-    //     if (!fileExtensionIs(filePath, Extension.Json)) return;
+    function removeResolutionsFromProjectReferenceRedirects(filePath: Path) {
+        if (!fileExtensionIs(filePath, Extension.Json)) return;
 
-    //     const program = resolutionHost.getCurrentProgram();
-    //     if (!program) return;
+        const program = resolutionHost.getCurrentProgram();
+        if (!program) return;
 
-    //     // If this file is input file for the referenced project, get it
-    //     const resolvedProjectReference = program.getResolvedProjectReferenceByPath(filePath);
-    //     if (!resolvedProjectReference) return;
+        // If this file is input file for the referenced project, get it
+        const resolvedProjectReference = program.getResolvedProjectReferenceByPath(filePath);
+        if (!resolvedProjectReference) return;
 
-    //     // filePath is for the projectReference and the containing file is from this project reference, invalidate the resolution
-    //     resolvedProjectReference.commandLine.fileNames.forEach(f => removeResolutionsOfFile(resolutionHost.toPath(f)));
-    // }
+        // filePath is for the projectReference and the containing file is from this project reference, invalidate the resolution
+        resolvedProjectReference.commandLine.fileNames.forEach(f => removeResolutionsOfFile(resolutionHost.toPath(f)));
+    }
 
     function removeResolutionsOfFile(filePath: Path, syncDirWatcherRemove?: boolean) {
         // removeResolutionsOfFileFromCache(resolvedModuleNames, filePath, getResolvedModule, syncDirWatcherRemove);

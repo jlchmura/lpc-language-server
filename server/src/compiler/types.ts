@@ -7299,3 +7299,4 @@ export interface ParsedLpcConfig {
  * tsconfig file, e.g. "/root/blah/tsconfig.json"
  */
 export type ResolvedConfigFileName = string & { _isResolvedConfigFileName: never; };
+
