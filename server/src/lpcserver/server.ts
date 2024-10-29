@@ -96,9 +96,9 @@ export function start(connection: Connection, platform: string) {
     connection.onInitialize((params) => {                
         const capabilities = params.capabilities;
         const rootFolder = lpc.normalizePath(fromUri(params.workspaceFolders[0].uri));
-        const projectFileName = lpc.normalizePath(lpc.combinePaths(rootFolder, "lpc-config.json"));
+        // const projectFileName = lpc.normalizePath(lpc.combinePaths(rootFolder, "lpc-config.json"));
 
-        const config = loadLpcConfig(projectFileName);
+        // const config = loadLpcConfig(projectFileName);
 
         const host = lpc.sys as lpc.server.ServerHost;
         host.setImmediate = setImmediate;
@@ -113,7 +113,7 @@ export function start(connection: Connection, platform: string) {
             hrtime: process.hrtime,
             projectRootFolder: (rootFolder),            
         });                              
-
+        
         session.onMessage.on("message", (msg: lpc.server.protocol.Message) => {
             if (msg.type === "event") {
                 const e = msg as lpc.server.protocol.Event;
@@ -178,24 +178,24 @@ export function start(connection: Connection, platform: string) {
             };
         }
 
-        documents.onDidOpen(e => {            
-            const filename = lpc.normalizePath(fromUri(e.document.uri));
+        documents.onDidOpen(e => {                        
+            const filename = fromUri(e.document.uri);
             session.updateOpen({
-                openFiles: [{file: filename, projectFileName }],
+                openFiles: [{file: filename }],
             });
             
             session.getDiagnosticsForFiles({files: [filename], delay: 0});
         });
                
         documents.onDidClose(e => {
-            const filename = lpc.normalizePath(fromUri(e.document.uri));                        
+            const filename = fromUri(e.document.uri);
             session.updateOpen({
                 closedFiles: [filename],
             });
         })
 
         connection.onDidChangeTextDocument((e: vscode.DidChangeTextDocumentParams) => {
-            const filename = lpc.normalizePath(fromUri(e.textDocument.uri));
+            const filename = fromUri(e.textDocument.uri);
             const lspChanges = e.contentChanges;
             
             // convert LSP text change to LPC CodeEdits
@@ -222,8 +222,7 @@ export function start(connection: Connection, platform: string) {
         connection.onDocumentSymbol(requestParams => {
             const uri = URI.parse(requestParams.textDocument.uri);
             const args: lpc.server.protocol.FileRequestArgs = {
-                file: fromUri(requestParams.textDocument.uri),
-                projectFileName,
+                file: fromUri(requestParams.textDocument.uri)                
             };
 
             try {
@@ -244,8 +243,7 @@ export function start(connection: Connection, platform: string) {
 
         connection.onReferences(requestParams => {
             const args: lpc.server.protocol.FileLocationRequestArgs = {
-                file: lpc.convertToRelativePath(fromUri(requestParams.textDocument.uri), rootFolder, f=>canonicalFilename(f)),
-                projectFileName,
+                file: fromUri(requestParams.textDocument.uri),
                 ...posParamToLpcPos(requestParams),
             };
 
@@ -270,8 +268,7 @@ export function start(connection: Connection, platform: string) {
 
         connection.onPrepareRename(requestParams => {
             const args: lpc.server.protocol.FileLocationRequestArgs = {
-                file: lpc.convertToRelativePath(fromUri(requestParams.textDocument.uri), rootFolder, f=>canonicalFilename(f)),
-                projectFileName,
+                file: fromUri(requestParams.textDocument.uri),
                 ...posParamToLpcPos(requestParams),
             };
 
@@ -289,8 +286,7 @@ export function start(connection: Connection, platform: string) {
 
         connection.onRenameRequest(requestParams => {
             const args: lpc.server.protocol.RenameRequestArgs = {
-                file: lpc.convertToRelativePath(fromUri(requestParams.textDocument.uri), rootFolder, f=>canonicalFilename(f)),
-                projectFileName,
+                file: fromUri(requestParams.textDocument.uri),
                 ...posParamToLpcPos(requestParams),
                 findInStrings: false,
                 findInComments: false,
@@ -315,8 +311,7 @@ export function start(connection: Connection, platform: string) {
 
         connection.onHover(requestParams => {
             const args: lpc.server.protocol.FileLocationRequestArgs = {
-                file: lpc.convertToRelativePath(fromUri(requestParams.textDocument.uri), rootFolder, f=>canonicalFilename(f)),                
-                projectFileName,
+                file: (fromUri(requestParams.textDocument.uri)),// lpc.convertToRelativePath(fromUri(requestParams.textDocument.uri), rootFolder, f=>canonicalFilename(f)),
                 ...posParamToLpcPos(requestParams),
             };
 
@@ -345,8 +340,7 @@ export function start(connection: Connection, platform: string) {
 
         connection.onDefinition(requestParams => {
             const results = session.getDefinition({
-                file: lpc.convertToRelativePath(fromUri(requestParams.textDocument.uri), rootFolder, f=>canonicalFilename(f)),
-                projectFileName,
+                file: fromUri(requestParams.textDocument.uri),
                 ...posParamToLpcPos(requestParams),            
             }, true);
             
@@ -370,8 +364,7 @@ export function start(connection: Connection, platform: string) {
 
         connection.onCompletion(requestParams => {
             const args: lpc.server.protocol.CompletionsRequestArgs = {
-                file: lpc.convertToRelativePath(fromUri(requestParams.textDocument.uri), rootFolder, f=>canonicalFilename(f)),
-                projectFileName,
+                file: fromUri(requestParams.textDocument.uri),
                 ...posParamToLpcPos(requestParams),
                 prefix: requestParams.context.triggerCharacter,
             };

@@ -341,4 +341,5 @@ export const Diagnostics = {
     The_root_value_of_a_0_file_must_be_an_object: diag(5092, DiagnosticCategory.Error, "The_root_value_of_a_0_file_must_be_an_object_5092", "The root value of a '{0}' file must be an object."),
     Argument_for_0_option_must_be_Colon_1: diag(6046, DiagnosticCategory.Error, "Argument_for_0_option_must_be_Colon_1_6046", "Argument for '{0}' option must be: {1}."),
     _0_should_be_set_inside_the_compilerOptions_object_of_the_config_json_file: diag(6258, DiagnosticCategory.Error, "_0_should_be_set_inside_the_compilerOptions_object_of_the_config_json_file_6258", "'{0}' should be set inside the 'compilerOptions' object of the config json file"),
+    No_inputs_were_found_in_config_file_0_Specified_include_paths_were_1_and_exclude_paths_were_2: diag(18003, DiagnosticCategory.Error, "No_inputs_were_found_in_config_file_0_Specified_include_paths_were_1_and_exclude_paths_were_2_18003", "No inputs were found in config file '{0}'. Specified 'include' paths were '{1}' and 'exclude' paths were '{2}'."),
 }

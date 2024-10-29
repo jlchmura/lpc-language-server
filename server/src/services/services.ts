@@ -860,7 +860,7 @@ function addSyntheticNodes(
     end: number,
     parent: Node
 ): void {    
-    scanner.resetTokenState(pos);
+    scanner.resetTokenState(pos, true);
     while (pos < end) {
         const token = scanner.scan();
         const textPos = scanner.getTokenEnd();

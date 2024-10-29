@@ -107,7 +107,7 @@ export interface Scanner {
     /** @deprecated use {@link resetTokenState} */
     setTextPos(textPos: number): void;
     setParseBracketAsStringLiteral(option: boolean): void;
-    resetTokenState(pos: number): void;
+    resetTokenState(pos: number, resetEnding?: boolean): void;
     /** @internal */
     setSkipJsDocLeadingAsterisks(skip: boolean): void;
     /** @internal */
@@ -1033,7 +1033,7 @@ export function createScanner(
     var scanner: Scanner = {
         getTokenFullStart: () => fullStartPos,
         getStartPos: () => fullStartPos,
-        getTokenEnd: () => pos,        
+        getTokenEnd: () => pos,
         getFileName: () => fileName,
         getTextPos: () => pos,
         getToken: () => token,
@@ -2989,11 +2989,8 @@ export function createScanner(
                 return speculationState();
             } else {
                 speculationStateReleased = true;
-                // we still need to revert the stateId                
-                Debug.assert(stateId != saveStateId);
-                stateId = saveStateId;
-                nextState = saveNextState;
                 
+
                 // if (sourceEnding.fileName == targetEnding.fileName) {
                 //     targetEnding.end = sourceEnding.end;
                 // }   
@@ -3024,6 +3021,23 @@ export function createScanner(
             // in this case we don't want to release any states created
             // but we do need to set the state back to the original
             releaseSpeculationState(true);            
+
+            // we still need to revert the stateId                
+            Debug.assert(stateId > saveStateId);
+                                
+            const savedEnding = stateEndings[stateId]
+            // loop backward through states and propigate endings if the filenames match
+            let s = stateId;
+            while (s > saveStateId) {
+                s--;
+                const stateEnding = stateEndings[s];
+                if (stateEnding.fileName == savedEnding.fileName) {
+                    stateEnding.end = savedEnding.end;
+                }                    
+            }
+
+            stateId = saveStateId;
+            nextState = saveNextState;
         }      
         
         return result;
@@ -3117,7 +3131,7 @@ export function createScanner(
         jsDocParsingMode = kind;
     }
     
-    function resetTokenState(position: number) {
+    function resetTokenState(position: number, resetEnding?: boolean) {
         Debug.assert(position >= 0);
         pos = position;
         fullStartPos = position;
@@ -3125,7 +3139,9 @@ export function createScanner(
         token = SyntaxKind.Unknown;
         tokenValue = undefined!;
         tokenFlags = TokenFlags.None;        
-        stateEndings[stateId] = { end: position, fileName };        
+        if (resetEnding) {
+            stateEndings[stateId] = { end: position, fileName };        
+        }
     }
 
     function setSkipJsDocLeadingAsterisks(skip: boolean) {

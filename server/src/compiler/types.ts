@@ -1502,7 +1502,7 @@ export interface NodeFactory {
 
     // Statements
     createBlock(statements: readonly Statement[], multiLine?: boolean): Block;
-    createVariableStatement(modifiers: readonly Modifier[] | undefined, declarationList: VariableDeclarationList | readonly VariableDeclaration[]): VariableStatement;
+    createVariableStatement(modifiers: readonly Modifier[] | undefined, type: TypeNode | undefined, declarationList: VariableDeclarationList | readonly VariableDeclaration[]): VariableStatement;
     createVariableDeclarationList(declarations: readonly VariableDeclaration[], flags?: NodeFlags): VariableDeclarationList;
     createVariableDeclaration(name: string | BindingName, type?: TypeNode | undefined, initializer?: Expression | undefined): VariableDeclaration;    
     createFunctionDeclaration(modifiers: readonly Modifier[] | undefined, name: string | Identifier | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode | undefined, body: Block | undefined): FunctionDeclaration;
@@ -1585,6 +1585,7 @@ export interface NodeFactory {
     createJSDocAugmentsTag(tagName: Identifier | undefined, className: JSDocAugmentsTag["class"], comment?: string | NodeArray<JSDocComment>): JSDocAugmentsTag;
     createJSDocSatisfiesTag(tagName: Identifier | undefined, typeExpression: JSDocTypeExpression, comment?: string | NodeArray<JSDocComment>): JSDocSatisfiesTag;
     createJSDocThisTag(tagName: Identifier | undefined, typeExpression: JSDocTypeExpression, comment?: string | NodeArray<JSDocComment>): JSDocThisTag;
+    createJSDocVariadicType(type: TypeNode): JSDocVariadicType;
     createJSDocSignature(typeParameters: readonly JSDocTemplateTag[] | undefined, parameters: readonly JSDocParameterTag[], type?: JSDocReturnTag): JSDocSignature;
     createJSDocCallbackTag(tagName: Identifier | undefined, typeExpression: JSDocSignature, fullName?: Identifier, comment?: string | NodeArray<JSDocComment>): JSDocCallbackTag;
     createJSDocOverloadTag(tagName: Identifier | undefined, typeExpression: JSDocSignature, comment?: string | NodeArray<JSDocComment>): JSDocOverloadTag
@@ -1628,6 +1629,7 @@ export interface CompilerOptions {
     driverType?: LanguageVariant;
     rootDir?: string;
     outDir?: string;
+    declarationDir?: string;
     outFile?: string;
     paths?: MapLike<string[]>;
     /**
@@ -1901,19 +1903,20 @@ export type HasJSDoc =
 
 export type HasType =
     | SignatureDeclaration
+    | VariableStatement
     | VariableDeclaration
     | ParameterDeclaration
-    // | PropertySignature
+    | PropertySignature
     | PropertyDeclaration    
-    // | ParenthesizedTypeNode    
+    | ParenthesizedTypeNode    
     | MappedTypeNode
-    // | AssertionExpression
-    // | TypeAliasDeclaration
-    | JSDocTypeExpression
+    | AssertionExpression
+    | TypeAliasDeclaration
+    | JSDocTypeExpression    
     // | JSDocNonNullableType
     // | JSDocNullableType
     // | JSDocOptionalType
-    // | JSDocVariadicType;
+    | JSDocVariadicType
     ;
 
 export type HasExpressionInitializer =
@@ -2072,6 +2075,7 @@ export type ForEachChildNodes =
     | JSDocPrivateTag
     | JSDocProtectedTag
     // | JSDocReadonlyTag
+    | JSDocVariadicType
     | JSDocDeprecatedTag
     | JSDocThrowsTag
     | JSDocOverrideTag
@@ -3465,6 +3469,7 @@ export interface VariableDeclarationList extends Node {
     readonly kind: SyntaxKind.VariableDeclarationList;
     readonly parent: VariableStatement | ForStatement | ForEachStatement;
     readonly declarations: NodeArray<VariableDeclaration>;
+    
 }
 
 export interface IterationStatement extends Statement {
@@ -3490,6 +3495,7 @@ export interface VariableStatement extends Statement, FlowContainer {
     readonly kind: SyntaxKind.VariableStatement;
     readonly modifiers?: NodeArray<Modifier>;
     readonly declarationList: VariableDeclarationList;
+    readonly type?: TypeNode;                      // Optional type annotation
 }
 
 
@@ -4628,6 +4634,10 @@ export interface JSDocThisTag extends JSDocTag {
     readonly typeExpression: JSDocTypeExpression;
 }
 
+export interface JSDocVariadicType extends JSDocType {
+    readonly kind: SyntaxKind.JSDocVariadicType;
+    readonly type: TypeNode;
+}
 
 export interface JSDocDeprecatedTag extends JSDocTag {
     kind: SyntaxKind.JSDocDeprecatedTag;

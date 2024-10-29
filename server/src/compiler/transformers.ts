@@ -324,6 +324,7 @@ export function transformNodes<T extends Node>(resolver: EmitResolver | undefine
             if (lexicalEnvironmentVariableDeclarations) {
                 const statement = factory.createVariableStatement(
                     /*modifiers*/ undefined,
+                    /*type*/ undefined,
                     factory.createVariableDeclarationList(lexicalEnvironmentVariableDeclarations),
                 );
 
@@ -393,6 +394,7 @@ export function transformNodes<T extends Node>(resolver: EmitResolver | undefine
             [
                 factory.createVariableStatement(
                     /*modifiers*/ undefined,
+                    /*type*/ undefined,
                     factory.createVariableDeclarationList(
                         blockScopedVariableDeclarations.map(identifier => factory.createVariableDeclaration(identifier)),
                         NodeFlags.Variable,

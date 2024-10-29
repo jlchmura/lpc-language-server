@@ -16257,7 +16257,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function resolveExternalModuleNameWorker(location: Node, moduleReferenceExpression: Expression, moduleNotFoundError: DiagnosticMessage | undefined, isForAugmentation = false): Symbol | undefined {
-        let moduleRef = isStringLiteral(moduleReferenceExpression) ? moduleReferenceExpression.text : evaluate(moduleReferenceExpression)?.value as string;
+        let moduleRef = isStringLiteral(moduleReferenceExpression) ? moduleReferenceExpression.text : evaluate(moduleReferenceExpression)?.value as string ?? "";
         return resolveExternalModule(location, moduleRef, moduleNotFoundError, moduleReferenceExpression, isForAugmentation);
     }
 

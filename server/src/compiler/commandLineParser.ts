@@ -80,8 +80,8 @@ export function getFileNamesFromConfigSpecs(
     // file map with a possibly case insensitive key. We use this map to store paths matched
     // via wildcard of *.json kind
     const wildCardJsonFileMap = new Map<string, string>();
-    const { validatedFilesSpec, validatedIncludeSpecs: unusedIncludeSpecs, validatedExcludeSpecs } = configFileSpecs;
-    const validatedIncludeSpecs = ["./"];
+    const { validatedFilesSpec, validatedIncludeSpecs, validatedExcludeSpecs } = configFileSpecs;
+    // const validatedIncludeSpecs = ["./"];
     // Rather than re-query this for each file and filespec, we query the supported extensions
     // once and store it on the expansion context.
     // const supportedExtensions = getSupportedExtensions(options, extraFileExtensions);
@@ -237,9 +237,7 @@ function parseLpcConfigFileContentWorker(
     const basePathForFileNames = normalizePath(configFileName ? directoryOfCombinedPath(configFileName, basePath) : basePath);
     const configFileSpecs = getConfigFileSpecs();
     if (sourceFile) sourceFile.configFileSpecs = configFileSpecs;
-    setConfigFileInOptions(options, sourceFile);
-    // options.config = raw;
-    // options.configFile = parsedConfig;
+    setConfigFileInOptions(options, sourceFile);    
 
     switch (raw?.driver?.type) {
         case "fluffos":
@@ -280,7 +278,7 @@ function parseLpcConfigFileContentWorker(
                 if (sourceFile) {
                     const fileName = configFileName || "lpc-config.json";
                     const diagnosticMessage = Diagnostics.The_files_list_in_config_file_0_is_empty;
-                    console.warn("implement diagnostic - The_files_list_in_config_file_0_is_empty");
+                    console.warn("implement diagnostic - The_files_list_in_config_file_0_is_empty");                    
                     // const nodeValue = forEachTsConfigPropArray(sourceFile, "files", property => property.initializer);
                     // const error = createDiagnosticForNodeInSourceFileOrCompilerDiagnostic(sourceFile, nodeValue, diagnosticMessage, fileName);
                     // errors.push(error);
@@ -296,14 +294,14 @@ function parseLpcConfigFileContentWorker(
         const excludeOfRaw = getSpecsFromRaw("exclude");
         let isDefaultIncludeSpec = false;
         let excludeSpecs = toPropValue(excludeOfRaw);
-        // if (excludeOfRaw === "no-prop") {
-        //     const outDir = options.outDir;
-        //     const declarationDir = options.declarationDir;
+        if (excludeOfRaw === "no-prop") {
+            const outDir = options.outDir;
+            const declarationDir = options.declarationDir;
 
-        //     if (outDir || declarationDir) {
-        //         excludeSpecs = filter([outDir, declarationDir], d => !!d) as string[];
-        //     }
-        // }
+            if (outDir || declarationDir) {
+                excludeSpecs = filter([outDir, declarationDir], d => !!d) as string[];
+            }
+        }
 
         if (filesSpecs === undefined && includeSpecs === undefined) {
             includeSpecs = [defaultIncludeSpec];
@@ -355,9 +353,9 @@ function parseLpcConfigFileContentWorker(
 
     function getFileNames(basePath: string): string[] {
         const fileNames = getFileNamesFromConfigSpecs(configFileSpecs, basePath, options, host, extraFileExtensions);
-        // if (shouldReportNoInputFiles(fileNames, canJsonReportNoInputFiles(raw), resolutionStack)) {
-        //     errors.push(getErrorForNoInputFiles(configFileSpecs, configFileName));
-        // }
+        if (shouldReportNoInputFiles(fileNames, canJsonReportNoInputFiles(raw), resolutionStack)) {
+            errors.push(getErrorForNoInputFiles(configFileSpecs, configFileName));
+        }
         return fileNames;
     }
 
@@ -1657,4 +1655,22 @@ function convertConfigFileToObject(
         return {};
     }
     return convertToJson(sourceFile, rootExpression, errors, /*returnValue*/ true, jsonConversionNotifier);
+}
+
+function shouldReportNoInputFiles(fileNames: string[], canJsonReportNoInutFiles: boolean, resolutionStack?: Path[]) {
+    return fileNames.length === 0 && canJsonReportNoInutFiles && (!resolutionStack || resolutionStack.length === 0);
+}
+
+/** @internal */
+export function canJsonReportNoInputFiles(raw: any) {
+    return !hasProperty(raw, "files") && !hasProperty(raw, "references");
+}
+
+function getErrorForNoInputFiles({ includeSpecs, excludeSpecs }: ConfigFileSpecs, configFileName: string | undefined) {
+    return createCompilerDiagnostic(
+        Diagnostics.No_inputs_were_found_in_config_file_0_Specified_include_paths_were_1_and_exclude_paths_were_2,
+        configFileName || "lpc-config.json",
+        JSON.stringify(includeSpecs || []),
+        JSON.stringify(excludeSpecs || []),
+    );
 }

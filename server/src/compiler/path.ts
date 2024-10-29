@@ -100,6 +100,7 @@ export function hasExtension(fileName: string): boolean {
 
 /** @internal */
 export function fileExtensionIs(path: string, extension: string): boolean {
+    Debug.assertIsDefined(path);
     return path.length > extension.length && endsWith(path, extension);
 }
 

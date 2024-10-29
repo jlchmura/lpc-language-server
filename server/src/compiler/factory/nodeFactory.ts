@@ -113,6 +113,7 @@ import {
     JSDocTypeLiteral,
     JSDocTypeTag,
     JSDocUnknownTag,
+    JSDocVariadicType,
     KeywordSyntaxKind,
     KeywordToken,
     KeywordTypeNode,
@@ -236,6 +237,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     const converters = memoize(() => nullNodeConverters);//flags & NodeFactoryFlags.NoNodeConverters ? nullNodeConverters : createNodeConverters(factory));
     const getJSDocTypeLikeTagCreateFunction = memoizeOne(<T extends JSDocTag & { typeExpression?: JSDocTypeExpression; }>(kind: T["kind"]) => (tagName: Identifier | undefined, typeExpression?: JSDocTypeExpression, comment?: NodeArray<JSDocComment>) => createJSDocTypeLikeTagWorker(kind, tagName, typeExpression, comment));
     const getJSDocSimpleTagCreateFunction = memoizeOne(<T extends JSDocTag>(kind: T["kind"]) => (tagName: Identifier | undefined, comment?: NodeArray<JSDocComment>) => createJSDocSimpleTagWorker(kind, tagName, comment));
+    const getJSDocUnaryTypeCreateFunction = memoizeOne(<T extends JSDocType & { readonly type: TypeNode | undefined; }>(kind: T["kind"]) => (type: T["type"]) => createJSDocUnaryTypeWorker<T>(kind, type));
 
     const factory: NodeFactory = {
         get parenthesizer() {
@@ -418,6 +420,9 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         },
         get createJSDocThisTag() {
             return getJSDocTypeLikeTagCreateFunction<JSDocThisTag>(SyntaxKind.JSDocThisTag);
+        },
+        get createJSDocVariadicType() {
+            return getJSDocUnaryTypeCreateFunction<JSDocVariadicType>(SyntaxKind.JSDocVariadicType);
         },
     };
 
@@ -990,6 +995,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     // @api
     function createVariableStatement(
         modifiers: readonly Modifier[] | undefined,
+        type: TypeNode | undefined,        
         declarationList:
             | VariableDeclarationList
             | readonly VariableDeclaration[]
@@ -998,6 +1004,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
             SyntaxKind.VariableStatement
         );
         node.modifiers = asNodeArray(modifiers);
+        node.type = type;
         node.declarationList = Array.isArray(declarationList)
             ? createVariableDeclarationList(declarationList)
             : (declarationList as VariableDeclarationList);
