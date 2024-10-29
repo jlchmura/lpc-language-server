@@ -1,6 +1,6 @@
 import { ILpcConfig } from "../config-types.js";
 import * as lpc from "./_namespaces/lpc.js";
-import { addRange, arrayFrom, CachedDirectoryStructureHost, combinePaths, CompilerHost, CompilerOptions, createLanguageService, createLpcFileHandler, createResolutionCache, Debug, Diagnostic, DirectoryStructureHost, DirectoryWatcherCallback, DocumentRegistry, explainFiles, ExportInfoMap, FileWatcher, FileWatcherCallback, FileWatcherEventKind, flatMap, forEachKey, GetCanonicalFileName, getDefaultLibFileName, getDirectoryPath, getNormalizedAbsolutePath, getOrUpdate, HasInvalidatedLibResolutions, HasInvalidatedResolutions, IScriptSnapshot, isString, LanguageService, LanguageServiceHost, LanguageServiceMode, maybeBind, ModuleResolutionHost, noopFileWatcher, normalizePath, ParsedCommandLine, Path, PerformanceEvent, PollingInterval, Program, ProgramUpdateLevel, ProjectReference, ResolutionCache, ResolvedProjectReference, returnFalse, returnTrue, sortAndDeduplicate, SortedReadonlyArray, SourceFile, SourceMapper, StructureIsReused, ThrottledCancellationToken, timestamp, toPath, tracing, TypeAcquisition, updateMissingFilePathsWatch, WatchDirectoryFlags, WatchOptions, WatchType } from "./_namespaces/lpc.js";
+import { addRange, arrayFrom, CachedDirectoryStructureHost, clearMap, closeFileWatcher, combinePaths, CompilerHost, CompilerOptions, createLanguageService, createLpcFileHandler, createResolutionCache, Debug, Diagnostic, DirectoryStructureHost, DirectoryWatcherCallback, DocumentRegistry, explainFiles, ExportInfoMap, FileWatcher, FileWatcherCallback, FileWatcherEventKind, flatMap, forEach, forEachKey, GetCanonicalFileName, getDefaultLibFileName, getDirectoryPath, getNormalizedAbsolutePath, getOrUpdate, HasInvalidatedLibResolutions, HasInvalidatedResolutions, IScriptSnapshot, isString, LanguageService, LanguageServiceHost, LanguageServiceMode, maybeBind, ModuleResolutionHost, noopFileWatcher, normalizePath, ParsedCommandLine, Path, PerformanceEvent, PollingInterval, Program, ProgramUpdateLevel, ProjectReference, ResolutionCache, ResolvedProjectReference, returnFalse, returnTrue, sortAndDeduplicate, SortedReadonlyArray, SourceFile, SourceMapper, StructureIsReused, ThrottledCancellationToken, timestamp, toPath, tracing, TypeAcquisition, updateMissingFilePathsWatch, WatchDirectoryFlags, WatchOptions, WatchType } from "./_namespaces/lpc.js";
 import { asNormalizedPath, emptyArray, Errors, HostCancellationToken, LogLevel, NormalizedPath, ProjectService, ScriptInfo, updateProjectIfDirty } from "./_namespaces/lpc.server.js";
 
 
@@ -681,6 +681,66 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
         return !hasNewProgram;
     }   
 
+    close() {
+        // this.projectService.typingsCache.onProjectClosed(this);
+        // this.closeWatchingTypingLocations();
+        // if we have a program - release all files that are enlisted in program but arent root
+        // The releasing of the roots happens later
+        // The project could have pending update remaining and hence the info could be in the files but not in program graph
+        this.cleanupProgram();
+        // Release external files
+        forEach(this.externalFiles, externalFile => this.detachScriptInfoIfNotRoot(externalFile));
+        // Always remove root files from the project
+        this.rootFilesMap.forEach(root => root.info?.detachFromProject(this));
+        this.projectService.pendingEnsureProjectForOpenFiles = true;
+
+        this.rootFilesMap = undefined!;
+        this.externalFiles = undefined;
+        this.program = undefined;
+        // this.builderState = undefined;
+        this.resolutionCache.clear();
+        this.resolutionCache = undefined!;
+        this.cachedUnresolvedImportsPerFile = undefined!;
+        // this.packageJsonWatches?.forEach(watcher => {
+        //     watcher.projects.delete(this);
+        //     watcher.close();
+        // });
+        // this.packageJsonWatches = undefined;
+        // this.moduleSpecifierCache.clear();
+        // this.moduleSpecifierCache = undefined!;
+        this.directoryStructureHost = undefined!;
+        this.exportMapCache = undefined;
+        this.projectErrors = undefined;
+        // this.plugins.length = 0;
+
+        // Clean up file watchers waiting for missing files
+        if (this.missingFilesMap) {
+            clearMap(this.missingFilesMap, closeFileWatcher);
+            this.missingFilesMap = undefined;
+        }
+        // this.clearGeneratedFileWatch();
+        this.clearInvalidateResolutionOfFailedLookupTimer();
+        // if (this.autoImportProviderHost) {
+        //     this.autoImportProviderHost.close();
+        // }
+        // this.autoImportProviderHost = undefined;
+        // if (this.noDtsResolutionProject) {
+        //     this.noDtsResolutionProject.close();
+        // }
+        // this.noDtsResolutionProject = undefined;
+
+        // signal language service to release source files acquired from document registry
+        this.languageService.dispose();
+        this.languageService = undefined!;
+    }
+
+    /** @internal */
+    forEachResolvedProjectReference<T>(
+        cb: (resolvedProjectReference: ResolvedProjectReference) => T | undefined,
+    ): T | undefined {
+        return this.getCurrentProgram()?.forEachResolvedProjectReference(cb);
+    }
+
     private updateGraphWorker() {
         const oldProgram = this.languageService.getCurrentProgram();
         // Debug.assert(oldProgram === this.program);
@@ -1275,3 +1335,9 @@ function getUnresolvedImports(program: Program, cachedUnresolvedImportsPerFile: 
 //         return unresolvedImports || emptyArray;
 //     });
 // }
+
+
+/** @internal */
+export function isExternalProject(project: Project){//}: project is ExternalProject {
+    return project.projectKind === ProjectKind.External;
+}

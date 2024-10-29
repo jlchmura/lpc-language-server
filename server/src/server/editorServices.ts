@@ -1,6 +1,6 @@
 import { log } from "console";
-import { arrayFrom, CachedDirectoryStructureHost, clearMap, closeFileWatcherOf, combinePaths, CompilerOptions, contains, containsPath, createCachedDirectoryStructureHost, createGetCanonicalFileName, createMultiMap, Debug, Diagnostic, DirectoryStructureHost, DirectoryWatcherCallback, DocumentPosition, DocumentRegistry, emptyOptions, FileExtensionInfo, fileExtensionIs, FileSystemEntries, FileWatcher, FileWatcherCallback, FileWatcherEventKind, find, forEach, forEachEntry, forEachKey, forEachResolvedProjectReference, getAnyExtensionFromPath, getBaseFileName, getDefaultFormatCodeSettings, getDirectoryPath, getFileNamesFromConfigSpecs, getNormalizedAbsolutePath, getWatchFactory, isArray, isIgnoredFileFromWildCardWatching, isJsonEqual, isNodeModulesDirectory, isRootedDiskPath, isString, LanguageServiceMode, length, LpcConfigSourceFile, mapDefinedEntries, mapDefinedIterator, missingFileModifiedTime, MultiMap, noop, normalizePath, normalizeSlashes, orderedRemoveItem, ParsedCommandLine, parseJsonText, parseLpcSourceFileConfigFileContent, Path, PerformanceEvent, PollingInterval, ProgramUpdateLevel, ReadonlyCollection, ResolvedProjectReference, returnFalse, returnNoopFileWatcher, ScriptKind, some, startsWith, TextChange, toPath, tracing, tryAddToSet, tryReadFile, TypeAcquisition, updateWatchingWildcardDirectories, UserPreferences, WatchDirectoryFlags, WatchFactory, WatchFactoryHost, WatchLogLevel, WatchOptions, WatchType, WildcardDirectoryWatcher } from "./_namespaces/lpc.js";
-import { asNormalizedPath, ConfiguredProject, Errors, findLpcConfig, HostCancellationToken, InferredProject, isConfiguredProject, isDynamicFileName, isInferredProject, isProjectDeferredClose, Logger, LogLevel, makeAuxiliaryProjectName, Msg, NormalizedPath, normalizedPathToPath, Project, ScriptInfo, ServerHost, Session, ThrottledOperations, toNormalizedPath } from "./_namespaces/lpc.server.js";
+import { arrayFrom, AssertionLevel, CachedDirectoryStructureHost, clearMap, closeFileWatcherOf, combinePaths, CompilerOptions, contains, containsPath, createCachedDirectoryStructureHost, createGetCanonicalFileName, createMultiMap, Debug, Diagnostic, DirectoryStructureHost, DirectoryWatcherCallback, DocumentPosition, DocumentRegistry, emptyOptions, FileExtensionInfo, fileExtensionIs, FileSystemEntries, FileWatcher, FileWatcherCallback, FileWatcherEventKind, find, forEach, forEachEntry, forEachKey, forEachResolvedProjectReference, getAnyExtensionFromPath, getBaseFileName, getDefaultFormatCodeSettings, getDirectoryPath, getFileNamesFromConfigSpecs, getNormalizedAbsolutePath, getWatchFactory, isArray, isIgnoredFileFromWildCardWatching, isJsonEqual, isNodeModulesDirectory, isRootedDiskPath, isString, LanguageServiceMode, length, LpcConfigSourceFile, mapDefinedEntries, mapDefinedIterator, missingFileModifiedTime, MultiMap, noop, normalizePath, normalizeSlashes, orderedRemoveItem, ParsedCommandLine, parseJsonText, parseLpcSourceFileConfigFileContent, Path, PerformanceEvent, PollingInterval, ProgramUpdateLevel, ProjectReference, ReadonlyCollection, ResolvedProjectReference, resolveProjectReferencePath, returnFalse, returnNoopFileWatcher, ScriptKind, some, startsWith, TextChange, toPath, tracing, tryAddToSet, tryReadFile, TypeAcquisition, unorderedRemoveItem, updateWatchingWildcardDirectories, UserPreferences, WatchDirectoryFlags, WatchFactory, WatchFactoryHost, WatchLogLevel, WatchOptions, WatchType, WildcardDirectoryWatcher } from "./_namespaces/lpc.js";
+import { asNormalizedPath, ConfiguredProject, Errors, findLpcConfig, HostCancellationToken, InferredProject, isConfiguredProject, isDynamicFileName, isExternalProject, isInferredProject, isProjectDeferredClose, Logger, LogLevel, makeAuxiliaryProjectName, Msg, NormalizedPath, normalizedPathToPath, Project, ProjectKind, ScriptInfo, ServerHost, Session, ThrottledOperations, toNormalizedPath } from "./_namespaces/lpc.server.js";
 import * as protocol from "./protocol.js";
 
 export const maxProgramSizeForNonTsFiles = 20 * 1024 * 1024;
@@ -57,6 +57,11 @@ export class ProjectService {
     private readonly hostConfiguration: any;//todo HostConfiguration;
     private readonly suppressDiagnosticEvents?: boolean;
     public readonly useSingleInferredProject: boolean;
+
+    /**
+     * Project size for configured or external projects
+     */
+    private readonly projectToSizeMap = new Map<string, number>();
 
     /** @internal */
     readonly session: Session<unknown> | undefined;
@@ -670,13 +675,145 @@ export class ProjectService {
     ) {
         // Remove all orphan projects
         console.debug("todo - implement me - cleanupConfiguredProjects");
-        // this.getOrphanConfiguredProjects(
-        //     toRetainConfiguredProjects,
-        //     openFilesWithRetainedConfiguredProject,
-        //     externalProjectsRetainingConfiguredProjects,
-        // ).forEach(project => this.removeProject(project));
+        this.getOrphanConfiguredProjects(
+            toRetainConfiguredProjects,
+            openFilesWithRetainedConfiguredProject,
+            externalProjectsRetainingConfiguredProjects,
+        ).forEach(project => this.removeProject(project));
+    }
+    
+    private removeProject(project: Project) {
+        this.logger.info("`remove Project::");
+        project.print(/*writeProjectFileNames*/ true, /*writeFileExplaination*/ true, /*writeFileVersionAndText*/ false);
+
+        project.close();
+        if (Debug.shouldAssert(AssertionLevel.Normal)) {
+            this.filenameToScriptInfo.forEach(info =>
+                Debug.assert(
+                    !info.isAttached(project),
+                    "Found script Info still attached to project",
+                    () =>
+                        `${project.projectName}: ScriptInfos still attached: ${
+                            JSON.stringify(
+                                arrayFrom(
+                                    mapDefinedIterator(
+                                        this.filenameToScriptInfo.values(),
+                                        info =>
+                                            info.isAttached(project) ?
+                                                {
+                                                    fileName: info.fileName,
+                                                    projects: info.containingProjects.map(p => p.projectName),
+                                                    hasMixedContent: info.hasMixedContent,
+                                                } : undefined,
+                                    ),
+                                ),
+                                /*replacer*/ undefined,
+                                " ",
+                            )
+                        }`,
+                )
+            );
+        }
+        // Remove the project from pending project updates
+        this.pendingProjectUpdates.delete(project.getProjectName());
+
+        switch (project.projectKind) {
+            case ProjectKind.External:
+                console.debug("todo - implement me - removeProject - ProjectKind.External");
+                // unorderedRemoveItem(this.externalProjects, project as ExternalProject);
+                // this.projectToSizeMap.delete(project.getProjectName());
+                break;
+            case ProjectKind.Configured:
+                this.configuredProjects.delete((project as ConfiguredProject).canonicalConfigFilePath);
+                this.projectToSizeMap.delete((project as ConfiguredProject).canonicalConfigFilePath);
+                break;
+            case ProjectKind.Inferred:
+                unorderedRemoveItem(this.inferredProjects, project as InferredProject);
+                break;
+        }
+    }
+    
+    /** @internal */
+    getOrphanConfiguredProjects(
+        toRetainConfiguredProjects: Set<ConfiguredProject> | undefined,
+        openFilesWithRetainedConfiguredProject: Set<Path> | undefined,
+        externalProjectsRetainingConfiguredProjects: Set<string> | undefined,
+    ) {
+        const toRemoveConfiguredProjects = new Set(this.configuredProjects.values());
+        const markOriginalProjectsAsUsed = (project: Project) => {
+            if (project.originalConfiguredProjects && (isConfiguredProject(project) || !project.isOrphan())) {
+                project.originalConfiguredProjects.forEach(
+                    (_value, configuredProjectPath) => {
+                        const project = this.getConfiguredProjectByCanonicalConfigFilePath(configuredProjectPath);
+                        return project && retainConfiguredProject(project);
+                    },
+                );
+            }
+        };
+        toRetainConfiguredProjects?.forEach(retainConfiguredProject);
+
+        // Do not remove configured projects that are used as original projects of other
+        this.inferredProjects.forEach(markOriginalProjectsAsUsed);
+        // this.externalProjects.forEach(markOriginalProjectsAsUsed);
+        // Retain all configured projects referenced by external projects
+        // this.externalProjectToConfiguredProjectMap.forEach((projects, externalProjectName) => {
+        //     if (!externalProjectsRetainingConfiguredProjects?.has(externalProjectName)) {
+        //         projects.forEach(retainConfiguredProject);
+        //     }
+        // });
+        this.openFiles.forEach((_projectRootPath, path) => {
+            if (openFilesWithRetainedConfiguredProject?.has(path)) return;
+            const info = this.getScriptInfoForPath(path)!;
+            // Part of external project
+            if (find(info.containingProjects, isExternalProject)) return;
+            // We want to retain the projects for open file if they are pending updates so deferredClosed projects are ok
+            const result = this.tryFindDefaultConfiguredProjectAndLoadAncestorsForOpenScriptInfo(
+                info,
+                ConfiguredProjectLoadKind.Find,
+            );
+            if (result?.defaultProject) {
+                result?.seenProjects.forEach(retainConfiguredProject);
+            }
+        });
+
+        // Retain all the configured projects that have pending updates
+        // or the ones that is referencing retained project (or to be retained)
+        this.configuredProjects.forEach(project => {
+            if (toRemoveConfiguredProjects.has(project)) {
+                if (isPendingUpdate(project) || forEachReferencedProject(project, isRetained)) {
+                    retainConfiguredProject(project);
+                }
+            }
+        });
+
+        return toRemoveConfiguredProjects;
+
+        function isRetained(project: ConfiguredProject) {
+            return !toRemoveConfiguredProjects.has(project) || isPendingUpdate(project);
+        }
+
+        function isPendingUpdate(project: ConfiguredProject) {
+            return (
+                project.deferredClose ||
+                project.projectService.hasPendingProjectUpdate(project)
+            ) &&
+                !!project.projectService.configFileExistenceInfoCache.get(project.canonicalConfigFilePath)?.openFilesImpactedByConfigFile?.size;
+        }
+
+        function retainConfiguredProject(project: ConfiguredProject) {
+            if (!toRemoveConfiguredProjects.delete(project)) return;
+            // Keep original projects used
+            markOriginalProjectsAsUsed(project);
+            // Keep all the references alive
+            forEachReferencedProject(project, retainConfiguredProject);
+        }
     }
 
+    /** @internal */
+    hasPendingProjectUpdate(project: Project) {
+        return this.pendingProjectUpdates.has(project.getProjectName());
+    }
+    
     private cleanupProjectsAndScriptInfos(
         toRetainConfiguredProjects: Set<ConfiguredProject> | undefined,
         openFilesWithRetainedConfiguredProject: Set<Path> | undefined,
@@ -2759,4 +2896,38 @@ function createProjectNameFactoryWithCounter(nameFactory: (counter: number) => s
 }
 export function makeInferredProjectName(counter: number): string {
     return `/dev/null/inferredProject${counter}*`;
+}
+
+function forEachReferencedProject<T>(
+    project: ConfiguredProject,
+    cb: (refProj: ConfiguredProject) => T | undefined,
+): T | undefined {
+    return forEachAnyProjectReferenceKind(
+        project,
+        resolvedRef => callbackRefProject(project, cb, resolvedRef.sourceFile.path),
+        projectRef => callbackRefProject(project, cb, project.toPath(resolveProjectReferencePath(projectRef))),
+        potentialProjectRef => callbackRefProject(project, cb, potentialProjectRef),
+    );
+}
+
+function forEachAnyProjectReferenceKind<T>(
+    project: ConfiguredProject,
+    cb: (resolvedProjectReference: ResolvedProjectReference) => T | undefined,
+    cbProjectRef: (projectReference: ProjectReference) => T | undefined,
+    cbPotentialProjectRef: (potentialProjectReference: NormalizedPath) => T | undefined,
+): T | undefined {
+    return project.getCurrentProgram() ?
+        project.forEachResolvedProjectReference(cb) :
+        project.isInitialLoadPending() ?
+        forEachPotentialProjectReference(project, cbPotentialProjectRef) :
+        forEach(project.getProjectReferences(), cbProjectRef);
+}
+
+function callbackRefProject<T, P extends string>(
+    project: ConfiguredProject,
+    cb: (refProj: ConfiguredProject) => T | undefined,
+    refPath: P | undefined,
+) {
+    const refProject = refPath && project.projectService.configuredProjects.get(refPath);
+    return refProject && cb(refProject);
 }

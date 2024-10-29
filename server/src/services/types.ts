@@ -468,6 +468,7 @@ export interface LanguageService {
      * @param formattingSettings settings needed for calling formatting functions.
      */
     getCompletionsAtPosition(fileName: string, position: number, options: GetCompletionsAtPositionOptions | undefined, formattingSettings?: FormatCodeSettings): WithMetadata<CompletionInfo> | undefined;
+    dispose(): void;    
 }
 
 export interface HostCancellationToken {
@@ -525,7 +526,8 @@ export interface LanguageServiceHost
     trace?(s: string): void;
     error?(s: string): void;
     useCaseSensitiveFileNames?(): boolean;
-    fileHandler: LpcFileHandler;    
+    fileHandler: LpcFileHandler;
+    
             
     /*
      * LS host can optionally implement these methods to support completions for module specifiers.

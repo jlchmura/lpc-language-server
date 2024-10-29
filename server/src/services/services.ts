@@ -1321,10 +1321,16 @@ export function createLanguageService(
         updateIsDefinitionOfReferencedSymbols,
         findRenameLocations,
         getRenameInfo,
-        getCompletionsAtPosition
+        getCompletionsAtPosition,
+        dispose
     };
 
     return ls;
+
+    function dispose(): void {
+        cleanupSemanticCache();
+        host = undefined!;
+    }
 
     // TODO: GH#18217 frequently asserted as defined
     function getProgram(): Program | undefined {

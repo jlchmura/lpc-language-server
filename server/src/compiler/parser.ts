@@ -711,11 +711,10 @@ export namespace LpcParser {
         languageVariant: LanguageVariant = LanguageVariant.LDMud
     ) {
         initState(fileName, sourceText, languageVersion, syntaxCursor, scriptKind, fileHandler, jsDocParsingMode, languageVariant);
-        console.debug("Parsing source file: " + fileName);        
+        // console.debug("Parsing source file: " + fileName);        
         try {
             const result = parseSourceFileWorker(languageVersion, setParentNodes, scriptKind || ScriptKind.LPC, jsDocParsingMode);
-            clearState();
-            console.warn(`Successfully parsed: ${fileName}`);
+            clearState();            
             return result;
         } catch (e) {
             debugger;
