@@ -1,4 +1,4 @@
-import { isIdentifier as isIdentifierNode, BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange, PrefixUnaryExpression, first, LanguageVariant, EqualsToken, LpcConfigSourceFile, createBaseNodeFactory, PrefixUnaryOperator, Program, LpcFileHandler, ParenthesizedExpression, ArrayLiteralExpression, LambdaExpression, PunctuationSyntaxKind, PunctuationToken, LambdaOperatorToken, CastExpression, PropertyAccessExpression, isIdentifier, CloneObjectExpression, NewExpression, trimQuotes, createScanner, isKeyword, PunctuationOrKeywordSyntaxKind, getLanguageVariant, mapDefined, getJSDocCommentRanges, LabeledStatement, PropertyName, Token, tokenToString, addRelatedInfo, tokenIsIdentifierOrKeyword, getBinaryOperatorPrecedence, addRange, append, ArrayTypeNode, canHaveJSDoc, concatenate, containsParseError, Diagnostic, EntityName, getSpellingSuggestion, identity, idText, isIdentifierText, isTypeReferenceNode, JSDoc, JSDocAugmentsTag, JSDocCallbackTag, JSDocComment, JSDocImplementsTag, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocParameterTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThrowsTag, JSDocTypedefTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, nodeIsMissing, noop, PropertyAccessEntityNameExpression, setParent, skipTrivia, some, CharacterCodes, MapLike, KeywordSyntaxKind, startsWith, textToKeywordObj, ModifierLike, isModifierKind, MissingDeclaration, setTextRangePos, BindingPattern, KeywordTypeSyntaxKind, LiteralTypeNode, IntLiteral, FloatLiteral, LiteralLikeNode, isLiteralKind, TypeReferenceNode, getFullWidth, OperatorPrecedence, UnaryExpression, isLeftHandSideExpression, isAssignmentOperator, isKeywordOrPunctuation, UpdateExpression, PrimaryExpression, nodeIsPresent, PropertyAccessToken, IterationStatement, InheritClauseType, ObjectType, StructTypeNode, NamedDeclaration, TypeElement, PropertySignature, MethodSignature, StructDeclaration, TypeLiteralNode, TypeAssertion, NewStructExpression, ObjectLiteralElementLike, PropertyAssignment, getStartPositionOfLine, MappingLiteralExpression, MappingEntryExpression, isStringOrNumericLiteralLike, ElementAccessExpression, isFunctionDeclaration, RangeExpression, isPunctuation, LambdaIdentifierExpression, LambdaOperatorExpression, PreprocessorDirective, IncludeDirective, DefineDirective, UndefDirective, Macro, Scanner, last, ReadonlyTextRange, MacroParameter, forEachEntry, Ternary, isIntLiteral, isArrayTypeNode, SuperAccessExpression, isIndexedAccessTypeNode, isStringLiteral, isBinaryExpression, PragmaDirective, SpreadElement, CatchStatement, CatchExpression, getDirectoryPath, EvaluateExpression, setParentRecursive, ExpressionWithTypeArguments, JSDocThisTag, isJSDocTypeTag, isJSDocReturnTag, JSDocAuthorTag, QualifiedName, JSDocClassTag, JSDocDeprecatedTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, JSDocOverrideTag, JSDocPrivateTag, JSDocProtectedTag, JSDocPublicTag, JSDocUnknownTag, JsonSourceFile, BooleanLiteral, NullLiteral, JsonMinusNumericLiteral, ObjectLiteralExpression, ShorthandPropertyAssignment, NumericLiteral, JsonObjectExpressionStatement, JSDocVariadicType } from "./_namespaces/lpc";
+import { isIdentifier as isIdentifierNode, BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange, PrefixUnaryExpression, first, LanguageVariant, EqualsToken, LpcConfigSourceFile, createBaseNodeFactory, PrefixUnaryOperator, Program, LpcFileHandler, ParenthesizedExpression, ArrayLiteralExpression, LambdaExpression, PunctuationSyntaxKind, PunctuationToken, LambdaOperatorToken, CastExpression, PropertyAccessExpression, CloneObjectExpression, NewExpression, trimQuotes, createScanner, isKeyword, PunctuationOrKeywordSyntaxKind, mapDefined, getJSDocCommentRanges, LabeledStatement, PropertyName, Token, tokenToString, addRelatedInfo, tokenIsIdentifierOrKeyword, getBinaryOperatorPrecedence, addRange, append, ArrayTypeNode, canHaveJSDoc, concatenate, containsParseError, Diagnostic, EntityName, getSpellingSuggestion, identity, idText, isIdentifierText, isTypeReferenceNode, JSDoc, JSDocAugmentsTag, JSDocCallbackTag, JSDocComment, JSDocImplementsTag, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocParameterTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThrowsTag, JSDocTypedefTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, nodeIsMissing, noop, PropertyAccessEntityNameExpression, setParent, skipTrivia, some, CharacterCodes, MapLike, KeywordSyntaxKind, startsWith, textToKeywordObj, ModifierLike, isModifierKind, MissingDeclaration, setTextRangePos, BindingPattern, KeywordTypeSyntaxKind, LiteralTypeNode, IntLiteral, FloatLiteral, LiteralLikeNode, isLiteralKind, TypeReferenceNode, getFullWidth, OperatorPrecedence, UnaryExpression, isLeftHandSideExpression, isAssignmentOperator, isKeywordOrPunctuation, UpdateExpression, PrimaryExpression, nodeIsPresent, PropertyAccessToken, IterationStatement, InheritClauseType, ObjectType, StructTypeNode, NamedDeclaration, TypeElement, PropertySignature, MethodSignature, StructDeclaration, TypeLiteralNode, TypeAssertion, NewStructExpression, ObjectLiteralElementLike, PropertyAssignment, getStartPositionOfLine, MappingLiteralExpression, MappingEntryExpression, isStringOrNumericLiteralLike, ElementAccessExpression, isFunctionDeclaration, RangeExpression, isPunctuation, LambdaIdentifierExpression, LambdaOperatorExpression, PreprocessorDirective, IncludeDirective, DefineDirective, UndefDirective, Macro, Scanner, last, ReadonlyTextRange, MacroParameter, forEachEntry, Ternary, isIntLiteral, isArrayTypeNode, SuperAccessExpression, isIndexedAccessTypeNode, isStringLiteral, isBinaryExpression, PragmaDirective, SpreadElement, CatchStatement, CatchExpression, getDirectoryPath, EvaluateExpression, setParentRecursive, ExpressionWithTypeArguments, JSDocThisTag, isJSDocTypeTag, isJSDocReturnTag, JSDocAuthorTag, QualifiedName, JSDocClassTag, JSDocDeprecatedTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, JSDocOverrideTag, JSDocPrivateTag, JSDocProtectedTag, JSDocPublicTag, JSDocUnknownTag, JsonSourceFile, BooleanLiteral, NullLiteral, JsonMinusNumericLiteral, ObjectLiteralExpression, ShorthandPropertyAssignment, NumericLiteral, JsonObjectExpressionStatement, JSDocVariadicType } from "./_namespaces/lpc";
 import { DriverType, ILpcConfig } from "../config-types";
 import { ensureLpcConfig, loadLpcConfigFromString, LpcConfig } from "./LpcConfig";
 
@@ -122,9 +122,11 @@ export namespace LpcParser {
         _fileName: string,
         _sourceText: string,
         _languageVersion: ScriptTarget, 
-        _syntaxCursor: IncrementalParser.SyntaxCursor | undefined, _scriptKind: ScriptKind,        
+        _syntaxCursor: IncrementalParser.SyntaxCursor | undefined, 
+        _scriptKind: ScriptKind,        
         _fileHandler: LpcFileHandler,
-        _jsDocParsingMode: JSDocParsingMode
+        _jsDocParsingMode: JSDocParsingMode,
+        _languageVariant: LanguageVariant
     ) {
         NodeConstructor = objectAllocator.getNodeConstructor();
         TokenConstructor = objectAllocator.getTokenConstructor();
@@ -139,7 +141,7 @@ export namespace LpcParser {
         languageVersion = _languageVersion;
         syntaxCursor = _syntaxCursor;
         scriptKind = _scriptKind;
-        languageVariant = getLanguageVariant(_scriptKind);
+        languageVariant = _languageVariant;
         
         macroTable = {
             "__DIR__": createBuiltInMacro(`"${getDirectoryPath(fileName)}"`)
@@ -220,7 +222,7 @@ export namespace LpcParser {
     }        
     
     export function parseJsonText(fileName: string, sourceText: string, languageVersion: ScriptTarget = ScriptTarget.LPC, syntaxCursor?: IncrementalParser.SyntaxCursor, setParentNodes = false): JsonSourceFile {
-        initState(fileName, sourceText, languageVersion, syntaxCursor, ScriptKind.JSON, undefined, JSDocParsingMode.ParseAll);
+        initState(fileName, sourceText, languageVersion, syntaxCursor, ScriptKind.JSON, undefined, JSDocParsingMode.ParseAll, LanguageVariant.Standard);
         sourceFlags = contextFlags;
 
         // Prime the scanner.
@@ -705,9 +707,10 @@ export namespace LpcParser {
         setParentNodes = false,
         scriptKind?: ScriptKind,
         setExternalModuleIndicator?: (file: SourceFile) => void,
-        jsDocParsingMode = JSDocParsingMode.ParseAll
+        jsDocParsingMode = JSDocParsingMode.ParseAll,
+        languageVariant: LanguageVariant = LanguageVariant.LDMud
     ) {
-        initState(fileName, sourceText, languageVersion, syntaxCursor, scriptKind, fileHandler, jsDocParsingMode);
+        initState(fileName, sourceText, languageVersion, syntaxCursor, scriptKind, fileHandler, jsDocParsingMode, languageVariant);
         console.debug("Parsing source file: " + fileName);        
         try {
             const result = parseSourceFileWorker(languageVersion, setParentNodes, scriptKind || ScriptKind.LPC, jsDocParsingMode);
@@ -919,9 +922,7 @@ export namespace LpcParser {
     }
 
     function parsingContextErrors(context: ParsingContext) {
-        // TODO 
-
-        // switch (context) {
+        switch (context) {
         //     case ParsingContext.SourceElements:
         //         return token() === SyntaxKind.DefaultKeyword
         //             ? parseErrorAtCurrentToken(Diagnostics._0_expected, tokenToString(SyntaxKind.ExportKeyword))
@@ -951,8 +952,8 @@ export namespace LpcParser {
         //         return parseErrorAtCurrentToken(Diagnostics.Array_element_destructuring_pattern_expected);
         //     case ParsingContext.ArgumentExpressions:
         //         return parseErrorAtCurrentToken(Diagnostics.Argument_expression_expected);
-        //     case ParsingContext.ObjectLiteralMembers:
-        //         return parseErrorAtCurrentToken(Diagnostics.Property_assignment_expected);
+            case ParsingContext.ObjectLiteralMembers:
+                return parseErrorAtCurrentToken(Diagnostics.Property_assignment_expected);
         //     case ParsingContext.ArrayLiteralMembers:
         //         return parseErrorAtCurrentToken(Diagnostics.Expression_or_comma_expected);
         //     case ParsingContext.JSDocParameters:
@@ -984,9 +985,10 @@ export namespace LpcParser {
         //         return parseErrorAtCurrentToken(Diagnostics.Identifier_expected);
         //     case ParsingContext.Count:
         //         return Debug.fail("ParsingContext.Count used as a context"); // Not a real context, only a marker.
-        //     default:
+            default:
+                console.debug("todo - parsingContextErrors");
         //         Debug.assertNever(context);
-        // }
+        }
     }
 
     // True if positioned at the start of a list element
@@ -1022,16 +1024,16 @@ export namespace LpcParser {
             //     // Include open bracket computed properties. This technically also lets in indexers,
             //     // which would be a candidate for improved error reporting.
             //     return token() === SyntaxKind.OpenBracketToken || isLiteralPropertyName();
-            // case ParsingContext.ObjectLiteralMembers:
-            //     switch (token()) {
-            //         case SyntaxKind.OpenBracketToken:
-            //         case SyntaxKind.AsteriskToken:
-            //         case SyntaxKind.DotDotDotToken:
-            //         case SyntaxKind.DotToken: // Not an object literal member, but don't want to close the object (see `tests/cases/fourslash/completionsDotInObjectLiteral.ts`)
-            //             return true;
-            //         default:
-            //             return isLiteralPropertyName();
-            //     }
+            case ParsingContext.ObjectLiteralMembers:
+                switch (token()) {
+                    case SyntaxKind.OpenBracketToken:
+                    case SyntaxKind.AsteriskToken:
+                    case SyntaxKind.DotDotDotToken:
+                    case SyntaxKind.DotToken: // Not an object literal member, but don't want to close the object (see `tests/cases/fourslash/completionsDotInObjectLiteral.ts`)
+                        return true;
+                    default:
+                        return isLiteralPropertyName();
+                }
             case ParsingContext.RestProperties:
                 return isLiteralPropertyName();
             // case ParsingContext.ObjectBindingElements:
@@ -1229,8 +1231,7 @@ export namespace LpcParser {
                 case SyntaxKind.NoShadowKeyword:
                 case SyntaxKind.BytesKeyword:                
                 case SyntaxKind.LwObjectKeyword:
-                case SyntaxKind.ClosureKeyword:
-                case SyntaxKind.SymbolKeyword:
+                case SyntaxKind.ClosureKeyword:                
                 case SyntaxKind.BufferKeyword:
                 case SyntaxKind.IntKeyword:
                 case SyntaxKind.FloatKeyword:
@@ -1254,6 +1255,7 @@ export namespace LpcParser {
                     // // }
                     // continue;                
                 case SyntaxKind.StatusKeyword:
+                case SyntaxKind.SymbolKeyword:
                     return languageVariant === LanguageVariant.LDMud;
                 case SyntaxKind.Identifier:
                     // probably a function without modifier or type
@@ -1283,12 +1285,13 @@ export namespace LpcParser {
             case ParsingContext.SwitchClauses:
             case ParsingContext.TypeMembers:
             case ParsingContext.ClassMembers:
-            case ParsingContext.EnumMembers:
-            case ParsingContext.ObjectLiteralMembers:
+            case ParsingContext.EnumMembers:            
             case ParsingContext.ObjectBindingElements:
             case ParsingContext.ImportOrExportSpecifiers:
             case ParsingContext.ImportAttributes:
                 return token() === SyntaxKind.CloseBraceToken || token() === SyntaxKind.ColonCloseParenToken;
+            case ParsingContext.ObjectLiteralMembers:
+                return token() === SyntaxKind.CloseBraceToken;
             case ParsingContext.PramgaArguments:
                 return token() === SyntaxKind.NewLineTrivia;
             case ParsingContext.SwitchPreBlock:                
@@ -2706,7 +2709,7 @@ export namespace LpcParser {
             case SyntaxKind.BytesKeyword:            
             case SyntaxKind.LwObjectKeyword:
             case SyntaxKind.ClosureKeyword:
-            case SyntaxKind.SymbolKeyword:
+            
             case SyntaxKind.BufferKeyword:
             case SyntaxKind.FunctionKeyword:
             case SyntaxKind.IntKeyword:
@@ -2720,6 +2723,7 @@ export namespace LpcParser {
                 // If these are followed by a dot, then parse these out as a dotted type reference instead.
                 return parseKeywordAndNoDot();
             case SyntaxKind.StatusKeyword:     
+            case SyntaxKind.SymbolKeyword:  
                 // status is only available in LD           
                 return languageVariant === LanguageVariant.LDMud ? parseKeywordAndNoDot() : undefined;
             case SyntaxKind.AsteriskEqualsToken:
@@ -2980,8 +2984,7 @@ export namespace LpcParser {
         switch (token()) {
             case SyntaxKind.BytesKeyword:            
             case SyntaxKind.LwObjectKeyword:
-            case SyntaxKind.ClosureKeyword:
-            case SyntaxKind.SymbolKeyword:
+            case SyntaxKind.ClosureKeyword:            
             case SyntaxKind.BufferKeyword:
             case SyntaxKind.NullKeyword:
             case SyntaxKind.TrueKeyword:
@@ -3004,6 +3007,7 @@ export namespace LpcParser {
             //         return isTypeName();
             //     });
             case SyntaxKind.StatusKeyword:
+            case SyntaxKind.SymbolKeyword:
                 return languageVariant === LanguageVariant.LDMud;
         }        
 
@@ -4607,6 +4611,13 @@ export namespace LpcParser {
             //     return parseTemplateExpression(/*isTaggedTemplate*/ false);            
             case SyntaxKind.LambdaToken:
                 return parseLambdaExpression();                      
+            case SyntaxKind.OpenBraceToken:
+                if (scriptKind === ScriptKind.JSON) {
+                    return parseJsonObjectLiteralExpression();
+                } else {
+                    // fall through and report error
+                    break;
+                }
         }
 
         // parse a variable declaration as an exression
@@ -4906,7 +4917,7 @@ export namespace LpcParser {
         }
 
         export function parseIsolatedJSDocComment(content: string, start: number | undefined, length: number | undefined): { jsDoc: JSDoc; diagnostics: Diagnostic[]; } | undefined {
-            initState("", content, ScriptTarget.Latest, /*syntaxCursor*/ undefined, ScriptKind.LPC, undefined, JSDocParsingMode.ParseAll);
+            initState("", content, ScriptTarget.Latest, /*syntaxCursor*/ undefined, ScriptKind.LPC, undefined, JSDocParsingMode.ParseAll, LanguageVariant.Standard);
             const jsDoc = doInsideOfContext(NodeFlags.JSDoc, () => parseJSDocCommentWorker(start, length));
 
             const sourceFile = { languageVariant: LanguageVariant.Standard, text: content } as SourceFile;
@@ -6354,7 +6365,7 @@ function setExternalModuleIndicator(sourceFile: SourceFile) {
     sourceFile.externalModuleIndicator = true;
 }
 
-export function createSourceFile(fileName: string, sourceText: string, config: ILpcConfig, fileHandler: LpcFileHandler, languageVersionOrOptions: ScriptTarget | CreateSourceFileOptions, setParentNodes = false, scriptKind?: ScriptKind): SourceFile {
+export function createSourceFile(fileName: string, sourceText: string, fileHandler: LpcFileHandler, languageVersionOrOptions: ScriptTarget | CreateSourceFileOptions, setParentNodes = false, scriptKind?: ScriptKind, languageVariant?: LanguageVariant): SourceFile {
     tracing?.push(tracing.Phase.Parse, "createSourceFile", { path: fileName }, /*separateBeginAndEnd*/ true);
     performance.mark("beforeParse");
     let result: SourceFile;
@@ -6363,7 +6374,8 @@ export function createSourceFile(fileName: string, sourceText: string, config: I
     const setIndicator = (file: SourceFile) => {
         setExternalModuleIndicator(file);
     };
-    result = LpcParser.parseSourceFile(fileName, sourceText, fileHandler, ScriptTarget.LPC, undefined, false, undefined, setIndicator);
+    
+    result = LpcParser.parseSourceFile(fileName, sourceText, fileHandler, ScriptTarget.LPC, undefined, false, undefined, setIndicator, undefined, languageVariant);
 
 
     performance.mark("afterParse");

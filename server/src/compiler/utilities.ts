@@ -5618,15 +5618,6 @@ export function isStringANonContextualKeyword(name: string) {
     return token !== undefined && isNonContextualKeyword(token);
 }
 
-/** @internal */
-export function getLanguageVariant(scriptKind: ScriptKind) {
-    switch (scriptKind) {        
-        case ScriptKind.FluffOS:
-            return LanguageVariant.FluffOS;
-        default:
-            return LanguageVariant.LDMud;
-    }    
-}
 
 /** @internal */
 export function isPunctuation(token: SyntaxKind): token is PunctuationSyntaxKind {

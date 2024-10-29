@@ -1919,17 +1919,17 @@ export function createLanguageServiceSourceFile(
     scriptTargetOrOptions: ScriptTarget | CreateSourceFileOptions,
     version: string,
     setNodeParents: boolean,
-    scriptKind?: ScriptKind
+    languageVariant: LanguageVariant,
+    scriptKind?: ScriptKind,    
 ): SourceFile {
-    const config = ensureLpcConfig();
     const sourceFile = createSourceFile(
         fileName,
-        getSnapshotText(scriptSnapshot),
-        config,
+        getSnapshotText(scriptSnapshot),    
         fileHandler,
         scriptTargetOrOptions,
         setNodeParents,
-        scriptKind
+        scriptKind,
+        languageVariant
     );
     setSourceFileFields(sourceFile, scriptSnapshot, version);
     return sourceFile;
@@ -1940,7 +1940,8 @@ export function updateLanguageServiceSourceFile(
     scriptSnapshot: IScriptSnapshot,
     fileHandler: LpcFileHandler,
     version: string,
-    textChangeRange: TextChangeRange | undefined,
+    textChangeRange: TextChangeRange | undefined,    
+    languageVariant: LanguageVariant,
     aggressiveChecks?: boolean
 ): SourceFile {
     // If we were given a text change range, and our version or open-ness changed, then
@@ -1979,7 +1980,6 @@ export function updateLanguageServiceSourceFile(
                         : changedText + suffix;
             }
 
-            const config = ensureLpcConfig();
             const newSourceFile = updateSourceFile(
                 sourceFile,
                 newText,
@@ -2019,6 +2019,7 @@ export function updateLanguageServiceSourceFile(
         options,        
         version,
         /*setNodeParents*/ true,
+        languageVariant,
         sourceFile.scriptKind
     );
 }
@@ -2177,6 +2178,7 @@ class SyntaxTreeCache {
 
         const scriptKind = getScriptKind(fileName, this.host);
         const version = this.host.getScriptVersion(fileName);
+        const languageVariant = this.host.getCompilationSettings()?.driverType;
         let sourceFile: SourceFile | undefined;
 
         if (this.currentFileName !== fileName) {
@@ -2193,13 +2195,13 @@ class SyntaxTreeCache {
                 // These files are used to produce syntax-based highlighting, which reads JSDoc, so we must use ParseAll.
                 jsDocParsingMode: JSDocParsingMode.ParseAll,
             };            
-            sourceFile = createLanguageServiceSourceFile(fileName, scriptSnapshot, this.host.fileHandler, options, version, /*setNodeParents*/ true, scriptKind);
+            sourceFile = createLanguageServiceSourceFile(fileName, scriptSnapshot, this.host.fileHandler, options, version, /*setNodeParents*/ true, languageVariant, scriptKind);
         }
         else if (this.currentFileVersion !== version) {            
             // This is the same file, just a newer version. Incrementally parse the file.
             const editRange = scriptSnapshot.getChangeRange(this.currentFileScriptSnapshot!);
                         
-            sourceFile = updateLanguageServiceSourceFile(this.currentSourceFile!, scriptSnapshot, this.host.fileHandler, version, editRange);
+            sourceFile = updateLanguageServiceSourceFile(this.currentSourceFile!, scriptSnapshot, this.host.fileHandler, version, editRange, languageVariant);
         }
 
         if (sourceFile) {

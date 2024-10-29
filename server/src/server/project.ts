@@ -147,7 +147,10 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
         readonly projectKind: ProjectKind,
         readonly projectService: ProjectService,
         private documentRegistry: DocumentRegistry,
+        hasExplicitListOfFiles: boolean,
+        lastFileExceededProgramSize: string | undefined,
         private compilerOptions: CompilerOptions,
+        public compileOnSaveEnabled: boolean,
         protected watchOptions: WatchOptions | undefined,
         directoryStructureHost: DirectoryStructureHost,
         currentDirectory: string
@@ -1042,7 +1045,7 @@ export class ConfiguredProject extends Project {
         cachedDirectoryStructureHost: CachedDirectoryStructureHost,
         pendingUpdateReason: string,
     ) {
-        super(configFileName, ProjectKind.Configured, projectService, documentRegistry, {}, /* watch options */ undefined, cachedDirectoryStructureHost, getDirectoryPath(configFileName));
+        super(configFileName, ProjectKind.Configured, projectService, documentRegistry, /*hasExplicitListOfFiles*/ false, /*lastFileExceededProgramSize*/ undefined, {}, /*compileOnSaveEnabled*/ false, /* watch options */ undefined, cachedDirectoryStructureHost, getDirectoryPath(configFileName));
         this.pendingUpdateLevel = ProgramUpdateLevel.Full;
         this.pendingUpdateReason = pendingUpdateReason;
     }   
@@ -1152,10 +1155,36 @@ export function isInferredProject(project: Project): project is InferredProject 
 }
 
 /**@internal */
-export function isBackgroundProject(project: Project): project is Project {//} AutoImportProviderProject | AuxiliaryProject {
-    console.warn("todo - isBackgroundProject");
-    return project.projectKind === ProjectKind.AutoImportProvider || project.projectKind === ProjectKind.Auxiliary;
+export function isBackgroundProject(project: Project): project is /*AutoImportProviderProject |*/ AuxiliaryProject {    
+    if (project.projectKind === ProjectKind.AutoImportProvider) {
+        Debug.fail("not implemented");
+    }
+    return project.projectKind === ProjectKind.Auxiliary;
 }
+
+
+/** @internal */
+export class AuxiliaryProject extends Project {
+    /** @internal */ rootFile: NormalizedPath | undefined;
+    constructor(projectService: ProjectService, documentRegistry: DocumentRegistry, compilerOptions: CompilerOptions, currentDirectory: string) {
+        super(
+            projectService.newAuxiliaryProjectName(), 
+            ProjectKind.Auxiliary, projectService, 
+            documentRegistry, 
+            /*hasExplicitListOfFiles*/ false, /*lastFileExceededProgramSize*/ undefined, 
+            compilerOptions, /*compileOnSaveEnabled*/ false, /*watchOptions*/ undefined, projectService.host, currentDirectory);
+    }
+
+    override isOrphan(): boolean {
+        return true;
+    }
+
+    override scheduleInvalidateResolutionsOfFailedLookupLocations(): void {
+        // Invalidation will happen on-demand as part of updateGraph
+        return;
+    }
+}
+
 
 export class InferredProject extends Project {    
 
@@ -1170,15 +1199,15 @@ export class InferredProject extends Project {
         typeAcquisition: TypeAcquisition | undefined,
     ) {
         super(
-            "todo",//projectService.newInferredProjectName(),
+            projectService.newInferredProjectName(),
             ProjectKind.Inferred,
             projectService,
             documentRegistry,
             // TODO: GH#18217
-            // /*files*/ undefined!,
-            // /*lastFileExceededProgramSize*/ undefined,
+            /*files*/ undefined!,
+            /*lastFileExceededProgramSize*/ undefined,
             compilerOptions,
-            // /*compileOnSaveEnabled*/ false,
+            /*compileOnSaveEnabled*/ false,
             watchOptions,
             projectService.host,
             currentDirectory,

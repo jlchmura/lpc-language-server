@@ -720,8 +720,7 @@ export const enum SyntaxKind {
     FalseKeyword,
     TrueKeyword,
     StringKeyword,
-    LwObjectKeyword,    
-    SymbolKeyword,
+    LwObjectKeyword,        
     UndefinedKeyword,
     AnyKeyword,
     IsKeyword,
@@ -770,6 +769,7 @@ export const enum SyntaxKind {
     // non-reserved keywords go below this line
     ClassKeyword,
     StatusKeyword,
+    SymbolKeyword, // not reserved in fluffos
     NewKeyword,
 
     // Parse Tree Nodes
@@ -4781,7 +4781,7 @@ export interface SyntaxList extends Node {
 }
 
 export const enum LanguageVariant {
-    LDMud,
+    LDMud = 0,
     FluffOS,
     Standard
 }
@@ -5359,8 +5359,8 @@ export type FilePreprocessingDiagnostics = FilePreprocessingLibReferenceDiagnost
 export const enum ScriptKind {
     Unknown = 0,
     LPC = 1,
-    LDMud = 2,
-    FluffOS = 3,
+    // LDMud = 2,
+    // FluffOS = 3,
     External = 5,
     JSON = 6,
     /**

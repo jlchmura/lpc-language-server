@@ -107,7 +107,7 @@ declare module "../compiler/types.js" {
     export interface SourceFile {
         /** @internal */ version: string;
         /** @internal */ scriptSnapshot: IScriptSnapshot | undefined;
-        /** @internal */ nameTable: Map<string, number> | undefined;
+        /** @internal */ nameTable: Map<string, number> | undefined;        
 
         /** @internal */ getNamedDeclarations(): Map<
             string,

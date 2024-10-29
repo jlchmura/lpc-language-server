@@ -438,6 +438,7 @@ export function createDocumentRegistryInternal(
                 ? undefined
                 : (compilationSettingsOrHost as MinimalResolutionCacheHost);
         const scriptTarget = ScriptTarget.LPC; //  scriptKind === ScriptKind.JSON ? ScriptTarget.JSON : getEmitScriptTarget(compilationSettings);
+        const languageVariant = compilationSettings?.driverType;
         const sourceFileOptions: CreateSourceFileOptions =
             typeof languageVersionOrOptions === "object"
                 ? languageVersionOrOptions
@@ -519,6 +520,7 @@ export function createDocumentRegistryInternal(
                 sourceFileOptions,
                 version,
                 /*setNodeParents*/ false,
+                languageVariant,                
                 scriptKind
             );
             if (externalCache) {
@@ -541,7 +543,8 @@ export function createDocumentRegistryInternal(
                     version,
                     scriptSnapshot.getChangeRange(
                         entry.sourceFile.scriptSnapshot
-                    )
+                    ),
+                    languageVariant
                 );
                 if (externalCache) {
                     externalCache.setDocument(
