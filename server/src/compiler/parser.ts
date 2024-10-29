@@ -1,6 +1,4 @@
 import { isIdentifier as isIdentifierNode, BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange, PrefixUnaryExpression, first, LanguageVariant, EqualsToken, LpcConfigSourceFile, createBaseNodeFactory, PrefixUnaryOperator, Program, LpcFileHandler, ParenthesizedExpression, ArrayLiteralExpression, LambdaExpression, PunctuationSyntaxKind, PunctuationToken, LambdaOperatorToken, CastExpression, PropertyAccessExpression, CloneObjectExpression, NewExpression, trimQuotes, createScanner, isKeyword, PunctuationOrKeywordSyntaxKind, mapDefined, getJSDocCommentRanges, LabeledStatement, PropertyName, Token, tokenToString, addRelatedInfo, tokenIsIdentifierOrKeyword, getBinaryOperatorPrecedence, addRange, append, ArrayTypeNode, canHaveJSDoc, concatenate, containsParseError, Diagnostic, EntityName, getSpellingSuggestion, identity, idText, isIdentifierText, isTypeReferenceNode, JSDoc, JSDocAugmentsTag, JSDocCallbackTag, JSDocComment, JSDocImplementsTag, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocParameterTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThrowsTag, JSDocTypedefTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, nodeIsMissing, noop, PropertyAccessEntityNameExpression, setParent, skipTrivia, some, CharacterCodes, MapLike, KeywordSyntaxKind, startsWith, textToKeywordObj, ModifierLike, isModifierKind, MissingDeclaration, setTextRangePos, BindingPattern, KeywordTypeSyntaxKind, LiteralTypeNode, IntLiteral, FloatLiteral, LiteralLikeNode, isLiteralKind, TypeReferenceNode, getFullWidth, OperatorPrecedence, UnaryExpression, isLeftHandSideExpression, isAssignmentOperator, isKeywordOrPunctuation, UpdateExpression, PrimaryExpression, nodeIsPresent, PropertyAccessToken, IterationStatement, InheritClauseType, ObjectType, StructTypeNode, NamedDeclaration, TypeElement, PropertySignature, MethodSignature, StructDeclaration, TypeLiteralNode, TypeAssertion, NewStructExpression, ObjectLiteralElementLike, PropertyAssignment, getStartPositionOfLine, MappingLiteralExpression, MappingEntryExpression, isStringOrNumericLiteralLike, ElementAccessExpression, isFunctionDeclaration, RangeExpression, isPunctuation, LambdaIdentifierExpression, LambdaOperatorExpression, PreprocessorDirective, IncludeDirective, DefineDirective, UndefDirective, Macro, Scanner, last, ReadonlyTextRange, MacroParameter, forEachEntry, Ternary, isIntLiteral, isArrayTypeNode, SuperAccessExpression, isIndexedAccessTypeNode, isStringLiteral, isBinaryExpression, PragmaDirective, SpreadElement, CatchStatement, CatchExpression, getDirectoryPath, EvaluateExpression, setParentRecursive, ExpressionWithTypeArguments, JSDocThisTag, isJSDocTypeTag, isJSDocReturnTag, JSDocAuthorTag, QualifiedName, JSDocClassTag, JSDocDeprecatedTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, JSDocOverrideTag, JSDocPrivateTag, JSDocProtectedTag, JSDocPublicTag, JSDocUnknownTag, JsonSourceFile, BooleanLiteral, NullLiteral, JsonMinusNumericLiteral, ObjectLiteralExpression, ShorthandPropertyAssignment, NumericLiteral, JsonObjectExpressionStatement, JSDocVariadicType } from "./_namespaces/lpc";
-import { DriverType, ILpcConfig } from "../config-types";
-import { ensureLpcConfig, loadLpcConfigFromString, LpcConfig } from "./LpcConfig";
 
 const enum SpeculationKind {
     TryParse,
@@ -922,69 +920,63 @@ export namespace LpcParser {
 
     function parsingContextErrors(context: ParsingContext) {
         switch (context) {
-        //     case ParsingContext.SourceElements:
-        //         return token() === SyntaxKind.DefaultKeyword
-        //             ? parseErrorAtCurrentToken(Diagnostics._0_expected, tokenToString(SyntaxKind.ExportKeyword))
-        //             : parseErrorAtCurrentToken(Diagnostics.Declaration_or_statement_expected);
-        //     case ParsingContext.BlockStatements:
-        //         return parseErrorAtCurrentToken(Diagnostics.Declaration_or_statement_expected);
-        //     case ParsingContext.SwitchClauses:
-        //         return parseErrorAtCurrentToken(Diagnostics.case_or_default_expected);
-        //     case ParsingContext.SwitchClauseStatements:
-        //         return parseErrorAtCurrentToken(Diagnostics.Statement_expected);
-        //     case ParsingContext.RestProperties: // fallthrough
-        //     case ParsingContext.TypeMembers:
-        //         return parseErrorAtCurrentToken(Diagnostics.Property_or_signature_expected);
-        //     case ParsingContext.ClassMembers:
-        //         return parseErrorAtCurrentToken(Diagnostics.Unexpected_token_A_constructor_method_accessor_or_property_was_expected);
+            case ParsingContext.SourceElements:
+                return parseErrorAtCurrentToken(Diagnostics.Declaration_or_statement_expected);
+            case ParsingContext.BlockStatements:
+                return parseErrorAtCurrentToken(Diagnostics.Declaration_or_statement_expected);
+            case ParsingContext.SwitchClauses:
+                return parseErrorAtCurrentToken(Diagnostics.case_or_default_expected);
+            case ParsingContext.SwitchClauseStatements:
+                return parseErrorAtCurrentToken(Diagnostics.Statement_expected);
+            case ParsingContext.RestProperties: // fallthrough
+            case ParsingContext.TypeMembers:
+                return parseErrorAtCurrentToken(Diagnostics.Property_or_signature_expected);
+            case ParsingContext.ClassMembers:
+                return parseErrorAtCurrentToken(Diagnostics.Unexpected_token_A_constructor_method_accessor_or_property_was_expected);
         //     case ParsingContext.EnumMembers:
         //         return parseErrorAtCurrentToken(Diagnostics.Enum_member_expected);
-        //     case ParsingContext.HeritageClauseElement:
-        //         return parseErrorAtCurrentToken(Diagnostics.Expression_expected);
-        //     case ParsingContext.VariableDeclarations:
-        //         return isKeyword(token())
-        //             ? parseErrorAtCurrentToken(Diagnostics._0_is_not_allowed_as_a_variable_declaration_name, tokenToString(token())!)
-        //             : parseErrorAtCurrentToken(Diagnostics.Variable_declaration_expected);
-        //     case ParsingContext.ObjectBindingElements:
-        //         return parseErrorAtCurrentToken(Diagnostics.Property_destructuring_pattern_expected);
-        //     case ParsingContext.ArrayBindingElements:
-        //         return parseErrorAtCurrentToken(Diagnostics.Array_element_destructuring_pattern_expected);
-        //     case ParsingContext.ArgumentExpressions:
-        //         return parseErrorAtCurrentToken(Diagnostics.Argument_expression_expected);
+            case ParsingContext.HeritageClauseElement:
+                return parseErrorAtCurrentToken(Diagnostics.Expression_expected);
+            case ParsingContext.VariableDeclarations:
+                return isKeyword(token())
+                    ? parseErrorAtCurrentToken(Diagnostics._0_is_not_allowed_as_a_variable_declaration_name, tokenToString(token())!)
+                    : parseErrorAtCurrentToken(Diagnostics.Variable_declaration_expected);
+            case ParsingContext.ObjectBindingElements:
+                return parseErrorAtCurrentToken(Diagnostics.Property_destructuring_pattern_expected);
+            case ParsingContext.ArrayBindingElements:
+                return parseErrorAtCurrentToken(Diagnostics.Array_element_destructuring_pattern_expected);
+            case ParsingContext.ArgumentExpressions:
+                return parseErrorAtCurrentToken(Diagnostics.Argument_expression_expected);
             case ParsingContext.ObjectLiteralMembers:
                 return parseErrorAtCurrentToken(Diagnostics.Property_assignment_expected);
-        //     case ParsingContext.ArrayLiteralMembers:
-        //         return parseErrorAtCurrentToken(Diagnostics.Expression_or_comma_expected);
-        //     case ParsingContext.JSDocParameters:
-        //         return parseErrorAtCurrentToken(Diagnostics.Parameter_declaration_expected);
-        //     case ParsingContext.Parameters:
-        //         return isKeyword(token())
-        //             ? parseErrorAtCurrentToken(Diagnostics._0_is_not_allowed_as_a_parameter_name, tokenToString(token())!)
-        //             : parseErrorAtCurrentToken(Diagnostics.Parameter_declaration_expected);
-        //     case ParsingContext.TypeParameters:
-        //         return parseErrorAtCurrentToken(Diagnostics.Type_parameter_declaration_expected);
-        //     case ParsingContext.TypeArguments:
-        //         return parseErrorAtCurrentToken(Diagnostics.Type_argument_expected);
-        //     case ParsingContext.TupleElementTypes:
-        //         return parseErrorAtCurrentToken(Diagnostics.Type_expected);
-        //     case ParsingContext.HeritageClauses:
-        //         return parseErrorAtCurrentToken(Diagnostics.Unexpected_token_expected);
+            case ParsingContext.ArrayLiteralMembers:
+                return parseErrorAtCurrentToken(Diagnostics.Expression_or_comma_expected);
+            case ParsingContext.JSDocParameters:
+                return parseErrorAtCurrentToken(Diagnostics.Parameter_declaration_expected);
+            case ParsingContext.Parameters:
+                return isKeyword(token())
+                    ? parseErrorAtCurrentToken(Diagnostics._0_is_not_allowed_as_a_parameter_name, tokenToString(token())!)
+                    : parseErrorAtCurrentToken(Diagnostics.Parameter_declaration_expected);
+            case ParsingContext.TypeParameters:
+                return parseErrorAtCurrentToken(Diagnostics.Type_parameter_declaration_expected);
+            case ParsingContext.TypeArguments:
+                return parseErrorAtCurrentToken(Diagnostics.Type_argument_expected);
+            case ParsingContext.TupleElementTypes:
+                return parseErrorAtCurrentToken(Diagnostics.Type_expected);
+            case ParsingContext.HeritageClauses:
+                return parseErrorAtCurrentToken(Diagnostics.Unexpected_token_expected);
         //     case ParsingContext.ImportOrExportSpecifiers:
         //         if (token() === SyntaxKind.FromKeyword) {
         //             return parseErrorAtCurrentToken(Diagnostics._0_expected, "}");
         //         }
         //         return parseErrorAtCurrentToken(Diagnostics.Identifier_expected);
-        //     case ParsingContext.JsxAttributes:
-        //         return parseErrorAtCurrentToken(Diagnostics.Identifier_expected);
-        //     case ParsingContext.JsxChildren:
-        //         return parseErrorAtCurrentToken(Diagnostics.Identifier_expected);
-        //     case ParsingContext.ImportAttributes:
-        //         return parseErrorAtCurrentToken(Diagnostics.Identifier_or_string_literal_expected);
-        //     case ParsingContext.JSDocComment:
-        //         return parseErrorAtCurrentToken(Diagnostics.Identifier_expected);
-        //     case ParsingContext.Count:
-        //         return Debug.fail("ParsingContext.Count used as a context"); // Not a real context, only a marker.
+        
+            case ParsingContext.JSDocComment:
+                return parseErrorAtCurrentToken(Diagnostics.Identifier_expected);
+            case ParsingContext.Count:
+                return Debug.fail("ParsingContext.Count used as a context"); // Not a real context, only a marker.
             default:
+                Debug.fail("Unknown ParsingContext");
                 console.debug("todo - parsingContextErrors");
         //         Debug.assertNever(context);
         }
@@ -1172,6 +1164,7 @@ export namespace LpcParser {
             case SyntaxKind.NoMaskKeyword:
             case SyntaxKind.NoSaveKeyword:
             case SyntaxKind.NoShadowKeyword:   
+            case SyntaxKind.VarArgsKeyword:
             case SyntaxKind.FunctionKeyword:
             case SyntaxKind.IntKeyword:
             case SyntaxKind.FloatKeyword:
@@ -1227,6 +1220,7 @@ export namespace LpcParser {
                 case SyntaxKind.StaticKeyword:
                 case SyntaxKind.NoMaskKeyword:
                 case SyntaxKind.NoSaveKeyword:
+                case SyntaxKind.VarArgsKeyword:
                 case SyntaxKind.NoShadowKeyword:
                 case SyntaxKind.BytesKeyword:                
                 case SyntaxKind.LwObjectKeyword:
@@ -1325,11 +1319,7 @@ export namespace LpcParser {
                 // All other tokens should cause the type-argument to terminate except comma token
                 return token() !== SyntaxKind.CommaToken;
             case ParsingContext.HeritageClauses:
-                return token() === SyntaxKind.OpenBraceToken || token() === SyntaxKind.CloseBraceToken;
-            case ParsingContext.JsxAttributes:
-                return token() === SyntaxKind.GreaterThanToken || token() === SyntaxKind.SlashToken;
-            case ParsingContext.JsxChildren:
-                return token() === SyntaxKind.LessThanToken && lookAhead(nextTokenIsSlash);
+                return token() === SyntaxKind.OpenBraceToken || token() === SyntaxKind.CloseBraceToken;            
             default:
                 return false;
         }
@@ -1583,6 +1573,7 @@ export namespace LpcParser {
             case SyntaxKind.NoMaskKeyword:
             case SyntaxKind.NoSaveKeyword:
             case SyntaxKind.NoShadowKeyword:                         
+            case SyntaxKind.VarArgsKeyword:
             // primitive types               
             case SyntaxKind.FunctionKeyword: 
             case SyntaxKind.BytesKeyword:
@@ -1653,16 +1644,19 @@ export namespace LpcParser {
                 }
         }
 
-        parseExpectedToken(SyntaxKind.NewLineTrivia, Diagnostics.Expected_newline_after_directive);        
+        const newLineParsed = parseExpected(SyntaxKind.NewLineTrivia, Diagnostics.Expected_newline_after_directive, false);
         scanner.setReportLineBreak(false);
-        // nextToken(); // advance past the newline
-
+        
         if (directive?.kind === SyntaxKind.IncludeDirective) {
             processIncludeDirective(directive as IncludeDirective);
         }
 
         if (!directive) {
             directive = createMissingNode(SyntaxKind.IncludeDirective, /*reportAtCurrentPosition*/ true, Diagnostics.Unexpected_keyword_or_identifier);
+        }
+        
+        if (newLineParsed) {
+            nextToken(); // advance past newline
         }
 
         return directive;
@@ -4717,9 +4711,7 @@ export namespace LpcParser {
         ObjectBindingElements,     // Binding elements in object binding list
         ArrayBindingElements,      // Binding elements in array binding list
         ArgumentExpressions,       // Expressions in argument list
-        ObjectLiteralMembers,      // Members in object literal
-        JsxAttributes,             // Attributes in jsx element
-        JsxChildren,               // Things between opening and closing JSX tags
+        ObjectLiteralMembers,      // Members in object literal        
         ArrayLiteralMembers,       // Members in array literal
         MappingLiteralMembers,     // Members in mapping literal
         MappingEntryMembers,       // Members in mapping literal entry

@@ -2444,7 +2444,7 @@ export type PunctuationSyntaxKind =
     | SyntaxKind.CaretEqualsToken;
 
 /** @internal */
-export type PunctuationOrKeywordSyntaxKind = PunctuationSyntaxKind | KeywordSyntaxKind | DirectiveSyntaxKind;
+export type PunctuationOrKeywordSyntaxKind = PunctuationSyntaxKind | KeywordSyntaxKind | DirectiveSyntaxKind | SyntaxKind.NewLineTrivia;
 
 export type ExponentiationOperator = SyntaxKind.AsteriskAsteriskToken;
 

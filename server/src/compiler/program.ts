@@ -473,8 +473,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
     }
 
     function getResolvedModule(file: SourceFile, moduleName: string, mode: ResolutionMode) {        
-        moduleName = getNormalizedModuleName(moduleName);        
-        return resolvedModules?.get(file.path)?.get(moduleName, mode);
+        return moduleName ? resolvedModules?.get(file.path)?.get(getNormalizedModuleName(moduleName), mode) : undefined;
     }
 
     function getProgramDiagnostics(sourceFile: SourceFile): readonly Diagnostic[] {
