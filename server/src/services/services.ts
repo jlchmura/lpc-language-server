@@ -190,6 +190,7 @@ import {
     isComputedPropertyName,
     isPropertyAccessExpression,
     isPropertyName,
+    isIncludeDirective,
 } from "./_namespaces/lpc.js";
 
 
@@ -879,8 +880,12 @@ function addSyntheticNodes(
 
     scanner.resetTokenState(pos, true);
     while (pos < end) {        
-        const token = scanner.scan();
+        let token = scanner.scan();
         const textPos = scanner.getTokenEnd();
+        
+        if (token === SyntaxKind.LessThanToken && isIncludeDirective(parent)) {
+            token = scanner.reScanLessThanTokenAsStringLiteral();
+        }
 
         if (textPos <= end) {            
             while (skipIdx >= 0 && skipRanges[skipIdx].end < textPos && skipIdx < skipRanges.length - 1) {
@@ -890,8 +895,8 @@ function addSyntheticNodes(
             // if pos is inside a skipped range, then continue
             if (skipIdx >= 0 && textPos >= skipRanges[skipIdx].pos && textPos <= skipRanges[skipIdx].end) {
                 continue;
-            }
-            
+            }                        
+
             if (token === SyntaxKind.Identifier) {
                 if (hasTabstop(parent)) {
                     continue;

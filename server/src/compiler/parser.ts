@@ -1738,11 +1738,12 @@ export namespace LpcParser {
                 ()=>{
                     currentIncludeDirective = saveDirective!;                    
                     currentToken = scanner.getToken();
-                    return true;
+                    return false;
                 }
             );            
             
             currentIncludeDirective ??= includeDirective;                        
+            
             // prime the scanner
             nextToken(); 
         }
