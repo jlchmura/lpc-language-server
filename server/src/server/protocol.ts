@@ -858,3 +858,31 @@ export type CompletionInfo = ChangePropertyTypes<lpc.CompletionInfo, {
     entries: readonly CompletionEntry[];
     optionalReplacementSpan: TextSpan;
 }>;
+
+/**
+ * Arguments for EncodedSemanticClassificationsRequest request.
+ */
+export interface EncodedSemanticClassificationsRequestArgs extends FileRequestArgs {
+    /**
+     * Start position of the span.
+     */
+    start: number;
+    /**
+     * Length of the span.
+     */
+    length: number;    
+}
+
+/**
+ * Request whose sole parameter is a file name.
+ */
+export interface FileRequest {
+    arguments: FileRequestArgs;
+}
+
+/**
+ * A request to get encoded semantic classifications for a span in the file
+ */
+export interface EncodedSemanticClassificationsRequest {
+    arguments: EncodedSemanticClassificationsRequestArgs;
+}

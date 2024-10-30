@@ -90,26 +90,31 @@ export function activate(context: ExtensionContext) {
     // Start the client. This will also launch the server
     client.start();
 
-    // const provider: DocumentSemanticTokensProvider = {
-    //     provideDocumentSemanticTokens: function (
-    //         document: TextDocument,
-    //         token: CancellationToken
-    //     ): Promise<SemanticTokens> {
-    //         //console.log("[Request] textDocument/semanticTokens/full");
+    const provider: DocumentSemanticTokensProvider = {
+        provideDocumentSemanticTokens: function (
+            document: TextDocument,
+            token: CancellationToken
+        ): Promise<SemanticTokens> {
+            console.log("[Request] textDocument/semanticTokens/full");
 
-    //         return client
-    //             .sendRequest("textDocument/semanticTokens/full", {
-    //                 textDocument: { uri: document.uri.toString() },
-    //             })
-    //             .catch((e) => {
-    //                 console.error("Error sending semantic tokens request", e);
-    //                 return e;
-    //             })
-    //             .then((res) => res as SemanticTokens);
-    //     },
-    //     onDidChangeSemanticTokens: null,
-    //     provideDocumentSemanticTokensEdits: null,
-    // };
+            return client
+                .sendRequest("encodedSemanticClassifications-full", {
+                    arguments: { file: document.uri.toString(),
+                        start: 0, 
+                        length: document.getText().length
+                     },
+                }, token)
+                .catch((e) => {
+                    console.error("Error sending semantic tokens request", e);
+                    return e;
+                })
+                .then((res) => {
+                    return res as SemanticTokens
+                });
+        },
+        onDidChangeSemanticTokens: null,
+        provideDocumentSemanticTokensEdits: null,
+    };
 
     const legend: SemanticTokensLegend = {
         tokenTypes: [
@@ -138,30 +143,30 @@ export function activate(context: ExtensionContext) {
             "local",
         ],
     };
+    
+    context.subscriptions.push(
+        languages.registerDocumentSemanticTokensProvider(
+            docSel,
+            provider,
+            legend
+        )
+    );
 
-    // context.subscriptions.push(
-    //     languages.registerDocumentSemanticTokensProvider(
-    //         docSel,
-    //         provider,
-    //         legend
-    //     )
-    // );
+    // const p: DefinitionProvider = {
+    //     // provideDefinition(document: TextDocument, position: any, token: CancellationToken) {
+    //     //     return client.sendRequest("textDocument/definition", {
+    //     //         textDocument: { uri: document.uri.toString() },
+    //     //         position: position
+    //     //     }).then((res) => res);
+    //     // }
+    //     provideDefinition(document, position, cancellationToken) {
+    //         const token = document.getWordRangeAtPosition(position);
+    //         const word = document.getText(token);
+    //         return [];
+    //     },
+    // };
 
-    const p: DefinitionProvider = {
-        // provideDefinition(document: TextDocument, position: any, token: CancellationToken) {
-        //     return client.sendRequest("textDocument/definition", {
-        //         textDocument: { uri: document.uri.toString() },
-        //         position: position
-        //     }).then((res) => res);
-        // }
-        provideDefinition(document, position, cancellationToken) {
-            const token = document.getWordRangeAtPosition(position);
-            const word = document.getText(token);
-            return [];
-        },
-    };
-
-    context.subscriptions.push(languages.registerDefinitionProvider(docSel, p));
+    // context.subscriptions.push(languages.registerDefinitionProvider(docSel, p));
 
     context.subscriptions.push(
         commands.registerCommand(

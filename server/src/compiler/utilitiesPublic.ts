@@ -1259,3 +1259,13 @@ export function getAllJSDocTags<T extends JSDocTag>(node: Node, predicate: (tag:
 export function getJSDocImplementsTags(node: Node): readonly JSDocImplementsTag[] {
     return getAllJSDocTags(node, isJSDocImplementsTag);
 }
+
+export function textSpanIntersectsWith(span: TextSpan, start: number, length: number) {
+    return decodedTextSpanIntersectsWith(span.start, span.length, start, length);
+}
+
+export function decodedTextSpanIntersectsWith(start1: number, length1: number, start2: number, length2: number) {
+    const end1 = start1 + length1;
+    const end2 = start2 + length2;
+    return start2 <= end1 && end2 >= start1;
+}

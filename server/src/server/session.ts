@@ -540,6 +540,12 @@ export class Session<TMessage = string> implements EventSender {
         this.errorCheck.startNew(next => this.getDiagnosticsForProjectWorker(next, args.delay, args.file));
     }
 
+    public getEncodedSemanticClassifications(args: protocol.EncodedSemanticClassificationsRequestArgs) {
+        const { file, project } = this.getFileAndProject(args);
+        // const format = args.format === "2020" ? SemanticClassificationFormat.TwentyTwenty : SemanticClassificationFormat.Original;
+        return project.getLanguageService().getEncodedSemanticClassifications(file, args);
+    } 
+
     public getQuickInfoWorker(args: protocol.FileLocationRequestArgs, simplifiedResult: boolean): protocol.QuickInfoResponseBody | QuickInfo | undefined {
         const { file, project } = this.getFileAndProject(args);
         const scriptInfo = this.projectService.getScriptInfoForNormalizedPath(file)!;        

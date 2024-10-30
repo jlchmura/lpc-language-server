@@ -1,4 +1,3 @@
-import { ensureLpcConfig, LpcConfig } from "../compiler/LpcConfig.js";
 import {
     AssignmentDeclarationKind,
     BaseType,
@@ -191,8 +190,9 @@ import {
     isPropertyAccessExpression,
     isPropertyName,
     isIncludeDirective,
+    Classifications,
 } from "./_namespaces/lpc.js";
-
+import * as classifier2020 from "./classifier2020.js";
 
 
 // These utilities are common to multiple language service features.
@@ -1337,6 +1337,7 @@ export function createLanguageService(
     });
     
     const ls: LanguageService = {
+        getEncodedSemanticClassifications,
         getDefinitionAtPosition,
         getQuickInfoAtPosition,
         cleanupSemanticCache,
@@ -1853,6 +1854,12 @@ export function createLanguageService(
         }
     }
     
+    function getEncodedSemanticClassifications(fileName: string, span: TextSpan): Classifications {
+        synchronizeHostData();
+                
+        return classifier2020.getEncodedSemanticClassifications(program, cancellationToken, getValidSourceFile(fileName), span);        
+    }
+
     function getQuickInfoAtPosition(fileName: string, position: number): QuickInfo | undefined {
         synchronizeHostData();
 

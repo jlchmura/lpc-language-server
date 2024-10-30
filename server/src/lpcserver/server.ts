@@ -310,6 +310,22 @@ export function start(connection: Connection, platform: string) {
             return typeConverters.WorkspaceEdit.fromRenames(result.locs, requestParams.newName);
         });
 
+        connection.onRequest("encodedSemanticClassifications-full", (requestParams:protocol.EncodedSemanticClassificationsRequest) => {            
+            const args: lpc.server.protocol.EncodedSemanticClassificationsRequestArgs = {
+                ... requestParams.arguments,
+                file: fromUri(requestParams.arguments.file),
+            };
+                
+            try {
+                const result = session.getEncodedSemanticClassifications(args);
+                return result;            
+            }
+            catch (e) {
+                // console.error(e);
+                // debugger;
+            }
+        });
+
         connection.onHover(requestParams => {
             const args: lpc.server.protocol.FileLocationRequestArgs = {
                 file: (fromUri(requestParams.textDocument.uri)),// lpc.convertToRelativePath(fromUri(requestParams.textDocument.uri), rootFolder, f=>canonicalFilename(f)),
