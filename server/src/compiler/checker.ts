@@ -21686,9 +21686,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         if (isTypeAny(inputType)) {
             return inputType;
         }
-        console.warn("TODO - implement checkIteratedTypeOrElementType");
-        return anyType;
-        //return getIteratedTypeOrElementType(use, inputType, sentType, errorNode, /*checkAssignability*/ true) || anyType;
+        return getIteratedTypeOrElementType(use, inputType, sentType, errorNode, /*checkAssignability*/ true) || anyType;
     }
 
     
