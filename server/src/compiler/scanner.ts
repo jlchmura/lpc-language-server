@@ -987,6 +987,7 @@ const enum ClassSetExpressionType {
 export function createScanner(
     languageVersion: ScriptTarget, 
     shouldSkipTrivia: boolean, 
+    shouldSkipNonParsableDirectives: boolean,
     languageVariant = LanguageVariant.Standard, 
     textInitial?: string,     
     onError?: ErrorCallback, 
@@ -2520,7 +2521,27 @@ export function createScanner(
                     if (pos === 0 || isLineBreak(charCodeUnchecked(pos - 1))) {
                         pos++;
                         // could be a directive
-                        return token = scanDirective(charCodeUnchecked(pos), languageVersion);
+                        token = scanDirective(charCodeUnchecked(pos), languageVersion);
+                        
+                        // TODO: skip past these directives since they aren't parsed (for now)
+                        if (shouldSkipNonParsableDirectives) {
+                            switch (token) {
+                                case SyntaxKind.IfDirective:
+                                case SyntaxKind.ElseDirective:
+                                case SyntaxKind.ElseIfDirective:
+                                case SyntaxKind.EndIfDirective:
+                                case SyntaxKind.IfNDefDirective:
+                                case SyntaxKind.IfDefDirective:                                    
+                                    // keep scanning until the newline
+                                    while (pos < end && !isLineBreak(charCodeUnchecked(pos))) pos++;
+                                    // next scan one more token and return that
+                                    return scan();
+                                default:
+                                    // fall through
+                            }
+                        }
+
+                        return token;                        
                     }
 
                     const charAfterHash = codePointUnchecked(pos + 1);

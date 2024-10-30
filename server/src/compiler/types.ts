@@ -2084,6 +2084,7 @@ export type ForEachChildNodes =
 
 /** @internal */
 export type HasChildren =
+    | InheritDeclaration
     | ParameterDeclaration    
     | ByRefElement
     | EvaluateExpression

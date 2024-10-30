@@ -197,7 +197,7 @@ import {
 // These utilities are common to multiple language service features.
 // #region
 /** @internal */
-export const scanner: Scanner = createScanner(ScriptTarget.LPC, /*skipTrivia*/ true);
+export const scanner: Scanner = createScanner(ScriptTarget.LPC, /*skipTrivia*/ true, /*shouldSkipNonParsableDirectives*/ true);
 
 function getServicesObjectAllocator(): ObjectAllocator {
     return {
