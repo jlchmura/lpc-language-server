@@ -532,13 +532,13 @@ function createChildren(
     scanner.setText((sourceFile || node.getSourceFile()).text);
     let pos = node.pos;
     const processNode = (child: Node) => {
-        addSyntheticNodes(children, pos, child.pos, node);
+        addSyntheticNodes(children, pos, child.pos, node, sourceFile.inactiveCodeRanges);
         children.push(child);
         pos = child.end;
     };
     const processNodes = (nodes: NodeArray<Node>) => {
-        addSyntheticNodes(children, pos, nodes.pos, node);
-        children.push(createSyntaxList(nodes, node));
+        addSyntheticNodes(children, pos, nodes.pos, node, sourceFile.inactiveCodeRanges);
+        children.push(createSyntaxList(nodes, node, sourceFile.inactiveCodeRanges));
         pos = nodes.end;
     };
     // jsDocComments need to be the first children
@@ -548,7 +548,7 @@ function createChildren(
     // Restoring the scanner position ensures that.
     pos = node.pos;
     node.forEachChild(processNode, processNodes);
-    addSyntheticNodes(children, pos, node.end, node);
+    addSyntheticNodes(children, pos, node.end, node, sourceFile.inactiveCodeRanges);
     scanner.setText(undefined);
     return children;
 }
@@ -854,17 +854,44 @@ class SourceFileObject
     }
 }
 
+/**
+ * 
+ * @param nodes 
+ * @param pos 
+ * @param end 
+ * @param parent 
+ * @param skipRanges TextRanges of code that has been disabled by directives. These ranges will not be scanned for tokens
+ */
 function addSyntheticNodes(
     nodes: Node[],
     pos: number,
     end: number,
-    parent: Node
-): void {    
+    parent: Node,
+    skipRanges: readonly TextRange[]
+): void {        
+    // find the first skip range that ends after pos
+    let skipIdx = 0;
+    while (skipIdx < skipRanges.length - 1 && skipRanges[skipIdx].end < pos) {
+        skipIdx++;
+    }
+    // if there are no skipped ranges, then skipIdx should be -1 and we won't check it later
+    if (skipRanges.length == 0) skipIdx = -1;
+
     scanner.resetTokenState(pos, true);
-    while (pos < end) {
+    while (pos < end) {        
         const token = scanner.scan();
         const textPos = scanner.getTokenEnd();
-        if (textPos <= end) {
+
+        if (textPos <= end) {            
+            while (skipIdx >= 0 && skipRanges[skipIdx].end < textPos && skipIdx < skipRanges.length - 1) {
+                skipIdx++;
+            }
+
+            // if pos is inside a skipped range, then continue
+            if (skipIdx >= 0 && textPos >= skipRanges[skipIdx].pos && textPos <= skipRanges[skipIdx].end) {
+                continue;
+            }
+            
             if (token === SyntaxKind.Identifier) {
                 if (hasTabstop(parent)) {
                     continue;
@@ -880,7 +907,7 @@ function addSyntheticNodes(
     }
 }
 
-function createSyntaxList(nodes: NodeArray<Node>, parent: Node): Node {
+function createSyntaxList(nodes: NodeArray<Node>, parent: Node, skipRanges: readonly TextRange[]): Node {
     const list = createNode(
         SyntaxKind.SyntaxList,
         nodes.pos,
@@ -890,14 +917,14 @@ function createSyntaxList(nodes: NodeArray<Node>, parent: Node): Node {
     const children: Node[] = [];
     let pos = nodes.pos;
     for (const node of nodes) {
-        addSyntheticNodes(children, pos, node.pos, parent);
+        addSyntheticNodes(children, pos, node.pos, parent, skipRanges);
         children.push(node);
         pos = node.end;
     }
     if (isNaN(nodes.end)) {
         debugger;
     }
-    addSyntheticNodes(children, pos, nodes.end, parent);
+    addSyntheticNodes(children, pos, nodes.end, parent, skipRanges);
     list._children = children;
     return list;
 }

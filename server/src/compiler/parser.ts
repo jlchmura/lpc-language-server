@@ -69,6 +69,7 @@ export namespace LpcParser {
     var identifierCount: number;
     var includeFileCache: MapLike<string>;
     var inherits: InheritDeclaration[];
+    var inactiveRanges: TextRange[];
 
     // TODO(jakebailey): This type is a lie; this value actually contains the result
     // of ORing a bunch of `1 << ParsingContext.XYZ`.
@@ -158,6 +159,7 @@ export namespace LpcParser {
         identifiers = new Map<string, string>();        
         identifierCount = 0;                
         inherits = [];
+        inactiveRanges = [];
 
         // Initialize and prime the scanner before parsing the source elements.        
         scanner.setText(sourceText);
@@ -195,6 +197,7 @@ export namespace LpcParser {
         includeFileCache = undefined!;                
         conditionalStack = undefined!;
         isCodeExecutable = Ternary.Unknown;
+        inactiveRanges = undefined!;
         
         currentIncludeDirective = undefined!;
         
@@ -366,15 +369,32 @@ export namespace LpcParser {
     function processConditionalDirective(incomingToken: SyntaxKind) {
         switch (incomingToken) {
             case SyntaxKind.ElseDirective:
+                // end the previous range, if it was inactive
+                if (isCodeExecutable !== Ternary.False) {
+                    endInactiveRange();
+                }
+
                 if (isCodeExecutable === Ternary.Unknown) {
                     parseErrorAtCurrentToken(Diagnostics.Else_directive_without_if);                    
                 } else {
                     isCodeExecutable = isCodeExecutable === Ternary.False ? Ternary.True : Ternary.False;
+                }    
+                
+                // start a new range if we are now inactive
+                if (isCodeExecutable === Ternary.False) {
+                    startInactiveRange();
                 }                
+
                 return scanner.scan();  
             case SyntaxKind.ElseIfDirective:
             case SyntaxKind.IfDirective:
                 const isElseIf = incomingToken === SyntaxKind.ElseIfDirective;
+
+                // end the previous range, if it was inactive
+                if (isCodeExecutable !== Ternary.False) {
+                    endInactiveRange();
+                }
+
                 if (isCodeExecutable !== Ternary.Unknown) conditionalStack.push(isCodeExecutable);
                 else if (isElseIf) {
                     parseErrorAtCurrentToken(Diagnostics.Elseif_directive_without_if);
@@ -390,9 +410,13 @@ export namespace LpcParser {
                     } else {
                         isCodeExecutable = Ternary.True;
                     }
-
+                    
                     incomingToken = scanner.scan();
                 }            
+
+                if (isCodeExecutable === Ternary.False) {
+                    startInactiveRange();
+                }
                 
                 if (tokenCount == 0) {
                     parseErrorAt(scanner.getTokenStart(), scanner.getTokenEnd(), Diagnostics.Expression_expected);
@@ -409,8 +433,12 @@ export namespace LpcParser {
                 } else {
                     const tokenValue = scanner.getTokenValue();                    
                     isCodeExecutable = isIfDef ? (macroTable[tokenValue] ? Ternary.True : Ternary.False) : (!macroTable[tokenValue] ? Ternary.True : Ternary.False);
-
+                    
                     incomingToken = scanner.scan();
+                }
+
+                if (isCodeExecutable === Ternary.False) {
+                    startInactiveRange();
                 }
 
                 return incomingToken;
@@ -501,10 +529,22 @@ export namespace LpcParser {
         return args;
     }
 
+    function startInactiveRange() {
+        inactiveRanges.push({ pos: scanner.getTokenFullStart(), end: 0 });
+    }
+
+    function endInactiveRange(end?: number) {
+        Debug.assert(inactiveRanges.length > 0);
+        const range = last(inactiveRanges);
+        Debug.assert(range.end === 0);
+        range.end = end || scanner.getTokenFullStart();
+    }
+
     function nextTokenWithoutCheck() {
         let incomingToken = scanner.scan();
 
         while (isCodeExecutable === Ternary.False && incomingToken !== SyntaxKind.EndOfFileToken) {
+            const tokenStart = scanner.getTokenFullStart();
             // we are in a disabled code block. there are only a few directives that apply here
             // check them and skip the rest
             switch (incomingToken) {
@@ -532,6 +572,11 @@ export namespace LpcParser {
                     scanner.setReportLineBreak(false);    
                     break;
             }            
+
+            // if code is now executable, then end the last inactive range
+            if (isCodeExecutable !== Ternary.False) {
+                endInactiveRange(tokenStart);
+            }
 
             // start the scan over
             return nextTokenWithoutCheck();            
@@ -751,6 +796,8 @@ export namespace LpcParser {
         sourceFile.heritageClauses = factory.createNodeArray(inherits);
         sourceFile.parseDiagnostics = attachFileToDiagnostics(parseDiagnostics, sourceFile);
         sourceFile.jsDocParsingMode = jsDocParsingMode;
+        sourceFile.inactiveCodeRanges = inactiveRanges;
+
         if (jsDocDiagnostics) {
             sourceFile.jsDocDiagnostics = attachFileToDiagnostics(jsDocDiagnostics, sourceFile);
         }

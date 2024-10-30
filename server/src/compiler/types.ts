@@ -2869,6 +2869,7 @@ export interface SourceFileLike {
     lineMap?: readonly number[];
     /** @internal */
     getPositionOfLineAndCharacter?(line: number, character: number, allowEdits?: true): number;        
+    inactiveCodeRanges?: readonly TextRange[];
 }
 
 export interface HasHeritageContainer {
@@ -2998,6 +2999,11 @@ export interface SourceFile extends Declaration, LocalsContainer, HasHeritageCon
      * CommonJS-output-format by the node module transformer and type checker, regardless of extension or context.
      */
     impliedNodeFormat?: ResolutionMode;
+
+    /**
+     * Array of text ranges that are inactive due to directives
+     */
+    inactiveCodeRanges?: readonly TextRange[];
 }
 
 export interface JsonSourceFile extends SourceFile {
