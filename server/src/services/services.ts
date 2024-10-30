@@ -191,6 +191,9 @@ import {
     isPropertyName,
     isIncludeDirective,
     Classifications,
+    SignatureHelpItemsOptions,
+    SignatureHelpItems,
+    SignatureHelp,
 } from "./_namespaces/lpc.js";
 import * as classifier2020 from "./classifier2020.js";
 
@@ -1340,6 +1343,7 @@ export function createLanguageService(
         getEncodedSemanticClassifications,
         getDefinitionAtPosition,
         getQuickInfoAtPosition,
+        getSignatureHelpItems,
         cleanupSemanticCache,
         getCompilerOptionsDiagnostics,
         getProgram,
@@ -1854,6 +1858,18 @@ export function createLanguageService(
         }
     }
     
+    /**
+     * Signature Help
+     * This is a semantic operation.
+     */
+    function getSignatureHelpItems(fileName: string, position: number, { triggerReason }: SignatureHelpItemsOptions = emptyOptions): SignatureHelpItems | undefined {
+        synchronizeHostData();
+
+        const sourceFile = getValidSourceFile(fileName);
+
+        return SignatureHelp.getSignatureHelpItems(program, sourceFile, position, triggerReason, cancellationToken);
+    }
+
     function getEncodedSemanticClassifications(fileName: string, span: TextSpan): Classifications {
         synchronizeHostData();
                 

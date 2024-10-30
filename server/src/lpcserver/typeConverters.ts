@@ -4,7 +4,7 @@ import { protocol } from "../server/_namespaces/lpc.server.js";
 import { ScriptElementKind, SymbolDisplayPart } from "../server/_namespaces/lpc.js";
 import { URI } from "vscode-uri";
 import { KindModifiers } from "./protocol.const.js";
-import { IFilePathToResourceConverter, tagsToMarkdown } from "./textRendering.js";
+import { IFilePathToResourceConverter, asPlainTextWithLinks, documentationToMarkdown, tagsToMarkdown } from "./textRendering.js";
 
 
 
@@ -187,4 +187,36 @@ export namespace DisplayPart {
 
 		return markdown;
 	}	
+}
+
+export namespace SignatureHelp {
+	export function convertSignature(item: Proto.SignatureHelpItem, baseUri: URI) {
+		const signature = vscode.SignatureInformation.create(
+			asPlainTextWithLinks(item.prefixDisplayParts, this.client),
+			documentationToMarkdown(item.documentation, item.tags.filter(x => x.name !== 'param'), this.client, baseUri)
+		);
+
+		let textIndex = signature.label.length;
+		const separatorLabel = asPlainTextWithLinks(item.separatorDisplayParts, this.client);
+		for (let i = 0; i < item.parameters.length; ++i) {
+			const parameter = item.parameters[i];
+			const label = asPlainTextWithLinks(parameter.displayParts, this.client);
+
+			signature.parameters.push(
+				vscode.ParameterInformation.create(
+					[textIndex, textIndex + label.length],
+					documentationToMarkdown(parameter.documentation, [], this.client, baseUri)));
+
+			textIndex += label.length;
+			signature.label += label;
+
+			if (i !== item.parameters.length - 1) {
+				signature.label += separatorLabel;
+				textIndex += separatorLabel.length;
+			}
+		}
+
+		signature.label += asPlainTextWithLinks(item.suffixDisplayParts, this.client);
+		return signature;
+	}
 }

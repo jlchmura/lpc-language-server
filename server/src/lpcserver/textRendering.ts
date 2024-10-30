@@ -1,3 +1,4 @@
+import * as vscode from "vscode-languageserver";
 import * as Proto from "../server/_namespaces/lpc.server.protocol.js";
 import { protocol } from "../server/_namespaces/lpc.server.js";
 import { Debug, JSDocLinkDisplayPart, ScriptElementKind, SymbolDisplayPart } from "../server/_namespaces/lpc.js";
@@ -226,4 +227,40 @@ export function tagsToMarkdown(
 	filePathConverter: IFilePathToResourceConverter,
 ): string {
 	return tags.map(tag => getTagDocumentation(tag, filePathConverter)).join('  \n\n');
+}
+
+export function asPlainTextWithLinks(
+	parts: readonly SymbolDisplayPart[] | string,
+	filePathConverter: IFilePathToResourceConverter,
+): string {
+	return processInlineTags(convertLinkTags(parts, filePathConverter));
+}
+
+export function appendDocumentationAsMarkdown(
+	documentation: readonly SymbolDisplayPart[] | string | undefined,
+	tags: readonly Proto.JSDocTagInfo[] | undefined,
+	converter: IFilePathToResourceConverter,
+): string {
+	let s = "";
+	if (documentation) {
+		s += asPlainTextWithLinks(documentation, converter);
+	}
+
+	if (tags) {
+		const tagsPreview = tagsToMarkdown(tags, converter);
+		if (tagsPreview) {
+			s += ('\n\n' + tagsPreview);
+		}
+	}
+
+	return s;
+}
+
+export function documentationToMarkdown(
+	documentation: readonly SymbolDisplayPart[] | string,
+	tags: readonly Proto.JSDocTagInfo[],
+	filePathConverter: IFilePathToResourceConverter,
+	baseUri: URI | undefined,
+): string {	
+	return appendDocumentationAsMarkdown(documentation, tags, filePathConverter);	
 }

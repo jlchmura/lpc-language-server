@@ -163,6 +163,8 @@ export interface TypeChecker {
      * @param argumentCount Apparent number of arguments, passed in case of a possibly incomplete call. This should come from an ArgumentListInfo. See `signatureHelp.ts`.
      */
     getResolvedSignature(node: CallLikeExpression, candidatesOutArray?: Signature[], argumentCount?: number): Signature | undefined;
+    /** @internal */ getResolvedSignatureForSignatureHelp(node: CallLikeExpression, candidatesOutArray?: Signature[], argumentCount?: number): Signature | undefined;
+
     /**
      * The function returns the value (local variable) symbol of an identifier in the short-hand property assignment.
      * This is necessary as an identifier in short-hand property assignment can contains two meaning: property name and property value.
@@ -183,6 +185,7 @@ export interface TypeChecker {
     getMergedSymbol(symbol: Symbol): Symbol;
     getTypeAtLocation(node: Node): Type;
     /** @internal */ getContextualType(node: Expression, contextFlags?: ContextFlags): Type | undefined; // eslint-disable-line @typescript-eslint/unified-signatures
+    /** @internal */ getContextualTypeForObjectLiteralElement(element: ObjectLiteralElementLike): Type | undefined;
     /** @internal */ resolveExternalModuleName(moduleSpecifier: Expression): Symbol | undefined;    
     getSymbolsInScope(location: Node, meaning: SymbolFlags): Symbol[];
     
@@ -230,6 +233,16 @@ export interface TypeChecker {
      */
     isValidPropertyAccessForCompletions(node: PropertyAccessExpression | /*ImportTypeNode |*/ QualifiedName, type: Type, property: Symbol): boolean;
     getExportsOfModule(moduleSymbol: Symbol): Symbol[];
+    /** @internal */ getLocalTypeParametersOfClassOrInterfaceOrTypeAlias(symbol: Symbol): readonly TypeParameter[] | undefined;
+    getTypePredicateOfSignature(signature: Signature): TypePredicate | undefined;
+    /** @internal */ writeTypePredicate(predicate: TypePredicate, enclosingDeclaration?: Node, flags?: TypeFormatFlags, writer?: EmitTextWriter): string;
+    /** Note that the resulting nodes cannot be checked. */
+    typeParameterToDeclaration(parameter: TypeParameter, enclosingDeclaration: Node | undefined, flags: NodeBuilderFlags | undefined): TypeParameterDeclaration | undefined;
+    /** Note that the resulting nodes cannot be checked. */
+    symbolToParameterDeclaration(symbol: Symbol, enclosingDeclaration: Node | undefined, flags: NodeBuilderFlags | undefined): ParameterDeclaration | undefined;
+    /** @internal */ getExpandedParameters(sig: Signature): readonly (readonly Symbol[])[];
+    /** @internal */ hasEffectiveRestParameter(sig: Signature): boolean;
+    isOptionalParameter(node: ParameterDeclaration): boolean;
 }
 
 export type CompilerOptionsValue = string | number | boolean | (string | number)[] | string[] | MapLike<string[]> | ProjectReference[] | null | undefined; // eslint-disable-line no-restricted-syntax
@@ -4261,7 +4274,7 @@ export type ObjectLiteralElementLike =
     | PropertyAssignment
     | ShorthandPropertyAssignment
     // | SpreadAssignment
-    // | MethodDeclaration
+    | MethodDeclaration
     // | AccessorDeclaration;
     ;
 

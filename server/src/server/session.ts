@@ -1,4 +1,4 @@
-import { arrayFrom, arrayReverseIterator, CompletionEntry, CompletionInfo, concatenate, createQueue, createSet, createTextSpan, Debug, DefinitionInfo, Diagnostic, diagnosticCategoryName, DiagnosticRelatedInformation, displayPartsToString, DocumentPosition, DocumentSpan, documentSpansEqual, emptyArray, filter, find, firstIterator, firstOrUndefined, flatMap, flattenDiagnosticMessageText, getDocumentSpansEqualityComparer, getLineAndCharacterOfPosition, getMappedContextSpan, getMappedDocumentSpan, getMappedLocation, identity, isArray, isDeclarationFileName, isString, JSDocTagInfo, LanguageServiceMode, LineAndCharacter, map, mapDefined, mapDefinedIterator, mapIterator, memoize, MultiMap, NavigationTree, normalizePath, OperationCanceledException, Path, PossibleProgramFileInfo, QuickInfo, ReferencedSymbol, ReferencedSymbolDefinitionInfo, ReferencedSymbolEntry, RenameInfo, RenameInfoFailure, RenameLocation, ScriptKind, startsWith, SymbolDisplayPart, TextSpan, textSpanEnd, toFileNameLowerCase, tracing, UserPreferences, WithMetadata } from "./_namespaces/lpc";
+import { arrayFrom, arrayReverseIterator, CompletionEntry, CompletionInfo, concatenate, createQueue, createSet, createTextSpan, Debug, DefinitionInfo, Diagnostic, diagnosticCategoryName, DiagnosticRelatedInformation, displayPartsToString, DocumentPosition, DocumentSpan, documentSpansEqual, emptyArray, filter, find, firstIterator, firstOrUndefined, flatMap, flattenDiagnosticMessageText, getDocumentSpansEqualityComparer, getLineAndCharacterOfPosition, getMappedContextSpan, getMappedDocumentSpan, getMappedLocation, identity, isArray, isDeclarationFileName, isString, JSDocTagInfo, LanguageServiceMode, LineAndCharacter, map, mapDefined, mapDefinedIterator, mapIterator, memoize, MultiMap, NavigationTree, normalizePath, OperationCanceledException, Path, PossibleProgramFileInfo, QuickInfo, ReferencedSymbol, ReferencedSymbolDefinitionInfo, ReferencedSymbolEntry, RenameInfo, RenameInfoFailure, RenameLocation, ScriptKind, SignatureHelpItem, SignatureHelpItems, startsWith, SymbolDisplayPart, TextSpan, textSpanEnd, toFileNameLowerCase, tracing, UserPreferences, WithMetadata } from "./_namespaces/lpc";
 import { ChangeFileArguments, ConfiguredProject, convertUserPreferences, Errors, GcTimer, isConfiguredProject, Logger, LogLevel, NormalizedPath, OpenFileArguments, Project, ProjectService, ProjectServiceEventHandler, ProjectServiceOptions, ScriptInfo, ServerHost, stringifyIndented, toNormalizedPath, updateProjectIfDirty } from "./_namespaces/lpc.server";
 import * as protocol from "./protocol.js";
 
@@ -546,6 +546,43 @@ export class Session<TMessage = string> implements EventSender {
         return project.getLanguageService().getEncodedSemanticClassifications(file, args);
     } 
 
+    public getSignatureHelpItems(args: protocol.SignatureHelpRequestArgs, simplifiedResult: boolean): protocol.SignatureHelpItems | SignatureHelpItems | undefined {
+        const { file, project } = this.getFileAndProject(args);
+        const scriptInfo = this.projectService.getScriptInfoForNormalizedPath(file)!;
+        const position = this.getPosition(args, scriptInfo);
+        const helpItems = project.getLanguageService().getSignatureHelpItems(file, position, args);
+        const useDisplayParts = !!this.getPreferences(file).displayPartsForJSDoc;
+        if (helpItems && simplifiedResult) {
+            const span = helpItems.applicableSpan;
+            return {
+                ...helpItems,
+                applicableSpan: {
+                    start: scriptInfo.positionToLineOffset(span.start),
+                    end: scriptInfo.positionToLineOffset(span.start + span.length),
+                },
+                items: this.mapSignatureHelpItems(helpItems.items, project, useDisplayParts),
+            };
+        }
+        else if (useDisplayParts || !helpItems) {
+            return helpItems;
+        }
+        else {
+            return {
+                ...helpItems,
+                items: helpItems.items.map(item => ({ ...item, tags: this.mapJSDocTagInfo(item.tags, project, /*richResponse*/ false) as JSDocTagInfo[] })),
+            };
+        }
+    }
+
+    private mapSignatureHelpItems(items: SignatureHelpItem[], project: Project, richResponse: boolean): protocol.SignatureHelpItem[] {
+        return items.map(item => ({
+            ...item,
+            documentation: this.mapDisplayParts(item.documentation, project),
+            parameters: item.parameters.map(p => ({ ...p, documentation: this.mapDisplayParts(p.documentation, project) })),
+            tags: this.mapJSDocTagInfo(item.tags, project, richResponse),
+        }));
+    }
+    
     public getQuickInfoWorker(args: protocol.FileLocationRequestArgs, simplifiedResult: boolean): protocol.QuickInfoResponseBody | QuickInfo | undefined {
         const { file, project } = this.getFileAndProject(args);
         const scriptInfo = this.projectService.getScriptInfoForNormalizedPath(file)!;        

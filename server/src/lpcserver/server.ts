@@ -11,6 +11,8 @@ import EventEmitter from "events";
 import { convertNavTree } from "./utils.js";
 import * as typeConverters from './typeConverters';
 import { KindModifiers } from "./protocol.const.js";
+import { debug } from "console";
+import { SignatureHelp } from "./typeConverters";
 
 const logger = new Logger("server.log", true, lpc.server.LogLevel.verbose);
 
@@ -31,9 +33,9 @@ const serverCapabilities: vscode.ServerCapabilities = {
     definitionProvider: true,
     // implementationProvider: true,
     // foldingRangeProvider: true, // change to true to enable server-based folding
-    // signatureHelpProvider: {
-    //     triggerCharacters: ["(", ","],
-    // },
+    signatureHelpProvider: {
+        triggerCharacters: ["(", ","],
+    },
     referencesProvider: true,
     //documentHighlightProvider: true,
 };
@@ -352,6 +354,41 @@ export function start(connection: Connection, platform: string) {
             catch(e) {
                 console.error(e);
                 debugger;                 
+            }
+        });
+
+        connection.onSignatureHelp(requestParams => {
+            const args: lpc.server.protocol.FileLocationRequestArgs = {
+                file: (fromUri(requestParams.textDocument.uri)),// lpc.convertToRelativePath(fromUri(requestParams.textDocument.uri), rootFolder, f=>canonicalFilename(f)),
+                ...posParamToLpcPos(requestParams),
+            };
+
+            try {
+                const result = session.getSignatureHelpItems(args, true) as protocol.SignatureHelpItems;
+                if (!result) {
+                    return undefined;
+                }
+
+                const uri = URI.file(args.file);
+                const signatureHelp: vscode.SignatureHelp = {
+                    signatures: result.items.map(i => SignatureHelp.convertSignature(i, uri)),
+                    activeParameter: getActiveParameter(result),
+                    activeSignature: result.selectedItemIndex  
+                };
+                return signatureHelp;
+                
+                function getActiveParameter(info: protocol.SignatureHelpItems): number {
+                    const activeSignature = info.items[info.selectedItemIndex];
+                    if (activeSignature?.isVariadic) {
+                        return Math.min(info.argumentIndex, activeSignature.parameters.length - 1);
+                    }
+                    return info.argumentIndex;
+                }
+
+                
+            } catch (e) {
+                console.error(e);
+                debugger;
             }
         });
 

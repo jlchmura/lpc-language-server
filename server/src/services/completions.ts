@@ -3250,7 +3250,7 @@ function getCompletionData(
         // Completion should work in the brackets
         const tag = getJsDocTagAtPosition(currentToken, position);
         if (tag) {
-            if (tag.tagName.pos <= position && position <= tag.tagName.end) {
+            if (tag.tagName && tag.tagName.pos <= position && position <= tag.tagName.end) {
                 return { kind: CompletionDataKind.JsDocTagName };
             }
             if (isJSDocImportTag(tag)) {

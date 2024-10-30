@@ -2782,3 +2782,34 @@ function isFunctionKeyword(node: Node) {
 function isClassKeyword(node: Node) {
     return node.kind === SyntaxKind.ClassKeyword;
 }
+
+/**
+ * The token on the left of the position is the token that strictly includes the position
+ * or sits to the left of the cursor if it is on a boundary. For example
+ *
+ *   fo|o               -> will return foo
+ *   foo <comment> |bar -> will return foo
+ *
+ * @internal
+ */
+export function findTokenOnLeftOfPosition(file: SourceFile, position: number): Node | undefined {
+    // Ideally, getTokenAtPosition should return a token. However, it is currently
+    // broken, so we do a check to make sure the result was indeed a token.
+    const tokenAtPosition = getTokenAtPosition(file, position);
+    if (isToken(tokenAtPosition) && position > tokenAtPosition.getStart(file) && position < tokenAtPosition.getEnd()) {
+        return tokenAtPosition;
+    }
+
+    return findPrecedingToken(position, file);
+}
+
+/** @internal */
+export function getPossibleGenericSignatures(called: Expression, typeArgumentCount: number, checker: TypeChecker): readonly Signature[] {
+    let type = checker.getTypeAtLocation(called);
+    // if (isOptionalChain(called.parent)) {
+    //     type = removeOptionality(type, isOptionalChainRoot(called.parent), /*isOptionalChain*/ true);
+    // }
+
+    const signatures = isNewExpression(called.parent) ? type.getConstructSignatures() : type.getCallSignatures();
+    return signatures.filter(candidate => !!candidate.typeParameters && candidate.typeParameters.length >= typeArgumentCount);
+}

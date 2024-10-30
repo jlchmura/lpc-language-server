@@ -1,4 +1,4 @@
-import {  CompletionsTriggerCharacter, CompletionTriggerKind, RenameInfoFailure, ScriptElementKind, SymbolDisplayPart } from "./_namespaces/lpc";
+import {  CompletionsTriggerCharacter, CompletionTriggerKind, RenameInfoFailure, ScriptElementKind, SignatureHelpTriggerReason, SymbolDisplayPart } from "./_namespaces/lpc";
 import * as lpc from "./_namespaces/lpc";
 
 type ChangePropertyTypes<T, Substitutions extends { [K in keyof T]?: any; }> = {
@@ -885,4 +885,50 @@ export interface FileRequest {
  */
 export interface EncodedSemanticClassificationsRequest {
     arguments: EncodedSemanticClassificationsRequestArgs;
+}
+
+/**
+ * Arguments of a signature help request.
+ */
+export interface SignatureHelpRequestArgs extends FileLocationRequestArgs {
+    /**
+     * Reason why signature help was invoked.
+     * See each individual possible
+     */
+    triggerReason?: SignatureHelpTriggerReason;
+}
+
+/**
+ * Represents a single signature to show in signature help.
+ */
+export type SignatureHelpItem = ChangePropertyTypes<lpc.SignatureHelpItem, { tags: JSDocTagInfo[]; }>;
+
+/**
+ * Signature help items found in the response of a signature help request.
+ */
+export interface SignatureHelpItems {
+    /**
+     * The signature help items.
+     */
+    items: SignatureHelpItem[];
+
+    /**
+     * The span for which signature help should appear on a signature
+     */
+    applicableSpan: TextSpan;
+
+    /**
+     * The item selected in the set of available help items.
+     */
+    selectedItemIndex: number;
+
+    /**
+     * The argument selected in the set of parameters.
+     */
+    argumentIndex: number;
+
+    /**
+     * The argument count
+     */
+    argumentCount: number;
 }

@@ -1738,7 +1738,7 @@ export namespace LpcParser {
                 ()=>{
                     currentIncludeDirective = saveDirective!;                    
                     currentToken = scanner.getToken();
-                    return false;
+                    return true;
                 }
             );            
             

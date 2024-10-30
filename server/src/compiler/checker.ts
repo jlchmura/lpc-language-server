@@ -385,6 +385,28 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             const moduleSpecifier = getParseTreeNode(moduleSpecifierIn, isExpression);
             return moduleSpecifier && resolveExternalModuleName(moduleSpecifier, moduleSpecifier, /*ignoreErrors*/ true);
         },
+        getContextualTypeForObjectLiteralElement: nodeIn => {
+            console.debug("todo - getContextualTypeForObjectLiteralElement");
+            return undefined;
+            // const node = getParseTreeNode(nodeIn, isObjectLiteralElementLike);
+            // return node ? getContextualTypeForObjectLiteralElement(node, /*contextFlags*/ undefined) : undefined;
+        },
+        getExpandedParameters,
+        getLocalTypeParametersOfClassOrInterfaceOrTypeAlias,
+        getResolvedSignatureForSignatureHelp: (node, candidatesOutArray, argumentCount) => runWithoutResolvedSignatureCaching(node, () => getResolvedSignatureWorker(node, candidatesOutArray, argumentCount, CheckMode.IsForSignatureHelp)),
+        getTypePredicateOfSignature,
+        hasEffectiveRestParameter,
+        isOptionalParameter: nodeIn => {
+            const node = getParseTreeNode(nodeIn, isParameter);
+            return node ? isOptionalParameter(node) : false;
+        },
+        symbolToParameterDeclaration: nodeBuilder.symbolToParameterDeclaration,
+        typeParameterToDeclaration: nodeBuilder.typeParameterToDeclaration,
+        writeTypePredicate: (predicate, enclosingDeclaration, flags, writer) => {
+            console.log("todo - writeTypePredicate");
+            return "";
+            // return typePredicateToString(predicate, getParseTreeNode(enclosingDeclaration), flags, writer);
+        },
     };
 
     var uniqueLiteralType = createIntrinsicType(TypeFlags.Never, "never", /*objectFlags*/ undefined, "unique literal"); // `uniqueLiteralType` is a special `never` flagged by union reduction to behave as a literal
@@ -14129,6 +14151,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             typeToTypeNode: (type: Type, enclosingDeclaration?: Node, flags?: NodeBuilderFlags, tracker?: SymbolTracker) => withContext(enclosingDeclaration, flags, tracker, context => typeToTypeNodeHelper(type, context)),            
             symbolToTypeParameterDeclarations: (symbol: Symbol, enclosingDeclaration?: Node, flags?: NodeBuilderFlags, tracker?: SymbolTracker) => withContext(enclosingDeclaration, flags, tracker, context => typeParametersToTypeParameterDeclarations(symbol, context)),
             signatureToSignatureDeclaration: (signature: Signature, kind: SignatureDeclaration["kind"], enclosingDeclaration?: Node, flags?: NodeBuilderFlags, tracker?: SymbolTracker) => withContext(enclosingDeclaration, flags, tracker, context => signatureToSignatureDeclarationHelper(signature, kind, context)),
+            symbolToParameterDeclaration: (symbol: Symbol, enclosingDeclaration?: Node, flags?: NodeBuilderFlags, tracker?: SymbolTracker) => withContext(enclosingDeclaration, flags, tracker, context => symbolToParameterDeclaration(symbol, context)),
+            typeParameterToDeclaration: (parameter: TypeParameter, enclosingDeclaration?: Node, flags?: NodeBuilderFlags, tracker?: SymbolTracker) => withContext(enclosingDeclaration, flags, tracker, context => typeParameterToDeclaration(parameter, context)),
         };
 
         function typeToTypeNodeHelper(type: Type, context: NodeBuilderContext): TypeNode {
