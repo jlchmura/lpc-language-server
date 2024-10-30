@@ -2534,8 +2534,8 @@ export function createScanner(
                                 case SyntaxKind.IfDefDirective:                                    
                                     // keep scanning until the newline
                                     while (pos < end && !isLineBreak(charCodeUnchecked(pos))) pos++;
-                                    // next scan one more token and return that
-                                    return scan();
+                                    // continue w/ the next token
+                                    continue;
                                 default:
                                     // fall through
                             }

@@ -14518,15 +14518,14 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             type: Type,
             host = context.enclosingDeclaration,
             annotationType = getTypeFromTypeNode(context, existing, /*noMappedTypes*/ true),
-        ) {
-            console.log("todo - reuse existin gtype node");
-            // if (annotationType && typeNodeIsEquivalentToType(host, type, annotationType) && existingTypeNodeIsNotReferenceOrIsReferenceWithCompatibleTypeArgumentCount(existing, type)) {
-            //     Debug.fail("todo");
-            //     const result = undefined;// tryReuseExistingTypeNodeHelper(context, existing);
-            //     if (result) {
-            //         return result;
-            //     }
-            // }
+        ) {            
+            if (annotationType && typeNodeIsEquivalentToType(host, type, annotationType) && existingTypeNodeIsNotReferenceOrIsReferenceWithCompatibleTypeArgumentCount(existing, type)) {
+                console.log("todo - reuse existin gtype node");                
+                const result = undefined;// tryReuseExistingTypeNodeHelper(context, existing);
+                if (result) {
+                    return result;
+                }
+            }
             return undefined;
         }
 
