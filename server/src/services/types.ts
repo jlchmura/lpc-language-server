@@ -539,7 +539,7 @@ export interface LanguageServiceHost
     trace?(s: string): void;
     error?(s: string): void;
     useCaseSensitiveFileNames?(): boolean;
-    fileHandler: LpcFileHandler;
+    fileHandler: LpcFileHandler;    
     
             
     /*

@@ -248,9 +248,18 @@ function parseLpcConfigFileContentWorker(
             options.driverType = LanguageVariant.LDMud;
             break
     }
+
+    if (raw?.libFiles?.global_include) {
+        options.globalIncludeFiles = [raw?.libFiles?.global_include];
+    }
+
+    if (raw?.libInclude && isArray(raw.libInclude)) {
+        options.libIncludeDirs = map(raw.libInclude as string[], dir => normalizePath(combinePaths(basePathForFileNames, dir)));
+    }
+
     options.diagnostics = raw?.diagnostics === "on" || raw?.diagnostics === true;
     
-    const sefunFilePath = trimStart(options.sefunFile ?? raw?.files?.simul_efun ?? "/obj/sefun.c", "/");
+    const sefunFilePath = trimStart(options.sefunFile ?? raw?.libFiles?.simul_efun ?? "/obj/sefun.c", "/");
     options.sefunFile = normalizePath(combinePaths(basePathForFileNames, sefunFilePath));
     
     return {

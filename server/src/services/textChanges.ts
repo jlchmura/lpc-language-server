@@ -25,6 +25,7 @@ import {
     DeclarationStatement,
     EmitHint,
     EmitTextWriter,
+    emptyArray,
     endsWith,    
     Expression,
     factory,
@@ -1162,13 +1163,15 @@ export class ChangeTracker {
     public getChanges(context: TextChangesContext, validate?: ValidateNonFormattedText): FileTextChanges[] {
         const host = context.host;
         const { fileHandler } = host;
-        const driverType = host.getCompilationSettings()?.driverType;
+        const compSettings = host.getCompilationSettings();
+        const driverType = compSettings?.driverType;
+        const globalIncludes = compSettings?.globalIncludeFiles ?? emptyArray;
         this.finishDeleteDeclarations();
         this.finishClassesWithNodesInsertedAtStart();
         const changes = changesToText.getTextChangesFromChanges(this.changes, this.newLineCharacter, this.formatContext, validate);
         if (this.newFileChanges) {
             this.newFileChanges.forEach((insertions, fileName) => {
-                changes.push(changesToText.newFileChanges(fileName, insertions, this.newLineCharacter, this.formatContext, fileHandler, driverType));
+                changes.push(changesToText.newFileChanges(fileName, insertions, this.newLineCharacter, this.formatContext, globalIncludes, fileHandler, driverType));
             });
         }
         return changes;
@@ -1277,15 +1280,15 @@ namespace changesToText {
         });
     }
 
-    export function newFileChanges(fileName: string, insertions: readonly NewFileInsertion[], newLineCharacter: string, formatContext: formatting.FormatContext, fileHandler: LpcFileHandler, languageVariant: LanguageVariant): FileTextChanges {
-        const text = newFileChangesWorker(getScriptKindFromFileName(fileName), languageVariant, fileHandler, insertions, newLineCharacter, formatContext);
+    export function newFileChanges(fileName: string, insertions: readonly NewFileInsertion[], newLineCharacter: string, formatContext: formatting.FormatContext, globalIncludes: string[], fileHandler: LpcFileHandler, languageVariant: LanguageVariant): FileTextChanges {
+        const text = newFileChangesWorker(getScriptKindFromFileName(fileName), languageVariant,  globalIncludes, fileHandler, insertions, newLineCharacter, formatContext);
         return { fileName, textChanges: [createTextChange(createTextSpan(0, 0), text)], isNewFile: true };
     }
 
-    export function newFileChangesWorker(scriptKind: ScriptKind, languageVariant: LanguageVariant, fileHandler: LpcFileHandler, insertions: readonly NewFileInsertion[], newLineCharacter: string, formatContext: formatting.FormatContext): string {
+    export function newFileChangesWorker(scriptKind: ScriptKind, languageVariant: LanguageVariant, globalIncludes: string[], fileHandler: LpcFileHandler, insertions: readonly NewFileInsertion[], newLineCharacter: string, formatContext: formatting.FormatContext): string {
         // TODO: this emits the file, parses it back, then formats it that -- may be a less roundabout way to do this
         const nonFormattedText = flatMap(insertions, insertion => insertion.statements.map(s => s === SyntaxKind.NewLineTrivia ? "" : getNonformattedText(s, insertion.oldFile, newLineCharacter).text)).join(newLineCharacter);        
-        const sourceFile = createSourceFile("any file name", nonFormattedText, fileHandler, { languageVersion: ScriptTarget.LPC, jsDocParsingMode: JSDocParsingMode.ParseNone }, /*setParentNodes*/ true, scriptKind, languageVariant);
+        const sourceFile = createSourceFile("any file name", nonFormattedText, globalIncludes, fileHandler, { languageVersion: ScriptTarget.LPC, jsDocParsingMode: JSDocParsingMode.ParseNone }, /*setParentNodes*/ true, scriptKind, languageVariant);
         const changes = formatting.formatDocument(sourceFile, formatContext);
         return applyChanges(nonFormattedText, changes) + newLineCharacter;
     }

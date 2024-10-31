@@ -578,7 +578,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             autoArrayType = createAnonymousType(/*symbol*/ undefined, emptySymbols, emptyArray, emptyArray, emptyArray);
         }
 
-        globalReadonlyArrayType = getGlobalTypeOrUndefined("__LS__ReadonlyArray" as string, /*arity*/ 1) as GenericType || globalArrayType;
+        globalReadonlyArrayType = getGlobalTypeOrUndefined("__LS__ReadonlyArray" as string, /*arity*/ 1) as GenericType;
         anyReadonlyArrayType = globalReadonlyArrayType ? createTypeFromGenericGlobalType(globalReadonlyArrayType, [anyType]) : anyArrayType;
         // globalThisType = getGlobalTypeOrUndefined("ThisType" as string, /*arity*/ 1) as GenericType;
     }

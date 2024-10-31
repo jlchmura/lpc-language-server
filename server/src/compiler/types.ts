@@ -1666,6 +1666,7 @@ export interface CompilerOptions {
     exactOptionalPropertyTypes?: boolean;
     diagnostics?: boolean;
     libIncludeDirs?: string[];
+    globalIncludeFiles?: string[];
 }
 
 export const enum OuterExpressionKinds {

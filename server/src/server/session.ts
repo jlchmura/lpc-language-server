@@ -376,7 +376,7 @@ export class Session<TMessage = string> implements EventSender {
 
             // Don't provide semantic diagnostics unless we're in full semantic mode.
             // or if the project has diags turned off
-            if (project.projectService.serverMode !== LanguageServiceMode.Semantic || !project.getCompilerOptions().diagnostics) {
+            if (project.projectService.serverMode !== LanguageServiceMode.Semantic || !project.getCompilerOptions()?.diagnostics) {
                 this.sendAllDiagnostics(diagnostics, fileName, project);
                 goNext();
                 return;

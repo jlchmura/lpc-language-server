@@ -115,13 +115,11 @@ import {
     textSpanEnd,
     updateSourceFile,
     TextSpan,
-    createTextSpanFromBounds,
     GoToDefinition,
     PossibleProgramFileInfo,
     QuickInfo,
     getTouchingPropertyName,
     isNewExpression,
-    findAncestor,
     ScriptElementKind,
     ScriptElementKindModifier,
     createTextSpanFromNode,
@@ -150,7 +148,6 @@ import {
     DocumentSpan,
     hasJSDocNodes,
     isIdentifier,
-    isPrivateIdentifier,
     isStringOrNumericLiteralLike,
     isTagName,
     IntLiteral,
@@ -171,10 +168,6 @@ import {
     formatting,
     isToken,
     firstDefined,
-    or,
-    last,
-    isFunctionBlock,
-    isModuleBlock,
     CompletionInfo,
     InterfaceType,
     NavigationBar,
@@ -183,7 +176,6 @@ import {
     JsDoc,
     getJSDocTags,
     getAllSuperTypeNodes,
-    isTransientSymbol,
     lineBreakPart,
     hasTabstop,
     isComputedPropertyName,
@@ -1992,6 +1984,7 @@ function setSourceFileFields(
 export function createLanguageServiceSourceFile(
     fileName: string,
     scriptSnapshot: IScriptSnapshot,
+    globalIncludes: string[],
     fileHandler: LpcFileHandler,
     scriptTargetOrOptions: ScriptTarget | CreateSourceFileOptions,
     version: string,
@@ -2002,6 +1995,7 @@ export function createLanguageServiceSourceFile(
     const sourceFile = createSourceFile(
         fileName,
         getSnapshotText(scriptSnapshot),    
+        globalIncludes,
         fileHandler,
         scriptTargetOrOptions,
         setNodeParents,
@@ -2015,6 +2009,7 @@ export function createLanguageServiceSourceFile(
 export function updateLanguageServiceSourceFile(
     sourceFile: SourceFile,
     scriptSnapshot: IScriptSnapshot,
+    globalIncludes: string[],
     fileHandler: LpcFileHandler,
     version: string,
     textChangeRange: TextChangeRange | undefined,    
@@ -2060,6 +2055,7 @@ export function updateLanguageServiceSourceFile(
             const newSourceFile = updateSourceFile(
                 sourceFile,
                 newText,
+                globalIncludes,
                 fileHandler,
                 textChangeRange,
                 aggressiveChecks
@@ -2092,6 +2088,7 @@ export function updateLanguageServiceSourceFile(
     return createLanguageServiceSourceFile(
         sourceFile.fileName,
         scriptSnapshot,
+        globalIncludes,
         fileHandler,
         options,        
         version,
@@ -2256,6 +2253,7 @@ class SyntaxTreeCache {
         const scriptKind = getScriptKind(fileName, this.host);
         const version = this.host.getScriptVersion(fileName);
         const languageVariant = this.host.getCompilationSettings()?.driverType;
+        const globalIncludes: string[] = this.host.getCompilationSettings()?.globalIncludeFiles || emptyArray;
         let sourceFile: SourceFile | undefined;
 
         if (this.currentFileName !== fileName) {
@@ -2272,13 +2270,13 @@ class SyntaxTreeCache {
                 // These files are used to produce syntax-based highlighting, which reads JSDoc, so we must use ParseAll.
                 jsDocParsingMode: JSDocParsingMode.ParseAll,
             };            
-            sourceFile = createLanguageServiceSourceFile(fileName, scriptSnapshot, this.host.fileHandler, options, version, /*setNodeParents*/ true, languageVariant, scriptKind);
+            sourceFile = createLanguageServiceSourceFile(fileName, scriptSnapshot, globalIncludes, this.host.fileHandler, options, version, /*setNodeParents*/ true, languageVariant, scriptKind);
         }
         else if (this.currentFileVersion !== version) {            
             // This is the same file, just a newer version. Incrementally parse the file.
             const editRange = scriptSnapshot.getChangeRange(this.currentFileScriptSnapshot!);
                         
-            sourceFile = updateLanguageServiceSourceFile(this.currentSourceFile!, scriptSnapshot, this.host.fileHandler, version, editRange, languageVariant);
+            sourceFile = updateLanguageServiceSourceFile(this.currentSourceFile!, scriptSnapshot, globalIncludes, this.host.fileHandler, version, editRange, languageVariant);
         }
 
         if (sourceFile) {

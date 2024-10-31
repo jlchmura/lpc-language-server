@@ -1604,13 +1604,13 @@ export function createCompilerHostWorker(
         fileExists: fileName => system.fileExists(fileName),
         readFile: fileName => system.readFile(fileName),
         getCurrentDirectory: () => system.getCurrentDirectory(),
-        getIncludeDirs: () => options.libIncludeDirs || [],
+        getIncludeDirs: () => options.libIncludeDirs || emptyArray,
     });
     const newLine = getNewLineCharacter(options);
     const realpath = system.realpath && ((path: string) => system.realpath!(path));    
 
     const compilerHost: CompilerHost = {
-        getSourceFile: createGetSourceFile(fileName => compilerHost.readFile(fileName), setParentNodes, fileHandler, options.driverType),
+        getSourceFile: createGetSourceFile(fileName => compilerHost.readFile(fileName), options.globalIncludeFiles ?? emptyArray, setParentNodes, fileHandler, options.driverType),
         getDefaultLibLocation,
         getDefaultLibFileName: options => combinePaths(getDefaultLibLocation(), getDefaultLibFileName(options)),
         writeFile: createWriteFileMeasuringIO(
@@ -1640,6 +1640,7 @@ export function createCompilerHostWorker(
 /** @internal */
 export function createGetSourceFile(
     readFile: ProgramHost<any>["readFile"],    
+    globalIncludes: string[],
     setParentNodes: boolean | undefined,
     fileHandler: LpcFileHandler,
     driverType: LanguageVariant
@@ -1658,7 +1659,7 @@ export function createGetSourceFile(
             }
             text = "";
         }        
-        return text !== undefined ? createSourceFile(fileName, text, fileHandler, ScriptTarget.LPC, setParentNodes, ScriptKind.LPC, driverType) : undefined;
+        return text !== undefined ? createSourceFile(fileName, text, globalIncludes, fileHandler, ScriptTarget.LPC, setParentNodes, ScriptKind.LPC, driverType) : undefined;
     };
 }
 

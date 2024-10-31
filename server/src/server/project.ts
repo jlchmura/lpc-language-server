@@ -195,7 +195,7 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
     }
 
     getIncludeDirs(): string[] {
-        return this.compilerOptions.libIncludeDirs || [];
+        return this.compilerOptions?.libIncludeDirs || [];
     }
 
     /** @internal */

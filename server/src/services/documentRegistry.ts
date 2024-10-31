@@ -26,6 +26,7 @@ import {
     firstDefinedIterator,
     createLpcFileHandler,
     LpcFileHandler,
+    emptyArray,
 } from "./_namespaces/lpc.js";
 
 /**
@@ -439,6 +440,7 @@ export function createDocumentRegistryInternal(
                 : (compilationSettingsOrHost as MinimalResolutionCacheHost);
         const scriptTarget = ScriptTarget.LPC; //  scriptKind === ScriptKind.JSON ? ScriptTarget.JSON : getEmitScriptTarget(compilationSettings);
         const languageVariant = compilationSettings?.driverType;
+        const globalInclude = compilationSettings?.globalIncludeFiles ?? emptyArray;
         const sourceFileOptions: CreateSourceFileOptions =
             typeof languageVersionOrOptions === "object"
                 ? languageVersionOrOptions
@@ -516,6 +518,7 @@ export function createDocumentRegistryInternal(
             const sourceFile = createLanguageServiceSourceFile(
                 fileName,
                 scriptSnapshot,
+                globalInclude,
                 fileHandler,
                 sourceFileOptions,
                 version,
@@ -539,6 +542,7 @@ export function createDocumentRegistryInternal(
                 entry.sourceFile = updateLanguageServiceSourceFile(
                     entry.sourceFile,
                     scriptSnapshot,
+                    globalInclude,                    
                     fileHandler,
                     version,
                     scriptSnapshot.getChangeRange(

@@ -58,10 +58,11 @@ export function createLpcFileHandler(host: LpcFileHandlerHost): LpcFileHandler {
     }
 
     function getIncludeDirs() {        
-        const basePath = host.getCurrentDirectory();
-        const fullImportDirs = host.getIncludeDirs().map((dir) => {
-            return resolvePath(basePath, "./" + dir);//pathIsAbsolute(dir) ? dir : resolvePath(basePath, dir);
-        });
-        return fullImportDirs;
+        return host.getIncludeDirs();
+        // const basePath = host.getCurrentDirectory();
+        // const fullImportDirs = host.getIncludeDirs().map((dir) => {
+        //     return resolvePath(basePath, "./" + dir);//pathIsAbsolute(dir) ? dir : resolvePath(basePath, dir);
+        // });
+        // return fullImportDirs;
     }
 }
