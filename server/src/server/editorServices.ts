@@ -18,8 +18,15 @@ export const OpenFileInfoTelemetryEvent = "openFileInfo";
 export const CreateFileWatcherEvent: protocol.CreateFileWatcherEventName = "createFileWatcher";
 export const CreateDirectoryWatcherEvent: protocol.CreateDirectoryWatcherEventName = "createDirectoryWatcher";
 export const CloseFileWatcherEvent: protocol.CloseFileWatcherEventName = "closeFileWatcher";
+const ensureProjectForOpenFileSchedule = "*ensureProjectForOpenFiles*";
 
 const noopConfigFileWatcher: FileWatcher = { close: noop };
+
+export interface ProjectsUpdatedInBackgroundEvent {
+    eventName: typeof ProjectsUpdatedInBackgroundEvent;
+    data: { openFiles: string[]; };
+}
+
 
 export class ProjectService {
     /** @internal */
@@ -584,23 +591,37 @@ export class ProjectService {
     
     /** @internal */
     delayEnsureProjectForOpenFiles() {
-        if (!this.openFiles.size) return;
-        Debug.fail("implement me");
-        // this.pendingEnsureProjectForOpenFiles = true;
-        // this.throttledOperations.schedule(ensureProjectForOpenFileSchedule, /*delay*/ 2500, () => {
-        //     if (this.pendingProjectUpdates.size !== 0) {
-        //         this.delayEnsureProjectForOpenFiles();
-        //     }
-        //     else {
-        //         if (this.pendingEnsureProjectForOpenFiles) {
-        //             this.ensureProjectForOpenFiles();
+        if (!this.openFiles.size) return;     
+        this.pendingEnsureProjectForOpenFiles = true;
+        this.throttledOperations.schedule(ensureProjectForOpenFileSchedule, /*delay*/ 2500, () => {
+            if (this.pendingProjectUpdates.size !== 0) {
+                this.delayEnsureProjectForOpenFiles();
+            }
+            else {
+                if (this.pendingEnsureProjectForOpenFiles) {
+                    this.ensureProjectForOpenFiles();
 
-        //             // Send the event to notify that there were background project updates
-        //             // send current list of open files
-        //             this.sendProjectsUpdatedInBackgroundEvent();
-        //         }
-        //     }
-        // });
+                    // Send the event to notify that there were background project updates
+                    // send current list of open files
+                    this.sendProjectsUpdatedInBackgroundEvent();
+                }
+            }
+        });
+    }
+
+    /** @internal */
+    sendProjectsUpdatedInBackgroundEvent() {
+        if (!this.eventHandler) {
+            return;
+        }
+
+        const event: ProjectsUpdatedInBackgroundEvent = {
+            eventName: ProjectsUpdatedInBackgroundEvent,
+            data: {
+                openFiles: arrayFrom(this.openFiles.keys(), path => this.getScriptInfoForPath(path)!.fileName),
+            },
+        };
+        this.eventHandler(event);
     }
 
     private delayUpdateProjectGraphs(projects: readonly Project[], clearSourceMapperCache: boolean) {
@@ -2454,7 +2475,7 @@ export interface LargeFileReferencedEvent {
 
 export type ProjectServiceEvent =
     | LargeFileReferencedEvent
-    // | ProjectsUpdatedInBackgroundEvent
+    | ProjectsUpdatedInBackgroundEvent
     // | ProjectLoadingStartEvent
     // | ProjectLoadingFinishEvent
     | ConfigFileDiagEvent
