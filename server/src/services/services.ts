@@ -194,6 +194,7 @@ import {
     SignatureHelpItemsOptions,
     SignatureHelpItems,
     SignatureHelp,
+    isSourceFile,
 } from "./_namespaces/lpc.js";
 import * as classifier2020 from "./classifier2020.js";
 
@@ -890,6 +891,16 @@ function addSyntheticNodes(
             token = scanner.reScanLessThanTokenAsStringLiteral();
         }
 
+        if (token === SyntaxKind.DefineDirective) {
+            // scan all the way to the end of the line and ignore and non-trivia tokens
+            token = scanner.scan();
+            while (token !== SyntaxKind.EndOfFileToken && token !== SyntaxKind.NewLineTrivia) {
+                token = scanner.scan();
+            }            
+            pos = scanner.getTokenEnd();
+            continue;
+        }
+
         if (textPos <= end) {            
             while (skipIdx >= 0 && skipRanges[skipIdx].end < textPos && skipIdx < skipRanges.length - 1) {
                 skipIdx++;
@@ -924,10 +935,13 @@ function createSyntaxList(nodes: NodeArray<Node>, parent: Node, skipRanges: read
     ) as any as SyntaxList;
     const children: Node[] = [];
     let pos = nodes.pos;
+    const sourceFilename = isSourceFile(parent) ? parent.fileName : parent.originFilename;
     for (const node of nodes) {
-        addSyntheticNodes(children, pos, node.pos, parent, skipRanges);
-        children.push(node);
-        pos = node.end;
+        if (node.originFilename === sourceFilename) {
+            addSyntheticNodes(children, pos, node.pos, parent, skipRanges);
+            children.push(node);
+            pos = node.end;
+        }        
     }
     if (isNaN(nodes.end)) {
         debugger;
