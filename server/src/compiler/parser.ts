@@ -770,6 +770,7 @@ export namespace LpcParser {
             clearState();            
             return result;
         } catch (e) {
+            console.error(e);
             debugger;
             clearState();
             throw e;
@@ -3481,13 +3482,12 @@ export namespace LpcParser {
         let tempType = parseType();
                 
         // check tempType for the array indicator
-        if (tempType && isArrayTypeNode(tempType) && !tempType.elementType) {
-            (tempType as Mutable<ArrayTypeNode>).elementType = type;
-            tempType;
-        } 
-        // else if (!type) {
-        //     type = tempType;
-        // }
+        if (tempType && isArrayTypeNode(tempType) && !tempType.elementType && type) {
+            // we can't use the original type node, as it's in the wrong place in our hierarchy.
+            // so we'll clone it and reset the position to match this array indicator
+            const elementType = finishNode(factory.cloneNode(type), pos);
+            (tempType as Mutable<ArrayTypeNode>).elementType = elementType;
+        }         
 
         const name = parseIdentifierOrPattern();                
         const initializer = isInOrOfKeyword(token()) ? undefined : parseInitializer();

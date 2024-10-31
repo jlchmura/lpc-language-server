@@ -339,14 +339,14 @@ export function start(connection: Connection, platform: string) {
 
             try {
                 const result = session.getQuickInfoWorker(args, false) as lpc.QuickInfo;
+                if (!result) return undefined;
+
                 const displayParts: string[] = result?.displayParts?.map(pt=>pt.text) ?? [];
                 let md = "```lpc\n" + displayParts.join("") + "\n```";
-
-                if (result) {                
-                    const docMd = typeConverters.DisplayPart.documentationToMarkdown(result.documentation, result.tags, undefined);
-                    md += "\n" + docMd;
-                }
-
+                
+                const docMd = typeConverters.DisplayPart.documentationToMarkdown(result.documentation, result.tags, undefined);
+                md += "\n" + docMd;
+                
                 return {
                     contents: {
                         kind: MarkupKind.Markdown,                    

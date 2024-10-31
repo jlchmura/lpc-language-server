@@ -1273,7 +1273,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         type = getReducedApparentType(type);
         if (type.flags & TypeFlags.Object) {
             const resolved = resolveStructuredTypeMembers(type as ObjectType);
-            const symbol = resolved.members.get(name);
+            const symbol = resolved.members?.get(name);
             // if (symbol && !includeTypeOnlyMembers && type.symbol?.flags & SymbolFlags.ValueModule && getSymbolLinks(type.symbol).typeOnlyExportStarMap?.has(name)) {
             //     // If this is the type of a module, `resolved.members.get(name)` might have effectively skipped over
             //     // an `export type * from './foo'`, leaving `symbolIsValue` unable to see that the symbol is being
@@ -1285,8 +1285,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             }
             if (skipObjectFunctionPropertyAugment) return undefined;
             const functionType = resolved === anyFunctionType ? globalFunctionType :
-                resolved.callSignatures.length ? globalCallableFunctionType :
-                resolved.constructSignatures.length ? globalNewableFunctionType :
+                resolved.callSignatures?.length ? globalCallableFunctionType :
+                resolved.constructSignatures?.length ? globalNewableFunctionType :
                 undefined;
             if (functionType) {
                 const symbol = getPropertyOfObjectType(functionType, name);
@@ -1834,7 +1834,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     function getIndexInfosOfStructuredType(type: Type): readonly IndexInfo[] {
         if (type.flags & TypeFlags.StructuredType) {
             const resolved = resolveStructuredTypeMembers(type as ObjectType);
-            return resolved.indexInfos;
+            return resolved.indexInfos ?? emptyArray;
         }
         return emptyArray;
     }
@@ -1872,6 +1872,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function findApplicableIndexInfo(indexInfos: readonly IndexInfo[], keyType: Type) {
+        Debug.assertIsDefined(indexInfos);
+
         // Index signatures for type 'string' are considered only when no other index signatures apply.
         let stringIndexInfo: IndexInfo | undefined;
         let applicableInfo: IndexInfo | undefined;
@@ -21002,7 +21004,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
 
     function getSuggestedSymbolForNonexistentProperty(name: Identifier | string, containingType: Type): Symbol | undefined {
-        let props = getPropertiesOfType(containingType);
+        let props = getPropertiesOfType(containingType) ?? emptyArray;
         if (typeof name !== "string") {
             const parent = name.parent;
             if (isPropertyAccessExpression(parent)) {
