@@ -1,6 +1,6 @@
 import { ILpcConfig } from "../config-types.js";
 import * as lpc from "./_namespaces/lpc.js";
-import { addRange, arrayFrom, CachedDirectoryStructureHost, clearMap, closeFileWatcher, combinePaths, CompilerHost, CompilerOptions, createLanguageService, createLpcFileHandler, createResolutionCache, Debug, Diagnostic, DirectoryStructureHost, DirectoryWatcherCallback, DocumentRegistry, explainFiles, ExportInfoMap, FileWatcher, FileWatcherCallback, FileWatcherEventKind, flatMap, forEach, forEachKey, GetCanonicalFileName, getDefaultLibFileName, getDirectoryPath, getNormalizedAbsolutePath, getOrUpdate, HasInvalidatedLibResolutions, HasInvalidatedResolutions, IScriptSnapshot, isString, LanguageService, LanguageServiceHost, LanguageServiceMode, maybeBind, ModuleResolutionHost, noopFileWatcher, normalizePath, ParsedCommandLine, Path, PerformanceEvent, PollingInterval, Program, ProgramUpdateLevel, ProjectReference, ResolutionCache, ResolvedProjectReference, returnFalse, returnTrue, sortAndDeduplicate, SortedReadonlyArray, SourceFile, SourceMapper, StructureIsReused, ThrottledCancellationToken, timestamp, toPath, tracing, TypeAcquisition, updateMissingFilePathsWatch, WatchDirectoryFlags, WatchOptions, WatchType } from "./_namespaces/lpc.js";
+import { addRange, append, arrayFrom, CachedDirectoryStructureHost, clearMap, closeFileWatcher, combinePaths, CompilerHost, CompilerOptions, createLanguageService, createLpcFileHandler, createResolutionCache, Debug, Diagnostic, DirectoryStructureHost, DirectoryWatcherCallback, DocumentRegistry, explainFiles, ExportInfoMap, FileWatcher, FileWatcherCallback, FileWatcherEventKind, flatMap, forEach, forEachKey, GetCanonicalFileName, getDefaultLibFileName, getDirectoryPath, getNormalizedAbsolutePath, getOrUpdate, HasInvalidatedLibResolutions, HasInvalidatedResolutions, IScriptSnapshot, isExternalModuleNameRelative, isString, LanguageService, LanguageServiceHost, LanguageServiceMode, maybeBind, ModuleResolutionHost, noopFileWatcher, normalizePath, ParsedCommandLine, parsePackageName, Path, PerformanceEvent, PollingInterval, Program, ProgramUpdateLevel, ProjectReference, ResolutionCache, resolutionExtensionIsTSOrJson, ResolvedProjectReference, returnFalse, returnTrue, sortAndDeduplicate, SortedReadonlyArray, SourceFile, SourceMapper, StructureIsReused, ThrottledCancellationToken, timestamp, toPath, tracing, TypeAcquisition, updateMissingFilePathsWatch, WatchDirectoryFlags, WatchOptions, WatchType } from "./_namespaces/lpc.js";
 import { asNormalizedPath, emptyArray, Errors, HostCancellationToken, LogLevel, NormalizedPath, ProjectService, ScriptInfo, updateProjectIfDirty } from "./_namespaces/lpc.server.js";
 
 
@@ -1308,40 +1308,37 @@ function getUnresolvedImports(program: Program, cachedUnresolvedImportsPerFile: 
     const sourceFiles = program.getSourceFiles();
     tracing?.push(tracing.Phase.Session, "getUnresolvedImports", { count: sourceFiles.length });
     // const ambientModules = program.getTypeChecker().getAmbientModules().map(mod => stripQuotes(mod.getName()));
-    // const result = sortAndDeduplicate(flatMap(sourceFiles, sourceFile =>
-    //     extractUnresolvedImportsFromSourceFile(
-    //         program,
-    //         sourceFile,
-    //         ambientModules,
-    //         cachedUnresolvedImportsPerFile,
-    //     )));
-    console.debug("todo - getUnresolvedImports");
-    const result = emptyArray;
+    const result = sortAndDeduplicate(flatMap(sourceFiles, sourceFile =>
+        extractUnresolvedImportsFromSourceFile(
+            program,
+            sourceFile,            
+            cachedUnresolvedImportsPerFile,
+        )));
+    // const result = emptyArray;
     tracing?.pop();
     return result;
 }
 
-// function extractUnresolvedImportsFromSourceFile(
-//     program: Program,
-//     file: SourceFile,
-//     ambientModules: readonly string[],
-//     cachedUnresolvedImportsPerFile: Map<Path, readonly string[]>,
-// ): readonly string[] {
-//     return getOrUpdate(cachedUnresolvedImportsPerFile, file.path, () => {
-//         let unresolvedImports: string[] | undefined;
-//         program.forEachResolvedModule(({ resolvedModule }, name) => {
-//             // pick unresolved non-relative names
-//             if (
-//                 (!resolvedModule || !resolutionExtensionIsTSOrJson(resolvedModule.extension)) &&
-//                 !isExternalModuleNameRelative(name) &&
-//                 !ambientModules.some(m => m === name)
-//             ) {
-//                 unresolvedImports = append(unresolvedImports, parsePackageName(name).packageName);
-//             }
-//         }, file);
-//         return unresolvedImports || emptyArray;
-//     });
-// }
+function extractUnresolvedImportsFromSourceFile(
+    program: Program,
+    file: SourceFile,    
+    cachedUnresolvedImportsPerFile: Map<Path, readonly string[]>,
+): readonly string[] {
+    return getOrUpdate(cachedUnresolvedImportsPerFile, file.path, () => {
+        let unresolvedImports: string[] | undefined;
+        program.forEachResolvedModule(({ resolvedModule }, name) => {
+            // pick unresolved non-relative names
+            if (
+                (!resolvedModule || !resolutionExtensionIsTSOrJson(resolvedModule.extension)) &&
+                !isExternalModuleNameRelative(name)
+                // !ambientModules.some(m => m === name)
+            ) {
+                unresolvedImports = append(unresolvedImports, parsePackageName(name).packageName);
+            }
+        }, file);
+        return unresolvedImports || emptyArray;
+    });
+}
 
 
 /** @internal */

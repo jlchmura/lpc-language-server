@@ -1,4 +1,4 @@
-import { BaseNodeFactory, CreateSourceFileOptions, EmitHelperFactory, GetCanonicalFileName, MapLike, ModuleResolutionCache, MultiMap, Mutable, NodeFactoryFlags, PackageJsonInfo, Pattern, ThisContainer } from "./_namespaces/lpc.js";
+import { BaseNodeFactory, CreateSourceFileOptions, EmitHelperFactory, GetCanonicalFileName, MapLike, ModeAwareCache, ModuleResolutionCache, MultiMap, Mutable, NodeFactoryFlags, PackageJsonInfo, Pattern, ThisContainer } from "./_namespaces/lpc.js";
 
 // Note: 'brands' in our syntax nodes serve to give us a small amount of nominal typing.
 // Consider 'Expression'.  Without the brand, 'Expression' is actually no different
@@ -4917,8 +4917,8 @@ export interface Program extends ScriptReferenceHost {
     // /** @internal */
     getFilesByNameMap(): Map<Path, SourceFile | false | undefined>;
 
-    // /** @internal */
-    // resolvedModules: Map<Path, ModeAwareCache<ResolvedModuleWithFailedLookupLocations>> | undefined;
+    /** @internal */
+    resolvedModules: Map<Path, ModeAwareCache<ResolvedModuleWithFailedLookupLocations>> | undefined;
     // /** @internal */
     // resolvedTypeReferenceDirectiveNames: Map<Path, ModeAwareCache<ResolvedTypeReferenceDirectiveWithFailedLookupLocations>> | undefined;
     /** @internal */
@@ -4929,11 +4929,11 @@ export interface Program extends ScriptReferenceHost {
     // getResolvedTypeReferenceDirective(f: SourceFile, typeDirectiveName: string, mode: ResolutionMode): ResolvedTypeReferenceDirectiveWithFailedLookupLocations | undefined;
     /** @internal */
     getResolvedTypeReferenceDirectiveFromTypeReferenceDirective(typedRef: FileReference, sourceFile: SourceFile): ResolvedTypeReferenceDirectiveWithFailedLookupLocations | undefined;
-    // /** @internal */
-    // forEachResolvedModule(
-    //     callback: (resolution: ResolvedModuleWithFailedLookupLocations, moduleName: string, mode: ResolutionMode, filePath: Path) => void,
-    //     file?: SourceFile,
-    // ): void;
+    /** @internal */
+    forEachResolvedModule(
+        callback: (resolution: ResolvedModuleWithFailedLookupLocations, moduleName: string, mode: ResolutionMode, filePath: Path) => void,
+        file?: SourceFile,
+    ): void;
     // /** @internal */
     // forEachResolvedTypeReferenceDirective(
     //     callback: (resolution: ResolvedTypeReferenceDirectiveWithFailedLookupLocations, moduleName: string, mode: ResolutionMode, filePath: Path) => void,

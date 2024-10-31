@@ -321,14 +321,14 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         // sourceFileToPackageName,
         // redirectTargetsMap,
         // usesUriStyleNodeCoreModules,
-        // resolvedModules,
+        resolvedModules,
         // resolvedTypeReferenceDirectiveNames,
         resolvedLibReferences,
         getResolvedModule,
         getResolvedModuleFromModuleSpecifier,
         // getResolvedTypeReferenceDirective,
         getResolvedTypeReferenceDirectiveFromTypeReferenceDirective,
-        // forEachResolvedModule,
+        forEachResolvedModule,
         // forEachResolvedTypeReferenceDirective,
         // getCurrentPackagesMap: () => packageMap,
         // typesPackageExists,
@@ -422,6 +422,22 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         //     return concatenate(sourceFile.additionalSyntacticDiagnostics, sourceFile.parseDiagnostics);
         // }
         return sourceFile.parseDiagnostics;
+    }
+
+    function forEachResolvedModule(
+        callback: (resolution: ResolvedModuleWithFailedLookupLocations, moduleName: string, mode: ResolutionMode, filePath: Path) => void,
+        file?: SourceFile,
+    ) {
+        forEachResolution(resolvedModules, callback, file);
+    }
+
+    function forEachResolution<T>(
+        resolutionCache: Map<Path, ModeAwareCache<T>> | undefined,
+        callback: (resolution: T, moduleName: string, mode: ResolutionMode, filePath: Path) => void,
+        file: SourceFile | undefined,
+    ) {
+        if (file) resolutionCache?.get(file.path)?.forEach((resolution, name, mode) => callback(resolution, name, mode, file.path));
+        else resolutionCache?.forEach((resolutions, filePath) => resolutions.forEach((resolution, name, mode) => callback(resolution, name, mode, filePath)));
     }
 
     /**

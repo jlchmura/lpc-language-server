@@ -6287,3 +6287,17 @@ export function isDynamicName(name: DeclarationName): boolean {
     return !isStringOrNumericLiteralLike(expr) &&
         !isSignedNumericLiteral(expr);
 }
+
+/**
+ * True if an extension is one of the supported LPC extensions.
+ *
+ * @internal
+ */
+export function extensionIsLPC(ext: string): boolean {
+    return ext === Extension.C || ext === Extension.Lpc || ext === Extension.H;
+}
+
+/** @internal */
+export function resolutionExtensionIsTSOrJson(ext: string) {
+    return extensionIsLPC(ext) || ext === Extension.Json;
+}

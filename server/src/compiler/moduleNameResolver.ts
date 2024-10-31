@@ -1349,3 +1349,11 @@ function resolveFromTypeRoot(moduleName: string, state: ModuleResolutionState) {
     // }
 }
 
+/** @internal */
+export function parsePackageName(moduleName: string): { packageName: string; rest: string; } {
+    let idx = moduleName.indexOf(directorySeparator);
+    if (moduleName[0] === "@") {
+        idx = moduleName.indexOf(directorySeparator, idx + 1);
+    }
+    return idx === -1 ? { packageName: moduleName, rest: "" } : { packageName: moduleName.slice(0, idx), rest: moduleName.slice(idx + 1) };
+}
