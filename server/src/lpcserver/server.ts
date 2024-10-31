@@ -1,17 +1,15 @@
-import { Connection, Diagnostic, DiagnosticSeverity, Hover, InitializeResult, Location, MarkedString, MarkupContent, MarkupKind, TextDocumentPositionParams, TextDocuments, TextDocumentSyncKind } from "vscode-languageserver";
+import { Connection, Hover, InitializeResult, MarkupKind, TextDocumentPositionParams, TextDocuments, TextDocumentSyncKind } from "vscode-languageserver";
 import * as vscode from "vscode-languageserver";
 import * as lpc from "../lpc/lpc.js";
-import { Debug, tracing } from "../lpc/lpc.js";
+import { Debug } from "../lpc/lpc.js";
 import * as protocol from "../server/_namespaces/lpc.server.protocol.js";
 import { Logger } from "./nodeServer";
 import { Position, TextDocument } from "vscode-languageserver-textdocument";
 import { URI } from "vscode-uri";
-import { loadLpcConfig } from "../compiler/LpcConfig.js";
 import EventEmitter from "events";
 import { convertNavTree } from "./utils.js";
 import * as typeConverters from './typeConverters';
 import { KindModifiers } from "./protocol.const.js";
-import { debug } from "console";
 import { SignatureHelp } from "./typeConverters";
 
 const logger = new Logger("server.log", true, lpc.server.LogLevel.verbose);
@@ -195,26 +193,31 @@ export function start(connection: Connection, platform: string) {
                 closedFiles: [filename],
             });
         })
-
+        
         connection.onDidChangeTextDocument((e: vscode.DidChangeTextDocumentParams) => {
-            const filename = fromUri(e.textDocument.uri);
-            const lspChanges = e.contentChanges;
-            
-            // convert LSP text change to LPC CodeEdits
-            const changes: protocol.CodeEdit[] = [];
-            for (const lspChange of lspChanges) {
-                if (vscode.TextDocumentContentChangeEvent.isIncremental(lspChange)) {
-                    changes.push({start: lspPosToLpcPos(lspChange.range.start), end: lspPosToLpcPos(lspChange.range.end), newText: lspChange.text});
-                } else {
-                    changes.push({start: {line: 1, offset: 1}, end: {line: 1, offset: 1}, newText: lspChange.text});
+            try {
+                const filename = fromUri(e.textDocument.uri);
+                const lspChanges = e.contentChanges;
+        
+                // convert LSP text change to LPC CodeEdits
+                const changes: protocol.CodeEdit[] = [];
+                for (const lspChange of lspChanges) {
+                    if (vscode.TextDocumentContentChangeEvent.isIncremental(lspChange)) {                    
+                        changes.push({start: lspPosToLpcPos(lspChange.range.start), end: lspPosToLpcPos(lspChange.range.end), newText: lspChange.text});
+                    } else {
+                        changes.push({start: {line: 1, offset: 1}, end: {line: 1, offset: 1}, newText: lspChange.text});
+                    }
                 }
+
+                session.updateOpen({
+                    changedFiles: [{fileName: filename, textChanges: changes }],
+                });
+
+                session.getDiagnosticsForFiles({files: [filename], delay: 100});
+            } catch(e) {
+                console.error(e);
+                debugger;
             }
-
-            session.updateOpen({
-                changedFiles: [{fileName: filename, textChanges: changes }],
-            });
-
-            session.getDiagnosticsForFiles({files: [filename], delay: 100});
         });
 
         connection.onShutdown(e=>{

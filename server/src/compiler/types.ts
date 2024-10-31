@@ -1335,6 +1335,7 @@ export type KeywordTypeSyntaxKind =
     | SyntaxKind.FloatKeyword
     | SyntaxKind.IntrinsicKeyword
     | SyntaxKind.BytesKeyword
+    | SyntaxKind.MappingKeyword
     | SyntaxKind.StatusKeyword
     | SyntaxKind.LwObjectKeyword
     | SyntaxKind.ClosureKeyword
