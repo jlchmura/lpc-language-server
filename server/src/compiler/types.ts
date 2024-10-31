@@ -1,5 +1,3 @@
-import { LpcConfig } from "./LpcConfig.js";
-import { ILpcConfig } from "../config-types.js";
 import { BaseNodeFactory, CreateSourceFileOptions, EmitHelperFactory, GetCanonicalFileName, MapLike, ModuleResolutionCache, MultiMap, Mutable, NodeFactoryFlags, PackageJsonInfo, Pattern, ThisContainer } from "./_namespaces/lpc.js";
 
 // Note: 'brands' in our syntax nodes serve to give us a small amount of nominal typing.
@@ -811,6 +809,7 @@ export const enum SyntaxKind {
     TypeLiteral,
     ParenthesizedType,
     TypeReference,
+    TypePredicate,
     ConditionalType,  // Last TYpe Node
     
     // Elements
@@ -923,6 +922,7 @@ export const enum SyntaxKind {
 
     LiteralType,
     StructType,
+    ThisType,
     IndexedAccessType,
     MappedType,
 
@@ -1367,12 +1367,15 @@ export type TypeNodeSyntaxKind =
     | SyntaxKind.StructType
     | SyntaxKind.ArrayType
     | SyntaxKind.LiteralType
+    | SyntaxKind.ThisType
+    | SyntaxKind.TypePredicate
     | SyntaxKind.MappedType
     | SyntaxKind.TypeLiteral
     | SyntaxKind.ParenthesizedType
     | SyntaxKind.TypeReference
     | SyntaxKind.ExpressionWithTypeArguments
     | SyntaxKind.FunctionType
+    | SyntaxKind.ConditionalType
     | SyntaxKind.JSDocTypeExpression
     | SyntaxKind.JSDocAllType
     | SyntaxKind.JSDocUnknownType
@@ -1478,11 +1481,13 @@ export interface NodeFactory {
     // Names
     createQualifiedName(left: EntityName, right: string | Identifier): QualifiedName;
     createComputedPropertyName(expression: Expression): ComputedPropertyName;
+    updateComputedPropertyName(node: ComputedPropertyName, expression: Expression): ComputedPropertyName;
 
     // type elements
     createIndexSignature(modifiers: readonly Modifier[] | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode): IndexSignatureDeclaration;
     /** @internal */ createIndexSignature(modifiers: readonly Modifier[] | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode | undefined): IndexSignatureDeclaration; // eslint-disable-line @typescript-eslint/unified-signatures
     createTypeParameterDeclaration(modifiers: readonly Modifier[] | undefined, name: string | Identifier, constraint?: TypeNode, defaultType?: TypeNode): TypeParameterDeclaration;
+    updateTypeParameterDeclaration(node: TypeParameterDeclaration, modifiers: readonly Modifier[] | undefined, name: Identifier, constraint: TypeNode | undefined, defaultType: TypeNode | undefined): TypeParameterDeclaration;
     createMethodSignature(modifiers: readonly Modifier[] | undefined, name: string | PropertyName, questionToken: QuestionToken | undefined, typeParameters: readonly TypeParameterDeclaration[] | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode | undefined): MethodSignature;
     createCallSignature(typeParameters: readonly TypeParameterDeclaration[] | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode | undefined): CallSignatureDeclaration;
     createFunctionTypeNode(typeParameters: readonly TypeParameterDeclaration[] | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode): FunctionTypeNode;
@@ -1500,6 +1505,7 @@ export interface NodeFactory {
     // types
     createKeywordTypeNode<TKind extends KeywordTypeSyntaxKind>(kind: TKind): KeywordTypeNode<TKind>;
     createTypeReferenceNode(typeName: string | EntityName, typeArguments?: readonly TypeNode[]): TypeReferenceNode;
+    updateTypeReferenceNode(node: TypeReferenceNode, typeName: EntityName, typeArguments: NodeArray<TypeNode> | undefined): TypeReferenceNode;
     createUnionTypeNode(types: readonly TypeNode[]): UnionTypeNode;
     createArrayTypeNode(elementType: TypeNode): ArrayTypeNode;
     createParenthesizedType(type: TypeNode): ParenthesizedTypeNode;
@@ -3588,7 +3594,7 @@ export type SignatureDeclaration =
     | IndexSignatureDeclaration
     | FunctionTypeNode
     // | ConstructorTypeNode
-    // | JSDocFunctionType
+    | JSDocFunctionType
     | ArrowFunction
     | FunctionDeclaration
     | MethodDeclaration
@@ -7321,3 +7327,39 @@ export interface ParsedLpcConfig {
  */
 export type ResolvedConfigFileName = string & { _isResolvedConfigFileName: never; };
 
+export interface ConditionalTypeNode extends TypeNode, LocalsContainer {
+    readonly kind: SyntaxKind.ConditionalType;
+    readonly checkType: TypeNode;
+    readonly extendsType: TypeNode;
+    readonly trueType: TypeNode;
+    readonly falseType: TypeNode;
+}
+
+export interface ThisTypeNode extends TypeNode {
+    readonly kind: SyntaxKind.ThisType;
+}
+
+export interface JSDocAllType extends JSDocType {
+    readonly kind: SyntaxKind.JSDocAllType;
+}
+
+export interface JSDocUnknownType extends JSDocType {
+    readonly kind: SyntaxKind.JSDocUnknownType;
+}
+
+export interface JSDocOptionalType extends JSDocType {
+    readonly kind: SyntaxKind.JSDocOptionalType;
+    readonly type: TypeNode;
+}
+
+export interface JSDocFunctionType extends JSDocType, SignatureDeclarationBase, LocalsContainer {
+    readonly kind: SyntaxKind.JSDocFunctionType;
+}
+
+export interface TypePredicateNode extends TypeNode {
+    readonly kind: SyntaxKind.TypePredicate;
+    readonly parent: SignatureDeclaration | JSDocTypeExpression;
+    // readonly assertsModifier?: AssertsKeyword;
+    readonly parameterName: Identifier | ThisTypeNode;
+    readonly type?: TypeNode;
+}

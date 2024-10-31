@@ -1,4 +1,4 @@
-import { visitEachChild as visitEachChildWorker, setTextRange as setTextRangeWorker, Type, Symbol, SymbolLinks, CancellationToken, createSymbolTable, Declaration, EmitTextWriter, ModifierFlags, Node, NodeFlags, objectAllocator, Scanner, Signature, SignatureKind, SymbolFlags, TypeChecker, TypeCheckerHost, TypeFormatFlags, TypeParameter, CheckFlags, TransientSymbol, TransientSymbolLinks, reduceLeft, bindSourceFile, SourceFile, Diagnostic, createDiagnosticCollection, concatenate, forEach, tracing, performance, NodeLinks, NodeCheckFlags, FlowNode, FlowType, clear, SyntaxKind, TracingNode, CallLikeExpression, CallExpression, isCallOrNewExpression, isBinaryExpression, Expression, SignatureDeclaration, SignatureFlags, emptyArray, TypeFlags, IntrinsicType, ObjectFlags, Debug, BinaryExpression, ObjectType, StructuredType, ResolvedType, SymbolTable, IndexInfo, Identifier, nodeIsMissing, createNameResolver, InternalSymbolName, SymbolId, some, DiagnosticMessage, DiagnosticArguments, createDiagnosticForNode, createCompilerDiagnostic, FunctionLikeDeclaration, PropertyDeclaration, isString, isIdentifier, Diagnostics, findLast, SymbolFormatFlags, isAccessExpression, isFunctionExpression, isAliasableExpression, PropertyAssignment, isVariableDeclarationInitializedToBareOrAccessedRequire, mapDefined, arrayFrom, getSpellingSuggestion, symbolName, startsWith, nodeIsSynthesized, declarationNameToString, getCanonicalDiagnostic, DiagnosticCategory, addRelatedInfo, ParameterDeclaration, BindingElement, isSourceFile, isExternalOrCommonJsModule, isBlockOrCatchScoped, length, every, isValidTypeOnlyAliasUseSite, isWriteOnlyAccess, getCombinedNodeFlags, DiagnosticWithLocation, getJSDocDeprecatedTag, findAncestor, isCallLikeExpression, isFunctionLike, ParenthesizedExpression, isAssignmentExpression, isVariableDeclaration, isBindingElement, PropertyAccessExpression, getEnclosingBlockScopeContainer, isPropertyDeclaration, nodeStartsNewLexicalEnvironment, isIterationStatement, isForStatement, getAncestor, ForStatement, pushIfUnique, isAssignmentTarget, PrefixUnaryExpression, PostfixUnaryExpression, isBlock, isExpressionNode, isPropertyAccessExpression, getAssignmentTargetKind, AssignmentKind, isInCompoundLikeAssignment, UnionType, TypeId, UnionReduction, getRootDeclaration, getImmediatelyInvokedFunctionExpression, isSpreadAssignment, isParameter, VariableDeclaration, isFunctionLikeDeclaration, isTypeNode, forEachChild, tryCast, canHaveFlowNode, ElementAccessExpression, RelationComparisonResult, LiteralType, FreshableType, getObjectFlags, DiagnosticMessageChain, setNodeFlags, isCallExpression, LazyNodeCheckFlags, getSourceFileOfNode, canIncludeBindAndCheckDiagnostics, forEachChildRecursively, isDeclarationName, EntityName, JSDocMemberName, canHaveSymbol, isLiteralTypeNode, isElementAccessExpression, isIndexedAccessTypeNode, TypeNode, canHaveJSDoc, FlowFlags, FlowArrayMutation, FlowAssignment, FlowCall, FlowCondition, FlowLabel, FlowReduceLabel, FlowSwitchClause, SwitchStatement, createFileDiagnostic, createDiagnosticForFileFromMessageChain, createDiagnosticForNodeFromMessageChain, VariableStatement, HasModifiers, VariableDeclarationList, Block, isFunctionOrModuleBlock, CaseBlock, ForEachStatement, IndexSignatureDeclaration, Path, HasLocals, BindingPattern, idText, isForEachStatement, getNameOfDeclaration, isArrayBindingPattern, first, BindingName, cast, containsParseError, FunctionDeclaration, getFunctionFlags, getEffectiveReturnTypeNode, FunctionFlags, nodeIsPresent, JSDocSignature, isJSDocSignature, getJSDocRoot, LiteralTypeNode, TypeNodeSyntaxKind, isStatement, UnionOrIntersectionType, getContainingFunction, hasSyntacticModifier, isBindingPattern, sameMap, flatMap, getCheckFlags, singleElementArray, getDeclarationModifierFlagsFromSymbol, Ternary, append, find, isNumericLiteralName, StringLiteralType, contains, isTransientSymbol, addRange, filter, IndexType, getParseTreeNode, isRightSideOfQualifiedNameOrPropertyAccess, isWriteAccess, isRightSideOfAccessExpression, hasEffectiveModifier, getCombinedModifierFlags, isEntityName, PropertyAccessEntityNameExpression, isRightSideOfQualifiedNameOrPropertyAccessOrJSDocMemberName, QualifiedName, getHostSignatureFromJSDoc, or, EntityNameOrEntityNameExpression, isInJSFile, getFirstIdentifier, isQualifiedName, entityNameToString, isCallChain, isEntityNameExpression, isLineBreak, skipTrivia, DiagnosticRelatedInformation, IntLiteralType, FloatLiteralType, createTextWriter, chainDiagnosticMessages, getErrorSpanForNode, ShorthandPropertyAssignment, NodeBuilderFlags, SymbolTracker, TrackedSymbol, ReverseMappedSymbol, TypeMapper, ModuleSpecifierResolutionHost, Program, maybeBind, setEmitFlags, createNodeFactory, NodeFactoryFlags, BaseNodeFactory, Mutable, firstDefined, isComputedPropertyName, isIdentifierText, escapeString, getEmitScriptTarget, factory, EmitFlags, isSingleOrDoubleQuote, canUsePropertyAccess, stripQuotes, DoWhileStatement, BinaryOperatorToken, isLogicalOrCoalescingBinaryOperator, isLogicalOrCoalescingBinaryExpression, isIfStatement, skipParentheses, Statement, PunctuationSyntaxKind, tokenToString, FreshableIntrinsicType, isLiteralExpressionOfObject, getAssignmentDeclarationKind, AssignmentDeclarationKind, ConditionalExpression, isAssignmentOperator, isJSDocTypedefTag, isIntLiteral, skipOuterExpressions, OuterExpressionKinds, isExpression, ObjectLiteralExpression, ArrayLiteralExpression, FunctionExpression, InlineClosureExpression, ObjectLiteralElementLike, hasContextSensitiveParameters, forEachReturnStatement, compareDiagnostics, Comparison, createBinaryExpressionTrampoline, IntLiteral, FloatLiteral, isShorthandPropertyAssignment, isPropertyAccessOrQualifiedName, isPrivateIdentifier, WideningContext, StringLiteral, ReturnStatement, ExpressionStatement, IfStatement, NewExpression, getMembersOfDeclaration, AccessExpression, isThisInitializedDeclaration, setValueDeclaration, comparePaths, getOrUpdate, usingSingleLineStringWriter, createPrinterWithRemoveCommentsNeverAsciiEscape, createPrinterWithRemoveComments, EmitHint, getEffectiveModifierFlags, getEffectiveTypeAnnotationNode, getAssignmentDeclarationPropertyAccessKind, isNamedDeclaration, map, PropertyName, isFloatLiteral, getPropertyNameForPropertyNameNode, isPartOfParameterDeclaration, hasOnlyExpressionInitializer, not, getEffectiveInitializer, isObjectLiteralExpression, isVariableLike, getSelectedEffectiveModifierFlags, AliasDeclarationNode, isBindingElementOfBareOrAccessedRequire, TypeReference, isFunctionExpressionOrInlineClosure, ContextFlags, indexOfNode, InferenceContext, isNodeDescendantOf, ObjectFlagsType, GenericType, ReverseMappedType, AnonymousType, DeferredTypeReference, InstantiationExpressionType, SingleSignatureType, MappedTypeNode, TypeParameterDeclaration, appendIfUnique, TypeMapKind, isPartOfTypeNode, TypeReferenceNode, MappedType, ArrayTypeNode, isParenthesizedTypeNode, isTypeAlias, IndexFlags, InferenceInfo, binarySearch, compareValues, hasInitializer, lastOrUndefined, HasExpressionInitializer, getContainingFunctionOrClassStaticBlock, getSpanOfTokenAtPosition, isJSDocParameterTag, hasRestParameter, isStringLiteral, walkUpBindingElementsAndPatterns, BindableObjectDefinePropertyCall, copyEntries, InterfaceType, isPropertyAssignment, DiagnosticAndArguments, FreshObjectLiteralType, BaseType, firstOrUndefined, SubstitutionType, createPrinterWithDefaults, noTruncationMaximumTruncationLength, defaultMaximumTruncationLength, arrayIsHomogeneous, isIdentifierTypeReference, createMultiMap, addSyntheticLeadingComment, NodeArray, getOriginalNode, getIdentifierTypeArguments, setIdentifierTypeArguments, IndexedAccessTypeNode, forEachEntry, ScriptTarget, SymbolAccessibility, canHaveLocals, getDeclarationOfKind, isClassLike, TypeElement, SymbolAccessibilityResult, SymbolVisibilityResult, LateVisibilityPaintedStatement, isVariableStatement, isLateVisibilityPaintedStatement, isTypeLiteralNode, PlusToken, MinusToken, walkUpParenthesizedTypes, setOriginalNode, countWhere, getNameFromIndexInfo, Modifier, notImplemented, isTypeParameterDeclaration, setParent, CallChain, isLiteralExpression, isStringOrNumericLiteralLike, FlowStart, getPropertyNameFromType, EvolvingArrayType, arrayIsEqualTo, isObjectLiteralMethod, isNonNullAccess, FlowSwitchClauseData, LiteralExpression, CaseClause, DefaultClause, findIndex, orderedRemoveItemAt, UnionTypeNode, ParenthesizedTypeNode, concatenateDiagnosticMessageChains, isDeclaration, InterfaceTypeWithDeclaredMembers, rangeEquals, InferenceFlags, minAndMax, last, IntersectionFlags, IntersectionType, flatten, createDiagnosticMessageChainFromDiagnostic, setTextRangePosEnd, createDiagnosticForNodeArrayFromMessageChain, createDiagnosticForNodeArray, isConstructorDeclaration, TypeComparer, InferencePriority, pathIsRelative, moduleSpecifiers, EmitResolver, isRestParameter, SpreadElement, ElementFlags, ModuleKind, ResolutionMode, ModuleResolutionKind, getResolutionDiagnostic, isDeclarationFileName, hasExtension, removeExtension, CloneObjectExpression, isCloneObjectExpression, PropertyAccessChain, OptionalChain, ExportDeclaration, getTextOfNode, InheritDeclaration, isCallLikeOrFunctionLikeExpression, isFunctionExpressionOrArrowFunction, CharacterCodes, Visitor, visitNodes, isGlobalSourceFile, isExternalModule, introducesArgumentsExoticObject, getCombinedLocalAndExportSymbolFlags, StructTypeNode, StructDeclaration, ClassLikeDeclaration, getEffectiveBaseTypeNode, ComputedPropertyName, TypeReferenceType, NodeWithTypeArguments, ClassDeclaration, ClassExpression, TypeLiteralNode, JSDocTypeLiteral, isJSDocTypeLiteral, isInJSDoc, isTypeDeclaration, JSDocTypeAssertion, AssertionExpression, isParenthesizedExpression, getJSDocTypeAssertionType, AccessFlags, NewStructExpression, isJSDocTypeAlias, isAssertionExpression, TypeAssertion, DeclarationName, isKnownSymbol, createEvaluator, EntityNameExpression, evaluatorResult, isStringLiteralLike, SyntheticExpression, ArrayBindingPattern, isTypeUsableAsPropertyName, isPropertyName, tryGetPropertyAccessOrIdentifierToString, IndexedAccessType, MappingLiteralExpression, isOmittedExpression, UnionOrIntersectionTypeNode, PropertySignature, isPropertySignature, LateBoundName, isClassExpression, LateBoundDeclaration, LateBoundBinaryExpressionDeclaration, ElementAccessChain, MappedSymbol, VariableLikeDeclaration, isComputedNonLiteralName, getElementOrPropertyAccessName, findLastIndex, hasAccessorModifier, emptyMap, BytesLiteral, BytesLiteralType, WhileStatement, hasType, getEnclosingContainer, isPropertyNameLiteral, getTextOfIdentifierOrLiteral, JSDocOverloadTag, JSDocCallbackTag, TypePredicate, isIdentifierTypePredicate, HasInitializer, resolvingEmptyArray, getClassLikeDeclarationOfSymbol, ExpressionWithTypeArguments, isNumericLiteral, isInfinityOrNaNString, getEffectiveConstraintOfTypeParameter, isTypeReferenceNode, JSDocParameterTag, canHaveModifiers, modifiersToFlags, JSDocPropertyTag, hasInferredType, isTypePredicateNode, isOptionalDeclaration, getModifiers, isJSDocTypeAssertion, getJSDocThisTag, FunctionTypeNode, createSyntacticTypeNodeBuilder, getJSDocHost, createPrinterWithRemoveCommentsOmitTrailingSemicolon, getTrailingSemicolonDeferringWriter, getThisContainer, JSDocTypeExpression } from "./_namespaces/lpc";
+import { visitEachChild as visitEachChildWorker, setTextRange as setTextRangeWorker, Type, Symbol, SymbolLinks, CancellationToken, createSymbolTable, Declaration, EmitTextWriter, ModifierFlags, Node, NodeFlags, objectAllocator, Scanner, Signature, SignatureKind, SymbolFlags, TypeChecker, TypeCheckerHost, TypeFormatFlags, TypeParameter, CheckFlags, TransientSymbol, TransientSymbolLinks, reduceLeft, bindSourceFile, SourceFile, Diagnostic, createDiagnosticCollection, concatenate, forEach, tracing, performance, NodeLinks, NodeCheckFlags, FlowNode, FlowType, clear, SyntaxKind, TracingNode, CallLikeExpression, CallExpression, isCallOrNewExpression, isBinaryExpression, Expression, SignatureDeclaration, SignatureFlags, emptyArray, TypeFlags, IntrinsicType, ObjectFlags, Debug, BinaryExpression, ObjectType, StructuredType, ResolvedType, SymbolTable, IndexInfo, Identifier, nodeIsMissing, createNameResolver, InternalSymbolName, SymbolId, some, DiagnosticMessage, DiagnosticArguments, createDiagnosticForNode, createCompilerDiagnostic, FunctionLikeDeclaration, PropertyDeclaration, isString, isIdentifier, Diagnostics, findLast, SymbolFormatFlags, isAccessExpression, isFunctionExpression, isAliasableExpression, PropertyAssignment, isVariableDeclarationInitializedToBareOrAccessedRequire, mapDefined, arrayFrom, getSpellingSuggestion, symbolName, startsWith, nodeIsSynthesized, declarationNameToString, getCanonicalDiagnostic, DiagnosticCategory, addRelatedInfo, ParameterDeclaration, BindingElement, isSourceFile, isExternalOrCommonJsModule, isBlockOrCatchScoped, length, every, isValidTypeOnlyAliasUseSite, isWriteOnlyAccess, getCombinedNodeFlags, DiagnosticWithLocation, getJSDocDeprecatedTag, findAncestor, isCallLikeExpression, isFunctionLike, ParenthesizedExpression, isAssignmentExpression, isVariableDeclaration, isBindingElement, PropertyAccessExpression, getEnclosingBlockScopeContainer, isPropertyDeclaration, nodeStartsNewLexicalEnvironment, isIterationStatement, isForStatement, getAncestor, ForStatement, pushIfUnique, isAssignmentTarget, PrefixUnaryExpression, PostfixUnaryExpression, isBlock, isExpressionNode, isPropertyAccessExpression, getAssignmentTargetKind, AssignmentKind, isInCompoundLikeAssignment, UnionType, TypeId, UnionReduction, getRootDeclaration, getImmediatelyInvokedFunctionExpression, isSpreadAssignment, isParameter, VariableDeclaration, isFunctionLikeDeclaration, isTypeNode, forEachChild, tryCast, canHaveFlowNode, ElementAccessExpression, RelationComparisonResult, LiteralType, FreshableType, getObjectFlags, DiagnosticMessageChain, setNodeFlags, isCallExpression, LazyNodeCheckFlags, getSourceFileOfNode, canIncludeBindAndCheckDiagnostics, forEachChildRecursively, isDeclarationName, EntityName, JSDocMemberName, canHaveSymbol, isLiteralTypeNode, isElementAccessExpression, isIndexedAccessTypeNode, TypeNode, canHaveJSDoc, FlowFlags, FlowArrayMutation, FlowAssignment, FlowCall, FlowCondition, FlowLabel, FlowReduceLabel, FlowSwitchClause, SwitchStatement, createFileDiagnostic, createDiagnosticForFileFromMessageChain, createDiagnosticForNodeFromMessageChain, VariableStatement, HasModifiers, VariableDeclarationList, Block, isFunctionOrModuleBlock, CaseBlock, ForEachStatement, IndexSignatureDeclaration, Path, HasLocals, BindingPattern, idText, isForEachStatement, getNameOfDeclaration, isArrayBindingPattern, first, BindingName, cast, containsParseError, FunctionDeclaration, getFunctionFlags, getEffectiveReturnTypeNode, FunctionFlags, nodeIsPresent, JSDocSignature, isJSDocSignature, getJSDocRoot, LiteralTypeNode, TypeNodeSyntaxKind, isStatement, UnionOrIntersectionType, getContainingFunction, hasSyntacticModifier, isBindingPattern, sameMap, flatMap, getCheckFlags, singleElementArray, getDeclarationModifierFlagsFromSymbol, Ternary, append, find, isNumericLiteralName, StringLiteralType, contains, isTransientSymbol, addRange, filter, IndexType, getParseTreeNode, isRightSideOfQualifiedNameOrPropertyAccess, isWriteAccess, isRightSideOfAccessExpression, hasEffectiveModifier, getCombinedModifierFlags, isEntityName, PropertyAccessEntityNameExpression, isRightSideOfQualifiedNameOrPropertyAccessOrJSDocMemberName, QualifiedName, getHostSignatureFromJSDoc, or, EntityNameOrEntityNameExpression, isInJSFile, getFirstIdentifier, isQualifiedName, entityNameToString, isCallChain, isEntityNameExpression, isLineBreak, skipTrivia, DiagnosticRelatedInformation, IntLiteralType, FloatLiteralType, createTextWriter, chainDiagnosticMessages, getErrorSpanForNode, ShorthandPropertyAssignment, NodeBuilderFlags, SymbolTracker, TrackedSymbol, ReverseMappedSymbol, TypeMapper, ModuleSpecifierResolutionHost, Program, maybeBind, setEmitFlags, createNodeFactory, NodeFactoryFlags, BaseNodeFactory, Mutable, firstDefined, isComputedPropertyName, isIdentifierText, escapeString, getEmitScriptTarget, factory, EmitFlags, isSingleOrDoubleQuote, canUsePropertyAccess, stripQuotes, DoWhileStatement, BinaryOperatorToken, isLogicalOrCoalescingBinaryOperator, isLogicalOrCoalescingBinaryExpression, isIfStatement, skipParentheses, Statement, PunctuationSyntaxKind, tokenToString, FreshableIntrinsicType, isLiteralExpressionOfObject, getAssignmentDeclarationKind, AssignmentDeclarationKind, ConditionalExpression, isAssignmentOperator, isJSDocTypedefTag, isIntLiteral, skipOuterExpressions, OuterExpressionKinds, isExpression, ObjectLiteralExpression, ArrayLiteralExpression, FunctionExpression, InlineClosureExpression, ObjectLiteralElementLike, hasContextSensitiveParameters, forEachReturnStatement, compareDiagnostics, Comparison, createBinaryExpressionTrampoline, IntLiteral, FloatLiteral, isShorthandPropertyAssignment, isPropertyAccessOrQualifiedName, isPrivateIdentifier, WideningContext, StringLiteral, ReturnStatement, ExpressionStatement, IfStatement, NewExpression, getMembersOfDeclaration, AccessExpression, isThisInitializedDeclaration, setValueDeclaration, comparePaths, getOrUpdate, usingSingleLineStringWriter, createPrinterWithRemoveCommentsNeverAsciiEscape, createPrinterWithRemoveComments, EmitHint, getEffectiveModifierFlags, getEffectiveTypeAnnotationNode, getAssignmentDeclarationPropertyAccessKind, isNamedDeclaration, map, PropertyName, isFloatLiteral, getPropertyNameForPropertyNameNode, isPartOfParameterDeclaration, hasOnlyExpressionInitializer, not, getEffectiveInitializer, isObjectLiteralExpression, isVariableLike, getSelectedEffectiveModifierFlags, AliasDeclarationNode, isBindingElementOfBareOrAccessedRequire, TypeReference, isFunctionExpressionOrInlineClosure, ContextFlags, indexOfNode, InferenceContext, isNodeDescendantOf, ObjectFlagsType, GenericType, ReverseMappedType, AnonymousType, DeferredTypeReference, InstantiationExpressionType, SingleSignatureType, MappedTypeNode, TypeParameterDeclaration, appendIfUnique, TypeMapKind, isPartOfTypeNode, TypeReferenceNode, MappedType, ArrayTypeNode, isParenthesizedTypeNode, isTypeAlias, IndexFlags, InferenceInfo, binarySearch, compareValues, hasInitializer, lastOrUndefined, HasExpressionInitializer, getContainingFunctionOrClassStaticBlock, getSpanOfTokenAtPosition, isJSDocParameterTag, hasRestParameter, isStringLiteral, walkUpBindingElementsAndPatterns, BindableObjectDefinePropertyCall, copyEntries, InterfaceType, isPropertyAssignment, DiagnosticAndArguments, FreshObjectLiteralType, BaseType, firstOrUndefined, SubstitutionType, createPrinterWithDefaults, noTruncationMaximumTruncationLength, defaultMaximumTruncationLength, arrayIsHomogeneous, isIdentifierTypeReference, createMultiMap, addSyntheticLeadingComment, NodeArray, getOriginalNode, getIdentifierTypeArguments, setIdentifierTypeArguments, IndexedAccessTypeNode, forEachEntry, ScriptTarget, SymbolAccessibility, canHaveLocals, getDeclarationOfKind, isClassLike, TypeElement, SymbolAccessibilityResult, SymbolVisibilityResult, LateVisibilityPaintedStatement, isVariableStatement, isLateVisibilityPaintedStatement, isTypeLiteralNode, PlusToken, MinusToken, walkUpParenthesizedTypes, setOriginalNode, countWhere, getNameFromIndexInfo, Modifier, notImplemented, isTypeParameterDeclaration, setParent, CallChain, isLiteralExpression, isStringOrNumericLiteralLike, FlowStart, getPropertyNameFromType, EvolvingArrayType, arrayIsEqualTo, isObjectLiteralMethod, isNonNullAccess, FlowSwitchClauseData, LiteralExpression, CaseClause, DefaultClause, findIndex, orderedRemoveItemAt, UnionTypeNode, ParenthesizedTypeNode, concatenateDiagnosticMessageChains, isDeclaration, InterfaceTypeWithDeclaredMembers, rangeEquals, InferenceFlags, minAndMax, last, IntersectionFlags, IntersectionType, flatten, createDiagnosticMessageChainFromDiagnostic, setTextRangePosEnd, createDiagnosticForNodeArrayFromMessageChain, createDiagnosticForNodeArray, isConstructorDeclaration, TypeComparer, InferencePriority, pathIsRelative, moduleSpecifiers, EmitResolver, isRestParameter, SpreadElement, ElementFlags, ModuleKind, ResolutionMode, ModuleResolutionKind, getResolutionDiagnostic, isDeclarationFileName, hasExtension, removeExtension, CloneObjectExpression, isCloneObjectExpression, PropertyAccessChain, OptionalChain, ExportDeclaration, getTextOfNode, InheritDeclaration, isCallLikeOrFunctionLikeExpression, isFunctionExpressionOrArrowFunction, CharacterCodes, Visitor, visitNodes, isGlobalSourceFile, isExternalModule, introducesArgumentsExoticObject, getCombinedLocalAndExportSymbolFlags, StructTypeNode, StructDeclaration, ClassLikeDeclaration, getEffectiveBaseTypeNode, ComputedPropertyName, TypeReferenceType, NodeWithTypeArguments, ClassDeclaration, ClassExpression, TypeLiteralNode, JSDocTypeLiteral, isJSDocTypeLiteral, isInJSDoc, isTypeDeclaration, JSDocTypeAssertion, AssertionExpression, isParenthesizedExpression, getJSDocTypeAssertionType, AccessFlags, NewStructExpression, isJSDocTypeAlias, isAssertionExpression, TypeAssertion, DeclarationName, isKnownSymbol, createEvaluator, EntityNameExpression, evaluatorResult, isStringLiteralLike, SyntheticExpression, ArrayBindingPattern, isTypeUsableAsPropertyName, isPropertyName, tryGetPropertyAccessOrIdentifierToString, IndexedAccessType, MappingLiteralExpression, isOmittedExpression, UnionOrIntersectionTypeNode, PropertySignature, isPropertySignature, LateBoundName, isClassExpression, LateBoundDeclaration, LateBoundBinaryExpressionDeclaration, ElementAccessChain, MappedSymbol, VariableLikeDeclaration, isComputedNonLiteralName, getElementOrPropertyAccessName, findLastIndex, hasAccessorModifier, emptyMap, BytesLiteral, BytesLiteralType, WhileStatement, hasType, getEnclosingContainer, isPropertyNameLiteral, getTextOfIdentifierOrLiteral, JSDocOverloadTag, JSDocCallbackTag, TypePredicate, isIdentifierTypePredicate, HasInitializer, resolvingEmptyArray, getClassLikeDeclarationOfSymbol, ExpressionWithTypeArguments, isNumericLiteral, isInfinityOrNaNString, getEffectiveConstraintOfTypeParameter, isTypeReferenceNode, JSDocParameterTag, canHaveModifiers, modifiersToFlags, JSDocPropertyTag, hasInferredType, isTypePredicateNode, isOptionalDeclaration, getModifiers, isJSDocTypeAssertion, getJSDocThisTag, FunctionTypeNode, createSyntacticTypeNodeBuilder, getJSDocHost, createPrinterWithRemoveCommentsOmitTrailingSemicolon, getTrailingSemicolonDeferringWriter, getThisContainer, JSDocTypeExpression, getEmitFlags, isJSDocTypeExpression, isModifier, visitNode, ConditionalTypeNode, isConditionalTypeNode, skipTypeParentheses, isThisTypeNode, isThisIdentifier, isJSDocAllType, isJSDocUnknownType, isJSDocVariadicType, isJSDocOptionalType, isExpressionWithTypeArguments, isJSDocIndexSignature, isJSDocFunctionType, hasDynamicName } from "./_namespaces/lpc";
 
 let nextSymbolId = 1;
 let nextNodeId = 1;
@@ -5689,7 +5689,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return undefined;
 
         // function tryGetPrivateIdentifierPropertyOfType(type: Type, id: PrivateIdentifier) {
-        //     const lexicallyScopedSymbol = lookupSymbolForPrivateIdentifierDeclaration(id.escapedText, id);
+        //     const lexicallyScopedSymbol = lookupSymbolForPrivateIdentifierDeclaration(id.text, id);
         //     return lexicallyScopedSymbol && getPrivateIdentifierPropertyOfType(type, lexicallyScopedSymbol);
         // }
     }
@@ -8807,7 +8807,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                         //     if (!type.symbol) {
                         //         return undefined;
                         //     }
-                        //     prop = getPropertyOfType(type, getSymbolNameForPrivateIdentifier(type.symbol, name.escapedText));
+                        //     prop = getPropertyOfType(type, getSymbolNameForPrivateIdentifier(type.symbol, name.text));
                         // }
                         // else {
                             prop = getPropertyOfType(type, name.text);
@@ -14146,6 +14146,30 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return undefined;
     }
 
+    function getInferTypeParameters(node: ConditionalTypeNode): TypeParameter[] | undefined {
+        let result: TypeParameter[] | undefined;
+        if (node.locals) {
+            node.locals.forEach(symbol => {
+                if (symbol.flags & SymbolFlags.TypeParameter) {
+                    result = append(result, getDeclaredTypeOfSymbol(symbol));
+                }
+            });
+        }
+        return result;
+    }
+
+    /**
+     * Check if the given symbol in given enclosing declaration is accessible and mark all associated alias to be visible if requested
+     *
+     * @param symbol a Symbol to check if accessible
+     * @param enclosingDeclaration a Node containing reference to the symbol
+     * @param meaning a SymbolFlags to check if such meaning of the symbol is accessible
+     * @param shouldComputeAliasToMakeVisible a boolean value to indicate whether to return aliases to be mark visible in case the symbol is accessible
+     */
+    function isSymbolAccessible(symbol: Symbol | undefined, enclosingDeclaration: Node | undefined, meaning: SymbolFlags, shouldComputeAliasesToMakeVisible: boolean): SymbolAccessibilityResult {
+        return isSymbolAccessibleWorker(symbol, enclosingDeclaration, meaning, shouldComputeAliasesToMakeVisible, /*allowModules*/ true);
+    }
+
     function createNodeBuilder() {
         return {            
             symbolToExpression: (symbol: Symbol, meaning: SymbolFlags, enclosingDeclaration?: Node, flags?: NodeBuilderFlags, tracker?: SymbolTracker) => withContext(enclosingDeclaration, flags, tracker, context => symbolToExpression(symbol, context, meaning)),
@@ -14547,8 +14571,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             annotationType = getTypeFromTypeNode(context, existing, /*noMappedTypes*/ true),
         ) {            
             if (annotationType && typeNodeIsEquivalentToType(host, type, annotationType) && existingTypeNodeIsNotReferenceOrIsReferenceWithCompatibleTypeArgumentCount(existing, type)) {
-                console.log("todo - reuse existin gtype node");                
-                const result = undefined;// tryReuseExistingTypeNodeHelper(context, existing);
+                const result = tryReuseExistingTypeNodeHelper(context, existing);
                 if (result) {
                     return result;
                 }
@@ -14556,6 +14579,668 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             return undefined;
         }
 
+        function isNewScopeNode(node: Node): node is IntroducesNewScopeNode {
+            return isFunctionLike(node)
+                || isJSDocSignature(node);
+                // || isMappedTypeNode(node);
+        }
+
+        function serializeExistingTypeNode(context: NodeBuilderContext, typeNode: TypeNode) {
+            const type = getTypeFromTypeNode(context, typeNode);
+            return typeToTypeNodeHelper(type, context);
+        }
+        
+        function getParametersInScope(node: IntroducesNewScopeNode | ConditionalTypeNode) {
+            return isFunctionLike(node) || isJSDocSignature(node) ? getSignatureFromDeclaration(node).parameters : undefined;
+        }
+        
+        function getTypeParametersInScope(node: IntroducesNewScopeNode | ConditionalTypeNode) {
+            return isFunctionLike(node) || isJSDocSignature(node) ? getSignatureFromDeclaration(node).typeParameters :
+                isConditionalTypeNode(node) ? getInferTypeParameters(node) :
+                [getDeclaredTypeOfTypeParameter(getSymbolOfDeclaration(node.typeParameter))];
+        }
+        
+        function canReuseTypeNode(context: NodeBuilderContext, existing: TypeNode) {
+            // if (isInJSFile(existing)) {
+            //     if (isLiteralImportTypeNode(existing)) {
+            //         // Ensure resolvedSymbol is present
+            //         void getTypeFromImportTypeNode(existing);
+            //         const nodeSymbol = getNodeLinks(existing).resolvedSymbol;
+            //         return (
+            //             !nodeSymbol ||
+            //             !(
+            //                 // The import type resolved using jsdoc fallback logic
+            //                 (!existing.isTypeOf && !(nodeSymbol.flags & SymbolFlags.Type)) ||
+            //                 // The import type had type arguments autofilled by js fallback logic
+            //                 !(length(existing.typeArguments) >= getMinTypeArgumentCount(getLocalTypeParametersOfClassOrInterfaceOrTypeAlias(nodeSymbol)))
+            //             )
+            //         );
+            //     }
+            // }
+            if (isThisTypeNode(existing)) {
+                if (context.mapper === undefined) return true;
+                const type = getTypeFromTypeNode(context, existing, /*noMappedTypes*/ true);
+                return !!type;
+            }
+            if (isTypeReferenceNode(existing)) {
+                // if (isConstTypeReference(existing)) return false;
+                const type = getTypeFromTypeReference(existing);
+                const symbol = getNodeLinks(existing).resolvedSymbol;
+                if (!symbol) return false;
+                if (symbol.flags & SymbolFlags.TypeParameter) {
+                    const type = getDeclaredTypeOfSymbol(symbol);
+                    if (context.mapper && getMappedType(type, context.mapper) !== type) {
+                        return false;
+                    }
+                }
+                if (isInJSDoc(existing)) {
+                    return existingTypeNodeIsNotReferenceOrIsReferenceWithCompatibleTypeArgumentCount(existing, type)
+                        && !getIntendedTypeFromJSDocTypeReference(existing) // We should probably allow the reuse of JSDoc reference types such as String Number etc
+                        && (symbol.flags & SymbolFlags.Type); // JSDoc type annotations can reference values (meaning typeof value) as well as types. We only reuse type nodes
+                }
+            }
+            // if (
+            //     isTypeOperatorNode(existing) &&
+            //     existing.operator === SyntaxKind.UniqueKeyword &&
+            //     existing.type.kind === SyntaxKind.SymbolKeyword
+            // ) {
+            //     const effectiveEnclosingContext = context.enclosingDeclaration && getEnclosingDeclarationIgnoringFakeScope(context.enclosingDeclaration);
+            //     return !!findAncestor(existing, n => n === effectiveEnclosingContext);
+            // }
+            return true;
+        }
+
+        function trackExistingEntityName<T extends EntityNameOrEntityNameExpression>(node: T, context: NodeBuilderContext) {
+            let introducesError = false;
+            const leftmost = getFirstIdentifier(node);
+            // if (isInJSFile(node) && (isExportsIdentifier(leftmost) || isModuleExportsAccessExpression(leftmost.parent) || (isQualifiedName(leftmost.parent) && isModuleIdentifier(leftmost.parent.left) && isExportsIdentifier(leftmost.parent.right)))) {
+            //     introducesError = true;
+            //     return { introducesError, node };
+            // }
+            const meaning = getMeaningOfEntityNameReference(node);
+            let sym: Symbol | undefined;
+            if (isThisIdentifier(leftmost)) {
+                // `this` isn't a bindable identifier - skip resolution, find a relevant `this` symbol directly and avoid exhaustive scope traversal
+                sym = getSymbolOfDeclaration(getThisContainer(leftmost, /*includeArrowFunctions*/ false, /*includeClassComputedPropertyName*/ false));
+                if (isSymbolAccessible(sym, leftmost, meaning, /*shouldComputeAliasesToMakeVisible*/ false).accessibility !== SymbolAccessibility.Accessible) {
+                    introducesError = true;
+                    context.tracker.reportInaccessibleThisError();
+                }
+                return { introducesError, node: attachSymbolToLeftmostIdentifier(node) as T };
+            }
+            sym = resolveEntityName(leftmost, meaning, /*ignoreErrors*/ true, /*dontResolveAlias*/ true);
+            if (
+                context.enclosingDeclaration &&
+                !(sym && sym.flags & SymbolFlags.TypeParameter)
+            ) {
+                sym = getExportSymbolOfValueSymbolIfExported(sym);
+                // Some declarations may be transplanted to a new location.
+                // When this happens we need to make sure that the name has the same meaning at both locations
+                // We also check for the unknownSymbol because when we create a fake scope some parameters may actually not be usable
+                // either because they are the expanded rest parameter,
+                // or because they are the newly added parameters from the tuple, which might have different meanings in the original context
+                const symAtLocation = resolveEntityName(leftmost, meaning, /*ignoreErrors*/ true, /*dontResolveAlias*/ true, context.enclosingDeclaration);
+                if (
+                    // Check for unusable parameters symbols
+                    symAtLocation === unknownSymbol ||
+                    // If the symbol is not found, but was not found in the original scope either we probably have an error, don't reuse the node
+                    (symAtLocation === undefined && sym !== undefined) ||
+                    // If the symbol is found both in declaration scope and in current scope then it shoudl point to the same reference
+                    (symAtLocation && sym && !getSymbolIfSameReference(getExportSymbolOfValueSymbolIfExported(symAtLocation), sym))
+                ) {
+                    // In isolated declaration we will not do rest parameter expansion so there is no need to report on these.
+                    if (symAtLocation !== unknownSymbol) {
+                        context.tracker.reportInferenceFallback(node);
+                    }
+                    introducesError = true;
+                    return { introducesError, node, sym };
+                }
+                else {
+                    sym = symAtLocation;
+                }
+            }
+
+            if (sym) {
+                // If a parameter is resolvable in the current context it is also visible, so no need to go to symbol accesibility
+                if (
+                    sym.flags & SymbolFlags.FunctionScopedVariable
+                    && sym.valueDeclaration
+                ) {
+                    if (isPartOfParameterDeclaration(sym.valueDeclaration) || isJSDocParameterTag(sym.valueDeclaration)) {
+                        return { introducesError, node: attachSymbolToLeftmostIdentifier(node) as T };
+                    }
+                }
+                if (
+                    !(sym.flags & SymbolFlags.TypeParameter) && // Type parameters are visible in the current context if they are are resolvable
+                    !isDeclarationName(node) &&
+                    isSymbolAccessible(sym, context.enclosingDeclaration, meaning, /*shouldComputeAliasesToMakeVisible*/ false).accessibility !== SymbolAccessibility.Accessible
+                ) {
+                    context.tracker.reportInferenceFallback(node);
+                    introducesError = true;
+                }
+                else {
+                    context.tracker.trackSymbol(sym, context.enclosingDeclaration, meaning);
+                }
+                return { introducesError, node: attachSymbolToLeftmostIdentifier(node) as T };
+            }
+
+            return { introducesError, node };
+
+            /**
+             * Attaches a `.symbol` member to an identifier, cloning it to do so, so symbol information
+             * is smuggled out for symbol display information.
+             */
+            function attachSymbolToLeftmostIdentifier(node: Node): Node {
+                if (node === leftmost) {
+                    const type = getDeclaredTypeOfSymbol(sym!);
+                    const name = sym!.flags & SymbolFlags.TypeParameter ? typeParameterToName(type, context) : factory.cloneNode(node as Identifier);
+                    name.symbol = sym!; // for quickinfo, which uses identifier symbol information
+                    return setTextRange(context, setEmitFlags(name, EmitFlags.NoAsciiEscaping), node);
+                }
+                const updated = visitEachChildWorker(node, c => attachSymbolToLeftmostIdentifier(c), /*context*/ undefined);
+                if (updated !== node) {
+                    setTextRange(context, updated, node);
+                }
+                return updated;
+            }
+        }
+
+        function serializeTypeName(context: NodeBuilderContext, node: EntityName, isTypeOf?: boolean, typeArguments?: readonly TypeNode[]) {
+            const meaning = isTypeOf ? SymbolFlags.Value : SymbolFlags.Type;
+            const symbol = resolveEntityName(node, meaning, /*ignoreErrors*/ true);
+            if (!symbol) return undefined;
+            const resolvedSymbol = symbol.flags & SymbolFlags.Alias ? resolveAlias(symbol) : symbol;
+            if (isSymbolAccessible(symbol, context.enclosingDeclaration, meaning, /*shouldComputeAliasesToMakeVisible*/ false).accessibility !== SymbolAccessibility.Accessible) return undefined;
+            return symbolToTypeNode(resolvedSymbol, context, meaning, typeArguments);
+        }
+        
+        /**
+         * Do you mean to call this directly? You probably should use `tryReuseExistingTypeNode` instead,
+         * which performs sanity checking on the type before doing this.
+         */
+        function tryReuseExistingTypeNodeHelper(context: NodeBuilderContext, existing: TypeNode) {
+            if (cancellationToken && cancellationToken.throwIfCancellationRequested) {
+                cancellationToken.throwIfCancellationRequested();
+            }
+            let hadError = false;
+            const { finalizeBoundary, startRecoveryScope } = createRecoveryBoundary();
+            const transformed = visitNode(existing, visitExistingNodeTreeSymbols, isTypeNode);
+            if (!finalizeBoundary()) {
+                return undefined;
+            }
+            context.approximateLength += existing.end - existing.pos;
+            return transformed;
+
+            function visitExistingNodeTreeSymbols(node: Node): Node | undefined {
+                // If there was an error in a sibling node bail early, the result will be discarded anyway
+                if (hadError) return node;
+                const recover = startRecoveryScope();
+                const onExitNewScope = isNewScopeNode(node) ? onEnterNewScope(node) : undefined;
+                const result = visitExistingNodeTreeSymbolsWorker(node);
+                onExitNewScope?.();
+
+                // If there was an error, maybe we can recover by serializing the actual type of the node
+                if (hadError) {
+                    if (isTypeNode(node) && !isTypePredicateNode(node)) {
+                        recover();
+                        return serializeExistingTypeNode(context, node);
+                    }
+                    return node;
+                }
+                // We want to clone the subtree, so when we mark it up with __pos and __end in quickfixes,
+                //  we don't get odd behavior because of reused nodes. We also need to clone to _remove_
+                //  the position information if the node comes from a different file than the one the node builder
+                //  is set to build for (even though we are reusing the node structure, the position information
+                //  would make the printer print invalid spans for literals and identifiers, and the formatter would
+                //  choke on the mismatched positonal spans between a parent and an injected child from another file).
+                return result ? setTextRange(context, result, node) : undefined;
+            }
+
+            function createRecoveryBoundary() {
+                let trackedSymbols: TrackedSymbol[];
+                let unreportedErrors: (() => void)[];
+                const oldTracker = context.tracker;
+                const oldTrackedSymbols = context.trackedSymbols;
+                context.trackedSymbols = undefined;
+                const oldEncounteredError = context.encounteredError;
+                context.tracker = new SymbolTrackerImpl(context, {
+                    ...oldTracker.inner,
+                    reportCyclicStructureError() {
+                        markError(() => oldTracker.reportCyclicStructureError());
+                    },
+                    reportInaccessibleThisError() {
+                        markError(() => oldTracker.reportInaccessibleThisError());
+                    },
+                    reportInaccessibleUniqueSymbolError() {
+                        markError(() => oldTracker.reportInaccessibleUniqueSymbolError());
+                    },
+                    reportLikelyUnsafeImportRequiredError(specifier) {
+                        markError(() => oldTracker.reportLikelyUnsafeImportRequiredError(specifier));
+                    },
+                    reportNonSerializableProperty(name) {
+                        markError(() => oldTracker.reportNonSerializableProperty(name));
+                    },
+                    trackSymbol(sym, decl, meaning) {
+                        (trackedSymbols ??= []).push([sym, decl, meaning]);
+                        return false;
+                    },
+                    moduleResolverHost: context.tracker.moduleResolverHost,
+                }, context.tracker.moduleResolverHost);
+
+                return {
+                    startRecoveryScope,
+                    finalizeBoundary,
+                };
+
+                function markError(unreportedError: () => void) {
+                    hadError = true;
+                    (unreportedErrors ??= []).push(unreportedError);
+                }
+
+                function startRecoveryScope() {
+                    const trackedSymbolsTop = trackedSymbols?.length ?? 0;
+                    const unreportedErrorsTop = unreportedErrors?.length ?? 0;
+                    return () => {
+                        hadError = false;
+                        // Reset the tracked symbols to before the error
+                        if (trackedSymbols) {
+                            trackedSymbols.length = trackedSymbolsTop;
+                        }
+                        if (unreportedErrors) {
+                            unreportedErrors.length = unreportedErrorsTop;
+                        }
+                    };
+                }
+
+                function finalizeBoundary() {
+                    context.tracker = oldTracker;
+                    context.trackedSymbols = oldTrackedSymbols;
+                    context.encounteredError = oldEncounteredError;
+
+                    unreportedErrors?.forEach(fn => fn());
+                    if (hadError) {
+                        return false;
+                    }
+                    trackedSymbols?.forEach(
+                        ([symbol, enclosingDeclaration, meaning]) =>
+                            context.tracker.trackSymbol(
+                                symbol,
+                                enclosingDeclaration,
+                                meaning,
+                            ),
+                    );
+                    return true;
+                }
+            }
+            function onEnterNewScope(node: IntroducesNewScopeNode | ConditionalTypeNode) {
+                return enterNewScope(context, node, getParametersInScope(node), getTypeParametersInScope(node));
+            }
+
+            function tryVisitSimpleTypeNode(node: TypeNode): TypeNode | undefined {
+                const innerNode = skipTypeParentheses(node);
+                switch (innerNode.kind) {
+                    case SyntaxKind.TypeReference:
+                        return tryVisitTypeReference(innerNode as TypeReferenceNode);
+                    // case SyntaxKind.TypeQuery:
+                    //     return tryVisitTypeQuery(innerNode as TypeQueryNode);
+                    case SyntaxKind.IndexedAccessType:
+                        return tryVisitIndexedAccess(innerNode as IndexedAccessTypeNode);
+                    // case SyntaxKind.TypeOperator:
+                    //     const typeOperatorNode = innerNode as TypeOperatorNode;
+                    //     if (typeOperatorNode.operator === SyntaxKind.KeyOfKeyword) {
+                    //         return tryVisitKeyOf(typeOperatorNode);
+                    //     }
+                }
+                return visitNode(node, visitExistingNodeTreeSymbols, isTypeNode);
+            }
+
+            function tryVisitIndexedAccess(node: IndexedAccessTypeNode): TypeNode | undefined {
+                const resultObjectType = tryVisitSimpleTypeNode(node.objectType);
+                if (resultObjectType === undefined) {
+                    return undefined;
+                }
+                Debug.fail("todo - update indexed access type node");
+                // return factory.updateIndexedAccessTypeNode(node, resultObjectType, visitNode(node.indexType, visitExistingNodeTreeSymbols, isTypeNode)!);
+            }
+
+            function tryVisitTypeReference(node: TypeReferenceNode): TypeNode | undefined {
+                if (canReuseTypeNode(context, node)) {
+                    const { introducesError, node: newName } = trackExistingEntityName(node.typeName, context);
+                    const typeArguments = visitNodes(node.typeArguments, visitExistingNodeTreeSymbols, isTypeNode);
+
+                    if (!introducesError) {
+                        const updated = factory.updateTypeReferenceNode(
+                            node,
+                            newName,
+                            typeArguments,
+                        );
+                        return setTextRange(context, updated, node);
+                    }
+                    else {
+                        const serializedName = serializeTypeName(context, node.typeName, /*isTypeOf*/ false, typeArguments);
+                        if (serializedName) {
+                            return setTextRange(context, serializedName, node.typeName);
+                        }
+                    }
+                }
+            }
+
+            function visitExistingNodeTreeSymbolsWorker(node: Node): Node | undefined {
+                if (isJSDocTypeExpression(node)) {
+                    // Unwrap JSDocTypeExpressions
+                    return visitNode(node.type, visitExistingNodeTreeSymbols, isTypeNode);
+                }
+                // We don't _actually_ support jsdoc namepath types, emit `any` instead
+                if (isJSDocAllType(node) || node.kind === SyntaxKind.JSDocNamepathType) {
+                    return factory.createKeywordTypeNode(SyntaxKind.AnyKeyword);
+                }
+                if (isJSDocUnknownType(node)) {
+                    return factory.createKeywordTypeNode(SyntaxKind.UnknownKeyword);
+                }
+                // if (isJSDocNullableType(node)) {
+                //     return factory.createUnionTypeNode([visitNode(node.type, visitExistingNodeTreeSymbols, isTypeNode)!, factory.createLiteralTypeNode(factory.createNull())]);
+                // }
+                // if (isJSDocOptionalType(node)) {
+                //     return factory.createUnionTypeNode([visitNode(node.type, visitExistingNodeTreeSymbols, isTypeNode)!, factory.createKeywordTypeNode(SyntaxKind.UndefinedKeyword)]);
+                // }
+                // if (isJSDocNonNullableType(node)) {
+                //     return visitNode(node.type, visitExistingNodeTreeSymbols);
+                // }
+                if (isJSDocVariadicType(node)) {
+                    return factory.createArrayTypeNode(visitNode(node.type, visitExistingNodeTreeSymbols, isTypeNode)!);
+                }
+                if (isJSDocTypeLiteral(node)) {
+                    return factory.createTypeLiteralNode(map(node.jsDocPropertyTags, t => {
+                        const name = visitNode(isIdentifier(t.name) ? t.name : t.name.right, visitExistingNodeTreeSymbols, isIdentifier)!;
+                        const typeViaParent = getTypeOfPropertyOfType(getTypeFromTypeNode(context, node), name.text);
+                        const overrideTypeNode = typeViaParent && t.typeExpression && getTypeFromTypeNode(context, t.typeExpression.type) !== typeViaParent ? typeToTypeNodeHelper(typeViaParent, context) : undefined;
+
+                        return factory.createPropertySignature(
+                            /*modifiers*/ undefined,
+                            name,
+                            // t.isBracketed || t.typeExpression && isJSDocOptionalType(t.typeExpression.type) ? factory.createToken(SyntaxKind.QuestionToken) : undefined,
+                            overrideTypeNode || (t.typeExpression && visitNode(t.typeExpression.type, visitExistingNodeTreeSymbols, isTypeNode)) || factory.createKeywordTypeNode(SyntaxKind.AnyKeyword),
+                        );
+                    }));
+                }
+                if (isTypeReferenceNode(node) && isIdentifier(node.typeName) && node.typeName.text === "") {
+                    return setOriginalNode(factory.createKeywordTypeNode(SyntaxKind.AnyKeyword), node);
+                }
+                if ((isExpressionWithTypeArguments(node) || isTypeReferenceNode(node)) && isJSDocIndexSignature(node)) {
+                    return factory.createTypeLiteralNode([factory.createIndexSignature(
+                        /*modifiers*/ undefined,
+                        [factory.createParameterDeclaration(
+                            /*modifiers*/ undefined,
+                            /*dotDotDotToken*/ undefined,
+                            "x",
+                            /*questionToken*/ undefined,
+                            visitNode(node.typeArguments![0], visitExistingNodeTreeSymbols, isTypeNode),
+                        )],
+                        visitNode(node.typeArguments![1], visitExistingNodeTreeSymbols, isTypeNode),
+                    )]);
+                }
+                if (isJSDocFunctionType(node)) {
+                    // if (isJSDocConstructSignature(node)) {
+                    //     let newTypeNode: TypeNode | undefined;
+                    //     return factory.createConstructorTypeNode(
+                    //         /*modifiers*/ undefined,
+                    //         visitNodes(node.typeParameters, visitExistingNodeTreeSymbols, isTypeParameterDeclaration),
+                    //         mapDefined(node.parameters, (p, i) =>
+                    //             p.name && isIdentifier(p.name) && p.name.text === "new" ? (newTypeNode = p.type, undefined) : factory.createParameterDeclaration(
+                    //                 /*modifiers*/ undefined,
+                    //                 getEffectiveDotDotDotForParameter(p),
+                    //                 setTextRange(context, factory.createIdentifier(getNameForJSDocFunctionParameter(p, i)), p),
+                    //                 factory.cloneNode(p.questionToken),
+                    //                 visitNode(p.type, visitExistingNodeTreeSymbols, isTypeNode),
+                    //                 /*initializer*/ undefined,
+                    //             )),
+                    //         visitNode(newTypeNode || node.type, visitExistingNodeTreeSymbols, isTypeNode) || factory.createKeywordTypeNode(SyntaxKind.AnyKeyword),
+                    //     );
+                    // }
+                    // else {
+                        return factory.createFunctionTypeNode(
+                            undefined, // visitNodes(node.typeParameters, visitExistingNodeTreeSymbols, isTypeParameterDeclaration),
+                            map(node.parameters, (p, i) =>
+                                factory.createParameterDeclaration(
+                                    /*modifiers*/ undefined,
+                                    getEffectiveDotDotDotForParameter(p),
+                                    setTextRange(context, factory.createIdentifier(getNameForJSDocFunctionParameter(p, i)), p),
+                                    factory.cloneNode(p.ampToken),
+                                    visitNode(p.type, visitExistingNodeTreeSymbols, isTypeNode),
+                                    /*initializer*/ undefined,
+                                )),
+                            visitNode(node.type, visitExistingNodeTreeSymbols, isTypeNode) || factory.createKeywordTypeNode(SyntaxKind.AnyKeyword),
+                        );
+                    // }
+                }
+                if (isThisTypeNode(node)) {
+                    if (canReuseTypeNode(context, node)) {
+                        return node;
+                    }
+                    hadError = true;
+                    return node;
+                }
+                if (isTypeParameterDeclaration(node)) {
+                    return factory.updateTypeParameterDeclaration(
+                        node,
+                        visitNodes(node.modifiers, visitExistingNodeTreeSymbols, isModifier),
+                        setTextRange(context, typeParameterToName(getDeclaredTypeOfSymbol(getSymbolOfDeclaration(node)), context), node),
+                        visitNode(node.constraint, visitExistingNodeTreeSymbols, isTypeNode),
+                        visitNode(node.default, visitExistingNodeTreeSymbols, isTypeNode),
+                    );
+                }
+
+                if (isIndexedAccessTypeNode(node)) {
+                    const result = tryVisitIndexedAccess(node);
+                    if (!result) {
+                        hadError = true;
+                        return node;
+                    }
+                    return result;
+                }
+
+                if (isTypeReferenceNode(node)) {
+                    const result = tryVisitTypeReference(node);
+                    if (result) {
+                        return result;
+                    }
+                    hadError = true;
+                    return node;
+                }
+                // if (isLiteralImportTypeNode(node)) {
+                //     const nodeSymbol = getNodeLinks(node).resolvedSymbol;
+                //     if (
+                //         isInJSDoc(node) &&
+                //         nodeSymbol &&
+                //         (
+                //             // The import type resolved using jsdoc fallback logic
+                //             (!node.isTypeOf && !(nodeSymbol.flags & SymbolFlags.Type)) ||
+                //             // The import type had type arguments autofilled by js fallback logic
+                //             !(length(node.typeArguments) >= getMinTypeArgumentCount(getLocalTypeParametersOfClassOrInterfaceOrTypeAlias(nodeSymbol)))
+                //         )
+                //     ) {
+                //         return setTextRange(context, typeToTypeNodeHelper(getTypeFromTypeNode(context, node), context), node);
+                //     }
+                //     return factory.updateImportTypeNode(
+                //         node,
+                //         factory.updateLiteralTypeNode(node.argument, rewriteModuleSpecifier(node, node.argument.literal)),
+                //         visitNode(node.attributes, visitExistingNodeTreeSymbols, isImportAttributes),
+                //         visitNode(node.qualifier, visitExistingNodeTreeSymbols, isEntityName),
+                //         visitNodes(node.typeArguments, visitExistingNodeTreeSymbols, isTypeNode),
+                //         node.isTypeOf,
+                //     );
+                // }
+                if (isNamedDeclaration(node) && node.name.kind === SyntaxKind.ComputedPropertyName && !isLateBindableName(node.name)) {
+                    if (!hasDynamicName(node)) {
+                        return visitEachChild(node, visitExistingNodeTreeSymbols);
+                    }
+                    if (!(context.flags & NodeBuilderFlags.AllowUnresolvedNames && isEntityNameExpression(node.name.expression) && checkComputedPropertyName(node.name).flags & TypeFlags.Any)) {
+                        return undefined;
+                    }
+                }
+                if (
+                    (isFunctionLike(node) && !node.type)
+                    || (isPropertyDeclaration(node) && !node.type && !node.initializer)
+                    || (isPropertySignature(node) && !node.type && !node.initializer)
+                    || (isParameter(node) && !node.type && !node.initializer)
+                ) {
+                    let visited = visitEachChild(node, visitExistingNodeTreeSymbols);
+                    if (visited === node) {
+                        visited = setTextRange(context, factory.cloneNode(node), node);
+                    }
+                    (visited as Mutable<typeof visited>).type = factory.createKeywordTypeNode(SyntaxKind.AnyKeyword);
+                    if (isParameter(node)) {
+                        (visited as Mutable<ParameterDeclaration>).modifiers = undefined;
+                    }
+                    return visited;
+                }
+                // if (isTypeQueryNode(node)) {
+                //     const result = tryVisitTypeQuery(node);
+                //     if (!result) {
+                //         hadError = true;
+                //         return node;
+                //     }
+                //     return result;
+                // }
+                if (isComputedPropertyName(node) && isEntityNameExpression(node.expression)) {
+                    const { node: result, introducesError } = trackExistingEntityName(node.expression, context);
+                    if (!introducesError) {
+                        return factory.updateComputedPropertyName(node, result);
+                    }
+                    else {
+                        const type = getWidenedType(getRegularTypeOfExpression(node.expression));
+                        const computedPropertyNameType = typeToTypeNodeHelper(type, context);
+                        let literal;
+                        if (isLiteralTypeNode(computedPropertyNameType)) {
+                            literal = computedPropertyNameType.literal;
+                        }
+                        else {
+                            const evaluated = evaluateEntityNameExpression(node.expression);
+                            const literalNode = typeof evaluated.value === "string" ? factory.createStringLiteral(evaluated.value, /*isSingleQuote*/ undefined) :
+                                typeof evaluated.value === "number" ? factory.createIntLiteral(evaluated.value, /*numericLiteralFlags*/ 0) :
+                                undefined;
+                            if (!literalNode) {
+                                // if (isImportTypeNode(computedPropertyNameType)) {
+                                //     trackComputedName(node.expression, context.enclosingDeclaration, context);
+                                // }
+                                return node;
+                            }
+                            literal = literalNode;
+                        }
+                        if (literal.kind === SyntaxKind.StringLiteral && isIdentifierText(literal.text, getEmitScriptTarget(compilerOptions))) {
+                            return factory.createIdentifier(literal.text);
+                        }
+                        if (literal.kind === SyntaxKind.NumericLiteral && !literal.text.startsWith("-")) {
+                            return literal;
+                        }
+                        return factory.updateComputedPropertyName(node, literal);
+                    }
+                }
+                if (isTypePredicateNode(node)) {
+                    let parameterName;
+                    if (isIdentifier(node.parameterName)) {
+                        const { node: result, introducesError } = trackExistingEntityName(node.parameterName, context);
+                        // Should not usually happen the only case is when a type predicate comes from a JSDoc type annotation with it's own parameter symbol definition.
+                        // /** @type {(v: unknown) => v is undefined} */
+                        // const isUndef = v => v === undefined;
+                        hadError = hadError || introducesError;
+                        parameterName = result;
+                    }
+                    else {
+                        parameterName = factory.cloneNode(node.parameterName);
+                    }
+                    Debug.fail("todo - update type predicate");
+                    // return factory.updateTypePredicateNode(node, factory.cloneNode(node.assertsModifier), parameterName, visitNode(node.type, visitExistingNodeTreeSymbols, isTypeNode));
+                }
+
+                // if (isTupleTypeNode(node) || isTypeLiteralNode(node) || isMappedTypeNode(node)) {
+                //     const visited = visitEachChild(node, visitExistingNodeTreeSymbols);
+                //     const clone = setTextRange(context, visited === node ? factory.cloneNode(node) : visited, node);
+                //     const flags = getEmitFlags(clone);
+                //     setEmitFlags(clone, flags | (context.flags & NodeBuilderFlags.MultilineObjectLiterals && isTypeLiteralNode(node) ? 0 : EmitFlags.SingleLine));
+                //     return clone;
+                // }
+                if (isStringLiteral(node) && !!(context.flags & NodeBuilderFlags.UseSingleQuotesForStringLiteralType) && !node.singleQuote) {
+                    const clone = factory.cloneNode(node);
+                    (clone as Mutable<typeof clone>).singleQuote = true;
+                    return clone;
+                }
+                if (isConditionalTypeNode(node)) {
+                    const checkType = visitNode(node.checkType, visitExistingNodeTreeSymbols, isTypeNode)!;
+
+                    const disposeScope = onEnterNewScope(node);
+                    const extendType = visitNode(node.extendsType, visitExistingNodeTreeSymbols, isTypeNode)!;
+                    const trueType = visitNode(node.trueType, visitExistingNodeTreeSymbols, isTypeNode)!;
+                    disposeScope();
+                    const falseType = visitNode(node.falseType, visitExistingNodeTreeSymbols, isTypeNode)!;
+                    Debug.fail("todo - update conditional type node");
+                    // return factory.updateConditionalTypeNode(
+                    //     node,
+                    //     checkType,
+                    //     extendType,
+                    //     trueType,
+                    //     falseType,
+                    // );
+                }
+
+                // if (isTypeOperatorNode(node)) {
+                //     if (node.operator === SyntaxKind.UniqueKeyword && node.type.kind === SyntaxKind.SymbolKeyword) {
+                //         if (!canReuseTypeNode(context, node)) {
+                //             hadError = true;
+                //             return node;
+                //         }
+                //     }
+                //     else if (node.operator === SyntaxKind.KeyOfKeyword) {
+                //         const result = tryVisitKeyOf(node);
+                //         if (!result) {
+                //             hadError = true;
+                //             return node;
+                //         }
+                //         return result;
+                //     }
+                // }
+
+                return visitEachChild(node, visitExistingNodeTreeSymbols);
+
+                function visitEachChild<T extends Node>(node: T, visitor: Visitor): T;
+                function visitEachChild<T extends Node>(node: T | undefined, visitor: Visitor): T | undefined;
+                function visitEachChild<T extends Node>(node: T | undefined, visitor: Visitor): T | undefined {
+                    const nonlocalNode = !context.enclosingFile || context.enclosingFile !== getSourceFileOfNode(node);
+                    return visitEachChildWorker(node, visitor, /*context*/ undefined, nonlocalNode ? visitNodesWithoutCopyingPositions : undefined);
+                }
+
+                function visitNodesWithoutCopyingPositions(
+                    nodes: NodeArray<Node> | undefined,
+                    visitor: Visitor,
+                    test?: (node: Node) => boolean,
+                    start?: number,
+                    count?: number,
+                ): NodeArray<Node> | undefined {
+                    let result = visitNodes(nodes, visitor, test, start, count);
+                    if (result) {
+                        if (result.pos !== -1 || result.end !== -1) {
+                            if (result === nodes) {
+                                result = factory.createNodeArray(nodes.slice(), nodes.hasTrailingComma);
+                            }
+                            setTextRangePosEnd(result, -1, -1);
+                        }
+                    }
+                    return result;
+                }
+
+                function getEffectiveDotDotDotForParameter(p: ParameterDeclaration) {
+                    return p.dotDotDotToken || (p.type && isJSDocVariadicType(p.type) ? factory.createToken(SyntaxKind.DotDotDotToken) : undefined);
+                }
+
+                /** Note that `new:T` parameters are not handled, but should be before calling this function. */
+                function getNameForJSDocFunctionParameter(p: ParameterDeclaration, index: number) {
+                    return p.name && isIdentifier(p.name) && p.name.text === "this" ? "this"
+                        : getEffectiveDotDotDotForParameter(p) ? `args`
+                        : `arg${index}`;
+                }                
+            }
+        }
+        
         function getDeclarationWithTypeAnnotation(symbol: Symbol, enclosingDeclaration?: Node | undefined) {
             return symbol.declarations && find(symbol.declarations, s => !!getNonlocalEffectiveTypeAnnotationNode(s) && (!enclosingDeclaration || !!findAncestor(s, n => n === enclosingDeclaration)));
         }
@@ -14826,8 +15511,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 kind === SyntaxKind.FunctionExpression ? factory.createFunctionExpression(modifiers, options?.name ? cast(options.name, isIdentifier) : factory.createIdentifier(""), parameters, returnTypeNode, factory.createBlock([])) :
                 kind === SyntaxKind.ArrowFunction ? Debug.fail("todo-arrow") : //factory.createArrowFunction(modifiers, typeParameters, parameters, returnTypeNode, /*equalsGreaterThanToken*/ undefined, factory.createBlock([])) :
                 kind === SyntaxKind.InlineClosureExpression ? factory.createInlineClosure(factory.createBlock([])) :
-                kind === SyntaxKind.FunctionType ? factory.createFunctionTypeNode(typeParameters, parameters, returnTypeNode) :                
-                Debug.assertNever(kind);
+                kind === SyntaxKind.FunctionType ? factory.createFunctionTypeNode(typeParameters, parameters, returnTypeNode) :                                
+                Debug.assertNever(kind as never);
 
             if (typeArguments) {
                 node.typeArguments = factory.createNodeArray(typeArguments);
@@ -15913,7 +16598,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
         function enterNewScope(
             context: NodeBuilderContext,
-            declaration: IntroducesNewScopeNode |  undefined,
+            declaration: IntroducesNewScopeNode | ConditionalTypeNode | undefined,
             expandedParams: readonly Symbol[] | undefined,
             typeParameters: readonly TypeParameter[] | undefined,
             originalParameters?: readonly Symbol[] | undefined,

@@ -273,6 +273,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         // type elements,
         createIndexSignature,
         createTypeParameterDeclaration,
+        updateTypeParameterDeclaration,
         createFunctionTypeNode,
         createCallSignature,
 
@@ -286,6 +287,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createParenthesizedType,
         createKeywordTypeNode,
         createTypeReferenceNode,
+        updateTypeReferenceNode,
         createLiteralTypeNode,
         createTypeLiteralNode,
         createStructTypeNode,
@@ -295,6 +297,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         // Names
         createQualifiedName,
         createComputedPropertyName,
+        updateComputedPropertyName,
 
         // binding patterns
         createBindingElement,
@@ -892,6 +895,14 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         //node.transformFlags = TransformFlags.ContainsTypeScript;
         return node;
     }
+
+    // @api
+    function updateTypeReferenceNode(node: TypeReferenceNode, typeName: EntityName, typeArguments: NodeArray<TypeNode> | undefined) {
+        return node.typeName !== typeName
+                || node.typeArguments !== typeArguments
+            ? update(createTypeReferenceNode(typeName, typeArguments), node)
+            : node;
+    }
     
     // @api
     function createIntLiteral(
@@ -1268,8 +1279,6 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         // }
         return node;
     }
-
-    
 
     // @api
     function createCallExpression(expression: Expression, argumentsArray: readonly Expression[] | undefined): CallExpression {
@@ -1667,6 +1676,13 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     // @api
+    function updateComputedPropertyName(node: ComputedPropertyName, expression: Expression) {
+        return node.expression !== expression
+            ? update(createComputedPropertyName(expression), node)
+            : node;
+    }
+
+    // @api
     function createOmittedExpression(): OmittedExpression {
         return createBaseNode<OmittedExpression>(SyntaxKind.OmittedExpression);
     }
@@ -2011,6 +2027,16 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         node.expression = undefined; // initialized by parser to report grammar errors
         node.jsDoc = undefined; // initialized by parser (JsDocContainer)
         return node;
+    }
+
+    // @api
+    function updateTypeParameterDeclaration(node: TypeParameterDeclaration, modifiers: readonly Modifier[] | undefined, name: Identifier, constraint: TypeNode | undefined, defaultType: TypeNode | undefined): TypeParameterDeclaration {
+        return node.modifiers !== modifiers
+                || node.name !== name
+                || node.constraint !== constraint
+                || node.default !== defaultType
+            ? update(createTypeParameterDeclaration(modifiers, name, constraint, defaultType), node)
+            : node;
     }
 
     // @api
