@@ -416,6 +416,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     var anyType = createIntrinsicType(TypeFlags.Any, "mixed", );
     var mixedType = anyType;// createIntrinsicType(TypeFlags.Any, "mixed");
     var autoType = createIntrinsicType(TypeFlags.Any, "mixed", ObjectFlags.NonInferrableType, "auto");
+    var objectType = createIntrinsicType(TypeFlags.Object, "object", ObjectFlags.NonInferrableType, "object");
     var wildcardType = createIntrinsicType(TypeFlags.Any, "any", /*objectFlags*/ undefined, "wildcard");
     var errorType = createIntrinsicType(TypeFlags.Any, "error");
     var silentNeverType = createIntrinsicType(TypeFlags.Never, "never", ObjectFlags.NonInferrableType, "silent");
@@ -4266,7 +4267,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             case SyntaxKind.ObjectKeyword:
                 // in LPC, return undefined (not error or any) so that the type checker can continue
                 // to determine the type from the flow node
-                return autoType;  // !noImplicitAny ? anyType : nonPrimitiveType;            
+                return objectType;  // !noImplicitAny ? anyType : nonPrimitiveType;            
             // case SyntaxKind.IntrinsicKeyword:
             //     return intrinsicMarkerType;
             // case SyntaxKind.ThisType:
@@ -14870,6 +14871,16 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 }
                 context.approximateLength += 3;                
                 return factory.createKeywordTypeNode(type === intrinsicMarkerType ? SyntaxKind.IntrinsicKeyword : SyntaxKind.AnyKeyword);
+            }
+            if (type.flags & TypeFlags.Object) {
+                if (type.aliasSymbol) {
+                    return factory.createTypeReferenceNode(symbolToEntityNameNode(type.aliasSymbol), mapToTypeNodes(type.aliasTypeArguments, context));
+                }
+                if (type === unresolvedType) {
+                    return addSyntheticLeadingComment(factory.createKeywordTypeNode(SyntaxKind.ObjectKeyword), SyntaxKind.MultiLineCommentTrivia, "unresolved");
+                }
+                context.approximateLength += 3;                
+                return factory.createKeywordTypeNode(SyntaxKind.ObjectKeyword);
             }
             if (type.flags & TypeFlags.Unknown) {
                 return factory.createKeywordTypeNode(SyntaxKind.UnknownKeyword);
