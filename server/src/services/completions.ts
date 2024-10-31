@@ -851,7 +851,7 @@ export function getCompletionsAtPosition(
     }
 
     if (
-        previousToken && isBreakOrContinueStatement(previousToken.parent)
+        previousToken && previousToken.parent && isBreakOrContinueStatement(previousToken.parent)
         && (previousToken.kind === SyntaxKind.BreakKeyword || previousToken.kind === SyntaxKind.ContinueKeyword || previousToken.kind === SyntaxKind.Identifier)
     ) {
         return getLabelCompletionAtPosition(previousToken.parent);
@@ -3844,7 +3844,7 @@ function getCompletionData(
             // || !!importStatementCompletion && isTypeOnlyImportOrExportDeclaration(location.parent)
             || !isContextTokenValueLocation(contextToken) &&
                 (/*isPossiblyTypeArgumentPosition(contextToken, sourceFile, typeChecker)
-                    ||*/ isPartOfTypeNode(location)
+                    ||*/ (location.parent && isPartOfTypeNode(location))
                     || isContextTokenTypeLocation(contextToken));
     }
 

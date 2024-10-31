@@ -9766,7 +9766,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             return getMergedSymbol(node.symbol);
         }
         const { parent } = node;
-        const grandParent = parent.parent;
+        const grandParent = parent?.parent;
 
         if (isDeclarationNameOrImportPropertyName(node)) {
             // This is a declaration, call getSymbolOfNode
@@ -27085,6 +27085,8 @@ const enum IntersectionState {
 
 /** Like 'isDeclarationName', but returns true for LHS of `import { x as y }` or `export { x as y }`. */
 function isDeclarationNameOrImportPropertyName(name: Node): boolean {
+    if (!name.parent) return undefined;
+    
     switch (name.parent.kind) {
         // case SyntaxKind.ImportSpecifier:
         // case SyntaxKind.ExportSpecifier:

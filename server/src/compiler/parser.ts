@@ -438,7 +438,7 @@ export namespace LpcParser {
                 
                 incomingToken = scanner.scan();
                 if (incomingToken !== SyntaxKind.Identifier) {
-                    parseErrorAtCurrentToken(Diagnostics.Identifier_expected);                    
+                    parseErrorAtCurrentToken(Diagnostics.Identifier_expected);                                        
                 } else {
                     const tokenValue = scanner.getTokenValue();                    
                     isCodeExecutable = isIfDef ? (macroTable[tokenValue] ? Ternary.True : Ternary.False) : (!macroTable[tokenValue] ? Ternary.True : Ternary.False);
@@ -809,6 +809,13 @@ export namespace LpcParser {
         
         const sourceFile = createSourceFile(fileName, statements, endOfFileToken);//, sourceFlags);
         
+        // check for unterminate conditional directives before the diagnostics are stored in the sourcefile
+        const lastInactiveRange = lastOrUndefined(inactiveRanges);
+        if (lastInactiveRange && lastInactiveRange.end === 0) {
+            parseErrorAtPosition(lastInactiveRange.pos, 1, Diagnostics.Unmatched_conditional_directive);
+            lastInactiveRange.end = scanner.getTokenEnd();
+        }
+
         // sourceFile.commentDirectives = scanner.getCommentDirectives();
         sourceFile.nodeCount = nodeCount;
         sourceFile.identifierCount = identifierCount;
@@ -816,7 +823,7 @@ export namespace LpcParser {
         sourceFile.heritageClauses = factory.createNodeArray(inherits);
         sourceFile.parseDiagnostics = attachFileToDiagnostics(parseDiagnostics, sourceFile);
         sourceFile.jsDocParsingMode = jsDocParsingMode;
-        sourceFile.inactiveCodeRanges = inactiveRanges;
+        sourceFile.inactiveCodeRanges = inactiveRanges;        
 
         if (jsDocDiagnostics) {
             sourceFile.jsDocDiagnostics = attachFileToDiagnostics(jsDocDiagnostics, sourceFile);
@@ -824,8 +831,7 @@ export namespace LpcParser {
 
         sourceFile.nodeCount = nodeCount;
         sourceFile.identifierCount = identifierCount;
-        sourceFile.identifiers = identifiers;
-        //sourceFile.inherits = inherits;        
+        sourceFile.identifiers = identifiers;        
         sourceFile.imports = inherits?.map(i=>i.inheritClause).filter((i):i is StringLiteral=> isStringLiteral(i));
         sourceFile.parseDiagnostics = attachFileToDiagnostics(parseDiagnostics, sourceFile);        
 
@@ -6538,9 +6544,9 @@ export function getDeclarationFileExtension(fileName: string): string | undefine
 // from this SourceFile that are being held onto may change as a result (including
 // becoming detached from any SourceFile).  It is recommended that this SourceFile not
 // be used once 'update' is called on it.
-export function updateSourceFile(sourceFile: SourceFile, newText: string, globalIncludes: string[], fileHandler: LpcFileHandler, textChangeRange: TextChangeRange, aggressiveChecks = false): SourceFile {
+export function updateSourceFile(sourceFile: SourceFile, newText: string, globalIncludes: string[], fileHandler: LpcFileHandler, textChangeRange: TextChangeRange, aggressiveChecks = false, languageVariant: LanguageVariant): SourceFile {
     console.warn("implement me- updateSourceFile");
-    return LpcParser.parseSourceFile(sourceFile.fileName, newText, globalIncludes, fileHandler, ScriptTarget.LPC, undefined, false, undefined);
+    return LpcParser.parseSourceFile(sourceFile.fileName, newText, globalIncludes, fileHandler, ScriptTarget.LPC, undefined, false, undefined, undefined, undefined, languageVariant);
     // const newSourceFile = IncrementalParser.updateSourceFile(sourceFile, newText, textChangeRange, aggressiveChecks);
     // // Because new source file node is created, it may not have the flag PossiblyContainDynamicImport. This is the case if there is no new edit to add dynamic import.
     // // We will manually port the flag to the new source file.

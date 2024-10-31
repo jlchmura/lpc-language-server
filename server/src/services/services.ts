@@ -900,6 +900,9 @@ function addSyntheticNodes(
 
             // if pos is inside a skipped range, then continue
             if (skipIdx >= 0 && textPos >= skipRanges[skipIdx].pos && textPos <= skipRanges[skipIdx].end) {
+                if (token === SyntaxKind.EndOfFileToken) {
+                    break;
+                }
                 continue;
             }                        
 
@@ -1826,7 +1829,7 @@ export function createLanguageService(
     }
 
     function getNodeForQuickInfo(node: Node): Node {
-        if (isNewExpression(node.parent) && node.pos === node.parent.pos) {
+        if (node.parent && isNewExpression(node.parent) && node.pos === node.parent.pos) {
             return node.parent.expression;
         }
         // if (isNamedTupleMember(node.parent) && node.pos === node.parent.pos) {
@@ -2058,7 +2061,8 @@ export function updateLanguageServiceSourceFile(
                 globalIncludes,
                 fileHandler,
                 textChangeRange,
-                aggressiveChecks
+                aggressiveChecks,
+                languageVariant
             );
             setSourceFileFields(newSourceFile, scriptSnapshot, version);
             // after incremental parsing nameTable might not be up-to-date

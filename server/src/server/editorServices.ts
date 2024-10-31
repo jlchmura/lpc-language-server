@@ -2769,7 +2769,8 @@ function createWatchFactoryHostUsingWatchEvents(service: ProjectService, canUseW
     const watchedDirectories = getHostWatcherMap<DirectoryWatcherCallback>();
     const watchedDirectoriesRecursive = getHostWatcherMap<DirectoryWatcherCallback>();
     let ids = 1;
-    // TODO - implement this
+    
+    console.debug("todo - tie watch chnage to service events");
     // service.session.addProtocolHandler(protocol.CommandTypes.WatchChange, req => {
     //     onWatchChange((req as protocol.WatchChangeRequest).arguments);
     //     return { responseRequired: false };
