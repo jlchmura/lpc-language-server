@@ -187,6 +187,7 @@ import {
     SignatureHelpItems,
     SignatureHelp,
     isSourceFile,
+    isDefineDirective,
 } from "./_namespaces/lpc.js";
 import * as classifier2020 from "./classifier2020.js";
 
@@ -877,14 +878,10 @@ function addSyntheticNodes(
     scanner.resetTokenState(pos, true);
     while (pos < end) {        
         let token = scanner.scan();
-        const textPos = scanner.getTokenEnd();
-        
-        if (token === SyntaxKind.LessThanToken && isIncludeDirective(parent)) {
-            token = scanner.reScanLessThanTokenAsStringLiteral();
-        }
-
+        let textPos = scanner.getTokenEnd();
+                
+        // handle define directives - scan all the way to the end of the line and ignore and non-trivia tokens
         if (token === SyntaxKind.DefineDirective) {
-            // scan all the way to the end of the line and ignore and non-trivia tokens
             token = scanner.scan();
             while (token !== SyntaxKind.EndOfFileToken && token !== SyntaxKind.NewLineTrivia) {
                 token = scanner.scan();
@@ -892,8 +889,27 @@ function addSyntheticNodes(
             pos = scanner.getTokenEnd();
             continue;
         }
+        if (isDefineDirective(parent) && pos >= parent.range.pos) {
+            // skip the contents of a define direct
+            pos = parent.range.end;
+            continue;
+        }
+        
+        // handle include directive with global path, e.g. #include <foo>
+        if (token === SyntaxKind.IncludeDirective) {
+            token = scanner.scan();
+            if (token === SyntaxKind.LessThanToken) {
+                token = scanner.reScanLessThanTokenAsStringLiteral();
+            }
 
-        if (textPos <= end) {            
+            textPos = scanner.getTokenEnd();
+        } else if (token === SyntaxKind.LessThanToken && isIncludeDirective(parent)) {
+            token = scanner.reScanLessThanTokenAsStringLiteral();
+            textPos = scanner.getTokenEnd();
+        }
+
+        if (textPos <= end) {      
+            // advanced to next skip range if needed      
             while (skipIdx >= 0 && skipRanges[skipIdx].end < textPos && skipIdx < skipRanges.length - 1) {
                 skipIdx++;
             }
@@ -912,6 +928,7 @@ function addSyntheticNodes(
                 }
                 Debug.fail(`Did not expect ${Debug.formatSyntaxKind(parent.kind)} to have an Identifier in its trivia`);
             }
+            
             nodes.push(createNode(token, pos, textPos, parent));
         }
         pos = textPos;

@@ -213,9 +213,10 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
         }
         switch (node.kind) {
             case SyntaxKind.DefineDirective:
-                // bind the name only    
-                // do not bind arguments of a define directive
+                // bind the name & arguments only    
+                // do not bind the contents
                 bind((node as DefineDirective).name);
+                bindEach((node as DefineDirective).arguments, bind);
                 break;
             case SyntaxKind.WhileStatement:
                 bindWhileStatement(node as WhileStatement);

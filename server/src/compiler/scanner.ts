@@ -998,6 +998,7 @@ export function createScanner(
     /* eslint-disable no-var */
     var text = textInitial!;
 
+    var isSpeculating = false;
     var nextState: (...args: any) => boolean | undefined;
     var stateId = 1;
     var nextStateId = 2;
@@ -2020,8 +2021,8 @@ export function createScanner(
             }
             // if we're in a state that doesn't need to rescan, just return the token
             if (dontRescan) return token;
-            // stream switched, so we need to rescan
-            if (streamSwitched) return scan();
+            // stream switched, so we need to rescan            
+            if (streamSwitched) continue;
 
             if (pos >= end) {
                 return token = SyntaxKind.EndOfFileToken;
@@ -2927,6 +2928,7 @@ export function createScanner(
     }
 
     function captureState(isSpeculating: boolean) {        
+        const saveSpeculating = isSpeculating;
         const savePos = pos;
         const saveEnd = end;
         const saveStartPos = fullStartPos;
@@ -2945,6 +2947,7 @@ export function createScanner(
             // if (stateDisposed) return;
             stateDisposed = true;        
 
+            isSpeculating = saveSpeculating;
             fileName = saveFileName;            
             pos = savePos;
             end = saveEnd;
@@ -2961,6 +2964,8 @@ export function createScanner(
 
     function switchStream(newFileName: string, newText: string, start: number, length: number, onRelease?: ()=>boolean): void {
         const restoreState = captureCachedState();
+        isSpeculating = false;
+
         nextState = function() {
             const saveStateId = stateId;
             restoreState();
@@ -2986,6 +2991,8 @@ export function createScanner(
         const saveNextState = nextState;
 
         const speculationState = captureCachedState(true);
+
+        isSpeculating = !isLookahead;
         let doFullRelease = true;     // indicates if the full speculation state will be release   
         let speculationStateReleased = false; // indicates if the spec state has already been released
 
@@ -3009,7 +3016,6 @@ export function createScanner(
             } else {
                 speculationStateReleased = true;
                 
-
                 // if (sourceEnding.fileName == targetEnding.fileName) {
                 //     targetEnding.end = sourceEnding.end;
                 // }   
@@ -3073,6 +3079,7 @@ export function createScanner(
         const saveStateCache = {...stateEndings};
         const restoreState = captureCachedState();
         const scanStateId = stateId;     
+        isSpeculating = false;
 
         fileName = "";
 

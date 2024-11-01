@@ -788,17 +788,21 @@ export namespace LpcParser {
     }
 
     function parseSourceFileWorker(languageVersion: ScriptTarget, setParentNodes: boolean, scriptKind: ScriptKind, jsDocParsingMode: JSDocParsingMode): SourceFile {                
-                
+              
+        // if there is a global include, we want to grab the position state before that happens so that the statement list 
+        // is tied to the original file
+        const pos = getPositionState();
+
         // remove the first element from the include stack and process it 
         const includeDir = includeFileStack.shift()!;
         if (includeDir) {
             processIncludeDirective(includeDir);
+        } else {        
+            // prime the scanner
+            nextToken();        
         }
         
-        // prime the scanner
-        nextToken();        
-        
-        const statements = parseList(ParsingContext.SourceElements, parseStatement);
+        const statements = parseList(ParsingContext.SourceElements, parseStatement, pos);
         
         Debug.assert(token() === SyntaxKind.EndOfFileToken);
         Debug.assert(!currentMacro);        
@@ -944,14 +948,14 @@ export namespace LpcParser {
         return parseErrorAt(scanner.getTokenStart(), scanner.getTokenEnd(), message, ...args);
     }
 
-    function parseList<T extends Node>(kind: ParsingContext, parseElement: () => T): NodeArray<T> {
+    function parseList<T extends Node>(kind: ParsingContext, parseElement: () => T, start?: PositionState): NodeArray<T> {
         const saveCurrentParsingContext = currentParsingContext;
         const saveParsingContext = parsingContext;
         parsingContext |= 1 << kind;
         currentParsingContext = kind;
 
         const list = [];        
-        const listPos = getPositionState();
+        start ??= getPositionState();
 
         while (!isListTerminator(kind)) {
             if (isListElement(kind, /*inErrorRecovery*/ false)) {
@@ -967,7 +971,7 @@ export namespace LpcParser {
 
         parsingContext = saveParsingContext;
         currentParsingContext = saveCurrentParsingContext;
-        return createNodeArray(list, listPos);
+        return createNodeArray(list, start);
     }
 
     // Returns true if we should abort parsing.
@@ -1613,7 +1617,7 @@ export namespace LpcParser {
             end ??= scanner.getTokenFullStart();
         } else {
             arrayPos = pos.pos;
-            end ??= scanner.getState(pos.stateId).end;                            
+            end ??= scanner.getState(pos.stateId)?.end;                            
         }
         setTextRangePosEnd(array, arrayPos, end);
         return array;
@@ -1731,30 +1735,32 @@ export namespace LpcParser {
                 }
         }
 
-        const newLineParsed = parseExpected(SyntaxKind.NewLineTrivia, Diagnostics.Expected_newline_after_directive, false);
+        let scanNextToken = parseExpected(SyntaxKind.NewLineTrivia, Diagnostics.Expected_newline_after_directive, false);
         scanner.setReportLineBreak(false);
         
         if (directive?.kind === SyntaxKind.IncludeDirective) {
-            processIncludeDirective(directive as IncludeDirective);
+            // if include file is resolved, (i.e. process return false)
+            // then turn off the scan next token
+            scanNextToken &&= !processIncludeDirective(directive as IncludeDirective);
         }
 
         if (!directive) {
             directive = createMissingNode(SyntaxKind.IncludeDirective, /*reportAtCurrentPosition*/ true, Diagnostics.Unexpected_keyword_or_identifier);
         }
         
-        if (newLineParsed) {
+        if (scanNextToken) {
             nextToken(); // advance past newline
         }
 
         return directive;
     }
 
-    function processIncludeDirective(includeDirective: IncludeDirective) {                
+    function processIncludeDirective(includeDirective: IncludeDirective): boolean {                
         const localFilename = includeDirective.content.map((literal) => literal.text).join("");            
         const includeFile = fileHandler.loadIncludeFile(scanner.getFileName(), localFilename, includeDirective.localFirst);
         const resolvedFilename = internIdentifier(includeFile.filename);        
 
-        // TODO - handle circular includes
+        // TODO - handle circular includes        
         if (resolvedFilename === fileName) { 
             // skip
             return; 
@@ -1764,7 +1770,9 @@ export namespace LpcParser {
 
         if (includeFile?.source?.length > 0) {
             // cache source text
-            const includeSourceText = includeFileCache[resolvedFilename] = includeFile.source;
+            // as a hack, add an extra newline to any include file - this way we don't have to deal 
+            // with includes that end with an eof
+            const includeSourceText = includeFileCache[resolvedFilename] = includeFile.source + "\n";
 
             // create scanner for include            
             const saveDirective = currentIncludeDirective;
@@ -1789,7 +1797,11 @@ export namespace LpcParser {
             
             // prime the scanner
             nextToken(); 
+
+            return true;
         }
+
+        return false;
     }
 
     function parsePragmaDirective(): PragmaDirective {
@@ -6132,6 +6144,9 @@ const forEachChildTable: ForEachChildTable = {
             visitNode(cbNode, node.name) ||            
             visitNodes(cbNode, cbNodes, node.parameters) ||            
             visitNode(cbNode, node.body);
+    },
+    [SyntaxKind.IncludeDirective]: function forEachChildInIncludeDirective<T>(node: IncludeDirective, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNodes(cbNode, cbNodes, node.content);
     },
     [SyntaxKind.DefineDirective]: function forEachChildInDefineDirective<T>(node: DefineDirective, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
         return visitNode(cbNode, node.name) ||
