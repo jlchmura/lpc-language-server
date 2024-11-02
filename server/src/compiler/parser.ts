@@ -1,4 +1,4 @@
-import { isIdentifier as isIdentifierNode, BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange, PrefixUnaryExpression, LanguageVariant, PrefixUnaryOperator, Program, LpcFileHandler, ParenthesizedExpression, ArrayLiteralExpression, LambdaExpression, PunctuationSyntaxKind, PunctuationToken, LambdaOperatorToken, CastExpression, PropertyAccessExpression, CloneObjectExpression, NewExpression, trimQuotes, createScanner, isKeyword, PunctuationOrKeywordSyntaxKind, mapDefined, getJSDocCommentRanges, LabeledStatement, PropertyName, Token, tokenToString, addRelatedInfo, tokenIsIdentifierOrKeyword, getBinaryOperatorPrecedence, addRange, append, ArrayTypeNode, canHaveJSDoc, concatenate, containsParseError, Diagnostic, EntityName, getSpellingSuggestion, identity, idText, isIdentifierText, isTypeReferenceNode, JSDoc, JSDocAugmentsTag, JSDocCallbackTag, JSDocComment, JSDocImplementsTag, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocParameterTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThrowsTag, JSDocTypedefTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, nodeIsMissing, noop, PropertyAccessEntityNameExpression, setParent, skipTrivia, some, CharacterCodes, MapLike, KeywordSyntaxKind, startsWith, textToKeywordObj, ModifierLike, isModifierKind, MissingDeclaration, setTextRangePos, BindingPattern, KeywordTypeSyntaxKind, LiteralTypeNode, IntLiteral, FloatLiteral, LiteralLikeNode, isLiteralKind, TypeReferenceNode, getFullWidth, OperatorPrecedence, UnaryExpression, isLeftHandSideExpression, isAssignmentOperator, isKeywordOrPunctuation, UpdateExpression, PrimaryExpression, nodeIsPresent, PropertyAccessToken, IterationStatement, InheritClauseType, ObjectType, StructTypeNode, NamedDeclaration, TypeElement, PropertySignature, MethodSignature, StructDeclaration, TypeLiteralNode, TypeAssertion, NewStructExpression, ObjectLiteralElementLike, PropertyAssignment, getStartPositionOfLine, MappingLiteralExpression, MappingEntryExpression, isStringOrNumericLiteralLike, ElementAccessExpression,  RangeExpression,  LambdaIdentifierExpression, LambdaOperatorExpression, PreprocessorDirective, IncludeDirective, DefineDirective, UndefDirective, Macro, Scanner, last, ReadonlyTextRange, MacroParameter, forEachEntry, Ternary, isIntLiteral, isArrayTypeNode, SuperAccessExpression, isIndexedAccessTypeNode, isStringLiteral, isBinaryExpression, PragmaDirective, SpreadElement, CatchStatement, CatchExpression, getDirectoryPath, EvaluateExpression, setParentRecursive, ExpressionWithTypeArguments, JSDocThisTag, isJSDocTypeTag, isJSDocReturnTag, JSDocAuthorTag, QualifiedName, JSDocClassTag, JSDocDeprecatedTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, JSDocOverrideTag, JSDocPrivateTag, JSDocProtectedTag, JSDocPublicTag, JSDocUnknownTag, JsonSourceFile, BooleanLiteral, NullLiteral, JsonMinusNumericLiteral, ObjectLiteralExpression, ShorthandPropertyAssignment, NumericLiteral, JsonObjectExpressionStatement, JSDocVariadicType } from "./_namespaces/lpc";
+import { isIdentifier as isIdentifierNode, BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange, PrefixUnaryExpression, LanguageVariant, PrefixUnaryOperator, Program, LpcFileHandler, ParenthesizedExpression, ArrayLiteralExpression, LambdaExpression, PunctuationSyntaxKind, PunctuationToken, LambdaOperatorToken, CastExpression, PropertyAccessExpression, CloneObjectExpression, NewExpression, trimQuotes, createScanner, isKeyword, PunctuationOrKeywordSyntaxKind, mapDefined, getJSDocCommentRanges, LabeledStatement, PropertyName, Token, tokenToString, addRelatedInfo, tokenIsIdentifierOrKeyword, getBinaryOperatorPrecedence, addRange, append, ArrayTypeNode, canHaveJSDoc, concatenate, containsParseError, Diagnostic, EntityName, getSpellingSuggestion, identity, idText, isIdentifierText, isTypeReferenceNode, JSDoc, JSDocAugmentsTag, JSDocCallbackTag, JSDocComment, JSDocImplementsTag, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocParameterTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThrowsTag, JSDocTypedefTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, nodeIsMissing, noop, PropertyAccessEntityNameExpression, setParent, skipTrivia, some, CharacterCodes, MapLike, KeywordSyntaxKind, startsWith, textToKeywordObj, ModifierLike, isModifierKind, MissingDeclaration, setTextRangePos, BindingPattern, KeywordTypeSyntaxKind, LiteralTypeNode, IntLiteral, FloatLiteral, LiteralLikeNode, isLiteralKind, TypeReferenceNode, getFullWidth, OperatorPrecedence, UnaryExpression, isLeftHandSideExpression, isAssignmentOperator, isKeywordOrPunctuation, UpdateExpression, PrimaryExpression, nodeIsPresent, PropertyAccessToken, IterationStatement, InheritClauseType, ObjectType, StructTypeNode, NamedDeclaration, TypeElement, PropertySignature, MethodSignature, StructDeclaration, TypeLiteralNode, TypeAssertion, NewStructExpression, ObjectLiteralElementLike, PropertyAssignment, getStartPositionOfLine, MappingLiteralExpression, MappingEntryExpression, isStringOrNumericLiteralLike, ElementAccessExpression,  RangeExpression,  LambdaIdentifierExpression, LambdaOperatorExpression, PreprocessorDirective, IncludeDirective, DefineDirective, UndefDirective, Macro, Scanner, last, ReadonlyTextRange, MacroParameter, forEachEntry, Ternary, isIntLiteral, isArrayTypeNode, SuperAccessExpression, isIndexedAccessTypeNode, isStringLiteral, isBinaryExpression, PragmaDirective, SpreadElement, CatchStatement, CatchExpression, getDirectoryPath, EvaluateExpression, setParentRecursive, ExpressionWithTypeArguments, JSDocThisTag, isJSDocTypeTag, isJSDocReturnTag, JSDocAuthorTag, QualifiedName, JSDocClassTag, JSDocDeprecatedTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, JSDocOverrideTag, JSDocPrivateTag, JSDocProtectedTag, JSDocPublicTag, JSDocUnknownTag, JsonSourceFile, BooleanLiteral, NullLiteral, JsonMinusNumericLiteral, ObjectLiteralExpression, ShorthandPropertyAssignment, NumericLiteral, JsonObjectExpressionStatement, JSDocVariadicType, PositionState } from "./_namespaces/lpc";
 
 const enum SpeculationKind {
     TryParse,
@@ -15,13 +15,6 @@ const enum SignatureFlags {
     JSDoc = 1 << 5,
 }
 
-interface PositionState {
-    pos: number;
-    fileName: string;
-    macro: Macro;
-    include: IncludeDirective;
-    stateId: number;    
-}
 
 export namespace LpcParser {
     // Share a single scanner across all calls to parse a source file.  This helps speed things
@@ -69,7 +62,7 @@ export namespace LpcParser {
     var identifiers: Map<string, string>;    
     var identifierCount: number;
     var includeFileCache: MapLike<string>;
-    var inherits: InheritDeclaration[];
+    var inherits: InheritDeclaration[];    
     var inactiveRanges: TextRange[];
 
     // TODO(jakebailey): This type is a lie; this value actually contains the result
@@ -218,7 +211,7 @@ export namespace LpcParser {
     }
 
     function scanError(message: DiagnosticMessage, length: number, arg0?: any): void {
-        parseErrorAtPosition(scanner.getTokenEnd(), length, message, arg0);
+        parseErrorAtPosition(scanner.getTokenEnd(), length, scanner.getFileName(), message, arg0);
     }
 
     // Use this function to access the current token instead of reading the currentToken
@@ -388,7 +381,7 @@ export namespace LpcParser {
                 } else {
                     isCodeExecutable = isCodeExecutable === Ternary.False ? Ternary.True : Ternary.False;
                 }    
-                
+                                
                 // start a new range if we are now inactive
                 if (isCodeExecutable === Ternary.False) {
                     startInactiveRange();
@@ -404,8 +397,9 @@ export namespace LpcParser {
                     endInactiveRange();
                 }
 
-                if (isCodeExecutable !== Ternary.Unknown) conditionalStack.push(isCodeExecutable);
-                else if (isElseIf) {
+                // already in a conditional, so push that one to the stack
+                if (!isElseIf && isCodeExecutable !== Ternary.Unknown) conditionalStack.push(isCodeExecutable);
+                else if (isElseIf && isCodeExecutable === Ternary.Unknown) {
                     parseErrorAtCurrentToken(Diagnostics.Elseif_directive_without_if);
                 }
                                         
@@ -428,7 +422,7 @@ export namespace LpcParser {
                 }
                 
                 if (tokenCount == 0) {
-                    parseErrorAt(scanner.getTokenStart(), scanner.getTokenEnd(), Diagnostics.Expression_expected);
+                    parseErrorAt(scanner.getTokenStart(), scanner.getTokenEnd(), scanner.getFileName(), Diagnostics.Expression_expected);
                 }
 
                 return incomingToken;
@@ -436,6 +430,9 @@ export namespace LpcParser {
             case SyntaxKind.IfNDefDirective:
                 const isIfDef = incomingToken === SyntaxKind.IfDefDirective;
                 
+                // already in a conditional, so push that one to the stack
+                if (isCodeExecutable !== Ternary.Unknown) conditionalStack.push(isCodeExecutable);
+
                 incomingToken = scanner.scan();
                 if (incomingToken !== SyntaxKind.Identifier) {
                     parseErrorAtCurrentToken(Diagnostics.Identifier_expected);                                        
@@ -458,7 +455,7 @@ export namespace LpcParser {
         // if the keyword had an escape
         if (isKeyword(currentToken) && (scanner.hasUnicodeEscape() || scanner.hasExtendedUnicodeEscape())) {
             // issue a parse error for the escape
-            parseErrorAt(scanner.getTokenStart(), scanner.getTokenEnd(), Diagnostics.Keywords_cannot_contain_escape_characters);
+            parseErrorAt(scanner.getTokenStart(), scanner.getTokenEnd(), scanner.getFileName(), Diagnostics.Keywords_cannot_contain_escape_characters);
         }
         return nextTokenWithoutCheck();
     }
@@ -485,7 +482,7 @@ export namespace LpcParser {
             switch (kind) {
                 case SyntaxKind.EndOfFileToken:
                     if (parenCount > 0) {
-                        parseErrorAtPosition(pos, scanner.getTokenEnd() - pos, Diagnostics.Unterminated_macro_arguments_list);
+                        parseErrorAtPosition(pos, scanner.getTokenEnd() - pos, scanner.getFileName(), Diagnostics.Unterminated_macro_arguments_list);
                     }
                     parenCount=0;
                     break;
@@ -552,7 +549,7 @@ export namespace LpcParser {
             range.end = end || scanner.getTokenFullStart();
         }
     }
-
+    
     function nextTokenWithoutCheck() {
         let incomingToken = scanner.scan();        
 
@@ -564,25 +561,48 @@ export namespace LpcParser {
                 case SyntaxKind.EndIfDirective:
                     scanner.setReportLineBreak(true);
                     isCodeExecutable = conditionalStack.pop() ?? Ternary.Unknown;                    
-
+                    
                     incomingToken = scanner.scan();
                     if (incomingToken !== SyntaxKind.NewLineTrivia && incomingToken !== SyntaxKind.EndOfFileToken) {
-                        parseErrorAtPosition(scanner.getTokenStart(), scanner.getTokenEnd() - scanner.getTokenStart(), Diagnostics.Expected_newline_after_directive);
+                        parseErrorAtPosition(scanner.getTokenStart(), scanner.getTokenEnd() - scanner.getTokenStart(), scanner.getFileName(), Diagnostics.Expected_newline_after_directive);
                     }
 
                     scanner.setReportLineBreak(false);    
                     break;   
+                case SyntaxKind.ElseIfDirective:
                 case SyntaxKind.ElseDirective:
                     scanner.setReportLineBreak(true);
-                    
-                    isCodeExecutable = isCodeExecutable === Ternary.False ? Ternary.True : Ternary.False;
+                                   
+                    // this conditional is only evaluated if there is nothing on the stack
+                    if (conditionalStack.length===0) {
+                        isCodeExecutable = isCodeExecutable === Ternary.False ? Ternary.True : Ternary.False;
+                    }
 
                     incomingToken = scanner.scan();
                     if (incomingToken !== SyntaxKind.NewLineTrivia && incomingToken !== SyntaxKind.EndOfFileToken) {
-                        parseErrorAtPosition(scanner.getTokenStart(), scanner.getTokenEnd() - scanner.getTokenStart(), Diagnostics.Expected_newline_after_directive);
+                        parseErrorAtPosition(scanner.getTokenStart(), scanner.getTokenEnd() - scanner.getTokenStart(), scanner.getFileName(), Diagnostics.Expected_newline_after_directive);
                     }
 
                     scanner.setReportLineBreak(false);    
+                    break;                
+                case SyntaxKind.IfDirective:
+                case SyntaxKind.IfDefDirective:
+                case SyntaxKind.IfNDefDirective:
+                    scanner.setReportLineBreak(true);                    
+
+                    while (incomingToken != SyntaxKind.NewLineTrivia && incomingToken != SyntaxKind.EndOfFileToken) {
+                        incomingToken = scanner.scan();
+                    }
+                    
+                    if (incomingToken !== SyntaxKind.NewLineTrivia) {
+                        parseErrorAtPosition(scanner.getTokenStart(), scanner.getTokenEnd() - scanner.getTokenStart(), scanner.getFileName(), Diagnostics.Expected_newline_after_directive);
+                    }
+
+                    scanner.setReportLineBreak(false);                    
+
+                    // these are disabled, so we don't need to change active code state
+                    // just push to stack                    
+                    conditionalStack.push(isCodeExecutable);
                     break;
             }            
 
@@ -602,7 +622,7 @@ export namespace LpcParser {
 
                 incomingToken = scanner.scan();
                 if (incomingToken !== SyntaxKind.NewLineTrivia && incomingToken !== SyntaxKind.EndOfFileToken) {
-                    parseErrorAtPosition(scanner.getTokenStart(), scanner.getTokenEnd() - scanner.getTokenStart(), Diagnostics.Expected_newline_after_directive);
+                    parseErrorAtPosition(scanner.getTokenStart(), scanner.getTokenEnd() - scanner.getTokenStart(), scanner.getFileName(), Diagnostics.Expected_newline_after_directive);
                 }
 
                 scanner.setReportLineBreak(false);  
@@ -616,7 +636,7 @@ export namespace LpcParser {
                 incomingToken = processConditionalDirective(incomingToken);
                 
                 if (incomingToken !== SyntaxKind.NewLineTrivia) {
-                    parseErrorAtPosition(scanner.getTokenStart(), scanner.getTokenEnd() - scanner.getTokenStart(), Diagnostics.Expected_newline_after_directive);
+                    parseErrorAtPosition(scanner.getTokenStart(), scanner.getTokenEnd() - scanner.getTokenStart(), scanner.getFileName(), Diagnostics.Expected_newline_after_directive);
                 }
 
                 scanner.setReportLineBreak(false);
@@ -634,7 +654,9 @@ export namespace LpcParser {
                 macro.disabled = true;                
                 macro.originFilename = scanner.getFileName();
                 macro.posInOrigin = scanner.getTokenFullStart();
-                macro.endInOrigin = scanner.getTokenFullStart() + tokenValue.length;
+                macro.endInOrigin = scanner.getTokenFullStart() + tokenValue.length + 1;
+                macro.pos = getPositionState();
+                macro.end = macro.pos.pos + tokenValue.length + 1;
 
                 const { range, arguments: macroArgsDef } = macro;  
 
@@ -655,7 +677,7 @@ export namespace LpcParser {
                             const argVal = values[i];                            
                             argValsByName[argName] = argVal;            
                         } else {
-                            parseErrorAt(lastArg?.end ?? valuesEndPos, valuesEndPos, Diagnostics.Missing_argument_for_macro_0, argName);
+                            parseErrorAt(lastArg?.end ?? valuesEndPos, valuesEndPos, scanner.getFileName(), Diagnostics.Missing_argument_for_macro_0, argName);
                             argValsByName[argName] = {
                                 posInOrigin: lastArg?.end ?? valuesEndPos,
                                 endInOrigin: lastArg?.end ?? valuesEndPos,
@@ -683,6 +705,7 @@ export namespace LpcParser {
                         macro.originFilename = undefined!;
                         macro.posInOrigin = undefined!;
                         macro.endInOrigin = undefined!;
+                        macro.pos = undefined!;
                         currentMacro = saveCurrentMacro!;
                         // parse args will have consumed the next token, so we need to store that and return it
                         // when the previous scanner gets restored
@@ -816,7 +839,7 @@ export namespace LpcParser {
         // check for unterminate conditional directives before the diagnostics are stored in the sourcefile
         const lastInactiveRange = lastOrUndefined(inactiveRanges);
         if (lastInactiveRange && lastInactiveRange.end === 0) {
-            parseErrorAtPosition(lastInactiveRange.pos, 1, Diagnostics.Unmatched_conditional_directive);
+            parseErrorAtPosition(lastInactiveRange.pos, 1, fileName, Diagnostics.Unmatched_conditional_directive);
             lastInactiveRange.end = scanner.getTokenEnd();
         }
 
@@ -867,12 +890,12 @@ export namespace LpcParser {
         return sourceFile;
     }
 
-    function parseErrorAtPosition(start: number, errLength: number, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithDetachedLocation | undefined {
+    function parseErrorAtPosition(start: number, errLength: number, fileName: string, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithDetachedLocation | undefined {
         // Don't report another error if it would just be at the same position as the last error.
         const lastError = lastOrUndefined(parseDiagnostics);
         let result: DiagnosticWithDetachedLocation | undefined;
         if (!lastError || start !== lastError.start) {            
-            result = createDetachedDiagnostic(scanner.getFileName(), includeFileCache[scanner.getFileName()] ?? scanner.getText(), start, errLength, message, ...args);
+            result = createDetachedDiagnostic(fileName, includeFileCache[fileName] ?? scanner.getText(), start, errLength, message, ...args);            
             parseDiagnostics.push(result);
         }
 
@@ -882,12 +905,12 @@ export namespace LpcParser {
         return result;
     }
     
-    function parseErrorAt(start: number, end: number, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithDetachedLocation | undefined {
-        return parseErrorAtPosition(start, end - start, message, ...args);
+    function parseErrorAt(start: number, end: number, fileName: string, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithDetachedLocation | undefined {
+        return parseErrorAtPosition(start, end - start, fileName, message, ...args);
     }
 
-    function parseErrorAtRange(range: TextRange, message: DiagnosticMessage, ...args: DiagnosticArguments): void {
-        parseErrorAt(range.pos, range.end, message, ...args);
+    function parseErrorAtRange(range: TextRange, fileName: string, message: DiagnosticMessage, ...args: DiagnosticArguments): void {
+        parseErrorAt(range.pos, range.end, fileName, message, ...args);
     }
 
     function isPosition(pos: any): pos is Position {
@@ -899,7 +922,7 @@ export namespace LpcParser {
     function createMissingNode<T extends Node>(kind: T["kind"], reportAtCurrentPosition: boolean, diagnosticMessage?: DiagnosticMessage, ...args: DiagnosticArguments): T {
         const pos = getPositionState();
         if (reportAtCurrentPosition) {
-            parseErrorAtPosition(scanner.getTokenFullStart(), 0, diagnosticMessage!, ...args);
+            parseErrorAtPosition(scanner.getTokenFullStart(), 0, pos.fileName, diagnosticMessage!, ...args);
         }
         else if (diagnosticMessage) {
             parseErrorAtCurrentToken(diagnosticMessage, ...args);
@@ -935,7 +958,7 @@ export namespace LpcParser {
             pos: getNodePos(),
             fileName: scanner.getFileName(),
             include: currentIncludeDirective,
-            macro: currentMacro,
+            macro: currentMacro ? {...currentMacro} : undefined,
             stateId: scanner.getStateId()            
         }
     }
@@ -945,7 +968,7 @@ export namespace LpcParser {
     }    
     
     function parseErrorAtCurrentToken(message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithDetachedLocation | undefined {
-        return parseErrorAt(scanner.getTokenStart(), scanner.getTokenEnd(), message, ...args);
+        return parseErrorAt(scanner.getTokenStart(), scanner.getTokenEnd(), scanner.getFileName(), message, ...args);
     }
 
     function parseList<T extends Node>(kind: ParsingContext, parseElement: () => T, start?: PositionState): NodeArray<T> {
@@ -1838,6 +1861,10 @@ export namespace LpcParser {
             }            
             localFirst = true;
         }
+
+        if (directiveContent.length === 0) {
+            directiveContent.push(createMissingNode(SyntaxKind.StringLiteral, /*reportAtCurrentPosition*/ true, Diagnostics.Expression_expected));
+        }
                 
         return withJSDoc(finishNode(factory.createIncludeDirective(directiveContent, localFirst), pos), hasJSDoc);
     }
@@ -1848,15 +1875,19 @@ export namespace LpcParser {
 
         parseExpected(SyntaxKind.DefineDirective);
         
+        const posIdentifier = getPositionState();
+        const identifierStart = scanner.getTokenStart();
         const identifier = parseIdentifier();
         let args: NodeArray<ParameterDeclaration> | undefined;
         
-        if (token() === SyntaxKind.OpenParenToken && scanner.getTokenStart() == identifier?.end) {
+        const identifierEnd = identifierStart + identifier.text.length;
+        if (identifierEnd === scanner.getTokenStart() && token() === SyntaxKind.OpenParenToken) {
             args = parseParameters();
         }
         
         let tokenCount = 0;
         const contentStart = scanner.getTokenStart();
+        const macroTextFilename = scanner.getFileName().length > 0 ? scanner.getFileName() : fileName;
         let endPos = contentStart;
         while (token() !== SyntaxKind.NewLineTrivia && token() !== SyntaxKind.EndOfFileToken) {
             tokenCount++;
@@ -1870,9 +1901,9 @@ export namespace LpcParser {
 
         if (isIdentifierNode(identifier) && identifier.text?.length > 0) {
             if (macroTable[identifier.text]) {                
-                parseErrorAt(identifier.end - identifier.text.length, identifier.end, Diagnostics.Macro_already_defined_0, identifier.text);
+                parseErrorAt(identifierStart, identifierStart + identifier.text.length, pos.fileName, Diagnostics.Macro_already_defined_0, identifier.text);
             } else {
-                macroTable[identifier.text] = createMacro(macroNode);
+                macroTable[identifier.text] = createMacro(macroNode, macroTextFilename);
             }
         }
 
@@ -1883,20 +1914,29 @@ export namespace LpcParser {
         return { includeFilename: "global", posInOrigin: 0, endInOrigin: 0, getText: () => text, range: {pos: 0, end: text.length} };
     }
 
-    function createMacro(directive: DefineDirective): Macro {        
+    function createMacro(directive: DefineDirective, macroSourceFilename: string): Macro {        
         function getMacroText(): string {            
             Debug.assertIsDefined(directive.range, "Cannot expand macro for a define without content");
-            return (directive.originFilename == fileName) ? sourceText : includeFileCache[directive.originFilename] ?? "";            
+            // return (directive.originFilename == fileName) ? sourceText : includeFileCache[directive.originFilename] ?? "";            
+            return includeFileCache[macroSourceFilename] ?? "";
         }   
 
-        return { 
+        const macro = { 
             includeFilename: directive.originFilename, 
             includeDirPos: directive.includeDirPos, 
             includeDirEnd: directive.includeDirEnd,
             range: directive.range,
             arguments: directive.arguments,
             getText: getMacroText 
-        };                                
+        };           
+        
+        if (Debug.isDebugging) {
+            (macro as any).__macroText = function() {
+                return getMacroText().substring(macro.range.pos, macro.range.end);
+            }
+        }
+
+        return macro;
     }    
 
     function parseUndefDirective(): UndefDirective {
@@ -2139,6 +2179,10 @@ export namespace LpcParser {
         return withJSDoc(finishNode(factory.createWhileStatement(statement, expression), pos), hasJSDoc);
     }
     
+    function getPosStateFilename(pos: PositionState) {
+        return fileName;//pos.fileName?.length > 0 ? pos.fileName : fileName;
+    }
+  
     function finishNode<T extends Node>(node: T, pos: number, end: number): T
     function finishNode<T extends Node>(node: T, pos: PositionState): T 
     function finishNode<T extends Node>(node: T, pos: number | PositionState, end?: number): T {
@@ -2148,17 +2192,26 @@ export namespace LpcParser {
             Debug.assert(scannerState.fileName == pos.fileName, "Scanner state filename does not match position state filename");
             // Debug.assert(!pos.speculating, "Cannot finish node while speculating");
 
-            (node as Mutable<T>).includeDirPos = pos.include?.pos ?? pos.macro?.includeDirPos;
-            (node as Mutable<T>).includeDirEnd = pos.include?.end ?? pos.macro?.includeDirEnd;
-            (node as Mutable<T>).originFilename = scannerState.fileName;
-            setTextRangePosEnd(node, pos.pos, scannerState.end);
+            (node as Mutable<T>).includeDirPos = currentIncludeDirective?.pos;// ?? pos.macro?.posInOrigin;
+            (node as Mutable<T>).includeDirEnd = currentIncludeDirective?.end;// ?? pos.macro?.endInOrigin;
+            (node as Mutable<T>).originFilename = scannerState.fileName?.length > 0 ? scannerState.fileName : fileName;
+            
+            const macroState = pos.macro?.pos;
+            if (macroState && macroState.fileName === fileName) {
+                // const macroEndState = scanner.getState(macroState.stateId);
+                setTextRangePosEnd(node, macroState.pos, pos.macro.end);    
+            } else if (currentIncludeDirective) {
+                setTextRangePosEnd(node, currentIncludeDirective.pos, currentIncludeDirective.end);
+            } else {
+                setTextRangePosEnd(node, pos.pos, scannerState.end);
+            }
         } else {
             setTextRangePosEnd(node, pos, end!);
         }
-
+        
         // TODO: remove this once we're confident in the parser positioning
         const incPos = node.includeDirPos;
-        !!incPos && typeof pos !== "number" && Debug.assert(incPos < includeFileCache[pos.include?.originFilename ?? fileName].length, "Include directive position is out of range");
+        !!incPos && typeof pos !== "number" && Debug.assert(incPos < includeFileCache[getPosStateFilename(pos)]?.length, "Include directive position is out of range");
         Debug.assert(node.end >= node.pos, "Node end is out of range");
 
         if (contextFlags) {
@@ -2536,7 +2589,7 @@ export namespace LpcParser {
             return;
         }
 
-        const nodeSourceText = includeFileCache[scanner.getFileName()];
+        const nodeSourceText = includeFileCache[fileName];//scanner.getFileName()];
         const pos = skipTrivia(nodeSourceText, node.pos);
 
         // Some known keywords are likely signs of syntax being used improperly.
@@ -2544,7 +2597,7 @@ export namespace LpcParser {
             case "const":
             case "let":
             case "var":
-                parseErrorAt(pos, node.end, Diagnostics.Variable_declaration_not_allowed_at_this_location);
+                parseErrorAt(pos, node.end, node.originFilename, Diagnostics.Variable_declaration_not_allowed_at_this_location);
                 return;
 
             case "declare":
@@ -2572,7 +2625,7 @@ export namespace LpcParser {
         // The user alternatively might have misspelled or forgotten to add a space after a common keyword.
         const suggestion = getSpellingSuggestion(expressionText, viableKeywordSuggestions, identity) ?? getSpaceSuggestion(expressionText);
         if (suggestion) {
-            parseErrorAt(pos, node.end, Diagnostics.Unknown_keyword_or_identifier_Did_you_mean_0, suggestion);
+            parseErrorAt(pos, node.end, node.originFilename, Diagnostics.Unknown_keyword_or_identifier_Did_you_mean_0, suggestion);
             return;
         }
 
@@ -2582,7 +2635,7 @@ export namespace LpcParser {
         }
 
         // Otherwise, we know this some kind of unknown word, not just a missing expected semicolon.
-        parseErrorAt(pos, node.end, Diagnostics.Unexpected_keyword_or_identifier);
+        parseErrorAt(pos, Math.max(pos, node.end), fileName, Diagnostics.Unexpected_keyword_or_identifier);
     }
 
     
@@ -3990,10 +4043,10 @@ export namespace LpcParser {
         const simpleUnaryExpression = parseSimpleUnaryExpression();
         if (token() === SyntaxKind.AsteriskAsteriskToken) {
             const pos = skipTrivia(sourceText, simpleUnaryExpression.pos);
-            const { end } = simpleUnaryExpression;
+            const { end, originFilename } = simpleUnaryExpression;
             
             Debug.assert(isKeywordOrPunctuation(unaryOperator));
-            parseErrorAt(pos, end, Diagnostics.An_unary_expression_with_the_0_operator_is_not_allowed_in_the_left_hand_side_of_an_exponentiation_expression_Consider_enclosing_the_expression_in_parentheses, tokenToString(unaryOperator));            
+            parseErrorAt(pos, end, originFilename, Diagnostics.An_unary_expression_with_the_0_operator_is_not_allowed_in_the_left_hand_side_of_an_exponentiation_expression_Consider_enclosing_the_expression_in_parentheses, tokenToString(unaryOperator));            
         }
         return simpleUnaryExpression;
     }    
@@ -4718,9 +4771,7 @@ export namespace LpcParser {
             case SyntaxKind.FunctionKeyword:
                 return parseFunctionExpression();
             case SyntaxKind.CatchKeyword:
-                return parseCatchExpression();
-            case SyntaxKind.NewKeyword:
-                return parseNewExpression();            
+                return parseCatchExpression();                        
             // case SyntaxKind.TemplateHead:
             //     return parseTemplateExpression(/*isTaggedTemplate*/ false);            
             case SyntaxKind.LambdaToken:
@@ -4739,6 +4790,10 @@ export namespace LpcParser {
                     // fall through and report error
                     break;
                 }
+        }
+
+        if (token() === SyntaxKind.NewKeyword && languageVariant === LanguageVariant.FluffOS) {            
+            return parseNewExpression();
         }
 
         // parse a variable declaration as an exression
@@ -5618,7 +5673,7 @@ export namespace LpcParser {
                             children = append(children, child);
                         }
                         else if (child.kind === SyntaxKind.JSDocTemplateTag) {
-                            parseErrorAtRange(child.tagName, Diagnostics.A_JSDoc_template_tag_may_not_follow_a_typedef_callback_or_overload_tag);
+                            parseErrorAtRange(child.tagName, child.originFilename, Diagnostics.A_JSDoc_template_tag_may_not_follow_a_typedef_callback_or_overload_tag);
                         }
                     }
                     if (children) {
@@ -5630,7 +5685,7 @@ export namespace LpcParser {
 
             function parseReturnTag(start: PositionState, tagName: Identifier, indent: number, indentText: string): JSDocReturnTag {
                 if (some(tags, isJSDocReturnTag)) {
-                    parseErrorAt(tagName.pos, scanner.getTokenStart(), Diagnostics._0_tag_already_specified, (tagName.text));
+                    parseErrorAt(tagName.pos, scanner.getTokenStart(), scanner.getFileName(), Diagnostics._0_tag_already_specified, (tagName.text));
                 }
 
                 const typeExpression = tryParseTypeExpression();
@@ -5639,7 +5694,7 @@ export namespace LpcParser {
 
             function parseTypeTag(start: PositionState, tagName: Identifier, indent?: number, indentText?: string): JSDocTypeTag {
                 if (some(tags, isJSDocTypeTag)) {
-                    parseErrorAt(tagName.pos, scanner.getTokenStart(), Diagnostics._0_tag_already_specified, (tagName.text));
+                    parseErrorAt(tagName.pos, scanner.getTokenStart(), scanner.getFileName(), Diagnostics._0_tag_already_specified, (tagName.text));
                 }
 
                 const typeExpression = parseJSDocTypeExpression(/*mayOmitBraces*/ true);
@@ -5813,7 +5868,7 @@ export namespace LpcParser {
                 let parameters: JSDocParameterTag[] | undefined;
                 while (child = tryParse(() => parseChildParameterOrPropertyTag(PropertyLikeParse.CallbackParameter, indent) as JSDocParameterTag | JSDocTemplateTag)) {
                     if (child.kind === SyntaxKind.JSDocTemplateTag) {
-                        parseErrorAtRange(child.tagName, Diagnostics.A_JSDoc_template_tag_may_not_follow_a_typedef_callback_or_overload_tag);
+                        parseErrorAtRange(child.tagName, child.originFilename, Diagnostics.A_JSDoc_template_tag_may_not_follow_a_typedef_callback_or_overload_tag);
                         break;
                     }
                     parameters = append(parameters, child);

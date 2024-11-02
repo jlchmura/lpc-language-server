@@ -7039,6 +7039,16 @@ export interface MacroParameter extends ReadonlyTextRange, IncludedFileRange {
     /** get the sourcetext that contains the arg value range */
     text: string;
 }
+
+export interface PositionState {
+    pos: number;
+    fileName: string;
+    macro: Macro;
+    include: IncludeDirective;
+    stateId: number;    
+}
+
+
 export interface Macro extends IncludedFileRange {
     // directive: DefineDirective;
     includeDirPos?: number;
@@ -7047,9 +7057,11 @@ export interface Macro extends IncludedFileRange {
     disabled?: boolean;
     /** get the sourcetext that contains the macro definition range */
     getText(): string;
-    range: TextRange;
+    range: TextRange;    
     arguments?: NodeArray<ParameterDeclaration>;
     argsIn?: MapLike<MacroParameter>;    
+    pos?: PositionState
+    end?: number;
 }
 
 export interface UndefDirective extends PreprocessorDirective {

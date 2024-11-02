@@ -528,13 +528,13 @@ function createChildren(
     }
 
     scanner.setText((sourceFile || node.getSourceFile()).text);
-    let pos = node.pos;
+    let pos = node.includeDirPos ?? node.pos;
     const processNode = (child: Node) => {
-        addSyntheticNodes(children, pos, child.pos, node, sourceFile.inactiveCodeRanges);
+        addSyntheticNodes(children, pos, child.includeDirPos ?? child.pos, node, sourceFile.inactiveCodeRanges);
         children.push(child);
-        pos = child.end;
+        pos = child.includeDirEnd ?? child.end;
     };
-    const processNodes = (nodes: NodeArray<Node>) => {
+    const processNodes = (nodes: NodeArray<Node>) => {        
         addSyntheticNodes(children, pos, nodes.pos, node, sourceFile.inactiveCodeRanges);
         children.push(createSyntaxList(nodes, node, sourceFile.inactiveCodeRanges));
         pos = nodes.end;
@@ -544,7 +544,7 @@ function createChildren(
     // For syntactic classifications, all trivia are classified together, including jsdoc comments.
     // For that to work, the jsdoc comments should still be the leading trivia of the first child.
     // Restoring the scanner position ensures that.
-    pos = node.pos;
+    pos = node.includeDirPos ?? node.pos;
     node.forEachChild(processNode, processNodes);
     addSyntheticNodes(children, pos, node.end, node, sourceFile.inactiveCodeRanges);
     scanner.setText(undefined);
@@ -889,7 +889,7 @@ function addSyntheticNodes(
             pos = scanner.getTokenEnd();
             continue;
         }
-        if (isDefineDirective(parent) && pos >= parent.range.pos) {
+        if (isDefineDirective(parent) && pos >= parent.range?.pos) {
             // skip the contents of a define direct
             pos = parent.range.end;
             continue;
@@ -926,7 +926,8 @@ function addSyntheticNodes(
                 if (hasTabstop(parent)) {
                     continue;
                 }
-                Debug.fail(`Did not expect ${Debug.formatSyntaxKind(parent.kind)} to have an Identifier in its trivia`);
+                console.warn(`Did not expect ${Debug.formatSyntaxKind(parent.kind)} to have an Identifier in its trivia`);
+                // Debug.fail(`Did not expect ${Debug.formatSyntaxKind(parent.kind)} to have an Identifier in its trivia`);
             }
             
             nodes.push(createNode(token, pos, textPos, parent));
@@ -949,11 +950,11 @@ function createSyntaxList(nodes: NodeArray<Node>, parent: Node, skipRanges: read
     let pos = nodes.pos;
     const sourceFilename = isSourceFile(parent) ? parent.fileName : parent.originFilename;
     for (const node of nodes) {
-        if (node.originFilename === sourceFilename) {
-            addSyntheticNodes(children, pos, node.pos, parent, skipRanges);
+        // if (node.originFilename === sourceFilename) {
+            addSyntheticNodes(children, pos, node.includeDirPos ?? node.pos, parent, skipRanges);
             children.push(node);
-            pos = node.end;
-        }        
+            pos = node.includeDirEnd ?? node.end;
+        // }        
     }
     if (isNaN(nodes.end)) {
         debugger;
