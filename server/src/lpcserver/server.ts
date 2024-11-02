@@ -114,6 +114,10 @@ export function start(connection: Connection, platform: string) {
             projectRootFolder: (rootFolder),            
         });                              
         
+        // send blank options for now
+        // TODO: the extension should send these
+        session.setCompilerOptionsForInferredProjects({options:{}});
+
         session.onMessage.on("message", (msg: lpc.server.protocol.Message) => {
             if (msg.type === "event") {
                 const e = msg as lpc.server.protocol.Event;
@@ -315,6 +319,10 @@ export function start(connection: Connection, platform: string) {
             return typeConverters.WorkspaceEdit.fromRenames(result.locs, requestParams.newName);
         });
 
+        connection.onRequest("compilerOptionsForInferredProjects", (requestParams: protocol.SetCompilerOptionsForInferredProjectsArgs) => {
+            session.setCompilerOptionsForInferredProjects(requestParams);
+        });
+
         connection.onRequest("encodedSemanticClassifications-full", (requestParams:protocol.EncodedSemanticClassificationsRequest) => {            
             const args: lpc.server.protocol.EncodedSemanticClassificationsRequestArgs = {
                 ... requestParams.arguments,
@@ -468,7 +476,7 @@ export function start(connection: Connection, platform: string) {
         return initResult;
     });
     
-    connection.onInitialized(() => {
+    connection.onInitialized(() => {        
         connection.workspace.onDidChangeWorkspaceFolders((args) => {
             logger.info("Workspace folders changed");
         });

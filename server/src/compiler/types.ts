@@ -41,6 +41,10 @@ export interface ReadonlyIncludedFileRange {
     readonly includeDirEnd?: number;
     /** filename containing this node (i.e. the include filename, not the original sourcefile filename) */
     readonly originFilename?: string;
+    /** position in the origin file (i.e. the include file this node came from) */
+    readonly originPos?: number;
+    /** end in the origin file (i.e. the include file this node came from) */
+    readonly originEnd?: number;
 }
 
 /** Base Node */

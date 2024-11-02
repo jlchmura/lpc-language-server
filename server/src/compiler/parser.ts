@@ -2195,6 +2195,8 @@ export namespace LpcParser {
             (node as Mutable<T>).includeDirPos = currentIncludeDirective?.pos;// ?? pos.macro?.posInOrigin;
             (node as Mutable<T>).includeDirEnd = currentIncludeDirective?.end;// ?? pos.macro?.endInOrigin;
             (node as Mutable<T>).originFilename = scannerState.fileName?.length > 0 ? scannerState.fileName : fileName;
+            (node as Mutable<T>).originPos = pos.pos;
+            (node as Mutable<T>).originEnd = end ?? scannerState.end;
             
             const macroState = pos.macro?.pos;
             if (macroState && macroState.fileName === fileName) {
@@ -2204,7 +2206,7 @@ export namespace LpcParser {
                 setTextRangePosEnd(node, currentIncludeDirective.pos, currentIncludeDirective.end);
             } else {
                 setTextRangePosEnd(node, pos.pos, scannerState.end);
-            }
+            }            
         } else {
             setTextRangePosEnd(node, pos, end!);
         }
@@ -5664,7 +5666,7 @@ export namespace LpcParser {
             }
 
             function parseNestedTypeLiteral(typeExpression: JSDocTypeExpression | undefined, name: EntityName, target: PropertyLikeParse, indent: number) {
-                if (typeExpression && isObjectOrObjectArrayTypeReference(typeExpression.type)) {
+                if (typeExpression?.type && isObjectOrObjectArrayTypeReference(typeExpression.type)) {
                     const pos = getPositionState();;
                     let child: JSDocPropertyLikeTag | JSDocTypeTag | JSDocTemplateTag | JSDocThisTag | false;
                     let children: JSDocPropertyLikeTag[] | undefined;

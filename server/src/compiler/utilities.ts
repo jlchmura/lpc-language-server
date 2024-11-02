@@ -5482,11 +5482,11 @@ export function getJSDocCommentRanges(node: Node, text: string) {
             node.kind === SyntaxKind.ParenthesizedExpression ||
             node.kind === SyntaxKind.VariableDeclaration ||
             node.kind === SyntaxKind.ExportSpecifier) ?
-        concatenate(getTrailingCommentRanges(text, node.pos), getLeadingCommentRanges(text, node.pos)) :
-        getLeadingCommentRanges(text, node.pos);
+        concatenate(getTrailingCommentRanges(text, node.originPos), getLeadingCommentRanges(text, node.originPos)) :
+        getLeadingCommentRanges(text, node.originPos);
     // True if the comment starts with '/**' but not if it is '/**/'
     return filter(commentRanges, comment =>
-        comment.end <= node.end && // Due to parse errors sometime empty parameter may get comments assigned to it that end up not in parameter range
+        comment.end <= node.originEnd && // Due to parse errors sometime empty parameter may get comments assigned to it that end up not in parameter range
         text.charCodeAt(comment.pos + 1) === CharacterCodes.asterisk &&
         text.charCodeAt(comment.pos + 2) === CharacterCodes.asterisk &&
         text.charCodeAt(comment.pos + 3) !== CharacterCodes.slash);

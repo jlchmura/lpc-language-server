@@ -131,6 +131,13 @@ export class ProjectService {
      * Map of open files that are opened without complete path but have projectRoot as current directory
      */
     private readonly openFilesWithNonRootedDiskPath = new Map<string, ScriptInfo>();
+
+    private compilerOptionsForInferredProjects: CompilerOptions | undefined;
+    private compilerOptionsForInferredProjectsPerProjectRoot = new Map<string, CompilerOptions>();
+    private watchOptionsForInferredProjects: WatchOptionsAndErrors | undefined;
+    private watchOptionsForInferredProjectsPerProjectRoot = new Map<string, WatchOptionsAndErrors | false>();
+    private typeAcquisitionForInferredProjects: TypeAcquisition | undefined;
+    private typeAcquisitionForInferredProjectsPerProjectRoot = new Map<string, TypeAcquisition | undefined>();
     
     /** @internal */
     readonly watchFactory: WatchFactory<WatchType, Project | NormalizedPath>;
@@ -1729,21 +1736,25 @@ export class ProjectService {
         return this.createInferredProject(currentDirectory);
     }
 
+    setCompilerOptionsForInferredProjects(projectCompilerOptions: protocol.InferredProjectCompilerOptions, projectRootPath?: string): void {
+        console.debug("todo - setCompilerOptionsForInferredProjects");
+    }
+
     private createInferredProject(currentDirectory: string, isSingleInferredProject?: boolean, projectRootPath?: NormalizedPath): InferredProject {        
-        const compilerOptions = undefined;// projectRootPath && this.compilerOptionsForInferredProjectsPerProjectRoot.get(projectRootPath) || this.compilerOptionsForInferredProjects!; // TODO: GH#18217
-        let watchOptionsAndErrors = undefined;//: WatchOptionsAndErrors | false | undefined;
+        const compilerOptions = projectRootPath && this.compilerOptionsForInferredProjectsPerProjectRoot.get(projectRootPath) || this.compilerOptionsForInferredProjects!; // TODO: GH#18217
+        let watchOptionsAndErrors: WatchOptionsAndErrors | false | undefined;
         let typeAcquisition: TypeAcquisition | undefined;
-        // if (projectRootPath) {
-        //     watchOptionsAndErrors = this.watchOptionsForInferredProjectsPerProjectRoot.get(projectRootPath);
-        //     typeAcquisition = this.typeAcquisitionForInferredProjectsPerProjectRoot.get(projectRootPath);
-        // }
-        // if (watchOptionsAndErrors === undefined) {
-        //     watchOptionsAndErrors = this.watchOptionsForInferredProjects;
-        // }
-        // if (typeAcquisition === undefined) {
-        //     typeAcquisition = this.typeAcquisitionForInferredProjects;
-        // }
-        // watchOptionsAndErrors = watchOptionsAndErrors || undefined;
+        if (projectRootPath) {
+            watchOptionsAndErrors = this.watchOptionsForInferredProjectsPerProjectRoot.get(projectRootPath);
+            typeAcquisition = this.typeAcquisitionForInferredProjectsPerProjectRoot.get(projectRootPath);
+        }
+        if (watchOptionsAndErrors === undefined) {
+            watchOptionsAndErrors = this.watchOptionsForInferredProjects;
+        }
+        if (typeAcquisition === undefined) {
+            typeAcquisition = this.typeAcquisitionForInferredProjects;
+        }
+        watchOptionsAndErrors = watchOptionsAndErrors || undefined;
         const project = new InferredProject(this, this.documentRegistry, compilerOptions, watchOptionsAndErrors?.watchOptions, projectRootPath, currentDirectory, typeAcquisition);
         project.setProjectErrors(watchOptionsAndErrors?.errors);
         if (isSingleInferredProject) {
@@ -3058,4 +3069,9 @@ function callbackRefProject<T, P extends string>(
 ) {
     const refProject = refPath && project.projectService.configuredProjects.get(refPath);
     return refProject && cb(refProject);
+}
+
+export interface WatchOptionsAndErrors {
+    watchOptions: WatchOptions;
+    errors: Diagnostic[] | undefined;
 }

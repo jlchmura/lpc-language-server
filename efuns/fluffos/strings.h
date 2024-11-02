@@ -33,30 +33,31 @@ int test_bit( string str, int n );
 int strwidth( string str );
 
 /**
- * strsrch() - search for substrings in a string
+ * Search for substrings in a string
  *
- * strsrch()  searches  for  the first occurance of the string 'substr' in
- * the string 'str'.  The last occurance of 'substr' can be found by pass‐
- * ing  '-1' as the 3rd argument (which is optional).  If the second argu‐
- * ment is an integer, that character is found  (a  la  C's  strchr()/str‐
- * rchr().)  The empty string or null value cannot be searched for.
+ * `strsrch()` searches  for  the first occurance of the string 'substr' in
+ * the string 'str'.  The last occurance of 'substr' can be found by passing  '-1' as the 3rd argument (which is optional).  
+ * If the second argument 
+ * is an integer, that character is found  (a la C's  strchr()/strrchr().)  
+ * The empty string or null value cannot be searched for.
  *
  */
 int strsrch( string str, string substr, int flag );
 int strsrch( string str, int char, int flag );
 
 /**
- * strlen() - return the number of UTF-8 characters in a supplied string
- *
+ * Return the number of UTF-8 characters in a supplied string
+ * 
  * strlen() returns the number of characters in the string 'str'.
  * 
  * LPC strings are UTF-8 encoded. Driver calcuate numbers of characters
  * according to the Unicode concept "Extended Grapheme Cluster", as defined in
  * "https://www.unicode.org/reports/tr29/".
  * 
+ * ```lpc
  * strlen("abc") == 3
  * strlen("你好") == 2
- *
+ * ```
  */
 int strlen( string str );
 

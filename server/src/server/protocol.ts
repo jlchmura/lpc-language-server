@@ -1,4 +1,4 @@
-import {  CompletionsTriggerCharacter, CompletionTriggerKind, RenameInfoFailure, ScriptElementKind, SignatureHelpTriggerReason, SymbolDisplayPart } from "./_namespaces/lpc";
+import {  CompilerOptions, CompletionsTriggerCharacter, CompletionTriggerKind, RenameInfoFailure, ScriptElementKind, SignatureHelpTriggerReason, SymbolDisplayPart, TypeAcquisition, WatchOptions } from "./_namespaces/lpc";
 import * as lpc from "./_namespaces/lpc";
 
 type ChangePropertyTypes<T, Substitutions extends { [K in keyof T]?: any; }> = {
@@ -931,4 +931,39 @@ export interface SignatureHelpItems {
      * The argument count
      */
     argumentCount: number;
+}
+
+export interface CompileOnSaveMixin {
+    /**
+     * If compile on save is enabled for the project
+     */
+    compileOnSave?: boolean;
+}
+
+/**
+ * For external projects, some of the project settings are sent together with
+ * compiler settings.
+ */
+export type ExternalProjectCompilerOptions = CompilerOptions & CompileOnSaveMixin & WatchOptions;
+
+/**
+ * External projects have a typeAcquisition option so they need to be added separately to compiler options for inferred projects.
+ */
+export type InferredProjectCompilerOptions = ExternalProjectCompilerOptions & TypeAcquisition;
+
+/**
+ * Argument for SetCompilerOptionsForInferredProjectsRequest request.
+ */
+export interface SetCompilerOptionsForInferredProjectsArgs {
+    /**
+     * Compiler options to be used with inferred projects.
+     */
+    options: InferredProjectCompilerOptions;
+
+    /**
+     * Specifies the project root path used to scope compiler options.
+     * It is an error to provide this property if the server has not been started with
+     * `useInferredProjectPerProjectRoot` enabled.
+     */
+    projectRootPath?: string;
 }

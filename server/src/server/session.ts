@@ -324,6 +324,10 @@ export class Session<TMessage = string> implements EventSender {
         const project = this.projectService.tryGetDefaultProjectForFile(fileName);
         return project && { fileName, project };
     }
+        
+    public setCompilerOptionsForInferredProjects(args: protocol.SetCompilerOptionsForInferredProjectsArgs): void {
+        this.projectService.setCompilerOptionsForInferredProjects(args.options, args.projectRootPath);
+    }
     
     /** It is the caller's responsibility to verify that `!this.suppressDiagnosticEvents`. */
     private updateErrorCheck(next: NextStep, checkList: readonly string[] | readonly PendingErrorCheck[], ms: number, requireOpen = true) {
