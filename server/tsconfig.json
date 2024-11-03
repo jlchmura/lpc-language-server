@@ -13,7 +13,8 @@
         "declarationMap": true,
         "composite": true,
         "strictBindCallApply": false,
-        "noImplicitOverride": false
+        "noImplicitOverride": false,
+        "declarationDir": "out",
     },
     "include": ["src"], 
     "exclude": ["node_modules", ".vscode-test", "tests"]

@@ -1,4 +1,3 @@
-import { log } from "console";
 import { arrayFrom, AssertionLevel, CachedDirectoryStructureHost, clearMap, closeFileWatcherOf, combinePaths, CompilerOptions, contains, containsPath, createCachedDirectoryStructureHost, createGetCanonicalFileName, createMultiMap, Debug, Diagnostic, DirectoryStructureHost, DirectoryWatcherCallback, DocumentPosition, DocumentRegistry, emptyOptions, FileExtensionInfo, fileExtensionIs, FileSystemEntries, FileWatcher, FileWatcherCallback, FileWatcherEventKind, find, forEach, forEachEntry, forEachKey, forEachResolvedProjectReference, getAnyExtensionFromPath, getBaseFileName, getDefaultFormatCodeSettings, getDirectoryPath, getFileNamesFromConfigSpecs, getNormalizedAbsolutePath, getWatchFactory, isArray, isIgnoredFileFromWildCardWatching, isJsonEqual, isNodeModulesDirectory, isRootedDiskPath, isString, LanguageServiceMode, length, LpcConfigSourceFile, mapDefinedEntries, mapDefinedIterator, missingFileModifiedTime, MultiMap, noop, normalizePath, normalizeSlashes, orderedRemoveItem, ParsedCommandLine, parseJsonText, parseLpcSourceFileConfigFileContent, Path, PerformanceEvent, PollingInterval, ProgramUpdateLevel, ProjectReference, ReadonlyCollection, ResolvedProjectReference, resolveProjectReferencePath, returnFalse, returnNoopFileWatcher, ScriptKind, some, startsWith, TextChange, toPath, tracing, tryAddToSet, tryReadFile, TypeAcquisition, unorderedRemoveItem, updateWatchingWildcardDirectories, UserPreferences, WatchDirectoryFlags, WatchFactory, WatchFactoryHost, WatchLogLevel, WatchOptions, WatchType, WildcardDirectoryWatcher } from "./_namespaces/lpc.js";
 import { asNormalizedPath, ConfiguredProject, Errors, findLpcConfig, HostCancellationToken, InferredProject, isConfiguredProject, isDynamicFileName, isExternalProject, isInferredProject, isProjectDeferredClose, Logger, LogLevel, makeAuxiliaryProjectName, Msg, NormalizedPath, normalizedPathToPath, Project, ProjectKind, ScriptInfo, ServerHost, Session, ThrottledOperations, toNormalizedPath } from "./_namespaces/lpc.server.js";
 import * as protocol from "./protocol.js";
@@ -196,7 +195,7 @@ export class ProjectService {
             getWatchFactory(
                 createWatchFactoryHostUsingWatchEvents(this, opts.canUseWatchEvents) || this.host,
                 watchLogLevel,
-                log,
+                console.log,
                 getDetailWatchInfo,
             );
     }
