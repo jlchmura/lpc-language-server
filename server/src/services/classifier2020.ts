@@ -58,6 +58,7 @@ export const enum TokenType {
     property,
     function,
     member,
+    disabled,
 }
 
 /** @internal */
@@ -108,6 +109,13 @@ function getSemanticTokens(program: Program, sourceFile: SourceFile, span: TextS
 
     if (program && sourceFile) {
         collectTokens(program, sourceFile, span, collector, cancellationToken);
+
+        // add inactive ranges
+        for (const range of sourceFile.inactiveCodeRanges) {
+            if (textSpanIntersectsWith(span, range.pos, range.end - range.pos)) {
+                resultTokens.push(range.pos, range.end - range.pos, ((TokenType.disabled + 1) << TokenEncodingConsts.typeOffset));
+            }
+        }        
     }
     return resultTokens;
 }
@@ -115,7 +123,13 @@ function getSemanticTokens(program: Program, sourceFile: SourceFile, span: TextS
 function collectTokens(program: Program, sourceFile: SourceFile, span: TextSpan, collector: (node: Node, tokenType: number, tokenModifier: number) => void, cancellationToken: CancellationToken) {
     const typeChecker = program.getTypeChecker();
 
-    let inJSXElement = false;
+    let disabledSpans = sourceFile.inactiveCodeRanges;
+    let lastDisabledSpan = 0;
+    const checkDisabled = sourceFile.inactiveCodeRanges.length > 0;
+    
+    function isFromFile(node: Node) {
+        return isSourceFile(node) || node.originFilename === sourceFile.fileName;
+    }
 
     function visit(node: Node) {
         switch (node.kind) {
@@ -127,12 +141,21 @@ function collectTokens(program: Program, sourceFile: SourceFile, span: TextSpan,
                 cancellationToken.throwIfCancellationRequested();
         }
 
-        if (!node || !textSpanIntersectsWith(span, node.pos, node.getFullWidth()) || node.getFullWidth() === 0) {
+        if (!node || !isFromFile(node) || !textSpanIntersectsWith(span, node.pos, node.getFullWidth()) || node.getFullWidth() === 0) {
             return;
-        }
-        const prevInJSXElement = inJSXElement;
-        
-        if (isIdentifier(node) && !inJSXElement && !inImportClause(node) && !isInfinityOrNaNString(node.text)) {
+        }                
+
+        // advance to the next disalbed span ahead of this node
+        // while (checkDisabled && node.pos > disabledSpans[lastDisabledSpan].pos && lastDisabledSpan < disabledSpans.length - 1) {
+        //     lastDisabledSpan++;
+        // }        
+
+        // if (checkDisabled && lastDisabledSpan < disabledSpans.length && node.pos >= disabledSpans[lastDisabledSpan].pos && node.end <= disabledSpans[lastDisabledSpan].end) {
+        //     collector(node, TokenType.disabled, 0);
+        //     return;
+        // }
+
+        if (isIdentifier(node) && !inImportClause(node) && !isInfinityOrNaNString(node.text)) {
             let symbol = typeChecker.getSymbolAtLocation(node);
             if (symbol) {
                 if (symbol.flags & SymbolFlags.Alias) {
@@ -185,9 +208,7 @@ function collectTokens(program: Program, sourceFile: SourceFile, span: TextSpan,
                 }
             }
         }
-        forEachChild(node, visit);
-
-        inJSXElement = prevInJSXElement;
+        forEachChild(node, visit);        
     }
     visit(sourceFile);
 }

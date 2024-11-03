@@ -3,6 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
 
+import * as vscode from "vscode";
 import * as path from "path";
 import {
     workspace,
@@ -19,10 +20,10 @@ import {
     TextEditorEdit,
     window,
     DefinitionProvider,
+    DocumentFilter,
 } from "vscode";
-
-import {
-    DocumentSelector,
+import * as fileSchemes from './fileSchemes';
+import {    
     LanguageClient,
     LanguageClientOptions,
     SemanticTokenModifiers,
@@ -32,9 +33,13 @@ import {
     TransportKind,
 } from "vscode-languageclient/node";
 import { ProgressIndicator } from "./ProgressIndicator";
+import { DocumentSelector } from "./documentSelector";
+import { LanguageDescription, standardLanguageDescriptions } from "./configuration/languageDescription";
 
 let client: LanguageClient;
 const progress = new ProgressIndicator();
+const _disposables: vscode.Disposable[] = [];
+let _isDisposed = false;
 
 export function activate(context: ExtensionContext) {
     // The server is implemented in node
@@ -89,85 +94,7 @@ export function activate(context: ExtensionContext) {
 
     // Start the client. This will also launch the server
     client.start();
-
-    const provider: DocumentSemanticTokensProvider = {
-        provideDocumentSemanticTokens: function (
-            document: TextDocument,
-            token: CancellationToken
-        ): Promise<SemanticTokens> {
-            console.log("[Request] textDocument/semanticTokens/full");
-
-            return client
-                .sendRequest("encodedSemanticClassifications-full", {
-                    arguments: { file: document.uri.toString(),
-                        start: 0, 
-                        length: document.getText().length
-                     },
-                }, token)
-                .catch((e) => {
-                    console.error("Error sending semantic tokens request", e);
-                    return e;
-                })
-                .then((res) => {
-                    return res as SemanticTokens
-                });
-        },
-        onDidChangeSemanticTokens: null,
-        provideDocumentSemanticTokensEdits: null,
-    };
-
-    const legend: SemanticTokensLegend = {
-        tokenTypes: [
-            "comment-block-preprocessor",
-            SemanticTokenTypes.macro,
-            SemanticTokenTypes.operator,
-            SemanticTokenTypes.method,
-            SemanticTokenTypes.parameter,
-            "define",
-            SemanticTokenTypes.string,
-            SemanticTokenTypes.number,
-            "lpc-type",
-            SemanticTokenTypes.variable,
-            SemanticTokenTypes.property,
-            "lambda",
-            SemanticTokenTypes.keyword,
-            SemanticTokenTypes.modifier,
-        ],
-        tokenModifiers: [
-            "",
-            SemanticTokenModifiers.documentation,
-            SemanticTokenModifiers.declaration,
-            SemanticTokenModifiers.definition,
-            SemanticTokenModifiers.static,
-            SemanticTokenModifiers.defaultLibrary,
-            "local",
-        ],
-    };
-    
-    context.subscriptions.push(
-        languages.registerDocumentSemanticTokensProvider(
-            docSel,
-            provider,
-            legend
-        )
-    );
-
-    // const p: DefinitionProvider = {
-    //     // provideDefinition(document: TextDocument, position: any, token: CancellationToken) {
-    //     //     return client.sendRequest("textDocument/definition", {
-    //     //         textDocument: { uri: document.uri.toString() },
-    //     //         position: position
-    //     //     }).then((res) => res);
-    //     // }
-    //     provideDefinition(document, position, cancellationToken) {
-    //         const token = document.getWordRangeAtPosition(position);
-    //         const word = document.getText(token);
-    //         return [];
-    //     },
-    // };
-
-    // context.subscriptions.push(languages.registerDefinitionProvider(docSel, p));
-
+          
     context.subscriptions.push(
         commands.registerCommand(
             "lpc.processAll",
@@ -203,6 +130,25 @@ export function activate(context: ExtensionContext) {
     client.onNotification("lpc/set-driver-type", (params: string) => {
         progress.driverType = params;
     });
+    
+    registerProviders();
+
+    function _register<T extends vscode.Disposable>(value: T): T {
+		if (_isDisposed) {
+			value.dispose();
+		} else {
+			_disposables.push(value);
+		}
+		return value;
+	}
+
+    async function registerProviders(): Promise<void> {
+        const selector = createDocumentSelector(standardLanguageDescriptions.at(0));
+        
+        await Promise.all([
+            import("./languageFeatures/semanticTokens").then(provider => _register(provider.register(selector, client))),
+        ]);
+    }
 }
 
 export function deactivate(): Thenable<void> | undefined {
@@ -212,3 +158,18 @@ export function deactivate(): Thenable<void> | undefined {
     }
     return client.stop();
 }
+
+function createDocumentSelector(langDesc: LanguageDescription): DocumentSelector {
+    const semantic: DocumentFilter[] = [];
+    const syntax: DocumentFilter[] = [];    
+    for (const language of langDesc.languageIds) {
+        syntax.push({ language });
+        for (const scheme of fileSchemes.getSemanticSupportedSchemes()) {
+            semantic.push({ language, scheme });
+        }
+    }
+
+    return { semantic, syntax };
+}
+
+
