@@ -208,6 +208,11 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
             }
         }
         
+        // before processing root files, see if this project has a master file specified and is set to FluffOS driver type.
+        // In Fluff, the master file can have an lfun that specifies dynamic include files. That will need to be evaluated
+        // first, so that the include files can be parsed.
+        // TODO - master file compile here       
+
         tracing?.push(tracing.Phase.Program, "processRootFiles", { count: rootNames.length });
         forEach(rootNames, (name, index) => processRootFile(name, /*isDefaultLib*/ false, /*ignoreNoDefaultLib*/ false, { kind: FileIncludeKind.RootFile, index }));
         tracing?.pop();

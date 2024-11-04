@@ -513,7 +513,7 @@ export function createDocumentRegistryInternal(
             }
         }
 
-        if (!entry) {
+        if (!entry) {                        
             // Have never seen this file with these settings.  Create a new source file for it.
             const sourceFile = createLanguageServiceSourceFile(
                 fileName,

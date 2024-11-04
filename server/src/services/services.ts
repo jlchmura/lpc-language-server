@@ -1804,7 +1804,7 @@ export function createLanguageService(
                 }
 
                 // We didn't already have the file.  Fall through and acquire it from the registry.
-            }
+            }            
 
             // Could not find this file in the old program, create a new SourceFile for it.
             return documentRegistry.acquireDocumentWithKey(
