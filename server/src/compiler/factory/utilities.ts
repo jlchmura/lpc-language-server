@@ -1,4 +1,4 @@
-import { AssertionLevel, BinaryExpression, BinaryOperatorToken, CharacterCodes, Debug, EmitFlags, Expression, GeneratedIdentifier, GeneratedIdentifierFlags, GeneratedNamePart, getEmitFlags, getJSDocType, Identifier, idText, isGeneratedIdentifier, isIdentifier, isMemberName, JSDocNamespaceBody, JSDocTypeAssertion, Node, TypeNode } from "../_namespaces/lpc";
+import { AssertionLevel, BinaryExpression, BinaryOperatorToken, CharacterCodes, Debug, EmitFlags, Expression, GeneratedIdentifier, GeneratedIdentifierFlags, GeneratedNamePart, getEmitFlags, getJSDocType, getOriginalNode, Identifier, idText, isGeneratedIdentifier, isIdentifier, isMemberName, isSourceFile, JSDocNamespaceBody, JSDocTypeAssertion, Node, SourceFile, TypeNode } from "../_namespaces/lpc";
 
 
 type BinaryExpressionState = <TOuterState, TState, TResult>(machine: BinaryExpressionStateMachine<TOuterState, TState, TResult>, stackIndex: number, stateStack: BinaryExpressionState[], nodeStack: BinaryExpression[], userStateStack: TState[], resultHolder: { value: TResult; }, outerState: TOuterState) => number;
@@ -342,4 +342,11 @@ export function getJSDocTypeAliasName(fullName: JSDocNamespaceBody | undefined) 
     //         rightNode = rightNode.body;
     //     }
     // }
+}
+
+/** @internal */
+export function hasRecordedExternalHelpers(sourceFile: SourceFile) {
+    const parseNode = getOriginalNode(sourceFile, isSourceFile);
+    const emitNode = parseNode && parseNode.emitNode;
+    return !!emitNode && (!!emitNode.externalHelpersModuleName || !!emitNode.externalHelpers);
 }

@@ -3247,3 +3247,4 @@ const valuesOfNonBinaryUnicodeProperties = {
 // The Script_Extensions property of a character contains one or more Script values. See https://www.unicode.org/reports/tr24/#Script_Extensions
 // Here since each Unicode property value expression only allows a single value, its values can be considered the same as those of the Script property.
 valuesOfNonBinaryUnicodeProperties.Script_Extensions = valuesOfNonBinaryUnicodeProperties.Script;
+

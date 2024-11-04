@@ -127,7 +127,7 @@ declare module "../compiler/types.js" {
 declare module "../compiler/types.js" {
     // Module transform: converted from interface augmentation
     export interface SourceFileLike {
-        getLineAndCharacterOfPosition(pos: number): LineAndCharacter;
+        getLineAndCharacterOfPosition?(pos: number): LineAndCharacter;
     }
 }
 

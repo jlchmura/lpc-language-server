@@ -1,4 +1,4 @@
-import { ArrayLiteralExpression, Block, EntityName, Expression, FunctionExpression, Identifier, ParameterDeclaration } from "../_namespaces/lpc";
+import { ArrayLiteralExpression, Block, Comparison, EmitHelper, EntityName, Expression, FunctionExpression, Identifier, ParameterDeclaration, compareValues } from "../_namespaces/lpc";
 
 /** @internal */
 export interface EmitHelperFactory {
@@ -43,4 +43,13 @@ export interface EmitHelperFactory {
     // 'using' helpers
     createAddDisposableResourceHelper(envBinding: Expression, value: Expression, async: boolean): Expression;
     createDisposeResourcesHelper(envBinding: Expression): Expression;
+}
+
+/** @internal */
+export function compareEmitHelpers(x: EmitHelper, y: EmitHelper) {
+    if (x === y) return Comparison.EqualTo;
+    if (x.priority === y.priority) return Comparison.EqualTo;
+    if (x.priority === undefined) return Comparison.GreaterThan;
+    if (y.priority === undefined) return Comparison.LessThan;
+    return compareValues(x.priority, y.priority);
 }

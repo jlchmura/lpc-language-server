@@ -1,4 +1,4 @@
-import { Signature, Type, Debug, DiagnosticArguments, DiagnosticMessage, DiagnosticRelatedInformation, DiagnosticWithDetachedLocation, DiagnosticWithLocation, Identifier, MapLike, ModifierFlags, Node, NodeFlags, ReadonlyTextRange, some, SourceFile, Symbol, SymbolFlags, SyntaxKind, TextRange, Token, TransformFlags, TypeChecker, TypeFlags, tracing, SignatureFlags, canHaveModifiers, Modifier, skipTrivia, SymbolTable, CallExpression, Declaration, getCombinedNodeFlags, BinaryExpression, AssignmentDeclarationKind, isCallExpression, isBinaryExpression, isIdentifier, Diagnostic, emptyArray, PropertyNameLiteral, DeclarationName, LiteralLikeNode, AssignmentExpression, LogicalOrCoalescingAssignmentOperator, LogicalOperator, Expression, OuterExpressionKinds, OuterExpression, WrappedExpression, PrefixUnaryExpression, PostfixUnaryExpression, ForEachStatement, ShorthandPropertyAssignment, PropertyAssignment, PropertyAccessExpression, ParenthesizedExpression, BinaryOperatorToken, AssertionLevel, SortedArray, binarySearch, identity, Comparison, DiagnosticMessageChain, compareStringsCaseSensitive, compareValues, insertSorted, flatMapToMutable, DiagnosticCollection, isJSDocTemplateTag, HasJSDoc, lastOrUndefined, JSDoc, isJSDoc, find, ParameterDeclaration, FunctionDeclaration, InlineClosureExpression, FunctionExpression, forEachChild, returnUndefined, returnFalse, CompilerOptions, FunctionLikeDeclaration, canHaveLocals, isFunctionLike, isParameter, PropertyDeclaration, BindingElement, isString, InternalSymbolName, isSourceFile, StructDeclaration, isStructDeclaration, JSDocTemplateTag, TypeNodeSyntaxKind, isTypeNode, isFunctionLikeDeclaration, SignatureDeclaration, AccessExpression, isInlineClosureExpression, PropertyAccessEntityNameExpression, isPropertyAccessExpression, EntityNameExpression, isVariableDeclaration, VariableDeclarationInitializedTo, CanonicalDiagnostic, HasInitializer, ExpressionStatement, ForStatement, isShorthandPropertyAssignment, JSDocTag, EqualsToken, AssignmentOperatorToken, isLeftHandSideExpression, isFunctionLikeKind, AdditiveOperator, AdditiveOperatorOrHigher, AssignmentOperatorOrHigher, BinaryOperator, BitwiseOperator, BitwiseOperatorOrHigher, EqualityOperator, EqualityOperatorOrHigher, ExponentiationOperator, LogicalOperatorOrHigher, MultiplicativeOperator, MultiplicativeOperatorOrHigher, RelationalOperator, RelationalOperatorOrHigher, ShiftOperator, ShiftOperatorOrHigher, HasFlowNode, ObjectFlags, ObjectFlagsType, isDeclaration, isBindingPattern, isJSDocSignature, JSDocSignature, TypeNode, findAncestor, Extension, fileExtensionIs, NamedDeclaration, KeywordSyntaxKind, binarySearchKey, SourceFileLike, isToken, EndOfFileToken, isJSDocCommentContainingNode, firstOrUndefined, getNodeChildren, JSDocContainer, PropertyName, idText, isMemberName, forEach, PrinterOptions, NewLineKind, flatMap, getNormalizedPathComponents, removeTrailingDirectorySeparator, directorySeparator, normalizePath, FileWatcher, PackageId, ScriptKind, TextSpan, CheckFlags, TransientSymbol, getCombinedModifierFlags, isElementAccessExpression, createTextSpan, CaseOrDefaultClause, createTextSpanFromBounds, ReturnStatement, createScanner, isQualifiedName, EntityNameOrEntityNameExpression, isCallOrNewExpression, CallLikeExpression, EmitTextWriter, computeLineStarts, last, isWhiteSpaceLike, ScriptTarget, isIdentifierStart, isFunctionDeclaration, HasType, Block, Statement, NodeArray, ClassElement, TypeElement, ObjectLiteralElement, ObjectTypeDeclaration, ObjectLiteralExpression, noop, NewExpression, CommaListExpression, ConditionalExpression, ElementAccessExpression, PartiallyEmittedExpression, InternalEmitFlags, EmitFlags, getLineStarts, getLinesBetweenPositions, HasExpressionInitializer, isStringLiteral, isIntLiteral, StringLiteral, IntLiteral, VariableLikeDeclaration, isBindingElement, BindingElementOfBareOrAccessedRequire, QualifiedName, TypeParameterDeclaration, contains, JSDocTypedefTag, EqualityComparer, equateValues, TypeReferenceNode, isTypeReferenceNode, LateVisibilityPaintedStatement, IndexInfo, PrintHandlers, StringLiteralType, IntLiteralType, flatten, LanguageVariant, combinePaths, map, isRootedDiskPath, getStringComparer, containsPath, every, indexOfAnyCharCode, hasExtension, getDirectoryPath, createGetCanonicalFileName, sort, fileExtensionIsOneOf, findIndex, ReadonlyCollection, equalOwnProperties, FileExtensionInfo, mapDefined, EmitHost, ModuleKind, filter, getNormalizedAbsolutePath, getCommonSourceDirectory, comparePaths, GetCanonicalFileName, SourceFileMayBeEmittedHost, Diagnostics, TypeCheckerHost, ModuleResolutionKind, ResolutionMode, forEachChildRecursively, CommandLineOption, InheritDeclaration, emptyMap, LiteralLikeElementAccessExpression, VariableDeclaration, VariableDeclarationList, isComputedPropertyName, isJSDocParameterTag, BindableStaticNameExpression, getNameOfDeclaration, isVariableStatement, isExpressionStatement, getLeadingCommentRanges, SuperContainer, SuperContainerOrFunctions, CharacterCodes, StringLiteralLike, AnyValidImportOrReExport, tryCast, CloneObjectExpression, TriviaSyntaxKind, concatenate, getTrailingCommentRanges, computeLineOfPosition, AnyImportSyntax, PrologueDirective, startsWith, stringToToken, PunctuationOrKeywordSyntaxKind, PunctuationSyntaxKind, ClassLikeDeclaration, JSDocCallbackTag, TypeAliasDeclaration, isJSDocTypeAlias, isTypeAliasDeclaration, EvaluationResolver, EvaluatorResult, FloatLiteral, isPropertyName, isPrefixUnaryExpression, tokenToString, isJSDocPropertyLikeTag, getJSDocType, ContainerFlags, MethodDeclaration, getContainerFlags, TypePredicate, IdentifierTypePredicate, TypePredicateKind, first, isClassLike, IncludeDirective, hasInitializer, addRange, getJSDocParameterTagsNoCache, getJSDocParameterTags, getJSDocTypeParameterTags, getJSDocTypeParameterTagsNoCache, JSDocArray, isJSDocOverloadTag, isJSDocTypeTag, isJSDocSatisfiesTag, isParenthesizedExpression, HasInferredType, assertType, PropertySignature, JSDocTypeAssertion, getJSDocTypeTag, PrimitiveLiteral, isNumericLiteral, isFunctionExpression, isArrowFunction, ArrowFunction, InheritClauseType, isJSDocTag, isJSDocTypeLiteral, isTypeElement, TypeLiteralNode, UnionOrIntersectionTypeNode, ArrayLiteralExpression, ObjectLiteralExpressionBase, CaseBlock, isClassElement, MethodSignature, CallSignatureDeclaration, IndexSignatureDeclaration, ComputedPropertyName, getSnippetElement, SnippetKind, VariableStatement, singleElementArray, ExpressionWithTypeArguments, getJSDocImplementsTags, HeritageClause, isPropertySignature, isParenthesizedTypeNode, DynamicNamedDeclaration, DynamicNamedBinaryExpression } from "./_namespaces/lpc.js";
+import { Signature, Type, Debug, DiagnosticArguments, DiagnosticMessage, DiagnosticRelatedInformation, DiagnosticWithDetachedLocation, DiagnosticWithLocation, Identifier, MapLike, ModifierFlags, Node, NodeFlags, ReadonlyTextRange, some, SourceFile, Symbol, SymbolFlags, SyntaxKind, TextRange, Token, TransformFlags, TypeChecker, TypeFlags, tracing, SignatureFlags, canHaveModifiers, Modifier, skipTrivia, SymbolTable, CallExpression, Declaration, getCombinedNodeFlags, BinaryExpression, AssignmentDeclarationKind, isCallExpression, isBinaryExpression, isIdentifier, Diagnostic, emptyArray, PropertyNameLiteral, DeclarationName, LiteralLikeNode, AssignmentExpression, LogicalOrCoalescingAssignmentOperator, LogicalOperator, Expression, OuterExpressionKinds, OuterExpression, WrappedExpression, PrefixUnaryExpression, PostfixUnaryExpression, ForEachStatement, ShorthandPropertyAssignment, PropertyAssignment, PropertyAccessExpression, ParenthesizedExpression, BinaryOperatorToken, AssertionLevel, SortedArray, binarySearch, identity, Comparison, DiagnosticMessageChain, compareStringsCaseSensitive, compareValues, insertSorted, flatMapToMutable, DiagnosticCollection, isJSDocTemplateTag, HasJSDoc, lastOrUndefined, JSDoc, isJSDoc, find, ParameterDeclaration, FunctionDeclaration, InlineClosureExpression, FunctionExpression, forEachChild, returnUndefined, returnFalse, CompilerOptions, FunctionLikeDeclaration, canHaveLocals, isFunctionLike, isParameter, PropertyDeclaration, BindingElement, isString, InternalSymbolName, isSourceFile, StructDeclaration, isStructDeclaration, JSDocTemplateTag, TypeNodeSyntaxKind, isTypeNode, isFunctionLikeDeclaration, SignatureDeclaration, AccessExpression, isInlineClosureExpression, PropertyAccessEntityNameExpression, isPropertyAccessExpression, EntityNameExpression, isVariableDeclaration, VariableDeclarationInitializedTo, CanonicalDiagnostic, HasInitializer, ExpressionStatement, ForStatement, isShorthandPropertyAssignment, JSDocTag, EqualsToken, AssignmentOperatorToken, isLeftHandSideExpression, isFunctionLikeKind, AdditiveOperator, AdditiveOperatorOrHigher, AssignmentOperatorOrHigher, BinaryOperator, BitwiseOperator, BitwiseOperatorOrHigher, EqualityOperator, EqualityOperatorOrHigher, ExponentiationOperator, LogicalOperatorOrHigher, MultiplicativeOperator, MultiplicativeOperatorOrHigher, RelationalOperator, RelationalOperatorOrHigher, ShiftOperator, ShiftOperatorOrHigher, HasFlowNode, ObjectFlags, ObjectFlagsType, isDeclaration, isBindingPattern, isJSDocSignature, JSDocSignature, TypeNode, findAncestor, Extension, fileExtensionIs, NamedDeclaration, KeywordSyntaxKind, binarySearchKey, SourceFileLike, isToken, EndOfFileToken, isJSDocCommentContainingNode, firstOrUndefined, getNodeChildren, JSDocContainer, PropertyName, idText, isMemberName, forEach, PrinterOptions, NewLineKind, flatMap, getNormalizedPathComponents, removeTrailingDirectorySeparator, directorySeparator, normalizePath, FileWatcher, PackageId, ScriptKind, TextSpan, CheckFlags, TransientSymbol, getCombinedModifierFlags, isElementAccessExpression, createTextSpan, CaseOrDefaultClause, createTextSpanFromBounds, ReturnStatement, createScanner, isQualifiedName, EntityNameOrEntityNameExpression, isCallOrNewExpression, CallLikeExpression, EmitTextWriter, computeLineStarts, last, isWhiteSpaceLike, ScriptTarget, isIdentifierStart, isFunctionDeclaration, HasType, Block, Statement, NodeArray, ClassElement, TypeElement, ObjectLiteralElement, ObjectTypeDeclaration, ObjectLiteralExpression, noop, NewExpression, CommaListExpression, ConditionalExpression, ElementAccessExpression, PartiallyEmittedExpression, InternalEmitFlags, EmitFlags, getLineStarts, getLinesBetweenPositions, HasExpressionInitializer, isStringLiteral, isIntLiteral, StringLiteral, IntLiteral, VariableLikeDeclaration, isBindingElement, BindingElementOfBareOrAccessedRequire, QualifiedName, TypeParameterDeclaration, contains, JSDocTypedefTag, EqualityComparer, equateValues, TypeReferenceNode, isTypeReferenceNode, LateVisibilityPaintedStatement, IndexInfo, PrintHandlers, StringLiteralType, IntLiteralType, flatten, LanguageVariant, combinePaths, map, isRootedDiskPath, getStringComparer, containsPath, every, indexOfAnyCharCode, hasExtension, getDirectoryPath, createGetCanonicalFileName, sort, fileExtensionIsOneOf, findIndex, ReadonlyCollection, equalOwnProperties, FileExtensionInfo, mapDefined, EmitHost, ModuleKind, filter, getNormalizedAbsolutePath, getCommonSourceDirectory, comparePaths, GetCanonicalFileName, SourceFileMayBeEmittedHost, Diagnostics, TypeCheckerHost, ModuleResolutionKind, ResolutionMode, forEachChildRecursively, CommandLineOption, InheritDeclaration, emptyMap, LiteralLikeElementAccessExpression, VariableDeclaration, VariableDeclarationList, isComputedPropertyName, isJSDocParameterTag, BindableStaticNameExpression, getNameOfDeclaration, isVariableStatement, isExpressionStatement, getLeadingCommentRanges, SuperContainer, SuperContainerOrFunctions, CharacterCodes, StringLiteralLike, AnyValidImportOrReExport, tryCast, CloneObjectExpression, TriviaSyntaxKind, concatenate, getTrailingCommentRanges, computeLineOfPosition, AnyImportSyntax, PrologueDirective, startsWith, stringToToken, PunctuationOrKeywordSyntaxKind, PunctuationSyntaxKind, ClassLikeDeclaration, JSDocCallbackTag, TypeAliasDeclaration, isJSDocTypeAlias, isTypeAliasDeclaration, EvaluationResolver, EvaluatorResult, FloatLiteral, isPropertyName, isPrefixUnaryExpression, tokenToString, isJSDocPropertyLikeTag, getJSDocType, ContainerFlags, MethodDeclaration, getContainerFlags, TypePredicate, IdentifierTypePredicate, TypePredicateKind, first, isClassLike, IncludeDirective, hasInitializer, addRange, getJSDocParameterTagsNoCache, getJSDocParameterTags, getJSDocTypeParameterTags, getJSDocTypeParameterTagsNoCache, JSDocArray, isJSDocOverloadTag, isJSDocTypeTag, isJSDocSatisfiesTag, isParenthesizedExpression, HasInferredType, assertType, PropertySignature, JSDocTypeAssertion, getJSDocTypeTag, PrimitiveLiteral, isNumericLiteral, isFunctionExpression, isArrowFunction, ArrowFunction, InheritClauseType, isJSDocTag, isJSDocTypeLiteral, isTypeElement, TypeLiteralNode, UnionOrIntersectionTypeNode, ArrayLiteralExpression, ObjectLiteralExpressionBase, CaseBlock, isClassElement, MethodSignature, CallSignatureDeclaration, IndexSignatureDeclaration, ComputedPropertyName, getSnippetElement, SnippetKind, VariableStatement, singleElementArray, ExpressionWithTypeArguments, getJSDocImplementsTags, HeritageClause, isPropertySignature, isParenthesizedTypeNode, DynamicNamedDeclaration, DynamicNamedBinaryExpression, CommentRange, isWhiteSpaceSingleLine, LineAndCharacter, computeLineAndCharacterOfPosition, TokenFlags } from "./_namespaces/lpc.js";
 
 /** @internal */
 export const resolvingEmptyArray: never[] = [];
@@ -6300,4 +6300,311 @@ export function extensionIsLPC(ext: string): boolean {
 /** @internal */
 export function resolutionExtensionIsTSOrJson(ext: string) {
     return extensionIsLPC(ext) || ext === Extension.Json;
+}
+
+/**
+ * Detached comment is a comment at the top of file or function body that is separated from
+ * the next statement by space.
+ *
+ * @internal
+ */
+export function emitDetachedComments(text: string, lineMap: readonly number[], writer: EmitTextWriter, writeComment: (text: string, lineMap: readonly number[], writer: EmitTextWriter, commentPos: number, commentEnd: number, newLine: string) => void, node: TextRange, newLine: string, removeComments: boolean) {
+    let leadingComments: CommentRange[] | undefined;
+    let currentDetachedCommentInfo: { nodePos: number; detachedCommentEndPos: number; } | undefined;
+    if (removeComments) {
+        // removeComments is true, only reserve pinned comment at the top of file
+        // For example:
+        //      /*! Pinned Comment */
+        //
+        //      var x = 10;
+        if (node.pos === 0) {
+            leadingComments = filter(getLeadingCommentRanges(text, node.pos), isPinnedCommentLocal);
+        }
+    }
+    else {
+        // removeComments is false, just get detached as normal and bypass the process to filter comment
+        leadingComments = getLeadingCommentRanges(text, node.pos);
+    }
+
+    if (leadingComments) {
+        const detachedComments: CommentRange[] = [];
+        let lastComment: CommentRange | undefined;
+
+        for (const comment of leadingComments) {
+            if (lastComment) {
+                const lastCommentLine = getLineOfLocalPositionFromLineMap(lineMap, lastComment.end);
+                const commentLine = getLineOfLocalPositionFromLineMap(lineMap, comment.pos);
+
+                if (commentLine >= lastCommentLine + 2) {
+                    // There was a blank line between the last comment and this comment.  This
+                    // comment is not part of the copyright comments.  Return what we have so
+                    // far.
+                    break;
+                }
+            }
+
+            detachedComments.push(comment);
+            lastComment = comment;
+        }
+
+        if (detachedComments.length) {
+            // All comments look like they could have been part of the copyright header.  Make
+            // sure there is at least one blank line between it and the node.  If not, it's not
+            // a copyright header.
+            const lastCommentLine = getLineOfLocalPositionFromLineMap(lineMap, last(detachedComments).end);
+            const nodeLine = getLineOfLocalPositionFromLineMap(lineMap, skipTrivia(text, node.pos));
+            if (nodeLine >= lastCommentLine + 2) {
+                // Valid detachedComments
+                emitNewLineBeforeLeadingComments(lineMap, writer, node, leadingComments);
+                emitComments(text, lineMap, writer, detachedComments, /*leadingSeparator*/ false, /*trailingSeparator*/ true, newLine, writeComment);
+                currentDetachedCommentInfo = { nodePos: node.pos, detachedCommentEndPos: last(detachedComments).end };
+            }
+        }
+    }
+
+    return currentDetachedCommentInfo;
+
+    function isPinnedCommentLocal(comment: CommentRange) {
+        return isPinnedComment(text, comment.pos);
+    }
+}
+
+/** @internal */
+export function emitNewLineBeforeLeadingComments(lineMap: readonly number[], writer: EmitTextWriter, node: TextRange, leadingComments: readonly CommentRange[] | undefined) {
+    emitNewLineBeforeLeadingCommentsOfPosition(lineMap, writer, node.pos, leadingComments);
+}
+
+/** @internal */
+export function emitNewLineBeforeLeadingCommentsOfPosition(lineMap: readonly number[], writer: EmitTextWriter, pos: number, leadingComments: readonly CommentRange[] | undefined) {
+    // If the leading comments start on different line than the start of node, write new line
+    if (
+        leadingComments && leadingComments.length && pos !== leadingComments[0].pos &&
+        getLineOfLocalPositionFromLineMap(lineMap, pos) !== getLineOfLocalPositionFromLineMap(lineMap, leadingComments[0].pos)
+    ) {
+        writer.writeLine();
+    }
+}
+
+/** @internal */
+export function writeCommentRange(text: string, lineMap: readonly number[], writer: EmitTextWriter, commentPos: number, commentEnd: number, newLine: string) {
+    if (text.charCodeAt(commentPos + 1) === CharacterCodes.asterisk) {
+        const firstCommentLineAndCharacter = computeLineAndCharacterOfPosition(lineMap, commentPos);
+        const lineCount = lineMap.length;
+        let firstCommentLineIndent: number | undefined;
+        for (let pos = commentPos, currentLine = firstCommentLineAndCharacter.line; pos < commentEnd; currentLine++) {
+            const nextLineStart = (currentLine + 1) === lineCount
+                ? text.length + 1
+                : lineMap[currentLine + 1];
+
+            if (pos !== commentPos) {
+                // If we are not emitting first line, we need to write the spaces to adjust the alignment
+                if (firstCommentLineIndent === undefined) {
+                    firstCommentLineIndent = calculateIndent(text, lineMap[firstCommentLineAndCharacter.line], commentPos);
+                }
+
+                // These are number of spaces writer is going to write at current indent
+                const currentWriterIndentSpacing = writer.getIndent() * getIndentSize();
+
+                // Number of spaces we want to be writing
+                // eg: Assume writer indent
+                // module m {
+                //         /* starts at character 9 this is line 1
+                //    * starts at character pos 4 line                        --1  = 8 - 8 + 3
+                //   More left indented comment */                            --2  = 8 - 8 + 2
+                //     class c { }
+                // }
+                // module m {
+                //     /* this is line 1 -- Assume current writer indent 8
+                //      * line                                                --3 = 8 - 4 + 5
+                //            More right indented comment */                  --4 = 8 - 4 + 11
+                //     class c { }
+                // }
+                const spacesToEmit = currentWriterIndentSpacing - firstCommentLineIndent + calculateIndent(text, pos, nextLineStart);
+                if (spacesToEmit > 0) {
+                    let numberOfSingleSpacesToEmit = spacesToEmit % getIndentSize();
+                    const indentSizeSpaceString = getIndentString((spacesToEmit - numberOfSingleSpacesToEmit) / getIndentSize());
+
+                    // Write indent size string ( in eg 1: = "", 2: "" , 3: string with 8 spaces 4: string with 12 spaces
+                    writer.rawWrite(indentSizeSpaceString);
+
+                    // Emit the single spaces (in eg: 1: 3 spaces, 2: 2 spaces, 3: 1 space, 4: 3 spaces)
+                    while (numberOfSingleSpacesToEmit) {
+                        writer.rawWrite(" ");
+                        numberOfSingleSpacesToEmit--;
+                    }
+                }
+                else {
+                    // No spaces to emit write empty string
+                    writer.rawWrite("");
+                }
+            }
+
+            // Write the comment line text
+            writeTrimmedCurrentLine(text, commentEnd, writer, newLine, pos, nextLineStart);
+
+            pos = nextLineStart;
+        }
+    }
+    else {
+        // Single line comment of style //....
+        writer.writeComment(text.substring(commentPos, commentEnd));
+    }
+}
+
+/** @internal */
+export function emitNewLineBeforeLeadingCommentOfPosition(lineMap: readonly number[], writer: EmitTextWriter, pos: number, commentPos: number) {
+    // If the leading comments start on different line than the start of node, write new line
+    if (
+        pos !== commentPos &&
+        getLineOfLocalPositionFromLineMap(lineMap, pos) !== getLineOfLocalPositionFromLineMap(lineMap, commentPos)
+    ) {
+        writer.writeLine();
+    }
+}
+
+function writeTrimmedCurrentLine(text: string, commentEnd: number, writer: EmitTextWriter, newLine: string, pos: number, nextLineStart: number) {
+    const end = Math.min(commentEnd, nextLineStart - 1);
+    const currentLineText = text.substring(pos, end).trim();
+    if (currentLineText) {
+        // trimmed forward and ending spaces text
+        writer.writeComment(currentLineText);
+        if (end !== commentEnd) {
+            writer.writeLine();
+        }
+    }
+    else {
+        // Empty string - make sure we write empty line
+        writer.rawWrite(newLine);
+    }
+}
+
+/** @internal */
+export function getLineOfLocalPositionFromLineMap(lineMap: readonly number[], pos: number) {
+    return computeLineOfPosition(lineMap, pos);
+}
+
+function calculateIndent(text: string, pos: number, end: number) {
+    let currentLineIndent = 0;
+    for (; pos < end && isWhiteSpaceSingleLine(text.charCodeAt(pos)); pos++) {
+        if (text.charCodeAt(pos) === CharacterCodes.tab) {
+            // Tabs = TabSize = indent size and go to next tabStop
+            currentLineIndent += getIndentSize() - (currentLineIndent % getIndentSize());
+        }
+        else {
+            // Single space
+            currentLineIndent++;
+        }
+    }
+
+    return currentLineIndent;
+}
+
+/** @internal */
+export function emitComments(
+    text: string,
+    lineMap: readonly number[],
+    writer: EmitTextWriter,
+    comments: readonly CommentRange[] | undefined,
+    leadingSeparator: boolean,
+    trailingSeparator: boolean,
+    newLine: string,
+    writeComment: (text: string, lineMap: readonly number[], writer: EmitTextWriter, commentPos: number, commentEnd: number, newLine: string) => void,
+) {
+    if (comments && comments.length > 0) {
+        if (leadingSeparator) {
+            writer.writeSpace(" ");
+        }
+
+        let emitInterveningSeparator = false;
+        for (const comment of comments) {
+            if (emitInterveningSeparator) {
+                writer.writeSpace(" ");
+                emitInterveningSeparator = false;
+            }
+
+            writeComment(text, lineMap, writer, comment.pos, comment.end, newLine);
+            if (comment.hasTrailingNewLine) {
+                writer.writeLine();
+            }
+            else {
+                emitInterveningSeparator = true;
+            }
+        }
+
+        if (emitInterveningSeparator && trailingSeparator) {
+            writer.writeSpace(" ");
+        }
+    }
+}
+
+const nonAsciiCharacters = /[^\u0000-\u007F]/g;
+/** @internal */
+export function escapeNonAsciiString(s: string, quoteChar?: CharacterCodes.doubleQuote | CharacterCodes.singleQuote | CharacterCodes.backtick): string {
+    s = escapeString(s, quoteChar);
+    // Replace non-ASCII characters with '\uNNNN' escapes if any exist.
+    // Otherwise just return the original string.
+    return nonAsciiCharacters.test(s) ?
+        s.replace(nonAsciiCharacters, c => encodeUtf16EscapeSequence(c.charCodeAt(0))) :
+        s;
+}
+
+/** @internal */
+export const enum GetLiteralTextFlags {
+    None = 0,
+    NeverAsciiEscape = 1 << 0,
+    JsxAttributeEscape = 1 << 1,
+    TerminateUnterminatedLiterals = 1 << 2,
+    AllowNumericSeparator = 1 << 3,
+}
+
+/** @internal */
+export function getLiteralText(node: LiteralLikeNode, sourceFile: SourceFile | undefined, flags: GetLiteralTextFlags) {
+    // If we don't need to downlevel and we can reach the original source text using
+    // the node's parent reference, then simply get the text as it was originally written.
+    if (sourceFile && canUseOriginalText(node, flags)) {
+        return getSourceTextOfNodeFromSourceFile(sourceFile, node);
+    }
+
+    // If we can't reach the original source text, use the canonical form if it's a number,
+    // or a (possibly escaped) quoted form of the original text if it's string-like.
+    switch (node.kind) {
+        case SyntaxKind.StringLiteral: {
+            const escapeText = flags & GetLiteralTextFlags.NeverAsciiEscape || (getEmitFlags(node) & EmitFlags.NoAsciiEscaping) ? escapeString :
+                escapeNonAsciiString;
+            if ((node as StringLiteral).singleQuote) {
+                return "'" + escapeText(node.text, CharacterCodes.singleQuote) + "'";
+            }
+            else {
+                return '"' + escapeText(node.text, CharacterCodes.doubleQuote) + '"';
+            }
+        }        
+        case SyntaxKind.NumericLiteral:
+        case SyntaxKind.IntLiteral:
+        case SyntaxKind.FloatLiteral:
+            return node.text;
+        // case SyntaxKind.RegularExpressionLiteral:
+        //     if (flags & GetLiteralTextFlags.TerminateUnterminatedLiterals && node.isUnterminated) {
+        //         return node.text + (node.text.charCodeAt(node.text.length - 1) === CharacterCodes.backslash ? " /" : "/");
+        //     }
+        //     return node.text;
+    }
+
+    return Debug.fail(`Literal kind '${node.kind}' not accounted for.`);
+}
+
+function canUseOriginalText(node: LiteralLikeNode, flags: GetLiteralTextFlags): boolean {
+    if (nodeIsSynthesized(node) || !node.parent || (flags & GetLiteralTextFlags.TerminateUnterminatedLiterals && node.isUnterminated)) {
+        return false;
+    }
+
+    if (isNumericLiteral(node)) {
+        if (node.numericLiteralFlags & TokenFlags.IsInvalid) {
+            return false;
+        }
+        if (node.numericLiteralFlags & TokenFlags.ContainsSeparator) {
+            return !!(flags & GetLiteralTextFlags.AllowNumericSeparator);
+        }
+    }
+
+    return true;//!isBigIntLiteral(node);
 }

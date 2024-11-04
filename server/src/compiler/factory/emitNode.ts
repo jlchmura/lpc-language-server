@@ -1,4 +1,4 @@
-import { append, Debug, EmitFlags, EmitNode, getParseTreeNode, getSourceFileOfNode, Identifier, InternalEmitFlags, isParseTreeNode, Node, NodeArray, SnippetElement, SourceFile, SyntaxKind, SynthesizedComment, TextRange, TypeNode, TypeParameterDeclaration } from "../_namespaces/lpc";
+import { append, Debug, EmitFlags, EmitHelper, EmitNode, getParseTreeNode, getSourceFileOfNode, Identifier, InternalEmitFlags, isParseTreeNode, Node, NodeArray, SnippetElement, SourceFile, SyntaxKind, SynthesizedComment, TextRange, TypeNode, TypeParameterDeclaration } from "../_namespaces/lpc";
 
 
 /**
@@ -130,4 +130,11 @@ export function getCommentRange(node: Node): TextRange {
  */
 export function getSnippetElement(node: Node): SnippetElement | undefined {
     return node.emitNode?.snippetElement;
+}
+
+/**
+ * Gets the EmitHelpers of a node.
+ */
+export function getEmitHelpers(node: Node): EmitHelper[] | undefined {
+    return node.emitNode?.helpers;
 }

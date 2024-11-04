@@ -1643,6 +1643,7 @@ export interface CompilerOptions {
     newLine?: NewLineKind;    
     configFile?: LpcConfigSourceFile; 
     sefunFile?: string;
+    masterFile?: string;
     forceConsistentCasingInFileNames?: boolean;
     noResolve?: boolean;
     noLib?: boolean;
@@ -5405,6 +5406,7 @@ export const enum ScriptKind {
 
 export const enum ScriptTarget {
     LPC = 1,    
+    JavaScript = 2,
     Latest = LPC,
 }
 
@@ -5623,7 +5625,8 @@ export const enum ListFormat {
     Parenthesis = 1 << 11,          // The list is surrounded by "(" and ")".
     AngleBrackets = 1 << 12,        // The list is surrounded by "<" and ">".
     SquareBrackets = 1 << 13,       // The list is surrounded by "[" and "]".
-    BracketsMask = Braces | Parenthesis | AngleBrackets | SquareBrackets,
+    ArrayBrackets = 1 << 22,        // The list is surrounded by "({" and "})".
+    BracketsMask = Braces | Parenthesis | AngleBrackets | SquareBrackets | ArrayBrackets,
 
     OptionalIfUndefined = 1 << 14,  // Do not emit brackets if the list is undefined.
     OptionalIfEmpty = 1 << 15,      // Do not emit brackets if the list is empty.
@@ -5652,7 +5655,7 @@ export const enum ListFormat {
     ObjectLiteralExpressionProperties = PreserveLines | CommaDelimited | SpaceBetweenSiblings | SpaceBetweenBraces | Indented | Braces | NoSpaceIfEmpty,
     ImportAttributes = PreserveLines | CommaDelimited | SpaceBetweenSiblings | SpaceBetweenBraces | Indented | Braces | NoSpaceIfEmpty,
     /** @deprecated */ ImportClauseEntries = ImportAttributes,
-    ArrayLiteralExpressionElements = PreserveLines | CommaDelimited | SpaceBetweenSiblings | AllowTrailingComma | Indented | SquareBrackets,
+    ArrayLiteralExpressionElements = PreserveLines | CommaDelimited | SpaceBetweenSiblings | AllowTrailingComma | Indented | ArrayBrackets,
     CommaListElements = CommaDelimited | SpaceBetweenSiblings | SingleLine,
     CallExpressionArguments = CommaDelimited | SpaceBetweenSiblings | SingleLine | Parenthesis,
     NewExpressionArguments = CommaDelimited | SpaceBetweenSiblings | SingleLine | Parenthesis | OptionalIfUndefined,

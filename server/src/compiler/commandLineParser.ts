@@ -261,6 +261,9 @@ function parseLpcConfigFileContentWorker(
     
     const sefunFilePath = trimStart(options.sefunFile ?? raw?.libFiles?.simul_efun ?? "/obj/sefun.c", "/");
     options.sefunFile = normalizePath(combinePaths(basePathForFileNames, sefunFilePath));
+
+    const masterFile = trimStart(options.masterFile ?? raw?.libFiles?.master ?? "/obj/master.c", "/");
+    options.masterFile = normalizePath(combinePaths(basePathForFileNames, masterFile));
     
     return {
         options,
