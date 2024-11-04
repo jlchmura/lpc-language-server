@@ -4320,7 +4320,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             //case SyntaxKind.QualifiedName as TypeNodeSyntaxKind:
             case SyntaxKind.PropertyAccessExpression as TypeNodeSyntaxKind:
                 const symbol = getSymbolAtLocation(node);
-                return symbol ? getDeclaredTypeOfSymbol(symbol) : errorType;
+                return symbol ? getDeclaredTypeOfSymbol(symbol) : errorType;            
             default:
                 console.warn("Implement me - getTypeFromTypeNodeWorker " + Debug.formatSyntaxKind(node.kind));
                 return errorType;
