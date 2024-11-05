@@ -2840,7 +2840,8 @@ export function getHostSignatureFromJSDoc(node: Node): SignatureDeclaration | un
 
 /** @internal */
 export function isInJSFile(node: Node | undefined): boolean {
-    return false;
+    return true;
+    // return false;
     // return !!node && !!(node.flags & NodeFlags.JavaScriptFile);
 }
 

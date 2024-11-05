@@ -663,6 +663,7 @@ export function createTextSpan(start: number, length: number): TextSpan {
         throw new Error("start < 0");
     }
     if (length < 0) {
+        Debug.fail("length < 0");
         throw new Error("length < 0");
     }
 

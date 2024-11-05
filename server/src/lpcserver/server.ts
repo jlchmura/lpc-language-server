@@ -445,7 +445,12 @@ export function start(connection: Connection, platform: string) {
                 }
 
                 const items: vscode.CompletionItem[] = [];  
-                for (const entry of result.entries) {                
+                for (const entry of result.entries) {                                    
+                    if (!entry.kindModifiers) {
+                        console.warn("todo - kind Modifiers shouldnt be undefined")
+                        continue; 
+                    }
+
                     const kindModifiers = typeConverters.CompletionKind.parseKindModifier(entry.kindModifiers);
 
                     const item: vscode.CompletionItem = {
