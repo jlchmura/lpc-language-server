@@ -2133,23 +2133,23 @@ export type HasChildren =
     | LambdaIdentifierExpression
     | LambdaOperatorExpression
     // | Decorator
-    // | PropertySignature
-    // | PropertyDeclaration
-    // | MethodSignature
-    // | MethodDeclaration
+    | PropertySignature
+    | PropertyDeclaration
+    | MethodSignature
+    | MethodDeclaration
     // | ConstructorDeclaration
     // | GetAccessorDeclaration
     // | SetAccessorDeclaration
     // | ClassStaticBlockDeclaration
-    // | CallSignatureDeclaration
+    | CallSignatureDeclaration
     // | ConstructSignatureDeclaration
-    // | IndexSignatureDeclaration
-    // | TypePredicateNode
-    // | TypeReferenceNode
-    // | FunctionTypeNode
+    | IndexSignatureDeclaration
+    | TypePredicateNode
+    | TypeReferenceNode
+    | FunctionTypeNode
     // | ConstructorTypeNode
     // | TypeQueryNode
-    // | TypeLiteralNode
+    | TypeLiteralNode
     // | TupleTypeNode
     // | OptionalTypeNode
     // | RestTypeNode
@@ -2162,28 +2162,28 @@ export type HasChildren =
     // | ImportTypeNode
     // | ImportTypeAssertionContainer
     // | NamedTupleMember
-    // | ParenthesizedTypeNode
+    | ParenthesizedTypeNode
     // | TypeOperatorNode
-    // | IndexedAccessTypeNode
-    // | MappedTypeNode
-    // | LiteralTypeNode
+    | IndexedAccessTypeNode
+    | MappedTypeNode
+    | LiteralTypeNode
     // | TemplateLiteralTypeNode
     // | TemplateLiteralTypeSpan
     // | ObjectBindingPattern
-    // | ArrayBindingPattern
-    // | BindingElement
+    | ArrayBindingPattern
+    | BindingElement
     | ArrayLiteralExpression
     | MappingLiteralExpression
     | MappingEntryExpression
-    // | ObjectLiteralExpression
+    | ObjectLiteralExpression
     | PropertyAccessExpression
     | CallExpression
     | NewExpression
     | CloneObjectExpression
-    // | ElementAccessExpression    
+    | ElementAccessExpression    
     // | TaggedTemplateExpression
-    // | TypeAssertion
-    // | ParenthesizedExpression
+    | TypeAssertion
+    | ParenthesizedExpression
     | FunctionExpression
     | InlineClosureExpression
     // | DeleteExpression
@@ -2196,9 +2196,9 @@ export type HasChildren =
     | ConditionalExpression
     // | TemplateExpression
     // | YieldExpression
-    // | SpreadElement
-    // | ClassExpression
-    // | ExpressionWithTypeArguments
+    | SpreadElement
+    | ClassExpression
+    | ExpressionWithTypeArguments
     | CastExpression
     // | NonNullExpression
     // | SatisfiesExpression
@@ -2219,15 +2219,15 @@ export type HasChildren =
     | ReturnStatement
     | SwitchStatement
     // | WithStatement
-    // | LabeledStatement
+    | LabeledStatement
     // | ThrowStatement
     // | TryStatement
     | VariableDeclaration
     | VariableDeclarationList
     | FunctionDeclaration
-    // | ClassDeclaration
+    | ClassDeclaration
     // | InterfaceDeclaration
-    // | TypeAliasDeclaration
+    | TypeAliasDeclaration
     // | EnumDeclaration
     // | ModuleDeclaration
     // | ModuleBlock
@@ -2248,28 +2248,18 @@ export type HasChildren =
     // | ExportDeclaration
     // | NamedExports
     // | ExportSpecifier
-    // | ExternalModuleReference
-    // | JsxElement
-    // | JsxSelfClosingElement
-    // | JsxOpeningElement
-    // | JsxClosingElement
-    // | JsxFragment
-    // | JsxAttribute
-    // | JsxAttributes
-    // | JsxSpreadAttribute
-    // | JsxExpression
-    // | JsxNamespacedName
+    // | ExternalModuleReference    
     | CaseClause
     | DefaultClause
-    // | HeritageClause
+    | HeritageClause
     | CatchStatement
-    // | PropertyAssignment
-    // | ShorthandPropertyAssignment
+    | PropertyAssignment
+    | ShorthandPropertyAssignment
     // | SpreadAssignment
     // | EnumMember
     | SourceFile
-    // | PartiallyEmittedExpression
-    // | CommaListExpression;
+    | PartiallyEmittedExpression
+    | CommaListExpression;
     ;
 
 export interface NodeArray<T extends Node> extends ReadonlyArray<T>, ReadonlyTextRange {

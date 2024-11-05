@@ -4481,40 +4481,61 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return links.declaredType || (links.declaredType = getDeclaredTypeOfSymbol(resolveAlias(symbol)));
     }
 
-    function getConditionalFlowTypeOfType(type: Type, node: Node) {
-        // not needed in LPC?
+    function getActualTypeVariable(type: Type): Type {
+        if (type.flags & TypeFlags.Substitution) {
+            return getActualTypeVariable((type as SubstitutionType).baseType);
+        }
+        if (
+            type.flags & TypeFlags.IndexedAccess && (
+                (type as IndexedAccessType).objectType.flags & TypeFlags.Substitution ||
+                (type as IndexedAccessType).indexType.flags & TypeFlags.Substitution
+            )
+        ) {
+            return getIndexedAccessType(getActualTypeVariable((type as IndexedAccessType).objectType), getActualTypeVariable((type as IndexedAccessType).indexType));
+        }
+        return type;
+    }
 
+    
+    function getImpliedConstraint(type: Type, checkNode: TypeNode, extendsNode: TypeNode): Type | undefined {
+        // return isUnaryTupleTypeNode(checkNode) && isUnaryTupleTypeNode(extendsNode) ? getImpliedConstraint(type, (checkNode as TupleTypeNode).elements[0], (extendsNode as TupleTypeNode).elements[0]) :
+        return getActualTypeVariable(getTypeFromTypeNode(checkNode)) === getActualTypeVariable(type) ? getTypeFromTypeNode(extendsNode) :
+            undefined;
+    }
+
+    function getConditionalFlowTypeOfType(type: Type, node: Node) {
         let constraints: Type[] | undefined;
         let covariant = true;
         while (node && !isStatement(node) && node.kind !== SyntaxKind.JSDoc) {
             const parent = node.parent;
             // only consider variance flipped by parameter locations - `keyof` types would usually be considered variance inverting, but
-            // often get used in indexed accesses where they behave sortof invariantly, but our checking is lax
+            // often get used in indexed accesses where they behave sortof invariantly, but our checking is lax            
             if (parent.kind === SyntaxKind.Parameter) {
                 covariant = !covariant;
             }
             // Always substitute on type parameters, regardless of variance, since even
             // in contravariant positions, they may rely on substituted constraints to be valid
-            // if ((covariant || type.flags & TypeFlags.TypeVariable) && parent.kind === SyntaxKind.ConditionalType && node === (parent as ConditionalTypeNode).trueType) {
-            //     const constraint = getImpliedConstraint(type, (parent as ConditionalTypeNode).checkType, (parent as ConditionalTypeNode).extendsType);
-            //     if (constraint) {
-            //         constraints = append(constraints, constraint);
-            //     }
-            // }
+            if ((covariant || type.flags & TypeFlags.TypeVariable) && parent.kind === SyntaxKind.ConditionalType && node === (parent as ConditionalTypeNode).trueType) {
+                const constraint = getImpliedConstraint(type, (parent as ConditionalTypeNode).checkType, (parent as ConditionalTypeNode).extendsType);
+                if (constraint) {
+                    constraints = append(constraints, constraint);
+                }
+            }
             // Given a homomorphic mapped type { [K in keyof T]: XXX }, where T is constrained to an array or tuple type, in the
             // template type XXX, K has an added constraint of number | `${number}`.
-            // else if (type.flags & TypeFlags.TypeParameter && parent.kind === SyntaxKind.MappedType && !(parent as MappedTypeNode).nameType && node === (parent as MappedTypeNode).type) {
-            //     const mappedType = getTypeFromTypeNode(parent as TypeNode) as MappedType;
-            //     if (getTypeParameterFromMappedType(mappedType) === getActualTypeVariable(type)) {
-            //         const typeParameter = getHomomorphicTypeVariable(mappedType);
-            //         if (typeParameter) {
-            //             const constraint = getConstraintOfTypeParameter(typeParameter);
-            //             if (constraint && everyType(constraint, isArrayOrTupleType)) {
-            //                 constraints = append(constraints, getUnionType([numberType, numericStringType]));
-            //             }
-            //         }
-            //     }
-            // }
+            else if (type.flags & TypeFlags.TypeParameter && parent.kind === SyntaxKind.MappedType && !(parent as MappedTypeNode).nameType && node === (parent as MappedTypeNode).type) {
+                const mappedType = getTypeFromTypeNode(parent as TypeNode) as MappedType;
+                if (getTypeParameterFromMappedType(mappedType) === getActualTypeVariable(type)) {
+                    const typeParameter = getHomomorphicTypeVariable(mappedType);
+                    if (typeParameter) {
+                        const constraint = getConstraintOfTypeParameter(typeParameter);
+                        if (constraint && everyType(constraint, isArrayOrTupleType)) {
+                            console.debug("todo - getConditionalFlowTypeOfType - homomorphic mapped type");
+                            // constraints = append(constraints, getUnionType([numberType, numericStringType]));
+                        }
+                    }
+                }
+            }
             node = parent;
         }
         return type;

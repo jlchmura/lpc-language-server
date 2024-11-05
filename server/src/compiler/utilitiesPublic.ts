@@ -535,15 +535,16 @@ export function isFunctionOrModuleBlock(node: Node): boolean {
 
 function isDeclarationStatementKind(kind: SyntaxKind) {
     return kind === SyntaxKind.FunctionDeclaration
-        // || kind === SyntaxKind.MissingDeclaration
-        // || kind === SyntaxKind.ClassDeclaration
+        || kind === SyntaxKind.MissingDeclaration
+        || kind === SyntaxKind.ClassDeclaration
         // || kind === SyntaxKind.InterfaceDeclaration
-        // || kind === SyntaxKind.TypeAliasDeclaration
+        || kind === SyntaxKind.TypeAliasDeclaration
+        || kind === SyntaxKind.StructDeclaration        
         // || kind === SyntaxKind.EnumDeclaration
         // || kind === SyntaxKind.ModuleDeclaration
         // || kind === SyntaxKind.ImportDeclaration
         // || kind === SyntaxKind.ImportEqualsDeclaration
-        // || kind === SyntaxKind.ExportDeclaration
+        || kind === SyntaxKind.ExportDeclaration
         // || kind === SyntaxKind.ExportAssignment
         // || kind === SyntaxKind.NamespaceExportDeclaration;
         ;
@@ -569,10 +570,10 @@ function isStatementKindButNotDeclarationKind(kind: SyntaxKind) {
         || kind === SyntaxKind.ForEachStatement        
         || kind === SyntaxKind.ForStatement
         || kind === SyntaxKind.IfStatement
-        //|| kind === SyntaxKind.LabeledStatement
+        || kind === SyntaxKind.LabeledStatement
         || kind === SyntaxKind.ReturnStatement
         || kind === SyntaxKind.SwitchStatement        
-        || kind === SyntaxKind.VariableStatement
+        || kind === SyntaxKind.VariableStatement        
         || kind === SyntaxKind.WhileStatement        
         || kind === SyntaxKind.NotEmittedStatement;
 }
