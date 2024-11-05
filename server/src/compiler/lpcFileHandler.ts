@@ -6,7 +6,7 @@ export interface LpcFileHandlerHost {
     // readFile function is used to read arbitrary text files on disk, i.e. when resolution procedure needs the content of 'package.json'
     // to determine location of bundled typings for node module
     readFile(fileName: string): string | undefined;
-    getIncludeDirs(): string[];
+    getIncludeDirs(fileName: string): string[];
 }
 
 export function createLpcFileHandler(host: LpcFileHandlerHost): LpcFileHandler {
@@ -35,7 +35,7 @@ export function createLpcFileHandler(host: LpcFileHandlerHost): LpcFileHandler {
         } else {
             // everythign else has to be searched in include dirs
             const searchDirs = [                
-                ...getIncludeDirs(),
+                ...getIncludeDirs(sourceFilename),
                 ...(additionalSearchDirs || []),
                 "./"
             ];
@@ -57,8 +57,8 @@ export function createLpcFileHandler(host: LpcFileHandlerHost): LpcFileHandler {
         return { filename: searchPath, source: result };
     }
 
-    function getIncludeDirs() {        
-        return host.getIncludeDirs();
+    function getIncludeDirs(fileName: string) {        
+        return host.getIncludeDirs(fileName);
         // const basePath = host.getCurrentDirectory();
         // const fullImportDirs = host.getIncludeDirs().map((dir) => {
         //     return resolvePath(basePath, "./" + dir);//pathIsAbsolute(dir) ? dir : resolvePath(basePath, dir);

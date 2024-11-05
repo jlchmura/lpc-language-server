@@ -5081,6 +5081,12 @@ export interface Program extends ScriptReferenceHost {
     //  * @internal
     //  */
     // writeFile: WriteFileCallback;
+
+    /**
+     * Gets an array of include directories to search for the specified source filename.
+     * @param fileName      
+     */
+    getIncludeDirs(fileName: string): string[];
 }
 
 /** @internal */

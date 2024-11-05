@@ -1,4 +1,5 @@
-import { getDeclarationDiagnostics as lpc_getDeclarationDiagnostics, forEachResolvedProjectReference as lpc_forEachResolvedProjectReference, combinePaths, compareValues, CompilerHost, CompilerOptions, containsPath, createDiagnosticCollection, createGetCanonicalFileName, createMultiMap, CreateProgramOptions, createSourceFile, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DiagnosticWithLocation, FileIncludeKind, FileIncludeReason, FilePreprocessingDiagnostics, FilePreprocessingDiagnosticsKind, forEach, getBaseFileName, getDirectoryPath, getNewLineCharacter, getRootLength, hasExtension, isArray, maybeBind, memoize, normalizePath, ObjectLiteralExpression, PackageId, Path, performance, Program, ProgramHost, ProjectReference, PropertyAssignment, ReferencedFile, removePrefix, removeSuffix, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, SourceFile, stableSort, StructureIsReused, sys, System, toPath as lpc_toPath, tracing, TypeChecker, getNormalizedAbsolutePathWithoutRoot, some, isRootedDiskPath, optionsHaveChanges, packageIdToString, toFileNameLowerCase, getNormalizedAbsolutePath, CreateSourceFileOptions, createTypeChecker, ScriptTarget, libs, FileReference, SortedReadonlyArray, concatenate, sortAndDeduplicateDiagnostics, emptyArray, LpcFileHandler, createLpcFileHandler, DiagnosticMessageChain, isString, CancellationToken, flatMap, filter, Debug, ScriptKind, flatten, OperationCanceledException, noop, getNormalizedPathComponents, GetCanonicalFileName, getPathFromPathComponents, WriteFileCallback, EmitHost, WriteFileCallbackData, getDefaultLibFileName, LibResolution, returnFalse, isTraceEnabled, trace, equateStringsCaseSensitive, equateStringsCaseInsensitive, NodeFlags, ResolvedModuleFull, Extension, ResolutionMode, ModeAwareCache, isExternalModule, StringLiteral, Identifier, isCloneObjectExpression, isStringLiteral, setParentRecursive, append, Node, SyntaxKind, forEachChild, ResolutionWithFailedLookupLocations, createModeAwareCache, ModuleKind, ResolvedTypeReferenceDirectiveWithFailedLookupLocations, ModuleResolutionCache, contains, createModuleResolutionCache, ModuleResolutionHost, ModeAwareCacheKey, createModeAwareCacheKey, resolveModuleName, isInheritDeclaration, LogLevel, PackageJsonInfoCache, StringLiteralLike, skipTrivia, getSourceFileOfNode, hasLPCFileExtension, getNormalizedModuleName, isIncludeDirective, first, createEvaluator, forEachChildRecursively, factory, LanguageVariant, ResolvedConfigFileName, resolveConfigFileProjectName,     createMasterApplyGetIncludePathVm, memoizeOne } from "./_namespaces/lpc.js";
+import path from "path";
+import { getDeclarationDiagnostics as lpc_getDeclarationDiagnostics, forEachResolvedProjectReference as lpc_forEachResolvedProjectReference, combinePaths, compareValues, CompilerHost, CompilerOptions, containsPath, createDiagnosticCollection, createGetCanonicalFileName, createMultiMap, CreateProgramOptions, createSourceFile, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DiagnosticWithLocation, FileIncludeKind, FileIncludeReason, FilePreprocessingDiagnostics, FilePreprocessingDiagnosticsKind, forEach, getBaseFileName, getDirectoryPath, getNewLineCharacter, getRootLength, hasExtension, isArray, maybeBind, memoize, normalizePath, ObjectLiteralExpression, PackageId, Path, performance, Program, ProgramHost, ProjectReference, PropertyAssignment, ReferencedFile, removePrefix, removeSuffix, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, SourceFile, stableSort, StructureIsReused, sys, System, toPath as lpc_toPath, tracing, TypeChecker, getNormalizedAbsolutePathWithoutRoot, some, isRootedDiskPath, optionsHaveChanges, packageIdToString, toFileNameLowerCase, getNormalizedAbsolutePath, CreateSourceFileOptions, createTypeChecker, ScriptTarget, libs, FileReference, SortedReadonlyArray, concatenate, sortAndDeduplicateDiagnostics, emptyArray, LpcFileHandler, createLpcFileHandler, DiagnosticMessageChain, isString, CancellationToken, flatMap, filter, Debug, ScriptKind, flatten, OperationCanceledException, noop, getNormalizedPathComponents, GetCanonicalFileName, getPathFromPathComponents, WriteFileCallback, EmitHost, WriteFileCallbackData, getDefaultLibFileName, LibResolution, returnFalse, isTraceEnabled, trace, equateStringsCaseSensitive, equateStringsCaseInsensitive, NodeFlags, ResolvedModuleFull, Extension, ResolutionMode, ModeAwareCache, isExternalModule, StringLiteral, Identifier, isCloneObjectExpression, isStringLiteral, setParentRecursive, append, Node, SyntaxKind, forEachChild, ResolutionWithFailedLookupLocations, createModeAwareCache, ModuleKind, ResolvedTypeReferenceDirectiveWithFailedLookupLocations, ModuleResolutionCache, contains, createModuleResolutionCache, ModuleResolutionHost, ModeAwareCacheKey, createModeAwareCacheKey, resolveModuleName, isInheritDeclaration, LogLevel, PackageJsonInfoCache, StringLiteralLike, skipTrivia, getSourceFileOfNode, hasLPCFileExtension, getNormalizedModuleName, isIncludeDirective, first, createEvaluator, forEachChildRecursively, factory, LanguageVariant, ResolvedConfigFileName, resolveConfigFileProjectName,     createMasterApplyGetIncludePathVm, memoizeOne, getRelativePathFromFile, getRelativePathFromDirectory, map, resolvePath } from "./_namespaces/lpc.js";
 
 /**
  * Create a new 'Program' instance. A Program is an immutable collection of 'SourceFile's and a 'CompilerOptions'
@@ -134,6 +135,13 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
     ) => readonly ResolvedModuleWithFailedLookupLocations[];
     const hasInvalidatedResolutions = host.hasInvalidatedResolutions || returnFalse;
     
+    const fileHandler = createLpcFileHandler({
+        fileExists: fileName => sys.fileExists(fileName),
+        readFile: fileName => sys.readFile(fileName),
+        getCurrentDirectory: () => sys.getCurrentDirectory(),
+        getIncludeDirs
+    });
+
     moduleResolutionCache = createModuleResolutionCache(currentDirectory, getCanonicalFileName, options);
         actualResolveModuleNamesWorker = (moduleNames, containingFile, redirectedReference, options, containingSourceFile) =>
             loadWithModeAwareCache(
@@ -214,7 +222,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
             tracing?.push(tracing.Phase.Program, "processMasterFile");
             processRootFile(options.masterFile, /*isDefaultLib*/ false, /*ignoreNoDefaultLib*/ false, { kind: FileIncludeKind.RootFile, index: masterFileIndex });
 
-            // now get an instance of it
+            // get an instance of it and compile the get_include_path apply function
             const masterFile = getSourceFile(options.masterFile);
             masterIncludeApply = memoizeOne(createMasterApplyGetIncludePathVm(masterFile));
                         
@@ -367,6 +375,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         getFileIncludeReasons: () => fileReasons,
         structureIsReused,
         // writeFile,
+        getIncludeDirs
     };
 
     //onProgramCreateComplete();
@@ -377,6 +386,36 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
     tracing?.pop();
 
     return program;
+
+    /**
+     * Gets an array of include dirs that are searched for a given filename.  If the driver 
+     * is running in FluffOS mode and has a master include apply, this function will evaluate
+     * it and return the result.
+     * @param fileName source file name
+     * @returns array of disk rooted include directories
+     */
+    function getIncludeDirs(fileName: string) {                
+        let globalIncludes: string[] = options?.libIncludeDirs ?? emptyArray;
+        if (masterIncludeApply) {
+            // convert disk rooted paths to mudlib paths            
+            const rootDir = options.rootDir ?? getDirectoryPath(options.configFilePath);
+            const relativePath = getRelativePathFromDirectory(rootDir, fileName, host.getCanonicalFileName);
+            const mudlibPath = path.sep == "/" ? relativePath : relativePath.replace(/\\/g, "/");
+
+            // paths come back from master apply as rooted (to the lib). We need to conver them to disk rooted paths.
+            const includesForFile = map(masterIncludeApply(mudlibPath), dir => dir != ":DEFAULT:" ? resolvePath(rootDir, "." + dir) : dir);
+            if (includesForFile && includesForFile.length) {
+                // subtitute global include from options for DEFAULT indicator
+                const defaultIdx = includesForFile.indexOf(":DEFAULT:");
+                if (defaultIdx >= 0) {
+                    globalIncludes = includesForFile.slice(0, defaultIdx).concat(globalIncludes, includesForFile.slice(defaultIdx + 1));
+                } else {
+                    globalIncludes = includesForFile;
+                }
+            }
+        }        
+        return globalIncludes;
+    }
 
     function getSourceFile(fileName: string): SourceFile | undefined {
         return getSourceFileByPath(toPath(fileName));
@@ -997,9 +1036,13 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         return filesByName.get(path) || undefined;
     }
 
-    function getCreateSourceFileOptions(fileName: string, moduleResolutionCache: any | undefined, host: CompilerHost, options: CompilerOptions): CreateSourceFileOptions {
-        // TODO implement me
-        return {languageVersion: ScriptTarget.Latest};
+    function getCreateSourceFileOptions(fileName: string, moduleResolutionCache: any | undefined, host: CompilerHost, options: CompilerOptions): CreateSourceFileOptions {        
+        // TODO is this complete?
+        return {
+            languageVersion: ScriptTarget.Latest,
+            globalIncludes: options.globalIncludeFiles || emptyArray,
+            fileHandler: fileHandler
+        };
         
         // It's a _little odd_ that we can't set `impliedNodeFormat` until the program step - but it's the first and only time we have a resolution cache
         // and a freshly made source file node on hand at the same time, and we need both to set the field. Persisting the resolution cache all the way
@@ -1612,18 +1655,13 @@ export function createCompilerHostWorker(
     function getDefaultLibLocation(): string {
         return getDirectoryPath(normalizePath(system.getExecutingFilePath()));
     }
-        
-    const fileHandler = createLpcFileHandler({
-        fileExists: fileName => system.fileExists(fileName),
-        readFile: fileName => system.readFile(fileName),
-        getCurrentDirectory: () => system.getCurrentDirectory(),
-        getIncludeDirs: () => options.libIncludeDirs || emptyArray,
-    });
+    
+    
     const newLine = getNewLineCharacter(options);
     const realpath = system.realpath && ((path: string) => system.realpath!(path));    
-
+    
     const compilerHost: CompilerHost = {
-        getSourceFile: createGetSourceFile(fileName => compilerHost.readFile(fileName), options.globalIncludeFiles ?? emptyArray, setParentNodes, fileHandler, options.driverType),
+        getSourceFile: createGetSourceFile(fileName => compilerHost.readFile(fileName), setParentNodes, options.driverType),
         getDefaultLibLocation,
         getDefaultLibFileName: options => combinePaths(getDefaultLibLocation(), getDefaultLibFileName(options)),
         writeFile: createWriteFileMeasuringIO(
@@ -1652,10 +1690,8 @@ export function createCompilerHostWorker(
 
 /** @internal */
 export function createGetSourceFile(
-    readFile: ProgramHost<any>["readFile"],    
-    globalIncludes: string[],
-    setParentNodes: boolean | undefined,
-    fileHandler: LpcFileHandler,
+    readFile: ProgramHost<any>["readFile"],        
+    setParentNodes: boolean | undefined,    
     driverType: LanguageVariant
 ): CompilerHost["getSourceFile"] {
     return (fileName, languageVersionOrOptions, onError) => {
@@ -1672,7 +1708,8 @@ export function createGetSourceFile(
             }
             text = "";
         }        
-        return text !== undefined ? createSourceFile(fileName, text, globalIncludes, fileHandler, ScriptTarget.LPC, setParentNodes, ScriptKind.LPC, driverType) : undefined;
+        
+        return text !== undefined ? createSourceFile(fileName, text, languageVersionOrOptions, setParentNodes, ScriptKind.LPC, driverType) : undefined;
     };
 }
 

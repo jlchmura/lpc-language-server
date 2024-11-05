@@ -538,9 +538,7 @@ export interface LanguageServiceHost
     log?(s: string): void;
     trace?(s: string): void;
     error?(s: string): void;
-    useCaseSensitiveFileNames?(): boolean;
-    fileHandler: LpcFileHandler;    
-    
+    useCaseSensitiveFileNames?(): boolean;    
             
     /*
      * LS host can optionally implement these methods to support completions for module specifiers.
@@ -567,6 +565,8 @@ export interface LanguageServiceHost
      * LS host can optionally implement these methods to support automatic updating when new type libraries are installed
      */
     getTypeRootsVersion?(): number;
+
+    getIncludeDirs: () => string[];
 
     /*
      * LS host can optionally implement this method if it wants to be completely in charge of module name resolution.

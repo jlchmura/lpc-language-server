@@ -1364,7 +1364,7 @@ export namespace Core {
             //     }
             //     // falls through I guess
             case SyntaxKind.Identifier:
-                return (node as Identifier).text.length === searchSymbolName.length;
+                return (node as Identifier).text?.length === searchSymbolName.length;
             // case SyntaxKind.NoSubstitutionTemplateLiteral:
             case SyntaxKind.StringLiteral: {
                 return false;

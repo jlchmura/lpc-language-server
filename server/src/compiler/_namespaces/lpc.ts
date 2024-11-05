@@ -7,6 +7,7 @@ export * from "../tracing.js";
 export * from "../types.js";
 export * from "../diagnosticInformation.js";
 export * from "../scanner.js";
+export * from "../lpcJsHelpers.js";
 export * from "../utilitiesPublic.js";
 export * from "../utilities.js";
 export * from "../factory/baseNodeFactory.js";

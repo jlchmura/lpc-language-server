@@ -188,6 +188,8 @@ import {
     SignatureHelp,
     isSourceFile,
     isDefineDirective,
+    createLpcFileHandler,
+    sys,
 } from "./_namespaces/lpc.js";
 import * as classifier2020 from "./classifier2020.js";
 
@@ -1328,8 +1330,7 @@ export function getDefaultCompilerOptions(): CompilerOptions {
 export function createLanguageService(
     host: LanguageServiceHost,
     fileHandler: LpcFileHandler,
-    documentRegistry: DocumentRegistry = createDocumentRegistry(        
-        fileHandler,
+    documentRegistry: DocumentRegistry = createDocumentRegistry(                
         host.useCaseSensitiveFileNames && host.useCaseSensitiveFileNames(),
         host.getCurrentDirectory(),
         host.jsDocParsingMode
@@ -1813,9 +1814,9 @@ export function createLanguageService(
                 host,
                 documentRegistryBucketKey,
                 scriptSnapshot,
-                scriptVersion
-                // scriptKind,
-                // languageVersionOrOptions
+                scriptVersion,
+                scriptKind,
+                languageVersionOrOptions
             );
         }
     }
@@ -2004,9 +2005,7 @@ function setSourceFileFields(
 
 export function createLanguageServiceSourceFile(
     fileName: string,
-    scriptSnapshot: IScriptSnapshot,
-    globalIncludes: string[],
-    fileHandler: LpcFileHandler,
+    scriptSnapshot: IScriptSnapshot,    
     scriptTargetOrOptions: ScriptTarget | CreateSourceFileOptions,
     version: string,
     setNodeParents: boolean,
@@ -2015,9 +2014,7 @@ export function createLanguageServiceSourceFile(
 ): SourceFile {
     const sourceFile = createSourceFile(
         fileName,
-        getSnapshotText(scriptSnapshot),    
-        globalIncludes,
-        fileHandler,
+        getSnapshotText(scriptSnapshot),                  
         scriptTargetOrOptions,
         setNodeParents,
         scriptKind,
@@ -2029,9 +2026,9 @@ export function createLanguageServiceSourceFile(
 
 export function updateLanguageServiceSourceFile(
     sourceFile: SourceFile,
-    scriptSnapshot: IScriptSnapshot,
     globalIncludes: string[],
     fileHandler: LpcFileHandler,
+    scriptSnapshot: IScriptSnapshot,    
     version: string,
     textChangeRange: TextChangeRange | undefined,    
     languageVariant: LanguageVariant,
@@ -2075,9 +2072,9 @@ export function updateLanguageServiceSourceFile(
 
             const newSourceFile = updateSourceFile(
                 sourceFile,
-                newText,
+                newText,         
                 globalIncludes,
-                fileHandler,
+                fileHandler,       
                 textChangeRange,
                 aggressiveChecks,
                 languageVariant
@@ -2105,13 +2102,13 @@ export function updateLanguageServiceSourceFile(
         impliedNodeFormat: sourceFile.impliedNodeFormat,
         setExternalModuleIndicator: sourceFile.setExternalModuleIndicator,
         jsDocParsingMode: sourceFile.jsDocParsingMode,
+        globalIncludes,
+        fileHandler
     };
     // Otherwise, just create a new source file.
     return createLanguageServiceSourceFile(
         sourceFile.fileName,
-        scriptSnapshot,
-        globalIncludes,
-        fileHandler,
+        scriptSnapshot,        
         options,        
         version,
         /*setNodeParents*/ true,
@@ -2272,33 +2269,42 @@ class SyntaxTreeCache {
             throw new Error("Could not find file: '" + fileName + "'.");
         }
 
+        const compilerOptions = this.host.getCompilationSettings();
         const scriptKind = getScriptKind(fileName, this.host);
         const version = this.host.getScriptVersion(fileName);
         const languageVariant = this.host.getCompilationSettings()?.driverType;
-        const globalIncludes: string[] = this.host.getCompilationSettings()?.globalIncludeFiles || emptyArray;
+        const globalIncludes: string[] = compilerOptions?.globalIncludeFiles || emptyArray;
         let sourceFile: SourceFile | undefined;
 
-        if (this.currentFileName !== fileName) {
-            // This is a new file, just parse it
-            const options: CreateSourceFileOptions = {
-                languageVersion: ScriptTarget.Latest,
-                impliedNodeFormat: getImpliedNodeFormatForFile(
-                    toPath(fileName, this.host.getCurrentDirectory(), this.host.getCompilerHost?.()?.getCanonicalFileName || hostGetCanonicalFileName(this.host)),
-                    this.host.getCompilerHost?.()?.getModuleResolutionCache?.()?.getPackageJsonInfoCache(),
-                    this.host,
-                    this.host.getCompilationSettings(),
-                ),
-                setExternalModuleIndicator: getSetExternalModuleIndicator(this.host.getCompilationSettings()),
-                // These files are used to produce syntax-based highlighting, which reads JSDoc, so we must use ParseAll.
-                jsDocParsingMode: JSDocParsingMode.ParseAll,
-            };            
-            sourceFile = createLanguageServiceSourceFile(fileName, scriptSnapshot, globalIncludes, this.host.fileHandler, options, version, /*setNodeParents*/ true, languageVariant, scriptKind);
+        // This is a new file, just parse it
+        const options: CreateSourceFileOptions = {
+            languageVersion: ScriptTarget.Latest,
+            impliedNodeFormat: getImpliedNodeFormatForFile(
+                toPath(fileName, this.host.getCurrentDirectory(), this.host.getCompilerHost?.()?.getCanonicalFileName || hostGetCanonicalFileName(this.host)),
+                this.host.getCompilerHost?.()?.getModuleResolutionCache?.()?.getPackageJsonInfoCache(),
+                this.host,
+                compilerOptions,
+            ),
+            setExternalModuleIndicator: getSetExternalModuleIndicator(this.host.getCompilationSettings()),
+            // These files are used to produce syntax-based highlighting, which reads JSDoc, so we must use ParseAll.
+            jsDocParsingMode: JSDocParsingMode.ParseAll,
+            globalIncludes,
+            fileHandler: createLpcFileHandler({
+                fileExists: fileName => sys.fileExists(fileName),
+                readFile: fileName => sys.readFile(fileName),
+                getCurrentDirectory: () => sys.getCurrentDirectory(),
+                getIncludeDirs: ()=>this.host.getIncludeDirs(),  
+            })
+        }; 
+
+        if (this.currentFileName !== fileName) {                       
+            sourceFile = createLanguageServiceSourceFile(fileName, scriptSnapshot, options, version, /*setNodeParents*/ true, languageVariant, scriptKind);
         }
         else if (this.currentFileVersion !== version) {            
             // This is the same file, just a newer version. Incrementally parse the file.
             const editRange = scriptSnapshot.getChangeRange(this.currentFileScriptSnapshot!);
                         
-            sourceFile = updateLanguageServiceSourceFile(this.currentSourceFile!, scriptSnapshot, globalIncludes, this.host.fileHandler, version, editRange, languageVariant);
+            sourceFile = updateLanguageServiceSourceFile(this.currentSourceFile!, options.globalIncludes, options.fileHandler, scriptSnapshot, version, editRange, languageVariant);
         }
 
         if (sourceFile) {

@@ -27,6 +27,7 @@ import {
     createLpcFileHandler,
     LpcFileHandler,
     emptyArray,
+    sys,
 } from "./_namespaces/lpc.js";
 
 /**
@@ -216,14 +217,12 @@ export function isDocumentRegistryEntry(
     return !!(entry as DocumentRegistryEntry).sourceFile;
 }
 
-export function createDocumentRegistry(
-    fileHandler: LpcFileHandler,
+export function createDocumentRegistry(    
     useCaseSensitiveFileNames?: boolean,
     currentDirectory?: string,
     jsDocParsingMode?: JSDocParsingMode
 ): DocumentRegistry {
-    return createDocumentRegistryInternal(
-        fileHandler,
+    return createDocumentRegistryInternal(        
         useCaseSensitiveFileNames,
         currentDirectory,
         jsDocParsingMode
@@ -235,8 +234,7 @@ export type DocumentRegistryBucketKeyWithMode = string & {
     __documentRegistryBucketKeyWithMode: any;
 };
 /** @internal */
-export function createDocumentRegistryInternal(
-    fileHandler: LpcFileHandler,
+export function createDocumentRegistryInternal(    
     useCaseSensitiveFileNames?: boolean,
     currentDirectory = "",
     jsDocParsingMode?: JSDocParsingMode,
@@ -433,14 +431,13 @@ export function createDocumentRegistryInternal(
         scriptKind = ensureScriptKind(fileName, scriptKind);
         const compilationSettings = getCompilationSettings(
             compilationSettingsOrHost
-        );
+        );        
         const host: MinimalResolutionCacheHost | undefined =
             compilationSettingsOrHost === compilationSettings
                 ? undefined
                 : (compilationSettingsOrHost as MinimalResolutionCacheHost);
         const scriptTarget = ScriptTarget.LPC; //  scriptKind === ScriptKind.JSON ? ScriptTarget.JSON : getEmitScriptTarget(compilationSettings);
-        const languageVariant = compilationSettings?.driverType;
-        const globalInclude = compilationSettings?.globalIncludeFiles ?? emptyArray;
+        const languageVariant = compilationSettings?.driverType;        
         const sourceFileOptions: CreateSourceFileOptions =
             typeof languageVersionOrOptions === "object"
                 ? languageVersionOrOptions
@@ -449,6 +446,13 @@ export function createDocumentRegistryInternal(
                       impliedNodeFormat: ModuleKind.LPC, // host && getImpliedNodeFormatForFile(path, host.getCompilerHost?.()?.getModuleResolutionCache?.()?.getPackageJsonInfoCache(), host, compilationSettings),
                       setExternalModuleIndicator: () => true, // getSetExternalModuleIndicator(compilationSettings),
                       jsDocParsingMode,
+                      globalIncludes: compilationSettings?.globalIncludeFiles ?? emptyArray,
+                      fileHandler: createLpcFileHandler({
+                        readFile: host.readFile,
+                        getCurrentDirectory: host.getCurrentDirectory,
+                        getIncludeDirs: () => compilationSettings?.libIncludeDirs ?? emptyArray,
+                        fileExists: host.fileExists,
+                      })
                   };
         sourceFileOptions.languageVersion = scriptTarget;
         Debug.assertEqual(jsDocParsingMode, sourceFileOptions.jsDocParsingMode);
@@ -517,9 +521,7 @@ export function createDocumentRegistryInternal(
             // Have never seen this file with these settings.  Create a new source file for it.
             const sourceFile = createLanguageServiceSourceFile(
                 fileName,
-                scriptSnapshot,
-                globalInclude,
-                fileHandler,
+                scriptSnapshot,                
                 sourceFileOptions,
                 version,
                 /*setNodeParents*/ false,
@@ -541,9 +543,9 @@ export function createDocumentRegistryInternal(
             if (entry.sourceFile.version !== version) {
                 entry.sourceFile = updateLanguageServiceSourceFile(
                     entry.sourceFile,
-                    scriptSnapshot,
-                    globalInclude,                    
-                    fileHandler,
+                    sourceFileOptions.globalIncludes,
+                    sourceFileOptions.fileHandler,
+                    scriptSnapshot,           
                     version,
                     scriptSnapshot.getChangeRange(
                         entry.sourceFile.scriptSnapshot

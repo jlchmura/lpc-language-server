@@ -168,7 +168,12 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
             /*logChangesWhenResolvingModule*/ true,
         );
         
-        const fileHandler = this.fileHandler = createLpcFileHandler(this);                
+        const fileHandler = this.fileHandler = createLpcFileHandler({
+            getCurrentDirectory: this.getCurrentDirectory,
+            fileExists: this.fileExists,
+            readFile: this.readFile,
+            getIncludeDirs: (filename) => this.program.getIncludeDirs(filename)
+        });                
         this.languageService = createLanguageService(this, fileHandler, this.documentRegistry, this.projectService.serverMode);
         // if (lastFileExceededProgramSize) {
         //     this.disableLanguageService(lastFileExceededProgramSize);

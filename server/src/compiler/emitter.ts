@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { Symbol, Bundle, createTextWriter, Debug, EmitFlags, EmitHint, EmitTextWriter, Expression, factory, getEmitFlags, getInternalEmitFlags, getLineStarts, getNewLineCharacter, getShebang, Identifier, InternalEmitFlags, isExpression, isIdentifier, isSourceFile, isStringLiteral, ListFormat, memoize, ModuleKind, Node, NodeArray, noEmitNotification, noEmitSubstitution, performance, Printer, PrinterOptions, PrintHandlers, rangeIsOnSingleLine, SourceFile, SourceMapGenerator, SourceMapSource, SyntaxKind, TextRange, TypeNode, tokenToString, ParenthesizedExpression, nodeIsSynthesized, getStartsOnNewLine, getLinesBetweenRangeEndAndRangeStart, rangeEndIsOnSameLineAsRangeStart, guessIndentation, cast, getIdentifierTypeArguments, LiteralExpression, isMemberName, getSourceFileOfNode, idText, getOriginalNode, isLiteralExpression, getSourceTextOfNodeFromSourceFile, TypeLiteralNode, forEach, NamedDeclaration, DeclarationName, isGeneratedIdentifier, isBindingPattern, GeneratedIdentifier, GeneratedIdentifierFlags, getNodeId, GeneratedNamePart, FunctionDeclaration, isFileLevelUniqueName, BindingPattern, Block, CaseBlock, CaseOrDefaultClause, CatchStatement, ForStatement, IfStatement, isPrivateIdentifier, SwitchStatement, VariableDeclarationList, VariableStatement, WhileStatement, ForEachStatement, DoWhileStatement, formatGeneratedNamePart, formatGeneratedName, lastOrUndefined, getNodeForGeneratedName, isKeyword, isTokenKind, getNormalizedAbsolutePath, GetCanonicalFileName, CompilerOptions, getDirectoryPath, directorySeparator, computeCommonSourceDirectoryOfFilenames, CharacterCodes, ArrayTypeNode, every, ModifierLike, isModifier, Modifier, positionIsSynthesized, VariableDeclaration, getParseTreeNode, skipTrivia, positionsAreOnSameLine, FunctionTypeNode, SignatureDeclaration, ArrowFunction, ParameterDeclaration, singleOrUndefined, isArrowFunction, some, getCommentRange, rangeStartPositionsAreOnSameLine, getContainingNodeArray, rangeEndPositionsAreOnSameLine, getLinesBetweenPositionAndNextNonWhitespaceCharacter, CallSignatureDeclaration, getTrailingSemicolonDeferringWriter, ReturnStatement, isPartiallyEmittedExpression, isParenthesizedExpression, getLeadingCommentRanges, CommentRange, getSyntheticLeadingComments, getTrailingCommentRanges, setOriginalNode, setTextRange, fileExtensionIs, Extension, FunctionExpression, FunctionLikeDeclaration, firstOrUndefined, Statement, isPrologueDirective, hasRecordedExternalHelpers, getEmitHelpers, stableSort, compareEmitHelpers, emitDetachedComments, isJSDocLikeText, isPinnedComment, writeCommentRange, getLineAndCharacterOfPosition, emitNewLineBeforeLeadingCommentOfPosition, BinaryExpression, ArrayLiteralExpression, isBinaryExpression, BinaryOperatorToken, createBinaryExpressionTrampoline, LiteralLikeNode, StringLiteral, escapeString, escapeNonAsciiString, GetLiteralTextFlags, ScriptTarget, getLiteralText, CallExpression, ContinueStatement, BreakStatement, CaseClause, DefaultClause, ElementAccessExpression, ExpressionStatement, isJsonSourceFile } from "./_namespaces/lpc.js";
+import { Symbol, Bundle, createTextWriter, Debug, EmitFlags, EmitHint, EmitTextWriter, Expression, factory, getEmitFlags, getInternalEmitFlags, getLineStarts, getNewLineCharacter, getShebang, Identifier, InternalEmitFlags, isExpression, isIdentifier, isSourceFile, isStringLiteral, ListFormat, memoize, ModuleKind, Node, NodeArray, noEmitNotification, noEmitSubstitution, performance, Printer, PrinterOptions, PrintHandlers, rangeIsOnSingleLine, SourceFile, SourceMapGenerator, SourceMapSource, SyntaxKind, TextRange, TypeNode, tokenToString, ParenthesizedExpression, nodeIsSynthesized, getStartsOnNewLine, getLinesBetweenRangeEndAndRangeStart, rangeEndIsOnSameLineAsRangeStart, guessIndentation, cast, getIdentifierTypeArguments, LiteralExpression, isMemberName, getSourceFileOfNode, idText, getOriginalNode, isLiteralExpression, getSourceTextOfNodeFromSourceFile, TypeLiteralNode, forEach, NamedDeclaration, DeclarationName, isGeneratedIdentifier, isBindingPattern, GeneratedIdentifier, GeneratedIdentifierFlags, getNodeId, GeneratedNamePart, FunctionDeclaration, isFileLevelUniqueName, BindingPattern, Block, CaseBlock, CaseOrDefaultClause, CatchStatement, ForStatement, IfStatement, isPrivateIdentifier, SwitchStatement, VariableDeclarationList, VariableStatement, WhileStatement, ForEachStatement, DoWhileStatement, formatGeneratedNamePart, formatGeneratedName, lastOrUndefined, getNodeForGeneratedName, isKeyword, isTokenKind, getNormalizedAbsolutePath, GetCanonicalFileName, CompilerOptions, getDirectoryPath, directorySeparator, computeCommonSourceDirectoryOfFilenames, CharacterCodes, ArrayTypeNode, every, ModifierLike, isModifier, Modifier, positionIsSynthesized, VariableDeclaration, getParseTreeNode, skipTrivia, positionsAreOnSameLine, FunctionTypeNode, SignatureDeclaration, ArrowFunction, ParameterDeclaration, singleOrUndefined, isArrowFunction, some, getCommentRange, rangeStartPositionsAreOnSameLine, getContainingNodeArray, rangeEndPositionsAreOnSameLine, getLinesBetweenPositionAndNextNonWhitespaceCharacter, CallSignatureDeclaration, getTrailingSemicolonDeferringWriter, ReturnStatement, isPartiallyEmittedExpression, isParenthesizedExpression, getLeadingCommentRanges, CommentRange, getSyntheticLeadingComments, getTrailingCommentRanges, setOriginalNode, setTextRange, fileExtensionIs, Extension, FunctionExpression, FunctionLikeDeclaration, firstOrUndefined, Statement, isPrologueDirective, hasRecordedExternalHelpers, getEmitHelpers, stableSort, compareEmitHelpers, emitDetachedComments, isJSDocLikeText, isPinnedComment, writeCommentRange, getLineAndCharacterOfPosition, emitNewLineBeforeLeadingCommentOfPosition, BinaryExpression, ArrayLiteralExpression, isBinaryExpression, BinaryOperatorToken, createBinaryExpressionTrampoline, LiteralLikeNode, StringLiteral, escapeString, escapeNonAsciiString, GetLiteralTextFlags, ScriptTarget, getLiteralText, CallExpression, ContinueStatement, BreakStatement, CaseClause, DefaultClause, ElementAccessExpression, ExpressionStatement, isJsonSourceFile, isAssignmentOperator } from "./_namespaces/lpc.js";
 
 const brackets = createBracketsMap();
 
@@ -5092,7 +5092,32 @@ export function createJsPrinter(printerOptions: PrinterOptions = {}, handlers: P
     }
     
     /** Emit a binary expression as a call expression to a helper function */
-    function emitBinaryExpressionHelper(node: BinaryExpression) {
+    function emitBinaryExpressionHelper(node: BinaryExpression) {                
+        let operator = node.operatorToken.kind;
+
+        // rewrite assignment operators to use __lpcBinaryHelper
+        if (isAssignmentOperator(operator)) {
+            emitExpression(node.left);
+            writeOperator(tokenToString(SyntaxKind.EqualsToken)!);
+            
+            switch (operator) {
+                case SyntaxKind.PlusEqualsToken:
+                    operator = SyntaxKind.PlusToken;
+                    break;
+                case SyntaxKind.MinusEqualsToken:
+                    operator = SyntaxKind.MinusToken;
+                    break;
+                case SyntaxKind.AsteriskEqualsToken:
+                    operator = SyntaxKind.AsteriskToken;
+                    break;
+                case SyntaxKind.SlashEqualsToken:
+                    operator = SyntaxKind.SlashToken;
+                    break;
+                default:
+                    Debug.fail("Unknown compound assignment operator " + Debug.formatSyntaxKind(operator));
+            }
+        }
+
         writeKeyword("__lpcBinaryHelper");
         writePunctuation("(");
         emitExpression(node.left);
@@ -5100,7 +5125,7 @@ export function createJsPrinter(printerOptions: PrinterOptions = {}, handlers: P
         emitExpression(node.right);
         writePunctuation(",");
         writePunctuation("\"");
-        writeTokenNode(node.operatorToken, writeOperator);
+        writeOperator(tokenToString(operator)!);        
         writePunctuation("\"");
         writePunctuation(")");
     }

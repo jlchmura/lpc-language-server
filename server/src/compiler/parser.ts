@@ -6548,17 +6548,25 @@ function setExternalModuleIndicator(sourceFile: SourceFile) {
     sourceFile.externalModuleIndicator = true;
 }
 
-export function createSourceFile(fileName: string, sourceText: string, globalIncludes: string[], fileHandler: LpcFileHandler, languageVersionOrOptions: ScriptTarget | CreateSourceFileOptions, setParentNodes = false, scriptKind?: ScriptKind, languageVariant?: LanguageVariant): SourceFile {
+export function createSourceFile(fileName: string, sourceText: string, languageVersionOrOptions: ScriptTarget | CreateSourceFileOptions, setParentNodes = false, scriptKind?: ScriptKind, languageVariant?: LanguageVariant): SourceFile {
     tracing?.push(tracing.Phase.Parse, "createSourceFile", { path: fileName }, /*separateBeginAndEnd*/ true);
     performance.mark("beforeParse");
     let result: SourceFile;
     
+    const {
+        languageVersion,
+        setExternalModuleIndicator: overrideSetExternalModuleIndicator,
+        impliedNodeFormat: format,
+        jsDocParsingMode,
+        globalIncludes,
+        fileHandler
+    } = typeof languageVersionOrOptions === "object" ? languageVersionOrOptions : ({ languageVersion: languageVersionOrOptions } as CreateSourceFileOptions);
+
     const setIndicator = (file: SourceFile) => {
         setExternalModuleIndicator(file);
     };
     
-    result = LpcParser.parseSourceFile(fileName, sourceText, globalIncludes, fileHandler, ScriptTarget.LPC, undefined, false, undefined, setIndicator, undefined, languageVariant);
-
+    result = LpcParser.parseSourceFile(fileName, sourceText, globalIncludes, fileHandler, ScriptTarget.LPC, undefined, false, undefined, setIndicator, jsDocParsingMode, languageVariant);
 
     performance.mark("afterParse");
     performance.measure("Parse", "beforeParse", "afterParse");
@@ -6583,6 +6591,10 @@ export interface CreateSourceFileOptions {
     /** @internal */ packageJsonLocations?: readonly string[];
     ///** @internal */ packageJsonScope?: PackageJsonInfo;
     jsDocParsingMode?: JSDocParsingMode;
+
+    globalIncludes?: string[];
+
+    fileHandler: LpcFileHandler;
 }
 
 /** @internal */
@@ -6616,7 +6628,7 @@ export function getDeclarationFileExtension(fileName: string): string | undefine
 // from this SourceFile that are being held onto may change as a result (including
 // becoming detached from any SourceFile).  It is recommended that this SourceFile not
 // be used once 'update' is called on it.
-export function updateSourceFile(sourceFile: SourceFile, newText: string, globalIncludes: string[], fileHandler: LpcFileHandler, textChangeRange: TextChangeRange, aggressiveChecks = false, languageVariant: LanguageVariant): SourceFile {
+export function updateSourceFile(sourceFile: SourceFile, newText: string, globalIncludes: string[], fileHandler: LpcFileHandler, textChangeRange: TextChangeRange, aggressiveChecks = false, languageVariant: LanguageVariant): SourceFile {    
     console.warn("implement me- updateSourceFile");
     return LpcParser.parseSourceFile(sourceFile.fileName, newText, globalIncludes, fileHandler, ScriptTarget.LPC, undefined, false, undefined, undefined, undefined, languageVariant);
     // const newSourceFile = IncrementalParser.updateSourceFile(sourceFile, newText, textChangeRange, aggressiveChecks);
