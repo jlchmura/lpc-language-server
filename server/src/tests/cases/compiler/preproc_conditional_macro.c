@@ -1,3 +1,4 @@
+// @errors: 1
 #define FOO
 
 #ifndef FOO

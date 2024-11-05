@@ -6656,3 +6656,13 @@ export function getNameOfScriptTarget(scriptTarget: ScriptTarget): string | unde
     return "LPC";
     // return forEachEntry(targetOptionDeclaration.type, (value, key) => value === scriptTarget ? key : undefined);
 }
+
+export function driverTypeToLanguageVariant(driverType: string): LanguageVariant {
+    switch (driverType) {
+        case "fluffos":
+            return LanguageVariant.FluffOS;            
+        case "ldmud":
+        default:
+            return LanguageVariant.LDMud;            
+    }
+}

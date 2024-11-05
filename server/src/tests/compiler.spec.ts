@@ -11,6 +11,23 @@ function removeTestPathPrefixes(text: string, retainTrailingDirectorySeparator?:
     return text !== undefined ? text.replace(testPathPrefixRegExp, (_, scheme) => scheme || (retainTrailingDirectorySeparator ? "/" : "")) : undefined!; // TODO: GH#18217
 }
 
+// Regex for parsing options in the format "@Alpha: Value of any sort"
+const optionRegex = /^[/]{2}\s*@(\w+)\s*:\s*([^\r\n]*)/gm; // multiple matches on multiple lines
+
+interface CompilerSettings {
+    [name: string]: string;
+}
+function extractCompilerSettings(content: string): CompilerSettings {
+    const opts: CompilerSettings = {};
+
+    let match: RegExpExecArray | null; // eslint-disable-line no-restricted-syntax
+    while ((match = optionRegex.exec(content)) !== null) { // eslint-disable-line no-restricted-syntax
+        opts[match[1]] = match[2].trim();
+    }
+
+    return opts;
+}
+
 
 describe("Compiler", () => {
 
@@ -33,12 +50,19 @@ describe("Compiler", () => {
     testFiles = enumerateFiles(basePath, /\.c$/);
     console.info(`Got ${testFiles.length} test files in ${basePath}`);
 
-    testFiles.forEach(testCaseFile => {
-        describe(testCaseFile, () => {                           
+    const singleTestFile = "";//"typeInference3.c";
+
+    testFiles.filter(f => singleTestFile.length==0 || f.endsWith(singleTestFile)).forEach(testCaseFile => {
+        describe(testCaseFile, () => {                  
+            const fileContent = lpc.sys.readFile(testCaseFile);
+            const testOptions = extractCompilerSettings(fileContent);            
+
             // setup options & hosts
             const compilerOptions: lpc.CompilerOptions = {
-                driverType: lpc.LanguageVariant.LDMud,
+                driverType: lpc.driverTypeToLanguageVariant(testOptions["driver"]),
             };
+
+            const expectedErrorCount = +(testOptions["errors"] ?? "0");
 
             const compilerHost = lpc.createCompilerHost(compilerOptions);
             compilerHost.getDefaultLibFileName = () => lpc.combinePaths(root, lpc.getDefaultLibFileName(compilerOptions));
@@ -66,12 +90,17 @@ describe("Compiler", () => {
                 
                 // combine and validate
                 const diags = file.parseDiagnostics.concat(semanticDiags);
+
+                it(`Reports correct number of errors for ${testCaseFile}`, () => {
+                    expect(diags.length).toEqual(expectedErrorCount);
+                });
+
                 diagsText = removeTestPathPrefixes(lpc.getErrorSummaryText(diags.length, lpc.getFilesInErrorForSummary(diags), "\n", compilerHost));
             } catch(e) {
                 debugger;
                 throw e;
             }
-
+            
             it(`Reports correct errors for ${testCaseFile}`, () => {
                 expect(diagsText).toMatchSnapshot(`diags-${testCaseFile}`);
             });                        

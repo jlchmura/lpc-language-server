@@ -4,7 +4,7 @@ exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/ca
 
 exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/assignment2.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/assignment2.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/assignment2.c 1`] = `
 "
-Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/assignment2.c[90m:2[0m
+Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/assignment2.c[90m:3[0m
 
 "
 `;
@@ -27,25 +27,15 @@ exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/ca
 
 exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/macro2.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/macro2.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/macro2.c 1`] = `""`;
 
-exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/new1.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/new1.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/new1.c 1`] = `
-"
-Found 1 error in server/src/tests/cases/compiler/new1.c[90m:3[0m
+exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/new1.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/new1.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/new1.c 1`] = `""`;
 
-"
-`;
-
-exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/new2.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/new2.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/new2.c 1`] = `
-"
-Found 1 error in server/src/tests/cases/compiler/new2.c[90m:3[0m
-
-"
-`;
+exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/new2.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/new2.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/new2.c 1`] = `""`;
 
 exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/preproc_conditional.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/preproc_conditional.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/preproc_conditional.c 1`] = `""`;
 
 exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/preproc_conditional_macro.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/preproc_conditional_macro.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/preproc_conditional_macro.c 1`] = `
 "
-Found 1 error in server/src/tests/cases/compiler/preproc_conditional_macro.c[90m:9[0m
+Found 1 error in server/src/tests/cases/compiler/preproc_conditional_macro.c[90m:10[0m
 
 "
 `;
@@ -56,7 +46,7 @@ exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/ca
 
 exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/typeInference3.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/typeInference3.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/typeInference3.c 1`] = `
 "
-Found 1 error in server/src/tests/cases/compiler/typeInference3.c[90m:3[0m
+Found 1 error in server/src/tests/cases/compiler/typeInference3.c[90m:4[0m
 
 "
 `;
