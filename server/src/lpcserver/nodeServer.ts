@@ -1,6 +1,4 @@
 import fs from "fs";
-import net from "net";
-import os from "os";
 import * as lpc from "../lpc/lpc.js";
 import { noop } from "../lpc/lpc.js";
 

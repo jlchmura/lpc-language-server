@@ -1,4 +1,4 @@
-import { Symbol, createTextSpanFromBounds, Declaration, DefinitionInfo, emptyArray, FileReference, findAncestor, forEach, FunctionLikeDeclaration, getTouchingPropertyName, isDefaultClause, isFunctionLikeDeclaration, isSwitchStatement, Node, Program, ScriptElementKind, SignatureDeclaration, SourceFile, SwitchStatement, SymbolFlags, SyntaxKind, TypeChecker, SymbolDisplay, getNameOfDeclaration, createTextSpanFromNode, NodeFlags, hasInitializer, HasInitializer, hasEffectiveModifier, ModifierFlags, FindAllReferences, TextSpan, concatenate, every, mapDefined, tryCast, isFunctionLike, isAssignmentExpression, isCallLikeExpression, canHaveSymbol, filter, some, map, find, isCallOrNewExpressionTarget, isNameOfFunctionDeclaration, CallLikeExpression, isRightSideOfPropertyAccess, getInvokedExpression, isPropertyName, isBindingElement, isNewExpressionTarget, textRangeContainsPositionInclusive, IncludeDirective, getTouchingToken, ResolvedModuleWithFailedLookupLocations, getDirectoryPath, resolvePath, isStringLiteral } from "./_namespaces/lpc";
+import { Symbol, createTextSpanFromBounds, Declaration, DefinitionInfo, emptyArray, FileReference, findAncestor, forEach, FunctionLikeDeclaration, getTouchingPropertyName, isDefaultClause, isFunctionLikeDeclaration, isSwitchStatement, Node, Program, ScriptElementKind, SignatureDeclaration, SourceFile, SwitchStatement, SymbolFlags, SyntaxKind, TypeChecker, SymbolDisplay, getNameOfDeclaration, createTextSpanFromNode, NodeFlags, hasInitializer, HasInitializer, hasEffectiveModifier, ModifierFlags, FindAllReferences, TextSpan, concatenate, every, mapDefined, tryCast, isFunctionLike, isAssignmentExpression, isCallLikeExpression, canHaveSymbol, filter, some, map, find, isCallOrNewExpressionTarget, isNameOfFunctionDeclaration, CallLikeExpression, isRightSideOfPropertyAccess, getInvokedExpression, isPropertyName, isBindingElement, isNewExpressionTarget, textRangeContainsPositionInclusive, IncludeDirective, getTouchingToken, ResolvedModuleWithFailedLookupLocations, getDirectoryPath, resolvePath, isStringLiteral, getPreEmitDiagnostics } from "./_namespaces/lpc";
 import { isContextWithStartAndEndNode } from "./_namespaces/lpc.FindAllReferences";
 
 /** @internal */
@@ -17,6 +17,9 @@ export function getDefinitionAtPosition(program: Program, sourceFile: SourceFile
 
     const { parent } = node;
     const typeChecker = program.getTypeChecker();
+    
+    // run the type checker if it hasn't been run yet.
+    getPreEmitDiagnostics(program, sourceFile);
 
     // TODO: detect super here
     // if (node.kind === SyntaxKind.OverrideKeyword || (isIdentifier(node) && isJSDocOverrideTag(parent) && parent.tagName === node)) {

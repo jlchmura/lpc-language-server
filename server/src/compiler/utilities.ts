@@ -6630,3 +6630,29 @@ export function createMasterApplyGetIncludePathVm(masterFile: SourceFile) {
     return vm.compileFunction(jsSource, ["ctxInput"], compileOptions) as (fileName:string)=>string[]|undefined;
 }
 
+/** @internal */
+export function createCompilerDiagnosticFromMessageChain(chain: DiagnosticMessageChain, relatedInformation?: DiagnosticRelatedInformation[]): Diagnostic {
+    return {
+        file: undefined,
+        start: undefined,
+        length: undefined,
+
+        code: chain.code,
+        category: chain.category,
+        messageText: chain.next ? chain : chain.messageText,
+        relatedInformation,
+    };
+}
+
+/** @internal */
+export function getPatternFromSpec(spec: string, basePath: string, usage: "files" | "directories" | "exclude") {
+    const pattern = spec && getSubPatternFromSpec(spec, basePath, usage, wildcardMatchers[usage]);
+    return pattern && `^(${pattern})${usage === "exclude" ? "($|/)" : "$"}`;
+}
+
+/** @internal */
+export function getNameOfScriptTarget(scriptTarget: ScriptTarget): string | undefined {
+    console.debug("todo - getNameOfScriptTarget");
+    return "LPC";
+    // return forEachEntry(targetOptionDeclaration.type, (value, key) => value === scriptTarget ? key : undefined);
+}

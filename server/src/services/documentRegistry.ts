@@ -662,5 +662,5 @@ function getDocumentRegistryBucketKeyWithMode(
     key: DocumentRegistryBucketKey,
     mode: ResolutionMode
 ) {
-    return (mode ? `${key}|${mode}` : key) as DocumentRegistryBucketKeyWithMode;
+    return key as unknown as DocumentRegistryBucketKeyWithMode;//return (mode ? `${key}|${mode}` : key) as DocumentRegistryBucketKeyWithMode;
 }

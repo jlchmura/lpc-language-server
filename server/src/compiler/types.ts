@@ -4968,7 +4968,7 @@ export interface Program extends ScriptReferenceHost {
     getSemanticDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken): readonly Diagnostic[];    
 
     getDeclarationDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken): readonly DiagnosticWithLocation[];
-    // getConfigFileParsingDiagnostics(): readonly Diagnostic[];
+    getConfigFileParsingDiagnostics(): readonly Diagnostic[];
     // /** @internal */ getSuggestionDiagnostics(sourceFile: SourceFile, cancellationToken?: CancellationToken): readonly DiagnosticWithLocation[];
 
     // /** @internal */ getBindAndCheckDiagnostics(sourceFile: SourceFile, cancellationToken?: CancellationToken): readonly Diagnostic[];
@@ -7395,4 +7395,10 @@ export interface TypePredicateNode extends TypeNode {
 /** @internal */
 export interface HasCurrentDirectory {
     getCurrentDirectory(): string;
+}
+
+/** @internal */
+export interface FilePreprocessingLibReferenceDiagnostic {
+    kind: FilePreprocessingDiagnosticsKind.FilePreprocessingLibReferenceDiagnostic;
+    reason: ReferencedFile & { kind: FileIncludeKind.LibReferenceDirective; };
 }

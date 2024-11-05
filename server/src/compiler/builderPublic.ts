@@ -62,7 +62,10 @@ export interface BuilderProgram {
      * Get all the dependencies of the file
      */
     getAllDependencies(sourceFile: SourceFile): readonly string[];
-
+    /**
+     * Get the diagnostics from config file parsing
+     */
+    getConfigFileParsingDiagnostics(): readonly Diagnostic[];
     /**
      * Gets the semantic diagnostics from the program corresponding to this state of file (if provided) or whole program
      * The semantic diagnostics are cached and managed here

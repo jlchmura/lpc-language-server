@@ -76,7 +76,7 @@ export function start(connection: Connection, platform: string) {
 
     if (lpc.sys.tryEnableSourceMapsForHost && /^development$/i.test(lpc.sys.getEnvironmentVariable("NODE_ENV"))) {
         lpc.sys.tryEnableSourceMapsForHost();
-    }
+    }    
 
     // Overwrites the current console messages to instead write to
     // the log. This is so that language service plugins which use
@@ -101,7 +101,11 @@ export function start(connection: Connection, platform: string) {
         // const config = loadLpcConfig(projectFileName);
 
         const host = lpc.sys as lpc.server.ServerHost;
+        host.setTimeout = setTimeout;
+        host.clearTimeout = clearTimeout;
         host.setImmediate = setImmediate;
+        host.clearImmediate = clearImmediate;    
+        
         const session = new LspSession({
             host: lpc.sys as lpc.server.ServerHost,
             cancellationToken: lpc.server.nullCancellationToken,
