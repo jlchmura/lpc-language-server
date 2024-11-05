@@ -2,6 +2,16 @@ import * as lpc from "./_namespaces/lpc.js";
 import * as lpcNode from "../lpcserver/nodeServer.js";
 import * as path from "path";
 
+/**
+ * Common utilities
+ */
+
+const testPathPrefixRegExp = /(?:(file:\/{3})|\/)\.(ts|lib|src)\//g;
+function removeTestPathPrefixes(text: string, retainTrailingDirectorySeparator?: boolean): string {
+    return text !== undefined ? text.replace(testPathPrefixRegExp, (_, scheme) => scheme || (retainTrailingDirectorySeparator ? "/" : "")) : undefined!; // TODO: GH#18217
+}
+
+
 describe("Compiler", () => {
 
     const root = process.cwd();
@@ -24,7 +34,7 @@ describe("Compiler", () => {
     console.info(`Got ${testFiles.length} test files in ${basePath}`);
 
     testFiles.forEach(testCaseFile => {
-        describe(testCaseFile, () => {                        
+        describe(testCaseFile, () => {                           
             // setup options & hosts
             const compilerOptions: lpc.CompilerOptions = {
                 driverType: lpc.LanguageVariant.LDMud,
@@ -44,14 +54,27 @@ describe("Compiler", () => {
             const program = lpc.createProgram(createProgramOptions);
             const file = program.getSourceFile(testCaseFile);
 
-            // run semantic diags
-            const semanticDiags = program.getSemanticDiagnostics(file);
-            
-            // combine and validate
-            const diags = file.parseDiagnostics.concat(semanticDiags);
-            it(`Correct errors for ${testCaseFile}`, () => {
-                expect(diags.length).toBe(0);
+            it(`Properly compiles ${testCaseFile}`, () => {
+                expect(file).toBeDefined();
             });
+
+            let diagsText: string;
+
+            try {
+                // run semantic diags
+                const semanticDiags = program.getSemanticDiagnostics(file);
+                
+                // combine and validate
+                const diags = file.parseDiagnostics.concat(semanticDiags);
+                diagsText = removeTestPathPrefixes(lpc.getErrorSummaryText(diags.length, lpc.getFilesInErrorForSummary(diags), "\n", compilerHost));
+            } catch(e) {
+                debugger;
+                throw e;
+            }
+
+            it(`Reports correct errors for ${testCaseFile}`, () => {
+                expect(diagsText).toMatchSnapshot(`diags-${testCaseFile}`);
+            });                        
         });
     });
     

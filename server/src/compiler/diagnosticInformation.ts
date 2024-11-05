@@ -361,4 +361,10 @@ export const Diagnostics = {
     Type_argument_expected: diag(1140, DiagnosticCategory.Error, "Type_argument_expected_1140", "Type argument expected."),
     Type_expected: diag(1110, DiagnosticCategory.Error, "Type_expected_1110", "Type expected."),
     Unexpected_token_expected: diag(1179, DiagnosticCategory.Error, "Unexpected_token_expected_1179", "Unexpected token. '{' expected."),
+    Found_1_error_in_0: diag(6259, DiagnosticCategory.Message, "Found_1_error_in_0_6259", "Found 1 error in {0}"),
+    Found_1_error: diag(6216, DiagnosticCategory.Message, "Found_1_error_6216", "Found 1 error."),
+    Found_0_errors: diag(6217, DiagnosticCategory.Message, "Found_0_errors_6217", "Found {0} errors."),
+    Found_0_errors_in_the_same_file_starting_at_Colon_1: diag(6260, DiagnosticCategory.Message, "Found_0_errors_in_the_same_file_starting_at_Colon_1_6260", "Found {0} errors in the same file, starting at: {1}"),
+    Found_0_errors_in_1_files: diag(6261, DiagnosticCategory.Message, "Found_0_errors_in_1_files_6261", "Found {0} errors in {1} files."),
+    Errors_Files: diag(6041, DiagnosticCategory.Message, "Errors_Files_6041", "Errors  Files"),
 }

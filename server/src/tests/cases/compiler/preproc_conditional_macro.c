@@ -5,6 +5,6 @@
 #endif
 
 #ifdef FOO
-// Todo - change this to a int to string assignment, so that it generates and error that we can validate against
-int i = 0;
+// this should generate a type error
+string i = 123;
 #endif

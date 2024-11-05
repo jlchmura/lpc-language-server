@@ -7391,3 +7391,8 @@ export interface TypePredicateNode extends TypeNode {
     readonly parameterName: Identifier | ThisTypeNode;
     readonly type?: TypeNode;
 }
+
+/** @internal */
+export interface HasCurrentDirectory {
+    getCurrentDirectory(): string;
+}
