@@ -1,4 +1,4 @@
-import { AssertionLevel, BinaryExpression, BinaryOperatorToken, CharacterCodes, Debug, EmitFlags, Expression, GeneratedIdentifier, GeneratedIdentifierFlags, GeneratedNamePart, getEmitFlags, getJSDocType, getOriginalNode, Identifier, idText, isGeneratedIdentifier, isIdentifier, isMemberName, isSourceFile, JSDocNamespaceBody, JSDocTypeAssertion, Node, SourceFile, TypeNode } from "../_namespaces/lpc";
+import { AssertionLevel, BinaryExpression, BinaryOperatorToken, CharacterCodes, Debug, EmitFlags, Expression, GeneratedIdentifier, GeneratedIdentifierFlags, GeneratedNamePart, getEmitFlags, getJSDocType, getOriginalNode, HasIllegalModifiers, Identifier, idText, isGeneratedIdentifier, isIdentifier, isMemberName, isSourceFile, JSDocNamespaceBody, JSDocTypeAssertion, Node, SourceFile, SyntaxKind, TypeNode } from "../_namespaces/lpc";
 
 
 type BinaryExpressionState = <TOuterState, TState, TResult>(machine: BinaryExpressionStateMachine<TOuterState, TState, TResult>, stackIndex: number, stateStack: BinaryExpressionState[], nodeStack: BinaryExpression[], userStateStack: TState[], resultHolder: { value: TResult; }, outerState: TOuterState) => number;
@@ -349,4 +349,13 @@ export function hasRecordedExternalHelpers(sourceFile: SourceFile) {
     const parseNode = getOriginalNode(sourceFile, isSourceFile);
     const emitNode = parseNode && parseNode.emitNode;
     return !!emitNode && (!!emitNode.externalHelpersModuleName || !!emitNode.externalHelpers);
+}
+
+
+/** @internal */
+export function canHaveIllegalModifiers(node: Node): node is HasIllegalModifiers {
+    const kind = node.kind;
+    return kind === SyntaxKind.PropertyAssignment
+        || kind === SyntaxKind.ShorthandPropertyAssignment
+        || kind === SyntaxKind.MissingDeclaration;
 }

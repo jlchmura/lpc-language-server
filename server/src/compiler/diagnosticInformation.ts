@@ -389,4 +389,13 @@ export const Diagnostics = {
     File_is_included_via_library_reference_here: diag(1406, DiagnosticCategory.Message, "File_is_included_via_library_reference_here_1406", "File is included via library reference here."),
     Cannot_find_lib_definition_for_0_Did_you_mean_1: diag(2727, DiagnosticCategory.Error, "Cannot_find_lib_definition_for_0_Did_you_mean_1_2727", "Cannot find lib definition for '{0}'. Did you mean '{1}'?"),
     Cannot_find_lib_definition_for_0: diag(2726, DiagnosticCategory.Error, "Cannot_find_lib_definition_for_0_2726", "Cannot find lib definition for '{0}'."),
+    Modifiers_cannot_appear_here: diag(1184, DiagnosticCategory.Error, "Modifiers_cannot_appear_here_1184", "Modifiers cannot appear here."),
+    _0_modifier_cannot_appear_on_a_type_member: diag(1070, DiagnosticCategory.Error, "_0_modifier_cannot_appear_on_a_type_member_1070", "'{0}' modifier cannot appear on a type member."),
+    _0_modifier_cannot_appear_on_an_index_signature: diag(1071, DiagnosticCategory.Error, "_0_modifier_cannot_appear_on_an_index_signature_1071", "'{0}' modifier cannot appear on an index signature."),
+    Accessibility_modifier_already_seen: diag(1028, DiagnosticCategory.Error, "Accessibility_modifier_already_seen_1028", "Accessibility modifier already seen."),
+    _0_modifier_already_seen: diag(1030, DiagnosticCategory.Error, "_0_modifier_already_seen_1030", "'{0}' modifier already seen."),
+    _0_modifier_cannot_appear_on_a_parameter: diag(1090, DiagnosticCategory.Error, "_0_modifier_cannot_appear_on_a_parameter_1090", "'{0}' modifier cannot appear on a parameter."),
+    A_parameter_property_may_not_be_declared_using_a_binding_pattern: diag(1187, DiagnosticCategory.Error, "A_parameter_property_may_not_be_declared_using_a_binding_pattern_1187", "A parameter property may not be declared using a binding pattern."),
+    A_parameter_property_cannot_be_declared_using_a_rest_parameter: diag(1317, DiagnosticCategory.Error, "A_parameter_property_cannot_be_declared_using_a_rest_parameter_1317", "A parameter property cannot be declared using a rest parameter."),
+    _0_modifier_must_precede_1_modifier: diag(1029, DiagnosticCategory.Error, "_0_modifier_must_precede_1_modifier_1029", "'{0}' modifier must precede '{1}' modifier."),
 }

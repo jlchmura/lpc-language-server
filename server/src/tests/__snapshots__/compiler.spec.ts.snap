@@ -27,6 +27,22 @@ exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/ca
 
 exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/macro2.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/macro2.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/macro2.c 1`] = `""`;
 
+exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/modifiers1.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/modifiers1.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/modifiers1.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/modifiers1.c[90m:3[0m
+
+"
+`;
+
+exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/modifiers2.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/modifiers2.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/modifiers2.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/modifiers2.c[90m:2[0m
+
+"
+`;
+
+exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/modifiers3.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/modifiers3.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/modifiers3.c 1`] = `""`;
+
 exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/new1.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/new1.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/new1.c 1`] = `""`;
 
 exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/new2.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/new2.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/new2.c 1`] = `""`;

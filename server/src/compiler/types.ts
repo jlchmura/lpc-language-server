@@ -2009,20 +2009,20 @@ export type HasModifiers =
     // | ConstructorTypeNode
     | PropertySignature
     | PropertyDeclaration
-    // | MethodSignature
-    // | MethodDeclaration
+    | MethodSignature
+    | MethodDeclaration
     // | ConstructorDeclaration
     // | GetAccessorDeclaration
     // | SetAccessorDeclaration
     | IndexSignatureDeclaration
     | FunctionExpression
-    // | ArrowFunction
-    // | ClassExpression
+    | ArrowFunction
+    | ClassExpression
     | VariableStatement
     | FunctionDeclaration
-    // | ClassDeclaration
+    | ClassDeclaration
     // | InterfaceDeclaration
-    // | TypeAliasDeclaration
+    | TypeAliasDeclaration
     // | EnumDeclaration
     // | ModuleDeclaration
     // | ImportEqualsDeclaration
@@ -2030,6 +2030,16 @@ export type HasModifiers =
     // | ExportAssignment
     // | ExportDeclaration
     ;
+
+// NOTE: Changing the following list requires changes to:
+// - `canHaveIllegalModifiers` in factory/utilities.ts
+/** @internal */
+export type HasIllegalModifiers =
+    // | ClassStaticBlockDeclaration
+    | PropertyAssignment
+    | ShorthandPropertyAssignment
+    | MissingDeclaration;
+    // | NamespaceExportDeclaration;
 
 /** @internal */
 export type HasFlowNode =
