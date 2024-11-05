@@ -697,3 +697,24 @@ export function getWatchFactory<X, Y = undefined>(host: WatchFactoryHost, watchL
         return `WatchInfo: ${file} ${flags} ${JSON.stringify(options)} ${getDetailWatchInfo ? getDetailWatchInfo(detailInfo1, detailInfo2) : detailInfo2 === undefined ? detailInfo1 : `${detailInfo1} ${detailInfo2}`}`;
     }
 }
+
+/** @internal */
+export interface SharedExtendedConfigFileWatcher<T> extends FileWatcher {
+    watcher: FileWatcher;
+    projects: Set<T>;
+}
+
+
+/**
+ * Remove the project from the extended config file watchers and close not needed watches
+ *
+ * @internal
+ */
+export function clearSharedExtendedConfigFileWatcher<T>(
+    projectPath: T,
+    extendedConfigFilesMap: Map<Path, SharedExtendedConfigFileWatcher<T>>,
+) {
+    extendedConfigFilesMap.forEach(watcher => {
+        if (watcher.projects.delete(projectPath)) watcher.close();
+    });
+}

@@ -1,6 +1,6 @@
 import { ILpcConfig } from "../config-types.js";
 import * as lpc from "./_namespaces/lpc.js";
-import { addRange, append, arrayFrom, CachedDirectoryStructureHost, clearMap, closeFileWatcher, combinePaths, CompilerHost, CompilerOptions, createLanguageService, createLpcFileHandler, createResolutionCache, Debug, Diagnostic, DirectoryStructureHost, DirectoryWatcherCallback, DocumentRegistry, explainFiles, ExportInfoMap, FileWatcher, FileWatcherCallback, FileWatcherEventKind, flatMap, forEach, forEachKey, GetCanonicalFileName, getDefaultLibFileName, getDirectoryPath, getNormalizedAbsolutePath, getOrUpdate, HasInvalidatedLibResolutions, HasInvalidatedResolutions, IScriptSnapshot, isExternalModuleNameRelative, isString, LanguageService, LanguageServiceHost, LanguageServiceMode, maybeBind, ModuleResolutionHost, noopFileWatcher, normalizePath, ParsedCommandLine, parsePackageName, Path, PerformanceEvent, PollingInterval, Program, ProgramUpdateLevel, ProjectReference, ResolutionCache, resolutionExtensionIsTSOrJson, ResolvedProjectReference, returnFalse, returnTrue, sortAndDeduplicate, SortedReadonlyArray, SourceFile, SourceMapper, StructureIsReused, ThrottledCancellationToken, timestamp, toPath, tracing, TypeAcquisition, updateMissingFilePathsWatch, WatchDirectoryFlags, WatchOptions, WatchType } from "./_namespaces/lpc.js";
+import { addRange, append, arrayFrom, CachedDirectoryStructureHost, clearMap, closeFileWatcher, combinePaths, CompilerHost, CompilerOptions, createLanguageService, createLpcFileHandler, createResolutionCache, Debug, Diagnostic, DirectoryStructureHost, DirectoryWatcherCallback, DocumentRegistry, explainFiles, ExportInfoMap, FileWatcher, FileWatcherCallback, FileWatcherEventKind, filter, flatMap, forEach, forEachKey, GetCanonicalFileName, getDefaultLibFileName, getDirectoryPath, getNormalizedAbsolutePath, getOrUpdate, HasInvalidatedLibResolutions, HasInvalidatedResolutions, IScriptSnapshot, isExternalModuleNameRelative, isString, LanguageService, LanguageServiceHost, LanguageServiceMode, maybeBind, ModuleResolutionHost, noopFileWatcher, normalizePath, ParsedCommandLine, parsePackageName, Path, PerformanceEvent, PollingInterval, Program, ProgramUpdateLevel, ProjectReference, ResolutionCache, resolutionExtensionIsTSOrJson, ResolvedProjectReference, returnFalse, returnTrue, sortAndDeduplicate, SortedReadonlyArray, SourceFile, SourceMapper, StructureIsReused, ThrottledCancellationToken, timestamp, toPath, tracing, TypeAcquisition, updateMissingFilePathsWatch, WatchDirectoryFlags, WatchOptions, WatchType } from "./_namespaces/lpc.js";
 import { asNormalizedPath, emptyArray, Errors, HostCancellationToken, LogLevel, NormalizedPath, ProjectService, ScriptInfo, updateProjectIfDirty } from "./_namespaces/lpc.server.js";
 
 
@@ -304,6 +304,10 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
         return this.rootFilesMap === undefined;
     }
 
+    hasRoots() {
+        return !!this.rootFilesMap?.size;
+    }
+
     /** @internal */
     getCurrentProgram(): Program | undefined {
         return this.program;
@@ -546,6 +550,13 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
         // (because we're watching for their creation).
         const path = this.toPath(file);
         return !this.isWatchedMissingFile(path) && this.directoryStructureHost.fileExists(file);
+    }
+
+    /**
+     * Get the errors that dont have any file name associated
+     */
+    getGlobalProjectErrors(): readonly Diagnostic[] {
+        return filter(this.projectErrors, diagnostic => !diagnostic.file) || emptyArray;
     }
 
     setProjectErrors(projectErrors: Diagnostic[] | undefined) {
@@ -1206,6 +1217,43 @@ export class ConfiguredProject extends Project {
         return this.getRootFilesMap().size === 0 &&
             !this.canConfigFileJsonReportNoInputFiles;
     }
+
+    /** @internal */
+    override isOrphan(): boolean {
+        return !!this.deferredClose;
+    }
+
+    /** @internal */
+    override markAsDirty() {
+        if (this.deferredClose) return;
+        super.markAsDirty();
+    }
+
+    /** @internal */
+    private releaseParsedConfig(canonicalConfigFilePath: NormalizedPath) {
+        this.projectService.stopWatchingWildCards(canonicalConfigFilePath, this);
+        this.projectService.releaseParsedConfig(canonicalConfigFilePath, this);
+    }
+    
+    override close() {
+        this.projectService.configFileExistenceInfoCache.forEach((_configFileExistenceInfo, canonicalConfigFilePath) => this.releaseParsedConfig(canonicalConfigFilePath));
+        this.projectErrors = undefined;
+        this.openFileWatchTriggered.clear();
+        this.compilerHost = undefined;
+        super.close();
+    }
+
+    
+    /**
+     * Get the errors that dont have any file name associated
+     */
+    override getGlobalProjectErrors(): readonly Diagnostic[] {
+        return filter(this.projectErrors, diagnostic => !diagnostic.file) || emptyArray;
+    }
+
+    override setProjectErrors(projectErrors: Diagnostic[]) {
+        this.projectErrors = projectErrors;
+    }
 }
 
 /** @internal */
@@ -1306,6 +1354,11 @@ export class InferredProject extends Project {
         // - other wise it has single root if it has single root script info
         return (!this.projectRootPath && !this.projectService.useSingleInferredProject) ||
             this.getRootScriptInfos().length === 1;
+    }
+
+    /** @internal */
+    override isOrphan() {
+        return !this.hasRoots();
     }
 }
 

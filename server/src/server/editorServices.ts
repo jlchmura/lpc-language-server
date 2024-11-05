@@ -1,4 +1,4 @@
-import { arrayFrom, AssertionLevel, CachedDirectoryStructureHost, clearMap, closeFileWatcherOf, combinePaths, CompilerOptions, contains, containsPath, createCachedDirectoryStructureHost, createGetCanonicalFileName, createMultiMap, Debug, Diagnostic, DirectoryStructureHost, DirectoryWatcherCallback, DocumentPosition, DocumentRegistry, emptyOptions, FileExtensionInfo, fileExtensionIs, FileSystemEntries, FileWatcher, FileWatcherCallback, FileWatcherEventKind, find, forEach, forEachEntry, forEachKey, forEachResolvedProjectReference, getAnyExtensionFromPath, getBaseFileName, getDefaultFormatCodeSettings, getDirectoryPath, getFileNamesFromConfigSpecs, getNormalizedAbsolutePath, getWatchFactory, isArray, isIgnoredFileFromWildCardWatching, isJsonEqual, isNodeModulesDirectory, isRootedDiskPath, isString, LanguageServiceMode, length, LpcConfigSourceFile, mapDefinedEntries, mapDefinedIterator, missingFileModifiedTime, MultiMap, noop, normalizePath, normalizeSlashes, orderedRemoveItem, ParsedCommandLine, parseJsonText, parseLpcSourceFileConfigFileContent, Path, PerformanceEvent, PollingInterval, ProgramUpdateLevel, ProjectReference, ReadonlyCollection, ResolvedProjectReference, resolveProjectReferencePath, returnFalse, returnNoopFileWatcher, ScriptKind, some, startsWith, TextChange, toPath, tracing, tryAddToSet, tryReadFile, TypeAcquisition, unorderedRemoveItem, updateWatchingWildcardDirectories, UserPreferences, WatchDirectoryFlags, WatchFactory, WatchFactoryHost, WatchLogLevel, WatchOptions, WatchType, WildcardDirectoryWatcher } from "./_namespaces/lpc.js";
+import { arrayFrom, AssertionLevel, CachedDirectoryStructureHost, canWatchDirectoryOrFile, clearMap, clearSharedExtendedConfigFileWatcher, closeFileWatcherOf, combinePaths, CompilerOptions, contains, containsPath, createCachedDirectoryStructureHost, createGetCanonicalFileName, createMultiMap, Debug, Diagnostic, DirectoryStructureHost, DirectoryWatcherCallback, DocumentPosition, DocumentRegistry, emptyOptions, FileExtensionInfo, fileExtensionIs, FileSystemEntries, FileWatcher, FileWatcherCallback, FileWatcherEventKind, find, forEach, forEachEntry, forEachKey, forEachResolvedProjectReference, getAnyExtensionFromPath, getBaseFileName, getDefaultFormatCodeSettings, getDirectoryPath, getFileNamesFromConfigSpecs, getNormalizedAbsolutePath, getPathComponents, getWatchFactory, identity, isArray, isIgnoredFileFromWildCardWatching, isJsonEqual, isNodeModulesDirectory, isRootedDiskPath, isString, LanguageServiceMode, length, LpcConfigSourceFile, mapDefinedEntries, mapDefinedIterator, missingFileModifiedTime, MultiMap, noop, normalizePath, normalizeSlashes, orderedRemoveItem, ParsedCommandLine, parseJsonText, parseLpcSourceFileConfigFileContent, Path, PerformanceEvent, PollingInterval, ProgramUpdateLevel, ProjectReference, ReadonlyCollection, ResolvedProjectReference, resolveProjectReferencePath, returnFalse, returnNoopFileWatcher, ScriptKind, SharedExtendedConfigFileWatcher, some, startsWith, TextChange, toPath, tracing, tryAddToSet, tryReadFile, TypeAcquisition, unorderedRemoveItem, updateWatchingWildcardDirectories, UserPreferences, WatchDirectoryFlags, WatchFactory, WatchFactoryHost, WatchLogLevel, WatchOptions, WatchType, WildcardDirectoryWatcher } from "./_namespaces/lpc.js";
 import { asNormalizedPath, ConfiguredProject, Errors, findLpcConfig, HostCancellationToken, InferredProject, isConfiguredProject, isDynamicFileName, isExternalProject, isInferredProject, isProjectDeferredClose, Logger, LogLevel, makeAuxiliaryProjectName, Msg, NormalizedPath, normalizedPathToPath, Project, ProjectKind, ScriptInfo, ServerHost, Session, ThrottledOperations, toNormalizedPath } from "./_namespaces/lpc.server.js";
 import * as protocol from "./protocol.js";
 
@@ -63,6 +63,9 @@ export class ProjectService {
     private readonly hostConfiguration: any;//todo HostConfiguration;
     private readonly suppressDiagnosticEvents?: boolean;
     public readonly useSingleInferredProject: boolean;
+
+    /** @internal */
+    private readonly sharedExtendedConfigFileWatchers = new Map<Path, SharedExtendedConfigFileWatcher<NormalizedPath>>();
 
     /**
      * Project size for configured or external projects
@@ -502,6 +505,61 @@ export class ProjectService {
             }
         }
         return info;
+    }
+    
+    /** @internal */
+    stopWatchingWildCards(canonicalConfigFilePath: NormalizedPath, forProject: ConfiguredProject) {
+        const configFileExistenceInfo = this.configFileExistenceInfoCache.get(canonicalConfigFilePath)!;
+        if (
+            !configFileExistenceInfo.config ||
+            !configFileExistenceInfo.config.projects.get(forProject.canonicalConfigFilePath)
+        ) {
+            return;
+        }
+
+        configFileExistenceInfo.config.projects.set(forProject.canonicalConfigFilePath, false);
+        // If any of the project is still watching wild cards dont close the watcher
+        if (forEachEntry(configFileExistenceInfo.config.projects, identity)) return;
+
+        if (configFileExistenceInfo.config.watchedDirectories) {
+            clearMap(configFileExistenceInfo.config.watchedDirectories, closeFileWatcherOf);
+            configFileExistenceInfo.config.watchedDirectories = undefined;
+        }
+        configFileExistenceInfo.config.watchedDirectoriesStale = undefined;
+    }
+
+    /** @internal */
+    releaseParsedConfig(canonicalConfigFilePath: NormalizedPath, forProject: ConfiguredProject) {
+        const configFileExistenceInfo = this.configFileExistenceInfoCache.get(canonicalConfigFilePath)!;
+        if (!configFileExistenceInfo.config?.projects.delete(forProject.canonicalConfigFilePath)) return;
+        // If there are still projects watching this config file existence and config, there is nothing to do
+        if (configFileExistenceInfo.config?.projects.size) return;
+
+        configFileExistenceInfo.config = undefined;
+        clearSharedExtendedConfigFileWatcher(canonicalConfigFilePath, this.sharedExtendedConfigFileWatchers);
+        Debug.checkDefined(configFileExistenceInfo.watcher);
+        if (configFileExistenceInfo.openFilesImpactedByConfigFile?.size) {
+            // If there are open files that are impacted by this config file existence
+            // but none of them are root of inferred project, the config file watcher will be
+            // created when any of the script infos are added as root of inferred project
+            if (configFileExistenceInfo.inferredProjectRoots) {
+                // If we cannot watch config file existence without configured project, close the configured file watcher
+                if (!canWatchDirectoryOrFile(getPathComponents(getDirectoryPath(canonicalConfigFilePath) as Path))) {
+                    configFileExistenceInfo.watcher!.close();
+                    configFileExistenceInfo.watcher = noopConfigFileWatcher;
+                }
+            }
+            else {
+                // Close existing watcher
+                configFileExistenceInfo.watcher!.close();
+                configFileExistenceInfo.watcher = undefined;
+            }
+        }
+        else {
+            // There is not a single file open thats tracking the status of this config file. Remove from cache
+            configFileExistenceInfo.watcher!.close();
+            this.configFileExistenceInfoCache.delete(canonicalConfigFilePath);
+        }
     }
     
     private stopWatchingScriptInfo(info: ScriptInfo) {

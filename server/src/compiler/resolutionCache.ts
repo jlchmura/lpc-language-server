@@ -1,4 +1,4 @@
-import { CachedDirectoryStructureHost, clearMap, closeFileWatcher, closeFileWatcherOf, CompilerOptions, createMultiMap, Debug, Diagnostics, directorySeparator, DirectoryWatcherCallback, emptyArray, endsWith, Extension, fileExtensionIs, FileReference, FileWatcher, FileWatcherCallback, firstDefinedIterator, GetCanonicalFileName, getDirectoryPath, getNormalizedAbsolutePath, getPathComponents, HasInvalidatedLibResolutions, HasInvalidatedResolutions, ignoredPaths, isDiskPathRoot, isExternalOrCommonJsModule, isNodeModulesDirectory, memoize, MinimalResolutionCacheHost, mutateMap, noopFileWatcher, PackageId, packageIdToString, Path, Program, removeSuffix, removeTrailingDirectorySeparator, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, returnTrue, some, SourceFile, startsWith, WatchDirectoryFlags } from "./_namespaces/lpc";
+import { CachedDirectoryStructureHost, clearMap, closeFileWatcher, closeFileWatcherOf, CompilerOptions, createMultiMap, Debug, Diagnostics, directorySeparator, DirectoryWatcherCallback, emptyArray, endsWith, Extension, fileExtensionIs, FileReference, FileWatcher, FileWatcherCallback, firstDefinedIterator, GetCanonicalFileName, getDirectoryPath, getNormalizedAbsolutePath, getPathComponents, HasInvalidatedLibResolutions, HasInvalidatedResolutions, ignoredPaths, isDiskPathRoot, isExternalOrCommonJsModule, isNodeModulesDirectory, memoize, MinimalResolutionCacheHost, mutateMap, noopFileWatcher, PackageId, packageIdToString, Path, PathPathComponents, Program, removeSuffix, removeTrailingDirectorySeparator, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, returnTrue, some, SourceFile, startsWith, WatchDirectoryFlags } from "./_namespaces/lpc";
 import { ModeAwareCache } from "./moduleNameResolver";
 
 /**
@@ -1266,4 +1266,54 @@ export function removeIgnoredPath(path: Path): Path | undefined {
     return some(ignoredPaths, searchPath => path.includes(searchPath)) ?
         undefined :
         path;
+}
+
+/**
+ * Filter out paths like
+ * "/", "/user", "/user/username", "/user/username/folderAtRoot",
+ * "c:/", "c:/users", "c:/users/username", "c:/users/username/folderAtRoot", "c:/folderAtRoot"
+ * @param dirPath
+ *
+ * @internal
+ */
+export function canWatchDirectoryOrFile(pathComponents: Readonly<PathPathComponents>, length?: number) {
+    if (length === undefined) length = pathComponents.length;
+    // Ignore "/", "c:/"
+    // ignore "/user", "c:/users" or "c:/folderAtRoot"
+    if (length <= 2) return false;
+    const perceivedOsRootLength = perceivedOsRootLengthForWatching(pathComponents, length);
+    return length > perceivedOsRootLength + 1;
+}
+
+function perceivedOsRootLengthForWatching(pathComponents: Readonly<PathPathComponents>, length: number) {
+    // Ignore "/", "c:/"
+    if (length <= 1) return 1;
+    let indexAfterOsRoot = 1;
+    let isDosStyle = pathComponents[0].search(/[a-zA-Z]:/) === 0;
+    if (
+        pathComponents[0] !== directorySeparator &&
+        !isDosStyle && // Non dos style paths
+        pathComponents[1].search(/[a-zA-Z]\$$/) === 0 // Dos style nextPart
+    ) {
+        // ignore "//vda1cs4850/c$/folderAtRoot"
+        if (length === 2) return 2;
+        indexAfterOsRoot = 2;
+        isDosStyle = true;
+    }
+
+    if (
+        isDosStyle &&
+        !pathComponents[indexAfterOsRoot].match(/^users$/i)
+    ) {
+        // Paths like c:/notUsers
+        return indexAfterOsRoot;
+    }
+
+    if (pathComponents[indexAfterOsRoot].match(/^workspaces$/i)) {
+        // Paths like: /workspaces as codespaces hoist the repos in /workspaces so we have to exempt these from "2" level from root rule
+        return indexAfterOsRoot + 1;
+    }
+
+    // Paths like: c:/users/username or /home/username
+    return indexAfterOsRoot + 2;
 }
