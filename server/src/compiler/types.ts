@@ -26,6 +26,7 @@ export interface TextRange {
 export interface ReadonlyTextRange {
     readonly pos: number;
     readonly end: number;
+    readonly isComplete?: boolean;
 }
 
 export interface IncludedFileRange {
@@ -2006,6 +2007,7 @@ export type HasModifiers =
     | TypeParameterDeclaration
     | ParameterDeclaration
     | StructDeclaration
+    | FunctionLikeDeclaration
     // | ConstructorTypeNode
     | PropertySignature
     | PropertyDeclaration
@@ -3679,6 +3681,7 @@ export interface MappingEntryExpression extends PrimaryExpression {
 
 export interface InlineClosureExpression extends PrimaryExpression, FunctionLikeDeclarationBase, JSDocContainer, LocalsContainer, FlowContainer {
     readonly kind: SyntaxKind.InlineClosureExpression;
+    readonly modifiers?: NodeArray<Modifier>;
     readonly body: ConciseBody;
     readonly name: never;
 }
@@ -7056,6 +7059,7 @@ export interface MacroParameter extends ReadonlyTextRange, IncludedFileRange {
 
 export interface PositionState {
     pos: number;
+    tokenStart: number;
     fileName: string;
     macro: Macro;
     include: IncludeDirective;

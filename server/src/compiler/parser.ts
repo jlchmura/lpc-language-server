@@ -656,7 +656,7 @@ export namespace LpcParser {
                 macro.posInOrigin = scanner.getTokenFullStart();
                 macro.endInOrigin = scanner.getTokenFullStart() + tokenValue.length + 1;
                 macro.pos = getPositionState();
-                macro.end = macro.pos.pos + tokenValue.length + 1;
+                macro.end = macro.pos.tokenStart + tokenValue.length;
 
                 const { range, arguments: macroArgsDef } = macro;  
 
@@ -956,6 +956,7 @@ export namespace LpcParser {
     function getPositionState(): PositionState {        
         return {
             pos: getNodePos(),
+            tokenStart: scanner.getTokenStart(),
             fileName: scanner.getFileName(),
             include: currentIncludeDirective,
             macro: currentMacro ? {...currentMacro} : undefined,
@@ -1639,8 +1640,13 @@ export namespace LpcParser {
             arrayPos = pos;
             end ??= scanner.getTokenFullStart();
         } else {
-            arrayPos = pos.pos;
-            end ??= scanner.getState(pos.stateId)?.end;                            
+            if (pos.macro) {
+                arrayPos = pos.macro.pos.tokenStart;
+                end = pos.macro.end;
+            } else {
+                arrayPos = pos.pos;
+                end ??= scanner.getState(pos.stateId)?.end;                            
+            }
         }
         setTextRangePosEnd(array, arrayPos, end);
         return array;
@@ -2201,7 +2207,7 @@ export namespace LpcParser {
             const macroState = pos.macro?.pos;
             if (macroState && macroState.fileName === fileName) {
                 // const macroEndState = scanner.getState(macroState.stateId);
-                setTextRangePosEnd(node, macroState.pos, pos.macro.end);    
+                setTextRangePosEnd(node, macroState.tokenStart, pos.macro.end);    
             } else if (currentIncludeDirective) {
                 setTextRangePosEnd(node, currentIncludeDirective.pos, currentIncludeDirective.end);
             } else {
@@ -4279,7 +4285,7 @@ export namespace LpcParser {
             expression = parseMemberExpressionRest(pos, expression, /*allowOptionalChain*/ true);                                    
             if (token() === SyntaxKind.OpenParenToken) {
                 // Absorb type arguments into CallExpression when preceding expression is ExpressionWithTypeArguments                
-                const argumentList = parseArgumentList();
+                const argumentList = parseArgumentList();                
                 const callExpr = factoryCreateCallExpression(expression, argumentList);
                 expression = finishNode(callExpr, pos);
                 continue;
@@ -4292,8 +4298,14 @@ export namespace LpcParser {
     function parseArgumentList() {
         parseExpected(SyntaxKind.OpenParenToken);
         const result = parseDelimitedList(ParsingContext.ArgumentExpressions, parseArgumentExpression);
-        parseExpected(SyntaxKind.CloseParenToken);
-        return result;
+        const isComplete = parseExpected(SyntaxKind.CloseParenToken);
+        return markNodeAsComplete(result, isComplete);
+    }
+    
+    function markNodeAsComplete<T extends Node>(node: NodeArray<T>, isComplete: boolean | undefined): NodeArray<T>
+    function markNodeAsComplete<T extends Node>(node: T, isComplete: boolean | undefined): T {
+        (node as Mutable<T>).isComplete = isComplete;        
+        return node;
     }
 
     function parseArgumentExpression(): Expression {

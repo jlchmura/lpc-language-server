@@ -401,4 +401,8 @@ export const Diagnostics = {
     JSDoc_param_tag_has_name_0_but_there_is_no_parameter_with_that_name_It_would_match_arguments_if_it_had_an_array_type: diag(8029, DiagnosticCategory.Error, "JSDoc_param_tag_has_name_0_but_there_is_no_parameter_with_that_name_It_would_match_arguments_if_it_h_8029", "JSDoc '@param' tag has name '{0}', but there is no parameter with that name. It would match 'arguments' if it had an array type."),
     Qualified_name_0_is_not_allowed_without_a_leading_param_object_1: diag(8032, DiagnosticCategory.Error, "Qualified_name_0_is_not_allowed_without_a_leading_param_object_1_8032", "Qualified name '{0}' is not allowed without a leading '@param {object} {1}'."),
     JSDoc_param_tag_has_name_0_but_there_is_no_parameter_with_that_name: diag(8024, DiagnosticCategory.Error, "JSDoc_param_tag_has_name_0_but_there_is_no_parameter_with_that_name_8024", "JSDoc '@param' tag has name '{0}', but there is no parameter with that name."),
+    A_rest_parameter_must_be_last_in_a_parameter_list: diag(1014, DiagnosticCategory.Error, "A_rest_parameter_must_be_last_in_a_parameter_list_1014", "A rest parameter must be last in a parameter list."),
+    A_rest_parameter_or_binding_pattern_may_not_have_a_trailing_comma: diag(1013, DiagnosticCategory.Error, "A_rest_parameter_or_binding_pattern_may_not_have_a_trailing_comma_1013", "A rest parameter or binding pattern may not have a trailing comma."),
+    Trailing_comma_not_allowed: diag(1009, DiagnosticCategory.Error, "Trailing_comma_not_allowed_1009", "Trailing comma not allowed."),
+    A_rest_parameter_cannot_have_an_initializer: diag(1048, DiagnosticCategory.Error, "A_rest_parameter_cannot_have_an_initializer_1048", "A rest parameter cannot have an initializer."),
 }
