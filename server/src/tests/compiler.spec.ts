@@ -25,29 +25,30 @@ describe("Compiler", () => {
 
     testFiles.forEach(testCaseFile => {
         describe(testCaseFile, () => {                        
-            // const testCase = lpc.sys.readFile(testCaseFile);
+            // setup options & hosts
+            const compilerOptions: lpc.CompilerOptions = {
+                driverType: lpc.LanguageVariant.LDMud,
+            };
+
+            const compilerHost = lpc.createCompilerHost(compilerOptions);
+            compilerHost.getDefaultLibFileName = () => lpc.combinePaths(root, lpc.getDefaultLibFileName(compilerOptions));
+
+            const createProgramOptions: lpc.CreateProgramOptions = {
+                host: compilerHost,
+                rootNames: [testCaseFile],
+                options: compilerOptions,                
+                oldProgram: undefined,                
+            };
                         
-            const serverHost = lpc.sys as lpc.server.ServerHost;
-            const cancelToken = lpc.server.nullCancellationToken;
-            const logger = new lpcNode.Logger(undefined, false, lpc.server.LogLevel.normal);
-            const session = new lpc.server.Session({ 
-                host: serverHost, 
-                cancellationToken: cancelToken,
-                byteLength: Buffer.byteLength,
-                useSingleInferredProject: false,
-                useInferredProjectPerProjectRoot: false,
-                logger,
-                canUseEvents: true,
-                hrtime: process.hrtime,
-                projectRootFolder: basePath,
-            });
+            // create program and get file we are trying to compile
+            const program = lpc.createProgram(createProgramOptions);
+            const file = program.getSourceFile(testCaseFile);
 
-            session.updateOpen({
-                openFiles: [{ file: testCaseFile }],
-            });
-
-            const diags = session.getSemanticDiagnosticsSync({file: testCaseFile });
-
+            // run semantic diags
+            const semanticDiags = program.getSemanticDiagnostics(file);
+            
+            // combine and validate
+            const diags = file.parseDiagnostics.concat(semanticDiags);
             it(`Correct errors for ${testCaseFile}`, () => {
                 expect(diags.length).toBe(0);
             });

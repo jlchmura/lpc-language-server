@@ -11,9 +11,9 @@
                 // "${workspaceRoot}/../lima",
                 // "${workspaceRoot}/../StickLib",
                 // "${workspaceRoot}/../mg-mudlib",
-                // "${workspaceRoot}/../lpc-test2",
+                "${workspaceRoot}/../lpc-test2",
                 // "${workspaceRoot}/../glpu",
-                "${workspaceRoot}/../nightmare-residuum",
+                // "${workspaceRoot}/../nightmare-residuum",
                 // "${workspaceRoot}/../infinity-lib",
                 // "${workspaceRoot}/../fluff-test",
                 //"${workspaceRoot}/efuns/ldmud",
@@ -67,14 +67,27 @@
             "outFiles": ["${workspaceRoot}/client/out/test/**/*.js"]
         },
         {
-            "name": "Debug ANTLR4 grammar",
-            "type": "antlr-debug",
+            "type": "node",
             "request": "launch",
-            "input": "test.c",
-            "grammar": "grammar/LPC.g4",
-            "startRule": "lpc_program",
-            "printParseTree": true,
-            "visualParseTree": true
+            "name": "Jest Tests",
+            "program": "${workspaceFolder}/node_modules/jest/bin/jest",
+            "sourceMaps": true,
+            "args": [                
+                "${fileBasenameNoExtension}",
+                "--no-cache",
+                "--runInBand",
+                "--coverage=false",
+                // "--config",
+                // "${workspaceFolder}/jest.config.js"
+            ],            
+            "preLaunchTask": "compile",            
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",            
+            "windows": {
+                "program": "${workspaceFolder}/node_modules/jest/bin/jest"
+            }
+            // "envFile": "${workspaceFolder}/.env"
         }
     ]
 }
