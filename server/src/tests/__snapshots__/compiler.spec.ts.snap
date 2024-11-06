@@ -40,6 +40,12 @@ exports[`Compiler compiler/for2.c Reports correct errors for compiler/for2.c: di
 
 exports[`Compiler compiler/for3.c Reports correct errors for compiler/for3.c: diags-compiler/for3.c 1`] = `""`;
 
+exports[`Compiler compiler/forEach1.c Reports correct errors for compiler/forEach1.c: diags-compiler/forEach1.c 1`] = `""`;
+
+exports[`Compiler compiler/forEach2.c Reports correct errors for compiler/forEach2.c: diags-compiler/forEach2.c 1`] = `""`;
+
+exports[`Compiler compiler/funcDecl1.c Reports correct errors for compiler/funcDecl1.c: diags-compiler/funcDecl1.c 1`] = `""`;
+
 exports[`Compiler compiler/functionCall1.c Reports correct errors for compiler/functionCall1.c: diags-compiler/functionCall1.c 1`] = `""`;
 
 exports[`Compiler compiler/functionCall2.c Reports correct errors for compiler/functionCall2.c: diags-compiler/functionCall2.c 1`] = `""`;
@@ -125,6 +131,8 @@ exports[`Compiler compiler/struct2.c Reports correct errors for compiler/struct2
 
 exports[`Compiler compiler/structMemberAccess.c Reports correct errors for compiler/structMemberAccess.c: diags-compiler/structMemberAccess.c 1`] = `""`;
 
+exports[`Compiler compiler/super1.c Reports correct errors for compiler/super1.c: diags-compiler/super1.c 1`] = `""`;
+
 exports[`Compiler compiler/switch1.c Reports correct errors for compiler/switch1.c: diags-compiler/switch1.c 1`] = `""`;
 
 exports[`Compiler compiler/switch2.c Reports correct errors for compiler/switch2.c: diags-compiler/switch2.c 1`] = `""`;
@@ -132,6 +140,8 @@ exports[`Compiler compiler/switch2.c Reports correct errors for compiler/switch2
 exports[`Compiler compiler/switch3.c Reports correct errors for compiler/switch3.c: diags-compiler/switch3.c 1`] = `""`;
 
 exports[`Compiler compiler/ternary.c Reports correct errors for compiler/ternary.c: diags-compiler/ternary.c 1`] = `""`;
+
+exports[`Compiler compiler/typeAssertion1.c Reports correct errors for compiler/typeAssertion1.c: diags-compiler/typeAssertion1.c 1`] = `""`;
 
 exports[`Compiler compiler/typeInference1.c Reports correct errors for compiler/typeInference1.c: diags-compiler/typeInference1.c 1`] = `""`;
 
@@ -143,6 +153,8 @@ Found 1 error in server/src/tests/cases/compiler/typeInference3.c[90m:4[0m
 
 "
 `;
+
+exports[`Compiler compiler/unionTypes.c Reports correct errors for compiler/unionTypes.c: diags-compiler/unionTypes.c 1`] = `""`;
 
 exports[`Compiler compiler/varBeforeDecl.c Reports correct errors for compiler/varBeforeDecl.c: diags-compiler/varBeforeDecl.c 1`] = `
 "
