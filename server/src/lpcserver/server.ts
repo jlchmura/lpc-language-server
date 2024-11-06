@@ -446,7 +446,7 @@ export function start(connection: Connection, platform: string) {
 
                 const items: vscode.CompletionItem[] = [];  
                 for (const entry of result.entries) {                                    
-                    if (!entry.kindModifiers) {
+                    if (entry.kindModifiers === undefined) {
                         console.warn("todo - kind Modifiers shouldnt be undefined")
                         continue; 
                     }
