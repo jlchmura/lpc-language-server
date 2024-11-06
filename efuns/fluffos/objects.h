@@ -279,7 +279,7 @@ string file_name( object ob );
  * given, <ob> defaults to this_object().
  *
  */
-object environment( object ob );
+varargs object environment( object ob );
 
 /**
  * destruct() - remove an object from the games

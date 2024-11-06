@@ -134,6 +134,7 @@ int strcmp( string one, string two );
  * str2 being assigned an "" empty string.
  *
  * Basic Usage:
+ * ```lpc
  * string what, who;
  * 
  * if (sscanf(input, "give %s to %s", what, who) == 2)
@@ -149,6 +150,7 @@ int strcmp( string one, string two );
  * 
  * sscanf("give item to name", "give %s to %s", what, who) == 2
  * what == "item" && who == "name"
+ * ```
  * 
  * Numeric:
  * int i;
@@ -169,7 +171,7 @@ int strcmp( string one, string two );
  * str1 == "one" && str2 == "two"
  *
  */
-int sscanf( string input, string fmt... );
+int sscanf(string input, string fmt... );
 
 /**
  * printf, sprintf - formatted output conversion
@@ -243,15 +245,19 @@ int sscanf( string input, string fmt... );
  * f       floating point number
  *
  * Basic Usage:
+ * ```lpc
  * sprintf("%s is %i", "X", 1)   =   "X is 1"
+ * ```
  * 
  * Alignment:
+ * ```lpc
  * sprintf("%-20s", "left")      =   "left                "
  * sprintf("%20|s", "center")    =   "       center       "
  * sprintf("%20s", "right")      =   "               right"
  * sprintf("%-20'-'s", "left")   =   "left----------------"
  * sprintf("%20'-'|s", "center") =   "-------center-------"
  * sprintf("%20'-'s", "right")   =   "---------------right"
+ * ```
  * 
  * Numeric:
  * sprintf("%.2f", 1.2345)       =   "1.23"
@@ -264,8 +270,8 @@ int sscanf( string input, string fmt... );
  * sprintf("%*s", 30, "thirty")  =   "                        thirty"
  *
  */
-void printf( string format... );
-string sprintf( string format... );
+void printf(string format...);
+string sprintf(string format...);
 
 /**
  * sha1() - hash a string using SHA-1

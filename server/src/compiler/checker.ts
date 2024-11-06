@@ -4730,7 +4730,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
     function checkGrammarParameterList(parameters: NodeArray<ParameterDeclaration>) {
         let seenOptionalParameter = false;
-        const parameterCount = parameters.length;
+        const parameterCount = parameters?.length ?? 0;
 
         for (let i = 0; i < parameterCount; i++) {
             const parameter = parameters[i];
@@ -6199,9 +6199,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         const propName = accessNode && isPrivateIdentifier(accessNode) ? undefined : getPropertyNameFromIndex(indexType, accessNode);
 
         if (propName !== undefined) {
-            if (accessFlags & AccessFlags.Contextual) {
-                Debug.fail("todo");
-                // return getTypeOfPropertyOfContextualType(objectType, propName) || anyType;
+            if (accessFlags & AccessFlags.Contextual) {                
+                return getTypeOfPropertyOfContextualType(objectType, propName) || anyType;
             }
             const prop = getPropertyOfType(objectType, propName);
             if (prop) {
