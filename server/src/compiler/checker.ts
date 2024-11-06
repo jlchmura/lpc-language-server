@@ -1,4 +1,4 @@
-import { visitEachChild as visitEachChildWorker, setTextRange as setTextRangeWorker, Type, Symbol, SymbolLinks, CancellationToken, createSymbolTable, Declaration, EmitTextWriter, ModifierFlags, Node, NodeFlags, objectAllocator, Scanner, Signature, SignatureKind, SymbolFlags, TypeChecker, TypeCheckerHost, TypeFormatFlags, TypeParameter, CheckFlags, TransientSymbol, TransientSymbolLinks, reduceLeft, bindSourceFile, SourceFile, Diagnostic, createDiagnosticCollection, concatenate, forEach, tracing, performance, NodeLinks, NodeCheckFlags, FlowNode, FlowType, clear, SyntaxKind, TracingNode, CallLikeExpression, CallExpression, isCallOrNewExpression, isBinaryExpression, Expression, SignatureDeclaration, SignatureFlags, emptyArray, TypeFlags, IntrinsicType, ObjectFlags, Debug, BinaryExpression, ObjectType, StructuredType, ResolvedType, SymbolTable, IndexInfo, Identifier, nodeIsMissing, createNameResolver, InternalSymbolName, SymbolId, some, DiagnosticMessage, DiagnosticArguments, createDiagnosticForNode, createCompilerDiagnostic, FunctionLikeDeclaration, PropertyDeclaration, isString, isIdentifier, Diagnostics, findLast, SymbolFormatFlags, isAccessExpression, isFunctionExpression, isAliasableExpression, PropertyAssignment, isVariableDeclarationInitializedToBareOrAccessedRequire, mapDefined, arrayFrom, getSpellingSuggestion, symbolName, startsWith, nodeIsSynthesized, declarationNameToString, getCanonicalDiagnostic, DiagnosticCategory, addRelatedInfo, ParameterDeclaration, BindingElement, isSourceFile, isExternalOrCommonJsModule, isBlockOrCatchScoped, length, every, isValidTypeOnlyAliasUseSite, isWriteOnlyAccess, getCombinedNodeFlags, DiagnosticWithLocation, getJSDocDeprecatedTag, findAncestor, isCallLikeExpression, isFunctionLike, ParenthesizedExpression, isAssignmentExpression, isVariableDeclaration, isBindingElement, PropertyAccessExpression, getEnclosingBlockScopeContainer, isPropertyDeclaration, nodeStartsNewLexicalEnvironment, isIterationStatement, isForStatement, getAncestor, ForStatement, pushIfUnique, isAssignmentTarget, PrefixUnaryExpression, PostfixUnaryExpression, isBlock, isExpressionNode, isPropertyAccessExpression, getAssignmentTargetKind, AssignmentKind, isInCompoundLikeAssignment, UnionType, TypeId, UnionReduction, getRootDeclaration, getImmediatelyInvokedFunctionExpression, isSpreadAssignment, isParameter, VariableDeclaration, isFunctionLikeDeclaration, isTypeNode, forEachChild, tryCast, canHaveFlowNode, ElementAccessExpression, RelationComparisonResult, LiteralType, FreshableType, getObjectFlags, DiagnosticMessageChain, setNodeFlags, isCallExpression, LazyNodeCheckFlags, getSourceFileOfNode, canIncludeBindAndCheckDiagnostics, forEachChildRecursively, isDeclarationName, EntityName, JSDocMemberName, canHaveSymbol, isLiteralTypeNode, isElementAccessExpression, isIndexedAccessTypeNode, TypeNode, canHaveJSDoc, FlowFlags, FlowArrayMutation, FlowAssignment, FlowCall, FlowCondition, FlowLabel, FlowReduceLabel, FlowSwitchClause, SwitchStatement, createFileDiagnostic, createDiagnosticForFileFromMessageChain, createDiagnosticForNodeFromMessageChain, VariableStatement, HasModifiers, VariableDeclarationList, Block, isFunctionOrModuleBlock, CaseBlock, ForEachStatement, IndexSignatureDeclaration, Path, HasLocals, BindingPattern, idText, isForEachStatement, getNameOfDeclaration, isArrayBindingPattern, first, BindingName, cast, containsParseError, FunctionDeclaration, getFunctionFlags, getEffectiveReturnTypeNode, FunctionFlags, nodeIsPresent, JSDocSignature, isJSDocSignature, getJSDocRoot, LiteralTypeNode, TypeNodeSyntaxKind, isStatement, UnionOrIntersectionType, getContainingFunction, hasSyntacticModifier, isBindingPattern, sameMap, flatMap, getCheckFlags, singleElementArray, getDeclarationModifierFlagsFromSymbol, Ternary, append, find, isNumericLiteralName, StringLiteralType, contains, isTransientSymbol, addRange, filter, IndexType, getParseTreeNode, isRightSideOfQualifiedNameOrPropertyAccess, isWriteAccess, isRightSideOfAccessExpression, hasEffectiveModifier, getCombinedModifierFlags, isEntityName, PropertyAccessEntityNameExpression, isRightSideOfQualifiedNameOrPropertyAccessOrJSDocMemberName, QualifiedName, getHostSignatureFromJSDoc, or, EntityNameOrEntityNameExpression, isInJSFile, getFirstIdentifier, isQualifiedName, entityNameToString, isCallChain, isEntityNameExpression, isLineBreak, skipTrivia, DiagnosticRelatedInformation, IntLiteralType, FloatLiteralType, createTextWriter, chainDiagnosticMessages, getErrorSpanForNode, ShorthandPropertyAssignment, NodeBuilderFlags, SymbolTracker, TrackedSymbol, ReverseMappedSymbol, TypeMapper, ModuleSpecifierResolutionHost, Program, maybeBind, setEmitFlags, createNodeFactory, NodeFactoryFlags, BaseNodeFactory, Mutable, firstDefined, isComputedPropertyName, isIdentifierText, escapeString, getEmitScriptTarget, factory, EmitFlags, isSingleOrDoubleQuote, canUsePropertyAccess, stripQuotes, DoWhileStatement, BinaryOperatorToken, isLogicalOrCoalescingBinaryOperator, isLogicalOrCoalescingBinaryExpression, isIfStatement, skipParentheses, Statement, PunctuationSyntaxKind, tokenToString, FreshableIntrinsicType, isLiteralExpressionOfObject, getAssignmentDeclarationKind, AssignmentDeclarationKind, ConditionalExpression, isAssignmentOperator, isJSDocTypedefTag, isIntLiteral, skipOuterExpressions, OuterExpressionKinds, isExpression, ObjectLiteralExpression, ArrayLiteralExpression, FunctionExpression, InlineClosureExpression, ObjectLiteralElementLike, hasContextSensitiveParameters, forEachReturnStatement, compareDiagnostics, Comparison, createBinaryExpressionTrampoline, IntLiteral, FloatLiteral, isShorthandPropertyAssignment, isPropertyAccessOrQualifiedName, isPrivateIdentifier, WideningContext, StringLiteral, ReturnStatement, ExpressionStatement, IfStatement, NewExpression, getMembersOfDeclaration, AccessExpression, isThisInitializedDeclaration, setValueDeclaration, comparePaths, getOrUpdate, usingSingleLineStringWriter, createPrinterWithRemoveCommentsNeverAsciiEscape, createPrinterWithRemoveComments, EmitHint, getEffectiveModifierFlags, getEffectiveTypeAnnotationNode, getAssignmentDeclarationPropertyAccessKind, isNamedDeclaration, map, PropertyName, isFloatLiteral, getPropertyNameForPropertyNameNode, isPartOfParameterDeclaration, hasOnlyExpressionInitializer, not, getEffectiveInitializer, isObjectLiteralExpression, isVariableLike, getSelectedEffectiveModifierFlags, AliasDeclarationNode, isBindingElementOfBareOrAccessedRequire, TypeReference, isFunctionExpressionOrInlineClosure, ContextFlags, indexOfNode, InferenceContext, isNodeDescendantOf, ObjectFlagsType, GenericType, ReverseMappedType, AnonymousType, DeferredTypeReference, InstantiationExpressionType, SingleSignatureType, MappedTypeNode, TypeParameterDeclaration, appendIfUnique, TypeMapKind, isPartOfTypeNode, TypeReferenceNode, MappedType, ArrayTypeNode, isParenthesizedTypeNode, isTypeAlias, IndexFlags, InferenceInfo, binarySearch, compareValues, hasInitializer, lastOrUndefined, HasExpressionInitializer, getContainingFunctionOrClassStaticBlock, getSpanOfTokenAtPosition, isJSDocParameterTag, hasRestParameter, isStringLiteral, walkUpBindingElementsAndPatterns, BindableObjectDefinePropertyCall, copyEntries, InterfaceType, isPropertyAssignment, DiagnosticAndArguments, FreshObjectLiteralType, BaseType, firstOrUndefined, SubstitutionType, createPrinterWithDefaults, noTruncationMaximumTruncationLength, defaultMaximumTruncationLength, arrayIsHomogeneous, isIdentifierTypeReference, createMultiMap, addSyntheticLeadingComment, NodeArray, getOriginalNode, getIdentifierTypeArguments, setIdentifierTypeArguments, IndexedAccessTypeNode, forEachEntry, ScriptTarget, SymbolAccessibility, canHaveLocals, getDeclarationOfKind, isClassLike, TypeElement, SymbolAccessibilityResult, SymbolVisibilityResult, LateVisibilityPaintedStatement, isVariableStatement, isLateVisibilityPaintedStatement, isTypeLiteralNode, PlusToken, MinusToken, walkUpParenthesizedTypes, setOriginalNode, countWhere, getNameFromIndexInfo, Modifier, notImplemented, isTypeParameterDeclaration, setParent, CallChain, isLiteralExpression, isStringOrNumericLiteralLike, FlowStart, getPropertyNameFromType, EvolvingArrayType, arrayIsEqualTo, isObjectLiteralMethod, isNonNullAccess, FlowSwitchClauseData, LiteralExpression, CaseClause, DefaultClause, findIndex, orderedRemoveItemAt, UnionTypeNode, ParenthesizedTypeNode, concatenateDiagnosticMessageChains, isDeclaration, InterfaceTypeWithDeclaredMembers, rangeEquals, InferenceFlags, minAndMax, last, IntersectionFlags, IntersectionType, flatten, createDiagnosticMessageChainFromDiagnostic, setTextRangePosEnd, createDiagnosticForNodeArrayFromMessageChain, createDiagnosticForNodeArray, isConstructorDeclaration, TypeComparer, InferencePriority, pathIsRelative, moduleSpecifiers, EmitResolver, isRestParameter, SpreadElement, ElementFlags, ModuleKind, ResolutionMode, ModuleResolutionKind, getResolutionDiagnostic, isDeclarationFileName, hasExtension, removeExtension, CloneObjectExpression, isCloneObjectExpression, PropertyAccessChain, OptionalChain, ExportDeclaration, getTextOfNode, InheritDeclaration, isCallLikeOrFunctionLikeExpression, isFunctionExpressionOrArrowFunction, CharacterCodes, Visitor, visitNodes, isGlobalSourceFile, isExternalModule, introducesArgumentsExoticObject, getCombinedLocalAndExportSymbolFlags, StructTypeNode, StructDeclaration, ClassLikeDeclaration, getEffectiveBaseTypeNode, ComputedPropertyName, TypeReferenceType, NodeWithTypeArguments, ClassDeclaration, ClassExpression, TypeLiteralNode, JSDocTypeLiteral, isJSDocTypeLiteral, isInJSDoc, isTypeDeclaration, JSDocTypeAssertion, AssertionExpression, isParenthesizedExpression, getJSDocTypeAssertionType, AccessFlags, NewStructExpression, isJSDocTypeAlias, isAssertionExpression, TypeAssertion, DeclarationName, isKnownSymbol, createEvaluator, EntityNameExpression, evaluatorResult, isStringLiteralLike, SyntheticExpression, ArrayBindingPattern, isTypeUsableAsPropertyName, isPropertyName, tryGetPropertyAccessOrIdentifierToString, IndexedAccessType, MappingLiteralExpression, isOmittedExpression, UnionOrIntersectionTypeNode, PropertySignature, isPropertySignature, LateBoundName, isClassExpression, LateBoundDeclaration, LateBoundBinaryExpressionDeclaration, ElementAccessChain, MappedSymbol, VariableLikeDeclaration, isComputedNonLiteralName, getElementOrPropertyAccessName, findLastIndex, hasAccessorModifier, emptyMap, BytesLiteral, BytesLiteralType, WhileStatement, hasType, getEnclosingContainer, isPropertyNameLiteral, getTextOfIdentifierOrLiteral, JSDocOverloadTag, JSDocCallbackTag, TypePredicate, isIdentifierTypePredicate, HasInitializer, resolvingEmptyArray, getClassLikeDeclarationOfSymbol, ExpressionWithTypeArguments, isNumericLiteral, isInfinityOrNaNString, getEffectiveConstraintOfTypeParameter, isTypeReferenceNode, JSDocParameterTag, canHaveModifiers, modifiersToFlags, JSDocPropertyTag, hasInferredType, isTypePredicateNode, isOptionalDeclaration, getModifiers, isJSDocTypeAssertion, getJSDocThisTag, FunctionTypeNode, createSyntacticTypeNodeBuilder, getJSDocHost, createPrinterWithRemoveCommentsOmitTrailingSemicolon, getTrailingSemicolonDeferringWriter, getThisContainer, JSDocTypeExpression, getEmitFlags, isJSDocTypeExpression, isModifier, visitNode, ConditionalTypeNode, isConditionalTypeNode, skipTypeParentheses, isThisTypeNode, isThisIdentifier, isJSDocAllType, isJSDocUnknownType, isJSDocVariadicType, isJSDocOptionalType, isExpressionWithTypeArguments, isJSDocIndexSignature, isJSDocFunctionType, hasDynamicName, HasIllegalModifiers, modifierToFlag, getJSDocTags, NamedDeclaration, MethodSignature } from "./_namespaces/lpc";
+import { isStatic, visitEachChild as visitEachChildWorker, setTextRange as setTextRangeWorker, Type, Symbol, SymbolLinks, CancellationToken, createSymbolTable, Declaration, EmitTextWriter, ModifierFlags, Node, NodeFlags, objectAllocator, Scanner, Signature, SignatureKind, SymbolFlags, TypeChecker, TypeCheckerHost, TypeFormatFlags, TypeParameter, CheckFlags, TransientSymbol, TransientSymbolLinks, reduceLeft, bindSourceFile, SourceFile, Diagnostic, createDiagnosticCollection, concatenate, forEach, tracing, performance, NodeLinks, NodeCheckFlags, FlowNode, FlowType, clear, SyntaxKind, TracingNode, CallLikeExpression, CallExpression, isCallOrNewExpression, isBinaryExpression, Expression, SignatureDeclaration, SignatureFlags, emptyArray, TypeFlags, IntrinsicType, ObjectFlags, Debug, BinaryExpression, ObjectType, StructuredType, ResolvedType, SymbolTable, IndexInfo, Identifier, nodeIsMissing, createNameResolver, InternalSymbolName, SymbolId, some, DiagnosticMessage, DiagnosticArguments, createDiagnosticForNode, createCompilerDiagnostic, FunctionLikeDeclaration, PropertyDeclaration, isString, isIdentifier, Diagnostics, findLast, SymbolFormatFlags, isAccessExpression, isFunctionExpression, isAliasableExpression, PropertyAssignment, isVariableDeclarationInitializedToBareOrAccessedRequire, mapDefined, arrayFrom, getSpellingSuggestion, symbolName, startsWith, nodeIsSynthesized, declarationNameToString, getCanonicalDiagnostic, DiagnosticCategory, addRelatedInfo, ParameterDeclaration, BindingElement, isSourceFile, isExternalOrCommonJsModule, isBlockOrCatchScoped, length, every, isValidTypeOnlyAliasUseSite, isWriteOnlyAccess, getCombinedNodeFlags, DiagnosticWithLocation, getJSDocDeprecatedTag, findAncestor, isCallLikeExpression, isFunctionLike, ParenthesizedExpression, isAssignmentExpression, isVariableDeclaration, isBindingElement, PropertyAccessExpression, getEnclosingBlockScopeContainer, isPropertyDeclaration, nodeStartsNewLexicalEnvironment, isIterationStatement, isForStatement, getAncestor, ForStatement, pushIfUnique, isAssignmentTarget, PrefixUnaryExpression, PostfixUnaryExpression, isBlock, isExpressionNode, isPropertyAccessExpression, getAssignmentTargetKind, AssignmentKind, isInCompoundLikeAssignment, UnionType, TypeId, UnionReduction, getRootDeclaration, getImmediatelyInvokedFunctionExpression, isSpreadAssignment, isParameter, VariableDeclaration, isFunctionLikeDeclaration, isTypeNode, forEachChild, tryCast, canHaveFlowNode, ElementAccessExpression, RelationComparisonResult, LiteralType, FreshableType, getObjectFlags, DiagnosticMessageChain, setNodeFlags, isCallExpression, LazyNodeCheckFlags, getSourceFileOfNode, canIncludeBindAndCheckDiagnostics, forEachChildRecursively, isDeclarationName, EntityName, JSDocMemberName, canHaveSymbol, isLiteralTypeNode, isElementAccessExpression, isIndexedAccessTypeNode, TypeNode, canHaveJSDoc, FlowFlags, FlowArrayMutation, FlowAssignment, FlowCall, FlowCondition, FlowLabel, FlowReduceLabel, FlowSwitchClause, SwitchStatement, createFileDiagnostic, createDiagnosticForFileFromMessageChain, createDiagnosticForNodeFromMessageChain, VariableStatement, HasModifiers, VariableDeclarationList, Block, isFunctionOrModuleBlock, CaseBlock, ForEachStatement, IndexSignatureDeclaration, Path, HasLocals, BindingPattern, idText, isForEachStatement, getNameOfDeclaration, isArrayBindingPattern, first, BindingName, cast, containsParseError, FunctionDeclaration, getFunctionFlags, getEffectiveReturnTypeNode, FunctionFlags, nodeIsPresent, JSDocSignature, isJSDocSignature, getJSDocRoot, LiteralTypeNode, TypeNodeSyntaxKind, isStatement, UnionOrIntersectionType, getContainingFunction, hasSyntacticModifier, isBindingPattern, sameMap, flatMap, getCheckFlags, singleElementArray, getDeclarationModifierFlagsFromSymbol, Ternary, append, find, isNumericLiteralName, StringLiteralType, contains, isTransientSymbol, addRange, filter, IndexType, getParseTreeNode, isRightSideOfQualifiedNameOrPropertyAccess, isWriteAccess, isRightSideOfAccessExpression, hasEffectiveModifier, getCombinedModifierFlags, isEntityName, PropertyAccessEntityNameExpression, isRightSideOfQualifiedNameOrPropertyAccessOrJSDocMemberName, QualifiedName, getHostSignatureFromJSDoc, or, EntityNameOrEntityNameExpression, isInJSFile, getFirstIdentifier, isQualifiedName, entityNameToString, isCallChain, isEntityNameExpression, isLineBreak, skipTrivia, DiagnosticRelatedInformation, IntLiteralType, FloatLiteralType, createTextWriter, chainDiagnosticMessages, getErrorSpanForNode, ShorthandPropertyAssignment, NodeBuilderFlags, SymbolTracker, TrackedSymbol, ReverseMappedSymbol, TypeMapper, ModuleSpecifierResolutionHost, Program, maybeBind, setEmitFlags, createNodeFactory, NodeFactoryFlags, BaseNodeFactory, Mutable, firstDefined, isComputedPropertyName, isIdentifierText, escapeString, getEmitScriptTarget, factory, EmitFlags, isSingleOrDoubleQuote, canUsePropertyAccess, stripQuotes, DoWhileStatement, BinaryOperatorToken, isLogicalOrCoalescingBinaryOperator, isLogicalOrCoalescingBinaryExpression, isIfStatement, skipParentheses, Statement, PunctuationSyntaxKind, tokenToString, FreshableIntrinsicType, isLiteralExpressionOfObject, getAssignmentDeclarationKind, AssignmentDeclarationKind, ConditionalExpression, isAssignmentOperator, isJSDocTypedefTag, isIntLiteral, skipOuterExpressions, OuterExpressionKinds, isExpression, ObjectLiteralExpression, ArrayLiteralExpression, FunctionExpression, InlineClosureExpression, ObjectLiteralElementLike, hasContextSensitiveParameters, forEachReturnStatement, compareDiagnostics, Comparison, createBinaryExpressionTrampoline, IntLiteral, FloatLiteral, isShorthandPropertyAssignment, isPropertyAccessOrQualifiedName, isPrivateIdentifier, WideningContext, StringLiteral, ReturnStatement, ExpressionStatement, IfStatement, NewExpression, getMembersOfDeclaration, AccessExpression, isThisInitializedDeclaration, setValueDeclaration, comparePaths, getOrUpdate, usingSingleLineStringWriter, createPrinterWithRemoveCommentsNeverAsciiEscape, createPrinterWithRemoveComments, EmitHint, getEffectiveModifierFlags, getEffectiveTypeAnnotationNode, getAssignmentDeclarationPropertyAccessKind, isNamedDeclaration, map, PropertyName, isFloatLiteral, getPropertyNameForPropertyNameNode, isPartOfParameterDeclaration, hasOnlyExpressionInitializer, not, getEffectiveInitializer, isObjectLiteralExpression, isVariableLike, getSelectedEffectiveModifierFlags, AliasDeclarationNode, isBindingElementOfBareOrAccessedRequire, TypeReference, isFunctionExpressionOrInlineClosure, ContextFlags, indexOfNode, InferenceContext, isNodeDescendantOf, ObjectFlagsType, GenericType, ReverseMappedType, AnonymousType, DeferredTypeReference, InstantiationExpressionType, SingleSignatureType, MappedTypeNode, TypeParameterDeclaration, appendIfUnique, TypeMapKind, isPartOfTypeNode, TypeReferenceNode, MappedType, ArrayTypeNode, isParenthesizedTypeNode, isTypeAlias, IndexFlags, InferenceInfo, binarySearch, compareValues, hasInitializer, lastOrUndefined, HasExpressionInitializer, getContainingFunctionOrClassStaticBlock, getSpanOfTokenAtPosition, isJSDocParameterTag, hasRestParameter, isStringLiteral, walkUpBindingElementsAndPatterns, BindableObjectDefinePropertyCall, copyEntries, InterfaceType, isPropertyAssignment, DiagnosticAndArguments, FreshObjectLiteralType, BaseType, firstOrUndefined, SubstitutionType, createPrinterWithDefaults, noTruncationMaximumTruncationLength, defaultMaximumTruncationLength, arrayIsHomogeneous, isIdentifierTypeReference, createMultiMap, addSyntheticLeadingComment, NodeArray, getOriginalNode, getIdentifierTypeArguments, setIdentifierTypeArguments, IndexedAccessTypeNode, forEachEntry, ScriptTarget, SymbolAccessibility, canHaveLocals, getDeclarationOfKind, isClassLike, TypeElement, SymbolAccessibilityResult, SymbolVisibilityResult, LateVisibilityPaintedStatement, isVariableStatement, isLateVisibilityPaintedStatement, isTypeLiteralNode, PlusToken, MinusToken, walkUpParenthesizedTypes, setOriginalNode, countWhere, getNameFromIndexInfo, Modifier, notImplemented, isTypeParameterDeclaration, setParent, CallChain, isLiteralExpression, isStringOrNumericLiteralLike, FlowStart, getPropertyNameFromType, EvolvingArrayType, arrayIsEqualTo, isObjectLiteralMethod, isNonNullAccess, FlowSwitchClauseData, LiteralExpression, CaseClause, DefaultClause, findIndex, orderedRemoveItemAt, UnionTypeNode, ParenthesizedTypeNode, concatenateDiagnosticMessageChains, isDeclaration, InterfaceTypeWithDeclaredMembers, rangeEquals, InferenceFlags, minAndMax, last, IntersectionFlags, IntersectionType, flatten, createDiagnosticMessageChainFromDiagnostic, setTextRangePosEnd, createDiagnosticForNodeArrayFromMessageChain, createDiagnosticForNodeArray, isConstructorDeclaration, TypeComparer, InferencePriority, pathIsRelative, moduleSpecifiers, EmitResolver, isRestParameter, SpreadElement, ElementFlags, ModuleKind, ResolutionMode, ModuleResolutionKind, getResolutionDiagnostic, isDeclarationFileName, hasExtension, removeExtension, CloneObjectExpression, isCloneObjectExpression, PropertyAccessChain, OptionalChain, ExportDeclaration, getTextOfNode, InheritDeclaration, isCallLikeOrFunctionLikeExpression, isFunctionExpressionOrArrowFunction, CharacterCodes, Visitor, visitNodes, isGlobalSourceFile, isExternalModule, introducesArgumentsExoticObject, getCombinedLocalAndExportSymbolFlags, StructTypeNode, StructDeclaration, ClassLikeDeclaration, getEffectiveBaseTypeNode, ComputedPropertyName, TypeReferenceType, NodeWithTypeArguments, ClassDeclaration, ClassExpression, TypeLiteralNode, JSDocTypeLiteral, isJSDocTypeLiteral, isInJSDoc, isTypeDeclaration, JSDocTypeAssertion, AssertionExpression, isParenthesizedExpression, getJSDocTypeAssertionType, AccessFlags, NewStructExpression, isJSDocTypeAlias, isAssertionExpression, TypeAssertion, DeclarationName, isKnownSymbol, createEvaluator, EntityNameExpression, evaluatorResult, isStringLiteralLike, SyntheticExpression, ArrayBindingPattern, isTypeUsableAsPropertyName, isPropertyName, tryGetPropertyAccessOrIdentifierToString, IndexedAccessType, MappingLiteralExpression, isOmittedExpression, UnionOrIntersectionTypeNode, PropertySignature, isPropertySignature, LateBoundName, isClassExpression, LateBoundDeclaration, LateBoundBinaryExpressionDeclaration, ElementAccessChain, MappedSymbol, VariableLikeDeclaration, isComputedNonLiteralName, getElementOrPropertyAccessName, findLastIndex, hasAccessorModifier, emptyMap, BytesLiteral, BytesLiteralType, WhileStatement, hasType, getEnclosingContainer, isPropertyNameLiteral, getTextOfIdentifierOrLiteral, JSDocOverloadTag, JSDocCallbackTag, TypePredicate, isIdentifierTypePredicate, HasInitializer, resolvingEmptyArray, getClassLikeDeclarationOfSymbol, ExpressionWithTypeArguments, isNumericLiteral, isInfinityOrNaNString, getEffectiveConstraintOfTypeParameter, isTypeReferenceNode, JSDocParameterTag, canHaveModifiers, modifiersToFlags, JSDocPropertyTag, hasInferredType, isTypePredicateNode, isOptionalDeclaration, getModifiers, isJSDocTypeAssertion, getJSDocThisTag, FunctionTypeNode, createSyntacticTypeNodeBuilder, getJSDocHost, createPrinterWithRemoveCommentsOmitTrailingSemicolon, getTrailingSemicolonDeferringWriter, getThisContainer, JSDocTypeExpression, getEmitFlags, isJSDocTypeExpression, isModifier, visitNode, ConditionalTypeNode, isConditionalTypeNode, skipTypeParentheses, isThisTypeNode, isThisIdentifier, isJSDocAllType, isJSDocUnknownType, isJSDocVariadicType, isJSDocOptionalType, isExpressionWithTypeArguments, isJSDocIndexSignature, isJSDocFunctionType, hasDynamicName, HasIllegalModifiers, modifierToFlag, getJSDocTags, NamedDeclaration, MethodSignature, HasChildren, isInTypeQuery, getEnclosingLocalsContainer } from "./_namespaces/lpc";
 
 let nextSymbolId = 1;
 let nextNodeId = 1;
@@ -254,7 +254,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         compilerOptions,
         requireSymbol,
         argumentsSymbol,
-        globals,
+        globals,        
         getSymbolOfDeclaration,
         error,
         getRequiresScopeChangeCache,
@@ -407,6 +407,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             return "";
             // return typePredicateToString(predicate, getParseTreeNode(enclosingDeclaration), flags, writer);
         },
+        createSymbol,
     };
 
     var uniqueLiteralType = createIntrinsicType(TypeFlags.Never, "never", /*objectFlags*/ undefined, "unique literal"); // `uniqueLiteralType` is a special `never` flagged by union reduction to behave as a literal
@@ -4831,6 +4832,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             return errorType;
         }
 
+        
+
         // if (isBindingElement(node)) {
         //     if (
         //         node.propertyName &&
@@ -4918,11 +4921,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         }
         // For a commonjs `const x = require`, validate the alias and exit
         const symbol = getSymbolOfDeclaration(node);
+     
         if (symbol.flags & SymbolFlags.Alias && (isVariableDeclarationInitializedToBareOrAccessedRequire(node) || isBindingElementOfBareOrAccessedRequire(node))) {
             checkAliasSymbol(node);
             return getTypeOfNode(node);
-        }
-
+        }        
         const type = convertAutoToAny(getTypeOfSymbol(symbol));
         if (node === symbol.valueDeclaration) {
             // Node is the primary declaration of the symbol, just validate the initializer
@@ -12735,7 +12738,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         deferredDiagnosticsCallbacks = [];
     }
 
-    function createSymbol(flags: SymbolFlags, name: string, checkFlags?: CheckFlags) {
+    function createSymbol(flags: SymbolFlags, name: string, checkFlags?: CheckFlags): TransientSymbol {
         symbolCount++;
         const symbol = new Symbol(flags | SymbolFlags.Transient, name) as TransientSymbol;
         symbol.links = new SymbolLinks() as TransientSymbolLinks;
@@ -17685,216 +17688,198 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return false;
     }
 
-    function isBlockScopedNameDeclaredBeforeUse(declaration: Declaration, usage: Node): boolean {
-        console.log("todo - isBlockScopedNameDeclaredBeforeUse");
-        return false;
-        
-        // const declarationFile = getSourceFileOfNode(declaration);
-        // const useFile = getSourceFileOfNode(usage);
-        // const declContainer = getEnclosingBlockScopeContainer(declaration);
-        // if (declarationFile !== useFile) {
-        //     if (
-        //         (moduleKind && (declarationFile.externalModuleIndicator || useFile.externalModuleIndicator)) ||
-        //         (!compilerOptions.outFile) ||
-        //         isInTypeQuery(usage) ||
-        //         declaration.flags & NodeFlags.Ambient
-        //     ) {
-        //         // nodes are in different files and order cannot be determined
-        //         return true;
-        //     }
-        //     // declaration is after usage
-        //     // can be legal if usage is deferred (i.e. inside function or in initializer of instance property)
-        //     if (isUsedInFunctionOrInstanceProperty(usage, declaration)) {
-        //         return true;
-        //     }
-        //     const sourceFiles = host.getSourceFiles();
-        //     return sourceFiles.indexOf(declarationFile) <= sourceFiles.indexOf(useFile);
-        // }
+    /* Starting from 'initial' node walk up the parent chain until 'stopAt' node is reached.
+     * If at any point current node is equal to 'parent' node - return true.
+     * If current node is an IIFE, continue walking up.
+     * Return false if 'stopAt' node is reached or isFunctionLike(current) === true.
+     */
+    function isSameScopeDescendentOf(initial: Node, parent: Node | undefined, stopAt: Node): boolean {
+        return !!parent && !!findAncestor(initial, n =>
+            n === parent
+            || (n === stopAt || isFunctionLike(n) && (!getImmediatelyInvokedFunctionExpression(n) || (getFunctionFlags(n) & FunctionFlags.AsyncGenerator)) ? "quit" : false));
+    }
 
-        // // deferred usage in a type context is always OK regardless of the usage position:
-        // if (!!(usage.flags & NodeFlags.JSDoc) || isInTypeQuery(usage) || isInAmbientOrTypeNode(usage)) {
-        //     return true;
-        // }
+    function isBlockScopedNameDeclaredBeforeUse(declaration: Declaration, usage: Node): boolean {        
+        const declarationFile = getSourceFileOfNode(declaration);
+        const useFile = getSourceFileOfNode(usage);
+        const declContainer = getEnclosingBlockScopeContainer(declaration);
+        if (declarationFile !== useFile) {
+            if (
+                // (moduleKind && (declarationFile.externalModuleIndicator || useFile.externalModuleIndicator)) ||
+                // (!compilerOptions.outFile) ||
+                // isInTypeQuery(usage) ||
+                declaration.flags & NodeFlags.Ambient
+            ) {
+                // nodes are in different files and order cannot be determined
+                return true;
+            }
+            // declaration is after usage
+            // can be legal if usage is deferred (i.e. inside function or in initializer of instance property)
+            if (isUsedInFunctionOrInstanceProperty(usage, declaration)) {
+                return true;
+            }
+            const sourceFiles = host.getSourceFiles();
+            return sourceFiles.indexOf(declarationFile) <= sourceFiles.indexOf(useFile);
+        }
 
-        // if (declaration.pos <= usage.pos && !(isPropertyDeclaration(declaration) && isThisProperty(usage.parent) && !declaration.initializer && !declaration.exclamationToken)) {
-        //     // declaration is before usage
-        //     if (declaration.kind === SyntaxKind.BindingElement) {
-        //         // still might be illegal if declaration and usage are both binding elements (eg var [a = b, b = b] = [1, 2])
-        //         const errorBindingElement = getAncestor(usage, SyntaxKind.BindingElement) as BindingElement;
-        //         if (errorBindingElement) {
-        //             return findAncestor(errorBindingElement, isBindingElement) !== findAncestor(declaration, isBindingElement) ||
-        //                 declaration.pos < errorBindingElement.pos;
-        //         }
-        //         // or it might be illegal if usage happens before parent variable is declared (eg var [a] = a)
-        //         return isBlockScopedNameDeclaredBeforeUse(getAncestor(declaration, SyntaxKind.VariableDeclaration) as Declaration, usage);
-        //     }
-        //     else if (declaration.kind === SyntaxKind.VariableDeclaration) {
-        //         // still might be illegal if usage is in the initializer of the variable declaration (eg var a = a)
-        //         return !isImmediatelyUsedInInitializerOfBlockScopedVariable(declaration as VariableDeclaration, usage);
-        //     }
-        //     else if (isClassLike(declaration)) {
-        //         // still might be illegal if the usage is within a computed property name in the class (eg class A { static p = "a"; [A.p]() {} })
-        //         // or when used within a decorator in the class (e.g. `@dec(A.x) class A { static x = "x" }`),
-        //         // except when used in a function that is not an IIFE (e.g., `@dec(() => A.x) class A { ... }`)
-        //         const container = findAncestor(usage, n =>
-        //             n === declaration ? "quit" :
-        //                 isComputedPropertyName(n) ? n.parent.parent === declaration :
-        //                 !legacyDecorators && isDecorator(n) && (n.parent === declaration ||
-        //                     isMethodDeclaration(n.parent) && n.parent.parent === declaration ||
-        //                     isGetOrSetAccessorDeclaration(n.parent) && n.parent.parent === declaration ||
-        //                     isPropertyDeclaration(n.parent) && n.parent.parent === declaration ||
-        //                     isParameter(n.parent) && n.parent.parent.parent === declaration));
-        //         if (!container) {
-        //             return true;
-        //         }
-        //         if (!legacyDecorators && isDecorator(container)) {
-        //             return !!findAncestor(usage, n => n === container ? "quit" : isFunctionLike(n) && !getImmediatelyInvokedFunctionExpression(n));
-        //         }
-        //         return false;
-        //     }
-        //     else if (isPropertyDeclaration(declaration)) {
-        //         // still might be illegal if a self-referencing property initializer (eg private x = this.x)
-        //         return !isPropertyImmediatelyReferencedWithinDeclaration(declaration, usage, /*stopAtAnyPropertyDeclaration*/ false);
-        //     }
-        //     else if (isParameterPropertyDeclaration(declaration, declaration.parent)) {
-        //         // foo = this.bar is illegal in emitStandardClassFields when bar is a parameter property
-        //         return !(emitStandardClassFields
-        //             && getContainingClass(declaration) === getContainingClass(usage)
-        //             && isUsedInFunctionOrInstanceProperty(usage, declaration));
-        //     }
-        //     return true;
-        // }
+        // deferred usage in a type context is always OK regardless of the usage position:
+        if (!!(usage.flags & NodeFlags.JSDoc) || isInTypeQuery(usage) || isInAmbientOrTypeNode(usage)) {
+            return true;
+        }
 
-        // // declaration is after usage, but it can still be legal if usage is deferred:
-        // // 1. inside an export specifier
-        // // 2. inside a function
-        // // 3. inside an instance property initializer, a reference to a non-instance property
-        // //    (except when emitStandardClassFields: true and the reference is to a parameter property)
-        // // 4. inside a static property initializer, a reference to a static method in the same class
-        // // 5. inside a TS export= declaration (since we will move the export statement during emit to avoid TDZ)
+        if (declaration.pos <= usage.pos) {// && !(isPropertyDeclaration(declaration) && isThisProperty(usage.parent) && !declaration.initializer && !declaration.exclamationToken)) {
+            // declaration is before usage
+            if (declaration.kind === SyntaxKind.BindingElement) {
+                // still might be illegal if declaration and usage are both binding elements (eg var [a = b, b = b] = [1, 2])
+                const errorBindingElement = getAncestor(usage, SyntaxKind.BindingElement) as BindingElement;
+                if (errorBindingElement) {
+                    return findAncestor(errorBindingElement, isBindingElement) !== findAncestor(declaration, isBindingElement) ||
+                        declaration.pos < errorBindingElement.pos;
+                }
+                // or it might be illegal if usage happens before parent variable is declared (eg var [a] = a)
+                return isBlockScopedNameDeclaredBeforeUse(getAncestor(declaration, SyntaxKind.VariableDeclaration) as Declaration, usage);
+            }
+            else if (declaration.kind === SyntaxKind.VariableDeclaration) {
+                // still might be illegal if usage is in the initializer of the variable declaration (eg var a = a)
+                return !isImmediatelyUsedInInitializerOfBlockScopedVariable(declaration as VariableDeclaration, usage);
+            }
+            else if (isClassLike(declaration)) {
+                // still might be illegal if the usage is within a computed property name in the class (eg class A { static p = "a"; [A.p]() {} })
+                // or when used within a decorator in the class (e.g. `@dec(A.x) class A { static x = "x" }`),
+                // except when used in a function that is not an IIFE (e.g., `@dec(() => A.x) class A { ... }`)
+                const container = findAncestor(usage, n =>
+                    n === declaration ? "quit" :
+                        isComputedPropertyName(n) ? n.parent.parent === declaration : "quit");/* :
+                        !legacyDecorators && isDecorator(n) && (n.parent === declaration ||
+                            isMethodDeclaration(n.parent) && n.parent.parent === declaration ||
+                            isGetOrSetAccessorDeclaration(n.parent) && n.parent.parent === declaration ||
+                            isPropertyDeclaration(n.parent) && n.parent.parent === declaration ||
+                            isParameter(n.parent) && n.parent.parent.parent === declaration))*/
+                if (!container) {
+                    return true;
+                }                
+                return false;
+            }
+            else if (isPropertyDeclaration(declaration)) {
+                // still might be illegal if a self-referencing property initializer (eg private x = this.x)
+                return !isPropertyImmediatelyReferencedWithinDeclaration(declaration, usage, /*stopAtAnyPropertyDeclaration*/ false);
+            }
+            // else if (isParameterPropertyDeclaration(declaration, declaration.parent)) {
+            //     // foo = this.bar is illegal in emitStandardClassFields when bar is a parameter property
+            //     return !(emitStandardClassFields
+            //         && getContainingClass(declaration) === getContainingClass(usage)
+            //         && isUsedInFunctionOrInstanceProperty(usage, declaration));
+            // }
+            return true;
+        }
+
+        // declaration is after usage, but it can still be legal if usage is deferred:
+        // 1. inside an export specifier
+        // 2. inside a function
+        // 3. inside an instance property initializer, a reference to a non-instance property
+        //    (except when emitStandardClassFields: true and the reference is to a parameter property)
+        // 4. inside a static property initializer, a reference to a static method in the same class
+        // 5. inside a TS export= declaration (since we will move the export statement during emit to avoid TDZ)
         // if (usage.parent.kind === SyntaxKind.ExportSpecifier || (usage.parent.kind === SyntaxKind.ExportAssignment && (usage.parent as ExportAssignment).isExportEquals)) {
         //     // export specifiers do not use the variable, they only make it available for use
         //     return true;
         // }
-        // // When resolving symbols for exports, the `usage` location passed in can be the export site directly
+        // When resolving symbols for exports, the `usage` location passed in can be the export site directly
         // if (usage.kind === SyntaxKind.ExportAssignment && (usage as ExportAssignment).isExportEquals) {
         //     return true;
         // }
 
-        // if (isUsedInFunctionOrInstanceProperty(usage, declaration)) {
-        //     if (
-        //         emitStandardClassFields
-        //         && getContainingClass(declaration)
-        //         && (isPropertyDeclaration(declaration) || isParameterPropertyDeclaration(declaration, declaration.parent))
-        //     ) {
-        //         return !isPropertyImmediatelyReferencedWithinDeclaration(declaration, usage, /*stopAtAnyPropertyDeclaration*/ true);
-        //     }
-        //     else {
-        //         return true;
-        //     }
-        // }
-        // return false;
+        if (isUsedInFunctionOrInstanceProperty(usage, declaration)) {
+            // if (
+            //     emitStandardClassFields
+            //     && getContainingClass(declaration)
+            //     && (isPropertyDeclaration(declaration) || isParameterPropertyDeclaration(declaration, declaration.parent))
+            // ) {
+            //     return !isPropertyImmediatelyReferencedWithinDeclaration(declaration, usage, /*stopAtAnyPropertyDeclaration*/ true);
+            // }
+            // else {
+                return true;
+            // }
+        }
+        return false;
 
-        // function isImmediatelyUsedInInitializerOfBlockScopedVariable(declaration: VariableDeclaration, usage: Node): boolean {
-        //     switch (declaration.parent.parent.kind) {
-        //         case SyntaxKind.VariableStatement:
-        //         case SyntaxKind.ForStatement:
-        //         case SyntaxKind.ForOfStatement:
-        //             // variable statement/for/for-of statement case,
-        //             // use site should not be inside variable declaration (initializer of declaration or binding element)
-        //             if (isSameScopeDescendentOf(usage, declaration, declContainer)) {
-        //                 return true;
-        //             }
-        //             break;
-        //     }
+        function isImmediatelyUsedInInitializerOfBlockScopedVariable(declaration: VariableDeclaration, usage: Node): boolean {
+            switch (declaration.parent.parent.kind) {
+                case SyntaxKind.VariableStatement:
+                case SyntaxKind.ForStatement:
+                case SyntaxKind.ForEachStatement:
+                    // variable statement/for/for-of statement case,
+                    // use site should not be inside variable declaration (initializer of declaration or binding element)
+                    if (isSameScopeDescendentOf(usage, declaration, declContainer)) {
+                        return true;
+                    }
+                    break;
+            }
 
-        //     // ForIn/ForOf case - use site should not be used in expression part
-        //     const grandparent = declaration.parent.parent;
-        //     return isForInOrOfStatement(grandparent) && isSameScopeDescendentOf(usage, grandparent.expression, declContainer);
-        // }
+            // ForIn/ForOf case - use site should not be used in expression part
+            const grandparent = declaration.parent.parent;
+            return isForEachStatement(grandparent) && isSameScopeDescendentOf(usage, grandparent.expression, declContainer);
+        }
 
-        // function isUsedInFunctionOrInstanceProperty(usage: Node, declaration: Node): boolean {
-        //     return !!findAncestor(usage, current => {
-        //         if (current === declContainer) {
-        //             return "quit";
-        //         }
-        //         if (isFunctionLike(current)) {
-        //             return true;
-        //         }
-        //         if (isClassStaticBlockDeclaration(current)) {
-        //             return declaration.pos < usage.pos;
-        //         }
+        function isUsedInFunctionOrInstanceProperty(usage: Node, declaration: Node): boolean {
+            return !!findAncestor(usage, current => {
+                if (current === declContainer) {
+                    return "quit";
+                }
+                if (isFunctionLike(current)) {
+                    return true;
+                }                
 
-        //         const propertyDeclaration = tryCast(current.parent, isPropertyDeclaration);
-        //         if (propertyDeclaration) {
-        //             const initializerOfProperty = propertyDeclaration.initializer === current;
-        //             if (initializerOfProperty) {
-        //                 if (isStatic(current.parent)) {
-        //                     if (declaration.kind === SyntaxKind.MethodDeclaration) {
-        //                         return true;
-        //                     }
-        //                     if (isPropertyDeclaration(declaration) && getContainingClass(usage) === getContainingClass(declaration)) {
-        //                         const propName = declaration.name;
-        //                         if (isIdentifier(propName) || isPrivateIdentifier(propName)) {
-        //                             const type = getTypeOfSymbol(getSymbolOfDeclaration(declaration));
-        //                             const staticBlocks = filter(declaration.parent.members, isClassStaticBlockDeclaration);
-        //                             if (isPropertyInitializedInStaticBlocks(propName, type, staticBlocks, declaration.parent.pos, current.pos)) {
-        //                                 return true;
-        //                             }
-        //                         }
-        //                     }
-        //                 }
-        //                 else {
-        //                     const isDeclarationInstanceProperty = declaration.kind === SyntaxKind.PropertyDeclaration && !isStatic(declaration);
-        //                     if (!isDeclarationInstanceProperty || getContainingClass(usage) !== getContainingClass(declaration)) {
-        //                         return true;
-        //                     }
-        //                 }
-        //             }
-        //         }
-        //         return false;
-        //     });
-        // }
+                const propertyDeclaration = tryCast(current.parent, isPropertyDeclaration);
+                if (propertyDeclaration) {
+                    const initializerOfProperty = propertyDeclaration.initializer === current;
+                    if (initializerOfProperty) {                       
+                        const isDeclarationInstanceProperty = declaration.kind === SyntaxKind.PropertyDeclaration && !isStatic(declaration);
+                        if (!isDeclarationInstanceProperty) {// || getContainingClass(usage) !== getContainingClass(declaration)) {
+                            return true;
+                        }                    
+                    }
+                }
+                return false;
+            });
+        }
 
-        // /** stopAtAnyPropertyDeclaration is used for detecting ES-standard class field use-before-def errors */
-        // function isPropertyImmediatelyReferencedWithinDeclaration(declaration: PropertyDeclaration | ParameterPropertyDeclaration, usage: Node, stopAtAnyPropertyDeclaration: boolean) {
-        //     // always legal if usage is after declaration
-        //     if (usage.end > declaration.end) {
-        //         return false;
-        //     }
+        /** stopAtAnyPropertyDeclaration is used for detecting ES-standard class field use-before-def errors */
+        function isPropertyImmediatelyReferencedWithinDeclaration(declaration: PropertyDeclaration, usage: Node, stopAtAnyPropertyDeclaration: boolean) {
+            // always legal if usage is after declaration
+            if (usage.end > declaration.end) {
+                return false;
+            }
 
-        //     // still might be legal if usage is deferred (e.g. x: any = () => this.x)
-        //     // otherwise illegal if immediately referenced within the declaration (e.g. x: any = this.x)
-        //     const ancestorChangingReferenceScope = findAncestor(usage, (node: Node) => {
-        //         if (node === declaration) {
-        //             return "quit";
-        //         }
+            // still might be legal if usage is deferred (e.g. x: any = () => this.x)
+            // otherwise illegal if immediately referenced within the declaration (e.g. x: any = this.x)
+            const ancestorChangingReferenceScope = findAncestor(usage, (node: Node) => {
+                if (node === declaration) {
+                    return "quit";
+                }
 
-        //         switch (node.kind) {
-        //             case SyntaxKind.ArrowFunction:
-        //                 return true;
-        //             case SyntaxKind.PropertyDeclaration:
-        //                 // even when stopping at any property declaration, they need to come from the same class
-        //                 return stopAtAnyPropertyDeclaration &&
-        //                         (isPropertyDeclaration(declaration) && node.parent === declaration.parent
-        //                             || isParameterPropertyDeclaration(declaration, declaration.parent) && node.parent === declaration.parent.parent)
-        //                     ? "quit" : true;
-        //             case SyntaxKind.Block:
-        //                 switch (node.parent.kind) {
-        //                     case SyntaxKind.GetAccessor:
-        //                     case SyntaxKind.MethodDeclaration:
-        //                     case SyntaxKind.SetAccessor:
-        //                         return true;
-        //                     default:
-        //                         return false;
-        //                 }
-        //             default:
-        //                 return false;
-        //         }
-        //     });
+                switch (node.kind) {
+                    case SyntaxKind.ArrowFunction:
+                        return true;
+                    case SyntaxKind.PropertyDeclaration:
+                        // even when stopping at any property declaration, they need to come from the same class
+                        return stopAtAnyPropertyDeclaration &&
+                                (isPropertyDeclaration(declaration) && node.parent === declaration.parent)
+                            ? "quit" : true;
+                    case SyntaxKind.Block:
+                        switch (node.parent.kind) {                            
+                            case SyntaxKind.MethodDeclaration:                            
+                                return true;
+                            default:
+                                return false;
+                        }
+                    default:
+                        return false;
+                }
+            });
 
-        //     return ancestorChangingReferenceScope === undefined;
-        // }
+            return ancestorChangingReferenceScope === undefined;
+        }
     }
 
     function getSuggestedSymbolForNonexistentSymbol(location: Node | undefined, outerName: string, meaning: SymbolFlags): Symbol | undefined {
@@ -17964,14 +17949,164 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         }
     }
 
+    /**
+     * Declares a Symbol for the node and adds it to symbols. Reports errors for conflicting identifier names.
+     * @param symbolTable - The symbol table which node will be added to.
+     * @param parent - node's parent declaration.
+     * @param node - The declaration to be added to the symbol table
+     * @param includes - The SymbolFlags that node has in addition to its declaration type (eg: export, ambient, etc.)
+     * @param excludes - The flags which node cannot be declared alongside in a symbol table. Used to report forbidden declarations.
+     */
+    function lateBindBinaryExpressionDeclaration(symbolTable: SymbolTable, parent: Symbol | undefined, node: BinaryExpression, includes: SymbolFlags, excludes: SymbolFlags, isReplaceableByMethod?: boolean): Symbol {
+        Debug.assertIsDefined(symbolTable);
+        //Debug.assert(isComputedName || !hasDynamicName(node));
+
+        // The exported symbol for an export default function/class node is always named "default"
+
+        const name = isIdentifier(node.left) ? node.left.text : undefined;
+       
+        let symbol: Symbol | undefined;
+        if (name === undefined) {
+            symbol = createSymbol(SymbolFlags.None, InternalSymbolName.Missing);
+        }
+        else {
+            // Check and see if the symbol table already has a symbol with this name.  If not,
+            // create a new symbol with this name and add it to the table.  Note that we don't
+            // give the new symbol any flags *yet*.  This ensures that it will not conflict
+            // with the 'excludes' flags we pass in.
+            //
+            // If we do get an existing symbol, see if it conflicts with the new symbol we're
+            // creating.  For example, a 'var' symbol and a 'class' symbol will conflict within
+            // the same symbol table.  If we have a conflict, report the issue on each
+            // declaration we have for this symbol, and then create a new symbol for this
+            // declaration.
+            //
+            // Note that when properties declared in Javascript constructors
+            // (marked by isReplaceableByMethod) conflict with another symbol, the property loses.
+            // Always. This allows the common Javascript pattern of overwriting a prototype method
+            // with an bound instance method of the same type: `this.method = this.method.bind(this)`
+            //
+            // If we created a new symbol, either because we didn't have a symbol with this name
+            // in the symbol table, or we conflicted with an existing symbol, then just add this
+            // node as the sole declaration of the new symbol.
+            //
+            // Otherwise, we'll be merging into a compatible existing symbol (for example when
+            // you have multiple 'vars' with the same name in the same container).  In this case
+            // just add this node into the declarations list of the symbol.
+            symbol = symbolTable.get(name);            
+
+            if (!symbol) {
+                symbolTable.set(name, symbol = createSymbol(SymbolFlags.BlockScopedVariable, name, CheckFlags.Late));
+                if (isReplaceableByMethod) symbol.isReplaceableByMethod = true;
+            }
+            else if (isReplaceableByMethod && !symbol.isReplaceableByMethod) {
+                // A symbol already exists, so don't add this as a declaration.
+                return symbol;
+            }
+            else if (symbol.flags & excludes) {
+                if (symbol.isReplaceableByMethod) {
+                    // Javascript constructor-declared symbols can be discarded in favor of
+                    // prototype symbols like methods.
+                    symbolTable.set(name, symbol = createSymbol(SymbolFlags.None, name));
+                }
+                else if (!(includes & SymbolFlags.Variable && symbol.flags & SymbolFlags.Assignment)) {
+                    // Assignment declarations are allowed to merge with variables, no matter what other flags they have.
+                    if (isNamedDeclaration(node)) {
+                        setParent(node.name, node);
+                    }
+                    // Report errors every position with duplicate declaration
+                    // Report errors on previous encountered declarations
+                    let message = symbol.flags & SymbolFlags.BlockScopedVariable
+                        ? Diagnostics.Cannot_redeclare_block_scoped_variable_0
+                        : Diagnostics.Duplicate_identifier_0;
+                    let messageNeedsName = true;
+                    
+                    let multipleDefaultExports = false;
+                    if (length(symbol.declarations)) {
+                        // // If the current node is a default export of some sort, then check if
+                        // // there are any other default exports that we need to error on.
+                        // // We'll know whether we have other default exports depending on if `symbol` already has a declaration list set.
+                        // if (isDefaultExport) {
+                        //     message = Diagnostics.A_module_cannot_have_multiple_default_exports;
+                        //     messageNeedsName = false;
+                        //     multipleDefaultExports = true;
+                        // }
+                        // else {
+                        //     // This is to properly report an error in the case "export default { }" is after export default of class declaration or function declaration.
+                        //     // Error on multiple export default in the following case:
+                        //     // 1. multiple export default of class declaration or function declaration by checking NodeFlags.Default
+                        //     // 2. multiple export default of export assignment. This one doesn't have NodeFlags.Default on (as export default doesn't considered as modifiers)
+                        //     if (
+                        //         symbol.declarations && symbol.declarations.length &&
+                        //         (node.kind === SyntaxKind.ExportAssignment && !(node as ExportAssignment).isExportEquals)
+                        //     ) {
+                        //         message = Diagnostics.A_module_cannot_have_multiple_default_exports;
+                        //         messageNeedsName = false;
+                        //         multipleDefaultExports = true;
+                        //     }
+                        // }
+                    }
+
+                    const relatedInformation: DiagnosticRelatedInformation[] = [];
+                   
+                    const declarationName = getNameOfDeclaration(node) || node;
+                    forEach(symbol.declarations, (declaration, index) => {
+                        const decl = getNameOfDeclaration(declaration) || declaration;
+                        const diag = messageNeedsName ? createDiagnosticForNode(decl, message, declarationNameToString(declarationName)) : createDiagnosticForNode(decl, message);
+                        // file.bindDiagnostics.push(
+                        //     multipleDefaultExports ? addRelatedInfo(diag, createDiagnosticForNode(declarationName, index === 0 ? Diagnostics.Another_export_default_is_here : Diagnostics.and_here)) : diag,
+                        // );
+                        // if (multipleDefaultExports) {
+                        //     relatedInformation.push(createDiagnosticForNode(decl, Diagnostics.The_first_export_default_is_here));
+                        // }
+                    });
+
+                    const diag = messageNeedsName ? createDiagnosticForNode(declarationName, message, declarationNameToString(node)) : createDiagnosticForNode(declarationName, message);
+                    diagnostics.add(addRelatedInfo(diag, ...relatedInformation));
+
+                    symbol = createSymbol(SymbolFlags.None, name);
+                }
+            }
+        }
+        
+        node.symbol = symbol;
+        addDeclarationToLateBoundSymbol(symbol, node, SymbolFlags.BlockScopedVariable);
+        setValueDeclaration(symbol, node);
+        
+        if (symbol.parent) {
+            Debug.assert(symbol.parent === parent, "Existing symbol parent should match new one");
+        }
+        else {
+            symbol.parent = parent;
+        }
+
+        return symbol;
+    }
+
     function onFailedToResolveSymbol(
         errorLocation: Node | undefined,
         nameArg: string | Identifier,
         meaning: SymbolFlags,
         nameNotFoundMessage: DiagnosticMessage,
-    ) {
-        Debug.assert(!errorLocation || errorLocation.parent);
+    ): Symbol | undefined {
+        Debug.assert(!errorLocation || errorLocation.parent);        
         const name = isString(nameArg) ? nameArg : (nameArg as Identifier).text;
+
+        if (errorLocation?.parent && isAssignmentExpression(errorLocation.parent)) {
+            const nodeToBind = errorLocation.parent;
+            // if we didn't find a symbol and original location was an assignment expression, and pragma strict types is not on
+            // then we treat the first instance as a variable declaration and create a symbol for it
+            
+            // if (!isStrictCompilerOptionEnabled(compilerOptions, "strictTypes")) {
+            const container = getEnclosingLocalsContainer(errorLocation.parent);
+            if (!container.locals) container.locals = createSymbolTable();
+
+            const containerSymbol = getSymbolOfNode(container);
+            const symbol = lateBindBinaryExpressionDeclaration(container.locals, containerSymbol, nodeToBind, SymbolFlags.Variable, SymbolFlags.None);
+            
+            return symbol;
+        } 
+
         addLazyDiagnostic(() => {
             if (
                 !errorLocation ||
@@ -18019,6 +18154,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 suggestionCount++;
             }
         });
+
+        return undefined;
     }
 
     function addErrorOrSuggestion(isError: boolean, diagnostic: Diagnostic) {
@@ -18041,42 +18178,32 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function checkResolvedBlockScopedVariable(result: Symbol, errorLocation: Node): void {
-        Debug.assert(!!(result.flags & SymbolFlags.BlockScopedVariable || result.flags & SymbolFlags.Class || result.flags & SymbolFlags.Enum));
+        Debug.assert(!!(result.flags & SymbolFlags.Variable || result.flags & SymbolFlags.Class || result.flags & SymbolFlags.Enum));
         if (result.flags & (SymbolFlags.Function | SymbolFlags.FunctionScopedVariable | SymbolFlags.Assignment) && result.flags & SymbolFlags.Class) {
             // constructor functions aren't block scoped
             return;
         }
         // Block-scoped variables cannot be used before their definition
         const declaration = result.declarations?.find(
-            d => isBlockOrCatchScoped(d),//TODO || isClassLike(d),
+            d => isBlockOrCatchScoped(d) || isAssignmentExpression(d) ,//TODO || isClassLike(d),
         );
 
         if (declaration === undefined) return Debug.fail("checkResolvedBlockScopedVariable could not find block-scoped declaration");
-
-        // TODO
-        // if (!(declaration.flags & NodeFlags.Ambient) && !isBlockScopedNameDeclaredBeforeUse(declaration, errorLocation)) {
-        //     let diagnosticMessage;
-        //     const declarationName = declarationNameToString(getNameOfDeclaration(declaration));
-        //     if (result.flags & SymbolFlags.BlockScopedVariable) {
-        //         diagnosticMessage = error(errorLocation, Diagnostics.Block_scoped_variable_0_used_before_its_declaration, declarationName);
-        //     }
-        //     else if (result.flags & SymbolFlags.Class) {
-        //         diagnosticMessage = error(errorLocation, Diagnostics.Class_0_used_before_its_declaration, declarationName);
-        //     }
-        //     else if (result.flags & SymbolFlags.RegularEnum) {
-        //         diagnosticMessage = error(errorLocation, Diagnostics.Enum_0_used_before_its_declaration, declarationName);
-        //     }
-        //     else {
-        //         Debug.assert(!!(result.flags & SymbolFlags.ConstEnum));
-        //         if (getIsolatedModules(compilerOptions)) {
-        //             diagnosticMessage = error(errorLocation, Diagnostics.Enum_0_used_before_its_declaration, declarationName);
-        //         }
-        //     }
-
-        //     if (diagnosticMessage) {
-        //         addRelatedInfo(diagnosticMessage, createDiagnosticForNode(declaration, Diagnostics._0_is_declared_here, declarationName));
-        //     }
-        // }
+        
+        if (!(declaration.flags & NodeFlags.Ambient) && !isBlockScopedNameDeclaredBeforeUse(declaration, errorLocation)) {
+            let diagnosticMessage;
+            const declarationName = declarationNameToString(getNameOfDeclaration(declaration));
+            if (result.flags & SymbolFlags.Variable) {
+                diagnosticMessage = error(errorLocation, Diagnostics.Block_scoped_variable_0_used_before_its_declaration, declarationName);
+            }
+            else if (result.flags & SymbolFlags.Class) {
+                diagnosticMessage = error(errorLocation, Diagnostics.Class_0_used_before_its_declaration, declarationName);
+            }            
+            
+            if (diagnosticMessage) {
+                addRelatedInfo(diagnosticMessage, createDiagnosticForNode(declaration, Diagnostics._0_is_declared_here, declarationName));
+            }
+        }
     }
     
     function onSuccessfullyResolvedSymbol(
@@ -18102,7 +18229,6 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             // try to resolve name in /*1*/ which is used in variable position,
             // we want to check for block-scoped
             if (
-                errorLocation &&
                 (meaning & SymbolFlags.BlockScopedVariable ||
                     ((meaning & SymbolFlags.Class || meaning & SymbolFlags.Enum) && (meaning & SymbolFlags.Value) === SymbolFlags.Value))
             ) {
@@ -18672,7 +18798,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 //     }
                 // }
                 //const sourceTypes = some(constructorTypes, t => !!(t.flags & ~TypeFlags.Nullable)) ? constructorTypes : types; // TODO: GH#18217
-                //type = getUnionType(sourceTypes!);
+                type = getUnionType(types);
             }
         }
         const widened = getWidenedType(addOptionality(type, /*isProperty*/ false, definedInMethod && !definedInConstructor));
@@ -20690,7 +20816,6 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
         return links[resolutionKind];
     }
-
     
     /**
      * Performs late-binding of a dynamic member. This performs the same function for

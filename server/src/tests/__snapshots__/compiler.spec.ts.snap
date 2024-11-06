@@ -1,87 +1,143 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/arity1.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/arity1.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/arity1.c 1`] = `""`;
+exports[`Compiler compiler/arity1.c Reports correct errors for compiler/arity1.c: diags-compiler/arity1.c 1`] = `""`;
 
-exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/arity2.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/arity2.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/arity2.c 1`] = `
+exports[`Compiler compiler/arity2.c Reports correct errors for compiler/arity2.c: diags-compiler/arity2.c 1`] = `
 "
 Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/arity2.c[90m:5[0m
 
 "
 `;
 
-exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/assignment1.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/assignment1.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/assignment1.c 1`] = `""`;
+exports[`Compiler compiler/assignment1.c Reports correct errors for compiler/assignment1.c: diags-compiler/assignment1.c 1`] = `""`;
 
-exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/assignment2.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/assignment2.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/assignment2.c 1`] = `
+exports[`Compiler compiler/assignment2.c Reports correct errors for compiler/assignment2.c: diags-compiler/assignment2.c 1`] = `
 "
 Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/assignment2.c[90m:3[0m
 
 "
 `;
 
-exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/assignment3.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/assignment3.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/assignment3.c 1`] = `""`;
+exports[`Compiler compiler/assignment3.c Reports correct errors for compiler/assignment3.c: diags-compiler/assignment3.c 1`] = `""`;
 
-exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/closure1.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/closure1.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/closure1.c 1`] = `""`;
+exports[`Compiler compiler/closure1.c Reports correct errors for compiler/closure1.c: diags-compiler/closure1.c 1`] = `""`;
 
-exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/functionCall1.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/functionCall1.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/functionCall1.c 1`] = `""`;
+exports[`Compiler compiler/declarations1.c Reports correct errors for compiler/declarations1.c: diags-compiler/declarations1.c 1`] = `""`;
 
-exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/functionCall2.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/functionCall2.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/functionCall2.c 1`] = `""`;
+exports[`Compiler compiler/declarations2.c Reports correct errors for compiler/declarations2.c: diags-compiler/declarations2.c 1`] = `""`;
 
-exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/functionCall3.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/functionCall3.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/functionCall3.c 1`] = `""`;
+exports[`Compiler compiler/declarations3.c Reports correct errors for compiler/declarations3.c: diags-compiler/declarations3.c 1`] = `""`;
 
-exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/functionCall4.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/functionCall4.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/functionCall4.c 1`] = `""`;
+exports[`Compiler compiler/expr1.c Reports correct errors for compiler/expr1.c: diags-compiler/expr1.c 1`] = `""`;
 
-exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/functionCall5.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/functionCall5.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/functionCall5.c 1`] = `""`;
+exports[`Compiler compiler/for1.c Reports correct errors for compiler/for1.c: diags-compiler/for1.c 1`] = `""`;
 
-exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/if1.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/if1.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/if1.c 1`] = `""`;
+exports[`Compiler compiler/for2.c Reports correct errors for compiler/for2.c: diags-compiler/for2.c 1`] = `""`;
 
-exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/if2.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/if2.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/if2.c 1`] = `""`;
+exports[`Compiler compiler/for3.c Reports correct errors for compiler/for3.c: diags-compiler/for3.c 1`] = `""`;
 
-exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/if3.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/if3.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/if3.c 1`] = `""`;
+exports[`Compiler compiler/functionCall1.c Reports correct errors for compiler/functionCall1.c: diags-compiler/functionCall1.c 1`] = `""`;
 
-exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/ifelse.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/ifelse.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/ifelse.c 1`] = `""`;
+exports[`Compiler compiler/functionCall2.c Reports correct errors for compiler/functionCall2.c: diags-compiler/functionCall2.c 1`] = `""`;
 
-exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/lambda1.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/lambda1.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/lambda1.c 1`] = `""`;
+exports[`Compiler compiler/functionCall3.c Reports correct errors for compiler/functionCall3.c: diags-compiler/functionCall3.c 1`] = `""`;
 
-exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/macro1.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/macro1.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/macro1.c 1`] = `""`;
+exports[`Compiler compiler/functionCall4.c Reports correct errors for compiler/functionCall4.c: diags-compiler/functionCall4.c 1`] = `""`;
 
-exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/macro2.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/macro2.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/macro2.c 1`] = `""`;
+exports[`Compiler compiler/functionCall5.c Reports correct errors for compiler/functionCall5.c: diags-compiler/functionCall5.c 1`] = `""`;
 
-exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/modifiers1.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/modifiers1.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/modifiers1.c 1`] = `
+exports[`Compiler compiler/if1.c Reports correct errors for compiler/if1.c: diags-compiler/if1.c 1`] = `""`;
+
+exports[`Compiler compiler/if2.c Reports correct errors for compiler/if2.c: diags-compiler/if2.c 1`] = `""`;
+
+exports[`Compiler compiler/if3.c Reports correct errors for compiler/if3.c: diags-compiler/if3.c 1`] = `""`;
+
+exports[`Compiler compiler/ifelse.c Reports correct errors for compiler/ifelse.c: diags-compiler/ifelse.c 1`] = `""`;
+
+exports[`Compiler compiler/jsDocParam.c Reports correct errors for compiler/jsDocParam.c: diags-compiler/jsDocParam.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/jsDocParam.c[90m:4[0m
+
+"
+`;
+
+exports[`Compiler compiler/lambda1.c Reports correct errors for compiler/lambda1.c: diags-compiler/lambda1.c 1`] = `""`;
+
+exports[`Compiler compiler/macro1.c Reports correct errors for compiler/macro1.c: diags-compiler/macro1.c 1`] = `""`;
+
+exports[`Compiler compiler/macro2.c Reports correct errors for compiler/macro2.c: diags-compiler/macro2.c 1`] = `""`;
+
+exports[`Compiler compiler/missingFunc.c Reports correct errors for compiler/missingFunc.c: diags-compiler/missingFunc.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/missingFunc.c[90m:3[0m
+
+"
+`;
+
+exports[`Compiler compiler/modifiers1.c Reports correct errors for compiler/modifiers1.c: diags-compiler/modifiers1.c 1`] = `
 "
 Found 1 error in server/src/tests/cases/compiler/modifiers1.c[90m:3[0m
 
 "
 `;
 
-exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/modifiers2.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/modifiers2.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/modifiers2.c 1`] = `
+exports[`Compiler compiler/modifiers2.c Reports correct errors for compiler/modifiers2.c: diags-compiler/modifiers2.c 1`] = `
 "
 Found 1 error in server/src/tests/cases/compiler/modifiers2.c[90m:2[0m
 
 "
 `;
 
-exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/modifiers3.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/modifiers3.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/modifiers3.c 1`] = `""`;
+exports[`Compiler compiler/modifiers3.c Reports correct errors for compiler/modifiers3.c: diags-compiler/modifiers3.c 1`] = `""`;
 
-exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/new1.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/new1.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/new1.c 1`] = `""`;
+exports[`Compiler compiler/new1.c Reports correct errors for compiler/new1.c: diags-compiler/new1.c 1`] = `""`;
 
-exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/new2.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/new2.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/new2.c 1`] = `""`;
+exports[`Compiler compiler/new2.c Reports correct errors for compiler/new2.c: diags-compiler/new2.c 1`] = `""`;
 
-exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/preproc_conditional.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/preproc_conditional.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/preproc_conditional.c 1`] = `""`;
+exports[`Compiler compiler/preproc_conditional.c Reports correct errors for compiler/preproc_conditional.c: diags-compiler/preproc_conditional.c 1`] = `""`;
 
-exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/preproc_conditional_macro.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/preproc_conditional_macro.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/preproc_conditional_macro.c 1`] = `
+exports[`Compiler compiler/preproc_conditional_macro.c Reports correct errors for compiler/preproc_conditional_macro.c: diags-compiler/preproc_conditional_macro.c 1`] = `
 "
 Found 1 error in server/src/tests/cases/compiler/preproc_conditional_macro.c[90m:10[0m
 
 "
 `;
 
-exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/typeInference1.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/typeInference1.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/typeInference1.c 1`] = `""`;
+exports[`Compiler compiler/struct1.c Reports correct errors for compiler/struct1.c: diags-compiler/struct1.c 1`] = `""`;
 
-exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/typeInference2.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/typeInference2.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/typeInference2.c 1`] = `""`;
+exports[`Compiler compiler/struct2.c Reports correct errors for compiler/struct2.c: diags-compiler/struct2.c 1`] = `""`;
 
-exports[`Compiler /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/typeInference3.c Reports correct errors for /Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/typeInference3.c: diags-/Users/johnchmura/code/lpc-language-server/server/src/tests/cases/compiler/typeInference3.c 1`] = `
+exports[`Compiler compiler/structMemberAccess.c Reports correct errors for compiler/structMemberAccess.c: diags-compiler/structMemberAccess.c 1`] = `""`;
+
+exports[`Compiler compiler/switch1.c Reports correct errors for compiler/switch1.c: diags-compiler/switch1.c 1`] = `""`;
+
+exports[`Compiler compiler/switch2.c Reports correct errors for compiler/switch2.c: diags-compiler/switch2.c 1`] = `""`;
+
+exports[`Compiler compiler/switch3.c Reports correct errors for compiler/switch3.c: diags-compiler/switch3.c 1`] = `""`;
+
+exports[`Compiler compiler/typeInference1.c Reports correct errors for compiler/typeInference1.c: diags-compiler/typeInference1.c 1`] = `""`;
+
+exports[`Compiler compiler/typeInference2.c Reports correct errors for compiler/typeInference2.c: diags-compiler/typeInference2.c 1`] = `""`;
+
+exports[`Compiler compiler/typeInference3.c Reports correct errors for compiler/typeInference3.c: diags-compiler/typeInference3.c 1`] = `
 "
 Found 1 error in server/src/tests/cases/compiler/typeInference3.c[90m:4[0m
 
 "
 `;
+
+exports[`Compiler compiler/varBeforeDecl.c Reports correct errors for compiler/varBeforeDecl.c: diags-compiler/varBeforeDecl.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/varBeforeDecl.c[90m:3[0m
+
+"
+`;
+
+exports[`Compiler compiler/varBeforeDecl2.c Reports correct errors for compiler/varBeforeDecl2.c: diags-compiler/varBeforeDecl2.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/varBeforeDecl2.c[90m:2[0m
+
+"
+`;
+
+exports[`Compiler compiler/varBeforeDecl3.c Reports correct errors for compiler/varBeforeDecl3.c: diags-compiler/varBeforeDecl3.c 1`] = `""`;

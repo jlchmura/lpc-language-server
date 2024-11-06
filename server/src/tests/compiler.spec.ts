@@ -50,10 +50,11 @@ describe("Compiler", () => {
     testFiles = enumerateFiles(basePath, /\.c$/);
     console.info(`Got ${testFiles.length} test files in ${basePath}`);
 
-    const singleTestFile = "";//"typeInference3.c";
+    const singleTestFile = "";//"typeInference3.c";    
 
     testFiles.filter(f => singleTestFile.length==0 || f.endsWith(singleTestFile)).forEach(testCaseFile => {
-        describe(testCaseFile, () => {                  
+        const testCaseName = "compiler/" + lpc.getBaseFileName(testCaseFile);
+        describe(testCaseName, () => {                  
             const fileContent = lpc.sys.readFile(testCaseFile);
             const testOptions = extractCompilerSettings(fileContent);            
 
@@ -78,31 +79,27 @@ describe("Compiler", () => {
             const program = lpc.createProgram(createProgramOptions);
             const file = program.getSourceFile(testCaseFile);
 
-            it(`Properly compiles ${testCaseFile}`, () => {
-                expect(file).toBeDefined();
-            });
 
             let diagsText: string;
+            let diags: lpc.DiagnosticWithLocation[] = [];
 
-            try {
+            it(`Properly compiles ${testCaseName}`, () => {
+                expect(file).toBeDefined();
+                        
                 // run semantic diags
                 const semanticDiags = program.getSemanticDiagnostics(file);
                 
                 // combine and validate
-                const diags = file.parseDiagnostics.concat(semanticDiags);
+                diags = file.parseDiagnostics.concat(semanticDiags);
+                diagsText = removeTestPathPrefixes(lpc.getErrorSummaryText(diags.length, lpc.getFilesInErrorForSummary(diags), "\n", compilerHost));               
+            });
 
-                it(`Reports correct number of errors for ${testCaseFile}`, () => {
-                    expect(diags.length).toEqual(expectedErrorCount);
-                });
-
-                diagsText = removeTestPathPrefixes(lpc.getErrorSummaryText(diags.length, lpc.getFilesInErrorForSummary(diags), "\n", compilerHost));
-            } catch(e) {
-                debugger;
-                throw e;
-            }
+            it(`Reports correct number of errors for ${testCaseName}`, () => {
+                expect(diags.length).toEqual(expectedErrorCount);
+            });
             
-            it(`Reports correct errors for ${testCaseFile}`, () => {
-                expect(diagsText).toMatchSnapshot(`diags-${testCaseFile}`);
+            it(`Reports correct errors for ${testCaseName}`, () => {
+                expect(diagsText).toMatchSnapshot(`diags-${testCaseName}`);
             });                        
         });
     });

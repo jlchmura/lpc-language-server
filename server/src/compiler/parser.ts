@@ -3548,7 +3548,7 @@ export namespace LpcParser {
     function parseVariableDeclarationList(inForStatementInitializer: boolean, type: TypeNode | undefined, parsingContext: ParsingContext = 0): VariableDeclarationList {
         const pos = getPositionState();
 
-        let flags: NodeFlags = 0;
+        let flags: NodeFlags = NodeFlags.Variable;
                 
         // The user may have written the following:
         //

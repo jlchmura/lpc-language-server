@@ -405,4 +405,6 @@ export const Diagnostics = {
     A_rest_parameter_or_binding_pattern_may_not_have_a_trailing_comma: diag(1013, DiagnosticCategory.Error, "A_rest_parameter_or_binding_pattern_may_not_have_a_trailing_comma_1013", "A rest parameter or binding pattern may not have a trailing comma."),
     Trailing_comma_not_allowed: diag(1009, DiagnosticCategory.Error, "Trailing_comma_not_allowed_1009", "Trailing comma not allowed."),
     A_rest_parameter_cannot_have_an_initializer: diag(1048, DiagnosticCategory.Error, "A_rest_parameter_cannot_have_an_initializer_1048", "A rest parameter cannot have an initializer."),
+    Block_scoped_variable_0_used_before_its_declaration: diag(2448, DiagnosticCategory.Error, "Block_scoped_variable_0_used_before_its_declaration_2448", "Block-scoped variable '{0}' used before its declaration."),
+    Class_0_used_before_its_declaration: diag(2449, DiagnosticCategory.Error, "Class_0_used_before_its_declaration_2449", "Class '{0}' used before its declaration."),
 }

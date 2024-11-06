@@ -1241,3 +1241,5 @@ export function decodedTextSpanIntersectsWith(start1: number, length1: number, s
     const end2 = start2 + length2;
     return start2 <= end1 && end2 >= start1;
 }
+
+    

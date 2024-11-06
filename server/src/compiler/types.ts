@@ -94,7 +94,7 @@ export interface EmitNode {
 
 export interface TypeChecker {
     getTypeOfSymbol(symbol: Symbol): Type;
-    
+    createSymbol(flags: SymbolFlags, name: string, checkFlags?: CheckFlags): TransientSymbol;
     /** @internal */ getNodeCount(): number;
     /** @internal */ getIdentifierCount(): number;
     /** @internal */ getSymbolCount(): number;

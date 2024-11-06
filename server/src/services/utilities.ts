@@ -1606,10 +1606,7 @@ export function diagnosticToString(diag: DiagnosticOrDiagnosticAndArguments): st
         : getLocaleSpecificMessage(diag);
 }
 
-/** @internal */
-export function isInTypeQuery(node: Node): boolean {
-    return false;
-}
+
 
 /** @internal */
 export function rangeContainsPosition(r: TextRange, pos: number): boolean {
