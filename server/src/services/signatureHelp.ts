@@ -472,7 +472,7 @@ function createJSSignatureHelpItems(argumentInfo: ArgumentListInfo, program: Pro
     if (argumentInfo.invocation.kind === InvocationKind.Contextual) return undefined;
     // See if we can find some symbol with the call expression name that has call signatures.
     const expression = getExpressionFromInvocation(argumentInfo.invocation);
-    const name = isPropertyAccessExpression(expression) ? expression.name.text : undefined;
+    const name = expression && isPropertyAccessExpression(expression) ? expression.name.text : undefined;
     const typeChecker = program.getTypeChecker();
     return name === undefined ? undefined : firstDefined(program.getSourceFiles(), sourceFile =>
         firstDefined(sourceFile.getNamedDeclarations().get(name), declaration => {

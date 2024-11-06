@@ -2913,7 +2913,7 @@ export function getInvokedExpression(node: CallLikeExpression): Expression | und
         // case SyntaxKind.BinaryExpression:
         //     return node.right;
         default:
-            return isTypeNode(node.expression) ? undefined : node.expression;
+            return !node.expression || isTypeNode(node.expression) ? undefined : node.expression;
     }
 }
 

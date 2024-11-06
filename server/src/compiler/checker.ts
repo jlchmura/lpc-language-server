@@ -19197,11 +19197,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
         if (!popTypeResolution()) {
             // Symbol is property of some kind that is merged with something - should use `getTypeOfFuncClassEnumModule` and not `getTypeOfVariableOrParameterOrProperty`
-            // if (symbol.flags & SymbolFlags.ValueModule && !(symbol.flags & SymbolFlags.Assignment)) {
-            //     return getTypeOfFuncClassEnumModule(symbol);
-            // }
-            //return reportCircularityError(symbol);
-            Debug.fail("circularity error 2");
+            if (symbol.flags & SymbolFlags.ValueModule && !(symbol.flags & SymbolFlags.Assignment)) {
+                return getTypeOfFuncClassEnumModule(symbol);
+            }
+            return reportCircularityError(symbol);            
         }
         return type;
     }

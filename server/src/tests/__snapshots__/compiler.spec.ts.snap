@@ -20,6 +20,8 @@ Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/as
 
 exports[`Compiler compiler/assignment3.c Reports correct errors for compiler/assignment3.c: diags-compiler/assignment3.c 1`] = `""`;
 
+exports[`Compiler compiler/catchBlock.c Reports correct errors for compiler/catchBlock.c: diags-compiler/catchBlock.c 1`] = `""`;
+
 exports[`Compiler compiler/closure1.c Reports correct errors for compiler/closure1.c: diags-compiler/closure1.c 1`] = `""`;
 
 exports[`Compiler compiler/declarations1.c Reports correct errors for compiler/declarations1.c: diags-compiler/declarations1.c 1`] = `""`;
@@ -27,6 +29,8 @@ exports[`Compiler compiler/declarations1.c Reports correct errors for compiler/d
 exports[`Compiler compiler/declarations2.c Reports correct errors for compiler/declarations2.c: diags-compiler/declarations2.c 1`] = `""`;
 
 exports[`Compiler compiler/declarations3.c Reports correct errors for compiler/declarations3.c: diags-compiler/declarations3.c 1`] = `""`;
+
+exports[`Compiler compiler/doWhile.c Reports correct errors for compiler/doWhile.c: diags-compiler/doWhile.c 1`] = `""`;
 
 exports[`Compiler compiler/expr1.c Reports correct errors for compiler/expr1.c: diags-compiler/expr1.c 1`] = `""`;
 
@@ -53,6 +57,8 @@ exports[`Compiler compiler/if2.c Reports correct errors for compiler/if2.c: diag
 exports[`Compiler compiler/if3.c Reports correct errors for compiler/if3.c: diags-compiler/if3.c 1`] = `""`;
 
 exports[`Compiler compiler/ifelse.c Reports correct errors for compiler/ifelse.c: diags-compiler/ifelse.c 1`] = `""`;
+
+exports[`Compiler compiler/indexAccess.c Reports correct errors for compiler/indexAccess.c: diags-compiler/indexAccess.c 1`] = `""`;
 
 exports[`Compiler compiler/jsDocParam.c Reports correct errors for compiler/jsDocParam.c: diags-compiler/jsDocParam.c 1`] = `
 "
@@ -94,6 +100,12 @@ exports[`Compiler compiler/new1.c Reports correct errors for compiler/new1.c: di
 
 exports[`Compiler compiler/new2.c Reports correct errors for compiler/new2.c: diags-compiler/new2.c 1`] = `""`;
 
+exports[`Compiler compiler/operatorBitwise.c Reports correct errors for compiler/operatorBitwise.c: diags-compiler/operatorBitwise.c 1`] = `""`;
+
+exports[`Compiler compiler/operatorDoubleBang.c Reports correct errors for compiler/operatorDoubleBang.c: diags-compiler/operatorDoubleBang.c 1`] = `""`;
+
+exports[`Compiler compiler/operatorLogical.c Reports correct errors for compiler/operatorLogical.c: diags-compiler/operatorLogical.c 1`] = `""`;
+
 exports[`Compiler compiler/preproc_conditional.c Reports correct errors for compiler/preproc_conditional.c: diags-compiler/preproc_conditional.c 1`] = `""`;
 
 exports[`Compiler compiler/preproc_conditional_macro.c Reports correct errors for compiler/preproc_conditional_macro.c: diags-compiler/preproc_conditional_macro.c 1`] = `
@@ -114,6 +126,8 @@ exports[`Compiler compiler/switch1.c Reports correct errors for compiler/switch1
 exports[`Compiler compiler/switch2.c Reports correct errors for compiler/switch2.c: diags-compiler/switch2.c 1`] = `""`;
 
 exports[`Compiler compiler/switch3.c Reports correct errors for compiler/switch3.c: diags-compiler/switch3.c 1`] = `""`;
+
+exports[`Compiler compiler/ternary.c Reports correct errors for compiler/ternary.c: diags-compiler/ternary.c 1`] = `""`;
 
 exports[`Compiler compiler/typeInference1.c Reports correct errors for compiler/typeInference1.c: diags-compiler/typeInference1.c 1`] = `""`;
 
@@ -141,3 +155,5 @@ Found 1 error in server/src/tests/cases/compiler/varBeforeDecl2.c[90m:2[0m
 `;
 
 exports[`Compiler compiler/varBeforeDecl3.c Reports correct errors for compiler/varBeforeDecl3.c: diags-compiler/varBeforeDecl3.c 1`] = `""`;
+
+exports[`Compiler compiler/while1.c Reports correct errors for compiler/while1.c: diags-compiler/while1.c 1`] = `""`;
