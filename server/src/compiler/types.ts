@@ -1553,7 +1553,7 @@ export interface NodeFactory {
     createExpressionWithTypeArguments(expression: Expression, typeArguments: readonly TypeNode[] | undefined): ExpressionWithTypeArguments;
     createCatchExpression(expression: Expression, modifier?: Identifier, modifierExpression?: Expression, block?: Block): CatchExpression;
     createEvaluateExpression(expression: Expression, argumentsArray: readonly Expression[] | undefined): EvaluateExpression;
-    createNewExpression(expression: Expression|TypeNode|undefined, typeArguments: readonly TypeNode[] | undefined, argumentsArray: readonly Expression[] | undefined): NewExpression;
+    createNewExpression(expression: Expression|TypeNode|undefined, typeArguments: readonly TypeNode[] | undefined, argumentsArray: readonly NewExpressionArgument[] | undefined): NewExpression;
     createSpreadElement(expression: Expression): SpreadElement;
     createByRefElement(expr: Expression): ByRefElement;
     createFunctionExpression(modifiers: readonly Modifier[] | undefined, name: string | Identifier | undefined, parameters: readonly ParameterDeclaration[] | undefined, type: TypeNode | undefined, body: Block): FunctionExpression;
@@ -4397,6 +4397,8 @@ export interface NewExpression extends PrimaryExpression, Declaration {
     readonly typeArguments?: NodeArray<TypeNode>;
     readonly arguments?: NodeArray<Expression>;
 }
+
+export type NewExpressionArgument = Expression | ObjectLiteralElement;
 
 export type CallLikeExpression =
     | CallExpression    

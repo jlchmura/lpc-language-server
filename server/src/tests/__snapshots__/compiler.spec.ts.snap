@@ -100,6 +100,10 @@ exports[`Compiler compiler/new1.c Reports correct errors for compiler/new1.c: di
 
 exports[`Compiler compiler/new2.c Reports correct errors for compiler/new2.c: diags-compiler/new2.c 1`] = `""`;
 
+exports[`Compiler compiler/new3.c Reports correct errors for compiler/new3.c: diags-compiler/new3.c 1`] = `""`;
+
+exports[`Compiler compiler/new4.c Reports correct errors for compiler/new4.c: diags-compiler/new4.c 1`] = `""`;
+
 exports[`Compiler compiler/operatorBitwise.c Reports correct errors for compiler/operatorBitwise.c: diags-compiler/operatorBitwise.c 1`] = `""`;
 
 exports[`Compiler compiler/operatorDoubleBang.c Reports correct errors for compiler/operatorDoubleBang.c: diags-compiler/operatorDoubleBang.c 1`] = `""`;
