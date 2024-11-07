@@ -24,11 +24,15 @@ exports[`Compiler compiler/catchBlock.c Reports correct errors for compiler/catc
 
 exports[`Compiler compiler/closure1.c Reports correct errors for compiler/closure1.c: diags-compiler/closure1.c 1`] = `""`;
 
+exports[`Compiler compiler/commaExpr.c Reports correct errors for compiler/commaExpr.c: diags-compiler/commaExpr.c 1`] = `""`;
+
 exports[`Compiler compiler/declarations1.c Reports correct errors for compiler/declarations1.c: diags-compiler/declarations1.c 1`] = `""`;
 
 exports[`Compiler compiler/declarations2.c Reports correct errors for compiler/declarations2.c: diags-compiler/declarations2.c 1`] = `""`;
 
 exports[`Compiler compiler/declarations3.c Reports correct errors for compiler/declarations3.c: diags-compiler/declarations3.c 1`] = `""`;
+
+exports[`Compiler compiler/declarations4.c Reports correct errors for compiler/declarations4.c: diags-compiler/declarations4.c 1`] = `""`;
 
 exports[`Compiler compiler/doWhile.c Reports correct errors for compiler/doWhile.c: diags-compiler/doWhile.c 1`] = `""`;
 
@@ -43,6 +47,8 @@ exports[`Compiler compiler/for3.c Reports correct errors for compiler/for3.c: di
 exports[`Compiler compiler/forEach1.c Reports correct errors for compiler/forEach1.c: diags-compiler/forEach1.c 1`] = `""`;
 
 exports[`Compiler compiler/forEach2.c Reports correct errors for compiler/forEach2.c: diags-compiler/forEach2.c 1`] = `""`;
+
+exports[`Compiler compiler/forEach3.c Reports correct errors for compiler/forEach3.c: diags-compiler/forEach3.c 1`] = `""`;
 
 exports[`Compiler compiler/funcDecl1.c Reports correct errors for compiler/funcDecl1.c: diags-compiler/funcDecl1.c 1`] = `""`;
 

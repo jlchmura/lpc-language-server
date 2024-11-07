@@ -416,7 +416,7 @@ void testConditionalExpressions() {
     int i = 1;
     int j = i << 2; // shift left
     j = i >> 2;     // shift right
-    j = (i++) ^ 2;      // xor
+    j = (i++) ^ 2;  // xor
  
     return (i++, j);
 }
