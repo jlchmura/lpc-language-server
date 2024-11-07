@@ -412,4 +412,5 @@ export const Diagnostics = {
     A_break_statement_can_only_jump_to_a_label_of_an_enclosing_statement: diag(1116, DiagnosticCategory.Error, "A_break_statement_can_only_jump_to_a_label_of_an_enclosing_statement_1116", "A 'break' statement can only jump to a label of an enclosing statement."),
     A_break_statement_can_only_be_used_within_an_enclosing_iteration_or_switch_statement: diag(1105, DiagnosticCategory.Error, "A_break_statement_can_only_be_used_within_an_enclosing_iteration_or_switch_statement_1105", "A 'break' statement can only be used within an enclosing iteration or switch statement."),
     A_continue_statement_can_only_be_used_within_an_enclosing_iteration_statement: diag(1104, DiagnosticCategory.Error, "A_continue_statement_can_only_be_used_within_an_enclosing_iteration_statement_1104", "A 'continue' statement can only be used within an enclosing iteration statement."),
+    Fallthrough_case_in_switch: diag(7029, DiagnosticCategory.Error, "Fallthrough_case_in_switch_7029", "Fallthrough case in switch."),
 }

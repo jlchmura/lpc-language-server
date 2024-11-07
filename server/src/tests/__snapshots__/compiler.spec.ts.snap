@@ -56,6 +56,13 @@ Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/ba
 "
 `;
 
+exports[`Compiler compiler/badSwitch.c Reports correct errors for compiler/badSwitch.c: diags-compiler/badSwitch.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/badSwitch.c[90m:7[0m
+
+"
+`;
+
 exports[`Compiler compiler/catchBlock.c Reports correct errors for compiler/catchBlock.c: diags-compiler/catchBlock.c 1`] = `""`;
 
 exports[`Compiler compiler/catchExpr1.c Reports correct errors for compiler/catchExpr1.c: diags-compiler/catchExpr1.c 1`] = `""`;
