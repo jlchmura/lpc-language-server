@@ -4128,7 +4128,31 @@ export namespace LpcParser {
 
     function parseMaybeTypeAssertion(): TypeAssertion | undefined {
         const pos = getPositionState();
-        const expr = tryParse(()=>{
+
+        if (lookAhead(()=> {            
+            const hasBrace = parseOptional(SyntaxKind.OpenParenBraceToken);
+            if (!hasBrace) parseExpected(SyntaxKind.OpenParenToken);
+            
+            const isStruct = parseOptional(SyntaxKind.LessThanToken);
+            
+            if (!isTypeName()) return false; 
+            const type = parseType();
+                                    
+            if (isStruct) {            
+                parseExpected(SyntaxKind.GreaterThanToken);
+            }
+            
+            if (hasBrace) {                        
+                // definitely a type assertion
+                parseExpected(SyntaxKind.CloseBraceToken);            
+                parseExpected(SyntaxKind.CloseParenToken);                
+            } else if (!parseOptional(SyntaxKind.CloseParenToken)) {
+                // not a type assertion
+                return false;
+            } 
+
+            return true;
+        })) {                    
             const hasBrace = parseOptional(SyntaxKind.OpenParenBraceToken);
             if (!hasBrace) parseExpected(SyntaxKind.OpenParenToken);
             
@@ -4152,9 +4176,10 @@ export namespace LpcParser {
                         
             const expression = parseSimpleUnaryExpression();
             return finishNode(factory.createTypeAssertion(type, expression), pos);            
-        });
+        }
 
-        return expr;
+        return undefined;
+        // return expr;
     }    
     
     function parsePrefixUnaryExpression() {

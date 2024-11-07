@@ -22,6 +22,12 @@ exports[`Compiler compiler/assignment3.c Reports correct errors for compiler/ass
 
 exports[`Compiler compiler/assignmentArraySpread.c Reports correct errors for compiler/assignmentArraySpread.c: diags-compiler/assignmentArraySpread.c 1`] = `""`;
 
+exports[`Compiler compiler/atBlock1.c Reports correct errors for compiler/atBlock1.c: diags-compiler/atBlock1.c 1`] = `""`;
+
+exports[`Compiler compiler/atBlock2.c Reports correct errors for compiler/atBlock2.c: diags-compiler/atBlock2.c 1`] = `""`;
+
+exports[`Compiler compiler/atBlock3.c Reports correct errors for compiler/atBlock3.c: diags-compiler/atBlock3.c 1`] = `""`;
+
 exports[`Compiler compiler/catchBlock.c Reports correct errors for compiler/catchBlock.c: diags-compiler/catchBlock.c 1`] = `""`;
 
 exports[`Compiler compiler/catchExpr1.c Reports correct errors for compiler/catchExpr1.c: diags-compiler/catchExpr1.c 1`] = `""`;
@@ -37,6 +43,8 @@ exports[`Compiler compiler/declarations2.c Reports correct errors for compiler/d
 exports[`Compiler compiler/declarations3.c Reports correct errors for compiler/declarations3.c: diags-compiler/declarations3.c 1`] = `""`;
 
 exports[`Compiler compiler/declarations4.c Reports correct errors for compiler/declarations4.c: diags-compiler/declarations4.c 1`] = `""`;
+
+exports[`Compiler compiler/defaultArgs.c Reports correct errors for compiler/defaultArgs.c: diags-compiler/defaultArgs.c 1`] = `""`;
 
 exports[`Compiler compiler/doWhile.c Reports correct errors for compiler/doWhile.c: diags-compiler/doWhile.c 1`] = `""`;
 
@@ -77,6 +85,8 @@ exports[`Compiler compiler/if3.c Reports correct errors for compiler/if3.c: diag
 exports[`Compiler compiler/ifelse.c Reports correct errors for compiler/ifelse.c: diags-compiler/ifelse.c 1`] = `""`;
 
 exports[`Compiler compiler/indexAccess.c Reports correct errors for compiler/indexAccess.c: diags-compiler/indexAccess.c 1`] = `""`;
+
+exports[`Compiler compiler/intLiteral1.c Reports correct errors for compiler/intLiteral1.c: diags-compiler/intLiteral1.c 1`] = `""`;
 
 exports[`Compiler compiler/jsDocParam.c Reports correct errors for compiler/jsDocParam.c: diags-compiler/jsDocParam.c 1`] = `
 "
@@ -153,10 +163,6 @@ exports[`Compiler compiler/switch3.c Reports correct errors for compiler/switch3
 
 exports[`Compiler compiler/ternary.c Reports correct errors for compiler/ternary.c: diags-compiler/ternary.c 1`] = `""`;
 
-exports[`Compiler compiler/textFormat1.c Reports correct errors for compiler/textFormat1.c: diags-compiler/textFormat1.c 1`] = `""`;
-
-exports[`Compiler compiler/textFormat2.c Reports correct errors for compiler/textFormat2.c: diags-compiler/textFormat2.c 1`] = `""`;
-
 exports[`Compiler compiler/typeAssertion1.c Reports correct errors for compiler/typeAssertion1.c: diags-compiler/typeAssertion1.c 1`] = `""`;
 
 exports[`Compiler compiler/typeInference1.c Reports correct errors for compiler/typeInference1.c: diags-compiler/typeInference1.c 1`] = `""`;
@@ -171,6 +177,8 @@ Found 1 error in server/src/tests/cases/compiler/typeInference3.c[90m:4[0m
 `;
 
 exports[`Compiler compiler/unionTypes.c Reports correct errors for compiler/unionTypes.c: diags-compiler/unionTypes.c 1`] = `""`;
+
+exports[`Compiler compiler/utf8.c Reports correct errors for compiler/utf8.c: diags-compiler/utf8.c 1`] = `""`;
 
 exports[`Compiler compiler/varBeforeDecl.c Reports correct errors for compiler/varBeforeDecl.c: diags-compiler/varBeforeDecl.c 1`] = `
 "

@@ -13,6 +13,7 @@ import {
     Diagnostics,
     DirectiveSyntaxKind,
     identity,
+    isPunctuation,
     JSDocParsingMode,
     JSDocSyntaxKind,
     KeywordSyntaxKind,
@@ -1471,8 +1472,6 @@ export function createScanner(
         let lastWsPos = pos;
         let lastLineTextOnly = "";
 
-
-
         while (true) {
             if (pos >= end) {
                 result += text.substring(start, pos);
@@ -1482,7 +1481,7 @@ export function createScanner(
             }
 
             const ch = charCodeUnchecked(pos);                                    
-            if (isWhiteSpaceLike(ch)) {                                
+            if (isWhiteSpaceLike(ch) || isPunctuation(ch)) {
                 // check if the last word is the marker                
                 const lastWord = text.substring(lastLineBreakPos+1, pos).trim();
                 if (lastWord == marker) {

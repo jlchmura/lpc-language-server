@@ -653,6 +653,7 @@ export class LineNode implements LineCollection {
             let adjustedLength = rangeLength - (childCharCount - adjustedStart);
             childIndex++;
             const child = this.children[childIndex];
+            Debug.assertIsDefined(child);
             childCharCount = child.charCount();
             while (adjustedLength > childCharCount) {
                 if (this.execWalk(0, childCharCount, walkFns, childIndex, CharRangeSection.Mid)) {

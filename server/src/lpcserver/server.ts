@@ -222,8 +222,8 @@ export function start(connection: Connection, platform: string) {
                 });
 
                 session.getDiagnosticsForFiles({files: [filename], delay: 100});
-            } catch(e) {
-                console.error(e);
+            } catch(ex) {
+                console.error(ex);
                 debugger;
             }
         });
