@@ -7044,8 +7044,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return undefined;
     }
 
-    function isParamVarArgs(param: ParameterDeclaration) {
-        return !!(getCombinedModifierFlagsCached(param) & ModifierFlags.VarArgs);
+    function isParamVarArgs(param: ParameterDeclaration) {        
+        return !!(getCombinedModifierFlagsCached(param) & ModifierFlags.VarArgs) || !!param.dotDotDotToken;
     }
 
     function isSignatureVarArgs(signature: Signature) {
