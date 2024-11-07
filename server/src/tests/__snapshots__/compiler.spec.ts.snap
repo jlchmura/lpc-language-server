@@ -28,6 +28,34 @@ exports[`Compiler compiler/atBlock2.c Reports correct errors for compiler/atBloc
 
 exports[`Compiler compiler/atBlock3.c Reports correct errors for compiler/atBlock3.c: diags-compiler/atBlock3.c 1`] = `""`;
 
+exports[`Compiler compiler/badBreak.c Reports correct errors for compiler/badBreak.c: diags-compiler/badBreak.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/badBreak.c[90m:3[0m
+
+"
+`;
+
+exports[`Compiler compiler/badContinue.c Reports correct errors for compiler/badContinue.c: diags-compiler/badContinue.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/badContinue.c[90m:3[0m
+
+"
+`;
+
+exports[`Compiler compiler/badInitializer.c Reports correct errors for compiler/badInitializer.c: diags-compiler/badInitializer.c 1`] = `
+"
+Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/badInitializer.c[90m:2[0m
+
+"
+`;
+
+exports[`Compiler compiler/badLocalInit.c Reports correct errors for compiler/badLocalInit.c: diags-compiler/badLocalInit.c 1`] = `
+"
+Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/badLocalInit.c[90m:3[0m
+
+"
+`;
+
 exports[`Compiler compiler/catchBlock.c Reports correct errors for compiler/catchBlock.c: diags-compiler/catchBlock.c 1`] = `""`;
 
 exports[`Compiler compiler/catchExpr1.c Reports correct errors for compiler/catchExpr1.c: diags-compiler/catchExpr1.c 1`] = `""`;
@@ -89,6 +117,8 @@ exports[`Compiler compiler/ifelse.c Reports correct errors for compiler/ifelse.c
 exports[`Compiler compiler/indexAccess.c Reports correct errors for compiler/indexAccess.c: diags-compiler/indexAccess.c 1`] = `""`;
 
 exports[`Compiler compiler/intLiteral1.c Reports correct errors for compiler/intLiteral1.c: diags-compiler/intLiteral1.c 1`] = `""`;
+
+exports[`Compiler compiler/intLiteral2.c Reports correct errors for compiler/intLiteral2.c: diags-compiler/intLiteral2.c 1`] = `""`;
 
 exports[`Compiler compiler/jsDocParam.c Reports correct errors for compiler/jsDocParam.c: diags-compiler/jsDocParam.c 1`] = `
 "

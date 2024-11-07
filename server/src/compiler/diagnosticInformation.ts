@@ -407,4 +407,9 @@ export const Diagnostics = {
     A_rest_parameter_cannot_have_an_initializer: diag(1048, DiagnosticCategory.Error, "A_rest_parameter_cannot_have_an_initializer_1048", "A rest parameter cannot have an initializer."),
     Block_scoped_variable_0_used_before_its_declaration: diag(2448, DiagnosticCategory.Error, "Block_scoped_variable_0_used_before_its_declaration_2448", "Block-scoped variable '{0}' used before its declaration."),
     Class_0_used_before_its_declaration: diag(2449, DiagnosticCategory.Error, "Class_0_used_before_its_declaration_2449", "Class '{0}' used before its declaration."),
+    Jump_target_cannot_cross_function_boundary: diag(1107, DiagnosticCategory.Error, "Jump_target_cannot_cross_function_boundary_1107", "Jump target cannot cross function boundary."),
+    A_continue_statement_can_only_jump_to_a_label_of_an_enclosing_iteration_statement: diag(1115, DiagnosticCategory.Error, "A_continue_statement_can_only_jump_to_a_label_of_an_enclosing_iteration_statement_1115", "A 'continue' statement can only jump to a label of an enclosing iteration statement."),
+    A_break_statement_can_only_jump_to_a_label_of_an_enclosing_statement: diag(1116, DiagnosticCategory.Error, "A_break_statement_can_only_jump_to_a_label_of_an_enclosing_statement_1116", "A 'break' statement can only jump to a label of an enclosing statement."),
+    A_break_statement_can_only_be_used_within_an_enclosing_iteration_or_switch_statement: diag(1105, DiagnosticCategory.Error, "A_break_statement_can_only_be_used_within_an_enclosing_iteration_or_switch_statement_1105", "A 'break' statement can only be used within an enclosing iteration or switch statement."),
+    A_continue_statement_can_only_be_used_within_an_enclosing_iteration_statement: diag(1104, DiagnosticCategory.Error, "A_continue_statement_can_only_be_used_within_an_enclosing_iteration_statement_1104", "A 'continue' statement can only be used within an enclosing iteration statement."),
 }
