@@ -206,16 +206,23 @@ export interface TypeChecker {
     /** @internal */ writeType(type: Type, enclosingDeclaration?: Node, flags?: TypeFormatFlags, writer?: EmitTextWriter): string;
     /** @internal */ writeSymbol(symbol: Symbol, enclosingDeclaration?: Node, meaning?: SymbolFlags, flags?: SymbolFormatFlags, writer?: EmitTextWriter): string;
     /** @internal */ writeSignature(signature: Signature, enclosingDeclaration?: Node, flags?: TypeFormatFlags, kind?: SignatureKind, writer?: EmitTextWriter): string;
-
+    
+    /** @internal */ isNullableType(type: Type): boolean;
+    getNullableType(type: Type, flags: TypeFlags): Type;
     getNonNullableType(type: Type): Type;
     getSignaturesOfType(type: Type, kind: SignatureKind): readonly Signature[];
-    
+    /** @internal */ getNonOptionalType(type: Type): Type;
+    getIndexTypeOfType(type: Type, kind: IndexKind): Type | undefined;
+    getBaseConstraintOfType(type: Type): Type | undefined;
+    getDefaultFromTypeParameter(type: Type): Type | undefined;
     getPropertyOfType(type: Type, propertyName: string): Symbol | undefined;
     getTypeFromTypeNode(node: TypeNode): Type;
     getFullyQualifiedName(symbol: Symbol): string;
 
     getWidenedType(type: Type): Type;
     /** @internal */ getUnionType(types: Type[], subtypeReduction?: UnionReduction): Type;
+    getAugmentedPropertiesOfType(type: Type): Symbol[];
+    getPropertiesOfType(type: Type): Symbol[];
     
     /**
      * Note that this will return undefined in the following case:

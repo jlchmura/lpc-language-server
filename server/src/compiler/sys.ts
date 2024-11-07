@@ -1572,7 +1572,7 @@ export let sys: System = (() => {
             base64encode: input => Buffer.from(input).toString("base64"),
             require: (baseDir, moduleName) => {
                 try {
-                    throw "implement me";
+                    Debug.fail("implement me");
                     // const modulePath = resolveJSModule(moduleName, baseDir, nodeSystem);
                     // return { module: require(modulePath), modulePath, error: undefined };
                 }

@@ -1126,7 +1126,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                 const checkedName = file.fileName;
                 const isRedirect = toPath(checkedName) !== toPath(fileName);
                 if (isRedirect) {
-                    throw "implement me";
+                    Debug.fail("implement me");
                     //fileName = getProjectReferenceRedirect(fileName) || fileName;
                 }
                 // Check if it differs only in drive letters its ok to ignore that error:
@@ -1851,7 +1851,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
     }
 
     function parseProjectReferenceConfigFile(ref: ProjectReference): ResolvedProjectReference | undefined {
-        throw "implement me";
+        Debug.fail("implement me");
     }
 }
 

@@ -4327,9 +4327,16 @@ export namespace LpcParser {
             if (token() === SyntaxKind.OpenParenToken) {
                 // Absorb type arguments into CallExpression when preceding expression is ExpressionWithTypeArguments                
                 const argumentList = parseArgumentList();                
-                const callExpr = factoryCreateCallExpression(expression, argumentList);
-                expression = finishNode(callExpr, pos);
-                continue;
+
+                if (isIdentifierNode(expression) && expression.text === "clone_object") {
+                    const cloneExpr = factory.createCloneObjectExpression(expression, argumentList);
+                    expression = finishNode(cloneExpr, pos);
+                    continue;
+                } else {
+                    const callExpr = factoryCreateCallExpression(expression, argumentList);
+                    expression = finishNode(callExpr, pos);
+                    continue;
+                }
             }
             break;
         }

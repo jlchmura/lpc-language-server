@@ -1176,17 +1176,14 @@ class TypeObject implements Type {
     getSymbol(): Symbol | undefined {
         return this.symbol;
     }
-    getProperties(): Symbol[] {
-        throw "implement me";
-        //return this.checker.getPropertiesOfType(this);
+    getProperties(): Symbol[] {        
+        return this.checker.getPropertiesOfType(this);
     }
-    getProperty(propertyName: string): Symbol | undefined {
-        throw "implement me";
-        // return this.checker.getPropertyOfType(this, propertyName);
+    getProperty(propertyName: string): Symbol | undefined {        
+        return this.checker.getPropertyOfType(this, propertyName);
     }
-    getApparentProperties(): Symbol[] {
-        throw "implement me";
-        // return this.checker.getAugmentedPropertiesOfType(this);
+    getApparentProperties(): Symbol[] {        
+        return this.checker.getAugmentedPropertiesOfType(this);
     }
     getCallSignatures(): readonly Signature[] {        
         return this.checker.getSignaturesOfType(this, SignatureKind.Call);
@@ -1194,38 +1191,31 @@ class TypeObject implements Type {
     getConstructSignatures(): readonly Signature[] {        
         return this.checker.getSignaturesOfType(this, SignatureKind.Construct);
     }
-    getStringIndexType(): Type | undefined {
-        throw "implement me";
-        // return this.checker.getIndexTypeOfType(this, IndexKind.String);
+    getStringIndexType(): Type | undefined {        
+        return this.checker.getIndexTypeOfType(this, IndexKind.String);
     }
-    getNumberIndexType(): Type | undefined {
-        throw "implement me";
-        // return this.checker.getIndexTypeOfType(this, IndexKind.Number);
+    getNumberIndexType(): Type | undefined {        
+        return this.checker.getIndexTypeOfType(this, IndexKind.Number);
     }
-    getBaseTypes(): BaseType[] | undefined {
-        throw "implement me";
-        // return this.isClassOrInterface()
-        //     ? this.checker.getBaseTypes(this)
-        //     : undefined;
+    getBaseTypes(): BaseType[] | undefined {        
+        return this.isClassOrInterface()
+            ? this.checker.getBaseTypes(this)
+            : undefined;
     }
-    isNullableType(): boolean {
-        throw "implement me";
-        // return this.checker.isNullableType(this);
+    isNullableType(): boolean {        
+        return this.checker.isNullableType(this);
     }
     getNonNullableType(): Type {        
         return this.checker.getNonNullableType(this);
     }
-    getNonOptionalType(): Type {
-        throw "implement me";
-        // return this.checker.getNonOptionalType(this);
+    getNonOptionalType(): Type {        
+        return this.checker.getNonOptionalType(this);
     }
-    getConstraint(): Type | undefined {
-        throw "implement me";
-        // return this.checker.getBaseConstraintOfType(this);
+    getConstraint(): Type | undefined {        
+        return this.checker.getBaseConstraintOfType(this);
     }
-    getDefault(): Type | undefined {
-        throw "implement me";
-        // return this.checker.getDefaultFromTypeParameter(this);
+    getDefault(): Type | undefined {        
+        return this.checker.getDefaultFromTypeParameter(this);
     }
 
     isUnion(): this is UnionType {
@@ -1295,9 +1285,8 @@ class SignatureObject implements Signature {
     getParameters(): Symbol[] {
         return this.parameters;
     }
-    getReturnType(): Type {
-        throw "implement me";
-        //return this.checker.getReturnTypeOfSignature(this);
+    getReturnType(): Type {        
+        return this.checker.getReturnTypeOfSignature(this);
     }
 
     getDocumentationComment(): SymbolDisplayPart[] {        
