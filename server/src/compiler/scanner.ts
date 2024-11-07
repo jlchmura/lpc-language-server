@@ -189,6 +189,7 @@ export const textToKeywordObj: MapLike<KeywordSyntaxKind> = {
     private: SyntaxKind.PrivateKeyword,
     protected: SyntaxKind.ProtectedKeyword,
     public: SyntaxKind.PublicKeyword,    
+    ref: SyntaxKind.RefKeyword,
     return: SyntaxKind.ReturnKeyword,    
     static: SyntaxKind.StaticKeyword,
     string: SyntaxKind.StringKeyword,

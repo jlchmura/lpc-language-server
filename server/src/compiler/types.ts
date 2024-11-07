@@ -786,6 +786,7 @@ export const enum SyntaxKind {
     StatusKeyword,
     SymbolKeyword, // not reserved in fluffos
     ObjectKeyword, // can occur in a upser expr i.e.  object::fn()
+    RefKeyword, // fluff only
     NewKeyword,
 
     // Parse Tree Nodes
@@ -1529,7 +1530,7 @@ export interface NodeFactory {
     createBlock(statements: readonly Statement[], multiLine?: boolean): Block;
     createVariableStatement(modifiers: readonly Modifier[] | undefined, type: TypeNode | undefined, declarationList: VariableDeclarationList | readonly VariableDeclaration[]): VariableStatement;
     createVariableDeclarationList(declarations: readonly VariableDeclaration[], flags?: NodeFlags): VariableDeclarationList;
-    createVariableDeclaration(name: string | BindingName, type?: TypeNode | undefined, initializer?: Expression | undefined): VariableDeclaration;    
+    createVariableDeclaration(name: string | BindingName, refToken?: RefToken, type?: TypeNode | undefined, initializer?: Expression | undefined): VariableDeclaration;    
     createFunctionDeclaration(modifiers: readonly Modifier[] | undefined, name: string | Identifier | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode | undefined, body: Block | undefined): FunctionDeclaration;
     createExpressionStatement(expression: Expression): ExpressionStatement;
     createReturnStatement(expression?: Expression): ReturnStatement;
@@ -2307,6 +2308,7 @@ export type DirectiveSyntaxKind =
 
 export type KeywordSyntaxKind =
     | SyntaxKind.AnyKeyword    
+    | SyntaxKind.RefKeyword
     | SyntaxKind.StatusKeyword
     | SyntaxKind.BytesKeyword
     | SyntaxKind.LwObjectKeyword
@@ -2375,6 +2377,7 @@ export interface KeywordTypeNode<TKind extends KeywordTypeSyntaxKind = KeywordTy
 }
 
 export type CaseKeyword = KeywordToken<SyntaxKind.CaseKeyword>;
+export type RefToken = KeywordToken<SyntaxKind.RefKeyword>;
 
 export interface ModifierToken<TKind extends ModifierSyntaxKind> extends KeywordToken<TKind> {}
 export type PrivateKeyword = ModifierToken<SyntaxKind.PrivateKeyword>;
@@ -2551,6 +2554,7 @@ export interface PunctuationToken<TKind extends PunctuationSyntaxKind> extends T
 export type DotToken = PunctuationToken<SyntaxKind.DotToken>;
 export type AmpersandToken = PunctuationToken<SyntaxKind.AmpersandToken>;
 export type DotDotDotToken = PunctuationToken<SyntaxKind.DotDotDotToken>;
+
 export type QuestionToken = PunctuationToken<SyntaxKind.QuestionToken>;
 export type ExclamationToken = PunctuationToken<SyntaxKind.ExclamationToken>;
 export type DoubleExclamationToken = PunctuationToken<SyntaxKind.DoubleExclamationToken>;
@@ -3495,6 +3499,7 @@ export type BindingName = Identifier | BindingPattern;
 export interface VariableDeclaration extends NamedDeclaration, JSDocContainer, PrimaryExpression {
     readonly kind: SyntaxKind.VariableDeclaration;
     readonly parent: VariableDeclarationList;
+    readonly refToken?: RefToken;
     readonly name: BindingName;                    // Declared variable name    
     readonly type?: TypeNode;                      // Optional type annotation
     readonly equalsToken?: Token<SyntaxKind.EqualsToken>; // Optional initializer token

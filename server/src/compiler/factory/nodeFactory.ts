@@ -169,6 +169,7 @@ import {
     QualifiedName,
     QuestionToken,
     RangeExpression,
+    RefToken,
     ReturnStatement,
     setIdentifierTypeArguments,    
     setTextRange,    
@@ -1027,12 +1028,14 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     // @api
     function createVariableDeclaration(
         name: string | BindingName,
+        refToken: RefToken,
         type: TypeNode | undefined,        
         initializer?: Expression | undefined
     ): VariableDeclaration {
         const node = createBaseDeclaration<VariableDeclaration>(
             SyntaxKind.VariableDeclaration
         );
+        node.refToken = refToken;
         node.name = asName(name);
         node.type = type;        
         node.initializer = asInitializer(initializer);
