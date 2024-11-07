@@ -1,5 +1,6 @@
 {
     "driver": {
         "type": "fluffos"
-    }
+    },
+    "include": ["./"]
 }

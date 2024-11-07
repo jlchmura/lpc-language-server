@@ -1,4 +1,4 @@
 {
     "diagnostics": "off",
-    "exclude": ["/efuns", "/server/src/tests"]
+    "exclude": ["./efuns", "./server/src/tests"]
 }
