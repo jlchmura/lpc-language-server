@@ -1725,7 +1725,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
             while (r.exec(file.text) !== null) { // eslint-disable-line no-restricted-syntax
                 const node = getNodeAtPosition(file, r.lastIndex);
                 // we have to check the argument list has length of at least 1. We will still have to process these even though we have parsing error.
-                if (isCloneObjectExpression(node) && node.arguments.length >= 1 && isStringLiteral(node.arguments[0])) {
+                if (isCloneObjectExpression(node) && node.arguments?.length >= 1 && isStringLiteral(node.arguments[0])) {
                     setParentRecursive(node, /*incremental*/ false); // we need parent data on imports before the program is fully bound, so we ensure it's set here
                     imports = append(imports, node.arguments[0]);
                 } else if (isInheritDeclaration(node)) {

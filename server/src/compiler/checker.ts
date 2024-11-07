@@ -11321,7 +11321,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     function checkCloneObjectExpression(node: CloneObjectExpression, checkMode?: CheckMode): Type {
         checkGrammarImportCallExpression(node);
 
-        if (node.arguments?.length===0) {
+        if (!node.arguments?.length) {
             // this is an error but we'll return a type anyway
             return anyType;
         }
@@ -11365,9 +11365,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
     function checkGrammarImportCallExpression(node: CloneObjectExpression): boolean {
         const nodeArguments = node.arguments;
-        if (nodeArguments.length === 0) {
+        if (nodeArguments?.length === 0) {
             return grammarErrorOnNode(node, Diagnostics.Clone_object_can_only_accept_an_object_name_and_an_optional_set_of_attributes_as_arguments_1450);
-
         }
     }
 

@@ -512,6 +512,7 @@ import {
     JSDocTypeTag,
     JSDocThrowsTag,
     JSDocSatisfiesTag,
+    isInCallExpression,
 } from "./_namespaces/lpc.js";
 
 function unescapeLeadingUnderscores(s: string) { return s; }
@@ -818,7 +819,7 @@ export function getCompletionsAtPosition(
     includeSymbol = false,
 ): CompletionInfo | undefined {
     const { previousToken } = getRelevantTokens(position, sourceFile);
-    if (triggerCharacter && !isInString(sourceFile, position, previousToken) && !isValidTrigger(sourceFile, triggerCharacter, previousToken, position)) {
+    if (triggerCharacter && !isInCallExpression(sourceFile, position, previousToken) && !isInString(sourceFile, position, previousToken) && !isValidTrigger(sourceFile, triggerCharacter, previousToken, position)) {
         return undefined;
     }
 
@@ -5379,6 +5380,8 @@ function isValidTrigger(sourceFile: SourceFile, triggerCharacter: CompletionsTri
                 : false);
         case " ":
             return !!contextToken && isInheritDeclaration(contextToken) && contextToken.parent.kind === SyntaxKind.SourceFile;
+        case ">":
+            return !!contextToken && isPropertyAccessExpression(contextToken);            
         default:
             return Debug.assertNever(triggerCharacter);
     }

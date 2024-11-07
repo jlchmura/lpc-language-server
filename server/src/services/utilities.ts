@@ -1174,6 +1174,11 @@ export function nodeSeenTracker<T extends Node>(): NodeSeenTracker<T> {
     };
 }
 
+
+export function isInCallExpression(sourceFile: SourceFile, position: number, previousToken = findPrecedingToken(position, sourceFile)): boolean {
+    return !!previousToken && previousToken.kind === SyntaxKind.CloseParenToken && isCallExpression(previousToken.parent);
+}
+
 /** @internal */
 export function isInString(sourceFile: SourceFile, position: number, previousToken = findPrecedingToken(position, sourceFile)): boolean {
     if (previousToken && isStringTextContainingNode(previousToken)) {
