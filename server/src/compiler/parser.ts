@@ -1,3 +1,4 @@
+import { parse } from "node:path";
 import { isIdentifier as isIdentifierNode, BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange, PrefixUnaryExpression, LanguageVariant, PrefixUnaryOperator, Program, LpcFileHandler, ParenthesizedExpression, ArrayLiteralExpression, LambdaExpression, PunctuationSyntaxKind, PunctuationToken, LambdaOperatorToken, CastExpression, PropertyAccessExpression, CloneObjectExpression, NewExpression, trimQuotes, createScanner, isKeyword, PunctuationOrKeywordSyntaxKind, mapDefined, getJSDocCommentRanges, LabeledStatement, PropertyName, Token, tokenToString, addRelatedInfo, tokenIsIdentifierOrKeyword, getBinaryOperatorPrecedence, addRange, append, ArrayTypeNode, canHaveJSDoc, concatenate, containsParseError, Diagnostic, EntityName, getSpellingSuggestion, identity, idText, isIdentifierText, isTypeReferenceNode, JSDoc, JSDocAugmentsTag, JSDocCallbackTag, JSDocComment, JSDocImplementsTag, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocParameterTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThrowsTag, JSDocTypedefTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, nodeIsMissing, noop, PropertyAccessEntityNameExpression, setParent, skipTrivia, some, CharacterCodes, MapLike, KeywordSyntaxKind, startsWith, textToKeywordObj, ModifierLike, isModifierKind, MissingDeclaration, setTextRangePos, BindingPattern, KeywordTypeSyntaxKind, LiteralTypeNode, IntLiteral, FloatLiteral, LiteralLikeNode, isLiteralKind, TypeReferenceNode, getFullWidth, OperatorPrecedence, UnaryExpression, isLeftHandSideExpression, isAssignmentOperator, isKeywordOrPunctuation, UpdateExpression, PrimaryExpression, nodeIsPresent, PropertyAccessToken, IterationStatement, InheritClauseType, ObjectType, StructTypeNode, NamedDeclaration, TypeElement, PropertySignature, MethodSignature, StructDeclaration, TypeLiteralNode, TypeAssertion, NewStructExpression, ObjectLiteralElementLike, PropertyAssignment, getStartPositionOfLine, MappingLiteralExpression, MappingEntryExpression, isStringOrNumericLiteralLike, ElementAccessExpression,  RangeExpression,  LambdaIdentifierExpression, LambdaOperatorExpression, PreprocessorDirective, IncludeDirective, DefineDirective, UndefDirective, Macro, Scanner, last, ReadonlyTextRange, MacroParameter, forEachEntry, Ternary, isIntLiteral, isArrayTypeNode, SuperAccessExpression, isIndexedAccessTypeNode, isStringLiteral, isBinaryExpression, PragmaDirective, SpreadElement, CatchStatement, CatchExpression, getDirectoryPath, EvaluateExpression, setParentRecursive, ExpressionWithTypeArguments, JSDocThisTag, isJSDocTypeTag, isJSDocReturnTag, JSDocAuthorTag, QualifiedName, JSDocClassTag, JSDocDeprecatedTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, JSDocOverrideTag, JSDocPrivateTag, JSDocProtectedTag, JSDocPublicTag, JSDocUnknownTag, JsonSourceFile, BooleanLiteral, NullLiteral, JsonMinusNumericLiteral, ObjectLiteralExpression, ShorthandPropertyAssignment, NumericLiteral, JsonObjectExpressionStatement, JSDocVariadicType, PositionState, CommaListExpression, PropertyDeclaration, ObjectLiteralElement, NewExpressionArgument } from "./_namespaces/lpc";
 
 const enum SpeculationKind {
@@ -2924,9 +2925,9 @@ export namespace LpcParser {
                 return parseTokenNode<TypeNode>();               
             case SyntaxKind.OpenBraceToken:                
                 return parseTypeLiteral();//return lookAhead(isStartOfMappedType) ? parseMappedType() : parseTypeLiteral();
-            case SyntaxKind.OpenParenToken:
-                Debug.fail("todo - parse parenthesized type");
-                // return parseParenthesizedType();
+            // case SyntaxKind.OpenParenToken:
+            //     Debug.fail("todo - parse parenthesized type");
+            //     // return parseParenthesizedType();
             case SyntaxKind.ClassKeyword:
             case SyntaxKind.StructKeyword:
                 return parseStructTypeNode(token() as KeywordSyntaxKind);
@@ -4084,14 +4085,14 @@ export namespace LpcParser {
             // case SyntaxKind.VoidKeyword:
             //     return parseVoidExpression();                                 
             case SyntaxKind.OpenParenToken:
-            case SyntaxKind.OpenParenBraceToken:
-                // make sure this isn't an array literal
-                if (lookAhead(()=>{ 
-                    nextToken(); 
-                    return isTypeName();// && (nextToken() == SyntaxKind.CloseParenToken || token() == SyntaxKind.CloseBraceToken); 
-                })) {
-                    return parseTypeAssertion();
-                }
+            case SyntaxKind.OpenParenBraceToken:                
+                // try parsing this as a type assertion. 
+                // if it can't be then fall through so that we can 
+                // parse it as a primary (parenthesized) expression
+                const assertExpr = parseMaybeTypeAssertion();
+                if (assertExpr) {
+                    return assertExpr;
+                }                
                 // fall through
             default:
                 return parseUpdateExpression();
@@ -4125,27 +4126,36 @@ export namespace LpcParser {
         return finishNode(factory.createNewStructExpression(type, args), pos);
     }
 
-    function parseTypeAssertion(): TypeAssertion {
+    function parseMaybeTypeAssertion(): TypeAssertion | undefined {
         const pos = getPositionState();
-        const hasBrace = parseOptional(SyntaxKind.OpenParenBraceToken);
-        if (!hasBrace) parseExpected(SyntaxKind.OpenParenToken);
-        
-        const isStruct = parseOptional(SyntaxKind.LessThanToken);
+        const expr = tryParse(()=>{
+            const hasBrace = parseOptional(SyntaxKind.OpenParenBraceToken);
+            if (!hasBrace) parseExpected(SyntaxKind.OpenParenToken);
+            
+            const isStruct = parseOptional(SyntaxKind.LessThanToken);
+            
+            if (!isTypeName()) return undefined; 
+            const type = parseType();
+                                    
+            if (isStruct) {            
+                parseExpected(SyntaxKind.GreaterThanToken);
+            }
+            
+            if (hasBrace) {                        
+                // definitely a type assertion
+                parseExpected(SyntaxKind.CloseBraceToken);            
+                parseExpected(SyntaxKind.CloseParenToken);
+            } else if (!parseOptional(SyntaxKind.CloseParenToken)) {
+                // not a type assertion
+                return undefined;
+            }       
+                        
+            const expression = parseSimpleUnaryExpression();
+            return finishNode(factory.createTypeAssertion(type, expression), pos);            
+        });
 
-        const type = parseType();
-                
-        if (isStruct) {            
-            parseExpected(SyntaxKind.GreaterThanToken);
-        }
-        if (hasBrace) {
-            parseExpected(SyntaxKind.CloseBraceToken);
-        }        
-        parseExpected(SyntaxKind.CloseParenToken);
-
-        const expression = parseSimpleUnaryExpression();
-
-        return finishNode(factory.createTypeAssertion(type, expression), pos);
-    }
+        return expr;
+    }    
     
     function parsePrefixUnaryExpression() {
         const pos = getPositionState();
@@ -4571,10 +4581,10 @@ export namespace LpcParser {
         return createIdentifier(tokenIsIdentifierOrKeyword(token()));
     }
 
-    function parseParenthesizedExpression(): ParenthesizedExpression {
+    function parseParenthesizedExpression(expectOpenParen = true): ParenthesizedExpression {
         const pos = getPositionState();
         const hasJSDoc = hasPrecedingJSDocComment();
-        parseExpected(SyntaxKind.OpenParenToken);
+        if (expectOpenParen) parseExpected(SyntaxKind.OpenParenToken);
         const expression = allowInAnd(parseExpression);
         parseExpected(SyntaxKind.CloseParenToken);
         return withJSDoc(finishNode(factoryCreateParenthesizedExpression(expression), pos), hasJSDoc);
@@ -4762,6 +4772,7 @@ export namespace LpcParser {
                 if (lookAhead(()=>(nextToken() == SyntaxKind.LessThanToken))) {
                     return parseNewStructExpression();
                 }                
+
                 return parseParenthesizedExpression();
             case SyntaxKind.OpenParenBraceToken:
                 return parseArrayLiteralExpression();
