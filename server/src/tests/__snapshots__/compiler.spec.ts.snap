@@ -20,6 +20,8 @@ Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/as
 
 exports[`Compiler compiler/assignment3.c Reports correct errors for compiler/assignment3.c: diags-compiler/assignment3.c 1`] = `""`;
 
+exports[`Compiler compiler/assignmentArraySpread.c Reports correct errors for compiler/assignmentArraySpread.c: diags-compiler/assignmentArraySpread.c 1`] = `""`;
+
 exports[`Compiler compiler/catchBlock.c Reports correct errors for compiler/catchBlock.c: diags-compiler/catchBlock.c 1`] = `""`;
 
 exports[`Compiler compiler/closure1.c Reports correct errors for compiler/closure1.c: diags-compiler/closure1.c 1`] = `""`;
@@ -61,6 +63,8 @@ exports[`Compiler compiler/functionCall3.c Reports correct errors for compiler/f
 exports[`Compiler compiler/functionCall4.c Reports correct errors for compiler/functionCall4.c: diags-compiler/functionCall4.c 1`] = `""`;
 
 exports[`Compiler compiler/functionCall5.c Reports correct errors for compiler/functionCall5.c: diags-compiler/functionCall5.c 1`] = `""`;
+
+exports[`Compiler compiler/identifier1.c Reports correct errors for compiler/identifier1.c: diags-compiler/identifier1.c 1`] = `""`;
 
 exports[`Compiler compiler/if1.c Reports correct errors for compiler/if1.c: diags-compiler/if1.c 1`] = `""`;
 
@@ -146,6 +150,10 @@ exports[`Compiler compiler/switch2.c Reports correct errors for compiler/switch2
 exports[`Compiler compiler/switch3.c Reports correct errors for compiler/switch3.c: diags-compiler/switch3.c 1`] = `""`;
 
 exports[`Compiler compiler/ternary.c Reports correct errors for compiler/ternary.c: diags-compiler/ternary.c 1`] = `""`;
+
+exports[`Compiler compiler/textFormat1.c Reports correct errors for compiler/textFormat1.c: diags-compiler/textFormat1.c 1`] = `""`;
+
+exports[`Compiler compiler/textFormat2.c Reports correct errors for compiler/textFormat2.c: diags-compiler/textFormat2.c 1`] = `""`;
 
 exports[`Compiler compiler/typeAssertion1.c Reports correct errors for compiler/typeAssertion1.c: diags-compiler/typeAssertion1.c 1`] = `""`;
 
