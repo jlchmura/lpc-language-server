@@ -1403,14 +1403,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         if (!sourceSymbol?.inherits) return type.resolvedBaseTypes = emptyArray;
         
         const baseTypes: BaseType[] = [baseType];
-        forEachEntry(sourceSymbol?.inherits, (inheritType, prefix) => {            
-            const inheritSymbol = inheritType.symbol                                                
-            mergeSymbolTable(inheritSymbol.members, inheritSymbol.exports);
-
-            const classType = getDeclaredTypeOfClassOrInterface(inheritSymbol);
-            const classBaseTypes = getBaseTypes(classType);
-            baseTypes.push(...classBaseTypes);
-            const ii=0;
+        forEachEntry(sourceSymbol?.inherits, (inheritType, prefix) => {                        
+            const classBaseTypes = getApparentType(inheritType);
+            baseTypes.push(classBaseTypes);            
         });        
 
         return type.resolvedBaseTypes = baseTypes;
@@ -10490,24 +10485,20 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function addInheritedMembers(symbols: SymbolTable, baseSymbols: Symbol[]) {
-        console.warn("TODO - implement me - addInheritedMembers");
-        // for (const base of baseSymbols) {
-        //     // if (isStaticPrivateIdentifierProperty(base)) {
-        //     //     continue;
-        //     // }
-        //     const derived = symbols.get(base.name);
-        //     if (
-        //         !derived
-        //         // non-constructor/static-block assignment declarations are ignored here; they're not treated as overrides
-        //         || derived.valueDeclaration
-        //             && isBinaryExpression(derived.valueDeclaration)
-        //             && !isConstructorDeclaredProperty(derived)
-        //             && !getContainingClassStaticBlock(derived.valueDeclaration)
-        //     ) {
-        //         symbols.set(base.name, base);
-        //         symbols.set(base.name, base);
-        //     }
-        // }
+        for (const base of baseSymbols) {
+            // if (isStaticPrivateIdentifierProperty(base)) {
+            //     continue;
+            // }
+            const derived = symbols.get(base.name);
+            if (
+                !derived
+                // non-constructor/static-block assignment declarations are ignored here; they're not treated as overrides
+                || derived.valueDeclaration
+                    && isBinaryExpression(derived.valueDeclaration)                    
+            ) {
+                symbols.set(base.name, base);                
+            }
+        }
     }
 
     function resolveObjectTypeMembers(type: ObjectType, source: InterfaceTypeWithDeclaredMembers, typeParameters: readonly TypeParameter[], typeArguments: readonly Type[]) {
@@ -17393,35 +17384,12 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             if (resolutionDiagnostic) {
                 error(errorNode, resolutionDiagnostic, moduleReference, resolvedModule.resolvedFileName);
             }
-
-            // if (resolvedModule.resolvedUsingTsExtension && isDeclarationFileName(moduleReference)) {
-            //     const importOrExport = findAncestor(location, isImportDeclaration)?.importClause ||
-            //         findAncestor(location, or(isImportEqualsDeclaration, isExportDeclaration));
-            //     if (importOrExport && !importOrExport.isTypeOnly || findAncestor(location, isImportCall)) {
-            //         error(
-            //             errorNode,
-            //             Diagnostics.A_declaration_file_cannot_be_imported_without_import_type_Did_you_mean_to_import_an_implementation_file_0_instead,
-            //             getSuggestedImportSource(Debug.checkDefined(tryExtractTSExtension(moduleReference))),
-            //         );
-            //     }
-            // }
-            // else if (resolvedModule.resolvedUsingTsExtension && !shouldAllowImportingTsExtension(compilerOptions, currentSourceFile.fileName)) {
-            //     const importOrExport = findAncestor(location, isImportDeclaration)?.importClause ||
-            //         findAncestor(location, or(isImportEqualsDeclaration, isExportDeclaration));
-            //     if (!(importOrExport?.isTypeOnly || findAncestor(location, isImportTypeNode))) {
-            //         const tsExtension = Debug.checkDefined(tryExtractTSExtension(moduleReference));
-            //         error(errorNode, Diagnostics.An_import_path_can_only_end_with_a_0_extension_when_allowImportingTsExtensions_is_enabled, tsExtension);
-            //     }
-            // }
-
+                    
             if (sourceFile.symbol) {
                 // get the base type, which will force the source file type to be resolved
-                const type = getTypeOfSymbol(sourceFile.symbol) as InterfaceType;
-                resolveBaseTypeOfSourceFile(type, sourceFile);
-
-                // if (resolvedModule.isExternalLibraryImport && !resolutionExtensionIsTSOrJson(resolvedModule.extension)) {
-                //     errorOnImplicitAnyModule(/*isError*/ false, errorNode, currentSourceFile, mode, resolvedModule, moduleReference);
-                // }
+                const type = getTypeOfSymbol(sourceFile.symbol) as InterfaceType;                
+                resolveClassOrInterfaceMembers(type);
+                
                 // if (moduleResolutionKind === ModuleResolutionKind.Node16 || moduleResolutionKind === ModuleResolutionKind.NodeNext) {
                 //     const isSyncImport = (currentSourceFile.impliedNodeFormat === ModuleKind.CommonJS && !findAncestor(location, isImportCall)) || !!findAncestor(location, isImportEqualsDeclaration);
                 //     const overrideHost = findAncestor(location, l => isImportTypeNode(l) || isExportDeclaration(l) || isImportDeclaration(l) || isJSDocImportTag(l)) as ImportTypeNode | ImportDeclaration | ExportDeclaration | JSDocImportTag | undefined;
@@ -17493,35 +17461,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             }
             return undefined;
         }
-
-        // if (patternAmbientModules) {
-        //     const pattern = findBestPatternMatch(patternAmbientModules, _ => _.pattern, moduleReference);
-        //     if (pattern) {
-        //         // If the module reference matched a pattern ambient module ('*.foo') but there's also a
-        //         // module augmentation by the specific name requested ('a.foo'), we store the merged symbol
-        //         // by the augmentation name ('a.foo'), because asking for *.foo should not give you exports
-        //         // from a.foo.
-        //         const augmentation = patternAmbientModuleAugmentations && patternAmbientModuleAugmentations.get(moduleReference);
-        //         if (augmentation) {
-        //             return getMergedSymbol(augmentation);
-        //         }
-        //         return getMergedSymbol(pattern.symbol);
-        //     }
-        // }
-
-        // May be an untyped module. If so, ignore resolutionDiagnostic.
-        // if (resolvedModule && !resolutionExtensionIsTSOrJson(resolvedModule.extension) && resolutionDiagnostic === undefined || resolutionDiagnostic === Diagnostics.Could_not_find_a_declaration_file_for_module_0_1_implicitly_has_an_any_type) {
-        //     if (isForAugmentation) {
-        //         const diag = Diagnostics.Invalid_module_name_in_augmentation_Module_0_resolves_to_an_untyped_module_at_1_which_cannot_be_augmented;
-        //         error(errorNode, diag, moduleReference, resolvedModule!.resolvedFileName);
-        //     }
-        //     else {
-        //         errorOnImplicitAnyModule(/*isError*/ noImplicitAny && !!moduleNotFoundError, errorNode, currentSourceFile, mode, resolvedModule!, moduleReference);
-        //     }
-        //     // Failed imports and untyped modules are both treated in an untyped manner; only difference is whether we give a diagnostic first.
-        //     return undefined;
-        // }
-
+               
         if (moduleNotFoundError) {
             // See if this was possibly a projectReference redirect
             // if (resolvedModule) {
