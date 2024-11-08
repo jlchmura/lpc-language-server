@@ -17415,6 +17415,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             // }
 
             if (sourceFile.symbol) {
+                // get the base type, which will force the source file type to be resolved
+                const type = getTypeOfSymbol(sourceFile.symbol) as InterfaceType;
+                resolveBaseTypeOfSourceFile(type, sourceFile);
+
                 // if (resolvedModule.isExternalLibraryImport && !resolutionExtensionIsTSOrJson(resolvedModule.extension)) {
                 //     errorOnImplicitAnyModule(/*isError*/ false, errorNode, currentSourceFile, mode, resolvedModule, moduleReference);
                 // }
