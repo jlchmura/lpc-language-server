@@ -9,11 +9,14 @@ import {
     ExportMapInfoKey,
     FormatCodeSettings,
     GetEffectiveTypeRootsHost,
+    HasChangedAutomaticTypeDirectiveNames,
+    HasInvalidatedResolutions,
     JSDocParsingMode,
     LineAndCharacter,
     LpcFileHandler,
     MinimalResolutionCacheHost,
     Node,
+    ParsedCommandLine,
     Program,
     ProjectReference,
     ResolvedModule,
@@ -618,8 +621,8 @@ export interface LanguageServiceHost
         | ((libFileName: string) => boolean)
         | undefined;
 
-    // /** @internal */ hasInvalidatedResolutions?: HasInvalidatedResolutions | undefined;
-    // /** @internal */ hasChangedAutomaticTypeDirectiveNames?: HasChangedAutomaticTypeDirectiveNames;
+    /** @internal */ hasInvalidatedResolutions?: HasInvalidatedResolutions | undefined;
+    /** @internal */ hasChangedAutomaticTypeDirectiveNames?: HasChangedAutomaticTypeDirectiveNames;
     /** @internal */ getGlobalTypingsCacheLocation?(): string | undefined;
     // /** @internal */ getSymlinkCache?(files?: readonly SourceFile[]): SymlinkCache;
     /* Lets the Program from a AutoImportProviderProject use its host project's ModuleResolutionCache */
@@ -655,7 +658,7 @@ export interface LanguageServiceHost
     /** @internal */ useSourceOfProjectReferenceRedirect?(): boolean;
     /** @internal */ getPackageJsonAutoImportProvider?(): Program | undefined;
     // /** @internal */ sendPerformanceEvent?(kind: PerformanceEvent["kind"], durationMs: number): void;
-    // getParsedCommandLine?(fileName: string): ParsedCommandLine | undefined;
+    getParsedCommandLine?(fileName: string): ParsedCommandLine | undefined;
     // /** @internal */ onReleaseParsedCommandLine?(configFileName: string, oldResolvedRef: ResolvedProjectReference | undefined, optionOptions: CompilerOptions): void;
     /** @internal */ onReleaseOldSourceFile?(
         oldSourceFile: SourceFile,

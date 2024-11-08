@@ -818,7 +818,7 @@ export function walkUpBindingElementsAndPatterns(binding: BindingElement): Varia
 }
 
 export function isClassLike(node: Node) : node is ClassLikeDeclaration {
-    return node && (node.kind === SyntaxKind.ClassDeclaration || node.kind === SyntaxKind.ClassExpression || node.kind === SyntaxKind.SourceFile);
+    return !!node && (node.kind === SyntaxKind.ClassDeclaration || node.kind === SyntaxKind.ClassExpression || node.kind === SyntaxKind.SourceFile);
 }
 
 export function isConciseBody(node: Node): node is ConciseBody {

@@ -376,17 +376,20 @@ export class Session<TMessage = string> implements EventSender {
                 return;
             }
 
-            
-
-            // Don't provide semantic diagnostics unless we're in full semantic mode.
-            // or if the project has diags turned off
-            if (project.projectService.serverMode !== LanguageServiceMode.Semantic || !project.getCompilerOptions()?.diagnostics) {
+            // Don't provide semantic diagnostics unless we're in full semantic mode.            
+            if (project.projectService.serverMode !== LanguageServiceMode.Semantic) {
                 this.sendAllDiagnostics(diagnostics, fileName, project);
                 goNext();
                 return;
             }
             next.immediate("semanticCheck", () => {
-                diagnostics.push(...this.semanticCheck(fileName, project));
+                // always run no matter what
+                const semanticDiags = this.semanticCheck(fileName, project);
+                // but only send if diagnostics are explicitly turned on
+                if (project.getCompilerOptions()?.diagnostics) {
+                    diagnostics.push(...semanticDiags);                    
+                }
+
                 if (this.changeSeq !== seq) {
                     this.sendAllDiagnostics(diagnostics, fileName, project);
                     return;

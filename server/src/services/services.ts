@@ -190,6 +190,14 @@ import {
     isDefineDirective,
     createLpcFileHandler,
     sys,
+    isProgramUptoDate,
+    HasInvalidatedResolutions,
+    ParsedCommandLine,
+    JsonSourceFile,
+    parseJsonSourceFileConfigFileContent,
+    getDirectoryPath,
+    getNormalizedAbsolutePath,
+    ParseConfigFileHost,
 } from "./_namespaces/lpc.js";
 import * as classifier2020 from "./classifier2020.js";
 
@@ -1554,9 +1562,12 @@ export function createLanguageService(
         const rootFileNames = host.getScriptFileNames().slice();
 
         // Get a fresh cache of the host information
-        const newSettings =
-            host.getCompilationSettings() || getDefaultCompilerOptions();
+        const newSettings = host.getCompilationSettings() || getDefaultCompilerOptions();
+        const hasInvalidatedResolutions: HasInvalidatedResolutions = host.hasInvalidatedResolutions || returnFalse;
+        const hasInvalidatedLibResolutions = maybeBind(host, host.hasInvalidatedLibResolutions) || returnFalse;
+        const hasChangedAutomaticTypeDirectiveNames = maybeBind(host, host.hasChangedAutomaticTypeDirectiveNames);
         const projectReferences = host.getProjectReferences?.();
+        let parsedCommandLines: Map<Path, ParsedCommandLine | false> | undefined;
 
         const useCaseSensitiveFileNames = true;
         const getCanonicalFileName = createGetCanonicalFileName(
@@ -1641,12 +1652,33 @@ export function createLanguageService(
                 host,
                 host.useSourceOfProjectReferenceRedirect
             ),
-            // getParsedCommandLine,
+            getParsedCommandLine,
             jsDocParsingMode: host.jsDocParsingMode,
         };
 
         host.setCompilerHost?.(compilerHost);
 
+        const parseConfigHost: ParseConfigFileHost = {
+            useCaseSensitiveFileNames,
+            fileExists: fileName => compilerHost!.fileExists(fileName),
+            readFile: fileName => compilerHost!.readFile(fileName),
+            directoryExists: f => compilerHost!.directoryExists!(f),
+            getDirectories: f => compilerHost!.getDirectories!(f),
+            realpath: compilerHost.realpath,
+            readDirectory: (...args) => compilerHost!.readDirectory!(...args),
+            trace: compilerHost.trace,
+            getCurrentDirectory: compilerHost.getCurrentDirectory,
+            onUnRecoverableConfigFileDiagnostic: noop,
+        };
+        
+        // If the program is already up-to-date, we can reuse it
+        if (isProgramUptoDate(program, rootFileNames, newSettings, (_path, fileName) => host.getScriptVersion(fileName), fileName => compilerHost!.fileExists(fileName), hasInvalidatedResolutions, hasInvalidatedLibResolutions, hasChangedAutomaticTypeDirectiveNames, getParsedCommandLine, projectReferences)) {
+            compilerHost = undefined;
+            parsedCommandLines = undefined;
+            releasedScriptKinds = undefined;
+            return;
+        }
+        
         // IMPORTANT - It is critical from this moment onward that we do not check
         // cancellation tokens.  We are about to mutate source files from a previous program
         // instance.  If we cancel midway through, we may end up in an inconsistent state where
@@ -1665,7 +1697,7 @@ export function createLanguageService(
         // 'getOrCreateSourceFile' depends on caching but should be used past this point.
         // After this point, the cache needs to be cleared to allow all collected snapshots to be released
         compilerHost = undefined;
-        // parsedCommandLines = undefined;
+        parsedCommandLines = undefined;
         releasedScriptKinds = undefined;
 
         // We reset this cache on structure invalidation so we don't hold on to outdated files for long; however we can't use the `compilerHost` above,
@@ -1695,6 +1727,34 @@ export function createLanguageService(
             );
         }
 
+        function getParsedCommandLine(fileName: string): ParsedCommandLine | undefined {
+            const path = toPath(fileName, currentDirectory, getCanonicalFileName);
+            const existing = parsedCommandLines?.get(path);
+            if (existing !== undefined) return existing || undefined;
+
+            const result = host.getParsedCommandLine ?
+                host.getParsedCommandLine(fileName) :
+                getParsedCommandLineOfConfigFileUsingSourceFile(fileName);
+            (parsedCommandLines ||= new Map()).set(path, result || false);
+            return result;
+        }
+
+        function getParsedCommandLineOfConfigFileUsingSourceFile(configFileName: string): ParsedCommandLine | undefined {
+            const result = getOrCreateSourceFile(configFileName, ScriptTarget.JSON) as JsonSourceFile | undefined;
+            if (!result) return undefined;
+            result.path = toPath(configFileName, currentDirectory, getCanonicalFileName);
+            result.resolvedPath = result.path;
+            result.originalFileName = result.fileName;
+            return parseJsonSourceFileConfigFileContent(
+                result,
+                parseConfigHost,
+                getNormalizedAbsolutePath(getDirectoryPath(configFileName), currentDirectory),
+                /*existingOptions*/ undefined,
+                getNormalizedAbsolutePath(configFileName, currentDirectory),
+            );
+        }
+
+        
         // Release any files we have acquired in the old program but are
         // not part of the new program.
         function releaseOldSourceFile(

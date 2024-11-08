@@ -513,6 +513,9 @@ import {
     JSDocThrowsTag,
     JSDocSatisfiesTag,
     isInCallExpression,
+    getEffectiveBaseTypeNode,
+    ClassLikeDeclaration,
+    emptyArray,
 } from "./_namespaces/lpc.js";
 
 function unescapeLeadingUnderscores(s: string) { return s; }
@@ -4404,7 +4407,7 @@ function getCompletionData(
      * Relevant symbols are stored in the captured 'symbols' variable.
      */
     function tryGetClassLikeCompletionSymbols(): GlobalsSearch {
-        const decl = tryGetObjectTypeDeclarationCompletionContainer(sourceFile, contextToken, location, position);
+        const decl = sourceFile;//tryGetObjectTypeDeclarationCompletionContainer(sourceFile, contextToken, location, position);
         if (!decl) return GlobalsSearch.Continue;
 
         // We're looking up possible property names from parent type.
@@ -4414,9 +4417,9 @@ function getCompletionData(
         keywordFilters = contextToken.kind === SyntaxKind.AsteriskToken ? KeywordCompletionFilters.None :
             isClassLike(decl) ? KeywordCompletionFilters.ClassElementKeywords : KeywordCompletionFilters.InterfaceElementKeywords;
 
-        // If you're in an interface you don't want to repeat things from super-interface. So just stop here.
+        // If you're in an interface you don't want to repeat things from super-interface. So just stop here.        
         if (!isClassLike(decl)) return GlobalsSearch.Success;
-
+        
         const classElement = contextToken.kind === SyntaxKind.SemicolonToken ? contextToken.parent.parent : contextToken.parent;
         let classElementModifierFlags = isClassElement(classElement) ? getEffectiveModifierFlags(classElement) : ModifierFlags.None;
         // If this is context token is not something we are editing now, consider if this would lead to be modifier
@@ -4433,34 +4436,30 @@ function getCompletionData(
                 //     break;
             }
         }
-        // if (isClassStaticBlockDeclaration(classElement)) {
-        //     classElementModifierFlags |= ModifierFlags.Static;
-        // }
-
+        
         // No member list for private methods
         if (!(classElementModifierFlags & ModifierFlags.Private)) {
-            console.warn("todo - implement base symbols from inherited objects");
             // List of property symbols of base type that are not private and already implemented
-            // const baseTypeNodes = isClassLike(decl) && classElementModifierFlags & ModifierFlags.Override ? singleElementArray(getEffectiveBaseTypeNode(decl)) : getAllSuperTypeNodes(decl);
-            // const baseSymbols = flatMap(baseTypeNodes, baseTypeNode => {
-            //     const type = typeChecker.getTypeAtLocation(baseTypeNode);
-            //     return classElementModifierFlags & ModifierFlags.Static ?
-            //         type?.symbol && typeChecker.getPropertiesOfType(typeChecker.getTypeOfSymbolAtLocation(type.symbol, decl)) :
-            //         type && typeChecker.getPropertiesOfType(type);
-            // });
-            // symbols = concatenate(symbols, filterClassMembersList(baseSymbols, decl.members, classElementModifierFlags));
-            // forEach(symbols, (symbol, index) => {
-            //     const declaration = symbol?.valueDeclaration;
-            //     if (declaration && isClassElement(declaration) && declaration.name && isComputedPropertyName(declaration.name)) {
-            //         const origin: SymbolOriginInfoComputedPropertyName = {
-            //             kind: SymbolOriginInfoKind.ComputedPropertyName,
-            //             symbolName: typeChecker.symbolToString(symbol),
-            //         };
-            //         symbolToOriginInfoMap[index] = origin;
-            //     }
-            // });
+            const baseTypeNodes = getAllSuperTypeNodes(decl);            
+            const baseSymbols = flatMap(baseTypeNodes, baseTypeNode => {
+                const type = typeChecker.getTypeAtLocation(baseTypeNode);
+                return classElementModifierFlags & ModifierFlags.Static ?
+                    type?.symbol && typeChecker.getPropertiesOfType(typeChecker.getTypeOfSymbolAtLocation(type.symbol, decl)) :
+                    type && typeChecker.getPropertiesOfType(type);
+            });
+            symbols = concatenate(symbols, filterClassMembersList(baseSymbols, (decl as ClassLikeDeclaration).members ?? emptyArray, classElementModifierFlags));
+            forEach(symbols, (symbol, index) => {
+                const declaration = symbol?.valueDeclaration;
+                if (declaration && isClassElement(declaration) && declaration.name && isComputedPropertyName(declaration.name)) {
+                    const origin: SymbolOriginInfoComputedPropertyName = {
+                        kind: SymbolOriginInfoKind.ComputedPropertyName,
+                        symbolName: typeChecker.symbolToString(symbol),
+                    };
+                    symbolToOriginInfoMap[index] = origin;
+                }
+            });
         }
-        return GlobalsSearch.Success;
+        return symbols?.length ? GlobalsSearch.Success : GlobalsSearch.Continue;
     }
 
     function isConstructorParameterCompletion(node: Node): boolean {

@@ -1,5 +1,5 @@
 import path from "path";
-import { getDeclarationDiagnostics as lpc_getDeclarationDiagnostics, forEachResolvedProjectReference as lpc_forEachResolvedProjectReference, combinePaths, compareValues, CompilerHost, CompilerOptions, containsPath, createDiagnosticCollection, createGetCanonicalFileName, createMultiMap, CreateProgramOptions, createSourceFile, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DiagnosticWithLocation, FileIncludeKind, FileIncludeReason, FilePreprocessingDiagnostics, FilePreprocessingDiagnosticsKind, forEach, getBaseFileName, getDirectoryPath, getNewLineCharacter, getRootLength, hasExtension, isArray, maybeBind, memoize, normalizePath, ObjectLiteralExpression, PackageId, Path, performance, Program, ProgramHost, ProjectReference, PropertyAssignment, ReferencedFile, removePrefix, removeSuffix, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, SourceFile, stableSort, StructureIsReused, sys, System, toPath as lpc_toPath, tracing, TypeChecker, getNormalizedAbsolutePathWithoutRoot, some, isRootedDiskPath, optionsHaveChanges, packageIdToString, toFileNameLowerCase, getNormalizedAbsolutePath, CreateSourceFileOptions, createTypeChecker, ScriptTarget, libs, FileReference, SortedReadonlyArray, concatenate, sortAndDeduplicateDiagnostics, emptyArray, LpcFileHandler, createLpcFileHandler, DiagnosticMessageChain, isString, CancellationToken, flatMap, filter, Debug, ScriptKind, flatten, OperationCanceledException, noop, getNormalizedPathComponents, GetCanonicalFileName, getPathFromPathComponents, WriteFileCallback, EmitHost, WriteFileCallbackData, getDefaultLibFileName, LibResolution, returnFalse, isTraceEnabled, trace, equateStringsCaseSensitive, equateStringsCaseInsensitive, NodeFlags, ResolvedModuleFull, Extension, ResolutionMode, ModeAwareCache, isExternalModule, StringLiteral, Identifier, isCloneObjectExpression, isStringLiteral, setParentRecursive, append, Node, SyntaxKind, forEachChild, ResolutionWithFailedLookupLocations, createModeAwareCache, ModuleKind, ResolvedTypeReferenceDirectiveWithFailedLookupLocations, ModuleResolutionCache, contains, createModuleResolutionCache, ModuleResolutionHost, ModeAwareCacheKey, createModeAwareCacheKey, resolveModuleName, isInheritDeclaration, LogLevel, PackageJsonInfoCache, StringLiteralLike, skipTrivia, getSourceFileOfNode, hasLPCFileExtension, getNormalizedModuleName, isIncludeDirective, first, createEvaluator, forEachChildRecursively, factory, LanguageVariant, ResolvedConfigFileName, resolveConfigFileProjectName,     createMasterApplyGetIncludePathVm, memoizeOne, getRelativePathFromFile, getRelativePathFromDirectory, map, resolvePath, diagnosticCategoryName, getLineAndCharacterOfPosition, convertToRelativePath, BuilderProgram, addRange, explainIfFileIsRedirectAndImpliedFormat, chainDiagnosticMessages, createFileDiagnosticFromMessageChain, createCompilerDiagnosticFromMessageChain, fileIncludeReasonToDiagnostics, createFileDiagnostic, getMatchedFileSpec, createDiagnosticForNodeInSourceFile, FilePreprocessingLibReferenceDiagnostic, getSpellingSuggestion, identity } from "./_namespaces/lpc.js";
+import { getDeclarationDiagnostics as lpc_getDeclarationDiagnostics, forEachResolvedProjectReference as lpc_forEachResolvedProjectReference, combinePaths, compareValues, CompilerHost, CompilerOptions, containsPath, createDiagnosticCollection, createGetCanonicalFileName, createMultiMap, CreateProgramOptions, createSourceFile, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DiagnosticWithLocation, FileIncludeKind, FileIncludeReason, FilePreprocessingDiagnostics, FilePreprocessingDiagnosticsKind, forEach, getBaseFileName, getDirectoryPath, getNewLineCharacter, getRootLength, hasExtension, isArray, maybeBind, memoize, normalizePath, ObjectLiteralExpression, PackageId, Path, performance, Program, ProgramHost, ProjectReference, PropertyAssignment, ReferencedFile, removePrefix, removeSuffix, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, SourceFile, stableSort, StructureIsReused, sys, System, toPath as lpc_toPath, tracing, TypeChecker, getNormalizedAbsolutePathWithoutRoot, some, isRootedDiskPath, optionsHaveChanges, packageIdToString, toFileNameLowerCase, getNormalizedAbsolutePath, CreateSourceFileOptions, createTypeChecker, ScriptTarget, libs, FileReference, SortedReadonlyArray, concatenate, sortAndDeduplicateDiagnostics, emptyArray, LpcFileHandler, createLpcFileHandler, DiagnosticMessageChain, isString, CancellationToken, flatMap, filter, Debug, ScriptKind, flatten, OperationCanceledException, noop, getNormalizedPathComponents, GetCanonicalFileName, getPathFromPathComponents, WriteFileCallback, EmitHost, WriteFileCallbackData, getDefaultLibFileName, LibResolution, returnFalse, isTraceEnabled, trace, equateStringsCaseSensitive, equateStringsCaseInsensitive, NodeFlags, ResolvedModuleFull, Extension, ResolutionMode, ModeAwareCache, isExternalModule, StringLiteral, Identifier, isCloneObjectExpression, isStringLiteral, setParentRecursive, append, Node, SyntaxKind, forEachChild, ResolutionWithFailedLookupLocations, createModeAwareCache, ModuleKind, ResolvedTypeReferenceDirectiveWithFailedLookupLocations, ModuleResolutionCache, contains, createModuleResolutionCache, ModuleResolutionHost, ModeAwareCacheKey, createModeAwareCacheKey, resolveModuleName, isInheritDeclaration, LogLevel, PackageJsonInfoCache, StringLiteralLike, skipTrivia, getSourceFileOfNode, hasLPCFileExtension, getNormalizedModuleName, isIncludeDirective, first, createEvaluator, forEachChildRecursively, factory, LanguageVariant, ResolvedConfigFileName, resolveConfigFileProjectName,     createMasterApplyGetIncludePathVm, memoizeOne, getRelativePathFromFile, getRelativePathFromDirectory, map, resolvePath, diagnosticCategoryName, getLineAndCharacterOfPosition, convertToRelativePath, BuilderProgram, addRange, explainIfFileIsRedirectAndImpliedFormat, chainDiagnosticMessages, createFileDiagnosticFromMessageChain, createCompilerDiagnosticFromMessageChain, fileIncludeReasonToDiagnostics, createFileDiagnostic, getMatchedFileSpec, createDiagnosticForNodeInSourceFile, FilePreprocessingLibReferenceDiagnostic, getSpellingSuggestion, identity, HasInvalidatedLibResolutions, HasInvalidatedResolutions, ParsedCommandLine, arrayIsEqualTo, forEachEntry, projectReferenceIsEqualTo, compareDataObjects, HasChangedAutomaticTypeDirectiveNames } from "./_namespaces/lpc.js";
 
 interface FileReasonToChainCache {
     fileIncludeReasonDetails: DiagnosticMessageChain | undefined;
@@ -623,8 +623,9 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         return result;
     }
 
+    
     function getBindAndCheckDiagnosticsForFileNoCache(sourceFile: SourceFile, cancellationToken: CancellationToken | undefined): readonly Diagnostic[] {
-        //return runWithCancellationToken(() => {
+        return runWithCancellationToken(() => {
             // if (skipTypeChecking(sourceFile, options, program)) {
             //     return emptyArray;
             // }
@@ -647,7 +648,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
             // }
             // skip ts-expect-error errors in plain JS files, and skip JSDoc errors except in checked JS
             return getMergedBindAndCheckDiagnostics(sourceFile, !isNotLpc, bindDiagnostics, checkDiagnostics, /*isCheckJs ? sourceFile.jsDocDiagnostics :*/ undefined);
-        //});
+        });
     }
 
     function getMergedBindAndCheckDiagnostics(sourceFile: SourceFile, includeBindAndCheckDiagnostics: boolean, ...allDiagnostics: (readonly Diagnostic[] | undefined)[]) {
@@ -2541,4 +2542,97 @@ export function getPreEmitDiagnostics(program: Program | BuilderProgram, sourceF
 
 function getLibNameFromLibReference(libReference: FileReference) {
     return toFileNameLowerCase(libReference.fileName);
+}
+
+/**
+ * Determines if program structure is upto date or needs to be recreated
+ *
+ * @internal
+ */
+export function isProgramUptoDate(
+    program: Program | undefined,
+    rootFileNames: string[],
+    newOptions: CompilerOptions,
+    getSourceVersion: (path: Path, fileName: string) => string | undefined,
+    fileExists: (fileName: string) => boolean,
+    hasInvalidatedResolutions: HasInvalidatedResolutions,
+    hasInvalidatedLibResolutions: HasInvalidatedLibResolutions,
+    hasChangedAutomaticTypeDirectiveNames: HasChangedAutomaticTypeDirectiveNames | undefined,
+    getParsedCommandLine: (fileName: string) => ParsedCommandLine | undefined,
+    projectReferences: readonly ProjectReference[] | undefined,
+): boolean {
+    // If we haven't created a program yet or have changed automatic type directives, then it is not up-to-date
+    if (!program || hasChangedAutomaticTypeDirectiveNames?.()) return false;
+
+    // If root file names don't match
+    if (!arrayIsEqualTo(program.getRootFileNames(), rootFileNames)) return false;
+
+    let seenResolvedRefs: ResolvedProjectReference[] | undefined;
+
+    // If project references don't match
+    if (!arrayIsEqualTo(program.getProjectReferences(), projectReferences, projectReferenceUptoDate)) return false;
+
+    // If any file is not up-to-date, then the whole program is not up-to-date
+    if (program.getSourceFiles().some(sourceFileNotUptoDate)) return false;
+
+    // If any of the missing file paths are now created
+    const missingPaths = program.getMissingFilePaths();
+    if (missingPaths && forEachEntry(missingPaths, fileExists)) return false;
+
+    const currentOptions = program.getCompilerOptions();
+    // If the compilation settings do no match, then the program is not up-to-date
+    if (!compareDataObjects(currentOptions, newOptions)) return false;
+
+    // If library resolution is invalidated, then the program is not up-to-date
+    if (program.resolvedLibReferences && forEachEntry(program.resolvedLibReferences, (_value, libFileName) => hasInvalidatedLibResolutions(libFileName))) return false;
+
+    // If everything matches but the text of config file is changed,
+    // error locations can change for program options, so update the program
+    if (currentOptions.configFile && newOptions.configFile) return currentOptions.configFile.text === newOptions.configFile.text;
+
+    return true;
+
+    function sourceFileNotUptoDate(sourceFile: SourceFile) {
+        return !sourceFileVersionUptoDate(sourceFile) ||
+            hasInvalidatedResolutions(sourceFile.path);
+    }
+
+    function sourceFileVersionUptoDate(sourceFile: SourceFile) {
+        return sourceFile.version === getSourceVersion(sourceFile.resolvedPath, sourceFile.fileName);
+    }
+
+    function projectReferenceUptoDate(oldRef: ProjectReference, newRef: ProjectReference, index: number) {
+        return projectReferenceIsEqualTo(oldRef, newRef) &&
+            resolvedProjectReferenceUptoDate(program!.getResolvedProjectReferences()![index], oldRef);
+    }
+
+    function resolvedProjectReferenceUptoDate(oldResolvedRef: ResolvedProjectReference | undefined, oldRef: ProjectReference): boolean {
+        if (oldResolvedRef) {
+            // Assume true
+            if (contains(seenResolvedRefs, oldResolvedRef)) return true;
+
+            const refPath = resolveProjectReferencePath(oldRef);
+            const newParsedCommandLine = getParsedCommandLine(refPath);
+
+            // Check if config file exists
+            if (!newParsedCommandLine) return false;
+
+            // If change in source file
+            if (oldResolvedRef.commandLine.options.configFile !== newParsedCommandLine.options.configFile) return false;
+
+            // check file names
+            if (!arrayIsEqualTo(oldResolvedRef.commandLine.fileNames, newParsedCommandLine.fileNames)) return false;
+
+            // Add to seen before checking the referenced paths of this config file
+            (seenResolvedRefs || (seenResolvedRefs = [])).push(oldResolvedRef);
+
+            // If child project references are upto date, this project reference is uptodate
+            return !forEach(oldResolvedRef.references, (childResolvedRef, index) => !resolvedProjectReferenceUptoDate(childResolvedRef, oldResolvedRef.commandLine.projectReferences![index]));
+        }
+
+        // In old program, not able to resolve project reference path,
+        // so if config file doesnt exist, it is uptodate.
+        const refPath = resolveProjectReferencePath(oldRef);
+        return !getParsedCommandLine(refPath);
+    }
 }

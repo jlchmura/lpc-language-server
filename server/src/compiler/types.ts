@@ -5430,6 +5430,7 @@ export const enum ScriptKind {
 export const enum ScriptTarget {
     LPC = 1,    
     JavaScript = 2,
+    JSON = 3,
     Latest = LPC,
 }
 
@@ -7118,7 +7119,7 @@ export interface ClassDeclaration extends ClassLikeDeclarationBase, DeclarationS
 }
 
 export type ClassLikeDeclaration =
-    | ClassDeclaration        
+    | ClassDeclaration            
     | ClassExpression;
 
 /** @internal */
@@ -7420,3 +7421,6 @@ export interface FilePreprocessingLibReferenceDiagnostic {
     kind: FilePreprocessingDiagnosticsKind.FilePreprocessingLibReferenceDiagnostic;
     reason: ReferencedFile & { kind: FileIncludeKind.LibReferenceDirective; };
 }
+
+/** @internal */
+export type HasChangedAutomaticTypeDirectiveNames = () => boolean;

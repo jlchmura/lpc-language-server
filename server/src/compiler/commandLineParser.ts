@@ -1,6 +1,6 @@
 import { config } from "process";
 import { ILpcConfig } from "../config-types";
-import { AlternateModeDiagnostics, append, arrayFrom, ArrayLiteralExpression, arrayToMap, assign, combinePaths, CommandLineOption, CommandLineOptionOfCustomType, CommandLineOptionOfListType, CompilerOptions, CompilerOptionsValue, ConfigFileSpecs, containsPath, createCompilerDiagnostic, createDiagnosticForNodeInSourceFile, createGetCanonicalFileName, Debug, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DidYouMeanOptionsDiagnostics, directorySeparator, driverTypeToLanguageVariant, emptyArray, endsWith, ensureTrailingDirectorySeparator, every, Expression, Extension, FileExtensionInfo, fileExtensionIs, filter, find, flatten, forEach, getBaseFileName, getDirectoryPath, getNormalizedAbsolutePath, getRegexFromPattern, getRegularExpressionForWildcard, getSpellingSuggestion, getTextOfPropertyName, hasExtension, hasProperty, isArray, isArrayLiteralExpression, isComputedNonLiteralName, isImplicitGlob, isObjectLiteralExpression, isRootedDiskPath, isString, isStringDoubleQuoted, isStringLiteral, JsonSourceFile, LanguageVariant, length, LpcConfigOnlyOption, LpcConfigSourceFile, map, MapLike, Node, NodeArray, normalizePath, normalizeSlashes, NumericLiteral, ObjectLiteralExpression, OptionsNameMap, ParseConfigHost, ParsedCommandLine, ParsedLpcConfig, Path, PrefixUnaryExpression, ProjectReference, PropertyAssignment, PropertyName, removeTrailingDirectorySeparator, startsWith, StringLiteral, SyntaxKind, toFileNameLowerCase, tracing, TypeAcquisition, WatchDirectoryFlags, WatchOptions } from "./_namespaces/lpc";
+import { AlternateModeDiagnostics, append, arrayFrom, ArrayLiteralExpression, arrayToMap, assign, combinePaths, CommandLineOption, CommandLineOptionOfCustomType, CommandLineOptionOfListType, CompilerOptions, CompilerOptionsValue, ConfigFileSpecs, containsPath, createCompilerDiagnostic, createDiagnosticForNodeInSourceFile, createGetCanonicalFileName, Debug, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DidYouMeanOptionsDiagnostics, directorySeparator, driverTypeToLanguageVariant, emptyArray, endsWith, ensureTrailingDirectorySeparator, every, Expression, Extension, FileExtensionInfo, fileExtensionIs, filter, find, flatten, forEach, forEachLpcConfigPropArray, getBaseFileName, getDirectoryPath, getNormalizedAbsolutePath, getRegexFromPattern, getRegularExpressionForWildcard, getSpellingSuggestion, getTextOfPropertyName, hasExtension, hasProperty, isArray, isArrayLiteralExpression, isComputedNonLiteralName, isImplicitGlob, isObjectLiteralExpression, isRootedDiskPath, isString, isStringDoubleQuoted, isStringLiteral, JsonSourceFile, LanguageVariant, length, LpcConfigOnlyOption, LpcConfigSourceFile, map, MapLike, Node, NodeArray, normalizePath, normalizeSlashes, NumericLiteral, ObjectLiteralExpression, OptionsNameMap, ParseConfigHost, ParsedCommandLine, ParsedLpcConfig, Path, PrefixUnaryExpression, ProjectReference, PropertyAssignment, PropertyName, removeTrailingDirectorySeparator, startsWith, StringLiteral, SyntaxKind, toFileNameLowerCase, tracing, TypeAcquisition, WatchDirectoryFlags, WatchOptions } from "./_namespaces/lpc";
 import { trimStart } from "../utils";
 
 export const libEntries: [string, string][] = [
@@ -1678,4 +1678,242 @@ function getErrorForNoInputFiles({ includeSpecs, excludeSpecs }: ConfigFileSpecs
         JSON.stringify(includeSpecs || []),
         JSON.stringify(excludeSpecs || []),
     );
+}
+
+/**
+ * Parse the contents of a config file (tsconfig.json).
+ * @param jsonNode The contents of the config file to parse
+ * @param host Instance of ParseConfigHost used to enumerate files in folder.
+ * @param basePath A root directory to resolve relative path entries in the config
+ *    file to. e.g. outDir
+ */
+export function parseJsonSourceFileConfigFileContent(sourceFile: LpcConfigSourceFile, host: ParseConfigHost, basePath: string, existingOptions?: CompilerOptions, configFileName?: string, resolutionStack?: Path[], extraFileExtensions?: readonly FileExtensionInfo[], extendedConfigCache?: Map<string, ExtendedConfigCacheEntry>, existingWatchOptions?: WatchOptions): ParsedCommandLine {
+    tracing?.push(tracing.Phase.Parse, "parseJsonSourceFileConfigFileContent", { path: sourceFile.fileName });
+    const result = parseJsonConfigFileContentWorker(/*json*/ undefined, sourceFile, host, basePath, existingOptions, existingWatchOptions, configFileName, resolutionStack, extraFileExtensions, extendedConfigCache);
+    tracing?.pop();
+    return result;
+}
+
+
+/**
+ * Parse the contents of a config file from json or json source file (tsconfig.json).
+ * @param json The contents of the config file to parse
+ * @param sourceFile sourceFile corresponding to the Json
+ * @param host Instance of ParseConfigHost used to enumerate files in folder.
+ * @param basePath A root directory to resolve relative path entries in the config
+ *    file to. e.g. outDir
+ * @param resolutionStack Only present for backwards-compatibility. Should be empty.
+ */
+function parseJsonConfigFileContentWorker(
+    json: any,
+    sourceFile: LpcConfigSourceFile | undefined,
+    host: ParseConfigHost,
+    basePath: string,
+    existingOptions: CompilerOptions = {},
+    existingWatchOptions: WatchOptions | undefined,
+    configFileName?: string,
+    resolutionStack: Path[] = [],
+    extraFileExtensions: readonly FileExtensionInfo[] = [],
+    extendedConfigCache?: Map<string, ExtendedConfigCacheEntry>,
+): ParsedCommandLine {
+    Debug.assert((json === undefined && sourceFile !== undefined) || (json !== undefined && sourceFile === undefined));
+    const errors: Diagnostic[] = [];
+
+    const parsedConfig = parseConfig(json, sourceFile, host, basePath, configFileName, resolutionStack, errors, extendedConfigCache);
+    const { raw } = parsedConfig;
+    const options = existingOptions;
+    // options = handleOptionConfigDirTemplateSubstitution(
+    //     extend(existingOptions, parsedConfig.options || {}),
+    //     configDirTemplateSubstitutionOptions,
+    //     basePath,
+    // ) as CompilerOptions;
+    const watchOptions = existingWatchOptions;
+    // const watchOptions = handleWatchOptionsConfigDirTemplateSubstitution(
+    //     existingWatchOptions && parsedConfig.watchOptions ?
+    //         extend(existingWatchOptions, parsedConfig.watchOptions) :
+    //         parsedConfig.watchOptions || existingWatchOptions,
+    //     basePath,
+    // );
+    options.configFilePath = configFileName && normalizeSlashes(configFileName);
+    const basePathForFileNames = normalizePath(configFileName ? directoryOfCombinedPath(configFileName, basePath) : basePath);
+    const configFileSpecs = getConfigFileSpecs();
+    if (sourceFile) sourceFile.configFileSpecs = configFileSpecs;
+    setConfigFileInOptions(options, sourceFile);
+
+    return {
+        options,
+        watchOptions,
+        fileNames: getFileNames(basePathForFileNames),
+        projectReferences: getProjectReferences(basePathForFileNames),
+        typeAcquisition: parsedConfig.typeAcquisition || getDefaultTypeAcquisition(),
+        raw,
+        errors,
+        // Wildcard directories (provided as part of a wildcard path) are stored in a
+        // file map that marks whether it was a regular wildcard match (with a `*` or `?` token),
+        // or a recursive directory. This information is used by filesystem watchers to monitor for
+        // new entries in these paths.
+        wildcardDirectories: getWildcardDirectories(configFileSpecs, basePathForFileNames, host.useCaseSensitiveFileNames),
+        compileOnSave: !!raw.compileOnSave,
+    };
+
+    function getConfigFileSpecs(): ConfigFileSpecs {
+        const referencesOfRaw = getPropFromRaw<ProjectReference>("references", element => typeof element === "object", "object");
+        const filesSpecs = toPropValue(getSpecsFromRaw("files"));
+        if (filesSpecs) {
+            const hasZeroOrNoReferences = referencesOfRaw === "no-prop" || isArray(referencesOfRaw) && referencesOfRaw.length === 0;
+            const hasExtends = hasProperty(raw, "extends");
+            if (filesSpecs.length === 0 && hasZeroOrNoReferences && !hasExtends) {
+                if (sourceFile) {
+                    const fileName = configFileName || "tsconfig.json";
+                    const diagnosticMessage = Diagnostics.The_files_list_in_config_file_0_is_empty;
+                    const nodeValue = forEachLpcConfigPropArray(sourceFile, "files", property => property.initializer);
+                    const error = createDiagnosticForNodeInSourceFileOrCompilerDiagnostic(sourceFile, nodeValue, diagnosticMessage, fileName);
+                    errors.push(error);
+                }
+                else {
+                    createCompilerDiagnosticOnlyIfJson(Diagnostics.The_files_list_in_config_file_0_is_empty, configFileName || "tsconfig.json");
+                }
+            }
+        }
+
+        let includeSpecs = toPropValue(getSpecsFromRaw("include"));
+
+        const excludeOfRaw = getSpecsFromRaw("exclude");
+        let isDefaultIncludeSpec = false;
+        let excludeSpecs = toPropValue(excludeOfRaw);
+        if (excludeOfRaw === "no-prop") {
+            const outDir = options.outDir;
+            const declarationDir = options.declarationDir;
+
+            if (outDir || declarationDir) {
+                excludeSpecs = filter([outDir, declarationDir], d => !!d) as string[];
+            }
+        }
+
+        if (filesSpecs === undefined && includeSpecs === undefined) {
+            includeSpecs = [defaultIncludeSpec];
+            isDefaultIncludeSpec = true;
+        }
+        let validatedIncludeSpecsBeforeSubstitution: readonly string[] | undefined, validatedExcludeSpecsBeforeSubstitution: readonly string[] | undefined;
+        let validatedIncludeSpecs: readonly string[] | undefined, validatedExcludeSpecs: readonly string[] | undefined;
+
+        // The exclude spec list is converted into a regular expression, which allows us to quickly
+        // test whether a file or directory should be excluded before recursively traversing the
+        // file system.
+
+        if (includeSpecs) {
+            validatedIncludeSpecsBeforeSubstitution = validateSpecs(includeSpecs, errors, /*disallowTrailingRecursion*/ true, sourceFile, "include");
+            validatedIncludeSpecs = getSubstitutedStringArrayWithConfigDirTemplate(
+                validatedIncludeSpecsBeforeSubstitution,
+                basePathForFileNames,
+            ) || validatedIncludeSpecsBeforeSubstitution;
+        }
+
+        if (excludeSpecs) {
+            validatedExcludeSpecsBeforeSubstitution = validateSpecs(excludeSpecs, errors, /*disallowTrailingRecursion*/ false, sourceFile, "exclude");
+            validatedExcludeSpecs = getSubstitutedStringArrayWithConfigDirTemplate(
+                validatedExcludeSpecsBeforeSubstitution,
+                basePathForFileNames,
+            ) || validatedExcludeSpecsBeforeSubstitution;
+        }
+
+        const validatedFilesSpecBeforeSubstitution = filter(filesSpecs, isString);
+        const validatedFilesSpec = getSubstitutedStringArrayWithConfigDirTemplate(
+            validatedFilesSpecBeforeSubstitution,
+            basePathForFileNames,
+        ) || validatedFilesSpecBeforeSubstitution;
+
+        return {
+            filesSpecs,
+            includeSpecs,
+            excludeSpecs,
+            validatedFilesSpec,
+            validatedIncludeSpecs,
+            validatedExcludeSpecs,
+            validatedFilesSpecBeforeSubstitution,
+            validatedIncludeSpecsBeforeSubstitution,
+            validatedExcludeSpecsBeforeSubstitution,
+            pathPatterns: undefined, // Initialized on first use
+            isDefaultIncludeSpec,
+        };
+    }
+
+    function getFileNames(basePath: string): string[] {
+        const fileNames = getFileNamesFromConfigSpecs(configFileSpecs, basePath, options, host, extraFileExtensions);
+        if (shouldReportNoInputFiles(fileNames, canJsonReportNoInputFiles(raw), resolutionStack)) {
+            errors.push(getErrorForNoInputFiles(configFileSpecs, configFileName));
+        }
+        return fileNames;
+    }
+
+    function getProjectReferences(basePath: string): readonly ProjectReference[] | undefined {
+        let projectReferences: ProjectReference[] | undefined;
+        const referencesOfRaw = getPropFromRaw<ProjectReference>("references", element => typeof element === "object", "object");
+        if (isArray(referencesOfRaw)) {
+            for (const ref of referencesOfRaw) {
+                if (typeof ref.path !== "string") {
+                    createCompilerDiagnosticOnlyIfJson(Diagnostics.Compiler_option_0_requires_a_value_of_type_1, "reference.path", "string");
+                }
+                else {
+                    (projectReferences || (projectReferences = [])).push({
+                        path: getNormalizedAbsolutePath(ref.path, basePath),
+                        originalPath: ref.path,
+                        prepend: ref.prepend,
+                        circular: ref.circular,
+                    });
+                }
+            }
+        }
+        return projectReferences;
+    }
+
+    type PropOfRaw<T> = readonly T[] | "not-array" | "no-prop";
+    function toPropValue<T>(specResult: PropOfRaw<T>) {
+        return isArray(specResult) ? specResult : undefined;
+    }
+
+    function getSpecsFromRaw(prop: "files" | "include" | "exclude"): PropOfRaw<string> {
+        return getPropFromRaw(prop, isString, "string");
+    }
+
+    function getPropFromRaw<T>(prop: "files" | "include" | "exclude" | "references", validateElement: (value: unknown) => boolean, elementTypeName: string): PropOfRaw<T> {
+        if (hasProperty(raw, prop) && !isNullOrUndefined(raw[prop])) {
+            if (isArray(raw[prop])) {
+                const result = raw[prop] as T[];
+                if (!sourceFile && !every(result, validateElement)) {
+                    errors.push(createCompilerDiagnostic(Diagnostics.Compiler_option_0_requires_a_value_of_type_1, prop, elementTypeName));
+                }
+                return result;
+            }
+            else {
+                createCompilerDiagnosticOnlyIfJson(Diagnostics.Compiler_option_0_requires_a_value_of_type_1, prop, "Array");
+                return "not-array";
+            }
+        }
+        return "no-prop";
+    }
+
+    function createCompilerDiagnosticOnlyIfJson(message: DiagnosticMessage, ...args: DiagnosticArguments) {
+        if (!sourceFile) {
+            errors.push(createCompilerDiagnostic(message, ...args));
+        }
+    }
+}
+
+
+/**
+ * Reports config file diagnostics
+ */
+export interface ConfigFileDiagnosticsReporter {
+    /**
+     * Reports unrecoverable error when parsing config file
+     */
+    onUnRecoverableConfigFileDiagnostic: DiagnosticReporter;
+}
+
+/**
+ * Interface extending ParseConfigHost to support ParseConfigFile that reads config file and reports errors
+ */
+export interface ParseConfigFileHost extends ParseConfigHost, ConfigFileDiagnosticsReporter {
+    getCurrentDirectory(): string;
 }
