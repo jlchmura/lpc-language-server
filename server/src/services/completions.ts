@@ -4446,12 +4446,29 @@ function getCompletionData(
         // No member list for private methods
         if (!(classElementModifierFlags & ModifierFlags.Private) && decl.symbol) {
             // List of property symbols of base type that are not private and already implemented            decl.
-            // TODO - add in nested inherited members
+            
             const declSymbol = typeChecker.getSymbolAtLocation(decl);
             const declType = typeChecker.getTypeOfSymbol(declSymbol) as InterfaceType;
-            const interfaceTypes = typeChecker.resolveBaseTypesOfClass(declType as InterfaceType) as InterfaceTypeWithDeclaredMembers[];
+            // get all nested inherited types
+            // TODO move this to a utility
+            const resolvedBaseTypes = typeChecker.resolveBaseTypesOfClass(declType as InterfaceType) as InterfaceTypeWithDeclaredMembers[];
+            const newTypes: InterfaceTypeWithDeclaredMembers[] = [...resolvedBaseTypes];
+            const interfaceTypes = new Set<InterfaceTypeWithDeclaredMembers>(resolvedBaseTypes);            
+            while (newTypes.length > 0) {
+                const newType = newTypes.pop();
+                if (newType) {
+                    const newResolvedBaseTypes = typeChecker.resolveBaseTypesOfClass(newType) as InterfaceTypeWithDeclaredMembers[];
+                    newResolvedBaseTypes.forEach((baseType) => {
+                        if (!interfaceTypes.has(baseType)) {
+                            newTypes.push(baseType);
+                            interfaceTypes.add(baseType);
+                        }
+                    });
+                }
+            }
+                        
             const currentMembers = declType.members ? Object.values(declType.members) : undefined;            
-            const baseSymbols = flatMap(interfaceTypes, (baseTypeNode) => {
+            const baseSymbols = flatMap(arrayFrom(interfaceTypes.values()), (baseTypeNode) => {
                 const properites = baseTypeNode.declaredProperties;
                 return properites;
                 // const type = typeChecker.getTypeAtLocation(baseTypeNode);
@@ -4459,7 +4476,7 @@ function getCompletionData(
                 //     type?.symbol && typeChecker.getPropertiesOfType(typeChecker.getTypeOfSymbolAtLocation(type.symbol, decl)) :
                 //     type && typeChecker.getPropertiesOfType(type);
             });
-            // TODO - filter our variables
+            
             symbols = concatenate(symbols, filterClassMembersList(baseSymbols, currentMembers ?? emptyArray, classElementModifierFlags));
             forEach(symbols, (symbol, index) => {
                 const declaration = symbol?.valueDeclaration;
