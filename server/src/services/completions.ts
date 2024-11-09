@@ -516,6 +516,12 @@ import {
     getEffectiveBaseTypeNode,
     ClassLikeDeclaration,
     emptyArray,
+    forEachEntry,
+    mapDefinedEntries,
+    InterfaceType,
+    InterfaceTypeWithDeclaredMembers,
+    mapIterator,
+    arrayFrom,
 } from "./_namespaces/lpc.js";
 
 function unescapeLeadingUnderscores(s: string) { return s; }
@@ -4418,7 +4424,7 @@ function getCompletionData(
             isClassLike(decl) ? KeywordCompletionFilters.ClassElementKeywords : KeywordCompletionFilters.InterfaceElementKeywords;
 
         // If you're in an interface you don't want to repeat things from super-interface. So just stop here.        
-        if (!isClassLike(decl)) return GlobalsSearch.Success;
+        if (!isSourceFile(decl)) return GlobalsSearch.Success;
         
         const classElement = contextToken.kind === SyntaxKind.SemicolonToken ? contextToken.parent.parent : contextToken.parent;
         let classElementModifierFlags = isClassElement(classElement) ? getEffectiveModifierFlags(classElement) : ModifierFlags.None;
@@ -4438,16 +4444,23 @@ function getCompletionData(
         }
         
         // No member list for private methods
-        if (!(classElementModifierFlags & ModifierFlags.Private)) {
-            // List of property symbols of base type that are not private and already implemented
-            const baseTypeNodes = getAllSuperTypeNodes(decl);            
-            const baseSymbols = flatMap(baseTypeNodes, baseTypeNode => {
-                const type = typeChecker.getTypeAtLocation(baseTypeNode);
-                return classElementModifierFlags & ModifierFlags.Static ?
-                    type?.symbol && typeChecker.getPropertiesOfType(typeChecker.getTypeOfSymbolAtLocation(type.symbol, decl)) :
-                    type && typeChecker.getPropertiesOfType(type);
+        if (!(classElementModifierFlags & ModifierFlags.Private) && decl.symbol) {
+            // List of property symbols of base type that are not private and already implemented            decl.
+            // TODO - add in nested inherited members
+            const declSymbol = typeChecker.getSymbolAtLocation(decl);
+            const declType = typeChecker.getTypeOfSymbol(declSymbol) as InterfaceType;
+            const interfaceTypes = typeChecker.resolveBaseTypesOfClass(declType as InterfaceType) as InterfaceTypeWithDeclaredMembers[];
+            const currentMembers = declType.members ? Object.values(declType.members) : undefined;            
+            const baseSymbols = flatMap(interfaceTypes, (baseTypeNode) => {
+                const properites = baseTypeNode.declaredProperties;
+                return properites;
+                // const type = typeChecker.getTypeAtLocation(baseTypeNode);
+                // return classElementModifierFlags & ModifierFlags.Static ?
+                //     type?.symbol && typeChecker.getPropertiesOfType(typeChecker.getTypeOfSymbolAtLocation(type.symbol, decl)) :
+                //     type && typeChecker.getPropertiesOfType(type);
             });
-            symbols = concatenate(symbols, filterClassMembersList(baseSymbols, (decl as ClassLikeDeclaration).members ?? emptyArray, classElementModifierFlags));
+            // TODO - filter our variables
+            symbols = concatenate(symbols, filterClassMembersList(baseSymbols, currentMembers ?? emptyArray, classElementModifierFlags));
             forEach(symbols, (symbol, index) => {
                 const declaration = symbol?.valueDeclaration;
                 if (declaration && isClassElement(declaration) && declaration.name && isComputedPropertyName(declaration.name)) {
@@ -4459,7 +4472,8 @@ function getCompletionData(
                 }
             });
         }
-        return symbols?.length ? GlobalsSearch.Success : GlobalsSearch.Continue;
+        return GlobalsSearch.Continue;
+        // return symbols?.length ? GlobalsSearch.Success : GlobalsSearch.Continue;
     }
 
     function isConstructorParameterCompletion(node: Node): boolean {

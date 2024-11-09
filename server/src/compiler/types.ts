@@ -156,6 +156,7 @@ export interface TypeChecker {
      */
     resolveExternalModuleSymbol(symbol: Symbol): Symbol;
     resolveName(name: string, location: Node | undefined, meaning: SymbolFlags, excludeGlobals: boolean): Symbol | undefined;
+    resolveBaseTypesOfClass(type: InterfaceType): Type[];
     isArgumentsSymbol(symbol: Symbol): boolean;
     
 

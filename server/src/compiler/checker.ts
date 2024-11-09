@@ -389,6 +389,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         resolveName(name, location, meaning, excludeGlobals) {
             return resolveName(location, (name), meaning, /*nameNotFoundMessage*/ undefined, /*isUse*/ false, excludeGlobals);
         },
+        resolveBaseTypesOfClass,
         getExportsOfModule: getExportsOfModuleAsArray,
         resolveExternalModuleName: moduleSpecifierIn => {
             const moduleSpecifier = getParseTreeNode(moduleSpecifierIn, isExpression);
@@ -1412,7 +1413,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return type.resolvedBaseTypes = baseTypes;
     }
 
-    function resolveBaseTypesOfClass(type: InterfaceType) {
+    function resolveBaseTypesOfClass(type: InterfaceType): Type[] {
         type.resolvedBaseTypes = resolvingEmptyArray;        
         const baseTypeNode = getClassLikeDeclarationOfSymbol(type.symbol);// getBaseTypeNodeOfClass(type)!;
         if (isSourceFile(baseTypeNode)) {
