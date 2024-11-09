@@ -7274,12 +7274,12 @@ int exec(object new, object old);
  * Destructed objects do not have an environment.
  *
  * @example 
+ * ```lpc
  * object room;
  * room = environment(this_player());
- * 
+ * ```
  * This will return the current room you are in.
- *
- *
+ * @param obj The object to get the environment of.
  */
 object environment();
 

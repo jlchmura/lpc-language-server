@@ -11288,7 +11288,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             case SyntaxKind.VariableDeclaration:
                 return checkVariableDeclaration(node as VariableDeclaration);
             case SyntaxKind.InlineClosureExpression:
-                return checkInlineClosureExpression(node as InlineClosureExpression, checkMode);
+                return checkInlineClosureExpression(node as InlineClosureExpression, checkMode);            
         }   
         console.warn("Implement me - checkExpressionWorker - " + Debug.formatSyntaxKind(node.kind));
         return errorType;
