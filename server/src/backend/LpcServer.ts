@@ -1,4 +1,5 @@
 import * as path from "path";
+import * as fs from "fs";
 import { performance } from "perf_hooks";
 import {
     CancellationToken,
@@ -456,9 +457,21 @@ export class LpcServer {
         const rootFolderPath = findLpcRoot(folders);
 
         // load the config
-        loadLpcConfig(path.join(rootFolderPath, "lpc-config.json"));
-
-        this.facade = new LpcFacade(rootFolderPath, this.documents);
+        const config = loadLpcConfig(
+            path.join(rootFolderPath, "lpc-config.json")
+        );
+        let libRootPath = path.resolve(rootFolderPath, config.mudlibDir);
+        if (
+            !fs.existsSync(libRootPath) ||
+            !fs.lstatSync(libRootPath).isDirectory()
+        ) {
+            // fallback to root folder
+            console.warn(
+                "Mudlib root path not found, falling back to root folder"
+            );
+            libRootPath = rootFolderPath;
+        }
+        this.facade = new LpcFacade(libRootPath, this.documents);
 
         // hook up the run diagnostic event emitter
         this.facade.onRunDiagnostics = async (filename, force) => {
