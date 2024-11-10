@@ -66,6 +66,9 @@ export function activate(context: ExtensionContext) {
     const clientOptions: LanguageClientOptions = {
         // Register the server for plain text documents
         documentSelector: docSel,
+        markdown: {
+            isTrusted: true            
+        },
         synchronize: {
             // Notify the server about file changes to lpc config files contained in the workspace
             fileEvents: workspace.createFileSystemWatcher("**/lpc-config.json"),
@@ -120,8 +123,7 @@ export function activate(context: ExtensionContext) {
     //     progress.driverType = params;
     // });        
 
-    registerProviders();
-
+    registerProviders();    
     function _register<T extends vscode.Disposable>(value: T): T {
 		if (_isDisposed) {
 			value.dispose();
@@ -158,7 +160,9 @@ export function activate(context: ExtensionContext) {
             progress.setDriverType(info?.driverType || "");            
             progress.show();
         });                
-    });    
+    });   
+    
+        
 }
 
 export function deactivate(): Thenable<void> | undefined {

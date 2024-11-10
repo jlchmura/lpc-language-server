@@ -6741,3 +6741,39 @@ export function forEachPropertyAssignment<T>(objectLiteral: ObjectLiteralExpress
             undefined;
     });
 }
+/** @internal */
+export interface HostWithIsSourceOfProjectReferenceRedirect {
+    isSourceOfProjectReferenceRedirect(fileName: string): boolean;
+}
+
+/** @internal */
+export function skipTypeChecking(sourceFile: SourceFile, options: CompilerOptions, host: HostWithIsSourceOfProjectReferenceRedirect) {
+    // If skipLibCheck is enabled, skip reporting errors if file is a declaration file.
+    // If skipDefaultLibCheck is enabled, skip reporting errors if file contains a
+    // '/// <reference no-default-lib="true"/>' directive.
+    return (options.skipLibCheck && sourceFile.isDeclarationFile ||
+        options.skipDefaultLibCheck && sourceFile.hasNoDefaultLib) ||
+        options.noCheck ||
+        host.isSourceOfProjectReferenceRedirect(sourceFile.fileName) ||
+        !canIncludeBindAndCheckDiagnsotics(sourceFile, options);
+}
+
+/** @internal */
+export function canIncludeBindAndCheckDiagnsotics(sourceFile: SourceFile, options: CompilerOptions) {
+    // if (!!sourceFile.checkJsDirective && sourceFile.checkJsDirective.enabled === false) return false;
+    if (
+        sourceFile.scriptKind === ScriptKind.LPC ||        
+        sourceFile.scriptKind === ScriptKind.External
+    ) return true;
+
+    // const isJs = sourceFile.scriptKind === ScriptKind.JS || sourceFile.scriptKind === ScriptKind.JSX;
+    // const isCheckJs = isJs && isCheckJsEnabledForFile(sourceFile, options);
+    // const isPlainJs = isPlainJsFile(sourceFile, options.checkJs);
+
+    // By default, only type-check .ts, .tsx, Deferred, plain JS, checked JS and External
+    // - plain JS: .js files with no // ts-check and checkJs: undefined
+    // - check JS: .js files with either // ts-check or checkJs: true
+    // - external: files that are added by plugins
+    // return isPlainJs || isCheckJs || sourceFile.scriptKind === ScriptKind.Deferred;
+    return sourceFile.scriptKind === ScriptKind.Deferred;
+}

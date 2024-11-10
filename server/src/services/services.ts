@@ -202,6 +202,7 @@ import {
     CompletionEntryData,
 } from "./_namespaces/lpc.js";
 import * as classifier2020 from "./classifier2020.js";
+import { computeSuggestionDiagnostics } from "./suggestionDiagnostics.js";
 
 
 // These utilities are common to multiple language service features.
@@ -1510,9 +1511,7 @@ export function createLanguageService(
 
     function getSuggestionDiagnostics(fileName: string): DiagnosticWithLocation[] {
         synchronizeHostData();
-        console.debug("todo - getSuggestionDiagnostics");
-        //return computeSuggestionDiagnostics(getValidSourceFile(fileName), program, cancellationToken);
-        return emptyArray;
+        return computeSuggestionDiagnostics(getValidSourceFile(fileName), program, cancellationToken);        
     }
 
     function getCompilerOptionsDiagnostics() {

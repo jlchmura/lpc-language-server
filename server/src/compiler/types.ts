@@ -254,6 +254,14 @@ export interface TypeChecker {
     /** @internal */ getExpandedParameters(sig: Signature): readonly (readonly Symbol[])[];
     /** @internal */ hasEffectiveRestParameter(sig: Signature): boolean;
     isOptionalParameter(node: ParameterDeclaration): boolean;
+
+    /**
+     * Does *not* get *all* suggestion diagnostics, just the ones that were convenient to report in the checker.
+     * Others are added in computeSuggestionDiagnostics.
+     *
+     * @internal
+     */
+    getSuggestionDiagnostics(file: SourceFile, cancellationToken?: CancellationToken): readonly DiagnosticWithLocation[];
 }
 
 export type CompilerOptionsValue = string | number | boolean | (string | number)[] | string[] | MapLike<string[]> | ProjectReference[] | null | undefined; // eslint-disable-line no-restricted-syntax
@@ -593,7 +601,7 @@ export interface    TypeCheckerHost extends ModuleSpecifierResolutionHost {
     getSourceFiles(): readonly SourceFile[];
     getSourceFile(fileName: string): SourceFile | undefined;
     // getProjectReferenceRedirect(fileName: string): string | undefined;
-    // isSourceOfProjectReferenceRedirect(fileName: string): boolean;
+    isSourceOfProjectReferenceRedirect(fileName: string): boolean;
     // getRedirectReferenceForResolutionFromSourceOfProject(filePath: Path): ResolvedProjectReference | undefined;    
 
     getResolvedModule(f: SourceFile, moduleName: string, mode: ResolutionMode): ResolvedModuleWithFailedLookupLocations | undefined;
@@ -1641,6 +1649,8 @@ export interface NodeFactory {
 }
 
 export interface CompilerOptions {
+    skipLibCheck?: boolean;
+    skipDefaultLibCheck?: boolean;
     allowArbitraryExtensions?: boolean;
     traceResolution?: boolean;
     allowUnreachableCode?: boolean;
@@ -4987,7 +4997,7 @@ export interface Program extends ScriptReferenceHost {
 
     getDeclarationDiagnostics(sourceFile?: SourceFile, cancellationToken?: CancellationToken): readonly DiagnosticWithLocation[];
     getConfigFileParsingDiagnostics(): readonly Diagnostic[];
-    // /** @internal */ getSuggestionDiagnostics(sourceFile: SourceFile, cancellationToken?: CancellationToken): readonly DiagnosticWithLocation[];
+    /** @internal */ getSuggestionDiagnostics(sourceFile: SourceFile, cancellationToken?: CancellationToken): readonly DiagnosticWithLocation[];
 
     // /** @internal */ getBindAndCheckDiagnostics(sourceFile: SourceFile, cancellationToken?: CancellationToken): readonly Diagnostic[];
     // /** @internal */ getProgramDiagnostics(sourceFile: SourceFile, cancellationToken?: CancellationToken): readonly Diagnostic[];

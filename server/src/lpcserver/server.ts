@@ -138,7 +138,15 @@ export function start(connection: Connection, platform: string) {
                             // convert typescript server diagnostics to language server diagnostics
                             const lsDiags = diagnostics.map(d => {                                
                                 const start = locationToLspPosition(d.start);
-                                const end = locationToLspPosition(d.end);
+                                const end = locationToLspPosition(d.end);           
+                                                     
+                                const tags: vscode.DiagnosticTag[] = [];
+                                if (d.reportsUnnecessary) {
+                                    tags.push(vscode.DiagnosticTag.Unnecessary);
+                                }
+                                if (d.reportsDeprecated) {
+                                    tags.push(vscode.DiagnosticTag.Deprecated);
+                                }
                                 return {
                                     range: {
                                         start,
@@ -146,7 +154,8 @@ export function start(connection: Connection, platform: string) {
                                     },
                                     message: d.text,
                                     severity: vscode.DiagnosticSeverity.Error,
-                                    code: d.code,
+                                    code: d.code,                                                                        
+                                    tags
                                 } satisfies vscode.Diagnostic;
                             });
 

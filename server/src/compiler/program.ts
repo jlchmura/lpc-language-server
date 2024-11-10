@@ -322,7 +322,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         getGlobalDiagnostics,
         getSemanticDiagnostics,
         // getCachedSemanticDiagnostics,
-        // getSuggestionDiagnostics,
+        getSuggestionDiagnostics,
         getDeclarationDiagnostics,
         // getBindAndCheckDiagnostics,
         // getProgramDiagnostics,
@@ -706,6 +706,11 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         }
     }
 
+    function getSuggestionDiagnostics(sourceFile: SourceFile, cancellationToken: CancellationToken): readonly DiagnosticWithLocation[] {
+        return runWithCancellationToken(() => {
+            return getTypeChecker().getSuggestionDiagnostics(sourceFile, cancellationToken);
+        });
+    }
 
     function getDiagnosticsHelper<T extends Diagnostic>(
         sourceFile: SourceFile | undefined,
