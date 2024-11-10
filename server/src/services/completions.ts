@@ -4414,7 +4414,7 @@ function getCompletionData(
      */
     function tryGetClassLikeCompletionSymbols(): GlobalsSearch {
         const decl = sourceFile;//tryGetObjectTypeDeclarationCompletionContainer(sourceFile, contextToken, location, position);
-        if (!decl) return GlobalsSearch.Continue;
+        if (!decl || !contextToken) return GlobalsSearch.Continue;
 
         // We're looking up possible property names from parent type.
         completionKind = CompletionKind.MemberLike;

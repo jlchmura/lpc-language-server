@@ -67,6 +67,15 @@ exports[`Compiler compiler/catchBlock.c Reports correct errors for compiler/catc
 
 exports[`Compiler compiler/catchExpr1.c Reports correct errors for compiler/catchExpr1.c: diags-compiler/catchExpr1.c 1`] = `""`;
 
+exports[`Compiler compiler/class1.c Reports correct errors for compiler/class1.c: diags-compiler/class1.c 1`] = `""`;
+
+exports[`Compiler compiler/class2.c Reports correct errors for compiler/class2.c: diags-compiler/class2.c 1`] = `
+"
+Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/class2.c[90m:5[0m
+
+"
+`;
+
 exports[`Compiler compiler/closure1.c Reports correct errors for compiler/closure1.c: diags-compiler/closure1.c 1`] = `""`;
 
 exports[`Compiler compiler/commaExpr.c Reports correct errors for compiler/commaExpr.c: diags-compiler/commaExpr.c 1`] = `""`;
@@ -100,6 +109,8 @@ exports[`Compiler compiler/forEach3.c Reports correct errors for compiler/forEac
 exports[`Compiler compiler/forEachRef.c Reports correct errors for compiler/forEachRef.c: diags-compiler/forEachRef.c 1`] = `""`;
 
 exports[`Compiler compiler/funcDecl1.c Reports correct errors for compiler/funcDecl1.c: diags-compiler/funcDecl1.c 1`] = `""`;
+
+exports[`Compiler compiler/funcDecl2.c Reports correct errors for compiler/funcDecl2.c: diags-compiler/funcDecl2.c 1`] = `""`;
 
 exports[`Compiler compiler/functionCall1.c Reports correct errors for compiler/functionCall1.c: diags-compiler/functionCall1.c 1`] = `""`;
 

@@ -95,7 +95,7 @@
                     "anyOf": [
                         {
                             "description": "Turns off all diagnostics.",
-                            "enum": ["off"],
+                            "enum": ["off", "on"],
                             "default": "off"
                         },
                         {
