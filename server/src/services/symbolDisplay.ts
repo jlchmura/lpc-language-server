@@ -1158,7 +1158,7 @@ function getSymbolDisplayPartsDocumentationAndSymbolKindWorker(typeChecker: Type
         if (symbolKind !== ScriptElementKind.unknown) {
             if (type) {
                 addPrefixForAnyFunctionOrVar(symbol, symbolKind, undefined, /* skipName */true);
-
+                displayParts.push(spacePart());
                 // For properties, variables and local vars: show the type
                 if (
                     symbolKind === ScriptElementKind.memberVariableElement ||

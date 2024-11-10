@@ -198,6 +198,8 @@ import {
     getDirectoryPath,
     getNormalizedAbsolutePath,
     ParseConfigFileHost,
+    CompletionEntryDetails,
+    CompletionEntryData,
 } from "./_namespaces/lpc.js";
 import * as classifier2020 from "./classifier2020.js";
 
@@ -1384,6 +1386,7 @@ export function createLanguageService(
         findRenameLocations,
         getRenameInfo,
         getCompletionsAtPosition,
+        getCompletionEntryDetails,
         dispose
     };
 
@@ -2016,6 +2019,21 @@ export function createLanguageService(
         return FindAllReferences.findReferenceOrRenameEntries(program, cancellationToken, sourceFiles, node, position, options, cb);
     }
 
+    function getCompletionEntryDetails(fileName: string, position: number, name: string, formattingOptions: FormatCodeSettings | undefined, source: string | undefined, preferences: UserPreferences = emptyOptions, data?: CompletionEntryData): CompletionEntryDetails | undefined {
+        synchronizeHostData();
+        return Completions.getCompletionEntryDetails(
+            program,
+            log,
+            getValidSourceFile(fileName),
+            position,
+            { name, source, data },
+            host,
+            (formattingOptions && formatting.getFormatContext(formattingOptions, host))!, // TODO: GH#18217
+            preferences,
+            cancellationToken,
+        );
+    }
+    
     function getCompletionsAtPosition(fileName: string, position: number, options: GetCompletionsAtPositionOptions = emptyOptions, formattingSettings?: FormatCodeSettings): CompletionInfo | undefined {
         // Convert from deprecated options names to new names
         const fullPreferences: UserPreferences = {

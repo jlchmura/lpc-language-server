@@ -6,9 +6,6 @@ import { URI } from "vscode-uri";
 import { KindModifiers } from "./protocol.const.js";
 import { IFilePathToResourceConverter, asPlainTextWithLinks, documentationToMarkdown, tagsToMarkdown } from "./textRendering.js";
 
-
-
-
 export namespace Range {
 	export const fromTextSpan = (span: Proto.TextSpan): vscode.Range =>
 		fromLocations(span.start, span.end);
@@ -166,7 +163,18 @@ export namespace CompletionKind {
 	export function parseKindModifier(kindModifiers: string): Set<string> {
 		return new Set(kindModifiers.split(/,|\s+/g));
 	}
-	
+}
+
+export namespace CompletionEntryDetails {
+	export function convert(
+		entry: protocol.CompletionEntryDetails,
+		baseUri: URI
+	): vscode.CompletionItem {
+		const item = vscode.CompletionItem.create(entry.name);
+		item.detail = entry.displayParts.map(part => part.text).join('');						
+		item.documentation = DisplayPart.documentationToMarkdown(entry.documentation, entry.tags, baseUri);				
+		return item;		
+	}
 }
 
 export namespace DisplayPart {	

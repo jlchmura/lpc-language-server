@@ -1,7 +1,7 @@
 import { Connection, Hover, InitializeResult, MarkupKind, TextDocumentPositionParams, TextDocuments, TextDocumentSyncKind } from "vscode-languageserver";
 import * as vscode from "vscode-languageserver";
 import * as lpc from "../lpc/lpc.js";
-import { Debug } from "../lpc/lpc.js";
+import { Debug, first } from "../lpc/lpc.js";
 import * as protocol from "../server/_namespaces/lpc.server.protocol.js";
 import { Logger } from "./nodeServer";
 import { Position, TextDocument } from "vscode-languageserver-textdocument";
@@ -10,7 +10,7 @@ import EventEmitter from "events";
 import { convertNavTree } from "./utils.js";
 import * as typeConverters from './typeConverters';
 import { KindModifiers } from "./protocol.const.js";
-import { SignatureHelp } from "./typeConverters";
+import { CompletionEntryDetails, SignatureHelp } from "./typeConverters";
 
 const logger = new Logger("server.log", true, lpc.server.LogLevel.verbose);
 
@@ -18,7 +18,7 @@ const serverCapabilities: vscode.ServerCapabilities = {
     textDocumentSync: TextDocumentSyncKind.Incremental,                
     // Tell the client that this server supports code completion.
     completionProvider: {
-        resolveProvider: false,        
+        resolveProvider: true,        
         triggerCharacters: lpc.CompletionTriggerCharacterArray,
     },
     renameProvider: true,
@@ -474,6 +474,12 @@ export function start(connection: Connection, platform: string) {
                         item.tags = [vscode.CompletionItemTag.Deprecated];
                     }
 
+                    item.data = {
+                        uri: requestParams.textDocument.uri,
+                        entryName: entry.name,
+                        position: requestParams.position,
+                    } satisfies CompletionData;
+
                     items.push(item);
                 }
 
@@ -484,12 +490,26 @@ export function start(connection: Connection, platform: string) {
             }
         });
 
-        // find the lpc-config.json file
-        // const rootFolderPath = findLpcRoot(folders);
+        connection.onCompletionResolve(item => {
+            try {
+                const data = item.data as CompletionData;
+                const pos = posParamToLpcPos(data);
+                
+                const args = {                
+                    entryNames: [data.entryName],
+                    file: fromUri(data.uri),    
+                    line: pos.line,
+                    offset: pos.offset,
+                } as protocol.CompletionDetailsRequestArgs;
+                
+                const details = session.getCompletionEntryDetails(args, true) as protocol.CompletionEntryDetails[];
+                return CompletionEntryDetails.convert(first(details), URI.parse(item.data.uri));
+            } catch(e) {
+                console.error(e);
+                debugger;
+            }
+        });
 
-        // // load the config
-        // loadLpcConfig(path.join(rootFolderPath, "lpc-config.json"));        
-        
         return initResult;
     });
     
@@ -521,4 +541,10 @@ function locationToLspPosition(loc: protocol.Location): Position {
         line: loc.line - 1,
         character: loc.offset - 1,
     };    
+}
+
+interface CompletionData {
+    uri: string;
+    entryName: string;
+    position: vscode.Position;
 }

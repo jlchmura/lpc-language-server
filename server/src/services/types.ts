@@ -484,6 +484,28 @@ export interface LanguageService {
      * @param formattingSettings settings needed for calling formatting functions.
      */
     getCompletionsAtPosition(fileName: string, position: number, options: GetCompletionsAtPositionOptions | undefined, formattingSettings?: FormatCodeSettings): WithMetadata<CompletionInfo> | undefined;
+    
+    /**
+     * Gets the extended details for a completion entry retrieved from `getCompletionsAtPosition`.
+     *
+     * @param fileName The path to the file
+     * @param position A zero based index of the character where you want the entries
+     * @param entryName The `name` from an existing completion which came from `getCompletionsAtPosition`
+     * @param formatOptions How should code samples in the completions be formatted, can be undefined for backwards compatibility
+     * @param source `source` property from the completion entry
+     * @param preferences User settings, can be undefined for backwards compatibility
+     * @param data `data` property from the completion entry
+     */
+    getCompletionEntryDetails(
+        fileName: string,
+        position: number,
+        entryName: string,
+        formatOptions: FormatCodeSettings | undefined,
+        source: string | undefined,
+        preferences: UserPreferences | undefined,
+        data: CompletionEntryData | undefined,
+    ): CompletionEntryDetails | undefined;
+
     dispose(): void;    
 }
 

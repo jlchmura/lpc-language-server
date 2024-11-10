@@ -1,4 +1,4 @@
-import { arrayFrom, arrayReverseIterator, CompletionEntry, CompletionInfo, concatenate, createQueue, createSet, createTextSpan, Debug, DefinitionInfo, Diagnostic, diagnosticCategoryName, DiagnosticRelatedInformation, displayPartsToString, DocumentPosition, DocumentSpan, documentSpansEqual, emptyArray, filter, find, firstIterator, firstOrUndefined, flatMap, flattenDiagnosticMessageText, getDocumentSpansEqualityComparer, getLineAndCharacterOfPosition, getMappedContextSpan, getMappedDocumentSpan, getMappedLocation, identity, isArray, isDeclarationFileName, isString, JSDocTagInfo, LanguageServiceMode, LanguageVariant, LineAndCharacter, map, mapDefined, mapDefinedIterator, mapIterator, memoize, MultiMap, NavigationTree, normalizePath, OperationCanceledException, Path, PossibleProgramFileInfo, QuickInfo, ReferencedSymbol, ReferencedSymbolDefinitionInfo, ReferencedSymbolEntry, RenameInfo, RenameInfoFailure, RenameLocation, ScriptKind, SignatureHelpItem, SignatureHelpItems, startsWith, SymbolDisplayPart, TextSpan, textSpanEnd, toFileNameLowerCase, tracing, UserPreferences, WithMetadata } from "./_namespaces/lpc";
+import { arrayFrom, arrayReverseIterator, cast, CodeAction, CompletionEntry, CompletionEntryData, CompletionEntryDetails, CompletionInfo, concatenate, createQueue, createSet, createTextSpan, Debug, DefinitionInfo, Diagnostic, diagnosticCategoryName, DiagnosticRelatedInformation, displayPartsToString, DocumentPosition, DocumentSpan, documentSpansEqual, emptyArray, FileTextChanges, filter, find, first, firstIterator, firstOrUndefined, flatMap, flattenDiagnosticMessageText, getDocumentSpansEqualityComparer, getLineAndCharacterOfPosition, getMappedContextSpan, getMappedDocumentSpan, getMappedLocation, identity, isArray, isDeclarationFileName, isString, JSDocTagInfo, LanguageServiceMode, LanguageVariant, LineAndCharacter, LpcConfigSourceFile, map, mapDefined, mapDefinedIterator, mapIterator, memoize, MultiMap, NavigationTree, normalizePath, OperationCanceledException, Path, PossibleProgramFileInfo, QuickInfo, ReferencedSymbol, ReferencedSymbolDefinitionInfo, ReferencedSymbolEntry, RenameInfo, RenameInfoFailure, RenameLocation, ScriptKind, SignatureHelpItem, SignatureHelpItems, startsWith, SymbolDisplayPart, TextChange, TextSpan, textSpanEnd, toFileNameLowerCase, tracing, UserPreferences, WithMetadata } from "./_namespaces/lpc";
 import { ChangeFileArguments, ConfiguredProject, convertUserPreferences, Errors, GcTimer, isConfiguredProject, Logger, LogLevel, NormalizedPath, OpenFileArguments, Project, ProjectService, ProjectServiceEventHandler, ProjectServiceOptions, ScriptInfo, ServerHost, stringifyIndented, toNormalizedPath, updateProjectIfDirty } from "./_namespaces/lpc.server";
 import * as protocol from "./protocol.js";
 
@@ -1002,6 +1002,75 @@ export class Session<TMessage = string> implements EventSender {
         };
         return res;
     }
+
+    public getCompletionEntryDetails(args: protocol.CompletionDetailsRequestArgs, fullResult: boolean): readonly protocol.CompletionEntryDetails[] | readonly CompletionEntryDetails[] {
+        const { file, project } = this.getFileAndProject(args);
+        const scriptInfo = this.projectService.getScriptInfoForNormalizedPath(file)!;
+        const position = this.getPosition(args, scriptInfo);
+        const formattingOptions = project.projectService.getFormatCodeOptions(file);
+        const useDisplayParts = !!this.getPreferences(file).displayPartsForJSDoc;
+
+        const result = mapDefined(args.entryNames, entryName => {
+            const { name, source, data } = typeof entryName === "string" ? { name: entryName, source: undefined, data: undefined } : entryName;
+            return project.getLanguageService().getCompletionEntryDetails(file, position, name, formattingOptions, source, this.getPreferences(file), data ? cast(data, isCompletionEntryData) : undefined);
+        });
+        return fullResult
+            ? (useDisplayParts ? result : result.map(details => ({ ...details, tags: this.mapJSDocTagInfo(details.tags, project, /*richResponse*/ false) as JSDocTagInfo[] })))
+            : result.map(details => ({
+                ...details,
+                codeActions: map(details.codeActions, action => this.mapCodeAction(action)),
+                documentation: this.mapDisplayParts(details.documentation, project),
+                tags: this.mapJSDocTagInfo(details.tags, project, useDisplayParts),
+            }));
+    }
+
+    private mapCodeAction({ description, changes, commands }: CodeAction): protocol.CodeAction {
+        return { description, changes: this.mapTextChangesToCodeEdits(changes), commands };
+    }
+
+    private mapTextChangesToCodeEdits(textChanges: readonly FileTextChanges[]): protocol.FileCodeEdits[] {
+        return textChanges.map(change => this.mapTextChangeToCodeEdit(change));
+    }
+
+    private mapTextChangeToCodeEdit(textChanges: FileTextChanges): protocol.FileCodeEdits {
+        const scriptInfo = this.projectService.getScriptInfoOrConfig(textChanges.fileName);
+        if (!!textChanges.isNewFile === !!scriptInfo) {
+            if (!scriptInfo) { // and !isNewFile
+                this.projectService.logErrorForScriptInfoNotFound(textChanges.fileName);
+            }
+            Debug.fail("Expected isNewFile for (only) new files. " + JSON.stringify({ isNewFile: !!textChanges.isNewFile, hasScriptInfo: !!scriptInfo }));
+        }
+        return scriptInfo
+            ? { fileName: textChanges.fileName, textChanges: textChanges.textChanges.map(textChange => convertTextChangeToCodeEdit(textChange, scriptInfo)) }
+            : convertNewFileTextChangeToCodeEdit(textChanges);
+    }
+
+    private convertTextChangeToCodeEdit(change: TextChange, scriptInfo: ScriptInfo): protocol.CodeEdit {
+        return {
+            start: scriptInfo.positionToLineOffset(change.span.start),
+            end: scriptInfo.positionToLineOffset(change.span.start + change.span.length),
+            newText: change.newText ? change.newText : "",
+        };
+    }
+}
+
+function convertTextChangeToCodeEdit(change: TextChange, scriptInfo: ScriptInfoOrConfig): protocol.CodeEdit {
+    return { start: positionToLineOffset(scriptInfo, change.span.start), end: positionToLineOffset(scriptInfo, textSpanEnd(change.span)), newText: change.newText };
+}
+
+function positionToLineOffset(info: ScriptInfoOrConfig, position: number): protocol.Location {
+    return isConfigFile(info) ? locationFromLineAndCharacter(info.getLineAndCharacterOfPosition(position)) : info.positionToLineOffset(position);
+}
+
+function locationFromLineAndCharacter(lc: LineAndCharacter): protocol.Location {
+    return { line: lc.line + 1, offset: lc.character + 1 };
+}
+
+function convertNewFileTextChangeToCodeEdit(textChanges: FileTextChanges): protocol.FileCodeEdits {
+    Debug.assert(textChanges.textChanges.length === 1);
+    const change = first(textChanges.textChanges);
+    Debug.assert(change.span.start === 0 && change.span.length === 0);
+    return { fileName: textChanges.fileName, textChanges: [{ start: { line: 0, offset: 0 }, end: { line: 0, offset: 0 }, newText: change.newText }] };
 }
 
 interface FileAndProject {
@@ -1640,4 +1709,19 @@ function getRenameLocationsWorker(
     });
 
     return results;
+}
+
+function isCompletionEntryData(data: any): data is CompletionEntryData {
+    return data === undefined || data && typeof data === "object"
+            && typeof data.exportName === "string"
+            && (data.fileName === undefined || typeof data.fileName === "string")
+            && (data.ambientModuleName === undefined || typeof data.ambientModuleName === "string"
+                    && (data.isPackageJsonImport === undefined || typeof data.isPackageJsonImport === "boolean"));
+}
+
+/** @internal */
+export type ScriptInfoOrConfig = ScriptInfo | LpcConfigSourceFile;
+/** @internal */
+export function isConfigFile(config: ScriptInfoOrConfig): config is LpcConfigSourceFile {
+    return (config as LpcConfigSourceFile).kind !== undefined;
 }

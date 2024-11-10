@@ -1,4 +1,4 @@
-import {  CompilerOptions, CompletionsTriggerCharacter, CompletionTriggerKind, RenameInfoFailure, ScriptElementKind, SignatureHelpTriggerReason, SymbolDisplayPart, TypeAcquisition, WatchOptions } from "./_namespaces/lpc";
+import { CompilerOptions, CompletionsTriggerCharacter, CompletionTriggerKind, RenameInfoFailure, ScriptElementKind, SignatureHelpTriggerReason, SymbolDisplayPart, TypeAcquisition, WatchOptions } from "./_namespaces/lpc";
 import * as lpc from "./_namespaces/lpc";
 
 type ChangePropertyTypes<T, Substitutions extends { [K in keyof T]?: any; }> = {
@@ -430,6 +430,16 @@ export interface UpdateOpenRequestArgs {
     closedFiles?: string[];
 }
 
+export interface CodeAction {
+    /** Description of the code action to display in the UI of the editor */
+    description: string;
+    /** Text changes to apply to each file as part of the code action */
+    changes: FileCodeEdits[];
+    /** A command is an opaque object that should be passed to `ApplyCodeActionCommandRequestArgs` without modification.  */
+    commands?: {}[];
+}
+
+
 export interface FileCodeEdits {
     fileName: string;
     textChanges: CodeEdit[];
@@ -858,6 +868,32 @@ export type CompletionInfo = ChangePropertyTypes<lpc.CompletionInfo, {
     entries: readonly CompletionEntry[];
     optionalReplacementSpan: TextSpan;
 }>;
+
+
+/**
+ * Arguments for completion details request.
+ */
+export interface CompletionDetailsRequestArgs extends FileLocationRequestArgs {
+    /**
+     * Names of one or more entries for which to obtain details.
+     */
+    entryNames: (string | CompletionEntryIdentifier)[];
+}
+
+export interface CompletionEntryIdentifier {
+    name: string;
+    source?: string;
+    data?: unknown;
+}
+
+/**
+ * Additional completion entry details, available on demand
+ */
+export type CompletionEntryDetails = ChangePropertyTypes<lpc.CompletionEntryDetails, {
+    tags: JSDocTagInfo[];
+    codeActions: CodeAction[];
+}>;
+
 
 /**
  * Arguments for EncodedSemanticClassificationsRequest request.
