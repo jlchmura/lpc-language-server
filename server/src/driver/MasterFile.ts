@@ -49,7 +49,7 @@ export class MasterFileContext {
         const config = ensureLpcConfig();
 
         // setup get_include_path apply
-        if (config.driver.type == "fluffos") {
+        if (config.driver.type == "fluffos" && this.sourceContext) {
             const driver = getDriverInfo();
             const master = this.sourceContext;
 

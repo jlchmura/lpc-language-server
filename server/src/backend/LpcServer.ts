@@ -460,8 +460,11 @@ export class LpcServer {
         const config = loadLpcConfig(
             path.join(rootFolderPath, "lpc-config.json")
         );
-        let libRootPath = path.resolve(rootFolderPath, config.mudlibDir);
+        let libRootPath = config.mudlibDir
+            ? path.resolve(rootFolderPath, config.mudlibDir)
+            : undefined;
         if (
+            !libRootPath ||
             !fs.existsSync(libRootPath) ||
             !fs.lstatSync(libRootPath).isDirectory()
         ) {

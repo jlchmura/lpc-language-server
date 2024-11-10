@@ -10,7 +10,7 @@
             "args": [
                 //"${workspaceRoot}/../mg-mudlib",
                 //"${workspaceRoot}/../lima",
-                //"${workspaceRoot}/../StickLib",
+                // "${workspaceRoot}/../sticktemp",
                 //"${workspaceRoot}/../dbjh2024",
                 "${workspaceRoot}/../nightmare-residuum",
                 //"${workspaceRoot}/../infinity-lib",

@@ -169,6 +169,7 @@ export function loadLpcConfig(filename: string): LpcConfig {
         config.files = {
             ...config.files,
             ...rawConfig.files,
+            ...rawConfig.libFiles, // for v2 backward support
             init_files:
                 (rawConfig.files?.init_files as string[]) ??
                 config.files?.init_files,
