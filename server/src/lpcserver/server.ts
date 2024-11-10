@@ -327,6 +327,14 @@ export function start(connection: Connection, platform: string) {
             session.setCompilerOptionsForInferredProjects(requestParams);
         });
 
+        connection.onRequest("projectInfo", (requestParams: protocol.ProjectInfoRequest) => {
+            const args: lpc.server.protocol.ProjectInfoRequestArgs = {
+                ... requestParams.arguments,
+                file: fromUri(requestParams.arguments.file),
+            };
+            return session.getProjectInfo(args);
+        });
+
         connection.onRequest("encodedSemanticClassifications-full", (requestParams:protocol.EncodedSemanticClassificationsRequest) => {            
             const args: lpc.server.protocol.EncodedSemanticClassificationsRequestArgs = {
                 ... requestParams.arguments,

@@ -1,4 +1,4 @@
-import { arrayFrom, arrayReverseIterator, CompletionEntry, CompletionInfo, concatenate, createQueue, createSet, createTextSpan, Debug, DefinitionInfo, Diagnostic, diagnosticCategoryName, DiagnosticRelatedInformation, displayPartsToString, DocumentPosition, DocumentSpan, documentSpansEqual, emptyArray, filter, find, firstIterator, firstOrUndefined, flatMap, flattenDiagnosticMessageText, getDocumentSpansEqualityComparer, getLineAndCharacterOfPosition, getMappedContextSpan, getMappedDocumentSpan, getMappedLocation, identity, isArray, isDeclarationFileName, isString, JSDocTagInfo, LanguageServiceMode, LineAndCharacter, map, mapDefined, mapDefinedIterator, mapIterator, memoize, MultiMap, NavigationTree, normalizePath, OperationCanceledException, Path, PossibleProgramFileInfo, QuickInfo, ReferencedSymbol, ReferencedSymbolDefinitionInfo, ReferencedSymbolEntry, RenameInfo, RenameInfoFailure, RenameLocation, ScriptKind, SignatureHelpItem, SignatureHelpItems, startsWith, SymbolDisplayPart, TextSpan, textSpanEnd, toFileNameLowerCase, tracing, UserPreferences, WithMetadata } from "./_namespaces/lpc";
+import { arrayFrom, arrayReverseIterator, CompletionEntry, CompletionInfo, concatenate, createQueue, createSet, createTextSpan, Debug, DefinitionInfo, Diagnostic, diagnosticCategoryName, DiagnosticRelatedInformation, displayPartsToString, DocumentPosition, DocumentSpan, documentSpansEqual, emptyArray, filter, find, firstIterator, firstOrUndefined, flatMap, flattenDiagnosticMessageText, getDocumentSpansEqualityComparer, getLineAndCharacterOfPosition, getMappedContextSpan, getMappedDocumentSpan, getMappedLocation, identity, isArray, isDeclarationFileName, isString, JSDocTagInfo, LanguageServiceMode, LanguageVariant, LineAndCharacter, map, mapDefined, mapDefinedIterator, mapIterator, memoize, MultiMap, NavigationTree, normalizePath, OperationCanceledException, Path, PossibleProgramFileInfo, QuickInfo, ReferencedSymbol, ReferencedSymbolDefinitionInfo, ReferencedSymbolEntry, RenameInfo, RenameInfoFailure, RenameLocation, ScriptKind, SignatureHelpItem, SignatureHelpItems, startsWith, SymbolDisplayPart, TextSpan, textSpanEnd, toFileNameLowerCase, tracing, UserPreferences, WithMetadata } from "./_namespaces/lpc";
 import { ChangeFileArguments, ConfiguredProject, convertUserPreferences, Errors, GcTimer, isConfiguredProject, Logger, LogLevel, NormalizedPath, OpenFileArguments, Project, ProjectService, ProjectServiceEventHandler, ProjectServiceOptions, ScriptInfo, ServerHost, stringifyIndented, toNormalizedPath, updateProjectIfDirty } from "./_namespaces/lpc.server";
 import * as protocol from "./protocol.js";
 
@@ -127,7 +127,7 @@ export class Session<TMessage = string> implements EventSender {
         const configFile = this.projectService.findAndOpenLpcConfig(opts.projectRootFolder);
         this.getProject(configFile);
         //this.projectService.setPerformanceEventHandler(this.performanceEventHandler.bind(this));
-        this.gcTimer = new GcTimer(this.host, /*delay*/ 7000, this.logger);
+        this.gcTimer = new GcTimer(this.host, /*delay*/ 7000, this.logger);        
         
     }
 
@@ -245,6 +245,10 @@ export class Session<TMessage = string> implements EventSender {
         const file = toNormalizedPath(uncheckedFileName);
         const project = this.getProject(projectFileName) || this.projectService.ensureDefaultProjectForFile(file);
         return { file, project };
+    }
+
+    public getProjectInfo(args: protocol.ProjectInfoRequestArgs): protocol.ProjectInfo {
+        return this.getProjectInfoWorker(args.file, args.projectFileName, args.needFileNameList, /*excludeConfigFiles*/ false);
     }
 
     /**
@@ -621,10 +625,15 @@ export class Session<TMessage = string> implements EventSender {
     private getProjectInfoWorker(uncheckedFileName: string, projectFileName: string | undefined, needFileNameList: boolean, excludeConfigFiles: boolean) {
         const { project } = this.getFileAndProjectWorker(uncheckedFileName, projectFileName);
         updateProjectIfDirty(project);
+        
+        const options = project.getCompilerOptions();
+        const driverType = options?.driverType == LanguageVariant.LDMud ? "LDMud" : "FluffOS";
+
         const projectInfo = {
             configFileName: project.getProjectName(),
             languageServiceDisabled: !project.languageServiceEnabled,
             fileNames: needFileNameList ? project.getFileNames(/*excludeFilesFromExternalLibraries*/ false, excludeConfigFiles) : undefined,
+            driverType
         };
         return projectInfo;
     }

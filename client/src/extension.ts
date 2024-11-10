@@ -8,27 +8,16 @@ import * as path from "path";
 import {
     workspace,
     ExtensionContext,
-    languages,
-    SemanticTokensLegend,
-    DocumentSemanticTokensProvider,
-    TextDocument,
-    CancellationToken,
-    ProviderResult,
-    SemanticTokens,
     commands,
     TextEditor,
     TextEditorEdit,
-    window,
-    DefinitionProvider,
+    window,    
     DocumentFilter,
 } from "vscode";
 import * as fileSchemes from './fileSchemes';
 import {    
     LanguageClient,
-    LanguageClientOptions,
-    SemanticTokenModifiers,
-    SemanticTokenTypes,
-    SemanticTokensParams,
+    LanguageClientOptions,    
     ServerOptions,
     TransportKind,
 } from "vscode-languageclient/node";
@@ -51,7 +40,7 @@ export function activate(context: ExtensionContext) {
     const efunDir = context.asAbsolutePath("efuns");
 
     let debugOptions = {
-        execArgv: ["--nolazy", "--enable-source-maps", "--inspect", "--max-old-space-size=4028"]        
+        execArgv: ["--nolazy", "--enable-source-maps", "--inspect"]
     };
 
     // If the extension is launched in debug mode then the debug server options are used
@@ -127,10 +116,10 @@ export function activate(context: ExtensionContext) {
     client.onNotification("lpc/info", (params) => {
         window.showWarningMessage(params);
     });
-    client.onNotification("lpc/set-driver-type", (params: string) => {
-        progress.driverType = params;
-    });
-    
+    // client.onNotification("lpc/set-driver-type", (params: string) => {
+    //     progress.driverType = params;
+    // });        
+
     registerProviders();
 
     function _register<T extends vscode.Disposable>(value: T): T {
@@ -149,6 +138,27 @@ export function activate(context: ExtensionContext) {
             import("./languageFeatures/semanticTokens").then(provider => _register(provider.register(selector, client))),
         ]);
     }
+    
+    window.onDidChangeActiveTextEditor((editor) => {
+        if (!editor) return;
+        
+        const { document} = editor;        
+        if (document?.languageId !== "lpc") {
+            progress.hide(); 
+        }
+
+        // get projectInfo from server
+        client.sendRequest("projectInfo", { 
+            command: "projectInfo",
+            arguments: {
+                needFileNameList: false,
+                file: document.uri.toString()
+            }            
+        }).then((info: any) => {
+            progress.setDriverType(info?.driverType || "");            
+            progress.show();
+        });                
+    });    
 }
 
 export function deactivate(): Thenable<void> | undefined {

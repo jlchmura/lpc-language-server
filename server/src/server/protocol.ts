@@ -967,3 +967,44 @@ export interface SetCompilerOptionsForInferredProjectsArgs {
      */
     projectRootPath?: string;
 }
+
+/**
+ * Arguments for ProjectInfoRequest request.
+ */
+export interface ProjectInfoRequestArgs extends FileRequestArgs {
+    /**
+     * Indicate if the file name list of the project is needed
+     */
+    needFileNameList: boolean;
+}
+
+/**
+ * A request to get the project information of the current file.
+ */
+export interface ProjectInfoRequest {
+    command: CommandTypes.ProjectInfo;
+    arguments: ProjectInfoRequestArgs;
+}
+
+/**
+ * Response message body for "projectInfo" request
+ */
+export interface ProjectInfo {
+    /**
+     * For configured project, this is the normalized path of the 'tsconfig.json' file
+     * For inferred project, this is undefined
+     */
+    configFileName: string;
+    /**
+     * The list of normalized file name in the project, including 'lib.d.ts'
+     */
+    fileNames?: string[];
+    /**
+     * Indicates if the project has a active language service instance
+     */
+    languageServiceDisabled?: boolean;
+    /**
+     * The project's driver type
+     */
+    driverType?: string;
+}
