@@ -228,3 +228,15 @@ export namespace SignatureHelp {
 		return signature;
 	}
 }
+
+export namespace Diagnostic {
+	export function severityFromCategory(category: string): vscode.DiagnosticSeverity {
+		switch (category) {
+			case "error": return vscode.DiagnosticSeverity.Error;
+			case "warning": return vscode.DiagnosticSeverity.Warning;
+			case "suggestion": return vscode.DiagnosticSeverity.Information;
+			case "message": return vscode.DiagnosticSeverity.Hint;
+			default: return vscode.DiagnosticSeverity.Error;
+		}
+	}
+}

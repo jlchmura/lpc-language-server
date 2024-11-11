@@ -146,14 +146,15 @@ export function start(connection: Connection, platform: string) {
                                 }
                                 if (d.reportsDeprecated) {
                                     tags.push(vscode.DiagnosticTag.Deprecated);
-                                }
+                                }                                
+
                                 return {
                                     range: {
                                         start,
                                         end,
-                                    },
+                                    },                                                                        
                                     message: d.text,
-                                    severity: vscode.DiagnosticSeverity.Error,
+                                    severity: typeConverters.Diagnostic.severityFromCategory(d.category),
                                     code: d.code,                                                                        
                                     tags
                                 } satisfies vscode.Diagnostic;
