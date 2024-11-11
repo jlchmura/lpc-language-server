@@ -171,9 +171,13 @@ export class LPCPreprocessingLexer extends LPCLexer {
             token.type == LPCLexer.TextFormatDirective
         ) {
             this.isConsumingTextFormat = true;
-            // console.debug(
-            //     `Searching for end of text formatting directive '${this._textMark}'`
-            // );
+
+            // includes will not have filled in _textMark
+            if (!this._textMark?.length) {
+                this._textMark = token.text.substring(
+                    token.text.startsWith("@@") ? 2 : 1
+                );
+            }
         }
 
         // handling for FluffOS text formatting directives
@@ -224,11 +228,14 @@ export class LPCPreprocessingLexer extends LPCLexer {
                             this._textMark,
                         finalStr
                     );
-                    this.buffer.push(...stringTokens);
+
+                    // insert tokens at the top of the buffer
+                    this.buffer.unshift(...stringTokens);
                 }
 
                 this.directiveTokens.length = 0;
                 this.isConsumingTextFormat = false;
+                this._textMark = "";
             }
 
             return token;

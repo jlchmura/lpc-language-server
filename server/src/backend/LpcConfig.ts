@@ -168,8 +168,7 @@ export function loadLpcConfig(filename: string): LpcConfig {
 
         config.files = {
             ...config.files,
-            ...rawConfig.files,
-            ...rawConfig.libFiles, // for v2 backward support
+            ...(rawConfig.libFiles ?? rawConfig.files), // for v2 backward support
             init_files:
                 (rawConfig.files?.init_files as string[]) ??
                 config.files?.init_files,
@@ -177,7 +176,10 @@ export function loadLpcConfig(filename: string): LpcConfig {
 
         config.mudlibDir = rawConfig.mudlibDir ?? "." + path.sep;
         config.exclude = (rawConfig.exclude as string[]) ?? config.exclude;
-        config.include = (rawConfig.include as string[]) ?? config.include;
+        config.include =
+            (rawConfig.libInclude as string[]) ??
+            (rawConfig.include as string[]) ??
+            config.include;
         config.driver = { ...config.driver, ...rawConfig.driver };
         config.diagnostics = {
             ...config.diagnostics,

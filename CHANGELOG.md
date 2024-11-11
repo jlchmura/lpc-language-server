@@ -1,7 +1,13 @@
 # LPC Language Services Changelog
 
+## 1.0.35
+
+-   Fix parsing of @ and @@ blocks when inside an include file.
+-   Fix include path resolution when using mudlibDir option
+
 ## 1.0.34
 
+-   Allow lpc-config to be located anywhere (see `mudlibDir` config option)
 -   Handle undefined symbols while parsing incomplete syntax
 
 ## 1.0.33

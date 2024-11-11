@@ -114,13 +114,14 @@ export class LpcFacade {
         private workspaceDocs: TextDocuments<TextDocument>
     ) {
         const config = ensureLpcConfig();
+        const baseLibPath = this.getBaseLibPath();
         this.importDir = config.include.map((dir) => {
             if (dir.startsWith("/")) dir = dir.slice(1);
-            return path.join(workspaceDir, dir);
+            return path.join(baseLibPath, dir);
         });
 
         if (!areWeTestingWithJest()) {
-            console.log("LpcFacade created", this.importDir, workspaceDir);
+            console.log("LpcFacade created", this.importDir, baseLibPath);
         }
 
         const obs = new PerformanceObserver((list) => {
@@ -146,13 +147,14 @@ export class LpcFacade {
     /** parses the master file */
     private initMaster() {
         const config = ensureLpcConfig();
+        const baseLibPath = this.getBaseLibPath();
         const masterFileInfo = this.resolveFilename(
             config.files.master,
-            this.workspaceDir
+            baseLibPath
         );
 
         this.masterFile = new MasterFileContext(
-            this.workspaceDir,
+            baseLibPath,
             this.loadLpc(masterFileInfo.fullPath)
         );
     }
@@ -185,6 +187,14 @@ export class LpcFacade {
 
         const newPath = path.join(this.workspaceDir, filename);
         return newPath;
+    }
+
+    private getBaseLibPath() {
+        const config = ensureLpcConfig();
+        const baseLibPath = config.mudlibDir
+            ? path.join(this.workspaceDir, config.mudlibDir)
+            : this.workspaceDir;
+        return baseLibPath;
     }
 
     /**
@@ -235,7 +245,8 @@ export class LpcFacade {
             searchPaths.reverse();
         }
 
-        if (filenameNormed.includes("/")) searchPaths.push(this.workspaceDir);
+        const baseLibPath = this.getBaseLibPath();
+        if (filenameNormed.includes("/")) searchPaths.push(baseLibPath);
 
         const filesToCheck = searchPaths
             .map((p) => path.join(p, filenameNormed))
