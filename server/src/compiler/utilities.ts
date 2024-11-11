@@ -3178,8 +3178,20 @@ export function getEffectiveTypeAnnotationNode(node: Node): TypeNode | undefined
     if (!type && isVariableDeclaration(node) && isVariableStatement(node.parent.parent)) {
         type = node.parent.parent.type;
     }
-    if (type || !isInJSFile(node)) return type;
-    return isJSDocPropertyLikeTag(node) ? node.typeExpression && node.typeExpression.type : getJSDocType(node);
+
+    function tryGetJsDocType() {
+        return isJSDocPropertyLikeTag(node) ? node.typeExpression && node.typeExpression.type : getJSDocType(node);
+    }
+
+    // If type is object or mixed keyword, try to use JSDoc type annotation first, failing back to the actual type keyword
+    if (type && (type.kind === SyntaxKind.ObjectKeyword || type.kind === SyntaxKind.MixedKeyword)) {
+        const jsDocType = tryGetJsDocType();        
+        return jsDocType && jsDocType.kind !== type.kind ? jsDocType : type;
+    } else if (type || !isInJSFile(node)) {
+        return type;
+    }
+
+    return tryGetJsDocType();
 }
 
 

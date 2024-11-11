@@ -513,7 +513,8 @@ export function start(connection: Connection, platform: string) {
                 } as protocol.CompletionDetailsRequestArgs;
                 
                 const details = session.getCompletionEntryDetails(args, true) as protocol.CompletionEntryDetails[];
-                return CompletionEntryDetails.convert(first(details), URI.parse(item.data.uri));
+                const entry = lpc.firstOrUndefined(details);
+                return entry ? CompletionEntryDetails.convert(entry, URI.parse(item.data.uri)) : undefined;
             } catch(e) {
                 console.error(e);
                 debugger;

@@ -6261,6 +6261,9 @@ const forEachChildTable: ForEachChildTable = {
             visitNode(cbNode, node.type);
             //visitNodes(cbNode, cbNodes, node.members);
     },
+    [SyntaxKind.LiteralType]: function forEachChildInLiteralType<T>(node: LiteralTypeNode, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNode(cbNode, node.literal);
+    },
     [SyntaxKind.TypeLiteral]: function forEachChildInTypeLiteral<T>(node: TypeLiteralNode, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
         return visitNodes(cbNode, cbNodes, node.members);
     },
@@ -6439,7 +6442,7 @@ const forEachChildTable: ForEachChildTable = {
         return visitNode(cbNode, node.name) ||
             visitNodes(cbNode, cbNodes, node.elements);
     },
-    [SyntaxKind.JSDocTypeExpression]: forEachChildInOptionalRestOrJSDocParameterModifier,                
+    [SyntaxKind.JSDocTypeExpression]: forEachChildInOptionalRestOrJSDocParameterModifier,
     [SyntaxKind.JSDoc]: function forEachChildInJSDoc<T>(node: JSDoc, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
         return (typeof node.comment === "string" ? undefined : visitNodes(cbNode, cbNodes, node.comment))
             || visitNodes(cbNode, cbNodes, node.tags);

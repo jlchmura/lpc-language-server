@@ -1218,7 +1218,6 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
      * For a description of late-binding, see `lateBindMember`.
      */
     function getLateBoundSymbol(symbol: Symbol): Symbol {
-        // TODO: no late binding in LPC
         if (symbol.flags & SymbolFlags.ClassMember && symbol.name === InternalSymbolName.Computed) {
             const links = getSymbolLinks(symbol);
             if (!links.lateSymbol && some(symbol.declarations, hasLateBindableName)) {
@@ -4089,8 +4088,22 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         // }
         const links = getNodeLinks(node);
         if (!links.resolvedType) {
-            links.resolvedType = getRegularTypeOfLiteralType(checkExpression(node.literal));
+            if (node.parent && isJSDocTypeExpression(node.parent) && isStringLiteral(node.literal)) {
+                // this is possibly a filename - try to resolve it
+                const specifier = node.literal;
+                const moduleSymbol = resolveExternalModuleName(node, specifier);
+                const objectSymbol = resolveExternalObjectSymbol(moduleSymbol, specifier, /*dontResolveAlias*/ true);
+                if (objectSymbol && isSourceFile(objectSymbol.valueDeclaration)) {                
+                    const objectType = getTypeOfSymbol(objectSymbol);
+                    links.resolvedType = objectType;                
+                } 
+            }
+
+            if (!links.resolvedType) {
+                links.resolvedType = getRegularTypeOfLiteralType(checkExpression(node.literal));
+            }
         }
+        
         return links.resolvedType;
     }
     
@@ -19254,8 +19267,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             // Symbol is property of some kind that is merged with something - should use `getTypeOfFuncClassEnumModule` and not `getTypeOfVariableOrParameterOrProperty`
             // if (symbol.flags & (SymbolFlags.Function | SymbolFlags.Method | SymbolFlags.Class | SymbolFlags.Enum | SymbolFlags.ValueModule)) {
             //     return getTypeOfFuncClassEnumModule(symbol);
-            // }
-            type = isBinaryExpression(declaration.parent) ?
+            // }            
+            type = declaration.parent && isBinaryExpression(declaration.parent) ?
                 getWidenedTypeForAssignmentDeclaration(symbol) :
                 tryGetTypeFromEffectiveTypeNode(declaration) || anyType;
         }
