@@ -1165,6 +1165,7 @@ export function getJSDocType(node: Node): TypeNode | undefined {
         tag = find(getJSDocParameterTags(node), tag => !!tag.typeExpression);
     }
 
+    // TODO - look up LPC object references if the typeExpression is a string literal
     return tag && tag.typeExpression && tag.typeExpression.type;
 }
 
