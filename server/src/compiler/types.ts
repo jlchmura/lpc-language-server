@@ -754,8 +754,7 @@ export const enum SyntaxKind {
     StringKeyword,
     LwObjectKeyword,        
     UndefinedKeyword,
-    AnyKeyword,
-    IsKeyword,
+    AnyKeyword,    
     ClosureKeyword,
     StructKeyword,
     CatchKeyword,    
@@ -803,6 +802,7 @@ export const enum SyntaxKind {
     SymbolKeyword, // not reserved in fluffos
     ObjectKeyword, // can occur in a upser expr i.e.  object::fn()
     RefKeyword, // fluff only
+    IsKeyword, // use for type predicates only
     NewKeyword,
 
     // Parse Tree Nodes
@@ -940,6 +940,7 @@ export const enum SyntaxKind {
     IfStatement,
     EmptyStatement,
     CatchStatement,
+    
     SwitchStatement, // LastStatement
 
     LiteralType,
@@ -1525,6 +1526,8 @@ export interface NodeFactory {
     createUndefDirective(name: string | Identifier): UndefDirective;
 
     // types
+    createTypePredicateNode(assertsModifier: undefined, parameterName: Identifier | ThisTypeNode | string, type: TypeNode | undefined): TypePredicateNode;
+    updateTypePredicateNode(node: TypePredicateNode, assertsModifier: undefined, parameterName: Identifier | ThisTypeNode, type: TypeNode | undefined): TypePredicateNode;
     createKeywordTypeNode<TKind extends KeywordTypeSyntaxKind>(kind: TKind): KeywordTypeNode<TKind>;
     createTypeReferenceNode(typeName: string | EntityName, typeArguments?: readonly TypeNode[]): TypeReferenceNode;
     updateTypeReferenceNode(node: TypeReferenceNode, typeName: EntityName, typeArguments: NodeArray<TypeNode> | undefined): TypeReferenceNode;
@@ -2326,6 +2329,7 @@ export type DirectiveSyntaxKind =
 
 export type KeywordSyntaxKind =
     | SyntaxKind.AnyKeyword    
+    | SyntaxKind.IsKeyword
     | SyntaxKind.RefKeyword
     | SyntaxKind.StatusKeyword
     | SyntaxKind.BytesKeyword
@@ -4105,10 +4109,10 @@ export interface Signature {
     // See comment in `instantiateSignature` for why these are set lazily.
     resolvedReturnType?: Type;          // Lazily set by `getReturnTypeOfSignature`.
     /** @internal */
-    // // Lazily set by `getTypePredicateOfSignature`.
-    // // `undefined` indicates a type predicate that has not yet been computed.
-    // // Uses a special `noTypePredicate` sentinel value to indicate that there is no type predicate. This looks like a TypePredicate at runtime to avoid polymorphism.
-    // resolvedTypePredicate?: TypePredicate;
+    // Lazily set by `getTypePredicateOfSignature`.
+    // `undefined` indicates a type predicate that has not yet been computed.
+    // Uses a special `noTypePredicate` sentinel value to indicate that there is no type predicate. This looks like a TypePredicate at runtime to avoid polymorphism.
+    resolvedTypePredicate?: TypePredicate;
     /** @internal */
     minArgumentCount: number;           // Number of non-optional parameters
     /** @internal */

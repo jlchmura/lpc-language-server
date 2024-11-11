@@ -569,6 +569,8 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             case SyntaxKind.JSDocTypeLiteral:
             // case SyntaxKind.MappedType:
                 return bindAnonymousTypeWorker(node as TypeLiteralNode/* | MappedTypeNode*/ | JSDocTypeLiteral);            
+            case SyntaxKind.TypePredicate:
+                break; // Binding the children will handle everything
             case SyntaxKind.CallExpression:
                 const assignmentKind = getAssignmentDeclarationKind(node as CallExpression);
                 switch (assignmentKind) {

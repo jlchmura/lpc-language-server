@@ -178,6 +178,7 @@ export const textToKeywordObj: MapLike<KeywordSyntaxKind> = {
     int: SyntaxKind.IntKeyword,
     inherit: SyntaxKind.InheritKeyword,
     intrinsic: SyntaxKind.IntrinsicKeyword,    
+    is: SyntaxKind.IsKeyword,
     lwobject: SyntaxKind.LwObjectKeyword,
     mapping: SyntaxKind.MappingKeyword,
     mixed: SyntaxKind.MixedKeyword,

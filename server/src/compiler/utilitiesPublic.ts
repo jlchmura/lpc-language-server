@@ -1,4 +1,4 @@
-import { ArrayBindingElement, AssertionExpression, AssignmentDeclarationKind, BinaryExpression, BindingElement, BindingPattern, Block, BreakOrContinueStatement, CallChain, CallExpression, CallLikeExpression, canHaveJSDoc, ClassElement, ClassLikeDeclaration, compareDiagnostics, CompilerOptions, ConciseBody, Debug, Declaration, DeclarationName, Diagnostic, diagnosticsEqualityComparer, emptyArray, EntityName, Expression, FileReference, filter, find, flatMap, ForEachStatement, FunctionExpression, FunctionLikeDeclaration, GeneratedIdentifier, getAssignmentDeclarationKind, getDriverType, getEffectiveModifierFlags, getEffectiveModifierFlagsAlwaysIncludeJSDoc, getJSDocCommentsAndTags, HasExpressionInitializer, HasInitializer, HasLocals, HasModifiers, hasProperty, hasSyntacticModifier, HasType, Identifier, isBinaryExpression, isBindingElement, isBlock, isCallExpression, isFunctionBlock, isFunctionExpression, isFunctionExpressionOrArrowFunction, isIdentifier, isInlineClosureExpression, isJSDoc, isJSDocDeprecatedTag, isJSDocImplementsTag, isJSDocParameterTag, isJSDocSignature, isJSDocTemplateTag, isJSDocThisTag, isJSDocTypeLiteral, isJSDocTypeTag, isKeyword, isLiteralTypeNode, isParameter, isRootedDiskPath, isSourceFile, isStringLiteral, isTypeNodeKind, isVariableDeclaration, isWhiteSpaceLike, IterationStatement, JSDocDeprecatedTag, JSDocImplementsTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, JSDocParameterTag, JSDocPropertyLikeTag, JSDocSignature, JSDocTag, JSDocTemplateTag, JSDocThisTag, JSDocTypeTag, KeywordSyntaxKind, LanguageVariant, lastOrUndefined, LeftHandSideExpression, LiteralExpression, LiteralToken, MemberName, Modifier, ModifierFlags, modifierToFlag, NamedDeclaration, Node, NodeArray, NodeFlags, OuterExpressionKinds, ParameterDeclaration, pathIsRelative, PropertyAccessExpression, PropertyName, QualifiedName, SignatureDeclaration, skipOuterExpressions, sortAndDeduplicate, SortedReadonlyArray, Statement, StringLiteral, StringLiteralLike, stringToToken, Symbol, SyntaxKind, TextChangeRange, TextRange, TextSpan, tryCast, TypeElement, TypeNode, TypeParameterDeclaration, UnaryExpression, VariableDeclaration } from "./_namespaces/lpc.js";
+import { ArrayBindingElement, AssertionExpression, AssignmentDeclarationKind, BinaryExpression, BindingElement, BindingPattern, Block, BreakOrContinueStatement, CallChain, CallExpression, CallLikeExpression, canHaveJSDoc, ClassElement, ClassLikeDeclaration, compareDiagnostics, CompilerOptions, ConciseBody, Debug, Declaration, DeclarationName, Diagnostic, diagnosticsEqualityComparer, emptyArray, EntityName, Expression, FileReference, filter, find, flatMap, ForEachStatement, FunctionExpression, FunctionLikeDeclaration, GeneratedIdentifier, getAssignmentDeclarationKind, getDriverType, getEffectiveModifierFlags, getEffectiveModifierFlagsAlwaysIncludeJSDoc, getJSDocCommentsAndTags, HasExpressionInitializer, HasInitializer, HasLocals, HasModifiers, hasProperty, hasSyntacticModifier, HasType, Identifier, isBinaryExpression, isBindingElement, isBlock, isCallExpression, isCallSignatureDeclaration, isFunctionBlock, isFunctionExpression, isFunctionExpressionOrArrowFunction, isFunctionTypeNode, isIdentifier, isInlineClosureExpression, isJSDoc, isJSDocDeprecatedTag, isJSDocFunctionType, isJSDocImplementsTag, isJSDocParameterTag, isJSDocReturnTag, isJSDocSignature, isJSDocTemplateTag, isJSDocThisTag, isJSDocTypeLiteral, isJSDocTypeTag, isKeyword, isLiteralTypeNode, isParameter, isRootedDiskPath, isSourceFile, isStringLiteral, isTypeLiteralNode, isTypeNodeKind, isVariableDeclaration, isWhiteSpaceLike, IterationStatement, JSDocDeprecatedTag, JSDocImplementsTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, JSDocParameterTag, JSDocPropertyLikeTag, JSDocReturnTag, JSDocSignature, JSDocTag, JSDocTemplateTag, JSDocThisTag, JSDocTypeTag, KeywordSyntaxKind, LanguageVariant, lastOrUndefined, LeftHandSideExpression, LiteralExpression, LiteralToken, MemberName, Modifier, ModifierFlags, modifierToFlag, NamedDeclaration, Node, NodeArray, NodeFlags, OuterExpressionKinds, ParameterDeclaration, pathIsRelative, PropertyAccessExpression, PropertyName, QualifiedName, SignatureDeclaration, skipOuterExpressions, sortAndDeduplicate, SortedReadonlyArray, Statement, StringLiteral, StringLiteralLike, stringToToken, Symbol, SyntaxKind, TextChangeRange, TextRange, TextSpan, tryCast, TypeElement, TypeNode, TypeParameterDeclaration, UnaryExpression, VariableDeclaration } from "./_namespaces/lpc.js";
 
 /** @internal */
 export function isNodeArray<T extends Node>(array: readonly T[]): array is NodeArray<T> {
@@ -1249,4 +1249,32 @@ export function decodedTextSpanIntersectsWith(start1: number, length1: number, s
     return start2 <= end1 && end2 >= start1;
 }
 
-    
+/** Gets the JSDoc return tag for the node if present */
+export function getJSDocReturnTag(node: Node): JSDocReturnTag | undefined {
+    return getFirstJSDocTag(node, isJSDocReturnTag);
+}
+
+
+/**
+ * Gets the return type node for the node if provided via JSDoc return tag or type tag.
+ *
+ * @remarks `getJSDocReturnTag` just gets the whole JSDoc tag. This function
+ * gets the type from inside the braces, after the fat arrow, etc.
+ */
+export function getJSDocReturnType(node: Node): TypeNode | undefined {
+    const returnTag = getJSDocReturnTag(node);
+    if (returnTag && returnTag.typeExpression) {
+        return returnTag.typeExpression.type;
+    }
+    const typeTag = getJSDocTypeTag(node);
+    if (typeTag && typeTag.typeExpression) {
+        const type = typeTag.typeExpression.type;
+        if (isTypeLiteralNode(type)) {
+            const sig = find(type.members, isCallSignatureDeclaration);
+            return sig && sig.type;
+        }
+        if (/*isFunctionTypeNode(type) ||*/ isJSDocFunctionType(type)) {
+            return type.type;
+        }
+    }
+}

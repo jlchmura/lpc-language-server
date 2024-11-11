@@ -184,6 +184,7 @@ import {
     SwitchStatement,
     SyntaxKind,
     TextRange,
+    ThisTypeNode,
     Token,
     TokenFlags,
     TransformFlags,
@@ -193,6 +194,7 @@ import {
     TypeLiteralNode,
     TypeNode,
     TypeParameterDeclaration,
+    TypePredicateNode,
     TypeReferenceNode,
     UndefDirective,
     UnionTypeNode,
@@ -283,6 +285,8 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createModifiersFromModifierFlags,
 
         // types
+        createTypePredicateNode,
+        updateTypePredicateNode,
         createArrayTypeNode,
         createUnionTypeNode,
         createParenthesizedType,
@@ -967,6 +971,23 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     
+    // @api
+    function createTypePredicateNode(assertsModifier: undefined, parameterName: Identifier | ThisTypeNode | string, type: TypeNode | undefined) {
+        const node = createBaseNode<TypePredicateNode>(SyntaxKind.TypePredicate);
+        // node.assertsModifier = assertsModifier;
+        node.parameterName = asName(parameterName);
+        node.type = type;
+        // node.transformFlags = TransformFlags.ContainsTypeScript;
+        return node;
+    }
+
+    // @api
+    function updateTypePredicateNode(node: TypePredicateNode, assertsModifier: undefined, parameterName: Identifier | ThisTypeNode, type: TypeNode | undefined) {
+        return node.parameterName !== parameterName
+                || node.type !== type
+            ? update(createTypePredicateNode(assertsModifier, parameterName, type), node)
+            : node;
+    }
 
     // @api
     function createArrayTypeNode(elementType: TypeNode): ArrayTypeNode {
@@ -1047,16 +1068,9 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         return node; // && parenthesizerRules().parenthesizeExpressionForDisallowedComma(node);
     }
 
-    function asName<
-        T extends
-            | DeclarationName
-            | Identifier
-            | BindingName
-            | PropertyName
-            | EntityName
-            | undefined
-    >(name: string | T): T | Identifier {
-        return typeof name === "string" ? createIdentifier(name) : name;
+    function asName<T extends DeclarationName | Identifier | BindingName | PropertyName | EntityName | ThisTypeNode | undefined>(name: string | T): T | Identifier {
+        return typeof name === "string" ? createIdentifier(name) :
+            name;
     }
 
     // @api

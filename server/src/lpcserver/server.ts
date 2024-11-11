@@ -559,3 +559,5 @@ interface CompletionData {
     entryName: string;
     position: vscode.Position;
 }
+
+
