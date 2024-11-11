@@ -134,10 +134,12 @@ export function activate(context: ExtensionContext) {
 	}
 
     async function registerProviders(): Promise<void> {
-        const selector = createDocumentSelector(standardLanguageDescriptions.at(0));
+        const language = standardLanguageDescriptions.at(0);
+        const selector = createDocumentSelector(language);
         
         await Promise.all([
             import("./languageFeatures/semanticTokens").then(provider => _register(provider.register(selector, client))),
+            import("./languageFeatures/jsDocCompletions").then(provider => _register(provider.register(selector, language, client))),
         ]);
     }
     

@@ -1023,6 +1023,20 @@ export interface ProjectInfoRequest {
 }
 
 /**
+ * A request whose arguments specify a file location (file, line, col).
+ */
+export interface FileLocationRequest extends FileRequest {
+    arguments: FileLocationRequestArgs;
+}
+
+/**
+ * Requests a JS Doc comment template for a given position
+ */
+export interface DocCommentTemplateRequest extends FileLocationRequest {
+    command: CommandTypes.DocCommentTemplate;
+}
+
+/**
  * Response message body for "projectInfo" request
  */
 export interface ProjectInfo {

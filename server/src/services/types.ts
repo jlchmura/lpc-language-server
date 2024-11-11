@@ -506,6 +506,8 @@ export interface LanguageService {
         data: CompletionEntryData | undefined,
     ): CompletionEntryDetails | undefined;
 
+    getDocCommentTemplateAtPosition(fileName: string, position: number, options?: DocCommentTemplateOptions, formatOptions?: FormatCodeSettings): TextInsertion | undefined;
+    
     dispose(): void;    
 }
 

@@ -200,6 +200,9 @@ import {
     ParseConfigFileHost,
     CompletionEntryDetails,
     CompletionEntryData,
+    DocCommentTemplateOptions,
+    TextInsertion,
+    getNewLineOrDefaultFromHost,
 } from "./_namespaces/lpc.js";
 import * as classifier2020 from "./classifier2020.js";
 import { computeSuggestionDiagnostics } from "./suggestionDiagnostics.js";
@@ -1388,6 +1391,7 @@ export function createLanguageService(
         getRenameInfo,
         getCompletionsAtPosition,
         getCompletionEntryDetails,
+        getDocCommentTemplateAtPosition,
         dispose
     };
 
@@ -2018,6 +2022,11 @@ export function createLanguageService(
         return FindAllReferences.findReferenceOrRenameEntries(program, cancellationToken, sourceFiles, node, position, options, cb);
     }
 
+    function getDocCommentTemplateAtPosition(fileName: string, position: number, options?: DocCommentTemplateOptions, formatOptions?: FormatCodeSettings): TextInsertion | undefined {
+        const formatSettings = formatOptions ? formatting.getFormatContext(formatOptions, host).options : undefined;
+        return JsDoc.getDocCommentTemplateAtPosition(getNewLineOrDefaultFromHost(host, formatSettings), syntaxTreeCache.getCurrentSourceFile(fileName), position, options);
+    }
+    
     function getCompletionEntryDetails(fileName: string, position: number, name: string, formattingOptions: FormatCodeSettings | undefined, source: string | undefined, preferences: UserPreferences = emptyOptions, data?: CompletionEntryData): CompletionEntryDetails | undefined {
         synchronizeHostData();
         return Completions.getCompletionEntryDetails(

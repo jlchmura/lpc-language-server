@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as Proto from '../protocol/protocol';
 import { LanguageClient } from 'vscode-languageclient/node';
 import { DocumentSelector } from '../documentSelector';
-
+import { toOpenLpcFilePath } from './utilities';
 
 const CONTENT_LENGTH_LIMIT = 100000;
 
@@ -12,13 +12,6 @@ export function register(
 ) {	
     const provider = new DocumentSemanticTokensProvider(client);
     return vscode.languages.registerDocumentRangeSemanticTokensProvider(selector.semantic, provider, provider.getLegend());	
-}
-
-function toOpenLpcFilePath(document: vscode.TextDocument): string | undefined {
-    if (document.uri.scheme === 'file') {
-        return document.uri.fsPath;
-    }
-    return undefined;
 }
 
 class DocumentSemanticTokensProvider implements vscode.DocumentSemanticTokensProvider, vscode.DocumentRangeSemanticTokensProvider {
