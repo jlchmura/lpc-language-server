@@ -1351,7 +1351,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
                 if (!canHaveLocals(container) || !container.locals) {
                     return declareSymbol(container.symbol.exports!, container.symbol, node, symbolFlags, symbolExcludes); // No local symbol for an unnamed default!
                 }
-                const exportKind = symbolFlags & SymbolFlags.Value ? SymbolFlags.ExportValue : 0;
+                const exportKind = symbolFlags | (symbolFlags & SymbolFlags.Value ? SymbolFlags.ExportValue : 0);
                 const local = declareSymbol(container.locals, /*parent*/ undefined, node, exportKind, symbolExcludes);
                 local.exportSymbol = declareSymbol(container.symbol.exports!, container.symbol, node, symbolFlags, symbolExcludes);
                 node.localSymbol = local;
