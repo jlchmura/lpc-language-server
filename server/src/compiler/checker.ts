@@ -23061,7 +23061,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     elementType,
             );
     }
-    
+
     // We perform subtype reduction upon obtaining the final array type from an evolving array type.
     function getFinalArrayType(evolvingArrayType: EvolvingArrayType): Type {
         return evolvingArrayType.finalArrayType || (evolvingArrayType.finalArrayType = createFinalArrayType(evolvingArrayType.elementType));
@@ -23631,6 +23631,25 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return isAccessExpression(invokedExpression) ? skipParentheses(invokedExpression.expression) : undefined;
     }
 
+    /**
+     * Returns the type of an expression. Unlike checkExpression, this function is simply concerned
+     * with computing the type and may not fully check all contained sub-expressions for errors.
+     * It is intended for uses where you know there is no contextual type,
+     * and requesting the contextual type might cause a circularity or other bad behaviour.
+     * It sets the contextual type of the node to any before calling getTypeOfExpression.
+     */
+    function getContextFreeTypeOfExpression(node: Expression) {
+        const links = getNodeLinks(node);
+        if (links.contextFreeType) {
+            return links.contextFreeType;
+        }
+        pushContextualType(node, anyType, /*isCache*/ false);
+        const type = links.contextFreeType = checkExpression(node, CheckMode.SkipContextSensitive);
+        popContextualType();
+        return type;
+    }
+
+
     function getFlowTypeOfReference(reference: Node, declaredType: Type, initialType = declaredType, flowContainer?: Node, flowNode = tryCast(reference, canHaveFlowNode)?.flowNode) {
         let key: string | undefined;
         let isKeySet = false;
@@ -23896,6 +23915,14 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             return type;
         }
 
+        // When adding evolving array element types we do not perform subtype reduction. Instead,
+        // we defer subtype reduction until the evolving array type is finalized into a manifest
+        // array type.
+        function addEvolvingArrayElementType(evolvingArrayType: EvolvingArrayType, node: Expression): EvolvingArrayType {
+            const elementType = getRegularTypeOfObjectLiteral(getBaseTypeOfLiteralType(getContextFreeTypeOfExpression(node)));
+            return isTypeSubsetOf(elementType, evolvingArrayType.elementType) ? evolvingArrayType : getEvolvingArrayType(getUnionType([evolvingArrayType.elementType, elementType]));
+        }
+        
         function getTypeAtFlowArrayMutation(flow: FlowArrayMutation): FlowType | undefined {
             if (declaredType === autoType || declaredType === autoArrayType) {
                 const node = flow.node;
@@ -23908,18 +23935,18 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     if (getObjectFlags(type) & ObjectFlags.EvolvingArray) {
                         let evolvedType = type as EvolvingArrayType;
                         console.warn("TODO - getTypeAtFlowArrayMutation");
-                        // if (node.kind === SyntaxKind.CallExpression) {
-                        //     for (const arg of node.arguments) {
-                        //         evolvedType = addEvolvingArrayElementType(evolvedType, arg);
-                        //     }
-                        // }
-                        // else {
-                        //     // We must get the context free expression type so as to not recur in an uncached fashion on the LHS (which causes exponential blowup in compile time)
-                        //     const indexType = getContextFreeTypeOfExpression((node.left as ElementAccessExpression).argumentExpression);
-                        //     if (isTypeAssignableToKind(indexType, TypeFlags.NumberLike)) {
-                        //         evolvedType = addEvolvingArrayElementType(evolvedType, node.right);
-                        //     }
-                        // }
+                        if (node.kind === SyntaxKind.CallExpression) {
+                            for (const arg of node.arguments) {
+                                evolvedType = addEvolvingArrayElementType(evolvedType, arg);
+                            }
+                        }
+                        else {
+                            // We must get the context free expression type so as to not recur in an uncached fashion on the LHS (which causes exponential blowup in compile time)
+                            const indexType = getContextFreeTypeOfExpression((node.left as ElementAccessExpression).argumentExpression);
+                            if (isTypeAssignableToKind(indexType, TypeFlags.NumberLike)) {
+                                evolvedType = addEvolvingArrayElementType(evolvedType, node.right);
+                            }
+                        }
                         return evolvedType === type ? flowType : createFlowType(evolvedType, isIncomplete(flowType));
                     }
                     return flowType;
@@ -24216,16 +24243,15 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
         function narrowTypeByDiscriminantProperty(type: Type, access: AccessExpression | BindingElement | ParameterDeclaration, operator: SyntaxKind, value: Expression, assumeTrue: boolean) {
             if ((operator === SyntaxKind.EqualsEqualsEqualsToken || operator === SyntaxKind.ExclamationEqualsEqualsToken) && type.flags & TypeFlags.Union) {
-                console.warn("TODO - narrowTypeByDiscriminantProperty");
-                // const keyPropertyName = getKeyPropertyName(type as UnionType);
-                // if (keyPropertyName && keyPropertyName === getAccessedPropertyName(access)) {
-                //     const candidate = getConstituentTypeForKeyType(type as UnionType, getTypeOfExpression(value));
-                //     if (candidate) {
-                //         return operator === (assumeTrue ? SyntaxKind.EqualsEqualsEqualsToken : SyntaxKind.ExclamationEqualsEqualsToken) ? candidate :
-                //             isUnitType(getTypeOfPropertyOfType(candidate, keyPropertyName) || unknownType) ? removeType(type, candidate) :
-                //             type;
-                //     }
-                // }
+                const keyPropertyName = getKeyPropertyName(type as UnionType);
+                if (keyPropertyName && keyPropertyName === getAccessedPropertyName(access)) {
+                    const candidate = getConstituentTypeForKeyType(type as UnionType, getTypeOfExpression(value));
+                    if (candidate) {
+                        return operator === (assumeTrue ? SyntaxKind.EqualsEqualsEqualsToken : SyntaxKind.ExclamationEqualsEqualsToken) ? candidate :
+                            isUnitType(getTypeOfPropertyOfType(candidate, keyPropertyName) || unknownType) ? removeType(type, candidate) :
+                            type;
+                    }
+                }
             }
             return narrowTypeByDiscriminant(type, access, t => narrowTypeByEquality(t, operator, value, assumeTrue));
         }
@@ -24263,6 +24289,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         }
 
         function narrowTypeByInKeyword(type: Type, nameType: StringLiteralType | IntLiteralType, assumeTrue: boolean) {
+            console.debug("todo - narrowTypeByInKeyword");
             const name = getPropertyNameFromType(nameType);
             const isKnownProperty = someType(type, t => isTypePresencePossible(t, name, /*assumeTrue*/ true));
             if (isKnownProperty) {
@@ -24344,24 +24371,21 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     break;
                 // case SyntaxKind.InstanceOfKeyword:
                 //     return narrowTypeByInstanceof(type, expr as InstanceofExpression, assumeTrue);
-                // case SyntaxKind.InKeyword:
-                //     if (isPrivateIdentifier(expr.left)) {
-                //         return narrowTypeByPrivateIdentifierInInExpression(type, expr, assumeTrue);
-                //     }
-                //     const target = getReferenceCandidate(expr.right);
-                //     if (containsMissingType(type) && isAccessExpression(reference) && isMatchingReference(reference.expression, target)) {
-                //         const leftType = getTypeOfExpression(expr.left);
-                //         if (isTypeUsableAsPropertyName(leftType) && getAccessedPropertyName(reference) === getPropertyNameFromType(leftType)) {
-                //             return getTypeWithFacts(type, assumeTrue ? TypeFacts.NEUndefined : TypeFacts.EQUndefined);
-                //         }
-                //     }
-                //     if (isMatchingReference(reference, target)) {
-                //         const leftType = getTypeOfExpression(expr.left);
-                //         if (isTypeUsableAsPropertyName(leftType)) {
-                //             return narrowTypeByInKeyword(type, leftType, assumeTrue);
-                //         }
-                //     }
-                //     break;
+                case SyntaxKind.InKeyword:                
+                    const target = getReferenceCandidate(expr.right);
+                    if (containsMissingType(type) && isAccessExpression(reference) && isMatchingReference(reference.expression, target)) {
+                        const leftType = getTypeOfExpression(expr.left);
+                        if (isTypeUsableAsPropertyName(leftType) && getAccessedPropertyName(reference) === getPropertyNameFromType(leftType)) {
+                            return getTypeWithFacts(type, assumeTrue ? TypeFacts.NEUndefined : TypeFacts.EQUndefined);
+                        }
+                    }
+                    if (isMatchingReference(reference, target)) {
+                        const leftType = getTypeOfExpression(expr.left);
+                        if (isTypeUsableAsPropertyName(leftType)) {
+                            return narrowTypeByInKeyword(type, leftType, assumeTrue);
+                        }
+                    }
+                    break;
                 case SyntaxKind.CommaToken:
                     return narrowType(type, expr.right, assumeTrue);
                 // Ordinarily we won't see && and || expressions in control flow analysis because the Binder breaks those
