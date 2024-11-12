@@ -465,7 +465,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     var wildcardType = createIntrinsicType(TypeFlags.Any, "any", /*objectFlags*/ undefined, "wildcard");
     var errorType = createIntrinsicType(TypeFlags.Any, "error");
     var silentNeverType = createIntrinsicType(TypeFlags.Never, "never", ObjectFlags.NonInferrableType, "silent");
-    var stringType = createIntrinsicType(TypeFlags.String, "string");
+    var stringType = createIntrinsicType(TypeFlags.String, "string");    
     var bytesType = createIntrinsicType(TypeFlags.Bytes, "bytes");
     var nullWideningType = strictNullChecks ? nullType : createIntrinsicType(TypeFlags.Null, "null", ObjectFlags.ContainsWideningType, "widening");
     var intType = createIntrinsicType(TypeFlags.Number, "int");
@@ -7441,6 +7441,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     function isArrayType(type: Type): type is TypeReference {
         return !!(getObjectFlags(type) & ObjectFlags.Reference) && ((type as TypeReference).target === globalArrayType || (type as TypeReference).target === globalReadonlyArrayType);
     }
+
+    function isMappingType(type: Type): type is TypeReference {
+        return !!(getObjectFlags(type) & ObjectFlags.Reference) && ((type as TypeReference).target === globalMappingType);
+    }
     
     /**
      * Reports implicit any errors that occur as a result of widening 'null' and 'undefined'
@@ -12641,10 +12645,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 //     // If both operands are of the BigInt primitive type, the result is of the BigInt primitive type.
                 //     resultType = bigintType;
                 // }
-                // else if (isTypeAssignableToKind(leftType, TypeFlags.StringLike, /*strict*/ true) || isTypeAssignableToKind(rightType, TypeFlags.StringLike, /*strict*/ true)) {
-                //     // If one or both operands are of the String primitive type, the result is of the String primitive type.
-                //     resultType = stringType;
-                // }
+                else if (isTypeAssignableToKind(leftType, TypeFlags.StringLike, /*strict*/ true) || isTypeAssignableToKind(rightType, TypeFlags.StringLike, /*strict*/ true)) {
+                    // If one or both operands are of the String primitive type, the result is of the String primitive type.
+                    resultType = stringType;
+                }
                 else if (isTypeAny(leftType) || isTypeAny(rightType)) {
                     // Otherwise, the result is of type Any.
                     // NOTE: unknown type here denotes error type. Old compiler treated this case as any type so do we.
@@ -12657,6 +12661,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     if (areTypesComparable(leftElementType, rightElementType)) {
                         resultType = leftType;
                     }                                        
+                } 
+                else if (isMappingType(leftType) && isMappingType(rightType)) {
+                    resultType = leftType;
                 }
                 // Symbols are not allowed at all in arithmetic expressions
                 // if (resultType) {// && !checkForDisallowedESSymbolOperand(operator)) {
