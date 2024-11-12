@@ -778,14 +778,10 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             // }
         }
 
-        //checkStrictModeFunctionName(node);
-        // if (inStrictMode) {
-        //     checkStrictModeFunctionDeclaration(node);
-        //     bindBlockScopedDeclaration(node, SymbolFlags.Function, SymbolFlags.FunctionExcludes);
-        // }
-        // else {
-            declareSymbolAndAddToSymbolTable(node, SymbolFlags.Function, SymbolFlags.FunctionExcludes);
-        //}
+        
+        // only exclude functions from declaration if there is no body (meaning it is a function header decl).
+        const excludes = !node.body ? SymbolFlags.FunctionExcludes : SymbolFlags.None;
+        declareSymbolAndAddToSymbolTable(node, SymbolFlags.Function, excludes);        
     }
     
     // Should not be called on a declaration with a computed property name,
@@ -880,10 +876,10 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
      * @param excludes - The flags which node cannot be declared alongside in a symbol table. Used to report forbidden declarations.
      */
     function declareSymbol(symbolTable: SymbolTable, parent: Symbol | undefined, node: Declaration, includes: SymbolFlags, excludes: SymbolFlags, isReplaceableByMethod?: boolean, isComputedName?: boolean): Symbol {
-        //Debug.assert(isComputedName || !hasDynamicName(node));
+        Debug.assert(isComputedName || !hasDynamicName(node));
 
         // The exported symbol for an export default function/class node is always named "default"
-        const name = getDeclarationName(node);
+        const name = isComputedName ? InternalSymbolName.Computed : getDeclarationName(node);
        
         let symbol: Symbol | undefined;
         if (name === undefined) {

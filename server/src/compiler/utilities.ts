@@ -6821,7 +6821,7 @@ export function getLibRootedFileName(fileName: string, options: CompilerOptions)
         return fileName;
     }
 
-    const rootDir = options?.rootDir ?? getDirectoryPath(options?.configFilePath);
+    const rootDir = options?.rootDir ?? getDirectoryPath(options?.configFilePath ?? "");
 
     if (rootDir && fileName.startsWith(rootDir)) {
         let pathSuffix = fileName.substring(rootDir.length);

@@ -112,6 +112,15 @@ exports[`Compiler compiler/funcDecl1.c Reports correct errors for compiler/funcD
 
 exports[`Compiler compiler/funcDecl2.c Reports correct errors for compiler/funcDecl2.c: diags-compiler/funcDecl2.c 1`] = `""`;
 
+exports[`Compiler compiler/funcSignature1.c Reports correct errors for compiler/funcSignature1.c: diags-compiler/funcSignature1.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/funcSignature1.c[90m:4[0m
+
+"
+`;
+
+exports[`Compiler compiler/funcSignature2.c Reports correct errors for compiler/funcSignature2.c: diags-compiler/funcSignature2.c 1`] = `""`;
+
 exports[`Compiler compiler/functionCall1.c Reports correct errors for compiler/functionCall1.c: diags-compiler/functionCall1.c 1`] = `""`;
 
 exports[`Compiler compiler/functionCall2.c Reports correct errors for compiler/functionCall2.c: diags-compiler/functionCall2.c 1`] = `""`;
