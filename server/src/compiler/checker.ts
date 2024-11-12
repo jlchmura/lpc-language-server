@@ -25057,10 +25057,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     // }
                 }                
                 return result;
-            }
-            // else if (isPrivateIdentifier(name)) {
-            //     return getSymbolForPrivateIdentifierExpression(name);
-            // }
+            }           
             else if (name.kind === SyntaxKind.PropertyAccessExpression || name.kind === SyntaxKind.QualifiedName) {
                 const links = getNodeLinks(name);
                 if (links.resolvedSymbol) {
@@ -25118,9 +25115,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         if (isFloatLiteral(name)) {
             return getRegularTypeOfLiteralType(checkExpression(name));
         }
-        if (isComputedPropertyName(name)) {            
-            Debug.fail("TODO - Implement me - getLiteralTypeFromPropertyName");
-            //return getRegularTypeOfLiteralType(checkComputedPropertyName(name));
+        if (isComputedPropertyName(name)) {                        
+            return getRegularTypeOfLiteralType(checkComputedPropertyName(name));
         }
         const propertyName = getPropertyNameForPropertyNameNode(name);
         if (propertyName !== undefined) {
@@ -25171,6 +25167,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
      * 2. For property assignments like `{ x: function f () { } }`, try to resolve names in the scope of `f` too.
      */
     function resolveEntityNameFromAssignmentDeclaration(name: Identifier, meaning: SymbolFlags): Symbol | undefined {
+        console.debug("TODO - Implement me - resolveEntityNameFromAssignmentDeclaration");
         return undefined;
         // if (isJSDocTypeReference(name.parent)) {
         //     const secondaryLocation = getAssignmentDeclarationLocation(name.parent);
@@ -25225,12 +25222,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 //     }
                 // }
             }
-            // TODO - Implement me - resolveEntityName
-            // symbol = getMergedSymbol(getSymbol(getExportsOfSymbol(namespace), right.text, meaning));
-            // if (!symbol && (namespace.flags & SymbolFlags.Alias)) {
-            //     // `namespace` can be resolved further if there was a symbol merge with a re-export
-            //     symbol = getMergedSymbol(getSymbol(getExportsOfSymbol(resolveAlias(namespace)), right.text, meaning));
-            // }
+            symbol = getMergedSymbol(getSymbol(getExportsOfSymbol(namespace), right.text, meaning));
+            if (!symbol && (namespace.flags & SymbolFlags.Alias)) {
+                // `namespace` can be resolved further if there was a symbol merge with a re-export
+                symbol = getMergedSymbol(getSymbol(getExportsOfSymbol(resolveAlias(namespace)), right.text, meaning));
+            }
             if (!symbol) {
                 if (!ignoreErrors) {
                     const namespaceName = getFullyQualifiedName(namespace);
@@ -25339,8 +25335,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 case SyntaxKind.ArrowFunction:
                 case SyntaxKind.MethodSignature:
                 case SyntaxKind.StructDeclaration:
-                // case SyntaxKind.CallSignature:                
-                // case SyntaxKind.FunctionType:                
+                case SyntaxKind.CallSignature:                
+                case SyntaxKind.FunctionType:                
                     checkUnusedTypeParameters(node, addDiagnostic);
                     break;                
                 default:
