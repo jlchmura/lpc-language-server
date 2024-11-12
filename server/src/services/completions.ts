@@ -522,6 +522,7 @@ import {
     InterfaceTypeWithDeclaredMembers,
     mapIterator,
     arrayFrom,
+    SignatureHelp,
 } from "./_namespaces/lpc.js";
 
 function unescapeLeadingUnderscores(s: string) { return s; }
@@ -3176,14 +3177,13 @@ function getContextualType(previousToken: Node, position: number, sourceFile: So
             const caseClause = tryCast(parent, isCaseClause);
             return caseClause ? getSwitchedType(caseClause, checker) : undefined;        
         default:
-            console.warn("todo - completion - getContextualType (Default)");
-            // const argInfo = SignatureHelp.getArgumentInfoForCompletions(previousToken, position, sourceFile, checker);
-            // return argInfo ?
-            //     checker.getContextualTypeForArgumentAtIndex(argInfo.invocation, argInfo.argumentIndex) :
-            //     isEqualityOperatorKind(previousToken.kind) && isBinaryExpression(parent) && isEqualityOperatorKind(parent.operatorToken.kind) ?
-            //     // completion at `x ===/**/` should be for the right side
-            //     checker.getTypeAtLocation(parent.left) :
-            //     checker.getContextualType(previousToken as Expression, ContextFlags.Completions) || checker.getContextualType(previousToken as Expression);
+            const argInfo = SignatureHelp.getArgumentInfoForCompletions(previousToken, position, sourceFile, checker);
+            return argInfo ?
+                checker.getContextualTypeForArgumentAtIndex(argInfo.invocation, argInfo.argumentIndex) :
+                isEqualityOperatorKind(previousToken.kind) && isBinaryExpression(parent) && isEqualityOperatorKind(parent.operatorToken.kind) ?
+                // completion at `x ===/**/` should be for the right side
+                checker.getTypeAtLocation(parent.left) :
+                checker.getContextualType(previousToken as Expression, ContextFlags.Completions) || checker.getContextualType(previousToken as Expression);
     }
 }
 

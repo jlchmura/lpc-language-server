@@ -6814,3 +6814,24 @@ export function getParameterSymbolFromJSDoc(node: JSDocParameterTag): Symbol | u
     const parameter = find(decl.parameters, p => p.name.kind === SyntaxKind.Identifier && p.name.text === name);
     return parameter && parameter.symbol;
 }
+
+/** try to resolve a full filename to a lib-rooted filename */
+export function getLibRootedFileName(fileName: string, options: CompilerOptions) {
+    if (!isRootedDiskPath(fileName)) {
+        return fileName;
+    }
+
+    const rootDir = options?.rootDir ?? getDirectoryPath(options?.configFilePath);
+
+    if (rootDir && fileName.startsWith(rootDir)) {
+        let pathSuffix = fileName.substring(rootDir.length);
+        // replace windows slashes with forward slashes
+        pathSuffix = pathSuffix.replace(/\\/g, "/");
+        if (!pathSuffix.startsWith("/")) {
+            pathSuffix = "/" + pathSuffix;
+        }
+        return pathSuffix;
+    }        
+
+    return undefined;
+}

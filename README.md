@@ -82,6 +82,10 @@ Language services can be customized by creating an `lpc-config.json` file in the
 | `global_include` | When provided, will add this file as an `#include` to each file.        |
 | `player`         | The location of your player file. Defaults to `"/obj/player.c"`         |
 
+#### Lib Root Dir - `rootDir`
+If your config file is located in a folder other than your lib's root directory, use this setting
+to specify the location of the root folder.
+
 #### Include Dirs - `include`
 
 An array of folders that are searched when including files via the `#include` directive.

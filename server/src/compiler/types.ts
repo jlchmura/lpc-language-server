@@ -175,6 +175,8 @@ export interface TypeChecker {
      */
     getShorthandAssignmentValueSymbol(location: Node | undefined): Symbol | undefined;
 
+    /** @internal */ getContextualTypeForArgumentAtIndex(call: CallLikeExpression, argIndex: number): Type | undefined;
+    
     /**
      * @param node A location where we might consider accessing `this`. Not necessarily a ThisExpression.
      *

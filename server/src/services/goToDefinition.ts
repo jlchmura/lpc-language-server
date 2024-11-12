@@ -212,9 +212,7 @@ export function getReferenceAtPosition(sourceFile: SourceFile, position: number,
         const file = program.getSourceFileFromReference(sourceFile, referencePath);
         return file && { reference: referencePath, fileName: file.fileName, file, unverified: false };
     }
-    
-    console.warn("TODO - implement me - getReferenceAtPosition");
-    
+        
     const typeReferenceDirective = findReferenceInPosition(sourceFile.typeReferenceDirectives, position);
     if (typeReferenceDirective) {
         const reference = program.getResolvedTypeReferenceDirectiveFromTypeReferenceDirective(typeReferenceDirective, sourceFile)?.resolvedTypeReferenceDirective;
@@ -222,11 +220,12 @@ export function getReferenceAtPosition(sourceFile: SourceFile, position: number,
         return file && { reference: typeReferenceDirective, fileName: file.fileName, file, unverified: false };
     }
 
-    // const libReferenceDirective = findReferenceInPosition(sourceFile.libReferenceDirectives, position);
-    // if (libReferenceDirective) {
+    const libReferenceDirective = findReferenceInPosition(sourceFile.libReferenceDirectives, position);
+    if (libReferenceDirective) {
+        console.warn("TODO - implement me - getReferenceAtPosition - lib");    
     //     const file = program.getLibFileFromReference(libReferenceDirective);
     //     return file && { reference: libReferenceDirective, fileName: file.fileName, file, unverified: false };
-    // }
+    }
 
     if (sourceFile.imports.length) {
         const node = getTouchingToken(sourceFile, position);
