@@ -1278,3 +1278,4 @@ export function getJSDocReturnType(node: Node): TypeNode | undefined {
         }
     }
 }
+

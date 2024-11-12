@@ -7439,3 +7439,4 @@ export interface FilePreprocessingLibReferenceDiagnostic {
 
 /** @internal */
 export type HasChangedAutomaticTypeDirectiveNames = () => boolean;
+
