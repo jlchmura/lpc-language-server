@@ -4753,6 +4753,9 @@ export interface BindingElement extends NamedDeclaration, FlowContainer {
     readonly initializer?: Expression;           // Optional initializer
 }
 
+/** @internal */
+export type BindingElementGrandparent = BindingElement["parent"]["parent"];
+
 export type BooleanLiteral = TrueLiteral | FalseLiteral;
 
 export interface LiteralTypeNode extends TypeNode {
