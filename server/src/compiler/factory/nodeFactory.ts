@@ -138,6 +138,7 @@ import {
     ModifierToken,
     Mutable,
     MutableNodeArray,
+    NamedTupleMember,
     NewExpression,
     NewStructExpression,
     Node,
@@ -183,12 +184,15 @@ import {
     SuperAccessExpression,
     SwitchStatement,
     SyntaxKind,
+    SyntaxList,
+    SyntheticExpression,
     TextRange,
     ThisTypeNode,
     Token,
     TokenFlags,
     TransformFlags,
     TrueLiteral,
+    Type,
     TypeAssertion,
     TypeElement,
     TypeLiteralNode,
@@ -432,6 +436,10 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         get createJSDocVariadicType() {
             return getJSDocUnaryTypeCreateFunction<JSDocVariadicType>(SyntaxKind.JSDocVariadicType);
         },
+
+        // Sythetic
+        createSyntheticExpression,
+        createSyntaxList
     };
 
     return factory;
@@ -1989,6 +1997,26 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         node.typeArguments = typeArguments && parenthesizerRules().parenthesizeTypeArguments(typeArguments);
         node.transformFlags |= propagateChildFlags(node.expression) |
             propagateChildrenFlags(node.typeArguments) ;
+        return node;
+    }
+
+    //
+    // Synthetic Nodes (used by checker)
+    //
+
+    // @api
+    function createSyntheticExpression(type: Type, isSpread = false, tupleNameSource?: ParameterDeclaration | NamedTupleMember) {
+        const node = createBaseNode<SyntheticExpression>(SyntaxKind.SyntheticExpression);
+        node.type = type;
+        node.isSpread = isSpread;
+        node.tupleNameSource = tupleNameSource;
+        return node;
+    }
+
+    // @api
+    function createSyntaxList(children: readonly Node[]) {
+        const node = createBaseNode<SyntaxList>(SyntaxKind.SyntaxList);
+        node._children = children;
         return node;
     }
 

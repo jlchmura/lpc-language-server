@@ -171,7 +171,7 @@ int strcmp( string one, string two );
  * str1 == "one" && str2 == "two"
  *
  */
-int sscanf(string input, string fmt... );
+int sscanf(string input, string fmt, mixed outvars... );
 
 /**
  * printf, sprintf - formatted output conversion
@@ -270,8 +270,8 @@ int sscanf(string input, string fmt... );
  * sprintf("%*s", 30, "thirty")  =   "                        thirty"
  *
  */
-void printf(string format...);
-string sprintf(string format...);
+varargs void printf(string format, mixed args...);
+varargs string sprintf(string format, mixed args...);
 
 /**
  * sha1() - hash a string using SHA-1

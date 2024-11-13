@@ -73,7 +73,7 @@ int rename( string src, string dst );
  * if you try to read from a nonpositive line.
  *
  */
-string read_file( string file, int start_line, int number_of_lines );
+varargs string read_file( string file, int start_line, int number_of_lines );
 
 /**
  * read_bytes()  -  reads  a contiguous series of bytes from a file into a

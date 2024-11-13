@@ -949,6 +949,7 @@ export const enum SyntaxKind {
     StructType,
     ThisType,
     IndexedAccessType,
+    NamedTupleMember,
     MappedType,
 
     // Binding Pattern
@@ -1388,6 +1389,7 @@ export type TokenSyntaxKind =
 export type TypeNodeSyntaxKind =
     | KeywordTypeSyntaxKind
     | SyntaxKind.UnionType
+    | SyntaxKind.NamedTupleMember
     | SyntaxKind.IndexedAccessType
     | SyntaxKind.StructType
     | SyntaxKind.ArrayType
@@ -1651,6 +1653,12 @@ export interface NodeFactory {
      * @internal
      */
     cloneNode<T extends Node | undefined>(node: T): T;
+
+    //
+    // Synthetic Nodes
+    //
+    /** @internal */ createSyntheticExpression(type: Type, isSpread?: boolean, tupleNameSource?: ParameterDeclaration | NamedTupleMember): SyntheticExpression;
+    /** @internal */ createSyntaxList(children: readonly Node[]): SyntaxList;
 }
 
 export interface CompilerOptions {
@@ -4477,7 +4485,7 @@ export interface SymbolLinks {
     // typeOnlyExportStarMap?: Map<__String, ExportDeclaration & { readonly isTypeOnly: true, readonly moduleSpecifier: Expression }>; // Set on a module symbol when some of its exports were resolved through a 'export type * from "mod"' declaration
     // typeOnlyExportStarName?: __String;          // Set to the name of the symbol re-exported by an 'export type *' declaration, when different from the symbol name
     isConstructorDeclaredProperty?: boolean;    // Property declared through 'this.x = ...' assignment in constructor
-    //tupleLabelDeclaration?: NamedTupleMember | ParameterDeclaration; // Declaration associated with the tuple's label
+    tupleLabelDeclaration?: NamedTupleMember | ParameterDeclaration; // Declaration associated with the tuple's label
     accessibleChainCache?: Map<string, Symbol[] | undefined>;
     filteredIndexSymbolCache?: Map<string, Symbol> //Symbol with applicable declarations
     //requestedExternalEmitHelpers?: ExternalEmitHelpers; // External emit helpers already checked for this symbol.
@@ -7206,7 +7214,7 @@ export interface SyntheticExpression extends Expression {
     readonly kind: SyntaxKind.SyntheticExpression;
     readonly isSpread: boolean;
     readonly type: Type;
-    readonly tupleNameSource?: ParameterDeclaration;
+    readonly tupleNameSource?: ParameterDeclaration | NamedTupleMember;
 }
 
 // Indexed access types (TypeFlags.IndexedAccess)
@@ -7442,3 +7450,27 @@ export interface FilePreprocessingLibReferenceDiagnostic {
 /** @internal */
 export type HasChangedAutomaticTypeDirectiveNames = () => boolean;
 
+export interface NamedTupleMember extends TypeNode, Declaration, JSDocContainer {
+    readonly kind: SyntaxKind.NamedTupleMember;
+    readonly dotDotDotToken?: Token<SyntaxKind.DotDotDotToken>;
+    readonly name: Identifier;
+    readonly questionToken?: Token<SyntaxKind.QuestionToken>;
+    readonly type: TypeNode;
+}
+
+export interface TupleType extends GenericType {
+    elementFlags: readonly ElementFlags[];
+    /** Number of required or variadic elements */
+    minLength: number;
+    /** Number of initial required or optional elements */
+    fixedLength: number;
+    /** True if tuple has any rest or variadic elements */
+    hasRestElement: boolean;
+    combinedFlags: ElementFlags;
+    readonly: boolean;
+    labeledElementDeclarations?: readonly (NamedTupleMember | ParameterDeclaration | undefined)[];
+}
+
+export interface TupleTypeReference extends TypeReference {
+    target: TupleType;
+}

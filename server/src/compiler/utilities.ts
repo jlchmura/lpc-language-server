@@ -1886,7 +1886,8 @@ function accessKind(node: Node): AccessKind {
         case SyntaxKind.BinaryExpression:
             const { left, operatorToken } = parent as BinaryExpression;
             return left === node && isAssignmentOperator(operatorToken.kind) ?
-                operatorToken.kind === SyntaxKind.EqualsToken ? AccessKind.Write : AccessKind.ReadWrite
+                // in LPC, equals are always readwrite
+                operatorToken.kind === SyntaxKind.EqualsToken ? AccessKind.ReadWrite : AccessKind.ReadWrite
                 : AccessKind.Read;
         case SyntaxKind.PropertyAccessExpression:
             return (parent as PropertyAccessExpression).name !== node ? AccessKind.Read : accessKind(parent);
