@@ -460,7 +460,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     var unionTypes = new Map<string, UnionType>();
     var intersectionTypes = new Map<string, Type>();
 
-    var anyType = createIntrinsicType(TypeFlags.Any, "mixed", );
+    var anyType = createIntrinsicType(TypeFlags.Any, "mixed", undefined, "mixed");
     var mixedType = anyType;// createIntrinsicType(TypeFlags.Any, "mixed");
     var autoType = createIntrinsicType(TypeFlags.Any, "mixed", ObjectFlags.NonInferrableType, "auto");
     var objectType = createIntrinsicType(TypeFlags.Object, "object", ObjectFlags.NonInferrableType, "object");
@@ -11511,6 +11511,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 return getFreshTypeOfLiteralType(getBytesLiteralType((node as BytesLiteral).text));
             case SyntaxKind.IntLiteral:
                 //checkGrammarNumericLiteral(node as NumericLiteral);
+                // if ((node as IntLiteral).text == "0") {
+                //     return falseType;
+                // }
                 return getFreshTypeOfLiteralType(getNumberLiteralType(+(node as IntLiteral).text));
             case SyntaxKind.FloatLiteral:
                 return getFreshTypeOfLiteralType(getNumberLiteralType(parseFloat((node as FloatLiteral).text)));                        
@@ -20956,6 +20959,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         if (t & TypeFlags.Any || s & TypeFlags.Never) return true;
         if (t & TypeFlags.Unknown && !(relation === strictSubtypeRelation && s & TypeFlags.Any)) return true;
         if (t & TypeFlags.Never) return false;
+        // LPC allows 0 to be assigned to anything
+        if (s & TypeFlags.IntLiteral && (source as IntLiteralType).value === 0) return true;
         if (s & TypeFlags.StringLike && t & TypeFlags.String) return true;
         // if (
         //     s & TypeFlags.StringLiteral && s & TypeFlags.EnumLiteral &&
@@ -20970,7 +20975,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         // Since unions and intersections may reduce to `never`, we exclude them here.
         if (s & TypeFlags.Undefined && (!strictNullChecks && !(t & TypeFlags.UnionOrIntersection) || t & (TypeFlags.Undefined | TypeFlags.Void))) return true;
         if (s & TypeFlags.Null && (!strictNullChecks && !(t & TypeFlags.UnionOrIntersection) || t & TypeFlags.Null)) return true;
-        if (s & TypeFlags.Object && t & TypeFlags.NonPrimitive && !(relation === strictSubtypeRelation && isEmptyAnonymousObjectType(source) && !(getObjectFlags(source) & ObjectFlags.FreshLiteral))) return true;
+        if (s & TypeFlags.Object && t & TypeFlags.NonPrimitive && !(relation === strictSubtypeRelation && isEmptyAnonymousObjectType(source) && !(getObjectFlags(source) & ObjectFlags.FreshLiteral))) return true;        
         if (relation === assignableRelation || relation === comparableRelation) {
             if (s & TypeFlags.Any) return true;
             // Type number is assignable to any computed numeric enum type or any numeric enum literal type, and

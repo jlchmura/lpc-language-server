@@ -3978,7 +3978,11 @@ export namespace LpcParser {
 
             reScanGreaterToken(); 
             const impliedStringConcat = (isStringLiteral(leftOperand) || isBinaryExpression(leftOperand)) && token() == SyntaxKind.StringLiteral;           
-            const newPrecedence = getBinaryOperatorPrecedence(impliedStringConcat ? SyntaxKind.PlusToken : token());
+            // LPC's = precedence is relational, but if this is the first entry into the parse loop
+            // when precendence is lowest, we should treat it as assignment
+            const newPrecedence = precedence == OperatorPrecedence.Lowest && token() == SyntaxKind.EqualsToken ?
+                OperatorPrecedence.Lowest :
+                getBinaryOperatorPrecedence(impliedStringConcat ? SyntaxKind.PlusToken : token());
 
             // Check the precedence to see if we should "take" this operator
             // - For left associative operator (all operator but **), consume the operator,
@@ -4039,7 +4043,7 @@ export namespace LpcParser {
         if (isUpdateExpression()) {
             const pos = getPositionState();;
             const updateExpression = parseUpdateExpression();
-            return token() === SyntaxKind.AsteriskAsteriskToken || token() === SyntaxKind.EqualsToken ?
+            return token() === SyntaxKind.AsteriskAsteriskToken ? //|| token() === SyntaxKind.EqualsToken ?
                 parseBinaryExpressionRest(getBinaryOperatorPrecedence(token()), updateExpression, pos) as BinaryExpression :
                 // token() === SyntaxKind.EqualsToken ? parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ true) :
                 updateExpression;

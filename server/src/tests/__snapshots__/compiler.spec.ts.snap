@@ -94,11 +94,15 @@ exports[`Compiler compiler/doWhile.c Reports correct errors for compiler/doWhile
 
 exports[`Compiler compiler/expr1.c Reports correct errors for compiler/expr1.c: diags-compiler/expr1.c 1`] = `""`;
 
+exports[`Compiler compiler/expr2.c Reports correct errors for compiler/expr2.c: diags-compiler/expr2.c 1`] = `""`;
+
 exports[`Compiler compiler/for1.c Reports correct errors for compiler/for1.c: diags-compiler/for1.c 1`] = `""`;
 
 exports[`Compiler compiler/for2.c Reports correct errors for compiler/for2.c: diags-compiler/for2.c 1`] = `""`;
 
 exports[`Compiler compiler/for3.c Reports correct errors for compiler/for3.c: diags-compiler/for3.c 1`] = `""`;
+
+exports[`Compiler compiler/for4.c Reports correct errors for compiler/for4.c: diags-compiler/for4.c 1`] = `""`;
 
 exports[`Compiler compiler/forEach1.c Reports correct errors for compiler/forEach1.c: diags-compiler/forEach1.c 1`] = `""`;
 
