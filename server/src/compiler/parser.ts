@@ -1984,10 +1984,10 @@ export namespace LpcParser {
         
         let initializer!: VariableDeclarationList | Expression;
         if (
-            isTypeName() && lookAhead(nextTokenIsIdentifierOrKeyword)
+            isTypeName()// && lookAhead(nextTokenIsIdentifierOrKeyword)
         ) {
-            const type = parseType();
-            initializer = parseVariableDeclarationList(/*inForStatementInitializer*/ true, type, ParsingContext.ForEachInitialers);
+            // const type = parseType();
+            initializer = parseVariableDeclarationList(/*inForStatementInitializer*/ true, undefined, ParsingContext.ForEachInitialers);
         }
         else {
             initializer = disallowInAnd(parseExpression);
@@ -3603,7 +3603,7 @@ export namespace LpcParser {
             // so we'll clone it and reset the position to match this array indicator
             const elementType = finishNode(factory.cloneNode(type), pos);
             (tempType as Mutable<ArrayTypeNode>).elementType = elementType;
-        } else if (index && (!tempType || !isArrayTypeNode(tempType)) && isArrayTypeNode(type)) {
+        } else if (index && (!tempType || !isArrayTypeNode(tempType)) && type && isArrayTypeNode(type)) {
             // type-in was an array but the decl type wasn't
             tempType = finishNode(factory.cloneNode(type.elementType), pos);            
         }  

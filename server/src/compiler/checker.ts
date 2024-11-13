@@ -7565,10 +7565,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     ): Type | undefined {
         // A variable declared in a for..in statement is of type string, or of type keyof T when the
         // right hand expression is of a type parameter type.
-        if (isVariableDeclaration(declaration) && declaration.parent.parent.kind === SyntaxKind.ForEachStatement) {
-            const indexType = getIndexType(getNonNullableTypeIfNeeded(checkExpression((declaration.parent.parent as ForEachStatement).expression, /*checkMode*/ checkMode)));
-            return indexType.flags & (TypeFlags.TypeParameter | TypeFlags.Index) ? getExtractStringType(indexType) : stringType;
-        }
+        // if (isVariableDeclaration(declaration) && declaration.parent.parent.kind === SyntaxKind.ForEachStatement) {
+        //     const indexType = getIndexType(getNonNullableTypeIfNeeded(checkExpression((declaration.parent.parent as ForEachStatement).expression, /*checkMode*/ checkMode)));
+        //     return indexType.flags & (TypeFlags.TypeParameter | TypeFlags.Index) ? getExtractStringType(indexType) : stringType;
+        // }
 
         // if (isVariableDeclaration(declaration) && declaration.parent.parent.kind === SyntaxKind.ForOfStatement) {
         //     // checkRightHandSideOfForOf will return undefined if the for-of expression type was
@@ -11739,7 +11739,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
         checkDeprecatedSignature(signature, node);
 
-        if (isNewExpression(node)) {
+        if (isNewExpression(node) && !node.expression && node.arguments?.length) {
             return checkCloneObjectExpression(node);
         }
         if (isCallExpression(node) && node.expression.kind === SyntaxKind.SuperKeyword) {
