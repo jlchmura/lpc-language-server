@@ -523,6 +523,8 @@ import {
     mapIterator,
     arrayFrom,
     SignatureHelp,
+    isRightSideOfQualifiedNameOrPropertyAccess,
+    isLeftSideOfPropertyAccess,
 } from "./_namespaces/lpc.js";
 
 function unescapeLeadingUnderscores(s: string) { return s; }
@@ -1743,6 +1745,8 @@ function createCompletionEntry(
     let sourceDisplay;
     let hasAction;
     let labelDetails;
+
+    Debug.assertIsDefined(name);
 
     const typeChecker = program.getTypeChecker();
     const insertQuestionDot = origin && originIsNullableMember(origin);
@@ -3512,7 +3516,7 @@ function getCompletionData(
         if (isEntityName(node) || isImportType || isPropertyAccessExpression(node)) {
             const isNamespaceName = false;// isModuleDeclaration(node.parent);
             if (isNamespaceName) isNewIdentifierLocation = true;
-            let symbol = typeChecker.getSymbolAtLocation(node);
+            let symbol = typeChecker.getSymbolAtLocation(node);            
             if (symbol) {
                 symbol = skipAlias(symbol, typeChecker);                
                 //     // If the module is merged with a value, we must get the type of the class and add its propertes (for inherited static methods).
@@ -3548,8 +3552,14 @@ function getCompletionData(
             // GH#39946. Pulling on the type of a node inside of a function with a contextual `this` parameter can result in a circularity
             // if the `node` is part of the exprssion of a `yield` or `return`. This circularity doesn't exist at compile time because
             // we will check (and cache) the type of `this` *before* checking the type of the node.
-            typeChecker.tryGetThisTypeAt(node, /*includeGlobalThis*/ false);
-            let type = typeChecker.getTypeAtLocation(node).getNonOptionalType();
+            let type: Type;
+            if (!isEntityName(node) && isLeftSideOfPropertyAccess(node)) {
+                // special case for LPC  "obj"->prop  syntax where lhs is a string literal                
+                type = typeChecker.getTypeOfPropertyAccessExpr(node.parent as PropertyAccessExpression);
+            } else {
+                typeChecker.tryGetThisTypeAt(node, /*includeGlobalThis*/ false);
+                type = typeChecker.getTypeAtLocation(node).getNonOptionalType();
+            }
 
             if (!isTypeLocation) {
                 let insertQuestionDot = false;

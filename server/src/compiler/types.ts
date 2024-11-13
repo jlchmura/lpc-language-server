@@ -160,6 +160,9 @@ export interface TypeChecker {
     isArgumentsSymbol(symbol: Symbol): boolean;
     
 
+    /** @internal */
+    getTypeOfPropertyAccessExpr(node: PropertyAccessExpression): Type;
+
     /** @internal */ isDeclarationVisible(node: Declaration /*| AnyImportSyntax*/): boolean;
     /**
      * returns unknownSignature in the case of an error.

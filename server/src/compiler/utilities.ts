@@ -1196,7 +1196,7 @@ export function createNameResolver({
         let associatedDeclarationForContainingInitializerOrBindingName: ParameterDeclaration | BindingElement | undefined;
         let withinDeferredContext = false;
         let grandparent: Node;
-        const name = isString(nameArg) ? nameArg : (nameArg as Identifier).text;
+        const name = isString(nameArg) ? nameArg : (nameArg as Identifier)?.text;
         
         loop:
         while (location) {
@@ -2795,6 +2795,11 @@ export function isNumericLiteralName(name: string) {
 /** @internal */
 export function isTransientSymbol(symbol: Symbol): symbol is TransientSymbol {
     return (symbol.flags & SymbolFlags.Transient) !== 0;
+}
+
+/** @internal */
+export function isLeftSideOfPropertyAccess(node: Node) {
+    return (node.parent.kind === SyntaxKind.PropertyAccessExpression && (node.parent as PropertyAccessExpression).expression === node);
 }
 
 /** @internal */

@@ -321,6 +321,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         isTypeInvalidDueToUnionDiscriminant: (contextualType: Type, obj: ObjectLiteralExpression)=>false, // TODO
         typeHasCallOrConstructSignatures,
         getReturnTypeOfSignature,
+        getTypeOfPropertyAccessExpr,
         getContextualType: (nodeIn: Expression, contextFlags?: ContextFlags) => {
             const node = getParseTreeNode(nodeIn, isExpression);
             if (!node) {
@@ -1134,6 +1135,12 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
     function getExportsOfModuleAsArray(moduleSymbol: Symbol): Symbol[] {
         return symbolsToArray(getExportsOfModule(moduleSymbol));
+    }
+
+    function getTypeOfPropertyAccessExpr(node: PropertyAccessExpression): Type {
+        return tryResolveExpressionToObject(node.expression, node, CheckMode.TypeOnly) ||
+            checkNonNullExpression(node.expression, CheckMode.TypeOnly | CheckMode.StringLiteralAsObject) ||
+            errorType;
     }
 
     function getTypeOfNode(node: Node): Type {
@@ -2459,14 +2466,37 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     
     function checkPropertyAccessExpression(node: PropertyAccessExpression, checkMode: CheckMode | undefined, writeOnly?: boolean) {
         return node.flags & NodeFlags.OptionalChain ? checkPropertyAccessChain(node as PropertyAccessChain, checkMode) :
-            checkPropertyAccessExpressionOrQualifiedName(node, node.expression, checkNonNullExpression(node.expression), node.name, checkMode, writeOnly);
+            checkPropertyAccessExpressionOrQualifiedName(node, node.expression, tryResolveExpressionToObject(node.expression, node, checkMode), node.name, checkMode, writeOnly);
+    }
+    
+    function tryResolveExpressionToObject(expression: Expression, location?: Node | undefined, checkMode?: CheckMode | undefined): Type | undefined {
+        if (expression.kind === SyntaxKind.StringLiteral) {
+            return tryResolveStringToObject(expression as StringLiteral);  
+        } else {
+            const type = checkExpression(expression, checkMode);            
+            if (type.flags & (TypeFlags.String | TypeFlags.StringLiteral)) {
+                const specifier = expression;
+                const locationNode = location || expression;
+                
+                const moduleSymbol = resolveExternalModuleName(locationNode, specifier);
+                if (moduleSymbol) {            
+                    const objectSymbol = resolveExternalObjectSymbol(moduleSymbol, specifier, /*dontResolveAlias*/ true);
+                    if (objectSymbol && isSourceFile(objectSymbol.valueDeclaration)) {                
+                        const objectType = getTypeOfSymbol(objectSymbol);
+                        return objectType;                
+                    }           
+                }
+            }
+        }
+
+        return undefined;
     }
 
     function checkPropertyAccessChain(node: PropertyAccessChain, checkMode: CheckMode | undefined) {
         const leftType = checkExpression(node.expression);
         const nonOptionalType = getOptionalExpressionType(leftType, node.expression);
         return propagateOptionalTypeMarker(checkPropertyAccessExpressionOrQualifiedName(node, node.expression, checkNonNullType(nonOptionalType, node.expression), node.name, checkMode), node, nonOptionalType !== leftType);
-    }
+    }    
 
     function getOptionalExpressionType(exprType: Type, expression: Expression) {
         return exprType;
@@ -11504,8 +11534,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             //     return nullWideningType;
             // case SyntaxKind.NoSubstitutionTemplateLiteral:
             case SyntaxKind.StringLiteral:
-            //     return hasSkipDirectInferenceFlag(node) ?
-            //         blockedStringType :
+                if (checkMode & CheckMode.StringLiteralAsObject) {
+                    const obj = tryResolveStringToObject(node as StringLiteral);
+                    if (obj) return obj;
+                }            
                 return getFreshTypeOfLiteralType(getStringLiteralType((node as StringLiteral).text));            
             case SyntaxKind.BytesLiteral:
                 return getFreshTypeOfLiteralType(getBytesLiteralType((node as BytesLiteral).text));
@@ -11616,6 +11648,26 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             ? createDiagnosticForNode(location, Diagnostics.The_signature_0_of_1_is_deprecated, signatureString, deprecatedEntity)
             : createDiagnosticForNode(location, Diagnostics._0_is_deprecated, signatureString);
         return addDeprecatedSuggestionWorker(declaration, diagnostic);
+    }
+
+    /**
+     * Tries to resolve a string literal node as an object. Will return the object's type if found, or undefined if not.
+     * @param stringNode String literal node
+     * @param location Optional location node 
+     * @returns 
+     */
+    function tryResolveStringToObject(stringNode: StringLiteral, location?: Node): Type | undefined {
+        const specifier = stringNode;
+        const locationNode = location || stringNode;
+        
+        const moduleSymbol = resolveExternalModuleName(locationNode, specifier);
+        if (moduleSymbol) {            
+            const objectSymbol = resolveExternalObjectSymbol(moduleSymbol, specifier, /*dontResolveAlias*/ true);
+            if (objectSymbol && isSourceFile(objectSymbol.valueDeclaration)) {                
+                const objectType = getTypeOfSymbol(objectSymbol);
+                return objectType;                
+            }           
+        }
     }
 
     function checkCloneObjectExpression(node: CloneObjectExpression, checkMode?: CheckMode): Type {
@@ -20623,8 +20675,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             node.kind === SyntaxKind.PropertyDeclaration)!;
     }
 
-    function checkNonNullExpression(node: Expression | QualifiedName) {
-        return checkNonNullType(checkExpression(node), node);
+    function checkNonNullExpression(node: Expression | QualifiedName, checkMode?: CheckMode | undefined) {
+        return checkNonNullType(checkExpression(node, checkMode), node);
     }
             
     function isMethodAccessForCall(node: Node) {
@@ -20645,9 +20697,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         const apparentType = getApparentType(assignmentKind !== AssignmentKind.None || isMethodAccessForCall(node) ? getWidenedType(leftType) : leftType);
         const isAnyLike = isTypeAny(apparentType) || apparentType === silentNeverType;
         let prop: Symbol | undefined;       
-    
-        
-
+            
         if (isAnyLike) {
             if (isIdentifier(left) && parentSymbol) {
                 markLinkedReferences(node, ReferenceHint.Property, /*propSymbol*/ undefined, leftType);
@@ -25094,7 +25144,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 if (name.kind === SyntaxKind.PropertyAccessExpression) {
                     checkPropertyAccessExpression(name, CheckMode.Normal);
                     if (!links.resolvedSymbol) {
-                        links.resolvedSymbol = getApplicableIndexSymbol(checkExpressionCached(name.expression), getLiteralTypeFromPropertyName(name.name));
+                        links.resolvedSymbol = getApplicableIndexSymbol(checkExpressionCached(name.expression, CheckMode.StringLiteralAsObject), getLiteralTypeFromPropertyName(name.name));
                     }
                 }
                 else {
@@ -28060,6 +28110,7 @@ export const enum CheckMode {
                                                     //   e.g. in `const { a, ...rest } = foo`, when checking the type of `foo` to determine the type of `rest`,
                                                     //   we need to preserve generic types instead of substituting them for constraints
     TypeOnly = 1 << 6,                              // Called from getTypeOfExpression, diagnostics may be omitted
+    StringLiteralAsObject = 1 << 7,                 // Stringl literals should be resolved to an object
 }
 
 /** @internal */
