@@ -3036,8 +3036,7 @@ export interface SourceFile extends Declaration, LocalsContainer, HasHeritageCon
     // // Comments containing @ts-* directives, in order.
     // /** @internal */ commentDirectives?: CommentDirective[];
     /** @internal */ imports: readonly StringLiteral[];    
-    // Identifier only if `declare global`
-    ///** @internal */ moduleAugmentations: readonly (StringLiteral | Identifier)[];    
+    /** @internal */ importCandidates?: readonly ImportCandidateNode[];
     /** @internal */ ambientModuleNames: readonly string[];    
     /** @internal */ version: string;
     ///** @internal */ pragmas: ReadonlyPragmaMap;    
@@ -3155,6 +3154,17 @@ export interface LiteralLikeNode extends Node {
     isUnterminated?: boolean;
     hasExtendedUnicodeEscape?: boolean;
 }
+
+export type ImportCandidateNode = 
+    CloneObjectExpression |
+    PropertyAccessExpression | 
+    NewExpression | 
+    InheritDeclaration | 
+    IncludeDirective |
+    JSDocParameterTag |
+    JSDocTypeTag | 
+    JSDocReturnTag
+    ;
 
 export const enum TokenFlags {
     None = 0,

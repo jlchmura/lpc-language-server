@@ -132,7 +132,7 @@ void link( string original, string reference );
  * @param {string} dir - the directory to get information about
  * @param {int} flag defaults 0, if 0, return an array of strings, if -1, return an array of subarrays
  */
-mixed *get_dir( string dir, int flag );
+varargs mixed *get_dir(string dir, int flag);
 
 /**
  * file_size() - get the size of a file
