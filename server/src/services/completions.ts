@@ -4437,6 +4437,8 @@ function getCompletionData(
         if (!isSourceFile(decl)) return GlobalsSearch.Success;
         
         const classElement = contextToken.kind === SyntaxKind.SemicolonToken ? contextToken.parent.parent : contextToken.parent;
+        if (!classElement) return GlobalsSearch.Continue;
+        
         let classElementModifierFlags = isClassElement(classElement) ? getEffectiveModifierFlags(classElement) : ModifierFlags.None;
         // If this is context token is not something we are editing now, consider if this would lead to be modifier
         if (contextToken.kind === SyntaxKind.Identifier && !isCurrentlyEditingNode(contextToken)) {

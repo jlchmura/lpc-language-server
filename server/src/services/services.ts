@@ -2102,6 +2102,7 @@ export function createLanguageServiceSourceFile(
 export function updateLanguageServiceSourceFile(
     sourceFile: SourceFile,
     globalIncludes: string[],
+    configDefines: ReadonlyMap<string,string>,
     fileHandler: LpcFileHandler,
     scriptSnapshot: IScriptSnapshot,    
     version: string,
@@ -2149,6 +2150,7 @@ export function updateLanguageServiceSourceFile(
                 sourceFile,
                 newText,         
                 globalIncludes,
+                configDefines,
                 fileHandler,       
                 textChangeRange,
                 aggressiveChecks,
@@ -2379,7 +2381,7 @@ class SyntaxTreeCache {
             // This is the same file, just a newer version. Incrementally parse the file.
             const editRange = scriptSnapshot.getChangeRange(this.currentFileScriptSnapshot!);
                         
-            sourceFile = updateLanguageServiceSourceFile(this.currentSourceFile!, options.globalIncludes, options.fileHandler, scriptSnapshot, version, editRange, languageVariant);
+            sourceFile = updateLanguageServiceSourceFile(this.currentSourceFile!, options.globalIncludes, options.configDefines, options.fileHandler, scriptSnapshot, version, editRange, languageVariant);
         }
 
         if (sourceFile) {

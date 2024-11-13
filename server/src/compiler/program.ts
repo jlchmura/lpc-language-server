@@ -1,5 +1,5 @@
 import path from "path";
-import { getDeclarationDiagnostics as lpc_getDeclarationDiagnostics, forEachResolvedProjectReference as lpc_forEachResolvedProjectReference, combinePaths, compareValues, CompilerHost, CompilerOptions, containsPath, createDiagnosticCollection, createGetCanonicalFileName, createMultiMap, CreateProgramOptions, createSourceFile, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DiagnosticWithLocation, FileIncludeKind, FileIncludeReason, FilePreprocessingDiagnostics, FilePreprocessingDiagnosticsKind, forEach, getBaseFileName, getDirectoryPath, getNewLineCharacter, getRootLength, hasExtension, isArray, maybeBind, memoize, normalizePath, ObjectLiteralExpression, PackageId, Path, performance, Program, ProgramHost, ProjectReference, PropertyAssignment, ReferencedFile, removePrefix, removeSuffix, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, SourceFile, stableSort, StructureIsReused, sys, System, toPath as lpc_toPath, tracing, TypeChecker, getNormalizedAbsolutePathWithoutRoot, some, isRootedDiskPath, optionsHaveChanges, packageIdToString, toFileNameLowerCase, getNormalizedAbsolutePath, CreateSourceFileOptions, createTypeChecker, ScriptTarget, libs, FileReference, SortedReadonlyArray, concatenate, sortAndDeduplicateDiagnostics, emptyArray, LpcFileHandler, createLpcFileHandler, DiagnosticMessageChain, isString, CancellationToken, flatMap, filter, Debug, ScriptKind, flatten, OperationCanceledException, noop, getNormalizedPathComponents, GetCanonicalFileName, getPathFromPathComponents, WriteFileCallback, EmitHost, WriteFileCallbackData, getDefaultLibFileName, LibResolution, returnFalse, isTraceEnabled, trace, equateStringsCaseSensitive, equateStringsCaseInsensitive, NodeFlags, ResolvedModuleFull, Extension, ResolutionMode, ModeAwareCache, isExternalModule, StringLiteral, Identifier, isCloneObjectExpression, isStringLiteral, setParentRecursive, append, Node, SyntaxKind, forEachChild, ResolutionWithFailedLookupLocations, createModeAwareCache, ModuleKind, ResolvedTypeReferenceDirectiveWithFailedLookupLocations, ModuleResolutionCache, contains, createModuleResolutionCache, ModuleResolutionHost, ModeAwareCacheKey, createModeAwareCacheKey, resolveModuleName, isInheritDeclaration, LogLevel, PackageJsonInfoCache, StringLiteralLike, skipTrivia, getSourceFileOfNode, hasLPCFileExtension, getNormalizedModuleName, isIncludeDirective, first, createEvaluator, forEachChildRecursively, factory, LanguageVariant, ResolvedConfigFileName, resolveConfigFileProjectName,     createMasterApplyGetIncludePathVm, memoizeOne, getRelativePathFromFile, getRelativePathFromDirectory, map, resolvePath, diagnosticCategoryName, getLineAndCharacterOfPosition, convertToRelativePath, BuilderProgram, addRange, explainIfFileIsRedirectAndImpliedFormat, chainDiagnosticMessages, createFileDiagnosticFromMessageChain, createCompilerDiagnosticFromMessageChain, fileIncludeReasonToDiagnostics, createFileDiagnostic, getMatchedFileSpec, createDiagnosticForNodeInSourceFile, FilePreprocessingLibReferenceDiagnostic, getSpellingSuggestion, identity, HasInvalidatedLibResolutions, HasInvalidatedResolutions, ParsedCommandLine, arrayIsEqualTo, forEachEntry, projectReferenceIsEqualTo, compareDataObjects, HasChangedAutomaticTypeDirectiveNames, isJSDocTypeTag, hasJSDocNodes, isJSDoc, isJSDocNode, isJSDocTypeExpression, isLiteralTypeNode, getLiteralText, GetLiteralTextFlags, isStringLiteralLike, isJSDocParameterTag, isJSDocReturnTag, isTypePredicateNode, StringLiteralType, isPropertyAccessExpression, Mutable, ImportCandidateNode, isNewExpression, isTypeNode } from "./_namespaces/lpc.js";
+import { getDeclarationDiagnostics as lpc_getDeclarationDiagnostics, forEachResolvedProjectReference as lpc_forEachResolvedProjectReference, combinePaths, compareValues, CompilerHost, CompilerOptions, containsPath, createDiagnosticCollection, createGetCanonicalFileName, createMultiMap, CreateProgramOptions, createSourceFile, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DiagnosticWithLocation, FileIncludeKind, FileIncludeReason, FilePreprocessingDiagnostics, FilePreprocessingDiagnosticsKind, forEach, getBaseFileName, getDirectoryPath, getNewLineCharacter, getRootLength, hasExtension, isArray, maybeBind, memoize, normalizePath, ObjectLiteralExpression, PackageId, Path, performance, Program, ProgramHost, ProjectReference, PropertyAssignment, ReferencedFile, removePrefix, removeSuffix, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, SourceFile, stableSort, StructureIsReused, sys, System, toPath as lpc_toPath, tracing, TypeChecker, getNormalizedAbsolutePathWithoutRoot, some, isRootedDiskPath, optionsHaveChanges, packageIdToString, toFileNameLowerCase, getNormalizedAbsolutePath, CreateSourceFileOptions, createTypeChecker, ScriptTarget, libs, FileReference, SortedReadonlyArray, concatenate, sortAndDeduplicateDiagnostics, emptyArray, LpcFileHandler, createLpcFileHandler, DiagnosticMessageChain, isString, CancellationToken, flatMap, filter, Debug, ScriptKind, flatten, OperationCanceledException, noop, getNormalizedPathComponents, GetCanonicalFileName, getPathFromPathComponents, WriteFileCallback, EmitHost, WriteFileCallbackData, getDefaultLibFileName, LibResolution, returnFalse, isTraceEnabled, trace, equateStringsCaseSensitive, equateStringsCaseInsensitive, NodeFlags, ResolvedModuleFull, Extension, ResolutionMode, ModeAwareCache, isExternalModule, StringLiteral, Identifier, isCloneObjectExpression, isStringLiteral, setParentRecursive, append, Node, SyntaxKind, forEachChild, ResolutionWithFailedLookupLocations, createModeAwareCache, ModuleKind, ResolvedTypeReferenceDirectiveWithFailedLookupLocations, ModuleResolutionCache, contains, createModuleResolutionCache, ModuleResolutionHost, ModeAwareCacheKey, createModeAwareCacheKey, resolveModuleName, isInheritDeclaration, LogLevel, PackageJsonInfoCache, StringLiteralLike, skipTrivia, getSourceFileOfNode, hasLPCFileExtension, getNormalizedModuleName, isIncludeDirective, first, createEvaluator, forEachChildRecursively, factory, LanguageVariant, ResolvedConfigFileName, resolveConfigFileProjectName,     createMasterApplyGetIncludePathVm, memoizeOne, getRelativePathFromFile, getRelativePathFromDirectory, map, resolvePath, diagnosticCategoryName, getLineAndCharacterOfPosition, convertToRelativePath, BuilderProgram, addRange, explainIfFileIsRedirectAndImpliedFormat, chainDiagnosticMessages, createFileDiagnosticFromMessageChain, createCompilerDiagnosticFromMessageChain, fileIncludeReasonToDiagnostics, createFileDiagnostic, getMatchedFileSpec, createDiagnosticForNodeInSourceFile, FilePreprocessingLibReferenceDiagnostic, getSpellingSuggestion, identity, HasInvalidatedLibResolutions, HasInvalidatedResolutions, ParsedCommandLine, arrayIsEqualTo, forEachEntry, projectReferenceIsEqualTo, compareDataObjects, HasChangedAutomaticTypeDirectiveNames, isJSDocTypeTag, hasJSDocNodes, isJSDoc, isJSDocNode, isJSDocTypeExpression, isLiteralTypeNode, getLiteralText, GetLiteralTextFlags, isStringLiteralLike, isJSDocParameterTag, isJSDocReturnTag, isTypePredicateNode, StringLiteralType, isPropertyAccessExpression, Mutable, ImportCandidateNode, isNewExpression, isTypeNode, getLibRootedFileName, isJSDocPropertyTag } from "./_namespaces/lpc.js";
 
 interface FileReasonToChainCache {
     fileIncludeReasonDetails: DiagnosticMessageChain | undefined;
@@ -1280,12 +1280,24 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         return filesByName.get(path) || undefined;
     }
 
+    function getConfigDefines(options: CompilerOptions): ReadonlyMap<string,string> {
+        console.debug("todo - add defines from config");
+        
+        const result = new Map<string, string>();        
+        if (options.playerFile) result.set("__LPC_CONFIG_LIBFILES_PLAYER", `"${getLibRootedFileName(options.playerFile, options)}"`);
+        if (options.masterFile) result.set("__LPC_CONFIG_LIBFILES_MASTER", `"${getLibRootedFileName(options.masterFile, options)}"`);
+        if (options.sefunFile) result.set("__LPC_CONFIG_LIBFILES_SEFUN", `"${getLibRootedFileName(options.sefunFile, options)}"`);
+        return result;
+    }
+
     function getCreateSourceFileOptions(fileName: string, moduleResolutionCache: any | undefined, host: CompilerHost, options: CompilerOptions): CreateSourceFileOptions {        
         // TODO is this complete?
+        
         return {
             languageVersion: ScriptTarget.Latest,
             globalIncludes: options.globalIncludeFiles || emptyArray,
-            fileHandler: fileHandler
+            fileHandler: fileHandler,
+            configDefines: getConfigDefines(options),
         };
         
         // It's a _little odd_ that we can't set `impliedNodeFormat` until the program step - but it's the first and only time we have a resolution cache
@@ -1701,7 +1713,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                     imports = append(imports, firstEl);
                 }
             } else if (isJSDocNode(node)) {                    
-                if ((isJSDocParameterTag(node) || isJSDocTypeTag(node) || isJSDocReturnTag(node)) && node.typeExpression) { 
+                if ((isJSDocParameterTag(node) || isJSDocTypeTag(node) || isJSDocPropertyTag(node) || isJSDocReturnTag(node)) && node.typeExpression) { 
                     const typeExp = node.typeExpression;
                     const jsDocType = typeExp.type && isTypePredicateNode(typeExp.type) ? typeExp.type.type : typeExp.type;
                     if (jsDocType && isLiteralTypeNode(jsDocType) && isStringLiteralLike(jsDocType.literal)) {
@@ -1755,26 +1767,26 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         }
 
         function collectDynamicImportOrRequireOrJsDocImportCalls(file: SourceFile) {
-            const r = /\@(?:param|type|return[s]?)/g;
-            while (r.exec(file.text) !== null) { // eslint-disable-line no-restricted-syntax
-                const node = getNodeAtPosition(file, Math.max(0, r.lastIndex - 1));
-                if (isJSDocNode(node)) {                    
-                    if ((isJSDocParameterTag(node) || isJSDocTypeTag(node) || isJSDocReturnTag(node)) && node.typeExpression) { 
-                        const typeExp = node.typeExpression;
-                        const jsDocType = typeExp.type && isTypePredicateNode(typeExp.type) ? typeExp.type.type : typeExp.type;
-                        if (jsDocType && isLiteralTypeNode(jsDocType) && isStringLiteralLike(jsDocType.literal)) {
-                            imports = append(imports, jsDocType.literal);
-                        }                                                
-                    } 
-                } 
-                // else if (isJavaScriptFile && isJSDocImportTag(node)) {
-                //     const moduleNameExpr = getExternalModuleName(node);
-                //     if (moduleNameExpr && isStringLiteral(moduleNameExpr) && moduleNameExpr.text) {
-                //         setParentRecursive(node, /*incremental*/ false);
-                //         imports = append(imports, moduleNameExpr);
-                //     }
-                // }
-            }
+            // const r = /\@(?:param|type|return[s]?)/g;
+            // while (r.exec(file.text) !== null) { // eslint-disable-line no-restricted-syntax
+            //     const node = getNodeAtPosition(file, Math.max(0, r.lastIndex - 1));
+            //     if (isJSDocNode(node)) {                    
+            //         if ((isJSDocParameterTag(node) || isJSDocTypeTag(node) || isJSDocReturnTag(node)) && node.typeExpression) { 
+            //             const typeExp = node.typeExpression;
+            //             const jsDocType = typeExp.type && isTypePredicateNode(typeExp.type) ? typeExp.type.type : typeExp.type;
+            //             if (jsDocType && isLiteralTypeNode(jsDocType) && isStringLiteralLike(jsDocType.literal)) {
+            //                 imports = append(imports, jsDocType.literal);
+            //             }                                                
+            //         } 
+            //     } 
+            //     // else if (isJavaScriptFile && isJSDocImportTag(node)) {
+            //     //     const moduleNameExpr = getExternalModuleName(node);
+            //     //     if (moduleNameExpr && isStringLiteral(moduleNameExpr) && moduleNameExpr.text) {
+            //     //         setParentRecursive(node, /*incremental*/ false);
+            //     //         imports = append(imports, moduleNameExpr);
+            //     //     }
+            //     // }
+            // }
         }
 
         function isSameFileNameOrjsDoc(sourceFile: SourceFile, node: Node): boolean {

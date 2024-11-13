@@ -242,7 +242,7 @@ function parseLpcConfigFileContentWorker(
     options.driverType = driverTypeToLanguageVariant(raw?.driver?.type);    
 
     if (raw?.libFiles?.global_include) {
-        options.globalIncludeFiles = [raw?.libFiles?.global_include];
+        options.globalIncludeFiles = [raw?.libFiles?.global_include];        
     }
 
     if (raw?.libInclude && isArray(raw.libInclude)) {
@@ -256,6 +256,9 @@ function parseLpcConfigFileContentWorker(
 
     const masterFile = trimStart(options.masterFile ?? raw?.libFiles?.master ?? "/obj/master.c", "/");
     options.masterFile = normalizePath(combinePaths(basePathForFileNames, masterFile));
+
+    const playerFile = trimStart(options.playerFile ?? raw?.libFiles?.player ?? "/obj/player.c", "/");
+    options.playerFile = normalizePath(combinePaths(basePathForFileNames, playerFile));
     
     return {
         options,

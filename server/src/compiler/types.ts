@@ -1680,6 +1680,7 @@ export interface CompilerOptions {
     configFile?: LpcConfigSourceFile; 
     sefunFile?: string;
     masterFile?: string;
+    playerFile?: string;
     forceConsistentCasingInFileNames?: boolean;
     noResolve?: boolean;
     noLib?: boolean;
@@ -1707,8 +1708,9 @@ export interface CompilerOptions {
     exactOptionalPropertyTypes?: boolean;
     diagnostics?: boolean;
     libIncludeDirs?: string[];
-    globalIncludeFiles?: string[];
+    globalIncludeFiles?: string[];    
 }
+
 
 export const enum OuterExpressionKinds {
     Parentheses = 1 << 0,
@@ -3163,6 +3165,7 @@ export type ImportCandidateNode =
     IncludeDirective |
     JSDocParameterTag |
     JSDocTypeTag | 
+    JSDocPropertyTag |
     JSDocReturnTag
     ;
 

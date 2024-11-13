@@ -38,8 +38,9 @@ int userp( object );
  * this_player(3).
  *
  * @param {int} flag - if non-zero, return the interactive player object. Defaults to 0
+ * @returns {__LPC_CONFIG_LIBFILES_PLAYER} - the interactive player object
  */
-varargs object this_user( int flag);
+varargs object this_user(int flag);
 
 
 /**

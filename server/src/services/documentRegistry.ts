@@ -544,6 +544,7 @@ export function createDocumentRegistryInternal(
                 entry.sourceFile = updateLanguageServiceSourceFile(
                     entry.sourceFile,
                     sourceFileOptions.globalIncludes,
+                    sourceFileOptions.configDefines,
                     sourceFileOptions.fileHandler,
                     scriptSnapshot,           
                     version,
