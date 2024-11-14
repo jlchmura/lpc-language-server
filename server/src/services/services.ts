@@ -974,9 +974,7 @@ function createSyntaxList(nodes: NodeArray<Node>, parent: Node, skipRanges: read
             pos = node.includeDirEnd ?? node.end;
         // }        
     }
-    if (isNaN(nodes.end)) {
-        debugger;
-    }
+    
     addSyntheticNodes(children, pos, nodes.end, parent, skipRanges);
     list._children = children;
     return list;

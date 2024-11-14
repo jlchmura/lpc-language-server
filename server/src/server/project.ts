@@ -179,10 +179,10 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
         //     this.disableLanguageService(lastFileExceededProgramSize);
         // }
         this.markAsDirty();
-        // if (!isBackgroundProject(this)) {
-        //     this.projectService.pendingEnsureProjectForOpenFiles = true;
-        // }
-        // this.projectService.onProjectCreation(this);
+        if (!isBackgroundProject(this)) {
+            this.projectService.pendingEnsureProjectForOpenFiles = true;
+        }
+        this.projectService.onProjectCreation(this);
     }
 
     /** @internal */
@@ -383,8 +383,8 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
             // TODO - implement this
             // if (changesAffectModuleResolution(oldOptions, compilerOptions)) {
             //     // reset cached unresolved imports if changes in compiler options affected module resolution
-            //     this.cachedUnresolvedImportsPerFile.clear();
-            //     this.lastCachedUnresolvedImportsList = undefined;
+                this.cachedUnresolvedImportsPerFile.clear();
+                this.lastCachedUnresolvedImportsList = undefined;
             //     this.resolutionCache.onChangesAffectModuleResolution();
             //     this.moduleSpecifierCache.clear();
             // }
@@ -653,8 +653,7 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
      * Updates set of files that contribute to this project
      * @returns: true if set of files in the project stays the same and false - otherwise.
      */
-    updateGraph(): boolean {
-        //Debug.fail("implement me");
+    updateGraph(): boolean {        
         tracing?.push(tracing.Phase.Session, "updateGraph", { name: this.projectName, kind: ProjectKind[this.projectKind] });
         this.resolutionCache.startRecordingFilesWithChangedResolutions();
 
@@ -694,7 +693,7 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
             this.projectProgramVersion++;
         }
         if (hasAddedorRemovedFiles) {
-            //this.markAutoImportProviderAsDirty();
+            this.markAutoImportProviderAsDirty();
         }
         if (isFirstProgramLoad) {
             // Preload auto import provider so it's not created during completions request

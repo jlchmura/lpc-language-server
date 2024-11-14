@@ -1,4 +1,4 @@
-import { arrayFrom, AssertionLevel, CachedDirectoryStructureHost, canWatchDirectoryOrFile, clearMap, clearSharedExtendedConfigFileWatcher, closeFileWatcherOf, combinePaths, CompilerOptions, contains, containsPath, createCachedDirectoryStructureHost, createGetCanonicalFileName, createMultiMap, Debug, Diagnostic, DirectoryStructureHost, DirectoryWatcherCallback, DocumentPosition, DocumentRegistry, emptyOptions, FileExtensionInfo, fileExtensionIs, FileSystemEntries, FileWatcher, FileWatcherCallback, FileWatcherEventKind, find, forEach, forEachEntry, forEachKey, forEachResolvedProjectReference, getAnyExtensionFromPath, getBaseFileName, getDefaultFormatCodeSettings, getDirectoryPath, getFileNamesFromConfigSpecs, getNormalizedAbsolutePath, getPathComponents, getWatchFactory, identity, isArray, isIgnoredFileFromWildCardWatching, isJsonEqual, isNodeModulesDirectory, isRootedDiskPath, isString, LanguageServiceMode, length, LpcConfigSourceFile, mapDefinedEntries, mapDefinedIterator, missingFileModifiedTime, MultiMap, noop, normalizePath, normalizeSlashes, orderedRemoveItem, ParsedCommandLine, parseJsonText, parseLpcSourceFileConfigFileContent, Path, PerformanceEvent, PollingInterval, ProgramUpdateLevel, ProjectReference, ReadonlyCollection, ResolvedProjectReference, resolveProjectReferencePath, returnFalse, returnNoopFileWatcher, ScriptKind, SharedExtendedConfigFileWatcher, some, startsWith, TextChange, toPath, tracing, tryAddToSet, tryReadFile, TypeAcquisition, unorderedRemoveItem, updateWatchingWildcardDirectories, UserPreferences, WatchDirectoryFlags, WatchFactory, WatchFactoryHost, WatchLogLevel, WatchOptions, WatchType, WildcardDirectoryWatcher } from "./_namespaces/lpc.js";
+import { arrayFrom, AssertionLevel, CachedDirectoryStructureHost, canWatchDirectoryOrFile, clearMap, clearSharedExtendedConfigFileWatcher, closeFileWatcherOf, combinePaths, CompilerOptions, contains, containsPath, createCachedDirectoryStructureHost, createGetCanonicalFileName, createMultiMap, Debug, Diagnostic, DirectoryStructureHost, DirectoryWatcherCallback, DocumentPosition, DocumentRegistry, emptyOptions, FileExtensionInfo, fileExtensionIs, FileSystemEntries, FileWatcher, FileWatcherCallback, FileWatcherEventKind, find, forEach, forEachEntry, forEachKey, forEachResolvedProjectReference, getAnyExtensionFromPath, getBaseFileName, getDefaultFormatCodeSettings, getDirectoryPath, getFileNamesFromConfigSpecs, getNormalizedAbsolutePath, getPathComponents, getWatchFactory, identity, isArray, isIgnoredFileFromWildCardWatching, isJsonEqual, isNodeModulesDirectory, isRootedDiskPath, isString, JSDocParsingMode, LanguageServiceMode, length, LpcConfigSourceFile, mapDefinedEntries, mapDefinedIterator, missingFileModifiedTime, MultiMap, noop, normalizePath, normalizeSlashes, orderedRemoveItem, ParsedCommandLine, parseJsonText, parseLpcSourceFileConfigFileContent, Path, PerformanceEvent, PollingInterval, ProgramUpdateLevel, ProjectReference, ReadonlyCollection, ResolvedProjectReference, resolveProjectReferencePath, returnFalse, returnNoopFileWatcher, ScriptKind, SharedExtendedConfigFileWatcher, some, startsWith, TextChange, toPath, tracing, tryAddToSet, tryReadFile, TypeAcquisition, unorderedRemoveItem, updateWatchingWildcardDirectories, UserPreferences, WatchDirectoryFlags, WatchFactory, WatchFactoryHost, WatchLogLevel, WatchOptions, WatchType, WildcardDirectoryWatcher } from "./_namespaces/lpc.js";
 import { asNormalizedPath, ConfiguredProject, Errors, findLpcConfig, HostCancellationToken, InferredProject, isConfiguredProject, isDynamicFileName, isExternalProject, isInferredProject, isProjectDeferredClose, Logger, LogLevel, makeAuxiliaryProjectName, Msg, NormalizedPath, normalizedPathToPath, Project, ProjectKind, ScriptInfo, ScriptInfoOrConfig, ServerHost, Session, ThrottledOperations, toNormalizedPath } from "./_namespaces/lpc.server.js";
 import * as protocol from "./protocol.js";
 
@@ -140,9 +140,12 @@ export class ProjectService {
     private watchOptionsForInferredProjectsPerProjectRoot = new Map<string, WatchOptionsAndErrors | false>();
     private typeAcquisitionForInferredProjects: TypeAcquisition | undefined;
     private typeAcquisitionForInferredProjectsPerProjectRoot = new Map<string, TypeAcquisition | undefined>();
-    
+        
     /** @internal */
     readonly watchFactory: WatchFactory<WatchType, Project | NormalizedPath>;
+
+    /** @internal */ onProjectCreation: (project: Project) => void = noop;
+    readonly jsDocParsingMode: JSDocParsingMode | undefined;
 
     /** @internal */ verifyProgram: (project: Project) => void = noop;
     /** @internal */ verifyDocumentRegistry = noop;
@@ -162,7 +165,8 @@ export class ProjectService {
         // this.allowLocalPluginLoads = !!opts.allowLocalPluginLoads;
         // this.typesMapLocation = (opts.typesMapLocation === undefined) ? combinePaths(getDirectoryPath(this.getExecutingFilePath()), "typesMap.json") : opts.typesMapLocation;
         this.session = opts.session;
-        // this.jsDocParsingMode = opts.jsDocParsingMode;
+                
+        this.jsDocParsingMode = opts.jsDocParsingMode;
 
         if (opts.serverMode !== undefined) {
             this.serverMode = opts.serverMode;
@@ -2583,6 +2587,7 @@ export interface ProjectServiceOptions {
     session: Session<unknown> | undefined;
     projectRootFolder?: string;    
     /** @internal */ incrementalVerifier?: (service: ProjectService) => void;    
+    jsDocParsingMode?: JSDocParsingMode;
 }
 
 /**

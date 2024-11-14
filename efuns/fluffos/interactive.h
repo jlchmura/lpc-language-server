@@ -263,7 +263,7 @@ object query_snoop( object ob );
  * 'ob'.
  *
  */
-string query_ip_number( object ob );
+varargs string query_ip_number( object ob );
 
 /**
  * query_ip_name() - return the ip name of a given player object.

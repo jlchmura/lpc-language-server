@@ -289,7 +289,11 @@ export class Session<TMessage = string> implements EventSender {
         );
     }
     
-    public updateOpen(args: protocol.UpdateOpenRequestArgs) {
+    public updateOpen(sequence: number, args: protocol.UpdateOpenRequestArgs) {        
+        const response = this.executeWithRequestId(sequence, () => this.updateOpenWorker(args));
+        return response;
+    }
+    private updateOpenWorker(args: protocol.UpdateOpenRequestArgs) {
         this.changeSeq++;
 
         const openFiles: Iterable<OpenFileArguments> = args.openFiles && mapIterator(args.openFiles, file => ({

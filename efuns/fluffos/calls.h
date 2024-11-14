@@ -64,7 +64,7 @@ object this_object( void );
  * classes had to be in the player object itself.
  *
  */
-object shadow( object ob, int flag );
+varargs object shadow( object ob, int flag );
 
 /**
  * remove_call_out() - remove a pending call_out

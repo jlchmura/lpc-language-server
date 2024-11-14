@@ -60,7 +60,7 @@ function main() {
         projectRootFolder: workDir,
     });
 
-    session.updateOpen({
+    session.updateOpen(1, {
         openFiles: [{ file: filename, projectFileName: projectFile }],            
     });
 

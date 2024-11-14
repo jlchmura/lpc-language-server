@@ -89,6 +89,7 @@ export function start(connection: Connection, platform: string) {
 
     const canonicalFilename = lpc.createGetCanonicalFileName(lpc.sys.useCaseSensitiveFileNames);
     const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
+    let sequence = 0;
 
     function fromUri(uri: string): string {
         return URI.parse(uri).fsPath;
@@ -199,7 +200,7 @@ export function start(connection: Connection, platform: string) {
 
         documents.onDidOpen(e => {                        
             const filename = fromUri(e.document.uri);
-            session.updateOpen({
+            session.updateOpen(sequence++,{                
                 openFiles: [{file: filename }],
             });
             
@@ -208,7 +209,7 @@ export function start(connection: Connection, platform: string) {
                
         documents.onDidClose(e => {
             const filename = fromUri(e.document.uri);
-            session.updateOpen({
+            session.updateOpen(sequence++, {
                 closedFiles: [filename],
             });
         })
@@ -238,7 +239,7 @@ export function start(connection: Connection, platform: string) {
                     }
                 }
 
-                session.updateOpen({
+                session.updateOpen(sequence++, {
                     changedFiles: [{fileName: filename, textChanges: changes }]                    
                 });
                 
