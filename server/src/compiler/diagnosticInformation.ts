@@ -20,6 +20,7 @@ export const Diagnostics = {
     Unterminated_macro_arguments_list: diag(9012, DiagnosticCategory.Error, "Unterminated_macro_arguments_list_9012", "Unterminated macro arguments list."),
     Unmatched_conditional_directive: diag(9013, DiagnosticCategory.Error, "Unmatched_conditional_directive_9013", "Unmatched conditional directive."),
     Identifier_or_string_expected: diag(9014, DiagnosticCategory.Error, "Identifier_or_string_expected_9014", "Identifier or string expected."),
+    Character_literal_must_be_one_character: diag(9015, DiagnosticCategory.Error, "Character_literal_must_be_one_character_9015", "Character literal must be one character."),
 
     // Scanner
     _0_expected: diag(1005, DiagnosticCategory.Error, "_0_expected_1005", "'{0}' expected."),    

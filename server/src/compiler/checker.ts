@@ -2965,6 +2965,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             case SyntaxKind.EndOfFileToken:
             case SyntaxKind.LiteralType:
             case SyntaxKind.StringLiteral:
+            case SyntaxKind.IntLiteral:
             case SyntaxKind.CallExpression:
                 return;
         }

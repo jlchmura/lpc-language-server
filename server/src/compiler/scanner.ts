@@ -2107,14 +2107,12 @@ export function createScanner(
                         pos++
                         return token = SyntaxKind.LambdaToken;
                     }                    
-                    pos += 2; // eat the quote & one more character
-                    tokenValue = "" + tokenValue.charCodeAt(0);
-                    tokenFlags |= TokenFlags.Char;
-                    if (charCodeUnchecked(pos) === CharacterCodes.singleQuote) {
-                        pos++;                        
-                    } else {
-                        error(Diagnostics.Unterminated_string_literal);
-                    }
+                    tokenValue = scanString(false);            
+                    if (tokenValue.length > 1) {
+                        error(Diagnostics.Character_literal_must_be_one_character, tokenStart, tokenValue.length + 2);
+                    }        
+                    tokenValue = "" + tokenValue.charCodeAt(0);                    
+                    tokenFlags |= TokenFlags.Char;                    
                     return token = SyntaxKind.CharLiteral;                    
                 case CharacterCodes.doubleQuote:                
                     tokenValue = scanString();
