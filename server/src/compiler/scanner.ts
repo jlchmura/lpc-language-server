@@ -2107,7 +2107,15 @@ export function createScanner(
                         pos++
                         return token = SyntaxKind.LambdaToken;
                     }                    
-                    // fall through to string parsing
+                    pos += 2; // eat the quote & one more character
+                    tokenValue = "" + tokenValue.charCodeAt(0);
+                    tokenFlags |= TokenFlags.Char;
+                    if (charCodeUnchecked(pos) === CharacterCodes.singleQuote) {
+                        pos++;                        
+                    } else {
+                        error(Diagnostics.Unterminated_string_literal);
+                    }
+                    return token = SyntaxKind.CharLiteral;                    
                 case CharacterCodes.doubleQuote:                
                     tokenValue = scanString();
                     return token = SyntaxKind.StringLiteral;

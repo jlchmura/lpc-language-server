@@ -784,7 +784,7 @@ export namespace LpcParser {
 
     function nextTokenIsNumericOrBigIntLiteral() {
         nextToken();
-        return token() === SyntaxKind.IntLiteral || token() === SyntaxKind.FloatLiteral;
+        return token() === SyntaxKind.IntLiteral || token() === SyntaxKind.FloatLiteral || token() === SyntaxKind.CharLiteral;
     }
 
 
@@ -941,6 +941,7 @@ export namespace LpcParser {
         
         const result = kind === SyntaxKind.Identifier ? factoryCreateIdentifier("", /*originalKeywordKind*/ undefined) :            
             kind === SyntaxKind.IntLiteral ? factoryCreateIntLiteral("", /*numericLiteralFlags*/ undefined) :
+            kind === SyntaxKind.CharLiteral ? factoryCreateIntLiteral("", /*numericLiteralFlags*/ undefined) :
             kind === SyntaxKind.FloatLiteral ? factoryCreateFloatLiteral("", /*numericLiteralFlags*/ undefined) :
             kind === SyntaxKind.StringLiteral ? factoryCreateStringLiteral("", /*isSingleQuote*/ undefined) :
             kind === SyntaxKind.MissingDeclaration ? factory.createMissingDeclaration() :
@@ -2688,6 +2689,7 @@ export namespace LpcParser {
             case SyntaxKind.FalseKeyword:
             case SyntaxKind.NumericLiteral:
             case SyntaxKind.IntLiteral:
+            case SyntaxKind.CharLiteral:
             case SyntaxKind.FloatLiteral:
             case SyntaxKind.StringLiteral:
             case SyntaxKind.StringArrayLiteral:
@@ -2851,6 +2853,7 @@ export namespace LpcParser {
             case SyntaxKind.StringArrayLiteral:
             case SyntaxKind.NumericLiteral:
             case SyntaxKind.IntLiteral:
+            case SyntaxKind.CharLiteral:
             case SyntaxKind.FloatLiteral:
             case SyntaxKind.TrueKeyword:
             case SyntaxKind.FalseKeyword:
@@ -2924,6 +2927,7 @@ export namespace LpcParser {
             case SyntaxKind.StringLiteral:
             case SyntaxKind.StringArrayLiteral:
             case SyntaxKind.IntLiteral:
+            case SyntaxKind.CharLiteral:
             case SyntaxKind.FloatLiteral:
             case SyntaxKind.TrueKeyword:
             case SyntaxKind.FalseKeyword:
@@ -3044,6 +3048,7 @@ export namespace LpcParser {
             // parent unary expression.
             (kind === SyntaxKind.IntLiteral || kind === SyntaxKind.NumericLiteral) ? factoryCreateIntLiteral(scanner.getTokenValue(), scanner.getNumericLiteralFlags()) :
             kind === SyntaxKind.FloatLiteral ? factoryCreateFloatLiteral(scanner.getTokenValue(), scanner.getNumericLiteralFlags()) :
+            kind === SyntaxKind.CharLiteral ? factoryCreateIntLiteral(scanner.getTokenValue(), scanner.getNumericLiteralFlags()) :
             kind === SyntaxKind.StringLiteral ? factoryCreateStringLiteral(scanner.getTokenValue(), /*isSingleQuote*/ undefined, scanner.hasExtendedUnicodeEscape()) :            
             kind === SyntaxKind.BytesLiteral ? factoryCreateBytesLiteral(scanner.getTokenValue(), scanner.hasExtendedUnicodeEscape()) :
             isLiteralKind(kind) ? factoryCreateLiteralLikeNode(kind, scanner.getTokenValue()) :
@@ -3195,7 +3200,7 @@ export namespace LpcParser {
     function isLiteralPropertyName(): boolean {
         return tokenIsIdentifierOrKeyword(token()) ||
             token() === SyntaxKind.StringLiteral ||
-            token() === SyntaxKind.IntLiteral;
+            token() === SyntaxKind.IntLiteral;            
     }
 
     function isStructOrClassKeyword(): boolean {
@@ -4404,8 +4409,8 @@ export namespace LpcParser {
         
         const name = isIdentifier() ? parseIdentifier() : createMissingNode<Identifier>(SyntaxKind.Identifier, true, Diagnostics.Identifier_expected);
 
-        if (left) {
-            Debug.assert(left.kind === SyntaxKind.Identifier || left.kind === SyntaxKind.StringLiteral, "namespace must be an identifier or string literal");
+        if (left && !(isIdentifierNode(left) || isStringLiteral(left))) {
+            parseErrorAtRange(left, left.originFilename, Diagnostics.Identifier_or_string_expected);
         }
 
         const node = factory.createSuperAccessExpression(name, left as Identifier);
@@ -4818,6 +4823,7 @@ export namespace LpcParser {
             // falls through
             case SyntaxKind.NumericLiteral:
             case SyntaxKind.IntLiteral:
+            case SyntaxKind.CharLiteral:
             case SyntaxKind.FloatLiteral:
             case SyntaxKind.StringLiteral:
             case SyntaxKind.StringArrayLiteral:
@@ -5893,7 +5899,7 @@ export namespace LpcParser {
                 let comment = parseTagComments(indent);
 
                 let end: number | undefined;
-                if (!typeExpression || isObjectOrObjectArrayTypeReference(typeExpression.type)) {
+                if (!typeExpression || (typeExpression.type && isObjectOrObjectArrayTypeReference(typeExpression.type))) {
                     let child: JSDocTypeTag | JSDocPropertyTag | JSDocTemplateTag | false;
                     let childTypeTag: JSDocTypeTag | undefined;
                     let jsDocPropertyTags: JSDocPropertyTag[] | undefined;

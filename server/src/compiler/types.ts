@@ -660,6 +660,7 @@ export const enum SyntaxKind {
     // Literals
     NumericLiteral,
     IntLiteral,
+    CharLiteral,
     FloatLiteral,
     BytesLiteral,
     StringArrayLiteral,
@@ -3197,13 +3198,15 @@ export const enum TokenFlags {
     /** @internal */
     ContainsInvalidSeparator = 1 << 14, // e.g. `0_1`
     /** @internal */
+    Char = 1 << 15,                     // e.g. `'c'` which LPC treats as an integer
+    /** @internal */
     BinaryOrOctalSpecifier = BinarySpecifier | OctalSpecifier,
     /** @internal */
     WithSpecifier = HexSpecifier | BinaryOrOctalSpecifier,
     /** @internal */
     StringLiteralFlags = HexEscape | UnicodeEscape | ExtendedUnicodeEscape | ContainsInvalidEscape,
     /** @internal */
-    NumericLiteralFlags = Scientific | Octal | ContainsLeadingZero | WithSpecifier | ContainsSeparator | ContainsInvalidSeparator,
+    NumericLiteralFlags = Scientific | Octal | Char | ContainsLeadingZero | WithSpecifier | ContainsSeparator | ContainsInvalidSeparator,
     /** @internal */
     TemplateLiteralLikeFlags = HexEscape | UnicodeEscape | ExtendedUnicodeEscape | ContainsInvalidEscape,
     /** @internal */

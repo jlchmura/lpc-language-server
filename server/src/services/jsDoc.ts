@@ -274,7 +274,7 @@ function getJSDocPropertyTagsInfo(nodes: readonly JSDocTag[] | undefined, checke
 }
 
 function tryGetJSDocPropertyTags(node: JSDocTag) {
-    return isJSDocPropertyLikeTag(node) && node.isNameFirst && node.typeExpression &&
+    return isJSDocPropertyLikeTag(node) && node.isNameFirst && node.typeExpression && node.typeExpression.type &&
             isJSDocTypeLiteral(node.typeExpression.type) ? node.typeExpression.type.jsDocPropertyTags : undefined;
 }
 

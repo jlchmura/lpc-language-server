@@ -19,6 +19,7 @@ export const Diagnostics = {
     Catch_expression_modifier_expected: diag(9011, DiagnosticCategory.Error, "Catch_expression_modifier_expected_9011", "Catch expression modifier expected."),
     Unterminated_macro_arguments_list: diag(9012, DiagnosticCategory.Error, "Unterminated_macro_arguments_list_9012", "Unterminated macro arguments list."),
     Unmatched_conditional_directive: diag(9013, DiagnosticCategory.Error, "Unmatched_conditional_directive_9013", "Unmatched conditional directive."),
+    Identifier_or_string_expected: diag(9014, DiagnosticCategory.Error, "Identifier_or_string_expected_9014", "Identifier or string expected."),
 
     // Scanner
     _0_expected: diag(1005, DiagnosticCategory.Error, "_0_expected_1005", "'{0}' expected."),    

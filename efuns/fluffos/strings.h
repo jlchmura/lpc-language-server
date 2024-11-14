@@ -42,8 +42,8 @@ int strwidth( string str );
  * The empty string or null value cannot be searched for.
  *
  */
-int strsrch( string str, string substr, int flag );
-int strsrch( string str, int char, int flag );
+varargs int strsrch( string str, string substr, int flag );
+varargs int strsrch( string str, int char, int flag );
 
 /**
  * Return the number of UTF-8 characters in a supplied string
@@ -64,8 +64,7 @@ int strlen( string str );
 /**
  * stringp() - determine whether or not a given variable is a string
  *
- * Return 1 if 'arg' is a string.
- *
+ * @returns {arg is string} 1 if 'arg' is a string.
  */
 int stringp( mixed arg );
 
