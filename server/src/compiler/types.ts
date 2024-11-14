@@ -3051,7 +3051,7 @@ export interface SourceFile extends Declaration, LocalsContainer, HasHeritageCon
     /** @internal */ importCandidates?: readonly ImportCandidateNode[];
     /** @internal */ ambientModuleNames: readonly string[];    
     /** @internal */ version: string;
-    ///** @internal */ pragmas: ReadonlyPragmaMap;    
+    /** @internal */ pragmas: ReadonlyPragmaMap;    
 
     /** @internal */ endFlowNode?: FlowNode;
 
@@ -3136,7 +3136,7 @@ export interface CheckLpcDirective extends TextRange {
 export interface ReadonlyPragmaContext {
     languageVersion: ScriptTarget;
     pragmas?: ReadonlyPragmaMap;
-    checkLpcDirective?: CheckLpcDirective;
+    checkLpcDirective?: CheckLpcDirective;    
     referencedFiles: readonly FileReference[];
     typeReferenceDirectives: readonly FileReference[];
     libReferenceDirectives: readonly FileReference[];
@@ -7639,3 +7639,5 @@ export type PragmaArgTypeOptional<TDesc, TName extends string> = TDesc extends {
     
 /** @internal */
 export type PragmaArgTypeMaybeCapture<TDesc> = TDesc extends { captureSpan: true; } ? { value: string; pos: number; end: number; } : string;
+
+export type ThisObjectPragmas = { arguments: { name: string; }; range: CommentRange; };

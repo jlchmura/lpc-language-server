@@ -68,6 +68,14 @@ Type checking can be disabled for a single file by placing a nocheck directive a
 // @lpc-nocheck
 ```
 
+#### this_object()
+
+By default, the type checker will assume `this_object()` to refer to the file in which you are working. At runtime, that is
+not always the case, in particular when the file is included in a larger object.  If needed, the type checker can be instructed to override object type of `this_object()` can be specified using a comment directive:
+```js
+// @this-object /std/living
+```
+
 ### LPC Config
 
 Language services can be customized by creating an `lpc-config.json` file in the root folder of your workspace. The available options are as follows:

@@ -203,6 +203,7 @@ import {
     DocCommentTemplateOptions,
     TextInsertion,
     getNewLineOrDefaultFromHost,
+    PragmaMap,
 } from "./_namespaces/lpc.js";
 import * as classifier2020 from "./classifier2020.js";
 import { computeSuggestionDiagnostics } from "./suggestionDiagnostics.js";
@@ -618,7 +619,7 @@ class SourceFileObject
     //public checkJsDirective: CheckJsDirective | undefined;
     public errorExpectations: TextRange[] | undefined;
     public possiblyContainDynamicImport?: boolean;
-    //public pragmas!: PragmaMap;
+    public pragmas!: PragmaMap;
     public localJsxFactory: EntityName | undefined;
     public localJsxNamespace: string | undefined;
 
