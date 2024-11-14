@@ -943,6 +943,7 @@ function addSyntheticNodes(
                     continue;
                 }
                 console.warn(`Did not expect ${Debug.formatSyntaxKind(parent.kind)} to have an Identifier in its trivia`);
+                break;
                 // Debug.fail(`Did not expect ${Debug.formatSyntaxKind(parent.kind)} to have an Identifier in its trivia`);
             }
             

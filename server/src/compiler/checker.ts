@@ -11759,8 +11759,17 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         if (isNewExpression(node) && !node.expression && node.arguments?.length) {
             return checkCloneObjectExpression(node);
         }
-        if (isCallExpression(node) && node.expression.kind === SyntaxKind.SuperKeyword) {
-            return voidType;
+        if (isCallExpression(node)) {            
+            if (node.expression.kind === SyntaxKind.SuperKeyword) {
+                return voidType;
+            }
+            
+            const fnName = getNameOfDeclaration(node.expression);                        
+            if (fnName && isIdentifier(fnName) && fnName.text === "this_object") {
+                // this_object() is a special case that should return the type of the parent sourcefile
+                const sourceFileSymbol = getSymbolAtLocation(node.getSourceFile());
+                return getTypeOfSymbol(sourceFileSymbol);
+            }
         }
 
         const returnType = getReturnTypeOfSignature(signature);
@@ -21418,10 +21427,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     
     function isEmptyResolvedType(t: ResolvedType) {
         return t !== anyFunctionType &&
-            t.properties.length === 0 &&
-            t.callSignatures.length === 0 &&
-            t.constructSignatures.length === 0 &&
-            t.indexInfos.length === 0;
+            (t.properties?.length || 0) === 0 &&
+            (t.callSignatures?.length || 0) === 0 &&
+            (t.constructSignatures?.length || 0) === 0 &&
+            (t.indexInfos?.length || 0) === 0;
     }
 
     function isUnknownLikeUnionType(type: Type) {
