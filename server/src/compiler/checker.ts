@@ -2481,6 +2481,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     function tryResolveExpressionToObject(expression: Expression, location?: Node | undefined, checkMode?: CheckMode | undefined): Type | undefined {
         if (expression.kind === SyntaxKind.StringLiteral) {
             return tryResolveStringToObject(expression as StringLiteral);  
+        } else if (isIdentifier(expression)) {
+            // shortcut a few types to avoid unnecessary work
+            return undefined;
         } else {
             const type = checkExpression(expression, checkMode);            
             if (type.flags & (TypeFlags.String | TypeFlags.StringLiteral)) {
@@ -23093,13 +23096,15 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
     
     function getQuickTypeOfExpression(node: Expression): Type | undefined {        
+        if (isJSDocTypeAssertion(node)) {
+            const type = getJSDocTypeAssertionType(node);
+            return getTypeFromTypeNode(type);            
+        }
         let expr = skipParentheses(node, /*excludeJSDocTypeAssertions*/ true);
-        // if (isJSDocTypeAssertion(expr)) {
-        //     const type = getJSDocTypeAssertionType(expr);
-        //     if (!isConstTypeReference(type)) {
-        //         return getTypeFromTypeNode(type);
-        //     }
-        // }
+        if (isJSDocTypeAssertion(expr)) {
+            const type = getJSDocTypeAssertionType(expr);            
+            return getTypeFromTypeNode(type);            
+        }
         expr = skipParentheses(node);
         // if (isAwaitExpression(expr)) {
         //     const type = getQuickTypeOfExpression(expr.expression);
