@@ -1940,3 +1940,12 @@ export function assign<T extends object>(t: T, ...args: (T | undefined)[]) {
     }
     return t;
 }
+
+/** @internal */
+export function toArray<T>(value: T | T[]): T[];
+/** @internal */
+export function toArray<T>(value: T | readonly T[]): readonly T[];
+/** @internal */
+export function toArray<T>(value: T | T[]): T[] {
+    return isArray(value) ? value : [value];
+}

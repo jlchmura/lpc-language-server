@@ -61,6 +61,13 @@ For example, see the [LIMA mudlib](https://github.com/fluffos/lima) in which the
 
 For an example mudlib, pre-configured to work with LPC Language Services, see this slightly modified version of the [LP 2.4.5 mudlib](https://github.com/jlchmura/lp-245). LPC Language Services can parse and validate this entire lib without errors.
 
+### Type Checking
+
+Type checking can be disabled for a single file by placing a nocheck directive at the top of the file:
+```js
+// @lpc-nocheck
+```
+
 ### LPC Config
 
 Language services can be customized by creating an `lpc-config.json` file in the root folder of your workspace. The available options are as follows:
@@ -110,6 +117,8 @@ Since your code is not being evaluating in the mud driver, you may need to simul
 In the example above, `__HOST_NAME__` will be defined as the _string_ value `"localhost"`. `TLS_PORT` on the other hand, will be defined as an _int_ value `5555`.
 
 #### Diagnostics - `diagnostics`
+
+
 
 The severity level of several diagnostics can be controlled through this configuration option. When a LPC language services reports a diagnostic, the _code_ is printed at the end the message and enclosed in `lpc()`, i.e. `lpc(functionNotFound)`.
 

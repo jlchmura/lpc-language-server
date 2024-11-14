@@ -2948,6 +2948,15 @@ export interface HasHeritageContainer {
     heritageClauses?: NodeArray<InheritDeclaration>;
 }
 
+/** @internal */
+export interface PragmaContext extends ReadonlyPragmaContext {
+    pragmas?: PragmaMap;
+    referencedFiles: FileReference[];
+    typeReferenceDirectives: FileReference[];
+    libReferenceDirectives: FileReference[];    
+}
+
+
 // Source files are declarations when they are external modules.
 export interface SourceFile extends Declaration, LocalsContainer, HasHeritageContainer {
     readonly kind: SyntaxKind.SourceFile;
@@ -3036,8 +3045,8 @@ export interface SourceFile extends Declaration, LocalsContainer, HasHeritageCon
     // This field should never be used directly to obtain line map, use getLineMap function instead.
     /** @internal */ lineMap: readonly number[];
     /** @internal */ classifiableNames?: ReadonlySet<string>;
-    // // Comments containing @ts-* directives, in order.
-    // /** @internal */ commentDirectives?: CommentDirective[];
+    // Comments containing @lpc-* directives, in order.
+    /** @internal */ commentDirectives?: CommentDirective[];
     /** @internal */ imports: readonly StringLiteral[];    
     /** @internal */ importCandidates?: readonly ImportCandidateNode[];
     /** @internal */ ambientModuleNames: readonly string[];    
@@ -3118,12 +3127,16 @@ export interface JsonObjectExpressionStatement extends ExpressionStatement {
     readonly expression: JsonObjectExpression;
 }
 
+export interface CheckLpcDirective extends TextRange {
+    enabled: boolean;
+}
+
 
 /** @internal */
 export interface ReadonlyPragmaContext {
     languageVersion: ScriptTarget;
-    //pragmas?: ReadonlyPragmaMap;
-    //checkJsDirective?: CheckJsDirective;
+    pragmas?: ReadonlyPragmaMap;
+    checkLpcDirective?: CheckLpcDirective;
     referencedFiles: readonly FileReference[];
     typeReferenceDirectives: readonly FileReference[];
     libReferenceDirectives: readonly FileReference[];
@@ -7496,3 +7509,133 @@ export interface TupleType extends GenericType {
 export interface TupleTypeReference extends TypeReference {
     target: TupleType;
 }
+
+
+/** @internal */
+export const enum PragmaKindFlags {
+    None = 0,
+    /**
+     * Triple slash comment of the form
+     * /// <pragma-name argname="value" />
+     */
+    TripleSlashXML = 1 << 0,
+    /**
+     * Single line comment of the form
+     * // @pragma-name argval1 argval2
+     * or
+     * /// @pragma-name argval1 argval2
+     */
+    SingleLine = 1 << 1,
+    /**
+     * Multiline non-jsdoc pragma of the form
+     * /* @pragma-name argval1 argval2 * /
+     */
+    MultiLine = 1 << 2,
+    All = TripleSlashXML | SingleLine | MultiLine,
+    Default = All,
+}
+
+/** @internal */
+export interface PragmaArgumentSpecification<TName extends string> {
+    name: TName; // Determines the name of the key in the resulting parsed type, type parameter to cause literal type inference
+    optional?: boolean;
+    captureSpan?: boolean;
+}
+
+/** @internal */
+export interface PragmaDefinition<T1 extends string = string, T2 extends string = string, T3 extends string = string, T4 extends string = string> {
+    args?:
+        | readonly [PragmaArgumentSpecification<T1>]
+        | readonly [PragmaArgumentSpecification<T1>, PragmaArgumentSpecification<T2>]
+        | readonly [PragmaArgumentSpecification<T1>, PragmaArgumentSpecification<T2>, PragmaArgumentSpecification<T3>]
+        | readonly [PragmaArgumentSpecification<T1>, PragmaArgumentSpecification<T2>, PragmaArgumentSpecification<T3>, PragmaArgumentSpecification<T4>];
+    // If not present, defaults to PragmaKindFlags.Default
+    kind?: PragmaKindFlags;
+}
+
+// While not strictly a type, this is here because `PragmaMap` needs to be here to be used with `SourceFile`, and we don't
+//  fancy effectively defining it twice, once in value-space and once in type-space
+/** @internal */
+export const commentPragmas = {
+    "reference": {
+        args: [
+            { name: "types", optional: true, captureSpan: true },
+            { name: "lib", optional: true, captureSpan: true },
+            { name: "path", optional: true, captureSpan: true },
+            { name: "no-default-lib", optional: true },
+            { name: "resolution-mode", optional: true },
+            { name: "preserve", optional: true },
+        ],
+        kind: PragmaKindFlags.TripleSlashXML,
+    },
+    "amd-dependency": {
+        args: [{ name: "path" }, { name: "name", optional: true }],
+        kind: PragmaKindFlags.TripleSlashXML,
+    },
+    "amd-module": {
+        args: [{ name: "name" }],
+        kind: PragmaKindFlags.TripleSlashXML,
+    },
+    "this-object": {
+        args: [{ name: "name" }],
+        kind: PragmaKindFlags.SingleLine,
+    },
+    "lpc-check": {
+        kind: PragmaKindFlags.SingleLine,
+    },
+    "lpc-nocheck": {
+        kind: PragmaKindFlags.SingleLine,
+    },    
+} as const;
+
+/**
+ * Maps a pragma definition into the desired shape for its arguments object
+ *
+ * @internal
+ */
+export type PragmaArgumentType<KPrag extends keyof ConcretePragmaSpecs> = ConcretePragmaSpecs[KPrag] extends { args: readonly PragmaArgumentSpecification<any>[]; } ? UnionToIntersection<ArgumentDefinitionToFieldUnion<ConcretePragmaSpecs[KPrag]["args"]>>
+    : never;
+
+/** @internal */
+export type ConcretePragmaSpecs = typeof commentPragmas;
+
+/** @internal */
+export type PragmaPseudoMap = { [K in keyof ConcretePragmaSpecs]: { arguments: PragmaArgumentType<K>; range: CommentRange; }; };
+
+/** @internal */
+export type PragmaPseudoMapEntry = { [K in keyof PragmaPseudoMap]: { name: K; args: PragmaPseudoMap[K]; }; }[keyof PragmaPseudoMap];
+
+/** @internal */
+export interface ReadonlyPragmaMap extends ReadonlyMap<string, PragmaPseudoMap[keyof PragmaPseudoMap] | PragmaPseudoMap[keyof PragmaPseudoMap][]> {
+    get<TKey extends keyof PragmaPseudoMap>(key: TKey): PragmaPseudoMap[TKey] | PragmaPseudoMap[TKey][];
+    forEach(action: <TKey extends keyof PragmaPseudoMap>(value: PragmaPseudoMap[TKey] | PragmaPseudoMap[TKey][], key: TKey, map: ReadonlyPragmaMap) => void): void;
+}
+
+/**
+ * A strongly-typed es6 map of pragma entries, the values of which are either a single argument
+ * value (if only one was found), or an array of multiple argument values if the pragma is present
+ * in multiple places
+ *
+ * @internal
+ */
+export interface PragmaMap extends Map<string, PragmaPseudoMap[keyof PragmaPseudoMap] | PragmaPseudoMap[keyof PragmaPseudoMap][]>, ReadonlyPragmaMap {
+    set<TKey extends keyof PragmaPseudoMap>(key: TKey, value: PragmaPseudoMap[TKey] | PragmaPseudoMap[TKey][]): this;
+    get<TKey extends keyof PragmaPseudoMap>(key: TKey): PragmaPseudoMap[TKey] | PragmaPseudoMap[TKey][];
+    forEach(action: <TKey extends keyof PragmaPseudoMap>(value: PragmaPseudoMap[TKey] | PragmaPseudoMap[TKey][], key: TKey, map: PragmaMap) => void): void;
+}
+
+/** @internal */
+export type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends ((k: infer I) => void) ? I : never;
+
+/** @internal */
+export type ArgumentDefinitionToFieldUnion<T extends readonly PragmaArgumentSpecification<any>[]> = {
+    [K in keyof T]: PragmaArgTypeOptional<T[K], T[K] extends { name: infer TName; } ? TName extends string ? TName : never : never>;
+}[Extract<keyof T, number>]; // The mapped type maps over only the tuple members, but this reindex gets _all_ members - by extracting only `number` keys, we get only the tuple members
+
+/** @internal */
+export type PragmaArgTypeOptional<TDesc, TName extends string> = TDesc extends { optional: true; } ? { [K in TName]?: PragmaArgTypeMaybeCapture<TDesc>; }
+    : { [K in TName]: PragmaArgTypeMaybeCapture<TDesc>; };
+
+    
+/** @internal */
+export type PragmaArgTypeMaybeCapture<TDesc> = TDesc extends { captureSpan: true; } ? { value: string; pos: number; end: number; } : string;

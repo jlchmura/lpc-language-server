@@ -1,5 +1,4 @@
-import { parse } from "node:path";
-import { isIdentifier as isIdentifierNode, BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LiteralSyntaxKind, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange, PrefixUnaryExpression, LanguageVariant, PrefixUnaryOperator, Program, LpcFileHandler, ParenthesizedExpression, ArrayLiteralExpression, LambdaExpression, PunctuationSyntaxKind, PunctuationToken, LambdaOperatorToken, CastExpression, PropertyAccessExpression, CloneObjectExpression, NewExpression, trimQuotes, createScanner, isKeyword, PunctuationOrKeywordSyntaxKind, mapDefined, getJSDocCommentRanges, LabeledStatement, PropertyName, Token, tokenToString, addRelatedInfo, tokenIsIdentifierOrKeyword, getBinaryOperatorPrecedence, addRange, append, ArrayTypeNode, canHaveJSDoc, concatenate, containsParseError, Diagnostic, EntityName, getSpellingSuggestion, identity, idText, isIdentifierText, isTypeReferenceNode, JSDoc, JSDocAugmentsTag, JSDocCallbackTag, JSDocComment, JSDocImplementsTag, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocParameterTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThrowsTag, JSDocTypedefTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, nodeIsMissing, noop, PropertyAccessEntityNameExpression, setParent, skipTrivia, some, CharacterCodes, MapLike, KeywordSyntaxKind, startsWith, textToKeywordObj, ModifierLike, isModifierKind, MissingDeclaration, setTextRangePos, BindingPattern, KeywordTypeSyntaxKind, LiteralTypeNode, IntLiteral, FloatLiteral, LiteralLikeNode, isLiteralKind, TypeReferenceNode, getFullWidth, OperatorPrecedence, UnaryExpression, isLeftHandSideExpression, isAssignmentOperator, isKeywordOrPunctuation, UpdateExpression, PrimaryExpression, nodeIsPresent, PropertyAccessToken, IterationStatement, InheritClauseType, ObjectType, StructTypeNode, NamedDeclaration, TypeElement, PropertySignature, MethodSignature, StructDeclaration, TypeLiteralNode, TypeAssertion, NewStructExpression, ObjectLiteralElementLike, PropertyAssignment, getStartPositionOfLine, MappingLiteralExpression, MappingEntryExpression, isStringOrNumericLiteralLike, ElementAccessExpression,  RangeExpression,  LambdaIdentifierExpression, LambdaOperatorExpression, PreprocessorDirective, IncludeDirective, DefineDirective, UndefDirective, Macro, Scanner, last, ReadonlyTextRange, MacroParameter, forEachEntry, Ternary, isIntLiteral, isArrayTypeNode, SuperAccessExpression, isIndexedAccessTypeNode, isStringLiteral, isBinaryExpression, PragmaDirective, SpreadElement, CatchStatement, CatchExpression, getDirectoryPath, EvaluateExpression, setParentRecursive, ExpressionWithTypeArguments, JSDocThisTag, isJSDocTypeTag, isJSDocReturnTag, JSDocAuthorTag, QualifiedName, JSDocClassTag, JSDocDeprecatedTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, JSDocOverrideTag, JSDocPrivateTag, JSDocProtectedTag, JSDocPublicTag, JSDocUnknownTag, JsonSourceFile, BooleanLiteral, NullLiteral, JsonMinusNumericLiteral, ObjectLiteralExpression, ShorthandPropertyAssignment, NumericLiteral, JsonObjectExpressionStatement, JSDocVariadicType, PositionState, CommaListExpression, PropertyDeclaration, ObjectLiteralElement, NewExpressionArgument, RefToken, TypePredicateNode, NodeFactory, ImportCandidateNode, forEachKey, emptyMap } from "./_namespaces/lpc";
+import { isIdentifier as isIdentifierNode, BaseNodeFactory, Identifier, Node, NodeFlags, SyntaxKind, SourceFile, createNodeFactory, NodeFactoryFlags, objectAllocator, EndOfFileToken, Debug, Mutable, setTextRangePosEnd, Statement, setTextRangePosWidth, NodeArray, HasJSDoc, VariableStatement, TypeNode, UnionTypeNode, VariableDeclarationList, VariableDeclaration, Expression, BinaryOperatorToken, BinaryExpression, Block, MemberExpression, LiteralExpression, LeftHandSideExpression, InlineClosureExpression, ReturnStatement, BreakOrContinueStatement, InheritDeclaration, StringLiteral, StringConcatExpression, IfStatement, SwitchStatement, CaseClause, DefaultClause, CaseOrDefaultClause, emptyArray, PostfixUnaryOperator, DiagnosticMessage, DiagnosticArguments, DiagnosticWithDetachedLocation, lastOrUndefined, createDetachedDiagnostic, TextRange, Diagnostics, attachFileToDiagnostics, Modifier, ParameterDeclaration, DotDotDotToken, AmpersandToken, ForEachChildNodes, FunctionDeclaration, FunctionExpression, CallExpression, PostfixUnaryExpression, ConditionalExpression, DoWhileStatement, WhileStatement, ForStatement, ForEachStatement, ExpressionStatement, ContinueStatement, BreakStatement, CaseBlock, isArray, tracing, performance, forEach, JSDocParsingMode, ScriptTarget, ResolutionMode, getAnyExtensionFromPath, fileExtensionIs, Extension, getBaseFileName, supportedDeclarationExtensions, ScriptKind, TextChangeRange, PrefixUnaryExpression, LanguageVariant, PrefixUnaryOperator, Program, LpcFileHandler, ParenthesizedExpression, ArrayLiteralExpression, LambdaExpression, PunctuationSyntaxKind, PunctuationToken, LambdaOperatorToken, CastExpression, PropertyAccessExpression, CloneObjectExpression, NewExpression, trimQuotes, createScanner, isKeyword, PunctuationOrKeywordSyntaxKind, mapDefined, getJSDocCommentRanges, LabeledStatement, PropertyName, Token, tokenToString, addRelatedInfo, tokenIsIdentifierOrKeyword, getBinaryOperatorPrecedence, addRange, append, ArrayTypeNode, canHaveJSDoc, concatenate, containsParseError, Diagnostic, EntityName, getSpellingSuggestion, identity, idText, isIdentifierText, isTypeReferenceNode, JSDoc, JSDocAugmentsTag, JSDocCallbackTag, JSDocComment, JSDocImplementsTag, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocParameterTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThrowsTag, JSDocTypedefTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, nodeIsMissing, noop, PropertyAccessEntityNameExpression, setParent, skipTrivia, some, CharacterCodes, MapLike, KeywordSyntaxKind, startsWith, textToKeywordObj, ModifierLike, isModifierKind, MissingDeclaration, setTextRangePos, BindingPattern, KeywordTypeSyntaxKind, LiteralTypeNode, IntLiteral, FloatLiteral, LiteralLikeNode, isLiteralKind, TypeReferenceNode, getFullWidth, OperatorPrecedence, UnaryExpression, isLeftHandSideExpression, isAssignmentOperator, isKeywordOrPunctuation, UpdateExpression, PrimaryExpression, nodeIsPresent, PropertyAccessToken, IterationStatement, InheritClauseType, ObjectType, StructTypeNode, NamedDeclaration, TypeElement, PropertySignature, MethodSignature, StructDeclaration, TypeLiteralNode, TypeAssertion, NewStructExpression, ObjectLiteralElementLike, PropertyAssignment, getStartPositionOfLine, MappingLiteralExpression, MappingEntryExpression, isStringOrNumericLiteralLike, ElementAccessExpression,  RangeExpression,  LambdaIdentifierExpression, LambdaOperatorExpression, PreprocessorDirective, IncludeDirective, DefineDirective, UndefDirective, Macro, Scanner, last, ReadonlyTextRange, MacroParameter, forEachEntry, Ternary, isIntLiteral, isArrayTypeNode, SuperAccessExpression, isIndexedAccessTypeNode, isStringLiteral, isBinaryExpression, PragmaDirective, SpreadElement, CatchStatement, CatchExpression, getDirectoryPath, EvaluateExpression, setParentRecursive, ExpressionWithTypeArguments, JSDocThisTag, isJSDocTypeTag, isJSDocReturnTag, JSDocAuthorTag, QualifiedName, JSDocClassTag, JSDocDeprecatedTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, JSDocOverrideTag, JSDocPrivateTag, JSDocProtectedTag, JSDocPublicTag, JSDocUnknownTag, JsonSourceFile, BooleanLiteral, NullLiteral, JsonMinusNumericLiteral, ObjectLiteralExpression, ShorthandPropertyAssignment, NumericLiteral, JsonObjectExpressionStatement, JSDocVariadicType, PositionState, CommaListExpression, PropertyDeclaration, ObjectLiteralElement, NewExpressionArgument, RefToken, TypePredicateNode, NodeFactory, ImportCandidateNode, forEachKey, emptyMap, CommentRange, PragmaDefinition, PragmaKindFlags, commentPragmas, PragmaPseudoMap, PragmaPseudoMapEntry, PragmaContext, getLeadingCommentRanges, PragmaMap, toArray } from "./_namespaces/lpc";
 
 const enum SpeculationKind {
     TryParse,
@@ -836,16 +835,19 @@ export namespace LpcParser {
         }
         
         const statements = parseList(ParsingContext.SourceElements, parseStatement, pos);
-        
+                
         Debug.assert(token() === SyntaxKind.EndOfFileToken);
-        Debug.assert(!currentMacro);        
-        // Debug.assert(!currentIncludeDirective);
+        Debug.assert(!currentMacro);                
 
         const endHasJSDoc = hasPrecedingJSDocComment();
         const endOfFileToken = withJSDoc(parseTokenNode<EndOfFileToken>(), endHasJSDoc);
         
         const sourceFile = createSourceFile(fileName, statements, endOfFileToken);//, sourceFlags);
-        
+
+        // A member of ReadonlyArray<T> isn't assignable to a member of T[] (and prevents a direct cast) - but this is where we set up those members so they can be readonly in the future
+        processCommentPragmas(sourceFile as {} as PragmaContext, sourceText);
+        processPragmasIntoFields(sourceFile as {} as PragmaContext, reportPragmaDiagnostic);
+                
         // check for unterminate conditional directives before the diagnostics are stored in the sourcefile
         const lastInactiveRange = lastOrUndefined(inactiveRanges);
         if (lastInactiveRange && lastInactiveRange.end === 0) {
@@ -853,27 +855,30 @@ export namespace LpcParser {
             lastInactiveRange.end = scanner.getTokenEnd();
         }
 
-        // sourceFile.commentDirectives = scanner.getCommentDirectives();
+        sourceFile.commentDirectives = scanner.getCommentDirectives();
         sourceFile.nodeCount = nodeCount;
         sourceFile.identifierCount = identifierCount;
         sourceFile.identifiers = identifiers;
         sourceFile.heritageClauses = factory.createNodeArray(inherits);
         sourceFile.parseDiagnostics = attachFileToDiagnostics(parseDiagnostics, sourceFile);
-        sourceFile.jsDocParsingMode = jsDocParsingMode;
         sourceFile.inactiveCodeRanges = inactiveRanges;        
         sourceFile.importCandidates = importCandidates;
-
+        sourceFile.jsDocParsingMode = jsDocParsingMode;
         if (jsDocDiagnostics) {
             sourceFile.jsDocDiagnostics = attachFileToDiagnostics(jsDocDiagnostics, sourceFile);
         }
-
-        sourceFile.nodeCount = nodeCount;
-        sourceFile.identifierCount = identifierCount;
-        sourceFile.identifiers = identifiers;        
-        sourceFile.imports = inherits?.map(i=>i.inheritClause).filter((i):i is StringLiteral=> isStringLiteral(i));
-        sourceFile.parseDiagnostics = attachFileToDiagnostics(parseDiagnostics, sourceFile);        
+        
+        sourceFile.imports = inherits?.map(i=>i.inheritClause).filter((i):i is StringLiteral=> isStringLiteral(i));        
+        
+        if (setParentNodes) {
+            fixupParentReferences(sourceFile);
+        }
 
         return sourceFile;
+
+        function reportPragmaDiagnostic(pos: number, end: number, diagnostic: DiagnosticMessage) {
+            parseDiagnostics.push(createDetachedDiagnostic(fileName, sourceText, pos, end, diagnostic));
+        }
     }
 
     function createSourceFile(
@@ -6838,4 +6843,214 @@ function forEachChildInJSDocTag<T>(node: JSDocUnknownTag | JSDocClassTag | JSDoc
  */
 export function parseJsonText(fileName: string, sourceText: string): JsonSourceFile {
     return LpcParser.parseJsonText(fileName, sourceText);
+}
+
+
+const namedArgRegExCache = new Map<string, RegExp>();
+function getNamedArgRegEx(name: string): RegExp {
+    if (namedArgRegExCache.has(name)) {
+        return namedArgRegExCache.get(name)!;
+    }
+    const result = new RegExp(`(\\s${name}\\s*=\\s*)(?:(?:'([^']*)')|(?:"([^"]*)"))`, "im");
+    namedArgRegExCache.set(name, result);
+    return result;
+}
+
+const tripleSlashXMLCommentStartRegEx = /^\/\/\/\s*<(\S+)\s.*?\/>/im;
+const singleLinePragmaRegEx = /^\/\/\/?\s*@([^\s:]+)(.*)\s*$/im;
+function extractPragmas(pragmas: PragmaPseudoMapEntry[], range: CommentRange, text: string) {
+    const tripleSlash = range.kind === SyntaxKind.SingleLineCommentTrivia && tripleSlashXMLCommentStartRegEx.exec(text);
+    if (tripleSlash) {
+        const name = tripleSlash[1].toLowerCase() as keyof PragmaPseudoMap; // Technically unsafe cast, but we do it so the below check to make it safe typechecks
+        const pragma = commentPragmas[name] as PragmaDefinition;
+        if (!pragma || !(pragma.kind! & PragmaKindFlags.TripleSlashXML)) {
+            return;
+        }
+        if (pragma.args) {
+            const argument: { [index: string]: string | { value: string; pos: number; end: number; }; } = {};
+            for (const arg of pragma.args) {
+                const matcher = getNamedArgRegEx(arg.name);
+                const matchResult = matcher.exec(text);
+                if (!matchResult && !arg.optional) {
+                    return; // Missing required argument, don't parse
+                }
+                else if (matchResult) {
+                    const value = matchResult[2] || matchResult[3];
+                    if (arg.captureSpan) {
+                        const startPos = range.pos + matchResult.index + matchResult[1].length + 1;
+                        argument[arg.name] = {
+                            value,
+                            pos: startPos,
+                            end: startPos + value.length,
+                        };
+                    }
+                    else {
+                        argument[arg.name] = value;
+                    }
+                }
+            }
+            pragmas.push({ name, args: { arguments: argument, range } } as PragmaPseudoMapEntry);
+        }
+        else {
+            pragmas.push({ name, args: { arguments: {}, range } } as PragmaPseudoMapEntry);
+        }
+        return;
+    }
+
+    const singleLine = range.kind === SyntaxKind.SingleLineCommentTrivia && singleLinePragmaRegEx.exec(text);
+    if (singleLine) {
+        return addPragmaForMatch(pragmas, range, PragmaKindFlags.SingleLine, singleLine);
+    }
+
+    if (range.kind === SyntaxKind.MultiLineCommentTrivia) {
+        const multiLinePragmaRegEx = /@(\S+)(\s+.*)?$/gim; // Defined inline since it uses the "g" flag, which keeps a persistent index (for iterating)
+        let multiLineMatch: RegExpExecArray | null; // eslint-disable-line no-restricted-syntax
+        while (multiLineMatch = multiLinePragmaRegEx.exec(text)) {
+            addPragmaForMatch(pragmas, range, PragmaKindFlags.MultiLine, multiLineMatch);
+        }
+    }
+}
+
+function addPragmaForMatch(pragmas: PragmaPseudoMapEntry[], range: CommentRange, kind: PragmaKindFlags, match: RegExpExecArray) {
+    if (!match) return;
+    const name = match[1].toLowerCase() as keyof PragmaPseudoMap; // Technically unsafe cast, but we do it so they below check to make it safe typechecks
+    const pragma = commentPragmas[name] as PragmaDefinition;
+    if (!pragma || !(pragma.kind! & kind)) {
+        return;
+    }
+    const args = match[2]; // Split on spaces and match up positionally with definition
+    const argument = getNamedPragmaArguments(pragma, args);
+    if (argument === "fail") return; // Missing required argument, fail to parse it
+    pragmas.push({ name, args: { arguments: argument, range } } as PragmaPseudoMapEntry);
+    return;
+}
+
+function getNamedPragmaArguments(pragma: PragmaDefinition, text: string | undefined): { [index: string]: string; } | "fail" {
+    if (!text) return {};
+    if (!pragma.args) return {};
+    const args = text.trim().split(/\s+/);
+    const argMap: { [index: string]: string; } = {};
+    for (let i = 0; i < pragma.args.length; i++) {
+        const argument = pragma.args[i];
+        if (!args[i] && !argument.optional) {
+            return "fail";
+        }
+        if (argument.captureSpan) {
+            return Debug.fail("Capture spans not yet implemented for non-xml pragmas");
+        }
+        argMap[argument.name] = args[i];
+    }
+    return argMap;
+}
+
+/** @internal */
+export function processCommentPragmas(context: PragmaContext, sourceText: string): void {
+    const pragmas: PragmaPseudoMapEntry[] = [];
+
+    for (const range of getLeadingCommentRanges(sourceText, 0) || emptyArray) {
+        const comment = sourceText.substring(range.pos, range.end);
+        extractPragmas(pragmas, range, comment);
+    }
+
+    context.pragmas = new Map() as PragmaMap;
+    for (const pragma of pragmas) {
+        if (context.pragmas.has(pragma.name)) {
+            const currentValue = context.pragmas.get(pragma.name);
+            if (currentValue instanceof Array) {
+                currentValue.push(pragma.args);
+            }
+            else {
+                context.pragmas.set(pragma.name, [currentValue, pragma.args]);
+            }
+            continue;
+        }
+        context.pragmas.set(pragma.name, pragma.args);
+    }
+}
+
+/** @internal */
+export type PragmaDiagnosticReporter = (pos: number, length: number, message: DiagnosticMessage) => void;
+
+/** @internal */
+export function processPragmasIntoFields(context: PragmaContext, reportDiagnostic: PragmaDiagnosticReporter): void {
+    context.checkLpcDirective = undefined;
+    context.referencedFiles = [];
+    context.typeReferenceDirectives = [];
+    context.libReferenceDirectives = [];    
+    context.hasNoDefaultLib = false;
+    context.pragmas!.forEach((entryOrList, key) => { // TODO: GH#18217
+        // TODO: The below should be strongly type-guarded and not need casts/explicit annotations, since entryOrList is related to
+        // key and key is constrained to a union; but it's not (see GH#21483 for at least partial fix) :(
+        switch (key) {
+            case "reference": {
+                const referencedFiles = context.referencedFiles;
+                const typeReferenceDirectives = context.typeReferenceDirectives;
+                const libReferenceDirectives = context.libReferenceDirectives;
+                forEach(toArray(entryOrList) as PragmaPseudoMap["reference"][], arg => {
+                    const { types, lib, path, ["resolution-mode"]: res, preserve: _preserve } = arg.arguments;
+                    const preserve = _preserve === "true" ? true : undefined;
+                    if (arg.arguments["no-default-lib"] === "true") {
+                        context.hasNoDefaultLib = true;
+                    }
+                    else if (types) {
+                        // const parsed = parseResolutionMode(res, types.pos, types.end, reportDiagnostic);
+                        // typeReferenceDirectives.push({ pos: types.pos, end: types.end, fileName: types.value, ...(parsed ? { resolutionMode: parsed } : {}), ...(preserve ? { preserve } : {}) });
+                    }
+                    else if (lib) {
+                        libReferenceDirectives.push({ pos: lib.pos, end: lib.end, fileName: lib.value, ...(preserve ? { preserve } : {}) });
+                    }
+                    else if (path) {
+                        referencedFiles.push({ pos: path.pos, end: path.end, fileName: path.value, ...(preserve ? { preserve } : {}) });
+                    }
+                    else {
+                        // reportDiagnostic(arg.range.pos, arg.range.end - arg.range.pos, Diagnostics.Invalid_reference_directive_syntax);
+                    }
+                });
+                break;
+            }
+            // case "amd-dependency": {
+            //     context.amdDependencies = map(
+            //         toArray(entryOrList) as PragmaPseudoMap["amd-dependency"][],
+            //         x => ({ name: x.arguments.name, path: x.arguments.path }),
+            //     );
+            //     break;
+            // }
+            // case "amd-module": {
+            //     if (entryOrList instanceof Array) {
+            //         for (const entry of entryOrList) {
+            //             if (context.moduleName) {
+            //                 // TODO: It's probably fine to issue this diagnostic on all instances of the pragma
+            //                 reportDiagnostic(entry.range.pos, entry.range.end - entry.range.pos, Diagnostics.An_AMD_module_cannot_have_multiple_name_assignments);
+            //             }
+            //             context.moduleName = (entry as PragmaPseudoMap["amd-module"]).arguments.name;
+            //         }
+            //     }
+            //     else {
+            //         context.moduleName = (entryOrList as PragmaPseudoMap["amd-module"]).arguments.name;
+            //     }
+            //     break;
+            // }
+            case "lpc-nocheck":
+            case "lpc-check": {
+                // _last_ of either nocheck or check in a file is the "winner"
+                forEach(toArray(entryOrList), entry => {
+                    if (!context.checkLpcDirective || entry.range.pos > context.checkLpcDirective.pos) {
+                        context.checkLpcDirective = {
+                            enabled: key === "lpc-check",
+                            end: entry.range.end,
+                            pos: entry.range.pos,
+                        };
+                    }
+                });
+                break;
+            }
+            // case "jsx":
+            // case "jsxfrag":
+            // case "jsximportsource":
+            // case "jsxruntime":
+            //     return; // Accessed directly
+            default:
+                Debug.fail("Unhandled pragma kind"); // Can this be made into an assertNever in the future?
+        }
+    });
 }

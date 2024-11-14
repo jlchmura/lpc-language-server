@@ -2309,13 +2309,13 @@ export function setNodeFlags<T extends Node>(node: T | undefined, newFlags: Node
 
 /** @internal */
 export function canIncludeBindAndCheckDiagnostics(sourceFile: SourceFile, options: CompilerOptions) {
-    return true;
-    // if (!!sourceFile.checkJsDirective && sourceFile.checkJsDirective.enabled === false) return false;
-    // if (
-    //     sourceFile.scriptKind === ScriptKind.TS ||
-    //     sourceFile.scriptKind === ScriptKind.TSX ||
-    //     sourceFile.scriptKind === ScriptKind.External
-    // ) return true;
+    if (!!sourceFile.checkLpcDirective && sourceFile.checkLpcDirective.enabled === false) return false;
+    if (
+        sourceFile.scriptKind === ScriptKind.LPC ||        
+        sourceFile.scriptKind === ScriptKind.External
+    ) return true;
+
+    return sourceFile.scriptKind == ScriptKind.Deferred;
 
     // const isJs = sourceFile.scriptKind === ScriptKind.JS || sourceFile.scriptKind === ScriptKind.JSX;
     // const isCheckJs = isJs && isCheckJsEnabledForFile(sourceFile, options);
@@ -6782,7 +6782,7 @@ export function skipTypeChecking(sourceFile: SourceFile, options: CompilerOption
 
 /** @internal */
 export function canIncludeBindAndCheckDiagnsotics(sourceFile: SourceFile, options: CompilerOptions) {
-    // if (!!sourceFile.checkJsDirective && sourceFile.checkJsDirective.enabled === false) return false;
+    if (!!sourceFile.checkLpcDirective && sourceFile.checkLpcDirective.enabled === false) return false;
     if (
         sourceFile.scriptKind === ScriptKind.LPC ||        
         sourceFile.scriptKind === ScriptKind.External
