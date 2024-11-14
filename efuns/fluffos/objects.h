@@ -292,7 +292,7 @@ varargs object environment( object ob );
  * If no object is supplied, this efun will default to this_object().
  *
  */
-void destruct( object ob );
+varargs void destruct( object ob );
 
 /**
  * deep_inventory() - return the nested inventory of an object
@@ -362,5 +362,5 @@ object *children( string name );
  * If ob is not passed, this parameter defaults to this_object().
  *
  */
-object *all_inventory( object ob );
+varargs object *all_inventory( object ob );
 

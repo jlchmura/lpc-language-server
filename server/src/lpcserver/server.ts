@@ -11,6 +11,7 @@ import { convertNavTree } from "./utils.js";
 import * as typeConverters from './typeConverters';
 import { KindModifiers } from "./protocol.const.js";
 import { CompletionEntryDetails, SignatureHelp } from "./typeConverters";
+import { version } from "os";
 
 const logger = new Logger("server.log", true, lpc.server.LogLevel.verbose);
 
@@ -211,12 +212,22 @@ export function start(connection: Connection, platform: string) {
                 closedFiles: [filename],
             });
         })
-        
+                
+        const versionCache = new Map<string, number>();
+
         connection.onDidChangeTextDocument((e: vscode.DidChangeTextDocumentParams) => {
-            try {
+            try {                
                 const filename = fromUri(e.textDocument.uri);
                 const lspChanges = e.contentChanges;
         
+                const lastVersion = versionCache.get(filename) ?? 0;
+
+                
+                if (e.textDocument.version !== lastVersion + 1) {
+                    console.warn(`Unexpected version change ${lastVersion}->${e.textDocument.version}`);
+                }
+                versionCache.set(filename, e.textDocument.version);
+
                 // convert LSP text change to LPC CodeEdits
                 const changes: protocol.CodeEdit[] = [];
                 for (const lspChange of lspChanges) {
@@ -228,9 +239,9 @@ export function start(connection: Connection, platform: string) {
                 }
 
                 session.updateOpen({
-                    changedFiles: [{fileName: filename, textChanges: changes }],
+                    changedFiles: [{fileName: filename, textChanges: changes }]                    
                 });
-
+                
                 session.getDiagnosticsForFiles({files: [filename], delay: 100});
             } catch(ex) {
                 console.error(ex);

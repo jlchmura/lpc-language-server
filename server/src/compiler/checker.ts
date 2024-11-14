@@ -11406,7 +11406,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     function getSingleSignature(type: Type, kind: SignatureKind, allowMembers: boolean): Signature | undefined {
         if (type.flags & TypeFlags.Object) {
             const resolved = resolveStructuredTypeMembers(type as ObjectType);
-            if (allowMembers || resolved.properties.length === 0 && resolved.indexInfos.length === 0) {
+            if (allowMembers || resolved.properties && resolved.properties.length === 0 && resolved.indexInfos.length === 0) {
                 if (kind === SignatureKind.Call && resolved.callSignatures.length === 1 && resolved.constructSignatures.length === 0) {
                     return resolved.callSignatures[0];
                 }

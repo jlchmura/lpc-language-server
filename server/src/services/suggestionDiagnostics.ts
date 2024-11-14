@@ -67,7 +67,7 @@ export function computeSuggestionDiagnostics(sourceFile: SourceFile, program: Pr
 
     function check(node: Node) {
                     
-            console.debug("todo - codefix typedef");
+            // console.debug("todo - codefix typedef");
             // const jsdocTypedefNodes = codefix.getJSDocTypedefNodes(node);
             // for (const jsdocTypedefNode of jsdocTypedefNodes) {
             //     diags.push(createDiagnosticForNode(jsdocTypedefNode, Diagnostics.JSDoc_typedef_may_be_converted_to_TypeScript_type));
@@ -91,7 +91,7 @@ function propertyAccessLeftHandSide(node: Expression): Expression {
 
 function addConvertToAsyncFunctionDiagnostics(node: FunctionLikeDeclaration, checker: TypeChecker, diags: DiagnosticWithLocation[]): void {
     // need to check function before checking map so that deeper levels of nested callbacks are checked
-    console.debug("todo - codefix convertToAsyncFunction");
+    // console.debug("todo - codefix convertToAsyncFunction");
     // if (isConvertibleFunction(node, checker) && !visitedNestedConvertibleFunctions.has(getKeyFromNode(node))) {
     //     diags.push(createDiagnosticForNode(
     //         !node.name && isVariableDeclaration(node.parent) && isIdentifier(node.parent.name) ? node.parent.name : node,
