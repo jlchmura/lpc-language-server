@@ -200,7 +200,6 @@ export function start(connection: Connection, platform: string) {
         documents.onDidOpen(e => {                        
             const filename = fromUri(e.document.uri);
             executeRequest<protocol.UpdateOpenRequest>(protocol.CommandTypes.UpdateOpen, {openFiles: [{file:filename}]});
-            cancellationToken.setRequestToCancel(sequence);
             executeRequest<protocol.GeterrRequest>(protocol.CommandTypes.Geterr, {delay: 0, files: [filename]});
         });
                
@@ -369,11 +368,11 @@ export function start(connection: Connection, platform: string) {
                 file: (fromUri(requestParams.textDocument.uri)),// lpc.convertToRelativePath(fromUri(requestParams.textDocument.uri), rootFolder, f=>canonicalFilename(f)),
                 ...posParamToLpcPos(requestParams),
             };
+            
+            const result = executeRequest<protocol.QuickInfoRequest, lpc.QuickInfo>(protocol.CommandTypes.Quickinfo, args);
+            if (!result) return undefined;
 
-            try {
-                const result = session.getQuickInfoWorker(args, false) as lpc.QuickInfo;
-                if (!result) return undefined;
-
+            try {                
                 const displayParts: string[] = result?.displayParts?.map(pt=>pt.text) ?? [];
                 let md = "```lpc\n" + displayParts.join("") + "\n```";
                 
@@ -387,9 +386,9 @@ export function start(connection: Connection, platform: string) {
                     }
                 } satisfies Hover;
             }
-            catch(e) {
+            catch(e) {                
                 console.error(e);
-                debugger;                 
+                debugger;
             }
         });
 
@@ -399,12 +398,12 @@ export function start(connection: Connection, platform: string) {
                 ...posParamToLpcPos(requestParams),
             };
 
-            try {
-                const result = session.getSignatureHelpItems(args, true) as protocol.SignatureHelpItems;
-                if (!result) {
-                    return undefined;
-                }
+            const result = executeRequest<protocol.SignatureHelpRequest, protocol.SignatureHelpItems>(protocol.CommandTypes.SignatureHelp, args);
+            if (!result) {
+                return undefined;
+            }
 
+            try {                                
                 const uri = URI.file(args.file);
                 const signatureHelp: vscode.SignatureHelp = {
                     signatures: result.items.map(i => SignatureHelp.convertSignature(i, uri)),
@@ -429,27 +428,35 @@ export function start(connection: Connection, platform: string) {
         });
 
         connection.onDefinition(requestParams => {
-            const results = session.getDefinition({
-                file: fromUri(requestParams.textDocument.uri),
-                ...posParamToLpcPos(requestParams),            
-            }, true);
+            const results = executeRequest<protocol.DefinitionRequest, protocol.DefinitionInfo[]>(
+                protocol.CommandTypes.Definition, 
+                {
+                    file: fromUri(requestParams.textDocument.uri),
+                    ...posParamToLpcPos(requestParams),            
+                }
+            );
             
-            const result = results.at(0) as any;             
-            if (!result) {
-                return [];
+            try {
+                const result = results.at(0) as any;             
+                if (!result) {
+                    return [];
+                }
+                const def = vscode.LocationLink.create(
+                    result.file,
+                    {
+                        start: locationToLspPosition(result.start),
+                        end: locationToLspPosition(result.end),
+                    },
+                    {
+                        start: locationToLspPosition(result.start),
+                        end: locationToLspPosition(result.end),
+                    },
+                )    
+                return [def];
+            } catch(e) {
+                console.error(e);
+                debugger;
             }
-            const def = vscode.LocationLink.create(
-                result.file,
-                {
-                    start: locationToLspPosition(result.start),
-                    end: locationToLspPosition(result.end),
-                },
-                {
-                    start: locationToLspPosition(result.start),
-                    end: locationToLspPosition(result.end),
-                },
-            )    
-            return [def];
         });
 
         connection.onCompletion(requestParams => {
@@ -460,7 +467,8 @@ export function start(connection: Connection, platform: string) {
             };
 
             try {
-                const result = session.getCompletions(args, protocol.CommandTypes.CompletionInfo) as protocol.CompletionInfo;
+                const result = executeRequest<protocol.CompletionsRequest, protocol.CompletionInfo>(protocol.CommandTypes.CompletionInfo, args);
+                
                 if (!result) {
                     return [];
                 }
@@ -515,7 +523,7 @@ export function start(connection: Connection, platform: string) {
                     offset: pos.offset,
                 } as protocol.CompletionDetailsRequestArgs;
                 
-                const details = session.getCompletionEntryDetails(args, true) as protocol.CompletionEntryDetails[];
+                const details = executeRequest<protocol.CompletionDetailsRequest, protocol.CompletionEntryDetails[]>(protocol.CommandTypes.CompletionDetails, args);                
                 const entry = lpc.firstOrUndefined(details);
                 return entry ? CompletionEntryDetails.convert(entry, URI.parse(item.data.uri)) : undefined;
             } catch(e) {
@@ -524,8 +532,8 @@ export function start(connection: Connection, platform: string) {
             }
         });
 
-        function executeRequest<T extends protocol.Request>(command: protocol.CommandTypes, args: T["arguments"]) {
-            return session.onMessage({seq: sequence++, type: "request", command, arguments: args} as T);
+        function executeRequest<T extends protocol.Request, R = any>(command: protocol.CommandTypes, args: T["arguments"]) {
+            return session.onMessage({seq: sequence++, type: "request", command, arguments: args} as T) as R;
         }
 
         return initResult;

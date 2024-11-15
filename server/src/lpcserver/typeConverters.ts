@@ -1,7 +1,7 @@
 import * as vscode from "vscode-languageserver";
 import * as Proto from "../server/_namespaces/lpc.server.protocol.js";
 import { protocol } from "../server/_namespaces/lpc.server.js";
-import { ScriptElementKind, SymbolDisplayPart } from "../server/_namespaces/lpc.js";
+import { ScriptElementKind, SymbolDisplayPart, isString } from "../server/_namespaces/lpc.js";
 import { URI } from "vscode-uri";
 import { KindModifiers } from "./protocol.const.js";
 import { IFilePathToResourceConverter, asPlainTextWithLinks, documentationToMarkdown, tagsToMarkdown } from "./textRendering.js";
@@ -183,8 +183,10 @@ export namespace DisplayPart {
 		tags: readonly Proto.JSDocTagInfo[],
 		baseUri: URI | undefined		
 	) {
-		let markdown = '';
-		if (documentation) {
+		let markdown = '';		
+		if (isString(documentation)) {
+			markdown += documentation;
+		} else {
 			markdown += documentation.map(part => part.text).join('');
 		}
 		if (tags) {

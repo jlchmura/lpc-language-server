@@ -1,4 +1,3 @@
-import { CpuInfo } from "os";
 import { CompilerOptions, CompletionsTriggerCharacter, CompletionTriggerKind, RenameInfoFailure, ScriptElementKind, SignatureHelpTriggerReason, SymbolDisplayPart, TypeAcquisition, WatchOptions } from "./_namespaces/lpc";
 import * as lpc from "./_namespaces/lpc";
 
@@ -854,6 +853,32 @@ export interface RenameTextSpan extends TextSpanWithContext {
     readonly suffixText?: string;
 }
 
+
+/**
+ * Completions request; value of command field is "completions".
+ * Given a file location (file, line, col) and a prefix (which may
+ * be the empty string), return the possible completions that
+ * begin with prefix.
+ */
+export interface CompletionsRequest extends FileLocationRequest {
+    command: CommandTypes.Completions | CommandTypes.CompletionInfo;
+    arguments: CompletionsRequestArgs;
+}
+
+
+/**
+ * Completion entry details request; value of command field is
+ * "completionEntryDetails".  Given a file location (file, line,
+ * col) and an array of completion entry names return more
+ * detailed information for each completion entry.
+ */
+export interface CompletionDetailsRequest extends FileLocationRequest {
+    command: CommandTypes.CompletionDetails;
+    arguments: CompletionDetailsRequestArgs;
+}
+
+
+
 /**
  * Arguments for completions messages.
  */
@@ -931,7 +956,7 @@ export interface EncodedSemanticClassificationsRequestArgs extends FileRequestAr
 /**
  * Request whose sole parameter is a file name.
  */
-export interface FileRequest {
+export interface FileRequest extends Request {
     arguments: FileRequestArgs;
 }
 
@@ -1119,4 +1144,37 @@ export interface GeterrRequestArgs {
 export interface GeterrRequest extends Request {
     command: CommandTypes.Geterr;
     arguments: GeterrRequestArgs;
+}
+
+
+/**
+ * Go to definition request; value of command field is
+ * "definition". Return response giving the file locations that
+ * define the symbol found in file at location line, col.
+ */
+export interface DefinitionRequest extends FileLocationRequest {
+    command: CommandTypes.Definition;
+}
+
+
+/**
+ * Signature help request; value of command field is "signatureHelp".
+ * Given a file location (file, line, col), return the signature
+ * help.
+ */
+export interface SignatureHelpRequest extends FileLocationRequest {
+    command: CommandTypes.SignatureHelp;
+    arguments: SignatureHelpRequestArgs;
+}
+
+
+/**
+ * Quickinfo request; value of command field is
+ * "quickinfo". Return response giving a quick type and
+ * documentation string for the symbol found in file at location
+ * line, col.
+ */
+export interface QuickInfoRequest extends FileLocationRequest {
+    command: CommandTypes.Quickinfo;
+    arguments: FileLocationRequestArgs;
 }

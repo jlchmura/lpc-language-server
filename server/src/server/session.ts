@@ -936,7 +936,7 @@ export class Session<TMessage = string> implements EventSender {
         return this.projectService.getPreferences(file);
     }
 
-    public getCompletions(args: protocol.CompletionsRequestArgs, kind: protocol.CommandTypes.CompletionInfo | protocol.CommandTypes.Completions | protocol.CommandTypes.CompletionsFull): WithMetadata<readonly protocol.CompletionEntry[]> | protocol.CompletionInfo | CompletionInfo | undefined {
+    private getCompletions(args: protocol.CompletionsRequestArgs, kind: protocol.CommandTypes.CompletionInfo | protocol.CommandTypes.Completions | protocol.CommandTypes.CompletionsFull): WithMetadata<readonly protocol.CompletionEntry[]> | protocol.CompletionInfo | CompletionInfo | undefined {
         const { file, project } = this.getFileAndProject(args);
         const scriptInfo = this.projectService.getScriptInfoForNormalizedPath(file)!;
         const position = this.getPosition(args, scriptInfo);
@@ -1080,6 +1080,21 @@ export class Session<TMessage = string> implements EventSender {
         [protocol.CommandTypes.Geterr]: (request: protocol.GeterrRequest) => {
             this.errorCheck.startNew(next => this.getDiagnostics(next, request.arguments.delay, request.arguments.files));
             return this.notRequired();
+        },
+        [protocol.CommandTypes.CompletionInfo]: (request: protocol.CompletionsRequest) => {
+            return this.requiredResponse(this.getCompletions(request.arguments, protocol.CommandTypes.CompletionInfo));
+        },
+        [protocol.CommandTypes.CompletionDetails]: (request: protocol.CompletionDetailsRequest) => {
+            return this.requiredResponse(this.getCompletionEntryDetails(request.arguments, /*fullResult*/ false));
+        },
+        [protocol.CommandTypes.Definition]: (request: protocol.DefinitionRequest) => {
+            return this.requiredResponse(this.getDefinition(request.arguments, /*simplifiedResult*/ true));
+        },
+        [protocol.CommandTypes.SignatureHelp]: (request: protocol.SignatureHelpRequest) => {
+            return this.requiredResponse(this.getSignatureHelpItems(request.arguments, /*simplifiedResult*/ true));
+        },
+        [protocol.CommandTypes.Quickinfo]: (request: protocol.QuickInfoRequest) => {
+            return this.requiredResponse(this.getQuickInfoWorker(request.arguments, /*simplifiedResult*/ false));
         },
     }));
 
