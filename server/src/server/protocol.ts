@@ -963,7 +963,7 @@ export interface FileRequest extends Request {
 /**
  * A request to get encoded semantic classifications for a span in the file
  */
-export interface EncodedSemanticClassificationsRequest {
+export interface EncodedSemanticClassificationsRequest extends FileRequest {
     arguments: EncodedSemanticClassificationsRequestArgs;
 }
 
@@ -1061,7 +1061,7 @@ export interface ProjectInfoRequestArgs extends FileRequestArgs {
 /**
  * A request to get the project information of the current file.
  */
-export interface ProjectInfoRequest {
+export interface ProjectInfoRequest extends FileRequest {
     command: CommandTypes.ProjectInfo;
     arguments: ProjectInfoRequestArgs;
 }

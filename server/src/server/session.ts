@@ -250,7 +250,7 @@ export class Session<TMessage = string> implements EventSender {
         return { file, project };
     }
 
-    public getProjectInfo(args: protocol.ProjectInfoRequestArgs): protocol.ProjectInfo {
+    private getProjectInfo(args: protocol.ProjectInfoRequestArgs): protocol.ProjectInfo {
         return this.getProjectInfoWorker(args.file, args.projectFileName, args.needFileNameList, /*excludeConfigFiles*/ false);
     }
 
@@ -496,7 +496,7 @@ export class Session<TMessage = string> implements EventSender {
         return this.projectService.getFormatCodeOptions(file);
     }
 
-    public getDocCommentTemplate(args: protocol.FileLocationRequestArgs) {
+    private getDocCommentTemplate(args: protocol.FileLocationRequestArgs) {
         const { file, languageService } = this.getFileAndLanguageServiceForSyntacticOperation(args);
         const position = this.getPositionInFile(args, file);
         return languageService.getDocCommentTemplateAtPosition(file, position, this.getPreferences(file), this.getFormatOptions(file));
@@ -562,13 +562,13 @@ export class Session<TMessage = string> implements EventSender {
         this.errorCheck.startNew(next => this.getDiagnosticsForProjectWorker(next, args.delay, args.file));
     }
 
-    public getEncodedSemanticClassifications(args: protocol.EncodedSemanticClassificationsRequestArgs) {
+    private getEncodedSemanticClassifications(args: protocol.EncodedSemanticClassificationsRequestArgs) {
         const { file, project } = this.getFileAndProject(args);
         // const format = args.format === "2020" ? SemanticClassificationFormat.TwentyTwenty : SemanticClassificationFormat.Original;
         return project.getLanguageService().getEncodedSemanticClassifications(file, args);
     } 
 
-    public getSignatureHelpItems(args: protocol.SignatureHelpRequestArgs, simplifiedResult: boolean): protocol.SignatureHelpItems | SignatureHelpItems | undefined {
+    private getSignatureHelpItems(args: protocol.SignatureHelpRequestArgs, simplifiedResult: boolean): protocol.SignatureHelpItems | SignatureHelpItems | undefined {
         const { file, project } = this.getFileAndProject(args);
         const scriptInfo = this.projectService.getScriptInfoForNormalizedPath(file)!;
         const position = this.getPosition(args, scriptInfo);
@@ -605,7 +605,7 @@ export class Session<TMessage = string> implements EventSender {
         }));
     }
     
-    public getQuickInfoWorker(args: protocol.FileLocationRequestArgs, simplifiedResult: boolean): protocol.QuickInfoResponseBody | QuickInfo | undefined {
+    private getQuickInfoWorker(args: protocol.FileLocationRequestArgs, simplifiedResult: boolean): protocol.QuickInfoResponseBody | QuickInfo | undefined {
         const { file, project } = this.getFileAndProject(args);
         const scriptInfo = this.projectService.getScriptInfoForNormalizedPath(file)!;        
         const quickInfo = project.getLanguageService().getQuickInfoAtPosition(file, this.getPosition(args, scriptInfo));
@@ -756,7 +756,7 @@ export class Session<TMessage = string> implements EventSender {
         return definitions.map(def => ({ ...this.toFileSpanWithContext(def.fileName, def.textSpan, def.contextSpan, project), ...def.unverified && { unverified: def.unverified } }));
     }
 
-    public getDefinition(args: protocol.FileLocationRequestArgs, simplifiedResult: boolean): readonly protocol.FileSpanWithContext[] | readonly DefinitionInfo[] {
+    private getDefinition(args: protocol.FileLocationRequestArgs, simplifiedResult: boolean): readonly protocol.FileSpanWithContext[] | readonly DefinitionInfo[] {
         const { file, project } = this.getFileAndProject(args);
         const position = this.getPositionInFile(args, file);
         const definitions = this.mapDefinitionInfoLocations(project.getLanguageService().getDefinitionAtPosition(file, position) || emptyArray, project);
@@ -774,7 +774,7 @@ export class Session<TMessage = string> implements EventSender {
         };
     }
     
-    public getNavigationTree(args: protocol.FileRequestArgs, simplifiedResult: boolean): protocol.NavigationTree | NavigationTree | undefined {
+    private getNavigationTree(args: protocol.FileRequestArgs, simplifiedResult: boolean): protocol.NavigationTree | NavigationTree | undefined {
         const { file, languageService } = this.getFileAndLanguageServiceForSyntacticOperation(args);
         const tree = languageService.getNavigationTree(file);
         return !tree
@@ -904,7 +904,7 @@ export class Session<TMessage = string> implements EventSender {
         return info.getDefaultProject();
     }
 
-    public getReferences(args: protocol.FileLocationRequestArgs, simplifiedResult: boolean): protocol.ReferencesResponseBody | readonly ReferencedSymbol[] {
+    private getReferences(args: protocol.FileLocationRequestArgs, simplifiedResult: boolean): protocol.ReferencesResponseBody | readonly ReferencedSymbol[] {
         const file = toNormalizedPath(args.file);
         const projects = this.getProjects(args);
         const position = this.getPositionInFile(args, file);
@@ -1095,6 +1095,21 @@ export class Session<TMessage = string> implements EventSender {
         },
         [protocol.CommandTypes.Quickinfo]: (request: protocol.QuickInfoRequest) => {
             return this.requiredResponse(this.getQuickInfoWorker(request.arguments, /*simplifiedResult*/ false));
+        },
+        [protocol.CommandTypes.EncodedSemanticClassificationsFull]: (request: protocol.EncodedSemanticClassificationsRequest) => {
+            return this.requiredResponse(this.getEncodedSemanticClassifications(request.arguments));
+        },
+        [protocol.CommandTypes.ProjectInfo]: (request: protocol.ProjectInfoRequest) => {
+            return this.requiredResponse(this.getProjectInfo(request.arguments));
+        },
+        [protocol.CommandTypes.DocCommentTemplate]: (request: protocol.DocCommentTemplateRequest) => {
+            return this.requiredResponse(this.getDocCommentTemplate(request.arguments));
+        },
+        [protocol.CommandTypes.References]: (request: protocol.FileLocationRequest) => {
+            return this.requiredResponse(this.getReferences(request.arguments, /*simplifiedResult*/ true));
+        },
+        [protocol.CommandTypes.NavTree]: (request: protocol.FileRequest) => {
+            return this.requiredResponse(this.getNavigationTree(request.arguments, /*simplifiedResult*/ true));
         },
     }));
 

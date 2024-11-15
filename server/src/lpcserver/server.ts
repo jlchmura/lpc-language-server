@@ -205,8 +205,7 @@ export function start(connection: Connection, platform: string) {
                
         documents.onDidClose(e => {
             const filename = fromUri(e.document.uri);
-            executeRequest<protocol.UpdateOpenRequest>(protocol.CommandTypes.UpdateOpen, {closedFiles: [filename]});
-            executeRequest<protocol.GeterrRequest>(protocol.CommandTypes.Geterr, {delay: DIAG_DELAY, files: [filename]});
+            executeRequest<protocol.UpdateOpenRequest>(protocol.CommandTypes.UpdateOpen, {closedFiles: [filename]});            
         })
                 
         connection.onDidChangeTextDocument((e: vscode.DidChangeTextDocumentParams) => {
@@ -242,20 +241,20 @@ export function start(connection: Connection, platform: string) {
                 file: fromUri(requestParams.textDocument.uri)                
             };
 
-            try {
-            const result = session.getNavigationTree(args, true) as protocol.NavigationTree;
-            
+            const result = executeRequest<protocol.FileRequest, protocol.NavigationTree>(protocol.CommandTypes.NavTree, args);
             const navResults: vscode.DocumentSymbol[] = [];
-            if (result?.childItems) {
-                for (const item of result.childItems) {
-                    convertNavTree(uri, navResults, item);
-                }
+
+            try {                        
+                if (result?.childItems) {
+                    for (const item of result.childItems) {
+                        convertNavTree(uri, navResults, item);
+                    }
+                }            
+            } catch(e) {                
+                console.error(e);              
             }
 
             return navResults;
-            } catch(e) {                
-                console.error(e);
-            }
         });
 
         connection.onReferences(requestParams => {
@@ -264,24 +263,23 @@ export function start(connection: Connection, platform: string) {
                 ...posParamToLpcPos(requestParams),
             };
 
-            try {
-                const body = session.getReferences(args, true) as protocol.ReferencesResponseBody;    
-                const result: vscode.Location[] = [];
-                const uri = URI.parse(requestParams.textDocument.uri);
-
+            const body = executeRequest<protocol.FileLocationRequest, protocol.ReferencesResponseBody>(protocol.CommandTypes.References, args);
+            const result: vscode.Location[] = [];
+            
+            try {                
                 for (const ref of body?.refs) {
                     // if (!options.includeDeclaration && ref.isDefinition) {
                     //     continue;
                     // }                
                     const location = typeConverters.Location.fromTextSpan(URI.parse(ref.file), ref);
                     result.push(location);
-                }
-
-                return result;
+                }                
             } catch(e) {                
                 console.error(e);
                 debugger;
             }
+
+            return result;
         });
 
         connection.onPrepareRename(requestParams => {
@@ -336,7 +334,9 @@ export function start(connection: Connection, platform: string) {
                 ... requestParams.arguments,
                 file: fromUri(requestParams.arguments.file),
             };
-            return session.getProjectInfo(args);
+
+            const result = executeRequest<protocol.ProjectInfoRequest, protocol.ProjectInfo>(protocol.CommandTypes.ProjectInfo, args);
+            return result;            
         });
 
         connection.onRequest("docCommentTemplate", (requestParams: protocol.DocCommentTemplateRequest) => {
@@ -344,7 +344,9 @@ export function start(connection: Connection, platform: string) {
                 ... requestParams.arguments,
                 file: fromUri(requestParams.arguments.file)
             };
-            return session.getDocCommentTemplate(args);
+
+            const result = executeRequest<protocol.DocCommentTemplateRequest, lpc.TextInsertion>(protocol.CommandTypes.DocCommentTemplate, args);
+            return result;            
         });
 
         connection.onRequest("encodedSemanticClassifications-full", (requestParams:protocol.EncodedSemanticClassificationsRequest) => {            
@@ -353,14 +355,8 @@ export function start(connection: Connection, platform: string) {
                 file: fromUri(requestParams.arguments.file),
             };
                 
-            try {
-                const result = session.getEncodedSemanticClassifications(args);
-                return result;            
-            }
-            catch (e) {
-                // console.error(e);
-                // debugger;
-            }
+            const result = executeRequest<protocol.EncodedSemanticClassificationsRequest, lpc.Classifications>(protocol.CommandTypes.EncodedSemanticClassificationsFull, args);
+            return result;            
         });
 
         connection.onHover(requestParams => {
