@@ -214,6 +214,7 @@ import {
     FunctionDeclaration,
     FunctionExpression,
     isNamedDeclaration,
+    LeftHandSideExpression,
 } from "./_namespaces/lpc.js";
 
 // Matches the beginning of a triple slash directive
@@ -321,7 +322,7 @@ function climbPastPropertyOrElementAccess(node: Node) {
 
 
 function selectExpressionOfCallOrNewExpressionOrDecorator(node: CallExpression | NewExpression) {
-    return isTypeNode(node.expression) ? undefined : node.expression;
+    return (node.expression && isTypeNode(node.expression)) ? undefined : node.expression as LeftHandSideExpression;
 }
 
 

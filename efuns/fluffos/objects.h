@@ -222,7 +222,7 @@ void move_object( mixed dest );
  * master() - returns the master object
  *
  * Returns a pointer to the master object.
- *
+ * @returns {__LPC_CONFIG_LIBFILES_MASTER}
  */
 object master( void );
 
@@ -270,7 +270,7 @@ object find_object( string str, void | int flag );
  * this_object() if not specified.
  *
  */
-string file_name( object ob );
+varargs string file_name( object ob );
 
 /**
  * environment() - return the environment of an object
@@ -304,7 +304,7 @@ varargs void destruct( object ob );
  * If no object is supplied, this efun will default to this_object().
  *
  */
-object *deep_inventory( object ob );
+varargs object *deep_inventory( object ob );
 
 /**
  * clonep() - determine whether or not a given variable points to a cloned

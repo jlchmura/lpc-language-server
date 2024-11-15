@@ -299,8 +299,7 @@ function getImportersForExport(
         addIndirectUser(top, /** addTransitiveDependencies */ !!isExported(inherit, /*stopAtAmbientModule*/ true));
     }
 
-    function isExported(node: Node, stopAtAmbientModule = false) {
-        console.log("todo - should everything be exported?");
+    function isExported(node: Node, stopAtAmbientModule = false) {        
         return false;
         // return findAncestor(node, node => {
             // if (stopAtAmbientModule && isAmbientModuleDeclaration(node)) return "quit";
