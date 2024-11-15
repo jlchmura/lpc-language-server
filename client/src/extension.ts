@@ -20,11 +20,13 @@ import {
     LanguageClientOptions,    
     ServerOptions,
     TransportKind,
+    WorkspaceFolder,
 } from "vscode-languageclient/node";
 import { ProgressIndicator } from "./ProgressIndicator";
 import { DocumentSelector } from "./documentSelector";
-import { LanguageDescription, standardLanguageDescriptions } from "./configuration/languageDescription";
+import { LanguageDescription, isLpcConfigFileName, standardLanguageDescriptions } from "./configuration/languageDescription";
 
+let clientInitialized = false;
 let client: LanguageClient;
 const progress = new ProgressIndicator();
 const _disposables: vscode.Disposable[] = [];
@@ -104,6 +106,12 @@ export function activate(context: ExtensionContext) {
         )
     );
 
+    client.onNotification("lpc/initialized", () => {
+        clientInitialized=true;
+        // don't initialize providers until the server says its ready
+        registerProviders();    
+    })
+
     client.onNotification("lpc/processing-start", (params) => {
         progress.startAnimation();
     });
@@ -118,12 +126,8 @@ export function activate(context: ExtensionContext) {
     });
     client.onNotification("lpc/info", (params) => {
         window.showWarningMessage(params);
-    });
-    // client.onNotification("lpc/set-driver-type", (params: string) => {
-    //     progress.driverType = params;
-    // });        
-
-    registerProviders();    
+    });    
+    
     function _register<T extends vscode.Disposable>(value: T): T {
 		if (_isDisposed) {
 			value.dispose();
@@ -143,28 +147,91 @@ export function activate(context: ExtensionContext) {
         ]);
     }
     
-    window.onDidChangeActiveTextEditor((editor) => {
+    window.onDidChangeActiveTextEditor(async (editor) => {
+        await getLpcConfigForActiveFile();
+    });
+
+    async function getLpcConfigForActiveFile(): Promise<any[]> {
+        const editor = vscode.window.activeTextEditor;    
         if (!editor) return;
         
+        if (isLpcConfigFileName(editor.document.fileName)) {
+            const uri = editor.document.uri;
+            return [{
+                uri,
+                fsPath: uri.fsPath,
+                posixPath: uri.path,
+                WorkspaceFolder: vscode.workspace.getWorkspaceFolder(uri)
+            }];
+        }
+
+        const file = getActiveLpcFile();
+        if (!file) {
+            progress.hide();
+            return [];
+        }
         const { document} = editor;        
         if (document?.languageId !== "lpc") {
             progress.hide(); 
         }
 
         // get projectInfo from server
-        client.sendRequest("projectInfo", { 
+        const info: any = await client.sendRequest("projectInfo", { 
             command: "projectInfo",
             arguments: {
                 needFileNameList: false,
                 file: document.uri.toString()
             }            
-        }).then((info: any) => {
-            progress.setDriverType(info?.driverType || "");            
-            progress.show();
-        });                
-    });   
+        });
+
+        progress.setDriverType(info?.driverType || "");            
+        progress.show();           
+
+        const { configFileName } = info;
+		if (configFileName && !isImplicitProjectConfigFile(configFileName)) {
+			const normalizedConfigPath = path.normalize(configFileName);
+			const uri = vscode.Uri.file(normalizedConfigPath);
+			const folder = vscode.workspace.getWorkspaceFolder(uri);
+			return [{
+				uri,
+				fsPath: normalizedConfigPath,
+				posixPath: uri.path,
+				workspaceFolder: folder
+			}];
+		}
+
+        return [];
+    }
     
-        
+    function getActiveLpcFile(): string | undefined {
+		const editor = vscode.window.activeTextEditor;
+		if (editor) {
+			const document = editor.document;
+			if (document && (document.languageId === 'lpc')) {
+				return toTsFilePath(document.uri);
+			}
+		}
+		return undefined;
+	}
+}
+
+export const emptyAuthority = 'ts-nul-authority';
+export const inMemoryResourcePrefix = '^';
+function isWeb() { return false; }
+function toTsFilePath(resource: vscode.Uri): string | undefined {
+    if (fileSchemes.disabledSchemes.has(resource.scheme)) {
+        return undefined;
+    }
+
+    if (resource.scheme === fileSchemes.file && !isWeb()) {
+        return resource.fsPath;
+    }
+
+    return (this.isProjectWideIntellisenseOnWebEnabled() ? '' : inMemoryResourcePrefix)
+        + '/' + resource.scheme
+        + '/' + (resource.authority || emptyAuthority)
+        + (resource.path.startsWith('/') ? resource.path : '/' + resource.path)
+        + (resource.fragment ? '#' + resource.fragment : '');
 }
 
 export function deactivate(): Thenable<void> | undefined {
@@ -188,4 +255,6 @@ function createDocumentSelector(langDesc: LanguageDescription): DocumentSelector
     return { semantic, syntax };
 }
 
-
+export function isImplicitProjectConfigFile(configFileName: string) {
+	return configFileName.startsWith('/dev/null/');
+}

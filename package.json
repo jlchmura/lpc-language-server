@@ -47,6 +47,8 @@
         "url": "https://github.com/jlchmura/lpc-language-server"
     },
     "activationEvents": [
+        "onLanguage:lpc",
+        "onLanguage:jsonc",
         "workspaceContains:**/*.c",
         "workspaceContains:lpc-config.json"
     ],
@@ -86,6 +88,32 @@
             }
         ],
         "commands": [],
+        "problemPatterns": [
+        {
+            "name": "lpc",
+            "regexp": "^([^\\s].*)[\\(:](\\d+)[,:](\\d+)(?:\\):\\s+|\\s+-\\s+)(error|warning|info)\\s+lpc(\\d+)\\s*:\\s*(.*)$",
+            "file": 1,
+            "line": 2,
+            "column": 3,
+            "severity": 4,
+            "code": 5,
+            "message": 6
+        }
+        ],
+        "problemMatchers": [
+            {
+                "name": "lpc",
+                "label": "%lpc.problemMatchers.lpc.label%",
+                "owner": "lpc",
+                "source": "lpc",
+                "applyTo": "closedDocuments",
+                "fileLocation": [
+                  "relative",
+                  "${cwd}"
+                ],
+                "pattern": "$lpc"
+              }
+        ],
         "jsonValidation": [
             {
                 "fileMatch": "lpc-config.json",

@@ -56,6 +56,10 @@ export namespace Position {
 export namespace Location {
 	export const fromTextSpan = (resource: URI, tsTextSpan: Proto.TextSpan): vscode.Location =>
 		vscode.Location.create(resource.toString(), Range.fromTextSpan(tsTextSpan));
+
+	export function fromFileSpan(span: Proto.FileSpan): vscode.Location {
+		return vscode.Location.create(URI.file(span.file).toString(), Range.fromTextSpan(span));
+	}
 }
 
 
@@ -240,5 +244,34 @@ export namespace Diagnostic {
 			case "message": return vscode.DiagnosticSeverity.Hint;
 			default: return vscode.DiagnosticSeverity.Error;
 		}
+	}
+
+	export function fromDiagnostic(diagnostic: protocol.Diagnostic): vscode.Diagnostic {
+		const d = vscode.Diagnostic.create(
+			Range.fromTextSpan(diagnostic),
+			diagnostic.text,
+			severityFromCategory(diagnostic.category),
+			diagnostic.code,
+			"lpc",
+			diagnostic.relatedInformation?.map(fromRelatedInformation)
+		);
+
+		const tags: vscode.DiagnosticTag[] = [];
+		if (diagnostic.reportsUnnecessary) {
+			tags.push(vscode.DiagnosticTag.Unnecessary);
+		}
+		if (diagnostic.reportsDeprecated) {
+			tags.push(vscode.DiagnosticTag.Deprecated);
+		}     
+		d.tags = tags;
+		return d;
+	}
+
+	export function fromRelatedInformation(relatedInformation: protocol.DiagnosticRelatedInformation): vscode.DiagnosticRelatedInformation {
+		const d = vscode.DiagnosticRelatedInformation.create(
+			Location.fromFileSpan(relatedInformation.span),
+			relatedInformation.message
+		);
+		return d;				
 	}
 }

@@ -137,29 +137,7 @@ export function start(connection: Connection, platform: string) {
                             const doc = documents.get(uri);
                             
                             // convert typescript server diagnostics to language server diagnostics
-                            const lsDiags = diagnostics.map(d => {                                
-                                const start = locationToLspPosition(d.start);
-                                const end = locationToLspPosition(d.end);           
-                                                     
-                                const tags: vscode.DiagnosticTag[] = [];
-                                if (d.reportsUnnecessary) {
-                                    tags.push(vscode.DiagnosticTag.Unnecessary);
-                                }
-                                if (d.reportsDeprecated) {
-                                    tags.push(vscode.DiagnosticTag.Deprecated);
-                                }                                
-
-                                return {
-                                    range: {
-                                        start,
-                                        end,
-                                    },                                                                        
-                                    message: d.text,
-                                    severity: typeConverters.Diagnostic.severityFromCategory(d.category),
-                                    code: d.code,                                                                        
-                                    tags
-                                } satisfies vscode.Diagnostic;
-                            });
+                            const lsDiags = diagnostics.map(d => typeConverters.Diagnostic.fromDiagnostic(d));
 
                             if (doc && lsDiags) {
                                 connection.sendDiagnostics({ uri, diagnostics: lsDiags });
@@ -530,8 +508,8 @@ export function start(connection: Connection, platform: string) {
 
         function executeRequest<T extends protocol.Request, R = any>(command: protocol.CommandTypes, args: T["arguments"]) {
             return session.onMessage({seq: sequence++, type: "request", command, arguments: args} as T) as R;
-        }
-
+        }        
+        
         return initResult;
     });
     
@@ -539,10 +517,12 @@ export function start(connection: Connection, platform: string) {
         connection.workspace.onDidChangeWorkspaceFolders((args) => {
             logger.info("Workspace folders changed");
         });
+        connection.sendNotification("lpc/initialized");
     });    
     
     documents.listen(connection);
     connection.listen();
+        
 }
 
 let cmdKey: keyof typeof protocol.CommandTypes;
