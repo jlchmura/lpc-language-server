@@ -2120,7 +2120,7 @@ export function getContainerFlags(node: Node): ContainerFlags {
         //     }
             // falls through
         // case SyntaxKind.Constructor:
-        case SyntaxKind.FunctionDeclaration:
+        case SyntaxKind.FunctionDeclaration:        
         // case SyntaxKind.MethodSignature:
         // case SyntaxKind.CallSignature:
         case SyntaxKind.JSDocSignature:
@@ -2133,6 +2133,7 @@ export function getContainerFlags(node: Node): ContainerFlags {
 
         case SyntaxKind.FunctionExpression:
         case SyntaxKind.InlineClosureExpression:
+        case SyntaxKind.DefineDirective:
             return ContainerFlags.IsContainer | ContainerFlags.IsControlFlowContainer | ContainerFlags.HasLocals | ContainerFlags.IsFunctionLike | ContainerFlags.IsFunctionExpression;
 
         // case SyntaxKind.ModuleBlock:

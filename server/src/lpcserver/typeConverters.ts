@@ -186,7 +186,7 @@ export namespace DisplayPart {
 		let markdown = '';		
 		if (isString(documentation)) {
 			markdown += documentation;
-		} else {
+		} else if (documentation) {
 			markdown += documentation.map(part => part.text).join('');
 		}
 		if (tags) {
