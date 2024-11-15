@@ -69,7 +69,7 @@ int set_heart_beat( int flag );
  * save file will be compressed.
  *
  */
-int save_object( string name, int flag );
+varargs int save_object( string name, int flag );
 
 /**
  * restore_object()  -  restore  values  of  variables from a file into an
@@ -83,7 +83,7 @@ object
  * and an error given.
  *
  */
-int restore_object( string name, int flag );
+varargs int restore_object( string name, int flag );
 
 /**
  * reload_object() - return an object to its just-loaded state

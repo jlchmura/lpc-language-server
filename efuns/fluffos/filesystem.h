@@ -8,7 +8,7 @@
  * ing.
  *
  */
-int write_file( string file, string str, int flag );
+varargs int write_file( string file, string str, int flag );
 
 /**
  * write_bytes() - writes a contiguous series of bytes to a file
