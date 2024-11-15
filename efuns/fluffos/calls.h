@@ -186,7 +186,7 @@ this function
  * and the line number.
  *
  */
-string *call_stack(int option);
+varargs string *call_stack(int option);
 
 /**
  * call_out_walltime - delayed function call in same object

@@ -15,7 +15,7 @@ void write( mixed str );
 /**
  * users() - return an array of objects containing all interactive players
  *
- * Return an array of objects, containing all interactive players.
+ * @returns {__LPC_CONFIG_LIBFILES_PLAYER*} An array of objects, containing all interactive players.
  *
  */
 object *users( void );
