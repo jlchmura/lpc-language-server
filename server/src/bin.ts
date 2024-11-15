@@ -60,10 +60,15 @@ function main() {
         projectRootFolder: workDir,
     });
 
-    session.updateOpen(1, {
-        openFiles: [{ file: filename, projectFileName: projectFile }],            
+    session.onMessage({
+        seq: 1,
+        type: "request",
+        command: protocol.CommandTypes.UpdateOpen,
+        arguments: {
+            openFiles: [{ file: filename, projectFileName: projectFile }],            
+        }
     });
-
+    
     //const svc = doCreateLanguageService();
     // const srcFile = host.getSourceFile(filename);
     // const checker = p2.createTypeChecker(host); // binder is called by checker

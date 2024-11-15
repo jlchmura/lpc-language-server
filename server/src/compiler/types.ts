@@ -1682,6 +1682,7 @@ export interface CompilerOptions {
     sefunFile?: string;
     masterFile?: string;
     playerFile?: string;
+    configDefines?: MapLike<string>;
     forceConsistentCasingInFileNames?: boolean;
     noResolve?: boolean;
     noLib?: boolean;

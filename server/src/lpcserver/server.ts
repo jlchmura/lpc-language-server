@@ -1,7 +1,6 @@
 import { Connection, Hover, InitializeResult, MarkupKind, TextDocumentPositionParams, TextDocuments, TextDocumentSyncKind } from "vscode-languageserver";
 import * as vscode from "vscode-languageserver";
 import * as lpc from "../lpc/lpc.js";
-import { Debug, first } from "../lpc/lpc.js";
 import * as protocol from "../server/_namespaces/lpc.server.protocol.js";
 import { Logger } from "./nodeServer";
 import { Position, TextDocument } from "vscode-languageserver-textdocument";
@@ -11,9 +10,9 @@ import { convertNavTree } from "./utils.js";
 import * as typeConverters from './typeConverters';
 import { KindModifiers } from "./protocol.const.js";
 import { CompletionEntryDetails, SignatureHelp } from "./typeConverters";
-import { version } from "os";
 
-const logger = new Logger("server.log", true, lpc.server.LogLevel.verbose);
+const logger = new Logger("server.log", true, lpc.server.LogLevel.normal);
+const DIAG_DELAY = 300;
 
 const serverCapabilities: vscode.ServerCapabilities = {
     textDocumentSync: TextDocumentSyncKind.Incremental,                
@@ -41,7 +40,7 @@ const serverCapabilities: vscode.ServerCapabilities = {
 
 class LspSession extends lpc.server.Session {
 
-    public onMessage = new EventEmitter();
+    public onOutput = new EventEmitter();
 
     protected override writeMessage(msg: lpc.server.protocol.Message): void {
         const verboseLogging = logger.hasLevel(lpc.server.LogLevel.verbose);
@@ -50,8 +49,7 @@ class LspSession extends lpc.server.Session {
             logger.info(`${msg.type}:${lpc.server.indent(json)}`);
         }
 
-        this.onMessage.emit("message", msg);
-        //process.send!(msg);
+        this.onOutput.emit("message", msg);        
     }
 
     override exit() {
@@ -90,6 +88,7 @@ export function start(connection: Connection, platform: string) {
     const canonicalFilename = lpc.createGetCanonicalFileName(lpc.sys.useCaseSensitiveFileNames);
     const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
     let sequence = 0;
+    const cancellationToken = lpc.server.nullCancellationToken;// new ServerCancellationToken(logger);
 
     function fromUri(uri: string): string {
         return URI.parse(uri).fsPath;
@@ -110,7 +109,7 @@ export function start(connection: Connection, platform: string) {
         
         const session = new LspSession({
             host: lpc.sys as lpc.server.ServerHost,
-            cancellationToken: lpc.server.nullCancellationToken,
+            cancellationToken,
             byteLength: Buffer.byteLength,
             useSingleInferredProject: false,
             useInferredProjectPerProjectRoot: false,
@@ -124,7 +123,7 @@ export function start(connection: Connection, platform: string) {
         // TODO: the extension should send these
         session.setCompilerOptionsForInferredProjects({options:{}});
 
-        session.onMessage.on("message", (msg: lpc.server.protocol.Message) => {
+        session.onOutput.on("message", (msg: lpc.server.protocol.Message) => {
             if (msg.type === "event") {
                 const e = msg as lpc.server.protocol.Event;
                 switch (e.event) {
@@ -200,35 +199,22 @@ export function start(connection: Connection, platform: string) {
 
         documents.onDidOpen(e => {                        
             const filename = fromUri(e.document.uri);
-            session.updateOpen(sequence++,{                
-                openFiles: [{file: filename }],
-            });
-            
-            session.getDiagnosticsForFiles({files: [filename], delay: 0});
+            executeRequest<protocol.UpdateOpenRequest>(protocol.CommandTypes.UpdateOpen, {openFiles: [{file:filename}]});
+            cancellationToken.setRequestToCancel(sequence);
+            executeRequest<protocol.GeterrRequest>(protocol.CommandTypes.Geterr, {delay: 0, files: [filename]});
         });
                
         documents.onDidClose(e => {
             const filename = fromUri(e.document.uri);
-            session.updateOpen(sequence++, {
-                closedFiles: [filename],
-            });
+            executeRequest<protocol.UpdateOpenRequest>(protocol.CommandTypes.UpdateOpen, {closedFiles: [filename]});
+            executeRequest<protocol.GeterrRequest>(protocol.CommandTypes.Geterr, {delay: DIAG_DELAY, files: [filename]});
         })
                 
-        const versionCache = new Map<string, number>();
-
         connection.onDidChangeTextDocument((e: vscode.DidChangeTextDocumentParams) => {
             try {                
                 const filename = fromUri(e.textDocument.uri);
                 const lspChanges = e.contentChanges;
         
-                const lastVersion = versionCache.get(filename) ?? 0;
-
-                
-                if (e.textDocument.version !== lastVersion + 1) {
-                    console.warn(`Unexpected version change ${lastVersion}->${e.textDocument.version}`);
-                }
-                versionCache.set(filename, e.textDocument.version);
-
                 // convert LSP text change to LPC CodeEdits
                 const changes: protocol.CodeEdit[] = [];
                 for (const lspChange of lspChanges) {
@@ -238,17 +224,14 @@ export function start(connection: Connection, platform: string) {
                         changes.push({start: {line: 1, offset: 1}, end: {line: 1, offset: 1}, newText: lspChange.text});
                     }
                 }
-
-                session.updateOpen(sequence++, {
-                    changedFiles: [{fileName: filename, textChanges: changes }]                    
-                });
                 
-                session.getDiagnosticsForFiles({files: [filename], delay: 100});
+                executeRequest<protocol.UpdateOpenRequest>(protocol.CommandTypes.UpdateOpen, {changedFiles: [{fileName: filename, textChanges: changes }]});                                
+                executeRequest<protocol.GeterrRequest>(protocol.CommandTypes.Geterr, {delay: DIAG_DELAY, files: [filename]});
             } catch(ex) {
                 console.error(ex);
                 debugger;
             }
-        });
+        });        
 
         connection.onShutdown(e=>{
             session.exit();
@@ -339,12 +322,12 @@ export function start(connection: Connection, platform: string) {
             }
 
             if (renameInfo.fileToRename) {
-                Debug.fail("todo - file rename");
+                lpc.Debug.fail("todo - file rename");
             }
 
             return typeConverters.WorkspaceEdit.fromRenames(result.locs, requestParams.newName);
         });
-
+        
         connection.onRequest("compilerOptionsForInferredProjects", (requestParams: protocol.SetCompilerOptionsForInferredProjectsArgs) => {
             session.setCompilerOptionsForInferredProjects(requestParams);
         });
@@ -541,6 +524,10 @@ export function start(connection: Connection, platform: string) {
             }
         });
 
+        function executeRequest<T extends protocol.Request>(command: protocol.CommandTypes, args: T["arguments"]) {
+            return session.onMessage({seq: sequence++, type: "request", command, arguments: args} as T);
+        }
+
         return initResult;
     });
     
@@ -553,6 +540,8 @@ export function start(connection: Connection, platform: string) {
     documents.listen(connection);
     connection.listen();
 }
+
+let cmdKey: keyof typeof protocol.CommandTypes;
 
 //lpc.setStackTraceLimit();
 //start(require("os").platform());
@@ -581,3 +570,52 @@ interface CompletionData {
 }
 
 
+
+/**
+ * Test server cancellation token used to mock host token cancellation requests.
+ * The cancelAfterRequest constructor param specifies how many isCancellationRequested() calls
+ * should be made before canceling the token. The id of the request to cancel should be set with
+ * setRequestToCancel();
+ */
+export class ServerCancellationToken implements lpc.server.ServerCancellationToken {
+    private currentId: number | undefined = -1;
+    private requestToCancel = -1;
+    private isCancellationRequestedCount = 0;
+
+    constructor(private logger: Logger, private cancelAfterRequest = 0) {
+    }
+
+    setRequest(requestId: number) {
+        this.currentId = requestId;
+
+        this.logger.msg(`TestServerCancellationToken:: Cancellation Request id:: ${requestId}`);
+    }
+
+    setRequestToCancel(requestId: number) {
+        this.logger.msg(`TestServerCancellationToken:: Setting request to cancel:: ${requestId}`);
+        this.resetToken();
+        this.requestToCancel = requestId;
+    }
+
+    resetRequest(requestId: number) {
+        this.logger.msg(`TestServerCancellationToken:: resetRequest:: ${requestId} is ${requestId === this.currentId ? "as expected" : `expected to be ${this.currentId}`}`);
+        lpc.Debug.assertEqual(requestId, this.currentId, "unexpected request id in cancellation");
+        this.currentId = undefined;
+    }
+
+    isCancellationRequested() {
+        this.isCancellationRequestedCount++;
+        // If the request id is the request to cancel and isCancellationRequestedCount
+        // has been met then cancel the request. Ex: cancel the request if it is a
+        // nav bar request & isCancellationRequested() has already been called three times.
+        const result = this.requestToCancel === this.currentId && this.isCancellationRequestedCount >= this.cancelAfterRequest;
+        if (result) this.logger.msg(`TestServerCancellationToken:: Cancellation is requested`);
+        return result;
+    }
+
+    resetToken() {
+        this.currentId = -1;
+        this.isCancellationRequestedCount = 0;
+        this.requestToCancel = -1;
+    }
+}

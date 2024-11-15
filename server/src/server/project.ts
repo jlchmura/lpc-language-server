@@ -1006,6 +1006,10 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
         this.projectService.logger.info(s);
     }
 
+    filesToString(writeProjectFileNames: boolean) {
+        return this.filesToStringWorker(writeProjectFileNames, /*writeFileExplaination*/ true, /*writeFileVersionAndText*/ false);
+    }
+    
     /** @internal */
     private filesToStringWorker(writeProjectFileNames: boolean, writeFileExplaination: boolean, writeFileVersionAndText: boolean) {
         if (this.isInitialLoadPending()) return "\tFiles (0) InitialLoadPending\n";

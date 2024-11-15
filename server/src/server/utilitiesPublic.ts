@@ -61,3 +61,4 @@ export function asNormalizedPath(fileName: string): NormalizedPath {
 export function makeAuxiliaryProjectName(counter: number): string {
     return `/dev/null/auxiliaryProject${counter}*`;
 }
+

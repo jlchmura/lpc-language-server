@@ -1,3 +1,4 @@
+import { CpuInfo } from "os";
 import { CompilerOptions, CompletionsTriggerCharacter, CompletionTriggerKind, RenameInfoFailure, ScriptElementKind, SignatureHelpTriggerReason, SymbolDisplayPart, TypeAcquisition, WatchOptions } from "./_namespaces/lpc";
 import * as lpc from "./_namespaces/lpc";
 
@@ -176,6 +177,24 @@ export interface Message {
      * One of "request", "response", or "event"
      */
     type: "request" | "response" | "event";
+}
+
+
+/**
+ * Client-initiated request message
+ */
+export interface Request extends Message {
+    type: "request";
+
+    /**
+     * The command to execute
+     */
+    command: string;
+
+    /**
+     * Object containing arguments for the command
+     */
+    arguments?: any;
 }
 
 
@@ -1057,4 +1076,47 @@ export interface ProjectInfo {
      * The project's driver type
      */
     driverType?: string;
+}
+
+type commandSpec = typeof CommandTypes;
+export type CommandTypeMap = { [K in keyof commandSpec]: Request };
+
+/**
+ * Request to synchronize list of open files with the client
+ */
+export interface UpdateOpenRequest extends Request {
+    command: CommandTypes.UpdateOpen;
+    arguments: UpdateOpenRequestArgs;
+}
+
+/**
+ * Arguments for geterr messages.
+ */
+export interface GeterrRequestArgs {
+    /**
+     * List of file names for which to compute compiler errors.
+     * The files will be checked in list order.
+     */
+    files: string[];
+
+    /**
+     * Delay in milliseconds to wait before starting to compute
+     * errors for the files in the file list
+     */
+    delay: number;
+}
+
+/**
+ * Geterr request; value of command field is "geterr". Wait for
+ * delay milliseconds and then, if during the wait no change or
+ * reload messages have arrived for the first file in the files
+ * list, get the syntactic errors for the file, field requests,
+ * and then get the semantic errors for the file.  Repeat with a
+ * smaller delay for each subsequent file on the files list.  Best
+ * practice for an editor is to send a file list containing each
+ * file that is currently visible, in most-recently-used order.
+ */
+export interface GeterrRequest extends Request {
+    command: CommandTypes.Geterr;
+    arguments: GeterrRequestArgs;
 }

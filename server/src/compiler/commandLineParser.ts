@@ -1,6 +1,6 @@
 import { config } from "process";
 import { ILpcConfig } from "../config-types";
-import { AlternateModeDiagnostics, append, arrayFrom, ArrayLiteralExpression, arrayToMap, assign, combinePaths, CommandLineOption, CommandLineOptionOfCustomType, CommandLineOptionOfListType, CompilerOptions, CompilerOptionsValue, ConfigFileSpecs, containsPath, createCompilerDiagnostic, createDiagnosticForNodeInSourceFile, createGetCanonicalFileName, Debug, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DidYouMeanOptionsDiagnostics, directorySeparator, driverTypeToLanguageVariant, emptyArray, endsWith, ensureTrailingDirectorySeparator, every, Expression, Extension, FileExtensionInfo, fileExtensionIs, filter, find, flatten, forEach, forEachLpcConfigPropArray, getBaseFileName, getDirectoryPath, getNormalizedAbsolutePath, getRegexFromPattern, getRegularExpressionForWildcard, getSpellingSuggestion, getTextOfPropertyName, hasExtension, hasProperty, isArray, isArrayLiteralExpression, isComputedNonLiteralName, isImplicitGlob, isObjectLiteralExpression, isRootedDiskPath, isString, isStringDoubleQuoted, isStringLiteral, JsonSourceFile, LanguageVariant, length, LpcConfigOnlyOption, LpcConfigSourceFile, map, MapLike, Node, NodeArray, normalizePath, normalizeSlashes, NumericLiteral, ObjectLiteralExpression, OptionsNameMap, ParseConfigHost, ParsedCommandLine, ParsedLpcConfig, Path, PrefixUnaryExpression, ProjectReference, PropertyAssignment, PropertyName, removeTrailingDirectorySeparator, startsWith, StringLiteral, SyntaxKind, toFileNameLowerCase, tracing, TypeAcquisition, WatchDirectoryFlags, WatchOptions } from "./_namespaces/lpc";
+import { AlternateModeDiagnostics, append, arrayFrom, ArrayLiteralExpression, arrayToMap, assign, combinePaths, CommandLineOption, CommandLineOptionOfCustomType, CommandLineOptionOfListType, CompilerOptions, CompilerOptionsValue, ConfigFileSpecs, containsPath, createCompilerDiagnostic, createDiagnosticForNodeInSourceFile, createGetCanonicalFileName, Debug, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DidYouMeanOptionsDiagnostics, directorySeparator, driverTypeToLanguageVariant, emptyArray, endsWith, ensureTrailingDirectorySeparator, every, Expression, Extension, FileExtensionInfo, fileExtensionIs, filter, find, firstOrUndefined, flatten, forEach, forEachLpcConfigPropArray, getBaseFileName, getDirectoryPath, getNormalizedAbsolutePath, getRegexFromPattern, getRegularExpressionForWildcard, getSpellingSuggestion, getTextOfPropertyName, hasExtension, hasProperty, isArray, isArrayLiteralExpression, isComputedNonLiteralName, isImplicitGlob, isObjectLiteralExpression, isRootedDiskPath, isString, isStringDoubleQuoted, isStringLiteral, JsonSourceFile, LanguageVariant, length, LpcConfigOnlyOption, LpcConfigSourceFile, map, MapLike, Node, NodeArray, normalizePath, normalizeSlashes, NumericLiteral, ObjectLiteralExpression, OptionsNameMap, ParseConfigHost, ParsedCommandLine, ParsedLpcConfig, Path, PrefixUnaryExpression, ProjectReference, PropertyAssignment, PropertyName, removeTrailingDirectorySeparator, startsWith, StringLiteral, SyntaxKind, toFileNameLowerCase, tracing, TypeAcquisition, WatchDirectoryFlags, WatchOptions } from "./_namespaces/lpc";
 import { trimStart } from "../utils";
 
 export const libEntries: [string, string][] = [
@@ -259,6 +259,16 @@ function parseLpcConfigFileContentWorker(
 
     const playerFile = trimStart(options.playerFile ?? raw?.libFiles?.player ?? "/obj/player.c", "/");
     options.playerFile = normalizePath(combinePaths(basePathForFileNames, playerFile));
+    
+    options.configDefines ??= {};
+    const rawDefines = raw?.defines ?? emptyArray;
+    forEach(rawDefines, define => {        
+        const key = firstOrUndefined(Object.keys(define || {}));
+        if (key) {
+            const val = define[key];
+            options.configDefines[key] = define[key];            
+        }
+    });
     
     return {
         options,

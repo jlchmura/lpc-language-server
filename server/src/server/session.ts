@@ -1,10 +1,15 @@
-import { arrayFrom, arrayReverseIterator, cast, CodeAction, CompletionEntry, CompletionEntryData, CompletionEntryDetails, CompletionInfo, concatenate, createQueue, createSet, createTextSpan, Debug, DefinitionInfo, Diagnostic, diagnosticCategoryName, DiagnosticRelatedInformation, displayPartsToString, DocumentPosition, DocumentSpan, documentSpansEqual, emptyArray, FileTextChanges, filter, find, first, firstIterator, firstOrUndefined, flatMap, flattenDiagnosticMessageText, FormatCodeSettings, getDocumentSpansEqualityComparer, getLineAndCharacterOfPosition, getMappedContextSpan, getMappedDocumentSpan, getMappedLocation, identity, isArray, isDeclarationFileName, isString, JSDocTagInfo, LanguageServiceMode, LanguageVariant, LineAndCharacter, LpcConfigSourceFile, map, mapDefined, mapDefinedIterator, mapIterator, memoize, MultiMap, NavigationTree, normalizePath, OperationCanceledException, Path, PossibleProgramFileInfo, QuickInfo, ReferencedSymbol, ReferencedSymbolDefinitionInfo, ReferencedSymbolEntry, RenameInfo, RenameInfoFailure, RenameLocation, ScriptKind, SignatureHelpItem, SignatureHelpItems, startsWith, SymbolDisplayPart, TextChange, TextSpan, textSpanEnd, toFileNameLowerCase, tracing, UserPreferences, WithMetadata } from "./_namespaces/lpc";
-import { ChangeFileArguments, ConfiguredProject, convertUserPreferences, Errors, GcTimer, isConfiguredProject, Logger, LogLevel, NormalizedPath, OpenFileArguments, Project, ProjectService, ProjectServiceEventHandler, ProjectServiceOptions, ScriptInfo, ServerHost, stringifyIndented, toNormalizedPath, updateProjectIfDirty } from "./_namespaces/lpc.server";
+import { arrayFrom, arrayReverseIterator, cast, CodeAction, CompletionEntry, CompletionEntryData, CompletionEntryDetails, CompletionInfo, concatenate, createQueue, createSet, createTextSpan, Debug, DefinitionInfo, Diagnostic, diagnosticCategoryName, DiagnosticRelatedInformation, displayPartsToString, DocumentPosition, DocumentSpan, documentSpansEqual, emptyArray, FileTextChanges, filter, find, first, firstIterator, firstOrUndefined, flatMap, flattenDiagnosticMessageText, FormatCodeSettings, getDocumentSpansEqualityComparer, getLineAndCharacterOfPosition, getMappedContextSpan, getMappedDocumentSpan, getMappedLocation, getSnapshotText, identity, isArray, isDeclarationFileName, isString, JSDocTagInfo, LanguageServiceMode, LanguageVariant, LineAndCharacter, LpcConfigSourceFile, map, mapDefined, mapDefinedIterator, mapIterator, memoize, MultiMap, NavigationTree, normalizePath, OperationCanceledException, Path, perfLogger, PossibleProgramFileInfo, QuickInfo, ReferencedSymbol, ReferencedSymbolDefinitionInfo, ReferencedSymbolEntry, RenameInfo, RenameInfoFailure, RenameLocation, ScriptKind, SignatureHelpItem, SignatureHelpItems, startsWith, SymbolDisplayPart, TextChange, TextSpan, textSpanEnd, toFileNameLowerCase, tracing, UserPreferences, WithMetadata } from "./_namespaces/lpc";
+import { ChangeFileArguments, ConfiguredProject, convertUserPreferences, Errors, GcTimer, indent, isConfiguredProject, Logger, LogLevel, Msg, NormalizedPath, OpenFileArguments, Project, ProjectKind, ProjectService, ProjectServiceEventHandler, ProjectServiceOptions, ScriptInfo, ServerHost, stringifyIndented, toNormalizedPath, updateProjectIfDirty } from "./_namespaces/lpc.server";
 import * as protocol from "./protocol.js";
 
 export interface HostCancellationToken {
     isCancellationRequested(): boolean;
 }
+
+interface StackTraceError extends Error {
+    stack?: string;
+}
+
 
 export interface ServerCancellationToken extends HostCancellationToken {
     setRequest(requestId: number): void;
@@ -59,10 +64,9 @@ type Projects = readonly Project[] | {
 
 export class Session<TMessage = string> implements EventSender { 
     private readonly gcTimer: GcTimer;
-    // protected projectService: ProjectService;
+    
     private changeSeq = 0;
-
-    // private performanceData: PerformanceData | undefined;
+    private performanceData: protocol.PerformanceData | undefined;
 
     private currentRequestId!: number;
     private errorCheck: MultistepOperation;
@@ -184,45 +188,44 @@ export class Session<TMessage = string> implements EventSender {
     }
 
     private logErrorWorker(err: Error & PossibleProgramFileInfo, cmd: string, fileRequest?: protocol.FileRequestArgs): void {
-        let msg = "Exception on executing command " + cmd;
-        console.error(msg, err);
-        // if (err.message) {
-        //     msg += ":\n" + indent(err.message);
-        //     if ((err as StackTraceError).stack) {
-        //         msg += "\n" + indent((err as StackTraceError).stack!);
-        //     }
-        // }
+        let msg = "Exception on executing command " + cmd;        
+        if (err.message) {
+            msg += ":\n" + indent(err.message);
+            if ((err as StackTraceError).stack) {
+                msg += "\n" + indent((err as StackTraceError).stack!);
+            }
+        }
 
-        // if (this.logger.hasLevel(LogLevel.verbose)) {
-        //     if (fileRequest) {
-        //         try {
-        //             const { file, project } = this.getFileAndProject(fileRequest);
-        //             const scriptInfo = project.getScriptInfoForNormalizedPath(file);
-        //             if (scriptInfo) {
-        //                 const text = getSnapshotText(scriptInfo.getSnapshot());
-        //                 msg += `\n\nFile text of ${fileRequest.file}:${indent(text)}\n`;
-        //             }
-        //         }
-        //         catch {} // eslint-disable-line no-empty
-        //     }
+        if (this.logger.hasLevel(LogLevel.verbose)) {
+            if (fileRequest) {
+                try {
+                    const { file, project } = this.getFileAndProject(fileRequest);
+                    const scriptInfo = project.getScriptInfoForNormalizedPath(file);
+                    if (scriptInfo) {
+                        const text = getSnapshotText(scriptInfo.getSnapshot());
+                        msg += `\n\nFile text of ${fileRequest.file}:${indent(text)}\n`;
+                    }
+                }
+                catch {} // eslint-disable-line no-empty
+            }
 
-        //     if (err.ProgramFiles) {
-        //         msg += `\n\nProgram files: ${JSON.stringify(err.ProgramFiles)}\n`;
-        //         msg += `\n\nProjects::\n`;
-        //         let counter = 0;
-        //         const addProjectInfo = (project: Project) => {
-        //             msg += `\nProject '${project.projectName}' (${ProjectKind[project.projectKind]}) ${counter}\n`;
-        //             msg += project.filesToString(/*writeProjectFileNames*/ true);
-        //             msg += "\n-----------------------------------------------\n";
-        //             counter++;
-        //         };
-        //         this.projectService.externalProjects.forEach(addProjectInfo);
-        //         this.projectService.configuredProjects.forEach(addProjectInfo);
-        //         this.projectService.inferredProjects.forEach(addProjectInfo);
-        //     }
-        // }
+            if (err.ProgramFiles) {
+                msg += `\n\nProgram files: ${JSON.stringify(err.ProgramFiles)}\n`;
+                msg += `\n\nProjects::\n`;
+                let counter = 0;
+                const addProjectInfo = (project: Project) => {
+                    msg += `\nProject '${project.projectName}' (${ProjectKind[project.projectKind]}) ${counter}\n`;
+                    msg += project.filesToString(/*writeProjectFileNames*/ true);
+                    msg += "\n-----------------------------------------------\n";
+                    counter++;
+                };
+                // this.projectService.externalProjects.forEach(addProjectInfo);
+                this.projectService.configuredProjects.forEach(addProjectInfo);
+                this.projectService.inferredProjects.forEach(addProjectInfo);
+            }
+        }
 
-        // this.logger.msg(msg, Msg.Err);
+        this.logger.msg(msg, Msg.Err);
     }
 
     private getFileAndProject(args: protocol.FileRequestArgs): FileAndProject {
@@ -270,8 +273,6 @@ export class Session<TMessage = string> implements EventSender {
         //return this.notRequired(request);
     }
 
-    
-
     private getPosition(args: protocol.Location & { position?: number; }, scriptInfo: ScriptInfo): number {
         return args.position !== undefined ? args.position : scriptInfo.lineOffsetToPosition(args.line, args.offset);
     }
@@ -288,11 +289,7 @@ export class Session<TMessage = string> implements EventSender {
             // }
         );
     }
-    
-    public updateOpen(sequence: number, args: protocol.UpdateOpenRequestArgs) {        
-        const response = this.executeWithRequestId(sequence, () => this.updateOpenWorker(args));
-        return response;
-    }
+        
     private updateOpenWorker(args: protocol.UpdateOpenRequestArgs) {
         this.changeSeq++;
 
@@ -1066,7 +1063,121 @@ export class Session<TMessage = string> implements EventSender {
             newText: change.newText ? change.newText : "",
         };
     }
+
+    private requiredResponse(response: {} | undefined): HandlerResponse {
+        return { response, responseRequired: true };
+    }
+
+    private notRequired(): HandlerResponse {
+        return { responseRequired: false };
+    }
+    
+    private handlers = new Map(Object.entries<(request: any) => HandlerResponse>({ // TODO(jakebailey): correctly type the handlers
+        [protocol.CommandTypes.UpdateOpen]: (request: protocol.UpdateOpenRequest) => {
+            const response = this.updateOpenWorker(request.arguments);
+            return this.requiredResponse(/*response*/ response);            
+        }, 
+        [protocol.CommandTypes.Geterr]: (request: protocol.GeterrRequest) => {
+            this.errorCheck.startNew(next => this.getDiagnostics(next, request.arguments.delay, request.arguments.files));
+            return this.notRequired();
+        },
+    }));
+
+    public executeCommand(request: protocol.Request): HandlerResponse {
+        const handler = this.handlers.get(request.command);
+        if (handler) {
+            const response = this.executeWithRequestId(request.seq, () => handler(request));
+            // this.projectService.enableRequestedPlugins();
+            return response;
+        }
+        else {
+            this.logger.msg(`Unrecognized JSON command:${stringifyIndented(request)}`, Msg.Err);
+            // this.doOutput(/*info*/ undefined, protocol.CommandTypes.Unknown, request.seq, /*success*/ false, `Unrecognized JSON command: ${request.command}`);
+            return { responseRequired: false };
+        }
+    }
+
+    protected toStringMessage(message: TMessage): string {
+        return message as any as string;
+    }
+
+    public onMessage(request: protocol.Request) {
+        this.gcTimer.scheduleCollect();
+        this.performanceData = undefined;
+
+        let start: [number, number] | undefined;
+        if (this.logger.hasLevel(LogLevel.requestTime)) {
+            start = this.hrtime();
+            if (this.logger.hasLevel(LogLevel.verbose)) {
+                this.logger.info(`request:${stringifyIndented(request)}`);
+            }
+        }
+
+        let relevantFile: protocol.FileRequestArgs | undefined;
+        try {
+            relevantFile = request.arguments && (request as protocol.FileRequest).arguments.file ? (request as protocol.FileRequest).arguments : undefined;
+
+            tracing?.instant(tracing.Phase.Session, "request", { seq: request.seq, command: request.command });
+            perfLogger?.logStartCommand("" + request.command, JSON.stringify(request).substring(0, 100));
+
+            tracing?.push(tracing.Phase.Session, "executeCommand", { seq: request.seq, command: request.command }, /*separateBeginAndEnd*/ true);
+            const { response, responseRequired } = this.executeCommand(request);
+            tracing?.pop();
+
+            if (this.logger.hasLevel(LogLevel.requestTime)) {
+                const elapsedTime = hrTimeToMilliseconds(this.hrtime(start)).toFixed(4);
+                if (responseRequired) {
+                    this.logger.perftrc(`${request.seq}::${request.command}: elapsed time (in milliseconds) ${elapsedTime}`);
+                }
+                else {
+                    this.logger.perftrc(`${request.seq}::${request.command}: async elapsed time (in milliseconds) ${elapsedTime}`);
+                }
+            }
+
+            // Note: Log before writing the response, else the editor can complete its activity before the server does
+            perfLogger?.logStopCommand("" + request.command, "Success");
+            tracing?.instant(tracing.Phase.Session, "response", { seq: request.seq, command: request.command, success: !!response });
+            if (response) {
+                return response;//this.doOutput(response, request.command, request.seq, /*success*/ true);
+            }
+            else if (responseRequired) {
+                return undefined;
+                // this.doOutput(/*info*/ undefined, request.command, request.seq, /*success*/ false, "No content available.");
+            }
+        }
+        catch (err) {
+            // Cancellation or an error may have left incomplete events on the tracing stack.
+            tracing?.popAll();
+
+            if (err instanceof OperationCanceledException) {
+                // Handle cancellation exceptions
+                perfLogger?.logStopCommand("" + (request && request.command), "Canceled: " + err);
+                tracing?.instant(tracing.Phase.Session, "commandCanceled", { seq: request?.seq, command: request?.command });
+                return undefined;//this.doOutput({ canceled: true }, request!.command, request!.seq, /*success*/ true);
+                // return;
+            }
+
+            this.logErrorWorker(err, JSON.stringify(request), relevantFile);
+            perfLogger?.logStopCommand("" + (request && request.command), "Error: " + err);
+            tracing?.instant(tracing.Phase.Session, "commandError", { seq: request?.seq, command: request?.command, message: (err as Error).message });
+
+            return undefined;//
+            // this.doOutput(
+            //     /*info*/ undefined,
+            //     request ? request.command : protocol.CommandTypes.Unknown,
+            //     request ? request.seq : 0,
+            //     /*success*/ false,
+            //     "Error processing request. " + (err as StackTraceError).message + "\n" + (err as StackTraceError).stack,
+            // );
+        }
+    }
 }
+
+export interface HandlerResponse {
+    response?: {};
+    responseRequired?: boolean;
+}
+
 
 function convertTextChangeToCodeEdit(change: TextChange, scriptInfo: ScriptInfoOrConfig): protocol.CodeEdit {
     return { start: positionToLineOffset(scriptInfo, change.span.start), end: positionToLineOffset(scriptInfo, textSpanEnd(change.span)), newText: change.newText };
@@ -1738,4 +1849,10 @@ export type ScriptInfoOrConfig = ScriptInfo | LpcConfigSourceFile;
 /** @internal */
 export function isConfigFile(config: ScriptInfoOrConfig): config is LpcConfigSourceFile {
     return (config as LpcConfigSourceFile).kind !== undefined;
+}
+
+function hrTimeToMilliseconds(time: [number, number]): number {
+    const seconds = time[0];
+    const nanoseconds = time[1];
+    return ((1e9 * seconds) + nanoseconds) / 1000000.0;
 }

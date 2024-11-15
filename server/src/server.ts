@@ -1,4 +1,4 @@
-import { createConnection, ProposedFeatures } from "vscode-languageserver/node";
+import { CancellationStrategy, ConnectionOptions, createConnection, ProposedFeatures } from "vscode-languageserver/node";
 import {start} from "./lpcserver/server.js";
 
 console.info("Starting LPC Language Server");
