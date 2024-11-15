@@ -3063,6 +3063,7 @@ export function createScanner(
             while (s > saveStateId) {
                 s--;
                 const stateEnding = stateEndings[s];
+                Debug.assertIsDefined(stateEnding);
                 if (stateEnding.fileName == savedEnding.fileName) {
                     stateEnding.end = savedEnding.end;
                 }                    

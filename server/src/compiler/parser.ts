@@ -1802,7 +1802,7 @@ export namespace LpcParser {
     }
 
     function processIncludeDirective(includeDirective: IncludeDirective): boolean {                
-        const localFilename = includeDirective.content.map((literal) => literal.text).join("");            
+        const localFilename = includeDirective. content.map((literal) => literal.text).join("");            
         const includeFile = fileHandler.loadIncludeFile(scanner.getFileName(), localFilename, includeDirective.localFirst);
         const resolvedFilename = internIdentifier(includeFile.filename);        
 
@@ -1846,6 +1846,9 @@ export namespace LpcParser {
 
             return true;
         }
+
+        // prime the scanner
+        nextToken(); 
 
         return false;
     }

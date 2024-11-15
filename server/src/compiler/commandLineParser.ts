@@ -261,7 +261,7 @@ function parseLpcConfigFileContentWorker(
     options.playerFile = normalizePath(combinePaths(basePathForFileNames, playerFile));
     
     options.configDefines ??= {};
-    const rawDefines = raw?.defines ?? emptyArray;
+    const rawDefines = raw?.defines ?? emptyArray;        
     forEach(rawDefines, define => {        
         const key = firstOrUndefined(Object.keys(define || {}));
         if (key) {
@@ -270,6 +270,9 @@ function parseLpcConfigFileContentWorker(
         }
     });
     
+    // use first include dir as root dir as a default
+    // options.rootDir ??= isArray(raw.include) ? firstOrUndefined(raw.include) : undefined;
+
     return {
         options,
         watchOptions,
@@ -1069,11 +1072,25 @@ export const commonOptionsWithBuild: CommandLineOption[] = [
     },
 ];
 
+const commandOptionsWithoutBuild: CommandLineOption[] = [
+    {
+        name: "rootDir",
+        type: "string",
+        affectsEmit: true,
+        affectsBuildInfo: true,
+        affectsDeclarationPath: true,
+        isFilePath: true,
+        paramType: Diagnostics.LOCATION,
+        category: Diagnostics.Command_line_Options,
+        description: Diagnostics.Specify_the_root_folder_within_your_source_files,
+        defaultValueDescription: Diagnostics.Computed_from_the_list_of_input_files,
+    },
+];
+
 /** @internal */
 export const optionDeclarations: CommandLineOption[] = [
-    ...commonOptionsWithBuild,
-    // TODO: 
-    // ...commandOptionsWithoutBuild,
+    ...commonOptionsWithBuild,    
+    ...commandOptionsWithoutBuild,
 ];
 
 /** @internal */
@@ -1638,11 +1655,10 @@ function parseOwnConfigOfJsonSourceFile(
             else if (!option) {
                 if (keyText === "excludes") {
                     errors.push(createDiagnosticForNodeInSourceFile(sourceFile, propertyAssignment.name, Diagnostics.Unknown_option_excludes_Did_you_mean_exclude));
+                }                
+                if (find(commandOptionsWithoutBuild, opt => opt.name === keyText)) {
+                    rootCompilerOptions = append(rootCompilerOptions, propertyAssignment.name);
                 }
-                console.debug("todo - find command options without build");
-                // if (find(commandOptionsWithoutBuild, opt => opt.name === keyText)) {
-                //     rootCompilerOptions = append(rootCompilerOptions, propertyAssignment.name);
-                // }
             }
         }
     }

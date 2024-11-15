@@ -105,7 +105,7 @@ export function start(connection: Connection, platform: string) {
         host.setTimeout = setTimeout;
         host.clearTimeout = clearTimeout;
         host.setImmediate = setImmediate;
-        host.clearImmediate = clearImmediate;    
+        host.clearImmediate = clearImmediate;            
         
         const session = new LspSession({
             host: lpc.sys as lpc.server.ServerHost,

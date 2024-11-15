@@ -424,4 +424,6 @@ export const Diagnostics = {
     A_type_predicate_cannot_reference_element_0_in_a_binding_pattern: diag(1230, DiagnosticCategory.Error, "A_type_predicate_cannot_reference_element_0_in_a_binding_pattern_1230", "A type predicate cannot reference element '{0}' in a binding pattern."),
     The_type_of_a_function_declaration_must_match_the_function_s_signature: diag(8030, DiagnosticCategory.Error, "The_type_of_a_function_declaration_must_match_the_function_s_signature_8030", "The type of a function declaration must match the function's signature."),
     Assertions_require_the_call_target_to_be_an_identifier_or_qualified_name: diag(2776, DiagnosticCategory.Error, "Assertions_require_the_call_target_to_be_an_identifier_or_qualified_name_2776", "Assertions require the call target to be an identifier or qualified name."),
+    Specify_the_root_folder_within_your_source_files: diag(6690, DiagnosticCategory.Message, "Specify_the_root_folder_within_your_source_files_6690", "Specify the root folder within your source files."),
+    Computed_from_the_list_of_input_files: diag(6911, DiagnosticCategory.Message, "Computed_from_the_list_of_input_files_6911", "Computed from the list of input files"),
 }

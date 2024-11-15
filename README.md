@@ -1,5 +1,8 @@
 # LPC Language Services
 
+# THIS IS A PRERELEASE VERSION WITH BREAKING CHANGES
+Please see [config-changes.md](config-changes.md)
+
 Language server and VSCode extension that provides rich language support for LPC (Lars Pensjö C) - an object-oriented programming language derived from C and developed originally by Lars Pensjö to facilitate MUD building on LPMuds.
 
 Currently supports [LDMud](https://www.ldmud.eu/) and [FluffOS](https://www.fluffos.info/).

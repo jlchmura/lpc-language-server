@@ -4,7 +4,7 @@
         "moduleResolution": "Node",
         "target": "es2020",
         "esModuleInterop": true,
-        "lib": ["es2020"],
+        "lib": ["es2020"],        
         "outDir": "out",
         "resolveJsonModule": true,
         "sourceMap": true,
