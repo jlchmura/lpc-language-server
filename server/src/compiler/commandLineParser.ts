@@ -1,6 +1,6 @@
 import { config } from "process";
 import { ILpcConfig } from "../config-types";
-import { AlternateModeDiagnostics, append, arrayFrom, ArrayLiteralExpression, arrayToMap, assign, combinePaths, CommandLineOption, CommandLineOptionOfCustomType, CommandLineOptionOfListType, CompilerOptions, CompilerOptionsValue, ConfigFileSpecs, containsPath, createCompilerDiagnostic, createDiagnosticForNodeInSourceFile, createGetCanonicalFileName, Debug, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DidYouMeanOptionsDiagnostics, directorySeparator, driverTypeToLanguageVariant, emptyArray, endsWith, ensureTrailingDirectorySeparator, every, Expression, Extension, FileExtensionInfo, fileExtensionIs, filter, find, firstOrUndefined, flatten, forEach, forEachLpcConfigPropArray, getBaseFileName, getDirectoryPath, getNormalizedAbsolutePath, getRegexFromPattern, getRegularExpressionForWildcard, getSpellingSuggestion, getTextOfPropertyName, hasExtension, hasProperty, isArray, isArrayLiteralExpression, isComputedNonLiteralName, isImplicitGlob, isObjectLiteralExpression, isRootedDiskPath, isString, isStringDoubleQuoted, isStringLiteral, JsonSourceFile, LanguageVariant, length, LpcConfigOnlyOption, LpcConfigSourceFile, map, MapLike, Node, NodeArray, normalizePath, normalizeSlashes, NumericLiteral, ObjectLiteralExpression, OptionsNameMap, ParseConfigHost, ParsedCommandLine, ParsedLpcConfig, Path, PrefixUnaryExpression, ProjectReference, PropertyAssignment, PropertyName, removeTrailingDirectorySeparator, startsWith, StringLiteral, SyntaxKind, toFileNameLowerCase, tracing, TypeAcquisition, WatchDirectoryFlags, WatchOptions } from "./_namespaces/lpc";
+import { AlternateModeDiagnostics, append, arrayFrom, ArrayLiteralExpression, arrayToMap, assign, combinePaths, CommandLineOption, CommandLineOptionOfCustomType, CommandLineOptionOfListType, CompilerOptions, CompilerOptionsValue, ConfigFileSpecs, containsPath, createCompilerDiagnostic, createDiagnosticForNodeInSourceFile, createGetCanonicalFileName, Debug, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DidYouMeanOptionsDiagnostics, directorySeparator, driverTypeToLanguageVariant, emptyArray, endsWith, ensureTrailingDirectorySeparator, every, Expression, extend, Extension, FileExtensionInfo, fileExtensionIs, filter, find, firstOrUndefined, flatten, forEach, forEachLpcConfigPropArray, getBaseFileName, getDirectoryPath, getNormalizedAbsolutePath, getOwnKeys, getRegexFromPattern, getRegularExpressionForWildcard, getSpellingSuggestion, getTextOfPropertyName, hasExtension, hasProperty, isArray, isArrayLiteralExpression, isComputedNonLiteralName, isImplicitGlob, isObjectLiteralExpression, isRootedDiskPath, isString, isStringDoubleQuoted, isStringLiteral, JsonSourceFile, LanguageVariant, length, LpcConfigOnlyOption, LpcConfigSourceFile, map, MapLike, Node, NodeArray, normalizePath, normalizeSlashes, NumericLiteral, ObjectLiteralExpression, OptionsNameMap, ParseConfigHost, ParsedCommandLine, ParsedLpcConfig, Path, PrefixUnaryExpression, ProjectReference, PropertyAssignment, PropertyName, removeTrailingDirectorySeparator, startsWith, StringLiteral, SyntaxKind, toFileNameLowerCase, tracing, TypeAcquisition, WatchDirectoryFlags, WatchOptions } from "./_namespaces/lpc";
 import { trimStart } from "../utils";
 
 export const libEntries: [string, string][] = [
@@ -220,24 +220,29 @@ function parseLpcConfigFileContentWorker(
     
     const parsedConfig = parseConfig(json, sourceFile, host, basePath, configFileName, resolutionStack, errors, extendedConfigCache);
     const { raw } = parsedConfig;
-    // const options = handleOptionConfigDirTemplateSubstitution(
-    //     extend(existingOptions, parsedConfig.options || {}),
-    //     configDirTemplateSubstitutionOptions,
-    //     basePath,
-    // ) as CompilerOptions;
+    const options = handleOptionConfigDirTemplateSubstitution(
+        extend(existingOptions, parsedConfig.options || {}),
+        configDirTemplateSubstitutionOptions,
+        basePath,
+    ) as CompilerOptions;
     // const watchOptions = handleWatchOptionsConfigDirTemplateSubstitution(
     //     existingWatchOptions && parsedConfig.watchOptions ?
     //         extend(existingWatchOptions, parsedConfig.watchOptions) :
     //         parsedConfig.watchOptions || existingWatchOptions,
     //     basePath,
     // );
-    const options = existingOptions;
+    // const options = existingOptions;
     const watchOptions = existingWatchOptions;
     options.configFilePath = configFileName && normalizeSlashes(configFileName);
     const basePathForFileNames = normalizePath(configFileName ? directoryOfCombinedPath(configFileName, basePath) : basePath);
     const configFileSpecs = getConfigFileSpecs();
     if (sourceFile) sourceFile.configFileSpecs = configFileSpecs;
     setConfigFileInOptions(options, sourceFile);    
+    
+    const firstInclude = raw?.include && isArray(raw.include) ? firstOrUndefined(raw.include) as string : undefined;
+    let libRootPath = normalizePath(combinePaths(basePathForFileNames, firstInclude ?? "./"));
+    options.rootDir = libRootPath;
+    options.rootDirs = [libRootPath];
 
     options.driverType = driverTypeToLanguageVariant(raw?.driver?.type);    
 
@@ -246,19 +251,19 @@ function parseLpcConfigFileContentWorker(
     }
 
     if (raw?.libInclude && isArray(raw.libInclude)) {
-        options.libIncludeDirs = map(raw.libInclude as string[], dir => normalizePath(combinePaths(basePathForFileNames, dir)));
+        options.libIncludeDirs = map(raw.libInclude as string[], dir => normalizePath(combinePaths(libRootPath, dir)));
     }
 
     options.diagnostics = raw?.diagnostics === "on" || raw?.diagnostics === true;
     
     const sefunFilePath = trimStart(options.sefunFile ?? raw?.libFiles?.simul_efun ?? "/obj/sefun.c", "/");
-    options.sefunFile = normalizePath(combinePaths(basePathForFileNames, sefunFilePath));
+    options.sefunFile = normalizePath(combinePaths(libRootPath, sefunFilePath));
 
     const masterFile = trimStart(options.masterFile ?? raw?.libFiles?.master ?? "/obj/master.c", "/");
-    options.masterFile = normalizePath(combinePaths(basePathForFileNames, masterFile));
+    options.masterFile = normalizePath(combinePaths(libRootPath, masterFile));
 
     const playerFile = trimStart(options.playerFile ?? raw?.libFiles?.player ?? "/obj/player.c", "/");
-    options.playerFile = normalizePath(combinePaths(basePathForFileNames, playerFile));
+    options.playerFile = normalizePath(combinePaths(libRootPath, playerFile));
     
     options.configDefines ??= {};
     const rawDefines = raw?.defines ?? emptyArray;        
@@ -298,11 +303,10 @@ function parseLpcConfigFileContentWorker(
             if (filesSpecs.length === 0 && hasZeroOrNoReferences && !hasExtends) {
                 if (sourceFile) {
                     const fileName = configFileName || "lpc-config.json";
-                    const diagnosticMessage = Diagnostics.The_files_list_in_config_file_0_is_empty;
-                    console.warn("implement diagnostic - The_files_list_in_config_file_0_is_empty");                    
-                    // const nodeValue = forEachTsConfigPropArray(sourceFile, "files", property => property.initializer);
-                    // const error = createDiagnosticForNodeInSourceFileOrCompilerDiagnostic(sourceFile, nodeValue, diagnosticMessage, fileName);
-                    // errors.push(error);
+                    const diagnosticMessage = Diagnostics.The_files_list_in_config_file_0_is_empty;                    
+                    const nodeValue = forEachLpcConfigPropArray(sourceFile, "files", property => property.initializer);
+                    const error = createDiagnosticForNodeInSourceFileOrCompilerDiagnostic(sourceFile, nodeValue, diagnosticMessage, fileName);
+                    errors.push(error);
                 }
                 else {
                     createCompilerDiagnosticOnlyIfJson(Diagnostics.The_files_list_in_config_file_0_is_empty, configFileName || "tsconfig.json");
@@ -434,6 +438,50 @@ function parseLpcConfigFileContentWorker(
     }
 }
 
+/** @internal */
+export interface OptionsBase {
+    [option: string]: CompilerOptionsValue | LpcConfigSourceFile | undefined;
+}
+
+function handleOptionConfigDirTemplateSubstitution(
+    options: OptionsBase | undefined,
+    optionDeclarations: readonly CommandLineOption[],
+    basePath: string,
+) {
+    if (!options) return options;
+    let result: OptionsBase | undefined;
+    for (const option of optionDeclarations) {
+        if (options[option.name] !== undefined) {
+            const value = options[option.name];
+            switch (option.type) {
+                case "string":
+                    Debug.assert(option.isFilePath);
+                    if (startsWithConfigDirTemplate(value)) {
+                        setOptionValue(option, getSubstitutedPathWithConfigDirTemplate(value, basePath));
+                    }
+                    break;
+                case "list":
+                    Debug.assert(option.element.isFilePath);
+                    const listResult = getSubstitutedStringArrayWithConfigDirTemplate(value as string[], basePath);
+                    if (listResult) setOptionValue(option, listResult);
+                    break;
+                case "object":
+                    Debug.assert(option.name === "paths");
+                    const objectResult = getSubstitutedMapLikeOfStringArrayWithConfigDirTemplate(value as MapLike<string[]>, basePath);
+                    if (objectResult) setOptionValue(option, objectResult);
+                    break;
+                default:
+                    Debug.fail("option type not supported");
+            }
+        }
+    }
+    return result || options;
+
+    function setOptionValue(option: CommandLineOption, value: CompilerOptionsValue) {
+        (result ??= assign({}, options))[option.name] = value;
+    }
+}
+
 /**
  * Gets directories in a set of include patterns that should be watched for changes.
  */
@@ -513,8 +561,20 @@ function validateSpecs(specs: readonly string[], errors: Diagnostic[], disallowT
     // }
 }
 
+function getSubstitutedMapLikeOfStringArrayWithConfigDirTemplate(mapLike: MapLike<string[]>, basePath: string) {
+    let result: MapLike<string[]> | undefined;
+    const ownKeys = getOwnKeys(mapLike);
+    ownKeys.forEach(key => {
+        if (!isArray(mapLike[key])) return;
+        const subStitution = getSubstitutedStringArrayWithConfigDirTemplate(mapLike[key], basePath);
+        if (!subStitution) return;
+        (result ??= assign({}, mapLike))[key] = subStitution;
+    });
+    return result;
+}
+
 function getSubstitutedStringArrayWithConfigDirTemplate(list: readonly string[] | undefined, basePath: string) {
-    if (!list) return list;
+    if (!list) return list as string[];
     let result: string[] | undefined;
     list.forEach((element, index) => {
         if (!startsWithConfigDirTemplate(element)) return;
@@ -1946,3 +2006,8 @@ export interface ConfigFileDiagnosticsReporter {
 export interface ParseConfigFileHost extends ParseConfigHost, ConfigFileDiagnosticsReporter {
     getCurrentDirectory(): string;
 }
+
+/** @internal */
+export const configDirTemplateSubstitutionOptions: readonly CommandLineOption[] = optionDeclarations.filter(
+    option => option.allowConfigDirTemplateSubstitution || (!option.isCommandLineOnly && option.isFilePath),
+);

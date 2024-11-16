@@ -642,8 +642,8 @@ export function classicNameResolver(moduleName: string, containingFile: string, 
 
         // TODO: if path is rooted, need to re-map it to lib root here
         if (isRootedDiskPath(moduleName)) {
-            const pathComps = getPathComponents(state.compilerOptions.configFilePath);
-            const libPath = getPathFromPathComponents(pathComps.slice(0, pathComps.length - 1));
+            // const pathComps = getPathComponents(state.compilerOptions.rootDir);
+            const libPath = state.compilerOptions.rootDir;//getPathFromPathComponents(pathComps.slice(0, pathComps.length - 1));
             let searchName = normalizePath(combinePaths(libPath, "." + moduleName));            
             if (moduleName.indexOf(".") === -1) searchName += Extension.C;
             return toSearchResult(loadModuleFromFileNoPackageId(extensions, searchName, /*onlyRecordFailures*/ false, state));
@@ -963,7 +963,7 @@ function tryLoadModuleUsingRootDirs(extensions: Extensions, moduleName: string, 
 
     let matchedRootDir: string | undefined;
     let matchedNormalizedPrefix: string | undefined;
-    for (const rootDir of state.compilerOptions.rootDir) {
+    for (const rootDir of state.compilerOptions.rootDirs) {
         // rootDirs are expected to be absolute
         // in case of tsconfig.json this will happen automatically - compiler will expand relative names
         // using location of tsconfig.json as base location

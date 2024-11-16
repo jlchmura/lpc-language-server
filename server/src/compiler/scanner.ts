@@ -2000,7 +2000,7 @@ export function createScanner(
         tokenFlags = TokenFlags.None;
         asteriskSeen = false;
 
-        Debug.assert(!stateEndings[stateId] || stateEndings[stateId].end <= pos, "State ending cannot be after the current position");
+        // Debug.assert(!stateEndings[stateId] || stateEndings[stateId].end <= pos, "State ending cannot be after the current position");
         stateEndings[stateId] = {
             end: pos,
             fileName

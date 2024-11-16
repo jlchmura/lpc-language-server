@@ -1949,3 +1949,28 @@ export function toArray<T>(value: T | readonly T[]): readonly T[];
 export function toArray<T>(value: T | T[]): T[] {
     return isArray(value) ? value : [value];
 }
+
+
+/**
+ * Creates a new object by adding the own properties of `second`, then the own properties of `first`.
+ *
+ * NOTE: This means that if a property exists in both `first` and `second`, the property in `first` will be chosen.
+ *
+ * @internal
+ */
+export function extend<T1, T2>(first: T1, second: T2): T1 & T2 {
+    const result: T1 & T2 = {} as any;
+    for (const id in second) {
+        if (hasOwnProperty.call(second, id)) {
+            (result as any)[id] = (second as any)[id];
+        }
+    }
+
+    for (const id in first) {
+        if (hasOwnProperty.call(first, id)) {
+            (result as any)[id] = (first as any)[id];
+        }
+    }
+
+    return result;
+}

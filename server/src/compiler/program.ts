@@ -1190,7 +1190,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         // }
 
         // We haven't looked for this file, do so now and cache result
-        const sourceFileOptions = getCreateSourceFileOptions(fileName, /*moduleResolutionCache*/ undefined, host, options);
+        const sourceFileOptions = getCreateSourceFileOptions(fileName, isDefaultLib, /*moduleResolutionCache*/ undefined, host, options);
         const file = host.getSourceFile(
             fileName,
             sourceFileOptions,
@@ -1294,12 +1294,12 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         return result;
     }
 
-    function getCreateSourceFileOptions(fileName: string, moduleResolutionCache: any | undefined, host: CompilerHost, options: CompilerOptions): CreateSourceFileOptions {        
+    function getCreateSourceFileOptions(fileName: string, isDefaultLib: boolean, moduleResolutionCache: any | undefined, host: CompilerHost, options: CompilerOptions): CreateSourceFileOptions {        
         // TODO is this complete?
         
         return {
             languageVersion: ScriptTarget.Latest,
-            globalIncludes: options.globalIncludeFiles || emptyArray,
+            globalIncludes: (isDefaultLib ? undefined : options.globalIncludeFiles) || emptyArray,
             fileHandler: fileHandler,
             configDefines: getConfigDefines(options),
         };

@@ -23,10 +23,10 @@ object *users( void );
 /**
  * userp() - determine if a given object was once interactive
  *
- * Returns 1 if the arg was once interactive.
+ * @returns 1 if the arg was once interactive.
  *
  */
-int userp( object );
+int userp(object ob);
 
 /**
  * this_user - the current interactive player object

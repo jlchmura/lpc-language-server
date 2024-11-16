@@ -269,7 +269,7 @@ export interface TypeChecker {
     getSuggestionDiagnostics(file: SourceFile, cancellationToken?: CancellationToken): readonly DiagnosticWithLocation[];
 }
 
-export type CompilerOptionsValue = string | number | boolean | (string | number)[] | string[] | MapLike<string[]> | ProjectReference[] | null | undefined; // eslint-disable-line no-restricted-syntax
+export type CompilerOptionsValue = string | number | boolean | (string | number)[] | string[] | MapLike<string> | MapLike<string[]> | ProjectReference[] | null | undefined; // eslint-disable-line no-restricted-syntax
 
 export interface TypeAcquisition {
     enable?: boolean;
@@ -1691,6 +1691,7 @@ export interface CompilerOptions {
     configFilePath?: string;
     driverType?: LanguageVariant;
     rootDir?: string;
+    rootDirs?: string[];
     outDir?: string;
     declarationDir?: string;
     outFile?: string;
@@ -1711,6 +1712,8 @@ export interface CompilerOptions {
     diagnostics?: boolean;
     libIncludeDirs?: string[];
     globalIncludeFiles?: string[];    
+
+    [option: string]: CompilerOptionsValue | LpcConfigSourceFile | undefined;
 }
 
 

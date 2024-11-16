@@ -12,6 +12,30 @@ This document outlines how to migrate your `lpc-config.json` file.
 
 ### Adding files to your project (or, what happened to mudlibDir?)
 
-The ability to place your config file outside the lib root directory was added to v1, but is not yet available in v2. (Coming soon!)
+To place your lpc-config file in a folder other than your lib's root directory, you need to tell it how to locate lib files.
+The `include` setting tells the compiler where those files are located and can be either a relative path (from the location of your config file) or a 
+disk rooted path. The first entry in this array will be used as your "lib root" folder.
 
-For now, **You must place your config file in the root of your lib**.
+Example:
+
+For example, let's say your project is structured thus:
+
+```
+MyProj
+|- settings
+|  |- lpc-config.json
+|- lib
+|  |- std
+|  |  |- simul_efun.c
+|  |- rooms
+|  |  |- entrance.c
+|  |- admin
+```
+
+In this case, your config file should read:
+```json
+{
+    "include": ["../lib"],
+    ...
+}
+```
