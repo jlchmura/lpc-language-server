@@ -2286,7 +2286,7 @@ export function isStringLiteralOrTemplate(node: Node): node is StringLiteralLike
  * @internal
  */
 export function positionBelongsToNode(candidate: Node, position: number, sourceFile: SourceFile): boolean {
-    Debug.assert(candidate.pos <= position);
+    // Debug.assert(candidate.pos <= position);
     return position < candidate.end || !isCompletedNode(candidate, sourceFile);
 }
 

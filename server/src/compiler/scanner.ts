@@ -2950,6 +2950,8 @@ export function createScanner(
         let stateDisposed = false;
         
         return () => {
+            // console.debug(`Released ${fileName} (${stateId}->${saveStateId})`);
+
             Debug.assert(!stateDisposed, "State has already been released");
             // if (stateDisposed) return;
             stateDisposed = true;        
@@ -2974,10 +2976,9 @@ export function createScanner(
         isSpeculating = false;
 
         nextState = function() {
-            const saveStateId = stateId;
+            const saveStateId = stateId;            
             restoreState();
             return onRelease?.();
-            // console.debug(`Released ${newFileName} (${saveStateId}->${stateId})`);
         } ;
 
         // console.debug(`Switching stream to ${newFileName} (${stateId}) at ${start} for ${length} characters`);

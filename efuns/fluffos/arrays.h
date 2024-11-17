@@ -90,7 +90,7 @@ array or string
  * // -1
  *
  */
-int member_array( mixed item, mixed * | string arr, void | int start );
+varargs int member_array( mixed item, mixed * | string arr, void | int start );
 
 /**
  * map_array() - modify an array of elements via application of a function

@@ -8,17 +8,17 @@
             "name": "Launch Client",
             "runtimeExecutable": "${execPath}",
             "args": [
-                // "${workspaceRoot}/../lima",
                 // "${workspaceRoot}/../StickLib",
                 // "${workspaceRoot}/../mg-mudlib",
+                "${workspaceRoot}/../lima",
                 // "${workspaceRoot}/../lpc-test2",
                 // "${workspaceRoot}/../glpu",
-                "${workspaceRoot}/../nightmare-residuum",
+                // "${workspaceRoot}/../nightmare-residuum",
                 // "${workspaceRoot}/../infinity-lib",
                 // "${workspaceRoot}/../fluff-test",
                 //"${workspaceRoot}/efuns/ldmud",
                 "--extensionDevelopmentPath=${workspaceRoot}"
-            ],            
+            ],
             "autoAttachChildProcesses": true,
             "sourceMaps": true,
             "outFiles": ["${workspaceFolder}/out/**/*.js"],
@@ -52,7 +52,7 @@
             "args": ["test.c"],
             "preLaunchTask": "compile:parseld",
             "sourceMaps": true,
-            "outFiles": ["${workspaceFolder}/out/**/*.js"],            
+            "outFiles": ["${workspaceFolder}/out/**/*.js"]
         },
         {
             "name": "Language Server E2E Test",
@@ -72,18 +72,18 @@
             "name": "Jest Tests",
             "program": "${workspaceFolder}/node_modules/jest/bin/jest",
             "sourceMaps": true,
-            "args": [                
+            "args": [
                 "${fileBasenameNoExtension}",
                 "--no-cache",
                 "--runInBand",
-                "--coverage=false",
+                "--coverage=false"
                 // "--config",
                 // "${workspaceFolder}/jest.config.js"
-            ],            
-            "preLaunchTask": "compile",            
+            ],
+            "preLaunchTask": "compile",
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "internalConsoleOptions": "neverOpen",            
+            "internalConsoleOptions": "neverOpen",
             "windows": {
                 "program": "${workspaceFolder}/node_modules/jest/bin/jest"
             }
@@ -91,4 +91,3 @@
         }
     ]
 }
-

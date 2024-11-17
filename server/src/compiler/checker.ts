@@ -8368,9 +8368,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     // else if (deviation & ModifierFlags.Ambient) {
                     //     error(getNameOfDeclaration(o), Diagnostics.Overload_signatures_must_all_be_ambient_or_non_ambient);
                     // }
-                    if (deviation & (ModifierFlags.Private | ModifierFlags.Protected)) {
-                        error(getNameOfDeclaration(o) || o, Diagnostics.Overload_signatures_must_all_be_public_private_or_protected);
-                    }
+                    // if (deviation & (ModifierFlags.Private | ModifierFlags.Protected)) {
+                    //     error(getNameOfDeclaration(o) || o, Diagnostics.Overload_signatures_must_all_be_public_private_or_protected);
+                    // }
                     // else if (deviation & ModifierFlags.Abstract) {
                     //     error(getNameOfDeclaration(o), Diagnostics.Overload_signatures_must_all_be_abstract_or_non_abstract);
                     // }
@@ -18555,7 +18555,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         Debug.assert(!errorLocation || errorLocation.parent);        
         const name = isString(nameArg) ? nameArg : (nameArg as Identifier).text;
 
-        if (errorLocation?.parent && isAssignmentExpression(errorLocation.parent)) {
+        if (errorLocation?.parent && isAssignmentExpression(errorLocation.parent) && errorLocation.parent.left === nameArg) {
             const nodeToBind = errorLocation.parent;
             // if we didn't find a symbol and original location was an assignment expression, and pragma strict types is not on
             // then we treat the first instance as a variable declaration and create a symbol for it

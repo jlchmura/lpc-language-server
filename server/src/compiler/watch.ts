@@ -1,4 +1,4 @@
-import { chainDiagnosticMessages, convertToRelativePath, countWhere, createCompilerDiagnostic, Debug, Diagnostic, DiagnosticAndArguments, DiagnosticCategory, DiagnosticMessageChain, Diagnostics, endsWith, Extension, fileExtensionIs, FileIncludeKind, FileIncludeReason, FileWatcher, filter, find, findIndex, flattenDiagnosticMessageText, ForegroundColorEscapeSequences, formatColorAndReset, getDirectoryPath, getEmitScriptTarget, getLineAndCharacterOfPosition, getNameOfScriptTarget, getNormalizedAbsolutePath, getPatternFromSpec, getRegexFromPattern, getRelativePathFromDirectory, HasCurrentDirectory, isExternalOrCommonJsModule, isString, noop, packageIdToString, pathIsAbsolute, Program, ReportFileInError, SourceFile } from "./_namespaces/lpc";
+import { chainDiagnosticMessages, convertToRelativePath, countWhere, createCompilerDiagnostic, Debug, Diagnostic, DiagnosticAndArguments, DiagnosticCategory, DiagnosticMessageChain, Diagnostics, endsWith, Extension, fileExtensionIs, FileIncludeKind, FileIncludeReason, FileWatcher, filter, find, findIndex, flattenDiagnosticMessageText, ForegroundColorEscapeSequences, formatColorAndReset, getDirectoryPath, getEmitScriptTarget, getLineAndCharacterOfPosition, getNameOfScriptTarget, getNormalizedAbsolutePath, getPatternFromSpec, getReferencedFileLocation, getRegexFromPattern, getRelativePathFromDirectory, HasCurrentDirectory, isExternalOrCommonJsModule, isReferenceFileLocation, isString, noop, packageIdToString, pathIsAbsolute, Program, ReportFileInError, SourceFile } from "./_namespaces/lpc";
 
 /** @internal */
 export interface WatchTypeRegistry {
@@ -329,6 +329,9 @@ export function fileIncludeReasonToDiagnostics(program: Program, reason: FileInc
 
         //     return chainDiagnosticMessages(/*details*/ undefined, ...messageAndArgs);
         // }
+        case FileIncludeKind.Import:
+            console.debug("todo - FileIncludeKind.Import");
+            break;
         case FileIncludeKind.LibFile: {
             if (reason.index !== undefined) return chainDiagnosticMessages(/*details*/ undefined, Diagnostics.Library_0_specified_in_compilerOptions, options.lib![reason.index]);
             const target = getNameOfScriptTarget(getEmitScriptTarget(options));
