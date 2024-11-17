@@ -4726,10 +4726,11 @@ export namespace LpcParser {
         const savedContext = parsingContext;
         parsingContext |= ParsingContext.InlineClosure;        
 
-        parseExpected(SyntaxKind.OpenParenColonToken);
+        const openParsed = parseExpected(SyntaxKind.OpenParenToken) && parseExpected(SyntaxKind.ColonToken);
+        // parseExpected(SyntaxKind.OpenParenColonToken);
         const expression = parseInlineClosureExpressionBody(allowReturnTypeInArrowFunction);
-        parseExpected(SyntaxKind.ColonCloseParenToken);
-
+        //parseExpected(SyntaxKind.ColonCloseParenToken);
+        parseExpectedMatchingBracketTokens(SyntaxKind.OpenParenColonToken, [SyntaxKind.ColonToken, SyntaxKind.CloseParenToken], openParsed, pos.pos, pos.fileName);
         parsingContext = savedContext;
 
         return withJSDoc(finishNode(factory.createInlineClosure(expression), pos), hasJSDoc);
@@ -4858,7 +4859,10 @@ export namespace LpcParser {
             case SyntaxKind.FalseKeyword:
                 return parseTokenNode<PrimaryExpression>();
             case SyntaxKind.OpenParenToken:
-                if (lookAhead(()=>(nextToken() == SyntaxKind.LessThanToken))) {
+                const peekNext = lookAhead(()=>nextToken());
+                if (peekNext === SyntaxKind.ColonToken) {
+                    return parseInlineClosureExpression(true);
+                } else if (peekNext === SyntaxKind.LessThanToken) {                
                     return parseNewStructExpression();
                 }                
 

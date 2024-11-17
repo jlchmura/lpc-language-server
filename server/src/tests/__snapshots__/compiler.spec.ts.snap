@@ -78,6 +78,8 @@ Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/cl
 
 exports[`Compiler compiler/closure1.c Reports correct errors for compiler/closure1.c: diags-compiler/closure1.c 1`] = `""`;
 
+exports[`Compiler compiler/closure2.c Reports correct errors for compiler/closure2.c: diags-compiler/closure2.c 1`] = `""`;
+
 exports[`Compiler compiler/commaExpr.c Reports correct errors for compiler/commaExpr.c: diags-compiler/commaExpr.c 1`] = `""`;
 
 exports[`Compiler compiler/declarations1.c Reports correct errors for compiler/declarations1.c: diags-compiler/declarations1.c 1`] = `""`;

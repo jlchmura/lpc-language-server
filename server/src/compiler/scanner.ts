@@ -274,8 +274,8 @@ const textToToken = new Map(Object.entries({
     "@": SyntaxKind.AtToken,
     "@@": SyntaxKind.AtAtToken,
     "#": SyntaxKind.HashToken,    
-    "(:": SyntaxKind.OpenParenColonToken,
-    ":)": SyntaxKind.ColonCloseParenToken,
+    "(:": SyntaxKind.OpenParenColonToken, // the scanner does not use this, but it is used in diagnostics
+    // ":)": SyntaxKind.ColonCloseParenToken,
     "([": SyntaxKind.OpenParenBracketToken,
     "({": SyntaxKind.OpenParenBraceToken,
     "(*": SyntaxKind.OpenParenAsteriskToken,
@@ -2138,9 +2138,9 @@ export function createScanner(
                     pos++;
                     return token = SyntaxKind.AmpersandToken;
                 case CharacterCodes.openParen:
-                    if (charCodeUnchecked(pos + 1) === CharacterCodes.colon && charCodeUnchecked(pos + 2) !== CharacterCodes.colon) {
-                        return pos += 2, token = SyntaxKind.OpenParenColonToken;
-                    }
+                    // if (charCodeUnchecked(pos + 1) === CharacterCodes.colon && charCodeUnchecked(pos + 2) !== CharacterCodes.colon) {
+                    //     return pos += 2, token = SyntaxKind.OpenParenColonToken;
+                    // }
                     if (charCodeUnchecked(pos + 1) === CharacterCodes.openBracket) {
                         return pos += 2, token = SyntaxKind.OpenParenBracketToken;
                     }     
@@ -2333,9 +2333,9 @@ export function createScanner(
                 case CharacterCodes._9:
                     return token = scanNumber();
                 case CharacterCodes.colon:
-                    if (charCodeUnchecked(pos + 1) === CharacterCodes.closeParen) {
-                        return pos += 2, token = SyntaxKind.ColonCloseParenToken;
-                    }
+                    // if (charCodeUnchecked(pos + 1) === CharacterCodes.closeParen) {
+                    //     return pos += 2, token = SyntaxKind.ColonCloseParenToken;
+                    // }
                     if (charCodeUnchecked(pos + 1) === CharacterCodes.colon) { 
                         return pos += 2, token = SyntaxKind.ColonColonToken;
                     }
