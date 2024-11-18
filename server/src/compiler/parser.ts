@@ -4507,6 +4507,12 @@ export namespace LpcParser {
                 expression = parseSuperExpression(pos, expression)
             }
 
+            if (token() == SyntaxKind.EqualsToken) {
+                // this syntax is allow in LPC but is ambiguous -- it should be parenethesized for better readability
+                // TODO: offer a codefix?
+                expression = factoryCreateParenthesizedExpression(parseBinaryExpressionRest(OperatorPrecedence.Equality, expression, pos));
+            }
+
             if (token() == SyntaxKind.DotToken || token() == SyntaxKind.MinusGreaterThanToken) {
                 isPropertyAccess = true;
                 propertyAccessToken = parseTokenNode();
