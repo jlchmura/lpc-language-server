@@ -1563,7 +1563,7 @@ export interface NodeFactory {
     createReturnStatement(expression?: Expression): ReturnStatement;
     createBreakStatement(label?: string | Identifier): BreakStatement;
     createContinueStatement(label?: string | Identifier): ContinueStatement;
-    createInheritDeclaration(importClause: InheritClauseType, modifiers: readonly Modifier[] | undefined): InheritDeclaration;    
+    createInheritDeclaration(importClause: InheritClauseNodeType, modifiers: readonly Modifier[] | undefined): InheritDeclaration;    
     createIfStatement(expression: Expression, thenStatement: Statement, elseStatement?: Statement): IfStatement;
     createSwitchStatement(expression: Expression, preBlock: NodeArray<Statement>, caseBlock: CaseBlock): SwitchStatement;
     createCaseBlock(clauses: readonly CaseOrDefaultClause[]): CaseBlock;
@@ -3805,10 +3805,10 @@ export interface InheritDeclaration extends Statement {
     readonly kind: SyntaxKind.InheritDeclaration;
     readonly parent: SourceFile;
     readonly modifiers?: NodeArray<Modifier>;
-    readonly inheritClause: InheritClauseType;
+    readonly inheritClause: InheritClauseNodeType;
 }
 
-export type InheritClauseType = StringLiteral | Expression;
+export type InheritClauseNodeType = StringLiteral | Expression;
 
 
 /**

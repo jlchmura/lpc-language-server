@@ -592,17 +592,26 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
     function initializeTypeChecker() {
         // Bind all source files and propagate errors
-        for (const file of host.getSourceFiles()) {
+        for (const file of host.getSourceFiles()) {            
             if (file.isDefaultLib) {
                 const ii=0;
             }
-            bindSourceFile(file, compilerOptions);
+            bindSourceFile(file, compilerOptions);            
         }
         
         // we'll use the globals concept to store driver efuns
         for (const file of host.getSourceFiles()) {            
-            if (file.isDefaultLib || file.fileName === compilerOptions.sefunFile) {
-                mergeSymbolTable(globals, file.locals!);
+            const isSefunFile = file.fileName === compilerOptions.sefunFile;
+            if (file.isDefaultLib || isSefunFile) {
+                if (isSefunFile) {
+                    const fileSymbol = getSymbolAtLocation(file, true);
+                    const fileType = getTypeOfSymbol(fileSymbol, CheckMode.TypeOnly) as InterfaceType;
+                    resolveClassOrInterfaceMembers(fileType as InterfaceType);                    
+                    mergeSymbolTable(globals, fileType.members!);
+                } else {
+                    // lib files (non sefun) can't have inherits, so don't bother checking those nodes
+                    mergeSymbolTable(globals, file.locals!);
+                }
             }             
         }
 

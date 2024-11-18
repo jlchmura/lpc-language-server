@@ -66,7 +66,7 @@ import {
     IfStatement,
     IncludeDirective,
     IndexSignatureDeclaration,
-    InheritClauseType,
+    InheritClauseNodeType,
     InheritDeclaration,
     InlineClosureExpression,
     IntLiteral,
@@ -1405,7 +1405,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     // @api 
-    function createInheritDeclaration(inheritClause: InheritClauseType, modifiers: readonly Modifier[] | undefined): InheritDeclaration {
+    function createInheritDeclaration(inheritClause: InheritClauseNodeType, modifiers: readonly Modifier[] | undefined): InheritDeclaration {
         const node = createBaseNode<InheritDeclaration>(SyntaxKind.InheritDeclaration);
         node.modifiers = asNodeArray(modifiers);
         node.inheritClause = inheritClause;
