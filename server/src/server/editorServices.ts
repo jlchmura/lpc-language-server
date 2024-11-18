@@ -771,8 +771,7 @@ export class ProjectService {
         externalProjectsRetainingConfiguredProjects?: Set<string>,
         openFilesWithRetainedConfiguredProject?: Set<Path>,
     ) {
-        // Remove all orphan projects
-        console.debug("todo - implement me - cleanupConfiguredProjects");
+        // Remove all orphan projects        
         this.getOrphanConfiguredProjects(
             toRetainConfiguredProjects,
             openFilesWithRetainedConfiguredProject,

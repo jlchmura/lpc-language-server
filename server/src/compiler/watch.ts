@@ -1,4 +1,4 @@
-import { chainDiagnosticMessages, convertToRelativePath, countWhere, createCompilerDiagnostic, Debug, Diagnostic, DiagnosticAndArguments, DiagnosticCategory, DiagnosticMessageChain, Diagnostics, endsWith, Extension, fileExtensionIs, FileIncludeKind, FileIncludeReason, FileWatcher, filter, find, findIndex, flattenDiagnosticMessageText, ForegroundColorEscapeSequences, formatColorAndReset, getDirectoryPath, getEmitScriptTarget, getLineAndCharacterOfPosition, getNameOfScriptTarget, getNormalizedAbsolutePath, getPatternFromSpec, getReferencedFileLocation, getRegexFromPattern, getRelativePathFromDirectory, HasCurrentDirectory, isExternalOrCommonJsModule, isReferenceFileLocation, isString, noop, packageIdToString, pathIsAbsolute, Program, ReportFileInError, SourceFile } from "./_namespaces/lpc";
+import { chainDiagnosticMessages, convertToRelativePath, countWhere, createCompilerDiagnostic, Debug, Diagnostic, DiagnosticAndArguments, DiagnosticCategory, DiagnosticMessage, DiagnosticMessageChain, Diagnostics, endsWith, Extension, fileExtensionIs, FileIncludeKind, FileIncludeReason, FileWatcher, filter, find, findIndex, flattenDiagnosticMessageText, ForegroundColorEscapeSequences, formatColorAndReset, getDirectoryPath, getEmitScriptTarget, getLineAndCharacterOfPosition, getNameOfScriptTarget, getNormalizedAbsolutePath, getPatternFromSpec, getReferencedFileLocation, getRegexFromPattern, getRelativePathFromDirectory, HasCurrentDirectory, isExternalOrCommonJsModule, isReferencedFile, isReferenceFileLocation, isString, noop, packageIdToString, pathIsAbsolute, Program, ReportFileInError, SourceFile } from "./_namespaces/lpc";
 
 /** @internal */
 export interface WatchTypeRegistry {
@@ -234,53 +234,49 @@ export function getMatchedIncludeSpec(program: Program, fileName: string) {
 /** @internal */
 export function fileIncludeReasonToDiagnostics(program: Program, reason: FileIncludeReason, fileNameConvertor?: (fileName: string) => string): DiagnosticMessageChain {
     const options = program.getCompilerOptions();
-    // if (isReferencedFile(reason)) {
-    //     const referenceLocation = getReferencedFileLocation(program, reason);
-    //     const referenceText = isReferenceFileLocation(referenceLocation) ? referenceLocation.file.text.substring(referenceLocation.pos, referenceLocation.end) : `"${referenceLocation.text}"`;
-    //     let message: DiagnosticMessage;
-    //     Debug.assert(isReferenceFileLocation(referenceLocation) || reason.kind === FileIncludeKind.Import, "Only synthetic references are imports");
-    //     switch (reason.kind) {
-    //         case FileIncludeKind.Import:
-    //             if (isReferenceFileLocation(referenceLocation)) {
-    //                 message = referenceLocation.packageId ?
-    //                     Diagnostics.Imported_via_0_from_file_1_with_packageId_2 :
-    //                     Diagnostics.Imported_via_0_from_file_1;
-    //             }
+    if (isReferencedFile(reason)) {
+        const referenceLocation = getReferencedFileLocation(program, reason);
+        const referenceText = isReferenceFileLocation(referenceLocation) ? referenceLocation.file.text.substring(referenceLocation.pos, referenceLocation.end) : `"${referenceLocation.text}"`;
+        let message: DiagnosticMessage;
+        Debug.assert(isReferenceFileLocation(referenceLocation) || reason.kind === FileIncludeKind.Import, "Only synthetic references are imports");
+        switch (reason.kind) {
+            case FileIncludeKind.Import:
+                if (isReferenceFileLocation(referenceLocation)) {
+                    message = Diagnostics.Imported_via_0_from_file_1;
+                }
     //             else if (referenceLocation.text === externalHelpersModuleNameText) {
     //                 message = referenceLocation.packageId ?
     //                     Diagnostics.Imported_via_0_from_file_1_with_packageId_2_to_import_importHelpers_as_specified_in_compilerOptions :
     //                     Diagnostics.Imported_via_0_from_file_1_to_import_importHelpers_as_specified_in_compilerOptions;
     //             }
-    //             else {
-    //                 message = referenceLocation.packageId ?
-    //                     Diagnostics.Imported_via_0_from_file_1_with_packageId_2_to_import_jsx_and_jsxs_factory_functions :
-    //                     Diagnostics.Imported_via_0_from_file_1_to_import_jsx_and_jsxs_factory_functions;
-    //             }
-    //             break;
-    //         case FileIncludeKind.ReferenceFile:
-    //             Debug.assert(!referenceLocation.packageId);
-    //             message = Diagnostics.Referenced_via_0_from_file_1;
-    //             break;
-    //         case FileIncludeKind.TypeReferenceDirective:
+                else {
+                    message = Diagnostics.Imported_via_0_from_file_1_to_import_jsx_and_jsxs_factory_functions;
+                }
+                break;
+            case FileIncludeKind.ReferenceFile:
+                Debug.assert(!referenceLocation.packageId);
+                message = Diagnostics.Referenced_via_0_from_file_1;
+                break;
+            case FileIncludeKind.TypeReferenceDirective:
     //             message = referenceLocation.packageId ?
     //                 Diagnostics.Type_library_referenced_via_0_from_file_1_with_packageId_2 :
     //                 Diagnostics.Type_library_referenced_via_0_from_file_1;
     //             break;
-    //         case FileIncludeKind.LibReferenceDirective:
-    //             Debug.assert(!referenceLocation.packageId);
-    //             message = Diagnostics.Library_referenced_via_0_from_file_1;
-    //             break;
-    //         default:
-    //             Debug.assertNever(reason);
-    //     }
-    //     return chainDiagnosticMessages(
-    //         /*details*/ undefined,
-    //         message,
-    //         referenceText,
-    //         toFileName(referenceLocation.file, fileNameConvertor),
-    //         (referenceLocation.packageId && packageIdToString(referenceLocation.packageId))!,
-    //     );
-    // }
+            case FileIncludeKind.LibReferenceDirective:
+                Debug.assert(!referenceLocation.packageId);
+                message = Diagnostics.Library_referenced_via_0_from_file_1;
+                break;
+            default:
+                Debug.assertNever(reason);
+        }
+        return chainDiagnosticMessages(
+            /*details*/ undefined,
+            message,
+            referenceText,
+            toFileName(referenceLocation.file, fileNameConvertor),
+            (referenceLocation.packageId && packageIdToString(referenceLocation.packageId))!,
+        );
+    }
     switch (reason.kind) {
         case FileIncludeKind.RootFile:
             if (!options.configFile?.configFileSpecs) return chainDiagnosticMessages(/*details*/ undefined, Diagnostics.Root_file_specified_for_compilation);
@@ -328,10 +324,7 @@ export function fileIncludeReasonToDiagnostics(program: Program, reason: FileInc
         //         [Diagnostics.Entry_point_for_implicit_type_library_0, reason.typeReference];
 
         //     return chainDiagnosticMessages(/*details*/ undefined, ...messageAndArgs);
-        // }
-        case FileIncludeKind.Import:
-            console.debug("todo - FileIncludeKind.Import");
-            break;
+        // }        
         case FileIncludeKind.LibFile: {
             if (reason.index !== undefined) return chainDiagnosticMessages(/*details*/ undefined, Diagnostics.Library_0_specified_in_compilerOptions, options.lib![reason.index]);
             const target = getNameOfScriptTarget(getEmitScriptTarget(options));

@@ -426,4 +426,8 @@ export const Diagnostics = {
     Assertions_require_the_call_target_to_be_an_identifier_or_qualified_name: diag(2776, DiagnosticCategory.Error, "Assertions_require_the_call_target_to_be_an_identifier_or_qualified_name_2776", "Assertions require the call target to be an identifier or qualified name."),
     Specify_the_root_folder_within_your_source_files: diag(6690, DiagnosticCategory.Message, "Specify_the_root_folder_within_your_source_files_6690", "Specify the root folder within your source files."),
     Computed_from_the_list_of_input_files: diag(6911, DiagnosticCategory.Message, "Computed_from_the_list_of_input_files_6911", "Computed from the list of input files"),
+    Imported_via_0_from_file_1: diag(1393, DiagnosticCategory.Message, "Imported_via_0_from_file_1_1393", "Imported via {0} from file '{1}'"),
+    Imported_via_0_from_file_1_to_import_jsx_and_jsxs_factory_functions: diag(1397, DiagnosticCategory.Message, "Imported_via_0_from_file_1_to_import_jsx_and_jsxs_factory_functions_1397", "Imported via {0} from file '{1}' to import 'jsx' and 'jsxs' factory functions"),
+    Referenced_via_0_from_file_1: diag(1400, DiagnosticCategory.Message, "Referenced_via_0_from_file_1_1400", "Referenced via '{0}' from file '{1}'"),
+    Library_referenced_via_0_from_file_1: diag(1405, DiagnosticCategory.Message, "Library_referenced_via_0_from_file_1_1405", "Library referenced via '{0}' from file '{1}'"),
 }

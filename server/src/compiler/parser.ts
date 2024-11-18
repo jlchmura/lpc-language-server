@@ -140,8 +140,10 @@ export namespace LpcParser {
         scriptKind = _scriptKind;
         languageVariant = _languageVariant;
         
+        let fileDir = getDirectoryPath(fileName);
+        if (!fileDir.endsWith("/")) fileDir = fileDir + "/";
         macroTable = {
-            "__DIR__": createBuiltInMacro(`"${getDirectoryPath(fileName)}"`),
+            "__DIR__": createBuiltInMacro(`"${fileDir}"`),
             "__FILE__": createBuiltInMacro(`"${fileName}"`),
         };
         
