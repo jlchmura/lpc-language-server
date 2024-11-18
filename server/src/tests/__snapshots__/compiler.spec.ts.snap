@@ -90,6 +90,15 @@ exports[`Compiler compiler/declarations3.c Reports correct errors for compiler/d
 
 exports[`Compiler compiler/declarations4.c Reports correct errors for compiler/declarations4.c: diags-compiler/declarations4.c 1`] = `""`;
 
+exports[`Compiler compiler/declarations5.c Reports correct errors for compiler/declarations5.c: diags-compiler/declarations5.c 1`] = `""`;
+
+exports[`Compiler compiler/declarations6.c Reports correct errors for compiler/declarations6.c: diags-compiler/declarations6.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/declarations6.c[90m:5[0m
+
+"
+`;
+
 exports[`Compiler compiler/defaultArgs.c Reports correct errors for compiler/defaultArgs.c: diags-compiler/defaultArgs.c 1`] = `""`;
 
 exports[`Compiler compiler/define1.c Reports correct errors for compiler/define1.c: diags-compiler/define1.c 1`] = `""`;
@@ -99,6 +108,8 @@ exports[`Compiler compiler/doWhile.c Reports correct errors for compiler/doWhile
 exports[`Compiler compiler/expr1.c Reports correct errors for compiler/expr1.c: diags-compiler/expr1.c 1`] = `""`;
 
 exports[`Compiler compiler/expr2.c Reports correct errors for compiler/expr2.c: diags-compiler/expr2.c 1`] = `""`;
+
+exports[`Compiler compiler/expr3.c Reports correct errors for compiler/expr3.c: diags-compiler/expr3.c 1`] = `""`;
 
 exports[`Compiler compiler/for1.c Reports correct errors for compiler/for1.c: diags-compiler/for1.c 1`] = `""`;
 
