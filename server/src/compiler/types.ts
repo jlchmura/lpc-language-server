@@ -1530,7 +1530,7 @@ export interface NodeFactory {
     // directives
     createIncludeDirective(content: StringLiteral[], localFirst: boolean): IncludeDirective;
     createPragmaDirective(expression: NodeArray<Identifier>): PragmaDirective;
-    createDefineDirective(name: string | Identifier, args: NodeArray<ParameterDeclaration>, range: TextRange): DefineDirective;
+    createDefineDirective(name: string | Identifier | TypeNode, args: NodeArray<ParameterDeclaration>, range: TextRange): DefineDirective;
     createUndefDirective(name: string | Identifier): UndefDirective;
 
     // types
@@ -7140,7 +7140,7 @@ export interface PositionState {
     pos: number;
     tokenStart: number;
     fileName: string;
-    macro: Macro;
+    macro: Macro;    
     include: IncludeDirective;
     stateId: number;    
 }

@@ -44,6 +44,7 @@ export namespace LpcParser {
     var macroTable: MapLike<Macro> | undefined;        
     var currentMacro: Macro;
     var allowMacroProcessing: boolean = true;
+    var rootMacro: Macro = undefined;
 
     var conditionalStack: Ternary[];
     var isCodeExecutable: Ternary = Ternary.Unknown;
@@ -140,7 +141,8 @@ export namespace LpcParser {
         languageVariant = _languageVariant;
         
         macroTable = {
-            "__DIR__": createBuiltInMacro(`"${getDirectoryPath(fileName)}"`)
+            "__DIR__": createBuiltInMacro(`"${getDirectoryPath(fileName)}"`),
+            "__FILE__": createBuiltInMacro(`"${fileName}"`),
         };
         
         forEachEntry(_configDefines || emptyMap, (value, key) => {
@@ -156,6 +158,7 @@ export namespace LpcParser {
 
         conditionalStack = [];
         currentMacro = undefined!;
+        rootMacro = undefined!;
                 
         includeFileCache = {};
         includeFileCache[fileName] = sourceText;
@@ -215,6 +218,7 @@ export namespace LpcParser {
         Object.values(macroTable).forEach(macro => { macro.argsIn = undefined; });
         macroTable = undefined!;    
         currentMacro = undefined!;
+        rootMacro = undefined!;
         allowMacroProcessing = true;
     }
 
@@ -653,7 +657,7 @@ export namespace LpcParser {
                 return nextTokenWithoutCheck();                
         }
 
-        if (allowMacroProcessing && incomingToken === SyntaxKind.Identifier) {
+        if (allowMacroProcessing && (incomingToken === SyntaxKind.Identifier)) {
             const tokenValue = scanner.getTokenValue();
             let macro = macroTable[tokenValue];            
 
@@ -665,6 +669,12 @@ export namespace LpcParser {
                 macro.endInOrigin = scanner.getTokenFullStart() + tokenValue.length + 1;
                 macro.pos = getPositionState();
                 macro.end = macro.pos.tokenStart + tokenValue.length;
+
+                // before parsing anything else, set this as the root macro if needed
+                if (!rootMacro) {
+                    rootMacro = macro;                    
+                    // Debug.assert(!currentMacro, "Should not have a current macro yet");
+                }
 
                 const { range, arguments: macroArgsDef } = macro;  
 
@@ -701,8 +711,8 @@ export namespace LpcParser {
                 }
                 
                 // create a scanner for this macro                                              
-                const saveCurrentMacro = currentMacro;                                
-
+                const saveCurrentMacro = currentMacro;                
+                
                 scanner.switchStream(
                     macro.includeFilename ?? macro.originFilename, macro.getText(), range.pos, range.end - range.pos,
                     () => {
@@ -715,13 +725,17 @@ export namespace LpcParser {
                         macro.endInOrigin = undefined!;
                         macro.pos = undefined!;
                         currentMacro = saveCurrentMacro!;
+                        
+                        if (rootMacro == macro) {                            
+                            rootMacro = undefined!;
+                        }
                         // parse args will have consumed the next token, so we need to store that and return it
                         // when the previous scanner gets restored
                         return macroArgsDef?.length > 0;
                     }
                 );
-
-                currentMacro = macro;
+                
+                currentMacro = macro;                
                                               
                 // scan again using the new scanner
                 return nextTokenWithoutCheck();
@@ -970,12 +984,13 @@ export namespace LpcParser {
                     
     interface Position { pos: number; end: number; __positionBrand:any; };
     
-    function getPositionState(): PositionState {        
+    function getPositionState(): PositionState {
         return {
             pos: getNodePos(),
             tokenStart: scanner.getTokenStart(),
             fileName: scanner.getFileName(),
             include: currentIncludeDirective,
+            // macro: rootMacro ? {...rootMacro} : undefined,
             macro: currentMacro ? {...currentMacro} : undefined,
             stateId: scanner.getStateId()            
         }
@@ -1902,11 +1917,12 @@ export namespace LpcParser {
         parseExpected(SyntaxKind.DefineDirective);
         
         const posIdentifier = getPositionState();
-        const identifierStart = scanner.getTokenStart();
-        const identifier = parseIdentifier();
+        const identifierStart = scanner.getTokenStart();        
+        const identifierText = internIdentifier(scanner.getTokenValue());
+        const identifier = token() === SyntaxKind.Identifier ? parseIdentifier() : parseKeywordAndNoDot();
         let args: NodeArray<ParameterDeclaration> | undefined;
         
-        const identifierEnd = identifierStart + identifier.text.length;
+        const identifierEnd = identifierStart + identifierText.length;
         if (identifierEnd === scanner.getTokenStart() && token() === SyntaxKind.OpenParenToken) {
             args = parseParameters();
         }
@@ -1925,11 +1941,11 @@ export namespace LpcParser {
         // Add to macro table here
         const macroNode = withJSDoc(finishNode(factory.createDefineDirective(identifier, args, range), pos), hasJSDoc);
 
-        if (isIdentifierNode(identifier) && identifier.text?.length > 0) {
-            if (macroTable[identifier.text]) {                
-                parseErrorAt(identifierStart, identifierStart + identifier.text.length, pos.fileName, Diagnostics.Macro_already_defined_0, identifier.text);
+        if (isIdentifierNode(identifier) && identifierText?.length > 0) {
+            if (macroTable[identifierText]) {                
+                parseErrorAt(identifierStart, identifierStart + identifierText.length, pos.fileName, Diagnostics.Macro_already_defined_0, identifierText);
             } else {
-                macroTable[identifier.text] = createMacro(macroNode, macroTextFilename);
+                macroTable[identifierText] = createMacro(macroNode, macroTextFilename);
             }
         }
 
@@ -2209,6 +2225,14 @@ export namespace LpcParser {
         return fileName;//pos.fileName?.length > 0 ? pos.fileName : fileName;
     }
   
+    function getRootMacro(macro: Macro) {
+        let rootMacro = macro;
+        while (rootMacro.pos?.macro) {
+            rootMacro = rootMacro.pos?.macro;
+        }
+        return rootMacro;
+    }
+
     function finishNode<T extends Node>(node: T, pos: number, end: number): T
     function finishNode<T extends Node>(node: T, pos: PositionState): T 
     function finishNode<T extends Node>(node: T, pos: number | PositionState, end?: number): T {
@@ -2224,15 +2248,16 @@ export namespace LpcParser {
             (node as Mutable<T>).originPos = pos.pos;
             (node as Mutable<T>).originEnd = end ?? scannerState.end;
             
-            const macroState = pos.macro?.pos;
+            const rootMacro = pos.macro ? getRootMacro(pos.macro) : undefined;            
+            const macroState = rootMacro?.pos;
             if (macroState && macroState.fileName === fileName) {
                 // const macroEndState = scanner.getState(macroState.stateId);
-                setTextRangePosEnd(node, macroState.tokenStart, pos.macro.end);    
+                setTextRangePosEnd(node, macroState.tokenStart, rootMacro.end);    
             } else if (currentIncludeDirective) {
                 setTextRangePosEnd(node, currentIncludeDirective.pos, currentIncludeDirective.end);
             } else {
                 setTextRangePosEnd(node, pos.pos, scannerState.end);
-            }            
+            }                                 
         } else {
             setTextRangePosEnd(node, pos, end!);
         }
@@ -4015,7 +4040,7 @@ export namespace LpcParser {
             // reScanGreaterToken so that we merge token sequences like > and = into >=
 
             reScanGreaterToken(); 
-            const impliedStringConcat = (isStringLiteral(leftOperand) || isBinaryExpression(leftOperand)) && token() == SyntaxKind.StringLiteral;           
+            const impliedStringConcat = canImplyStringConcat(leftOperand) && token() == SyntaxKind.StringLiteral;           
             // LPC's = precedence is relational, but if this is the first entry into the parse loop
             // when precendence is lowest, we should treat it as assignment
             const newPrecedence = precedence == OperatorPrecedence.Lowest && token() == SyntaxKind.EqualsToken ?
@@ -4511,11 +4536,12 @@ export namespace LpcParser {
                 // this syntax is allow in LPC but is ambiguous -- it should be parenethesized for better readability
                 // TODO: offer a codefix?
                 expression = factoryCreateParenthesizedExpression(parseBinaryExpressionRest(OperatorPrecedence.Equality, expression, pos));
+                continue;
             }
 
             if (token() == SyntaxKind.DotToken || token() == SyntaxKind.MinusGreaterThanToken) {
                 isPropertyAccess = true;
-                propertyAccessToken = parseTokenNode();
+                propertyAccessToken = parseTokenNode();                
             }
 
             if (isPropertyAccess) {
@@ -4523,6 +4549,16 @@ export namespace LpcParser {
                 continue;
             }
 
+            // handle implied string concatenation - consume all string literal nodes to the right
+            let tempBinaryExpression: Expression | undefined;
+            while (canImplyStringConcat(expression) && token() == SyntaxKind.StringLiteral) {
+                const tokenNode = finishNode(factoryCreateToken(SyntaxKind.PlusToken), getPositionState());
+                tempBinaryExpression = makeBinaryExpression(tempBinaryExpression ?? expression, tokenNode, parseLiteralNode(), pos);
+            }
+            if (tempBinaryExpression) {
+                expression = factoryCreateParenthesizedExpression(tempBinaryExpression);
+            }
+            
             if (parseOptional(SyntaxKind.OpenBracketToken)) {
                 expression = parseElementAccessExpressionRest(pos, expression);
                 continue;
@@ -4530,6 +4566,10 @@ export namespace LpcParser {
                         
             return expression as MemberExpression;
         }
+    }
+
+    function canImplyStringConcat(expression: Node): boolean {
+        return isStringLiteral(expression) || isBinaryExpression(expression);
     }
 
     function parseMaybeRangeExpression(rangeTerminatorToken:PunctuationSyntaxKind): RangeExpression | Expression {        
