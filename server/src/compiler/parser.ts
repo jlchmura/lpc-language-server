@@ -448,13 +448,13 @@ export namespace LpcParser {
                 if (isCodeExecutable !== Ternary.Unknown) conditionalStack.push(isCodeExecutable);
 
                 incomingToken = scanner.scan();
-                if (incomingToken !== SyntaxKind.Identifier) {
-                    parseErrorAtCurrentToken(Diagnostics.Identifier_expected);                                        
-                } else {
+                if (incomingToken === SyntaxKind.Identifier || isKeyword(incomingToken)) {                    
                     const tokenValue = scanner.getTokenValue();                    
                     isCodeExecutable = isIfDef ? (macroTable[tokenValue] ? Ternary.True : Ternary.False) : (!macroTable[tokenValue] ? Ternary.True : Ternary.False);
                     
                     incomingToken = scanner.scan();
+                } else {
+                    parseErrorAtCurrentToken(Diagnostics.Identifier_expected);
                 }
 
                 if (isCodeExecutable === Ternary.False) {
@@ -3038,24 +3038,23 @@ export namespace LpcParser {
         return withJSDoc(finishNode(factory.createReturnStatement(expression), pos), hasJSDoc);
     }
 
-    function parseInheritStatement(): InheritDeclaration {        
-        Debug.assert(!isSpeculating, "Inherit statements should not be speculatively parsed.");
-
+    function parseInheritStatement(): InheritDeclaration {       
         const pos = getPositionState();
         const hasJSDoc = hasPrecedingJSDocComment();
-        
         const mods = parseModifiers(false, false, false);
+
+        return parseInheritStatementWorker(pos, hasJSDoc, mods);
+    }
+
+    function parseInheritStatementWorker(pos: PositionState, hasJSDoc: boolean, modifiersIn: NodeArray<ModifierLike> | undefined, ): InheritDeclaration {        
+        Debug.assert(!isSpeculating, "Inherit statements should not be speculatively parsed.");
+                        
         parseExpected(SyntaxKind.InheritKeyword);
         
-        let expression: InheritClauseType = allowInAnd(parseExpression);
-        // if (token() == SyntaxKind.StringLiteral && lookAhead(() => nextToken() === SyntaxKind.SemicolonToken)) {
-        //     expression = parseLiteralLikeNode(SyntaxKind.StringLiteral) as StringLiteral;
-        // } else {
-        //     expression = allowInAnd(parseExpression);
-        // }
+        let expression: InheritClauseType = allowInAnd(parseExpression);        
         parseSemicolon();
         
-        const inheritNode = withJSDoc(finishNode(factory.createInheritDeclaration(expression, mods), pos), hasJSDoc);
+        const inheritNode = withJSDoc(finishNode(factory.createInheritDeclaration(expression, modifiersIn), pos), hasJSDoc);
         inherits.push(inheritNode);
         
         return inheritNode;
@@ -3274,6 +3273,9 @@ export namespace LpcParser {
         const hasJSDoc = hasPrecedingJSDocComment();
         const modifiers = parseModifiers(/*allowDecorators*/ true);
         
+        if (token() == SyntaxKind.InheritKeyword) {
+            return parseInheritStatementWorker(pos, hasJSDoc, modifiers);
+        }
         // if (isStructOrClassKeyword() && isStartOfStructDeclaration()) {            
         //     return parseStructDeclaration(pos, hasJSDoc, modifiers);                
         //     // if we saw "struct <identifier> <identifier>" then we are parsing struct as a type in a var/fun decl

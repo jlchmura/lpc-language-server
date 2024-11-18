@@ -1,5 +1,5 @@
 import path from "path";
-import { getDeclarationDiagnostics as lpc_getDeclarationDiagnostics, forEachResolvedProjectReference as lpc_forEachResolvedProjectReference, combinePaths, compareValues, CompilerHost, CompilerOptions, containsPath, createDiagnosticCollection, createGetCanonicalFileName, createMultiMap, CreateProgramOptions, createSourceFile, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DiagnosticWithLocation, FileIncludeKind, FileIncludeReason, FilePreprocessingDiagnostics, FilePreprocessingDiagnosticsKind, forEach, getBaseFileName, getDirectoryPath, getNewLineCharacter, getRootLength, hasExtension, isArray, maybeBind, memoize, normalizePath, ObjectLiteralExpression, PackageId, Path, performance, Program, ProgramHost, ProjectReference, PropertyAssignment, ReferencedFile, removePrefix, removeSuffix, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, SourceFile, stableSort, StructureIsReused, sys, System, toPath as lpc_toPath, tracing, TypeChecker, getNormalizedAbsolutePathWithoutRoot, some, isRootedDiskPath, optionsHaveChanges, packageIdToString, toFileNameLowerCase, getNormalizedAbsolutePath, CreateSourceFileOptions, createTypeChecker, ScriptTarget, libs, FileReference, SortedReadonlyArray, concatenate, sortAndDeduplicateDiagnostics, emptyArray, LpcFileHandler, createLpcFileHandler, DiagnosticMessageChain, isString, CancellationToken, flatMap, filter, Debug, ScriptKind, flatten, OperationCanceledException, noop, getNormalizedPathComponents, GetCanonicalFileName, getPathFromPathComponents, WriteFileCallback, EmitHost, WriteFileCallbackData, getDefaultLibFileName, LibResolution, returnFalse, isTraceEnabled, trace, equateStringsCaseSensitive, equateStringsCaseInsensitive, NodeFlags, ResolvedModuleFull, Extension, ResolutionMode, ModeAwareCache, isExternalModule, StringLiteral, Identifier, isCloneObjectExpression, isStringLiteral, setParentRecursive, append, Node, SyntaxKind, forEachChild, ResolutionWithFailedLookupLocations, createModeAwareCache, ModuleKind, ResolvedTypeReferenceDirectiveWithFailedLookupLocations, ModuleResolutionCache, contains, createModuleResolutionCache, ModuleResolutionHost, ModeAwareCacheKey, createModeAwareCacheKey, resolveModuleName, isInheritDeclaration, LogLevel, PackageJsonInfoCache, StringLiteralLike, skipTrivia, getSourceFileOfNode, hasLPCFileExtension, getNormalizedModuleName, isIncludeDirective, first, createEvaluator, forEachChildRecursively, factory, LanguageVariant, ResolvedConfigFileName, resolveConfigFileProjectName,     createMasterApplyGetIncludePathVm, memoizeOne, getRelativePathFromFile, getRelativePathFromDirectory, map, resolvePath, diagnosticCategoryName, getLineAndCharacterOfPosition, convertToRelativePath, BuilderProgram, addRange, explainIfFileIsRedirectAndImpliedFormat, chainDiagnosticMessages, createFileDiagnosticFromMessageChain, createCompilerDiagnosticFromMessageChain, fileIncludeReasonToDiagnostics, createFileDiagnostic, getMatchedFileSpec, createDiagnosticForNodeInSourceFile, FilePreprocessingLibReferenceDiagnostic, getSpellingSuggestion, identity, HasInvalidatedLibResolutions, HasInvalidatedResolutions, ParsedCommandLine, arrayIsEqualTo, forEachEntry, projectReferenceIsEqualTo, compareDataObjects, HasChangedAutomaticTypeDirectiveNames, isJSDocTypeTag, hasJSDocNodes, isJSDoc, isJSDocNode, isJSDocTypeExpression, isLiteralTypeNode, getLiteralText, GetLiteralTextFlags, isStringLiteralLike, isJSDocParameterTag, isJSDocReturnTag, isTypePredicateNode, StringLiteralType, isPropertyAccessExpression, Mutable, ImportCandidateNode, isNewExpression, isTypeNode, getLibRootedFileName, isJSDocPropertyTag, PragmaPseudoMapEntry, setParent, setTextRangePosEnd, PragmaPseudoMap, TextRange, CommentRange, thisObjectPragmaToStringLiteral, emptyMap } from "./_namespaces/lpc.js";
+import { getDeclarationDiagnostics as lpc_getDeclarationDiagnostics, forEachResolvedProjectReference as lpc_forEachResolvedProjectReference, combinePaths, compareValues, CompilerHost, CompilerOptions, containsPath, createDiagnosticCollection, createGetCanonicalFileName, createMultiMap, CreateProgramOptions, createSourceFile, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DiagnosticWithLocation, FileIncludeKind, FileIncludeReason, FilePreprocessingDiagnostics, FilePreprocessingDiagnosticsKind, forEach, getBaseFileName, getDirectoryPath, getNewLineCharacter, getRootLength, hasExtension, isArray, maybeBind, memoize, normalizePath, ObjectLiteralExpression, PackageId, Path, performance, Program, ProgramHost, ProjectReference, PropertyAssignment, ReferencedFile, removePrefix, removeSuffix, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, SourceFile, stableSort, StructureIsReused, sys, System, toPath as lpc_toPath, tracing, TypeChecker, getNormalizedAbsolutePathWithoutRoot, some, isRootedDiskPath, optionsHaveChanges, packageIdToString, toFileNameLowerCase, getNormalizedAbsolutePath, CreateSourceFileOptions, createTypeChecker, ScriptTarget, libs, FileReference, SortedReadonlyArray, concatenate, sortAndDeduplicateDiagnostics, emptyArray, LpcFileHandler, createLpcFileHandler, DiagnosticMessageChain, isString, CancellationToken, flatMap, filter, Debug, ScriptKind, flatten, OperationCanceledException, noop, getNormalizedPathComponents, GetCanonicalFileName, getPathFromPathComponents, WriteFileCallback, EmitHost, WriteFileCallbackData, getDefaultLibFileName, LibResolution, returnFalse, isTraceEnabled, trace, equateStringsCaseSensitive, equateStringsCaseInsensitive, NodeFlags, ResolvedModuleFull, Extension, ResolutionMode, ModeAwareCache, isExternalModule, StringLiteral, Identifier, isCloneObjectExpression, isStringLiteral, setParentRecursive, append, Node, SyntaxKind, forEachChild, ResolutionWithFailedLookupLocations, createModeAwareCache, ModuleKind, ResolvedTypeReferenceDirectiveWithFailedLookupLocations, ModuleResolutionCache, contains, createModuleResolutionCache, ModuleResolutionHost, ModeAwareCacheKey, createModeAwareCacheKey, resolveModuleName, isInheritDeclaration, LogLevel, PackageJsonInfoCache, StringLiteralLike, skipTrivia, getSourceFileOfNode, hasLPCFileExtension, getNormalizedModuleName, isIncludeDirective, first, createEvaluator, forEachChildRecursively, factory, LanguageVariant, ResolvedConfigFileName, resolveConfigFileProjectName,     createMasterApplyGetIncludePathVm, memoizeOne, getRelativePathFromFile, getRelativePathFromDirectory, map, resolvePath, diagnosticCategoryName, getLineAndCharacterOfPosition, convertToRelativePath, BuilderProgram, addRange, explainIfFileIsRedirectAndImpliedFormat, chainDiagnosticMessages, createFileDiagnosticFromMessageChain, createCompilerDiagnosticFromMessageChain, fileIncludeReasonToDiagnostics, createFileDiagnostic, getMatchedFileSpec, createDiagnosticForNodeInSourceFile, FilePreprocessingLibReferenceDiagnostic, getSpellingSuggestion, identity, HasInvalidatedLibResolutions, HasInvalidatedResolutions, ParsedCommandLine, arrayIsEqualTo, forEachEntry, projectReferenceIsEqualTo, compareDataObjects, HasChangedAutomaticTypeDirectiveNames, isJSDocTypeTag, hasJSDocNodes, isJSDoc, isJSDocNode, isJSDocTypeExpression, isLiteralTypeNode, getLiteralText, GetLiteralTextFlags, isStringLiteralLike, isJSDocParameterTag, isJSDocReturnTag, isTypePredicateNode, StringLiteralType, isPropertyAccessExpression, Mutable, ImportCandidateNode, isNewExpression, isTypeNode, getLibRootedFileName, isJSDocPropertyTag, PragmaPseudoMapEntry, setParent, setTextRangePosEnd, PragmaPseudoMap, TextRange, CommentRange, thisObjectPragmaToStringLiteral, emptyMap, getLpcConfigPropArrayElementValue, forEachLpcConfigPropArray, LpcConfigSourceFile, isArrayLiteralExpression, tryCast, isObjectLiteralExpression, forEachPropertyAssignment, getLpcConfigObjectLiteralExpression, getPropertyArrayElementValue, getNameOfScriptTarget, getEmitScriptTarget } from "./_namespaces/lpc.js";
 
 interface FileReasonToChainCache {
     fileIncludeReasonDetails: DiagnosticMessageChain | undefined;
@@ -750,6 +750,38 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         return relatedInfo || undefined;
     }
 
+    function getCompilerOptionsObjectLiteralSyntax() {
+        if (_compilerOptionsObjectLiteralSyntax === undefined) {
+            const compilerOptionsProperty = getCompilerOptionsPropertySyntax();
+            _compilerOptionsObjectLiteralSyntax = compilerOptionsProperty ? tryCast(compilerOptionsProperty.initializer, isObjectLiteralExpression) || false : false;
+        }
+        return _compilerOptionsObjectLiteralSyntax || undefined;
+    }
+
+    function getCompilerOptionsPropertySyntax() {
+        if (_compilerOptionsPropertySyntax === undefined) {
+            _compilerOptionsPropertySyntax = forEachPropertyAssignment(
+                getLpcConfigObjectLiteralExpression(options.configFile),
+                "compilerOptions",
+                identity,
+            ) || false;
+        }
+        return _compilerOptionsPropertySyntax || undefined;
+    }
+
+    function getOptionsSyntaxByArrayElementValue(name: string, value: string) {
+        const compilerOptionsObjectLiteralSyntax = getCompilerOptionsObjectLiteralSyntax();
+        return compilerOptionsObjectLiteralSyntax && getPropertyArrayElementValue(compilerOptionsObjectLiteralSyntax, name, value);
+    }
+
+    function forEachOptionsSyntaxByName<T>(name: string, callback: (prop: PropertyAssignment) => T | undefined): T | undefined {
+        return forEachPropertyAssignment(getCompilerOptionsObjectLiteralSyntax(), name, callback);
+    }
+
+    function getOptionsSyntaxByValue(name: string, value: string) {
+        return forEachOptionsSyntaxByName(name, property => isStringLiteral(property.initializer) && property.initializer.text === value ? property.initializer : undefined);
+    }
+
     function fileIncludeReasonToRelatedInformation(reason: FileIncludeReason): DiagnosticWithLocation | undefined {
         if (isReferencedFile(reason)) {
             const referenceLocation = getReferencedFileLocation(program, reason);
@@ -780,59 +812,58 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
 
         if (!options.configFile) return undefined;
         let configFileNode: Node | undefined;
-        let message: DiagnosticMessage;
-        console.debug("todo - configFileNode");
-        // switch (reason.kind) {
-        //     case FileIncludeKind.RootFile:
-        //         if (!options.configFile.configFileSpecs) return undefined;
-        //         const fileName = getNormalizedAbsolutePath(rootNames[reason.index], currentDirectory);
-        //         const matchedByFiles = getMatchedFileSpec(program, fileName);
-        //         console.debug("todo - matchedByFiles");
-        //         // if (matchedByFiles) {
-        //         //     configFileNode = getTsConfigPropArrayElementValue(options.configFile, "files", matchedByFiles);
-        //         //     message = Diagnostics.File_is_matched_by_files_list_specified_here;
-        //         //     break;
-        //         // }
-        //         // const matchedByInclude = getMatchedIncludeSpec(program, fileName);
-        //         // // Could be additional files specified as roots
-        //         // if (!matchedByInclude || !isString(matchedByInclude)) return undefined;
-        //         // configFileNode = getTsConfigPropArrayElementValue(options.configFile, "include", matchedByInclude);
-        //         // message = Diagnostics.File_is_matched_by_include_pattern_specified_here;
-        //         break;
-        //     case FileIncludeKind.SourceFromProjectReference:
-        //     case FileIncludeKind.OutputFromProjectReference:
-        //         const referencedResolvedRef = Debug.checkDefined(resolvedProjectReferences?.[reason.index]);
-        //         const referenceInfo = forEachProjectReference(projectReferences, resolvedProjectReferences, (resolvedRef, parent, index) => resolvedRef === referencedResolvedRef ? { sourceFile: parent?.sourceFile || options.configFile!, index } : undefined);
-        //         if (!referenceInfo) return undefined;
-        //         const { sourceFile, index } = referenceInfo;
-        //         const referencesSyntax = forEachTsConfigPropArray(sourceFile as TsConfigSourceFile, "references", property => isArrayLiteralExpression(property.initializer) ? property.initializer : undefined);
-        //         return referencesSyntax && referencesSyntax.elements.length > index ?
-        //             createDiagnosticForNodeInSourceFile(
-        //                 sourceFile,
-        //                 referencesSyntax.elements[index],
-        //                 reason.kind === FileIncludeKind.OutputFromProjectReference ?
-        //                     Diagnostics.File_is_output_from_referenced_project_specified_here :
-        //                     Diagnostics.File_is_source_from_referenced_project_specified_here,
-        //             ) :
-        //             undefined;
-        //     case FileIncludeKind.AutomaticTypeDirectiveFile:
-        //         if (!options.types) return undefined;
-        //         configFileNode = getOptionsSyntaxByArrayElementValue("types", reason.typeReference);
-        //         message = Diagnostics.File_is_entry_point_of_type_library_specified_here;
-        //         break;
-        //     case FileIncludeKind.LibFile:
-        //         if (reason.index !== undefined) {
-        //             configFileNode = getOptionsSyntaxByArrayElementValue("lib", options.lib![reason.index]);
-        //             message = Diagnostics.File_is_library_specified_here;
-        //             break;
-        //         }
-        //         const target = getNameOfScriptTarget(getEmitScriptTarget(options));
-        //         configFileNode = target ? getOptionsSyntaxByValue("target", target) : undefined;
-        //         message = Diagnostics.File_is_default_library_for_target_specified_here;
-        //         break;
-        //     default:
-        //         Debug.assertNever(reason);
-        // }
+        let message: DiagnosticMessage;        
+        switch (reason.kind) {
+            case FileIncludeKind.RootFile:
+                if (!options.configFile.configFileSpecs) return undefined;
+                const fileName = getNormalizedAbsolutePath(rootNames[reason.index], currentDirectory);
+                const matchedByFiles = getMatchedFileSpec(program, fileName);
+                console.debug("todo - matchedByFiles");
+                if (matchedByFiles) {
+                    configFileNode = getLpcConfigPropArrayElementValue(options.configFile, "files", matchedByFiles);
+                    message = Diagnostics.File_is_matched_by_files_list_specified_here;
+                    break;
+                }
+                // const matchedByInclude = getMatchedIncludeSpec(program, fileName);
+                // // Could be additional files specified as roots
+                // if (!matchedByInclude || !isString(matchedByInclude)) return undefined;
+                // configFileNode = getTsConfigPropArrayElementValue(options.configFile, "include", matchedByInclude);
+                // message = Diagnostics.File_is_matched_by_include_pattern_specified_here;
+                break;
+            case FileIncludeKind.SourceFromProjectReference:
+            case FileIncludeKind.OutputFromProjectReference:
+                const referencedResolvedRef = Debug.checkDefined(resolvedProjectReferences?.[reason.index]);
+                const referenceInfo = forEachProjectReference(projectReferences, resolvedProjectReferences, (resolvedRef, parent, index) => resolvedRef === referencedResolvedRef ? { sourceFile: parent?.sourceFile || options.configFile!, index } : undefined);
+                if (!referenceInfo) return undefined;
+                const { sourceFile, index } = referenceInfo;
+                const referencesSyntax = forEachLpcConfigPropArray(sourceFile as LpcConfigSourceFile, "references", property => isArrayLiteralExpression(property.initializer) ? property.initializer : undefined);
+                return referencesSyntax && referencesSyntax.elements.length > index ?
+                    createDiagnosticForNodeInSourceFile(
+                        sourceFile,
+                        referencesSyntax.elements[index],
+                        reason.kind === FileIncludeKind.OutputFromProjectReference ?
+                            Diagnostics.File_is_output_from_referenced_project_specified_here :
+                            Diagnostics.File_is_source_from_referenced_project_specified_here,
+                    ) :
+                    undefined;
+            case FileIncludeKind.AutomaticTypeDirectiveFile:
+                if (!options.types) return undefined;
+                configFileNode = getOptionsSyntaxByArrayElementValue("types", reason.typeReference);
+                message = Diagnostics.File_is_entry_point_of_type_library_specified_here;
+                break;
+            case FileIncludeKind.LibFile:
+                if (reason.index !== undefined) {
+                    configFileNode = getOptionsSyntaxByArrayElementValue("lib", options.lib![reason.index]);
+                    message = Diagnostics.File_is_library_specified_here;
+                    break;
+                }
+                const target = getNameOfScriptTarget(getEmitScriptTarget(options));
+                configFileNode = target ? getOptionsSyntaxByValue("target", target) : undefined;
+                message = Diagnostics.File_is_default_library_for_target_specified_here;
+                break;
+            default:
+                Debug.assertNever(reason);
+        }
         return configFileNode && createDiagnosticForNodeInSourceFile(
             options.configFile,
             configFileNode,
