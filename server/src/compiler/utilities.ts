@@ -144,6 +144,11 @@ export function setTextRangePosEnd<T extends ReadonlyTextRange>(range: T, pos: n
     return setTextRangeEnd(setTextRangePos(range, pos), end);
 }
 
+export function setNodeMacro<T extends ReadonlyTextRange>(range: T, macro: string) {
+    (range as Mutable<TextRange>).macro = macro;
+    return range;
+}
+
 /**
  * Bypasses immutability and directly sets the `pos` property of a `TextRange` or `Node`.
  *

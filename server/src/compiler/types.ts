@@ -21,11 +21,13 @@ export type SymbolTable = Map<string, Symbol>;
 export interface TextRange {
     pos: number;
     end: number;
+    macro?: string;
 }
 
 export interface ReadonlyTextRange {
     readonly pos: number;
     readonly end: number;
+    readonly macro?: string;
     readonly isComplete?: boolean;
 }
 
@@ -7148,6 +7150,7 @@ export interface PositionState {
 
 export interface Macro extends IncludedFileRange {
     // directive: DefineDirective;
+    name: string;
     includeDirPos?: number;
     includeDirEnd?: number;
     includeFilename?: string;    

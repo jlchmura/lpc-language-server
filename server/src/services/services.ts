@@ -548,8 +548,9 @@ function createChildren(
     let pos = node.includeDirPos ?? node.pos;
     const processNode = (child: Node) => {
         addSyntheticNodes(children, pos, child.includeDirPos ?? child.pos, node, sourceFile.inactiveCodeRanges);
-        children.push(child);
+        children.push(child);        
         pos = child.includeDirEnd ?? child.end;
+        Debug.assertIsDefined(pos);
     };
     const processNodes = (nodes: NodeArray<Node>) => {        
         addSyntheticNodes(children, pos, nodes.pos, node, sourceFile.inactiveCodeRanges);
@@ -910,7 +911,7 @@ function addSyntheticNodes(
             // skip the contents of a define direct
             pos = parent.range.end;
             continue;
-        }
+        }        
         
         // handle include directive with global path, e.g. #include <foo>
         if (token === SyntaxKind.IncludeDirective) {
@@ -942,7 +943,7 @@ function addSyntheticNodes(
             if (token === SyntaxKind.Identifier) {
                 if (hasTabstop(parent)) {
                     continue;
-                }
+                }                
                 console.warn(`Did not expect ${Debug.formatSyntaxKind(parent.kind)} to have an Identifier in its trivia`);
                 break;
                 // Debug.fail(`Did not expect ${Debug.formatSyntaxKind(parent.kind)} to have an Identifier in its trivia`);
@@ -968,11 +969,12 @@ function createSyntaxList(nodes: NodeArray<Node>, parent: Node, skipRanges: read
     let pos = nodes.pos;
     const sourceFilename = isSourceFile(parent) ? parent.fileName : parent.originFilename;
     for (const node of nodes) {
-        // if (node.originFilename === sourceFilename) {
+        // TODO - disable hover on macros for now
+        if (!node.macro) {
             addSyntheticNodes(children, pos, node.includeDirPos ?? node.pos, parent, skipRanges);
             children.push(node);
             pos = node.includeDirEnd ?? node.end;
-        // }        
+        }
     }
     
     addSyntheticNodes(children, pos, nodes.end, parent, skipRanges);

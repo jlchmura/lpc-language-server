@@ -817,13 +817,13 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
             case FileIncludeKind.RootFile:
                 if (!options.configFile.configFileSpecs) return undefined;
                 const fileName = getNormalizedAbsolutePath(rootNames[reason.index], currentDirectory);
-                const matchedByFiles = getMatchedFileSpec(program, fileName);
-                console.debug("todo - matchedByFiles");
+                const matchedByFiles = getMatchedFileSpec(program, fileName);                
                 if (matchedByFiles) {
                     configFileNode = getLpcConfigPropArrayElementValue(options.configFile, "files", matchedByFiles);
                     message = Diagnostics.File_is_matched_by_files_list_specified_here;
                     break;
                 }
+                console.debug("todo - matchedByFiles");
                 // const matchedByInclude = getMatchedIncludeSpec(program, fileName);
                 // // Could be additional files specified as roots
                 // if (!matchedByInclude || !isString(matchedByInclude)) return undefined;

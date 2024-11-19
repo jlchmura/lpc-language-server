@@ -562,6 +562,8 @@ function getCommentOwnerInfo(tokenAtPos: Node, options: DocCommentTemplateOption
     return forEachAncestor(tokenAtPos, n => getCommentOwnerInfoWorker(n, options));
 }
 function getCommentOwnerInfoWorker(commentOwner: Node, options: DocCommentTemplateOptions | undefined): CommentOwnerInfo | undefined | "quit" {
+    if (!commentOwner) return undefined;
+    
     switch (commentOwner.kind) {
         case SyntaxKind.FunctionDeclaration:
         case SyntaxKind.FunctionExpression:

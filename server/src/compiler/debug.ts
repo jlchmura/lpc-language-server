@@ -1,4 +1,4 @@
-import { getOwnKeys, AnyFunction, AssertionLevel, Node, NodeArray, objectAllocator, Type,Symbol, SymbolFlags, symbolName, SortedReadonlyArray, compareValues, stableSort, TypeFlags, hasProperty, LiteralType, ObjectType, ObjectFlags, Signature, SignatureFlags, isIdentifier, idText, isStringLiteral, isIntLiteral, isFloatLiteral, SyntaxKind, NodeFlags, ModifierFlags, isParseTreeNode, getEffectiveModifierFlagsNoCache, nodeIsSynthesized, getParseTreeNode, getSourceFileOfNode, getSourceTextOfNodeFromSourceFile, FlowNode, FlowFlags, FlowSwitchClause, FlowLabel, isDefaultClause, maxBy, TypeMapper, TypeMapKind, zipWith, map, MatchingKeys, noop, NodeCheckFlags, isParameter, isArrayTypeNode, isUnionTypeNode, isParenthesizedTypeNode, isLiteralTypeNode, isIndexedAccessTypeNode, every } from "./_namespaces/lpc";
+import { getOwnKeys, AnyFunction, AssertionLevel, Node, NodeArray, objectAllocator, Type,Symbol, SymbolFlags, symbolName, SortedReadonlyArray, compareValues, stableSort, TypeFlags, hasProperty, LiteralType, ObjectType, ObjectFlags, Signature, SignatureFlags, isIdentifier, idText, isStringLiteral, isIntLiteral, isFloatLiteral, SyntaxKind, NodeFlags, ModifierFlags, isParseTreeNode, getEffectiveModifierFlagsNoCache, nodeIsSynthesized, getParseTreeNode, getSourceFileOfNode, getSourceTextOfNodeFromSourceFile, FlowNode, FlowFlags, FlowSwitchClause, FlowLabel, isDefaultClause, maxBy, TypeMapper, TypeMapKind, zipWith, map, MatchingKeys, noop, NodeCheckFlags, isParameter, isArrayTypeNode, isUnionTypeNode, isParenthesizedTypeNode, isLiteralTypeNode, isIndexedAccessTypeNode, every, Macro } from "./_namespaces/lpc";
 import * as lpc from "./_namespaces/lpc.js";
 
 /** @internal */
@@ -41,12 +41,12 @@ export namespace Debug {
                 attachNodeArrayDebugInfoWorker(array);
             }
         }
-    }
+    }    
 
     function attachNodeArrayDebugInfoWorker(array: NodeArray<Node>) {
-        if (!("__tsDebuggerDisplay" in array)) { // eslint-disable-line local/no-in-operator
+        if (!("__lpcDebuggerDisplay" in array)) { // eslint-disable-line local/no-in-operator
             Object.defineProperties(array, {
-                __tsDebuggerDisplay: {
+                __lpcDebuggerDisplay: {
                     value(this: NodeArray<Node>, defaultValue: string) {
                         // An `Array` with extra properties is rendered as `[A, B, prop1: 1, prop2: 2]`. Most of
                         // these aren't immediately useful so we trim off the `prop1: ..., prop2: ...` part from the
@@ -196,7 +196,7 @@ export namespace Debug {
         // Add additional properties in debug mode to assist with debugging.
         Object.defineProperties(objectAllocator.getSymbolConstructor().prototype, {
             // for use with vscode-js-debug's new customDescriptionGenerator in launch.json
-            __tsDebuggerDisplay: {
+            __lpcDebuggerDisplay: {
                 value(this: Symbol) {
                     const symbolHeader = this.flags & SymbolFlags.Transient ? "TransientSymbol" :
                         "Symbol";
@@ -213,7 +213,7 @@ export namespace Debug {
 
         Object.defineProperties(objectAllocator.getTypeConstructor().prototype, {
             // for use with vscode-js-debug's new customDescriptionGenerator in launch.json
-            __tsDebuggerDisplay: {
+            __lpcDebuggerDisplay: {
                 value(this: Type) {
                     const typeHeader = /*this.flags & TypeFlags.Intrinsic ? `IntrinsicType ${(this as IntrinsicType).intrinsicName}${(this as IntrinsicType).debugIntrinsicName ? ` (${(this as IntrinsicType).debugIntrinsicName})` : ""}` :*/
                         this.flags & TypeFlags.Nullable ? "NullableType" :
@@ -285,7 +285,7 @@ export namespace Debug {
             if (!hasProperty(ctor.prototype, "__debugKind")) {
                 Object.defineProperties(ctor.prototype, {
                     // for use with vscode-js-debug's new customDescriptionGenerator in launch.json
-                    __tsDebuggerDisplay: {
+                    __lpcDebuggerDisplay: {
                         value(this: Node) {
                             const nodeHeader = isIdentifier(this) ? `Identifier '${idText(this)}'` :
                                 //isPrivateIdentifier(this) ? `PrivateIdentifier '${idText(this)}'` :
@@ -414,41 +414,55 @@ export namespace Debug {
     }
 
     let flowNodeProto: FlowNode | undefined;
+    let macroProto: Macro | undefined;
 
     function attachFlowNodeDebugInfoWorker(flowNode: FlowNode) {
-        if (!("__debugFlowFlags" in flowNode)) { // eslint-disable-line local/no-in-operator
-            Object.defineProperties(flowNode, {
+        
+    }
+
+    export function attachMacroDebugInfo(macro: Macro) {
+        if (isDebugInfoEnabled) {
+            if (typeof Object.setPrototypeOf === "function") {
+                // if we're in es2015, attach the method to a shared prototype for `Macro`
+                // so the method doesn't show up in the watch window.
+                if (!macroProto) {
+                    macroProto = Object.create(Object.prototype) as Macro;
+                    attachMacroDebugInfoWorker(macroProto);
+                }
+                Object.setPrototypeOf(macro, macroProto);
+            }
+        }        
+    }
+
+    function attachMacroDebugInfoWorker(macro: Macro) {
+        // (macro as any).__macroText = function() {
+        //     return getMacroText().substring(macro.range.pos, macro.range.end);
+        // }
+        if (!("__debugMacroText" in macro)) { // eslint-disable-line local/no-in-operator
+            Object.defineProperties(macro, {
                 // for use with vscode-js-debug's new customDescriptionGenerator in launch.json
-                __tsDebuggerDisplay: {
-                    value(this: FlowNode) {
-                        const flowHeader = this.flags & FlowFlags.Start ? "FlowStart" :
-                            this.flags & FlowFlags.BranchLabel ? "FlowBranchLabel" :
-                            this.flags & FlowFlags.LoopLabel ? "FlowLoopLabel" :
-                            this.flags & FlowFlags.Assignment ? "FlowAssignment" :
-                            this.flags & FlowFlags.TrueCondition ? "FlowTrueCondition" :
-                            this.flags & FlowFlags.FalseCondition ? "FlowFalseCondition" :
-                            this.flags & FlowFlags.SwitchClause ? "FlowSwitchClause" :
-                            this.flags & FlowFlags.ArrayMutation ? "FlowArrayMutation" :
-                            this.flags & FlowFlags.Call ? "FlowCall" :
-                            this.flags & FlowFlags.ReduceLabel ? "FlowReduceLabel" :
-                            this.flags & FlowFlags.Unreachable ? "FlowUnreachable" :
-                            "UnknownFlow";
-                        const remainingFlags = this.flags & ~(FlowFlags.Referenced - 1);
-                        return `${flowHeader}${remainingFlags ? ` (${formatFlowFlags(remainingFlags)})` : ""}`;
+                __lpcDebuggerDisplay: {
+                    value(this: Macro) {
+                        const txt = this.getText().substring(macro.range.pos, macro.range.end);                        
+                        return txt;                        
                     },
                 },
-                __debugFlowFlags: {
-                    get(this: FlowNode) {
-                        return formatEnum(this.flags, (lpc as any).FlowFlags, /*isFlags*/ true);
-                    },
-                },
+                // __debugFlowFlags: {
+                //     get(this: FlowNode) {
+                //         return formatEnum(this.flags, (lpc as any).FlowFlags, /*isFlags*/ true);
+                //     },
+                // },
                 __debugToString: {
-                    value(this: FlowNode) {
-                        return formatControlFlowGraph(this);
+                    value(this: Macro) {
+                        return `${this.name}: ${getMacroText(this)}`;
                     },
                 },
             });
         }
+    }
+
+    function getMacroText(macro: Macro) {
+        return macro.getText().substring(macro.range.pos, macro.range.end);
     }
 
     export function attachFlowNodeDebugInfo(flowNode: FlowNode) {
@@ -469,6 +483,8 @@ export namespace Debug {
         }
         return flowNode;
     }
+
+    
 
     export function formatControlFlowGraph(flowNode: FlowNode) {
         let nextDebugFlowId = -1;

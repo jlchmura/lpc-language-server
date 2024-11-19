@@ -10,8 +10,8 @@
             "args": [
                 // "${workspaceRoot}/../StickLib",
                 // "${workspaceRoot}/../mg-mudlib",
-                "${workspaceRoot}/../lima",
-                // "${workspaceRoot}/../lpc-test2",
+                // "${workspaceRoot}/../lima",
+                "${workspaceRoot}/../lpc-test2",
                 // "${workspaceRoot}/../glpu",
                 // "${workspaceRoot}/../nightmare-residuum",
                 // "${workspaceRoot}/../infinity-lib",
@@ -29,7 +29,8 @@
                 "node_modules/**/*",
                 "**/vs/workbench/api/**/*",
                 "**/gitlens.js"
-            ]
+            ],
+            "customDescriptionGenerator": "'__lpcDebuggerDisplay' in this ? this.__lpcDebuggerDisplay(defaultValue) : defaultValue"
         },
         {
             "type": "node",

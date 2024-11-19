@@ -411,7 +411,7 @@ export function start(connection: Connection, platform: string) {
             );
             
             try {
-                const result = results.at(0) as any;             
+                const result = results?.at(0) as any;             
                 if (!result) {
                     return [];
                 }
