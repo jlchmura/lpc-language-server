@@ -747,6 +747,7 @@ export const enum SyntaxKind {
 
     // Identifiers
     Identifier,    
+    StringizedIdentifier, // used in macros
 
     /**
      * Only the special JSDoc comment text scanner produces JSDocCommentTextTokes. One of these tokens spans all text after a tag comment's start and before the next @

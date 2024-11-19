@@ -21,6 +21,8 @@ export const Diagnostics = {
     Unmatched_conditional_directive: diag(9013, DiagnosticCategory.Error, "Unmatched_conditional_directive_9013", "Unmatched conditional directive."),
     Identifier_or_string_expected: diag(9014, DiagnosticCategory.Error, "Identifier_or_string_expected_9014", "Identifier or string expected."),
     Character_literal_must_be_one_character: diag(9015, DiagnosticCategory.Error, "Character_literal_must_be_one_character_9015", "Character literal must be one character."),
+    Stringized_literal_only_valid_in_macro: diag(9016, DiagnosticCategory.Error, "Stringized_literal_only_valid_in_macro_9016", "Stringized literal only valid in macro."),
+    Macro_parameter_0_not_found: diag(9017, DiagnosticCategory.Error, "Macro_parameter_0_not_found_9017", "Macro parameter '{0}' not found."),
 
     // Scanner
     _0_expected: diag(1005, DiagnosticCategory.Error, "_0_expected_1005", "'{0}' expected."),    

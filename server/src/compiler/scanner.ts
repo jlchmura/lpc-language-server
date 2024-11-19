@@ -2579,6 +2579,7 @@ export function createScanner(
                         // This works because 'scanIdentifier' tries to reuse source characters and builds up substrings;
                         // however, it starts at the 'tokenPos' which includes the '#', and will "accidentally" prepend the '#' for us.
                         scanIdentifier(charAfterHash, languageVersion);
+                        return token = SyntaxKind.StringizedIdentifier;
                     }
                     else {
                         tokenValue = "#";

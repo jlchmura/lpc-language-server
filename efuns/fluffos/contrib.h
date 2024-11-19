@@ -766,9 +766,9 @@ mixed *classes(object ob, int verbose);
  * string path = base_name() ;                     // "/std/object"
  *
  */
-string base_name( string text ) ;
-string base_name( object ob ) ;
-string base_name() ;
+string base_name(string text);
+string base_name(object ob);
+string base_name();
 
 /**
  * assemble_class() - provided an array, return a class composed of the members
