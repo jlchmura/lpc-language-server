@@ -955,7 +955,7 @@ export namespace LpcParser {
             kind === SyntaxKind.StringLiteral ? factoryCreateStringLiteral("", /*isSingleQuote*/ undefined) :
             kind === SyntaxKind.MissingDeclaration ? factory.createMissingDeclaration() :
             factoryCreateToken(kind);
-        return finishNode(result, pos) as T;
+        return finishNode(result, pos.pos, pos.pos) as T;
     }
 
     interface MissingList<T extends Node> extends NodeArray<T> {
@@ -1807,7 +1807,7 @@ export namespace LpcParser {
     }
 
     function processIncludeDirective(includeDirective: IncludeDirective): boolean {                
-        const localFilename = includeDirective. content.map((literal) => literal.text).join("");            
+        const localFilename = includeDirective.content.map((literal) => literal.text).join("");            
         const includeFile = fileHandler.loadIncludeFile(scanner.getFileName(), localFilename, includeDirective.localFirst);
         const resolvedFilename = internIdentifier(includeFile.filename);        
 
@@ -1850,10 +1850,13 @@ export namespace LpcParser {
             nextToken(); 
 
             return true;
+        } else if (!currentIncludeDirective) {
+            // if we're not already in an include directive, then report an error
+            parseErrorAt(includeDirective.content[0].pos, includeDirective.content[includeDirective.content.length - 1].end, includeDirective.resolvedFilename, Diagnostics.Cannot_find_include_file_0, localFilename);
         }
 
         // prime the scanner
-        nextToken(); 
+        // nextToken(); 
 
         return false;
     }
