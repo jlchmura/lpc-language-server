@@ -4388,13 +4388,19 @@ export namespace LpcParser {
                 // Absorb type arguments into CallExpression when preceding expression is ExpressionWithTypeArguments                
                 const argumentList = parseArgumentList();                
 
-                if (isIdentifierNode(expression) && expression.text === "clone_object") {
+                const ceName = isIdentifierNode(expression) ? expression.text : undefined;
+                if (ceName==="clone_object") {                
                     const cloneExpr = factory.createCloneObjectExpression(expression, argumentList);
                     expression = addImportCandidate(finishNode(cloneExpr, pos));
                     continue;
                 } else {
                     const callExpr = factoryCreateCallExpression(expression, argumentList);
                     expression = finishNode(callExpr, pos);
+
+                    if (ceName==="base_name") {
+                        importCandidates.push(expression as CallExpression);  
+                    }
+
                     continue;
                 }
             }

@@ -3184,6 +3184,7 @@ export type ImportCandidateNode =
     NewExpression | 
     InheritDeclaration | 
     IncludeDirective |
+    CallExpression |
     JSDocParameterTag |
     JSDocTypeTag | 
     JSDocPropertyTag |
