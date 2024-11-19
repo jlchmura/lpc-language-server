@@ -2050,13 +2050,6 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
                 bind(node.expression);
             }
             else {
-                // const exprName = getNameOfDeclaration(expr);                
-                // const nameStr = exprName && isIdentifier(exprName) ? exprName.text : undefined;
-                // if (nameStr=="error" && isCallExpression(node)) {
-                //     // mark this as an explicit return, like a return statement
-                //     hasExplicitReturn = true;
-                // }
-
                 bindEachChild(node);
                 if (node.expression.kind === SyntaxKind.SuperKeyword) {
                     currentFlow = createFlowCall(currentFlow, node);
