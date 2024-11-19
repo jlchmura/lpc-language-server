@@ -111,6 +111,17 @@ exports[`Compiler compiler/expr2.c Reports correct errors for compiler/expr2.c: 
 
 exports[`Compiler compiler/expr3.c Reports correct errors for compiler/expr3.c: diags-compiler/expr3.c 1`] = `""`;
 
+exports[`Compiler compiler/fnNoReturn1.c Reports correct errors for compiler/fnNoReturn1.c: diags-compiler/fnNoReturn1.c 1`] = `""`;
+
+exports[`Compiler compiler/fnNoReturn2.c Reports correct errors for compiler/fnNoReturn2.c: diags-compiler/fnNoReturn2.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/fnNoReturn2.c[90m:3[0m
+
+"
+`;
+
+exports[`Compiler compiler/fnNoReturn3.c Reports correct errors for compiler/fnNoReturn3.c: diags-compiler/fnNoReturn3.c 1`] = `""`;
+
 exports[`Compiler compiler/for1.c Reports correct errors for compiler/for1.c: diags-compiler/for1.c 1`] = `""`;
 
 exports[`Compiler compiler/for2.c Reports correct errors for compiler/for2.c: diags-compiler/for2.c 1`] = `""`;

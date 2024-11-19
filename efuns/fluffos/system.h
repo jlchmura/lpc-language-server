@@ -357,7 +357,7 @@ int errorp( mixed arg );
  * 2045 characters not  counting  an  optional  '\n'  as  last  character.
  * Before processing if the error the optional '\n' will be removed, a '*'
  * will be prepended and an unconditional '\n' gets appended.
- *
+ * @throws err
  */
 void error( string err );
 
