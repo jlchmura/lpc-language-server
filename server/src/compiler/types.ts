@@ -5080,7 +5080,7 @@ export interface Program extends ScriptReferenceHost {
     /** @internal */ getFileProcessingDiagnostics(): FilePreprocessingDiagnostics[] | undefined;
     // /** @internal */ getAutomaticTypeDirectiveNames(): string[];
     // /** @internal */ getAutomaticTypeDirectiveResolutions(): ModeAwareCache<ResolvedTypeReferenceDirectiveWithFailedLookupLocations>;
-    // isSourceFileFromExternalLibrary(file: SourceFile): boolean;
+    isSourceFileFromExternalLibrary(file: SourceFile): boolean;
     isSourceFileDefaultLibrary(file: SourceFile): boolean;
     // /**
     //  * Calculates the final resolution mode for a given module reference node. This is the resolution mode explicitly provided via import
@@ -5129,7 +5129,7 @@ export interface Program extends ScriptReferenceHost {
      * @internal
      */
     resolvedLibReferences: Map<string, LibResolution> | undefined;
-    // /** @internal */ getCurrentPackagesMap(): Map<string, boolean> | undefined;
+    /** @internal */ getCurrentPackagesMap(): Map<string, boolean> | undefined;
     // /**
     //  * Is the file emitted file
     //  *

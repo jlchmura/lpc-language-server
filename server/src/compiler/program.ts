@@ -1,5 +1,5 @@
 import path from "path";
-import { getDeclarationDiagnostics as lpc_getDeclarationDiagnostics, forEachResolvedProjectReference as lpc_forEachResolvedProjectReference, combinePaths, compareValues, CompilerHost, CompilerOptions, containsPath, createDiagnosticCollection, createGetCanonicalFileName, createMultiMap, CreateProgramOptions, createSourceFile, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DiagnosticWithLocation, FileIncludeKind, FileIncludeReason, FilePreprocessingDiagnostics, FilePreprocessingDiagnosticsKind, forEach, getBaseFileName, getDirectoryPath, getNewLineCharacter, getRootLength, hasExtension, isArray, maybeBind, memoize, normalizePath, ObjectLiteralExpression, PackageId, Path, performance, Program, ProgramHost, ProjectReference, PropertyAssignment, ReferencedFile, removePrefix, removeSuffix, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, SourceFile, stableSort, StructureIsReused, sys, System, toPath as lpc_toPath, tracing, TypeChecker, getNormalizedAbsolutePathWithoutRoot, some, isRootedDiskPath, optionsHaveChanges, packageIdToString, toFileNameLowerCase, getNormalizedAbsolutePath, CreateSourceFileOptions, createTypeChecker, ScriptTarget, libs, FileReference, SortedReadonlyArray, concatenate, sortAndDeduplicateDiagnostics, emptyArray, LpcFileHandler, createLpcFileHandler, DiagnosticMessageChain, isString, CancellationToken, flatMap, filter, Debug, ScriptKind, flatten, OperationCanceledException, noop, getNormalizedPathComponents, GetCanonicalFileName, getPathFromPathComponents, WriteFileCallback, EmitHost, WriteFileCallbackData, getDefaultLibFileName, LibResolution, returnFalse, isTraceEnabled, trace, equateStringsCaseSensitive, equateStringsCaseInsensitive, NodeFlags, ResolvedModuleFull, Extension, ResolutionMode, ModeAwareCache, isExternalModule, StringLiteral, Identifier, isCloneObjectExpression, isStringLiteral, setParentRecursive, append, Node, SyntaxKind, forEachChild, ResolutionWithFailedLookupLocations, createModeAwareCache, ModuleKind, ResolvedTypeReferenceDirectiveWithFailedLookupLocations, ModuleResolutionCache, contains, createModuleResolutionCache, ModuleResolutionHost, ModeAwareCacheKey, createModeAwareCacheKey, resolveModuleName, isInheritDeclaration, LogLevel, PackageJsonInfoCache, StringLiteralLike, skipTrivia, getSourceFileOfNode, hasLPCFileExtension, getNormalizedModuleName, isIncludeDirective, first, createEvaluator, forEachChildRecursively, factory, LanguageVariant, ResolvedConfigFileName, resolveConfigFileProjectName,     createMasterApplyGetIncludePathVm, memoizeOne, getRelativePathFromFile, getRelativePathFromDirectory, map, resolvePath, diagnosticCategoryName, getLineAndCharacterOfPosition, convertToRelativePath, BuilderProgram, addRange, explainIfFileIsRedirectAndImpliedFormat, chainDiagnosticMessages, createFileDiagnosticFromMessageChain, createCompilerDiagnosticFromMessageChain, fileIncludeReasonToDiagnostics, createFileDiagnostic, getMatchedFileSpec, createDiagnosticForNodeInSourceFile, FilePreprocessingLibReferenceDiagnostic, getSpellingSuggestion, identity, HasInvalidatedLibResolutions, HasInvalidatedResolutions, ParsedCommandLine, arrayIsEqualTo, forEachEntry, projectReferenceIsEqualTo, compareDataObjects, HasChangedAutomaticTypeDirectiveNames, isJSDocTypeTag, hasJSDocNodes, isJSDoc, isJSDocNode, isJSDocTypeExpression, isLiteralTypeNode, getLiteralText, GetLiteralTextFlags, isStringLiteralLike, isJSDocParameterTag, isJSDocReturnTag, isTypePredicateNode, StringLiteralType, isPropertyAccessExpression, Mutable, ImportCandidateNode, isNewExpression, isTypeNode, getLibRootedFileName, isJSDocPropertyTag, PragmaPseudoMapEntry, setParent, setTextRangePosEnd, PragmaPseudoMap, TextRange, CommentRange, thisObjectPragmaToStringLiteral, emptyMap, getLpcConfigPropArrayElementValue, forEachLpcConfigPropArray, LpcConfigSourceFile, isArrayLiteralExpression, tryCast, isObjectLiteralExpression, forEachPropertyAssignment, getLpcConfigObjectLiteralExpression, getPropertyArrayElementValue, getNameOfScriptTarget, getEmitScriptTarget, setTextRange, isCallExpression, isIdentifier } from "./_namespaces/lpc.js";
+import { getDeclarationDiagnostics as lpc_getDeclarationDiagnostics, forEachResolvedProjectReference as lpc_forEachResolvedProjectReference, combinePaths, compareValues, CompilerHost, CompilerOptions, containsPath, createDiagnosticCollection, createGetCanonicalFileName, createMultiMap, CreateProgramOptions, createSourceFile, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DiagnosticWithLocation, FileIncludeKind, FileIncludeReason, FilePreprocessingDiagnostics, FilePreprocessingDiagnosticsKind, forEach, getBaseFileName, getDirectoryPath, getNewLineCharacter, getRootLength, hasExtension, isArray, maybeBind, memoize, normalizePath, ObjectLiteralExpression, PackageId, Path, performance, Program, ProgramHost, ProjectReference, PropertyAssignment, ReferencedFile, removePrefix, removeSuffix, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, SourceFile, stableSort, StructureIsReused, sys, System, toPath as lpc_toPath, tracing, TypeChecker, getNormalizedAbsolutePathWithoutRoot, some, isRootedDiskPath, optionsHaveChanges, packageIdToString, toFileNameLowerCase, getNormalizedAbsolutePath, CreateSourceFileOptions, createTypeChecker, ScriptTarget, libs, FileReference, SortedReadonlyArray, concatenate, sortAndDeduplicateDiagnostics, emptyArray, LpcFileHandler, createLpcFileHandler, DiagnosticMessageChain, isString, CancellationToken, flatMap, filter, Debug, ScriptKind, flatten, OperationCanceledException, noop, getNormalizedPathComponents, GetCanonicalFileName, getPathFromPathComponents, WriteFileCallback, EmitHost, WriteFileCallbackData, getDefaultLibFileName, LibResolution, returnFalse, isTraceEnabled, trace, equateStringsCaseSensitive, equateStringsCaseInsensitive, NodeFlags, ResolvedModuleFull, Extension, ResolutionMode, ModeAwareCache, isExternalModule, StringLiteral, Identifier, isCloneObjectExpression, isStringLiteral, setParentRecursive, append, Node, SyntaxKind, forEachChild, ResolutionWithFailedLookupLocations, createModeAwareCache, ModuleKind, ResolvedTypeReferenceDirectiveWithFailedLookupLocations, ModuleResolutionCache, contains, createModuleResolutionCache, ModuleResolutionHost, ModeAwareCacheKey, createModeAwareCacheKey, resolveModuleName, isInheritDeclaration, LogLevel, PackageJsonInfoCache, StringLiteralLike, skipTrivia, getSourceFileOfNode, hasLPCFileExtension, getNormalizedModuleName, isIncludeDirective, first, createEvaluator, forEachChildRecursively, factory, LanguageVariant, ResolvedConfigFileName, resolveConfigFileProjectName,     createMasterApplyGetIncludePathVm, memoizeOne, getRelativePathFromFile, getRelativePathFromDirectory, map, resolvePath, diagnosticCategoryName, getLineAndCharacterOfPosition, convertToRelativePath, BuilderProgram, addRange, explainIfFileIsRedirectAndImpliedFormat, chainDiagnosticMessages, createFileDiagnosticFromMessageChain, createCompilerDiagnosticFromMessageChain, fileIncludeReasonToDiagnostics, createFileDiagnostic, getMatchedFileSpec, createDiagnosticForNodeInSourceFile, FilePreprocessingLibReferenceDiagnostic, getSpellingSuggestion, identity, HasInvalidatedLibResolutions, HasInvalidatedResolutions, ParsedCommandLine, arrayIsEqualTo, forEachEntry, projectReferenceIsEqualTo, compareDataObjects, HasChangedAutomaticTypeDirectiveNames, isJSDocTypeTag, hasJSDocNodes, isJSDoc, isJSDocNode, isJSDocTypeExpression, isLiteralTypeNode, getLiteralText, GetLiteralTextFlags, isStringLiteralLike, isJSDocParameterTag, isJSDocReturnTag, isTypePredicateNode, StringLiteralType, isPropertyAccessExpression, Mutable, ImportCandidateNode, isNewExpression, isTypeNode, getLibRootedFileName, isJSDocPropertyTag, PragmaPseudoMapEntry, setParent, setTextRangePosEnd, PragmaPseudoMap, TextRange, CommentRange, thisObjectPragmaToStringLiteral, emptyMap, getLpcConfigPropArrayElementValue, forEachLpcConfigPropArray, LpcConfigSourceFile, isArrayLiteralExpression, tryCast, isObjectLiteralExpression, forEachPropertyAssignment, getLpcConfigObjectLiteralExpression, getPropertyArrayElementValue, getNameOfScriptTarget, getEmitScriptTarget, setTextRange, isCallExpression, isIdentifier, changesAffectModuleResolution, sourceFileAffectingCompilerOptions, hasChangesInResolutions, moduleResolutionIsEqualTo, changesAffectingProgramStructure } from "./_namespaces/lpc.js";
 
 interface FileReasonToChainCache {
     fileIncludeReasonDetails: DiagnosticMessageChain | undefined;
@@ -340,7 +340,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         getFileProcessingDiagnostics: () => fileProcessingDiagnostics,
         // getAutomaticTypeDirectiveNames: () => automaticTypeDirectiveNames!,
         // getAutomaticTypeDirectiveResolutions: () => automaticTypeDirectiveResolutions,
-        // isSourceFileFromExternalLibrary,
+        isSourceFileFromExternalLibrary,
         isSourceFileDefaultLibrary,
         // getModeForUsageLocation,
         // getModeForResolutionAtIndex,
@@ -358,7 +358,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         getResolvedTypeReferenceDirectiveFromTypeReferenceDirective,
         forEachResolvedModule,
         // forEachResolvedTypeReferenceDirective,
-        // getCurrentPackagesMap: () => packageMap,
+        getCurrentPackagesMap: () => packageMap,
         // typesPackageExists,
         // packageBundlesTypes,
         // isEmittedFile,
@@ -428,6 +428,10 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         return getSourceFileByPath(toPath(fileName));
     }
 
+    function isSourceFileFromExternalLibrary(file: SourceFile): boolean {
+        return !!sourceFilesFoundSearchingNodeModules.get(file.path);
+    }
+    
     function isSourceFileDefaultLibrary(file: SourceFile): boolean {
         if (!file.isDeclarationFile) {
             return false;
@@ -1914,10 +1918,255 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         }
     }
 
+    function fileReferenceIsEqualTo(a: FileReference, b: FileReference): boolean {
+        return a.fileName === b.fileName;
+    }
+
+    function moduleNameIsEqualTo(a: StringLiteralLike | Identifier, b: StringLiteralLike | Identifier): boolean {
+        return a.kind === SyntaxKind.Identifier
+            ? b.kind === SyntaxKind.Identifier && a.text === b.text
+            : b.kind === SyntaxKind.StringLiteral && a.text === b.text;
+    }
 
     function tryReuseStructureFromOldProgram(): StructureIsReused {
-        // TODO
-        return StructureIsReused.Not;
+        if (!oldProgram) {
+            return StructureIsReused.Not;
+        }
+
+        // check properties that can affect structure of the program or module resolution strategy
+        // if any of these properties has changed - structure cannot be reused
+        const oldOptions = oldProgram.getCompilerOptions();
+        if (changesAffectModuleResolution(oldOptions, options)) {
+            return StructureIsReused.Not;
+        }
+        if (projectReferences) {
+            resolvedProjectReferences = projectReferences.map(parseProjectReferenceConfigFile);
+        }
+
+        // check if program source files has changed in the way that can affect structure of the program
+        const newSourceFiles: SourceFile[] = [];
+        const modifiedSourceFiles: SourceFile[] = [];
+        structureIsReused = StructureIsReused.Completely;
+
+        // If the missing file paths are now present, it can change the progam structure,
+        // and hence cant reuse the structure.
+        // This is same as how we dont reuse the structure if one of the file from old program is now missing
+        if (forEachEntry(oldProgram.getMissingFilePaths(), missingFileName => host.fileExists(missingFileName))) {
+            return StructureIsReused.Not;
+        }
+
+        const oldSourceFiles = oldProgram.getSourceFiles();
+        const enum SeenPackageName {
+            Exists,
+            Modified,
+        }
+        const seenPackageNames = new Map<string, SeenPackageName>();
+        
+        for (const oldSourceFile of oldSourceFiles) {
+            const sourceFileOptions = getCreateSourceFileOptions(oldSourceFile.fileName, false, moduleResolutionCache, host, options);
+            let newSourceFile = host.getSourceFileByPath
+                ? host.getSourceFileByPath(oldSourceFile.fileName, oldSourceFile.resolvedPath, sourceFileOptions, /*onError*/ undefined, shouldCreateNewSourceFile)
+                : host.getSourceFile(oldSourceFile.fileName, sourceFileOptions, /*onError*/ undefined, shouldCreateNewSourceFile); // TODO: GH#18217
+
+            if (!newSourceFile) {
+                return StructureIsReused.Not;
+            }
+            // newSourceFile.packageJsonLocations = sourceFileOptions.packageJsonLocations?.length ? sourceFileOptions.packageJsonLocations : undefined;
+            // newSourceFile.packageJsonScope = sourceFileOptions.packageJsonScope;
+
+            // Debug.assert(!newSourceFile.redirectInfo, "Host should not return a redirect source file from `getSourceFile`");
+
+            let fileChanged: boolean;
+            // if (oldSourceFile.redirectInfo) {
+            //     // We got `newSourceFile` by path, so it is actually for the unredirected file.
+            //     // This lets us know if the unredirected file has changed. If it has we should break the redirect.
+            //     if (newSourceFile !== oldSourceFile.redirectInfo.unredirected) {
+            //         // Underlying file has changed. Might not redirect anymore. Must rebuild program.
+            //         return StructureIsReused.Not;
+            //     }
+            //     fileChanged = false;
+            //     newSourceFile = oldSourceFile; // Use the redirect.
+            // }
+            // else if (oldProgram.redirectTargetsMap.has(oldSourceFile.path)) {
+            //     // If a redirected-to source file changes, the redirect may be broken.
+            //     if (newSourceFile !== oldSourceFile) {
+            //         return StructureIsReused.Not;
+            //     }
+            //     fileChanged = false;
+            // }
+            // else {
+                fileChanged = newSourceFile !== oldSourceFile;
+            // }
+
+            // Since the project references havent changed, its right to set originalFileName and resolvedPath here
+            newSourceFile.path = oldSourceFile.path;
+            newSourceFile.originalFileName = oldSourceFile.originalFileName;
+            newSourceFile.resolvedPath = oldSourceFile.resolvedPath;
+            newSourceFile.fileName = oldSourceFile.fileName;
+
+            // const packageName = oldProgram.sourceFileToPackageName.get(oldSourceFile.path);
+            // if (packageName !== undefined) {
+            //     // If there are 2 different source files for the same package name and at least one of them changes,
+            //     // they might become redirects. So we must rebuild the program.
+            //     const prevKind = seenPackageNames.get(packageName);
+            //     const newKind = fileChanged ? SeenPackageName.Modified : SeenPackageName.Exists;
+            //     if ((prevKind !== undefined && newKind === SeenPackageName.Modified) || prevKind === SeenPackageName.Modified) {
+            //         return StructureIsReused.Not;
+            //     }
+            //     seenPackageNames.set(packageName, newKind);
+            // }
+
+            if (fileChanged) {
+                if (oldSourceFile.impliedNodeFormat !== newSourceFile.impliedNodeFormat) {
+                    structureIsReused = StructureIsReused.SafeModules;
+                }
+                // The `newSourceFile` object was created for the new program.
+                else if (!arrayIsEqualTo(oldSourceFile.libReferenceDirectives, newSourceFile.libReferenceDirectives, fileReferenceIsEqualTo)) {
+                    // 'lib' references has changed. Matches behavior in changesAffectModuleResolution
+                    structureIsReused = StructureIsReused.SafeModules;
+                }
+                else if (oldSourceFile.hasNoDefaultLib !== newSourceFile.hasNoDefaultLib) {
+                    // value of no-default-lib has changed
+                    // this will affect if default library is injected into the list of files
+                    structureIsReused = StructureIsReused.SafeModules;
+                }
+                // check tripleslash references
+                else if (!arrayIsEqualTo(oldSourceFile.referencedFiles, newSourceFile.referencedFiles, fileReferenceIsEqualTo)) {
+                    // tripleslash references has changed
+                    structureIsReused = StructureIsReused.SafeModules;
+                }
+                else {
+                    // check imports and module augmentations
+                    collectExternalModuleReferences(newSourceFile);
+                    if (!arrayIsEqualTo(oldSourceFile.imports, newSourceFile.imports, moduleNameIsEqualTo)) {
+                        // imports has changed
+                        structureIsReused = StructureIsReused.SafeModules;
+                    }
+                    // else if (!arrayIsEqualTo(oldSourceFile.moduleAugmentations, newSourceFile.moduleAugmentations, moduleNameIsEqualTo)) {
+                    //     // moduleAugmentations has changed
+                    //     structureIsReused = StructureIsReused.SafeModules;
+                    // }
+                    // else if ((oldSourceFile.flags & NodeFlags.PermanentlySetIncrementalFlags) !== (newSourceFile.flags & NodeFlags.PermanentlySetIncrementalFlags)) {
+                    //     // dynamicImport has changed
+                    //     structureIsReused = StructureIsReused.SafeModules;
+                    // }
+                    else if (!arrayIsEqualTo(oldSourceFile.typeReferenceDirectives, newSourceFile.typeReferenceDirectives, fileReferenceIsEqualTo)) {
+                        // 'types' references has changed
+                        structureIsReused = StructureIsReused.SafeModules;
+                    }
+                }
+
+                // tentatively approve the file
+                modifiedSourceFiles.push(newSourceFile);
+            }
+            else if (hasInvalidatedResolutions(oldSourceFile.path)) {
+                // 'module/types' references could have changed
+                structureIsReused = StructureIsReused.SafeModules;
+
+                // add file to the modified list so that we will resolve it later
+                modifiedSourceFiles.push(newSourceFile);
+            }
+            else {
+                for (const moduleName of oldSourceFile.ambientModuleNames) {
+                    ambientModuleNameToUnmodifiedFileName.set(moduleName, oldSourceFile.fileName);
+                }
+            }
+
+            // if file has passed all checks it should be safe to reuse it
+            newSourceFiles.push(newSourceFile);
+        }
+
+        if (structureIsReused !== StructureIsReused.Completely) {
+            return structureIsReused;
+        }
+
+        // try to verify results of module resolution
+        for (const newSourceFile of modifiedSourceFiles) {
+            const moduleNames = getModuleNames(newSourceFile);
+            const resolutions = resolveModuleNamesReusingOldState(moduleNames, newSourceFile);
+            (resolvedModulesProcessing ??= new Map()).set(newSourceFile.path, resolutions);
+            // ensure that module resolution results are still correct
+            const resolutionsChanged = hasChangesInResolutions(
+                moduleNames,
+                resolutions,
+                name => oldProgram.getResolvedModule(newSourceFile, name.text, getModeForUsageLocation(newSourceFile, name)),
+                moduleResolutionIsEqualTo,
+            );
+            if (resolutionsChanged) structureIsReused = StructureIsReused.SafeModules;
+            const typesReferenceDirectives = newSourceFile.typeReferenceDirectives;
+            const typeReferenceResolutions = undefined;// resolveTypeReferenceDirectiveNamesReusingOldState(typesReferenceDirectives, newSourceFile);
+            (resolvedTypeReferenceDirectiveNamesProcessing ??= new Map()).set(newSourceFile.path, typeReferenceResolutions);
+            // ensure that types resolutions are still correct
+            // const typeReferenceResolutionsChanged = hasChangesInResolutions(
+            //     typesReferenceDirectives,
+            //     typeReferenceResolutions,
+            //     name => oldProgram.getResolvedTypeReferenceDirective(newSourceFile, getTypeReferenceResolutionName(name), getModeForFileReference(name, newSourceFile.impliedNodeFormat)),
+            //     typeDirectiveIsEqualTo,
+            // );
+            // if (typeReferenceResolutionsChanged) structureIsReused = StructureIsReused.SafeModules;
+        }
+
+        if (structureIsReused !== StructureIsReused.Completely) {
+            return structureIsReused;
+        }
+
+        if (changesAffectingProgramStructure(oldOptions, options)) {
+            return StructureIsReused.SafeModules;
+        }
+
+        if (
+            oldProgram.resolvedLibReferences &&
+            forEachEntry(oldProgram.resolvedLibReferences, (resolution, libFileName) => pathForLibFileWorker(libFileName).actual !== resolution.actual)
+        ) {
+            return StructureIsReused.SafeModules;
+        }
+
+        // if (host.hasChangedAutomaticTypeDirectiveNames) {
+        //     if (host.hasChangedAutomaticTypeDirectiveNames()) return StructureIsReused.SafeModules;
+        // }
+        // else {
+        //     automaticTypeDirectiveNames = getAutomaticTypeDirectiveNames(options, host);
+        //     if (!arrayIsEqualTo(oldProgram.getAutomaticTypeDirectiveNames(), automaticTypeDirectiveNames)) return StructureIsReused.SafeModules;
+        // }
+        missingFileNames = oldProgram.getMissingFilePaths();
+
+        // update fileName -> file mapping
+        Debug.assert(newSourceFiles.length === oldProgram.getSourceFiles().length);
+        for (const newSourceFile of newSourceFiles) {
+            filesByName.set(newSourceFile.path, newSourceFile);
+        }
+        const oldFilesByNameMap = oldProgram.getFilesByNameMap();
+        oldFilesByNameMap.forEach((oldFile, path) => {
+            if (!oldFile) {
+                filesByName.set(path, oldFile);
+                return;
+            }
+            if (oldFile.path === path) {
+                // Set the file as found during node modules search if it was found that way in old progra,
+                console.debug("todo - implement this");
+                // if (oldProgram.isSourceFileFromExternalLibrary(oldFile)) {
+                //     sourceFilesFoundSearchingNodeModules.set(oldFile.path, true);
+                // }
+                return;
+            }
+            filesByName.set(path, filesByName.get(oldFile.path));
+        });
+
+        files = newSourceFiles;
+        fileReasons = oldProgram.getFileIncludeReasons();
+        fileProcessingDiagnostics = oldProgram.getFileProcessingDiagnostics();
+        // automaticTypeDirectiveNames = oldProgram.getAutomaticTypeDirectiveNames();
+        // automaticTypeDirectiveResolutions = oldProgram.getAutomaticTypeDirectiveResolutions();
+
+        // sourceFileToPackageName = oldProgram.sourceFileToPackageName;
+        // redirectTargetsMap = oldProgram.redirectTargetsMap;
+        // usesUriStyleNodeCoreModules = oldProgram.usesUriStyleNodeCoreModules;
+        resolvedModules = oldProgram.resolvedModules;
+        // resolvedTypeReferenceDirectiveNames = oldProgram.resolvedTypeReferenceDirectiveNames;
+        resolvedLibReferences = oldProgram.resolvedLibReferences;
+        packageMap = oldProgram.getCurrentPackagesMap();
+
+        return StructureIsReused.Completely;
     }
 
     function parseProjectReferenceConfigFile(ref: ProjectReference): ResolvedProjectReference | undefined {
@@ -2118,7 +2367,7 @@ function shouldProgramCreateNewSourceFiles(program: Program | undefined, newOpti
     if (!program) return false;
     // If any compiler options change, we can't reuse old source file even if version match
     // The change in options like these could result in change in syntax tree or `sourceFile.bindDiagnostics`.
-    return optionsHaveChanges(program.getCompilerOptions(), newOptions);//, sourceFileAffectingCompilerOptions);
+    return optionsHaveChanges(program.getCompilerOptions(), newOptions, sourceFileAffectingCompilerOptions);
 }
 
 /** @internal */
