@@ -115,8 +115,8 @@ export function start(connection: Connection, platform: string) {
     let sequence = 0;
     const cancellationToken = lpc.server.nullCancellationToken;// new ServerCancellationToken(logger);
 
-    function fromUri(uri: string): string {
-        return URI.parse(uri).fsPath;
+    function fromUri(uri: string): string {        
+        return uri.startsWith("file://") ? URI.parse(uri).fsPath : uri;
     }
 
     connection.onInitialize((params) => {                
