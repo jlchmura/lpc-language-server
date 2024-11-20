@@ -1974,3 +1974,8 @@ export function extend<T1, T2>(first: T1, second: T2): T1 & T2 {
 
     return result;
 }
+
+/** @internal */
+export function* singleIterator<T>(value: T) {
+    yield value;
+}

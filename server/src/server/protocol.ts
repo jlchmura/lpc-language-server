@@ -1178,3 +1178,23 @@ export interface QuickInfoRequest extends FileLocationRequest {
     command: CommandTypes.Quickinfo;
     arguments: FileLocationRequestArgs;
 }
+
+/**
+ * Arguments for change request message.
+ */
+export interface ChangeRequestArgs extends FormatRequestArgs {
+    /**
+     * Optional string to insert at location (file, line, offset).
+     */
+    insertString?: string;
+}
+
+/**
+ * Change request message; value of command field is "change".
+ * Update the server's view of the file named by argument 'file'.
+ * Server does not currently send a response to a change request.
+ */
+export interface ChangeRequest extends FileLocationRequest {
+    command: CommandTypes.Change;
+    arguments: ChangeRequestArgs;
+}

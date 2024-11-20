@@ -211,8 +211,8 @@ export function start(connection: Connection, platform: string) {
                
         documents.onDidClose(e => {
             const filename = fromUri(e.document.uri);
-            executeRequest<protocol.UpdateOpenRequest>(protocol.CommandTypes.UpdateOpen, {closedFiles: [filename]});            
-        })
+            executeRequest<protocol.Request>(protocol.CommandTypes.Close, {file: filename});            
+        });
                 
         connection.onDidChangeTextDocument((e: vscode.DidChangeTextDocumentParams) => {
             try {                
@@ -221,15 +221,39 @@ export function start(connection: Connection, platform: string) {
         
                 // convert LSP text change to LPC CodeEdits
                 const changes: protocol.CodeEdit[] = [];
+                let change: protocol.CodeEdit;                
                 for (const lspChange of lspChanges) {
+                    let line = 0;
+                    let offset = 0;
+                    let endLine = 0;
+                    let endOffset = 0;
+                    
                     if (vscode.TextDocumentContentChangeEvent.isIncremental(lspChange)) {                    
-                        changes.push({start: lspPosToLpcPos(lspChange.range.start), end: lspPosToLpcPos(lspChange.range.end), newText: lspChange.text});
+                        // change = {start: lspPosToLpcPos(lspChange.range.start), end: lspPosToLpcPos(lspChange.range.end), newText: lspChange.text};
+                        line = lspChange.range.start.line + 1;
+                        offset = lspChange.range.start.character + 1;
+                        endLine = lspChange.range.end.line + 1;
+                        endOffset = lspChange.range.end.character + 1;
                     } else {
-                        changes.push({start: {line: 1, offset: 1}, end: {line: 1, offset: 1}, newText: lspChange.text});
+                        // change = {start: {line: 1, offset: 1}, end: {line: 1, offset: 1}, newText: lspChange.text};
+                        line = 1;
+                        offset = 1;
+                        // const endPos = document.positionAt(document.getText().length);
+                        endLine = 1;
+                        endOffset = 1;
                     }
+                    changes.push(change);
+                    executeRequest<protocol.ChangeRequest>(protocol.CommandTypes.Change, { 
+                        file: filename,
+                        line,
+                        offset,
+                        endLine,
+                        endOffset,
+                        insertString: lspChange.text,
+                     });
                 }
                 
-                executeRequest<protocol.UpdateOpenRequest>(protocol.CommandTypes.UpdateOpen, {changedFiles: [{fileName: filename, textChanges: changes }]});                                
+                // executeRequest<protocol.UpdateOpenRequest>(protocol.CommandTypes.UpdateOpen, {changedFiles: [{fileName: filename, textChanges: changes }]});                                                
                 if (serverMode !== lpc.LanguageServiceMode.Syntactic) {
                     executeRequest<protocol.GeterrRequest>(protocol.CommandTypes.Geterr, {delay: DIAG_DELAY, files: [filename]});
                 }
@@ -536,7 +560,7 @@ export function start(connection: Connection, platform: string) {
             }
         });
 
-        function executeRequest<T extends protocol.Request, R = any>(command: protocol.CommandTypes, args: T["arguments"]) {
+        function executeRequest<T extends protocol.Request, R = any>(command: protocol.CommandTypes, args: T["arguments"]) {            
             return session.onMessage({seq: sequence++, type: "request", command, arguments: args} as T) as R;
         }        
         

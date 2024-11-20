@@ -1,4 +1,4 @@
-import { arrayFrom, arrayReverseIterator, cast, CodeAction, CompletionEntry, CompletionEntryData, CompletionEntryDetails, CompletionInfo, concatenate, createQueue, createSet, createTextSpan, Debug, DefinitionInfo, Diagnostic, diagnosticCategoryName, DiagnosticRelatedInformation, displayPartsToString, DocumentPosition, DocumentSpan, documentSpansEqual, emptyArray, FileTextChanges, filter, find, first, firstIterator, firstOrUndefined, flatMap, flattenDiagnosticMessageText, FormatCodeSettings, getDocumentSpansEqualityComparer, getLineAndCharacterOfPosition, getMappedContextSpan, getMappedDocumentSpan, getMappedLocation, getSnapshotText, identity, isArray, isDeclarationFileName, isString, JSDocTagInfo, LanguageServiceMode, LanguageVariant, LineAndCharacter, LpcConfigSourceFile, map, mapDefined, mapDefinedIterator, mapIterator, memoize, MultiMap, NavigationTree, normalizePath, OperationCanceledException, Path, perfLogger, PossibleProgramFileInfo, QuickInfo, ReferencedSymbol, ReferencedSymbolDefinitionInfo, ReferencedSymbolEntry, RenameInfo, RenameInfoFailure, RenameLocation, ScriptKind, SignatureHelpItem, SignatureHelpItems, startsWith, SymbolDisplayPart, TextChange, TextSpan, textSpanEnd, toFileNameLowerCase, tracing, UserPreferences, WithMetadata } from "./_namespaces/lpc";
+import { arrayFrom, arrayReverseIterator, cast, CodeAction, CompletionEntry, CompletionEntryData, CompletionEntryDetails, CompletionInfo, concatenate, createQueue, createSet, createTextSpan, Debug, DefinitionInfo, Diagnostic, diagnosticCategoryName, DiagnosticRelatedInformation, displayPartsToString, DocumentPosition, DocumentSpan, documentSpansEqual, emptyArray, FileTextChanges, filter, find, first, firstIterator, firstOrUndefined, flatMap, flattenDiagnosticMessageText, FormatCodeSettings, getDocumentSpansEqualityComparer, getLineAndCharacterOfPosition, getMappedContextSpan, getMappedDocumentSpan, getMappedLocation, getSnapshotText, identity, isArray, isDeclarationFileName, isString, JSDocTagInfo, LanguageServiceMode, LanguageVariant, LineAndCharacter, LpcConfigSourceFile, map, mapDefined, mapDefinedIterator, mapIterator, memoize, MultiMap, NavigationTree, normalizePath, OperationCanceledException, Path, perfLogger, PossibleProgramFileInfo, QuickInfo, ReferencedSymbol, ReferencedSymbolDefinitionInfo, ReferencedSymbolEntry, RenameInfo, RenameInfoFailure, RenameLocation, ScriptKind, SignatureHelpItem, SignatureHelpItems, singleIterator, startsWith, SymbolDisplayPart, TextChange, TextSpan, textSpanEnd, toFileNameLowerCase, tracing, UserPreferences, WithMetadata } from "./_namespaces/lpc";
 import { ChangeFileArguments, ConfiguredProject, convertUserPreferences, Errors, GcTimer, indent, isConfiguredProject, Logger, LogLevel, Msg, NormalizedPath, OpenFileArguments, Project, ProjectKind, ProjectService, ProjectServiceEventHandler, ProjectServiceOptions, ScriptInfo, ServerHost, stringifyIndented, toNormalizedPath, updateProjectIfDirty } from "./_namespaces/lpc.server";
 import * as protocol from "./protocol.js";
 
@@ -335,6 +335,34 @@ export class Session<TMessage = string> implements EventSender {
         return true;
     }
 
+    private closeClientFile(fileName: string) {
+        if (!fileName) {
+            return;
+        }
+        const file = normalizePath(fileName);
+        this.projectService.closeClientFile(file);
+    }
+
+
+    private change(args: protocol.ChangeRequestArgs) {
+        const scriptInfo = this.projectService.getScriptInfo(args.file)!;
+        Debug.assert(!!scriptInfo);
+        // Because we are going to apply edits, its better to switch to svc now instead of computing line map
+        scriptInfo.textStorage.switchToScriptVersionCache();
+        const start = scriptInfo.lineOffsetToPosition(args.line, args.offset);
+        const end = scriptInfo.lineOffsetToPosition(args.endLine, args.endOffset);
+        if (start >= 0) {
+            this.changeSeq++;
+            this.projectService.applyChangesToFile(
+                scriptInfo,
+                singleIterator({
+                    span: { start, length: end - start },
+                    newText: args.insertString!, // TODO: GH#18217
+                }),
+            );
+        }
+    }
+    
     private getDiagnostics(next: NextStep, delay: number, fileNames: string[]): void {
         if (this.suppressDiagnosticEvents) {
             return;
@@ -1096,6 +1124,15 @@ export class Session<TMessage = string> implements EventSender {
     }
     
     private handlers = new Map(Object.entries<(request: any) => HandlerResponse>({ // TODO(jakebailey): correctly type the handlers
+        [protocol.CommandTypes.Change]: (request: protocol.ChangeRequest) => {
+            this.change(request.arguments);
+            return this.notRequired();
+        },
+        [protocol.CommandTypes.Close]: (request: protocol.Request) => {
+            const closeArgs = request.arguments as protocol.FileRequestArgs;
+            this.closeClientFile(closeArgs.file);
+            return this.notRequired();
+        },
         [protocol.CommandTypes.UpdateOpen]: (request: protocol.UpdateOpenRequest) => {
             const response = this.updateOpenWorker(request.arguments);
             return this.requiredResponse(/*response*/ response);            
