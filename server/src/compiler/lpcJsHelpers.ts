@@ -54,8 +54,10 @@ export function createVmHelperContext() {
                     return left * right;
                 case "/":
                     return left / right;
+                case "==":
+                    return left == right;
                 default:
-                    throw "Unhandled operator " + op;
+                    throw new Error("Unhandled operator " + op);
             }
         }
     }
