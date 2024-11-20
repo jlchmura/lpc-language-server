@@ -133,6 +133,27 @@ export class Session<TMessage = string> implements EventSender {
         //this.projectService.setPerformanceEventHandler(this.performanceEventHandler.bind(this));
         this.gcTimer = new GcTimer(this.host, /*delay*/ 7000, this.logger);        
         
+        // Make sure to setup handlers to throw error for not allowed commands on syntax server
+        switch (this.projectService.serverMode) {
+            case LanguageServiceMode.Semantic:
+                break;
+            case LanguageServiceMode.PartialSemantic:                
+                invalidPartialSemanticModeCommands.forEach(commandName =>
+                    this.handlers.set(commandName, request => {
+                        throw new Error(`Request: ${request.command} not allowed in LanguageServiceMode.PartialSemantic`);
+                    })
+                );
+                break;
+            case LanguageServiceMode.Syntactic:
+                invalidSyntacticModeCommands.forEach(commandName =>
+                    this.handlers.set(commandName, request => {
+                        throw new Error(`Request: ${request.command} not allowed in LanguageServiceMode.Syntactic`);
+                    })
+                );
+                break;
+            default:
+                Debug.assertNever(this.projectService.serverMode);
+        }
     }
 
     exit() {/*overridden*/}
@@ -1888,3 +1909,67 @@ function hrTimeToMilliseconds(time: [number, number]): number {
     const nanoseconds = time[1];
     return ((1e9 * seconds) + nanoseconds) / 1000000.0;
 }
+
+const invalidPartialSemanticModeCommands: readonly protocol.CommandTypes[] = [
+    protocol.CommandTypes.OpenExternalProject,
+    protocol.CommandTypes.OpenExternalProjects,
+    protocol.CommandTypes.CloseExternalProject,
+    protocol.CommandTypes.SynchronizeProjectList,
+    protocol.CommandTypes.EmitOutput,
+    protocol.CommandTypes.CompileOnSaveAffectedFileList,
+    protocol.CommandTypes.CompileOnSaveEmitFile,
+    protocol.CommandTypes.CompilerOptionsDiagnosticsFull,
+    protocol.CommandTypes.EncodedSemanticClassificationsFull,
+    protocol.CommandTypes.SemanticDiagnosticsSync,
+    protocol.CommandTypes.SuggestionDiagnosticsSync,
+    protocol.CommandTypes.GeterrForProject,
+    protocol.CommandTypes.Reload,
+    protocol.CommandTypes.ReloadProjects,
+    protocol.CommandTypes.GetCodeFixes,
+    protocol.CommandTypes.GetCodeFixesFull,
+    protocol.CommandTypes.GetCombinedCodeFix,
+    protocol.CommandTypes.GetCombinedCodeFixFull,
+    protocol.CommandTypes.ApplyCodeActionCommand,
+    protocol.CommandTypes.GetSupportedCodeFixes,
+    protocol.CommandTypes.GetApplicableRefactors,
+    protocol.CommandTypes.GetMoveToRefactoringFileSuggestions,
+    protocol.CommandTypes.GetEditsForRefactor,
+    protocol.CommandTypes.GetEditsForRefactorFull,
+    protocol.CommandTypes.OrganizeImports,
+    protocol.CommandTypes.OrganizeImportsFull,
+    protocol.CommandTypes.GetEditsForFileRename,
+    protocol.CommandTypes.GetEditsForFileRenameFull,
+    protocol.CommandTypes.PrepareCallHierarchy,
+    protocol.CommandTypes.ProvideCallHierarchyIncomingCalls,
+    protocol.CommandTypes.ProvideCallHierarchyOutgoingCalls,
+    protocol.CommandTypes.GetPasteEdits,
+];
+
+const invalidSyntacticModeCommands: readonly protocol.CommandTypes[] = [
+    ...invalidPartialSemanticModeCommands,
+    protocol.CommandTypes.Definition,
+    protocol.CommandTypes.DefinitionFull,
+    protocol.CommandTypes.DefinitionAndBoundSpan,
+    protocol.CommandTypes.DefinitionAndBoundSpanFull,
+    protocol.CommandTypes.TypeDefinition,
+    protocol.CommandTypes.Implementation,
+    protocol.CommandTypes.ImplementationFull,
+    protocol.CommandTypes.References,
+    protocol.CommandTypes.ReferencesFull,
+    protocol.CommandTypes.Rename,
+    protocol.CommandTypes.RenameLocationsFull,
+    protocol.CommandTypes.RenameInfoFull,
+    protocol.CommandTypes.Quickinfo,
+    protocol.CommandTypes.QuickinfoFull,
+    protocol.CommandTypes.CompletionInfo,
+    protocol.CommandTypes.Completions,
+    protocol.CommandTypes.CompletionsFull,
+    protocol.CommandTypes.CompletionDetails,
+    protocol.CommandTypes.CompletionDetailsFull,
+    protocol.CommandTypes.SignatureHelp,
+    protocol.CommandTypes.SignatureHelpFull,
+    protocol.CommandTypes.Navto,
+    protocol.CommandTypes.NavtoFull,
+    protocol.CommandTypes.DocumentHighlights,
+    protocol.CommandTypes.DocumentHighlightsFull,
+];

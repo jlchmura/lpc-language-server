@@ -1343,6 +1343,16 @@ export function createLanguageService(
     syntaxOnlyOrLanguageServiceMode?: boolean | LanguageServiceMode,
 ): LanguageService {
     let languageServiceMode: LanguageServiceMode;
+    if (syntaxOnlyOrLanguageServiceMode === undefined) {
+        languageServiceMode = LanguageServiceMode.Semantic;
+    }
+    else if (typeof syntaxOnlyOrLanguageServiceMode === "boolean") {
+        // languageServiceMode = SyntaxOnly
+        languageServiceMode = syntaxOnlyOrLanguageServiceMode ? LanguageServiceMode.Syntactic : LanguageServiceMode.Semantic;
+    }
+    else {
+        languageServiceMode = syntaxOnlyOrLanguageServiceMode;
+    }
     
     const syntaxTreeCache: SyntaxTreeCache = new SyntaxTreeCache(host);
     let program: Program;
@@ -1551,6 +1561,8 @@ export function createLanguageService(
     }
 
     function synchronizeHostDataWorker(): void {
+        Debug.assert(languageServiceMode !== LanguageServiceMode.Syntactic);
+
         // perform fast check if host supports it
         if (host.getProjectVersion) {
             const hostProjectVersion = host.getProjectVersion();

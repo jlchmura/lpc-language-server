@@ -14,15 +14,16 @@ import { CompletionEntryDetails, SignatureHelp } from "./typeConverters";
 const logger = new Logger("server.log", true, lpc.server.LogLevel.normal);
 const DIAG_DELAY = 300;
 
+// see https://github.com/microsoft/vscode/blob/2e93ebce771522202158ee335d2c36d10ce086ea/extensions/typescript-language-features/src/tsServer/server.ts#L495 
+// for details on which operations should be routed to semantic and which to syntax
 const serverCapabilities: vscode.ServerCapabilities = {
     textDocumentSync: TextDocumentSyncKind.Incremental,                
-    // Tell the client that this server supports code completion.
     completionProvider: {
         resolveProvider: true,        
         triggerCharacters: lpc.CompletionTriggerCharacterArray,
     },
     renameProvider: true,
-    documentSymbolProvider: true,
+    // documentSymbolProvider: false, // this happens in syntax mode
     // codeLensProvider: {
     //     resolveProvider: true,
     //     workDoneProgress: false,
@@ -36,6 +37,11 @@ const serverCapabilities: vscode.ServerCapabilities = {
     },
     referencesProvider: true,
     //documentHighlightProvider: true,
+};
+
+const syntaxServerCapabilities: vscode.ServerCapabilities = {
+    textDocumentSync: TextDocumentSyncKind.Incremental,                        
+    documentSymbolProvider: true    
 };
 
 class LspSession extends lpc.server.Session {
@@ -60,12 +66,31 @@ class LspSession extends lpc.server.Session {
     }
 }
 
+
+function parseServerMode(): lpc.LanguageServiceMode | undefined {
+    const mode = lpc.server.findArgument("--serverMode");
+    if (!mode) return undefined;
+
+    switch (mode.toLowerCase()) {
+        case "semantic":
+            return lpc.LanguageServiceMode.Semantic;
+        case "partialsemantic":
+            return lpc.LanguageServiceMode.PartialSemantic;
+        case "syntactic":
+            return lpc.LanguageServiceMode.Syntactic;
+        default:
+            return lpc.LanguageServiceMode.Semantic;
+    }
+}
+
 export function start(connection: Connection, platform: string) {
+    const serverMode = parseServerMode() ?? lpc.LanguageServiceMode.Semantic;
+
     logger.info(`Starting TS Server`);
     //logger.info(`Version: ${lpc.version}`);
     // logger.info(`Arguments: ${args.join(" ")}`);
     logger.info(`Platform: ${platform} NodeVersion: ${process.version} CaseSensitive: ${lpc.sys.useCaseSensitiveFileNames}`);
-    //logger.info(`ServerMode: ${serverMode} hasUnknownServerMode: ${unknownServerMode}`);
+    logger.info(`ServerMode: ${serverMode}`);
 
     lpc.setStackTraceLimit();    
 
@@ -111,12 +136,13 @@ export function start(connection: Connection, platform: string) {
             host: lpc.sys as lpc.server.ServerHost,
             cancellationToken,
             byteLength: Buffer.byteLength,
-            useSingleInferredProject: false,
+            useSingleInferredProject: true,
             useInferredProjectPerProjectRoot: false,
             logger,
             canUseEvents: true,
             hrtime: process.hrtime,
             projectRootFolder: (rootFolder),            
+            serverMode
         });                              
         
         // send blank options for now
@@ -164,7 +190,7 @@ export function start(connection: Connection, platform: string) {
         );
 
         const initResult: InitializeResult = {
-            capabilities: serverCapabilities,
+            capabilities: serverMode===lpc.LanguageServiceMode.Semantic ? serverCapabilities : syntaxServerCapabilities,
         };
 
         if (this.hasWorkspaceFolderCapability) {
@@ -178,7 +204,9 @@ export function start(connection: Connection, platform: string) {
         documents.onDidOpen(e => {                        
             const filename = fromUri(e.document.uri);
             executeRequest<protocol.UpdateOpenRequest>(protocol.CommandTypes.UpdateOpen, {openFiles: [{file:filename}]});
-            executeRequest<protocol.GeterrRequest>(protocol.CommandTypes.Geterr, {delay: 0, files: [filename]});
+            if (serverMode !== lpc.LanguageServiceMode.Syntactic) {
+                executeRequest<protocol.GeterrRequest>(protocol.CommandTypes.Geterr, {delay: 0, files: [filename]});
+            }
         });
                
         documents.onDidClose(e => {
@@ -202,7 +230,9 @@ export function start(connection: Connection, platform: string) {
                 }
                 
                 executeRequest<protocol.UpdateOpenRequest>(protocol.CommandTypes.UpdateOpen, {changedFiles: [{fileName: filename, textChanges: changes }]});                                
-                executeRequest<protocol.GeterrRequest>(protocol.CommandTypes.Geterr, {delay: DIAG_DELAY, files: [filename]});
+                if (serverMode !== lpc.LanguageServiceMode.Syntactic) {
+                    executeRequest<protocol.GeterrRequest>(protocol.CommandTypes.Geterr, {delay: DIAG_DELAY, files: [filename]});
+                }
             } catch(ex) {
                 console.error(ex);
                 debugger;

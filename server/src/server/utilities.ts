@@ -1,4 +1,4 @@
-import { combinePaths, CompilerOptions, EmitHost, FileSystemEntries, find, forEach, getSourceFilePathInNewDirWorker, removeFileExtension } from "./_namespaces/lpc";
+import { combinePaths, CompilerOptions, EmitHost, FileSystemEntries, find, forEach, getSourceFilePathInNewDirWorker, removeFileExtension, sys } from "./_namespaces/lpc";
 import { Logger, LogLevel, NormalizedPath, ServerHost, toNormalizedPath } from "./_namespaces/lpc.server";
 
 /** @internal */
@@ -125,3 +125,10 @@ export function stringifyIndented(json: {}): string {
     return indent(JSON.stringify(json, undefined, 2));
 }
 
+/** @internal */
+export function findArgument(argumentName: string): string | undefined {
+    const index = sys.args.indexOf(argumentName);
+    return index >= 0 && index < sys.args.length - 1
+        ? sys.args[index + 1]
+        : undefined;
+}

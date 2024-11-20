@@ -28,6 +28,7 @@ import { LanguageDescription, isLpcConfigFileName, standardLanguageDescriptions 
 
 let clientInitialized = false;
 let client: LanguageClient;
+let syntaxClient: LanguageClient;
 const progress = new ProgressIndicator();
 const _disposables: vscode.Disposable[] = [];
 let _isDisposed = false;
@@ -36,7 +37,7 @@ export function activate(context: ExtensionContext) {
     // The server is implemented in node
     const serverModule = context.asAbsolutePath(
         path.join("out", "server", "src", "server.js")
-    );
+    );    
 
     // get location of efuns folder and pass to server as an argument
     const efunDir = context.asAbsolutePath("efuns");
@@ -45,6 +46,9 @@ export function activate(context: ExtensionContext) {
         execArgv: ["--nolazy", "--enable-source-maps", "--inspect"]
     };
 
+    const serverArgs = [efunDir, "--serverMode", "semantic"];
+    const syntaxServerArgs = [efunDir, "--serverMode", "syntactic"];
+
     // If the extension is launched in debug mode then the debug server options are used
     // Otherwise the run options are used
     const serverOptions: ServerOptions = {
@@ -52,15 +56,19 @@ export function activate(context: ExtensionContext) {
             module: serverModule,
             transport: TransportKind.ipc,
             options: { execArgv: ["--enable-source-maps"] },
-            args: [efunDir],
+            args: serverArgs,
         },
         debug: {
             module: serverModule,
             transport: TransportKind.ipc,
             options: debugOptions,
-            args: [efunDir],
+            args: serverArgs,
         },
     };
+
+    const syntaxServerOptions: ServerOptions = { run: {...serverOptions.run}, debug: {...serverOptions.debug} };
+    syntaxServerOptions.run.args = syntaxServerArgs;
+    syntaxServerOptions.debug.args = syntaxServerArgs;
 
     const docSel = [{ scheme: "file", language: "lpc" }];
 
@@ -88,6 +96,9 @@ export function activate(context: ExtensionContext) {
 
     // Start the client. This will also launch the server
     client.start();
+
+    syntaxClient = new LanguageClient("lpc", "LPC Syntax Server", syntaxServerOptions, clientOptions);
+    syntaxClient.start();
           
     context.subscriptions.push(
         commands.registerCommand(
@@ -143,7 +154,7 @@ export function activate(context: ExtensionContext) {
         
         await Promise.all([
             import("./languageFeatures/semanticTokens").then(provider => _register(provider.register(selector, client))),
-            import("./languageFeatures/jsDocCompletions").then(provider => _register(provider.register(selector, language, client))),
+            import("./languageFeatures/jsDocCompletions").then(provider => _register(provider.register(selector, language, syntaxClient))),
         ]);
     }
     
@@ -176,7 +187,7 @@ export function activate(context: ExtensionContext) {
         }
 
         // get projectInfo from server
-        const info: any = await client.sendRequest("projectInfo", { 
+        const info: any = await syntaxClient.sendRequest("projectInfo", { 
             command: "projectInfo",
             arguments: {
                 needFileNameList: false,

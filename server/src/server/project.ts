@@ -175,14 +175,34 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
             getIncludeDirs: (filename) => this.program.getIncludeDirs(filename)
         });                
         this.languageService = createLanguageService(this, fileHandler, this.documentRegistry, this.projectService.serverMode);
-        // if (lastFileExceededProgramSize) {
-        //     this.disableLanguageService(lastFileExceededProgramSize);
-        // }
+        if (lastFileExceededProgramSize) {
+            this.disableLanguageService(lastFileExceededProgramSize);
+        }
         this.markAsDirty();
         if (!isBackgroundProject(this)) {
             this.projectService.pendingEnsureProjectForOpenFiles = true;
         }
         this.projectService.onProjectCreation(this);
+    }
+
+    disableLanguageService(lastFileExceededProgramSize?: string) {
+        if (!this.languageServiceEnabled) {
+            return;
+        }
+        Debug.assert(this.projectService.serverMode !== LanguageServiceMode.Syntactic);
+        this.languageService.cleanupSemanticCache();
+        this.languageServiceEnabled = false;
+        this.cleanupProgram();
+        this.lastFileExceededProgramSize = lastFileExceededProgramSize;
+        // this.builderState = undefined;
+        // if (this.autoImportProviderHost) {
+        //     this.autoImportProviderHost.close();
+        // }
+        // this.autoImportProviderHost = undefined;
+        // this.resolutionCache.closeTypeRootsWatch();
+        // this.clearGeneratedFileWatch();
+        this.projectService.verifyDocumentRegistry();
+        this.projectService.onUpdateLanguageServiceStateForProject(this, /*languageServiceEnabled*/ false);
     }
 
     /** @internal */
@@ -241,6 +261,10 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
         return this.projectStateVersion.toString();
     }
 
+    getScriptInfo(uncheckedFileName: string) {
+        return this.projectService.getScriptInfo(uncheckedFileName);
+    }
+    
     getRootScriptInfos() {
         return arrayFrom(lpc.mapDefinedIterator(this.rootFilesMap.values(), value => value.info));
     }
@@ -1191,7 +1215,7 @@ export class ConfiguredProject extends Project {
             this.projectService.sendConfigFileDiagEvent(this, /*triggerFile*/ undefined, /*force*/ false);
         }
         return result;
-    }
+    }    
 
     /** @internal */
     override getCachedDirectoryStructureHost() {

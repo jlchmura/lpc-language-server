@@ -5478,7 +5478,7 @@ export function forEachAncestor<T>(node: Node, callback: (n: Node) => T | undefi
         const res = callback(node);
         if (res === "quit") return undefined;
         if (res !== undefined) return res;
-        if (isSourceFile(node)) return undefined;
+        if (!node || isSourceFile(node)) return undefined;
         node = node.parent;
     }
 }
