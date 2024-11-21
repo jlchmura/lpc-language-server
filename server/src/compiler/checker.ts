@@ -9905,14 +9905,19 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             if (flow === lastFlowNode) {
                 return lastFlowNodeReachable;
             }
-            const flags = flow.flags;
+            const flags = flow.flags;            
             if (flags & FlowFlags.Shared) {
                 if (!noCacheCheck) {
                     const id = getFlowNodeId(flow);
                     const reachable = flowNodeReachable[id];
-                    return reachable !== undefined ? reachable : (flowNodeReachable[id] = isReachableFlowNodeWorker(flow, /*noCacheCheck*/ true));
+                    return reachable !== undefined ? reachable : (flowNodeReachable[id] = isReachableFlowNodeWorker(flow, /*noCacheCheck*/ true));                    
                 }
                 noCacheCheck = false;
+            }
+            // TODO - this was not part of the typescript codebase
+            // I added it to prevent an infinite loop
+            if (flags & FlowFlags.Unreachable) {
+                return false;
             }
             if (flags & (FlowFlags.Assignment | FlowFlags.Condition | FlowFlags.ArrayMutation)) {
                 flow = (flow as FlowAssignment | FlowCondition | FlowArrayMutation).antecedent;

@@ -3493,7 +3493,7 @@ int referencep(mixed arg);
  * @since LDMud 3.6.0 added the <encoding> parameter.
  *
  */
-string read_file(string file, int start, int number, string encoding);
+varargs string read_file(string file, int start, int number, string encoding);
 
 /**
  * read_bytes

@@ -727,6 +727,7 @@ export function createDiagnosticForNodeInSourceFile(sourceFile: SourceFile, node
 
 /** @internal */
 export function createFileDiagnostic(file: SourceFile, start: number, length: number, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithLocation {
+    if (start > file.text.length) start = 0;
     assertDiagnosticLocation(file.text, start, length);
 
     let text = getLocaleSpecificMessage(message);

@@ -45,7 +45,8 @@ export function createLpcFileHandler(host: LpcFileHandlerHost): LpcFileHandler {
             
             searchPath = forEach(searchDirs, (dir) => {
                 searchPath = resolvePath(dir, includePath);
-                return host.fileExists(searchPath) ? searchPath : undefined;
+                const exists = host.fileExists(searchPath);
+                return exists ? searchPath : undefined;
             });
         }
         

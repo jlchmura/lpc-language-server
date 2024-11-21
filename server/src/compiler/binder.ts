@@ -1481,14 +1481,13 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
         hasFlowEffects ||= saveHasFlowEffects;
     }
 
-    function setContinueTarget(node: Node, target: FlowLabel) {
-        // LPC doens't have labeled statements?
-        // let label = activeLabelList;
-        // while (label && node.parent.kind === SyntaxKind.LabeledStatement) {
-        //     label.continueTarget = target;
-        //     label = label.next;
-        //     node = node.parent;
-        // }
+    function setContinueTarget(node: Node, target: FlowLabel) {        
+        let label = activeLabelList;
+        while (label && node.parent.kind === SyntaxKind.LabeledStatement) {
+            label.continueTarget = target;
+            label = label.next;
+            node = node.parent;
+        }
         return target;
     }
 

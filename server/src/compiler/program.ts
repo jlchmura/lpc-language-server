@@ -141,14 +141,11 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
     ) => readonly ResolvedModuleWithFailedLookupLocations[];
     const hasInvalidatedResolutions = host.hasInvalidatedResolutions || returnFalse;
     
-    const fileHandler = createLpcFileHandler({
-        fileExists: fileName => sys.fileExists(fileName),
-        readFile: fileName => sys.readFile(fileName),
-        getCurrentDirectory: () => sys.getCurrentDirectory(),
-        getIncludeDirs
-    });
-
-    moduleResolutionCache = createModuleResolutionCache(currentDirectory, getCanonicalFileName, options);
+    if (host.resolveModuleNameLiterals) {
+        actualResolveModuleNamesWorker = host.resolveModuleNameLiterals.bind(host);
+        moduleResolutionCache = host.getModuleResolutionCache?.();
+    } else {
+        moduleResolutionCache = createModuleResolutionCache(currentDirectory, getCanonicalFileName, options);
         actualResolveModuleNamesWorker = (moduleNames, containingFile, redirectedReference, options, containingSourceFile) =>
             loadWithModeAwareCache(
                 moduleNames,
@@ -159,8 +156,17 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                 host,
                 moduleResolutionCache,
                 createModuleResolutionLoader,
-            );
-            
+            );            
+    }
+
+    const fileHandler = createLpcFileHandler({
+        fileExists: fileName => sys.fileExists(fileName),
+        readFile: fileName => sys.readFile(fileName),
+        getCurrentDirectory: () => sys.getCurrentDirectory(),
+        getIncludeDirs
+    });
+
+    
     // A parallel array to projectReferences storing the results of reading in the referenced tsconfig files
     let resolvedProjectReferences: readonly (ResolvedProjectReference | undefined)[] | undefined;
     let projectReferenceRedirects: Map<Path, ResolvedProjectReference | false> | undefined;
@@ -366,7 +372,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         getProjectReferences,
         getResolvedProjectReferences,
         // getProjectReferenceRedirect,
-        // getResolvedProjectReferenceToRedirect,
+        getResolvedProjectReferenceToRedirect,
         getResolvedProjectReferenceByPath,
         forEachResolvedProjectReference,
         isSourceOfProjectReferenceRedirect,

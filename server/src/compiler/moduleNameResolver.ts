@@ -1357,3 +1357,44 @@ export function parsePackageName(moduleName: string): { packageName: string; res
     }
     return idx === -1 ? { packageName: moduleName, rest: "" } : { packageName: moduleName.slice(0, idx), rest: moduleName.slice(idx + 1) };
 }
+
+/**
+ * A host may load a module from a global cache of typings.
+ * This is the minumum code needed to expose that functionality; the rest is in the host.
+ *
+ * @internal
+ */
+export function loadModuleFromGlobalCache(moduleName: string, projectName: string | undefined, compilerOptions: CompilerOptions, host: ModuleResolutionHost, globalCache: string, packageJsonInfoCache: PackageJsonInfoCache): ResolvedModuleWithFailedLookupLocations {
+    const traceEnabled = isTraceEnabled(compilerOptions, host);
+    if (traceEnabled) {
+        trace(host, Diagnostics.Auto_discovery_for_typings_is_enabled_in_project_0_Running_extra_resolution_pass_for_module_1_using_cache_location_2, projectName, moduleName, globalCache);
+    }
+    const failedLookupLocations: string[] = [];
+    const affectingLocations: string[] = [];
+    const diagnostics: Diagnostic[] = [];
+    const state: ModuleResolutionState = {
+        compilerOptions,
+        host,
+        traceEnabled,
+        failedLookupLocations,
+        affectingLocations,
+        packageJsonInfoCache,
+        features: NodeResolutionFeatures.None,
+        conditions: [],
+        requestContainingDirectory: undefined,
+        reportDiagnostic: diag => void diagnostics.push(diag),
+        isConfigLookup: false,
+        candidateIsFromPackageJsonField: false,
+        resolvedPackageDirectory: false,
+    };
+    const resolved = loadModuleFromImmediateNodeModulesDirectory(Extensions.Declaration, moduleName, globalCache, state, /*typesScopeOnly*/ false, /*cache*/ undefined, /*redirectedReference*/ undefined);
+    return createResolvedModuleWithFailedLookupLocations(
+        resolved,
+        /*isExternalLibraryImport*/ true,
+        failedLookupLocations,
+        affectingLocations,
+        diagnostics,
+        state.resultFromCache,
+        /*cache*/ undefined,
+    );
+}

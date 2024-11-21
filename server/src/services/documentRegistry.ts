@@ -289,7 +289,7 @@ export function createDocumentRegistryInternal(
     function getCompilationSettings(
         settingsOrHost: CompilerOptions | MinimalResolutionCacheHost
     ) {
-        if (typeof settingsOrHost.getCompilationSettings === "function") {
+        if (settingsOrHost && typeof settingsOrHost.getCompilationSettings === "function") {
             return (
                 settingsOrHost as MinimalResolutionCacheHost
             ).getCompilationSettings();

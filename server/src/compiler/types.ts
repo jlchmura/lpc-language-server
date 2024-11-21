@@ -778,8 +778,7 @@ export const enum SyntaxKind {
     DoKeyword,
     ElseKeyword,
     ForKeyword,
-    ForEachKeyword,
-    FunctionKeyword,    
+    ForEachKeyword,    
     CaseKeyword,
     DefaultKeyword,
     IfKeyword,
@@ -803,18 +802,19 @@ export const enum SyntaxKind {
     IntrinsicKeyword,
     NoMaskKeyword,
     VarArgsKeyword,
-    DeprecatedKeyword,  // LastKeyword and LastToken - everything after this will be processed by the binder
+    DeprecatedKeyword,  // LastReservedWord
 
     // non-reserved keywords go below this line
     ClassKeyword,
     StatusKeyword,
-    SymbolKeyword, // not reserved in fluffos
-    ObjectKeyword, // can occur in a upser expr i.e.  object::fn()
-    RefKeyword, // fluff only
-    IsKeyword, // use for type predicates only
-    FunctionsKeyword, // inherit modifier
-    VirtualKeyword,   // inherit modifier
-    NewKeyword,
+    FunctionKeyword,    // can be used as a param name
+    SymbolKeyword,      // not reserved in fluffos
+    ObjectKeyword,      // can occur in a super expr i.e.  object::fn()
+    RefKeyword,         // fluff only
+    IsKeyword,          // use for type predicates only
+    FunctionsKeyword,   // inherit modifier
+    VirtualKeyword,     // inherit modifier
+    NewKeyword,         // LastKeyword and LastToken - everything after this will be processed by the binder
 
     // Parse Tree Nodes
 
@@ -1194,7 +1194,7 @@ export const enum NodeFlags {
     HasAsyncFunctions  = 1 << 12, // If the file has async (i.e. LD coroutine) functions (initialized by binding)    
     DisallowInContext  = 1 << 13, // If node was parsed in a context where 'in-expressions' are not allowed
     YieldContext       = 1 << 14, // If node was parsed in the 'yield' context created when parsing a generator
-    DecoratorContext   = 1 << 15, // If node was parsed as part of a decorator
+    DisallowTypes      = 1 << 15, // If node was parsed in a context where types are not allowed
     AwaitContext       = 1 << 16, // If node was parsed in the 'await' context created when parsing an async function
     DisallowConditionalTypesContext = 1 << 17, // If node was parsed in a context where conditional types are not allowed
     ThisNodeHasError   = 1 << 18, // If the parser encountered an error when parsing the code that created this node
@@ -1212,7 +1212,7 @@ export const enum NodeFlags {
     ReachabilityAndEmitFlags = ReachabilityCheckFlags,
 
     // Parsing context flags
-    ContextFlags = DisallowInContext | DisallowConditionalTypesContext | YieldContext | DecoratorContext | AwaitContext | JavaScriptFile | Ambient,
+    ContextFlags = DisallowInContext | DisallowConditionalTypesContext | YieldContext | DisallowTypes | AwaitContext | JavaScriptFile | Ambient,
 
     // parse set flags
     BlockScoped = Variable,
@@ -5108,11 +5108,11 @@ export interface Program extends ScriptReferenceHost {
     getProjectReferences(): readonly ProjectReference[] | undefined;
     getResolvedProjectReferences(): readonly (ResolvedProjectReference | undefined)[] | undefined;
     // /** @internal */ getProjectReferenceRedirect(fileName: string): string | undefined;
-    // /**
-    //  * @internal
-    //  * Get the referenced project if the file is input file from that reference project
-    //  */
-    // getResolvedProjectReferenceToRedirect(fileName: string): ResolvedProjectReference | undefined;
+    /**
+     * @internal
+     * Get the referenced project if the file is input file from that reference project
+     */
+    getResolvedProjectReferenceToRedirect(fileName: string): ResolvedProjectReference | undefined;
     /** @internal */ forEachResolvedProjectReference<T>(cb: (resolvedProjectReference: ResolvedProjectReference) => T | undefined): T | undefined;
     /** @internal */ getResolvedProjectReferenceByPath(projectReferencePath: Path): ResolvedProjectReference | undefined;
     // /** @internal */ getRedirectReferenceForResolutionFromSourceOfProject(filePath: Path): ResolvedProjectReference | undefined;
@@ -5205,12 +5205,16 @@ export interface CompilerHost extends ModuleResolutionHost {
      * Returns the module resolution cache used by a provided `resolveModuleNames` implementation so that any non-name module resolution operations (eg, package.json lookup) can reuse it
      */
     getModuleResolutionCache?(): ModuleResolutionCache | undefined;
+    
     /**
-     * @deprecated supply resolveTypeReferenceDirectiveReferences instead for resolution that can handle newer resolution modes like nodenext
-     *
-     * This method is a companion for 'resolveModuleNames' and is used to resolve 'types' references to actual type declaration files
+     * 
+     * @param moduleLiterals 
+     * @param containingFile 
+     * @param redirectedReference 
+     * @param options 
+     * @param containingSourceFile 
+     * @param reusedNames 
      */
-    //resolveTypeReferenceDirectives?(typeReferenceDirectiveNames: string[] | readonly FileReference[], containingFile: string, redirectedReference: ResolvedProjectReference | undefined, options: CompilerOptions, containingFileMode?: ResolutionMode): (ResolvedTypeReferenceDirective | undefined)[];
     resolveModuleNameLiterals?(
         moduleLiterals: readonly StringLiteral[],
         containingFile: string,

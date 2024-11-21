@@ -251,7 +251,7 @@ function parseLpcConfigFileContentWorker(
     }
 
     if (raw?.libInclude && isArray(raw.libInclude)) {
-        options.libIncludeDirs = map(raw.libInclude as string[], dir => normalizePath(combinePaths(libRootPath, dir)));
+        options.libIncludeDirs = map(raw.libInclude as string[], dir => normalizePath(combinePaths(libRootPath, trimStart(dir,"/"))));
     }
 
     options.diagnostics = raw?.diagnostics === "on" || raw?.diagnostics === true;
