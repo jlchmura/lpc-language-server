@@ -148,7 +148,7 @@ export const textToDirectiveObj: MapLike<DirectiveSyntaxKind> = {
     '#ifdef': SyntaxKind.IfDefDirective,
     '#ifndef': SyntaxKind.IfNDefDirective,
     '#else': SyntaxKind.ElseDirective,
-    '#elseif': SyntaxKind.ElseIfDirective,
+    '#elif': SyntaxKind.ElseIfDirective,
     '#endif': SyntaxKind.EndIfDirective,
     '#pragma': SyntaxKind.PragmaDirective,
 }
@@ -1907,13 +1907,14 @@ export function createScanner(
         return token = SyntaxKind.Identifier;
     }
 
-    function getDirectiveToken(): DirectiveSyntaxKind | SyntaxKind.Identifier {
+    function getDirectiveToken(firstNonWhitespaceOffset: number): DirectiveSyntaxKind | SyntaxKind.Identifier {
         // Reserved words are between 2 and 12 characters long and start with a lowercase letter
-        const len = tokenValue.length;
+        const trimmedValue = "#" + tokenValue.substring(firstNonWhitespaceOffset);
+        const len = trimmedValue.length;
         if (len >= 3 && len <= 12) {
-            const ch = tokenValue.charCodeAt(1); // 0 is the hash
+            const ch = trimmedValue.charCodeAt(1); // 0 is the hash
             if (ch >= CharacterCodes.a && ch <= CharacterCodes.z) {
-                const keyword = textToDirective.get(tokenValue);
+                const keyword = textToDirective.get(trimmedValue);
                 if (keyword !== undefined) {
                     return token = keyword;
                 }
@@ -2677,7 +2678,11 @@ export function createScanner(
     }
 
     function scanDirective(startCharacter: number, languageVersion: ScriptTarget) {
+        const startPos = pos;
         let ch = startCharacter;
+        // skip whitespace
+        while (pos < end && isWhiteSpaceSingleLine(ch)) ch = codePointUnchecked(++pos);
+        const firstNonWhitespacePos = pos - startPos + 1;
         if (isIdentifierStart(ch, languageVersion)) {
             pos += charSize(ch);
             while (pos < end && isIdentifierPart(ch = codePointUnchecked(pos), languageVersion)) pos += charSize(ch);
@@ -2685,7 +2690,7 @@ export function createScanner(
             if (ch === CharacterCodes.backslash) {
                 tokenValue += scanIdentifierParts();
             }
-            return getDirectiveToken();
+            return getDirectiveToken(firstNonWhitespacePos);
         }
     }
 
