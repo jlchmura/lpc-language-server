@@ -841,9 +841,15 @@ function getItemName(node: Node, name: Node | undefined): string {
                 : "<global>";
         // case SyntaxKind.ExportAssignment:
         //     return isExportAssignment(node) && node.isExportEquals ? InternalSymbolName.ExportEquals : InternalSymbolName.Default;
-
         case SyntaxKind.DefineDirective:
             return (node as DefineDirective).name.text
+        case SyntaxKind.InlineClosureExpression:             
+            const parentCandidate = skipParentParenthesis(node.parent);
+            if (parentCandidate && isCallExpression(parentCandidate)) {
+                const ceName = getCalledExpressionName(parentCandidate.expression);
+                return ceName ? `${ceName}() callback (::)` : "<anonymous>";
+            }
+            // fall through
         // case SyntaxKind.ArrowFunction:
         case SyntaxKind.FunctionDeclaration:
         case SyntaxKind.FunctionExpression:        
@@ -855,20 +861,9 @@ function getItemName(node: Node, name: Node | undefined): string {
             // (eg: "app\n.onactivated"), so we should remove the whitespace for readability in the
             // navigation bar.
             // return getFunctionOrClassName(node as ArrowFunction | FunctionExpression | ClassExpression);
-            return getFunctionOrClassName(node as  FunctionExpression );
-        // case SyntaxKind.Constructor:
-        //     return "constructor";
-        // case SyntaxKind.ConstructSignature:
-        //     return "new()";
-        // case SyntaxKind.CallSignature:
-        //     return "()";
-        case SyntaxKind.InlineClosureExpression:             
-            const parentCandidate = skipParentParenthesis(node.parent);
-            if (parentCandidate && isCallExpression(parentCandidate)) {
-                const ceName = getCalledExpressionName(parentCandidate.expression);
-                return ceName ? `${ceName}() callback (::)` : "<anonymous>";
-            }
-            return getFunctionOrClassName(node as  FunctionExpression );
+            return getFunctionOrClassName(node as  FunctionExpression );        
+        case SyntaxKind.CallSignature:
+            return "()";        
         case SyntaxKind.IndexSignature:
             return "[]";
         default:

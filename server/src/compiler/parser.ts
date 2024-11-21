@@ -5051,15 +5051,15 @@ export namespace LpcParser {
         const hasJSDoc = hasPrecedingJSDocComment();
         const modifiers = parseModifiers(/*allowDecorators*/ false);
         parseExpected(SyntaxKind.FunctionKeyword);        
+        const type = parseType();
         const name = isIdentifier() ? parseIdentifier() : undefined;
 
         // const typeParameters = parseTypeParameters();
         const parameters = parseParameters();
         // const type = parseReturnType(SyntaxKind.ColonToken, /*isType*/ false);
         const body = parseFunctionBlock(SignatureFlags.None);
-
         
-        const node = factory.createFunctionExpression(modifiers, name, parameters, undefined, body);
+        const node = factory.createFunctionExpression(modifiers, name, parameters, type, body);
         return withJSDoc(finishNode(node, pos), hasJSDoc);
     }
 
@@ -5205,7 +5205,7 @@ export namespace LpcParser {
             const saveToken = currentToken;
             const saveParseDiagnosticsLength = parseDiagnostics.length;
             const saveParseErrorBeforeNextFinishedNode = parseErrorBeforeNextFinishedNode;
-
+            
             const comment = doInsideOfContext(NodeFlags.JSDoc, () => parseJSDocCommentWorker(start, length));
             setParent(comment, parent);
 
