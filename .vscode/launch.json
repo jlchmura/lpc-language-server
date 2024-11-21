@@ -8,8 +8,8 @@
             "name": "Launch Client",
             "runtimeExecutable": "${execPath}",
             "args": [
-                "${workspaceRoot}/../StickLib",
-                // "${workspaceRoot}/../mg-mudlib",
+                // "${workspaceRoot}/../StickLib",
+                "${workspaceRoot}/../mg-mudlib",
                 // "${workspaceRoot}/../lima",
                 // "${workspaceRoot}/../lpc-test2",
                 // "${workspaceRoot}/../glpu",

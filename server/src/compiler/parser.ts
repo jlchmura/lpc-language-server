@@ -1108,6 +1108,8 @@ export namespace LpcParser {
                 return parseErrorAtCurrentToken(Diagnostics.Identifier_expected);
             case ParsingContext.Count:
                 return Debug.fail("ParsingContext.Count used as a context"); // Not a real context, only a marker.
+            case ParsingContext.PragmaArguments:
+                return parseErrorAtCurrentToken(Diagnostics.Pragma_option_expected);
             default:
                 Debug.fail("Unknown ParsingContext");
                 console.debug("todo - parsingContextErrors");
@@ -1182,9 +1184,9 @@ export namespace LpcParser {
             //     }
             case ParsingContext.VariableDeclarations:
                 return isBindingIdentifier() || token() === SyntaxKind.AsteriskToken;
-            case ParsingContext.ForEachInitialers:
+            case ParsingContext.ForEachInitializers:
                 return isBindingIdentifier() || isTypeMemberStart();
-            case ParsingContext.PramgaArguments:
+            case ParsingContext.PragmaArguments:
                 return isBindingIdentifier();
             case ParsingContext.ArrayBindingElements:
                 return token() === SyntaxKind.CommaToken || token() === SyntaxKind.DotDotDotToken || isBindingIdentifier();
@@ -1420,14 +1422,14 @@ export namespace LpcParser {
                 return token() === SyntaxKind.CloseBraceToken || token() === SyntaxKind.ColonCloseParenToken || token() === SyntaxKind.NewLineTrivia;
             case ParsingContext.ObjectLiteralMembers:
                 return token() === SyntaxKind.CloseBraceToken;
-            case ParsingContext.PramgaArguments:
+            case ParsingContext.PragmaArguments:
                 return token() === SyntaxKind.NewLineTrivia;
             case ParsingContext.SwitchPreBlock:                
             case ParsingContext.SwitchClauseStatements:
                 return token() === SyntaxKind.CloseBraceToken || token() === SyntaxKind.CaseKeyword || token() === SyntaxKind.DefaultKeyword;
             // case ParsingContext.HeritageClauseElement:
             //     return token() === SyntaxKind.OpenBraceToken || token() === SyntaxKind.ExtendsKeyword || token() === SyntaxKind.ImplementsKeyword;
-            case ParsingContext.ForEachInitialers:
+            case ParsingContext.ForEachInitializers:
             case ParsingContext.VariableDeclarations:                
                 return isVariableDeclaratorListTerminator();
             // case ParsingContext.TypeParameters:
@@ -1865,7 +1867,7 @@ export namespace LpcParser {
         const pos = getPositionState();
 
         parseExpected(SyntaxKind.PragmaDirective);
-        let pragmaArgs = parseList(ParsingContext.PramgaArguments, parseIdentifier);
+        let pragmaArgs = parseDelimitedList(ParsingContext.PragmaArguments, (_ix) => parseIdentifier());
 
         if (pragmaArgs.length === 0) {
             pragmaArgs = createMissingList<Identifier>();
@@ -2008,7 +2010,7 @@ export namespace LpcParser {
             isTypeName()// && lookAhead(nextTokenIsIdentifierOrKeyword)
         ) {
             // const type = parseType();
-            initializer = parseVariableDeclarationList(/*inForStatementInitializer*/ true, undefined, ParsingContext.ForEachInitialers);
+            initializer = parseVariableDeclarationList(/*inForStatementInitializer*/ true, undefined, ParsingContext.ForEachInitializers);
         }
         else {
             initializer = disallowInAnd(parseExpression);
@@ -5099,8 +5101,8 @@ export namespace LpcParser {
         Count,                     // Number of parsing contexts
         InlineClosure,             // Closure expression
         StructMembers,             // Members in struct declaration
-        ForEachInitialers,         // Variable declarations in for statement
-        PramgaArguments            // Arguments in #pragma
+        ForEachInitializers,         // Variable declarations in for statement
+        PragmaArguments            // Arguments in #pragma
     }
 
     function internIdentifier(text: string): string {
