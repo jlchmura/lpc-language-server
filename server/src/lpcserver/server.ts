@@ -17,10 +17,10 @@ const DIAG_DELAY = 200;
 // see https://github.com/microsoft/vscode/blob/2e93ebce771522202158ee335d2c36d10ce086ea/extensions/typescript-language-features/src/tsServer/server.ts#L495 
 // for details on which operations should be routed to semantic and which to syntax
 const serverCapabilities: vscode.ServerCapabilities = {
-    textDocumentSync: TextDocumentSyncKind.Incremental,                
+    textDocumentSync: TextDocumentSyncKind.Incremental,    
     completionProvider: {
         resolveProvider: true,        
-        triggerCharacters: lpc.CompletionTriggerCharacterArray,
+        triggerCharacters: lpc.CompletionTriggerCharacterArray,        
     },
     renameProvider: true,
     // documentSymbolProvider: false, // this happens in syntax mode
@@ -552,7 +552,7 @@ export function start(connection: Connection, platform: string) {
                 } as protocol.CompletionDetailsRequestArgs;
                 
                 const details = executeRequest<protocol.CompletionDetailsRequest, protocol.CompletionEntryDetails[]>(protocol.CommandTypes.CompletionDetails, args);                
-                const entry = lpc.firstOrUndefined(details);
+                const entry = lpc.firstOrUndefined(details);                
                 return entry ? CompletionEntryDetails.convert(entry, URI.parse(item.data.uri)) : undefined;
             } catch(e) {
                 console.error(e);

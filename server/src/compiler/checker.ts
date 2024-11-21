@@ -27179,7 +27179,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             }
             return diagnostic;
         }
-        else {
+        else if (args.length) {
             // too long; error goes on the excess parameters
             const errorSpan = factory.createNodeArray(args.slice(max));
             const pos = first(errorSpan).pos;

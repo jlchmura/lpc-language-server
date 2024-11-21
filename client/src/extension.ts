@@ -15,7 +15,7 @@ import {
     DocumentFilter,
 } from "vscode";
 import * as fileSchemes from './fileSchemes';
-import {    
+import {        
     LanguageClient,
     LanguageClientOptions,    
     ServerOptions,
@@ -77,11 +77,11 @@ export function activate(context: ExtensionContext) {
         // Register the server for plain text documents
         documentSelector: docSel,
         markdown: {
-            isTrusted: true            
-        },
+            isTrusted: true,
+        },        
         synchronize: {
             // Notify the server about file changes to lpc config files contained in the workspace
-            fileEvents: workspace.createFileSystemWatcher("**/lpc-config.json"),
+            fileEvents: workspace.createFileSystemWatcher("**/lpc-config.json"),            
         },
         diagnosticCollectionName: "LPC",
     };

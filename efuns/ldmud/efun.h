@@ -3780,13 +3780,12 @@ string process_string(string str);
 
 /**
  * printf
- *
  * A cross between sprintf() and write(). Returns void and prints
  * the result string to the user.
- *
- *
+ * @param format The format string.
+ * @param {...mixed} args The arguments to be formatted. 
  */
-void printf(varargs string format );
+void printf(string format, varargs mixed args);
 
 /**
  * previous_object

@@ -176,7 +176,10 @@ export namespace CompletionEntryDetails {
 	): vscode.CompletionItem {
 		const item = vscode.CompletionItem.create(entry.name);
 		item.detail = entry.displayParts.map(part => part.text).join('');						
-		item.documentation = DisplayPart.documentationToMarkdown(entry.documentation, entry.tags, baseUri);				
+		item.documentation = {
+			kind: "markdown",
+			value: DisplayPart.documentationToMarkdown(entry.documentation, entry.tags, baseUri)
+		} satisfies vscode.MarkupContent;								
 		return item;		
 	}
 }
