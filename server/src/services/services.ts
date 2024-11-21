@@ -1986,7 +1986,7 @@ export function createLanguageService(
         const typeChecker = program.getTypeChecker();
         const nodeForQuickInfo = getNodeForQuickInfo(node);
         const symbol = getSymbolAtLocationForQuickInfo(nodeForQuickInfo, typeChecker);
-        if (!symbol || typeChecker.isUnknownSymbol(symbol)) {
+        if (!symbol || typeChecker.isUnknownSymbol(symbol) && nodeForQuickInfo) {
             const type = shouldGetType(sourceFile, nodeForQuickInfo, position) ? typeChecker.getTypeAtLocation(nodeForQuickInfo) : undefined;
             return type && {
                 kind: ScriptElementKind.unknown,

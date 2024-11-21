@@ -412,7 +412,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
             // paths come back from master apply as rooted (to the lib). We need to conver them to disk rooted paths.
             const includesForFile = map(masterIncludeApply(mudlibPath), dir => dir != ":DEFAULT:" ? resolvePath(rootDir, "." + dir) : dir);
             if (includesForFile && includesForFile.length) {
-                // subtitute global include from options for DEFAULT indicator
+                // substitute global include from options for DEFAULT indicator
                 const defaultIdx = includesForFile.indexOf(":DEFAULT:");
                 if (defaultIdx >= 0) {
                     globalIncludes = includesForFile.slice(0, defaultIdx).concat(globalIncludes, includesForFile.slice(defaultIdx + 1));

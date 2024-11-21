@@ -17780,8 +17780,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         let moduleRef = isStringLiteral(moduleReferenceExpression) ? moduleReferenceExpression.text : 
             isCallExpression(moduleReferenceExpression) && expressionType && isStringLiteralType(expressionType) ? expressionType.value :
             evaluate(moduleReferenceExpression)?.value as string ?? "";
-
-        return resolveExternalModule(location, moduleRef, moduleNotFoundError, moduleReferenceExpression, isForAugmentation);
+        if (moduleRef === "") {
+            return anyType.getSymbol();
+        } else {
+            return resolveExternalModule(location, moduleRef, moduleNotFoundError, moduleReferenceExpression, isForAugmentation);
+        }
     }
 
     function resolveExternalModule(location: Node, moduleReference: string, moduleNotFoundError: DiagnosticMessage | undefined, errorNode: Node, isForAugmentation = false): Symbol | undefined {
