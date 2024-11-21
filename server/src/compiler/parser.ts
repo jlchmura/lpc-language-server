@@ -6690,6 +6690,9 @@ function forEachChildInBlock<T>(node: Block, cbNode: (node: Node) => T | undefin
 }
 
 function forEachChildInCallOrNewExpression<T>(node: CallExpression | NewExpression | CloneObjectExpression, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+    if (isIdentifierNode(node.expression) && node.expression.text === "walk_mapping") {
+        const ii=0;
+    }
     return visitNode(cbNode, node.expression) ||
         visitNodes(cbNode, cbNodes, node.arguments);
 }
@@ -6805,7 +6808,7 @@ export function createSourceFile(fileName: string, sourceText: string, languageV
         setExternalModuleIndicator(file);
     };
     
-    result = LpcParser.parseSourceFile(fileName, sourceText, globalIncludes, configDefines, fileHandler, ScriptTarget.LPC, undefined, false, undefined, setIndicator, jsDocParsingMode, languageVariant);
+    result = LpcParser.parseSourceFile(fileName, sourceText, globalIncludes, configDefines, fileHandler, ScriptTarget.LPC, undefined, setParentNodes, undefined, setIndicator, jsDocParsingMode, languageVariant);
 
     performance.mark("afterParse");
     performance.measure("Parse", "beforeParse", "afterParse");
@@ -6870,7 +6873,7 @@ export function getDeclarationFileExtension(fileName: string): string | undefine
 // be used once 'update' is called on it.
 export function updateSourceFile(sourceFile: SourceFile, newText: string, globalIncludes: string[], configDefines: ReadonlyMap<string,string>, fileHandler: LpcFileHandler, textChangeRange: TextChangeRange, aggressiveChecks = false, languageVariant: LanguageVariant): SourceFile {    
     console.warn("implement me- updateSourceFile");
-    return LpcParser.parseSourceFile(sourceFile.fileName, newText, globalIncludes, configDefines, fileHandler, ScriptTarget.LPC, undefined, false, undefined, undefined, undefined, languageVariant);
+    return LpcParser.parseSourceFile(sourceFile.fileName, newText, globalIncludes, configDefines, fileHandler, ScriptTarget.LPC, undefined, true, undefined, undefined, undefined, languageVariant);
     // const newSourceFile = IncrementalParser.updateSourceFile(sourceFile, newText, textChangeRange, aggressiveChecks);
     // // Because new source file node is created, it may not have the flag PossiblyContainDynamicImport. This is the case if there is no new edit to add dynamic import.
     // // We will manually port the flag to the new source file.

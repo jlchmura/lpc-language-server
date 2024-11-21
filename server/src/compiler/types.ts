@@ -817,11 +817,11 @@ export const enum SyntaxKind {
     // Parse Tree Nodes
 
     // Names
-    ComputedPropertyName,
-    QualifiedName,
+    QualifiedName, // First Node
+    ComputedPropertyName, 
     
     // Signature Elements
-    TypeParameter,   // First Node
+    TypeParameter,   
     Parameter,
     IndexSignature,
     CallSignature,
@@ -1019,7 +1019,7 @@ export const enum SyntaxKind {
     SuperKeyword = ColonColonToken,
     FirstTypeNode = UnionType,
     LastTypeNode = ConditionalType,
-    FirstNode = TypeParameter,
+    FirstNode = QualifiedName,
     FirstFutureReservedWord = IntKeyword,
     LastFutureReservedWord = LastKeyword,
     FirstJSDocNode = JSDocTypeExpression,
@@ -2169,7 +2169,7 @@ export type ForEachChildNodes =
 export type HasChildren =
     | InheritDeclaration
     | IncludeDirective
-    | ParameterDeclaration    
+    | ParameterDeclaration        
     | ByRefElement
     | EvaluateExpression
     | CatchExpression
@@ -2188,23 +2188,16 @@ export type HasChildren =
     | TypeParameterDeclaration
     | StructDeclaration
     | LambdaIdentifierExpression
-    | LambdaOperatorExpression
-    // | Decorator
+    | LambdaOperatorExpression    
     | PropertySignature
     | PropertyDeclaration
     | MethodSignature
-    | MethodDeclaration
-    // | ConstructorDeclaration
-    // | GetAccessorDeclaration
-    // | SetAccessorDeclaration
-    // | ClassStaticBlockDeclaration
-    | CallSignatureDeclaration
-    // | ConstructSignatureDeclaration
+    | MethodDeclaration    
+    | CallSignatureDeclaration    
     | IndexSignatureDeclaration
     | TypePredicateNode
     | TypeReferenceNode
-    | FunctionTypeNode
-    // | ConstructorTypeNode
+    | FunctionTypeNode    
     // | TypeQueryNode
     | TypeLiteralNode
     // | TupleTypeNode
@@ -2215,17 +2208,13 @@ export type HasChildren =
     | TypeAssertion
     // | IntersectionTypeNode
     // | ConditionalTypeNode
-    // | InferTypeNode
-    // | ImportTypeNode
-    // | ImportTypeAssertionContainer
-    // | NamedTupleMember
+    // | InferTypeNode    
+    | NamedTupleMember
     | ParenthesizedTypeNode
     // | TypeOperatorNode
     | IndexedAccessTypeNode
     | MappedTypeNode
-    | LiteralTypeNode
-    // | TemplateLiteralTypeNode
-    // | TemplateLiteralTypeSpan
+    | LiteralTypeNode    
     // | ObjectBindingPattern
     | ArrayBindingPattern
     | BindingElement
@@ -2237,8 +2226,7 @@ export type HasChildren =
     | CallExpression
     | NewExpression
     | CloneObjectExpression
-    | ElementAccessExpression    
-    // | TaggedTemplateExpression
+    | ElementAccessExpression        
     | TypeAssertion
     | ParenthesizedExpression
     | FunctionExpression
@@ -2250,70 +2238,43 @@ export type HasChildren =
     | PrefixUnaryExpression
     | PostfixUnaryExpression
     | BinaryExpression
-    | ConditionalExpression
-    // | TemplateExpression
+    | ConditionalExpression    
     // | YieldExpression
     | SpreadElement
     | ClassExpression
     | ExpressionWithTypeArguments
     | CastExpression
     // | NonNullExpression
-    // | SatisfiesExpression
-    // | MetaProperty
-    // | TemplateSpan
+    // | SatisfiesExpression    
     | Block
     | VariableStatement
     | ExpressionStatement
     | IfStatement
     | DoWhileStatement
     | WhileStatement
-    | ForStatement
-    //| ForInStatement
-    | ForEachStatement
-    // | ForOfStatement
+    | ForStatement    
+    | ForEachStatement    
     | ContinueStatement
     | BreakStatement
     | ReturnStatement
-    | SwitchStatement
-    // | WithStatement
+    | SwitchStatement    
     | LabeledStatement
-    // | ThrowStatement
-    // | TryStatement
+    // | ThrowStatement    
     | VariableDeclaration
     | VariableDeclarationList
     | FunctionDeclaration
-    | ClassDeclaration
-    // | InterfaceDeclaration
-    | TypeAliasDeclaration
-    // | EnumDeclaration
-    // | ModuleDeclaration
-    // | ModuleBlock
-    | CaseBlock
-    // | NamespaceExportDeclaration
-    // | ImportEqualsDeclaration
-    // | ImportDeclaration
+    | ClassDeclaration    
+    | TypeAliasDeclaration    
+    | CaseBlock    
     // | AssertClause
-    // | AssertEntry
-    //| ImportAttributes
-    // | ImportAttribute
-    // | ImportClause
-    // | NamespaceImport
-    // | NamespaceExport
-    // | NamedImports
-    // | ImportSpecifier
-    // | ExportAssignment
-    // | ExportDeclaration
-    // | NamedExports
-    // | ExportSpecifier
-    // | ExternalModuleReference    
+    // | AssertEntry    
     | CaseClause
     | DefaultClause
     | HeritageClause
     | CatchStatement
     | PropertyAssignment
     | ShorthandPropertyAssignment
-    // | SpreadAssignment
-    // | EnumMember
+    // | SpreadAssignment    
     | SourceFile
     | PartiallyEmittedExpression
     | CommaListExpression;

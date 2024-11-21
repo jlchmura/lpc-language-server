@@ -833,6 +833,13 @@ export function skipOuterExpressions(node: Node, kinds = OuterExpressionKinds.Al
     return node;
 }
 
+export function skipParentParenthesis(node: Node): Node {
+    while (node.parent && node.kind === SyntaxKind.ParenthesizedExpression) {
+        node = node.parent;
+    }
+    return node;
+}
+
 // A node is an assignment target if it is on the left hand side of an '=' token, if it is parented by a property
 // assignment in an object literal that is an assignment target, or if it is parented by an array literal that is
 // an assignment target. Examples include 'a = xxx', '{ p: a } = xxx', '[{ a }] = xxx'.

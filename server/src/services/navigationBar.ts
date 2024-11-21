@@ -123,6 +123,9 @@ import {
     removeFileExtension,
     setTextRange,
     ShorthandPropertyAssignment,
+    skipOuterExpressions,
+    skipParentheses,
+    skipParentParenthesis,
     SourceFile,
     // SpreadAssignment,
     SyntaxKind,
@@ -843,8 +846,7 @@ function getItemName(node: Node, name: Node | undefined): string {
             return (node as DefineDirective).name.text
         // case SyntaxKind.ArrowFunction:
         case SyntaxKind.FunctionDeclaration:
-        case SyntaxKind.FunctionExpression:
-        case SyntaxKind.InlineClosureExpression:        
+        case SyntaxKind.FunctionExpression:        
         case SyntaxKind.ClassExpression:
             // if (getSyntacticModifierFlags(node) & ModifierFlags.Default) {
             //     return "default";
@@ -860,6 +862,13 @@ function getItemName(node: Node, name: Node | undefined): string {
         //     return "new()";
         // case SyntaxKind.CallSignature:
         //     return "()";
+        case SyntaxKind.InlineClosureExpression:             
+            const parentCandidate = skipParentParenthesis(node.parent);
+            if (parentCandidate && isCallExpression(parentCandidate)) {
+                const ceName = getCalledExpressionName(parentCandidate.expression);
+                return ceName ? `${ceName}() callback (::)` : "<anonymous>";
+            }
+            return getFunctionOrClassName(node as  FunctionExpression );
         case SyntaxKind.IndexSignature:
             return "[]";
         default:
