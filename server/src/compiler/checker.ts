@@ -4401,6 +4401,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 return unknownType;
             case SyntaxKind.StringKeyword:
                 return stringType;
+            case SyntaxKind.StatusKeyword:
             case SyntaxKind.IntKeyword:
                 return intType;
             case SyntaxKind.FloatKeyword:
@@ -4764,7 +4765,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             else if (type && !hasExplicitReturn) {
                 // minimal check: function has syntactic return type annotation and no explicit return statements in the body
                 // this function does not conform to the specification.
-                error(errorNode, Diagnostics.A_function_whose_declared_type_is_neither_undefined_void_nor_any_must_return_a_value);
+                error(errorNode, Diagnostics.A_function_whose_declared_type_is_not_void_must_return_a_value);
             }
             else if (type && strictNullChecks && !isTypeAssignableTo(undefinedType, type)) {
                 error(errorNode, Diagnostics.Function_lacks_ending_return_statement_and_return_type_does_not_include_undefined);
@@ -11798,8 +11799,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 }
 
                 if (!resultType) {
-                    const sourceFileSymbol = getSymbolAtLocation(file);
+                    const sourceFileSymbol = getSymbolAtLocation(file);                    
                     resultType = getTypeOfSymbol(sourceFileSymbol);
+                    // resultType = firstOrUndefined(resolveBaseTypeOfSourceFile(getTypeOfSymbol(sourceFileSymbol) as InterfaceType, file));
                 }
 
                 return resultType;

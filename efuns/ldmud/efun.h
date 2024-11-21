@@ -1217,10 +1217,9 @@ void throw(mixed arg);
  *
  * @example 
  * if (this_player() != this_interactive())
- * write("Hey, somebody must have forced us to do a
- * command!\n");
+ *   write("Hey, somebody must have forced us to do a command!\n");
  *
- *
+ * @returns {__LPC_CONFIG_LIBFILES_PLAYER} Current command giver.
  */
 object this_player();
 
