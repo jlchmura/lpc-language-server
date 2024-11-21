@@ -3213,6 +3213,7 @@ export namespace LpcParser {
             case SyntaxKind.ClassKeyword:
             case SyntaxKind.ClosureKeyword:
             case SyntaxKind.FunctionKeyword:
+            case SyntaxKind.VoidKeyword:
                 return true;
             // handle unionable types
             // case SyntaxKind.LessThanToken:
@@ -4204,9 +4205,18 @@ export namespace LpcParser {
             const hasBrace = parseOptional(SyntaxKind.OpenParenBraceToken);
             if (!hasBrace) parseExpected(SyntaxKind.OpenParenToken);
             
-            const isStruct = parseOptional(SyntaxKind.LessThanToken);
+            let isStruct = false;
+            if (token() === SyntaxKind.LessThanToken) {
+                const peekNext = lookAhead(() => nextToken());
+             
+                // if the next token is an identifier, this is a struct declaration
+                // otherwise, it's a type assertion with a union type
+                if (peekNext===SyntaxKind.Identifier) {
+                    isStruct = parseOptional(SyntaxKind.LessThanToken);
+                }
+            }  
             
-            if (!isTypeName()) return false; 
+            if (token() !== SyntaxKind.LessThanToken && !isTypeName()) return false; 
             const type = parseType();
                                     
             if (isStruct) {            
@@ -4227,9 +4237,18 @@ export namespace LpcParser {
             const hasBrace = parseOptional(SyntaxKind.OpenParenBraceToken);
             if (!hasBrace) parseExpected(SyntaxKind.OpenParenToken);
             
-            const isStruct = parseOptional(SyntaxKind.LessThanToken);
+            let isStruct = false;
+            if (token() === SyntaxKind.LessThanToken) {
+                const peekNext = lookAhead(() => nextToken());
+             
+                // if the next token is an identifier, this is a struct declaration
+                // otherwise, it's a type assertion with a union type
+                if (peekNext===SyntaxKind.Identifier) {
+                    isStruct = parseOptional(SyntaxKind.LessThanToken);
+                }
+            }            
             
-            if (!isTypeName()) return undefined; 
+            if (token() !== SyntaxKind.LessThanToken && !isTypeName()) return undefined; 
             const type = parseType();
                                     
             if (isStruct) {            
@@ -6689,10 +6708,7 @@ function forEachChildInBlock<T>(node: Block, cbNode: (node: Node) => T | undefin
     return visitNodes(cbNode, cbNodes, node.statements);
 }
 
-function forEachChildInCallOrNewExpression<T>(node: CallExpression | NewExpression | CloneObjectExpression, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
-    if (isIdentifierNode(node.expression) && node.expression.text === "walk_mapping") {
-        const ii=0;
-    }
+function forEachChildInCallOrNewExpression<T>(node: CallExpression | NewExpression | CloneObjectExpression, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {    
     return visitNode(cbNode, node.expression) ||
         visitNodes(cbNode, cbNodes, node.arguments);
 }

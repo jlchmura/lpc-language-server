@@ -9,9 +9,9 @@
             "runtimeExecutable": "${execPath}",
             "args": [
                 // "${workspaceRoot}/../StickLib",
-                "${workspaceRoot}/../mg-mudlib",
+                // "${workspaceRoot}/../mg-mudlib",
                 // "${workspaceRoot}/../lima",
-                // "${workspaceRoot}/../lpc-test2",
+                "${workspaceRoot}/../lpc-test2",
                 // "${workspaceRoot}/../glpu",
                 // "${workspaceRoot}/../nightmare-residuum",
                 // "${workspaceRoot}/../infinity-lib",

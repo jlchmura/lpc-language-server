@@ -115,7 +115,7 @@ exports[`Compiler compiler/fnNoReturn1.c Reports correct errors for compiler/fnN
 
 exports[`Compiler compiler/fnNoReturn2.c Reports correct errors for compiler/fnNoReturn2.c: diags-compiler/fnNoReturn2.c 1`] = `
 "
-Found 1 error in server/src/tests/cases/compiler/fnNoReturn2.c[90m:3[0m
+Found 1 error.
 
 "
 `;
@@ -258,6 +258,10 @@ exports[`Compiler compiler/switch3.c Reports correct errors for compiler/switch3
 exports[`Compiler compiler/ternary.c Reports correct errors for compiler/ternary.c: diags-compiler/ternary.c 1`] = `""`;
 
 exports[`Compiler compiler/typeAssertion1.c Reports correct errors for compiler/typeAssertion1.c: diags-compiler/typeAssertion1.c 1`] = `""`;
+
+exports[`Compiler compiler/typeAssertion2.c Reports correct errors for compiler/typeAssertion2.c: diags-compiler/typeAssertion2.c 1`] = `""`;
+
+exports[`Compiler compiler/typeAssertion3.c Reports correct errors for compiler/typeAssertion3.c: diags-compiler/typeAssertion3.c 1`] = `""`;
 
 exports[`Compiler compiler/typeInference1.c Reports correct errors for compiler/typeInference1.c: diags-compiler/typeInference1.c 1`] = `""`;
 
