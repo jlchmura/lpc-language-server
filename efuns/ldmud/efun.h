@@ -1856,6 +1856,9 @@ float sqrt(int|float s);
 
 /**
  * sprintf
+ * @param fmt the format string.
+ * @param args the arguments to be formatted.
+ * @returns the formatted string.
  *
  * Most of the characters in the format string (FMT) get passed
  * straight through to the output (ie: printed or put in the
@@ -1945,10 +1948,18 @@ float sqrt(int|float s);
  * pad string has been given, even if it is the simple ' ', then
  * the padding will not be removed.
  *
+ * @since LDMud 3.2.9 added the "%^" sequence for compatibility with
+          terminal_colour(), added the "%Q" sequence, clarified the meaning of
+          leading 0s in the field size modifier, clarified the interaction
+          between the padding and newlines, and added the '$' formatter for
+          justified printing of strings.
+        LDMud 3.2.10 added modifier '#' for '%O'/'%Q' and the datatype '%b'.
+ *
  * @example 
  * sprintf("decimal=%d, octal=%o, hexadecimal=%x\n", 7, 7, 7);
  * 
  * sprintf("array=%O\n", ({1, 2, 3}));
+ * 
  * this will return the following:
  * ({ /* sizeof() == 3 *\/
  * 1,
@@ -2033,15 +2044,8 @@ float sqrt(int|float s);
  * sprintf("%8.3G",123.5)              // returns "     124"
  * sprintf("%8.6g",123.5)              // returns "   123.5"
  *
- * @since LDMud 3.2.9 added the "%^" sequence for compatibility with
-          terminal_colour(), added the "%Q" sequence, clarified the meaning of
-          leading 0s in the field size modifier, clarified the interaction
-          between the padding and newlines, and added the '$' formatter for
-          justified printing of strings.
-        LDMud 3.2.10 added modifier '#' for '%O'/'%Q' and the datatype '%b'.
- *
  */
-string sprintf(varargs string fmt);
+string sprintf(string fmt, varargs mixed args);
 
 /**
  * sort_array
