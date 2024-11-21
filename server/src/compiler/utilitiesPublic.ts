@@ -1067,6 +1067,8 @@ export function isModifierKind(token: SyntaxKind): token is Modifier["kind"] {
         case SyntaxKind.NoMaskKeyword:
         case SyntaxKind.NoShadowKeyword:
         case SyntaxKind.NoSaveKeyword:
+        case SyntaxKind.FunctionsKeyword:
+        case SyntaxKind.VirtualKeyword:
             return true;
     }
     return false;

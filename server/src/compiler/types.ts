@@ -812,6 +812,8 @@ export const enum SyntaxKind {
     ObjectKeyword, // can occur in a upser expr i.e.  object::fn()
     RefKeyword, // fluff only
     IsKeyword, // use for type predicates only
+    FunctionsKeyword, // inherit modifier
+    VirtualKeyword,   // inherit modifier
     NewKeyword,
 
     // Parse Tree Nodes
@@ -2313,6 +2315,8 @@ export type DirectiveSyntaxKind =
 
 export type KeywordSyntaxKind =
     | SyntaxKind.AnyKeyword    
+    | SyntaxKind.FunctionsKeyword
+    | SyntaxKind.VirtualKeyword
     | SyntaxKind.IsKeyword
     | SyntaxKind.RefKeyword
     | SyntaxKind.StatusKeyword
