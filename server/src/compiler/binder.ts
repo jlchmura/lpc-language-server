@@ -2151,7 +2151,8 @@ export function getContainerFlags(node: Node): ContainerFlags {
         case SyntaxKind.ForEachStatement:        
         case SyntaxKind.CaseBlock:
             return ContainerFlags.IsBlockScopedContainer | ContainerFlags.HasLocals;
-
+        case SyntaxKind.NewExpression:
+            return ContainerFlags.IsContainer | ContainerFlags.HasLocals;
         case SyntaxKind.Block:
             // do not treat blocks directly inside a function as a block-scoped-container.
             // Locals that reside in this block should go to the function locals. Otherwise 'x'
