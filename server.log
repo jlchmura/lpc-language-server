@@ -99,74 +99,196 @@ Err 19    [12:12:13.886] Exception on executing command delayed processing of re
         at checkSourceFileWithEagerDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:13265:9)
         at getDiagnosticsWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1785:13)
         at Object.getDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1769:20)
-        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:656:48)
-        at runWithCancellationToken (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:707:20)
-        at getBindAndCheckDiagnosticsForFileNoCache (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:640:16)
-        at getAndCacheDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:695:24)
-        at getBindAndCheckDiagnosticsForFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:535:16)
-        at getSemanticDiagnosticsForFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:479:39)
-        at getDiagnosticsHelper (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:732:50)
-        at Object.getSemanticDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:474:16)
-        at Object.getSemanticDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/services/services.ts:1518:45)
-        at LspSession.semanticCheck (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:481:52)
-        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:441:44)
-        at MultistepOperation.executeAction (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1377:17)
-        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1348:79)
-        at LspSession.executeWithRequestId (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:200:20)
-        at Object.executeWithRequestId (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:105:63)
-        at Immediate._onImmediate (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1348:36)
-        at process.processImmediate (node:internal/timers:485:21)
-Info 20   [12:12:13.887] getConfigFileNameForFile:: File: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/interactive.h ProjectRootPath: undefined:: Result: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
-Info 21   [12:12:13.887] Project '/Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json' (Configured)
-Info 21   [12:12:13.887] 	Files (25)
+        at <anonymouInfo 28   [12:46:29.130] Project '/dev/null/inferredProject1*' (Inferred)
+Info 28   [12:46:29.131] 	Files (0) NoProgram
 
-Info 21   [12:12:13.887] -----------------------------------------------
-Info 21   [12:12:13.887] Project '/Users/johnchmura/code/lpc-language-server/efuns/ldmud/lpc-config.json' (Configured)
-Info 21   [12:12:13.887] 	Files (3)
+Info 28   [12:46:29.131] -----------------------------------------------
+Info 28   [12:46:29.131] Project '/dev/null/inferredProject2*' (Inferred)
+Info 28   [12:46:29.131] 	Files (0) NoProgram
 
-Info 21   [12:12:13.887] -----------------------------------------------
-Info 21   [12:12:13.887] Open files: 
-Info 21   [12:12:13.887] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/numbers.h ProjectRootPath: undefined
-Info 21   [12:12:13.887] 		Projects: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
-Info 21   [12:12:13.887] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/ldmud/efun.h ProjectRootPath: undefined
-Info 21   [12:12:13.887] 		Projects: /Users/johnchmura/code/lpc-language-server/efuns/ldmud/lpc-config.json
-Info 21   [12:12:13.887] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/interactive.h ProjectRootPath: undefined
-Info 21   [12:12:13.887] 		Projects: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
-Info 21   [12:12:13.888] getConfigFileNameForFile:: File: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/mudlib.h ProjectRootPath: undefined:: Result: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
-Info 22   [12:12:13.889] Project '/Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json' (Configured)
-Info 22   [12:12:13.889] 	Files (25)
+Info 28   [12:46:29.131] -----------------------------------------------
+Info 28   [12:46:29.131] Project '/dev/null/inferredProject3*' (Inferred)
+Info 28   [12:46:29.131] 	Files (0) NoProgram
 
-Info 22   [12:12:13.889] -----------------------------------------------
-Info 22   [12:12:13.889] Project '/Users/johnchmura/code/lpc-language-server/efuns/ldmud/lpc-config.json' (Configured)
-Info 22   [12:12:13.889] 	Files (3)
+Info 28   [12:46:29.131] -----------------------------------------------
+Info 28   [12:46:29.131] Project '/dev/null/inferredProject4*' (Inferred)
+Info 28   [12:46:29.131] 	Files (0) NoProgram
 
-Info 22   [12:12:13.889] -----------------------------------------------
-Info 22   [12:12:13.889] Open files: 
-Info 22   [12:12:13.889] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/numbers.h ProjectRootPath: undefined
-Info 22   [12:12:13.889] 		Projects: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
-Info 22   [12:12:13.889] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/ldmud/efun.h ProjectRootPath: undefined
-Info 22   [12:12:13.889] 		Projects: /Users/johnchmura/code/lpc-language-server/efuns/ldmud/lpc-config.json
-Info 22   [12:12:13.889] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/interactive.h ProjectRootPath: undefined
-Info 22   [12:12:13.889] 		Projects: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
-Info 22   [12:12:13.889] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/mudlib.h ProjectRootPath: undefined
-Info 22   [12:12:13.889] 		Projects: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
-Info 22   [12:12:13.889] getConfigFileNameForFile:: File: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/misc.h ProjectRootPath: undefined:: Result: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
-Info 23   [12:12:13.889] Project '/Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json' (Configured)
-Info 23   [12:12:13.889] 	Files (25)
+Info 28   [12:46:29.131] -----------------------------------------------
+Info 28   [12:46:29.131] Project '/dev/null/inferredProject5*' (Inferred)
+Info 28   [12:46:29.131] 	Files (0) NoProgram
 
-Info 23   [12:12:13.889] -----------------------------------------------
-Info 23   [12:12:13.889] Project '/Users/johnchmura/code/lpc-language-server/efuns/ldmud/lpc-config.json' (Configured)
-Info 23   [12:12:13.889] 	Files (3)
+Info 28   [12:46:29.131] -----------------------------------------------
+Info 28   [12:46:29.131] Open files: 
+Info 28   [12:46:29.131] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/ldmud/efun.h ProjectRootPath: undefined
+Info 28   [12:46:29.131] 		Projects: /dev/null/inferredProject2*
+Info 28   [12:46:29.131] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/interactive.h ProjectRootPath: undefined
+Info 28   [12:46:29.131] 		Projects: /dev/null/inferredProject3*
+Info 28   [12:46:29.131] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/mudlib.h ProjectRootPath: undefined
+Info 28   [12:46:29.131] 		Projects: /dev/null/inferredProject4*
+Info 28   [12:46:29.131] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/misc.h ProjectRootPath: undefined
+Info 28   [12:46:29.131] 		Projects: /dev/null/inferredProject5*
+Info 28   [12:46:29.141] Project '/dev/null/inferredProject1*' (Inferred)
+Info 28   [12:46:29.141] 	Files (0) NoProgram
 
-Info 23   [12:12:13.889] -----------------------------------------------
-Info 23   [12:12:13.889] Open files: 
-Info 23   [12:12:13.889] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/numbers.h ProjectRootPath: undefined
-Info 23   [12:12:13.889] 		Projects: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
-Info 23   [12:12:13.889] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/ldmud/efun.h ProjectRootPath: undefined
-Info 23   [12:12:13.889] 		Projects: /Users/johnchmura/code/lpc-language-server/efuns/ldmud/lpc-config.json
-Info 23   [12:12:13.889] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/interactive.h ProjectRootPath: undefined
-Info 23   [12:12:13.889] 		Projects: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
-Info 23   [12:12:13.889] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/mudlib.h ProjectRootPath: undefined
-Info 23   [12:12:13.889] 		Projects: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
+Info 28   [12:46:29.141] -----------------------------------------------
+Info 28   [12:46:29.141] Project '/dev/null/inferredProject2*' (Inferred)
+Info 28   [12:46:29.141] 	Files (0) NoProgram
+
+Info 28   [12:46:29.141] -----------------------------------------------
+Info 28   [12:46:29.141] Project '/dev/null/inferredProject3*' (Inferred)
+Info 28   [12:46:29.141] 	Files (0) NoProgram
+
+Info 28   [12:46:29.141] -----------------------------------------------
+Info 28   [12:46:29.141] Project '/dev/null/inferredProject4*' (Inferred)
+Info 28   [12:46:29.141] 	Files (0) NoProgram
+
+Info 28   [12:46:29.141] -----------------------------------------------
+Info 28   [12:46:29.141] Project '/dev/null/inferredProject5*' (Inferred)
+Info 28   [12:46:29.141] 	Files (0) NoProgram
+
+Info 28   [12:46:29.141] -----------------------------------------------
+Info 28   [12:46:29.142] Open files: 
+Info 28   [12:46:29.142] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/interactive.h ProjectRootPath: undefined
+Info 28   [12:46:29.142] 		Projects: /dev/null/inferredProject3*
+Info 28   [12:46:29.142] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/mudlib.h ProjectRootPath: undefined
+Info 28   [12:46:29.142] 		Projects: /dev/null/inferredProject4*
+Info 28   [12:46:29.142] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/misc.h ProjectRootPath: undefined
+Info 28   [12:46:29.142] 		Projects: /dev/null/inferredProject5*
+Info 28   [12:46:29.142] Project '/dev/null/inferredProject1*' (Inferred)
+Info 28   [12:46:29.142] 	Files (0) NoProgram
+
+Info 28   [12:46:29.142] -----------------------------------------------
+Info 28   [12:46:29.142] Project '/dev/null/inferredProject2*' (Inferred)
+Info 28   [12:46:29.142] 	Files (0) NoProgram
+
+Info 28   [12:46:29.142] -----------------------------------------------
+Info 28   [12:46:29.142] Project '/dev/null/inferredProject3*' (Inferred)
+Info 28   [12:46:29.142] 	Files (0) NoProgram
+
+Info 28   [12:46:29.142] -----------------------------------------------
+Info 28   [12:46:29.142] Project '/dev/null/inferredProject4*' (Inferred)
+Info 28   [12:46:29.142] 	Files (0) NoProgram
+
+Info 28   [12:46:29.142] -----------------------------------------------
+Info 28   [12:46:29.142] Project '/dev/null/inferredProject5*' (Inferred)
+Info 28   [12:46:29.142] 	Files (0) NoProgram
+
+Info 28   [12:46:29.142] -----------------------------------------------
+Info 28   [12:46:29.143] Open files: 
+Info 28   [12:46:29.143] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/mudlib.h ProjectRootPath: undefined
+Info 28   [12:46:29.143] 		Projects: /dev/null/inferredProject4*
+Info 28   [12:46:29.143] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/misc.h ProjectRootPath: undefined
+Info 28   [12:46:29.143] 		Projects: /dev/null/inferredProject5*
+Info 28   [12:46:29.168] Project '/dev/null/inferredProject1*' (Inferred)
+Info 28   [12:46:29.168] 	Files (0) NoProgram
+
+Info 28   [12:46:29.168] -----------------------------------------------
+Info 28   [12:46:29.168] Project '/dev/null/inferredProject2*' (Inferred)
+Info 28   [12:46:29.168] 	Files (0) NoProgram
+
+Info 28   [12:46:29.168] -----------------------------------------------
+Info 28   [12:46:29.168] Project '/dev/null/inferredProject3*' (Inferred)
+Info 28   [12:46:29.168] 	Files (0) NoProgram
+
+Info 28   [12:46:29.168] -----------------------------------------------
+Info 28   [12:46:29.168] Project '/dev/null/inferredProject4*' (Inferred)
+Info 28   [12:46:29.168] 	Files (0) NoProgram
+
+Info 28   [12:46:29.168] -----------------------------------------------
+Info 28   [12:46:29.168] Project '/dev/null/inferredProject5*' (Inferred)
+Info 28   [12:46:29.168] 	Files (0) NoProgram
+
+Info 28   [12:46:29.169] -----------------------------------------------
+Info 28   [12:46:29.169] Open files: 
+Info 28   [12:46:29.169] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/misc.h ProjectRootPath: undefined
+Info 28   [12:46:29.169] 		Projects: /dev/null/inferredProject5*
+Info 28   [12:46:29.169] Project '/dev/null/inferredProject1*' (Inferred)
+Info 28   [12:46:29.169] 	Files (0) NoProgram
+
+Info 28   [12:46:29.169] -----------------------------------------------
+Info 28   [12:46:29.169] Project '/dev/null/inferredProject2*' (Inferred)
+Info 28   [12:46:29.169] 	Files (0) NoProgram
+
+Info 28   [12:46:29.169] -----------------------------------------------
+Info 28   [12:46:29.169] Project '/dev/null/inferredProject3*' (Inferred)
+Info 28   [12:46:29.169] 	Files (0) NoProgram
+
+Info 28   [12:46:29.169] -----------------------------------------------
+Info 28   [12:46:29.169] Project '/dev/null/inferredProject4*' (Inferred)
+Info 28   [12:46:29.169] 	Files (0) NoProgram
+
+Info 28   [12:46:29.169] -----------------------------------------------
+Info 28   [12:46:29.169] Project '/dev/null/inferredProject5*' (Inferred)
+Info 28   [12:46:29.169] 	Files (0) NoProgram
+
+Info 28   [12:46:29.169] -----------------------------------------------
+Info 28   [12:46:29.169] Open files: 
+-config.json
 Info 23   [12:12:13.889] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/misc.h ProjectRootPath: undefined
 Info 23   [12:12:13.889] 		Projects: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
+Info 23   [12:46:29.130] Project '/Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json' (Configured)
+Info 23   [12:46:29.131] 	Files (25)
+
+Info 23   [12:46:29.131] -----------------------------------------------
+Info 23   [12:46:29.131] Project '/Users/johnchmura/code/lpc-language-server/efuns/ldmud/lpc-config.json' (Configured)
+Info 23   [12:46:29.131] 	Files (3)
+
+Info 23   [12:46:29.131] -----------------------------------------------
+Info 23   [12:46:29.131] Open files: 
+Info 23   [12:46:29.131] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/ldmud/efun.h ProjectRootPath: undefined
+Info 23   [12:46:29.131] 		Projects: /Users/johnchmura/code/lpc-language-server/efuns/ldmud/lpc-config.json
+Info 23   [12:46:29.131] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/interactive.h ProjectRootPath: undefined
+Info 23   [12:46:29.131] 		Projects: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
+Info 23   [12:46:29.131] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/mudlib.h ProjectRootPath: undefined
+Info 23   [12:46:29.131] 		Projects: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
+Info 23   [12:46:29.131] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/misc.h ProjectRootPath: undefined
+Info 23   [12:46:29.131] 		Projects: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
+Info 23   [12:46:29.141] Project '/Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json' (Configured)
+Info 23   [12:46:29.141] 	Files (25)
+
+Info 23   [12:46:29.141] -----------------------------------------------
+Info 23   [12:46:29.141] Project '/Users/johnchmura/code/lpc-language-server/efuns/ldmud/lpc-config.json' (Configured)
+Info 23   [12:46:29.141] 	Files (3)
+
+Info 23   [12:46:29.141] -----------------------------------------------
+Info 23   [12:46:29.142] Open files: 
+Info 23   [12:46:29.142] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/interactive.h ProjectRootPath: undefined
+Info 23   [12:46:29.142] 		Projects: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
+Info 23   [12:46:29.142] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/mudlib.h ProjectRootPath: undefined
+Info 23   [12:46:29.142] 		Projects: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
+Info 23   [12:46:29.142] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/misc.h ProjectRootPath: undefined
+Info 23   [12:46:29.142] 		Projects: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
+Info 23   [12:46:29.142] Project '/Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json' (Configured)
+Info 23   [12:46:29.142] 	Files (25)
+
+Info 23   [12:46:29.142] -----------------------------------------------
+Info 23   [12:46:29.142] Project '/Users/johnchmura/code/lpc-language-server/efuns/ldmud/lpc-config.json' (Configured)
+Info 23   [12:46:29.142] 	Files (3)
+
+Info 23   [12:46:29.142] -----------------------------------------------
+Info 23   [12:46:29.142] Open files: 
+Info 23   [12:46:29.142] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/mudlib.h ProjectRootPath: undefined
+Info 23   [12:46:29.143] 		Projects: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
+Info 23   [12:46:29.143] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/misc.h ProjectRootPath: undefined
+Info 23   [12:46:29.143] 		Projects: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
+Info 23   [12:46:29.168] Project '/Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json' (Configured)
+Info 23   [12:46:29.168] 	Files (25)
+
+Info 23   [12:46:29.168] -----------------------------------------------
+Info 23   [12:46:29.168] Project '/Users/johnchmura/code/lpc-language-server/efuns/ldmud/lpc-config.json' (Configured)
+Info 23   [12:46:29.169] 	Files (3)
+
+Info 23   [12:46:29.169] -----------------------------------------------
+Info 23   [12:46:29.169] Open files: 
+Info 23   [12:46:29.169] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/misc.h ProjectRootPath: undefined
+Info 23   [12:46:29.169] 		Projects: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
+Info 23   [12:46:29.169] Project '/Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json' (Configured)
+Info 23   [12:46:29.169] 	Files (25)
+
+Info 23   [12:46:29.169] -----------------------------------------------
+Info 23   [12:46:29.169] Project '/Users/johnchmura/code/lpc-language-server/efuns/ldmud/lpc-config.json' (Configured)
+Info 23   [12:46:29.169] 	Files (3)
+
+Info 23   [12:46:29.169] -----------------------------------------------
+Info 23   [12:46:29.169] Open files: 

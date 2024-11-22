@@ -1113,8 +1113,8 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
         switch (blockScopeContainer.kind) {            
             case SyntaxKind.SourceFile:
                 // if (isExternalOrCommonJsModule(container as SourceFile)) {
-                //     declareModuleMember(node, symbolFlags, symbolExcludes);
-                //     break;
+                    declareModuleMember(node, symbolFlags, symbolExcludes);
+                    break;
                 // }
                 // falls through
             default:

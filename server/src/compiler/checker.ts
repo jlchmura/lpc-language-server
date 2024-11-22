@@ -1452,6 +1452,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
     
     function resolveBaseTypeOfSourceFile(type: InterfaceType, node: SourceFile): BaseType[] {                
+        // TODO - ok to return already resolved base types?
+        if (type.resolvedBaseTypes) return type.resolvedBaseTypes;
+
         const sourceSymbol = getSymbolOfNode(node);
 
         Debug.assertIsDefined(sourceSymbol);
@@ -1484,7 +1487,6 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             return type.resolvedBaseTypes = emptyArray;
         }        
         let baseType: Type;
-        const originalBaseType = baseConstructorType.symbol ? getDeclaredTypeOfSymbol(baseConstructorType.symbol) : undefined;
         // if (
         //     baseConstructorType.symbol && baseConstructorType.symbol.flags & SymbolFlags.Class //&& areAllOuterTypeParametersApplied(originalBaseType!)
         // ) {
