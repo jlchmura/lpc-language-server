@@ -5908,7 +5908,6 @@ mixed interactive_info(object ob, int what);
  *
  */
 int interactive();
-
 int interactive(object ob);
 
 /**

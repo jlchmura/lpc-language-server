@@ -470,7 +470,7 @@ void message( mixed type, string message, mixed target, mixed exclude );
  * he is link dead.
  *
  */
-int interactive( object ob );
+varargs int interactive( object ob );
 
 /**
  * input_to()  - causes next line of input to be sent to a specified func‐

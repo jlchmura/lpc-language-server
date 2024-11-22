@@ -1330,6 +1330,9 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
 
         result.set("__LANG_SVC__", "1");
         result.set("__MAX_READ_FILE_SIZE__", "1000000");
+        result.set("__PORT__", "1");
+        result.set("__VERSION__", `"1.0"`);
+        result.set("__ARCH__", `"x86_64"`);
 
         result.set("T_INT",              `"int"`);
         result.set("T_STRING",           `"string"`);
@@ -1348,6 +1351,20 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         result.set("T_ERROR_HANDLER",    `"*error_handler*"`);
         result.set("T_FREED",            `"*freed*"`);
         result.set("T_UNKNOWN",          `"*unknown*"`);
+
+        // TODO - read this out of .h files packaged with extension 
+        // https://github.com/fluffos/fluffos/blob/master/src/include/function.h
+        result.set("FP_LOCAL",          "2");
+        result.set("FP_EFUN",           "3");
+        result.set("FP_SIMUL",          "4");
+        result.set("FP_FUNCTIONAL",     "5");
+        result.set("FP_G_VAR",          "6");
+        result.set("FP_L_VAR",          "7");
+        result.set("FP_ANONYMOUS",      "8");
+        result.set("FP_MASK",           "0x0f");
+        result.set("FP_HAS_ARGUMENTS",  "0x10");
+        result.set("FP_OWNER_DESTED",   "0x20");
+        result.set("FP_NOT_BINDABLE",   "0x40");
 
         for (const key in options.configDefines || emptyMap) {
             result.set(key, options.configDefines[key]);
