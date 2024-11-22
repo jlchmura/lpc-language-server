@@ -670,7 +670,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
     function createMappingType(elementType: Type, readonly?: boolean): ObjectType {
         Debug.assert(readonly !== true, "readonly not supported");
-        return createTypeFromGenericGlobalType(globalArrayType, [elementType]);
+        return createTypeFromGenericGlobalType(globalMappingType, [elementType]);
     }
 
     function addUndefinedToGlobalsOrErrorOnRedeclaration() {
@@ -16371,6 +16371,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 if (isArrayType(type)) {
                     const elementType = typeToTypeNodeWorker(first(type.resolvedTypeArguments), context);
                     return factory.createArrayTypeNode(elementType);
+                }
+                if (isMappingType(type)) {
+                    context.approximateLength += 3;
+                    return factory.createKeywordTypeNode(SyntaxKind.MappingKeyword);
                 }
                 context.approximateLength += 3;                
                 return factory.createKeywordTypeNode(SyntaxKind.ObjectKeyword);
