@@ -10,7 +10,8 @@ export function createVmHelperContext() {
         explode,
         implode,
         __lpcBinaryArrayHelper,
-        __lpcBinaryHelper
+        __lpcBinaryHelper,
+        __lpcIndexAccessHelper
     };
 
     /** helper for the LPC explode function */
@@ -56,9 +57,44 @@ export function createVmHelperContext() {
                     return left / right;
                 case "==":
                     return left == right;
+                case "=":
+                    return right;
                 default:
                     throw new Error("Unhandled operator " + op);
             }
         }
     }
+
+    function __lpcIndexAccessHelper(array: any[], index: number | string | IndexAccessRange) {
+        if (typeof index === "number") {
+            return array[index];
+        } else if (typeof index === "string") {
+            let start = (index.startsWith("<")) ? array.length - parseInt(index) : parseInt(index);
+            return array[start];            
+        } else if (typeof index === "object") {
+            let { start, end } = (index as IndexAccessRange);
+                     
+            // first convert to numbers.  a < character means set the index
+            // that many from the end of the array
+            if (typeof start === "string" && start.startsWith("<")) {
+                start = array.length - parseInt(start);                
+            }
+            if (typeof end === "string" && end.startsWith("<")) {
+                end = array.length - parseInt(end);
+            }
+
+            if (end === undefined) {
+                return array.slice(start as number);
+            } else if (start === undefined) {
+                return array.slice(0, end as number);
+            }
+
+            return array;            
+        }
+    }    
+}
+
+interface IndexAccessRange {
+    start: number | string | undefined; 
+    end: number | string | undefined;
 }

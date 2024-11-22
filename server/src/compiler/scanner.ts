@@ -45,6 +45,8 @@ export function tokenIsIdentifierOrKeywordOrGreaterThan(token: SyntaxKind): bool
     return token === SyntaxKind.GreaterThanToken || tokenIsIdentifierOrKeyword(token);
 }
 
+type RestoreStateFn = () => boolean;
+
 export interface Scanner {
     /** @deprecated use {@link getTokenFullStart} */
     getStartPos(): number;
@@ -90,7 +92,7 @@ export interface Scanner {
     scanJSDocCommentTextToken(inBackticks: boolean): JSDocSyntaxKind | SyntaxKind.JSDocCommentTextToken;
     scan(): SyntaxKind;
 
-    switchStream(newFileName: string, newText: string, start: number, length: number, onRelease?: ()=>boolean): void;
+    switchStream(newFileName: string, newText: string, start: number, length: number, onRelease?: ()=>boolean): RestoreStateFn;
 
     getText(): string;
     /** @internal */
@@ -2979,7 +2981,7 @@ export function createScanner(
         };
     }    
 
-    function switchStream(newFileName: string, newText: string, start: number, length: number, onRelease?: ()=>boolean): void {
+    function switchStream(newFileName: string, newText: string, start: number, length: number, onRelease?: ()=>boolean): RestoreStateFn {
         const restoreState = captureCachedState();
         isSpeculating = false;
 
@@ -2998,6 +3000,8 @@ export function createScanner(
             end: pos, 
             fileName
         };
+
+        return nextState;
     }    
 
     function speculationHelper<T>(callback: () => T, isLookahead: boolean): T {                
@@ -3066,16 +3070,15 @@ export function createScanner(
             // we still need to revert the stateId                
             Debug.assert(stateId > saveStateId);
                                 
-            const savedEnding = stateEndings[stateId]
-            // loop backward through states and propigate endings if the filenames match
+            // loop backward through states and propagate the furthest position for each file
+            const endByFile = new Map<string,number>();                        
             let s = stateId;
-            while (s > saveStateId) {
+            while (s >= saveStateId) {
+                const endFilename = stateEndings[s].fileName;
+                endByFile.set(endFilename, Math.max(stateEndings[s].end, endByFile.get(endFilename) || 0));
+
+                stateEndings[s].end = endByFile.get(endFilename)!;                
                 s--;
-                const stateEnding = stateEndings[s];
-                Debug.assertIsDefined(stateEnding);
-                if (stateEnding.fileName == savedEnding.fileName) {
-                    stateEnding.end = savedEnding.end;
-                }                    
             }
 
             stateId = saveStateId;

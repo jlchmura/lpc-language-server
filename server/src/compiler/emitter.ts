@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { Symbol, Bundle, createTextWriter, Debug, EmitFlags, EmitHint, EmitTextWriter, Expression, factory, getEmitFlags, getInternalEmitFlags, getLineStarts, getNewLineCharacter, getShebang, Identifier, InternalEmitFlags, isExpression, isIdentifier, isSourceFile, isStringLiteral, ListFormat, memoize, ModuleKind, Node, NodeArray, noEmitNotification, noEmitSubstitution, performance, Printer, PrinterOptions, PrintHandlers, rangeIsOnSingleLine, SourceFile, SourceMapGenerator, SourceMapSource, SyntaxKind, TextRange, TypeNode, tokenToString, ParenthesizedExpression, nodeIsSynthesized, getStartsOnNewLine, getLinesBetweenRangeEndAndRangeStart, rangeEndIsOnSameLineAsRangeStart, guessIndentation, cast, getIdentifierTypeArguments, LiteralExpression, isMemberName, getSourceFileOfNode, idText, getOriginalNode, isLiteralExpression, getSourceTextOfNodeFromSourceFile, TypeLiteralNode, forEach, NamedDeclaration, DeclarationName, isGeneratedIdentifier, isBindingPattern, GeneratedIdentifier, GeneratedIdentifierFlags, getNodeId, GeneratedNamePart, FunctionDeclaration, isFileLevelUniqueName, BindingPattern, Block, CaseBlock, CaseOrDefaultClause, CatchStatement, ForStatement, IfStatement, isPrivateIdentifier, SwitchStatement, VariableDeclarationList, VariableStatement, WhileStatement, ForEachStatement, DoWhileStatement, formatGeneratedNamePart, formatGeneratedName, lastOrUndefined, getNodeForGeneratedName, isKeyword, isTokenKind, getNormalizedAbsolutePath, GetCanonicalFileName, CompilerOptions, getDirectoryPath, directorySeparator, computeCommonSourceDirectoryOfFilenames, CharacterCodes, ArrayTypeNode, every, ModifierLike, isModifier, Modifier, positionIsSynthesized, VariableDeclaration, getParseTreeNode, skipTrivia, positionsAreOnSameLine, FunctionTypeNode, SignatureDeclaration, ArrowFunction, ParameterDeclaration, singleOrUndefined, isArrowFunction, some, getCommentRange, rangeStartPositionsAreOnSameLine, getContainingNodeArray, rangeEndPositionsAreOnSameLine, getLinesBetweenPositionAndNextNonWhitespaceCharacter, CallSignatureDeclaration, getTrailingSemicolonDeferringWriter, ReturnStatement, isPartiallyEmittedExpression, isParenthesizedExpression, getLeadingCommentRanges, CommentRange, getSyntheticLeadingComments, getTrailingCommentRanges, setOriginalNode, setTextRange, fileExtensionIs, Extension, FunctionExpression, FunctionLikeDeclaration, firstOrUndefined, Statement, isPrologueDirective, hasRecordedExternalHelpers, getEmitHelpers, stableSort, compareEmitHelpers, emitDetachedComments, isJSDocLikeText, isPinnedComment, writeCommentRange, getLineAndCharacterOfPosition, emitNewLineBeforeLeadingCommentOfPosition, BinaryExpression, ArrayLiteralExpression, isBinaryExpression, BinaryOperatorToken, createBinaryExpressionTrampoline, LiteralLikeNode, StringLiteral, escapeString, escapeNonAsciiString, GetLiteralTextFlags, ScriptTarget, getLiteralText, CallExpression, ContinueStatement, BreakStatement, CaseClause, DefaultClause, ElementAccessExpression, ExpressionStatement, isJsonSourceFile, isAssignmentOperator, LiteralTypeNode, PropertyAccessExpression, setTextRangePosEnd, DotToken, UnionTypeNode, isBlock, isEmptyStatement, IndexedAccessTypeNode } from "./_namespaces/lpc.js";
+import { Symbol, Bundle, createTextWriter, Debug, EmitFlags, EmitHint, EmitTextWriter, Expression, factory, getEmitFlags, getInternalEmitFlags, getLineStarts, getNewLineCharacter, getShebang, Identifier, InternalEmitFlags, isExpression, isIdentifier, isSourceFile, isStringLiteral, ListFormat, memoize, ModuleKind, Node, NodeArray, noEmitNotification, noEmitSubstitution, performance, Printer, PrinterOptions, PrintHandlers, rangeIsOnSingleLine, SourceFile, SourceMapGenerator, SourceMapSource, SyntaxKind, TextRange, TypeNode, tokenToString, ParenthesizedExpression, nodeIsSynthesized, getStartsOnNewLine, getLinesBetweenRangeEndAndRangeStart, rangeEndIsOnSameLineAsRangeStart, guessIndentation, cast, getIdentifierTypeArguments, LiteralExpression, isMemberName, getSourceFileOfNode, idText, getOriginalNode, isLiteralExpression, getSourceTextOfNodeFromSourceFile, TypeLiteralNode, forEach, NamedDeclaration, DeclarationName, isGeneratedIdentifier, isBindingPattern, GeneratedIdentifier, GeneratedIdentifierFlags, getNodeId, GeneratedNamePart, FunctionDeclaration, isFileLevelUniqueName, BindingPattern, Block, CaseBlock, CaseOrDefaultClause, CatchStatement, ForStatement, IfStatement, isPrivateIdentifier, SwitchStatement, VariableDeclarationList, VariableStatement, WhileStatement, ForEachStatement, DoWhileStatement, formatGeneratedNamePart, formatGeneratedName, lastOrUndefined, getNodeForGeneratedName, isKeyword, isTokenKind, getNormalizedAbsolutePath, GetCanonicalFileName, CompilerOptions, getDirectoryPath, directorySeparator, computeCommonSourceDirectoryOfFilenames, CharacterCodes, ArrayTypeNode, every, ModifierLike, isModifier, Modifier, positionIsSynthesized, VariableDeclaration, getParseTreeNode, skipTrivia, positionsAreOnSameLine, FunctionTypeNode, SignatureDeclaration, ArrowFunction, ParameterDeclaration, singleOrUndefined, isArrowFunction, some, getCommentRange, rangeStartPositionsAreOnSameLine, getContainingNodeArray, rangeEndPositionsAreOnSameLine, getLinesBetweenPositionAndNextNonWhitespaceCharacter, CallSignatureDeclaration, getTrailingSemicolonDeferringWriter, ReturnStatement, isPartiallyEmittedExpression, isParenthesizedExpression, getLeadingCommentRanges, CommentRange, getSyntheticLeadingComments, getTrailingCommentRanges, setOriginalNode, setTextRange, fileExtensionIs, Extension, FunctionExpression, FunctionLikeDeclaration, firstOrUndefined, Statement, isPrologueDirective, hasRecordedExternalHelpers, getEmitHelpers, stableSort, compareEmitHelpers, emitDetachedComments, isJSDocLikeText, isPinnedComment, writeCommentRange, getLineAndCharacterOfPosition, emitNewLineBeforeLeadingCommentOfPosition, BinaryExpression, ArrayLiteralExpression, isBinaryExpression, BinaryOperatorToken, createBinaryExpressionTrampoline, LiteralLikeNode, StringLiteral, escapeString, escapeNonAsciiString, GetLiteralTextFlags, ScriptTarget, getLiteralText, CallExpression, ContinueStatement, BreakStatement, CaseClause, DefaultClause, ElementAccessExpression, ExpressionStatement, isJsonSourceFile, isAssignmentOperator, LiteralTypeNode, PropertyAccessExpression, setTextRangePosEnd, DotToken, UnionTypeNode, isBlock, isEmptyStatement, IndexedAccessTypeNode, BlockLike, RangeExpression, PrefixUnaryExpression } from "./_namespaces/lpc.js";
 
 const brackets = createBracketsMap();
 
@@ -3810,6 +3810,8 @@ export function createJsPrinter(printerOptions: PrinterOptions = {}, handlers: P
                     return emitCaseBlock(node as CaseBlock);
                     
                 // Statements
+                case SyntaxKind.Block:
+                    return emitBlock(node as Block);
                 case SyntaxKind.SwitchStatement:
                     return emitSwitchStatement(node as SwitchStatement);
                 case SyntaxKind.ContinueStatement:
@@ -3855,6 +3857,12 @@ export function createJsPrinter(printerOptions: PrinterOptions = {}, handlers: P
                     return emitCallExpression(node as CallExpression);
                 case SyntaxKind.ElementAccessExpression:
                     return emitElementAccessExpression(node as ElementAccessExpression);
+                case SyntaxKind.ParenthesizedExpression:
+                    return emitParenthesizedExpression(node as ParenthesizedExpression);
+                case SyntaxKind.RangeExpression:
+                    return emitRangeExpression(node as RangeExpression);
+                case SyntaxKind.PrefixUnaryExpression:
+                    return emitPrefixUnaryExpression(node as PrefixUnaryExpression);
             }
         }
         if (isKeyword(node.kind)) return writeTokenNode(node, writeKeyword);
@@ -4727,6 +4735,22 @@ export function createJsPrinter(printerOptions: PrinterOptions = {}, handlers: P
         emitSignatureAndBody(node, emitFunctionTypeHead, emitFunctionTypeBody);
     }
     
+    function isEmptyBlock(block: BlockLike) {
+        return block.statements.length === 0
+            && (!currentSourceFile || rangeEndIsOnSameLineAsRangeStart(block, block, currentSourceFile));
+    }
+    
+    function emitBlock(node: Block) {
+        emitBlockStatements(node, /*forceSingleLine*/ !node.multiLine && isEmptyBlock(node));
+    }
+
+    function emitBlockStatements(node: BlockLike, forceSingleLine: boolean) {
+        emitTokenWithComment(SyntaxKind.OpenBraceToken, node.pos, writePunctuation, /*contextNode*/ node);
+        const format = forceSingleLine || getEmitFlags(node) & EmitFlags.SingleLine ? ListFormat.SingleLineBlockStatements : ListFormat.MultiLineBlockStatements;
+        emitList(node, node.statements, format);
+        emitTokenWithComment(SyntaxKind.CloseBraceToken, node.statements.end, writePunctuation, /*contextNode*/ node, /*indentLeading*/ !!(format & ListFormat.MultiLine));
+    }
+
     function emitVariableStatement(node: VariableStatement) {
         emitDecoratorsAndModifiers(node, node.modifiers, /*allowDecorators*/ false);
         // emitTypeAnnotation(node.type);
@@ -5147,12 +5171,87 @@ export function createJsPrinter(printerOptions: PrinterOptions = {}, handlers: P
         }
     }
 
+    function writeLineSeparatorsAndIndentBefore(node: Node, parent: Node): boolean {
+        const leadingNewlines = preserveSourceNewlines && getLeadingLineTerminatorCount(parent, node, ListFormat.None);
+        if (leadingNewlines) {
+            writeLinesAndIndent(leadingNewlines, /*writeSpaceIfNotIndenting*/ false);
+        }
+        return !!leadingNewlines;
+    }
+
+    function writeLineSeparatorsAfter(node: Node, parent: Node) {
+        const trailingNewlines = preserveSourceNewlines && getClosingLineTerminatorCount(parent, node, ListFormat.None, /*childrenTextRange*/ undefined);
+        if (trailingNewlines) {
+            writeLine(trailingNewlines);
+        }
+    }
+
+    function emitPrefixUnaryExpression(node: PrefixUnaryExpression) {
+        writeTokenText(node.operator, writeOperator);
+        if (shouldEmitWhitespaceBeforeOperand(node)) {
+            writeSpace();
+        }
+        emitExpression(node.operand, parenthesizer.parenthesizeOperandOfPrefixUnary);
+    }
+
+    function shouldEmitWhitespaceBeforeOperand(node: PrefixUnaryExpression) {
+        // In some cases, we need to emit a space between the operator and the operand. One obvious case
+        // is when the operator is an identifier, like delete or typeof. We also need to do this for plus
+        // and minus expressions in certain cases. Specifically, consider the following two cases (parens
+        // are just for clarity of exposition, and not part of the source code):
+        //
+        //  (+(+1))
+        //  (+(++1))
+        //
+        // We need to emit a space in both cases. In the first case, the absence of a space will make
+        // the resulting expression a prefix increment operation. And in the second, it will make the resulting
+        // expression a prefix increment whose operand is a plus expression - (++(+x))
+        // The same is true of minus of course.
+        const operand = node.operand;
+        return operand.kind === SyntaxKind.PrefixUnaryExpression
+            && ((node.operator === SyntaxKind.PlusToken && ((operand as PrefixUnaryExpression).operator === SyntaxKind.PlusToken || (operand as PrefixUnaryExpression).operator === SyntaxKind.PlusPlusToken))
+                || (node.operator === SyntaxKind.MinusToken && ((operand as PrefixUnaryExpression).operator === SyntaxKind.MinusToken || (operand as PrefixUnaryExpression).operator === SyntaxKind.MinusMinusToken)));
+    }
+
+    function emitRangeElement(node: Expression) {
+        if (lpc.isPrefixUnaryExpression(node) && node.operator === SyntaxKind.LessThanToken) {
+            // special case that we want to emit as a string
+            writePunctuation("'<");
+            emitExpression(node.operand);
+            writePunctuation("'");
+        } else {
+            emitExpression(node);   
+        }
+    }
+
+    function emitRangeExpression(node: RangeExpression) {
+        writePunctuation("{ start: ");
+        emitRangeElement(node.left);
+        writePunctuation(", end: ");        
+        emitRangeElement(node.right);                
+        writePunctuation("}");
+    }
+
+    function emitParenthesizedExpression(node: ParenthesizedExpression) {
+        const openParenPos = emitTokenWithComment(SyntaxKind.OpenParenToken, node.pos, writePunctuation, node);
+        const indented = writeLineSeparatorsAndIndentBefore(node.expression, node);
+        emitExpression(node.expression, /*parenthesizerRule*/ undefined);
+        writeLineSeparatorsAfter(node.expression, node);
+        decreaseIndentIf(indented);
+        emitTokenWithComment(SyntaxKind.CloseParenToken, node.expression ? node.expression.end : openParenPos, writePunctuation, node);
+    }
+
     function emitElementAccessExpression(node: ElementAccessExpression) {
+        writeKeyword("__lpcIndexAccessHelper");
+        writePunctuation("(");
         emitExpression(node.expression, parenthesizer.parenthesizeLeftSideOfAccess);
+        writePunctuation(",");        
         // emit(node.questionDotToken);
-        emitTokenWithComment(SyntaxKind.OpenBracketToken, node.expression.end, writePunctuation, node);
+        // emitTokenWithComment(SyntaxKind.OpenBracketToken, node.expression.end, writePunctuation, node);
         emitExpression(node.argumentExpression);
-        emitTokenWithComment(SyntaxKind.CloseBracketToken, node.argumentExpression.end, writePunctuation, node);
+        writePunctuation(")");
+
+        // emitTokenWithComment(SyntaxKind.CloseBracketToken, node.argumentExpression.end, writePunctuation, node);
     }
     
     /** Emit a binary expression as a call expression to a helper function */
@@ -5176,6 +5275,9 @@ export function createJsPrinter(printerOptions: PrinterOptions = {}, handlers: P
                     break;
                 case SyntaxKind.SlashEqualsToken:
                     operator = SyntaxKind.SlashToken;
+                    break;
+                case SyntaxKind.EqualsToken:
+                    operator = SyntaxKind.EqualsToken;
                     break;
                 default:
                     Debug.fail("Unknown compound assignment operator " + Debug.formatSyntaxKind(operator));

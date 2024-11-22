@@ -87,7 +87,7 @@ void set_author( string author );
  * This efun is only available if PRIVS is defined at driver compile time.
  *
  */
-string query_privs( object ob );
+varargs string query_privs( object ob );
 
 /**
  * livings() - return an array of all living objects

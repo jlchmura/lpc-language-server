@@ -175,6 +175,7 @@ export namespace LpcParser {
         importCandidates = [];
 
         // Initialize and prime the scanner before parsing the source elements.        
+        scanner.resetSavedStates();
         scanner.setText(sourceText);
         scanner.setFileName(fileName);
         scanner.setOnError(scanError);
@@ -816,6 +817,7 @@ export namespace LpcParser {
         try {
             const result = parseSourceFileWorker(languageVersion, setParentNodes, scriptKind || ScriptKind.LPC, jsDocParsingMode);
             clearState();            
+
             return result;
         } catch (e) {
             console.error(e);
@@ -834,7 +836,10 @@ export namespace LpcParser {
         // remove the first element from the include stack and process it 
         const includeDir = includeFileStack.shift()!;
         if (includeDir) {
-            processIncludeDirective(includeDir);
+            if (!processIncludeDirective(includeDir)) {
+                // if the include could not be loaded for some reason, then prime the scanner
+                nextToken();
+            }
         } else {        
             // prime the scanner
             nextToken();        
@@ -1818,7 +1823,7 @@ export namespace LpcParser {
         // TODO - handle circular includes        
         if (resolvedFilename === fileName) { 
             // skip
-            return; 
+            return false;
         }
 
         (includeDirective as Mutable<IncludeDirective>).resolvedFilename = resolvedFilename;
@@ -2700,6 +2705,10 @@ export namespace LpcParser {
         Debug.assert(!node.jsDoc); // Should only be called once per node
         const saveSourceText = sourceText;
         sourceText = includeFileCache[node.originFilename] ?? sourceText;
+        let restoreScannerState: ()=>boolean | undefined;
+        if (scanner.getFileName() != node.originFilename) {
+            restoreScannerState = scanner.switchStream(node.originFilename, sourceText, node.originPos, node.originEnd);
+        }
         const jsDoc = mapDefined(getJSDocCommentRanges(node, sourceText), comment => JSDocParser.parseJSDocComment(node, comment.pos, comment.end - comment.pos));
         if (jsDoc.length) node.jsDoc = jsDoc;
         if (hasDeprecatedTag) {
@@ -2707,6 +2716,9 @@ export namespace LpcParser {
             (node as Mutable<T>).flags |= NodeFlags.Deprecated;
         }
         sourceText = saveSourceText;
+        if (restoreScannerState) {
+            restoreScannerState();
+        }
         return node;
     }
 
@@ -5164,7 +5176,7 @@ export namespace LpcParser {
 
     function parseTypeOrTypePredicate(): TypeNode {
         const pos = getPositionState();
-        const typePredicateVariable = isIdentifier() && tryParse(parseTypePredicatePrefix);
+        const typePredicateVariable = (isIdentifier() && lookAhead(() => nextToken() === SyntaxKind.IsKeyword)) ? parseTypePredicatePrefix() : undefined;
         const type = parseType();
         if (typePredicateVariable) {
             return finishNode(factory.createTypePredicateNode(/*assertsModifier*/ undefined, typePredicateVariable, type), pos);
@@ -5179,6 +5191,13 @@ export namespace LpcParser {
         
         const hasDotDotDot = parseOptional(SyntaxKind.DotDotDotToken);
         let type = parseTypeOrTypePredicate();
+
+        // support JS style array indicators (`arr[]`).. we are in jsdoc after all
+        if (parseOptional(SyntaxKind.OpenBracketToken) && parseExpectedJSDoc(SyntaxKind.CloseBracketToken)) {
+            // convert type to an array
+            type = finishNode(factory.createArrayTypeNode(type), pos);
+        }
+
         scanner.setSkipJsDocLeadingAsterisks(false);
         if (hasDotDotDot) {            
             type = finishNode(factory.createJSDocVariadicType(type), pos);

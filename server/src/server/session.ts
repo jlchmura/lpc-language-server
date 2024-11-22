@@ -613,6 +613,7 @@ export class Session<TMessage = string> implements EventSender {
 
     private getEncodedSemanticClassifications(args: protocol.EncodedSemanticClassificationsRequestArgs) {
         const { file, project } = this.getFileAndProject(args);
+        if (!project.getCurrentProgram()) return;
         // TODO - why do we have to run this first and TS doesn't?
         this.semanticCheck(file, project);
         // const format = args.format === "2020" ? SemanticClassificationFormat.TwentyTwenty : SemanticClassificationFormat.Original;

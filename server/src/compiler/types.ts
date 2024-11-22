@@ -4247,6 +4247,7 @@ export type PrefixUnaryOperator =
     | SyntaxKind.MinusToken
     | SyntaxKind.TildeToken
     | SyntaxKind.ExclamationToken
+    | SyntaxKind.LessThanToken
     | SyntaxKind.DoubleExclamationToken;
 
 export interface PrefixUnaryExpression extends UpdateExpression {
@@ -7619,3 +7620,8 @@ export type PragmaArgTypeOptional<TDesc, TName extends string> = TDesc extends {
 export type PragmaArgTypeMaybeCapture<TDesc> = TDesc extends { captureSpan: true; } ? { value: string; pos: number; end: number; } : string;
 
 export type ThisObjectPragmas = { arguments: { name: string; }; range: CommentRange; };
+
+export type BlockLike =
+    | SourceFile
+    | Block    
+    | CaseOrDefaultClause;

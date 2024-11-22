@@ -37,8 +37,8 @@ export function createLpcFileHandler(host: LpcFileHandlerHost): LpcFileHandler {
             const searchDirs = [                
                 ...getIncludeDirs(sourceFilename),
                 ...(additionalSearchDirs || []),
-                "./"
-            ];
+                host.getCurrentDirectory()
+            ];            
             pushIfUnique(searchDirs, sourceDir);
             
             if (localFirst) searchDirs.reverse();

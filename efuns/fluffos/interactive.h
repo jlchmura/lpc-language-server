@@ -497,7 +497,7 @@ tion
  * be passed on to 'fun' as arguments following the user input.
  *
  */
-varargs void input_to( string | function fun, int flag... );
+varargs void input_to(string | function fun, int flag, mixed args... );
 
 /**
  * in_input() - determines if a player is inputting to an input_to
@@ -729,7 +729,7 @@ mixed *commands( void );
  * jective and unreliable.
  *
  */
-int command( string str, object ob );
+varargs int command( string str, object ob );
 
 /**
  * add_action() - bind a command verb to a local function

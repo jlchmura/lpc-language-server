@@ -1,0 +1,1021 @@
+Info 0    [08:12:24.435] Starting TS Server
+Info 1    [08:12:24.435] Platform: darwin NodeVersion: v20.18.0 CaseSensitive: false
+Info 2    [08:12:24.435] ServerMode: 2
+Info 3    [08:12:24.477] Starting updateGraphWorker: Project: /dev/null/inferredProject1*
+Info 4    [08:12:24.478] Finishing updateGraphWorker: Project: /dev/null/inferredProject1* projectStateVersion: 1 projectProgramVersion: 0 structureChanged: false Elapsed: 0.06674999999995634ms
+Info 5    [08:12:24.478] Project '/dev/null/inferredProject1*' (Inferred)
+Info 6    Info 5    [08:12:24.484] Config: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json : {
+ "rootNames": 25,
+ "options": {
+  "configFilePath": "/Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json",
+  "rootDir": "/Users/johnchmura/code/lpc-language-server/efuns/fluffos/",
+  "rootDirs": [
+   "/Users/johnchmura/code/lpc-language-server/efuns/fluffos/"
+  ],
+  "driverType": 1,
+  "diagnostics": false,
+  "sefunFile": "/Users/johnchmura/code/lpc-language-server/efuns/fluffos/obj/sefun.c",
+  "masterFile": "/Users/johnchmura/code/lpc-language-server/efuns/fluffos/obj/master.c",
+  "playerFile": "/Users/johnchmura/code/lpc-language-server/efuns/fluffos/obj/player.c",
+  "configDefines": {}
+ }
+}
+Info 6    [08:12:24.487] Starting updateGraphWorker: Project: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
+Info 7    [08:12:24.579] Finishing updateGraphWorker: Project: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json projectStateVersion: 1 projectProgramVersion: 0 structureChanged: true structureIsReused:: Not Elapsed: 92.02129099999996ms
+Info 8    [08:12:24.579] Project '/Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json' (Configured)
+Info 9    [08:12:24.579] 	Files (25)
+
+Info 10   [08:12:24.579] -----------------------------------------------
+Info 11   [08:12:24.580] Project '/Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json' (Configured)
+Info 11   [08:12:24.580] 	Files (25)
+
+Info 11   [08:12:24.580] -----------------------------------------------
+Info 11   [08:12:24.580] Open files: 
+Info 11   [08:12:24.580] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/interactive.h ProjectRootPath: undefined
+Info 11   [08:12:24.580] 		Projects: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
+Err 11    [08:12:24.640] Exception on executing command delayed processing of request 1:
+
+    Debug Failure. False expression: This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809
+
+    Error: Debug Failure. False expression: This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809
+        at getErrorSpanForNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:707:15)
+        at createDiagnosticForNodeInSourceFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:723:18)
+        at createDiagnosticForNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:1687:12)
+        at createError (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1277:15)
+        at error (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1282:28)
+        at resolveExternalModule (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17953:25)
+        at resolveExternalModuleNameWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17793:20)
+        at resolveExternalModuleName (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17783:16)
+        at getTypeFromLiteralTypeNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4168:38)
+        at getTypeFromTypeNodeWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4434:24Info 18   [08:46:43.691] Starting updateGraphWorker: Project: /dev/null/inferredProject4*
+Info 19   [08:46:43.691] Finishing updateGraphWorker: Project: /dev/null/inferredProject4* projectStateVersion: 1 projectProgramVersion: 0 structureChanged: false Elapsed: 0.027957999845966697ms
+Info 20   [08:46:43.692] Project '/dev/null/inferredProject4*' (Inferred)
+Info 21   [08:46:43.692] 	Files (0) NoProgram
+
+Info 22   [08:46:43.692] -----------------------------------------------
+Info 23   [08:46:43.692] Project '/dev/null/inferredProject1*' (Inferred)
+Info 23   [08:46:43.692] 	Files (0) NoProgram
+
+Info 23   [08:46:43.692] -----------------------------------------------
+Info 23   [08:46:43.692] Project '/dev/null/inferredProject2*' (Inferred)
+Info 23   [08:46:43.692] 	Files (0) NoProgram
+
+Info 23   [08:46:43.692] -----------------------------------------------
+Info 23   [08:46:43.692] Project '/dev/null/inferredProject3*' (Inferred)
+Info 23   [08:46:43.692] 	Files (0) NoProgram
+
+Info 23   [08:46:43.692] -----------------------------------------------
+Info 23   [08:46:43.692] Project '/dev/null/inferredProject4*' (Inferred)
+Info 23   [08:46:43.692] 	Files (0) NoProgram
+
+Info 23   [08:46:43.692] -----------------------------------------------
+Info 23   [08:46:43.692] Open files: 
+Info 23   [08:46:43.692] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/interactive.h ProjectRootPath: undefined
+Info 23   [08:46:43.692] 		Projects: /dev/null/inferredProject1*
+Info 23   [08:46:43.692] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/system.h ProjectRootPath: undefined
+Info 23   [08:46:43.692] 		Projects: /dev/null/inferredProject2*
+Info 23   [08:46:43.692] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/ldmud/efun.h ProjectRootPath: undefined
+Info 23   [08:46:43.692] 		Projects: /dev/null/inferredProject3*
+Info 23   [08:46:43.692] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/efuns.fluffos.h ProjectRootPath: undefined
+Info 23   [08:46:43.692] 		Projects: /dev/null/inferredProject4*
+am.ts:707:20)
+        at getBindAndCheckDiagnosticsForFileNoCache (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:640:16)
+        at getAndCacheDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:695:24)
+        at getBindAndCheckDiagnosticsForFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:535:16)
+        at getSemanticDiagnosticsForFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:479:39)
+        at getDiagnosticsHelper (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:732:50)
+        at Object.getSemanticDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:474:16)
+        at Object.getSemanticDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/services/services.ts:1518:45)
+        at LspSession.semanticCheck (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:481:52)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:441:44)
+        at MultistepOperation.executeAction (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1377:17)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1348:79)
+        at LspSession.executeWithRequestId (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:200:20)
+        at Object.executeWithRequestId (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:105:63)
+        at Immediate._onImmediate (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1348:36)
+        at process.processImmediate (node:internal/timers:485:21)
+Info 12   [08:12:24.641] getConfigFileNameForFile:: File: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/system.h ProjectRootPath: undefined:: Result: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
+Info 13   [08:12:24.641] Project '/Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json' (Configured)
+Info 13   [08:12:24.641] 	Files (25)
+
+Info 13   [08:12:24.641] -----------------------------------------------
+Info 13   [08:12:24.641] Open files: 
+Info 13   [08:12:24.641] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/interactive.h ProjectRootPath: undefined
+Info 13   [08:12:24.641] 		Projects: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
+Info 13   [08:12:24.641] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/system.h ProjectRootPath: undefined
+Info 13   [08:12:24.641] 		Projects: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
+Info 13   [08:12:24.651] getConfigFileNameForFile:: File: /Users/johnchmura/code/lpc-language-server/efuns/ldmud/efun.h ProjectRootPath: undefined:: Result: /Users/johnchmura/code/lpc-language-server/efuns/ldmud/lpc-config.json
+Info 14   [08:12:24.651] Creating configuration project /Users/johnchmura/code/lpc-language-server/efuns/ldmud/lpc-config.json
+Info 15   [08:12:24.652] Config: /Users/johnchmura/code/lpc-language-server/efuns/ldmud/lpc-config.json : {
+ "rootNames": 3,
+ "options": {
+  "configFilePath": "/Users/johnchmura/code/lpc-language-server/efuns/ldmud/lpc-config.json",
+  "rootDir": "/Users/johnchmura/code/lpc-language-server/efuns/ldmud/",
+  "rootDirs": [
+   "/Users/johnchmura/code/lpc-language-server/efuns/ldmud/"
+  ],
+  "driverType": 0,
+  "diagnostics": false,
+  "sefunFile": "/Users/johnchmura/code/lpc-language-server/efuns/ldmud/obj/sefun.c",
+  "masterFile": "/Users/johnchmura/code/lpc-language-server/efuns/ldmud/obj/master.c",
+  "playerFile": "/Users/johnchmura/code/lpc-language-server/efuns/ldmud/obj/player.c",
+  "configDefines": {}
+ }
+}
+Info 16   [08:12:24.652] Starting updateGraphWorker: Project: /Users/johnchmura/code/lpc-language-server/efuns/ldmud/lpc-config.json
+Info 17   [08:12:24.719] Finishing updateGraphWorker: Project: /Users/johnchmura/code/lpc-language-server/efuns/ldmud/lpc-config.json projectStateVersion: 1 projectProgramVersion: 0 structureChanged: true structureIsReused:: Not Elapsed: 66.49916699999994ms
+Info 18   [08:12:24.719] Project '/Users/johnchmura/code/lpc-language-server/efuns/ldmud/lpc-config.json' (Configured)
+Info 19   [08:12:24.719] 	Files (3)
+
+Info 20   [08:12:24.719] -----------------------------------------------
+Info 21   [08:12:24.719] Project '/Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json' (Configured)
+Info 21   [08:12:24.719] 	Files (25)
+
+Info 21   [08:12:24.719] -----------------------------------------------
+Info 21   [08:12:24.719] Project '/Users/johnchmura/code/lpc-language-server/efuns/ldmud/lpc-config.json' (Configured)
+Info 21   [08:12:24.719] 	Files (3)
+
+Info 21   [08:12:24.719] -----------------------------------------------
+Info 21   [08:12:24.719] Open files: 
+Info 21   [08:12:24.719] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/interactive.h ProjectRootPath: undefined
+Info 21   [08:12:24.719] 		Projects: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
+Info 21   [08:12:24.719] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/system.h ProjectRootPath: undefined
+Info 21   [08:12:24.719] 		Projects: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
+Info 21   [08:12:24.719] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/ldmud/efun.h ProjectRootPath: undefined
+Info 21   [08:12:24.719] 		Projects: /Users/johnchmura/code/lpc-language-server/efuns/ldmud/lpc-config.json
+Err 21    [08:12:24.729] Exception on executing command {"seq":6,"type":"request","command":"encodedSemanticClassifications-full","arguments":{"file":"/Users/johnchmura/code/lpc-language-server/efuns/ldmud/efun.h","start":49251,"length":2596}}:
+
+    Debug Failure. False expression: This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809
+
+    Error: Debug Failure. False expression: This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809
+        at getErrorSpanForNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:707:15)
+        at createDiagnosticForNodeInSourceFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:723:18)
+        at createDiagnosticForNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:1687:12)
+        at createError (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1277:15)
+        at error (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1282:28)
+        at resolveExternalModule (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17953:25)
+        at resolveExternalModuleNameWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17793:20)
+        at resolveExternalModuleName (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17783:16)
+        at getTypeFromLiteralTypeNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4168:38)
+        at getTypeFromTypeNodeWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4434:24)
+        at getTypeFromTypeNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4150:45)
+        at getReturnTypeFromAnnotation (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4132:20)
+        at checkFunctionOrMethodDeclaration (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3971:63)
+        at checkFunctionDeclarationDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3914:13)
+        at addLazyDiagnostic (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:13264:35)
+        at checkFunctionDeclaration (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3911:9)
+        at checkSourceElementWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:2925:24)
+        at checkSourceElement (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:2789:13)
+        at forEach (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/core.ts:437:28)
+        at checkSourceFileWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:10416:13)
+        at checkSourceFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1819:73)
+        at checkSourceFileWithEagerDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:13265:9)
+        at getDiagnosticsWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1785:13)
+        at Object.getDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1769:20)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:656:48)
+        at runWithCancellationToken (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:707:20)
+        at getBindAndCheckDiagnosticsForFileNoCache (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:640:16)
+        at getAndCacheDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:695:24)
+        at getBindAndCheckDiagnosticsForFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:535:16)
+        at getSemanticDiagnosticsForFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:479:39)
+        at getDiagnosticsHelper (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:732:50)
+        at Object.getSemanticDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:474:16)
+        at Object.getSemanticDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/services/services.ts:1518:45)
+        at LspSession.semanticCheck (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:481:52)
+        at LspSession.getEncodedSemanticClassifications (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:617:14)
+        at encodedSemanticClassifications-full (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1160:47)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1179:75)
+        at LspSession.executeWithRequestId (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:200:20)
+        at LspSession.executeCommand (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1179:35)
+        at LspSession.onMessage (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1214:57)
+        at executeRequest (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/lpcserver/server.ts:564:28)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/lpcserver/server.ts:390:28)
+        at handleRequest (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:493:41)
+        at handleMessage (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:339:13)
+        at processMessageQueue (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:362:17)
+        at Immediate._onImmediate (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:334:13)
+        at process.processImmediate (node:internal/timers:483:21)
+Err 22    [08:12:24.732] Exception on executing command delayed processing of request 5:
+
+    Debug Failure. False expression: This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809
+
+    Error: Debug Failure. False expression: This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809
+        at getErrorSpanForNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:707:15)
+        at createDiagnosticForNodeInSourceFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:723:18)
+        at createDiagnosticForNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:1687:12)
+        at createError (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1277:15)
+        at error (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1282:28)
+        at resolveExternalModule (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17953:25)
+        at resolveExternalModuleNameWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17793:20)
+        at resolveExternalModuleName (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17783:16)
+        at getTypeFromLiteralTypeNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4168:38)
+        at getTypeFromTypeNodeWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4434:24)
+        at getTypeFromTypeNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4150:45)
+        at getReturnTypeFromAnnotation (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4132:20)
+        at checkFunctionOrMethodDeclaration (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3971:63)
+        at checkFunctionDeclarationDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3914:13)
+        at addLazyDiagnostic (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:13264:35)
+        at checkFunctionDeclaration (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3911:9)
+        at checkSourceElementWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:2925:24)
+        at checkSourceElement (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:2789:13)
+        at forEach (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/core.ts:437:28)
+        at checkSourceFileWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:10416:13)
+        at checkSourceFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1819:73)
+        at checkSourceFileWithEagerDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:13265:9)
+        at getDiagnosticsWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1785:13)
+        at Object.getDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1769:20)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:656:48)
+        at runWithCancellationToken (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:707:20)
+        at getBindAndCheckDiagnosticsForFileNoCache (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:640:16)
+        at getAndCacheDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:695:24)
+        at getBindAndCheckDiagnosticsForFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:535:16)
+        at getSemanticDiagnosticsForFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:479:39)
+        at getDiagnosticsHelper (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:732:50)
+        at Object.getSemanticDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:474:16)
+        at Object.getSemanticDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/services/services.ts:1518:45)
+        at LspSession.semanticCheck (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:481:52)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:441:44)
+        at MultistepOperation.executeAction (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1377:17)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1348:79)
+        at LspSession.executeWithRequestId (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:200:20)
+        at Object.executeWithRequestId (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:105:63)
+        at Immediate._onImmediate (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1348:36)
+        at process.processImmediate (node:internal/timers:485:21)
+Err 23    [08:12:24.916] Exception on executing command {"seq":7,"type":"request","command":"encodedSemanticClassifications-full","arguments":{"file":"/Users/johnchmura/code/lpc-language-server/efuns/ldmud/efun.h","start":49251,"length":2596}}:
+
+    Debug Failure. False expression: This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809
+
+    Error: Debug Failure. False expression: This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809
+        at getErrorSpanForNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:707:15)
+        at createDiagnosticForNodeInSourceFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:723:18)
+        at createDiagnosticForNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:1687:12)
+        at createError (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1277:15)
+        at error (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1282:28)
+        at resolveExternalModule (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17953:25)
+        at resolveExternalModuleNameWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17793:20)
+        at resolveExternalModuleName (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17783:16)
+        at getTypeFromLiteralTypeNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4168:38)
+        at getTypeFromTypeNodeWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4434:24)
+        at getTypeFromTypeNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4150:45)
+        at getReturnTypeFromAnnotation (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4132:20)
+        at checkFunctionOrMethodDeclaration (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3971:63)
+        at checkFunctionDeclarationDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3914:13)
+        at addLazyDiagnostic (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:13264:35)
+        at checkFunctionDeclaration (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3911:9)
+        at checkSourceElementWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:2925:24)
+        at checkSourceElement (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:2789:13)
+        at forEach (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/core.ts:437:28)
+        at checkSourceFileWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:10416:13)
+        at checkSourceFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1819:73)
+        at checkSourceFileWithEagerDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:13265:9)
+        at getDiagnosticsWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1785:13)
+        at Object.getDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1769:20)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:656:48)
+        at runWithCancellationToken (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:707:20)
+        at getBindAndCheckDiagnosticsForFileNoCache (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:640:16)
+        at getAndCacheDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:695:24)
+        at getBindAndCheckDiagnosticsForFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:535:16)
+        at getSemanticDiagnosticsForFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:479:39)
+        at getDiagnosticsHelper (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:732:50)
+        at Object.getSemanticDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:474:16)
+        at Object.getSemanticDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/services/services.ts:1518:45)
+        at LspSession.semanticCheck (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:481:52)
+        at LspSession.getEncodedSemanticClassifications (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:617:14)
+        at encodedSemanticClassifications-full (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1160:47)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1179:75)
+        at LspSession.executeWithRequestId (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:200:20)
+        at LspSession.executeCommand (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1179:35)
+        at LspSession.onMessage (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1214:57)
+        at executeRequest (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/lpcserver/server.ts:564:28)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/lpcserver/server.ts:390:28)
+        at handleRequest (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:493:41)
+        at handleMessage (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:339:13)
+        at processMessageQueue (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:362:17)
+        at Immediate._onImmediate (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:334:13)
+        at process.processImmediate (node:internal/timers:483:21)
+Info 24   [08:46:43.691] getConfigFileNameForFile:: File: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/efuns.fluffos.h ProjectRootPath: undefined:: Result: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
+Info 25   [08:46:43.692] Project '/Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json' (Configured)
+Info 25   [08:46:43.692] 	Files (25)
+
+Info 25   [08:46:43.692] -----------------------------------------------
+Info 25   [08:46:43.692] Project '/Users/johnchmura/code/lpc-language-server/efuns/ldmud/lpc-config.json' (Configured)
+Info 25   [08:46:43.692] 	Files (3)
+
+Info 25   [08:46:43.692] -----------------------------------------------
+Info 25   [08:46:43.692] Open files: 
+Info 25   [08:46:43.692] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/interactive.h ProjectRootPath: undefined
+Info 25   [08:46:43.692] 		Projects: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
+Info 25   [08:46:43.692] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/system.h ProjectRootPath: undefined
+Info 25   [08:46:43.692] 		Projects: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
+Info 25   [08:46:43.692] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/ldmud/efun.h ProjectRootPath: undefined
+Info 25   [08:46:43.692] 		Projects: /Users/johnchmura/code/lpc-language-server/efuns/ldmud/lpc-config.json
+Info 25   [08:46:43.692] 	FileName: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/efuns.fluffos.h ProjectRootPath: undefined
+Info 25   [08:46:43.692] 		Projects: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
+Info 25   [08:46:46.819] Starting updateGraphWorker: Project: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
+Info 26   [08:46:46.841] Finishing updateGraphWorker: Project: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json projectStateVersion: 2 projectProgramVersion: 1 structureChanged: true structureIsReused:: SafeModules Elapsed: 22.355165999848396ms
+Info 27   [08:46:46.841] Different program with same set of files
+Info 28   [08:46:50.521] Starting updateGraphWorker: Project: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
+Info 29   [08:46:50.542] Finishing updateGraphWorker: Project: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json projectStateVersion: 3 projectProgramVersion: 2 structureChanged: true structureIsReused:: SafeModules Elapsed: 20.38950000004843ms
+Info 30   [08:46:50.542] Different program with same set of files
+Info 31   [08:46:55.067] Starting updateGraphWorker: Project: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
+Info 32   [08:46:55.084] Finishing updateGraphWorker: Project: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json projectStateVersion: 4 projectProgramVersion: 3 structureChanged: true structureIsReused:: SafeModules Elapsed: 17.20437499997206ms
+Info 33   [08:46:55.084] Different program with same set of files
+Err 34    [09:27:54.197] Exception on executing command {"seq":30,"type":"request","command":"encodedSemanticClassifications-full","arguments":{"file":"/Users/johnchmura/code/lpc-language-server/efuns/fluffos/interactive.h","start":15057,"length":2893}}:
+
+    Debug Failure. False expression: This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809
+
+    Error: Debug Failure. False expression: This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809
+        at getErrorSpanForNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:707:15)
+        at createDiagnosticForNodeInSourceFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:723:18)
+        at createDiagnosticForNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:1687:12)
+        at createError (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1277:15)
+        at error (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1282:28)
+        at resolveExternalModule (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17953:25)
+        at resolveExternalModuleNameWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17793:20)
+        at resolveExternalModuleName (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17783:16)
+        at getTypeFromLiteralTypeNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4168:38)
+        at getTypeFromTypeNodeWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4434:24)
+        at getTypeFromTypeNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4150:45)
+        at getReturnTypeFromAnnotation (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4132:20)
+        at checkFunctionOrMethodDeclaration (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3971:63)
+        at checkFunctionDeclarationDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3914:13)
+        at addLazyDiagnostic (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:13264:35)
+        at checkFunctionDeclaration (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3911:9)
+        at checkSourceElementWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:2925:24)
+        at checkSourceElement (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:2789:13)
+        at forEach (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/core.ts:437:28)
+        at checkSourceFileWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:10416:13)
+        at checkSourceFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1819:73)
+        at checkSourceFileWithEagerDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:13265:9)
+        at getDiagnosticsWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1785:13)
+        at Object.getDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1769:20)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:656:48)
+        at runWithCancellationToken (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:707:20)
+        at getBindAndCheckDiagnosticsForFileNoCache (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:640:16)
+        at getAndCacheDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:695:24)
+        at getBindAndCheckDiagnosticsForFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:535:16)
+        at getSemanticDiagnosticsForFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:479:39)
+        at getDiagnosticsHelper (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:732:50)
+        at Object.getSemanticDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:474:16)
+        at Object.getSemanticDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/services/services.ts:1518:45)
+        at LspSession.semanticCheck (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:481:52)
+        at LspSession.getEncodedSemanticClassifications (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:617:14)
+        at encodedSemanticClassifications-full (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1160:47)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1179:75)
+        at LspSession.executeWithRequestId (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:200:20)
+        at LspSession.executeCommand (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1179:35)
+        at LspSession.onMessage (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1214:57)
+        at executeRequest (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/lpcserver/server.ts:564:28)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/lpcserver/server.ts:390:28)
+        at handleRequest (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:493:41)
+        at handleMessage (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:339:13)
+        at processMessageQueue (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:362:17)
+        at Immediate._onImmediate (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:334:13)
+        at process.processImmediate (node:internal/timers:483:21)
+Err 35    [09:27:55.182] Exception on executing command {"seq":31,"type":"request","command":"encodedSemanticClassifications-full","arguments":{"file":"/Users/johnchmura/code/lpc-language-server/efuns/fluffos/interactive.h","start":15269,"length":2771}}:
+
+    Debug Failure. False expression: This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809
+
+    Error: Debug Failure. False expression: This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809
+        at getErrorSpanForNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:707:15)
+        at createDiagnosticForNodeInSourceFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:723:18)
+        at createDiagnosticForNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:1687:12)
+        at createError (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1277:15)
+        at error (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1282:28)
+        at resolveExternalModule (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17953:25)
+        at resolveExternalModuleNameWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17793:20)
+        at resolveExternalModuleName (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17783:16)
+        at getTypeFromLiteralTypeNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4168:38)
+        at getTypeFromTypeNodeWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4434:24)
+        at getTypeFromTypeNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4150:45)
+        at getReturnTypeFromAnnotation (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4132:20)
+        at checkFunctionOrMethodDeclaration (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3971:63)
+        at checkFunctionDeclarationDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3914:13)
+        at addLazyDiagnostic (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:13264:35)
+        at checkFunctionDeclaration (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3911:9)
+        at checkSourceElementWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:2925:24)
+        at checkSourceElement (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:2789:13)
+        at forEach (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/core.ts:437:28)
+        at checkSourceFileWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:10416:13)
+        at checkSourceFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1819:73)
+        at checkSourceFileWithEagerDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:13265:9)
+        at getDiagnosticsWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1785:13)
+        at Object.getDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1769:20)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:656:48)
+        at runWithCancellationToken (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:707:20)
+        at getBindAndCheckDiagnosticsForFileNoCache (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:640:16)
+        at getAndCacheDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:695:24)
+        at getBindAndCheckDiagnosticsForFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:535:16)
+        at getSemanticDiagnosticsForFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:479:39)
+        at getDiagnosticsHelper (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:732:50)
+        at Object.getSemanticDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:474:16)
+        at Object.getSemanticDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/services/services.ts:1518:45)
+        at LspSession.semanticCheck (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:481:52)
+        at LspSession.getEncodedSemanticClassifications (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:617:14)
+        at encodedSemanticClassifications-full (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1160:47)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1179:75)
+        at LspSession.executeWithRequestId (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:200:20)
+        at LspSession.executeCommand (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1179:35)
+        at LspSession.onMessage (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1214:57)
+        at executeRequest (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/lpcserver/server.ts:564:28)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/lpcserver/server.ts:390:28)
+        at handleRequest (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:493:41)
+        at handleMessage (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:339:13)
+        at processMessageQueue (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:362:17)
+        at Immediate._onImmediate (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:334:13)
+        at process.processImmediate (node:internal/timers:483:21)
+Info 36   [09:27:59.068] Starting updateGraphWorker: Project: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
+Info 37   [09:27:59.072] Finishing updateGraphWorker: Project: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json projectStateVersion: 5 projectProgramVersion: 4 structureChanged: true structureIsReused:: SafeModules Elapsed: 4.63399999961257ms
+Info 38   [09:27:59.073] Different program with same set of files
+Err 39    [09:27:59.073] Exception on executing command {"seq":34,"type":"request","command":"encodedSemanticClassifications-full","arguments":{"file":"/Users/johnchmura/code/lpc-language-server/efuns/fluffos/interactive.h","start":15269,"length":2770}}:
+
+    Debug Failure. False expression: This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809
+
+    Error: Debug Failure. False expression: This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809
+        at getErrorSpanForNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:707:15)
+        at createDiagnosticForNodeInSourceFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:723:18)
+        at createDiagnosticForNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:1687:12)
+        at createError (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1277:15)
+        at error (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1282:28)
+        at resolveExternalModule (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17953:25)
+        at resolveExternalModuleNameWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17793:20)
+        at resolveExternalModuleName (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17783:16)
+        at getTypeFromLiteralTypeNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4168:38)
+        at getTypeFromTypeNodeWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4434:24)
+        at getTypeFromTypeNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4150:45)
+        at getReturnTypeFromAnnotation (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4132:20)
+        at checkFunctionOrMethodDeclaration (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3971:63)
+        at checkFunctionDeclarationDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3914:13)
+        at addLazyDiagnostic (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:13264:35)
+        at checkFunctionDeclaration (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3911:9)
+        at checkSourceElementWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:2925:24)
+        at checkSourceElement (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:2789:13)
+        at forEach (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/core.ts:437:28)
+        at checkSourceFileWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:10416:13)
+        at checkSourceFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1819:73)
+        at checkSourceFileWithEagerDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:13265:9)
+        at getDiagnosticsWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1785:13)
+        at Object.getDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1769:20)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:656:48)
+        at runWithCancellationToken (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:707:20)
+        at getBindAndCheckDiagnosticsForFileNoCache (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:640:16)
+        at getAndCacheDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:695:24)
+        at getBindAndCheckDiagnosticsForFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:535:16)
+        at getSemanticDiagnosticsForFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:479:39)
+        at getDiagnosticsHelper (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:732:50)
+        at Object.getSemanticDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:474:16)
+        at Object.getSemanticDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/services/services.ts:1518:45)
+        at LspSession.semanticCheck (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:481:52)
+        at LspSession.getEncodedSemanticClassifications (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:617:14)
+        at encodedSemanticClassifications-full (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1160:47)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1179:75)
+        at LspSession.executeWithRequestId (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:200:20)
+        at LspSession.executeCommand (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1179:35)
+        at LspSession.onMessage (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1214:57)
+        at executeRequest (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/lpcserver/server.ts:564:28)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/lpcserver/server.ts:390:28)
+        at handleRequest (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:493:41)
+        at handleMessage (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:339:13)
+        at processMessageQueue (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:362:17)
+        at Immediate._onImmediate (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:334:13)
+        at process.processImmediate (node:internal/timers:483:21)
+Err 40    [09:27:59.170] Exception on executing command delayed processing of request 33:
+
+    Debug Failure. False expression: This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809
+
+    Error: Debug Failure. False expression: This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809
+        at getErrorSpanForNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:707:15)
+        at createDiagnosticForNodeInSourceFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:723:18)
+        at createDiagnosticForNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:1687:12)
+        at createError (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1277:15)
+        at error (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1282:28)
+        at resolveExternalModule (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17953:25)
+        at resolveExternalModuleNameWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17793:20)
+        at resolveExternalModuleName (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17783:16)
+        at getTypeFromLiteralTypeNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4168:38)
+        at getTypeFromTypeNodeWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4434:24)
+        at getTypeFromTypeNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4150:45)
+        at getReturnTypeFromAnnotation (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4132:20)
+        at checkFunctionOrMethodDeclaration (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3971:63)
+        at checkFunctionDeclarationDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3914:13)
+        at addLazyDiagnostic (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:13264:35)
+        at checkFunctionDeclaration (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3911:9)
+        at checkSourceElementWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:2925:24)
+        at checkSourceElement (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:2789:13)
+        at forEach (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/core.ts:437:28)
+        at checkSourceFileWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:10416:13)
+        at checkSourceFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1819:73)
+        at checkSourceFileWithEagerDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:13265:9)
+        at getDiagnosticsWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1785:13)
+        at Object.getDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1769:20)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:656:48)
+        at runWithCancellationToken (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:707:20)
+        at getBindAndCheckDiagnosticsForFileNoCache (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:640:16)
+        at getAndCacheDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:695:24)
+        at getBindAndCheckDiagnosticsForFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:535:16)
+        at getSemanticDiagnosticsForFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:479:39)
+        at getDiagnosticsHelper (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:732:50)
+        at Object.getSemanticDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:474:16)
+        at Object.getSemanticDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/services/services.ts:1518:45)
+        at LspSession.semanticCheck (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:481:52)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:441:44)
+        at MultistepOperation.executeAction (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1377:17)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1348:79)
+        at LspSession.executeWithRequestId (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:200:20)
+        at Object.executeWithRequestId (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:105:63)
+        at Immediate._onImmediate (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1348:36)
+        at process.processImmediate (node:internal/timers:485:21)
+Info 41   [09:28:08.705] Starting updateGraphWorker: Project: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
+Info 42   [09:28:08.710] Finishing updateGraphWorker: Project: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json projectStateVersion: 6 projectProgramVersion: 5 structureChanged: true structureIsReused:: SafeModules Elapsed: 4.598791999742389ms
+Info 43   [09:28:08.710] Different program with same set of files
+Err 44    [09:28:08.805] Exception on executing command {"seq":40,"type":"request","command":"encodedSemanticClassifications-full","arguments":{"file":"/Users/johnchmura/code/lpc-language-server/efuns/fluffos/interactive.h","start":15269,"length":2772}}:
+
+    Debug Failure. False expression: This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809
+
+    Error: Debug Failure. False expression: This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809
+        at getErrorSpanForNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:707:15)
+        at createDiagnosticForNodeInSourceFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:723:18)
+        at createDiagnosticForNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:1687:12)
+        at createError (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1277:15)
+        at error (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1282:28)
+        at resolveExternalModule (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17953:25)
+        at resolveExternalModuleNameWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17793:20)
+        at resolveExternalModuleName (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17783:16)
+        at getTypeFromLiteralTypeNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4168:38)
+        at getTypeFromTypeNodeWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4434:24)
+        at getTypeFromTypeNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4150:45)
+        at getReturnTypeFromAnnotation (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4132:20)
+        at checkFunctionOrMethodDeclaration (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3971:63)
+        at checkFunctionDeclarationDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3914:13)
+        at addLazyDiagnostic (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:13264:35)
+        at checkFunctionDeclaration (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3911:9)
+        at checkSourceElementWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:2925:24)
+        at checkSourceElement (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:2789:13)
+        at forEach (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/core.ts:437:28)
+        at checkSourceFileWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:10416:13)
+        at checkSourceFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1819:73)
+        at checkSourceFileWithEagerDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:13265:9)
+        at getDiagnosticsWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1785:13)
+        at Object.getDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1769:20)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:656:48)
+        at runWithCancellationToken (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:707:20)
+        at getBindAndCheckDiagnosticsForFileNoCache (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:640:16)
+        at getAndCacheDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:695:24)
+        at getBindAndCheckDiagnosticsForFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:535:16)
+        at getSemanticDiagnosticsForFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:479:39)
+        at getDiagnosticsHelper (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:732:50)
+        at Object.getSemanticDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:474:16)
+        at Object.getSemanticDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/services/services.ts:1518:45)
+        at LspSession.semanticCheck (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:481:52)
+        at LspSession.getEncodedSemanticClassifications (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:617:14)
+        at encodedSemanticClassifications-full (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1160:47)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1179:75)
+        at LspSession.executeWithRequestId (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:200:20)
+        at LspSession.executeCommand (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1179:35)
+        at LspSession.onMessage (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1214:57)
+        at executeRequest (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/lpcserver/server.ts:564:28)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/lpcserver/server.ts:390:28)
+        at handleRequest (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:493:41)
+        at handleMessage (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:339:13)
+        at processMessageQueue (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:362:17)
+        at Immediate._onImmediate (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:334:13)
+        at process.processImmediate (node:internal/timers:483:21)
+Info 45   [09:28:08.863] Starting updateGraphWorker: Project: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
+Info 46   [09:28:08.868] Finishing updateGraphWorker: Project: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json projectStateVersion: 7 projectProgramVersion: 6 structureChanged: true structureIsReused:: SafeModules Elapsed: 5.069041999988258ms
+Info 47   [09:28:08.868] Different program with same set of files
+Info 48   [09:28:08.943] Starting updateGraphWorker: Project: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
+Info 49   [09:28:08.946] Finishing updateGraphWorker: Project: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json projectStateVersion: 8 projectProgramVersion: 7 structureChanged: true structureIsReused:: SafeModules Elapsed: 2.735832999460399ms
+Info 50   [09:28:08.946] Different program with same set of files
+Info 51   [09:28:09.017] Starting updateGraphWorker: Project: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
+Info 52   [09:28:09.021] Finishing updateGraphWorker: Project: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json projectStateVersion: 9 projectProgramVersion: 8 structureChanged: true structureIsReused:: SafeModules Elapsed: 3.8486249996349216ms
+Info 53   [09:28:09.021] Different program with same set of files
+Info 54   [09:28:09.104] Starting updateGraphWorker: Project: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
+Info 55   [09:28:09.107] Finishing updateGraphWorker: Project: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json projectStateVersion: 10 projectProgramVersion: 9 structureChanged: true structureIsReused:: SafeModules Elapsed: 3.026291999965906ms
+Info 56   [09:28:09.107] Different program with same set of files
+Err 57    [09:28:09.194] Exception on executing command {"seq":58,"type":"request","command":"encodedSemanticClassifications-full","arguments":{"file":"/Users/johnchmura/code/lpc-language-server/efuns/fluffos/interactive.h","start":15269,"length":2776}}:
+
+    Debug Failure. False expression: This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809
+
+    Error: Debug Failure. False expression: This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809
+        at getErrorSpanForNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:707:15)
+        at createDiagnosticForNodeInSourceFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:723:18)
+        at createDiagnosticForNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:1687:12)
+        at createError (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1277:15)
+        at error (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1282:28)
+        at resolveExternalModule (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17953:25)
+        at resolveExternalModuleNameWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17793:20)
+        at resolveExternalModuleName (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17783:16)
+        at getTypeFromLiteralTypeNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4168:38)
+        at getTypeFromTypeNodeWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4434:24)
+        at getTypeFromTypeNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4150:45)
+        at getReturnTypeFromAnnotation (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4132:20)
+        at checkFunctionOrMethodDeclaration (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3971:63)
+        at checkFunctionDeclarationDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3914:13)
+        at addLazyDiagnostic (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:13264:35)
+        at checkFunctionDeclaration (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3911:9)
+        at checkSourceElementWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:2925:24)
+        at checkSourceElement (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:2789:13)
+        at forEach (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/core.ts:437:28)
+        at checkSourceFileWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:10416:13)
+        at checkSourceFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1819:73)
+        at checkSourceFileWithEagerDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:13265:9)
+        at getDiagnosticsWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1785:13)
+        at Object.getDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1769:20)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:656:48)
+        at runWithCancellationToken (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:707:20)
+        at getBindAndCheckDiagnosticsForFileNoCache (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:640:16)
+        at getAndCacheDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:695:24)
+        at getBindAndCheckDiagnosticsForFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:535:16)
+        at getSemanticDiagnosticsForFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:479:39)
+        at getDiagnosticsHelper (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:732:50)
+        at Object.getSemanticDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:474:16)
+        at Object.getSemanticDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/services/services.ts:1518:45)
+        at LspSession.semanticCheck (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:481:52)
+        at LspSession.getEncodedSemanticClassifications (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:617:14)
+        at encodedSemanticClassifications-full (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1160:47)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1179:75)
+        at LspSession.executeWithRequestId (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:200:20)
+        at LspSession.executeCommand (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1179:35)
+        at LspSession.onMessage (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1214:57)
+        at executeRequest (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/lpcserver/server.ts:564:28)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/lpcserver/server.ts:390:28)
+        at handleRequest (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:493:41)
+        at handleMessage (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:339:13)
+        at processMessageQueue (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:362:17)
+        at Immediate._onImmediate (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:334:13)
+        at process.processImmediate (node:internal/timers:483:21)
+Info 58   [09:28:09.333] Starting updateGraphWorker: Project: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
+Info 59   [09:28:09.337] Finishing updateGraphWorker: Project: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json projectStateVersion: 11 projectProgramVersion: 10 structureChanged: true structureIsReused:: SafeModules Elapsed: 3.133083999156952ms
+Info 60   [09:28:09.337] Different program with same set of files
+Err 61    [09:28:09.337] Exception on executing command {"seq":61,"type":"request","command":"encodedSemanticClassifications-full","arguments":{"file":"/Users/johnchmura/code/lpc-language-server/efuns/fluffos/interactive.h","start":15269,"length":2777}}:
+
+    Debug Failure. False expression: This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809
+
+    Error: Debug Failure. False expression: This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809
+        at getErrorSpanForNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:707:15)
+        at createDiagnosticForNodeInSourceFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:723:18)
+        at createDiagnosticForNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:1687:12)
+        at createError (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1277:15)
+        at error (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1282:28)
+        at resolveExternalModule (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17953:25)
+        at resolveExternalModuleNameWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17793:20)
+        at resolveExternalModuleName (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17783:16)
+        at getTypeFromLiteralTypeNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4168:38)
+        at getTypeFromTypeNodeWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4434:24)
+        at getTypeFromTypeNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4150:45)
+        at getReturnTypeFromAnnotation (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4132:20)
+        at checkFunctionOrMethodDeclaration (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3971:63)
+        at checkFunctionDeclarationDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3914:13)
+        at addLazyDiagnostic (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:13264:35)
+        at checkFunctionDeclaration (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3911:9)
+        at checkSourceElementWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:2925:24)
+        at checkSourceElement (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:2789:13)
+        at forEach (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/core.ts:437:28)
+        at checkSourceFileWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:10416:13)
+        at checkSourceFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1819:73)
+        at checkSourceFileWithEagerDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:13265:9)
+        at getDiagnosticsWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1785:13)
+        at Object.getDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1769:20)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:656:48)
+        at runWithCancellationToken (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:707:20)
+        at getBindAndCheckDiagnosticsForFileNoCache (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:640:16)
+        at getAndCacheDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:695:24)
+        at getBindAndCheckDiagnosticsForFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:535:16)
+        at getSemanticDiagnosticsForFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:479:39)
+        at getDiagnosticsHelper (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:732:50)
+        at Object.getSemanticDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:474:16)
+        at Object.getSemanticDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/services/services.ts:1518:45)
+        at LspSession.semanticCheck (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:481:52)
+        at LspSession.getEncodedSemanticClassifications (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:617:14)
+        at encodedSemanticClassifications-full (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1160:47)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1179:75)
+        at LspSession.executeWithRequestId (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:200:20)
+        at LspSession.executeCommand (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1179:35)
+        at LspSession.onMessage (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1214:57)
+        at executeRequest (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/lpcserver/server.ts:564:28)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/lpcserver/server.ts:390:28)
+        at handleRequest (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:493:41)
+        at handleMessage (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:339:13)
+        at processMessageQueue (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:362:17)
+        at Immediate._onImmediate (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:334:13)
+        at process.processImmediate (node:internal/timers:483:21)
+Info 62   [09:28:09.339] Starting updateGraphWorker: Project: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
+Info 63   [09:28:09.342] Finishing updateGraphWorker: Project: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json projectStateVersion: 12 projectProgramVersion: 11 structureChanged: true structureIsReused:: SafeModules Elapsed: 2.9192499993368983ms
+Info 64   [09:28:09.342] Different program with same set of files
+Err 65    [09:28:09.440] Exception on executing command {"seq":65,"type":"request","command":"encodedSemanticClassifications-full","arguments":{"file":"/Users/johnchmura/code/lpc-language-server/efuns/fluffos/interactive.h","start":15269,"length":2778}}:
+
+    Debug Failure. False expression: This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809
+
+    Error: Debug Failure. False expression: This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809
+        at getErrorSpanForNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:707:15)
+        at createDiagnosticForNodeInSourceFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:723:18)
+        at createDiagnosticForNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:1687:12)
+        at createError (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1277:15)
+        at error (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1282:28)
+        at resolveExternalModule (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17953:25)
+        at resolveExternalModuleNameWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17793:20)
+        at resolveExternalModuleName (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17783:16)
+        at getTypeFromLiteralTypeNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4168:38)
+        at getTypeFromTypeNodeWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4434:24)
+        at getTypeFromTypeNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4150:45)
+        at getReturnTypeFromAnnotation (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4132:20)
+        at checkFunctionOrMethodDeclaration (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3971:63)
+        at checkFunctionDeclarationDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3914:13)
+        at addLazyDiagnostic (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:13264:35)
+        at checkFunctionDeclaration (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3911:9)
+        at checkSourceElementWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:2925:24)
+        at checkSourceElement (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:2789:13)
+        at forEach (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/core.ts:437:28)
+        at checkSourceFileWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:10416:13)
+        at checkSourceFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1819:73)
+        at checkSourceFileWithEagerDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:13265:9)
+        at getDiagnosticsWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1785:13)
+        at Object.getDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1769:20)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:656:48)
+        at runWithCancellationToken (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:707:20)
+        at getBindAndCheckDiagnosticsForFileNoCache (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:640:16)
+        at getAndCacheDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:695:24)
+        at getBindAndCheckDiagnosticsForFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:535:16)
+        at getSemanticDiagnosticsForFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:479:39)
+        at getDiagnosticsHelper (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:732:50)
+        at Object.getSemanticDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:474:16)
+        at Object.getSemanticDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/services/services.ts:1518:45)
+        at LspSession.semanticCheck (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:481:52)
+        at LspSession.getEncodedSemanticClassifications (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:617:14)
+        at encodedSemanticClassifications-full (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1160:47)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1179:75)
+        at LspSession.executeWithRequestId (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:200:20)
+        at LspSession.executeCommand (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1179:35)
+        at LspSession.onMessage (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1214:57)
+        at executeRequest (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/lpcserver/server.ts:564:28)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/lpcserver/server.ts:390:28)
+        at handleRequest (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:493:41)
+        at handleMessage (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:339:13)
+        at processMessageQueue (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:362:17)
+        at Immediate._onImmediate (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:334:13)
+        at process.processImmediate (node:internal/timers:483:21)
+Info 66   [09:28:09.456] Starting updateGraphWorker: Project: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
+Info 67   [09:28:09.459] Finishing updateGraphWorker: Project: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json projectStateVersion: 13 projectProgramVersion: 12 structureChanged: true structureIsReused:: SafeModules Elapsed: 3.4129170002415776ms
+Info 68   [09:28:09.459] Different program with same set of files
+Info 69   [09:28:09.501] Starting updateGraphWorker: Project: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
+Info 70   [09:28:09.504] Finishing updateGraphWorker: Project: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json projectStateVersion: 14 projectProgramVersion: 13 structureChanged: true structureIsReused:: SafeModules Elapsed: 3.233500000089407ms
+Info 71   [09:28:09.504] Different program with same set of files
+Err 72    [09:28:09.602] Exception on executing command {"seq":73,"type":"request","command":"encodedSemanticClassifications-full","arguments":{"file":"/Users/johnchmura/code/lpc-language-server/efuns/fluffos/interactive.h","start":15269,"length":2780}}:
+
+    Debug Failure. False expression: This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809
+
+    Error: Debug Failure. False expression: This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809
+        at getErrorSpanForNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:707:15)
+        at createDiagnosticForNodeInSourceFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:723:18)
+        at createDiagnosticForNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:1687:12)
+        at createError (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1277:15)
+        at error (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1282:28)
+        at resolveExternalModule (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17953:25)
+        at resolveExternalModuleNameWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17793:20)
+        at resolveExternalModuleName (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17783:16)
+        at getTypeFromLiteralTypeNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4168:38)
+        at getTypeFromTypeNodeWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4434:24)
+        at getTypeFromTypeNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4150:45)
+        at getReturnTypeFromAnnotation (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4132:20)
+        at checkFunctionOrMethodDeclaration (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3971:63)
+        at checkFunctionDeclarationDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3914:13)
+        at addLazyDiagnostic (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:13264:35)
+        at checkFunctionDeclaration (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3911:9)
+        at checkSourceElementWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:2925:24)
+        at checkSourceElement (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:2789:13)
+        at forEach (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/core.ts:437:28)
+        at checkSourceFileWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:10416:13)
+        at checkSourceFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1819:73)
+        at checkSourceFileWithEagerDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:13265:9)
+        at getDiagnosticsWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1785:13)
+        at Object.getDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1769:20)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:656:48)
+        at runWithCancellationToken (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:707:20)
+        at getBindAndCheckDiagnosticsForFileNoCache (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:640:16)
+        at getAndCacheDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:695:24)
+        at getBindAndCheckDiagnosticsForFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:535:16)
+        at getSemanticDiagnosticsForFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:479:39)
+        at getDiagnosticsHelper (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:732:50)
+        at Object.getSemanticDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:474:16)
+        at Object.getSemanticDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/services/services.ts:1518:45)
+        at LspSession.semanticCheck (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:481:52)
+        at LspSession.getEncodedSemanticClassifications (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:617:14)
+        at encodedSemanticClassifications-full (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1160:47)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1179:75)
+        at LspSession.executeWithRequestId (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:200:20)
+        at LspSession.executeCommand (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1179:35)
+        at LspSession.onMessage (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1214:57)
+        at executeRequest (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/lpcserver/server.ts:564:28)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/lpcserver/server.ts:390:28)
+        at handleRequest (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:493:41)
+        at handleMessage (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:339:13)
+        at processMessageQueue (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:362:17)
+        at Immediate._onImmediate (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:334:13)
+        at process.processImmediate (node:internal/timers:483:21)
+Info 73   [09:28:09.866] Starting updateGraphWorker: Project: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json
+Info 74   [09:28:09.869] Finishing updateGraphWorker: Project: /Users/johnchmura/code/lpc-language-server/efuns/fluffos/lpc-config.json projectStateVersion: 15 projectProgramVersion: 14 structureChanged: true structureIsReused:: SafeModules Elapsed: 3.1849579997360706ms
+Info 75   [09:28:09.870] Different program with same set of files
+Err 76    [09:28:09.870] Exception on executing command {"seq":78,"type":"request","command":"encodedSemanticClassifications-full","arguments":{"file":"/Users/johnchmura/code/lpc-language-server/efuns/fluffos/interactive.h","start":15269,"length":2782}}:
+
+    Debug Failure. False expression: This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809
+
+    Error: Debug Failure. False expression: This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809
+        at getErrorSpanForNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:707:15)
+        at createDiagnosticForNodeInSourceFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:723:18)
+        at createDiagnosticForNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:1687:12)
+        at createError (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1277:15)
+        at error (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1282:28)
+        at resolveExternalModule (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17953:25)
+        at resolveExternalModuleNameWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17793:20)
+        at resolveExternalModuleName (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17783:16)
+        at getTypeFromLiteralTypeNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4168:38)
+        at getTypeFromTypeNodeWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4434:24)
+        at getTypeFromTypeNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4150:45)
+        at getReturnTypeFromAnnotation (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4132:20)
+        at checkFunctionOrMethodDeclaration (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3971:63)
+        at checkFunctionDeclarationDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3914:13)
+        at addLazyDiagnostic (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:13264:35)
+        at checkFunctionDeclaration (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3911:9)
+        at checkSourceElementWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:2925:24)
+        at checkSourceElement (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:2789:13)
+        at forEach (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/core.ts:437:28)
+        at checkSourceFileWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:10416:13)
+        at checkSourceFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1819:73)
+        at checkSourceFileWithEagerDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:13265:9)
+        at getDiagnosticsWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1785:13)
+        at Object.getDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1769:20)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:656:48)
+        at runWithCancellationToken (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:707:20)
+        at getBindAndCheckDiagnosticsForFileNoCache (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:640:16)
+        at getAndCacheDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:695:24)
+        at getBindAndCheckDiagnosticsForFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:535:16)
+        at getSemanticDiagnosticsForFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:479:39)
+        at getDiagnosticsHelper (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:732:50)
+        at Object.getSemanticDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:474:16)
+        at Object.getSemanticDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/services/services.ts:1518:45)
+        at LspSession.semanticCheck (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:481:52)
+        at LspSession.getEncodedSemanticClassifications (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:617:14)
+        at encodedSemanticClassifications-full (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1160:47)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1179:75)
+        at LspSession.executeWithRequestId (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:200:20)
+        at LspSession.executeCommand (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1179:35)
+        at LspSession.onMessage (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1214:57)
+        at executeRequest (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/lpcserver/server.ts:564:28)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/lpcserver/server.ts:390:28)
+        at handleRequest (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:493:41)
+        at handleMessage (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:339:13)
+        at processMessageQueue (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:362:17)
+        at Immediate._onImmediate (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:334:13)
+        at process.processImmediate (node:internal/timers:483:21)
+Err 77    [09:28:09.967] Exception on executing command delayed processing of request 77:
+
+    Debug Failure. False expression: This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809
+
+    Error: Debug Failure. False expression: This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809
+        at getErrorSpanForNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:707:15)
+        at createDiagnosticForNodeInSourceFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:723:18)
+        at createDiagnosticForNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:1687:12)
+        at createError (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1277:15)
+        at error (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1282:28)
+        at resolveExternalModule (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17953:25)
+        at resolveExternalModuleNameWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17793:20)
+        at resolveExternalModuleName (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17783:16)
+        at getTypeFromLiteralTypeNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4168:38)
+        at getTypeFromTypeNodeWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4434:24)
+        at getTypeFromTypeNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4150:45)
+        at getReturnTypeFromAnnotation (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4132:20)
+        at checkFunctionOrMethodDeclaration (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3971:63)
+        at checkFunctionDeclarationDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3914:13)
+        at addLazyDiagnostic (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:13264:35)
+        at checkFunctionDeclaration (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3911:9)
+        at checkSourceElementWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:2925:24)
+        at checkSourceElement (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:2789:13)
+        at forEach (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/core.ts:437:28)
+        at checkSourceFileWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:10416:13)
+        at checkSourceFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1819:73)
+        at checkSourceFileWithEagerDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:13265:9)
+        at getDiagnosticsWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1785:13)
+        at Object.getDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1769:20)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:656:48)
+        at runWithCancellationToken (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:707:20)
+        at getBindAndCheckDiagnosticsForFileNoCache (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:640:16)
+        at getAndCacheDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:695:24)
+        at getBindAndCheckDiagnosticsForFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:535:16)
+        at getSemanticDiagnosticsForFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:479:39)
+        at getDiagnosticsHelper (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:732:50)
+        at Object.getSemanticDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:474:16)
+        at Object.getSemanticDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/services/services.ts:1518:45)
+        at LspSession.semanticCheck (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:481:52)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:441:44)
+        at MultistepOperation.executeAction (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1377:17)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1348:79)
+        at LspSession.executeWithRequestId (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:200:20)
+        at Object.executeWithRequestId (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:105:63)
+        at Immediate._onImmediate (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1348:36)
+        at process.processImmediate (node:internal/timers:485:21)
+Err 78    [09:28:59.344] Exception on executing command {"seq":79,"type":"request","command":"definition","arguments":{"file":"/Users/johnchmura/code/lpc-language-server/efuns/fluffos/interactive.h","line":491,"offset":49}}:
+
+    Debug Failure. False expression: This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809
+
+    Error: Debug Failure. False expression: This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809
+        at getErrorSpanForNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:707:15)
+        at createDiagnosticForNodeInSourceFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:723:18)
+        at createDiagnosticForNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:1687:12)
+        at createError (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1277:15)
+        at error (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1282:28)
+        at resolveExternalModule (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17953:25)
+        at resolveExternalModuleNameWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17793:20)
+        at resolveExternalModuleName (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17783:16)
+        at getTypeFromLiteralTypeNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4168:38)
+        at getTypeFromTypeNodeWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4434:24)
+        at getTypeFromTypeNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4150:45)
+        at getReturnTypeFromAnnotation (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4132:20)
+        at checkFunctionOrMethodDeclaration (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3971:63)
+        at checkFunctionDeclarationDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3914:13)
+        at addLazyDiagnostic (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:13264:35)
+        at checkFunctionDeclaration (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3911:9)
+        at checkSourceElementWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:2925:24)
+        at checkSourceElement (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:2789:13)
+        at forEach (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/core.ts:437:28)
+        at checkSourceFileWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:10416:13)
+        at checkSourceFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1819:73)
+        at checkSourceFileWithEagerDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:13265:9)
+        at getDiagnosticsWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1785:13)
+        at Object.getDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1769:20)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:656:48)
+        at runWithCancellationToken (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:707:20)
+        at getBindAndCheckDiagnosticsForFileNoCache (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:640:16)
+        at getAndCacheDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:695:24)
+        at getBindAndCheckDiagnosticsForFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:535:16)
+        at getSemanticDiagnosticsForFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:479:39)
+        at getDiagnosticsHelper (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:732:50)
+        at Object.getSemanticDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:474:16)
+        at getPreEmitDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:2862:49)
+        at Object.getDefinitionAtPosition (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/services/goToDefinition.ts:22:5)
+        at Object.getDefinitionAtPosition2 (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/services/services.ts:1916:31)
+        at LspSession.getDefinition (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:813:90)
+        at definition (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1151:47)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1179:75)
+        at LspSession.executeWithRequestId (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:200:20)
+        at LspSession.executeCommand (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1179:35)
+        at LspSession.onMessage (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1214:57)
+        at executeRequest (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/lpcserver/server.ts:564:28)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/lpcserver/server.ts:459:29)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-languageserver/lib/common/server.js:603:20)
+        at handleRequest (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:493:41)
+        at handleMessage (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:339:13)
+        at processMessageQueue (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:362:17)
+        at Immediate._onImmediate (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:334:13)
+        at process.processImmediate (node:internal/timers:483:21)
+Err 79    [09:30:15.827] Exception on executing command {"seq":81,"type":"request","command":"encodedSemanticClassifications-full","arguments":{"file":"/Users/johnchmura/code/lpc-language-server/efuns/fluffos/interactive.h","start":15347,"length":2765}}:
+
+    Debug Failure. False expression: This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809
+
+    Error: Debug Failure. False expression: This failure could trigger https://github.com/Microsoft/TypeScript/issues/20809
+        at getErrorSpanForNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:707:15)
+        at createDiagnosticForNodeInSourceFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:723:18)
+        at createDiagnosticForNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/utilities.ts:1687:12)
+        at createError (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1277:15)
+        at error (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1282:28)
+        at resolveExternalModule (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17953:25)
+        at resolveExternalModuleNameWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17793:20)
+        at resolveExternalModuleName (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:17783:16)
+        at getTypeFromLiteralTypeNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4168:38)
+        at getTypeFromTypeNodeWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4434:24)
+        at getTypeFromTypeNode (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4150:45)
+        at getReturnTypeFromAnnotation (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:4132:20)
+        at checkFunctionOrMethodDeclaration (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3971:63)
+        at checkFunctionDeclarationDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3914:13)
+        at addLazyDiagnostic (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:13264:35)
+        at checkFunctionDeclaration (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:3911:9)
+        at checkSourceElementWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:2925:24)
+        at checkSourceElement (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:2789:13)
+        at forEach (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/core.ts:437:28)
+        at checkSourceFileWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:10416:13)
+        at checkSourceFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1819:73)
+        at checkSourceFileWithEagerDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:13265:9)
+        at getDiagnosticsWorker (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1785:13)
+        at Object.getDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/checker.ts:1769:20)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:656:48)
+        at runWithCancellationToken (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:707:20)
+        at getBindAndCheckDiagnosticsForFileNoCache (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:640:16)
+        at getAndCacheDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:695:24)
+        at getBindAndCheckDiagnosticsForFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:535:16)
+        at getSemanticDiagnosticsForFile (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:479:39)
+        at getDiagnosticsHelper (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:732:50)
+        at Object.getSemanticDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/compiler/program.ts:474:16)
+        at Object.getSemanticDiagnostics (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/services/services.ts:1518:45)
+        at LspSession.semanticCheck (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:481:52)
+        at LspSession.getEncodedSemanticClassifications (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:617:14)
+        at encodedSemanticClassifications-full (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1160:47)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1179:75)
+        at LspSession.executeWithRequestId (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:200:20)
+        at LspSession.executeCommand (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1179:35)
+        at LspSession.onMessage (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/server/session.ts:1214:57)
+        at executeRequest (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/lpcserver/server.ts:564:28)
+        at <anonymous> (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/src/lpcserver/server.ts:390:28)
+        at handleRequest (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:493:41)
+        at handleMessage (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:339:13)
+        at processMessageQueue (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:362:17)
+        at Immediate._onImmediate (/Users/johnchmura/.vscode/extensions/jlchmura.lpc-1.1.1/server/node_modules/vscode-jsonrpc/lib/common/connection.js:334:13)
+        at process.processImmediate (node:internal/timers:483:21)

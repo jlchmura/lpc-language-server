@@ -1328,6 +1328,27 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         if (options.masterFile) result.set("__LPC_CONFIG_LIBFILES_MASTER", `"${getLibRootedFileName(options.masterFile, options)}"`);
         if (options.sefunFile) result.set("__LPC_CONFIG_LIBFILES_SEFUN", `"${getLibRootedFileName(options.sefunFile, options)}"`);
 
+        result.set("__LANG_SVC__", "1");
+        result.set("__MAX_READ_FILE_SIZE__", "1000000");
+
+        result.set("T_INT",              `"int"`);
+        result.set("T_STRING",           `"string"`);
+        result.set("T_ARRAY",            `"array"`);
+        result.set("T_OBJECT",           `"object"`);
+        result.set("T_MAPPING",          `"mapping"`);
+        result.set("T_FUNCTION",         `"function"`);
+        result.set("T_FLOAT",            `"float"`);
+        result.set("T_BUFFER",           `"buffer"`);
+        result.set("T_CLASS",            `"class"`);
+        result.set("T_INVALID",          `"*invalid*"`);
+        result.set("T_LVALUE",           `"*lvalue*"`);
+        result.set("T_LVALUE_BYTE",      `"*lvalue_byte*"`);
+        result.set("T_LVALUE_RANGE",     `"*lvalue_range*"`);
+        result.set("T_LVALUE_CODEPOINT", `"*lvalue_codepoint*"`);
+        result.set("T_ERROR_HANDLER",    `"*error_handler*"`);
+        result.set("T_FREED",            `"*freed*"`);
+        result.set("T_UNKNOWN",          `"*unknown*"`);
+
         for (const key in options.configDefines || emptyMap) {
             result.set(key, options.configDefines[key]);
         }

@@ -1720,10 +1720,8 @@ int strrstr(bytes  str, bytes  str2, int pos);
 
 /**
  * stringp
- *
- * Return 1 if arg is a string.
- *
- *
+ * @param arg The argument to check.
+ * @returns {arg is string} 1 if arg is a string.
  */
 int stringp(mixed arg);
 
@@ -9235,7 +9233,6 @@ mixed * command_stack();
  *
  */
 int command(string str);
-
 int command(string str, object ob);
 
 /**

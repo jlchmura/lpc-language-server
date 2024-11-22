@@ -546,6 +546,7 @@ function createChildren(
 
     scanner.setText((sourceFile || node.getSourceFile()).text);
     let pos = node.includeDirPos ?? node.pos;
+    Debug.assertIsDefined(pos);
     const processNode = (child: Node) => {
         addSyntheticNodes(children, pos, child.includeDirPos ?? child.pos, node, sourceFile.inactiveCodeRanges);
         children.push(child);        
@@ -555,7 +556,8 @@ function createChildren(
     const processNodes = (nodes: NodeArray<Node>) => {        
         addSyntheticNodes(children, pos, nodes.pos, node, sourceFile.inactiveCodeRanges);
         children.push(createSyntaxList(nodes, node, sourceFile.inactiveCodeRanges));
-        pos = nodes.end;
+        pos = nodes.end ?? 0;
+        Debug.assertIsDefined(pos);
     };
     // jsDocComments need to be the first children
     forEach((node as JSDocContainer).jsDoc, processNode);

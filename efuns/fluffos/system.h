@@ -261,8 +261,9 @@ mixed *function_profile( object ob );
 /**
  * function_exists()  -  find  the  file containing a given function in an
 object
- *
- * Return the file name of the object that defines the function  'str'  in
+ * @param str the name of the function to check for
+ * @param ob the object to check in
+ * @returns the file name of the object that defines the function  'str'  in
  * object  'ob'.  The  returned value can be other than 'file_name(ob)' if
  * the function is defined by an inherited object.
  * 
@@ -274,7 +275,7 @@ object
  * to this_object().
  *
  */
-
+varargs string function_exists( string str, object ob );
 
 /**
  * flush_messages - send all pending messages to a user
