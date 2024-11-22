@@ -5138,6 +5138,8 @@ export interface Program extends ScriptReferenceHost {
      * @param fileName      
      */
     getIncludeDirs(fileName: string): string[];
+    /** @internal */
+    masterIncludeApply: (fileName: string) => string[] | undefined;
 }
 
 /** @internal */

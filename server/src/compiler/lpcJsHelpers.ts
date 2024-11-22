@@ -69,7 +69,7 @@ export function createVmHelperContext() {
         if (typeof index === "number") {
             return array[index];
         } else if (typeof index === "string") {
-            let start = (index.startsWith("<")) ? array.length - parseInt(index) : parseInt(index);
+            let start = (index.startsWith("<")) ? array.length - parseInt(index.slice(1)) + 1: parseInt(index);
             return array[start];            
         } else if (typeof index === "object") {
             let { start, end } = (index as IndexAccessRange);
@@ -77,16 +77,18 @@ export function createVmHelperContext() {
             // first convert to numbers.  a < character means set the index
             // that many from the end of the array
             if (typeof start === "string" && start.startsWith("<")) {
-                start = array.length - parseInt(start);                
+                start = array.length - parseInt(start.slice(1)) + 1;                
             }
             if (typeof end === "string" && end.startsWith("<")) {
-                end = array.length - parseInt(end);
+                end = array.length - parseInt(end.slice(1)) + 1;
             }
 
             if (end === undefined) {
                 return array.slice(start as number);
             } else if (start === undefined) {
                 return array.slice(0, end as number);
+            } else {
+                return array.slice(start as number, end as number);
             }
 
             return array;            

@@ -55,7 +55,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
     let reasonToRelatedInfo: Map<FileIncludeReason, DiagnosticWithLocation | false> | undefined;
     const cachedBindAndCheckDiagnosticsForFile: DiagnosticCache<Diagnostic> = {};
     const cachedDeclarationDiagnosticsForFile: DiagnosticCache<DiagnosticWithLocation> = {};
-    var masterIncludeApply: (fileName: string) => string[] | undefined;
+    var masterIncludeApply: (fileName: string) => string[] | undefined = oldProgram?.masterIncludeApply;
 
     let fileProcessingDiagnostics: FilePreprocessingDiagnostics[] | undefined;
     let automaticTypeDirectiveNames: string[] | undefined;
@@ -237,7 +237,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
             // get an instance of it and compile the get_include_path apply function
             const masterFile = getSourceFile(options.masterFile);
             const masterApplyVm = createMasterApplyGetIncludePathVm(masterFile);
-            masterIncludeApply = masterApplyVm ? memoizeOne(masterApplyVm) : undefined;
+            masterIncludeApply = masterApplyVm;// masterApplyVm ? memoizeOne(masterApplyVm) : undefined;
                         
             tracing?.pop();    
         }
@@ -388,7 +388,8 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         getFileIncludeReasons: () => fileReasons,
         structureIsReused,
         // writeFile,
-        getIncludeDirs
+        getIncludeDirs,
+        masterIncludeApply
     };
 
     //onProgramCreateComplete();
