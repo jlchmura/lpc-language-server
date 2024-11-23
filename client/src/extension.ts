@@ -198,6 +198,7 @@ export function activate(context: ExtensionContext) {
         progress.setDriverType(info?.driverType || "");            
         progress.show();           
 
+        if (!info) return [];
         const { configFileName } = info;
 		if (configFileName && !isImplicitProjectConfigFile(configFileName)) {
 			const normalizedConfigPath = path.normalize(configFileName);
