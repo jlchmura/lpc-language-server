@@ -1521,11 +1521,14 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
             // Because global augmentation doesn't have string literal name, we can check for global augmentation as such.
             const moduleNames = getModuleNames(file);
             const resolutions = resolvedModulesProcessing?.get(file.path) || resolveModuleNamesReusingOldState(moduleNames, file);
-            Debug.assert(resolutions.length === moduleNames.length);
+            if (resolutions.length !== moduleNames.length) {
+                console.warn("Not all modules resolved", resolutions.length, moduleNames.length);
+            }            
             const optionsForFile = /*getRedirectReferenceForResolution(file)?.commandLine.options ||*/ options;
             const resolutionsInFile = createModeAwareCache<ResolutionWithFailedLookupLocations>();
             (resolvedModules ??= new Map()).set(file.path, resolutionsInFile);
             for (let index = 0; index < moduleNames.length; index++) {
+                if (!resolutions[index]) continue;
                 const resolution = resolutions[index].resolvedModule;
                 const moduleName = getNormalizedModuleName(moduleNames[index].text);
                 const mode: ResolutionMode = ModuleKind.LPC;// getModeForUsageLocationWorker(file, moduleNames[index], optionsForFile);

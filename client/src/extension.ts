@@ -187,7 +187,7 @@ export function activate(context: ExtensionContext) {
         }
 
         // get projectInfo from server
-        const info: any = await syntaxClient.sendRequest("projectInfo", { 
+        const info: any = await client.sendRequest("projectInfo", { 
             command: "projectInfo",
             arguments: {
                 needFileNameList: false,

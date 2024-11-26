@@ -1542,7 +1542,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 // if (type.objectFlags & ObjectFlags.Tuple) {
                 //     type.resolvedBaseTypes = [getTupleBaseType(type as TupleType)];
                 // } else                
-                if (type.symbol.flags & (SymbolFlags.Class | SymbolFlags.Interface)) {
+                if (type.symbol?.flags & (SymbolFlags.Class | SymbolFlags.Interface)) {
                     if (type.symbol.flags & SymbolFlags.Class) {
                         resolveBaseTypesOfClass(type);
                     }
@@ -1553,7 +1553,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 // else {
                 //     Debug.fail("type must be class or interface");
                 // }
-                if (!popTypeResolution() && type.symbol.declarations) {
+                if (!popTypeResolution() && type.symbol?.declarations) {
                     for (const declaration of type.symbol.declarations) {
                         // if (declaration.kind === SyntaxKind.ClassDeclaration || declaration.kind === SyntaxKind.InterfaceDeclaration) {
                         //     reportCircularBaseType(declaration, type);
@@ -10758,7 +10758,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function getIndexSymbol(symbol: Symbol): Symbol | undefined {
-        return symbol.members ? getIndexSymbolFromSymbolTable(symbol.members) : undefined;
+        return symbol?.members ? getIndexSymbolFromSymbolTable(symbol.members) : undefined;
     }
 
     function getIndexInfosOfSymbol(symbol: Symbol): IndexInfo[] {

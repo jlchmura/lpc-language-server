@@ -11,7 +11,7 @@ import * as typeConverters from './typeConverters';
 import { KindModifiers } from "./protocol.const.js";
 import { CompletionEntryDetails, SignatureHelp } from "./typeConverters";
 
-const logger = new Logger("server.log", true, lpc.server.LogLevel.normal);
+const logger = new Logger(undefined, true, lpc.server.LogLevel.normal);
 const DIAG_DELAY = 200;
 
 // see https://github.com/microsoft/vscode/blob/2e93ebce771522202158ee335d2c36d10ce086ea/extensions/typescript-language-features/src/tsServer/server.ts#L495 
