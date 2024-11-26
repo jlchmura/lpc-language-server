@@ -1329,7 +1329,7 @@ function getTokenAtPositionWorker(sourceFile: SourceFile, position: number, allo
     outer:
     while (true) {
         // find the child that contains 'position'
-
+        // TODO - don't filter -- skip them inside the binary search
         const children = current.getChildren(sourceFile).filter(c => !c.originFilename || c.originFilename === sourceFile.fileName);
         const i = binarySearchKey(children, position, (_, i) => i, (middle, _) => {
             // This last callback is more of a selector than a comparator -
@@ -1553,12 +1553,12 @@ function findRightmostToken(n: Node, sourceFile: SourceFileLike): Node | undefin
         return n;
     }
 
-    const children = n.getChildren(sourceFile);
+    const children = n.getChildren(sourceFile).filter(c => !c.originFilename || c.originFilename === n.originFilename);
     if (children.length === 0) {
         return n;
     }
 
-    const candidate = findRightmostChildNodeWithTokens(children, /*exclusiveStartPosition*/ children.length, sourceFile, n.kind);
+    const candidate = findRightmostChildNodeWithTokens(children, /*exclusiveStartPosition*/ children.length, sourceFile, n.kind);    
     return candidate && findRightmostToken(candidate, sourceFile);
 }
 

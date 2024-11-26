@@ -204,6 +204,8 @@ import {
     TextInsertion,
     getNewLineOrDefaultFromHost,
     PragmaMap,
+    factory,
+    setTextRangePosEnd,
 } from "./_namespaces/lpc.js";
 import * as classifier2020 from "./classifier2020.js";
 import { computeSuggestionDiagnostics } from "./suggestionDiagnostics.js";
@@ -553,8 +555,19 @@ function createChildren(
         pos = child.includeDirEnd ?? child.end;
         Debug.assertIsDefined(pos);
     };
-    const processNodes = (nodes: NodeArray<Node>) => {        
-        addSyntheticNodes(children, pos, nodes.pos, node, sourceFile.inactiveCodeRanges);
+    const processNodes = (nodes: NodeArray<Node>) => {                
+        const nodesInSameFile = nodes.filter(n => !n.originFilename || n.originFilename === (isSourceFile(node) ? node.fileName : node.originFilename));        
+        if (nodesInSameFile.length !== nodes.length) {
+            // if (nodesInSameFile.length === 0) {
+            //     pos = nodes.end ?? 0;
+            //     return;
+            // }
+            nodes = factory.createNodeArray(nodesInSameFile);
+            if (nodes.length > 0) {
+                setTextRangePosEnd(nodes, nodesInSameFile[0].pos, nodesInSameFile[nodesInSameFile.length - 1].end);
+            }
+        }
+        addSyntheticNodes(children, pos, nodes.pos, node, sourceFile.inactiveCodeRanges);        
         children.push(createSyntaxList(nodes, node, sourceFile.inactiveCodeRanges));
         pos = nodes.end ?? 0;
         Debug.assertIsDefined(pos);
@@ -916,10 +929,9 @@ function addSyntheticNodes(
         }        
         
         // handle include directive with global path, e.g. #include <foo>
-        if (token === SyntaxKind.IncludeDirective) {
-            token = scanner.scan();
-            if (token === SyntaxKind.LessThanToken) {
-                token = scanner.reScanLessThanTokenAsStringLiteral();
+        if (token === SyntaxKind.IncludeDirective) {                                    
+            if (scanner.scan() === SyntaxKind.LessThanToken) {
+                scanner.reScanLessThanTokenAsStringLiteral();
             }
 
             textPos = scanner.getTokenEnd();
@@ -972,10 +984,10 @@ function createSyntaxList(nodes: NodeArray<Node>, parent: Node, skipRanges: read
     const sourceFilename = isSourceFile(parent) ? parent.fileName : parent.originFilename;
     for (const node of nodes) {
         // TODO - disable hover on macros for now
-        if (!node.macro) {
+        if (!node.macro && (!node.originFilename || node.originFilename === sourceFilename)) {
             addSyntheticNodes(children, pos, node.includeDirPos ?? node.pos, parent, skipRanges);
             children.push(node);
-            pos = node.includeDirEnd ?? node.end;
+            pos = node.includeDirEnd ?? node.end;            
         }
     }
     

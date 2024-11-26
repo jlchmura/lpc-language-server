@@ -1803,11 +1803,11 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                     setTextRange(lit, node.inheritClause); // copy the text range
                     imports = append(imports, lit);
                 }
-            } else if (isIncludeDirective(node)) {
-                const firstEl = node.content && first(node.content);
-                if (isStringLiteral(firstEl)) {
-                    imports = append(imports, firstEl);
-                }
+            // } else if (isIncludeDirective(node)) {
+            //     const firstEl = node.content && first(node.content);
+            //     if (isStringLiteral(firstEl)) {
+            //         imports = append(imports, firstEl);
+            //     }
             } else if (isJSDocNode(node)) {                    
                 if ((isJSDocParameterTag(node) || isJSDocTypeTag(node) || isJSDocPropertyTag(node) || isJSDocReturnTag(node)) && node.typeExpression) { 
                     const typeExp = node.typeExpression;

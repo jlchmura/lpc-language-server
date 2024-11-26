@@ -1,4 +1,4 @@
-import { Symbol, createTextSpanFromBounds, Declaration, DefinitionInfo, emptyArray, FileReference, findAncestor, forEach, FunctionLikeDeclaration, getTouchingPropertyName, isDefaultClause, isFunctionLikeDeclaration, isSwitchStatement, Node, Program, ScriptElementKind, SignatureDeclaration, SourceFile, SwitchStatement, SymbolFlags, SyntaxKind, TypeChecker, SymbolDisplay, getNameOfDeclaration, createTextSpanFromNode, NodeFlags, hasInitializer, HasInitializer, hasEffectiveModifier, ModifierFlags, FindAllReferences, TextSpan, concatenate, every, mapDefined, tryCast, isFunctionLike, isAssignmentExpression, isCallLikeExpression, canHaveSymbol, filter, some, map, find, isCallOrNewExpressionTarget, isNameOfFunctionDeclaration, CallLikeExpression, isRightSideOfPropertyAccess, getInvokedExpression, isPropertyName, isBindingElement, isNewExpressionTarget, textRangeContainsPositionInclusive, IncludeDirective, getTouchingToken, ResolvedModuleWithFailedLookupLocations, getDirectoryPath, resolvePath, isStringLiteral, getPreEmitDiagnostics, Debug } from "./_namespaces/lpc";
+import { Symbol, createTextSpanFromBounds, Declaration, DefinitionInfo, emptyArray, FileReference, findAncestor, forEach, FunctionLikeDeclaration, getTouchingPropertyName, isDefaultClause, isFunctionLikeDeclaration, isSwitchStatement, Node, Program, ScriptElementKind, SignatureDeclaration, SourceFile, SwitchStatement, SymbolFlags, SyntaxKind, TypeChecker, SymbolDisplay, getNameOfDeclaration, createTextSpanFromNode, NodeFlags, hasInitializer, HasInitializer, hasEffectiveModifier, ModifierFlags, FindAllReferences, TextSpan, concatenate, every, mapDefined, tryCast, isFunctionLike, isAssignmentExpression, isCallLikeExpression, canHaveSymbol, filter, some, map, find, isCallOrNewExpressionTarget, isNameOfFunctionDeclaration, CallLikeExpression, isRightSideOfPropertyAccess, getInvokedExpression, isPropertyName, isBindingElement, isNewExpressionTarget, textRangeContainsPositionInclusive, IncludeDirective, getTouchingToken, ResolvedModuleWithFailedLookupLocations, getDirectoryPath, resolvePath, isStringLiteral, getPreEmitDiagnostics, Debug, isIncludeDirective } from "./_namespaces/lpc";
 import { isContextWithStartAndEndNode } from "./_namespaces/lpc.FindAllReferences";
 
 /** @internal */
@@ -43,6 +43,12 @@ export function getDefinitionAtPosition(program: Program, sourceFile: SourceFile
                 return [createDefinitionInfoFromSwitch(switchStatement, sourceFile)];
             }
             break;
+        case SyntaxKind.StringLiteral:
+            const includeParent = findAncestor(node, isIncludeDirective);
+            if (includeParent) {
+                const includeFilename = includeParent.resolvedFilename;
+                return [getDefinitionInfoForFileReference(includeFilename, includeFilename, false)];
+            }
         case SyntaxKind.IncludeDirective:
             const includeDirective = node as IncludeDirective;    
             const includeFilename = includeDirective.resolvedFilename;
@@ -280,12 +286,17 @@ function createDefinitionFromSignatureDeclaration(typeChecker: TypeChecker, decl
 /** Creates a DefinitionInfo directly from the name of a declaration. */
 function createDefinitionInfoFromName(checker: TypeChecker, declaration: Declaration, symbolKind: ScriptElementKind, symbolName: string, containerName: string, unverified?: boolean, failedAliasResolution?: boolean, textSpan?: TextSpan): DefinitionInfo {
     const sourceFile = declaration.getSourceFile();
+    const fileName = declaration.originFilename || sourceFile.fileName;    
     if (!textSpan) {
         const name = getNameOfDeclaration(declaration) || declaration;
-        textSpan = createTextSpanFromNode(name, sourceFile);
+        if (declaration.originFilename) {
+            textSpan = createTextSpanFromBounds(declaration.originPos, declaration.originEnd);
+        } else {
+            textSpan = createTextSpanFromNode(name, sourceFile);        
+        }
     }
     return {
-        fileName: sourceFile.fileName,
+        fileName,
         textSpan,
         kind: symbolKind,
         name: symbolName,
