@@ -1452,9 +1452,6 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
     
     function resolveBaseTypeOfSourceFile(type: InterfaceType, node: SourceFile): BaseType[] {                
-        // TODO - ok to return already resolved base types?
-        if (type.resolvedBaseTypes) return type.resolvedBaseTypes;
-
         const sourceSymbol = getSymbolOfNode(node);
 
         Debug.assertIsDefined(sourceSymbol);
