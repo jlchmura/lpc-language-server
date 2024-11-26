@@ -154,12 +154,12 @@ export class ProjectService {
         this.host = opts.host;
         this.logger = opts.logger;
         this.cancellationToken = opts.cancellationToken;
-        // this.useSingleInferredProject = opts.useSingleInferredProject;
+        this.useSingleInferredProject = opts.useSingleInferredProject;
         this.useInferredProjectPerProjectRoot = opts.useInferredProjectPerProjectRoot;
         // this.typingsInstaller = opts.typingsInstaller || nullTypingsInstaller;
         this.throttleWaitMilliseconds = opts.throttleWaitMilliseconds;
         this.eventHandler = opts.eventHandler;
-        // this.suppressDiagnosticEvents = opts.suppressDiagnosticEvents;
+        this.suppressDiagnosticEvents = opts.suppressDiagnosticEvents;
         // this.globalPlugins = opts.globalPlugins || emptyArray;
         // this.pluginProbeLocations = opts.pluginProbeLocations || emptyArray;
         // this.allowLocalPluginLoads = !!opts.allowLocalPluginLoads;
@@ -3159,4 +3159,13 @@ function callbackRefProject<T, P extends string>(
 export interface WatchOptionsAndErrors {
     watchOptions: WatchOptions;
     errors: Diagnostic[] | undefined;
+}
+
+export function convertScriptKindName(scriptKindName: protocol.ScriptKindName) {
+    switch (scriptKindName) {
+        case "LPC":
+            return ScriptKind.LPC;        
+        default:
+            return ScriptKind.Unknown;
+    }
 }

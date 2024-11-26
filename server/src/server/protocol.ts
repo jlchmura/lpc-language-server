@@ -418,6 +418,11 @@ export interface OpenRequestArgs extends FileRequestArgs {
      * root path; otherwise it will go all the way up to the dist root path.
      */
     projectRootPath?: string;
+    /**
+     * Used to specify the script kind of the file explicitly. It could be one of the following:
+     *      "LPC"
+     */
+    scriptKindName?: ScriptKindName;
 }
 
 export interface JSDocTagInfo {
@@ -1197,4 +1202,19 @@ export interface ChangeRequestArgs extends FormatRequestArgs {
 export interface ChangeRequest extends FileLocationRequest {
     command: CommandTypes.Change;
     arguments: ChangeRequestArgs;
+}
+
+export type ScriptKindName = "LPC";
+
+/**
+ * Open request; value of command field is "open". Notify the
+ * server that the client has file open.  The server will not
+ * monitor the filesystem for changes in this file and will assume
+ * that the client is updating the server (using the change and/or
+ * reload messages) when the file changes. Server does not currently
+ * send a response to an open request.
+ */
+export interface OpenRequest extends Request {
+    command: CommandTypes.Open;
+    arguments: OpenRequestArgs;
 }

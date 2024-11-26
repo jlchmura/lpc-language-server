@@ -1,5 +1,5 @@
 import { arrayFrom, arrayReverseIterator, cast, CodeAction, CompletionEntry, CompletionEntryData, CompletionEntryDetails, CompletionInfo, concatenate, createQueue, createSet, createTextSpan, Debug, DefinitionInfo, Diagnostic, diagnosticCategoryName, DiagnosticRelatedInformation, displayPartsToString, DocumentPosition, DocumentSpan, documentSpansEqual, emptyArray, FileTextChanges, filter, find, first, firstIterator, firstOrUndefined, flatMap, flattenDiagnosticMessageText, FormatCodeSettings, getDocumentSpansEqualityComparer, getLineAndCharacterOfPosition, getMappedContextSpan, getMappedDocumentSpan, getMappedLocation, getSnapshotText, identity, isArray, isDeclarationFileName, isString, JSDocTagInfo, LanguageServiceMode, LanguageVariant, LineAndCharacter, LpcConfigSourceFile, map, mapDefined, mapDefinedIterator, mapIterator, memoize, MultiMap, NavigationTree, normalizePath, OperationCanceledException, Path, perfLogger, PossibleProgramFileInfo, QuickInfo, ReferencedSymbol, ReferencedSymbolDefinitionInfo, ReferencedSymbolEntry, RenameInfo, RenameInfoFailure, RenameLocation, ScriptKind, SignatureHelpItem, SignatureHelpItems, singleIterator, startsWith, SymbolDisplayPart, TextChange, TextSpan, textSpanEnd, toFileNameLowerCase, tracing, UserPreferences, WithMetadata } from "./_namespaces/lpc";
-import { ChangeFileArguments, ConfiguredProject, convertUserPreferences, Errors, GcTimer, indent, isConfiguredProject, Logger, LogLevel, Msg, NormalizedPath, OpenFileArguments, Project, ProjectKind, ProjectService, ProjectServiceEventHandler, ProjectServiceOptions, ScriptInfo, ServerHost, stringifyIndented, toNormalizedPath, updateProjectIfDirty } from "./_namespaces/lpc.server";
+import { ChangeFileArguments, ConfiguredProject, convertScriptKindName, convertUserPreferences, Errors, GcTimer, indent, isConfiguredProject, Logger, LogLevel, Msg, NormalizedPath, OpenFileArguments, Project, ProjectKind, ProjectService, ProjectServiceEventHandler, ProjectServiceOptions, ScriptInfo, ServerHost, stringifyIndented, toNormalizedPath, updateProjectIfDirty } from "./_namespaces/lpc.server";
 import * as protocol from "./protocol.js";
 
 export interface HostCancellationToken {
@@ -455,7 +455,10 @@ export class Session<TMessage = string> implements EventSender {
                     return;
                 }
                 next.immediate("suggestionCheck", () => {
-                    diagnostics.push(...this.suggestionCheck(fileName, project));
+                    if (project.getCompilerOptions()?.diagnostics) {
+                        diagnostics.push(...this.suggestionCheck(fileName, project));
+                    }
+
                     next.immediate("sendAllDiags", ()=> {
                         this.sendAllDiagnostics(diagnostics, fileName, project);
                         goNext();
@@ -615,7 +618,7 @@ export class Session<TMessage = string> implements EventSender {
         const { file, project } = this.getFileAndProject(args);
         if (!project.getCurrentProgram()) return;
         // TODO - why do we have to run this first and TS doesn't?
-        this.semanticCheck(file, project);
+        // this.semanticCheck(file, project);
         // const format = args.format === "2020" ? SemanticClassificationFormat.TwentyTwenty : SemanticClassificationFormat.Original;
         return project.getLanguageService().getEncodedSemanticClassifications(file, args);
     } 
@@ -1132,6 +1135,15 @@ export class Session<TMessage = string> implements EventSender {
         [protocol.CommandTypes.Close]: (request: protocol.Request) => {
             const closeArgs = request.arguments as protocol.FileRequestArgs;
             this.closeClientFile(closeArgs.file);
+            return this.notRequired();
+        },
+        [protocol.CommandTypes.Open]: (request: protocol.OpenRequest) => {
+            this.openClientFile(
+                toNormalizedPath(request.arguments.file),
+                request.arguments.fileContent,
+                convertScriptKindName(request.arguments.scriptKindName!), // TODO: GH#18217
+                request.arguments.projectRootPath ? toNormalizedPath(request.arguments.projectRootPath) : undefined,
+            );
             return this.notRequired();
         },
         [protocol.CommandTypes.UpdateOpen]: (request: protocol.UpdateOpenRequest) => {

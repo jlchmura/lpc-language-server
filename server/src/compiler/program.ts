@@ -1976,6 +1976,32 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
             : b.kind === SyntaxKind.StringLiteral && a.text === b.text;
     }
 
+    function canReuseProjectReferences(): boolean {
+        return !forEachProjectReference(
+            oldProgram!.getProjectReferences(),
+            oldProgram!.getResolvedProjectReferences(),
+            (oldResolvedRef, parent, index) => {
+                const newRef = (parent ? parent.commandLine.projectReferences : projectReferences)![index];
+                const newResolvedRef = parseProjectReferenceConfigFile(newRef);
+                if (oldResolvedRef) {
+                    // Resolved project reference has gone missing or changed
+                    return !newResolvedRef ||
+                        newResolvedRef.sourceFile !== oldResolvedRef.sourceFile ||
+                        !arrayIsEqualTo(oldResolvedRef.commandLine.fileNames, newResolvedRef.commandLine.fileNames);
+                }
+                else {
+                    // A previously-unresolved reference may be resolved now
+                    return newResolvedRef !== undefined;
+                }
+            },
+            (oldProjectReferences, parent) => {
+                // If array of references is changed, we cant resue old program
+                const newReferences = parent ? getResolvedProjectReferenceByPath(parent.sourceFile.path)!.commandLine.projectReferences : projectReferences;
+                return !arrayIsEqualTo(oldProjectReferences, newReferences, projectReferenceIsEqualTo);
+            },
+        );
+    }
+    
     function tryReuseStructureFromOldProgram(): StructureIsReused {
         if (!oldProgram) {
             return StructureIsReused.Not;
@@ -1985,6 +2011,18 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         // if any of these properties has changed - structure cannot be reused
         const oldOptions = oldProgram.getCompilerOptions();
         if (changesAffectModuleResolution(oldOptions, options)) {
+            return StructureIsReused.Not;
+        }
+
+        // there is an old program, check if we can reuse its structure
+        const oldRootNames = oldProgram.getRootFileNames();
+        if (!arrayIsEqualTo(oldRootNames, rootNames)) {
+            return StructureIsReused.Not;
+        }
+
+
+        // Check if any referenced project tsconfig files are different
+        if (!canReuseProjectReferences()) {
             return StructureIsReused.Not;
         }
         if (projectReferences) {
@@ -2190,11 +2228,10 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                 return;
             }
             if (oldFile.path === path) {
-                // Set the file as found during node modules search if it was found that way in old progra,
-                console.debug("todo - implement this");
-                // if (oldProgram.isSourceFileFromExternalLibrary(oldFile)) {
-                //     sourceFilesFoundSearchingNodeModules.set(oldFile.path, true);
-                // }
+                // Set the file as found during node modules search if it was found that way in old program,                
+                if (oldProgram.isSourceFileFromExternalLibrary(oldFile)) {
+                    sourceFilesFoundSearchingNodeModules.set(oldFile.path, true);
+                }
                 return;
             }
             filesByName.set(path, filesByName.get(oldFile.path));

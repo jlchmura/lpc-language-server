@@ -800,7 +800,7 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
 
     private updateGraphWorker() {
         const oldProgram = this.languageService.getCurrentProgram();
-        // Debug.assert(oldProgram === this.program);
+        Debug.assert(oldProgram === this.program);
         Debug.assert(!this.isClosed(), "Called update graph worker of closed project");
         this.writeLog(`Starting updateGraphWorker: Project: ${this.getProjectName()}`);
         const start = timestamp();
@@ -925,7 +925,7 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
         }
 
         // TODO enable symlinks support
-        if (this.hasAddedOrRemovedSymlinks || this.program && !this.program.structureIsReused && this.getCompilerOptions().preserveSymlinks) {
+        if (this.hasAddedOrRemovedSymlinks || this.program && !this.program.structureIsReused && this.getCompilerOptions()?.preserveSymlinks) {
             // With --preserveSymlinks, we may not determine that a file is a symlink, so we never set `hasAddedOrRemovedSymlinks`
             console.debug("todo - implement symlinks support");
             // this.symlinks = undefined;

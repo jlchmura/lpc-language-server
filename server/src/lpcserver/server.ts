@@ -1,4 +1,4 @@
-import { Connection, Hover, InitializeResult, MarkupKind, TextDocumentPositionParams, TextDocuments, TextDocumentSyncKind } from "vscode-languageserver";
+import { Connection, Hover, InitializeResult, MarkupKind, TextDocumentPositionParams, TextDocuments, TextDocumentSyncKind, WorkspaceFolder } from "vscode-languageserver";
 import * as vscode from "vscode-languageserver";
 import * as lpc from "../lpc/lpc.js";
 import * as protocol from "../server/_namespaces/lpc.server.protocol.js";
@@ -59,8 +59,7 @@ class LspSession extends lpc.server.Session {
     }
 
     override exit() {
-        this.logger.info("Exiting...");
-        this.getDiagnosticsForProject
+        this.logger.info("Exiting...");                
         // tracing?.stopTracing();
         process.exit(0);
     }
@@ -85,12 +84,17 @@ function parseServerMode(): lpc.LanguageServiceMode | undefined {
 
 export function start(connection: Connection, platform: string) {
     const serverMode = parseServerMode() ?? lpc.LanguageServiceMode.Semantic;
-
+    
     logger.info(`Starting TS Server`);
     //logger.info(`Version: ${lpc.version}`);
     // logger.info(`Arguments: ${args.join(" ")}`);
     logger.info(`Platform: ${platform} NodeVersion: ${process.version} CaseSensitive: ${lpc.sys.useCaseSensitiveFileNames}`);
     logger.info(`ServerMode: ${serverMode}`);
+
+    if (serverMode === lpc.LanguageServiceMode.Syntactic) {
+        logger.info("No further log entries will be generated for syntactic server");
+        logger.close();
+    }
 
     lpc.setStackTraceLimit();    
 
@@ -113,7 +117,7 @@ export function start(connection: Connection, platform: string) {
     const canonicalFilename = lpc.createGetCanonicalFileName(lpc.sys.useCaseSensitiveFileNames);
     const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
     let sequence = 0;
-    const cancellationToken = lpc.server.nullCancellationToken;// new ServerCancellationToken(logger);
+    const cancellationToken = lpc.server.nullCancellationToken;// new ServerCancellationToken(logger);    
 
     function fromUri(uri: string): string {        
         return uri.startsWith("file://") ? URI.parse(uri).fsPath : uri;
@@ -202,8 +206,17 @@ export function start(connection: Connection, platform: string) {
         }
 
         documents.onDidOpen(e => {                        
-            const filename = fromUri(e.document.uri);
-            executeRequest<protocol.UpdateOpenRequest>(protocol.CommandTypes.UpdateOpen, {openFiles: [{file:filename}]});
+            const filename = fromUri(e.document.uri);            
+            const projectRootPath = getWorkspaceRootForResource(URI.parse(e.document.uri))?.fsPath;
+
+            executeRequest<protocol.OpenRequest>(protocol.CommandTypes.Open, {
+                file: filename, 
+                fileContent: e.document.getText(), 
+                scriptKindName: "LPC", 
+                projectRootPath
+            });
+
+            // executeRequest<protocol.UpdateOpenRequest>(protocol.CommandTypes.UpdateOpen, {openFiles: [{file:filename}]});
             if (serverMode !== lpc.LanguageServiceMode.Syntactic) {
                 executeRequest<protocol.GeterrRequest>(protocol.CommandTypes.Geterr, {delay: 0, files: [filename]});
             }
@@ -560,11 +573,21 @@ export function start(connection: Connection, platform: string) {
             }
         });
 
-        function executeRequest<T extends protocol.Request, R = any>(command: protocol.CommandTypes, args: T["arguments"]) {            
-            return session.onMessage({seq: sequence++, type: "request", command, arguments: args} as T) as R;
-        }        
+         
         
         return initResult;
+
+        function executeRequest<T extends protocol.Request, R = any>(command: protocol.CommandTypes, args: T["arguments"]) {            
+            return session.onMessage({seq: sequence++, type: "request", command, arguments: args} as T) as R;
+        }       
+            
+        function getWorkspaceRootForResource(resource: URI): URI | undefined {            
+            if (resource.fsPath.startsWith(rootFolder)) {
+                return URI.file(rootFolder);
+            }                
+            return undefined;
+        }
+
     });
     
     connection.onInitialized(() => {        
