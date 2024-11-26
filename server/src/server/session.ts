@@ -1014,7 +1014,7 @@ export class Session<TMessage = string> implements EventSender {
 
         const prefix = args.prefix || "";
         const entries = mapDefined<CompletionEntry, protocol.CompletionEntry>(completions.entries, entry => {
-            if (completions.isMemberCompletion || startsWith(entry.name.toLowerCase(), prefix.toLowerCase())) {
+            if (completions.isMemberCompletion || (entry.name && startsWith(entry.name.toLowerCase(), prefix.toLowerCase()))) {
                 const {
                     name,
                     kind,

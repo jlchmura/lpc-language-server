@@ -525,6 +525,7 @@ import {
     SignatureHelp,
     isRightSideOfQualifiedNameOrPropertyAccess,
     isLeftSideOfPropertyAccess,
+    isAssertionExpression,
 } from "./_namespaces/lpc.js";
 
 function unescapeLeadingUnderscores(s: string) { return s; }
@@ -3422,8 +3423,10 @@ function getCompletionData(
     else {
         // For JavaScript or TypeScript, if we're not after a dot, then just try to get the
         // global symbols in scope.  These results should be valid for either language as
-        // the set of symbols that can be referenced from this location.
-        if (!tryGetGlobalSymbols()) {
+        // the set of symbols that can be referenced from this location.        
+        const isTopLevel = location?.parent?.parent && isSourceFile(location.parent.parent);
+        if (isTopLevel || !tryGetGlobalSymbols()) {
+            keywordFilters = !isTopLevel ? KeywordCompletionFilters.FunctionLikeBodyKeywords : KeywordCompletionFilters.All;
             return keywordFilters
                 ? keywordCompletionData(keywordFilters, isJsOnlyLocation, isNewIdentifierLocation)
                 : undefined;
@@ -3824,11 +3827,11 @@ function getCompletionData(
             // }
         }
         // collectAutoImports();
-        // if (isTypeOnlyLocation) {
-        //     keywordFilters = contextToken && isAssertionExpression(contextToken.parent)
-        //         ? KeywordCompletionFilters.TypeAssertionKeywords
-        //         : KeywordCompletionFilters.TypeKeywords;
-        // }
+        if (isTypeOnlyLocation) {
+            keywordFilters = contextToken && isAssertionExpression(contextToken.parent)
+                ? KeywordCompletionFilters.TypeAssertionKeywords
+                : KeywordCompletionFilters.TypeKeywords;
+        }
     }
 
     function shouldOfferImportCompletions(): boolean {
@@ -5061,13 +5064,19 @@ function getCompletionEntryDisplayNameForSymbol(
 const _keywordCompletions: CompletionEntry[][] = [];
 const allKeywordsCompletions: () => readonly CompletionEntry[] = memoize(() => {
     const res: CompletionEntry[] = [];
-    for (let i = SyntaxKind.FirstKeyword; i <= SyntaxKind.LastKeyword; i++) {
-        res.push({
-            name: tokenToString(i)!,
-            kind: ScriptElementKind.keyword,
-            kindModifiers: ScriptElementKindModifier.none,
-            sortText: SortText.GlobalsOrKeywords,
-        });
+    for (let i = SyntaxKind.FirstKeyword; i <= SyntaxKind.LastKeyword; i++) {        
+        const name = tokenToString(i); 
+        if (i === SyntaxKind.InheritKeyword) {
+            const ii=0;
+        }
+        if (name) {
+            res.push({
+                name: tokenToString(i)!,
+                kind: ScriptElementKind.keyword,
+                kindModifiers: ScriptElementKindModifier.none,
+                sortText: SortText.GlobalsOrKeywords,
+            });
+        }
     }
     return res;
 });
@@ -5177,6 +5186,9 @@ function isClassMemberCompletionKeyword(kind: SyntaxKind) {
 
 function isFunctionLikeBodyKeyword(kind: SyntaxKind) {
     return kind === SyntaxKind.AsyncKeyword
+        || kind === SyntaxKind.InheritKeyword
+        || kind === SyntaxKind.DefineDirective
+        || kind === SyntaxKind.IncludeDirective
         // || kind === SyntaxKind.AwaitKeyword
         // || kind === SyntaxKind.UsingKeyword
         // || kind === SyntaxKind.AsKeyword
@@ -5274,6 +5286,12 @@ function getPropertiesForCompletion(type: Type, checker: TypeChecker): Symbol[] 
     return type.isUnion()
         ? Debug.checkEachDefined(checker.getAllPossiblePropertiesOfTypes(type.types), "getAllPossiblePropertiesOfTypes() should all be defined")
         : Debug.checkEachDefined(type.getApparentProperties(), "getApparentProperties() should all be defined");
+}
+
+function tryGetFunctionContainer(contextToken: Node | undefined) {
+    if (!contextToken) return undefined;
+
+    return findAncestor(contextToken, isFunctionLike);
 }
 
 /**
