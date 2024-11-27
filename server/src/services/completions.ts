@@ -2605,7 +2605,7 @@ export function getCompletionEntriesFromSymbols(
 ): UniqueNameSet {
     const start = timestamp();
     const variableOrParameterDeclaration = getVariableOrParameterDeclaration(contextToken, location);
-    const useSemicolons = probablyUsesSemicolons(sourceFile);
+    const useSemicolons = true;//probablyUsesSemicolons(sourceFile);
     const typeChecker = program.getTypeChecker();
     // Tracks unique names.
     // Value is set to false for global variables or completions from external module exports, because we can have multiple of those;

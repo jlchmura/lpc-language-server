@@ -1,3 +1,4 @@
+import { pushIfDefined } from "../utils.js";
 import {
     AssignmentDeclarationKind,
     BaseType,
@@ -567,8 +568,8 @@ function createChildren(
                 setTextRangePosEnd(nodes, nodesInSameFile[0].pos, nodesInSameFile[nodesInSameFile.length - 1].end);
             }
         }
-        addSyntheticNodes(children, pos, nodes.pos, node, sourceFile.inactiveCodeRanges);        
-        children.push(createSyntaxList(nodes, node, sourceFile.inactiveCodeRanges));
+        addSyntheticNodes(children, pos, nodes.pos, node, sourceFile.inactiveCodeRanges);                        
+        pushIfDefined(children, createSyntaxList(nodes, node, sourceFile.inactiveCodeRanges));
         pos = nodes.end ?? 0;
         Debug.assertIsDefined(pos);
     };
@@ -584,6 +585,7 @@ function createChildren(
         addSyntheticNodes(children, pos, node.end, node, sourceFile.inactiveCodeRanges);
     }
     scanner.setText(undefined);
+
     return children;
 }
 
@@ -933,8 +935,9 @@ function addSyntheticNodes(
         
         // handle include directive with global path, e.g. #include <foo>
         if (token === SyntaxKind.IncludeDirective) {                                    
-            if (scanner.scan() === SyntaxKind.LessThanToken) {
-                scanner.reScanLessThanTokenAsStringLiteral();
+            token = scanner.scan(); // get the string literal
+            if (token === SyntaxKind.LessThanToken) {
+                token = scanner.reScanLessThanTokenAsStringLiteral();
             }
 
             textPos = scanner.getTokenEnd();
@@ -975,7 +978,7 @@ function addSyntheticNodes(
     }
 }
 
-function createSyntaxList(nodes: NodeArray<Node>, parent: Node, skipRanges: readonly TextRange[]): Node {
+function createSyntaxList(nodes: NodeArray<Node>, parent: Node, skipRanges: readonly TextRange[]): SyntaxList | undefined {
     const list = createNode(
         SyntaxKind.SyntaxList,
         nodes.pos,
@@ -996,9 +999,8 @@ function createSyntaxList(nodes: NodeArray<Node>, parent: Node, skipRanges: read
     
     if (children.length > 0) {
         addSyntheticNodes(children, pos, nodes.end, parent, skipRanges);    
-        list._children = children;
     }
-    
+    list._children = children;    
     return list;
 }
 

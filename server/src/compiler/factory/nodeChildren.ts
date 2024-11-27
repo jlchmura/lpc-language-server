@@ -21,6 +21,9 @@ export function setNodeChildren(node: Node, sourceFile: SourceFileLike, children
         // SyntaxList children are always eagerly created in the process of
         // creating their parent's `children` list. We shouldn't need to set them here.
         Debug.fail("Should not need to re-set the children of a SyntaxList.");
+        // JC: this can happen because of the change I made to empty syntax list creation.
+        // return empty array;
+        return [];
     }
 
     let map = sourceFileToNodeChildren.get(sourceFile);

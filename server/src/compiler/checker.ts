@@ -2992,6 +2992,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             case SyntaxKind.PragmaDirective:
             case SyntaxKind.ElementAccessExpression:
             case SyntaxKind.JSDocTag:
+            case SyntaxKind.EmptyStatement:
+            case SyntaxKind.CatchStatement:
                 return;
         }
 

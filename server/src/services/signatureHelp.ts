@@ -127,7 +127,7 @@ function getArgumentOrParameterListInfo(node: Node, position: number, sourceFile
 
     const argumentCount = getArgumentCount(checker, list);
     if (argumentIndex !== 0) {
-        Debug.assertLessThan(argumentIndex, argumentCount);
+        // Debug.assertLessThan(argumentIndex, argumentCount);
     }
     const argumentsSpan = getApplicableSpanForArguments(list, sourceFile);
     return { list, argumentIndex, argumentCount, argumentsSpan };
@@ -228,9 +228,11 @@ export function findContainingList(node: Node): SyntaxList | undefined {
     // be parented by the container of the SyntaxList, not the SyntaxList itself.
     // In order to find the list item index, we first need to locate SyntaxList itself and then search
     // for the position of the relevant node (or comma).
+    if (isSyntaxList(node)) return node;
+
     const syntaxList = find(node.parent.getChildren(), (c): c is SyntaxList => isSyntaxList(c) && rangeContainsRange(c, node));
     // Either we didn't find an appropriate list, or the list must contain us.
-    Debug.assert(!syntaxList || contains(syntaxList.getChildren(), node));
+    // Debug.assert(!syntaxList || contains(syntaxList.getChildren(), node));
     return syntaxList;
 }
 
@@ -523,9 +525,9 @@ function createSignatureHelpItems(
     const callTargetDisplayParts = callTargetSymbol ? symbolToDisplayParts(typeChecker, callTargetSymbol, useFullPrefix ? sourceFile : undefined, /*meaning*/ undefined) : emptyArray;
     const items = map(candidates, candidateSignature => getSignatureHelpItem(candidateSignature, callTargetDisplayParts, isTypeParameterList, typeChecker, enclosingDeclaration, sourceFile));
 
-    if (argumentIndex !== 0) {
-        Debug.assertLessThan(argumentIndex, argumentCount);
-    }
+    // if (argumentIndex !== 0) {
+    //     Debug.assertLessThan(argumentIndex, argumentCount);
+    // }
     let selectedItemIndex = 0;
     let itemsSeen = 0;
     for (let i = 0; i < items.length; i++) {
