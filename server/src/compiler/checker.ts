@@ -2988,6 +2988,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             case SyntaxKind.CallExpression:
             case SyntaxKind.MappingKeyword:
             case SyntaxKind.IncludeDirective:
+            case SyntaxKind.Identifier:                
                 return;
         }
 

@@ -579,7 +579,10 @@ function createChildren(
     // Restoring the scanner position ensures that.
     pos = node.includeDirPos ?? node.pos;
     node.forEachChild(processNode, processNodes);
-    addSyntheticNodes(children, pos, node.end, node, sourceFile.inactiveCodeRanges);
+    if (pos >= 0) {
+        // if pos is -1 then children had an empty syntax list
+        addSyntheticNodes(children, pos, node.end, node, sourceFile.inactiveCodeRanges);
+    }
     scanner.setText(undefined);
     return children;
 }
@@ -991,8 +994,11 @@ function createSyntaxList(nodes: NodeArray<Node>, parent: Node, skipRanges: read
         }
     }
     
-    addSyntheticNodes(children, pos, nodes.end, parent, skipRanges);
-    list._children = children;
+    if (children.length > 0) {
+        addSyntheticNodes(children, pos, nodes.end, parent, skipRanges);    
+        list._children = children;
+    }
+    
     return list;
 }
 
@@ -1603,7 +1609,7 @@ export function createLanguageService(
         const projectReferences = host.getProjectReferences?.();
         let parsedCommandLines: Map<Path, ParsedCommandLine | false> | undefined;
 
-        const useCaseSensitiveFileNames = true;
+        const useCaseSensitiveFileNames = hostUsesCaseSensitiveFileNames(host);
         const getCanonicalFileName = createGetCanonicalFileName(
             useCaseSensitiveFileNames
         );

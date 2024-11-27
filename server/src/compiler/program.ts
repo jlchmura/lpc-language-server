@@ -1174,10 +1174,11 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
             // NOTE: this only makes sense for case-insensitive file systems, and only on files which are not redirected
             if (file && addedReason && !(options.forceConsistentCasingInFileNames === false)) {
                 const checkedName = file.fileName;
-                const isRedirect = toPath(checkedName) !== toPath(fileName);
+                const fileNameToCompare = host.useCaseSensitiveFileNames() ? fileName : toFileNameLowerCase(fileName);
+                const isRedirect = toPath(checkedName) !== toPath(fileNameToCompare);
                 if (isRedirect) {
-                    Debug.fail("implement me");
-                    //fileName = getProjectReferenceRedirect(fileName) || fileName;
+                    Debug.fail("implement me"); 
+                    // fileName = getProjectReferenceRedirect(fileName) || fileName;
                 }
                 // Check if it differs only in drive letters its ok to ignore that error:
                 const checkedAbsolutePath = getNormalizedAbsolutePathWithoutRoot(checkedName, currentDirectory);

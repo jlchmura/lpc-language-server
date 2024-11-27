@@ -12,9 +12,9 @@
                 // "${workspaceRoot}/../mg-mudlib",
                 // "${workspaceRoot}/../lima",
                 // "${workspaceRoot}/../lpc-test2",
-                "${workspaceRoot}/../glpu-john",
+                // "${workspaceRoot}/../glpu-john",
                 // "${workspaceRoot}/../nightmare-residuum",
-                // "${workspaceRoot}/../infinity-lib",
+                "${workspaceRoot}/../infinity-lib",
                 // "${workspaceRoot}/../fluff-test",
                 //"${workspaceRoot}/efuns/ldmud",
                 "--extensionDevelopmentPath=${workspaceRoot}"

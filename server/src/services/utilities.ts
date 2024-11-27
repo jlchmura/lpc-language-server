@@ -215,6 +215,7 @@ import {
     FunctionExpression,
     isNamedDeclaration,
     LeftHandSideExpression,
+    isSyntaxList,
 } from "./_namespaces/lpc.js";
 
 // Matches the beginning of a triple slash directive
@@ -1330,7 +1331,10 @@ function getTokenAtPositionWorker(sourceFile: SourceFile, position: number, allo
     while (true) {
         // find the child that contains 'position'
         // TODO - don't filter -- skip them inside the binary search
-        const children = current.getChildren(sourceFile).filter(c => !c.originFilename || c.originFilename === sourceFile.fileName);
+        const children = current.getChildren(sourceFile).filter(c => 
+            (!c.originFilename || c.originFilename === sourceFile.fileName) &&
+            (!isSyntaxList(c) || c._children) // exclude syntax lists with empty children
+        );
         const i = binarySearchKey(children, position, (_, i) => i, (middle, _) => {
             // This last callback is more of a selector than a comparator -
             // `EqualTo` causes the `middle` result to be returned
