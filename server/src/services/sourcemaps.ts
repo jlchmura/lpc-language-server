@@ -91,7 +91,7 @@ export function getSourceMapper(host: SourceMapperHost): SourceMapper {
     }
 
     function tryGetSourcePosition(info: DocumentPosition): DocumentPosition | undefined {
-        if (!isDeclarationFileName(info.fileName)) return undefined;
+        if (!info.fileName || !isDeclarationFileName(info.fileName)) return undefined;
 
         const file = getSourceFile(info.fileName);
         if (!file) return undefined;

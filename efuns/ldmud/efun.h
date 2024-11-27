@@ -4825,13 +4825,12 @@ int mkdir(string path);
  * @since Introduced in LDMud 3.2.9.
  *
  */
+int          min(varargs int arg );
+float        min(varargs float arg );
+int          min(int *arg_array);
+float        min(float *arg_array);
 string|bytes min(varargs string|bytes arg );
-
 string|bytes min(string|bytes *arg_array);
-
-int|float    min(varargs int|float arg );
-
-int|float    min(int|float *arg_array);
 
 /**
  * member
