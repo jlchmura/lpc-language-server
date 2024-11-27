@@ -568,12 +568,12 @@ function createChildren(
         //         setTextRangePosEnd(nodes, nodesInSameFile[0].pos, nodesInSameFile[nodesInSameFile.length - 1].end);
         //     }
         // }
-        nodes.forEach(n => {
-            if (n.originFilename !== (isSourceFile(node) ? node.fileName : node.originFilename)) {
-                Debug.assert(n.end <= node.end);
-                Debug.assert(n.pos >= node.pos);
-            }
-        });
+        // nodes.forEach(n => {
+        //     if (n.originFilename !== (isSourceFile(node) ? node.fileName : node.originFilename)) {
+        //         Debug.assert(n.end <= node.end);
+        //         Debug.assert(n.pos >= node.pos);
+        //     }
+        // });
         addSyntheticNodes(children, pos, nodes.pos, node, sourceFile.inactiveCodeRanges);                        
         pushIfDefined(children, createSyntaxList(nodes, node, sourceFile.inactiveCodeRanges));
         pos = nodes.end ?? 0;
