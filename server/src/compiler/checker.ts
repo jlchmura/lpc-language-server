@@ -10801,8 +10801,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
     function resolveDeclaredMembers(type: InterfaceType): InterfaceTypeWithDeclaredMembers {
         if (!(type as InterfaceTypeWithDeclaredMembers).declaredProperties) {
+            resolveAnonymousTypeMembers(type);
+            
             const symbol = type.symbol;
-            const members = getMembersOfSymbol(symbol);
+            const members = getMembersOfSymbol(symbol);            
+            
             (type as InterfaceTypeWithDeclaredMembers).declaredProperties = getNamedMembers(members);
             // Start with signatures at empty array in case of recursive types
             (type as InterfaceTypeWithDeclaredMembers).declaredCallSignatures = emptyArray;
@@ -11107,33 +11110,31 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         }
     }
 
-    function getDefaultConstructSignatures(classType: InterfaceType): Signature[] {
-        console.warn("TODO - implement me - getDefaultConstructSignatures");
-        return emptyArray;
-        // const baseConstructorType = getBaseConstructorTypeOfClass(classType);
-        // const baseSignatures = getSignaturesOfType(baseConstructorType, SignatureKind.Construct);
-        // const declaration = getClassLikeDeclarationOfSymbol(classType.symbol);
-        // const isAbstract = !!declaration && hasSyntacticModifier(declaration, ModifierFlags.Abstract);
-        // if (baseSignatures.length === 0) {
-        //     return [createSignature(/*declaration*/ undefined, classType.localTypeParameters, /*thisParameter*/ undefined, emptyArray, classType, /*resolvedTypePredicate*/ undefined, 0, isAbstract ? SignatureFlags.Abstract : SignatureFlags.None)];
-        // }
-        // const baseTypeNode = getBaseTypeNodeOfClass(classType)!;
-        // const isJavaScript = isInJSFile(baseTypeNode);
-        // const typeArguments = typeArgumentsFromTypeReferenceNode(baseTypeNode);
-        // const typeArgCount = length(typeArguments);
-        // const result: Signature[] = [];
-        // for (const baseSig of baseSignatures) {
-        //     const minTypeArgumentCount = getMinTypeArgumentCount(baseSig.typeParameters);
-        //     const typeParamCount = length(baseSig.typeParameters);
-        //     if (isJavaScript || typeArgCount >= minTypeArgumentCount && typeArgCount <= typeParamCount) {
-        //         const sig = typeParamCount ? createSignatureInstantiation(baseSig, fillMissingTypeArguments(typeArguments, baseSig.typeParameters, minTypeArgumentCount, isJavaScript)) : cloneSignature(baseSig);
-        //         sig.typeParameters = classType.localTypeParameters;
-        //         sig.resolvedReturnType = classType;
-        //         sig.flags = isAbstract ? sig.flags | SignatureFlags.Abstract : sig.flags & ~SignatureFlags.Abstract;
-        //         result.push(sig);
-        //     }
-        // }
-        // return result;
+    function getDefaultConstructSignatures(classType: InterfaceType): Signature[] {        
+        const baseConstructorType = getBaseConstructorTypeOfClass(classType);
+        const baseSignatures = getSignaturesOfType(baseConstructorType, SignatureKind.Construct);
+        const declaration = getClassLikeDeclarationOfSymbol(classType.symbol);
+        const isAbstract = false;//!!declaration && hasSyntacticModifier(declaration, ModifierFlags.Abstract);
+        if (baseSignatures.length === 0) {
+            return [createSignature(/*declaration*/ undefined, classType.localTypeParameters, /*thisParameter*/ undefined, emptyArray, classType, /*resolvedTypePredicate*/ undefined, 0, isAbstract ? SignatureFlags.Abstract : SignatureFlags.None)];
+        }
+        const baseTypeNode = getBaseTypeNodeOfClass(classType)!;
+        const isJavaScript = isInJSFile(baseTypeNode);
+        const typeArguments = emptyArray;// typeArgumentsFromTypeReferenceNode(baseTypeNode);
+        const typeArgCount = length(typeArguments);
+        const result: Signature[] = [];
+        for (const baseSig of baseSignatures) {
+            const minTypeArgumentCount = getMinTypeArgumentCount(baseSig.typeParameters);
+            const typeParamCount = length(baseSig.typeParameters);
+            if (isJavaScript || typeArgCount >= minTypeArgumentCount && typeArgCount <= typeParamCount) {
+                const sig = typeParamCount ? createSignatureInstantiation(baseSig, fillMissingTypeArguments(typeArguments, baseSig.typeParameters, minTypeArgumentCount, isJavaScript)) : cloneSignature(baseSig);
+                sig.typeParameters = classType.localTypeParameters;
+                sig.resolvedReturnType = classType;
+                sig.flags = isAbstract ? sig.flags | SignatureFlags.Abstract : sig.flags & ~SignatureFlags.Abstract;
+                result.push(sig);
+            }
+        }
+        return result;
     }
 
     function resolveClassOrInterfaceMembers(type: InterfaceType): void {
@@ -17865,10 +17866,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             if (resolutionDiagnostic) {
                 error(errorNode, resolutionDiagnostic, moduleReference, resolvedModule.resolvedFileName);
             }
-                    
+                                
             if (sourceFile.symbol) {
                 // get the base type, which will force the source file type to be resolved
-                const type = getTypeOfSymbol(sourceFile.symbol) as InterfaceType;                
+                const type = getTypeOfSymbol(sourceFile.symbol) as InterfaceType;                                
                 resolveClassOrInterfaceMembers(type);
                 
                 // if (moduleResolutionKind === ModuleResolutionKind.Node16 || moduleResolutionKind === ModuleResolutionKind.NodeNext) {

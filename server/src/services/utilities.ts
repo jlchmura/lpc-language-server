@@ -1418,6 +1418,7 @@ function getTokenAtPositionWorker(sourceFile: SourceFile, position: number, allo
                 return true;
             }
         }
+        
         return false;
     }
 }

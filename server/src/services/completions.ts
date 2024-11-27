@@ -526,6 +526,7 @@ import {
     isRightSideOfQualifiedNameOrPropertyAccess,
     isLeftSideOfPropertyAccess,
     isAssertionExpression,
+    isBlock,
 } from "./_namespaces/lpc.js";
 
 function unescapeLeadingUnderscores(s: string) { return s; }
@@ -3424,7 +3425,7 @@ function getCompletionData(
         // For JavaScript or TypeScript, if we're not after a dot, then just try to get the
         // global symbols in scope.  These results should be valid for either language as
         // the set of symbols that can be referenced from this location.        
-        const isTopLevel = location?.parent?.parent && isSourceFile(location.parent.parent);
+        const isTopLevel = !isBlock(location) && location?.parent?.parent && isSourceFile(location.parent.parent);
         if (isTopLevel || !tryGetGlobalSymbols()) {
             keywordFilters = !isTopLevel ? KeywordCompletionFilters.FunctionLikeBodyKeywords : KeywordCompletionFilters.All;
             return keywordFilters
