@@ -1559,7 +1559,7 @@ function findRightmostToken(n: Node, sourceFile: SourceFileLike): Node | undefin
         return n;
     }
 
-    const children = n.getChildren(sourceFile).filter(c => !c.originFilename || c.originFilename === n.originFilename);
+    const children = n.getChildren(sourceFile).filter(c => !c.originFilename || c.originFilename === sourceFile.fileName);
     if (children.length === 0) {
         return n;
     }
@@ -1581,15 +1581,16 @@ export function quotePreferenceFromString(str: StringLiteral, sourceFile: Source
 
 /** @internal */
 export function getQuotePreference(sourceFile: SourceFile | FutureSourceFile, preferences: UserPreferences): QuotePreference {
-    if (preferences.quotePreference && preferences.quotePreference !== "auto") {
-        return preferences.quotePreference === "single" ? QuotePreference.Single : QuotePreference.Double;
-    }
-    else {
-        // ignore synthetic import added when importHelpers: true
-        const firstModuleSpecifier = isFullSourceFile(sourceFile) && sourceFile.imports &&
-            find(sourceFile.imports, n => isStringLiteral(n) && !nodeIsSynthesized(n.parent)) as StringLiteral;
-        return firstModuleSpecifier ? quotePreferenceFromString(firstModuleSpecifier, sourceFile) : QuotePreference.Double;
-    }
+    return QuotePreference.Double;
+    // if (preferences.quotePreference && preferences.quotePreference !== "auto") {
+    //     return preferences.quotePreference === "single" ? QuotePreference.Single : QuotePreference.Double;
+    // }
+    // else {
+    //     // ignore synthetic import added when importHelpers: true
+    //     const firstModuleSpecifier = isFullSourceFile(sourceFile) && sourceFile.imports &&
+    //         find(sourceFile.imports, n => isStringLiteral(n) && !nodeIsSynthesized(n.parent)) as StringLiteral;
+    //     return firstModuleSpecifier ? quotePreferenceFromString(firstModuleSpecifier, sourceFile) : QuotePreference.Double;
+    // }
 }
 
 /** @internal */

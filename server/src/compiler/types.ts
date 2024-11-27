@@ -2908,6 +2908,7 @@ export interface LineAndCharacter {
  */
 export interface SourceFileLike {
     readonly text: string;
+    readonly fileName: string;
     /** @internal */
     lineMap?: readonly number[];
     /** @internal */

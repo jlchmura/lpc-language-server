@@ -1326,6 +1326,7 @@ namespace changesToText {
 
         const file: SourceFileLike = {
             text,
+            fileName: undefined,
             getLineAndCharacterOfPosition(pos) {
                 return getLineAndCharacterOfPosition(this, pos);
             },

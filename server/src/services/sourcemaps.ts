@@ -231,6 +231,7 @@ function convertDocumentToSourceMapper(host: DocumentPositionMapperHost, content
 function createSourceFileLike(text: string, lineMap?: SourceFileLike["lineMap"]): SourceFileLike {
     return {
         text,
+        fileName: undefined,
         lineMap,
         getLineAndCharacterOfPosition(pos: number) {
             return computeLineAndCharacterOfPosition(getLineStarts(this), pos);

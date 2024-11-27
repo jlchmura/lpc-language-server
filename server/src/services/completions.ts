@@ -2401,6 +2401,7 @@ function createSnippetPrinter(
                 list,
                 sourceFile,
             ),
+            fileName: sourceFile.fileName,
             getLineAndCharacterOfPosition(pos: number) {
                 return getLineAndCharacterOfPosition(this, pos);
             },
@@ -2450,6 +2451,7 @@ function createSnippetPrinter(
                 node,
                 sourceFile,
             ),
+            fileName: sourceFile.fileName,
             getLineAndCharacterOfPosition(pos: number) {
                 return getLineAndCharacterOfPosition(this, pos);
             },
