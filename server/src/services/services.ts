@@ -279,7 +279,11 @@ class TokenOrIdentifierObject<TKind extends SyntaxKind> implements Node {
     }
 
     public getWidth(sourceFile?: SourceFile): number {
-        return this.getEnd() - this.getStart(sourceFile);
+        if (!!this.posInOrigin) {
+            return this.endInOrigin - this.posInOrigin;
+        } else {
+            return this.getEnd() - this.getStart(sourceFile);
+        }
     }
 
     public getFullWidth(): number {

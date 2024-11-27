@@ -1,4 +1,4 @@
-import { arrayFrom, AssertionLevel, CachedDirectoryStructureHost, canWatchDirectoryOrFile, clearMap, clearSharedExtendedConfigFileWatcher, closeFileWatcherOf, combinePaths, CompilerOptions, contains, containsPath, createCachedDirectoryStructureHost, createDocumentRegistryInternal, createGetCanonicalFileName, createMultiMap, Debug, Diagnostic, DirectoryStructureHost, DirectoryWatcherCallback, DocumentPosition, DocumentRegistry, DocumentRegistryBucketKeyWithMode, emptyOptions, FileExtensionInfo, fileExtensionIs, FileSystemEntries, FileWatcher, FileWatcherCallback, FileWatcherEventKind, find, forEach, forEachEntry, forEachKey, forEachResolvedProjectReference, getAnyExtensionFromPath, getBaseFileName, getDefaultFormatCodeSettings, getDirectoryPath, getFileNamesFromConfigSpecs, getNormalizedAbsolutePath, getPathComponents, getWatchFactory, identity, isArray, isIgnoredFileFromWildCardWatching, isJsonEqual, isNodeModulesDirectory, isRootedDiskPath, isString, JSDocParsingMode, LanguageServiceMode, length, LpcConfigSourceFile, mapDefinedEntries, mapDefinedIterator, missingFileModifiedTime, MultiMap, noop, normalizePath, normalizeSlashes, orderedRemoveItem, ParsedCommandLine, parseJsonText, parseLpcSourceFileConfigFileContent, Path, PerformanceEvent, PollingInterval, ProgramUpdateLevel, ProjectReference, ReadonlyCollection, ResolvedProjectReference, resolveProjectReferencePath, returnFalse, returnNoopFileWatcher, ScriptKind, SharedExtendedConfigFileWatcher, some, SourceFile, startsWith, TextChange, toPath, tracing, tryAddToSet, tryReadFile, TypeAcquisition, unorderedRemoveItem, updateWatchingWildcardDirectories, UserPreferences, WatchDirectoryFlags, WatchFactory, WatchFactoryHost, WatchLogLevel, WatchOptions, WatchType, WildcardDirectoryWatcher } from "./_namespaces/lpc.js";
+import { arrayFrom, AssertionLevel, CachedDirectoryStructureHost, canWatchDirectoryOrFile, clearMap, clearSharedExtendedConfigFileWatcher, closeFileWatcherOf, combinePaths, CommandLineOption, CompilerOptions, contains, containsPath, convertJsonOption, createCachedDirectoryStructureHost, createDocumentRegistryInternal, createGetCanonicalFileName, createMultiMap, Debug, Diagnostic, DirectoryStructureHost, DirectoryWatcherCallback, DocumentPosition, DocumentRegistry, DocumentRegistryBucketKeyWithMode, emptyOptions, FileExtensionInfo, fileExtensionIs, FileSystemEntries, FileWatcher, FileWatcherCallback, FileWatcherEventKind, find, forEach, forEachEntry, forEachKey, forEachResolvedProjectReference, getAnyExtensionFromPath, getBaseFileName, getDefaultFormatCodeSettings, getDirectoryPath, getFileNamesFromConfigSpecs, getNormalizedAbsolutePath, getPathComponents, getWatchFactory, identity, IndentStyle, isArray, isIgnoredFileFromWildCardWatching, isJsonEqual, isNodeModulesDirectory, isRootedDiskPath, isString, JSDocParsingMode, LanguageServiceMode, length, LpcConfigSourceFile, mapDefinedEntries, mapDefinedIterator, missingFileModifiedTime, MultiMap, noop, normalizePath, normalizeSlashes, optionDeclarations, optionsForWatch, orderedRemoveItem, ParsedCommandLine, parseJsonText, parseLpcSourceFileConfigFileContent, Path, PerformanceEvent, PollingInterval, ProgramUpdateLevel, ProjectReference, ReadonlyCollection, ResolvedProjectReference, resolveProjectReferencePath, returnFalse, returnNoopFileWatcher, ScriptKind, SharedExtendedConfigFileWatcher, some, SourceFile, startsWith, TextChange, toPath, tracing, tryAddToSet, tryReadFile, TypeAcquisition, typeAcquisitionDeclarations, unorderedRemoveItem, updateWatchingWildcardDirectories, UserPreferences, WatchDirectoryFlags, WatchFactory, WatchFactoryHost, WatchLogLevel, WatchOptions, WatchType, WildcardDirectoryWatcher } from "./_namespaces/lpc.js";
 import { asNormalizedPath, ConfiguredProject, Errors, findLpcConfig, HostCancellationToken, InferredProject, isConfiguredProject, isDynamicFileName, isExternalProject, isInferredProject, isProjectDeferredClose, Logger, LogLevel, makeAuxiliaryProjectName, Msg, NormalizedPath, normalizedPathToPath, Project, ProjectKind, ScriptInfo, ScriptInfoOrConfig, ServerHost, Session, ThrottledOperations, toNormalizedPath } from "./_namespaces/lpc.server.js";
 import * as protocol from "./protocol.js";
 
@@ -1821,7 +1821,52 @@ export class ProjectService {
     }
 
     setCompilerOptionsForInferredProjects(projectCompilerOptions: protocol.InferredProjectCompilerOptions, projectRootPath?: string): void {
-        console.debug("todo - setCompilerOptionsForInferredProjects");
+        Debug.assert(projectRootPath === undefined || this.useInferredProjectPerProjectRoot, "Setting compiler options per project root path is only supported when useInferredProjectPerProjectRoot is enabled");
+
+        const compilerOptions = convertCompilerOptions(projectCompilerOptions);
+        const watchOptions = convertWatchOptions(projectCompilerOptions, projectRootPath);
+        const typeAcquisition = convertTypeAcquisition(projectCompilerOptions);
+
+        // always set 'allowNonTsExtensions' for inferred projects since user cannot configure it from the outside
+        // previously we did not expose a way for user to change these settings and this option was enabled by default
+        compilerOptions.allowNonTsExtensions = true;
+        const canonicalProjectRootPath = projectRootPath && this.toCanonicalFileName(projectRootPath);
+        if (canonicalProjectRootPath) {
+            this.compilerOptionsForInferredProjectsPerProjectRoot.set(canonicalProjectRootPath, compilerOptions);
+            this.watchOptionsForInferredProjectsPerProjectRoot.set(canonicalProjectRootPath, watchOptions || false);
+            this.typeAcquisitionForInferredProjectsPerProjectRoot.set(canonicalProjectRootPath, typeAcquisition);
+        }
+        else {
+            this.compilerOptionsForInferredProjects = compilerOptions;
+            this.watchOptionsForInferredProjects = watchOptions;
+            this.typeAcquisitionForInferredProjects = typeAcquisition;
+        }
+
+        for (const project of this.inferredProjects) {
+            // Only update compiler options in the following cases:
+            // - Inferred projects without a projectRootPath, if the new options do not apply to
+            //   a workspace root
+            // - Inferred projects with a projectRootPath, if the new options do not apply to a
+            //   workspace root and there is no more specific set of options for that project's
+            //   root path
+            // - Inferred projects with a projectRootPath, if the new options apply to that
+            //   project root path.
+            if (
+                canonicalProjectRootPath ?
+                    project.projectRootPath === canonicalProjectRootPath :
+                    !project.projectRootPath || !this.compilerOptionsForInferredProjectsPerProjectRoot.has(project.projectRootPath)
+            ) {
+                project.setCompilerOptions(compilerOptions);
+                project.setTypeAcquisition(typeAcquisition);
+                project.setWatchOptions(watchOptions?.watchOptions);
+                project.setProjectErrors(watchOptions?.errors);
+                project.compileOnSaveEnabled = compilerOptions.compileOnSave!;
+                project.markAsDirty();
+                this.delayUpdateProjectGraph(project);
+            }
+        }
+
+        this.delayEnsureProjectForOpenFiles();
     }
 
     private createInferredProject(currentDirectory: string, isSingleInferredProject?: boolean, projectRootPath?: NormalizedPath): InferredProject {        
@@ -3168,4 +3213,63 @@ export function convertScriptKindName(scriptKindName: protocol.ScriptKindName) {
         default:
             return ScriptKind.Unknown;
     }
+}
+
+function prepareConvertersForEnumLikeCompilerOptions(commandLineOptions: CommandLineOption[]): Map<string, Map<string, number>> {
+    const map = new Map<string, Map<string, number>>();
+    for (const option of commandLineOptions) {
+        if (typeof option.type === "object") {
+            const optionMap = option.type as Map<string, number>;
+            // verify that map contains only numbers
+            optionMap.forEach(value => {
+                Debug.assert(typeof value === "number");
+            });
+            map.set(option.name, optionMap);
+        }
+    }
+    return map;
+}
+
+
+const compilerOptionConverters = prepareConvertersForEnumLikeCompilerOptions(optionDeclarations);
+const watchOptionsConverters = prepareConvertersForEnumLikeCompilerOptions(optionsForWatch);
+const indentStyle = new Map(Object.entries({
+    none: IndentStyle.None,
+    block: IndentStyle.Block,
+    smart: IndentStyle.Smart,
+}));
+
+
+export function convertCompilerOptions(protocolOptions: protocol.ExternalProjectCompilerOptions): CompilerOptions & protocol.CompileOnSaveMixin {
+    compilerOptionConverters.forEach((mappedValues, id) => {
+        const propertyValue = protocolOptions[id];
+        if (isString(propertyValue)) {
+            protocolOptions[id] = mappedValues.get(propertyValue.toLowerCase());
+        }
+    });
+    return protocolOptions as any;
+}
+
+export function convertWatchOptions(protocolOptions: protocol.ExternalProjectCompilerOptions, currentDirectory?: string): WatchOptionsAndErrors | undefined {
+    let watchOptions: WatchOptions | undefined;
+    let errors: Diagnostic[] | undefined;
+    optionsForWatch.forEach(option => {
+        const propertyValue = protocolOptions[option.name];
+        if (propertyValue === undefined) return;
+        const mappedValues = watchOptionsConverters.get(option.name);
+        (watchOptions || (watchOptions = {}))[option.name] = mappedValues ?
+            isString(propertyValue) ? mappedValues.get(propertyValue.toLowerCase()) : propertyValue :
+            convertJsonOption(option, propertyValue, currentDirectory || "", errors || (errors = []));
+    });
+    return watchOptions && { watchOptions, errors };
+}
+
+export function convertTypeAcquisition(protocolOptions: protocol.InferredProjectCompilerOptions): TypeAcquisition | undefined {
+    let result: TypeAcquisition | undefined;
+    typeAcquisitionDeclarations.forEach(option => {
+        const propertyValue = protocolOptions[option.name];
+        if (propertyValue === undefined) return;
+        (result || (result = {}))[option.name] = propertyValue;
+    });
+    return result;
 }

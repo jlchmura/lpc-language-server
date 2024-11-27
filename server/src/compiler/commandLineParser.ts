@@ -1153,6 +1153,10 @@ export const optionDeclarations: CommandLineOption[] = [
     ...commandOptionsWithoutBuild,
 ];
 
+// Watch related options
+/** @internal */
+export const optionsForWatch: CommandLineOption[] = [];
+
 /** @internal */
 export const moduleResolutionOptionDeclarations: readonly CommandLineOption[] = optionDeclarations.filter(option => !!option.affectsModuleResolution);
 
@@ -2017,3 +2021,33 @@ export const configDirTemplateSubstitutionOptions: readonly CommandLineOption[] 
 
 /** @internal */
 export const optionsAffectingProgramStructure: readonly CommandLineOption[] = optionDeclarations.filter(option => !!option.affectsProgramStructure);
+
+/** @internal */
+export const typeAcquisitionDeclarations: CommandLineOption[] = [
+    {
+        name: "enable",
+        type: "boolean",
+        defaultValueDescription: false,
+    },
+    {
+        name: "include",
+        type: "list",
+        element: {
+            name: "include",
+            type: "string",
+        },
+    },
+    {
+        name: "exclude",
+        type: "list",
+        element: {
+            name: "exclude",
+            type: "string",
+        },
+    },
+    {
+        name: "disableFilenameBasedTypeAcquisition",
+        type: "boolean",
+        defaultValueDescription: false,
+    },
+];

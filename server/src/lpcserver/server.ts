@@ -572,8 +572,6 @@ export function start(connection: Connection, platform: string) {
                 debugger;
             }
         });
-
-         
         
         return initResult;
 
