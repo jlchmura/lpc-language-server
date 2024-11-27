@@ -8614,12 +8614,12 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 const bodySignature = getSignatureFromDeclaration(bodyDeclaration);
                 for (const signature of signatures) {
                     if (!isImplementationCompatibleWithOverload(bodySignature, signature)) {
-                        const errorNode = signature.declaration && isJSDocSignature(signature.declaration)
-                            ? (signature.declaration.parent as JSDocOverloadTag | JSDocCallbackTag).tagName
-                            : signature.declaration;
+                        const errorNode = bodySignature.declaration && isJSDocSignature(bodySignature.declaration)
+                            ? (bodySignature.declaration.parent as JSDocOverloadTag | JSDocCallbackTag).tagName
+                            : bodySignature.declaration;
                         addRelatedInfo(
                             error(errorNode, Diagnostics.This_overload_signature_is_not_compatible_with_its_implementation_signature),
-                            createDiagnosticForNode(bodyDeclaration, Diagnostics.The_implementation_signature_is_declared_here),
+                            createDiagnosticForNode(signature.declaration, Diagnostics.The_implementation_signature_is_declared_here),
                         );
                         break;
                     }
