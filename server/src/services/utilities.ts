@@ -1458,8 +1458,9 @@ function isNonWhitespaceToken(n: Node): boolean {
 
 function nodeHasTokens(n: Node, sourceFile: SourceFileLike): boolean {
     // If we have a token or node that has a non-zero width, it must have tokens.
-    // Note: getWidth() does not take trivia into account.
-    return n.kind === SyntaxKind.EndOfFileToken ? !!(n as EndOfFileToken).jsDoc : n.getWidth(sourceFile) !== 0;
+    // Note: getWidth() does not take trivia into account.     
+    return (isSyntaxList(n) && !n._children) ? false : 
+        n.kind === SyntaxKind.EndOfFileToken ? !!(n as EndOfFileToken).jsDoc : n.getWidth(sourceFile) !== 0;
 }
 
 /**

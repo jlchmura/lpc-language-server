@@ -2845,12 +2845,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             // case SyntaxKind.CallSignature:
             // case SyntaxKind.ConstructSignature:
             case SyntaxKind.IndexSignature:
-                return checkSignatureDeclaration(node as SignatureDeclaration);
-            // case SyntaxKind.MethodDeclaration:
-            // case SyntaxKind.MethodSignature:
-            //     return checkMethodDeclaration(node as MethodDeclaration | MethodSignature);
-            // case SyntaxKind.ClassStaticBlockDeclaration:
-            //     return checkClassStaticBlockDeclaration(node as ClassStaticBlockDeclaration);                        
+                return checkSignatureDeclaration(node as SignatureDeclaration);            
             case SyntaxKind.TypeLiteral:                
                 return checkTypeLiteral(node as TypeLiteralNode);
             case SyntaxKind.ArrayType:
@@ -2988,7 +2983,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             case SyntaxKind.CallExpression:
             case SyntaxKind.MappingKeyword:
             case SyntaxKind.IncludeDirective:
-            case SyntaxKind.Identifier:                
+            case SyntaxKind.Identifier:      
+            case SyntaxKind.ConditionalExpression:          
+            case SyntaxKind.FloatKeyword:
+            case SyntaxKind.PragmaDirective:
+            case SyntaxKind.ElementAccessExpression:
                 return;
         }
 
@@ -4411,6 +4410,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 return floatType;
             case SyntaxKind.MappingKeyword:
                 return globalMappingType;
+            case SyntaxKind.BytesKeyword:
+                return bytesType;
             // case SyntaxKind.BooleanKeyword:
             //     return booleanType;            
             case SyntaxKind.VoidKeyword:
@@ -12904,7 +12905,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             case SyntaxKind.CommaToken:
                 if (!compilerOptions.allowUnreachableCode && isSideEffectFree(left) 
                     && !isIndirectCall(left.parent as BinaryExpression)
-                    && !isForEachStatement(left.parent.parent)) {
+                    && !isForEachStatement(left.parent.parent)
+                    // TODO - commas in element access really shouldn't be parsed a binary expression anyway
+                    && !findAncestor(left.parent, isElementAccessExpression)
+                ) {
                     const sf = getSourceFileOfNode(left);
                     const sourceText = sf.text;
                     const start = skipTrivia(sourceText, left.pos);
