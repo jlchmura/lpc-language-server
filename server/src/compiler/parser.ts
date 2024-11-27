@@ -1672,8 +1672,13 @@ export namespace LpcParser {
             end ??= scanner.getTokenFullStart();
         } else {
             if (pos.macro?.pos) {
-                arrayPos = pos.macro.pos.tokenStart;
-                end = pos.macro.end;
+                arrayPos = pos.macro.pos.pos;
+                
+                const rootMacro = pos.macro ? getRootMacro(pos.macro) : undefined;            
+                const currentState = getPositionState();
+                const endToUse = (currentState.fileName === fileName && !currentState.macro) ? currentState.pos : rootMacro.end;
+
+                end = endToUse;
             } else {
                 arrayPos = pos.pos;
                 end ??= scanner.getState(pos.stateId)?.end;                            
@@ -2251,12 +2256,15 @@ export namespace LpcParser {
             const macroState = rootMacro?.pos;
             if (macroState && macroState.fileName === fileName) {
                 // const macroEndState = scanner.getState(macroState.stateId);
-                setTextRangePosEnd(node, macroState.tokenStart, rootMacro.end);    
+                const currentState = getPositionState();
+                const endToUse = Math.max((currentState.fileName === fileName && !currentState.macro) ? currentState.pos : 0, rootMacro.end);
+                
+                setTextRangePosEnd(node, macroState.pos, endToUse);//end ?? rootMacro.end);
                 setNodeMacro(node, rootMacro.name);
             } else if (currentIncludeDirective) {
                 setTextRangePosEnd(node, currentIncludeDirective.pos, currentIncludeDirective.end);
             } else {
-                setTextRangePosEnd(node, pos.pos, scannerState.end);
+                setTextRangePosEnd(node, pos.pos, end ?? scannerState.end);
             }                                 
         } else {
             setTextRangePosEnd(node, pos, end!);
@@ -4663,6 +4671,7 @@ export namespace LpcParser {
         const name = parseRightSideOfDot(/*allowIdentifierNames*/ true, /*allowPrivateIdentifiers*/ true, /*allowUnicodeEscapeSequenceInIdentifierName*/ true);
         const isOptionalChain = false;
         const propertyAccess = factoryCreatePropertyAccessExpression(expression, name, propertyAccessToken);
+        
         return addImportCandidate(finishNode(propertyAccess, pos));
     }
 

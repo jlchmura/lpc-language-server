@@ -1559,7 +1559,7 @@ function findRightmostToken(n: Node, sourceFile: SourceFileLike): Node | undefin
         return n;
     }
 
-    const children = n.getChildren(sourceFile).filter(c => !c.originFilename || c.originFilename === sourceFile.fileName);
+    const children = n.getChildren(sourceFile);//.filter(c => !c.originFilename || c.originFilename === sourceFile.fileName);
     if (children.length === 0) {
         return n;
     }

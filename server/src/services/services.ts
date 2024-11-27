@@ -557,17 +557,23 @@ function createChildren(
         Debug.assertIsDefined(pos);
     };
     const processNodes = (nodes: NodeArray<Node>) => {                
-        const nodesInSameFile = nodes.filter(n => !n.originFilename || n.originFilename === (isSourceFile(node) ? node.fileName : node.originFilename));        
-        if (nodesInSameFile.length !== nodes.length) {
-            // if (nodesInSameFile.length === 0) {
-            //     pos = nodes.end ?? 0;
-            //     return;
-            // }
-            nodes = factory.createNodeArray(nodesInSameFile);
-            if (nodes.length > 0) {
-                setTextRangePosEnd(nodes, nodesInSameFile[0].pos, nodesInSameFile[nodesInSameFile.length - 1].end);
+        // const nodesInSameFile = nodes.filter(n => !n.originFilename || n.originFilename === (isSourceFile(node) ? node.fileName : node.originFilename));        
+        // if (nodesInSameFile.length !== nodes.length) {
+        //     // if (nodesInSameFile.length === 0) {
+        //     //     pos = nodes.end ?? 0;
+        //     //     return;
+        //     // }
+        //     nodes = factory.createNodeArray(nodesInSameFile);
+        //     if (nodes.length > 0) {
+        //         setTextRangePosEnd(nodes, nodesInSameFile[0].pos, nodesInSameFile[nodesInSameFile.length - 1].end);
+        //     }
+        // }
+        nodes.forEach(n => {
+            if (n.originFilename !== (isSourceFile(node) ? node.fileName : node.originFilename)) {
+                Debug.assert(n.end <= node.end);
+                Debug.assert(n.pos >= node.pos);
             }
-        }
+        });
         addSyntheticNodes(children, pos, nodes.pos, node, sourceFile.inactiveCodeRanges);                        
         pushIfDefined(children, createSyntaxList(nodes, node, sourceFile.inactiveCodeRanges));
         pos = nodes.end ?? 0;
@@ -990,16 +996,16 @@ function createSyntaxList(nodes: NodeArray<Node>, parent: Node, skipRanges: read
     const sourceFilename = isSourceFile(parent) ? parent.fileName : parent.originFilename;
     for (const node of nodes) {
         // TODO - disable hover on macros for now
-        if (!node.macro && (!node.originFilename || node.originFilename === sourceFilename)) {
+        // if (!node.macro && (!node.originFilename || node.originFilename === sourceFilename)) {
             addSyntheticNodes(children, pos, node.includeDirPos ?? node.pos, parent, skipRanges);
             children.push(node);
             pos = node.includeDirEnd ?? node.end;            
-        }
+        // }
     }
     
-    if (children.length > 0) {
+    // if (children.length > 0) {
         addSyntheticNodes(children, pos, nodes.end, parent, skipRanges);    
-    }
+    // }
     list._children = children;    
     return list;
 }
